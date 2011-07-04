@@ -1,0 +1,28 @@
+Consider that wc3lib supports runtime linking/loading by default which means that libraries
+will be loaded at runtime and if loading fails an exception will be thrown thrown.
+Bear in mind that this is only valid for external format libraries (not core libraries like Boost/Qt/KDE/Ogre).
+
+Flags:
+STATIC - Everything will be linked statically with applications if possible (creates big static wc3lib library).
+NORUNTIME - Dynamic format libraries (e. g. jpeg library) will be linked during compilation and won't be loaded dynamically at runtime.
+EDITOR - Qt/KDE 4 are required!
+DOC - Generates doxygen documentation (doxygen is required)
+
+cmake example:
+"cmake -DEDITOR=1 -DDOC=1"
+
+DEPRECATED:
+Compilation flags for native format conversion support:
+BLP:
+	- JPEG
+	- PNG
+	- TGA
+
+MDLX:
+	- BLEND
+	- MAX
+
+MPQ:
+	- TAR
+
+EDITOR

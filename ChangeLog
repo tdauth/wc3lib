@@ -1,0 +1,908 @@
+2011-07-04 Tamino Dauth <tamino@cdauth.eu>
+* map: Improved class ImportedFiles.
+* map: Improved class Info.
+
+2011-07-03 Tamino Dauth <tamino@cdauth.eu>
+* editor: Revised class MpqPriorityList (new container - boost::multindex, new download and upload functions, dropped deprecated data).
+* editor: Added URL functions to class Editor.
+* editor: Improved class MpqEditor.
+* map: Added classes Sounds, MenuMinimap, Bgra and revised base classes Position, Rgb and Rgba.
+* map: Revised many format classes (using smart pointers and advanced containers now, added member functions - get functions).
+
+2011-07-02 Tamino Dauth <tamino@cdauth.eu>
+* editor: Added CMake installation instructions for MPQ protocol plugin.
+* services: Added mpq protocol service.
+
+2011-07-01 Tamino Dauth <tamino@cdauth.eu>
+* editor: Improved various containers and relations. Class texture is used for team colors and glows now.
+* map: Revisd map module.
+
+2011-06-29 Tamino Dauth <tamino@cdauth.eu>
+* editor: Revised classes OgreMdlx and Texture.
+
+2011-06-25 Tamino Dauth <tamino@cdauth.eu>
+* editor: Finished revisions of classes Texture and MpqArchive.
+* blp: Added member functions "hasPalette()", "generatePalette()" and "palette()".
+
+2011-06-24 Tamino Dauth <tamino@cdauth.eu>
+* blp: Supports parameterized write function now where JPEG quality and actual number of written MIP maps can be defined.
+* editor: Class Texture supports compression option "MipMaps" now.
+* editor: Revised class MpqArchive.
+* mpq: Made some member functions public.
+
+2011-06-23 Tamino Dauth <tamino@cdauth.eu>
+* core: "utilities.hpp" includes <boost/scope_exit.hpp> now.
+* editor: Added class Texture.
+
+2011-06-22 Tamino Dauth <tamino@cdauth.eu>
+* editor: Included again.
+* editor: Class BlpCodec should be compiled and installed as seperate OGRE plugin now.
+
+2011-06-19 Tamino Dauth <tamino@cdauth.eu>
+* Using Boost "iostreams" component now for bzip2 and zlib filters.
+* mpq: Added new algorithms for bzip2 and zlib compression and decompression which is used by MPQ file sectors.
+
+2011-06-15 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Fixed eof bug when searching for strong digital signature.
+* editor: Uses OGRE 1.7.3 now.
+
+2011-06-06 Tamino Dauth <tamino@cdauth.eu>
+* Revised some documentation.
+* All modules use type "char" for "byte" now (should be equal to 8 bits).
+* app: Revised tool "converter".
+
+2011-06-05 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Improved buffer performance of encrypted bytes.
+* utilities: Stream functions got more readable exception messages.
+* blp: Added initial JPEG write support.
+
+2011-06-04 Tamino Dauth <tamino@cdauth.eu>
+* Added dependency and Boost C++ Libraries module "program_options".
+* app: Added new options and Boost option parsing to program "mpq".
+* All modules except "editor" can be compiled and tested again.
+
+2011-06-03 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Added strong digital signature read support.
+* editor: Revised BLP support (due to revision of blp module).
+
+2011-06-02 Tamino Dauth <tamino@cdauth.eu>
+* Added GCC option "-pthread" to fix Boost C++ Libraries thread support.
+
+2011-06-01 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Completed boost::multi_index revision.
+
+2011-05-30 Tamino Dauth <tamino@cdauth.eu>
+* mdlx: Improved MDL write support.
+* mdlx:: Finished initial class revision.
+* mpq: Improved boost::multi_index container specification and support.
+* mpq: Class HashData supports Boost hash value generation now.
+* mpq: Blocks are stored in a boost::bimap container now.
+
+2011-05-29 Tamino Dauth <tamino@cdauth.eu>
+* Dropped g++ option (using current ISO again).
+* mdlx: Added more MDL parsing functions.
+* mdlx: Uses scoped enums now.
+* mdlx: Classes MdxBlock, GroupdMdxBlock and GroupMdxBlockMember including MDL support now as well (have to be renamed sometime).
+* mdlx: Fixed various read- writing bugs etc.
+* mdlx: Improved tag documentation.
+* mdlx: Dropped redundant include statements.
+* mdlx: Classes MdlBlock and MdlValueBlock are deprecated now.
+* mdlx: Replace dynamic_cast statements by boost::polymorphic_cast statements.
+
+2011-05-28 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Fixed various enum types.
+* mpq: Checks proper hash table size.
+* mpq: Revised read functionality.
+* blp: Fixed various enum types.
+* blp: MIP maps are stored in std::vector now.
+* blp: Uses Boost smart pointers now.
+
+2011-05-27 Tamino Dauth <tamino@cdauth.eu>
+* core: Includes multindex containers now.
+* mpq: Uses other containers for Block and Hash instances now.
+* mpq: Uses Boost multiindex for MpqFile instances now.
+* Using g++ option -std=c++0x now.
+
+2011-05-24 Tamino Dauth <tamino@cdauth.eu>
+* Tried to reproduced parts which got missing between 2011-05-06 and 2011-05-22 (deletion of the whole project source code because of KDevelop bug - http://bugs.kde.org/show_bug.cgi?id=273802):
+* core: "utilities.hpp" includes more Boost and STD files now.
+* map: Added class FileFormat.
+* blp: Added structure ReadData to simpify paramters required by thread function.
+* blp: Revised multithreading (uses boost::thread_group and waits for all threads have finished now).
+* blp: Uses smart pointers of Boost C++ Libraries now.
+* editor: Implemented functions of class BlpCodec.
+* mpq: MpqFile derives from boost::mutex now and locks itself in some cases.
+* mpq: Class Sector uses Boost smart pointers now.
+* mpq: Class Sector locks MPQ file now.
+
+2011-05-05 Tamino Dauth <tamino@cdauth.eu>
+* editor: Added class TeamColorDialog.
+* editor: Added team color and glow selection functionality to class ModelEditor.
+* editor: Fixed some error and exception behaviour when loading textures etc.
+* editor: Fixed team color texture loading.
+* editor: Fixed alpha transparent material.
+* editor: Fixed node destruction (including collision shape nodes).
+
+2011-05-03 Tamino Dauth <tamino@cdauth.eu>
+* editor: Fixed collision shape namings of class ModelEditor.
+* editor: Added "close all models" action to class ModelEditor.
+* blp: Revised exception message.
+* editor: Fixed faces creation of class OgreMdlx (http://www.ogre3d.org/forums/viewtopic.php?f=2&t=64556).
+
+2011-04-30 Tamino Dauth <tamino@cdauth.eu>
+* editor: Implemented collison shape display functionality in class ModelEditor.
+
+2011-04-29 Tamino Dauth <tamino@cdauth.eu>
+* editor: Render window created by class ModelView uses unique identifier now.
+* editor: Class Editor uses central Root instance now.
+
+2011-04-27 Tamino Dauth <tamino@cdauth.eu>
+* map: Completed changes introduced with new classes Value, MetaData and Data.
+* editor: Completed changes introduced with new object editor classes.
+* editor: Removing resources deletes them now automatically.
+
+2011-04-24 Tamino Dauth <tamino@cdauth.eu>
+* editor: Added many object editor classes.
+* map: Revised class Value (deriving from boost::variant).
+
+2011-04-23 Tamino Dauth <tamino@cdauth.eu>
+* map: Added class Value for variants (custom objects).
+* map: Added meta data and data classes.
+
+2011-04-20 Tamino Dauth <tamino@cdauth.eu>
+* map: Classes derive from custom Format class now and implement virtual version member function.
+
+2011-04-19 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Improved various functions.
+* mpq: Classes derive from custom Format class now and implement virtual version member function.
+
+2011-04-18 Tamino Dauth <tamino@cdauth.eu>
+* core: Added Boost serialization support.
+* core: Added files "core.hpp" and "i18n.hpp".
+
+2011-04-10 Tamino Dauth <tamino@cdauth.eu>
+* editor: Revised mouse movement control.
+* editor: Revised camera view actions.
+* editor: Added implicit cast operators for MDLX<->OGRE types.
+* editor: Implemented collision shape support.
+* editor: Added new class ModelEditorView.
+
+2011-04-09 Tamino Dauth <tamino@cdauth.eu>
+* editor: Fixed some UTF-8 string casts.
+* editor: Added team color/QColor cast functions to class OgreMdlx.
+* editor: Added team color and glow actions to model editor.
+
+2011-04-07 Tamino Dauth <tamino@cdauth.eu>
+* StormLib: "open" of Linux port uses permissions now if file is created.
+* mpq: Added member function MpqFile::hasSectorOffsetTable.
+* mpq: Added member function MpqFile::removeData.
+* mpq: Improved member function MpqFile::readData.
+* mpq: MpqFile::read uses sector offset table calculation from StormLib now.
+
+2011-04-03 Tamino Dauth <tamino@cdauth.eu>
+* editor: Fixed bimap implementation of class "ModelEditor".
+
+2011-03-27 Tamino Dauth <tamio@cdauth.eu>
+* editor: Improved texture editor actions.
+* editor: Class "BlpIOHandler" allows you to convert without device now.
+* editor: Class "ModelEditor" uses boost::multimap now.
+* map: Fixed and improved classes and added new typedefs.
+
+2011-03-26 Tamino Dauth <tamio@cdauth.eu>
+* mdlx: Added polymorphic casts.
+* mdlx: Class "MdxBlock" considers end of file now.
+
+2011-03-24 Tamino Dauth <tamio@cdauth.eu>
+* editor: Fixed member functions "teamColorUrl" and "teamGlowUrl" of class Editor.
+
+2011-03-15 Tamino Dauth <tamio@cdauth.eu>
+* mdlx: Improved MDX read and write element functions of various classes.
+
+2011-03-13 Tamino Dauth <tamio@cdauth.eu>
+* mdlx: Improved MDX read and write element functions of various classes.
+
+2011-03-08 Tamino Dauth <tamio@cdauth.eu>
+* blp: Fixed Boost thread usage.
+
+2011-03-05 Tamino Dauth <tamio@cdauth.eu>
+* blp: Fixed boost::bind issue.
+* editor: Added class BlpCodec.
+
+2011-02-27 Tamino Dauth <tamio@cdauth.eu>
+* blp: Implemented multithreading support to JFIF compression read function.
+* blp: Dropped obsolete enum Format.
+* blp: Added member functions for member m_version.
+* blp: Improved documentation.
+
+2011-02-23 Tamino Dauth <tamio@cdauth.eu>
+* mdlx: Revised classes.
+
+2011-02-22 Tamino Dauth <tamio@cdauth.eu>
+* mdlx: Revised classes.
+
+2011-02-20 Tamino Dauth <tamio@cdauth.eu>
+* mdlx: Added various MDL write functions.
+* mdlx: Added classes MdlBlock, MdlValueBlock, MdlxAnimatedProperties and MdlxAnimatedProperty.
+* mdlx: Added new constructors for data structures (e. g. VertexData).
+* mdlx: Renamed classes MdxAlpha and MdxAlphas to MdlxAlpha and MdlxAlphas.
+
+2011-02-16 Tamino Dauth <tamio@cdauth.eu>
+* core: Added function parse.
+* mdlx: Added abstract class MdlxProperty.
+* mdlx: Added functions parseMdlNamedScope and parseMdlProperty.
+
+2011-02-15 Tamino Dauth <tamio@cdauth.eu>
+* blp: Fixed JPEG compression color reading.
+* editor: Fixed color conversation function (from QRgb to blp::color).
+
+2011-02-14 Tamino Dauth <tamio@cdauth.eu>
+* blp: Added initial BLP2 support.
+* blp: Improved read and write functionality of BLP images.
+* Blp: Added element function "palette"
+* blp: Added support for reading multiple scanlines when decompressing JPEG.
+
+2011-02-11 Tamino Dauth <tamio@cdauth.eu>
+* blp: Fixed alpha channel reading of paletted compression.
+* map: Revised and improved various reading functions.
+* editor: Added initial dependencies for class TerrainEditor (OGRE terrain support).
+
+2011-02-10 Tamino Dauth <tamio@cdauth.eu>
+* map: Added classes CustomUnits, CustomObjects and CustomObjectsCollection.
+* Sound: Added read and write support.
+* ImportedFiles: Added read and write support.
+
+2011-02-07 Tamino Dauth <tamio@cdauth.eu>
+* ModelView: Added simple selection support.
+* BlpIOHandler: Improved paletted support.
+
+2011-02-05 Tamino Dauth <tamio@cdauth.eu>
+* mdlx: Improved class Camera (added write support etc.).
+* editor: Added camera creation support.
+* editor: Revised scene object names.
+* editor: Fixed test plane creation.
+
+2011-02-04 Tamino Dauth <tamio@cdauth.eu>
+* map: Added classes ImportedFiles, Playable and CampaignInfo.
+
+2011-01-30 Tamino Dauth <tamio@cdauth.eu>
+* ModelView: Added far clip distance check.
+* editor: Added class RenderStatsWidget.
+
+2011-01-26 Tamino Dauth <tamio@cdauth.eu>
+* slk: Revised class Slk.
+* slk: Added class SlkRow.
+
+2011-01-23 Tamino Dauth <tamio@cdauth.eu>
+* editor: Improved team color and glow support.
+* map: Added class Sound.
+
+2011-01-19 Tamino Dauth <tamio@cdauth.eu>
+* editor: Improved model view rendering.
+* editor: Added test view actions to model editor.
+* editor: Improved texture URL resolution for replaceable ids.
+
+2011-01-14 Tamino Dauth <tamio@cdauth.eu>
+* editor: Restored further missing classes.
+
+2011-01-08 Tamino Dauth <tamio@cdauth.eu>
+* editor: Restored missing classes.
+* editor: Improved class NewMapDialog and its documentation.
+* Added support for compilation flag -DEBUG=1 which will be enabled automatically now.
+* StormLib: Added missing sub directory source code (CMake).
+* editor: UI files and UI source files variables are in parent scope now.
+* SFmpqapi: Improved cross-platform compilation.
+* SFmpqapi: Dropped from compilation until Linux support works properly.
+* Added BZip2 and zlib support (CMake).
+
+2011-01-07 Tamino Dauth <tamio@cdauth.eu>
+* editor: Added trigger editor UI files.
+* editor: Using KDE's UI file generator now (CMake).
+
+2010-12-25 Tamino Dauth <tamio@cdauth.eu>
+* editor: Added template element function "module" to class Editor.
+* editor: Added settings element functions to abstract class Module.
+* Improved API documentation.
+
+2010-12-? Tamino Dauth <tamino@cdauth.eu>
+* editor: Added settings interface and classes which use KDE configuration classes.
+
+2010-12-12 Tamino Dauth <tamino@cdauth.eu>
+* editor: Fixed technique creation (removed automatically created one).
+* editor: Added transparent material layer support.
+* editor: Camera polygon mode is configurable now.
+* editor: Camera enables auto tracking for added MDLX models now.
+
+2010-12-11 Tamino Dauth <tamino@cdauth.eu>
+* editor: Added question dialog for reinitialisation of render system to settings widget.
+* editor: Added view options to settings widget.
+* editor: Improved material/geoset relations.
+
+2010-12-06 Tamino Dauth <tamino@cdauth.eu>
+* editor: Fixed wrong resolutin parameters of class ModelView.
+* editor: Added settings widget and class.
+* core: Improved DynamicLibrary's platform support (Windows and Mac OS, code has been taken from OGRE project).
+
+2010-12-04 Tamino Dauth <tamino@cdauth.eu>
+* editor: Fixed texture conversion by adding library FreeImage (required by OGRE).
+* editor: Improved camera functionality of class ModelView.
+* editor: Added drag & drop functionality to class ModelEditor.
+* editor: Improved texture and material creation of class OgreMdlx.
+* editor: Added default OGRE configuration files in directory "etc".
+
+2010-12-02 Tamino Dauth <tamino@cdauth.eu>
+* editor: Revised class MpqPriorityList.
+* editor: Revised resource element functions of class Editor.
+
+2010-11-22 Tamino Dauth <tamino@cdauth.eu>
+* editor: Added class Resource.
+
+2010-11-21 Tamino Dauth <tamino@cdauth.eu>
+* editor: Improved class MpqPriorityList and added class MpqPriorityListEntry.
+* editor: Fixed layout of texture editor.
+
+2010-11-19 Tamino Dauth <tamino@cdauth.eu>
+* editor: Model editor uses centralized layout of class Module now.
+
+2010-11-18 Tamino Dauth <tamino@cdauth.eu>
+* editor: Implemented pure virtual functions in Module-based classes.
+
+2010-11-15 Tamino Dauth <tamino@cdauth.eu>
+* mdlx: Classes PrimitiveVertices and PrimitiveVertex use new base classes now.
+
+2010-11-07 Tamino Dauth <tamino@cdauth.eu>
+* editor: Improved texture treatment of class OgreMdlx.
+* editor: Improved layout creation of class Module.
+
+2010-11-03 Tamino Dauth <tamino@cdauth.eu>
+* editor: Fixed model view OGRE renderer widget.
+
+2010-10-21 Tamino Dauth <tamino@cdauth.eu>
+* editor: Improved model view.
+
+2010-10-18 Tamino Dauth <tamino@cdauth.eu>
+* editor: Tried versions 1.6.5 and 1.7.1 of OGRE.
+
+2010-10-16 Tamino Dauth <tamino@cdauth.eu>
+* editor: Improved MDLX model creation.
+
+2010-10-13 Tamino Dauth <tamino@cdauth.eu>
+* editor: Moved action and tool button creation to class Modul.
+* editor: Class Editor contains a global action collection now.
+
+2010-10-12 Tamino Dauth <tamino@cdauth.eu>
+* editor: Fixed blp color conversion.
+
+2010-10-09 Tamino Dauth <tamino@cdauth.eu>
+* mdlx: Improved class OgreMdlx.
+
+2010-10-06 Tamino Dauth <tamino@cdauth.eu>
+* blp: Revised classes.
+* editor: Revised BLP IO handler.
+
+2010-10-05 Tamino Dauth <tamino@cdauth.eu>
+* blp: Revised classes.
+
+2010-09-25 Tamino Dauth <tamino@cdauth.eu>
+* editor: Detected crash of Ogre3d's GL renderer and reported bug.
+* Revised cmake files and added better doxygen API generation support.
+
+2010-09-18 Tamino Dauth <tamino@cdauth.eu>
+* core: Added utilities functions writeByteCount and skipByteCount.
+* mdlx: Fixed missing node byte count read- and writing.
+* mdlx: Fixed size utilities functions.
+* blp: Revised stream functions.
+* editor: Added function openFile to class ModelView.
+
+2010-09-15 Tamino Dauth <tamino@cdauth.eu>
+* mdlx: Fixed geoset read bug.
+* mdlx: Revised various classes.
+
+2010-09-13 Tamino Dauth <tamino@cdauth.eu>
+* core: Revised default size value of functions read and write.
+
+2010-09-10 Tamino Dauth <tamino@cdauth.eu>
+* editor: Improved class ModelView and Editor.
+* editor: Moved UI files into sub directory.
+* editor: Added and revised various UI files.
+* editor: Added class ModuleMenu.
+* core: Fixed function readCString.
+
+2010-09-09 Tamino Dauth <tamino@cdauth.eu>
+* map: Added classes Strings and String.
+* core: Added utility functions readLine and writeLine and improved others.
+* core: Added stream operators for class Format.
+* app: Added application jasstrans.
+
+2010-09-08 Tamino Dauth <tamino@cdauth.eu>
+* mdlx: Added class Node and adjusted classes to specification of Magos.
+
+2010-09-07 Tamino Dauth <tamino@cdauth.eu>
+* mdlx: Revised classes.
+
+2010-09-04 Tamino Dauth <tamino@cdauth.eu>
+* mdlx: Revised class OgreMdlx.
+* mdlx: Added various functions to class Mdlx.
+
+2010-09-03 Tamino Dauth <tamino@cdauth.eu>
+* editor: Improved classes Editor, ModelView, TerrainEditor and ModelEditor.
+* mdlx: Revised class OgreMdlx.
+* mdlx: Added various functions and objects storing map to class Mdlx.
+
+2010-09-01 Tamino Dauth <tamino@cdauth.eu>
+* editor: Revised class ModelView and dropped depency to qogre (custom implementation).
+* mdlx: Revised class OgreMdlx.
+* editor: Improved build file.
+
+2010-08-27 Tamino Dauth <tamino@cdauth.eu>
+* map: Added class Campaign.
+* editor: Improved BLP classes.
+* C flags will also be cleared now which prevents from aborting compilation.
+* editor: Improved for correct compilation.
+
+2010-08-26 Tamino Dauth <tamino@cdauth.eu>
+* map: Added trigger classes.
+* core: Fixed utility functions.
+
+2010-08-25 Tamino Dauth <tamino@cdauth.eu>
+* blp: Fixed JPEG compression components loading and scanning lines.
+
+2010-08-19 Tamino Dauth <tamino@cdauth.eu>
+* blp: Improved libjpeg.so loading and decompressing of images.
+
+2010-07-25 Tamino Dauth <tamino@cdauth.eu>
+* Fixed various bugs in language module.
+* Improved application "converter" and added option quiet.
+* Improved runtime library loading support by dropping some preprocessor statements.
+
+2010-07-05 Tamino Dauth <tamino@cdauth.eu>
+* Improved JASS++ parser files.
+
+2010-06-05 Tamino Dauth <tamino@cdauth.eu>
+* Revised JASS++ specification.
+* Revised JASS++ compiler implementation suggestion.
+* cmake function WC3LIB_SET_COMPILE_FLAG is called WC3LIB_GET_COMPILE_FLAG now.
+* Added cmake function WC3LIB_ENABLE_COMPILE_FLAG.
+* Improved GCC options setup.
+* Using GCC options -fPIC (dynamic linking) and -fms-extensions (anonymous structs - huffman lib) now.
+* Dropped fucking "QT_USE_FILE".
+* Fixed various problems compiling StormLib and SFmpqapi correctly.
+* Improved BLP JPEG read functionality.
+* Added abstract class wc3lib::Format.
+
+2010-06-03 Tamino Dauth <tamino@cdauth.eu>
+* Revised classes map::Environment, map::Tilepoint, map::Shadow and map::Pathmap.
+* Added struct map::Rgb and class map::Position.
+* Added UI for camera palette to editor module.
+* Revised JASS++ specification - added load and ai blocks and improved conversion description and enum specification.
+
+2010-06-02 Tamino Dauth <tamino@cdauth.eu>
+* Added classes map::Camera, map::Cameras, map::Rect and map::Rects.
+* Added utility functions readCString, readString, writeCString and writeString.
+
+2010-06-01 Tamino Dauth <tamino@cdauth.eu>
+* Dropped unnecessary operator "length" of language JASS++.
+* Added "container types" definition to JASS++ specification.
+* Added list of native "container types".
+
+2010-05-28 Tamino Dauth <tamino@cdauth.eu>
+* Improved warblender.
+* Added struct mdlx::VertexData.
+* Added class mdlx::Bounds.
+* Revised nearly all mdlx classes (revised read/write functions).
+
+2010-05-23 Tamino Dauth <tamino@cdauth.eu>
+* Improved JASS++ specification.
+
+2010-05-16 Tamino Dauth <tamino@cdauth.eu>
+* Improved runtime library loading support.
+* Removed library dependency compilation flags.
+* Revised lang module code.
+* Renamed various mdlx classes (doc/mdlx/Classes.txt).
+
+2010-05-14 Tamino Dauth <tamino@cdauth.eu>
+* Added library SFmpqapi.
+* Changed library headers installation paths.
+* Added cmake files to libraries SFmpqapi and StormLib.
+
+2010-05-09 Tamino Dauth <tamino@cdauth.de>
+* Renamed and moved some classes.
+
+2010-05-05 Tamino Dauth <tamino@cdauth.de>
+* Improved BLP library.
+* Fixed pklib compilation error.
+* Added class LibraryLoader for dynamic library loading.
+
+2010-05-02 Tamino Dauth <tamino@cdauth.de>
+* Removed openjpeg code from class blp::Blp and replaced it by jpeglib code.
+* Fixed BLP read and write functions.
+* Revised Blp::MipMap class (saving all color values now).
+* Added some editor related todo tasks.
+
+2010-05-01 Tamino Dauth <tamino@cdauth.de>
+* Revised JASS++ definition.
+
+2010-04-30 Tamino Dauth <tamino@cdauth.de>
+* Added compressPklib and decompressPklib functions and imploded sectors support.
+* Added section "G?ltigkeitsbereichverwendung" to JASS++ definition.
+* Added Doxygen settings file.
+* Revised cmake files.
+
+2010-04-25 Tamino Dauth <tamino@cdauth.de>
+* Added wave support code.
+* Improved file reading and added debug mode for flag 0x00030000 which seems to be a flag for skipping the sector table.
+
+2010-04-24 Tamino Dauth <tamino@cdauth.de>
+* Revised JASS++ definition.
+
+2010-04-17 Tamino Dauth <tamino@cdauth.de>
+* Added function types to JASS++ definition.
+* Added ZLib inflation support for MPQ file sections.
+* Added option --benchmark to application mpq.
+* Added option --formats to application converter.
+
+2010-04-15 Tamino Dauth <tamino@cdauth.de>
+* Improved library MPQ handling.
+* Fixed some MPQ file sector reading bugs.
+* Added various utility operators and methods to MPQ classes.
+* Added class mpq::MpqFileOstream.
+* Added MPQ locales.
+
+2010-04-10 Tamino Dauth <tamino@cdauth.de>
+* Improved library MPQ handling.
+* Revised ebuild.
+* Added/changed compression libraries.
+* Revised cmake files.
+
+2010-04-09 Tamino Dauth <tamino@cdauth.de>
+* Improved library MPQ handling.
+
+2010-04-08 Tamino Dauth <tamino@cdauth.de>
+* Added another version of mpq::Mpq::removeFile.
+* Improved tool "mpq".
+
+2010-04-04 Tamino Dauth <tamino@cdauth.de>
+* Added various methods overloadings to class mpq::Mpq and various methods wrappers to class mpq::MpqFile.
+* Revised JASS++ documentation.
+
+2010-04-03 Tamino Dauth <tamino@cdauth.de>
+* Improved MPQ library functionaliy.
+
+2010-04-01 Tamino Dauth <tamino@cdauth.de>
+* Improved MPQ library functionaliy (fixed hash types and block association).
+* Improved tool "mpq".
+
+2010-03-29 Tamino Dauth <tamino@cdauth.de>
+* Improved MPQ library functionaliy.
+
+2010-03-25 Tamino Dauth <tamino@cdauth.de>
+* Improved MPQ library functionaliy.
+
+2010-03-20 Tamino Dauth <tamino@cdauth.de>
+* Revised cmake files.
+* Improved MPQ library.
+* Added library headers.
+* Added tool "mpq".
+
+2010-03-18 Tamino Dauth <tamino@cdauth.de>
+* Renamed various translation classes.
+
+2010-03-12 Tamino Dauth <tamino@cdauth.de>
+* Improved various MDLX classes.
+* Renamed class Translation3 to CameraTargetTranslation.
+* Renamde class Translation3s to CameraTargetTranslations.
+
+2010-02-27 Tamino Dauth <tamino@cdauth.de>
+* Replaced <stdint> include statements in platform headers by <boost/cstdint.hpp>.
+
+2010-02-17 Tamino Dauth <tamino@cdauth.de>
+* Improved language classes.
+
+2010-02-14 Tamino Dauth <tamino@cdauth.de>
+* Added cmake macro WC3LIB_ENABLE_EXCEPTIONS.
+* Revised JASS++ specification.
+
+2010-02-13 Tamino Dauth <tamino@cdauth.de>
+* Improved class map::Pathmap.
+
+2010-02-12 Tamino Dauth <tamino@cdauth.de>
+* Added various operators to class mpq::Mpq.
+* Added directory "src/app/examples".
+* Revised JASS++ specification.
+
+2010-02-06 Tamino Dauth <tamino@cdauth.de>
+* Seperated classes mpq::Hash, mpq::Block and mpq::Sector.
+
+2010-02-04 Tamino Dauth <tamino@cdauth.de>
+* Improved application tilesetter.
+* Tried some cmake exception handling definitions.
+* Revised JASS++ definition.
+
+2010-02-01 Tamino Dauth <tamino@cdauth.de>
+* Revised JASS++ definition.
+
+2010-01-28 Tamino Dauth <tamino@cdauth.de>
+* Revised various cmake files.
+* Improved MPQ library.
+
+2010-01-26 Tamino Dauth <tamino@cdauth.de>
+* Improved JASS language code files.
+* Improved and added several methods to class mpq::Mpq.
+* Improved warblender scripts.
+
+2010-01-23 Tamino Dauth <tamino@cdauth.de>
+* Improved MPQ read functionality.
+* Added lib data for MPQ files decompression algorithm.
+* Added new application "tilesetter".
+
+2010-01-22 Tamino Dauth <tamino@cdauth.de>
+* Improved MPQ read functionality.
+
+2010-01-18 Tamino Dauth <tamino@cdauth.de>
+* Improved MPQ read functionality.
+* Improved editor library.
+
+2010-01-16 Tamino Dauth <tamino@cdauth.de>
+* Improved class mdlx::Object.
+
+2010-01-15 Tamino Dauth <tamino@cdauth.de>
+* Improved MPQ read functionality.
+
+2010-01-14 Tamino Dauth <tamino@cdauth.de>
+* Improved converter application.
+* Changed read and write methods of class mpq::Mpq.
+
+2010-01-11 Tamino Dauth <tamino@cdauth.de>
+* Improved application converter.
+
+2010-01-08 Tamino Dauth <tamino@cdauth.de>
+* Improved warblender scripts.
+
+2010-01-06 Tamino Dauth <tamino@cdauth.de>
+* Improved warblender scripts.
+
+2010-01-05 Tamino Dauth <tamino@cdauth.de>
+* Added application editor.
+
+2010-01-02 Tamino Dauth <tamino@cdauth.de>
+* Revised lang module.
+
+2009-12-31 Tamino Dauth <tamino@cdauth.de>
+* Revised new JASS natives list.
+* Added option --readonly and w3e support to application "converter".
+* Improved classes map::Environment, map::Tilepoint, map::W3m and map::Shadow.
+
+2009-12-27 Tamino Dauth <tamino@cdauth.de>
+* Revised some language classes.
+
+2009-12-19 Tamino Dauth <tamino@cdauth.de>
+* Added folder "src/lang" with sub project for scripting languages (replacing vjassdoc project).
+* Renamed folder "src/test" to "src/apps" for all applications.
+* Added file "src/apps/jassc.cpp" for JASS compiler application.
+
+2009-12-18 Tamino Dauth <tamino@cdauth.de>
+* Improved class blp::Blp::MipMap.
+* Implemented first multithreading ability into converter tool.
+
+2009-12-09 Tamino Dauth <tamino@cdauth.de>
+* Added classes slk::Data, slk::DataEntry and slk::DataSubEntry.
+* Added methods editor::Editor::addMpq and editor::Editor::loadMpqFile.
+* Revised class editor::ObjectEditor.
+
+2009-12-05 Tamino Dauth <tamino@cdauth.de>
+* Revised class blp::Blp.
+
+2009-12-04 Tamino Dauth <tamino@cdauth.de>
+* Added class mdlx::OgreMdlx.
+
+2009-11-29 Tamino Dauth <tamino@cdauth.de>
+* Added VM directory and class.
+* Renamed class mdlx::Color1 to mdlx::LightAmbientColor.
+* Renamed class mdlx::Color1s to mdlx::LightAmbientColors.
+* Implemented readMdx method of class mdlx::LightAmbientColor.
+* Added option --dir to program converter.
+* Improved converter.
+* Improved readMdx method of several MDLX classes.
+
+2009-11-28 Tamino Dauth <tamino@cdauth.de>
+* Improved class mpq::Mpq and added various private classes.
+* Renamed class mdlx::Visibility0 to mdlx::AttachmentVisibility.
+* Renamed class mdlx::Visibility0s to mdlx::AttachmentVisibilities.
+* Revised cmake files.
+* Added SLK directory and class.
+
+2009-11-26 Tamino Dauth <tamino@cdauth.de>
+* Revised and added various editor classes and UIs.
+* Revised MPQ and map classes.
+
+2009-11-25 Tamino Dauth <tamino@cdauth.de>
+* Improved BLP compression mode detection and added enum PictureType to class Blp.
+* Renamed program mdlxtest to converter.
+* Improved converter and added option --recursive.
+* Dropped program blptest and corresponding source code.
+* Revised BLP file read- and writing.
+
+2009-11-23 Tamino Dauth <tamino@cdauth.de>
+* Class blp::Blp allows now more than 256 different paletted colors.
+* Deleted unnecessary BLP classes.
+* Improved mdlxtest bytes output.
+* Revised blp::Blp's read and write methods for uncompressed format 1.
+
+2009-11-17 Tamino Dauth <tamino@cdauth.de>
+* First implementation of Boost Libraries functions.
+* Added classes mdlx::CameraRotationLengths and mdlx::CameraRotationLength.
+
+2009-11-14 Tamino Dauth <tamino@cdauth.de>
+* Improved MDLX classes.
+* Improved BLP classes.
+* Improved mdlxtest application.
+
+2009-11-14 Tamino Dauth <tamino@cdauth.de>
+* Improved MDLX classes.
+* Improved BLP classes.
+
+2009-11-13 Tamino Dauth <tamino@cdauth.de>
+* Improved various MDXL classes.
+
+2009-11-12 Tamino Dauth <tamino@cdauth.de>
+* Dropped classes BlpJpeg, BlpUncompressed1 and BlpUncompressed2.
+* Improved class Blp.
+* Added classes BlpIOHandler and BlpIOPlugin.
+* Improved various MDLX classes.
+
+2009-11-11 Tamino Dauth <tamino@cdauth.de>
+* Revised MDLX and BLP classes.
+
+2009-11-08 Tamino Dauth <tamino@cdauth.de>
+* Added classes MdxAlphas, MdxAlpha, MdxScalings, MdxScaling, ParticleEmitter2Latitude, ParticleEmitter2Latitudes, ParticleEmitter2Width and ParticleEmitter2Widths.
+* Renamed class Alpha to MaterialAlpha.
+* Renamed class Alphas to MaterialAlphas.
+* Revised class ParticleEmitter2.
+* Revised read and write methods of BLP classes.
+
+2009-11-05 Tamino Dauth <tamino@cdauth.de>
+* Added classes EventTracks and EventTrack.
+
+2009-11-04 Tamino Dauth <tamino@cdauth.de>
+* Revised file "doc/Classes.txt".
+* Improved cmake files.
+* Added qtogre files.
+* Added class editor::TerrainEditor.
+
+2009-11-03 Tamino Dauth <tamino@cdauth.de>
+* Improved MDLX classes.
+
+2009-11-01 Tamino Dauth <tamino@cdauth.de>
+* Improved MPQ classes.
+
+2009-10-31 Tamino Dauth <tamino@cdauth.de>
+* Added and revised several MDX classes.
+
+2009-10-30 Tamino Dauth <tamino@cdauth.de>
+* Revised file "doc/Classes.txt".
+
+2009-10-29 Tamino Dauth <tamino@cdauth.de>
+* Added and revised various MDLX classes.
+* Revised file "doc/Classes.txt".
+
+2009-10-28 Tamino Dauth <tamino@cdauth.de>
+* Introduced new class GroupMdxBlock and GroupMdxBlockMember.
+* Added classes GeosetAnimationColors and GeosetAnimationColor.
+* Revised file "doc/Classes.txt" and added new classes.
+
+2009-10-27 Tamino Dauth <tamino@cdauth.de>
+* Added readblend cmake sub directory.
+* Improved Blender file import implementation.
+* Improved Geoset reading.
+
+2009-10-26 Tamino Dauth <tamino@cdauth.de>
+* Added several MDLX classes.
+* Added first implementation of Blender file import.
+
+2009-10-15 Tamino Dauth <tamino@cdauth.de>
+* Improved texture animations MDX reading.
+* Added several missing MDX property classes.
+* Improved various MDX reading methods.
+
+2009-10-14 Tamino Dauth <tamino@cdauth.de>
+* Improved textures and materials MDX reading.
+
+2009-10-13 Tamino Dauth <tamino@cdauth.de>
+* Revised BlpJpeg class.
+* Improved editor Renderer class.
+* Improved MDX reading.
+
+2009-10-12 Tamino Dauth <tamino@cdauth.de>
+* Improved various read MDX methods.
+* Added return types for byte counting of read and write MDX methods.
+
+2009-10-09 Tamino Dauth <tamino@cdauth.de>
+* Improved BLP read- and writing.
+
+2009-10-08 Tamino Dauth <tamino@cdauth.de>
+* Improved program mdlxtest.
+* Improved MDX file reading, especially sequences reading.
+* Improved BLP read- and writing.
+
+2009-10-07 Tamino Dauth <tamino@cdauth.de>
+* Improved MDX file reading.
+* Added class Renderer.
+
+2009-10-06 Tamino Dauth <tamino@cdauth.de>
+* Changed big/little endian read function to template.
+* Improved binary file reading.
+
+2009-09-27 Tamino Dauth <tamino@cdauth.de>
+* Improved several code files of mdlx library.
+* Improved mdlxtest.
+
+2009-09-26 Tamino Dauth <tamino@cdauth.de>
+* Improved several code files of mdlx library.
+* Improved mdlxtest.
+* Revised and improved KDE Python editor.
+
+2009-09-25 Tamino Dauth <tamino@cdauth.de>
+* Improved several code files of mdlx library.
+* Changed several platform-specific data types.
+* Improved mdlxtest.
+* Added file "src/internationalisation.hpp".
+
+2009-09-23 Tamino Dauth <tamino@cdauth.de>
+* Improved several code files of mdlx library.
+* Added several code files to mdlx library.
+
+2009-09-22 Tamino Dauth <tamino@cdauth.de>
+* Improved several code files of mdlx library.
+* Added several code files to mdlx library.
+
+2009-09-21 Tamino Dauth <tamino@cdauth.de>
+* Improved several code files of mdlx library.
+
+2009-09-20 Tamino Dauth <tamino@cdauth.de>
+* Added several code files to mdlx library.
+
+2009-09-13 Tamino Dauth <tamino@cdauth.de>
+* Added several code files.
+
+2009-09-12 Tamino Dauth <tamino@cdauth.de>
+* Revised several code files and added GPL license.
+* Revised cmake files.
+* Renamed project to "wc3lib".
+
+2009-09-05 Tamino Dauth <tamino@cdauth.de>
+* Added file "src/map/w3m.cpp".
+* Added file "src/mpq/mpq.cpp".
+
+2009-08-26 Tamino Dauth <tamino@cdauth.de>
+* Revised cmake files.
+* Added file "src/mdlx/bone.hpp".
+* Added file "src/mdlx/bone.cpp".
+* Improved BLP JPEG read functionality.
+
+2009-08-25 Tamino Dauth <tamino@cdauth.de>
+* Added file "src/mdlx/attachment.hpp".
+* Added file "src/mdlx/attachment.cpp".
+* Added file "src/map/environment.hpp".
+* Added file "src/map/tilepoint.hpp".
+* Added file "src/map/trees.hpp".
+* Added file "src/map/tree.hpp".
+* Added file "src/map/itemset.hpp".
+
+2009-08-24 Tamino Dauth <tamino@cdauth.de>
+* Added more code for writing MDL files.
+* Added file "src/mdlx/object.hpp".
+* Added file "src/mdlx/object.cpp".
+
+2009-08-22 Tamino Dauth <tamino@cdauth.de>
+* Added file "src/map/w3m.hpp".
+* Improved blp read- and writing.
+* Improved mdx reading.
+* Added file "src/exception.hpp".
+* Added file "src/exception.cpp".
+
+2009-08-21 Tamino Dauth <tamino@cdauth.de>
+* Improved blp read- and writing.
+
+2009-08-20 Tamino Dauth <tamino@cdauth.de>
+* Added file "src/mdlx/mdlx.hpp".
+* Added file "src/mdlx/mdlx.cpp".
+* Added file "src/mdlx/platform.hpp".
