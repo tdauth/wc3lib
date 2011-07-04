@@ -1,0 +1,14 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/tamino/Dokumente/Projekte/Informatik/C++/wc3sdk/wc3lib/lib/wave/wave.cpp
+wave.h
+/home/tamino/Dokumente/Projekte/Informatik/C++/wc3sdk/wc3lib/lib/wave/wave.h
+
+/home/tamino/Dokumente/Projekte/Informatik/C++/wc3sdk/wc3lib/lib/wave/wave.h
+

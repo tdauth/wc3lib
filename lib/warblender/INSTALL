@@ -1,0 +1,21 @@
+Warblender Installation
+=======================
+
+
+In UN*X, type:
+
+make install
+
+You can also specify the target install directory with the BLENDERSCRIPTSDIR
+variable (defaults to ~/.blender/scripts/).
+
+
+In Windows, copy the following:
+
+warblender/
+warblender_import.py
+warblender_export.py
+
+to %BLENDERDIR%/.blender/scripts/
+
+%BLENDERDIR% is usually C:\Program Files\Blender Foundation\Blender.

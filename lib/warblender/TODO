@@ -1,0 +1,13 @@
+Major:
+* bones
+* animations
+* textures, uv-mapping
+* special effects (I think this only amounts to including the proper texture files that war3 provides for stuff like fire, etc.)
+  (Pollux: I actually think this is some real crap like the particle emitter and ribbon emitter blocks in MDX, plus stuff like fire
+   should be animations, i.e. sequences)
+
+Minor:
+* add descriptions for blocks when dumping
+  
+2010-01-06 Tamino Dauth <tamino@cdauth.eu>
+* Lights and Particle Emitters (ParticleEmitter and ParticleEmitter2).
