@@ -1,0 +1,137 @@
+/***************************************************************************
+ *   Copyright (C) 2009 by Tamino Dauth                                    *
+ *   tamino@cdauth.eu                                                      *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
+
+#ifndef WC3LIB_EDITOR_TEXTUREEDITOR_HPP
+#define WC3LIB_EDITOR_TEXTUREEDITOR_HPP
+
+#include <KUrl>
+#include <KAction>
+
+#include "module.hpp"
+#include "texture.hpp"
+#include "ui/ui_textureeditor.h"
+
+namespace wc3lib
+{
+
+namespace editor
+{
+
+/**
+ * Allows you to open, view, modify and store skins/textures.
+ * \todo Needs item list from object editor (skin meta data, splat meta data and ubersplat meta data).
+ */
+class TextureEditor : public Module, protected Ui::TextureEditor
+{
+	Q_OBJECT
+
+	public:
+		typedef boost::scoped_ptr<Texture> TexturePtr;
+		
+		TextureEditor(class Editor *editor);
+		virtual ~TextureEditor();
+		
+		const TexturePtr& texture() const;
+		bool showsAlphaChannel() const;
+		bool showsTransparency() const;
+		qreal factor() const;
+		
+		bool hasTexture() const;
+
+	public slots:
+		/**
+		 * \note Exception safe.
+		 */
+		void openFile();
+		void saveFile();
+		void closeFile();
+		void showSettings();
+
+		void editColorPalette();
+		void makeActive();
+		void makePassive();
+		void makeAutocast();
+		void makeInfocardNormal();
+		void makeInfocardLevel();
+		/**
+		 * Adds little charges symbol with number \p charges to the texture.
+		 */
+		void setCharges(int charges);
+
+		void showAlphaChannel();
+		void showTransparency();
+		void actualSize();
+		void zoomToFit();
+		void zoomIn();
+		void zoomOut();
+
+		void massConverter();
+
+	protected:
+		void refreshImage();
+		
+		virtual void createFileActions(class KMenu *menu);
+		virtual void createEditActions(class KMenu *menu);
+		virtual void createMenus(class KMenuBar *menuBar);
+		virtual void createWindowsActions(class KMenu *menu);
+		virtual void createToolButtons(class KToolBar *toolBar);
+		virtual class SettingsInterface* settings();
+
+		TexturePtr m_texture;
+		bool m_showsAlphaChannel;
+		bool m_showsTransparency;
+		qreal m_factor;
+		KUrl m_recentUrl;
+		
+		class KActionCollection *m_textureActionCollection;
+		KAction *m_showAlphaChannelAction;
+		KAction *m_showTransparencyAction;
+};
+
+inline const TextureEditor::TexturePtr& TextureEditor::texture() const
+{
+	return m_texture;
+}
+
+inline bool TextureEditor::showsAlphaChannel() const
+{
+	return m_showsAlphaChannel;
+}
+
+inline bool TextureEditor::showsTransparency() const
+{
+	return m_showsTransparency;
+}
+
+inline qreal TextureEditor::factor() const
+{
+	return m_factor;
+}
+
+inline bool TextureEditor::hasTexture() const
+{
+	return texture().get() != 0;
+}
+
+}
+
+}
+
+#endif

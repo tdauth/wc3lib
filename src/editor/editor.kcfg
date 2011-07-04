@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+                          http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+	<kcfgfile name="kjotsrc"/>
+	<include>kglobalsettings.h</include>
+	<include>Ogre.h</include>
+	<group name="Editor">
+		<entry name="SplitterSizes" type="IntList">
+			<label>How the main window is divided.</label>
+    		</entry>
+    		<entry name="Width" type="Int">
+      			<label>Width of the main window.</label>
+      			<default>600</default>
+    		</entry>
+		<entry name="Height" type="Int">
+      			<label>Height of the main window.</label>
+      			<default>400</default>
+    		</entry>
+    		<entry name="OpenMaps" type="StringList">
+      			<label>All maps that are opened.</label>
+    		</entry>
+		<entry name="CurrentMap" type="KUrl">
+      			<label>The map currently opened.</label>
+    		</entry>
+    		<entry name="Font" type="Font">
+      			<label>The font used to display the contents of books.</label>
+      			<default code="true">KGlobalSettings::generalFont()</default>
+    		</entry>
+  	</group>
+  	<group name="CampaignEditor">
+  		<entry name="Campaign" type="KUrl">
+    			<label>The campaign currently opened.</label>
+    		</entry>
+  	</group>
+  	<group name="ModelEditor">
+  	</group>
+</kcfg>

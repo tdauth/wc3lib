@@ -1,0 +1,158 @@
+1. MDLX property classes
+
+Node classes:
+* Helper
+* Bone
+* Light
+* EventObject
+* Attachment
+* CollisionShape
+
+New:
+* ParticleEmitter
+* ParticleEmitter2
+* RibbonEmitter
+
+MDX block name			MDL tag name			wc3lib class name		Parent class (not inheritance!)		Expected class name				Blender object			OGRE class			3ds object
+MDLX				-				Mdlx				-					-
+-								MaterialAlpha			Alphas					MaterialAlpha
+KMTA								MaterialAlphas			Layer					MaterialAlphas
+KLBC								AmbientColors			Light					Light...
+KLBI								AmbientIntensities		Light					Light...
+ATCH								Attachments			Mdlx					Attachments
+-				-				Bone				Bones					Bone
+BONE				-				Bones				Mdlx					Bones
+
+-				-				ParticleEmitter2Speed		ParticleEmitter2Speeds			ParticleEmitter2Speed
+KP2S				-				ParticleEmitter2Speeds		ParticleEmitter2			ParticleEmitter2Speeds
+-				-				ParticleEmitter2Latitude	ParticleEmitter2Latitudes		ParticleEmitter2Latitude
+KP2L				-				ParticleEmitter2Latitudes	ParticleEmitter2			ParticleEmitter2Latitudes
+-				-				ParticleEmitter2Width		ParticleEmitter2Widths			ParticleEmitter2Width
+KP2W				-				ParticleEmitter2Widths		ParticleEmitter2			ParticleEmitter2Widths
+-				-				Camera				Cameras					Camera
+CAMS				-				Cameras				Mdlx					Cameras
+-				-				CollisionShape			CollisionShapes				CollisionShape
+CLID				-				CollisionShapes			Mdlx					CollisionShapes
+-				-				LightAmbientColor		LightAmbientColors			LightAmbientColor
+KLAC				-				LightAmbientColors		Light					LightAmbientColors
+-				-				AttachmentVisibility		AttachmentVisibilities			AttachmentVisibility
+KATV				-				AttachmentVisibilities		Mdlx (various classes Attachment, Mdlx - Object)
+-				-				TextureAnimationRotation	TextureAnimationRotations		TextureAnimationRotation
+KTAR				-				TextureAnimationRotations	TextureAnimation			TextureAnimationRotations
+-				-				CameraRotationLength		CameraRotationLengths			CameraRotationLength
+KCRL				-				CameraRotationLengths		Camera					CameraRotationLengths
+-				-				TextureAnimationScaling		TextureAnimationScalings		TextureAnimationScaling
+KTAS				-				TextureAnimationScalings	TextureAnimation			TextureAnimationScalings
+-				-				TextureAnimationTranslation	TextureAnimationTranslations		TextureAnimationTranslation
+KTAT				-				TextureAnimationTranslations	TextureAnimation			TextureAnimationTranslations
+-				-				CameraTranslation		CameraTranslations			CameraTranslation
+KCTR				-				CameraTranslations		Camera					CameraTranslations
+-				-				CameraTargetTranslation		CameraTargetTranslations		CameraTargetTranslation
+KTTR				-				CameraTargetTranslations	Camera					CameraTargetTranslations
+-				-				LightAmbientVisibility		LightAmbientVisibilities		LightAmbientVisibility
+KLAV				-				LightAmbientVisibilities	Light					LightAmbientVisibilities
+-				-				ParticleEmitterVisibility	ParticleEmitterVisibilities		ParticleEmitterVisibility
+KPEV				-				ParticleEmitterVisibilities	ParticleEmitter				ParticleEmitterVisibilities
+-				-				ParticleEmitter2Visibility	ParticleEmitter2Visibilities		ParticleEmitter2Visibility
+KP2V				-				ParticleEmitter2Visibilities	ParticleEmitter2			ParticleEmitter2Visibilities
+
+EmissionRate				-			EmissionRates				ParticleEmitter2EmissionRate
+EmissionRates				KP2E			ParticleEmitter2			ParticleEmitter2EmissionRates
+Event					-			Events					Event
+Events					EVTS			Mdlx					Events
+EventTrack				-			EventTracks				EventTrack
+EventTracks				KEVT			Event					EventTracks
+Ganimation				-			Geoset
+Geoset					-			Geosets
+Geosets					GEOS			Mdlx
+GeosetAnimations			GEOA			Mdlx
+GeosetAnimationColor			-			GeosetAnimationColors
+GeosetAnimationColors			KGAC			GeosetAnimation
+GeosetAnimationAlpha			-			GeosetAnimationAlphas
+GeosetAnimationAlphas			KGAO			GeosetAnimation
+GlobalSequence				-			GlobalSequences
+GlobalSequences				GLBS			Mdlx
+GroupVertex				-			GroupVertices
+GroupVertices				GNDX			Geoset
+Helper					-			Helpers
+Helpers					HELP			Mdlx
+Intensity				-			Intensities
+Intensities				KLAI			Light					LightAmbientIntensities
+Layer					-			Layers
+Layers					LAYS			Material
+Length					-			Lengths					ParticleEmitter2Number
+Lengths					KP2N			ParticleEmitter2			ParticleEmitter2Numbers???
+Light					-			Lights
+Lights					LITE			Mdlx
+TextureId				KMTF			TextureIds				MaterialTextureF????
+TextureIds				KMTF			Material				MaterialTextureF????s
+Material				-			Materials
+Materials				MTLS			Mdlx
+Matrix					-			Matrices
+Matrices				MATS			Geoset
+MatrixGroupCount			-			MatrixGroupCounts
+MatrixGroupCounts			MTGC			Geoset
+Mdlx					-			-
+Model					MODL			Mdlx
+Normal					-			Normals
+Normals					NRMS			Geoset
+ParticleEmitter				-			ParticleEmitters
+ParticleEmitters			PREM			Mdlx
+ParticleEmitter2			-			ParticleEmitter2s
+ParticleEmitter2s			PRE2			Mdlx					ParticleEmitters2
+PivotPoint				-			PivotPoints
+PivotPoints				PIVT			Mdlx
+PrimitiveSize				-			PrimitiveSizes				PrimitiveCount
+PrimitiveSizes				PCNT			Geoset					PrimitiveCounts
+PrimitiveType				-			PrimitiveTypes
+PrimitiveTypes				PTYP			Geoset
+PrimitiveVertex				-			PrimitiveVertices			Face? (probably primitive vertex is much better)
+PrimitiveVertices			PVTX			Geoset					Faces? (probably primitive vertices is much better)
+RibbonEmitter				-			RibbonEmitters
+RibbonEmitters				RIBB			Mdlx
+Rotation0				-			Rotation0s				Rotation
+Rotation0s				KGRT			Mdlx (various classes)			Rotations
+
+Scaling0				-			Scaling0s				Scaling
+Scaling0s				KGSC			Mdlx (various classes)			Scalings
+
+SegmentColor				-			ParticleEmitter2
+Sequence				-			Sequences
+Sequences				SEQS			Mdlx
+Texture					-			Textures
+Textures				TEXS			Mdlx
+TextureVertex				-			TextureVertices
+TextureVertices				UVBS			Geoset					??? (warblend calls texture coordinates)
+
+Translation1				-			Translation1s				Translation
+Translation1s				KGTR			Mdlx (various classes)			Translations
+
+Version					VERS			Mdlx
+Vertex					-			Vertices
+Vertices				VRTX			Geoset
+RibbonEmitterVisibility			-			RibbonEmitterVisibilities		RibbonEmitterVisibility
+RibbonEmitterVisibilities		KRVS			RibbonEmitter				RibbonEmitterVisibilities
+RibbonEmitterHeightAbove		-			RibbonEmitterHeightsAbove
+RibbonEmitterHeightsAbove		KRHA			RibbonEmitter
+RibbonEmitterHeightBelow		-			RibbonEmitterHeightsBelow
+RibbonEmitterHeightsBelow		KRHB			RibbonEmitter
+
+2. Abstract MDLX property classes
+Name					Child classes
+GroupMdxBlock
+GroupMdxBlockMember
+Object
+MdxAlpha
+MdxAlphas
+MdxScaling
+MdxScalings
+
+3. Map property classes
+
+
+4. Graphical user interfaces
+
+3.1 The BLP/texture editor
+3.2 The MDLX/model editor
+3.3 The MPQ editor
+3.4 The map editor

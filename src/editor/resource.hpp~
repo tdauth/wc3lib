@@ -1,0 +1,38 @@
+#ifndef WC3LIB_EDITOR_RESOURCE_HPP
+#define WC3LIB_EDITOR_RESOURCE_HPP
+
+#include <kurl.h>
+
+namespace wc3lib
+{
+
+namespace editor
+{
+
+class Resource
+{
+	public:
+		enum Type
+		{
+			Texture,
+			Model,
+			Sound,
+			Music,
+			Map,
+			Campaign
+		};
+
+		Resource(const KUrl &url, Type type) : m_url(url), m_type(type) { };
+		const KUrl& url() const { return m_url; };
+		Type type() const { return m_type; };
+
+	protected:
+		KUrl m_url;
+		Type m_type;
+};
+
+}
+
+}
+
+#endif

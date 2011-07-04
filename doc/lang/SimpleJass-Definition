@@ -1,0 +1,19 @@
+Vorwort:
+SimpleJass soll es dem Entwickler ermöglichen über das Schreiben verständlicher Texte,
+seine verschiedenste Abläufe für Warcraft 3 The Frozen Throne zu entwickeln.
+Dabei wird sprachähnlicher, auch für Nichtprogrammierer verständlicher Code verwendet.
+
+Typen:
+Eigene Typen können bestimmte Adjektive und Routinen haben. Es existieren die nativen Standardtypen
+von Jass (real, boolean, string, integer, code) und Wrapper-Definitionen der handle-Kindtypen.
+Typinstanzen können limitiert werden (z. B. der Typ Game auf 1), zudem können Typinstanzenbezeichner
+definiert werden (wie etwa Player 1).
+Es existieren Standardroutinenamen wie "Create" und "Remove".
+
+Sätze:
+Sätze werden in Teilobjekteunterteilt:
+	Adjektiv: definierte Bezeichnereigenschaften
+	Subjekt: Bezeichner
+	Verb: definierte Routinen
+	Adverb: definierte Routineneigenschaften
+

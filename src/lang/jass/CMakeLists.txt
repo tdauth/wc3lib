@@ -1,0 +1,7 @@
+WC3LIB_ENABLE_EXCEPTIONS()
+
+WC3LIB_GET_H(wc3lib_LANG_JASS_H)
+WC3LIB_GET_SRC(wc3lib_LANG_JASS_SRC)
+
+# install
+install(FILES ${wc3lib_LANG_JASS_H} PUBLIC_HEADER DESTINATION include/wc3lib/lang/jass)

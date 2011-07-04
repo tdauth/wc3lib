@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TeamColorDialog</class>
+ <widget class="QDialog" name="TeamColorDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>167</width>
+    <height>62</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Team Color</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="KColorCombo" name="m_colorComboBox">
+     <item>
+      <property name="text">
+       <string>Red</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Blue</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Teal</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Purple</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Yellow</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Orange</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Green</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Pink</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Gray</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Light Blue</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Dark Green</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Brown</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Black</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="KDialogButtonBox" name="m_dialogButtonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>KDialogButtonBox</class>
+   <extends>QDialogButtonBox</extends>
+   <header>kdialogbuttonbox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KColorCombo</class>
+   <extends>QComboBox</extends>
+   <header>kcolorcombo.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>m_dialogButtonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>TeamColorDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>45</x>
+     <y>42</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>12</x>
+     <y>-4</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_dialogButtonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>TeamColorDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>127</x>
+     <y>40</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>161</x>
+     <y>-9</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

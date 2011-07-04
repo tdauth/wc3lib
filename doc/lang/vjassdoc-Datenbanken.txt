@@ -1,0 +1,23 @@
+Datenbanken schreiben:
+Bevor die Datenbank geschrieben werden kann, erhält jedes geparste Objekt eine einzigartige Id.
+Anhand dieser Id werden sämtliche Objekte miteinander verknüpft abgespeichert:
+Objekt A verweist auf Objekt B, also erhält Objekt A in der Datenbank anstatt eines Zeigers, die Id Bs.
+
+Veraltet!!!!!!
+:
+Datenbank laden:
+* Auslesen jeder einzelnen Tabelle
+	* Jede Reihe steht für ein Objekt. Jede Reihe wird in einem Vektor gespeichert.
+	* Mittels des Vektors wird ein neues Objekt erzeugt und an die Liste des Datenbankobjekts angehängt.
+	* Bei der Erzeugung werden bereits die Id, der Bezeichner und die Zeile des Objekts aus dem Vektor gelesen und entfernt.
+	* Dabei wird einerseits die Liste und andererseits das Objekt in zwei unterschiedlichen Listen gespeichert.
+* Mittels initByVector wird jedes einzelne Objekt in der Objektliste des Datenbankobjekts initialisiert. Bei der Initialisierung werden die restlichen Objekteigenschaften mittels der Vektorwerte, welche meist die Id eines anderen Objekts sind festgelegt.
+* Alle Datenbankobjekte werden in die Parserlisten eingefügt.
+* Die Id eines jeden Objekts aus der Datenbank wird um den bisherigen maximalen Id-Wert erhöht.
+* Der maximale Id-Wert wird um die Anzahl der eingefügten Objekte erhöht.
+
+Datenbank entfernen:
+Alle Datenbankobjekte werden aus den Parserlisten entfernt.
+Alle Datenbankobjekte werden gelöscht.
+Die Datenbank wird aus dem Datenbankvektor entfernt.
+Die Datenbank wird gelöscht.

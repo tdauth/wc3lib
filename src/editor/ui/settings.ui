@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <author>Tamino Dauth</author>
+ <class>SettingsTabWidget</class>
+ <widget class="KTabWidget" name="SettingsTabWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>522</width>
+    <height>577</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="documentMode">
+   <bool>false</bool>
+  </property>
+  <property name="movable">
+   <bool>true</bool>
+  </property>
+  <widget class="QWidget" name="m_opticTab">
+   <attribute name="title">
+    <string>Optic</string>
+   </attribute>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QGroupBox" name="groupBox">
+      <property name="title">
+       <string>Render system</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="0">
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Render system:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="KComboBox" name="m_renderSystemComboBox"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Resolution:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="KLineEdit" name="m_resolutionLineEdit"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Shading type:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="KComboBox" name="m_shadingTypeComboBox">
+             <item>
+              <property name="text">
+               <string>Flat</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Gouraud</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Phong</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="m_dynamicLightingCheckBox">
+           <property name="text">
+            <string>Dynamic lighting</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QGroupBox" name="groupBox_3">
+      <property name="title">
+       <string>View</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0">
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_7">
+           <item>
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>Background color:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="KColorButton" name="m_backgroundColorColorButton"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <item>
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Ambient light color:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="KColorButton" name="m_ambientLightColorButton"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <item>
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>Near clip distance:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="KIntSpinBox" name="m_nearClipDistanceSpinBox">
+             <property name="maximum">
+              <number>999999999</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_9">
+           <item>
+            <widget class="QLabel" name="label_9">
+             <property name="text">
+              <string>Far clip distance:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="KIntSpinBox" name="m_farClipDistanceSpinBox">
+             <property name="maximum">
+              <number>999999999</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_10">
+           <item>
+            <widget class="QLabel" name="label_10">
+             <property name="text">
+              <string>Polygon mode:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="KComboBox" name="m_polygonModeComboBox">
+             <item>
+              <property name="text">
+               <string>Points</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Solid</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Wireframe</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="title">
+       <string>Textures</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>MIP maps:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="KIntSpinBox" name="m_mipMapsSpinBox">
+             <property name="minimum">
+              <number>0</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <item>
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Texture filtering:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="KComboBox" name="m_textureFilteringComboBox">
+             <item>
+              <property name="text">
+               <string>None</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Bilinear</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Trilinear</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Anisotropic</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>KIntSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header>knuminput.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>klineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KComboBox</class>
+   <extends>QComboBox</extends>
+   <header>kcombobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KColorButton</class>
+   <extends>QPushButton</extends>
+   <header>kcolorbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KTabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>ktabwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
