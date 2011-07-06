@@ -93,30 +93,9 @@ class Editor : public KMainWindow, public MpqPriorityList
 
 	public:
 		typedef Editor self;
-		typedef std::pair<KUrl, class Resource*> ResourceValueType;
-		typedef boost::shared_ptr<Texture> TexturePtr;
 
 		static const KAboutData& aboutData();
 		static const KAboutData& wc3libAboutData();
-
-		/**
-		 * Required by textures which use replaceable id \ref mdlx::ReplaceableId::TeamColor.
-		 * \sa mdlx::ReplaceableId, mdlx::Texture
-		 */
-		static KUrl teamColorUrl(BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) teamColor);
-		/**
-		 * Required by textures which use replaceable id \ref mdlx::ReplaceableId::TeamGlow.
-		 * \sa mdlx::ReplaceableId, mdlx::Texture
-		 */
-		static KUrl teamGlowUrl(BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) teamGlow);
-		
-		/// \todo Get install value name!!!
-		static KUrl installUrl();
-		static KUrl installXUrl();
-		static KUrl war3Url();
-		static KUrl war3XUrl();
-		static KUrl war3PatchUrl();
-		static KUrl war3XLocalUrl();
 
 		Editor(QWidget *parent = 0, Qt::WindowFlags f = Qt::Window);
 		virtual ~Editor();
@@ -136,44 +115,6 @@ class Editor : public KMainWindow, public MpqPriorityList
 		class ModelEditor* modelEditor() const;
 		class TextureEditor* textureEditor() const;
 		class NewMapDialog* newMapDialog() const;
-
-		/**
-		 * All added resources will also be added to MPQ priority list automaticially.
-		 * Therefore there shouldn't occur any problems when you open an external MDL file and need its textures which are contained by the same directory.
-		 */
-		void addResource(class Resource *resource);
-		/**
-		 * Removes resource from editor.
-		 * \note Deletes resource \p resource.
-		 */
-		bool removeResource(class Resource *resource);
-		bool removeResource(const KUrl &url);
-		const std::map<KUrl, class Resource*>& resources() const;
-		
-		/**
-		 * Once requested, the image is kept in memory until it's refreshed manually.
-		 */
-		const TexturePtr& teamColorTexture(BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) teamColor) const throw (class Exception);
-		/**
-		* Once requested, the image is kept in memory until it's refreshed manually.
-		*/
-		const TexturePtr& teamGlowTexture(BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) teamGlow) const throw (class Exception);
-
-		
-		/**
-		 * Returns localized string under key \p key in group \p group.
-		 * Call tr("WESTRING_APPNAME", "WorldEditStrings", \ref mpq::MpqFile::German) to get the text "WARCRAFT III - Welt-Editor" from file "UI/WorldEditStrings.txt" of MPQ archive "War3xlocal.mpq" (Frozen Throne), for instance.
-		 * Localized keyed and grouped strings are found under following paths of current MPQ with the highest priority and corresponding locale \p locale:
-		 * <ul>
-		 * <li>UI/CampaignStrings.txt</li>
-		 * <li>UI/TipStrings.txt</li>
-		 * <li>UI/TriggerStrings.txt</li>
-		 * <li>UI/WorldEditGameStrings.txt</li>
-		 * <li>UI/TriggerStrings.txt</li>
-		 * <li>UI/WorldEditStrings.txt</li>
-		 * </ul>
-		 */
-		QString tr(const QString &key, const QString &group = "", BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale = mpq::MpqFile::Locale::Neutral) const;
 		
 	public slots:
 		void newMap();
@@ -228,99 +169,7 @@ class Editor : public KMainWindow, public MpqPriorityList
 		class ModelEditor *m_modelEditor; // new
 		class TextureEditor *m_textureEditor; // new
 		class NewMapDialog *m_newMapDialog;
-
-		std::map<KUrl, class Resource*> m_resources;
-
-		// team color and glow textures
-		mutable std::map<BOOST_SCOPED_ENUM(OgreMdlx::TeamColor), TexturePtr> m_teamColorTextures;
-		mutable std::map<BOOST_SCOPED_ENUM(OgreMdlx::TeamColor), TexturePtr> m_teamGlowTextures;
 };
-
-inline KUrl Editor::teamColorUrl(BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) teamColor)
-{
-	QString number = QString::number((int)teamColor);
-	
-	if (number.size() == 1)
-		number.prepend('0');
-
-	return KUrl("ReplaceableTextures/TeamColor/TeamColor" + number + ".blp");
-}
-
-inline KUrl Editor::teamGlowUrl(BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) teamGlow)
-{
-	QString number = QString::number((int)teamGlow);
-
-	if (number.size() == 1)
-		number.prepend('0');
-
-	return KUrl("ReplaceableTextures/TeamGlow/TeamGlow" + number + ".blp");
-}
-
-inline KUrl Editor::installUrl()
-{
-	QSettings settings("Blizzard Entertainment", "Warcraft III");
-	settings.beginGroup("Install Path");
-	
-	if (!settings.contains("???"))
-		return KUrl();
-	
-	return KUrl(settings.value("???").toUrl());
-}
-
-inline KUrl Editor::installXUrl()
-{
-	QSettings settings("Blizzard Entertainment", "Warcraft III");
-	settings.beginGroup("InstallPathX");
-	
-	if (!settings.contains("???"))
-		return KUrl();
-	
-	return KUrl(settings.value("???").toUrl());
-}
-
-inline KUrl Editor::war3Url()
-{
-	QSettings settings("Blizzard Entertainment", "Warcraft III");
-	settings.beginGroup("Install Path");
-	
-	if (!settings.contains("???"))
-		return KUrl();
-	
-	return KUrl(settings.value("???").toUrl()) + KUrl("war3.mpq");
-}
-
-inline KUrl Editor::war3XUrl()
-{
-	QSettings settings("Blizzard Entertainment", "Warcraft III");
-	settings.beginGroup("InstallPathX");
-	
-	if (!settings.contains("???"))
-		return KUrl();
-	
-	return KUrl(settings.value("???").toUrl()) + KUrl("war3x.mpq");
-}
-
-inline KUrl Editor::war3PatchUrl()
-{
-	QSettings settings("Blizzard Entertainment", "Warcraft III");
-	settings.beginGroup("Install Path");
-	
-	if (!settings.contains("???"))
-		return KUrl();
-	
-	return KUrl(settings.value("???").toUrl()) + KUrl("War3Patch.mpq");
-}
-
-inline KUrl Editor::war3XLocalUrl()
-{
-	QSettings settings("Blizzard Entertainment", "Warcraft III");
-	settings.beginGroup("Install Path");
-	
-	if (!settings.contains("???"))
-		return KUrl();
-	
-	return KUrl(settings.value("???").toUrl()) + KUrl("War3xlocal.mpq");
-}
 
 template<class T>
 T* Editor::module(T* const &module) const
@@ -418,55 +267,6 @@ inline class TextureEditor* Editor::textureEditor() const
 inline class NewMapDialog* Editor::newMapDialog() const
 {
 	return module(this->m_newMapDialog);
-}
-
-inline void Editor::addResource(class Resource *resource)
-{
-	this->m_resources.insert(std::make_pair(resource->url(), resource));
-	this->addEntry(resource->url());
-	qDebug() << "Added resource " << resource->url();
-}
-
-
-inline bool Editor::removeResource(class Resource *resource)
-{
-	this->removeResource(resource->url()); // resource is deleted here
-}
-
-inline bool Editor::removeResource(const KUrl &url)
-{
-	std::map<KUrl, class Resource*>::iterator iterator = this->m_resources.find(url);
-
-	if (iterator == this->m_resources.end())
-		return false;
-
-	qDebug() << "Removed resource " << url.path();
-	this->m_resources.erase(iterator);
-	delete iterator->second;
-	this->removeEntry(url);
-
-	return true;
-}
-
-inline const std::map<KUrl, class Resource*>& Editor::resources() const
-{
-	return this->m_resources;
-}
-
-inline const Editor::TexturePtr& Editor::teamColorTexture(BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) teamColor) const throw (class Exception)
-{
-	if (this->m_teamColorTextures[teamColor].get() == 0)
-		this->m_teamColorTextures[teamColor].reset(new Texture(teamColorUrl(teamColor)));
-
-	return this->m_teamColorTextures[teamColor];
-}
-
-inline const Editor::TexturePtr& Editor::teamGlowTexture(BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) teamGlow) const throw (class Exception)
-{
-	if (this->m_teamGlowTextures[teamGlow].get() == 0)
-		this->m_teamGlowTextures[teamGlow].reset(new Texture(teamGlowUrl(teamGlow)));
-
-	return this->m_teamGlowTextures[teamGlow];
 }
 
 }

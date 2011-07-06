@@ -31,7 +31,7 @@
 #include "module.hpp"
 #include "ui/ui_modeleditor.h"
 #include "ogremdlx.hpp"
-#include "../core.hpp"
+#include "platform.hpp"
 
 namespace wc3lib
 {
@@ -49,16 +49,7 @@ class ModelEditor : public Module, protected Ui::ModelEditor
 	public:
 		typedef boost::shared_ptr<OgreMdlx> OgreMdlxPtr;
 		//typedef boost::bimap<MdlxPtr, OgreMdlxPtr> Models;
-		
-		typedef boost::multi_index_container<OgreMdlxPtr,
-		boost::multi_index::indexed_by<
-		boost::multi_index::ordered_unique<boost::multi_index::tag<OgreMdlx, OgreMdlxPtr>, boost::multi_index::identity<OgreMdlxPtr>
-		>,
-		// ordered by its corresponding MDLX
-		boost::multi_index::ordered_unique<boost::multi_index::tag<mdlx::Mdlx>, boost::multi_index::const_mem_fun<OgreMdlx, const OgreMdlx::MdlxPtr&, &OgreMdlx::mdlx> >
-		> >
-		// hashed by their own value
-		Models;
+		typedef std::list<OgreMdlxPtr> Models;
 		
 		typedef boost::bimap<QAction*, const mdlx::Camera*> CameraActions;
 		typedef boost::bimap<const OgreMdlx::CollisionShape*, Ogre::SceneNode*> CollisionShapeNodes;
@@ -71,14 +62,15 @@ class ModelEditor : public Module, protected Ui::ModelEditor
 		void hideCollisionShapes();
 
 		class ModelEditorView* modelView() const;
+		Models& models();
 		const Models& models() const;
 		const CameraActions& cameraActions() const;
 		const CollisionShapeNodes& collisionShapeNodes() const;
 		
-		void setTeamColor(BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) teamColor);
-		BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) teamColor() const;
-		void setTeamGlow(BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) teamGlow);
-		BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) teamGlow() const;
+		void setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor);
+		BOOST_SCOPED_ENUM(TeamColor) teamColor() const;
+		void setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow);
+		BOOST_SCOPED_ENUM(TeamColor) teamGlow() const;
 
 	public slots:
 		void openFile();
@@ -137,13 +129,18 @@ class ModelEditor : public Module, protected Ui::ModelEditor
 		class KAction *m_showStatsAction;
 		class KAction *m_showCollisionShapesAction;
 		
-		BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) m_teamColor;
-		BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) m_teamGlow;
+		BOOST_SCOPED_ENUM(TeamColor) m_teamColor;
+		BOOST_SCOPED_ENUM(TeamColor) m_teamGlow;
 };
 
 inline class ModelEditorView* ModelEditor::modelView() const
 {
 	return this->m_modelView;
+}
+
+inline ModelEditor::Models& ModelEditor::models()
+{
+	return m_models;
 }
 
 inline const ModelEditor::Models& ModelEditor::models() const
@@ -161,7 +158,7 @@ inline const ModelEditor::CollisionShapeNodes& ModelEditor::collisionShapeNodes(
 	return m_collisionShapeNodes;
 }
 
-inline void ModelEditor::setTeamColor(BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) teamColor)
+inline void ModelEditor::setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor)
 {
 	m_teamColor = teamColor;
 	qDebug() << "Changing team color to " << teamColor;
@@ -170,12 +167,12 @@ inline void ModelEditor::setTeamColor(BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) tea
 		value->setTeamColor(this->teamColor());
 }
 
-inline BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) ModelEditor::teamColor() const
+inline BOOST_SCOPED_ENUM(TeamColor) ModelEditor::teamColor() const
 {
 	return m_teamColor;
 }
 
-inline void ModelEditor::setTeamGlow(BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) teamGlow)
+inline void ModelEditor::setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow)
 {
 	m_teamGlow = teamGlow;
 	qDebug() << "Changing team glow to " << teamGlow;
@@ -184,7 +181,7 @@ inline void ModelEditor::setTeamGlow(BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) team
 		value->setTeamGlow(this->teamGlow());
 }
 
-inline BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) ModelEditor::teamGlow() const
+inline BOOST_SCOPED_ENUM(TeamColor) ModelEditor::teamGlow() const
 {
 	return m_teamGlow;
 }

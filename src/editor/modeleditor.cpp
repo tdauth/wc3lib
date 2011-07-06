@@ -132,7 +132,7 @@ void ModelEditor::saveFile()
 	}
 	catch (Exception exception)
 	{
-		KMessageBox::error(this, i18n("Unable to write file \"%1\".\nException \"%2\".", url.toEncoded(), exception.what().c_str()));
+		KMessageBox::error(this, i18n("Unable to write file \"%1\".\nException \"%2\".", url.toEncoded().constData(), exception.what().c_str()));
 	}
 }
 
@@ -393,18 +393,18 @@ bool ModelEditor::openUrl(const KUrl &url)
 		ogreModel->load();
 		
 		//model->textures()->textures().size(); // TEST
-		KMessageBox::information(this, i18n("Read file \"%1\" successfully..", url.toEncoded()));
+		KMessageBox::information(this, i18n("Read file \"%1\" successfully..", url.toEncoded().constData()));
 	}
 	catch (class Exception &exception)
 	{
 		this->editor()->removeResource(ogreModel.get()); // ogreModel is deleted automatically
 		
-		KMessageBox::error(this, i18n("Unable to read file \"%1\".\nException \"%2\".", url.toEncoded(), exception.what().c_str()));
+		KMessageBox::error(this, i18n("Unable to read file \"%1\".\nException \"%2\".", url.toEncoded().constData(), exception.what().c_str()));
 
 		return false;
 	}
 
-	this->m_models.insert(ogreModel);
+	this->m_models.push_back(ogreModel);
 	this->m_modelView->root()->addFrameListener(ogreModel.get());
 	addCameraActions(ogreModel);
 	ogreModel->setTeamColor(teamColor());
@@ -415,14 +415,13 @@ bool ModelEditor::openUrl(const KUrl &url)
 
 void ModelEditor::removeModel(OgreMdlxPtr ogreModel)
 {
-	Models::nth_index_iterator<0> iterator = models().find(ogreModel);
+	Models::iterator iterator = std::find(models().begin(), models().end(), ogreModel);
 	
 	if (iterator != models().end())
 	{
 		this->m_modelView->root()->removeFrameListener(ogreModel.get());
 		removeCameraActions(ogreModel);
 		this->editor()->removeResource(ogreModel.get()); // delete ogreModel
-		delete iterator->second; // delete corresponding MDLX model
 		m_models.erase(iterator);
 	}
 	else

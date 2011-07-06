@@ -37,7 +37,8 @@ MpqPriorityListEntry::MpqPriorityListEntry(const KUrl &url, Priority priority) :
 bool MpqPriorityList::addEntry(const KUrl &url, MpqPriorityListEntry::Priority priority)
 {
 	// proper URLs must refer to directories or archives
-	if (!QFileInfo(url.toLocaleFile()).isDir() && (url.protocol() != "mpq" || url.protocol() != "tar"))
+	/// \todo Support all archive properties and remote directories (smb).
+	if (!QFileInfo(url.toLocalFile()).isDir() && (url.protocol() != "mpq" || url.protocol() != "tar"))
 		return false;
 	
 	index_const_iterator<KUrl>::type iterator = get<KUrl>().find(url);
@@ -72,9 +73,19 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 		return KIO::NetAccess::download(src, target, window);
 	
 	// Since entries are ordered by priority highest priority entry should be checked first
-	BOOST_FOREACH(index<MpqPriorityList::Priority>::type entry, get<MpqPriorityList::Priority>())
+	BOOST_FOREACH(const MpqPriorityListEntryPtr entry, get<MpqPriorityListEntry::Priority>())
 	{
-		const KUrl absoluteSource(src.isRelative() ? src : entry->url() + src);
+		KUrl absoluteSource;
+		
+		if (src.isRelative())
+		{
+			absoluteSource = src;
+		}
+		else
+		{
+			absoluteSource = entry->url();
+			absoluteSource.addPath(src.toLocalFile());
+		}
 		
 		if (KIO::NetAccess::download(absoluteSource, target, window))
 			return true;
@@ -92,9 +103,19 @@ bool MpqPriorityList::upload(const QString &src, const KUrl &target, QWidget *wi
 		return KIO::NetAccess::upload(src, target, window);
 	
 	// Since entries are ordered by priority highest priority entry should be checked first
-	BOOST_FOREACH(index<MpqPriorityList::Priority>::type entry, get<MpqPriorityList::Priority>())
+	BOOST_FOREACH(const MpqPriorityListEntryPtr entry, get<MpqPriorityListEntry::Priority>())
 	{
-		const KUrl absoluteTarget(target.isRelative() ? target : entry->url() + target);
+		KUrl absoluteTarget;
+		
+		if (target.isRelative())
+		{
+			absoluteTarget = target;
+		}
+		else
+		{
+			absoluteTarget = entry->url();
+			absoluteTarget.addPath(target.toLocalFile());
+		}
 		
 		if (KIO::NetAccess::upload(src, absoluteTarget, window))
 			return true;

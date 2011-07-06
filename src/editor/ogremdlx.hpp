@@ -21,15 +21,11 @@
 #ifndef WC3LIB_EDITOR_OGREMDLX_HPP
 #define WC3LIB_EDITOR_OGREMDLX_HPP
 
-#include <QColor>
-
-#include <KUrl>
-
 #include <Ogre.h>
 
 #include "resource.hpp"
 #include "../mdlx.hpp"
-#include "../core.hpp"
+#include "platform.hpp"
 
 namespace wc3lib
 {
@@ -48,25 +44,6 @@ namespace editor
 class OgreMdlx  : public Resource, public Ogre::FrameListener
 {
 	public:
-		BOOST_SCOPED_ENUM_START(TeamColor)
-		{
-			Red,
-			Blue,
-			Teal,
-			Purple,
-			Yellow,
-			Orange,
-			Green,
-			Pink,
-			Gray,
-			LightBlue,
-			DarkGreen,
-			Brown,
-			Black,
-			MaxTeamColors
-		};
-		BOOST_SCOPED_ENUM_END
-		
 		typedef std::map<const class mdlx::Geoset*, Ogre::ManualObject*> Geosets;
 		typedef std::map<const class mdlx::Camera*, Ogre::Camera*> Cameras;
 		
@@ -100,20 +77,6 @@ class OgreMdlx  : public Resource, public Ogre::FrameListener
 		typedef std::map<const class mdlx::CollisionShape*, struct CollisionShape*> CollisionShapes;
 		typedef boost::scoped_ptr<mdlx::Mdlx> MdlxPtr;
 		
-		/**
-		 * Converts team color enumeration value into Qt RGB color.
-		 * \param teamColor Team color which is converted.
-		 * \return Returns corresponding Qt RGB color.
-		 * \sa teamColor(const QColor&)
-		 */
-		static QColor teamColor(const BOOST_SCOPED_ENUM(TeamColor) &teamColor);
-		/**
-		 * Converts Qt RGB color into team color enumeration value.
-		 * \param color Qt RGB color which is converted.
-		 * \return Returns corresponding team color enumeration value.
-		 * \sa teamColor(const enum TeamColor&)
-		 */
-		static BOOST_SCOPED_ENUM(TeamColor) teamColor(const QColor &color);
 		/**
 		 * Changes camera's \p ogreCamera to settings of camera \p camera.
 		 * Might be used by camera actions in any editor which have to view a specific camera.
@@ -218,85 +181,6 @@ class OgreMdlx  : public Resource, public Ogre::FrameListener
 		std::list<Ogre::TexturePtr> m_teamGlowTextures;
 };
 
-inline QColor OgreMdlx::teamColor(const BOOST_SCOPED_ENUM(TeamColor) &teamColor)
-{
-	switch (teamColor)
-	{
-		case TeamColor::Red:
-			return QColor(Qt::red);
-		
-		case TeamColor::Blue:
-			return QColor(Qt::blue);
-			
-		case TeamColor::Teal:
-			return QColor(0x1CB619);
-			
-		case TeamColor::Purple:
-			return QColor(0x800080);
-			
-		case TeamColor::Yellow:
-			return QColor(Qt::yellow);
-			
-		case TeamColor::Orange:
-			return QColor(0xFF8000);
-			
-		case TeamColor::Green:
-			return QColor(Qt::green);
-			
-		case TeamColor::Pink:
-			return QColor(0xFF80C0);
-			
-		case TeamColor::Gray:
-			return QColor(0xC0C0C0);
-			
-		case TeamColor::LightBlue:
-			return QColor(0x0080FF);
-			
-		case TeamColor::DarkGreen:
-			return QColor(0x106246);
-			
-		case TeamColor::Brown:
-			return QColor(0x804000);
-			
-		case TeamColor::Black:
-			return QColor(Qt::black);
-	}
-	
-	return QColor(Qt::red);
-}
-
-inline BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) OgreMdlx::teamColor(const QColor &color)
-{
-	if (color == Qt::red)
-		return TeamColor::Red;
-	else if (color == Qt::blue)
-		return TeamColor::Blue;
-	else if (color == 0x1CB619)
-		return TeamColor::Teal;
-	else if (color == 0x800080)
-		return TeamColor::Purple;
-	else if (color == Qt::yellow)
-		return TeamColor::Yellow;
-	else if (color == 0xFF8000)
-		return TeamColor::Orange;
-	else if (color == Qt::green)
-		return TeamColor::Green;
-	else if (color == 0xFF80C0)
-		return TeamColor::Pink;
-	else if (color == 0xC0C0C0)
-		return TeamColor::Gray;
-	else if (color == 0x0080FF)
-		return TeamColor::LightBlue;
-	else if (color == 0x106246)
-		return TeamColor::DarkGreen;
-	else if (color == 0x804000)
-		return TeamColor::Brown;
-	else if (color == Qt::black)
-		return TeamColor::Black;
-	
-	return TeamColor::Red;
-}
-
 inline const OgreMdlx::MdlxPtr& OgreMdlx::mdlx() const
 {
 	return this->m_mdlx;
@@ -322,12 +206,12 @@ inline const OgreMdlx::CollisionShapes& OgreMdlx::collisionShapes() const
 	return this->m_collisionShapes;
 }
 
-inline BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) OgreMdlx::teamColor() const
+inline BOOST_SCOPED_ENUM(TeamColor) OgreMdlx::teamColor() const
 {
 	return this->m_teamColor;
 }
 
-inline BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) OgreMdlx::teamGlow() const
+inline BOOST_SCOPED_ENUM(TeamColor) OgreMdlx::teamGlow() const
 {
 	return this->m_teamGlow;
 }

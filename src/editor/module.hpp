@@ -23,6 +23,8 @@
 
 #include <QWidget>
 
+#include "../core.hpp"
+
 namespace wc3lib
 {
 
@@ -30,23 +32,37 @@ namespace editor
 {
 
 /**
-* @brief Abstract class for module implementation such as model or terrain editors.
-* Implement the pure virtual functions to customize your module's menu, actions and tool buttons.
-*/
+ * \brief Abstract class for module implementation such as model or terrain editors.
+ * Implement the pure virtual functions to customize your module's menu, actions and tool buttons.
+ * \note Modules should work independently without an Editor instance. They only need a data source.
+ */
 class Module : public QWidget
 {
 	Q_OBJECT
 
 	public:
-		Module(class Editor *editor);
+		Module(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~Module();
-		class Editor* editor() const;
+		class MpqPriorityList* source() const;
 		class KMenu* fileMenu() const;
 		class KMenu* editMenu() const;
 		class ModuleMenu* moduleMenu() const; 
 		class KMenuBar* menuBar() const;
 		class KMenu* windowsMenu() const;
 		class KToolBar* toolBar() const;
+		
+		/**
+		 * This function uses dynamic type checking via "typeid".
+		 * \return Returns true if \ref source() is an Editor instance. Otherwise it returns false.
+		 * \sa source(), editor()
+		 */
+		bool hasEditor() const;
+		/**
+		 * \return Returns casted Editor instance (from \ref source()).
+		 * \throw Exception Throws an exception when \ref hasEditor() returns false and therefore source isn't an Editor instance.
+		 * \sa source(), hasEditor()
+		 */
+		class Editor* editor() const throw (Exception);
 
 	protected:
 		virtual void setupUi();
@@ -67,7 +83,7 @@ class Module : public QWidget
 		virtual void triggered(QAction *action);
 
 	private:
-		class Editor *m_editor;
+		class MpqPriorityList *m_source;
 		class KMenu *m_fileMenu;
 		class KMenu *m_editMenu;
 		class ModuleMenu *m_moduleMenu;
@@ -78,9 +94,9 @@ class Module : public QWidget
 		class QVBoxLayout *m_topLayout;
 };
 
-inline class Editor* Module::editor() const
+inline class MpqPriorityList* Module::source() const
 {
-	return this->m_editor;
+	return this->m_source;
 }
 
 inline class KMenu* Module::fileMenu() const

@@ -1,3 +1,6 @@
+2011-07-06 Tamino Dauth <tamino@cdauth.eu>
+* editor: All resource and module classes should able to be created without editor (only MpqPriorityList).
+
 2011-07-03 Tamino Dauth <tamino@cdauth.eu>
 * editor: Improve class MpqProtocol that MPQ archives can be read and written like tar files, for instance.
 * editor: Class MpqPriorityList should resolve URLs properly and download and upload it via usual KIO::NetAccess::download and KIO::NetAccess::upload functions which have to support the "mpq" protocol which mentioned above.

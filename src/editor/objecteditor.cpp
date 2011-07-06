@@ -18,13 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <boost/cast.hpp>
-
 #include <QtGui>
 
-#include <kmenu.h>
+#include <KMenu>
 #include <KAction>
-#include <ktoolbar.h>
+#include <KToolBar>
 
 #include "objecteditor.hpp"
 #include "objecteditortab.hpp"
@@ -37,7 +35,7 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectEditor::ObjectEditor(class Editor *editor) : Module(editor), m_tabWidget(new KTabWidget(this)), m_unitEditor(new UnitEditor(this))
+ObjectEditor::ObjectEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_tabWidget(new KTabWidget(this)), m_unitEditor(new UnitEditor(source, this, f))
 {
 	connect(tabWidget(), SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
 	/*
@@ -188,12 +186,16 @@ void ObjectEditor::currentChanged(int index)
 	t->createToolButtons(toolBar());
 	*/
 	ObjectEditorTab *t = tab(index);
+	QString file;
 	
 	if (currentTab() != 0)
 		disconnect(newObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(newObject()));
 	
 	newObjectAction()->setText(t->newObjectText());
-	newObjectAction()->setIcon(t->newObjectIcon());
+	
+	if (editor()->download(t->newObjectIconUrl(), file, this))
+		newObjectAction()->setIcon(QIcon(file));
+	
 	connect(newObjectAction(), SIGNAL(triggered()), t, SLOT(newObject()));
 	
 	if (currentTab() != 0)
@@ -236,14 +238,20 @@ void ObjectEditor::currentChanged(int index)
 		disconnect(copyObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(copyObject()));
 	
 	copyObjectAction()->setText(t->copyObjectText());
-	copyObjectAction()->setIcon(t->copyObjectIcon());
+	
+	if (editor()->download(t->copyObjectIconUrl(), file, this))
+		copyObjectAction()->setIcon(QIcon(file));
+	
 	connect(copyObjectAction(), SIGNAL(triggered()), t, SLOT(copyObject()));
 	
 	if (currentTab() != 0)
 		disconnect(pasteObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(pasteObject()));
 	
 	pasteObjectAction()->setText(t->pasteObjectText());
-	pasteObjectAction()->setIcon(t->pasteObjectIcon());
+	
+	if (editor()->download(t->pasteObjectIconUrl(), file, this))
+		pasteObjectAction()->setIcon(QIcon(file));
+	
 	connect(pasteObjectAction(), SIGNAL(triggered()), t, SLOT(pasteObject()));
 	
 	m_currentTab = t;

@@ -26,7 +26,7 @@ namespace wc3lib
 namespace editor
 {
 
-SoundEditor::SoundEditor(class Editor *editor) : Module(editor)
+SoundEditor::SoundEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f)
 {
 }
 

@@ -30,12 +30,28 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectTableWidget::ObjectTableWidget(QWidget *parent, const QLinkedList<map::MetaData*> &metaData)
+ObjectTableWidget::ObjectTableWidget(QWidget *parent, const MetaData *metaData)
 {
+	int i = 0;
+	
+	foreach (MetaData::MetaDataEntries::const_reference entry, metaData->entries())
+	{
+		ObjectTableWidgetPair *pair = new ObjectTableWidgetPair(this, i, entry.get());
+		++i;
+	}
 }
 
-void ObjectTableWidget::update(const QLinkedList<map::Data*> &data)
+ObjectTableWidget::Pairs ObjectTableWidget::pairs(map::Section section)
 {
+	Pairs result;
+	
+	foreach (ObjectTableWidgetPair *pair, pairs())
+	{
+		if (pair->metaData()->section() == section)
+			result << pair;
+	}
+	
+	return result;
 }
 
 void ObjectTableWidget::editItem(QTableWidgetItem *item)
@@ -46,7 +62,7 @@ void ObjectTableWidget::editItem(QTableWidgetItem *item)
 		{
 			switch (pair->metaData()->type())
 			{
-				case map::Value::Integer:
+				case map::Value::Type::Integer:
 				{
 					ObjectIntegerDialog *dialog = new ObjectIntegerDialog(this);
 					dialog->setCaption(pair->metaData()->displayName().c_str());
@@ -60,67 +76,67 @@ void ObjectTableWidget::editItem(QTableWidgetItem *item)
 					break;
 				}
 				
-				case map::Value::Real:
+				case map::Value::Type::Real:
 					break;
 					
-				case map::Value::Unreal:
+				case map::Value::Type::Unreal:
 					break;
 					
-				case map::Value::String:
+				case map::Value::Type::String:
 					break;
 					
-				case map::Value::Boolean:
+				case map::Value::Type::Boolean:
 					break;
 					
-				case map::Value::Character:
+				case map::Value::Type::Character:
 					break;
 					
-				case map::Value::UnitList:
+				case map::Value::Type::UnitList:
 					break;
 					
-				case map::Value::ItemList:
+				case map::Value::Type::ItemList:
 					break;
 					
-				case map::Value::RegenerationType:
+				case map::Value::Type::RegenerationType:
 					break;
 					
-				case map::Value::AttackType:
+				case map::Value::Type::AttackType:
 					break;
 					
-				case map::Value::WeaponType:
+				case map::Value::Type::WeaponType:
 					break;
 					
-				case map::Value::TargetType:
+				case map::Value::Type::TargetType:
 					break;
 					
-				case map::Value::MoveType:
+				case map::Value::Type::MoveType:
 					break;
 					
-				case map::Value::DefenseType:
+				case map::Value::Type::DefenseType:
 					break;
 					
-				case map::Value::PathingTexture:
+				case map::Value::Type::PathingTexture:
 					break;
 					
-				case map::Value::UpgradeList:
+				case map::Value::Type::UpgradeList:
 					break;
 					
-				case map::Value::StringList:
+				case map::Value::Type::StringList:
 					break;
 					
-				case map::Value::AbilityList:
+				case map::Value::Type::AbilityList:
 					break;
 					
-				case map::Value::HeroAbilityList:
+				case map::Value::Type::HeroAbilityList:
 					break;
 					
-				case map::Value::MissileArt:
+				case map::Value::Type::MissileArt:
 					break;
 					
-				case map::Value::AttributeType:
+				case map::Value::Type::AttributeType:
 					break;
 					
-				case map::Value::AttackBits:
+				case map::Value::Type::AttackBits:
 					break;
 			}
 			

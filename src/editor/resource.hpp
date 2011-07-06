@@ -41,7 +41,8 @@ class Resource
 			Sound,
 			Music,
 			Map,
-			Campaign
+			Campaign,
+			MetaData
 		};
 		BOOST_SCOPED_ENUM_END
 
@@ -50,7 +51,9 @@ class Resource
 		BOOST_SCOPED_ENUM(Type) type() const { return m_type; };
 
 	protected:
-		friend class Editor;
+		friend class MpqPriorityList;
+		template<class T>
+		friend void boost::checked_delete(T*); // for destruction by shared ptr
 		
 		virtual ~Resource() { };
 		

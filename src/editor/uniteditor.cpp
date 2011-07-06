@@ -18,7 +18,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <QtGui>
+
+#include <KMessageBox>
+
 #include "uniteditor.hpp"
+#include "objecttreewidget.hpp"
+#include "objecttablewidget.hpp"
+#include "metadata.hpp"
 
 namespace wc3lib
 {
@@ -26,18 +33,46 @@ namespace wc3lib
 namespace editor
 {
 
-UnitEditor::UnitEditor(class ObjectEditor *objectEditor) : ObjectEditorTab(objectEditor)
+UnitEditor::UnitEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(objectEditor), m_metaData(new MetaData(source, "Units/UnitMetaData.slk"))
 {
+	try
+	{
+		m_metaData->load();
+	}
+	catch (Exception &exception)
+	{
+		KMessageBox::error(this, exception.what().c_str());
+	}
 }
 
 class ObjectTreeWidget* UnitEditor::createTreeWidget()
 {
+	ObjectTreeWidget *treeWidget = new ObjectTreeWidget(this);
+	
+	m_standardUnitsItem = new QTreeWidgetItem(treeWidget);
+	m_standardUnitsItem->setText(0, source()->tr("WESTRING_UE_STANDARDUNITS"));
+	
+	
+	/// \todo Add all default unit entries
+	//m_standardUnitsItem->addChild();
+	/*
+	 * without TFT
+	m_campaignUnitsItem = new QTreeWidgetItem(treeWidget);
+	item->setText(0, source()->tr("WESTRING_UE_CAMPAIGNUNITS"));
+	*/
+	
+	m_customUnitsItem = new QTreeWidgetItem(treeWidget);
+	m_customUnitsItem->setText(0, source()->tr("WESTRING_UE_CUSTOMUNITS"));
+	
+	
 	// TODO create UnitTreeWidget
+	
+	return treeWidget;
 }
 
 class ObjectTableWidget* UnitEditor::createTableWidget()
 {
-	// TODO create UnitTableWidget
+	return new ObjectTableWidget(this, m_metaData);
 }
 
 void UnitEditor::onNewObject()

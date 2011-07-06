@@ -57,8 +57,6 @@ void MpqEditor::closeMpqArchives()
 
 void MpqEditor::optimizeMpqArchives()
 {
-	foreach (MpqPtr ptr, selection())
-		ptr->optimize();
 }
 
 void MpqEditor::addFiles()

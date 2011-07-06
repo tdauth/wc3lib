@@ -31,16 +31,16 @@ namespace editor
 
 ObjectTableWidgetPair::ObjectTableWidgetPair(QTableWidget *tableWidget, int row, map::MetaData *metaData) : QObject(tableWidget), m_metaData(metaData), m_data(0), m_descriptionItem(new QTableWidgetItem()), m_valueItem(new QTableWidgetItem()), m_row(row)
 {
+	descriptionItem()->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled); // not editable!
 	tableWidget->setItem(row, 0, descriptionItem());
+	valueItem()->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable); // editable!
 	tableWidget->setItem(row, 1, valueItem());
 	descriptionItem()->setText(this->metaData()->displayName().c_str());
 }
 
 ObjectTableWidgetPair::~ObjectTableWidgetPair()
 {
-	tableWidget()->removeRow(row());
-	delete m_descriptionItem;
-	delete m_valueItem;
+	tableWidget()->removeRow(row()); // should delete pointers automatically
 }
 
 void ObjectTableWidgetPair::update()

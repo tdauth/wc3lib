@@ -21,18 +21,16 @@
 #ifndef WC3LIB_EDITOR_MPQPRIORITYLIST_HPP
 #define WC3LIB_EDITOR_MPQPRIORITYLIST_HPP
 
-#include <list>
-#include <algorithm>
-
-#include <boost/operators.hpp>
-#include <boost/foreach.hpp>
-
 #include <QFileInfo>
 
 #include <KUrl>
 
+#include "platform.hpp"
 #include "../mpq.hpp"
-#include "../core.hpp"
+#include "editor.hpp"
+#include "resource.hpp"
+#include "texture.hpp"
+#include "ogremdlx.hpp"
 
 namespace wc3lib
 {
@@ -50,7 +48,6 @@ class MpqPriorityListEntry : public boost::operators<MpqPriorityListEntry>
 	public:
 		typedef MpqPriorityListEntry self;
 		typedef std::size_t Priority;
-		typedef boost::scoped_ptr<mpq::Mpq> MpqPtr;
 
 		/**
 		* If url is the URL of an archive it will be set with "mpq:" protocol.
@@ -71,7 +68,6 @@ class MpqPriorityListEntry : public boost::operators<MpqPriorityListEntry>
 	protected:
 		Priority m_priority;
 		KUrl m_url;
-		MpqPtr m_mpq;
 };
 
 inline MpqPriorityListEntry::Priority MpqPriorityListEntry::priority() const
@@ -81,7 +77,8 @@ inline MpqPriorityListEntry::Priority MpqPriorityListEntry::priority() const
 
 inline bool MpqPriorityListEntry::isDirectory() const
 {
-	return url.isLocalFile() && QFileInfo(url.toLocalFile()).isDir();
+	/// \todo Support remote directories (smb).
+	return url().isLocalFile() && QFileInfo(url().toLocalFile()).isDir();
 }
 
 inline bool MpqPriorityListEntry::isArchive() const
@@ -112,7 +109,7 @@ boost::multi_index::sequenced<>,
 // ordered by itself
 boost::multi_index::ordered_unique<boost::multi_index::tag<MpqPriorityListEntry>, boost::multi_index::identity<MpqPriorityListEntry> >,
 // ordered by its corresponding priority
-boost::multi_index::ordered_non_unique<boost::multi_index::tag<MpqPriorityListEntry>, boost::multi_index::const_mem_fun<MpqPriorityListEntry, MpqPriorityListEntry::Priority, &MpqPriorityListEntry::priority> >,
+boost::multi_index::ordered_non_unique<boost::multi_index::tag<MpqPriorityListEntry::Priority>, boost::multi_index::const_mem_fun<MpqPriorityListEntry, MpqPriorityListEntry::Priority, &MpqPriorityListEntry::priority> >,
 // ordered by its corresponding URL
 boost::multi_index::ordered_non_unique<boost::multi_index::tag<KUrl>, boost::multi_index::const_mem_fun<MpqPriorityListEntry, const KUrl&, &MpqPriorityListEntry::url> >
 
@@ -128,6 +125,10 @@ class MpqPriorityList : public MpqPriorityListBase
 	public:
 		typedef MpqPriorityListBase base;
 		typedef MpqPriorityList self;
+		typedef boost::shared_ptr<Resource> ResourcePtr;
+		typedef std::map<KUrl, ResourcePtr> Resources;
+		typedef boost::shared_ptr<Texture> TexturePtr;
+		typedef std::map<BOOST_SCOPED_ENUM(TeamColor), TexturePtr> TeamColorTextures;
 
 		void setLocale(mpq::MpqFile::Locale locale);
 		mpq::MpqFile::Locale locale() const;
@@ -154,8 +155,51 @@ class MpqPriorityList : public MpqPriorityListBase
 		bool download(const KUrl &src, QString &target, QWidget *window);
 		bool upload(const QString &src, const KUrl &target, QWidget *window);
 
+		
+		/**
+		 * All added resources will also be added to MPQ priority list automaticially.
+		 * Therefore there shouldn't occur any problems when you open an external MDL file and need its textures which are contained by the same directory.
+		 */
+		void addResource(class Resource *resource);
+		/**
+		 * Removes resource from editor.
+		 * \note Deletes resource \p resource.
+		 */
+		bool removeResource(class Resource *resource);
+		bool removeResource(const KUrl &url);
+		const Resources& resources() const;
+		
+		/**
+		 * Once requested, the image is kept in memory until it's refreshed manually.
+		 */
+		const TexturePtr& teamColorTexture(BOOST_SCOPED_ENUM(TeamColor) teamColor) const throw (class Exception);
+		/**
+		 * Once requested, the image is kept in memory until it's refreshed manually.
+		 */
+		const TexturePtr& teamGlowTexture(BOOST_SCOPED_ENUM(TeamColor) teamGlow) const throw (class Exception);
+
+		
+		/**
+		 * Returns localized string under key \p key in group \p group.
+		 * Call tr("WESTRING_APPNAME", "WorldEditStrings", \ref mpq::MpqFile::German) to get the text "WARCRAFT III - Welt-Editor" from file "UI/WorldEditStrings.txt" of MPQ archive "War3xlocal.mpq" (Frozen Throne), for instance.
+		 * Localized keyed and grouped strings are found under following paths of current MPQ with the highest priority and corresponding locale \p locale:
+		 * <ul>
+		 * <li>UI/CampaignStrings.txt</li>
+		 * <li>UI/TipStrings.txt</li>
+		 * <li>UI/TriggerStrings.txt</li>
+		 * <li>UI/WorldEditGameStrings.txt</li>
+		 * <li>UI/TriggerStrings.txt</li>
+		 * <li>UI/WorldEditStrings.txt</li>
+		 * </ul>
+		 */
+		QString tr(const QString &key, const QString &group = "", BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale = mpq::MpqFile::Locale::Neutral) const;
 	protected:
 		mpq::MpqFile::Locale m_locale;
+		
+		Resources m_resources;
+		// team color and glow textures
+		mutable TeamColorTextures m_teamColorTextures;
+		mutable TeamColorTextures m_teamGlowTextures;
 };
 
 inline void MpqPriorityList::setLocale(mpq::MpqFile::Locale locale)
@@ -166,6 +210,55 @@ inline void MpqPriorityList::setLocale(mpq::MpqFile::Locale locale)
 inline mpq::MpqFile::Locale MpqPriorityList::locale() const
 {
 	return this->m_locale;
+}
+
+inline void MpqPriorityList::addResource(class Resource *resource)
+{
+	this->m_resources.insert(std::make_pair(resource->url(), resource));
+	this->addEntry(resource->url());
+	qDebug() << "Added resource " << resource->url();
+}
+
+
+inline bool MpqPriorityList::removeResource(class Resource *resource)
+{
+	this->removeResource(resource->url()); // resource is deleted here
+}
+
+inline bool MpqPriorityList::removeResource(const KUrl &url)
+{
+	Resources::iterator iterator = this->m_resources.find(url);
+
+	if (iterator == this->m_resources.end())
+		return false;
+
+	qDebug() << "Removed resource " << url.path();
+	this->m_resources.erase(iterator);
+	iterator->second.reset();
+	this->removeEntry(url);
+
+	return true;
+}
+
+inline const MpqPriorityList::Resources& MpqPriorityList::resources() const
+{
+	return this->m_resources;
+}
+
+inline const MpqPriorityList::TexturePtr& MpqPriorityList::teamColorTexture(BOOST_SCOPED_ENUM(TeamColor) teamColor) const throw (class Exception)
+{
+	if (this->m_teamColorTextures[teamColor].get() == 0)
+		this->m_teamColorTextures[teamColor].reset(new Texture(teamColorUrl(teamColor)));
+
+	return this->m_teamColorTextures[teamColor];
+}
+
+inline const MpqPriorityList::TexturePtr& MpqPriorityList::teamGlowTexture(BOOST_SCOPED_ENUM(TeamColor) teamGlow) const throw (class Exception)
+{
+	if (this->m_teamGlowTextures[teamGlow].get() == 0)
+		this->m_teamGlowTextures[teamGlow].reset(new Texture(teamGlowUrl(teamGlow)));
+
+	return this->m_teamGlowTextures[teamGlow];
 }
 
 }

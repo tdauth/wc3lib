@@ -1,6 +1,15 @@
+2011-07-06 Tamino Dauth <tamino@cdauth.eu>
+* editor: Added class UnitMetaData. 
+* editor: Modules and object editor tabs rely on MPQ priority lists only now.
+* editor: Moved utility functions into newly added file "platform.hpp".
+* editor: Class MpqPriorityList got many of Editor's former core functions (e. g. it handles team color and glow textures now) that modules can rely on it without requiring an editor.
+* editor: Improved classes ObjectTableWidget and ObjectTableWidgetPair (using resource class MetaData now).
+
 2011-07-04 Tamino Dauth <tamino@cdauth.eu>
 * map: Improved class ImportedFiles.
 * map: Improved class Info.
+* map: Improved class MetaData.
+* editor: Added class MetaData which can be used to load meta data from SLK files.
 
 2011-07-03 Tamino Dauth <tamino@cdauth.eu>
 * editor: Revised class MpqPriorityList (new container - boost::multindex, new download and upload functions, dropped deprecated data).

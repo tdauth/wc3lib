@@ -36,12 +36,29 @@ namespace wc3lib
 namespace editor
 {
 
-Module::Module(class Editor *editor) : m_editor(editor), m_menuBar(0), m_topLayout(new QVBoxLayout(this))
+Module::Module(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_menuBar(0), m_topLayout(new QVBoxLayout(this)), QWidget(parent, f)
 {
 }
 
 Module::~Module()
 {
+}
+
+bool Module::hasEditor() const
+{
+	return (typeid(source()) == typeid(class Editor));
+}
+
+class Editor* Module::editor() const throw (Exception)
+{
+	try
+	{
+		return boost::polymorphic_cast<class Editor*>(source());
+	}
+	catch (std::bad_cast &exception)
+	{
+		throw Exception() << exception;
+	}
 }
 
 void Module::setupUi()

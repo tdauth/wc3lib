@@ -33,7 +33,7 @@ namespace editor
 class UnitEditor : public ObjectEditorTab
 {
 	public:
-		UnitEditor(class ObjectEditor *objectEditor);
+		UnitEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		
 		virtual QString name() const;
 		
@@ -61,9 +61,14 @@ class UnitEditor : public ObjectEditorTab
 		virtual QString copyObjectText() const;
 		virtual QString pasteObjectText() const;
 		
-		virtual KIcon copyObjectIcon() const;
-		virtual KIcon pasteObjectIcon() const;
-		virtual KIcon newObjectIcon() const;
+		virtual KUrl copyObjectIconUrl() const;
+		virtual KUrl pasteObjectIconUrl() const;
+		virtual KUrl newObjectIconUrl() const;
+		
+		class MetaData *m_metaData;
+		
+		QTreeWidgetItem *m_standardUnitsItem;
+		QTreeWidgetItem *m_customUnitsItem;
 };
 
 inline QString UnitEditor::name() const
@@ -116,19 +121,19 @@ inline QString UnitEditor::pasteObjectText() const
 	return objectEditor()->editor()->tr("WESTRING_MENU_OE_UNIT_PASTE", "WorldEditStrings");
 }
 
-inline KIcon UnitEditor::copyObjectIcon() const
+inline KUrl UnitEditor::copyObjectIconUrl() const
 {
-	return KIcon(objectEditor()->editor()->findFile(KUrl("ReplaceableTextures\\WorldEditUI\\Editor-Toolbar-Copy.blp")).toLocalFile());
+	return KUrl("ReplaceableTextures\\WorldEditUI\\Editor-Toolbar-Copy.blp");
 }
 
-inline KIcon UnitEditor::pasteObjectIcon() const
+inline KUrl UnitEditor::pasteObjectIconUrl() const
 {
-	return KIcon(objectEditor()->editor()->findFile(KUrl("ReplaceableTextures\\WorldEditUI\\Editor-Toolbar-Paste.blp")).toLocalFile());
+	return KUrl("ReplaceableTextures\\WorldEditUI\\Editor-Toolbar-Paste.blp");
 }
 
-inline KIcon UnitEditor::newObjectIcon() const
+inline KUrl UnitEditor::newObjectIconUrl() const
 {
-	return KIcon(objectEditor()->editor()->findFile(KUrl("ReplaceableTextures\\WorldEditUI\\Editor-Unit.blp")).toLocalFile());
+	return KUrl("ReplaceableTextures\\WorldEditUI\\Editor-Unit.blp");
 }
 
 }

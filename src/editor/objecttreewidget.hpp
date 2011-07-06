@@ -35,6 +35,10 @@ namespace editor
  */
 class ObjectTreeWidget : public QTreeWidget
 {
+	public:
+		ObjectTreeWidget(QWidget *parent = 0, Qt::WindowFlags f = 0) : QTreeWidget(parent, f)
+		{
+		}
 };
 
 }

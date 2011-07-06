@@ -32,7 +32,7 @@ namespace editor
 class SoundEditor : public Module
 {
 	public:
-		SoundEditor(class Editor *editor);
+		SoundEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 
 	protected:
 		virtual void createFileActions(class KMenu *menu);

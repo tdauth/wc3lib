@@ -25,6 +25,7 @@
 #include <QLinkedList>
 
 #include "../map.hpp"
+#include "metadata.hpp"
 
 namespace wc3lib
 {
@@ -35,25 +36,34 @@ namespace editor
 class ObjectTableWidget : public QTableWidget
 {
 	public:
-		ObjectTableWidget(QWidget *parent, const QLinkedList<map::MetaData*> &metaData);
+		typedef QVector<QVariant> Entries;
+		typedef QLinkedList<class ObjectTableWidgetPair*> Pairs;
 		
-		/**
-		 * Updates table by reading new data for corresponding meta data descriptions from list \p data.
-		 * \todo Use ObjectTableWidgetPair::void setData(map::Data *data); to assign new data.
-		 */
-		void update(const QLinkedList<map::Data*> &data);
+		ObjectTableWidget(QWidget *parent, const MetaData *metaData);
 		
-		const QLinkedList<class ObjectTableWidgetPair*> pairs() const;
-		const QLinkedList<class ObjectTableWidgetPair*> pairs(map::Section section) const;
+		Pairs& pairs();
+		const Pairs& pairs() const;
+		Pairs pairs(map::Section section);
 	
 	protected:
 		/**
 		 * Items are not edited directly like usual table items. Usually a simple dialog with OK and cancel button is shown.
+		 * This functions handles all edit requests!
 		 */
 		virtual void editItem(QTableWidgetItem *item);
 		
-		QLinkedList<class ObjectTableWidgetPair*> m_pairs;
+		Pairs m_pairs;
 };
+
+inline ObjectTableWidget::Pairs& ObjectTableWidget::pairs()
+{
+	return m_pairs;
+}
+
+inline const ObjectTableWidget::Pairs& ObjectTableWidget::pairs() const
+{
+	return m_pairs;
+}
 
 }
 

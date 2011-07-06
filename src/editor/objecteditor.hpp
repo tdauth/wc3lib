@@ -48,15 +48,15 @@ namespace editor
  * Additionally it supports newly added object editors (SLK-based):
  * <ul>
  * <li>Model Entry Editor</li>
- * <li>Skin Editor</li>
- * <li>Uberslpat Editor</li>
- * <li>Slpat Editor</li>
- * <li>Spawn Editor</li>
- * <li>Lightning Effect Editor</li>
- * <li>Cliff Type Editor</li>
- * <li>Tileset Editor</li>
- * <li>Water Editor</li>
- * <li>Weather Editor</li>
+ * <li>Skin Entry Editor</li>
+ * <li>Uberslpat Entry Editor</li>
+ * <li>Slpat Entry Editor</li>
+ * <li>Spawn Entry Editor</li>
+ * <li>Lightning Effect Entry Editor</li>
+ * <li>Cliff Type Entry Editor</li>
+ * <li>Tileset Entry Editor</li>
+ * <li>Water Entry Editor</li>
+ * <li>Weather Entry Editor</li>
  * <li>Sound Entry Editor</li>
  * <li>Misc Editor - formerly known as "edit gameplay constants"</li>
  * </ul>
@@ -73,7 +73,7 @@ class ObjectEditor : public Module
 	public:
 		static QVariant valueToVariant(const map::Value &value);
 		
-		ObjectEditor(class Editor *editor);
+		ObjectEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		~ObjectEditor();
 		
 		class KTabWidget* tabWidget() const;
@@ -111,9 +111,6 @@ class ObjectEditor : public Module
 		void currentChanged(int index);
 	
 	protected:
-		
-		QList<map::Object> m_objects;
-		
 		KTabWidget *m_tabWidget;
 		// current widgets of corresponding tab widget
 		class ObjectEditorTab *m_currentTab;
@@ -127,15 +124,15 @@ class ObjectEditor : public Module
 		class UpgradeEditor *m_upgradeEditor;
 		// newly supported
 		class ModelEntryEditor *m_modelEntryEditor;
-		class SkinEditor *m_skinEditor;
-		class UbersplatEditor *m_ubersplatEditor;
-		class SlpatEditor *m_splatEditor;
-		class SpawnEditor *m_spawnEditor;
-		class LightningEffectEditor *m_lightningEffectEditor;
-		class CliffTypeEditor *m_cliffTypeEditor;
-		class TilesetEditor *m_tilesetEditor;
-		class WaterEditor *m_waterEditor;
-		class WeatherEditor *m_weatherEditor;
+		class SkinEntryEditor *m_skinEntryEditor;
+		class UbersplatEntryEditor *m_ubersplatEntryEditor;
+		class SlpatEntryEditor *m_splatEntryEditor;
+		class SpawnEntryEditor *m_spawnEntryEditor;
+		class LightningEffectEntryEditor *m_lightningEffectEntryEditor;
+		class CliffTypeEntryEditor *m_cliffTypeEntryEditor;
+		class TilesetEntryEditor *m_tilesetEntryEditor;
+		class WaterEntryEditor *m_waterEntryEditor;
+		class WeatherEntryEditor *m_weatherEntryEditor;
 		class SoundEntryEditor *m_soundEntryEditor;
 		
 		class KAction *m_newObjectAction;
@@ -148,95 +145,6 @@ class ObjectEditor : public Module
 		class KAction *m_copyObjectAction;
 		class KAction *m_pasteObjectAction;
 };
-
-namespace
-{
-
-inline QList<QVariant> stringList(const map::List &list)
-{
-	QList<QVariant> result;
-	
-	foreach (const std::string &value, list)
-		result << QVariant(value.c_str());
-	
-	return result;
-}
-
-}
-
-inline QVariant ObjectEditor::valueToVariant(const map::Value &value)
-{
-	switch (value.type())
-	{
-		case map::Value::Integer:
-			return QVariant(value.toInteger());
-			
-		case map::Value::Real:
-			return QVariant(value.toReal());
-			
-		case map::Value::Unreal:
-			return QVariant(value.toUnreal());
-			
-		case map::Value::String:
-			return QVariant(value.toString().c_str());
-			
-		case map::Value::Boolean:
-			return QVariant(value.toBoolean());
-			
-		case map::Value::Character:
-			return QVariant(value.toCharacter());
-			
-		case map::Value::UnitList:
-			return QVariant(stringList(value.toUnitList()));
-			
-		case map::Value::ItemList:
-			return QVariant(stringList(value.toItemList()));
-			
-		case map::Value::RegenerationType:
-			return QVariant(value.toRegenerationType().c_str());
-			
-		case map::Value::AttackType:
-			return QVariant(value.toAttackType().c_str());
-			
-		case map::Value::WeaponType:
-			return QVariant(value.toWeaponType().c_str());
-			
-		case map::Value::TargetType:
-			return QVariant(value.toTargetType().c_str());
-			
-		case map::Value::MoveType:
-			return QVariant(value.toMoveType().c_str());
-			
-		case map::Value::DefenseType:
-			return QVariant(value.toDefenseType().c_str());
-			
-		case map::Value::PathingTexture:
-			return QVariant(value.toPathingTexture().c_str());
-			
-		case map::Value::UpgradeList:
-			return QVariant(stringList(value.toUpgradeList()));
-			
-		case map::Value::StringList:
-			return QVariant(stringList(value.toStringList()));
-			
-		case map::Value::AbilityList:
-			return QVariant(stringList(value.toAbilityList()));
-			
-		case map::Value::HeroAbilityList:
-			return QVariant(stringList(value.toHeroAbilityList()));
-			
-		case map::Value::MissileArt:
-			return QVariant(value.toMissileArt().c_str());
-			
-		case map::Value::AttributeType:
-			return QVariant(value.toAttributeType().c_str());
-			
-		case map::Value::AttackBits:
-			return QVariant(value.toAttackBits().c_str());
-	}
-	
-	return QVariant();
-}
 
 inline class KTabWidget* ObjectEditor::tabWidget() const
 {

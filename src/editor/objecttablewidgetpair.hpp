@@ -21,11 +21,10 @@
 #ifndef WC3LIB_EDITOR_OBJECTTABLEWIDGETPAIR_HPP
 #define WC3LIB_EDITOR_OBJECTTABLEWIDGETPAIR_HPP
 
-#include <boost/cast.hpp>
-
 #include <QObject>
 #include <QTableWidgetItem>
 
+#include "../core.hpp"
 #include "../map.hpp"
 
 namespace wc3lib

@@ -25,7 +25,7 @@
 
 #include <QWidget>
 
-#include <KIcon>
+#include <KUrl>
 
 #include "objecteditor.hpp"
 
@@ -40,28 +40,13 @@ class ObjectEditorTab : public QWidget
 	Q_OBJECT
 	
 	public:
-		ObjectEditorTab(class ObjectEditor *objectEditor) : QWidget(objectEditor)
-		{
-			// TODO can not call pure virtual member function name in constructor
-			//objectEditor->tabWidget()->addTab(this, name());
-			objectEditor->tabWidget()->addTab(this, "");
-		}
+		ObjectEditorTab(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		
-		class ObjectEditor* objectEditor() const
-		{
-			return boost::polymorphic_cast<class ObjectEditor*>(parent());
-		}
-		
-		
-		class ObjectTreeWidget* treeWidget() const
-		{
-			return m_treeWidget;
-		}
-		
-		class ObjectTableWidget* tableWidget() const
-		{
-			return m_tableWidget;
-		}
+		class MpqPriorityList* source() const;
+		bool hasObjectEditor() const;
+		class ObjectEditor* objectEditor() const throw (Exception);
+		class ObjectTreeWidget* treeWidget() const;
+		class ObjectTableWidget* tableWidget() const;
 		
 		virtual QString name() const = 0;
 		
@@ -104,13 +89,46 @@ class ObjectEditorTab : public QWidget
 		virtual QString copyObjectText() const = 0;
 		virtual QString pasteObjectText() const = 0;
 		
-		virtual KIcon copyObjectIcon() const = 0;
-		virtual KIcon pasteObjectIcon() const = 0;
-		virtual KIcon newObjectIcon() const = 0;
+		virtual KUrl copyObjectIconUrl() const = 0;
+		virtual KUrl pasteObjectIconUrl() const = 0;
+		virtual KUrl newObjectIconUrl() const = 0;
 		
+		class MpqPriorityList *m_source;
 		class ObjectTreeWidget *m_treeWidget; // left side tree widget
 		class ObjectTableWidget *m_tableWidget; // centered table widget of current selected object
 };
+
+inline class MpqPriorityList* ObjectEditorTab::source() const
+{
+	return m_source;
+}
+
+inline bool ObjectEditorTab::hasObjectEditor() const
+{
+	return typeid(parent()) == typeid(class ObjectEditor);
+}
+
+inline class ObjectEditor* ObjectEditorTab::objectEditor() const throw (Exception)
+{
+	try
+	{
+		return boost::polymorphic_cast<class ObjectEditor*>(parent());
+	}
+	catch (std::bad_cast &exception)
+	{
+		throw Exception(exception.what());
+	}
+}
+
+inline class ObjectTreeWidget* ObjectEditorTab::treeWidget() const
+{
+	return m_treeWidget;
+}
+
+inline class ObjectTableWidget* ObjectEditorTab::tableWidget() const
+{
+	return m_tableWidget;
+}
 
 inline void ObjectEditorTab::newObject()
 {
