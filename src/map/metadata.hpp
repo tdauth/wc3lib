@@ -72,9 +72,19 @@ class MetaData : public Object
 			return index() < metaData.index();
 		}
 		
+		void setIndex(int32 index)
+		{
+			m_index = index;
+		}
+		
 		int32 index() const
 		{
 			return m_index;
+		}
+		
+		void setDisplayName(const string &displayName)
+		{
+			m_displayName = displayName;
 		}
 		
 		const string& displayName() const
@@ -82,14 +92,29 @@ class MetaData : public Object
 			return m_displayName;
 		}
 		
+		void setMinValue(const Value &minValue)
+		{
+			m_minValue = minValue;
+		}
+		
 		const struct Value& minValue() const
 		{
 			return m_minValue;
 		}
 		
+		void setMaxValue(const Value &maxValue)
+		{
+			m_maxValue = maxValue;
+		}
+		
 		const struct Value& maxValue() const
 		{
 			return m_maxValue;
+		}
+		
+		void setType(BOOST_SCOPED_ENUM(Value::Type) type)
+		{
+			m_type = type;
 		}
 		
 		BOOST_SCOPED_ENUM(Value::Type) type() const
@@ -118,7 +143,7 @@ class MetaData : public Object
 };
 
 /**
- * Meta data entry from file "UI/MiscMetaData.slk".
+ * Meta data entry from file "Units/MiscMetaData.slk".
  */
 class MiscMetaData : public MetaData
 {
@@ -139,9 +164,41 @@ class MiscMetaData : public MetaData
 };
 
 /**
- * Meta data entry from file "UI/AbilityMetaData.slk".
+ * Meta data entry from file "Units/AbilityMetaData.slk".
  */
 class AbilityMetaData : public MetaData
+{
+	protected:
+		string m_field;
+		BOOST_SCOPED_ENUM(Slk) m_slk;
+		int32 m_index;
+		bool m_repeat;
+		BOOST_SCOPED_ENUM(Category) m_category;
+		string m_displayName;
+		string m_sort;
+		BOOST_SCOPED_ENUM(Value::Type) m_type;
+		string m_changeFlags;
+		BOOST_SCOPED_ENUM(ImportType) m_importType;
+		bool m_stringExt;
+		bool m_caseSensitive;
+		bool m_canBeEmpty;
+		struct Value m_minValue;
+		struct Value m_maxValue;
+		bool m_forceNonNegative;
+		bool m_useUnit;
+		bool m_useHero;
+		bool m_useItem;
+		bool m_useCreep;
+		bool m_useSpecific;
+		bool m_notSpecific;
+		int32 m_version;
+		BOOST_SCOPED_ENUM(Section) m_section;
+};
+
+/**
+ * Meta data entry from file "Units/UnitMetaData.slk".
+ */
+class UnitMetaData : public MetaData
 {
 	protected:
 		string m_field;
