@@ -72,6 +72,21 @@ class MetaData : public Object
 			return index() < metaData.index();
 		}
 		
+		const string& field() const
+		{
+			return m_field;
+		}
+		
+		BOOST_SCOPED_ENUM(Slk) slk() const
+		{
+			return m_slk;
+		}
+		
+		BOOST_SCOPED_ENUM(Section) section() const
+		{
+			return m_section;
+		}
+		
 		void setIndex(int32 index)
 		{
 			m_index = index;

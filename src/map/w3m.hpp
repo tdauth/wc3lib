@@ -104,6 +104,8 @@ class W3m : public FileFormat
 
 		int32 width() const;
 		int32 height() const;
+		
+		class Info* info() const;
 
 	protected:
 		std::streamsize readHeader(InputStream &istream) throw (class Exception);
@@ -161,6 +163,11 @@ inline int32 W3m::width() const
 inline int32 W3m::height() const
 {
 	return this->m_environment->mapHeight();
+}
+
+inline class Info* W3m::info() const
+{
+	return m_info;
 }
 
 }

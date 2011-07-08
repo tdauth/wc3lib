@@ -32,7 +32,7 @@ namespace editor
 class ImportManager : public Module
 {
 	public:
-		ImportManager(class Editor *editor);
+		ImportManager(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 
 	protected:
 		virtual void createFileActions(class KMenu *menu);

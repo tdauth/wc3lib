@@ -34,14 +34,14 @@ ObjectTableWidget::ObjectTableWidget(QWidget *parent, const MetaData *metaData)
 {
 	int i = 0;
 	
-	foreach (MetaData::MetaDataEntries::const_reference entry, metaData->entries())
+	foreach (MetaData::MetaDataEntries::const_reference entry, metaData->metaDataEntries())
 	{
 		ObjectTableWidgetPair *pair = new ObjectTableWidgetPair(this, i, entry.get());
 		++i;
 	}
 }
 
-ObjectTableWidget::Pairs ObjectTableWidget::pairs(map::Section section)
+ObjectTableWidget::Pairs ObjectTableWidget::pairs(BOOST_SCOPED_ENUM(map::Section) section)
 {
 	Pairs result;
 	

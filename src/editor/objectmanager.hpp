@@ -32,7 +32,7 @@ namespace editor
 class ObjectManager : public Module
 {
 	public:
-		ObjectManager(class Editor *editor);
+		ObjectManager(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 
 	protected:
 		virtual void createFileActions(class KMenu *menu);

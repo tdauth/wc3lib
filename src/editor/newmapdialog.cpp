@@ -26,7 +26,7 @@ namespace wc3lib
 namespace editor
 {
 
-NewMapDialog::NewMapDialog(class QWidget *parent) : KDialog(parent)
+NewMapDialog::NewMapDialog(MpqPriorityList* source, QWidget* parent, Qt::WindowFlags f): KDialog(parent, f)
 {
 	setupUi(this);
 }

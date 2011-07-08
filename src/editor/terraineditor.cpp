@@ -20,7 +20,7 @@
 
 #include <QtGui>
 
-#include <klocale.h>
+#include <KLocale>
 
 #include "terraineditor.hpp"
 #include "editor.hpp"
@@ -36,7 +36,7 @@ void TerrainEditor::loadEnvironment(const map::Environment &environment)
 	this->m_terrainGroup->loadAllTerrains(true);
 }
 
-TerrainEditor::TerrainEditor(class Editor *editor, Qt::WFlags f) : Module(editor), m_modelView(new ModelView(editor, this, f)), m_terrainGlobals(new Ogre::TerrainGlobalOptions()), m_terrainGroup(0)
+TerrainEditor::TerrainEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_modelView(new ModelView(source, this, f)), m_terrainGlobals(new Ogre::TerrainGlobalOptions()), m_terrainGroup(0)
 {
 	setWindowTitle(i18n("Terrain Editor"));
 	QHBoxLayout *mainLayout = new QHBoxLayout;

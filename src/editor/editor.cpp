@@ -204,11 +204,11 @@ Editor::~Editor()
 		delete m_root;
 
 	// delete resources
-	BOOST_FOREACH(ResourceValueType value, this->m_resources)
+	BOOST_FOREACH(Resources::reference value, this->m_resources)
 	{
 		qDebug() << "Cleaning up resource " << value.first;
 		
-		delete value.second;
+		value.second.reset();
 	}
 }
 
@@ -286,14 +286,16 @@ void Editor::openMap(const KUrl &url)
 	/*
 	Map map;
 	this->addResource(map);
+	m_currentMap
 	*/
 }
 
-void Editor::switchToMap(const class Map *map)
+void Editor::switchToMap(class Map *map)
 {
+	m_currentMap = map;
 }
 
-void Editor::closeMap(const class Map *map)
+void Editor::closeMap(class Map *map)
 {
 }
 

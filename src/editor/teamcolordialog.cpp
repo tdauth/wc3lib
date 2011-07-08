@@ -34,8 +34,8 @@ TeamColorDialog::TeamColorDialog(QWidget *parent, Qt::WFlags flags) : QDialog(pa
 	
 	QList<QColor> colors;
 	
-	for (BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) teamColor = OgreMdlx::TeamColor::Red; teamColor < OgreMdlx::TeamColor::MaxTeamColors; teamColor = (BOOST_SCOPED_ENUM(OgreMdlx::TeamColor))((int)teamColor + 1))
-		colors << OgreMdlx::teamColor(teamColor);
+	for (BOOST_SCOPED_ENUM(TeamColor) teamColor = TeamColor::Red; teamColor < TeamColor::MaxTeamColors; teamColor = (BOOST_SCOPED_ENUM(TeamColor))((int)teamColor + 1))
+		colors << editor::teamColor(teamColor);
 	
 	this->m_colorComboBox->clear();
 	this->m_colorComboBox->setColors(colors);

@@ -22,6 +22,7 @@
 #define WC3LIB_MAP_TRIGGER_HPP
 
 #include "platform.hpp"
+#include "triggerfunction.hpp"
 
 namespace wc3lib
 {
@@ -37,10 +38,23 @@ namespace map
 class Trigger : public Format
 {
 	public:
+		typedef boost::shared_ptr<TriggerFunction> FunctionPtr;
+		typedef std::vector<FunctionPtr> Functions;
+		
 		Trigger(class Triggers *triggers);
 
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
+		
+		class Triggers* triggers() const;
+		const string& name() const;
+		const string& description() const;
+		bool isEnabled() const;
+		bool isCustomText() const;
+		bool isInitiallyOn() const;
+		int32 unknown() const;
+		class TriggerCategory* category() const;
+		const Functions& functions() const;
 
 	protected:
 		class Triggers *m_triggers;
@@ -51,8 +65,53 @@ class Trigger : public Format
 		bool m_isInitiallyOn;
 		int32 m_unknown;
 		class TriggerCategory *m_category;
-		std::list<class TriggerFunction*> m_functions;
+		Functions m_functions;
 };
+
+inline class Triggers* Trigger::triggers() const
+{
+	return m_triggers;
+}
+
+inline const string& Trigger::name() const
+{
+	return m_name;
+}
+
+inline const string& Trigger::description() const
+{
+	return m_description;
+}
+
+inline bool Trigger::isEnabled() const
+{
+	return m_isEnabled;
+}
+
+inline bool Trigger::isCustomText() const
+{
+	return m_isCustomText;
+}
+
+inline bool Trigger::isInitiallyOn() const
+{
+	return m_isInitiallyOn;
+}
+
+inline int32 Trigger::unknown() const
+{
+	return m_unknown;
+}
+
+inline class TriggerCategory* Trigger::category() const
+{
+	return m_category;
+}
+
+inline const Trigger::Functions& Trigger::functions() const
+{
+	return m_functions;
+}
 
 }
 

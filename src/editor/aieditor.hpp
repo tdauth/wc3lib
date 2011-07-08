@@ -32,7 +32,7 @@ namespace editor
 class AiEditor : public Module
 {
 	public:
-		AiEditor(class Editor *editor);
+		AiEditor(wc3lib::editor::MpqPriorityList* source, QWidget* parent = 0, Qt::WindowFlags f = 0);
 
 	protected:
 		virtual void createFileActions(class KMenu *menu);

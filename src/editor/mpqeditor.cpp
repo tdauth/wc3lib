@@ -30,7 +30,7 @@ namespace wc3lib
 namespace editor
 {
 
-MpqEditor::MpqEditor(class Editor *editor) : Module(editor)
+MpqEditor::MpqEditor(MpqPriorityList* source, QWidget* parent, Qt::WindowFlags f) : Module(source, parent, f)
 {
 }
 
@@ -81,22 +81,22 @@ void MpqEditor::createDirectory()
 
 void MpqEditor::openWar3()
 {
-	openMpqArchive(Editor::war3Url());
+	openMpqArchive(war3Url());
 }
 
 void MpqEditor::openWar3X()
 {
-	openMpqArchive(Editor::war3XUrl());
+	openMpqArchive(war3XUrl());
 }
 
 void MpqEditor::openWar3Patch()
 {
-	openMpqArchive(Editor::war3PatchUrl());
+	openMpqArchive(war3PatchUrl());
 }
 
 void MpqEditor::openWar3XLocal()
 {
-	openMpqArchive(Editor::war3XLocalUrl());
+	openMpqArchive(war3XLocalUrl());
 }
 
 void MpqEditor::createFileActions(class KMenu *menu)

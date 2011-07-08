@@ -1,0 +1,27 @@
+List of World Editor's emulation's features and their corresponding descriptions (features which are not available in the original version):
+
+Advanced:
+* Custom tileset can be defined correctly (with limit of 16 different ground and 16 different cliff textures).
+
+Brushes:
+* Storable selection grouping (war3map.wgr stores groups) which can be hidden etc.
+* Bew action "Select in rect" which allows you to select specific type of objects in rect only.
+* When copying selection (Doodads) into another map height should be hold correctly (WE bug).
+* Detailed height/position options can be specified for Destructibles and Doodads.
+* Pathing and detailed height/tilepoint settings can be specified for terrain brush.
+
+Trigger Editor:
+* Allows access to local variables (parses custom script "local" statements and provides default action to define some).
+* Advanced syntax highlighting for custom text triggers (from Kate).
+* Action "Convert to GUI trigger" can be used on custom text triggers - Trigger editor tries to reproduce trigger actions.
+
+Import Editor:
+* Allows multiple item selection.
+* Allows importing/exporting directories.
+* Shows if file from any source is overwritten by the imported file.
+
+Object Manager:
+
+
+New modules:
+* MPQ editor

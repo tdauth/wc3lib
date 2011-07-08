@@ -35,7 +35,6 @@
 
 #include <Ogre.h>
 
-#include "mpqprioritylist.hpp"
 #include "resource.hpp"
 #include "terraineditor.hpp"
 #include "triggereditor.hpp"
@@ -52,6 +51,7 @@
 #include "ogremdlx.hpp"
 #include "texture.hpp"
 #include "../mpq.hpp"
+#include "mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -60,12 +60,12 @@ namespace editor
 {
 
 /**
-* All modules are stored as pointers and created on request. Therefore their initial value is 0 and they're allocated when needed.
-* Editor holds all resources and required MPQ archives since it inherits from MpqPriorityList.
-* If a resource is required (by its URL) it could theoretically be cached if implemented in class Resource.
-* Just use \ref Editor#resources()[URL] to refer to your required resource.
-* @todo Each Module has it's own tool bar with all other modules.
-*/
+ * All modules are stored as pointers and created on request. Therefore their initial value is 0 and they're allocated when needed.
+ * Editor holds all resources and required MPQ archives since it inherits from MpqPriorityList.
+ * If a resource is required (by its URL) it could theoretically be cached if implemented in class Resource.
+ * Just use \ref Editor#resources()[URL] to refer to your required resource.
+ * @todo Each Module has it's own tool bar with all other modules.
+ */
 class Editor : public KMainWindow, public MpqPriorityList
 {
 	Q_OBJECT
@@ -93,6 +93,7 @@ class Editor : public KMainWindow, public MpqPriorityList
 
 	public:
 		typedef Editor self;
+		typedef QLinkedList<class Map*> Maps;
 
 		static const KAboutData& aboutData();
 		static const KAboutData& wc3libAboutData();
@@ -101,6 +102,7 @@ class Editor : public KMainWindow, public MpqPriorityList
 		virtual ~Editor();
 		
 		Ogre::Root* root() const;
+		class Map* currentMap() const;
 
 		class KActionCollection* actionCollection() const;
 		class TerrainEditor* terrainEditor() const;
@@ -119,8 +121,8 @@ class Editor : public KMainWindow, public MpqPriorityList
 	public slots:
 		void newMap();
 		void openMap(const KUrl &url);
-		void switchToMap(const class Map *map);
-		void closeMap(const class Map *map);
+		void switchToMap(class Map *map);
+		void closeMap(class Map *map);
 		void showTerrainEditor();
 		void showTriggerEditor();
 		void showSoundEditor();
@@ -155,6 +157,7 @@ class Editor : public KMainWindow, public MpqPriorityList
 		static KAboutData m_wc3libAboutData;
 
 		Ogre::Root *m_root;
+		class Map *m_currentMap;
 		
 		class KActionCollection *m_actionCollection;
 		class TerrainEditor *m_terrainEditor;
@@ -175,7 +178,7 @@ template<class T>
 T* Editor::module(T* const &module) const
 {
 	if (module == 0)
-		const_cast<T*&>(module) = new T(const_cast<self*>(this));
+		const_cast<T*&>(module) = new T(const_cast<self*>(this), const_cast<self*>(this));
 
 	return module;
 }
@@ -202,6 +205,11 @@ inline Ogre::Root* Editor::root() const
 		//KMessageBox::information(this, i18n("Full screen is enabled."));
 	
 	return m_root;
+}
+
+inline class Map* Editor::currentMap() const
+{
+	return m_currentMap;
 }
 
 inline class KActionCollection* Editor::actionCollection() const

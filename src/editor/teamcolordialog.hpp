@@ -24,7 +24,7 @@
 #include <QDialog>
 
 #include "ui/ui_teamcolordialog.h"
-#include "ogremdlx.hpp"
+#include "platform.hpp"
 
 namespace wc3lib
 {
@@ -37,18 +37,18 @@ class TeamColorDialog : public QDialog, protected Ui::TeamColorDialog
 	public:
 		TeamColorDialog(QWidget *parent = 0, Qt::WFlags flags = 0);
 		
-		void setTeamColor(BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) teamColor);
-		BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) teamColor() const;
+		void setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor);
+		BOOST_SCOPED_ENUM(TeamColor) teamColor() const;
 };
 
-inline void TeamColorDialog::setTeamColor(BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) teamColor)
+inline void TeamColorDialog::setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor)
 {
 	this->m_colorComboBox->setCurrentIndex((int)teamColor);
 }
 
-inline BOOST_SCOPED_ENUM(OgreMdlx::TeamColor) TeamColorDialog::teamColor() const
+inline BOOST_SCOPED_ENUM(TeamColor) TeamColorDialog::teamColor() const
 {
-	return OgreMdlx::teamColor(this->m_colorComboBox->color());
+	return editor::teamColor(this->m_colorComboBox->color());
 }
 
 }

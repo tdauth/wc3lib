@@ -24,6 +24,7 @@
 #include <KLocale>
 
 #include "../editor/editor.hpp"
+#include "../editor/splashscreen.hpp"
 
 using namespace wc3lib::editor;
 
@@ -38,8 +39,12 @@ int main(int argc, char *argv[])
     	KCmdLineArgs::addCmdLineOptions(options);
 
 	class KApplication app;
-
-	class Editor editor ;
+	
+	class Editor editor;
+	
+	SplashScreen splash(&editor, &editor);
+	splash.show();
+	
 	editor.show();
 	/*
 	/// @todo Allow parsing multiple files as arguments.

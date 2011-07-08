@@ -27,6 +27,7 @@
 #include <KUrl>
 
 #include "../core.hpp"
+#include "../map.hpp"
 
 namespace wc3lib
 {
@@ -49,7 +50,7 @@ inline QList<QVariant> stringList(const map::List &list)
 
 }
 
-inline QVariant ObjectEditor::valueToVariant(const map::Value &value)
+inline QVariant valueToVariant(const map::Value &value)
 {
 	switch (value.type())
 	{

@@ -23,6 +23,7 @@
 
 #include "module.hpp"
 #include "../mpq.hpp"
+#include "platform.hpp"
 
 namespace wc3lib
 {
@@ -44,7 +45,7 @@ class MpqEditor : public Module
 		typedef boost::shared_ptr<mpq::Mpq> MpqPtr;
 		typedef std::list<MpqPtr> List;
 		
-		MpqEditor(class Editor *editor);
+		MpqEditor(wc3lib::editor::MpqPriorityList* source, QWidget* parent = 0, Qt::WindowFlags f = 0);
 		
 		const List& mpqArchives() const;
 		const List& selection() const;

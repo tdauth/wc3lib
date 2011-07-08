@@ -21,8 +21,11 @@
 #ifndef WC3LIB_EDITOR_TRIGGEREDITOR_HPP
 #define WC3LIB_EDITOR_TRIGGEREDITOR_HPP
 
+#include <QMap>
+
 #include "module.hpp"
 #include "ui/ui_triggereditor.h"
+#include "../map.hpp"
 
 namespace wc3lib
 {
@@ -32,8 +35,15 @@ namespace editor
 
 class TriggerEditor : public Module, Ui::TriggerEditor
 {
+	Q_OBJECT
+	
 	public:
-		TriggerEditor(class Editor *editor);
+		typedef QMap<map::int32, QTreeWidgetItem*> Categories;
+		
+		TriggerEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		
+	public slots:
+		void loadTriggers(map::Triggers *triggers);
 
 	protected:
 		virtual void createFileActions(class KMenu *menu);
@@ -42,6 +52,9 @@ class TriggerEditor : public Module, Ui::TriggerEditor
 		virtual void createWindowsActions(class KMenu *menu);
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
+		
+		map::Triggers *m_triggers;
+		Categories m_categories;
 };
 
 }

@@ -26,7 +26,7 @@ namespace wc3lib
 namespace editor
 {
 
-AiEditor::AiEditor(class Editor *editor) : Module(editor)
+AiEditor::AiEditor(MpqPriorityList* source, QWidget* parent, Qt::WindowFlags f): Module(source, parent, f)
 {
 }
 

@@ -11,11 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Trigger Editor</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QTreeWidget" name="treeWidget">
+    <widget class="QTreeWidget" name="m_treeWidget">
      <column>
       <property name="text">
        <string>Triggers</string>

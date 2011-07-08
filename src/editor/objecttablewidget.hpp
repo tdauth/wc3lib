@@ -43,7 +43,7 @@ class ObjectTableWidget : public QTableWidget
 		
 		Pairs& pairs();
 		const Pairs& pairs() const;
-		Pairs pairs(map::Section section);
+		Pairs pairs(BOOST_SCOPED_ENUM(map::Section) section);
 	
 	protected:
 		/**

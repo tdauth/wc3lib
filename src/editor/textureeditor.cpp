@@ -40,7 +40,7 @@ namespace wc3lib
 namespace editor
 {
 
-TextureEditor::TextureEditor(class Editor *editor) : Module(editor), m_texture(), m_showsAlphaChannel(false), m_showsTransparency(false), m_factor(1.0)
+TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_texture(), m_showsAlphaChannel(false), m_showsTransparency(false), m_factor(1.0)
 {
 	Ui::TextureEditor::setupUi(this);
 	Module::setupUi();

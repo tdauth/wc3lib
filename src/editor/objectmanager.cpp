@@ -26,7 +26,7 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectManager::ObjectManager(class Editor *editor) : Module(editor)
+ObjectManager::ObjectManager(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f)
 {
 }
 

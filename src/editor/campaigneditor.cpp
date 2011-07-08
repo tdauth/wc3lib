@@ -26,7 +26,7 @@ namespace wc3lib
 namespace editor
 {
 
-CampaignEditor::CampaignEditor(class Editor *editor) : Module(editor)
+CampaignEditor::CampaignEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f)
 {
 }
 

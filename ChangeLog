@@ -1,3 +1,13 @@
+2011-07-08 Tamino Dauth <tamino@cdauth.eu>
+* editor: Revised various modules (using custom data source, widget parent and window flags now).
+* doc: Added file FEATURES which lists all planned newly implemented World Editor features.
+* editor: Added class Map.
+* editor: Class Editor has current map instance now.
+* editor: Added initial trigger display support in class TriggerEditor.
+* map: Improved trigger related classes.
+* editor: Added class SplashScreen.
+* app: Application "editor" uses that splash screen.
+
 2011-07-06 Tamino Dauth <tamino@cdauth.eu>
 * editor: Added class UnitMetaData. 
 * editor: Modules and object editor tabs rely on MPQ priority lists only now.

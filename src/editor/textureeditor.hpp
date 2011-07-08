@@ -45,7 +45,7 @@ class TextureEditor : public Module, protected Ui::TextureEditor
 	public:
 		typedef boost::scoped_ptr<Texture> TexturePtr;
 		
-		TextureEditor(class Editor *editor);
+		TextureEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~TextureEditor();
 		
 		const TexturePtr& texture() const;

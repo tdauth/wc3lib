@@ -54,7 +54,7 @@ class ModelEditor : public Module, protected Ui::ModelEditor
 		typedef boost::bimap<QAction*, const mdlx::Camera*> CameraActions;
 		typedef boost::bimap<const OgreMdlx::CollisionShape*, Ogre::SceneNode*> CollisionShapeNodes;
 		
-		ModelEditor(class Editor *editor);
+		ModelEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~ModelEditor();
 
 		virtual void show();
