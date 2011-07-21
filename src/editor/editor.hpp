@@ -25,7 +25,6 @@
 
 #include <boost/filesystem.hpp>
 
-#include <QDebug> // debug
 #include <QSettings>
 
 #include <KMainWindow>
@@ -61,7 +60,7 @@ namespace editor
 
 /**
  * All modules are stored as pointers and created on request. Therefore their initial value is 0 and they're allocated when needed.
- * Editor holds all resources and required MPQ archives since it inherits from MpqPriorityList.
+ * Editor holds all resources and required MPQ archives since it inherits from \ref MpqPriorityList.
  * If a resource is required (by its URL) it could theoretically be cached if implemented in class Resource.
  * Just use \ref Editor#resources()[URL] to refer to your required resource.
  * @todo Each Module has it's own tool bar with all other modules.
@@ -71,6 +70,7 @@ class Editor : public KMainWindow, public MpqPriorityList
 	Q_OBJECT
 
 	signals:
+		void createdModule(Module *module);
 		/**
 		 * This signal is being emitted when a map has been opened.
 		 */
@@ -178,8 +178,11 @@ template<class T>
 T* Editor::module(T* const &module) const
 {
 	if (module == 0)
+	{
 		const_cast<T*&>(module) = new T(const_cast<self*>(this), const_cast<self*>(this));
-
+		emit const_cast<self*>(this)->createdModule(const_cast<T*&>(module));
+	}
+	
 	return module;
 }
 
@@ -274,7 +277,10 @@ inline class TextureEditor* Editor::textureEditor() const
 
 inline class NewMapDialog* Editor::newMapDialog() const
 {
-	return module(this->m_newMapDialog);
+	if (this->m_newMapDialog == 0)
+		const_cast<self*>(this)->m_newMapDialog = new NewMapDialog(const_cast<self*>(this), const_cast<self*>(this));
+	
+	return this->m_newMapDialog;
 }
 
 }

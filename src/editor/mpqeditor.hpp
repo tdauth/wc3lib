@@ -90,6 +90,7 @@ class MpqEditor : public Module
 		virtual void createWindowsActions(class KMenu *menu);
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
+		virtual QString actionName();
 		
 		List& mpqArchives();
 		List& selection();
@@ -121,6 +122,11 @@ inline MpqEditor::List& MpqEditor::mpqArchives()
 inline MpqEditor::List& MpqEditor::selection()
 {
 	return m_selection;
+}
+
+inline QString MpqEditor::actionName()
+{
+	return "mpqeditor";
 }
 
 }

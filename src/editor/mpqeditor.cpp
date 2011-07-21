@@ -34,6 +34,10 @@ MpqEditor::MpqEditor(MpqPriorityList* source, QWidget* parent, Qt::WindowFlags f
 {
 }
 
+void MpqEditor::openMpqArchive(const KUrl &url)
+{
+}
+
 void MpqEditor::newMpqArchive()
 {
 }
@@ -44,6 +48,14 @@ void MpqEditor::openMpqArchives()
 	
 	foreach (const KUrl &url, urls)
 		openMpqArchive(url);
+}
+
+void MpqEditor::saveMpqArchive()
+{
+	KUrl url = KFileDialog::getSaveUrl(m_saveStartUrl, i18n("*.mpq|MPQ archives\n*"), this);
+	
+	if (url.isEmpty())
+		return;
 }
 
 void MpqEditor::closeMpqArchives()

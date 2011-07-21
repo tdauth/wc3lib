@@ -22,6 +22,7 @@
 #define WC3LIB_MAP_SOUNDS_HPP
 
 #include "platform.hpp"
+#include "sound.hpp"
 
 namespace wc3lib
 {

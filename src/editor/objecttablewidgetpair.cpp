@@ -47,7 +47,7 @@ void ObjectTableWidgetPair::update()
 {
 	if (data() != 0)
 	{
-		valueItem()->setData(Qt::DisplayRole, ObjectEditor::valueToVariant(customValue()));
+		valueItem()->setData(Qt::DisplayRole, valueToVariant(customValue()));
 		
 		if (!isDefault())
 		{

@@ -39,12 +39,15 @@ namespace wc3lib
 namespace editor
 {
 
-ModelView::ModelView(class Editor *editor, QWidget *parent, Qt::WFlags f, Ogre::SceneType ogreSceneType, const Ogre::NameValuePairList *ogreParameters) : QWidget(parent, f), m_editor(editor), m_sceneType(ogreSceneType), m_parameters(ogreParameters), m_root(editor->root()), m_renderWindow(0), m_sceneManager(0), m_camera(0), m_viewPort(0), m_changeFarClip(false), m_enableMouseMovement(false), m_enableMouseRotation(false), m_rotateSpeed(1.0), m_moveSpeed(2.0), m_scrollSpeed(0.80), m_yawValue(0.0), m_pitchValue(0.0)
+ModelView::ModelView(Ogre::Root *root, QWidget *parent, Qt::WFlags f, Ogre::SceneType ogreSceneType, const Ogre::NameValuePairList *ogreParameters) : QWidget(parent, f), m_root(root == 0 ? new Ogre::Root() : root), m_freeRoot(root == 0), m_sceneType(ogreSceneType), m_parameters(ogreParameters), m_renderWindow(0), m_sceneManager(0), m_camera(0), m_viewPort(0), m_changeFarClip(false), m_enableMouseMovement(false), m_enableMouseRotation(false), m_rotateSpeed(1.0), m_moveSpeed(2.0), m_scrollSpeed(0.80), m_yawValue(0.0), m_pitchValue(0.0)
 {
 }
 
 ModelView::~ModelView()
 {
+	if (m_freeRoot)
+		delete this->m_root;
+	
 	//if (this->m_frameListener)
 		//delete this->m_frameListener;
 	delete this->m_renderWindow;

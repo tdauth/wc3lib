@@ -28,7 +28,7 @@ namespace wc3lib
 namespace editor
 {
 
-SplashScreen::SplashScreen(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : QSplashScreen(parent, f)
+SplashScreen::SplashScreen(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : QSplashScreen(parent, QPixmap(), f)
 {
 	QString file;
 	

@@ -3,6 +3,10 @@ WC3LIB_ENABLE_EXCEPTIONS()
 WC3LIB_GET_H(wc3lib_CORE_H)
 WC3LIB_GET_SRC(wc3lib_CORE_SRC)
 
+if (FLAG_EDITOR_USE)
+	include_directories(${CMAKE_CURRENT_BINARY_DIR}/editor) # include binary dir since the KDE configuration class will be generated there and has to be included (also include for moc cxx files)
+endif ()
+
 # message(STATUS "These are the source files of core: ${wc3lib_CORE_SRC}")
 add_library(wc3libcore ${wc3lib_CREATION_MODE} ${wc3lib_CORE_SRC})
 if (NOT FLAG_STATIC_USE)

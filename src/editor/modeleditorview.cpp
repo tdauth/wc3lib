@@ -22,6 +22,7 @@
 
 #include "modeleditorview.hpp"
 #include "modeleditor.hpp"
+#include "editor.hpp"
 #include "../core.hpp"
 
 namespace wc3lib
@@ -30,7 +31,7 @@ namespace wc3lib
 namespace editor
 {
 
-ModelEditorView::ModelEditorView(class ModelEditor *modelEditor, Qt::WFlags f, Ogre::SceneType ogreSceneType, const Ogre::NameValuePairList *ogreParameters) : ModelView(modelEditor->editor(), modelEditor, f, ogreSceneType, ogreParameters), m_hitTest(false) /// TODO m_hitTest(true) should be usual, changed for school only
+ModelEditorView::ModelEditorView(class ModelEditor *modelEditor, Qt::WFlags f, Ogre::SceneType ogreSceneType, const Ogre::NameValuePairList *ogreParameters) : ModelView(modelEditor->hasEditor() ? modelEditor->editor()->root() : 0, modelEditor, f, ogreSceneType, ogreParameters), m_hitTest(false) /// TODO m_hitTest(true) should be usual, changed for school only
 {
 }
 

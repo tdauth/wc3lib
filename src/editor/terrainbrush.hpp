@@ -42,7 +42,7 @@ class TerrainBrush : public Brush
 	protected:
 		map::short16 m_groundHeight;
 		map::short16 m_waterLevel:15;
-		enum map::Tilepoint::Flags m_flags;
+		BOOST_SCOPED_ENUM(map::Tilepoint::Flags) m_flags;
 		unsigned int m_groundTextureType:4;
 		map::char8 m_textureDetails;
 		unsigned int m_cliffTextureType:4;

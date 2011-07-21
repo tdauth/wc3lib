@@ -30,9 +30,10 @@ namespace wc3lib
 namespace editor
 {
 
-TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(editor)
+TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f)
 {
 	Ui::TriggerEditor::setupUi(this);
+	Module::setupUi();
 }
 
 void TriggerEditor::loadTriggers(map::Triggers *triggers)
@@ -42,7 +43,7 @@ void TriggerEditor::loadTriggers(map::Triggers *triggers)
 	if (hasEditor())
 	{
 		/// \todo get w3x and w3m icon paths
-		const KUrl src = editor()->currentMap()->isW3x() ? "" : "";
+		const KUrl src(editor()->currentMap()->isW3x() ? "" : "");
 		QString file;
 		item->setText(0, editor()->currentMap()->map()->info()->name().c_str());
 		
@@ -51,7 +52,7 @@ void TriggerEditor::loadTriggers(map::Triggers *triggers)
 	}
 	else
 	{
-		item->setText(0, tr("Current map script");
+		item->setText(0, tr("Current map script"));
 	}
 	
 	foreach (map::Triggers::Categories::const_reference category, triggers->categories())
@@ -66,7 +67,7 @@ void TriggerEditor::loadTriggers(map::Triggers *triggers)
 	foreach (map::Triggers::TriggerList::const_reference trigger, triggers->triggers())
 	{
 		QTreeWidgetItem *triggerItem = new QTreeWidgetItem();
-		triggerItem->setText(0, trigger->name());
+		triggerItem->setText(0, trigger->name().c_str());
 		
 		/// \todo set icon (initially on, disabled etc.)
 		
@@ -100,7 +101,7 @@ class SettingsInterface* TriggerEditor::settings()
 	return 0;
 }
 
-#include "moc_triggereditor.h"
+#include "moc_triggereditor.cpp"
 
 }
 

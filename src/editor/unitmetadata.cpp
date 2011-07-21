@@ -26,7 +26,7 @@ namespace wc3lib
 namespace editor
 {
 
-UnitMetaData::UnitMetaData(class MpqPriorityList *source) : MetaData(source, "Units/UnitMetaData.slk")
+UnitMetaData::UnitMetaData(class MpqPriorityList *source) : MetaData(source, KUrl("Units/UnitMetaData.slk"))
 {
 }
 

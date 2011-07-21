@@ -31,9 +31,9 @@ namespace editor
 {
 
 /**
-* Provides access to Blizzard's image format.
-* @see BlpIOHandler
-*/
+ * Provides access to Blizzard's image format in Qt-based applications.
+ * \sa BlpIOHandler
+ */
 class BlpIOPlugin : public QImageIOPlugin
 {
 	public:

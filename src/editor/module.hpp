@@ -63,6 +63,12 @@ class Module : public QWidget
 		 * \sa source(), hasEditor()
 		 */
 		class Editor* editor() const throw (Exception);
+		
+		/**
+		 * Name of corresponding action in module menu of editor's action collection.
+		 * \sa moduleMenu()
+		 */
+		virtual QString actionName() = 0;
 
 	protected:
 		virtual void setupUi();
@@ -75,6 +81,9 @@ class Module : public QWidget
 		virtual class SettingsInterface* settings() = 0;
 
 		class QVBoxLayout* topLayout() const;
+		
+		virtual void focusInEvent(QFocusEvent*);
+		virtual void focusOutEvent(QFocusEvent*);
 
 		void readSettings();
 		void writeSettings();
@@ -90,6 +99,7 @@ class Module : public QWidget
 		class KMenuBar *m_menuBar;
 		class KMenu *m_windowsMenu;
 		class KToolBar *m_toolBar;
+		class QAction *m_closeAction;
 
 		class QVBoxLayout *m_topLayout;
 };

@@ -22,6 +22,9 @@ Import Editor:
 
 Object Manager:
 
+Object Editor:
+* Meta data SLKs etc. should have a column with describing tooltip refering to a string id (like name) which is displayed in object editor (see descriptions on mappedia.de for example).
+
 
 New modules:
 * MPQ editor

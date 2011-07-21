@@ -63,6 +63,7 @@ class TerrainEditor : public Module
 		virtual void createWindowsActions(class KMenu *menu);
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
+		virtual QString actionName();
 
 		class ModelView *m_modelView;
 
@@ -73,6 +74,11 @@ class TerrainEditor : public Module
 inline class ModelView* TerrainEditor::modelView() const
 {
 	return this->m_modelView;
+}
+
+inline QString TerrainEditor::actionName()
+{
+	return "terraineditor";
 }
 
 }

@@ -36,6 +36,12 @@ namespace editor
 /**
  * Implementation for Blizzard's MPQ format which should be usable in KDE applications as normal archive protocol (I/O slave) called "mpq".
  * "kio_mpq" is installed as usual MPQ plugin and therefore should be usable in all KDE-based applications.
+ * Some file attributes can be specified via URL:
+ * <ul>
+ * <li>locale</li>
+ * <li>platform</li>
+ * <li>sector</li>
+ * </ul>
  * \todo Finish and make installable as KDE plugin (such like qblp).
  */
 class MpqProtocol : public KIO::SlaveBase

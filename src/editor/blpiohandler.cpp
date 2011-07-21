@@ -79,11 +79,11 @@ bool BlpIOHandler::read(QImage *image)
 	QByteArray all = this->device()->readAll();
 	std::basic_istringstream<blp::byte> istream;
 	istream.rdbuf()->pubsetbuf(reinterpret_cast<blp::byte*>(all.data()), all.size());
-	class blp::Blp blpImage;
+	boost::scoped_ptr<blp::Blp> blpImage(new blp::Blp());
 
 	try
 	{
-		blpImage.read(istream);
+		blpImage->read(istream);
 	}
 	catch (class Exception &exception)
 	{
@@ -92,7 +92,7 @@ bool BlpIOHandler::read(QImage *image)
 		return false;
 	}
 
-	if (!read(image, blpImage))
+	if (!read(image, *blpImage))
 		return false;
 
 	return true;
@@ -103,8 +103,8 @@ bool BlpIOHandler::supportsOption(ImageOption option) const
 {
 	switch (option)
 	{
-		case QImageIOHandler::Size:
-			return false;
+		case QImageIOHandler::Quality:
+			return true;
 	}
 
 	return false;
@@ -112,16 +112,16 @@ bool BlpIOHandler::supportsOption(ImageOption option) const
 
 bool BlpIOHandler::write(const QImage &image)
 {
-	class blp::Blp blpImage;
+	boost::scoped_ptr<blp::Blp> blpImage(new blp::Blp());
 
-	if (!write(image, &blpImage))
+	if (!write(image, blpImage.get()))
 		return false;
 	
 	std::basic_ostringstream<blp::byte> ostream;
 
 	try
 	{
-		blpImage.write(ostream);
+		blpImage->write(ostream, option(Quality).toInt(), 0);
 	}
 	catch (class Exception &exception)
 	{
@@ -135,11 +135,10 @@ bool BlpIOHandler::write(const QImage &image)
 	ostream.rdbuf()->sgetn(reinterpret_cast<blp::byte*>(buffer), bufferSize);
 	this->device()->write(buffer, bufferSize);
 
-	/// @todo Recognize image IO handler options!
+	/// \todo Recognize image IO handler options!
 
 	return true;
 }
-
 
 bool BlpIOHandler::read(QImage *image, const blp::Blp &blpImage)
 {
@@ -163,35 +162,34 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp &blpImage)
 	else
 		format = QImage::Format_RGB32;
 
-	*image = QImage(mipMap->width(), mipMap->height(), format);
+	qDebug() << "Image has size (" << mipMap->width() << "|" << mipMap->height() << ").";
+	image = new QImage(boost::numeric_cast<int>(mipMap->width()), boost::numeric_cast<int>(mipMap->height()), format);
+	qDebug() << "Before colors";
 	qDebug() << "Color map size " << mipMap->colors().size();
+	qDebug() << "After colors.";
 
-	foreach (blp::Blp::MipMap::MapEntryType mapEntry, mipMap->colors())
+	if (blpImage.compression() != blp::Blp::Compression::Paletted)
 	{
-		const blp::Blp::MipMap::Coordinates &coordinates = mapEntry.first;
-		const class blp::Blp::MipMap::Color &color = mapEntry.second;
-		QRgb pixelColor = colorToRgba(color.argb());
-
-		if (blpImage.compression() != blp::Blp::Compression::Paletted)
+		foreach (blp::Blp::MipMap::MapEntryType mapEntry, mipMap->colors())
 		{
-
+			const blp::Blp::MipMap::Coordinates &coordinates = mapEntry.first;
+			const blp::Blp::MipMap::Color &color = mapEntry.second;
+			const QRgb pixelColor = colorToRgba(color.argb());
 			image->setPixel(coordinates.first, coordinates.second, pixelColor);
 		}
-		else
+	}
+	else
+	{
+		image->setColorCount(blp::Blp::compressedPaletteSize);
+		
+		for (int index = 0; index < image->colorCount(); ++index)
+			image->setColor(index, colorToRgba(blpImage.palette()[index]));
+		
+		foreach (blp::Blp::MipMap::MapEntryType mapEntry, mipMap->colors())
 		{
-			/// \todo Improve palette generation performance (only possible by saving palette in BLP instance).
-			int index = 0;
-
-			for (; index < image->colorCount(); ++index)
-			{
-				if (image->color(index) == pixelColor)
-					break;
-			}
-
-			if (index == image->colorCount())
-				image->setColor(image->colorCount(), pixelColor);
-
-			image->setPixel(coordinates.first, coordinates.second, index);
+			const blp::Blp::MipMap::Coordinates &coordinates = mapEntry.first;
+			const blp::Blp::MipMap::Color &color = mapEntry.second;
+			image->setPixel(coordinates.first, coordinates.second, color.paletteIndex());
 		}
 	}
 	
@@ -204,6 +202,9 @@ bool BlpIOHandler::write(const QImage &image, blp::Blp *blpImage)
 	{
 		qDebug() << "Is paletted";
 		blpImage->setCompression(blp::Blp::Compression::Paletted);
+		
+		for (int i = 0; i < image.colorTable().size(); ++i)
+			blpImage->palette()[i] = image.colorTable()[i];
 	}
 	else
 		blpImage->setCompression(blp::Blp::Compression::Jpeg);
@@ -233,13 +234,13 @@ bool BlpIOHandler::write(const QImage &image, blp::Blp *blpImage)
 		for (int height = 0; height < image.size().height(); ++height)
 		{
 			// set color
-			QRgb rgb = image.pixel(width, height);
+			const QRgb rgb = image.pixel(width, height);
 			int index = 0;
 
 			if (blpImage->compression() == blp::Blp::Compression::Paletted)
 				index = image.pixelIndex(width, height); // index has to be set because paletted compression can also be used
 
-			blp::color argb = rgbaToColor(rgb);
+			const blp::color argb = rgbaToColor(rgb);
 			mipMap->setColor(width, height, argb, qAlpha(rgb), index);
 		}
 	}

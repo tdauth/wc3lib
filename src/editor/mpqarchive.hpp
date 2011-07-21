@@ -48,6 +48,8 @@ class MpqArchive : public KArchive
 		const MpqFilePtr& mpqFile() const;
 		
 	protected:
+		friend class MpqProtocol;
+		
 		MpqArchive(const QString &fileName);
 		MpqArchive(QIODevice *dev);
 		virtual bool closeArchive();

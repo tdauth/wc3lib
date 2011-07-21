@@ -32,7 +32,7 @@ namespace map
 class MenuMinimap : public FileFormat
 {
 	public:
-		class Mark : public Format, public Position
+		class Mark : public Position
 		{
 			public:
 				BOOST_SCOPED_ENUM_START(IconType) /// \todo C++0x : int32
@@ -43,14 +43,16 @@ class MenuMinimap : public FileFormat
 				};
 				BOOST_SCOPED_ENUM_END
 				
+				Mark(int32 x, int32 y);
+				
 				virtual std::streamsize read(InputStream& istream) throw (Exception);
 				virtual std::streamsize write(OutputStream& ostream) const throw (Exception);
 				
-				IconType iconType() const;
+				BOOST_SCOPED_ENUM(IconType) iconType() const;
 				const Bgra& color() const;
 			
 			protected:
-				IconType m_iconType;
+				BOOST_SCOPED_ENUM(IconType) m_iconType;
 				Bgra m_color;
 		};
 		
@@ -78,7 +80,7 @@ class MenuMinimap : public FileFormat
 		Marks m_marks;
 };
 
-inline MenuMinimap::Mark::IconType MenuMinimap::Mark::iconType() const
+inline BOOST_SCOPED_ENUM(MenuMinimap::Mark::IconType) MenuMinimap::Mark::iconType() const
 {
 	return m_iconType;
 }

@@ -32,10 +32,10 @@ namespace editor
 {
 
 /**
-* Provides access to Blizzard's image format.
-* You do not necessarily have to use a device to read from. There are also member functions which do only use BLP objects.
-* @see BlpIOPlugin
-*/
+ * Provides access to Blizzard's image format in Qt-based applications.
+ * You do not necessarily have to use a device to read from. There are also member functions which do only use BLP objects.
+ * \sa BlpIOPlugin
+ */
 class BlpIOHandler : public QImageIOHandler
 {
 	public:

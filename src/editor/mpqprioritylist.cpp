@@ -77,10 +77,11 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 	{
 		KUrl absoluteSource;
 		
-		if (src.isRelative())
+		if (!src.isRelative())
 		{
 			absoluteSource = src;
 		}
+		// entry path can be a directory path or something like tar:/... or mpq:/...
 		else
 		{
 			absoluteSource = entry->url();
@@ -107,10 +108,11 @@ bool MpqPriorityList::upload(const QString &src, const KUrl &target, QWidget *wi
 	{
 		KUrl absoluteTarget;
 		
-		if (target.isRelative())
+		if (!target.isRelative())
 		{
 			absoluteTarget = target;
 		}
+		// entry path can be a directory path or something like tar:/... or mpq:/...
 		else
 		{
 			absoluteTarget = entry->url();
@@ -122,6 +124,12 @@ bool MpqPriorityList::upload(const QString &src, const KUrl &target, QWidget *wi
 	}
 	
 	return false;
+}
+
+QString MpqPriorityList::tr(const QString &key, const QString &group, BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale) const
+{
+	/// \todo open editor and other string files and get corresponding entries
+	return group + "[" + key + "]";
 }
 
 }

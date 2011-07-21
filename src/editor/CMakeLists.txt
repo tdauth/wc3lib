@@ -1,6 +1,7 @@
 WC3LIB_ENABLE_EXCEPTIONS()
-include_directories(${KDE4_INCLUDE_DIR} ${QT_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/ui) # include binary dir since the KDE configuration class will be generated there and has to be included (also include for moc cxx files)
 add_subdirectory(ui)
+
+include_directories(${KDE4_INCLUDE_DIR} ${QT_INCLUDE_DIR})
 
 include(${QT_USE_FILE})
 WC3LIB_GET_H(wc3lib_EDITOR_H)
@@ -21,7 +22,7 @@ add_library(Plugin_BlpCodec SHARED blpcodec.cpp)
 target_link_libraries(Plugin_BlpCodec wc3libblp OgreMain) # ${OGRE_LIBRARIES}
 
 # MPQ KDE plugin
-kde4_add_plugin(kio_mpq mpqprotocol.cpp)
+kde4_add_plugin(kio_mpq mpqprotocol.cpp mpqarchive.cpp)
 target_link_libraries(kio_mpq wc3libmpq ${wc3lib_CORE_LIBRARIES} ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KIO_LIBS})
 
 # wc3libeditor

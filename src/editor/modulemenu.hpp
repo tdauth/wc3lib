@@ -21,9 +21,11 @@
 #ifndef WC3LIB_EDITOR_MODULEMENU_HPP
 #define WC3LIB_EDITOR_MODULEMENU_HPP
 
-#include <QList>
+#include <QMap>
 
-#include <kmenu.h>
+#include <KMenu>
+
+#include "platform.hpp"
 
 namespace wc3lib
 {
@@ -31,21 +33,38 @@ namespace wc3lib
 namespace editor
 {
 
+/**
+ * Menu entry which lists actions for all Editor modules.
+ * Entries are created via signal when modules are created.
+ * Should never be used without an \ref Editor instance.
+ */
 class ModuleMenu : public KMenu
 {
 	public:
-		ModuleMenu(QWidget *widget, class Editor *editor);
+		typedef QMap<class Module*, class QAction*> Actions;
+		
+		ModuleMenu(class Module *module);
+		
+		class Module* module() const;
 		/**
 		* Holds all modules actions (without separators).
 		* Required by class Module.
 		*/
-		const QList<class QAction*>& actions() const;
-
-	protected:
-		QList<class QAction*> m_actions;
+		const Actions& actions() const;
+		
+	protected slots:
+		void addModuleAction(class Module *module);
+	
+	private:
+		Actions m_actions;
 };
 
-inline const QList<class QAction*>& ModuleMenu::actions() const
+inline class Module* ModuleMenu::module() const
+{
+	return boost::polymorphic_cast<class Module*>(parent());
+}
+
+inline const ModuleMenu::Actions& ModuleMenu::actions() const
 {
 	return this->m_actions;
 }

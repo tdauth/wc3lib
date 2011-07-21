@@ -1,3 +1,18 @@
+2011-07-19 Tamino Dauth <tamino@cdauth.eu>
+* editor: Reading and writing BLP palette for BLP Qt plugin is supported correctly now.
+
+2011-07-17 Tamino Dauth <tamino@cdauth.eu>
+* editor: Fixed module actions and focus behaviour.
+
+2011-07-14 Tamino Dauth <tamino@cdauth.eu>
+* editor: Fixed MPQ archive dependency for protocol plugin.
+* app: Made build directory to include directory for editor related applications.
+* blp: Improved and fixed read functionality.
+
+2011-07-09 Tamino Dauth <tamino@cdauth.eu>
+* editor: OgreMdlx load and save functionalities support MPQ priority lists now.
+* editor: Class Resource got pure virtual member functions save, load and reload and is created with a corresponding MPQ priority list now.
+
 2011-07-08 Tamino Dauth <tamino@cdauth.eu>
 * editor: Revised various modules (using custom data source, widget parent and window flags now).
 * doc: Added file FEATURES which lists all planned newly implemented World Editor features.

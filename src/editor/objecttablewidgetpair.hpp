@@ -26,6 +26,7 @@
 
 #include "../core.hpp"
 #include "../map.hpp"
+#include "platform.hpp"
 
 namespace wc3lib
 {

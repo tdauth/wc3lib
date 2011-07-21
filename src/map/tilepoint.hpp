@@ -45,8 +45,8 @@ class Tilepoint : public Position
 		Tilepoint(class Environment *environment, int32 x, int32 y);
 		Tilepoint(class Environment *environment, const Position &position);
 		
-		std::streamsize read(InputStream &istream) throw (class Exception);
-		std::streamsize write(OutputStream &ostream) const throw (class Exception);
+		virtual std::streamsize read(InputStream &istream) throw (class Exception);
+		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
 		short16 worldEditorHeight(short16 layer, short16 groundZeroLevel, short16 layerZeroLevel) const;
 		float32 worldEditorWaterLevel(short16 groundZeroLevel, float32 waterZeroLevel) const;

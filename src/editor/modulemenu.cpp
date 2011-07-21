@@ -18,16 +18,17 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <kmenu.h>
-#include <kaction.h>
-#include <kactioncollection.h>
-#include <kmenubar.h>
-#include <klocale.h>
+#include <KMenu>
+#include <KAction>
+#include <KActionCollection>
+#include <KMenuBar>
+#include <KLocale>
 
 #include <QtGui>
 
 #include "modulemenu.hpp"
 #include "editor.hpp"
+#include "module.hpp"
 
 namespace wc3lib
 {
@@ -35,38 +36,16 @@ namespace wc3lib
 namespace editor
 {
 
-ModuleMenu::ModuleMenu(QWidget *widget, class Editor *editor) : KMenu(tr("Module"), widget)
+ModuleMenu::ModuleMenu(class Module *module) : KMenu(tr("Module"), module)
 {
-	QAction *action = editor->actionCollection()->action("terraineditor");
+	connect(module->editor(), SIGNAL(createdModule(Module*)), this, SLOT(addModuleAction(Module*)));
+}
+
+void ModuleMenu::addModuleAction(class Module *module)
+{
+	QAction *action = this->module()->editor()->actionCollection()->action(module->actionName());
 	this->addAction(action);
-	this->m_actions << action;
-	action = editor->actionCollection()->action("triggereditor");
-	this->addAction(action);
-	this->m_actions << action;
-	action = editor->actionCollection()->action("soundeditor");
-	this->addAction(action);
-	this->m_actions << action;
-	action = editor->actionCollection()->action("objecteditor");
-	this->addAction(action);
-	this->m_actions << action;
-	action = editor->actionCollection()->action("campaigneditor");
-	this->addAction(action);
-	this->m_actions << action;
-	action = editor->actionCollection()->action("aieditor");
-	this->addAction(action);
-	this->m_actions << action;
-	action = editor->actionCollection()->action("modeleditor");
-	this->addAction(action);
-	this->m_actions << action;
-	action = editor->actionCollection()->action("textureeditor");
-	this->addAction(action);
-	this->m_actions << action;
-	action = editor->actionCollection()->action("objectmanager");
-	this->addAction(action);
-	this->m_actions << action;
-	action = editor->actionCollection()->action("importmanager");
-	this->addAction(action);
-	this->m_actions << action;
+	this->m_actions.insert(module, action);
 }
 
 }

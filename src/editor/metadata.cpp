@@ -29,8 +29,13 @@ namespace wc3lib
 namespace editor
 {
 
-MetaData::MetaData(class MpqPriorityList *source, const KUrl &url) : Resource(url, Type::MetaData), m_source(source)
+MetaData::MetaData(class MpqPriorityList *source, const KUrl &url) : Resource(source, url, Type::MetaData)
 {
+}
+
+void MetaData::clear() throw ()
+{
+	m_metaDataEntries.clear();
 }
 
 void MetaData::load() throw (class Exception)
@@ -67,7 +72,7 @@ void MetaData::load() throw (class Exception)
 	if (lineValues.size() != 4)
 		throw Exception();
 	
-	if (lineValues[0] != 'B')
+	if (lineValues[0][0] != 'B')
 		throw Exception();
 	
 	if (lineValues[1].isEmpty())
@@ -148,6 +153,12 @@ void MetaData::load() throw (class Exception)
 	}
 }
 
+void MetaData::reload() throw (Exception)
+{
+	clear();
+	load();
+}
+
 map::MetaData* MetaData::createMetaDataEntry()
 {
 	return new map::MetaData();
@@ -156,8 +167,9 @@ map::MetaData* MetaData::createMetaDataEntry()
 void MetaData::filleMetaDataEntry(MetaDataPtr &entry, const Row &row)
 {
 	entry->setIndex(row[0].toInt());
-	entry->setDisplayName(row[1].toString());
-	entry->setMinValue(row[2].toInt());
+	entry->setDisplayName(row[1].toString().toUtf8().constData());
+	entry->setMinValue(boost::numeric_cast<map::int32>(row[2].toInt()));
+	/// \todo Fill other data ...
 }
 
 }

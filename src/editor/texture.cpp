@@ -36,13 +36,21 @@ namespace wc3lib
 namespace editor
 {
 
-Texture::Texture(const KUrl &url) : Resource(url, Type::Texture)
+Texture::Texture(class MpqPriorityList *source, const KUrl &url) : Resource(source, url, Type::Texture)
 {
 }
 
 Texture::~Texture()
 {
 }
+
+void Texture::clear() throw ()
+{
+	m_blp.reset();
+	m_qt.reset();
+	m_ogre.reset();
+}
+
 
 void Texture::loadBlp() throw (Exception)
 {
@@ -89,12 +97,12 @@ void Texture::loadQt() throw (Exception)
 	if (hasBlp())
 	{
 		BlpIOHandler ioHandler;
-		QtPtr qtImage(new QImage());
+		QImage *qtImage = 0;
 		
-		if (!ioHandler.read(qtImage.get(), *m_blp.get()))
+		if (!ioHandler.read(qtImage, *m_blp.get()))
 			throw Exception(_("Unable to convert BLP image into Qt."));
 		
-		m_qt.swap(qtImage); // exception safe (won't change image if handler has some error
+		m_qt.reset(qtImage); // exception safe (won't change image if handler has some error
 	}
 	/// TODO cannot convert from OGRE to Qt.
 	/*
@@ -158,6 +166,23 @@ void Texture::loadAll() throw (Exception)
 	loadOgre();
 }
 
+void Texture::reload() throw (Exception)
+{
+	bool hasBlp = this->hasBlp();
+	bool hasQt = this->hasQt();
+	bool hasOgre = this->hasOgre();
+	clear();
+	
+	if (hasBlp)
+		loadBlp();
+	
+	if (hasQt)
+		loadQt();
+	
+	if (hasOgre)
+		loadOgre();
+}
+
 namespace
 {
 
@@ -178,7 +203,7 @@ inline QString compressionOption(const QStringList &list, const QString key)
 
 }
 
-void Texture::save(const KUrl &url, const QString &format, const QString &compression) throw (Exception)
+void Texture::save(const KUrl &url, const QString &format, const QString &compression) const throw (Exception)
 {
 	KTemporaryFile tmpFile;
 	

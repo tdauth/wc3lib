@@ -146,7 +146,7 @@ class Blp : public Format
 
 				/**
 				 * Assigns MIP map color \p argb at position (\p width | \p height) with alpha \p alpha and palette index \p paletteIndex.
-				 * \note Throws an exception if position is out of range.
+				 * \throw Exception Throws an exception if position is out of range.
 				 */
 				void setColor(dword width, dword height, color argb, byte alpha = 0, byte paletteIndex = 0) throw (class Exception);
 				void setColorAlpha(dword width, dword height, byte alpha) throw (class Exception);
@@ -277,7 +277,7 @@ class Blp : public Format
 
 		bool hasPalette() const;
 		/**
-		 * Generates or regenerates color paletted by color entry indices.
+		 * Generates or regenerates color palette by color entry indices.
 		 * \param number If this value is 0 or too large it will be set to \ref Blp::compressedPaletteSize automatically.
 		 * \throw Exception Exception safe. Throws an exception if compression is not paletted.
 		 * \sa hasPalette(), palette()
@@ -289,6 +289,7 @@ class Blp : public Format
 		 * \throw Exception Exception safe. Throws an exception if compression is not paletted.
 		 */
 		const ColorPtr& palette() const throw (Exception);
+		ColorPtr& palette() throw (Exception);
 
 	protected:
 		dword mipMapWidth(std::size_t index) const;

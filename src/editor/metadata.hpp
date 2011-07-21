@@ -46,7 +46,14 @@ class MetaData : public Resource
 		
 		MetaData(class MpqPriorityList *source, const KUrl &url);
 		
-		virtual void load() throw (class Exception);
+		virtual void clear() throw ();
+		
+		virtual void load() throw (Exception);
+		virtual void reload() throw (Exception);
+		virtual void save(const KUrl &url) const throw (Exception)
+		{
+			throw Exception(_("Saving meta data is not supported yet."));
+		}
 	
 		class MpqPriorityList* source() const;
 		const MetaDataEntries& metaDataEntries() const;

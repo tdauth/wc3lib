@@ -83,8 +83,10 @@ class OgreMdlx  : public Resource, public Ogre::FrameListener
 		 */
 		static void updateCamera(const class mdlx::Camera &camera, Ogre::Camera *ogreCamera);
 
-		OgreMdlx(const KUrl &url, class ModelView *modelView);
+		OgreMdlx(class MpqPriorityList *source, const KUrl &url, class ModelView *modelView);
 		virtual ~OgreMdlx();
+		
+		virtual void clear() throw ();
 
 		const MdlxPtr& mdlx() const;
 		class ModelView* modelView() const;
@@ -93,15 +95,17 @@ class OgreMdlx  : public Resource, public Ogre::FrameListener
 		const Cameras& cameras() const;
 		const CollisionShapes& collisionShapes() const;
 
-		void setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor);
+		void setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor) throw (Exception);
 		BOOST_SCOPED_ENUM(TeamColor) teamColor() const;
-		void setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow);
+		void setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow) throw (Exception);
 		BOOST_SCOPED_ENUM(TeamColor) teamGlow() const;
 
 		/**
-		* Loads and analyses all data of corresponding MDLX model and refreshes displayed OGRE mesh.
-		*/
-		virtual void load() throw (class Exception, class Ogre::Exception);
+		 * Loads and analyses all data of corresponding MDLX model and refreshes displayed OGRE mesh.
+		 * If \ref modelView() is based on 
+		 */
+		virtual void load() throw (class Exception);
+		virtual void reload() throw (Exception);
 
 		/**
 		 * Provides serialization functionality of the corresponding \ref mdlx::Mdlx instance or the OGRE scene.
@@ -115,7 +119,11 @@ class OgreMdlx  : public Resource, public Ogre::FrameListener
 		 * \param format If this value is empty format will be detected automatically by it's destination's extension. If no valid extension could be detected default format is used: MDX.
 		 * \throw Exception Is thrown when file could not be stored in \p url.
 		 */
-		virtual void save(const KUrl &url, const QString &format = "mdx") throw (class Exception);
+		virtual void save(const KUrl &url, const QString &format) const throw (class Exception);
+		virtual void save(const KUrl &url) const throw (Exception)
+		{
+			save(url, "mdx");
+		}
 		
 		QString namePrefix() const;
 

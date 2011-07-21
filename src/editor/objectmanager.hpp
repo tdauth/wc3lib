@@ -41,7 +41,13 @@ class ObjectManager : public Module
 		virtual void createWindowsActions(class KMenu *menu);
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
+		virtual QString actionName();
 };
+
+inline QString ObjectManager::actionName()
+{
+	return "objectmanager";
+}
 
 }
 

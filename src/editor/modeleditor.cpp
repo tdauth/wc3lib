@@ -25,8 +25,6 @@
 #include <QtGui>
 
 #include <KFileDialog>
-#include <KMessageBox>
-#include <KLocale>
 #include <KMenu>
 #include <KMenuBar>
 #include <KAction>
@@ -385,7 +383,7 @@ void ModelEditor::dropEvent(QDropEvent *event)
 bool ModelEditor::openUrl(const KUrl &url)
 {
 	//const Ogre::Vector3 position(0.0, 0.0, 0.0);
-	OgreMdlxPtr ogreModel(new OgreMdlx(url, this->m_modelView));
+	OgreMdlxPtr ogreModel(new OgreMdlx(source(), url, this->m_modelView));
 	this->editor()->addResource(ogreModel.get()); // add to get URL
 
 	try
@@ -407,8 +405,16 @@ bool ModelEditor::openUrl(const KUrl &url)
 	this->m_models.push_back(ogreModel);
 	this->m_modelView->root()->addFrameListener(ogreModel.get());
 	addCameraActions(ogreModel);
-	ogreModel->setTeamColor(teamColor());
-	ogreModel->setTeamGlow(teamGlow());
+	
+	try
+	{
+		ogreModel->setTeamColor(teamColor());
+		ogreModel->setTeamGlow(teamGlow());
+	}
+	catch (Exception &exception)
+	{
+		KMessageBox::error(this, i18n("Unable to assign team color %1 and team glow %2 to model \"%3\".\nException \"%4\".", teamColor(), teamGlow(), url.toEncoded().constData(), exception.what().c_str()));
+	}
 
 	return true;
 }

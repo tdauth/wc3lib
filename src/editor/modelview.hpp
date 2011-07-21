@@ -40,9 +40,8 @@ namespace editor
  * Therefore well known rendering engine OGRE is used in this class.
  * The rendering viewport should be scaled correctly automatically since Qt GUI events are implemented.
  * MDLX files can be converted into OGRE entities by creating an \ref OgreMdlx instance which manages an OGRE mesh and sub mesh instance.
- * Each ModelView instance uses \ref Editor OGRE root (\ref Editor::root()).
- * \link http://qt-apps.org/content/show.php/QtOgre+Framework?content=92912, http://www.ogre3d.org/tikiwiki/QtOgre
- * \sa Mdlx, OgreMdlx
+ * <a href="http://qt-apps.org/content/show.php/QtOgre+Framework?content=92912">source 1</a>, <a href="http://www.ogre3d.org/tikiwiki/QtOgre">source 2</a>
+ * \sa mdlx::Mdlx, OgreMdlx
  */
 class ModelView : public QWidget
 {
@@ -53,10 +52,11 @@ class ModelView : public QWidget
 
 	public:
 		/**
+		 * \param root If this value is 0 a new default \ref Ogre::Root object will be allocated and freed when model view is freed.
 		 * \param ogreSceneType OGRE scene type which will be set for the scene manager of the widget. Should be changed for terrain (ST_EXTERIOR_FAR, ST_EXTERIOR_REAL_FAR).
 		 * \param ogreParameters OGRE window parameters.
 		 */
-		ModelView(class Editor *editor, QWidget *parent = 0, Qt::WFlags f = 0, Ogre::SceneType ogreSceneType = Ogre::ST_EXTERIOR_CLOSE, const Ogre::NameValuePairList *ogreParameters = 0);
+		ModelView(Ogre::Root *root = 0, QWidget *parent = 0, Qt::WFlags f = 0, Ogre::SceneType ogreSceneType = Ogre::ST_EXTERIOR_CLOSE, const Ogre::NameValuePairList *ogreParameters = 0);
 		virtual ~ModelView();
 
 		//virtual void show();
@@ -69,7 +69,6 @@ class ModelView : public QWidget
 		void setPolygonModeWireframe();
 		void setPolygonModeSolid();
 
-		class Editor* editor() const;
 		Ogre::Root* root() const;
 		Ogre::RenderWindow* renderWindow() const;
 		Ogre::SceneManager* sceneManager() const;
@@ -116,9 +115,9 @@ class ModelView : public QWidget
 
 		bool checkCameraMovementBounds(const Ogre::Vector3 &delta);
 
-		class Editor *m_editor;
 		const Ogre::NameValuePairList *m_parameters;
 		Ogre::Root *m_root;
+		bool m_freeRoot;
 		Ogre::RenderWindow *m_renderWindow;
 
 		// default scene
@@ -141,11 +140,6 @@ class ModelView : public QWidget
 		Ogre::Real m_yawValue;
 		Ogre::Real m_pitchValue;
 };
-
-inline class Editor* ModelView::editor() const
-{
-	return this->m_editor;
-}
 
 inline Ogre::Root* ModelView::root() const
 {

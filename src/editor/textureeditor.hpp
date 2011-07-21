@@ -93,6 +93,7 @@ class TextureEditor : public Module, protected Ui::TextureEditor
 		virtual void createWindowsActions(class KMenu *menu);
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
+		virtual QString actionName();
 
 		TexturePtr m_texture;
 		bool m_showsAlphaChannel;
@@ -129,6 +130,12 @@ inline bool TextureEditor::hasTexture() const
 {
 	return texture().get() != 0;
 }
+
+inline QString TextureEditor::actionName()
+{
+	return "textureeditor";
+}
+
 
 }
 

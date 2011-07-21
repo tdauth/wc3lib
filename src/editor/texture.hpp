@@ -42,8 +42,14 @@ class Texture : public Resource
 		typedef boost::scoped_ptr<QImage> QtPtr;
 		typedef boost::scoped_ptr<Ogre::Image> OgrePtr;
 		
-		Texture(const KUrl &url);
+		Texture(class MpqPriorityList *source, const KUrl &url);
 		virtual ~Texture();
+		
+		/**
+		 * Frees all allocated texture related data.
+		 * \sa reload()
+		 */
+		virtual void clear() throw ();
 		
 		/**
 		 * \exception Exception Exception safe!
@@ -61,6 +67,11 @@ class Texture : public Resource
 		 * \exception Exception Exception safe!
 		 */
 		virtual void loadAll() throw (Exception);
+		virtual void load() throw (Exception) { loadAll(); }
+		/**
+		 * Calls \ref clear() and frees everything. Afterwards it loads all images which has been allocated formerly.
+		 */
+		virtual void reload() throw (Exception);
 		
 		/**
 		 * Saves texture at \p url with format \p format and compression options \p compression.
@@ -74,7 +85,11 @@ class Texture : public Resource
 		 * \todo Option quality only works for non-BLP formats.
 		 * \exception Exception Exception safe!
 		 */
-		virtual void save(const KUrl &url, const QString &format = "blp", const QString &compression = "") throw (Exception);
+		virtual void save(const KUrl &url, const QString &format, const QString &compression = "") const throw (Exception);
+		virtual void save(const KUrl &url) const throw (Exception)
+		{
+			save(url, "blp", "");
+		}
 
 		bool hasBlp() const;
 		bool hasQt() const;

@@ -24,6 +24,8 @@
 #include <QDebug>
 
 #include <KUrl>
+#include <KMessageBox>
+#include <KLocale>
 
 #include <Ogre.h>
 
@@ -103,6 +105,7 @@ class ModelEditor : public Module, protected Ui::ModelEditor
 		virtual void createWindowsActions(class KMenu *menu);
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
+		virtual QString actionName();
 
 		// load file events
 		virtual void dragEnterEvent(QDragEnterEvent *event);
@@ -164,7 +167,16 @@ inline void ModelEditor::setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor)
 	qDebug() << "Changing team color to " << teamColor;
 	
 	BOOST_FOREACH(Models::value_type value, this->models())
-		value->setTeamColor(this->teamColor());
+	{
+		try
+		{
+			value->setTeamColor(this->teamColor());
+		}
+		catch (Exception &exception)
+		{
+			KMessageBox::error(this, i18n("Unable to assign team color %1 and to model \"%2\".\nException \"%3\".", this->teamColor(), value->url().toEncoded().constData(), exception.what().c_str()));
+		}
+	}
 }
 
 inline BOOST_SCOPED_ENUM(TeamColor) ModelEditor::teamColor() const
@@ -178,12 +190,26 @@ inline void ModelEditor::setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow)
 	qDebug() << "Changing team glow to " << teamGlow;
 	
 	BOOST_FOREACH(Models::value_type value, this->models())
-		value->setTeamGlow(this->teamGlow());
+	{
+		try
+		{
+			value->setTeamGlow(this->teamGlow());
+		}
+		catch (Exception &exception)
+		{
+			KMessageBox::error(this, i18n("Unable to assign team glow %1 and to model \"%2\".\nException \"%3\".", this->teamGlow(), value->url().toEncoded().constData(), exception.what().c_str()));
+		}
+	}
 }
 
 inline BOOST_SCOPED_ENUM(TeamColor) ModelEditor::teamGlow() const
 {
 	return m_teamGlow;
+}
+
+inline QString ModelEditor::actionName()
+{
+	return "modeleditor";
 }
 
 }

@@ -31,6 +31,11 @@ namespace wc3lib
 namespace editor
 {
 
+/**
+ * Abstract base class for all kind of resources.
+ * Provides virtual load, reload and save member functions and dynamic type information.
+ * Besides each resource has its corresponding file URL and data source which makes all resource instance completly independent from each other.
+ */
 class Resource
 {
 	public:
@@ -46,17 +51,31 @@ class Resource
 		};
 		BOOST_SCOPED_ENUM_END
 
-		Resource(const KUrl &url, BOOST_SCOPED_ENUM(Type) type) : m_url(url), m_type(type) { };
+		/// Do not add to list \p source since sometimes it is discarded because of errors after loading it.
+		Resource(class MpqPriorityList *source, const KUrl &url, BOOST_SCOPED_ENUM(Type) type) : m_source(source), m_url(url), m_type(type) { };
+		class MpqPriorityList* source() const { return m_source; }
+		void setSource(class MpqPriorityList *source)
+		{
+			if (this->source() == source)
+				return;
+			
+			m_source = source;
+			reload();
+		}
 		const KUrl& url() const { return m_url; };
 		BOOST_SCOPED_ENUM(Type) type() const { return m_type; };
+		
+		virtual void load() throw (Exception) = 0;
+		virtual void reload() throw (Exception) = 0;
+		virtual void save(const KUrl &url) const throw (Exception) = 0;
 
 	protected:
-		friend class MpqPriorityList;
 		template<class T>
 		friend void boost::checked_delete(T*); // for destruction by shared ptr
 		
 		virtual ~Resource() { };
 		
+		class MpqPriorityList *m_source;
 		KUrl m_url;
 		BOOST_SCOPED_ENUM(Type) m_type;
 };

@@ -41,7 +41,13 @@ class AiEditor : public Module
 		virtual void createWindowsActions(class KMenu *menu);
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
+		virtual QString actionName();
 };
+
+inline QString AiEditor::actionName()
+{
+	return "aieditor";
+}
 
 }
 

@@ -19,7 +19,6 @@
  ***************************************************************************/
 
 #include "sounds.hpp"
-#include "sound.hpp"
 
 namespace wc3lib
 {

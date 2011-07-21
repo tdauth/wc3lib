@@ -71,8 +71,6 @@ class ObjectEditor : public Module
 		//void objectValueChanged(const map::ObjectValue &value);
 	
 	public:
-		static QVariant valueToVariant(const map::Value &value);
-		
 		ObjectEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		~ObjectEditor();
 		
@@ -103,6 +101,7 @@ class ObjectEditor : public Module
 		virtual void createWindowsActions(class KMenu *menu);
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
+		virtual QString actionName();
 		
 	protected slots:
 		/**
@@ -199,6 +198,11 @@ inline class KAction* ObjectEditor::copyObjectAction() const
 inline class KAction* ObjectEditor::pasteObjectAction() const
 {
 	return m_pasteObjectAction;
+}
+
+inline QString ObjectEditor::actionName()
+{
+	return "objecteditor";
 }
 
 }

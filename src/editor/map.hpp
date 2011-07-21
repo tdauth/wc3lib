@@ -36,7 +36,7 @@ class Map : public Resource
 	public:
 		typedef boost::scoped_ptr<map::W3m> MapPtr;
 		
-		Map(const KUrl &url);
+		Map(class MpqPriorityList *source, const KUrl &url);
 		
 		bool isW3x() const;
 		

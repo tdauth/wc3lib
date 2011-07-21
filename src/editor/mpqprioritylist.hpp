@@ -27,7 +27,6 @@
 
 #include "platform.hpp"
 #include "../mpq.hpp"
-#include "editor.hpp"
 #include "resource.hpp"
 #include "texture.hpp"
 #include "ogremdlx.hpp"
@@ -140,33 +139,33 @@ class MpqPriorityList : public MpqPriorityListBase
 		 * \return Returns true if the URL has been added to the list (this doesn't happen if there already is an entry with the given URL or if it refers to an absolute file path which is no archive or directory).
 		 * \todo Improve archive detection.
 		 */
-		bool addEntry(const KUrl &url, MpqPriorityListEntry::Priority priority = 0);
+		virtual bool addEntry(const KUrl &url, MpqPriorityListEntry::Priority priority = 0);
 		/**
 		 * Removes an entry by its corresponding URL.
 		 * \return Returns true if URL corresponds to some entry and that entry has been removed properly.
 		 */
-		bool removeEntry(const KUrl &url);
+		virtual bool removeEntry(const KUrl &url);
 
 		/**
 		 * \copydoc KIO::NetAccess::download()
 		 * Considers all entries if it's an relative URL. Otherwise it will at least consider the priority list's locale if none is given.
 		 * \todo If it's an "mpq:/" URL and there is no locale given add one considering \ref locale().
 		 */
-		bool download(const KUrl &src, QString &target, QWidget *window);
-		bool upload(const QString &src, const KUrl &target, QWidget *window);
+		virtual bool download(const KUrl &src, QString &target, QWidget *window);
+		virtual bool upload(const QString &src, const KUrl &target, QWidget *window);
 
 		
 		/**
 		 * All added resources will also be added to MPQ priority list automaticially.
 		 * Therefore there shouldn't occur any problems when you open an external MDL file and need its textures which are contained by the same directory.
 		 */
-		void addResource(class Resource *resource);
+		virtual void addResource(class Resource *resource);
 		/**
 		 * Removes resource from editor.
 		 * \note Deletes resource \p resource.
 		 */
-		bool removeResource(class Resource *resource);
-		bool removeResource(const KUrl &url);
+		virtual bool removeResource(class Resource *resource);
+		virtual bool removeResource(const KUrl &url);
 		const Resources& resources() const;
 		
 		/**
@@ -192,7 +191,7 @@ class MpqPriorityList : public MpqPriorityListBase
 		 * <li>UI/WorldEditStrings.txt</li>
 		 * </ul>
 		 */
-		QString tr(const QString &key, const QString &group = "", BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale = mpq::MpqFile::Locale::Neutral) const;
+		virtual QString tr(const QString &key, const QString &group = "", BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale = mpq::MpqFile::Locale::Neutral) const;
 	protected:
 		mpq::MpqFile::Locale m_locale;
 		
@@ -216,7 +215,6 @@ inline void MpqPriorityList::addResource(class Resource *resource)
 {
 	this->m_resources.insert(std::make_pair(resource->url(), resource));
 	this->addEntry(resource->url());
-	qDebug() << "Added resource " << resource->url();
 }
 
 
@@ -232,7 +230,6 @@ inline bool MpqPriorityList::removeResource(const KUrl &url)
 	if (iterator == this->m_resources.end())
 		return false;
 
-	qDebug() << "Removed resource " << url.path();
 	this->m_resources.erase(iterator);
 	iterator->second.reset();
 	this->removeEntry(url);
@@ -248,7 +245,7 @@ inline const MpqPriorityList::Resources& MpqPriorityList::resources() const
 inline const MpqPriorityList::TexturePtr& MpqPriorityList::teamColorTexture(BOOST_SCOPED_ENUM(TeamColor) teamColor) const throw (class Exception)
 {
 	if (this->m_teamColorTextures[teamColor].get() == 0)
-		this->m_teamColorTextures[teamColor].reset(new Texture(teamColorUrl(teamColor)));
+		this->m_teamColorTextures[teamColor].reset(new Texture(const_cast<MpqPriorityList*>(this), teamColorUrl(teamColor)));
 
 	return this->m_teamColorTextures[teamColor];
 }
@@ -256,7 +253,7 @@ inline const MpqPriorityList::TexturePtr& MpqPriorityList::teamColorTexture(BOOS
 inline const MpqPriorityList::TexturePtr& MpqPriorityList::teamGlowTexture(BOOST_SCOPED_ENUM(TeamColor) teamGlow) const throw (class Exception)
 {
 	if (this->m_teamGlowTextures[teamGlow].get() == 0)
-		this->m_teamGlowTextures[teamGlow].reset(new Texture(teamGlowUrl(teamGlow)));
+		this->m_teamGlowTextures[teamGlow].reset(new Texture(const_cast<MpqPriorityList*>(this), teamGlowUrl(teamGlow)));
 
 	return this->m_teamGlowTextures[teamGlow];
 }

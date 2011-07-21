@@ -33,7 +33,7 @@ namespace wc3lib
 namespace editor
 {
 
-class TriggerEditor : public Module, Ui::TriggerEditor
+class TriggerEditor : public Module, protected Ui::TriggerEditor
 {
 	Q_OBJECT
 	
@@ -52,10 +52,16 @@ class TriggerEditor : public Module, Ui::TriggerEditor
 		virtual void createWindowsActions(class KMenu *menu);
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
+		virtual QString actionName();
 		
 		map::Triggers *m_triggers;
 		Categories m_categories;
 };
+
+inline QString TriggerEditor::actionName()
+{
+	return "triggereditor";
+}
 
 }
 

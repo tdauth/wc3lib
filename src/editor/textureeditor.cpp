@@ -42,8 +42,8 @@ namespace editor
 
 TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_texture(), m_showsAlphaChannel(false), m_showsTransparency(false), m_factor(1.0)
 {
-	Ui::TextureEditor::setupUi(this);
 	Module::setupUi();
+	Ui::TextureEditor::setupUi(this);
 
 	topLayout()->addLayout(gridLayout_2);
 	
@@ -105,7 +105,7 @@ void TextureEditor::openFile()
 
 	//BlpIOHandler handler;
 	//handler.setDevice(&file);
-	TexturePtr texture(new Texture(url));
+	TexturePtr texture(new Texture(source(), url));
 
 	/*if (!handler.canRead())
 	{
@@ -161,7 +161,7 @@ void TextureEditor::saveFile()
 	
 	try
 	{
-		this->m_texture->save(url, QFileInfo(url.toLocalFile()).suffix());
+		this->m_texture->save(url, QFileInfo(url.toLocalFile()).suffix().toLower());
 	}
 	catch (Exception &exception)
 	{

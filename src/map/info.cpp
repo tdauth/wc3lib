@@ -48,7 +48,7 @@ std::streamsize Info::read(InputStream &istream) throw (class Exception)
 	wc3lib::read(istream, m_cameraBounds, size);
 	wc3lib::read(istream, m_playableWidth, size);
 	wc3lib::read(istream, m_playableHeight, size);
-	wc3lib::read<int32>(istream, m_flags, size);
+	wc3lib::read<int32>(istream, (int32&)m_flags, size);
 	wc3lib::read(istream, m_mainGroundType, size);
 	wc3lib::read(istream, m_campaignBackgroundIndex, size);
 	wc3lib::readString(istream, m_loadingScreenText, size);

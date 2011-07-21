@@ -20,10 +20,10 @@
 
 #include <QtGui>
 
-#include <kmenu.h>
-#include <kmenubar.h>
-#include <ktoolbar.h>
-#include <kactioncollection.h>
+#include <KMenu>
+#include <KMenuBar>
+#include <KToolBar>
+#include <KActionCollection>
 
 #include "module.hpp"
 #include "modulemenu.hpp"
@@ -36,7 +36,7 @@ namespace wc3lib
 namespace editor
 {
 
-Module::Module(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_menuBar(0), m_topLayout(new QVBoxLayout(this)), QWidget(parent, f)
+Module::Module(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_moduleMenu(0), m_menuBar(0), m_topLayout(new QVBoxLayout(this)), QWidget(parent, f)
 {
 }
 
@@ -46,48 +46,63 @@ Module::~Module()
 
 bool Module::hasEditor() const
 {
-	return (typeid(source()) == typeid(class Editor));
+	return (typeid(source()) == typeid(Editor*));
 }
 
 class Editor* Module::editor() const throw (Exception)
 {
 	try
 	{
-		return boost::polymorphic_cast<class Editor*>(source());
+		return boost::polymorphic_cast<Editor*>(source());
 	}
 	catch (std::bad_cast &exception)
 	{
-		throw Exception() << exception;
+		throw Exception(exception.what());
 	}
 }
 
 void Module::setupUi()
 {
 	this->m_menuBar = new KMenuBar(this);
-	m_topLayout->addWidget(this->m_menuBar);
+	topLayout()->addWidget(this->m_menuBar);
 
 	this->m_fileMenu = new KMenu(tr("File"), this);
 	this->menuBar()->addMenu(this->m_fileMenu);
 	connect(this->m_fileMenu, SIGNAL(triggered(QAction *)), this, SLOT(triggered(QAction*)));
 
 	// use actions from editor
-	this->m_fileMenu->addAction(this->editor()->actionCollection()->action("newmap"));
-	this->m_fileMenu->addAction(this->editor()->actionCollection()->action("openmap"));
-	this->m_fileMenu->addAction(this->editor()->actionCollection()->action("closemap"));
-	this->m_fileMenu->addSeparator();
-	this->m_fileMenu->addAction(this->editor()->actionCollection()->action("savemap"));
-	this->m_fileMenu->addAction(this->editor()->actionCollection()->action("savemapas"));
-	this->m_fileMenu->addAction(this->editor()->actionCollection()->action("savemapshadows"));
-	this->m_fileMenu->addSeparator();
+	if (hasEditor())
+	{
+		this->m_fileMenu->addAction(this->editor()->actionCollection()->action("newmap"));
+		this->m_fileMenu->addAction(this->editor()->actionCollection()->action("openmap"));
+		this->m_fileMenu->addAction(this->editor()->actionCollection()->action("closemap"));
+		this->m_fileMenu->addSeparator();
+		this->m_fileMenu->addAction(this->editor()->actionCollection()->action("savemap"));
+		this->m_fileMenu->addAction(this->editor()->actionCollection()->action("savemapas"));
+		this->m_fileMenu->addAction(this->editor()->actionCollection()->action("savemapshadows"));
+		this->m_fileMenu->addSeparator();
+	}
 
 	// create user-defined actions in file menu
 	this->createFileActions(this->m_fileMenu);
 
 	// use actions from editor
 	this->m_fileMenu->addSeparator();
-	this->m_fileMenu->addAction(this->editor()->actionCollection()->action("testmap"));
-	this->m_fileMenu->addSeparator();
-	this->m_fileMenu->addAction(this->editor()->actionCollection()->action("closemodule"));
+	
+	if (hasEditor())
+	{
+		this->m_fileMenu->addAction(this->editor()->actionCollection()->action("testmap"));
+		this->m_fileMenu->addSeparator();
+	
+	
+		m_closeAction = this->editor()->actionCollection()->action("closemodule");
+	}
+	else
+	{
+		m_closeAction = new QAction(tr("Close"), this);
+	}
+	
+	this->m_fileMenu->addAction(m_closeAction);
 
 	this->m_editMenu = new KMenu(tr("Edit"), this);
 	this->menuBar()->addMenu(this->m_editMenu);
@@ -96,8 +111,11 @@ void Module::setupUi()
 	this->createEditActions(this->m_editMenu);
 
 	// module menu
-	this->m_moduleMenu = new ModuleMenu(this, this->editor());
-	this->menuBar()->addMenu(this->m_moduleMenu);
+	if (hasEditor())
+	{
+		this->m_moduleMenu = new ModuleMenu(this);
+		this->menuBar()->addMenu(this->m_moduleMenu);
+	}
 
 	// create user-defined menus
 	this->createMenus(this->menuBar());
@@ -110,7 +128,7 @@ void Module::setupUi()
 
 	// tool bar
 	this->m_toolBar = new KToolBar(this);
-	m_topLayout->addWidget(toolBar());
+	topLayout()->addWidget(toolBar());
 	toolBar()->addSeparator();
 
 	// user defined tool buttons
@@ -118,12 +136,37 @@ void Module::setupUi()
 
 	toolBar()->addSeparator();
 
-	// modules tool buttons
-	foreach (QAction *action, moduleMenu()->actions())
-		toolBar()->addAction(action);
+	if (hasEditor())
+	{
+		// modules tool buttons
+		foreach (QAction *action, moduleMenu()->actions())
+			toolBar()->addAction(action);
+	}
 
 	// test map tool button
 	toolBar()->addAction(this->editor()->actionCollection()->action("testmap"));
+}
+
+void Module::focusInEvent(QFocusEvent *event)
+{
+	if (hasEditor())
+	{
+		ModuleMenu::Actions::const_iterator iterator = moduleMenu()->actions().find(this);
+		
+		if (iterator != moduleMenu()->actions().end())
+			(*iterator)->setChecked(true);
+	}
+}
+
+void Module::focusOutEvent(QFocusEvent *event)
+{
+	if (hasEditor())
+	{
+		ModuleMenu::Actions::const_iterator iterator = moduleMenu()->actions().find(this);
+		
+		if (iterator != moduleMenu()->actions().end())
+			(*iterator)->setChecked(false);
+	}
 }
 
 void Module::readSettings()
@@ -144,7 +187,7 @@ void Module::writeSettings()
 
 void Module::triggered(QAction *action)
 {
-	if (action == this->editor()->actionCollection()->action("closemodule"))
+	if (this->isActiveWindow() && action == m_closeAction)
 	{
 		this->close();
 	}
