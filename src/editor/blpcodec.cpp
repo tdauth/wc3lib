@@ -108,7 +108,7 @@ BlpCodec::DecodeResult BlpCodec::decode(Ogre::DataStreamPtr &input) const
 	boost::scoped_array<blp::byte> buffer(new blp::byte[input->size()]);
 	input->read(buffer.get(), input->size());
 	istream.rdbuf()->pubsetbuf(buffer.get(), input->size());
-	blp->read(istream);
+	blp->read(istream, 1); /// \todo Add MIP map support and do not only read the first MIP map!
 	
 	return decode(*blp);
 }

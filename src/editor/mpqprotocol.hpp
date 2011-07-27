@@ -36,12 +36,7 @@ namespace editor
 /**
  * Implementation for Blizzard's MPQ format which should be usable in KDE applications as normal archive protocol (I/O slave) called "mpq".
  * "kio_mpq" is installed as usual MPQ plugin and therefore should be usable in all KDE-based applications.
- * Some file attributes can be specified via URL:
- * <ul>
- * <li>locale</li>
- * <li>platform</li>
- * <li>sector</li>
- * </ul>
+ * \note Based on code of class \ref ArchiveProtocol which is part of kdebase-runtime libraries.
  * \todo Finish and make installable as KDE plugin (such like qblp).
  */
 class MpqProtocol : public KIO::SlaveBase
@@ -51,11 +46,25 @@ class MpqProtocol : public KIO::SlaveBase
 		
 		MpqProtocol(const QByteArray &pool, const QByteArray &app);
 		
+		virtual void listDir( const KUrl & url );
+		virtual void stat( const KUrl & url );
+		
 		virtual void open(const KUrl &url, QIODevice::OpenMode mode);
 		virtual void get(const KUrl &url);
 		
 	private:
+		/**
+		* \brief find, check and open the archive file
+		* \param url The URL of the archive
+		* \param path Path where the archive really is (returned value)
+		* \param errNum KIO error number (undefined if the function returns true)
+		* \return true if file was found, false if there was an error
+		*/
+		bool checkNewFile(const KUrl &url, QString &path, KIO::Error &errorNum);
+		
 		MpqArchivePtr m_archive;
+		QString m_archiveName;
+		QDateTime m_modified;
 };
 
 }

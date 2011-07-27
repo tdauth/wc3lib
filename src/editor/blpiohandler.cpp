@@ -67,10 +67,7 @@ bool BlpIOHandler::canRead() const
 {
 	blp::dword identifier;
 
-	if (this->device() != 0 && this->device()->isReadable() && this->device()->peek(reinterpret_cast<char*>(&identifier), sizeof(identifier)) == sizeof(identifier) && blp::Blp::hasFormat(reinterpret_cast<blp::byte*>(&identifier), sizeof(identifier)))
-		return true;
-
-	return false;
+	return (this->device() != 0 && this->device()->isReadable() && this->device()->peek(reinterpret_cast<char*>(&identifier), sizeof(identifier)) == sizeof(identifier) && blp::Blp::hasFormat(reinterpret_cast<blp::byte*>(&identifier), sizeof(identifier)));
 }
 
 bool BlpIOHandler::read(QImage *image)
@@ -83,7 +80,7 @@ bool BlpIOHandler::read(QImage *image)
 
 	try
 	{
-		blpImage->read(istream);
+		blpImage->read(istream, 1); // only read the first MIP map, QImage does not support MIP mapping
 	}
 	catch (class Exception &exception)
 	{
@@ -98,16 +95,50 @@ bool BlpIOHandler::read(QImage *image)
 	return true;
 }
 
-/// @todo Where should we get the options from?!
 bool BlpIOHandler::supportsOption(ImageOption option) const
 {
 	switch (option)
 	{
-		case QImageIOHandler::Quality:
+		case SubType:
 			return true;
+			
+		case Size:
+			return true;
+		
+		case Quality:
+			return this->option(SubType).toUInt() == blp::Blp::Compression::Jpeg;
 	}
 
 	return false;
+}
+
+QVariant BlpIOHandler::option(ImageOption option) const
+{
+	switch (option)
+	{
+		case SubType:
+			return QVariant(header().compression);
+			
+		case Size:
+		{
+			blp::BlpHeader header(this->header());
+			
+			return QSize(header.width, header.height);
+		}
+		
+		case Quality:
+		{
+			blp::dword compression(this->option(SubType).toUInt());
+			
+			if (compression == blp::Blp::Compression::Jpeg)
+			{
+				/// \todo Read JPEG header of first MIP map by using jpeg lib and get compression.
+				return 0;
+			}
+		}
+	}
+	
+	return QVariant();
 }
 
 bool BlpIOHandler::write(const QImage &image)
@@ -135,14 +166,12 @@ bool BlpIOHandler::write(const QImage &image)
 	ostream.rdbuf()->sgetn(reinterpret_cast<blp::byte*>(buffer), bufferSize);
 	this->device()->write(buffer, bufferSize);
 
-	/// \todo Recognize image IO handler options!
-
 	return true;
 }
 
 bool BlpIOHandler::read(QImage *image, const blp::Blp &blpImage)
 {
-	if (blpImage.mipMaps().empty()) // no mip maps
+	if (blpImage.mipMaps().empty()) // no MIP maps
 		return false;
 
 	// write blp data into image
@@ -163,7 +192,7 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp &blpImage)
 		format = QImage::Format_RGB32;
 
 	qDebug() << "Image has size (" << mipMap->width() << "|" << mipMap->height() << ").";
-	image = new QImage(boost::numeric_cast<int>(mipMap->width()), boost::numeric_cast<int>(mipMap->height()), format);
+	*image = QImage(boost::numeric_cast<int>(mipMap->width()), boost::numeric_cast<int>(mipMap->height()), format);
 	qDebug() << "Before colors";
 	qDebug() << "Color map size " << mipMap->colors().size();
 	qDebug() << "After colors.";
@@ -198,16 +227,27 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp &blpImage)
 
 bool BlpIOHandler::write(const QImage &image, blp::Blp *blpImage)
 {
-	if (image.format() == QImage::Format_Indexed8)
+	if (!option(SubType).isNull())
+	{
+		blpImage->setCompression(BOOST_SCOPED_ENUM(blp::Blp::Compression)(option(SubType).toUInt()));
+		qDebug() << "SubType has been set to " << BOOST_SCOPED_ENUM(blp::Blp::Compression)(option(SubType).toUInt());
+	}
+	else if (image.format() == QImage::Format_Indexed8)
 	{
 		qDebug() << "Is paletted";
 		blpImage->setCompression(blp::Blp::Compression::Paletted);
-		
-		for (int i = 0; i < image.colorTable().size(); ++i)
-			blpImage->palette()[i] = image.colorTable()[i];
 	}
 	else
 		blpImage->setCompression(blp::Blp::Compression::Jpeg);
+	
+	if (blpImage->compression() == blp::Blp::Compression::Paletted && image.format() == QImage::Format_Indexed8)
+	{
+		for (int i = 0; i < image.colorTable().size(); ++i)
+			blpImage->palette()[i] = image.colorTable()[i];
+	}
+	/// \todo Otherwise we would need to generate our color table - very slow and  limited to 256 different colors.
+	else
+		return false;
 
 	if (image.hasAlphaChannel())
 		blpImage->setFlags(blp::Blp::Flags::Alpha);
@@ -248,6 +288,14 @@ bool BlpIOHandler::write(const QImage &image, blp::Blp *blpImage)
 	blpImage->generateMipMaps(); // generate other MIP maps after setting up initial MIP map (image)
 	
 	return true;
+}
+
+blp::BlpHeader BlpIOHandler::header() const
+{
+	blp::BlpHeader header;
+	device()->peek(reinterpret_cast<char*>(&header), sizeof(header));
+	
+	return header;
 }
 
 }

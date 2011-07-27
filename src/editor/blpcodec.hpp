@@ -33,7 +33,7 @@ namespace editor
 {
 
 /**
- * \todo Add BLP support.
+ * \todo Add MIP map support.
  */
 class BlpCodec : public Ogre::ImageCodec
 {

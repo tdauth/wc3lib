@@ -46,7 +46,11 @@ class BlpIOHandler : public QImageIOHandler
 		* Assigns data from device to \p image.
 		*/
 		virtual bool read(QImage *image);
+		/**
+		 * \param option \ref Quality is only supported if option \ref SubType is \ref blp::Blp::Compression::Jpeg.
+		 */
 		virtual bool supportsOption(ImageOption option) const;
+		virtual QVariant option(ImageOption option) const;
 		/**
 		* Writes data from \p image to device.
 		*/
@@ -60,6 +64,9 @@ class BlpIOHandler : public QImageIOHandler
 		 * Writes data from \p image to \p blpImage.
 		 */
 		virtual bool write(const QImage &image, blp::Blp *blpImage);
+		
+	protected:
+		virtual blp::BlpHeader header() const;  
 };
 
 }

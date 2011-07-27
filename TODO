@@ -1,3 +1,7 @@
+2011-07-23 Tamino Dauth <tamino@cdauth.eu>
+* editor: Support quality reading in class BlpIOHandler.
+* editor: Support MIP map reading and writing in class BlpCodec if possible.
+
 2011-07-06 Tamino Dauth <tamino@cdauth.eu>
 * editor: All resource and module classes should able to be created without editor (only MpqPriorityList).
 

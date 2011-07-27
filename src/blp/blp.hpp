@@ -255,12 +255,15 @@ class Blp : public Format
 		 * \note JFIF decompression is implemented by using exactly one thread for each MIP map. First buffer is filled with required compressed MIP map data from stream and after that a thread is started which decompresses the buffer's data.
 		 * \todo Add multithreading support for MIP maps of paletted compression (JPEG is already implemented).
 		 * \param istream Input stream which is read from.
+		 * \param mipMaps Number of MIP maps which should be read (1 - 16). 0 means actual number of existing MIP maps. If there is less MIP maps than this parameter specifies only all available will be read!
 		 * \return Size of read bytes (\ref byte). Note that this value can be smaller than the BLP file since it seems that there are unnecessary 0 bytes in some BLP files.
 		 */
-		std::streamsize read(InputStream &istream) throw (class Exception);
+		std::streamsize read(InputStream &istream, const std::size_t &mipMaps) throw (class Exception);
+		
+		std::streamsize read(InputStream &istream) throw (class Exception) { read(istream, 0); }
 		/**
 		 * \param quality Quality for JPEG/JFIF compression (0 - 100). -1 or another invalid value means default (\ref Blp::defaultQuality).
-		 * \param mipMaps Number of MIP maps which should be written (1 - 16). 0 means current number of MIP maps.
+		 * \param mipMaps Number of MIP maps which should be written (1 - 16). 0 means actual number of existing MIP maps.
 		 */
 		std::streamsize write(OutputStream &ostream, const int &quality, const std::size_t &mipMaps) const throw (class Exception);
 		std::streamsize write(OutputStream &ostream) const throw (class Exception) { write(ostream, -1, 0); }

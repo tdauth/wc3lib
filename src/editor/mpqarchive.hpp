@@ -32,12 +32,27 @@ namespace wc3lib
 namespace editor
 {
 
-/// \todo Add extended attributes support (time etc.).
+/**
+ * Some file attributes can be specified via URL:
+ * <ul>
+ * <li>locale</li>
+ * <li>platform</li>
+ * <li>sector</li>
+ * </ul>
+ * So the usual file URL has the following format: "<archive URL>/<locale id>/<platform id>/<file path>".
+ * If platform or locale id is not specified via URL default values will be used (\ref mpq::MpqFile::Platform::Default and \ref mpq::MpqFile::Locale::Neutral).
+ * Use static functions \ref MpqArchive::localeId() and \ref MpqArchive::platformId() to get corresponding string ids.
+ * \todo File attributes via URL should be supported (see above).
+ * \todo Add extended attributes support (time etc.).
+ */
 class MpqArchive : public KArchive
 {
 	public:
 		typedef boost::scoped_ptr<mpq::Mpq> MpqPtr;
 		typedef boost::shared_ptr<mpq::MpqFile> MpqFilePtr;
+		
+		static QString localeId(const BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) &locale);
+		static QString platformId(const BOOST_SCOPED_ENUM(mpq::MpqFile::Platform) &platform);
 		
 		virtual ~MpqArchive();
 		
@@ -63,6 +78,28 @@ class MpqArchive : public KArchive
 		MpqPtr m_mpq;
 		MpqFilePtr m_mpqFile;
 };
+
+inline QString MpqArchive::localeId(const BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) &locale)
+{
+	switch (locale)
+	{
+		case mpq::MpqFile::Locale::Neutral:
+			return "ne";
+	}
+	
+	return "";
+}
+
+inline QString MpqArchive::platformId(const BOOST_SCOPED_ENUM(mpq::MpqFile::Platform) &platform)
+{
+	switch (platform)
+	{
+		case mpq::MpqFile::Platform::Default:
+			return "def";
+	}
+	
+	return "";
+}
 
 inline const MpqArchive::MpqPtr& MpqArchive::mpq() const
 {

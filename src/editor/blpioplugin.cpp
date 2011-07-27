@@ -45,12 +45,19 @@ BlpIOPlugin::Capabilities BlpIOPlugin::capabilities(QIODevice *device, const QBy
 	if (format.toLower() == "blp")
 		return QImageIOPlugin::CanRead | QImageIOPlugin::CanWrite;
 
+	if (!(format.isEmpty() && device->isOpen()))
+            return 0;
+    
+        Capabilities cap;
 	blp::dword identifier;
-
-	if (format.isEmpty() && device != 0 && device->isOpen() && device->isReadable() && device->peek(reinterpret_cast<char*>(&identifier), sizeof(identifier)) == sizeof(identifier) && blp::Blp::hasFormat(reinterpret_cast<blp::byte*>(&identifier), sizeof(identifier))) /// @todo peek?
-			return QImageIOPlugin::CanRead;
-
-	return 0;
+	
+        if (device->isReadable() && device->peek(reinterpret_cast<char*>(&identifier), sizeof(identifier)) == sizeof(identifier) && blp::Blp::hasFormat(reinterpret_cast<blp::byte*>(&identifier), sizeof(identifier)))
+		cap |= CanRead;
+	
+        if (device->isWritable())
+		cap |= CanWrite;
+	
+	return cap;
 }
 
 QImageIOHandler* BlpIOPlugin::create(QIODevice *device, const QByteArray &format) const

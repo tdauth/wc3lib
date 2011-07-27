@@ -573,7 +573,7 @@ struct MipMapHeaderData
 
 }
 
-std::streamsize Blp::read(InputStream &istream) throw (class Exception)
+std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps) throw (class Exception)
 {
 	this->clear();
 	// header
@@ -645,7 +645,10 @@ std::streamsize Blp::read(InputStream &istream) throw (class Exception)
 		}
 	}
 
-	const std::size_t mipMapsCount = requiredMipMaps(this->m_width, this->m_height);
+	std::size_t mipMapsCount = requiredMipMaps(this->m_width, this->m_height);
+	
+	if (mipMaps != 0 && mipMaps < mipMapsCount)
+		mipMapsCount = mipMaps;
 	
 	if (mipMapsCount == 0)
 		throw Exception(_("Detected 0 MIP maps (too little)."));

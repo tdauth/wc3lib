@@ -1,3 +1,8 @@
+2011-07-23 Tamino Dauth <tamino@cdauth.eu>
+* editor: Class BlpIOHandler supports options Quality and SubType now (partially when reading).
+* blp: Class Blp supports custom MIP map number in read function now.
+* editor: Class BlpCodec reads only one MIP map to fill image data (see TODO for multi MIP map support).
+
 2011-07-19 Tamino Dauth <tamino@cdauth.eu>
 * editor: Reading and writing BLP palette for BLP Qt plugin is supported correctly now.
 
