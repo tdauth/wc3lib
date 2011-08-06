@@ -187,7 +187,7 @@ void compressPklib(char *&outBuffer, int &outLength, char* const &inBuffer, int 
 	info.outBuffer = outBuffer;
 	info.outPosition  = 0;
 	info.maxOut  = outLength;
-	char *workBuffer = new char[CMP_BUFFER_SIZE]; // Pklib's work buffer
+	boost::scoped_array<char> workBuffer(new char[CMP_BUFFER_SIZE]); // Pklib's work buffer
 	unsigned int dictonarySize; // Dictionary size
 	unsigned int ctype; // Compression type
 
@@ -202,9 +202,8 @@ void compressPklib(char *&outBuffer, int &outLength, char* const &inBuffer, int 
 		dictonarySize = 0x1000;
 
 	// Do the compression
-	unsigned int state = implode(readBuffer, writeBuffer, workBuffer, &info, &ctype, &dictonarySize);
+	unsigned int state = implode(readBuffer, writeBuffer, workBuffer.get(), &info, &ctype, &dictonarySize);
 	outLength = info.outPosition;
-	delete[] workBuffer;
 
 	if (state != CMP_NO_ERROR)
 		throw Exception(boost::str(boost::format(_("Implode error %1%.")) % state));
@@ -220,10 +219,10 @@ void decompressPklib(char *&outBuffer, int &outLength, char* const &inBuffer, in
 	info.outBuffer = outBuffer;
 	info.outPosition = 0;
 	info.maxOut = outLength;
-	char *workBuffer = new char[EXP_BUFFER_SIZE]; // Pklib's work buffer
+	boost::scoped_array<char> workBuffer(new char[EXP_BUFFER_SIZE]); // Pklib's work buffer
 
 	// Do the decompression
-	unsigned int state = explode(readBuffer, writeBuffer, workBuffer, &info);
+	unsigned int state = explode(readBuffer, writeBuffer, workBuffer.get(), &info);
 
 	// Fix: If PKLIB is unable to decompress the data, they are uncompressed
 	if(info.outPosition == 0)
@@ -233,7 +232,6 @@ void decompressPklib(char *&outBuffer, int &outLength, char* const &inBuffer, in
 	}
 
 	outLength = info.outPosition;
-	delete[] workBuffer;
 
 	if (state != CMP_NO_ERROR)
 		throw Exception(boost::str(boost::format(_("Explode error %1%.")) % state));
@@ -250,8 +248,8 @@ int compressWaveMono(short* const &inBuffer, int inBufferLength, unsigned char *
 	else
 		compressionLevel = 5;
 
-	if (outBufferLength > 0)
-		delete[] outBuffer;
+	if (outBuffer != 0)
+		throw Exception(_("Output buffer is not 0."));
 
 	outBufferLength = inBufferLength;
 	outBuffer = new unsigned char[inBufferLength];
@@ -262,8 +260,8 @@ int compressWaveMono(short* const &inBuffer, int inBufferLength, unsigned char *
 
 int decompressWaveMono(unsigned char* const &inBuffer, int inBufferLength, unsigned char *&outBuffer, int &outBufferLength) throw (class Exception)
 {
-	if (outBufferLength > 0)
-		delete[] outBuffer;
+	if (outBuffer != 0)
+		throw Exception(_("Output buffer is not 0."));
 
 	outBufferLength = inBufferLength;
 	outBuffer = new unsigned char[inBufferLength];
@@ -283,8 +281,8 @@ int compressWaveStereo(short* const &inBuffer, int inBufferLength, unsigned char
 	else
 		compressionLevel = 5;
 
-	if (outBufferLength > 0)
-		delete[] outBuffer;
+	if (outBuffer != 0)
+		throw Exception(_("Output buffer is not 0."));
 
 	outBufferLength = inBufferLength;
 	outBuffer = new unsigned char[inBufferLength];
@@ -295,8 +293,8 @@ int compressWaveStereo(short* const &inBuffer, int inBufferLength, unsigned char
 
 int decompressWaveStereo(unsigned char* const &inBuffer, int inBufferLength, unsigned char *&outBuffer, int &outBufferLength) throw (class Exception)
 {
-	if (outBufferLength > 0)
-		delete[] outBuffer;
+	if (outBuffer != 0)
+		throw Exception(_("Output buffer is not 0."));
 
 	outBufferLength = inBufferLength;
 	outBuffer = new unsigned char[inBufferLength];

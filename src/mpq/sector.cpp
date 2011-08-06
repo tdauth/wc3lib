@@ -92,7 +92,7 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 	*/
 	if (this->mpqFile()->isEncrypted())
 	{
-		DecryptData(Mpq::cryptTable(), (void*)data.get(), boost::numeric_cast<uint32>(dataSize), this->sectorKey());
+		DecryptData(Mpq::cryptTable(), (void*)data.get(), dataSize, this->sectorKey());
 		std::cout << "Is encrypted!" << std::endl;
 	}
 
@@ -101,11 +101,11 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 	// Imploded sectors are the raw compressed data following compression with the implode algorithm (these sectors can only be in imploded files).
 	if (this->mpqFile()->isImploded())
 	{
-		if (this->m_compression & Sector::Compression::Imploded)
+		if (this->compression() & Sector::Compression::Imploded)
 		{
 			char *newData = reinterpret_cast<char*>(data.get());
 			boost::numeric_cast<int>(dataSize);
-			int *newDataSize = (int*)dataSize;
+			int *newDataSize = (int*)&dataSize;
 			decompressPklib(newData, *newDataSize, newData, *newDataSize);
 			std::cout << "Is imploded!" << std::endl;
 		}
@@ -166,6 +166,7 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 			
 			try
 			{
+				// TODO throws data stream exception on (listfile) of war3.mpq and war3x.mpq.
 				size = decompressZlib(istream, ostream);
 			}
 			catch (boost::iostreams::zlib_error &error)
@@ -224,7 +225,7 @@ void Sector::setCompression(byte value)
 
 uint32 Sector::sectorKey() const
 {
-	return boost::numeric_cast<uint32>(this->mpqFile()->fileKey() + this->sectorIndex());
+	return this->mpqFile()->fileKey() + this->sectorIndex();
 }
 
 }

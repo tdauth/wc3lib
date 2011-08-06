@@ -72,7 +72,7 @@ class Triggers : public FileFormat
 
 inline int32 Triggers::fileId() const
 {
-	return (int32)"WTG!";
+	return (int32)'WTG!';
 }
 
 inline const char8* Triggers::fileName() const

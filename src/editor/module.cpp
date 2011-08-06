@@ -46,7 +46,22 @@ Module::~Module()
 
 bool Module::hasEditor() const
 {
-	return (typeid(source()) == typeid(Editor*));
+	// TODO typeid comparison doesn't work, dynamic_cast is working workaround!
+	//qDebug() << "Source type " << typeid(source()).name() << "\nEditor type " << typeid(Editor*).name();
+	//return (typeid(source()) == typeid(Editor*));
+	return dynamic_cast<Editor*>(source()) != 0;
+	/*
+	try
+	{
+		return boost::polymorphic_cast<Editor*>(source());
+	}
+	catch (std::bad_cast &exception)
+	{
+		return false;
+	}
+	
+	return true;
+	*/
 }
 
 class Editor* Module::editor() const throw (Exception)

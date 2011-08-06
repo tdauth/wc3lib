@@ -51,8 +51,11 @@ class MpqProtocol : public KIO::SlaveBase
 		
 		virtual void open(const KUrl &url, QIODevice::OpenMode mode);
 		virtual void get(const KUrl &url);
+		virtual void put(const KUrl &url, int permissions, KIO::JobFlags flags);
 		
 	private:
+		void createRootUDSEntry(KIO::UDSEntry &entry);
+		void createUDSEntry(const KArchiveEntry *archiveEntry, KIO::UDSEntry &entry);
 		/**
 		* \brief find, check and open the archive file
 		* \param url The URL of the archive
@@ -60,7 +63,7 @@ class MpqProtocol : public KIO::SlaveBase
 		* \param errNum KIO error number (undefined if the function returns true)
 		* \return true if file was found, false if there was an error
 		*/
-		bool checkNewFile(const KUrl &url, QString &path, KIO::Error &errorNum);
+		bool checkNewFile(const KUrl &url, QString &path, KIO::Error &errorNum, QIODevice::OpenMode openMode);
 		
 		MpqArchivePtr m_archive;
 		QString m_archiveName;

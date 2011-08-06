@@ -192,7 +192,9 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp &blpImage)
 		format = QImage::Format_RGB32;
 
 	qDebug() << "Image has size (" << mipMap->width() << "|" << mipMap->height() << ").";
-	*image = QImage(boost::numeric_cast<int>(mipMap->width()), boost::numeric_cast<int>(mipMap->height()), format);
+	qDebug() << "Converted size (" << boost::numeric_cast<int>(mipMap->width()) << "|" << boost::numeric_cast<int>(mipMap->height()) << ").";
+	qDebug() << "Format " << format;
+	QImage result(boost::numeric_cast<int>(mipMap->width()), boost::numeric_cast<int>(mipMap->height()), format); // TODO segmentation fault???????????
 	qDebug() << "Before colors";
 	qDebug() << "Color map size " << mipMap->colors().size();
 	qDebug() << "After colors.";
@@ -204,23 +206,25 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp &blpImage)
 			const blp::Blp::MipMap::Coordinates &coordinates = mapEntry.first;
 			const blp::Blp::MipMap::Color &color = mapEntry.second;
 			const QRgb pixelColor = colorToRgba(color.argb());
-			image->setPixel(coordinates.first, coordinates.second, pixelColor);
+			result.setPixel(coordinates.first, coordinates.second, pixelColor);
 		}
 	}
 	else
 	{
-		image->setColorCount(blp::Blp::compressedPaletteSize);
+		result.setColorCount(blp::Blp::compressedPaletteSize);
 		
-		for (int index = 0; index < image->colorCount(); ++index)
-			image->setColor(index, colorToRgba(blpImage.palette()[index]));
+		for (int index = 0; index < result.colorCount(); ++index)
+			result.setColor(index, colorToRgba(blpImage.palette()[index]));
 		
 		foreach (blp::Blp::MipMap::MapEntryType mapEntry, mipMap->colors())
 		{
 			const blp::Blp::MipMap::Coordinates &coordinates = mapEntry.first;
 			const blp::Blp::MipMap::Color &color = mapEntry.second;
-			image->setPixel(coordinates.first, coordinates.second, color.paletteIndex());
+			result.setPixel(coordinates.first, coordinates.second, color.paletteIndex());
 		}
 	}
+	
+	*image = result;
 	
 	return true;
 }

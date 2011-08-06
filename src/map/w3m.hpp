@@ -147,7 +147,7 @@ w3x
 
 inline int32 W3m::fileId() const
 {
-	return (int32)"HM3W";
+	return (int32)'HM3W';
 }
 
 inline int32 W3m::latestFileVersion() const

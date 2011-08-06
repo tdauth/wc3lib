@@ -107,7 +107,7 @@ class Environment : public Format
 
 inline int32 Environment::fileId() const
 {
-	return (int32)"W3E!";
+	return (int32)'W3E!';
 }
 
 inline const char8* Environment::fileName() const

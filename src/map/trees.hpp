@@ -57,7 +57,7 @@ class Trees : public FileFormat
 
 inline int32 Trees::fileId() const
 {
-	return (int32)"W3do";
+	return (int32)'W3do';
 }
 
 inline const char8* Trees::fileName() const

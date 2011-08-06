@@ -1,3 +1,22 @@
+2011-08-06 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Fixed wrong sectors number (see TODO).
+
+2011-08-05 Tamino Dauth <tamino@cdauth.eu>
+* app: Added boost::filesystem::path workaround to application "mpq".
+
+2011-07-31 Tamino Dauth <tamino@cdauth.eu>
+* editor: Fixed member function hasEditor() of class Module.
+
+2011-07-30 Tamino Dauth <tamino@cdauth.eu>
+* mdlx: Doesn't require OgreMain for linking anymore (bug).
+
+2011-07-28 Tamino Dauth <tamino@cdauth.eu>
+* editor: Implemented initial locale and platform id path resolution support in class KArchive.
+* editor: Improved functionality of classes MpqProtocol and MpqArchive.
+
+2011-07-27 Tamino Dauth <tamino@cdauth.eu>
+* editor: Implemented first real KArchive I/O Slave support for MPQ protocol based on class ArchiveProtocol of the KDE project.
+
 2011-07-23 Tamino Dauth <tamino@cdauth.eu>
 * editor: Class BlpIOHandler supports options Quality and SubType now (partially when reading).
 * blp: Class Blp supports custom MIP map number in read function now.

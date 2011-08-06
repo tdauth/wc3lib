@@ -63,7 +63,11 @@ int main(int argc, char *argv[])
 	static const char *version = "0.1";
 	std::string format;
 	typedef std::vector<boost::filesystem::path> Paths;
+	typedef std::vector<std::string> Strings;
 	// TODO throws exception when using escaped white spaces! - string work around
+	Strings listfileStrings;
+	Strings archiveStrings;
+	Strings fileStrings;
 	Paths listfiles;
 	Paths archivePaths;
 	Paths filePaths;
@@ -75,13 +79,13 @@ int main(int argc, char *argv[])
 	// boost::format(_("mpq %1%.\n\n")) % version << _("Usage: mpq [Options] [MPQ files]\n\n") <<
 	boost::program_options::options_description desc("Allowed options");
 	desc.add_options()
-	("version,V",         _("Shows current version of mpq."))
-	("help,h",            _("Shows this text."))
+	("version,V", _("Shows current version of mpq."))
+	("help,h",_("Shows this text."))
 	// formatting options
 	("human-readable,h", boost::program_options::value<bool>()->default_value(true), _("Shows output sizes in an human-readable format."))
 	("decimal,d", _("Shows decimal sizes (factor 1000 not 1024)"))
 	("format,F", boost::program_options::value<std::string>(&format)->default_value("1"), _("Selects the format of the created MPQ archive and modified files: <format:format:format>\nHere's a list of valid expressions:\n* \"1\"\n* \"2\"\n* \"listfile\"\n* \"attributes\""))
-	("list-files,L", boost::program_options::value<Paths>(&listfiles), _("Uses given listfiles to detect file paths of MPQ archives."))
+	("list-files,L", boost::program_options::value<Strings>(&listfileStrings), _("Uses given listfiles to detect file paths of MPQ archives."))
 	("overwrite", _("Overwrites existing files and directories when creating or extracting files."))
 	("remove-files", _("Removes files/archives after adding them to the MPQ archives."))
 	("interactive", _("Asks for confirmation for every action."))
@@ -98,16 +102,35 @@ int main(int argc, char *argv[])
 	("benchmark,b", _("Compares various functionalities of wc3lib and StormLib."))
 	
 	// input
-	("archives", boost::program_options::value<Paths>(&archivePaths), _("Expected MPQ archives."))
-	("files,F", boost::program_options::value<Paths>(&filePaths), _("Expected MPQ archives."))
+	("archives,A", boost::program_options::value<Strings>(&archiveStrings), _("Expected MPQ archives."))
+	("files,F", boost::program_options::value<Strings>(&fileStrings), _("Expected MPQ archives."))
 	;
 	
 	boost::program_options::positional_options_description p;
 	p.add("archives", -1);
 
 	boost::program_options::variables_map vm;
-	boost::program_options::store(boost::program_options::command_line_parser(argc, argv).style(pstyle).options(desc).positional(p).run(), vm);
-	boost::program_options::notify(vm);    
+
+	try
+	{
+		boost::program_options::store(boost::program_options::command_line_parser(argc, argv).style(pstyle).options(desc).positional(p).run(), vm);
+	}
+	catch (std::exception &exception)
+	{
+		std::cerr << boost::format(_("Error while parsing program options: \"%1%\"")) % exception.what() << std::endl;
+
+		return EXIT_FAILURE;
+	}
+
+	boost::program_options::notify(vm);
+
+	// WORKAROUND
+	listfiles.resize(listfileStrings.size());
+	listfiles.assign(listfileStrings.begin(), listfileStrings.end());
+	archivePaths.resize(archiveStrings.size());
+	archivePaths.assign(archiveStrings.begin(), archiveStrings.end());
+	filePaths.resize(fileStrings.size());
+	filePaths.assign(fileStrings.begin(), fileStrings.end());
 
 	if (vm.count("version"))
 	{

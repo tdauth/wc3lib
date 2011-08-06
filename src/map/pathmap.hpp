@@ -68,7 +68,7 @@ class Pathmap : public FileFormat
 
 inline int32 Pathmap::fileId() const
 {
-	return (int32)"MP3W";
+	return (int32)'MP3W';
 }
 
 inline const char8* Pathmap::fileName() const

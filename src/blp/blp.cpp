@@ -746,7 +746,7 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps) thr
 		boost::thread_group threadGroup;
 		
 		for (i = 0; i < readData.size(); ++i)
-			threads[i] = Thread(threadGroup.create_thread(boost::bind(&readMipMapJpeg, *readData[i])));
+			threads[i].reset(threadGroup.create_thread(boost::bind(&readMipMapJpeg, *readData[i])));
 		
 		threadGroup.join_all(); // wait for all threads have finished
 		

@@ -97,10 +97,14 @@ void Texture::loadQt() throw (Exception)
 	if (hasBlp())
 	{
 		BlpIOHandler ioHandler;
-		QImage *qtImage = 0;
+		QImage *qtImage = new QImage();
 		
 		if (!ioHandler.read(qtImage, *m_blp.get()))
+		{
+			delete qtImage;
+		
 			throw Exception(_("Unable to convert BLP image into Qt."));
+		}
 		
 		m_qt.reset(qtImage); // exception safe (won't change image if handler has some error
 	}
