@@ -32,8 +32,6 @@ namespace mpq
 	
 uint32 Block::fileKey(const boost::filesystem::path &path, const BlockTableEntry &blockTableEntry)
 {
-	static const uint32 BLOCK_OFFSET_ADJUSTED_KEY = 0x00020000L;
-	
 	// Find the file name part of the path
 	const std::string lpszFileName = path.filename();
 		
@@ -41,7 +39,7 @@ uint32 Block::fileKey(const boost::filesystem::path &path, const BlockTableEntry
 	uint32 nFileKey = HashString(Mpq::cryptTable(), lpszFileName.c_str(), HashType::FileKey);
 	
 	// Offset-adjust the key if necessary
-	if (blockTableEntry.flags & BLOCK_OFFSET_ADJUSTED_KEY)
+	if (blockTableEntry.flags & Flags::UsesEncryptionKey)
 		nFileKey = (nFileKey + blockTableEntry.blockOffset) ^ blockTableEntry.fileSize;
 		
 	return nFileKey;

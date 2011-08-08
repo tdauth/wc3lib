@@ -1,3 +1,13 @@
+2011-08-08 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Dropped invalid block flag check.
+* mpq: Sector size and shift are unsigned now.
+* mpq: Sector data reading should consider invalid compression or implosion as described in MPQ specification now.
+
+2011-08-07 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Improved API documentation.
+* mpq: Made some classes non-copyable.
+* mpq: Added copy constructor and assignment operator to class HashData.
+
 2011-08-06 Tamino Dauth <tamino@cdauth.eu>
 * mpq: Fixed wrong sectors number (see TODO).
 

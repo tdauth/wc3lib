@@ -38,33 +38,37 @@ namespace mpq
  * Here's a simple example how to use this class:
  * \code
  * #include <wc3lib/mpq.hpp>
+ * #include <boost/scoped_ptr.hpp>
  *
  * using namespace wc3lib::mpq;
  *
- * void testFunction()
+ * int main()
  * {
- *	class Mpq mpq;
+ * 	boost::scoped_ptr<Mpq> mpq(new Mpq());
+ * 
+ * 	// Using exception handling to catch errors.
+ * 	try
+ * 	{
+ * 		mpq->open("war3x.mpq"); // Opens an existing MPQ archive.
+ * 	}
+ * 	catch (Exception &exception)
+ * 	{
+ * 		std::cerr << "Unable to open archive: " << exception << std::endl;
+ * 
+ * 		return EXIT_FAILURE;
+ * 	}
  *
- *	// Using exception handling to catch errors.
- *	try
- *	{
- *		mpq.open("War3x.mpq"); // Opens an existing MPQ archive.
- *	}
- *	catch (class Exception &exception)
- *	{
- *		std::cerr << "Unable to open archive: " << exception << std::endl;
- *	}
  *
- *	return EXIT_FAILURE;
+ * 	const class MpqFile *mpqFile = mpq->findFile("UI/MiscData.txt"); // Default parameters search for files with neutral locale and default platform.
+ *
+ * 	if (mpqFile == 0)
+ * 		return EXIT_FAILURE;
+ *
+ * 	std::cout << "MiscData.txt:\n" << mpqFile << std::endl; // Operator overloading allows you to get an MPQ file's content via << operator.
+ * 	mpq->close(); // This function will be called automatically when variable mpq is being deleted.
+ * 
+ *  	return EXIT_SUCCESS;
  * }
- *
- * const class MpqFile *mpqFile = mpq.findFile("UI/MiscData.txt");
- *
- * if (mpqFile == 0)
- *	return EXIT_FAILURE;
- *
- * std::cout << "MiscData.txt:\n" << mpqFile << std::endl;
- * mpq.close(); // This function will be called automatically when variable mpq is deleted.
  * \endcode
  * There are three further classes which are related to this one and can be used by the user.
  * In fact, mostly user does only need to know \ref MpqFile which allows him constant access
@@ -72,7 +76,7 @@ namespace mpq
  * Use \ref Mpq::addFile to add a new file which will return 0 (if an error occurs) or the new MpqFile
  * instance which refers to the newly created file.
  * Blocks (\ref Block), hashes (\ref Hash) and files (\ref MpqFile) are stored via smart pointers from Boost C++ Libraries (\ref boost::shared_ptr) for automatic deletion when freeing an MPQ object. Furthermore, they are stored under specific conditions and indices (especially files using Boost Multiindex library).
-*/
+ */
 class Mpq : public mpq::Format, private boost::noncopyable
 {
 	public:
@@ -287,12 +291,12 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		 * the computed result and use int32.
 		 * \sa Mpq::sectorSizeShift
 		 */
-		int32 sectorSize() const;
+		uint32 sectorSize() const;
 		/**
 		 * \return Computes the original header sector size shift value by using formula:
 		 * sqrt(sectorSize / 512)
 		 */
-		int16 sectorSizeShift() const;
+		uint16 sectorSizeShift() const;
 		bool hasStrongDigitalSignature() const;
 		/**
 		 * \return Returns archive's strong digital signature with size of \ref Mpq::stringDigitalSignatureSize.
@@ -405,7 +409,7 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		std::streampos m_startPosition;
 		BOOST_SCOPED_ENUM(Format) m_format;
 		BOOST_SCOPED_ENUM(ExtendedAttributes) m_extendedAttributes;
-		int32 m_sectorSize;
+		uint32 m_sectorSize;
 		boost::scoped_array<char> m_strongDigitalSignature;
 		bool m_isOpen;
 		boost::interprocess::file_lock m_fileLock;
@@ -612,12 +616,12 @@ inline BOOST_SCOPED_ENUM(Mpq::ExtendedAttributes) Mpq::extendedAttributes() cons
 	return this->m_extendedAttributes;
 }
 
-inline int32 Mpq::sectorSize() const
+inline uint32 Mpq::sectorSize() const
 {
 	return this->m_sectorSize;
 }
 
-inline int16 Mpq::sectorSizeShift() const
+inline uint16 Mpq::sectorSizeShift() const
 {
 	return sqrt(this->m_sectorSize / 512);
 }

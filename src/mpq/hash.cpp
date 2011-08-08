@@ -34,6 +34,18 @@ HashData::HashData(int32 filePathHashA, int32 filePathHashB, int16 locale, int16
 {
 }
 
+HashData::HashData(const HashData &other) : m_filePathHashA(other.m_filePathHashA), m_filePathHashB(other.m_filePathHashB), m_locale(other.m_locale), m_platform(other.m_platform)
+{
+}
+
+HashData::operator=(const HashData &other) 
+{
+	m_filePathHashA = other.m_filePathHashA;
+	m_filePathHashB = other.m_filePathHashB;
+	m_locale = other.m_locale;
+	m_platform = other.m_platform;
+}
+
 const uint32 Hash::blockIndexDeleted = 0xFFFFFFFE;
 const uint32 Hash::blockIndexEmpty = 0xFFFFFFFF;
 

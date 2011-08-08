@@ -32,7 +32,7 @@ namespace mpq
 /**
  * Actually there is no read and write member functions since Sectors are created by \ref MpqFile instances when data is being read or written.
  */
-class Sector
+class Sector : private boost::noncopyable
 {
 	public:
 		BOOST_SCOPED_ENUM_START(Compression) //: byte

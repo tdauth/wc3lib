@@ -36,6 +36,8 @@ class HashData
 {
 	public:
 		HashData(int32 filePathHashA, int32 filePathHashB, int16 locale, int16 platfom);
+		HashData(const HashData &other);
+		operator=(const HashData &other);
 		void setFilePathHashA(int32 filePathHashA);
 		int32 filePathHashA() const;
 		void setFilePathHashB(int32 filePathHashB);
@@ -117,7 +119,7 @@ inline std::size_t hash_value(const HashData &hashData)
 }
 
 
-class Hash : public Format
+class Hash : public Format, private boost::noncopyable
 {
 	public:
 		Hash(class Mpq *mpq);

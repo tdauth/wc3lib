@@ -1,23 +1,24 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#: ../src/app/mpq.cpp:58
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: wc3lib\n"
+"Project-Id-Version: wc3lib 0.1\n"
 "Report-Msgid-Bugs-To: tamino@cdauth.eu\n"
 "POT-Creation-Date: 2011-08-07 09:46+0000\n"
-"PO-Revision-Date: \n"
-"Last-Translator: Tamino Dauth <tamino@cdauth.eu>\n"
-"Language-Team: Tamino Dauth <tamino@cdauth.eu>\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Language: German\n"
-"X-Poedit-Country: GERMANY\n"
-"X-Poedit-SourceCharset: utf-8\n"
-"X-Poedit-Basepath: ../../../src/app/mpq.cpp\n"
-"X-Poedit-SearchPath-0: ../../../src/app/mpq.cpp\n"
 
-#: ../src/app/mpq.cpp:60
-#: ../src/app/mpq.cpp:61
+#: ../src/app/mpq.cpp:60 ../src/app/mpq.cpp:61
 msgid "mpq"
 msgstr ""
 
@@ -67,7 +68,8 @@ msgstr ""
 
 #: ../src/app/mpq.cpp:87
 msgid ""
-"Selects the format of the created MPQ archive and modified files: <format:format:format>\n"
+"Selects the format of the created MPQ archive and modified files: <format:"
+"format:format>\n"
 "Here's a list of valid expressions:\n"
 "* \"1\"\n"
 "* \"2\"\n"
@@ -88,7 +90,8 @@ msgid "list-files,L"
 msgstr ""
 
 #: ../src/app/mpq.cpp:89
-msgid "Overwrites existing files and directories when creating or extracting files."
+msgid ""
+"Overwrites existing files and directories when creating or extracting files."
 msgstr ""
 
 #: ../src/app/mpq.cpp:89
@@ -183,8 +186,7 @@ msgstr ""
 msgid "benchmark,b"
 msgstr ""
 
-#: ../src/app/mpq.cpp:105
-#: ../src/app/mpq.cpp:106
+#: ../src/app/mpq.cpp:105 ../src/app/mpq.cpp:106
 msgid "Expected MPQ archives."
 msgstr ""
 
@@ -214,7 +216,8 @@ msgstr ""
 msgid ""
 "mpq %1%.\n"
 "Copyright © 2010 Tamino Dauth\n"
-"License GPLv2+: GNU GPL version 2 or later <http://gnu.org/licenses/gpl.html>\n"
+"License GPLv2+: GNU GPL version 2 or later <http://gnu.org/licenses/gpl."
+"html>\n"
 "This is free software: you are free to change and redistribute it.\n"
 "There is NO WARRANTY, to the extent permitted by law."
 msgstr ""
@@ -226,7 +229,8 @@ msgstr ""
 #: ../src/app/mpq.cpp:151
 msgid ""
 "\n"
-"Report bugs to tamino@cdauth.eu or on http://sourceforge.net/projects/vjasssdk/"
+"Report bugs to tamino@cdauth.eu or on http://sourceforge.net/projects/"
+"vjasssdk/"
 msgstr ""
 
 #: ../src/app/mpq.cpp:158
@@ -237,16 +241,12 @@ msgstr ""
 msgid "info"
 msgstr ""
 
-#: ../src/app/mpq.cpp:169
-#: ../src/app/mpq.cpp:264
-#: ../src/app/mpq.cpp:300
+#: ../src/app/mpq.cpp:169 ../src/app/mpq.cpp:264 ../src/app/mpq.cpp:300
 #, boost-format
 msgid "File \"%1%\" does not seem to be a regular file and will be skipped."
 msgstr ""
 
-#: ../src/app/mpq.cpp:182
-#: ../src/app/mpq.cpp:277
-#: ../src/app/mpq.cpp:317
+#: ../src/app/mpq.cpp:182 ../src/app/mpq.cpp:277 ../src/app/mpq.cpp:317
 #, boost-format
 msgid "Error occured while opening file \"%1%\": \"%2%\""
 msgstr ""
@@ -256,25 +256,15 @@ msgstr ""
 msgid "Size: %1%"
 msgstr ""
 
-#: ../src/app/mpq.cpp:189
-#: ../src/app/mpq.cpp:194
-#: ../src/app/mpq.cpp:195
-#: ../src/app/mpq.cpp:196
-#: ../src/app/mpq.cpp:197
-#: ../src/app/mpq.cpp:198
-#: ../src/app/mpq.cpp:286
-#: ../src/app/mpq.cpp:290
+#: ../src/app/mpq.cpp:189 ../src/app/mpq.cpp:194 ../src/app/mpq.cpp:195
+#: ../src/app/mpq.cpp:196 ../src/app/mpq.cpp:197 ../src/app/mpq.cpp:198
+#: ../src/app/mpq.cpp:286 ../src/app/mpq.cpp:290
 msgid "decimal"
 msgstr ""
 
-#: ../src/app/mpq.cpp:189
-#: ../src/app/mpq.cpp:194
-#: ../src/app/mpq.cpp:195
-#: ../src/app/mpq.cpp:196
-#: ../src/app/mpq.cpp:197
-#: ../src/app/mpq.cpp:198
-#: ../src/app/mpq.cpp:286
-#: ../src/app/mpq.cpp:290
+#: ../src/app/mpq.cpp:189 ../src/app/mpq.cpp:194 ../src/app/mpq.cpp:195
+#: ../src/app/mpq.cpp:196 ../src/app/mpq.cpp:197 ../src/app/mpq.cpp:198
+#: ../src/app/mpq.cpp:286 ../src/app/mpq.cpp:290
 msgid "human-readable"
 msgstr ""
 
@@ -419,9 +409,7 @@ msgstr ""
 msgid "Opening MPQ archive (wc3lib):"
 msgstr ""
 
-#: ../src/app/mpq.cpp:322
-#: ../src/app/mpq.cpp:326
-#: ../src/app/mpq.cpp:340
+#: ../src/app/mpq.cpp:322 ../src/app/mpq.cpp:326 ../src/app/mpq.cpp:340
 #, boost-format
 msgid "Result: %1%s"
 msgstr ""
@@ -444,6 +432,7 @@ msgid "Failed to open MPQ archive \"%1%\" by using StormLib."
 msgstr ""
 
 #: ../src/app/mpq.cpp:349
-msgid "Since program has been compiled without debug option, StormLib cannot be used."
+msgid ""
+"Since program has been compiled without debug option, StormLib cannot be "
+"used."
 msgstr ""
-

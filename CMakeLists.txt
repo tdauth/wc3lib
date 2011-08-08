@@ -226,11 +226,11 @@ add_definitions(-DLOCALE_DIR=\"${CMAKE_INSTALL_PREFIX}/share/locale\")
 
 include_directories(src lib)
 
-#add_subdirectory(doc)
-#add_subdirectory(ui)
 add_subdirectory(lib)
 add_subdirectory(src)
-#add_subdirectory(icons)
+add_subdirectory(doc)
+add_subdirectory(locale)
+add_subdirectory(services)
 
 #include(CPack)
 

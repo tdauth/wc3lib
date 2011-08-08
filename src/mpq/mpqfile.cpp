@@ -141,7 +141,6 @@ std::streamsize MpqFile::writeData(ostream &ostream) const throw (class Exceptio
 	std::cout << "WRITING DATA FROM FILE " << this->path().string() << " INTO STREAM!!!" << std::endl;
 	std::cout << "We have " << this->m_sectors.size() << " sectors." << std::endl;
 
-	// TEST usually exceptions should never be catched!
 	BOOST_FOREACH(const SectorPtr &sector, this->sectors())
 	{
 		try
@@ -150,7 +149,7 @@ std::streamsize MpqFile::writeData(ostream &ostream) const throw (class Exceptio
 		}
 		catch (Exception &exception)
 		{
-			std::cerr << "Sector error:\n" << exception.what() << std::endl;
+			throw Exception(boost::format(_("Sector error (sector %1%, file \"%2%\":\n%3%")) % sector->sectorIndex() % this->path() % exception.what());
 		}
 	}
 
@@ -184,28 +183,36 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 		TEST = true;
 		std::cout << "Is (listfile)!" << std::endl;
 	}
+	
+	// END TEST
 
 	// This table is not present if this information can be calculated.
 	// If the file is not compressed/imploded, then the size and offset of all sectors is known, based on the archive's SectorSizeShift. If the file is stored as a single unit compressed/imploded, then the SectorOffsetTable is omitted, as the single file "sector" corresponds to BlockSize and FileSize, as mentioned previously.
-	if  (!hasSectorOffsetTable() || this->block()->flags() & 0x00030000) /// @todo test
+	if  (!hasSectorOffsetTable())
 	{
 		//std::cout << "File is not imploded/compressed or it's a single unit " << std::endl;
 		
-		const int16 sectorSize = (this->block()->flags() & Block::Flags::IsSingleUnit) ? this->block()->fileSize() : this->m_mpq->sectorSize();
+		const uint16 sectorSize = (this->block()->flags() & Block::Flags::IsSingleUnit) ? this->block()->fileSize() : this->m_mpq->sectorSize();
 		// If the file is stored as a single unit (indicated in the file's Flags), there is effectively only a single sector, which contains the entire file data.
-		const int32 sectors = (this->m_hash->block()->flags() & Block::Flags::IsSingleUnit) ? 1 : this->m_hash->block()->blockSize() / sectorSize;
+		const uint32 sectors = (this->m_hash->block()->flags() & Block::Flags::IsSingleUnit) ? 1 : this->m_hash->block()->blockSize() / sectorSize;
 
+		// TEST
 		if (TEST)
 		{
 			std::cout << "File size: " << this->m_hash->block()->fileSize() << " and number of sectors to read " << sectors << " and sector size " << sectorSize << std::endl;
 			std::cout << "Correct flags: " << std::hex << this->m_hash->m_block->flags() << std::dec << std::endl;
+			std::cout << "File block offset: " << this->block()->blockOffset() << std::endl;
+			std::cout << "File block size: " << this->block()->blockSize() << std::endl;
+			std::cout << "File extended block size: " << this->block()->extendedBlockOffset() << std::endl;
+			std::cout << "File key: " << this->fileKey() << std::endl;
 		}
+		// END TEST
 
-		int32 newOffset = 0;
+		uint32 newOffset = 0;
 		// not necessary for single units
-		const int32 lastSize = this->m_hash->block()->blockSize() % sectorSize;
+		const uint32 lastSize = this->m_hash->block()->blockSize() % sectorSize;
 
-		for (int32 i = 0; i < sectors; ++i)
+		for (uint32 i = 0; i < sectors; ++i)
 		{
 			SectorPtr sector(new Sector(this));
 			sector->m_sectorIndex = i; // important for index function in sectors container
@@ -226,14 +233,6 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 			sector->m_sectorSize = lastSize;
 			this->m_sectors.insert(sector);
 		}
-		
-		if (TEST)
-		{
-			std::cout << "actual sectors " << m_sectors.size() << std::endl;
-		}
-
-		//std::cout << "Real sector count " << this->m_sectors.size() << std::endl;
-
 	}
 	// However, the SectorOffsetTable will be present if the file is compressed/imploded and the file is not stored as a single unit, even if there is only a single sector in the file (the size of the file is less than or equal to the archive's sector size).
 	// sector offset table
@@ -242,33 +241,42 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 		// sector number calculation from StormLib
 		// hf->nBlocks  = (hf->pBlock->dwFSize + ha->dwBlockSize - 1) / ha->dwBlockSize;
 		
-		const int32 sectors = (this->block()->fileSize() + this->mpq()->sectorSize() - 1) / this->mpq()->sectorSize();
+		const uint32 sectors = (this->block()->fileSize() + this->mpq()->sectorSize() - 1) / this->mpq()->sectorSize();
+		
+		// TEST
+		if (TEST)
+		{
+			std::cout << "File size: " << this->m_hash->block()->fileSize() << " and number of sectors to read " << sectors << std::endl;
+			std::cout << "Correct flags: " << std::hex << this->m_hash->m_block->flags() << std::dec << std::endl;
+			std::cout << "File block offset: " << this->block()->blockOffset() << std::endl;
+			std::cout << "File block size: " << this->block()->blockSize() << std::endl;
+			std::cout << "File extended block size: " << this->block()->extendedBlockOffset() << std::endl;
+			std::cout << "File key: " << this->fileKey() << std::endl;
+		}
+		// END TEST
 		
 		// StormLib specific implementation (extra data)?!
 		//dwToRead = (hf->nBlocks+1) * sizeof(DWORD);
 		//if(hf->pBlock->dwFlags & MPQ_FILE_HAS_EXTRA)
 			//dwToRead += sizeof(DWORD);
-		
-		//std::cout << "Starting required debug messages:" << std::endl;
-		//int32 sectors = this->m_hash->block()->fileSize() / this->m_mpq->sectorSize(); /// @todo How to get this value?
-		//std::cout << "Sectors " << sectors << " and flags " << std::hex << this->m_hash->block()->flags() << std::dec << std::endl;
-		//std::cout << "Block offset: " << this->m_hash->block()->blockOffset() << ", Block size: " << this->m_hash->block()->blockSize() << std::endl;
-		//std::cout << "Get position: " << istream.tellg() << std::endl;
-		std::cout << "File size: " << this->m_hash->block()->fileSize() << " and number of sectors to read " << sectors << std::endl;
 
-		for (int32 i = 0; i < sectors; ++i)
+		for (uint32 i = 0; i < sectors; ++i)
 		{
-			int32 offset;
+			uint32 offset;
 			wc3lib::read(istream, offset, bytes);
 			//std::cout << "Offset: " << offset << std::endl;
 
 			// TEST
+			/*
 			if (offset >= this->m_hash->m_block->fileSize() || offset <= 0)
 			{
 				std::cerr << "Invalid offset: " << offset << " with flags: " << std::hex << this->m_hash->m_block->flags() << std::dec << std::endl;
 				
 				return bytes;
 			}
+			*/
+			
+			// END TEST
 
 			SectorPtr sector(new Sector(this));
 			sector->m_sectorIndex = i; // important for index function in sectors container
@@ -285,15 +293,15 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 			*/
 		}
 
-		//int32 size;
-		//wc3lib::read(istream, size, bytes);
-		//std::cout << "Real file size: " << size << std::endl;
+		uint32 size;
+		wc3lib::read(istream, size, bytes);
+		std::cout << "Real file size: " << size << std::endl;
 
 		// TODO Is there really a last size entry in section offset table?!
 		// The last entry contains the file size, making it possible to easily calculate the size of any given sector.
 		
 		// calculate sector size, not required but maybe useful at some point
-		int32 size = this->block()->fileSize();
+		//int32 size = this->block()->fileSize();
 		
 		BOOST_REVERSE_FOREACH(SectorPtr sector, this->m_sectors)
 		{
@@ -314,9 +322,17 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 			// as well, this byte is encrypted with the sector data, if applicable.
 			if (this->isEncrypted())
 			{
-				std::cout << "Compression before " << std::hex << compression << std::dec << std::endl;
+				
+				// TEST
+				//if (TEST)
+				//	std::cout << "Compression before " << std::hex << compression << std::dec << std::endl;
+				
+				// TODO Decryption doesn't really change one byte compression!
 				DecryptData(Mpq::cryptTable(), (void*)&compression, uint32(sizeof(compression)), sector->sectorKey());
-				std::cout << "Compression afterwards " << std::hex << compression << std::dec << std::endl;
+				
+				// TEST
+				//if (TEST)
+				//	std::cout << "Compression afterwards " << std::hex << compression << std::dec << std::endl;
 			}
 
 			sector->setCompression(compression);
@@ -327,11 +343,6 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 			sector->setCompression(0);
 			istream.seekg(sector->m_sectorSize, std::ios_base::cur); // skip sector data
 		}
-	}
-	
-	if (TEST)
-	{
-		std::cout << "actual sectors " << m_sectors.size() << std::endl;
 	}
 	
 	this->unlock();

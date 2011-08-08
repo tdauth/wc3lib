@@ -36,7 +36,7 @@ namespace mpq
  * \brief Abstract class for mpq file access. Combines hash and block table data of file.
  * MpqFile uses mutex locking and unlocking whenever data is being changed or read. It calls \ref boost::mutex::try_lock (immediate lock) in that case so make sure data is not locked at that moment, otherwise it throws an exception.
  */
-class MpqFile : public boost::mutex
+class MpqFile : public boost::mutex, private boost::noncopyable
 {
 	public:
 		/// \todo Define all locales. <a href="http://wiki.devklog.net/index.php?title=The_MoPaQ_Archive_Format#Locales">Source</a>.
@@ -188,11 +188,16 @@ class MpqFile : public boost::mutex
 		 */
 		void remove() throw (class Exception);
 		/**
-		 * @return Returns false if the file could not be renamed or if it does already have to specified name.
+		 * \return Returns false if the file could not be renamed or if it does already have to specified name.
 		 */
 		bool rename(const std::string &newName, bool overwriteExisting = false) throw (class Exception);
 		bool move(const boost::filesystem::path &newPath, bool overwriteExisting = false) throw (class Exception);
 		
+		/**
+		 * Compressed sectors (only found in compressed - not imploded - files) are compressed with one or more compression algorithms, and have the following structure:
+		 * \ref byte CompressionMask : Mask of the compression types applied to this sector.
+		 * byte(SectorSize - 1) SectorData : The compressed data for the sector.
+		 */
 		bool hasSectorOffsetTable() const;
 
 		class Mpq *m_mpq;
@@ -323,8 +328,8 @@ inline bool MpqFile::hasSectorOffsetTable() const
 }
 
 /**
-* Appends data from input stream @param istream to file @param mpqFile.
-*/
+ * Appends data from input stream \p istream to file \p mpqFile.
+ */
 inline istream& operator>>(istream &istream, class MpqFile &mpqFile) throw (class Exception)
 {
 	mpqFile.appendData(istream);
@@ -333,8 +338,8 @@ inline istream& operator>>(istream &istream, class MpqFile &mpqFile) throw (clas
 }
 
 /**
-* Writes data of the file @param mpqFile into output stream @param ostream.
-*/
+ * Writes data of the file \p mpqFile into output stream \p ostream.
+ */
 inline ostream& operator<<(ostream &ostream, const class MpqFile &mpqFile) throw (class Exception)
 {
 	mpqFile.writeData(ostream);

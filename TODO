@@ -1,27 +1,12 @@
+2011-08-08 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Fix sector number and offset calculation and consider invalid compression etc.
+
 2011-08-06 Tamino Dauth <tamino@cdauth.eu>
 * FIXED: mpq: Wrong sectors number because of new sector indices which are not set early enough.
 
 2011-08-05 Tamino Dauth <tamino@cdauth.eu>
-* mpq: ZLib and BZip2 decompression data is corrupted since (listfile)-
-war3x.mpq
-File size: 299575 and number of sectors to read 12 and sector size 4096
-Correct flags: 80030200
-Maybe we need to change data to little endian format (like StormLib)?
-/home/tamino/Desktop/Warcraft III/war3x.mpq
-Size: 379.45120 Mi
-Hashes: 32768
-Blocks: 6144
-Files: 5867
-Format: 0
-Used block space: 355.484659 Mi
-Unused block space: 22.1034989 Mi
-Sector size: 4 Ki
-Entire block size: 378.471072 Mi
-Entire file size: 430.518091 Mi
-Has strong digital signature: No
-Contains listfile file: Yes
-Contains attributes file: Yes
-Contains signature file: No
+* DEPRECATED: mpq: ZLib and BZip2 decompression data is corrupted since (listfile)-
+war3x.mpq.
 
 2011-07-28 Tamino Dauth <tamino@cdauth.eu>
 * editor/mpq: Add file seeking and writing support for class editor::KArchive and mpq::MpqFile.

@@ -287,9 +287,11 @@ std::streamsize Mpq::read(InputStream &stream, InputStream *listfileIstream) thr
 			this->m_files.get<0>().push_back(mpqFile);
 
 			// seek to file data beginning
-			const std::streampos position = startPosition() + boost::numeric_cast<std::streampos>(mpqFile->hash()->block()->blockOffset()) + ((format() == Mpq::Format::Mpq2) ? boost::numeric_cast<std::streampos>(mpqFile->hash()->block()->extendedBlockOffset()) : boost::numeric_cast<std::streampos>(0));
+			stream.seekg(startPosition() + boost::numeric_cast<std::streampos>(mpqFile->hash()->block()->blockOffset()));
 			
-			stream.seekg(position);
+			if (format() == Mpq::Format::Mpq2 && mpqFile->hash()->block()->extendedBlockOffset() > 0)
+				stream.seekg(boost::numeric_cast<std::streamoff>(mpqFile->hash()->block()->extendedBlockOffset()), std::ios_base::cur);
+			
 			/// \todo Decrypt and unimplode data? boost::numeric_cast<uint32>(this->m_startPosition)
 
 			size += mpqFile->read(stream);

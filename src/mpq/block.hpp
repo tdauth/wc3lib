@@ -29,16 +29,16 @@ namespace wc3lib
 namespace mpq
 {
 
-class Block : public Format
+class Block : public Format, private boost::noncopyable
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Flags) //: uint32
+		BOOST_SCOPED_ENUM_START(Flags) /// \todo C++0x : uint32
 		{
 			None = 0x0,
 			IsFile = 0x80000000,
 			IsSingleUnit = 0x01000000,
-			UsesEncryptionKey = 0x00020000,
-			IsEncrypted = 0x00010000,
+			UsesEncryptionKey = 0x00020000, /// Synonym for "BLOCK_OFFSET_ADJUSTED_KEY" which means that the file's key depends on its block offset and file size. \sa fileKey()
+			IsEncrypted = 0x00010000, /// In encrypted files each file sector (\ref Sector) has to be decrypted by its custom sector key which is the sum of its corresponding file key and its index starting at 0. \sa fileKey(), MpqFile::fileKey(), Sector::sectorKey()
 			IsCompressed = 0x00000200,
 			IsImploded = 0x00000100
 		};
@@ -66,8 +66,14 @@ class Block : public Format
 		void setExtendedBlockOffset(uint32 extendedBlockOffset);
 		uint16 extendedBlockOffset() const;
 		void setBlockSize(uint32 blockSize);
+		/**
+		 * \return Returns the actual required block size in bytes which might be smaller than \ref fileSize() if file is compressed.
+		 */
 		uint32 blockSize() const;
 		void setFileSize(uint32 fileSize);
+		/**
+		 * \return Returns the actual uncompressed file size in bytes which might be bigger than \ref blockSize() if file is compressed.
+		 */
 		uint32 fileSize() const;
 		void setFlags(BOOST_SCOPED_ENUM(Flags) flags);
 		BOOST_SCOPED_ENUM(Flags) flags() const;
