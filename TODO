@@ -1,5 +1,8 @@
+2011-08-11 Tamino Dauth <tamino@cdauth.eu>
+* FIXED: mpq: Read sector offset table and decrypt it when searching for corresponding hash entry and updating file path!
+
 2011-08-08 Tamino Dauth <tamino@cdauth.eu>
-* mpq: Fix sector number and offset calculation and consider invalid compression etc.
+* FIXED: mpq: Fix sector number and offset calculation and consider invalid compression etc.
 
 2011-08-06 Tamino Dauth <tamino@cdauth.eu>
 * FIXED: mpq: Wrong sectors number because of new sector indices which are not set early enough.

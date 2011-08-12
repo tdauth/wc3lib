@@ -46,6 +46,11 @@ int main(int argc, char *argv[])
 	splash.show();
 	
 	editor.show();
+	
+	// TEST
+	editor.showTextureEditor();
+	editor.showModelEditor();
+	// END TEST
 	/*
 	/// @todo Allow parsing multiple files as arguments.
 	/// FIXME Crashes application when canceling file dialog.

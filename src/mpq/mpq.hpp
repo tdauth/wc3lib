@@ -227,14 +227,15 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		/**
 		 * Note that the MPQ archive has no information about file paths if there is no "(listfile)" file. This function is the best way to get your required file.
 		 * \return Returns the corresponding \ref MpqFile instance of the searched file. If no file was found it returns 0.
+		 * \throw Exception Throws an exception if updating sector table fails which is necessary if file is encrypted and path is updated the first time.
 		 */
-		const class MpqFile* findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default) const;
+		const class MpqFile* findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default) const  throw (Exception);
 		/**
 		 * Path of MPQ file \p mpqFile should be set if you use this method.
 		 * Does not search for the instance of \p mpqFile. Only uses its hash data!
 		 * \return Returns 0 if no file was found.
 		 */
-		const class MpqFile* findFile(const class MpqFile &mpqFile) const;
+		const class MpqFile* findFile(const class MpqFile &mpqFile) const throw (Exception);
 		
 		/**
 		 * Adds a new file to the MPQ archive with path \p path, locale \p locale and platform \p platform.
@@ -258,8 +259,8 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		
 		class Hash* findHash(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default);
 		class Hash* findHash(const Hash &hash);
-		class MpqFile* findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default);
-		class MpqFile* findFile(const class MpqFile &mpqFile);
+		class MpqFile* findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default) throw (Exception);
+		class MpqFile* findFile(const class MpqFile &mpqFile) throw (Exception);
 
 		/**
 		 * This function is reserved for internal uses since it gets a non-constant parameter.
@@ -372,10 +373,11 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		void clear();
 
 		/**
-		 * Uses input stream \param istream for reading file path entries and refreshing them by getting their instances (using their hashes).
+		 * Uses input stream \p istream for reading file path entries and refreshing them by getting their instances (using their hashes).
+		 * Usual listfile files have to have neutral locale and default platform attributes but this function supports other as well.
 		 * \return Returns the number of added path entries.
 		 */
-		std::size_t readListfilePathEntries(istream &istream);
+		std::size_t readListfilePathEntries(istream &istream, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default);
 		bool checkBlocks() const;
 		bool checkHashes() const;
 		/**

@@ -168,6 +168,15 @@ MpqFile::~MpqFile()
 
 std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 {
+	// if we have a sector offset table and file is encrypted we first need to know its path for proper decryption!
+	if (hasSectorOffsetTable() && isEncrypted() && path().empty())
+	{
+		std::cerr << "File sector offset table is encrypted and we have no file path. Skipping sector data." << std::endl;
+		istream.seekg(this->block()->blockSize(), std::ios_base::cur);
+		
+		return 0;
+	}
+	
 	if (!this->try_lock())
 		throw Exception(boost::format(_("Unable to lock MPQ file \"%1%\".")) % path());
 	
@@ -183,8 +192,15 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 		TEST = true;
 		std::cout << "Is (listfile)!" << std::endl;
 	}
+	else
+		std::cerr << "Is not!" << std::endl;
 	
 	// END TEST
+		
+	if (istream.tellg() != this->block()->blockOffset())
+	{
+		std::cerr << "Warning: We're not at block offset " << block()->blockOffset() << ", we're at " << istream.tellg() << std::endl;
+	}
 
 	// This table is not present if this information can be calculated.
 	// If the file is not compressed/imploded, then the size and offset of all sectors is known, based on the archive's SectorSizeShift. If the file is stored as a single unit compressed/imploded, then the SectorOffsetTable is omitted, as the single file "sector" corresponds to BlockSize and FileSize, as mentioned previously.
@@ -260,27 +276,23 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 		//if(hf->pBlock->dwFlags & MPQ_FILE_HAS_EXTRA)
 			//dwToRead += sizeof(DWORD);
 
+		boost::scoped_array<uint32> offsets(new uint32[sectors + 1]);
+		wc3lib::read<uint32>(istream, offsets[0], bytes, (sectors + 1) * sizeof(uint32));
+		
+		// The SectorOffsetTable, if present, is encrypted using the key - 1.
+		if (isEncrypted())
+		{
+			std::cerr << "Encrypted first offset " << offsets[0] << std::endl;
+			std::cerr << "Is encrypted: sector table will be decrypted." << std::endl;
+			DecryptData(Mpq::cryptTable(), offsets.get(), sizeof(uint32) * (sectors + 1), fileKey() - 1);
+			std::cerr << "Decrypted first offset " << offsets[0] << std::endl;
+		}
+
 		for (uint32 i = 0; i < sectors; ++i)
 		{
-			uint32 offset;
-			wc3lib::read(istream, offset, bytes);
-			//std::cout << "Offset: " << offset << std::endl;
-
-			// TEST
-			/*
-			if (offset >= this->m_hash->m_block->fileSize() || offset <= 0)
-			{
-				std::cerr << "Invalid offset: " << offset << " with flags: " << std::hex << this->m_hash->m_block->flags() << std::dec << std::endl;
-				
-				return bytes;
-			}
-			*/
-			
-			// END TEST
-
 			SectorPtr sector(new Sector(this));
 			sector->m_sectorIndex = i; // important for index function in sectors container
-			sector->m_sectorOffset = offset;
+			sector->m_sectorOffset = offsets[i];
 			this->m_sectors.insert(sector);
 
 			/*
@@ -293,12 +305,16 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 			*/
 		}
 
-		uint32 size;
-		wc3lib::read(istream, size, bytes);
-		std::cout << "Real file size: " << size << std::endl;
-
-		// TODO Is there really a last size entry in section offset table?!
 		// The last entry contains the file size, making it possible to easily calculate the size of any given sector.
+		uint32 size = offsets[sectors];
+		
+		if (!hash()->block()->fileSize() != size)
+		{
+			std::cerr << "We have " << sectors << " sectors." << std::endl;
+			std::cerr << "Read sector table file size " << size << " is not equal to original file size " << hash()->block()->fileSize() << std::endl;
+			std::cerr << "First sector offset " << (*this->sectors().find(0))->sectorOffset() << std::endl;
+			size = hash()->block()->fileSize();
+		}
 		
 		// calculate sector size, not required but maybe useful at some point
 		//int32 size = this->block()->fileSize();

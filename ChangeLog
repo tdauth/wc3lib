@@ -1,3 +1,10 @@
+2011-08-12 Tamino Dauth <tamino@cdauth.eu>
+* mpq: File header is refreshed automatically now when path is set by searching for hash value.
+
+2011-08-11 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Added sector offset table decryption.
+* mpq: Added file path check to file header read function.
+
 2011-08-08 Tamino Dauth <tamino@cdauth.eu>
 * mpq: Dropped invalid block flag check.
 * mpq: Sector size and shift are unsigned now.

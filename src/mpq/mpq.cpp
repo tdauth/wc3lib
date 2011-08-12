@@ -384,7 +384,7 @@ uint32_t Mpq::version() const
 	return 0;
 }
 
-const class MpqFile* Mpq::findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform) const
+const class MpqFile* Mpq::findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform) const throw (Exception)
 {
 	class Hash *hash = const_cast<class Mpq*>(this)->findHash(path, locale, platform);
 
@@ -392,12 +392,42 @@ const class MpqFile* Mpq::findFile(const boost::filesystem::path &path, BOOST_SC
 		return 0;
 
 	if (hash->m_mpqFile->m_path != path) // path has not been set yet
+	{
 		hash->m_mpqFile->m_path = path;
+		
+		// if we have a sector offset table and file is encrypted we first need to know its path for proper decryption!
+		// TODO READ SECTOR OFFSET TABLE AND DECRYPT IT NOW THAT WE HAVE ITS PATH
+		if (hash->mpqFile()->hasSectorOffsetTable() && hash->mpqFile()->isEncrypted())
+		{
+			std::cerr << "File sector offset table is encrypted and we have no file path. Refreshing sector data." << std::endl;
+			
+			boost::interprocess::file_lock fileLock(hash->mpqFile()->mpq()->path().string().c_str());
+			
+			if (!fileLock.try_lock())
+				throw Exception(boost::format(_("Warning: Couldn't lock MPQ file for refreshing sector data of file %1%.")) % path);
+			
+			ifstream istream(this->path(), std::ios::in | std::ios::binary);
+				
+			if (!istream)
+				throw Exception();
+			
+			istream.seekg(startPosition());
+			istream.seekg(hash->block()->blockOffset(), std::ios::cur);
+			
+			if (format() == Mpq::Format::Mpq2 && hash->block()->extendedBlockOffset() > 0)
+				istream.seekg(hash->block()->extendedBlockOffset(), std::ios::cur);
+				
+			
+			hash->mpqFile()->read(istream);
+			fileLock.unlock();
+		}
+		
+	}
 
 	return const_cast<const class MpqFile*>(hash->m_mpqFile);
 }
 
-const class MpqFile* Mpq::findFile(const class MpqFile &mpqFile) const
+const class MpqFile* Mpq::findFile(const class MpqFile &mpqFile) const throw (Exception)
 {
 	return this->findFile(mpqFile.path(), mpqFile.locale(), mpqFile.platform());
 }
@@ -648,12 +678,12 @@ class Hash* Mpq::findHash(const Hash &hash)
 	return this->findHash(hash.mpqFile()->path(), hash.mpqFile()->locale(), hash.mpqFile()->platform());
 }
 
-class MpqFile* Mpq::findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform)
+class MpqFile* Mpq::findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform) throw (Exception)
 {
 	return const_cast<class MpqFile*>(const_cast<const Mpq*>(this)->findFile(path, locale, platform));
 }
 
-class MpqFile* Mpq::findFile(const class MpqFile &mpqFile)
+class MpqFile* Mpq::findFile(const class MpqFile &mpqFile) throw (Exception)
 {
 	return const_cast<class MpqFile*>(const_cast<const Mpq*>(this)->findFile(mpqFile));
 }
@@ -684,7 +714,7 @@ class MpqFile* Mpq::refreshSignatureFile()
 	return 0;
 }
 
-std::size_t Mpq::readListfilePathEntries(istream &istream)
+std::size_t Mpq::readListfilePathEntries(istream &istream, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform)
 {
 	// read list file file and create path entries
 	std::size_t count = 0;
@@ -693,15 +723,18 @@ std::size_t Mpq::readListfilePathEntries(istream &istream)
 	// The listfile is contained in the file "(listfile)" (default language and platform), and is simply a text file with file paths separated by ';', 0Dh, 0Ah, or some combination of these.
 	char character;
 	bool newEntry = false;
+	
+	if (!istream.get(reinterpret_cast<byte&>(character)))
+		return 0;
 
-	while (istream.get(reinterpret_cast<byte&>(character)))
+	do
 	{
 		if (character == ';' || character == '\r' || character == '\n')
 		{
 			if (!newEntry)
 			{
-				//std::cout << "(listfile) line: " << line << std::endl;
-				//this->findFile(line, MpqFile::Neutral, MpqFile::Default);
+				std::cout << "(listfile) line: " << line << std::endl;
+				this->findFile(line, locale, platform);
 				newEntry = true;
 				++count;
 				line.clear();
@@ -718,14 +751,7 @@ std::size_t Mpq::readListfilePathEntries(istream &istream)
 				count = 1;
 		}
 	}
-
-	// last entry
-	if (!newEntry)
-	{
-		//std::cout << "(listfile) line: " << line << std::endl;
-		//this->findFile(line, MpqFile::Neutral, MpqFile::Default);
-		++count;
-	}
+	while (istream.get(reinterpret_cast<byte&>(character)));
 
 	return count;
 }

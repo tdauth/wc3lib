@@ -56,24 +56,24 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 	if (!ifstream)
 		throw Exception(boost::str(boost::format(_("Sector: Unable to open file \"%1%\".")) % this->mpqFile()->mpq()->path().string()));
 
-	std::streampos position = this->mpqFile()->mpq()->startPosition() + boost::numeric_cast<std::streampos>(this->sectorOffset());
+	ifstream.seekg(this->mpqFile()->mpq()->startPosition());
+	ifstream.seekg(boost::numeric_cast<std::streampos>(this->sectorOffset()), std::ios::cur);
 
 	if (this->mpqFile()->mpq()->format() == Mpq::Format::Mpq1)
-		position += this->mpqFile()->hash()->block()->blockOffset();
+		ifstream.seekg(boost::numeric_cast<std::streampos>(this->mpqFile()->hash()->block()->blockOffset()), std::ios::cur);
 	else
-		position += this->mpqFile()->hash()->block()->largeOffset();
+		ifstream.seekg(boost::numeric_cast<std::streampos>(this->mpqFile()->hash()->block()->largeOffset()), std::ios::cur);
 
-//	std::cout << "Sector position " << position << std::endl;
+	std::cout << "Sector position " << ifstream.tellg() << std::endl;
 	uint32 dataSize = this->sectorSize();
 
 	// skip compression flags byte
 	if (this->mpqFile()->isCompressed())
 	{
-		position += 1;
+		ifstream.seekg(1, std::ios::cur);
 		dataSize -= 1;
 	}
 
-	ifstream.seekg(position);
 	boost::scoped_array<byte> data(new byte[dataSize]);
 	/*
 	std::cout << "Sector index: " << this->sectorIndex() << std::endl;

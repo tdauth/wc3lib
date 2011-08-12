@@ -35,7 +35,7 @@ namespace mpq
 class Sector : private boost::noncopyable
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Compression) //: byte
+		BOOST_SCOPED_ENUM_START(Compression) /// \todo C++0x : byte
 		{
 			Uncompressed = 0,
 			ImaAdpcmMono = 0x40, // IMA ADPCM mono
