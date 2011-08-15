@@ -136,8 +136,13 @@ void ModelEditor::saveFile()
 
 void ModelEditor::closeAllFiles()
 {
-	BOOST_FOREACH(Models::value_type value, this->models())
-		removeModel(value);
+	for (Models::iterator iterator = models().begin(); iterator != models().end(); )
+	{
+		/// TODO remove from list etc.
+		OgreMdlxPtr ptr = *iterator;
+		++iterator;
+		removeModel(ptr);
+	}
 }
 
 void ModelEditor::showSettings()

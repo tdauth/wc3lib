@@ -1,3 +1,11 @@
+2011-08-15 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Fixed sector offset.
+* mpq: Compression type is detected in class Sector's member function now.
+* mpq: Added testing decompression support for imploded files which are compressed, as well.
+
+2011-08-14 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Block size is used for sector size calculation now.
+
 2011-08-12 Tamino Dauth <tamino@cdauth.eu>
 * mpq: File header is refreshed automatically now when path is set by searching for hash value.
 

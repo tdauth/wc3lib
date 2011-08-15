@@ -129,14 +129,14 @@ struct DataInfo
 };
 
 /**
-* Function loads data from the input buffer. Used by Pklib's "implode"
-* and "explode" function as user-defined callback.
-* @return Returns number of bytes loaded.
-* @author StormLib
-* @param buf Pointer to a buffer where to store loaded data.
-* @param size Max. number of bytes to read.
-* @param param Custom pointer, parameter of implode/explode.
-*/
+ * Function loads data from the input buffer. Used by Pklib's "implode"
+ * and "explode" function as user-defined callback.
+ * \return Returns number of bytes loaded.
+ * \author StormLib
+ * \param buf Pointer to a buffer where to store loaded data.
+ * \param size Max. number of bytes to read.
+ * \param param Custom pointer, parameter of implode/explode.
+ */
 static unsigned int readBuffer(char *buf, unsigned int *size, void *param)
 {
 	struct DataInfo *info = reinterpret_cast<struct DataInfo*>(param);
@@ -155,13 +155,13 @@ static unsigned int readBuffer(char *buf, unsigned int *size, void *param)
 }
 
 /**
-* Function for store output data. Used by Pklib's "implode" and "explode"
-* as user-defined callback.
-* @author StormLib
-* @param buf Pointer to data to be written.
-* @param size Number of bytes to write.
-* @param param Custom pointer, parameter of implode/explode
-*/
+ * Function for store output data. Used by Pklib's "implode" and "explode"
+ * as user-defined callback.
+ * \author StormLib
+ * \param buf Pointer to data to be written.
+ * \param size Number of bytes to write.
+ * \param param Custom pointer, parameter of implode/explode
+ */
 static void writeBuffer(char *buf, unsigned int *size, void *param)
 {
 	struct DataInfo *info = reinterpret_cast<struct DataInfo*>(param);
@@ -177,7 +177,7 @@ static void writeBuffer(char *buf, unsigned int *size, void *param)
 	info->outPosition += toWrite;
 }
 
-void compressPklib(char *&outBuffer, int &outLength, char* const &inBuffer, int inLength, int &compressionType, int /* compressionLevel */)  throw (class Exception)
+void compressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength, int &compressionType, int /* compressionLevel */)  throw (class Exception)
 {
 	struct DataInfo info; // Data information
 	// Fill data information structure
@@ -209,7 +209,7 @@ void compressPklib(char *&outBuffer, int &outLength, char* const &inBuffer, int 
 		throw Exception(boost::str(boost::format(_("Implode error %1%.")) % state));
 }
 
-void decompressPklib(char *&outBuffer, int &outLength, char* const &inBuffer, int inLength) throw (class Exception)
+void decompressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength) throw (class Exception)
 {
 	struct DataInfo info; // Data information
 	// Fill data information structure
@@ -234,10 +234,10 @@ void decompressPklib(char *&outBuffer, int &outLength, char* const &inBuffer, in
 	outLength = info.outPosition;
 
 	if (state != CMP_NO_ERROR)
-		throw Exception(boost::str(boost::format(_("Explode error %1%.")) % state));
+		throw Exception(boost::format(_("Explode error %1%.")) % state);
 }
 
-int compressWaveMono(short* const &inBuffer, int inBufferLength, unsigned char *&outBuffer, int &outBufferLength, int compressionLevel) throw (class Exception)
+int compressWaveMono(short* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength, int compressionLevel) throw (class Exception)
 {
 	// Prepare the compression level for the next compression
 	// (After us, the Huffmann compression will be called)
@@ -258,7 +258,7 @@ int compressWaveMono(short* const &inBuffer, int inBufferLength, unsigned char *
 	return outBufferLength;
 }
 
-int decompressWaveMono(unsigned char* const &inBuffer, int inBufferLength, unsigned char *&outBuffer, int &outBufferLength) throw (class Exception)
+int decompressWaveMono(unsigned char* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength) throw (class Exception)
 {
 	if (outBuffer != 0)
 		throw Exception(_("Output buffer is not 0."));
@@ -270,7 +270,7 @@ int decompressWaveMono(unsigned char* const &inBuffer, int inBufferLength, unsig
 	return outBufferLength;
 }
 
-int compressWaveStereo(short* const &inBuffer, int inBufferLength, unsigned char *&outBuffer, int &outBufferLength, int compressionLevel) throw (class Exception)
+int compressWaveStereo(short* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength, int compressionLevel) throw (class Exception)
 {
 	// Prepare the compression type for the next compression
 	// (After us, the Huffmann compression will be called)
@@ -291,7 +291,7 @@ int compressWaveStereo(short* const &inBuffer, int inBufferLength, unsigned char
 	return outBufferLength;
 }
 
-int decompressWaveStereo(unsigned char* const &inBuffer, int inBufferLength, unsigned char *&outBuffer, int &outBufferLength) throw (class Exception)
+int decompressWaveStereo(unsigned char* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength) throw (class Exception)
 {
 	if (outBuffer != 0)
 		throw Exception(_("Output buffer is not 0."));
@@ -333,6 +333,9 @@ std::streamsize compressZlib(istream &istream, ostream &ostream) throw (boost::i
 std::streamsize decompressZlib(istream &istream, ostream &ostream) throw (boost::iostreams::zlib_error)
 {
 	boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
+	//boost::iostreams::zlib_params params(boost::iostreams::zlib::default_compression, boost::iostreams::zlib::deflated, boost::iostreams::zlib::default_window_bits, boost::iostreams::zlib::default_mem_level, boost::iostreams::zlib::default_strategy, true, boost::iostreams::zlib::default_crc); // TEST omit header
+	// omitting header doesn't fix it
+	//in.push(boost::iostreams::basic_zlib_decompressor<std::allocator<byte> >(params, istream.rdbuf()->in_avail()));
 	in.push(boost::iostreams::basic_zlib_decompressor<std::allocator<byte> >());
 	in.push(istream);
 	

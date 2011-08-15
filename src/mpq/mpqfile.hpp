@@ -141,6 +141,13 @@ class MpqFile : public boost::mutex, private boost::noncopyable
 		MD5 md5() const;
 
 		const Sectors& sectors() const;
+		
+		/**
+		 * Compressed sectors (only found in compressed - not imploded - files) are compressed with one or more compression algorithms, and have the following structure:
+		 * \ref byte CompressionMask : Mask of the compression types applied to this sector.
+		 * byte(SectorSize - 1) SectorData : The compressed data for the sector.
+		 */
+		bool hasSectorOffsetTable() const;
 
 		/**
 		* Appends data of file \p mpqFile.
@@ -192,13 +199,6 @@ class MpqFile : public boost::mutex, private boost::noncopyable
 		 */
 		bool rename(const std::string &newName, bool overwriteExisting = false) throw (class Exception);
 		bool move(const boost::filesystem::path &newPath, bool overwriteExisting = false) throw (class Exception);
-		
-		/**
-		 * Compressed sectors (only found in compressed - not imploded - files) are compressed with one or more compression algorithms, and have the following structure:
-		 * \ref byte CompressionMask : Mask of the compression types applied to this sector.
-		 * byte(SectorSize - 1) SectorData : The compressed data for the sector.
-		 */
-		bool hasSectorOffsetTable() const;
 
 		class Mpq *m_mpq;
 		class Hash *m_hash;
@@ -302,6 +302,11 @@ inline const MpqFile::Sectors& MpqFile::sectors() const
 	return this->m_sectors;
 }
 
+inline bool MpqFile::hasSectorOffsetTable() const
+{
+	return !(this->block()->flags() & Block::Flags::IsSingleUnit) && ((this->block()->flags() & Block::Flags::IsCompressed) || (this->block()->flags() & Block::Flags::IsImploded));
+}
+
 inline uint16 MpqFile::localeToInt(BOOST_SCOPED_ENUM(MpqFile::Locale) locale)
 {
 	return (uint16)(locale); // TODO boost::numeric_cast<
@@ -320,11 +325,6 @@ inline uint16 MpqFile::platformToInt(BOOST_SCOPED_ENUM(MpqFile::Platform) platfo
 inline BOOST_SCOPED_ENUM(MpqFile::Platform) MpqFile::intToPlatform(uint16 value)
 {
 	return BOOST_SCOPED_ENUM(MpqFile::Platform)(value);
-}
-
-inline bool MpqFile::hasSectorOffsetTable() const
-{
-	return !(this->block()->flags() & Block::Flags::IsSingleUnit) && ((this->block()->flags() & Block::Flags::IsCompressed) || (this->block()->flags() & Block::Flags::IsImploded));
 }
 
 /**

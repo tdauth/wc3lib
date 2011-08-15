@@ -61,8 +61,8 @@ void DecryptData(const uint32 dwCryptTable[cryptTableSize], void *lpbyBuffer, ui
 /// Based on code from StormLib.
 uint32 HashString(const uint32 dwCryptTable[cryptTableSize], const char *lpszString, BOOST_SCOPED_ENUM(HashType) hashType);
 
-void compressPklib(char *&outBuffer, int &outLength, char* const &inBuffer, int inLength, int &compressionType, int /* compressionLevel */) throw (class Exception);
-void decompressPklib(char *&outBuffer, int &outLength, char* const &inBuffer, int inLength) throw (class Exception);
+void compressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength, int &compressionType, int /* compressionLevel */) throw (class Exception);
+void decompressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength) throw (class Exception);
 /**
  * \sa compressWaveMono, decompressWaveMono, compressWaveStereo, decompressWaveStereo
  * Wrapper of StormLib functions.
@@ -72,10 +72,10 @@ void decompressPklib(char *&outBuffer, int &outLength, char* const &inBuffer, in
  * \param outBuffer Buffer length which should have the initial size of buffer \p outBuffer. If the buffer is empty this value should be 0.
  * \return Returns witten bytes.
  */
-int compressWaveMono(short* const &inBuffer, int inBufferLength, unsigned char *&outBuffer, int &outBufferLength, int compressionLevel) throw (class Exception);
-int decompressWaveMono(unsigned char* const &inBuffer, int inBufferLength, unsigned char *&outBuffer, int &outBufferLength) throw (class Exception);
-int compressWaveStereo(short* const &inBuffer, int inBufferLength, unsigned char *&outBuffer, int &outBufferLength, int compressionLevel) throw (class Exception);
-int decompressWaveStereo(unsigned char* const &inBuffer, int inBufferLength, unsigned char *&outBuffer, int &outBufferLength) throw (class Exception);
+int compressWaveMono(short* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength, int compressionLevel) throw (class Exception);
+int decompressWaveMono(unsigned char* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength) throw (class Exception);
+int compressWaveStereo(short* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength, int compressionLevel) throw (class Exception);
+int decompressWaveStereo(unsigned char* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength) throw (class Exception);
 
 std::streamsize compressBzip2(istream &istream, ostream &ostream) throw (boost::iostreams::bzip2_error);
 std::streamsize decompressBzip2(istream &istream, ostream &ostream) throw (boost::iostreams::bzip2_error);

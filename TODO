@@ -1,3 +1,6 @@
+2011-08-15 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Fix sector data decompression (offsets should be all correct, already considered proper data decryption etc.).
+
 2011-08-11 Tamino Dauth <tamino@cdauth.eu>
 * FIXED: mpq: Read sector offset table and decrypt it when searching for corresponding hash entry and updating file path!
 

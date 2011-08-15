@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
 			}
 			catch (wc3lib::Exception &exception)
 			{
-				std::cerr << boost::format(_("Error occured while opening file \"%1%\": \"%2%\"")) % path.string() % exception.what() << std::endl;
+				std::cerr << boost::format(_("Error occured while opening file \"%1%\":\n\"%2%\"")) % path.string() % exception.what() << std::endl;
 
 				continue;
 			}
