@@ -34,6 +34,7 @@ namespace editor
  * Base class for all possible meta data formats (units, abilities, upgrades etc.).
  * Simply reimplement virtual member functions \ref createMetaDataEntry() and \ref filleMetaDataEntry() to create and fill your custom meta data.
  * \todo Add more abstract class which is the base of water data, sound data etc. as well.
+ * Resource URL should refer a SYLK file.
  */
 class MetaData : public Resource
 {
@@ -48,6 +49,9 @@ class MetaData : public Resource
 		
 		virtual void clear() throw ();
 		
+		/**
+		 * Provides simple SYLK file parser functionality.
+		 */
 		virtual void load() throw (Exception);
 		virtual void reload() throw (Exception);
 		virtual void save(const KUrl &url) const throw (Exception)

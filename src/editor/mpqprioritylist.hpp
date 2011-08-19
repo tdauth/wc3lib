@@ -100,30 +100,30 @@ inline bool MpqPriorityListEntry::operator==(const self& other) const
 	return this->priority() == other.priority();
 }
 
-typedef boost::shared_ptr<MpqPriorityListEntry> MpqPriorityListEntryPtr;
-typedef boost::multi_index_container<MpqPriorityListEntryPtr,
-boost::multi_index::indexed_by<
-// simple list
-boost::multi_index::sequenced<>,
-// ordered by itself
-boost::multi_index::ordered_unique<boost::multi_index::tag<MpqPriorityListEntry>, boost::multi_index::identity<MpqPriorityListEntry> >,
-// ordered by its corresponding priority
-boost::multi_index::ordered_non_unique<boost::multi_index::tag<MpqPriorityListEntry::Priority>, boost::multi_index::const_mem_fun<MpqPriorityListEntry, MpqPriorityListEntry::Priority, &MpqPriorityListEntry::priority> >,
-// ordered by its corresponding URL
-boost::multi_index::ordered_non_unique<boost::multi_index::tag<KUrl>, boost::multi_index::const_mem_fun<MpqPriorityListEntry, const KUrl&, &MpqPriorityListEntry::url> >
-
-> >
-
-MpqPriorityListBase;
-
 /**
  * MPQ priority lists can be used to make several data sources usable considering MPQ locales and sources' priorities (for patch archives etc.).
  */
-class MpqPriorityList : public MpqPriorityListBase
+class MpqPriorityList
 {
 	public:
-		typedef MpqPriorityListBase base;
 		typedef MpqPriorityList self;
+		
+		typedef boost::shared_ptr<MpqPriorityListEntry> Source;
+		typedef boost::multi_index_container<Source,
+		boost::multi_index::indexed_by<
+		// simple list
+		boost::multi_index::sequenced<>,
+		// ordered by itself
+		boost::multi_index::ordered_unique<boost::multi_index::tag<MpqPriorityListEntry>, boost::multi_index::identity<MpqPriorityListEntry> >,
+		// ordered by its corresponding priority
+		boost::multi_index::ordered_non_unique<boost::multi_index::tag<MpqPriorityListEntry::Priority>, boost::multi_index::const_mem_fun<MpqPriorityListEntry, MpqPriorityListEntry::Priority, &MpqPriorityListEntry::priority> >,
+		// ordered by its corresponding URL
+		boost::multi_index::ordered_non_unique<boost::multi_index::tag<KUrl>, boost::multi_index::const_mem_fun<MpqPriorityListEntry, const KUrl&, &MpqPriorityListEntry::url> >
+
+		> >
+
+		Sources;
+		
 		typedef boost::shared_ptr<Resource> ResourcePtr;
 		typedef std::map<KUrl, ResourcePtr> Resources;
 		typedef boost::shared_ptr<Texture> TexturePtr;
@@ -133,18 +133,18 @@ class MpqPriorityList : public MpqPriorityListBase
 		mpq::MpqFile::Locale locale() const;
 
 		/**
-		 * Adds an entry with URL \p url and priorioty \p priority to the priority list.
+		 * Adds a source with URL \p url and priorioty \p priority to the priority list.
 		 * Each URL should be unique and refer to an archive (mostly MPQ) or directory.
 		 * \param priority 0 is default value. Priorities needn't to be unique.
-		 * \return Returns true if the URL has been added to the list (this doesn't happen if there already is an entry with the given URL or if it refers to an absolute file path which is no archive or directory).
+		 * \return Returns true if the URL has been added to the list (this doesn't happen if there already is a source with the given URL or if it refers to an absolute file path which is no archive or directory).
 		 * \todo Improve archive detection.
 		 */
-		virtual bool addEntry(const KUrl &url, MpqPriorityListEntry::Priority priority = 0);
+		virtual bool addSource(const KUrl &url, MpqPriorityListEntry::Priority priority = 0);
 		/**
-		 * Removes an entry by its corresponding URL.
-		 * \return Returns true if URL corresponds to some entry and that entry has been removed properly.
+		 * Removes a source by its corresponding URL.
+		 * \return Returns true if URL corresponds to some source and that source has been removed properly.
 		 */
-		virtual bool removeEntry(const KUrl &url);
+		virtual bool removeSource(const KUrl &url);
 
 		/**
 		 * \copydoc KIO::NetAccess::download()
@@ -153,7 +153,8 @@ class MpqPriorityList : public MpqPriorityListBase
 		 */
 		virtual bool download(const KUrl &src, QString &target, QWidget *window);
 		virtual bool upload(const QString &src, const KUrl &target, QWidget *window);
-
+		
+		const Sources& sources() const;
 		
 		/**
 		 * All added resources will also be added to MPQ priority list automaticially.
@@ -193,8 +194,11 @@ class MpqPriorityList : public MpqPriorityListBase
 		 */
 		virtual QString tr(const QString &key, const QString &group = "", BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale = mpq::MpqFile::Locale::Neutral) const;
 	protected:
+		Sources& sources();
+		
 		mpq::MpqFile::Locale m_locale;
 		
+		Sources m_sources;
 		Resources m_resources;
 		// team color and glow textures
 		mutable TeamColorTextures m_teamColorTextures;
@@ -211,10 +215,15 @@ inline mpq::MpqFile::Locale MpqPriorityList::locale() const
 	return this->m_locale;
 }
 
+inline const MpqPriorityList::Sources& MpqPriorityList::sources() const
+{
+	return this->m_sources;
+}
+
 inline void MpqPriorityList::addResource(class Resource *resource)
 {
 	this->m_resources.insert(std::make_pair(resource->url(), resource));
-	this->addEntry(resource->url());
+	this->addSource(resource->url());
 }
 
 
@@ -232,7 +241,7 @@ inline bool MpqPriorityList::removeResource(const KUrl &url)
 
 	this->m_resources.erase(iterator);
 	iterator->second.reset();
-	this->removeEntry(url);
+	this->removeSource(url);
 
 	return true;
 }

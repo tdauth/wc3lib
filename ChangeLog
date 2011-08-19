@@ -1,3 +1,13 @@
+2011-08-19 Tamino Dauth <tamino@cdauth.eu>
+* blp: Fixed automatic double free of threads in thread group.
+* blp: Fixed compression data initialization.
+* blp: Fixed incorrect reference argument passing for boost::bind (threads).
+
+2011-08-18 Tamino Dauth <tamino@cdauth.eu>
+* editor: Due to segmentation faults class editor::MpqPriorityList doesn't inherit from its container type anymore.
+* editor: Renamed various member functions of class editor::MpqPriorityList.
+* editor: Dropped classes editor::ModelEditor dependency of class Editor (new independent source model).
+
 2011-08-15 Tamino Dauth <tamino@cdauth.eu>
 * mpq: Fixed sector offset.
 * mpq: Compression type is detected in class Sector's member function now.

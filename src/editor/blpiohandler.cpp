@@ -179,9 +179,6 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp &blpImage)
 		//image->
 	const blp::Blp::MipMap *mipMap = blpImage.mipMaps()[0].get(); // first mip map has original size
 
-	if (blpImage.flags() & blp::Blp::Flags::Alpha)
-		qDebug() << "Image has alpha channel";
-
 	QImage::Format format;
 
 	if (blpImage.compression() == blp::Blp::Compression::Paletted)
@@ -191,13 +188,7 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp &blpImage)
 	else
 		format = QImage::Format_RGB32;
 
-	qDebug() << "Image has size (" << mipMap->width() << "|" << mipMap->height() << ").";
-	qDebug() << "Converted size (" << boost::numeric_cast<int>(mipMap->width()) << "|" << boost::numeric_cast<int>(mipMap->height()) << ").";
-	qDebug() << "Format " << format;
-	QImage result(boost::numeric_cast<int>(mipMap->width()), boost::numeric_cast<int>(mipMap->height()), format); // TODO segmentation fault???????????
-	qDebug() << "Before colors";
-	qDebug() << "Color map size " << mipMap->colors().size();
-	qDebug() << "After colors.";
+	QImage result(boost::numeric_cast<int>(mipMap->width()), boost::numeric_cast<int>(mipMap->height()), format); // DEPRECATED (seems to be a corrupted Qt library version) TODO segmentation fault???????????
 
 	if (blpImage.compression() != blp::Blp::Compression::Paletted)
 	{

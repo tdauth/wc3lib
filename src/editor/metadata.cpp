@@ -41,6 +41,9 @@ void MetaData::clear() throw ()
 void MetaData::load() throw (class Exception)
 {
 	QString filePath;
+	this->url();
+	this->source()->locale();
+	source()->download(url(), filePath, 0);
 	
 	if (!source()->download(url(), filePath, 0))
 		throw Exception();

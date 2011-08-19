@@ -1,3 +1,10 @@
+2011-08-18 Tamino Dauth <tamino@cdauth.eu>
+* editor: Segmentation fault in class MetaData when loading file after creation for class UnitEditor.
+
+2011-08-17 Tamino Dauth <tamino@cdauth.eu>
+* editor: Model view widget doesn't seem to be resized when model editor is.
+* editor: Closing all models fails.
+
 2011-08-15 Tamino Dauth <tamino@cdauth.eu>
 * mpq: Fix sector data decompression (offsets should be all correct, already considered proper data decryption etc.).
 
@@ -9,6 +16,9 @@
 
 2011-08-06 Tamino Dauth <tamino@cdauth.eu>
 * FIXED: mpq: Wrong sectors number because of new sector indices which are not set early enough.
+
+2011-08-19 Tamino Dauth <tamino@cdauth.eu>
+* blp: Fix writing (test via editor::Texture).
 
 2011-08-05 Tamino Dauth <tamino@cdauth.eu>
 * DEPRECATED: mpq: ZLib and BZip2 decompression data is corrupted since (listfile)-

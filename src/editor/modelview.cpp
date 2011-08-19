@@ -92,7 +92,7 @@ void ModelView::setPolygonModeSolid()
 
 void ModelView::render()
 {
-	//qDebug() << "Render";
+	qDebug() << "Render";
 	this->m_root->_fireFrameStarted();
 
 	if (this->m_renderWindow == 0)
@@ -386,12 +386,11 @@ void ModelView::initRenderWindow()
 	//externalWindowHandleParams += ":";
 	//externalWindowHandleParams += Ogre::StringConverter::toString((unsigned long)(info.visual()));
 
-	qDebug() << QString("Display: %1\nScreen: %2\nWindow: %3\nVisual: %4").arg((unsigned long)(info.display())).arg((unsigned long)(info.screen())).arg((unsigned long)(winId())).arg((unsigned long)(info.visual()));
+	//qDebug() << QString("Display: %1\nScreen: %2\nWindow: %3\nVisual: %4").arg((unsigned long)(info.display())).arg((unsigned long)(info.screen())).arg((unsigned long)(winId())).arg((unsigned long)(info.visual()));
 	
-	qDebug() << "external window handle params look like this: " << externalWindowHandleParams.c_str();
+	//qDebug() << "external window handle params look like this: " << externalWindowHandleParams.c_str();
 #endif
 
-	qDebug() << "Render window 1";
 	// Add the external window handle parameters to the existing params set.
 #if defined(Q_WS_WIN)
 	params["externalWindowHandle"] = externalWindowHandleParams;
@@ -401,7 +400,6 @@ void ModelView::initRenderWindow()
 	params["parentWindowHandle"] = externalWindowHandleParams;
 #endif
 
-	qDebug() << "Render window 2";
 	// Finally create our window.
 	try
 	{
@@ -430,7 +428,6 @@ OLD!
 	this->create(winId());
 #endif
 */
-	qDebug() << "Render window 3";
 
 	setAttribute(Qt::WA_PaintOnScreen);
 	setAttribute(Qt::WA_NoBackground);
@@ -450,7 +447,6 @@ OLD!
 	light->setSpecularColour(Ogre::ColourValue::White);
 	*/
 
-	qDebug() << "Render window 4";
 	this->centerView();
 
 	// default graphics settings

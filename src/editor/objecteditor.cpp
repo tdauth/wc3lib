@@ -35,7 +35,7 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectEditor::ObjectEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_tabWidget(new KTabWidget(this)), m_unitEditor(new UnitEditor(source, this, f))
+ObjectEditor::ObjectEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_tabWidget(new KTabWidget(this)), m_unitEditor(new UnitEditor(source, this, f)), Module(source, parent, f)
 {
 	connect(tabWidget(), SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
 	/*

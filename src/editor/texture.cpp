@@ -232,11 +232,10 @@ void Texture::save(const KUrl &url, const QString &format, const QString &compre
 	if (format == "blp" && hasBlp())
 	{
 		std::basic_stringstream<blp::byte> sstream(std::ios::binary | std::ios::out);
-		blp()->write(sstream, quality, mipMaps);
-		const std::streampos position = endPosition(sstream);
-		boost::scoped_array<blp::byte> buffer(new blp::byte[position + (std::streampos)1]);
-		sstream.read(buffer.get(), position + (std::streampos)1);
-		tmpFile.write(buffer.get(), position + (std::streampos)1);
+		const std::streamsize size = blp()->write(sstream, quality, mipMaps);
+		boost::scoped_array<blp::byte> buffer(new blp::byte[size]);
+		sstream.read(buffer.get(), size);
+		tmpFile.write(buffer.get(), size);
 	}
 	else if (hasQt())
 	{

@@ -45,8 +45,8 @@ class Parser
 		~Parser();
 
 		/**
-		* Parses a single source file with given path @param path and adds its tokens to the parser's lists.
-		* @param sourceFileLanguage Each source file can contain code of a different scripting language. If this value is 0 parser's current language is used. Note that the language can be changed in the file by the scripting language itself.
+		* Parses a single source file with given path \p path and adds its tokens to the parser's lists.
+		* \param sourceFileLanguage Each source file can contain code of a different scripting language. If this value is 0 parser's current language is used. Note that the language can be changed in the file by the scripting language itself.
 		*/
 		std::size_t parse(const boost::filesystem::path &path, const class Language *sourceFileLanguage = 0) throw (class Exception);
 		std::size_t parse(const std::list<boost::filesystem::path> &paths, const class Language *initialSourceFileLanguage = 0) throw (class Exception);

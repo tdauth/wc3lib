@@ -41,7 +41,7 @@ TerrainEditor::TerrainEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 	setWindowTitle(i18n("Terrain Editor"));
 	QHBoxLayout *mainLayout = new QHBoxLayout;
 	mainLayout->addWidget(this->m_modelView);
-	setLayout(mainLayout);
+	topLayout()->addLayout(mainLayout);
 }
 
 TerrainEditor::~TerrainEditor()

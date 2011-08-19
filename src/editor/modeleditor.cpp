@@ -51,10 +51,12 @@ ModelEditor::ModelEditor(class MpqPriorityList *source, QWidget *parent, Qt::Win
 {
 	Ui::ModelEditor::setupUi(this);
 	Module::setupUi();
-	this->m_modelView->setMinimumSize(QSize(640, 480));
-	this->setAcceptDrops(true); // enable drag & drop
-	this->m_horizontalLayout->addWidget(this->m_modelView);
+	//this->m_modelView->setMinimumSize(QSize(640, 480));
+	//this->setAcceptDrops(true); // enable drag & drop
+	//this->modelView()->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	this->m_horizontalLayout->addWidget(this->modelView());
 	this->topLayout()->addLayout(this->m_horizontalLayout);
+	//this->m_modelView->setLayout(this->m_horizontalLayout);
 	/*
 	QHBoxLayout *mainLayout = new QHBoxLayout(this);
 	mainLayout->addWidget(this->m_modelView);
@@ -389,7 +391,7 @@ bool ModelEditor::openUrl(const KUrl &url)
 {
 	//const Ogre::Vector3 position(0.0, 0.0, 0.0);
 	OgreMdlxPtr ogreModel(new OgreMdlx(source(), url, this->m_modelView));
-	this->editor()->addResource(ogreModel.get()); // add to get URL
+	this->source()->addResource(ogreModel.get()); // add to get URL
 
 	try
 	{
@@ -400,7 +402,7 @@ bool ModelEditor::openUrl(const KUrl &url)
 	}
 	catch (class Exception &exception)
 	{
-		this->editor()->removeResource(ogreModel.get()); // ogreModel is deleted automatically
+		this->source()->removeResource(ogreModel.get()); // ogreModel is deleted automatically
 		
 		KMessageBox::error(this, i18n("Unable to read file \"%1\".\nException \"%2\".", url.toEncoded().constData(), exception.what().c_str()));
 
@@ -432,7 +434,7 @@ void ModelEditor::removeModel(OgreMdlxPtr ogreModel)
 	{
 		this->m_modelView->root()->removeFrameListener(ogreModel.get());
 		removeCameraActions(ogreModel);
-		this->editor()->removeResource(ogreModel.get()); // delete ogreModel
+		this->source()->removeResource(ogreModel.get()); // delete ogreModel
 		m_models.erase(iterator);
 	}
 	else

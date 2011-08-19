@@ -11,6 +11,8 @@ DOC - Generates doxygen documentation (doxygen is required)
 cmake example:
 "cmake -DEDITOR=1 -DDOC=1"
 
+Don't forget to place ogre.cfg and plugins.cfg files into working directory of editor application!
+
 DEPRECATED:
 Compilation flags for native format conversion support:
 BLP:

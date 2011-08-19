@@ -509,20 +509,18 @@ void writeMipMapJpeg(struct WriteData &writeData)
 		unsigned char *data = 0;
 		unsigned long size = 0;
 		writeData.writer.jpeg_mem_dest(&cinfo, &data, &size);
-		writeData.writer.jpeg_set_defaults(&cinfo);
 		cinfo.image_width = writeData.mipMap.width();
 		cinfo.image_height = writeData.mipMap.height();
-		cinfo.input_components = 4; // ARGB
+		cinfo.input_components = 3; // ARGB, 4
 		cinfo.in_color_space = JCS_RGB;
 		cinfo.write_JFIF_header = writeData.isFirst; // we're sharing our header
+		writeData.writer.jpeg_set_defaults(&cinfo);
 		writeData.writer.jpeg_set_quality(&cinfo, writeData.quality, false);
 		writeData.writer.jpeg_start_compress(&cinfo, TRUE);
 		
 		// get header size
 		if (writeData.isFirst)
-		{
 			writeData.headerSize = boost::numeric_cast<std::size_t>(size);
-		}
 		
 		boost::scoped_array<JSAMPLE> buffer(new JSAMPLE[cinfo.input_components]);
 		
@@ -741,12 +739,12 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps) thr
 			++i;
 		}
 		
-		typedef boost::shared_ptr<boost::thread> Thread;
-		std::vector<Thread> threads(this->m_mipMaps.size());
-		boost::thread_group threadGroup;
+		typedef boost::thread* Thread;
+		std::vector<Thread> threads(this->m_mipMaps.size(), 0);
+		boost::thread_group threadGroup; // added threads are being destroyed automatically when group is being destroyed
 		
 		for (i = 0; i < readData.size(); ++i)
-			threads[i].reset(threadGroup.create_thread(boost::bind(&readMipMapJpeg, *readData[i])));
+			threads[i] = threadGroup.create_thread(boost::bind(&readMipMapJpeg, boost::ref(*readData[i])));
 		
 		threadGroup.join_all(); // wait for all threads have finished
 		
@@ -1106,7 +1104,32 @@ std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std:
 	}
 	
 	std::streamsize size = 0;
-	wc3lib::write(ostream, (dword)format(), size);
+	// TODO enum dword values do not work?
+	//wc3lib::write(ostream, (dword)format(), size);
+	dword identifier;
+	
+	switch (format())
+	{
+		case Blp::Format::Blp0:
+			identifier = 'BLP0';
+			
+			break;
+			
+		case Blp::Format::Blp1:
+			identifier = 'BLP1';
+			
+			break;
+			
+		case Blp::Format::Blp2:
+			identifier = 'BLP2';
+			
+			break;
+			
+		default:
+			throw Exception(boost::format(_("Unsupported BLP format %1%.")) % format());
+	}
+	
+	wc3lib::write(ostream, identifier, size);
 	dword startOffset = 0;
 
 	if (this->format() == Blp::Format::Blp0 || this->format() == Blp::Format::Blp1)
@@ -1201,7 +1224,7 @@ std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std:
 		/// \todo Sort thread priorities by MIP map size. Current thread gets low priority after starting all!!!
 		BOOST_FOREACH(const MipMapPtr mipMap, this->m_mipMaps)
 		{
-			writeData[i] = WriteDataType(new WriteData(*mipMap, writer, i == 0, (quality < 0 || quality > 100 ? Blp::defaultQuality : quality)));
+			writeData[i].reset(new WriteData(*mipMap, writer, i == 0, (quality < 0 || quality > 100 ? Blp::defaultQuality : quality)));
 			
 			++i;
 			
@@ -1209,12 +1232,12 @@ std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std:
 				break;
 		}
 		
-		typedef boost::shared_ptr<boost::thread> Thread;
-		std::vector<Thread> threads(this->m_mipMaps.size());
-		boost::thread_group threadGroup;
+		typedef boost::thread* Thread;
+		std::vector<Thread> threads(this->m_mipMaps.size(), 0);
+		boost::thread_group threadGroup; // added threads are being destroyed automatically when group is being destroyed
 		
 		for (i = 0; i < writeData.size(); ++i)
-			threads[i] = Thread(threadGroup.create_thread(boost::bind(&writeMipMapJpeg, *writeData[i])));
+			threads[i] = threadGroup.create_thread(boost::bind(&writeMipMapJpeg, boost::ref(*writeData[i])));
 		
 		threadGroup.join_all(); // wait for all threads have finished
 		

@@ -49,7 +49,9 @@ int main(int argc, char *argv[])
 	
 	// TEST
 	editor.showTextureEditor();
-	editor.showModelEditor();
+	//editor.showModelEditor();
+	//editor.showObjectEditor();
+	//editor.showTriggerEditor();
 	// END TEST
 	/*
 	/// @todo Allow parsing multiple files as arguments.

@@ -34,32 +34,32 @@ MpqPriorityListEntry::MpqPriorityListEntry(const KUrl &url, Priority priority) :
 {
 }
 
-bool MpqPriorityList::addEntry(const KUrl &url, MpqPriorityListEntry::Priority priority)
+bool MpqPriorityList::addSource(const KUrl &url, MpqPriorityListEntry::Priority priority)
 {
 	// proper URLs must refer to directories or archives
 	/// \todo Support all archive properties and remote directories (smb).
 	if (!QFileInfo(url.toLocalFile()).isDir() && (url.protocol() != "mpq" || url.protocol() != "tar"))
 		return false;
 	
-	index_const_iterator<KUrl>::type iterator = get<KUrl>().find(url);
+	Sources::index_const_iterator<KUrl>::type iterator = sources().get<KUrl>().find(url);
 	
-	if (iterator != get<KUrl>().end())
+	if (iterator != sources().get<KUrl>().end())
 		return false;
 	
-	MpqPriorityListEntryPtr ptr(new MpqPriorityListEntry(url, priority));
-	this->push_back(ptr);
+	Source ptr(new MpqPriorityListEntry(url, priority));
+	sources().push_back(ptr);
 
 	return true;
 }
 
-bool MpqPriorityList::removeEntry(const KUrl &url)
+bool MpqPriorityList::removeSource(const KUrl &url)
 {
-	index_iterator<KUrl>::type iterator = get<KUrl>().find(url);
+	Sources::index_iterator<KUrl>::type iterator = sources().get<KUrl>().find(url);
 	
-	if (iterator != get<KUrl>().end())
+	if (iterator != sources().get<KUrl>().end())
 		return false;
 	
-	get<KUrl>().erase(iterator);
+	sources().get<KUrl>().erase(iterator);
 	
 	return true;
 }
@@ -73,7 +73,7 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 		return KIO::NetAccess::download(src, target, window);
 	
 	// Since entries are ordered by priority highest priority entry should be checked first
-	BOOST_FOREACH(const MpqPriorityListEntryPtr entry, get<MpqPriorityListEntry::Priority>())
+	BOOST_FOREACH(const Source entry, sources().get<MpqPriorityListEntry::Priority>())
 	{
 		KUrl absoluteSource;
 		
@@ -104,7 +104,7 @@ bool MpqPriorityList::upload(const QString &src, const KUrl &target, QWidget *wi
 		return KIO::NetAccess::upload(src, target, window);
 	
 	// Since entries are ordered by priority highest priority entry should be checked first
-	BOOST_FOREACH(const MpqPriorityListEntryPtr entry, get<MpqPriorityListEntry::Priority>())
+	BOOST_FOREACH(const Source entry, sources().get<MpqPriorityListEntry::Priority>())
 	{
 		KUrl absoluteTarget;
 		
@@ -130,6 +130,11 @@ QString MpqPriorityList::tr(const QString &key, const QString &group, BOOST_SCOP
 {
 	/// \todo open editor and other string files and get corresponding entries
 	return group + "[" + key + "]";
+}
+
+MpqPriorityList::Sources& MpqPriorityList::sources()
+{
+	return m_sources;
 }
 
 }
