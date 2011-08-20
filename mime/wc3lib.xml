@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+	<mime-type type="application/x-mpq">
+		<comment xml:lang="en">Mo'PaQ archive</comment>
+		<comment xml:lang="de">Mo'PaQ-Archiv</comment>
+		<generic-icon name="x-office-document"/>
+		<magic priority="50">
+			<match type="string" value="MPQ" offset="0"/>
+		</magic>
+		<glob pattern="*.mpq"/>
+	</mime-type>
+	
+	<mime-type type="application/x-w3m">
+		<sub-class-of type="application/x-mpq"/>
+		<comment xml:lang="en">Warcraft III map</comment>
+		<comment xml:lang="de">Warcraft III-Karte</comment>
+		<generic-icon name="x-office-document"/>
+		<magic priority="50">
+			<match type="string" value="HM3W" offset="0"/>
+		</magic>
+		<glob pattern="*.w3m"/>
+	</mime-type>
+	
+	<mime-type type="application/x-w3x">
+		<sub-class-of type="application/x-mpq"/>
+		<comment xml:lang="en">Warcraft III: The Frozen Throne map</comment>
+		<comment xml:lang="de">Warcraft III: The Frozen Thron-Karte</comment>
+		<generic-icon name="x-office-document"/>
+		<magic priority="50">
+			<match type="string" value="HM3W" offset="0"/>
+		</magic>
+		<glob pattern="*.w3x"/>
+	</mime-type>
+	
+	<mime-type type="application/x-w3n">
+		<sub-class-of type="application/x-mpq"/>
+		<comment xml:lang="en">Warcraft III: The Frozen Throne campaign</comment>
+		<comment xml:lang="de">Warcraft III: The Frozen Thron-Kampagne</comment>
+		<generic-icon name="x-office-document"/>
+		<magic priority="50">
+			<match type="string" value="HM3W" offset="0"/>
+		</magic>
+		<glob pattern="*.w3n"/>
+	</mime-type>
+	
+	<mime-type type="image/x-blp">
+		<comment xml:lang="en">Blizzard Picture</comment>
+		<comment xml:lang="de">Blizzard-Bild</comment>
+		<generic-icon name="x-office-document"/>
+		<magic priority="50">
+			<match type="string" value="BLP" offset="0"/>
+		</magic>
+		<glob pattern="*.blp"/>
+	</mime-type>
+	
+	<mime-type type="model/x-mdl">
+		<comment xml:lang="en">Warcraft III map</comment>
+		<comment xml:lang="de">Warcraft III-Karte</comment>
+		<generic-icon name="x-office-document"/>
+		<!-- 
+		<magic priority="50">
+		<match type="string" value="W3N" offset="0"/>
+		</magic>
+		-->
+		<glob pattern="*.mdl"/>
+	</mime-type>
+	
+	<mime-type type="model/x-mdx">
+		<comment xml:lang="en">Warcraft III map</comment>
+		<comment xml:lang="de">Warcraft III-Karte</comment>
+		<generic-icon name="x-office-document"/>
+		<magic priority="50">
+			<match type="string" value="MDX" offset="0"/>
+		</magic>
+		<glob pattern="*.mdx"/>
+	</mime-type>
+	
+	<mime-type type="application/x-w3v">
+		<comment xml:lang="en">Warcraft III game cache</comment>
+		<comment xml:lang="de">Warcraft III-Spiel-Cache</comment>
+		<generic-icon name="x-office-document"/>
+		<magic priority="50">
+			<match type="string" value="Warcraft III recorded game\0x1A\0" offset="0"/>
+		</magic>
+		<glob pattern="*.w3v"/>
+	</mime-type>
+	
+	<mime-type type="application/x-w3z">
+		<comment xml:lang="en">Warcraft III savegame</comment>
+		<comment xml:lang="de">Warcraft III-Spielstand</comment>
+		<generic-icon name="x-office-document"/>
+		<magic priority="50">
+			<match type="string" value="Warcraft III recorded game\0x1A\0" offset="0"/>
+		</magic>
+		<glob pattern="*.w3z"/>
+	</mime-type>
+	
+	<mime-type type="application/x-w3g">
+		<comment xml:lang="en">Warcraft III replay</comment>
+		<comment xml:lang="de">Warcraft III-Wiederholung</comment>
+		<generic-icon name="x-office-document"/>
+		<magic priority="50">
+			<match type="string" value="Warcraft III recorded game\0x1A\0" offset="0"/>
+		</magic>
+		<glob pattern="*.w3g"/>
+	</mime-type>
+</mime-info>

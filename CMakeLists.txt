@@ -230,6 +230,7 @@ add_subdirectory(lib)
 add_subdirectory(src)
 add_subdirectory(doc)
 add_subdirectory(locale)
+add_subdirectory(mime)
 add_subdirectory(services)
 
 #include(CPack)
