@@ -361,7 +361,7 @@ inline dword Blp::MipMap::height() const
 inline void Blp::MipMap::setColor(dword width, dword height, color argb, byte alpha, byte paletteIndex) throw (class Exception)
 {
 	if (width >= this->m_width || height >= this->m_height)
-		throw Exception(boost::str(boost::format(_("Mip map: Invalid indices (width %1%, height %2%).")) % width % height));
+		throw Exception(boost::str(boost::format(_("MIP map: Invalid indices (width %1%, height %2%).")) % width % height));
 
 	//if (this->m_colors.find(std::make_pair(width, height)) != this->m_colors.end())
 		//std::cout << "Warning: Color at " << width << " | " << height << " does already exist." << std::endl;
@@ -372,7 +372,7 @@ inline void Blp::MipMap::setColor(dword width, dword height, color argb, byte al
 inline void Blp::MipMap::setColorAlpha(dword width, dword height, byte alpha) throw (class Exception)
 {
 	if (width >= this->m_width || height >= this->m_height)
-		throw Exception(boost::str(boost::format(_("Mip map: Invalid indices (width %1%, height %2%).")) % width % height));
+		throw Exception(boost::str(boost::format(_("MIP map: Invalid indices (width %1%, height %2%).")) % width % height));
 
 	if (this->m_colors.find(std::make_pair(width, height)) == this->m_colors.end())
 		throw Exception(boost::format(_("Warning: Color at %1% | %2% does not exist.")) % width % height);
