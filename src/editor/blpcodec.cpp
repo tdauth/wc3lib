@@ -72,25 +72,34 @@ void BlpCodec::codeToFile(Ogre::MemoryDataStreamPtr &input, const Ogre::String &
 BlpCodec::DecodeResult BlpCodec::decode(const blp::Blp &blp) const
 {
 	BlpCodec::ImageData* imgData = new BlpCodec::ImageData();
-	imgData->format = Ogre::PF_A8B8G8R8;
+	imgData->format = Ogre::PF_A8R8G8B8;
 	imgData->height = boost::numeric_cast<std::size_t>(blp.mipMaps().front()->height());
 	imgData->width = boost::numeric_cast<std::size_t>(blp.mipMaps().front()->width());
-	imgData->num_mipmaps = blp.mipMaps().size();
-	imgData->depth = 32;
-	imgData->size = sizeof(blp::color) * imgData->height * imgData->width;
+	imgData->num_mipmaps = 0;
+	// TODO support MIP maps in image (how are they stored?)
+	//imgData->num_mipmaps = blp.mipMaps().size();
+	imgData->depth = 1;
+	imgData->size = Ogre::PixelUtil::getMemorySize(imgData->width, imgData->height, imgData->depth, imgData->format); //is equal to sizeof(blp::color) * imgData->height * imgData->width;
 	
-	Ogre::MemoryDataStreamPtr pixelData;
-	pixelData.bind(OGRE_NEW Ogre::MemoryDataStream(imgData->size));
-	unsigned char* imageData = pixelData->getPtr();
+	Ogre::MemoryDataStreamPtr pixelData(OGRE_NEW Ogre::MemoryDataStream(imgData->size));
+	unsigned char *imageData = pixelData->getPtr();
 	const blp::dword mipMapHeight = blp.mipMaps().front()->height();
 	const blp::dword mipMapWidth = blp.mipMaps().front()->width();
 	std::size_t i = 0;
 	
 	for (blp::dword height = 0; height < mipMapHeight; ++height)
 	{
-		for (blp::dword width = 0; width < mipMapWidth; ++width, ++i)
+		for (blp::dword width = 0; width < mipMapWidth; ++width)
 		{
-			reinterpret_cast<blp::color*>(imageData)[i] = blp.mipMaps().front()->colorAt(width, height).argb();
+			const blp::color argb = blp.mipMaps().front()->colorAt(width, height).argb();
+			imageData[i] = blp::alpha(argb);
+			++i;
+			imageData[i] = blp::red(argb);
+			++i;
+			imageData[i] = blp::green(argb);
+			++i;
+			imageData[i] = blp::blue(argb);
+			++i;
 		}
 	}
 	 

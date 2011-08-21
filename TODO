@@ -1,3 +1,6 @@
+2011-08-21 Tamino Dauth <tamino@cdauth.eu>
+* editor: Implement MIP map loading for class BlpCodec.
+
 2011-08-18 Tamino Dauth <tamino@cdauth.eu>
 * editor: Segmentation fault in class MetaData when loading file after creation for class UnitEditor.
 

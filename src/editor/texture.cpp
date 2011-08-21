@@ -138,8 +138,10 @@ void Texture::loadOgre() throw (Exception)
 	{
 		OgrePtr ogreImage(new Ogre::Image());
 		BlpCodec codec;
-		Ogre::DataStreamPtr ptr(codec.decode(*m_blp.get()).first.get());
-		ogreImage->load(ptr);
+		Ogre::Codec::DecodeResult result(codec.decode(*m_blp.get()));
+		BlpCodec::ImageData *imageData((BlpCodec::ImageData*)(result.second.get()));
+		ogreImage->loadRawData((Ogre::DataStreamPtr&)result.first, imageData->width, imageData->height, imageData->depth, imageData->format, 1, boost::numeric_cast<std::size_t>(imageData->num_mipmaps));
+		// TODO check correct loading state, exception handling?
 		
 		m_ogre.swap(ogreImage); // exception safe (won't change image if handler has some error
 	}
@@ -157,7 +159,7 @@ void Texture::loadOgre() throw (Exception)
 		
 		OgrePtr ogreImage(new Ogre::Image());
 		ogreImage->load(tmpFileName.toUtf8().constData(), "");
-		// TODO check correct loading state
+		// TODO check correct loading state, exception handling?
 		
 		m_ogre.swap(ogreImage); // exception safe (won't change image if ->read throws exception
 	}
