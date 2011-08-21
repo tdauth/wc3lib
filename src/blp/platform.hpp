@@ -42,7 +42,7 @@ COLOR  - 32bit color value of type RGBA, one byte per channel
 X[n]   - An n-dimensional vector of type X
 */
 typedef char char8;
-typedef char byte;
+typedef uint8_t byte;
 typedef uint16_t word;
 typedef uint32_t dword;
 typedef float float32;
@@ -50,13 +50,13 @@ typedef float float32;
  * \brief RGBA color stored in order ARGB with one byte per channel.
  */
 typedef uint32_t color;
-typedef Format<byte> Format;
-typedef std::basic_fstream<byte> fstream;
-typedef std::basic_ifstream<byte> ifstream;
-typedef std::basic_ofstream<byte> ofstream;
-typedef std::basic_stringstream<byte> sstream;
-typedef std::basic_istringstream<byte> isstream;
-typedef std::basic_ostringstream<byte> osstream;
+typedef Format<char8> Format;
+typedef std::basic_fstream<char8> fstream;
+typedef std::basic_ifstream<char8> ifstream;
+typedef std::basic_ofstream<char8> ofstream;
+typedef std::basic_stringstream<char8> sstream;
+typedef std::basic_istringstream<char8> isstream;
+typedef std::basic_ostringstream<char8> osstream;
 
 struct BlpHeader
 {

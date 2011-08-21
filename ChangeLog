@@ -1,5 +1,8 @@
 2011-08-21 Tamino Dauth <tamino@cdauth.eu>
 * editor: Fixed OGRE image loading (related classes are: editor::Texture and editor::BlpCodec).
+* blp: Fixed type usage for data streams.
+* blp: Fixed MIP map header data writing.
+* blp: Improved writing support.
 
 2011-08-20 Tamino Dauth <tamino@cdauth.eu>
 * Added Warcraft III related MIME files.

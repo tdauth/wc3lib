@@ -329,7 +329,7 @@ bool addFilePath(const boost::filesystem::path &path, std::list<boost::filesyste
 	return true;
 }
 
-void convertBlp(const boost::filesystem::path &path, std::basic_ifstream<wc3lib::blp::byte> &ifstream, std::basic_ofstream<wc3lib::blp::byte> &ofstream, enum Format inputFormat, enum Format outputFormat, bool verbose, bool readonly) throw (class wc3lib::Exception)
+void convertBlp(const boost::filesystem::path &path, wc3lib::blp::ifstream &ifstream, wc3lib::blp::ofstream &ofstream, enum Format inputFormat, enum Format outputFormat, bool verbose, bool readonly) throw (class wc3lib::Exception)
 {
 	boost::scoped_ptr<wc3lib::blp::Blp> blp(new wc3lib::blp::Blp());
 
@@ -631,7 +631,7 @@ void convertFile(const boost::filesystem::path &path, const boost::filesystem::p
 		case Jpeg:
 		case Tga:
 		case Png:
-			convertBlp(path, ifstream, ofstream, inputFormat, outputFormat, verbose, readonly);
+			//convertBlp(path, ifstream, ofstream, inputFormat, outputFormat, verbose, readonly);
 
 			break;
 

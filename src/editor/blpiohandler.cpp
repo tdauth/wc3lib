@@ -74,8 +74,8 @@ bool BlpIOHandler::read(QImage *image)
 {
 	// read buffer into input stream
 	QByteArray all = this->device()->readAll();
-	std::basic_istringstream<blp::byte> istream;
-	istream.rdbuf()->pubsetbuf(reinterpret_cast<blp::byte*>(all.data()), all.size());
+	blp::isstream istream;
+	istream.rdbuf()->pubsetbuf(all.data(), all.size());
 	boost::scoped_ptr<blp::Blp> blpImage(new blp::Blp());
 
 	try
@@ -148,7 +148,7 @@ bool BlpIOHandler::write(const QImage &image)
 	if (!write(image, blpImage.get()))
 		return false;
 	
-	std::basic_ostringstream<blp::byte> ostream;
+	blp::osstream ostream;
 
 	try
 	{
@@ -162,9 +162,9 @@ bool BlpIOHandler::write(const QImage &image)
 	}
 
 	std::streamsize bufferSize = ostream.rdbuf()->in_avail();
-	char buffer[bufferSize];
-	ostream.rdbuf()->sgetn(reinterpret_cast<blp::byte*>(buffer), bufferSize);
-	this->device()->write(buffer, bufferSize);
+	boost::scoped_array<char> buffer(new char[bufferSize]);
+	ostream.rdbuf()->sgetn(buffer.get(), bufferSize);
+	this->device()->write(buffer.get(), bufferSize);
 
 	return true;
 }

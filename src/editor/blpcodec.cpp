@@ -113,8 +113,8 @@ BlpCodec::DecodeResult BlpCodec::decode(const blp::Blp &blp) const
 BlpCodec::DecodeResult BlpCodec::decode(Ogre::DataStreamPtr &input) const
 {
 	boost::scoped_ptr<blp::Blp> blp(new blp::Blp());
-	std::basic_istringstream<blp::byte> istream;
-	boost::scoped_array<blp::byte> buffer(new blp::byte[input->size()]);
+	blp::isstream istream;
+	boost::scoped_array<blp::char8> buffer(new blp::char8[input->size()]);
 	input->read(buffer.get(), input->size());
 	istream.rdbuf()->pubsetbuf(buffer.get(), input->size());
 	blp->read(istream, 1); /// \todo Add MIP map support and do not only read the first MIP map!
@@ -132,7 +132,7 @@ bool BlpCodec::magicNumberMatch(const char *magicNumberPtr, size_t maxbytes) con
 	if (maxbytes != 4)
 		return false;
 	
-	return blp::Blp::hasFormat(magicNumberPtr, maxbytes);
+	return blp::Blp::hasFormat((blp::byte*)magicNumberPtr, maxbytes);
 }
 
 Ogre::String BlpCodec::magicNumberToFileExt(const char *magicNumberPtr, size_t maxbytes) const

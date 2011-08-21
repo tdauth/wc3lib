@@ -64,7 +64,7 @@ void Texture::loadBlp() throw (Exception)
 		if (!KIO::NetAccess::download(url(), tmpFileName, 0))
 			throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toUtf8().constData());
 		
-		boost::filesystem::basic_ifstream<blp::byte> ifstream(tmpFileName.toUtf8().constData(), std::ios::binary | std::ios::in);
+		blp::ifstream ifstream(tmpFileName.toUtf8().constData(), std::ios::binary | std::ios::in);
 		
 		if (!ifstream)
 			throw Exception(boost::format(_("Unable to open temporary file \"%1%\".")) % tmpFileName.toUtf8().constData());
@@ -233,11 +233,14 @@ void Texture::save(const KUrl &url, const QString &format, const QString &compre
 	
 	if (format == "blp" && hasBlp())
 	{
-		std::basic_stringstream<blp::byte> sstream(std::ios::binary | std::ios::out);
-		const std::streamsize size = blp()->write(sstream, quality, mipMaps);
-		boost::scoped_array<blp::byte> buffer(new blp::byte[size]);
+		//blp::sstream sstream(std::ios::binary | std::ios::out);
+		blp::ofstream ofstream(tmpFile.fileName().toUtf8().constData(), std::ios::binary | std::ios::out);
+		/* const std::streamsize size =*/ blp()->write(ofstream, quality, mipMaps);
+		/*
+		boost::scoped_array<blp::char8> buffer(new blp::char8[size]);
 		sstream.read(buffer.get(), size);
 		tmpFile.write(buffer.get(), size);
+		*/
 	}
 	else if (hasQt())
 	{
