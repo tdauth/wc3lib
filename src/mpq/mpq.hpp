@@ -174,19 +174,19 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		 */
 		std::streamsize create(const boost::filesystem::path &path, bool overwriteExisting = false, std::streampos startPosition = 0, BOOST_SCOPED_ENUM(Format) format = Format::Mpq1, BOOST_SCOPED_ENUM(ExtendedAttributes) extendedAttributes = ExtendedAttributes::None, int32 sectorSize = 4096, bool hasStrongDigitalSignature = false, bool containsListfileFile = false, bool containsSignatureFile = false) throw (class Exception);
 		/**
-		 * \param listfileIstream Instead of relying on an internal "(listfile)" file of the archive you can pass your own input stream containing a list of all files. Otherwise just leave it to 0.
+		 * \param listfileEntries Instead of relying on an internal "(listfile)" file of the archive you can pass your own list of all files. If empty this list is ignored.
 		 */
-		std::streamsize open(const boost::filesystem::path &path, istream *listfileIstream = 0) throw (class Exception);
+		std::streamsize open(const boost::filesystem::path &path, const MpqFile::ListfileEntries &listfileEntries = MpqFile::ListfileEntries()) throw (class Exception);
 		void close();
 
 		/**
-		 * \param listfilefileIstream If you want to preselect your custom listfile file, use this value (entries will be appended to the already contained listfile file if it does exist).
+		 * \param listfileEntries Instead of relying on an internal "(listfile)" file of the archive you can pass your own list of all files. If empty this list is ignored.
 		 * \return Returns MPQ's size in bytes.
 		 */
-		virtual std::streamsize read(InputStream &stream, InputStream *listfileIstream) throw (class Exception);
+		virtual std::streamsize read(InputStream &stream, const MpqFile::ListfileEntries &listfileEntries) throw (class Exception);
 		virtual std::streamsize read(InputStream &stream) throw (class Exception)
 		{
-			return read(stream, 0);
+			return read(stream, MpqFile::ListfileEntries());
 		}
 		/**
 		 * Writes the whole MPQ archive into output stream \p ostream. Note that you don't have to call this function each time you want to save your changed data of the opened MPQ archive.
@@ -372,12 +372,6 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		 */
 		void clear();
 
-		/**
-		 * Uses input stream \p istream for reading file path entries and refreshing them by getting their instances (using their hashes).
-		 * Usual listfile files have to have neutral locale and default platform attributes but this function supports other as well.
-		 * \return Returns the number of added path entries.
-		 */
-		std::size_t readListfilePathEntries(istream &istream, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default);
 		bool checkBlocks() const;
 		bool checkHashes() const;
 		/**

@@ -156,6 +156,17 @@ std::streamsize MpqFile::writeData(ostream &ostream) const throw (class Exceptio
 	return bytes;
 }
 
+MpqFile::ListfileEntries MpqFile::listfileEntries() const throw (Exception)
+{
+	ListfileEntries result;
+	stringstream sstream;
+	this->writeData(sstream);
+	string value(sstream.str());
+	boost::algorithm::split(result, value, boost::algorithm::is_any_of(";\r\n"), boost::algorithm::token_compress_on);
+	
+	return result;
+}
+
 MpqFile::MpqFile(class Mpq *mpq, class Hash *hash) : m_mpq(mpq), m_hash(hash), m_path("")
 {
 	if (hash != 0)

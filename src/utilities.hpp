@@ -38,6 +38,7 @@
 #include <set>
 #include <valarray>
 
+#include <boost/algorithm/string.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/cast.hpp>
 #include <boost/lexical_cast.hpp> 
@@ -73,6 +74,7 @@
 #include <boost/multi_index/mem_fun.hpp>
 
 // Boost I/O
+#include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/filter/bzip2.hpp>
 #include <boost/iostreams/filter/zlib.hpp>
 

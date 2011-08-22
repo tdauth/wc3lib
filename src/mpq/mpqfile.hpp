@@ -76,6 +76,8 @@ class MpqFile : public boost::mutex, private boost::noncopyable
 		> 
 		>
 		Sectors;
+		
+		typedef std::vector<string> ListfileEntries;
 
 		/**
 		 * Removes all data from file.
@@ -106,6 +108,13 @@ class MpqFile : public boost::mutex, private boost::noncopyable
 		 * \return Returns size of written data.
 		 */
 		std::streamsize writeData(ostream &ostream) const throw (class Exception);
+		
+		/**
+		 * \note Only usable on files with (listfile) schema.
+		 * Splits up file content at one of the following characters "; \r \n" and returns the resulting container with all split file paths.
+		 * \return Returns the container with all found file paths in file.
+		 */
+		ListfileEntries listfileEntries() const throw (Exception);
 
 		// hash attributes
 		BOOST_SCOPED_ENUM(Locale) locale() const;

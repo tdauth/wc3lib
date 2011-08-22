@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2010 by Tamino Dauth                                    *
- *   tamino@cdauth.de                                                      *
+ *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,8 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <fstream>
-
 #include <wc3lib.hpp>
 
 using namespace std;
@@ -27,9 +25,23 @@ using namespace wc3lib::mpq;
 
 main(int argc, char *argv[])
 {
-	class Mpq mpq(argv[1]);
-	ifstream ifs(argv[1]);
-	ifs >> mpq;
+	boost::scoped_ptr<Mpq> mpq(new Mpq());
+	
+	try
+	{
+		mpq->open(argv[1]);
+	}
+	catch (Exception &exception)
+	{
+		std::cerr << exception.what() << std::endl;
+		
+		return EXIT_FAILURE;
+	}
+	
+	if (mpq->listfileFile() != 0)
+	{
+		std::cout << _("Listfile entries:") << std::endl << *mpq->listfileFile() << std::endl;
+	}
 	
 	return EXIT_SUCCESS;
 }

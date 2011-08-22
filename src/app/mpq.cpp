@@ -320,6 +320,13 @@ int main(int argc, char *argv[])
 			}
 			
 			std::cout << boost::format(_("Result: %1%s")) % timer.elapsed() << std::endl;
+			
+			// TEST OUTPUT
+			//std::cout << "License:\n" << *mpq->findFile("License.txt") << std::endl;
+			
+			// END TEST
+			
+			
 			std::cout << _("Closing MPQ archive (wc3lib):") << std::endl;
 			timer.restart();
 			mpq->close();
@@ -341,6 +348,7 @@ int main(int argc, char *argv[])
 				std::cout << _("Closing MPQ archive (StormLib):") << std::endl;
 				timer.restart();
 				SFileCloseArchive(stormLibArchive);
+				std::cout << boost::format(_("Result: %1%s")) % timer.elapsed() << std::endl;
 			}
 			else
 				std::cerr << boost::format(_("Failed to open MPQ archive \"%1%\" by using StormLib.")) % path.string() << std::endl;

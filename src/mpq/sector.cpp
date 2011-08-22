@@ -55,7 +55,7 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 	ifstream ifstream(this->mpqFile()->mpq()->path(), std::ios_base::in | std::ios_base::binary);
 
 	if (!ifstream)
-		throw Exception(boost::str(boost::format(_("Sector: Unable to open file \"%1%\".")) % this->mpqFile()->mpq()->path().string()));
+		throw Exception(boost::format(_("Sector: Unable to open file \"%1%\".")) % this->mpqFile()->mpq()->path().string());
 
 	ifstream.seekg(this->mpqFile()->mpq()->startPosition());
 	ifstream.seekg(boost::numeric_cast<std::streampos>(this->sectorOffset()), std::ios::cur);
@@ -115,10 +115,8 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 			
 			if (this->compression() & Sector::Compression::Bzip2Compressed) // BZip2 compressed (see BZip2)
 			{
-				std::cout << "Decompress bzip2." << std::endl;
-				istringstream istream;
-				istream.rdbuf()->pubsetbuf(realData, realDataSize);
-				ostringstream ostream;
+				iarraystream istream(realData, realDataSize);
+				arraystream ostream;
 				std::streamsize size = 0;
 				
 				try
@@ -133,7 +131,7 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 				
 				data.reset(new byte[size]);
 				dataSize = size;
-				ostream.rdbuf()->sgetn(data.get(), size); // fill new data
+				ostream >> data.get();
 			}
 			
 			// Imploded sectors are the raw compressed data following compression with the implode algorithm (these sectors can only be in imploded files).
@@ -142,21 +140,17 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 			{
 				std::cerr << _("Warning: Imploded sector in not imploded file!") << std::endl;
 				boost::scoped_array<byte> newData(new byte[realDataSize]);
-				//char *newData = 0;
-				int newDataSize = 0;
+				int newDataSize = realDataSize; // NOTE we need to define the buffer size for PKlib decompression!!!
 				decompressPklib(newData.get(), newDataSize, (char*)realData, boost::numeric_cast<int>(realDataSize));
 				
-				//data.reset((byte*)newData);
 				data.swap(newData);
 				dataSize = newDataSize;
 			}
 
 			if (this->compression() & Sector::Compression::Deflated) // Deflated (see ZLib)
 			{
-				std::cout << "Decompress zlib with data size " << dataSize << std::endl;
-				istringstream istream;
-				istream.rdbuf()->pubsetbuf(realData, realDataSize);
-				ostringstream ostream;
+				iarraystream istream(realData, realDataSize);
+				arraystream ostream;
 				std::streamsize size = 0;
 				
 				try
@@ -168,10 +162,9 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 					throw Exception(zlibError(error.error()));
 				}
 				
-				bytes += size;
 				data.reset(new byte[size]);
 				dataSize = size;
-				ostream.rdbuf()->sgetn(data.get(), size); // fill new data
+				ostream >> data.get();
 			}
 
 			if (this->compression() & Sector::Compression::Huffman) // Huffman encoded

@@ -120,7 +120,7 @@ std::streamsize Mpq::create(const boost::filesystem::path &path, bool overwriteE
 	return streamSize;
 }
 
-std::streamsize Mpq::open(const boost::filesystem::path &path, istream *listfileIstream) throw (class Exception)
+std::streamsize Mpq::open(const boost::filesystem::path &path, const MpqFile::ListfileEntries &listfileEntries) throw (class Exception)
 {
 	this->close();
 	
@@ -141,7 +141,7 @@ std::streamsize Mpq::open(const boost::filesystem::path &path, istream *listfile
 
 	try
 	{
-		streamSize = this->read(stream, listfileIstream);
+		streamSize = this->read(stream, listfileEntries);
 	}
 	catch (class Exception &exception)
 	{
@@ -164,7 +164,7 @@ void Mpq::close()
 	this->clear();
 }
 
-std::streamsize Mpq::read(InputStream &stream, InputStream *listfileIstream) throw (class Exception)
+std::streamsize Mpq::read(InputStream &stream, const MpqFile::ListfileEntries &listfileEntries) throw (class Exception)
 {
 	// find header structure by using file key
 	uint32 ident;
@@ -297,27 +297,30 @@ std::streamsize Mpq::read(InputStream &stream, InputStream *listfileIstream) thr
 			size += mpqFile->read(stream);
 		}
 	}
+	
+	MpqFile::ListfileEntries entries;
 
-	class MpqFile *listfileFile = const_cast<class MpqFile*>(this->listfileFile());
-
-	if (listfileIstream == 0)
+	if (listfileEntries.empty())
 	{
+		MpqFile *listfileFile = this->listfileFile();
+		
 		if (listfileFile != 0)
 		{
-			std::cout << "CONTAINS LISTFILE FILE! (Block flags " << listfileFile->m_hash->m_block->flags() << ")" << std::endl;
 			// read listfile file and create path entries
-			std::basic_stringstream<byte> sstream;
-			listfileFile->writeData(sstream);
-			std::cout << "Adding " << this->readListfilePathEntries(sstream) << " path entries" << std::endl; // (sstream " << sstream.str() << ")." << std::endl;
+			entries = listfileFile->listfileEntries();
+			
+			BOOST_FOREACH(MpqFile::ListfileEntries::const_reference path, entries)
+				this->findFile(path);
+			
+			// TEST
+			//std::cout << "Data:\n" << astream << std::endl;
+			//std::cout << "Second Data:\n" << *this->listfileFile() << std::endl;
 		}
 	}
-	else
-	{
-		// read listfile file and create path entries
-		this->readListfilePathEntries(*listfileIstream);
-		// append list file file
-		const_cast<class MpqFile*>(this->createListfileFile())->appendData(*listfileIstream);
-	}
+	
+	// read listfile file and create path entries
+	BOOST_FOREACH(MpqFile::ListfileEntries::const_reference path, listfileEntries.empty() ? entries : listfileEntries)
+		this->findFile(path);
 
 	/// @todo Single "(attributes)" file?
 	/*
@@ -712,48 +715,6 @@ class MpqFile* Mpq::refreshSignatureFile()
 	throw Exception(_("Mpq: refreshSignatureFile is not implemented yet!"));
 
 	return 0;
-}
-
-std::size_t Mpq::readListfilePathEntries(istream &istream, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform)
-{
-	// read list file file and create path entries
-	std::size_t count = 0;
-	std::string line;
-
-	// The listfile is contained in the file "(listfile)" (default language and platform), and is simply a text file with file paths separated by ';', 0Dh, 0Ah, or some combination of these.
-	char character;
-	bool newEntry = false;
-	
-	if (!istream.get(reinterpret_cast<byte&>(character)))
-		return 0;
-
-	do
-	{
-		if (character == ';' || character == '\r' || character == '\n')
-		{
-			if (!newEntry)
-			{
-				std::cout << "(listfile) line: " << line << std::endl;
-				this->findFile(line, locale, platform);
-				newEntry = true;
-				++count;
-				line.clear();
-			}
-		}
-		else
-		{
-			line.append(1, character);
-
-			if (newEntry)
-				newEntry = false;
-
-			if (count == 0)
-				count = 1;
-		}
-	}
-	while (istream.get(reinterpret_cast<byte&>(character)));
-
-	return count;
 }
 
 }

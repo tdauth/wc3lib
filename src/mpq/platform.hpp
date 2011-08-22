@@ -48,6 +48,12 @@ typedef std::basic_string<byte> string;
 typedef std::basic_stringstream<byte> stringstream;
 typedef std::basic_istringstream<byte> istringstream;
 typedef std::basic_ostringstream<byte> ostringstream;
+
+
+typedef boost::iostreams::stream<boost::iostreams::basic_array_source<mpq::byte> > iarraystream;
+typedef boost::iostreams::stream<boost::iostreams::basic_array_sink<mpq::byte> > oarraystream;
+typedef boost::iostreams::stream<boost::iostreams::basic_array<mpq::byte> > arraystream;
+
 typedef Format<byte> Format;
 
 /// Windows-like file time. Redefined for compatibility.

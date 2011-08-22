@@ -1,5 +1,8 @@
 2011-08-22 Tamino Dauth <tamino@cdauth.eu>
 * blp: Improved JPEG writing.
+* mpq: Fixed PKLib buffer size for compressed files.
+* mpq: Moved listfile entry member function to class MpqFile.
+* mpq: Listfile entries can be used in form of string vector now.
 
 2011-08-21 Tamino Dauth <tamino@cdauth.eu>
 * editor: Fixed OGRE image loading (related classes are: editor::Texture and editor::BlpCodec).

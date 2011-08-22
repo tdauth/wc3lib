@@ -1,9 +1,6 @@
 wc3lib:
 Tamino Dauth <tamino@cdauth.eu>
 
-readblend:
-Adam D. Moss
-
 warblender:
 ?
 
@@ -12,3 +9,22 @@ Ladislav Zezula <ladik@zezula.net>
 
 hufflib:
 Douglas Ryan Richardson
+
+People I want to thank for various services:
+
+MPQ specification:
+Justin Olbrantz(Quantam)
+
+StormLib source code:
+Ladislav Zezula <ladik@zezula.net>
+
+BLP specification:
+War3ModelEditor source code:
+Magnus Ostberg <magos@gmail.com>
+
+MDLX specification:
+Jimmy "Nub" Campbell <jcampbelly@gmail.com>
+Phil Laing (aka KMK)
+
+W3M, W3X, W3N, W3V, W3Z, W3G:
+Zépir and other people from wc3c.net
