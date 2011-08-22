@@ -404,10 +404,10 @@ void readMipMapJpeg(struct ReadData &readData)
 			throw Exception(jpegError(readData.loader.jpeg_std_error, _("Could not start decompress. Error: %1%.")));
 
 		if (readData.mipMap.width() != cinfo.image_width)
-			std::cerr << boost::format(_("Warning: Image width (%1%) is not equal to mip map width (%2%).")) % cinfo.image_width % readData.mipMap.width() << std::endl;
+			throw Exception(boost::format(_("Image width (%1%) is not equal to mip map width (%2%).")) % cinfo.image_width % readData.mipMap.width());
 
 		if (readData.mipMap.height() != cinfo.image_height)
-			std::cerr << boost::format(_("Warning: Image height (%1%) is not equal to mip map height (%2%).")) % cinfo.image_height % readData.mipMap.height() << std::endl;
+			throw Exception(boost::format(_("Warning: Image height (%1%) is not equal to mip map height (%2%).")) % cinfo.image_height % readData.mipMap.height());
 
 		if (cinfo.out_color_space != JCS_RGB)
 			std::cerr << boost::format(_("Warning: Image color space (%1%) is not equal to RGB (%2%).")) % cinfo.out_color_space % JCS_RGB << std::endl;
@@ -515,10 +515,13 @@ void writeMipMapJpeg(struct WriteData &writeData)
 		cinfo.image_height = writeData.mipMap.height();
 		cinfo.input_components = 3; // ARGB, 4
 		cinfo.in_color_space = JCS_RGB;
-		cinfo.write_JFIF_header = writeData.isFirst; // we're sharing our header
+		// TEST each MIP map needs some custom header with height and width?!
+		//cinfo.write_JFIF_header = writeData.isFirst; // we're sharing our header
 		writeData.writer.jpeg_set_defaults(&cinfo);
 		writeData.writer.jpeg_set_quality(&cinfo, writeData.quality, false);
 		writeData.writer.jpeg_start_compress(&cinfo, TRUE);
+		// TEST
+		std::cout << "We have MIP map with size (" << writeData.mipMap.width() << "x" << writeData.mipMap.height() << ") and written size " << size << std::endl;
 		
 		// get header size
 		if (writeData.isFirst)
@@ -544,12 +547,12 @@ void writeMipMapJpeg(struct WriteData &writeData)
 					// Red and Blue colors are swapped.
 					// http://www.wc3c.net/showpost.php?p=1046264&postcount=2
 					const color argb = writeData.mipMap.colorAt(width, height).argb();
-					scanlines[scanline][0] = blue(argb);
-					scanlines[scanline][1] = green(argb);
-					scanlines[scanline][2] = red(argb);
+					scanlines[scanline][component] = blue(argb);
+					scanlines[scanline][component + 1] = green(argb);
+					scanlines[scanline][component + 2] = red(argb);
 					
 					if (cinfo.input_components == 4) // we do have an alpha channel
-						scanlines[scanline][3] = 0xFF - alpha(argb);
+						scanlines[scanline][component + 3] = 0xFF - alpha(argb);
 					
 					++width;
 				}
@@ -717,7 +720,7 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps) thr
 		
 		boost::timer operationTimer; // TEST
 		//std::cout << "JPEG header size " << jpegHeaderSize << std::endl;
-		wc3lib::read(istream, *jpegHeader.get(), size, jpegHeaderSize);
+		wc3lib::read(istream, jpegHeader[0], size, jpegHeaderSize);
 		//std::cout << "JPEG header size " << jpegHeaderSize << std::endl;
 		//std::cout << "-- Reading MIP maps --" << std::endl;
 		
@@ -1037,24 +1040,16 @@ std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std:
 		if (jpegHeaderSize != 624) // usual size of headers of Blizzard BLPs
 			std::cerr << boost::format(_("Warning: JPEG (JFIF) header size is not equal to 624 which is the usual size of Blizzard's JPEG compressed BLPs. It is %1%.")) % jpegHeaderSize << std::endl;
 		
-		dword offset = startOffset + jpegHeaderSize + sizeof(jpegHeaderSize);
-		
-		for (std::size_t i = 0; i < writeData.size(); ++i)
-		{
-			// assign MIP map header data for later writing
-			const dword mSize = writeData[i]->dataSize - writeData[i]->headerSize;
-			offsets[i] = offset;
-			sizes[i] = mSize;
-			offset += mSize;
-		}
-		
-		wc3lib::write(ostream, jpegHeaderSize, size);		
+		wc3lib::write(ostream, jpegHeaderSize, size);
 		wc3lib::write(ostream, writeData[0]->data[0], size, writeData[0]->headerSize);
-
+		
 		// write MIP map data
 		for (std::size_t i = 0; i < writeData.size(); ++i)
 		{
+			offsets[i] = ostream.tellp();
+			sizes[i] = size;
 			wc3lib::write(ostream, writeData[i]->data[writeData[i]->headerSize], size, writeData[i]->dataSize - writeData[i]->headerSize);
+			sizes[i] = size - sizes[i];
 		}
 	}
 	else if (this->compression() == Blp::Compression::Paletted)
