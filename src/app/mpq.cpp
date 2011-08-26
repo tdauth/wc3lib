@@ -96,14 +96,14 @@ int main(int argc, char *argv[])
 	("diff,compare,d", _("Finds differences between archives."))
 	("list,t", _("Lists all contained files of all read MPQ archives."))
 	("update,u", _("Only append files that are newer than the existing archives."))
-	("extract,get,x", _("Extract files from MPQ archives."))
+	("extract,get,x", _("Extract files from MPQ archives. If no files are specified via -f all files are extracted from given MPQ archives."))
 	("delete", _("Deletes files from MPQ archives."))
 	("info,i", _("Shows some basic information about all read MPQ archives."))
 	("benchmark,b", _("Compares various functionalities of wc3lib and StormLib."))
 	
 	// input
 	("archives,A", boost::program_options::value<Strings>(&archiveStrings), _("Expected MPQ archives."))
-	("files,F", boost::program_options::value<Strings>(&fileStrings), _("Expected MPQ archives."))
+	("files,f", boost::program_options::value<Strings>(&fileStrings), _("Expected MPQ archives."))
 	;
 	
 	boost::program_options::positional_options_description p;
@@ -131,6 +131,32 @@ int main(int argc, char *argv[])
 	archivePaths.assign(archiveStrings.begin(), archiveStrings.end());
 	filePaths.resize(fileStrings.size());
 	filePaths.assign(fileStrings.begin(), fileStrings.end());
+	
+	// contains all file entries
+	std::list<mpq::string> listfileEntries;
+	
+	BOOST_FOREACH(Paths::const_reference path, listfiles)
+	{
+		mpq::ifstream in(path, std::ios::in);
+		
+		try
+		{
+			checkStream(in);
+			mpq::string content;
+			in >> content;
+			checkStream(in);
+			MpqFile::ListfileEntries entries = MpqFile::listfileEntries(content);
+			
+			BOOST_FOREACH(MpqFile::ListfileEntries::const_reference entry, entries)
+				listfileEntries.push_back(entry);
+		}
+		catch (Exception &exception)
+		{
+			std::cerr << boost::format(_("Error occured while reading listfile \"%1%\": \"%2%\".")) % path % exception.what() << std::endl;
+			
+			continue;
+		}
+	}
 
 	if (vm.count("version"))
 	{
@@ -356,6 +382,95 @@ int main(int argc, char *argv[])
 #else
 			std::cerr << _("Since program has been compiled without debug option, StormLib cannot be used.") << std::endl;
 #endif
+		}
+	}
+	
+	if (vm.count("extract"))
+	{
+		BOOST_FOREACH(const Paths::reference path, archivePaths)
+		{
+			if (!boost::filesystem::is_regular_file(path))
+			{
+				std::cerr << boost::format(_("File \"%1%\" does not seem to be a regular file and will be skipped.")) % path.string() << std::endl;
+
+				continue;
+			}
+
+			boost::scoped_ptr<Mpq> mpq(new Mpq());
+
+			try
+			{
+				std::streamsize size = mpq->open(path);
+			}
+			catch (wc3lib::Exception &exception)
+			{
+				std::cerr << boost::format(_("Error occured while opening file \"%1%\": \"%2%\"")) % path.string() % exception.what() << std::endl;
+
+				continue;
+			}
+			
+			/*
+			boost::filesystem::path dir(path.filename());
+			
+			if (!boost::filesystem::create_directories(dir))
+			{
+				std::cerr << boost::format(_("Error occured while opening file \"%1%\": Could not create output directory \"%2%\".")) % path.string() % dir << std::endl;
+
+				continue;
+			}
+			*/
+			
+			if (filePaths.empty())
+			{
+				if (mpq->listfileFile() != 0)
+				{
+					BOOST_FOREACH(mpq::MpqFile::ListfileEntries::const_reference entry, mpq->listfileFile()->listfileEntries())
+						listfileEntries.push_back(entry);
+				}
+				
+				BOOST_FOREACH(mpq::string entry, listfileEntries)
+				{
+					MpqFile *file = mpq->findFile(entry);
+					
+					if (file == 0)
+					{
+						std::cerr << boost::format(_("Error occured while extracting file \"%1%\": File doesn't exist.")) % entry << std::endl;
+						
+						continue;
+					}
+					
+					
+#ifdef UNIX
+					// (listfile) entries usually have Windows path format
+					boost::algorithm::replace_all(entry, "\\", "/");
+#endif
+					// output direcotry is archive's basename in its actual directory (name without extension)
+					boost::filesystem::path entryPath = mpq->path().parent_path() / boost::filesystem::basename(mpq->path()) / boost::filesystem::path(entry).parent_path();
+					std::cout << "Dir string " << entryPath << std::endl;
+				
+					if (!boost::filesystem::is_directory(entryPath) && !boost::filesystem::create_directories(entryPath))
+					{
+						std::cerr << boost::format(_("Error occured while extracting file \"%1%\": Unable to create output directory \"%2%\".")) % entry % entryPath.directory_string() << std::endl;
+						
+						continue;
+					}
+					
+					entryPath /= boost::filesystem::path(entry).filename();
+					mpq::ofstream out(entryPath, std::ios::out | std::ios::binary);
+					
+					try
+					{
+						checkStream(out);
+						file->writeData(out);
+					}
+					catch (Exception &exception)
+					{
+						std::cerr << boost::format(_("Error occured while extracting file \"%1%\": \"%2%\".")) % entry % exception.what() << std::endl;
+						
+						continue;
+					}
+				}
+			}
 		}
 	}
 

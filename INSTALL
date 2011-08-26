@@ -6,12 +6,28 @@ Flags:
 STATIC - Everything will be linked statically with applications if possible (creates big static wc3lib library).
 NORUNTIME - Dynamic format libraries (e. g. jpeg library) will be linked during compilation and won't be loaded dynamically at runtime.
 EDITOR - Qt/KDE 4 are required!
+PLUGINS - Same as above but could be used without EDITOR which installs format plugins only.
 DOC - Generates doxygen documentation (doxygen is required)
+
+UI files:
+If auto generating doesn't work (as for me) you could use script "generateui.sh".
+
+Requirements (actual used versions, of course you could use others which are compliant with these):
+Boost 1.46.1 (components: system filesystem thread serialization program_options iostreams)
+bzip2 1.0.6-r2 (Boost support)
+zlib 1.2.5-r2 (Boost support)
+jpeg 8b (header only - runtime loading)
+
+for EDITOR/PLUGINS flag only:
+qt-core 4.7.2-r1
+qt-gui 4.7.2
+kdelibs 4.7
+OGRE 1.7.3
 
 cmake example:
 "cmake -DEDITOR=1 -DDOC=1"
 
-Don't forget to place ogre.cfg and plugins.cfg files into working directory of editor application!
+Don't forget to place "ogre.cfg" and "plugins.cfg" files into working directory of editor application!
 
 DEPRECATED:
 Compilation flags for native format conversion support:

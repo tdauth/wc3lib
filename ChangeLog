@@ -1,3 +1,19 @@
+2011-08-26 Tamino Dauth <tamino@cdauth.eu>
+* editor: Added CMake custom target for UI files to workaround KDE's bug.
+* Revised feature list of new World Editor.
+
+2011-08-25 Tamino Dauth <tamino@cdauth.eu>
+* Generalized OGRE requirements.
+* editor: Split up plugin components.
+* Added PLUGINS compilation flag.
+
+2011-08-23 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Added static member function "listfileEntries" to class MpqFile.
+* app: Improved application "mpq".
+* editor: Fixed BLP type detection for class Texture (Qt's image is loaded first now if it's no BLP file).
+* editor: Fixed and improved Qt BLP plugin.
+* blp: Fixed MIP map generation (considers vector type now).
+
 2011-08-22 Tamino Dauth <tamino@cdauth.eu>
 * blp: Improved JPEG writing.
 * mpq: Fixed PKLib buffer size for compressed files.
@@ -99,7 +115,7 @@
 * app: Application "editor" uses that splash screen.
 
 2011-07-06 Tamino Dauth <tamino@cdauth.eu>
-* editor: Added class UnitMetaData. 
+* editor: Added class UnitMetaData.
 * editor: Modules and object editor tabs rely on MPQ priority lists only now.
 * editor: Moved utility functions into newly added file "platform.hpp".
 * editor: Class MpqPriorityList got many of Editor's former core functions (e. g. it handles team color and glow textures now) that modules can rely on it without requiring an editor.

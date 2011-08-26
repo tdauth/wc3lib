@@ -1148,35 +1148,23 @@ int Blp::generateMipMaps(std::size_t number, bool regenerate) throw (class Excep
 	
 	if (number < mipMaps().size())
 	{
-		const int result = number - mipMaps().size();
-		std::size_t i = mipMaps().size() - number;
+		m_mipMaps.resize(mipMaps().size() - number);
 		
-		do
-		{
-			m_mipMaps.back().reset();
-			m_mipMaps.erase(--m_mipMaps.end());
-			--i;
-		}
-		while (i > 0);
-		
-		return result;
+		return number - mipMaps().size();
 	}
 	else if (number > mipMaps().size())
 	{
-		dword width = mipMaps().front()->width();
-		dword height = mipMaps().front()->height();
+		dword width = this->width();
+		dword height = this->height();
 		//std::list<byte> indexList = initialMipMap->m_indexList;
 		//std::list<byte> alphaList = initialMipMap->m_alphaList;
 		const int result = number - mipMaps().size();
+		this->m_mipMaps.resize(number);
 
 		for (std::size_t i = mipMaps().size(); i < number; ++i)
 		{
-			
-			MipMapPtr mipMap(new MipMap(this, width, height));
+			this->m_mipMaps[i].reset(new MipMap(this, width, height));
 			/// @todo Generate new scaled index and alpha list.
-
-
-			this->m_mipMaps[i] = mipMap;
 			width /= 2;
 			height /= 2;
 		}

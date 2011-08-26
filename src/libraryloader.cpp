@@ -47,7 +47,7 @@ namespace wc3lib
 
 class LibraryLoader::Handle* LibraryLoader::loadLibrary(const boost::filesystem::path &path) throw (class Exception)
 {
-	std::string libraryName = path.filename();
+	std::string libraryName = path.filename().string();
 
 #ifdef MAC
 	libraryName.append(".dylib");

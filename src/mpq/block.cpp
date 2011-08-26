@@ -26,22 +26,22 @@
 
 namespace wc3lib
 {
-	
+
 namespace mpq
 {
-	
+
 uint32 Block::fileKey(const boost::filesystem::path &path, const BlockTableEntry &blockTableEntry)
 {
 	// Find the file name part of the path
-	const std::string lpszFileName = path.filename();
-		
+	const std::string lpszFileName = path.filename().string();
+
 	// Hash the name to get the base key
 	uint32 nFileKey = HashString(Mpq::cryptTable(), lpszFileName.c_str(), HashType::FileKey);
-	
+
 	// Offset-adjust the key if necessary
 	if (blockTableEntry.flags & Flags::UsesEncryptionKey)
 		nFileKey = (nFileKey + blockTableEntry.blockOffset) ^ blockTableEntry.fileSize;
-		
+
 	return nFileKey;
 }
 
@@ -75,7 +75,7 @@ std::streamsize Block::write(ostream &ostream) const throw (class Exception)
 	entry.flags = static_cast<int32>(this->m_flags);
 	std::streamsize size = 0;
 	wc3lib::write(ostream, entry, size);
-	
+
 	return size;
 }
 
@@ -86,7 +86,7 @@ uint32 Block::fileKey(const boost::filesystem::path &path) const
 	entry.blockSize = this->m_blockSize;
 	entry.fileSize = this->m_fileSize;
 	entry.flags = this->m_flags;
-	
+
 	return Block::fileKey(path, entry);
 }
 

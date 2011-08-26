@@ -138,6 +138,7 @@ endif ()
 WC3LIB_GET_COMPILE_DEFINITION("FLAG_STATIC_USE" "STATIC")
 WC3LIB_GET_COMPILE_DEFINITION("FLAG_NORUNTIME_USE" "NORUNTIME")
 WC3LIB_GET_COMPILE_DEFINITION("FLAG_EDITOR_USE" "EDITOR")
+WC3LIB_GET_COMPILE_DEFINITION("FLAG_PLUGINS_USE" "PLUGINS")
 WC3LIB_GET_COMPILE_DEFINITION("FLAG_DOC_USE" "DOC")
 
 if (FLAG_STATIC_USE)
@@ -165,15 +166,15 @@ if (FLAG_DEBUG_USE)
 	set(Boost_DEBUG ON)
 endif ()
 set(Boost_DETAILED_FAILURE_MSG ON)
-set(Boost_ADDITIONAL_VERSIONS "1.40" "1.40.0" "1.41" "1.41.0" "1.42" "1.42.0" "1.43" "1.43.0" "1.44" "1.44.0" "1.45" "1.45.0" "1.46" "1.46.0")
-find_package(Boost 1.42 COMPONENTS system filesystem thread serialization program_options iostreams REQUIRED)
+#set(Boost_ADDITIONAL_VERSIONS "1.40" "1.40.0" "1.41" "1.41.0" "1.42" "1.42.0" "1.43" "1.43.0" "1.44" "1.44.0" "1.45" "1.45.0" "1.46" "1.46.0")
+find_package(Boost 1.46 COMPONENTS system filesystem thread serialization program_options iostreams REQUIRED)
 
 # Static linking with JPEG (BLP library)
 if (FLAG_STATIC_USE OR FLAG_NORUNTIME_USE)
 	find_library(jpeg REQUIRED)
 endif ()
 
-if (FLAG_EDITOR_USE)
+if (FLAG_EDITOR_USE OR FLAG_PLUGINS_USE)
 	message(WARNING "You're using -DEDITOR=1 which requires Qt and KDE and therefore will increase the compile time.")
 	find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
 	include(${QT_USE_FILE})
@@ -182,17 +183,19 @@ if (FLAG_EDITOR_USE)
 	include_directories(${KDE4_INCLUDE_DIR} ${KDE4_INCLUDES} ${QT_INCLUDE_DIR})
 	link_directories(${KDE4_LIB_DIR})
 	# TODO Use cmake module to find and do not use lolib/extern/OGRE/ogre_src_v1-7-3/libcal version if possible (or in debug mode only - version 1.7.3)
-	
+
 	#option(OGRE_INCLUDE_DIRS "Directories of all necessary OGRE header files" "lib/extern/OGRE/ogre_src_v1-7-3/OgreMain/include/ lib/extern/OGRE/ogre_src_v1-7-3/include/ lib/extern/OGRE/ogre_src_v1-7-3/Components/Terrain/include/")
 	#option(OGRE_LIB_DIR "Directory of all necessary OGRE libraries (OgreMain and OgreTerrain)" "lib/extern/OGRE/ogre_src_v1-7-3/lib")
 	# TEST
-	set(OGRE_INCLUDE_DIRS lib/extern/OGRE/ogre_src_v1-7-3/OgreMain/include/ lib/extern/OGRE/ogre_src_v1-7-3/include/ lib/extern/OGRE/ogre_src_v1-7-3/Components/Terrain/include/)
-	set(OGRE_LIB_DIR lib/extern/OGRE/ogre_src_v1-7-3/lib)
-	
+	#set(OGRE_INCLUDE_DIRS lib/extern/OGRE/ogre_src_v1-7-3/OgreMain/include/ lib/extern/OGRE/ogre_src_v1-7-3/include/ lib/extern/OGRE/ogre_src_v1-7-3/Components/Terrain/include/)
+	#set(OGRE_LIB_DIR lib/extern/OGRE/ogre_src_v1-7-3/lib)
+	set(OGRE_INCLUDE_DIRS "${CMAKE_SYSTEM_INCLUDE_PATH}/OGRE" "${CMAKE_SYSTEM_INCLUDE_PATH}/OGRE/Terrain")
+	set(OGRE_LIB_DIR "/usr/lib")
+
 	if (NOT OGRE_INCLUDE_DIRS OR NOT OGRE_LIB_DIR)
 		message(FATAL_ERROR "Define OGRE_INCLUDE_DIRS and OGRE_LIB_DIR!")
 	endif ()
-	
+
 	message(STATUS "OGRE include directories:")
 	foreach (dir IN LISTS OGRE_INCLUDE_DIRS)
 		message(STATUS ${dir})
@@ -211,7 +214,7 @@ endif ()
 #find_library(OPENJPEG_LIBS openjpeg) # todo Use custom cmake module to find openjpeg.
 
 link_directories(${Boost_LIBRARY_DIRS})
-include_directories(${GETTEXT_INCLUDE_DIR} ${Boost_INCLUDE_DIRS} ${Ogre_INCLUDE_DIR})
+include_directories(${GETTEXT_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})
 
 # Reset flags, Qt and KDE do set them to CRAP!
 set(CMAKE_CXX_FLAGS "")

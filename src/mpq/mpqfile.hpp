@@ -78,6 +78,8 @@ class MpqFile : public boost::mutex, private boost::noncopyable
 		Sectors;
 		
 		typedef std::vector<string> ListfileEntries;
+		
+		static ListfileEntries listfileEntries(const string &content) throw (Exception);
 
 		/**
 		 * Removes all data from file.

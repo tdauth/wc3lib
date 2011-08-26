@@ -3,7 +3,10 @@ WC3LIB_ENABLE_EXCEPTIONS()
 WC3LIB_GET_H(wc3lib_CORE_H)
 WC3LIB_GET_SRC(wc3lib_CORE_SRC)
 
-if (FLAG_EDITOR_USE)
+set_property(DIRECTORY . PROPERTY USE_FOLDERS On)
+set_property(DIRECTORY . PROPERTY FOLDER wc3lib)
+
+if (FLAG_EDITOR_USE OR FLAG_PLUGINS_USE)
 	include_directories(${CMAKE_CURRENT_BINARY_DIR}/editor) # include binary dir since the KDE configuration class will be generated there and has to be included (also include for moc cxx files)
 endif ()
 
@@ -27,7 +30,7 @@ add_subdirectory(map)
 set(wc3lib_CORE_LIBRARIES wc3libcore wc3libblp wc3libmdlx wc3libmpq wc3libmap)
 #wc3libslk, wc3libvm, wc3liblang
 
-if (FLAG_EDITOR_USE)
+if (FLAG_EDITOR_USE OR FLAG_PLUGINS_USE)
 	add_subdirectory(editor) # last one
 endif ()
 

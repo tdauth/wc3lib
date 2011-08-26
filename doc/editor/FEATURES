@@ -1,14 +1,19 @@
 List of World Editor's emulation's features and their corresponding descriptions (features which are not available in the original version):
 
+General:
+* Selection dependency export: You can export selected items only (in object editor, trigger editor etc.) with or without checking dependencies (e. g. abilities used by unit are exported into a separate file).
+* Merging: Object data, trigger data etc. could be merged, you do not have to replace everything.
+* Advanced string treatment: Strings of selections only could be imported and exported and are merged with the actual string file of the map.
+
 Advanced:
 * Custom tileset can be defined correctly (with limit of 16 different ground and 16 different cliff textures).
 
 Brushes:
-* Storable selection grouping (war3map.wgr stores groups) which can be hidden etc.
-* Bew action "Select in rect" which allows you to select specific type of objects in rect only.
-* When copying selection (Doodads) into another map height should be hold correctly (WE bug).
+* Storable selection grouping ("war3map.wgr" stores groups) which can be hidden etc.
+* New action "Select in rect" which allows you to select specific type of objects in rect only.
+* When copying selection (Doodads) into another map or to another position, height should be hold correctly (WE bug).
 * Detailed height/position options can be specified for Destructibles and Doodads.
-* Pathing and detailed height/tilepoint settings can be specified for terrain brush.
+* Pathing and detailed height/size/tilepoint settings can be specified for terrain brush.
 
 Trigger Editor:
 * Allows access to local variables (parses custom script "local" statements and provides default action to define some).
@@ -18,13 +23,17 @@ Trigger Editor:
 Import Editor:
 * Allows multiple item selection.
 * Allows importing/exporting directories.
+* Allows importing/exporting archives (MPQ archives as well).
 * Shows if file from any source is overwritten by the imported file.
+* Allows generic MPQ editor functionality (compression settings etc.).
 
 Object Manager:
+* Doodads can be selected via Object Manager in map terrain.
 
 Object Editor:
 * Meta data SLKs etc. should have a column with describing tooltip refering to a string id (like name) which is displayed in object editor (see descriptions on mappedia.de for example).
 
-
 New modules:
 * MPQ editor
+* Model editor
+* Texture editor

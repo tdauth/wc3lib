@@ -32,7 +32,7 @@
 #include <KService>
 
 #include "textureeditor.hpp"
-#include "blpiohandler.hpp"
+#include "qblp/blpiohandler.hpp"
 
 namespace wc3lib
 {
@@ -46,22 +46,22 @@ TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 	Ui::TextureEditor::setupUi(this);
 
 	topLayout()->addLayout(gridLayout_2);
-	
+
 	/*
 	KService::Ptr service = KService::serviceByDesktopPath("gvpart.desktop");
- 
+
 	if (service)
 	{
 		m_part = service->createInstance<KParts::ReadWritePart>(this);
- 
+
 		if (m_part)
 		{
 			// tell the KParts::MainWindow that this is indeed
 			// the main widget
 			gridLayout_2->addWidget(m_part->widget());
-			
+
 			//setupGUI(ToolBar | Keys | StatusBar | Save);
- 
+
 			// and integrate the part's GUI with the shell's
 			//createGUI(m_part);
 		}
@@ -75,7 +75,7 @@ TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 		KMessageBox::error(this, i18n("Service \"gvpart.desktop\" not found."));
 	}
 	*/
-	
+
 	foreach (QAction *action, m_textureActionCollection->actions())
 		action->setEnabled(false);
 }
@@ -140,7 +140,7 @@ void TextureEditor::openFile()
 	refreshImage();
 	qDebug() << "Set pixmap to label ";
 	qDebug() << "Label size is " << this->m_imageLabel->width() << " | " << this->m_imageLabel->height();
-	
+
 	foreach (QAction *action, m_textureActionCollection->actions())
 		action->setEnabled(true);
 }
@@ -158,7 +158,7 @@ void TextureEditor::saveFile()
 
 	if (url.isEmpty())
 		return;
-	
+
 	try
 	{
 		this->m_texture->save(url, QFileInfo(url.toLocalFile()).suffix().toLower());
@@ -175,7 +175,7 @@ void TextureEditor::closeFile()
 {
 	m_texture.reset(0);
 	refreshImage();
-	
+
 	foreach (QAction *action, m_textureActionCollection->actions())
 		action->setEnabled(false);
 }
@@ -216,14 +216,14 @@ void TextureEditor::showAlphaChannel()
 {
 	if (!hasTexture())
 		return;
-	
+
 	if (!this->m_texture->qt()->hasAlphaChannel())
 	{
 		KMessageBox::error(this, i18n("Image doesn't have alpha channel."));
-		
+
 		return;
 	}
-		
+
 	if (showsAlphaChannel())
 	{
 		m_showAlphaChannelAction->setText(i18n("Show alpha channel"));
@@ -234,7 +234,7 @@ void TextureEditor::showAlphaChannel()
 		m_showAlphaChannelAction->setText(i18n("Hide alpha channel"));
 		m_showsAlphaChannel = true;
 	}
-	
+
 	refreshImage();
 }
 
@@ -242,9 +242,9 @@ void TextureEditor::showTransparency()
 {
 	if (!hasTexture())
 		return;
-	
+
 	/// \todo According to documentation checking for mask is an expensive operation.
-	
+
 	if (showsTransparency())
 	{
 		m_showTransparencyAction->setText(i18n("Show transparency"));
@@ -255,7 +255,7 @@ void TextureEditor::showTransparency()
 		m_showTransparencyAction->setText(i18n("Hide transparency"));
 		m_showsTransparency = true;
 	}
-	
+
 	refreshImage();
 }
 
@@ -263,7 +263,7 @@ void TextureEditor::actualSize()
 {
 	if (!hasTexture())
 		return;
-	
+
 	this->m_factor = 1.0;
 	refreshImage();
 }
@@ -272,7 +272,7 @@ void TextureEditor::zoomToFit()
 {
 	if (!hasTexture())
 		return;
-	
+
 	refreshImage();
 }
 
@@ -280,7 +280,7 @@ void TextureEditor::zoomIn()
 {
 	if (!hasTexture())
 		return;
-	
+
 	this->m_factor += 0.20;
 	refreshImage();
 }
@@ -289,7 +289,7 @@ void TextureEditor::zoomOut()
 {
 	if (!hasTexture())
 		return;
-	
+
 	this->m_factor -= 0.20;
 	refreshImage();
 }
@@ -303,20 +303,20 @@ void TextureEditor::refreshImage()
 	if (!hasTexture())
 	{
 		this->m_imageLabel->setPixmap(QPixmap());
-		
+
 		return;
 	}
-	
+
 	QPixmap newPixmap;
-	
+
 	if (!showsAlphaChannel())
 		newPixmap = QPixmap::fromImage(*this->m_texture->qt().get()).scaled(this->m_texture->qt()->size() * this->factor());
 	else
 		newPixmap = QPixmap::fromImage(this->m_texture->qt()->createAlphaMask()).scaled(this->m_texture->qt()->size() * this->factor());
-	
+
 	if (showsTransparency())
 		newPixmap.setMask(this->m_imageLabel->pixmap()->createMaskFromColor(Qt::transparent));
-	
+
 	this->m_imageLabel->setPixmap(newPixmap);
 	this->m_imageLabel->resize(this->m_imageLabel->pixmap()->size());
 }
@@ -324,7 +324,7 @@ void TextureEditor::refreshImage()
 void TextureEditor::createFileActions(class KMenu *menu)
 {
 	m_textureActionCollection = new KActionCollection(this);
-	
+
 	class KAction *action;
 
 	action = new KAction(KIcon(":/actions/opentexture.png"), i18n("Open texture"), this);
@@ -337,7 +337,7 @@ void TextureEditor::createFileActions(class KMenu *menu)
 	connect(action, SIGNAL(triggered()), this, SLOT(saveFile()));
 	menu->addAction(action);
 	m_textureActionCollection->addAction("savetexture", action);
-	
+
 	action = new KAction(KIcon(":/actions/closetexture.png"), i18n("Close texture"), this);
 	action->setShortcut(KShortcut(i18n("Ctrl+W")));
 	connect(action, SIGNAL(triggered()), this, SLOT(closeFile()));
@@ -386,7 +386,7 @@ void TextureEditor::createMenus(class KMenuBar *menuBar)
 	action = KStandardAction::zoomIn(this, SLOT(zoomIn()), this);
 	viewMenu->addAction(action);
 	m_textureActionCollection->addAction("zoomin", action);
-	
+
 	action = KStandardAction::zoomOut(this, SLOT(zoomOut()), this);
 	viewMenu->addAction(action);
 	m_textureActionCollection->addAction("zoomout", action);

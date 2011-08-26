@@ -1,4 +1,7 @@
 [Dolphin]
 AdditionalInfo=3
-Timestamp=2009,9,28,18,13,35
+AdditionalInfoV2=CustomizedDetails,Details_Size,Details_Date,Details_Permissions,Details_Owner,Details_Group,Details_Type,Details_LinkDestination,Details_Path
+Sorting=6
+Timestamp=2011,8,25,15,56,34
+Version=2
 ViewMode=1

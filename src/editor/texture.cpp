@@ -27,8 +27,8 @@
 #include <Ogre.h>
 
 #include "texture.hpp"
-#include "blpiohandler.hpp"
-#include "blpcodec.hpp"
+#include "qblp/blpiohandler.hpp"
+#include "Plugin_BlpCodec/blpcodec.hpp"
 
 namespace wc3lib
 {
@@ -56,34 +56,46 @@ void Texture::loadBlp() throw (Exception)
 {
 	if (hasBlp())
 		return;
-	
+
 	if (!hasQt()) /// TODO cannot convert from OGRE to BLP.
 	{
 		QString tmpFileName;
-		
+
 		if (!KIO::NetAccess::download(url(), tmpFileName, 0))
 			throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toUtf8().constData());
-		
+
 		blp::ifstream ifstream(tmpFileName.toUtf8().constData(), std::ios::binary | std::ios::in);
-		
+
 		if (!ifstream)
 			throw Exception(boost::format(_("Unable to open temporary file \"%1%\".")) % tmpFileName.toUtf8().constData());
-		
-		BlpPtr blpImage(new blp::Blp());
-		
-		blpImage->read(ifstream);
-		
-		m_blp.swap(blpImage); // exception safe (won't change image if ->read throws exception
+
+		blp::dword identifier;
+		ifstream.readsome((blp::char8*)&identifier, sizeof(identifier));
+
+		if (blp::Blp::hasFormat((blp::byte*)&identifier, sizeof(identifier)))
+		{
+			BlpPtr blpImage(new blp::Blp());
+
+			blpImage->read(ifstream);
+
+			m_blp.swap(blpImage); // exception safe (won't change image if ->read throws exception
+		}
+		// if it's not BLP we need to convert it from Qt
+		else
+		{
+			loadQt(); // if it doesn't throw it continues
+			loadBlp();
+		}
 	}
 	// if we have already an image it seems to be faster to read from it instead of the original file
 	else
 	{
 		BlpIOHandler ioHandler;
 		BlpPtr blpImage(new blp::Blp());
-		
+
 		if (!ioHandler.write(*qt().get(), blpImage.get()))
 			throw Exception(_("Unable to convert Qt image into BLP."));
-		
+
 		blpImage.swap(m_blp); // exception safe (won't change image if handler has some error
 	}
 }
@@ -92,20 +104,20 @@ void Texture::loadQt() throw (Exception)
 {
 	if (hasQt())
 		return;
-	
+
 	// if we have already an image it seems to be faster to read from it instead of the original file
 	if (hasBlp())
 	{
 		BlpIOHandler ioHandler;
 		QImage *qtImage = new QImage();
-		
+
 		if (!ioHandler.read(qtImage, *m_blp.get()))
 		{
 			delete qtImage;
-		
+
 			throw Exception(_("Unable to convert BLP image into Qt."));
 		}
-		
+
 		m_qt.reset(qtImage); // exception safe (won't change image if handler has some error
 	}
 	/// TODO cannot convert from OGRE to Qt.
@@ -115,15 +127,15 @@ void Texture::loadQt() throw (Exception)
 	else
 	{
 		QString tmpFileName;
-		
+
 		if (!KIO::NetAccess::download(url(), tmpFileName, 0))
 			throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toUtf8().constData());
-		
+
 		QtPtr qtImage(new QImage());
-		
+
 		if (!qtImage->load(tmpFileName))
 			throw Exception(boost::format(_("Unable to load Qt image from temporary file \"%1%\".")) % tmpFileName.toUtf8().constData());
-		
+
 		m_qt.swap(qtImage); // exception safe (won't change image if ->read throws exception
 	}
 }
@@ -132,7 +144,7 @@ void Texture::loadOgre() throw (Exception)
 {
 	if (hasOgre())
 		return;
-	
+
 	// if we have already an image it seems to be faster to read from it instead of the original file
 	if (hasBlp())
 	{
@@ -142,7 +154,7 @@ void Texture::loadOgre() throw (Exception)
 		BlpCodec::ImageData *imageData((BlpCodec::ImageData*)(result.second.get()));
 		ogreImage->loadRawData((Ogre::DataStreamPtr&)result.first, imageData->width, imageData->height, imageData->depth, imageData->format, 1, boost::numeric_cast<std::size_t>(imageData->num_mipmaps));
 		// TODO check correct loading state, exception handling?
-		
+
 		m_ogre.swap(ogreImage); // exception safe (won't change image if handler has some error
 	}
 	// if we have already an image it seems to be faster to read from it instead of the original file
@@ -153,14 +165,14 @@ void Texture::loadOgre() throw (Exception)
 	else
 	{
 		QString tmpFileName;
-		
+
 		if (!KIO::NetAccess::download(url(), tmpFileName, 0))
 			throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toUtf8().constData());
-		
+
 		OgrePtr ogreImage(new Ogre::Image());
 		ogreImage->load(tmpFileName.toUtf8().constData(), "");
 		// TODO check correct loading state, exception handling?
-		
+
 		m_ogre.swap(ogreImage); // exception safe (won't change image if ->read throws exception
 	}
 }
@@ -178,13 +190,13 @@ void Texture::reload() throw (Exception)
 	bool hasQt = this->hasQt();
 	bool hasOgre = this->hasOgre();
 	clear();
-	
+
 	if (hasBlp)
 		loadBlp();
-	
+
 	if (hasQt)
 		loadQt();
-	
+
 	if (hasOgre)
 		loadOgre();
 }
@@ -195,15 +207,15 @@ namespace
 inline QString compressionOption(const QStringList &list, const QString key)
 {
 	const int index = list.indexOf("Quality");
-	
+
 	if (index == -1)
 		return "";
-	
+
 	const int charIndex = list[index].indexOf('=');
-	
+
 	if (charIndex == -1 || charIndex == list[index].length() - 1)
 		return "";
-	
+
 	return list[index].mid(charIndex + 1);
 }
 
@@ -212,10 +224,10 @@ inline QString compressionOption(const QStringList &list, const QString key)
 void Texture::save(const KUrl &url, const QString &format, const QString &compression) const throw (Exception)
 {
 	KTemporaryFile tmpFile;
-	
+
 	if (!tmpFile.open())
 		throw Exception(boost::format(_("Temporary file \"%1%\" cannot be opened.")) % tmpFile.fileName().toUtf8().constData());
-	
+
 	// get all compression options
 	const QStringList compressionOptions = compression.split(":");
 	int quality = -1;
@@ -226,11 +238,11 @@ void Texture::save(const KUrl &url, const QString &format, const QString &compre
 	/// \todo qualityString.isNumeric.
 	if (qualityString.toInt() >= 0 && qualityString.toInt() <= 100)
 		quality = qualityString.toInt();
-	
+
 	/// \todo mipMapsString.isNumeric.
 	if (mipMapsString.toInt() >= 1 && qualityString.toInt() <= blp::Blp::maxMipMaps)
 		mipMaps = mipMapsString.toInt();
-	
+
 	if (format == "blp" && hasBlp())
 	{
 		//blp::sstream sstream(std::ios::binary | std::ios::out);
@@ -251,13 +263,13 @@ void Texture::save(const KUrl &url, const QString &format, const QString &compre
 	{
 		throw Exception(boost::format(_("Temporary file \"%1%\" cannot be converted by using an OGRE image: Not implemented yet!")) % tmpFile.fileName().toUtf8().constData());
 	}
-	
+
 	/// TODO Indeed temporary files should be autoremoved.
 	BOOST_SCOPE_EXIT((&tmpFile))
 	{
 		tmpFile.remove();
 	} BOOST_SCOPE_EXIT_END
-	
+
 	if  (!KIO::NetAccess::upload(tmpFile.fileName(), url, 0))
 		throw Exception(boost::format(_("Unable to upload temporary file \"%1%\" to URL \"%2%\"")) % tmpFile.fileName().toUtf8().constData() % url.toEncoded().constData());
 }

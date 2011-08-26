@@ -45,7 +45,7 @@ namespace mpq
  * int main()
  * {
  * 	boost::scoped_ptr<Mpq> mpq(new Mpq());
- * 
+ *
  * 	// Using exception handling to catch errors.
  * 	try
  * 	{
@@ -54,7 +54,7 @@ namespace mpq
  * 	catch (Exception &exception)
  * 	{
  * 		std::cerr << "Unable to open archive: " << exception << std::endl;
- * 
+ *
  * 		return EXIT_FAILURE;
  * 	}
  *
@@ -66,7 +66,7 @@ namespace mpq
  *
  * 	std::cout << "MiscData.txt:\n" << mpqFile << std::endl; // Operator overloading allows you to get an MPQ file's content via << operator.
  * 	mpq->close(); // This function will be called automatically when variable mpq is being deleted.
- * 
+ *
  *  	return EXIT_SUCCESS;
  * }
  * \endcode
@@ -81,7 +81,7 @@ class Mpq : public mpq::Format, private boost::noncopyable
 {
 	public:
 		typedef uint64 LargeSizeType;
-		
+
 		BOOST_SCOPED_ENUM_START(Format)
 		{
 			Mpq1, /// Original format (Starcraft, Warcraft 3, Warcraft 3 The Frozen Throne, World of Warcraft)
@@ -97,7 +97,7 @@ class Mpq : public mpq::Format, private boost::noncopyable
 			FileMd5s = 0x00000004
 		};
 		BOOST_SCOPED_ENUM_END
-		
+
 		typedef boost::shared_ptr<Block> BlockPtr;
 		/**
 		 * Blocks are mapped by their position in block table starting with 0. Maximum key value is \ref Mpq::blocks().size() - 1.
@@ -115,10 +115,10 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		boost::multi_index::ordered_unique<boost::multi_index::tag<uint32>, boost::multi_index::const_mem_fun<Hash, uint32, &Hash::index> >,
 		// hashed by their own value
 		boost::multi_index::hashed_non_unique<boost::multi_index::tag<HashData>, boost::multi_index::const_mem_fun<Hash, const HashData&, &Hash::hashData> >
-		> 
+		>
 		>
 		Hashes;
-		
+
 		typedef boost::shared_ptr<MpqFile> FilePtr;
 		/**
 		 * Files are stored under various conditions:
@@ -141,7 +141,7 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		boost::multi_index::hashed_non_unique<boost::multi_index::tag<uint32>, boost::multi_index::const_mem_fun<MpqFile, uint32, &MpqFile::fileKey> >
 		>
 		> Files;
-		
+
 		static const byte identifier[4];
 		static const int16 formatVersion1Identifier;
 		static const int16 formatVersion2Identifier;
@@ -236,7 +236,7 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		 * \return Returns 0 if no file was found.
 		 */
 		const class MpqFile* findFile(const class MpqFile &mpqFile) const throw (Exception);
-		
+
 		/**
 		 * Adds a new file to the MPQ archive with path \p path, locale \p locale and platform \p platform.
 		 * \param istream This input stream is used for reading the initial file data.
@@ -256,7 +256,7 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		 * \return Returns true if an MPQ file was found and deleted successfully.
 		 */
 		bool removeFile(const class MpqFile &mpqFile);
-		
+
 		class Hash* findHash(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default);
 		class Hash* findHash(const Hash &hash);
 		class MpqFile* findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default) throw (Exception);
@@ -274,7 +274,7 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		class MpqFile* signatureFile();
 		class MpqFile* refreshAttributesFile();
 		class MpqFile* refreshSignatureFile();
-		
+
 		/**
 		 * \return Returns the size of the whole MPQ archive file.
 		 */
@@ -423,7 +423,7 @@ inline bool Mpq::hasStrongDigitalSignature(istream &istream)
 	wc3lib::read(istream, data, size);
 	bool result = size == sizeof(identifier) && memcmp(&identifier, &data, sizeof(identifier)) == 0;
 	istream.seekg(position); // jump back
-	
+
 	return result;
 }
 
@@ -433,7 +433,7 @@ inline std::streamsize Mpq::strongDigitalSignature(istream &istream, char signat
 	std::streamsize size = 0;
 	wc3lib::read(istream, *sig.get(), size);
 	memcpy(signature, sig->signature, Mpq::strongDigitalSignatureSize);
-	
+
 	return size;
 }
 
