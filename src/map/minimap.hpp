@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010 by Tamino Dauth                                    *
+ *   Copyright (C) 2011 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,10 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_MAP_CAMERAS_HPP
-#define WC3LIB_MAP_CAMERAS_HPP
+#ifndef WC3LIB_MAP_MINIMAP_HPP
+#define WC3LIB_MAP_MINIMAP_HPP
 
 #include "platform.hpp"
+#include "../blp.hpp"
 
 namespace wc3lib
 {
@@ -29,41 +30,35 @@ namespace wc3lib
 namespace map
 {
 
-/**
- * "war3map.w3c" file of maps contains camera information.
- */
-class Cameras : public FileFormat
+class Minimap : public FileFormat, public blp::Blp
 {
 	public:
-		Cameras(class W3m *w3m);
-		~Cameras();
+		virtual std::streamsize read(InputStream& istream) throw (Exception)
+		{
+			return blp::Blp::read(istream);
+		}
 
-		std::streamsize read(std::istream &istream) throw (class Exception);
-		std::streamsize write(std::ostream &ostream) const throw (class Exception);
+		virtual std::streamsize write(OutputStream& ostream) const throw (Exception)
+		{
+			return blp::Blp::write(ostream);
+		}
 
 		virtual id fileId() const;
-		virtual const char8* fileName() const;
+		virtual const wc3lib::map::char8* fileName() const;
 		virtual int32 latestFileVersion() const;
-
-		virtual int32 version() const { return m_version; }
-
-	protected:
-		class W3m *m_w3m;
-		int32 m_version;
-		std::list<class Camera*> m_cameras;
 };
 
-inline id Cameras::fileId() const
+inline id Minimap::fileId() const
 {
 	return 0;
 }
 
-inline const char8* Cameras::fileName() const
+inline const wc3lib::map::char8* Minimap::fileName() const
 {
-	return "war3map.w3c";
+	return "war3mapMap.blp";
 }
 
-inline int32 Cameras::latestFileVersion() const
+inline int32 Minimap::latestFileVersion() const
 {
 	return 0;
 }

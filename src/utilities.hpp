@@ -30,6 +30,7 @@
 #include <iostream> // include iostream since cout is often used as utility for general output
 #include <utility>
 #include <memory>
+#include <exception>
 
 // std template library containers
 #include <map>
@@ -41,7 +42,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/cast.hpp>
-#include <boost/lexical_cast.hpp> 
+#include <boost/lexical_cast.hpp>
 #include <boost/thread.hpp>
 #include <boost/timer.hpp>
 #include <boost/filesystem.hpp>
@@ -126,19 +127,19 @@ namespace
 std::string iostateMessage(const std::ios_base::iostate &state)
 {
 	std::ostringstream sstream;
-	
+
 	if (state & std::ios_base::badbit)
 		sstream << "bad";
-	
+
 	if (state & std::ios_base::eofbit)
 		sstream << "eof";
-	
+
 	if (state & std::ios_base::failbit)
 		sstream << "fail";
-	
+
 	if (state & std::ios_base::goodbit)
 		sstream << "good";
-    
+
 	return sstream.str();
 }
 
@@ -247,7 +248,7 @@ inline std::basic_istream<_ByteT>& parse(std::basic_istream<_ByteT> &istream, T 
 {
 	std::streampos position;
 	char character;
-	
+
 	// skip white-spaces
 	do
 	{
@@ -255,7 +256,7 @@ inline std::basic_istream<_ByteT>& parse(std::basic_istream<_ByteT> &istream, T 
 		wc3lib::read(istream, character, sizeCounter);
 	}
 	while (delimiters.find(character) != std::string::npos);
-	
+
 	istream.seekg(position);
 
 	// get length of non-whitespace string
@@ -265,7 +266,7 @@ inline std::basic_istream<_ByteT>& parse(std::basic_istream<_ByteT> &istream, T 
 	do
 	{
 		istream.get(character);
-		
+
 		if (delimiters.find(character) == std::string::npos)
 			++length;
 		else
@@ -277,7 +278,7 @@ inline std::basic_istream<_ByteT>& parse(std::basic_istream<_ByteT> &istream, T 
 
 	std::basic_string<char> stringValue;
 	readString(istream, stringValue, sizeCounter, length);
-	
+
 	// convert string into requested type
 	//std::basic_ostringstream<char> ostringstream(stringValue);
 	//ostringstream >> value;
@@ -563,7 +564,7 @@ inline int threadPriorityMax()
 #ifdef UNIX
 	return sched_get_priority_max();
 #elifdef WIN32
-	return 
+	return
 #endif
 }
 
@@ -604,13 +605,13 @@ inline const char* bzip2Error(int error)
 {
 	if (error == boost::iostreams::bzip2::data_error)
 		return _("Data error: Compressed data stream is corrupted.");
-	
+
 	if (error == boost::iostreams::bzip2::data_error_magic)
 		return _("Data error magic: Compressed data stream does not begin with the 'magic' sequence 'B' 'Z' 'h'.");
-	
+
 	if (error == boost::iostreams::bzip2::config_error)
 		return _("Config error: libbzip2 has been improperly configured for the current platform.");
-	
+
 	return "";
 }
 
@@ -618,18 +619,65 @@ inline const char* zlibError(int error)
 {
 	if (error == boost::iostreams::zlib::stream_error)
 		return _("Stream error: Compressed data stream or parameter configuration is corrupted.");
-	
+
 	if (error == boost::iostreams::zlib::version_error)
 		return _("Version error: Incompatible versions.");
-	
+
 	if (error == boost::iostreams::zlib::data_error)
 		return _("Data error: Compressed data stream is corrupted.");
-	
+
 	if (error == boost::iostreams::zlib::buf_error)
 		return _("Buff error: Internal error.");
-	
+
 	return "";
 }
+
+/**
+ * \todo Use some boost::geometry class to inherit which provides much more functionality.
+ */
+template<typename T>
+class Vertex
+{
+	public:
+		Vertex() : m_x(0), m_y(0), m_z(0) { }
+		Vertex(T x, T y, T z) : m_x(x), m_y(y), m_z(z)
+		{
+		}
+
+		Vertex(const std::vector<T> &values) : m_x(values[0]), m_y(values[1]), m_z(values[2])
+		{
+		}
+
+		T operator[](uint8_t index) const throw (std::out_of_range)
+		{
+			if (index == 0)
+				return m_x;
+			else if (index == 1)
+				return m_y;
+			else if (index == 2)
+				return m_z;
+
+			throw std::out_of_range();
+		}
+
+		T x() const
+		{
+			return m_x;
+		}
+
+		T y() const
+		{
+			return m_y;
+		}
+
+		T z() const
+		{
+			return m_z;
+		}
+
+	private:
+		T m_x, m_y, m_z;
+};
 
 }
 

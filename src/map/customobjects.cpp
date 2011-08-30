@@ -28,7 +28,7 @@ namespace wc3lib
 namespace map
 {
 
-CustomObjects::Object::Object(CustomObjects::Type type) : m_type(type)
+CustomObjects::Object::Object(BOOST_SCOPED_ENUM(CustomObjects::Type) type) : m_type(type)
 {
 }
 
@@ -37,7 +37,7 @@ CustomUnits::Modification* CustomObjects::Object::createModification() const
 	return new CustomObjects::Modification(this->type());
 }
 
-CustomObjects::Modification::Modification(CustomObjects::Type type) : m_type(type)
+CustomObjects::Modification::Modification(BOOST_SCOPED_ENUM(CustomObjects::Type) type) : m_type(type)
 {
 }
 
@@ -45,7 +45,7 @@ std::streamsize CustomObjects::Modification::read(InputStream &istream) throw (c
 {
 	std::streamsize size = readData(istream);
 
-	if (this->type() == CustomObjects::Doodads || this->type() == CustomObjects::Abilities || this->type() == CustomObjects::Upgrades)
+	if (this->type() == CustomObjects::Type::Doodads || this->type() == CustomObjects::Type::Abilities || this->type() == CustomObjects::Type::Upgrades)
 	{
 		wc3lib::read(istream, this->m_level, size);
 		wc3lib::read(istream, this->m_data, size);
@@ -61,7 +61,7 @@ std::streamsize CustomObjects::Modification::write(OutputStream &ostream) const 
 {
 	std::streamsize size = writeData(ostream);
 
-	if (this->type() == CustomObjects::Doodads || this->type() == CustomObjects::Abilities || this->type() == CustomObjects::Upgrades)
+	if (this->type() == CustomObjects::Type::Doodads || this->type() == CustomObjects::Type::Abilities || this->type() == CustomObjects::Type::Upgrades)
 	{
 		wc3lib::write(ostream, this->m_level, size);
 		wc3lib::write(ostream, this->m_data, size);
@@ -73,7 +73,7 @@ std::streamsize CustomObjects::Modification::write(OutputStream &ostream) const 
 	return size;
 }
 
-CustomObjects::CustomObjects(CustomObjects::Type type) : m_type(type)
+CustomObjects::CustomObjects(BOOST_SCOPED_ENUM(CustomObjects::Type) type) : m_type(type)
 {
 }
 
@@ -83,25 +83,25 @@ const char8* CustomObjects::fileName() const
 
 	switch (this->type())
 	{
-		case Units:
+		case Type::Units:
 			return name.append("w3u").c_str();
 
-		case Items:
+		case Type::Items:
 			return name.append("w3t").c_str();
 
-		case Destructibles:
+		case Type::Destructibles:
 			return name.append("w3b").c_str();
 
-		case Doodads:
+		case Type::Doodads:
 			return name.append("w3d").c_str();
 
-		case Abilities:
+		case Type::Abilities:
 			return name.append("w3a").c_str();
 
-		case Buffs:
+		case Type::Buffs:
 			return name.append("w3h").c_str();
 
-		case Upgrades:
+		case Type::Upgrades:
 			return name.append("w3q").c_str();
 	}
 

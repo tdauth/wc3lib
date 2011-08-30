@@ -30,8 +30,8 @@ namespace map
 {
 
 /**
-* Base of W3N and W3M.
-*/
+ * Base of W3N and W3M.
+ */
 class Playable : public Format
 {
 	protected:

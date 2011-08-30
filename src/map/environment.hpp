@@ -30,12 +30,12 @@ namespace wc3lib
 namespace map
 {
 
-class Environment : public Format
+class Environment : public FileFormat
 {
 	public:
 		typedef boost::shared_ptr<Tilepoint> TilepointPtr;
 		typedef std::set<TilepointPtr> Tilepoints;
-		
+
 		static const int32 maxTilesets;
 
 		BOOST_SCOPED_ENUM_START(MainTileset) /// \todo C++0x : byte
@@ -73,7 +73,7 @@ class Environment : public Format
 
 		int32 mapWidth() const;
 		int32 mapHeight() const;
-		
+
 		BOOST_SCOPED_ENUM(MainTileset) mainTileset() const;
 		bool customized() const;
 		const std::vector<id>& groundTilesetsIds() const;
@@ -82,7 +82,7 @@ class Environment : public Format
 		int32 maxY() const;
 		float32 centerOffsetX() const;
 		float32 centerOffsetY() const;
-		
+
 		const Tilepoints& tilepoints() const;
 		Tilepoints& tilepoints();
 
@@ -185,10 +185,10 @@ inline const Environment::TilepointPtr& Environment::tilepoint(const Position &p
 {
 	TilepointPtr ptr(new Tilepoint(const_cast<Environment*>(this), position));
 	Tilepoints::const_iterator iterator = tilepoints().find(ptr);
-	
+
 	if (iterator == tilepoints().end())
 		throw Exception();
-	
+
 	return *iterator;
 }
 

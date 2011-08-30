@@ -47,7 +47,7 @@ class ImportedFiles : public FileFormat
 				bool m_hasPrefix; // 1byte: tells if the path is complete or needs "war3mapImported\" (5 or 8= standard path, 10 or 13: custom path) (thx PitzerMike)
 				string m_path;
 		};
-		
+
 		typedef boost::shared_ptr<Path> PathPtr;
 		typedef std::vector<PathPtr> Paths;
 
@@ -56,6 +56,7 @@ class ImportedFiles : public FileFormat
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
+		virtual id fileId() const;
 		virtual int32 latestFileVersion() const;
 		virtual const char8* fileName() const;
 
@@ -80,6 +81,11 @@ inline bool ImportedFiles::Path::hasPrefix() const
 inline const string& ImportedFiles::Path::path() const
 {
 	return this->m_path;
+}
+
+inline id ImportedFiles::fileId() const
+{
+	return 0;
 }
 
 inline int32 ImportedFiles::latestFileVersion() const

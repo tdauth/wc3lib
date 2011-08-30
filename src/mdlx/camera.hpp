@@ -38,7 +38,7 @@ class Camera : public GroupMdxBlockMember
 {
 	public:
 		static const std::size_t nameSize = 0x50;
-		
+
 		Camera(class Cameras *cameras);
 		virtual ~Camera();
 
@@ -48,11 +48,11 @@ class Camera : public GroupMdxBlockMember
 		 * \return Returns name with length of \ref Camera::nameSize.
 		 */
 		const ascii* name() const;
-		const struct VertexData& position() const;
+		const VertexData& position() const;
 		float32 fieldOfView() const;
 		float32 farClip() const;
 		float32 nearClip() const;
-		const struct VertexData& target() const;
+		const VertexData& target() const;
 		class CameraTranslations* translations() const;
 		class CameraRotationLengths* rotationLengths() const;
 		class CameraTargetTranslations* targetTranslations() const;
@@ -65,11 +65,11 @@ class Camera : public GroupMdxBlockMember
 	protected:
 		//long nbytesi;
 		ascii m_name[nameSize]; //(0x50)
-		struct VertexData m_position;
+		VertexData m_position;
 		float32 m_fieldOfView;
 		float32 m_farClip;
 		float32 m_nearClip;
-		struct VertexData m_target;
+		VertexData m_target;
 		class CameraTranslations *m_translations; //(KCTR)
 		class CameraRotationLengths *m_rotationLengths; //(KCRL)
 		class CameraTargetTranslations *m_targetTranslations; //(KTTR)
@@ -86,7 +86,7 @@ inline const ascii* Camera::name() const
 	return this->m_name;
 }
 
-inline const struct VertexData& Camera::position() const
+inline const VertexData& Camera::position() const
 {
 	return this->m_position;
 }
@@ -106,7 +106,7 @@ inline float32 Camera::nearClip() const
 	return this->m_nearClip;
 }
 
-inline const struct VertexData& Camera::target() const
+inline const VertexData& Camera::target() const
 {
 	return this->m_target;
 }

@@ -36,22 +36,22 @@ CustomObjectsCollection::~CustomObjectsCollection()
 {
 	if (hasUnits())
 		delete m_units;
-	
+
 	if (hasItems())
 		delete m_items;
-	
+
 	if (hasDestructibles())
 		delete m_destructibles;
-	
+
 	if (hasDoodads())
 		delete m_doodads;
-	
+
 	if (hasAbilities())
 		delete m_abilities;
-	
+
 	if (hasBuffs())
 		delete m_buffs;
-	
+
 	if (hasUpgrades())
 		delete m_upgrades;
 }
@@ -69,7 +69,7 @@ std::streamsize CustomObjectsCollection::read(InputStream &istream) throw (class
 
 	if (hasUnits)
 	{
-		this->m_units = new CustomObjects(CustomObjects::Units);
+		this->m_units = new CustomObjects(CustomObjects::Type::Units);
 		size += this->m_units->read(istream);
 	}
 
@@ -78,7 +78,7 @@ std::streamsize CustomObjectsCollection::read(InputStream &istream) throw (class
 
 	if (hasItems)
 	{
-		this->m_items = new CustomObjects(CustomObjects::Items);
+		this->m_items = new CustomObjects(CustomObjects::Type::Items);
 		size += this->m_items->read(istream);
 	}
 
@@ -87,7 +87,7 @@ std::streamsize CustomObjectsCollection::read(InputStream &istream) throw (class
 
 	if (hasDestructibles)
 	{
-		this->m_destructibles = new CustomObjects(CustomObjects::Destructibles);
+		this->m_destructibles = new CustomObjects(CustomObjects::Type::Destructibles);
 		size += this->m_destructibles->read(istream);
 	}
 
@@ -96,7 +96,7 @@ std::streamsize CustomObjectsCollection::read(InputStream &istream) throw (class
 
 	if (hasDoodads)
 	{
-		this->m_doodads = new CustomObjects(CustomObjects::Doodads);
+		this->m_doodads = new CustomObjects(CustomObjects::Type::Doodads);
 		size += this->m_doodads->read(istream);
 	}
 
@@ -105,7 +105,7 @@ std::streamsize CustomObjectsCollection::read(InputStream &istream) throw (class
 
 	if (hasAbilities)
 	{
-		this->m_abilities = new CustomObjects(CustomObjects::Abilities);
+		this->m_abilities = new CustomObjects(CustomObjects::Type::Abilities);
 		size += this->m_abilities->read(istream);
 	}
 
@@ -114,7 +114,7 @@ std::streamsize CustomObjectsCollection::read(InputStream &istream) throw (class
 
 	if (hasBuffs)
 	{
-		this->m_buffs = new CustomObjects(CustomObjects::Buffs);
+		this->m_buffs = new CustomObjects(CustomObjects::Type::Buffs);
 		size += this->m_buffs->read(istream);
 	}
 
@@ -123,7 +123,7 @@ std::streamsize CustomObjectsCollection::read(InputStream &istream) throw (class
 
 	if (hasUpgrades)
 	{
-		this->m_upgrades = new CustomObjects(CustomObjects::Upgrades);
+		this->m_upgrades = new CustomObjects(CustomObjects::Type::Upgrades);
 		size += this->m_upgrades->read(istream);
 	}
 

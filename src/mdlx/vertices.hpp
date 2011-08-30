@@ -38,7 +38,7 @@ class Vertices : public GroupMdxBlock
 {
 	public:
 		typedef std::list<class Vertex*> Members;
-		
+
 		Vertices(class Geoset *geoset);
 		virtual ~Vertices();
 

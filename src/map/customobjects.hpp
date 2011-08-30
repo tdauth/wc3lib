@@ -36,7 +36,7 @@ namespace map
 class CustomObjects : public CustomUnits
 {
 	public:
-		enum Type
+		BOOST_SCOPED_ENUM_START(Type)
 		{
 			Units,
 			Items,
@@ -46,12 +46,13 @@ class CustomObjects : public CustomUnits
 			Buffs,
 			Upgrades
 		};
-		
+		BOOST_SCOPED_ENUM_END
+
 		class Modification : public CustomUnits::Modification
 		{
 			public:
-				Modification(CustomObjects::Type type);
-				CustomObjects::Type type() const;
+				Modification(BOOST_SCOPED_ENUM(CustomObjects::Type) type);
+				BOOST_SCOPED_ENUM(CustomObjects::Type) type() const;
 				/**
 				* Only read for doodads, abilities and upgrades. Doodads use this as variation number.
 				*/
@@ -66,7 +67,7 @@ class CustomObjects : public CustomUnits
 				std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
 			protected:
-				CustomObjects::Type m_type;
+				BOOST_SCOPED_ENUM(CustomObjects::Type) m_type;
 				int32 m_level; // level/variation
 				int32 m_data; // A, 1 = B, 2 = C, 3 = D, 4 = F, 5 = G, 6 = H
 		};
@@ -74,32 +75,32 @@ class CustomObjects : public CustomUnits
 		class Object : public CustomUnits::Unit
 		{
 			public:
-				Object(CustomObjects::Type type);
-				CustomObjects::Type type() const;
+				Object(BOOST_SCOPED_ENUM(CustomObjects::Type) type);
+				BOOST_SCOPED_ENUM(CustomObjects::Type) type() const;
 
 			protected:
 				virtual CustomUnits::Modification* createModification() const;
 
-				CustomObjects::Type m_type;
+				BOOST_SCOPED_ENUM(CustomObjects::Type) m_type;
 		};
 
-		CustomObjects(Type type);
-		Type type() const;
+		CustomObjects(BOOST_SCOPED_ENUM(Type) type);
+		BOOST_SCOPED_ENUM(Type) type() const;
 
 		virtual const char8* fileName() const;
 
 	protected:
 		virtual Unit* createUnit() const;
 
-		Type m_type;
+		BOOST_SCOPED_ENUM(Type) m_type;
 };
 
-inline CustomObjects::Type CustomObjects::Object::type() const
+inline BOOST_SCOPED_ENUM(CustomObjects::Type) CustomObjects::Object::type() const
 {
 	return this->m_type;
 }
 
-inline CustomObjects::Type CustomObjects::Modification::type() const
+inline BOOST_SCOPED_ENUM(CustomObjects::Type) CustomObjects::Modification::type() const
 {
 	return this->m_type;
 }
@@ -114,7 +115,7 @@ inline int32 CustomObjects::Modification::data() const
 	return this->m_data;
 }
 
-inline CustomObjects::Type CustomObjects::type() const
+inline BOOST_SCOPED_ENUM(CustomObjects::Type) CustomObjects::type() const
 {
 	return this->m_type;
 }

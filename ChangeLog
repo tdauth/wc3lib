@@ -1,3 +1,12 @@
+2011-08-30 Tamino Dauth <tamino@cdauth.eu>
+* blp: Improved JPEG shared header writing which supports JPEG marker detection now (thanks to hiveworkshop.com user Shadow Daemon who explained me how shared data is stored).
+* map: Improved various formats.
+
+2011-08-29 Tamino Dauth <tamino@cdauth.eu>
+* editor: BlpIOHandler supports reading single MIP maps now.
+* editor: Added MIP map displaying support to texture editor.
+* map: Improved various formats (added classes like Minimap etc.).
+
 2011-08-26 Tamino Dauth <tamino@cdauth.eu>
 * editor: Added CMake custom target for UI files to workaround KDE's bug.
 * Revised feature list of new World Editor.

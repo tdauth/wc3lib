@@ -42,12 +42,13 @@ class Rects : public FileFormat
 		Rects(class W3m *w3m);
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
-		
+
+		virtual id fileId() const;
 		virtual const char8* fileName() const;
 		virtual int32 latestFileVersion() const;
-		
+
 		virtual int32 version() const { return m_version; }
-		
+
 		const RectMap& rects() const;
 		RectMap& rects();
 
@@ -56,6 +57,11 @@ class Rects : public FileFormat
 		int32 m_version;
 		RectMap m_rects;
 };
+
+inline id Rects::fileId() const
+{
+	return 0;
+}
 
 inline const char8* Rects::fileName() const
 {

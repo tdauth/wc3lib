@@ -21,10 +21,6 @@
 #ifndef WC3LIB_MAP_STRINGS_HPP
 #define WC3LIB_MAP_STRINGS_HPP
 
-#include <map>
-
-#include <boost/filesystem.hpp>
-
 #include "platform.hpp"
 
 namespace wc3lib
@@ -34,8 +30,8 @@ namespace map
 {
 
 /**
-* Class for FDF and WTS file formats.
-*/
+ * Class for FDF and WTS file formats.
+ */
 class Strings : public Format
 {
 	public:
@@ -43,14 +39,15 @@ class Strings : public Format
 		typedef std::pair<std::size_t, class String*> StringListValue;
 		typedef std::pair<std::size_t, const class String*> StringListValueConst;
 
-		enum ConflictResult
+		BOOST_SCOPED_ENUM_START(ConflictResult)
 		{
 			UseBoth,
 			UseFirst,
 			UseSecond
 		};
+		BOOST_SCOPED_ENUM_END
 
-		typedef enum ConflictResult (*ConflictFunction)(const class String &string1, const class String &string2);
+		typedef BOOST_SCOPED_ENUM(ConflictResult) (*ConflictFunction)(const class String &string1, const class String &string2);
 
 
 		Strings();

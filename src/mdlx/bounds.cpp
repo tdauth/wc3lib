@@ -56,20 +56,20 @@ std::streamsize Bounds::readMdl(istream &istream) throw (class Exception)
 // MinimumExtent, MaximumExtent and BoundsRadius only appear when their values are not 0.0.
 std::streamsize Bounds::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	if (this->minimumExtent().x != 0.0 || this->minimumExtent().y != 0.0 || this->minimumExtent().z != 0.0)
+	if (this->minimumExtent().x() != 0.0 || this->minimumExtent().y() != 0.0 || this->minimumExtent().z() != 0.0)
 		ostream
 		<< "MinimumExtent { "
-		<< this->minimumExtent().x << ", "
-		<< this->minimumExtent().y << ", "
-		<< this->minimumExtent().z
+		<< this->minimumExtent().x() << ", "
+		<< this->minimumExtent().y() << ", "
+		<< this->minimumExtent().z()
 		<< "}, " << std::endl;
 
-	if (this->maximumExtent().x != 0.0 || this->maximumExtent().y != 0.0 || this->maximumExtent().z != 0.0)
+	if (this->maximumExtent().x() != 0.0 || this->maximumExtent().y() != 0.0 || this->maximumExtent().z() != 0.0)
 		ostream
 		<< "MaximumExtent { "
-		<< this->maximumExtent().x << ", "
-		<< this->maximumExtent().y << ", "
-		<< this->maximumExtent().z
+		<< this->maximumExtent().x() << ", "
+		<< this->maximumExtent().y() << ", "
+		<< this->maximumExtent().z()
 		<< "}, " << std::endl;
 
 	if (this->boundsRadius() != 0.0)

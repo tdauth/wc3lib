@@ -35,11 +35,11 @@ class MdlxScaling : public MdlxAnimatedProperty
 	public:
 		MdlxScaling(class MdlxScalings *scalings);
 		virtual ~MdlxScaling();
-		
+
 		class MdlxScalings* mdlxScalings() const;
 
-		struct VertexData vertexData() const;
-		struct InterpolationData interpolationData() const;
+		VertexData vertexData() const;
+		InterpolationData interpolationData() const;
 };
 
 inline class MdlxScalings* MdlxScaling::mdlxScalings() const
@@ -47,12 +47,12 @@ inline class MdlxScalings* MdlxScaling::mdlxScalings() const
 	return dynamic_cast<class MdlxScalings*>(this->properties());
 }
 
-inline struct VertexData MdlxScaling::vertexData() const
+inline VertexData MdlxScaling::vertexData() const
 {
 	return VertexData(values());
 }
 
-inline struct InterpolationData MdlxScaling::interpolationData() const
+inline InterpolationData MdlxScaling::interpolationData() const
 {
 	return InterpolationData(inTan(), outTan());
 }

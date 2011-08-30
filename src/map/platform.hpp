@@ -120,6 +120,9 @@ class FileFormat : public Format
 
 typedef std::basic_istream<byte> istream;
 typedef std::basic_ostream<byte> ostream;
+typedef boost::iostreams::stream<boost::iostreams::basic_array<char8> > arraystream;
+typedef boost::iostreams::stream<boost::iostreams::basic_array_source<char8> > iarraystream;
+typedef boost::iostreams::stream<boost::iostreams::basic_array_sink<char8> > oarraystream;
 
 /**
 * Flags
@@ -181,350 +184,350 @@ struct Value : public ValueBase
 			AttackBits = 21
 		};
 		BOOST_SCOPED_ENUM_END
-		
+
 		Value() : ValueBase(int32(0)), m_type(Type::Integer)
 		{
 		}
-		
+
 		Value(BOOST_SCOPED_ENUM(Type) type) : ValueBase(), m_type(type)
 		{
 		}
-		
+
 		Value(int32 value) : ValueBase(value), m_type(Type::Integer)
 		{
 		}
-		
+
 		Value(float32 value) : ValueBase(value), m_type(Type::Real)
 		{
 		}
-		
+
 		Value(string value) : ValueBase(value), m_type(Type::String)
 		{
 		}
-		
+
 		Value(bool value) : ValueBase(value), m_type(Type::Boolean)
 		{
 		}
-		
+
 		Value(char8 value) : ValueBase(value), m_type(Type::Character)
 		{
 		}
-		
+
 		Value(List value) : ValueBase(value), m_type(Type::StringList)
 		{
 		}
-		
+
 		BOOST_SCOPED_ENUM(Type) type() const
 		{
 			return m_type;
 		}
-		
+
 		int32& toInteger() throw (class boost::bad_get)
 		{
 			if (type() != Type::Integer)
 				throw boost::bad_get();
-			
+
 			return boost::get<int32&>(*this);
 		}
-		
+
 		int32 toInteger() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toInteger();
 		}
-		
+
 		float32& toReal() throw (class boost::bad_get)
 		{
 			if (type() != Type::Real)
 				throw boost::bad_get();
-			
+
 			return boost::get<float32&>(*this);
 		}
-		
+
 		float32 toReal() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toReal();
 		}
-		
+
 		float32& toUnreal() throw (class boost::bad_get)
 		{
 			if (type() != Type::Real)
 				throw boost::bad_get();
-			
+
 			return boost::get<float32&>(*this);
 		}
-		
+
 		float32 toUnreal() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toUnreal();
 		}
-		
+
 		string& toString() throw (class boost::bad_get)
 		{
 			if (type() != Type::String)
 				throw boost::bad_get();
-			
+
 			return boost::get<string&>(*this);
 		}
-		
+
 		const string& toString() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toString();
 		}
-		
+
 		bool& toBoolean() throw (class boost::bad_get)
 		{
 			if (type() != Type::Boolean)
 				throw boost::bad_get();
-			
+
 			return boost::get<bool&>(*this);
 		}
-		
+
 		bool toBoolean() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toBoolean();
 		}
-		
+
 		char8& toCharacter() throw (class boost::bad_get)
 		{
 			if (type() != Type::Character)
 				throw boost::bad_get();
-			
+
 			return boost::get<char8&>(*this);
 		}
-		
+
 		char8 toCharacter() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toCharacter();
 		}
-		
+
 		List& toList() throw (class boost::bad_get)
 		{
 			if (type() != Type::UnitList && type() != Type::ItemList && type() != Type::UpgradeList && type() != Type::StringList && type() != Type::AbilityList && type() != Type::HeroAbilityList)
 				throw boost::bad_get();
-			
+
 			return boost::get<List&>(*this);
 		}
-		
+
 		const List& toList() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toList();
 		}
-		
+
 		List& toUnitList() throw (class boost::bad_get)
 		{
 			if (type() != Type::UnitList)
 				throw boost::bad_get();
-			
+
 			return boost::get<List&>(*this);
 		}
-		
+
 		const List& toUnitList() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toUnitList();
 		}
-		
+
 		List& toItemList() throw (class boost::bad_get)
 		{
 			if (type() != Type::ItemList)
 				throw boost::bad_get();
-			
+
 			return boost::get<List&>(*this);
 		}
-		
+
 		const List& toItemList() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toItemList();
 		}
-		
-		
+
+
 		string& toRegenerationType() throw (class boost::bad_get)
 		{
 			if (type() != Type::RegenerationType)
 				throw boost::bad_get();
-			
+
 			return boost::get<string&>(*this);
 		}
-		
+
 		const string& toRegenerationType() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toRegenerationType();
 		}
-		
+
 		string& toAttackType() throw (class boost::bad_get)
 		{
 			if (type() != Type::AttackType)
 				throw boost::bad_get();
-			
+
 			return boost::get<string&>(*this);
 		}
-		
+
 		const string& toAttackType() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toAttackType();
 		}
-		
+
 		string& toWeaponType() throw (class boost::bad_get)
 		{
 			if (type() != Type::Character)
 				throw boost::bad_get();
-			
+
 			return boost::get<string&>(*this);
 		}
-		
+
 		const string& toWeaponType() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toWeaponType();
 		}
-		
+
 		string& toTargetType() throw (class boost::bad_get)
 		{
 			if (type() != Type::Character)
 				throw boost::bad_get();
-			
+
 			return boost::get<string&>(*this);
 		}
-		
+
 		const string& toTargetType() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toTargetType();
 		}
-		
+
 		string& toMoveType() throw (class boost::bad_get)
 		{
 			if (type() != Type::MoveType)
 				throw boost::bad_get();
-			
+
 			return boost::get<string&>(*this);
 		}
-		
+
 		const string& toMoveType() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toMoveType();
 		}
-		
+
 		string& toDefenseType() throw (class boost::bad_get)
 		{
 			if (type() != Type::DefenseType)
 				throw boost::bad_get();
-			
+
 			return boost::get<string&>(*this);
 		}
-		
+
 		const string& toDefenseType() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toDefenseType();
 		}
-		
+
 		string& toPathingTexture() throw (class boost::bad_get)
 		{
 			if (type() != Type::PathingTexture)
 				throw boost::bad_get();
-			
+
 			return boost::get<string&>(*this);
 		}
-		
+
 		const string& toPathingTexture() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toPathingTexture();
 		}
-		
+
 		List& toUpgradeList() throw (class boost::bad_get)
 		{
 			if (type() != Type::UpgradeList)
 				throw boost::bad_get();
-			
+
 			return boost::get<List&>(*this);
 		}
-		
+
 		const List& toUpgradeList() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toUpgradeList();
 		}
-		
+
 		List& toStringList() throw (class boost::bad_get)
 		{
 			if (type() != Type::StringList)
 				throw boost::bad_get();
-			
+
 			return boost::get<List&>(*this);
 		}
-		
+
 		const List& toStringList() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toStringList();
 		}
-		
+
 		List& toAbilityList() throw (class boost::bad_get)
 		{
 			if (type() != Type::AbilityList)
 				throw boost::bad_get();
-			
+
 			return boost::get<List&>(*this);
 		}
-		
+
 		const List& toAbilityList() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toAbilityList();
 		}
-		
+
 		List& toHeroAbilityList() throw (class boost::bad_get)
 		{
 			if (type() != Type::HeroAbilityList)
 				throw boost::bad_get();
-			
+
 			return boost::get<List&>(*this);
 		}
-		
+
 		const List& toHeroAbilityList() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toHeroAbilityList();
 		}
-		
+
 		string& toMissileArt() throw (class boost::bad_get)
 		{
 			if (type() != Type::MissileArt)
 				throw boost::bad_get();
-			
+
 			return boost::get<string&>(*this);
 		}
-		
+
 		const string& toMissileArt() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toMissileArt();
 		}
-		
+
 		string& toAttributeType() throw (class boost::bad_get)
 		{
 			if (type() != Type::AttributeType)
 				throw boost::bad_get();
-			
+
 			return boost::get<string&>(*this);
 		}
-		
+
 		const string& toAttributeType() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toAttributeType();
 		}
-		
+
 		string& toAttackBits() throw (class boost::bad_get)
 		{
 			if (type() != Type::AttackBits)
 				throw boost::bad_get();
-			
+
 			return boost::get<string&>(*this);
 		}
-		
+
 		const string& toAttackBits() const throw (class boost::bad_get)
 		{
 			return const_cast<class Value*>(this)->toAttackBits();
 		}
-		
+
 		/// Less than operator required for ordered containers.
 		bool operator<(const Value &value) const
 		{
 			return type() < value.type();
 		}
-		
+
 		bool operator==(const Value &value) const
 		{
 			if (type() == value.type())
@@ -533,75 +536,75 @@ struct Value : public ValueBase
 				{
 					case Type::Integer:
 						return this->toInteger() == value.toInteger();
-					
+
 					case Type::Real:
 						return this->toReal() == value.toReal();
-						
+
 					case Type::Unreal:
 						return this->toUnreal() == value.toUnreal();
-						
+
 					case Type::String:
 						return this->toString() == value.toString();
-						
+
 					case Type::Boolean:
 						return this->toBoolean() == value.toBoolean();
-						
+
 					case Type::Character:
 						return this->toCharacter() == value.toCharacter();
-						
+
 					case Type::UnitList:
 						return this->toUnitList() == value.toUnitList();
-						
+
 					case Type::ItemList:
 						return this->toItemList() == value.toItemList();
-						
+
 					case Type::RegenerationType:
 						return this->toRegenerationType() == value.toRegenerationType();
-						
+
 					case Type::AttackType:
 						return this->toAttackType() == value.toAttackType();
-						
+
 					case Type::WeaponType:
 						return this->toWeaponType() == value.toWeaponType();
-						
+
 					case Type::TargetType:
 						return this->toTargetType() == value.toTargetType();
-						
+
 					case Type::MoveType:
 						return this->toMoveType() == value.toMoveType();
-						
+
 					case Type::DefenseType:
 						return this->toDefenseType() == value.toDefenseType();
-						
+
 					case Type::PathingTexture:
 						return this->toPathingTexture() == value.toPathingTexture();
-						
+
 					case Type::UpgradeList:
 						return this->toUpgradeList() == value.toUpgradeList();
-						
+
 					case Type::StringList:
 						return this->toStringList() == value.toStringList();
-						
+
 					case Type::AbilityList:
 						return this->toAbilityList() == value.toAbilityList();
-						
+
 					case Type::HeroAbilityList:
 						return this->toHeroAbilityList() == value.toHeroAbilityList();
-						
+
 					case Type::MissileArt:
 						return this->toMissileArt() == value.toMissileArt();
-						
+
 					case Type::AttributeType:
 						return this->toAttributeType() == value.toAttributeType();
-						
+
 					case Type::AttackBits:
 						return this->toAttackBits() == value.toAttackBits();
 				}
 			}
-			
+
 			return false;
 		}
-		
+
 	protected:
 		BOOST_SCOPED_ENUM(Type) m_type;
 };
@@ -612,61 +615,61 @@ class Rgb : public Format
 		Rgb(uint8_t red, uint8_t green, uint8_t blue) : m_red(red), m_green(green), m_blue(blue)
 		{
 		}
-		
+
 		Rgb() : m_red(0), m_green(0), m_blue(0)
 		{
 		}
-		
+
 		virtual std::streamsize read(InputStream &istream) throw (class Exception)
 		{
 			std::streamsize size = 0;
 			wc3lib::read(istream, m_red, size);
 			wc3lib::read(istream, m_green, size);
 			wc3lib::read(istream, m_blue, size);
-			
+
 			return size;
 		}
-		
+
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception)
 		{
 			std::streamsize size = 0;
 			wc3lib::write(ostream, red(), size);
 			wc3lib::write(ostream, green(), size);
 			wc3lib::write(ostream, blue(), size);
-			
+
 			return size;
 		}
-		
+
 		void setRed(uint8_t red)
 		{
 			m_red = red;
 		}
-		
+
 		uint8_t red() const
 		{
 			return m_red;
 		}
-		
+
 		void setGreen(uint8_t green)
 		{
 			m_green = green;
 		}
-		
+
 		uint8_t green() const
 		{
 			return m_green;
 		}
-		
+
 		void setBlue(uint8_t blue)
 		{
 			m_blue = blue;
 		}
-		
+
 		uint8_t blue() const
 		{
 			return m_blue;
 		}
-	
+
 	protected:
 		uint8_t m_red;
 		uint8_t m_green;
@@ -679,37 +682,37 @@ class Rgba : public Rgb
 		Rgba(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) : Rgb(red, green, blue), m_alpha(alpha)
 		{
 		}
-		
+
 		Rgba() : Rgb(), m_alpha(0)
 		{
 		}
-		
+
 		virtual std::streamsize read(InputStream &istream) throw (class Exception)
 		{
 			std::streamsize size = Rgb::read(istream);
 			wc3lib::read(istream, m_alpha, size);
-			
+
 			return size;
 		}
-			
+
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception)
 		{
 			std::streamsize size = Rgb::write(ostream);
 			wc3lib::write(ostream, alpha(), size);
-			
+
 			return size;
 		}
-		
+
 		void setAlpha(uint8_t alpha)
 		{
 			m_alpha = alpha;
 		}
-		
+
 		uint8_t alpha() const
 		{
 			return m_alpha;
 		}
-	
+
 	protected:
 		uint8_t m_alpha;
 };
@@ -722,16 +725,16 @@ class Bgra : public Rgba
 			std::streamsize size = 0;
 			wc3lib::read(istream, m_alpha, size);
 			size += Rgb::read(istream);
-			
+
 			return size;
 		}
-			
+
 		virtual std::streamsize write(OutputStream &ostream) const throw (Exception)
 		{
 			std::streamsize size = 0;
 			wc3lib::write(ostream, alpha(), size);
 			size += Rgb::write(ostream);
-			
+
 			return size;
 		}
 };
@@ -741,77 +744,78 @@ class BasePosition : public std::pair<T, T>, public Format, public boost::operat
 {
 	public:
 		typedef std::pair<T, T> Base;
-		
+
 		BasePosition(const Base &pair)
 		{
 			this->first = pair.first;
 			this->second = pair.second;
 		}
-		
+
 		BasePosition(T x, T y)
 		{
 			this->first = x;
 			this->second = y;
 		}
-		
+
 		BasePosition(const BasePosition &position)
-		{ 
+		{
 			this->first = position.x();
 			this->second = position.y();
 		}
-		
+
 		void setX(T x)
 		{
 			this->first = x;
 		}
-		
+
 		T x() const
 		{
 			return this->first;
 		}
-		
+
 		void setY(T y)
 		{
 			this->second = y;
 		}
-		
+
 		T y() const
 		{
 			return this->second;
 		}
-		
+
 		virtual std::streamsize read(InputStream &istream) throw (Exception)
 		{
 			std::streamsize size = 0;
 			wc3lib::read(istream, this->first, size);
 			wc3lib::read(istream, this->second, size);
-			
+
 			return size;
 		}
-		
+
 		virtual std::streamsize write(OutputStream &ostream) const throw (Exception)
 		{
 			std::streamsize size = 0;
 			wc3lib::write(ostream, this->first, size);
 			wc3lib::write(ostream, this->second, size);
-			
+
 			return size;
 		}
-		
+
 		bool operator==(const BasePosition &position) const
 		{
 			return x() == position.x() && y() == position.y();
 		}
-		
+
 		bool operator<(const BasePosition &position) const
 		{
 			return (y() / x() - position.y() /  position.x()) < 0;
 		}
-		
+
 };
 
 typedef BasePosition<int32> Position;
 typedef BasePosition<float32> FloatPosition;
+typedef Vertex<float32> Vertex;
 
 BOOST_SCOPED_ENUM_START(MapFlags) /// \todo C++0x : int32
 {

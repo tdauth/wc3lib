@@ -87,19 +87,19 @@ static bool checkForStringConflict(Strings::StringList &strings, class String *s
 			// use old string
 			if (conflictFunction != 0)
 			{
-				enum Strings::ConflictResult result = conflictFunction(*value.second, *string);
+				BOOST_SCOPED_ENUM(Strings::ConflictResult) result = conflictFunction(*value.second, *string);
 
 				switch (result)
 				{
-					case Strings::UseBoth:
+					case Strings::ConflictResult::UseBoth:
 						break;
 
-					case Strings::UseFirst:
+					case Strings::ConflictResult::UseFirst:
 						delete string;
 
 						break;
 
-					case Strings::UseSecond:
+					case Strings::ConflictResult::UseSecond:
 						strings.erase(value.first);
 						delete value.second;
 						strings.insert(std::make_pair(string->id(), string));

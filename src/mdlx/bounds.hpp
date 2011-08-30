@@ -45,15 +45,15 @@ class Bounds : public MdlxProperty
 
 		void setBoundsRadius(float32 boundsRadius);
 		float32 boundsRadius() const;
-		struct VertexData& minimumExtent();
-		struct VertexData& maximumExtent();
-		const struct VertexData& minimumExtent() const;
-		const struct VertexData& maximumExtent() const;
+		VertexData& minimumExtent();
+		VertexData& maximumExtent();
+		const VertexData& minimumExtent() const;
+		const VertexData& maximumExtent() const;
 
 	protected:
 		float32 m_boundsRadius;
-		struct VertexData m_minimumExtent;
-		struct VertexData m_maximumExtent;
+		VertexData m_minimumExtent;
+		VertexData m_maximumExtent;
 };
 
 inline void Bounds::setBoundsRadius(float32 boundsRadius)
@@ -66,22 +66,22 @@ inline float32 Bounds::boundsRadius() const
 	return this->m_boundsRadius;
 }
 
-inline struct VertexData& Bounds::minimumExtent()
+inline VertexData& Bounds::minimumExtent()
 {
 	return this->m_minimumExtent;
 }
 
-inline struct VertexData& Bounds::maximumExtent()
+inline VertexData& Bounds::maximumExtent()
 {
 	return this->m_maximumExtent;
 }
 
-inline const struct VertexData& Bounds::minimumExtent() const
+inline const VertexData& Bounds::minimumExtent() const
 {
 	return this->m_minimumExtent;
 }
 
-inline const struct VertexData& Bounds::maximumExtent() const
+inline const VertexData& Bounds::maximumExtent() const
 {
 	return this->m_maximumExtent;
 }

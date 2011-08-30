@@ -21,43 +21,56 @@
 #ifndef WC3LIB_MAP_W3M_HPP
 #define WC3LIB_MAP_W3M_HPP
 
+#include "../mpq.hpp"
+#include "playable.hpp"
 #include "environment.hpp"
+#include "shadow.hpp"
+#include "pathmap.hpp"
+#include "trees.hpp"
+#include "info.hpp"
+#include "mapstrings.hpp"
+#include "minimap.hpp"
+#include "menuminimap.hpp"
+#include "customunits.hpp"
+#include "triggers.hpp"
+#include "cameras.hpp"
+#include "rects.hpp"
+#include "sounds.hpp"
+#include "customtexttriggers.hpp"
+#include "importedfiles.hpp"
 #include "platform.hpp"
 
 namespace wc3lib
 {
 
-namespace mpq
-{
-
-class Mpq;
-
-}
-
-namespace blp
-{
-
-class Blp;
-
-}
-
 namespace map
 {
 
-class W3m : public FileFormat
+class W3m : public FileFormat, public mpq::Mpq, public Playable
 {
 	public:
+		typedef boost::scoped_ptr<Environment> EnvironmentPtr;
+		typedef boost::scoped_ptr<Shadow> ShadowPtr;
+		typedef boost::scoped_ptr<Pathmap> PathmapPtr;
+		typedef boost::scoped_ptr<Trees> TreesPtr;
+		typedef boost::scoped_ptr<Info> InfoPtr;
+		typedef boost::scoped_ptr<MapStrings> StringsPtr;
+		typedef boost::scoped_ptr<Minimap> MinimapPtr;
+		typedef boost::scoped_ptr<MenuMinimap> MenuMinimapPtr;
+		typedef boost::scoped_ptr<CustomUnits> CustomUnitsPtr;
+		typedef boost::scoped_ptr<Triggers> TriggersPtr;
+		typedef boost::scoped_ptr<Cameras> CamerasPtr;
+		typedef boost::scoped_ptr<Rects> RectsPtr;
+		typedef boost::scoped_ptr<Sounds> SoundsPtr;
+		typedef boost::scoped_ptr<CustomTextTriggers> CustomTextTriggersPtr;
+		typedef boost::scoped_ptr<ImportedFiles> ImportedFilesPtr;
+		typedef std::vector<FileFormat*> FileFormats;
+
 		W3m();
 		virtual ~W3m();
 
-		virtual std::streamsize read(class mpq::Mpq *mpq) throw (class Exception);
 		/**
-		 * \param istream has to contain the map MPQ archive.
-		 */
-		virtual std::streamsize read(InputStream &istream) throw (class Exception);
-		/**
-		 * \param headerStream Each map is a file with an MPQ archive and a header before. This stream should contain the map's header data.
-		 * \param paths List which should contain all necessary file paths. Files will be deteced automatically by names.
+		 * \param istream has to contain the map's header + the map's MPQ archive.
 		 * Here's a list of all possible file names:
 		 * <ul>
 		 * <li>war3map.w3e</li>
@@ -91,47 +104,48 @@ class W3m : public FileFormat
 		 * <li>war3map.imp</li>
 		 * <li>war3mapImported\*.*</li>
 		 * </ul>
-		 * \note You can use classes's static members called "fileName" to get the corresponding file name of the class's format.
+		 * \note You can use classes's virtual member functions called "fileName" to get the corresponding file name of the class's format.
 		 */
-		virtual std::streamsize read(InputStream &headerStream, const std::list<boost::filesystem::path> &paths) throw (class Exception);
+		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		/**
 		 * Creates an MPQ archive with map header and all required files.
 		 */
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
-		
+
 		virtual int32 fileId() const;
 		virtual int32 latestFileVersion() const;
 
 		int32 width() const;
 		int32 height() const;
-		
-		class Info* info() const;
+
+		const InfoPtr& info() const;
+		const FileFormats& fileFormats() const;
+		FileFormats& fileFormats();
 
 	protected:
 		std::streamsize readHeader(InputStream &istream) throw (class Exception);
 		std::streamsize readSignature(InputStream &istream) throw (class Exception);
-		bool findPath(const std::list<boost::filesystem::path> &paths, boost::filesystem::path &path, const string &fileName);
 
 		string m_name;
 		BOOST_SCOPED_ENUM(MapFlags) m_flags;
 		int32 m_maxPlayers;
 
-		class Environment *m_environment;
-		class Shadow *m_shadow;
-		class PathMap *m_pathMap;
-		class Trees *m_trees;
-		class Units *m_units;
-		class Info *m_info;
-		class Strings *m_strings;
-		class blp::Blp *m_minimap;
-		class MenuMinimap *m_menuMinimap;
-		class CustomUnits *m_customUnits;
-		class Triggers *m_triggers;
-		class Cameras *m_cameras;
-		class Rects *m_rects;
-		class Sounds *m_sounds;
-		class CustomTextTriggers *m_customTextTriggers;
-		class ImportedFiles *m_importedFiles;
+		EnvironmentPtr m_environment;
+		ShadowPtr m_shadow;
+		PathmapPtr m_pathmap;
+		TreesPtr m_trees;
+		CustomUnitsPtr m_customUnits;
+		InfoPtr m_info;
+		StringsPtr m_strings;
+		MinimapPtr m_minimap;
+		MenuMinimapPtr m_menuMinimap;
+		TriggersPtr m_triggers;
+		CamerasPtr m_cameras;
+		RectsPtr m_rects;
+		SoundsPtr m_sounds;
+		CustomTextTriggersPtr m_customTextTriggers;
+		ImportedFilesPtr m_importedFiles;
+		FileFormats m_fileFormats;
 /*
 w3x
 		class ArtificialIntelligence *m_artificialIntelligence;
@@ -165,10 +179,21 @@ inline int32 W3m::height() const
 	return this->m_environment->mapHeight();
 }
 
-inline class Info* W3m::info() const
+inline const W3m::InfoPtr& W3m::info() const
 {
 	return m_info;
 }
+
+inline const W3m::FileFormats& W3m::fileFormats() const
+{
+	return this->m_fileFormats;
+}
+
+inline W3m::FileFormats& W3m::fileFormats()
+{
+	return this->m_fileFormats;
+}
+
 
 }
 

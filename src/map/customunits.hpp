@@ -21,8 +21,6 @@
 #ifndef WC3LIB_MAP_CUSTOMUNITS_HPP
 #define WC3LIB_MAP_CUSTOMUNITS_HPP
 
-#include <list>
-
 #include "platform.hpp"
 
 namespace wc3lib
@@ -35,7 +33,7 @@ namespace map
 * Warcraft 3 only allows you to customize unit data.
 * Later, in Frozen Throne Blizzard introduced general object data modification (\ref CustomObjects).
 */
-class CustomUnits : public Format
+class CustomUnits : public FileFormat
 {
 	public:
 		class Modification : public Format
@@ -81,8 +79,9 @@ class CustomUnits : public Format
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
 		virtual const char8* fileName() const;
+		virtual id fileId() const;
 		virtual int32 latestFileVersion() const;
-		
+
 		virtual int32 version() const { return m_version; }
 
 	protected:
@@ -96,6 +95,11 @@ class CustomUnits : public Format
 inline const char8* CustomUnits::fileName() const
 {
 	return "war3map.w3u";
+}
+
+inline id CustomUnits::fileId() const
+{
+	return 0;
 }
 
 inline int32 CustomUnits::latestFileVersion() const

@@ -89,42 +89,21 @@ BOOST_SCOPED_ENUM_START(ReplaceableId) //: long32 C++0x
 };
 BOOST_SCOPED_ENUM_END
 
-struct VertexData
-{
-	VertexData() : x(0), y(0), z(0) { }
-	VertexData(float32 x, float32 y, float32 z) : x(x), y(y), z(z)
-	{
-	}
-	
-	VertexData(const std::vector<float32> &values) : x(values[0]), y(values[1]), z(values[2])
-	{
-	}
-
-	float32 operator[](uint8_t index) const
-	{
-		if (index == 0)
-			return x;
-		else if (index == 1)
-			return y;
-
-		return z;
-	}
-
-	float32 x, y, z;
-};
+typedef Vertex<float32> VertexData;
+class Vertex; // workaround, we already have a class called Vertex in MDLX module!
 
 struct QuaternionData
 {
 	QuaternionData() : a(0), b(0), c(0), d(0) { }
-	
+
 	QuaternionData(float32 a, float32 b, float32 c, float32 d) : a(a), b(b), c(c), d(d)
 	{
 	}
-	
+
 	QuaternionData(const std::vector<float32> &values) : a(values[0]), b(values[1]), c(values[2]), d(values[3])
 	{
 	}
-	
+
 	float32 operator[](uint8_t index) const
 	{
 		if (index == 0)
@@ -136,7 +115,7 @@ struct QuaternionData
 
 		return d;
 	}
-	
+
 	float32 a, b, c, d;
 };
 
@@ -145,7 +124,7 @@ struct InterpolationData
 	InterpolationData(const std::vector<float32> &inTan, const std::vector<float32> &outTan) : inTanX(inTan[0]), inTanY(inTan[1]), inTanZ(inTan[2]), outTanX(outTan[0]), outTanY(outTan[1]), outTanZ(outTan[2])
 	{
 	}
-	
+
 	float32 inTanX, inTanY, inTanZ;
 	float32 outTanX, outTanY, outTanZ;
 };
@@ -155,7 +134,7 @@ struct InterpolationRotationData
 	InterpolationRotationData(const std::vector<float32> &inTan, const std::vector<float32> &outTan) : inTanA(inTan[0]), inTanB(inTan[1]), inTanC(inTan[2]), inTanD(inTan[3]), outTanA(outTan[0]), outTanB(outTan[1]), outTanC(outTan[2]), outTanD(outTan[3])
 	{
 	}
-	
+
 	float32 inTanA, inTanB, inTanC, inTanD;
 	float32 outTanA, outTanB, outTanC, outTanD;
 };
@@ -218,21 +197,21 @@ inline istream& parseMdlKeyword(istream &stream, const string &keyword, std::str
 	std::streamsize counter = 0;
 	std::streampos position = stream.tellg();
 	parse(stream, identifier, counter);
-	
+
 	if (identifier != keyword)
 	{
 		if (optional)
 		{
 			stream.seekg(position);
-			
+
 			return stream;
 		}
 		else
 			throw Exception(boost::format(_("MDL Expression \"%1%\" does not match keyword \"%2%\".")) % identifier % keyword);
 	}
-	
+
 	sizeCounter += counter;
-	
+
 	return stream;
 }
 
@@ -242,22 +221,22 @@ inline istream& parseMdlString(istream &stream, string &out, std::streamsize &si
 	std::streamsize counter = 0;
 	std::streampos position = stream.tellg();
 	parse(stream, identifier, counter);
-	
+
 	if (identifier.size() < 2 || identifier[0] != '"' || identifier[identifier.size() - 1] != '"')
 	{
 		if (optional)
 		{
 			stream.seekg(position);
-			
+
 			return stream;
 		}
 		else
 			throw Exception(boost::format(_("MDL String \"%1%\" has not the correct format.")) % identifier);
 	}
-	
+
 	out = identifier;
 	sizeCounter += counter;
-	
+
 	return stream;
 }
 
@@ -267,13 +246,13 @@ inline istream& parseMdlChar(istream &stream, const ascii &character, std::strea
 	std::streampos position = stream.tellg();
 	ascii readChar;
 	parse(stream, readChar, counter);
-	
+
 	if (readChar != character)
 	{
 		if (optional)
 		{
 			stream.seekg(position);
-			
+
 			return stream;
 		}
 		else
@@ -281,7 +260,7 @@ inline istream& parseMdlChar(istream &stream, const ascii &character, std::strea
 	}
 
 	sizeCounter += counter;
-	
+
 	return stream;
 }
 
@@ -289,13 +268,13 @@ inline istream& parseMdlNamedBlock(istream &stream, const string &blockName, str
 {
 	std::streamsize size = sizeCounter;
 	parseMdlKeyword(stream, blockName, sizeCounter, optional);
-	
+
 	if (sizeCounter == size) // optional, not found
 		return stream;
-	
+
 	parseMdlString(stream, name, sizeCounter);
 	parseMdlChar(stream, '{', sizeCounter);
-	
+
 	return stream;
 }
 
@@ -311,13 +290,13 @@ struct MdlxPropertyInformation
 		String
 	};
 	BOOST_SCOPED_ENUM_END
-	
+
 	const string &identifier;
 	const bool isStatic;
 	const BOOST_SCOPED_ENUM(Type) &type;
 	void *reference; /// Store corresponding pointer to value here which will be changed when property is found.
 	bool found;
-	
+
 };
 
 /**
@@ -330,7 +309,7 @@ inline istream& parseMdlProperty(istream &stream, std::list<struct MdlxPropertyI
 	std::streamsize counter = 0;
 	std::streampos position = stream.tellg();
 	parse(stream, identifier, counter);
-	
+
 	BOOST_FOREACH(MdlxPropertyInformation &information, properties)
 	{
 		if (information.identifier == identifier || (information.isStatic && identifier == "static"))
@@ -341,12 +320,12 @@ inline istream& parseMdlProperty(istream &stream, std::list<struct MdlxPropertyI
 				std::streampos newPosition = stream.tellg();
 				std::streamsize newCounter = 0;
 				parse(stream, newIdentifier, newCounter);
-				
+
 				// reset
 				if (information.identifier != newIdentifier)
 				{
 					stream.seekg(newPosition);
-					
+
 					continue;
 				}
 				else
@@ -354,13 +333,13 @@ inline istream& parseMdlProperty(istream &stream, std::list<struct MdlxPropertyI
 			}
 			else if (information.found)
 				throw Exception(boost::format(_("Doubled property \"%1%\".")) % information.identifier);
-			
+
 			// property requires value
 			if (information.type != MdlxPropertyInformation::Type::None)
 			{
 				if (information.reference == 0)
 					throw Exception(boost::format(_("Reference is 0.")));
-				
+
 				parse(stream, identifier, counter);
 				//std::basic_ostringstream<byte> ostringstream(identifier);
 				try
@@ -370,26 +349,26 @@ inline istream& parseMdlProperty(istream &stream, std::list<struct MdlxPropertyI
 					{
 						case MdlxPropertyInformation::Type::Byte:
 							*static_cast<byte*>(information.reference) = boost::lexical_cast<byte>(identifier);
-							
+
 							break;
 						case MdlxPropertyInformation::Type::Float:
 							*static_cast<float32*>(information.reference) = boost::lexical_cast<float32>(identifier);
-							
+
 							break;
-							
+
 						case MdlxPropertyInformation::Type::Short:
 							*static_cast<short16*>(information.reference) = boost::lexical_cast<short16>(identifier);
-							
+
 							break;
-							
+
 						case MdlxPropertyInformation::Type::Long:
 							*static_cast<long32*>(information.reference) = boost::lexical_cast<long32>(identifier);
-							
+
 							break;
-							
+
 						case MdlxPropertyInformation::Type::String:
 							*static_cast<string*>(information.reference) = boost::lexical_cast<string>(identifier);
-							
+
 							break;
 					}
 				}
@@ -398,23 +377,23 @@ inline istream& parseMdlProperty(istream &stream, std::list<struct MdlxPropertyI
 					throw Exception(boost::format(_("MDLX property value cast exception: \"%1%\".")) % exception.what());
 				}
 			}
-			
+
 			ascii commata;
 			parse(stream, commata, counter);
-			
+
 			if (commata != ',')
 				throw Exception(boost::format(_("%1% is no commata.")) % commata);
-			
+
 			information.found = true;
 			sizeCounter += counter;
-			
+
 			return stream;
 		}
 	}
-	
+
 	// no value has been found
 	stream.seekg(position);
-	
+
 	return stream;
 }
 
@@ -437,7 +416,7 @@ inline ostream& writeMdlProperty(ostream &stream, const string &identifier, std:
 {
 	string value(identifier + ", \n");
 	wc3lib::write(stream, value.c_str()[0], size, value.length()); // without 0-terminating character!
-	
+
 	return stream;
 }
 
@@ -455,7 +434,7 @@ inline ostream& writeMdlValueProperty(ostream &stream, const string &identifier,
 {
 	string newValue(identifier + boost::str(boost::format(" %1%,\n") % value));
 	wc3lib::write(stream, newValue.c_str()[0], size, newValue.length()); // without 0-terminating character!
-	
+
 	return stream;
 }
 
@@ -471,7 +450,7 @@ inline ostream& writeMdlStaticValueProperty(ostream &stream, const string &ident
 {
 	string newValue("static ");
 	wc3lib::write(stream, newValue.c_str()[0], size, newValue.length()); // without 0-terminating character!
-	
+
 	return writeMdlValueProperty(stream, identifier, value, size);
 }
 
@@ -487,20 +466,20 @@ ostream& writeMdlVectorProperty(ostream &ostream, const string &identifier, cons
 {
 	string value(boost::str(boost::format("%1% %2%") % identifier % (values.size() == 1 ? "" : "{ ")));
 	std::size_t i = 0;
-	
+
 	BOOST_FOREACH(const T &v, values)
 	{
 		value = boost::str(boost::format("%1%%2%") % v % (i == values.size() - 1 ? " " : ", "));
 		++i;
 	}
-	
+
 	if (values.size() == 1)
 		value += "\n";
 	else
 		value += "}\n";
-	
+
 	wc3lib::write(ostream, value.c_str()[0], size, value.length()); // without 0-terminating character!
-	
+
 	return ostream;
 }
 
@@ -514,14 +493,14 @@ inline ostream& writeMdlStaticVectorProperty(ostream &stream, const string &iden
 {
 	const string value("static ");
 	wc3lib::write(stream, value.c_str()[0], size, value.length()); // without 0-terminating character!
-	
+
 	return writeMdlVectorProperty(stream, identifier, values, size);
 }
 
 inline ostream& writeMdlBlockConclusion(ostream &stream, std::streamsize &size)
 {
 	const string value("}\n");
-	
+
 	return wc3lib::write(stream, value.c_str()[0], size, value.length()); // without 0-terminating character!
 }
 

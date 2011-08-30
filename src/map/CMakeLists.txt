@@ -4,7 +4,7 @@ WC3LIB_GET_H(wc3lib_MAP_H)
 WC3LIB_GET_SRC(wc3lib_MAP_SRC)
 
 add_library(wc3libmap SHARED ${wc3lib_MAP_SRC})
-target_link_libraries(wc3libmap wc3libmpq gettextlib)
+target_link_libraries(wc3libmap wc3libmpq wc3libblp gettextlib)
 
 # install
 install(TARGETS wc3libmap DESTINATION lib/wc3lib/)

@@ -21,6 +21,12 @@
 #ifndef WC3LIB_W3G_PLATFORM_HPP
 #define WC3LIB_W3G_PLATFORM_HPP
 
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/copy.hpp>
+#include <boost/iostreams/filter/zlib.hpp>
+
+#include "../core.hpp"
+
 namespace wc3lib
 {
 
@@ -30,6 +36,9 @@ namespace w3g
 typedef uint8_t byte;
 typedef uint32_t dword;
 typedef uint16_t word;
+typedef boost::iostreams::stream<boost::iostreams::basic_array<byte> > arraystream;
+typedef boost::iostreams::stream<boost::iostreams::basic_array_source<byte> > iarraystream;
+typedef boost::iostreams::stream<boost::iostreams::basic_array_sink<byte> > oarraystream;
 
 struct Header
 {
@@ -89,7 +98,7 @@ struct MapAndCreatorName
 {
 };
 
-enum VersionInformationEntry
+BOOST_SCOPED_ENUM_START(VersionInformationEntry)
 {
 	GameVersion,
 	ReplayVersion,
@@ -97,6 +106,7 @@ enum VersionInformationEntry
 	ReleaseData,
 	MaxVersionInformationEntries
 };
+BOOST_SCOPED_ENUM_END
 
 // this table should be used by class W3g to get some information about the replay
 
@@ -148,6 +158,52 @@ const char *versionInformationBeta[][MaxVersionInformationEntries] =
 	{ "314a",               "version 1",            "6034",                 "2003-06-02" },
 	{ "315",                "version 1",            "6034",                 "2003-06-10" }
 };
+
+/*
+ushort "m": compressed size of the block
+ushort original size: size of the original uncomprssed input data,
+must be multiple of 2048, rest is filled with 0x00 bytes
+uint hash: checksum over the block header and the block data,
+the formula how this is computed won't be released to the public,
+however reasonable requests might be answered
+
+Now there are "m" bytes zlib compressed data, which can be decompressed/compressed with a zlib library.
+Depending on the zlib implementation you might have to compute the zlib header by yourself. That would be:
+
+byte[2] zlib header: can be skipped when reading, set to 0x78 and 0x01 when writing
+byte[m - 2] deflate stream, use deflate stream implementation to decompress/compress
+
+After uncompressing all blocks and appending them to each other, you have the original uncompressed file.
+Depending on the type of file, the replay, gamecache or savegame file specifications will now apply.
+*/
+void readBlock(const byte *buffer, std::size_t bufferSize, byte *outputBuffer, std::size_t &outputSize)
+{
+	DataBlockHeader header;
+	memcpy(&header, buffer, sizeof(header);
+	iarraystream istream(&buffer[sizeof(header)], header.compressedSize);
+	boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
+	in.push(boost::iostreams::basic_zlib_decompressor<std::allocator<byte> >());
+	in.push(istream);
+	arraystream ostream;
+	outputSize = boost::iostreams::copy(in, ostream);
+	outputBuffer = new byte[outputSize];
+	ostream.read(outputBuffer, outputSize);
+}
+
+void writeBlock(const byte *buffer, std::size_t bufferSize, byte *outputBuffer, std::size_t &outputSize)
+{
+	iarraystream istream(buffer, bufferSize);
+	boost::iostreams::filtering_streambuf<boost::iostreams::output> out;
+	out.push(boost::iostreams::basic_zlib_compressor<std::allocator<byte> >());
+	out.push(istream);
+	arraystream ostream;
+	outputSize = boost::iostreams::copy(out, ostream);
+	outputBuffer = new byte[outputSize + sizeof(DataBlockHeader)];
+	DataBlockHeader.size = bufferSize;
+	DataBlockHeader.compressedSize = outputSize;
+	DataBlockHeader.unknown = 0;
+	ostream.read(&outputBuffer[sizeof(DataBlockHeader)], outputSize);
+}
 
 }
 

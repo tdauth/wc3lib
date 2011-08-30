@@ -143,6 +143,26 @@ void TextureEditor::openFile()
 
 	foreach (QAction *action, m_textureActionCollection->actions())
 		action->setEnabled(true);
+
+	m_mipMaps.resize(texture->blp()->mipMaps().size());
+	std::size_t i = 0;
+
+	BOOST_FOREACH(blp::Blp::MipMaps::const_reference mipMap, texture->blp()->mipMaps())
+	{
+		BlpIOHandler ioHandler;
+		QImage image;
+
+		if (ioHandler.read(&image, *mipMap, *texture->blp()))
+			m_mipMaps[i] = image;
+		else
+			KMessageBox::error(this, i18n("Unable to read MIP map \"%1\".", i));
+
+		++i;
+		KAction *action = new KAction(KIcon(":/actions/opentexture.png"), i18n("MIP map %1", i), this);
+		action->setShortcut(KShortcut(i18n("Ctrl+M+%1", i)));
+		connect(action, SIGNAL(triggered()), this, SLOT(showMipMap()));
+		m_mipMapsMenu->addAction(action);
+	}
 }
 
 void TextureEditor::saveFile()
@@ -298,6 +318,13 @@ void TextureEditor::massConverter()
 {
 }
 
+void TextureEditor::showMipMap()
+{
+	KAction *action = boost::polymorphic_cast<KAction*>(sender());
+	int mipMapIndex = this->m_mipMapsMenu->actions().indexOf(action);
+	this->m_imageLabel->setPixmap(QPixmap::fromImage(this->m_mipMaps[i]));
+}
+
 void TextureEditor::refreshImage()
 {
 	if (!hasTexture())
@@ -399,6 +426,9 @@ void TextureEditor::createMenus(class KMenuBar *menuBar)
 	action = new KAction(KIcon(":/actions/massconverter.png"), i18n("Mass converter"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(massConverter()));
 	toolsMenu->addAction(action);
+
+	this->m_mipMapsMenu = new KMenu(i18n("MIP maps"), this);
+	menuBar->addMenu(m_mipMapsMenu);
 }
 
 void TextureEditor::createWindowsActions(class KMenu *menu)

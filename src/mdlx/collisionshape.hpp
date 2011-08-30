@@ -48,9 +48,9 @@ class CollisionShape : public GroupMdxBlockMember, public Object
 
 		class CollisionShapes* collisionShapes() const;
 		BOOST_SCOPED_ENUM(Shape) shape() const;
-		const struct VertexData& vertexData() const;
+		const VertexData& vertexData() const;
 		/// Only usable if shape is a box. Otherwise, it throws an exception.
-		const struct VertexData& boxVertexData() const throw (class Exception);
+		const VertexData& boxVertexData() const throw (class Exception);
 		/// Only usable if shape is a sphere. Otherwise, it throws an exception.
 		float32 boundsRadius() const throw (class Exception);
 
@@ -61,9 +61,9 @@ class CollisionShape : public GroupMdxBlockMember, public Object
 
 	protected:
 		BOOST_SCOPED_ENUM(Shape) m_shape; //(0:box;2:sphere)
-		struct VertexData m_vertexData;
+		VertexData m_vertexData;
 		//if (Shape == 0)
-		struct VertexData m_boxVertexData;
+		VertexData m_boxVertexData;
 		//else
 		float32 m_boundsRadius;
 };
@@ -78,16 +78,16 @@ inline BOOST_SCOPED_ENUM(CollisionShape::Shape) CollisionShape::shape() const
 	return this->m_shape;
 }
 
-inline const struct VertexData& CollisionShape::vertexData() const
+inline const VertexData& CollisionShape::vertexData() const
 {
 	return this->m_vertexData;
 }
 
-inline const struct VertexData& CollisionShape::boxVertexData() const throw (class Exception)
+inline const VertexData& CollisionShape::boxVertexData() const throw (class Exception)
 {
 	if (shape() != Shape::Box)
 		throw Exception(_("Collision shape is not a box."));
-	
+
 	return this->m_boxVertexData;
 }
 
@@ -95,7 +95,7 @@ inline float32 CollisionShape::boundsRadius() const throw (class Exception)
 {
 	if (shape() != Shape::Sphere)
 		throw Exception(_("Collision shape is not a sphere."));
-	
+
 	return this->m_boundsRadius;
 }
 

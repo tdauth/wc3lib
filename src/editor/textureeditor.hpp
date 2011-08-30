@@ -44,15 +44,16 @@ class TextureEditor : public Module, protected Ui::TextureEditor
 
 	public:
 		typedef boost::scoped_ptr<Texture> TexturePtr;
-		
+		typedef QVector<QImage> MipMaps;
+
 		TextureEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~TextureEditor();
-		
+
 		const TexturePtr& texture() const;
 		bool showsAlphaChannel() const;
 		bool showsTransparency() const;
 		qreal factor() const;
-		
+
 		bool hasTexture() const;
 
 	public slots:
@@ -84,9 +85,12 @@ class TextureEditor : public Module, protected Ui::TextureEditor
 
 		void massConverter();
 
+	protected slots:
+		void showMipMap();
+
 	protected:
 		void refreshImage();
-		
+
 		virtual void createFileActions(class KMenu *menu);
 		virtual void createEditActions(class KMenu *menu);
 		virtual void createMenus(class KMenuBar *menuBar);
@@ -96,14 +100,16 @@ class TextureEditor : public Module, protected Ui::TextureEditor
 		virtual QString actionName();
 
 		TexturePtr m_texture;
+		MipMaps m_mipMaps;
 		bool m_showsAlphaChannel;
 		bool m_showsTransparency;
 		qreal m_factor;
 		KUrl m_recentUrl;
-		
+
 		class KActionCollection *m_textureActionCollection;
 		KAction *m_showAlphaChannelAction;
 		KAction *m_showTransparencyAction;
+		KMenu *m_mipMapsMenu;
 };
 
 inline const TextureEditor::TexturePtr& TextureEditor::texture() const

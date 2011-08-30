@@ -22,6 +22,7 @@
 #define WC3LIB_MAP_TREES_HPP
 
 #include "platform.hpp"
+#include "tree.hpp"
 
 namespace wc3lib
 {
@@ -33,26 +34,38 @@ namespace map
 class Trees : public FileFormat
 {
 	public:
-		struct Header
-		{
-			id fileId;
-			int32 version;
-			int32 subversion;
-			int32 treeNumber;
-		};
+		typedef boost::shared_ptr<Tree> TreePtr;
+		typedef boost::multi_index_container<TreePtr,
+		boost::multi_index::indexed_by<
+		// list
+		boost::multi_index::sequenced<>,
+		// ordered by its corresponding hash table index (like blocks)
+		boost::multi_index::ordered_unique<boost::multi_index::tag<int32>, boost::multi_index::const_mem_fun<Tree, int32, &Tree::customId> >
+		>
+		>
+		TreeContainer;
 
 		struct Header2
 		{
 			int32 formatVersion;
 			int32 specialNumber;
 		};
-		
+
+		virtual std::streamsize read(InputStream& istream) throw (Exception);
+		virtual std::streamsize write(OutputStream& ostream) const throw (Exception);
+
 		virtual int32 fileId() const;
 		virtual const char8* fileName() const;
 		virtual int32 latestFileVersion() const;
+		virtual uint32_t version() const;
+
+		int32 subVersion() const;
+		const TreeContainer& trees() const;
 
 	protected:
-		boost::bimap<id, class Tree> m_trees;
+		int32 m_version;
+		int32 m_subVersion;
+		TreeContainer m_trees;
 };
 
 inline int32 Trees::fileId() const
@@ -68,6 +81,21 @@ inline const char8* Trees::fileName() const
 inline int32 Trees::latestFileVersion() const
 {
 	return 7;
+}
+
+inline uint32_t Trees::version() const
+{
+	return this->m_version;
+}
+
+inline int32 Trees::subVersion() const
+{
+	return this->m_subVersion;
+}
+
+inline const Trees::TreeContainer& Trees::trees() const
+{
+	return this->m_trees;
 }
 
 }

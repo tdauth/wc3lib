@@ -36,7 +36,7 @@ namespace wc3lib
 namespace editor
 {
 
-Module::Module(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_moduleMenu(0), m_menuBar(0), m_topLayout(new QVBoxLayout(this)), QWidget(parent, f & Qt::Window) // ech module should get its own window
+Module::Module(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_moduleMenu(0), m_menuBar(0), m_topLayout(new QVBoxLayout(this)), QWidget(parent, f & Qt::Window) // each module should get its own window
 {
 }
 
@@ -59,7 +59,7 @@ bool Module::hasEditor() const
 	{
 		return false;
 	}
-	
+
 	return true;
 	*/
 }
@@ -103,20 +103,20 @@ void Module::setupUi()
 
 	// use actions from editor
 	this->m_fileMenu->addSeparator();
-	
+
 	if (hasEditor())
 	{
 		this->m_fileMenu->addAction(this->editor()->actionCollection()->action("testmap"));
 		this->m_fileMenu->addSeparator();
-	
-	
+
+
 		m_closeAction = this->editor()->actionCollection()->action("closemodule");
 	}
 	else
 	{
 		m_closeAction = new QAction(tr("Close"), this);
 	}
-	
+
 	this->m_fileMenu->addAction(m_closeAction);
 
 	this->m_editMenu = new KMenu(tr("Edit"), this);
@@ -167,7 +167,7 @@ void Module::focusInEvent(QFocusEvent *event)
 	if (hasEditor())
 	{
 		ModuleMenu::Actions::const_iterator iterator = moduleMenu()->actions().find(this);
-		
+
 		if (iterator != moduleMenu()->actions().end())
 			(*iterator)->setChecked(true);
 	}
@@ -178,7 +178,7 @@ void Module::focusOutEvent(QFocusEvent *event)
 	if (hasEditor())
 	{
 		ModuleMenu::Actions::const_iterator iterator = moduleMenu()->actions().find(this);
-		
+
 		if (iterator != moduleMenu()->actions().end())
 			(*iterator)->setChecked(false);
 	}

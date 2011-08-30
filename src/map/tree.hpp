@@ -30,39 +30,86 @@ namespace map
 {
 
 /// \todo Add read and write member functions, add TFT version -> TreeX.
-class Tree
+class Tree : public Format
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Flags)
+		BOOST_SCOPED_ENUM_START(Flags) /// \todo C++0x : byte
 		{
 			Invisible = 0,
 			Visibile = 1,
 			Normal = 2
 		};
 		BOOST_SCOPED_ENUM_END
-		
-		bool operator<(const Tree &other) const { return this->m_id < other.m_id; }
-		
-		//id id() const { return m_id; }
+
+		virtual std::streamsize read(InputStream &istream) throw (Exception);
+		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+
+		id treeId() const;
+		int32 variation() const;
+		const Vertex& position() const;
+		float32 angle() const;
+		const Vertex& scale() const;
+		BOOST_SCOPED_ENUM(Flags) flags() const;
+		byte life() const;
+		int32 customId() const;
+
+		bool operator<(const Tree &other) const { return this->customId() < other.customId(); }
 
 	protected:
 		id m_treeId;
 		int32 m_variation;
-		float32 m_x;
-		float32 m_y;
-		float32 m_z;
+		Vertex m_position;
 		float32 m_angle;
-		float32 m_scaleX;
-		float32 m_scaleY;
-		float32 m_scaleZ;
-		byte m_flags;
-		byte m_life;
+		Vertex m_scale;
+		BOOST_SCOPED_ENUM(Flags) m_flags;
+		byte m_life; // (integer stored in %, 100% is 0x64, 170% is 0xAA for example)
 		//tft
 		//int randomItemTable;
 		//int itemSetsNumber;
 		//endtft
-		int32 m_id;
+		int32 m_customId;
 };
+
+inline id Tree::treeId() const
+{
+	return m_treeId;
+}
+
+inline int32 Tree::variation() const
+{
+	return m_variation;
+}
+
+inline const Vertex& Tree::position() const
+{
+	return m_position;
+}
+
+inline float32 Tree::angle() const
+{
+	return m_angle;
+}
+
+inline const Vertex& Tree::scale() const
+{
+	return m_scale;
+}
+
+inline BOOST_SCOPED_ENUM(Tree::Flags) Tree::flags() const
+{
+	return m_flags;
+}
+
+inline byte Tree::life() const
+{
+	return m_life;
+}
+
+inline int32 Tree::customId() const
+{
+	return m_customId;
+}
+
 
 }
 
