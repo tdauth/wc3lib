@@ -1,6 +1,6 @@
 Consider that wc3lib supports runtime linking/loading by default which means that libraries
-will be loaded at runtime and if loading fails an exception will be thrown thrown.
-Bear in mind that this is only valid for external format libraries (not core libraries like Boost/Qt/KDE/Ogre).
+will be loaded at runtime and if loading fails an exception will be thrown.
+Besides bear in mind that this does only affect external format libraries (e. g. JPEG library, not core libraries like Boost/Qt/KDE/Ogre).
 
 Flags:
 STATIC - Everything will be linked statically with applications if possible (creates big static wc3lib library).

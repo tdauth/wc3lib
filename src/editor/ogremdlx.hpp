@@ -46,7 +46,7 @@ class OgreMdlx  : public Resource, public Ogre::FrameListener
 	public:
 		typedef std::map<const class mdlx::Geoset*, Ogre::ManualObject*> Geosets;
 		typedef std::map<const class mdlx::Camera*, Ogre::Camera*> Cameras;
-		
+
 		/**
 		 * This structure is required for model's collision shapes which either can be boxes or spheres.
 		 * One instance should be created per collision shape of the corresponding \ref mdlx::Mdlx instance.
@@ -56,7 +56,7 @@ class OgreMdlx  : public Resource, public Ogre::FrameListener
 			CollisionShape() : box(0), shape(mdlx::CollisionShape::Shape::Box)
 			{
 			}
-			
+
 			~CollisionShape()
 			{
 				if (shape == mdlx::CollisionShape::Shape::Box)
@@ -64,19 +64,19 @@ class OgreMdlx  : public Resource, public Ogre::FrameListener
 				else
 					delete sphere;
 			}
-			
+
 			union
 			{
 				Ogre::AxisAlignedBox *box;
 				Ogre::Sphere *sphere;
 			};
-			
+
 			BOOST_SCOPED_ENUM(mdlx::CollisionShape::Shape) shape;
 		};
-		
+
 		typedef std::map<const class mdlx::CollisionShape*, struct CollisionShape*> CollisionShapes;
 		typedef boost::scoped_ptr<mdlx::Mdlx> MdlxPtr;
-		
+
 		/**
 		 * Changes camera's \p ogreCamera to settings of camera \p camera.
 		 * Might be used by camera actions in any editor which have to view a specific camera.
@@ -85,7 +85,7 @@ class OgreMdlx  : public Resource, public Ogre::FrameListener
 
 		OgreMdlx(class MpqPriorityList *source, const KUrl &url, class ModelView *modelView);
 		virtual ~OgreMdlx();
-		
+
 		virtual void clear() throw ();
 
 		const MdlxPtr& mdlx() const;
@@ -102,7 +102,7 @@ class OgreMdlx  : public Resource, public Ogre::FrameListener
 
 		/**
 		 * Loads and analyses all data of corresponding MDLX model and refreshes displayed OGRE mesh.
-		 * If \ref modelView() is based on 
+		 * If \ref modelView() is based on
 		 */
 		virtual void load() throw (class Exception);
 		virtual void reload() throw (Exception);
@@ -124,7 +124,7 @@ class OgreMdlx  : public Resource, public Ogre::FrameListener
 		{
 			save(url, "mdx");
 		}
-		
+
 		QString namePrefix() const;
 
 	protected:
@@ -158,7 +158,7 @@ class OgreMdlx  : public Resource, public Ogre::FrameListener
 		 * Collision shapes are required for "hit tests".
 		 */
 		CollisionShape* createCollisionShape(const class mdlx::CollisionShape &collisionShape) throw (class Exception);
-		
+
 		Ogre::Node* createNode(const class mdlx::Node &node);
 
 		/**
@@ -222,18 +222,6 @@ inline BOOST_SCOPED_ENUM(TeamColor) OgreMdlx::teamColor() const
 inline BOOST_SCOPED_ENUM(TeamColor) OgreMdlx::teamGlow() const
 {
 	return this->m_teamGlow;
-}
-
-/// Global type cast function.
-inline Ogre::Real ogreReal(mdlx::float32 value)
-{
-	return boost::numeric_cast<Ogre::Real>(value);
-}
-
-/// Global type cast function.
-inline Ogre::Vector3 ogreVector3(const mdlx::VertexData &vertexData)
-{
-	return Ogre::Vector3(vertexData.x, vertexData.y, vertexData.z);
 }
 
 }

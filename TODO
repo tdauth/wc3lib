@@ -1,3 +1,6 @@
+2011-09-01 Tamino Dauth <tamino@cdauth.eu>
+* editor: Fix missing include paths for modules.
+
 2011-08-22 Tamino Dauth <tamino@cdauth.eu>
 * blp: Fix writing of JPEG headers for other MIP maps which seem to have the size of the first (largest) one.
 

@@ -322,7 +322,7 @@ void TextureEditor::showMipMap()
 {
 	KAction *action = boost::polymorphic_cast<KAction*>(sender());
 	int mipMapIndex = this->m_mipMapsMenu->actions().indexOf(action);
-	this->m_imageLabel->setPixmap(QPixmap::fromImage(this->m_mipMaps[i]));
+	this->m_imageLabel->setPixmap(QPixmap::fromImage(this->m_mipMaps[mipMapIndex]));
 }
 
 void TextureEditor::refreshImage()

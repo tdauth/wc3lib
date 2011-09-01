@@ -745,6 +745,12 @@ class BasePosition : public std::pair<T, T>, public Format, public boost::operat
 	public:
 		typedef std::pair<T, T> Base;
 
+		BasePosition()
+		{
+			this->first = 0;
+			this->second = 0;
+		}
+
 		BasePosition(const Base &pair)
 		{
 			this->first = pair.first;

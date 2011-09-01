@@ -45,7 +45,7 @@ std::streamsize Trees::read(InputStream& istream) throw (Exception)
 	{
 		TreePtr ptr(new Tree());
 		size += ptr->read(istream); // read first, we need its id!
-		m_trees.insert(ptr);
+		m_trees.push_back(ptr);
 	}
 
 	return size;

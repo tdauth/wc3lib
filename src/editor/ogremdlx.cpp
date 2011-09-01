@@ -41,11 +41,11 @@ namespace editor
 
 void OgreMdlx::updateCamera(const class mdlx::Camera &camera, Ogre::Camera *ogreCamera)
 {
-	ogreCamera->setPosition(Ogre::Vector3(camera.position().x, camera.position().y, camera.position().z));
+	ogreCamera->setPosition(ogreVector3(camera.position()));
 	ogreCamera->setFOVy(Ogre::Radian(camera.fieldOfView()));
 	ogreCamera->setFarClipDistance(camera.farClip());
 	ogreCamera->setNearClipDistance(camera.nearClip());
-	ogreCamera->setDirection(Ogre::Vector3(camera.target().x, camera.target().y, camera.target().z));
+	ogreCamera->setDirection(ogreVector3(camera.target()));
 }
 
 OgreMdlx::OgreMdlx(MpqPriorityList *source, const KUrl &url, class ModelView *modelView) : Resource(source, url, Resource::Type::Model), m_modelView(modelView), m_sceneNode(0), m_teamColor(TeamColor::Red), m_teamGlow(TeamColor::Red)
@@ -60,25 +60,25 @@ OgreMdlx::~OgreMdlx()
 void OgreMdlx::clear() throw ()
 {
 	m_mdlx.reset();
-	
+
 	if (m_sceneNode != 0)
 	{
 		Ogre::SceneNode::ObjectIterator iterator = this->m_sceneNode->getAttachedObjectIterator();
-		
+
 		while (iterator.hasMoreElements())
 		{
 			Ogre::MovableObject *movableObject = iterator.current()->second;
 			this->modelView()->sceneManager()->destroyMovableObject(movableObject);
 			//this->m_sceneNode->detachObject(movableObject);
 			//delete movableObject;
-			
+
 			iterator.getNext();
 		}
-		
+
 		this->modelView()->sceneManager()->destroySceneNode(m_sceneNode);
 		//delete m_sceneNode;
 	}
-	
+
 	BOOST_FOREACH(CollisionShapes::reference value, m_collisionShapes)
 		delete value.second;
 }
@@ -87,7 +87,7 @@ void OgreMdlx::setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor) throw (Excep
 {
 	if (!source()->teamColorTexture(teamColor)->hasOgre())
 		source()->teamColorTexture(teamColor)->loadOgre();
-	
+
 	BOOST_FOREACH(Ogre::TexturePtr tex, this->m_teamColorTextures)
 	{
 		try
@@ -99,7 +99,7 @@ void OgreMdlx::setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor) throw (Excep
 			throw Exception(exception.what());
 		}
 	}
-	
+
 	this->m_teamColor = teamColor; // exception safety
 }
 
@@ -107,7 +107,7 @@ void OgreMdlx::setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow) throw (Excepti
 {
 	if (!source()->teamGlowTexture(teamGlow)->hasOgre())
 		source()->teamColorTexture(teamGlow)->loadOgre();
-	
+
 	BOOST_FOREACH(Ogre::TexturePtr tex, this->m_teamGlowTextures)
 	{
 		try
@@ -119,34 +119,34 @@ void OgreMdlx::setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow) throw (Excepti
 			throw Exception(exception.what());
 		}
 	}
-	
+
 	this->m_teamGlow = teamGlow; // exception safety
 }
 
 void OgreMdlx::load() throw (Exception)
 {
 	QString tmpFile;
-	
+
 	if (source()->download(url(), tmpFile, modelView()))
 		return;
-	
+
 	std::ios_base::openmode openmode = std::ios_base::in;
 	bool isMdx = boost::filesystem::path(tmpFile.toUtf8().constData()).extension() == ".mdx";
 
 	if (isMdx)
 		openmode |= std::ios_base::binary;
-	
+
 	boost::filesystem::basic_ifstream<mdlx::byte> ifstream(tmpFile.toUtf8().constData(), openmode);
-	
+
 	MdlxPtr model(new mdlx::Mdlx());
 
 	std::streamsize size = isMdx ? size = model->readMdx(ifstream) : size = model->readMdl(ifstream);
-	
+
 	//model->textures()->textures().size(); // TEST
-	
+
 	this->mdlx()->textures()->members().size(); // TEST
 	Ogre::LogManager::getSingleton().setLogDetail(Ogre::LL_BOREME); // TEST
-	
+
 	try
 	{
 		this->m_sceneNode = this->m_modelView->sceneManager()->getRootSceneNode()->createChildSceneNode(mdlx()->model()->name());
@@ -168,7 +168,7 @@ void OgreMdlx::load() throw (Exception)
 		// create cameras
 		BOOST_FOREACH(const mdlx::Camera *camera, this->mdlx()->cameras()->cameras())
 			this->m_cameras[camera] = this->createCamera(*camera);
-			
+
 		BOOST_FOREACH(const mdlx::CollisionShape *collisionShape, this->mdlx()->collisionShapes()->collisionShapes())
 			this->m_collisionShapes[collisionShape] = this->createCollisionShape(*collisionShape);
 	}
@@ -478,11 +478,11 @@ void OgreMdlx::reload() throw (Exception)
 void OgreMdlx::save(const KUrl &url, const QString &format) const throw (class Exception)
 {
 	QString realFormat = format;
-	
+
 	if (realFormat.isEmpty())
 	{
 		QString extension(QFileInfo(realFormat).suffix().toLower());
-		
+
 		if (extension == "mdx")
 			realFormat = "mdx";
 		else if (extension == "mdl")
@@ -493,7 +493,7 @@ void OgreMdlx::save(const KUrl &url, const QString &format) const throw (class E
 	}
 
 	KTemporaryFile tmpFile;
-	
+
 	if (realFormat == "mdx" || realFormat == "mdl")
 	{
 		std::ios_base::openmode openmode = std::ios_base::out;
@@ -508,7 +508,7 @@ void OgreMdlx::save(const KUrl &url, const QString &format) const throw (class E
 			isMdx = false;
 
 		boost::filesystem::basic_ofstream<mdlx::byte> ofstream(tmpFile.fileName().toUtf8().constData(), openmode);
-		
+
 		if (!ofstream)
 			throw Exception(boost::format(_("Error when opening file \"%1%\".")) % tmpFile.fileName().toUtf8().constData());
 
@@ -525,7 +525,7 @@ void OgreMdlx::save(const KUrl &url, const QString &format) const throw (class E
 	{
 		boost::scoped_ptr<Ogre::MeshSerializer> serializer(new Ogre::MeshSerializer());
 		QList<KUrl> files;
-	
+
 		BOOST_FOREACH(Geosets::const_reference value, m_geosets)
 		{
 			Ogre::ManualObject *manualObject = value.second;
@@ -533,7 +533,7 @@ void OgreMdlx::save(const KUrl &url, const QString &format) const throw (class E
 			sstream << manualObject->getName();
 			sstream << "Mesh";
 			const Ogre::MeshPtr mesh = manualObject->convertToMesh(sstream.str());
-			
+
 			const QFileInfo info(tmpFile.fileName());
 			KUrl geosetUrl(info.absoluteDir().absolutePath());
 			QString fileName(info.baseName() + sstream.str().c_str());
@@ -543,20 +543,20 @@ void OgreMdlx::save(const KUrl &url, const QString &format) const throw (class E
 			serializer->exportMesh(mesh.getPointer(), geosetUrl.toLocalFile().toUtf8().constData());
 			KUrl destination(url);
 			destination.addPath(fileName);
-			
+
 			if (!source()->upload(geosetUrl.toLocalFile(), destination, modelView()))
 				throw Exception(boost::format(_("Error while uploading file \"%1%\" to destination \"%2%\".")) % geosetUrl.toEncoded().constData() % destination.toEncoded().constData());
 		}
-		
+
 		return;
 	}
 	else
 		throw Exception(boost::format(_("Format \"%1%\" is not supported.")) % realFormat.toUtf8().constData());
-	
-	
+
+
 	if (!source()->upload(tmpFile.fileName(), url, modelView()))
 		throw Exception(boost::format(_("Error while uploading file \"%1%\" to destination \"%2%\".")) % tmpFile.fileName().toUtf8().constData() % url.toEncoded().constData());
-	
+
 	/*
 	TODO
 	typedef std::pair<const mdlx::Geoset*, Ogre::ManualObject*> EntryType;
@@ -620,7 +620,7 @@ mdlx::long32 OgreMdlx::mdlxId(const mdlx::GroupMdxBlockMember &member, const mdl
 
 		++id;
 	}
-	
+
 	return id;
 }
 
@@ -631,16 +631,16 @@ bool OgreMdlx::useDirectoryUrl(KUrl &url, bool showMessage) const
 	{
 		KUrl newUrl = this->url().directory();
 		newUrl.addPath(QFileInfo(url.toLocalFile()).filePath());
-		
+
 		if (showMessage)
 			KMessageBox::information(this->modelView(), i18n("No valid texture resource was found at \"%1\". Trying directory URL \"%2\".", url.toLocalFile(), newUrl.toLocalFile()));
-		
+
 		qDebug() << i18n("No valid texture resource was found at \"%1\". Trying directory URL \"%2\".", url.toLocalFile(), newUrl.toLocalFile());
 		url = newUrl;
-		
+
 		return true;
 	}
-	
+
 	return false;
 }
 */
@@ -656,7 +656,7 @@ Ogre::TexturePtr OgreMdlx::createTexture(const class mdlx::Texture &texture) thr
 	this->m_modelView->root()->getTextureManager()->create((boost::format("%1%.Texture%2%") % namePrefix().toUtf8().constData() % id).str().c_str(), Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	Ogre::Image *sourceImage = 0;
 	boost::scoped_ptr<Texture> textureResource;
-	
+
 	if (texture.replaceableId() != mdlx::ReplaceableId::None)
 	{
 		KUrl url("ReplaceableTextures");
@@ -667,7 +667,7 @@ Ogre::TexturePtr OgreMdlx::createTexture(const class mdlx::Texture &texture) thr
 			{
 				sourceImage = source()->teamColorTexture(teamColor())->ogre().get();
 				this->m_teamColorTextures.push_back(tex);
-			
+
 				break;
 			}
 
@@ -675,7 +675,7 @@ Ogre::TexturePtr OgreMdlx::createTexture(const class mdlx::Texture &texture) thr
 			{
 				sourceImage = source()->teamGlowTexture(teamColor())->ogre().get();
 				this->m_teamGlowTextures.push_back(tex);
-				
+
 				break;
 			}
 
@@ -769,16 +769,16 @@ Ogre::MaterialPtr OgreMdlx::createMaterial(const class mdlx::Material &material)
 	*/
 	if (material.renderMode() & mdlx::Material::RenderMode::ConstantColor)
 		;
-			
+
 	if (material.renderMode() & mdlx::Material::RenderMode::SortPrimitivesFarZ)
 		;
-			
+
 	if (material.renderMode() & mdlx::Material::RenderMode::SortPrimitivesNearZ)
 		;
-	
+
 	if (material.renderMode() & mdlx::Material::RenderMode::FullResolution)
 		;
-	
+
 	//material->prio
 	//mat->set
 
@@ -930,8 +930,8 @@ Ogre::ManualObject* OgreMdlx::createGeoset(const class mdlx::Geoset &geoset) thr
 
 	if (materialId != geoset.materialId())
 		throw Exception(boost::format(_("Missing material %1%")) % id);
-	
-	
+
+
 	object->setRenderQueueGroupAndPriority(object->getRenderQueueGroup(), boost::numeric_cast<Ogre::ushort>(material->priorityPlane())); // set priority by corresponding material -> TODO should be applied for material?
 
 	// increase processor performance
@@ -946,18 +946,18 @@ Ogre::ManualObject* OgreMdlx::createGeoset(const class mdlx::Geoset &geoset) thr
 	//qDebug() << "TVertices " << geoset.textureVertices()->textureVertices().size() << "{";
 	//qDebug() << "Normals " << geoset.normals()->normals().size() << "(";
 	//qDebug() << "Vertices " << geoset.vertices()->vertices().size() << "(";
-	
+
 	while (vertexIterator != geoset.vertices()->vertices().end())
 	{
 		//qDebug() << "Adding vertex (" << (*vertexIterator)->vertexData().x << "|" << (*vertexIterator)->vertexData().y << "|" << (*vertexIterator)->vertexData().z << ")";
 		//qDebug() << "Adding normal (" << (*normalIterator)->vertexData().x << "|" << (*normalIterator)->vertexData().y << "|" << (*normalIterator)->vertexData().z << ")";
 		//qDebug() << "Adding texture coordinates (" << (*textureVertexIterator)->x() << "|" << (*textureVertexIterator)->y() << ")";
-		object->position((*vertexIterator)->vertexData().x, (*vertexIterator)->vertexData().y, (*vertexIterator)->vertexData().z);
-		object->normal((*normalIterator)->vertexData().x, (*normalIterator)->vertexData().y, (*normalIterator)->vertexData().z);
-		object->textureCoord((*textureVertexIterator)->x(), (*textureVertexIterator)->y());
+		object->position(ogreVector3((*vertexIterator)->vertexData()));
+		object->normal(ogreVector3((*normalIterator)->vertexData()));
+		object->textureCoord(ogreVector2(**textureVertexIterator));
 		//object->colour(1.0 - this->modelView()->viewPort()->getBackgroundColour().r, 1.0 - this->modelView()->viewPort()->getBackgroundColour().g, 1.0 - this->modelView()->viewPort()->getBackgroundColour().b, 1.0 - this->modelView()->viewPort()->getBackgroundColour().a);
 		//object->index(index);
-		
+
 		//qDebug() << "{ " << (*textureVertexIterator)->x() << ", " << (*textureVertexIterator)->y() << " },";
 		//qDebug() << "{ " << (*normalIterator)->vertexData().x << ", " << (*normalIterator)->vertexData().y << ", " << (*normalIterator)->vertexData().z << " },";
 		//qDebug() << "{ " << (*vertexIterator)->vertexData().x << ", " << (*vertexIterator)->vertexData().y << ", " << (*vertexIterator)->vertexData().z << " },";
@@ -970,7 +970,7 @@ Ogre::ManualObject* OgreMdlx::createGeoset(const class mdlx::Geoset &geoset) thr
 	}
 
 	qDebug() << "Built " << index << " vertices.";
-	
+
 	if (geoset.primitiveTypes()->primitiveTypes().size() != geoset.primitiveSizes()->primitiveSizes().size())
 		throw Exception((boost::format(_("Primitives error: Types size (%1%) and sizes size (%2%) are not equal.")) % geoset.primitiveTypes()->primitiveTypes().size()) % geoset.primitiveSizes()->primitiveSizes().size());
 
@@ -983,12 +983,12 @@ Ogre::ManualObject* OgreMdlx::createGeoset(const class mdlx::Geoset &geoset) thr
 	qDebug() << "Number of primitive types " << geoset.primitiveTypes()->primitiveTypes().size();
 	qDebug() << "Faces " << geoset.primitiveSizes()->primitiveSizes().size() << " " << geoset.primitiveVertices()->primitiveVertices().size() << "{\nTriangles {";
 	QString result("{ ");
-	
+
 	while (pTypeIterator != geoset.primitiveTypes()->primitiveTypes().end())
 	{
 		if ((*pTypeIterator)->type() == mdlx::PrimitiveType::Type::Triangles)
 		{
-			
+
 			//qDebug() << (*pSizeIterator)->value() << " triangles.";
 
 			for (mdlx::long32 i = 0; i < (*pSizeIterator)->value(); i += 3)
@@ -1059,13 +1059,13 @@ OgreMdlx::CollisionShape* OgreMdlx::createCollisionShape(const class mdlx::Colli
 {
 	CollisionShape *cs = new CollisionShape();
 	cs->shape = collisionShape.shape();
-	
+
 	if (collisionShape.shape() == mdlx::CollisionShape::Shape::Box)
 		cs->box = new Ogre::AxisAlignedBox(ogreVector3(collisionShape.vertexData()), ogreVector3(collisionShape.boxVertexData()));
 	// sphere
 	else
 		cs->sphere = new Ogre::Sphere(ogreVector3(collisionShape.vertexData()), ogreReal(collisionShape.boundsRadius()));
-	
+
 	return cs;
 }
 

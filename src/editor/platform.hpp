@@ -26,8 +26,11 @@
 
 #include <KUrl>
 
+#include <Ogre.h>
+
 #include "../core.hpp"
 #include "../map.hpp"
+#include "../mdlx.hpp"
 
 namespace wc3lib
 {
@@ -41,10 +44,10 @@ namespace
 inline QList<QVariant> stringList(const map::List &list)
 {
 	QList<QVariant> result;
-	
+
 	foreach (const std::string &value, list)
 		result << QVariant(value.c_str());
-	
+
 	return result;
 }
 
@@ -56,71 +59,71 @@ inline QVariant valueToVariant(const map::Value &value)
 	{
 		case map::Value::Type::Integer:
 			return QVariant(value.toInteger());
-			
+
 		case map::Value::Type::Real:
 			return QVariant(value.toReal());
-			
+
 		case map::Value::Type::Unreal:
 			return QVariant(value.toUnreal());
-			
+
 		case map::Value::Type::String:
 			return QVariant(value.toString().c_str());
-			
+
 		case map::Value::Type::Boolean:
 			return QVariant(value.toBoolean());
-			
+
 		case map::Value::Type::Character:
 			return QVariant(value.toCharacter());
-			
+
 		case map::Value::Type::UnitList:
 			return QVariant(stringList(value.toUnitList()));
-			
+
 		case map::Value::Type::ItemList:
 			return QVariant(stringList(value.toItemList()));
-			
+
 		case map::Value::Type::RegenerationType:
 			return QVariant(value.toRegenerationType().c_str());
-			
+
 		case map::Value::Type::AttackType:
 			return QVariant(value.toAttackType().c_str());
-			
+
 		case map::Value::Type::WeaponType:
 			return QVariant(value.toWeaponType().c_str());
-			
+
 		case map::Value::Type::TargetType:
 			return QVariant(value.toTargetType().c_str());
-			
+
 		case map::Value::Type::MoveType:
 			return QVariant(value.toMoveType().c_str());
-			
+
 		case map::Value::Type::DefenseType:
 			return QVariant(value.toDefenseType().c_str());
-			
+
 		case map::Value::Type::PathingTexture:
 			return QVariant(value.toPathingTexture().c_str());
-			
+
 		case map::Value::Type::UpgradeList:
 			return QVariant(stringList(value.toUpgradeList()));
-			
+
 		case map::Value::Type::StringList:
 			return QVariant(stringList(value.toStringList()));
-			
+
 		case map::Value::Type::AbilityList:
 			return QVariant(stringList(value.toAbilityList()));
-			
+
 		case map::Value::Type::HeroAbilityList:
 			return QVariant(stringList(value.toHeroAbilityList()));
-			
+
 		case map::Value::Type::MissileArt:
 			return QVariant(value.toMissileArt().c_str());
-			
+
 		case map::Value::Type::AttributeType:
 			return QVariant(value.toAttributeType().c_str());
-			
+
 		case map::Value::Type::AttackBits:
 			return QVariant(value.toAttackBits().c_str());
 	}
-	
+
 	return QVariant();
 }
 
@@ -155,44 +158,44 @@ inline QColor teamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor)
 	{
 		case TeamColor::Red:
 			return QColor(Qt::red);
-		
+
 		case TeamColor::Blue:
 			return QColor(Qt::blue);
-			
+
 		case TeamColor::Teal:
 			return QColor(0x1CB619);
-			
+
 		case TeamColor::Purple:
 			return QColor(0x800080);
-			
+
 		case TeamColor::Yellow:
 			return QColor(Qt::yellow);
-			
+
 		case TeamColor::Orange:
 			return QColor(0xFF8000);
-			
+
 		case TeamColor::Green:
 			return QColor(Qt::green);
-			
+
 		case TeamColor::Pink:
 			return QColor(0xFF80C0);
-			
+
 		case TeamColor::Gray:
 			return QColor(0xC0C0C0);
-			
+
 		case TeamColor::LightBlue:
 			return QColor(0x0080FF);
-			
+
 		case TeamColor::DarkGreen:
 			return QColor(0x106246);
-			
+
 		case TeamColor::Brown:
 			return QColor(0x804000);
-			
+
 		case TeamColor::Black:
 			return QColor(Qt::black);
 	}
-	
+
 	return QColor(Qt::red);
 }
 
@@ -230,7 +233,7 @@ inline BOOST_SCOPED_ENUM(TeamColor) teamColor(const QColor &color)
 		return TeamColor::Brown;
 	else if (color == Qt::black)
 		return TeamColor::Black;
-	
+
 	return TeamColor::Red;
 }
 
@@ -241,7 +244,7 @@ inline BOOST_SCOPED_ENUM(TeamColor) teamColor(const QColor &color)
 inline KUrl teamColorUrl(BOOST_SCOPED_ENUM(TeamColor) teamColor)
 {
 	QString number = QString::number((int)teamColor);
-	
+
 	if (number.size() == 1)
 		number.prepend('0');
 
@@ -266,10 +269,10 @@ inline KUrl installUrl()
 {
 	QSettings settings("Blizzard Entertainment", "Warcraft III");
 	settings.beginGroup("Install Path");
-	
+
 	if (!settings.contains("???"))
 		return KUrl();
-	
+
 	return KUrl(settings.value("???").toUrl());
 }
 
@@ -277,10 +280,10 @@ inline KUrl installXUrl()
 {
 	QSettings settings("Blizzard Entertainment", "Warcraft III");
 	settings.beginGroup("InstallPathX");
-	
+
 	if (!settings.contains("???"))
 		return KUrl();
-	
+
 	return KUrl(settings.value("???").toUrl());
 }
 
@@ -288,13 +291,13 @@ inline KUrl war3Url()
 {
 	QSettings settings("Blizzard Entertainment", "Warcraft III");
 	settings.beginGroup("Install Path");
-	
+
 	if (!settings.contains("???"))
 		return KUrl();
-	
+
 	KUrl url(settings.value("???").toUrl());
 	url.addPath("war3.mpq");
-	
+
 	return url;
 }
 
@@ -302,13 +305,13 @@ inline KUrl war3XUrl()
 {
 	QSettings settings("Blizzard Entertainment", "Warcraft III");
 	settings.beginGroup("InstallPathX");
-	
+
 	if (!settings.contains("???"))
 		return KUrl();
-	
+
 	KUrl url(settings.value("???").toUrl());
 	url.addPath("war3x.mpq");
-	
+
 	return url;
 }
 
@@ -316,13 +319,13 @@ inline KUrl war3PatchUrl()
 {
 	QSettings settings("Blizzard Entertainment", "Warcraft III");
 	settings.beginGroup("Install Path");
-	
+
 	if (!settings.contains("???"))
 		return KUrl();
-	
+
 	KUrl url(settings.value("???").toUrl());
 	url.addPath("War3Patch.mpq");
-	
+
 	return url;
 }
 
@@ -330,14 +333,32 @@ inline KUrl war3XLocalUrl()
 {
 	QSettings settings("Blizzard Entertainment", "Warcraft III");
 	settings.beginGroup("Install Path");
-	
+
 	if (!settings.contains("???"))
 		return KUrl();
-	
+
 	KUrl url(settings.value("???").toUrl());
 	url.addPath("War3xlocal.mpq");
-	
+
 	return url;
+}
+
+/// Global type cast function.
+inline Ogre::Real ogreReal(mdlx::float32 value)
+{
+	return boost::numeric_cast<Ogre::Real>(value);
+}
+
+/// Global type cast function.
+inline Ogre::Vector3 ogreVector3(const mdlx::VertexData &vertexData)
+{
+	return Ogre::Vector3(vertexData.x(), vertexData.y(), vertexData.z());
+}
+
+/// Global type cast function.
+inline Ogre::Vector2 ogreVector2(const mdlx::TextureVertex &textureVertex)
+{
+	return Ogre::Vector2(textureVertex.x(), textureVertex.y());
 }
 
 }

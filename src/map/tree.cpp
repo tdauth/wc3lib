@@ -34,7 +34,7 @@ std::streamsize Tree::read(InputStream &istream) throw (Exception)
 	wc3lib::read(istream, m_position, size);
 	wc3lib::read(istream, m_angle, size);
 	wc3lib::read(istream, m_scale, size);
-	wc3lib::read<byte>(istream, m_flags, size);
+	wc3lib::read<byte>(istream, (byte&)m_flags, size);
 	wc3lib::read(istream, m_life, size);
 	wc3lib::read(istream, m_customId, size);
 
