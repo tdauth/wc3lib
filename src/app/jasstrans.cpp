@@ -33,11 +33,11 @@
 #include <getopt.h>
 
 #include "../map.hpp"
-#include "../internationalisation.hpp"
+#include "../i18n.hpp"
 
 using namespace wc3lib::map;
 
-static enum Strings::ConflictResult conflictFunction(const class String &string1, const class String &string2)
+static BOOST_SCOPED_ENUM(Strings::ConflictResult) conflictFunction(const class String &string1, const class String &string2)
 {
 	std::cerr << boost::format(_("Detected string conflict:\nString 1: \"%1%\"\nString 1 default string: \"%2%\"\nString 1 translation: \"%3%\"\nString 2: \"%4%\"\nString 2 default string: \"%5%\"\nString 2 translation: \"%6%\"\nEnter 1 to use string 1, 2 to use string 2 or anything else to skip (strings will be left both).\n")) % string1.idString() % string1.defaultString() % string1.valueString() % string2.idString() % string2.defaultString() % string2.valueString() << std::endl;
 
@@ -48,16 +48,16 @@ static enum Strings::ConflictResult conflictFunction(const class String &string1
 	{
 		std::cout << _("Using string 1.") << std::endl;
 
-		return Strings::UseFirst;
+		return Strings::ConflictResult::UseFirst;
 	}
 	else if (answer == '1')
 	{
 		std::cout << _("Using string 2.") << std::endl;
 
-		return Strings::UseSecond;
+		return Strings::ConflictResult::UseSecond;
 	}
 
-	return Strings::UseBoth;
+	return Strings::ConflictResult::UseBoth;
 }
 
 static void addDirectory(const boost::filesystem::path &directoryPath, std::list<boost::filesystem::path> &filePaths, bool recursive, bool verbose)
@@ -287,7 +287,7 @@ int main(int argc, char *argv[])
 
 	BOOST_FOREACH(boost::filesystem::path &path, filePaths)
 	{
-		std::string extension(path.extension());
+		std::string extension(path.extension().string());
 		boost::algorithm::to_lower(extension);
 		boost::filesystem::ifstream ifstream;
 
@@ -304,7 +304,7 @@ int main(int argc, char *argv[])
 
 	BOOST_FOREACH(boost::filesystem::path &path, filePaths)
 	{
-		std::string extension(path.extension());
+		std::string extension(path.extension().string());
 		boost::algorithm::to_lower(extension);
 
 		if (extension != ".j" && extension != ".ai")

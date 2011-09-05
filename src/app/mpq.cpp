@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
 	// Set the text message domain.
 	bindtextdomain("mpq", LOCALE_DIR);
 	textdomain("mpq");
-	
+
 	static const char *version = "0.1";
 	std::string format;
 	typedef std::vector<boost::filesystem::path> Paths;
@@ -71,11 +71,11 @@ int main(int argc, char *argv[])
 	Paths listfiles;
 	Paths archivePaths;
 	Paths filePaths;
-	
+
 	const boost::program_options::command_line_style::style_t pstyle = boost::program_options::command_line_style::style_t(
 	boost::program_options::command_line_style::unix_style
-	); 
-	
+	);
+
 	// boost::format(_("mpq %1%.\n\n")) % version << _("Usage: mpq [Options] [MPQ files]\n\n") <<
 	boost::program_options::options_description desc("Allowed options");
 	desc.add_options()
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 	("overwrite", _("Overwrites existing files and directories when creating or extracting files."))
 	("remove-files", _("Removes files/archives after adding them to the MPQ archives."))
 	("interactive", _("Asks for confirmation for every action."))
-	
+
 	// operations
 	("add,a", _("Adds files of MPQ archives or from hard disk to another archive."))
 	("create,c", _("Creates new MPQ archives."))
@@ -100,12 +100,12 @@ int main(int argc, char *argv[])
 	("delete", _("Deletes files from MPQ archives."))
 	("info,i", _("Shows some basic information about all read MPQ archives."))
 	("benchmark,b", _("Compares various functionalities of wc3lib and StormLib."))
-	
+
 	// input
 	("archives,A", boost::program_options::value<Strings>(&archiveStrings), _("Expected MPQ archives."))
 	("files,f", boost::program_options::value<Strings>(&fileStrings), _("Expected MPQ archives."))
 	;
-	
+
 	boost::program_options::positional_options_description p;
 	p.add("archives", -1);
 
@@ -131,14 +131,14 @@ int main(int argc, char *argv[])
 	archivePaths.assign(archiveStrings.begin(), archiveStrings.end());
 	filePaths.resize(fileStrings.size());
 	filePaths.assign(fileStrings.begin(), fileStrings.end());
-	
+
 	// contains all file entries
 	std::list<mpq::string> listfileEntries;
-	
+
 	BOOST_FOREACH(Paths::const_reference path, listfiles)
 	{
 		mpq::ifstream in(path, std::ios::in);
-		
+
 		try
 		{
 			checkStream(in);
@@ -146,14 +146,14 @@ int main(int argc, char *argv[])
 			in >> content;
 			checkStream(in);
 			MpqFile::ListfileEntries entries = MpqFile::listfileEntries(content);
-			
+
 			BOOST_FOREACH(MpqFile::ListfileEntries::const_reference entry, entries)
 				listfileEntries.push_back(entry);
 		}
 		catch (Exception &exception)
 		{
 			std::cerr << boost::format(_("Error occured while reading listfile \"%1%\": \"%2%\".")) % path % exception.what() << std::endl;
-			
+
 			continue;
 		}
 	}
@@ -170,12 +170,12 @@ int main(int argc, char *argv[])
 
 		return EXIT_SUCCESS;
 	}
-	
+
 	if (vm.count("help"))
 	{
 		std::cout << desc << std::endl;
 		std::cout << _("\nReport bugs to tamino@cdauth.eu or on http://sourceforge.net/projects/vjasssdk/") << std::endl;
-		
+
 		return EXIT_SUCCESS;
 	}
 
@@ -260,7 +260,7 @@ int main(int argc, char *argv[])
 
 			std::size_t invalidFiles = 0;
 			BOOST_SCOPED_ENUM(Block::Flags) flags = Block::Flags::None;
-			
+
 			BOOST_FOREACH(const Mpq::FilePtr mpqFile, mpq->files().get<0>())
 			{
 				if (mpqFile->sectors().empty())
@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
 	if (vm.count("list"))
 	{
 		std::cout << _("Listing contained files:") << std::endl;
-		
+
 		BOOST_FOREACH(const Paths::reference path, archivePaths)
 		{
 			if (!boost::filesystem::is_regular_file(path))
@@ -329,7 +329,7 @@ int main(int argc, char *argv[])
 			}
 
 			boost::scoped_ptr<Mpq> mpq(new Mpq());
-			
+
 			std::cout << _("Detected debug mode.\nStarting benchmark (wc3lib vs. StormLib)") << std::endl;
 			std::cout << _("Opening MPQ archive (wc3lib):") << std::endl;
 			boost::timer timer;
@@ -344,15 +344,15 @@ int main(int argc, char *argv[])
 
 				continue;
 			}
-			
+
 			std::cout << boost::format(_("Result: %1%s")) % timer.elapsed() << std::endl;
-			
+
 			// TEST OUTPUT
 			//std::cout << "License:\n" << *mpq->findFile("License.txt") << std::endl;
-			
+
 			// END TEST
-			
-			
+
+
 			std::cout << _("Closing MPQ archive (wc3lib):") << std::endl;
 			timer.restart();
 			mpq->close();
@@ -384,7 +384,7 @@ int main(int argc, char *argv[])
 #endif
 		}
 	}
-	
+
 	if (vm.count("extract"))
 	{
 		BOOST_FOREACH(const Paths::reference path, archivePaths)
@@ -408,10 +408,10 @@ int main(int argc, char *argv[])
 
 				continue;
 			}
-			
+
 			/*
 			boost::filesystem::path dir(path.filename());
-			
+
 			if (!boost::filesystem::create_directories(dir))
 			{
 				std::cerr << boost::format(_("Error occured while opening file \"%1%\": Could not create output directory \"%2%\".")) % path.string() % dir << std::endl;
@@ -419,7 +419,7 @@ int main(int argc, char *argv[])
 				continue;
 			}
 			*/
-			
+
 			if (filePaths.empty())
 			{
 				if (mpq->listfileFile() != 0)
@@ -427,19 +427,19 @@ int main(int argc, char *argv[])
 					BOOST_FOREACH(mpq::MpqFile::ListfileEntries::const_reference entry, mpq->listfileFile()->listfileEntries())
 						listfileEntries.push_back(entry);
 				}
-				
+
 				BOOST_FOREACH(mpq::string entry, listfileEntries)
 				{
 					MpqFile *file = mpq->findFile(entry);
-					
+
 					if (file == 0)
 					{
 						std::cerr << boost::format(_("Error occured while extracting file \"%1%\": File doesn't exist.")) % entry << std::endl;
-						
+
 						continue;
 					}
-					
-					
+
+
 #ifdef UNIX
 					// (listfile) entries usually have Windows path format
 					boost::algorithm::replace_all(entry, "\\", "/");
@@ -447,17 +447,18 @@ int main(int argc, char *argv[])
 					// output direcotry is archive's basename in its actual directory (name without extension)
 					boost::filesystem::path entryPath = mpq->path().parent_path() / boost::filesystem::basename(mpq->path()) / boost::filesystem::path(entry).parent_path();
 					std::cout << "Dir string " << entryPath << std::endl;
-				
+
 					if (!boost::filesystem::is_directory(entryPath) && !boost::filesystem::create_directories(entryPath))
 					{
-						std::cerr << boost::format(_("Error occured while extracting file \"%1%\": Unable to create output directory \"%2%\".")) % entry % entryPath.directory_string() << std::endl;
-						
+						std::cerr << boost::format(_("Error occured while extracting file \"%1%\": Unable to create output directory \"%2%\".")) % entry %
+						entryPath << std::endl;
+
 						continue;
 					}
-					
+
 					entryPath /= boost::filesystem::path(entry).filename();
 					mpq::ofstream out(entryPath, std::ios::out | std::ios::binary);
-					
+
 					try
 					{
 						checkStream(out);
@@ -466,7 +467,7 @@ int main(int argc, char *argv[])
 					catch (Exception &exception)
 					{
 						std::cerr << boost::format(_("Error occured while extracting file \"%1%\": \"%2%\".")) % entry % exception.what() << std::endl;
-						
+
 						continue;
 					}
 				}

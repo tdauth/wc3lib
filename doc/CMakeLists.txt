@@ -1,5 +1,5 @@
 # TODO: generate API documentation
-if (FLAG_DOC_USE)
+if (DOC)
 	find_package(Doxygen REQUIRED)
 
 	if (DOXYGEN_FOUND)
@@ -9,6 +9,6 @@ if (FLAG_DOC_USE)
 endif ()
 
 # install
-if (FLAG_DOC_USE)
+if (DOC)
 	install(DIRECTORY . DESTINATION share/doc/wc3lib/)
 endif ()

@@ -1,15 +1,10 @@
-#add_executable(converter converter.cpp)
-#target_link_libraries(converter ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
-message("These are the Boost libraries: ${Boost_LIBRARIES}.")
+add_executable(wc3converter converter.cpp)
+target_link_libraries(wc3converter ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
-if (FLAG_EDITOR_USE)
-	kde4_add_executable(editor editor.cpp)
-	target_link_libraries(editor ${wc3lib_LIBRARIES} ${KDE4_KIO_LIBS} ${KDE4_KUTILS_LIBS} ${KDE4_KPARTS_LIBS})
+if (EDITOR)
+	kde4_add_executable(wc3editor editor.cpp)
+	target_link_libraries(wc3editor ${wc3lib_LIBRARIES} ${KDE4_KIO_LIBS} ${KDE4_KUTILS_LIBS} ${KDE4_KPARTS_LIBS})
 endif ()
-
-
-add_executable(converter converter.cpp)
-target_link_libraries(converter ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 #add_executable(jassc jassc.cpp)
 #target_link_libraries(jassc ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
@@ -22,10 +17,13 @@ target_link_libraries(jasstrans ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(mpq mpq.cpp)
 target_link_libraries(mpq ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
-if (FLAG_DEBUG_USE)
+if (DEBUG)
 	target_link_libraries(mpq StormLib)
 endif ()
 
-#install
+# install
+if (EDITOR)
+	install(TARGETS wc3editor DESTINATION bin)
+endif ()
 
-#install(TARGETS converter jassc tilesetter mpq DESTINATION bin/wc3lib)
+install(TARGETS wc3converter mpq DESTINATION bin) #jassc, tilesetter

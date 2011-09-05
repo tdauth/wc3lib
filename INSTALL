@@ -5,8 +5,8 @@ Besides bear in mind that this does only affect external format libraries (e. g.
 Flags:
 STATIC - Everything will be linked statically with applications if possible (creates big static wc3lib library).
 NORUNTIME - Dynamic format libraries (e. g. jpeg library) will be linked during compilation and won't be loaded dynamically at runtime.
-EDITOR - Qt/KDE 4 are required!
-PLUGINS - Same as above but could be used without EDITOR which installs format plugins only.
+EDITOR - Wacraft III World Editor emulation is built. Qt/KDE is required!
+PLUGINS - Could be used without EDITOR and installs Qt/KDE and OGRE format plugins only. Does not build the whole World Editor emulation.
 DOC - Generates doxygen documentation (doxygen is required)
 
 UI files:
@@ -24,23 +24,4 @@ qt-gui 4.7.2
 kdelibs 4.7
 OGRE 1.7.3
 
-cmake example:
-"cmake -DEDITOR=1 -DDOC=1"
-
 Don't forget to place "ogre.cfg" and "plugins.cfg" files into working directory of editor application!
-
-DEPRECATED:
-Compilation flags for native format conversion support:
-BLP:
-	- JPEG
-	- PNG
-	- TGA
-
-MDLX:
-	- BLEND
-	- MAX
-
-MPQ:
-	- TAR
-
-EDITOR

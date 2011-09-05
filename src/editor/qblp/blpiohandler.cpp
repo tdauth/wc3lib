@@ -190,7 +190,7 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp::MipMap &mipMap, const blp
 
 	if (blpImage.compression() != blp::Blp::Compression::Paletted)
 	{
-		foreach (blp::Blp::MipMap::MapEntryType mapEntry, mipMap->colors())
+		foreach (blp::Blp::MipMap::MapEntryType mapEntry, mipMap.colors())
 		{
 			const blp::Blp::MipMap::Coordinates &coordinates = mapEntry.first;
 			const blp::Blp::MipMap::Color &color = mapEntry.second;
@@ -205,7 +205,7 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp::MipMap &mipMap, const blp
 		for (int index = 0; index < result.colorCount(); ++index)
 			result.setColor(index, colorToRgba(blpImage.palette()[index]));
 
-		foreach (blp::Blp::MipMap::MapEntryType mapEntry, mipMap->colors())
+		foreach (blp::Blp::MipMap::MapEntryType mapEntry, mipMap.colors())
 		{
 			const blp::Blp::MipMap::Coordinates &coordinates = mapEntry.first;
 			const blp::Blp::MipMap::Color &color = mapEntry.second;

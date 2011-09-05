@@ -56,18 +56,17 @@ namespace wc3lib
 namespace editor
 {
 
-KAboutData Editor::m_aboutData = KAboutData("editor", "", ki18n("World Editor"), "0.1", ki18n("Clone of Blizzard's Warcraft 3 The Frozen Throne World Editor."), KAboutData::License_GPL_V2, ki18n("Copyright (C) 2009 by Tamino Dauth <tamino@cdauth.eu>"), ki18n("Other"), "http://sourceforge.net/projects/vjasssdk/", "tamino@cdauth.eu")
-.addAuthor(ki18n("Tamino Dauth"), ki18n("Maintainer"), "tamino@cdauth.eu", "http://tdauth.cdauth.eu/")
+KAboutData Editor::m_aboutData = KAboutData("editor", "", ki18n("World Editor"), "0.1", ki18n("Clone of Blizzard's Warcraft III: Reign of Chaos and Warcraft III: The Frozen Throne World Editor."), KAboutData::License_GPL_V2, ki18n("Copyright (C) 2009 by Tamino Dauth <tamino@cdauth.eu>"), ki18n("Other"), "https://gitorious.org/wc3lib", "tamino@cdauth.eu")
+.addAuthor(ki18n("Tamino Dauth"), ki18n("Maintainer"), "tamino@cdauth.eu", "https://tdauth.cdauth.eu/")
 ;
-KAboutData Editor::m_wc3libAboutData = KAboutData("wc3lib", "", ki18n("Warcraft 3 Library"), "0.1", ki18n("Library which supports some of Blizzard's file formats used in Warcraft 3 TFT."), KAboutData::License_GPL_V2, ki18n("Copyright (C) 2009 by Tamino Dauth <tamino@cdauth.eu>"), ki18n("Other"), "http://sourceforge.net/projects/vjasssdk/", "tamino@cdauth.eu")
-.addAuthor(ki18n("Tamino Dauth"), ki18n("Maintainer"), "tamino@cdauth.eu", "http://tdauth.cdauth.eu/")
+KAboutData Editor::m_wc3libAboutData = KAboutData("wc3lib", "", ki18n("Warcraft III Library"), "0.1", ki18n("Library which supports some of Blizzard's file formats used in Warcraft III: Reign of Chaos and Warcraft III: The Frozen Throne."), KAboutData::License_GPL_V2, ki18n("Copyright (C) 2009 by Tamino Dauth <tamino@cdauth.eu>"), ki18n("Other"), "https://gitorious.org/wc3lib", "tamino@cdauth.eu")
+.addAuthor(ki18n("Tamino Dauth"), ki18n("Maintainer"), "tamino@cdauth.eu", "https://tdauth.cdauth.eu/")
 ;
 
 const KAboutData& Editor::aboutData()
 {
 	return Editor::m_aboutData;
 }
-
 
 const KAboutData& Editor::wc3libAboutData()
 {
@@ -194,8 +193,8 @@ Editor::~Editor()
 {
 	this->writeSettings();
 	// do not delete allocated sub widgets (parent system of Qt already considers)
-	
-	
+
+
 	if (m_root != 0)
 		delete m_root;
 
@@ -203,7 +202,7 @@ Editor::~Editor()
 	BOOST_FOREACH(Resources::reference value, this->m_resources)
 	{
 		qDebug() << "Cleaning up resource " << value.first;
-		
+
 		value.second.reset();
 	}
 }
@@ -268,7 +267,7 @@ void Editor::changeEvent(QEvent *event)
 	/// TODO load new language MPQ archives and retranslate all textes which has been translated via \ref Editor::tr().
 	if (event->type() == QEvent::LanguageChange)
 	{
-		
+
 	}
 }
 

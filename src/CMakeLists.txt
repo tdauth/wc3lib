@@ -3,16 +3,12 @@ WC3LIB_ENABLE_EXCEPTIONS()
 WC3LIB_GET_H(wc3lib_CORE_H)
 WC3LIB_GET_SRC(wc3lib_CORE_SRC)
 
-set_property(DIRECTORY . PROPERTY USE_FOLDERS On)
-set_property(DIRECTORY . PROPERTY FOLDER wc3lib)
-
-if (FLAG_EDITOR_USE OR FLAG_PLUGINS_USE)
+if (EDITOR OR PLUGINS)
 	include_directories(${CMAKE_CURRENT_BINARY_DIR}/editor) # include binary dir since the KDE configuration class will be generated there and has to be included (also include for moc cxx files)
 endif ()
 
-# message(STATUS "These are the source files of core: ${wc3lib_CORE_SRC}")
 add_library(wc3libcore ${wc3lib_CREATION_MODE} ${wc3lib_CORE_SRC})
-if (NOT FLAG_STATIC_USE)
+if (NOT STATIC AND UNIX)
 	# TODO: dl is required for using dlopen etc. (cross platform?)
 	target_link_libraries(wc3libcore dl)
 endif ()
@@ -30,7 +26,7 @@ add_subdirectory(map)
 set(wc3lib_CORE_LIBRARIES wc3libcore wc3libblp wc3libmdlx wc3libmpq wc3libmap)
 #wc3libslk, wc3libvm, wc3liblang
 
-if (FLAG_EDITOR_USE OR FLAG_PLUGINS_USE)
+if (EDITOR OR PLUGINS)
 	add_subdirectory(editor) # last one
 endif ()
 
@@ -38,7 +34,7 @@ endif ()
 set(wc3lib_LIBRARIES ${wc3lib_CORE_LIBRARIES})
 set(wc3lib_SRC ${wc3lib_CORE_SRC} ${wc3lib_BLP_SRC} ${wc3lib_MDLX_SRC} ${wc3lib_MPQ_SRC} ${wc3lib_MAP_SRC})
 # ${wc3lib_LANG_SRC}, ${wc3lib_SLK_SRC}, ${wc3lib_VM_SRC}
-if (FLAG_EDITOR_USE)
+if (EDITOR)
 	set(wc3lib_LIBRARIES ${wc3lib_LIBRARIES} wc3libeditor)
 	set(wc3lib_SRC ${wc3lib_SRC} ${wc3lib_EDITOR_SRC})
 endif ()

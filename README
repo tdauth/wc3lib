@@ -1,5 +1,5 @@
-Collection of libraries for Blizzard's "Warcraft III: Reign of Chaos" and "Warcraft III: The Frozen Throne" file formats.
-Additionally there are some useful applications and World Editor emulator libraries.
+Warcraft III Library is a collection of libraries for Blizzard's "Warcraft III: Reign of Chaos" and "Warcraft III: The Frozen Throne" file formats.
+Additionally there is some useful applications and World Editor emulation libraries.
 Please consider that this version is NEITHER stable NOR usable yet!
 
-2010-01-14 Tamino Dauth <tamino@cdauth.eu>
+2011-09-05 Tamino Dauth <tamino@cdauth.eu>

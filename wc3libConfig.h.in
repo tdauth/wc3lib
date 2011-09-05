@@ -1,0 +1,8 @@
+#define wc3lib_VERSION_MAJOR @wc3lib_VERSION_MAJOR@
+#define wc3lib_VERSION_MINOR @wc3lib_VERSION_MINOR@
+#cmakedefine DEBUG
+#cmakedefine STATIC
+#cmakedefine NORUNTIME
+#cmakedefine EDITOR
+#cmakedefine PLUGINS
+#cmakedefine DOC

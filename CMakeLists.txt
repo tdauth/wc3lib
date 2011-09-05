@@ -2,6 +2,37 @@ cmake_minimum_required(VERSION 2.8.4)
 
 project(wc3lib)
 
+# The version number.
+set(wc3lib_VERSION_MAJOR 0)
+set(wc3lib_VERSION_MINOR 1)
+
+# configure a header file to pass some of the CMake settings
+# to the source code
+configure_file (
+	"${PROJECT_SOURCE_DIR}/wc3libConfig.h.in"
+	"${PROJECT_BINARY_DIR}/wc3libConfig.h"
+)
+
+# add the binary tree to the search path for include files
+# so that we will find TutorialConfig.h
+include_directories("${PROJECT_BINARY_DIR}")
+
+option(STATIC
+	"Everything will be linked statically with applications if possible (creates big static wc3lib library)."
+	OFF)
+option(NORUNTIME
+	"Dynamic format libraries (e. g. jpeg library) will be linked during compilation and won't be loaded dynamically at runtime."
+	OFF)
+option(EDITOR
+	"Wacraft III World Editor emulation is built. Qt/KDE is required!"
+	ON)
+option(PLUGINS
+	"Could be used without EDITOR and installs Qt/KDE and OGRE format plugins only. Does not build the whole World Editor emulation."
+	ON)
+option(DOC
+	"Generates doxygen documentation (doxygen is required)"
+	ON)
+
 function (WC3LIB_GET_H resultName)
 	file(GLOB list *.hpp)
 	list(APPEND result ${list})
@@ -130,18 +161,13 @@ else ()
 endif ()
 
 # custom compilation definitions
-if (CMAKE_BUILD_TYPE STREQUAL Debug OR CMAKE_BUILD_TYPE STREQUAL debugfull OR CMAKE_BUILD_TYPE STREQUAL debugfull OR CMAKE_BUILD_TYPE STREQUAL Profile)
+if (CMAKE_BUILD_TYPE STREQUAL Debug OR CMAKE_BUILD_TYPE STREQUAL debugfull OR CMAKE_BUILD_TYPE STREQUAL debugfull OR CMAKE_BUILD_TYPE STREQUAL Profile OR DEBUG)
 	message(STATUS "Detected debug mode: ${CMAKE_BUILD_TYPE}.")
+	set(DEBUG ON)
 	add_definitions(-DDEBUG=1)
-	set(FLAG_DEBUG_USE 1)
 endif ()
-WC3LIB_GET_COMPILE_DEFINITION("FLAG_STATIC_USE" "STATIC")
-WC3LIB_GET_COMPILE_DEFINITION("FLAG_NORUNTIME_USE" "NORUNTIME")
-WC3LIB_GET_COMPILE_DEFINITION("FLAG_EDITOR_USE" "EDITOR")
-WC3LIB_GET_COMPILE_DEFINITION("FLAG_PLUGINS_USE" "PLUGINS")
-WC3LIB_GET_COMPILE_DEFINITION("FLAG_DOC_USE" "DOC")
 
-if (FLAG_STATIC_USE)
+if (STATIC)
 	set(wc3lib_CREATION_MODE STATIC)
 else ()
 	set(wc3lib_CREATION_MODE SHARED)
@@ -156,13 +182,13 @@ find_package(ZLIB REQUIRED)
 include_directories(${ZLIB_INCLUDE_DIRS})
 
 # Boost
-if (FLAG_STATIC_USE)
+if (STATIC)
 	set(Boost_USE_STATIC_LIBS ON)
 else ()
 	set(Boost_USE_STATIC_LIBS OFF)
 endif ()
 set(Boost_USE_MULTITHREADED ON)
-if (FLAG_DEBUG_USE)
+if (DEBUG)
 	set(Boost_DEBUG ON)
 endif ()
 set(Boost_DETAILED_FAILURE_MSG ON)
@@ -170,12 +196,11 @@ set(Boost_DETAILED_FAILURE_MSG ON)
 find_package(Boost 1.46 COMPONENTS system filesystem thread serialization program_options iostreams REQUIRED)
 
 # Static linking with JPEG (BLP library)
-if (FLAG_STATIC_USE OR FLAG_NORUNTIME_USE)
+if (STATIC OR NORUNTIME)
 	find_library(jpeg REQUIRED)
 endif ()
 
-if (FLAG_EDITOR_USE OR FLAG_PLUGINS_USE)
-	message(WARNING "You're using -DEDITOR=1 which requires Qt and KDE and therefore will increase the compile time.")
+if (EDITOR OR PLUGINS)
 	find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
 	include(${QT_USE_FILE})
 	find_package(KDE4 REQUIRED)

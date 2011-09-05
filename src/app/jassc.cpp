@@ -30,6 +30,7 @@
 
 #include <boost/format.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/foreach.hpp>
 
 #include "../lang/parser.hpp"
 #include "../lang/compiler.hpp"
@@ -150,7 +151,7 @@ int main(int argc, char *argv[])
 		{
 			bool found = false;
 
-			BOOST_FPREACH(const boost::filesystem::path &path, filePaths)
+			BOOST_FOREACH(const boost::filesystem::path &path, filePaths)
 			{
 				if (path == argv[optind])
 				{
@@ -174,7 +175,7 @@ int main(int argc, char *argv[])
 	}
 
 	class Parser parser();
-	parser.setCurrentLanguage( ); /// @todo Set current language by option or jass.
+	//parser.setCurrentLanguage( ); /// @todo Set current language by option or jass.
 	std::size_t lines = parser.parse(filePaths);
 	std::cout << boost::format(_("Parsed %1% files with %2% lines at all.")) % paths.size() % lines << std::endl;
 
