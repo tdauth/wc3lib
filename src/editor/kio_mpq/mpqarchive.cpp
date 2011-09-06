@@ -44,28 +44,28 @@ const KArchiveEntry* MpqArchiveRootDirectory::entry(const QString &name) const
 		else // "/"
 			return this;
 	}
-	
-	
-	
+
+
+
 	// trailing slash ? -> remove
 	if ( pos != -1 && pos == realName.length()-1 )
 	{
 		realName = realName.left( pos );
 		pos = realName.indexOf( QLatin1Char('/') ); // look again
 	}
-	
+
 	if ( pos != -1 )
 	{
 		const QString left = realName.left(pos);
 		const QString right = realName.mid(pos + 1);
 
 		//kDebug() << "left=" << left << "right=" << right;
-		
+
 		const KArchiveEntry* e = d->entries.value( left );
-		
+
 		if ( !e || !e->isDirectory() )
 			return 0;
-		
+
 		return static_cast<const KArchiveDirectory*>(e)->entry( right );
 	}
 
@@ -82,33 +82,31 @@ bool MpqArchive::writeData(const char *data, qint64 size)
 {
 	if (m_mpqFile.get() == 0 || m_mpqFile->size() < size)
 		return false;
-	
+
 	try
 	{
-		mpq::stringstream sstream;
-		sstream.rdbuf()->sputn(data, size);
-		m_mpqFile->readData(sstream);
+		mpq::iarraystream stream(data, size);
+		m_mpqFile->readData(stream);
 	}
 	catch (Exception &exception)
 	{
 		return false;
 	}
-	
+
 	return true;
 }
 
 bool MpqArchive::writeFile(const QString &name, const QString &user, const QString &group, const char *data, qint64 size, mode_t perm, time_t atime, time_t mtime, time_t ctime)
 {
-	mpq::stringstream sstream;
-	sstream.rdbuf()->sputn(data, size);
+	mpq::iarraystream stream(data, size);
 	BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale;
 	BOOST_SCOPED_ENUM(mpq::MpqFile::Platform) platform;
 	QString path(resolvePath(name, locale, platform));
-	mpq::MpqFile *file = m_mpq->addFile(path.toUtf8().constData(), locale, platform, &sstream);
-	
+	mpq::MpqFile *file = m_mpq->addFile(path.toUtf8().constData(), locale, platform, &stream);
+
 	if (file == 0)
 		return false;
-	
+
 	return true;
 }
 
@@ -149,12 +147,12 @@ bool MpqArchive::doPrepareWriting(const QString &name, const QString &user, cons
 	BOOST_SCOPED_ENUM(mpq::MpqFile::Platform) platform;
 	QString path(resolvePath(name, locale, platform));
 	mpq::MpqFile *file = this->m_mpq->findFile(path.toUtf8().constData(), locale, platform);
-	
+
 	if (file == 0 || file->size() < size)
 		return false;
-	
+
 	m_mpqFile.reset(file);
-	
+
 	return true;
 }
 
@@ -165,16 +163,15 @@ bool MpqArchive::doWriteDir(const QString &name, const QString &user, const QStr
 
 bool MpqArchive::doWriteSymLink(const QString &name, const QString &target, const QString &user, const QString &group, mode_t perm, time_t atime, time_t mtime, time_t ctime)
 {
-	mpq::stringstream sstream;
-	sstream.write(target.toUtf8().constData(), target.toUtf8().size());
+	mpq::iarraystream stream(target.toUtf8().constData(), target.toUtf8().size());
 	BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale;
 	BOOST_SCOPED_ENUM(mpq::MpqFile::Platform) platform;
 	QString path(resolvePath(name, locale, platform));
-	mpq::MpqFile *file = m_mpq->addFile(path.toUtf8().constData(), locale, platform, &sstream);
-	
+	mpq::MpqFile *file = m_mpq->addFile(path.toUtf8().constData(), locale, platform, &stream);
+
 	if (file == 0)
 		return false;
-	
+
 	return true;
 }
 
@@ -188,7 +185,7 @@ bool MpqArchive::openArchive(QIODevice::OpenMode mode)
 	{
 		return false;
 	}
-	
+
 	return true;
 }
 

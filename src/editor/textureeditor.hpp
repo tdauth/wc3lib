@@ -50,6 +50,8 @@ class TextureEditor : public Module, protected Ui::TextureEditor
 		virtual ~TextureEditor();
 
 		const TexturePtr& texture() const;
+		const MipMaps& mipMaps() const;
+		short mipMapIndex() const;
 		bool showsAlphaChannel() const;
 		bool showsTransparency() const;
 		qreal factor() const;
@@ -101,6 +103,7 @@ class TextureEditor : public Module, protected Ui::TextureEditor
 
 		TexturePtr m_texture;
 		MipMaps m_mipMaps;
+		short m_mipMapIndex;
 		bool m_showsAlphaChannel;
 		bool m_showsTransparency;
 		qreal m_factor;
@@ -115,6 +118,16 @@ class TextureEditor : public Module, protected Ui::TextureEditor
 inline const TextureEditor::TexturePtr& TextureEditor::texture() const
 {
 	return m_texture;
+}
+
+inline const TextureEditor::MipMaps& TextureEditor::mipMaps() const
+{
+	return m_mipMaps;
+}
+
+inline short TextureEditor::mipMapIndex() const
+{
+	return m_mipMapIndex;
 }
 
 inline bool TextureEditor::showsAlphaChannel() const

@@ -23,7 +23,6 @@
 
 #include <istream>
 #include <ostream>
-#include <sstream>
 
 #include <boost/serialization/serialization.hpp>
 /*
@@ -54,23 +53,23 @@ class Format
 		/// Reads input from another format object (\p other).
 		std::streamsize read(const Format &other) throw (class Exception)
 		{
-			std::basic_stringstream<CharType> sstream;
-			other.write(sstream);
-			
-			return read(sstream);
+			boost::iostreams::basic_array<CharType> stream;
+			other.write(stream);
+
+			return read(stream);
 		}
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception) = 0;
 		/// Writes output into another format object (\p other).
 		std::streamsize write(Format &other) const throw (class Exception)
 		{
-			std::basic_stringstream<CharType> sstream;
-			write(sstream);
-			
-			return other.read(sstream);
+			boost::iostreams::basic_array<CharType> stream;
+			write(stream);
+
+			return other.read(stream);
 		}
-		
+
 		friend class boost::serialization::access;
-		
+
 		// When the class Archive corresponds to an output archive, the
 		// & operator is defined similar to <<.  Likewise, when the class Archive
 		// is a type of input archive the & operator is defined similar to >>.
@@ -88,7 +87,7 @@ class Format
 			//boost::basic_a
 			//boost::archive::basic_binary_oarchive::
 		}
-		
+
 		template<class _ArchiveT>
 		void load(_ArchiveT &ar, const unsigned int version)
 		{
@@ -105,18 +104,18 @@ class Format
 			delete[] buffer;
 			*/
 		}
-		
+
 		template<class _ArchiveT>
 		void save(_ArchiveT &ar) { save(ar, version()); }
 		template<class _ArchiveT>
 		void load(_ArchiveT &ar) { load(ar, version()); }
-		
+
 		BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 
 		class Format& operator<<(InputStream &istream) throw (class Exception);
 		const class Format& operator>>(OutputStream &ostream) const throw (class Exception);
-		
+
 		/**
 		 * Version is required for Boost-like serialization. Most of Warcraft 3's formats do also have a version number.
 		 */

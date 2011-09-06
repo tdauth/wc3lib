@@ -1,7 +1,14 @@
+2011-09-06 Tamino Dauth <tamino@cdauth.eu>
+* blp: Fixed JPEG writing bug.
+
 2011-09-05 Tamino Dauth <tamino@cdauth.eu>
 * Revised CMake files and added compile definitions as CMake options.
 * editor: Fixed CMake dependency of plugins.
 * apps: Renamed various applications (added wc3 prefix).
+* editor: Class Texture supports loading from OGRE to Qt and loading from Qt to OGRE now.
+* editor: Fixed image compression option detection error for class Texture.
+* Replaced many unnecessary stringstreams by arraystreams.
+* editor: Improved MIP map handling for class TextureEditor.
 
 2011-09-01 Tamino Dauth <tamino@cdauth.eu>
 * map: Improved class map::Info.

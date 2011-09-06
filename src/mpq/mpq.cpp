@@ -71,7 +71,7 @@ std::streamsize Mpq::create(const boost::filesystem::path &path, bool overwriteE
 		throw Exception(boost::format(_("Unable to create file \"%1%\".")) % path.string());
 
 	boost::interprocess::file_lock fileLock(path.string().c_str());
-	
+
 	if (!fileLock.try_lock())
 		throw Exception(boost::format(_("Unable to lock file \"%1%\".")) % path);
 
@@ -80,7 +80,7 @@ std::streamsize Mpq::create(const boost::filesystem::path &path, bool overwriteE
 	if (ofstream.tellp() != startPosition)
 	{
 		fileLock.unlock();
-		
+
 		throw Exception(boost::str(boost::format(_("Unable to start in file \"%1%\" at position %2%.")) % path.string() % startPosition));
 	}
 
@@ -123,12 +123,12 @@ std::streamsize Mpq::create(const boost::filesystem::path &path, bool overwriteE
 std::streamsize Mpq::open(const boost::filesystem::path &path, const MpqFile::ListfileEntries &listfileEntries) throw (class Exception)
 {
 	this->close();
-	
+
 	boost::interprocess::file_lock fileLock(path.string().c_str());
-	
+
 	if (!fileLock.try_lock())
 		throw Exception(boost::format(_("Unable to lock file \"%1%\".")) % path);
-	
+
 	this->m_fileLock.swap(fileLock);
 	ifstream stream(boost::filesystem::system_complete(path), std::ios_base::binary | std::ios_base::in);
 
@@ -193,14 +193,14 @@ std::streamsize Mpq::read(InputStream &stream, const MpqFile::ListfileEntries &l
 		this->m_format = Mpq::Format::Mpq2;
 	else
 		throw Exception(boost::str(boost::format(_("Unknown MPQ format \"%1%\".")) % header.formatVersion));
-	
+
 	if (header.blockTableEntries > maxBlockId + 1)
 		throw Exception(boost::format(_("Too many block table entries (%1%). Maximum allowed value is %2% since %3% and %4% are reserved for deleted and empty block indices.")) % header.blockTableEntries % maxBlockId % Hash::blockIndexDeleted % Hash::blockIndexEmpty);
 
 	// Number of entries in the hash table. Must be a power of two, and must be less than 2^16 for the original MoPaQ format, or less than 2^20 for the Burning Crusade format.
 	if (header.hashTableEntries % 2 != 0)
 		std::cerr << boost::format(_("Warning: Hash table entries should be a power of two for MPQ file \"%1%\".\nEntries: %2%.")) % this->m_path.string() % header.hashTableEntries << std::endl;
-		
+
 	if ((this->format() == Mpq::Format::Mpq1 && header.hashTableEntries >= pow(2, 16)) || (this->format() == Mpq::Format::Mpq2 && header.hashTableEntries >= pow(2, 20)))
 		std::cerr << boost::format(_("Warning: There are too many MPQ hash table entries in MPQ file \"%1%\".\nEntries: %2%.\nFor MPQ1 it must be less than 2^16 and for MPQ2 less than 2^20.")) % this->m_path.string() % header.hashTableEntries << std::endl;
 
@@ -228,8 +228,7 @@ std::streamsize Mpq::read(InputStream &stream, const MpqFile::ListfileEntries &l
 	stream.read(encryptedBytes.get(), encryptedBytesSize);
 	uint32 hashValue = HashString(Mpq::cryptTable(), "(block table)", HashType::FileKey);
 	DecryptData(Mpq::cryptTable(), encryptedBytes.get(), encryptedBytesSize, hashValue);
-	std::basic_istringstream<byte> sstream;
-	sstream.rdbuf()->pubsetbuf(encryptedBytes.get(), encryptedBytesSize);
+	arraystream sstream(encryptedBytes.get(), encryptedBytesSize);
 	//sstream.write(encryptedBytes.get(), encryptedBytesSize);
 	//encryptedBytes.reset();;
 
@@ -267,7 +266,7 @@ std::streamsize Mpq::read(InputStream &stream, const MpqFile::ListfileEntries &l
 	stream.read(encryptedBytes.get(), encryptedBytesSize);
 	hashValue = HashString(Mpq::cryptTable(), "(hash table)", HashType::FileKey);
 	DecryptData(Mpq::cryptTable(), encryptedBytes.get(), encryptedBytesSize, hashValue);
-	sstream.rdbuf()->pubsetbuf(encryptedBytes.get(), encryptedBytesSize);
+	sstream.write(encryptedBytes.get(), encryptedBytesSize);
 
 	for (std::size_t i = 0; i < header.hashTableEntries; ++i)
 	{
@@ -288,36 +287,36 @@ std::streamsize Mpq::read(InputStream &stream, const MpqFile::ListfileEntries &l
 
 			// seek to file data beginning
 			stream.seekg(startPosition() + boost::numeric_cast<std::streampos>(mpqFile->hash()->block()->blockOffset()));
-			
+
 			if (format() == Mpq::Format::Mpq2 && mpqFile->hash()->block()->extendedBlockOffset() > 0)
 				stream.seekg(boost::numeric_cast<std::streamoff>(mpqFile->hash()->block()->extendedBlockOffset()), std::ios_base::cur);
-			
+
 			/// \todo Decrypt and unimplode data? boost::numeric_cast<uint32>(this->m_startPosition)
 
 			size += mpqFile->read(stream);
 		}
 	}
-	
+
 	MpqFile::ListfileEntries entries;
 
 	if (listfileEntries.empty())
 	{
 		MpqFile *listfileFile = this->listfileFile();
-		
+
 		if (listfileFile != 0)
 		{
 			// read listfile file and create path entries
 			entries = listfileFile->listfileEntries();
-			
+
 			BOOST_FOREACH(MpqFile::ListfileEntries::const_reference path, entries)
 				this->findFile(path);
-			
+
 			// TEST
 			//std::cout << "Data:\n" << astream << std::endl;
 			//std::cout << "Second Data:\n" << *this->listfileFile() << std::endl;
 		}
 	}
-	
+
 	// read listfile file and create path entries
 	BOOST_FOREACH(MpqFile::ListfileEntries::const_reference path, listfileEntries.empty() ? entries : listfileEntries)
 		this->findFile(path);
@@ -379,11 +378,11 @@ uint32_t Mpq::version() const
 	{
 		case Format::Mpq1:
 			return formatVersion1Identifier;
-			
+
 		case Format::Mpq2:
 			return formatVersion2Identifier;
 	}
-	
+
 	return 0;
 }
 
@@ -397,34 +396,34 @@ const class MpqFile* Mpq::findFile(const boost::filesystem::path &path, BOOST_SC
 	if (hash->m_mpqFile->m_path != path) // path has not been set yet
 	{
 		hash->m_mpqFile->m_path = path;
-		
+
 		// if we have a sector offset table and file is encrypted we first need to know its path for proper decryption!
 		// TODO READ SECTOR OFFSET TABLE AND DECRYPT IT NOW THAT WE HAVE ITS PATH
 		if (hash->mpqFile()->hasSectorOffsetTable() && hash->mpqFile()->isEncrypted())
 		{
 			std::cerr << "File sector offset table is encrypted and we have no file path. Refreshing sector data." << std::endl;
-			
+
 			boost::interprocess::file_lock fileLock(hash->mpqFile()->mpq()->path().string().c_str());
-			
+
 			if (!fileLock.try_lock())
 				throw Exception(boost::format(_("Warning: Couldn't lock MPQ file for refreshing sector data of file %1%.")) % path);
-			
+
 			ifstream istream(this->path(), std::ios::in | std::ios::binary);
-				
+
 			if (!istream)
 				throw Exception();
-			
+
 			istream.seekg(startPosition());
 			istream.seekg(hash->block()->blockOffset(), std::ios::cur);
-			
+
 			if (format() == Mpq::Format::Mpq2 && hash->block()->extendedBlockOffset() > 0)
 				istream.seekg(hash->block()->extendedBlockOffset(), std::ios::cur);
-				
-			
+
+
 			hash->mpqFile()->read(istream);
 			fileLock.unlock();
 		}
-		
+
 	}
 
 	return const_cast<const class MpqFile*>(hash->m_mpqFile);
@@ -461,7 +460,7 @@ class MpqFile* Mpq::addFile(const boost::filesystem::path &path, BOOST_SCOPED_EN
 		BOOST_FOREACH(Blocks::left_reference reference, this->m_blocks.left)
 		{
 			BlockPtr iteratedBlock = reference.second;
-			
+
 			if ((iteratedBlock->empty() || iteratedBlock->unused()) && iteratedBlock->m_blockSize >= reservedSpace && (block == 0 || iteratedBlock->m_blockSize - reservedSpace < block->m_blockSize - reservedSpace))
 			{
 				block = iteratedBlock;
@@ -530,8 +529,8 @@ class MpqFile* Mpq::addFile(const boost::filesystem::path &path, BOOST_SCOPED_EN
 	// Add "(listfile)" file entry.
 	if (this->containsListfileFile())
 	{
-		stringstream sstream(reinterpret_cast<const byte*>(path.string().c_str()));
-		this->listfileFile()->appendData(sstream);
+		iarraystream stream(path.string().c_str(), path.string().size());
+		this->listfileFile()->appendData(stream);
 	}
 
 	// Add "(attributes)" file entries.
@@ -561,12 +560,12 @@ class MpqFile* Mpq::addFile(const boost::filesystem::path &path, BOOST_SCOPED_EN
 
 class MpqFile* Mpq::addFile(const MpqFile &mpqFile, bool addData, bool overwriteExisting) throw (class Exception)
 {
-	stringstream sstream;
+	arraystream stream;
 
 	if (addData)
-		mpqFile.writeData(sstream);
+		mpqFile.writeData(stream);
 
-	return this->addFile(mpqFile.path(), mpqFile.locale(), mpqFile.platform(), &sstream, overwriteExisting, mpqFile.size());
+	return this->addFile(mpqFile.path(), mpqFile.locale(), mpqFile.platform(), &stream, overwriteExisting, mpqFile.size());
 }
 
 bool Mpq::removeFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform)
@@ -664,15 +663,15 @@ class Hash* Mpq::findHash(const boost::filesystem::path &path, BOOST_SCOPED_ENUM
 	const uint32 nameHashB = HashString(Mpq::cryptTable(), path.string().c_str(), HashType::NameB);
 	const int16 realLocale = MpqFile::localeToInt(locale);
 	const int16 realPlatform = MpqFile::platformToInt(platform);
-	
+
 	HashData hashData(nameHashA, nameHashB, realLocale, realPlatform);
 	std::cout << "Searching for hash " << path << " with value a " << nameHashA << " and value b " << nameHashB << " and locale " << locale << " and platform " << realPlatform << std::endl; // TEST
 	//index<HashData>:
 	Hashes::index_iterator<HashData>::type iterator = this->m_hashes.get<HashData>().find(hashData);
-	
+
 	if (iterator == this->m_hashes.get<HashData>().end() || (*iterator)->deleted())
 		return 0;
-	
+
 	return iterator->get();
 }
 

@@ -47,8 +47,8 @@ namespace blp
  * Sizes not of powers of 2 seems to work fine too, the same rules for mipmaps
  * still applies. Ex: 24x17, 12x8 (rounded down), 6x4, 3x2, 1x1 (rounded down).
  * \note JFIF compression and decompression is realized by using library "jpeg" which is loaded dynamically (at runtime) by using class \ref LibraryLoader. Unfortunatelly some properties (structures for instance) cannot be loaded from shared object/DLL and therefore are compiled statically into wc3lib. Please make sure that you're having installed a compatible version of library "jpeg".
- * 
- * 
+ *
+ *
  * Little loading example:
  * \code
  * #include <wc3lib/core.hpp>
@@ -66,10 +66,10 @@ namespace blp
  * 	BOOST_FOREACH(const Blp::MipMap::MapEntryType &colorEntry, mipMap->colors())
  * 		std::cout << boost::format("Color %1% at position (%2%|%3%)") % colorEntry.second % colorEntry.first.first % colorEntry.first.second << std::endl;
  * }
- * 
+ *
  * std::cout << boost::format("Generated %1% MIP maps.") % blp->generateMipMaps() << std::endl;
- * 
- * 
+ *
+ *
  * \endcode
  * \section Conversion
  * If you want to convert BLP images into other formats (e. g. JPEG or PNG) you can either write your own converter or use wc3lib's BLP Qt plugin.
@@ -171,13 +171,13 @@ class Blp : public Format
 				dword m_height;
 				Colors m_colors; //[mip map width * mip map height];
 		};
-		
+
 		/// Number of maximum MIP maps which can be hold by one BLP file.
 		static const std::size_t maxMipMaps;
 		/// Size of color palette (always the same) used by BLP files with compression \ref BLP::Compression::Paletted.
 		static const std::size_t compressedPaletteSize;
 		/// Default JPEG quality which reaches from 0 - 100.
-		static const int defaultQuality; 
+		static const int defaultQuality;
 
 		/// \todo Don't seem to have the right values!!!
 		BOOST_SCOPED_ENUM_START(Format) //: dword
@@ -205,9 +205,9 @@ class Blp : public Format
 			Alpha = 8
 		};
 		BOOST_SCOPED_ENUM_END
-		
+
 		typedef boost::shared_array<color> ColorPtr;
-		
+
 		/**
 		 * \return Returns auto-detected BLP format of buffer \p buffer with size \p bufferSize. Buffer can be larger than required (only first 4 bytes are checked).
 		 * \throw Exception Is thrown if no format was detected.
@@ -235,13 +235,13 @@ class Blp : public Format
 		dword pictureType() const;
 		void setPictureSubType(dword pictureSubType);
 		dword pictureSubType() const;
-		
+
 		typedef boost::shared_ptr<MipMap> MipMapPtr;
 		/**
 		 * MIP maps are stored in a vector indicated by their corresponding MIP number which can be 0-15.
 		 */
 		typedef std::vector<MipMapPtr> MipMaps;
-		
+
 		const MipMaps& mipMaps() const;
 		MipMaps& mipMaps();
 
@@ -259,7 +259,7 @@ class Blp : public Format
 		 * \return Size of read bytes (\ref byte). Note that this value can be smaller than the BLP file since it seems that there are unnecessary 0 bytes in some BLP files.
 		 */
 		std::streamsize read(InputStream &istream, const std::size_t &mipMaps) throw (class Exception);
-		
+
 		std::streamsize read(InputStream &istream) throw (class Exception) { read(istream, 0); }
 		/**
 		 * \param quality Quality for JPEG/JFIF compression (0 - 100). -1 or another invalid value means default (\ref Blp::defaultQuality).

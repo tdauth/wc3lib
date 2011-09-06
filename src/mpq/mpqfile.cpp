@@ -167,10 +167,10 @@ std::streamsize MpqFile::writeData(ostream &ostream) const throw (class Exceptio
 
 MpqFile::ListfileEntries MpqFile::listfileEntries() const throw (Exception)
 {
-	stringstream sstream;
-	this->writeData(sstream);
+	std::basic_ostringstream<byte> stream;
+	this->writeData(stream);
 
-	return listfileEntries(sstream.str());
+	return listfileEntries(stream.str());
 }
 
 MpqFile::MpqFile(class Mpq *mpq, class Hash *hash) : m_mpq(mpq), m_hash(hash), m_path("")
@@ -439,9 +439,9 @@ bool MpqFile::move(const boost::filesystem::path &newPath, bool overwriteExistin
 
 class MpqFile& MpqFile::operator<<(const class MpqFile &mpqFile) throw (class Exception)
 {
-	stringstream sstream;
-	mpqFile.writeData(sstream);
-	this->appendData(sstream);
+	arraystream stream;
+	mpqFile.writeData(stream);
+	this->appendData(stream);
 
 	return *this;
 }
@@ -455,9 +455,9 @@ class MpqFile& MpqFile::operator>>(class Mpq &mpq) throw (class Exception)
 
 class MpqFile& MpqFile::operator>>(class MpqFile &mpqFile) throw (class Exception)
 {
-	stringstream sstream;
-	this->writeData(sstream);
-	mpqFile.appendData(sstream);
+	arraystream stream;
+	this->writeData(stream);
+	mpqFile.appendData(stream);
 
 	return *this;
 }

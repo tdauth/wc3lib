@@ -35,22 +35,28 @@ namespace wc3lib
 namespace editor
 {
 
+/**
+ * Provides access to one single texture in three different ways. Firstly there is an instance of \ref blp::Blp if it's a BLP image which provides you direct access to MIP map color data/color palette etc., secondly there is access to an object of \ref QImage which can be used to display your texture in your GUI and finally there is access to an object of \ref Ogre::Image which can be used to display your texture in your 3D scene.
+ * You do not have to store all three objects or any of them! Everything is optional!
+ * Please consider that this class tries to get the most performant way to load all those objects by checking if it already has one of them and if so, using the object's buffer instead of loading it from the corresponding file again which usually is much slower than reading from memory.
+ * Besides when saving the texture via \ref Texture::save() it tries to get the most performant way, as well. For example, if you save your texture as BLP image and there is a \ref blp::Blp instance already in your texture (\ref Texture::hasBlp()) it won't save the texture via its Qt or OGRE object since it's much faster to write the BLP object on disk.
+ */
 class Texture : public Resource
 {
 	public:
 		typedef boost::scoped_ptr<blp::Blp> BlpPtr;
 		typedef boost::scoped_ptr<QImage> QtPtr;
 		typedef boost::scoped_ptr<Ogre::Image> OgrePtr;
-		
+
 		Texture(class MpqPriorityList *source, const KUrl &url);
 		virtual ~Texture();
-		
+
 		/**
 		 * Frees all allocated texture related data.
 		 * \sa reload()
 		 */
 		virtual void clear() throw ();
-		
+
 		/**
 		 * \exception Exception Exception safe!
 		 */
@@ -72,7 +78,7 @@ class Texture : public Resource
 		 * Calls \ref clear() and frees everything. Afterwards it loads all images which has been allocated formerly.
 		 */
 		virtual void reload() throw (Exception);
-		
+
 		/**
 		 * Saves texture at \p url with format \p format and compression options \p compression.
 		 * \param format If this value is empty format is detected by file's extension. If no valid format could be detected first usable is used in order BLP, Qt and OGRE.
@@ -95,16 +101,16 @@ class Texture : public Resource
 		bool hasQt() const;
 		bool hasOgre() const;
 		bool hasAll() const;
-		
+
 		const BlpPtr& blp() const;
 		const QtPtr& qt() const;
 		const OgrePtr& ogre() const;
-		
+
 	private:
 		BlpPtr m_blp;
 		QtPtr m_qt;
 		OgrePtr m_ogre;
-		
+
 };
 
 inline bool Texture::hasBlp() const

@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include <QFileInfo>
+#include <QtCore>
 
 #include <KTemporaryFile>
 #include <KIO/AccessManager>
@@ -70,12 +71,13 @@ void Texture::loadBlp() throw (Exception)
 			throw Exception(boost::format(_("Unable to open temporary file \"%1%\".")) % tmpFileName.toUtf8().constData());
 
 		blp::dword identifier;
-		ifstream.readsome((blp::char8*)&identifier, sizeof(identifier));
+		ifstream.read((blp::char8*)&identifier, sizeof(identifier));
 
 		if (blp::Blp::hasFormat((blp::byte*)&identifier, sizeof(identifier)))
 		{
 			BlpPtr blpImage(new blp::Blp());
 
+			ifstream.seekg(0); // jump to beginning of stream
 			blpImage->read(ifstream);
 
 			m_blp.swap(blpImage); // exception safe (won't change image if ->read throws exception
@@ -109,21 +111,23 @@ void Texture::loadQt() throw (Exception)
 	if (hasBlp())
 	{
 		BlpIOHandler ioHandler;
-		QImage *qtImage = new QImage();
+		QtPtr qtImage(new QImage());
 
-		if (!ioHandler.read(qtImage, *m_blp.get()))
-		{
-			delete qtImage;
-
+		if (!ioHandler.read(qtImage.get(), *m_blp.get()))
 			throw Exception(_("Unable to convert BLP image into Qt."));
-		}
 
-		m_qt.reset(qtImage); // exception safe (won't change image if handler has some error
+		m_qt.swap(qtImage); // exception safe (won't change image if handler has some error
 	}
-	/// TODO cannot convert from OGRE to Qt.
-	/*
-	 * else if (hasOgre())
-	 */
+	else if (hasOgre())
+	{
+		QtPtr qtImage(new QImage());
+
+		// TODO do we have to use getPixelBox(), does it copy the whole buffer and where do we get its size from?
+		if (!qtImage->loadFromData(ogre()->getData(), ogre()->getSize()))
+			throw Exception(_("Unable to convert OGRE image into Qt."));
+
+		m_qt.swap(qtImage); // exception safe (won't change image if handler has some error
+	}
 	else
 	{
 		QString tmpFileName;
@@ -155,11 +159,20 @@ void Texture::loadOgre() throw (Exception)
 		ogreImage->loadRawData((Ogre::DataStreamPtr&)result.first, imageData->width, imageData->height, imageData->depth, imageData->format, 1, boost::numeric_cast<std::size_t>(imageData->num_mipmaps));
 		// TODO check correct loading state, exception handling?
 
-		m_ogre.swap(ogreImage); // exception safe (won't change image if handler has some error
+		m_ogre.swap(ogreImage); // exception safe (won't change image if handler had some error)
 	}
 	// if we have already an image it seems to be faster to read from it instead of the original file
 	else if (hasQt())
 	{
+		// TODO Isn't there any faster way of accessing Qt image's buffer data than saving it into a buffer object (member function etc.)? If direct access provides raw buffer use Ogre::Image::loadRawData() instead of Ogre::Image::load()!
+		QBuffer buffer;
+		qt()->save((QIODevice*)&buffer);
+		Ogre::MemoryDataStreamPtr stream(new Ogre::MemoryDataStream(buffer.data().data(), buffer.size()));
+		OgrePtr ogreImage(new Ogre::Image());
+		ogreImage->load((Ogre::DataStreamPtr&)stream);
+		//ogreImage->loadRawData(stream, qt()->width(), imageData->height, imageData->depth, imageData->format, 1, boost::numeric_cast<std::size_t>(imageData->num_mipmaps));
+
+		m_ogre.swap(ogreImage); // exception safe (won't change image if handler had some error)
 	}
 	// read from file
 	else
@@ -206,7 +219,7 @@ namespace
 
 inline QString compressionOption(const QStringList &list, const QString key)
 {
-	const int index = list.indexOf("Quality");
+	const int index = list.indexOf(key);
 
 	if (index == -1)
 		return "";
@@ -245,14 +258,8 @@ void Texture::save(const KUrl &url, const QString &format, const QString &compre
 
 	if (format == "blp" && hasBlp())
 	{
-		//blp::sstream sstream(std::ios::binary | std::ios::out);
 		blp::ofstream ofstream(tmpFile.fileName().toUtf8().constData(), std::ios::binary | std::ios::out);
-		/* const std::streamsize size =*/ blp()->write(ofstream, quality, mipMaps);
-		/*
-		boost::scoped_array<blp::char8> buffer(new blp::char8[size]);
-		sstream.read(buffer.get(), size);
-		tmpFile.write(buffer.get(), size);
-		*/
+		blp()->write(ofstream, quality, mipMaps);
 	}
 	else if (hasQt())
 	{
@@ -263,12 +270,6 @@ void Texture::save(const KUrl &url, const QString &format, const QString &compre
 	{
 		throw Exception(boost::format(_("Temporary file \"%1%\" cannot be converted by using an OGRE image: Not implemented yet!")) % tmpFile.fileName().toUtf8().constData());
 	}
-
-	/// TODO Indeed temporary files should be autoremoved.
-	BOOST_SCOPE_EXIT((&tmpFile))
-	{
-		tmpFile.remove();
-	} BOOST_SCOPE_EXIT_END
 
 	if  (!KIO::NetAccess::upload(tmpFile.fileName(), url, 0))
 		throw Exception(boost::format(_("Unable to upload temporary file \"%1%\" to URL \"%2%\"")) % tmpFile.fileName().toUtf8().constData() % url.toEncoded().constData());

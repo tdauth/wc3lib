@@ -521,12 +521,12 @@ inline const class MpqFile* Mpq::createListfileFile() throw (class Exception)
 	}
 
 	entries.sort(); /// @todo Sort alphabetically?
-	std::basic_stringstream<byte> sstream;
+	arraystream stream;
 
 	BOOST_FOREACH(std::basic_string<byte> entry, entries)
-		sstream << entry << std::endl;
+		stream << entry << '\n';
 
-	return this->addFile("(listfile)", MpqFile::Locale::Neutral, MpqFile::Platform::Default, &sstream);
+	return this->addFile("(listfile)", MpqFile::Locale::Neutral, MpqFile::Platform::Default, &stream);
 }
 
 inline const class MpqFile* Mpq::listfileFile() const

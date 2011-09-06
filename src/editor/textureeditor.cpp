@@ -98,7 +98,10 @@ void TextureEditor::openFile()
 	}
 	*/
 
-	KUrl url = KFileDialog::getOpenUrl(this->m_recentUrl, i18n("*.blp|BLP textures\n*.png|PNG images"), this);
+	// TODO Use image open URL function but MIME type of BLP is not usable on debugging
+	// TODO MIME filters do not work ("all/allfiles").
+	//KUrl url = KFileDialog::getImageOpenUrl(this->m_recentUrl, this, i18n("Open texture"));
+	KUrl url = KFileDialog::getOpenUrl(this->m_recentUrl, i18n("*|All Files\n*.blp|Blizzard Pictures\n*.png|Portable Network Graphics\n*.jpg|JPEG Files"), this, i18n("Open texture"));
 
 	if (url.isEmpty())
 		return;
@@ -136,23 +139,26 @@ void TextureEditor::openFile()
 	}
 
 	m_texture.swap(texture);
-	/// \todo Image format (e. g. Format_Indexed8 is not stored) which leads to another format when saving image somewhere.
-	refreshImage();
+	m_mipMapIndex = 0;
+	m_showsAlphaChannel = false;
+	m_showsTransparency = false;
+	m_factor = 1.0;
 	qDebug() << "Set pixmap to label ";
 	qDebug() << "Label size is " << this->m_imageLabel->width() << " | " << this->m_imageLabel->height();
 
 	foreach (QAction *action, m_textureActionCollection->actions())
 		action->setEnabled(true);
 
-	m_mipMaps.resize(texture->blp()->mipMaps().size());
+	m_mipMapsMenu->clear();
+	m_mipMaps.resize(this->texture()->blp()->mipMaps().size());
 	std::size_t i = 0;
 
-	BOOST_FOREACH(blp::Blp::MipMaps::const_reference mipMap, texture->blp()->mipMaps())
+	BOOST_FOREACH(blp::Blp::MipMaps::const_reference mipMap, this->texture()->blp()->mipMaps())
 	{
 		BlpIOHandler ioHandler;
 		QImage image;
 
-		if (ioHandler.read(&image, *mipMap, *texture->blp()))
+		if (ioHandler.read(&image, *mipMap, *this->texture()->blp()))
 			m_mipMaps[i] = image;
 		else
 			KMessageBox::error(this, i18n("Unable to read MIP map \"%1\".", i));
@@ -163,25 +169,28 @@ void TextureEditor::openFile()
 		connect(action, SIGNAL(triggered()), this, SLOT(showMipMap()));
 		m_mipMapsMenu->addAction(action);
 	}
+
+	/// \todo Image format (e. g. Format_Indexed8 is not stored) which leads to another format when saving image somewhere.
+	refreshImage();
 }
 
 void TextureEditor::saveFile()
 {
-	if (!hasTexture() || this->m_texture->qt()->isNull())
+	if (!hasTexture() || this->texture()->qt()->isNull())
 	{
 		KMessageBox::error(this, i18n("No open image file."));
 
 		return;
 	}
 
-	KUrl url = KFileDialog::getSaveUrl(this->m_recentUrl, i18n("*.blp|BLP textures\n*.png|PNG images"), this);
+	KUrl url = KFileDialog::getSaveUrl(this->m_recentUrl, i18n("*|All Files\n*.blp|Blizzard Pictures\n*.png|Portable Network Graphics\n*.jpg|JPEG Files"), this, i18n("Save texture")); // TODO MIME filters do not work ("all/allfiles").
 
 	if (url.isEmpty())
 		return;
 
 	try
 	{
-		this->m_texture->save(url, QFileInfo(url.toLocalFile()).suffix().toLower());
+		this->texture()->save(url, QFileInfo(url.toLocalFile()).suffix().toLower());
 	}
 	catch (Exception &exception)
 	{
@@ -193,11 +202,13 @@ void TextureEditor::saveFile()
 
 void TextureEditor::closeFile()
 {
-	m_texture.reset(0);
-	refreshImage();
-
 	foreach (QAction *action, m_textureActionCollection->actions())
 		action->setEnabled(false);
+
+	m_mipMapsMenu->clear();
+
+	m_texture.reset(0);
+	refreshImage();
 }
 
 void TextureEditor::showSettings()
@@ -321,8 +332,11 @@ void TextureEditor::massConverter()
 void TextureEditor::showMipMap()
 {
 	KAction *action = boost::polymorphic_cast<KAction*>(sender());
-	int mipMapIndex = this->m_mipMapsMenu->actions().indexOf(action);
-	this->m_imageLabel->setPixmap(QPixmap::fromImage(this->m_mipMaps[mipMapIndex]));
+	m_mipMapIndex = this->m_mipMapsMenu->actions().indexOf(action);
+	m_showsAlphaChannel = false;
+	m_showsTransparency = false;
+	m_factor = 1.0;
+	refreshImage();
 }
 
 void TextureEditor::refreshImage()
@@ -337,9 +351,9 @@ void TextureEditor::refreshImage()
 	QPixmap newPixmap;
 
 	if (!showsAlphaChannel())
-		newPixmap = QPixmap::fromImage(*this->m_texture->qt().get()).scaled(this->m_texture->qt()->size() * this->factor());
+		newPixmap = QPixmap::fromImage(mipMaps()[mipMapIndex()]).scaled(mipMaps()[mipMapIndex()].size() * this->factor());
 	else
-		newPixmap = QPixmap::fromImage(this->m_texture->qt()->createAlphaMask()).scaled(this->m_texture->qt()->size() * this->factor());
+		newPixmap = QPixmap::fromImage(mipMaps()[mipMapIndex()].createAlphaMask()).scaled(mipMaps()[mipMapIndex()].size() * this->factor());
 
 	if (showsTransparency())
 		newPixmap.setMask(this->m_imageLabel->pixmap()->createMaskFromColor(Qt::transparent));

@@ -131,15 +131,18 @@ bool Blp::hasFormat(const byte *buffer, const std::size_t bufferSize)
 	if (bufferSize < sizeof(dword))
 		return false;
 
+	/*
+	 * TODO FIXME
 	static const dword identifier0 = Blp::Format::Blp0;
 	static const dword identifier1 = Blp::Format::Blp1;
 	static const dword identifier2 = Blp::Format::Blp2;
+	*/
 
-	if (memcmp(buffer, &identifier0, sizeof(dword)) == 0)
+	if (memcmp(buffer, "BLP0", sizeof(dword)) == 0)
 		return true;
-	else if (memcmp(buffer, &identifier1, sizeof(dword)) == 0)
+	else if (memcmp(buffer, "BLP1", sizeof(dword)) == 0)
 		return true;
-	else if (memcmp(buffer, &identifier2, sizeof(dword)) == 0)
+	else if (memcmp(buffer, "BLP2", sizeof(dword)) == 0)
 		return true;
 
 	return false;
@@ -890,17 +893,14 @@ bool writeJpegMarker(Blp::OutputStream &ostream, std::streamsize &size, bool var
 				return false;
 
 			if (variable)
-			{
-				if (j + 1 >= bufferSize)
-					return false;
-
 				memcpy(&markerSize, &buffer[j], sizeof(markerSize));
-			}
 
-			if (j + markerSize > bufferSize)
+			// 0xFF + marker + marker size
+			if (i + 2 + markerSize > bufferSize)
 				return false;
 
-			wc3lib::write(ostream, buffer[i], size, markerSize + sizeof(dword)); // + sizeof 0xFF and marker
+			// marker size is 2 bytes long and includes its own size!
+			wc3lib::write(ostream, buffer[i], size, markerSize + 2); // + sizeof 0xFF and marker
 
 			return true;
 		}
@@ -1076,6 +1076,7 @@ std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std:
 
 		// TEST
 		std::cout << "---- Operation has finished with time: " << operationTimer.elapsed() << "s." << std::endl;
+		operationTimer.restart();
 
 		// continue, check for errors during thread operations
 		for (std::size_t i = 0; i < writeData.size(); ++i)
@@ -1086,7 +1087,7 @@ std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std:
 
 		// skip shared header size
 		std::streampos headerPosition = ostream.tellp();
-		ostream.seekp(sizeof(dword));
+		ostream.seekp(sizeof(dword), std::ios::cur);
 
 		std::streamsize headerSize = 0;
 		// NOTE marker reference: https://secure.wikimedia.org/wikipedia/en/wiki/JPEG#Syntax_and_structure
@@ -1118,6 +1119,9 @@ std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std:
 			wc3lib::write(ostream, writeData[i]->data[writeData[i]->headerSize], mipMapSize, writeData[i]->dataSize - writeData[i]->headerSize);
 			sizes[i] = mipMapSize;
 		}
+
+		// TEST
+		std::cout << "---- Writing has finished with time: " << operationTimer.elapsed() << "s." << std::endl;
 	}
 	else if (this->compression() == Blp::Compression::Paletted)
 	{
