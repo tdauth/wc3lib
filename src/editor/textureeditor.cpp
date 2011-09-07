@@ -459,6 +459,10 @@ class SettingsInterface* TextureEditor::settings()
 	return 0;
 }
 
+void TextureEditor::onSwitchToMap(Map *map)
+{
+}
+
 #include "moc_textureeditor.cpp"
 
 }

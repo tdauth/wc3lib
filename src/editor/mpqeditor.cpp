@@ -45,7 +45,7 @@ void MpqEditor::newMpqArchive()
 void MpqEditor::openMpqArchives()
 {
 	KUrl::List urls = KFileDialog::getOpenUrls(m_openStartUrl, i18n("*.mpq|MPQ archives\n*"), this);
-	
+
 	foreach (const KUrl &url, urls)
 		openMpqArchive(url);
 }
@@ -53,7 +53,7 @@ void MpqEditor::openMpqArchives()
 void MpqEditor::saveMpqArchive()
 {
 	KUrl url = KFileDialog::getSaveUrl(m_saveStartUrl, i18n("*.mpq|MPQ archives\n*"), this);
-	
+
 	if (url.isEmpty())
 		return;
 }
@@ -135,6 +135,10 @@ class SettingsInterface* MpqEditor::settings()
 {
 	/// @todo FIXME
 	return 0;
+}
+
+void MpqEditor::onSwitchToMap(Map *map)
+{
 }
 
 #include "moc_mpqeditor.cpp"

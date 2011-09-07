@@ -18,7 +18,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <KTemporaryFile>
+
 #include "map.hpp"
+#include "mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -28,6 +31,41 @@ namespace editor
 
 Map::Map(class MpqPriorityList *source, const KUrl &url) : Resource(source, url, Type::Map)
 {
+}
+
+void Map::load() throw (Exception)
+{
+	QString target;
+
+	if (!this->source()->download(url(), target, 0))
+		throw Exception();
+
+	map::ifstream istream(target.toUtf8().constData(), std::ios::in | std::ios::binary);
+
+	MapPtr map(new map::W3m());
+	map->read(istream);
+
+	this->map().swap(map); // exception safe
+}
+
+void Map::reload() throw (Exception)
+{
+	load();
+}
+
+void Map::save(const KUrl &url) const throw (Exception)
+{
+	KTemporaryFile tmpFile;
+
+	if (!tmpFile.open())
+		throw Exception(boost::format(_("Temporary file \"%1%\" cannot be opened.")) % tmpFile.fileName().toUtf8().constData());
+
+	map::ofstream ostream(tmpFile.fileName().toUtf8().constData(), std::ios::out | std::ios::binary);
+
+	map()->write(ostream);
+
+	if  (!this->source()->upload(tmpFile.fileName(), url, 0))
+		throw Exception(boost::format(_("Unable to upload temporary file \"%1%\" to URL \"%2%\"")) % tmpFile.fileName().toUtf8().constData() % url.toEncoded().constData());
 }
 
 }

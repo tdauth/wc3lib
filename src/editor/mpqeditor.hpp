@@ -32,7 +32,7 @@ namespace editor
 {
 
 /**
- * File-based MPQ editor which uses wc3lib's MPQ protocol plug-in (\ref MpqProtocol) 
+ * File-based MPQ editor which uses wc3lib's MPQ protocol plug-in (\ref MpqProtocol)
  * for MPQ file handling.
  * Moreover it allows you to easily open Warcraft III's default MPQ archives and all other MPQ entries from editor's MPQ priority list (\ref MpqPriorityList) plus all opened maps and campaigns in editor.
  * \sa MpqProtocol, MpqArchive, MpqPriorityList
@@ -44,12 +44,12 @@ class MpqEditor : public Module
 	public:
 		typedef boost::shared_ptr<mpq::Mpq> MpqPtr;
 		typedef std::list<MpqPtr> List;
-		
+
 		MpqEditor(wc3lib::editor::MpqPriorityList* source, QWidget* parent = 0, Qt::WindowFlags f = 0);
-		
+
 		const List& mpqArchives() const;
 		const List& selection() const;
-		
+
 		void openMpqArchive(const KUrl &url);
 
 	public slots:
@@ -90,14 +90,15 @@ class MpqEditor : public Module
 		virtual void createWindowsActions(class KMenu *menu);
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
+		virtual void onSwitchToMap(class Map *map);
 		virtual QString actionName();
-		
+
 		List& mpqArchives();
 		List& selection();
 
 		List m_mpqArchives;
 		List m_selection;
-		
+
 		KUrl m_openStartUrl;
 		KUrl m_saveStartUrl;
 		KUrl m_addStartUrl;

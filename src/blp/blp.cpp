@@ -871,9 +871,10 @@ namespace
  * \param markerSize Includes size bytes!
  * \param marker Marker's indicating byte value (e. g. 0xD8 for start of image).
  * \return Returns true if marker was found and data has been written into output stream (no stream checks!).
+ * \throw Exception Throws an exception if there is not enough data in buffer.
  * \todo (from Wikipedia) Within the entropy-coded data, after any 0xFF byte, a 0x00 byte is inserted by the encoder before the next byte, so that there does not appear to be a marker where none is intended, preventing framing errors. Decoders must skip this 0x00 byte. This technique, called byte stuffing (see JPEG specification section F.1.2.3), is only applied to the entropy-coded data, not to marker payload data.
  */
-bool writeJpegMarker(Blp::OutputStream &ostream, std::streamsize &size, bool variable, dword markerSize, const byte marker, const unsigned char *buffer, const std::size_t bufferSize)
+bool writeJpegMarker(Blp::OutputStream &ostream, std::streamsize &size, bool variable, dword markerSize, const byte marker, const unsigned char *buffer, const std::size_t bufferSize) throw (Exception)
 {
 	for (std::size_t i = 0; i < bufferSize; ++i)
 	{
@@ -887,17 +888,20 @@ bool writeJpegMarker(Blp::OutputStream &ostream, std::streamsize &size, bool var
 			if (buffer[j] != marker)
 				continue;
 
-			++j;
+			if (variable || markerSize > 0)
+			{
+				++j;
 
-			if (j >= bufferSize)
-				return false;
+				if (j >= bufferSize)
+					throw Exception(boost::format(_("JPEG marker \"%1%\" needs more data.")) % marker);
 
-			if (variable)
-				memcpy(&markerSize, &buffer[j], sizeof(markerSize));
+				if (variable)
+					memcpy(&markerSize, &buffer[j], sizeof(markerSize));
+			}
 
 			// 0xFF + marker + marker size
 			if (i + 2 + markerSize > bufferSize)
-				return false;
+				throw Exception(boost::format(_("JPEG marker \"%1%\" needs more data.")) % marker);
 
 			// marker size is 2 bytes long and includes its own size!
 			wc3lib::write(ostream, buffer[i], size, markerSize + 2); // + sizeof 0xFF and marker
@@ -957,7 +961,7 @@ std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std:
 	}
 
 
-	dword startOffset = 0;
+	dword startOffset = 0; /// Offset where MIP map offsets and sizes are written down at the end of the whole writing process.
 
 	if (this->format() == Blp::Format::Blp0 || this->format() == Blp::Format::Blp1)
 	{
@@ -1093,6 +1097,7 @@ std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std:
 		// NOTE marker reference: https://secure.wikimedia.org/wikipedia/en/wiki/JPEG#Syntax_and_structure
 		writeJpegMarker(ostream, headerSize, false, 0, 0xD8, &writeData[0]->data[0], writeData[0]->headerSize); // image start
 		// start after image start to increase performance
+		// TODO huffman table marker data size seems to be too large (marker is found and size is read - 2 bytes - which include its own size of 2).
 		writeJpegMarker(ostream, headerSize, true, 0, 0xC4, &writeData[0]->data[headerSize], writeData[0]->headerSize - headerSize); // huffman table
 		// start after huffman table to increase performance
 		writeJpegMarker(ostream, headerSize, true, 0, 0xDB, &writeData[0]->data[headerSize], writeData[0]->headerSize - headerSize); // quantization table

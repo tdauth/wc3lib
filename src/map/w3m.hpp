@@ -46,7 +46,7 @@ namespace wc3lib
 namespace map
 {
 
-class W3m : public FileFormat, public mpq::Mpq, public Playable
+class W3m : public Format, public mpq::Mpq, public Playable
 {
 	public:
 		typedef boost::scoped_ptr<Environment> EnvironmentPtr;
@@ -118,7 +118,22 @@ class W3m : public FileFormat, public mpq::Mpq, public Playable
 		int32 width() const;
 		int32 height() const;
 
+		const EnvironmentPtr& environment() const;
+		const ShadowPtr& shadow() const;
+		const PathmapPtr& pathmap() const;
+		const TreesPtr& trees() const;
+		const CustomUnitsPtr& customUnits() const;
 		const InfoPtr& info() const;
+		const StringsPtr& strings() const;
+		const MinimapPtr& minimap() const;
+		const MenuMinimapPtr& menuMinimap() const;
+		const TriggersPtr& triggers() const;
+		const CamerasPtr& cameras() const;
+		const RectsPtr& rects() const;
+		const SoundsPtr& sounds() const;
+		const CustomTextTriggersPtr& customTextTriggers() const;
+		const ImportedFilesPtr& importedFiles() const;
+
 		const FileFormats& fileFormats() const;
 		FileFormats& fileFormats();
 
@@ -177,6 +192,31 @@ inline int32 W3m::width() const
 inline int32 W3m::height() const
 {
 	return this->m_environment->mapHeight();
+}
+
+inline const W3m::EnvironmentPtr& W3m::environment() const
+{
+	return m_environment;
+}
+
+inline const W3m::ShadowPtr& W3m::shadow() const
+{
+	return m_shadow;
+}
+
+inline const W3m::PathmapPtr& W3m::pathmap() const
+{
+	return m_pathmap;
+}
+
+inline const W3m::TreesPtr& W3m::trees() const
+{
+	return m_trees;
+}
+
+inline const W3m::CustomUnitsPtr& W3m::customUnits() const
+{
+	return m_customUnits;
 }
 
 inline const W3m::InfoPtr& W3m::info() const

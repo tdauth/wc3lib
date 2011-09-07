@@ -38,6 +38,10 @@ namespace editor
 
 Module::Module(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_moduleMenu(0), m_menuBar(0), m_topLayout(new QVBoxLayout(this)), QWidget(parent, f & Qt::Window) // each module should get its own window
 {
+	if (hasEditor())
+	{
+		connect(editor(), SIGNAL(switchedToMap(const Map*)), SLOT(switchToMap(Map*)));
+	}
 }
 
 Module::~Module()
@@ -206,6 +210,11 @@ void Module::triggered(QAction *action)
 	{
 		this->close();
 	}
+}
+
+void Module::switchToMap(class Map *map)
+{
+	onSwitchToMap(map);
 }
 
 #include "moc_module.cpp"

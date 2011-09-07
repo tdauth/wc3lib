@@ -118,8 +118,11 @@ class FileFormat : public Format
 		virtual int32 latestFileVersion() const = 0;
 };
 
-typedef std::basic_istream<byte> istream;
-typedef std::basic_ostream<byte> ostream;
+typedef std::basic_istream<char8> istream;
+typedef std::basic_ostream<char8> ostream;
+typedef std::basic_ifstream<char8> ifstream;
+typedef std::basic_ofstream<char8> ofstream;
+typedef std::basic_fstream<char8> fstream;
 typedef boost::iostreams::stream<boost::iostreams::basic_array<char8> > arraystream;
 typedef boost::iostreams::stream<boost::iostreams::basic_array_source<char8> > iarraystream;
 typedef boost::iostreams::stream<boost::iostreams::basic_array_sink<char8> > oarraystream;

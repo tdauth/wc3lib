@@ -1,6 +1,6 @@
 2011-09-06 Tamino Dauth <tamino@cdauth.eu>
 * blp: If there is no MIP map data in JPEG compressed BLP segmentation fault occurs (probably because of JPEG error handler). Exception should be thrown instead!
-* blp: Missing further 0xFF markers in JPEG header data (first one is found).
+* blp: Variable size after marker is too big (e. g. marker 0xC4)!
 
 2011-09-01 Tamino Dauth <tamino@cdauth.eu>
 * FIXED: editor: Fix missing include paths for modules.

@@ -30,6 +30,7 @@
 #include "resource.hpp"
 #include "texture.hpp"
 #include "ogremdlx.hpp"
+#include "kio_mpq/mpqprotocol.hpp"
 
 namespace wc3lib
 {
@@ -53,7 +54,7 @@ class MpqPriorityListEntry : public boost::operators<MpqPriorityListEntry>
 		* Otherwise it has to be a directory.
 		*/
 		MpqPriorityListEntry(const KUrl &url, Priority priority);
-		
+
 		bool download(const KUrl &src, QString &target, QWidget *window);
 		bool upload(const QString &src, const KUrl &target, QWidget *window);
 
@@ -107,7 +108,7 @@ class MpqPriorityList
 {
 	public:
 		typedef MpqPriorityList self;
-		
+
 		typedef boost::shared_ptr<MpqPriorityListEntry> Source;
 		typedef boost::multi_index_container<Source,
 		boost::multi_index::indexed_by<
@@ -123,7 +124,7 @@ class MpqPriorityList
 		> >
 
 		Sources;
-		
+
 		typedef boost::shared_ptr<Resource> ResourcePtr;
 		typedef std::map<KUrl, ResourcePtr> Resources;
 		typedef boost::shared_ptr<Texture> TexturePtr;
@@ -153,9 +154,9 @@ class MpqPriorityList
 		 */
 		virtual bool download(const KUrl &src, QString &target, QWidget *window);
 		virtual bool upload(const QString &src, const KUrl &target, QWidget *window);
-		
+
 		const Sources& sources() const;
-		
+
 		/**
 		 * All added resources will also be added to MPQ priority list automaticially.
 		 * Therefore there shouldn't occur any problems when you open an external MDL file and need its textures which are contained by the same directory.
@@ -168,7 +169,7 @@ class MpqPriorityList
 		virtual bool removeResource(class Resource *resource);
 		virtual bool removeResource(const KUrl &url);
 		const Resources& resources() const;
-		
+
 		/**
 		 * Once requested, the image is kept in memory until it's refreshed manually.
 		 */
@@ -178,7 +179,7 @@ class MpqPriorityList
 		 */
 		const TexturePtr& teamGlowTexture(BOOST_SCOPED_ENUM(TeamColor) teamGlow) const throw (class Exception);
 
-		
+
 		/**
 		 * Returns localized string under key \p key in group \p group.
 		 * Call tr("WESTRING_APPNAME", "WorldEditStrings", \ref mpq::MpqFile::German) to get the text "WARCRAFT III - Welt-Editor" from file "UI/WorldEditStrings.txt" of MPQ archive "War3xlocal.mpq" (Frozen Throne), for instance.
@@ -195,9 +196,9 @@ class MpqPriorityList
 		virtual QString tr(const QString &key, const QString &group = "", BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale = mpq::MpqFile::Locale::Neutral) const;
 	protected:
 		Sources& sources();
-		
+
 		mpq::MpqFile::Locale m_locale;
-		
+
 		Sources m_sources;
 		Resources m_resources;
 		// team color and glow textures
@@ -224,6 +225,14 @@ inline void MpqPriorityList::addResource(class Resource *resource)
 {
 	this->m_resources.insert(std::make_pair(resource->url(), resource));
 	this->addSource(resource->url());
+
+	// add additional archive source
+	if ((resource->type() == Resource::Type::Map || resource->type() == Resource::Type::Campaign) && resource->url().protocol() != MpqProtocol::protocol)
+	{
+		KUrl url = resource->url();
+		url.setProtocol(MpqProtocol::protocol);
+		this->addSource(url);
+	}
 }
 
 
@@ -239,9 +248,17 @@ inline bool MpqPriorityList::removeResource(const KUrl &url)
 	if (iterator == this->m_resources.end())
 		return false;
 
+	// remove additional archive source
+	if ((iterator->second->type() == Resource::Type::Map || iterator->second->type() == Resource::Type::Campaign) && iterator->second->url().protocol() != MpqProtocol::protocol)
+	{
+		KUrl url = iterator->second->url();
+		url.setProtocol(MpqProtocol::protocol);
+		this->removeSource(url);
+	}
+
+	this->removeSource(url);
 	this->m_resources.erase(iterator);
 	iterator->second.reset();
-	this->removeSource(url);
 
 	return true;
 }

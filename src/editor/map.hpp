@@ -35,14 +35,19 @@ class Map : public Resource
 {
 	public:
 		typedef boost::scoped_ptr<map::W3m> MapPtr;
-		
+
 		Map(class MpqPriorityList *source, const KUrl &url);
-		
+
+		virtual void load() throw (Exception);
+		virtual void reload() throw (Exception);
+		virtual void save(const KUrl &url) const throw (Exception);
+
 		bool isW3x() const;
-		
+
 		const MapPtr& map() const;
-		
-	protected:
+		MapPtr& map();
+
+	private:
 		MapPtr m_map;
 };
 
@@ -50,11 +55,16 @@ inline bool Map::isW3x() const
 {
 	if (m_map.get() == 0)
 		return false;
-	
+
 	return typeid(m_map.get()) == typeid(map::W3x);
 }
 
 inline const Map::MapPtr& Map::map() const
+{
+	return m_map;
+}
+
+inline Map::MapPtr& Map::map()
 {
 	return m_map;
 }

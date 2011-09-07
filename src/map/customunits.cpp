@@ -29,52 +29,6 @@ namespace wc3lib
 namespace map
 {
 
-CustomUnits::Unit::Unit()
-{
-}
-
-CustomUnits::Unit::~Unit()
-{
-	BOOST_FOREACH(Modification *modification, m_modifications)
-		delete modification;
-}
-
-std::streamsize CustomUnits::Unit::read(std::basic_istream<byte> &istream) throw (class Exception)
-{
-	std::streamsize size = 0;
-	wc3lib::read(istream, this->m_originalId, size);
-	wc3lib::read(istream, this->m_customId, size);
-	int32 modifications;
-	wc3lib::read(istream, modifications, size);
-
-	for ( ; modifications > 0; --modifications)
-	{
-		Modification *modification = createModification();
-		size += modification->read(istream);
-		this->m_modifications.push_back(modification);
-	}
-
-	return size;
-}
-
-std::streamsize CustomUnits::Unit::write(std::basic_ostream<byte> &ostream) const throw (class Exception)
-{
-	std::streamsize size = 0;
-	wc3lib::write(ostream, this->m_originalId, size);
-	wc3lib::write(ostream, this->m_customId, size);
-	wc3lib::write<int32>(ostream, this->m_modifications.size(), size);
-
-	BOOST_FOREACH(Modification *modification, this->m_modifications)
-		size += modification->write(ostream);
-
-	return size;
-}
-
-CustomUnits::Modification* CustomUnits::Unit::createModification() const
-{
-	return new Modification();
-}
-
 CustomUnits::Modification::Modification()
 {
 }
@@ -83,7 +37,7 @@ CustomUnits::Modification::~Modification()
 {
 }
 
-std::streamsize CustomUnits::Modification::read(std::basic_istream<byte> &istream) throw (class Exception)
+std::streamsize CustomUnits::Modification::read(InputStream &istream) throw (class Exception)
 {
 	std::streamsize size = readData(istream);
 	int32 end;
@@ -92,7 +46,7 @@ std::streamsize CustomUnits::Modification::read(std::basic_istream<byte> &istrea
 	return size;
 }
 
-std::streamsize CustomUnits::Modification::write(std::basic_ostream<byte> &ostream) const throw (class Exception)
+std::streamsize CustomUnits::Modification::write(OutputStream &ostream) const throw (class Exception)
 {
 	std::streamsize size = writeData(ostream);
 	int32 end = 0;
@@ -152,18 +106,18 @@ std::streamsize CustomUnits::Modification::readData(InputStream &istream) throw 
 std::streamsize CustomUnits::Modification::writeData(OutputStream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	wc3lib::write(ostream, this->m_id, size);
-	wc3lib::write<int32>(ostream, this->m_value.type(), size);
+	wc3lib::write(ostream, this->valueId(), size);
+	wc3lib::write<int32>(ostream, this->value().type(), size);
 
-	switch (this->m_value.type())
+	switch (this->value().type())
 	{
 		case Value::Type::Integer:
-			wc3lib::write(ostream, this->m_value.toInteger(), size);
+			wc3lib::write(ostream, this->value().toInteger(), size);
 
 			break;
 
 		case Value::Type::Real:
-			wc3lib::write(ostream, this->m_value.toReal(), size);
+			wc3lib::write(ostream, this->value().toReal(), size);
 
 			break;
 
@@ -173,17 +127,56 @@ std::streamsize CustomUnits::Modification::writeData(OutputStream &ostream) cons
 	return size;
 }
 
+CustomUnits::Unit::Unit()
+{
+}
+
+CustomUnits::Unit::~Unit()
+{
+}
+
+std::streamsize CustomUnits::Unit::read(InputStream &istream) throw (class Exception)
+{
+	std::streamsize size = 0;
+	wc3lib::read(istream, this->m_originalId, size);
+	wc3lib::read(istream, this->m_customId, size);
+	int32 modifications;
+	wc3lib::read(istream, modifications, size);
+
+	for (int32 i = 0; i < modifications; ++i)
+	{
+		ModificationPtr modification(createModification());
+		size += modification->read(istream);
+		this->modifications()[i].swap(modification);
+	}
+
+	return size;
+}
+
+std::streamsize CustomUnits::Unit::write(OutputStream &ostream) const throw (class Exception)
+{
+	std::streamsize size = 0;
+	wc3lib::write(ostream, originalId(), size);
+	wc3lib::write(ostream, customId(), size);
+	wc3lib::write<int32>(ostream, modifications().size(), size);
+
+	BOOST_FOREACH(Modifications::const_reference modification, this->modifications())
+		size += modification->write(ostream);
+
+	return size;
+}
+
+CustomUnits::Modification* CustomUnits::Unit::createModification() const
+{
+	return new Modification();
+}
+
 CustomUnits::CustomUnits()
 {
 }
 
 CustomUnits::~CustomUnits()
 {
-	BOOST_FOREACH(Unit *unit, this->m_originalTable)
-		delete unit;
-
-	BOOST_FOREACH(Unit *unit, this->m_customTable)
-		delete unit;
 }
 
 std::streamsize CustomUnits::read(InputStream &istream) throw (class Exception)
@@ -191,27 +184,29 @@ std::streamsize CustomUnits::read(InputStream &istream) throw (class Exception)
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_version, size);
 
-	if (this->m_version != latestFileVersion())
-		throw Exception(boost::format(_("Custom Units: Unknown version \"%1%\", expected \"%2%\".")) % this->m_version % latestFileVersion());
+	if (this->version() != latestFileVersion())
+		throw Exception(boost::format(_("Custom Units: Unknown version \"%1%\", expected \"%2%\".")) % this->version() % latestFileVersion());
 
 	int32 originalUnits;
 	wc3lib::read(istream, originalUnits, size);
+	this->originalTable().resize(originalUnits);
 
-	for ( ; originalUnits > 0; --originalUnits)
+	for (int32 i = 0; i < originalUnits; ++i)
 	{
-		Unit *unit = createUnit();
+		UnitPtr unit(createUnit());
 		size += unit->read(istream);
-		this->m_originalTable.push_back(unit);
+		originalTable()[i].swap(unit);
 	}
 
 	int32 customUnits;
 	wc3lib::read(istream, customUnits, size);
+	this->customTable().resize(customUnits);
 
-	for ( ; customUnits > 0; --customUnits)
+	for (int32 i = 0; i < customUnits; ++i)
 	{
-		Unit *unit = createUnit();
+		UnitPtr unit(createUnit());
 		size += unit->read(istream);
-		this->m_customTable.push_back(unit);
+		customTable()[i].swap(unit);
 	}
 
 	return size;
@@ -219,19 +214,19 @@ std::streamsize CustomUnits::read(InputStream &istream) throw (class Exception)
 
 std::streamsize CustomUnits::write(OutputStream &ostream) const throw (class Exception)
 {
-	if (this->m_version != latestFileVersion())
-		throw Exception(boost::format(_("Custom Units: Unknown version \"%1%\", expected \"%2%\".")) % this->m_version % latestFileVersion());
+	if (version() != latestFileVersion())
+		throw Exception(boost::format(_("Custom Units: Unknown version \"%1%\", expected \"%2%\".")) % version() % latestFileVersion());
 
 	std::streamsize size = 0;
-	wc3lib::write(ostream, this->m_version, size);
-	wc3lib::write<int32>(ostream, this->m_originalTable.size(), size);
+	wc3lib::write(ostream, version(), size);
+	wc3lib::write<int32>(ostream, originalTable().size(), size);
 
-	BOOST_FOREACH(Unit *unit, this->m_originalTable)
+	BOOST_FOREACH(Table::const_reference unit, originalTable())
 		size += unit->write(ostream);
 
-	wc3lib::write<int32>(ostream, this->m_customTable.size(), size);
+	wc3lib::write<int32>(ostream, customTable().size(), size);
 
-	BOOST_FOREACH(Unit *unit, this->m_customTable)
+	BOOST_FOREACH(Table::const_reference unit, customTable())
 		size += unit->write(ostream);
 
 	return size;

@@ -26,6 +26,7 @@
 #include <boost/filesystem.hpp>
 
 #include <QSettings>
+#include <QLinkedList>
 
 #include <KMainWindow>
 #include <KAboutData>
@@ -34,6 +35,8 @@
 
 #include <Ogre.h>
 
+#include "platform.hpp"
+#include "mpqprioritylist.hpp"
 #include "resource.hpp"
 #include "terraineditor.hpp"
 #include "triggereditor.hpp"
@@ -49,8 +52,6 @@
 #include "newmapdialog.hpp"
 #include "ogremdlx.hpp"
 #include "texture.hpp"
-#include "../mpq.hpp"
-#include "mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -93,6 +94,7 @@ class Editor : public KMainWindow, public MpqPriorityList
 
 	public:
 		typedef Editor self;
+		typedef QLinkedList<class Module*> Modules;
 		typedef QLinkedList<class Map*> Maps;
 
 		static const KAboutData& aboutData();
@@ -100,7 +102,7 @@ class Editor : public KMainWindow, public MpqPriorityList
 
 		Editor(QWidget *parent = 0, Qt::WindowFlags f = Qt::Window);
 		virtual ~Editor();
-		
+
 		Ogre::Root* root() const;
 		class Map* currentMap() const;
 
@@ -117,7 +119,7 @@ class Editor : public KMainWindow, public MpqPriorityList
 		class ModelEditor* modelEditor() const;
 		class TextureEditor* textureEditor() const;
 		class NewMapDialog* newMapDialog() const;
-		
+
 	public slots:
 		void newMap();
 		void openMap(const KUrl &url);
@@ -137,7 +139,7 @@ class Editor : public KMainWindow, public MpqPriorityList
 
 	protected:
 		virtual void changeEvent(QEvent *event);
-		
+
 		/// Enables or disables actions which can only be used with an opened map.
 		void setMapActionsEnabled(bool enabled);
 		/**
@@ -158,8 +160,9 @@ class Editor : public KMainWindow, public MpqPriorityList
 
 		Ogre::Root *m_root;
 		class Map *m_currentMap;
-		
+
 		class KActionCollection *m_actionCollection;
+		Modules m_modules;
 		class TerrainEditor *m_terrainEditor;
 		class TriggerEditor *m_triggerEditor;
 		class SoundEditor *m_soundEditor;
@@ -180,9 +183,10 @@ T* Editor::module(T* const &module) const
 	if (module == 0)
 	{
 		const_cast<T*&>(module) = new T(const_cast<self*>(this), const_cast<self*>(this));
+		const_cast<self*>(this)->m_modules.append(const_cast<T*&>(module));
 		emit const_cast<self*>(this)->createdModule(const_cast<T*&>(module));
 	}
-	
+
 	return module;
 }
 
@@ -192,7 +196,7 @@ inline Ogre::Root* Editor::root() const
 	if (m_root == 0)
 	{
 		const_cast<class Editor*>(this)->m_root = new Ogre::Root();
-		
+
 		const Ogre::RenderSystemList &renderers = m_root->getAvailableRenderers();
 		assert(!renderers.empty()); // we need at least one renderer to do anything useful
 		Ogre::RenderSystem *renderSystem = renderers.front();
@@ -206,7 +210,7 @@ inline Ogre::Root* Editor::root() const
 	}
 	//else if (m_root->getRenderSystem()->getConfigOptions()["Full Screen"].currentValue == "Yes")
 		//KMessageBox::information(this, i18n("Full screen is enabled."));
-	
+
 	return m_root;
 }
 
@@ -279,7 +283,7 @@ inline class NewMapDialog* Editor::newMapDialog() const
 {
 	if (this->m_newMapDialog == 0)
 		const_cast<self*>(this)->m_newMapDialog = new NewMapDialog(const_cast<self*>(this), const_cast<self*>(this));
-	
+
 	return this->m_newMapDialog;
 }
 

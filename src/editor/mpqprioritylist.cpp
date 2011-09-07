@@ -40,12 +40,12 @@ bool MpqPriorityList::addSource(const KUrl &url, MpqPriorityListEntry::Priority 
 	/// \todo Support all archive properties and remote directories (smb).
 	if (!QFileInfo(url.toLocalFile()).isDir() && (url.protocol() != "mpq" || url.protocol() != "tar"))
 		return false;
-	
+
 	Sources::index_const_iterator<KUrl>::type iterator = sources().get<KUrl>().find(url);
-	
+
 	if (iterator != sources().get<KUrl>().end())
 		return false;
-	
+
 	Source ptr(new MpqPriorityListEntry(url, priority));
 	sources().push_back(ptr);
 
@@ -55,12 +55,12 @@ bool MpqPriorityList::addSource(const KUrl &url, MpqPriorityListEntry::Priority 
 bool MpqPriorityList::removeSource(const KUrl &url)
 {
 	Sources::index_iterator<KUrl>::type iterator = sources().get<KUrl>().find(url);
-	
+
 	if (iterator != sources().get<KUrl>().end())
 		return false;
-	
+
 	sources().get<KUrl>().erase(iterator);
-	
+
 	return true;
 }
 
@@ -68,15 +68,15 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 {
 	if (!src.isValid())
 		return false;
-	
+
 	if (!src.isRelative())
 		return KIO::NetAccess::download(src, target, window);
-	
+
 	// Since entries are ordered by priority highest priority entry should be checked first
 	BOOST_FOREACH(const Source entry, sources().get<MpqPriorityListEntry::Priority>())
 	{
 		KUrl absoluteSource;
-		
+
 		if (!src.isRelative())
 		{
 			absoluteSource = src;
@@ -87,11 +87,11 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 			absoluteSource = entry->url();
 			absoluteSource.addPath(src.toLocalFile());
 		}
-		
+
 		if (KIO::NetAccess::download(absoluteSource, target, window))
 			return true;
 	}
-	
+
 	return false;
 }
 
@@ -99,15 +99,15 @@ bool MpqPriorityList::upload(const QString &src, const KUrl &target, QWidget *wi
 {
 	if (!target.isValid())
 		return false;
-	
+
 	if (!target.isRelative())
 		return KIO::NetAccess::upload(src, target, window);
-	
+
 	// Since entries are ordered by priority highest priority entry should be checked first
 	BOOST_FOREACH(const Source entry, sources().get<MpqPriorityListEntry::Priority>())
 	{
 		KUrl absoluteTarget;
-		
+
 		if (!target.isRelative())
 		{
 			absoluteTarget = target;
@@ -118,11 +118,11 @@ bool MpqPriorityList::upload(const QString &src, const KUrl &target, QWidget *wi
 			absoluteTarget = entry->url();
 			absoluteTarget.addPath(target.toLocalFile());
 		}
-		
+
 		if (KIO::NetAccess::upload(src, absoluteTarget, window))
 			return true;
 	}
-	
+
 	return false;
 }
 

@@ -56,6 +56,10 @@ class SettingsInterface* ObjectManager::settings()
 	return 0;
 }
 
+void ObjectManager::onSwitchToMap(Map *map)
+{
+}
+
 }
 
 }

@@ -41,6 +41,7 @@ class SoundEditor : public Module
 		virtual void createWindowsActions(class KMenu *menu);
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
+		virtual void onSwitchToMap(Map *map);
 		virtual QString actionName();
 };
 

@@ -26,6 +26,7 @@
 #include "objecttreewidget.hpp"
 #include "objecttablewidget.hpp"
 #include "metadata.hpp"
+#include "map.hpp"
 
 namespace wc3lib
 {
@@ -48,11 +49,11 @@ UnitEditor::UnitEditor(class MpqPriorityList *source, QWidget *parent, Qt::Windo
 class ObjectTreeWidget* UnitEditor::createTreeWidget()
 {
 	ObjectTreeWidget *treeWidget = new ObjectTreeWidget(this);
-	
+
 	m_standardUnitsItem = new QTreeWidgetItem(treeWidget);
 	m_standardUnitsItem->setText(0, source()->tr("WESTRING_UE_STANDARDUNITS"));
-	
-	
+
+
 	/// \todo Add all default unit entries
 	//m_standardUnitsItem->addChild();
 	/*
@@ -60,19 +61,35 @@ class ObjectTreeWidget* UnitEditor::createTreeWidget()
 	m_campaignUnitsItem = new QTreeWidgetItem(treeWidget);
 	item->setText(0, source()->tr("WESTRING_UE_CAMPAIGNUNITS"));
 	*/
-	
+
 	m_customUnitsItem = new QTreeWidgetItem(treeWidget);
 	m_customUnitsItem->setText(0, source()->tr("WESTRING_UE_CUSTOMUNITS"));
-	
-	
+
+
 	// TODO create UnitTreeWidget
-	
+
 	return treeWidget;
 }
 
 class ObjectTableWidget* UnitEditor::createTableWidget()
 {
 	return new ObjectTableWidget(this, m_metaData);
+}
+
+void UnitEditor::onSwitchToMap(class Map *map)
+{
+	if (map->isW3x())
+	{
+	}
+	// W3M
+	else
+	{
+		BOOST_FOREACH(map::CustomUnits::Table::const_reference unit, map->map()->customUnits()->originalTable())
+		{
+			QTreeWidgetItem *unitItem = new QTreeWidgetItem(QStringList(tr("%1").arg(unit->originalId())), 0); // TEST usually you should get the unit's name
+			m_standardUnitsItem->addChild(unitItem); // TODO add to category item
+		}
+	}
 }
 
 void UnitEditor::onNewObject()

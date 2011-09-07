@@ -46,11 +46,11 @@ class Module : public QWidget
 		class MpqPriorityList* source() const;
 		class KMenu* fileMenu() const;
 		class KMenu* editMenu() const;
-		class ModuleMenu* moduleMenu() const; 
+		class ModuleMenu* moduleMenu() const;
 		class KMenuBar* menuBar() const;
 		class KMenu* windowsMenu() const;
 		class KToolBar* toolBar() const;
-		
+
 		/**
 		 * This function uses dynamic type checking via "typeid".
 		 * \return Returns true if \ref source() is an Editor instance. Otherwise it returns false.
@@ -63,7 +63,7 @@ class Module : public QWidget
 		 * \sa source(), hasEditor()
 		 */
 		class Editor* editor() const throw (Exception);
-		
+
 		/**
 		 * Name of corresponding action in module menu of editor's action collection.
 		 * \sa moduleMenu()
@@ -81,7 +81,12 @@ class Module : public QWidget
 		virtual class SettingsInterface* settings() = 0;
 
 		class QVBoxLayout* topLayout() const;
-		
+
+		/**
+		 * This event occurs when module has an \ref Editor and its opened map is changed.
+		 */
+		virtual void onSwitchToMap(class Map *map) = 0;
+
 		virtual void focusInEvent(QFocusEvent*);
 		virtual void focusOutEvent(QFocusEvent*);
 
@@ -102,6 +107,9 @@ class Module : public QWidget
 		class QAction *m_closeAction;
 
 		class QVBoxLayout *m_topLayout;
+
+	private slots:
+		void switchToMap(class Map *map);
 };
 
 inline class MpqPriorityList* Module::source() const

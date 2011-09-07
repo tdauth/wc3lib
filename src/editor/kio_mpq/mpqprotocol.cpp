@@ -63,7 +63,9 @@ extern "C" int KDE_EXPORT kdemain(int argc, char **argv)
 	return 0;
 }
 
-MpqProtocol::MpqProtocol(const QByteArray &pool, const QByteArray &app) : KIO::SlaveBase("mpq", pool, app)
+const char *MpqProtocol::protocol= "mpq";
+
+MpqProtocol::MpqProtocol(const QByteArray &pool, const QByteArray &app) : KIO::SlaveBase(protocol, pool, app)
 {
 }
 
@@ -639,7 +641,7 @@ bool MpqProtocol::checkNewFile(const KUrl &url, QString &path, KIO::Error &error
 	}
 
 	// Open new file
-	if ( url.protocol() == "mpq" ) {
+	if ( url.protocol() == protocol ) {
 		kDebug(7109) << "Opening MPQ on" << archiveFile;
 		m_archive.reset(new MpqArchive( archiveFile ));
 	}

@@ -50,7 +50,7 @@ namespace editor
  * <li>Model Entry Editor</li>
  * <li>Skin Entry Editor</li>
  * <li>Uberslpat Entry Editor</li>
- * <li>Slpat Entry Editor</li>
+ * <li>Splat Entry Editor</li>
  * <li>Spawn Entry Editor</li>
  * <li>Lightning Effect Entry Editor</li>
  * <li>Cliff Type Entry Editor</li>
@@ -64,22 +64,41 @@ namespace editor
 class ObjectEditor : public Module
 {
 	Q_OBJECT
-	
+
 	signals:
 		void objectCreated(map::Object *object);
 		void objectRemoved(const map::id &id);
 		//void objectValueChanged(const map::ObjectValue &value);
-	
+
 	public:
 		ObjectEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		~ObjectEditor();
-		
+
 		class KTabWidget* tabWidget() const;
-		
+
 		class ObjectEditorTab* currentTab() const;
-		
+
 		class ObjectEditorTab* tab(int index) const;
-		
+
+		class UnitEditor* unitEditor() const;
+		class DoodadEditor* doodadEditor() const;
+		class DestructibleEditor* destructibleEditor() const;
+		class ItemEditor* itemEditor() const;
+		class AbilityEditor* abilityEditor() const;
+		class BuffEditor* buffEditor() const;
+		class UpgradeEditor* upgradeEditor() const;
+		class ModelEntryEditor* modelEntryEditor() const;
+		class SkinEntryEditor* skinEntryEditor() const;
+		class UbersplatEntryEditor* ubersplatEntryEditor() const;
+		class SplatEntryEditor* splatEntryEditor() const;
+		class SpawnEntryEditor* spawnEntryEditor() const;
+		class LightningEffectEntryEditor* lightningEffectEntryEditor() const;
+		class CliffTypeEntryEditor* cliffTypeEntryEditor() const;
+		class TilesetEntryEditor* tilesetEntryEditor() const;
+		class WaterEntryEditor* waterEntryEditor() const;
+		class WeatherEntryEditor* weatherEntryEditor() const;
+		class SoundEntryEditor* soundEntryEditor() const;
+
 		class KAction* newObjectAction() const;
 		class KAction* renameObjectAction() const;
 		class KAction* deleteObjectAction() const;
@@ -89,7 +108,7 @@ class ObjectEditor : public Module
 		class KAction* importAllObjectsAction() const;
 		class KAction* copyObjectAction() const;
 		class KAction* pasteObjectAction() const;
-		
+
 	public slots:
 		void exportAll();
 		void importAll();
@@ -101,19 +120,20 @@ class ObjectEditor : public Module
 		virtual void createWindowsActions(class KMenu *menu);
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
+		virtual void onSwitchToMap(class Map *map);
 		virtual QString actionName();
-		
+
 	protected slots:
 		/**
 		 * Updates action textes, icons and corresponding slots to new tab one's.
 		 */
 		void currentChanged(int index);
-	
+
 	protected:
 		KTabWidget *m_tabWidget;
 		// current widgets of corresponding tab widget
 		class ObjectEditorTab *m_currentTab;
-		
+
 		class UnitEditor *m_unitEditor;
 		class DoodadEditor *m_doodadEditor;
 		class DestructibleEditor *m_destructibleEditor;
@@ -125,7 +145,7 @@ class ObjectEditor : public Module
 		class ModelEntryEditor *m_modelEntryEditor;
 		class SkinEntryEditor *m_skinEntryEditor;
 		class UbersplatEntryEditor *m_ubersplatEntryEditor;
-		class SlpatEntryEditor *m_splatEntryEditor;
+		class SplatEntryEditor *m_splatEntryEditor;
 		class SpawnEntryEditor *m_spawnEntryEditor;
 		class LightningEffectEntryEditor *m_lightningEffectEntryEditor;
 		class CliffTypeEntryEditor *m_cliffTypeEntryEditor;
@@ -133,7 +153,7 @@ class ObjectEditor : public Module
 		class WaterEntryEditor *m_waterEntryEditor;
 		class WeatherEntryEditor *m_weatherEntryEditor;
 		class SoundEntryEditor *m_soundEntryEditor;
-		
+
 		class KAction *m_newObjectAction;
 		class KAction *m_renameObjectAction;
 		class KAction *m_deleteObjectAction;
@@ -153,6 +173,97 @@ inline class KTabWidget* ObjectEditor::tabWidget() const
 inline class ObjectEditorTab* ObjectEditor::currentTab() const
 {
 	return m_currentTab;
+}
+
+
+inline class UnitEditor* ObjectEditor::unitEditor() const
+{
+	return m_unitEditor;
+}
+
+inline class DoodadEditor* ObjectEditor::doodadEditor() const
+{
+	return m_doodadEditor;
+}
+
+inline class DestructibleEditor* ObjectEditor::destructibleEditor() const
+{
+	return m_destructibleEditor;
+}
+
+inline class ItemEditor* ObjectEditor::itemEditor() const
+{
+	return m_itemEditor;
+}
+
+inline class AbilityEditor* ObjectEditor::abilityEditor() const
+{
+	return m_abilityEditor;
+}
+
+inline class BuffEditor* ObjectEditor::buffEditor() const
+{
+	return m_buffEditor;
+}
+
+inline class UpgradeEditor* ObjectEditor::upgradeEditor() const
+{
+	return m_upgradeEditor;
+}
+
+inline class ModelEntryEditor* ObjectEditor::modelEntryEditor() const
+{
+	return m_modelEntryEditor;
+}
+
+inline class SkinEntryEditor* ObjectEditor::skinEntryEditor() const
+{
+	return m_skinEntryEditor;
+}
+
+inline class UbersplatEntryEditor* ObjectEditor::ubersplatEntryEditor() const
+{
+	return m_ubersplatEntryEditor;
+}
+
+inline class SplatEntryEditor* ObjectEditor::splatEntryEditor() const
+{
+	return m_splatEntryEditor;
+}
+
+inline class SpawnEntryEditor* ObjectEditor::spawnEntryEditor() const
+{
+	return m_spawnEntryEditor;
+}
+
+inline class LightningEffectEntryEditor* ObjectEditor::lightningEffectEntryEditor() const
+{
+	return m_lightningEffectEntryEditor;
+}
+
+inline class CliffTypeEntryEditor* ObjectEditor::cliffTypeEntryEditor() const
+{
+	return m_cliffTypeEntryEditor;
+}
+
+inline class TilesetEntryEditor* ObjectEditor::tilesetEntryEditor() const
+{
+	return m_tilesetEntryEditor;
+}
+
+inline class WaterEntryEditor* ObjectEditor::waterEntryEditor() const
+{
+	return m_waterEntryEditor;
+}
+
+inline class WeatherEntryEditor* ObjectEditor::weatherEntryEditor() const
+{
+	return m_weatherEntryEditor;
+}
+
+inline class SoundEntryEditor* ObjectEditor::soundEntryEditor() const
+{
+	return m_soundEntryEditor;
 }
 
 inline class KAction* ObjectEditor::newObjectAction() const

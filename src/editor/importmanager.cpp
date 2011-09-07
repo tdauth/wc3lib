@@ -56,6 +56,10 @@ class SettingsInterface* ImportManager::settings()
 	return 0;
 }
 
+void ImportManager::onSwitchToMap(Map* map)
+{
+}
+
 }
 
 }

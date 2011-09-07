@@ -99,6 +99,7 @@ class TextureEditor : public Module, protected Ui::TextureEditor
 		virtual void createWindowsActions(class KMenu *menu);
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
+		virtual void onSwitchToMap(class Map *map);
 		virtual QString actionName();
 
 		TexturePtr m_texture;

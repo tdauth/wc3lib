@@ -56,6 +56,10 @@ class SettingsInterface* SoundEditor::settings()
 	return 0;
 }
 
+void SoundEditor::onSwitchToMap(Map* map)
+{
+}
+
 }
 
 }

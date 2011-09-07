@@ -56,6 +56,10 @@ class SettingsInterface* AiEditor::settings()
 	return 0;
 }
 
+void AiEditor::onSwitchToMap(Map *map)
+{
+}
+
 }
 
 }

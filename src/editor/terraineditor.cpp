@@ -96,6 +96,10 @@ class SettingsInterface* TerrainEditor::settings()
 	return 0;
 }
 
+void TerrainEditor::onSwitchToMap(Map* map)
+{
+}
+
 #include "moc_terraineditor.cpp"
 
 }

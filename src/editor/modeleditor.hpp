@@ -52,15 +52,15 @@ class ModelEditor : public Module, protected Ui::ModelEditor
 		typedef boost::shared_ptr<OgreMdlx> OgreMdlxPtr;
 		//typedef boost::bimap<MdlxPtr, OgreMdlxPtr> Models;
 		typedef std::list<OgreMdlxPtr> Models;
-		
+
 		typedef boost::bimap<QAction*, const mdlx::Camera*> CameraActions;
 		typedef boost::bimap<const OgreMdlx::CollisionShape*, Ogre::SceneNode*> CollisionShapeNodes;
-		
+
 		ModelEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~ModelEditor();
 
 		virtual void show();
-		
+
 		void hideCollisionShapes();
 
 		class ModelEditorView* modelView() const;
@@ -68,7 +68,7 @@ class ModelEditor : public Module, protected Ui::ModelEditor
 		const Models& models() const;
 		const CameraActions& cameraActions() const;
 		const CollisionShapeNodes& collisionShapeNodes() const;
-		
+
 		void setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor);
 		BOOST_SCOPED_ENUM(TeamColor) teamColor() const;
 		void setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow);
@@ -105,6 +105,7 @@ class ModelEditor : public Module, protected Ui::ModelEditor
 		virtual void createWindowsActions(class KMenu *menu);
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
+		virtual void onSwitchToMap(class Map *map);
 		virtual QString actionName();
 
 		// load file events
@@ -128,10 +129,10 @@ class ModelEditor : public Module, protected Ui::ModelEditor
 		class RenderStatsWidget *m_renderStatsWidget;
 		class TeamColorDialog *m_teamColorDialog;
 		class TeamColorDialog *m_teamGlowDialog;
-		
+
 		class KAction *m_showStatsAction;
 		class KAction *m_showCollisionShapesAction;
-		
+
 		BOOST_SCOPED_ENUM(TeamColor) m_teamColor;
 		BOOST_SCOPED_ENUM(TeamColor) m_teamGlow;
 };
@@ -165,7 +166,7 @@ inline void ModelEditor::setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor)
 {
 	m_teamColor = teamColor;
 	qDebug() << "Changing team color to " << teamColor;
-	
+
 	BOOST_FOREACH(Models::value_type value, this->models())
 	{
 		try
@@ -188,7 +189,7 @@ inline void ModelEditor::setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow)
 {
 	m_teamGlow = teamGlow;
 	qDebug() << "Changing team glow to " << teamGlow;
-	
+
 	BOOST_FOREACH(Models::value_type value, this->models())
 	{
 		try

@@ -22,12 +22,11 @@
 #include <QtCore>
 
 #include <KTemporaryFile>
-#include <KIO/AccessManager>
-#include <KIO/NetAccess>
 
 #include <Ogre.h>
 
 #include "texture.hpp"
+#include "mpqprioritylist.hpp"
 #include "qblp/blpiohandler.hpp"
 #include "Plugin_BlpCodec/blpcodec.hpp"
 
@@ -62,7 +61,7 @@ void Texture::loadBlp() throw (Exception)
 	{
 		QString tmpFileName;
 
-		if (!KIO::NetAccess::download(url(), tmpFileName, 0))
+		if (!this->source()->download(url(), tmpFileName, 0))
 			throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toUtf8().constData());
 
 		blp::ifstream ifstream(tmpFileName.toUtf8().constData(), std::ios::binary | std::ios::in);
@@ -132,7 +131,7 @@ void Texture::loadQt() throw (Exception)
 	{
 		QString tmpFileName;
 
-		if (!KIO::NetAccess::download(url(), tmpFileName, 0))
+		if (!this->source()->download(url(), tmpFileName, 0))
 			throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toUtf8().constData());
 
 		QtPtr qtImage(new QImage());
@@ -179,7 +178,7 @@ void Texture::loadOgre() throw (Exception)
 	{
 		QString tmpFileName;
 
-		if (!KIO::NetAccess::download(url(), tmpFileName, 0))
+		if (!this->source()->download(url(), tmpFileName, 0))
 			throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toUtf8().constData());
 
 		OgrePtr ogreImage(new Ogre::Image());
@@ -271,7 +270,7 @@ void Texture::save(const KUrl &url, const QString &format, const QString &compre
 		throw Exception(boost::format(_("Temporary file \"%1%\" cannot be converted by using an OGRE image: Not implemented yet!")) % tmpFile.fileName().toUtf8().constData());
 	}
 
-	if  (!KIO::NetAccess::upload(tmpFile.fileName(), url, 0))
+	if  (!this->source()->upload(tmpFile.fileName(), url, 0))
 		throw Exception(boost::format(_("Unable to upload temporary file \"%1%\" to URL \"%2%\"")) % tmpFile.fileName().toUtf8().constData() % url.toEncoded().constData());
 }
 

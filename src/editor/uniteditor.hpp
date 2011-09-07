@@ -34,13 +34,14 @@ class UnitEditor : public ObjectEditorTab
 {
 	public:
 		UnitEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
-		
+
 		virtual QString name() const;
-		
+
 	protected:
 		virtual class ObjectTreeWidget* createTreeWidget();
 		virtual class ObjectTableWidget* createTableWidget();
-		
+		virtual void onSwitchToMap(class Map *map);
+
 		virtual void onNewObject();
 		virtual void onRenameObject();
 		virtual void onDeleteObject();
@@ -50,7 +51,7 @@ class UnitEditor : public ObjectEditorTab
 		virtual void onImportAllObjects();
 		virtual void onCopyObject();
 		virtual void onPasteObject();
-		
+
 		virtual QString newObjectText() const;
 		virtual QString renameObjectText() const;
 		virtual QString deleteObjectText() const;
@@ -60,13 +61,13 @@ class UnitEditor : public ObjectEditorTab
 		virtual QString importAllObjectsText() const;
 		virtual QString copyObjectText() const;
 		virtual QString pasteObjectText() const;
-		
+
 		virtual KUrl copyObjectIconUrl() const;
 		virtual KUrl pasteObjectIconUrl() const;
 		virtual KUrl newObjectIconUrl() const;
-		
+
 		class MetaData *m_metaData;
-		
+
 		QTreeWidgetItem *m_standardUnitsItem;
 		QTreeWidgetItem *m_customUnitsItem;
 };

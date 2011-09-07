@@ -36,12 +36,12 @@ namespace editor
 class TriggerEditor : public Module, protected Ui::TriggerEditor
 {
 	Q_OBJECT
-	
+
 	public:
 		typedef QMap<map::int32, QTreeWidgetItem*> Categories;
-		
+
 		TriggerEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
-		
+
 	public slots:
 		void loadTriggers(map::Triggers *triggers);
 
@@ -52,8 +52,9 @@ class TriggerEditor : public Module, protected Ui::TriggerEditor
 		virtual void createWindowsActions(class KMenu *menu);
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
+		virtual void onSwitchToMap(Map *map);
 		virtual QString actionName();
-		
+
 		map::Triggers *m_triggers;
 		Categories m_categories;
 };

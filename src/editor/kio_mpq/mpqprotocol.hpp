@@ -42,6 +42,8 @@ namespace editor
 class MpqProtocol : public KIO::SlaveBase
 {
 	public:
+		static const char *protocol;
+
 		typedef boost::scoped_ptr<MpqArchive> MpqArchivePtr;
 
 		MpqProtocol(const QByteArray &pool, const QByteArray &app);

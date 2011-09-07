@@ -39,16 +39,17 @@ int main(int argc, char *argv[])
     	KCmdLineArgs::addCmdLineOptions(options);
 
 	class KApplication app;
-	
+
 	class Editor editor;
-	
+
 	SplashScreen splash(&editor, &editor);
 	splash.show();
-	
+
 	editor.show();
-	
+
 	// TEST
-	editor.showTextureEditor();
+	editor.showObjectEditor();
+	//editor.showTextureEditor();
 	//editor.showModelEditor();
 	//editor.showObjectEditor();
 	//editor.showTriggerEditor();

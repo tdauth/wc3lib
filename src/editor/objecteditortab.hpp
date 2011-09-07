@@ -38,18 +38,18 @@ namespace editor
 class ObjectEditorTab : public QWidget
 {
 	Q_OBJECT
-	
+
 	public:
 		ObjectEditorTab(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
-		
+
 		class MpqPriorityList* source() const;
 		bool hasObjectEditor() const;
 		class ObjectEditor* objectEditor() const throw (Exception);
 		class ObjectTreeWidget* treeWidget() const;
 		class ObjectTableWidget* tableWidget() const;
-		
+
 		virtual QString name() const = 0;
-		
+
 	public slots:
 		void newObject();
 		void renameObject();
@@ -60,15 +60,17 @@ class ObjectEditorTab : public QWidget
 		void importAllObjects();
 		void copyObject();
 		void pasteObject();
-		
+
 	protected:
 		friend class ObjectEditor;
-		
+
 		virtual void showEvent(QShowEvent *event);
-		
+
 		virtual class ObjectTreeWidget* createTreeWidget() = 0;
 		virtual class ObjectTableWidget* createTableWidget() = 0;
-		
+
+		virtual void onSwitchToMap(class Map *map) = 0;
+
 		virtual void onNewObject() = 0;
 		virtual void onRenameObject() = 0;
 		virtual void onDeleteObject() = 0;
@@ -78,7 +80,7 @@ class ObjectEditorTab : public QWidget
 		virtual void onImportAllObjects() = 0;
 		virtual void onCopyObject() = 0;
 		virtual void onPasteObject() = 0;
-		
+
 		virtual QString newObjectText() const = 0;
 		virtual QString renameObjectText() const = 0;
 		virtual QString deleteObjectText() const = 0;
@@ -88,11 +90,11 @@ class ObjectEditorTab : public QWidget
 		virtual QString importAllObjectsText() const = 0;
 		virtual QString copyObjectText() const = 0;
 		virtual QString pasteObjectText() const = 0;
-		
+
 		virtual KUrl copyObjectIconUrl() const = 0;
 		virtual KUrl pasteObjectIconUrl() const = 0;
 		virtual KUrl newObjectIconUrl() const = 0;
-		
+
 		class MpqPriorityList *m_source;
 		class ObjectTreeWidget *m_treeWidget; // left side tree widget
 		class ObjectTableWidget *m_tableWidget; // centered table widget of current selected object

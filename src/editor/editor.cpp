@@ -27,28 +27,14 @@
 #include <KLocale>
 #include <KConfig>
 
-#include <boost/foreach.hpp>
-
 #include "editor.hpp"
 #include "modulemenu.hpp"
-#include "terraineditor.hpp"
-#include "triggereditor.hpp"
-#include "soundeditor.hpp"
-#include "objecteditor.hpp"
-#include "campaigneditor.hpp"
-#include "aieditor.hpp"
-#include "objectmanager.hpp"
-#include "importmanager.hpp"
-#include "mpqeditor.hpp"
-#include "modeleditor.hpp"
-#include "textureeditor.hpp"
-#include "newmapdialog.hpp"
-#include "resource.hpp"
 #include "../mpq/mpq.hpp"
 #include "../mpq/mpqfile.hpp"
 #include "settings.hpp"
 #include "../internationalisation.hpp"
 #include "../blp.hpp"
+#include "map.hpp"
 
 namespace wc3lib
 {
@@ -278,16 +264,30 @@ void Editor::newMap()
 
 void Editor::openMap(const KUrl &url)
 {
-	/*
-	Map map;
-	this->addResource(map);
-	m_currentMap
-	*/
+	Map  *ptr = new Map(this, url);
+
+	try
+	{
+		ptr->load();
+	}
+	catch (Exception &exception)
+	{
+		delete ptr;
+
+		KMessageBox::error(this, i18n("Error while opening map \"%1\":\n\"%2\".", url.toEncoded().constData(), exception.what().c_str()));
+
+		return;
+	}
+
+	this->addResource(ptr);
+	switchToMap(ptr);
 }
 
 void Editor::switchToMap(class Map *map)
 {
 	m_currentMap = map;
+
+	// TODO update all created modules
 }
 
 void Editor::closeMap(class Map *map)

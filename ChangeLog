@@ -1,3 +1,9 @@
+2011-09-07 Tamino Dauth <tamino@cdauth.eu>
+* map: Improved classes W3m and CustomUnits.
+* editor: Improved Editor's module support.
+* editor: Improved UnitEditor's map loading support.
+* editor: Class MpqPriorityList considers maps' and campaigns' archive sources now.
+
 2011-09-06 Tamino Dauth <tamino@cdauth.eu>
 * blp: Fixed JPEG writing bug.
 

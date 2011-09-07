@@ -64,6 +64,10 @@ class SettingsInterface* CampaignEditor::settings()
 	return 0;
 }
 
+void CampaignEditor::onSwitchToMap(Map *map)
+{
+}
+
 #include "moc_campaigneditor.cpp"
 
 }

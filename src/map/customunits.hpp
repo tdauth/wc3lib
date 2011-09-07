@@ -45,6 +45,9 @@ class CustomUnits : public FileFormat
 				std::streamsize read(InputStream &istream) throw (class Exception);
 				std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
+				id valueId() const;
+				const struct Value& value() const;
+
 			protected:
 				std::streamsize readData(InputStream &istream) throw (class Exception);
 				std::streamsize writeData(OutputStream &ostream) const throw (class Exception);
@@ -56,6 +59,9 @@ class CustomUnits : public FileFormat
 		class Unit : public Format
 		{
 			public:
+				typedef boost::shared_ptr<Modification> ModificationPtr;
+				typedef std::vector<ModificationPtr> Modifications;
+
 				Unit();
 				~Unit();
 
@@ -64,13 +70,21 @@ class CustomUnits : public FileFormat
 
 				bool isOriginal() { return m_customId == 0; };
 
+				id originalId() const;
+				id customId() const;
+				Modifications& modifications();
+				const Modifications& modifications() const;
+
 			protected:
 				virtual class Modification* createModification() const;
 
 				id m_originalId;
 				id m_customId;
-				std::list<class Modification*> m_modifications;
+				Modifications m_modifications;
 		};
+
+		typedef boost::shared_ptr<Unit> UnitPtr;
+		typedef std::vector<UnitPtr> Table;
 
 		CustomUnits();
 		~CustomUnits();
@@ -84,13 +98,48 @@ class CustomUnits : public FileFormat
 
 		virtual int32 version() const { return m_version; }
 
+		Table& originalTable();
+		const Table& originalTable() const;
+		Table& customTable();
+		const Table& customTable() const;
+
 	protected:
 		virtual Unit* createUnit() const;
 
 		int32 m_version;
-		std::list<class Unit*> m_originalTable;
-		std::list<class Unit*> m_customTable;
+		Table m_originalTable;
+		Table m_customTable;
 };
+
+inline id CustomUnits::Modification::valueId() const
+{
+	return m_id;
+}
+
+inline const Value& CustomUnits::Modification::value() const
+{
+	return m_value;
+}
+
+inline id CustomUnits::Unit::originalId() const
+{
+	return m_originalId;
+}
+
+inline id CustomUnits::Unit::customId() const
+{
+	return m_customId;
+}
+
+inline CustomUnits::Unit::Modifications& CustomUnits::Unit::modifications()
+{
+	return m_modifications;
+}
+
+inline const CustomUnits::Unit::Modifications& CustomUnits::Unit::modifications() const
+{
+	return m_modifications;
+}
 
 inline const char8* CustomUnits::fileName() const
 {
@@ -105,6 +154,26 @@ inline id CustomUnits::fileId() const
 inline int32 CustomUnits::latestFileVersion() const
 {
 	return 1;
+}
+
+inline CustomUnits::Table& CustomUnits::originalTable()
+{
+	return m_originalTable;
+}
+
+inline const CustomUnits::Table& CustomUnits::originalTable() const
+{
+	return m_originalTable;
+}
+
+inline CustomUnits::Table& CustomUnits::customTable()
+{
+	return m_customTable;
+}
+
+inline const CustomUnits::Table& CustomUnits::customTable() const
+{
+	return m_customTable;
 }
 
 }
