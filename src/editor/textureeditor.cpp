@@ -33,6 +33,7 @@
 
 #include "textureeditor.hpp"
 #include "qblp/blpiohandler.hpp"
+#include "platform.hpp"
 
 namespace wc3lib
 {
@@ -98,10 +99,7 @@ void TextureEditor::openFile()
 	}
 	*/
 
-	// TODO Use image open URL function but MIME type of BLP is not usable on debugging
-	// TODO MIME filters do not work ("all/allfiles").
-	//KUrl url = KFileDialog::getImageOpenUrl(this->m_recentUrl, this, i18n("Open texture"));
-	KUrl url = KFileDialog::getOpenUrl(this->m_recentUrl, i18n("*|All Files\n*.blp|Blizzard Pictures\n*.png|Portable Network Graphics\n*.jpg|JPEG Files"), this, i18n("Open texture"));
+	KUrl url = KFileDialog::getImageOpenUrl(this->m_recentUrl, this, i18n("Open texture"));
 
 	if (url.isEmpty())
 		return;

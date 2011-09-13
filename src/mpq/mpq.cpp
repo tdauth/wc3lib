@@ -292,7 +292,6 @@ std::streamsize Mpq::read(InputStream &stream, const MpqFile::ListfileEntries &l
 				stream.seekg(boost::numeric_cast<std::streamoff>(mpqFile->hash()->block()->extendedBlockOffset()), std::ios_base::cur);
 
 			/// \todo Decrypt and unimplode data? boost::numeric_cast<uint32>(this->m_startPosition)
-
 			size += mpqFile->read(stream);
 		}
 	}

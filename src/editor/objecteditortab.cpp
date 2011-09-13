@@ -26,19 +26,19 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectEditorTab::ObjectEditorTab(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), QWidget(parent, f)
+ObjectEditorTab::ObjectEditorTab(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_tabIndex(0), QWidget(parent, f)
 {
 	// TODO can not call pure virtual member function name in constructor
 	//objectEditor->tabWidget()->addTab(this, name());
 	if (hasObjectEditor())
-		objectEditor()->tabWidget()->addTab(this, "");
+		m_tabIndex = objectEditor()->tabWidget()->addTab(this, ""); // NOTE changes parent to tab widget!
 }
-	
+
 void ObjectEditorTab::showEvent(QShowEvent *event)
 {
 	if (treeWidget() == 0)
 		m_treeWidget = createTreeWidget();
-	
+
 	if (tableWidget() == 0)
 		m_tableWidget = createTableWidget();
 }

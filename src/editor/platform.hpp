@@ -21,10 +21,18 @@
 #ifndef WC3LIB_EDITOR_PLATFORM_HPP
 #define WC3LIB_EDITOR_PLATFORM_HPP
 
-#include <QSettings>
 #include <QColor>
+#include <QString>
+#ifdef Q_OS_UNIX
+#include <QDir>
+#include <QFileInfo>
+#elif defined Q_OS_WIN32
+#include <QSettings>
+#endif
 
 #include <KUrl>
+#include <KMimeType>
+#include <KLocalizedString>
 
 #include <Ogre.h>
 
@@ -265,37 +273,105 @@ inline KUrl teamGlowUrl(BOOST_SCOPED_ENUM(TeamColor) teamGlow)
 	return KUrl("ReplaceableTextures/TeamGlow/TeamGlow" + number + ".blp");
 }
 
+// TODO Fix wine implementation
+// http://www.c-plusplus.de/forum/292394
+inline QVariant registryEntry(const QString &key)
+{
+#ifdef Q_OS_UNIX
+	/*
+	QProcess process(this);
+
+	if (process.execute("wine reg query " + key) != 0)
+		return QVariant();
+
+	QByteArray output = process.readAll();
+	*/
+	QString fileName;
+	int index = key.indexOf('\\');
+	QString realKey = key;
+
+	// if there is no HKEY at the beginning we use user registry by default
+	if (index == -1)
+		fileName = "/.wine/user.reg";
+	else
+	{
+		QString start = key.mid(index);
+
+		if (start == "HKEY_CURRENT_USER")
+			fileName = "/.wine/user.reg";
+		else if (index != 0)  // TODO support other registry files
+			return QVariant();
+
+		realKey = realKey.mid(index + 2); // skip key root plus \\
+
+		if (realKey.isEmpty())
+			return QVariant();
+	}
+
+	QFileInfo info(QDir::homePath() + fileName);
+
+	if (!info.isFile() || !info.isReadable())
+		return QVariant();
+
+	QFile file(info.absolutePath());
+
+	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+		return QVariant();
+
+	while (file.canReadLine())
+	{
+		QString line = file.readLine();
+
+		if (line.isEmpty())
+			continue;
+
+		int index = line.indexOf(key);
+
+		if (index != -1 && line[0] == '[')
+		{
+			/*
+			int start = index + key.length + 2; // + length of "] "
+
+			if (line.length <= start) // there is no value/invalid entry
+				return QVariant();
+
+
+			return QVariant(line.mid(start));
+			*/
+			if (!file.canReadLine())
+				return QVariant();
+
+			return file.readLine();
+		}
+	}
+
+	return QVariant();
+#elif defined Q_OS_WIN32
+	QSettings settings(key, QSettings::NativeFormat);
+
+	return settings.value("Default"); // TODO always key "Default"?
+#else
+#error Unsupported platform.
+#endif
+}
+
 inline KUrl installUrl()
 {
-	QSettings settings("Blizzard Entertainment", "Warcraft III");
-	settings.beginGroup("Install Path");
-
-	if (!settings.contains("???"))
-		return KUrl();
-
-	return KUrl(settings.value("???").toUrl());
+	return registryEntry("Software\\Blizzard Entertainment\\Warcraft III\\Install Path").toUrl();
 }
 
 inline KUrl installXUrl()
 {
-	QSettings settings("Blizzard Entertainment", "Warcraft III");
-	settings.beginGroup("InstallPathX");
-
-	if (!settings.contains("???"))
-		return KUrl();
-
-	return KUrl(settings.value("???").toUrl());
+	return registryEntry("Software\\Blizzard Entertainment\\Warcraft III\\InstallPathX").toUrl();
 }
 
 inline KUrl war3Url()
 {
-	QSettings settings("Blizzard Entertainment", "Warcraft III");
-	settings.beginGroup("Install Path");
+	KUrl url(installUrl());
 
-	if (!settings.contains("???"))
+	if (url.isEmpty())
 		return KUrl();
 
-	KUrl url(settings.value("???").toUrl());
 	url.addPath("war3.mpq");
 
 	return url;
@@ -303,13 +379,11 @@ inline KUrl war3Url()
 
 inline KUrl war3XUrl()
 {
-	QSettings settings("Blizzard Entertainment", "Warcraft III");
-	settings.beginGroup("InstallPathX");
+	KUrl url(installXUrl());
 
-	if (!settings.contains("???"))
+	if (url.isEmpty())
 		return KUrl();
 
-	KUrl url(settings.value("???").toUrl());
 	url.addPath("war3x.mpq");
 
 	return url;
@@ -317,13 +391,11 @@ inline KUrl war3XUrl()
 
 inline KUrl war3PatchUrl()
 {
-	QSettings settings("Blizzard Entertainment", "Warcraft III");
-	settings.beginGroup("Install Path");
+	KUrl url(installUrl());
 
-	if (!settings.contains("???"))
+	if (url.isEmpty())
 		return KUrl();
 
-	KUrl url(settings.value("???").toUrl());
 	url.addPath("War3Patch.mpq");
 
 	return url;
@@ -331,13 +403,11 @@ inline KUrl war3PatchUrl()
 
 inline KUrl war3XLocalUrl()
 {
-	QSettings settings("Blizzard Entertainment", "Warcraft III");
-	settings.beginGroup("Install Path");
+	KUrl url(installXUrl());
 
-	if (!settings.contains("???"))
+	if (url.isEmpty())
 		return KUrl();
 
-	KUrl url(settings.value("???").toUrl());
 	url.addPath("War3xlocal.mpq");
 
 	return url;
@@ -361,6 +431,20 @@ inline Ogre::Vector2 ogreVector2(const mdlx::TextureVertex &textureVertex)
 	return Ogre::Vector2(textureVertex.x(), textureVertex.y());
 }
 
+inline QString mapFilter()
+{
+	KMimeType::Ptr w3m(KMimeType::mimeType("application/x-w3m"));
+	KMimeType::Ptr w3x(KMimeType::mimeType("application/x-w3x"));
+
+	if (w3m.isNull() || w3x.isNull())
+		return i18n("*|All Files\n*.w3m|Warcraft III: Reign of Chaos map\n*.w3m|Warcraft III: The Frozen Throne map");
+
+	return i18n("all/allfiles application/x-w3m application/x-w3x");
+}
+
+// TODO Use image open URL function but MIME type of BLP is not usable on debugging
+// TODO MIME filters do not work ("all/allfiles").
+//i18n("*|All Files\n*.blp|Blizzard Pictures\n*.png|Portable Network Graphics\n*.jpg|JPEG Files"), this, i18n("Open texture"));
 }
 
 }

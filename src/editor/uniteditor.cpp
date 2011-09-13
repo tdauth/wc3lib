@@ -42,7 +42,7 @@ UnitEditor::UnitEditor(class MpqPriorityList *source, QWidget *parent, Qt::Windo
 	}
 	catch (Exception &exception)
 	{
-		KMessageBox::error(this, exception.what().c_str());
+		KMessageBox::error(this, i18n("Error while loading unit meta data from \"%1\":\n\"%2\".", m_metaData->url().toEncoded().constData(), exception.what().c_str()));
 	}
 }
 

@@ -26,20 +26,6 @@ namespace wc3lib
 namespace map
 {
 
-namespace
-{
-
-struct Header
-{
-	id fileId; //: file ID (should be "HM3W")
-	int32 unknown; //: unknown TODO version?
-	char8 *name; //: map name
-	int32 flags; //: map flags (these are exactly the same as the ones in the W3I file)
-	int32 maxPlayers; //: max number of players
-};
-
-}
-
 W3m::W3m() : m_environment(new Environment(this)), m_shadow(new Shadow(this)), m_pathmap(new Pathmap(this)),
 m_trees(new Trees()),
 m_customUnits(new CustomUnits()),
@@ -106,19 +92,19 @@ std::streamsize W3m::write(OutputStream &ostream) const throw (class Exception)
 std::streamsize W3m::readHeader(InputStream &istream) throw (class Exception)
 {
 	std::streamsize size = 0;
-	struct Header header;
-	wc3lib::read(istream, header, size);
-	id requiredFileId = fileId();
+	int32 fileId;
+	wc3lib::read(istream, fileId, size);
 
-	if (memcmp(&header.fileId, &requiredFileId, sizeof(header.fileId)) != 0)
-		throw Exception(boost::format(_("W3m: Unknown file id \"%1%\". Expected \"%2%\".")) % header.fileId % fileId());
+	if (fileId != this->fileId())
+		throw Exception(boost::format(_("W3m: Unknown file id \"%1%\". Expected \"%2%\".")) % fileId % this->fileId());
 
-	this->m_name = header.name;
-	this->m_flags = BOOST_SCOPED_ENUM(MapFlags)(header.flags);
-	this->m_maxPlayers = header.maxPlayers;
-	std::size_t byteCount = 512 - istream.gcount(); // followed by 00 bytes until the 512 bytes of the header are filled.
+	int32 unknown;
+	wc3lib::read(istream, unknown, size);
+	wc3lib::readString(istream, m_name, size);
+	wc3lib::read<int32>(istream, (int32&)m_flags, size);
+	wc3lib::read(istream, m_maxPlayers, size);
+	std::size_t byteCount = 512 - size; // followed by 00 bytes until the 512 bytes of the header are filled.
 	istream.ignore(byteCount);
-	size += byteCount;
 
 	return size;
 }

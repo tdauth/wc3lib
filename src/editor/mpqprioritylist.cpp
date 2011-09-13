@@ -52,6 +52,54 @@ bool MpqPriorityList::addSource(const KUrl &url, MpqPriorityListEntry::Priority 
 	return true;
 }
 
+bool MpqPriorityList::addWar3Source()
+{
+	KUrl url = war3Url();
+
+	if (url.isEmpty())
+		return false;
+
+	return addSource(url, 20);
+}
+
+bool MpqPriorityList::addWar3PatchSource()
+{
+	KUrl url = war3PatchUrl();
+
+	if (url.isEmpty())
+		return false;
+
+	return addSource(url, 22);
+}
+
+bool MpqPriorityList::addWar3XSource()
+{
+	KUrl url = war3XUrl();
+
+	if (url.isEmpty())
+		return false;
+
+	return addSource(url, 21);
+}
+
+bool MpqPriorityList::addWar3XLocalSource()
+{
+	KUrl url = war3XLocalUrl();
+
+	if (url.isEmpty())
+		return false;
+
+	return addSource(url, 21);
+}
+
+bool MpqPriorityList::addDefaultSources()
+{
+	return addWar3Source() &&
+	addWar3PatchSource() &&
+	addWar3Source() &&
+	addWar3XLocalSource();
+}
+
 bool MpqPriorityList::removeSource(const KUrl &url)
 {
 	Sources::index_iterator<KUrl>::type iterator = sources().get<KUrl>().find(url);
@@ -62,6 +110,55 @@ bool MpqPriorityList::removeSource(const KUrl &url)
 	sources().get<KUrl>().erase(iterator);
 
 	return true;
+}
+
+bool MpqPriorityList::removeWar3Source()
+{
+	KUrl url = war3Url();
+
+	if (url.isEmpty())
+		return false;
+
+	return removeSource(url);
+}
+
+
+bool MpqPriorityList::removeWar3PatchSource()
+{
+	KUrl url = war3PatchUrl();
+
+	if (url.isEmpty())
+		return false;
+
+	return removeSource(url);
+}
+
+bool MpqPriorityList::removeWar3XSource()
+{
+	KUrl url = war3XUrl();
+
+	if (url.isEmpty())
+		return false;
+
+	return removeSource(url);
+}
+
+bool MpqPriorityList::removeWar3XLocalSource()
+{
+	KUrl url = war3XLocalUrl();
+
+	if (url.isEmpty())
+		return false;
+
+	return removeSource(url);
+}
+
+bool MpqPriorityList::removeDefaultSources()
+{
+	return removeWar3Source() &&
+	removeWar3PatchSource() &&
+	removeWar3XSource() &&
+	removeWar3XLocalSource();
 }
 
 bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window)
@@ -126,8 +223,11 @@ bool MpqPriorityList::upload(const QString &src, const KUrl &target, QWidget *wi
 	return false;
 }
 
-QString MpqPriorityList::tr(const QString &key, const QString &group, BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale) const
+QString MpqPriorityList::tr(const QString &key, const QString &group, BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale, const QString &defaultValue) const
 {
+	if (!defaultValue.isEmpty())
+		return defaultValue;
+
 	/// \todo open editor and other string files and get corresponding entries
 	return group + "[" + key + "]";
 }

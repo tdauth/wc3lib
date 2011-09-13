@@ -40,7 +40,7 @@ Module::Module(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f
 {
 	if (hasEditor())
 	{
-		connect(editor(), SIGNAL(switchedToMap(const Map*)), SLOT(switchToMap(Map*)));
+		connect(editor(), SIGNAL(switchedToMap(Map*)), SLOT(switchToMap(Map*)));
 	}
 }
 
@@ -68,16 +68,9 @@ bool Module::hasEditor() const
 	*/
 }
 
-class Editor* Module::editor() const throw (Exception)
+class Editor* Module::editor() const throw (std::bad_cast)
 {
-	try
-	{
-		return boost::polymorphic_cast<Editor*>(source());
-	}
-	catch (std::bad_cast &exception)
-	{
-		throw Exception(exception.what());
-	}
+	return boost::polymorphic_cast<Editor*>(source());
 }
 
 void Module::setupUi()

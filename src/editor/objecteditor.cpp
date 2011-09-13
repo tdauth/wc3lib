@@ -37,7 +37,16 @@ namespace editor
 
 ObjectEditor::ObjectEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_tabWidget(new KTabWidget(this)), m_unitEditor(new UnitEditor(source, this, f)), Module(source, parent, f)
 {
+	Module::setupUi();
+	//Ui::ObjectEditor::setupUi(this);
+	topLayout()->addWidget(tabWidget());
+	setMinimumSize(QSize(200, 200)); // TEST
+
 	connect(tabWidget(), SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
+	m_currentTab = tab(0);
+	addCurrentActions();
+	//tabWidget()->addTab(unitEditor(), unitEditor()->name());
+
 	/*
 	const class mpq::MpqFile *unitEditorDataFile = editor->loadMpqFile("UI/UnitEditorData.txt");
 
@@ -98,11 +107,11 @@ void ObjectEditor::createFileActions(class KMenu *menu)
 	m_importAllObjectsAction = new KAction(this);
 	menu->addAction(importAllObjectsAction());
 
-	KAction *action = new KAction(editor()->tr("WESTRING_MENU_OE_EXPORTALL", "WorldEditStrings"), this);
+	KAction *action = new KAction(source()->tr("WESTRING_MENU_OE_EXPORTALL", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(exportAll()));
 
-	action = new KAction(editor()->tr("WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"), this);
+	action = new KAction(source()->tr("WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(importAll()));
 }
@@ -117,33 +126,33 @@ void ObjectEditor::createEditActions(class KMenu *menu)
 
 	menu->addSeparator();
 
-	KAction *action = new KAction(editor()->tr("WESTRING_MENU_VIEWINPALETTE", "WorldEditStrings"), this);
+	KAction *action = new KAction(source()->tr("WESTRING_MENU_VIEWINPALETTE", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(viewInPalette()));
 
-	action = new KAction(editor()->tr("WESTRING_MENU_OE_FIND", "WorldEditStrings"), this);
+	action = new KAction(source()->tr("WESTRING_MENU_OE_FIND", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(find()));
 
-	action = new KAction(editor()->tr("WESTRING_MENU_OE_FINDNEXT", "WorldEditStrings"), this);
+	action = new KAction(source()->tr("WESTRING_MENU_OE_FINDNEXT", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(findNext()));
 
-	action = new KAction(editor()->tr("WESTRING_MENU_OE_FINDPREV", "WorldEditStrings"), this);
+	action = new KAction(source()->tr("WESTRING_MENU_OE_FINDPREV", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(findPrevious()));
 
 	menu->addSeparator();
 
-	action = new KAction(editor()->tr("WESTRING_MENU_OE_MODIFYFIELD", "WorldEditStrings"), this);
+	action = new KAction(source()->tr("WESTRING_MENU_OE_MODIFYFIELD", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(modifyField()));
 
-	action = new KAction(editor()->tr("WESTRING_MENU_OE_RESETFIELD", "WorldEditStrings"), this);
+	action = new KAction(source()->tr("WESTRING_MENU_OE_RESETFIELD", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(resetField()));
 
-	action = new KAction(editor()->tr("WESTRING_MENU_OE_AUTOFILL", "WorldEditStrings"), this);
+	action = new KAction(source()->tr("WESTRING_MENU_OE_AUTOFILL", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(autoFill()));
 }
@@ -191,76 +200,62 @@ void ObjectEditor::currentChanged(int index)
 	m_currentActions << t->createEditActions(editMenu());
 	t->createToolButtons(toolBar());
 	*/
-	ObjectEditorTab *t = tab(index);
+	removeCurrentActions();
+	m_currentTab = tab(index);
+	addCurrentActions();
+}
+
+void ObjectEditor::removeCurrentActions()
+{
+	disconnect(newObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(newObject()));
+	disconnect(renameObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(renameObject()));
+	disconnect(deleteObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(deleteObject()));
+	disconnect(resetObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(resetObject()));
+	disconnect(resetAllObjectsAction(), SIGNAL(triggered()), currentTab(), SLOT(resetAllObjects()));
+	disconnect(exportAllObjectsAction(), SIGNAL(triggered()), currentTab(), SLOT(exportAllObjects()));
+	disconnect(importAllObjectsAction(), SIGNAL(triggered()), currentTab(), SLOT(importAllObjects()));
+	disconnect(copyObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(copyObject()));
+	disconnect(pasteObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(pasteObject()));
+}
+
+void ObjectEditor::addCurrentActions()
+{
 	QString file;
 
-	if (currentTab() != 0)
-		disconnect(newObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(newObject()));
+	newObjectAction()->setText(currentTab()->newObjectText());
 
-	newObjectAction()->setText(t->newObjectText());
-
-	if (editor()->download(t->newObjectIconUrl(), file, this))
+	if (source()->download(currentTab()->newObjectIconUrl(), file, this))
 		newObjectAction()->setIcon(QIcon(file));
 
-	connect(newObjectAction(), SIGNAL(triggered()), t, SLOT(newObject()));
+	connect(newObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(newObject()));
 
-	if (currentTab() != 0)
-		disconnect(renameObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(renameObject()));
+	renameObjectAction()->setText(currentTab()->renameObjectText());
+	connect(renameObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(renameObject()));
 
-	renameObjectAction()->setText(t->renameObjectText());
-	connect(renameObjectAction(), SIGNAL(triggered()), t, SLOT(renameObject()));
+	deleteObjectAction()->setText(currentTab()->deleteObjectText());
+	connect(deleteObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(deleteObject()));
 
-	if (currentTab() != 0)
-		disconnect(deleteObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(deleteObject()));
+	resetObjectAction()->setText(currentTab()->resetObjectText());
+	connect(resetObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(resetObject()));
 
-	deleteObjectAction()->setText(t->deleteObjectText());
-	connect(deleteObjectAction(), SIGNAL(triggered()), t, SLOT(deleteObject()));
+	resetAllObjectsAction()->setText(currentTab()->resetAllObjectsText());
+	connect(resetAllObjectsAction(), SIGNAL(triggered()), currentTab(), SLOT(resetAllObjects()));;
 
-	if (currentTab() != 0)
-		disconnect(resetObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(resetObject()));
+	exportAllObjectsAction()->setText(currentTab()->exportAllObjectsText());
+	connect(exportAllObjectsAction(), SIGNAL(triggered()), currentTab(), SLOT(exportAllObjects()));
 
-	resetObjectAction()->setText(t->resetObjectText());
-	connect(resetObjectAction(), SIGNAL(triggered()), t, SLOT(resetObject()));
+	importAllObjectsAction()->setText(currentTab()->importAllObjectsText());
+	connect(importAllObjectsAction(), SIGNAL(triggered()), currentTab(), SLOT(importAllObjects()));
 
-	if (currentTab() != 0)
-		disconnect(resetAllObjectsAction(), SIGNAL(triggered()), currentTab(), SLOT(resetAllObjects()));
+	copyObjectAction()->setText(currentTab()->copyObjectText());
+	connect(copyObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(copyObject()));
 
-	resetAllObjectsAction()->setText(t->resetAllObjectsText());
-	connect(resetAllObjectsAction(), SIGNAL(triggered()), t, SLOT(resetAllObjects()));
+	pasteObjectAction()->setText(currentTab()->pasteObjectText());
 
-	if (currentTab() != 0)
-		disconnect(exportAllObjectsAction(), SIGNAL(triggered()), currentTab(), SLOT(exportAllObjects()));
-
-	exportAllObjectsAction()->setText(t->exportAllObjectsText());
-	connect(exportAllObjectsAction(), SIGNAL(triggered()), t, SLOT(exportAllObjects()));
-
-	if (currentTab() != 0)
-		disconnect(importAllObjectsAction(), SIGNAL(triggered()), currentTab(), SLOT(importAllObjects()));
-
-	importAllObjectsAction()->setText(t->importAllObjectsText());
-	connect(importAllObjectsAction(), SIGNAL(triggered()), t, SLOT(importAllObjects()));
-
-	if (currentTab() != 0)
-		disconnect(copyObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(copyObject()));
-
-	copyObjectAction()->setText(t->copyObjectText());
-
-	if (editor()->download(t->copyObjectIconUrl(), file, this))
-		copyObjectAction()->setIcon(QIcon(file));
-
-	connect(copyObjectAction(), SIGNAL(triggered()), t, SLOT(copyObject()));
-
-	if (currentTab() != 0)
-		disconnect(pasteObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(pasteObject()));
-
-	pasteObjectAction()->setText(t->pasteObjectText());
-
-	if (editor()->download(t->pasteObjectIconUrl(), file, this))
+	if (source()->download(currentTab()->pasteObjectIconUrl(), file, this))
 		pasteObjectAction()->setIcon(QIcon(file));
 
-	connect(pasteObjectAction(), SIGNAL(triggered()), t, SLOT(pasteObject()));
-
-	m_currentTab = t;
+	connect(pasteObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(pasteObject()));
 }
 
 #include "moc_objecteditor.cpp"

@@ -26,6 +26,7 @@
 #include <KMenuBar>
 #include <KLocale>
 #include <KConfig>
+#include <KFileDialog>
 
 #include "editor.hpp"
 #include "modulemenu.hpp"
@@ -163,6 +164,9 @@ Editor::Editor(QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f), m_r
 
 	this->readSettings();
 
+	if (!addDefaultSources())
+		KMessageBox::error(this, i18n("One or several MPQ archives of Warcraft III are missing."));
+
 	/*
 	QSettings settings("Blizzard Entertainment", "WorldEdit", this);
 	settings.beginGroup("shortcuts");
@@ -262,6 +266,17 @@ void Editor::newMap()
 	this->newMapDialog()->show();
 }
 
+void Editor::openMap()
+{
+	KUrl::List urls = KFileDialog::getOpenUrls(KUrl(), mapFilter(), this, i18n("Open map"));
+
+	if (urls.empty())
+		return;
+
+	foreach(KUrl::List::const_reference url, urls)
+		openMap(url);
+}
+
 void Editor::openMap(const KUrl &url)
 {
 	Map  *ptr = new Map(this, url);
@@ -288,6 +303,7 @@ void Editor::switchToMap(class Map *map)
 	m_currentMap = map;
 
 	// TODO update all created modules
+	emit switchedToMap(map);
 }
 
 void Editor::closeMap(class Map *map)

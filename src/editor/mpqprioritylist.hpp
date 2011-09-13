@@ -142,10 +142,44 @@ class MpqPriorityList
 		 */
 		virtual bool addSource(const KUrl &url, MpqPriorityListEntry::Priority priority = 0);
 		/**
+		 *
+		 * \section defaultMPQs Default MPQ archives:
+		 * These are the priority values for Warcraft's default MPQ archives:
+		 * <ul>
+		 * <li>war3.mpq - 20</li>
+		 * <li>War3Patch.mpq - 22<li>
+		 * <li>war3x.mpq - 21</li>
+		 * <li>War3xlocal.mpq - 21</li>
+		 * </ul>
+		 */
+		virtual bool addWar3Source();
+		/**
+		 * \ref defaultMPQs
+		 */
+		virtual bool addWar3PatchSource();
+		/**
+		 * \ref defaultMPQs
+		 */
+		virtual bool addWar3XSource();
+		/**
+		 * \ref defaultMPQs
+		 */
+		virtual bool addWar3XLocalSource();
+		/**
+		 * Adds all default MPQ archives of Warcraft III as possible sources to the list.
+		 * \ref defaultMPQs
+		 */
+		virtual bool addDefaultSources();
+		/**
 		 * Removes a source by its corresponding URL.
 		 * \return Returns true if URL corresponds to some source and that source has been removed properly.
 		 */
 		virtual bool removeSource(const KUrl &url);
+		virtual bool removeWar3Source();
+		virtual bool removeWar3PatchSource();
+		virtual bool removeWar3XSource();
+		virtual bool removeWar3XLocalSource();
+		virtual bool removeDefaultSources();
 
 		/**
 		 * \copydoc KIO::NetAccess::download()
@@ -192,8 +226,9 @@ class MpqPriorityList
 		 * <li>UI/TriggerStrings.txt</li>
 		 * <li>UI/WorldEditStrings.txt</li>
 		 * </ul>
+		 * \param defaultValue If corresponding key entry could not be found (e. g. files are not available or it simply does not exist) this value is shown as string if its length is bigger than 0.
 		 */
-		virtual QString tr(const QString &key, const QString &group = "", BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale = mpq::MpqFile::Locale::Neutral) const;
+		virtual QString tr(const QString &key, const QString &group = "", BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale = mpq::MpqFile::Locale::Neutral, const QString &defaultValue = "") const;
 	protected:
 		Sources& sources();
 

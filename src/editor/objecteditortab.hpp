@@ -43,8 +43,12 @@ class ObjectEditorTab : public QWidget
 		ObjectEditorTab(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 
 		class MpqPriorityList* source() const;
+		/**
+		 * \return If it has an object editor (\ref hasObjectEditor()) this returns its corresponding tab index of \ref ObjectEditor::tabWidget().
+		 */
+		int tabIndex() const;
 		bool hasObjectEditor() const;
-		class ObjectEditor* objectEditor() const throw (Exception);
+		class ObjectEditor* objectEditor() const throw (std::bad_cast);
 		class ObjectTreeWidget* treeWidget() const;
 		class ObjectTableWidget* tableWidget() const;
 
@@ -96,6 +100,7 @@ class ObjectEditorTab : public QWidget
 		virtual KUrl newObjectIconUrl() const = 0;
 
 		class MpqPriorityList *m_source;
+		int m_tabIndex;
 		class ObjectTreeWidget *m_treeWidget; // left side tree widget
 		class ObjectTableWidget *m_tableWidget; // centered table widget of current selected object
 };
@@ -105,21 +110,32 @@ inline class MpqPriorityList* ObjectEditorTab::source() const
 	return m_source;
 }
 
-inline bool ObjectEditorTab::hasObjectEditor() const
+inline int ObjectEditorTab::tabIndex() const
 {
-	return typeid(parent()) == typeid(class ObjectEditor);
+	return m_tabIndex;
 }
 
-inline class ObjectEditor* ObjectEditorTab::objectEditor() const throw (Exception)
+inline bool ObjectEditorTab::hasObjectEditor() const
 {
-	try
+	// TODO typeid comparison doesn't work, dynamic_cast is working workaround!
+	// NOTE parent could be tab widget of object editor
+	if (dynamic_cast<ObjectEditor*>(parent()) == 0)
 	{
-		return boost::polymorphic_cast<class ObjectEditor*>(parent());
+		if (dynamic_cast<KTabWidget*>(parent()) != 0)
+			return dynamic_cast<ObjectEditor*>(parentWidget()->parentWidget()->parentWidget()) != 0; // first parent is stacked widget, second tab widget and third object editor
 	}
-	catch (std::bad_cast &exception)
-	{
-		throw Exception(exception.what());
-	}
+
+	return true;
+}
+
+inline class ObjectEditor* ObjectEditorTab::objectEditor() const throw (std::bad_cast)
+{
+	// TODO typeid comparison doesn't work, dynamic_cast is working workaround!
+	// NOTE parent could be tab widget of object editor
+	if (dynamic_cast<ObjectEditor*>(parent()) == 0)
+		return boost::polymorphic_cast<class ObjectEditor*>(parentWidget()->parentWidget()->parentWidget()); // first parent is stacked widget, second tab widget and third object editor
+
+	return boost::polymorphic_cast<class ObjectEditor*>(parent());
 }
 
 inline class ObjectTreeWidget* ObjectEditorTab::treeWidget() const

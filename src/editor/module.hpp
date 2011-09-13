@@ -59,10 +59,10 @@ class Module : public QWidget
 		bool hasEditor() const;
 		/**
 		 * \return Returns casted Editor instance (from \ref source()).
-		 * \throw Exception Throws an exception when \ref hasEditor() returns false and therefore source isn't an Editor instance.
+		 * \throw std::bad_cast Throws an exception when \ref hasEditor() returns false and therefore source isn't an Editor instance.
 		 * \sa source(), hasEditor()
 		 */
-		class Editor* editor() const throw (Exception);
+		class Editor* editor() const throw (std::bad_cast);
 
 		/**
 		 * Name of corresponding action in module menu of editor's action collection.

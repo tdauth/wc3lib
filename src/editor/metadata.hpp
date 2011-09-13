@@ -41,14 +41,14 @@ class MetaData : public Resource
 	public:
 		typedef QVector<QVariant> Row;
 		typedef QVector<Row> Rows;
-		
+
 		typedef boost::shared_ptr<map::MetaData> MetaDataPtr;
 		typedef std::vector<MetaDataPtr> MetaDataEntries;
-		
+
 		MetaData(class MpqPriorityList *source, const KUrl &url);
-		
+
 		virtual void clear() throw ();
-		
+
 		/**
 		 * Provides simple SYLK file parser functionality.
 		 */
@@ -58,22 +58,15 @@ class MetaData : public Resource
 		{
 			throw Exception(_("Saving meta data is not supported yet."));
 		}
-	
-		class MpqPriorityList* source() const;
+
 		const MetaDataEntries& metaDataEntries() const;
-		
+
 	protected:
 		virtual map::MetaData* createMetaDataEntry();
 		virtual void filleMetaDataEntry(MetaDataPtr &entry, const Row &row);
-		
-		class MpqPriorityList *m_source;
+
 		MetaDataEntries m_metaDataEntries;
 };
-
-inline class MpqPriorityList* MetaData::source() const
-{
-	return m_source;
-}
 
 inline const MetaData::MetaDataEntries& MetaData::metaDataEntries() const
 {

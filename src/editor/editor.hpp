@@ -75,16 +75,16 @@ class Editor : public KMainWindow, public MpqPriorityList
 		/**
 		 * This signal is being emitted when a map has been opened.
 		 */
-		void openedMap(const class Map *map);
+		void openedMap(class Map *map);
 		/**
 		 * Since one Editor instance allows you to edit multiple maps this signal is emitted when the currently opened map is changed.
 		 * This signal can be important to all editor's modules because they're oftenly showing map-related data
 		 */
-		void switchedToMap(const class Map *map);
+		void switchedToMap(class Map *map);
 		/**
 		 * Is emitted when a map is going to be closed.
 		 */
-		void aboutToCloseMap(const class Map *map);
+		void aboutToCloseMap(class Map *map);
 		/**
 		 * Is emitted when a map has finally been closed.
 		 * Therefore there is no Map parameter since the object has already been released.
@@ -122,6 +122,7 @@ class Editor : public KMainWindow, public MpqPriorityList
 
 	public slots:
 		void newMap();
+		void openMap();
 		void openMap(const KUrl &url);
 		void switchToMap(class Map *map);
 		void closeMap(class Map *map);

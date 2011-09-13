@@ -10,10 +10,10 @@
 
 2011-08-21 Tamino Dauth <tamino@cdauth.eu>
 * editor: Implement MIP map loading for class BlpCodec.
-* Using stringstream as buffer doesn't work as expected. Remove where possible and replace them by generic stream class of boost (check MPQ format, sector bug, using string streams)!!!
+* FIXED: Using stringstream as buffer doesn't work as expected. Remove where possible and replace them by generic stream class of boost (check MPQ format, sector bug, using string streams)!!!
 
 2011-08-18 Tamino Dauth <tamino@cdauth.eu>
-* editor: Segmentation fault in class MetaData when loading file after creation for class UnitEditor.
+* FIXED: editor: Segmentation fault in class MetaData when loading file after creation for class UnitEditor.
 
 2011-08-17 Tamino Dauth <tamino@cdauth.eu>
 * editor: Model view widget doesn't seem to be resized when model editor is.

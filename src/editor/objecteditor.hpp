@@ -72,7 +72,7 @@ class ObjectEditor : public Module
 
 	public:
 		ObjectEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
-		~ObjectEditor();
+		virtual ~ObjectEditor();
 
 		class KTabWidget* tabWidget() const;
 
@@ -130,6 +130,9 @@ class ObjectEditor : public Module
 		void currentChanged(int index);
 
 	protected:
+		void removeCurrentActions();
+		void addCurrentActions();
+
 		KTabWidget *m_tabWidget;
 		// current widgets of corresponding tab widget
 		class ObjectEditorTab *m_currentTab;

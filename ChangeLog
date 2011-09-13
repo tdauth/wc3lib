@@ -1,3 +1,13 @@
+2011-09-13 Tamino Dauth <tamino@cdauth.eu>
+* editor: Fixed unit editor creation.
+* editor: Improved object editor.
+* editor: Improved filter/file dialog behaviour.
+* Revised MIME types.
+
+2011-09-08 Tamino Dauth <tamino@cdauth.eu>
+* editor: Fixed segmentation fault of MetaData's source (see TODO).
+* editor: Class MpqPriorityList supports default Warcraft III MPQ archives now.
+
 2011-09-07 Tamino Dauth <tamino@cdauth.eu>
 * map: Improved classes W3m and CustomUnits.
 * editor: Improved Editor's module support.
