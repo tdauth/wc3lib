@@ -133,7 +133,8 @@ int main(int argc, char *argv[])
 	filePaths.assign(fileStrings.begin(), fileStrings.end());
 
 	// contains all file entries
-	std::list<mpq::string> listfileEntries;
+	typedef std::list<MpqFile::ListfileEntries> Listfiles;
+	Listfiles listfileEntries;
 
 	BOOST_FOREACH(Paths::const_reference path, listfiles)
 	{
@@ -142,13 +143,10 @@ int main(int argc, char *argv[])
 		try
 		{
 			checkStream(in);
-			mpq::string content;
-			in >> content;
-			checkStream(in);
-			MpqFile::ListfileEntries entries = MpqFile::listfileEntries(content);
-
-			BOOST_FOREACH(MpqFile::ListfileEntries::const_reference entry, entries)
-				listfileEntries.push_back(entry);
+			const mpq::string::size_type size = (mpq::string::size_type)(endPosition(in)) + 1;
+			mpq::string content(size, '0');
+			in.read(&content[0], size);
+			listfileEntries.push_back(MpqFile::listfileEntries(content));
 		}
 		catch (Exception &exception)
 		{
@@ -423,52 +421,68 @@ int main(int argc, char *argv[])
 			if (filePaths.empty())
 			{
 				if (mpq->listfileFile() != 0)
-				{
-					BOOST_FOREACH(mpq::MpqFile::ListfileEntries::const_reference entry, mpq->listfileFile()->listfileEntries())
-						listfileEntries.push_back(entry);
-				}
+					listfileEntries.push_back(mpq->listfileFile()->listfileEntries());
 
-				BOOST_FOREACH(mpq::string entry, listfileEntries)
+				BOOST_FOREACH(Listfiles::const_reference vector, listfileEntries)
 				{
-					MpqFile *file = mpq->findFile(entry);
 
-					if (file == 0)
+					BOOST_FOREACH(Listfiles::value_type::value_type entry, vector)
 					{
-						std::cerr << boost::format(_("Error occured while extracting file \"%1%\": File doesn't exist.")) % entry << std::endl;
+						MpqFile *file = mpq->findFile(entry);
 
-						continue;
-					}
+						if (file == 0)
+						{
+							std::cerr << boost::format(_("Error occured while extracting file \"%1%\": File doesn't exist.")) % entry << std::endl;
+
+							continue;
+						}
 
 
 #ifdef UNIX
-					// (listfile) entries usually have Windows path format
-					boost::algorithm::replace_all(entry, "\\", "/");
+						// (listfile) entries usually have Windows path format
+						boost::algorithm::replace_all(entry, "\\", "/");
 #endif
-					// output direcotry is archive's basename in its actual directory (name without extension)
-					boost::filesystem::path entryPath = mpq->path().parent_path() / boost::filesystem::basename(mpq->path()) / boost::filesystem::path(entry).parent_path();
-					std::cout << "Dir string " << entryPath << std::endl;
+						// output direcotry is archive's basename in its actual directory (name without extension)
+						boost::filesystem::path entryPath = mpq->path().parent_path() / boost::filesystem::basename(mpq->path()) / boost::filesystem::path(entry).parent_path();
+						std::cout << "Dir string " << entryPath << std::endl;
 
-					if (!boost::filesystem::is_directory(entryPath) && !boost::filesystem::create_directories(entryPath))
-					{
-						std::cerr << boost::format(_("Error occured while extracting file \"%1%\": Unable to create output directory \"%2%\".")) % entry %
-						entryPath << std::endl;
+						if (!vm.count("overwrite") && boost::filesystem::exists(entryPath))
+						{
+							std::cerr << boost::format(_("Error occured while creating extraction directory \"%1%\": \"Directory exists already (use --overwrite to create it anyway\".")) % entry << std::endl;
 
-						continue;
-					}
+							continue;
+						}
 
-					entryPath /= boost::filesystem::path(entry).filename();
-					mpq::ofstream out(entryPath, std::ios::out | std::ios::binary);
+						if (!boost::filesystem::is_directory(entryPath) && !boost::filesystem::create_directories(entryPath))
+						{
+							std::cerr << boost::format(_("Error occured while extracting file \"%1%\": Unable to create output directory \"%2%\".")) % entry %
+							entryPath << std::endl;
 
-					try
-					{
-						checkStream(out);
-						file->writeData(out);
-					}
-					catch (Exception &exception)
-					{
-						std::cerr << boost::format(_("Error occured while extracting file \"%1%\": \"%2%\".")) % entry % exception.what() << std::endl;
+							continue;
+						}
 
-						continue;
+						entryPath /= boost::filesystem::path(entry).filename();
+
+						if (!vm.count("overwrite") && boost::filesystem::exists(entryPath))
+						{
+							std::cerr << boost::format(_("Error occured while extracting file \"%1%\": \"File exists already (use --overwrite to extract it anyway\".")) % entry << std::endl;
+
+							continue;
+						}
+
+						mpq::ofstream out(entryPath, std::ios::out | std::ios::binary);
+
+						try
+						{
+							checkStream(out);
+							file->writeData(out);
+						}
+						catch (Exception &exception)
+						{
+							std::cerr << boost::format(_("Error occured while extracting file \"%1%\": \"%2%\".")) % entry % exception.what() << std::endl;
+
+							continue;
+						}
 					}
 				}
 			}

@@ -229,8 +229,6 @@ std::streamsize Mpq::read(InputStream &stream, const MpqFile::ListfileEntries &l
 	uint32 hashValue = HashString(Mpq::cryptTable(), "(block table)", HashType::FileKey);
 	DecryptData(Mpq::cryptTable(), encryptedBytes.get(), encryptedBytesSize, hashValue);
 	arraystream sstream(encryptedBytes.get(), encryptedBytesSize);
-	//sstream.write(encryptedBytes.get(), encryptedBytesSize);
-	//encryptedBytes.reset();;
 
 	for (std::size_t i = 0; i < header.blockTableEntries; ++i)
 	{
@@ -266,7 +264,8 @@ std::streamsize Mpq::read(InputStream &stream, const MpqFile::ListfileEntries &l
 	stream.read(encryptedBytes.get(), encryptedBytesSize);
 	hashValue = HashString(Mpq::cryptTable(), "(hash table)", HashType::FileKey);
 	DecryptData(Mpq::cryptTable(), encryptedBytes.get(), encryptedBytesSize, hashValue);
-	sstream.write(encryptedBytes.get(), encryptedBytesSize);
+	sstream.close();
+	sstream.open(encryptedBytes.get(), encryptedBytesSize);
 
 	for (std::size_t i = 0; i < header.hashTableEntries; ++i)
 	{

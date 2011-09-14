@@ -1,3 +1,9 @@
+2011-09-14 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Fixed array buffer error for hash table entries.
+* app: Improved performance of listfile reading for application "mpq".
+* Added CMake options for all modules.
+* app: Added "--overwrite" support for extraction of application "mpq".
+
 2011-09-13 Tamino Dauth <tamino@cdauth.eu>
 * editor: Fixed unit editor creation.
 * editor: Improved object editor.

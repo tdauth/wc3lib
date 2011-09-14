@@ -17,18 +17,41 @@ configure_file (
 # so that we will find TutorialConfig.h
 include_directories("${PROJECT_BINARY_DIR}")
 
+include(CMakeDependentOption)
+
 option(STATIC
 	"Everything will be linked statically with applications if possible (creates big static wc3lib library)."
 	OFF)
 option(NORUNTIME
 	"Dynamic format libraries (e. g. jpeg library) will be linked during compilation and won't be loaded dynamically at runtime."
 	OFF)
-option(EDITOR
+option(APP
+	"Builds various applications for all enabled modules, not only libraries."
+	ON)
+option(BLP
+	"Builds BLP module. Required by options EDITOR and PLUGINS."
+	ON)
+CMAKE_DEPENDENT_OPTION(MAP
+	"Builds map module. Required by option EDITOR."
+	ON
+	"MPQ" OFF)
+option(MDLX
+	"Builds MDLX module. Required by by option EDITOR."
+	ON)
+option(MPQ
+	"Builds MPQ module. Required by options EDITOR and PLUGINS."
+	ON)
+option(W3G
+	"Builds W3G module."
+	ON)
+CMAKE_DEPENDENT_OPTION(EDITOR
 	"Wacraft III World Editor emulation is built. Qt/KDE is required!"
-	ON)
-option(PLUGINS
+	ON
+	"BLP;MAP;MDLX;MPQ" OFF)
+CMAKE_DEPENDENT_OPTION(PLUGINS
 	"Could be used without EDITOR and installs Qt/KDE and OGRE format plugins only. Does not build the whole World Editor emulation."
-	ON)
+	ON
+	"BLP;MPQ" OFF)
 option(DOC
 	"Generates doxygen documentation (doxygen is required)"
 	ON)
@@ -56,6 +79,12 @@ endfunction ()
 
 function (WC3LIB_GET_UI resultName)
 	file(GLOB list *.ui)
+	list(APPEND result ${list})
+	set(${resultName} ${result} PARENT_SCOPE)
+endfunction ()
+
+function (WC3LIB_GET_TXT resultName)
+	file(GLOB list *.txt)
 	list(APPEND result ${list})
 	set(${resultName} ${result} PARENT_SCOPE)
 endfunction ()
@@ -176,10 +205,12 @@ endif ()
 find_package(Gettext REQUIRED)
 
 # Both libraries are required by Boost "iostreams" component which is used for the "mpq" module.
-find_package(BZip2 REQUIRED)
-include_directories(${BZIP2_INCLUDE_DIR})
-find_package(ZLIB REQUIRED)
-include_directories(${ZLIB_INCLUDE_DIRS})
+if (MPQ)
+	find_package(BZip2 REQUIRED)
+	include_directories(${BZIP2_INCLUDE_DIR})
+	find_package(ZLIB REQUIRED)
+	include_directories(${ZLIB_INCLUDE_DIRS})
+endif ()
 
 # Boost
 if (STATIC)
@@ -196,8 +227,10 @@ set(Boost_DETAILED_FAILURE_MSG ON)
 find_package(Boost 1.46 COMPONENTS system filesystem thread serialization program_options iostreams REQUIRED)
 
 # Static linking with JPEG (BLP library)
-if (STATIC OR NORUNTIME)
-	find_library(jpeg REQUIRED)
+if (BLP)
+	if (STATIC OR NORUNTIME)
+		find_library(jpeg REQUIRED)
+	endif ()
 endif ()
 
 if (EDITOR OR PLUGINS)
@@ -260,6 +293,6 @@ add_subdirectory(doc)
 add_subdirectory(locale)
 add_subdirectory(mime)
 add_subdirectory(services)
+add_subdirectory(share)
 
 #include(CPack)
-

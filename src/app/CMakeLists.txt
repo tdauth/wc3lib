@@ -1,29 +1,33 @@
-add_executable(wc3converter converter.cpp)
-target_link_libraries(wc3converter ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
+if (APP)
+	if (BLP AND MPQ AND MDLX)
+		add_executable(wc3converter converter.cpp)
+		target_link_libraries(wc3converter ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
+		install(TARGETS wc3converter DESTINATION bin)
+	endif ()
 
-if (EDITOR)
-	kde4_add_executable(wc3editor editor.cpp)
-	target_link_libraries(wc3editor ${wc3lib_LIBRARIES} ${KDE4_KIO_LIBS} ${KDE4_KUTILS_LIBS} ${KDE4_KPARTS_LIBS})
+	if (EDITOR)
+		kde4_add_executable(wc3editor editor.cpp)
+		target_link_libraries(wc3editor ${wc3lib_LIBRARIES} ${KDE4_KIO_LIBS} ${KDE4_KUTILS_LIBS} ${KDE4_KPARTS_LIBS})
+		install(TARGETS wc3editor DESTINATION bin)
+	endif ()
+
+	#add_executable(jassc jassc.cpp)
+	#target_link_libraries(jassc ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+	#add_executable(tilesetter tilesetter.cpp)
+	#target_link_libraries(tilesetter ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+	if (MAP)
+		add_executable(jasstrans jasstrans.cpp)
+		target_link_libraries(jasstrans ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
+	endif ()
+
+	if (MPQ)
+		add_executable(mpq mpq.cpp)
+		target_link_libraries(mpq ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
+		if (DEBUG)
+			target_link_libraries(mpq StormLib)
+		endif ()
+		install(TARGETS mpq DESTINATION bin)
+	endif ()
 endif ()
-
-#add_executable(jassc jassc.cpp)
-#target_link_libraries(jassc ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
-
-#add_executable(tilesetter tilesetter.cpp)
-#target_link_libraries(tilesetter ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
-
-add_executable(jasstrans jasstrans.cpp)
-target_link_libraries(jasstrans ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
-
-add_executable(mpq mpq.cpp)
-target_link_libraries(mpq ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
-if (DEBUG)
-	target_link_libraries(mpq StormLib)
-endif ()
-
-# install
-if (EDITOR)
-	install(TARGETS wc3editor DESTINATION bin)
-endif ()
-
-install(TARGETS wc3converter mpq DESTINATION bin) #jassc, tilesetter
