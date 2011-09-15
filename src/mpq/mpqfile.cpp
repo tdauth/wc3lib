@@ -147,9 +147,6 @@ std::streamsize MpqFile::writeData(ostream &ostream) const throw (class Exceptio
 {
 	std::streamsize bytes = 0;
 
-	std::cout << "WRITING DATA FROM FILE " << this->path().string() << " INTO STREAM!!!" << std::endl;
-	std::cout << "We have " << this->m_sectors.size() << " sectors." << std::endl;
-
 	BOOST_FOREACH(const SectorPtr &sector, this->sectors())
 	{
 		try
@@ -209,8 +206,8 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 		TEST = true;
 		std::cout << "Is (listfile)!" << std::endl;
 	}
-	else
-		std::cerr << "Is not!" << std::endl;
+	//else
+		//std::cerr << "Is not!" << std::endl;
 
 	// END TEST
 
@@ -333,8 +330,8 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 			std::cerr << "First sector offset " << (*this->sectors().find(0))->sectorOffset() << std::endl;
 			size = hash()->block()->blockSize();
 		}
-		else
-			std::cout << "Block size and size in sector offset table are equal!" << std::endl; // correct!
+		//else
+			//std::cout << "Block size and size in sector offset table are equal!" << std::endl; // correct!
 
 		// calculate size of each sector
 		BOOST_REVERSE_FOREACH(SectorPtr sector, this->m_sectors)

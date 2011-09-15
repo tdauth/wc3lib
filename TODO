@@ -1,3 +1,7 @@
+2011-09-15 Tamino Dauth <tamino@cdauth.eu>
+* app: Revise "wc3converter" completely please: BLP to BLP, MPQ to MPQ, MDX to MDL, W3M to W3X to W3N and add support for various format specific options.
+* app: Application "editor" should load it corresponding wc3editor.mo file!
+
 2011-09-14 Tamino Dauth <tamino@cdauth.eu>
 * mpq: Fix file stream output (only first word is correct).
 

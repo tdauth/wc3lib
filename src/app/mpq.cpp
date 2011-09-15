@@ -35,8 +35,11 @@
 using namespace wc3lib;
 using namespace wc3lib::mpq;
 
+namespace
+{
+
 template<typename T>
-static std::string sizeString(T size, bool humanReadable, bool decimal)
+std::string sizeString(T size, bool humanReadable, bool decimal)
 {
 	if (humanReadable)
 	{
@@ -50,6 +53,119 @@ static std::string sizeString(T size, bool humanReadable, bool decimal)
 	result << size;
 
 	return result.str();
+}
+
+std::string flagsString(BOOST_SCOPED_ENUM(Block::Flags) flags)
+{
+	if (flags == Block::Flags::None)
+		return _("Uncompressed");
+	else
+	{
+		std::string result;
+
+		if (flags & Block::Flags::IsFile)
+			result = ((result.empty() ? boost::format(_("%1%")) : boost::format(_("%1%, %2%")) % result) % _("File")).str();
+
+		if (flags & Block::Flags::IsSingleUnit)
+			result = ((result.empty() ? boost::format(_("%1%")) : boost::format(_("%1%, %2%")) % result) % _("Single Unit")).str();
+
+		if (flags & Block::Flags::UsesEncryptionKey)
+			result = ((result.empty() ? boost::format(_("%1%")) : boost::format(_("%1%, %2%")) % result) % _("Uses Encryption Key")).str();
+
+		if (flags & Block::Flags::IsEncrypted)
+			result = ((result.empty() ? boost::format(_("%1%")) : boost::format(_("%1%, %2%")) % result) % _("Encrypted")).str();
+
+		if (flags & Block::Flags::IsCompressed)
+			result = ((result.empty() ? boost::format(_("%1%")) : boost::format(_("%1%, %2%")) % result) % _("Compressed")).str();
+
+		if (flags & Block::Flags::IsImploded)
+			result = ((result.empty() ? boost::format(_("%1%")) : boost::format(_("%1%, %2%")) % result) % _("Imploded")).str();
+
+		return result;
+	}
+
+	return "";
+}
+
+std::string compressionString(BOOST_SCOPED_ENUM(Sector::Compression) compression)
+{
+	if (compression == Sector::Compression::Uncompressed)
+		return _("Uncompressed");
+	else
+	{
+		std::string result;
+
+		if (compression & Sector::Compression::ImaAdpcmMono)
+			result = ((result.empty() ? boost::format(_("%1%")) : boost::format(_("%1%, %2%")) % result) % _("ImaAdpcmMono")).str();
+
+		if (compression & Sector::Compression::ImaAdpcmStereo)
+			result = ((result.empty() ? boost::format(_("%1%")) : boost::format(_("%1%, %2%")) % result) % _("ImaAdpcmStereo")).str();
+
+		if (compression & Sector::Compression::Huffman)
+			result = ((result.empty() ? boost::format(_("%1%")) : boost::format(_("%1%, %2%")) % result) % _("Huffman")).str();
+
+		if (compression & Sector::Compression::Deflated)
+			result = ((result.empty() ? boost::format(_("%1%")) : boost::format(_("%1%, %2%")) % result) % _("Deflated")).str();
+
+		if (compression & Sector::Compression::Imploded)
+			result = ((result.empty() ? boost::format(_("%1%")) : boost::format(_("%1%, %2%")) % result) % _("Imploded")).str();
+
+		if (compression & Sector::Compression::Bzip2Compressed)
+			result = ((result.empty() ? boost::format(_("%1%")) : boost::format(_("%1%, %2%")) % result) % _("Bzip2Compressed")).str();
+
+		if (compression & Sector::Compression::Sparse)
+			result = ((result.empty() ? boost::format(_("%1%")) : boost::format(_("%1%, %2%")) % result) % _("Sparse")).str();
+
+		if (compression & Sector::Compression::Lzma)
+			result = ((result.empty() ? boost::format(_("%1%")) : boost::format(_("%1%, %2%")) % result) % _("Lzma")).str();
+
+		return result;
+	}
+
+	return "";
+}
+
+std::string fileInfo(const MpqFile &file, bool humanReadable, bool decimal)
+{
+	std::stringstream sstream;
+	sstream << boost::format(_("%1%\nCompressed: %2%\nEncrypted: %3%\nImploded: %4%\nFlags: %5%\nCompressed size: %6%\nSize: %7%\nSectors: %8%")) % file.path() % boolString(file.isCompressed()) % boolString(file.isEncrypted()) % boolString(file.isImploded()) % flagsString(file.block()->flags()) % sizeString(file.compressedSize(), humanReadable, decimal) % sizeString(file.size(), humanReadable, decimal) % file.sectors().size();
+
+	if (file.sectors().size() > 0)
+	{
+		sstream << _("\nSectors:");
+
+		BOOST_FOREACH(const MpqFile::SectorPtr &sector, file.sectors())
+				sstream << boost::format(_("\nSector %1%:\n-- Size: %2%\n-- Compression: %3%")) % sector->sectorIndex() % sizeString(sector->sectorSize(), humanReadable, decimal) % compressionString(sector->compression());
+	}
+
+	return sstream.str();
+}
+
+std::string formatString(BOOST_SCOPED_ENUM(Mpq::Format) format)
+{
+	switch (format)
+	{
+		case Mpq::Format::Mpq1:
+			return _("MPQ1");
+
+		case Mpq::Format::Mpq2:
+			return _("MPQ2");
+	}
+
+	return _("Invalid");
+}
+
+std::string archiveInfo(const Mpq &archive, bool humanReadable, bool decimal)
+{
+	std::stringstream sstream;
+	sstream << boost::format(_("%1%\nSize: %2%\nHashes: %3%\nBlocks: %4%\nFiles: %5%\nFormat %6%\nUsed block space: %7%\nUnused block space: %8%\nSector size: %9%\nEntire block size: %10%\nEntire file size: %11%\nHas (listfile) file: %12%\nHas (attributes) file: %13%\nHas (signature) file: %14%\nHas strong digital signature: %15%\n")) % archive.path() % sizeString(archive.size(), humanReadable, decimal) % archive.hashes().size() % archive.blocks().size() % archive.files().size() %  formatString(archive.format()) % sizeString(archive.entireUsedBlockSize(), humanReadable, decimal) % sizeString(archive.entireEmptyBlockSize(), humanReadable, decimal) % sizeString(archive.entireBlockSize(), humanReadable, decimal) % sizeString(archive.entireFileSize(), humanReadable, decimal) % boolString(archive.containsListfileFile()) % boolString(archive.containsAttributesFile()) % boolString(archive.containsSignatureFile()) % boolString(archive.hasStrongDigitalSignature());
+
+	if (archive.extendedAttributes() != Mpq::ExtendedAttributes::None)
+		sstream << boost::format(_("Extended attributes:\nHas CRC32s: %1%\nHas time stamps: %2%\nHas MD5s: %3%")) % boolString(archive.extendedAttributes() & Mpq::ExtendedAttributes::FileCrc32s) % boolString(archive.extendedAttributes() & Mpq::ExtendedAttributes::FileTimeStamps) % boolString(archive.extendedAttributes() & Mpq::ExtendedAttributes::FileMd5s);
+
+	return sstream.str();
+}
+
 }
 
 int main(int argc, char *argv[])
@@ -98,7 +214,7 @@ int main(int argc, char *argv[])
 	("update,u", _("Only append files that are newer than the existing archives."))
 	("extract,get,x", _("Extract files from MPQ archives. If no files are specified via -f all files are extracted from given MPQ archives."))
 	("delete", _("Deletes files from MPQ archives."))
-	("info,i", _("Shows some basic information about all read MPQ archives."))
+	("info,i", _("Shows some basic information about all read MPQ archives. If any files are specified via -f their information will be shown as well."))
 	("benchmark,b", _("Compares various functionalities of wc3lib and StormLib."))
 
 	// input
@@ -209,52 +325,22 @@ int main(int argc, char *argv[])
 			}
 
 			std::cout
-			<< mpq->path().string() << std::endl
-			<< boost::format(_("Size: %1%")) % sizeString(mpq->size(), vm.count("human-readable"), vm.count("decimal")) << std::endl
-			<< boost::format(_("Hashes: %1%")) % mpq->hashes().size() << std::endl
-			<< boost::format(_("Blocks: %1%")) % mpq->blocks().size() << std::endl
-			<< boost::format(_("Files: %1%")) % mpq->files().size() << std::endl
-			<< boost::format(_("Format: %1%")) % mpq->format() << std::endl
-			<< boost::format(_("Used block space: %1%")) % sizeString(mpq->entireUsedBlockSize(), vm.count("human-readable"), vm.count("decimal")) << std::endl
-			<< boost::format(_("Unused block space: %1%")) % sizeString(mpq->entireEmptyBlockSize(), vm.count("human-readable"), vm.count("decimal")) << std::endl
-			<< boost::format(_("Sector size: %1%")) % sizeString(mpq->sectorSize(), vm.count("human-readable"), vm.count("decimal")) << std::endl
-			<< boost::format(_("Entire block size: %1%")) % sizeString(mpq->entireBlockSize(), vm.count("human-readable"), vm.count("decimal")) << std::endl
-			<< boost::format(_("Entire file size: %1%")) % sizeString(mpq->entireFileSize(), vm.count("human-readable"), vm.count("decimal")) << std::endl
-			<< boost::format(_("Has strong digital signature: %1%")) % boolString(mpq->hasStrongDigitalSignature()) << std::endl
-			<< boost::format(_("Contains listfile file: %1%")) % boolString(mpq->containsListfileFile()) << std::endl
-			<< boost::format(_("Contains attributes file: %1%")) % boolString(mpq->containsAttributesFile()) << std::endl
-			<< boost::format(_("Contains signature file: %1%")) % boolString(mpq->containsSignatureFile()) << std::endl
-			;
+			<< archiveInfo(*mpq, vm.count("human-readable"), vm.count("decimal")) << std::endl;
 
-			if (mpq->extendedAttributes() != Mpq::ExtendedAttributes::None)
+			if (!filePaths.empty())
 			{
-				std::cout << _("Extended attributes:") << std::endl;
+				BOOST_FOREACH(Paths::const_reference path, filePaths)
+				{
+					const MpqFile *file = mpq->findFile(path);
 
-				if (mpq->extendedAttributes() & Mpq::ExtendedAttributes::FileCrc32s)
-					std::cout << _("* File CRC32s") << std::endl;
-
-				if (mpq->extendedAttributes() & Mpq::ExtendedAttributes::FileTimeStamps)
-					std::cout << _("* File time stamps") << std::endl;
-
-				if (mpq->extendedAttributes() & Mpq::ExtendedAttributes::FileMd5s)
-					std::cout << _("* File MD5s") << std::endl;
+					if (file != 0)
+						std::cout << fileInfo(*file, vm.count("human-readable"), vm.count("decimal")) << std::endl;
+					else
+						std::cerr << boost::format(_("Error occured while extracting file \"%1%\": File doesn't exist.")) % path << std::endl;
+				}
 			}
 
-			/// \todo TEST
-			const MpqFile *mpqFile = const_cast<const Mpq*>(mpq.get())->findFile("Detector.js");
-
-			if (mpqFile == 0)
-			{
-				std::cerr << _("Error while searching for file.") << std::endl;
-			}
-			else
-			{
-				std::basic_stringstream<mpq::byte> testBuffer;
-				std::cout << "Found file \"Detector.js\" and wrote " << mpqFile->writeData(testBuffer) << "bytes:" << std::endl;
-				std::cout << testBuffer;
-			}
-			//else
-			//	std::cout << "Flags: " << std::hex << mpqFile->hash()->block()->flags() << std::dec << "\nFile data: " << *mpqFile << std::endl;
+			/*
 
 			std::size_t invalidFiles = 0;
 			BOOST_SCOPED_ENUM(Block::Flags) flags = Block::Flags::None;
@@ -274,6 +360,7 @@ int main(int argc, char *argv[])
 			}
 
 			std::cout << "Invalid files: " << invalidFiles << " with flags " << std::hex << flags << std::dec << std::endl;
+			*/
 		}
 	}
 
@@ -303,15 +390,8 @@ int main(int argc, char *argv[])
 				continue;
 			}
 
-			std::size_t i = 1;
-
 			BOOST_FOREACH(const Mpq::FilePtr mpqFile, mpq->files().get<0>())
-			{
-				std::cout << boost::format(_("* File %1%: (Size: %2%) - %3%")) % i % sizeString(mpqFile->size(), vm.count("human-readable"), vm.count("decimal")) % mpqFile->path() << std::endl;
-				++i;
-			}
-
-			std::cout << boost::format(_("%1% files total (Size: %2%)")) % (i + 1) % sizeString(mpq->entireFileSize(), vm.count("human-readable"), vm.count("decimal")) << std::endl;
+				std::cout << mpqFile->path() << std::endl;
 		}
 	}
 
@@ -444,7 +524,6 @@ int main(int argc, char *argv[])
 #endif
 						// output direcotry is archive's basename in its actual directory (name without extension)
 						boost::filesystem::path entryPath = mpq->path().parent_path() / boost::filesystem::basename(mpq->path()) / boost::filesystem::path(entry).parent_path();
-						std::cout << "Dir string " << entryPath << std::endl;
 
 						if (!vm.count("overwrite") && boost::filesystem::exists(entryPath))
 						{
@@ -483,6 +562,12 @@ int main(int argc, char *argv[])
 
 							continue;
 						}
+
+
+						// TEST
+						mpq::ofstream infoOut(entryPath.string() + "info", std::ios::out);
+						infoOut << fileInfo(*file, vm.count("human-readable"), vm.count("decimal"));
+						// END TEST
 					}
 				}
 			}

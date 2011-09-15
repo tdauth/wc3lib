@@ -1,3 +1,8 @@
+2011-09-15 Tamino Dauth <tamino@cdauth.eu>
+* app: Application "mpq"'s option --info supports files now.
+* app: Improved output of application "mpq".
+* Renamed various files for targets "wc3editor" and "wc3converter".
+
 2011-09-14 Tamino Dauth <tamino@cdauth.eu>
 * mpq: Fixed array buffer error for hash table entries.
 * app: Improved performance of listfile reading for application "mpq".

@@ -7,5 +7,15 @@
 #msginit -i editor.pot -o en_GB/LC_MESSAGES/editor.po --locale=en_GB
 
 # install
-install(FILES de_DE/LC_MESSAGES/converter.mo de_DE/LC_MESSAGES/editor.mo de_DE/LC_MESSAGES/mpq.mo de_DE/LC_MESSAGES/wc3lib.mo DESTINATION usr/share/locale/de_DE/LC_MESSAGES)
+if (APP)
+	if (BLP AND MPQ AND MDLX)
+		install(FILES de_DE/LC_MESSAGES/wc3converter.mo DESTINATION usr/share/locale/de_DE/LC_MESSAGES)
+	endif ()
+
+	if (EDITOR)
+		install(FILES de_DE/LC_MESSAGES/wc3editor.mo DESTINATION usr/share/locale/de_DE/LC_MESSAGES)
+	endif ()
+endif ()
+
+install(FILES de_DE/LC_MESSAGES/wc3lib.mo DESTINATION usr/share/locale/de_DE/LC_MESSAGES)
 #install(FILES en_GB/LC_MESSAGES/converter.mo en_GB/LC_MESSAGES/editor.mo en_GB/LC_MESSAGES/mpq.mo en_GB/LC_MESSAGES/wc3lib.mo DESTINATION usr/share/locale/en_GB/LC_MESSAGES)
