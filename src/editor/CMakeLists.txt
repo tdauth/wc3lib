@@ -1,14 +1,14 @@
 WC3LIB_ENABLE_EXCEPTIONS()
 
-if (EDITOR OR PLUGINS)
-	include_directories(${KDE4_INCLUDE_DIR} ${QT_INCLUDE_DIR})
-
-	include(${QT_USE_FILE})
+if (BLP AND ${OGRE_FOUND})
+	add_subdirectory(Plugin_BlpCodec)
 endif ()
-
-add_subdirectory(Plugin_BlpCodec)
-add_subdirectory(kio_mpq)
-add_subdirectory(qblp)
+if (MPQ AND ${KDE4_FOUND})
+	add_subdirectory(kio_mpq)
+endif ()
+if (BLP AND ${QT4_FOUND})
+	add_subdirectory(qblp)
+endif ()
 
 if (EDITOR)
 	add_subdirectory(ui)

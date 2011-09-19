@@ -3,6 +3,12 @@
 #cmakedefine DEBUG
 #cmakedefine STATIC
 #cmakedefine NORUNTIME
+#cmakedefine APP
+#cmakedefine BLP
+#cmakedefine MAP
+#cmakedefine MDLX
+#cmakedefine MPQ
+#cmakedefine W3G
 #cmakedefine EDITOR
 #cmakedefine PLUGINS
 #cmakedefine DOC

@@ -9,24 +9,32 @@ inherit cmake-utils
 DESCRIPTION="Warcraft III development library"
 HOMEPAGE="https://gitorious.org/wc3lib"
 SRC_URI="http://sourceforge.net/projects/vjasssdk/files/wc3sdk/wc3lib/releases/wc3lib-${PV}.7z"
-
+# TODO add useflag dependencies!
 LICENSE="GPLv2"
 RESTRICT="nomirror"
 SLOT="0"
 KEYWORDS="*"
-IUSE="+editor debug doc"
+IUSE="+app +blp +map +mdlx +mpq +w3g +editor +plugins debug doc"
 
 DEPEND="${RDEPEND}"
 RDEPEND="
 >=dev-libs/boost:1.41
 sys-devel/gettext
+mpq? (
 app-arch/bzip2
 sys-libs/zlib
+)
+blp? (
 media-libs/jpeg:0
+)
 editor? (
 >=kde-base/kdelibs-4.6
 >=dev-games/ogre-1.7.3
-)"
+)
+plugins? (
+>=kde-base/kdelibs-4.6
+)
+"
 MERGE_TYPE="source"
 
 src_configure() {
@@ -34,7 +42,13 @@ src_configure() {
 	local mycmakeargs=(
 		-DLIB_SUFFIX=${libdir#lib}
 		-DMANUAL_REVISION=${VERSIO_PRAESENS}
-		$(cmake-utils_use_want debug EDITOR)
+		$(cmake-utils_use_want app APP)
+		$(cmake-utils_use_want blp BLP)
+		$(cmake-utils_use_want mdlx MDLX)
+		$(cmake-utils_use_want mpq MPQ)
+		$(cmake-utils_use_want w3g W3G)
+		$(cmake-utils_use_want editor EDITOR)
+		$(cmake-utils_use_want plugins PLUGINS)
 		$(cmake-utils_use_want debug DEBUG)
 		$(cmake-utils_use_want doc DOXYGEN)
 		$(cmake-utils_use_want doc DOC)

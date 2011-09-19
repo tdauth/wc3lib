@@ -20,7 +20,6 @@
 
 #include "mpqfile.hpp"
 #include "mpq.hpp"
-#include "algorithm.hpp" //debug
 
 namespace wc3lib
 {

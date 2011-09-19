@@ -1,3 +1,6 @@
 * wc3lib-0.1
+      2011-09-19; Tamino Dauth <tamino@cdauth.eu> +wc3lib-0.1.ebuild:
+      Initial support for useflags app, blp, map, mdlx, mpq, w3g and plugins.
+
       2011-08-04; Tamino Dauth <tamino@cdauth.eu> +wc3lib-0.1.ebuild:
       Initial support for useflags debug, editor and doc.

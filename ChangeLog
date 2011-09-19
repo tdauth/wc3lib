@@ -1,3 +1,10 @@
+2011-09-19 Tamino Dauth <tamino@cdauth.eu>
+* Added proper CMake option support (as compilation flags).
+* ebuild: Added initial useflag support for new CMake options.
+* app: Application "mpq" supports extracting specific files now.
+* Improved auto detection of OGRE paths in CMake files.
+* Improved auto detection behaviour for PLUGINS option.
+
 2011-09-15 Tamino Dauth <tamino@cdauth.eu>
 * app: Application "mpq"'s option --info supports files now.
 * app: Improved output of application "mpq".

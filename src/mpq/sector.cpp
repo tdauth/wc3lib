@@ -65,16 +65,8 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 	else
 		ifstream.seekg(boost::numeric_cast<std::streampos>(this->mpqFile()->hash()->block()->largeOffset()), std::ios::cur);
 
+	// NOTE as well, this byte is encrypted with the sector data, if applicable.
 	uint32 dataSize = this->sectorSize();
-
-	// WARNING as well, this byte is encrypted with the sector data, if applicable.
-	// skip compression flags byte
-	/*if (this->mpqFile()->isCompressed())
-	{
-		ifstream.seekg(1, std::ios::cur);
-		dataSize -= 1;
-	}*/
-
 	boost::scoped_array<byte> data(new byte[dataSize]);
 	std::streamsize bytes = 0;
 	wc3lib::read(ifstream, data[0], bytes, dataSize);
@@ -212,6 +204,9 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 	// skip compression types byte if data could not be compressed properly
 	else if (this->mpqFile()->isCompressed())
 	{
+		// TEST
+		std::cerr << "Sector could not be compressed properly." << std::endl;
+
 		ostream.write(&data[1], dataSize - 1);
 
 		return bytes;

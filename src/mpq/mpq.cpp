@@ -399,7 +399,7 @@ const class MpqFile* Mpq::findFile(const boost::filesystem::path &path, BOOST_SC
 		// TODO READ SECTOR OFFSET TABLE AND DECRYPT IT NOW THAT WE HAVE ITS PATH
 		if (hash->mpqFile()->hasSectorOffsetTable() && hash->mpqFile()->isEncrypted())
 		{
-			std::cerr << "File sector offset table is encrypted and we have no file path. Refreshing sector data." << std::endl;
+			std::cerr << "Getting missing encrypted sector table!" << std::endl;
 
 			boost::interprocess::file_lock fileLock(hash->mpqFile()->mpq()->path().string().c_str());
 
