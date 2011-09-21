@@ -1,3 +1,14 @@
+2011-09-21 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Improved sector reading data support.
+* mpq: Added implode/explode error message support.
+* mpq: Class MpqFile is more extensible now.
+* mpq: Fixed too small buffer for imploded compression when exploding sectors.
+
+2011-09-20 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Class Mpq is more extensible now.
+* mpq: Dropped deprecated stream files.
+* mpq: Added initial sector reading data support.
+
 2011-09-19 Tamino Dauth <tamino@cdauth.eu>
 * Added proper CMake option support (as compilation flags).
 * ebuild: Added initial useflag support for new CMake options.

@@ -43,6 +43,26 @@ namespace wc3lib
 namespace mpq
 {
 
+inline const char* pkglibError(int error)
+{
+	switch (error)
+	{
+		case CMP_INVALID_DICTSIZE:
+			return _("Invalid dictionary size.");
+
+		case CMP_INVALID_MODE:
+			return _("Invalid mode.");
+
+		case CMP_BAD_DATA:
+			return _("Bad data.");
+
+		case CMP_ABORT:
+			return _("Abort.");
+	}
+
+	return "";
+}
+
 BOOST_SCOPED_ENUM_START(HashType)
 {
 	TableOffset = 0,
@@ -61,7 +81,7 @@ void DecryptData(const uint32 dwCryptTable[cryptTableSize], void *lpbyBuffer, ui
 /// Based on code from StormLib.
 uint32 HashString(const uint32 dwCryptTable[cryptTableSize], const char *lpszString, BOOST_SCOPED_ENUM(HashType) hashType);
 
-void compressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength, int &compressionType, int /* compressionLevel */) throw (class Exception);
+void compressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength, short compressionType, int /* compressionLevel */) throw (class Exception);
 void decompressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength) throw (class Exception);
 /**
  * \sa compressWaveMono, decompressWaveMono, compressWaveStereo, decompressWaveStereo

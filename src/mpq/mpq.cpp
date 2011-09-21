@@ -232,7 +232,7 @@ std::streamsize Mpq::read(InputStream &stream, const MpqFile::ListfileEntries &l
 
 	for (std::size_t i = 0; i < header.blockTableEntries; ++i)
 	{
-		this->m_blocks.left.insert(std::make_pair(i, BlockPtr(new Block(this))));
+		this->m_blocks.left.insert(std::make_pair(i, BlockPtr(newBlock())));
 		size += this->m_blocks.left.find(i)->second->read(sstream);
 	}
 
@@ -269,7 +269,7 @@ std::streamsize Mpq::read(InputStream &stream, const MpqFile::ListfileEntries &l
 
 	for (std::size_t i = 0; i < header.hashTableEntries; ++i)
 	{
-		HashPtr hash(new Hash(this));
+		HashPtr hash(newHash());
 		hash->m_index = i;
 		size += hash->read(sstream);
 		this->m_hashes.get<uint32>().insert(hash);
@@ -280,7 +280,7 @@ std::streamsize Mpq::read(InputStream &stream, const MpqFile::ListfileEntries &l
 	{
 		if (!hash->empty() && !hash->deleted())
 		{
-			FilePtr mpqFile(new MpqFile(this, hash.get()));
+			FilePtr mpqFile(newFile(hash.get()));
 			//mpqFile->m_path = // path can only be set if there is a listfile file or if we're able to convert its hash into file path
 			this->m_files.get<0>().push_back(mpqFile);
 
@@ -474,7 +474,7 @@ class MpqFile* Mpq::addFile(const boost::filesystem::path &path, BOOST_SCOPED_EN
 	if (block == 0)
 	{
 		newBlock = true;
-		block.reset(new Block(this));
+		block.reset(this->newBlock());
 		this->nextBlockOffsets(block->m_blockOffset, block->m_extendedBlockOffset);
 
 		if (this->format() != Mpq::Format::Mpq2 && block->m_extendedBlockOffset > 0)
@@ -512,7 +512,7 @@ class MpqFile* Mpq::addFile(const boost::filesystem::path &path, BOOST_SCOPED_EN
 	hash->hashData().setFilePathHashB(HashString(Mpq::cryptTable(), path.string().c_str(), HashType::NameB));
 	hash->hashData().setLocale(MpqFile::localeToInt(locale));
 	hash->hashData().setPlatform(MpqFile::platformToInt(platform));
-	FilePtr file(new MpqFile(this, hash));
+	FilePtr file(newFile(hash));
 	hash->m_mpqFile = file.get();
 	this->m_files.get<0>().push_back(file);
 
@@ -619,6 +619,42 @@ class Mpq& Mpq::operator>>(class Mpq &mpq) throw (class Exception)
 		mpq.addFile(*mpqFile.get(), false);
 
 	return *this;
+}
+
+class MpqFile* Mpq::newFile(class Hash *hash) throw ()
+{
+	try
+	{
+		return new MpqFile(this, hash);
+	}
+	catch (std::bad_alloc &)
+	{
+		return 0;
+	}
+}
+
+class Hash* Mpq::newHash() throw ()
+{
+	try
+	{
+		return new Hash(this);
+	}
+	catch (std::bad_alloc &)
+	{
+		return 0;
+	}
+}
+
+class Block* Mpq::newBlock() throw ()
+{
+	try
+	{
+		return new Block(this);
+	}
+	catch (std::bad_alloc &)
+	{
+		return 0;
+	}
 }
 
 void Mpq::clear()

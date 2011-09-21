@@ -162,7 +162,7 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		static std::streamsize strongDigitalSignature(istream &istream, char signature[Mpq::strongDigitalSignatureSize]) throw (class Exception);
 
 		Mpq();
-		~Mpq();
+		virtual ~Mpq();
 
 		/**
 		 * Creates a new MPQ archive at file path \p path of format \p format starting at position \p startPosition in corresponding file and using extended attributes \p extendedAttributes and sector size \p sectorSize.
@@ -366,6 +366,14 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		friend class Block;
 
 		Mpq(const Mpq &mpq);
+
+		/**
+		 * Overwrite these member functions to return custom type-based objects if you want to extend their functionality.
+		 */
+		virtual class MpqFile* newFile(class Hash *hash) throw ();
+		virtual class Hash* newHash() throw ();
+		virtual class Block* newBlock() throw ();
+
 		/**
 		 * Does not check if archive is open.
 		 * \sa Mpq::close

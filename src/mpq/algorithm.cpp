@@ -177,7 +177,7 @@ static void writeBuffer(char *buf, unsigned int *size, void *param)
 	info->outPosition += toWrite;
 }
 
-void compressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength, int &compressionType, int /* compressionLevel */)  throw (class Exception)
+void compressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength, short compressionType, int /* compressionLevel */)  throw (class Exception)
 {
 	struct DataInfo info; // Data information
 	// Fill data information structure
@@ -206,7 +206,7 @@ void compressPklib(char *outBuffer, int &outLength, char* const inBuffer, int in
 	outLength = info.outPosition;
 
 	if (state != CMP_NO_ERROR)
-		throw Exception(boost::str(boost::format(_("Implode error %1%.")) % state));
+		throw Exception(boost::format(_("Implode error: \"%1%\".")) % pkglibError(state));
 }
 
 void decompressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength) throw (class Exception)
@@ -234,7 +234,7 @@ void decompressPklib(char *outBuffer, int &outLength, char* const inBuffer, int 
 	outLength = info.outPosition;
 
 	if (state != CMP_NO_ERROR)
-		throw Exception(boost::format(_("Explode error %1%.")) % state);
+		throw Exception(boost::format(_("Explode error: \"%1%\".")) % pkglibError(state));
 }
 
 int compressWaveMono(short* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength, int compressionLevel) throw (class Exception)
@@ -308,7 +308,7 @@ std::streamsize compressBzip2(istream &istream, ostream &ostream) throw (boost::
 	boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
 	in.push(boost::iostreams::basic_bzip2_compressor<std::allocator<byte> >());
 	in.push(istream);
-	
+
 	return boost::iostreams::copy(in, ostream);
 }
 
@@ -317,7 +317,7 @@ std::streamsize decompressBzip2(istream &istream, ostream &ostream) throw (boost
 	boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
 	in.push(boost::iostreams::basic_bzip2_decompressor<std::allocator<byte> >());
 	in.push(istream);
-	
+
 	return boost::iostreams::copy(in, ostream);
 }
 
@@ -326,7 +326,7 @@ std::streamsize compressZlib(istream &istream, ostream &ostream) throw (boost::i
 	boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
 	in.push(boost::iostreams::basic_zlib_compressor<std::allocator<byte> >());
 	in.push(istream);
-	
+
 	return boost::iostreams::copy(in, ostream);
 }
 
@@ -338,7 +338,7 @@ std::streamsize decompressZlib(istream &istream, ostream &ostream) throw (boost:
 	//in.push(boost::iostreams::basic_zlib_decompressor<std::allocator<byte> >(params, istream.rdbuf()->in_avail()));
 	in.push(boost::iostreams::basic_zlib_decompressor<std::allocator<byte> >());
 	in.push(istream);
-	
+
 	return boost::iostreams::copy(in, ostream);
 }
 
@@ -370,7 +370,7 @@ std::streamsize inflateStream(istream &istream, ostream &ostream, const unsigned
 		boost::scoped_array<byte> inputBuffer(new byte[bufferSize]);
 		istream.read(inputBuffer.get(), bufferSize);
 		stream.avail_in = 1;
-		
+
 		//stream.avail_in = istream.gcount();
 		/*
 		if (stream.avail_in == 0)

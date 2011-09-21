@@ -33,15 +33,171 @@ Sector::Sector(class MpqFile *mpqFile) : m_mpqFile(mpqFile), m_sectorIndex(0), m
 {
 }
 
-std::streamsize Sector::readData(istream &istream) throw (class Exception)
+Sector::~Sector()
 {
-	/// \todo Change sector size!!!
-	return 0;
 }
 
-std::streamsize Sector::readData(const byte *buffer, const std::size_t bufferSize) throw  (class Exception)
+std::streamsize Sector::readData(istream &istream, short pkgCompressionType, int waveCompressionLevel) throw (class Exception)
 {
-	return 0;
+	const std::streamoff end = wc3lib::endPosition(istream) - istream.tellg();
+	const uint32 size = end < this->mpqFile()->mpq()->sectorSize() ? boost::numeric_cast<uint32>(end) : this->mpqFile()->mpq()->sectorSize();
+	boost::scoped_array<byte> buffer(new byte[size]);
+	std::streamsize bytes = 0;
+	wc3lib::read(istream, buffer[0], bytes, size);
+
+	return readData(buffer.get(), size);
+}
+
+std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, short pkgCompressionType, int waveCompressionLevel) throw  (class Exception)
+{
+	uint32 size = 0;
+	boost::scoped_array<byte> data;
+
+	// Imploded sectors are the raw compressed data following compression with the implode algorithm (these sectors can only be in imploded files).
+	if (this->mpqFile()->isImploded())
+	{
+		if (this->compression() & Sector::Compression::Imploded)
+		{
+			char *newData = 0;
+			compressPklib(newData, *reinterpret_cast<int*>(&size), (char*const)buffer, boost::numeric_cast<int>(bufferSize), pkgCompressionType, 0);
+			data.reset(newData);
+		}
+	}
+	// Compressed sectors (only found in compressed - not imploded - files) are compressed with one or more compression algorithms.
+	else if (this->mpqFile()->isCompressed())
+	{
+		// TODO check compression order
+		if (this->compression() & Sector::Compression::ImaAdpcmMono) // IMA ADPCM mono
+		{
+			unsigned char *newData = 0;
+
+			if (compressWaveMono((short int* const)buffer, boost::numeric_cast<int>(bufferSize), newData, *reinterpret_cast<int*>(&size), waveCompressionLevel) == 0)
+				throw Exception(_("Wave mono decompression error."));
+
+			data.reset((byte*)newData);
+		}
+
+		if (this->compression() & Sector::Compression::ImaAdpcmStereo) // IMA ADPCM stereo
+		{
+			unsigned char *newData = 0;
+
+			if (compressWaveStereo((short int* const)buffer, boost::numeric_cast<int>(bufferSize), newData, *reinterpret_cast<int*>(&size), waveCompressionLevel) == 0)
+				throw Exception(_("Wave stereo decompression error."));
+
+			data.reset((byte*)newData);
+		}
+
+		if (this->compression() & Sector::Compression::Huffman) // Huffman encoded
+		{
+			unsigned char *newData = 0;
+			int state = huffman_encode_memory((unsigned char*)buffer, boost::numeric_cast<unsigned>(bufferSize), (unsigned char**)(&newData), (unsigned*)(&size));
+
+			if (state != 0)
+				throw Exception(boost::format(_("Huffman error %1%.")) % state);
+
+			data.reset((byte*)newData);
+		}
+
+		if (this->compression() & Sector::Compression::Deflated) // Deflated (see ZLib)
+		{
+			iarraystream istream(buffer, bufferSize);
+			//arraystream ostream;
+			std::basic_stringstream<byte> ostream; // TODO unbuffered stream doesnt work
+
+			try
+			{
+				size = compressZlib(istream, ostream);
+			}
+			catch (boost::iostreams::zlib_error &error)
+			{
+				throw Exception(zlibError(error.error()));
+			}
+
+			data.reset(new byte[size]);
+			ostream.read(data.get(), size);
+			//ostream >> data.get();
+		}
+
+		// Imploded sectors are the raw compressed data following compression with the implode algorithm (these sectors can only be in imploded files).
+		// NOTE but in this situation it's compressed not imploded file!!!
+		if (this->compression() & Sector::Compression::Imploded)
+		{
+			std::cerr << _("Warning: Imploded sector in not imploded file!") << std::endl;
+			char *newData = 0;
+			compressPklib(newData, *reinterpret_cast<int*>(&size), (char*const)buffer, boost::numeric_cast<int>(bufferSize), pkgCompressionType, 0);
+			data.reset(newData);
+		}
+
+		if (this->compression() & Sector::Compression::Bzip2Compressed) // BZip2 compressed (see BZip2)
+		{
+			iarraystream istream(buffer, bufferSize);
+			//arraystream ostream;
+			std::basic_stringstream<byte> ostream; // TODO unbuffered stream doesnt work
+
+			try
+			{
+				size = compressBzip2(istream, ostream);
+			}
+			catch (boost::iostreams::bzip2_error &error)
+			{
+
+				throw Exception(bzip2Error(error.error()));
+			}
+
+			data.reset(new byte[size]);
+			ostream.read(data.get(), size);
+			//ostream >> data.get();
+		}
+	}
+
+	if (size > this->mpqFile()->mpq()->sectorSize())
+		throw Exception(boost::format(_("Size %1% is too big. %2% is maximum sector size for archive.")) % size % mpqFile()->mpq()->sectorSize());
+
+
+	// store compression byte as well before encrypting all data
+	// TODO maybe we could increase speed when starting encryption at the second index and using the default compression type byte without recopying all memory
+	if (this->mpqFile()->isCompressed())
+	{
+		boost::scoped_array<byte> newData(new byte[size + 1]);
+		newData[0] = compression();
+		memcpy(&newData[1], data.get(), size);
+		data.swap(newData);
+	}
+
+	/*
+	If the file is encrypted, each sector (after compression/implosion, if applicable) is encrypted with the file's key.
+	Each sector is encrypted using the key + the 0-based index of the sector in the file.
+	NOTE compression type byte (if existing) is encrypted as well!
+	*/
+	if (this->mpqFile()->isEncrypted())
+		EncryptData(Mpq::cryptTable(), (void*)data.get(), size, this->sectorKey());
+
+	boost::interprocess::file_lock fileLock(this->mpqFile()->mpq()->path().string().c_str());
+
+	if (!fileLock.try_lock())
+		throw Exception(boost::format("Unable to lock MPQ archive of file \"%1%\".") % this->mpqFile()->path());
+
+	ofstream ofstream(this->mpqFile()->mpq()->path(), std::ios_base::out | std::ios_base::binary);
+
+	if (!ofstream)
+		throw Exception(boost::format(_("Unable to open file \"%1%\".")) % this->mpqFile()->mpq()->path().string());
+
+	ofstream.seekp(this->mpqFile()->mpq()->startPosition());
+	ofstream.seekp(boost::numeric_cast<std::streamoff>(this->sectorOffset()), std::ios::cur);
+
+	if (this->mpqFile()->mpq()->format() == Mpq::Format::Mpq1)
+		ofstream.seekp(boost::numeric_cast<std::streamoff>(this->mpqFile()->hash()->block()->blockOffset()), std::ios::cur);
+	else
+		ofstream.seekp(boost::numeric_cast<std::streamoff>(this->mpqFile()->hash()->block()->largeOffset()), std::ios::cur);
+
+	// NOTE as well, this byte is encrypted with the sector data, if applicable.
+	std::streamsize bytes = 0;
+	wc3lib::write(ofstream, data[0], bytes, size);
+	this->m_sectorSize = size;
+	ofstream.close();
+	fileLock.unlock();
+
+	return bytes;
 }
 
 // TODO sector offset seems to be wrong (when reading compression types in MpqFile::read there is other values than here - here the whole sector data including compression type is decrypted!)
@@ -58,12 +214,12 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 		throw Exception(boost::format(_("Sector: Unable to open file \"%1%\".")) % this->mpqFile()->mpq()->path().string());
 
 	ifstream.seekg(this->mpqFile()->mpq()->startPosition());
-	ifstream.seekg(boost::numeric_cast<std::streampos>(this->sectorOffset()), std::ios::cur);
+	ifstream.seekg(boost::numeric_cast<std::streamoff>(this->sectorOffset()), std::ios::cur);
 
 	if (this->mpqFile()->mpq()->format() == Mpq::Format::Mpq1)
-		ifstream.seekg(boost::numeric_cast<std::streampos>(this->mpqFile()->hash()->block()->blockOffset()), std::ios::cur);
+		ifstream.seekg(boost::numeric_cast<std::streamoff>(this->mpqFile()->hash()->block()->blockOffset()), std::ios::cur);
 	else
-		ifstream.seekg(boost::numeric_cast<std::streampos>(this->mpqFile()->hash()->block()->largeOffset()), std::ios::cur);
+		ifstream.seekg(boost::numeric_cast<std::streamoff>(this->mpqFile()->hash()->block()->largeOffset()), std::ios::cur);
 
 	// NOTE as well, this byte is encrypted with the sector data, if applicable.
 	uint32 dataSize = this->sectorSize();
@@ -90,10 +246,19 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 		{
 			if (this->compression() & Sector::Compression::Imploded)
 			{
-				char *newData = reinterpret_cast<char*>(data.get());
-				boost::numeric_cast<int>(dataSize);
-				int *newDataSize = (int*)&dataSize;
-				decompressPklib(newData, *newDataSize, newData, *newDataSize);
+				int outLength = boost::numeric_cast<int>(mpqFile()->mpq()->sectorSize());
+				boost::scoped_array<byte> buffer(new byte[outLength]); // NOTE do always allocate enough memory.
+				decompressPklib(buffer.get(), outLength, reinterpret_cast<char* const>(data.get()), boost::numeric_cast<int>(dataSize));
+
+				if (outLength < mpqFile()->mpq()->sectorSize())
+				{
+					data.reset(new byte[outLength]);
+					memcpy(data.get(), buffer.get(), outLength);
+				}
+				else
+					data.swap(buffer);
+
+				dataSize = outLength;
 			}
 		}
 		// Compressed sectors (only found in compressed - not imploded - files) are compressed with one or more compression algorithms.
@@ -124,7 +289,8 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 
 				data.reset(new byte[size]);
 				dataSize = size;
-				ostream >> data.get();
+				ostream.read(data.get(), dataSize);
+				//ostream >> data.get();
 			}
 
 			// Imploded sectors are the raw compressed data following compression with the implode algorithm (these sectors can only be in imploded files).
@@ -132,12 +298,19 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 			if (this->compression() & Sector::Compression::Imploded)
 			{
 				std::cerr << _("Warning: Imploded sector in not imploded file!") << std::endl;
-				boost::scoped_array<byte> newData(new byte[realDataSize]);
-				int newDataSize = realDataSize; // NOTE we need to define the buffer size for PKlib decompression!!!
-				decompressPklib(newData.get(), newDataSize, (char*)realData, boost::numeric_cast<int>(realDataSize));
+				int outLength = boost::numeric_cast<int>(mpqFile()->mpq()->sectorSize());
+				boost::scoped_array<byte> buffer(new byte[outLength]); // NOTE do always allocate enough memory.
+				decompressPklib(buffer.get(), outLength, reinterpret_cast<char* const>(realData), boost::numeric_cast<int>(realDataSize));
 
-				data.swap(newData);
-				dataSize = newDataSize;
+				if (outLength < mpqFile()->mpq()->sectorSize())
+				{
+					data.reset(new byte[outLength]);
+					memcpy(data.get(), buffer.get(), outLength);
+				}
+				else
+					data.swap(buffer);
+
+				dataSize = outLength;
 			}
 
 			if (this->compression() & Sector::Compression::Deflated) // Deflated (see ZLib)
@@ -158,20 +331,21 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 
 				data.reset(new byte[size]);
 				dataSize = size;
-				ostream >> data.get();
+				ostream.read(data.get(), dataSize);
+				//ostream >> data.get();
 			}
 
 			if (this->compression() & Sector::Compression::Huffman) // Huffman encoded
 			{
-				unsigned char *newData = 0;
-				unsigned newDataSize = 0;
-				int state = huffman_decode_memory((unsigned char*)realData, boost::numeric_cast<unsigned>(realDataSize), (unsigned char**)(&newData), (unsigned*)(&newDataSize));
+				unsigned int outLength = 0;
+				unsigned char *out = 0;
+				int state = huffman_decode_memory((const unsigned char*)realData, boost::numeric_cast<unsigned int>(realDataSize), &out, &outLength);
 
 				if (state != 0)
 					throw Exception(boost::format(_("Huffman error %1%.")) % state);
 
-				data.reset((byte*)newData);
-				dataSize = newDataSize;
+				data.reset((byte*)out);
+				dataSize = outLength;
 			}
 
 			if (this->compression() & Sector::Compression::ImaAdpcmStereo) // IMA ADPCM stereo

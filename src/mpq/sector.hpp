@@ -35,6 +35,10 @@ namespace mpq
 class Sector : private boost::noncopyable
 {
 	public:
+		// TODO get best values
+		static const short defaultPkgCompressionType = 2;
+		static const int defaultWaveCompressionLevel = 3;
+
 		BOOST_SCOPED_ENUM_START(Compression) /// \todo C++0x : byte
 		{
 			Uncompressed = 0,
@@ -44,44 +48,44 @@ class Sector : private boost::noncopyable
 			Deflated = 0x02, // Deflated (see ZLib)
 			Imploded = 0x08, // Imploded (see PKWare Data Compression Library)
 			Bzip2Compressed = 0x10, // BZip2 compressed (see BZip2)
-			
+
 			Sparse = 0x20, /// <a href="http://www.zezula.net/en/mpq/stormlib/sfileaddfileex.html">Source</a>.
 			Lzma = 0x12 /// <a href="http://www.zezula.net/en/mpq/stormlib/sfileaddfileex.html">Source</a>.
 		};
 		BOOST_SCOPED_ENUM_END
-		
+
 		Sector(class MpqFile *mpqFile);
-		
+		virtual ~Sector();
+
 		/**
-		 * Reads new sector data from input stream \p istream and writes it into the MPQ archive.
-		 * Effectively changes sector's size!
-		 * \return Returns size of read data.
+		 * Sames as \ref readData(const byte*, uint32) but detects buffer and buffer size automatically by simply using \ref Mpq::sectorSize() of the corresponding MPQ archive or less (if input stream hasn't that much data).
 		 */
-		std::streamsize readData(istream &istream) throw (class Exception);
+		std::streamsize readData(istream &istream, short pkgCompressionType = defaultPkgCompressionType, int waveCompressionLevel = defaultWaveCompressionLevel) throw (class Exception);
 		/**
-		 * This version is required by class \ref MpqFile for reading sector data.
-		 * \throw Exception Throws an exception if corresponding MPQ archive file cannot be locked during read operation.
+		 * Compresses and encrypts data from \p buffer of size \p bufferSize if necessary and writes it into the corresponding MPQ archive at the sector's place.
+		 * \note Compressed data has to be less than or equal to \ref Mpq::sectorSize() of the corresponding MPQ archive. Otherwise it throws an exception.
+		 * \return Returns size of bytes which has been written into the corresponding MPQ archive.
 		 */
-		std::streamsize readData(const byte *buffer, const std::size_t bufferSize) throw (class Exception);
+		std::streamsize readData(const byte *buffer, const uint32 bufferSize, short pkgCompressionType = defaultPkgCompressionType, int waveCompressionLevel = defaultWaveCompressionLevel) throw (class Exception);
 		/**
 		 * Writes sector data into output stream \p ostream.
 		 * \return Returns size of written data.
 		 */
 		std::streamsize writeData(ostream &ostream) const throw (class Exception);
-		
+
 		class MpqFile* mpqFile() const;
 		uint32 sectorIndex() const;
 		uint32 sectorOffset() const;
 		uint32 sectorSize() const;
 		BOOST_SCOPED_ENUM(Compression) compression() const;
-		
+
 	protected:
 		friend class Mpq;
 		friend class MpqFile;
-		
+
 		void setCompression(byte value);
 		uint32 sectorKey() const;
-		
+
 		class MpqFile *m_mpqFile;
 		uint32 m_sectorIndex;
 		uint32 m_sectorOffset;

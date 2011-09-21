@@ -233,11 +233,13 @@ const boost::program_options::variables_map &vm)
 		return;
 	}
 
+#ifdef DEBUG
 	// TEST
 	// Creates info file for each extracted file for analysing it
 	mpq::ofstream infoOut(entryPath.string() + "info", std::ios::out);
 	infoOut << fileInfo(*file, vm.count("human-readable"), vm.count("decimal"));
 	// END TEST
+#endif
 }
 
 }

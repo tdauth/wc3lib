@@ -66,19 +66,19 @@ class MpqFile : public boost::mutex, private boost::noncopyable
 			Default
 		};
 		BOOST_SCOPED_ENUM_END
-		
+
 		typedef boost::shared_ptr<Sector> SectorPtr;
 		typedef
 		boost::multi_index_container<SectorPtr,
 		boost::multi_index::indexed_by<
 		// ordered by its corresponding sector table index
 		boost::multi_index::ordered_unique<boost::multi_index::tag<uint32>, boost::multi_index::const_mem_fun<Sector, uint32, &Sector::sectorIndex> >
-		> 
+		>
 		>
 		Sectors;
-		
+
 		typedef std::vector<string> ListfileEntries;
-		
+
 		static ListfileEntries listfileEntries(const string &content) throw (Exception);
 
 		/**
@@ -110,7 +110,7 @@ class MpqFile : public boost::mutex, private boost::noncopyable
 		 * \return Returns size of written data.
 		 */
 		std::streamsize writeData(ostream &ostream) const throw (class Exception);
-		
+
 		/**
 		 * \note Only usable on files with (listfile) schema.
 		 * Splits up file content at one of the following characters "; \r \n" and returns the resulting container with all split file paths.
@@ -152,7 +152,7 @@ class MpqFile : public boost::mutex, private boost::noncopyable
 		MD5 md5() const;
 
 		const Sectors& sectors() const;
-		
+
 		/**
 		 * Compressed sectors (only found in compressed - not imploded - files) are compressed with one or more compression algorithms, and have the following structure:
 		 * \ref byte CompressionMask : Mask of the compression types applied to this sector.
@@ -183,10 +183,16 @@ class MpqFile : public boost::mutex, private boost::noncopyable
 		static BOOST_SCOPED_ENUM(Platform) intToPlatform(uint16 value);
 
 		/**
+		 * Overwrite this member function to return custom type-based objects if you want to extend their functionality.
+		 * \sa Mpq::newBlock()
+		 */
+		virtual class Sector* newSector() throw ();
+
+		/**
 		* MPQ files are created by @class Mpq only.
 		*/
 		MpqFile(class Mpq *mpq, class Hash *hash);
-		
+
 		template<class T>
 		friend void boost::checked_delete(T*); // for destruction by shared ptr
 		~MpqFile();

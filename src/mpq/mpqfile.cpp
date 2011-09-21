@@ -65,7 +65,7 @@ std::streamsize MpqFile::readData(istream &istream, BOOST_SCOPED_ENUM(Sector::Co
 	{
 		if (this->block()->flags() & Block::Flags::IsSingleUnit)
 		{
-			SectorPtr sector(new Sector(this));
+			SectorPtr sector(newSector());
 			this->m_sectors.get<uint32>().insert(sector);
 			sector->m_compression = compression;
 			sector->m_sectorIndex = 0;
@@ -87,7 +87,7 @@ std::streamsize MpqFile::readData(istream &istream, BOOST_SCOPED_ENUM(Sector::Co
 				std::streamsize sizeCounter = 0;
 				wc3lib::read(istream, buffer[0], sizeCounter, sectorSize);
 
-				SectorPtr sector(new Sector(this));
+				SectorPtr sector(newSector());
 				this->m_sectors.get<uint32>().insert(sector);
 				sector->m_compression = compression;
 				sector->m_sectorIndex = sectorIndex;
@@ -179,6 +179,18 @@ MpqFile::~MpqFile()
 {
 }
 
+class Sector* MpqFile::newSector() throw ()
+{
+	try
+	{
+		return new Sector(this);
+	}
+	catch (std::bad_alloc &)
+	{
+		return 0;
+	}
+}
+
 std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 {
 	// if we have a sector offset table and file is encrypted we first need to know its path for proper decryption!
@@ -243,7 +255,7 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 
 		for (uint32 i = 0; i < sectors; ++i)
 		{
-			SectorPtr sector(new Sector(this));
+			SectorPtr sector(newSector());
 			sector->m_sectorIndex = i; // important for index function in sectors container
 			sector->m_sectorOffset = newOffset;
 			sector->m_sectorSize = sectorSize;
@@ -256,7 +268,7 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 		// the last sector may contain less than this, depending on the size of the entire file's data.
 		if (!(this->m_hash->block()->flags() & Block::Flags::IsSingleUnit) && lastSize > 0)
 		{
-			SectorPtr sector(new Sector(this));
+			SectorPtr sector(newSector());
 			sector->m_sectorIndex = this->sectors().size(); // important for index function in sectors container
 			sector->m_sectorOffset = newOffset;
 			sector->m_sectorSize = lastSize;
@@ -304,7 +316,7 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 
 		for (uint32 i = 0; i < sectors; ++i)
 		{
-			SectorPtr sector(new Sector(this));
+			SectorPtr sector(newSector());
 			sector->m_sectorIndex = i; // important for index function in sectors container
 			sector->m_sectorOffset = offsets[i];
 			this->m_sectors.insert(sector);
