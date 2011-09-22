@@ -160,7 +160,6 @@ void Mpq::close()
 	if (!this->m_isOpen)
 		return;
 
-	std::cout << "Closing archive." << std::endl;
 	this->clear();
 }
 
@@ -290,7 +289,6 @@ std::streamsize Mpq::read(InputStream &stream, const MpqFile::ListfileEntries &l
 			if (format() == Mpq::Format::Mpq2 && mpqFile->hash()->block()->extendedBlockOffset() > 0)
 				stream.seekg(boost::numeric_cast<std::streamoff>(mpqFile->hash()->block()->extendedBlockOffset()), std::ios_base::cur);
 
-			/// \todo Decrypt and unimplode data? boost::numeric_cast<uint32>(this->m_startPosition)
 			size += mpqFile->read(stream);
 		}
 	}
@@ -308,10 +306,6 @@ std::streamsize Mpq::read(InputStream &stream, const MpqFile::ListfileEntries &l
 
 			BOOST_FOREACH(MpqFile::ListfileEntries::const_reference path, entries)
 				this->findFile(path);
-
-			// TEST
-			//std::cout << "Data:\n" << astream << std::endl;
-			//std::cout << "Second Data:\n" << *this->listfileFile() << std::endl;
 		}
 	}
 
@@ -399,8 +393,6 @@ const class MpqFile* Mpq::findFile(const boost::filesystem::path &path, BOOST_SC
 		// TODO READ SECTOR OFFSET TABLE AND DECRYPT IT NOW THAT WE HAVE ITS PATH
 		if (hash->mpqFile()->hasSectorOffsetTable() && hash->mpqFile()->isEncrypted())
 		{
-			std::cerr << "Getting missing encrypted sector table!" << std::endl;
-
 			boost::interprocess::file_lock fileLock(hash->mpqFile()->mpq()->path().string().c_str());
 
 			if (!fileLock.try_lock())
@@ -682,15 +674,8 @@ void Mpq::clear()
 /// @todo There seems to be some MPQ archives which do contain hash tables which do start with an empty entry. Therefore I commented checks for such tables.
 class Hash* Mpq::findHash(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform)
 {
-	if (this->m_hashes.get<uint32>().empty()) //|| this->m_hashes.front()->empty())
-	{
-		if (this->m_hashes.get<uint32>().empty())
-			std::cout << "Hashes are empty." << std::endl;
-		else if ((*this->m_hashes.get<uint32>().find(0))->empty())
-			std::cout << "Front hash is empty (Block address " << (*this->m_hashes.get<uint32>().find(0))->block() << ")." << std::endl;
-
+	if (this->m_hashes.get<uint32>().empty()) //  || this->m_hashes.front()->empty()
 		return 0;
-	}
 
 	// Compute the hashes to compare the hash table entry against
 	const uint32 nameHashA = HashString(Mpq::cryptTable(), path.string().c_str(), HashType::NameA);
@@ -699,8 +684,6 @@ class Hash* Mpq::findHash(const boost::filesystem::path &path, BOOST_SCOPED_ENUM
 	const int16 realPlatform = MpqFile::platformToInt(platform);
 
 	HashData hashData(nameHashA, nameHashB, realLocale, realPlatform);
-	std::cout << "Searching for hash " << path << " with value a " << nameHashA << " and value b " << nameHashB << " and locale " << locale << " and platform " << realPlatform << std::endl; // TEST
-	//index<HashData>:
 	Hashes::index_iterator<HashData>::type iterator = this->m_hashes.get<HashData>().find(hashData);
 
 	if (iterator == this->m_hashes.get<HashData>().end() || (*iterator)->deleted())

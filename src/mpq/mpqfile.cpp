@@ -196,7 +196,6 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 	// if we have a sector offset table and file is encrypted we first need to know its path for proper decryption!
 	if (hasSectorOffsetTable() && isEncrypted() && path().empty())
 	{
-		std::cerr << "File sector offset table is encrypted and we have no file path. Skipping sector data." << std::endl;
 		istream.seekg(this->block()->blockSize(), std::ios_base::cur);
 
 		return 0;
@@ -207,26 +206,6 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 
 	std::streamsize bytes = 0;
 
-	// TEST
-	bool TEST = false;
-	HashData hashData(HashString(Mpq::cryptTable(), "(listfile)", HashType::NameA), HashString(Mpq::cryptTable(), "(listfile)", HashType::NameB), MpqFile::Locale::Neutral, MpqFile::Platform::Default);
-
-	if (this->hash()->hashData() == hashData)
-	{
-
-		TEST = true;
-		std::cout << "Is (listfile)!" << std::endl;
-	}
-	//else
-		//std::cerr << "Is not!" << std::endl;
-
-	// END TEST
-
-	if (istream.tellg() != this->block()->blockOffset())
-	{
-		std::cerr << "Warning: We're not at block offset " << block()->blockOffset() << ", we're at " << istream.tellg() << std::endl;
-	}
-
 	// This table is not present if this information can be calculated.
 	// If the file is not compressed/imploded, then the size and offset of all sectors is known, based on the archive's SectorSizeShift. If the file is stored as a single unit compressed/imploded, then the SectorOffsetTable is omitted, as the single file "sector" corresponds to BlockSize and FileSize, as mentioned previously.
 	if  (!hasSectorOffsetTable())
@@ -236,18 +215,6 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 		const uint16 sectorSize = (this->block()->flags() & Block::Flags::IsSingleUnit) ? this->block()->fileSize() : this->m_mpq->sectorSize();
 		// If the file is stored as a single unit (indicated in the file's Flags), there is effectively only a single sector, which contains the entire file data.
 		const uint32 sectors = (this->m_hash->block()->flags() & Block::Flags::IsSingleUnit) ? 1 : this->m_hash->block()->blockSize() / sectorSize;
-
-		// TEST
-		if (TEST)
-		{
-			std::cout << "File size: " << this->m_hash->block()->fileSize() << " and number of sectors to read " << sectors << " and sector size " << sectorSize << std::endl;
-			std::cout << "Correct flags: " << std::hex << this->m_hash->m_block->flags() << std::dec << std::endl;
-			std::cout << "File block offset: " << this->block()->blockOffset() << std::endl;
-			std::cout << "File block size: " << this->block()->blockSize() << std::endl;
-			std::cout << "File extended block size: " << this->block()->extendedBlockOffset() << std::endl;
-			std::cout << "File key: " << this->fileKey() << std::endl;
-		}
-		// END TEST
 
 		uint32 newOffset = 0;
 		// not necessary for single units
@@ -284,18 +251,6 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 
 		const uint32 sectors = (this->block()->fileSize() + this->mpq()->sectorSize() - 1) / this->mpq()->sectorSize();
 
-		// TEST
-		if (TEST)
-		{
-			std::cout << "File size: " << this->m_hash->block()->fileSize() << " and number of sectors to read " << sectors << std::endl;
-			std::cout << "Correct flags: " << std::hex << this->m_hash->m_block->flags() << std::dec << std::endl;
-			std::cout << "File block offset: " << this->block()->blockOffset() << std::endl;
-			std::cout << "File block size: " << this->block()->blockSize() << std::endl;
-			std::cout << "File extended block size: " << this->block()->extendedBlockOffset() << std::endl;
-			std::cout << "File key: " << this->fileKey() << std::endl;
-		}
-		// END TEST
-
 		// StormLib specific implementation (extra data)?!
 		//dwToRead = (hf->nBlocks+1) * sizeof(DWORD);
 		//if(hf->pBlock->dwFlags & MPQ_FILE_HAS_EXTRA)
@@ -307,12 +262,7 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 
 		// The SectorOffsetTable, if present, is encrypted using the key - 1.
 		if (isEncrypted())
-		{
-			std::cerr << "Encrypted first offset " << offsets[0] << std::endl;
-			std::cerr << "Is encrypted: sector table will be decrypted." << std::endl;
 			DecryptData(Mpq::cryptTable(), offsets.get(), sizeof(uint32) * (sectors + 1), fileKey() - 1);
-			std::cerr << "Decrypted first offset " << offsets[0] << std::endl;
-		}
 
 		for (uint32 i = 0; i < sectors; ++i)
 		{
@@ -320,29 +270,10 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 			sector->m_sectorIndex = i; // important for index function in sectors container
 			sector->m_sectorOffset = offsets[i];
 			this->m_sectors.insert(sector);
-
-			/*
-			DEPRECATED
-			if (i == 0) // sector table ends before first sector offset
-			{
-				sectors = sector->m_sectorOffset / sizeof(sector->m_sectorOffset) - 1;
-				std::cout << "Calculating sectors: " << sectors << std::endl;
-			}
-			*/
 		}
 
 		// The last entry contains the file size, making it possible to easily calculate the size of any given sector.
 		uint32 size = offsets[sectors];
-
-		if (hash()->block()->blockSize() != size)
-		{
-			std::cerr << "We have " << sectors << " sectors." << std::endl;
-			std::cerr << "Read sector table block size " << size << " is not equal to original block size " << hash()->block()->blockSize() << std::endl;
-			std::cerr << "First sector offset " << (*this->sectors().find(0))->sectorOffset() << std::endl;
-			size = hash()->block()->blockSize();
-		}
-		//else
-			//std::cout << "Block size and size in sector offset table are equal!" << std::endl; // correct!
 
 		// calculate size of each sector
 		BOOST_REVERSE_FOREACH(SectorPtr sector, this->m_sectors)
@@ -352,43 +283,6 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 			size = sector->m_sectorOffset;
 		}
 	}
-
-	/*
-	 * DEPRECATED compression is detected in sector's function now.
-	BOOST_FOREACH(SectorPtr sector, this->m_sectors)
-	{
-		// Compressed sectors (only found in compressed - not imploded - files) are compressed with one or more compression algorithms.
-		if (this->isCompressed())
-		{
-			byte compression;
-			wc3lib::read(istream, compression, bytes);
-
-			// as well, this byte is encrypted with the sector data, if applicable.
-			if (this->isEncrypted())
-			{
-
-				// TEST
-				//if (TEST)
-				//	std::cout << "Compression before " << std::hex << compression << std::dec << std::endl;
-
-				// TODO Decryption doesn't really change one byte compression!
-				DecryptData(Mpq::cryptTable(), (void*)&compression, uint32(sizeof(compression)), sector->sectorKey());
-
-				// TEST
-				//if (TEST)
-				//	std::cout << "Compression afterwards " << std::hex << compression << std::dec << std::endl;
-			}
-
-			sector->setCompression(compression);
-			istream.seekg(sector->m_sectorSize - 1, std::ios_base::cur); // skip sector data
-		}
-		else
-		{
-			sector->setCompression(0);
-			istream.seekg(sector->m_sectorSize, std::ios_base::cur); // skip sector data
-		}
-	}
-	*/
 
 	this->unlock();
 
