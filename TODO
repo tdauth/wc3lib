@@ -1,7 +1,10 @@
+2011-09-22 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Allocating sector instances for each file consumes too much memory for files like war3x.mpq (maybe support allocating on request and discarding etc.).
+
 2011-09-21 Tamino Dauth <tamino@cdauth.eu>
 * Add specific exception classes such as boost::iostreams::zlib_error.
-* mpq: Fix huffman decompression error 1 (file "abilities\Spells\Human\AerialShackles\MagicLariatLoop1.wav").
-* mpq: Fix huffman decompression segmentation fault (file "abilities\Spells\Human\Banish\BanishCaster.wav").
+* FIXED: mpq: Fix huffman decompression error 1 (file "abilities\Spells\Human\AerialShackles\MagicLariatLoop1.wav").
+* FIXED: mpq: Fix huffman decompression segmentation fault (file "abilities\Spells\Human\Banish\BanishCaster.wav").
 
 2011-09-19 Tamino Dauth <tamino@cdauth.eu>
 * FIXED: mpq: (listfile) has imploded sectors although it's an unimploded file. When uncompressing those sectors (as for imploeded files) data seems to be cut. Therefore it must be another compression method. Use another working MPQ API/editor to reproduce (listfile)'s proper sector data.

@@ -38,6 +38,7 @@ class Sector : private boost::noncopyable
 		// TODO get best values
 		static const short defaultPkgCompressionType = 2;
 		static const int defaultWaveCompressionLevel = 3;
+		static const int defaultHuffmanCompressionType = 0;
 
 		BOOST_SCOPED_ENUM_START(Compression) /// \todo C++0x : byte
 		{

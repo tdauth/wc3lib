@@ -1,3 +1,8 @@
+2011-09-22 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Replaced huffman library by StormLib implementation.
+* mpq: Fixed sector compression and decompression for all types were buffer has to be preallocated.
+* mpq: Optimized output buffer size for zlib and bzip2 decompression by using the MPQ archive's sector size now.
+
 2011-09-21 Tamino Dauth <tamino@cdauth.eu>
 * mpq: Improved sector reading data support.
 * mpq: Added implode/explode error message support.

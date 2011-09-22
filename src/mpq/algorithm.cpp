@@ -248,24 +248,20 @@ int compressWaveMono(short* const inBuffer, int inBufferLength, unsigned char *o
 	else
 		compressionLevel = 5;
 
-	if (outBuffer != 0)
-		throw Exception(_("Output buffer is not 0."));
+	if (outBuffer == 0)
+		throw Exception(_("Output buffer is 0."));
 
-	outBufferLength = inBufferLength;
-	outBuffer = new unsigned char[inBufferLength];
-	CompressWave(outBuffer, outBufferLength, inBuffer, inBufferLength, 1, compressionLevel);
+	outBufferLength = CompressWave(outBuffer, outBufferLength, inBuffer, inBufferLength, 1, compressionLevel);
 
 	return outBufferLength;
 }
 
 int decompressWaveMono(unsigned char* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength) throw (class Exception)
 {
-	if (outBuffer != 0)
-		throw Exception(_("Output buffer is not 0."));
+	if (outBuffer == 0)
+		throw Exception(_("Output buffer is 0."));
 
-	outBufferLength = inBufferLength;
-	outBuffer = new unsigned char[inBufferLength];
-	DecompressWave(outBuffer, outBufferLength, inBuffer, inBufferLength, 1);
+	outBufferLength = DecompressWave(outBuffer, outBufferLength, inBuffer, inBufferLength, 1);
 
 	return outBufferLength;
 }
@@ -281,24 +277,20 @@ int compressWaveStereo(short* const inBuffer, int inBufferLength, unsigned char 
 	else
 		compressionLevel = 5;
 
-	if (outBuffer != 0)
-		throw Exception(_("Output buffer is not 0."));
+	if (outBuffer == 0)
+		throw Exception(_("Output buffer is 0."));
 
-	outBufferLength = inBufferLength;
-	outBuffer = new unsigned char[inBufferLength];
-	CompressWave(outBuffer, outBufferLength, inBuffer, inBufferLength, 2, compressionLevel);
+	outBufferLength = CompressWave(outBuffer, outBufferLength, inBuffer, inBufferLength, 2, compressionLevel);
 
 	return outBufferLength;
 }
 
 int decompressWaveStereo(unsigned char* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength) throw (class Exception)
 {
-	if (outBuffer != 0)
-		throw Exception(_("Output buffer is not 0."));
+	if (outBuffer == 0)
+		throw Exception(_("Output buffer is 0."));
 
-	outBufferLength = inBufferLength;
-	outBuffer = new unsigned char[inBufferLength];
-	DecompressWave(outBuffer, outBufferLength, inBuffer, inBufferLength, 2);
+	inBufferLength = DecompressWave(outBuffer, outBufferLength, inBuffer, inBufferLength, 2);
 
 	return outBufferLength;
 }
@@ -312,10 +304,11 @@ std::streamsize compressBzip2(istream &istream, ostream &ostream) throw (boost::
 	return boost::iostreams::copy(in, ostream);
 }
 
-std::streamsize decompressBzip2(istream &istream, ostream &ostream) throw (boost::iostreams::bzip2_error)
+std::streamsize decompressBzip2(istream &istream, ostream &ostream, int bufferSize) throw (boost::iostreams::bzip2_error)
 {
 	boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
-	in.push(boost::iostreams::basic_bzip2_decompressor<std::allocator<byte> >());
+	boost::iostreams::basic_bzip2_decompressor<std::allocator<byte> > decompressor(boost::iostreams::bzip2::default_small, bufferSize);
+	in.push(decompressor);
 	in.push(istream);
 
 	return boost::iostreams::copy(in, ostream);
@@ -330,9 +323,10 @@ std::streamsize compressZlib(istream &istream, ostream &ostream) throw (boost::i
 	return boost::iostreams::copy(in, ostream);
 }
 
-std::streamsize decompressZlib(istream &istream, ostream &ostream) throw (boost::iostreams::zlib_error)
+std::streamsize decompressZlib(istream &istream, ostream &ostream, int bufferSize) throw (boost::iostreams::zlib_error)
 {
 	boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
+	boost::iostreams::basic_zlib_decompressor<std::allocator<byte> > decompressor(boost::iostreams::zlib_params(), bufferSize);
 	//boost::iostreams::zlib_params params(boost::iostreams::zlib::default_compression, boost::iostreams::zlib::deflated, boost::iostreams::zlib::default_window_bits, boost::iostreams::zlib::default_mem_level, boost::iostreams::zlib::default_strategy, true, boost::iostreams::zlib::default_crc); // TEST omit header
 	// omitting header doesn't fix it
 	//in.push(boost::iostreams::basic_zlib_decompressor<std::allocator<byte> >(params, istream.rdbuf()->in_avail()));
@@ -427,6 +421,54 @@ std::streamsize inflateStream(istream &istream, ostream &ostream, const unsigned
 
 	return streamsize;
 	*/
+}
+
+int compressHuffman(char *pbOutBuffer, int * pdwOutLength, char *pbInBuffer, int dwInLength, int *pCmpType, int /* nCmpLevel */)
+{
+	THuffmannTree ht;                   // Huffmann tree for compression
+	TOutputStream os;                   // Output stream
+
+	// Initialize output stream
+	os.pbOutBuffer = (unsigned char *)pbOutBuffer;
+	os.dwOutSize   = *pdwOutLength;
+	os.pbOutPos    = (unsigned char *)pbOutBuffer;
+	os.dwBitBuff   = 0;
+	os.nBits       = 0;
+
+	// Initialize the Huffmann tree for compression
+	ht.InitTree(true);
+
+	*pdwOutLength = ht.DoCompression(&os, (unsigned char *)pbInBuffer, dwInLength, *pCmpType);
+
+	// The following code is not necessary to run, because it has no
+	// effect on the output data. It only clears the huffmann tree, but when
+	// the tree is on the stack, who cares ?
+	//  ht.UninitTree();
+	return 0;
+}
+
+// 1500F5F0
+int decompressHuffman(char *pbOutBuffer, int *pdwOutLength, char *pbInBuffer, int /* dwInLength */)
+{
+	THuffmannTree ht;
+	TInputStream  is;
+
+	// Initialize input stream
+	//  is.pbInBuffer  = (unsigned char *)pbInBuffer;
+	is.dwBitBuff   = *(unsigned long *)pbInBuffer;
+	pbInBuffer    += sizeof(unsigned long);
+	is.pbInBuffer  = (unsigned char *)pbInBuffer;
+	is.nBits       = 32;
+
+	// Initialize the Huffmann tree for compression
+	ht.InitTree(false);
+	*pdwOutLength = ht.DoDecompression((unsigned char *)pbOutBuffer, *pdwOutLength, &is);
+
+	// The following code is not necessary to run, because it has no
+	// effect on the output data. It only clears the huffmann tree, but when
+	// the tree is on the stack, who cares ?
+	//  ht.UninitTree();
+	return 0;
 }
 
 }

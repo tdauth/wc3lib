@@ -88,7 +88,7 @@ void decompressPklib(char *outBuffer, int &outLength, char* const inBuffer, int 
  * Wrapper of StormLib functions.
  * \param inBuffer Buffer which is read from.
  * \param inBufferLength Buffer length which should be set to amount of bytes which should be read from buffer.
- * \param outBuffer Buffer which is read into. If \p outBufferLength is > 0 it this buffer will be deleted automatically. Note that this buffer does not have to be allocated by function's user.
+ * \param outBuffer Buffer which is read into.
  * \param outBuffer Buffer length which should have the initial size of buffer \p outBuffer. If the buffer is empty this value should be 0.
  * \return Returns witten bytes.
  */
@@ -98,9 +98,15 @@ int compressWaveStereo(short* const inBuffer, int inBufferLength, unsigned char 
 int decompressWaveStereo(unsigned char* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength) throw (class Exception);
 
 std::streamsize compressBzip2(istream &istream, ostream &ostream) throw (boost::iostreams::bzip2_error);
-std::streamsize decompressBzip2(istream &istream, ostream &ostream) throw (boost::iostreams::bzip2_error);
+/**
+ * \param bufferSize To optimize the decompression you can set this value to the MPQ archive's sector size. If unsure use \ref boost::iostreams::default_device_buffer_size.
+ */
+std::streamsize decompressBzip2(istream &istream, ostream &ostream, int bufferSize) throw (boost::iostreams::bzip2_error);
 std::streamsize compressZlib(istream &istream, ostream &ostream) throw (boost::iostreams::zlib_error);
-std::streamsize decompressZlib(istream &istream, ostream &ostream) throw (boost::iostreams::zlib_error);
+/**
+ * \param bufferSize To optimize the decompression you can set this value to the MPQ archive's sector size. If unsure use \ref boost::iostreams::default_device_buffer_size.
+ */
+std::streamsize decompressZlib(istream &istream, ostream &ostream, int bufferSize) throw (boost::iostreams::zlib_error);
 
 /// \deprecated Since we use \ref compressZlib() now.
 std::streamsize deflateStream(istream &istream, ostream &ostream) throw (class Exception);
@@ -109,6 +115,9 @@ std::streamsize deflateStream(istream &istream, ostream &ostream) throw (class E
  * \return Returns written bytes.
  */
 std::streamsize inflateStream(istream &istream, ostream &ostream, const unsigned int bufferSize) throw (class Exception);
+
+int compressHuffman(char *pbOutBuffer, int * pdwOutLength, char *pbInBuffer, int dwInLength, int *pCmpType, int /* nCmpLevel */);
+int decompressHuffman(char *pbOutBuffer, int *pdwOutLength, char *pbInBuffer, int /* dwInLength */);
 
 }
 
