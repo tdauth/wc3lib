@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language SYSTEM "language.dtd">
+<!-- TODO \ character continues line at next line, { and } are not used for scopes anymore -> add scope spaces when using tabs (like Python)! Highlight object data values in strings. -->
+<language name="JASS++" version="1.0" kateversion="3.4.5" section="Scripts" extensions="*.j;*.J;*.ai;*.AI;*.aipp;*.AIPP;*.jpp;*.JPP" author="Tamino Dauth" priority="5">
+	<highlighting>
+		<list name="type_keywords">
+			<item>void</item>
+			<item>integer</item>
+			<item>string</item>
+			<item>real</item>
+			<item>boolean</item>
+			<item>code</item>
+			<item>handle</item>
+			<item>agent</item>
+			<item>unit</item>
+			<item>timer</item>
+			<item>group</item>
+			<item>trigger</item>
+			<item>player</item>
+			<item>rect</item>
+			<item>location</item>
+			<item>ability</item>
+			<item>aidifficulty </item>
+			<item>alliancetype</item>
+			<item>attacktype</item>
+			<item>blendmode</item>
+			<item>boolexpr</item>
+			<item>buff</item>
+			<item>button</item>
+			<item>camerafield</item>
+			<item>camerasetup</item>
+			<item>conditionfunc</item>
+			<item>damagetype</item>
+			<item>defeatcondition</item>
+			<item>destructable</item>
+			<item>dialog</item>
+			<item>dialogevent</item>
+			<item>effect</item>
+			<item>effectype</item>
+			<item>event</item>
+			<item>eventid</item>
+			<item>fgamestate</item>
+			<item>filterfunc</item>
+			<item>fogmodifier</item>
+			<item>fogstate</item>
+			<item>force</item>
+			<item>gamecache</item>
+			<item>gamedifficulty</item>
+			<item>gameevent</item>
+			<item>gamespeed</item>
+			<item>gamestate</item>
+			<item>gametype</item>
+			<item>igamestate</item>
+			<item>image</item>
+			<item>item</item>
+			<item>itempool</item>
+			<item>itemtype</item>
+			<item>leaderboard</item>
+			<item>lightning</item>
+			<item>limitop</item>
+			<item>mapcontrol</item>
+			<item>mapdensity</item>
+			<item>mapflag</item>
+			<item>mapsetting</item>
+			<item>mapvisibility</item>
+			<item>multiboard</item>
+			<item>multiboarditem</item>
+			<item>pathingtype</item>
+			<item>placement</item>
+			<item>playercolor</item>
+			<item>playerevent</item>
+			<item>playergameresult</item>
+			<item>playerslotstate </item>
+			<item>playerscore</item>
+			<item>playerstate</item>
+			<item>playerunitevent</item>
+			<item>quest</item>
+			<item>questitem</item>
+			<item>race</item>
+			<item>racepreference</item>
+			<item>raritycontrol</item>
+			<item>rect</item>
+			<item>region</item>
+			<item>sound</item>
+			<item>soundtype</item>
+			<item>startlocprio</item>
+			<item>terraindeformation</item>
+			<item>texmapflags</item>
+			<item>texttag</item>
+			<item>timerdialog</item>
+			<item>trackable</item>
+			<item>triggeraction</item>
+			<item>triggercondition</item>
+			<item>ubersplat</item>
+			<item>unitevent</item>
+			<item>unitpool</item>
+			<item>unitstate</item>
+			<item>unittype</item>
+			<item>version</item>
+			<item>volumegroup</item>
+			<item>weapontype</item>
+			<item>weathereffect</item>
+			<item>effecttype</item>
+			<item>widget</item>
+			<item>widgetevent</item>
+			<item>hashtable</item>
+		</list>
+		<list name="keywords">
+			<item>type</item>
+			<item>scope</item>
+			<item>ai</item>
+			<item>load</item>
+			<item>var</item>
+			<item>function</item>
+			<item>abstract</item>
+			<item>enum</item>
+			<item>class</item>
+			<item>break</item>
+			<item>continue</item>
+			<item>throw</item>
+			<item>size</item>
+			<item>return</item>
+			<item>new</item>
+			<item>delete</item>
+			<item>copy</item>
+			<item>id</item>
+			<item>hash</item>
+			<item>execute</item>
+			<item>executewait</item>
+			<item>evaluate</item>
+			<item>executions</item>
+			<item>evaluations</item>
+			<item>sleeps</item>
+			<item>sleepon</item>
+			<item>sleepoff</item>
+			<item>reset</item>
+			<item>sleep</item>
+			<item>wait</item>
+			<item>save</item>
+			<item>load</item>
+			<item>flush</item>
+			<item>exists</item>
+			<item>if</item>
+			<item>else</item>
+			<item>switch</item>
+			<item>case</item>
+			<item>default</item>
+			<item>while</item>
+			<item>until</item>
+			<item>do</item>
+			<item>for</item>
+			<item>foreach</item>
+			<item>forever</item>
+			<item>try</item>
+			<item>catch</item>
+			<item>finally</item>
+			<item>type</item>
+			<item>var</item>
+			<item>function</item>
+			<item>enum</item>
+			<item>const</item>
+			<item>template</item>
+			<item>private</item>
+			<item>protected</item>
+			<item>public</item>
+			<item>class</item>
+			<item>init</item>
+			<item>virtual</item>
+			<item>static</item>
+			<item>dynamic</item>
+			<item>scope</item>
+			<item>friend</item>
+			<item>abstract</item>
+			<item>mutable</item>
+			<item>operator</item>
+			<item>native</item>
+			<item>mapinit</item>
+			<item>debug</item>
+			<item>threaded</item>
+			<item>ai</item>
+			<item>load</item>
+			<item>local</item>
+			<item>alias</item>
+			<item>true</item>
+			<item>false</item>
+			<item>null</item>
+			<item>this</item>
+			<item>base</item>
+			<item>self</item>
+			<item>use</item>
+		</list>
+		<list name="preprocessor_constants">
+			<item>LANGUAGE</item>
+			<item>LANGUAGE_VERSION</item>
+			<item>JASS</item>
+			<item>ZINC</item>
+			<item>VJASS</item>
+			<item>JASSPP</item>
+			<item>COMPILER</item>
+			<item>COMPILER_VERSION</item>
+			<item>WC3_VERSION</item>
+			<item>WC3_TFT_VERSION</item>
+			<item>DEBUG_MODE</item>
+			<item>FILE_NAME</item>
+			<item>FILE_NAME_FULL</item>
+			<item>LINE_NUMBER</item>
+			<item>SCOPE_NAME</item>
+			<item>SCOPE_NAME_FULL</item>
+			<item>OPTIMIZATION_INLINE_FUNCTIONS</item>
+			<item>OPTIMIZATION_REMOVE_WHITE_SPACES</item>
+			<item>OPTIMIZATION_REMOVE_CONSTANTS</item>
+			<item>OPTIMIZATION_REMOVE_COMMENTS</item>
+		</list>
+		<list name="preprocessors">
+			<item>include</item>
+			<item>inject</item>
+			<item>endinject</item>
+			<item>initjasspp</item>
+			<item>if</item>
+			<item>else if</item>
+			<item>else</item>
+			<item>endif</item>
+			<item>error</item>
+			<item>jass</item>
+			<item>endjass</item>
+			<item>zinc</item>
+			<item>endzinc</item>
+			<item>vjass</item>
+			<item>endvjass</item>
+			<item>jasspp</item>
+			<item>endjasspp</item>
+			<item>cjass</item>
+			<item>endcjass</item>
+			<item>external</item>
+		</list>
+		<list name="include_languages">
+			<item>jass</item>
+			<item>zinc</item>
+			<item>vjass</item>
+			<item>jasspp</item>
+			<item>cjass</item>
+			<item>once</item>
+		</list>
+		<list name="inject_functions">
+			<item>CustomMapScript</item>
+			<item>InitGlobals</item>
+			<item>InitSounds</item>
+			<item>CreateNeutralHostile</item>
+			<item>CreateNeutralPassiveBuildings</item>
+			<item>CreatePlayerBuildings</item>
+			<item>CreatePlayerUnits</item>
+			<item>CreateAllUnits</item>
+			<item>InitCustomTriggers</item>
+			<item>RunInitializationTriggers</item>
+			<item>InitCustomPlayerSlots</item>
+			<item>InitCustomTeams</item>
+			<item>InitAllyPriorities</item>
+			<item>main</item>
+			<item>config</item>
+		</list>
+		<contexts>
+			<context attribute="Normal Text" lineEndContext="#pop" name="Normal Text" >
+				<DetectSpaces />
+				<keyword attribute="Keyword" context="#stay" String="keywords" />
+				<keyword attribute="Data Type" context="#stay" String="type_keywords" />
+				<keyword attribute="Preprocessor Constant" context="#stay" String="preprocessor_constants" />
+				<keyword attribute="Inject Function" context="#stay" String="inject_functions" />
+
+				<HlCChar attribute="Char" context="#stay" />
+				<DetectChar attribute="String" context="String" char="&quot;" />
+				<DetectIdentifier />
+				<Float attribute="Float" context="#stay">
+					<AnyChar String="rR" attribute="Float" context="#stay"/>
+				</Float>
+				<HlCOct attribute="Octal" context="#stay"/>
+				<HlCHex attribute="Hex" context="#stay"/>
+				<Int attribute="Decimal" context="#stay" />
+				<IncludeRules context="##Doxygen" />
+				<Detect2Chars attribute="Comment" context="Commentar 1" char="/" char1="/"/>
+				<Detect2Chars attribute="Comment" context="Commentar 2" char="/" char1="*" beginRegion="Comment"/>
+				<DetectChar attribute="Symbol" context="#stay" char="{" beginRegion="Brace1" />
+				<DetectChar attribute="Symbol" context="#stay" char="}" endRegion="Brace1" />
+				<!-- TODO Operators? +-/*%[](){}=;!><:~^. -->
+				<AnyChar attribute="Symbol" context="#stay" String=":!%&amp;()+,-/.*&lt;=&gt;?[]{|}~^&#59;"/>
+				<DetectChar context="#stay" char="#" context="Preprocessor" />
+			</context>
+			<context attribute="String" lineEndContext="#pop" name="String">
+				<LineContinue attribute="String" context="#stay"/>
+				<HlCStringChar attribute="String Char" context="#stay"/>
+				<DetectChar attribute="String" context="#pop" char="&quot;"/>
+			</context>
+			<context attribute="Region Marker" lineEndContext="#pop" name="Region Marker">
+			</context>
+			<context attribute="Comment" lineEndContext="#pop" name="Commentar 1">
+				<LineContinue attribute="Comment" context="#stay"/>
+				<DetectSpaces />
+				<IncludeRules context="##Alerts" />
+				<DetectIdentifier />
+			</context>
+			<context attribute="Comment" lineEndContext="#stay" name="Commentar 2">
+				<DetectSpaces />
+				<Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" endRegion="Comment"/>
+				<IncludeRules context="##Alerts" />
+				<DetectIdentifier />
+			</context>
+
+			<context attribute="Preprocessor" lineEndContext="#pop" name="Preprocessor">
+				<!-- <keyword attribute="Keyword" context="vJass" String="vjass" beginRegion="vJass" >
+				<keyword attribute="Keyword" context="vJass" String="endvjass" endRegion="vJass" >
+				-->
+				<DetectSpaces />
+				<keyword attribute="Keyword" context="#stay" String="preprocessors" />
+				<keyword attribute="Preprocessor Constant" context="#stay" String="preprocessor_constants" />
+				<keyword attribute="Inject Function" context="#stay" String="inject_functions" />
+
+				<DetectString attribute="Keyword" context="vJass" String="vjass" beginRegion="vJass Region" />
+				<DetectString attribute="Keyword" context="#stay" String="endvjass" endRegion="vJass Region" />
+
+				<LineContinue attribute="Preprocessor" context="#stay"/>
+
+				<IncludeRules context="##Doxygen" />
+				<Detect2Chars attribute="Comment" context="Commentar/Preprocessor" char="/" char1="*" beginRegion="Comment2" />
+
+				<Detect2Chars attribute="Comment" context="Commentar 1" char="/" char1="/"/>
+			</context>
+
+			<context attribute="Normal Text" lineEndContext="#stay" name="vJass">
+				<!-- <IncludeRules context="##vJass" /> -->
+				<DetectChar context="#stay" char="#" context="Preprocessor" />
+			</context>
+
+			<context attribute="Comment" lineEndContext="#stay" name="Commentar/Preprocessor">
+				<DetectSpaces />
+				<Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" endRegion="Comment2" />
+				<DetectIdentifier />
+			</context>
+
+		</contexts>
+		<itemDatas>
+			<itemData name="Normal Text"  defStyleNum="dsNormal" spellChecking="false"/>
+			<itemData name="Keyword"      defStyleNum="dsKeyword" spellChecking="false"/>
+			<itemData name="Extensions"   defStyleNum="dsKeyword" color="#0095ff" selColor="#ffffff" bold="1" italic="0" spellChecking="false"/>
+			<itemData name="Data Type"    defStyleNum="dsDataType" spellChecking="false"/>
+			<itemData name="Decimal"      defStyleNum="dsDecVal" spellChecking="false"/>
+			<itemData name="Octal"        defStyleNum="dsBaseN" spellChecking="false"/>
+			<itemData name="Hex"          defStyleNum="dsBaseN" spellChecking="false"/>
+			<itemData name="Float"        defStyleNum="dsFloat" spellChecking="false"/>
+			<itemData name="Char"         defStyleNum="dsChar" spellChecking="false"/>
+			<itemData name="String"       defStyleNum="dsString"/>
+			<itemData name="String Char"  defStyleNum="dsChar"/>
+			<itemData name="Comment"      defStyleNum="dsComment"/>
+			<itemData name="Symbol"       defStyleNum="dsNormal" spellChecking="false"/>
+			<itemData name="Preprocessor" defStyleNum="dsOthers" spellChecking="false"/>
+			<itemData name="Preprocessor Constant" defSytleNum="dsKeyword" spellChecking="false" />
+			<itemData name="Inject Function" defStyleNum="dsKeyword" spellChecking="false" />
+			<itemData name="Region Marker" defStyleNum="dsRegionMarker" spellChecking="false"/>
+			<itemData name="Error"        defStyleNum="dsError" spellChecking="false"/>
+		</itemDatas>
+	</highlighting>
+	<general>
+		<comments>
+			<comment name="singleLine" start="//" />
+			<comment name="multiLine" start="/*" end="*/" region="Comment"/>
+		</comments>
+		<keywords casesensitive="1" />
+	</general>
+</language>

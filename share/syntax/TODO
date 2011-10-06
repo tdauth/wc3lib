@@ -1,0 +1,11 @@
+2010-12-28 Tamino Dauth <tamino@cdauth.de>
+* Add scope parsing to gedit vJass syntax highlighting.
+
+2010-01-23 Tamino Dauth <tamino@cdauth.de>
+* Improve MDL highlighting (fix string to line end bug and add errors).
+
+2009-12-27 Tamino Dauth <tamino@cdauth.de>
+* Improve vJass highlighting of preprocessors (import file paths, regions etc.).
+
+2009-11-21 Tamino Dauth <tamino@cdauth.de>
+* Zinc syntax highlighting file is required.

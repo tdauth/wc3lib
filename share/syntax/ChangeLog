@@ -1,0 +1,31 @@
+2011-03-09 Tamino Dauth <tamino@cdauth.eu>
+* Kate (vJass): Added keyword "readonly".
+
+2011-01-16 Tamino Dauth <tamino@cdauth.eu>
+* Kate (vJass): Expression "interface" after expression "function" is considered as keyword now.
+* Kate (vJass): Keyword "thistype" is considered in function identifiers now.
+
+2011-01-15 Tamino Dauth <tamino@cdauth.eu>
+* Kate (vJass): Replaced string by regulary expressions (use word detection with Kate 3.5) for scopes.
+
+2011-01-12 Tamino Dauth <tamino@cdauth.eu>
+* Kate (vJass): Added missing expressions from patched "Blizzard.j" file.
+* gedit (vJass): Added missing stuff which is already supported by Kate syntax highlighting.
+* Kate (vJass): Supports easier and correct folding of all kinds of scopes now (including text macros).
+* Kate (vJass): Supports $expr$ text macro arguments now.
+* Kate (vJass and JASS++): Support priorities now.
+
+2010-12-28 Tamino Dauth <tamino@cdauth.eu>
+* Added gedit syntax hightlighting of Flame_Phoenix.
+* Added missing keyword "name" to Kate vJass syntax hightlighting.
+* Completed new gedit syntax hightlighting file.
+* Added missing keywords "name" and "getType" to Notepad++ syntax hightlighting.
+
+2010-11-20 Tamino Dauth <tamino@cdauth.eu>
+* Added missing keyword GeosetAnim to mdl hightlighting file.
+
+2010-10-24 Tamino Dauth <tamino@cdauth.eu>
+* Added vJass highlighting for 2-dimensional arrays (keywords "width" and "height").
+
+2010-04-07 Tamino Dauth <tamino@cdauth.eu>
+* Revised RtC natives since version 1.0 has lately been released.

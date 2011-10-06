@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language SYSTEM "language.dtd">
+<language name="MDL" section="Other" version="1.0" kateversion="3.4.5" extensions="*.mdl;*.MDL" author="Tamino Dauth">
+	<highlighting>
+		<list name="statickeyword">
+			<item>static</item>
+		</list>
+		<!-- sections without identifying values -->
+		<list name="sections">
+			<item>Version</item>
+			<item>MinimumExtent</item>
+			<item>MaximumExtent</item>
+			<item>Interval</item>
+			<item>Bitmap</item>
+			<item>Material</item>
+			<item>Layer</item>
+			<item>TVertexAnim</item>
+			<item>Translation</item>
+			<item>Rotation</item>
+			<item>Scaling</item>
+			<item>Geoset</item>
+			<item>GeosetAnim</item>
+			<item>VertexGroup</item>
+			<item>Triangles</item>
+			<item>Matrices</item>
+			<item>Anim</item>
+			<item>Color</item>
+			<item>DontInherit</item>
+			<item>AmbColor</item>
+			<item>Particle</item>
+			<item>SegmentColor</item>
+			<item>Alpha</item>
+			<item>ParticleScaling</item>
+			<item>LifeSpanUVAnim</item>
+			<item>DecayUVAnim</item>
+			<item>TailUVAnim</item>
+			<item>TailDecayUVAnim</item>
+			<item>Position</item>
+			<item>Target</item>
+			<item>InTan</item>
+			<item>OutTan</item>
+		</list>
+		<list name="stringsections">
+			<item>Model</item>
+			<item>Anim</item>
+			<item>Bone</item>
+			<item>Light</item>
+			<item>Helper</item>
+			<item>Attachment</item>
+			<item>ParticleEmitter</item>
+			<item>ParticleEmitter2</item>
+			<item>RibbonEmitter</item>
+			<item>Camera</item>
+			<item>EventObject</item>
+			<item>CollisionShape</item>
+		</list>
+		<list name="longsections">
+			<item>Sequences</item>
+			<item>GlobalSequences</item>
+			<item>Textures</item>
+			<item>Materials</item>
+			<item>TextureAnims</item>
+			<item>Vertices</item>
+			<item>Normals</item>
+			<item>TVertices</item>
+			<item>PivotPoints</item>
+			<item>EventTrack</item>
+		</list>
+		<list name="long2sections">
+			<item>Faces</item>
+			<item>Groups</item>
+		</list>
+		<list name="properties">
+			<item>NonLooping</item>
+			<item>WrapWidth</item>
+			<item>WrapHeight</item>
+			<item>ConstantColor</item>
+			<item>SortPrimsFarZ</item>
+			<item>FullResolution</item>
+			<item>Unshaded</item>
+			<item>SphereEnvMap</item>
+			<item>TwoSided</item>
+			<item>Unfogged</item>
+			<item>NoDepthTest</item>
+			<item>NoDepthSet</item>
+			<item>Unselectable</item>
+			<item>DropShadow</item>
+			<item>BillboardedLockZ</item>
+			<item>BillboardedLockY</item>
+			<item>BillboardedLockX</item>
+			<item>Billboarded</item>
+			<item>CameraAnchored</item>
+			<item>Rotation</item>
+			<item>Translation</item>
+			<item>Scaling</item>
+			<item>Omnidirectional</item>
+			<item>Directional</item>
+			<item>Ambient</item>
+			<item>EmitterUsesMDL</item>
+			<item>EmitterUsesTGA</item>
+			<item>SortPrimsFarZ</item>
+			<item>LineEmitter</item>
+			<item>ModelSpace</item>
+			<item>XYQuad</item>
+			<item>Blend</item>
+			<item>Additive</item>
+			<item>Modulate</item>
+			<item>AlphaKey</item>
+			<item>Head</item>
+			<item>Tail</item>
+			<item>Both</item>
+			<item>Box</item>
+			<item>Sphere</item>
+			<item>DontInterp</item>
+			<item>Linear</item>
+			<item>Hermite</item>
+			<item>Bezier</item>
+		</list>
+		<list name="stringproperties">
+			<item>Image</item>
+			<item>Path</item>
+		</list>
+		<list name="longproperties">
+			<item>FormatVersion</item>
+			<item>NumGeosets</item>
+			<item>NumGeosetAnims</item>
+			<item>NumHelpers</item>
+			<item>NumLights</item>
+			<item>NumBones</item>
+			<item>NumAttachments</item>
+			<item>NumParticleEmitters</item>
+			<item>NumParticleEmitters2</item>
+			<item>NumRibbonEmitters</item>
+			<item>NumEvents</item>
+			<item>BlendTime</item>
+			<item>Duration</item>
+			<item>ReplaceableId</item>
+			<item>PriorityPlane</item>
+			<item>TextureID</item>
+			<item>TVertexAnimId</item>
+			<item>CoordId</item>
+			<item>MaterialID</item>
+			<item>SelectionGroup</item>
+			<item>ObjectId</item>
+			<item>Parent</item>
+			<item>AttachmentID</item>
+			<item>Rows</item>
+			<item>Columns</item>
+			<item>TextureSlot</item>
+			<item>EmissionRate</item>
+		</list>
+		<list name="floatproperties">
+			<item>BoundsRadius</item>
+			<item>MoveSpeed</item>
+			<item>Rarity</item>
+			<item>Alpha</item>
+			<item>Visibility</item>
+			<item>AttenuationStart</item>
+			<item>AttenuationEnd</item>
+			<item>Intensity</item>
+			<item>AmbIntensity</item>
+			<item>EmissionRate</item>
+			<item>Gravity</item>
+			<item>Longitude</item>
+			<item>Latitude</item>
+			<item>LifeSpan</item>
+			<item>InitVelocity</item>
+			<item>Speed</item>
+			<item>Variation</item>
+			<item>Width</item>
+			<item>Length</item>
+			<item>TailLength</item>
+			<item>Time</item>
+			<item>HeightAbove</item>
+			<item>HeightBelow</item>
+			<item>FieldOfView</item>
+			<item>FarClip</item>
+			<item>NearClip</item>
+		</list>
+		<list name="valueproperties">
+			<item>FilterMode</item>
+			<item>GeosetId</item>
+			<item>GeosetAnimId</item>
+		</list>
+		<list name="values">
+			<item>None</item>
+			<item>Transparent</item>
+			<item>Blend</item>
+			<item>Additive</item>
+			<item>AddAlpha</item>
+			<item>Modulate</item>
+			<item>Modulate2x</item>
+			<item>Multiple</item>
+		</list>
+		<list name="animatableproperties"> <!-- Can be used with static or as long sections. Translation, Rotation, Scaling and Visibility  -->
+			<item>Alpha</item>
+			<item>TextureID</item>
+			<item>Color</item>
+			<item>AttenuationStart</item>
+			<item>AttenuationEnd</item>
+			<item>Intensity</item>
+			<item>AmbIntensity</item>
+			<item>AmbColor</item>
+			<item>EmissionRate</item>
+			<item>Gravity</item>
+			<item>Longitude</item>
+			<item>Latitude</item>
+			<item>LifeSpan</item>
+			<item>InitVelocity</item>
+			<item>Speed</item>
+			<item>Variation</item>
+			<item>Latitude</item>
+			<item>Gravity</item>
+			<item>EmissionRate</item>
+			<item>Width</item>
+			<item>Length</item>
+			<item>HeightAbove</item>
+			<item>HeightBelow</item>
+			<item>TextureSlot</item>
+		</list>
+		<contexts>
+			<context attribute="Normal Text" lineEndContext="#stay" name="Normal">
+				<DetectSpaces />
+				<keyword attribute="Keyword" context="Animatable" String="statickeyword" />
+				<keyword attribute="Section" context="#stay" String="sections" />
+				<keyword attribute="String Section" context="#stay" String="stringsections" />
+				<keyword attribute="Long Section" context="#stay" String="longsections" />
+				<keyword attribute="Long 2 Section" context="#stay" String="long2sections" />
+
+				<keyword attribute="Property" context="#stay" String="properties" />
+				<keyword attribute="Property" context="#stay" String="stringproperties" />
+				<keyword attribute="Property" context="#stay" String="floatproperties" />
+				<keyword attribute="Property" context="#stay" String="longproperties" />
+				<keyword attribute="Property" context="ValueProperty" String="valueproperties" />
+
+				<Float attribute="Float" context="#stay" />
+				<Int attribute="Decimal" context="#stay" />
+				<DetectChar attribute="String" context="String" char="&quot;"/>
+				<Detect2Chars attribute="Comment" context="Commentar" char="/" char1="/" />
+				<DetectChar attribute="Symbol" context="#stay" char="{" beginRegion="Brace1" />
+				<DetectChar attribute="Symbol" context="#stay" char="}" endRegion="Brace1" />
+			</context>
+
+			<context attribute="Error" lineEndContext="#stay" name="Animatable">
+				<DetectSpaces attribute="Normal Text" />
+				<keyword attribute="Property" context="#pop" String="animatableproperties" />
+			</context>
+
+			<context attribute="Error" lineEndContext="#stay" name="ValueProperty">
+				<DetectSpaces attribute="Normal Text" />
+				<keyword attribute="Value" context="#pop" String="values" />
+				<Int attribute="Decimal" context="#pop" /> <!-- GeosetId and GeosetAnimId -->
+			</context>
+
+			<context attribute="Region Marker" lineEndContext="#pop" name="Region Marker">
+			</context>
+
+			<context attribute="String" lineEndContext="#stay" name="String">
+				<LineContinue attribute="String" context="#stay"/>
+				<HlCStringChar attribute="String Char" context="#stay"/>
+				<DetectChar attribute="String" context="#pop" char="&quot;"/>
+			</context>
+
+			<context attribute="Comment" lineEndContext="#pop" name="Commentar">
+				<LineContinue attribute="Comment" context="#stay"/>
+				<DetectSpaces />
+				<DetectIdentifier />
+			</context>
+		</contexts>
+		<itemDatas>
+			<itemData name="Normal Text"            defStyleNum="dsNormal" spellChecking="false"/>
+			<itemData name="Keyword"                defStyleNum="dsKeyword" spellChecking="false"/>
+			<itemData name="Section"                defStyleNum="dsKeyword" spellChecking="false"/>
+			<itemData name="String Section"         defStyleNum="dsKeyword" spellChecking="false"/>
+			<itemData name="Long Section"           defStyleNum="dsKeyword" spellChecking="false"/>
+			<itemData name="Long 2 Section"         defStyleNum="dsKeyword" spellChecking="false"/>
+
+			<itemData name="Property"               defStyleNum="dsDataType" spellChecking="false"/>
+			<itemData name="String Property"        defStyleNum="dsDataType" spellChecking="false"/>
+			<itemData name="Float Property"         defStyleNum="dsDataType" spellChecking="false"/>
+			<itemData name="Long Property"          defStyleNum="dsDataType" spellChecking="false"/>
+			<itemData name="Value Property"         defStyleNum="dsDataType" spellChecking="false"/>
+			<itemData name="Value"                  defStyleNum="dsDataType" spellChecking="false"/>
+
+			<itemData name="Decimal"                defStyleNum="dsDecVal" spellChecking="false"/>
+			<itemData name="Float"                  defStyleNum="dsFloat" spellChecking="false"/>
+			<itemData name="String"			defStyleNum="dsString"/>
+			<itemData name="String Char"		defStyleNum="dsChar"/>
+			<itemData name="Comment"                defStyleNum="dsComment"/>
+			<itemData name="Region Marker"          defStyleNum="dsRegionMarker" spellChecking="false"/>
+			<itemData name="Error"                  defStyleNum="dsError" spellChecking="false"/>
+		</itemDatas>
+	</highlighting>
+	<general>
+		<comments>
+			<comment name="singleLine" start="//" />
+		</comments>
+		<keywords casesensitive="1" />
+	</general>
+</language>

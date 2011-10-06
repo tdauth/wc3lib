@@ -1,3 +1,6 @@
+2011-10-07 Tamino Dauth <tamino@cdauth.eu>
+* Add CMake instructions to install syntax highlighting files correctly.
+
 2011-10-06 Tamino Dauth <tamino@cdauth.eu>
 * mpq: Add functions like addAttributes() and addSignature() and rename createListfileFile() to addListfile().
 * mpq: Improve encryption and decryption of both signature types.

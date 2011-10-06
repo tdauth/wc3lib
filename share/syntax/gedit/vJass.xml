@@ -1,0 +1,8 @@
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+	<mime-type type="text/x-vJass">
+		<comment>vJass Source</comment>
+    		<!-- more translated comment elements -->
+    		<glob pattern="*.j"/>
+    		<glob pattern="*.ai"/>
+  	</mime-type>
+</mime-info>
