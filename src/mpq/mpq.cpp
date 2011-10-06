@@ -345,7 +345,8 @@ const class MpqFile* Mpq::findFile(const boost::filesystem::path &path, BOOST_SC
 {
 	class Hash *hash = const_cast<class Mpq*>(this)->findHash(path, locale, platform);
 
-	if (hash == 0 || hash->deleted() || hash->empty())
+	// hash->m_mpqFile == 0 could happen in early stage when loading all hash entries
+	if (hash == 0 || hash->m_mpqFile == 0 || hash->deleted() || hash->empty())
 		return 0;
 
 	if (hash->m_mpqFile->m_path != path) // path has not been set yet

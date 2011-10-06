@@ -125,47 +125,19 @@ std::streamsize MpqFile::appendData(istream &istream) throw (class Exception)
 	return 0;
 }
 
-std::streamsize MpqFile::sync() throw (class Exception)
-{
-	if (!this->try_lock())
-		throw Exception(boost::format(_("Unable to lock MPQ file %1%.")) % path());
-	/*
-	 * FIXME
-	if (!this->mpq()->fileLock().is_locked())
-		throw Exception(boost::format(_("Corresponding MPQ archive \"%1%\" of file \"%2%\" isn't locked.")) % mpq()->path() % path());
-	*/
-
-	ofstream ostream(mpq()->path(), std::ios_base::binary | std::ios_base::out);
-	ostream.seekp(mpq()->startPosition());
-	// TODO two operation or one? (for one std::streamoff must be at least uint64!!!
-	ostream.seekp(boost::numeric_cast<std::streamoff>(block()->blockOffset()), std::ios_base::cur);
-	ostream.seekp(boost::numeric_cast<std::streamoff>(block()->extendedBlockOffset()), std::ios_base::cur);
-	//ostream.seekp(boost::numeric_cast<std::streamoff>(block()->largeOffset()), std::ios_base::cur);
-
-	this->unlock();
-}
-
 std::streamsize MpqFile::writeData(ostream &ostream) const throw (class Exception)
 {
-	if (!mpq()->storeSectors())
-		const_cast<MpqFile*>(this)->read();
+	boost::interprocess::file_lock fileLock(this->mpq()->path().string().c_str());
 
-	std::streamsize bytes = 0;
+	if (!fileLock.try_lock())
+		throw Exception(boost::format("Unable to lock MPQ archive of file \"%1%\" when trying to read sector data.") % this->path());
 
-	BOOST_FOREACH(const SectorPtr &sector, this->sectors())
-	{
-		try
-		{
-			bytes += sector->writeData(ostream);
-		}
-		catch (Exception &exception)
-		{
-			throw Exception(boost::format(_("Sector error (sector %1%, file %2%):\n%3%")) % sector->sectorIndex() % this->path() % exception.what());
-		}
-	}
+	ifstream ifstream(this->mpq()->path(), std::ios_base::in | std::ios_base::binary);
 
-	if (!mpq()->storeSectors())
-		const_cast<MpqFile*>(this)->m_sectors.clear();
+	if (!ifstream)
+		throw Exception(boost::format(_("Unable to open file %1%.")) % this->mpq()->path());
+
+	std::streamsize bytes = this->writeData(ifstream, ostream);
 
 	return bytes;
 }
@@ -184,6 +156,7 @@ std::streamsize MpqFile::writeData(istream &istream, ostream &ostream) const thr
 	{
 		try
 		{
+			sector->seekg(istream);
 			bytes += sector->writeData(istream, ostream);
 		}
 		catch (Exception &exception)
@@ -322,8 +295,6 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 		const uint32 offsetsSize = sectors + 1;
 		boost::scoped_array<uint32> offsets(new uint32[offsetsSize]);
 		wc3lib::read(istream, offsets[0], bytes, offsetsSize * sizeof(uint32));
-
-		std::cout << "LAST " << offsets[sectors] << std::endl;
 
 		// The SectorOffsetTable, if present, is encrypted using the key - 1.
 		if (isEncrypted())

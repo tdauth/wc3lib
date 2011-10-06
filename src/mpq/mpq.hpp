@@ -754,12 +754,22 @@ inline class MpqFile* Mpq::listfileFile()
 
 inline class Attributes* Mpq::attributesFile()
 {
-	return boost::polymorphic_cast<class Attributes*>(this->findFile("(attributes)"));
+	MpqFile *file = this->findFile("(attributes)");
+
+	if (file == 0)
+		return 0;
+
+	return boost::polymorphic_cast<class Attributes*>(file);
 }
 
 inline class Signature* Mpq::signatureFile()
 {
-	return boost::polymorphic_cast<class Signature*>(this->findFile("(signature)"));
+	MpqFile *file = this->findFile("(signature)");
+
+	if (file == 0)
+		return 0;
+
+	return boost::polymorphic_cast<class Signature*>(file);
 }
 
 inline class Block* Mpq::firstEmptyBlock() const

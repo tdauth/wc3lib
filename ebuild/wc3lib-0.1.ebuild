@@ -23,6 +23,7 @@ sys-devel/gettext
 mpq? (
 app-arch/bzip2
 sys-libs/zlib
+dev-libs/crypto++
 )
 blp? (
 media-libs/jpeg:0

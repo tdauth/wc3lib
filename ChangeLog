@@ -5,6 +5,9 @@
 * mpq: Improved versions of different signing and checking functions (strong and weak signatures are more separated now).
 * Dropped all remaining StormLib dependencies.
 * Added CMake instructions for getting Crypto++ library (new dependency).
+* mpq: MpqFile::writeData() uses better locking and streaming method now which should improve its performance.
+* ebuild: Added Crypto++ dependency.
+* ebuild: Added English useflag descriptions.
 
 2011-10-01 Tamino Dauth <tamino@cdauth.eu>
 * mpq: Added class Attributes.

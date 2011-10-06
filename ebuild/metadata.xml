@@ -15,8 +15,16 @@
 		Zusätzlich bietet es eine KDE-basierte GUI und OGRE-basierte Widgets zum Darstellen von 3D-Grafiken.
 	</longdescription>
 	<use>
+		<flag name="app" lang="en">Adds all provided applications e. g. "wc3editor" if useflag "editor" is specified, as well.</flag>
+		<flag name="blp" lang="en">Adds BLP (Blizzard Picture) support.</flag>
+		<flag name="map" lang="en">Adds map and campaign (.w3m, .w3x and .w3n) support.</flag>
+		<flag name="mdlx" lang="en">Adds MDX and MDL (Blizzard model formats) support.</flag>
+		<flag name="mpq" lang="en">Adds MPQ (Blizzard archive format) support.</flag>
+		<flag name="w3g" lang="en">Adds W3G (Warcraft III replay format) support.</flag>
 		<flag name="editor" lang="en">Creates GUI World Editor emulation as well.</flag>
 		<flag name="editor" lang="de">Erzeugt zusätzlich eine GUI-Welt-Editor-Emulation.</flag>
+		<flag name="plugins" lang="en">Installs alls provided Qt, KDE and OGRE plugins (can be used without useflag "editor".</flag>
+		<flag name="debug" lang="en">Builds library in debug mode.</flag>
 		<flag name="doc" lang="en">Installs Doxygen-generated API documentation as well.</flag>
 		<flag name="doc" lang="de">Installiert zusätzlich eine Doxygen-generierte API-Dokumentation.</flag>
 	</use>

@@ -101,10 +101,6 @@ class MpqFile : public boost::mutex, private boost::noncopyable
 		 */
 		std::streamsize appendData(istream &istream) throw (class Exception);
 		/**
-		 * Synchronizes file data (all sectors) with its corresponding archive on hard disk.
-		 */
-		std::streamsize sync() throw (class Exception);
-		/**
 		 * Writes uncompressed file data into output stream \p ostream.
 		 * \return Returns size of written data.
 		 */
@@ -213,7 +209,7 @@ class MpqFile : public boost::mutex, private boost::noncopyable
 
 		template<class T>
 		friend void boost::checked_delete(T*); // for destruction by shared ptr
-		~MpqFile();
+		virtual ~MpqFile();
 
 		/**
 		 * Reads the file sectors' meta data.
