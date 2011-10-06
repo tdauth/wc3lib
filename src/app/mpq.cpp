@@ -127,14 +127,15 @@ std::string compressionString(BOOST_SCOPED_ENUM(Sector::Compression) compression
 
 std::string fileInfo(const MpqFile &file, bool humanReadable, bool decimal)
 {
+	MpqFile::Sectors sectors = file.realSectors();
 	std::stringstream sstream;
-	sstream << boost::format(_("%1%\nCompressed: %2%\nEncrypted: %3%\nImploded: %4%\nFlags: %5%\nCompressed size: %6%\nSize: %7%\nSectors: %8%")) % file.path() % boolString(file.isCompressed()) % boolString(file.isEncrypted()) % boolString(file.isImploded()) % flagsString(file.block()->flags()) % sizeString(file.compressedSize(), humanReadable, decimal) % sizeString(file.size(), humanReadable, decimal) % file.sectors().size();
+	sstream << boost::format(_("%1%\nCompressed: %2%\nEncrypted: %3%\nImploded: %4%\nFlags: %5%\nCompressed size: %6%\nSize: %7%\nHash A: %8%\nHash B: %9%\nKey: %10%")) % file.path() % boolString(file.isCompressed()) % boolString(file.isEncrypted()) % boolString(file.isImploded()) % flagsString(file.block()->flags()) % sizeString(file.compressedSize(), humanReadable, decimal) % sizeString(file.size(), humanReadable, decimal) % file.hash()->hashData().filePathHashA() % file.hash()->hashData().filePathHashB() % file.fileKey();
 
-	if (file.sectors().size() > 0)
+	if (sectors.size() > 0)
 	{
-		sstream << _("\nSectors:");
+		sstream << std::endl << boost::format(_("\n%1% Sectors:")) % sectors.size();
 
-		BOOST_FOREACH(const MpqFile::SectorPtr &sector, file.sectors())
+		BOOST_FOREACH(const MpqFile::SectorPtr &sector, sectors)
 				sstream << boost::format(_("\nSector %1%:\n-- Offset: %2%\n-- Size: %3%\n-- Compression: %4%")) % sector->sectorIndex() % sector->sectorOffset() % sizeString(sector->sectorSize(), humanReadable, decimal) % compressionString(sector->compression());
 	}
 
@@ -239,6 +240,31 @@ const boost::program_options::variables_map &vm)
 	mpq::ofstream infoOut(entryPath.string() + "info", std::ios::out);
 	infoOut << fileInfo(*file, vm.count("human-readable"), vm.count("decimal"));
 	// END TEST
+
+	// StormLib information for comparison
+	HANDLE archive;
+
+	if (SFileOpenArchive(mpq.path().string().c_str(), 0, 0, &archive))
+	{
+		HANDLE file;
+		SFILE_FIND_DATA findData;
+
+		file = SFileFindFirstFile(
+		archive,
+		entry.c_str(),              // Search mask
+		&findData, // Pointer to the search result
+		0
+		);
+
+		if (file)
+		{
+			DWORD_PTR position = SFileGetFileInfo(
+			file,                // Handle to a file or archive
+			SFILE_INFO_POSITION);
+			mpq::ofstream sinfoOut(entryPath.string() + "sinfo", std::ios::out);
+			sinfoOut << boost::format(_("Position: %1%")) % position << std::endl;
+		}
+	}
 #endif
 }
 
@@ -273,7 +299,7 @@ int main(int argc, char *argv[])
 	desc.add_options()
 	("version,V", _("Shows current version of mpq."))
 	("help,h",_("Shows this text."))
-	// formatting options
+	// options
 	("human-readable,h", boost::program_options::value<bool>()->default_value(true), _("Shows output sizes in an human-readable format."))
 	("decimal,d", _("Shows decimal sizes (factor 1000 not 1024)"))
 	("format,F", boost::program_options::value<std::string>(&format)->default_value("1"), _("Selects the format of the created MPQ archive and modified files: <format:format:format>\nHere's a list of valid expressions:\n* \"1\"\n* \"2\"\n* \"listfile\"\n* \"attributes\""))
@@ -281,6 +307,7 @@ int main(int argc, char *argv[])
 	("overwrite", _("Overwrites existing files and directories when creating or extracting files."))
 	("remove-files", _("Removes files/archives after adding them to the MPQ archives."))
 	("interactive", _("Asks for confirmation for every action."))
+	("store-sectors,s", _("Stores sector information which increases performance when accessing sector offsets and sizes (especially for encrypted files) but increases memory usage, as well."))
 
 	// operations
 	("add,a", _("Adds files of MPQ archives or from hard disk to another archive."))
@@ -332,20 +359,17 @@ int main(int argc, char *argv[])
 	{
 		mpq::ifstream in(path, std::ios::in);
 
-		try
+		if (!in)
 		{
-			checkStream(in);
-			const mpq::string::size_type size = (mpq::string::size_type)(endPosition(in)) + 1;
-			mpq::string content(size, '0');
-			in.read(&content[0], size);
-			listfileEntries.push_back(MpqFile::listfileEntries(content));
-		}
-		catch (Exception &exception)
-		{
-			std::cerr << boost::format(_("Error occured while reading listfile \"%1%\": \"%2%\".")) % path % exception.what() << std::endl;
+			std::cerr << boost::format(_("Unable to open listfile %1%.")) % path << std::endl;
 
 			continue;
 		}
+
+		const mpq::string::size_type size = (mpq::string::size_type)(endPosition(in)) + 1;
+		mpq::string content(size, '0');
+		in.read(&content[0], size);
+		listfileEntries.push_back(MpqFile::listfileEntries(content));
 	}
 
 	if (vm.count("version"))
@@ -551,6 +575,7 @@ int main(int argc, char *argv[])
 			}
 
 			boost::scoped_ptr<Mpq> mpq(new Mpq());
+			mpq->setStoreSectors(vm.count("store-sectors"));
 
 			try
 			{

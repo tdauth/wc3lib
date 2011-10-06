@@ -23,7 +23,6 @@
 
 #include "platform.hpp"
 #include "block.hpp"
-#include "hash.hpp"
 #include "sector.hpp"
 
 namespace wc3lib
@@ -110,6 +109,10 @@ class MpqFile : public boost::mutex, private boost::noncopyable
 		 * \return Returns size of written data.
 		 */
 		std::streamsize writeData(ostream &ostream) const throw (class Exception);
+		/**
+		 * Same as \ref writeData(ostream &) but doesn't work independently since it expects to be at the correct position in archive using \p istream as input archive stream.
+		 */
+		std::streamsize writeData(istream &istream, ostream &ostream) const throw (Exception);
 
 		/**
 		 * \note Only usable on files with (listfile) schema.
@@ -135,9 +138,15 @@ class MpqFile : public boost::mutex, private boost::noncopyable
 
 		// block attributes
 		uint32 fileKey() const;
-		/// \return Reurns file size in bytes.
+		/**
+		 * \return Returns uncompressed file size in bytes.
+		 * \sa Block::fileSize()
+		 */
 		uint32 size() const;
-		/// \return Returns compressed file size in bytes.
+		/**
+		 * \return Returns compressed file size in bytes.
+		 * \sa Block::blockSize()
+		 */
 		uint32 compressedSize() const;
 		bool isFile() const;
 		bool isEncrypted() const;
@@ -145,13 +154,22 @@ class MpqFile : public boost::mutex, private boost::noncopyable
 		bool isImploded() const;
 
 		// extended attributes
+		/**
+		 * \return Returns true if checksums are correct or there isn't any stored checksums.
+		 * \sa Attributes::check()
+		 */
+		bool check() const;
 		CRC32 crc32() const;
-		void setFileTime(const time_t &time);
 		const struct FILETIME& fileTime() const;
 		bool fileTime(time_t &time) const;
 		MD5 md5() const;
 
 		const Sectors& sectors() const;
+		/**
+		 * If \ref Mpq::storeSectors() is false this returns all found sectors anyway since it reads them directly from the MPQ archive.
+		 * Useful for getting detailed file information.
+		 */
+		Sectors realSectors() const throw (Exception);
 
 		/**
 		 * Compressed sectors (only found in compressed - not imploded - files) are compressed with one or more compression algorithms, and have the following structure:
@@ -159,6 +177,11 @@ class MpqFile : public boost::mutex, private boost::noncopyable
 		 * byte(SectorSize - 1) SectorData : The compressed data for the sector.
 		 */
 		bool hasSectorOffsetTable() const;
+
+		static uint16 localeToInt(BOOST_SCOPED_ENUM(Locale) locale);
+		static BOOST_SCOPED_ENUM(Locale) intToLocale(uint16 value);
+		static uint16 platformToInt(BOOST_SCOPED_ENUM(Platform) platform);
+		static BOOST_SCOPED_ENUM(Platform) intToPlatform(uint16 value);
 
 		/**
 		* Appends data of file \p mpqFile.
@@ -177,16 +200,11 @@ class MpqFile : public boost::mutex, private boost::noncopyable
 	protected:
 		friend class Mpq;
 
-		static uint16 localeToInt(BOOST_SCOPED_ENUM(Locale) locale);
-		static BOOST_SCOPED_ENUM(Locale) intToLocale(uint16 value);
-		static uint16 platformToInt(BOOST_SCOPED_ENUM(Platform) platform);
-		static BOOST_SCOPED_ENUM(Platform) intToPlatform(uint16 value);
-
 		/**
 		 * Overwrite this member function to return custom type-based objects if you want to extend their functionality.
 		 * \sa Mpq::newBlock()
 		 */
-		virtual class Sector* newSector() throw ();
+		virtual class Sector* newSector(uint32 index, uint32 offset, uint32 size) throw ();
 
 		/**
 		* MPQ files are created by @class Mpq only.
@@ -202,6 +220,10 @@ class MpqFile : public boost::mutex, private boost::noncopyable
 		 * \throws Exception Throws an exception if file is locked.
 		 */
 		std::streamsize read(istream &istream) throw (class Exception);
+		/**
+		 * Same as \ref read(istream &) but opens MPQ archive for reading sector table.
+		 */
+		std::streamsize read() throw (class Exception);
 		/**
 		 * Writes the file sectors' meta data.
 		 */
@@ -223,16 +245,6 @@ class MpqFile : public boost::mutex, private boost::noncopyable
 		Sectors m_sectors;
 };
 
-inline BOOST_SCOPED_ENUM(MpqFile::Locale) MpqFile::locale() const
-{
-	return MpqFile::intToLocale(this->m_hash->hashData().locale());
-}
-
-inline BOOST_SCOPED_ENUM(MpqFile::Platform) MpqFile::platform() const
-{
-	return MpqFile::intToPlatform(this->m_hash->hashData().platform());
-}
-
 inline class Mpq* MpqFile::mpq() const
 {
 	return this->m_mpq;
@@ -241,11 +253,6 @@ inline class Mpq* MpqFile::mpq() const
 inline class Hash* MpqFile::hash() const
 {
 	return this->m_hash;
-}
-
-inline class Block* MpqFile::block() const
-{
-	return this->m_hash->block();
 }
 
 inline const boost::filesystem::path& MpqFile::path() const
@@ -292,11 +299,6 @@ inline bool MpqFile::isImploded() const
 inline CRC32 MpqFile::crc32() const
 {
 	return this->block()->crc32();
-}
-
-inline void MpqFile::setFileTime(const time_t &time)
-{
-	this->block()->setFileTime(time);
 }
 
 inline const struct FILETIME& MpqFile::fileTime() const

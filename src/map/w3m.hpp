@@ -49,6 +49,8 @@ namespace map
 class W3m : public Format, public mpq::Mpq, public Playable
 {
 	public:
+		static const std::size_t signatureSize = 256;
+
 		typedef boost::scoped_ptr<Environment> EnvironmentPtr;
 		typedef boost::scoped_ptr<Shadow> ShadowPtr;
 		typedef boost::scoped_ptr<Pathmap> PathmapPtr;
@@ -65,6 +67,7 @@ class W3m : public Format, public mpq::Mpq, public Playable
 		typedef boost::scoped_ptr<CustomTextTriggers> CustomTextTriggersPtr;
 		typedef boost::scoped_ptr<ImportedFiles> ImportedFilesPtr;
 		typedef std::vector<FileFormat*> FileFormats;
+		typedef boost::scoped_array<char8> Signature;
 
 		W3m();
 		virtual ~W3m();
@@ -137,6 +140,12 @@ class W3m : public Format, public mpq::Mpq, public Playable
 		const FileFormats& fileFormats() const;
 		FileFormats& fileFormats();
 
+		bool hasSignature() const;
+		/**
+		 * If \ref hasSignature() is true it returns an array of \ref signatureSize bytes containing the digital signature of the map.
+		 */
+		const Signature& signature() const;
+
 	protected:
 		std::streamsize readHeader(InputStream &istream) throw (class Exception);
 		std::streamsize readSignature(InputStream &istream) throw (class Exception);
@@ -169,8 +178,7 @@ w3x
 		class Extra *m_extra;
 */
 
-		bool m_hasSignature;
-		char8 m_authentification[256];
+		Signature m_signature; // size of \ref signatureSize
 
 };
 
@@ -232,6 +240,16 @@ inline const W3m::FileFormats& W3m::fileFormats() const
 inline W3m::FileFormats& W3m::fileFormats()
 {
 	return this->m_fileFormats;
+}
+
+inline bool W3m::hasSignature() const
+{
+	return signature().get() != 0;
+}
+
+inline const W3m::Signature& W3m::signature() const
+{
+	return m_signature;
 }
 
 

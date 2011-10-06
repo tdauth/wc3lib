@@ -30,7 +30,6 @@ namespace mpq
 const byte Mpq::identifier[4] = { 'M', 'P', 'Q',  0x1A };
 const int16 Mpq::formatVersion1Identifier = 0x0000;
 const int16 Mpq::formatVersion2Identifier = 0x0001;
-const int32 Mpq::extendedAttributesVersion = 100;
 const uint32 Mpq::maxBlockId = 0xFFFFFFFD;
 const uint32 Mpq::maxHashId = 0xFFFFFFFF;
 const std::size_t Mpq::headerSize = sizeof(struct Header);
@@ -49,7 +48,7 @@ const uint32* Mpq::cryptTable()
 	return const_cast<const uint32*>(cryptTable);
 }
 
-Mpq::Mpq() : m_size(0), m_path(), m_format(Mpq::Format::Mpq1), m_extendedAttributes(Mpq::ExtendedAttributes::None), m_sectorSize(0), m_strongDigitalSignature(0), m_isOpen(false), m_fileLock()
+Mpq::Mpq() : m_size(0), m_path(), m_format(Mpq::Format::Mpq1), m_sectorSize(0), m_strongDigitalSignature(0), m_isOpen(false), m_storeSectors(defaultStoreSectors)
 {
 }
 
@@ -58,14 +57,14 @@ Mpq::~Mpq()
 	this->close();
 }
 
-std::streamsize Mpq::create(const boost::filesystem::path &path, bool overwriteExisting, std::streampos startPosition, BOOST_SCOPED_ENUM(Format) format, BOOST_SCOPED_ENUM(ExtendedAttributes) extendedAttributes, int32 sectorSize, bool hasStrongDigitalSignature, bool containsListfileFile, bool containsSignatureFile) throw (class Exception)
+std::streamsize Mpq::create(const boost::filesystem::path &path, bool overwriteExisting, std::streampos startPosition, BOOST_SCOPED_ENUM(Format) format, uint32 sectorSize) throw (class Exception)
 {
 	this->close();
 
 	if (boost::filesystem::exists(path) && !overwriteExisting)
-		throw Exception(boost::str(boost::format(_("Unable to create file \"%1%\". File does already exist.")) % path.string()));
+		throw Exception(boost::format(_("Unable to create file \"%1%\". File does already exist.")) % path.string());
 
-	ofstream ofstream(path, std::ios_base::binary);
+	ofstream ofstream(path, std::ios::out | std::ios::binary);
 
 	if (!ofstream)
 		throw Exception(boost::format(_("Unable to create file \"%1%\".")) % path.string());
@@ -88,25 +87,12 @@ std::streamsize Mpq::create(const boost::filesystem::path &path, bool overwriteE
 	this->m_size = boost::filesystem::file_size(path);
 	this->m_path = path;
 	this->m_format = format;
-	this->m_extendedAttributes = extendedAttributes;
 	this->m_sectorSize = sectorSize;
 	std::streamsize streamSize = 0;
 
 	try
 	{
 		streamSize = this->write(ofstream);
-
-		/// @todo FIXME, set stream size!!!
-		if (hasStrongDigitalSignature)
-			;
-			//this->createStrongDigitalSignature();
-
-		if (containsListfileFile)
-			this->createListfileFile();
-
-		if (containsSignatureFile)
-			;
-			//this->createSignatureFile();
 	}
 	catch (class Exception &exception)
 	{
@@ -229,10 +215,11 @@ std::streamsize Mpq::read(InputStream &stream, const MpqFile::ListfileEntries &l
 	DecryptData(Mpq::cryptTable(), encryptedBytes.get(), encryptedBytesSize, hashValue);
 	arraystream sstream(encryptedBytes.get(), encryptedBytesSize);
 
-	for (std::size_t i = 0; i < header.blockTableEntries; ++i)
+	for (uint32 i = 0; i < header.blockTableEntries; ++i)
 	{
-		this->m_blocks.left.insert(std::make_pair(i, BlockPtr(newBlock())));
-		size += this->m_blocks.left.find(i)->second->read(sstream);
+		BlockPtr ptr(newBlock(i));
+		size += ptr->read(sstream);
+		this->m_blocks.insert(ptr);
 	}
 
 	/*
@@ -243,11 +230,11 @@ std::streamsize Mpq::read(InputStream &stream, const MpqFile::ListfileEntries &l
 	{
 		stream.seekg(this->startPosition() + boost::numeric_cast<std::streamoff>(extendedHeader.extendedBlockTableOffset));
 
-		BOOST_FOREACH(Blocks::left_reference block, this->m_blocks.left)
+		BOOST_FOREACH(BlockPtr block, this->m_blocks)
 		{
 			struct ExtendedBlockTableEntry extendedBlockTableEntry;
 			wc3lib::read(stream, extendedBlockTableEntry, size);
-			block.second->m_extendedBlockOffset = extendedBlockTableEntry.extendedBlockOffset;
+			block->m_extendedBlockOffset = extendedBlockTableEntry.extendedBlockOffset;
 		}
 	}
 
@@ -266,32 +253,40 @@ std::streamsize Mpq::read(InputStream &stream, const MpqFile::ListfileEntries &l
 	sstream.close();
 	sstream.open(encryptedBytes.get(), encryptedBytesSize);
 
-	for (std::size_t i = 0; i < header.hashTableEntries; ++i)
+	for (uint32 i = 0; i < header.hashTableEntries; ++i)
 	{
-		HashPtr hash(newHash());
-		hash->m_index = i;
+		HashPtr hash(newHash(i));
 		size += hash->read(sstream);
-		this->m_hashes.get<uint32>().insert(hash);
+		this->m_hashes.insert(hash);
 	}
 
 	// file data / add file instances
-	BOOST_FOREACH(HashPtr hash, this->m_hashes.get<uint32>())
+	BOOST_FOREACH(HashPtr hash, this->m_hashes)
 	{
 		if (!hash->empty() && !hash->deleted())
 		{
-			FilePtr mpqFile(newFile(hash.get()));
+			FilePtr mpqFile;
+
+			// usual file
+			if (!containsAttributesFile() && hash->hashData() == "(attributes)")
+				mpqFile.reset(new Attributes(this, hash.get(), Attributes::ExtendedAttributes::None));
+			else if (!containsSignatureFile() && hash->hashData() == "(signature)")
+				mpqFile.reset(new Signature(this, hash.get()));
+			else
+				mpqFile.reset(newFile(hash.get()));
+
+
 			//mpqFile->m_path = // path can only be set if there is a listfile file or if we're able to convert its hash into file path
 			this->m_files.get<0>().push_back(mpqFile);
 
-			// seek to file data beginning
-			stream.seekg(startPosition() + boost::numeric_cast<std::streampos>(mpqFile->hash()->block()->blockOffset()));
-
-			if (format() == Mpq::Format::Mpq2 && mpqFile->hash()->block()->extendedBlockOffset() > 0)
-				stream.seekg(boost::numeric_cast<std::streamoff>(mpqFile->hash()->block()->extendedBlockOffset()), std::ios_base::cur);
-
-			size += mpqFile->read(stream);
+			if (storeSectors())
+				size += mpqFile->read(stream);
 		}
 	}
+
+	// refresh extended attributes if found (we should have all file instances before!)
+	if (containsAttributesFile())
+		attributesFile()->readData();
 
 	MpqFile::ListfileEntries entries;
 
@@ -313,49 +308,17 @@ std::streamsize Mpq::read(InputStream &stream, const MpqFile::ListfileEntries &l
 	BOOST_FOREACH(MpqFile::ListfileEntries::const_reference path, listfileEntries.empty() ? entries : listfileEntries)
 		this->findFile(path);
 
-	/// @todo Single "(attributes)" file?
-	/*
-	// extended block attributes
-	struct ExtendedAttributes extendedAttributes;
-	istream.read(reinterpret_cast<char*>(&extendedAttributes), sizeof(extendedAttributes));
-	bytes += istream.gcount();
-
-	if (extendedAttributes.version != Mpq::extendedAttributesVersion)
-		std::cout << boost::format(_("Warning: Unknown extended attributes version \"%1%\".\nCurrent version is \"%2%\".")) % extendedAttributes.version % Mpq::extendedAttributesVersion << std::endl;
-
-	this->m_extendedAttributes = extendedAttributes.attributesPresent; /// @todo Convert to enum
-
-	if (this->m_extendedAttributes & Mpq::FileCrc32s)
-	{
-		BOOST_FOREACH(class Block *block, this->m_blocks)
-			size += istream.read(reinterpret_cast<char*>(&block->m_crc32), sizeof(block->m_crc32));
-	}
-
-	if (this->m_extendedAttributes & Mpq::FileTimeStamps)
-	{
-		BOOST_FOREACH(class Block *block, this->m_blocks)
-			size += istream.read(reinterpret_cast<char*>(&block->m_fileTime), sizeof(block->m_fileTime));
-	}
-
-	if (this->m_extendedAttributes & Mpq::FileMd5s)
-	{
-		BOOST_FOREACH(class Block *block, this->m_blocks)
-			size += istream.read(reinterpret_cast<char*>(&block->m_md5), sizeof(block->m_md5));
-	}
-	*/
-
 	/// \todo Read "(signature)" file.
 	// The strong digital signature is stored immediately after the archive, in the containing file
 	const std::streampos position = startPosition() + boost::numeric_cast<std::streampos>(header.archiveSize);
 	// jumps to the end of the archive
 	if (endPosition(stream) > position && Mpq::hasStrongDigitalSignature(stream))
 	{
-		this->m_strongDigitalSignature.reset(new char[256]);
-		size += strongDigitalSignature(stream, this->m_strongDigitalSignature.get());
+		m_strongDigitalSignaturePosition = stream.tellg();
+		size += strongDigitalSignature(stream, this->m_strongDigitalSignature);
 	}
 
 	return size;
-
 }
 
 /// @todo Write with format this->m_format!
@@ -391,29 +354,8 @@ const class MpqFile* Mpq::findFile(const boost::filesystem::path &path, BOOST_SC
 
 		// if we have a sector offset table and file is encrypted we first need to know its path for proper decryption!
 		// TODO READ SECTOR OFFSET TABLE AND DECRYPT IT NOW THAT WE HAVE ITS PATH
-		if (hash->mpqFile()->hasSectorOffsetTable() && hash->mpqFile()->isEncrypted())
-		{
-			boost::interprocess::file_lock fileLock(hash->mpqFile()->mpq()->path().string().c_str());
-
-			if (!fileLock.try_lock())
-				throw Exception(boost::format(_("Warning: Couldn't lock MPQ file for refreshing sector data of file %1%.")) % path);
-
-			ifstream istream(this->path(), std::ios::in | std::ios::binary);
-
-			if (!istream)
-				throw Exception();
-
-			istream.seekg(startPosition());
-			istream.seekg(hash->block()->blockOffset(), std::ios::cur);
-
-			if (format() == Mpq::Format::Mpq2 && hash->block()->extendedBlockOffset() > 0)
-				istream.seekg(hash->block()->extendedBlockOffset(), std::ios::cur);
-
-
-			hash->mpqFile()->read(istream);
-			fileLock.unlock();
-		}
-
+		if (hash->mpqFile()->hasSectorOffsetTable() && hash->mpqFile()->isEncrypted() && storeSectors())
+			hash->mpqFile()->read();
 	}
 
 	return const_cast<const class MpqFile*>(hash->m_mpqFile);
@@ -447,13 +389,11 @@ class MpqFile* Mpq::addFile(const boost::filesystem::path &path, BOOST_SCOPED_EN
 	else
 	{
 		// get block with the best size
-		BOOST_FOREACH(Blocks::left_reference reference, this->m_blocks.left)
+		BOOST_FOREACH(BlockPtr reference, this->m_blocks)
 		{
-			BlockPtr iteratedBlock = reference.second;
-
-			if ((iteratedBlock->empty() || iteratedBlock->unused()) && iteratedBlock->m_blockSize >= reservedSpace && (block == 0 || iteratedBlock->m_blockSize - reservedSpace < block->m_blockSize - reservedSpace))
+			if ((reference->empty() || reference->unused()) && reference->m_blockSize >= reservedSpace && (block == 0 || reference->m_blockSize - reservedSpace < block->m_blockSize - reservedSpace))
 			{
-				block = iteratedBlock;
+				block = reference;
 				block->m_fileSize = reservedSpace;
 			}
 		}
@@ -466,7 +406,8 @@ class MpqFile* Mpq::addFile(const boost::filesystem::path &path, BOOST_SCOPED_EN
 	if (block == 0)
 	{
 		newBlock = true;
-		block.reset(this->newBlock());
+		blockIndex = this->m_blocks.size() - 1;
+		block.reset(this->newBlock(blockIndex));
 		this->nextBlockOffsets(block->m_blockOffset, block->m_extendedBlockOffset);
 
 		if (this->format() != Mpq::Format::Mpq2 && block->m_extendedBlockOffset > 0)
@@ -475,8 +416,7 @@ class MpqFile* Mpq::addFile(const boost::filesystem::path &path, BOOST_SCOPED_EN
 		block->m_blockSize = reservedSpace;
 		block->m_fileSize = reservedSpace;
 		block->m_flags = Block::Flags::IsFile; /// @todo Set right flags (user-defined).
-		blockIndex = this->m_blocks.size() - 1;
-		this->m_blocks.left.insert(std::make_pair(blockIndex, block));
+		this->m_blocks.insert(block);
 
 	}
 
@@ -492,7 +432,8 @@ class MpqFile* Mpq::addFile(const boost::filesystem::path &path, BOOST_SCOPED_EN
 	{
 		if (newBlock)
 		{
-			this->m_blocks.left.erase(blockIndex);
+			Blocks::iterator iterator = m_blocks.find(blockIndex);
+			this->m_blocks.erase(iterator);
 			block.reset();
 		}
 
@@ -524,26 +465,15 @@ class MpqFile* Mpq::addFile(const boost::filesystem::path &path, BOOST_SCOPED_EN
 	}
 
 	// Add "(attributes)" file entries.
-	if (this->extendedAttributes() != Mpq::ExtendedAttributes::None && this->containsAttributesFile())
+	if (this->containsAttributesFile())
 	{
-		/// @todo Write meta data/extended attributes
-		if (this->extendedAttributes() & Mpq::ExtendedAttributes::FileCrc32s)
-			//block->m_crc32;
-			;
-
-		if (this->extendedAttributes() & Mpq::ExtendedAttributes::FileTimeStamps)
-			block->setFileTime(time(0));
-
-		if (this->extendedAttributes() & Mpq::ExtendedAttributes::FileMd5s)
-			//block->m_md5 = ;
-			;
-
-		this->refreshAttributesFile();
+		this->attributesFile()->refreshFile(hash->m_mpqFile);
+		this->attributesFile()->writeData();
 	}
 
 	// Refresh "(signature)" file.
 	if (this->containsSignatureFile())
-		this->refreshSignatureFile();
+		; //this->refreshSignatureFile();
 
 	return hash->m_mpqFile;
 }
@@ -625,11 +555,11 @@ class MpqFile* Mpq::newFile(class Hash *hash) throw ()
 	}
 }
 
-class Hash* Mpq::newHash() throw ()
+class Hash* Mpq::newHash(uint32 index) throw ()
 {
 	try
 	{
-		return new Hash(this);
+		return new Hash(this, index);
 	}
 	catch (std::bad_alloc &)
 	{
@@ -637,11 +567,11 @@ class Hash* Mpq::newHash() throw ()
 	}
 }
 
-class Block* Mpq::newBlock() throw ()
+class Block* Mpq::newBlock(uint32 index) throw ()
 {
 	try
 	{
-		return new Block(this);
+		return new Block(this, index);
 	}
 	catch (std::bad_alloc &)
 	{
@@ -665,7 +595,6 @@ void Mpq::clear()
 	this->m_size = 0;
 	this->m_path.clear();
 	this->m_format = Mpq::Format::Mpq1;
-	this->m_extendedAttributes = Mpq::ExtendedAttributes::None;
 	this->m_sectorSize = 0;
 	this->m_fileLock.unlock();
 	this->m_isOpen = false;
@@ -678,12 +607,7 @@ class Hash* Mpq::findHash(const boost::filesystem::path &path, BOOST_SCOPED_ENUM
 		return 0;
 
 	// Compute the hashes to compare the hash table entry against
-	const uint32 nameHashA = HashString(Mpq::cryptTable(), path.string().c_str(), HashType::NameA);
-	const uint32 nameHashB = HashString(Mpq::cryptTable(), path.string().c_str(), HashType::NameB);
-	const int16 realLocale = MpqFile::localeToInt(locale);
-	const int16 realPlatform = MpqFile::platformToInt(platform);
-
-	HashData hashData(nameHashA, nameHashB, realLocale, realPlatform);
+	HashData hashData(path, locale, platform);
 	Hashes::index_iterator<HashData>::type iterator = this->m_hashes.get<HashData>().find(hashData);
 
 	if (iterator == this->m_hashes.get<HashData>().end() || (*iterator)->deleted())
@@ -719,18 +643,111 @@ bool Mpq::removeFile(class MpqFile *&mpqFile)
 	return true;
 }
 
-class MpqFile* Mpq::refreshAttributesFile()
+bool Mpq::check(const CryptoPP::RSA::PrivateKey &strongPrivateKey, const CryptoPP::RSA::PrivateKey &weakPrivateKey) const
 {
-	throw Exception(_("Mpq: refreshAttributesFile is not implemented yet!"));
+	if (!checkStrong(strongPrivateKey) || !this->signatureFile()->check(weakPrivateKey))
+		return false;
 
-	return 0;
+	return true;
 }
 
-class MpqFile* Mpq::refreshSignatureFile()
+void Mpq::sign(const CryptoPP::RSA::PublicKey &strongPublicKey, const CryptoPP::RSA::PublicKey &weakPublicKey)
 {
-	throw Exception(_("Mpq: refreshSignatureFile is not implemented yet!"));
+	if (hasStrongDigitalSignature())
+		signStrong(strongPublicKey);
 
-	return 0;
+	if (containsSignatureFile())
+		this->signatureFile()->sign(weakPublicKey);
+}
+
+void Mpq::digest(Mpq::SHA1Digest &digest) const
+{
+	// The entire archive (ArchiveSize bytes, starting at ArchiveOffset in the containing file) is hashed as a single block (there is one known exception to that algorithm, see below).
+	if (!const_cast<Mpq*>(this)->m_fileLock.try_lock())
+		throw Exception();
+
+	boost::filesystem::ifstream ifstream(path(), std::ios::in | std::ios::binary);
+	ifstream.seekg(startPosition());
+	std::streamsize size = 0;
+	struct Header header;
+	wc3lib::read(ifstream, header, size);
+	/*
+	 * NOTE
+	 * header.archiveSize
+	 * This field is deprecated in the Burning Crusade MoPaQ format, and the size
+	 * of the archive is calculated as the size from the beginning of the archive to the end of the
+	 * hash table, block table, or extended block table (whichever is largest).
+	 * TODO improve archive allocation/size calculation
+	 * TODO probably it's more usable to calculate the digest progressively instead of allocating the whole archive on heap. Use sha.OptimalBlockSize() to get optimal block size and allocate single blocks etc. (checkout Crypto++ documentation).
+	 */
+	boost::scoped_array<byte> data(new byte[header.archiveSize]);
+	memcpy(data.get(), &header, sizeof(header));
+	wc3lib::read(ifstream, data[sizeof(header)], size, header.archiveSize - sizeof(header));
+	ifstream.close();
+	const_cast<Mpq*>(this)->m_fileLock.unlock();
+	CryptoPP::SHA1 sha;
+	digest.reset(new unsigned char[CryptoPP::SHA1::DIGESTSIZE]);
+	sha.CalculateDigest(digest.get(), (unsigned char*)data.get(), header.archiveSize);
+}
+
+void Mpq::storedDigest(Mpq::SHA1Digest &digest, const CryptoPP::RSA::PrivateKey &privateKey) const
+{
+	// decrypting digest
+	CryptoPP::RSAES_OAEP_SHA_Decryptor decryptor(privateKey);
+	CryptoPP::RandomNumberGenerator rng;
+	digest.reset(new unsigned char[CryptoPP::SHA1::DIGESTSIZE]);
+	decryptor.Decrypt(rng, (unsigned char*)strongDigitalSignature().get(), strongDigitalSignatureSize, digest.get());
+}
+
+bool Mpq::checkStrong(const CryptoPP::RSA::PrivateKey &privateKey) const
+{
+	if (hasStrongDigitalSignature())
+	{
+		Mpq::SHA1Digest digest;
+		this->digest(digest);
+		Mpq::SHA1Digest storedDigest;
+		this->storedDigest(storedDigest, privateKey);
+
+		if (memcmp(digest.get(), storedDigest.get(), CryptoPP::SHA1::DIGESTSIZE) != 0)
+			return false;
+	}
+
+	return true;
+}
+
+void Mpq::signStrong(Mpq::StrongDigitalSignature &signature, const CryptoPP::RSA::PublicKey &publicKey) const
+{
+	SHA1Digest digest;
+	this->digest(digest);
+	// encrypting digest
+	CryptoPP::RSAES_OAEP_SHA_Encryptor encryptor(publicKey);
+	CryptoPP::RandomNumberGenerator rng;
+	signature.reset(new byte[strongDigitalSignatureSize]);
+	encryptor.Encrypt(rng, digest.get(), CryptoPP::SHA1::DIGESTSIZE, (unsigned char*)signature.get());
+	/// TODO set before parameters (2048 RSA key) or provide key pair generation functionality in algorithm.hpp?
+}
+
+std::streamsize Mpq::signStrong(const CryptoPP::RSA::PublicKey &publicKey)
+{
+	Mpq::StrongDigitalSignature signature;
+	signStrong(signature, publicKey);
+
+	// sync with archive
+	if (!this->m_fileLock.try_lock())
+		throw Exception();
+
+	boost::filesystem::ofstream ofstream(path(), std::ios::out | std::ios::binary);
+	ofstream.seekp(m_strongDigitalSignaturePosition);
+	ofstream.seekp(sizeof(uint32), std::ios::cur); // skip header
+	std::streamsize size = 0;
+	wc3lib::write(ofstream, signature[0], size, strongDigitalSignatureSize);
+	ofstream.close();
+	this->m_fileLock.unlock();
+
+	// refresh in heap
+	m_strongDigitalSignature.swap(signature);
+
+	return size;
 }
 
 }

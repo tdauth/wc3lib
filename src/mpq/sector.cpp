@@ -29,7 +29,7 @@ namespace wc3lib
 namespace mpq
 {
 
-Sector::Sector(class MpqFile *mpqFile) : m_mpqFile(mpqFile), m_sectorIndex(0), m_sectorOffset(0), m_sectorSize(0), m_compression(Sector::Compression::Uncompressed)
+Sector::Sector(class MpqFile *mpqFile, uint32 index, uint32 offset, uint32 size) : m_mpqFile(mpqFile), m_sectorIndex(index), m_sectorOffset(offset), m_sectorSize(size), m_compression(Sector::Compression::Uncompressed)
 {
 }
 
@@ -218,7 +218,7 @@ std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, sh
 	ofstream ofstream(this->mpqFile()->mpq()->path(), std::ios_base::out | std::ios_base::binary);
 
 	if (!ofstream)
-		throw Exception(boost::format(_("Unable to open file \"%1%\".")) % this->mpqFile()->mpq()->path().string());
+		throw Exception(boost::format(_("Unable to open file %1%.")) % this->mpqFile()->mpq()->path());
 
 	ofstream.seekp(this->mpqFile()->mpq()->startPosition());
 	ofstream.seekp(boost::numeric_cast<std::streamoff>(this->sectorOffset()), std::ios::cur);
@@ -238,7 +238,6 @@ std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, sh
 	return bytes;
 }
 
-// TODO sector offset seems to be wrong (when reading compression types in MpqFile::read there is other values than here - here the whole sector data including compression type is decrypted!)
 std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception)
 {
 	boost::interprocess::file_lock fileLock(this->mpqFile()->mpq()->path().string().c_str());
@@ -249,24 +248,68 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 	ifstream ifstream(this->mpqFile()->mpq()->path(), std::ios_base::in | std::ios_base::binary);
 
 	if (!ifstream)
-		throw Exception(boost::format(_("Sector: Unable to open file \"%1%\".")) % this->mpqFile()->mpq()->path().string());
+		throw Exception(boost::format(_("Unable to open file %1%.")) % this->mpqFile()->mpq()->path());
 
-	ifstream.seekg(this->mpqFile()->mpq()->startPosition());
-	ifstream.seekg(boost::numeric_cast<std::streamoff>(this->sectorOffset()), std::ios::cur);
+	seekg(ifstream);
 
-	if (this->mpqFile()->mpq()->format() == Mpq::Format::Mpq1)
-		ifstream.seekg(boost::numeric_cast<std::streamoff>(this->mpqFile()->hash()->block()->blockOffset()), std::ios::cur);
-	else
-		ifstream.seekg(boost::numeric_cast<std::streamoff>(this->mpqFile()->hash()->block()->largeOffset()), std::ios::cur);
-
-	// NOTE as well, this byte is encrypted with the sector data, if applicable.
-	uint32 dataSize = this->sectorSize();
+	const uint32 dataSize = this->sectorSize();
 	boost::scoped_array<byte> data(new byte[dataSize]);
 	std::streamsize bytes = 0;
 	wc3lib::read(ifstream, data[0], bytes, dataSize);
 	ifstream.close();
 	fileLock.unlock();
 
+	decompressData(data, dataSize, ostream);
+
+	return bytes;
+}
+
+std::streamsize Sector::writeData(istream &istream, ostream &ostream) const throw (Exception)
+{
+	const uint32 dataSize = this->sectorSize();
+	boost::scoped_array<byte> data(new byte[dataSize]);
+	std::streamsize bytes = 0;
+	wc3lib::read(istream, data[0], bytes, dataSize);
+
+	decompressData(data, dataSize, ostream);
+
+	return bytes;
+}
+
+void Sector::setCompression(byte value)
+{
+	this->m_compression = (BOOST_SCOPED_ENUM(Compression))(value);
+}
+
+uint32 Sector::sectorKey() const
+{
+	return this->mpqFile()->fileKey() + this->sectorIndex();
+}
+
+void Sector::seekg(istream &istream) const
+{
+	istream.seekg(this->mpqFile()->mpq()->startPosition());
+
+	seekgFromArchiveStart(istream);
+}
+
+void Sector::seekgFromArchiveStart(istream &istream) const
+{
+	if (this->mpqFile()->mpq()->format() == Mpq::Format::Mpq1)
+		istream.seekg(boost::numeric_cast<std::streamoff>(this->mpqFile()->hash()->block()->blockOffset()), std::ios::cur);
+	else
+		istream.seekg(boost::numeric_cast<std::streamoff>(this->mpqFile()->hash()->block()->largeOffset()), std::ios::cur);
+
+	seekgFromBlockStart(istream);
+}
+
+void Sector::seekgFromBlockStart(istream &istream) const
+{
+	istream.seekg(boost::numeric_cast<std::streamoff>(this->sectorOffset()), std::ios::cur);
+}
+
+void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, ostream &ostream) const throw (Exception)
+{
 	/*
 	If the file is encrypted, each sector (after compression/implosion, if applicable) is encrypted with the file's key.
 	Each sector is encrypted using the key + the 0-based index of the sector in the file.
@@ -441,22 +484,10 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 
 		ostream.write(&data[1], dataSize - 1);
 
-		return bytes;
+		return;
 	}
 
 	ostream.write(data.get(), dataSize);
-
-	return bytes;
-}
-
-void Sector::setCompression(byte value)
-{
-	this->m_compression = (BOOST_SCOPED_ENUM(Compression))(value);
-}
-
-uint32 Sector::sectorKey() const
-{
-	return this->mpqFile()->fileKey() + this->sectorIndex();
 }
 
 }

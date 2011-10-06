@@ -21,7 +21,6 @@
 #include "algorithm.hpp"
 #include "hash.hpp"
 #include "mpq.hpp"
-#include "mpqfile.hpp"
 #include "block.hpp"
 
 namespace wc3lib
@@ -30,7 +29,11 @@ namespace wc3lib
 namespace mpq
 {
 
-HashData::HashData(int32 filePathHashA, int32 filePathHashB, int16 locale, int16 platform) : m_filePathHashA(filePathHashA), m_filePathHashB(filePathHashB), m_locale(locale), m_platform(platform)
+HashData::HashData(int32 filePathHashA, int32 filePathHashB, uint16 locale, uint16 platform) : m_filePathHashA(filePathHashA), m_filePathHashB(filePathHashB), m_locale(locale), m_platform(platform)
+{
+}
+
+HashData::HashData(const boost::filesystem::path& path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform) : m_filePathHashA(HashString(Mpq::cryptTable(), path.string().c_str(), HashType::NameA)), m_filePathHashB(HashString(Mpq::cryptTable(), path.string().c_str(), HashType::NameB)), m_locale(MpqFile::localeToInt(locale)), m_platform(MpqFile::platformToInt(platform))
 {
 }
 
@@ -38,7 +41,7 @@ HashData::HashData(const HashData &other) : m_filePathHashA(other.m_filePathHash
 {
 }
 
-HashData::operator=(const HashData &other) 
+HashData::operator=(const HashData &other)
 {
 	m_filePathHashA = other.m_filePathHashA;
 	m_filePathHashB = other.m_filePathHashB;
@@ -46,10 +49,21 @@ HashData::operator=(const HashData &other)
 	m_platform = other.m_platform;
 }
 
+bool HashData::isHash(int32 nameHashA, int32 nameHashB, uint16 locale, uint16 platform) const
+{
+	return this->m_filePathHashA == nameHashA && this->m_filePathHashB == nameHashB && this->m_locale == locale && this->m_platform == platform;
+}
+
+bool HashData::isHash(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform) const
+{
+	return isHash(HashString(Mpq::cryptTable(), path.string().c_str(), HashType::NameA), HashString(Mpq::cryptTable(), path.string().c_str(), HashType::NameB), MpqFile::localeToInt(locale), MpqFile::platformToInt(platform));
+}
+
+
 const uint32 Hash::blockIndexDeleted = 0xFFFFFFFE;
 const uint32 Hash::blockIndexEmpty = 0xFFFFFFFF;
 
-Hash::Hash(class Mpq *mpq) : m_mpq(mpq), m_index(0), m_hashData(0, 0, 0, 0), m_mpqFile(0), m_block(0), m_deleted(false)
+Hash::Hash(class Mpq *mpq, uint32 index) : m_mpq(mpq), m_index(index), m_hashData(0, 0, 0, 0), m_mpqFile(0), m_block(0), m_deleted(false)
 {
 }
 
@@ -58,15 +72,15 @@ std::streamsize Hash::read(istream &istream) throw (class Exception)
 	struct HashTableEntry entry;
 	std::streamsize size = 0;
 	wc3lib::read(istream, entry, size);
-	
+
 	if (size != sizeof(entry))
 		throw Exception(_("Error while reading hash table entry."));
-	
+
 	this->hashData().setFilePathHashA(entry.filePathHashA);
 	this->hashData().setFilePathHashB(entry.filePathHashB);
 	this->hashData().setLocale(entry.locale);
 	this->hashData().setPlatform(entry.platform);
-	
+
 	if (entry.fileBlockIndex == Hash::blockIndexDeleted)
 	{
 		this->m_deleted = true;
@@ -75,9 +89,9 @@ std::streamsize Hash::read(istream &istream) throw (class Exception)
 	}
 	else if (entry.fileBlockIndex != Hash::blockIndexEmpty)
 	{
-		this->m_block = this->mpq()->m_blocks.left.find(entry.fileBlockIndex)->second.get();
+		this->m_block = this->mpq()->m_blocks.find(entry.fileBlockIndex)->get();
 		this->m_deleted = false;
-		
+
 		//std::cout << "BLOCK INDEX: " << entry.fileBlockIndex << " and block address " << this->m_block << std::endl;
 		//exit(0);
 
@@ -90,7 +104,7 @@ std::streamsize Hash::read(istream &istream) throw (class Exception)
 		//std::cout << "Entry is EMPTY WAAAAAAAAAHHHHHHH" << std::hex << " with block index " << entry.fileBlockIndex << std::dec << std::endl;
 		//exit(0);
 	}
-	
+
 	return size;
 }
 
@@ -99,16 +113,16 @@ void Hash::clear()
 	//exit(0);
 	// If the next entry is empty, mark this one as empty; otherwise, mark this as deleted.
 	Mpq::Hashes::index_const_iterator<HashData>::type iterator = this->m_mpq->m_hashes.get<HashData>().find(this->hashData());
-	
+
 	if (iterator == this->m_mpq->m_hashes.get<HashData>().end())
 		return;
-	
+
 	++iterator;
-	
+
 	// If the next entry is empty, mark this one as empty; otherwise, mark this as deleted.
 	if (iterator != this->m_mpq->m_hashes.get<HashData>().end() && !(*iterator)->empty())
 		this->m_deleted = true;
-	
+
 	// If the block occupies space, mark the block as free space; otherwise, clear the block table entry.
 	if (this->m_block->m_blockSize > 0)
 	{
@@ -118,12 +132,14 @@ void Hash::clear()
 	else
 	{
 		/// @todo Change file size?
-		const Mpq::BlockPtr block(this->m_block);
-		this->m_mpq->m_blocks.right.erase(block);
+		/*
+		Mpq::Blocks::iterator iterator = this->mpq()->blocks().find(this->block());
+		this->mpq()->m_blocks.erase(iterator);
+		*/
 	}
-	
+
 	this->m_block = 0;
-	
+
 	/// @todo Clear or write file hash and block data (file sync)!
 }
 
@@ -146,11 +162,6 @@ bool Hash::isHash(int32 nameHashA, int32 nameHashB, enum MpqFile::Locale locale,
 	return this->isHash(nameHashA, nameHashB, locale, platform);
 }
 */
-
-bool HashData::isHash(int32 nameHashA, int32 nameHashB, int16 locale, int16 platform) const
-{
-	return this->m_filePathHashA == nameHashA && this->m_filePathHashB == nameHashB && this->m_locale == locale && this->m_platform == platform;
-}
 
 /// @todo Write data into hash table.
 void Hash::changePath(const boost::filesystem::path &path)

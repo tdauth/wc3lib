@@ -22,6 +22,7 @@
 #define WC3LIB_MPQ_HASH_HPP
 
 #include "platform.hpp"
+#include "mpqfile.hpp"
 
 namespace wc3lib
 {
@@ -32,34 +33,40 @@ namespace mpq
 /**
  * Simple base class for generating hash comparisons (can be used in combination with unordered types from Boost C++ Libraries as in \ref mpq::Mpq::Hashes)
  */
-class HashData
+class HashData : public boost::operators<HashData>
 {
 	public:
-		HashData(int32 filePathHashA, int32 filePathHashB, int16 locale, int16 platfom);
+		HashData(int32 filePathHashA, int32 filePathHashB, uint16 locale, uint16 platfom);
+		HashData(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default);
+
 		HashData(const HashData &other);
 		operator=(const HashData &other);
 		void setFilePathHashA(int32 filePathHashA);
 		int32 filePathHashA() const;
 		void setFilePathHashB(int32 filePathHashB);
 		int32 filePathHashB() const;
-		void setLocale(int16 locale);
-		int16 locale() const;
-		void setPlatform(int16 platform);
-		int16 platform() const;
-		
-		bool isHash(int32 nameHashA, int32 nameHashB, int16 locale, int16 platform) const;
-		
+		void setLocale(uint16 locale);
+		void setLocale(BOOST_SCOPED_ENUM(MpqFile::Locale) locale);
+		uint16 locale() const;
+		void setPlatform(uint16 platform);
+		void setPlatform(BOOST_SCOPED_ENUM(MpqFile::Platform) platform);
+		uint16 platform() const;
+
+		bool isHash(int32 nameHashA, int32 nameHashB, uint16 locale, uint16 platform) const;
+		bool isHash(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default) const;
+
 		/**
 		 * Compares both hash values of both hashes.
 		 * \return Returns true if hash values A and B are equal, otherwise false is being returned.
 		 */
 		bool operator==(const HashData &hash) const;
-		
+		bool operator==(const boost::filesystem::path &path) const;
+
 	protected:
 		int32 m_filePathHashA;
 		int32 m_filePathHashB;
-		int16 m_locale;
-		int16 m_platform;
+		uint16 m_locale;
+		uint16 m_platform;
 };
 
 inline void HashData::setFilePathHashA(int32 filePathHashA)
@@ -82,22 +89,32 @@ inline int32 HashData::filePathHashB() const
 	return this->m_filePathHashB;
 }
 
-inline void HashData::setLocale(int16 locale)
+inline void HashData::setLocale(uint16 locale)
 {
 	m_locale = locale;
 }
 
-inline int16 HashData::locale() const
+inline void HashData::setLocale(BOOST_SCOPED_ENUM(MpqFile::Locale) locale)
+{
+	m_locale = locale;
+}
+
+inline uint16 HashData::locale() const
 {
 	return this->m_locale;
 }
 
-inline void HashData::setPlatform(int16 platform)
+inline void HashData::setPlatform(uint16 platform)
 {
 	m_platform = platform;
 }
 
-inline int16 HashData::platform() const
+inline void HashData::setPlatform(BOOST_SCOPED_ENUM(MpqFile::Platform) platform)
+{
+	m_platform = platform;
+}
+
+inline uint16 HashData::platform() const
 {
 	return this->m_platform;
 }
@@ -107,6 +124,12 @@ inline bool HashData::operator==(const HashData &hashData) const
 	return this->isHash(hashData.m_filePathHashA, hashData.m_filePathHashB, hashData.m_locale, hashData.m_platform);
 }
 
+inline bool HashData::operator==(const boost::filesystem::path &path) const
+{
+	return this->isHash(path);
+}
+
+
 inline std::size_t hash_value(const HashData &hashData)
 {
 	std::size_t seed = 0;
@@ -114,7 +137,7 @@ inline std::size_t hash_value(const HashData &hashData)
 	boost::hash_combine(seed, hashData.filePathHashB());
 	boost::hash_combine(seed, hashData.locale());
 	boost::hash_combine(seed, hashData.platform());
-	
+
 	return seed;
 }
 
@@ -122,12 +145,12 @@ inline std::size_t hash_value(const HashData &hashData)
 class Hash : public Format, private boost::noncopyable
 {
 	public:
-		Hash(class Mpq *mpq);
-		
+		Hash(class Mpq *mpq, uint32 index);
+
 		std::streamsize read(istream &istream) throw (class Exception);
 		std::streamsize write(ostream &ostream) const throw (class Exception) { throw Exception(_("Do not use write member function of class Hash.")); }
 		virtual uint32_t version() const { return 0; }
-		
+
 		void clear();
 
 		/**
@@ -150,21 +173,21 @@ class Hash : public Format, private boost::noncopyable
 		 * \sa Hash::deleted
 		 */
 		bool empty() const;
-		
+
 		class Mpq* mpq() const;
 		uint32 index() const;
 		const HashData& hashData() const;
 		HashData& hashData();
 		class MpqFile* mpqFile() const;
 		class Block* block() const;
-		
+
 	protected:
 		friend class Mpq;
 		friend class MpqFile;
-		
+
 		static const uint32 blockIndexDeleted;
 		static const uint32 blockIndexEmpty;
-		
+
 		class Mpq *m_mpq;
 		uint32 m_index;
 		struct HashData m_hashData;

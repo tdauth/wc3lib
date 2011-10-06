@@ -1,3 +1,29 @@
+2011-10-06 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Improved class HashData.
+* mpq: Dropped obsolete parameters of function Mpq::create().
+* mpq: Added class Signature.
+* mpq: Improved versions of different signing and checking functions (strong and weak signatures are more separated now).
+
+2011-10-01 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Added class Attributes.
+* mpq: Index of blocks is stored by their corresponding objects now.
+* mpq: Type FILETIME supports more operations now.
+* mpq: Dropped many deprecated functions.
+
+2011-09-26 Tamino Dauth <tamino@cdauth.eu>
+* Fixed and improved Doxygen API target thanks to https://invalidmagic.wordpress.com/2009/11/30/cmake-and-doxygen-github-com/.
+* mpq: Improved performance of sector creation.
+* Added map and campaign related MIME types.
+* mpq: Class HashData can be constructed via path, locale and platform only now.
+
+2011-09-25 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Added and improved various member functions to support faster extracting of end-to-end stored data and seeking to sectors' positions.
+* app: Added option "store-sectors" to application "mpq".
+
+2011-09-23 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Two different sector storage models are supported now.
+* mpq: Implemented initial end-to-end extraction support for sectors.
+
 2011-09-22 Tamino Dauth <tamino@cdauth.eu>
 * mpq: Replaced huffman library by StormLib implementation.
 * mpq: Fixed sector compression and decompression for all types were buffer has to be preallocated.

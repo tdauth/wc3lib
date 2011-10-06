@@ -55,7 +55,7 @@ class Sector : private boost::noncopyable
 		};
 		BOOST_SCOPED_ENUM_END
 
-		Sector(class MpqFile *mpqFile);
+		Sector(class MpqFile *mpqFile, uint32 index, uint32 offset, uint32 size);
 		virtual ~Sector();
 
 		/**
@@ -73,6 +73,21 @@ class Sector : private boost::noncopyable
 		 * \return Returns size of written data.
 		 */
 		std::streamsize writeData(ostream &ostream) const throw (class Exception);
+		/**
+		 * Same as \ref writeData(ostream &) but doesn't work independently since it expects to be at the correct position in archive using \p istream as input archive stream.
+		 */
+		std::streamsize writeData(istream &istream, ostream &ostream) const throw (Exception);
+
+		/**
+		 * Jumps to the sector's position in input stream \p istream.
+		 * \note Doesn't jump relative to the stream's current position.
+		 */
+		void seekg(istream &istream) const;
+		/**
+		 * Expects to be at the archive's start position in stream and jumps from the current position to the sector's offset in input stream \p istream.
+		 */
+		void seekgFromArchiveStart(istream &istream) const;
+		void seekgFromBlockStart(istream &istream) const;
 
 		class MpqFile* mpqFile() const;
 		uint32 sectorIndex() const;
@@ -86,6 +101,11 @@ class Sector : private boost::noncopyable
 
 		void setCompression(byte value);
 		uint32 sectorKey() const;
+
+		/**
+		 * For internal usage.
+		 */
+		void decompressData(boost::scoped_array<byte> &data, uint32 dataSize, ostream &ostream) const throw (Exception);
 
 		class MpqFile *m_mpqFile;
 		uint32 m_sectorIndex;

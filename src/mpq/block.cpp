@@ -21,6 +21,7 @@
 #include "algorithm.hpp"
 #include "block.hpp"
 #include "mpq.hpp"
+#include "attributes.hpp"
 #include "../internationalisation.hpp"
 #include "../utilities.hpp"
 
@@ -45,7 +46,11 @@ uint32 Block::fileKey(const boost::filesystem::path &path, const BlockTableEntry
 	return nFileKey;
 }
 
-Block::Block(class Mpq *mpq) : m_mpq(mpq), m_blockOffset(0), m_extendedBlockOffset(0), m_blockSize(0), m_fileSize(0), m_flags(Block::Flags::None)
+Block::Block(class Mpq *mpq, uint32 index) : m_mpq(mpq), m_index(index), m_blockOffset(0), m_extendedBlockOffset(0), m_blockSize(0), m_fileSize(0), m_flags(Block::Flags::None)
+{
+}
+
+Block::~Block()
 {
 }
 
@@ -88,6 +93,28 @@ uint32 Block::fileKey(const boost::filesystem::path &path) const
 	entry.flags = this->m_flags;
 
 	return Block::fileKey(path, entry);
+}
+
+CRC32 Block::crc32() const
+{
+	return this->mpq()->attributesFile()->crc32(this);
+}
+
+
+const FILETIME& Block::fileTime() const
+{
+	return this->mpq()->attributesFile()->fileTime(this);
+}
+
+bool Block::fileTime(time_t& time)
+{
+	return this->mpq()->attributesFile()->fileTime(this).toTime(time);
+}
+
+
+MD5 Block::md5() const
+{
+	return this->mpq()->attributesFile()->md5(this);
 }
 
 }

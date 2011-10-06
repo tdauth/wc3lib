@@ -43,24 +43,22 @@ class Block : public Format, private boost::noncopyable
 			IsImploded = 0x00000100
 		};
 		BOOST_SCOPED_ENUM_END
-		
+
 		static uint32 fileKey(const boost::filesystem::path &path, const BlockTableEntry &blockTableEntry);
 
-		Block(class Mpq *mpq);
+		Block(class Mpq *mpq, uint32 index);
+		virtual ~Block();
 
 		std::streamsize read(istream &istream) throw (class Exception);
 		std::streamsize write(ostream &ostream) const throw (class Exception);
 		virtual uint32_t version() const { return 0; }
 
-		/**
-		 * @todo Check size, flags and required properties.
-		 */
-		bool check() const;
 		bool empty() const;
 		bool unused() const;
 		uint64 largeOffset() const;
-		
+
 		class Mpq* mpq() const;
+		uint32 index() const;
 		void setBlockOffset(uint32 blockOffset);
 		uint32 blockOffset() const;
 		void setExtendedBlockOffset(uint32 extendedBlockOffset);
@@ -78,30 +76,40 @@ class Block : public Format, private boost::noncopyable
 		void setFlags(BOOST_SCOPED_ENUM(Flags) flags);
 		BOOST_SCOPED_ENUM(Flags) flags() const;
 		// extended attributes
+		/**
+		 * \return Returns corresponding \ref CRC32 checksum stored in "(attributes)" file of the archive.
+		 * \throw Attributes::Exception Is thrown if CRC32s aren't stored in "(attributes)" file.
+		 */
 		CRC32 crc32() const;
+		/**
+		 * \return Returns corresponding \ref FILETIME time stamp stored in "(attributes)" file of the archive.
+		 * \throw Attributes::Exception Is thrown if time stamps aren't stored in "(attributes)" file.
+		 */
 		const struct FILETIME& fileTime() const;
+		/**
+		 * \return Returns corresponding converted \ref FILETIME time stamp stored in "(attributes)" file of the archive.
+		 * \throw Attributes::Exception Is thrown if time stamps aren't stored in "(attributes)" file.
+		 */
 		bool fileTime(time_t &time);
-		void setFileTime(const time_t &time);
+		/**
+		 * \return Returns corresponding \ref MD5 checksum stored in "(attributes)" file of the archive.
+		 * \throw Attributes::Exception Is thrown if MD5s aren't stored in "(attributes)" file.
+		 */
 		MD5 md5() const;
-		
+
 		uint32 fileKey(const boost::filesystem::path &path) const;
-		
+
 	protected:
 		friend class Mpq;
 		friend class Hash;
-		
-		static const uint64 EPOCH_OFFSET = 116444736000000000ULL; // Number of 100 ns units between 01/01/1601 and 01/01/1970
-		
+
 		class Mpq *m_mpq;
+		uint32 m_index;
 		uint32 m_blockOffset;
 		uint16 m_extendedBlockOffset;
 		uint32 m_blockSize;
 		uint32 m_fileSize;
 		BOOST_SCOPED_ENUM(Flags) m_flags;
-		// extended attributes
-		CRC32 m_crc32;
-		struct FILETIME m_fileTime;
-		MD5 m_md5;
 };
 
 inline bool Block::empty() const
@@ -122,6 +130,11 @@ inline uint64 Block::largeOffset() const
 inline class Mpq* Block::mpq() const
 {
 	return this->m_mpq;
+}
+
+inline uint32 Block::index() const
+{
+	return m_index;
 }
 
 inline void Block::setBlockOffset(uint32 blockOffset)
@@ -172,52 +185,6 @@ inline void Block::setFlags(BOOST_SCOPED_ENUM(Flags) flags)
 inline BOOST_SCOPED_ENUM(Block::Flags) Block::flags() const
 {
 	return this->m_flags;
-}
-
-inline CRC32 Block::crc32() const
-{
-	return this->m_crc32;
-}
-
-inline const struct FILETIME& Block::fileTime() const
-{
-	return this->m_fileTime;
-}
-
-inline bool Block::fileTime(time_t &time)
-{
-	// The FILETIME represents a 64-bit integer: the number of 100 ns units since January 1, 1601
-	uint64 nTime = ((uint64)this->m_fileTime.highDateTime << 32) + this->m_fileTime.lowDateTime;
-
-	if (nTime < EPOCH_OFFSET)
-		return false;
-
-	nTime -= EPOCH_OFFSET;	// Convert the time base from 01/01/1601 to 01/01/1970
-	nTime /= 10000000ULL;	// Convert 100 ns to sec
-
-	time = (time_t)nTime;
-
-	// Test for overflow (FILETIME is 64 bits, time_t is 32 bits)
-	if ((nTime - (uint64)time) > 0)
-		return false;
-
-	return true;
-}
-
-inline void Block::setFileTime(const time_t &time)
-{
-	uint64 nTime = (uint64)time;
-	
-	nTime *= 10000000ULL;
-	nTime += EPOCH_OFFSET;
-
-	this->m_fileTime.lowDateTime = (uint32_t)nTime;
-	this->m_fileTime.highDateTime = (uint32_t)(nTime >> 32);
-}
-
-inline MD5 Block::md5() const
-{
-	return this->m_md5;
 }
 
 }

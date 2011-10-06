@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include "mpqfile.hpp"
+#include "hash.hpp"
 #include "mpq.hpp"
 
 namespace wc3lib
@@ -39,7 +40,7 @@ MpqFile::ListfileEntries MpqFile::listfileEntries(const string &content) throw (
 void MpqFile::removeData() throw (class Exception)
 {
 	if (!this->try_lock())
-		throw Exception(boost::format(_("Unable to lock MPQ file \"%1%\".")) % path());
+		throw Exception(boost::format(_("Unable to lock MPQ file %1%.")) % path());
 
 	this->block()->setFileSize(0);
 
@@ -56,7 +57,7 @@ std::streamsize MpqFile::readData(istream &istream, BOOST_SCOPED_ENUM(Sector::Co
 	removeData();
 
 	if (!this->try_lock())
-		throw Exception(boost::format(_("Unable to lock MPQ file \"%1%\".")) % path());
+		throw Exception(boost::format(_("Unable to lock MPQ file %1%.")) % path());
 
 	std::streamsize bytes = 0;
 	uint16 sectorSize = 0;
@@ -65,11 +66,12 @@ std::streamsize MpqFile::readData(istream &istream, BOOST_SCOPED_ENUM(Sector::Co
 	{
 		if (this->block()->flags() & Block::Flags::IsSingleUnit)
 		{
-			SectorPtr sector(newSector());
-			this->m_sectors.get<uint32>().insert(sector);
+			SectorPtr sector(newSector(0, 0, 0));
+
+			if (mpq()->storeSectors())
+				this->m_sectors.insert(sector);
+
 			sector->m_compression = compression;
-			sector->m_sectorIndex = 0;
-			sector->m_sectorOffset = 0;
 			bytes = sector->readData(istream);
 		}
 		else
@@ -81,17 +83,18 @@ std::streamsize MpqFile::readData(istream &istream, BOOST_SCOPED_ENUM(Sector::Co
 			while (!eof(istream))
 			{
 				// if last one it may be smaller than MPQ's sector size
-				uint16 e = endPosition(istream)- istream.tellg();
-				uint16 sectorSize = e >= this->m_mpq->sectorSize() ? this->m_mpq->sectorSize() : e;
+				const uint32 e = endPosition(istream)- istream.tellg();
+				const uint32 sectorSize = e >= this->m_mpq->sectorSize() ? this->m_mpq->sectorSize() : e;
 				boost::scoped_array<byte> buffer(new byte[sectorSize]);
 				std::streamsize sizeCounter = 0;
 				wc3lib::read(istream, buffer[0], sizeCounter, sectorSize);
 
-				SectorPtr sector(newSector());
-				this->m_sectors.get<uint32>().insert(sector);
+				SectorPtr sector(newSector(sectorIndex, sectorOffset, sectorSize));
+
+				if (mpq()->storeSectors())
+					this->m_sectors.insert(sector);
+
 				sector->m_compression = compression;
-				sector->m_sectorIndex = sectorIndex;
-				sector->m_sectorOffset = sectorOffset;
 				bytes += sector->readData(buffer.get(), sectorSize);
 
 				++sectorIndex;
@@ -115,7 +118,7 @@ std::streamsize MpqFile::appendData(istream &istream) throw (class Exception)
 	throw Exception(_("MpqFile: appendData is not implemented yet!"));
 
 	if (!this->try_lock())
-		throw Exception(boost::format(_("Unable to lock MPQ file \"%1%\".")) % path());
+		throw Exception(boost::format(_("Unable to lock MPQ file %1%.")) % path());
 
 	this->unlock();
 
@@ -125,7 +128,7 @@ std::streamsize MpqFile::appendData(istream &istream) throw (class Exception)
 std::streamsize MpqFile::sync() throw (class Exception)
 {
 	if (!this->try_lock())
-		throw Exception(boost::format(_("Unable to lock MPQ file \"%1%\".")) % path());
+		throw Exception(boost::format(_("Unable to lock MPQ file %1%.")) % path());
 	/*
 	 * FIXME
 	if (!this->mpq()->fileLock().is_locked())
@@ -144,6 +147,9 @@ std::streamsize MpqFile::sync() throw (class Exception)
 
 std::streamsize MpqFile::writeData(ostream &ostream) const throw (class Exception)
 {
+	if (!mpq()->storeSectors())
+		const_cast<MpqFile*>(this)->read();
+
 	std::streamsize bytes = 0;
 
 	BOOST_FOREACH(const SectorPtr &sector, this->sectors())
@@ -154,9 +160,40 @@ std::streamsize MpqFile::writeData(ostream &ostream) const throw (class Exceptio
 		}
 		catch (Exception &exception)
 		{
-			throw Exception(boost::format(_("Sector error (sector %1%, file \"%2%\"):\n%3%")) % sector->sectorIndex() % this->path() % exception.what());
+			throw Exception(boost::format(_("Sector error (sector %1%, file %2%):\n%3%")) % sector->sectorIndex() % this->path() % exception.what());
 		}
 	}
+
+	if (!mpq()->storeSectors())
+		const_cast<MpqFile*>(this)->m_sectors.clear();
+
+	return bytes;
+}
+
+std::streamsize MpqFile::writeData(istream &istream, ostream &ostream) const throw (Exception)
+{
+	if (!mpq()->storeSectors())
+		const_cast<MpqFile*>(this)->read(istream);
+	// skip sector table by calculating its size (which is known since we have sectors already via sectors())
+	else if (hasSectorOffsetTable())
+		istream.seekg(boost::numeric_cast<std::streamoff>((sectors().size() + 1) * sizeof(uint32)), std::ios::cur);
+
+	std::streamsize bytes = 0;
+
+	BOOST_FOREACH(const SectorPtr &sector, this->sectors())
+	{
+		try
+		{
+			bytes += sector->writeData(istream, ostream);
+		}
+		catch (Exception &exception)
+		{
+			throw Exception(boost::format(_("Sector error (sector %1%, file %2%):\n%3%")) % sector->sectorIndex() % this->path() % exception.what());
+		}
+	}
+
+	if (!mpq()->storeSectors())
+		const_cast<MpqFile*>(this)->m_sectors.clear();
 
 	return bytes;
 }
@@ -169,6 +206,39 @@ MpqFile::ListfileEntries MpqFile::listfileEntries() const throw (Exception)
 	return listfileEntries(stream.str());
 }
 
+BOOST_SCOPED_ENUM(MpqFile::Locale) MpqFile::locale() const
+{
+	return MpqFile::intToLocale(this->m_hash->hashData().locale());
+}
+
+BOOST_SCOPED_ENUM(MpqFile::Platform) MpqFile::platform() const
+{
+	return MpqFile::intToPlatform(this->m_hash->hashData().platform());
+}
+
+class Block* MpqFile::block() const
+{
+	return this->m_hash->block();
+}
+
+bool MpqFile::check() const
+{
+	return this->mpq()->attributesFile()->check(this);
+}
+
+MpqFile::Sectors MpqFile::realSectors() const throw (Exception)
+{
+	if (!mpq()->storeSectors())
+		const_cast<MpqFile*>(this)->read();
+
+	Sectors result(sectors());
+
+	if (!mpq()->storeSectors())
+		const_cast<MpqFile*>(this)->m_sectors.clear();
+
+	return result;
+}
+
 MpqFile::MpqFile(class Mpq *mpq, class Hash *hash) : m_mpq(mpq), m_hash(hash), m_path("")
 {
 	if (hash != 0)
@@ -179,11 +249,11 @@ MpqFile::~MpqFile()
 {
 }
 
-class Sector* MpqFile::newSector() throw ()
+class Sector* MpqFile::newSector(uint32 index, uint32 offset, uint32 size) throw ()
 {
 	try
 	{
-		return new Sector(this);
+		return new Sector(this, index, offset, size);
 	}
 	catch (std::bad_alloc &)
 	{
@@ -195,14 +265,16 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 {
 	// if we have a sector offset table and file is encrypted we first need to know its path for proper decryption!
 	if (hasSectorOffsetTable() && isEncrypted() && path().empty())
-	{
-		istream.seekg(this->block()->blockSize(), std::ios_base::cur);
-
 		return 0;
-	}
 
 	if (!this->try_lock())
-		throw Exception(boost::format(_("Unable to lock MPQ file \"%1%\".")) % path());
+		throw Exception(boost::format(_("Unable to lock MPQ file %1%.")) % path());
+
+	istream.seekg(mpq()->startPosition());
+	istream.seekg(this->block()->blockOffset(), std::ios::cur);
+
+	if (mpq()->format() == Mpq::Format::Mpq2 && block()->extendedBlockOffset() > 0)
+		istream.seekg(block()->extendedBlockOffset(), std::ios::cur);
 
 	std::streamsize bytes = 0;
 
@@ -212,35 +284,25 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 	{
 		//std::cout << "File is not imploded/compressed or it's a single unit " << std::endl;
 
-		const uint16 sectorSize = (this->block()->flags() & Block::Flags::IsSingleUnit) ? this->block()->fileSize() : this->m_mpq->sectorSize();
+		const uint32 sectorSize = (this->block()->flags() & Block::Flags::IsSingleUnit) ? this->block()->fileSize() : this->m_mpq->sectorSize();
 		// If the file is stored as a single unit (indicated in the file's Flags), there is effectively only a single sector, which contains the entire file data.
 		const uint32 sectors = (this->m_hash->block()->flags() & Block::Flags::IsSingleUnit) ? 1 : this->m_hash->block()->blockSize() / sectorSize;
 
 		uint32 newOffset = 0;
 		// not necessary for single units
 		const uint32 lastSize = this->m_hash->block()->blockSize() % sectorSize;
+		// NOTE setting index before adding to container is important for index function in sectors container
 
 		for (uint32 i = 0; i < sectors; ++i)
 		{
-			SectorPtr sector(newSector());
-			sector->m_sectorIndex = i; // important for index function in sectors container
-			sector->m_sectorOffset = newOffset;
-			sector->m_sectorSize = sectorSize;
-			this->m_sectors.insert(sector);
-			//this->m_sectors.get<uint32>().insert(sector);
+			this->m_sectors.insert(SectorPtr(newSector(i, newOffset, sectorSize)));
 
-			newOffset += sector->sectorSize();
+			newOffset += sectorSize;
 		}
 
 		// the last sector may contain less than this, depending on the size of the entire file's data.
 		if (!(this->m_hash->block()->flags() & Block::Flags::IsSingleUnit) && lastSize > 0)
-		{
-			SectorPtr sector(newSector());
-			sector->m_sectorIndex = this->sectors().size(); // important for index function in sectors container
-			sector->m_sectorOffset = newOffset;
-			sector->m_sectorSize = lastSize;
-			this->m_sectors.insert(sector);
-		}
+			this->m_sectors.insert(SectorPtr(newSector(this->sectors().size(), newOffset, lastSize)));
 	}
 	// However, the SectorOffsetTable will be present if the file is compressed/imploded and the file is not stored as a single unit, even if there is only a single sector in the file (the size of the file is less than or equal to the archive's sector size).
 	// sector offset table
@@ -257,36 +319,71 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 			//dwToRead += sizeof(DWORD);
 
 		// last offset contains file size
-		boost::scoped_array<uint32> offsets(new uint32[sectors + 1]);
-		wc3lib::read<uint32>(istream, offsets[0], bytes, (sectors + 1) * sizeof(uint32));
+		const uint32 offsetsSize = sectors + 1;
+		boost::scoped_array<uint32> offsets(new uint32[offsetsSize]);
+		wc3lib::read(istream, offsets[0], bytes, offsetsSize * sizeof(uint32));
+
+		std::cout << "LAST " << offsets[sectors] << std::endl;
 
 		// The SectorOffsetTable, if present, is encrypted using the key - 1.
 		if (isEncrypted())
-			DecryptData(Mpq::cryptTable(), offsets.get(), sizeof(uint32) * (sectors + 1), fileKey() - 1);
+			DecryptData(Mpq::cryptTable(), offsets.get(), sizeof(uint32) * offsetsSize, fileKey() - 1);
+
+		// NOTE setting index before adding to container is important for index function in sectors container
 
 		for (uint32 i = 0; i < sectors; ++i)
-		{
-			SectorPtr sector(newSector());
-			sector->m_sectorIndex = i; // important for index function in sectors container
-			sector->m_sectorOffset = offsets[i];
-			this->m_sectors.insert(sector);
-		}
+			this->m_sectors.insert(SectorPtr(newSector(i, offsets[i], 0)));
 
-		// The last entry contains the file size, making it possible to easily calculate the size of any given sector.
+		/*
+		 * The last entry contains the total compressed file
+		 * size, making it possible to easily calculate the size of any given
+		 * sector by simple subtraction.
+		 */
 		uint32 size = offsets[sectors];
+
+		// TEST
+		if (hash()->block()->blockSize() != size)
+		{
+			std::cerr << "File: " << this->path() << std::endl;
+			std::cerr << "We have " << sectors << " sectors." << std::endl;
+			std::cerr << "Read sector table block size " << size << " is not equal to original block size " << hash()->block()->blockSize() << std::endl;
+			std::cerr << "Uncompressed file size is " << this->size() << std::endl;
+			std::cerr << "First sector offset " << (*this->sectors().find(0))->sectorOffset() << std::endl;
+			size = hash()->block()->blockSize();
+		}
+		//else
+			//std::cout << "Everything is alright!" << std::endl;
 
 		// calculate size of each sector
 		BOOST_REVERSE_FOREACH(SectorPtr sector, this->m_sectors)
 		{
-			sector->m_sectorSize = size - sector->m_sectorOffset;
-			//std::cout << "Sector size is " << sector->m_sectorSize << std::endl;
-			size = sector->m_sectorOffset;
+			sector->m_sectorSize = size - sector->sectorOffset();
+			size = sector->sectorOffset();
 		}
 	}
 
 	this->unlock();
 
 	return bytes;
+}
+
+
+std::streamsize MpqFile::read() throw (class Exception)
+{
+	boost::interprocess::file_lock fileLock(mpq()->path().string().c_str());
+
+	if (!fileLock.try_lock())
+		throw Exception(boost::format(_("Warning: Couldn't lock MPQ file for refreshing sector data of file %1%.")) % path());
+
+	ifstream istream(mpq()->path(), std::ios::in | std::ios::binary);
+
+	if (!istream)
+		throw Exception(boost::format(_("Unable to open file %1%.")) % mpq()->path());
+
+	std::streamsize result = read(istream);
+	fileLock.unlock();
+
+	return result;
 }
 
 

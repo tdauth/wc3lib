@@ -21,11 +21,16 @@
 #ifndef WC3LIB_MPQ_MPQ_HPP
 #define WC3LIB_MPQ_MPQ_HPP
 
+#include <crypto++/sha.h>
+#include <crypto++/rsa.h>
+
 #include "platform.hpp"
 #include "algorithm.hpp"
 #include "hash.hpp"
 #include "block.hpp"
 #include "mpqfile.hpp"
+#include "attributes.hpp"
+#include "signature.hpp"
 
 namespace wc3lib
 {
@@ -89,21 +94,18 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		};
 		BOOST_SCOPED_ENUM_END
 
-		BOOST_SCOPED_ENUM_START(ExtendedAttributes)
-		{
-			None = 0x0,
-			FileCrc32s = 0x00000001,
-			FileTimeStamps = 0x00000002,
-			FileMd5s = 0x00000004
-		};
-		BOOST_SCOPED_ENUM_END
-
 		typedef boost::shared_ptr<Block> BlockPtr;
 		/**
-		 * Blocks are mapped by their position in block table starting with 0. Maximum key value is \ref Mpq::blocks().size() - 1.
+		 * Blocks are mapped by their position in block table starting with 0. Maximum key value is \ref Mpq::blocks().size() - 1 (tag \ref uint32, index 0).
 		 * Consider that block indices \ref Hash::blockIndexDeleted and \ref Hash::blockIndexEmpty.
 		 */
-		typedef boost::bimap<uint32, BlockPtr> Blocks;
+		typedef boost::multi_index_container<BlockPtr,
+		boost::multi_index::indexed_by<
+		// ordered by its corresponding hash table index (like blocks)
+		boost::multi_index::ordered_unique<boost::multi_index::tag<uint32>, boost::multi_index::const_mem_fun<Block, uint32, &Block::index> >
+		>
+		>
+		Blocks;
 		typedef boost::shared_ptr<Hash> HashPtr;
 		/**
 		 * Hashes are mapped by their position in hash table starting with 0. Maximum key value is \ref Mpq::hashes().size() - 1 (tag \ref uint32, index 0).
@@ -142,24 +144,37 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		>
 		> Files;
 
+		/**
+		 * Array with size of \ref CryptoPP::SHA1::DIGESTSIZE.
+		 */
+		typedef boost::scoped_array<unsigned char> SHA1Digest;
+		/**
+		 * Array with size of \ref strongDigitalSignatureSize.
+		 * \note Doesn't include any header data.
+		 */
+		typedef boost::scoped_array<char> StrongDigitalSignature;
+
 		static const byte identifier[4];
 		static const int16 formatVersion1Identifier;
 		static const int16 formatVersion2Identifier;
-		static const int32 extendedAttributesVersion;
 
 		/**
 		 * 0xFFFFFFFE and 0xFFFFFFFF are reserved for deleted and empty blocks (by hashes).
 		 */
 		static const uint32 maxBlockId;
 		static const uint32 maxHashId;
+		/**
+		 * \note Doesn't include any header data.
+		 */
 		static const std::size_t strongDigitalSignatureSize = 256;
+		static const bool defaultStoreSectors = true;
 
 		/**
 		 * \return Returns static crypt table with size of \ref cryptTableSize.
 		 */
 		static const uint32* cryptTable();
 		static bool hasStrongDigitalSignature(istream &istream);
-		static std::streamsize strongDigitalSignature(istream &istream, char signature[Mpq::strongDigitalSignatureSize]) throw (class Exception);
+		static std::streamsize strongDigitalSignature(istream &istream, StrongDigitalSignature &signature) throw (class Exception);
 
 		Mpq();
 		virtual ~Mpq();
@@ -167,12 +182,9 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		/**
 		 * Creates a new MPQ archive at file path \p path of format \p format starting at position \p startPosition in corresponding file and using extended attributes \p extendedAttributes and sector size \p sectorSize.
 		 * \param overwriteExisting If this value is true existing any file at file path \p path will be overwritten before creating file/archive. Otherwise an exception will be thrown if there already is some file at the given path.
-		 * \param hasStrongDigitalSignature If this value is true file strong digital signature will be generated automatically on archive creation (\ref Mpq::strongDigitalSignature).
-		 * \param containsListfileFile If this value is true file "(listfile)" for all necessary file paths will be created on file/archive creation.
-		 * \param containsSignatureFile If this value is true file "(signature)" for weak digital signature will be created on file/archive creation.
 		 * \return Returns size of all created file data in bytes.
 		 */
-		std::streamsize create(const boost::filesystem::path &path, bool overwriteExisting = false, std::streampos startPosition = 0, BOOST_SCOPED_ENUM(Format) format = Format::Mpq1, BOOST_SCOPED_ENUM(ExtendedAttributes) extendedAttributes = ExtendedAttributes::None, int32 sectorSize = 4096, bool hasStrongDigitalSignature = false, bool containsListfileFile = false, bool containsSignatureFile = false) throw (class Exception);
+		std::streamsize create(const boost::filesystem::path &path, bool overwriteExisting = false, std::streampos startPosition = 0, BOOST_SCOPED_ENUM(Format) format = Format::Mpq1, uint32 sectorSize = 4096) throw (class Exception);
 		/**
 		 * \param listfileEntries Instead of relying on an internal "(listfile)" file of the archive you can pass your own list of all files. If empty this list is ignored.
 		 */
@@ -196,33 +208,38 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		virtual std::streamsize write(OutputStream &stream) const throw (class Exception);
 		virtual uint32_t version() const;
 
-		bool check() const;
-		bool fix() const;
 		/**
 		* \return Returns true if the archive contains a "(listfile)" file.
 		*/
 		bool containsListfileFile() const;
 		/**
 		 * Creates a "(listfile)" file if there isn't already one. All file entries which do have corresponding file paths will be added to this file.
-		 * \return Returns the file instance of the created file. If it does already exist the instance to the current file will be returned (note that it won't be refreshed by this method!).
-		 * \sa Mpq::containsListfileFile, Mpq::listfileFile
+		 * \return Returns the file instance of the created file. If it does already exist the instance to the current file will be returned (note that it won't be refreshed by this member functio!).
+		 * \sa Mpq::containsListfileFile(), Mpq::listfileFile()
 		 */
 		const class MpqFile* createListfileFile() throw (class Exception);
 		const class MpqFile* listfileFile() const;
 		/**
-		 * \return Returns true if the archive contains a "(attributes)" file. This can also be checked by checking if \ref Mpq::extendedAttributes() does not return \ref Mpq::ExtendedAttributes::None.
+		 * \return Returns true if the archive contains a "(attributes)" file.
 		 */
 		bool containsAttributesFile() const;
 		/**
 		 * Creates an "(attributes)" file if there isn't already one. The extended attributes of all block entries will be added to the file.
-		 * \return Returns the file instance of the created file. If it does already exist the instance to the current file will be returned (note that it won't be refreshed by this method!).
-		 * \sa Mpq::containsAttributesFile, Mpq::attributesFile
+		 * \param extendedAttributes These attributes are stored for each file.
+		 * \return Returns the file instance of the created file. If it does already exist the instance to the current file will be returned (note that it won't be refreshed by this member function!).
+		 * \sa Mpq::containsAttributesFile(), Mpq::attributesFile()
 		 */
-		const class MpqFile* createAttributesFile() throw (class Exception);
-		const class MpqFile* attributesFile() const;
+		const class Attributes* createAttributesFile(BOOST_SCOPED_ENUM(Attributes::ExtendedAttributes) extendedAttributes) throw (class Exception);
+		const class Attributes* attributesFile() const;
 
+		/**
+		 * The weak digital signature is a digital signature using Microsoft CryptoAPI. It is an implimentation
+		 * of the RSASSA-PKCS1-v1_5 digital signature protocol, using the MD5 hashing algorithm and a 512-bit (weak)
+		 * RSA key (for more information about this protocol, see the RSA Labs PKCS1 specification).
+		 * \sa hasStrongDigitalSignature()
+		 */
 		bool containsSignatureFile() const;
-		const class MpqFile* signatureFile() const;
+		const class Signature* signatureFile() const;
 
 		/**
 		 * Note that the MPQ archive has no information about file paths if there is no "(listfile)" file. This function is the best way to get your required file.
@@ -270,10 +287,8 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		bool removeFile(class MpqFile *&mpqFile);
 
 		class MpqFile* listfileFile();
-		class MpqFile* attributesFile();
-		class MpqFile* signatureFile();
-		class MpqFile* refreshAttributesFile();
-		class MpqFile* refreshSignatureFile();
+		class Attributes* attributesFile();
+		class Signature* signatureFile();
 
 		/**
 		 * \return Returns the size of the whole MPQ archive file.
@@ -285,11 +300,10 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		 */
 		std::streampos startPosition() const;
 		BOOST_SCOPED_ENUM(Format) format() const;
-		BOOST_SCOPED_ENUM(ExtendedAttributes) extendedAttributes() const;
 		/**
-		 * Usually the sector size has type int16 and is computed by using formula:
+		 * Usually the sector size has type uint16 and is computed by using formula:
 		 * pow(2, sectorSizeShift) * 512. Instead of computing it every time we save
-		 * the computed result and use int32.
+		 * the computed result and use uint32.
 		 * \sa Mpq::sectorSizeShift
 		 */
 		uint32 sectorSize() const;
@@ -298,16 +312,61 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		 * sqrt(sectorSize / 512)
 		 */
 		uint16 sectorSizeShift() const;
+		/**
+		 * The strong digital signature uses a simple proprietary implementation of RSA signing, using the SHA-1 hashing algorithm and a 2048-bit (strong) RSA key.
+		 * \sa containsSignatureFile()
+		 */
 		bool hasStrongDigitalSignature() const;
 		/**
-		 * \return Returns archive's strong digital signature with size of \ref Mpq::stringDigitalSignatureSize.
+		 * \return Returns archive's strong digital signature with size of \ref Mpq::strongDigitalSignatureSize.
 		 */
-		const char* strongDigitalSignature() const;
+		const StrongDigitalSignature& strongDigitalSignature() const;
+		/**
+		 * \return Returns true if there is no kind of signature or if stored signatures are correct.
+		 * \sa sign(), checkStrong(), strongDigitalSignature(), signatureFile()
+		 */
+		bool check(const CryptoPP::RSA::PrivateKey &strongPrivateKey, const CryptoPP::RSA::PrivateKey &weakPrivateKey) const;
+		/**
+		 * Updates all existing signatures.
+		 * \sa check(), signStrong(), strongDigitalSignature(), signatureFile()
+		 */
+		void sign(const CryptoPP::RSA::PublicKey &strongPublicKey, const CryptoPP::RSA::PublicKey &weakPublicKey);
+		/**
+		 * \param digest Digest is reset by a newly generated SHA1 digest with size of \ref CryptoPP::SHA1::DIGESTSIZE.
+		 */
+		void digest(SHA1Digest &digest) const;
+		/**
+		 * \param digest Digest is reset by a newly generated SHA1 digest with size of \ref CryptoPP::SHA1::DIGESTSIZE.
+		 * \throw Exception Throws an exception if there is no strong digital signature.
+		 */
+		void storedDigest(SHA1Digest &digest, const CryptoPP::RSA::PrivateKey &privateKey) const;
+		bool checkStrong(const CryptoPP::RSA::PrivateKey &privateKey) const;
+		/**
+		 * \param signature Signature is reset by a newly created strong signature with size of \ref strongDigitalSignatureSize which contains a 2048-bit (strong) RSA key encrypted SHA1 digest.
+		 * \sa digest()
+		 */
+		void signStrong(StrongDigitalSignature &signature, const CryptoPP::RSA::PublicKey &publicKey) const;
+		/**
+		 * Explicity signs the archive with a strong signature.
+		 * \return Returns the number of written bytes which usually should be \ref strongDigitalSignatureSize + signature header size.
+		 * \sa sign()
+		 */
+		std::streamsize signStrong(const CryptoPP::RSA::PublicKey &publicKey);
 		/**
 		 * When \ref Mpq::open() or \ref Mpq::create() is called archive is opened automatically until destructor or \ref Mpq::close() is called.
 		 * For interprocess communication a file lock object is created which can be used via \ref Mpq::fileLock().
 		 */
 		bool isOpen() const;
+		/**
+		 * \param storeSectors If this value becomes true all sector tables are loaded immediately in this function.
+		 * \note It is recommended to set this value to false when only extracting many files e. g. since it heavily reduces memory usage but slows down sector meta data access at later time (e. g. when reading file data again). Besides you should consider that you won't have access to the sector information via member functions of class \ref MpqFile at all when setting this value to false.
+		 */
+		void setStoreSectors(bool storeSectors) throw (Exception);
+		/**
+		 * \return If this function returns true, all sector meta data (offset, size etc.) is stored in heap which consumes much memory but increases sector data access performance. Sector data is loaded for all found non-encrypted files when opening the archive and their paths are not known. For encrypted files it is loaded when \ref findHash() detects the file's corresponding path as their sector table can only be read when knowing the file's path.
+		 * \note Default value for newly created archives is \ref defaultStoreSectors.
+		 */
+		bool storeSectors() const;
 		const boost::interprocess::file_lock& fileLock();
 		const Blocks& blocks() const;
 		const Hashes& hashes() const;
@@ -371,8 +430,8 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		 * Overwrite these member functions to return custom type-based objects if you want to extend their functionality.
 		 */
 		virtual class MpqFile* newFile(class Hash *hash) throw ();
-		virtual class Hash* newHash() throw ();
-		virtual class Block* newBlock() throw ();
+		virtual class Hash* newHash(uint32 index) throw ();
+		virtual class Block* newBlock(uint32 index) throw ();
 
 		/**
 		 * Does not check if archive is open.
@@ -380,8 +439,6 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		 */
 		void clear();
 
-		bool checkBlocks() const;
-		bool checkHashes() const;
 		/**
 		 * Empty space entries should have BlockOffset and BlockSize nonzero, and FileSize and Flags zero.
 		 */
@@ -411,11 +468,12 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		std::size_t m_size;
 		boost::filesystem::path m_path;
 		std::streampos m_startPosition;
+		std::streampos m_strongDigitalSignaturePosition; // position of strong digital signature in archive starting at its header ('NGIS')!
 		BOOST_SCOPED_ENUM(Format) m_format;
-		BOOST_SCOPED_ENUM(ExtendedAttributes) m_extendedAttributes;
 		uint32 m_sectorSize;
-		boost::scoped_array<char> m_strongDigitalSignature;
+		StrongDigitalSignature m_strongDigitalSignature;
 		bool m_isOpen;
+		bool m_storeSectors;
 		boost::interprocess::file_lock m_fileLock;
 		Blocks m_blocks;
 		Hashes m_hashes;
@@ -435,12 +493,13 @@ inline bool Mpq::hasStrongDigitalSignature(istream &istream)
 	return result;
 }
 
-inline std::streamsize Mpq::strongDigitalSignature(istream &istream, char signature[Mpq::strongDigitalSignatureSize]) throw (class Exception)
+inline std::streamsize Mpq::strongDigitalSignature(istream &istream, StrongDigitalSignature &signature) throw (class Exception)
 {
-	boost::scoped_ptr<StrongDigitalSignature> sig(new StrongDigitalSignature);
+	istream.seekg(sizeof(uint32), std::ios::cur); // skip header
+	StrongDigitalSignature sig(new char[strongDigitalSignatureSize]);
 	std::streamsize size = 0;
-	wc3lib::read(istream, *sig.get(), size);
-	memcpy(signature, sig->signature, Mpq::strongDigitalSignatureSize);
+	wc3lib::read(istream, sig[0], size, strongDigitalSignatureSize);
+	signature.swap(sig);
 
 	return size;
 }
@@ -489,27 +548,6 @@ inline bool operator!=(const class Mpq &mpq1, const class Mpq &mpq2)
 	return mpq1.size() != mpq2.size();
 }
 
-inline bool Mpq::check() const
-{
-	/// @todo Check format, size, extended attributes and signature.
-	if (this->extendedAttributes() != Mpq::ExtendedAttributes::None && !this->containsAttributesFile())
-		return false;
-
-	if (!this->checkBlocks())
-		return false;
-
-	if (!this->checkHashes())
-		return false;
-
-	return true;
-}
-
-/// @todo Fix corrupted entries if possible.
-inline bool Mpq::fix() const
-{
-	return false;
-}
-
 inline bool Mpq::containsListfileFile() const
 {
 	return this->listfileFile() != 0;
@@ -539,7 +577,7 @@ inline const class MpqFile* Mpq::createListfileFile() throw (class Exception)
 
 inline const class MpqFile* Mpq::listfileFile() const
 {
-	return this->findFile("(listfile)", MpqFile::Locale::Neutral, MpqFile::Platform::Default);
+	return const_cast<Mpq*>(this)->listfileFile();
 }
 
 
@@ -548,41 +586,27 @@ inline bool Mpq::containsAttributesFile() const
 	return this->attributesFile() != 0;
 }
 
-inline const class MpqFile* Mpq::createAttributesFile() throw (class Exception)
+inline const class Attributes* Mpq::createAttributesFile(BOOST_SCOPED_ENUM(Attributes::ExtendedAttributes) extendedAttributes) throw (class Exception)
 {
 	if (this->containsAttributesFile())
-		return 0;
+		return attributesFile();
 
-	struct ExtendedAttributesHeader extendedAttributesHeader;
-	extendedAttributesHeader.version = Mpq::extendedAttributesVersion;
-	extendedAttributesHeader.attributesPresent = this->extendedAttributes();
-	stringstream stream;
-	stream.write(reinterpret_cast<byte*>(&extendedAttributesHeader), sizeof(extendedAttributesHeader));
+	Hash *hash = firstEmptyHash();
+	hash->hashData().setLocale(MpqFile::Locale::Neutral);
+	hash->hashData().setPlatform(MpqFile::Platform::Default);
+	hash->changePath("(attributes)");
+	// TODO get block etc. add file ...
+	FilePtr file(new Attributes(this, hash, extendedAttributes));
+	this->m_files.get<0>().push_back(file);
+	((Attributes*)file.get())->refresh();
+	((Attributes*)file.get())->writeData();
 
-	if (this->extendedAttributes() & Mpq::ExtendedAttributes::FileCrc32s)
-	{
-		BOOST_FOREACH(Blocks::left_const_reference reference, this->m_blocks.left)
-			stream.write(reinterpret_cast<const byte*>(&reference.second->m_crc32), sizeof(reference.second->m_crc32));
-	}
-
-	if (this->extendedAttributes() & Mpq::ExtendedAttributes::FileTimeStamps)
-	{
-		BOOST_FOREACH(Blocks::left_const_reference reference, this->m_blocks.left)
-			stream.write(reinterpret_cast<const byte*>(&reference.second->m_fileTime), sizeof(reference.second->m_fileTime));
-	}
-
-	if (this->extendedAttributes() & Mpq::ExtendedAttributes::FileMd5s)
-	{
-		BOOST_FOREACH(Blocks::left_const_reference reference, this->m_blocks.left)
-			stream.write(reinterpret_cast<const byte*>(&reference.second->m_md5), sizeof(reference.second->m_md5));
-	}
-
-	return this->addFile("(attributes)", MpqFile::Locale::Neutral, MpqFile::Platform::Default, &stream);
+	return (Attributes*)file.get();
 }
 
-inline const class MpqFile* Mpq::attributesFile() const
+inline const class Attributes* Mpq::attributesFile() const
 {
-	return this->findFile("(attributes)");
+	return const_cast<Mpq*>(this)->attributesFile();
 }
 
 inline bool Mpq::containsSignatureFile() const
@@ -590,9 +614,9 @@ inline bool Mpq::containsSignatureFile() const
 	return this->signatureFile() != 0;
 }
 
-inline const class MpqFile* Mpq::signatureFile() const
+inline const class Signature* Mpq::signatureFile() const
 {
-	return this->findFile("(signature)");
+	return const_cast<Mpq*>(this)->signatureFile();
 }
 
 inline std::size_t Mpq::size() const
@@ -615,11 +639,6 @@ inline BOOST_SCOPED_ENUM(Mpq::Format) Mpq::format() const
 	return this->m_format;
 }
 
-inline BOOST_SCOPED_ENUM(Mpq::ExtendedAttributes) Mpq::extendedAttributes() const
-{
-	return this->m_extendedAttributes;
-}
-
 inline uint32 Mpq::sectorSize() const
 {
 	return this->m_sectorSize;
@@ -635,14 +654,27 @@ inline bool Mpq::hasStrongDigitalSignature() const
 	return this->m_strongDigitalSignature.get() != 0;
 }
 
-inline const char* Mpq::strongDigitalSignature() const
+inline const Mpq::StrongDigitalSignature& Mpq::strongDigitalSignature() const
 {
-	return this->m_strongDigitalSignature.get();
+	return this->m_strongDigitalSignature;
 }
 
 inline bool Mpq::isOpen() const
 {
 	return this->m_isOpen;
+}
+
+inline void Mpq::setStoreSectors(bool storeSectors) throw (Exception)
+{
+	m_storeSectors = storeSectors;
+
+	BOOST_FOREACH(const FilePtr &ptr, files())
+		ptr->read(); // read sector table
+}
+
+inline bool Mpq::storeSectors() const
+{
+	return this->m_storeSectors;
 }
 
 inline const boost::interprocess::file_lock& Mpq::fileLock()
@@ -669,8 +701,8 @@ inline Mpq::LargeSizeType Mpq::entireBlockSize() const
 {
 	Mpq::LargeSizeType result = 0;
 
-	BOOST_FOREACH(Blocks::left_const_reference block, this->m_blocks.left)
-		result += block.second->m_blockSize;
+	BOOST_FOREACH(const BlockPtr &block, this->blocks())
+		result += block->blockSize();
 
 	return result;
 }
@@ -679,10 +711,10 @@ inline Mpq::LargeSizeType Mpq::entireUsedBlockSize() const
 {
 	Mpq::LargeSizeType result = 0;
 
-	BOOST_FOREACH(Blocks::left_const_reference block, this->m_blocks.left)
+	BOOST_FOREACH(const BlockPtr &block, this->blocks())
 	{
-		if (!block.second->empty())
-			result += block.second->blockSize();
+		if (!block->empty())
+			result += block->blockSize();
 	}
 
 	return result;
@@ -692,10 +724,10 @@ inline Mpq::LargeSizeType Mpq::entireEmptyBlockSize() const
 {
 	Mpq::LargeSizeType result = 0;
 
-	BOOST_FOREACH(Blocks::left_const_reference block, this->m_blocks.left)
+	BOOST_FOREACH(const BlockPtr &block, this->blocks())
 	{
-		if (block.second->empty())
-			result += block.second->blockSize();
+		if (block->empty())
+			result += block->blockSize();
 	}
 
 	return result;
@@ -705,11 +737,11 @@ inline Mpq::LargeSizeType Mpq::entireFileSize() const
 {
 	Mpq::LargeSizeType result = 0;
 
-	BOOST_FOREACH(Blocks::left_const_reference block, this->m_blocks.left)
+	BOOST_FOREACH(const BlockPtr &block, this->blocks())
 	{
 		// usually size should be 0 if it's not a file but anyway we should check
-		if (block.second->flags() & Block::Flags::IsFile)
-			result += block.second->fileSize();
+		if (block->flags() & Block::Flags::IsFile)
+			result += block->fileSize();
 	}
 
 	return result;
@@ -717,54 +749,25 @@ inline Mpq::LargeSizeType Mpq::entireFileSize() const
 
 inline class MpqFile* Mpq::listfileFile()
 {
-	return const_cast<class MpqFile*>(const_cast<const class Mpq*>(this)->listfileFile());
+	return this->findFile("(listfile)");
 }
 
-inline class MpqFile* Mpq::attributesFile()
+inline class Attributes* Mpq::attributesFile()
 {
-	return const_cast<class MpqFile*>(const_cast<const class Mpq*>(this)->attributesFile());
+	return boost::polymorphic_cast<class Attributes*>(this->findFile("(attributes)"));
 }
 
-inline class MpqFile* Mpq::signatureFile()
+inline class Signature* Mpq::signatureFile()
 {
-	return const_cast<class MpqFile*>(const_cast<const class Mpq*>(this)->signatureFile());
-}
-
-inline bool Mpq::checkBlocks() const
-{
-	BOOST_FOREACH(Blocks::left_const_reference reference, this->m_blocks.left)
-	{
-		if (!reference.second->check())
-			return false;
-	}
-
-	return true;
-}
-
-inline bool Mpq::checkHashes() const
-{
-	BOOST_FOREACH(const HashPtr hash, this->m_hashes)
-	{
-		if (!hash->check())
-			return false;
-
-		BOOST_FOREACH(const HashPtr hash2, this->m_hashes)
-		{
-			/// @todo same block, ok?
-			if (hash != hash2 && !hash->empty() && !hash->deleted() && hash->block() == hash2->block())
-				return false;
-		}
-	}
-
-	return true;
+	return boost::polymorphic_cast<class Signature*>(this->findFile("(signature)"));
 }
 
 inline class Block* Mpq::firstEmptyBlock() const
 {
-	BOOST_FOREACH(Blocks::left_const_reference value, this->m_blocks.left)
+	BOOST_FOREACH(const BlockPtr &block, this->blocks())
 	{
-		if (value.second->empty())
-			return value.second.get();
+		if (block->empty())
+			return block.get();
 	}
 
 	return 0;
@@ -772,10 +775,10 @@ inline class Block* Mpq::firstEmptyBlock() const
 
 inline class Block* Mpq::firstUnusedBlock() const
 {
-	BOOST_FOREACH(Blocks::left_const_reference value, this->m_blocks.left)
+	BOOST_FOREACH(const BlockPtr &block, this->blocks())
 	{
-		if (value.second->unused())
-			return value.second.get();
+		if (block->unused())
+			return block.get();
 	}
 
 	return 0;
@@ -786,13 +789,13 @@ inline class Block* Mpq::lastOffsetBlock() const
 	uint64 offset = 0;
 	class Block *result = 0;
 
-	BOOST_FOREACH(Blocks::left_const_reference value, this->m_blocks.left)
+	BOOST_FOREACH(const BlockPtr &block, this->blocks())
 	{
-		uint64 newOffset = value.second->largeOffset();
+		const uint64 newOffset = block->largeOffset();
 
 		if (newOffset > offset)
 		{
-			result = value.second.get();
+			result = block.get();
 			offset = newOffset;
 		}
 	}
@@ -803,7 +806,7 @@ inline class Block* Mpq::lastOffsetBlock() const
 
 inline class Hash* Mpq::firstEmptyHash() const
 {
-	BOOST_FOREACH(HashPtr hash, this->m_hashes)
+	BOOST_FOREACH(const HashPtr &hash, this->hashes())
 	{
 		if (hash->empty())
 			return hash.get();
@@ -814,7 +817,7 @@ inline class Hash* Mpq::firstEmptyHash() const
 
 inline class Hash* Mpq::firstDeletedHash() const
 {
-	BOOST_FOREACH(HashPtr hash, this->m_hashes)
+	BOOST_FOREACH(const HashPtr &hash, this->hashes())
 	{
 		if (hash->deleted())
 			return hash.get();

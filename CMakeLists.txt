@@ -5,6 +5,7 @@ project(wc3lib)
 # The version number.
 set(wc3lib_VERSION_MAJOR 0)
 set(wc3lib_VERSION_MINOR 1)
+set(wc3lib_VERSION "${wc3lib_VERSION_MAJOR}.${wc3lib_VERSION_MINOR}")
 
 # configure a header file to pass some of the CMake settings
 # to the source code

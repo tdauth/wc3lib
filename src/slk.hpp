@@ -21,7 +21,7 @@
 #ifndef WC3LIB_SLK_HPP
 #define WC3LIB_SLK_HPP
 
-#error Slk module is not usable yet!
+#error SLK module is deprecated!
 
 #include "slk/data.hpp"
 #include "slk/dataentry.hpp"

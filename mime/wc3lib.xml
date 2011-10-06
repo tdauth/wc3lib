@@ -57,11 +57,6 @@
 		<comment xml:lang="en">Blizzard Model</comment>
 		<comment xml:lang="de">Blizzard-Modell</comment>
 		<generic-icon name="x-office-document"/>
-		<!--
-		<magic priority="50">
-		<match type="string" value="W3N" offset="0"/>
-		</magic>
-		-->
 		<glob pattern="*.mdl"/>
 	</mime-type>
 
@@ -103,5 +98,159 @@
 			<match type="string" value="Warcraft III recorded game\0x1A\0" offset="0"/>
 		</magic>
 		<glob pattern="*.w3g"/>
+	</mime-type>
+
+	<mime-type type="text/x-jass">
+		<comment xml:lang="en">JASS script</comment>
+		<comment xml:lang="de">JASS-Skript</comment>
+		<generic-icon name="x-office-document"/>
+		<glob pattern="*.j"/>
+		<glob pattern="*.ai"/>
+	</mime-type>
+
+	<mime-type type="application/x-w3e">
+		<comment xml:lang="en">Warcraft III Environment</comment>
+		<comment xml:lang="de">Warcraft III-Umgebung</comment>
+		<generic-icon name="x-office-document"/>
+		<magic priority="50">
+			<match type="string" value="W3E!" offset="0"/>
+		</magic>
+		<glob pattern="*.w3e"/>
+	</mime-type>
+
+	<mime-type type="application/x-shd">
+		<comment xml:lang="en">Warcraft III Shadow</comment>
+		<comment xml:lang="de">Warcraft III-Schatten</comment>
+		<generic-icon name="x-office-document"/>
+		<glob pattern="*.shd"/>
+	</mime-type>
+
+	<mime-type type="application/x-wpm">
+		<comment xml:lang="en">Warcraft III Pathmap</comment>
+		<comment xml:lang="de">Warcraft III-Verlaufkarte</comment>
+		<generic-icon name="x-office-document"/>
+		<magic priority="50">
+			<match type="string" value="MP3W" offset="0"/>
+		</magic>
+		<glob pattern="*.wpm"/>
+	</mime-type>
+
+	<mime-type type="application/x-doo">
+		<comment xml:lang="en">Warcraft III Doodads, Units and Items</comment>
+		<comment xml:lang="de">Warcraft III-Doodads, -Einheiten und -Gegenstände</comment>
+		<generic-icon name="x-office-document"/>
+		<magic priority="50">
+			<match type="string" value="W3do" offset="0"/>
+		</magic>
+		<glob pattern="*.doo"/>
+	</mime-type>
+
+	<mime-type type="application/x-w3i">
+		<comment xml:lang="en">Warcraft III Info</comment>
+		<comment xml:lang="de">Warcraft III-Info</comment>
+		<generic-icon name="x-office-document"/>
+		<glob pattern="*.w3i"/>
+	</mime-type>
+
+	<mime-type type="text/x-wts">
+		<comment xml:lang="en">Warcraft III Trigger Strings</comment>
+		<comment xml:lang="de">Warcraft III-Auslöser-Strings</comment>
+		<generic-icon name="x-office-document"/>
+		<glob pattern="*.wts"/>
+	</mime-type>
+
+	<mime-type type="application/x-mmp">
+		<comment xml:lang="en">Warcraft III Menu Minimap</comment>
+		<comment xml:lang="de">Warcraft III-Menüminikarte</comment>
+		<generic-icon name="x-office-document"/>
+		<glob pattern="*.mmp"/>
+	</mime-type>
+
+	<mime-type type="application/x-w3u">
+		<comment xml:lang="en">Warcraft III Objects</comment>
+		<comment xml:lang="de">Warcraft III-Objekte</comment>
+		<generic-icon name="x-office-document"/>
+		<glob pattern="*.w3u"/>
+		<glob pattern="*.w3t"/>
+		<glob pattern="*.w3b"/>
+		<glob pattern="*.w3d"/>
+		<glob pattern="*.w3a"/>
+		<glob pattern="*.w3h"/>
+		<glob pattern="*.w3q"/>
+	</mime-type>
+
+	<mime-type type="application/x-w3o">
+		<comment xml:lang="en">Warcraft III Objects Collection</comment>
+		<comment xml:lang="de">Warcraft III-Objektesammlung</comment>
+		<generic-icon name="x-office-document"/>
+		<glob pattern="*.w3o"/>
+	</mime-type>
+
+	<mime-type type="application/x-wtg">
+		<comment xml:lang="en">Warcraft III Triggers</comment>
+		<comment xml:lang="de">Warcraft III-Auslöser</comment>
+		<generic-icon name="x-office-document"/>
+		<magic priority="50">
+			<match type="string" value="WTG!" offset="0"/>
+		</magic>
+		<glob pattern="*.wtg"/>
+	</mime-type>
+
+	<mime-type type="application/x-w3c">
+		<comment xml:lang="en">Warcraft III Cameras</comment>
+		<comment xml:lang="de">Warcraft III-Kameras</comment>
+		<generic-icon name="x-office-document"/>
+		<glob pattern="*.w3c"/>
+	</mime-type>
+
+	<mime-type type="application/x-w3r">
+		<comment xml:lang="en">Warcraft III Rects</comment>
+		<comment xml:lang="de">Warcraft III-Gebiete</comment>
+		<generic-icon name="x-office-document"/>
+		<glob pattern="*.w3r"/>
+	</mime-type>
+
+	<mime-type type="application/x-w3s">
+		<comment xml:lang="en">Warcraft III Sounds</comment>
+		<comment xml:lang="de">Warcraft III-Geräusche</comment>
+		<generic-icon name="x-office-document"/>
+		<glob pattern="*.w3s"/>
+	</mime-type>
+
+	<mime-type type="application/x-wct">
+		<comment xml:lang="en">Warcraft III Custom Text Triggers</comment>
+		<comment xml:lang="de">Warcraft III-eigener-Text-Auslöser</comment>
+		<generic-icon name="x-office-document"/>
+		<glob pattern="*.wct"/>
+	</mime-type>
+
+	<mime-type type="application/x-imp">
+		<comment xml:lang="en">Warcraft III Imports</comment>
+		<comment xml:lang="de">Warcraft III-Importe</comment>
+		<generic-icon name="x-office-document"/>
+		<glob pattern="*.imp"/>
+	</mime-type>
+
+	<mime-type type="application/x-wai">
+		<comment xml:lang="en">Warcraft III AI</comment>
+		<comment xml:lang="de">Warcraft III-KI</comment>
+		<generic-icon name="x-office-document"/>
+		<glob pattern="*.wai"/>
+	</mime-type>
+
+	<mime-type type="application/x-wst">
+		<comment xml:lang="en">Warcraft III Global Settings</comment>
+		<comment xml:lang="de">Warcraft III-Globaleinstellungen</comment>
+		<generic-icon name="x-office-document"/>
+		<glob pattern="war3mapMisc.txt"/>
+		<glob pattern="war3mapSkin.txt"/>
+		<glob pattern="war3mapExtra.txt"/>
+	</mime-type>
+
+	<mime-type type="application/x-w3f">
+		<comment xml:lang="en">Warcraft III Campaign Info</comment>
+		<comment xml:lang="de">Warcraft III-Kampagneninfo</comment>
+		<generic-icon name="x-office-document"/>
+		<glob pattern="*.w3f"/>
 	</mime-type>
 </mime-info>

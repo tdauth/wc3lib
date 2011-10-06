@@ -21,4 +21,6 @@
 #ifndef WC3LIB_VM_HPP
 #define WC3LIB_VM_HPP
 
+#error VM module is deprecated!
+
 #endif

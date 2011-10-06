@@ -112,20 +112,17 @@ std::streamsize W3m::readHeader(InputStream &istream) throw (class Exception)
 std::streamsize W3m::readSignature(InputStream &istream) throw (class Exception)
 {
 	std::streamsize result = 0;
-	this->m_hasSignature = false;
 
 	if (!istream.eof())
 	{
 		char8 signId[4];
-		istream.read(signId, sizeof(signId));
-		result += istream.gcount();
+		wc3lib::read(istream, signId, result, 4);
 
 		// footer is optional!
 		if (memcmp(signId, "NGIS", sizeof(signId)) == 0)
 		{
-			istream.read(this->m_authentification, sizeof(this->m_authentification));
-			result += istream.gcount();
-			this->m_hasSignature = true;
+			m_signature.reset(new char8[signatureSize]);
+			wc3lib::read(istream, m_signature[0], result, signatureSize);
 		}
 	}
 

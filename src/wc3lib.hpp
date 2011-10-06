@@ -32,10 +32,10 @@
 * \author Tamino Dauth <tamino@cdauth.eu>
 *
 * \section introductionsection Introduction
-* This is the API reference and documentation of the wc3lib project. wc3lib is an abbreviation which means "Warcraft 3 Library".
+* This is the API reference and documentation of the <a url="https://gitorious.org/wc3lib">wc3lib</a> project. wc3lib is an abbreviation which means "Warcraft III Library".
 * It's a collection of varios libraries which allow programmers to use Blizzard's customly developed formats with an abstract C++ interface.
 * All implementations are free and mainly under the GPLv2 license but there's some external code which is mostly under some similar license as well.
-* As mentioned above the wc3lib is split up into some different modules. Each module consists of a single library which supports one of Blizzard's formats (except modules "Applications" and "Editor" which are extensions of the default modules).
+* As mentioned above the wc3lib is split up into some different modules. Each module consists of a single library which supports one of <a url="http://blizzard.com/">Blizzard's</a> formats (except modules "app" and "editor" which are extensions of the default modules).
 * To use the whole library you could simply include file \ref "wc3lib.hpp" and link your program with library "wc3lib".
 * Another probably faster way is to link it with the required libraries only.
 * Therefore you can include all header files of your required modules since each module has one.
