@@ -28,9 +28,6 @@
 #include <boost/program_options.hpp>
 
 #include <boost/timer.hpp>
-#ifdef DEBUG
-#include <StormLib/stormlib/StormLib.h>
-#endif
 
 using namespace wc3lib;
 using namespace wc3lib::mpq;
@@ -161,8 +158,8 @@ std::string archiveInfo(const Mpq &archive, bool humanReadable, bool decimal)
 	std::stringstream sstream;
 	sstream << boost::format(_("%1%\nSize: %2%\nHashes: %3%\nBlocks: %4%\nFiles: %5%\nFormat %6%\nUsed block space: %7%\nUnused block space: %8%\nSector size: %9%\nEntire block size: %10%\nEntire file size: %11%\nHas (listfile) file: %12%\nHas (attributes) file: %13%\nHas (signature) file: %14%\nHas strong digital signature: %15%\n")) % archive.path() % sizeString(archive.size(), humanReadable, decimal) % archive.hashes().size() % archive.blocks().size() % archive.files().size() %  formatString(archive.format()) % sizeString(archive.entireUsedBlockSize(), humanReadable, decimal) % sizeString(archive.entireEmptyBlockSize(), humanReadable, decimal) % sizeString(archive.entireBlockSize(), humanReadable, decimal) % sizeString(archive.entireFileSize(), humanReadable, decimal) % boolString(archive.containsListfileFile()) % boolString(archive.containsAttributesFile()) % boolString(archive.containsSignatureFile()) % boolString(archive.hasStrongDigitalSignature());
 
-	if (archive.extendedAttributes() != Mpq::ExtendedAttributes::None)
-		sstream << boost::format(_("Extended attributes:\nHas CRC32s: %1%\nHas time stamps: %2%\nHas MD5s: %3%")) % boolString(archive.extendedAttributes() & Mpq::ExtendedAttributes::FileCrc32s) % boolString(archive.extendedAttributes() & Mpq::ExtendedAttributes::FileTimeStamps) % boolString(archive.extendedAttributes() & Mpq::ExtendedAttributes::FileMd5s);
+	if (archive.containsAttributesFile() && archive.attributesFile()->extendedAttributes() != Attributes::ExtendedAttributes::None)
+		sstream << boost::format(_("Extended attributes:\nHas CRC32s: %1%\nHas time stamps: %2%\nHas MD5s: %3%")) % boolString(archive.attributesFile()->extendedAttributes() & Attributes::ExtendedAttributes::FileCrc32s) % boolString(archive.attributesFile()->extendedAttributes() & Attributes::ExtendedAttributes::FileTimeStamps) % boolString(archive.attributesFile()->extendedAttributes() & Attributes::ExtendedAttributes::FileMd5s);
 
 	return sstream.str();
 }
@@ -240,31 +237,6 @@ const boost::program_options::variables_map &vm)
 	mpq::ofstream infoOut(entryPath.string() + "info", std::ios::out);
 	infoOut << fileInfo(*file, vm.count("human-readable"), vm.count("decimal"));
 	// END TEST
-
-	// StormLib information for comparison
-	HANDLE archive;
-
-	if (SFileOpenArchive(mpq.path().string().c_str(), 0, 0, &archive))
-	{
-		HANDLE file;
-		SFILE_FIND_DATA findData;
-
-		file = SFileFindFirstFile(
-		archive,
-		entry.c_str(),              // Search mask
-		&findData, // Pointer to the search result
-		0
-		);
-
-		if (file)
-		{
-			DWORD_PTR position = SFileGetFileInfo(
-			file,                // Handle to a file or archive
-			SFILE_INFO_POSITION);
-			mpq::ofstream sinfoOut(entryPath.string() + "sinfo", std::ios::out);
-			sinfoOut << boost::format(_("Position: %1%")) % position << std::endl;
-		}
-	}
 #endif
 }
 
@@ -318,7 +290,6 @@ int main(int argc, char *argv[])
 	("extract,get,x", _("Extract files from MPQ archives. If no files are specified via -f all files are extracted from given MPQ archives."))
 	("delete", _("Deletes files from MPQ archives."))
 	("info,i", _("Shows some basic information about all read MPQ archives. If any files are specified via -f their information will be shown as well."))
-	("benchmark,b", _("Compares various functionalities of wc3lib and StormLib."))
 
 	// input
 	("archives,A", boost::program_options::value<Strings>(&archiveStrings), _("Expected MPQ archives."))
@@ -492,74 +463,6 @@ int main(int argc, char *argv[])
 
 			BOOST_FOREACH(const Mpq::FilePtr mpqFile, mpq->files().get<0>())
 				std::cout << mpqFile->path() << std::endl;
-		}
-	}
-
-	if (vm.count("benchmark"))
-	{
-		BOOST_FOREACH(const Paths::reference path, archivePaths)
-		{
-			if (!boost::filesystem::is_regular_file(path))
-			{
-				std::cerr << boost::format(_("File \"%1%\" does not seem to be a regular file and will be skipped.")) % path.string() << std::endl;
-
-				continue;
-			}
-
-			boost::scoped_ptr<Mpq> mpq(new Mpq());
-
-			std::cout << _("Detected debug mode.\nStarting benchmark (wc3lib vs. StormLib)") << std::endl;
-			std::cout << _("Opening MPQ archive (wc3lib):") << std::endl;
-			boost::timer timer;
-
-			try
-			{
-				std::streamsize size = mpq->open(path);
-			}
-			catch (wc3lib::Exception &exception)
-			{
-				std::cerr << boost::format(_("Error occured while opening file \"%1%\": \"%2%\"")) % path.string() % exception.what() << std::endl;
-
-				continue;
-			}
-
-			std::cout << boost::format(_("Result: %1%s")) % timer.elapsed() << std::endl;
-
-			// TEST OUTPUT
-			//std::cout << "License:\n" << *mpq->findFile("License.txt") << std::endl;
-
-			// END TEST
-
-
-			std::cout << _("Closing MPQ archive (wc3lib):") << std::endl;
-			timer.restart();
-			mpq->close();
-			std::cout << boost::format(_("Result: %1%s")) % timer.elapsed() << std::endl;
-/// \todo Add runtime linking support by using LibraryLoader.
-#ifdef DEBUG
-			std::cout << _("Opening MPQ archive (StormLib - read only):") << std::endl;
-			HANDLE stormLibArchive;
-			timer.restart();
-
-			if (SFileOpenArchive(
-				path.string().c_str(),           // Archive file name
-				0,      // Archive priority
-				0,            // Open flags, TODO MPQ_OPEN_READ_ONLY?
-				&stormLibArchive                    // Pointer to result HANDLE
-				))
-			{
-				std::cout << boost::format(_("Result: %1%s")) % timer.elapsed() << std::endl;
-				std::cout << _("Closing MPQ archive (StormLib):") << std::endl;
-				timer.restart();
-				SFileCloseArchive(stormLibArchive);
-				std::cout << boost::format(_("Result: %1%s")) % timer.elapsed() << std::endl;
-			}
-			else
-				std::cerr << boost::format(_("Failed to open MPQ archive \"%1%\" by using StormLib.")) % path.string() << std::endl;
-
-#else
-			std::cerr << _("Since program has been compiled without debug option, StormLib cannot be used.") << std::endl;
-#endif
 		}
 	}
 

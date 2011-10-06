@@ -22,11 +22,13 @@
 #define WC3LIB_MPQ_HPP
 
 #include "mpq/algorithm.hpp"
+#include "mpq/attributes.hpp"
 #include "mpq/block.hpp"
 #include "mpq/hash.hpp"
 #include "mpq/mpq.hpp"
 #include "mpq/mpqfile.hpp"
 #include "mpq/platform.hpp"
 #include "mpq/sector.hpp"
+#include "mpq/signature.hpp"
 
 #endif

@@ -15,6 +15,7 @@ jpeg 8b (header only - runtime loading)
 for MPQ flag only:
 bzip2 1.0.6-r2 (Boost support)
 zlib 1.2.5-r2 (Boost support)
+crypto++ 5.6.1-r1 (RSA encryption, SHA1 and MD5 calculation)
 
 for EDITOR/PLUGINS flag only:
 qt-core 4.7.2-r1

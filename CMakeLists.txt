@@ -205,12 +205,35 @@ endif ()
 
 find_package(Gettext REQUIRED)
 
-# Both libraries are required by Boost "iostreams" component which is used for the "mpq" module.
+# Both compression libraries are required by Boost "iostreams" component which is used for the "mpq" module.
+# Crypto++ library is required for RSA encryption and SHA1 digest and MD5 checksum calculation (Boost does only support CRC).
 if (MPQ)
 	find_package(BZip2 REQUIRED)
 	include_directories(${BZIP2_INCLUDE_DIR})
 	find_package(ZLIB REQUIRED)
 	include_directories(${ZLIB_INCLUDE_DIRS})
+
+	set(CRYPTOPP_INCLUDE_DIRS "${CMAKE_SYSTEM_INCLUDE_PATH}")
+	set(CRYPTOPP_LIB_DIR "${CMAKE_SYSTEM_LIBRARY_PATH}")
+
+	find_path(tmp "rsa.h" "${CRYPTOPP_INCLUDE_DIRS}/crypto++")
+
+	if (NOT (${tmp} EQUAL "tmp-NOTFOUND"))
+		include_directories(${CRYPTOPP_INCLUDE_DIRS})
+		link_directories(${CRYPTOPP_LIB_DIR})
+		find_library(CRYPTOPP_LIB NAMES crypto++ REQUIRED "${CRYPTOPP_LIB_DIR}")
+
+		if (NOT (CRYPTOPP_LIB EQUAL "CRYPTOPP_LIB-NOTFOUND"))
+			set(CRYPTOPP_LIBRARIES ${CRYPTOPP_LIB})
+			message(STATUS "Crypto++ libraries: ${CRYPTOPP_LIBRARIES}")
+			set(CRYPTOPP_FOUND 1)
+		else ()
+			set(CRYPTOPP_FOUND 0)
+		endif ()
+	else ()
+		message(FATAL_ERROR "\"rsa.h\" could not be found in paths: ${CRYPTOPP_INCLUDE_DIRS}.")
+	endif ()
+
 endif ()
 
 # Boost

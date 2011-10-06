@@ -3,6 +3,8 @@
 * mpq: Dropped obsolete parameters of function Mpq::create().
 * mpq: Added class Signature.
 * mpq: Improved versions of different signing and checking functions (strong and weak signatures are more separated now).
+* Dropped all remaining StormLib dependencies.
+* Added CMake instructions for getting Crypto++ library (new dependency).
 
 2011-10-01 Tamino Dauth <tamino@cdauth.eu>
 * mpq: Added class Attributes.

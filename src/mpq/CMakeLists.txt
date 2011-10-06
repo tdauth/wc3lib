@@ -5,7 +5,7 @@ if (MPQ)
 	WC3LIB_GET_SRC(wc3lib_MPQ_SRC)
 
 	add_library(wc3libmpq SHARED ${wc3lib_MPQ_SRC})
-	target_link_libraries(wc3libmpq wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${BZIP2_LIBRARIES} ${ZLIB_LIBRARIES} huffman wave pklib)
+	target_link_libraries(wc3libmpq wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${BZIP2_LIBRARIES} ${ZLIB_LIBRARIES} ${CRYPTOPP_LIBRARIES} huffman wave pklib)
 
 	# install
 

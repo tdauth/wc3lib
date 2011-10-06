@@ -7,10 +7,10 @@
 * mpq: Add new compression types support (based on StormLib) which probably requires some new library dependencies.
 
 2011-10-01 Tamino Dauth <tamino@cdauth.eu>
-* mpq: Consider refreshing extended attributes stored in class Attributes when modifying file data via MpqFile::writeData() etc.
+* mpq: Consider refreshing extended attributes stored in class Attributes when modifying file data via MpqFile::writeData() etc. (deprecated? would decrease performance massively especially when considering for ALL sector changes).
 * mpq: Add classes Listfile and Signature for corresponding files (such as Attributes).
-* mpq: Store signatures on heap/compare to map::W3m signature.
-* mpq: Use latest version of StormLib (with external libraries if possible! 7zip for lzma etc.).
+* FIXED: mpq: Store signatures on heap/compare to map::W3m signature.
+* DEPRECATED: mpq: Use latest version of StormLib (with external libraries if possible! 7zip for lzma etc.).
 * mpq: Implement signing features (add keys of Blizzard).
 
 2011-09-27 Tamino Dauth <tamino@cdauth.eu>
@@ -32,7 +32,7 @@
 * FIXED: mpq: (listfile) has imploded sectors although it's an unimploded file. When uncompressing those sectors (as for imploeded files) data seems to be cut. Therefore it must be another compression method. Use another working MPQ API/editor to reproduce (listfile)'s proper sector data.
 
 2011-09-15 Tamino Dauth <tamino@cdauth.eu>
-* app: Revise "wc3converter" completely please: BLP to BLP, MPQ to MPQ, MDX to MDL, W3M to W3X to W3N and add support for various format specific options.
+* app: Revise "wc3converter" completely please: BLP to BLP, MPQ to MPQ, MDX to MDL, W3M to W3X to W3N and add support for various format specific options (and support file magic number and extension detection please).
 * app: Application "editor" should load it corresponding wc3editor.mo file!
 
 2011-09-14 Tamino Dauth <tamino@cdauth.eu>
