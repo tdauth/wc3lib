@@ -84,7 +84,6 @@ std::streamsize Mpq::create(const boost::filesystem::path &path, bool overwriteE
 	}
 
 	this->m_fileLock.swap(fileLock);
-	this->m_size = boost::filesystem::file_size(path);
 	this->m_path = path;
 	this->m_format = format;
 	this->m_sectorSize = sectorSize;
@@ -101,12 +100,13 @@ std::streamsize Mpq::create(const boost::filesystem::path &path, bool overwriteE
 		throw exception;
 	}
 
+	this->m_size = boost::filesystem::file_size(path);
 	this->m_isOpen = true;
 
 	return streamSize;
 }
 
-std::streamsize Mpq::open(const boost::filesystem::path &path, const MpqFile::ListfileEntries &listfileEntries) throw (class Exception)
+std::streamsize Mpq::open(const boost::filesystem::path &path, const Listfile::Entries &listfileEntries) throw (class Exception)
 {
 	this->close();
 
@@ -149,7 +149,7 @@ void Mpq::close()
 	this->clear();
 }
 
-std::streamsize Mpq::read(InputStream &stream, const MpqFile::ListfileEntries &listfileEntries) throw (class Exception)
+std::streamsize Mpq::read(InputStream &stream, const Listfile::Entries &listfileEntries) throw (class Exception)
 {
 	// find header structure by using file key
 	uint32 ident;
@@ -288,24 +288,21 @@ std::streamsize Mpq::read(InputStream &stream, const MpqFile::ListfileEntries &l
 	if (containsAttributesFile())
 		attributesFile()->readData();
 
-	MpqFile::ListfileEntries entries;
+	Listfile::Entries entries;
 
 	if (listfileEntries.empty())
 	{
-		MpqFile *listfileFile = this->listfileFile();
+		Listfile *listfileFile = this->listfileFile();
 
 		if (listfileFile != 0)
 		{
 			// read listfile file and create path entries
-			entries = listfileFile->listfileEntries();
-
-			BOOST_FOREACH(MpqFile::ListfileEntries::const_reference path, entries)
-				this->findFile(path);
+			entries = listfileFile->entries();
 		}
 	}
 
 	// read listfile file and create path entries
-	BOOST_FOREACH(MpqFile::ListfileEntries::const_reference path, listfileEntries.empty() ? entries : listfileEntries)
+	BOOST_FOREACH(Listfile::Entries::const_reference path, listfileEntries.empty() ? entries : listfileEntries)
 		this->findFile(path);
 
 	/// \todo Read "(signature)" file.
@@ -458,11 +455,13 @@ class MpqFile* Mpq::addFile(const boost::filesystem::path &path, BOOST_SCOPED_EN
 	if (istream != 0)
 		;
 
+	// TODO refreshing all stuff can take huge amount of performance -> should be optional!
+
 	// Add "(listfile)" file entry.
 	if (this->containsListfileFile())
 	{
-		iarraystream stream(path.string().c_str(), path.string().size());
-		this->listfileFile()->appendData(stream);
+		this->listfileFile()->files().insert(hash->m_mpqFile);
+		this->listfileFile()->writeData();
 	}
 
 	// Add "(attributes)" file entries.

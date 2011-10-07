@@ -164,7 +164,7 @@ std::string archiveInfo(const Mpq &archive, bool humanReadable, bool decimal)
 	return sstream.str();
 }
 
-inline bool hasListfile(const MpqFile::ListfileEntries &arg)
+inline bool hasListfile(const Listfile::Entries &arg)
 {
 	return std::find(arg.begin(), arg.end(), "(listfile)") != arg.end();
 }
@@ -188,7 +188,7 @@ const boost::program_options::variables_map &vm)
 
 #ifdef UNIX
 	// (listfile) entries usually have Windows path format
-	boost::algorithm::replace_all(entry, "\\", "/");
+	Listfile::toNativePath(entry);
 #endif
 	// output direcotry is archive's basename in its actual directory (name without extension)
 	boost::filesystem::path entryPath = mpq.path().parent_path() / boost::filesystem::basename(mpq.path()) / boost::filesystem::path(entry).parent_path();
@@ -323,7 +323,7 @@ int main(int argc, char *argv[])
 	filePaths.assign(fileStrings.begin(), fileStrings.end());
 
 	// contains all file entries
-	typedef std::list<MpqFile::ListfileEntries> Listfiles;
+	typedef std::list<Listfile::Entries> Listfiles;
 	Listfiles listfileEntries;
 
 	BOOST_FOREACH(Paths::const_reference path, listfiles)
@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
 		const mpq::string::size_type size = (mpq::string::size_type)(endPosition(in)) + 1;
 		mpq::string content(size, '0');
 		in.read(&content[0], size);
-		listfileEntries.push_back(MpqFile::listfileEntries(content));
+		listfileEntries.push_back(Listfile::entries(content));
 	}
 
 	if (vm.count("version"))
@@ -505,11 +505,11 @@ int main(int argc, char *argv[])
 			if (filePaths.empty())
 			{
 				if (mpq->listfileFile() != 0)
-					listfileEntries.push_front(mpq->listfileFile()->listfileEntries());
+					listfileEntries.push_front(mpq->listfileFile()->entries());
 
 				// usually does not list itself
 				if (std::find_if(listfileEntries.begin(), listfileEntries.end(), hasListfile) == listfileEntries.end())
-					listfileEntries.push_front(MpqFile::ListfileEntries(1, "(listfile)"));
+					listfileEntries.push_front(Listfile::Entries(1, "(listfile)"));
 
 				BOOST_FOREACH(Listfiles::const_reference vector, listfileEntries)
 				{

@@ -79,7 +79,7 @@ MD5 Signature::storedChecksum(const CryptoPP::RSA::PrivateKey &privateKey) const
 
 Signature::Signature(Mpq* mpq, Hash* hash): MpqFile(mpq, hash)
 {
-
+	this->m_path = fileName();
 }
 
 }

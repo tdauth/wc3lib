@@ -67,11 +67,18 @@ class Signature : public MpqFile
 		 */
 		MD5 storedChecksum(const CryptoPP::RSA::PrivateKey &privateKey) const;
 
+		virtual const char* fileName() const;
+
 	protected:
 		friend class Mpq;
 
 		Signature(Mpq *mpq, Hash *hash);
 };
+
+inline const char* Signature::fileName() const
+{
+	return "(signature)";
+}
 
 }
 

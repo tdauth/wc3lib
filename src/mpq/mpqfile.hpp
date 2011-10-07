@@ -76,46 +76,35 @@ class MpqFile : public boost::mutex, private boost::noncopyable
 		>
 		Sectors;
 
-		typedef std::vector<string> ListfileEntries;
-
-		static ListfileEntries listfileEntries(const string &content) throw (Exception);
-
 		/**
 		 * Removes all data from file.
 		 * Clears corresponding block file size.
 		 * Deletes all corresponding data sectors.
 		 * \throws Exception Throws an exception if file is locked.
 		 */
-		void removeData() throw (class Exception);
+		virtual void removeData();
 		/**
 		 * Reads data from input stream \p istream and hence overwrites old file data.
 		 * \p compression Compression which is used for all added sectors.
 		 * \return Returns size of read data.
 		 * \throws Exception Usually thrown when there is not enough space in file's corresponding block. Throws an exception if file is locked as well.
 		 */
-		std::streamsize readData(istream &istream, BOOST_SCOPED_ENUM(Sector::Compression) compression = Sector::Compression::Uncompressed) throw (class Exception);
+		virtual std::streamsize readData(istream &istream, BOOST_SCOPED_ENUM(Sector::Compression) compression = Sector::Compression::Uncompressed) throw (class Exception);
 		/**
 		 * Reads data from stream \p istream and appends it to the already existing file data.
 		 * \return Returns the number of read bytes.
 		 * \throws Exception Throws an exception if file is locked.
 		 */
-		std::streamsize appendData(istream &istream) throw (class Exception);
+		virtual std::streamsize appendData(istream &istream) throw (class Exception);
 		/**
 		 * Writes uncompressed file data into output stream \p ostream.
 		 * \return Returns size of written data.
 		 */
-		std::streamsize writeData(ostream &ostream) const throw (class Exception);
+		virtual std::streamsize writeData(ostream &ostream) const throw (class Exception);
 		/**
 		 * Same as \ref writeData(ostream &) but doesn't work independently since it expects to be at the correct position in archive using \p istream as input archive stream.
 		 */
-		std::streamsize writeData(istream &istream, ostream &ostream) const throw (Exception);
-
-		/**
-		 * \note Only usable on files with (listfile) schema.
-		 * Splits up file content at one of the following characters "; \r \n" and returns the resulting container with all split file paths.
-		 * \return Returns the container with all found file paths in file.
-		 */
-		ListfileEntries listfileEntries() const throw (Exception);
+		virtual std::streamsize writeData(istream &istream, ostream &ostream) const throw (Exception);
 
 		// hash attributes
 		BOOST_SCOPED_ENUM(Locale) locale() const;

@@ -1,5 +1,8 @@
 2011-10-07 Tamino Dauth <tamino@cdauth.eu>
 * Add CMake instructions to install syntax highlighting files correctly.
+* Fix unbuffered stream bug in mpq::Attributes::readData().
+* mpq::Listfile::entries() might use an unbuffered stream to since we could use mpq::Listfile::size() to get the file's uncompressed size.
+* Drop deprecated exception qualifiers (throw Exception ...).
 
 2011-10-06 Tamino Dauth <tamino@cdauth.eu>
 * mpq: Add functions like addAttributes() and addSignature() and rename createListfileFile() to addListfile().

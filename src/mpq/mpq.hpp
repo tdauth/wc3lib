@@ -29,6 +29,7 @@
 #include "hash.hpp"
 #include "block.hpp"
 #include "mpqfile.hpp"
+#include "listfile.hpp"
 #include "attributes.hpp"
 #include "signature.hpp"
 
@@ -188,17 +189,17 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		/**
 		 * \param listfileEntries Instead of relying on an internal "(listfile)" file of the archive you can pass your own list of all files. If empty this list is ignored.
 		 */
-		std::streamsize open(const boost::filesystem::path &path, const MpqFile::ListfileEntries &listfileEntries = MpqFile::ListfileEntries()) throw (class Exception);
+		std::streamsize open(const boost::filesystem::path &path, const Listfile::Entries &listfileEntries = Listfile::Entries()) throw (class Exception);
 		void close();
 
 		/**
 		 * \param listfileEntries Instead of relying on an internal "(listfile)" file of the archive you can pass your own list of all files. If empty this list is ignored.
 		 * \return Returns MPQ's size in bytes.
 		 */
-		virtual std::streamsize read(InputStream &stream, const MpqFile::ListfileEntries &listfileEntries) throw (class Exception);
+		virtual std::streamsize read(InputStream &stream, const Listfile::Entries &listfileEntries) throw (class Exception);
 		virtual std::streamsize read(InputStream &stream) throw (class Exception)
 		{
-			return read(stream, MpqFile::ListfileEntries());
+			return read(stream, Listfile::Entries());
 		}
 		/**
 		 * Writes the whole MPQ archive into output stream \p ostream. Note that you don't have to call this function each time you want to save your changed data of the opened MPQ archive.
@@ -217,8 +218,8 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		 * \return Returns the file instance of the created file. If it does already exist the instance to the current file will be returned (note that it won't be refreshed by this member functio!).
 		 * \sa Mpq::containsListfileFile(), Mpq::listfileFile()
 		 */
-		const class MpqFile* createListfileFile() throw (class Exception);
-		const class MpqFile* listfileFile() const;
+		const class Listfile* createListfileFile();
+		const class Listfile* listfileFile() const;
 		/**
 		 * \return Returns true if the archive contains a "(attributes)" file.
 		 */
@@ -229,7 +230,7 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		 * \return Returns the file instance of the created file. If it does already exist the instance to the current file will be returned (note that it won't be refreshed by this member function!).
 		 * \sa Mpq::containsAttributesFile(), Mpq::attributesFile()
 		 */
-		const class Attributes* createAttributesFile(BOOST_SCOPED_ENUM(Attributes::ExtendedAttributes) extendedAttributes) throw (class Exception);
+		const class Attributes* createAttributesFile(BOOST_SCOPED_ENUM(Attributes::ExtendedAttributes) extendedAttributes);
 		const class Attributes* attributesFile() const;
 
 		/**
@@ -286,7 +287,7 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		 */
 		bool removeFile(class MpqFile *&mpqFile);
 
-		class MpqFile* listfileFile();
+		class Listfile* listfileFile();
 		class Attributes* attributesFile();
 		class Signature* signatureFile();
 
@@ -553,29 +554,25 @@ inline bool Mpq::containsListfileFile() const
 	return this->listfileFile() != 0;
 }
 
-inline const class MpqFile* Mpq::createListfileFile() throw (class Exception)
+inline const class Listfile* Mpq::createListfileFile()
 {
 	if (this->containsListfileFile())
 		return this->listfileFile();
 
-	std::list<std::basic_string<byte> > entries;
+	Hash *hash = firstEmptyHash();
+	hash->hashData().setLocale(MpqFile::Locale::Neutral);
+	hash->hashData().setPlatform(MpqFile::Platform::Default);
+	hash->changePath("(listfile)");
+	// TODO get empty block etc. add file ...
+	FilePtr file(new Listfile(this, hash));
+	this->m_files.get<0>().push_back(file);
+	boost::polymorphic_cast<Listfile*>(file.get())->refresh();
+	boost::polymorphic_cast<Listfile*>(file.get())->writeData();
 
-	BOOST_FOREACH(const FilePtr mpqFile, this->m_files.get<0>())
-	{
-		if (!mpqFile->path().empty() && mpqFile->path().string() != "(attributes)") /// @todo Exclude directories and file (signature)?
-			entries.push_back(reinterpret_cast<const byte*>(mpqFile->path().string().c_str()));
-	}
-
-	entries.sort(); /// @todo Sort alphabetically?
-	arraystream stream;
-
-	BOOST_FOREACH(std::basic_string<byte> entry, entries)
-		stream << entry << '\n';
-
-	return this->addFile("(listfile)", MpqFile::Locale::Neutral, MpqFile::Platform::Default, &stream);
+	return boost::polymorphic_cast<Listfile*>(file.get());
 }
 
-inline const class MpqFile* Mpq::listfileFile() const
+inline const class Listfile* Mpq::listfileFile() const
 {
 	return const_cast<Mpq*>(this)->listfileFile();
 }
@@ -586,7 +583,7 @@ inline bool Mpq::containsAttributesFile() const
 	return this->attributesFile() != 0;
 }
 
-inline const class Attributes* Mpq::createAttributesFile(BOOST_SCOPED_ENUM(Attributes::ExtendedAttributes) extendedAttributes) throw (class Exception)
+inline const class Attributes* Mpq::createAttributesFile(BOOST_SCOPED_ENUM(Attributes::ExtendedAttributes) extendedAttributes)
 {
 	if (this->containsAttributesFile())
 		return attributesFile();
@@ -595,13 +592,13 @@ inline const class Attributes* Mpq::createAttributesFile(BOOST_SCOPED_ENUM(Attri
 	hash->hashData().setLocale(MpqFile::Locale::Neutral);
 	hash->hashData().setPlatform(MpqFile::Platform::Default);
 	hash->changePath("(attributes)");
-	// TODO get block etc. add file ...
+	// TODO get empty block etc. add file ...
 	FilePtr file(new Attributes(this, hash, extendedAttributes));
 	this->m_files.get<0>().push_back(file);
-	((Attributes*)file.get())->refresh();
-	((Attributes*)file.get())->writeData();
+	boost::polymorphic_cast<Attributes*>(file.get())->refresh();
+	boost::polymorphic_cast<Attributes*>(file.get())->writeData();
 
-	return (Attributes*)file.get();
+	return boost::polymorphic_cast<Attributes*>(file.get());
 }
 
 inline const class Attributes* Mpq::attributesFile() const
@@ -747,9 +744,14 @@ inline Mpq::LargeSizeType Mpq::entireFileSize() const
 	return result;
 }
 
-inline class MpqFile* Mpq::listfileFile()
+inline class Listfile* Mpq::listfileFile()
 {
-	return this->findFile("(listfile)");
+	MpqFile *file = this->findFile("(listfile)");
+
+	if (file == 0)
+		return 0;
+
+	return boost::polymorphic_cast<class Listfile*>(file);
 }
 
 inline class Attributes* Mpq::attributesFile()

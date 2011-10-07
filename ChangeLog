@@ -1,5 +1,6 @@
 2011-10-07 Tamino Dauth <tamino@cdauth.eu>
 * Added syntax highlighting files.
+* mpq: Added class Listfile.
 
 2011-10-06 Tamino Dauth <tamino@cdauth.eu>
 * mpq: Improved class HashData.

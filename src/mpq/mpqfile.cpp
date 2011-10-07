@@ -28,16 +28,7 @@ namespace wc3lib
 namespace mpq
 {
 
-MpqFile::ListfileEntries MpqFile::listfileEntries(const string &content) throw (Exception)
-{
-	ListfileEntries result;
-	string value(content);
-	boost::algorithm::split(result, value, boost::algorithm::is_any_of(";\r\n"), boost::algorithm::token_compress_on);
-
-	return result;
-}
-
-void MpqFile::removeData() throw (class Exception)
+void MpqFile::removeData()
 {
 	if (!this->try_lock())
 		throw Exception(boost::format(_("Unable to lock MPQ file %1%.")) % path());
@@ -169,14 +160,6 @@ std::streamsize MpqFile::writeData(istream &istream, ostream &ostream) const thr
 		const_cast<MpqFile*>(this)->m_sectors.clear();
 
 	return bytes;
-}
-
-MpqFile::ListfileEntries MpqFile::listfileEntries() const throw (Exception)
-{
-	std::basic_ostringstream<byte> stream;
-	this->writeData(stream);
-
-	return listfileEntries(stream.str());
 }
 
 BOOST_SCOPED_ENUM(MpqFile::Locale) MpqFile::locale() const
