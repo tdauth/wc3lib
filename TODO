@@ -4,6 +4,8 @@
 * mpq: Fix sector table values (last table value is not equal to the original block size for many files).
 * mpq: BZh magic sequence is missing for many sectors (maybe all??).
 * mpq: Fix eoffail exceptions for interface sound files and std::bad_alloc exception.
+* map: W3m should not store its signature, too. However, you have to overload the signature calculation member functions of class mpq::Mpq and maybe create a new class based on mpq::Signature for weak digital signature (check out the documentation!).
+* map: Fix read operation of Environment (expects more bytes).
 
 2011-10-07 Tamino Dauth <tamino@cdauth.eu>
 * Add CMake instructions to install syntax highlighting files correctly.

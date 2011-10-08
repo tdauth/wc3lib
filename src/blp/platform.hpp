@@ -64,11 +64,6 @@ struct BlpHeader
 	dword mipMapOffset[16], mipMapSize[16];
 };
 
-struct BlpJpegHeader : public BlpHeader
-{
-	dword jpegHeaderSize;
-};
-
 struct Blp2Header
 {
 	byte type;

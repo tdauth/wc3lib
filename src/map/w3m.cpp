@@ -62,10 +62,10 @@ W3m::~W3m()
 {
 }
 
-std::streamsize W3m::read(InputStream &istream) throw (class Exception)
+std::streamsize W3m::read(InputStream &istream, const mpq::Listfile::Entries &listfileEntries) throw (class Exception)
 {
 	std::streamsize size = this->readHeader(istream);
-	size += mpq::Mpq::read(istream);
+	size += mpq::Mpq::read(istream, listfileEntries);
 
 	BOOST_FOREACH(FileFormats::reference format, fileFormats())
 	{
@@ -74,8 +74,18 @@ std::streamsize W3m::read(InputStream &istream) throw (class Exception)
 		if (file != 0)
 		{
 			arraystream stream;
-			file->writeData(stream);
-			size += format->read(stream);
+
+			try
+			{
+				file->writeData(stream);
+				std::cout << "After reading MPQ file of file " << format->fileName() << std::endl;
+				size += format->read(stream);
+			}
+			catch (std::exception &exception)
+			{
+				throw Exception(boost::format(_("Error while reading map file \"%1%\":\n%2%")) % format->fileName() % exception.what());
+			}
+
 		}
 	}
 

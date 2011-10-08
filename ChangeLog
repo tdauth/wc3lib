@@ -3,6 +3,8 @@
 * mpq: Listfile creation is considered now when opening the MPQ archive.
 * mpq: Added member function Sector::compressionSucceded().
 * mpq: Class Sector considers size of 0 now.
+* map: Class W3m overrides correct read member function now.
+* editor: Class Map uses open() instead of read() member function now.
 
 2011-10-07 Tamino Dauth <tamino@cdauth.eu>
 * Added syntax highlighting files.

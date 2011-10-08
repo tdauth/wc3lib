@@ -46,7 +46,7 @@ namespace wc3lib
 namespace map
 {
 
-class W3m : public Format, public mpq::Mpq, public Playable
+class W3m : public mpq::Mpq, public Playable
 {
 	public:
 		static const std::size_t signatureSize = 256;
@@ -109,7 +109,11 @@ class W3m : public Format, public mpq::Mpq, public Playable
 		 * </ul>
 		 * \note You can use classes's virtual member functions called "fileName" to get the corresponding file name of the class's format.
 		 */
-		virtual std::streamsize read(InputStream &istream) throw (class Exception);
+		virtual std::streamsize read(InputStream &istream, const mpq::Listfile::Entries &listfileEntries) throw (class Exception);
+		virtual std::streamsize read(InputStream& istream) throw (class Exception)
+		{
+			return read(istream, mpq::Listfile::Entries());
+		}
 		/**
 		 * Creates an MPQ archive with map header and all required files.
 		 */

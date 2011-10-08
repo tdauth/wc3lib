@@ -63,7 +63,7 @@ struct Header
 	uint32 headerSize;
 	uint32 archiveSize;
 	uint16 formatVersion;
-	uint16 sectorSizeShift; // int8
+	uint16 sectorSizeShift; // DEPRECATED int8
 	uint32 hashTableOffset;
 	uint32 blockTableOffset;
 	uint32 hashTableEntries;
@@ -82,7 +82,7 @@ struct HashTableEntry
 	int32 filePathHashA;
 	int32 filePathHashB;
 	uint16 locale;
-	uint16 platform; // int8
+	uint16 platform; // DEPRECATED int8
 	uint32 fileBlockIndex; /// Reserved values are \ref Hash::blockIndexDeleted and \ref Hash::blockIndexEmpty.
 };
 
@@ -99,22 +99,10 @@ struct ExtendedBlockTableEntry
 	uint16 extendedBlockOffset;
 };
 
-struct FileData
-{
-	uint32 *sectorOffsetTable;
-};
-
 struct ExtendedAttributesHeader
 {
 	uint32 version;
 	uint32 attributesPresent;
-};
-
-struct WeakDigitalSignature
-{
-	int32 unknown0;
-	int32 unknown1;
-	int8 signature[64]; /// int512 Signature : The digital signature. Like all other numbers in the MoPaQ format, this is stored in little-endian order. The structure of this, when decrypted, follows the RSASSA-PKCS1-v1_5 specification; this format is rather icky to work with (I wrote a program to verify this signature using nothing but an MD5 function and huge integer functions; it wasn't pleasant), and best left to an encryption library such as Cryto++.
 };
 
 /**

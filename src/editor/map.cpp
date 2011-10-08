@@ -43,7 +43,7 @@ void Map::load() throw (Exception)
 	map::ifstream istream(target.toUtf8().constData(), std::ios::in | std::ios::binary);
 
 	MapPtr map(new map::W3m());
-	map->read(istream);
+	map->open(target.toUtf8().constData());
 
 	this->map().swap(map); // exception safe
 }
