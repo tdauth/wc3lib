@@ -95,6 +95,12 @@ class Sector : private boost::noncopyable
 		uint32 sectorSize() const;
 		BOOST_SCOPED_ENUM(Compression) compression() const;
 
+		/**
+		 * Individual sectors in a compressed or imploded file may be stored uncompressed; this occurs if and only if the file data the sector contains could not be compressed by the algorithm(s) used (if the compressed sector size was greater than or equal to the size of the file data), and is indicated by the sector's size in SectorOffsetTable being equal to the size of the file data in the sector (which may be calculated from the FileSize).
+		 * \return Returns true if sector could be compressed properly.
+		 */
+		bool compressionSucceded() const;
+
 	protected:
 		friend class Mpq;
 		friend class MpqFile;
@@ -138,6 +144,7 @@ inline BOOST_SCOPED_ENUM(Sector::Compression) Sector::compression() const
 {
 	return this->m_compression;
 }
+
 
 }
 

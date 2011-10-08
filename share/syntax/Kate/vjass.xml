@@ -12,7 +12,7 @@
 
 	 Creators Note:
 	  - This extension was created so KDE Linux users could have an easy and light way of programming in vJass. This extension is opensource and freeware, but please if you use it, credit me, because I lost many hours to make this work and to bring this to the world. Hoping it helps, Flame_Phoenix.-->
-<language name="vJass" version="1.30" kateversion="3.4.5" section="Scripts" extensions="*.j;*.J;*.ai;*.AI" author="Pedro Miguel Martins" priority="9">
+<language name="vJass" version="1.30" kateversion="3.4.5" section="Scripts" mimetype="text/x-jass" extensions="*.j;*.J;*.ai;*.AI" author="Pedro Miguel Martins" priority="9">
 	<highlighting>
 		<!-- keywords of vJass-->
 		<list name="keywords">

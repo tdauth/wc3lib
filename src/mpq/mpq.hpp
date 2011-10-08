@@ -187,13 +187,13 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		 */
 		std::streamsize create(const boost::filesystem::path &path, bool overwriteExisting = false, std::streampos startPosition = 0, BOOST_SCOPED_ENUM(Format) format = Format::Mpq1, uint32 sectorSize = 4096) throw (class Exception);
 		/**
-		 * \param listfileEntries Instead of relying on an internal "(listfile)" file of the archive you can pass your own list of all files. If empty this list is ignored.
+		 * \param listfileEntries Instead of relying on an internal "(listfile)" file of the archive you can pass your own list of all files (internal file will be ignored!). If it's empty this list is ignored.
 		 */
 		std::streamsize open(const boost::filesystem::path &path, const Listfile::Entries &listfileEntries = Listfile::Entries()) throw (class Exception);
 		void close();
 
 		/**
-		 * \param listfileEntries Instead of relying on an internal "(listfile)" file of the archive you can pass your own list of all files. If empty this list is ignored.
+		 * \param listfileEntries Instead of relying on an internal "(listfile)" file of the archive you can pass your own list of all files (internal file will be ignored!). If it's empty this list is ignored.
 		 * \return Returns MPQ's size in bytes.
 		 */
 		virtual std::streamsize read(InputStream &stream, const Listfile::Entries &listfileEntries) throw (class Exception);

@@ -268,7 +268,9 @@ std::streamsize Mpq::read(InputStream &stream, const Listfile::Entries &listfile
 			FilePtr mpqFile;
 
 			// usual file
-			if (!containsAttributesFile() && hash->hashData() == "(attributes)")
+			if (!containsListfileFile() && hash->hashData() == "(listfile)")
+				mpqFile.reset(new Listfile(this, hash.get()));
+			else if (!containsAttributesFile() && hash->hashData() == "(attributes)")
 				mpqFile.reset(new Attributes(this, hash.get(), Attributes::ExtendedAttributes::None));
 			else if (!containsSignatureFile() && hash->hashData() == "(signature)")
 				mpqFile.reset(new Signature(this, hash.get()));
@@ -284,10 +286,7 @@ std::streamsize Mpq::read(InputStream &stream, const Listfile::Entries &listfile
 		}
 	}
 
-	// refresh extended attributes if found (we should have all file instances before!)
-	if (containsAttributesFile())
-		attributesFile()->readData();
-
+	// if custom entries were specified we do NOT use internal "(listfile)" file for path detection!
 	Listfile::Entries entries;
 
 	if (listfileEntries.empty())
@@ -305,7 +304,10 @@ std::streamsize Mpq::read(InputStream &stream, const Listfile::Entries &listfile
 	BOOST_FOREACH(Listfile::Entries::const_reference path, listfileEntries.empty() ? entries : listfileEntries)
 		this->findFile(path);
 
-	/// \todo Read "(signature)" file.
+	// refresh extended attributes if found (we should have all file instances before!)
+	if (containsAttributesFile())
+		attributesFile()->readData();
+
 	// The strong digital signature is stored immediately after the archive, in the containing file
 	const std::streampos position = startPosition() + boost::numeric_cast<std::streampos>(header.archiveSize);
 	// jumps to the end of the archive

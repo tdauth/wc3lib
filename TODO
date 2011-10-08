@@ -1,3 +1,10 @@
+2011-10-08 Tamino Dauth <tamino@cdauth.eu>
+* Split up Warcraft III listfiles into: "Warcraft III Beta.txt", "Warcraft III: Reign of Chaos.txt", "Warcraft III: The Frozen Throne.txt", "Warcraft III: Reign of Chaos - Patch.txt", "Warcraft III: The Frozen Throne - Patch.txt", "Warcraft III: Reign of Chaos - Local.txt", "Warcraft III: The Frozen Throne - Local.txt", "Warcraft III: Reign of Chaos - Map.txt", "Warcraft III: The Frozen Throne - Map.txt" and "Warcraft III: The Frozen Throne - Campaign.txt".
+* app: When using -f option of application "mpq" we cannot specify several paths?
+* mpq: Fix sector table values (last table value is not equal to the original block size for many files).
+* mpq: BZh magic sequence is missing for many sectors (maybe all??).
+* mpq: Fix eoffail exceptions for interface sound files and std::bad_alloc exception.
+
 2011-10-07 Tamino Dauth <tamino@cdauth.eu>
 * Add CMake instructions to install syntax highlighting files correctly.
 * Fix unbuffered stream bug in mpq::Attributes::readData().
@@ -5,22 +12,22 @@
 * Drop deprecated exception qualifiers (throw Exception ...).
 
 2011-10-06 Tamino Dauth <tamino@cdauth.eu>
-* mpq: Add functions like addAttributes() and addSignature() and rename createListfileFile() to addListfile().
+* mpq: Add function addSignature() and rename createListfileFile() to addListfile() and createAttributesFile() to addAttributes().
 * mpq: Improve encryption and decryption of both signature types.
-* mpq: Improve creation of archive SHA1 and MD5 checksums (step by step using Crypto++).
+* mpq: Improve creation of archive SHA1 and MD5 checksums (step by step, using Crypto++).
 * mpq: Since we do know the exact size we could try to use something like boost::array to replace types Mpq::StrongDigitalSignature and Signature::WeakSignature (but keep memory on heap please).
-* mpq: Classes Signature and Attributes should use their file name as parameter when calling MpqFile's constructor since it's known already!
+* DONE: mpq: Classes Listfile, Signature and Attributes should use their file name as parameter when calling MpqFile's constructor since it's known already!
 * mpq: Add new compression types support (based on StormLib) which probably requires some new library dependencies.
 
 2011-10-01 Tamino Dauth <tamino@cdauth.eu>
-* mpq: Consider refreshing extended attributes stored in class Attributes when modifying file data via MpqFile::writeData() etc. (deprecated? would decrease performance massively especially when considering for ALL sector changes).
-* mpq: Add classes Listfile and Signature for corresponding files (such as Attributes).
+* mpq: Consider refreshing extended attributes stored in class Attributes when modifying file data via MpqFile::writeData() etc. (deprecated? would decrease performance massively especially when considering for ALL sector changes, manual update woul be more appreciate).
+* DONE: mpq: Add classes Listfile and Signature for corresponding files (such as Attributes).
 * FIXED: mpq: Store signatures on heap/compare to map::W3m signature.
 * DEPRECATED: mpq: Use latest version of StormLib (with external libraries if possible! 7zip for lzma etc.).
 * mpq: Implement signing features (add keys of Blizzard).
 
 2011-09-27 Tamino Dauth <tamino@cdauth.eu>
-* Since new features have been added sector sizes are not correct anymore for files with sector tables which are read in MpqFile::read! Maybe it is the compressed block size which isn't exactly what it used to be (compared to old results).
+* DEPRECATED: Since new features have been added sector sizes are not correct anymore for files with sector tables which are read in MpqFile::read! Maybe it is the compressed block size which isn't exactly what it used to be (compared to old results).
 
 2011-09-26 Tamino Dauth <tamino@cdauth.eu>
 * Support Doxygen API generation for built modules only.

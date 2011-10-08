@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
-<language name="MDL" section="Other" version="1.0" kateversion="3.4.5" extensions="*.mdl;*.MDL" author="Tamino Dauth">
+<language name="MDL" section="Other" version="1.0" kateversion="3.4.5" mimetype="model/x-mdl" extensions="*.mdl;*.MDL" author="Tamino Dauth">
 	<highlighting>
 		<list name="statickeyword">
 			<item>static</item>

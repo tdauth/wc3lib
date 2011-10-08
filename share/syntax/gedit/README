@@ -3,15 +3,3 @@
    2. Download the gedit language file and put it into the above directory
    3. Start gedit and ensure the MoinMoin entry is available under the following menu
       View -> Highlight Mode -> Markup
-
-To have gedit automatically apply the syntax highlighting to the wiki files I followed these steps:
-
-   1. Ensure that the following directory exists in my home directory
-      ~/.local/share/mime/packages
-   2. Created a new file called moinmoin.xml in the above directory
-   3. Added the text outlined below to the file
-   4. Saved the file
-   5. Opened a terminal window and went to this directory
-      ~/.local/share
-   6. Executed the following command
-      update-mime-database mime

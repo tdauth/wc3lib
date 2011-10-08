@@ -240,6 +240,11 @@ std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, sh
 
 std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception)
 {
+	const uint32 dataSize = this->sectorSize();
+
+	if (dataSize == 0)
+		return 0;
+
 	boost::interprocess::file_lock fileLock(this->mpqFile()->mpq()->path().string().c_str());
 
 	if (!fileLock.try_lock())
@@ -251,8 +256,6 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 		throw Exception(boost::format(_("Unable to open file %1%.")) % this->mpqFile()->mpq()->path());
 
 	seekg(ifstream);
-
-	const uint32 dataSize = this->sectorSize();
 	boost::scoped_array<byte> data(new byte[dataSize]);
 	std::streamsize bytes = 0;
 	wc3lib::read(ifstream, data[0], bytes, dataSize);
@@ -267,6 +270,10 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 std::streamsize Sector::writeData(istream &istream, ostream &ostream) const throw (Exception)
 {
 	const uint32 dataSize = this->sectorSize();
+
+	if (dataSize == 0)
+		return 0;
+
 	boost::scoped_array<byte> data(new byte[dataSize]);
 	std::streamsize bytes = 0;
 	wc3lib::read(istream, data[0], bytes, dataSize);
@@ -274,6 +281,11 @@ std::streamsize Sector::writeData(istream &istream, ostream &ostream) const thro
 	decompressData(data, dataSize, ostream);
 
 	return bytes;
+}
+
+bool Sector::compressionSucceded() const
+{
+	return (!this->mpqFile()->isCompressed() && this->sectorSize() < this->mpqFile()->mpq()->sectorSize()) || this->sectorSize() <= this->mpqFile()->mpq()->sectorSize() - 2; // compression/implosion succeded
 }
 
 void Sector::setCompression(byte value)
@@ -318,9 +330,8 @@ void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, os
 	if (this->mpqFile()->isEncrypted())
 		DecryptData(Mpq::cryptTable(), (void*)data.get(), dataSize, this->sectorKey());
 
-	// Individual sectors in a compressed or imploded file may be stored uncompressed; this occurs if and only if the file data the sector contains could not be compressed by the algorithm(s) used (if the compressed sector size was greater than or equal to the size of the file data), and is indicated by the sector's size in SectorOffsetTable being equal to the size of the file data in the sector (which may be calculated from the FileSize).
 	// NOTE This byte counts towards the total sector size, meaning that the sector will be stored uncompressed if the data cannot be compressed by at least two bytes
-	if ((!this->mpqFile()->isCompressed() && this->sectorSize() < this->mpqFile()->mpq()->sectorSize()) || this->sectorSize() <= this->mpqFile()->mpq()->sectorSize() - 2) // compression/implosion succeded
+	if (compressionSucceded())
 	{
 		// Imploded sectors are the raw compressed data following compression with the implode algorithm (these sectors can only be in imploded files).
 		if (this->mpqFile()->isImploded())
@@ -378,7 +389,7 @@ void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, os
 			// NOTE but in this situation it's compressed not imploded file!!!
 			if (this->compression() & Sector::Compression::Imploded)
 			{
-				std::cerr << _("Warning: Imploded sector in not imploded file!") << std::endl;
+				std::cerr << boost::format(_("%1%: Sector %2% is imploded but file is not.")) % this->mpqFile()->path() % sectorIndex() << std::endl;
 				int outLength = boost::numeric_cast<int>(mpqFile()->mpq()->sectorSize());
 				boost::scoped_array<byte> buffer(new byte[outLength]); // NOTE do always allocate enough memory.
 				decompressPklib(buffer.get(), outLength, reinterpret_cast<char* const>(realData), boost::numeric_cast<int>(realDataSize));
@@ -479,8 +490,7 @@ void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, os
 	// skip compression types byte if data could not be compressed properly
 	else if (this->mpqFile()->isCompressed())
 	{
-		// TEST
-		std::cerr << "Sector could not be compressed properly." << std::endl;
+		std::cerr << boost::format(_("%1%: Sector %2% with size %3% could not be compressed properly. Archive sector size is %4%.")) % this->mpqFile()->path() % sectorIndex() % this->sectorSize() % this->mpqFile()->mpq()->sectorSize() << std::endl;
 
 		ostream.write(&data[1], dataSize - 1);
 

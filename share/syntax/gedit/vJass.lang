@@ -35,7 +35,7 @@
 <language id = "vjass" _name="vJass" version="2.0" _section="Others">
 
 	<metadata>
-		<property name="mimetypes">text/x-vJass</property>
+		<property name="mimetypes">text/x-jass</property>
 	      	<property name="globs">*.j</property>
 	      	<property name="globs">*.ai</property>
     	</metadata>

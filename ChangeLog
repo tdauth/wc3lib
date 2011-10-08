@@ -1,3 +1,9 @@
+2011-10-08 Tamino Dauth <tamino@cdauth.eu>
+* Removed unnecessary MIME type files of gedit highlighting files (wc3lib does already provide all required MIME types).
+* mpq: Listfile creation is considered now when opening the MPQ archive.
+* mpq: Added member function Sector::compressionSucceded().
+* mpq: Class Sector considers size of 0 now.
+
 2011-10-07 Tamino Dauth <tamino@cdauth.eu>
 * Added syntax highlighting files.
 * mpq: Added class Listfile.
