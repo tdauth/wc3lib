@@ -31,6 +31,13 @@ namespace wc3lib
 namespace mpq
 {
 
+/**
+ * Provides access to the MPQ archive's weak digital signature file ("(signature)") which is an RSA 512-bit encrypted MD5 checksum created by all of the archive's data (including its header etc.).
+ * For more relyable signing you could use a strong digital signature as well which is simply appended to the MPQ archive with the leading indicating characters 'NGIS' and contains an RSA 2048-bit encrypted SHA1 digest.
+ * \sa Mpq::strongDigitalSignature()
+ * \sa Listfile
+ * \sa Attributes
+ */
 class Signature : public MpqFile
 {
 	public:

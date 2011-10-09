@@ -35,21 +35,21 @@ class Sounds : public FileFormat
 	public:
 		typedef boost::shared_ptr<Sound> SoundPtr;
 		typedef std::list<SoundPtr> SoundList;
-		
+
 		Sounds(class W3m *w3m);
-		
+
 		virtual std::streamsize read(InputStream &istream) throw (Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
-		
+
 		virtual int32 version() const;
 		virtual const char8* fileName() const;
-		virtual id fileId() const;
+		virtual const char8* fileTextId() const;
 		virtual int32 latestFileVersion() const;
-		
+
 		class W3m* w3m() const;
 		SoundList sounds();
 		const SoundList& sounds() const;
-		
+
 	protected:
 		class W3m *m_w3m;
 		int32 m_version;
@@ -71,9 +71,9 @@ inline const char8* Sounds::fileName() const
 	return "war3map.w3s";
 }
 
-inline id Sounds::fileId() const
+inline const char8* Sounds::fileTextId() const
 {
-	return 0;
+	return "";
 }
 
 inline int32 Sounds::latestFileVersion() const

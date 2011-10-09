@@ -30,7 +30,9 @@ namespace mpq
 {
 
 /**
- * Actually there is no read and write member functions since Sectors are created by \ref MpqFile instances when data is being read or written.
+ * Each \ref Block instance consists of one or several sectors which can have different compression types (\ref Compression).
+ * Compressed sectors do usually have the size of \ref Mpq::sectorSize() (except the last one which might be smaller).
+ * \note Actually there is no read and write member functions since Sectors are created by \ref MpqFile instances when data is being read or written.
  */
 class Sector : private boost::noncopyable
 {
@@ -144,7 +146,6 @@ inline BOOST_SCOPED_ENUM(Sector::Compression) Sector::compression() const
 {
 	return this->m_compression;
 }
-
 
 }
 

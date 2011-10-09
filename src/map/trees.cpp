@@ -39,13 +39,22 @@ std::streamsize Trees::read(InputStream& istream) throw (Exception)
 	wc3lib::read(istream, this->m_subVersion, size);
 	int32 number;
 	wc3lib::read(istream, number, size);
+	/*
 	m_trees.resize(number);
+	TreeContainer::nth_index_iterator<0>::type iterator = m_trees.begin();
 
-	for ( ; number > 0; --number)
+	for (int32 i = 0; i < number; ++i, ++iterator)
 	{
-		TreePtr ptr(new Tree());
-		size += ptr->read(istream); // read first, we need its id!
-		m_trees.push_back(ptr);
+		m_trees.replace(iterator, TreePtr(new Tree()));
+		size += m_trees[i]->read(istream); // read first, we need its id!
+	}
+	*/
+	m_trees.reserve(number);
+
+	for (; number > 0; --number)
+	{
+		m_trees.push_back(TreePtr(new Tree()));
+		size += m_trees.back()->read(istream); // read first, we need its id!
 	}
 
 	return size;

@@ -43,14 +43,14 @@ class Minimap : public FileFormat, public blp::Blp
 			return blp::Blp::write(ostream);
 		}
 
-		virtual id fileId() const;
+		virtual const char8* fileTextId() const;
 		virtual const wc3lib::map::char8* fileName() const;
 		virtual int32 latestFileVersion() const;
 };
 
-inline id Minimap::fileId() const
+inline const char8* Minimap::fileTextId() const
 {
-	return 0;
+	return "";
 }
 
 inline const wc3lib::map::char8* Minimap::fileName() const

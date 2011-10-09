@@ -37,7 +37,7 @@ class CustomTextTriggers : public FileFormat
 		virtual std::streamsize read(InputStream& istream) throw (Exception);
 		virtual std::streamsize write(OutputStream& ostream) const throw (Exception);
 
-		virtual id fileId() const;
+		virtual const char8* fileTextId() const;
 		virtual const char8* fileName() const;
 		virtual int32 latestFileVersion() const;
 		virtual uint32_t version() const;
@@ -49,9 +49,9 @@ class CustomTextTriggers : public FileFormat
 		TriggerTexts m_triggerTexts;
 };
 
-inline id CustomTextTriggers::fileId() const
+inline const char8* CustomTextTriggers::fileTextId() const
 {
-	return 0;
+	return "";
 }
 
 inline const char8* CustomTextTriggers::fileName() const

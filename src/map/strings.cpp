@@ -22,6 +22,7 @@
 
 #include <boost/tokenizer.hpp>
 #include <boost/foreach.hpp>
+#include <boost/spirit.hpp>
 
 #include "strings.hpp"
 #include "string.hpp"
@@ -198,8 +199,40 @@ std::pair<std::streamsize, std::streamsize> Strings::parse(const boost::filesyst
 	return std::make_pair(gSize, pSize);
 }
 
-std::streamsize Strings::read(std::basic_istream<byte> &istream) throw (class Exception)
+std::streamsize Strings::read(InputStream &istream) throw (class Exception)
 {
+	/*
+	 * TODO finish
+	InputStream::iterator first = istream.begin();
+	InputStream::iterator last = istream.end();
+
+	using namespace boost;
+	using namespace boost::spirit::qi;
+	using namespace boost::phoenix;
+	using namespace boost::spirit::qi::standard;
+
+	//boost::spirit::qi::grammar grammar(istream, "");
+	int id = 0;
+	std::string defaultString;
+	std::string value;
+	stream_parser parser;
+	// TODO consider new lines, >> should only skip "space" characters which means tabs and other white spaces
+	parser.parse(first, last,
+		(
+			string_("STRING_") > int_[ref(id) = _1]
+			>> char_('{')
+			>> string_("//") >> string_[ref(defaultString) = _1]
+			>> char_('"') > string_[ref(value) = _1] > char_('"')
+			>> char_('}')
+		),
+		space
+	);
+
+	if (first != last)
+		throw Exception(_("Parsing error."));
+	*/
+
+	/*
 	string line;
 	std::streamsize size = 0;
 
@@ -211,8 +244,20 @@ std::streamsize Strings::read(std::basic_istream<byte> &istream) throw (class Ex
 			continue;
 
 		string idString = line.substr(0, 6) + "_" + line.substr(7);
+		++i;
 
-		if (readLine(istream, line, size) && ++i && line.substr(0, 2) == "//")
+		if (!readLine(istream, line, size))
+			throw Exception(boost::format(_("Error at line %1%.")) % i);
+
+		while (line.empty() || line.substr(0, 2) != "//")
+		{
+			++i;
+
+			if (!readLine(istream, line, size))
+				throw Exception(boost::format(_("Error at line %1%.")) % i);
+		}
+
+		if (line.length() >= 2 && line.substr(0, 2) == "//")
 		{
 			string defaultString = line.length() < 4 ? "" : line.substr(3);
 
@@ -230,6 +275,7 @@ std::streamsize Strings::read(std::basic_istream<byte> &istream) throw (class Ex
 	}
 
 	return size;
+	*/
 }
 
 std::streamsize Strings::write(std::basic_ostream<byte> &ostream) const throw (class Exception)

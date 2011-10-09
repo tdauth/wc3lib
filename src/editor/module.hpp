@@ -70,6 +70,9 @@ class Module : public QWidget
 		 */
 		virtual QString actionName() = 0;
 
+	public slots:
+		void showSourcesDialog();
+
 	protected:
 		virtual void setupUi();
 
@@ -105,6 +108,7 @@ class Module : public QWidget
 		class KMenu *m_windowsMenu;
 		class KToolBar *m_toolBar;
 		class QAction *m_closeAction;
+		class KAction *m_sourcesAction;
 
 		class QVBoxLayout *m_topLayout;
 

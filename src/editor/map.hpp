@@ -56,7 +56,7 @@ inline bool Map::isW3x() const
 	if (m_map.get() == 0)
 		return false;
 
-	return typeid(m_map.get()) == typeid(map::W3x);
+	return typeid(*m_map.get()) == typeid(map::W3x);
 }
 
 inline const Map::MapPtr& Map::map() const

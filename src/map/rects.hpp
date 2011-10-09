@@ -43,7 +43,7 @@ class Rects : public FileFormat
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
-		virtual id fileId() const;
+		virtual const char8* fileTextId() const;
 		virtual const char8* fileName() const;
 		virtual int32 latestFileVersion() const;
 
@@ -58,9 +58,9 @@ class Rects : public FileFormat
 		RectMap m_rects;
 };
 
-inline id Rects::fileId() const
+inline const char8* Rects::fileTextId() const
 {
-	return 0;
+	return "";
 }
 
 inline const char8* Rects::fileName() const

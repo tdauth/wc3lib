@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MAP_TREES_HPP
 #define WC3LIB_MAP_TREES_HPP
 
+#include <boost/multi_index/random_access_index.hpp>
+
 #include "platform.hpp"
 #include "tree.hpp"
 
@@ -37,9 +39,9 @@ class Trees : public FileFormat
 		typedef boost::shared_ptr<Tree> TreePtr;
 		typedef boost::multi_index_container<TreePtr,
 		boost::multi_index::indexed_by<
-		// list
-		boost::multi_index::sequenced<>,
-		// ordered by its corresponding hash table index (like blocks)
+		// vector, ordered by read operation
+		boost::multi_index::random_access<>,
+		// ordered by its corresponding custom id
 		boost::multi_index::ordered_unique<boost::multi_index::tag<int32>, boost::multi_index::const_mem_fun<Tree, int32, &Tree::customId> >
 		>
 		>
@@ -54,7 +56,7 @@ class Trees : public FileFormat
 		virtual std::streamsize read(InputStream& istream) throw (Exception);
 		virtual std::streamsize write(OutputStream& ostream) const throw (Exception);
 
-		virtual int32 fileId() const;
+		virtual const char8* fileTextId() const;
 		virtual const char8* fileName() const;
 		virtual int32 latestFileVersion() const;
 		virtual uint32_t version() const;
@@ -68,9 +70,9 @@ class Trees : public FileFormat
 		TreeContainer m_trees;
 };
 
-inline int32 Trees::fileId() const
+inline const char8* Trees::fileTextId() const
 {
-	return (int32)'W3do';
+	return "W3do";
 }
 
 inline const char8* Trees::fileName() const

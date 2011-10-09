@@ -39,6 +39,7 @@ typedef char byte;
 * Example: 1234 decimal = [00 00 04 D2]h will be stored in this order: [D2 04 00 00]h
 */
 typedef uint32_t int32;
+typedef uint32_t uint32;
 
 /// Versions (file versions) are usually being saved as int32 values.
 //typedef int32 version;
@@ -114,7 +115,14 @@ class FileFormat : public Format
 {
 	public:
 		virtual const char8* fileName() const = 0;
-		virtual id fileId() const = 0;
+		/**
+		 * \return Returns the format's id in form of ASCII text with length of \ref id!
+		 */
+		virtual const char8* fileTextId() const = 0;
+		virtual id fileId() const
+		{
+			return *reinterpret_cast<const id*>(fileTextId());
+		}
 		virtual int32 latestFileVersion() const = 0;
 };
 

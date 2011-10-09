@@ -29,6 +29,16 @@ namespace wc3lib
 namespace mpq
 {
 
+/**
+ * Each file in an MPQ archive has exactly one corresponding block which holds all of its content.
+ * Blocks are divided into sectors (\ref Sector).
+ * There is some properties which are equal for all contained sectors which can be accessed via \ref flags()
+ * The MPQ archive's block table is limited to a size of 2^32 (\ref uint32) - 2 since the last two values are reserved by \ref Hash::blockIndexDeleted and \ref Hash::blockIndexEmpty.
+ * Use \ref Mpq::maxBlockId to get the last valid block id.
+ * \sa Sector
+ * \sa Hash
+ * \sa MpqFile
+ */
 class Block : public Format, private boost::noncopyable
 {
 	public:
@@ -55,13 +65,28 @@ class Block : public Format, private boost::noncopyable
 
 		bool empty() const;
 		bool unused() const;
+		/**
+		 * Combines values from \ref blockOffset() and \ref extendedBlockOffset() and returns the result.
+		 * \note This is only required when \ref Mpq::Format::MPQ2 or higher is used.
+		 */
 		uint64 largeOffset() const;
 
 		class Mpq* mpq() const;
 		uint32 index() const;
 		void setBlockOffset(uint32 blockOffset);
+		/**
+		 * Offset from the archive's beginning (including header) where the block's data starts.
+		 * Since MPQ2 format extended offsets are support which allow larger archives.
+		 * \sa extendedBlockOffset()
+		 */
 		uint32 blockOffset() const;
 		void setExtendedBlockOffset(uint32 extendedBlockOffset);
+		/**
+		 * \ref Mpq::Format::MPQ2 supports extended offsets by adding a \ref uint16 value which contains the \ref uint64's more significant bits.
+		 * Use \ref largeOffset() to get the whole offset combination.
+		 * \sa largeOffset()
+		 * \sa blockOffset()
+		 */
 		uint16 extendedBlockOffset() const;
 		void setBlockSize(uint32 blockSize);
 		/**

@@ -221,7 +221,7 @@ class Info : public FileFormat
 		std::streamsize read(InputStream &istream) throw (class Exception);
 		std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
-		virtual id fileId() const;
+		virtual const char8* fileTextId() const;
 		virtual int32 latestFileVersion() const;
 		virtual const char8* fileName() const;
 
@@ -415,9 +415,9 @@ inline const Info::RandomUnitTable::Groups& Info::RandomUnitTable::groups() cons
 	return m_groups;
 }
 
-inline id Info::fileId() const
+inline const char8* Info::fileTextId() const
 {
-	return 0;
+	return "";
 }
 
 inline int32 Info::latestFileVersion() const

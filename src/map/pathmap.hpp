@@ -42,19 +42,19 @@ class Pathmap : public FileFormat
 			Unknown = 0x80
 		};
 		BOOST_SCOPED_ENUM_END
-		
+
 		typedef std::map<Position, BOOST_SCOPED_ENUM(Type)> Data;
-		
+
 		Pathmap(class W3m *w3m);
 		virtual ~Pathmap();
-		
+
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
-		
-		virtual int32 fileId() const;
+
+		virtual const char8* fileTextId() const;
 		virtual const char8* fileName() const;
 		virtual int32 latestFileVersion() const;
-		
+
 		virtual int32 version() const;
 		int32 width() const;
 		int32 height() const;
@@ -68,9 +68,9 @@ class Pathmap : public FileFormat
 		Data m_data;
 };
 
-inline int32 Pathmap::fileId() const
+inline const char8* Pathmap::fileTextId() const
 {
-	return (int32)'MP3W';
+	return "MP3W";
 }
 
 inline const char8* Pathmap::fileName() const
@@ -104,7 +104,7 @@ inline BOOST_SCOPED_ENUM(Pathmap::Type) Pathmap::type(const Position &position) 
 
 	if (iterator == this->m_data.end())
 		throw Exception(boost::format(_("No pathing found at positon (%1%|%2%).")) % position.x() % position.y());
-	
+
 	return iterator->second;
 }
 

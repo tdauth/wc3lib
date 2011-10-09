@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2009 by Tamino Dauth                                    *
+ *   Copyright (C) 2011 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,41 +18,40 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_SLK_DATA_HPP
-#define WC3LIB_SLK_DATA_HPP
+#include <KLineEdit>
+#include <KUrlCompletion>
+#include <KUrlRequester>
 
-#include <list>
-
-#include "../format.hpp"
-#include "../map/platform.hpp"
+#include "sourcesdialog.hpp"
+#include "mpqprioritylist.hpp"
 
 namespace wc3lib
 {
 
-namespace slk
+namespace editor
 {
 
-/**
-* Default class for reading <Prefix>Data.txt files like WorldEditData.txt or TriggerStrings.txt.
-* @todo Should use a Bison file which defines the possible syntax for these files. Maybe we could use Boost's parser library instead.
-*/
-class Data : public Format<map::byte>
+void SourcesDialog::update()
 {
-	public:
-		Data();
-		~Data();
+	foreach (MpqPriorityList::Source source, const_cast<const MpqPriorityList*>(source())->sources())
+		m_editListBox->insertItem(source->url().toEncoded());
+}
 
-		std::streamsize read(std::istream &istream) throw (class Exception);
-		std::streamsize write(std::ostream &ostream) const throw (class Exception);
+SourcesDialog::SourcesDialog(class MpqPriorityList *source, QWidget *parent, Qt::WFlags flags): m_source(source), KDialog(parent, flags)
+{
+	setupUi(this);
+	//m_editListBox->
+	// TODO use URL requester
+	//KUrlRequester *requester = new KUrlRequester(this);
+	//KUrlCompletion *urlCompletion = new KUrlCompletion(KUrlCompletion::DirCompletion);
+	//m_editListBox->lineEdit()->setCompletionObject(urlCompletion);
+	//m_editListBox->setCustomEditor(*requester);
+}
 
-	protected:
-		virtual class DataEntry* dataEntry() = 0;
-
-		std::list<class DataEntry*> m_entries;
-};
-
+void SourcesDialog::added(const QString& text)
+{
 }
 
 }
 
-#endif
+}

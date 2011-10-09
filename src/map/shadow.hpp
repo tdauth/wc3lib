@@ -69,7 +69,7 @@ class Shadow : public FileFormat
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
-		virtual int32 fileId() const;
+		virtual const char8* fileTextId() const;
 		virtual const char8* fileName() const;
 		virtual int32 latestFileVersion() const;
 		virtual int32 version() const;
@@ -133,9 +133,9 @@ inline bool Shadow::Key::operator==(const Key &other) const
 	return this->x() == other.x() && this->y() == other.y() && this->point() == other.point();
 }
 
-inline int32 Shadow::fileId() const
+inline const char8* Shadow::fileTextId() const
 {
-	return 0;
+	return "";
 }
 
 inline const char8* Shadow::fileName() const

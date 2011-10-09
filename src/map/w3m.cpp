@@ -73,19 +73,22 @@ std::streamsize W3m::read(InputStream &istream, const mpq::Listfile::Entries &li
 
 		if (file != 0)
 		{
-			arraystream stream;
+			/*
+			 * FIXME
+			boost::scoped_array<byte> buffer(new byte[file->size()]);
+			arraystream stream(buffer.get(), file->size());
+			*/
+			stringstream stream;
 
 			try
 			{
 				file->writeData(stream);
-				std::cout << "After reading MPQ file of file " << format->fileName() << std::endl;
 				size += format->read(stream);
 			}
 			catch (std::exception &exception)
 			{
 				throw Exception(boost::format(_("Error while reading map file \"%1%\":\n%2%")) % format->fileName() % exception.what());
 			}
-
 		}
 	}
 

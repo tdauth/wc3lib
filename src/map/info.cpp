@@ -34,7 +34,7 @@ std::streamsize Info::Player::read(InputStream &istream) throw (Exception)
 	wc3lib::read<int32>(istream, (int32&)m_race, size);
 	wc3lib::read<int32>(istream, (int32&)m_hasFixedStartPosition, size);
 	wc3lib::readString(istream, m_name, size);
-	wc3lib::read(istream, m_position, size);
+	size += m_position.read(istream);
 	wc3lib::read(istream, m_allowLowPriorityFlags, size);
 	wc3lib::read(istream, m_allowHighPriorityFlags, size);
 
@@ -49,7 +49,7 @@ std::streamsize Info::Player::write(OutputStream &ostream) const throw (Exceptio
 	wc3lib::write<int32>(ostream, race(), size);
 	wc3lib::write<int32>(ostream, hasFixedStartPosition(), size);
 	wc3lib::writeString(ostream, name(), size);
-	wc3lib::write(ostream, position(), size);
+	size += position().write(ostream);
 	wc3lib::write(ostream, allowLowPriorityFlags(), size);
 	wc3lib::write(ostream, allowHighPriorityFlags(), size);
 
@@ -214,6 +214,7 @@ std::streamsize Info::read(InputStream &istream) throw (class Exception)
 	std::streamsize size = 0;
 	wc3lib::read(istream, m_version, size);
 
+	// FIXME we're reading version 18 but 13 is latest!
 	if (version() != latestFileVersion())
 		std::cerr << boost::format(_("Info: Unsupported version %1%. Latest version is %2%.")) % version() % latestFileVersion() << std::endl;
 

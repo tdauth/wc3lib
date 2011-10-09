@@ -27,7 +27,7 @@ namespace wc3lib
 namespace map
 {
 
-const int32 Environment::maxTilesets = 16;
+const uint32 Environment::maxTilesets = 16;
 
 Environment::Environment(class W3m *w3m) : m_w3m(w3m)
 {
@@ -47,38 +47,36 @@ std::streamsize Environment::read(InputStream &istream) throw (class Exception)
 	if (this->version() != latestFileVersion())
 		std::cerr << boost::format(_("Environment: Expected version %1%. Got unknown %2%.")) % latestFileVersion() % this->version() << std::endl;
 
-	char8 mainTileset;
-	wc3lib::read(istream, mainTileset, size);
-	this->m_mainTileset = Environment::convertCharToMainTileset(mainTileset);
+	wc3lib::read<char8>(istream, (char8&)this->m_mainTileset, size);
 
-	int32 customTilesetsFlag;
+	uint32 customTilesetsFlag;
 	wc3lib::read(istream, customTilesetsFlag, size);
 	this->m_customized = customTilesetsFlag;
 
-	int32 groundTilesetsNumber;
+	uint32 groundTilesetsNumber;
 	wc3lib::read(istream, groundTilesetsNumber, size);
 
-	if (groundTilesetsNumber > Environment::maxTilesets)
-		throw Exception(boost::str(boost::format(_("Environment: Ground tilesets are limited to %1% however %2% are used.")) % Environment::maxTilesets % groundTilesetsNumber));
+	if (groundTilesetsNumber > maxTilesets)
+		throw Exception(boost::format(_("Environment: Ground tilesets are limited to %1% however %2% are used.")) % maxTilesets % groundTilesetsNumber);
 
 	this->m_groundTilesetsIds.resize(groundTilesetsNumber);
-	
-	for (std::size_t i = 0; i < groundTilesetsNumber; ++i)
+
+	for (uint32 i = 0; i < groundTilesetsNumber; ++i)
 	{
 		id groundTilesetId;
 		wc3lib::read(istream, groundTilesetId, size);
 		this->m_groundTilesetsIds[i] = groundTilesetId;
 	}
 
-	int32 cliffTilesetsNumber;
+	uint32 cliffTilesetsNumber;
 	wc3lib::read(istream, cliffTilesetsNumber, size);
 
-	if (cliffTilesetsNumber > Environment::maxTilesets)
-		throw Exception(boost::str(boost::format(_("Environment: Cliff tilesets are limited to %1% however %2% are used.")) % Environment::maxTilesets % cliffTilesetsNumber));
+	if (cliffTilesetsNumber > maxTilesets)
+		throw Exception(boost::format(_("Environment: Cliff tilesets are limited to %1% however %2% are used.")) % maxTilesets % cliffTilesetsNumber);
 
 	this->m_cliffTilesetsIds.resize(cliffTilesetsNumber);
-	
-	for (std::size_t i = 0; i < cliffTilesetsNumber; ++i)
+
+	for (uint32 i = 0; i < cliffTilesetsNumber; ++i)
 	{
 		id cliffTilesetId;
 		wc3lib::read(istream, cliffTilesetId, size);
@@ -91,9 +89,9 @@ std::streamsize Environment::read(InputStream &istream) throw (class Exception)
 	wc3lib::read(istream, this->m_centerOffsetY, size);
 
 	// The first tilepoint defined in the file stands for the lower left corner of the map when looking from the top, then it goes line by line (horizontal).
-	for (int32 y = 0; y < this->m_maxY; ++y)
+	for (uint32 y = 0; y < this->maxY(); ++y)
 	{
-		for (int32 x = 0; x < this->m_maxX; ++x)
+		for (uint32 x = 0; x < this->maxX(); ++x)
 		{
 			TilepointPtr ptr(new Tilepoint(this, x, y));
 			size += ptr->read(istream);
@@ -114,102 +112,38 @@ std::streamsize Environment::write(OutputStream &ostream) const throw (class Exc
 		std::cerr << boost::format(_("Environment: Expected version %1%. Got unknown %2%.")) % latestFileVersion() % this->version() << std::endl;
 
 	wc3lib::write<char8>(ostream, mainTileset(), size);
-	wc3lib::write<int32>(ostream, customized(), size);
+	wc3lib::write<uint32>(ostream, customized(), size);
 
-	if (groundTilesetsIds().size() > Environment::maxTilesets)
-		throw Exception(boost::format(_("Environment: Ground tilesets are limited to %1% however %2% are used.")) % Environment::maxTilesets % groundTilesetsIds().size());
+	if (groundTilesetsIds().size() > maxTilesets)
+		throw Exception(boost::format(_("Environment: Ground tilesets are limited to %1% however %2% are used.")) % maxTilesets % groundTilesetsIds().size());
 
-	wc3lib::write<int32>(ostream, groundTilesetsIds().size(), size);
-	
-	for (std::size_t i = 0; i < groundTilesetsIds().size(); ++i)
+	wc3lib::write<uint32>(ostream, groundTilesetsIds().size(), size);
+
+	for (uint32 i = 0; i < groundTilesetsIds().size(); ++i)
 		wc3lib::write<id>(ostream, this->groundTilesetsIds()[i], size);
 
-	
-	if (cliffTilesetsIds().size() > Environment::maxTilesets)
-		throw Exception(boost::format(_("Environment: Cliff tilesets are limited to %1% however %2% are used.")) % Environment::maxTilesets % cliffTilesetsIds().size());
-	
-	wc3lib::write(ostream, cliffTilesetsIds().size(), size);
-	
-	for (std::size_t i = 0; i < cliffTilesetsIds().size(); ++i)
+
+	if (cliffTilesetsIds().size() > maxTilesets)
+		throw Exception(boost::format(_("Environment: Cliff tilesets are limited to %1% however %2% are used.")) % maxTilesets % cliffTilesetsIds().size());
+
+	wc3lib::write<uint32>(ostream, cliffTilesetsIds().size(), size);
+
+	for (uint32 i = 0; i < cliffTilesetsIds().size(); ++i)
 		wc3lib::write<id>(ostream, cliffTilesetsIds()[i], size);
-	
+
 	wc3lib::write(ostream, this->maxX(), size);
 	wc3lib::write(ostream, this->maxY(), size);
 	wc3lib::write(ostream, this->centerOffsetX(), size);
 	wc3lib::write(ostream, this->centerOffsetY(), size);
-	
+
 	// The first tilepoint defined in the file stands for the lower left corner of the map when looking from the top, then it goes line by line (horizontal).
-	for (int32 y = 0; y < this->maxY(); ++y)
+	for (uint32 y = 0; y < this->maxY(); ++y)
 	{
-		for (int32 x = 0; x < this->maxX(); ++x)
+		for (uint32 x = 0; x < this->maxX(); ++x)
 			size += tilepoint(Position(x, y))->write(ostream);
 	}
 
 	return size;
-}
-
-BOOST_SCOPED_ENUM(Environment::MainTileset) Environment::convertCharToMainTileset(char value) throw (class Exception)
-{
-	switch (value)
-	{
-		case 'A':
-			return Environment::MainTileset::Ashenvale;
-
-		case 'B':
-			return Environment::MainTileset::Barrens;
-
-		case 'C':
-			return Environment::MainTileset::Felwood;
-
-		case 'D':
-			return Environment::MainTileset::Dungeon;
-
-		case 'F':
-			return Environment::MainTileset::LordaeronFall;
-
-		case 'G':
-			return Environment::MainTileset::Underground;
-
-		case 'L':
-			return Environment::MainTileset::LordaeronSummer;
-
-		case 'N':
-			return Environment::MainTileset::Northrend;
-
-		case 'Q':
-			return Environment::MainTileset::VillageFall;
-
-		case 'V':
-			return Environment::MainTileset::Village;
-
-		case 'W':
-			return Environment::MainTileset::LordaeronWinter;
-
-		case 'X':
-			return Environment::MainTileset::Dalaran;
-
-		case 'Y':
-			return Environment::MainTileset::Cityscape;
-
-		case 'Z':
-			return Environment::MainTileset::SunkenRuins;
-
-		case 'I':
-			return Environment::MainTileset::Icecrown;
-
-		case 'J':
-			return Environment::MainTileset::DalaranRuins;
-
-		case 'O':
-			return Environment::MainTileset::Outland;
-
-		case 'K':
-			return Environment::MainTileset::BlackCitadel;
-	}
-
-	throw Exception(boost::format(_("Environment: Character \'%1%\' does not refer to any main tileset.")) % value);
-
-	//return Environment::Ashenvale;
 }
 
 }

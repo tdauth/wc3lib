@@ -1,9 +1,21 @@
+2011-10-09 Tamino Dauth <tamino@cdauth.eu>
+* Isn't there any binary buffered stream like stringstream (only binary without any line endings exceptions).
+* Whenever you read data from an MPQ file you could use arraystream with using a buffer with the file's uncompressed size.
+* map: Fix Info::read() - version bug for W3m files.
+* map: Fix Strings::read() which should be able to ignore empty lines! Use boost::spirit!
+* Provide grammars for MDL, WTS, FDF, SLK formats etc.
+* editor: Rename MpqPriorityList to class Sources.
+* editor: Create class SourcesDialog based on its corresponding UI.
+* editor: Create abstract class SourcesClient which provides hasEditor() and source() member functions for classes like Module, Resource or SourcesDialog.
+* editor: Split up all editor modules into sub directories and add corresponding CMake options.
+
 2011-10-08 Tamino Dauth <tamino@cdauth.eu>
 * Split up Warcraft III listfiles into: "Warcraft III Beta.txt", "Warcraft III: Reign of Chaos.txt", "Warcraft III: The Frozen Throne.txt", "Warcraft III: Reign of Chaos - Patch.txt", "Warcraft III: The Frozen Throne - Patch.txt", "Warcraft III: Reign of Chaos - Local.txt", "Warcraft III: The Frozen Throne - Local.txt", "Warcraft III: Reign of Chaos - Map.txt", "Warcraft III: The Frozen Throne - Map.txt" and "Warcraft III: The Frozen Throne - Campaign.txt".
 * app: When using -f option of application "mpq" we cannot specify several paths?
 * mpq: Fix sector table values (last table value is not equal to the original block size for many files).
 * mpq: BZh magic sequence is missing for many sectors (maybe all??).
 * mpq: Fix eoffail exceptions for interface sound files and std::bad_alloc exception.
+* HINT:!!!!!!!!!!!! Probably Bzip errors etc. occur because we're still using iarraystream? Writing into preallocated arraystreams doesn't work for classes such as map::Environment, too but at this point we're trying to read only!
 * map: W3m should not store its signature, too. However, you have to overload the signature calculation member functions of class mpq::Mpq and maybe create a new class based on mpq::Signature for weak digital signature (check out the documentation!).
 * map: Fix read operation of Environment (expects more bytes).
 

@@ -42,38 +42,38 @@ class MenuMinimap : public FileFormat
 					PlayerStart
 				};
 				BOOST_SCOPED_ENUM_END
-				
+
 				Mark(int32 x, int32 y);
-				
+
 				virtual std::streamsize read(InputStream& istream) throw (Exception);
 				virtual std::streamsize write(OutputStream& ostream) const throw (Exception);
-				
+
 				BOOST_SCOPED_ENUM(IconType) iconType() const;
 				const Bgra& color() const;
-			
+
 			protected:
 				BOOST_SCOPED_ENUM(IconType) m_iconType;
 				Bgra m_color;
 		};
-		
+
 		typedef boost::shared_ptr<Mark> MarkPtr;
 		/// Ordered by their coordinates.
 		typedef std::set<MarkPtr> Marks;
-		
+
 		MenuMinimap(class W3m *w3m);
-		
+
 		virtual std::streamsize read(InputStream &istream) throw (Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
-		
+
 		virtual int32 version() const;
 		virtual const char8* fileName() const;
-		virtual id fileId() const;
+		virtual const char8* fileTextId() const;
 		virtual int32 latestFileVersion() const;
-		
+
 		class W3m* w3m() const;
 		Marks marks();
 		const Marks& marks() const;
-		
+
 	protected:
 		class W3m *m_w3m;
 		int32 m_version;
@@ -105,9 +105,9 @@ inline const char8* MenuMinimap::fileName() const
 	return "war3map.mmp";
 }
 
-inline id MenuMinimap::fileId() const
+inline const char8* MenuMinimap::fileTextId() const
 {
-	return 0;
+	return "";
 }
 
 inline int32 MenuMinimap::latestFileVersion() const

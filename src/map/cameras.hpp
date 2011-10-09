@@ -41,7 +41,7 @@ class Cameras : public FileFormat
 		std::streamsize read(std::istream &istream) throw (class Exception);
 		std::streamsize write(std::ostream &ostream) const throw (class Exception);
 
-		virtual id fileId() const;
+		virtual const char8* fileTextId() const;
 		virtual const char8* fileName() const;
 		virtual int32 latestFileVersion() const;
 
@@ -53,9 +53,9 @@ class Cameras : public FileFormat
 		std::list<class Camera*> m_cameras;
 };
 
-inline id Cameras::fileId() const
+inline const char8* Cameras::fileTextId() const
 {
-	return 0;
+	return "";
 }
 
 inline const char8* Cameras::fileName() const

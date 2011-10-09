@@ -56,7 +56,7 @@ class ImportedFiles : public FileFormat
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
-		virtual id fileId() const;
+		virtual const char8* fileTextId() const;
 		virtual int32 latestFileVersion() const;
 		virtual const char8* fileName() const;
 
@@ -83,9 +83,9 @@ inline const string& ImportedFiles::Path::path() const
 	return this->m_path;
 }
 
-inline id ImportedFiles::fileId() const
+inline const char8* ImportedFiles::fileTextId() const
 {
-	return 0;
+	return "";
 }
 
 inline int32 ImportedFiles::latestFileVersion() const

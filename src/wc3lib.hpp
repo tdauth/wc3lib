@@ -26,7 +26,7 @@
 #endif
 
 /**
-* \mainpage wc3libmainpage
+* \mainpage Warcraft III Library
 * \date Version date
 * 2010-12-25
 * \author Tamino Dauth <tamino@cdauth.eu>
@@ -35,46 +35,63 @@
 * This is the API reference and documentation of the <a url="https://gitorious.org/wc3lib">wc3lib</a> project. wc3lib is an abbreviation which means "Warcraft III Library".
 * It's a collection of varios libraries which allow programmers to use Blizzard's customly developed formats with an abstract C++ interface.
 * All implementations are free and mainly under the GPLv2 license but there's some external code which is mostly under some similar license as well.
-* As mentioned above the wc3lib is split up into some different modules. Each module consists of a single library which supports one of <a url="http://blizzard.com/">Blizzard's</a> formats (except modules "app" and "editor" which are extensions of the default modules).
-* To use the whole library you could simply include file \ref "wc3lib.hpp" and link your program with library "wc3lib".
+* As mentioned above the wc3lib is split up into some different modules. Each module consists of a single library which supports one of <a url="http://blizzard.com/">Blizzard's</a> formats (except modules \ref applicationssection and \ref editorsection which are extensions of the default modules).
+* To use the whole library you could simply include file \ref wc3lib.hpp and link your program with library "wc3lib".
 * Another probably faster way is to link it with the required libraries only.
 * Therefore you can include all header files of your required modules since each module has one.
 * Besides you should bear in mind that each module has its own namespace.
 * All namespaces and other declarations of the wc3lib belong to the global namespace \ref wc3lib.
+* Each module uses a header file called "platform.hpp" for its core type definitions such as integer types with specified size.
 *
 * \section mpqsection MPQ module
-* Include file \ref "mpq.hpp" and use namspace \ref mpq to use this module.
+* The MPQ format (Mo'PaQ, short for Mike O'Brien Pack) is Blizzard's archive format used by most of their games.
+* It provides various features:
+* <ul>
+* <li>file hashing</li>
+* <li>locale support</li>
+* <li>file sector compression (BZip2, zlib, PKWare, wave etc.)</li>
+* <li>format extensions for archives which can be larger than 2^32 bytes</li>
+* </ul>
+* Use class \ref wc3lib::mpq::Mpq to access or create one single MPQ archive.
+* Include file \ref mpq.hpp and use namspace \ref wc3lib::mpq to use this module.
 *
 * \section blpsection BLP module
-* Include file \ref "blp.hpp" and use namspace \ref blp to use this module.
+* This module provides functionality for reading, writing and modifying Blizzard Picture files.
+* Its main class is \ref wc3lib::blp::Blp which represents one single texture.
+* The BLP format supports various features:
+* <ul>
+* <li>MIP mapping (up to 16 MIP maps)</li>
+* <li>JPEG/JFIF compression</li>
+* <li>paletted compression (similar GIF</li>
+* <li>RGBA color space</li>
+* </ul>
+* Include file \ref blp.hpp and use namspace \ref wc3lib::blp to use this module.
 *
 * \section mdlx MDLX module
 * This module provides several classes to read and write Blizzard's 3d graphics formats MDX (binary) and MDL (human-readable).
 * It does not provide any display/rendering functionality. Use module \ref editor for this.
-* Include file \ref "mdlx.hpp" and use namespace \ref mdlx to use this module.
+* Class \ref wc3lib::mdlx::Mdlx provides all functionality which is needed to save or load one MDX or MDL file.
+* It can easily be used to convert one format into the other one (application "wc3converter" provides this feature).
+* Include file \ref mdlx.hpp and use namespace \ref wc3lib::mdlx to use this module.
 *
 * \section mapsection Map module
-* Use this module to read, write and modify Warcraft 3 maps and campaigns and their corresponding files.
-* Warcraft 3 maps and campaigns are usual MPQ archives containing some specific files, most of them in a binary format.
-* Include file \ref "map.hpp" and use namespace \ref map to use this module.
-*
-* \section slksection SLK module
-* \deprecated This library is deprecated and will be integrated in modul editor.
-* The SLK format is a very basical, human-readable table format which is used by Blizzard's game Warcraft 3 to store many meta datas (e. g. unit type and sound data).
-* This module provides some classes to read, write and modify SLK files.
-* Include file \ref "slk.hpp" and use namespace \ref slk to use this module.
+* Use this module to read, write and modify Warcraft III maps (*.w3m, *.w3x) and campaigns (*.w3n) and their corresponding files.
+* Warcraft III maps and campaigns are usual MPQ archives containing some specific files, most of them in a binary format.
+* Include file \ref map.hpp and use namespace \ref wc3lib::map to use this module.
 *
 * \section editorsection Editor module
 * The editor module contains many classes to emulate the original World Editor created by Blizzard Entertainment.
-* There are various Qt and KDE plug-ins which allow you to load and save BLP, MPQ and SLK files in an appreciated way.
-* Include file \ref "editor.hpp" and use namspace \ref edtor to use this module.
+* It's based on some plugins which can be used without the whole editor module functionality, as well.
+* Include file \ref editor.hpp and use namspace \ref wc3lib::edtor to use this module.
+* \subsection pluginssection Plugins
+* There is various plug-ins which allow you to load and save BLP textures in Qt/KDE GUIs and OGRE scenes and to access MPQ archives via KDE's KIO slave module.
 *
 * \section applicationssection Applications module
 * Since this module only provides some useful applications there is neither any namespace to use nor any header file to include.
 * Currently there are following applications available:
 * <ul>
-* <li>converter - console-based converting tool for all supported formats</li>
-* <li>editor - improved World Editor emulation</li>
+* <li>wc3converter - console-based converting tool for all supported formats</li>
+* <li>wc3editor - improved World Editor emulation</li>
 * <li>jassc - JASS parser and compiler for JASS-based dialects (vJass, Zinc, CJass, JASS++)</li>
 * <li>jasstrans - internationalisation tool which parses and stores strings from JASS code files</li>
 * <li>mpq - console-based, tar-like MPQ archive extractor and creator tool</li>
@@ -84,7 +101,6 @@
 * \namespace wc3lib
 * All code elements of the wc3lib belong to this namespace!
 */
-/// @todo Add all include files!
 
 #include "core.hpp"
 

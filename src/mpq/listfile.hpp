@@ -29,6 +29,13 @@ namespace wc3lib
 namespace mpq
 {
 
+/**
+ * Each MPQ archive can contain one single "(listfile)" file with neutral locale and default platform which contains all paths (usually in Windows style) separated by one of the following characters: ";\r\n".
+ * Since only hashes of file paths, locales and platforms are stored by default you usually don't know which files do belong to the archive.
+ * Therefore listfiles can help especially when extracting all files from an archive or simply to do not loose any file path information.
+ * \sa Attributes
+ * \sa Signature
+ */
 class Listfile : public MpqFile
 {
 	public:

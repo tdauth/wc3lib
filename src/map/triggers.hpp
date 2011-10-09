@@ -45,13 +45,13 @@ class Triggers : public FileFormat
 
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
-		
-		virtual int32 fileId() const;
+
+		virtual const char8* fileTextId() const;
 		virtual const char8* fileName() const;
 		virtual int32 latestFileVersion() const;
-		
+
 		virtual int32 version() const;
-		
+
 		int32 unknown0() const;
 		const Categories& categories() const;
 		const VariableList& variables() const;
@@ -70,9 +70,9 @@ class Triggers : public FileFormat
 		TriggerList m_triggers;
 };
 
-inline int32 Triggers::fileId() const
+inline const char8* Triggers::fileTextId() const
 {
-	return (int32)'WTG!';
+	return "WTG!";
 }
 
 inline const char8* Triggers::fileName() const

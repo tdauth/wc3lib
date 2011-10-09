@@ -43,15 +43,15 @@ class MapStrings : public FileFormat, public Strings
 			return Strings::write(ostream);
 		}
 
-		virtual id fileId() const;
+		virtual const char8* fileTextId() const;
 		virtual const char8* fileName() const;
 		virtual int32 latestFileVersion() const;
 		virtual uint32_t version() const;
 };
 
-inline id MapStrings::fileId() const
+inline const char8* MapStrings::fileTextId() const
 {
-	return 0;
+	return "";
 }
 
 inline const wc3lib::map::char8* MapStrings::fileName() const

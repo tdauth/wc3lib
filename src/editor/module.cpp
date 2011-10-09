@@ -29,6 +29,7 @@
 #include "modulemenu.hpp"
 #include "editor.hpp"
 #include "settingsinterface.hpp"
+#include "sourcesdialog.hpp"
 
 namespace wc3lib
 {
@@ -73,6 +74,13 @@ class Editor* Module::editor() const throw (std::bad_cast)
 	return boost::polymorphic_cast<Editor*>(source());
 }
 
+void Module::showSourcesDialog()
+{
+	SourcesDialog *sourcesDialog = new SourcesDialog(source(), this);
+	sourcesDialog->update();
+	sourcesDialog->show();
+}
+
 void Module::setupUi()
 {
 	this->m_menuBar = new KMenuBar(this);
@@ -115,6 +123,10 @@ void Module::setupUi()
 	}
 
 	this->m_fileMenu->addAction(m_closeAction);
+
+	this->m_sourcesAction = new KAction(tr("Sources"), this);
+	connect(this->m_sourcesAction, SIGNAL(triggered()), this, SLOT(showSourcesDialog()));
+	this->m_fileMenu->addAction(m_sourcesAction);
 
 	this->m_editMenu = new KMenu(tr("Edit"), this);
 	this->menuBar()->addMenu(this->m_editMenu);

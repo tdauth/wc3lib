@@ -18,8 +18,6 @@ add_subdirectory(blp)
 #add_subdirectory(lang)
 add_subdirectory(mdlx)
 add_subdirectory(mpq)
-#add_subdirectory(slk)
-#add_subdirectory(vm)
 add_subdirectory(map)
 
 # libraries without editor
@@ -36,7 +34,7 @@ endif ()
 if (MAP)
 	list(APPEND wc3lib_CORE_LIBRARIES wc3libmap)
 endif ()
-#wc3libslk, wc3libvm, wc3liblang
+# wc3liblang
 
 if (EDITOR OR PLUGINS)
 	add_subdirectory(editor) # last one
@@ -57,7 +55,7 @@ endif ()
 if (MAP)
 	set(wc3lib_SRC ${wc3lib_SRC} ${wc3lib_MAP_SRC})
 endif ()
-# ${wc3lib_LANG_SRC}, ${wc3lib_SLK_SRC}, ${wc3lib_VM_SRC}
+# ${wc3lib_LANG_SRC}
 if (EDITOR)
 	set(wc3lib_LIBRARIES ${wc3lib_LIBRARIES} wc3libeditor)
 	set(wc3lib_SRC ${wc3lib_SRC} ${wc3lib_EDITOR_SRC})

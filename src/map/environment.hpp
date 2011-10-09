@@ -33,31 +33,35 @@ namespace map
 class Environment : public FileFormat
 {
 	public:
+		typedef std::vector<id> Ids;
 		typedef boost::shared_ptr<Tilepoint> TilepointPtr;
 		typedef std::set<TilepointPtr> Tilepoints;
 
-		static const int32 maxTilesets;
+		/**
+		 * There is a physical limit of usable tilesets per environment since each tilepoint (\ref Tilepoint) only uses 4 bits to refer on its ground texture type and its cliff texture type in its corresponding environment.
+		 */
+		static const uint32 maxTilesets;
 
 		BOOST_SCOPED_ENUM_START(MainTileset) /// \todo C++0x : byte
 		{
-			Ashenvale,
-			Barrens,
-			Felwood,
-			Dungeon,
-			LordaeronFall,
-			Underground,
-			LordaeronSummer,
-			Northrend,
-			VillageFall,
-			Village,
-			LordaeronWinter,
-			Dalaran,
-			Cityscape,
-			SunkenRuins,
-			Icecrown,
-			DalaranRuins,
-			Outland,
-			BlackCitadel
+			Ashenvale = 'A',
+			Barrens = 'B',
+			Felwood = 'C',
+			Dungeon = 'D',
+			LordaeronFall = 'F',
+			Underground = 'G',
+			LordaeronSummer = 'L',
+			Northrend = 'N',
+			VillageFall = 'Q',
+			Village = 'V',
+			LordaeronWinter = 'W',
+			Dalaran = 'X',
+			Cityscape = 'Y',
+			SunkenRuins = 'Z',
+			Icecrown = 'I',
+			DalaranRuins = 'J',
+			Outland = 'O',
+			BlackCitadel = 'K'
 		};
 		BOOST_SCOPED_ENUM_END
 
@@ -66,20 +70,20 @@ class Environment : public FileFormat
 		std::streamsize read(InputStream &istream) throw (class Exception);
 		std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
-		virtual int32 fileId() const;
+		virtual const char8* fileTextId() const;
 		virtual const char8* fileName() const;
-		virtual int32 latestFileVersion() const;
-		virtual int32 version() const { return m_version; }
+		virtual uint32 latestFileVersion() const;
+		virtual uint32 version() const { return m_version; }
 
-		int32 mapWidth() const;
-		int32 mapHeight() const;
+		uint32 mapWidth() const;
+		uint32 mapHeight() const;
 
 		BOOST_SCOPED_ENUM(MainTileset) mainTileset() const;
 		bool customized() const;
-		const std::vector<id>& groundTilesetsIds() const;
-		const std::vector<id>& cliffTilesetsIds() const;
-		int32 maxX() const;
-		int32 maxY() const;
+		const Ids& groundTilesetsIds() const;
+		const Ids& cliffTilesetsIds() const;
+		uint32 maxX() const;
+		uint32 maxY() const;
 		float32 centerOffsetX() const;
 		float32 centerOffsetY() const;
 
@@ -89,25 +93,23 @@ class Environment : public FileFormat
 		const TilepointPtr& tilepoint(const Position &position) const  throw (Exception);
 
 	protected:
-		static BOOST_SCOPED_ENUM(MainTileset) convertCharToMainTileset(char8 value) throw (class Exception);
-
 		class W3m *m_w3m;
-		int32 m_version;
+		uint32 m_version;
 		BOOST_SCOPED_ENUM(MainTileset) m_mainTileset;
 		bool m_customized;
-		std::vector<id> m_groundTilesetsIds;
-		std::vector<id> m_cliffTilesetsIds;
-		int32 m_maxX;
-		int32 m_maxY;
+		Ids m_groundTilesetsIds;
+		Ids m_cliffTilesetsIds;
+		uint32 m_maxX;
+		uint32 m_maxY;
 		float32 m_centerOffsetX;
 		float32 m_centerOffsetY;
 		Tilepoints m_tilepoints;
 
 };
 
-inline int32 Environment::fileId() const
+inline const char8* Environment::fileTextId() const
 {
-	return (int32)'W3E!';
+	return "W3E!";
 }
 
 inline const char8* Environment::fileName() const
@@ -115,17 +117,17 @@ inline const char8* Environment::fileName() const
 	return "war3map.w3e";
 }
 
-inline int32 Environment::latestFileVersion() const
+inline uint32 Environment::latestFileVersion() const
 {
 	return 11;
 }
 
-inline int32 Environment::mapWidth() const
+inline uint32 Environment::mapWidth() const
 {
 	return maxX() - 1;
 }
 
-inline int32 Environment::mapHeight() const
+inline uint32 Environment::mapHeight() const
 {
 	return maxY() - 1;
 }
@@ -140,22 +142,22 @@ inline bool Environment::customized() const
 	return m_customized;
 }
 
-inline const std::vector<id>& Environment::groundTilesetsIds() const
+inline const Environment::Ids& Environment::groundTilesetsIds() const
 {
 	return m_groundTilesetsIds;
 }
 
-inline const std::vector<id>& Environment::cliffTilesetsIds() const
+inline const Environment::Ids& Environment::cliffTilesetsIds() const
 {
 	return m_cliffTilesetsIds;
 }
 
-inline int32 Environment::maxX() const
+inline uint32 Environment::maxX() const
 {
 	return m_maxX;
 }
 
-inline int32 Environment::maxY() const
+inline uint32 Environment::maxY() const
 {
 	return m_maxY;
 }

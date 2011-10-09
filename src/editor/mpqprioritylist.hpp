@@ -229,6 +229,7 @@ class MpqPriorityList
 		 * \param defaultValue If corresponding key entry could not be found (e. g. files are not available or it simply does not exist) this value is shown as string if its length is bigger than 0.
 		 */
 		virtual QString tr(const QString &key, const QString &group = "", BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale = mpq::MpqFile::Locale::Neutral, const QString &defaultValue = "") const;
+
 	protected:
 		Sources& sources();
 

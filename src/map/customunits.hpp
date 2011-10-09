@@ -93,7 +93,7 @@ class CustomUnits : public FileFormat
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
 		virtual const char8* fileName() const;
-		virtual id fileId() const;
+		virtual const char8* fileTextId() const;
 		virtual int32 latestFileVersion() const;
 
 		virtual int32 version() const { return m_version; }
@@ -146,9 +146,9 @@ inline const char8* CustomUnits::fileName() const
 	return "war3map.w3u";
 }
 
-inline id CustomUnits::fileId() const
+inline const char8* CustomUnits::fileTextId() const
 {
-	return 0;
+	return "";
 }
 
 inline int32 CustomUnits::latestFileVersion() const

@@ -130,7 +130,7 @@ std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, sh
 		{
 			iarraystream istream(buffer, bufferSize);
 			//arraystream ostream;
-			std::basic_stringstream<byte> ostream; // TODO unbuffered stream doesnt work
+			std::basic_stringstream<byte> ostream; // TODO unbuffered stream doesnt work.
 
 			try
 			{
