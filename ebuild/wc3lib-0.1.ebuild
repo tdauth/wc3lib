@@ -9,7 +9,6 @@ inherit cmake-utils
 DESCRIPTION="Warcraft III development library"
 HOMEPAGE="https://gitorious.org/wc3lib"
 SRC_URI="http://sourceforge.net/projects/vjasssdk/files/wc3sdk/wc3lib/releases/wc3lib-${PV}.7z"
-# TODO add useflag dependencies!
 LICENSE="GPLv2"
 RESTRICT="nomirror"
 SLOT="0"
@@ -18,7 +17,7 @@ IUSE="+app +blp +map +mdlx +mpq +w3g +editor +plugins debug doc"
 
 DEPEND="${RDEPEND}"
 RDEPEND="
->=dev-libs/boost:1.41
+dev-libs/boost:1.46
 sys-devel/gettext
 mpq? (
 app-arch/bzip2

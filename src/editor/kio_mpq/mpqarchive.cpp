@@ -102,10 +102,11 @@ bool MpqArchive::writeFile(const QString &name, const QString &user, const QStri
 	BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale;
 	BOOST_SCOPED_ENUM(mpq::MpqFile::Platform) platform;
 	QString path(resolvePath(name, locale, platform));
-	mpq::MpqFile *file = m_mpq->addFile(path.toUtf8().constData(), locale, platform, &stream);
+	// TODO Change!
+	//mpq::MpqFile *file = m_mpq->addFile(path.toUtf8().constData(), locale, platform, &stream);
 
-	if (file == 0)
-		return false;
+	//if (file == 0)
+		//return false;
 
 	return true;
 }
@@ -167,10 +168,11 @@ bool MpqArchive::doWriteSymLink(const QString &name, const QString &target, cons
 	BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale;
 	BOOST_SCOPED_ENUM(mpq::MpqFile::Platform) platform;
 	QString path(resolvePath(name, locale, platform));
-	mpq::MpqFile *file = m_mpq->addFile(path.toUtf8().constData(), locale, platform, &stream);
+	// TODO FIXME
+	//mpq::MpqFile *file = m_mpq->addFile(path.toUtf8().constData(), locale, platform, &stream);
 
-	if (file == 0)
-		return false;
+	//if (file == 0)
+		//return false;
 
 	return true;
 }

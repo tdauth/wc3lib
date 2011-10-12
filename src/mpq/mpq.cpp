@@ -366,7 +366,7 @@ const class MpqFile* Mpq::findFile(const class MpqFile &mpqFile) const throw (Ex
 	return this->findFile(mpqFile.path(), mpqFile.locale(), mpqFile.platform());
 }
 
-class MpqFile* Mpq::addFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform, const istream *istream, bool overwriteExisting, int32 reservedSpace) throw (class Exception)
+class MpqFile* Mpq::addFile(const boost::filesystem::path &path, const byte *buffer, std::size_t bufferSize, bool overwriteExisting, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform) throw (class Exception)
 {
 	class MpqFile *mpqFile = const_cast<class MpqFile*>(this->findFile(path, locale, platform));
 
@@ -379,6 +379,7 @@ class MpqFile* Mpq::addFile(const boost::filesystem::path &path, BOOST_SCOPED_EN
 
 	BlockPtr block;
 
+	/*
 	if (reservedSpace == 0)
 	{
 		block.reset(this->firstEmptyBlock());
@@ -386,6 +387,8 @@ class MpqFile* Mpq::addFile(const boost::filesystem::path &path, BOOST_SCOPED_EN
 		if (block == 0)
 			block.reset(this->firstUnusedBlock());
 	}
+	*/
+	/*
 	else
 	{
 		// get block with the best size
@@ -456,8 +459,10 @@ class MpqFile* Mpq::addFile(const boost::filesystem::path &path, BOOST_SCOPED_EN
 	/// @todo Write file data/free reserved space in MPQ.
 	if (istream != 0)
 		;
+	*/
 
 	// TODO refreshing all stuff can take huge amount of performance -> should be optional!
+	/*
 
 	// Add "(listfile)" file entry.
 	if (this->containsListfileFile())
@@ -478,16 +483,19 @@ class MpqFile* Mpq::addFile(const boost::filesystem::path &path, BOOST_SCOPED_EN
 		; //this->refreshSignatureFile();
 
 	return hash->m_mpqFile;
+	*/
+	throw Exception(_("Not implemented yet!"));
 }
 
 class MpqFile* Mpq::addFile(const MpqFile &mpqFile, bool addData, bool overwriteExisting) throw (class Exception)
 {
+	throw Exception(_("Not implemented yet!"));
 	arraystream stream;
 
 	if (addData)
 		mpqFile.writeData(stream);
 
-	return this->addFile(mpqFile.path(), mpqFile.locale(), mpqFile.platform(), &stream, overwriteExisting, mpqFile.size());
+	//return this->addFile(mpqFile.path(), mpqFile.locale(), mpqFile.platform(), &stream, overwriteExisting, mpqFile.size());
 }
 
 bool Mpq::removeFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform)

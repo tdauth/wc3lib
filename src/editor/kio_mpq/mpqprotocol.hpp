@@ -44,12 +44,15 @@ class MpqProtocol : public KIO::SlaveBase
 	public:
 		static const char *protocol;
 
-		typedef boost::scoped_ptr<MpqArchive> MpqArchivePtr;
+		// FIXME Don't use class MpqArchive until KArchive becomes extensible for custom Entry types etc.
+		//typedef boost::scoped_ptr<MpqArchive> MpqArchivePtr;
+		typedef boost::scoped_ptr<mpq::Mpq> MpqArchivePtr;
+
 
 		MpqProtocol(const QByteArray &pool, const QByteArray &app);
 
-		virtual void listDir( const KUrl & url );
-		virtual void stat( const KUrl & url );
+		virtual void listDir(const KUrl &url);
+		virtual void stat(const KUrl &url);
 
 		virtual void open(const KUrl &url, QIODevice::OpenMode mode);
 		virtual void get(const KUrl &url);
@@ -58,6 +61,7 @@ class MpqProtocol : public KIO::SlaveBase
 	private:
 		void createRootUDSEntry(KIO::UDSEntry &entry);
 		void createUDSEntry(const KArchiveEntry *archiveEntry, KIO::UDSEntry &entry);
+		void createUDSEntry(const mpq::MpqFile &mpqFile, KIO::UDSEntry &entry);
 		/**
 		* \brief find, check and open the archive file
 		* \param url The URL of the archive
@@ -66,6 +70,7 @@ class MpqProtocol : public KIO::SlaveBase
 		* \return true if file was found, false if there was an error
 		*/
 		bool checkNewFile(const KUrl &url, QString &path, KIO::Error &errorNum, QIODevice::OpenMode openMode);
+		mpq::MpqFile* resolvePath(QString &path);
 
 		MpqArchivePtr m_archive;
 		QString m_archiveName;

@@ -25,6 +25,7 @@
 #include <QDir>
 
 #include <KArchive>
+#include <KLocale>
 
 #include "../../mpq.hpp"
 #include "../../core.hpp"
@@ -115,20 +116,7 @@ inline QString MpqArchive::locale(const BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) 
 			return "ne";
 
 		// all supported languages for MPQ archives
-		case mpq::MpqFile::Locale::Chinese:
-		case mpq::MpqFile::Locale::Czech:
-		case mpq::MpqFile::Locale::Dutch:
-		case mpq::MpqFile::Locale::English:
-		case mpq::MpqFile::Locale::EnglishUK:
-		case mpq::MpqFile::Locale::French:
-		case mpq::MpqFile::Locale::German:
-		case mpq::MpqFile::Locale::Italian:
-		case mpq::MpqFile::Locale::Japanese:
-		case mpq::MpqFile::Locale::Korean:
-		case mpq::MpqFile::Locale::Polish:
-		case mpq::MpqFile::Locale::Portuguese:
-		case mpq::MpqFile::Locale::Russsian:
-		case mpq::MpqFile::Locale::Spanish:
+		default:
 			return QLocale::languageToString(QLocale::Language(locale));
 	}
 
@@ -139,6 +127,55 @@ inline BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) MpqArchive::locale(const QString 
 {
 	if (locale == "ne")
 		return mpq::MpqFile::Locale::Neutral;
+
+	// TODO we don't have to do this if we could get QLocale's corresponding Windows locale id
+	switch (QLocale(locale).language())
+	{
+		case QLocale::Chinese:
+			return mpq::MpqFile::Locale::Chinese;
+
+		case QLocale::Czech:
+			return mpq::MpqFile::Locale::Czech;
+
+		case QLocale::Dutch:
+			return mpq::MpqFile::Locale::Dutch;
+
+		case QLocale::English:
+		{
+			if (QLocale(locale).country() == QLocale::UnitedKingdom)
+				return mpq::MpqFile::Locale::EnglishUK;
+
+			return mpq::MpqFile::Locale::English;
+		}
+
+		case QLocale::French:
+			return mpq::MpqFile::Locale::French;
+
+		case QLocale::German:
+			return mpq::MpqFile::Locale::German;
+
+		case QLocale::Italian:
+			return mpq::MpqFile::Locale::Italian;
+
+		case QLocale::Japanese:
+			return mpq::MpqFile::Locale::Japanese;
+
+		case QLocale::Korean:
+			return mpq::MpqFile::Locale::Korean;
+
+		case QLocale::Polish:
+			return mpq::MpqFile::Locale::Polish;
+
+		case QLocale::Portuguese:
+			return mpq::MpqFile::Locale::Portuguese;
+
+		case QLocale::Russian:
+			return mpq::MpqFile::Locale::Russsian;
+
+		case QLocale::Spanish:
+			return mpq::MpqFile::Locale::Spanish;
+
+	}
 
 	throw Exception();
 }
@@ -225,6 +262,14 @@ inline QString MpqArchive::resolvePath(const QString &path, BOOST_SCOPED_ENUM(mp
 		pos = result.indexOf(QLatin1Char('/'));
 		++i;
 	}
+
+#if DEBUG
+	if (localeDefined)
+		qDebug() << "Locale in path is: " << locale;
+
+	if (platformDefined)
+		qDebug() << "Platform is: " << platform;
+#endif
 
 	return result;
 }

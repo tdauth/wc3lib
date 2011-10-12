@@ -1,3 +1,6 @@
+2011-10-12 Tamino Dauth <tamino@cdauth.eu>
+* editor: MPQ I/O slave plugin doesn't use class MpqArchive anymore since it's not extensible enough to be used.
+
 2011-10-09 Tamino Dauth <tamino@cdauth.eu>
 * map: Fixed many bugs of read functionality for *.w3m files.
 * editor: Added class SourcesDialog.

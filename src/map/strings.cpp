@@ -201,6 +201,7 @@ std::pair<std::streamsize, std::streamsize> Strings::parse(const boost::filesyst
 
 std::streamsize Strings::read(InputStream &istream) throw (class Exception)
 {
+	return 0;
 	/*
 	 * TODO finish
 	InputStream::iterator first = istream.begin();

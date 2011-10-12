@@ -260,7 +260,7 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		 * \param istream This input stream is used for reading the initial file data.
 		 * \todo Replace reservedSpace by size of istream?
 		 */
-		class MpqFile* addFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform, const istream *istream = 0, bool overwriteExisting = false, int32 reservedSpace = 0) throw (class Exception);
+		class MpqFile* addFile(const boost::filesystem::path &path, const byte *buffer, std::size_t bufferSize, bool overwriteExisting = false, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default) throw (class Exception);
 		/**
 		 * Path of MPQ file \p mpqFile should be set if you use this method.
 		 * Does not add \p mpqFile. Only uses its meta data (beside you set \p addData to true)!
