@@ -1,3 +1,6 @@
+install(DIRECTORY man/man1 DESTINATION share/doc/man/)
+install(DIRECTORY man/man5 DESTINATION share/doc/man/)
+
 CMAKE_DEPENDENT_OPTION(DOXYGEN_HTML
 "HTML output for API documentation."
 ON

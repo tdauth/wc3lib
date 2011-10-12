@@ -8,11 +8,11 @@ inherit cmake-utils
 
 DESCRIPTION="Warcraft III development library"
 HOMEPAGE="https://gitorious.org/wc3lib"
-SRC_URI="http://sourceforge.net/projects/vjasssdk/files/wc3sdk/wc3lib/releases/wc3lib-${PV}.7z"
+SRC_URI="http://sourceforge.net/projects/vjasssdk/files/wc3sdk/wc3lib/releases/wc3lib-${PV}.zip"
 LICENSE="GPLv2"
 RESTRICT="nomirror"
 SLOT="0"
-KEYWORDS="*"
+KEYWORDS="~amd64 ~arm ~ppc ~ppc64 ~x86"
 IUSE="+app +blp +map +mdlx +mpq +w3g +editor +plugins debug doc"
 
 DEPEND="${RDEPEND}"
@@ -33,6 +33,9 @@ editor? (
 )
 plugins? (
 >=kde-base/kdelibs-4.6
+)
+doc? (
+app-doc/doxygen
 )
 "
 MERGE_TYPE="source"
