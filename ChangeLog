@@ -1,3 +1,13 @@
+2011-10-17 Tamino Dauth <tamino@cdauth.eu>
+* editor: Made some minor revisions.
+
+2011-10-14 Tamino Dauth <tamino@cdauth.eu>
+* editor: Revised module registry behaviour which makes class Editor more extensible.
+
+2011-10-13 Tamino Dauth <tamino@cdauth.eu>
+* core: Revised library path detection.
+* editor: Added class Plugin.
+
 2011-10-12 Tamino Dauth <tamino@cdauth.eu>
 * editor: MPQ I/O slave plugin doesn't use class MpqArchive anymore since it's not extensible enough to be used.
 * Revised ebuild.

@@ -38,6 +38,7 @@ namespace editor
  * "kio_mpq" is installed as usual MPQ plugin and therefore should be usable in all KDE-based applications.
  * \note Based on code of class \ref ArchiveProtocol which is part of kdebase-runtime libraries.
  * \todo Finish and make installable as KDE plugin (such like qblp).
+ * \todo Use KIO::SlaveBase member functions to provide meta data (extended attributes).
  */
 class MpqProtocol : public KIO::SlaveBase
 {

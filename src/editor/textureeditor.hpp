@@ -100,7 +100,7 @@ class TextureEditor : public Module, protected Ui::TextureEditor
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
 		virtual void onSwitchToMap(class Map *map);
-		virtual QString actionName();
+		virtual QString actionName() const;
 
 		TexturePtr m_texture;
 		MipMaps m_mipMaps;
@@ -151,7 +151,7 @@ inline bool TextureEditor::hasTexture() const
 	return texture().get() != 0;
 }
 
-inline QString TextureEditor::actionName()
+inline QString TextureEditor::actionName() const
 {
 	return "textureeditor";
 }

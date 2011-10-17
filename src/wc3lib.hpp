@@ -43,6 +43,14 @@
 * All namespaces and other declarations of the wc3lib belong to the global namespace \ref wc3lib.
 * Each module uses a header file called "platform.hpp" for its core type definitions such as integer types with specified size.
 *
+* \section coresection Core
+* The core of the wc3lib is shared by all of its modules. It provides some basic functions and classes for exception handling, internationalisation, runtime loading of shared objects/DLLs and binary I/O.
+* Use class \ref LibraryLoader to load and unload shared objects and their symbols at runtime.
+* Class \ref Exception is the base class of all exceptions thrown by functions of the wc3lib.
+* Include \ref i18n.hpp to use \ref boost::format and gettext macros for internationalisation of your program.
+* Class \ref Format is the base class of all format related classes of the wc3lib. It supports some basic serialization member functions.
+* Include \ref utilities.hpp to use many I/O stream functions heavily used by all supported format classes. Besides it includes many default components of the STL and the Boost C++ Libraries and provides some error/info output functions with human-readable messages and class \ref Vertex.
+*
 * \section mpqsection MPQ module
 * The MPQ format (Mo'PaQ, short for Mike O'Brien Pack) is Blizzard's archive format used by most of their games.
 * It provides various features:

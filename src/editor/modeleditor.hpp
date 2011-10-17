@@ -106,7 +106,7 @@ class ModelEditor : public Module, protected Ui::ModelEditor
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
 		virtual void onSwitchToMap(class Map *map);
-		virtual QString actionName();
+		virtual QString actionName() const;
 
 		// load file events
 		virtual void dragEnterEvent(QDragEnterEvent *event);
@@ -208,7 +208,7 @@ inline BOOST_SCOPED_ENUM(TeamColor) ModelEditor::teamGlow() const
 	return m_teamGlow;
 }
 
-inline QString ModelEditor::actionName()
+inline QString ModelEditor::actionName() const
 {
 	return "modeleditor";
 }

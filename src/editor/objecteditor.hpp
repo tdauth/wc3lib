@@ -121,7 +121,7 @@ class ObjectEditor : public Module
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
 		virtual void onSwitchToMap(class Map *map);
-		virtual QString actionName();
+		virtual QString actionName() const;
 
 	protected slots:
 		/**
@@ -314,7 +314,7 @@ inline class KAction* ObjectEditor::pasteObjectAction() const
 	return m_pasteObjectAction;
 }
 
-inline QString ObjectEditor::actionName()
+inline QString ObjectEditor::actionName() const
 {
 	return "objecteditor";
 }

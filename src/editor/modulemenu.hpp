@@ -25,6 +25,7 @@
 
 #include <KMenu>
 
+#include "module.hpp"
 #include "platform.hpp"
 
 namespace wc3lib
@@ -42,26 +43,26 @@ class ModuleMenu : public KMenu
 {
 	public:
 		typedef QMap<class Module*, class QAction*> Actions;
-		
-		ModuleMenu(class Module *module);
-		
-		class Module* module() const;
+
+		ModuleMenu(Module *module);
+
+		Module* module() const;
 		/**
 		* Holds all modules actions (without separators).
 		* Required by class Module.
 		*/
 		const Actions& actions() const;
-		
+
 	protected slots:
-		void addModuleAction(class Module *module);
-	
+		void addModuleAction(Module *module, class KAction *action);
+
 	private:
 		Actions m_actions;
 };
 
-inline class Module* ModuleMenu::module() const
+inline Module* ModuleMenu::module() const
 {
-	return boost::polymorphic_cast<class Module*>(parent());
+	return boost::polymorphic_cast<Module*>(parent());
 }
 
 inline const ModuleMenu::Actions& ModuleMenu::actions() const

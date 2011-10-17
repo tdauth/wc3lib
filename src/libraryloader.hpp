@@ -21,8 +21,7 @@
 #ifndef WC3LIB_LIBRARYLOADER_HPP
 #define WC3LIB_LIBRARYLOADER_HPP
 
-#include <map>
-
+#include <boost/noncopyable.hpp>
 #include <boost/filesystem/path.hpp>
 
 #include "exception.hpp"
@@ -35,12 +34,12 @@ namespace wc3lib
 * It provides a consistent interface which is usable on UNIX and Windows platforms.
 * @todo Add Windows support.
 */
-class LibraryLoader
+class LibraryLoader : public boost::noncopyable
 {
 	public:
 		typedef LibraryLoader self;
 
-#if defined (UNIX)
+#ifdef UNIX
 		typedef void* HandleType;
 #elif defined WINDOWS
 		typedef hInstance HandleType;
@@ -49,17 +48,32 @@ class LibraryLoader
 		class Handle
 		{
 			public:
+				Handle(HandleType h, const boost::filesystem::path &p) : handle(h), path(p)
+				{
+
+				}
+
 				HandleType handle;
 				boost::filesystem::path path;
 		};
 
+		/**
+		 * Loads library called from \p path and returns a newly allocated handle which refers to it.
+		 * \param path File extension is checked and completed automatically if missing. On Unix system "lib" prefix is added as well.
+		 * \return Returns a newly allocated \ref Handle object.
+		 */
 		static class Handle* loadLibrary(const boost::filesystem::path &path) throw (class Exception);
+		/**
+		 * Unloads library from \p handle and deletes it.
+		 */
 		static void unloadLibrary(class Handle *handle) throw (class Exception);
-		static void* librarySymbol(const class Handle &handle, const std::string symbolName) throw (class Exception);
+		/**
+		 * Loads symbol refered as \p symbolName from library handle \param handle and returns it as void* object.
+		 */
+		static void* librarySymbol(const class Handle &handle, const char *symbolName) throw (class Exception);
 
 	private:
 		LibraryLoader();
-		LibraryLoader(const self &);
 		~LibraryLoader();
 };
 

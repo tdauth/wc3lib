@@ -23,6 +23,11 @@
 
 #include <QWidget>
 
+#include <KComponentData>
+#include <KAboutData>
+#include <KXMLGUIClient>
+#include <KMenu>
+
 #include "../core.hpp"
 
 namespace wc3lib
@@ -35,8 +40,9 @@ namespace editor
  * \brief Abstract class for module implementation such as model or terrain editors.
  * Implement the pure virtual functions to customize your module's menu, actions and tool buttons.
  * \note Modules should work independently without an Editor instance. They only need a data source.
+ * \note Use class \ref Plugin to load modules related plugins. Since Module is based on \ref KXMLGUIClient it provides an extensible system using specific XML GUI files.
  */
-class Module : public QWidget
+class Module : public QWidget, public KComponentData, public KXMLGUIClient
 {
 	Q_OBJECT
 
@@ -68,7 +74,7 @@ class Module : public QWidget
 		 * Name of corresponding action in module menu of editor's action collection.
 		 * \sa moduleMenu()
 		 */
-		virtual QString actionName() = 0;
+		virtual QString actionName() const = 0;
 
 	public slots:
 		void showSourcesDialog();
@@ -82,6 +88,11 @@ class Module : public QWidget
 		virtual void createWindowsActions(class KMenu *menu) = 0;
 		virtual void createToolButtons(class KToolBar *toolBar) = 0;
 		virtual class SettingsInterface* settings() = 0;
+		/**
+		 * About data which is assigned to \ref KComponentData which is a base class of Module, as well.
+		 * Default implementation returns \ref Editor::wc3libAboutData() with app and catalog name using \ref actionName().
+		 */
+		virtual KAboutData aboutData() const;
 
 		class QVBoxLayout* topLayout() const;
 

@@ -23,8 +23,7 @@
 #include <KCmdLineArgs>
 #include <KLocale>
 
-#include "../editor/editor.hpp"
-#include "../editor/splashscreen.hpp"
+#include "../editor.hpp"
 
 using namespace wc3lib::editor;
 
@@ -40,20 +39,17 @@ int main(int argc, char *argv[])
 
 	class KApplication app;
 
-	class Editor editor;
+	class Editor *editor = new Editor();
 
-	SplashScreen splash(&editor, &editor);
-	splash.show();
+	SplashScreen *splash = new SplashScreen(editor, editor);
+	splash->show();
 
-	editor.show();
+	editor->show();
+	editor->addModule(new ObjectEditor(editor, editor));
+	editor->addModule(new TextureEditor(editor, editor));
+	editor->addModule(new ModelEditor(editor, editor));
+	editor->addModule(new TriggerEditor(editor, editor));
 
-	// TEST
-	editor.showObjectEditor();
-	//editor.showTextureEditor();
-	//editor.showModelEditor();
-	//editor.showObjectEditor();
-	//editor.showTriggerEditor();
-	// END TEST
 	/*
 	/// @todo Allow parsing multiple files as arguments.
 	/// FIXME Crashes application when canceling file dialog.

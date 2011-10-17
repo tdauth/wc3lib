@@ -18,17 +18,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <KMenu>
+#include <QtGui>
+
 #include <KAction>
 #include <KActionCollection>
-#include <KMenuBar>
-#include <KLocale>
-
-#include <QtGui>
 
 #include "modulemenu.hpp"
 #include "editor.hpp"
-#include "module.hpp"
 
 namespace wc3lib
 {
@@ -36,14 +32,13 @@ namespace wc3lib
 namespace editor
 {
 
-ModuleMenu::ModuleMenu(class Module *module) : KMenu(tr("Module"), module)
+ModuleMenu::ModuleMenu(Module *module) : KMenu(tr("Module"), module)
 {
-	connect(module->editor(), SIGNAL(createdModule(Module*)), this, SLOT(addModuleAction(Module*)));
+	connect(module->editor(), SIGNAL(createdModule(Module*,KAction*)), this, SLOT(addModuleAction(Module*,KAction*)));
 }
 
-void ModuleMenu::addModuleAction(class Module *module)
+void ModuleMenu::addModuleAction(Module *module, KAction *action)
 {
-	QAction *action = this->module()->editor()->actionCollection()->action(module->actionName());
 	this->addAction(action);
 	this->m_actions.insert(module, action);
 }

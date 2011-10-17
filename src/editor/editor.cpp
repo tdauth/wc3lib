@@ -18,7 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <QtCore>
+#include <QtGui>
 
 #include <KMenu>
 #include <KAction>
@@ -27,14 +27,14 @@
 #include <KLocale>
 #include <KConfig>
 #include <KFileDialog>
+#include <KMessageBox>
+
+#include <Ogre.h>
 
 #include "editor.hpp"
+#include "module.hpp"
 #include "modulemenu.hpp"
-#include "../mpq/mpq.hpp"
-#include "../mpq/mpqfile.hpp"
 #include "settings.hpp"
-#include "../internationalisation.hpp"
-#include "../blp.hpp"
 #include "map.hpp"
 
 namespace wc3lib
@@ -60,7 +60,7 @@ const KAboutData& Editor::wc3libAboutData()
 	return Editor::m_wc3libAboutData;
 }
 
-Editor::Editor(QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f), m_root(0), m_actionCollection(new KActionCollection(this)), m_terrainEditor(0), m_triggerEditor(0), m_soundEditor(0), m_objectEditor(0), m_campaignEditor(0), m_aiEditor(0), m_objectManager(0), m_importManager(0), m_mpqEditor(0), m_modelEditor(0), m_textureEditor(0), m_newMapDialog(0)
+Editor::Editor(QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f), m_root(0), m_actionCollection(new KActionCollection(this)), m_modulesActionCollection(new KActionCollection(this)), m_newMapDialog(0)
 {
 	class KAction *action = new KAction(KIcon(":/actions/newmap.png"), i18n("New map ..."), this);
 	action->setShortcut(KShortcut(i18n("Ctrl+N")));
@@ -108,58 +108,6 @@ Editor::Editor(QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f), m_r
 	connect(action, SIGNAL(triggered()), this, SLOT(closeModule()));
 	this->m_actionCollection->addAction("closemodule", action);
 
-	// module actions
-
-	action = new KAction(KIcon(":/actions/terraineditor.png"), i18n("Terrain Editor"), this);
-	action->setShortcut(KShortcut(i18n("F3")));
-	connect(action, SIGNAL(triggered()), this, SLOT(showTerrainEditor()));
-	this->m_actionCollection->addAction("terraineditor", action);
-
-	action = new KAction(KIcon(":/actions/triggereditor.png"), i18n("Trigger Editor"), this);
-	action->setShortcut(KShortcut(i18n("F4")));
-	connect(action, SIGNAL(triggered()), this, SLOT(showTriggerEditor()));
-	this->m_actionCollection->addAction("triggereditor", action);
-
-	action = new KAction(KIcon(":/actions/soundeditor.png"), i18n("Sound Editor"), this);
-	action->setShortcut(KShortcut(i18n("F5")));
-	connect(action, SIGNAL(triggered()), this, SLOT(showSoundEditor()));
-	this->m_actionCollection->addAction("soundeditor", action);
-
-	action = new KAction(KIcon(":/actions/objecteditor.png"), i18n("Object Editor"), this);
-	action->setShortcut(KShortcut(i18n("F6")));
-	connect(action, SIGNAL(triggered()), this, SLOT(showObjectEditor()));
-	this->m_actionCollection->addAction("objecteditor", action);
-
-	action = new KAction(KIcon(":/actions/campaigneditor.png"), i18n("Campaign Editor"), this);
-	action->setShortcut(KShortcut(i18n("F7")));
-	connect(action, SIGNAL(triggered()), this, SLOT(showCampaignEditor()));
-	this->m_actionCollection->addAction("campaigneditor", action);
-
-	action = new KAction(KIcon(":/actions/aieditor.png"), i18n("AI Editor"), this);
-	action->setShortcut(KShortcut(i18n("F8")));
-	connect(action, SIGNAL(triggered()), this, SLOT(showAiEditor()));
-	this->m_actionCollection->addAction("aieditor", action);
-
-	action = new KAction(KIcon(":/actions/modeleditor.png"), i18n("Model Editor"), this);
-	action->setShortcut(KShortcut(i18n("F9")));
-	connect(action, SIGNAL(triggered()), this, SLOT(showModelEditor()));
-	this->m_actionCollection->addAction("modeleditor", action);
-
-	action = new KAction(KIcon(":/actions/textureeditor.png"), i18n("Texture Editor"), this);
-	action->setShortcut(KShortcut(i18n("F10")));
-	connect(action, SIGNAL(triggered()), this, SLOT(showTextureEditor()));
-	this->m_actionCollection->addAction("textureeditor", action);
-
-	action = new KAction(KIcon(":/actions/objectmanager.png"), i18n("Object Manager"), this);
-	action->setShortcut(KShortcut(i18n("F11")));
-	connect(action, SIGNAL(triggered()), this, SLOT(showObjectManager()));
-	this->m_actionCollection->addAction("objectmanager", action);
-
-	action = new KAction(KIcon(":/actions/importmanager.png"), i18n("Import Manager"), this);
-	action->setShortcut(KShortcut(i18n("F12")));
-	connect(action, SIGNAL(triggered()), this, SLOT(showImportManager()));
-	this->m_actionCollection->addAction("importmanager", action);
-
 	this->setMapActionsEnabled(false);
 
 	this->readSettings();
@@ -197,59 +145,40 @@ Editor::~Editor()
 	}
 }
 
-void Editor::showTerrainEditor()
+void Editor::addModule(class Module *module)
 {
-	this->terrainEditor()->show();
+	this->m_modules.append(module);
+
+	KAction *action = new KAction(KIcon(":/actions/" + module->actionName() + ".png"), module->windowTitle(), this);
+	action->setShortcut(KShortcut(i18n("F%1%", this->m_modulesActionCollection->actions().size() + 1)));
+	this->m_modulesActionCollection->addAction(module->actionName(), action);
+	connect(action, SIGNAL(triggered()), module, SLOT(show()));
+
+	emit this->createdModule(module, action);
 }
 
-void Editor::showTriggerEditor()
+Ogre::Root* Editor::root() const
 {
-	this->triggerEditor()->show();
-}
+	// setup a renderer
+	if (m_root == 0)
+	{
+		const_cast<class Editor*>(this)->m_root = new Ogre::Root();
 
-void Editor::showSoundEditor()
-{
-	this->soundEditor()->show();
-}
+		const Ogre::RenderSystemList &renderers = m_root->getAvailableRenderers();
+		assert(!renderers.empty()); // we need at least one renderer to do anything useful
+		Ogre::RenderSystem *renderSystem = renderers.front();
+		assert(renderSystem); // user might pass back a null renderer, which would be bad!
+		// configuration is setup automatically by ogre.cfg file
+		renderSystem->setConfigOption("Full Screen", "No");
+		m_root->setRenderSystem(renderSystem);
+		// initialize without creating window
+		m_root->saveConfig();
+		m_root->initialise(false); // don't create a window
+	}
+	//else if (m_root->getRenderSystem()->getConfigOptions()["Full Screen"].currentValue == "Yes")
+		//KMessageBox::information(this, i18n("Full screen is enabled."));
 
-void Editor::showObjectEditor()
-{
-	this->objectEditor()->show();
-}
-
-void Editor::showCampaignEditor()
-{
-	this->campaignEditor()->show();
-}
-
-void Editor::showAiEditor()
-{
-	this->aiEditor()->show();
-}
-
-void Editor::showObjectManager()
-{
-	this->objectManager()->show();
-}
-
-void Editor::showImportManager()
-{
-	this->importManager()->show();
-}
-
-void Editor::showMpqEditor()
-{
-	this->mpqEditor()->show();
-}
-
-void Editor::showModelEditor()
-{
-	this->modelEditor()->show();
-}
-
-void Editor::showTextureEditor()
-{
-	this->textureEditor()->show();
+	return m_root;
 }
 
 void Editor::changeEvent(QEvent *event)

@@ -362,7 +362,7 @@ void TextureEditor::refreshImage()
 
 void TextureEditor::createFileActions(class KMenu *menu)
 {
-	m_textureActionCollection = new KActionCollection(this);
+	m_textureActionCollection = new KActionCollection((QObject*)this);
 
 	class KAction *action;
 

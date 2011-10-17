@@ -1,3 +1,9 @@
+2011-10-17 Tamino Dauth <tamino@cdauth.eu>
+* editor: Use KNS (KNewStuff) to make resources from web sites like hiveworkshop.com available in wc3editor.
+
+2011-10-13 Tamino Dauth <tamino@cdauth.eu>
+* editor: Finish plugin engine: Modules should be able to load custom plugins but Editor should be ablet to load plugins for all modules as well.
+
 2011-10-09 Tamino Dauth <tamino@cdauth.eu>
 * Isn't there any binary buffered stream like stringstream (only binary without any line endings exceptions).
 * Whenever you read data from an MPQ file you could use arraystream with using a buffer with the file's uncompressed size.

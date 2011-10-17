@@ -26,6 +26,7 @@
 #include "module.hpp"
 #include "ui/ui_triggereditor.h"
 #include "../map.hpp"
+#include "editor.hpp"
 
 namespace wc3lib
 {
@@ -44,6 +45,7 @@ class TriggerEditor : public Module, protected Ui::TriggerEditor
 
 	public slots:
 		void loadTriggers(map::Triggers *triggers);
+		void clear();
 
 	protected:
 		virtual void createFileActions(class KMenu *menu);
@@ -52,14 +54,23 @@ class TriggerEditor : public Module, protected Ui::TriggerEditor
 		virtual void createWindowsActions(class KMenu *menu);
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
+		virtual KAboutData aboutData() const;
 		virtual void onSwitchToMap(Map *map);
-		virtual QString actionName();
+		virtual QString actionName() const;
 
 		map::Triggers *m_triggers;
 		Categories m_categories;
 };
 
-inline QString TriggerEditor::actionName()
+inline KAboutData TriggerEditor::aboutData() const
+{
+	KAboutData aboutData(Module::aboutData());
+	aboutData.setProgramName(ki18n("Trigger Editor"));
+
+	return aboutData;
+}
+
+inline QString TriggerEditor::actionName() const
 {
 	return "triggereditor";
 }

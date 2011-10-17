@@ -18,10 +18,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_ABILITYTABLEWIDGET_HPP
-#define WC3LIB_EDITOR_ABILITYTABLEWIDGET_HPP
+#include <KActionCollection>
+#include <KAction>
 
-#include <QTableWidget>
+#include "plugin.hpp"
 
 namespace wc3lib
 {
@@ -29,12 +29,36 @@ namespace wc3lib
 namespace editor
 {
 
-class AbilityTableWidget : public QTableWidget
+Plugin::Plugin(const KComponentData &componentData, QObject *parent): QObject(parent)
 {
-};
+	setComponentData(componentData);
+}
 
+KXMLGUIClient* Plugin::createGui(Module* module)
+{
+	KXMLGUIClient *client = new KXMLGUIClient(module);
+	QString xmlFile;
+	/*
+	KActionCollection actions();
+	createActions(module, xmlFile, actions);
+	client->setXML(xmlFile);
+	*/
+	//client->plugActionList(collection);
+
+	return client;
+}
+
+void Plugin::createActions(Module *module, QString &xmlFile, KActionCollection &actions)
+{
+	//this->replaceXMLFile(xmlFile);
+	actions.setComponentData(componentData());
+	xmlFile = this->xmlFile();
+
+
+	//foreach (KAction *action, this->actionCollection()->actions())
+		//actions.addAction(action->name(), action);
 }
 
 }
 
-#endif
+}

@@ -19,6 +19,7 @@ Trigger Editor:
 * Allows access to local variables (parses custom script "local" statements and provides default action to define some).
 * Advanced syntax highlighting for custom text triggers (from Kate).
 * Action "Convert to GUI trigger" can be used on custom text triggers - Trigger editor tries to reproduce trigger actions.
+* Custom trigger action editor which provides you access to TriggerData.slk.
 
 Import Editor:
 * Allows multiple item selection.

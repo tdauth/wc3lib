@@ -47,16 +47,23 @@ namespace wc3lib
 
 class LibraryLoader::Handle* LibraryLoader::loadLibrary(const boost::filesystem::path &path) throw (class Exception)
 {
-	std::string libraryName = path.filename().string();
+	boost::filesystem::path newPath(path);
 
 #ifdef MAC
-	libraryName.append(".dylib");
+	if (newPath.extension() != ".dylib")
+		newPath += ".dylib";
 #elif defined (UNIX)
-	libraryName.insert(0, "lib").append(".so");
+	std::string pathString = newPath.filename().string();
+
+	if (pathString.size() < 3 || pathString.substr(0, 3) != "lib")
+		newPath = newPath.branch_path() / pathString.insert(0, "lib");
+
+	if (newPath.extension() != ".so")
+		newPath = newPath.branch_path() / (newPath.filename().string() + ".so");
 #elif defined WINDOWS
-	libraryName.append(".dll");
+	if (newPath.extension() != ".dll")
+		newPath = newPath.branch_path() / (newPath.filename().string() + ".dll");
 #endif
-	boost::filesystem::path newPath(path.root_path() / libraryName); /// \todo If exists the absolute directory path and the library name!
 	HandleType handle = 0;
 
 #ifdef MAC
@@ -76,14 +83,10 @@ class LibraryLoader::Handle* LibraryLoader::loadLibrary(const boost::filesystem:
 /// @todo Support other system errors
 #endif
 
-		throw Exception(boost::format(_("Error while loading shared object \"%1%\": %2%")) % newPath.string() % errorMessage);
+		throw Exception(boost::format(_("Error while loading shared object %1%: %2%")) % newPath % errorMessage);
 	}
 
-	class Handle *result = new Handle;
-	result->handle = handle;
-	result->path = newPath;
-
-	return result;
+	return new Handle(handle, newPath);
 }
 
 void LibraryLoader::unloadLibrary(class Handle *handle) throw (class Exception)
@@ -102,7 +105,7 @@ void LibraryLoader::unloadLibrary(class Handle *handle) throw (class Exception)
 	delete handle;
 }
 
-void* LibraryLoader::librarySymbol(const class Handle &handle, const std::string symbolName) throw (class Exception)
+void* LibraryLoader::librarySymbol(const class Handle &handle, const char *symbolName) throw (class Exception)
 {
 #ifdef UNIX
 	dlerror(); // clean up errors
@@ -112,9 +115,9 @@ void* LibraryLoader::librarySymbol(const class Handle &handle, const std::string
 	HandleType symbolHandle = 0;
 
 #ifdef UNIX
-	symbolHandle = dlsym(handle.handle, symbolName.c_str());
+	symbolHandle = dlsym(handle.handle, symbolName);
 #elif defined WINDOWS
-	symbolHandle = GetProcAddress(handle.handle, symbolName.c_str());
+	symbolHandle = GetProcAddress(handle.handle, symbolName);
 #endif
 
 	// got error

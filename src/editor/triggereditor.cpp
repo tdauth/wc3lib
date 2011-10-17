@@ -38,6 +38,7 @@ TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 
 void TriggerEditor::loadTriggers(map::Triggers *triggers)
 {
+	clear();
 	QTreeWidgetItem *item = new QTreeWidgetItem(m_treeWidget);
 
 	if (hasEditor())
@@ -73,6 +74,18 @@ void TriggerEditor::loadTriggers(map::Triggers *triggers)
 
 		m_categories[trigger->category()->index()]->addChild(triggerItem);
 	}
+
+	m_triggers = triggers;
+}
+
+void TriggerEditor::clear()
+{
+	if (m_triggers == 0)
+		return;
+
+	m_treeWidget->clear();
+	m_categories.clear();
+	m_triggers = 0;
 }
 
 void TriggerEditor::createFileActions(class KMenu *menu)

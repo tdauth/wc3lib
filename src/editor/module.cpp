@@ -20,10 +20,10 @@
 
 #include <QtGui>
 
-#include <KMenu>
 #include <KMenuBar>
 #include <KToolBar>
 #include <KActionCollection>
+#include <KParts/Plugin>
 
 #include "module.hpp"
 #include "modulemenu.hpp"
@@ -37,11 +37,11 @@ namespace wc3lib
 namespace editor
 {
 
-Module::Module(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_moduleMenu(0), m_menuBar(0), m_topLayout(new QVBoxLayout(this)), QWidget(parent, f & Qt::Window) // each module should get its own window
+Module::Module(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_moduleMenu(0), m_menuBar(0), m_topLayout(new QVBoxLayout(this)), QWidget(parent, f & Qt::Window), KComponentData() // each module should get its own window
 {
 	if (hasEditor())
 	{
-		connect(editor(), SIGNAL(switchedToMap(Map*)), SLOT(switchToMap(Map*)));
+		connect(editor(), SIGNAL(switchedToMap(Map*)), this, SLOT(switchToMap(Map*)));
 	}
 }
 
@@ -83,6 +83,8 @@ void Module::showSourcesDialog()
 
 void Module::setupUi()
 {
+	setAboutData(this->aboutData());
+
 	this->m_menuBar = new KMenuBar(this);
 	topLayout()->addWidget(this->m_menuBar);
 
@@ -169,6 +171,15 @@ void Module::setupUi()
 
 	// test map tool button
 	toolBar()->addAction(this->editor()->actionCollection()->action("testmap"));
+}
+
+KAboutData Module::aboutData() const
+{
+	KAboutData aboutData(Editor::wc3libAboutData());
+	aboutData.setAppName(actionName().toAscii());
+	aboutData.setCatalogName(actionName().toAscii());
+
+	return aboutData;
 }
 
 void Module::focusInEvent(QFocusEvent *event)
