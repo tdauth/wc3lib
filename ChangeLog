@@ -1,3 +1,16 @@
+2011-10-19 Tamino Dauth <tamino@cdauth.eu>
+* editor: Improved module and its API documentation.
+* editor: Fixed module segmentation fault.
+* editor: Fixed module window flag.
+* plugins: Improved class BlpIOHandler.
+* blp: blp::Blp::generateMipMaps() considers parameter "regenerate" now.
+* blp: blp::Blp::MipMap uses boost::multi_array for color storage now which should improve its performance.
+* blp: blp::Blp::MipMap::Color doesn't store a pointer to its corresponding MIP map anymore which reduces its memory usage.
+* blp: blp::Blp::MipMap doesn't store a pointer to its corresponding BLP image anymore which reduces its memory usage.
+* editor: Class TerrainEditor setups module's UI now.
+* editor: Class ModuleMenu considers already existing modules now.
+* editor: Class ModuleMenu uses Q_OBJECT now.
+
 2011-10-17 Tamino Dauth <tamino@cdauth.eu>
 * editor: Made some minor revisions.
 

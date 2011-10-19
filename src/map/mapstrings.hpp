@@ -33,15 +33,8 @@ namespace map
 class MapStrings : public FileFormat, public Strings
 {
 	public:
-		virtual std::streamsize read(InputStream &istream) throw (Exception)
-		{
-			return Strings::read(istream);
-		}
-
-		virtual std::streamsize write(OutputStream &ostream) const throw (Exception)
-		{
-			return Strings::write(ostream);
-		}
+		virtual std::streamsize read(InputStream &istream) throw (Exception);
+		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
 
 		virtual const char8* fileTextId() const;
 		virtual const char8* fileName() const;

@@ -43,13 +43,14 @@ int main(int argc, char *argv[])
 
 	SplashScreen *splash = new SplashScreen(editor, editor);
 	splash->show();
-
 	editor->show();
 	editor->addModule(new ObjectEditor(editor, editor));
 	editor->addModule(new TextureEditor(editor, editor));
 	editor->addModule(new ModelEditor(editor, editor));
 	editor->addModule(new TriggerEditor(editor, editor));
-
+	TerrainEditor *terrainEditor = new TerrainEditor(editor, editor);
+	editor->addModule(terrainEditor);
+	terrainEditor->show();
 	/*
 	/// @todo Allow parsing multiple files as arguments.
 	/// FIXME Crashes application when canceling file dialog.

@@ -21,7 +21,7 @@
 #ifndef WC3LIB_EDITOR_SOURCESDIALOG_HPP
 #define WC3LIB_EDITOR_SOURCESDIALOG_HPP
 
-#include <KDialog>
+#include <QDialog>
 
 #include "ui/ui_sourcesdialog.h"
 
@@ -37,7 +37,7 @@ namespace editor
  * All changes on its list do directly affect its corresponding source (\ref source()).
  * \note Since MpqPriorityList doesn't provide any signals you'll have to call update when any changes on its source were made.
  */
-class SourcesDialog : public KDialog, protected Ui::SourcesDialog
+class SourcesDialog : public QDialog, protected Ui::SourcesDialog
 {
 	Q_OBJECT
 

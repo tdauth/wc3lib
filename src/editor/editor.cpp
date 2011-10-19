@@ -151,8 +151,10 @@ void Editor::addModule(class Module *module)
 
 	KAction *action = new KAction(KIcon(":/actions/" + module->actionName() + ".png"), module->windowTitle(), this);
 	action->setShortcut(KShortcut(i18n("F%1%", this->m_modulesActionCollection->actions().size() + 1)));
+	action->setCheckable(true);
 	this->m_modulesActionCollection->addAction(module->actionName(), action);
 	connect(action, SIGNAL(triggered()), module, SLOT(show()));
+	connect(action, SIGNAL(triggered()), module, SLOT(setFocus()));
 
 	emit this->createdModule(module, action);
 }
@@ -165,9 +167,17 @@ Ogre::Root* Editor::root() const
 		const_cast<class Editor*>(this)->m_root = new Ogre::Root();
 
 		const Ogre::RenderSystemList &renderers = m_root->getAvailableRenderers();
-		assert(!renderers.empty()); // we need at least one renderer to do anything useful
+
+		// we need at least one renderer to do anything useful
+		if (renderers.empty())
+			throw Exception();
+
 		Ogre::RenderSystem *renderSystem = renderers.front();
-		assert(renderSystem); // user might pass back a null renderer, which would be bad!
+
+		// user might pass back a null renderer, which would be bad!
+		if (renderSystem == 0)
+			throw Exception();
+
 		// configuration is setup automatically by ogre.cfg file
 		renderSystem->setConfigOption("Full Screen", "No");
 		m_root->setRenderSystem(renderSystem);

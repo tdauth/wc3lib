@@ -37,7 +37,7 @@ namespace wc3lib
 namespace editor
 {
 
-Module::Module(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_moduleMenu(0), m_menuBar(0), m_topLayout(new QVBoxLayout(this)), QWidget(parent, f & Qt::Window), KComponentData() // each module should get its own window
+Module::Module(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_moduleMenu(0), m_menuBar(0), m_topLayout(new QVBoxLayout(this)), QWidget(parent, f | Qt::Window), KComponentData(), KXMLGUIClient() // each module should get its own window
 {
 	if (hasEditor())
 	{
@@ -83,7 +83,8 @@ void Module::showSourcesDialog()
 
 void Module::setupUi()
 {
-	setAboutData(this->aboutData());
+	// TODO multi inheritance (KComponentData) leads to segmentation fault?
+	//setAboutData(this->moduleAboutData());
 
 	this->m_menuBar = new KMenuBar(this);
 	topLayout()->addWidget(this->m_menuBar);
@@ -167,13 +168,13 @@ void Module::setupUi()
 		// modules tool buttons
 		foreach (QAction *action, moduleMenu()->actions())
 			toolBar()->addAction(action);
-	}
 
-	// test map tool button
-	toolBar()->addAction(this->editor()->actionCollection()->action("testmap"));
+		// test map tool button
+		toolBar()->addAction(this->editor()->actionCollection()->action("testmap"));
+	}
 }
 
-KAboutData Module::aboutData() const
+KAboutData Module::moduleAboutData() const
 {
 	KAboutData aboutData(Editor::wc3libAboutData());
 	aboutData.setAppName(actionName().toAscii());
@@ -191,6 +192,8 @@ void Module::focusInEvent(QFocusEvent *event)
 		if (iterator != moduleMenu()->actions().end())
 			(*iterator)->setChecked(true);
 	}
+
+	QWidget::focusInEvent(event);
 }
 
 void Module::focusOutEvent(QFocusEvent *event)
@@ -202,6 +205,8 @@ void Module::focusOutEvent(QFocusEvent *event)
 		if (iterator != moduleMenu()->actions().end())
 			(*iterator)->setChecked(false);
 	}
+
+	QWidget::focusOutEvent(event);
 }
 
 void Module::readSettings()

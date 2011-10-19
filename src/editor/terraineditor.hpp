@@ -64,7 +64,7 @@ class TerrainEditor : public Module
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
 		virtual void onSwitchToMap(class Map *map);
-		virtual QString actionName();
+		virtual QString actionName() const;
 
 		class ModelView *m_modelView;
 
@@ -77,7 +77,7 @@ inline class ModelView* TerrainEditor::modelView() const
 	return this->m_modelView;
 }
 
-inline QString TerrainEditor::actionName()
+inline QString TerrainEditor::actionName() const
 {
 	return "terraineditor";
 }

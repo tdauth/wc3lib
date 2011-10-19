@@ -37,7 +37,7 @@ void SourcesDialog::update()
 		m_editListBox->insertItem(source->url().toEncoded());
 }
 
-SourcesDialog::SourcesDialog(class MpqPriorityList *source, QWidget *parent, Qt::WFlags flags): m_source(source), KDialog(parent, flags)
+SourcesDialog::SourcesDialog(class MpqPriorityList *source, QWidget *parent, Qt::WFlags flags): m_source(source), QDialog(parent, flags)
 {
 	setupUi(this);
 	//m_editListBox->

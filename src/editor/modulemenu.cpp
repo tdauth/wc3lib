@@ -34,6 +34,14 @@ namespace editor
 
 ModuleMenu::ModuleMenu(Module *module) : KMenu(tr("Module"), module)
 {
+	int i = 0;
+
+	foreach (Module *mod, module->editor()->modules())
+	{
+		addModuleAction(mod, boost::polymorphic_cast<KAction*>(module->editor()->modulesActionCollection()->action(i)));
+		++i;
+	}
+
 	connect(module->editor(), SIGNAL(createdModule(Module*,KAction*)), this, SLOT(addModuleAction(Module*,KAction*)));
 }
 
@@ -42,6 +50,8 @@ void ModuleMenu::addModuleAction(Module *module, KAction *action)
 	this->addAction(action);
 	this->m_actions.insert(module, action);
 }
+
+#include "moc_modulemenu.cpp"
 
 }
 

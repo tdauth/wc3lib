@@ -34,6 +34,7 @@ TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 {
 	Ui::TriggerEditor::setupUi(this);
 	Module::setupUi();
+	//topLayout()->addLayout();
 }
 
 void TriggerEditor::loadTriggers(map::Triggers *triggers)

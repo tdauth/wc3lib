@@ -21,6 +21,8 @@
 #ifndef WC3LIB_BLP_BLP_HPP
 #define WC3LIB_BLP_BLP_HPP
 
+#include <boost/multi_array.hpp>
+
 #include "platform.hpp"
 
 namespace wc3lib
@@ -53,7 +55,7 @@ namespace blp
  * \code
  * #include <wc3lib/core.hpp>
  * #include <wc3lib/blp.hpp>
- * ...
+ *
  * using namespace wc3lib::blp;
  * std::ifstream ifstream("test.blp", std::ifstream::binary | std::ifstream::in);
  * boost::scoped_ptr<Blp> blp(new Blp());
@@ -63,8 +65,11 @@ namespace blp
  * BOOST_FOREACH(const Blp::MipMapPtr mipMap, blp->mipMaps())
  * 	std::cout << boost::format("This mip map has height %1% and width %2%.") % mipMap->height() % mipMap->width() << std::endl;
  * {
- * 	BOOST_FOREACH(const Blp::MipMap::MapEntryType &colorEntry, mipMap->colors())
- * 		std::cout << boost::format("Color %1% at position (%2%|%3%)") % colorEntry.second % colorEntry.first.first % colorEntry.first.second << std::endl;
+ * 	for (dword width = 0; width < mipMap->width(); ++width)
+ *	{
+ *		for (dword height = 0; height < mipMap->height; ++height)
+ * 			std::cout << boost::format("Color %1% at position (%2%|%3%)") % mipMap->colorAt(width, height).argb() % width % height << std::endl;
+ * 	}
  * }
  *
  * std::cout << boost::format("Generated %1% MIP maps.") % blp->generateMipMaps() << std::endl;
@@ -103,7 +108,6 @@ class Blp : public Format
 						Color();
 						~Color();
 
-						class MipMap* mipMap() const;
 						void setArgb(color argb);
 						color argb() const;
 						void setAlpha(byte alpha);
@@ -121,9 +125,8 @@ class Blp : public Format
 					protected:
 						friend class MipMap;
 
-						Color(class MipMap *mipMap, color argb, byte alpha, byte paletteIndex);
+						Color(color argb, byte alpha, byte paletteIndex);
 
-						class MipMap *m_mipMap;
 						color m_argb;
 						byte m_alpha;
 						byte m_paletteIndex; // only used for paletted compression
@@ -132,30 +135,23 @@ class Blp : public Format
 				/**
 				 * \brief Each color is mapped by it's 2-dimensional coordinates on the image. So this is the hash/key type of color values on mip maps. First is width, second is height.
 				 */
-				typedef std::pair<dword, dword> Coordinates;
-				/**
-				 * \brief This type can be used for constant iteration access to color map of mip map.
-				 */
-				typedef std::pair<const Coordinates&, const class Color&> MapEntryType;
-				typedef std::map<Coordinates, class Color> Colors;
-
-				void scale(dword newWidth, dword newHeight) throw (class Exception);
+				typedef boost::multi_array<Color, 2> Colors;
 
 				dword width() const;
 				dword height() const;
 
 				/**
 				 * Assigns MIP map color \p argb at position (\p width | \p height) with alpha \p alpha and palette index \p paletteIndex.
-				 * \throw Exception Throws an exception if position is out of range.
 				 */
-				void setColor(dword width, dword height, color argb, byte alpha = 0, byte paletteIndex = 0) throw (class Exception);
-				void setColorAlpha(dword width, dword height, byte alpha) throw (class Exception);
+				void setColor(dword width, dword height, color argb, byte alpha = 0, byte paletteIndex = 0);
+				void setColorAlpha(dword width, dword height, byte alpha);
 				/**
-				 * Colors are stored as map where the key is the corresponding coordinates of the color and the value is the color itself.
-				 * Using \ref MipMap::MapEntryType helps you to iterate colors easily.
+				 * Colors are stored as 2-dimensional array where the first index is the color's coordinates are [width][height].
 				 */
 				const Colors& colors() const;
-				const class Color& colorAt(dword width, dword height) const;
+				Colors& colors();
+				const Color& colorAt(dword width, dword height) const;
+				Color& colorAt(dword width, dword height);
 
 			protected:
 				friend class Blp;
@@ -163,10 +159,12 @@ class Blp : public Format
 				template<class T>
 				friend void boost::checked_delete(T*); // for destruction by shared ptr
 
-				MipMap(class Blp *blp, dword width, dword height);
+				/**
+				 * \note Allocates \ref colors() with size of \p width * \p height.
+				 */
+				MipMap(dword width, dword height);
 				~MipMap();
 
-				class Blp *m_blp;
 				dword m_width;
 				dword m_height;
 				Colors m_colors; //[mip map width * mip map height];
@@ -313,11 +311,6 @@ class Blp : public Format
 		ColorPtr m_palette;
 };
 
-inline class Blp::MipMap* Blp::MipMap::Color::mipMap() const
-{
-	return this->m_mipMap;
-}
-
 inline void Blp::MipMap::Color::setArgb(color argb)
 {
 	this->m_argb = argb;
@@ -358,26 +351,14 @@ inline dword Blp::MipMap::height() const
 	return this->m_height;
 }
 
-inline void Blp::MipMap::setColor(dword width, dword height, color argb, byte alpha, byte paletteIndex) throw (class Exception)
+inline void Blp::MipMap::setColor(dword width, dword height, color argb, byte alpha, byte paletteIndex)
 {
-	if (width >= this->m_width || height >= this->m_height)
-		throw Exception(boost::format(_("MIP map: Invalid indices (width %1%, height %2%).")) % width % height);
-
-	//if (this->m_colors.find(std::make_pair(width, height)) != this->m_colors.end())
-		//std::cout << "Warning: Color at " << width << " | " << height << " does already exist." << std::endl;
-
-	this->m_colors[std::make_pair(width, height)] = Color(this, argb, alpha, paletteIndex);
+	this->m_colors[width][height] = Color(argb, alpha, paletteIndex);
 }
 
-inline void Blp::MipMap::setColorAlpha(dword width, dword height, byte alpha) throw (class Exception)
+inline void Blp::MipMap::setColorAlpha(dword width, dword height, byte alpha)
 {
-	if (width >= this->m_width || height >= this->m_height)
-		throw Exception(boost::str(boost::format(_("MIP map: Invalid indices (width %1%, height %2%).")) % width % height));
-
-	if (this->m_colors.find(std::make_pair(width, height)) == this->m_colors.end())
-		throw Exception(boost::format(_("Warning: Color at %1% | %2% does not exist.")) % width % height);
-
-	this->m_colors[std::make_pair(width, height)].setAlpha(alpha);
+	this->m_colors[width][height].setAlpha(alpha);
 }
 
 inline const Blp::MipMap::Colors& Blp::MipMap::colors() const
@@ -385,9 +366,19 @@ inline const Blp::MipMap::Colors& Blp::MipMap::colors() const
 	return this->m_colors;
 }
 
-inline const class Blp::MipMap::Color& Blp::MipMap::colorAt(dword width, dword height) const
+inline Blp::MipMap::Colors& Blp::MipMap::colors()
 {
-	return const_cast<const class Blp::MipMap::Color&>(const_cast<class MipMap*>(this)->m_colors[std::make_pair(width, height)]);
+	return this->m_colors;
+}
+
+inline const Blp::MipMap::Color& Blp::MipMap::colorAt(dword width, dword height) const
+{
+	return colors()[width][height];
+}
+
+inline Blp::MipMap::Color& Blp::MipMap::colorAt(dword width, dword height)
+{
+	return colors()[width][height];
 }
 
 inline void Blp::setFormat(BOOST_SCOPED_ENUM(Format) format)

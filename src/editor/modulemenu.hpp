@@ -41,6 +41,8 @@ namespace editor
  */
 class ModuleMenu : public KMenu
 {
+	Q_OBJECT
+
 	public:
 		typedef QMap<class Module*, class QAction*> Actions;
 

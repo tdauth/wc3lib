@@ -90,14 +90,35 @@ class Editor : public KMainWindow, public MpqPriorityList
 		 */
 		void addModule(class Module *module);
 
+		/**
+		 * When being called the first time this functions tries to allocate the OGRE root instance.
+		 * \note To load all renderer settings "ogre.cfg" and "plugins.cfg" have to be available in the working directory.
+		 * \throw Exception Throws an exception if no available renderer was found.
+		 * \todo Support "ogre.cfg" and "plugins.cfg" path options (for \ref ModelView as well).
+		 */
 		Ogre::Root* root() const;
 		class Map* currentMap() const;
 
+		/**
+		 * Contains many default actions shared by all module tool bars like "Open Map" etc.
+		 */
 		class KActionCollection* actionCollection() const;
+		/**
+		 * Contains actions of all registered modules of the editor.
+		 * \ref addModule()
+		 */
+		class KActionCollection* modulesActionCollection() const;
 		const Modules& modules() const;
+		/**
+		 * \note Allocated on request!
+		 */
 		class NewMapDialog* newMapDialog() const;
 
 	public slots:
+		/**
+		 * Shows corresponding \ref NewMapDialog.
+		 * \sa newMapDialog()
+		 */
 		void newMap();
 		void openMap();
 		void openMap(const KUrl &url);
@@ -136,6 +157,11 @@ inline class Map* Editor::currentMap() const
 inline class KActionCollection* Editor::actionCollection() const
 {
 	return this->m_actionCollection;
+}
+
+inline class KActionCollection* Editor::modulesActionCollection() const
+{
+	return this->m_modulesActionCollection;
 }
 
 inline const Editor::Modules& Editor::modules() const

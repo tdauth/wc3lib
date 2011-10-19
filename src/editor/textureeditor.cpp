@@ -43,9 +43,8 @@ namespace editor
 
 TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_texture(), m_showsAlphaChannel(false), m_showsTransparency(false), m_factor(1.0)
 {
-	Module::setupUi();
 	Ui::TextureEditor::setupUi(this);
-
+	Module::setupUi();
 	topLayout()->addLayout(gridLayout_2);
 
 	/*

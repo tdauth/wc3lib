@@ -1,3 +1,9 @@
+2011-10-19 Tamino Dauth <tamino@cdauth.eu>
+* editor: Support OGRE path selection for class Editor, ModelEditor and ModelView.
+* editor: Disable MIP map actions in texture editor if there is no MIP map.
+* editor: Disable edit color palette action in texture editor if there is no color palette.
+* editor: Whenever a new source is registered at MpqPriorityList existing resources should get a signal to be reloaded if there is a newer file in the new source and it has higher priority.
+
 2011-10-17 Tamino Dauth <tamino@cdauth.eu>
 * editor: Use KNS (KNewStuff) to make resources from web sites like hiveworkshop.com available in wc3editor.
 

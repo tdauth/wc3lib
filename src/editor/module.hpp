@@ -38,7 +38,7 @@ namespace editor
 
 /**
  * \brief Abstract class for module implementation such as model or terrain editors.
- * Implement the pure virtual functions to customize your module's menu, actions and tool buttons.
+ * Implement the pure virtual member functions to customize your module's menu, actions and tool buttons.
  * \note Modules should work independently without an Editor instance. They only need a data source.
  * \note Use class \ref Plugin to load modules related plugins. Since Module is based on \ref KXMLGUIClient it provides an extensible system using specific XML GUI files.
  */
@@ -47,6 +47,10 @@ class Module : public QWidget, public KComponentData, public KXMLGUIClient
 	Q_OBJECT
 
 	public:
+		/**
+		 * \param source Source where files are loaded from when requested. Should not be 0. At least you should create an empty \ref MpqPriorityList instance. To emulate Blizzard's World Editor you can use an \ref Editor instance.
+		 * \param parent Parent widget for which the module widget is created.
+		 */
 		Module(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~Module();
 		class MpqPriorityList* source() const;
@@ -58,7 +62,7 @@ class Module : public QWidget, public KComponentData, public KXMLGUIClient
 		class KToolBar* toolBar() const;
 
 		/**
-		 * This function uses dynamic type checking via "typeid".
+		 * This function uses dynamic type checking to get the source's type.
 		 * \return Returns true if \ref source() is an Editor instance. Otherwise it returns false.
 		 * \sa source(), editor()
 		 */
@@ -80,6 +84,10 @@ class Module : public QWidget, public KComponentData, public KXMLGUIClient
 		void showSourcesDialog();
 
 	protected:
+		/**
+		 * Calls this member function to setup the usual module user interface which contains some default menus.
+		 * \note If you overwrite this function you should consider calling \ref moduleAboutData().
+		 */
 		virtual void setupUi();
 
 		virtual void createFileActions(class KMenu *menu) = 0;
@@ -91,8 +99,9 @@ class Module : public QWidget, public KComponentData, public KXMLGUIClient
 		/**
 		 * About data which is assigned to \ref KComponentData which is a base class of Module, as well.
 		 * Default implementation returns \ref Editor::wc3libAboutData() with app and catalog name using \ref actionName().
+		 * \note Assignment runs in \ref setupUi().
 		 */
-		virtual KAboutData aboutData() const;
+		virtual KAboutData moduleAboutData() const;
 
 		class QVBoxLayout* topLayout() const;
 

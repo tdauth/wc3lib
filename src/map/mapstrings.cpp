@@ -20,3 +20,22 @@
 
 #include "mapstrings.hpp"
 
+namespace wc3lib
+{
+
+namespace map
+{
+
+std::streamsize MapStrings::read(InputStream &istream) throw (Exception)
+{
+	return Strings::read(istream);
+}
+
+std::streamsize MapStrings::write(OutputStream &ostream) const throw (Exception)
+{
+	return Strings::write(ostream);
+}
+
+}
+
+}

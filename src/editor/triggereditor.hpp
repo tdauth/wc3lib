@@ -54,7 +54,7 @@ class TriggerEditor : public Module, protected Ui::TriggerEditor
 		virtual void createWindowsActions(class KMenu *menu);
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
-		virtual KAboutData aboutData() const;
+		virtual KAboutData moduleAboutData() const;
 		virtual void onSwitchToMap(Map *map);
 		virtual QString actionName() const;
 
@@ -62,9 +62,9 @@ class TriggerEditor : public Module, protected Ui::TriggerEditor
 		Categories m_categories;
 };
 
-inline KAboutData TriggerEditor::aboutData() const
+inline KAboutData TriggerEditor::moduleAboutData() const
 {
-	KAboutData aboutData(Module::aboutData());
+	KAboutData aboutData(Module::moduleAboutData());
 	aboutData.setProgramName(ki18n("Trigger Editor"));
 
 	return aboutData;

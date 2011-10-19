@@ -190,12 +190,10 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp::MipMap &mipMap, const blp
 
 	if (blpImage.compression() != blp::Blp::Compression::Paletted)
 	{
-		foreach (blp::Blp::MipMap::MapEntryType mapEntry, mipMap.colors())
+		for (blp::dword width = 0; width < mipMap.width(); ++width)
 		{
-			const blp::Blp::MipMap::Coordinates &coordinates = mapEntry.first;
-			const blp::Blp::MipMap::Color &color = mapEntry.second;
-			const QRgb pixelColor = colorToRgba(color.argb());
-			result.setPixel(coordinates.first, coordinates.second, pixelColor);
+			for (blp::dword height = 0; height < mipMap.height(); ++height)
+				result.setPixel(width, height,  colorToRgba(mipMap.colorAt(width, height).argb())); // numeric_cast has already been done!
 		}
 	}
 	else
@@ -205,11 +203,10 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp::MipMap &mipMap, const blp
 		for (int index = 0; index < result.colorCount(); ++index)
 			result.setColor(index, colorToRgba(blpImage.palette()[index]));
 
-		foreach (blp::Blp::MipMap::MapEntryType mapEntry, mipMap.colors())
+		for (blp::dword width = 0; width < mipMap.width(); ++width)
 		{
-			const blp::Blp::MipMap::Coordinates &coordinates = mapEntry.first;
-			const blp::Blp::MipMap::Color &color = mapEntry.second;
-			result.setPixel(coordinates.first, coordinates.second, color.paletteIndex());
+			for (blp::dword height = 0; height < mipMap.height(); ++height)
+				result.setPixel(width, height, mipMap.colorAt(width, height).paletteIndex()); // numeric_cast has already been done!
 		}
 	}
 
@@ -272,12 +269,14 @@ bool BlpIOHandler::write(const QImage &image, blp::Blp *blpImage)
 
 	// create mip map
 	// palette is filled automatically by Blp::write
-	blpImage->generateMipMaps(1);
+	if (blpImage->generateMipMaps(1) != 1)
+		return false;
+
 	blp::Blp::MipMap *mipMap = blpImage->mipMaps()[0].get();
 
-	for (int width = 0; width < image.size().width(); ++width)
+	for (int width = 0; width < image.width(); ++width)
 	{
-		for (int height = 0; height < image.size().height(); ++height)
+		for (int height = 0; height < image.height(); ++height)
 		{
 			// set color
 			const QRgb rgb = image.pixel(width, height);

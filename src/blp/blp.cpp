@@ -81,7 +81,7 @@ bool Blp::MipMap::Color::operator!=(const class Color &other) const
 	return !(*this == other);
 }
 
-Blp::MipMap::Color::Color() : m_mipMap(0), m_argb(0), m_alpha(0), m_paletteIndex(0)
+Blp::MipMap::Color::Color() : m_argb(0), m_alpha(0), m_paletteIndex(0)
 {
 }
 
@@ -89,17 +89,11 @@ Blp::MipMap::Color::~Color()
 {
 }
 
-Blp::MipMap::Color::Color(class Blp::MipMap *mipMap, color argb, byte alpha, byte paletteIndex) : m_mipMap(mipMap), m_argb(argb), m_alpha(alpha), m_paletteIndex(paletteIndex)
+Blp::MipMap::Color::Color(color argb, byte alpha, byte paletteIndex) : m_argb(argb), m_alpha(alpha), m_paletteIndex(paletteIndex)
 {
 }
 
-/// @todo Implement.
-void Blp::MipMap::scale(dword newWidth, dword newHeight) throw (class Exception)
-{
-	throw Exception(_("MipMap::scale - Not implemented yet!"));
-}
-
-Blp::MipMap::MipMap(class Blp *blp, dword width, dword height) : m_blp(blp), m_width(width), m_height(height)
+Blp::MipMap::MipMap(dword width, dword height) : m_width(width), m_height(height), m_colors(boost::extents[width][height])
 {
 }
 
@@ -688,7 +682,7 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps) thr
 
 	for (std::size_t i = 0; i < mipMapsCount; ++i)
 	{
-		this->m_mipMaps[i].reset(new MipMap(this, this->mipMapWidth(i), this->mipMapHeight(i)));
+		this->m_mipMaps[i].reset(new MipMap(this->mipMapWidth(i), this->mipMapHeight(i)));
 
 		if (this->compression() == Blp::Compression::Paletted)
 		{
@@ -1222,6 +1216,9 @@ int Blp::generateMipMaps(std::size_t number, bool regenerate) throw (class Excep
 	number = std::max<std::size_t>(number, 1);
 	number = std::min<std::size_t>(number, Blp::maxMipMaps);
 
+	if (regenerate)
+		m_mipMaps.clear();
+
 	if (number < mipMaps().size())
 	{
 		m_mipMaps.resize(mipMaps().size() - number);
@@ -1232,14 +1229,13 @@ int Blp::generateMipMaps(std::size_t number, bool regenerate) throw (class Excep
 	{
 		dword width = this->width();
 		dword height = this->height();
-		//std::list<byte> indexList = initialMipMap->m_indexList;
-		//std::list<byte> alphaList = initialMipMap->m_alphaList;
-		const int result = number - mipMaps().size();
+		const std::size_t oldSize = mipMaps().size();
+		const int result = number - oldSize;
 		this->m_mipMaps.resize(number);
 
-		for (std::size_t i = mipMaps().size(); i < number; ++i)
+		for (std::size_t i = oldSize; i < number; ++i)
 		{
-			this->m_mipMaps[i].reset(new MipMap(this, width, height));
+			this->m_mipMaps[i].reset(new MipMap(width, height));
 			/// @todo Generate new scaled index and alpha list.
 			width /= 2;
 			height /= 2;
@@ -1266,11 +1262,12 @@ Blp::ColorPtr Blp::generatePalette(std::size_t number) throw (Exception)
 
 	ColorPtr palette(new color[number]);
 	memset(reinterpret_cast<void*>(palette.get()), 0, number);
+	MipMap *mipMap = mipMaps().front().get();
 
-	BOOST_FOREACH(Blp::MipMap::MapEntryType entry, this->mipMaps().front()->colors())
+	for (dword width = 0; width < mipMap->width(); ++width)
 	{
-		if (entry.second.paletteIndex() < number)
-			palette[entry.second.paletteIndex()] = entry.second.argb();
+		for (dword height = 0; height < mipMap->height(); ++height)
+			palette[mipMap->colorAt(width, height).paletteIndex()] = mipMap->colorAt(width, height).argb();
 	}
 
 	return palette;
