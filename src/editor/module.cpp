@@ -37,8 +37,10 @@ namespace wc3lib
 namespace editor
 {
 
-Module::Module(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_moduleMenu(0), m_menuBar(0), m_topLayout(new QVBoxLayout(this)), QWidget(parent, f | Qt::Window), KComponentData(), KXMLGUIClient() // each module should get its own window
+Module::Module(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_moduleMenu(0), m_menuBar(0), m_topLayout(new QVBoxLayout(this)), m_centerLayout(new QGridLayout(this)), QWidget(parent, f | Qt::Window), KComponentData(), KXMLGUIClient() // each module should get its own window
 {
+	topLayout()->addLayout(centerLayout());
+
 	if (hasEditor())
 	{
 		connect(editor(), SIGNAL(switchedToMap(Map*)), this, SLOT(switchToMap(Map*)));
@@ -85,7 +87,6 @@ void Module::setupUi()
 {
 	// TODO multi inheritance (KComponentData) leads to segmentation fault?
 	//setAboutData(this->moduleAboutData());
-
 	this->m_menuBar = new KMenuBar(this);
 	topLayout()->addWidget(this->m_menuBar);
 
@@ -191,6 +192,8 @@ void Module::focusInEvent(QFocusEvent *event)
 
 		if (iterator != moduleMenu()->actions().end())
 			(*iterator)->setChecked(true);
+		else
+			qDebug() << "Warning: Missing module action " << actionName();
 	}
 
 	QWidget::focusInEvent(event);
@@ -204,6 +207,8 @@ void Module::focusOutEvent(QFocusEvent *event)
 
 		if (iterator != moduleMenu()->actions().end())
 			(*iterator)->setChecked(false);
+		else
+			qDebug() << "Warning: Missing module action " << actionName();
 	}
 
 	QWidget::focusOutEvent(event);

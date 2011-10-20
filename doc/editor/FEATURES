@@ -4,6 +4,7 @@ General:
 * Selection dependency export: You can export selected items only (in object editor, trigger editor etc.) with or without checking dependencies (e. g. abilities used by unit are exported into a separate file).
 * Merging: Object data, trigger data etc. could be merged, you do not have to replace everything.
 * Advanced string treatment: Strings of selections only could be imported and exported and are merged with the actual string file of the map.
+* XML support: All formats (except BLP and MPQ ...) should be able being exported and imported as portable XML.
 
 Advanced:
 * Custom tileset can be defined correctly (with limit of 16 different ground and 16 different cliff textures).

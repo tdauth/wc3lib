@@ -28,7 +28,7 @@
 /**
 * \mainpage Warcraft III Library
 * \date Version date
-* 2010-12-25
+* 2011-10-20
 * \author Tamino Dauth <tamino@cdauth.eu>
 *
 * \section introductionsection Introduction
@@ -70,7 +70,7 @@
 * <ul>
 * <li>MIP mapping (up to 16 MIP maps)</li>
 * <li>JPEG/JFIF compression</li>
-* <li>paletted compression (similar GIF</li>
+* <li>paletted compression (similar to GIF - 256 colors)</li>
 * <li>RGBA color space</li>
 * </ul>
 * Include file \ref blp.hpp and use namspace \ref wc3lib::blp to use this module.

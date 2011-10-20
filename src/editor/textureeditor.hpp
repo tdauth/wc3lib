@@ -26,7 +26,6 @@
 
 #include "module.hpp"
 #include "texture.hpp"
-#include "ui/ui_textureeditor.h"
 
 namespace wc3lib
 {
@@ -38,7 +37,7 @@ namespace editor
  * Allows you to open, view, modify and store skins/textures.
  * \todo Needs item list from object editor (skin meta data, splat meta data and ubersplat meta data).
  */
-class TextureEditor : public Module, protected Ui::TextureEditor
+class TextureEditor : public Module
 {
 	Q_OBJECT
 
@@ -49,6 +48,7 @@ class TextureEditor : public Module, protected Ui::TextureEditor
 		TextureEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~TextureEditor();
 
+		QLabel* imageLabel() const;
 		const TexturePtr& texture() const;
 		const MipMaps& mipMaps() const;
 		short mipMapIndex() const;
@@ -102,6 +102,7 @@ class TextureEditor : public Module, protected Ui::TextureEditor
 		virtual void onSwitchToMap(class Map *map);
 		virtual QString actionName() const;
 
+		QLabel *m_imageLabel;
 		TexturePtr m_texture;
 		MipMaps m_mipMaps;
 		short m_mipMapIndex;
@@ -115,6 +116,11 @@ class TextureEditor : public Module, protected Ui::TextureEditor
 		KAction *m_showTransparencyAction;
 		KMenu *m_mipMapsMenu;
 };
+
+inline QLabel* TextureEditor::imageLabel() const
+{
+	return this->m_imageLabel;
+}
 
 inline const TextureEditor::TexturePtr& TextureEditor::texture() const
 {

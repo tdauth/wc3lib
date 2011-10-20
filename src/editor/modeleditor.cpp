@@ -54,8 +54,7 @@ ModelEditor::ModelEditor(class MpqPriorityList *source, QWidget *parent, Qt::Win
 	//this->m_modelView->setMinimumSize(QSize(640, 480));
 	//this->setAcceptDrops(true); // enable drag & drop
 	//this->modelView()->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	this->m_horizontalLayout->addWidget(this->modelView());
-	this->topLayout()->addLayout(this->m_horizontalLayout);
+	centerLayout()->addWidget(modelView());
 	//this->m_modelView->setLayout(this->m_horizontalLayout);
 	/*
 	QHBoxLayout *mainLayout = new QHBoxLayout(this);
@@ -182,7 +181,7 @@ void ModelEditor::showStats()
 	if (this->m_renderStatsWidget == 0)
 	{
 		this->m_renderStatsWidget = new RenderStatsWidget(this->modelView(), this);
-		m_horizontalLayout->addWidget(this->m_renderStatsWidget);
+		centerLayout()->addWidget(this->m_renderStatsWidget);
 	}
 
 	if (this->m_renderStatsWidget->isVisible())

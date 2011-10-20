@@ -22,11 +22,10 @@
 #define WC3LIB_EDITOR_TRIGGEREDITOR_HPP
 
 #include <QMap>
+#include <QTreeWidget>
 
 #include "module.hpp"
-#include "ui/ui_triggereditor.h"
 #include "../map.hpp"
-#include "editor.hpp"
 
 namespace wc3lib
 {
@@ -34,18 +33,31 @@ namespace wc3lib
 namespace editor
 {
 
-class TriggerEditor : public Module, protected Ui::TriggerEditor
+class TriggerEditor : public Module
 {
 	Q_OBJECT
 
 	public:
-		typedef QMap<map::int32, QTreeWidgetItem*> Categories;
+		typedef QVector<QTreeWidgetItem*> TreeItems;
 
 		TriggerEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 
+		map::Triggers* triggers() const;
+		QTreeWidget* treeWidget() const;
+		QTreeWidgetItem* rootItem() const;
+		class MapScriptWidget* mapScriptWidget() const;
+		class TriggerWidget* triggerWidget() const;
+
 	public slots:
 		void loadTriggers(map::Triggers *triggers);
+		void loadTriggers(Map *map);
 		void clear();
+		void openMapScript();
+		void openTrigger(map::int32 index);
+		void openTrigger(map::Trigger *trigger);
+
+	protected slots:
+		void itemClicked(class QTreeWidgetItem *item, int column);
 
 	protected:
 		virtual void createFileActions(class KMenu *menu);
@@ -58,9 +70,46 @@ class TriggerEditor : public Module, protected Ui::TriggerEditor
 		virtual void onSwitchToMap(Map *map);
 		virtual QString actionName() const;
 
+		TreeItems& categories();
+		TreeItems& variables();
+		TreeItems& triggerEntries();
+
+	private:
 		map::Triggers *m_triggers;
-		Categories m_categories;
+		TreeItems m_categories;
+		TreeItems m_variables;
+		TreeItems m_triggerEntries;
+
+		QTreeWidget *m_treeWidget;
+		QTreeWidgetItem *m_rootItem;
+		class MapScriptWidget *m_mapScriptWidget;
+		class TriggerWidget *m_triggerWidget;
 };
+
+inline map::Triggers* TriggerEditor::triggers() const
+{
+	return m_triggers;
+}
+
+inline QTreeWidget* TriggerEditor::treeWidget() const
+{
+	return this->m_treeWidget;
+}
+
+inline QTreeWidgetItem* TriggerEditor::rootItem() const
+{
+	return this->m_rootItem;
+}
+
+inline class MapScriptWidget* TriggerEditor::mapScriptWidget() const
+{
+	return this->m_mapScriptWidget;
+}
+
+inline class TriggerWidget* TriggerEditor::triggerWidget() const
+{
+	return this->m_triggerWidget;
+}
 
 inline KAboutData TriggerEditor::moduleAboutData() const
 {
@@ -73,6 +122,21 @@ inline KAboutData TriggerEditor::moduleAboutData() const
 inline QString TriggerEditor::actionName() const
 {
 	return "triggereditor";
+}
+
+inline TriggerEditor::TreeItems& TriggerEditor::categories()
+{
+	return m_categories;
+}
+
+inline TriggerEditor::TreeItems& TriggerEditor::variables()
+{
+	return m_variables;
+}
+
+inline TriggerEditor::TreeItems& TriggerEditor::triggerEntries()
+{
+	return m_triggerEntries;
 }
 
 }

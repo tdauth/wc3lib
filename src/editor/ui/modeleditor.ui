@@ -24,7 +24,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <layout class="QHBoxLayout" name="m_horizontalLayout"/>
+    <layout class="QGridLayout" name="m_layout"/>
    </item>
   </layout>
  </widget>

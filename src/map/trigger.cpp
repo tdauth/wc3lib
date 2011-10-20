@@ -50,7 +50,7 @@ std::streamsize Trigger::read(InputStream &istream) throw (class Exception)
 	wc3lib::read(istream, this->m_unknown, size);
 	int32 categoryIndex;
 	wc3lib::read(istream, categoryIndex, size);
-	this->m_category = this->m_triggers->category(categoryIndex);
+	this->m_category = this->triggers()->categories()[categoryIndex].get();
 	int32 functions;
 	wc3lib::read(istream, functions, size);
 	m_functions.resize(functions);

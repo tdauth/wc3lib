@@ -149,6 +149,7 @@ void Editor::addModule(class Module *module)
 {
 	this->m_modules.append(module);
 
+	// FIXME Use module->aboutData()->programName() as action name, segmentation fault due to multiple inheritance
 	KAction *action = new KAction(KIcon(":/actions/" + module->actionName() + ".png"), module->windowTitle(), this);
 	action->setShortcut(KShortcut(i18n("F%1%", this->m_modulesActionCollection->actions().size() + 1)));
 	action->setCheckable(true);

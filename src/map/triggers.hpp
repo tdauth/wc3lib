@@ -36,10 +36,12 @@ namespace map
 class Triggers : public FileFormat
 {
 	public:
-		typedef std::pair<int32, class TriggerCategory*> CategoryType;
-		typedef std::map<int32, class TriggerCategory*> Categories;
-		typedef std::list<class Variable*> VariableList;
-		typedef std::list<class Trigger*> TriggerList;
+		typedef boost::shared_ptr<class TriggerCategory> CategoryPtr;
+		typedef std::vector<CategoryPtr> Categories;
+		typedef boost::shared_ptr<class Variable> VariablePtr;
+		typedef std::vector<VariablePtr> Variables;
+		typedef boost::shared_ptr<class Trigger> TriggerPtr;
+		typedef std::vector<TriggerPtr> TriggerEntries;
 
 		Triggers(class W3m *w3m);
 
@@ -53,21 +55,22 @@ class Triggers : public FileFormat
 		virtual int32 version() const;
 
 		int32 unknown0() const;
+		Categories& categories();
 		const Categories& categories() const;
-		const VariableList& variables() const;
-		const TriggerList& triggers() const;
+		Variables& variables();
+		const Variables& variables() const;
+		TriggerEntries& triggers();
+		const TriggerEntries& triggers() const;
 
 	protected:
 		friend class Trigger;
-
-		class TriggerCategory* category(int32 index);
 
 		class W3m *m_w3m;
 		int32 m_version;
 		int32 m_unknown0;
 		Categories m_categories;
-		VariableList m_variables;
-		TriggerList m_triggers;
+		Variables m_variables;
+		TriggerEntries m_triggers;
 };
 
 inline const char8* Triggers::fileTextId() const
@@ -95,17 +98,32 @@ inline int32 Triggers::unknown0() const
 	return m_unknown0;
 }
 
+inline Triggers::Categories& Triggers::categories()
+{
+	return m_categories;
+}
+
 inline const Triggers::Categories& Triggers::categories() const
 {
 	return m_categories;
 }
 
-inline const Triggers::VariableList& Triggers::variables() const
+inline Triggers::Variables& Triggers::variables()
 {
 	return m_variables;
 }
 
-inline const Triggers::TriggerList& Triggers::triggers() const
+inline const Triggers::Variables& Triggers::variables() const
+{
+	return m_variables;
+}
+
+inline Triggers::TriggerEntries& Triggers::triggers()
+{
+	return m_triggers;
+}
+
+inline const Triggers::TriggerEntries& Triggers::triggers() const
 {
 	return m_triggers;
 }

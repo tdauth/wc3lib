@@ -104,6 +104,7 @@ class Module : public QWidget, public KComponentData, public KXMLGUIClient
 		virtual KAboutData moduleAboutData() const;
 
 		class QVBoxLayout* topLayout() const;
+		class QGridLayout* centerLayout() const;
 
 		/**
 		 * This event occurs when module has an \ref Editor and its opened map is changed.
@@ -131,6 +132,7 @@ class Module : public QWidget, public KComponentData, public KXMLGUIClient
 		class KAction *m_sourcesAction;
 
 		class QVBoxLayout *m_topLayout;
+		class QGridLayout *m_centerLayout;
 
 	private slots:
 		void switchToMap(class Map *map);
@@ -174,6 +176,11 @@ inline class KToolBar* Module::toolBar() const
 inline class QVBoxLayout* Module::topLayout() const
 {
 	return this->m_topLayout;
+}
+
+inline class QGridLayout* Module::centerLayout() const
+{
+	return this->m_centerLayout;
 }
 
 }

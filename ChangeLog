@@ -1,3 +1,9 @@
+2011-10-20 Tamino Dauth <tamino@cdauth.eu>
+* editor: Fixed UI layouts for modules.
+* editor: Improved trigger editor.
+* map: Improved trigger classes.
+* plugins: MIP maps aren't generated anymore when BLP is loaded from QImage.
+
 2011-10-19 Tamino Dauth <tamino@cdauth.eu>
 * editor: Improved module and its API documentation.
 * editor: Fixed module segmentation fault.

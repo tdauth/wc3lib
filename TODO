@@ -1,3 +1,6 @@
+2011-10-20 Tamino Dauth <tamino@cdauth.eu>
+* editor: Drop deprecated UI files.
+
 2011-10-19 Tamino Dauth <tamino@cdauth.eu>
 * editor: Support OGRE path selection for class Editor, ModelEditor and ModelView.
 * editor: Disable MIP map actions in texture editor if there is no MIP map.

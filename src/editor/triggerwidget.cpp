@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <QtGui>
+
 #include "triggerwidget.hpp"
 #include "triggereditor.hpp"
 
@@ -27,9 +29,110 @@ namespace wc3lib
 namespace editor
 {
 
-TriggerWidget::TriggerWidget(class TriggerEditor *triggerEditor) : QWidget(triggerEditor), m_triggerEditor(triggerEditor)
+void TriggerWidget::enableTrigger(bool enable)
 {
+	// TODO change background in tree widget of trigger editor
+	trigger()->setEnabled(enable);
 }
+
+void TriggerWidget::setTriggerInitiallyOn(bool on)
+{
+	// TODO change icon in tree widget of trigger editor
+	trigger()->setInitiallyOn(on);
+}
+
+void TriggerWidget::updateTriggerComment()
+{
+	trigger()->setDescription(m_commentTextEdit->toPlainText().toUtf8().constData());
+}
+
+TriggerWidget::TriggerWidget(class TriggerEditor *triggerEditor) : m_triggerEditor(triggerEditor), m_trigger(0), m_functionsTreeWidget(new QTreeWidget(this)), m_eventsItem(new QTreeWidgetItem(functionsTreeWidget())), m_conditionsItem(new QTreeWidgetItem(functionsTreeWidget())), m_actionsItem(new QTreeWidgetItem(functionsTreeWidget())), QWidget(triggerEditor)
+{
+	Ui::TriggerTopWidget::setupUi(this);
+	m_functionsLayout->addWidget(functionsTreeWidget());
+	// TODO set icons and text from source!
+	// TODO make collapsable by function?
+	functionsTreeWidget()->setHeaderHidden(true);
+	eventsItem()->setText(0, tr("Events"));
+	conditionsItem()->setText(0, tr("Conditions"));
+	actionsItem()->setText(0, tr("Actions"));
+
+	connect(m_enabledCheckBox, SIGNAL(toggled(bool)), this, SLOT(enableTrigger(bool)));
+	connect(m_onAtBeginningCheckBox, SIGNAL(toggled(bool)), this, SLOT(setTriggerInitiallyOn(bool)));
+	connect(m_commentTextEdit, SIGNAL(textChanged()), this, SLOT(updateTriggerComment()));
+
+	connect(functionsTreeWidget(), SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(itemDoubleClicked(QTreeWidgetItem*,int)));
+}
+
+void TriggerWidget::showTrigger(map::Trigger* trigger)
+{
+	if (this->trigger() != 0)
+	{
+		setTrigger(0);
+		functionsTreeWidget()->clear();
+		functions().clear();
+	}
+
+	m_enabledCheckBox->setChecked(trigger->isEnabled());
+	m_onAtBeginningCheckBox->setChecked(trigger->isInitiallyOn());
+	m_commentTextEdit->setText(trigger->description().c_str());
+
+	if (trigger->isCustomText())
+	{
+		functionsTreeWidget()->hide();
+	}
+	else
+	{
+		functionsTreeWidget()->show();
+
+		for (map::int32 i = 0; i < trigger->functions().size(); ++i)
+		{
+			QTreeWidgetItem *item = new QTreeWidgetItem();
+			item->setText(0, trigger->functions()[i]->name().c_str());
+			// TODO set icon and mark as enabled or not using ->isEnabled()
+			// TODO show hard coded parameters
+			functions().insert(item, trigger->functions()[i].get());
+
+			switch (trigger->functions()[i]->type())
+			{
+				case map::TriggerFunction::Type::Event:
+					eventsItem()->addChild(item);
+
+					break;
+
+				case map::TriggerFunction::Type::Condition:
+					conditionsItem()->addChild(item);
+
+					break;
+
+				case map::TriggerFunction::Type::Action:
+					actionsItem()->addChild(item);
+
+					break;
+			}
+		}
+	}
+
+	setTrigger(trigger);
+}
+
+void TriggerWidget::itemDoubleClicked(QTreeWidgetItem *item, int column)
+{
+	if (item == eventsItem() || item == conditionsItem() || item == actionsItem())
+	{
+		functionsTreeWidget()->collapseItem(item);
+
+		return;
+	}
+
+	Functions::iterator iterator = functions().find(item);
+
+	// TODO open parameters window
+	if (iterator != functions().end())
+		qDebug() << "Got trigger function: " << (*iterator)->name().c_str();
+}
+
+#include "moc_triggerwidget.cpp"
 
 }
 

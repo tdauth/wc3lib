@@ -231,6 +231,11 @@ inline const W3m::CustomUnitsPtr& W3m::customUnits() const
 	return m_customUnits;
 }
 
+inline const W3m::TriggersPtr& W3m::triggers() const
+{
+	return m_triggers;
+}
+
 inline const W3m::InfoPtr& W3m::info() const
 {
 	return m_info;

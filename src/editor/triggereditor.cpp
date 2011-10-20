@@ -21,6 +21,8 @@
 #include <QtGui>
 
 #include "triggereditor.hpp"
+#include "mapscriptwidget.hpp"
+#include "triggerwidget.hpp"
 #include "editor.hpp"
 #include "map.hpp"
 
@@ -30,53 +32,77 @@ namespace wc3lib
 namespace editor
 {
 
-TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f)
+TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_treeWidget(new QTreeWidget(this)), m_mapScriptWidget(new MapScriptWidget(this)), m_triggerWidget(new TriggerWidget(this)), Module(source, parent, f)
 {
-	Ui::TriggerEditor::setupUi(this);
 	Module::setupUi();
-	//topLayout()->addLayout();
+	QHBoxLayout *hLayout = new QHBoxLayout(this);
+	hLayout->addWidget(treeWidget());
+	QVBoxLayout *vLayout = new QVBoxLayout(this);
+	vLayout->addWidget(mapScriptWidget());
+	vLayout->addWidget(triggerWidget());
+	hLayout->addLayout(vLayout);
+	topLayout()->addLayout(hLayout);
+	treeWidget()->setHeaderHidden(true);
+	//centerLayout()->addWidget(triggerWidget());
+
+	connect(treeWidget(), SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(itemClicked(QTreeWidgetItem*,int)));
+
+	triggerWidget()->setEnabled(false);
+	mapScriptWidget()->hide();
+
+	if (hasEditor())
+	{
+		connect(editor(), SIGNAL(openedMap(Map*)), this, SLOT(loadTriggers(Map*)));
+	}
 }
 
 void TriggerEditor::loadTriggers(map::Triggers *triggers)
 {
 	clear();
-	QTreeWidgetItem *item = new QTreeWidgetItem(m_treeWidget);
+	m_rootItem= new QTreeWidgetItem(treeWidget());
 
 	if (hasEditor())
 	{
 		/// \todo get w3x and w3m icon paths
 		const KUrl src(editor()->currentMap()->isW3x() ? "" : "");
 		QString file;
-		item->setText(0, editor()->currentMap()->map()->info()->name().c_str());
+		rootItem()->setText(0, editor()->currentMap()->map()->info()->name().c_str());
 
 		if (source()->download(src, file, this))
-			item->setIcon(0, QIcon(file));
+			rootItem()->setIcon(0, QIcon(file));
 	}
 	else
 	{
-		item->setText(0, tr("Current map script"));
+		rootItem()->setText(0, tr("Current map script"));
 	}
 
-	foreach (map::Triggers::Categories::const_reference category, triggers->categories())
-	{
-		QTreeWidgetItem *categoryItem = new QTreeWidgetItem();
-		categoryItem->setText(0, category.second->name().c_str());
+	const map::int32 categoriesNumber = triggers->categories().size();
+	const map::int32 triggersNumber = triggers->triggers().size();
+	categories().resize(categoriesNumber);
 
-		item->addChild(categoryItem);
-		m_categories.insert(category.first, categoryItem);
+
+	for (map::int32 i = 0; i < categoriesNumber; ++i)
+	{
+		categories()[i] = new QTreeWidgetItem(rootItem());
+		categories()[i]->setText(0, triggers->categories()[i]->name().c_str());
+		/// \todo set folder icon
 	}
 
-	foreach (map::Triggers::TriggerList::const_reference trigger, triggers->triggers())
-	{
-		QTreeWidgetItem *triggerItem = new QTreeWidgetItem();
-		triggerItem->setText(0, trigger->name().c_str());
+	triggerEntries().resize(triggersNumber);
 
+	for (map::int32 i = 0; i < triggersNumber; ++i)
+	{
+		triggerEntries()[i] = new QTreeWidgetItem(rootItem());
 		/// \todo set icon (initially on, disabled etc.)
-
-		m_categories[trigger->category()->index()]->addChild(triggerItem);
+		triggerEntries()[i]->setText(0, triggers->triggers()[i]->name().c_str());
 	}
 
 	m_triggers = triggers;
+}
+
+void TriggerEditor::loadTriggers(Map *map)
+{
+	loadTriggers(map->map()->triggers().get());
 }
 
 void TriggerEditor::clear()
@@ -86,7 +112,46 @@ void TriggerEditor::clear()
 
 	m_treeWidget->clear();
 	m_categories.clear();
+	m_variables.clear();
+	m_triggerEntries.clear();
 	m_triggers = 0;
+	m_rootItem = 0;
+}
+
+void TriggerEditor::openMapScript()
+{
+	this->triggerWidget()->hide();
+	this->mapScriptWidget()->show();
+}
+
+void TriggerEditor::openTrigger(map::int32 index)
+{
+	openTrigger(triggers()->triggers()[index].get());
+}
+
+void TriggerEditor::openTrigger(map::Trigger *trigger)
+{
+	triggerWidget()->showTrigger(trigger);
+	triggerWidget()->setEnabled(true);
+}
+
+void TriggerEditor::itemClicked(QTreeWidgetItem *item, int column)
+{
+	if (item == rootItem())
+	{
+		openMapScript();
+	}
+	else if (categories().contains(item))
+	{
+		triggerWidget()->hide();
+		mapScriptWidget()->hide();
+	}
+	else if (triggerEntries().contains(item))
+	{
+		openTrigger(rootItem()->indexOfChild(item));
+	}
+	else
+		qDebug() << "Unknown item: " << item->text(0);
 }
 
 void TriggerEditor::createFileActions(class KMenu *menu)

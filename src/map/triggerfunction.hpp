@@ -39,7 +39,7 @@ class TriggerFunction : public Format
 	public:
 		typedef boost::shared_ptr<TriggerFunctionParameter> ParameterPtr;
 		typedef std::list<ParameterPtr> Parameters;
-		
+
 		BOOST_SCOPED_ENUM_START(Type)
 		{
 			Event,
@@ -49,6 +49,11 @@ class TriggerFunction : public Format
 		BOOST_SCOPED_ENUM_END
 
 		TriggerFunction(class Trigger *trigger);
+
+		BOOST_SCOPED_ENUM(Type) type() const;
+		const string& name() const;
+		bool isEnabled() const;
+		const Parameters& parameters() const;
 
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
@@ -61,6 +66,26 @@ class TriggerFunction : public Format
 		bool m_isEnabled;
 		Parameters m_parameters;
 };
+
+inline BOOST_SCOPED_ENUM(TriggerFunction::Type) TriggerFunction::type() const
+{
+	return m_type;
+}
+
+inline const string& TriggerFunction::name() const
+{
+	return m_name;
+}
+
+inline bool TriggerFunction::isEnabled() const
+{
+	return m_isEnabled;
+}
+
+inline const TriggerFunction::Parameters& TriggerFunction::parameters() const
+{
+	return m_parameters;
+}
 
 }
 

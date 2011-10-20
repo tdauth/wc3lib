@@ -290,8 +290,6 @@ bool BlpIOHandler::write(const QImage &image, blp::Blp *blpImage)
 		}
 	}
 
-	blpImage->generateMipMaps(); // generate other MIP maps after setting up initial MIP map (image)
-
 	return true;
 }
 

@@ -40,17 +40,20 @@ class Trigger : public Format
 	public:
 		typedef boost::shared_ptr<TriggerFunction> FunctionPtr;
 		typedef std::vector<FunctionPtr> Functions;
-		
+
 		Trigger(class Triggers *triggers);
 
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
-		
+
 		class Triggers* triggers() const;
 		const string& name() const;
+		void setDescription(const string &description);
 		const string& description() const;
+		void setEnabled(bool enabled);
 		bool isEnabled() const;
 		bool isCustomText() const;
+		void setInitiallyOn(bool on);
 		bool isInitiallyOn() const;
 		int32 unknown() const;
 		class TriggerCategory* category() const;
@@ -78,9 +81,19 @@ inline const string& Trigger::name() const
 	return m_name;
 }
 
+inline void Trigger::setDescription(const string &description)
+{
+	m_description = description;
+}
+
 inline const string& Trigger::description() const
 {
 	return m_description;
+}
+
+inline void Trigger::setEnabled(bool enabled)
+{
+	m_isEnabled = enabled;
 }
 
 inline bool Trigger::isEnabled() const
@@ -91,6 +104,11 @@ inline bool Trigger::isEnabled() const
 inline bool Trigger::isCustomText() const
 {
 	return m_isCustomText;
+}
+
+inline void Trigger::setInitiallyOn(bool on)
+{
+	m_isInitiallyOn = on;
 }
 
 inline bool Trigger::isInitiallyOn() const
