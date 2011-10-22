@@ -422,7 +422,7 @@ inline const char8* Info::fileTextId() const
 
 inline int32 Info::latestFileVersion() const
 {
-	return 13;
+	return 18;
 }
 
 inline const char8* Info::fileName() const

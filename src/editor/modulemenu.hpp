@@ -38,38 +38,24 @@ namespace editor
  * Menu entry which lists actions for all Editor modules.
  * Entries are created via signal when modules are created.
  * Should never be used without an \ref Editor instance.
+ * \sa WindowsMenu
  */
 class ModuleMenu : public KMenu
 {
 	Q_OBJECT
 
 	public:
-		typedef QMap<class Module*, class QAction*> Actions;
-
 		ModuleMenu(Module *module);
 
 		Module* module() const;
-		/**
-		* Holds all modules actions (without separators).
-		* Required by class Module.
-		*/
-		const Actions& actions() const;
 
 	protected slots:
-		void addModuleAction(Module *module, class KAction *action);
-
-	private:
-		Actions m_actions;
+		void addModuleAction(Module *module);
 };
 
 inline Module* ModuleMenu::module() const
 {
 	return boost::polymorphic_cast<Module*>(parent());
-}
-
-inline const ModuleMenu::Actions& ModuleMenu::actions() const
-{
-	return this->m_actions;
 }
 
 }

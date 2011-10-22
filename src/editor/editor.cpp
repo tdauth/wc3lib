@@ -60,7 +60,7 @@ const KAboutData& Editor::wc3libAboutData()
 	return Editor::m_wc3libAboutData;
 }
 
-Editor::Editor(QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f), m_root(0), m_actionCollection(new KActionCollection(this)), m_modulesActionCollection(new KActionCollection(this)), m_newMapDialog(0)
+Editor::Editor(QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f), m_root(0), m_currentMap(0), m_actionCollection(new KActionCollection(this)), m_modulesActionCollection(new KActionCollection(this)), m_mapsActionCollection(new KActionCollection(this)), m_newMapDialog(0)
 {
 	class KAction *action = new KAction(KIcon(":/actions/newmap.png"), i18n("New map ..."), this);
 	action->setShortcut(KShortcut(i18n("Ctrl+N")));
@@ -105,7 +105,6 @@ Editor::Editor(QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f), m_r
 
 	action = new KAction(KIcon(":/actions/closemodule.png"), i18n("Close module"), this);
 	action->setShortcut(KShortcut(i18n("Ctrl+Shift+W")));
-	connect(action, SIGNAL(triggered()), this, SLOT(closeModule()));
 	this->m_actionCollection->addAction("closemodule", action);
 
 	this->setMapActionsEnabled(false);
@@ -157,7 +156,9 @@ void Editor::addModule(class Module *module)
 	connect(action, SIGNAL(triggered()), module, SLOT(show()));
 	connect(action, SIGNAL(triggered()), module, SLOT(setFocus()));
 
-	emit this->createdModule(module, action);
+	modulesActions().insert(module, action);
+
+	emit this->createdModule(module);
 }
 
 Ogre::Root* Editor::root() const
@@ -214,10 +215,10 @@ void Editor::openMap()
 		return;
 
 	foreach(KUrl::List::const_reference url, urls)
-		openMap(url);
+		openMap(url, url == urls.last());
 }
 
-void Editor::openMap(const KUrl &url)
+void Editor::openMap(const KUrl &url, bool switchTo)
 {
 	Map  *ptr = new Map(this, url);
 
@@ -235,11 +236,25 @@ void Editor::openMap(const KUrl &url)
 	}
 
 	this->addResource(ptr);
-	switchToMap(ptr);
+
+	// TODO set icon to w3m or w3x icon
+	KAction *action = new KAction(tr("&%1 %2").arg(mapsActionCollection()->actions().size() + 1).arg(ptr->map()->info()->name().c_str()), this);
+	//action->setShortcut(KShortcut(i18n("F%1%", this->m_modulesActionCollection->actions().size() + 1)));
+	action->setCheckable(true);
+	mapsActionCollection()->addAction(tr("map%1").arg(mapsActionCollection()->actions().size() + 1), action);
+	maps().append(ptr);
+	mapActions().insert(ptr, action);
+	emit openedMap(ptr);
+
+	if (switchTo)
+		switchToMap(ptr);
 }
 
 void Editor::switchToMap(class Map *map)
 {
+	if (currentMap() == 0)
+		this->setMapActionsEnabled(true);
+
 	m_currentMap = map;
 
 	// TODO update all created modules
@@ -248,14 +263,63 @@ void Editor::switchToMap(class Map *map)
 
 void Editor::closeMap(class Map *map)
 {
+	// TODO switch to other open map!
+	if (currentMap() == map)
+		m_currentMap = 0;
+
+	const int index = maps().indexOf(map);
+	KAction *action = boost::polymorphic_cast<KAction*>(mapsActionCollection()->action(index));
+	emit aboutToCloseMap(map);
+	this->m_mapsActionCollection->removeAction(action);
+	maps().removeAt(index);
+	mapActions().remove(map);
+	removeResource(map);
+	// TODO update shortcuts of remaining actions
+
+	if (!maps().isEmpty())
+	{
+		if (index - 1 >= 0)
+			switchToMap(maps()[index - 1]);
+		else
+			switchToMap(maps()[index]);
+
+		for (int i = index; i < maps().size(); ++i)
+		{
+			// TODO rename action internally in collection
+			mapsActionCollection()->action(i)->setText(
+			tr("&%1 %2").arg(mapsActionCollection()->actions().size() + 1).arg(map->map()->info()->name().c_str()));
+		}
+	}
+	else
+		this->setMapActionsEnabled(false);
+}
+
+void Editor::closeMap()
+{
+	closeMap(currentMap());
+}
+
+void Editor::saveMap()
+{
+	currentMap()->save(currentMap()->url());
+}
+
+void Editor::saveMapAs()
+{
+	KUrl url = KFileDialog::getSaveUrl(KUrl(), mapFilter(), this, i18n("Save map"));
+
+	if (url.isEmpty())
+		return;
+
+	currentMap()->save(url);
 }
 
 void Editor::setMapActionsEnabled(bool enabled)
 {
-	this->m_actionCollection->action("closemap")->setEnabled(enabled);
-	this->m_actionCollection->action("savemap")->setEnabled(enabled);
-	this->m_actionCollection->action("savemapas")->setEnabled(enabled);
-	this->m_actionCollection->action("savemapshadows")->setEnabled(enabled);
+	this->actionCollection()->action("closemap")->setEnabled(enabled);
+	this->actionCollection()->action("savemap")->setEnabled(enabled);
+	this->actionCollection()->action("savemapas")->setEnabled(enabled);
+	this->actionCollection()->action("savemapshadows")->setEnabled(enabled);
 }
 
 void Editor::readSettings()

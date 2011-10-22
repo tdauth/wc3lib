@@ -34,21 +34,15 @@ namespace editor
 
 ModuleMenu::ModuleMenu(Module *module) : KMenu(tr("Module"), module)
 {
-	int i = 0;
+	foreach (Module *mod, const_cast<const Editor*>(module->editor())->modules())
+		addModuleAction(mod);
 
-	foreach (Module *mod, module->editor()->modules())
-	{
-		addModuleAction(mod, boost::polymorphic_cast<KAction*>(module->editor()->modulesActionCollection()->action(i)));
-		++i;
-	}
-
-	connect(module->editor(), SIGNAL(createdModule(Module*,KAction*)), this, SLOT(addModuleAction(Module*,KAction*)));
+	connect(module->editor(), SIGNAL(createdModule(Module*)), this, SLOT(addModuleAction(Module*)));
 }
 
-void ModuleMenu::addModuleAction(Module *module, KAction *action)
+void ModuleMenu::addModuleAction(Module *module)
 {
-	this->addAction(action);
-	this->m_actions.insert(module, action);
+	this->addAction(const_cast<const Editor*>(this->module()->editor())->modulesActions()[module]);
 }
 
 #include "moc_modulemenu.cpp"

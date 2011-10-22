@@ -27,6 +27,7 @@
 
 #include "module.hpp"
 #include "modulemenu.hpp"
+#include "windowsmenu.hpp"
 #include "editor.hpp"
 #include "settingsinterface.hpp"
 #include "sourcesdialog.hpp"
@@ -148,7 +149,7 @@ void Module::setupUi()
 	// create user-defined menus
 	this->createMenus(this->menuBar());
 
-	this->m_windowsMenu = new KMenu(tr("Windows"), this);
+	this->m_windowsMenu = new WindowsMenu(this);
 	this->menuBar()->addMenu(windowsMenu());
 
 	// create user-defined actions in windows menu
@@ -187,14 +188,7 @@ KAboutData Module::moduleAboutData() const
 void Module::focusInEvent(QFocusEvent *event)
 {
 	if (hasEditor())
-	{
-		ModuleMenu::Actions::const_iterator iterator = moduleMenu()->actions().find(this);
-
-		if (iterator != moduleMenu()->actions().end())
-			(*iterator)->setChecked(true);
-		else
-			qDebug() << "Warning: Missing module action " << actionName();
-	}
+		const_cast<const Editor*>(editor())->modulesActions()[this]->setChecked(true);
 
 	QWidget::focusInEvent(event);
 }
@@ -202,14 +196,7 @@ void Module::focusInEvent(QFocusEvent *event)
 void Module::focusOutEvent(QFocusEvent *event)
 {
 	if (hasEditor())
-	{
-		ModuleMenu::Actions::const_iterator iterator = moduleMenu()->actions().find(this);
-
-		if (iterator != moduleMenu()->actions().end())
-			(*iterator)->setChecked(false);
-		else
-			qDebug() << "Warning: Missing module action " << actionName();
-	}
+		const_cast<const Editor*>(editor())->modulesActions()[this]->setChecked(false);
 
 	QWidget::focusOutEvent(event);
 }

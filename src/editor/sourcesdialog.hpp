@@ -36,6 +36,7 @@ namespace editor
  * It uses a simple KDE edit list box with a URL completion model.
  * All changes on its list do directly affect its corresponding source (\ref source()).
  * \note Since MpqPriorityList doesn't provide any signals you'll have to call update when any changes on its source were made.
+ * \todo URLs which are at the top of the list do have a higher priority than others which are at the bottom of the list! Update priorities when calling \ref apply().
  */
 class SourcesDialog : public QDialog, protected Ui::SourcesDialog
 {
@@ -54,6 +55,12 @@ class SourcesDialog : public QDialog, protected Ui::SourcesDialog
 
 	protected slots:
 		void added(const QString &text);
+		/**
+		 * \note Don't reload any sources which have already been added except there is a new one with higher priority.
+		 */
+		void apply();
+		void cancel();
+		void restoreDefaults();
 
 	private:
 		class MpqPriorityList *m_source;

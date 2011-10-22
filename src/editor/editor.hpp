@@ -50,9 +50,8 @@ class Editor : public KMainWindow, public MpqPriorityList
 	signals:
 		/**
 		 * Is emitted when a new module has been added via \ref addModule().
-		 * \param action Corresponding action in \ref modulesActionCollection() which focuses the module.
 		 */
-		void createdModule(class Module *module, class KAction *action);
+		void createdModule(class Module *module);
 		/**
 		 * This signal is being emitted when a map has been opened.
 		 */
@@ -76,7 +75,12 @@ class Editor : public KMainWindow, public MpqPriorityList
 	public:
 		typedef Editor self;
 		typedef QLinkedList<class Module*> Modules;
-		typedef QLinkedList<class Map*> Maps;
+		typedef QMap<class Module*, class QAction*> ModulesActions;
+		/**
+		 * \note Index is useful for corresponding action.
+		 */
+		typedef QList<class Map*> Maps;
+		typedef QMap<class Map*, class QAction*> MapActions;
 
 		static const KAboutData& aboutData();
 		static const KAboutData& wc3libAboutData();
@@ -108,7 +112,11 @@ class Editor : public KMainWindow, public MpqPriorityList
 		 * \ref addModule()
 		 */
 		class KActionCollection* modulesActionCollection() const;
+		const ModulesActions& modulesActions() const;
+		class KActionCollection* mapsActionCollection() const;
+		const MapActions& mapActions() const;
 		const Modules& modules() const;
+		const Maps& maps() const;
 		/**
 		 * \note Allocated on request!
 		 */
@@ -120,10 +128,25 @@ class Editor : public KMainWindow, public MpqPriorityList
 		 * \sa newMapDialog()
 		 */
 		void newMap();
+		/**
+		 * Opens file dialog with filter for all supported map types (\ref mapFilter()).
+		 * The created file dialog allows you to select multiple URLs and therefore to open several maps.
+		 * The editor switches automatically to the last opened map.
+		 */
 		void openMap();
-		void openMap(const KUrl &url);
+		void openMap(const KUrl &url, bool switchTo = true);
+		/**
+		 * Emits signal \ref switchedToMap() with \p map as parameter.
+		 */
 		void switchToMap(class Map *map);
 		void closeMap(class Map *map);
+		/**
+		 * Closes current map.
+		 * \sa currentMap()
+		 */
+		void closeMap();
+		void saveMap();
+		void saveMapAs();
 
 	protected:
 		virtual void changeEvent(QEvent *event);
@@ -137,6 +160,11 @@ class Editor : public KMainWindow, public MpqPriorityList
 		void readSettings();
 		void writeSettings();
 
+		ModulesActions& modulesActions();
+		MapActions& mapActions();
+		Modules& modules();
+		Maps& maps();
+
 		static KAboutData m_aboutData;
 		static KAboutData m_wc3libAboutData;
 
@@ -145,7 +173,11 @@ class Editor : public KMainWindow, public MpqPriorityList
 
 		class KActionCollection *m_actionCollection;
 		class KActionCollection *m_modulesActionCollection;
+		ModulesActions m_modulesActions;
+		class KActionCollection *m_mapsActionCollection;
+		MapActions m_mapActions;
 		Modules m_modules;
+		Maps m_maps;
 		class NewMapDialog *m_newMapDialog;
 };
 
@@ -164,9 +196,29 @@ inline class KActionCollection* Editor::modulesActionCollection() const
 	return this->m_modulesActionCollection;
 }
 
+inline const Editor::ModulesActions& Editor::modulesActions() const
+{
+	return this->m_modulesActions;
+}
+
+inline class KActionCollection* Editor::mapsActionCollection() const
+{
+	return m_mapsActionCollection;
+}
+
+inline const Editor::MapActions& Editor::mapActions() const
+{
+	return m_mapActions;
+}
+
 inline const Editor::Modules& Editor::modules() const
 {
 	return this->m_modules;
+}
+
+inline const Editor::Maps& Editor::maps() const
+{
+	return m_maps;
 }
 
 inline class NewMapDialog* Editor::newMapDialog() const
@@ -175,6 +227,26 @@ inline class NewMapDialog* Editor::newMapDialog() const
 		const_cast<self*>(this)->m_newMapDialog = new NewMapDialog(const_cast<self*>(this), const_cast<self*>(this));
 
 	return this->m_newMapDialog;
+}
+
+inline Editor::MapActions& Editor::mapActions()
+{
+	return m_mapActions;
+}
+
+inline Editor::ModulesActions& Editor::modulesActions()
+{
+	return m_modulesActions;
+}
+
+inline Editor::Modules& Editor::modules()
+{
+	return m_modules;
+}
+
+inline Editor::Maps& Editor::maps()
+{
+	return m_maps;
 }
 
 }

@@ -18,7 +18,7 @@
     <widget class="KEditListBox" name="m_editListBox"/>
    </item>
    <item row="1" column="0">
-    <widget class="KDialogButtonBox" name="kdialogbuttonbox">
+    <widget class="KDialogButtonBox" name="m_dialogButtonBox">
      <property name="standardButtons">
       <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::RestoreDefaults</set>
      </property>
@@ -41,7 +41,7 @@
  <resources/>
  <connections>
   <connection>
-   <sender>kdialogbuttonbox</sender>
+   <sender>m_dialogButtonBox</sender>
    <signal>accepted()</signal>
    <receiver>SourcesDialog</receiver>
    <slot>accept()</slot>
@@ -57,7 +57,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>kdialogbuttonbox</sender>
+   <sender>m_dialogButtonBox</sender>
    <signal>rejected()</signal>
    <receiver>SourcesDialog</receiver>
    <slot>reject()</slot>

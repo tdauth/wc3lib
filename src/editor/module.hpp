@@ -58,7 +58,7 @@ class Module : public QWidget, public KComponentData, public KXMLGUIClient
 		class KMenu* editMenu() const;
 		class ModuleMenu* moduleMenu() const;
 		class KMenuBar* menuBar() const;
-		class KMenu* windowsMenu() const;
+		class WindowsMenu* windowsMenu() const;
 		class KToolBar* toolBar() const;
 
 		/**
@@ -93,7 +93,7 @@ class Module : public QWidget, public KComponentData, public KXMLGUIClient
 		virtual void createFileActions(class KMenu *menu) = 0;
 		virtual void createEditActions(class KMenu *menu) = 0;
 		virtual void createMenus(class KMenuBar *menuBar) = 0;
-		virtual void createWindowsActions(class KMenu *menu) = 0;
+		virtual void createWindowsActions(class WindowsMenu *menu) = 0;
 		virtual void createToolButtons(class KToolBar *toolBar) = 0;
 		virtual class SettingsInterface* settings() = 0;
 		/**
@@ -126,7 +126,7 @@ class Module : public QWidget, public KComponentData, public KXMLGUIClient
 		class KMenu *m_editMenu;
 		class ModuleMenu *m_moduleMenu;
 		class KMenuBar *m_menuBar;
-		class KMenu *m_windowsMenu;
+		class WindowsMenu *m_windowsMenu;
 		class KToolBar *m_toolBar;
 		class QAction *m_closeAction;
 		class KAction *m_sourcesAction;
@@ -163,7 +163,7 @@ inline class KMenuBar* Module::menuBar() const
 	return m_menuBar;
 }
 
-inline class KMenu* Module::windowsMenu() const
+inline class WindowsMenu* Module::windowsMenu() const
 {
 	return m_windowsMenu;
 }

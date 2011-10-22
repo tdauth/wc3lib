@@ -42,7 +42,7 @@ void AiEditor::createMenus(class KMenuBar *menuBar)
 {
 }
 
-void AiEditor::createWindowsActions(class KMenu *menu)
+void AiEditor::createWindowsActions(class WindowsMenu *menu)
 {
 }
 

@@ -21,7 +21,6 @@
 #include <QtGui>
 
 #include "triggerwidget.hpp"
-#include "triggereditor.hpp"
 
 namespace wc3lib
 {
@@ -46,10 +45,11 @@ void TriggerWidget::updateTriggerComment()
 	trigger()->setDescription(m_commentTextEdit->toPlainText().toUtf8().constData());
 }
 
-TriggerWidget::TriggerWidget(class TriggerEditor *triggerEditor) : m_triggerEditor(triggerEditor), m_trigger(0), m_functionsTreeWidget(new QTreeWidget(this)), m_eventsItem(new QTreeWidgetItem(functionsTreeWidget())), m_conditionsItem(new QTreeWidgetItem(functionsTreeWidget())), m_actionsItem(new QTreeWidgetItem(functionsTreeWidget())), QWidget(triggerEditor)
+TriggerWidget::TriggerWidget(class TriggerEditor *triggerEditor) : m_triggerEditor(triggerEditor), m_trigger(0), m_functionsTreeWidget(new QTreeWidget(this)), m_rootItem(new QTreeWidgetItem(functionsTreeWidget())), m_eventsItem(new QTreeWidgetItem(rootItem())), m_conditionsItem(new QTreeWidgetItem(rootItem())), m_actionsItem(new QTreeWidgetItem(rootItem())), m_textEdit(new KTextEdit(this)), QWidget(triggerEditor)
 {
 	Ui::TriggerTopWidget::setupUi(this);
 	m_functionsLayout->addWidget(functionsTreeWidget());
+	m_functionsLayout->addWidget(textEdit());
 	// TODO set icons and text from source!
 	// TODO make collapsable by function?
 	functionsTreeWidget()->setHeaderHidden(true);
@@ -62,9 +62,11 @@ TriggerWidget::TriggerWidget(class TriggerEditor *triggerEditor) : m_triggerEdit
 	connect(m_commentTextEdit, SIGNAL(textChanged()), this, SLOT(updateTriggerComment()));
 
 	connect(functionsTreeWidget(), SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(itemDoubleClicked(QTreeWidgetItem*,int)));
+
+	textEdit()->hide();
 }
 
-void TriggerWidget::showTrigger(map::Trigger* trigger)
+void TriggerWidget::showTrigger(map::Trigger* trigger, const map::string &customText)
 {
 	if (this->trigger() != 0)
 	{
@@ -80,20 +82,31 @@ void TriggerWidget::showTrigger(map::Trigger* trigger)
 	if (trigger->isCustomText())
 	{
 		functionsTreeWidget()->hide();
+		textEdit()->show();
+		textEdit()->setText(customText.c_str());
 	}
 	else
 	{
+		textEdit()->hide();
 		functionsTreeWidget()->show();
+		rootItem()->setText(0, trigger->name().c_str());
 
-		for (map::int32 i = 0; i < trigger->functions().size(); ++i)
+		// TODO set icon and background color
+
+		if (trigger->isInitiallyOn())
+			rootItem()->setBackgroundColor(0, QColor(Qt::gray));
+		else
+			rootItem()->setBackgroundColor(0, QColor(Qt::white));
+
+		for (map::int32 i = 0; i < trigger->functions().left.size(); ++i)
 		{
 			QTreeWidgetItem *item = new QTreeWidgetItem();
-			item->setText(0, trigger->functions()[i]->name().c_str());
+			item->setText(0, trigger->functions().left.find(i)->second->name().c_str());
 			// TODO set icon and mark as enabled or not using ->isEnabled()
 			// TODO show hard coded parameters
-			functions().insert(item, trigger->functions()[i].get());
+			functions().insert(item, trigger->functions().left.find(i)->second.get());
 
-			switch (trigger->functions()[i]->type())
+			switch (trigger->functions().left.find(i)->second->type())
 			{
 				case map::TriggerFunction::Type::Event:
 					eventsItem()->addChild(item);
@@ -118,7 +131,7 @@ void TriggerWidget::showTrigger(map::Trigger* trigger)
 
 void TriggerWidget::itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
-	if (item == eventsItem() || item == conditionsItem() || item == actionsItem())
+	if (item == rootItem() || item == eventsItem() || item == conditionsItem() || item == actionsItem())
 	{
 		functionsTreeWidget()->collapseItem(item);
 

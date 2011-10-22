@@ -53,8 +53,8 @@
 #include "editor/resource.hpp"
 #include "editor/settings.hpp"
 #include "editor/settingsinterface.hpp"
-#include "editor/sourcesdialog.hpp"
 #include "editor/soundeditor.hpp"
+#include "editor/sourcesdialog.hpp"
 #include "editor/splashscreen.hpp"
 #include "editor/terrainbrush.hpp"
 #include "editor/terraineditor.hpp"
@@ -63,5 +63,6 @@
 #include "editor/triggerwidget.hpp"
 #include "editor/uniteditor.hpp"
 #include "editor/viewportsettings.hpp"
+#include "editor/windowsmenu.hpp"
 
 #endif

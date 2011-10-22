@@ -39,7 +39,10 @@ class Trigger : public Format
 {
 	public:
 		typedef boost::shared_ptr<TriggerFunction> FunctionPtr;
-		typedef std::vector<FunctionPtr> Functions;
+		/**
+		 * \note Don't use \ref std::vector since it should be extensible.
+		 */
+		typedef boost::bimap<int32, FunctionPtr> Functions;
 
 		Trigger(class Triggers *triggers);
 
@@ -56,8 +59,15 @@ class Trigger : public Format
 		void setInitiallyOn(bool on);
 		bool isInitiallyOn() const;
 		int32 unknown() const;
-		class TriggerCategory* category() const;
+		int32 category() const;
+		Functions& functions();
 		const Functions& functions() const;
+
+		/**
+		 * Corresponding custom text trigger entry.
+		 * \sa CustomTextTrigger
+		 */
+		const string& triggerText() const;
 
 	protected:
 		class Triggers *m_triggers;
@@ -67,7 +77,7 @@ class Trigger : public Format
 		bool m_isCustomText;
 		bool m_isInitiallyOn;
 		int32 m_unknown;
-		class TriggerCategory *m_category;
+		int32 m_category;
 		Functions m_functions;
 };
 
@@ -121,9 +131,14 @@ inline int32 Trigger::unknown() const
 	return m_unknown;
 }
 
-inline class TriggerCategory* Trigger::category() const
+inline int32 Trigger::category() const
 {
 	return m_category;
+}
+
+inline Trigger::Functions& Trigger::functions()
+{
+	return m_functions;
 }
 
 inline const Trigger::Functions& Trigger::functions() const

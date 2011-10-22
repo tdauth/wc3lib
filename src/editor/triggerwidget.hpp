@@ -26,6 +26,7 @@
 
 #include "ui/ui_triggertopwidget.h"
 #include "../map.hpp"
+#include "triggereditor.hpp"
 
 namespace wc3lib
 {
@@ -33,6 +34,13 @@ namespace wc3lib
 namespace editor
 {
 
+/**
+ * \brief Widget for displaying and editing common triggers and custom text triggers.
+ * For both types, common triggers (with functions) and custom text triggers (with script code) there is a top widget which provides you a text edit for the trigger's comment and some buttons for enabling or disabling the trigger (\ref enableTrigger()) and setting it initially on (\ref setTriggerInitiallyOn()).
+ * The difference between common triggers and custom text triggers is that common triggers have functions displayed in a tree widget (\ref functionsTreeWidget()) separated into events, conditions and actions. All functions of the shown trigger do have exactly one corresponding tree widget item in the tree widget which can be accessed via \ref functions().
+ * In contrast, custom text triggers do only need a text edit for their script code which can be accessed via \ref textEdit().
+ * \sa TriggerEditor
+ */
 class TriggerWidget : public QWidget, protected Ui::TriggerTopWidget
 {
 	Q_OBJECT
@@ -47,14 +55,35 @@ class TriggerWidget : public QWidget, protected Ui::TriggerTopWidget
 
 		TriggerWidget(class TriggerEditor *triggerEditor);
 
+		TriggerEditor* triggerEditor() const;
 		map::Trigger* trigger() const;
+		/**
+		 * Tree widget is required for non custom text triggers (\ref map::Trigger::isCustomText()) which do have trigger functions (\ref map::Trigger::functions()).
+		 * Each function has its corresponding tree widget item which can be accessed via \ref functions().
+		 * Additionally, there are top level tree widget items for separating functions into events, conditions and actions (\ref map::Trigger::TriggerFunction::Type).
+		 * \sa rootItem()
+		 * \sa eventsItem()
+		 * \sa conditionsItem()
+		 * \sa actionsItem()
+		 * \sa functions()
+		 */
 		QTreeWidget* functionsTreeWidget() const;
+		/**
+		 * The root item has the same format as the entry in the left-side tree widget (\ref TriggerEditor::rootItem())
+		 */
+		QTreeWidgetItem* rootItem() const;
 		QTreeWidgetItem* eventsItem() const;
 		QTreeWidgetItem* conditionsItem() const;
 		QTreeWidgetItem* actionsItem() const;
 		const Functions& functions() const;
+		/**
+		 * Text edit is required for custom text triggers (\ref map::Trigger::isCustomText()).
+		 * Otherwise it is hidden.
+		 * \sa functionsTreeWidget()
+		 */
+		KTextEdit* textEdit() const;
 
-		void showTrigger(map::Trigger *trigger);
+		void showTrigger(map::Trigger *trigger, const map::string &customText);
 
 	protected slots:
 		void itemDoubleClicked(QTreeWidgetItem *item, int column);
@@ -64,14 +93,21 @@ class TriggerWidget : public QWidget, protected Ui::TriggerTopWidget
 		Functions& functions();
 
 	private:
-		class TriggerEditor *m_triggerEditor;
+		TriggerEditor *m_triggerEditor;
 		map::Trigger *m_trigger;
 		QTreeWidget *m_functionsTreeWidget;
+		QTreeWidgetItem *m_rootItem;
 		QTreeWidgetItem *m_eventsItem;
 		QTreeWidgetItem *m_conditionsItem;
 		QTreeWidgetItem *m_actionsItem;
 		Functions m_functions;
+		KTextEdit *m_textEdit;
 };
+
+inline TriggerEditor* TriggerWidget::triggerEditor() const
+{
+	return boost::polymorphic_cast<TriggerEditor*>(parent());
+}
 
 inline map::Trigger* TriggerWidget::trigger() const
 {
@@ -81,6 +117,11 @@ inline map::Trigger* TriggerWidget::trigger() const
 inline QTreeWidget* TriggerWidget::functionsTreeWidget() const
 {
 	return m_functionsTreeWidget;
+}
+
+inline QTreeWidgetItem* TriggerWidget::rootItem() const
+{
+	return m_rootItem;
 }
 
 inline QTreeWidgetItem* TriggerWidget::eventsItem() const
@@ -101,6 +142,11 @@ inline QTreeWidgetItem* TriggerWidget::actionsItem() const
 inline const TriggerWidget::Functions& TriggerWidget::functions() const
 {
 	return m_functions;
+}
+
+inline KTextEdit* TriggerWidget::textEdit() const
+{
+	return m_textEdit;
 }
 
 inline void TriggerWidget::setTrigger(map::Trigger *trigger)

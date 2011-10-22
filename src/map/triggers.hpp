@@ -37,11 +37,20 @@ class Triggers : public FileFormat
 {
 	public:
 		typedef boost::shared_ptr<class TriggerCategory> CategoryPtr;
-		typedef std::vector<CategoryPtr> Categories;
+		/**
+		 * \note Don't use \ref std::vector since it should be extensible.
+		 */
+		typedef boost::bimap<int32, CategoryPtr> Categories;
 		typedef boost::shared_ptr<class Variable> VariablePtr;
-		typedef std::vector<VariablePtr> Variables;
+		/**
+		 * \note Don't use \ref std::vector since it should be extensible.
+		 */
+		typedef boost::bimap<int32, VariablePtr> Variables;
 		typedef boost::shared_ptr<class Trigger> TriggerPtr;
-		typedef std::vector<TriggerPtr> TriggerEntries;
+		/**
+		 * \note Don't use \ref std::vector since it should be extensible.
+		 */
+		typedef boost::bimap<int32, TriggerPtr> TriggerEntries;
 
 		Triggers(class W3m *w3m);
 

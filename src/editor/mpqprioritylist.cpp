@@ -38,7 +38,7 @@ bool MpqPriorityList::addSource(const KUrl &url, MpqPriorityListEntry::Priority 
 {
 	// proper URLs must refer to directories or archives
 	/// \todo Support all archive properties and remote directories (smb).
-	if (!QFileInfo(url.toLocalFile()).isDir() && (url.protocol() != "mpq" || url.protocol() != "tar"))
+	if (!QFileInfo(url.toLocalFile()).isDir() && (url.protocol() != MpqProtocol::protocol || url.protocol() != "tar"))
 		return false;
 
 	Sources::index_const_iterator<KUrl>::type iterator = sources().get<KUrl>().find(url);
@@ -104,7 +104,7 @@ bool MpqPriorityList::removeSource(const KUrl &url)
 {
 	Sources::index_iterator<KUrl>::type iterator = sources().get<KUrl>().find(url);
 
-	if (iterator != sources().get<KUrl>().end())
+	if (iterator == sources().get<KUrl>().end())
 		return false;
 
 	sources().get<KUrl>().erase(iterator);

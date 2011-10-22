@@ -162,7 +162,7 @@ void ObjectEditor::createMenus(class KMenuBar *menuBar)
 	/// \todo Create menu "view" with meta data categories of current tab and "raw data" and sort by names actions
 }
 
-void ObjectEditor::createWindowsActions(class KMenu *menu)
+void ObjectEditor::createWindowsActions(class WindowsMenu *menu)
 {
 }
 

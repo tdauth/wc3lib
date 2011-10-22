@@ -37,45 +37,52 @@ Triggers::Triggers(class W3m *w3m) : m_w3m(w3m)
 std::streamsize Triggers::read(InputStream &istream) throw (class Exception)
 {
 	std::streamsize size = 0;
+	/*
+	 * TEST
 	id requiredId = fileId();
 	id fileId;
 	wc3lib::read(istream, fileId, size);
 
 	if (memcmp(&fileId, &requiredId, sizeof(fileId)) != 0)
-		throw Exception(boost::format(_("Triggers: Unknown file id \"%1%\". Expected \"%2%\".")) % fileId % this->fileId());
+		*/
+	id fileId;
+	wc3lib::read(istream, fileId, size);
+
+	if (memcmp(fileTextId(), &fileId, sizeof(fileId)) == 0)
+		throw Exception(boost::format(_("Triggers: Unknown file id \"%1%\". Expected \"%2%\".")) % fileId % this->fileTextId());
 
 	wc3lib::read(istream, this->m_version, size);
 
-	if (this->m_version != latestFileVersion())
+	if (this->version() != latestFileVersion())
 		throw Exception(boost::format(_("Triggers: Version %1% is not supported (version %2% only).")) % this->version() % latestFileVersion());
 
 	int32 number;
 	wc3lib::read(istream, number, size);
-	categories().resize(number);
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		categories()[i].reset(new TriggerCategory(this));
-		size += categories()[i]->read(istream);
+		CategoryPtr ptr(new TriggerCategory(this));
+		size += ptr->read(istream);
+		categories().left.insert(std::make_pair(i, ptr));
 	}
 
 	wc3lib::read(istream, this->m_unknown0, size);
 	wc3lib::read(istream, number, size);
-	variables().resize(number);
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		variables()[i].reset(new Variable(this));
-		size += variables()[i]->read(istream);
+		VariablePtr ptr(new Variable(this));
+		size += ptr->read(istream);
+		variables().left.insert(std::make_pair(i, ptr));
 	}
 
 	wc3lib::read(istream, number, size);
-	triggers().resize(number);
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		triggers()[i].reset(new Trigger(this));
-		size += triggers()[i]->read(istream);
+		TriggerPtr ptr(new Trigger(this));
+		size += ptr->read(istream);
+		triggers().left.insert(std::make_pair(i, ptr));
 	}
 
 	return size;
@@ -86,24 +93,24 @@ std::streamsize Triggers::write(OutputStream &ostream) const throw (class Except
 	std::streamsize size = 0;
 	wc3lib::write(ostream, fileId(), size);
 	wc3lib::write(ostream, this->version(), size);
-	int32 number = this->categories().size();
+	int32 number = this->categories().left.size();
 	wc3lib::write(ostream, number, size);
 
-	for (int32 i = 0; i < number; ++i)
-		size += categories()[i]->write(ostream);
+	BOOST_FOREACH(Categories::left_const_reference value, categories().left)
+		size += value.second->write(ostream);
 
 	wc3lib::write(ostream, this->unknown0(), size);
-	number = this->variables().size();
+	number = this->variables().left.size();
 	wc3lib::write(ostream, number, size);
 
-	for (int32 i = 0; i < number; ++i)
-		size += variables()[i]->write(ostream);
+	BOOST_FOREACH(Variables::left_const_reference value, variables().left)
+		size += value.second->write(ostream);
 
-	number = this->triggers().size();
+	number = this->triggers().left.size();
 	wc3lib::write(ostream, number, size);
 
-	for (int32 i = 0; i < number; ++i)
-		size += triggers()[i]->write(ostream);
+	BOOST_FOREACH(TriggerEntries::left_const_reference value, triggers().left)
+		size += value.second->write(ostream);
 
 	return size;
 }

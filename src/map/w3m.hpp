@@ -241,6 +241,11 @@ inline const W3m::InfoPtr& W3m::info() const
 	return m_info;
 }
 
+inline const W3m::CustomTextTriggersPtr& W3m::customTextTriggers() const
+{
+	return m_customTextTriggers;
+}
+
 inline const W3m::FileFormats& W3m::fileFormats() const
 {
 	return this->m_fileFormats;

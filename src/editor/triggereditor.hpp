@@ -33,6 +33,11 @@ namespace wc3lib
 namespace editor
 {
 
+/**
+ * \brief The trigger editor is one of the most important modules of the World Editor when creating non-melee maps since it offers you the possibility to react on game events and therefore to define a completely new behaviour of the game.
+ *
+ * \note Bear in mind that all code of custom text triggers is stored in a separate file named "war3map.wtc" (\ref map::CustomTextTriggers) whereas all trigger data is stored in "war3map.wtg" (\ref map::Triggers). Therefore you have to load both files to make custom text triggers storable. When using editor mode (\ref hasEditor()) both files will be loaded automatically. Alternatively you could use \ref loadFromMap().
+ */
 class TriggerEditor : public Module
 {
 	Q_OBJECT
@@ -42,17 +47,64 @@ class TriggerEditor : public Module
 
 		TriggerEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 
+		/**
+		 * \return Returns empty string if there is no custom text triggers or no valid text entry.
+		 * \note \p trigger has to be part of \ref triggers().
+		 */
+		const map::string& triggerText(map::Trigger *trigger) const;
+
 		map::Triggers* triggers() const;
+		map::CustomTextTriggers* customTextTriggers() const;
 		QTreeWidget* treeWidget() const;
 		QTreeWidgetItem* rootItem() const;
 		class MapScriptWidget* mapScriptWidget() const;
 		class TriggerWidget* triggerWidget() const;
+		KActionCollection* triggerActionCollection() const;
 
 	public slots:
+		/**
+		 * Opens file dialog for loading triggers file (*.wtg).
+		 * \sa triggersFilter()
+		 */
+		void openTriggers();
+		/**
+		 * Opens file dialog for loading custom text triggers file (*.wtc).
+		 * \sa customTextTriggersFilter()
+		 */
+		void openCustomTextTriggers();
+		/**
+		 * Similar to \ref clear().
+		 */
+		void closeTriggers();
+		void closeCustomTextTriggers();
+		/**
+		 * Closes open triggers and custom text triggers.
+		 * \sa closeTriggers()
+		 * \sa closeCustomTextTriggers()
+		 */
+		void closeAll();
+
 		void loadTriggers(map::Triggers *triggers);
 		void loadTriggers(Map *map);
+		void loadCustomTextTriggers(map::CustomTextTriggers *customTextTriggers);
+		void loadCustomTextTriggers(Map *map);
+		/**
+		 * Loads triggers and custom text triggers from map \p map.
+		 * \sa loadTriggers()
+		 * \sa loadCustomTextTriggers()
+		 */
+		void loadFromMap(Map *map);
+		/**
+		 * \note Clears only triggers not custom text triggers!
+		 */
 		void clear();
+		/**
+		 * Displays the custom map script instead of any trigger, category etc..
+		 */
 		void openMapScript();
+		/**
+		 * Displays trigger of \p index.
+		 */
 		void openTrigger(map::int32 index);
 		void openTrigger(map::Trigger *trigger);
 
@@ -63,19 +115,31 @@ class TriggerEditor : public Module
 		virtual void createFileActions(class KMenu *menu);
 		virtual void createEditActions(class KMenu *menu);
 		virtual void createMenus(class KMenuBar *menuBar);
-		virtual void createWindowsActions(class KMenu *menu);
+		virtual void createWindowsActions(class WindowsMenu *menu);
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
 		virtual KAboutData moduleAboutData() const;
 		virtual void onSwitchToMap(Map *map);
 		virtual QString actionName() const;
 
+		void setTriggers(map::Triggers *triggers);
+		void setCustomTextTriggers(map::CustomTextTriggers *customTextTriggers);
+		void setFreeTriggers(bool freeTriggers);
+		void setFreeCustomTextTriggers(bool freeCustomTextTriggers);
+		/**
+		 * \return Returns true if triggers have been allocated for trigger editor only and do not belong to any object. In this case they will be deleted automatically when closed.
+		 */
+		bool freeTriggers() const;
+		bool freeCustomTextTriggers() const;
 		TreeItems& categories();
 		TreeItems& variables();
 		TreeItems& triggerEntries();
 
 	private:
 		map::Triggers *m_triggers;
+		map::CustomTextTriggers *m_customTextTriggers;
+		bool m_freeTriggers;
+		bool m_freeCustomTextTriggers;
 		TreeItems m_categories;
 		TreeItems m_variables;
 		TreeItems m_triggerEntries;
@@ -84,11 +148,38 @@ class TriggerEditor : public Module
 		QTreeWidgetItem *m_rootItem;
 		class MapScriptWidget *m_mapScriptWidget;
 		class TriggerWidget *m_triggerWidget;
+
+		KActionCollection *m_triggerActionCollection;
 };
+
+inline const map::string& TriggerEditor::triggerText(map::Trigger *trigger) const
+{
+	if (customTextTriggers() == 0)
+		return "";
+
+	map::Triggers::TriggerEntries::right_const_iterator iterator = triggers()->triggers().right.find(map::Triggers::TriggerPtr(trigger));
+
+	// no corresponding number which should never occur actually
+	if (iterator == triggers()->triggers().right.end())
+		return "";
+
+	map::CustomTextTriggers::TriggerTexts::left_const_iterator textIterator = customTextTriggers()->triggerTexts().left.find(iterator->second);
+
+	// no corresponding custom trigger text which should never occur actually
+	if (textIterator == customTextTriggers()->triggerTexts().left.end())
+		return "";
+
+	return textIterator->second;
+}
 
 inline map::Triggers* TriggerEditor::triggers() const
 {
 	return m_triggers;
+}
+
+inline map::CustomTextTriggers* TriggerEditor::customTextTriggers() const
+{
+	return m_customTextTriggers;
 }
 
 inline QTreeWidget* TriggerEditor::treeWidget() const
@@ -111,6 +202,11 @@ inline class TriggerWidget* TriggerEditor::triggerWidget() const
 	return this->m_triggerWidget;
 }
 
+inline KActionCollection* TriggerEditor::triggerActionCollection() const
+{
+	return m_triggerActionCollection;
+}
+
 inline KAboutData TriggerEditor::moduleAboutData() const
 {
 	KAboutData aboutData(Module::moduleAboutData());
@@ -122,6 +218,36 @@ inline KAboutData TriggerEditor::moduleAboutData() const
 inline QString TriggerEditor::actionName() const
 {
 	return "triggereditor";
+}
+
+inline void TriggerEditor::setTriggers(map::Triggers *triggers)
+{
+	m_triggers = triggers;
+}
+
+inline void TriggerEditor::setCustomTextTriggers(map::CustomTextTriggers *customTextTriggers)
+{
+	m_customTextTriggers = customTextTriggers;
+}
+
+inline void TriggerEditor::setFreeTriggers(bool freeTriggers)
+{
+	m_freeTriggers = freeTriggers;
+}
+
+inline void TriggerEditor::setFreeCustomTextTriggers(bool freeCustomTextTriggers)
+{
+	m_freeCustomTextTriggers = freeCustomTextTriggers;
+}
+
+inline bool TriggerEditor::freeTriggers() const
+{
+	return m_freeTriggers;
+}
+
+inline bool TriggerEditor::freeCustomTextTriggers() const
+{
+	return m_freeCustomTextTriggers;
 }
 
 inline TriggerEditor::TreeItems& TriggerEditor::categories()

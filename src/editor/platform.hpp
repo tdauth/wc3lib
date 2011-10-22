@@ -442,6 +442,26 @@ inline QString mapFilter()
 	return i18n("all/allfiles application/x-w3m application/x-w3x");
 }
 
+inline QString triggersFilter()
+{
+	KMimeType::Ptr wtg(KMimeType::mimeType("application/x-wtg"));
+
+	if (wtg.isNull())
+		return i18n("*|All Files\n*.wtg|Warcraft III Triggers");
+
+	return i18n("all/allfiles application/x-wtg");
+}
+
+inline QString customTextTriggersFilter()
+{
+	KMimeType::Ptr wtc(KMimeType::mimeType("application/x-wtc"));
+
+	if (wtc.isNull())
+		return i18n("*|All Files\n*.wtc|Warcraft III Custom Text Triggers");
+
+	return i18n("all/allfiles application/x-wtc");
+}
+
 // TODO Use image open URL function but MIME type of BLP is not usable on debugging
 // TODO MIME filters do not work ("all/allfiles").
 //i18n("*|All Files\n*.blp|Blizzard Pictures\n*.png|Portable Network Graphics\n*.jpg|JPEG Files"), this, i18n("Open texture"));

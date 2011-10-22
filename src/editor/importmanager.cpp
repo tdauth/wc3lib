@@ -42,7 +42,7 @@ void ImportManager::createMenus(class KMenuBar *menuBar)
 {
 }
 
-void ImportManager::createWindowsActions(class KMenu *menu)
+void ImportManager::createWindowsActions(class WindowsMenu *menu)
 {
 }
 

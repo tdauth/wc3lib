@@ -32,7 +32,10 @@ namespace map
 class CustomTextTriggers : public FileFormat
 {
 	public:
-		typedef std::vector<string> TriggerTexts;
+		/**
+		 * \note Don't use \ref std::vector since it should be extensible.
+		 */
+		typedef boost::bimap<int32, string> TriggerTexts;
 
 		virtual std::streamsize read(InputStream& istream) throw (Exception);
 		virtual std::streamsize write(OutputStream& ostream) const throw (Exception);
@@ -42,6 +45,7 @@ class CustomTextTriggers : public FileFormat
 		virtual int32 latestFileVersion() const;
 		virtual uint32_t version() const;
 
+		TriggerTexts& triggerTexts();
 		const TriggerTexts& triggerTexts() const;
 
 	protected:
@@ -67,6 +71,11 @@ inline int32 CustomTextTriggers::latestFileVersion() const
 inline uint32_t CustomTextTriggers::version() const
 {
 	return m_version;
+}
+
+inline CustomTextTriggers::TriggerTexts& CustomTextTriggers::triggerTexts()
+{
+	return m_triggerTexts;
 }
 
 inline const CustomTextTriggers::TriggerTexts& CustomTextTriggers::triggerTexts() const

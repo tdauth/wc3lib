@@ -81,7 +81,7 @@ void TerrainEditor::createMenus(class KMenuBar *menuBar)
 {
 }
 
-void TerrainEditor::createWindowsActions(class KMenu *menu)
+void TerrainEditor::createWindowsActions(class WindowsMenu *menu)
 {
 }
 

@@ -40,16 +40,56 @@ void SourcesDialog::update()
 SourcesDialog::SourcesDialog(class MpqPriorityList *source, QWidget *parent, Qt::WFlags flags): m_source(source), QDialog(parent, flags)
 {
 	setupUi(this);
+
 	//m_editListBox->
 	// TODO use URL requester
 	//KUrlRequester *requester = new KUrlRequester(this);
 	//KUrlCompletion *urlCompletion = new KUrlCompletion(KUrlCompletion::DirCompletion);
 	//m_editListBox->lineEdit()->setCompletionObject(urlCompletion);
 	//m_editListBox->setCustomEditor(*requester);
+
+	connect(m_dialogButtonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
+	connect(m_dialogButtonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(cancel()));
+	connect(m_dialogButtonBox->button(QDialogButtonBox::RestoreDefaults), SIGNAL(clicked()), this, SLOT(restoreDefaults()));
 }
 
 void SourcesDialog::added(const QString& text)
 {
+}
+
+void SourcesDialog::apply()
+{
+	foreach (const QString &item, m_editListBox->items())
+	{
+		if (const_cast<const MpqPriorityList*>(source())->sources().get<KUrl>().find(KUrl(item)) == const_cast<const MpqPriorityList*>(source())->sources().get<KUrl>().end())
+			source()->addSource(item);
+	}
+
+	QLinkedList<KUrl> invalidUrls;
+
+	foreach (MpqPriorityList::Source source, const_cast<const MpqPriorityList*>(source())->sources())
+	{
+		if (!m_editListBox->items().contains(source->url().toEncoded()))
+			invalidUrls.push_back(source->url());
+	}
+
+	foreach (const KUrl &url, invalidUrls)
+		source()->removeSource(url);
+}
+
+void SourcesDialog::cancel()
+{
+	m_editListBox->clear();
+	update();
+}
+
+void SourcesDialog::restoreDefaults()
+{
+	m_editListBox->clear();
+	m_editListBox->insertItem(war3Url().toEncoded());
+	m_editListBox->insertItem(war3XUrl().toEncoded());
+	m_editListBox->insertItem(war3XLocalUrl().toEncoded());
+	m_editListBox->insertItem(war3PatchUrl().toEncoded());
 }
 
 }

@@ -18,7 +18,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <boost/filesystem/fstream.hpp>
+
 #include <QtGui>
+
+#include <KFileDialog>
+#include <KMessageBox>
+#include <KMenu>
+#include <KAction>
+#include <KActionCollection>
 
 #include "triggereditor.hpp"
 #include "mapscriptwidget.hpp"
@@ -32,7 +40,7 @@ namespace wc3lib
 namespace editor
 {
 
-TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_treeWidget(new QTreeWidget(this)), m_mapScriptWidget(new MapScriptWidget(this)), m_triggerWidget(new TriggerWidget(this)), Module(source, parent, f)
+TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_triggers(0), m_customTextTriggers(0), m_freeTriggers(false), m_freeCustomTextTriggers(false), m_treeWidget(new QTreeWidget(this)), m_mapScriptWidget(new MapScriptWidget(this)), m_triggerWidget(new TriggerWidget(this)), m_triggerActionCollection(0), Module(source, parent, f)
 {
 	Module::setupUi();
 	QHBoxLayout *hLayout = new QHBoxLayout(this);
@@ -49,11 +57,104 @@ TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 
 	triggerWidget()->setEnabled(false);
 	mapScriptWidget()->hide();
+	triggerActionCollection()->action("closetriggers")->setEnabled(false);
+	triggerActionCollection()->action("closecustomtexttriggers")->setEnabled(false);
+	triggerActionCollection()->action("closeall")->setEnabled(false);
+}
 
-	if (hasEditor())
+void TriggerEditor::openTriggers()
+{
+	KUrl url = KFileDialog::getOpenUrl(KUrl(), triggersFilter(), this, i18n("Open triggers"));
+
+	if (url.isEmpty())
+		return;
+
+	QString target;
+
+	if (!source()->download(url, target, this))
 	{
-		connect(editor(), SIGNAL(openedMap(Map*)), this, SLOT(loadTriggers(Map*)));
+		KMessageBox::error(this, i18n("Unable to download triggers from \"%1\".", url.toEncoded().constData()));
+
+		return;
 	}
+
+	map::Triggers *triggers = 0;
+
+	try
+	{
+		triggers = new map::Triggers(0);
+		boost::filesystem::ifstream ifstream(target.toUtf8().constData(), std::ios::in | std::ios::binary);
+		triggers->read(ifstream);
+	}
+	catch (std::exception &exception)
+	{
+		KMessageBox::error(this, i18n("Unable to read triggers from file \"%1\".\nException: \"%2\".", target, exception.what()));
+
+		return;
+	}
+
+	loadTriggers(triggers);
+	setFreeTriggers(true); // for proper deletion
+}
+
+void TriggerEditor::openCustomTextTriggers()
+{
+	KUrl url = KFileDialog::getOpenUrl(KUrl(), customTextTriggersFilter(), this, i18n("Open custom text triggers"));
+
+	if (url.isEmpty())
+		return;
+
+	QString target;
+
+	if (!source()->download(url, target, this))
+	{
+		KMessageBox::error(this, i18n("Unable to download custom text triggers from \"%1\".", url.toEncoded().constData()));
+
+		return;
+	}
+
+	map::CustomTextTriggers *triggers = 0;
+
+	try
+	{
+		triggers = new map::CustomTextTriggers();
+		boost::filesystem::ifstream ifstream(target.toUtf8().constData(), std::ios::in | std::ios::binary);
+		triggers->read(ifstream);
+	}
+	catch (std::exception &exception)
+	{
+		KMessageBox::error(this, i18n("Unable to read custom text triggers from file \"%1\".\nException: \"%2\".", target, exception.what()));
+
+		return;
+	}
+
+	loadCustomTextTriggers(triggers);
+	setFreeCustomTextTriggers(true); // for proper deletion
+}
+
+void TriggerEditor::closeTriggers()
+{
+	clear();
+}
+
+void TriggerEditor::closeCustomTextTriggers()
+{
+	if (customTextTriggers() != 0 && freeCustomTextTriggers())
+		delete customTextTriggers();
+
+	setCustomTextTriggers(0);
+	// TODO update open trigger text (clear, warn?? consider situations when having a open map!!)
+
+	triggerActionCollection()->action("closecustomtexttriggers")->setEnabled(false);
+
+	if (triggers() == 0)
+		triggerActionCollection()->action("closeall")->setEnabled(false);
+}
+
+void TriggerEditor::closeAll()
+{
+	closeTriggers();
+	closeCustomTextTriggers();
 }
 
 void TriggerEditor::loadTriggers(map::Triggers *triggers)
@@ -67,6 +168,7 @@ void TriggerEditor::loadTriggers(map::Triggers *triggers)
 		const KUrl src(editor()->currentMap()->isW3x() ? "" : "");
 		QString file;
 		rootItem()->setText(0, editor()->currentMap()->map()->info()->name().c_str());
+		qDebug() << "Root item: " << editor()->currentMap()->map()->info()->name().c_str();
 
 		if (source()->download(src, file, this))
 			rootItem()->setIcon(0, QIcon(file));
@@ -84,8 +186,9 @@ void TriggerEditor::loadTriggers(map::Triggers *triggers)
 	for (map::int32 i = 0; i < categoriesNumber; ++i)
 	{
 		categories()[i] = new QTreeWidgetItem(rootItem());
-		categories()[i]->setText(0, triggers->categories()[i]->name().c_str());
+		categories()[i]->setText(0, triggers->categories().left.find(i)->second->name().c_str());
 		/// \todo set folder icon
+		qDebug() << "Category: " << triggers->categories().left.find(i)->second->name().c_str();
 	}
 
 	triggerEntries().resize(triggersNumber);
@@ -94,10 +197,13 @@ void TriggerEditor::loadTriggers(map::Triggers *triggers)
 	{
 		triggerEntries()[i] = new QTreeWidgetItem(rootItem());
 		/// \todo set icon (initially on, disabled etc.)
-		triggerEntries()[i]->setText(0, triggers->triggers()[i]->name().c_str());
+		triggerEntries()[i]->setText(0, triggers->triggers().left.find(i)->second->name().c_str());
+		qDebug() << "Trigger: " << triggers->triggers().left.find(i)->second->name().c_str();
 	}
 
 	m_triggers = triggers;
+	triggerActionCollection()->action("closetriggers")->setEnabled(true);
+	triggerActionCollection()->action("closeall")->setEnabled(true);
 }
 
 void TriggerEditor::loadTriggers(Map *map)
@@ -105,17 +211,53 @@ void TriggerEditor::loadTriggers(Map *map)
 	loadTriggers(map->map()->triggers().get());
 }
 
-void TriggerEditor::clear()
+void TriggerEditor::loadCustomTextTriggers(map::CustomTextTriggers *customTextTriggers)
 {
-	if (m_triggers == 0)
+	closeCustomTextTriggers();
+	m_customTextTriggers = customTextTriggers;
+	triggerActionCollection()->action("closecustomtexttriggers")->setEnabled(true);
+	triggerActionCollection()->action("closeall")->setEnabled(true);
+
+	if (triggers() == 0)
 		return;
 
-	m_treeWidget->clear();
-	m_categories.clear();
-	m_variables.clear();
-	m_triggerEntries.clear();
-	m_triggers = 0;
+	if (triggerWidget()->trigger() != 0 && triggerWidget()->trigger()->isCustomText())
+		triggerWidget()->textEdit()->setText(triggerText(triggerWidget()->trigger()).c_str());
+}
+
+void TriggerEditor::loadCustomTextTriggers(Map *map)
+{
+	loadCustomTextTriggers(map->map()->customTextTriggers().get());
+}
+
+void TriggerEditor::loadFromMap(Map* map)
+{
+	if (map->map()->findFile(map->map()->triggers()->fileName()) != 0)
+		loadTriggers(map);
+	else
+		KMessageBox::error(this, i18n("Triggers file \"%1\" doesn't exist.", map->map()->triggers()->fileName()));
+
+	if (map->map()->findFile(map->map()->customTextTriggers()->fileName()) != 0)
+		loadCustomTextTriggers(map);
+	else
+		KMessageBox::error(this, i18n("Custom text triggers file \"%1\" doesn't exist.", map->map()->customTextTriggers()->fileName()));
+}
+
+void TriggerEditor::clear()
+{
+	if (triggers() != 0 && freeTriggers())
+		delete triggers();
+
+	treeWidget()->clear();
+	categories().clear();
+	variables().clear();
+	triggerEntries().clear();
+	setTriggers(0);
 	m_rootItem = 0;
+	triggerActionCollection()->action("closetriggers")->setEnabled(false);
+
+	if (customTextTriggers() == 0)
+		triggerActionCollection()->action("closeall")->setEnabled(false);
 }
 
 void TriggerEditor::openMapScript()
@@ -126,12 +268,12 @@ void TriggerEditor::openMapScript()
 
 void TriggerEditor::openTrigger(map::int32 index)
 {
-	openTrigger(triggers()->triggers()[index].get());
+	openTrigger(triggers()->triggers().left.find(index)->second.get());
 }
 
 void TriggerEditor::openTrigger(map::Trigger *trigger)
 {
-	triggerWidget()->showTrigger(trigger);
+	triggerWidget()->showTrigger(trigger, triggerText(trigger));
 	triggerWidget()->setEnabled(true);
 }
 
@@ -156,6 +298,29 @@ void TriggerEditor::itemClicked(QTreeWidgetItem *item, int column)
 
 void TriggerEditor::createFileActions(class KMenu *menu)
 {
+	m_triggerActionCollection = new KActionCollection((QObject*)this);
+
+	KAction *action = new KAction(KIcon(":/actions/opentriggers.png"), i18n("Open triggers"), this);
+	connect(action, SIGNAL(triggered()), this, SLOT(openTriggers()));
+	triggerActionCollection()->addAction("opentriggers", action);
+
+	action = new KAction(KIcon(":/actions/opencustomtexttriggers.png"), i18n("Open custom text triggers"), this);
+	connect(action, SIGNAL(triggered()), this, SLOT(openCustomTextTriggers()));
+	triggerActionCollection()->addAction("opencustomtexttriggers", action);
+
+	action = new KAction(KIcon(":/actions/closetriggers.png"), i18n("Close triggers"), this);
+	connect(action, SIGNAL(triggered()), this, SLOT(closeTriggers()));
+	triggerActionCollection()->addAction("closetriggers", action);
+
+	action = new KAction(KIcon(":/actions/closecustomtexttriggers.png"), i18n("Close custom text triggers"), this);
+	connect(action, SIGNAL(triggered()), this, SLOT(closeCustomTextTriggers()));
+	triggerActionCollection()->addAction("closecustomtexttriggers", action);
+
+	action = new KAction(KIcon(":/actions/closeall.png"), i18n("Close all"), this);
+	connect(action, SIGNAL(triggered()), this, SLOT(closeAll()));
+	triggerActionCollection()->addAction("closeall", action);
+
+	triggerActionCollection()->associateWidget(menu);
 }
 
 void TriggerEditor::createEditActions(class KMenu *menu)
@@ -166,7 +331,7 @@ void TriggerEditor::createMenus(class KMenuBar *menuBar)
 {
 }
 
-void TriggerEditor::createWindowsActions(class KMenu *menu)
+void TriggerEditor::createWindowsActions(class WindowsMenu *menu)
 {
 }
 
@@ -182,6 +347,7 @@ class SettingsInterface* TriggerEditor::settings()
 
 void TriggerEditor::onSwitchToMap(Map *map)
 {
+	loadFromMap(map);
 }
 
 #include "moc_triggereditor.cpp"

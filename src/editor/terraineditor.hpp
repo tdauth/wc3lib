@@ -60,7 +60,7 @@ class TerrainEditor : public Module
 		virtual void createFileActions(class KMenu *menu);
 		virtual void createEditActions(class KMenu *menu);
 		virtual void createMenus(class KMenuBar *menuBar);
-		virtual void createWindowsActions(class KMenu *menu);
+		virtual void createWindowsActions(class WindowsMenu *menu);
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
 		virtual void onSwitchToMap(class Map *map);

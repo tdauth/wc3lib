@@ -44,7 +44,7 @@ namespace editor
 TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_imageLabel(new QLabel(this)), m_texture(), m_showsAlphaChannel(false), m_showsTransparency(false), m_factor(1.0)
 {
 	Module::setupUi();
-	centerLayout()->addWidget(imageLabel());
+	topLayout()->addWidget(imageLabel());
 
 	/*
 	KService::Ptr service = KService::serviceByDesktopPath("gvpart.desktop");
@@ -441,7 +441,7 @@ void TextureEditor::createMenus(class KMenuBar *menuBar)
 	menuBar->addMenu(m_mipMapsMenu);
 }
 
-void TextureEditor::createWindowsActions(class KMenu *menu)
+void TextureEditor::createWindowsActions(class WindowsMenu *menu)
 {
 }
 
