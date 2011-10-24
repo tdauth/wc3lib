@@ -38,9 +38,9 @@ class TriggerFunction : public Format
 {
 	public:
 		typedef boost::shared_ptr<TriggerFunctionParameter> ParameterPtr;
-		typedef std::list<ParameterPtr> Parameters;
+		typedef boost::bimap<int32, ParameterPtr> Parameters;
 
-		BOOST_SCOPED_ENUM_START(Type)
+		BOOST_SCOPED_ENUM_START(Type) /// \todo C++11 : int32
 		{
 			Event,
 			Condition,
@@ -48,19 +48,26 @@ class TriggerFunction : public Format
 		};
 		BOOST_SCOPED_ENUM_END
 
-		TriggerFunction(class Trigger *trigger);
+		TriggerFunction();
 
 		BOOST_SCOPED_ENUM(Type) type() const;
 		const string& name() const;
 		bool isEnabled() const;
+		Parameters& parameters();
 		const Parameters& parameters() const;
 
-		virtual std::streamsize read(InputStream &istream) throw (class Exception);
+		/**
+		 * \copydoc Trigger::read(InputStream&)
+		 */
+		virtual std::streamsize read(InputStream &istream) throw (class Exception)
+		{
+			return 0;
+		}
+		virtual std::streamsize read(InputStream &istream, const class TriggerData &triggerData) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
 
 	protected:
-		class Trigger *m_trigger;
 		BOOST_SCOPED_ENUM(Type) m_type;
 		string m_name;
 		bool m_isEnabled;
@@ -80,6 +87,11 @@ inline const string& TriggerFunction::name() const
 inline bool TriggerFunction::isEnabled() const
 {
 	return m_isEnabled;
+}
+
+inline TriggerFunction::Parameters& TriggerFunction::parameters()
+{
+	return m_parameters;
 }
 
 inline const TriggerFunction::Parameters& TriggerFunction::parameters() const

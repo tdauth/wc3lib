@@ -27,6 +27,7 @@
 
 #include "platform.hpp"
 #include "../mpq.hpp"
+#include "../map.hpp"
 #include "resource.hpp"
 #include "texture.hpp"
 #include "ogremdlx.hpp"
@@ -50,9 +51,8 @@ class MpqPriorityListEntry : public boost::operators<MpqPriorityListEntry>
 		typedef std::size_t Priority;
 
 		/**
-		* If url is the URL of an archive it will be set with "mpq:" protocol.
-		* Otherwise it has to be a directory.
-		*/
+		 * \param url Has to refer to an archive or a directory.
+		 */
 		MpqPriorityListEntry(const KUrl &url, Priority priority);
 
 		bool download(const KUrl &src, QString &target, QWidget *window);
@@ -103,6 +103,19 @@ inline bool MpqPriorityListEntry::operator==(const self& other) const
 
 /**
  * MPQ priority lists can be used to make several data sources usable considering MPQ locales and sources' priorities (for patch archives etc.).
+ * Each priority list stores sources (\ref MpqPriorityListEntry) and resources (\ref Resource).
+ * Sources are archives, directories etc. where required files are stored.
+ * Resources are those files which are required and do have any specific meaning for the application like \ref Map, \ref Texture and all other classes which are derived from \ref Resource.
+ * Sources can be accessed by the member function \ref sources() and modified by member functions \ref addSource() and \ref removeSource().
+ * \ref Sources is a \ref boost::multi_index based container which stores all sources in various ways to increase the performance on accessing them.
+ * \ref addDefaultSources() tries to add all default installed Warcraft III MPQ archives as possible sources including their proper order and priorities.
+ * Resources can be accessed by the member function \ref resources() and modified by member functions \ref addResource() and \ref removeResource().
+ * \ref Resources is a simple \ref std::map which uses the resource's URL as key.
+ * Once you've added your required sources you can use \ref download() and \ref upload() to get and put your resources' files anywhere you want.
+ * These functions consider all added sources in proper order and will try to modify your given URL until they've found your file/your target where to upload or return false.
+ * By using \ref KIO::NetAccess for file I/O operations you can use all protocols which are provided by your own K Desktop Environment.
+ * \sa MpqPriorityListEntry
+ * \sa Resource
  */
 class MpqPriorityList
 {
@@ -129,6 +142,7 @@ class MpqPriorityList
 		typedef std::map<KUrl, ResourcePtr> Resources;
 		typedef boost::shared_ptr<Texture> TexturePtr;
 		typedef std::map<BOOST_SCOPED_ENUM(TeamColor), TexturePtr> TeamColorTextures;
+		typedef boost::scoped_ptr<map::TriggerData> TriggerDataPtr;
 
 		void setLocale(mpq::MpqFile::Locale locale);
 		mpq::MpqFile::Locale locale() const;
@@ -184,6 +198,7 @@ class MpqPriorityList
 		/**
 		 * \copydoc KIO::NetAccess::download()
 		 * Considers all entries if it's an relative URL. Otherwise it will at least consider the priority list's locale if none is given.
+		 * \note If \p src is an absolute URL it will work just like \ref KIO::NetAccess::download(). Therefore this member function should be a replacement whenever you want to download something to make relative URLs to custom sources available in your application.
 		 * \todo If it's an "mpq:/" URL and there is no locale given add one considering \ref locale().
 		 */
 		virtual bool download(const KUrl &src, QString &target, QWidget *window);
@@ -212,6 +227,10 @@ class MpqPriorityList
 		 * Once requested, the image is kept in memory until it's refreshed manually.
 		 */
 		const TexturePtr& teamGlowTexture(BOOST_SCOPED_ENUM(TeamColor) teamGlow) const throw (class Exception);
+		/**
+		 * Trigger data which is shared between maps usually.
+		 */
+		const TriggerDataPtr& triggerData() const;
 
 
 		/**
@@ -240,6 +259,7 @@ class MpqPriorityList
 		// team color and glow textures
 		mutable TeamColorTextures m_teamColorTextures;
 		mutable TeamColorTextures m_teamGlowTextures;
+		mutable TriggerDataPtr m_triggerData;
 };
 
 inline void MpqPriorityList::setLocale(mpq::MpqFile::Locale locale)
@@ -307,7 +327,7 @@ inline const MpqPriorityList::Resources& MpqPriorityList::resources() const
 inline const MpqPriorityList::TexturePtr& MpqPriorityList::teamColorTexture(BOOST_SCOPED_ENUM(TeamColor) teamColor) const throw (class Exception)
 {
 	if (this->m_teamColorTextures[teamColor].get() == 0)
-		this->m_teamColorTextures[teamColor].reset(new Texture(const_cast<MpqPriorityList*>(this), teamColorUrl(teamColor)));
+		this->m_teamColorTextures[teamColor].reset(new Texture(const_cast<self*>(this), teamColorUrl(teamColor)));
 
 	return this->m_teamColorTextures[teamColor];
 }
@@ -315,9 +335,31 @@ inline const MpqPriorityList::TexturePtr& MpqPriorityList::teamColorTexture(BOOS
 inline const MpqPriorityList::TexturePtr& MpqPriorityList::teamGlowTexture(BOOST_SCOPED_ENUM(TeamColor) teamGlow) const throw (class Exception)
 {
 	if (this->m_teamGlowTextures[teamGlow].get() == 0)
-		this->m_teamGlowTextures[teamGlow].reset(new Texture(const_cast<MpqPriorityList*>(this), teamGlowUrl(teamGlow)));
+		this->m_teamGlowTextures[teamGlow].reset(new Texture(const_cast<self*>(this), teamGlowUrl(teamGlow)));
 
 	return this->m_teamGlowTextures[teamGlow];
+}
+
+inline const MpqPriorityList::TriggerDataPtr& MpqPriorityList::triggerData() const
+{
+	if (m_triggerData.get() == 0)
+	{
+		QString target;
+
+		if (!this->download("UI/TriggerData.txt", target, this))
+			throw Exception(_("Unable to download file \"UI/TriggerData.txt\"."));
+
+		TriggerDataPtr ptr(new map::TriggerData());
+		map::ifstream ifstream(target.toUtf8().constData(), std::ios::binary | std::ios::in);
+
+		if (!ifstream)
+			throw Exception(boost::format(_("Unable to read from file \"%1%\".")) % target.toUtf8().constData());
+
+		ptr->read(ifstream);
+		m_triggerData.swap(ptr); // exception safe
+	}
+
+	return m_triggerData;
 }
 
 }

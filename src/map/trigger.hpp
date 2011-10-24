@@ -46,7 +46,14 @@ class Trigger : public Format
 
 		Trigger(class Triggers *triggers);
 
-		virtual std::streamsize read(InputStream &istream) throw (class Exception);
+		/**
+		 * Triggers cannot read without having a corresponding "TriggerData.txt" file which contains all trigger parameter information.
+		 */
+		virtual std::streamsize read(InputStream &istream) throw (class Exception)
+		{
+			return 0;
+		}
+		virtual std::streamsize read(InputStream &istream, const class TriggerData &triggerData) throw (Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
 		class Triggers* triggers() const;

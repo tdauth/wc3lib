@@ -19,7 +19,8 @@
  ***************************************************************************/
 
 #include "triggerfunctionparameter.hpp"
-#include "utilities.hpp"
+#include "triggerdata.hpp"
+#include "triggerfunction.hpp"
 
 namespace wc3lib
 {
@@ -27,33 +28,72 @@ namespace wc3lib
 namespace map
 {
 
-TriggerFunctionParameter::TriggerFunctionParameter(class TriggerFunction *function) : m_function(function), m_type(TriggerFunctionParameter::Type::Preset), m_value(), m_unknown0(0), m_unknown1(0)
+TriggerFunctionParameter::TriggerFunctionParameter() : m_type(TriggerFunctionParameter::Type::Preset), m_function(0)
 {
 }
 
+TriggerFunctionParameter::~TriggerFunctionParameter()
+{
+	if (function() != 0)
+		delete function();
+}
 
-std::streamsize TriggerFunctionParameter::read(InputStream &istream) throw (class Exception)
+std::streamsize TriggerFunctionParameter::read(InputStream &istream, const TriggerData &triggerData) throw (class Exception)
 {
 	std::streamsize size = 0;
-	int32 type;
-	wc3lib::read(istream, type, size);
-	this->m_type = BOOST_SCOPED_ENUM(Type)(type);
+	wc3lib::read<int32>(istream, (int32&)this->m_type, size);
 	readString(istream, this->m_value, size);
-	wc3lib::read(istream, this->m_unknown0, size);
-	wc3lib::read(istream, this->m_unknown1, size);
+	int32 value;
+	wc3lib::read(istream, value, size);
+
+	if (value == 1 && type() != Type::Function)
+		std::cerr << _("Warning: Type is not function.") << std::endl;
+	else if (value > 1)
+		throw Exception(_("Value should not be greater than 1."));
+
+	if (value == 1)
+	{
+		m_function = new TriggerFunction();
+		size += m_function->read(istream, triggerData);
+	}
+
+	wc3lib::read(istream, value, size);
+
+	if (value == 1 && type() != Type::Variable)
+		std::cerr << _("Warning: Type is not variable.") << std::endl;
+	else if (value > 1)
+		throw Exception(_("Value should not be greater than 1."));
+
+	if (value == 1)
+	{
+		m_parameter.reset(new TriggerFunctionParameter());
+		size += m_parameter->read(istream, triggerData);
+	}
 
 	return size;
 }
 
-
 std::streamsize TriggerFunctionParameter::write(OutputStream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	int32 type = (int32)(this->type());
-	wc3lib::write(ostream, type, size);
+	wc3lib::write<int32>(ostream, this->type(), size);
 	writeString(ostream, this->value(), size);
-	wc3lib::write(ostream, this->unknown0(), size);
-	wc3lib::write(ostream, this->unknown1(), size);
+
+	if (function() != 0)
+	{
+		wc3lib::write<int32>(ostream, 1, size);
+		size += function()->write(ostream);
+	}
+	else
+		wc3lib::write<int32>(ostream, 0, size);
+
+	if (parameter().get() != 0)
+	{
+		wc3lib::write<int32>(ostream, 1, size);
+		size += parameter()->write(ostream);
+	}
+	else
+		wc3lib::write<int32>(ostream, 0, size);
 
 	return size;
 }

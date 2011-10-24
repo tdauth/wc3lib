@@ -1,3 +1,9 @@
+2011-10-24 Tamino Dauth <tamino@cdauth.eu>
+* map: Add grammar parser for "UI/TriggerData.txt" file to class TriggerData based on boost::spirit::qi.
+
+2011-10-23 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Fix Bzip2 decompression for War Chasers map.
+
 2011-10-20 Tamino Dauth <tamino@cdauth.eu>
 * editor: Drop deprecated UI files.
 

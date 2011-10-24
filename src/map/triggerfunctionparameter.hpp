@@ -36,30 +36,49 @@ namespace map
 class TriggerFunctionParameter : public Format
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Type)
+		typedef boost::scoped_ptr<TriggerFunctionParameter> ParameterPtr;
+
+		BOOST_SCOPED_ENUM_START(Type) /// \todo C++11 : int32
 		{
 			Preset,
 			Variable,
-			Function
+			Function,
+			Jass
 		};
 		BOOST_SCOPED_ENUM_END
 
-		TriggerFunctionParameter(class TriggerFunction *function);
+		TriggerFunctionParameter();
+		virtual ~TriggerFunctionParameter();
 
-		virtual std::streamsize read(InputStream &istream) throw (class Exception);
+		/**
+		 * \copydoc Trigger::read(InputStream&)
+		 */
+		virtual std::streamsize read(InputStream &istream) throw (class Exception)
+		{
+			return 0;
+		}
+		virtual std::streamsize read(InputStream &istream, const class TriggerData &triggerData) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
-		
+
 		BOOST_SCOPED_ENUM(Type) type() const;
 		const string& value() const;
-		int32 unknown0() const;
-		int32 unknown1() const;
+
+		/**
+		 * Appears only if \ref type() == \ref Type::Function.
+		 * It's used for multiple statements like multiple if then else?
+		 */
+		const class TriggerFunction* function() const;
+		/**
+		 * Appears only if \ref type() == \ref Type::Variable and variable is an array.
+		 * It's used for defining the array's index.
+		 */
+		const ParameterPtr& parameter() const;
 
 	protected:
-		class TriggerFunction *m_function;
 		BOOST_SCOPED_ENUM(Type) m_type;
 		string m_value;
-		int32 m_unknown0;
-		int32 m_unknown1;
+		class TriggerFunction *m_function; /// \todo We cannot used shared ptr since header of type \ref TriggerFunction requires declaration of \ref TriggerFunctionParameter.
+		ParameterPtr m_parameter;
 };
 
 inline BOOST_SCOPED_ENUM(TriggerFunctionParameter::Type) TriggerFunctionParameter::type() const
@@ -70,16 +89,6 @@ inline BOOST_SCOPED_ENUM(TriggerFunctionParameter::Type) TriggerFunctionParamete
 inline const string& TriggerFunctionParameter::value() const
 {
 	return m_value;
-}
-
-inline int32 TriggerFunctionParameter::unknown0() const
-{
-	return m_unknown0;
-}
-
-inline int32 TriggerFunctionParameter::unknown1() const
-{
-	return m_unknown1;
 }
 
 }

@@ -99,7 +99,11 @@ std::streamsize W3m::read(InputStream &istream, const mpq::Listfile::Entries &li
 
 std::streamsize W3m::write(OutputStream &ostream) const throw (class Exception)
 {
-	return 0;
+	std::streamsize size = this->writeHeader(ostream);
+	// TODO create new MPQ archive in stream ostream with all corresponding file formats as MpqFile instances
+	//size += mpq::Mpq::write(ostream);
+
+	return size;
 }
 
 std::streamsize W3m::readHeader(InputStream &istream) throw (class Exception)
@@ -140,6 +144,20 @@ std::streamsize W3m::readSignature(InputStream &istream) throw (class Exception)
 	}
 
 	return result;
+}
+
+std::streamsize W3m::writeHeader(OutputStream &ostream) const throw (class Exception)
+{
+	std::streamsize size = 0;
+	wc3lib::write(ostream, fileId(), size);
+	wc3lib::write<int32>(ostream, 0, size); // unknown
+	wc3lib::writeString(ostream, name(), size);
+	wc3lib::write<int32>(ostream, (int32)flags(), size);
+	wc3lib::write(ostream, maxPlayers(), size);
+	std::size_t byteCount = 512 - size; // followed by 00 bytes until the 512 bytes of the header are filled.
+	ostream.seekp(byteCount, std::ios::cur);
+
+	return size;
 }
 
 }

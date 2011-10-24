@@ -23,6 +23,7 @@
 #include "triggercategory.hpp"
 #include "variable.hpp"
 #include "trigger.hpp"
+#include "triggerdata.hpp"
 
 namespace wc3lib
 {
@@ -34,7 +35,7 @@ Triggers::Triggers(class W3m *w3m) : m_w3m(w3m)
 {
 }
 
-std::streamsize Triggers::read(InputStream &istream) throw (class Exception)
+std::streamsize Triggers::read(InputStream &istream, const TriggerData &triggerData) throw (class Exception)
 {
 	std::streamsize size = 0;
 	/*
@@ -48,8 +49,8 @@ std::streamsize Triggers::read(InputStream &istream) throw (class Exception)
 	id fileId;
 	wc3lib::read(istream, fileId, size);
 
-	if (memcmp(fileTextId(), &fileId, sizeof(fileId)) == 0)
-		throw Exception(boost::format(_("Triggers: Unknown file id \"%1%\". Expected \"%2%\".")) % fileId % this->fileTextId());
+	if (this->fileId() != fileId)
+		throw Exception(boost::format(_("Triggers: Unknown file id \"%1%\". Expected \"%2%\".")) % fileId % this->fileId());
 
 	wc3lib::read(istream, this->m_version, size);
 

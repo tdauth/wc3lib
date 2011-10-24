@@ -238,7 +238,7 @@ void Editor::openMap(const KUrl &url, bool switchTo)
 	this->addResource(ptr);
 
 	// TODO set icon to w3m or w3x icon
-	KAction *action = new KAction(tr("&%1 %2").arg(mapsActionCollection()->actions().size() + 1).arg(ptr->map()->info()->name().c_str()), this);
+	KAction *action = new KAction(tr("&%1 %2").arg(mapsActionCollection()->actions().size() + 1).arg(ptr->map()->name().c_str()), this);
 	//action->setShortcut(KShortcut(i18n("F%1%", this->m_modulesActionCollection->actions().size() + 1)));
 	action->setCheckable(true);
 	mapsActionCollection()->addAction(tr("map%1").arg(mapsActionCollection()->actions().size() + 1), action);
@@ -287,7 +287,7 @@ void Editor::closeMap(class Map *map)
 		{
 			// TODO rename action internally in collection
 			mapsActionCollection()->action(i)->setText(
-			tr("&%1 %2").arg(mapsActionCollection()->actions().size() + 1).arg(map->map()->info()->name().c_str()));
+			tr("&%1 %2").arg(mapsActionCollection()->actions().size() + 1).arg(map->map()->name().c_str()));
 		}
 	}
 	else

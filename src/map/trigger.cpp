@@ -22,6 +22,7 @@
 
 #include "trigger.hpp"
 #include "triggers.hpp"
+#include "triggerdata.hpp"
 #include "triggerfunction.hpp"
 #include "triggercategory.hpp"
 
@@ -35,7 +36,7 @@ Trigger::Trigger(class Triggers *triggers) : m_triggers(triggers)
 {
 }
 
-std::streamsize Trigger::read(InputStream &istream) throw (class Exception)
+std::streamsize Trigger::read(InputStream &istream, const TriggerData &triggerData) throw (class Exception)
 {
 	std::streamsize size = 0;
 	readString(istream, this->m_name, size);
@@ -54,8 +55,8 @@ std::streamsize Trigger::read(InputStream &istream) throw (class Exception)
 
 	for (int32 i = 0; i < functions; ++i)
 	{
-		FunctionPtr ptr(new TriggerFunction(this));
-		size += ptr->read(istream);
+		FunctionPtr ptr(new TriggerFunction);
+		size += ptr->read(istream, triggerData);
 		this->functions().left.insert(std::make_pair(i, ptr));
 	}
 

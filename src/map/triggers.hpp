@@ -30,6 +30,7 @@ namespace map
 {
 
 /**
+ * \note You have to use a corresponding \ref TriggerData instance to fill all contained triggers. This is necessary because trigger parameter data is associated with data of \ref TriggerData.
  * \todo Add derived class TriggersX.
  * \sa TriggersX
  */
@@ -54,7 +55,11 @@ class Triggers : public FileFormat
 
 		Triggers(class W3m *w3m);
 
-		virtual std::streamsize read(InputStream &istream) throw (class Exception);
+		virtual std::streamsize read(InputStream &istream) throw (class Exception)
+		{
+			return 0;
+		}
+		virtual std::streamsize read(InputStream &istream, const class TriggerData &triggerData) throw (Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
 		virtual const char8* fileTextId() const;

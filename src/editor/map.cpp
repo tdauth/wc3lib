@@ -45,6 +45,24 @@ void Map::load() throw (Exception)
 	MapPtr map(new map::W3m());
 	map->open(target.toUtf8().constData());
 
+	// triggers have to be loaded separately when trigger data file ("UI/TriggerData.txt") is available
+	try
+	{
+		mpq::MpqFile *file = map->findFile(map->triggers()->fileName());
+
+		if (file != 0)
+		{
+			source()->triggerData(); // if trigger data is not available we cannot load trigger data
+			map::stringstream stream;
+			file->writeData(stream);
+			map->triggers()->read(stream, source()->triggerData().get());
+		}
+	}
+	catch (Exception &exception)
+	{
+		KMessageBox::error(this, i18n("Error while loading triggers file \"%1\":\n%2", map->triggers()->fileName().c_str(), exception.what().c_str()));
+	}
+
 	this->map().swap(map); // exception safe
 }
 

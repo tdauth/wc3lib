@@ -40,7 +40,12 @@
 namespace wc3lib
 {
 
-/// @brief Abstract class for formats.
+/**
+ * \brief Abstract class for formats.
+ * Provides some abstract functions and operators which allow you to serialize your formats and read from each other (>> and << operators).
+ * Besides it implements functions \ref save() and \ref load() from Boost serialization library which allow you to use your formats with other Boost compliant libraries.
+ * \p _CharT Single char type which is used for input and out streams.
+ */
 template<typename _CharT>
 class Format
 {
@@ -49,6 +54,9 @@ class Format
 		typedef std::basic_istream<_CharT> InputStream;
 		typedef std::basic_ostream<_CharT> OutputStream;
 
+		/**
+		 * \return Usually this function should returns the number of read bytes. For non-binary formats or formats which won't store any byte count this value can be 0. It has been introduced for convenience for example when reading chunks of the MDX format where you do have to know how many bytes are still left.
+		 */
 		virtual std::streamsize read(InputStream &istream) throw (class Exception) = 0;
 		/// Reads input from another format object (\p other).
 		std::streamsize read(const Format &other) throw (class Exception)
@@ -76,13 +84,12 @@ class Format
 		template<class _ArchiveT>
 		void save(_ArchiveT &ar, const unsigned int version)
 		{
-			OutputStream stream;
-			this >> stream;
+			std::basic_ostringstream<_CharT> stream; // use buffered stream!
+			*this >> stream;
 			const std::size_t bufferSize = wc3lib::endPosition(stream) + 1;
-			_CharT *buffer = new _CharT[bufferSize];
-			stream.rdbuf()->sgetn(buffer, bufferSize);
-			ar.save_binary(static_cast<const void*>(buffer), bufferSize);
-			delete[] buffer;
+			boost::scoped_array<_CharT> buffer(new _CharT[bufferSize]);
+			stream.rdbuf()->sgetn(buffer.get(), bufferSize);
+			ar.save_binary(static_cast<const void*>(buffer.get()), bufferSize);
 			//boost::archive::basic_binary_oarchive<_ArchiveT>
 			//boost::basic_a
 			//boost::archive::basic_binary_oarchive::

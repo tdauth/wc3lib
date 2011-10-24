@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include "triggerfunction.hpp"
+#include "triggerdata.hpp"
 
 namespace wc3lib
 {
@@ -26,22 +27,60 @@ namespace wc3lib
 namespace map
 {
 
-TriggerFunction::TriggerFunction(class Trigger *trigger) : m_trigger(trigger), m_type(TriggerFunction::Type::Event), m_name(), m_isEnabled(false), m_parameters()
+TriggerFunction::TriggerFunction() : m_type(TriggerFunction::Type::Event), m_name(), m_isEnabled(false), m_parameters()
 {
 }
 
-std::streamsize TriggerFunction::read(InputStream &istream) throw (class Exception)
+namespace
+{
+
+int32 functionCount(const TriggerData::Functions &functions, const string &identifier)
+{
+	BOOST_FOREACH(TriggerData::Functions::left_const_reference value, functions.left)
+	{
+		if (value.second->code() == identifier)
+			return value.second->types().size();
+	}
+
+	throw Exception(boost::format(_("Warning: Didn't find function \"%1%\".")) % identifier);
+
+	return 0;
+}
+
+}
+
+std::streamsize TriggerFunction::read(InputStream &istream, const TriggerData &triggerData) throw (class Exception)
 {
 	std::streamsize size = 0;
-	int32 type;
-	wc3lib::read(istream, type, size);
-	this->m_type = BOOST_SCOPED_ENUM(Type)(type);
+	wc3lib::read<int32>(istream, (int32&)this->m_type, size);
 	readString(istream, this->m_name, size);
-	int32 isEnabled;
-	wc3lib::read(istream, isEnabled, size);
-	this->m_isEnabled = bool(isEnabled);
+	wc3lib::read<int32>(istream, (int32&)this->m_isEnabled, size);
+	int32 parameters = 0;
 
-	/// @todo get trigger parameters, hardcoded or from TriggerData.txt?
+	switch (type())
+	{
+		case Type::Event:
+			parameters = functionCount(triggerData.events(), name());
+
+			break;
+
+		case Type::Condition:
+			parameters = functionCount(triggerData.conditions(), name());
+
+			break;
+
+		case Type::Action:
+			parameters = functionCount(triggerData.actions(), name());
+
+			break;
+	}
+
+	for (int32 i = 0; i < parameters; ++i)
+	{
+		ParameterPtr ptr(new TriggerFunctionParameter());
+		size += ptr->read(istream, triggerData);
+		this->parameters().left.insert(std::make_pair(i, ptr));
+	}
 
 	return size;
 }
@@ -49,12 +88,12 @@ std::streamsize TriggerFunction::read(InputStream &istream) throw (class Excepti
 std::streamsize TriggerFunction::write(OutputStream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	wc3lib::write<int32>(ostream, this->m_type, size);
+	wc3lib::write<int32>(ostream, this->type(), size);
 	writeString(ostream, this->m_name, size);
-	wc3lib::write<int32>(ostream, this->m_isEnabled, size);
+	wc3lib::write<int32>(ostream, this->isEnabled(), size);
 
-	BOOST_FOREACH(const ParameterPtr parameter, this->m_parameters)
-		size += parameter->write(ostream);
+	BOOST_FOREACH(Parameters::left_const_reference value, this->parameters().left)
+		size += value.second->write(ostream);
 
 	return size;
 }

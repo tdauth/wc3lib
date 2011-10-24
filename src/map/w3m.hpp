@@ -125,6 +125,9 @@ class W3m : public mpq::Mpq, public Playable
 		int32 width() const;
 		int32 height() const;
 
+		const string& name() const;
+		BOOST_SCOPED_ENUM(MapFlags) flags() const;
+		int32 maxPlayers() const;
 		const EnvironmentPtr& environment() const;
 		const ShadowPtr& shadow() const;
 		const PathmapPtr& pathmap() const;
@@ -153,6 +156,7 @@ class W3m : public mpq::Mpq, public Playable
 	protected:
 		std::streamsize readHeader(InputStream &istream) throw (class Exception);
 		std::streamsize readSignature(InputStream &istream) throw (class Exception);
+		std::streamsize writeHeader(OutputStream &ostream) const throw (class Exception);
 
 		string m_name;
 		BOOST_SCOPED_ENUM(MapFlags) m_flags;
@@ -204,6 +208,21 @@ inline int32 W3m::width() const
 inline int32 W3m::height() const
 {
 	return this->m_environment->mapHeight();
+}
+
+inline const string& W3m::name() const
+{
+	return m_name;
+}
+
+inline BOOST_SCOPED_ENUM(MapFlags) W3m::flags() const
+{
+	return m_flags;
+}
+
+inline int32 W3m::maxPlayers() const
+{
+	return m_maxPlayers;
 }
 
 inline const W3m::EnvironmentPtr& W3m::environment() const

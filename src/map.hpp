@@ -50,6 +50,7 @@
 #include "map/trees.hpp"
 #include "map/trigger.hpp"
 #include "map/triggercategory.hpp"
+#include "map/triggerdata.hpp"
 #include "map/triggerfunction.hpp"
 #include "map/triggerfunctionparameter.hpp"
 #include "map/triggers.hpp"

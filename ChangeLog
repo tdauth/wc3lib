@@ -1,3 +1,7 @@
+2011-10-23 Tamino Dauth <tamino@cdauth.eu>
+* map: Added class TriggerData.
+* map: Revised many trigger related class to add trigger function parameter read support.
+
 2011-10-22 Tamino Dauth <tamino@cdauth.eu>
 * editor: Improved trigger editor.
 * editor: Added class WindowsMenu and improved editor's actions and map handling.
