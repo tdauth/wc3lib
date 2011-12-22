@@ -1,166 +1,110 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>VariableDialog</class>
- <widget class="KDialog" name="VariableDialog">
+ <widget class="QDialog" name="VariableDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>509</width>
-    <height>427</height>
+    <width>309</width>
+    <height>226</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Variable</string>
   </property>
-  <property name="sizeGripEnabled">
-   <bool>true</bool>
-  </property>
-  <property name="modal">
-   <bool>true</bool>
-  </property>
-  <widget class="QWidget" name="horizontalLayoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>160</width>
-     <height>80</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout" name="horizontalLayout">
-    <item>
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>Variable name:</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="KLineEdit" name="klineedit"/>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QWidget" name="horizontalLayoutWidget_2">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>100</y>
-     <width>241</width>
-     <height>80</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_2">
-    <item>
-     <widget class="QLabel" name="label_2">
-      <property name="text">
-       <string>Variable type:</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="KComboBox" name="kcombobox"/>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QWidget" name="horizontalLayoutWidget_3">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>190</y>
-     <width>160</width>
-     <height>80</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_3">
-    <item>
-     <widget class="QCheckBox" name="checkBox">
-      <property name="text">
-       <string>Array</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_3">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
-      <property name="text">
-       <string>Size</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="KIntSpinBox" name="kintspinbox">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
-      <property name="minimum">
-       <number>1</number>
-      </property>
-      <property name="maximum">
-       <number>8191</number>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QWidget" name="horizontalLayoutWidget_4">
-   <property name="geometry">
-    <rect>
-     <x>260</x>
-     <y>280</y>
-     <width>160</width>
-     <height>80</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_4">
-    <item>
-     <widget class="QLabel" name="label_4">
-      <property name="text">
-       <string>Start value:</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="label_5">
-      <property name="text">
-       <string>TextLabel</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="KPushButton" name="kpushbutton">
-   <property name="geometry">
-    <rect>
-     <x>60</x>
-     <y>370</y>
-     <width>121</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Delete value</string>
-   </property>
-  </widget>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="m_nameLabel">
+     <property name="text">
+      <string>Variable name:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" colspan="3">
+    <widget class="KLineEdit" name="m_nameLineEdit"/>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="m_typeLabel">
+     <property name="text">
+      <string>Variable type:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="3">
+    <widget class="KComboBox" name="m_typeComboBox"/>
+   </item>
+   <item row="2" column="1">
+    <widget class="QCheckBox" name="m_arrayCheckBox">
+     <property name="text">
+      <string>Array</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QLabel" name="label_3">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>Size</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3">
+    <widget class="KIntSpinBox" name="m_arraySizeSpinBox">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="minimum">
+      <number>1</number>
+     </property>
+     <property name="maximum">
+      <number>8191</number>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="m_startValueLabel">
+     <property name="text">
+      <string>Start value:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1" colspan="3">
+    <widget class="QLabel" name="m_startValue">
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+     <property name="openExternalLinks">
+      <bool>false</bool>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="KPushButton" name="m_deleteValuePushButton">
+     <property name="text">
+      <string>Delete value</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1" colspan="3">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>KDialog</class>
-   <extends>QDialog</extends>
-   <header>kdialog.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>KIntSpinBox</class>
-   <extends>QSpinBox</extends>
-   <header>knuminput.h</header>
-  </customwidget>
-  <customwidget>
-   <class>KPushButton</class>
-   <extends>QPushButton</extends>
-   <header>kpushbutton.h</header>
+   <class>KComboBox</class>
+   <extends>QComboBox</extends>
+   <header>kcombobox.h</header>
   </customwidget>
   <customwidget>
    <class>KLineEdit</class>
@@ -168,42 +112,71 @@
    <header>klineedit.h</header>
   </customwidget>
   <customwidget>
-   <class>KComboBox</class>
-   <extends>QComboBox</extends>
-   <header>kcombobox.h</header>
+   <class>KPushButton</class>
+   <extends>QPushButton</extends>
+   <header>kpushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KIntSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header>knuminput.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>m_nameLineEdit</tabstop>
+  <tabstop>m_typeComboBox</tabstop>
+  <tabstop>m_arrayCheckBox</tabstop>
+  <tabstop>m_arraySizeSpinBox</tabstop>
+  <tabstop>m_deleteValuePushButton</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
-   <sender>checkBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>label_3</receiver>
-   <slot>setEnabled(bool)</slot>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>VariableDialog</receiver>
+   <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>40</x>
-     <y>230</y>
+     <x>166</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>227</y>
+     <x>97</x>
+     <y>207</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkBox</sender>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>VariableDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>261</x>
+     <y>202</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>293</x>
+     <y>187</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_arrayCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <receiver>kintspinbox</receiver>
+   <receiver>m_arraySizeSpinBox</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>22</x>
-     <y>236</y>
+     <x>159</x>
+     <y>74</y>
     </hint>
     <hint type="destinationlabel">
-     <x>135</x>
-     <y>230</y>
+     <x>258</x>
+     <y>74</y>
     </hint>
    </hints>
   </connection>

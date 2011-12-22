@@ -41,6 +41,13 @@ class Variable : public Format
 		std::streamsize read(InputStream &istream) throw (class Exception);
 		std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
+		const string& name() const;
+		const string& type() const;
+		int32 number() const;
+		bool isArray() const;
+		bool isInitialized() const;
+		const string& initialValue() const;
+
 	protected:
 		string m_name;
 		string m_type;
@@ -49,6 +56,36 @@ class Variable : public Format
 		bool m_isInitialized;
 		string m_initialValue;
 };
+
+inline const string& Variable::name() const
+{
+	return m_name;
+}
+
+inline const string& Variable::type() const
+{
+	return m_type;
+}
+
+inline int32 Variable::number() const
+{
+	return m_number;
+}
+
+inline bool Variable::isArray() const
+{
+	return m_isArray;
+}
+
+inline bool Variable::isInitialized() const
+{
+	return m_isInitialized;
+}
+
+inline const string& Variable::initialValue() const
+{
+	return m_initialValue;
+}
 
 }
 

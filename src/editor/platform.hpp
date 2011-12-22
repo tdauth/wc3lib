@@ -26,7 +26,7 @@
 #ifdef Q_OS_UNIX
 #include <QDir>
 #include <QFileInfo>
-#elif defined Q_OS_WIN32
+#else // for Windows
 #include <QSettings>
 #endif
 
@@ -273,8 +273,14 @@ inline KUrl teamGlowUrl(BOOST_SCOPED_ENUM(TeamColor) teamGlow)
 	return KUrl("ReplaceableTextures/TeamGlow/TeamGlow" + number + ".blp");
 }
 
-// TODO Fix wine implementation
-// http://www.c-plusplus.de/forum/292394
+/**
+ * Reads Windows registry entry with \p key and returns the result.
+ * If wc3lib is compiled on a Unix system this will try to load the Windows registry provided by wine.
+ * Otherwise it returns just QVariant().
+ * This function is mostly used for World Editor settings which are tried to reproduce by the editor module.
+ * \todo Fix wine implementation
+ * http://www.c-plusplus.de/forum/292394
+ */
 inline QVariant registryEntry(const QString &key)
 {
 #ifdef Q_OS_UNIX
@@ -346,12 +352,14 @@ inline QVariant registryEntry(const QString &key)
 	}
 
 	return QVariant();
-#elif defined Q_OS_WIN32
+#else
+#ifndef Q_OS_WIN32
+#warning Unsupported platform.
+#endif
+	// read from native Windows registry
 	QSettings settings(key, QSettings::NativeFormat);
 
 	return settings.value("Default"); // TODO always key "Default"?
-#else
-#error Unsupported platform.
 #endif
 }
 

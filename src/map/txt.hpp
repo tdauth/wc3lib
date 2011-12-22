@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010 by Tamino Dauth                                    *
+ *   Copyright (C) 2011 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,7 +18,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "variable.hpp"
+#ifndef WC3LIB_MAP_TXT_HPP
+#define WC3LIB_MAP_TXT_HPP
+
+#include "platform.hpp"
 
 namespace wc3lib
 {
@@ -26,36 +29,53 @@ namespace wc3lib
 namespace map
 {
 
-Variable::Variable(class Triggers *triggers) : m_name(), m_type(), m_number(0), m_isArray(false), m_isInitialized(false), m_initialValue()
+/**
+ * \brief Provides access to one single *.txt file's entries such as "UI/MiscUI.txt" or "UI/TriggerData.txt"
+ * Uses Boost Spirit library for parsing the file.
+ * \sa TriggerData
+ */
+class Txt : public Format
 {
-}
+	public:
+		typedef boost::bimaps::bimap<string, string> Entries;
 
-std::streamsize Variable::read(InputStream &istream) throw (class Exception)
+		typedef std::map<map::string, map::string> Pairs;
+
+		struct Section
+		{
+			string name;
+			Pairs entries;
+		};
+
+		typedef std::list<Section> Sections;
+
+		Sections& sections();
+		const Sections& sections() const;
+		/**
+		 * Reads all entries with their corresponding values into a map and returns the result.
+		 * \param section If this value is empty it returns all entries which do not belong to any section. Otherwise it returns all section entries only.
+		 */
+		Entries entries(const string section = "") const;
+
+		virtual std::streamsize read(InputStream &istream) throw (Exception);
+		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+
+	private:
+		Sections m_sections;
+};
+
+inline Txt::Sections& Txt::sections()
 {
-	std::streamsize size = 0;
-	readString(istream, this->m_name, size);
-	readString(istream, this->m_type, size);
-	wc3lib::read(istream, this->m_number, size);
-	wc3lib::read<int32>(istream, (int32&)this->m_isArray, size);
-	wc3lib::read<int32>(istream, (int32&)this->m_isInitialized, size);
-	readString(istream, this->m_initialValue, size);
-
-	return size;
+	return this->m_sections;
 }
 
-std::streamsize Variable::write(OutputStream &ostream) const throw (class Exception)
+inline const map::Txt::Sections& Txt::sections() const
 {
-	std::streamsize size = 0;
-	writeString(ostream, name(), size);
-	writeString(ostream, type(), size);
-	wc3lib::write(ostream, number(), size);
-	wc3lib::write<int32>(ostream, (const int32&)isArray(), size);
-	wc3lib::write(ostream, (const int32&)isInitialized(), size);
-	writeString(ostream, initialValue(), size);
-
-	return size;
+	return this->m_sections;
 }
 
 }
 
 }
+
+#endif // TXT_HPP

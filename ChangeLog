@@ -1,3 +1,20 @@
+2011-12-22 Tamino Dauth <tamino@cdauth.eu>
+* Option MAP depends on BLP as well now.
+* Replaced preprocessor errors by warnings which might make it easier to port wc3lib.
+* editor: Fixed MpqPriorityList::tr() calls.
+
+2011-11-25 Tamino Dauth <tamino@cdauth.eu>
+* map: Improved parsing support in class Txt.
+
+2011-10-28 Tamino Dauth <tamino@cdauth.eu>
+* editor: Added class VariablesDialog.
+* editor: Added class VariableDialog.
+* Improved script "generateui.sh"
+* editor: Initial variables support for trigger editor.
+* map: Added class Txt.
+* editor: MpqPriorityList supports reading *.txt files now by using KDE SC's KConfig class.
+* map: Improved various classes.
+
 2011-10-23 Tamino Dauth <tamino@cdauth.eu>
 * map: Added class TriggerData.
 * map: Revised many trigger related class to add trigger function parameter read support.

@@ -31,7 +31,7 @@ namespace map
 {
 
 /**
- * Definition of a Warcraft 3 trigger. For Warcraft 3 The Frozen Trigger use TriggerEx.
+ * Definition of a Warcraft III trigger. For Warcraft III: The Frozen Trigger use \ref TriggerEx.
  * \todo Add derived class TriggerX.
  * \sa TriggerX
  */

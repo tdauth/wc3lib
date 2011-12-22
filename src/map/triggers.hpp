@@ -22,6 +22,9 @@
 #define WC3LIB_MAP_TRIGGERS_HPP
 
 #include "platform.hpp"
+#include "triggercategory.hpp"
+#include "variable.hpp"
+#include "trigger.hpp"
 
 namespace wc3lib
 {

@@ -28,6 +28,7 @@
 #include "module.hpp"
 #include "modulemenu.hpp"
 #include "windowsmenu.hpp"
+#include "mpqprioritylist.hpp"
 #include "editor.hpp"
 #include "settingsinterface.hpp"
 #include "sourcesdialog.hpp"

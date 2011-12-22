@@ -19,6 +19,10 @@ DEPEND="${RDEPEND}"
 RDEPEND="
 dev-libs/boost:1.46
 sys-devel/gettext
+map? (
+dev-games/wc3lib[mpq]
+dev-games/wc3lib[blp]
+)
 mpq? (
 app-arch/bzip2
 sys-libs/zlib
@@ -28,10 +32,16 @@ blp? (
 media-libs/jpeg:0
 )
 editor? (
+dev-games/wc3lib[blp]
+dev-games/wc3lib[map]
+dev-games/wc3lib[mdlx]
+dev-games/wc3lib[mpq]
 >=kde-base/kdelibs-4.6
 >=dev-games/ogre-1.7.3
 )
 plugins? (
+dev-games/wc3lib[blp]
+dev-games/wc3lib[mpq]
 >=kde-base/kdelibs-4.6
 )
 doc? (

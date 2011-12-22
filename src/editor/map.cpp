@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include <KTemporaryFile>
+#include <KMessageBox>
 
 #include "map.hpp"
 #include "mpqprioritylist.hpp"
@@ -46,21 +47,18 @@ void Map::load() throw (Exception)
 	map->open(target.toUtf8().constData());
 
 	// triggers have to be loaded separately when trigger data file ("UI/TriggerData.txt") is available
-	try
-	{
-		mpq::MpqFile *file = map->findFile(map->triggers()->fileName());
+	mpq::MpqFile *file = map->findFile(map->triggers()->fileName());
 
-		if (file != 0)
-		{
-			source()->triggerData(); // if trigger data is not available we cannot load trigger data
-			map::stringstream stream;
-			file->writeData(stream);
-			map->triggers()->read(stream, source()->triggerData().get());
-		}
-	}
-	catch (Exception &exception)
+	if (file != 0)
 	{
-		KMessageBox::error(this, i18n("Error while loading triggers file \"%1\":\n%2", map->triggers()->fileName().c_str(), exception.what().c_str()));
+		if (source()->triggerData().get() == 0)
+			throw Exception("Trigger data file \"UI/TriggerData.txt\" is not available.");
+
+		// TODO data has to be refreshed somewhere in GUI
+		//source()->refreshTriggerData(); // if trigger data is not available we cannot load trigger data
+		map::stringstream stream;
+		file->writeData(stream);
+		map->triggers()->read(stream, *source()->triggerData().get());
 	}
 
 	this->map().swap(map); // exception safe

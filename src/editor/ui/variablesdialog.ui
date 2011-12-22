@@ -1,139 +1,125 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>VariablesDialog</class>
- <widget class="KDialog" name="VariablesDialog">
+ <widget class="QDialog" name="VariablesDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>404</width>
-    <height>273</height>
+    <width>400</width>
+    <height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Variables</string>
   </property>
-  <property name="sizeGripEnabled">
-   <bool>true</bool>
-  </property>
-  <property name="modal">
-   <bool>true</bool>
-  </property>
-  <widget class="QTableWidget" name="tableWidget">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>60</y>
-     <width>371</width>
-     <height>192</height>
-    </rect>
-   </property>
-   <column>
-    <property name="text">
-     <string>Variable name</string>
-    </property>
-   </column>
-   <column>
-    <property name="text">
-     <string>Variable type</string>
-    </property>
-   </column>
-   <column>
-    <property name="text">
-     <string>Start value</string>
-    </property>
-   </column>
-  </widget>
-  <widget class="QWidget" name="horizontalLayoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>19</x>
-     <y>10</y>
-     <width>371</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout" name="horizontalLayout">
-    <item>
-     <widget class="QToolButton" name="toolButton_2">
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QToolButton" name="toolButton_2">
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="toolButton">
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="toolButton_3">
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="KSeparator" name="kseparator">
+       <property name="frameShape">
+        <enum>QFrame::VLine</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="toolButton_4">
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="toolButton_5">
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="KSeparator" name="kseparator_2">
+       <property name="frameShape">
+        <enum>QFrame::VLine</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="toolButton_6">
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="toolButton_7">
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="toolButton_8">
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0">
+    <widget class="QTableWidget" name="m_tableWidget">
+     <column>
       <property name="text">
-       <string>...</string>
+       <string>Variable name</string>
       </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QToolButton" name="toolButton">
+     </column>
+     <column>
       <property name="text">
-       <string>...</string>
+       <string>Variable type</string>
       </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QToolButton" name="toolButton_3">
+     </column>
+     <column>
       <property name="text">
-       <string>...</string>
+       <string>Start value</string>
       </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="KSeparator" name="kseparator">
-      <property name="frameShape">
-       <enum>QFrame::VLine</enum>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QToolButton" name="toolButton_4">
-      <property name="text">
-       <string>...</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QToolButton" name="toolButton_5">
-      <property name="text">
-       <string>...</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="KSeparator" name="kseparator_2">
-      <property name="frameShape">
-       <enum>QFrame::VLine</enum>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QToolButton" name="toolButton_6">
-      <property name="text">
-       <string>...</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QToolButton" name="toolButton_7">
-      <property name="text">
-       <string>...</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QToolButton" name="toolButton_8">
-      <property name="text">
-       <string>...</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
+     </column>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>KDialog</class>
-   <extends>QDialog</extends>
-   <header>kdialog.h</header>
-   <container>1</container>
-  </customwidget>
   <customwidget>
    <class>KSeparator</class>
    <extends>QFrame</extends>
@@ -141,5 +127,38 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>VariablesDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>267</x>
+     <y>277</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>245</x>
+     <y>-17</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>VariablesDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>336</x>
+     <y>278</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>330</x>
+     <y>-16</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

@@ -1,4 +1,7 @@
 * wc3lib-0.1
+      2011-12-22; Tamino Dauth <tamino@cdauth.eu> +wc3lib-0.1.ebuild:
+      Added useflag dependencies.
+
       2011-10-12; Tamino Dauth <tamino@cdauth.eu> +wc3lib-0.1.ebuild:
       Fixed boost dependency bug.
       Useflag doc depends on Doxygen now.

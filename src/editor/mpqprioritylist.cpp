@@ -21,6 +21,7 @@
 #include <QtCore>
 
 #include <KIO/NetAccess>
+#include <KMessageBox>
 
 #include "mpqprioritylist.hpp"
 
@@ -223,12 +224,45 @@ bool MpqPriorityList::upload(const QString &src, const KUrl &target, QWidget *wi
 	return false;
 }
 
-QString MpqPriorityList::tr(const QString &key, const QString &group, BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale, const QString &defaultValue) const
+QMap< QString, QString > MpqPriorityList::txtEntries(QWidget *widget, const KUrl &url, const QString &group) const
 {
+	QString target;
+
+	if (!const_cast<MpqPriorityList*>(this)->download(url, target, widget))
+	{
+		KMessageBox::error(widget, i18n("Missing file \"%1\".", url.toEncoded().constData()));
+
+		return QMap<QString,QString>();
+	}
+
+	KConfig config(target);
+
+	return config.entryMap(group);
+}
+
+QString MpqPriorityList::tr(QWidget *widget, const QString &key, const QString &group, BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale, const QString &defaultValue) const
+{
+	QStringList files;
+	// all files which contain strings
+	files
+	<< "UI/WorldEditStrings.txt"
+	<< "UI/WorldEditGameStrings.txt"
+	<< "UI/TriggerStrings.txt"
+	<< "UI/TipStrings.txt"
+	<< "UI/CampaignStrings.txt"
+	;
+
+	foreach (QString file, files)
+	{
+		QMap<QString, QString> entries = txtEntries(widget, file, group);
+
+		if (entries.find(key) != entries.end())
+			return entries[key];
+	}
+
 	if (!defaultValue.isEmpty())
 		return defaultValue;
 
-	/// \todo open editor and other string files and get corresponding entries
 	return group + "[" + key + "]";
 }
 

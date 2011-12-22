@@ -228,10 +228,20 @@ class MpqPriorityList
 		 */
 		const TexturePtr& teamGlowTexture(BOOST_SCOPED_ENUM(TeamColor) teamGlow) const throw (class Exception);
 		/**
+		 * \param window Widget which is used for KIO download.
+		 * \sa triggerData()
+		 */
+		void refreshTriggerData(QWidget *window) throw (Exception);
+		/**
 		 * Trigger data which is shared between maps usually.
+		 * \note Call \ref refreshTriggerData() before using trigger data.
 		 */
 		const TriggerDataPtr& triggerData() const;
 
+		/**
+		 * Returns all corresponding key value pairs of \p group from a .txt like file with URL \p url using \p widget as download window.
+		 */
+		virtual QMap<QString,QString> txtEntries(QWidget *widget, const KUrl &url, const QString &group = "") const;
 
 		/**
 		 * Returns localized string under key \p key in group \p group.
@@ -247,7 +257,7 @@ class MpqPriorityList
 		 * </ul>
 		 * \param defaultValue If corresponding key entry could not be found (e. g. files are not available or it simply does not exist) this value is shown as string if its length is bigger than 0.
 		 */
-		virtual QString tr(const QString &key, const QString &group = "", BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale = mpq::MpqFile::Locale::Neutral, const QString &defaultValue = "") const;
+		virtual QString tr(QWidget *widget, const QString &key, const QString &group = "", BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale = mpq::MpqFile::Locale::Neutral, const QString &defaultValue = "") const;
 
 	protected:
 		Sources& sources();
@@ -340,25 +350,25 @@ inline const MpqPriorityList::TexturePtr& MpqPriorityList::teamGlowTexture(BOOST
 	return this->m_teamGlowTextures[teamGlow];
 }
 
+inline void MpqPriorityList::refreshTriggerData(QWidget *window) throw (Exception)
+{
+	QString target;
+
+	if (!this->download(KUrl("UI/TriggerData.txt"), target, window))
+		throw Exception(_("Unable to download file \"UI/TriggerData.txt\"."));
+
+	TriggerDataPtr ptr(new map::TriggerData());
+	map::ifstream ifstream(target.toUtf8().constData(), std::ios::binary | std::ios::in);
+
+	if (!ifstream)
+		throw Exception(boost::format(_("Unable to read from file \"%1%\".")) % target.toUtf8().constData());
+
+	ptr->read(ifstream);
+	m_triggerData.swap(ptr); // exception safe
+}
+
 inline const MpqPriorityList::TriggerDataPtr& MpqPriorityList::triggerData() const
 {
-	if (m_triggerData.get() == 0)
-	{
-		QString target;
-
-		if (!this->download("UI/TriggerData.txt", target, this))
-			throw Exception(_("Unable to download file \"UI/TriggerData.txt\"."));
-
-		TriggerDataPtr ptr(new map::TriggerData());
-		map::ifstream ifstream(target.toUtf8().constData(), std::ios::binary | std::ios::in);
-
-		if (!ifstream)
-			throw Exception(boost::format(_("Unable to read from file \"%1%\".")) % target.toUtf8().constData());
-
-		ptr->read(ifstream);
-		m_triggerData.swap(ptr); // exception safe
-	}
-
 	return m_triggerData;
 }
 

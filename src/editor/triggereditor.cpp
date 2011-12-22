@@ -33,6 +33,7 @@
 #include "triggerwidget.hpp"
 #include "editor.hpp"
 #include "map.hpp"
+#include "variablesdialog.hpp"
 
 namespace wc3lib
 {
@@ -40,7 +41,7 @@ namespace wc3lib
 namespace editor
 {
 
-TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_triggers(0), m_customTextTriggers(0), m_freeTriggers(false), m_freeCustomTextTriggers(false), m_treeWidget(new QTreeWidget(this)), m_mapScriptWidget(new MapScriptWidget(this)), m_triggerWidget(new TriggerWidget(this)), m_triggerActionCollection(0), Module(source, parent, f)
+TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_triggers(0), m_customTextTriggers(0), m_freeTriggers(false), m_freeCustomTextTriggers(false), m_treeWidget(new QTreeWidget(this)), m_mapScriptWidget(new MapScriptWidget(this)), m_triggerWidget(new TriggerWidget(this)), m_variablesDialog(0), m_triggerActionCollection(0), Module(source, parent, f)
 {
 	Module::setupUi();
 	QHBoxLayout *hLayout = new QHBoxLayout(this);
@@ -155,6 +156,27 @@ void TriggerEditor::closeAll()
 {
 	closeTriggers();
 	closeCustomTextTriggers();
+}
+
+void TriggerEditor::resetTriggers()
+{
+	// TODO read default triggers from class \ref TriggerData.
+}
+
+void TriggerEditor::renameTrigger()
+{
+	treeWidget()->editItem(treeWidget()->currentItem());
+}
+
+void TriggerEditor::showVariables()
+{
+	if (variablesDialog() == 0)
+		m_variablesDialog = new VariablesDialog(this);
+
+	if (triggers() != 0)
+		variablesDialog()->showVariables(triggers());
+
+	variablesDialog()->show();
 }
 
 void TriggerEditor::loadTriggers(map::Triggers *triggers)
@@ -320,11 +342,24 @@ void TriggerEditor::createFileActions(class KMenu *menu)
 	connect(action, SIGNAL(triggered()), this, SLOT(closeAll()));
 	triggerActionCollection()->addAction("closeall", action);
 
+	action = new KAction(KIcon(":/actions/resettriggers.png"), i18n("Reset triggers"), this);
+	connect(action, SIGNAL(triggered()), this, SLOT(resetTriggers()));
+	triggerActionCollection()->addAction("resettriggers", action);
+
+	action = new KAction(KIcon(":/actions/rename.png"), i18n("Rename"), this);
+	connect(action, SIGNAL(triggered()), this, SLOT(renameTrigger()));
+	triggerActionCollection()->addAction("rename", action);
+
 	triggerActionCollection()->associateWidget(menu);
 }
 
 void TriggerEditor::createEditActions(class KMenu *menu)
 {
+	KAction *action = new KAction(KIcon(":/actions/opentriggers.png"), i18n("Variables ..."), this);
+	action->setShortcut(i18n("Ctrl+B"));
+	connect(action, SIGNAL(triggered()), this, SLOT(showVariables()));
+	triggerActionCollection()->addAction("variables", action);
+	menu->addAction(action);
 }
 
 void TriggerEditor::createMenus(class KMenuBar *menuBar)

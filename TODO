@@ -1,5 +1,8 @@
+2011-10-28 Tamino Dauth <tamino@cdauth.eu>
+* editor: All tree widgets should provide a filter widget based on KDE SCs implementation.
+
 2011-10-24 Tamino Dauth <tamino@cdauth.eu>
-* map: Add grammar parser for "UI/TriggerData.txt" file to class TriggerData based on boost::spirit::qi.
+* map: Add grammar parser for "UI/TriggerData.txt" file to class TriggerData based on boost::spirit::qi. This grammer should be more abstract usable for all .txt files (World Editor strings etc.). Search for config file examples on the Internet. It's the same format used by KDE and many other programs. If we would only use KDE's implementation we couldn't use it in map module only to read proper trigger parameter data.
 
 2011-10-23 Tamino Dauth <tamino@cdauth.eu>
 * mpq: Fix Bzip2 decompression for War Chasers map.
@@ -24,9 +27,9 @@
 * Whenever you read data from an MPQ file you could use arraystream with using a buffer with the file's uncompressed size.
 * map: Fix Info::read() - version bug for W3m files.
 * map: Fix Strings::read() which should be able to ignore empty lines! Use boost::spirit!
-* Provide grammars for MDL, WTS, FDF, SLK formats etc.
+* Provide boost::spirit::qi grammars for MDL, WTS, FDF, SLK formats etc.
 * editor: Rename MpqPriorityList to class Sources.
-* editor: Create class SourcesDialog based on its corresponding UI.
+* DONE: editor: Create class SourcesDialog based on its corresponding UI.
 * editor: Create abstract class SourcesClient which provides hasEditor() and source() member functions for classes like Module, Resource or SourcesDialog.
 * editor: Split up all editor modules into sub directories and add corresponding CMake options.
 
@@ -38,7 +41,7 @@
 * mpq: Fix eoffail exceptions for interface sound files and std::bad_alloc exception.
 * HINT:!!!!!!!!!!!! Probably Bzip errors etc. occur because we're still using iarraystream? Writing into preallocated arraystreams doesn't work for classes such as map::Environment, too but at this point we're trying to read only!
 * map: W3m should not store its signature, too. However, you have to overload the signature calculation member functions of class mpq::Mpq and maybe create a new class based on mpq::Signature for weak digital signature (check out the documentation!).
-* map: Fix read operation of Environment (expects more bytes).
+* FIXED: map: Fix read operation of Environment (expects more bytes).
 
 2011-10-07 Tamino Dauth <tamino@cdauth.eu>
 * Add CMake instructions to install syntax highlighting files correctly.

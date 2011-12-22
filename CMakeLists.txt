@@ -35,7 +35,7 @@ option(BLP
 CMAKE_DEPENDENT_OPTION(MAP
 	"Builds map module. Required by option EDITOR."
 	ON
-	"MPQ" OFF)
+	"MPQ;BLP" OFF)
 option(MDLX
 	"Builds MDLX module. Required by by option EDITOR."
 	ON)

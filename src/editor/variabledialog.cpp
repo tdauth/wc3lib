@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010 by Tamino Dauth                                    *
+ *   Copyright (C) 2011 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,42 +18,26 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "variable.hpp"
+#include "variabledialog.hpp"
 
 namespace wc3lib
 {
 
-namespace map
+namespace editor
 {
 
-Variable::Variable(class Triggers *triggers) : m_name(), m_type(), m_number(0), m_isArray(false), m_isInitialized(false), m_initialValue()
+VariableDialog::VariableDialog(QWidget *parent, Qt::WindowFlags f): QDialog(parent, f)
 {
+	setupUi(this);
 }
 
-std::streamsize Variable::read(InputStream &istream) throw (class Exception)
+void VariableDialog::showVariable(map::Variable *variable)
 {
-	std::streamsize size = 0;
-	readString(istream, this->m_name, size);
-	readString(istream, this->m_type, size);
-	wc3lib::read(istream, this->m_number, size);
-	wc3lib::read<int32>(istream, (int32&)this->m_isArray, size);
-	wc3lib::read<int32>(istream, (int32&)this->m_isInitialized, size);
-	readString(istream, this->m_initialValue, size);
-
-	return size;
-}
-
-std::streamsize Variable::write(OutputStream &ostream) const throw (class Exception)
-{
-	std::streamsize size = 0;
-	writeString(ostream, name(), size);
-	writeString(ostream, type(), size);
-	wc3lib::write(ostream, number(), size);
-	wc3lib::write<int32>(ostream, (const int32&)isArray(), size);
-	wc3lib::write(ostream, (const int32&)isInitialized(), size);
-	writeString(ostream, initialValue(), size);
-
-	return size;
+	m_nameLineEdit->setText(variable->name().c_str());
+	/// TODO set combo box entries by corresponding \ref TriggerData.
+	m_typeComboBox->setItemText(0, variable->type().c_str());
+	m_arrayCheckBox->setEnabled(variable->isArray());
+	m_startValue->setText(variable->initialValue().c_str());
 }
 
 }

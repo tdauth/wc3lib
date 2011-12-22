@@ -30,7 +30,7 @@ namespace map
 {
 
 /**
- * \todo Add derived class TriggerFunctionParamterX.
+ * \todo Add derived class TriggerFunctionParameterX.
  * \sa TriggerFunctionParameterX
  */
 class TriggerFunctionParameter : public Format
@@ -67,7 +67,7 @@ class TriggerFunctionParameter : public Format
 		 * Appears only if \ref type() == \ref Type::Function.
 		 * It's used for multiple statements like multiple if then else?
 		 */
-		const class TriggerFunction* function() const;
+		class TriggerFunction* function() const;
 		/**
 		 * Appears only if \ref type() == \ref Type::Variable and variable is an array.
 		 * It's used for defining the array's index.
@@ -89,6 +89,16 @@ inline BOOST_SCOPED_ENUM(TriggerFunctionParameter::Type) TriggerFunctionParamete
 inline const string& TriggerFunctionParameter::value() const
 {
 	return m_value;
+}
+
+inline class TriggerFunction* TriggerFunctionParameter::function() const
+{
+	return m_function;
+}
+
+inline const TriggerFunctionParameter::ParameterPtr& TriggerFunctionParameter::parameter() const
+{
+	return m_parameter;
 }
 
 }

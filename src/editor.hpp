@@ -62,6 +62,8 @@
 #include "editor/triggereditor.hpp"
 #include "editor/triggerwidget.hpp"
 #include "editor/uniteditor.hpp"
+#include "editor/variabledialog.hpp"
+#include "editor/variablesdialog.hpp"
 #include "editor/viewportsettings.hpp"
 #include "editor/windowsmenu.hpp"
 

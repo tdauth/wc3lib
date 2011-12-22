@@ -51,7 +51,7 @@ class ObjectTreeWidget* UnitEditor::createTreeWidget()
 	ObjectTreeWidget *treeWidget = new ObjectTreeWidget(this);
 
 	m_standardUnitsItem = new QTreeWidgetItem(treeWidget);
-	m_standardUnitsItem->setText(0, source()->tr("WESTRING_UE_STANDARDUNITS"));
+	m_standardUnitsItem->setText(0, source()->tr(this, "WESTRING_UE_STANDARDUNITS"));
 
 
 	/// \todo Add all default unit entries
@@ -63,7 +63,7 @@ class ObjectTreeWidget* UnitEditor::createTreeWidget()
 	*/
 
 	m_customUnitsItem = new QTreeWidgetItem(treeWidget);
-	m_customUnitsItem->setText(0, source()->tr("WESTRING_UE_CUSTOMUNITS"));
+	m_customUnitsItem->setText(0, source()->tr(this, "WESTRING_UE_CUSTOMUNITS"));
 
 
 	// TODO create UnitTreeWidget

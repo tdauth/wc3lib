@@ -37,6 +37,8 @@ namespace editor
  * \brief The trigger editor is one of the most important modules of the World Editor when creating non-melee maps since it offers you the possibility to react on game events and therefore to define a completely new behaviour of the game.
  *
  * \note Bear in mind that all code of custom text triggers is stored in a separate file named "war3map.wtc" (\ref map::CustomTextTriggers) whereas all trigger data is stored in "war3map.wtg" (\ref map::Triggers). Therefore you have to load both files to make custom text triggers storable. When using editor mode (\ref hasEditor()) both files will be loaded automatically. Alternatively you could use \ref loadFromMap().
+ *
+ * \sa VariablesDialog
  */
 class TriggerEditor : public Module
 {
@@ -59,6 +61,7 @@ class TriggerEditor : public Module
 		QTreeWidgetItem* rootItem() const;
 		class MapScriptWidget* mapScriptWidget() const;
 		class TriggerWidget* triggerWidget() const;
+		class VariablesDialog* variablesDialog() const;
 		KActionCollection* triggerActionCollection() const;
 
 	public slots:
@@ -83,6 +86,9 @@ class TriggerEditor : public Module
 		 * \sa closeCustomTextTriggers()
 		 */
 		void closeAll();
+		void resetTriggers();
+		void renameTrigger();
+		void showVariables();
 
 		void loadTriggers(map::Triggers *triggers);
 		void loadTriggers(Map *map);
@@ -148,6 +154,7 @@ class TriggerEditor : public Module
 		QTreeWidgetItem *m_rootItem;
 		class MapScriptWidget *m_mapScriptWidget;
 		class TriggerWidget *m_triggerWidget;
+		class VariablesDialog *m_variablesDialog;
 
 		KActionCollection *m_triggerActionCollection;
 };
@@ -200,6 +207,11 @@ inline class MapScriptWidget* TriggerEditor::mapScriptWidget() const
 inline class TriggerWidget* TriggerEditor::triggerWidget() const
 {
 	return this->m_triggerWidget;
+}
+
+inline class VariablesDialog* TriggerEditor::variablesDialog() const
+{
+	return m_variablesDialog;
 }
 
 inline KActionCollection* TriggerEditor::triggerActionCollection() const

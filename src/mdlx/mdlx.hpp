@@ -40,7 +40,7 @@ namespace mdlx
  * Use \ref Mdlx::nodePivotPoint to get a node's pivot point which is required for its correct position.
  * Nodes are stored in a map (\ref std::map) which allows you to access them as fast as possible since default maps are sorted.
  * \note All properties are allocated on object's construction (not only if required during reading process).
- * 
+ *
  * long/float size: 32-bit
  * \todo OBJ == ?!
  * \todo KATV == float?!
@@ -76,23 +76,17 @@ class Mdlx : public MdxBlock
 		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
 		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
 		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
-		
-		std::streamsize readBlend(const boost::filesystem::path &filePath) throw (class Exception);
-		std::streamsize readBlend(istream &istream) throw (class Exception);
-		std::streamsize writeBlend(ostream &ostream) const throw (class Exception);
-		std::streamsize read3ds(istream &istream) throw (class Exception);
-		std::streamsize write3ds(ostream &ostream) const throw (class Exception);
-		
+
 		/**
-		* @param number If this value is 0 all matching paths will be changed.
-		* @return Returns the number of changed texture paths.
-		*/
+		 * \param number If this value is 0 all matching paths will be changed.
+		 * \return Returns the number of changed texture paths.
+		 */
 		std::size_t replaceTexturePaths(const ascii oldTexturePath[0x100], const ascii newTexturePath[0x100], std::size_t number = 0);
 
 		const class Geoset* boneGeoset(const class Bone &bone) const;
 		/**
-		* @return Returns the corresponding pivot point of node node if some exists (searched by id).
-		*/
+		 * \return Returns the corresponding pivot point of node node if some exists (searched by id).
+		 */
 		const class PivotPoint* nodePivotPoint(const class Node &node) const;
 		const class Node* nodeParent(const class Node &node) const;
 		std::list<const class Node*> nodes() const;
@@ -115,14 +109,8 @@ class Mdlx : public MdxBlock
 		class Sequences *m_sequences; //SEQS
 		class GlobalSequences *m_globalSequences; //GLBS
 		class Materials *m_materials; //MTLS
-			//class Layers *m_layers; //LAYS
-			//class Alphas *m_alphas; //KMTA
-			//class  TextureIds *m_textureIds; //KMTF
 		class Textures *m_textures; //TEXS
 		class TextureAnimations *m_textureAnimations; //TXAN
-			//class Translations *m_translations; //KTAT
-			//class Rotations *m_rotations; //KGRT
-			//class Scalings *m_scalings; //KGSC
 		class Geosets *m_geosets;
 		class GeosetAnimations *m_geosetAnimations;
 		class Bones *m_bones;

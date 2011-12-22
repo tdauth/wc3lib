@@ -107,11 +107,11 @@ void ObjectEditor::createFileActions(class KMenu *menu)
 	m_importAllObjectsAction = new KAction(this);
 	menu->addAction(importAllObjectsAction());
 
-	KAction *action = new KAction(source()->tr("WESTRING_MENU_OE_EXPORTALL", "WorldEditStrings"), this);
+	KAction *action = new KAction(source()->tr(this, "WESTRING_MENU_OE_EXPORTALL", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(exportAll()));
 
-	action = new KAction(source()->tr("WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"), this);
+	action = new KAction(source()->tr(this, "WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(importAll()));
 }
@@ -126,33 +126,33 @@ void ObjectEditor::createEditActions(class KMenu *menu)
 
 	menu->addSeparator();
 
-	KAction *action = new KAction(source()->tr("WESTRING_MENU_VIEWINPALETTE", "WorldEditStrings"), this);
+	KAction *action = new KAction(source()->tr(this, "WESTRING_MENU_VIEWINPALETTE", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(viewInPalette()));
 
-	action = new KAction(source()->tr("WESTRING_MENU_OE_FIND", "WorldEditStrings"), this);
+	action = new KAction(source()->tr(this, "WESTRING_MENU_OE_FIND", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(find()));
 
-	action = new KAction(source()->tr("WESTRING_MENU_OE_FINDNEXT", "WorldEditStrings"), this);
+	action = new KAction(source()->tr(this, "WESTRING_MENU_OE_FINDNEXT", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(findNext()));
 
-	action = new KAction(source()->tr("WESTRING_MENU_OE_FINDPREV", "WorldEditStrings"), this);
+	action = new KAction(source()->tr(this, "WESTRING_MENU_OE_FINDPREV", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(findPrevious()));
 
 	menu->addSeparator();
 
-	action = new KAction(source()->tr("WESTRING_MENU_OE_MODIFYFIELD", "WorldEditStrings"), this);
+	action = new KAction(source()->tr(this, "WESTRING_MENU_OE_MODIFYFIELD", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(modifyField()));
 
-	action = new KAction(source()->tr("WESTRING_MENU_OE_RESETFIELD", "WorldEditStrings"), this);
+	action = new KAction(source()->tr(this, "WESTRING_MENU_OE_RESETFIELD", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(resetField()));
 
-	action = new KAction(source()->tr("WESTRING_MENU_OE_AUTOFILL", "WorldEditStrings"), this);
+	action = new KAction(source()->tr(this, "WESTRING_MENU_OE_AUTOFILL", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(autoFill()));
 }

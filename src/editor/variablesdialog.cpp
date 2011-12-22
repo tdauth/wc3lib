@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010 by Tamino Dauth                                    *
+ *   Copyright (C) 2011 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,42 +18,49 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "variable.hpp"
+#include <QtGui>
+
+#include "variablesdialog.hpp"
+#include "triggereditor.hpp"
+#include "mpqprioritylist.hpp"
 
 namespace wc3lib
 {
 
-namespace map
+namespace editor
 {
 
-Variable::Variable(class Triggers *triggers) : m_name(), m_type(), m_number(0), m_isArray(false), m_isInitialized(false), m_initialValue()
+VariablesDialog::VariablesDialog(class TriggerEditor *triggerEditor, Qt::WindowFlags f): m_triggerEditor(triggerEditor), QDialog(triggerEditor, f)
 {
+	setupUi(this);
 }
 
-std::streamsize Variable::read(InputStream &istream) throw (class Exception)
+void VariablesDialog::showVariables(map::Triggers *triggers)
 {
-	std::streamsize size = 0;
-	readString(istream, this->m_name, size);
-	readString(istream, this->m_type, size);
-	wc3lib::read(istream, this->m_number, size);
-	wc3lib::read<int32>(istream, (int32&)this->m_isArray, size);
-	wc3lib::read<int32>(istream, (int32&)this->m_isInitialized, size);
-	readString(istream, this->m_initialValue, size);
+	m_tableWidget->setRowCount(triggers->variables().left.size());
 
-	return size;
+	BOOST_FOREACH(map::Triggers::Variables::left_const_reference ref, triggers->variables().left)
+	{
+		const map::int32 index = ref.second->number();
+		QTableWidgetItem *item = new QTableWidgetItem(ref.second->name().c_str());
+		m_tableWidget->setItem(index, 0, item);
+		//map::TriggerData::Type *type = variableType(*ref.second.get());
+		item = new QTableWidgetItem(ref.second->type().c_str());
+		m_tableWidget->setItem(index, 1, item);
+		item = new QTableWidgetItem(ref.second->initialValue().c_str());
+		m_tableWidget->setItem(index, 2, item);
+	}
 }
 
-std::streamsize Variable::write(OutputStream &ostream) const throw (class Exception)
+map::TriggerData::Type* VariablesDialog::variableType(const wc3lib::map::Variable& variable) const
 {
-	std::streamsize size = 0;
-	writeString(ostream, name(), size);
-	writeString(ostream, type(), size);
-	wc3lib::write(ostream, number(), size);
-	wc3lib::write<int32>(ostream, (const int32&)isArray(), size);
-	wc3lib::write(ostream, (const int32&)isInitialized(), size);
-	writeString(ostream, initialValue(), size);
+	BOOST_FOREACH(map::TriggerData::Types::left_const_reference ref, const_cast<const map::TriggerData*>(triggerEditor()->source()->triggerData().get())->types().left)
+	{
+		if (ref.second->name() == variable.type())
+			return ref.second.get();
+	}
 
-	return size;
+	return 0;
 }
 
 }

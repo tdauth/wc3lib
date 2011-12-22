@@ -375,7 +375,6 @@ void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, os
 				}
 				catch (boost::iostreams::bzip2_error &error)
 				{
-
 					throw Exception(bzip2Error(error.error()));
 				}
 

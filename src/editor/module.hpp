@@ -29,6 +29,7 @@
 #include <KMenu>
 
 #include "../core.hpp"
+#include "../mpq.hpp"
 
 namespace wc3lib
 {
