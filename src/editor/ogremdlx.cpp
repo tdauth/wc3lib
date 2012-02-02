@@ -48,7 +48,7 @@ void OgreMdlx::updateCamera(const class mdlx::Camera &camera, Ogre::Camera *ogre
 	ogreCamera->setDirection(ogreVector3(camera.target()));
 }
 
-OgreMdlx::OgreMdlx(MpqPriorityList *source, const KUrl &url, class ModelView *modelView) : Resource(source, url, Resource::Type::Model), m_modelView(modelView), m_sceneNode(0), m_teamColor(TeamColor::Red), m_teamGlow(TeamColor::Red)
+OgreMdlx::OgreMdlx(const KUrl &url, class ModelView *modelView) : Resource(url, Resource::Type::Model), m_modelView(modelView), m_sceneNode(0), m_teamColor(TeamColor::Red), m_teamGlow(TeamColor::Red)
 {
 }
 
@@ -722,7 +722,8 @@ Ogre::TexturePtr OgreMdlx::createTexture(const class mdlx::Texture &texture) thr
 #warning Unsupported OS?
 #endif
 		KUrl url(texturePath);
-		textureResource.reset(new Texture(source(), url));
+		textureResource.reset(new Texture(url));
+		textureResource->setSource(source());
 		textureResource->loadOgre();
 		sourceImage = textureResource->ogre().get();
 	}

@@ -32,6 +32,7 @@ std::streamsize CustomTextTriggers::read(InputStream& istream) throw (Exception)
 	wc3lib::read(istream, m_version, size);
 	int32 number = 0;
 	wc3lib::read(istream, number, size);
+	this->triggerTexts().resize(number);
 
 	for (int32 i = 0; i < number; ++i)
 	{
@@ -39,7 +40,7 @@ std::streamsize CustomTextTriggers::read(InputStream& istream) throw (Exception)
 		string text;
 		wc3lib::read(istream, length, size);
 		wc3lib::readString(istream, text, size, length);
-		triggerTexts().left.insert(std::make_pair(i, text));
+		triggerTexts()[i] = text;
 	}
 
 	return size;
@@ -49,12 +50,12 @@ std::streamsize CustomTextTriggers::write(OutputStream& ostream) const throw (Ex
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, version(), size);
-	wc3lib::write<int32>(ostream, triggerTexts().left.size(), size);
+	wc3lib::write<int32>(ostream, boost::numeric_cast<int32>(triggerTexts().size()), size);
 
-	BOOST_FOREACH(TriggerTexts::left_const_reference value, triggerTexts().left)
+	BOOST_FOREACH(TriggerTexts::const_reference value, triggerTexts())
 	{
-		wc3lib::write<int32>(ostream, value.second.size(), size);
-		wc3lib::write(ostream, value.second.c_str(), size, value.second.size());
+		wc3lib::write<int32>(ostream, value.size(), size);
+		wc3lib::write(ostream, value.c_str(), size, value.size());
 	}
 
 	return size;

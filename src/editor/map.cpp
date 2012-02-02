@@ -30,7 +30,7 @@ namespace wc3lib
 namespace editor
 {
 
-Map::Map(class MpqPriorityList *source, const KUrl &url) : Resource(source, url, Type::Map)
+Map::Map(const KUrl &url) : Resource(url, Type::Map)
 {
 }
 

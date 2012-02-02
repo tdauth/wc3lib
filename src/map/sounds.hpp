@@ -34,7 +34,7 @@ class Sounds : public FileFormat
 {
 	public:
 		typedef boost::shared_ptr<Sound> SoundPtr;
-		typedef std::list<SoundPtr> SoundList;
+		typedef std::vector<SoundPtr> SoundVector;
 
 		Sounds(class W3m *w3m);
 
@@ -47,13 +47,13 @@ class Sounds : public FileFormat
 		virtual int32 latestFileVersion() const;
 
 		class W3m* w3m() const;
-		SoundList sounds();
-		const SoundList& sounds() const;
+		SoundVector sounds();
+		const SoundVector& sounds() const;
 
 	protected:
 		class W3m *m_w3m;
 		int32 m_version;
-		SoundList m_sounds;
+		SoundVector m_sounds;
 };
 
 inline class W3m* Sounds::w3m() const
@@ -81,12 +81,12 @@ inline int32 Sounds::latestFileVersion() const
 	return 1;
 }
 
-inline Sounds::SoundList Sounds::sounds()
+inline Sounds::SoundVector Sounds::sounds()
 {
 	return m_sounds;
 }
 
-inline const Sounds::SoundList& Sounds::sounds() const
+inline const Sounds::SoundVector& Sounds::sounds() const
 {
 	return m_sounds;
 }

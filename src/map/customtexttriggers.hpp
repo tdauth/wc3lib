@@ -32,10 +32,7 @@ namespace map
 class CustomTextTriggers : public FileFormat
 {
 	public:
-		/**
-		 * \note Don't use \ref std::vector since it should be extensible.
-		 */
-		typedef boost::bimap<int32, string> TriggerTexts;
+		typedef std::vector<string> TriggerTexts;
 
 		virtual std::streamsize read(InputStream& istream) throw (Exception);
 		virtual std::streamsize write(OutputStream& ostream) const throw (Exception);

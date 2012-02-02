@@ -40,12 +40,13 @@ std::streamsize Rects::read(InputStream &istream) throw (class Exception)
 
 	int32 number;
 	wc3lib::read(istream, number, size);
+	this->rects().resize(number);
 
 	for ( ; number >= 0; --number)
 	{
 		RectPtr rect(new Rect(this));
 		size += rect->read(istream);
-		this->m_rects.insert(std::make_pair(rect->index(), rect));
+		this->rects()[rect->index()].swap(rect);
 	}
 
 	return size;
@@ -61,8 +62,8 @@ std::streamsize Rects::write(OutputStream &ostream) const throw (class Exception
 	int32 number = this->rects().size();
 	wc3lib::write(ostream, number, size);
 
-	BOOST_FOREACH(RectMap::const_reference rect, this->rects())
-		size += rect.second->write(ostream);
+	BOOST_FOREACH(RectVector::const_reference rect, this->rects())
+		size += rect->write(ostream);
 
 	return size;
 }

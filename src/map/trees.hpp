@@ -37,15 +37,7 @@ class Trees : public FileFormat
 {
 	public:
 		typedef boost::shared_ptr<Tree> TreePtr;
-		typedef boost::multi_index_container<TreePtr,
-		boost::multi_index::indexed_by<
-		// vector, ordered by read operation
-		boost::multi_index::random_access<>,
-		// ordered by its corresponding custom id
-		boost::multi_index::ordered_unique<boost::multi_index::tag<int32>, boost::multi_index::const_mem_fun<Tree, int32, &Tree::customId> >
-		>
-		>
-		TreeContainer;
+		typedef std::vector<TreePtr> TreeVector;
 
 		struct Header2
 		{
@@ -62,12 +54,13 @@ class Trees : public FileFormat
 		virtual uint32_t version() const;
 
 		int32 subVersion() const;
-		const TreeContainer& trees() const;
+		TreeVector& trees();
+		const TreeVector& trees() const;
 
 	protected:
 		int32 m_version;
 		int32 m_subVersion;
-		TreeContainer m_trees;
+		TreeVector m_trees;
 };
 
 inline const char8* Trees::fileTextId() const
@@ -95,7 +88,12 @@ inline int32 Trees::subVersion() const
 	return this->m_subVersion;
 }
 
-inline const Trees::TreeContainer& Trees::trees() const
+inline Trees::TreeVector& Trees::trees()
+{
+	return this->m_trees;
+}
+
+inline const Trees::TreeVector& Trees::trees() const
 {
 	return this->m_trees;
 }

@@ -38,7 +38,7 @@ class TriggerFunction : public Format
 {
 	public:
 		typedef boost::shared_ptr<TriggerFunctionParameter> ParameterPtr;
-		typedef boost::bimap<int32, ParameterPtr> Parameters;
+		typedef std::vector<ParameterPtr> Parameters;
 
 		BOOST_SCOPED_ENUM_START(Type) /// \todo C++11 : int32
 		{

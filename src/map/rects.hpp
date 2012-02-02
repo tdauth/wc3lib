@@ -37,7 +37,7 @@ class Rects : public FileFormat
 {
 	public:
 		typedef boost::shared_ptr<Rect> RectPtr;
-		typedef std::map<int32, RectPtr> RectMap;
+		typedef std::vector<RectPtr> RectVector;
 
 		Rects(class W3m *w3m);
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
@@ -49,13 +49,13 @@ class Rects : public FileFormat
 
 		virtual int32 version() const { return m_version; }
 
-		const RectMap& rects() const;
-		RectMap& rects();
+		RectVector& rects();
+		const RectVector& rects() const;
 
 	protected:
 		class W3m *m_w3m;
 		int32 m_version;
-		RectMap m_rects;
+		RectVector m_rects;
 };
 
 inline const char8* Rects::fileTextId() const
@@ -73,12 +73,12 @@ inline int32 Rects::latestFileVersion() const
 	return 5;
 }
 
-inline const Rects::RectMap& Rects::rects() const
+inline Rects::RectVector& Rects::rects()
 {
 	return m_rects;
 }
 
-inline Rects::RectMap& Rects::rects()
+inline const Rects::RectVector& Rects::rects() const
 {
 	return m_rects;
 }

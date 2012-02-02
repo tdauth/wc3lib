@@ -29,7 +29,7 @@ namespace wc3lib
 namespace editor
 {
 
-MetaData::MetaData(class MpqPriorityList *source, const KUrl &url) : Resource(source, url, Type::MetaData)
+MetaData::MetaData(const KUrl &url) : Resource(url, Type::MetaData)
 {
 }
 
@@ -44,110 +44,110 @@ void MetaData::load() throw (class Exception)
 	this->url();
 	this->source()->locale();
 	source()->download(url(), filePath, 0);
-	
+
 	if (!source()->download(url(), filePath, 0))
 		throw Exception();
-	
+
 	QFile file(filePath);
-	
+
 	if (!file.open(QIODevice::ReadOnly))
 		throw Exception();
-	
-	
+
+
 	QTextStream textStream(&file);
 	/*
 	 * Note that even if a SYLK file is created by an application that supports Unicode (for example Microsoft Excel), the SYLK file will be encoded in the current system's ANSI code page, not in Unicode. If the application contained characters that were displayable in Unicode but have no codepoint in the current system's code page, they will be converted to question marks ('?') in the SYLK file.
 	 */
 	//textStream.setCodec(QTextCodec::);
 	textStream.readLine(); // skip first line which usually is "ID;PWXL;N;E"
-	
+
 	// read row and column number
 	// Example: B;X14;Y178;D0
 	int columns = 0;
 	int rows = 0;
 	QString line = textStream.readLine();
-	
+
 	if (line.isEmpty())
 		throw Exception();
-	
+
 	QStringList lineValues = line.split(';');
-	
+
 	if (lineValues.size() != 4)
 		throw Exception();
-	
+
 	if (lineValues[0][0] != 'B')
 		throw Exception();
-	
+
 	if (lineValues[1].isEmpty())
 		throw Exception();
-	
+
 	if (lineValues[1][0] == 'X')
 		columns = lineValues[1].mid(1).toInt();
 	else if (lineValues[1][0] == 'Y')
 		rows = lineValues[1].mid(1).toInt();
 	else
 		throw Exception();
-	
+
 	if (lineValues[2].isEmpty())
 		throw Exception();
-	
+
 	if (lineValues[2][0] == 'X')
 		columns = lineValues[2].mid(1).toInt();
 	else if (lineValues[2][0] == 'Y')
 		rows = lineValues[2].mid(1).toInt();
 	else
 		throw Exception();
-	
+
 	Rows results(rows);
 	//
 	int currentRow = -1;
-	
+
 	while (!textStream.atEnd())
 	{
 		line = textStream.readLine();
-		
+
 		if (line.isEmpty())
 			continue;
-		
+
 		lineValues = line.split(';');
-		
+
 		//F;Y2440;X1
-		
+
 		// read cell, other cells of the SYLK format can be ignored
 		if (lineValues[0] == "C")
 		{
 			if (lineValues[1].isEmpty())
 				throw Exception();
-			
+
 			int column = -1;
-			
+
 			if (lineValues[1][0] == 'X')
 				column = lineValues[1].mid(1).toInt();
 			else if (lineValues[1][0] == 'Y')
 				currentRow = lineValues[1].mid(1).toInt();
 			else
 				throw Exception();
-			
+
 			if (lineValues[2][0] == 'X')
 				column = lineValues[2].mid(1).toInt();
 			else if (lineValues[2][0] == 'Y')
 				currentRow = lineValues[2].mid(1).toInt();
 			else
 				throw Exception();
-			
+
 			if (currentRow == -1 || column == -1)
 				throw Exception();
-			
+
 			if (!lineValues[3].isEmpty() && lineValues[3][0] == 'K')
 				results[currentRow][column] = QVariant(lineValues[3].mid(1));
 		}
-		
+
 		if (line == "E") // end processing
 			break;
 	}
-	
+
 	this->m_metaDataEntries.resize(rows);
-	
+
 	for (std::size_t i = 0; i < rows; ++i)
 	{
 		MetaDataPtr ptr(createMetaDataEntry());

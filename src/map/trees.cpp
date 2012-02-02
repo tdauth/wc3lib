@@ -26,7 +26,7 @@ namespace wc3lib
 namespace map
 {
 
-std::streamsize Trees::read(InputStream& istream) throw (Exception)
+std::streamsize Trees::read(InputStream &istream) throw (Exception)
 {
 	id fileId;
 	std::streamsize size = 0;
@@ -39,36 +39,28 @@ std::streamsize Trees::read(InputStream& istream) throw (Exception)
 	wc3lib::read(istream, this->m_subVersion, size);
 	int32 number;
 	wc3lib::read(istream, number, size);
-	/*
-	m_trees.resize(number);
-	TreeContainer::nth_index_iterator<0>::type iterator = m_trees.begin();
+	this->trees().resize(number);
 
-	for (int32 i = 0; i < number; ++i, ++iterator)
+	for (int32 i = 0; i < number; ++i)
 	{
-		m_trees.replace(iterator, TreePtr(new Tree()));
-		size += m_trees[i]->read(istream); // read first, we need its id!
-	}
-	*/
-	m_trees.reserve(number);
-
-	for (; number > 0; --number)
-	{
-		m_trees.push_back(TreePtr(new Tree()));
-		size += m_trees.back()->read(istream); // read first, we need its id!
+		TreePtr ptr(new Tree());
+		size += ptr->read(istream);
+		trees()[i].swap(ptr);
 	}
 
 	return size;
 }
 
-std::streamsize Trees::write(OutputStream& ostream) const throw (Exception)
+std::streamsize Trees::write(OutputStream &ostream) const throw (Exception)
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->fileId(), size);
 	wc3lib::write(ostream, this->version(), size);
 	wc3lib::write(ostream, this->subVersion(), size);
-	wc3lib::write<int32>(ostream, trees().size(), size);
+	const int32 number = boost::numeric_cast<int32>(trees().size());
+	wc3lib::write(ostream, number, size);
 
-	BOOST_FOREACH(const TreePtr &tree, trees())
+	BOOST_FOREACH(TreeVector::const_reference tree, trees())
 		size += tree->write(ostream);
 
 	return size;

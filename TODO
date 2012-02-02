@@ -1,3 +1,9 @@
+2012-02-02 Tamino Dauth <tamino@cdauth.eu>
+* map: Fix "to" member functions of class Value (reference cast).
+
+2012-01-15 Tamino Dauth <tamino@cdauth.eu>
+* map: For all file formats where the number is known use std::vector which increases performance. If data should be extensible programs will have to map it in their own containers!
+
 2011-10-28 Tamino Dauth <tamino@cdauth.eu>
 * editor: All tree widgets should provide a filter widget based on KDE SCs implementation.
 

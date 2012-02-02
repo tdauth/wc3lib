@@ -44,7 +44,8 @@ int main(int argc, char *argv[])
 	SplashScreen *splash = new SplashScreen(editor, editor);
 	splash->show();
 	editor->show();
-	//editor->addModule(new ObjectEditor(editor, editor));
+	editor->addModule(new ModelEditor(editor, editor));
+	editor->addModule(new ObjectEditor(editor, editor));
 	editor->addModule(new TextureEditor(editor, editor));
 	//editor->addModule(new ModelEditor(editor, editor));
 	TriggerEditor *triggerEditor = new TriggerEditor(editor, editor);

@@ -138,8 +138,7 @@ class MpqPriorityList
 
 		Sources;
 
-		typedef boost::shared_ptr<Resource> ResourcePtr;
-		typedef std::map<KUrl, ResourcePtr> Resources;
+		typedef std::map<KUrl, Resource*> Resources;
 		typedef boost::shared_ptr<Texture> TexturePtr;
 		typedef std::map<BOOST_SCOPED_ENUM(TeamColor), TexturePtr> TeamColorTextures;
 		typedef boost::scoped_ptr<map::TriggerData> TriggerDataPtr;
@@ -213,7 +212,6 @@ class MpqPriorityList
 		virtual void addResource(class Resource *resource);
 		/**
 		 * Removes resource from editor.
-		 * \note Deletes resource \p resource.
 		 */
 		virtual bool removeResource(class Resource *resource);
 		virtual bool removeResource(const KUrl &url);
@@ -324,7 +322,6 @@ inline bool MpqPriorityList::removeResource(const KUrl &url)
 
 	this->removeSource(url);
 	this->m_resources.erase(iterator);
-	iterator->second.reset();
 
 	return true;
 }
@@ -337,7 +334,10 @@ inline const MpqPriorityList::Resources& MpqPriorityList::resources() const
 inline const MpqPriorityList::TexturePtr& MpqPriorityList::teamColorTexture(BOOST_SCOPED_ENUM(TeamColor) teamColor) const throw (class Exception)
 {
 	if (this->m_teamColorTextures[teamColor].get() == 0)
-		this->m_teamColorTextures[teamColor].reset(new Texture(const_cast<self*>(this), teamColorUrl(teamColor)));
+	{
+		this->m_teamColorTextures[teamColor].reset(new Texture(teamColorUrl(teamColor)));
+		this->m_teamColorTextures[teamColor]->setSource(const_cast<self*>(this));
+	}
 
 	return this->m_teamColorTextures[teamColor];
 }
@@ -345,7 +345,10 @@ inline const MpqPriorityList::TexturePtr& MpqPriorityList::teamColorTexture(BOOS
 inline const MpqPriorityList::TexturePtr& MpqPriorityList::teamGlowTexture(BOOST_SCOPED_ENUM(TeamColor) teamGlow) const throw (class Exception)
 {
 	if (this->m_teamGlowTextures[teamGlow].get() == 0)
-		this->m_teamGlowTextures[teamGlow].reset(new Texture(const_cast<self*>(this), teamGlowUrl(teamGlow)));
+	{
+		this->m_teamGlowTextures[teamGlow].reset(new Texture(teamGlowUrl(teamGlow)));
+		this->m_teamColorTextures[teamGlow]->setSource(const_cast<self*>(this));
+	}
 
 	return this->m_teamGlowTextures[teamGlow];
 }

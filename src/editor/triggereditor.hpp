@@ -164,19 +164,38 @@ inline const map::string& TriggerEditor::triggerText(map::Trigger *trigger) cons
 	if (customTextTriggers() == 0)
 		return "";
 
-	map::Triggers::TriggerEntries::right_const_iterator iterator = triggers()->triggers().right.find(map::Triggers::TriggerPtr(trigger));
+	bool found = false;
+	map::int32 index = 0;
+
+	BOOST_FOREACH(map::Triggers::TriggerEntries::const_reference trig, triggers()->triggers())
+	{
+		if (trig.get() == trigger)
+		{
+			found = true;
+
+			break;
+		}
+
+		++index;
+	}
+
 
 	// no corresponding number which should never occur actually
-	if (iterator == triggers()->triggers().right.end())
+	if (!found)
 		return "";
 
-	map::CustomTextTriggers::TriggerTexts::left_const_iterator textIterator = customTextTriggers()->triggerTexts().left.find(iterator->second);
+	map::int32 i = 0;
+
+	BOOST_FOREACH(map::CustomTextTriggers::TriggerTexts::const_reference triggerText, customTextTriggers()->triggerTexts())
+	{
+		if (i == index)
+			return triggerText;
+
+		++i;
+	}
 
 	// no corresponding custom trigger text which should never occur actually
-	if (textIterator == customTextTriggers()->triggerTexts().left.end())
-		return "";
-
-	return textIterator->second;
+	return "";
 }
 
 inline map::Triggers* TriggerEditor::triggers() const

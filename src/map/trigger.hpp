@@ -39,10 +39,7 @@ class Trigger : public Format
 {
 	public:
 		typedef boost::shared_ptr<TriggerFunction> FunctionPtr;
-		/**
-		 * \note Don't use \ref std::vector since it should be extensible.
-		 */
-		typedef boost::bimap<int32, FunctionPtr> Functions;
+		typedef std::vector<FunctionPtr> Functions;
 
 		Trigger(class Triggers *triggers);
 

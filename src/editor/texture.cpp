@@ -36,7 +36,7 @@ namespace wc3lib
 namespace editor
 {
 
-Texture::Texture(class MpqPriorityList *source, const KUrl &url) : Resource(source, url, Type::Texture)
+Texture::Texture(const KUrl &url) : Resource(url, Type::Texture)
 {
 }
 

@@ -59,31 +59,34 @@ std::streamsize Triggers::read(InputStream &istream, const TriggerData &triggerD
 
 	int32 number;
 	wc3lib::read(istream, number, size);
+	this->categories().resize(number);
 
 	for (int32 i = 0; i < number; ++i)
 	{
 		CategoryPtr ptr(new TriggerCategory(this));
 		size += ptr->read(istream);
-		categories().left.insert(std::make_pair(i, ptr));
+		categories()[i].swap(ptr);
 	}
 
 	wc3lib::read(istream, this->m_unknown0, size);
 	wc3lib::read(istream, number, size);
+	this->variables().resize(number);
 
 	for (int32 i = 0; i < number; ++i)
 	{
 		VariablePtr ptr(new Variable(this));
 		size += ptr->read(istream);
-		variables().left.insert(std::make_pair(i, ptr));
+		variables()[i].swap(ptr);
 	}
 
 	wc3lib::read(istream, number, size);
+	this->triggers().resize(number);
 
 	for (int32 i = 0; i < number; ++i)
 	{
 		TriggerPtr ptr(new Trigger(this));
 		size += ptr->read(istream);
-		triggers().left.insert(std::make_pair(i, ptr));
+		triggers()[i].swap(ptr);
 	}
 
 	return size;
@@ -94,24 +97,24 @@ std::streamsize Triggers::write(OutputStream &ostream) const throw (class Except
 	std::streamsize size = 0;
 	wc3lib::write(ostream, fileId(), size);
 	wc3lib::write(ostream, this->version(), size);
-	int32 number = this->categories().left.size();
+	int32 number = boost::numeric_cast<int32>(this->categories().size());
 	wc3lib::write(ostream, number, size);
 
-	BOOST_FOREACH(Categories::left_const_reference value, categories().left)
-		size += value.second->write(ostream);
+	BOOST_FOREACH(Categories::const_reference value, categories())
+		size += value->write(ostream);
 
 	wc3lib::write(ostream, this->unknown0(), size);
-	number = this->variables().left.size();
+	number = boost::numeric_cast<int32>(this->variables().size());
 	wc3lib::write(ostream, number, size);
 
-	BOOST_FOREACH(Variables::left_const_reference value, variables().left)
-		size += value.second->write(ostream);
+	BOOST_FOREACH(Variables::const_reference value, variables())
+		size += value->write(ostream);
 
-	number = this->triggers().left.size();
+	number = boost::numeric_cast<int32>(this->triggers().size());
 	wc3lib::write(ostream, number, size);
 
-	BOOST_FOREACH(TriggerEntries::left_const_reference value, triggers().left)
-		size += value.second->write(ostream);
+	BOOST_FOREACH(TriggerEntries::const_reference value, triggers())
+		size += value->write(ostream);
 
 	return size;
 }

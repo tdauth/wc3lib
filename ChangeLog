@@ -1,3 +1,16 @@
+2011-02-01 Tamino Dauth <tamino@cdauth.eu>
+* editor: MpqPriorityList doesn't handle resource deletion anymore.
+* map: Fixed modifications allocation of class CustomUnits.
+* map: Improved Value usage.
+
+2011-01-21 Tamino Dauth <tamino@cdauth.eu>
+* editor: Editor::root() doesn't throw an exception on no render systems anymore.
+* editor: Added texture editor MIME workaround.
+
+2011-01-15 Tamino Dauth <tamino@cdauth.eu>
+* map: Many formats are using std::vector now.
+* editor: Revised class Resource.
+
 2011-12-22 Tamino Dauth <tamino@cdauth.eu>
 * Option MAP depends on BLP as well now.
 * Replaced preprocessor errors by warnings which might make it easier to port wc3lib.

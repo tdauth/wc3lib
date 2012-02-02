@@ -22,6 +22,7 @@
 #define WC3LIB_MAP_CUSTOMOBJECTSCOLLECTION_HPP
 
 #include "platform.hpp"
+#include "customobjects.hpp"
 
 namespace wc3lib
 {
@@ -37,8 +38,9 @@ namespace map
 class CustomObjectsCollection : public Format
 {
 	public:
+		typedef boost::scoped_ptr<CustomObjects> CustomObjectsPtr;
+
 		CustomObjectsCollection();
-		~CustomObjectsCollection();
 
 		std::streamsize read(InputStream &istream) throw (class Exception);
 		std::streamsize write(OutputStream &ostream) const throw (class Exception);
@@ -48,29 +50,36 @@ class CustomObjectsCollection : public Format
 
 		virtual int32 version() const;
 		bool hasUnits() const;
-		class CustomObjects* units() const;
+		CustomObjectsPtr& units();
+		const CustomObjectsPtr& units() const;
 		bool hasItems() const;
-		class CustomObjects* items() const;
+		CustomObjectsPtr& items();
+		const CustomObjectsPtr& items() const;
 		bool hasDestructibles() const;
-		class CustomObjects* destructibles() const;
+		CustomObjectsPtr& destructibles();
+		const CustomObjectsPtr& destructibles() const;
 		bool hasDoodads() const;
-		class CustomObjects* doodads() const;
+		CustomObjectsPtr& doodads();
+		const CustomObjectsPtr& doodads() const;
 		bool hasAbilities() const;
-		class CustomObjects* abilities() const;
+		CustomObjectsPtr& abilities();
+		const CustomObjectsPtr& abilities() const;
 		bool hasBuffs() const;
-		class CustomObjects* buffs() const;
+		CustomObjectsPtr& buffs();
+		const CustomObjectsPtr& buffs() const;
 		bool hasUpgrades() const;
-		class CustomObjects* upgrades() const;
+		CustomObjectsPtr& upgrades();
+		const CustomObjectsPtr& upgrades() const;
 
 	protected:
 		int32 m_version;
-		class CustomObjects *m_units;
-		class CustomObjects *m_items;
-		class CustomObjects *m_destructibles;
-		class CustomObjects *m_doodads;
-		class CustomObjects *m_abilities;
-		class CustomObjects *m_buffs;
-		class CustomObjects *m_upgrades;
+		CustomObjectsPtr m_units;
+		CustomObjectsPtr m_items;
+		CustomObjectsPtr m_destructibles;
+		CustomObjectsPtr m_doodads;
+		CustomObjectsPtr m_abilities;
+		CustomObjectsPtr m_buffs;
+		CustomObjectsPtr m_upgrades;
 };
 
 inline int32 CustomObjectsCollection::latestFileVersion() const
@@ -90,70 +99,105 @@ inline int32 CustomObjectsCollection::version() const
 
 inline bool CustomObjectsCollection::hasUnits() const
 {
-	return this->m_units != 0;
+	return this->units().get() != 0;
 }
 
-inline class CustomObjects* CustomObjectsCollection::units() const
+inline CustomObjectsCollection::CustomObjectsPtr& CustomObjectsCollection::units()
+{
+	return this->m_units;
+}
+
+inline const CustomObjectsCollection::CustomObjectsPtr& CustomObjectsCollection::units() const
 {
 	return this->m_units;
 }
 
 inline bool CustomObjectsCollection::hasItems() const
 {
-	return this->m_items != 0;
+	return this->items().get() != 0;
 }
 
-inline class CustomObjects* CustomObjectsCollection::items() const
+inline CustomObjectsCollection::CustomObjectsPtr& CustomObjectsCollection::items()
+{
+	return this->m_items;
+}
+
+inline const CustomObjectsCollection::CustomObjectsPtr& CustomObjectsCollection::items() const
 {
 	return this->m_items;
 }
 
 inline bool CustomObjectsCollection::hasDestructibles() const
 {
-	return this->m_destructibles != 0;
+	return this->destructibles().get() != 0;
 }
 
-inline class CustomObjects* CustomObjectsCollection::destructibles() const
+inline CustomObjectsCollection::CustomObjectsPtr& CustomObjectsCollection::destructibles()
+{
+	return this->m_destructibles;
+}
+
+inline const CustomObjectsCollection::CustomObjectsPtr& CustomObjectsCollection::destructibles() const
 {
 	return this->m_destructibles;
 }
 
 inline bool CustomObjectsCollection::hasDoodads() const
 {
-	return this->m_doodads != 0;
+	return this->doodads().get() != 0;
 }
 
-inline class CustomObjects* CustomObjectsCollection::doodads() const
+inline CustomObjectsCollection::CustomObjectsPtr& CustomObjectsCollection::doodads()
+{
+	return this->m_doodads;
+}
+
+inline const CustomObjectsCollection::CustomObjectsPtr& CustomObjectsCollection::doodads() const
 {
 	return this->m_doodads;
 }
 
 inline bool CustomObjectsCollection::hasAbilities() const
 {
-	return this->m_abilities != 0;
+	return this->abilities().get() != 0;
 }
 
-inline class CustomObjects* CustomObjectsCollection::abilities() const
+inline CustomObjectsCollection::CustomObjectsPtr& CustomObjectsCollection::abilities()
+{
+	return this->m_abilities;
+}
+
+inline const CustomObjectsCollection::CustomObjectsPtr& CustomObjectsCollection::abilities() const
 {
 	return this->m_abilities;
 }
 
 inline bool CustomObjectsCollection::hasBuffs() const
 {
-	return this->m_buffs != 0;
+	return this->buffs().get() != 0;
 }
 
-inline class CustomObjects* CustomObjectsCollection::buffs() const
+inline CustomObjectsCollection::CustomObjectsPtr& CustomObjectsCollection::buffs()
+{
+	return this->m_buffs;
+}
+
+inline const CustomObjectsCollection::CustomObjectsPtr& CustomObjectsCollection::buffs() const
 {
 	return this->m_buffs;
 }
 
 inline bool CustomObjectsCollection::hasUpgrades() const
 {
-	return this->m_upgrades != 0;
+	return this->upgrades().get() != 0;
 }
 
-inline class CustomObjects* CustomObjectsCollection::upgrades() const
+inline CustomObjectsCollection::CustomObjectsPtr& CustomObjectsCollection::upgrades()
+{
+	return this->m_upgrades;
+}
+
+inline const CustomObjectsCollection::CustomObjectsPtr& CustomObjectsCollection::upgrades() const
 {
 	return this->m_upgrades;
 }

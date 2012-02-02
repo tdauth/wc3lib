@@ -37,22 +37,21 @@ VariablesDialog::VariablesDialog(class TriggerEditor *triggerEditor, Qt::WindowF
 
 void VariablesDialog::showVariables(map::Triggers *triggers)
 {
-	m_tableWidget->setRowCount(triggers->variables().left.size());
+	m_tableWidget->setRowCount(triggers->variables().size());
 
-	BOOST_FOREACH(map::Triggers::Variables::left_const_reference ref, triggers->variables().left)
+	for (map::int32 i = 0; i < triggers->variables().size(); ++i)
 	{
-		const map::int32 index = ref.second->number();
-		QTableWidgetItem *item = new QTableWidgetItem(ref.second->name().c_str());
-		m_tableWidget->setItem(index, 0, item);
+		QTableWidgetItem *item = new QTableWidgetItem(triggers->variables()[i]->name().c_str());
+		m_tableWidget->setItem(i, 0, item);
 		//map::TriggerData::Type *type = variableType(*ref.second.get());
-		item = new QTableWidgetItem(ref.second->type().c_str());
-		m_tableWidget->setItem(index, 1, item);
-		item = new QTableWidgetItem(ref.second->initialValue().c_str());
-		m_tableWidget->setItem(index, 2, item);
+		item = new QTableWidgetItem(triggers->variables()[i]->type().c_str());
+		m_tableWidget->setItem(i, 1, item);
+		item = new QTableWidgetItem(triggers->variables()[i]->initialValue().c_str());
+		m_tableWidget->setItem(i, 2, item);
 	}
 }
 
-map::TriggerData::Type* VariablesDialog::variableType(const wc3lib::map::Variable& variable) const
+map::TriggerData::Type* VariablesDialog::variableType(const wc3lib::map::Variable &variable) const
 {
 	BOOST_FOREACH(map::TriggerData::Types::left_const_reference ref, const_cast<const map::TriggerData*>(triggerEditor()->source()->triggerData().get())->types().left)
 	{

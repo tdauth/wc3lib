@@ -43,6 +43,9 @@ std::streamsize CustomUnits::Modification::read(InputStream &istream) throw (cla
 	int32 end;
 	wc3lib::read(istream, end, size); // usually 0
 
+	if (end != 0)
+		std::cerr << boost::format(_("Modification end byte is not 0: ")) % end << std::endl;
+
 	return size;
 }
 
@@ -55,12 +58,23 @@ std::streamsize CustomUnits::Modification::write(OutputStream &ostream) const th
 	return size;
 }
 
+std::streamsize CustomUnits::Modification::readList(InputStream &istream)
+{
+	std::streamsize size = 0;
+	string str;
+	wc3lib::readString(istream, str, size);
+	boost::algorithm::split(this->value().toList(), str, boost::algorithm::is_any_of(":"), boost::algorithm::token_compress_on);
+
+	return size;
+}
+
 std::streamsize CustomUnits::Modification::readData(InputStream &istream) throw (class Exception)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_id, size);
 	int32 type;
 	wc3lib::read(istream, type, size);
+	this->m_value = Value(type);
 
 	switch (BOOST_SCOPED_ENUM(Value::Type)(type))
 	{
@@ -74,30 +88,45 @@ std::streamsize CustomUnits::Modification::readData(InputStream &istream) throw 
 
 			break;
 
-		// TODO FINISH
-			/*
-			Unreal = 2,
-					String = 3,
-					Boolean = 4,
-					Character = 5,
-					UnitList = 6,
-					ItemList = 7,
-					RegenerationType = 8,
-					AttackType = 9,
-					WeaponType = 10,
-					TargetType = 11,
-					MoveType = 12,
-					DefenseType = 13,
-					PathingTexture = 14,
-					UpgradeList = 15,
-					StringList = 16,
-					AbilityList = 17,
-					HeroAbilityList = 18,
-					MissileArt = 19,
-					AttributeType = 20,
-					AttackBits = 21
-				};
-				*/
+		case Value::Type::Unreal:
+			wc3lib::read(istream, this->value().toUnreal(), size);
+
+			break;
+
+		case Value::Type::String:
+		case Value::Type::RegenerationType:
+		case Value::Type::AttackType:
+		case Value::Type::WeaponType:
+		case Value::Type::TargetType:
+		case Value::Type::MoveType:
+		case Value::Type::DefenseType:
+		case Value::Type::PathingTexture:
+		case Value::Type::MissileArt:
+		case Value::Type::AttributeType:
+		case Value::Type::AttackBits:
+			wc3lib::readString(istream, this->value().toString(), size);
+
+			break;
+
+		case Value::Type::Boolean:
+			wc3lib::read(istream, this->value().toBoolean(), size);
+
+			break;
+
+		case Value::Type::Character:
+			wc3lib::read(istream, this->value().toCharacter(), size);
+
+			break;
+
+		case Value::Type::UnitList:
+		case Value::Type::ItemList:
+		case Value::Type::UpgradeList:
+		case Value::Type::StringList:
+		case Value::Type::AbilityList:
+		case Value::Type::HeroAbilityList:
+			size += this->readList(istream);
+
+			break;
 	}
 
 	return size;
@@ -142,6 +171,7 @@ std::streamsize CustomUnits::Unit::read(InputStream &istream) throw (class Excep
 	wc3lib::read(istream, this->m_customId, size);
 	int32 modifications;
 	wc3lib::read(istream, modifications, size);
+	this->modifications().resize(modifications);
 
 	for (int32 i = 0; i < modifications; ++i)
 	{

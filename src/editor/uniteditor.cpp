@@ -34,11 +34,11 @@ namespace wc3lib
 namespace editor
 {
 
-UnitEditor::UnitEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_metaData(new MetaData(source, KUrl("Units/UnitMetaData.slk"))), ObjectEditorTab(source, parent, f)
+UnitEditor::UnitEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_metaData(new MetaData(KUrl("Units/UnitMetaData.slk"))), ObjectEditorTab(source, parent, f)
 {
 	try
 	{
-		m_metaData->load();
+		m_metaData->setSource(source, true);
 	}
 	catch (Exception &exception)
 	{

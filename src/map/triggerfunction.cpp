@@ -27,7 +27,7 @@ namespace wc3lib
 namespace map
 {
 
-TriggerFunction::TriggerFunction() : m_type(TriggerFunction::Type::Event), m_name(), m_isEnabled(false), m_parameters()
+TriggerFunction::TriggerFunction() : m_type(TriggerFunction::Type::Event), m_name(), m_isEnabled(false)
 {
 }
 
@@ -75,11 +75,13 @@ std::streamsize TriggerFunction::read(InputStream &istream, const TriggerData &t
 			break;
 	}
 
+	this->parameters().resize(parameters);
+
 	for (int32 i = 0; i < parameters; ++i)
 	{
 		ParameterPtr ptr(new TriggerFunctionParameter());
 		size += ptr->read(istream, triggerData);
-		this->parameters().left.insert(std::make_pair(i, ptr));
+		this->parameters()[i].swap(ptr);
 	}
 
 	return size;
@@ -92,8 +94,8 @@ std::streamsize TriggerFunction::write(OutputStream &ostream) const throw (class
 	writeString(ostream, this->m_name, size);
 	wc3lib::write<int32>(ostream, this->isEnabled(), size);
 
-	BOOST_FOREACH(Parameters::left_const_reference value, this->parameters().left)
-		size += value.second->write(ostream);
+	BOOST_FOREACH(Parameters::const_reference value, this->parameters())
+		size += value->write(ostream);
 
 	return size;
 }

@@ -230,7 +230,7 @@ QMap< QString, QString > MpqPriorityList::txtEntries(QWidget *widget, const KUrl
 
 	if (!const_cast<MpqPriorityList*>(this)->download(url, target, widget))
 	{
-		KMessageBox::error(widget, i18n("Missing file \"%1\".", url.toEncoded().constData()));
+		qDebug() << i18n("Missing file \"%1\".", url.toEncoded().constData());
 
 		return QMap<QString,QString>();
 	}

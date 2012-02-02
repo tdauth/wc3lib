@@ -22,6 +22,7 @@
 #define WC3LIB_MAP_CAMERAS_HPP
 
 #include "platform.hpp"
+#include "camera.hpp"
 
 namespace wc3lib
 {
@@ -35,8 +36,10 @@ namespace map
 class Cameras : public FileFormat
 {
 	public:
+		typedef boost::shared_ptr<Camera> CameraPtr;
+		typedef std::vector<CameraPtr> CameraVector;
+
 		Cameras(class W3m *w3m);
-		~Cameras();
 
 		std::streamsize read(std::istream &istream) throw (class Exception);
 		std::streamsize write(std::ostream &ostream) const throw (class Exception);
@@ -45,12 +48,15 @@ class Cameras : public FileFormat
 		virtual const char8* fileName() const;
 		virtual int32 latestFileVersion() const;
 
-		virtual int32 version() const { return m_version; }
+		virtual int32 version() const;
+
+		CameraVector& cameras();
+		const CameraVector& cameras() const;
 
 	protected:
 		class W3m *m_w3m;
 		int32 m_version;
-		std::list<class Camera*> m_cameras;
+		CameraVector m_cameras;
 };
 
 inline const char8* Cameras::fileTextId() const
@@ -66,6 +72,21 @@ inline const char8* Cameras::fileName() const
 inline int32 Cameras::latestFileVersion() const
 {
 	return 0;
+}
+
+inline int32 Cameras::version() const
+{
+	return m_version;
+}
+
+inline Cameras::CameraVector& Cameras::cameras()
+{
+	return this->m_cameras;
+}
+
+inline const Cameras::CameraVector& Cameras::cameras() const
+{
+	return this->m_cameras;
 }
 
 }

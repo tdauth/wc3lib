@@ -33,13 +33,6 @@ namespace map
 
 Cameras::Cameras(class W3m *w3m) : m_w3m(w3m)
 {
-
-}
-
-Cameras::~Cameras()
-{
-	BOOST_FOREACH(class Camera *camera, this->m_cameras)
-		delete camera;
 }
 
 std::streamsize Cameras::read(std::istream &istream) throw (class Exception)
@@ -52,12 +45,13 @@ std::streamsize Cameras::read(std::istream &istream) throw (class Exception)
 
 	int32 number;
 	wc3lib::read(istream, number, size);
+	this->cameras().resize(number);
 
-	for ( ; number >= 0; --number)
+	for (int32 i = 0; i < number; ++i)
 	{
-		class Camera *camera = new Camera(this);
+		CameraPtr camera(new Camera(this));
 		size += camera->read(istream);
-		this->m_cameras.push_back(camera);
+		this->cameras()[i].swap(camera);
 	}
 
 	return size;
@@ -65,15 +59,15 @@ std::streamsize Cameras::read(std::istream &istream) throw (class Exception)
 
 std::streamsize Cameras::write(std::ostream &ostream) const throw (class Exception)
 {
-	if (this->m_version != latestFileVersion())
-		throw Exception(boost::format(_("Cameras: Unknown version \"%1%\", expected \"%2%\".")) % this->m_version % latestFileVersion());
+	if (this->version() != latestFileVersion())
+		throw Exception(boost::format(_("Cameras: Unknown version \"%1%\", expected \"%2%\".")) % this->version() % latestFileVersion());
 
 	std::streamsize size = 0;
-	wc3lib::write(ostream, this->m_version, size);
-	int32 number = this->m_cameras.size();
+	wc3lib::write(ostream, this->version(), size);
+	const int32 number = this->cameras().size();
 	wc3lib::write(ostream, number, size);
 
-	BOOST_FOREACH(const class Camera *camera, this->m_cameras)
+	BOOST_FOREACH(CameraVector::const_reference camera, this->cameras())
 		size += camera->write(ostream);
 
 	return size;

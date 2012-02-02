@@ -19,7 +19,7 @@
  ***************************************************************************/
 
 /**
-* Preprocessors has been taken from OGRE.
+* Preprocessors have been taken from OGRE.
 */
 #ifdef UNIX
 #include <dlfcn.h>

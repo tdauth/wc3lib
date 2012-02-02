@@ -52,12 +52,13 @@ std::streamsize Trigger::read(InputStream &istream, const TriggerData &triggerDa
 	wc3lib::read(istream, m_category, size);
 	int32 functions;
 	wc3lib::read(istream, functions, size);
+	this->functions().resize(functions);
 
 	for (int32 i = 0; i < functions; ++i)
 	{
 		FunctionPtr ptr(new TriggerFunction);
 		size += ptr->read(istream, triggerData);
-		this->functions().left.insert(std::make_pair(i, ptr));
+		this->functions()[i].swap(ptr);
 	}
 
 	return size;
@@ -77,11 +78,11 @@ std::streamsize Trigger::write(OutputStream &ostream) const throw (class Excepti
 	wc3lib::write(ostream, value, size);
 	wc3lib::write(ostream, this->unknown(), size);
 	wc3lib::write(ostream, category(), size);
-	value = this->functions().left.size();
+	value = boost::numeric_cast<int32>(this->functions().size());
 	wc3lib::write(ostream, value, size);
 
-	BOOST_FOREACH(Functions::left_const_reference function, this->functions().left)
-		size += function.second->write(ostream);
+	BOOST_FOREACH(Functions::const_reference function, this->functions())
+		size += function->write(ostream);
 
 	return size;
 }

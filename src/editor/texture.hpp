@@ -48,7 +48,7 @@ class Texture : public Resource
 		typedef boost::scoped_ptr<QImage> QtPtr;
 		typedef boost::scoped_ptr<Ogre::Image> OgrePtr;
 
-		Texture(class MpqPriorityList *source, const KUrl &url);
+		Texture(const KUrl &url);
 		virtual ~Texture();
 
 		/**

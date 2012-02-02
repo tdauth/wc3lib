@@ -30,9 +30,9 @@ namespace map
 {
 
 /**
-* Warcraft 3 only allows you to customize unit data.
-* Later, in Frozen Throne Blizzard introduced general object data modification (\ref CustomObjects).
-*/
+ * Warcraft III RoC only (not in TFT), allows you to customize unit data.
+ * Later, in Frozen Throne Blizzard introduced general object data modification (\ref CustomObjects).
+ */
 class CustomUnits : public FileFormat
 {
 	public:
@@ -46,9 +46,12 @@ class CustomUnits : public FileFormat
 				std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
 				id valueId() const;
+				struct Value& value();
 				const struct Value& value() const;
 
 			protected:
+				std::streamsize readList(InputStream &istream);
+
 				std::streamsize readData(InputStream &istream) throw (class Exception);
 				std::streamsize writeData(OutputStream &ostream) const throw (class Exception);
 
@@ -114,6 +117,11 @@ class CustomUnits : public FileFormat
 inline id CustomUnits::Modification::valueId() const
 {
 	return m_id;
+}
+
+inline Value& CustomUnits::Modification::value()
+{
+	return m_value;
 }
 
 inline const Value& CustomUnits::Modification::value() const

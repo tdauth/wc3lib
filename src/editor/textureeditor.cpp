@@ -97,14 +97,21 @@ void TextureEditor::openFile()
 	}
 	*/
 
-	KUrl url = KFileDialog::getImageOpenUrl(this->m_recentUrl, this, i18n("Open texture"));
+	KMimeType::Ptr mime(KMimeType::mimeType("image/x-blp"));
+	KUrl url;
+
+	// if MIME type exists it will be considered in image open dialog
+	if (!mime.isNull())
+		url = KFileDialog::getImageOpenUrl(this->m_recentUrl, this, i18n("Open texture"));
+	else
+		url = KFileDialog::getOpenUrl(this->m_recentUrl, i18n("*|All Files"), this, i18n("Open texture"));
 
 	if (url.isEmpty())
 		return;
 
 	//BlpIOHandler handler;
 	//handler.setDevice(&file);
-	TexturePtr texture(new Texture(source(), url));
+	TexturePtr texture(new Texture(url));
 
 	/*if (!handler.canRead())
 	{
@@ -116,6 +123,7 @@ void TextureEditor::openFile()
 
 	try
 	{
+		texture->setSource(source());
 		texture->loadAll();
 	}
 	catch (Exception &exception)
@@ -203,7 +211,7 @@ void TextureEditor::closeFile()
 
 	m_mipMapsMenu->clear();
 
-	m_texture.reset(0);
+	m_texture.reset();
 	refreshImage();
 }
 

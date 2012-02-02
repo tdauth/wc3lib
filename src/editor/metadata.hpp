@@ -45,7 +45,7 @@ class MetaData : public Resource
 		typedef boost::shared_ptr<map::MetaData> MetaDataPtr;
 		typedef std::vector<MetaDataPtr> MetaDataEntries;
 
-		MetaData(class MpqPriorityList *source, const KUrl &url);
+		MetaData(const KUrl &url);
 
 		virtual void clear() throw ();
 

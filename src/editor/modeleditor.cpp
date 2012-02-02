@@ -137,12 +137,11 @@ void ModelEditor::saveFile()
 
 void ModelEditor::closeAllFiles()
 {
-	for (Models::iterator iterator = models().begin(); iterator != models().end(); )
+	for (Models::iterator iterator = m_models.begin(); iterator != m_models.end(); )
 	{
-		/// TODO remove from list etc.
-		OgreMdlxPtr ptr = *iterator;
+		Models::iterator next = iterator;
 		++iterator;
-		removeModel(ptr);
+		removeModel(next);
 	}
 }
 
@@ -389,20 +388,17 @@ void ModelEditor::dropEvent(QDropEvent *event)
 bool ModelEditor::openUrl(const KUrl &url)
 {
 	//const Ogre::Vector3 position(0.0, 0.0, 0.0);
-	OgreMdlxPtr ogreModel(new OgreMdlx(source(), url, this->m_modelView));
-	this->source()->addResource(ogreModel.get()); // add to get URL
+	OgreMdlxPtr ogreModel(new OgreMdlx(url, this->m_modelView));
 
 	try
 	{
-		ogreModel->load();
+		ogreModel->setSource(source());
 
 		//model->textures()->textures().size(); // TEST
 		KMessageBox::information(this, i18n("Read file \"%1\" successfully..", url.toEncoded().constData()));
 	}
 	catch (class Exception &exception)
 	{
-		this->source()->removeResource(ogreModel.get()); // ogreModel is deleted automatically
-
 		KMessageBox::error(this, i18n("Unable to read file \"%1\".\nException \"%2\".", url.toEncoded().constData(), exception.what().c_str()));
 
 		return false;
@@ -425,19 +421,21 @@ bool ModelEditor::openUrl(const KUrl &url)
 	return true;
 }
 
-void ModelEditor::removeModel(OgreMdlxPtr ogreModel)
+void ModelEditor::removeModel(OgreMdlxPtr &ogreModel)
 {
 	Models::iterator iterator = std::find(models().begin(), models().end(), ogreModel);
 
 	if (iterator != models().end())
-	{
-		this->m_modelView->root()->removeFrameListener(ogreModel.get());
-		removeCameraActions(ogreModel);
-		this->source()->removeResource(ogreModel.get()); // delete ogreModel
-		m_models.erase(iterator);
-	}
+		removeModel(iterator);
 	else
 		qDebug() << "Error: Model " << ogreModel->namePrefix() << " was not found.";
+}
+
+void ModelEditor::removeModel(Models::iterator iterator)
+{
+	this->m_modelView->root()->removeFrameListener(iterator->get());
+	removeCameraActions(*iterator);
+	m_models.erase(iterator);
 }
 
 void ModelEditor::addCameraActions(const OgreMdlxPtr &ogreModel)
@@ -546,7 +544,7 @@ void ModelEditor::createMenus(class KMenuBar *menuBar)
 	qDebug() << "Menus";
 }
 
-void ModelEditor::createWindowsActions(class KMenu *menu)
+void ModelEditor::createWindowsActions(class WindowsMenu *menu)
 {
 	qDebug() << "Windows";
 }

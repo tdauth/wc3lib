@@ -51,34 +51,49 @@ class Resource
 		};
 		BOOST_SCOPED_ENUM_END
 
-		/// Do not add to list \p source since sometimes it is discarded because of errors after loading it.
-		Resource(class MpqPriorityList *source, const KUrl &url, BOOST_SCOPED_ENUM(Type) type) : m_source(source), m_url(url), m_type(type) { };
-		class MpqPriorityList* source() const { return m_source; }
-		void setSource(class MpqPriorityList *source)
-		{
-			if (this->source() == source)
-				return;
-			
-			m_source = source;
-			reload();
-		}
-		const KUrl& url() const { return m_url; };
-		BOOST_SCOPED_ENUM(Type) type() const { return m_type; };
-		
+		Resource(const KUrl &url, BOOST_SCOPED_ENUM(Type) type);
+		virtual ~Resource();
+		/**
+		 * Assigns the corresponding source.
+		 * \param load If this value is true resource will be loaded/reloaded automatically.
+		 * \note This adds the resources to the resources of \p source which can be accessed via \ref Source::resources().
+		 * \note Additionally, this calls either \ref load() or \ref reload() depending on there has already set a source before. This only happens if \p load is true!
+		 */
+		void setSource(class MpqPriorityList *source, bool load = false) throw (Exception);
+		class MpqPriorityList* source() const;
+		/**
+		 * Each resource should have its unique URL which indicates where it is loaded from.
+		 * Relative URLs will be checked from all sources paths.
+		 * \sa MpqPriorityList::download()
+		 * \sa MpqPriorityList::upload()
+		 */
+		const KUrl& url() const;
+		BOOST_SCOPED_ENUM(Type) type() const;
+
 		virtual void load() throw (Exception) = 0;
 		virtual void reload() throw (Exception) = 0;
 		virtual void save(const KUrl &url) const throw (Exception) = 0;
 
 	protected:
-		template<class T>
-		friend void boost::checked_delete(T*); // for destruction by shared ptr
-		
-		virtual ~Resource() { };
-		
 		class MpqPriorityList *m_source;
 		KUrl m_url;
 		BOOST_SCOPED_ENUM(Type) m_type;
 };
+
+inline class MpqPriorityList* Resource::source() const
+{
+	return m_source;
+}
+
+inline const KUrl& Resource::url() const
+{
+	return m_url;
+}
+
+inline BOOST_SCOPED_ENUM(Resource::Type) Resource::type() const
+{
+	return m_type;
+}
 
 }
 

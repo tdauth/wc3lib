@@ -83,7 +83,7 @@ class OgreMdlx  : public Resource, public Ogre::FrameListener
 		 */
 		static void updateCamera(const class mdlx::Camera &camera, Ogre::Camera *ogreCamera);
 
-		OgreMdlx(class MpqPriorityList *source, const KUrl &url, class ModelView *modelView);
+		OgreMdlx(const KUrl &url, class ModelView *modelView);
 		virtual ~OgreMdlx();
 
 		virtual void clear() throw ();

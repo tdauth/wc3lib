@@ -36,7 +36,7 @@ class Map : public Resource
 	public:
 		typedef boost::scoped_ptr<map::W3m> MapPtr;
 
-		Map(class MpqPriorityList *source, const KUrl &url);
+		Map(const KUrl &url);
 
 		virtual void load() throw (Exception);
 		virtual void reload() throw (Exception);

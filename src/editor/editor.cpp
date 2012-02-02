@@ -135,12 +135,12 @@ Editor::~Editor()
 	if (m_root != 0)
 		delete m_root;
 
-	// delete resources
+	// delete remaining resources
 	BOOST_FOREACH(Resources::reference value, this->m_resources)
 	{
 		qDebug() << "Cleaning up resource " << value.first;
 
-		value.second.reset();
+		delete value.second;
 	}
 }
 
@@ -171,21 +171,29 @@ Ogre::Root* Editor::root() const
 		const Ogre::RenderSystemList &renderers = m_root->getAvailableRenderers();
 
 		// we need at least one renderer to do anything useful
-		if (renderers.empty())
-			throw Exception();
+		if (!renderers.empty())
+		{
+			Ogre::RenderSystem *renderSystem = renderers.front();
 
-		Ogre::RenderSystem *renderSystem = renderers.front();
+			// user might pass back a null renderer, which would be bad!
+			/*
+			* TEST could we continue without a render system?
+			if (renderSystem == 0)
+				throw Exception();
+			*/
 
-		// user might pass back a null renderer, which would be bad!
-		if (renderSystem == 0)
-			throw Exception();
-
-		// configuration is setup automatically by ogre.cfg file
-		renderSystem->setConfigOption("Full Screen", "No");
-		m_root->setRenderSystem(renderSystem);
-		// initialize without creating window
-		m_root->saveConfig();
-		m_root->initialise(false); // don't create a window
+			// configuration is setup automatically by ogre.cfg file
+			if (renderSystem != 0)
+			{
+				renderSystem->setConfigOption("Full Screen", "No");
+				m_root->setRenderSystem(renderSystem);
+				// initialize without creating window
+				m_root->saveConfig();
+				m_root->initialise(false); // don't create a window
+			}
+			else
+				qDebug() << "No render system!";
+		}
 	}
 	//else if (m_root->getRenderSystem()->getConfigOptions()["Full Screen"].currentValue == "Yes")
 		//KMessageBox::information(this, i18n("Full screen is enabled."));
@@ -220,11 +228,11 @@ void Editor::openMap()
 
 void Editor::openMap(const KUrl &url, bool switchTo)
 {
-	Map  *ptr = new Map(this, url);
+	Map  *ptr = new Map(url);
 
 	try
 	{
-		ptr->load();
+		ptr->setSource(this, true);
 	}
 	catch (Exception &exception)
 	{
@@ -234,8 +242,6 @@ void Editor::openMap(const KUrl &url, bool switchTo)
 
 		return;
 	}
-
-	this->addResource(ptr);
 
 	// TODO set icon to w3m or w3x icon
 	KAction *action = new KAction(tr("&%1 %2").arg(mapsActionCollection()->actions().size() + 1).arg(ptr->map()->name().c_str()), this);

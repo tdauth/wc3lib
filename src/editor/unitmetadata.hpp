@@ -32,8 +32,8 @@ namespace editor
 class UnitMetaData : public MetaData
 {
 	public:
-		UnitMetaData(class MpqPriorityList *source);
-		
+		UnitMetaData();
+
 	protected:
 		virtual map::MetaData* createMetaDataEntry();
 		virtual void filleMetaDataEntry(MetaDataPtr &entry, const Row &row);

@@ -69,8 +69,14 @@ class ModelEditor : public Module, protected Ui::ModelEditor
 		const CameraActions& cameraActions() const;
 		const CollisionShapeNodes& collisionShapeNodes() const;
 
+		/**
+		 * Assigns the team color \p teamColor to all open models in model editor.
+		 */
 		void setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor);
 		BOOST_SCOPED_ENUM(TeamColor) teamColor() const;
+		/**
+		 * Assigns the team glow \p teamGlow to all open models in model editor.
+		 */
 		void setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow);
 		BOOST_SCOPED_ENUM(TeamColor) teamGlow() const;
 
@@ -102,7 +108,7 @@ class ModelEditor : public Module, protected Ui::ModelEditor
 		virtual void createFileActions(class KMenu *menu);
 		virtual void createEditActions(class KMenu *menu);
 		virtual void createMenus(class KMenuBar *menuBar);
-		virtual void createWindowsActions(class KMenu *menu);
+		virtual void createWindowsActions(class WindowsMenu *menu);
 		virtual void createToolButtons(class KToolBar *toolBar);
 		virtual class SettingsInterface* settings();
 		virtual void onSwitchToMap(class Map *map);
@@ -113,7 +119,8 @@ class ModelEditor : public Module, protected Ui::ModelEditor
 		virtual void dropEvent(QDropEvent *event);
 
 		bool openUrl(const KUrl &url);
-		void removeModel(OgreMdlxPtr ogreModel);
+		void removeModel(OgreMdlxPtr &ogreModel);
+		void removeModel(Models::iterator iterator);
 
 		void addCameraActions(const OgreMdlxPtr &ogreModel);
 		void removeCameraActions(const OgreMdlxPtr &ogreModel);
