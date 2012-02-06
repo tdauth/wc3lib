@@ -33,7 +33,7 @@ namespace map
 class Tree : public Format
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Flags) /// \todo C++0x : byte
+		BOOST_SCOPED_ENUM_START(Flags) /// \todo C++11 : byte
 		{
 			Invisible = 0,
 			Visibile = 1,

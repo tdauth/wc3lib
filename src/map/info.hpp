@@ -36,7 +36,7 @@ class Info : public FileFormat
 		class Player : public Format
 		{
 			public:
-				BOOST_SCOPED_ENUM_START(Type) /// \todo C++0x : int32
+				BOOST_SCOPED_ENUM_START(Type) /// \todo C++11 : int32
 				{
 					Human = 1,
 					Computer = 2,
@@ -45,7 +45,7 @@ class Info : public FileFormat
 				};
 				BOOST_SCOPED_ENUM_END
 
-				BOOST_SCOPED_ENUM_START(Race) /// \todo C++0x : int32
+				BOOST_SCOPED_ENUM_START(Race) /// \todo C++11 : int32
 				{
 					Human = 1,
 					Orc = 2,
@@ -107,7 +107,7 @@ class Info : public FileFormat
 		class UpgradeAvailability : public Format
 		{
 			public:
-				BOOST_SCOPED_ENUM_START(Availability) /// \todo C++0x : int32
+				BOOST_SCOPED_ENUM_START(Availability) /// \todo C++11 : int32
 				{
 					Unavailable = 0,
 					Available = 1,
@@ -153,7 +153,7 @@ class Info : public FileFormat
 							public:
 								typedef std::vector<id> Rows;
 
-								BOOST_SCOPED_ENUM_START(Type) /// \todo C++0x : int32
+								BOOST_SCOPED_ENUM_START(Type) /// \todo C++11 : int32
 								{
 									UnitTable = 0,
 									BuildingTable = 1,

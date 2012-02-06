@@ -22,6 +22,7 @@
 #define WC3LIB_MAP_CUSTOMUNITS_HPP
 
 #include "platform.hpp"
+#include "value.hpp"
 
 namespace wc3lib
 {
@@ -50,7 +51,8 @@ class CustomUnits : public FileFormat
 				const struct Value& value() const;
 
 			protected:
-				std::streamsize readList(InputStream &istream);
+				std::streamsize readList(InputStream &istream, BOOST_SCOPED_ENUM(Value::Type) type);
+				std::streamsize writeList(OutputStream &ostream) const;
 
 				std::streamsize readData(InputStream &istream) throw (class Exception);
 				std::streamsize writeData(OutputStream &ostream) const throw (class Exception);

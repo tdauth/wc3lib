@@ -42,7 +42,7 @@ namespace mpq
 class Block : public Format, private boost::noncopyable
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Flags) /// \todo C++0x : uint32
+		BOOST_SCOPED_ENUM_START(Flags) /// \todo C++11 : uint32
 		{
 			None = 0x0,
 			IsFile = 0x80000000,

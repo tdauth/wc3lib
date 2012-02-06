@@ -62,7 +62,7 @@ class Format : public wc3lib::Format<byte>
  * Line type is stored as long32 in MDX files.
  * \sa InterpolationData, InterpolationRotationData
  */
-BOOST_SCOPED_ENUM_START(LineType) //: long32 C++0x
+BOOST_SCOPED_ENUM_START(LineType) /// \todo C++11 : long32
 {
 	DontInterpolate = 0,
 	Linear = 1,
@@ -75,7 +75,7 @@ BOOST_SCOPED_ENUM_END
  * \todo Finish enum.
  * \sa Texture, ParticleEmitter2
  */
-BOOST_SCOPED_ENUM_START(ReplaceableId) //: long32 C++0x
+BOOST_SCOPED_ENUM_START(ReplaceableId) /// \todo C++11 : long32
 {
 	None = 0,
 	TeamColor = 1,

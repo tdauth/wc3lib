@@ -23,6 +23,7 @@
 
 #include <QColor>
 #include <QString>
+#include <QList>
 #ifdef Q_OS_UNIX
 #include <QDir>
 #include <QFileInfo>
@@ -53,8 +54,8 @@ inline QList<QVariant> stringList(const map::List &list)
 {
 	QList<QVariant> result;
 
-	foreach (const std::string &value, list)
-		result << QVariant(value.c_str());
+	for (std::size_t i = 0; i < list.size(); ++i)
+		result << list[i].c_str();
 
 	return result;
 }
@@ -69,12 +70,20 @@ inline QVariant valueToVariant(const map::Value &value)
 			return QVariant(value.toInteger());
 
 		case map::Value::Type::Real:
+		case map::Value::Type::Unreal:
 			return QVariant(value.toReal());
 
-		case map::Value::Type::Unreal:
-			return QVariant(value.toUnreal());
-
 		case map::Value::Type::String:
+		case map::Value::Type::RegenerationType:
+		case map::Value::Type::AttackType:
+		case map::Value::Type::WeaponType:
+		case map::Value::Type::TargetType:
+		case map::Value::Type::MoveType:
+		case map::Value::Type::DefenseType:
+		case map::Value::Type::PathingTexture:
+		case map::Value::Type::MissileArt:
+		case map::Value::Type::AttributeType:
+		case map::Value::Type::AttackBits:
 			return QVariant(value.toString().c_str());
 
 		case map::Value::Type::Boolean:
@@ -84,52 +93,12 @@ inline QVariant valueToVariant(const map::Value &value)
 			return QVariant(value.toCharacter());
 
 		case map::Value::Type::UnitList:
-			return QVariant(stringList(value.toUnitList()));
-
 		case map::Value::Type::ItemList:
-			return QVariant(stringList(value.toItemList()));
-
-		case map::Value::Type::RegenerationType:
-			return QVariant(value.toRegenerationType().c_str());
-
-		case map::Value::Type::AttackType:
-			return QVariant(value.toAttackType().c_str());
-
-		case map::Value::Type::WeaponType:
-			return QVariant(value.toWeaponType().c_str());
-
-		case map::Value::Type::TargetType:
-			return QVariant(value.toTargetType().c_str());
-
-		case map::Value::Type::MoveType:
-			return QVariant(value.toMoveType().c_str());
-
-		case map::Value::Type::DefenseType:
-			return QVariant(value.toDefenseType().c_str());
-
-		case map::Value::Type::PathingTexture:
-			return QVariant(value.toPathingTexture().c_str());
-
 		case map::Value::Type::UpgradeList:
-			return QVariant(stringList(value.toUpgradeList()));
-
 		case map::Value::Type::StringList:
-			return QVariant(stringList(value.toStringList()));
-
 		case map::Value::Type::AbilityList:
-			return QVariant(stringList(value.toAbilityList()));
-
 		case map::Value::Type::HeroAbilityList:
-			return QVariant(stringList(value.toHeroAbilityList()));
-
-		case map::Value::Type::MissileArt:
-			return QVariant(value.toMissileArt().c_str());
-
-		case map::Value::Type::AttributeType:
-			return QVariant(value.toAttributeType().c_str());
-
-		case map::Value::Type::AttackBits:
-			return QVariant(value.toAttackBits().c_str());
+			return QVariant(stringList(value.toList()));
 	}
 
 	return QVariant();

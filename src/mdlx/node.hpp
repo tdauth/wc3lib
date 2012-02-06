@@ -68,7 +68,7 @@ class Node : public MdlxProperty
 			XYQuad = 1048576
 		};
 		BOOST_SCOPED_ENUM_END
-		
+
 		static const std::size_t nameSize = 0x50;
 
 		Node(class Mdlx *mdlx);

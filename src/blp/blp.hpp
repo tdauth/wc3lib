@@ -178,7 +178,7 @@ class Blp : public Format
 		static const int defaultQuality;
 
 		/// \todo Don't seem to have the right values!!!
-		BOOST_SCOPED_ENUM_START(Format) //: dword
+		BOOST_SCOPED_ENUM_START(Format) /// \todo C++11 : dword
 		{
 			Blp0 = (dword)'BLP0', /// Reign of Chaos
 			Blp1 = (dword)'BLP1', /// Warcraft The Frozen Throne
@@ -186,7 +186,7 @@ class Blp : public Format
 		};
 		BOOST_SCOPED_ENUM_END
 
-		BOOST_SCOPED_ENUM_START(Compression) //: dword
+		BOOST_SCOPED_ENUM_START(Compression) /// \todo C++11 : dword
 		{
 			Jpeg = 0, /// JFIF!
 			Paletted = 1, /// Uses color palette with up to 256 different colors (\ref Blp::compressedPaletteSize).
@@ -195,7 +195,7 @@ class Blp : public Format
 		};
 		BOOST_SCOPED_ENUM_END
 
-		BOOST_SCOPED_ENUM_START(Flags) //: dword
+		BOOST_SCOPED_ENUM_START(Flags) /// \todo C++11 : dword
 		{
 			NoAlpha = 0,
 			Alpha1Bit = 1, /// BLP2 only.

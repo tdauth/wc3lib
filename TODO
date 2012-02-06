@@ -1,5 +1,8 @@
+2012-02-06 Tamino Dauth <tamino@cdauth.eu>
+* map: Fix non-zero ending value in custom units of map "War Chasers".
+
 2012-02-02 Tamino Dauth <tamino@cdauth.eu>
-* map: Fix "to" member functions of class Value (reference cast).
+* DONE: map: Fix "to" member functions of class Value (reference cast).
 
 2012-01-15 Tamino Dauth <tamino@cdauth.eu>
 * map: For all file formats where the number is known use std::vector which increases performance. If data should be extensible programs will have to map it in their own containers!

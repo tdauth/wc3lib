@@ -106,9 +106,11 @@ BOOST_SCOPED_ENUM(Blp::Format) Blp::format(const byte *buffer, const std::size_t
 	if (bufferSize < sizeof(dword))
 		throw Exception(boost::format(_("Error while reading BLP file. BLP identifier is too short: %1%. Expected size of %2%.")) % bufferSize % sizeof(dword));
 
+	/*
 	static const dword identifier0 = Blp::Format::Blp0;
 	static const dword identifier1 = Blp::Format::Blp1;
 	static const dword identifier2 = Blp::Format::Blp2;
+	*/
 
 	if (memcmp(buffer, "BLP0", sizeof(dword)) == 0) /// TODO &identifier0
 		return Blp::Format::Blp0;

@@ -35,7 +35,7 @@ class MenuMinimap : public FileFormat
 		class Mark : public Position
 		{
 			public:
-				BOOST_SCOPED_ENUM_START(IconType) /// \todo C++0x : int32
+				BOOST_SCOPED_ENUM_START(IconType) /// \todo C++11 : int32
 				{
 					GoldMine,
 					House,

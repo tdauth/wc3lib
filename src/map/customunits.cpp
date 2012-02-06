@@ -44,7 +44,7 @@ std::streamsize CustomUnits::Modification::read(InputStream &istream) throw (cla
 	wc3lib::read(istream, end, size); // usually 0
 
 	if (end != 0)
-		std::cerr << boost::format(_("Modification end byte is not 0: ")) % end << std::endl;
+		std::cerr << boost::format(_("Modification end byte is not 0: %1%")) % end << std::endl;
 
 	return size;
 }
@@ -58,12 +58,22 @@ std::streamsize CustomUnits::Modification::write(OutputStream &ostream) const th
 	return size;
 }
 
-std::streamsize CustomUnits::Modification::readList(InputStream &istream)
+std::streamsize CustomUnits::Modification::readList(InputStream &istream, BOOST_SCOPED_ENUM(Value::Type) type)
 {
 	std::streamsize size = 0;
 	string str;
 	wc3lib::readString(istream, str, size);
-	boost::algorithm::split(this->value().toList(), str, boost::algorithm::is_any_of(":"), boost::algorithm::token_compress_on);
+	List list;
+	boost::algorithm::split(list, str, boost::algorithm::is_any_of(":"), boost::algorithm::token_compress_on);
+	this->m_value = Value(list, type);
+
+	return size;
+}
+
+std::streamsize CustomUnits::Modification::writeList(OutputStream &ostream) const
+{
+	std::streamsize size = 0;
+	wc3lib::writeString(ostream, boost::algorithm::join(value().toList(), ":"), size);
 
 	return size;
 }
@@ -72,26 +82,29 @@ std::streamsize CustomUnits::Modification::readData(InputStream &istream) throw 
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_id, size);
-	int32 type;
-	wc3lib::read(istream, type, size);
-	this->m_value = Value(type);
+	BOOST_SCOPED_ENUM(Value::Type) type;
+	wc3lib::read<int32>(istream, (int32&)type, size);
 
-	switch (BOOST_SCOPED_ENUM(Value::Type)(type))
+	switch (type)
 	{
 		case Value::Type::Integer:
-			wc3lib::read(istream, this->m_value.toInteger(), size);
+		{
+			int32 v;
+			wc3lib::read(istream, v, size);
+			this->m_value = Value(v);
 
 			break;
+		}
 
 		case Value::Type::Real:
-			wc3lib::read(istream, this->m_value.toReal(), size);
-
-			break;
-
 		case Value::Type::Unreal:
-			wc3lib::read(istream, this->value().toUnreal(), size);
+		{
+			float32 v;
+			wc3lib::read(istream, v, size);
+			this->m_value = Value(v, type);
 
 			break;
+		}
 
 		case Value::Type::String:
 		case Value::Type::RegenerationType:
@@ -104,19 +117,31 @@ std::streamsize CustomUnits::Modification::readData(InputStream &istream) throw 
 		case Value::Type::MissileArt:
 		case Value::Type::AttributeType:
 		case Value::Type::AttackBits:
-			wc3lib::readString(istream, this->value().toString(), size);
+		{
+			string v;
+			wc3lib::readString(istream, v, size);
+			this->m_value = Value(v, type);
 
 			break;
+		}
 
 		case Value::Type::Boolean:
-			wc3lib::read(istream, this->value().toBoolean(), size);
+		{
+			int32 v;
+			wc3lib::read(istream, v, size);
+			this->m_value = Value((bool)v);
 
 			break;
+		}
 
 		case Value::Type::Character:
-			wc3lib::read(istream, this->value().toCharacter(), size);
+		{
+			char8 v;
+			wc3lib::read(istream, v, size);
+			this->m_value = Value(v);
 
 			break;
+		}
 
 		case Value::Type::UnitList:
 		case Value::Type::ItemList:
@@ -124,7 +149,7 @@ std::streamsize CustomUnits::Modification::readData(InputStream &istream) throw 
 		case Value::Type::StringList:
 		case Value::Type::AbilityList:
 		case Value::Type::HeroAbilityList:
-			size += this->readList(istream);
+			size += this->readList(istream, type);
 
 			break;
 	}
@@ -146,11 +171,45 @@ std::streamsize CustomUnits::Modification::writeData(OutputStream &ostream) cons
 			break;
 
 		case Value::Type::Real:
+		case Value::Type::Unreal:
 			wc3lib::write(ostream, this->value().toReal(), size);
 
 			break;
 
-		// TODO FINISH
+		case Value::Type::String:
+		case Value::Type::RegenerationType:
+		case Value::Type::AttackType:
+		case Value::Type::WeaponType:
+		case Value::Type::TargetType:
+		case Value::Type::MoveType:
+		case Value::Type::DefenseType:
+		case Value::Type::PathingTexture:
+		case Value::Type::MissileArt:
+		case Value::Type::AttributeType:
+		case Value::Type::AttackBits:
+			wc3lib::writeString(ostream, this->value().toString(), size);
+
+			break;
+
+		case Value::Type::Boolean:
+			wc3lib::write<int32>(ostream, this->value().toBoolean(), size);
+
+			break;
+
+		case Value::Type::Character:
+			wc3lib::write(ostream, this->value().toCharacter(), size);
+
+			break;
+
+		case Value::Type::UnitList:
+		case Value::Type::ItemList:
+		case Value::Type::UpgradeList:
+		case Value::Type::StringList:
+		case Value::Type::AbilityList:
+		case Value::Type::HeroAbilityList:
+			size += this->writeList(ostream);
+
+			break;
 	}
 
 	return size;

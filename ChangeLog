@@ -1,3 +1,9 @@
+2011-02-06 Tamino Dauth <tamino@cdauth.eu>
+* map: Fixed several bugs in reading process of class CustomUnits.
+
+2011-02-04 Tamino Dauth <tamino@cdauth.eu>
+* map: Separated class Value and added visitor classes.
+
 2011-02-01 Tamino Dauth <tamino@cdauth.eu>
 * editor: MpqPriorityList doesn't handle resource deletion anymore.
 * map: Fixed modifications allocation of class CustomUnits.

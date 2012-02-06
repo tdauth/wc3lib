@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2009 by Tamino Dauth                                    *
+ *   Copyright (C) 2012 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,34 +18,49 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "particleemitter2s.hpp"
-#include "particleemitter2.hpp"
+#include "value.hpp"
 
 namespace wc3lib
 {
 
-namespace mdlx
+namespace map
 {
 
-ParticleEmitter2s::ParticleEmitter2s(class Mdlx *mdlx) : GroupMdxBlock("PRE2", "", false), m_mdlx(mdlx)
+Value::Value() : ValueBase(int32(0)), m_type(Type::Integer)
 {
 }
 
-std::streamsize ParticleEmitter2s::readMdl(istream &istream) throw (class Exception)
+Value::Value(int32 value) : ValueBase(value), m_type(Type::Integer)
 {
-	return 0;
 }
 
-std::streamsize ParticleEmitter2s::writeMdl(ostream &ostream) const throw (class Exception)
+Value::Value(float32 value, BOOST_SCOPED_ENUM(Type) type) : ValueBase(value), m_type(type)
 {
-	return 0;
+	if (!isReal())
+		throw Exception(_(""));
 }
 
-class GroupMdxBlockMember* ParticleEmitter2s::createNewMember()
+Value::Value(const string &value, BOOST_SCOPED_ENUM(Type) type) : ValueBase(value), m_type(type)
 {
-	return new ParticleEmitter2(this);
+	if (!isString())
+		throw Exception(_(""));
+}
+
+Value::Value(bool value) : ValueBase(value), m_type(Type::Boolean)
+{
+}
+
+Value::Value(char8 value) : ValueBase(value), m_type(Type::Character)
+{
+}
+
+Value::Value(List value, BOOST_SCOPED_ENUM(Type) type) : ValueBase(value), m_type(type)
+{
+	if (!isList())
+		throw Exception(_(""));
 }
 
 }
 
 }
+

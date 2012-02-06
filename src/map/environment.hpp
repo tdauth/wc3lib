@@ -42,7 +42,7 @@ class Environment : public FileFormat
 		 */
 		static const uint32 maxTilesets;
 
-		BOOST_SCOPED_ENUM_START(MainTileset) /// \todo C++0x : byte
+		BOOST_SCOPED_ENUM_START(MainTileset) /// \todo C++11 : byte
 		{
 			Ashenvale = 'A',
 			Barrens = 'B',

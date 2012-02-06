@@ -42,7 +42,7 @@ class Sector : private boost::noncopyable
 		static const int defaultWaveCompressionLevel = 3;
 		static const int defaultHuffmanCompressionType = 0;
 
-		BOOST_SCOPED_ENUM_START(Compression) /// \todo C++0x : byte
+		BOOST_SCOPED_ENUM_START(Compression) /// \todo C++11 : byte
 		{
 			Uncompressed = 0,
 			ImaAdpcmMono = 0x40, // IMA ADPCM mono

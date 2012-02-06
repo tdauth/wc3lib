@@ -59,5 +59,6 @@
 #include "map/w3g.hpp"
 #include "map/w3m.hpp"
 #include "map/w3x.hpp"
+#include "map/value.hpp"
 
 #endif

@@ -157,7 +157,7 @@ function (WC3LIB_COMPILER_SETUP)
 		WC3LIB_ENABLE_COMPILE_FLAG("-fms-extensions")
 		# NOTE For next ISO!
 		# we're using some features of the new C++ ISO Standard such as default function templates arguments and scoped enums (via Boost)
-		# WC3LIB_ENABLE_COMPILE_FLAG("-std=c\\+\\+0x")
+		#WC3LIB_ENABLE_COMPILE_FLAG("-std=c\\+\\+0x")
 		# set to parent scope since this is a function and these values should be the global C++ flags!
 		# TODO WC3LIB_ENABLE_COMPILE_FLAG doesn't set the flag in this scope!
 		# We need pthread support on Unix systems (used by Boost C++ Libraries).
