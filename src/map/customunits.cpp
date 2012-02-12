@@ -29,7 +29,7 @@ namespace wc3lib
 namespace map
 {
 
-CustomUnits::Modification::Modification()
+CustomUnits::Modification::Modification() : m_id(0)
 {
 }
 
@@ -40,11 +40,16 @@ CustomUnits::Modification::~Modification()
 std::streamsize CustomUnits::Modification::read(InputStream &istream) throw (class Exception)
 {
 	std::streamsize size = readData(istream);
-	int32 end;
-	wc3lib::read(istream, end, size); // usually 0
 
-	if (end != 0)
-		std::cerr << boost::format(_("Modification end byte is not 0: %1%")) % end << std::endl;
+	// strings and lists (are strings as well) do already have to end with a zero terminating byte
+	if (!this->value().isString() && !this->value().isList())
+	{
+		int32 end;
+		wc3lib::read(istream, end, size); // usually 0
+
+		if (end != 0)
+			std::cerr << boost::format(_("Modification \"%1%\" with type %2% end byte is not 0: %3%")) % this->valueId() % this->value().type() % end << std::endl;
+	}
 
 	return size;
 }
@@ -52,8 +57,10 @@ std::streamsize CustomUnits::Modification::read(InputStream &istream) throw (cla
 std::streamsize CustomUnits::Modification::write(OutputStream &ostream) const throw (class Exception)
 {
 	std::streamsize size = writeData(ostream);
-	int32 end = 0;
-	wc3lib::write(ostream, end, size);
+
+	// strings and lists (are strings as well) do already have to end with a zero terminating byte
+	if (!this->value().isString() && !this->value().isList())
+		wc3lib::write<int32>(ostream, 0, size);
 
 	return size;
 }
@@ -154,6 +161,11 @@ std::streamsize CustomUnits::Modification::readData(InputStream &istream) throw 
 			break;
 	}
 
+	// TEST
+	//std::cout << "Id: " << this->valueId() << "\nType: " << type << "\nValue: " << this->value() << std::endl;
+	//std::streamsize tmpSize = 0;
+	//boost::apply_visitor(ValueWriter(std::cout, tmpSize), this->value());
+
 	return size;
 }
 
@@ -215,7 +227,7 @@ std::streamsize CustomUnits::Modification::writeData(OutputStream &ostream) cons
 	return size;
 }
 
-CustomUnits::Unit::Unit()
+CustomUnits::Unit::Unit() : m_originalId(0), m_customId(0)
 {
 }
 
@@ -230,6 +242,7 @@ std::streamsize CustomUnits::Unit::read(InputStream &istream) throw (class Excep
 	wc3lib::read(istream, this->m_customId, size);
 	int32 modifications;
 	wc3lib::read(istream, modifications, size);
+	std::cout << "Modifications " << modifications << std::endl;
 	this->modifications().resize(modifications);
 
 	for (int32 i = 0; i < modifications; ++i)

@@ -33,7 +33,7 @@ class ValueComparator : public boost::static_visitor<bool>
 {
 	public:
                 template <typename T, typename U>
-                bool operator()( const T &, const U & ) const
+                bool operator()(const T&, const U &) const
                 {
                         return false; // cannot compare different types
                 }
@@ -131,24 +131,45 @@ class ValueReader : public boost::static_visitor<>
 		std::streamsize &m_size;
 
 };
+*/
 
 class ValueWriter : public boost::static_visitor<>
 {
 	public:
-		template <typename T>
-		void operator()(const T &operand, ostream &ostream, std::streamsize &size) const
+		ValueWriter(ostream &ostream, std::streamsize &size) : m_ostream(ostream), m_size(size)
 		{
-			wc3lib::write(ostream, operand, size);
 		}
 
-		void operator()(const List &operand, ostream &ostream, std::streamsize &size) const
+		template <typename T>
+		void operator()(const T &operand) const
+		{
+			wc3lib::write(m_ostream, operand, m_size);
+		}
+
+		void operator()(const string &operand) const
+		{
+			wc3lib::writeString(m_ostream, operand, m_size);
+		}
+
+		void operator()(const List &operand) const
 		{
 			const string str = boost::algorithm::join(operand, ":");
-			wc3lib::writeString(ostream, str, size);
+			wc3lib::writeString(m_ostream, str, m_size);
 		}
 
+	private:
+		std::ostream &m_ostream;
+		std::streamsize &m_size;
+
 };
-*/
+
+/**
+ * This operator is required for displaying objects of type \ref Value on \ref cout for instance.
+ */
+inline std::ostream& operator<<(std::ostream &ostream, const List &list)
+{
+	return (ostream << boost::algorithm::join<List, string>(list, ":"));
+}
 
 typedef boost::variant<
 int32,
@@ -163,7 +184,12 @@ List
  * Template type for variant types for the same value.
  * Required for custom objects.
  * Each modification of a custom object requires a speific type which indicates value's size as well.
- * \sa CustomUnits::Modification, CustomObjects::Modification
+ * \sa ValueComparator
+ * \sa ValueLessComparator
+ * \sa CustomUnits::Modification
+ * \sa CustomObjects::Modification
+ * \todo type() is already used in class \ref boost::variant.
+ * \todo Implement custom type check using stored type for calls of \ref boost::apply_visitor() and \ref boost::get().
  */
 class Value : public ValueBase
 {
@@ -201,7 +227,7 @@ class Value : public ValueBase
 		Value(const string &value, BOOST_SCOPED_ENUM(Type) type = Type::String);
 		Value(bool value);
 		Value(char8 value);
-		Value(List value, BOOST_SCOPED_ENUM(Type) type = Type::StringList) ;
+		Value(List value, BOOST_SCOPED_ENUM(Type) type = Type::StringList);
 
 		BOOST_SCOPED_ENUM(Type) type() const
 		{

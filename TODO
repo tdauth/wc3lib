@@ -1,5 +1,8 @@
+2012-02-12 Tamino Dauth <tamino@cdauth.eu>
+* map: Fix modification value reading (too large values).
+
 2012-02-06 Tamino Dauth <tamino@cdauth.eu>
-* map: Fix non-zero ending value in custom units of map "War Chasers".
+* DONE: map: Fix non-zero ending value in custom units of map "War Chasers".
 
 2012-02-02 Tamino Dauth <tamino@cdauth.eu>
 * DONE: map: Fix "to" member functions of class Value (reference cast).

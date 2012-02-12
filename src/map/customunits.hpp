@@ -41,7 +41,7 @@ class CustomUnits : public FileFormat
 		{
 			public:
 				Modification();
-				~Modification();
+				virtual ~Modification();
 
 				std::streamsize read(InputStream &istream) throw (class Exception);
 				std::streamsize write(OutputStream &ostream) const throw (class Exception);
@@ -68,7 +68,7 @@ class CustomUnits : public FileFormat
 				typedef std::vector<ModificationPtr> Modifications;
 
 				Unit();
-				~Unit();
+				virtual ~Unit();
 
 				std::streamsize read(InputStream &istream) throw (class Exception);
 				std::streamsize write(OutputStream &ostream) const throw (class Exception);
