@@ -244,16 +244,19 @@ void Texture::save(const KUrl &url, const QString &format, const QString &compre
 	const QStringList compressionOptions = compression.split(":");
 	int quality = -1;
 	QString qualityString = compressionOption(compressionOptions, "Quality");
-	std::size_t mipMaps = 0;
+	std::size_t mipMaps = 1;
 	QString mipMapsString = compressionOption(compressionOptions, "MipMaps");
 
-	/// \todo qualityString.isNumeric.
-	if (qualityString.toInt() >= 0 && qualityString.toInt() <= 100)
-		quality = qualityString.toInt();
+	bool ok = false;
+	int tmpValue = qualityString.toInt(&ok);
 
-	/// \todo mipMapsString.isNumeric.
-	if (mipMapsString.toInt() >= 1 && qualityString.toInt() <= blp::Blp::maxMipMaps)
-		mipMaps = mipMapsString.toInt();
+	if (ok && tmpValue >= -1 && tmpValue <= 100)
+		quality = tmpValue;
+
+	tmpValue = mipMapsString.toInt(&ok);
+
+	if (tmpValue >= 1 && tmpValue <= blp::Blp::maxMipMaps)
+		mipMaps = tmpValue;
 
 	if (format == "blp" && hasBlp())
 	{

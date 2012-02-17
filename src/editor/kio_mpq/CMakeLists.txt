@@ -9,7 +9,8 @@ include(${QT_USE_FILE})
 
 # MPQ KDE plugin
 kde4_add_plugin(kio_mpq mpqprotocol.cpp mpqarchive.cpp)
-target_link_libraries(kio_mpq wc3libmpq ${wc3lib_CORE_LIBRARIES} ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KIO_LIBS})
+target_link_libraries(kio_mpq wc3libmpq wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KIO_LIBS})
+set_property(TARGET kio_mpq PROPERTY LINK_INTERFACE_LIBRARIES "")
 
 # install
 install(TARGETS kio_mpq  DESTINATION ${PLUGIN_INSTALL_DIR})

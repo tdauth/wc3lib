@@ -6,9 +6,9 @@ if (BLP)
 
 	add_library(wc3libblp SHARED ${wc3lib_BLP_SRC})
 	target_link_libraries(wc3libblp wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
+	set_property(TARGET wc3libblp PROPERTY LINK_INTERFACE_LIBRARIES "")
 
 	# install
-
 	install(TARGETS wc3libblp DESTINATION lib/wc3lib/)
 	install(FILES ${wc3lib_BLP_H} PUBLIC_HEADER DESTINATION include/wc3lib/blp)
 endif ()

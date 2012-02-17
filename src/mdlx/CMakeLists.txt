@@ -6,6 +6,7 @@ if (MDLX)
 
 	add_library(wc3libmdlx SHARED ${wc3lib_MDLX_SRC})
 	target_link_libraries(wc3libmdlx wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
+	set_property(TARGET wc3libmdlx PROPERTY LINK_INTERFACE_LIBRARIES "")
 
 	# install
 

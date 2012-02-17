@@ -11,6 +11,7 @@ add_subdirectory(zinc)
 # library
 add_library(wc3liblang ${wc3lib_LANG_SRC} ${wc3lib_LANG_JASS_SRC} ${wc3lib_LANG_JASSPP_SRC} ${wc3lib_LANG_VJASS_SRC} ${wc3lib_LANG_ZINC_SRC})
 target_link_libraries(wc3liblang ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
+set_property(TARGET wc3liblang PROPERTY LINK_INTERFACE_LIBRARIES "")
 # todo add runtime loading
 #if (${FLAGS} MATCHES "SQLITE")
 #	target_link_libraries(wc3liblang sqlite3) #${SQLITE_LIBRARIES}

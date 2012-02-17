@@ -4,7 +4,8 @@ WC3LIB_GET_H(wc3lib_LIB_PKLIB_H)
 WC3LIB_GET_SRC(wc3lib_LIB_PKLIB_SRC)
 
 add_library(pklib SHARED ${wc3lib_LIB_PKLIB_SRC})
-target_link_libraries(pklib  ${Boost_LIBRARIES})
+#target_link_libraries(pklib  ${Boost_LIBRARIES})
+set_property(TARGET pklib PROPERTY LINK_INTERFACE_LIBRARIES "")
 
 # install
 

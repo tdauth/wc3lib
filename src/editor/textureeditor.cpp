@@ -153,6 +153,9 @@ void TextureEditor::openFile()
 	foreach (QAction *action, m_textureActionCollection->actions())
 		action->setEnabled(true);
 
+	m_showAlphaChannelAction->setEnabled(this->texture()->qt()->hasAlphaChannel());
+	this->m_textureActionCollection->action("editcolorpalette")->setEnabled(this->texture()->qt()->format() == QImage::Format_Indexed8);
+
 	m_mipMapsMenu->clear();
 	m_mipMaps.resize(this->texture()->blp()->mipMaps().size());
 	std::size_t i = 0;

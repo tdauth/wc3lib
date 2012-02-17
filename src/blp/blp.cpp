@@ -364,7 +364,7 @@ struct WriteData
 	}
 
 	const Blp::MipMap &mipMap;
-	boost::shared_array<unsigned char> data; /// All required data from stream which has size \ref dataSize (does contain JPEG header as well).
+	boost::scoped_array<unsigned char> data; /// All required data from stream which has size \ref dataSize (does contain JPEG header as well).
 	std::size_t dataSize;
 	const JpegWriter &writer;
 	int quality; /// Reaches from 0-100.
@@ -372,7 +372,6 @@ struct WriteData
 	BOOST_SCOPED_ENUM(State) state;
 	std::string stateMessage;
 };
-
 
 /**
  * Function for multithreading. Has to be thread-safe!
@@ -872,6 +871,9 @@ namespace
  */
 bool writeJpegMarker(Blp::OutputStream &ostream, std::streamsize &size, bool variable, dword markerSize, const byte marker, const unsigned char *buffer, const std::size_t bufferSize) throw (Exception)
 {
+	if (marker == 0x00)
+		throw Exception(_("0x00 marker is invalid! This value must be safed for 0xFF bytes in encoded data!"));
+
 	for (std::size_t i = 0; i < bufferSize; ++i)
 	{
 		if (buffer[i] == 0xFF)
@@ -892,7 +894,7 @@ bool writeJpegMarker(Blp::OutputStream &ostream, std::streamsize &size, bool var
 					throw Exception(boost::format(_("JPEG marker \"%1%\" needs more data.")) % marker);
 
 				if (variable)
-					memcpy(&markerSize, &buffer[j], sizeof(markerSize));
+					memcpy(&markerSize, &(buffer[j]), sizeof(markerSize));
 			}
 
 			// 0xFF + marker + marker size
@@ -1091,7 +1093,7 @@ std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std:
 
 		std::streamsize headerSize = 0;
 		// NOTE marker reference: https://secure.wikimedia.org/wikipedia/en/wiki/JPEG#Syntax_and_structure
-		writeJpegMarker(ostream, headerSize, false, 0, 0xD8, &writeData[0]->data[0], writeData[0]->headerSize); // image start
+		writeJpegMarker(ostream, headerSize, false, 0, 0xD8, writeData[0]->data.get(), writeData[0]->headerSize); // image start
 		// start after image start to increase performance
 		// TODO huffman table marker data size seems to be too large (marker is found and size is read - 2 bytes - which include its own size of 2).
 		writeJpegMarker(ostream, headerSize, true, 0, 0xC4, &writeData[0]->data[headerSize], writeData[0]->headerSize - headerSize); // huffman table

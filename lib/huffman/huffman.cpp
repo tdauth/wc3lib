@@ -15,8 +15,8 @@
 /* 08.12.03  2.01  Dan  High-memory handling (> 0x80000000)                  */
 /*****************************************************************************/
 
-#include <assert.h>
-#include <string.h>
+#include <cassert>
+#include <cstring>
 
 #include "huffman.h"
 
