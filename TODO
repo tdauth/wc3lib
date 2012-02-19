@@ -1,3 +1,10 @@
+2012-02-19 Tamino Dauth <tamino@cdauth.eu>
+* blp: Although jpeg_write_scanlines returns proper dimension value, size is not increased after writing header.
+* blp: Markers like 0xFF, 0xD8 aren't found in the header data of the first MIP map.
+* blp: Test if writing tables for first MIP map only works correctly.
+* blp: Why can we read only one scanline at once?
+* blp: Check shared_array/scoped_array bug.
+
 2012-02-18 Tamino Dauth <tamino@cdauth.eu>
 * Use boost pointer containers instead of shared pointers in STL containers (see blp)!
 

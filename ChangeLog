@@ -1,3 +1,9 @@
+2012-02-19 Tamino Dauth <tamino@cdauth.eu>
+* blp: Fixed marker size type.
+* blp: Missing markers will lead to exceptions now.
+* blp: Only writes tables for the first MIP map.
+* blp: Required scanlines got image height that all scanlines are being written and read at once.
+
 2012-02-18 Tamino Dauth <tamino@cdauth.eu>
 * blp: Uses Boost pointer containers now.
 
