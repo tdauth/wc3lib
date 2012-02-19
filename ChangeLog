@@ -1,3 +1,6 @@
+2012-02-18 Tamino Dauth <tamino@cdauth.eu>
+* blp: Uses Boost pointer containers now.
+
 2012-02-17 Tamino Dauth <tamino@cdauth.eu>
 * Dropped transitive linking (which is default in CMake).
 

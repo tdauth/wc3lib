@@ -1,3 +1,6 @@
+2012-02-18 Tamino Dauth <tamino@cdauth.eu>
+* Use boost pointer containers instead of shared pointers in STL containers (see blp)!
+
 2012-02-12 Tamino Dauth <tamino@cdauth.eu>
 * map: Fix modification value reading (too large values).
 

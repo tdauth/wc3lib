@@ -128,7 +128,7 @@ void TextureEditor::openFile()
 	}
 	catch (Exception &exception)
 	{
-		KMessageBox::error(this, i18n("Unable to read BLP image from file \"%1\".\nException: \"%2\".", url.toLocalFile(), exception.what().c_str()));
+		KMessageBox::error(this, i18n("Unable to read BLP image from file \"%1\".\nException:\n\"%2\".", url.toLocalFile(), exception.what().c_str()));
 
 		return;
 	}
@@ -201,7 +201,7 @@ void TextureEditor::saveFile()
 	}
 	catch (Exception &exception)
 	{
-		KMessageBox::error(this, i18n("Unable to save image to file \"%1\".Exception: \"%2\".", url.toEncoded().constData(), exception.what().c_str()));
+		KMessageBox::error(this, i18n("Unable to save image to file \"%1\".\nException:\n\"%2\".", url.toEncoded().constData(), exception.what().c_str()));
 
 		return;
 	}
