@@ -27,7 +27,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-CollisionShapes::CollisionShapes(class Mdlx *mdlx) : GroupMdxBlock("CLID", false), m_mdlx(mdlx)
+CollisionShapes::CollisionShapes(class Mdlx *mdlx) : GroupMdxBlock("CLID", "", false), m_mdlx(mdlx)
 {
 }
 

@@ -25,7 +25,7 @@
 
 #include "platform.hpp"
 #include "../map.hpp"
-#include "ui/ui_variabledialog.h"
+#include "ui_variabledialog.h"
 
 namespace wc3lib
 {

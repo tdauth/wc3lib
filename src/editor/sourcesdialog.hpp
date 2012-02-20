@@ -23,7 +23,7 @@
 
 #include <QDialog>
 
-#include "ui/ui_sourcesdialog.h"
+#include "ui_sourcesdialog.h"
 
 namespace wc3lib
 {

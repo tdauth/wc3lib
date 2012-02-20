@@ -242,10 +242,12 @@ void Texture::save(const KUrl &url, const QString &format, const QString &compre
 
 	// get all compression options
 	const QStringList compressionOptions = compression.split(":");
-	int quality = -1;
+	int quality = format == "blp" ? blp::Blp::defaultQuality : -1;
 	QString qualityString = compressionOption(compressionOptions, "Quality");
-	std::size_t mipMaps = 1;
+	std::size_t mipMaps = format == "blp" ? blp::Blp::defaultMipMaps : 1;
 	QString mipMapsString = compressionOption(compressionOptions, "MipMaps");
+	bool threads = format == "blp" ? blp::Blp::defaultThreads : true;
+	QString threadsString = compressionOption(compressionOptions, "Threads");
 
 	bool ok = false;
 	int tmpValue = qualityString.toInt(&ok);
@@ -258,10 +260,13 @@ void Texture::save(const KUrl &url, const QString &format, const QString &compre
 	if (tmpValue >= 1 && tmpValue <= blp::Blp::maxMipMaps)
 		mipMaps = tmpValue;
 
+	if (!threadsString.isEmpty())
+		threads = threadsString == "1" || threadsString == "true" || threadsString == "TRUE";
+
 	if (format == "blp" && hasBlp())
 	{
 		blp::ofstream ofstream(tmpFile.fileName().toUtf8().constData(), std::ios::binary | std::ios::out);
-		blp()->write(ofstream, quality, mipMaps);
+		blp()->write(ofstream, quality, mipMaps, threads);
 	}
 	else if (hasQt())
 	{

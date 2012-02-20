@@ -22,7 +22,7 @@
 
 #include <boost/tokenizer.hpp>
 #include <boost/foreach.hpp>
-#include <boost/spirit.hpp>
+#include <boost/spirit/include/classic.hpp>
 
 #include "strings.hpp"
 #include "string.hpp"

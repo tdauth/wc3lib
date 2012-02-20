@@ -1,3 +1,12 @@
+2012-02-20 Tamino Dauth <tamino@cdauth.eu>
+* blp: Added custom buffer size for writing JPEG data.
+* blp: Considering free_in_buffer now when writing JPEG data.
+* blp: Added default parameter constants and parameter "threads" to write and read functions.
+* editor: Considers new default values and parameter "threads" now.
+* editor: Added class TextureEditor::SaveDialog.
+* mdlx: Fixed constructor calls of GroupdMdxBlock.
+* editor: Fixed UI files header generation.
+
 2012-02-19 Tamino Dauth <tamino@cdauth.eu>
 * blp: Fixed marker size type.
 * blp: Missing markers will lead to exceptions now.

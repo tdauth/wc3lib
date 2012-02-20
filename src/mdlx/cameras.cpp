@@ -27,7 +27,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-Cameras::Cameras(class Mdlx *mdlx) : GroupMdxBlock("CAMS", false), m_mdlx(mdlx)
+Cameras::Cameras(class Mdlx *mdlx) : GroupMdxBlock("CAMS", "", false), m_mdlx(mdlx)
 {
 }
 

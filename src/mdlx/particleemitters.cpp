@@ -27,7 +27,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-ParticleEmitters::ParticleEmitters(class Mdlx *mdlx) : GroupMdxBlock("PREM", false), m_mdlx(mdlx)
+ParticleEmitters::ParticleEmitters(class Mdlx *mdlx) : GroupMdxBlock("PREM", "", false), m_mdlx(mdlx)
 {
 }
 

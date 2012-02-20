@@ -24,6 +24,10 @@
 
 #include <jpeglib.h>
 
+#if JPEG_LIB_VERSION_MAJOR < 8
+#error Version 8 of jpeglib is required because of memory buffer management.
+#endif
+
 namespace wc3lib
 {
 
@@ -33,6 +37,8 @@ namespace blp
 const std::size_t Blp::maxMipMaps = 16;
 const std::size_t Blp::compressedPaletteSize = 256;
 const int Blp::defaultQuality = 100;
+const std::size_t Blp::defaultMipMaps = 0;
+const bool Blp::defaultThreads = true;
 
 //#ifndef STATIC
 // jpeg read functions
@@ -342,7 +348,7 @@ struct ReadData
 	std::string stateMessage;
 };
 
-struct WriteData // : public boost::mutex
+struct WriteData
 {
 	WriteData(const Blp::MipMap &mipMap, const JpegWriter &writer, bool isFirst, int quality) : mipMap(mipMap), dataSize(0), writer(writer), isFirst(isFirst), quality(quality), headerSize(0), finished(false)
 	{
@@ -465,31 +471,30 @@ void writeMipMapJpeg(WriteData *writeData)
 
 	try
 	{
+		const JDIMENSION imageWidth = boost::numeric_cast<JDIMENSION>(writeData->mipMap.width());
+		const JDIMENSION imageHeight = boost::numeric_cast<JDIMENSION>(writeData->mipMap.height());
+		const int inputComponents = 3; // TODO ARGB, 4
+		/// \todo Get as much required scanlines as possible (highest divident) to increase speed. Actually it could be equal to the MIP maps height which will lead to reading the whole MIP map with one single \ref jpeg_write_scanlines call
+		const JDIMENSION requiredScanlines = imageHeight; // increase this value to read more scanlines in one step
+		assert(requiredScanlines <= imageHeight && requiredScanlines > 0);
+		const JDIMENSION scanlineSize = imageWidth * inputComponents; // JSAMPLEs per row in output buffer
+
 		unsigned char *data = 0;
-		unsigned long size = 0;
+		unsigned long size = requiredScanlines * scanlineSize + 1024; // size of uncompressed scanlines + estimated header size, TODO jpeglib uses its own buffer size 4096 instead
 		writeData->writer.jpeg_mem_dest(&cinfo, &data, &size);
-		cinfo.image_width = writeData->mipMap.width();
-		cinfo.image_height = writeData->mipMap.height();
-		cinfo.input_components = 3; // ARGB, 4
+		cinfo.image_width = imageWidth;
+		cinfo.image_height = imageHeight;
+		cinfo.input_components = inputComponents;
 		cinfo.in_color_space = JCS_RGB;
-		// TEST each MIP map needs some custom header with height and width?!
-		//cinfo.write_JFIF_header = writeData->isFirst; // we're sharing our header
 		writeData->writer.jpeg_set_defaults(&cinfo);
 		writeData->writer.jpeg_set_quality(&cinfo, writeData->quality, false);
 		writeData->writer.jpeg_start_compress(&cinfo, writeData->isFirst); // only write tables for the first MIP map
-		// TEST
-		std::cout << "We have MIP map with size (" << writeData->mipMap.width() << "x" << writeData->mipMap.height() << ") and written size " << size << std::endl;
+		// TODO also share JFIF header? cinfo.write_JFIF_header = writeData->isFirst;
 
 		// get header size
-		writeData->headerSize = boost::numeric_cast<std::size_t>(size);
+		writeData->headerSize = boost::numeric_cast<std::size_t>(size - cinfo.dest->free_in_buffer);
 
-		/// \todo Get as much required scanlines as possible (highest divident) to increase speed. Actually it could be equal to the MIP maps height which will lead to reading the whole MIP map with one single \ref jpeg_write_scanlines call
-		const JDIMENSION requiredScanlines = cinfo.image_height; // increase this value to read more scanlines in one step
-		assert(requiredScanlines <= cinfo.image_height && requiredScanlines > 0);
-		const JDIMENSION scanlineSize = cinfo.image_width * cinfo.input_components; // JSAMPLEs per row in output buffer
-		//boost::scoped_array<JSAMPLE> buffer(new JSAMPLE[cinfo.image_height][4]);
-		scanlines = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, cinfo.image_width * cinfo.input_components, requiredScanlines);
-		//JSAMPARRAY scanlines = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, cinfo.image_width * cinfo.input_components, cinfo.image_height); // TODO allocate via boost scoped pointer please!
+		scanlines = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, scanlineSize, requiredScanlines);
 
 		while (cinfo.next_scanline < cinfo.image_height)
 		{
@@ -522,7 +527,7 @@ void writeMipMapJpeg(WriteData *writeData)
 		}
 
 		// output buffer data for further treatment
-		writeData->dataSize = boost::numeric_cast<std::size_t>(size);
+		writeData->dataSize = boost::numeric_cast<std::size_t>(size - cinfo.dest->free_in_buffer); // TODO free_in_buffer is larger than size
 		writeData->data.reset(new unsigned char[writeData->dataSize]);
 		memcpy(writeData->data.get(), data, writeData->dataSize); // TODO memcpy seems to be necessary since data is freed after the thread is being deleted? Otherwise we could reset with data!
 	}
@@ -559,7 +564,7 @@ struct MipMapHeaderData
 
 }
 
-std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps) throw (class Exception)
+std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps, const bool threads) throw (class Exception)
 {
 	this->clear();
 	// header
@@ -704,12 +709,24 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps) thr
 			readData.push_back(new ReadData(*this->mipMaps()[i], buffer, bufferSize, loader));
 		}
 
-		boost::thread_group threadGroup; // added threads are being destroyed automatically when group is being destroyed
+		boost::timer timer; // TEST
 
-		for (std::size_t i = 0; i < readData.size(); ++i)
-			threadGroup.create_thread(boost::bind(&readMipMapJpeg, &readData[i]));
+		if (threads)
+		{
+			boost::thread_group threadGroup; // added threads are being destroyed automatically when group is being destroyed
 
-		threadGroup.join_all(); // wait for all threads have finished
+			for (std::size_t i = 0; i < readData.size(); ++i)
+				threadGroup.create_thread(boost::bind(&readMipMapJpeg, &readData[i]));
+
+			threadGroup.join_all(); // wait for all threads have finished
+		}
+		else
+		{
+			for (std::size_t i = 0; i < readData.size(); ++i)
+				readMipMapJpeg(&readData[i]);
+		}
+
+		std::cerr << "Time: " << timer.elapsed() << std::endl; // TEST
 
 		// continue, check for errors during thread operations
 		for (std::size_t i = 0; i < readData.size(); ++i)
@@ -859,7 +876,7 @@ bool writeJpegMarker(Blp::OutputStream &ostream, std::streamsize &size, bool var
 
 }
 
-std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std::size_t &mipMaps) const throw (class Exception)
+std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std::size_t &mipMaps, const bool threads) const throw (class Exception)
 {
 	if (quality < -1)
 	{
@@ -1013,12 +1030,20 @@ std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std:
 		for (std::size_t i = 0; i < actualMipMaps; ++i)
 			writeData.push_back(new WriteData(*this->mipMaps()[i], writer, i == 0, (quality < 0 || quality > 100 ? Blp::defaultQuality : quality)));
 
-		boost::thread_group threadGroup; // added threads are being destroyed automatically when group is being destroyed
+		if (threads)
+		{
+			boost::thread_group threadGroup; // added threads are being destroyed automatically when group is being destroyed
 
-		for (std::size_t i = 0; i < writeData.size(); ++i)
-			threadGroup.create_thread(boost::bind(&writeMipMapJpeg, &writeData[i]));
+			for (std::size_t i = 0; i < writeData.size(); ++i)
+				threadGroup.create_thread(boost::bind(&writeMipMapJpeg, &writeData[i]));
 
-		threadGroup.join_all(); // wait for all threads have finished
+			threadGroup.join_all(); // wait for all threads have finished
+		}
+		else
+		{
+			for (std::size_t i = 0; i < writeData.size(); ++i)
+				writeMipMapJpeg(&writeData[i]);
+		}
 
 		// continue, check for errors during thread operations
 		for (std::size_t i = 0; i < writeData.size(); ++i)

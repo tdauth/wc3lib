@@ -23,6 +23,7 @@
 
 #include <KUrl>
 #include <KAction>
+#include <KFileDialog>
 
 #include "module.hpp"
 #include "texture.hpp"
@@ -42,6 +43,21 @@ class TextureEditor : public Module
 	Q_OBJECT
 
 	public:
+		class SaveDialog : public KFileDialog
+		{
+			public:
+				SaveDialog(QWidget *parent);
+
+				class KIntNumInput *qualityInput() const;
+				class KIntNumInput *mipMapsInput() const;
+				class QCheckBox *threadsCheckBox() const;
+
+			private:
+				class KIntNumInput *m_qualityInput;
+				class KIntNumInput *m_mipMapsInput;
+				class QCheckBox *m_threadsCheckBox;
+		};
+
 		typedef boost::scoped_ptr<Texture> TexturePtr;
 		typedef QVector<QImage> MipMaps;
 
@@ -57,6 +73,8 @@ class TextureEditor : public Module
 		qreal factor() const;
 
 		bool hasTexture() const;
+
+		SaveDialog* saveDialog() const;
 
 	public slots:
 		/**
@@ -115,7 +133,25 @@ class TextureEditor : public Module
 		KAction *m_showAlphaChannelAction;
 		KAction *m_showTransparencyAction;
 		KMenu *m_mipMapsMenu;
+
+		SaveDialog *m_saveDialog;
 };
+
+inline KIntNumInput* TextureEditor::SaveDialog::qualityInput() const
+{
+	return this->m_qualityInput;
+}
+
+inline KIntNumInput* TextureEditor::SaveDialog::mipMapsInput() const
+{
+	return this->m_mipMapsInput;
+}
+
+inline QCheckBox* TextureEditor::SaveDialog::threadsCheckBox() const
+{
+	return this->m_threadsCheckBox;
+}
+
 
 inline QLabel* TextureEditor::imageLabel() const
 {
@@ -155,6 +191,14 @@ inline qreal TextureEditor::factor() const
 inline bool TextureEditor::hasTexture() const
 {
 	return texture().get() != 0;
+}
+
+inline TextureEditor::SaveDialog *TextureEditor::saveDialog() const
+{
+	if (this->m_saveDialog == 0)
+		const_cast<TextureEditor*>(this)->m_saveDialog = new SaveDialog(const_cast<TextureEditor*>(this));
+
+	return this->m_saveDialog;
 }
 
 inline QString TextureEditor::actionName() const

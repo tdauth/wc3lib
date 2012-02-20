@@ -27,7 +27,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-Attachments::Attachments(class Mdlx *mdlx) : GroupMdxBlock("ATCH", false), m_mdlx(mdlx)
+Attachments::Attachments(class Mdlx *mdlx) : GroupMdxBlock("ATCH", "", false), m_mdlx(mdlx)
 {
 }
 

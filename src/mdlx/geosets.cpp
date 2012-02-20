@@ -27,7 +27,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-Geosets::Geosets(class Mdlx *mdlx) : GroupMdxBlock("GEOS", false), m_mdlx(mdlx)
+Geosets::Geosets(class Mdlx *mdlx) : GroupMdxBlock("GEOS", "", false), m_mdlx(mdlx)
 {
 }
 

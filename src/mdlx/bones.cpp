@@ -27,7 +27,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-Bones::Bones(class Mdlx *mdlx) : GroupMdxBlock("BONE", false), m_mdlx(mdlx)
+Bones::Bones(class Mdlx *mdlx) : GroupMdxBlock("BONE", "", false), m_mdlx(mdlx)
 {
 }
 

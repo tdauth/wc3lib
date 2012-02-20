@@ -27,7 +27,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-Helpers::Helpers(class Mdlx *mdlx) : GroupMdxBlock("HELP", false), m_mdlx(mdlx)
+Helpers::Helpers(class Mdlx *mdlx) : GroupMdxBlock("HELP", "", false), m_mdlx(mdlx)
 {
 }
 

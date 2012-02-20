@@ -30,6 +30,8 @@
 #include <KMenuBar>
 #include <KStandardAction>
 #include <KService>
+#include <KImageFilePreview>
+#include <KIntNumInput>
 
 #include "textureeditor.hpp"
 #include "qblp/blpiohandler.hpp"
@@ -41,7 +43,7 @@ namespace wc3lib
 namespace editor
 {
 
-TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_imageLabel(new QLabel(this)), m_texture(), m_showsAlphaChannel(false), m_showsTransparency(false), m_factor(1.0)
+TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_imageLabel(new QLabel(this)), m_texture(), m_showsAlphaChannel(false), m_showsTransparency(false), m_factor(1.0), m_saveDialog(0)
 {
 	Module::setupUi();
 	topLayout()->addWidget(imageLabel());
@@ -83,20 +85,36 @@ TextureEditor::~TextureEditor()
 {
 }
 
+TextureEditor::SaveDialog::SaveDialog(QWidget *parent) : m_qualityInput(new KIntNumInput(this)), m_mipMapsInput(new KIntNumInput(this)), m_threadsCheckBox(new QCheckBox(this)), KFileDialog(KUrl(), i18n("*|All Files\n*.blp|Blizzard Pictures\n*.png|Portable Network Graphics\n*.jpg|JPEG Files\n*.tga|TGA Files"), parent) // TODO MIME filters do not work ("all/allfiles"). Use image filter.
+{
+	this->setCaption(i18n("Save texture"));
+	this->setConfirmOverwrite(true); // TODO doesn't work
+	this->setPreviewWidget(new KImageFilePreview(this));
+	this->setMode(KFile::File);
+	this->setOperationMode(Saving);
+
+	QVBoxLayout *layout = new QVBoxLayout();
+	this->layout()->addItem(layout);
+
+	qualityInput()->setLabel(i18n("Quality:"));
+	qualityInput()->setMaximum(100);
+	qualityInput()->setMinimum(-1);
+	qualityInput()->setValue(blp::Blp::defaultQuality);
+	layout->addWidget(qualityInput());
+
+	mipMapsInput()->setLabel(i18n("MIP maps:"));
+	mipMapsInput()->setMaximum(blp::Blp::maxMipMaps);
+	mipMapsInput()->setMinimum(0);
+	mipMapsInput()->setValue(blp::Blp::defaultMipMaps);
+	layout->addWidget(mipMapsInput());
+
+	threadsCheckBox()->setText(i18n("Threads:"));
+	threadsCheckBox()->setChecked(blp::Blp::defaultThreads);
+	layout->addWidget(threadsCheckBox());
+}
+
 void TextureEditor::openFile()
 {
-	/*
-	QPluginLoader loader("libqblp.so");
-	loader.load();
-
-	if (!loader.isLoaded())
-	{
-		KMessageBox::error(this, i18n("Unable to load BLP plugin: \"%1\".", loader.errorString()));
-
-		return;
-	}
-	*/
-
 	KMimeType::Ptr mime(KMimeType::mimeType("image/x-blp"));
 	KUrl url;
 
@@ -109,17 +127,7 @@ void TextureEditor::openFile()
 	if (url.isEmpty())
 		return;
 
-	//BlpIOHandler handler;
-	//handler.setDevice(&file);
 	TexturePtr texture(new Texture(url));
-
-	/*if (!handler.canRead())
-	{
-		KMessageBox::error(this, i18n("Unable to detect any BLP format in file \"%1\".", url.toLocalFile()));
-
-		return;
-	}
-	*/
 
 	try
 	{
@@ -133,8 +141,6 @@ void TextureEditor::openFile()
 		return;
 	}
 
-	qDebug() << "Size is " << texture->qt()->width() << " | " << texture->qt()->height();
-
 	if (texture->qt()->isNull())
 	{
 		KMessageBox::error(this, i18n("Unable to read file \"%1\".", url.toLocalFile()));
@@ -147,8 +153,6 @@ void TextureEditor::openFile()
 	m_showsAlphaChannel = false;
 	m_showsTransparency = false;
 	m_factor = 1.0;
-	qDebug() << "Set pixmap to label ";
-	qDebug() << "Label size is " << this->m_imageLabel->width() << " | " << this->m_imageLabel->height();
 
 	foreach (QAction *action, m_textureActionCollection->actions())
 		action->setEnabled(true);
@@ -190,20 +194,23 @@ void TextureEditor::saveFile()
 		return;
 	}
 
-	KUrl url = KFileDialog::getSaveUrl(this->m_recentUrl, i18n("*|All Files\n*.blp|Blizzard Pictures\n*.png|Portable Network Graphics\n*.jpg|JPEG Files"), this, i18n("Save texture")); // TODO MIME filters do not work ("all/allfiles").
-
-	if (url.isEmpty())
-		return;
-
-	try
+	if (saveDialog()->exec() == QDialog::Accepted)
 	{
-		this->texture()->save(url, QFileInfo(url.toLocalFile()).suffix().toLower());
-	}
-	catch (Exception &exception)
-	{
-		KMessageBox::error(this, i18n("Unable to save image to file \"%1\".\nException:\n\"%2\".", url.toEncoded().constData(), exception.what().c_str()));
+		KUrl url = saveDialog()->selectedUrl();
 
-		return;
+		if (url.isEmpty())
+			return;
+
+		try
+		{
+			this->texture()->save(url, QFileInfo(url.toLocalFile()).suffix().toLower(), QString("Quality=%1:MipMaps=%2:Threads=%3").arg(saveDialog()->qualityInput()->value()).arg(saveDialog()->mipMapsInput()->value()).arg(saveDialog()->threadsCheckBox()->isChecked()));
+		}
+		catch (Exception &exception)
+		{
+			KMessageBox::error(this, i18n("Unable to save image to file \"%1\".\nException:\n\"%2\".", url.toEncoded().constData(), exception.what().c_str()));
+
+			return;
+		}
 	}
 }
 

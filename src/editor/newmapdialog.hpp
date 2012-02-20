@@ -23,7 +23,7 @@
 
 #include <KDialog>
 
-#include "ui/ui_newmapdialog.h"
+#include "ui_newmapdialog.h"
 #include "../map.hpp"
 
 namespace wc3lib

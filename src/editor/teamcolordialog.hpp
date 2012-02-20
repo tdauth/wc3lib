@@ -23,7 +23,7 @@
 
 #include <QDialog>
 
-#include "ui/ui_teamcolordialog.h"
+#include "ui_teamcolordialog.h"
 #include "platform.hpp"
 
 namespace wc3lib

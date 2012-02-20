@@ -27,7 +27,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-GeosetAnimations::GeosetAnimations(class Mdlx *mdlx) : GroupMdxBlock("GEOA", false), m_mdlx(mdlx)
+GeosetAnimations::GeosetAnimations(class Mdlx *mdlx) : GroupMdxBlock("GEOA", "", false), m_mdlx(mdlx)
 {
 }
 

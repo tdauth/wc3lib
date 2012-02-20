@@ -23,7 +23,7 @@
 
 #include <KDialog>
 
-#include "ui/ui_integerdialog.h"
+#include "ui_integerdialog.h"
 
 namespace wc3lib
 {
@@ -35,7 +35,7 @@ class ObjectIntegerDialog : public KDialog, protected Ui::IntegerDialog
 {
 	public:
 		ObjectIntegerDialog(QWidget *parent = 0);
-		
+
 		class KIntSpinBox* intSpinBox() const;
 };
 

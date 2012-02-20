@@ -27,7 +27,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-Lights::Lights(class Mdlx *mdlx) : GroupMdxBlock("LITE", false), m_mdlx(mdlx)
+Lights::Lights(class Mdlx *mdlx) : GroupMdxBlock("LITE", "", false), m_mdlx(mdlx)
 {
 }
 

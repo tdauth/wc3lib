@@ -24,7 +24,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/QTreeWidget>
 
-#include "ui/ui_triggertopwidget.h"
+#include "ui_triggertopwidget.h"
 #include "../map.hpp"
 #include "triggereditor.hpp"
 

@@ -23,7 +23,7 @@
 
 #include <QWidget>
 
-#include "ui/ui_renderstatswidget.h"
+#include "ui_renderstatswidget.h"
 
 namespace wc3lib
 {

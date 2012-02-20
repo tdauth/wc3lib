@@ -24,7 +24,7 @@
 #include <QDialog>
 
 #include "platform.hpp"
-#include "ui/ui_variablesdialog.h"
+#include "ui_variablesdialog.h"
 
 namespace wc3lib
 {

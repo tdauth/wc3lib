@@ -27,7 +27,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-RibbonEmitters::RibbonEmitters(class Mdlx *mdlx) : GroupMdxBlock("RIBB", false), m_mdlx(mdlx)
+RibbonEmitters::RibbonEmitters(class Mdlx *mdlx) : GroupMdxBlock("RIBB", "", false), m_mdlx(mdlx)
 {
 }
 

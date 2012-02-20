@@ -31,7 +31,7 @@
 
 #include "../mdlx.hpp"
 #include "module.hpp"
-#include "ui/ui_modeleditor.h"
+#include "ui_modeleditor.h"
 #include "ogremdlx.hpp"
 #include "platform.hpp"
 
