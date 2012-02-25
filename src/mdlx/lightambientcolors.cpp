@@ -33,7 +33,7 @@ LightAmbientColors::LightAmbientColors(class Light *light) : MdlxScalings(light-
 {
 }
 
-class MdlxAnimatedProperty* LightAmbientColors::createAnimatedProperty()
+LightAmbientColors::Property* LightAmbientColors::createAnimatedProperty()
 {
 	return new LightAmbientColor(this);
 }

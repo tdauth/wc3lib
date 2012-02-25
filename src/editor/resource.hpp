@@ -21,6 +21,8 @@
 #ifndef WC3LIB_EDITOR_RESOURCE_HPP
 #define WC3LIB_EDITOR_RESOURCE_HPP
 
+#include <boost/detail/scoped_enum_emulation.hpp>
+
 #include <KUrl>
 
 #include "../core.hpp"

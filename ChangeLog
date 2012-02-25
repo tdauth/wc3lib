@@ -1,3 +1,24 @@
+2012-02-24 Tamino Dauth <tamino@cdauth.eu>
+* mdlx: Finished revision.
+* editor: Class OgreMdlx doesn't use member function mdlxId() anymore which was quite slow.
+
+2012-02-23 Tamino Dauth <tamino@cdauth.eu>
+* core: BaseVertex inherits Format and boost::array now.
+* map: BasePosition inherits boost::array now.
+* mdlx: Huge revision implementing new BasePosition template.
+
+2012-02-22 Tamino Dauth <tamino@cdauth.eu>
+* Added general platform.hpp file and moved some typedefs into it.
+* Split up include statements again and removed most from utilities.hpp.
+* Added headers color.hpp and vertex.hpp.
+* mpq: Returns shared pointers in many functions now.
+* mpq: Class Hash doesn't hold any file pointer anymore.
+* map: Revised class Shadow.
+* map: Versions use uint32 now.
+* editor: Texture editor doesn't load OGRE texture anymore.
+* editor: Replaced boost smart pointers by Qt smart pointers.
+* blp: MIP maps are stored in pointer vector now.
+
 2012-02-20 Tamino Dauth <tamino@cdauth.eu>
 * blp: Added custom buffer size for writing JPEG data.
 * blp: Considering free_in_buffer now when writing JPEG data.

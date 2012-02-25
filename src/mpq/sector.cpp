@@ -29,6 +29,42 @@ namespace wc3lib
 namespace mpq
 {
 
+namespace
+{
+
+inline const char* bzip2Error(int error)
+{
+	if (error == boost::iostreams::bzip2::data_error)
+		return _("Data error: Compressed data stream is corrupted.");
+
+	if (error == boost::iostreams::bzip2::data_error_magic)
+		return _("Data error magic: Compressed data stream does not begin with the 'magic' sequence 'B' 'Z' 'h'.");
+
+	if (error == boost::iostreams::bzip2::config_error)
+		return _("Config error: libbzip2 has been improperly configured for the current platform.");
+
+	return "";
+}
+
+inline const char* zlibError(int error)
+{
+	if (error == boost::iostreams::zlib::stream_error)
+		return _("Stream error: Compressed data stream or parameter configuration is corrupted.");
+
+	if (error == boost::iostreams::zlib::version_error)
+		return _("Version error: Incompatible versions.");
+
+	if (error == boost::iostreams::zlib::data_error)
+		return _("Data error: Compressed data stream is corrupted.");
+
+	if (error == boost::iostreams::zlib::buf_error)
+		return _("Buff error: Internal error.");
+
+	return "";
+}
+
+}
+
 Sector::Sector(class MpqFile *mpqFile, uint32 index, uint32 offset, uint32 size) : m_mpqFile(mpqFile), m_sectorIndex(index), m_sectorOffset(offset), m_sectorSize(size), m_compression(Sector::Compression::Uncompressed)
 {
 }

@@ -36,15 +36,12 @@ namespace mdlx
 class AmbientIntensities : public MdlxAlphas
 {
 	public:
-		typedef std::list<class AmbientIntensity*> Members;
-		
 		AmbientIntensities(class Light *light);
 
 		class Light* light() const;
-		const Members& intensities() const;
 
 	protected:
-		virtual class MdlxAnimatedProperty* createAnimatedProperty();
+		virtual Property* createAnimatedProperty();
 
 		class Light *m_light;
 };
@@ -52,11 +49,6 @@ class AmbientIntensities : public MdlxAlphas
 inline class Light* AmbientIntensities::light() const
 {
 	return this->m_light;
-}
-
-inline const AmbientIntensities::Members& AmbientIntensities::intensities() const
-{
-	return reinterpret_cast<const Members&>(this->mdlxAlphas());
 }
 
 }

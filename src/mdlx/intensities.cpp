@@ -33,7 +33,7 @@ Intensities::Intensities(class Light *light) : MdlxAlphas(light->lights()->mdlx(
 {
 }
 
-class MdlxAnimatedProperty* Intensities::createAnimatedProperty()
+Intensities::Property* Intensities::createAnimatedProperty()
 {
 	return new Intensity(this);
 }

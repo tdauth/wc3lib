@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2008, 2009 by Tamino Dauth                              *
+ *   Copyright (C) 2008 by Tamino Dauth                                    *
  *   tamino@cdauth.de                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -56,33 +56,33 @@ void Type::init()
 	if (!this->typeExpression.empty())
 	{
 		this->m_type = static_cast<Type*>(this->searchObjectInList(this->typeExpression, Parser::Types));
-		
+
 		if (this->m_type != 0)
 			this->typeExpression.clear();
 	}
 	else
 		this->typeExpression = '-';
-	
+
 	if (this->sizeExpression.empty())
 	{
 		this->sizeExpression = '-';
 		return;
 	}
-	
+
 	if (isdigit(this->sizeExpression[0])) //expression can be an integer like 43
 		return;
-	
+
 	this->m_size = this->searchObjectInList(this->sizeExpression, Parser::Globals);
-	
+
 	if (this->m_size == 0)
 		this->m_size = this->searchObjectInList(this->sizeExpression, Parser::Members);
-	
+
 	if (this->m_size == 0)
 		this->m_size = this->searchObjectInList(this->sizeExpression, Parser::Functions);
-	
+
 	if (this->m_size == 0)
 		this->m_size = this->searchObjectInList(this->sizeExpression, Parser::Methods);
-	
+
 	if (this->m_size != 0)
 		this->sizeExpression.clear();
 }

@@ -47,10 +47,10 @@ class NewMapDialog : public KDialog, protected Ui::NewMapDialog
 		class Tileset* tileset() const;
 		void setFillingTile(class Tile *tile);
 		class Tile* fillingTile() const;
-		void setInitialCliffLevel(map::short16 cliffLevel);
-		map::short16 initialCliffLevel() const;
-		void setInitialWaterLevel(map::short16 waterLevel);
-		map::short16 initialWaterLevel() const;
+		void setInitialCliffLevel(int16 cliffLevel);
+		int16 initialCliffLevel() const;
+		void setInitialWaterLevel(int16 waterLevel);
+		int16 initialWaterLevel() const;
 		void setRandomizedHeightLevel(bool randomizedHeightLevel);
 		bool hasRandomizedHeightLevel() const;
 };

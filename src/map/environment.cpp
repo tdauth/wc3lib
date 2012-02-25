@@ -47,7 +47,7 @@ std::streamsize Environment::read(InputStream &istream) throw (class Exception)
 	if (this->version() != latestFileVersion())
 		std::cerr << boost::format(_("Environment: Expected version %1%. Got unknown %2%.")) % latestFileVersion() % this->version() << std::endl;
 
-	wc3lib::read<char8>(istream, (char8&)this->m_mainTileset, size);
+	wc3lib::read<byte>(istream, (byte&)this->m_mainTileset, size);
 
 	uint32 customTilesetsFlag;
 	wc3lib::read(istream, customTilesetsFlag, size);
@@ -111,7 +111,7 @@ std::streamsize Environment::write(OutputStream &ostream) const throw (class Exc
 	if (this->version() != latestFileVersion())
 		std::cerr << boost::format(_("Environment: Expected version %1%. Got unknown %2%.")) % latestFileVersion() % this->version() << std::endl;
 
-	wc3lib::write<char8>(ostream, mainTileset(), size);
+	wc3lib::write<byte>(ostream, mainTileset(), size);
 	wc3lib::write<uint32>(ostream, customized(), size);
 
 	if (groundTilesetsIds().size() > maxTilesets)

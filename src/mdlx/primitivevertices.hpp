@@ -39,15 +39,13 @@ namespace mdlx
 class PrimitiveVertices : public GroupMdxBlock
 {
 	public:
-		typedef std::list<class PrimitiveVertex*> Vertices;
-		
 		PrimitiveVertices(class Geoset *geoset);
 		virtual ~PrimitiveVertices();
 
 		class Geoset* geoset() const;
-		const Vertices& primitiveVertices() const;
 
 	protected:
+		/// \todo C++11 override
 		virtual class GroupMdxBlockMember* createNewMember();
 
 		class Geoset *m_geoset;
@@ -56,11 +54,6 @@ class PrimitiveVertices : public GroupMdxBlock
 inline class Geoset* PrimitiveVertices::geoset() const
 {
 	return this->m_geoset;
-}
-
-inline const PrimitiveVertices::Vertices& PrimitiveVertices::primitiveVertices() const
-{
-	return *reinterpret_cast<const std::list<class PrimitiveVertex*>*>(&this->m_members);
 }
 
 }

@@ -36,29 +36,16 @@ namespace mdlx
 class Layers : public GroupMdxBlock
 {
 	public:
-		typedef std::list<class Layer*> Members;
-		
 		Layers(class Material *material);
 
 		class Material* material() const;
-		const Members& layers() const;
-
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
-		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 
 	protected:
+		/// \todo C++11 override
 		virtual class GroupMdxBlockMember* createNewMember();
-		
+
 		class Material *m_material;
 };
-
-
-inline const Layers::Members& Layers::layers() const
-{
-	return reinterpret_cast<const Members&>(m_members);
-}
 
 inline class Material* Layers::material() const
 {

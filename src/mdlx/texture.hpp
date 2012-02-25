@@ -37,7 +37,7 @@ namespace mdlx
 class Texture : public GroupMdxBlockMember
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Wrapping) // : long32
+		BOOST_SCOPED_ENUM_START(Wrapping) /// \todo C++11 : long32
 		{
 			WrapWidth = 1,
 			WrapHeight = 2,
@@ -51,11 +51,11 @@ class Texture : public GroupMdxBlockMember
 
 		class Textures* textures() const;
 		BOOST_SCOPED_ENUM(ReplaceableId) replaceableId() const;
-		void setTexturePath(const ascii texturePath[texturePathSize]);
+		void setTexturePath(const byte texturePath[texturePathSize]);
 		/**
 		 * \return Returns ASCII texture path with length \ref texturePathSize.
 		 */
-		const ascii* texturePath() const;
+		const byte* texturePath() const;
 		long32 unknown0() const;
 		BOOST_SCOPED_ENUM(Wrapping) wrapping() const;
 
@@ -66,7 +66,7 @@ class Texture : public GroupMdxBlockMember
 
 	protected:
 		BOOST_SCOPED_ENUM(ReplaceableId) m_replaceableId;
-		ascii m_texturePath[texturePathSize]; //(0x100 bytes)
+		byte m_texturePath[texturePathSize]; //(0x100 bytes)
 		long32 m_unknown0; //(0)
 		BOOST_SCOPED_ENUM(Wrapping) m_wrapping; //(1:WrapWidth;2:WrapHeight;3:Both)
 };
@@ -81,7 +81,7 @@ inline BOOST_SCOPED_ENUM(ReplaceableId) Texture::replaceableId() const
 	return this->m_replaceableId;
 }
 
-inline void Texture::setTexturePath(const ascii texturePath[Texture::texturePathSize])
+inline void Texture::setTexturePath(const byte texturePath[Texture::texturePathSize])
 {
 	memcpy(this->m_texturePath, texturePath, Texture::texturePathSize);
 }

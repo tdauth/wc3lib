@@ -33,7 +33,7 @@ TextureAnimationTranslations::TextureAnimationTranslations(class TextureAnimatio
 {
 }
 
-class MdlxScaling* TextureAnimationTranslations::createNewMember()
+TextureAnimationTranslations::Property* TextureAnimationTranslations::createAnimatedProperty()
 {
 	return new TextureAnimationTranslation(this);
 }

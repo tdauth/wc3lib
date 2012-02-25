@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2008, 2009 by Tamino Dauth                              *
+ *   Copyright (C) 2008 by Tamino Dauth                                    *
  *   tamino@cdauth.de                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -66,18 +66,18 @@ void Global::init()
 {
 	//Must not be empty.
 	this->m_type = this->searchObjectInList(this->typeExpression(), Parser::Types);
-	
+
 	//std::cout << "1 ALTA with type identifier " << this->m_type->identifier() << std::endl;
-	
+
 	if (this->m_type == 0)
 		this->m_type = this->searchObjectInList(this->typeExpression(), Parser::Interfaces);
-	
+
 	if (this->m_type == 0)
 		this->m_type = this->searchObjectInList(this->typeExpression(), Parser::Structs);
-	
+
 	if (this->m_type != 0)
 		this->m_typeExpression.clear();
-	
+
 	this->m_value = this->findValue(this->m_type, this->valueExpression);
 	this->m_size = this->findValue(Vjassdoc::parser()->integerType(), this->sizeExpression);
 }
@@ -121,30 +121,30 @@ void Global::page(std::ofstream &file) const
 	<< "\t\t" << Object::objectPageLink(this->type(), this->typeExpression()) << '\n'
 	<< "\t\t<h2><a name=\"Value\">" << _("Value") << "</a></h2>\n"
 	;
-	
+
 	if (this->valueExpression.empty() || this->valueExpression == "-")
 		file << "\t\t" << Object::objectPageLink(this->value(), this->valueExpression) << '\n';
 	else
 	{
 		file << "\t\t";
-		
+
 		if (this->value() != 0)
 			file << Object::objectPageLink(this->value());
-		
+
 		file << "\t\t" << this->valueExpression << '\n';
 	}
-	
+
 	file << "\t\t<h2><a name=\"Size\">" << _("Size") << "</a></h2>\n";
-	
+
 	if (this->sizeExpression.empty() || this->sizeExpression == "-")
 		file << "\t\t" << Object::objectPageLink(this->size(), this->sizeExpression) << '\n';
 	else
 	{
 		file << "\t\t";
-		
+
 		if (this->size() != 0)
 			file << Object::objectPageLink(this->size());
-		
+
 		file << "\t\t" << this->sizeExpression << '\n';
 	}
 }
@@ -166,7 +166,7 @@ std::string Global::sqlStatement() const
 	<< "Size=" << Object::objectId(this->size()) << ", "
 	<< "SizeLiteral=" << this->sizeLiteral()
 	;
-	
+
 	return sstream.str();
 }
 #endif

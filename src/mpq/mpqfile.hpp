@@ -21,6 +21,12 @@
 #ifndef WC3LIB_MPQ_MPQFILE_HPP
 #define WC3LIB_MPQ_MPQFILE_HPP
 
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/ordered_index.hpp>
+#include <boost/multi_index/mem_fun.hpp>
+
+#include <boost/thread/mutex.hpp>
+
 #include "platform.hpp"
 #include "block.hpp"
 #include "sector.hpp"
@@ -35,7 +41,7 @@ namespace mpq
  * \brief Abstract class for mpq file access. Combines hash and block table data of file.
  * MpqFile uses mutex locking and unlocking whenever data is being changed or read. It calls \ref boost::mutex::try_lock (immediate lock) in that case so make sure data is not locked at that moment, otherwise it throws an exception.
  */
-class MpqFile : public boost::mutex, private boost::noncopyable
+class MpqFile : private boost::noncopyable
 {
 	public:
 		/// \todo Define all locales. <a href="http://wiki.devklog.net/index.php?title=The_MoPaQ_Archive_Format#Locales">Source</a>.
@@ -228,6 +234,7 @@ class MpqFile : public boost::mutex, private boost::noncopyable
 		class Hash *m_hash;
 		boost::filesystem::path m_path;
 		Sectors m_sectors;
+		boost::mutex m_mutex; // for MPQ archive
 };
 
 inline class Mpq* MpqFile::mpq() const

@@ -200,12 +200,12 @@ void TriggerEditor::loadTriggers(map::Triggers *triggers)
 		rootItem()->setText(0, tr("Current map script"));
 	}
 
-	const map::int32 categoriesNumber = triggers->categories().size();
-	const map::int32 triggersNumber = triggers->triggers().size();
+	const int32 categoriesNumber = triggers->categories().size();
+	const int32 triggersNumber = triggers->triggers().size();
 	categories().resize(categoriesNumber);
 
 
-	for (map::int32 i = 0; i < categoriesNumber; ++i)
+	for (int32 i = 0; i < categoriesNumber; ++i)
 	{
 		categories()[i] = new QTreeWidgetItem(rootItem());
 		categories()[i]->setText(0, triggers->categories()[i]->name().c_str());
@@ -215,7 +215,7 @@ void TriggerEditor::loadTriggers(map::Triggers *triggers)
 
 	triggerEntries().resize(triggersNumber);
 
-	for (map::int32 i = 0; i < triggersNumber; ++i)
+	for (int32 i = 0; i < triggersNumber; ++i)
 	{
 		triggerEntries()[i] = new QTreeWidgetItem(rootItem());
 		/// \todo set icon (initially on, disabled etc.)
@@ -288,7 +288,7 @@ void TriggerEditor::openMapScript()
 	this->mapScriptWidget()->show();
 }
 
-void TriggerEditor::openTrigger(map::int32 index)
+void TriggerEditor::openTrigger(int32 index)
 {
 	openTrigger(triggers()->triggers()[index].get());
 }

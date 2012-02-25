@@ -36,16 +36,14 @@ namespace mdlx
 class CameraRotationLengths : public MdlxAlphas
 {
 	public:
-		typedef std::list<class CameraRotationLength*> Lengths;
-		
 		CameraRotationLengths(class Camera *camera);
 
 		class Camera* camera() const;
-		const Lengths& lengths() const;
 
 	private:
-		virtual class MdlxAnimatedProperty* createAnimatedProperty();
-		
+		/// \todo C++11 override
+		virtual Property* createAnimatedProperty();
+
 		class Camera *m_camera;
 
 };
@@ -53,11 +51,6 @@ class CameraRotationLengths : public MdlxAlphas
 inline class Camera* CameraRotationLengths::camera() const
 {
 	return this->m_camera;
-}
-
-inline const CameraRotationLengths::Lengths& CameraRotationLengths::lengths() const
-{
-	return reinterpret_cast<const Lengths&>(this->mdlxAlphas());
 }
 
 }

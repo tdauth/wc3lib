@@ -37,14 +37,14 @@ class TerrainBrush : public Brush
 		TerrainBrush(class TerrainEditor *terrainEditor);
 		virtual ~TerrainBrush();
 
-		virtual void onPlace(map::int32 x, map::int32 y);
+		virtual void onPlace(int32 x, int32 y);
 
 	protected:
-		map::short16 m_groundHeight;
-		map::short16 m_waterLevel:15;
+		int16 m_groundHeight;
+		int16 m_waterLevel:15;
 		BOOST_SCOPED_ENUM(map::Tilepoint::Flags) m_flags;
 		unsigned int m_groundTextureType:4;
-		map::char8 m_textureDetails;
+		byte m_textureDetails;
 		unsigned int m_cliffTextureType:4;
 		unsigned int m_layerHeight:4;
 };

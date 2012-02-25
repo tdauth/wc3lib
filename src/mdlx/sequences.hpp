@@ -37,31 +37,23 @@ namespace mdlx
 class Sequences : public GroupMdxBlock
 {
 	public:
-		typedef std::list<class Sequence*> Members;
 		Sequences(class Mdlx *mdlx);
 
 		class Mdlx* mdlx() const;
-		const Members& sequences() const;
 
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
 		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
-		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 
 	protected:
+		/// \todo C++11 override
 		virtual class GroupMdxBlockMember* createNewMember();
-		
+
 		class Mdlx *m_mdlx;
 };
 
 inline class Mdlx* Sequences::mdlx() const
 {
 	return this->m_mdlx;
-}
-
-inline const Sequences::Members& Sequences::sequences() const
-{
-	return reinterpret_cast<const Members&>(this->m_members);
 }
 
 }

@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MAP_ENVIRONMENT_HPP
 #define WC3LIB_MAP_ENVIRONMENT_HPP
 
+#include <set>
+
 #include "platform.hpp"
 #include "tilepoint.hpp"
 
@@ -70,8 +72,8 @@ class Environment : public FileFormat
 		std::streamsize read(InputStream &istream) throw (class Exception);
 		std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
-		virtual const char8* fileTextId() const;
-		virtual const char8* fileName() const;
+		virtual const byte* fileTextId() const;
+		virtual const byte* fileName() const;
 		virtual uint32 latestFileVersion() const;
 		virtual uint32 version() const { return m_version; }
 
@@ -107,12 +109,12 @@ class Environment : public FileFormat
 
 };
 
-inline const char8* Environment::fileTextId() const
+inline const byte* Environment::fileTextId() const
 {
 	return "W3E!";
 }
 
-inline const char8* Environment::fileName() const
+inline const byte* Environment::fileName() const
 {
 	return "war3map.w3e";
 }

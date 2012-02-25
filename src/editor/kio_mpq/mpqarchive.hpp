@@ -21,8 +21,11 @@
 #ifndef WC3LIB_EDITOR_MPQARCHIVE_HPP
 #define WC3LIB_EDITOR_MPQARCHIVE_HPP
 
+#include <boost/weak_ptr.hpp>
+
 #include <QLocale>
 #include <QDir>
+#include <QScopedPointer>
 
 #include <KArchive>
 #include <KLocale>
@@ -62,8 +65,8 @@ class MpqArchiveRootDirectory : public KArchiveDirectory
 class MpqArchive : public KArchive
 {
 	public:
-		typedef boost::scoped_ptr<mpq::Mpq> MpqPtr;
-		typedef boost::shared_ptr<mpq::MpqFile> MpqFilePtr;
+		typedef QScopedPointer<mpq::Mpq> MpqPtr;
+		typedef boost::weak_ptr<mpq::MpqFile> MpqFilePtr;
 
 		static QString locale(const BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) &locale) throw (Exception);
 		static BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale(const QString &locale) throw (Exception);

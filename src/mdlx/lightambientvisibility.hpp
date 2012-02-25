@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MDLX_LIGHTAMBIENTVISIBILITY_HPP
 #define WC3LIB_MDLX_LIGHTAMBIENTVISIBILITY_HPP
 
+#include <boost/cast.hpp>
+
 #include "mdlxalpha.hpp"
 #include "lightambientvisibilities.hpp"
 
@@ -34,7 +36,7 @@ class LightAmbientVisibility : public MdlxAlpha
 {
 	public:
 		LightAmbientVisibility(class LightAmbientVisibilities *visibilities);
-		
+
 		class LightAmbientVisibilities* visibilities() const;
 };
 

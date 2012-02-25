@@ -37,7 +37,7 @@ GeosetAnimationAlphas::~GeosetAnimationAlphas()
 {
 }
 
-class MdlxAnimatedProperty* GeosetAnimationAlphas::createAnimatedProperty()
+GeosetAnimationAlphas::Property* GeosetAnimationAlphas::createAnimatedProperty()
 {
 	return new GeosetAnimationAlpha(this);
 }

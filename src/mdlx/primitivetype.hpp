@@ -39,7 +39,7 @@ class PrimitiveType : public GroupMdxBlockMember
 		//??? - Triangle strip
 		//??? - Quads
 		//??? - Quad strip
-		BOOST_SCOPED_ENUM_START(Type) // : long32
+		BOOST_SCOPED_ENUM_START(Type) /// \todo C++11 : long32
 		{
 			Triangles = 4
 		};
@@ -62,7 +62,7 @@ class PrimitiveType : public GroupMdxBlockMember
 
 inline class PrimitiveTypes* PrimitiveType::primitiveTypes() const
 {
-	return dynamic_cast<class PrimitiveTypes*>(this->m_parent);
+	return boost::polymorphic_cast<class PrimitiveTypes*>(this->parent());
 }
 
 inline BOOST_SCOPED_ENUM(PrimitiveType::Type) PrimitiveType::type() const

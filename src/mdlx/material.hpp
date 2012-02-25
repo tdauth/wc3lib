@@ -36,7 +36,7 @@ namespace mdlx
 class Material : public GroupMdxBlockMember
 {
 	public:
-		BOOST_SCOPED_ENUM_START(RenderMode) // : long32
+		BOOST_SCOPED_ENUM_START(RenderMode) /// \todo C++11 : long32
 		{
 			ConstantColor = 1,
 			Unknown0 = 2,

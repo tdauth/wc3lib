@@ -33,7 +33,7 @@ GeosetAnimationColors::GeosetAnimationColors(class GeosetAnimation *geosetAnimat
 {
 }
 
-class MdlxAnimatedProperty* GeosetAnimationColors::createAnimatedProperty()
+GeosetAnimationColors::Property* GeosetAnimationColors::createAnimatedProperty()
 {
 	return new GeosetAnimationColor(this);
 }

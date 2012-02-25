@@ -37,7 +37,6 @@
 
 #include <Ogre.h>
 
-#include "../core.hpp"
 #include "../map.hpp"
 #include "../mdlx.hpp"
 
@@ -391,7 +390,7 @@ inline KUrl war3XLocalUrl()
 }
 
 /// Global type cast function.
-inline Ogre::Real ogreReal(mdlx::float32 value)
+inline Ogre::Real ogreReal(float32 value)
 {
 	return boost::numeric_cast<Ogre::Real>(value);
 }

@@ -25,7 +25,7 @@
 
 namespace wc3lib
 {
-	
+
 namespace mdlx
 {
 
@@ -33,7 +33,7 @@ CameraRotationLengths::CameraRotationLengths(class Camera *camera) : MdlxAlphas(
 {
 }
 
-class MdlxAnimatedProperty* CameraRotationLengths::createAnimatedProperty()
+CameraRotationLengths::Property* CameraRotationLengths::createAnimatedProperty()
 {
 	return new CameraRotationLength(this);
 }

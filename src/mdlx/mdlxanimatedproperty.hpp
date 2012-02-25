@@ -21,7 +21,11 @@
 #ifndef WC3LIB_MDLX_MDLXANIMATEDPROPERTY_HPP
 #define WC3LIB_MDLX_MDLXANIMATEDPROPERTY_HPP
 
+#include <boost/cast.hpp> // for polymorphic down casts of properties()
+#include <boost/array.hpp>
+
 #include "mdlxproperty.hpp"
+#include "mdlxanimatedproperties.hpp"
 
 namespace wc3lib
 {
@@ -29,18 +33,25 @@ namespace wc3lib
 namespace mdlx
 {
 
+template<typename std::size_t N = 3>
 class MdlxAnimatedProperty : public MdlxProperty
 {
 	public:
-		MdlxAnimatedProperty(class MdlxAnimatedProperties *properties, std::size_t valuesCount = 3);
+		static const std::size_t dimension = N;
+
+		typedef BasicVertex<float32, N> Values;
+
+		MdlxAnimatedProperty(MdlxAnimatedProperties<N> *properties);
 		virtual ~MdlxAnimatedProperty();
 
-		class MdlxAnimatedProperties* properties() const;
+		MdlxAnimatedProperties<N>* properties() const;
 		float32 frame() const;
-		std::size_t valuesCount() const;
-		const std::vector<float32>& values() const;
-		const std::vector<float32>& inTan() const;
-		const std::vector<float32>& outTan() const;
+		Values& values();
+		const Values& values() const;
+		Values& inTan();
+		const Values& inTan() const;
+		Values& outTan();
+		const Values& outTan() const;
 
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
 		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
@@ -48,42 +59,59 @@ class MdlxAnimatedProperty : public MdlxProperty
 		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 
 	protected:
-		class MdlxAnimatedProperties *m_properties;
+		MdlxAnimatedProperties<N> *m_properties;
 		long32 m_frame;
-		
-		std::size_t m_valuesCount;
-		std::vector<float32> m_values;
+
+		Values m_values;
 		//if (LineType > 1) {
-		std::vector<float32> m_inTan;
-		std::vector<float32> m_outTan;
+		Values m_inTan;
+		Values m_outTan;
 };
 
-inline class MdlxAnimatedProperties* MdlxAnimatedProperty::properties() const
+template<typename std::size_t N>
+inline MdlxAnimatedProperties<N>* MdlxAnimatedProperty<N>::properties() const
 {
 	return this->m_properties;
 }
 
-inline float32 MdlxAnimatedProperty::frame() const
+template<typename std::size_t N>
+inline float32 MdlxAnimatedProperty<N>::frame() const
 {
 	return this->m_frame;
 }
 
-inline std::size_t MdlxAnimatedProperty::valuesCount() const
-{
-	return m_valuesCount;
-}
-
-inline const std::vector<float32>& MdlxAnimatedProperty::values() const
+template<typename std::size_t N>
+inline typename MdlxAnimatedProperty<N>::Values& MdlxAnimatedProperty<N>::values()
 {
 	return m_values;
 }
 
-inline const std::vector<float32>& MdlxAnimatedProperty::inTan() const
+template<typename std::size_t N>
+inline const typename MdlxAnimatedProperty<N>::Values& MdlxAnimatedProperty<N>::values() const
+{
+	return m_values;
+}
+
+template<typename std::size_t N>
+inline typename MdlxAnimatedProperty<N>::Values& MdlxAnimatedProperty<N>::inTan()
 {
 	return m_inTan;
 }
 
-inline const std::vector<float32>& MdlxAnimatedProperty::outTan() const
+template<typename std::size_t N>
+inline const typename MdlxAnimatedProperty<N>::Values& MdlxAnimatedProperty<N>::inTan() const
+{
+	return m_inTan;
+}
+
+template<typename std::size_t N>
+inline typename MdlxAnimatedProperty<N>::Values& MdlxAnimatedProperty<N>::outTan()
+{
+	return m_outTan;
+}
+
+template<typename std::size_t N>
+inline const typename MdlxAnimatedProperty<N>::Values& MdlxAnimatedProperty<N>::outTan() const
 {
 	return m_outTan;
 }
@@ -91,5 +119,7 @@ inline const std::vector<float32>& MdlxAnimatedProperty::outTan() const
 }
 
 }
+
+#include "mdlxanimatedproperty.cpp"
 
 #endif

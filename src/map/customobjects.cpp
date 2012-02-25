@@ -77,7 +77,7 @@ CustomObjects::CustomObjects(BOOST_SCOPED_ENUM(CustomObjects::Type) type) : m_ty
 {
 }
 
-const char8* CustomObjects::fileName() const
+const byte* CustomObjects::fileName() const
 {
 	string name = "war3map.";
 

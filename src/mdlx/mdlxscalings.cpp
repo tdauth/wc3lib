@@ -39,7 +39,7 @@ MdlxScalings::MdlxScalings(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::
 {
 }
 
-class MdlxAnimatedProperty* MdlxScalings::createAnimatedProperty()
+MdlxScalings::Property* MdlxScalings::createAnimatedProperty()
 {
 	return new MdlxScaling(this);
 }

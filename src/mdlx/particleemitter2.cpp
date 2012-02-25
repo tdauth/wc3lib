@@ -46,9 +46,6 @@ ParticleEmitter2::ParticleEmitter2(class ParticleEmitter2s *particleEmitters) : 
 
 ParticleEmitter2::~ParticleEmitter2()
 {
-	BOOST_FOREACH(class SegmentColor *segmentColor, this->m_segmentColors)
-		delete segmentColor;
-
 	delete this->m_speeds;
 	delete this->m_latitudes;
 	delete this->m_emissionRates;
@@ -81,18 +78,17 @@ std::streamsize ParticleEmitter2::readMdx(istream &istream) throw (class Excepti
 	wc3lib::read(istream, this->m_emissionRate, size);
 	wc3lib::read(istream, this->m_length, size);
 	wc3lib::read(istream, this->m_width, size);
-	wc3lib::read(istream, *reinterpret_cast<long32*>(&this->m_filterMode), size);
+	wc3lib::read<long32>(istream, (long32&)this->m_filterMode, size);
 	wc3lib::read(istream, this->m_rows, size);
 	wc3lib::read(istream, this->m_columns, size);
-	wc3lib::read(istream, *reinterpret_cast<long32*>(&this->m_flags), size);
+	wc3lib::read<long32>(istream, (long32&)this->m_flags, size);
 	wc3lib::read(istream, this->m_tailLength, size);
 	wc3lib::read(istream, this->m_time, size);
 
-	for (std::size_t i = 0; i < 3; ++i) /// @todo Usually 3 segment colors?!
+	for (std::size_t i = 0; i < segmentColorsSize; ++i)
 	{
-		class SegmentColor *segmentColor = new SegmentColor(this);
-		size += segmentColor->readMdx(istream);
-		this->m_segmentColors.push_back(segmentColor);
+		this->segmentColors().replace(i, new SegmentColor(this));
+		size += this->segmentColors()[i].readMdx(istream);
 	}
 
 	wc3lib::read(istream, this->m_alpha1, size);
@@ -130,8 +126,8 @@ std::streamsize ParticleEmitter2::readMdx(istream &istream) throw (class Excepti
 std::streamsize ParticleEmitter2::writeMdx(ostream &ostream) const throw (class Exception)
 {
 	std::streampos position;
-	skipByteCount<mdlx::ostream>(ostream, position);
-	
+	skipByteCount<wc3lib::ostream>(ostream, position);
+
 	std::streamsize size = Node::writeMdx(ostream);
 	wc3lib::write(ostream, this->m_speed, size);
 	wc3lib::write(ostream, this->m_variation, size);
@@ -141,15 +137,15 @@ std::streamsize ParticleEmitter2::writeMdx(ostream &ostream) const throw (class 
 	wc3lib::write(ostream, this->m_emissionRate, size);
 	wc3lib::write(ostream, this->m_length, size);
 	wc3lib::write(ostream, this->m_width, size);
-	wc3lib::write(ostream, *reinterpret_cast<const long32*>(&this->m_filterMode), size);
+	wc3lib::write<long32>(ostream, this->m_filterMode, size);
 	wc3lib::write(ostream, this->m_rows, size);
 	wc3lib::write(ostream, this->m_columns, size);
-	wc3lib::write(ostream, *reinterpret_cast<const long32*>(&this->m_flags), size);
+	wc3lib::write<long32>(ostream, this->m_flags, size);
 	wc3lib::write(ostream, this->m_tailLength, size);
 	wc3lib::write(ostream, this->m_time, size);
 
-	BOOST_FOREACH(const class SegmentColor *segmentColor, this->segmentColors())
-		size += segmentColor->writeMdx(ostream);
+	BOOST_FOREACH(SegmentColors::const_reference color, this->segmentColors())
+		size += color.writeMdx(ostream);
 
 	wc3lib::write(ostream, this->m_alpha1, size);
 	wc3lib::write(ostream, this->m_alpha2, size);
@@ -172,7 +168,7 @@ std::streamsize ParticleEmitter2::writeMdx(ostream &ostream) const throw (class 
 	wc3lib::write(ostream, this->m_textureId, size);
 	wc3lib::write(ostream, this->m_squirt, size);
 	wc3lib::write(ostream, this->m_priorityPlane, size);
-	wc3lib::write(ostream, *reinterpret_cast<const long32*>(&this->m_replaceableId), size);
+	wc3lib::write<long32>(ostream, this->m_replaceableId, size);
 	size += this->m_speeds->writeMdx(ostream);
 	size += this->m_latitudes->writeMdx(ostream);
 	size += this->m_emissionRates->writeMdx(ostream);
@@ -182,7 +178,7 @@ std::streamsize ParticleEmitter2::writeMdx(ostream &ostream) const throw (class 
 
 	long32 nbytesi = size;
 	writeByteCount(ostream, nbytesi, position, size, true);
-	
+
 	return size;
 }
 

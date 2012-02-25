@@ -31,7 +31,7 @@ MdlxTranslations::MdlxTranslations(class Mdlx *mdlx) : MdlxScalings(mdlx, "KGTR"
 {
 }
 
-class MdlxAnimatedProperty* MdlxTranslations::createAnimatedProperty()
+MdlxTranslations::Property* MdlxTranslations::createAnimatedProperty()
 {
 	return new MdlxTranslation(this);
 }

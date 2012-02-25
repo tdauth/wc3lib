@@ -132,7 +132,8 @@ void TextureEditor::openFile()
 	try
 	{
 		texture->setSource(source());
-		texture->loadAll();
+		texture->loadBlp();
+		texture->loadQt();
 	}
 	catch (Exception &exception)
 	{
@@ -169,7 +170,7 @@ void TextureEditor::openFile()
 		BlpIOHandler ioHandler;
 		QImage image;
 
-		if (ioHandler.read(&image, *mipMap, *this->texture()->blp()))
+		if (ioHandler.read(&image, mipMap, *this->texture()->blp()))
 			m_mipMaps[i] = image;
 		else
 			KMessageBox::error(this, i18n("Unable to read MIP map \"%1\".", i));

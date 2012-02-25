@@ -30,7 +30,7 @@ namespace mpq
 
 void MpqFile::removeData()
 {
-	if (!this->try_lock())
+	if (!this->m_mutex.try_lock())
 		throw Exception(boost::format(_("Unable to lock MPQ file %1%.")) % path());
 
 	this->block()->setFileSize(0);
@@ -40,14 +40,14 @@ void MpqFile::removeData()
 
 	/// \todo Clear corresponding sector table in MPQ file?
 
-	this->unlock();
+	this->m_mutex.unlock();
 }
 
 std::streamsize MpqFile::readData(istream &istream, BOOST_SCOPED_ENUM(Sector::Compression) compression) throw (class Exception)
 {
 	removeData();
 
-	if (!this->try_lock())
+	if (!this->m_mutex.try_lock())
 		throw Exception(boost::format(_("Unable to lock MPQ file %1%.")) % path());
 
 	std::streamsize bytes = 0;
@@ -99,7 +99,7 @@ std::streamsize MpqFile::readData(istream &istream, BOOST_SCOPED_ENUM(Sector::Co
 		/// \todo AHH!
 	}
 
-	this->unlock();
+	this->m_mutex.unlock();
 
 	return bytes;
 }
@@ -108,10 +108,10 @@ std::streamsize MpqFile::appendData(istream &istream) throw (class Exception)
 {
 	throw Exception(_("MpqFile: appendData is not implemented yet!"));
 
-	if (!this->try_lock())
+	if (!this->m_mutex.try_lock())
 		throw Exception(boost::format(_("Unable to lock MPQ file %1%.")) % path());
 
-	this->unlock();
+	this->m_mutex.unlock();
 
 	return 0;
 }
@@ -197,8 +197,6 @@ MpqFile::Sectors MpqFile::realSectors() const throw (Exception)
 
 MpqFile::MpqFile(class Mpq *mpq, class Hash *hash) : m_mpq(mpq), m_hash(hash), m_path("")
 {
-	if (hash != 0)
-		hash->m_mpqFile = this;
 }
 
 MpqFile::~MpqFile()
@@ -223,7 +221,7 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 	if (hasSectorOffsetTable() && isEncrypted() && path().empty())
 		return 0;
 
-	if (!this->try_lock())
+	if (!this->m_mutex.try_lock())
 		throw Exception(boost::format(_("Unable to lock MPQ file %1%.")) % path());
 
 	istream.seekg(mpq()->startPosition());
@@ -316,7 +314,7 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 		}
 	}
 
-	this->unlock();
+	this->m_mutex.unlock();
 
 	return bytes;
 }
@@ -348,7 +346,7 @@ std::streamsize MpqFile::write(ostream &ostream) const throw (class Exception)
 
 void MpqFile::remove() throw (class Exception)
 {
-	if (!this->try_lock())
+	if (!this->m_mutex.try_lock())
 		throw Exception(boost::format(_("Unable to lock MPQ file \"%1%\".")) % path());
 
 	this->m_hash->clear();
@@ -357,7 +355,7 @@ void MpqFile::remove() throw (class Exception)
 	//BOOST_FOREACH(class Sector *sector, this->m_sectors)
 		//bytes += sector->clear();
 
-	this->unlock();
+	this->m_mutex.unlock();
 }
 
 bool MpqFile::rename(const std::string &newName, bool overwriteExisting) throw (class Exception)
@@ -370,22 +368,22 @@ bool MpqFile::move(const boost::filesystem::path &newPath, bool overwriteExistin
 	if (this->m_path == newPath)
 		return false;
 
-	if (!this->try_lock())
+	if (!this->m_mutex.try_lock())
 		throw Exception(boost::format(_("Unable to lock MPQ file \"%1%\".")) % path());
 
-	class MpqFile *mpqFile = this->m_mpq->findFile(newPath, this->locale(), this->platform());
+	Mpq::FilePtr file = this->mpq()->findFile(newPath, this->locale(), this->platform());
 
-	if (mpqFile != 0)
+	if (file.get() != 0)
 	{
 		if (!overwriteExisting)
 			return false;
 
-		mpqFile->remove();
+		file->remove();
 	}
 
-	this->m_hash->changePath(newPath);
+	this->hash()->changePath(newPath);
 
-	this->unlock();
+	this->m_mutex.unlock();
 
 	return true;
 }

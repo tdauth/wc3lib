@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MDLX_PARTICLEEMITTER_HPP
 #define WC3LIB_MDLX_PARTICLEEMITTER_HPP
 
+#include <boost/cast.hpp>
+
 #include "node.hpp"
 #include "groupmdxblockmember.hpp"
 #include "particleemitters.hpp"
@@ -38,7 +40,7 @@ class ParticleEmitter : public Node, public GroupMdxBlockMember
 {
 	public:
 		static const std::size_t modelPathSize = 0x100;
-		
+
 		ParticleEmitter(class ParticleEmitters *particleEmitters);
 		virtual ~ParticleEmitter();
 
@@ -50,7 +52,7 @@ class ParticleEmitter : public Node, public GroupMdxBlockMember
 		/**
 		 * \return Returns model path with length of \ref modelPathSize.
 		 */
-		const ascii* modelPath() const;
+		const byte* modelPath() const;
 		long32 unknown0() const;
 		float32 lifeSpan() const;
 		float32 initVelocity() const;
@@ -68,7 +70,7 @@ class ParticleEmitter : public Node, public GroupMdxBlockMember
 		float32 m_gravity;
 		float32 m_longitude;
 		float32 m_latitidue;
-		ascii m_modelPath[modelPathSize]; //(0x100 bytes)
+		byte m_modelPath[modelPathSize]; //(0x100 bytes)
 		long32 m_unknown0; //(0)
 		float32 m_lifeSpan;
 		float32 m_initVelocity;
@@ -77,7 +79,7 @@ class ParticleEmitter : public Node, public GroupMdxBlockMember
 
 inline class ParticleEmitters* ParticleEmitter::particleEmitters() const
 {
-	return dynamic_cast<class ParticleEmitters*>(this->m_parent);
+	return boost::polymorphic_cast<class ParticleEmitters*>(this->parent());
 }
 
 inline float32 ParticleEmitter::emissionRate() const
@@ -100,7 +102,7 @@ inline float32 ParticleEmitter::latitidue() const
 	return this->m_latitidue;
 }
 
-inline const ascii* ParticleEmitter::modelPath() const
+inline const byte* ParticleEmitter::modelPath() const
 {
 	return this->m_modelPath;
 }

@@ -37,7 +37,7 @@ AmbientColors::~AmbientColors()
 {
 }
 
-class MdlxScaling* AmbientColors::createNewMember()
+AmbientColors::Property* AmbientColors::createAnimatedProperty()
 {
 	return new AmbientColor(this);
 }

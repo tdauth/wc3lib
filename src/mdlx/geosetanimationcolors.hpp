@@ -36,27 +36,20 @@ namespace mdlx
 class GeosetAnimationColors : public MdlxScalings
 {
 	public:
-		typedef std::list<class GeosetAnimationColor*> Colors;
-		
 		GeosetAnimationColors(class GeosetAnimation *geosetAnimation);
 
 		class GeosetAnimation* geosetAnimation() const;
-		const Colors& colors() const;
 
 	protected:
-		virtual class MdlxAnimatedProperty* createAnimatedProperty();
-		
+		/// \todo C++11 override
+		virtual Property* createAnimatedProperty();
+
 		class GeosetAnimation *m_geosetAnimation;
 };
 
 inline class GeosetAnimation* GeosetAnimationColors::geosetAnimation() const
 {
 	return this->m_geosetAnimation;
-}
-
-inline const GeosetAnimationColors::Colors& GeosetAnimationColors::colors() const
-{
-	return reinterpret_cast<const Colors&>(this->mdlxScalings());
 }
 
 }

@@ -86,7 +86,7 @@ void UnitEditor::onSwitchToMap(class Map *map)
 	{
 		BOOST_FOREACH(map::CustomUnits::Table::const_reference unit, map->map()->customUnits()->originalTable())
 		{
-			QTreeWidgetItem *unitItem = new QTreeWidgetItem(QStringList(tr("%1").arg(unit->originalId())), 0); // TEST usually you should get the unit's name
+			QTreeWidgetItem *unitItem = new QTreeWidgetItem(QStringList(tr("%1").arg(unit.originalId())), 0); // TEST usually you should get the unit's name
 			m_standardUnitsItem->addChild(unitItem); // TODO add to category item
 		}
 	}

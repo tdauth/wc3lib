@@ -36,19 +36,14 @@ namespace mdlx
 class TextureAnimationRotations : public MdlxScalings
 {
 	public:
-		typedef std::list<class TextureAnimationRotation*> Rotations;
-		
 		TextureAnimationRotations(class TextureAnimation *textureAnimation);
 		virtual ~TextureAnimationRotations();
 
 		class TextureAnimation* textureAnimation() const;
-		const Rotations& rotations() const;
-
-		virtual std::streamsize readMdl(std::istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(std::ostream &ostream) const throw (class Exception);
 
 	protected:
-		virtual class MdlxScaling* createNewMember();
+		/// \todo C++11 override
+		virtual Property* createAnimatedProperty();
 
 		class TextureAnimation *m_textureAnimation;
 };
@@ -56,11 +51,6 @@ class TextureAnimationRotations : public MdlxScalings
 inline class TextureAnimation* TextureAnimationRotations::textureAnimation() const
 {
 	return this->m_textureAnimation;
-}
-
-inline const TextureAnimationRotations::Rotations& TextureAnimationRotations::rotations() const
-{
-	return reinterpret_cast<const Rotations&>(this->mdlxScalings());
 }
 
 }

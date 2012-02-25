@@ -36,12 +36,9 @@ namespace mdlx
 class Lengths : public MdlxAlphas
 {
 	public:
-		typedef std::list<class Length*> Members;
-		
 		Lengths(class ParticleEmitter2 *particleEmitter);
 
 		class ParticleEmitter2* particleEmitter() const;
-		const Members& lengths() const;
 
 	protected:
 		class ParticleEmitter2 *m_particleEmitter;
@@ -50,11 +47,6 @@ class Lengths : public MdlxAlphas
 inline class ParticleEmitter2* Lengths::particleEmitter() const
 {
 	return this->m_particleEmitter;
-}
-
-inline const Lengths::Members& Lengths::lengths() const
-{
-	return reinterpret_cast<const Members&>(this->mdlxAlphas());
 }
 
 }

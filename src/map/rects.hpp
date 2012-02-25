@@ -43,32 +43,32 @@ class Rects : public FileFormat
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
-		virtual const char8* fileTextId() const;
-		virtual const char8* fileName() const;
-		virtual int32 latestFileVersion() const;
+		virtual const byte* fileTextId() const;
+		virtual const byte* fileName() const;
+		virtual uint32 latestFileVersion() const;
 
-		virtual int32 version() const { return m_version; }
+		virtual uint32 version() const { return m_version; }
 
 		RectVector& rects();
 		const RectVector& rects() const;
 
 	protected:
 		class W3m *m_w3m;
-		int32 m_version;
+		uint32 m_version;
 		RectVector m_rects;
 };
 
-inline const char8* Rects::fileTextId() const
+inline const byte* Rects::fileTextId() const
 {
 	return "";
 }
 
-inline const char8* Rects::fileName() const
+inline const byte* Rects::fileName() const
 {
 	return "war3map.w3r";
 }
 
-inline int32 Rects::latestFileVersion() const
+inline uint32 Rects::latestFileVersion() const
 {
 	return 5;
 }

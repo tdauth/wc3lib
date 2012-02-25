@@ -87,7 +87,7 @@ class CustomObjects : public CustomUnits
 		CustomObjects(BOOST_SCOPED_ENUM(Type) type);
 		BOOST_SCOPED_ENUM(Type) type() const;
 
-		virtual const char8* fileName() const;
+		virtual const byte* fileName() const;
 
 	protected:
 		virtual Unit* createUnit() const;

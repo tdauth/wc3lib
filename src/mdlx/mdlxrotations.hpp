@@ -22,6 +22,7 @@
 #define WC3LIB_MDLX_MDLXROTATIONS_HPP
 
 #include "mdlxanimatedproperties.hpp"
+#include "mdlxanimatedproperty.hpp"
 
 namespace wc3lib
 {
@@ -33,24 +34,16 @@ namespace mdlx
  * MDX tag "KGRT".
  * MDL tag "Rotation".
  */
-class MdlxRotations : public MdlxAnimatedProperties
+class MdlxRotations : public MdlxAnimatedProperties<4>
 {
 	public:
-		typedef std::list<class MdlxRotation*> Rotations;
-		
 		MdlxRotations(class Mdlx *mdlx);
 		virtual ~MdlxRotations();
 
-		const Rotations& mdlxRotations() const;
-
 	protected:
-		virtual class MdlxAnimatedProperty* createAnimatedProperty();
+		/// \todo C++11 override
+		virtual Property* createAnimatedProperty();
 };
-
-inline const MdlxRotations::Rotations& MdlxRotations::mdlxRotations() const
-{
-	return *reinterpret_cast<const Rotations*>(&this->m_properties);
-}
 
 }
 

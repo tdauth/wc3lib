@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MDLX_CAMERATRANSLATION_HPP
 #define WC3LIB_MDLX_CAMERATRANSLATION_HPP
 
+#include <boost/cast.hpp>
+
 #include "mdlxscaling.hpp"
 #include "cameratranslations.hpp"
 

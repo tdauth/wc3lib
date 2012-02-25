@@ -74,7 +74,7 @@ std::streamsize Node::readMdx(istream &istream) throw (class Exception)
 
 	//if (!this->inheritsScaling())
 		size += this->m_scalings->readMdx(istream);
-		
+
 	//print(std::cout);
 
 	return size;
@@ -110,9 +110,9 @@ std::ostream& Node::print(ostream &ostream) const
 	<< "Name: " << this->name() << std::endl
 	<< "ID: " << this->id() << std::endl
 	<< "Parent ID: " << this->parentId() << std::endl
-	<< "Translations: " << this->translations()->mdlxTranslations().size() << std::endl
-	<< "Rotations: " << this->rotations()->mdlxRotations().size() << std::endl
-	<< "Scalings: " << this->scalings()->mdlxScalings().size() << std::endl
+	<< "Translations: " << this->translations()->properties().size() << std::endl
+	<< "Rotations: " << this->rotations()->properties().size() << std::endl
+	<< "Scalings: " << this->scalings()->properties().size() << std::endl
 	<< std::endl;
 
 	return ostream;

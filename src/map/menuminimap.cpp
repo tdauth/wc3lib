@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <boost/foreach.hpp>
+
 #include "menuminimap.hpp"
 
 namespace wc3lib
@@ -36,7 +38,7 @@ std::streamsize MenuMinimap::Mark::read(InputStream &istream) throw (Exception)
 	wc3lib::read<int32>(istream, (int32&)m_iconType, size);
 	size += Position::read(istream);
 	size += m_color.read(istream);
-	
+
 	return size;
 }
 
@@ -46,7 +48,7 @@ std::streamsize MenuMinimap::Mark::write(OutputStream &ostream) const throw (Exc
 	wc3lib::write<int32>(ostream, (int32)iconType(), size);
 	size += Position::write(ostream);
 	size += m_color.write(ostream);
-	
+
 	return size;
 }
 
@@ -58,13 +60,13 @@ std::streamsize MenuMinimap::read(InputStream &istream) throw (Exception)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_version, size);
-	
+
 	if (version() != latestFileVersion())
 		std::cerr << boost::format(_("Menu minimap version %1% isn't equal to latest version %2%")) % version() % latestFileVersion() << std::endl;
-	
+
 	int32 number;
 	wc3lib::read(istream, number, size);
-	
+
 	while (number > 0)
 	{
 		MarkPtr ptr(new Mark(0, 0));
@@ -72,7 +74,7 @@ std::streamsize MenuMinimap::read(InputStream &istream) throw (Exception)
 		m_marks.insert(ptr);
 		--number;
 	}
-	
+
 	return size;
 }
 
@@ -80,16 +82,16 @@ std::streamsize MenuMinimap::write(OutputStream &ostream) const throw (Exception
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->version(), size);
-	
+
 	if (version() != latestFileVersion())
 		std::cerr << boost::format(_("Menu minimap version %1% isn't equal to latest version %2%")) % version() % latestFileVersion() << std::endl;
-	
+
 	int32 number = boost::numeric_cast<int32>(marks().size());
 	wc3lib::write(ostream, number, size);
-	
-	BOOST_FOREACH(const MarkPtr ptr, marks())
+
+	BOOST_FOREACH(Marks::const_reference ptr, marks())
 		size += ptr->write(ostream);
-	
+
 	return size;
 }
 

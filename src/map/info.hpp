@@ -221,11 +221,11 @@ class Info : public FileFormat
 		std::streamsize read(InputStream &istream) throw (class Exception);
 		std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
-		virtual const char8* fileTextId() const;
-		virtual int32 latestFileVersion() const;
-		virtual const char8* fileName() const;
+		virtual const byte* fileTextId() const;
+		virtual uint32 latestFileVersion() const;
+		virtual const byte* fileName() const;
 
-		virtual int32 version() const;
+		virtual uint32 version() const;
 
 		int32 mapVersion() const;
 		int32 editorVersion() const;
@@ -261,7 +261,7 @@ class Info : public FileFormat
 
 	protected:
 		class W3m *m_w3m;
-		int32 m_version;
+		uint32 m_version;
 		int32 m_mapVersion; // number of saves (map version)
 		int32 m_editorVersion; // editor version (little endian)
 		string m_name;
@@ -415,22 +415,22 @@ inline const Info::RandomUnitTable::Groups& Info::RandomUnitTable::groups() cons
 	return m_groups;
 }
 
-inline const char8* Info::fileTextId() const
+inline const byte* Info::fileTextId() const
 {
 	return "";
 }
 
-inline int32 Info::latestFileVersion() const
+inline uint32 Info::latestFileVersion() const
 {
 	return 18;
 }
 
-inline const char8* Info::fileName() const
+inline const byte* Info::fileName() const
 {
 	return "war3map.w3i";
 }
 
-inline int32 Info::version() const
+inline uint32 Info::version() const
 {
 	return m_version;
 }

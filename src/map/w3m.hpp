@@ -67,7 +67,7 @@ class W3m : public mpq::Mpq, public Playable
 		typedef boost::scoped_ptr<CustomTextTriggers> CustomTextTriggersPtr;
 		typedef boost::scoped_ptr<ImportedFiles> ImportedFilesPtr;
 		typedef std::vector<FileFormat*> FileFormats;
-		typedef boost::scoped_array<char8> Signature;
+		typedef boost::scoped_array<byte> Signature;
 
 		W3m();
 		virtual ~W3m();

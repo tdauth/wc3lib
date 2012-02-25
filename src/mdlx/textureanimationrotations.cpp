@@ -37,17 +37,7 @@ TextureAnimationRotations::~TextureAnimationRotations()
 {
 }
 
-std::streamsize TextureAnimationRotations::readMdl(std::istream &istream) throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize TextureAnimationRotations::writeMdl(std::ostream &ostream) const throw (class Exception)
-{
-	return 0;
-}
-
-class MdlxScaling* TextureAnimationRotations::createNewMember()
+TextureAnimationRotations::Property* TextureAnimationRotations::createAnimatedProperty()
 {
 	return new TextureAnimationRotation(this);
 }

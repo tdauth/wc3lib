@@ -36,18 +36,13 @@ namespace mdlx
 class Normals : public GroupMdxBlock
 {
 	public:
-		typedef std::list<class Normal*> Members;
-		
 		Normals(class Geoset *geoset);
 		virtual ~Normals();
 
 		class Geoset* geoset() const;
-		const Members& normals() const;
-
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
 
 	protected:
+		/// \todo C++11 override
 		virtual class GroupMdxBlockMember* createNewMember();
 
 		class Geoset *m_geoset;
@@ -57,11 +52,6 @@ class Normals : public GroupMdxBlock
 inline class Geoset* Normals::geoset() const
 {
 	return this->m_geoset;
-}
-
-inline const Normals::Members& Normals::normals() const
-{
-	return reinterpret_cast<const Members&>(this->m_members);
 }
 
 }

@@ -47,7 +47,7 @@ class Camera : public GroupMdxBlockMember
 		/**
 		 * \return Returns name with length of \ref Camera::nameSize.
 		 */
-		const ascii* name() const;
+		const byte* name() const;
 		const VertexData& position() const;
 		float32 fieldOfView() const;
 		float32 farClip() const;
@@ -64,7 +64,7 @@ class Camera : public GroupMdxBlockMember
 
 	protected:
 		//long nbytesi;
-		ascii m_name[nameSize]; //(0x50)
+		byte m_name[nameSize]; //(0x50)
 		VertexData m_position;
 		float32 m_fieldOfView;
 		float32 m_farClip;
@@ -81,7 +81,7 @@ inline class Cameras* Camera::cameras() const
 	return boost::polymorphic_cast<class Cameras*>(this->parent());
 }
 
-inline const ascii* Camera::name() const
+inline const byte* Camera::name() const
 {
 	return this->m_name;
 }

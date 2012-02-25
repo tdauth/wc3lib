@@ -42,7 +42,7 @@ namespace mdlx
 class Node : public MdlxProperty
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Type) // : long32
+		BOOST_SCOPED_ENUM_START(Type) /// \todo C++ : long32
 		{
 			Helper = 0,
 			DontInheritTranslation = 1,
@@ -74,11 +74,11 @@ class Node : public MdlxProperty
 		Node(class Mdlx *mdlx);
 		virtual ~Node();
 
-		void setName(const ascii name[nameSize]);
+		void setName(const byte name[nameSize]);
 		/**
 		 * \return Returns name with constant length of \ref nameSize.
 		 */
-		const ascii* name() const;
+		const byte* name() const;
 		long32 id() const;
 		long32 parentId() const;
 		bool hasParent() const;
@@ -107,7 +107,7 @@ class Node : public MdlxProperty
 
 	protected:
 		class Mdlx *m_mdlx;
-		ascii m_name[nameSize];
+		byte m_name[nameSize];
 		long32 m_id;
 		long32 m_parentId;
 		BOOST_SCOPED_ENUM(Type) m_type;
@@ -117,13 +117,13 @@ class Node : public MdlxProperty
 };
 
 
-inline void Node::setName(const ascii name[Node::nameSize])
+inline void Node::setName(const byte name[Node::nameSize])
 {
 	memcpy(this->m_name, name, sizeof(name));
 }
 
 
-inline const ascii* Node::name() const
+inline const byte* Node::name() const
 {
 	return this->m_name;
 }

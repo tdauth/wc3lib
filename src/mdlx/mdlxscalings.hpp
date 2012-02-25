@@ -22,6 +22,7 @@
 #define WC3LIB_MDLX_MDLXSCALINGS_HPP
 
 #include "mdlxanimatedproperties.hpp"
+#include "mdlxanimatedproperty.hpp"
 
 namespace wc3lib
 {
@@ -29,28 +30,19 @@ namespace wc3lib
 namespace mdlx
 {
 
-class MdlxScalings : public MdlxAnimatedProperties
+class MdlxScalings : public MdlxAnimatedProperties<3>
 {
 	public:
-		typedef std::list<class MdlxScaling*> Scalings;
-		
 		MdlxScalings(class Mdlx *mdlx);
 		virtual ~MdlxScalings();
 
-		const Scalings& mdlxScalings() const;
-
 	protected:
 		MdlxScalings(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlKeyword);
-		
-		virtual class MdlxAnimatedProperty* createAnimatedProperty();
+
+		/// \todo C++11 override
+		virtual Property* createAnimatedProperty();
 
 };
-
-
-inline const MdlxScalings::Scalings& MdlxScalings::mdlxScalings() const
-{
-	return *reinterpret_cast<const Scalings*>(&this->properties());
-}
 
 }
 

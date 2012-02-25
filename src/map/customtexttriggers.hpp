@@ -37,35 +37,35 @@ class CustomTextTriggers : public FileFormat
 		virtual std::streamsize read(InputStream& istream) throw (Exception);
 		virtual std::streamsize write(OutputStream& ostream) const throw (Exception);
 
-		virtual const char8* fileTextId() const;
-		virtual const char8* fileName() const;
-		virtual int32 latestFileVersion() const;
-		virtual uint32_t version() const;
+		virtual const byte* fileTextId() const;
+		virtual const byte* fileName() const;
+		virtual uint32 latestFileVersion() const;
+		virtual uint32 version() const;
 
 		TriggerTexts& triggerTexts();
 		const TriggerTexts& triggerTexts() const;
 
 	protected:
-		int32 m_version;
+		uint32 m_version;
 		TriggerTexts m_triggerTexts;
 };
 
-inline const char8* CustomTextTriggers::fileTextId() const
+inline const byte* CustomTextTriggers::fileTextId() const
 {
 	return "";
 }
 
-inline const char8* CustomTextTriggers::fileName() const
+inline const byte* CustomTextTriggers::fileName() const
 {
 	return "war3map.wct";
 }
 
-inline int32 CustomTextTriggers::latestFileVersion() const
+inline uint32 CustomTextTriggers::latestFileVersion() const
 {
 	return 0;
 }
 
-inline uint32_t CustomTextTriggers::version() const
+inline uint32 CustomTextTriggers::version() const
 {
 	return m_version;
 }

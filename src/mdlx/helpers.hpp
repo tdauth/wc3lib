@@ -36,28 +36,21 @@ namespace mdlx
 class Helpers : public GroupMdxBlock
 {
 	public:
-		typedef std::list<class Helper*> Members;
-		
 		Helpers(class Mdlx *mdlx);
 		virtual ~Helpers();
 
 		class Mdlx* mdlx() const;
-		const Members& helpers() const;
 
 	protected:
+		/// \todo C++11 override
 		virtual class GroupMdxBlockMember* createNewMember();
-		
+
 		class Mdlx *m_mdlx;
 };
 
 inline class Mdlx* Helpers::mdlx() const
 {
 	return this->m_mdlx;
-}
-
-inline const Helpers::Members& Helpers::helpers() const
-{
-	return reinterpret_cast<const Members&>(this->m_members);
 }
 
 }

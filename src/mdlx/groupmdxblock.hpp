@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MDLX_GROUPMDXBLOCK_HPP
 #define WC3LIB_MDLX_GROUPMDXBLOCK_HPP
 
-#include <list>
+#include <boost/ptr_container/ptr_list.hpp>
 
 #include "mdxblock.hpp"
 
@@ -42,15 +42,21 @@ namespace mdlx
 class GroupMdxBlock : public MdxBlock
 {
 	public:
+		/**
+		 * \note We cannot use \ref boost::ptr_vector since blocks without counter can only estimate the number of members.
+		 */
+		typedef boost::ptr_list<class GroupMdxBlockMember> Members;
+
 		GroupMdxBlock(byte blockName[4], const string &mdlKeyword, bool usesCounter = true, bool optional = true);
-		~GroupMdxBlock();
+		virtual ~GroupMdxBlock();
 
 		/**
 		 * \return Returns true if members are stored by number of them. Otherwise their size in bytes is stored (exclusive byte count -> does not include its own size).
 		 */
 		bool usesCounter() const;
-		const std::list<class GroupMdxBlockMember*>& members() const;
-		
+		Members& members();
+		const Members& members() const;
+
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
 		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
 		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
@@ -67,7 +73,7 @@ class GroupMdxBlock : public MdxBlock
 		/**
 		 * Provides access to all read members for child class.
 		 */
-		std::list<class GroupMdxBlockMember*> m_members;
+		Members m_members;
 };
 
 inline bool GroupMdxBlock::usesCounter() const
@@ -75,7 +81,12 @@ inline bool GroupMdxBlock::usesCounter() const
 	return m_usesCounter;
 }
 
-inline const std::list<class GroupMdxBlockMember*>& GroupMdxBlock::members() const
+inline GroupMdxBlock::Members& GroupMdxBlock::members()
+{
+	return m_members;
+}
+
+inline const GroupMdxBlock::Members& GroupMdxBlock::members() const
 {
 	return m_members;
 }

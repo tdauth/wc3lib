@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2008, 2009 by Tamino Dauth                              *
+ *   Copyright (C) 2008 by Tamino Dauth                                    *
  *   tamino@cdauth.de                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -22,10 +22,10 @@
 
 namespace wc3lib
 {
-	
+
 namespace lang
 {
-	
+
 namespace jass
 {
 
@@ -33,7 +33,7 @@ Function::Function(const std::string &identifier, class SourceFile *sourceFile, 
 {
 }
 
-#ifdef SQLITE		
+#ifdef SQLITE
 Function::Function(std::vector<Object::SqlValueDataType> &columnVector) : Object(columnVector)
 {
 }

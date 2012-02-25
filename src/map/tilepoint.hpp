@@ -41,33 +41,33 @@ class Tilepoint : public Position
 			CameraBoundary = 0x0080
 		};
 		BOOST_SCOPED_ENUM_END
-	
+
 		Tilepoint(class Environment *environment, int32 x, int32 y);
 		Tilepoint(class Environment *environment, const Position &position);
-		
+
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
-		short16 worldEditorHeight(short16 layer, short16 groundZeroLevel, short16 layerZeroLevel) const;
-		float32 worldEditorWaterLevel(short16 groundZeroLevel, float32 waterZeroLevel) const;
-		
+		int16 worldEditorHeight(int16 layer, int16 groundZeroLevel, int16 layerZeroLevel) const;
+		float32 worldEditorWaterLevel(int16 groundZeroLevel, float32 waterZeroLevel) const;
+
 	protected:
 		class Environment *m_environment;
-		short16 m_groundHeight;
-		short16 m_waterLevel;
+		int16 m_groundHeight;
+		int16 m_waterLevel;
 		BOOST_SCOPED_ENUM(Tilepoint::Flags) m_flags;
 		unsigned int m_groundTextureType:4;
-		char8 m_textureDetails;
+		byte m_textureDetails;
 		unsigned int m_cliffTextureType:4;
 		unsigned int m_layerHeight:4;
 };
 
-inline short16 Tilepoint::worldEditorHeight(short16 layer, short16 groundZeroLevel, short16 layerZeroLevel) const
+inline int16 Tilepoint::worldEditorHeight(int16 layer, int16 groundZeroLevel, int16 layerZeroLevel) const
 {
 	return (this->m_groundHeight - groundZeroLevel + (layer - layerZeroLevel) * this->m_layerHeight) / 4;
 }
 
-inline float32 Tilepoint::worldEditorWaterLevel(short16 groundZeroLevel, float32 waterZeroLevel) const
+inline float32 Tilepoint::worldEditorWaterLevel(int16 groundZeroLevel, float32 waterZeroLevel) const
 {
 	return (this->m_waterLevel - groundZeroLevel) / 4 + waterZeroLevel;
 }

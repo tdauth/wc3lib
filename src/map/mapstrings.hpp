@@ -36,28 +36,28 @@ class MapStrings : public FileFormat, public Strings
 		virtual std::streamsize read(InputStream &istream) throw (Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
 
-		virtual const char8* fileTextId() const;
-		virtual const char8* fileName() const;
-		virtual int32 latestFileVersion() const;
-		virtual uint32_t version() const;
+		virtual const byte* fileTextId() const;
+		virtual const byte* fileName() const;
+		virtual uint32 latestFileVersion() const;
+		virtual uint32 version() const;
 };
 
-inline const char8* MapStrings::fileTextId() const
+inline const byte* MapStrings::fileTextId() const
 {
 	return "";
 }
 
-inline const wc3lib::map::char8* MapStrings::fileName() const
+inline const byte* MapStrings::fileName() const
 {
 	return "war3map.wts";
 }
 
-inline int32 MapStrings::latestFileVersion() const
+inline uint32 MapStrings::latestFileVersion() const
 {
 	return 0;
 }
 
-inline uint32_t MapStrings::version() const
+inline uint32 MapStrings::version() const
 {
 	return 0;
 }

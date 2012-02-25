@@ -37,32 +37,20 @@ namespace mdlx
 class RibbonEmitters : public GroupMdxBlock
 {
 	public:
-		typedef std::list<class RibbonEmitter*> Emitters;
-		
 		RibbonEmitters(class Mdlx *mdlx);
 
 		class Mdlx* mdlx() const;
-		const Emitters& ribbonEmitters() const;
-
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
-		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 
 	protected:
+		/// \todo C++11 override
 		virtual class GroupMdxBlockMember* createNewMember();
-		
+
 		class Mdlx *m_mdlx;
 };
 
 inline class Mdlx* RibbonEmitters::mdlx() const
 {
 	return this->m_mdlx;
-}
-
-inline const RibbonEmitters::Emitters& RibbonEmitters::ribbonEmitters() const
-{
-	return reinterpret_cast<const Emitters&>(this->m_members);
 }
 
 }

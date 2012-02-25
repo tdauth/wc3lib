@@ -30,6 +30,7 @@
 #include "object.hpp"
 #include "bone.hpp"
 #include "geoset.hpp"
+#include "pivotpoint.hpp"
 
 #include "texture.hpp"
 
@@ -176,12 +177,14 @@ std::streamsize Mdlx::writeMdx(ostream &ostream) const throw (class Exception)
 	return bytes;
 }
 
-std::size_t Mdlx::replaceTexturePaths(const ascii oldTexturePath[0x100], const ascii newTexturePath[0x100], std::size_t number)
+std::size_t Mdlx::replaceTexturePaths(const byte oldTexturePath[0x100], const byte newTexturePath[0x100], std::size_t number)
 {
 	std::size_t result = 0;
 
-	BOOST_FOREACH(class Texture *texture, this->m_textures->textures())
+	BOOST_FOREACH(Textures::Members::reference member, this->m_textures->members())
 	{
+		Texture *texture = boost::polymorphic_cast<Texture*>(&member);
+
 		if (memcmp(texture->texturePath(), oldTexturePath, 0x100) == 0)
 		{
 			texture->setTexturePath(newTexturePath);
@@ -199,10 +202,10 @@ const class Geoset* Mdlx::boneGeoset(const class Bone &bone) const
 {
 	long32 id = 0;
 
-	BOOST_FOREACH(const class Geoset *geoset, this->m_geosets->geosets())
+	BOOST_FOREACH(Geosets::Members::reference geoset, this->m_geosets->members())
 	{
 		if (id == bone.geosetId())
-			return geoset;
+			return boost::polymorphic_cast<Geoset*>(&geoset);
 
 		++id;
 	}
@@ -214,10 +217,10 @@ const class PivotPoint* Mdlx::nodePivotPoint(const class Node &node) const
 {
 	long32 id = 0;
 
-	BOOST_FOREACH(const class PivotPoint *pivotPoint, this->m_pivotPoints->pivotPoints())
+	BOOST_FOREACH(Geosets::Members::reference pivotPoint, this->m_pivotPoints->members())
 	{
 		if (node.id() == id)
-			return pivotPoint;
+			return boost::polymorphic_cast<PivotPoint*>(&pivotPoint);
 
 		++id;
 	}

@@ -25,6 +25,9 @@
 #include <ostream>
 
 #include <boost/serialization/serialization.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/iostreams/device/array.hpp>
+#include <boost/scoped_array.hpp>
 /*
 #include <boost/archive/basic_archive.hpp>
 #include <boost/archive/basic_binary_iarchive.hpp>
@@ -36,6 +39,7 @@
 
 #include "exception.hpp"
 #include "utilities.hpp"
+#include "platform.hpp"
 
 namespace wc3lib
 {
@@ -47,7 +51,7 @@ namespace wc3lib
  * \p _CharT Single char type which is used for input and out streams.
  */
 template<typename _CharT>
-class Format
+class BasicFormat
 {
 	public:
 		typedef _CharT CharType;
@@ -59,7 +63,7 @@ class Format
 		 */
 		virtual std::streamsize read(InputStream &istream) throw (class Exception) = 0;
 		/// Reads input from another format object (\p other).
-		std::streamsize read(const Format &other) throw (class Exception)
+		std::streamsize read(const BasicFormat &other) throw (class Exception)
 		{
 			boost::iostreams::basic_array<CharType> stream;
 			other.write(stream);
@@ -68,7 +72,7 @@ class Format
 		}
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception) = 0;
 		/// Writes output into another format object (\p other).
-		std::streamsize write(Format &other) const throw (class Exception)
+		std::streamsize write(BasicFormat &other) const throw (class Exception)
 		{
 			boost::iostreams::basic_array<CharType> stream;
 			write(stream);
@@ -120,17 +124,20 @@ class Format
 		BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 
-		class Format& operator<<(InputStream &istream) throw (class Exception);
-		const class Format& operator>>(OutputStream &ostream) const throw (class Exception);
+		class BasicFormat& operator<<(InputStream &istream) throw (class Exception);
+		const class BasicFormat& operator>>(OutputStream &ostream) const throw (class Exception);
 
 		/**
 		 * Version is required for Boost-like serialization. Most of Warcraft 3's formats do also have a version number.
 		 */
-		virtual uint32_t version() const = 0;
+		virtual uint32_t version() const
+		{
+			return 0;
+		}
 };
 
 template<typename _CharT>
-inline class Format<_CharT>& Format<_CharT>::operator<<(Format<_CharT>::InputStream &istream) throw (class Exception)
+inline class BasicFormat<_CharT>& BasicFormat<_CharT>::operator<<(BasicFormat<_CharT>::InputStream &istream) throw (class Exception)
 {
 	this->read(istream);
 
@@ -138,7 +145,7 @@ inline class Format<_CharT>& Format<_CharT>::operator<<(Format<_CharT>::InputStr
 }
 
 template<typename _CharT>
-inline const class Format<_CharT>& Format<_CharT>::operator>>(Format<_CharT>::OutputStream &ostream) const throw (class Exception)
+inline const class BasicFormat<_CharT>& BasicFormat<_CharT>::operator>>(BasicFormat<_CharT>::OutputStream &ostream) const throw (class Exception)
 {
 	this->write(ostream);
 
@@ -146,7 +153,7 @@ inline const class Format<_CharT>& Format<_CharT>::operator>>(Format<_CharT>::Ou
 }
 
 template<typename _CharT>
-inline std::basic_istream<_CharT>& operator>>(std::basic_istream<_CharT> &istream, class Format<_CharT> &format) throw (class Exception)
+inline std::basic_istream<_CharT>& operator>>(std::basic_istream<_CharT> &istream, class BasicFormat<_CharT> &format) throw (class Exception)
 {
 	format.read(istream);
 
@@ -154,12 +161,14 @@ inline std::basic_istream<_CharT>& operator>>(std::basic_istream<_CharT> &istrea
 }
 
 template<typename _CharT>
-inline std::basic_ostream<_CharT>& operator<<(std::basic_ostream<_CharT> &ostream, const class Format<_CharT> &format) throw (class Exception)
+inline std::basic_ostream<_CharT>& operator<<(std::basic_ostream<_CharT> &ostream, const class BasicFormat<_CharT> &format) throw (class Exception)
 {
 	format.write(ostream);
 
 	return ostream;
 }
+
+typedef BasicFormat<byte> Format;
 
 }
 

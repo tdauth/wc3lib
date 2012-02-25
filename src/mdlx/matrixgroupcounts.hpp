@@ -36,15 +36,13 @@ namespace mdlx
 class MatrixGroupCounts : public GroupMdxBlock
 {
 	public:
-		typedef std::list<class MatrixGroupCount*> GroupCounts;
-		
 		MatrixGroupCounts(class Geoset *geoset);
 		virtual ~MatrixGroupCounts();
 
 		class Geoset* geoset() const;
-		const GroupCounts& matrixGroupCounts() const;
 
 	protected:
+		/// \todo C++11 override
 		virtual class GroupMdxBlockMember* createNewMember();
 
 		class Geoset *m_geoset;
@@ -53,11 +51,6 @@ class MatrixGroupCounts : public GroupMdxBlock
 inline class Geoset* MatrixGroupCounts::geoset() const
 {
 	return this->m_geoset;
-}
-
-inline const MatrixGroupCounts::GroupCounts& MatrixGroupCounts::matrixGroupCounts() const
-{
-	return *reinterpret_cast<const GroupCounts*>(&this->m_members);
 }
 
 }

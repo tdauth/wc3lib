@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <boost/filesystem.hpp>
+
 #include "mpq.hpp"
 #include "sector.hpp"
 
@@ -340,38 +342,22 @@ uint32_t Mpq::version() const
 	return 0;
 }
 
-const class MpqFile* Mpq::findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform) const throw (Exception)
+Mpq::FilePtrConst Mpq::findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform) const throw (Exception)
 {
-	class Hash *hash = const_cast<class Mpq*>(this)->findHash(path, locale, platform);
-
-	// hash->m_mpqFile == 0 could happen in early stage when loading all hash entries
-	if (hash == 0 || hash->m_mpqFile == 0 || hash->deleted() || hash->empty())
-		return 0;
-
-	if (hash->m_mpqFile->m_path != path) // path has not been set yet
-	{
-		hash->m_mpqFile->m_path = path;
-
-		// if we have a sector offset table and file is encrypted we first need to know its path for proper decryption!
-		// TODO READ SECTOR OFFSET TABLE AND DECRYPT IT NOW THAT WE HAVE ITS PATH
-		if (hash->mpqFile()->hasSectorOffsetTable() && hash->mpqFile()->isEncrypted() && storeSectors())
-			hash->mpqFile()->read();
-	}
-
-	return const_cast<const class MpqFile*>(hash->m_mpqFile);
+	return const_cast<Mpq*>(this)->findFile(path, locale, platform);
 }
 
-const class MpqFile* Mpq::findFile(const class MpqFile &mpqFile) const throw (Exception)
+Mpq::FilePtrConst Mpq::findFile(const class MpqFile &mpqFile) const throw (Exception)
 {
-	return this->findFile(mpqFile.path(), mpqFile.locale(), mpqFile.platform());
+	return const_cast<Mpq*>(this)->findFile(mpqFile.path(), mpqFile.locale(), mpqFile.platform());
 }
 
-class MpqFile* Mpq::addFile(const boost::filesystem::path &path, const byte *buffer, std::size_t bufferSize, bool overwriteExisting, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform) throw (class Exception)
+Mpq::FilePtr Mpq::addFile(const boost::filesystem::path &path, const byte *buffer, std::size_t bufferSize, bool overwriteExisting, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform) throw (class Exception)
 {
-	class MpqFile *mpqFile = const_cast<class MpqFile*>(this->findFile(path, locale, platform));
+	FilePtr mpqFile = this->findFile(path, locale, platform);
 
 	// In the event of a collision (the home entry is occupied by another file), progressive overflow is used, and the file is placed in the next available hash table entry
-	if (mpqFile != 0)
+	if (mpqFile.get() != 0)
 	{
 		if (overwriteExisting)
 			mpqFile->remove();
@@ -487,7 +473,7 @@ class MpqFile* Mpq::addFile(const boost::filesystem::path &path, const byte *buf
 	throw Exception(_("Not implemented yet!"));
 }
 
-class MpqFile* Mpq::addFile(const MpqFile &mpqFile, bool addData, bool overwriteExisting) throw (class Exception)
+Mpq::FilePtr Mpq::addFile(const MpqFile &mpqFile, bool addData, bool overwriteExisting) throw (class Exception)
 {
 	throw Exception(_("Not implemented yet!"));
 	arraystream stream;
@@ -500,9 +486,9 @@ class MpqFile* Mpq::addFile(const MpqFile &mpqFile, bool addData, bool overwrite
 
 bool Mpq::removeFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform)
 {
-	class MpqFile *mpqFile = this->findFile(path, locale, platform);
+	FilePtr mpqFile = this->findFile(path, locale, platform);
 
-	if (mpqFile == 0)
+	if (mpqFile.get() == 0)
 		return false;
 
 	mpqFile->remove();
@@ -512,12 +498,12 @@ bool Mpq::removeFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqF
 
 bool Mpq::removeFile(const MpqFile &mpqFile)
 {
-	class MpqFile *searchedMpqFile = this->findFile(mpqFile);
+	FilePtr file = this->findFile(mpqFile);
 
-	if (searchedMpqFile == 0)
+	if (file.get() == 0)
 		return false;
 
-	searchedMpqFile->remove();
+	file->remove();
 
 	return true;
 }
@@ -611,34 +597,55 @@ void Mpq::clear()
 }
 
 /// @todo There seems to be some MPQ archives which do contain hash tables which do start with an empty entry. Therefore I commented checks for such tables.
-class Hash* Mpq::findHash(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform)
+Mpq::HashPtr Mpq::findHash(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform)
 {
-	if (this->m_hashes.get<uint32>().empty()) //  || this->m_hashes.front()->empty()
-		return 0;
+	if (this->hashes().get<uint32>().empty()) //  || this->m_hashes.front()->empty()
+		return HashPtr();
 
 	// Compute the hashes to compare the hash table entry against
 	HashData hashData(path, locale, platform);
-	Hashes::index_iterator<HashData>::type iterator = this->m_hashes.get<HashData>().find(hashData);
+	Hashes::index_iterator<HashData>::type iterator = this->hashes().get<HashData>().find(hashData);
 
-	if (iterator == this->m_hashes.get<HashData>().end() || (*iterator)->deleted())
-		return 0;
+	if (iterator == this->hashes().get<HashData>().end() || (*iterator)->deleted())
+		return HashPtr();
 
-	return iterator->get();
+	return *iterator;
 }
 
-class Hash* Mpq::findHash(const Hash &hash)
+Mpq::HashPtr Mpq::findHash(const MpqFile &file)
 {
-	return this->findHash(hash.mpqFile()->path(), hash.mpqFile()->locale(), hash.mpqFile()->platform());
+	return this->findHash(file.path(), file.locale(), file.platform());
 }
 
-class MpqFile* Mpq::findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform) throw (Exception)
+Mpq::FilePtr Mpq::findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform) throw (Exception)
 {
-	return const_cast<class MpqFile*>(const_cast<const Mpq*>(this)->findFile(path, locale, platform));
+	HashPtr hash = this->findHash(path, locale, platform);
+
+	// hash->m_mpqFile == 0 could happen in early stage when loading all hash entries
+	if (hash.get() == 0 || hash->deleted() || hash->empty())
+		return FilePtr();
+
+	Files::index_iterator<Hash>::type iterator = this->files().get<Hash>().find(hash.get());
+
+	if (iterator == this->files().get<Hash>().end())
+		return FilePtr();
+
+	if ((*iterator)->path() != path) // path has not been set yet
+	{
+		(*iterator)->m_path = path;
+
+		// if we have a sector offset table and file is encrypted we first need to know its path for proper decryption!
+		// TODO READ SECTOR OFFSET TABLE AND DECRYPT IT NOW THAT WE HAVE ITS PATH
+		if ((*iterator)->hasSectorOffsetTable() && (*iterator)->isEncrypted() && storeSectors())
+			(*iterator)->read();
+	}
+
+	return (*iterator);
 }
 
-class MpqFile* Mpq::findFile(const class MpqFile &mpqFile) throw (Exception)
+Mpq::FilePtr Mpq::findFile(const class MpqFile &mpqFile) throw (Exception)
 {
-	return const_cast<class MpqFile*>(const_cast<const Mpq*>(this)->findFile(mpqFile));
+	return this->findFile(mpqFile.path(), mpqFile.locale(), mpqFile.platform());
 }
 
 bool Mpq::removeFile(class MpqFile *&mpqFile)

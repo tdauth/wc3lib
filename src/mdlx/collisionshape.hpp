@@ -37,7 +37,7 @@ namespace mdlx
 class CollisionShape : public GroupMdxBlockMember, public Object
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Shape) // : long32
+		BOOST_SCOPED_ENUM_START(Shape) /// \todo C++11 : long32
 		{
 			Box = 0,
 			Sphere = 2

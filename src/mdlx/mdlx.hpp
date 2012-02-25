@@ -81,7 +81,7 @@ class Mdlx : public MdxBlock
 		 * \param number If this value is 0 all matching paths will be changed.
 		 * \return Returns the number of changed texture paths.
 		 */
-		std::size_t replaceTexturePaths(const ascii oldTexturePath[0x100], const ascii newTexturePath[0x100], std::size_t number = 0);
+		std::size_t replaceTexturePaths(const byte oldTexturePath[0x100], const byte newTexturePath[0x100], std::size_t number = 0);
 
 		const class Geoset* boneGeoset(const class Bone &bone) const;
 		/**

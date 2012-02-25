@@ -31,27 +31,6 @@ RibbonEmitters::RibbonEmitters(class Mdlx *mdlx) : GroupMdxBlock("RIBB", "", fal
 {
 }
 
-std::streamsize RibbonEmitters::readMdl(istream &istream) throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize RibbonEmitters::writeMdl(ostream &ostream) const throw (class Exception)
-{
-	return 0;
-}
-
-
-std::streamsize RibbonEmitters::readMdx(std::istream &istream) throw (class Exception)
-{
-	return GroupMdxBlock::readMdx(istream);
-}
-
-std::streamsize RibbonEmitters::writeMdx(std::ostream &ostream) const throw (class Exception)
-{
-	return GroupMdxBlock::writeMdx(ostream);
-}
-
 class GroupMdxBlockMember* RibbonEmitters::createNewMember()
 {
 	return new RibbonEmitter(this);

@@ -31,26 +31,6 @@ Textures::Textures(class Mdlx *mdlx) : GroupMdxBlock("TEXS", "Textures", false),
 {
 }
 
-std::streamsize Textures::readMdl(istream &istream) throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize Textures::writeMdl(ostream &ostream) const throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize Textures::readMdx(istream &istream) throw (class Exception)
-{
-	return GroupMdxBlock::readMdx(istream);
-}
-
-std::streamsize Textures::writeMdx(ostream &ostream) const throw (class Exception)
-{
-	return GroupMdxBlock::writeMdx(ostream);
-}
-
 class GroupMdxBlockMember* Textures::createNewMember()
 {
 	return new Texture(this);

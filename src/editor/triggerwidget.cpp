@@ -66,7 +66,7 @@ TriggerWidget::TriggerWidget(class TriggerEditor *triggerEditor) : m_triggerEdit
 	textEdit()->hide();
 }
 
-void TriggerWidget::showTrigger(map::Trigger* trigger, const map::string &customText)
+void TriggerWidget::showTrigger(map::Trigger* trigger, const string &customText)
 {
 	if (this->trigger() != 0)
 	{
@@ -98,7 +98,7 @@ void TriggerWidget::showTrigger(map::Trigger* trigger, const map::string &custom
 		else
 			rootItem()->setBackgroundColor(0, QColor(Qt::white));
 
-		for (map::int32 i = 0; i < trigger->functions().size(); ++i)
+		for (int32 i = 0; i < trigger->functions().size(); ++i)
 		{
 			QTreeWidgetItem *item = new QTreeWidgetItem();
 			item->setText(0, trigger->functions()[i]->name().c_str());

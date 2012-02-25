@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2008, 2009 by Tamino Dauth                              *
+ *   Copyright (C) 2008 by Tamino Dauth                                    *
  *   tamino@cdauth.de                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -54,7 +54,7 @@ class Interface : public Object
 		class Library *m_library;
 		class Scope *m_scope;
 		bool m_isPrivate;
-		
+
 		void getMemberList(std::ofstream &file) const;
 		void getImplementationList(std::ofstream &file) const;
 		void getMethodList(std::ofstream &file) const;

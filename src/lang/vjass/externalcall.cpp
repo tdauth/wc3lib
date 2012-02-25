@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2008, 2009 by Tamino Dauth                              *
+ *   Copyright (C) 2008 by Tamino Dauth                                    *
  *   tamino@cdauth.de                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -39,10 +39,10 @@ void ExternalCall::initClass()
 	ExternalCall::sqlColumns = Object::sqlColumns + ExternalCall::maxArguments;
 	ExternalCall::sqlColumnStatement = Object::sqlColumnStatement;
 	std::istream istream;
-	
+
 	for (int i = 0; i < ExternalCall::maxArguments; ++i)
 		istream << ",Argument" << i << " VARCHAR(50)";
-	
+
 	ExternalCall::sqlColumnStatement += istream.str();
 }
 #endif
@@ -88,14 +88,14 @@ void ExternalCall::page(std::ofstream &file) const
 	<< "\t\t" << SourceFile::sourceFileLineLink(this) << '\n'
 	<< "\t\t<h2><a name=\"Arguments\">" << _("Arguments") << "</a></h2>\n"
 	;
-	
+
 	if (this->m_arguments != 0 && !this->m_arguments->empty())
 	{
 		file << "\t\t<ul>\n";
-		
+
 		for (std::list<std::string>::iterator iterator = this->m_arguments->begin(); iterator != this->m_arguments->end(); ++iterator)
 			file << "\t\t\t<li>" << *iterator << "</li>\n";
-		
+
 		file << "\t\t</ul>\n";
 	}
 	else
@@ -108,24 +108,24 @@ std::string ExternalCall::sqlStatement() const
 	std::ostringstream sstream;
 	sstream
 	<< Object::sqlStatement()
-	
+
 	int i = 0;
-	
+
 	BOOST_FOREACH(std::string iterator, this->m_arguments)
 	{
 		if (i < ExternalCall::maxArguments)
 			break;
-		
+
 		sstream << ", Argument" << i << "=\"" << iterator << "\"";
 		++i;
 	}
-	
+
 	if (i < ExternalCall::maxArguments)
 	{
 		for ( ; i < ExternalCall::maxArguments; ++i)
 			sstream << ", Argument" << i << "=NULL";
 	}
-	
+
 	return sstream.str();
 }
 #endif

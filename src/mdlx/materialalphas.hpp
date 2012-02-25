@@ -41,8 +41,9 @@ class MaterialAlphas : public MdlxAlphas
 		class Layer* layer() const;
 
 	protected:
-		virtual class MdlxAnimatedProperty* createAnimatedProperty();
-		
+		/// \todo C++11 override
+		virtual Property* createAnimatedProperty();
+
 		class Layer *m_layer;
 };
 

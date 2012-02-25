@@ -36,27 +36,20 @@ namespace mdlx
 class RibbonEmitterVisibilities : public MdlxAlphas
 {
 	public:
-		typedef std::list<class RibbonEmitterVisibility*> Visibilities;
-		
 		RibbonEmitterVisibilities(class RibbonEmitter *ribbonEmitter);
 
 		class RibbonEmitter* ribbonEmitter() const;
-		const Visibilities& visibilities() const;
 
 	protected:
-		virtual class MdlxAnimatedProperty* createAnimatedProperty();
-		
+		/// \todo C++11 override
+		virtual Property* createAnimatedProperty();
+
 		class RibbonEmitter *m_ribbonEmitter;
 };
 
 inline class RibbonEmitter* RibbonEmitterVisibilities::ribbonEmitter() const
 {
 	return this->m_ribbonEmitter;
-}
-
-inline const RibbonEmitterVisibilities::Visibilities& RibbonEmitterVisibilities::visibilities() const
-{
-	return reinterpret_cast<const Visibilities&>(this->mdlxAlphas());
 }
 
 }

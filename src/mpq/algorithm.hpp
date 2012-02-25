@@ -21,6 +21,7 @@
 #ifndef WC3LIB_MPQ_ALGORITHM_HPP
 #define WC3LIB_MPQ_ALGORITHM_HPP
 
+#include <boost/detail/scoped_enum_emulation.hpp>
 #include <boost/iostreams/filter/bzip2.hpp>
 #include <boost/iostreams/filter/zlib.hpp>
 
@@ -37,6 +38,8 @@
 #include <wave/wave.h>
 
 #include "platform.hpp"
+#include "../i18n.hpp"
+#include "../exception.hpp"
 
 namespace wc3lib
 {

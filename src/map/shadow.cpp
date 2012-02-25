@@ -43,13 +43,13 @@ std::streamsize Shadow::read(InputStream &istream) throw (class Exception)
 {
 	std::streamsize size = 0;
 
-	for (int32 width = 0; width < this->m_w3m->width(); ++width)
+	for (int32 width = 0; width < this->w3m()->width(); ++width)
 	{
-		for (int32 height = 0; height < this->m_w3m->height(); ++height)
+		for (int32 height = 0; height < this->w3m()->height(); ++height)
 		{
 			for (int32 point = 0; point < Shadow::shadowPointsPerTileset; ++point)
 			{
-				char8 data;
+				byte data;
 				wc3lib::read(istream, data, size);
 				this->m_data.insert(std::make_pair(Key(width, height, point), (BOOST_SCOPED_ENUM(Shadow::Type))(data)));
 			}
@@ -62,14 +62,10 @@ std::streamsize Shadow::read(InputStream &istream) throw (class Exception)
 std::streamsize Shadow::write(OutputStream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	typedef std::pair<class Key, BOOST_SCOPED_ENUM(Type)> valueType;
 
-	// Should be sorted correctly (operator< of class Key)
-	BOOST_FOREACH(valueType value, this->m_data)
-	{
-		char8 data = (char8)(value.second);
-		wc3lib::write(ostream, data, size);
-	}
+	// should be sorted correctly (operator< of class Key)
+	BOOST_FOREACH(Data::const_reference value, this->data())
+		wc3lib::write<byte>(ostream, value.second, size);
 
 	return size;
 }

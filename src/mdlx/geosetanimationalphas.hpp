@@ -36,28 +36,21 @@ namespace mdlx
 class GeosetAnimationAlphas : public MdlxAlphas
 {
 	public:
-		typedef std::list<class GeosetAnimationAlpha*> Alphas;
-		
 		GeosetAnimationAlphas(class GeosetAnimation *geosetAnimation);
 		virtual ~GeosetAnimationAlphas();
 
 		class GeosetAnimation* geosetAnimation() const;
-		const Alphas& alphas() const;
 
 	protected:
-		virtual class MdlxAnimatedProperty* createAnimatedProperty();
-		
+		/// \todo C++11 override
+		virtual Property* createAnimatedProperty();
+
 		class GeosetAnimation *m_geosetAnimation;
 };
 
 inline class GeosetAnimation* GeosetAnimationAlphas::geosetAnimation() const
 {
 	return this->m_geosetAnimation;
-}
-
-inline const GeosetAnimationAlphas::Alphas& GeosetAnimationAlphas::alphas() const
-{
-	return reinterpret_cast<const Alphas&>(this->mdlxAlphas());
 }
 
 }

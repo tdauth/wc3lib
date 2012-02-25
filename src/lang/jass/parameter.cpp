@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2008, 2009 by Tamino Dauth                              *
+ *   Copyright (C) 2008 by Tamino Dauth                                    *
  *   tamino@cdauth.de                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -55,13 +55,13 @@ void Parameter::init()
 {
 	//Must not be empty.
 	this->m_type = this->searchObjectInList(this->typeExpression(), Parser::Types);
-	
+
 	if (this->m_type == 0)
 		this->m_type = this->searchObjectInList(this->typeExpression(), Parser::Interfaces);
-	
+
 	if (this->m_type == 0)
 		this->m_type = this->searchObjectInList(this->typeExpression(), Parser::Structs);
-	
+
 	if (this->m_type != 0)
 		this->m_typeExpression.clear();
 }
@@ -101,7 +101,7 @@ std::string Parameter::sqlStatement() const
 	<< "FunctionInterface=" << Object::objectId(this->functionInterface()) << ", "
 	<< "TypeExpression=\"" << this->typeExpression() << "\", "
 	<< "Type=" << Object::objectId(this->type());
-	
+
 	return sstream.str();
 }
 #endif

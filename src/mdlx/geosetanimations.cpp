@@ -31,26 +31,6 @@ GeosetAnimations::GeosetAnimations(class Mdlx *mdlx) : GroupMdxBlock("GEOA", "",
 {
 }
 
-std::streamsize GeosetAnimations::readMdl(istream &istream) throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize GeosetAnimations::writeMdl(ostream &ostream) const throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize GeosetAnimations::readMdx(istream &istream) throw (class Exception)
-{
-	return GroupMdxBlock::readMdx(istream);
-}
-
-std::streamsize GeosetAnimations::writeMdx(ostream &ostream) const throw (class Exception)
-{
-	return GroupMdxBlock::writeMdx(ostream);
-}
-
 class GroupMdxBlockMember* GeosetAnimations::createNewMember()
 {
 	return new GeosetAnimation(this);

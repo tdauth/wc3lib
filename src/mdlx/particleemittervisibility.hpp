@@ -40,7 +40,7 @@ class ParticleEmitterVisibility : public MdlxAlpha
 
 inline class ParticleEmitterVisibilities* ParticleEmitterVisibility::visibilities() const
 {
-	return dynamic_cast<class ParticleEmitterVisibilities*>(this->mdlxAlphas());
+	return boost::polymorphic_cast<class ParticleEmitterVisibilities*>(this->mdlxAlphas());
 }
 
 }

@@ -127,7 +127,7 @@ void ModelEditor::saveFile()
 
 	try
 	{
-		(*this->models().begin())->save(url);
+		(*this->models().begin()).save(url);
 	}
 	catch (Exception exception)
 	{
@@ -258,14 +258,14 @@ void ModelEditor::showCollisionShapes()
 		this->m_showCollisionShapesAction->setText(i18n("Hide Collision Shapes"));
 		qDebug() << "Showing collision shapes";
 
-		BOOST_FOREACH(Models::value_type value, models())
+		BOOST_FOREACH(Models::reference value, models())
 		{
 			std::size_t i = 0;
 
-			BOOST_FOREACH(OgreMdlx::CollisionShapes::const_reference collisionShape, value->collisionShapes())
+			BOOST_FOREACH(OgreMdlx::CollisionShapes::const_reference collisionShape, value.collisionShapes())
 			{
-				std::string name = boost::str(boost::format("%1%.CollisionShape%2%") % value->namePrefix().toUtf8().constData() % i);
-				Ogre::SceneNode *sceneNode = value->sceneNode()->createChildSceneNode(name.c_str());
+				std::string name = boost::str(boost::format("%1%.CollisionShape%2%") % value.namePrefix().toUtf8().constData() % i);
+				Ogre::SceneNode *sceneNode = value.sceneNode()->createChildSceneNode(name.c_str());
 				qDebug() << "Showing shape of type " << collisionShape.second->shape << " with name " << name.c_str();
 
 				switch (collisionShape.second->shape)
@@ -388,7 +388,7 @@ void ModelEditor::dropEvent(QDropEvent *event)
 bool ModelEditor::openUrl(const KUrl &url)
 {
 	//const Ogre::Vector3 position(0.0, 0.0, 0.0);
-	OgreMdlxPtr ogreModel(new OgreMdlx(url, this->m_modelView));
+	OgreMdlx *ogreModel = new OgreMdlx(url, this->m_modelView);
 
 	try
 	{
@@ -405,8 +405,8 @@ bool ModelEditor::openUrl(const KUrl &url)
 	}
 
 	this->m_models.push_back(ogreModel);
-	this->m_modelView->root()->addFrameListener(ogreModel.get());
-	addCameraActions(ogreModel);
+	this->m_modelView->root()->addFrameListener(ogreModel);
+	addCameraActions(*ogreModel);
 
 	try
 	{
@@ -421,28 +421,33 @@ bool ModelEditor::openUrl(const KUrl &url)
 	return true;
 }
 
-void ModelEditor::removeModel(OgreMdlxPtr &ogreModel)
+void ModelEditor::removeModel(const OgreMdlx &ogreModel)
 {
-	Models::iterator iterator = std::find(models().begin(), models().end(), ogreModel);
+	for (Models::iterator model = models().begin(); model != models().end(); ++model)
+	{
+		if (&(*model) == &ogreModel)
+		{
+			removeModel(model);
 
-	if (iterator != models().end())
-		removeModel(iterator);
-	else
-		qDebug() << "Error: Model " << ogreModel->namePrefix() << " was not found.";
+			return;
+		}
+	}
+
+	qDebug() << "Error: Model " << ogreModel.namePrefix() << " was not found.";
 }
 
 void ModelEditor::removeModel(Models::iterator iterator)
 {
-	this->m_modelView->root()->removeFrameListener(iterator->get());
+	this->m_modelView->root()->removeFrameListener(&(*iterator));
 	removeCameraActions(*iterator);
 	m_models.erase(iterator);
 }
 
-void ModelEditor::addCameraActions(const OgreMdlxPtr &ogreModel)
+void ModelEditor::addCameraActions(const OgreMdlx &ogreModel)
 {
 	if (this->m_viewMenu != 0)
 	{
-		BOOST_FOREACH(OgreMdlx::Cameras::const_reference iterator, ogreModel->cameras())
+		BOOST_FOREACH(OgreMdlx::Cameras::const_reference iterator, ogreModel.cameras())
 		{
 			KAction *action = new KAction(KIcon(":/actions/viewcamera.png"), i18n("Camera: %1", iterator.first->name()), this);
 			connect(action, SIGNAL(triggered()), this, SLOT(viewCamera()));
@@ -452,11 +457,11 @@ void ModelEditor::addCameraActions(const OgreMdlxPtr &ogreModel)
 	}
 }
 
-void ModelEditor::removeCameraActions(const OgreMdlxPtr &ogreModel)
+void ModelEditor::removeCameraActions(const OgreMdlx &ogreModel)
 {
 	if (this->m_viewMenu != 0)
 	{
-		BOOST_FOREACH(OgreMdlx::Cameras::const_reference camera, ogreModel->cameras())
+		BOOST_FOREACH(OgreMdlx::Cameras::const_reference camera, ogreModel.cameras())
 		{
 			CameraActions::right_iterator iterator = m_cameraActions.right.find(camera.first);
 

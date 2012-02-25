@@ -48,42 +48,42 @@ class Trees : public FileFormat
 		virtual std::streamsize read(InputStream& istream) throw (Exception);
 		virtual std::streamsize write(OutputStream& ostream) const throw (Exception);
 
-		virtual const char8* fileTextId() const;
-		virtual const char8* fileName() const;
-		virtual int32 latestFileVersion() const;
-		virtual uint32_t version() const;
+		virtual const byte* fileTextId() const;
+		virtual const byte* fileName() const;
+		virtual uint32 latestFileVersion() const;
+		virtual uint32 version() const;
 
-		int32 subVersion() const;
+		uint32 subVersion() const;
 		TreeVector& trees();
 		const TreeVector& trees() const;
 
 	protected:
-		int32 m_version;
-		int32 m_subVersion;
+		uint32 m_version;
+		uint32 m_subVersion;
 		TreeVector m_trees;
 };
 
-inline const char8* Trees::fileTextId() const
+inline const byte* Trees::fileTextId() const
 {
 	return "W3do";
 }
 
-inline const char8* Trees::fileName() const
+inline const byte* Trees::fileName() const
 {
 	return "war3map.doo";
 }
 
-inline int32 Trees::latestFileVersion() const
+inline uint32 Trees::latestFileVersion() const
 {
 	return 7;
 }
 
-inline uint32_t Trees::version() const
+inline uint32 Trees::version() const
 {
 	return this->m_version;
 }
 
-inline int32 Trees::subVersion() const
+inline uint32 Trees::subVersion() const
 {
 	return this->m_subVersion;
 }

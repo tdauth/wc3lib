@@ -36,17 +36,8 @@ namespace mdlx
 class AttachmentVisibilities : public MdlxAlphas
 {
 	public:
-		typedef std::list<class AttachmentVisibility*> Members;
-		
 		AttachmentVisibilities(class Mdlx *mdlx);
-
-		const std::list<class AttachmentVisibility*>& visibilities() const;
 };
-
-inline const AttachmentVisibilities::Members& AttachmentVisibilities::visibilities() const
-{
-	return reinterpret_cast<const Members&>(this->mdlxAlphas());
-}
 
 }
 

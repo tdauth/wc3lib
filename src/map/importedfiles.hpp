@@ -56,11 +56,11 @@ class ImportedFiles : public FileFormat
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
-		virtual const char8* fileTextId() const;
-		virtual int32 latestFileVersion() const;
-		virtual const char8* fileName() const;
+		virtual const byte* fileTextId() const;
+		virtual uint32 latestFileVersion() const;
+		virtual const byte* fileName() const;
 
-		virtual int32 version() const;
+		virtual uint32 version() const;
 		Paths& paths();
 		const Paths& paths() const;
 
@@ -69,7 +69,7 @@ class ImportedFiles : public FileFormat
 
 	protected:
 		class Playable *m_playable;
-		int32 m_version;
+		uint32 m_version;
 		Paths m_paths;
 };
 
@@ -83,22 +83,22 @@ inline const string& ImportedFiles::Path::path() const
 	return this->m_path;
 }
 
-inline const char8* ImportedFiles::fileTextId() const
+inline const byte* ImportedFiles::fileTextId() const
 {
 	return "";
 }
 
-inline int32 ImportedFiles::latestFileVersion() const
+inline uint32 ImportedFiles::latestFileVersion() const
 {
 	return 1;
 }
 
-inline const char8* ImportedFiles::fileName() const
+inline const byte* ImportedFiles::fileName() const
 {
 	return "war3map.imp";
 }
 
-inline int32 ImportedFiles::version() const
+inline uint32 ImportedFiles::version() const
 {
 	return this->m_version;
 }

@@ -39,7 +39,7 @@ class Model : public MdxBlock, public Bounds
 	public:
 		static const std::size_t nameSize = 80;
 		static const std::size_t animationFileNameSize = 260;
-		
+
 		Model(class Mdlx *mdlx);
 		virtual ~Model();
 
@@ -47,11 +47,11 @@ class Model : public MdxBlock, public Bounds
 		/**
 		 * \return Returns name with size of \ref nameSize.
 		 */
-		const ascii* name() const;
+		const byte* name() const;
 		/**
 		 * \returns Returns animation file name with size of \ref animationFileNameSize.
 		 */
-		const ascii* animationFileName() const;
+		const byte* animationFileName() const;
 		long32 blendTime() const;
 
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
@@ -62,8 +62,8 @@ class Model : public MdxBlock, public Bounds
 	protected:
 		class Mdlx *m_mdlx;
 		//long nbytes;
-		ascii m_name[nameSize];
-		ascii m_animationFileName[animationFileNameSize];
+		byte m_name[nameSize];
+		byte m_animationFileName[animationFileNameSize];
 		long32 m_blendTime;
 };
 
@@ -72,12 +72,12 @@ inline class Mdlx* Model::mdlx() const
 	return this->m_mdlx;
 }
 
-inline const ascii* Model::name() const
+inline const byte* Model::name() const
 {
 	return this->m_name;
 }
 
-inline const ascii* Model::animationFileName() const
+inline const byte* Model::animationFileName() const
 {
 	return this->m_animationFileName;
 }

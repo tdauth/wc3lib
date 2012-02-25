@@ -22,6 +22,7 @@
 #define WC3LIB_MDLX_MDLXALPHAS_HPP
 
 #include "mdlxanimatedproperties.hpp"
+#include "mdlxanimatedproperty.hpp"
 
 namespace wc3lib
 {
@@ -29,26 +30,17 @@ namespace wc3lib
 namespace mdlx
 {
 
-class MdlxAlphas : public MdlxAnimatedProperties
+class MdlxAlphas : public MdlxAnimatedProperties<1>
 {
 	public:
-		typedef std::list<class MdlxAlpha*> Alphas;
-		
 		MdlxAlphas(class Mdlx *mdlx);
 		virtual ~MdlxAlphas();
 
-		const Alphas& mdlxAlphas() const;
-		
 	protected:
 		MdlxAlphas(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlKeyword);
-		
-		virtual class MdlxAnimatedProperty* createAnimatedProperty();
-};
 
-inline const MdlxAlphas::Alphas& MdlxAlphas::mdlxAlphas() const
-{
-	return *reinterpret_cast<const Alphas*>(&properties());
-}
+		virtual MdlxAnimatedProperty<1>* createAnimatedProperty();
+};
 
 }
 

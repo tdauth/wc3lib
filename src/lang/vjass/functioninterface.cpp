@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2008, 2009 by Tamino Dauth                              *
+ *   Copyright (C) 2008 by Tamino Dauth                                    *
  *   tamino@cdauth.de                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -42,10 +42,10 @@ void FunctionInterface::initClass()
 	"Scope INT,"
 	"IsPrivate BOOLEAN,";
 	std::ostringstream sstream;
-	
+
 	for (int i = 0; i < FunctionInterface::maxParameters; ++i)
 		sstream << "Parameter" << i << " INT,";
-	
+
 	FunctionInterface::sqlColumnStatement += sstream.str();
 	FunctionInterface::sqlColumnStatement += "ReturnType INT";
 }
@@ -74,23 +74,23 @@ void FunctionInterface::init()
 	if (!this->m_returnTypeExpression.empty())
 	{
 		this->m_returnType = this->searchObjectInList(this->m_returnTypeExpression, Parser::FunctionInterfaces);
-		
+
 		if (this->m_returnType == 0)
 			this->m_returnType = this->searchObjectInList(this->m_returnTypeExpression, Parser::Types);
-		
+
 		if (this->m_returnType == 0)
 			this->m_returnType = this->searchObjectInList(this->m_returnTypeExpression, Parser::Interfaces);
-		
+
 		if (this->m_returnType == 0)
 			this->m_returnType = this->searchObjectInList(this->m_returnTypeExpression, Parser::Structs);
-		
+
 		if (this->m_returnType != 0)
 			this->m_returnTypeExpression.clear();
 		else
 		{
 			char message[256];
 			sprintf(message, _("Undefined type \"%s\"."), this->m_returnTypeExpression.c_str());
-			
+
 			Vjassdoc::parser()->add(new SyntaxError(this->sourceFile(), this->line(), message));
 		}
 	}
@@ -136,12 +136,12 @@ void FunctionInterface::page(std::ofstream &file) const
 
 		for (std::list<class Parameter*>::iterator iterator = list.begin(); iterator != list.end(); ++iterator)
 			file << "\t\t\t<li>" << Object::objectPageLink((*iterator)->type(), (*iterator)->typeExpression()) << " - " << Object::objectPageLink(*iterator) << "</li>\n";
-		
+
 		file << "\t\t</ul>\n";
 	}
 	else
 		file << "\t\t-\n";
-	
+
 	file
 	<< "\t\t<h2><a name=\"Return Type\">" << _("Return Type") << "</a></h2>\n"
 	<< "\t\t" << Object::objectPageLink(this->returnType()) << "\n"
@@ -159,18 +159,18 @@ std::string FunctionInterface::sqlStatement() const
 	<< "IsPrivate=" << this->isPrivate() << ", ";
 	int i = 0;
 	std::list<class Parameter*> list = this->m_parameters;
-	
+
 	for (std::list<class Parameter*>::iterator iterator = list.begin(); iterator != list.end() && i < FunctionInterface::maxParameters; ++iterator)
 	{
 		sstream << "Parameter" << i << "=" << Object::objectId((*iterator)) << ", ";
 		++i;
 	}
-	
+
 	for ( ; i < FunctionInterface::maxParameters; ++i)
 		sstream << "Parameter" << i << "=-1, ";
-	
+
 	sstream << "ReturnType=" << Object::objectId(this->returnType());
-	
+
 	return sstream.str();
 }
 #endif

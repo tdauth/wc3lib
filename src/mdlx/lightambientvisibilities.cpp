@@ -33,7 +33,7 @@ LightAmbientVisibilities::LightAmbientVisibilities(class Light *light) : MdlxAlp
 {
 }
 
-class MdlxAnimatedProperty* LightAmbientVisibilities::createAnimatedProperty()
+LightAmbientVisibilities::Property* LightAmbientVisibilities::createAnimatedProperty()
 {
 	return new LightAmbientVisibility(this);
 }

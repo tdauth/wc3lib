@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2008, 2009 by Tamino Dauth                              *
+ *   Copyright (C) 2008 by Tamino Dauth                                    *
  *   tamino@cdauth.de                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -60,16 +60,16 @@ void Local::init()
 {
 	//Must not be empty.
 	this->m_type = this->searchObjectInList(this->typeExpression(), Parser::Types);
-	
+
 	if (this->m_type == 0)
 		this->m_type = this->searchObjectInList(this->typeExpression(), Parser::Interfaces);
-	
+
 	if (this->m_type == 0)
 		this->m_type = this->searchObjectInList(this->typeExpression(), Parser::Structs);
-	
+
 	if (this->m_type != 0)
 		this->m_typeExpression.clear();
-	
+
 	this->m_value = this->findValue(this->type(), this->m_valueExpression);
 }
 
@@ -99,16 +99,16 @@ void Local::page(std::ofstream &file) const
 	<< "\t\t" << Object::objectPageLink(this->type(), this->typeExpression()) << '\n'
 	<< "\t\t<h2><a name=\"Value\">" << _("Value") << "</a></h2>\n"
 	;
-	
+
 	if (this->valueExpression().empty() || this->valueExpression() == "-")
 		file << "\t\t" << Object::objectPageLink(this->value(), this->valueExpression()) << '\n';
 	else
 	{
 		file << "\t\t";
-		
+
 		if (this->value() != 0)
 			file << Object::objectPageLink(this->value());
-		
+
 		file << "\t\t" << this->valueExpression() << '\n';
 	}
 }
@@ -125,9 +125,9 @@ std::string Local::sqlStatement() const
 	<< "Value=" << Object::objectId(this->value()) << ", "
 	<< "ValueExpression=\"" << Object::sqlFilteredString(this->valueExpression()) << "\""
 	;
-	
+
 	std::cout << "statement: " << sstream.str() << std::endl;
-	
+
 	return sstream.str();
 }
 #endif

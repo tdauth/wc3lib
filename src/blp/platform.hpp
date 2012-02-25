@@ -21,7 +21,7 @@
 #ifndef WC3LIB_BLP_PLATFORM_HPP
 #define WC3LIB_BLP_PLATFORM_HPP
 
-#include "../core.hpp"
+#include "../color.hpp"
 
 namespace wc3lib
 {
@@ -45,18 +45,11 @@ typedef char char8;
 typedef uint8_t byte;
 typedef uint16_t word;
 typedef uint32_t dword;
-typedef float float32;
+
 /**
  * \brief RGBA color stored in order ARGB with one byte per channel.
  */
 typedef uint32_t color;
-typedef Format<char8> Format;
-typedef std::basic_fstream<char8> fstream;
-typedef std::basic_ifstream<char8> ifstream;
-typedef std::basic_ofstream<char8> ofstream;
-typedef boost::iostreams::stream<boost::iostreams::basic_array<char8> > arraystream;
-typedef boost::iostreams::stream<boost::iostreams::basic_array_source<char8> > iarraystream;
-typedef boost::iostreams::stream<boost::iostreams::basic_array_sink<char8> > oarraystream;
 
 struct BlpHeader
 {
@@ -95,6 +88,16 @@ inline byte blue(color c)
 inline byte alpha(color c)
 {
 	return byte(0xFF) - (color(c & 0xFF000000) >> 24);
+}
+
+inline color fromRgba(const Rgba &rgba)
+{
+	return (color(rgba.alpha()) << 24) + (color(rgba.red()) << 16) + (color(rgba.green()) << 8) + rgba.blue();
+}
+
+inline Rgba toRgba(color value)
+{
+	return Rgba(red(value), green(value), blue(value), alpha(value));
 }
 
 }

@@ -33,7 +33,7 @@ ParticleEmitter2Visibilities::ParticleEmitter2Visibilities(class ParticleEmitter
 {
 }
 
-class MdlxAnimatedProperty* ParticleEmitter2Visibilities::createAnimatedProperty()
+ParticleEmitter2Visibilities::Property* ParticleEmitter2Visibilities::createAnimatedProperty()
 {
 	return new ParticleEmitter2Visibility(this);
 }

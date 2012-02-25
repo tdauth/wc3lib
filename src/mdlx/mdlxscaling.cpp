@@ -27,7 +27,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-MdlxScaling::MdlxScaling(class MdlxScalings *scalings) : MdlxAnimatedProperty(scalings, 3)
+MdlxScaling::MdlxScaling(class MdlxScalings *scalings) : MdlxAnimatedProperty(scalings)
 {
 }
 

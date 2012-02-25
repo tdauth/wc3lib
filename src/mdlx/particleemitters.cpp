@@ -31,16 +31,6 @@ ParticleEmitters::ParticleEmitters(class Mdlx *mdlx) : GroupMdxBlock("PREM", "",
 {
 }
 
-std::streamsize ParticleEmitters::readMdl(istream &istream) throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize ParticleEmitters::writeMdl(ostream &ostream) const throw (class Exception)
-{
-	return 0;
-}
-
 class GroupMdxBlockMember* ParticleEmitters::createNewMember()
 {
 	return new ParticleEmitter(this);

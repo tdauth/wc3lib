@@ -20,6 +20,7 @@
 
 #include <boost/iostreams/filtering_streambuf.hpp>
 #include <boost/iostreams/copy.hpp>
+#include <boost/scoped_array.hpp>
 
 #include "algorithm.hpp"
 

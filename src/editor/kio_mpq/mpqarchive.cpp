@@ -80,13 +80,13 @@ MpqArchive::~MpqArchive()
 
 bool MpqArchive::writeData(const char *data, qint64 size)
 {
-	if (m_mpqFile.get() == 0 || m_mpqFile->size() < size)
+	if (m_mpqFile.expired() || m_mpqFile.lock()->size() < size)
 		return false;
 
 	try
 	{
-		mpq::iarraystream stream(data, size);
-		m_mpqFile->readData(stream);
+		iarraystream stream(data, size);
+		m_mpqFile.lock()->readData(stream);
 	}
 	catch (Exception &exception)
 	{
@@ -98,7 +98,7 @@ bool MpqArchive::writeData(const char *data, qint64 size)
 
 bool MpqArchive::writeFile(const QString &name, const QString &user, const QString &group, const char *data, qint64 size, mode_t perm, time_t atime, time_t mtime, time_t ctime)
 {
-	mpq::iarraystream stream(data, size);
+	iarraystream stream(data, size);
 	BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale;
 	BOOST_SCOPED_ENUM(mpq::MpqFile::Platform) platform;
 	QString path(resolvePath(name, locale, platform));
@@ -147,12 +147,12 @@ bool MpqArchive::doPrepareWriting(const QString &name, const QString &user, cons
 	BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale;
 	BOOST_SCOPED_ENUM(mpq::MpqFile::Platform) platform;
 	QString path(resolvePath(name, locale, platform));
-	mpq::MpqFile *file = this->m_mpq->findFile(path.toUtf8().constData(), locale, platform);
+	mpq::Mpq::FilePtr file = this->m_mpq->findFile(path.toUtf8().constData(), locale, platform);
 
-	if (file == 0 || file->size() < size)
+	if (file.get() == 0 || file->size() < size)
 		return false;
 
-	m_mpqFile.reset(file);
+	m_mpqFile = file;
 
 	return true;
 }
@@ -164,7 +164,7 @@ bool MpqArchive::doWriteDir(const QString &name, const QString &user, const QStr
 
 bool MpqArchive::doWriteSymLink(const QString &name, const QString &target, const QString &user, const QString &group, mode_t perm, time_t atime, time_t mtime, time_t ctime)
 {
-	mpq::iarraystream stream(target.toUtf8().constData(), target.toUtf8().size());
+	iarraystream stream(target.toUtf8().constData(), target.toUtf8().size());
 	BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale;
 	BOOST_SCOPED_ENUM(mpq::MpqFile::Platform) platform;
 	QString path(resolvePath(name, locale, platform));

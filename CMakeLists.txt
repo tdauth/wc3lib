@@ -287,7 +287,7 @@ if (EDITOR OR PLUGINS)
 
 	find_path(tmp "Ogre.h" ${OGRE_INCLUDE_DIRS})
 
-	if (NOT (${tmp} EQUAL "tmp-NOTFOUND"))
+	if (tmp)
 		include_directories(${OGRE_INCLUDE_DIRS})
 		link_directories(${OGRE_LIB_DIR})
 

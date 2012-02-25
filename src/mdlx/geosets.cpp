@@ -31,26 +31,6 @@ Geosets::Geosets(class Mdlx *mdlx) : GroupMdxBlock("GEOS", "", false), m_mdlx(md
 {
 }
 
-std::streamsize Geosets::readMdl(istream &istream) throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize Geosets::writeMdl(ostream &ostream) const throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize Geosets::readMdx(istream &istream) throw (class Exception)
-{
-	return GroupMdxBlock::readMdx(istream);
-}
-
-std::streamsize Geosets::writeMdx(ostream &ostream) const throw (class Exception)
-{
-	return GroupMdxBlock::writeMdx(ostream);
-}
-
 class GroupMdxBlockMember* Geosets::createNewMember()
 {
 	return new Geoset(this);

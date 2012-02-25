@@ -131,11 +131,6 @@ class OgreMdlx  : public Resource, public Ogre::FrameListener
 		typedef std::pair<const class Node*, Ogre::Node*> NodePairType;
 
 		/**
-		 * Searches in member list of \p block for member \p member and returns its corresponding id.
-		 * Id is always its index in member list (starting with 0).
-		 */
-		mdlx::long32 mdlxId(const mdlx::GroupMdxBlockMember &member, const mdlx::GroupMdxBlock *block) const;
-		/**
 		 * Sometimes models are loaded from local directories which do also contain their required textures, attachments, particle emitter effects etc.
 		 * In that case you can't load those required files from \ref MpqPriorityList (\ref Editor -> \ref ModelView::editor()). Hence you must load them from the local filesystem using the model's directory URL as root directory.
 		 * This function checks whether URL \p url exists in one of the MPQ archives using \ref MpqPriorityList::findFile and if not it replaces the given URL parameter by a local URL using \ref OgreMdlx::url()'s directory as root directory.
@@ -145,19 +140,19 @@ class OgreMdlx  : public Resource, public Ogre::FrameListener
 		 */
 		bool useDirectoryUrl(KUrl &url, bool showMessage = false) const;
 
-		Ogre::TexturePtr createTexture(const class mdlx::Texture &texture) throw (class Exception);
-		Ogre::MaterialPtr createMaterial(const class mdlx::Material &material) throw (class Exception);
+		Ogre::TexturePtr createTexture(const class mdlx::Texture &texture, mdlx::long32 id) throw (class Exception);
+		Ogre::MaterialPtr createMaterial(const class mdlx::Material &material, mdlx::long32 id) throw (class Exception);
 		/**
 		* Creates manual object for specified geoset.
 		*/
-		Ogre::ManualObject* createGeoset(const class mdlx::Geoset &geoset) throw (class Exception);
+		Ogre::ManualObject* createGeoset(const class mdlx::Geoset &geoset, mdlx::long32 id) throw (class Exception);
 
-		Ogre::Camera* createCamera(const class mdlx::Camera &camera) throw (class Exception);
+		Ogre::Camera* createCamera(const class mdlx::Camera &camera, mdlx::long32 id) throw (class Exception);
 
 		/**
 		 * Collision shapes are required for "hit tests".
 		 */
-		CollisionShape* createCollisionShape(const class mdlx::CollisionShape &collisionShape) throw (class Exception);
+		CollisionShape* createCollisionShape(const class mdlx::CollisionShape &collisionShape, mdlx::long32 id) throw (class Exception);
 
 		Ogre::Node* createNode(const class mdlx::Node &node);
 

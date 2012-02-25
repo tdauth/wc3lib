@@ -21,6 +21,9 @@
 #ifndef WC3LIB_MAP_VALUE_HPP
 #define WC3LIB_MAP_VALUE_HPP
 
+#include <boost/variant.hpp>
+#include <boost/algorithm/string.hpp>
+
 #include "platform.hpp"
 
 namespace wc3lib
@@ -176,7 +179,7 @@ int32,
 float32,
 string,
 bool,
-char8,
+byte,
 List
 > ValueBase;
 
@@ -226,7 +229,7 @@ class Value : public ValueBase
 		Value(float32 value, BOOST_SCOPED_ENUM(Type) type = Type::Real);
 		Value(const string &value, BOOST_SCOPED_ENUM(Type) type = Type::String);
 		Value(bool value);
-		Value(char8 value);
+		Value(byte value);
 		Value(List value, BOOST_SCOPED_ENUM(Type) type = Type::StringList);
 
 		BOOST_SCOPED_ENUM(Type) type() const
@@ -307,15 +310,15 @@ class Value : public ValueBase
 			return const_cast<const Value*>(this)->toBoolean();
 		}
 
-		char8& toCharacter()
+		byte& toCharacter()
 		{
 			if (type() != Type::Character)
 				throw boost::bad_get();
 
-			return boost::get<char8>(*this);
+			return boost::get<byte>(*this);
 		}
 
-		const char8& toCharacter() const
+		const byte& toCharacter() const
 		{
 			return const_cast<const Value*>(this)->toCharacter();
 		}

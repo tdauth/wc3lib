@@ -31,26 +31,6 @@ Materials::Materials(class Mdlx *mdlx) : GroupMdxBlock("MTLS", "Materials", fals
 {
 }
 
-std::streamsize Materials::readMdl(istream &istream) throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize Materials::writeMdl(ostream &ostream) const throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize Materials::readMdx(istream &istream) throw (class Exception)
-{
-	return GroupMdxBlock::readMdx(istream);
-}
-
-std::streamsize Materials::writeMdx(ostream &ostream) const throw (class Exception)
-{
-	return GroupMdxBlock::writeMdx(ostream);
-}
-
 class GroupMdxBlockMember* Materials::createNewMember()
 {
 	return new Material(this);

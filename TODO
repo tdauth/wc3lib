@@ -1,4 +1,7 @@
-2012-03-20 Tamino Dauth <tamino@cdauth.eu>
+2012-02-24 Tamino Dauth <tamino@cdauth.eu>
+* Test mdlx revision and rendering.
+
+2012-02-20 Tamino Dauth <tamino@cdauth.eu>
 * blp: free_in_buffer value is larger than size!
 * blp: Custom buffer size value is not used.
 * editor: Fix layout of TextureEditor::SaveDialog.

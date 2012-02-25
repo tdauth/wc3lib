@@ -97,7 +97,7 @@ std::streamsize RibbonEmitter::writeMdx(ostream &ostream) const throw (class Exc
 	std::streampos nbytesiPosition, nbytesikgPosition;
 	skipByteCount<long32>(ostream, nbytesiPosition);
 	skipByteCount<long32>(ostream, nbytesikgPosition);
-	
+
 	size += Node::writeMdx(ostream);
 	std::streamsize ikgSize = this->translations()->writeMdx(ostream);
 	ikgSize += this->rotations()->writeMdx(ostream);
@@ -126,7 +126,7 @@ std::streamsize RibbonEmitter::writeMdx(ostream &ostream) const throw (class Exc
 	const long32 nbytesikg = size;
 	writeByteCount(ostream, nbytesi, nbytesiPosition, size, true);
 	writeByteCount(ostream, nbytesikg, nbytesikgPosition, size, true);
-	
+
 	return size;
 }
 

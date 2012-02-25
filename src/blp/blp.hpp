@@ -22,6 +22,8 @@
 #define WC3LIB_BLP_BLP_HPP
 
 #include <boost/multi_array.hpp>
+#include <boost/detail/scoped_enum_emulation.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 #include "platform.hpp"
 
@@ -206,8 +208,6 @@ class Blp : public Format
 		};
 		BOOST_SCOPED_ENUM_END
 
-		typedef boost::shared_array<color> ColorPtr;
-
 		/**
 		 * \return Returns auto-detected BLP format of buffer \p buffer with size \p bufferSize. Buffer can be larger than required (only first 4 bytes are checked).
 		 * \throw Exception Is thrown if no format was detected.
@@ -219,7 +219,7 @@ class Blp : public Format
 		static bool hasFormat(const byte *buffer, const std::size_t bufferSize);
 
 		Blp();
-		~Blp();
+		virtual ~Blp();
 
 		void setFormat(BOOST_SCOPED_ENUM(Format) format);
 		BOOST_SCOPED_ENUM(Format) format() const;
@@ -236,11 +236,10 @@ class Blp : public Format
 		void setPictureSubType(dword pictureSubType);
 		dword pictureSubType() const;
 
-		typedef boost::shared_ptr<MipMap> MipMapPtr;
 		/**
 		 * MIP maps are stored in a vector indicated by their corresponding MIP number which can be 0-15.
 		 */
-		typedef std::vector<MipMapPtr> MipMaps;
+		typedef boost::ptr_vector<boost::nullable<MipMap> > MipMaps;
 
 		const MipMaps& mipMaps() const;
 		MipMaps& mipMaps();
@@ -281,13 +280,9 @@ class Blp : public Format
 		int generateMipMaps(std::size_t number = Blp::maxMipMaps, bool regenerate = false) throw (class Exception);
 
 		bool hasPalette() const;
-		/**
-		 * Generates or regenerates color palette by color entry indices.
-		 * \param number If this value is 0 or too large it will be set to \ref Blp::compressedPaletteSize automatically.
-		 * \throw Exception Exception safe. Throws an exception if compression is not paletted.
-		 * \sa hasPalette(), palette()
-		 */
-		ColorPtr generatePalette(std::size_t number = Blp::compressedPaletteSize) throw (Exception);
+
+		typedef boost::scoped_array<color> ColorPtr;
+
 		/**
 		 * \return Returns corresponding color palette with size \ref Blp::compressedPaletteSize. If palette doesn't exist it will be generated automatically.
 		 * \sa hasPalette(), generatePalette()

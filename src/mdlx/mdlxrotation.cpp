@@ -27,7 +27,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-MdlxRotation::MdlxRotation(class MdlxRotations *rotations) : MdlxAnimatedProperty(rotations, 4)
+MdlxRotation::MdlxRotation(class MdlxRotations *rotations) : MdlxAnimatedProperty(rotations)
 {
 }
 

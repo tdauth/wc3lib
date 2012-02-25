@@ -21,7 +21,12 @@
 #ifndef WC3LIB_MDLX_PLATFORM_HPP
 #define WC3LIB_MDLX_PLATFORM_HPP
 
-#include "../core.hpp"
+#include <boost/detail/scoped_enum_emulation.hpp>
+#include <boost/foreach.hpp>
+
+#include "../platform.hpp"
+#include "../vertex.hpp"
+#include "../utilities.hpp"
 
 namespace wc3lib
 {
@@ -30,30 +35,8 @@ namespace mdlx
 {
 
 /// @todo Check signed and unsigned!
-/**
-* MDL notes:
-* Floating point numbers are in IEEE scientific notation format with 6 significant
-* figures. Exponent is not shown for exponents of ±4. If the number is an integral
-* float, decimal point is not shown.
-*/
-typedef float float32;
-typedef uint16_t short16; /// @todo undefined length?!
-typedef uint32_t long32;
-typedef char ascii;
-typedef char byte;
-typedef std::basic_string<ascii> string; /// Required for MDL format.
-typedef std::basic_istringstream<ascii> istringstream;
-typedef std::basic_ostringstream<ascii> ostringstream;
-typedef std::basic_stringstream<ascii> stringstream;
-typedef std::basic_istream<byte> istream;
-typedef std::basic_ostream<byte> ostream;
-
-
-class Format : public wc3lib::Format<byte>
-{
-	public:
-		virtual uint32_t version() const { return 800; }
-};
+typedef uint16 short16; /// @todo undefined length?!
+typedef uint32 long32;
 
 /**
  * MDLX format supports interpolation for scalings, translations and rotations.
@@ -89,54 +72,35 @@ BOOST_SCOPED_ENUM_START(ReplaceableId) /// \todo C++11 : long32
 };
 BOOST_SCOPED_ENUM_END
 
-typedef Vertex<float32> VertexData;
+typedef wc3lib::Vertex VertexData;
 class Vertex; // workaround, we already have a class called Vertex in MDLX module!
 
-struct QuaternionData
+struct QuaternionData : public BasicVertex<float32, 4>
 {
-	QuaternionData() : a(0), b(0), c(0), d(0) { }
-
-	QuaternionData(float32 a, float32 b, float32 c, float32 d) : a(a), b(b), c(c), d(d)
+	QuaternionData(const Base& base)
 	{
+		*this = base;
 	}
-
-	QuaternionData(const std::vector<float32> &values) : a(values[0]), b(values[1]), c(values[2]), d(values[3])
-	{
-	}
-
-	float32 operator[](uint8_t index) const
-	{
-		if (index == 0)
-			return a;
-		else if (index == 1)
-			return b;
-		else if (index == 2)
-			return c;
-
-		return d;
-	}
-
-	float32 a, b, c, d;
 };
 
-struct InterpolationData
+struct InterpolationData //: public Format
 {
-	InterpolationData(const std::vector<float32> &inTan, const std::vector<float32> &outTan) : inTanX(inTan[0]), inTanY(inTan[1]), inTanZ(inTan[2]), outTanX(outTan[0]), outTanY(outTan[1]), outTanZ(outTan[2])
+	InterpolationData(const VertexData &inTan, const VertexData &outTan) : inTan(inTan), outTan(outTan)
 	{
 	}
 
-	float32 inTanX, inTanY, inTanZ;
-	float32 outTanX, outTanY, outTanZ;
+	VertexData inTan;
+	VertexData outTan;
 };
 
-struct InterpolationRotationData
+struct InterpolationRotationData// : public Format
 {
-	InterpolationRotationData(const std::vector<float32> &inTan, const std::vector<float32> &outTan) : inTanA(inTan[0]), inTanB(inTan[1]), inTanC(inTan[2]), inTanD(inTan[3]), outTanA(outTan[0]), outTanB(outTan[1]), outTanC(outTan[2]), outTanD(outTan[3])
+	InterpolationRotationData(const QuaternionData &inTan, const QuaternionData &outTan) : inTan(inTan), outTan(outTan)
 	{
 	}
 
-	float32 inTanA, inTanB, inTanC, inTanD;
-	float32 outTanA, outTanB, outTanC, outTanD;
+	QuaternionData inTan;
+	QuaternionData outTan;
 };
 
 /*
@@ -179,7 +143,7 @@ class Format : public Format<byte>
 
 		boost::trim_if(value, boost::is_any_of("\""));
 
-		std::basic_ostringstream<ascii> osstream(value);
+		std::basic_ostringstream<byte> osstream(value);
 		osstream >> value;
 
 		return istream;
@@ -240,11 +204,11 @@ inline istream& parseMdlString(istream &stream, string &out, std::streamsize &si
 	return stream;
 }
 
-inline istream& parseMdlChar(istream &stream, const ascii &character, std::streamsize &sizeCounter, bool optional = false) throw (class Exception)
+inline istream& parseMdlChar(istream &stream, const byte &character, std::streamsize &sizeCounter, bool optional = false) throw (class Exception)
 {
 	std::streamsize counter = 0;
 	std::streampos position = stream.tellg();
-	ascii readChar;
+	byte readChar;
 	parse(stream, readChar, counter);
 
 	if (readChar != character)
@@ -378,7 +342,7 @@ inline istream& parseMdlProperty(istream &stream, std::list<struct MdlxPropertyI
 				}
 			}
 
-			ascii commata;
+			byte commata;
 			parse(stream, commata, counter);
 
 			if (commata != ',')
@@ -461,13 +425,13 @@ inline ostream& writeMdlStaticValueProperty(ostream &stream, const string &ident
  * Rotation { <float_a>, <float_b>, <float_c>, <float_d> }
  * Scaling { <float_x>, <float_y>, <float_z> }
  */
-template<typename T>
-ostream& writeMdlVectorProperty(ostream &ostream, const string &identifier, const std::vector<T> &values, std::streamsize &size)
+template<typename VertexType> //  = BasicVertex<T, N>
+ostream& writeMdlVectorProperty(ostream &ostream, const string &identifier, const VertexType &values, std::streamsize &size)
 {
 	string value(boost::str(boost::format("%1% %2%") % identifier % (values.size() == 1 ? "" : "{ ")));
 	std::size_t i = 0;
 
-	BOOST_FOREACH(const T &v, values)
+	BOOST_FOREACH(typename VertexType::const_reference v, values)
 	{
 		value = boost::str(boost::format("%1%%2%") % v % (i == values.size() - 1 ? " " : ", "));
 		++i;
@@ -488,8 +452,8 @@ ostream& writeMdlVectorProperty(ostream &ostream, const string &identifier, cons
  * Examples are:
  * static Color { <float_b>, <float_g>, <float_r> },
  */
-template<typename T>
-inline ostream& writeMdlStaticVectorProperty(ostream &stream, const string &identifier, const std::vector<T> &values, std::streamsize &size)
+template<typename VertexType> //  = BasicVertex<T, N>
+inline ostream& writeMdlStaticVectorProperty(ostream &stream, const string &identifier, const VertexType &values, std::streamsize &size)
 {
 	const string value("static ");
 	wc3lib::write(stream, value.c_str()[0], size, value.length()); // without 0-terminating character!

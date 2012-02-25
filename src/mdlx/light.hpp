@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MDLX_LIGHT_HPP
 #define WC3LIB_MDLX_LIGHT_HPP
 
+#include <boost/cast.hpp>
+
 #include "object.hpp"
 #include "groupmdxblockmember.hpp"
 #include "lights.hpp"
@@ -37,7 +39,7 @@ namespace mdlx
 class Light : public Object, public GroupMdxBlockMember
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Type) // : long32
+		BOOST_SCOPED_ENUM_START(Type) /// \todo C++11 : long32
 		{
 			Omnidirectional = 0,
 			Directional = 1,

@@ -31,26 +31,6 @@ Layers::Layers(class Material *material) : GroupMdxBlock("LAYS", ""), m_material
 {
 }
 
-std::streamsize Layers::readMdl(istream &istream) throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize Layers::writeMdl(ostream &ostream) const throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize Layers::readMdx(istream &istream) throw (class Exception)
-{
-	return GroupMdxBlock::readMdx(istream);
-}
-
-std::streamsize Layers::writeMdx(ostream &ostream) const throw (class Exception)
-{
-	return GroupMdxBlock::writeMdx(ostream);
-}
-
 class GroupMdxBlockMember* Layers::createNewMember()
 {
 	return new Layer(this);

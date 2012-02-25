@@ -36,25 +36,17 @@ class ParticleEmitters : public GroupMdxBlock
 		ParticleEmitters(class Mdlx *mdlx);
 
 		class Mdlx* mdlx() const;
-		const std::list<class ParticleEmitter*>& particleEmitters() const;
-
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
 
 	protected:
+		/// \todo C++11 override
 		virtual class GroupMdxBlockMember* createNewMember();
-		
+
 		class Mdlx *m_mdlx;
 };
 
 inline class Mdlx* ParticleEmitters::mdlx() const
 {
 	return this->m_mdlx;
-}
-
-inline const std::list<class ParticleEmitter*>& ParticleEmitters::particleEmitters() const
-{
-	return *reinterpret_cast<const std::list<class ParticleEmitter*>*>(&this->m_members);
 }
 
 }

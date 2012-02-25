@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MDLX_TEXTUREANIMATIONSCALING_HPP
 #define WC3LIB_MDLX_TEXTUREANIMATIONSCALING_HPP
 
+#include <boost/cast.hpp>
+
 #include "mdlxscaling.hpp"
 #include "textureanimationscalings.hpp"
 

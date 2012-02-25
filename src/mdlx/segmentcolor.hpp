@@ -22,6 +22,7 @@
 #define WC3LIB_MDLX_SEGMENTCOLOR_HPP
 
 #include "platform.hpp"
+#include "mdlxproperty.hpp"
 
 namespace wc3lib
 {
@@ -29,7 +30,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-class SegmentColor
+class SegmentColor : public MdlxProperty
 {
 	public:
 		SegmentColor(class ParticleEmitter2 *particleEmitter);

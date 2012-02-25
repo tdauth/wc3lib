@@ -173,7 +173,7 @@ void MpqProtocol::listDir(const KUrl &url)
 	BOOST_SCOPED_ENUM(mpq::MpqFile::Platform) platform = mpq::MpqFile::Platform::Default;
 	path = MpqArchive::resolvePath(path, locale, platform);
 
-	mpq::MpqFile *file = this->m_archive->findFile(path.toUtf8().constData(), locale, platform);
+	mpq::Mpq::FilePtrConst file = this->m_archive->findFile(path.toUtf8().constData(), locale, platform);
 
 	if (file != 0)
 	{
@@ -418,11 +418,11 @@ void MpqProtocol::get(const KUrl &url)
 	bool firstRead = true;
 
 	// How much file do we still have to process?
-	mpq::uint32 sectorIndex = 0;
+	uint32 sectorIndex = 0;
 	KIO::filesize_t processed = 0;
 
 	// open for better streaming
-	mpq::ifstream ifstream(m_archive->path(), std::ios::binary | std::ios::in);
+	ifstream ifstream(m_archive->path(), std::ios::binary | std::ios::in);
 
 	if (!ifstream)
 	{
@@ -440,7 +440,7 @@ void MpqProtocol::get(const KUrl &url)
 		}
 
 		// Avoid to use bufferSize here, in case something went wrong.
-		mpq::arraystream ostream(buffer.data(), buffer.size()); // TODO check if unbuffered stream works
+		arraystream ostream(buffer.data(), buffer.size()); // TODO check if unbuffered stream works
 		qint64 read = 0;
 
 		try
@@ -501,9 +501,9 @@ void MpqProtocol::put(const KUrl &url, int permissions, KIO::JobFlags flags)
 		return;
 	}
 
-	const mpq::MpqFile *file = this->m_archive->findFile(path.toUtf8().constData(), locale, platform);
+	mpq::Mpq::FilePtrConst file = this->m_archive->findFile(path.toUtf8().constData(), locale, platform);
 
-	if (file && !(flags & KIO::Overwrite))
+	if (file.get() != 0 && !(flags & KIO::Overwrite))
 	{
 		error(KIO::ERR_CANNOT_DELETE_ORIGINAL, url.prettyUrl());
 
@@ -726,7 +726,7 @@ mpq::MpqFile* MpqProtocol::resolvePath(QString& path)
 	BOOST_SCOPED_ENUM(mpq::MpqFile::Platform) platform = mpq::MpqFile::Platform::Default;
 	path = MpqArchive::resolvePath(path, locale, platform);
 
-	return this->m_archive->findFile(path.toUtf8().constData(), locale, platform);
+	return this->m_archive->findFile(path.toUtf8().constData(), locale, platform).get();
 }
 
 

@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MAP_RECT_HPP
 #define WC3LIB_MAP_RECT_HPP
 
+#include "../color.hpp"
+
 #include "platform.hpp"
 
 namespace wc3lib
@@ -57,7 +59,7 @@ class Rect : public Format
 		int32 m_index;
 		id m_weatherEffectId;
 		string m_soundName; // class Sound *m _sound
-		struct Rgb m_color; // no alpha!
+		Rgb m_color; // no alpha!
 
 };
 
@@ -101,7 +103,7 @@ inline const string& Rect::soundName() const
 	return this->m_soundName;
 }
 
-inline const struct Rgb& Rect::color() const
+inline const Rgb& Rect::color() const
 {
 	return this->m_color;
 }

@@ -21,6 +21,9 @@
 #ifndef WC3LIB_MDLX_PARTICLEEMITTER2_HPP
 #define WC3LIB_MDLX_PARTICLEEMITTER2_HPP
 
+#include <boost/ptr_container/ptr_array.hpp>
+#include <boost/cast.hpp>
+
 #include "node.hpp"
 #include "groupmdxblockmember.hpp"
 #include "particleemitter2s.hpp"
@@ -37,9 +40,10 @@ namespace mdlx
 class ParticleEmitter2 : public Node, public GroupMdxBlockMember
 {
 	public:
-		typedef std::list<class SegmentColor*> SegmentColors;
-		
-		BOOST_SCOPED_ENUM_START(FilterMode)
+		static const std::size_t segmentColorsSize = 3;
+		typedef boost::ptr_array<class SegmentColor, segmentColorsSize> SegmentColors;
+
+		BOOST_SCOPED_ENUM_START(FilterMode) /// \todo C++11 : long32
 		{
 			Blend = 0,
 			Additive = 1,
@@ -48,7 +52,7 @@ class ParticleEmitter2 : public Node, public GroupMdxBlockMember
 		};
 		BOOST_SCOPED_ENUM_END
 
-		BOOST_SCOPED_ENUM_START(Flags)
+		BOOST_SCOPED_ENUM_START(Flags) /// \todo C++11 : long32
 		{
 			Head = 0,
 			Tail = 1,
@@ -74,6 +78,7 @@ class ParticleEmitter2 : public Node, public GroupMdxBlockMember
 		BOOST_SCOPED_ENUM(Flags) flags() const;
 		float32 tailLength() const;
 		float32 time() const;
+		SegmentColors& segmentColors();
 		const SegmentColors& segmentColors() const;
 		byte alpha1() const;
 		byte alpha2() const;
@@ -218,6 +223,11 @@ inline float32 ParticleEmitter2::tailLength() const
 inline float32 ParticleEmitter2::time() const
 {
 	return this->m_time;
+}
+
+inline ParticleEmitter2::SegmentColors& ParticleEmitter2::segmentColors()
+{
+	return this->m_segmentColors;
 }
 
 inline const ParticleEmitter2::SegmentColors& ParticleEmitter2::segmentColors() const

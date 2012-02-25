@@ -21,6 +21,15 @@
 #ifndef WC3LIB_MPQ_MPQ_HPP
 #define WC3LIB_MPQ_MPQ_HPP
 
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/sequenced_index.hpp>
+#include <boost/multi_index/ordered_index.hpp>
+#include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/mem_fun.hpp>
+#include <boost/interprocess/sync/file_lock.hpp>
+#include <boost/cast.hpp>
+#include <boost/foreach.hpp>
+
 #include <crypto++/sha.h>
 #include <crypto++/rsa.h>
 
@@ -83,7 +92,7 @@ namespace mpq
  * instance which refers to the newly created file.
  * Blocks (\ref Block), hashes (\ref Hash) and files (\ref MpqFile) are stored via smart pointers from Boost C++ Libraries (\ref boost::shared_ptr) for automatic deletion when freeing an MPQ object. Furthermore, they are stored under specific conditions and indices (especially files using Boost Multiindex library).
  */
-class Mpq : public mpq::Format, private boost::noncopyable
+class Mpq : public Format, private boost::noncopyable
 {
 	public:
 		typedef uint64 LargeSizeType;
@@ -96,6 +105,7 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		BOOST_SCOPED_ENUM_END
 
 		typedef boost::shared_ptr<Block> BlockPtr;
+		typedef boost::shared_ptr<const Block> BlockPtrConst;
 		/**
 		 * Blocks are mapped by their position in block table starting with 0. Maximum key value is \ref Mpq::blocks().size() - 1 (tag \ref uint32, index 0).
 		 * Consider that block indices \ref Hash::blockIndexDeleted and \ref Hash::blockIndexEmpty.
@@ -108,6 +118,7 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		>
 		Blocks;
 		typedef boost::shared_ptr<Hash> HashPtr;
+		typedef boost::shared_ptr<const Hash> HashPtrConst;
 		/**
 		 * Hashes are mapped by their position in hash table starting with 0. Maximum key value is \ref Mpq::hashes().size() - 1 (tag \ref uint32, index 0).
 		 * Additionally hashes are stored hashed by their own data since they're already hash values (tag \ref HashData, index 1).
@@ -123,6 +134,7 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		Hashes;
 
 		typedef boost::shared_ptr<MpqFile> FilePtr;
+		typedef boost::shared_ptr<const MpqFile> FilePtrConst;
 		/**
 		 * Files are stored under various conditions:
 		 * <ul>
@@ -247,26 +259,26 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		 * \return Returns the corresponding \ref MpqFile instance of the searched file. If no file was found it returns 0.
 		 * \throw Exception Throws an exception if updating sector table fails which is necessary if file is encrypted and path is updated the first time.
 		 */
-		const class MpqFile* findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default) const  throw (Exception);
+		FilePtrConst findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default) const  throw (Exception);
 		/**
 		 * Path of MPQ file \p mpqFile should be set if you use this method.
 		 * Does not search for the instance of \p mpqFile. Only uses its hash data!
 		 * \return Returns 0 if no file was found.
 		 */
-		const class MpqFile* findFile(const class MpqFile &mpqFile) const throw (Exception);
+		FilePtrConst findFile(const class MpqFile &mpqFile) const throw (Exception);
 
 		/**
 		 * Adds a new file to the MPQ archive with path \p path, locale \p locale and platform \p platform.
 		 * \param istream This input stream is used for reading the initial file data.
 		 * \todo Replace reservedSpace by size of istream?
 		 */
-		class MpqFile* addFile(const boost::filesystem::path &path, const byte *buffer, std::size_t bufferSize, bool overwriteExisting = false, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default) throw (class Exception);
+		FilePtr addFile(const boost::filesystem::path &path, const byte *buffer, std::size_t bufferSize, bool overwriteExisting = false, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default) throw (class Exception);
 		/**
 		 * Path of MPQ file \p mpqFile should be set if you use this method.
 		 * Does not add \p mpqFile. Only uses its meta data (beside you set \p addData to true)!
 		 * \param addData If this value is true contained data of the file will be added to the new one.
 		 */
-		class MpqFile* addFile(const class MpqFile &mpqFile, bool addData = true, bool overwriteExisting = false) throw (class Exception);
+		FilePtr addFile(const class MpqFile &mpqFile, bool addData = true, bool overwriteExisting = false) throw (class Exception);
 		bool removeFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default);
 		/**
 		 * Path of MPQ file \p mpqFile should be set if you use this method.
@@ -275,10 +287,10 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		 */
 		bool removeFile(const class MpqFile &mpqFile);
 
-		class Hash* findHash(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default);
-		class Hash* findHash(const Hash &hash);
-		class MpqFile* findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default) throw (Exception);
-		class MpqFile* findFile(const class MpqFile &mpqFile) throw (Exception);
+		HashPtr findHash(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default);
+		HashPtr findHash(const MpqFile &file);
+		FilePtr findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default) throw (Exception);
+		FilePtr findFile(const class MpqFile &mpqFile) throw (Exception);
 
 		/**
 		 * This function is reserved for internal uses since it gets a non-constant parameter.
@@ -369,8 +381,11 @@ class Mpq : public mpq::Format, private boost::noncopyable
 		 */
 		bool storeSectors() const;
 		const boost::interprocess::file_lock& fileLock();
+		Blocks& blocks();
 		const Blocks& blocks() const;
+		Hashes& hashes();
 		const Hashes& hashes() const;
+		Files& files();
 		const Files& files() const;
 
 		/**
@@ -679,14 +694,29 @@ inline const boost::interprocess::file_lock& Mpq::fileLock()
 	return m_fileLock;
 }
 
+inline Mpq::Blocks& Mpq::blocks()
+{
+	return this->m_blocks;
+}
+
 inline const Mpq::Blocks& Mpq::blocks() const
 {
 	return this->m_blocks;
 }
 
+inline Mpq::Hashes& Mpq::hashes()
+{
+	return this->m_hashes;
+}
+
 inline const Mpq::Hashes& Mpq::hashes() const
 {
 	return this->m_hashes;
+}
+
+inline Mpq::Files& Mpq::files()
+{
+	return this->m_files;
 }
 
 inline const Mpq::Files& Mpq::files() const
@@ -746,32 +776,32 @@ inline Mpq::LargeSizeType Mpq::entireFileSize() const
 
 inline class Listfile* Mpq::listfileFile()
 {
-	MpqFile *file = this->findFile("(listfile)");
+	FilePtr file = this->findFile("(listfile)");
 
-	if (file == 0)
+	if (file.get() == 0)
 		return 0;
 
-	return boost::polymorphic_cast<class Listfile*>(file);
+	return boost::polymorphic_cast<class Listfile*>(file.get());
 }
 
 inline class Attributes* Mpq::attributesFile()
 {
-	MpqFile *file = this->findFile("(attributes)");
+	FilePtr file = this->findFile("(attributes)");
 
-	if (file == 0)
+	if (file.get() == 0)
 		return 0;
 
-	return boost::polymorphic_cast<class Attributes*>(file);
+	return boost::polymorphic_cast<class Attributes*>(file.get());
 }
 
 inline class Signature* Mpq::signatureFile()
 {
-	MpqFile *file = this->findFile("(signature)");
+	FilePtr file = this->findFile("(signature)");
 
-	if (file == 0)
+	if (file.get() == 0)
 		return 0;
 
-	return boost::polymorphic_cast<class Signature*>(file);
+	return boost::polymorphic_cast<class Signature*>(file.get());
 }
 
 inline class Block* Mpq::firstEmptyBlock() const

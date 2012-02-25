@@ -36,18 +36,13 @@ namespace mdlx
 class PrimitiveTypes : public GroupMdxBlock
 {
 	public:
-		typedef std::list<class PrimitiveType*> Types;
-		
 		PrimitiveTypes(class Geoset *geoset);
 		virtual ~PrimitiveTypes();
 
 		class Geoset* geoset() const;
-		const Types& primitiveTypes() const;
-
-		virtual std::streamsize readMdl(std::istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(std::ostream &ostream) const throw (class Exception);
 
 	protected:
+		/// \todo C++11 override
 		virtual class GroupMdxBlockMember* createNewMember();
 
 		class Geoset *m_geoset;
@@ -56,11 +51,6 @@ class PrimitiveTypes : public GroupMdxBlock
 inline class Geoset* PrimitiveTypes::geoset() const
 {
 	return this->m_geoset;
-}
-
-inline const PrimitiveTypes::Types& PrimitiveTypes::primitiveTypes() const
-{
-	return reinterpret_cast<const Types&>(this->m_members);
 }
 
 }

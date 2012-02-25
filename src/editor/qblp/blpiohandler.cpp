@@ -22,6 +22,7 @@
 #include <QtGui>
 
 #include "blpiohandler.hpp"
+#include "../../platform.hpp"
 
 namespace wc3lib
 {
@@ -69,9 +70,9 @@ bool BlpIOHandler::read(QImage *image)
 {
 	// read buffer into input stream
 	QByteArray all = this->device()->readAll();
-	blp::iarraystream istream;
+	iarraystream istream;
 	istream.rdbuf()->pubsetbuf(all.data(), all.size());
-	boost::scoped_ptr<blp::Blp> blpImage(new blp::Blp());
+	QScopedPointer<blp::Blp> blpImage(new blp::Blp());
 
 	try
 	{
@@ -149,12 +150,12 @@ QVariant BlpIOHandler::option(ImageOption option) const
 
 bool BlpIOHandler::write(const QImage &image)
 {
-	boost::scoped_ptr<blp::Blp> blpImage(new blp::Blp());
+	QScopedPointer<blp::Blp> blpImage(new blp::Blp());
 
-	if (!write(image, blpImage.get()))
+	if (!write(image, blpImage.data()))
 		return false;
 
-	blp::oarraystream ostream;
+	oarraystream ostream;
 
 	try
 	{
@@ -220,7 +221,7 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp &blpImage)
 	if (blpImage.mipMaps().empty()) // no MIP maps
 		return false;
 
-	read(image, *blpImage.mipMaps().front(), blpImage);
+	read(image, blpImage.mipMaps().front(), blpImage);
 
 	return true;
 }
@@ -272,7 +273,7 @@ bool BlpIOHandler::write(const QImage &image, blp::Blp *blpImage)
 	if (blpImage->generateMipMaps(1) != 1)
 		return false;
 
-	blp::Blp::MipMap *mipMap = blpImage->mipMaps()[0].get();
+	blp::Blp::MipMap &mipMap = blpImage->mipMaps()[0];
 
 	for (int width = 0; width < image.width(); ++width)
 	{
@@ -286,7 +287,7 @@ bool BlpIOHandler::write(const QImage &image, blp::Blp *blpImage)
 				index = image.pixelIndex(width, height); // index has to be set because paletted compression can also be used
 
 			const blp::color argb = rgbaToColor(rgb);
-			mipMap->setColor(width, height, argb, qAlpha(rgb), index);
+			mipMap.setColor(width, height, argb, qAlpha(rgb), index);
 		}
 	}
 

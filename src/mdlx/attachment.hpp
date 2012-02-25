@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MDLX_ATTACHMENT_HPP
 #define WC3LIB_MDLX_ATTACHMENT_HPP
 
+#include <boost/cast.hpp>
+
 #include "object.hpp"
 #include "groupmdxblockmember.hpp"
 #include "attachments.hpp"
@@ -38,7 +40,7 @@ class Attachment : public Object, public GroupMdxBlockMember
 {
 	public:
 		static const std::size_t pathSize = 0x100;
-		
+
 		Attachment(class Attachments *attachments);
 		virtual ~Attachment();
 
@@ -46,7 +48,7 @@ class Attachment : public Object, public GroupMdxBlockMember
 		/**
 		 * \return Returns path with length of \ref pathSize.
 		 */
-		const ascii* path() const;
+		const byte* path() const;
 		long32 unknown0() const;
 		long32 attachmentId() const;
 		class AttachmentVisibilities* visibilities() const;
@@ -57,7 +59,7 @@ class Attachment : public Object, public GroupMdxBlockMember
 		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 
 	protected:
-		ascii m_path[pathSize];
+		byte m_path[pathSize];
 		long32 m_unknown0;
 		long32 m_attachmentId;
 		class AttachmentVisibilities *m_visibilities; //(KATV)
@@ -68,7 +70,7 @@ inline class Attachments* Attachment::attachments() const
 	return boost::polymorphic_cast<class Attachments*>(this->parent());
 }
 
-inline const ascii* Attachment::path() const
+inline const byte* Attachment::path() const
 {
 	return this->m_path;
 }

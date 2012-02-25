@@ -25,10 +25,10 @@
 
 namespace wc3lib
 {
-	
+
 namespace lang
 {
-	
+
 namespace zinc
 {
 

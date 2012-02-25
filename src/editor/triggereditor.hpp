@@ -53,7 +53,7 @@ class TriggerEditor : public Module
 		 * \return Returns empty string if there is no custom text triggers or no valid text entry.
 		 * \note \p trigger has to be part of \ref triggers().
 		 */
-		const map::string& triggerText(map::Trigger *trigger) const;
+		const string& triggerText(map::Trigger *trigger) const;
 
 		map::Triggers* triggers() const;
 		map::CustomTextTriggers* customTextTriggers() const;
@@ -111,7 +111,7 @@ class TriggerEditor : public Module
 		/**
 		 * Displays trigger of \p index.
 		 */
-		void openTrigger(map::int32 index);
+		void openTrigger(int32 index);
 		void openTrigger(map::Trigger *trigger);
 
 	protected slots:
@@ -159,13 +159,13 @@ class TriggerEditor : public Module
 		KActionCollection *m_triggerActionCollection;
 };
 
-inline const map::string& TriggerEditor::triggerText(map::Trigger *trigger) const
+inline const string& TriggerEditor::triggerText(map::Trigger *trigger) const
 {
 	if (customTextTriggers() == 0)
 		return "";
 
 	bool found = false;
-	map::int32 index = 0;
+	int32 index = 0;
 
 	BOOST_FOREACH(map::Triggers::TriggerEntries::const_reference trig, triggers()->triggers())
 	{
@@ -184,7 +184,7 @@ inline const map::string& TriggerEditor::triggerText(map::Trigger *trigger) cons
 	if (!found)
 		return "";
 
-	map::int32 i = 0;
+	int32 i = 0;
 
 	BOOST_FOREACH(map::CustomTextTriggers::TriggerTexts::const_reference triggerText, customTextTriggers()->triggerTexts())
 	{

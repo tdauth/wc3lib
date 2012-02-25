@@ -44,37 +44,37 @@ class Cameras : public FileFormat
 		std::streamsize read(std::istream &istream) throw (class Exception);
 		std::streamsize write(std::ostream &ostream) const throw (class Exception);
 
-		virtual const char8* fileTextId() const;
-		virtual const char8* fileName() const;
-		virtual int32 latestFileVersion() const;
+		virtual const byte* fileTextId() const;
+		virtual const byte* fileName() const;
+		virtual uint32 latestFileVersion() const;
 
-		virtual int32 version() const;
+		virtual uint32 version() const;
 
 		CameraVector& cameras();
 		const CameraVector& cameras() const;
 
 	protected:
 		class W3m *m_w3m;
-		int32 m_version;
+		uint32 m_version;
 		CameraVector m_cameras;
 };
 
-inline const char8* Cameras::fileTextId() const
+inline const byte* Cameras::fileTextId() const
 {
 	return "";
 }
 
-inline const char8* Cameras::fileName() const
+inline const byte* Cameras::fileName() const
 {
 	return "war3map.w3c";
 }
 
-inline int32 Cameras::latestFileVersion() const
+inline uint32 Cameras::latestFileVersion() const
 {
 	return 0;
 }
 
-inline int32 Cameras::version() const
+inline uint32 Cameras::version() const
 {
 	return m_version;
 }

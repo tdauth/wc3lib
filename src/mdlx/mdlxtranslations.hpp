@@ -36,20 +36,12 @@ namespace mdlx
 class MdlxTranslations : public MdlxScalings
 {
 	public:
-		typedef std::list<class MdlxTranslation*> Members;
-		
 		MdlxTranslations(class Mdlx *mdlx);
 
-		const Members& mdlxTranslations() const;
-
 	protected:
-		virtual class MdlxAnimatedProperty* createAnimatedProperty();
+		/// \todo C++11 override
+		virtual Property* createAnimatedProperty();
 };
-
-inline const MdlxTranslations::Members& MdlxTranslations::mdlxTranslations() const
-{
-	return reinterpret_cast<const Members&>(this->mdlxScalings());
-}
 
 }
 

@@ -23,7 +23,10 @@
 
 #include <vector>
 
+#include <boost/array.hpp>
+
 #include "platform.hpp"
+#include "format.hpp"
 
 namespace wc3lib
 {
@@ -31,51 +34,73 @@ namespace wc3lib
 /**
  * \todo Use some boost::geometry class to inherit which provides much more functionality.
  */
-template<typename T>
-class BasicVertex
+template<typename T, typename std::size_t N>
+class BasicVertex : public boost::array<T, N>, public Format
 {
 	public:
-		BasicVertex() : m_x(0), m_y(0), m_z(0) { }
-		BasicVertex(T x, T y, T z) : m_x(x), m_y(y), m_z(z)
+		typedef boost::array<T, N> Base;
+
+		BasicVertex(const Base &base)
 		{
+			*this = base;
 		}
 
-		BasicVertex(const std::vector<T> &values) : m_x(values[0]), m_y(values[1]), m_z(values[2])
+		BasicVertex()
 		{
+			for (std::size_t i = 0; i < Base::size(); ++i)
+				(*this)[i] = 0;
 		}
 
-		T operator[](uint8_t index) const throw (std::out_of_range)
+		BasicVertex(T x, T y, T z)
 		{
-			if (index == 0)
-				return m_x;
-			else if (index == 1)
-				return m_y;
-			else if (index == 2)
-				return m_z;
+			(*this)[0] = x;
+			(*this)[1] = y;
+			(*this)[2] = z;
+		}
 
-			throw std::out_of_range();
+		BasicVertex(T x, T y)
+		{
+			(*this)[0] = x;
+			(*this)[1] = y;
 		}
 
 		T x() const
 		{
-			return m_x;
+			return (*this)[0];
 		}
 
 		T y() const
 		{
-			return m_y;
+			return (*this)[1];
 		}
 
 		T z() const
 		{
-			return m_z;
+			return (*this)[2];
 		}
 
-	private:
-		T m_x, m_y, m_z;
+		virtual std::streamsize read(InputStream &istream) throw (Exception)
+		{
+			std::streamsize size = 0;
+
+			for (std::size_t i = 0; i < Base::size(); ++i)
+				wc3lib::read(istream, (*this)[i], size);
+
+			return size;
+		}
+
+		virtual std::streamsize write(OutputStream &ostream) const throw (Exception)
+		{
+			std::streamsize size = 0;
+
+			for (std::size_t i = 0; i < Base::size(); ++i)
+				wc3lib::write(ostream, (*this)[i], size);
+
+			return size;
+		}
 };
 
-typedef BasicVertex<float32> Vertex;
+typedef BasicVertex<float32, 3> Vertex;
 
 }
 

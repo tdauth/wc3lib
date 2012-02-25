@@ -171,7 +171,7 @@ void MetaData::filleMetaDataEntry(MetaDataPtr &entry, const Row &row)
 {
 	entry->setIndex(row[0].toInt());
 	entry->setDisplayName(row[1].toString().toUtf8().constData());
-	entry->setMinValue(boost::numeric_cast<map::int32>(row[2].toInt()));
+	entry->setMinValue(boost::numeric_cast<int32>(row[2].toInt()));
 	/// \todo Fill other data ...
 }
 

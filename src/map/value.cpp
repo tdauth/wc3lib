@@ -50,7 +50,7 @@ Value::Value(bool value) : ValueBase(value), m_type(Type::Boolean)
 {
 }
 
-Value::Value(char8 value) : ValueBase(value), m_type(Type::Character)
+Value::Value(byte value) : ValueBase(value), m_type(Type::Character)
 {
 }
 

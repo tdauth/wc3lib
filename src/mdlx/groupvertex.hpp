@@ -50,7 +50,7 @@ class GroupVertex : public GroupMdxBlockMember
 
 inline class GroupVertices* GroupVertex::groupVertices() const
 {
-	return dynamic_cast<class GroupVertices*>(this->m_parent);
+	return boost::polymorphic_cast<class GroupVertices*>(this->m_parent);
 }
 
 inline byte GroupVertex::data() const

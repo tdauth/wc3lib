@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MPQ_PLATFORM_HPP
 #define WC3LIB_MPQ_PLATFORM_HPP
 
-#include "../core.hpp"
+#include "../platform.hpp"
 
 namespace wc3lib
 {
@@ -29,31 +29,7 @@ namespace wc3lib
 namespace mpq
 {
 
-typedef char byte; // 8 bit!
-typedef int8_t int8; // not unsigned
-typedef int16_t int16;
-typedef uint16_t uint16;
-typedef int32_t int32;
-typedef uint32_t uint32; // used for various encryption and hash functions
-typedef int64_t int64;
-typedef uint64_t uint64; // used for large offsets
-
 typedef int32 CRC32;
-
-typedef std::basic_istream<byte> istream;
-typedef std::basic_ostream<byte> ostream;
-typedef boost::filesystem::basic_ifstream<byte> ifstream;
-typedef boost::filesystem::basic_ofstream<byte> ofstream;
-typedef std::basic_string<byte> string;
-typedef std::basic_stringstream<byte> stringstream;
-typedef std::basic_istringstream<byte> istringstream;
-typedef std::basic_ostringstream<byte> ostringstream;
-typedef boost::iostreams::stream<boost::iostreams::basic_array<mpq::byte> > arraystream;
-typedef boost::iostreams::stream<boost::iostreams::basic_array_source<mpq::byte> > iarraystream;
-typedef boost::iostreams::stream<boost::iostreams::basic_array_sink<mpq::byte> > oarraystream;
-
-typedef Format<byte> Format;
-
 
 typedef int16_t MD5; // 128 bit
 

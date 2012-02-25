@@ -36,15 +36,13 @@ namespace mdlx
 class LightAmbientVisibilities : public MdlxAlphas
 {
 	public:
-		typedef std::list<class LightAmbientVisibility*> Visibilities;
-		
 		LightAmbientVisibilities(class Light *light);
 
 		class Light* light() const;
-		const Visibilities& visibilities() const;
 
 	protected:
-		virtual class MdlxAnimatedProperty* createAnimatedProperty();
+		/// \todo C++11 override
+		virtual Property* createAnimatedProperty();
 
 		class Light *m_light;
 };
@@ -52,11 +50,6 @@ class LightAmbientVisibilities : public MdlxAlphas
 inline class Light* LightAmbientVisibilities::light() const
 {
 	return this->m_light;
-}
-
-inline const LightAmbientVisibilities::Visibilities& LightAmbientVisibilities::visibilities() const
-{
-	return *reinterpret_cast<const Visibilities*>(&this->mdlxAlphas());
 }
 
 }

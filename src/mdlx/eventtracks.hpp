@@ -36,14 +36,11 @@ namespace mdlx
 class EventTracks : public GroupMdxBlock
 {
 	public:
-		typedef std::list<class EventTrack*> Tracks;
-		
 		EventTracks(class Event *event);
 		virtual ~EventTracks();
 
 		class Event* event() const;
 		long32 globalSequenceId() const;
-		const Tracks& tracks() const;
 
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
 		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
@@ -51,8 +48,9 @@ class EventTracks : public GroupMdxBlock
 		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 
 	protected:
+		/// \todo C++11 override
 		virtual class GroupMdxBlockMember* createNewMember();
-		
+
 		class Event *m_event;
 		long32 m_globalSequenceId;
 };
@@ -65,11 +63,6 @@ inline class Event* EventTracks::event() const
 inline long32 EventTracks::globalSequenceId() const
 {
 	return this->m_globalSequenceId;
-}
-
-inline const EventTracks::Tracks& EventTracks::tracks() const
-{
-	return (const Tracks&)(this->members());
 }
 
 }

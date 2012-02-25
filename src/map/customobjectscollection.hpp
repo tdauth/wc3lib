@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MAP_CUSTOMOBJECTSCOLLECTION_HPP
 #define WC3LIB_MAP_CUSTOMOBJECTSCOLLECTION_HPP
 
+#include <boost/scoped_ptr.hpp>
+
 #include "platform.hpp"
 #include "customobjects.hpp"
 
@@ -45,10 +47,10 @@ class CustomObjectsCollection : public Format
 		std::streamsize read(InputStream &istream) throw (class Exception);
 		std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
-		virtual int32 latestFileVersion() const;
-		virtual const char8* fileExtension() const;
+		virtual uint32 latestFileVersion() const;
+		virtual const byte* fileExtension() const;
 
-		virtual int32 version() const;
+		virtual uint32 version() const;
 		bool hasUnits() const;
 		CustomObjectsPtr& units();
 		const CustomObjectsPtr& units() const;
@@ -72,7 +74,7 @@ class CustomObjectsCollection : public Format
 		const CustomObjectsPtr& upgrades() const;
 
 	protected:
-		int32 m_version;
+		uint32 m_version;
 		CustomObjectsPtr m_units;
 		CustomObjectsPtr m_items;
 		CustomObjectsPtr m_destructibles;
@@ -82,17 +84,17 @@ class CustomObjectsCollection : public Format
 		CustomObjectsPtr m_upgrades;
 };
 
-inline int32 CustomObjectsCollection::latestFileVersion() const
+inline uint32 CustomObjectsCollection::latestFileVersion() const
 {
 	return 1;
 }
 
-inline const char8* CustomObjectsCollection::fileExtension() const
+inline const byte* CustomObjectsCollection::fileExtension() const
 {
 	return "w3o";
 }
 
-inline int32 CustomObjectsCollection::version() const
+inline uint32 CustomObjectsCollection::version() const
 {
 	return this->m_version;
 }

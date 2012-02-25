@@ -21,6 +21,9 @@
 #ifndef WC3LIB_MPQ_BLOCK_HPP
 #define WC3LIB_MPQ_BLOCK_HPP
 
+#include <boost/detail/scoped_enum_emulation.hpp>
+
+#include "../format.hpp"
 #include "platform.hpp"
 
 namespace wc3lib

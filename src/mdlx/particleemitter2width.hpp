@@ -26,21 +26,21 @@
 
 namespace wc3lib
 {
-	
+
 namespace mdlx
 {
-	
+
 class ParticleEmitter2Width : public MdlxAlpha
 {
 	public:
 		ParticleEmitter2Width(class ParticleEmitter2Widths *widths);
-		
+
 		class ParticleEmitter2Widths* widths() const;
 };
 
 inline class ParticleEmitter2Widths* ParticleEmitter2Width::widths() const
 {
-	return dynamic_cast<class ParticleEmitter2Widths*>(this->mdlxAlphas());
+	return boost::polymorphic_cast<class ParticleEmitter2Widths*>(this->mdlxAlphas());
 }
 
 }

@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2008, 2009 by Tamino Dauth                              *
+ *   Copyright (C) 2008 by Tamino Dauth                                    *
  *   tamino@cdauth.de                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -78,7 +78,7 @@ inline int Type::sizeLiteral() const
 {
 	if (sizeExpression.empty() || !isdigit(sizeExpression[0])) //if it is not a literal value
 		return -1;
-	
+
 	return atoi(sizeExpression.c_str());
 }
 

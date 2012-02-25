@@ -41,22 +41,22 @@ void Map::load() throw (Exception)
 	if (!this->source()->download(url(), target, 0))
 		throw Exception();
 
-	map::ifstream istream(target.toUtf8().constData(), std::ios::in | std::ios::binary);
+	ifstream istream(target.toUtf8().constData(), std::ios::in | std::ios::binary);
 
 	MapPtr map(new map::W3m());
 	map->open(target.toUtf8().constData());
 
 	// triggers have to be loaded separately when trigger data file ("UI/TriggerData.txt") is available
-	mpq::MpqFile *file = map->findFile(map->triggers()->fileName());
+	mpq::Mpq::FilePtrConst file = map->findFile(map->triggers()->fileName());
 
-	if (file != 0)
+	if (file.get() != 0)
 	{
 		if (source()->triggerData().get() == 0)
 			throw Exception("Trigger data file \"UI/TriggerData.txt\" is not available.");
 
 		// TODO data has to be refreshed somewhere in GUI
 		//source()->refreshTriggerData(); // if trigger data is not available we cannot load trigger data
-		map::stringstream stream;
+		stringstream stream;
 		file->writeData(stream);
 		map->triggers()->read(stream, *source()->triggerData().get());
 	}
@@ -76,7 +76,7 @@ void Map::save(const KUrl &url) const throw (Exception)
 	if (!tmpFile.open())
 		throw Exception(boost::format(_("Temporary file \"%1%\" cannot be opened.")) % tmpFile.fileName().toUtf8().constData());
 
-	map::ofstream ostream(tmpFile.fileName().toUtf8().constData(), std::ios::out | std::ios::binary);
+	ofstream ostream(tmpFile.fileName().toUtf8().constData(), std::ios::out | std::ios::binary);
 
 	map()->write(ostream);
 

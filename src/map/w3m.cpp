@@ -69,9 +69,9 @@ std::streamsize W3m::read(InputStream &istream, const mpq::Listfile::Entries &li
 
 	BOOST_FOREACH(FileFormats::reference format, fileFormats())
 	{
-		mpq::MpqFile *file = this->findFile(format->fileName());
+		mpq::Mpq::FilePtr file = this->findFile(format->fileName());
 
-		if (file != 0)
+		if (file.get() != 0)
 		{
 			/*
 			 * FIXME
@@ -132,13 +132,13 @@ std::streamsize W3m::readSignature(InputStream &istream) throw (class Exception)
 
 	if (!istream.eof())
 	{
-		char8 signId[4];
+		byte signId[4];
 		wc3lib::read(istream, signId, result, 4);
 
 		// footer is optional!
 		if (memcmp(signId, "NGIS", sizeof(signId)) == 0)
 		{
-			m_signature.reset(new char8[signatureSize]);
+			m_signature.reset(new byte[signatureSize]);
 			wc3lib::read(istream, m_signature[0], result, signatureSize);
 		}
 	}

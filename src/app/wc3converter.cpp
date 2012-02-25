@@ -329,7 +329,7 @@ bool addFilePath(const boost::filesystem::path &path, std::list<boost::filesyste
 	return true;
 }
 
-void convertBlp(const boost::filesystem::path &path, wc3lib::blp::ifstream &ifstream, wc3lib::blp::ofstream &ofstream, enum Format inputFormat, enum Format outputFormat, bool verbose, bool readonly) throw (class wc3lib::Exception)
+void convertBlp(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3lib::ofstream &out, enum Format inputFormat, enum Format outputFormat, bool verbose, bool readonly) throw (class wc3lib::Exception)
 {
 	boost::scoped_ptr<wc3lib::blp::Blp> blp(new wc3lib::blp::Blp());
 
@@ -337,7 +337,7 @@ void convertBlp(const boost::filesystem::path &path, wc3lib::blp::ifstream &ifst
 	{
 		case Blp:
 		{
-			std::streamsize bytes = blp->read(ifstream);
+			std::streamsize bytes = blp->read(in);
 
 			if (verbose)
 				std::cout << boost::format(_("Read BLP file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
@@ -386,7 +386,7 @@ void convertBlp(const boost::filesystem::path &path, wc3lib::blp::ifstream &ifst
 	{
 		case Blp:
 		{
-			std::streamsize bytes = blp->write(ofstream);
+			std::streamsize bytes = blp->write(out);
 
 			if (verbose)
 				std::cout << boost::format(_("Wrote BLP file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
@@ -529,7 +529,7 @@ void convertMdlx(const boost::filesystem::path &path, std::ifstream &ifstream, s
 	}
 }
 
-void convertMpq(const boost::filesystem::path &path, wc3lib::mpq::ifstream &ifstream, wc3lib::mpq::ofstream &ofstream, enum Format inputFormat, enum Format outputFormat, bool verbose, bool readonly) throw (class wc3lib::Exception)
+void convertMpq(const boost::filesystem::path &path, wc3lib::ifstream &ifstream, wc3lib::ofstream &ofstream, enum Format inputFormat, enum Format outputFormat, bool verbose, bool readonly) throw (class wc3lib::Exception)
 {
 	boost::scoped_ptr<wc3lib::mpq::Mpq> mpq(new wc3lib::mpq::Mpq());
 

@@ -26,7 +26,7 @@
 
 namespace wc3lib
 {
-	
+
 namespace mdlx
 {
 
@@ -34,13 +34,13 @@ class ParticleEmitter2Speed : public MdlxAlpha
 {
 	public:
 		ParticleEmitter2Speed(class ParticleEmitter2Speeds *speeds);
-		
+
 		class ParticleEmitter2Speeds* speeds() const;
 };
 
 inline class ParticleEmitter2Speeds* ParticleEmitter2Speed::speeds() const
 {
-	return dynamic_cast<class ParticleEmitter2Speeds*>(this->mdlxAlphas());
+	return boost::polymorphic_cast<class ParticleEmitter2Speeds*>(this->mdlxAlphas());
 }
 
 }

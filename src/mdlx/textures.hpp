@@ -37,33 +37,20 @@ namespace mdlx
 class Textures : public GroupMdxBlock
 {
 	public:
-		typedef std::list<class Texture*> Members;
-		
 		Textures(class Mdlx *mdlx);
 
 		class Mdlx* mdlx() const;
-		const Members& textures() const;
-
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
-		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 
 	protected:
+		/// \todo C++11 override
 		virtual class GroupMdxBlockMember* createNewMember();
-		
+
 		class Mdlx *m_mdlx;
 };
 
 inline class Mdlx* Textures::mdlx() const
 {
 	return this->m_mdlx;
-}
-
-inline const Textures::Members& Textures::textures() const
-{
-	return reinterpret_cast<const Members&>(members());
-	//return *reinterpret_cast<const std::list<class Texture*>*>(&this->members());
 }
 
 }

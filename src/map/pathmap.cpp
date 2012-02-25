@@ -22,7 +22,7 @@
 
 namespace wc3lib
 {
-	
+
 namespace map
 {
 
@@ -53,10 +53,10 @@ std::streamsize Pathmap::read(InputStream &istream) throw (class Exception)
 	std::streamsize size = 0;
 	wc3lib::read(istream, header, size);
 	const id requiredFileId = fileId();
-	
+
 	if (memcmp(&header.fileId, &requiredFileId, sizeof(header.fileId)) != 0)
 		throw Exception(boost::format(_("Pathmap: Unknown file id \"%1%\". Expected \"%2%\".")) % header.fileId % fileId());
-	
+
 	this->m_version = header.version;
 	this->m_width = header.width;
 	this->m_height = header.height;
@@ -68,12 +68,12 @@ std::streamsize Pathmap::read(InputStream &istream) throw (class Exception)
 	{
 		for (int32 height = 0; height < header.height; ++height)
 		{
-			char8 type;
+			byte type;
 			wc3lib::read(istream, type, size);
-			this->m_data[std::make_pair(width, height)] = (BOOST_SCOPED_ENUM(Type))(type);
+			this->m_data[Position(width, height)] = (BOOST_SCOPED_ENUM(Type))(type);
 		}
 	}
-	
+
 	return size;
 }
 
@@ -91,11 +91,11 @@ std::streamsize Pathmap::write(OutputStream &ostream) const throw (class Excepti
 	{
 		for (int32 height = 0; height < header.height; ++height)
 		{
-			char8 type = (char8)this->m_data.find(Position(width, height))->second;
+			byte type = (byte)this->m_data.find(Position(width, height))->second;
 			wc3lib::write(ostream, type, size);
 		}
 	}
-	
+
 	return size;
 }
 

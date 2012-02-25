@@ -31,16 +31,6 @@ PivotPoints::PivotPoints(class Mdlx *mdlx) : GroupMdxBlock("PIVT", "PivotPoints"
 {
 }
 
-std::streamsize PivotPoints::readMdl(istream &istream) throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize PivotPoints::writeMdl(ostream &ostream) const throw (class Exception)
-{
-	return 0;
-}
-
 class GroupMdxBlockMember* PivotPoints::createNewMember()
 {
 	return new PivotPoint(this);

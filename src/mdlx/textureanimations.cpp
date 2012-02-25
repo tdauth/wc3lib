@@ -31,26 +31,6 @@ TextureAnimations::TextureAnimations(class Mdlx *mdlx) : GroupMdxBlock("TXAN", "
 {
 }
 
-std::streamsize TextureAnimations::readMdl(istream &istream) throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize TextureAnimations::writeMdl(ostream &ostream) const throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize TextureAnimations::readMdx(istream &istream) throw (class Exception)
-{
-	return GroupMdxBlock::readMdx(istream);
-}
-
-std::streamsize TextureAnimations::writeMdx(ostream &ostream) const throw (class Exception)
-{
-	return GroupMdxBlock::writeMdx(ostream);
-}
-
 class GroupMdxBlockMember* TextureAnimations::createNewMember()
 {
 	return new TextureAnimation(this);

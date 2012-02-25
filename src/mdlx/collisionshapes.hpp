@@ -36,30 +36,23 @@ namespace mdlx
 class CollisionShapes : public GroupMdxBlock
 {
 	public:
-		typedef std::list<class CollisionShape*> Shapes;
-		
 		CollisionShapes(class Mdlx *mdlx);
 
 		class Mdlx* mdlx() const;
-		const Shapes& collisionShapes() const;
-		
+
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
 		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
 
 	protected:
+		/// \todo C++11 override
 		virtual class GroupMdxBlockMember* createNewMember();
-		
+
 		class Mdlx *m_mdlx;
 };
 
 inline class Mdlx* CollisionShapes::mdlx() const
 {
 	return this->m_mdlx;
-}
-
-inline const CollisionShapes::Shapes& CollisionShapes::collisionShapes() const
-{
-	return reinterpret_cast<const Shapes&>(this->m_members);
 }
 
 }

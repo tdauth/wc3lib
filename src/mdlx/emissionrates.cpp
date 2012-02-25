@@ -31,7 +31,7 @@ EmissionRates::EmissionRates(class Mdlx *mdlx) : MdlxAlphas(mdlx, "KP2E", "Emiss
 {
 }
 
-class MdlxAnimatedProperty* EmissionRates::createAnimatedProperty()
+EmissionRates::Property* EmissionRates::createAnimatedProperty()
 {
 	return new EmissionRate(this);
 }

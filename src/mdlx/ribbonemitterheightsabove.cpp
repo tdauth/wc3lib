@@ -33,7 +33,7 @@ RibbonEmitterHeightsAbove::RibbonEmitterHeightsAbove(class RibbonEmitter *ribbon
 {
 }
 
-class MdlxAnimatedProperty* RibbonEmitterHeightsAbove::createAnimatedProperty()
+RibbonEmitterHeightsAbove::Property* RibbonEmitterHeightsAbove::createAnimatedProperty()
 {
 	return new RibbonEmitterHeightAbove(this);
 }

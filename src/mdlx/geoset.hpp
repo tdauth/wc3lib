@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MDLX_GEOSET_HPP
 #define WC3LIB_MDLX_GEOSET_HPP
 
-#include <list>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 #include "groupmdxblockmember.hpp"
 #include "bounds.hpp"
@@ -42,8 +42,8 @@ class Geoset : public GroupMdxBlockMember, public Bounds
 			Unselectable = 4
 		};
 		BOOST_SCOPED_ENUM_END
-		
-		typedef std::list<class Ganimation*> Ganimations;
+
+		typedef boost::ptr_vector<class Ganimation> Ganimations;
 
 		Geoset(class Geosets *geosets);
 		virtual ~Geoset();
@@ -60,6 +60,7 @@ class Geoset : public GroupMdxBlockMember, public Bounds
 		long32 materialId() const;
 		long32 selectionGroup() const;
 		long32 selectable() const;
+		Ganimations& ganimations();
 		const Ganimations& ganimations() const;
 		class TexturePatches* texturePatches() const;
 		class TextureVertices* textureVertices() const;
@@ -146,6 +147,11 @@ inline long32 Geoset::selectionGroup() const
 inline long32 Geoset::selectable() const
 {
 	return this->m_selectable;
+}
+
+inline Geoset::Ganimations& Geoset::ganimations()
+{
+	return this->m_ganimations;
 }
 
 inline const Geoset::Ganimations& Geoset::ganimations() const

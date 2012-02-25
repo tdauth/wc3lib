@@ -56,7 +56,7 @@ std::streamsize TextureIds::readMdx(istream &istream) throw (class Exception)
 
 	long32 number;
 	wc3lib::read(istream, number, size);
-	wc3lib::read(istream, *reinterpret_cast<long32*>(&this->m_lineType), size);
+	wc3lib::read<long32>(istream, (long32&)this->m_lineType, size);
 	wc3lib::read(istream, this->m_globalSequenceId, size);
 
 	for ( ; number > 0; --number)
@@ -73,8 +73,8 @@ std::streamsize TextureIds::writeMdx(ostream &ostream) const throw (class Except
 {
 	std::streamsize size = MdxBlock::writeMdx(ostream);
 	long32 number = boost::numeric_cast<long32>(this->m_textureIds.size());
-	wc3lib::write(ostream, *reinterpret_cast<const long32*>(&number), size);
-	wc3lib::write(ostream, *reinterpret_cast<const long32*>(&this->m_lineType), size);
+	wc3lib::write(ostream, number, size);
+	wc3lib::write<long32>(ostream, this->m_lineType, size);
 	wc3lib::write(ostream, this->m_globalSequenceId, size);
 
 	BOOST_FOREACH(const class TextureId *textureId, this->m_textureIds)

@@ -21,6 +21,10 @@
 #ifndef WC3LIB_MAP_TXT_HPP
 #define WC3LIB_MAP_TXT_HPP
 
+#include <map>
+
+#include <boost/bimap.hpp>
+
 #include "platform.hpp"
 
 namespace wc3lib
@@ -39,7 +43,7 @@ class Txt : public Format
 	public:
 		typedef boost::bimaps::bimap<string, string> Entries;
 
-		typedef std::map<map::string, map::string> Pairs;
+		typedef std::map<string, string> Pairs;
 
 		struct Section
 		{

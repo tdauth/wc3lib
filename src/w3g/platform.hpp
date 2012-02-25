@@ -25,7 +25,7 @@
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filter/zlib.hpp>
 
-#include "../core.hpp"
+#include "../platform.h"
 
 namespace wc3lib
 {
@@ -33,12 +33,8 @@ namespace wc3lib
 namespace w3g
 {
 
-typedef uint8_t byte;
 typedef uint32_t dword;
 typedef uint16_t word;
-typedef boost::iostreams::stream<boost::iostreams::basic_array<byte> > arraystream;
-typedef boost::iostreams::stream<boost::iostreams::basic_array_source<byte> > iarraystream;
-typedef boost::iostreams::stream<boost::iostreams::basic_array_sink<byte> > oarraystream;
 
 struct Header
 {

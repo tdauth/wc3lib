@@ -39,27 +39,17 @@ std::streamsize Sequences::readMdl(istream &istream) throw (class Exception)
 std::streamsize Sequences::writeMdl(ostream &ostream) const throw (class Exception)
 {
 	ostream
-	<< "Sequences " << this->sequences().size() << " {\n";
+	<< "Sequences " << this->members().size() << " {\n";
 
-	BOOST_FOREACH(const class Sequence *sequence, this->sequences())
-		sequence->writeMdl(ostream);
+	BOOST_FOREACH(Members::const_reference sequence, this->members())
+		sequence.writeMdl(ostream);
 
 	ostream << "}\n";
-	
+
 	return 0;
 }
 
-std::streamsize Sequences::readMdx(istream &istream) throw (class Exception)
-{
-	return GroupMdxBlock::readMdx(istream);
-}
-
-std::streamsize Sequences::writeMdx(ostream &ostream) const throw (class Exception)
-{
-	return GroupMdxBlock::writeMdx(ostream);
-}
-
-class GroupMdxBlockMember* Sequences::createNewMember()
+GroupMdxBlockMember* Sequences::createNewMember()
 {
 	return new Sequence(this);
 }

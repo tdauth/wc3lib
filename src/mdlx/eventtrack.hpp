@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MDLX_EVENTTRACK_HPP
 #define WC3LIB_MDLX_EVENTTRACK_HPP
 
+#include <boost/cast.hpp>
+
 #include "groupmdxblockmember.hpp"
 
 namespace wc3lib

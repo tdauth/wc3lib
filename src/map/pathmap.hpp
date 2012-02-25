@@ -32,7 +32,7 @@ namespace map
 class Pathmap : public FileFormat
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Type)
+		BOOST_SCOPED_ENUM_START(Type) /// \todo C++11 : byte
 		{
 			Walk = 0x02,
 			Fly = 0x04,
@@ -51,39 +51,39 @@ class Pathmap : public FileFormat
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
-		virtual const char8* fileTextId() const;
-		virtual const char8* fileName() const;
-		virtual int32 latestFileVersion() const;
+		virtual const byte* fileTextId() const;
+		virtual const byte* fileName() const;
+		virtual uint32 latestFileVersion() const;
 
-		virtual int32 version() const;
+		virtual uint32 version() const;
 		int32 width() const;
 		int32 height() const;
 		BOOST_SCOPED_ENUM(Type) type(const Position &position) const throw (class Exception);
 
 	protected:
 		class W3m *m_w3m;
-		int32 m_version;
+		uint32 m_version;
 		int32 m_width;
 		int32 m_height;
 		Data m_data;
 };
 
-inline const char8* Pathmap::fileTextId() const
+inline const byte* Pathmap::fileTextId() const
 {
 	return "MP3W";
 }
 
-inline const char8* Pathmap::fileName() const
+inline const byte* Pathmap::fileName() const
 {
 	return "war3map.wpm";
 }
 
-inline int32 Pathmap::latestFileVersion() const
+inline uint32 Pathmap::latestFileVersion() const
 {
 	return 0;
 }
 
-inline int32 Pathmap::version() const
+inline uint32 Pathmap::version() const
 {
 	return this->m_version;
 }

@@ -64,7 +64,7 @@ void Texture::loadBlp() throw (Exception)
 		if (!this->source()->download(url(), tmpFileName, 0))
 			throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toUtf8().constData());
 
-		blp::ifstream ifstream(tmpFileName.toUtf8().constData(), std::ios::binary | std::ios::in);
+		ifstream ifstream(tmpFileName.toUtf8().constData(), std::ios::binary | std::ios::in);
 
 		if (!ifstream)
 			throw Exception(boost::format(_("Unable to open temporary file \"%1%\".")) % tmpFileName.toUtf8().constData());
@@ -94,7 +94,7 @@ void Texture::loadBlp() throw (Exception)
 		BlpIOHandler ioHandler;
 		BlpPtr blpImage(new blp::Blp());
 
-		if (!ioHandler.write(*qt().get(), blpImage.get()))
+		if (!ioHandler.write(*qt().data(), blpImage.data()))
 			throw Exception(_("Unable to convert Qt image into BLP."));
 
 		blpImage.swap(m_blp); // exception safe (won't change image if handler has some error
@@ -112,7 +112,7 @@ void Texture::loadQt() throw (Exception)
 		BlpIOHandler ioHandler;
 		QtPtr qtImage(new QImage());
 
-		if (!ioHandler.read(qtImage.get(), *m_blp.get()))
+		if (!ioHandler.read(qtImage.data(), *m_blp.data()))
 			throw Exception(_("Unable to convert BLP image into Qt."));
 
 		m_qt.swap(qtImage); // exception safe (won't change image if handler has some error
@@ -153,7 +153,7 @@ void Texture::loadOgre() throw (Exception)
 	{
 		OgrePtr ogreImage(new Ogre::Image());
 		BlpCodec codec;
-		Ogre::Codec::DecodeResult result(codec.decode(*m_blp.get()));
+		Ogre::Codec::DecodeResult result(codec.decode(*m_blp.data()));
 		BlpCodec::ImageData *imageData((BlpCodec::ImageData*)(result.second.get()));
 		ogreImage->loadRawData((Ogre::DataStreamPtr&)result.first, imageData->width, imageData->height, imageData->depth, imageData->format, 1, boost::numeric_cast<std::size_t>(imageData->num_mipmaps));
 		// TODO check correct loading state, exception handling?
@@ -265,7 +265,7 @@ void Texture::save(const KUrl &url, const QString &format, const QString &compre
 
 	if (format == "blp" && hasBlp())
 	{
-		blp::ofstream ofstream(tmpFile.fileName().toUtf8().constData(), std::ios::binary | std::ios::out);
+		ofstream ofstream(tmpFile.fileName().toUtf8().constData(), std::ios::binary | std::ios::out);
 		blp()->write(ofstream, quality, mipMaps, threads);
 	}
 	else if (hasQt())

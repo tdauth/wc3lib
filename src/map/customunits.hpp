@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MAP_CUSTOMUNITS_HPP
 #define WC3LIB_MAP_CUSTOMUNITS_HPP
 
+#include <boost/ptr_container/ptr_vector.hpp>
+
 #include "platform.hpp"
 #include "value.hpp"
 
@@ -64,8 +66,7 @@ class CustomUnits : public FileFormat
 		class Unit : public Format
 		{
 			public:
-				typedef boost::shared_ptr<Modification> ModificationPtr;
-				typedef std::vector<ModificationPtr> Modifications;
+				typedef boost::ptr_vector<Modification> Modifications;
 
 				Unit();
 				virtual ~Unit();
@@ -88,20 +89,19 @@ class CustomUnits : public FileFormat
 				Modifications m_modifications;
 		};
 
-		typedef boost::shared_ptr<Unit> UnitPtr;
-		typedef std::vector<UnitPtr> Table;
+		typedef boost::ptr_vector<Unit> Table;
 
 		CustomUnits();
-		~CustomUnits();
+		virtual ~CustomUnits();
 
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
-		virtual const char8* fileName() const;
-		virtual const char8* fileTextId() const;
-		virtual int32 latestFileVersion() const;
+		virtual const byte* fileName() const;
+		virtual const byte* fileTextId() const;
+		virtual uint32 latestFileVersion() const;
 
-		virtual int32 version() const { return m_version; }
+		virtual uint32 version() const;
 
 		Table& originalTable();
 		const Table& originalTable() const;
@@ -111,7 +111,7 @@ class CustomUnits : public FileFormat
 	protected:
 		virtual Unit* createUnit() const;
 
-		int32 m_version;
+		uint32 m_version;
 		Table m_originalTable;
 		Table m_customTable;
 };
@@ -151,19 +151,24 @@ inline const CustomUnits::Unit::Modifications& CustomUnits::Unit::modifications(
 	return m_modifications;
 }
 
-inline const char8* CustomUnits::fileName() const
+inline const byte* CustomUnits::fileName() const
 {
 	return "war3map.w3u";
 }
 
-inline const char8* CustomUnits::fileTextId() const
+inline const byte* CustomUnits::fileTextId() const
 {
 	return "";
 }
 
-inline int32 CustomUnits::latestFileVersion() const
+inline uint32 CustomUnits::latestFileVersion() const
 {
 	return 1;
+}
+
+inline uint32 CustomUnits::version() const
+{
+	return m_version;
 }
 
 inline CustomUnits::Table& CustomUnits::originalTable()

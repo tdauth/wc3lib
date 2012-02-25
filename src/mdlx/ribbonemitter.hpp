@@ -90,7 +90,7 @@ class RibbonEmitter : public Node, public GroupMdxBlockMember
 
 inline class RibbonEmitters* RibbonEmitter::ribbonEmitters() const
 {
-	return dynamic_cast<class RibbonEmitters*>(this->m_parent);
+	return boost::polymorphic_cast<class RibbonEmitters*>(this->m_parent);
 }
 
 inline class MdlxTranslations* RibbonEmitter::translations() const

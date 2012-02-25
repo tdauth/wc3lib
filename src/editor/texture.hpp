@@ -22,6 +22,7 @@
 #define WC3LIB_EDITOR_TEXTURE_HPP
 
 #include <QImage>
+#include <QScopedPointer>
 
 #include <OgreImage.h>
 
@@ -44,9 +45,9 @@ namespace editor
 class Texture : public Resource
 {
 	public:
-		typedef boost::scoped_ptr<blp::Blp> BlpPtr;
-		typedef boost::scoped_ptr<QImage> QtPtr;
-		typedef boost::scoped_ptr<Ogre::Image> OgrePtr;
+		typedef QScopedPointer<blp::Blp> BlpPtr;
+		typedef QScopedPointer<QImage> QtPtr;
+		typedef QScopedPointer<Ogre::Image> OgrePtr;
 
 		Texture(const KUrl &url);
 		virtual ~Texture();
@@ -116,17 +117,17 @@ class Texture : public Resource
 
 inline bool Texture::hasBlp() const
 {
-	return blp().get() != 0;
+	return blp().data() != 0;
 }
 
 inline bool Texture::hasQt() const
 {
-	return qt().get() != 0;
+	return qt().data() != 0;
 }
 
 inline bool Texture::hasOgre() const
 {
-	return ogre().get() != 0;
+	return ogre().data() != 0;
 }
 
 inline bool Texture::hasAll() const

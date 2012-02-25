@@ -65,12 +65,12 @@ std::streamsize EventTracks::readMdx(istream &istream) throw (class Exception)
 std::streamsize EventTracks::writeMdx(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = MdxBlock::writeMdx(ostream);
-	const long32 number = boost::numeric_cast<long32>(this->tracks().size());
+	const long32 number = boost::numeric_cast<long32>(this->members().size());
 	wc3lib::write(ostream, number, size);
 	wc3lib::write(ostream, this->m_globalSequenceId, size);
 
-	BOOST_FOREACH(const class EventTrack *track, this->tracks())
-		size += track->writeMdx(ostream);
+	BOOST_FOREACH(Members::const_reference track, this->members())
+		size += track.writeMdx(ostream);
 
 	return size;
 }

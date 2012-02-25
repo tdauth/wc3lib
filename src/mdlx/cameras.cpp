@@ -31,26 +31,6 @@ Cameras::Cameras(class Mdlx *mdlx) : GroupMdxBlock("CAMS", "", false), m_mdlx(md
 {
 }
 
-std::streamsize Cameras::readMdl(istream &istream) throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize Cameras::writeMdl(ostream &ostream) const throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize Cameras::readMdx(istream &istream) throw (class Exception)
-{
-	return GroupMdxBlock::readMdx(istream);
-}
-
-std::streamsize Cameras::writeMdx(ostream &ostream) const throw (class Exception)
-{
-	return GroupMdxBlock::writeMdx(ostream);
-}
-
 class GroupMdxBlockMember* Cameras::createNewMember()
 {
 	return new Camera(this);

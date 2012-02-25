@@ -39,7 +39,7 @@ void VariablesDialog::showVariables(map::Triggers *triggers)
 {
 	m_tableWidget->setRowCount(triggers->variables().size());
 
-	for (map::int32 i = 0; i < triggers->variables().size(); ++i)
+	for (int32 i = 0; i < triggers->variables().size(); ++i)
 	{
 		QTableWidgetItem *item = new QTableWidgetItem(triggers->variables()[i]->name().c_str());
 		m_tableWidget->setItem(i, 0, item);

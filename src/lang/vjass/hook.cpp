@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2008, 2009 by Tamino Dauth                              *
+ *   Copyright (C) 2008 by Tamino Dauth                                    *
  *   tamino@cdauth.de                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -60,12 +60,12 @@ Hook::~Hook()
 void Hook::init()
 {
 	this->m_function = static_cast<class Function*>(this->searchObjectInList(this->functionExpression(), Parser::Functions));
-	
+
 	if (this->m_function == 0)
 		this->m_function = static_cast<class Function*>(this->searchObjectInList(this->functionExpression(), Parser::Methods));
-	
+
 	this->m_hookFunction = static_cast<class Function*>(this->searchObjectInList(this->hookFunctionExpression(), Parser::Functions));
-	
+
 	if (this->m_hookFunction == 0)
 		this->m_hookFunction = static_cast<class Function*>(this->searchObjectInList(this->hookFunctionExpression(), Parser::Methods));
 }

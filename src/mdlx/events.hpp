@@ -36,30 +36,23 @@ namespace mdlx
 class Events : public GroupMdxBlock
 {
 	public:
-		typedef std::list<class Event*> Members;
-		
 		Events(class Mdlx *mdlx);
 
 		class Mdlx* mdlx() const;
-		const Members& events() const;
 
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
 		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
 
 	protected:
+		/// \todo C++11 override
 		virtual class GroupMdxBlockMember* createNewMember();
-		
+
 		class Mdlx *m_mdlx;
 };
 
 inline class Mdlx* Events::mdlx() const
 {
 	return this->m_mdlx;
-}
-
-inline const Events::Members& Events::events() const
-{
-	return reinterpret_cast<const Members&>(this->members());
 }
 
 }

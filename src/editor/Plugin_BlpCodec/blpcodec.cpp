@@ -18,8 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <boost/scoped_ptr.hpp>
+
 #include "blpcodec.hpp"
 #include "../../i18n.hpp"
+#include "../../platform.h"
 
 namespace wc3lib
 {
@@ -73,8 +76,8 @@ BlpCodec::DecodeResult BlpCodec::decode(const blp::Blp &blp) const
 {
 	BlpCodec::ImageData* imgData = new BlpCodec::ImageData();
 	imgData->format = Ogre::PF_A8R8G8B8;
-	imgData->height = boost::numeric_cast<std::size_t>(blp.mipMaps().front()->height());
-	imgData->width = boost::numeric_cast<std::size_t>(blp.mipMaps().front()->width());
+	imgData->height = boost::numeric_cast<std::size_t>(blp.mipMaps().front().height());
+	imgData->width = boost::numeric_cast<std::size_t>(blp.mipMaps().front().width());
 	imgData->num_mipmaps = 0;
 	// TODO support MIP maps in image (how are they stored?)
 	//imgData->num_mipmaps = blp.mipMaps().size();
@@ -83,15 +86,15 @@ BlpCodec::DecodeResult BlpCodec::decode(const blp::Blp &blp) const
 
 	Ogre::MemoryDataStreamPtr pixelData(OGRE_NEW Ogre::MemoryDataStream(imgData->size));
 	unsigned char *imageData = pixelData->getPtr();
-	const blp::dword mipMapHeight = blp.mipMaps().front()->height();
-	const blp::dword mipMapWidth = blp.mipMaps().front()->width();
+	const blp::dword mipMapHeight = blp.mipMaps().front().height();
+	const blp::dword mipMapWidth = blp.mipMaps().front().width();
 	std::size_t i = 0;
 
 	for (blp::dword height = 0; height < mipMapHeight; ++height)
 	{
 		for (blp::dword width = 0; width < mipMapWidth; ++width)
 		{
-			const blp::color argb = blp.mipMaps().front()->colorAt(width, height).argb();
+			const blp::color argb = blp.mipMaps().front().colorAt(width, height).argb();
 			imageData[i] = blp::alpha(argb);
 			++i;
 			imageData[i] = blp::red(argb);
@@ -115,7 +118,7 @@ BlpCodec::DecodeResult BlpCodec::decode(Ogre::DataStreamPtr &input) const
 	boost::scoped_ptr<blp::Blp> blp(new blp::Blp());
 	boost::scoped_array<blp::char8> buffer(new blp::char8[input->size()]);
 	input->read(buffer.get(), input->size());
-	blp::iarraystream istream(buffer.get(), input->size());
+	iarraystream istream(buffer.get(), input->size());
 	blp->read(istream, 1, blp::Blp::defaultThreads); /// \todo Add MIP map support and do not only read the first MIP map!
 
 	return decode(*blp);

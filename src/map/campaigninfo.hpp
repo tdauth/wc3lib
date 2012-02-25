@@ -22,6 +22,7 @@
 #define WC3LIB_MAP_CAMPAIGNINFO_HPP
 
 #include "platform.hpp"
+#include "../color.hpp"
 
 namespace wc3lib
 {
@@ -50,10 +51,10 @@ class CampaignInfo : public FileFormat
 		{
 			public:
 				MapTitle();
-				
+
 				virtual std::streamsize read(InputStream &istream) throw (class Exception);
 				virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
-				
+
 				bool isVisibleFromTheBeginning() const;
 				const string& chapterTitle() const;
 				const string& mapTitle() const;
@@ -70,10 +71,10 @@ class CampaignInfo : public FileFormat
 		{
 			public:
 				Map();
-				
+
 				virtual std::streamsize read(InputStream &istream) throw (class Exception);
 				virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
-				
+
 				const string& unknown() const;
 				const string& path() const;
 
@@ -81,7 +82,7 @@ class CampaignInfo : public FileFormat
 				string m_unknown; // unknown (always empty, might also be a single character)
 				string m_path; // String: path of the map in the campaign archive
 		};
-		
+
 		typedef boost::shared_ptr<MapTitle> MapTitlePtr;
 		typedef std::list<MapTitlePtr> MapTitles;
 		typedef boost::shared_ptr<Map> MapPtr;
@@ -92,14 +93,14 @@ class CampaignInfo : public FileFormat
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
-		virtual int32 latestFileVersion() const;
-		virtual const char8* fileName() const;
-		
-		virtual int32 version() const { return m_version; }
-		
+		virtual uint32 latestFileVersion() const;
+		virtual const byte* fileName() const;
+
+		virtual uint32 version() const;
+
 		class Campaign* campaign() const;
-		int32 campaignVersion() const;
-		int32 editorVersion() const;
+		uint32 campaignVersion() const;
+		uint32 editorVersion() const;
 		const string& name() const;
 		const string& difficulty() const;
 		const string& author() const;
@@ -122,9 +123,9 @@ class CampaignInfo : public FileFormat
 
 	protected:
 		class Campaign *m_campaign;
-		int32 m_version;
-		int32 m_campaignVersion;
-		int32 m_editorVersion;
+		uint32 m_version;
+		uint32 m_campaignVersion;
+		uint32 m_editorVersion;
 		string m_name;
 		string m_difficulty;
 		string m_author;
@@ -165,7 +166,7 @@ inline const string& CampaignInfo::MapTitle::path() const
 {
 	return m_path;
 }
-				
+
 inline const string& CampaignInfo::Map::unknown() const
 {
 	return m_unknown;
@@ -176,14 +177,19 @@ inline const string& CampaignInfo::Map::path() const
 	return m_path;
 }
 
-inline int32 CampaignInfo::latestFileVersion() const
+inline uint32 CampaignInfo::latestFileVersion() const
 {
 	return 1;
 }
 
-inline const char8* CampaignInfo::fileName() const
+inline const byte* CampaignInfo::fileName() const
 {
 	return "war3campaign.w3f";
+}
+
+inline uint32 CampaignInfo::version() const
+{
+	return this->m_version;
 }
 
 inline class Campaign* CampaignInfo::campaign() const
@@ -191,12 +197,12 @@ inline class Campaign* CampaignInfo::campaign() const
 	return m_campaign;
 }
 
-inline int32 CampaignInfo::campaignVersion() const
+inline uint32 CampaignInfo::campaignVersion() const
 {
 	return m_campaignVersion;
 }
 
-inline int32 CampaignInfo::editorVersion() const
+inline uint32 CampaignInfo::editorVersion() const
 {
 	return m_editorVersion;
 }

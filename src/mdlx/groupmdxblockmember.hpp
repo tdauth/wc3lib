@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MDLX_GROUPMDXBLOCKMEMBER_HPP
 #define WC3LIB_MDLX_GROUPMDXBLOCKMEMBER_HPP
 
+#include <boost/cast.hpp> // for polymorphic casts of parent
+
 #include "platform.hpp"
 #include "mdlxproperty.hpp"
 
@@ -35,9 +37,9 @@ class GroupMdxBlockMember : public MdlxProperty
 	public:
 		GroupMdxBlockMember(class GroupMdxBlock *parent, const string &mdlKeyword);
 		virtual ~GroupMdxBlockMember();
-		
+
 		class GroupMdxBlock* parent() const;
-		
+
 		virtual std::streamsize readMdx(istream &istream) throw (class Exception) = 0;
 		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception) = 0;
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception) = 0;
@@ -45,7 +47,7 @@ class GroupMdxBlockMember : public MdlxProperty
 
 	protected:
 		class GroupMdxBlock *m_parent;
-		
+
 		string m_mdlKeyword;
 };
 

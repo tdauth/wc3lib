@@ -21,6 +21,8 @@
 #ifndef WC3LIB_EDITOR_MODELEDITOR_HPP
 #define WC3LIB_EDITOR_MODELEDITOR_HPP
 
+#include <boost/ptr_container/ptr_list.hpp>
+
 #include <QDebug>
 
 #include <KUrl>
@@ -49,9 +51,7 @@ class ModelEditor : public Module, protected Ui::ModelEditor
 	Q_OBJECT
 
 	public:
-		typedef boost::shared_ptr<OgreMdlx> OgreMdlxPtr;
-		//typedef boost::bimap<MdlxPtr, OgreMdlxPtr> Models;
-		typedef std::list<OgreMdlxPtr> Models;
+		typedef boost::ptr_list<OgreMdlx> Models;
 
 		typedef boost::bimap<QAction*, const mdlx::Camera*> CameraActions;
 		typedef boost::bimap<const OgreMdlx::CollisionShape*, Ogre::SceneNode*> CollisionShapeNodes;
@@ -119,11 +119,11 @@ class ModelEditor : public Module, protected Ui::ModelEditor
 		virtual void dropEvent(QDropEvent *event);
 
 		bool openUrl(const KUrl &url);
-		void removeModel(OgreMdlxPtr &ogreModel);
+		void removeModel(const OgreMdlx &ogreModel);
 		void removeModel(Models::iterator iterator);
 
-		void addCameraActions(const OgreMdlxPtr &ogreModel);
-		void removeCameraActions(const OgreMdlxPtr &ogreModel);
+		void addCameraActions(const OgreMdlx &ogreModel);
+		void removeCameraActions(const OgreMdlx &ogreModel);
 
 		class ModelEditorView *m_modelView;
 		class ModelEditorSettingsDialog *m_settingsDialog;
@@ -174,15 +174,15 @@ inline void ModelEditor::setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor)
 	m_teamColor = teamColor;
 	qDebug() << "Changing team color to " << teamColor;
 
-	BOOST_FOREACH(Models::value_type value, this->models())
+	BOOST_FOREACH(Models::reference value, this->models())
 	{
 		try
 		{
-			value->setTeamColor(this->teamColor());
+			value.setTeamColor(this->teamColor());
 		}
 		catch (Exception &exception)
 		{
-			KMessageBox::error(this, i18n("Unable to assign team color %1 and to model \"%2\".\nException \"%3\".", this->teamColor(), value->url().toEncoded().constData(), exception.what().c_str()));
+			KMessageBox::error(this, i18n("Unable to assign team color %1 and to model \"%2\".\nException \"%3\".", this->teamColor(), value.url().toEncoded().constData(), exception.what().c_str()));
 		}
 	}
 }
@@ -197,15 +197,15 @@ inline void ModelEditor::setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow)
 	m_teamGlow = teamGlow;
 	qDebug() << "Changing team glow to " << teamGlow;
 
-	BOOST_FOREACH(Models::value_type value, this->models())
+	BOOST_FOREACH(Models::reference value, this->models())
 	{
 		try
 		{
-			value->setTeamGlow(this->teamGlow());
+			value.setTeamGlow(this->teamGlow());
 		}
 		catch (Exception &exception)
 		{
-			KMessageBox::error(this, i18n("Unable to assign team glow %1 and to model \"%2\".\nException \"%3\".", this->teamGlow(), value->url().toEncoded().constData(), exception.what().c_str()));
+			KMessageBox::error(this, i18n("Unable to assign team glow %1 and to model \"%2\".\nException \"%3\".", this->teamGlow(), value.url().toEncoded().constData(), exception.what().c_str()));
 		}
 	}
 }

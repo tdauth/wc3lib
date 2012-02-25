@@ -21,12 +21,12 @@
 #include <iostream>
 
 #include "../mpq.hpp"
-#include "../core.hpp"
+#include "../utilities.hpp"
 
 #include <boost/format.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
-
+#include <boost/scoped_ptr.hpp>
 #include <boost/timer.hpp>
 
 using namespace wc3lib;
@@ -177,9 +177,9 @@ std::string entry,
 #endif
 const boost::program_options::variables_map &vm)
 {
-	const MpqFile *file = mpq.findFile(entry);
+	mpq::Mpq::FilePtrConst file = mpq.findFile(entry);
 
-	if (file == 0)
+	if (file.get() == 0)
 	{
 		std::cerr << boost::format(_("Error occured while extracting file \"%1%\": File doesn't exist.")) % entry << std::endl;
 
@@ -220,12 +220,12 @@ const boost::program_options::variables_map &vm)
 #ifdef DEBUG
 	// TEST
 	// Creates info file for each extracted file for analysing it
-	mpq::ofstream infoOut(entryPath.string() + "info", std::ios::out);
+	ofstream infoOut(entryPath.string() + "info", std::ios::out);
 	infoOut << fileInfo(*file, vm.count("human-readable"), vm.count("decimal"));
 	// END TEST
 #endif
 
-	mpq::ofstream out(entryPath, std::ios::out | std::ios::binary);
+	ofstream out(entryPath, std::ios::out | std::ios::binary);
 
 	try
 	{
@@ -336,7 +336,7 @@ int main(int argc, char *argv[])
 
 	BOOST_FOREACH(Paths::const_reference path, listfiles)
 	{
-		mpq::ifstream in(path, std::ios::in);
+		ifstream in(path, std::ios::in);
 
 		if (!in)
 		{
@@ -345,8 +345,8 @@ int main(int argc, char *argv[])
 			continue;
 		}
 
-		const mpq::string::size_type size = (mpq::string::size_type)(endPosition(in)) + 1;
-		mpq::string content(size, '0');
+		const string::size_type size = (string::size_type)(endPosition(in)) + 1;
+		string content(size, '0');
 		in.read(&content[0], size);
 		listfileEntries.push_back(Listfile::entries(content));
 	}
@@ -410,9 +410,9 @@ int main(int argc, char *argv[])
 			{
 				BOOST_FOREACH(Paths::const_reference path, filePaths)
 				{
-					const MpqFile *file = mpq->findFile(path);
+					Mpq::FilePtrConst file = mpq->findFile(path);
 
-					if (file != 0)
+					if (file.get() != 0)
 						std::cout << fileInfo(*file, vm.count("human-readable"), vm.count("decimal")) << std::endl;
 					else
 						std::cerr << boost::format(_("Error occured while extracting file \"%1%\": File doesn't exist.")) % path << std::endl;

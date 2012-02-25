@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MDLX_RIBBONEMITTERHEIGHTABOVE_HPP
 #define WC3LIB_MDLX_RIBBONEMITTERHEIGHTABOVE_HPP
 
+#include <boost/cast.hpp>
+
 #include "mdlxalpha.hpp"
 #include "ribbonemitterheightsabove.hpp"
 

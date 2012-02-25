@@ -36,20 +36,13 @@ namespace mdlx
 class Matrices : public GroupMdxBlock
 {
 	public:
-		typedef std::list<class Matrix*> Members;
-		
 		Matrices(class Geoset *geoset);
 		virtual ~Matrices();
 
 		class Geoset* geoset() const;
-		const Members& matrices() const;
-
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
-		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 
 	protected:
+		/// \todo C++11 override
 		virtual class GroupMdxBlockMember* createNewMember();
 
 		class Geoset *m_geoset;
@@ -58,11 +51,6 @@ class Matrices : public GroupMdxBlock
 inline class Geoset* Matrices::geoset() const
 {
 	return this->m_geoset;
-}
-
-inline const Matrices::Members& Matrices::matrices() const
-{
-	return reinterpret_cast<const Matrices::Members&>(this->m_members);
 }
 
 }

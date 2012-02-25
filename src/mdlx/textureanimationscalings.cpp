@@ -33,7 +33,7 @@ TextureAnimationScalings::TextureAnimationScalings(class TextureAnimation *textu
 {
 }
 
-class MdlxAnimatedProperty* TextureAnimationScalings::createAnimatedProperty()
+TextureAnimationScalings::Property* TextureAnimationScalings::createAnimatedProperty()
 {
 	return new TextureAnimationScaling(this);
 }

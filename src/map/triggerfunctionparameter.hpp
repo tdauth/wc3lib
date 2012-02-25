@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MAP_TRIGGERFUNCTIONPARAMETER_HPP
 #define WC3LIB_MAP_TRIGGERFUNCTIONPARAMETER_HPP
 
+#include <boost/scoped_ptr.hpp>
+
 #include "platform.hpp"
 
 namespace wc3lib

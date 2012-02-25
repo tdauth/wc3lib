@@ -143,7 +143,7 @@ std::streamsize CustomUnits::Modification::readData(InputStream &istream) throw 
 
 		case Value::Type::Character:
 		{
-			char8 v;
+			byte v;
 			wc3lib::read(istream, v, size);
 			this->m_value = Value(v);
 
@@ -247,9 +247,8 @@ std::streamsize CustomUnits::Unit::read(InputStream &istream) throw (class Excep
 
 	for (int32 i = 0; i < modifications; ++i)
 	{
-		ModificationPtr modification(createModification());
-		size += modification->read(istream);
-		this->modifications()[i].swap(modification);
+		this->modifications().replace(i, createModification());
+		size += this->modifications()[i].read(istream);
 	}
 
 	return size;
@@ -263,7 +262,7 @@ std::streamsize CustomUnits::Unit::write(OutputStream &ostream) const throw (cla
 	wc3lib::write<int32>(ostream, modifications().size(), size);
 
 	BOOST_FOREACH(Modifications::const_reference modification, this->modifications())
-		size += modification->write(ostream);
+		size += modification.write(ostream);
 
 	return size;
 }
@@ -295,9 +294,8 @@ std::streamsize CustomUnits::read(InputStream &istream) throw (class Exception)
 
 	for (int32 i = 0; i < originalUnits; ++i)
 	{
-		UnitPtr unit(createUnit());
-		size += unit->read(istream);
-		originalTable()[i].swap(unit);
+		originalTable().replace(i, createUnit());
+		size += originalTable()[i].read(istream);
 	}
 
 	int32 customUnits;
@@ -306,9 +304,8 @@ std::streamsize CustomUnits::read(InputStream &istream) throw (class Exception)
 
 	for (int32 i = 0; i < customUnits; ++i)
 	{
-		UnitPtr unit(createUnit());
-		size += unit->read(istream);
-		customTable()[i].swap(unit);
+		customTable().replace(i, createUnit());
+		size += customTable()[i].read(istream);
 	}
 
 	return size;
@@ -324,12 +321,12 @@ std::streamsize CustomUnits::write(OutputStream &ostream) const throw (class Exc
 	wc3lib::write<int32>(ostream, originalTable().size(), size);
 
 	BOOST_FOREACH(Table::const_reference unit, originalTable())
-		size += unit->write(ostream);
+		size += unit.write(ostream);
 
 	wc3lib::write<int32>(ostream, customTable().size(), size);
 
 	BOOST_FOREACH(Table::const_reference unit, customTable())
-		size += unit->write(ostream);
+		size += unit.write(ostream);
 
 	return size;
 }

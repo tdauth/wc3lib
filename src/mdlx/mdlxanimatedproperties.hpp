@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MDLX_MDLXANIMATEDPROPERTIES_HPP
 #define WC3LIB_MDLX_MDLXANIMATEDPROPERTIES_HPP
 
+#include <boost/ptr_container/ptr_vector.hpp>
+
 #include "mdlxproperty.hpp"
 #include "mdxblock.hpp"
 
@@ -30,10 +32,16 @@ namespace wc3lib
 namespace mdlx
 {
 
+template<typename std::size_t N>
+class MdlxAnimatedProperty;
+
+template<typename std::size_t N = 3>
 class MdlxAnimatedProperties : public MdxBlock
 {
 	public:
-		typedef std::list<class MdlxAnimatedProperty*> Properties;
+		static const std::size_t dimension = N;
+		typedef MdlxAnimatedProperty<N> Property;
+		typedef boost::ptr_vector<Property> Properties;
 		MdlxAnimatedProperties(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlIdentifier, bool optional = true);
 		virtual ~MdlxAnimatedProperties();
 
@@ -49,35 +57,40 @@ class MdlxAnimatedProperties : public MdxBlock
 		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 
 	protected:
-		virtual class MdlxAnimatedProperty* createAnimatedProperty() = 0;
-		
+		virtual MdlxAnimatedProperty<N>* createAnimatedProperty() = 0;
+
 		class Mdlx *m_mdlx;
 		BOOST_SCOPED_ENUM(LineType) m_lineType; //(0:don't interp;1:linear;2:hermite;3:bezier)
 		long32 m_globalSequenceId; // 0xFFFFFFFF if none
 		Properties m_properties;
 };
 
-inline class Mdlx* MdlxAnimatedProperties::mdlx() const
+template<typename std::size_t N>
+inline class Mdlx* MdlxAnimatedProperties<N>::mdlx() const
 {
 	return this->m_mdlx;
 }
 
-inline BOOST_SCOPED_ENUM(LineType) MdlxAnimatedProperties::lineType() const
+template<typename std::size_t N>
+inline BOOST_SCOPED_ENUM(LineType) MdlxAnimatedProperties<N>::lineType() const
 {
 	return this->m_lineType;
 }
 
-inline long32 MdlxAnimatedProperties::globalSequenceId() const
+template<typename std::size_t N>
+inline long32 MdlxAnimatedProperties<N>::globalSequenceId() const
 {
 	return this->m_globalSequenceId;
 }
 
-inline bool MdlxAnimatedProperties::hasGlobalSequence() const
+template<typename std::size_t N>
+inline bool MdlxAnimatedProperties<N>::hasGlobalSequence() const
 {
 	return this->m_globalSequenceId != 0xFFFFFFFF;
 }
 
-inline const MdlxAnimatedProperties::Properties& MdlxAnimatedProperties::properties() const
+template<typename std::size_t N>
+inline const typename MdlxAnimatedProperties<N>::Properties& MdlxAnimatedProperties<N>::properties() const
 {
 	return this->m_properties;
 }
@@ -85,6 +98,8 @@ inline const MdlxAnimatedProperties::Properties& MdlxAnimatedProperties::propert
 }
 
 }
+
+#include "mdlxanimatedproperties.cpp"
 
 #endif
 

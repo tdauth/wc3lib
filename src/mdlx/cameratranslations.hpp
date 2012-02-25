@@ -36,16 +36,13 @@ namespace mdlx
 class CameraTranslations : public MdlxScalings
 {
 	public:
-		typedef std::list<class CameraTranslation*> Translations;
-		
 		CameraTranslations(class Camera *camera);
 
 		class Camera* camera() const;
 
-		const Translations& translations() const;
-
 	protected:
-		virtual class MdlxAnimatedProperty* createAnimatedProperty();
+		/// \todo C++11 override
+		virtual Property* createAnimatedProperty();
 
 		class Camera *m_camera;
 };
@@ -53,11 +50,6 @@ class CameraTranslations : public MdlxScalings
 inline class Camera* CameraTranslations::camera() const
 {
 	return this->m_camera;
-}
-
-inline const CameraTranslations::Translations& CameraTranslations::translations() const
-{
-	return reinterpret_cast<const Translations&>(this->mdlxScalings());
 }
 
 }

@@ -35,16 +35,6 @@ PrimitiveTypes::~PrimitiveTypes()
 {
 }
 
-std::streamsize PrimitiveTypes::readMdl(std::istream &istream) throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize PrimitiveTypes::writeMdl(std::ostream &ostream) const throw (class Exception)
-{
-	return 0;
-}
-
 class GroupMdxBlockMember* PrimitiveTypes::createNewMember()
 {
 	return new PrimitiveType(this);

@@ -30,30 +30,21 @@ namespace wc3lib
 namespace mdlx
 {
 
-class MdlxAlpha : public MdlxAnimatedProperty
+class MdlxAlpha : public MdlxAnimatedProperty<1>
 {
 	public:
 		MdlxAlpha(class MdlxAlphas *alphas);
 		virtual ~MdlxAlpha();
-		
+
 		class MdlxAlphas* mdlxAlphas() const;
 		float32 alpha() const;
 		float32 inTanAlpha() const;
 		float32 outTanAlpha() const;
-
-	protected:
-		class MdxAlphas *m_alphas;
-		long32 m_frame;
-		float32 m_state;
-		//if (LineType > 1) {
-		float32 m_inTan;
-		float32 m_outTan;
-		//}
 };
 
 inline class MdlxAlphas* MdlxAlpha::mdlxAlphas() const
 {
-	return dynamic_cast<class MdlxAlphas*>(properties());
+	return boost::polymorphic_cast<class MdlxAlphas*>(properties());
 }
 
 inline float32 MdlxAlpha::alpha() const

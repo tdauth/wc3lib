@@ -36,15 +36,13 @@ namespace mdlx
 class ParticleEmitter2Visibilities : public MdlxAlphas
 {
 	public:
-		typedef std::list<class ParticleEmitter2Visibility*> Visibilities;
-		
 		ParticleEmitter2Visibilities(class ParticleEmitter2 *particleEmitter);
-	
+
 		class ParticleEmitter2* particleEmitter() const;
-		const Visibilities& visibilities() const;
 
 	protected:
-		virtual class MdlxAnimatedProperty* createAnimatedProperty();
+		/// \todo C++11 override
+		virtual Property* createAnimatedProperty();
 
 		class ParticleEmitter2 *m_particleEmitter;
 };
@@ -52,11 +50,6 @@ class ParticleEmitter2Visibilities : public MdlxAlphas
 inline class ParticleEmitter2* ParticleEmitter2Visibilities::particleEmitter() const
 {
 	return this->m_particleEmitter;
-}
-
-inline const ParticleEmitter2Visibilities::Visibilities& ParticleEmitter2Visibilities::visibilities() const
-{
-	return reinterpret_cast<const Visibilities&>(this->mdlxAlphas());
 }
 
 }

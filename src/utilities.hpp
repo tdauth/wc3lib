@@ -21,6 +21,7 @@
 #ifndef WC3LIB_UTILITIES_HPP
 #define WC3LIB_UTILITIES_HPP
 
+/*
 #include <cmath>
 #include <cstdlib>
 #include <cstdio>
@@ -78,6 +79,16 @@
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/filter/bzip2.hpp>
 #include <boost/iostreams/filter/zlib.hpp>
+*/
+
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <cmath>
+
+#include <boost/lexical_cast.hpp>
+#include <boost/numeric/conversion/cast.hpp>
+#include <boost/cstdint.hpp>
 
 /*
 #ifdef UNIX
@@ -600,84 +611,6 @@ inline void setThreadPriority(boost::thread &thread, int priority) throw (class 
 #endif
 }
 */
-
-inline const char* bzip2Error(int error)
-{
-	if (error == boost::iostreams::bzip2::data_error)
-		return _("Data error: Compressed data stream is corrupted.");
-
-	if (error == boost::iostreams::bzip2::data_error_magic)
-		return _("Data error magic: Compressed data stream does not begin with the 'magic' sequence 'B' 'Z' 'h'.");
-
-	if (error == boost::iostreams::bzip2::config_error)
-		return _("Config error: libbzip2 has been improperly configured for the current platform.");
-
-	return "";
-}
-
-inline const char* zlibError(int error)
-{
-	if (error == boost::iostreams::zlib::stream_error)
-		return _("Stream error: Compressed data stream or parameter configuration is corrupted.");
-
-	if (error == boost::iostreams::zlib::version_error)
-		return _("Version error: Incompatible versions.");
-
-	if (error == boost::iostreams::zlib::data_error)
-		return _("Data error: Compressed data stream is corrupted.");
-
-	if (error == boost::iostreams::zlib::buf_error)
-		return _("Buff error: Internal error.");
-
-	return "";
-}
-
-/**
- * \todo Use some boost::geometry class to inherit which provides much more functionality.
- */
-template<typename T>
-class Vertex
-{
-	public:
-		Vertex() : m_x(0), m_y(0), m_z(0) { }
-		Vertex(T x, T y, T z) : m_x(x), m_y(y), m_z(z)
-		{
-		}
-
-		Vertex(const std::vector<T> &values) : m_x(values[0]), m_y(values[1]), m_z(values[2])
-		{
-		}
-
-		T operator[](uint8_t index) const throw (std::out_of_range)
-		{
-			if (index == 0)
-				return m_x;
-			else if (index == 1)
-				return m_y;
-			else if (index == 2)
-				return m_z;
-
-			throw std::out_of_range();
-		}
-
-		T x() const
-		{
-			return m_x;
-		}
-
-		T y() const
-		{
-			return m_y;
-		}
-
-		T z() const
-		{
-			return m_z;
-		}
-
-	private:
-		T m_x, m_y, m_z;
-};
 
 }
 

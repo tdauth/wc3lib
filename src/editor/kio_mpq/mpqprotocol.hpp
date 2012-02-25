@@ -21,6 +21,8 @@
 #ifndef WC3LIB_EDITOR_MPQPROTOCOL_HPP
 #define WC3LIB_EDITOR_MPQPROTOCOL_HPP
 
+#include <QScopedPointer>
+
 #include <KIO/SlaveBase>
 
 #include "mpqarchive.hpp"
@@ -47,7 +49,7 @@ class MpqProtocol : public KIO::SlaveBase
 
 		// FIXME Don't use class MpqArchive until KArchive becomes extensible for custom Entry types etc.
 		//typedef boost::scoped_ptr<MpqArchive> MpqArchivePtr;
-		typedef boost::scoped_ptr<mpq::Mpq> MpqArchivePtr;
+		typedef QScopedPointer<mpq::Mpq> MpqArchivePtr;
 
 
 		MpqProtocol(const QByteArray &pool, const QByteArray &app);

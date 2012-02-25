@@ -21,7 +21,10 @@
 #ifndef WC3LIB_MAP_MENUMINIMAP_HPP
 #define WC3LIB_MAP_MENUMINIMAP_HPP
 
+#include <set>
+
 #include "platform.hpp"
+#include "../color.hpp"
 
 namespace wc3lib
 {
@@ -65,18 +68,18 @@ class MenuMinimap : public FileFormat
 		virtual std::streamsize read(InputStream &istream) throw (Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
 
-		virtual int32 version() const;
-		virtual const char8* fileName() const;
-		virtual const char8* fileTextId() const;
-		virtual int32 latestFileVersion() const;
+		virtual uint32 version() const;
+		virtual const byte* fileName() const;
+		virtual const byte* fileTextId() const;
+		virtual uint32 latestFileVersion() const;
 
 		class W3m* w3m() const;
-		Marks marks();
+		Marks& marks();
 		const Marks& marks() const;
 
 	protected:
 		class W3m *m_w3m;
-		int32 m_version;
+		uint32 m_version;
 		Marks m_marks;
 };
 
@@ -85,7 +88,7 @@ inline BOOST_SCOPED_ENUM(MenuMinimap::Mark::IconType) MenuMinimap::Mark::iconTyp
 	return m_iconType;
 }
 
-inline const wc3lib::map::Bgra& MenuMinimap::Mark::color() const
+inline const Bgra& MenuMinimap::Mark::color() const
 {
 	return m_color;
 }
@@ -95,27 +98,27 @@ inline class W3m* MenuMinimap::w3m() const
 	return m_w3m;
 }
 
-inline int32 MenuMinimap::version() const
+inline uint32 MenuMinimap::version() const
 {
 	return m_version;
 }
 
-inline const char8* MenuMinimap::fileName() const
+inline const byte* MenuMinimap::fileName() const
 {
 	return "war3map.mmp";
 }
 
-inline const char8* MenuMinimap::fileTextId() const
+inline const byte* MenuMinimap::fileTextId() const
 {
 	return "";
 }
 
-inline int32 MenuMinimap::latestFileVersion() const
+inline uint32 MenuMinimap::latestFileVersion() const
 {
 	return 0;
 }
 
-inline MenuMinimap::Marks MenuMinimap::marks()
+inline MenuMinimap::Marks& MenuMinimap::marks()
 {
 	return m_marks;
 }

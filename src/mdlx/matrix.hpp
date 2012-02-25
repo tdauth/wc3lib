@@ -50,7 +50,7 @@ class Matrix : public GroupMdxBlockMember
 
 inline class Matrices* Matrix::matrices() const
 {
-	return dynamic_cast<class Matrices*>(this->m_parent);
+	return boost::polymorphic_cast<class Matrices*>(this->parent());
 }
 
 inline long32 Matrix::data() const

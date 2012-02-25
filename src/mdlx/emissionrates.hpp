@@ -36,22 +36,14 @@ namespace mdlx
 class EmissionRates : public MdlxAlphas
 {
 	public:
-		typedef std::list<class EmissionRate*> Rates;
-		
 		EmissionRates(class Mdlx *mdlx);
 
-		const Rates& emissionRates() const;
-
 	protected:
-		virtual class MdlxAnimatedProperty* createAnimatedProperty();
-		
+		/// \todo C++11 override
+		virtual Property* createAnimatedProperty();
+
 		class Mdlx *m_mdlx;
 };
-
-inline const EmissionRates::Rates& EmissionRates::emissionRates() const
-{
-	return reinterpret_cast<const Rates&>(this->mdlxAlphas());
-}
 
 }
 

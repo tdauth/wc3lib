@@ -35,7 +35,6 @@ PrimitiveVertices::~PrimitiveVertices()
 {
 }
 
-
 class GroupMdxBlockMember* PrimitiveVertices::createNewMember()
 {
 	return new PrimitiveVertex(this);

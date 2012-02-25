@@ -46,7 +46,7 @@ class Sequence : public Bounds, public GroupMdxBlockMember
 		 * Comments: All text after the "-" and still inside the quotes is ignored.
 		 * \return Returns name of sequence with constant length of \ref nameSize.
 		 */
-		const ascii* name() const;
+		const byte* name() const;
 		long32 intervalStart() const;
 		long32 intervalEnd() const;
 		float32 moveSpeed() const;
@@ -60,7 +60,7 @@ class Sequence : public Bounds, public GroupMdxBlockMember
 		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 
 	protected:
-		ascii m_name[nameSize]; //(0x50 bytes)
+		byte m_name[nameSize]; //(0x50 bytes)
 		long32 m_intervalStart, m_intervalEnd;
 		float32 m_moveSpeed;
 		long32 m_noLooping; //(0:loop; 1:no loop)
@@ -74,7 +74,7 @@ inline class Sequences* Sequence::sequences() const
 	return dynamic_cast<class Sequences*>(this->m_parent);
 }
 
-inline const ascii* Sequence::name() const
+inline const byte* Sequence::name() const
 {
 	return this->m_name;
 }

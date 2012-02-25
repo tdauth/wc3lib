@@ -31,16 +31,6 @@ Lights::Lights(class Mdlx *mdlx) : GroupMdxBlock("LITE", "", false), m_mdlx(mdlx
 {
 }
 
-std::streamsize Lights::readMdl(istream &istream) throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize Lights::writeMdl(ostream &ostream) const throw (class Exception)
-{
-	return 0;
-}
-
 class GroupMdxBlockMember* Lights::createNewMember()
 {
 	return new Light(this);

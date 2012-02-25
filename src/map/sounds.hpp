@@ -41,10 +41,10 @@ class Sounds : public FileFormat
 		virtual std::streamsize read(InputStream &istream) throw (Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
 
-		virtual int32 version() const;
-		virtual const char8* fileName() const;
-		virtual const char8* fileTextId() const;
-		virtual int32 latestFileVersion() const;
+		virtual uint32 version() const;
+		virtual const byte* fileName() const;
+		virtual const byte* fileTextId() const;
+		virtual uint32 latestFileVersion() const;
 
 		class W3m* w3m() const;
 		SoundVector sounds();
@@ -52,7 +52,7 @@ class Sounds : public FileFormat
 
 	protected:
 		class W3m *m_w3m;
-		int32 m_version;
+		uint32 m_version;
 		SoundVector m_sounds;
 };
 
@@ -61,22 +61,22 @@ inline class W3m* Sounds::w3m() const
 	return m_w3m;
 }
 
-inline int32 Sounds::version() const
+inline uint32 Sounds::version() const
 {
 	return m_version;
 }
 
-inline const char8* Sounds::fileName() const
+inline const byte* Sounds::fileName() const
 {
 	return "war3map.w3s";
 }
 
-inline const char8* Sounds::fileTextId() const
+inline const byte* Sounds::fileTextId() const
 {
 	return "";
 }
 
-inline int32 Sounds::latestFileVersion() const
+inline uint32 Sounds::latestFileVersion() const
 {
 	return 1;
 }

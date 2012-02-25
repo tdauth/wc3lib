@@ -18,9 +18,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/shared_array.hpp> // TEST, we need scoped array actually (threading bug)
+#include <boost/timer.hpp> // TEST, benchmarks
+#include <boost/thread.hpp>
 
 #include "blp.hpp"
+#include "../libraryloader.hpp"
 
 #include <jpeglib.h>
 
@@ -172,10 +175,8 @@ void Blp::clear()
 	this->m_pictureType = 5;
 	this->m_pictureSubType = 0;
 
-	BOOST_FOREACH(MipMapPtr mipMap, this->m_mipMaps)
-		mipMap.reset();
-
-	m_palette.reset();
+	this->mipMaps().clear();
+	this->palette().reset();
 }
 
 namespace
@@ -644,18 +645,18 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps, con
 
 	//std::cout << "Required mip maps are " << mipMapsCount << " with width " << this->m_width << " and height " << this->m_height << std::endl; // TEST
 
-	this->m_mipMaps.resize(mipMapsCount);
+	this->mipMaps().resize(mipMapsCount, 0);
 
 	for (std::size_t i = 0; i < mipMapsCount; ++i)
 	{
-		this->m_mipMaps[i].reset(new MipMap(this->mipMapWidth(i), this->mipMapHeight(i)));
+		this->mipMaps().replace(i, new MipMap(this->mipMapWidth(i), this->mipMapHeight(i)));
 
 		if (this->compression() == Blp::Compression::Paletted)
 		{
-			if (this->flags() == Blp::Flags::NoAlpha && mipMapData[i]->size != m_mipMaps[i]->width() * m_mipMaps[i]->height() * sizeof(byte))
-				std::cerr << boost::format(_("MIP map %1%: Size %2% is not equal to %3%.")) % i %  mipMapData[i]->size % (m_mipMaps[i]->width() * m_mipMaps[i]->height() * sizeof(color)) << std::endl;
-			else if (this->flags() & Blp::Flags::Alpha && mipMapData[i]->size != m_mipMaps[i]->width() * m_mipMaps[i]->height() * 2 * sizeof(byte))
-				std::cerr << boost::format(_("MIP map %1%: Size %2% is not equal to %3%.")) % i %  mipMapData[i]->size % (m_mipMaps[i]->width() * m_mipMaps[i]->height() * 2 * sizeof(color)) << std::endl;
+			if (this->flags() == Blp::Flags::NoAlpha && mipMapData[i]->size != this->mipMaps()[i].width() * this->mipMaps()[i].height() * sizeof(byte))
+				std::cerr << boost::format(_("MIP map %1%: Size %2% is not equal to %3%.")) % i %  mipMapData[i]->size % (this->mipMaps()[i].width() * this->mipMaps()[i].height() * sizeof(color)) << std::endl;
+			else if (this->flags() & Blp::Flags::Alpha && mipMapData[i]->size != this->mipMaps()[i].width() * this->mipMaps()[i].height() * 2 * sizeof(byte))
+				std::cerr << boost::format(_("MIP map %1%: Size %2% is not equal to %3%.")) % i %  mipMapData[i]->size % (this->mipMaps()[i].width() * this->mipMaps()[i].height() * 2 * sizeof(color)) << std::endl;
 		}
 	}
 
@@ -706,7 +707,7 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps, con
 
 			// read mip map data starting at header offset, header has already been copied into buffer
 			wc3lib::read(istream, buffer[jpegHeaderSize], size, boost::numeric_cast<std::streamsize>(mipMapSize));
-			readData.push_back(new ReadData(*this->mipMaps()[i], buffer, bufferSize, loader));
+			readData.push_back(new ReadData(this->mipMaps()[i], buffer, bufferSize, loader));
 		}
 
 		boost::timer timer; // TEST
@@ -755,9 +756,9 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps, con
 				std::cout << boost::format(_("Ignoring %1% 0 bytes.")) % nullBytes << std::endl;
 
 
-			for (dword height = 0; height < this->mipMaps()[i]->height(); ++height)
+			for (dword height = 0; height < this->mipMaps()[i].height(); ++height)
 			{
-				for (dword width = 0; width < this->mipMaps()[i]->width(); ++width)
+				for (dword width = 0; width < this->mipMaps()[i].width(); ++width)
 				{
 					byte index;
 					std::streamsize readSize = 0;
@@ -765,22 +766,22 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps, con
 					size += readSize;
 					mipMapSize -= boost::numeric_cast<dword>(readSize);
 
-					this->mipMaps()[i]->setColor(width, height, palette[index], 0, index);
+					this->mipMaps()[i].setColor(width, height, palette[index], 0, index);
 				}
 			}
 
 			if (this->flags() & Blp::Flags::Alpha)
 			{
-				for (dword height = 0; height < this->mipMaps()[i]->height(); ++height)
+				for (dword height = 0; height < this->mipMaps()[i].height(); ++height)
 				{
-					for (dword width = 0; width < this->mipMaps()[i]->width(); ++width)
+					for (dword width = 0; width < this->mipMaps()[i].width(); ++width)
 					{
 						byte alpha;
 						std::streamsize readSize = 0;
 						wc3lib::read(istream, alpha, readSize);
 						size += readSize;
 						mipMapSize -= boost::numeric_cast<dword>(readSize);
-						this->mipMaps()[i]->setColorAlpha(width, height, alpha);
+						this->mipMaps()[i].setColorAlpha(width, height, alpha);
 					}
 				}
 			}
@@ -804,8 +805,8 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps, con
 	Sizes not of powers of 2 seems to work fine too, the same rules for mipmaps
 	still applies. Ex: 24x17, 12x8 (rounded down), 6x4, 3x2, 1x1 (rounded down).
 	*/
-	if (this->mipMaps().size() > 1 && (this->mipMaps().back()->width() != 1 || this->mipMaps().back()->height() != 1))
-		std::cerr << boost::format(_("Last MIP map has not a size of 1x1 (%1%x%2%).")) % this->mipMaps().back()->width() % this->mipMaps().back()->height();
+	if (this->mipMaps().size() > 1 && (this->mipMaps().back().width() != 1 || this->mipMaps().back().height() != 1))
+		std::cerr << boost::format(_("Last MIP map has not a size of 1x1 (%1%x%2%).")) % this->mipMaps().back().width() % this->mipMaps().back().height();
 
 	return size;
 }
@@ -1028,7 +1029,7 @@ std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std:
 
 		/// \todo Sort thread priorities by MIP map size. Current thread gets low priority after starting all!!!
 		for (std::size_t i = 0; i < actualMipMaps; ++i)
-			writeData.push_back(new WriteData(*this->mipMaps()[i], writer, i == 0, (quality < 0 || quality > 100 ? Blp::defaultQuality : quality)));
+			writeData.push_back(new WriteData(this->mipMaps()[i], writer, i == 0, (quality < 0 || quality > 100 ? Blp::defaultQuality : quality)));
 
 		if (threads)
 		{
@@ -1111,11 +1112,11 @@ std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std:
 			dword mipMapOffset = ostream.tellp();
 			dword mipMapSize = size;
 
-			for (dword height = 0; height < this->mipMaps()[i]->height(); ++height)
+			for (dword height = 0; height < this->mipMaps()[i].height(); ++height)
 			{
-				for (dword width = 0; width < this->mipMaps()[i]->width(); ++width)
+				for (dword width = 0; width < this->mipMaps()[i].width(); ++width)
 				{
-					byte index = this->mipMaps()[i]->colorAt(width, height).paletteIndex();
+					byte index = this->mipMaps()[i].colorAt(width, height).paletteIndex();
 					wc3lib::write(ostream, index, size);
 
 					/*
@@ -1130,11 +1131,11 @@ std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std:
 
 			if (this->m_flags & Blp::Flags::Alpha)
 			{
-				for (dword height = 0; height < this->mipMaps()[i]->height(); ++height)
+				for (dword height = 0; height < this->mipMaps()[i].height(); ++height)
 				{
-					for (dword width = 0; width < this->mipMaps()[i]->width(); ++width)
+					for (dword width = 0; width < this->mipMaps()[i].width(); ++width)
 					{
-						byte alpha = this->mipMaps()[i]->colorAt(width, height).alpha();
+						byte alpha = this->mipMaps()[i].colorAt(width, height).alpha();
 						wc3lib::write(ostream, alpha, size);
 					}
 				}
@@ -1198,7 +1199,7 @@ int Blp::generateMipMaps(std::size_t number, bool regenerate) throw (class Excep
 
 	if (number < mipMaps().size())
 	{
-		m_mipMaps.resize(mipMaps().size() - number);
+		mipMaps().resize(mipMaps().size() - number, 0);
 
 		return number - mipMaps().size();
 	}
@@ -1208,11 +1209,11 @@ int Blp::generateMipMaps(std::size_t number, bool regenerate) throw (class Excep
 		dword height = this->height();
 		const std::size_t oldSize = mipMaps().size();
 		const int result = number - oldSize;
-		this->m_mipMaps.resize(number);
+		mipMaps().resize(number, 0);
 
 		for (std::size_t i = oldSize; i < number; ++i)
 		{
-			this->m_mipMaps[i].reset(new MipMap(width, height));
+			this->mipMaps().replace(i, new MipMap(width, height));
 			/// @todo Generate new scaled index and alpha list.
 			width /= 2;
 			height /= 2;
@@ -1224,32 +1225,6 @@ int Blp::generateMipMaps(std::size_t number, bool regenerate) throw (class Excep
 	return 0;
 }
 
-Blp::ColorPtr Blp::generatePalette(std::size_t number) throw (Exception)
-{
-	if (!hasPalette())
-		throw Exception(_("BLP has no palette."));
-
-	if (number > Blp::compressedPaletteSize)
-	{
-		std::cerr << boost::format(_("Invalid number of palette entries %1%. Maximum number can be %2%.")) % number % Blp::compressedPaletteSize << std::endl;
-		number = Blp::compressedPaletteSize;
-	}
-	else if (number == 0)
-		number = Blp::compressedPaletteSize;
-
-	ColorPtr palette(new color[number]);
-	memset(reinterpret_cast<void*>(palette.get()), 0, number);
-	MipMap *mipMap = mipMaps().front().get();
-
-	for (dword width = 0; width < mipMap->width(); ++width)
-	{
-		for (dword height = 0; height < mipMap->height(); ++height)
-			palette[mipMap->colorAt(width, height).paletteIndex()] = mipMap->colorAt(width, height).argb();
-	}
-
-	return palette;
-}
-
 const Blp::ColorPtr& Blp::palette() const throw (Exception)
 {
 	return const_cast<Blp*>(this)->palette();
@@ -1259,12 +1234,6 @@ Blp::ColorPtr& Blp::palette() throw (Exception)
 {
 	if (!hasPalette())
 		throw Exception(_("BLP has no palette."));
-
-	if (m_palette.get() == 0)
-	{
-		ColorPtr palette = this->generatePalette();
-		this->m_palette.swap(palette);
-	}
 
 	return m_palette;
 }

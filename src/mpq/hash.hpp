@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MPQ_HASH_HPP
 #define WC3LIB_MPQ_HASH_HPP
 
+#include <boost/functional/hash.hpp>
+
 #include "platform.hpp"
 #include "mpqfile.hpp"
 
@@ -188,12 +190,10 @@ class Hash : public Format, private boost::noncopyable
 		uint32 index() const;
 		const HashData& hashData() const;
 		HashData& hashData();
-		class MpqFile* mpqFile() const;
 		class Block* block() const;
 
 	protected:
 		friend class Mpq;
-		friend class MpqFile;
 
 		static const uint32 blockIndexDeleted;
 		static const uint32 blockIndexEmpty;
@@ -201,7 +201,6 @@ class Hash : public Format, private boost::noncopyable
 		class Mpq *m_mpq;
 		uint32 m_index;
 		struct HashData m_hashData;
-		class MpqFile *m_mpqFile;
 		class Block *m_block; // if this value is 0 it has never been used
 		bool m_deleted; // can not be true if m_block is 0
 };
@@ -239,11 +238,6 @@ inline const HashData& Hash::hashData() const
 inline HashData& Hash::hashData()
 {
 	return m_hashData;
-}
-
-inline class MpqFile* Hash::mpqFile() const
-{
-	return this->m_mpqFile;
 }
 
 inline class Block* Hash::block() const

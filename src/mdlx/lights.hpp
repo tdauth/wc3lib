@@ -36,30 +36,20 @@ namespace mdlx
 class Lights : public GroupMdxBlock
 {
 	public:
-		typedef std::list<class Light*> Members;
-		
 		Lights(class Mdlx *mdlx);
 
 		class Mdlx* mdlx() const;
-		const Members& lights() const;
-
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
 
 	protected:
+		/// \todo C++11 override
 		virtual class GroupMdxBlockMember* createNewMember();
-		
+
 		class Mdlx *m_mdlx;
 };
 
 inline class Mdlx* Lights::mdlx() const
 {
 	return this->m_mdlx;
-}
-
-inline const Lights::Members& Lights::lights() const
-{
-	return reinterpret_cast<const Members&>(this->m_members);
 }
 
 }

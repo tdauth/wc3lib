@@ -30,7 +30,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-class MdlxScaling : public MdlxAnimatedProperty
+class MdlxScaling : public MdlxAnimatedProperty<3>
 {
 	public:
 		MdlxScaling(class MdlxScalings *scalings);
@@ -44,7 +44,7 @@ class MdlxScaling : public MdlxAnimatedProperty
 
 inline class MdlxScalings* MdlxScaling::mdlxScalings() const
 {
-	return dynamic_cast<class MdlxScalings*>(this->properties());
+	return boost::polymorphic_cast<class MdlxScalings*>(this->properties());
 }
 
 inline VertexData MdlxScaling::vertexData() const

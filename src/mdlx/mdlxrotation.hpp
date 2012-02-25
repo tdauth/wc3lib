@@ -30,21 +30,21 @@ namespace wc3lib
 namespace mdlx
 {
 
-class MdlxRotation : public MdlxAnimatedProperty
+class MdlxRotation : public MdlxAnimatedProperty<4>
 {
 	public:
 		MdlxRotation(class MdlxRotations *rotations);
 		virtual ~MdlxRotation();
 
 		class MdlxRotations* mdlxRotations() const;
-		
+
 		struct QuaternionData quaternionData() const;
 		struct InterpolationRotationData interpolationData() const;
 };
 
 inline class MdlxRotations* MdlxRotation::mdlxRotations() const
 {
-	return dynamic_cast<class MdlxRotations*>(this->properties());
+	return boost::polymorphic_cast<MdlxRotations*>(this->properties());
 }
 
 inline struct QuaternionData MdlxRotation::quaternionData() const

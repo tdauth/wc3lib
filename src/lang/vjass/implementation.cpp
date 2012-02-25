@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2008, 2009 by Tamino Dauth                              *
+ *   Copyright (C) 2008 by Tamino Dauth                                    *
  *   tamino@cdauth.de                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -101,7 +101,7 @@ std::string Implementation::sqlStatement() const
 	<< "Container=" << Object::objectId(this->container()) << ", "
 	<< "Module=" << Object::objectId(this->module()) << ", "
 	<< "IsOptional=" << this->isOptional();
-	
+
 	return sstream.str();
 }
 #endif

@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MDLX_BONE_HPP
 #define WC3LIB_MDLX_BONE_HPP
 
+#include <boost/cast.hpp>
+
 #include "object.hpp"
 #include "groupmdxblockmember.hpp"
 #include "bones.hpp"

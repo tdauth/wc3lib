@@ -361,7 +361,7 @@ inline void MpqPriorityList::refreshTriggerData(QWidget *window) throw (Exceptio
 		throw Exception(_("Unable to download file \"UI/TriggerData.txt\"."));
 
 	TriggerDataPtr ptr(new map::TriggerData());
-	map::ifstream ifstream(target.toUtf8().constData(), std::ios::binary | std::ios::in);
+	ifstream ifstream(target.toUtf8().constData(), std::ios::binary | std::ios::in);
 
 	if (!ifstream)
 		throw Exception(boost::format(_("Unable to read from file \"%1%\".")) % target.toUtf8().constData());

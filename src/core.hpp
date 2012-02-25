@@ -21,10 +21,13 @@
 #ifndef WC3LIB_CORE_HPP
 #define WC3LIB_CORE_HPP
 
+#include "color.hpp"
 #include "exception.hpp"
 #include "format.hpp"
 #include "internationalisation.hpp"
 #include "libraryloader.hpp"
+#include "platform.hpp"
 #include "utilities.hpp"
+#include "vertex.hpp"
 
 #endif

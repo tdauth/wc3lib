@@ -52,7 +52,7 @@ class MdxBlock : public MdlxProperty
 		 */
 		bool optional() const;
 		bool exists() const;
-		
+
 		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
 		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
@@ -61,7 +61,7 @@ class MdxBlock : public MdlxProperty
 		bool moveToMdxIdentifier(istream &istream) const;
 
 	protected:
-		byte m_mdxIdentifier[mdxIdentifierSize]; /// @todo byte or ascii?
+		byte m_mdxIdentifier[mdxIdentifierSize];
 		string m_mdlKeyword;
 		bool m_optional;
 		bool m_exists;

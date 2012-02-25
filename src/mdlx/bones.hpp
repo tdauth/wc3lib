@@ -36,30 +36,23 @@ namespace mdlx
 class Bones : public GroupMdxBlock
 {
 	public:
-		typedef std::list<class Bone*> Members;
-		
 		Bones(class Mdlx *mdlx);
 
 		class Mdlx* mdlx() const;
-		const Members& bones() const;
-		
+
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
 		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
-		
+
 	protected:
+		/// \todo C++11 override
 		virtual class GroupMdxBlockMember* createNewMember();
-		
+
 		class Mdlx *m_mdlx;
 };
 
 inline class Mdlx* Bones::mdlx() const
 {
 	return this->m_mdlx;
-}
-
-inline const Bones::Members& Bones::bones() const
-{
-	return reinterpret_cast<const Members&>(this->m_members);
 }
 
 }

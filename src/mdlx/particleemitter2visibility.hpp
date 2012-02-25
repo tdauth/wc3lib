@@ -34,13 +34,13 @@ class ParticleEmitter2Visibility : public MdlxAlpha
 {
 	public:
 		ParticleEmitter2Visibility(class ParticleEmitter2Visibilities *visibilities);
-		
+
 		class ParticleEmitter2Visibilities* visibilities() const;
 };
 
 inline class ParticleEmitter2Visibilities* ParticleEmitter2Visibility::visibilities() const
 {
-	return dynamic_cast<class ParticleEmitter2Visibilities*>(this->mdlxAlphas());
+	return boost::polymorphic_cast<class ParticleEmitter2Visibilities*>(this->mdlxAlphas());
 }
 
 }

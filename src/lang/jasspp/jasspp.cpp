@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2008, 2009 by Tamino Dauth                              *
+ *   Copyright (C) 2008 by Tamino Dauth                                    *
  *   tamino@cdauth.de                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -22,10 +22,10 @@
 
 namespace wc3lib
 {
-	
+
 namespace lang
 {
-	
+
 namespace jasspp
 {
 
@@ -39,7 +39,7 @@ bool Jasspp::compatibleTo(const class Language &language) const
 {
 	if (language.name() == "Jass" || language.name() == "vJass" || language.name() == "Zinc")
 		return true;
-	
+
 	return false;
 }
 

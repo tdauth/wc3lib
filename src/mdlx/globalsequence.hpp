@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MDLX_GLOBALSEQUENCE_HPP
 #define WC3LIB_MDLX_GLOBALSEQUENCE_HPP
 
+#include <boost/cast.hpp>
+
 #include "groupmdxblockmember.hpp"
 #include "globalsequences.hpp"
 

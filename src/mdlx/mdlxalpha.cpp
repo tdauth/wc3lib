@@ -23,14 +23,14 @@
 
 namespace wc3lib
 {
-	
+
 namespace mdlx
 {
 
-MdlxAlpha::MdlxAlpha(class MdlxAlphas *alphas) : MdlxAnimatedProperty(alphas, 1)
+MdlxAlpha::MdlxAlpha(class MdlxAlphas *alphas) : MdlxAnimatedProperty(alphas)
 {
 }
-		
+
 MdlxAlpha::~MdlxAlpha()
 {
 }

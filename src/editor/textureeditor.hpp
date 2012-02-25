@@ -21,6 +21,8 @@
 #ifndef WC3LIB_EDITOR_TEXTUREEDITOR_HPP
 #define WC3LIB_EDITOR_TEXTUREEDITOR_HPP
 
+#include <QScopedPointer>
+
 #include <KUrl>
 #include <KAction>
 #include <KFileDialog>
@@ -58,7 +60,7 @@ class TextureEditor : public Module
 				class QCheckBox *m_threadsCheckBox;
 		};
 
-		typedef boost::scoped_ptr<Texture> TexturePtr;
+		typedef QScopedPointer<Texture> TexturePtr;
 		typedef QVector<QImage> MipMaps;
 
 		TextureEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
@@ -190,7 +192,7 @@ inline qreal TextureEditor::factor() const
 
 inline bool TextureEditor::hasTexture() const
 {
-	return texture().get() != 0;
+	return texture().data() != 0;
 }
 
 inline TextureEditor::SaveDialog *TextureEditor::saveDialog() const

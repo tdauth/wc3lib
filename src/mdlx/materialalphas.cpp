@@ -35,7 +35,7 @@ MaterialAlphas::MaterialAlphas(class Layer *layer) : MdlxAlphas(layer->layers()-
 {
 }
 
-class MdlxAnimatedProperty* MaterialAlphas::createAnimatedProperty()
+MaterialAlphas::Property* MaterialAlphas::createAnimatedProperty()
 {
 	return new MaterialAlpha(this);
 }

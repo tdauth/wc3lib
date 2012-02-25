@@ -41,13 +41,13 @@ std::streamsize GlobalSequences::readMdl(istream &istream) throw (class Exceptio
 
 std::streamsize GlobalSequences::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	ostream << "GlobalSequences " << this->globalSequences().size() << " {\n";
+	ostream << "GlobalSequences " << this->members().size() << " {\n";
 
-	BOOST_FOREACH(const class GlobalSequence *globalSequence, globalSequences())
-		globalSequence->writeMdl(ostream);
+	BOOST_FOREACH(Members::const_reference globalSequence, members())
+		globalSequence.writeMdl(ostream);
 
 	ostream << "}\n";
-	
+
 	return 0;
 }
 

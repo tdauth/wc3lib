@@ -63,7 +63,7 @@ bool HashData::isHash(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(Mpq
 const uint32 Hash::blockIndexDeleted = 0xFFFFFFFE;
 const uint32 Hash::blockIndexEmpty = 0xFFFFFFFF;
 
-Hash::Hash(class Mpq *mpq, uint32 index) : m_mpq(mpq), m_index(index), m_hashData(0, 0, 0, 0), m_mpqFile(0), m_block(0), m_deleted(false)
+Hash::Hash(class Mpq *mpq, uint32 index) : m_mpq(mpq), m_index(index), m_hashData(0, 0, 0, 0), m_block(0), m_deleted(false)
 {
 }
 

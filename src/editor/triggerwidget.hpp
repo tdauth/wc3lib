@@ -83,7 +83,7 @@ class TriggerWidget : public QWidget, protected Ui::TriggerTopWidget
 		 */
 		KTextEdit* textEdit() const;
 
-		void showTrigger(map::Trigger *trigger, const map::string &customText);
+		void showTrigger(map::Trigger *trigger, const string &customText);
 
 	protected slots:
 		void itemDoubleClicked(QTreeWidgetItem *item, int column);

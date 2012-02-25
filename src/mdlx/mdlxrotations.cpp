@@ -35,8 +35,7 @@ MdlxRotations::~MdlxRotations()
 {
 }
 
-
-class MdlxAnimatedProperty* MdlxRotations::createAnimatedProperty()
+MdlxRotations::Property* MdlxRotations::createAnimatedProperty()
 {
 	return new MdlxRotation(this);
 }

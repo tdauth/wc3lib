@@ -33,29 +33,23 @@ namespace mdlx
 class ParticleEmitter2s : public GroupMdxBlock
 {
 	public:
-		typedef std::list<class ParticleEmitter2*> Emitters;
 		ParticleEmitter2s(class Mdlx *mdlx);
 
 		class Mdlx* mdlx() const;
-		const Emitters& particleEmitters() const;
-		
+
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
 		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
 
 	protected:
+		/// \todo C++11 override
 		virtual class GroupMdxBlockMember* createNewMember();
-		
+
 		class Mdlx *m_mdlx;
 };
 
 inline class Mdlx* ParticleEmitter2s::mdlx() const
 {
 	return this->m_mdlx;
-}
-
-inline const ParticleEmitter2s::Emitters& ParticleEmitter2s::particleEmitters() const
-{
-	return *reinterpret_cast<const Emitters*>(&this->m_members);
 }
 
 }

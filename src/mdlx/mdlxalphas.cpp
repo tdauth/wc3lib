@@ -23,7 +23,7 @@
 
 namespace wc3lib
 {
-	
+
 namespace mdlx
 {
 
@@ -39,7 +39,7 @@ MdlxAlphas::MdlxAlphas(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::mdxI
 {
 }
 
-class MdlxAnimatedProperty* MdlxAlphas::createAnimatedProperty()
+MdlxAlphas::Property* MdlxAlphas::createAnimatedProperty()
 {
 	return new MdlxAlpha(this);
 }

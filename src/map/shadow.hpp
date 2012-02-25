@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MAP_SHADOW_HPP
 #define WC3LIB_MAP_SHADOW_HPP
 
+#include <boost/array.hpp>
+
 #include "platform.hpp"
 #include "tilepoint.hpp"
 
@@ -40,7 +42,7 @@ namespace map
 class Shadow : public FileFormat
 {
 	public:
-		class Key : public std::valarray<int32>
+		class Key : public boost::array<int32, 3>
 		{
 			public:
 				Key(int32 x, int32 y, int32 point);
@@ -56,23 +58,29 @@ class Shadow : public FileFormat
 				bool operator==(const Key &other) const;
 		};
 
-		BOOST_SCOPED_ENUM_START(Type)
+		BOOST_SCOPED_ENUM_START(Type) /// \todo C++11 : byte
 		{
 			NoShadow = 0x00,
 			HasShadow = 0xFF
 		};
 		BOOST_SCOPED_ENUM_END
 
+		typedef std::map<class Key, BOOST_SCOPED_ENUM(Type)> Data;
+
 		Shadow(class W3m *w3m);
-		~Shadow();
+		virtual ~Shadow();
+
+		class W3m* w3m() const;
+		Data& data();
+		const Data& data() const;
 
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
-		virtual const char8* fileTextId() const;
-		virtual const char8* fileName() const;
-		virtual int32 latestFileVersion() const;
-		virtual int32 version() const;
+		virtual const byte* fileTextId() const;
+		virtual const byte* fileName() const;
+		virtual uint32 latestFileVersion() const;
+		virtual uint32 version() const;
 
 		BOOST_SCOPED_ENUM(Type) type(const class Key &key) const;
 		/**
@@ -98,10 +106,10 @@ class Shadow : public FileFormat
 		0x00 = no shadow
 		0xFF = shadow
 		*/
-		std::map<class Key, BOOST_SCOPED_ENUM(Type)> m_data;
+		Data m_data;
 };
 
-inline Shadow::Key::Key(int32 x, int32 y, int32 point) : std::valarray<int32>(3)
+inline Shadow::Key::Key(int32 x, int32 y, int32 point)
 {
 	(*this)[0] = x;
 	(*this)[1] = y;
@@ -133,29 +141,44 @@ inline bool Shadow::Key::operator==(const Key &other) const
 	return this->x() == other.x() && this->y() == other.y() && this->point() == other.point();
 }
 
-inline const char8* Shadow::fileTextId() const
+inline class W3m* Shadow::w3m() const
+{
+	return this->m_w3m;
+}
+
+inline Shadow::Data &Shadow::data()
+{
+	return this->m_data;
+}
+
+inline const Shadow::Data &Shadow::data() const
+{
+	return this->m_data;
+}
+
+inline const byte* Shadow::fileTextId() const
 {
 	return "";
 }
 
-inline const char8* Shadow::fileName() const
+inline const byte* Shadow::fileName() const
 {
 	return "war3map.shd";
 }
 
-inline int32 Shadow::latestFileVersion() const
+inline uint32 Shadow::latestFileVersion() const
 {
 	return 0;
 }
 
-inline int32 Shadow::version() const
+inline uint32 Shadow::version() const
 {
 	return 0;
 }
 
 inline BOOST_SCOPED_ENUM(Shadow::Type) Shadow::type(const Shadow::Key &key) const
 {
-	std::map<class Key, BOOST_SCOPED_ENUM(Type)>::const_iterator iterator = this->m_data.find(key);
+	Data::const_iterator iterator = this->m_data.find(key);
 
 	if (iterator == this->m_data.end())
 		return Shadow::Type::NoShadow;
@@ -170,17 +193,15 @@ inline bool Shadow::containsShadow(const Key &key) const
 
 inline bool Shadow::containsShadow(int32 x, int32 y) const
 {
-	bool result = false;
-
-	for (int32 point = 0; point < Shadow::shadowPointsPerTileset && !result; ++point)
+	for (int32 point = 0; point < Shadow::shadowPointsPerTileset; ++point)
 	{
 		class Key key(x, y, point);
 
 		if (this->containsShadow(key))
-			result = true;
+			return true;
 	}
 
-	return result;
+	return false;
 }
 
 inline bool Shadow::tilepointContainsShadow(const class Tilepoint &tilepoint) const

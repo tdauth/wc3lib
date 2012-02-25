@@ -33,7 +33,7 @@ RibbonEmitterVisibilities::RibbonEmitterVisibilities(class RibbonEmitter *ribbon
 {
 }
 
-class MdlxAnimatedProperty* RibbonEmitterVisibilities::createAnimatedProperty()
+RibbonEmitterVisibilities::Property* RibbonEmitterVisibilities::createAnimatedProperty()
 {
 	return new RibbonEmitterVisibility(this);
 }

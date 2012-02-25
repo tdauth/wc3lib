@@ -33,14 +33,14 @@ namespace mdlx
 class AmbientIntensity : public MdlxAlpha
 {
 	public:
-		AmbientIntensity(class AmbientIntensities *intesities);
+		AmbientIntensity(AmbientIntensities *intesities);
 
-		class AmbientIntensities* intensities() const;
+		AmbientIntensities* intensities() const;
 };
 
-inline class AmbientIntensities* AmbientIntensity::intensities() const
+inline AmbientIntensities* AmbientIntensity::intensities() const
 {
-	return dynamic_cast<class AmbientIntensities*>(this->mdlxAlphas());
+	return boost::polymorphic_cast<AmbientIntensities*>(this->mdlxAlphas());
 }
 
 }

@@ -36,32 +36,20 @@ namespace mdlx
 class TextureAnimations : public GroupMdxBlock
 {
 	public:
-		typedef std::list<class TextureAnimation*> Animations;
-		
 		TextureAnimations(class Mdlx *mdlx);
 
 		class Mdlx* mdlx() const;
-		const Animations& textureAnimations() const;
-
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
-		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 
 	protected:
+		/// \todo C++11 override
 		virtual class GroupMdxBlockMember* createNewMember();
-		
+
 		class Mdlx *m_mdlx;
 };
 
 inline class Mdlx* TextureAnimations::mdlx() const
 {
 	return this->m_mdlx;
-}
-
-inline const TextureAnimations::Animations& TextureAnimations::textureAnimations() const
-{
-	return reinterpret_cast<const Animations&>(this->m_members);
 }
 
 }

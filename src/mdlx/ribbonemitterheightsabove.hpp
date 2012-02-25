@@ -36,27 +36,20 @@ namespace mdlx
 class RibbonEmitterHeightsAbove : public MdlxAlphas
 {
 	public:
-		typedef std::list<class RibbonEmitterHeightAbove*> Heights;
-		
 		RibbonEmitterHeightsAbove(class RibbonEmitter *ribbonEmitter);
 
 		class RibbonEmitter* ribbonEmitter() const;
-		const Heights& heights() const;
 
 	protected:
-		virtual class MdlxAnimatedProperty* createAnimatedProperty();
-		
+		/// \todo C++11 override
+		virtual Property* createAnimatedProperty();
+
 		class RibbonEmitter *m_ribbonEmitter;
 };
 
 inline class RibbonEmitter* RibbonEmitterHeightsAbove::ribbonEmitter() const
 {
 	return this->m_ribbonEmitter;
-}
-
-inline const RibbonEmitterHeightsAbove::Heights& RibbonEmitterHeightsAbove::heights() const
-{
-	return reinterpret_cast<const Heights&>(this->mdlxAlphas());
 }
 
 }

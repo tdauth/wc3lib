@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MDLX_TEXTUREANIMATION_HPP
 #define WC3LIB_MDLX_TEXTUREANIMATION_HPP
 
+#include <boost/cast.hpp>
+
 #include "mdlxproperty.hpp"
 #include "groupmdxblockmember.hpp"
 #include "textureanimations.hpp"

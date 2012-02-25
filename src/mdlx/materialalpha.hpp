@@ -40,7 +40,7 @@ class MaterialAlpha : public MdlxAlpha
 
 inline class MaterialAlphas* MaterialAlpha::alphas() const
 {
-	return dynamic_cast<class MaterialAlphas*>(this->mdlxAlphas());
+	return boost::polymorphic_cast<class MaterialAlphas*>(this->mdlxAlphas());
 }
 
 }

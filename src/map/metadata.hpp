@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MAP_METADATA_HPP
 #define WC3LIB_MAP_METADATA_HPP
 
+#include <boost/bimap.hpp>
+
 #include "platform.hpp"
 #include "object.hpp"
 
@@ -71,72 +73,72 @@ class MetaData : public Object
 		{
 			return index() < metaData.index();
 		}
-		
+
 		const string& field() const
 		{
 			return m_field;
 		}
-		
+
 		BOOST_SCOPED_ENUM(Slk) slk() const
 		{
 			return m_slk;
 		}
-		
+
 		BOOST_SCOPED_ENUM(Section) section() const
 		{
 			return m_section;
 		}
-		
+
 		void setIndex(int32 index)
 		{
 			m_index = index;
 		}
-		
+
 		int32 index() const
 		{
 			return m_index;
 		}
-		
+
 		void setDisplayName(const string &displayName)
 		{
 			m_displayName = displayName;
 		}
-		
+
 		const string& displayName() const
 		{
 			return m_displayName;
 		}
-		
+
 		void setMinValue(const Value &minValue)
 		{
 			m_minValue = minValue;
 		}
-		
+
 		const struct Value& minValue() const
 		{
 			return m_minValue;
 		}
-		
+
 		void setMaxValue(const Value &maxValue)
 		{
 			m_maxValue = maxValue;
 		}
-		
+
 		const struct Value& maxValue() const
 		{
 			return m_maxValue;
 		}
-		
+
 		void setType(BOOST_SCOPED_ENUM(Value::Type) type)
 		{
 			m_type = type;
 		}
-		
+
 		BOOST_SCOPED_ENUM(Value::Type) type() const
 		{
 			return m_type;
 		}
-	
+
 	protected:
 		string m_field;
 		BOOST_SCOPED_ENUM(Slk) m_slk;

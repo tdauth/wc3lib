@@ -34,7 +34,7 @@ TerrainBrush::~TerrainBrush()
 {
 }
 
-void TerrainBrush::onPlace(map::int32 x, map::int32 y)
+void TerrainBrush::onPlace(int32 x, int32 y)
 {
 }
 

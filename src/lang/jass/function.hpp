@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2008, 2009 by Tamino Dauth                              *
+ *   Copyright (C) 2008 by Tamino Dauth                                    *
  *   tamino@cdauth.de                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -25,7 +25,7 @@
 
 namespace wc3lib
 {
-	
+
 namespace lang
 {
 
@@ -36,7 +36,7 @@ class Function : public Object
 {
 	public:
 		Function(const std::string &identifier, class SourceFile *sourceFile, std::size_t line, const std::string &returnTypeExpression, std::list<std::string> parameterTypeExpressions, std::list<std::string> parameterIdentifiers);
-#ifdef SQLITE		
+#ifdef SQLITE
 		Function(std::vector<Object::SqlValueDataType> &columnVector);
 #endif
 		virtual void init();

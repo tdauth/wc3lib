@@ -37,32 +37,20 @@ namespace mdlx
 class Geosets : public GroupMdxBlock
 {
 	public:
-		typedef std::list<class Geoset*> Members;
-		
 		Geosets(class Mdlx *mdlx);
 
 		class Mdlx* mdlx() const;
-		const Members& geosets() const;
-
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
-		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 
 	protected:
+		/// \todo C++11 override
 		virtual class GroupMdxBlockMember* createNewMember();
-		
+
 		class Mdlx *m_mdlx;
 };
 
 inline class Mdlx* Geosets::mdlx() const
 {
 	return this->m_mdlx;
-}
-
-inline const Geosets::Members& Geosets::geosets() const
-{
-	return reinterpret_cast<const Members&>(this->m_members);
 }
 
 }

@@ -56,11 +56,11 @@ class Triggers : public FileFormat
 		virtual std::streamsize read(InputStream &istream, const class TriggerData &triggerData) throw (Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
-		virtual const char8* fileTextId() const;
-		virtual const char8* fileName() const;
-		virtual int32 latestFileVersion() const;
+		virtual const byte* fileTextId() const;
+		virtual const byte* fileName() const;
+		virtual uint32 latestFileVersion() const;
 
-		virtual int32 version() const;
+		virtual uint32 version() const;
 
 		int32 unknown0() const;
 		Categories& categories();
@@ -74,29 +74,29 @@ class Triggers : public FileFormat
 		friend class Trigger;
 
 		class W3m *m_w3m;
-		int32 m_version;
+		uint32 m_version;
 		int32 m_unknown0;
 		Categories m_categories;
 		Variables m_variables;
 		TriggerEntries m_triggers;
 };
 
-inline const char8* Triggers::fileTextId() const
+inline const byte* Triggers::fileTextId() const
 {
 	return "WTG!";
 }
 
-inline const char8* Triggers::fileName() const
+inline const byte* Triggers::fileName() const
 {
 	return "war3map.wtg";
 }
 
-inline int32 Triggers::latestFileVersion() const
+inline uint32 Triggers::latestFileVersion() const
 {
 	return 4;
 }
 
-inline int32 Triggers::version() const
+inline uint32 Triggers::version() const
 {
 	return m_version;
 }

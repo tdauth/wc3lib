@@ -45,10 +45,10 @@ GeosetAnimation::~GeosetAnimation()
 std::streamsize GeosetAnimation::readMdl(istream &istream) throw (class Exception)
 {
 	std::streamsize size = 0;//GroupMdxBlockMember::readMdl(istream);
-	
+
 	if (size == 0)
 		return 0;
-	
+
 	/// \todo Finish!
 	return size;
 }
@@ -56,32 +56,27 @@ std::streamsize GeosetAnimation::readMdl(istream &istream) throw (class Exceptio
 std::streamsize GeosetAnimation::writeMdl(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	
+
 	if (colorAnimation() == ColorAnimation::DropShadow || colorAnimation() == ColorAnimation::Both)
 		writeMdlProperty(ostream, "DropShadow", size);
-	
-	if (this->alphas()->alphas().empty())
+
+	if (this->alphas()->properties().empty())
 		writeMdlStaticValueProperty(ostream, "Alpha", staticAlpha(), size);
 	else
 		size += this->alphas()->writeMdl(ostream);
-	
+
 	if (colorAnimation() == ColorAnimation::Color || colorAnimation() == ColorAnimation::Both)
 	{
-		if (this->colors()->colors().empty())
+		if (this->colors()->properties().empty())
 		{
-			std::vector<float32> color(3, 0.0);
-			color[0] = colorBlue();
-			color[1] = colorGreen();
-			color[2] = colorRed();
-			
-			writeMdlStaticVectorProperty(ostream, "Color", color, size);
+			writeMdlStaticVectorProperty(ostream, "Color", VertexData(colorBlue(), colorGreen(), colorRed()), size);
 		}
 		else
 			size += this->colors()->writeMdl(ostream);
 	}
-	
+
 	writeMdlValueProperty(ostream, "GeosetId", geosetId(), size);
-	
+
 	return size;
 }
 
@@ -117,7 +112,7 @@ std::streamsize GeosetAnimation::writeMdx(ostream &ostream) const throw (class E
 {
 	std::streampos position;
 	skipByteCount<long32>(ostream, position);
-	
+
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->staticAlpha(), size);
 	wc3lib::write(ostream, this->colorAnimation(), size);
@@ -133,7 +128,7 @@ std::streamsize GeosetAnimation::writeMdx(ostream &ostream) const throw (class E
 
 	long32 nbytesi = size;
 	writeByteCount(ostream, nbytesi, position, size, true);
-	
+
 	return size;
 }
 

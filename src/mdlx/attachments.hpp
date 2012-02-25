@@ -36,30 +36,23 @@ namespace mdlx
 class Attachments : public GroupMdxBlock
 {
 	public:
-		typedef std::list<const class Attachment*> Members;
-		
 		Attachments(class Mdlx *mdlx);
-		
+
 		class Mdlx* mdlx() const;
-		const Members& attachments() const;
-		
+
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
 		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
 
 	protected:
+		/// \todo C++11 override
 		virtual class GroupMdxBlockMember* createNewMember();
-		
+
 		class Mdlx *m_mdlx;
 };
 
 inline class Mdlx* Attachments::mdlx() const
 {
 	return this->m_mdlx;
-}
-
-inline const Attachments::Members& Attachments::attachments() const
-{
-	return reinterpret_cast<const Members&>(this->m_members);
 }
 
 }

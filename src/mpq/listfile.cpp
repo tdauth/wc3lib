@@ -53,10 +53,10 @@ std::streamsize Listfile::readData()
 
 	BOOST_FOREACH(Entries::const_reference path, entries)
 	{
-		MpqFile *file = this->mpq()->findFile(path);
+		Mpq::FilePtr file = this->mpq()->findFile(path);
 
-		if (file != 0)
-			this->files().insert(file);
+		if (file.get() != 0)
+			this->files().insert(file.get());
 		// TEST
 		else
 			std::cerr << boost::format(_("Invalid entry in \"(listfile)\" file: %1%")) % boost::filesystem::path(path) << std::endl;

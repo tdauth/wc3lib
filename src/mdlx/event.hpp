@@ -53,7 +53,7 @@ class Event : public Object, public GroupMdxBlockMember
 
 	protected:
 		//OBJ
-		//ascii *bla; //ASCII "KEVT" // Actually a separate object
+		//byte *bla; //ASCII "KEVT" // Actually a separate object
 		//long32 ntrks; // usually (1)
 		//0xFFFFFFFF!!!
 		class EventTracks *m_tracks; //KEVT

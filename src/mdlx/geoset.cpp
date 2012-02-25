@@ -50,9 +50,6 @@ Geoset::Geoset(class Geosets *geosets) : GroupMdxBlockMember(geosets, "Geoset"),
 
 Geoset::~Geoset()
 {
-	BOOST_FOREACH(class Ganimation *ganimation, this->m_ganimations)
-		delete ganimation;
-
 	delete this->m_vertices;
 	delete this->m_normals;
 	delete this->m_primitveTypes;
@@ -95,12 +92,13 @@ std::streamsize Geoset::readMdx(istream &istream) throw (class Exception)
 	size += Bounds::readMdx(istream);
 	long32 geosetAnimationNumber;
 	wc3lib::read(istream, geosetAnimationNumber, size);
+	ganimations().reserve(geosetAnimationNumber);
 
 	for ( ; geosetAnimationNumber > 0; --geosetAnimationNumber)
 	{
-		class Ganimation *ganimation = new Ganimation(this);
+		Ganimation *ganimation = new Ganimation(this);
 		size += ganimation->readMdx(istream);
-		this->m_ganimations.push_back(ganimation);
+		this->ganimations().push_back(ganimation);
 	}
 
 	size += this->m_texturePatches->readMdx(istream);
@@ -116,7 +114,7 @@ std::streamsize Geoset::writeMdx(ostream &ostream) const throw (class Exception)
 {
 	std::streampos position;
 	skipByteCount<long32>(ostream, position);
-	
+
 	std::streamsize size = 0;
 	size += this->m_vertices->writeMdx(ostream);
 	size += this->m_normals->writeMdx(ostream);
@@ -132,9 +130,9 @@ std::streamsize Geoset::writeMdx(ostream &ostream) const throw (class Exception)
 	size += Bounds::writeMdx(ostream);
 	wc3lib::write(ostream, static_cast<const long32>(this->ganimations().size()), size);
 
-	BOOST_FOREACH(const class Ganimation *ganimation, this->ganimations())
-		size += ganimation->writeMdx(ostream);
-	
+	BOOST_FOREACH(Ganimations::const_reference ganimation, this->ganimations())
+		size += ganimation.writeMdx(ostream);
+
 	size += this->m_texturePatches->writeMdx(ostream);
 	size += this->m_textureVertices->writeMdx(ostream);
 

@@ -36,16 +36,13 @@ namespace mdlx
 class AmbientColors : public MdlxScalings
 {
 	public:
-		typedef std::list<class AmbientColor*> Colors;
-		
 		AmbientColors(class Light *light);
 		virtual ~AmbientColors();
 
 		class Light* light() const;
-		const Colors& colors() const;
 
 	protected:
-		virtual class MdlxScaling* createNewMember();
+		virtual Property* createAnimatedProperty();
 
 		class Light *m_light;
 };
@@ -53,11 +50,6 @@ class AmbientColors : public MdlxScalings
 inline class Light* AmbientColors::light() const
 {
 	return this->m_light;
-}
-
-inline const AmbientColors::Colors& AmbientColors::colors() const
-{
-	return reinterpret_cast<const Colors&>(this->mdlxScalings());
 }
 
 }
