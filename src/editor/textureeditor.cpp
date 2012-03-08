@@ -464,7 +464,7 @@ void TextureEditor::createWindowsActions(class WindowsMenu *menu)
 {
 }
 
-void TextureEditor::createToolButtons(class KToolBar *toolBar)
+void TextureEditor::createToolButtons(class ModuleToolBar *toolBar)
 {
 }
 

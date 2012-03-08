@@ -1,3 +1,14 @@
+2012-03-08 Tamino Dauth <tamino@cdauth.eu>
+* editor: Fixed module action checking.
+* editor: Dropped KXmlGuiClient inheritance for class Module.
+* editor: Added class ModuleToolBar which behaves similar to ModuleMenu.
+* editor: Class Editor doesn't delete resources anymore (take care of them).
+* editor: MpqPriorityList uses boost::ptr_map for team color and glow textures now.
+
+2012-02-25 Tamino Dauth <tamino@cdauth.eu>
+* editor: Fixed early rendering of ModelView.
+* editor: ModelView uses x and y values on render window creation now.
+
 2012-02-24 Tamino Dauth <tamino@cdauth.eu>
 * mdlx: Finished revision.
 * editor: Class OgreMdlx doesn't use member function mdlxId() anymore which was quite slow.

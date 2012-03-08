@@ -118,9 +118,10 @@ class ObjectEditor : public Module
 		virtual void createEditActions(class KMenu *menu);
 		virtual void createMenus(class KMenuBar *menuBar);
 		virtual void createWindowsActions(class WindowsMenu *menu);
-		virtual void createToolButtons(class KToolBar *toolBar);
+		virtual void createToolButtons(class ModuleToolBar *toolBar);
 		virtual class SettingsInterface* settings();
 		virtual void onSwitchToMap(class Map *map);
+		virtual KAboutData moduleAboutData() const;
 		virtual QString actionName() const;
 
 	protected slots:
@@ -312,6 +313,14 @@ inline class KAction* ObjectEditor::copyObjectAction() const
 inline class KAction* ObjectEditor::pasteObjectAction() const
 {
 	return m_pasteObjectAction;
+}
+
+inline KAboutData ObjectEditor::moduleAboutData() const
+{
+	KAboutData aboutData(Module::moduleAboutData());
+	aboutData.setProgramName(ki18n("Object Editor"));
+
+	return aboutData;
 }
 
 inline QString ObjectEditor::actionName() const

@@ -54,7 +54,7 @@ void CampaignEditor::createWindowsActions(class KMenu *menu)
 {
 }
 
-void CampaignEditor::createToolButtons(class KToolBar *toolBar)
+void CampaignEditor::createToolButtons(class ModuleToolBar *toolBar)
 {
 }
 

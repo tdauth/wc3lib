@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2009 by Tamino Dauth                                    *
+ *   Copyright (C) 2012 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,7 +18,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "aieditor.hpp"
+#include <QtGui>
+
+#include <KAction>
+#include <KActionCollection>
+
+#include "moduletoolbar.hpp"
+#include "editor.hpp"
 
 namespace wc3lib
 {
@@ -26,39 +32,48 @@ namespace wc3lib
 namespace editor
 {
 
-AiEditor::AiEditor(MpqPriorityList* source, QWidget* parent, Qt::WindowFlags f): Module(source, parent, f)
+ModuleToolBar::ModuleToolBar(Module *module) : KToolBar(module, true), m_leftModuleSeparator(0), m_rightModuleSeparator(0)
 {
+	this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+
+	if (module->hasEditor())
+	{
+		m_leftModuleSeparator = this->addSeparator();
+
+		foreach (Module *mod, const_cast<const Editor*>(module->editor())->modules())
+			addModuleAction(mod);
+
+		connect(module->editor(), SIGNAL(createdModule(Module*)), this, SLOT(addModuleAction(Module*)));
+
+		m_rightModuleSeparator = this->addSeparator();
+
+		// test map tool button
+		this->addAction(module->editor()->actionCollection()->action("testmap"));
+	}
 }
 
-void AiEditor::createFileActions(class KMenu *menu)
+void ModuleToolBar::addCustomAction(QAction *action)
 {
+	if (this->m_leftModuleSeparator == 0)
+		this->addAction(action);
+	else
+		this->insertAction(this->m_leftModuleSeparator, action);
 }
 
-void AiEditor::createEditActions(class KMenu *menu)
+void ModuleToolBar::addCustomSeparator()
 {
+	if (this->m_leftModuleSeparator == 0)
+		this->addSeparator();
+	else
+		this->insertSeparator(this->m_leftModuleSeparator);
 }
 
-void AiEditor::createMenus(class KMenuBar *menuBar)
+void ModuleToolBar::addModuleAction(Module *module)
 {
+	this->insertAction(m_rightModuleSeparator, const_cast<const Editor*>(this->module()->editor())->modulesActions()[module]);
 }
 
-void AiEditor::createWindowsActions(class WindowsMenu *menu)
-{
-}
-
-void AiEditor::createToolButtons(class ModuleToolBar *toolBar)
-{
-}
-
-class SettingsInterface* AiEditor::settings()
-{
-	/// @todo FIXME
-	return 0;
-}
-
-void AiEditor::onSwitchToMap(Map *map)
-{
-}
+#include "moc_moduletoolbar.cpp"
 
 }
 

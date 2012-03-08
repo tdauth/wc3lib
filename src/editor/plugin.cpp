@@ -36,7 +36,7 @@ Plugin::Plugin(const KComponentData &componentData, QObject *parent): QObject(pa
 
 KXMLGUIClient* Plugin::createGui(Module* module)
 {
-	KXMLGUIClient *client = new KXMLGUIClient(module);
+	KXMLGUIClient *client = new KXMLGUIClient();
 	QString xmlFile;
 	/*
 	KActionCollection actions();

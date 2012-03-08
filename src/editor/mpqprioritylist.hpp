@@ -21,6 +21,8 @@
 #ifndef WC3LIB_EDITOR_MPQPRIORITYLIST_HPP
 #define WC3LIB_EDITOR_MPQPRIORITYLIST_HPP
 
+#include <boost/ptr_container/ptr_map.hpp>
+
 #include <QFileInfo>
 
 #include <KUrl>
@@ -139,8 +141,7 @@ class MpqPriorityList
 		Sources;
 
 		typedef std::map<KUrl, Resource*> Resources;
-		typedef boost::shared_ptr<Texture> TexturePtr;
-		typedef std::map<BOOST_SCOPED_ENUM(TeamColor), TexturePtr> TeamColorTextures;
+		typedef boost::ptr_map<BOOST_SCOPED_ENUM(TeamColor), boost::nullable<Texture> > TeamColorTextures;
 		typedef boost::scoped_ptr<map::TriggerData> TriggerDataPtr;
 
 		void setLocale(mpq::MpqFile::Locale locale);
@@ -211,7 +212,7 @@ class MpqPriorityList
 		 */
 		virtual void addResource(class Resource *resource);
 		/**
-		 * Removes resource from editor.
+		 * Removes resource from editor. This function is called by \ref Resource::~Resource() autmatically.
 		 */
 		virtual bool removeResource(class Resource *resource);
 		virtual bool removeResource(const KUrl &url);
@@ -220,11 +221,11 @@ class MpqPriorityList
 		/**
 		 * Once requested, the image is kept in memory until it's refreshed manually.
 		 */
-		const TexturePtr& teamColorTexture(BOOST_SCOPED_ENUM(TeamColor) teamColor) const throw (class Exception);
+		Texture* teamColorTexture(BOOST_SCOPED_ENUM(TeamColor) teamColor) const throw (class Exception);
 		/**
 		 * Once requested, the image is kept in memory until it's refreshed manually.
 		 */
-		const TexturePtr& teamGlowTexture(BOOST_SCOPED_ENUM(TeamColor) teamGlow) const throw (class Exception);
+		Texture* teamGlowTexture(BOOST_SCOPED_ENUM(TeamColor) teamGlow) const throw (class Exception);
 		/**
 		 * \param window Widget which is used for KIO download.
 		 * \sa triggerData()
@@ -288,7 +289,6 @@ inline const MpqPriorityList::Sources& MpqPriorityList::sources() const
 inline void MpqPriorityList::addResource(class Resource *resource)
 {
 	this->m_resources.insert(std::make_pair(resource->url(), resource));
-	this->addSource(resource->url());
 
 	// add additional archive source
 	if ((resource->type() == Resource::Type::Map || resource->type() == Resource::Type::Campaign) && resource->url().protocol() != MpqProtocol::protocol)
@@ -302,7 +302,7 @@ inline void MpqPriorityList::addResource(class Resource *resource)
 
 inline bool MpqPriorityList::removeResource(class Resource *resource)
 {
-	this->removeResource(resource->url()); // resource is deleted here
+	this->removeResource(resource->url());
 }
 
 inline bool MpqPriorityList::removeResource(const KUrl &url)
@@ -320,7 +320,6 @@ inline bool MpqPriorityList::removeResource(const KUrl &url)
 		this->removeSource(url);
 	}
 
-	this->removeSource(url);
 	this->m_resources.erase(iterator);
 
 	return true;
@@ -331,26 +330,30 @@ inline const MpqPriorityList::Resources& MpqPriorityList::resources() const
 	return this->m_resources;
 }
 
-inline const MpqPriorityList::TexturePtr& MpqPriorityList::teamColorTexture(BOOST_SCOPED_ENUM(TeamColor) teamColor) const throw (class Exception)
+inline Texture* MpqPriorityList::teamColorTexture(BOOST_SCOPED_ENUM(TeamColor) teamColor) const throw (class Exception)
 {
-	if (this->m_teamColorTextures[teamColor].get() == 0)
+	TeamColorTextures::iterator iterator = this->m_teamColorTextures.find(teamColor);
+
+	if (boost::is_null(iterator))
 	{
-		this->m_teamColorTextures[teamColor].reset(new Texture(teamColorUrl(teamColor)));
-		this->m_teamColorTextures[teamColor]->setSource(const_cast<self*>(this));
+		this->m_teamColorTextures.replace(iterator, new Texture(teamColorUrl(teamColor)));
+		iterator->second->setSource(const_cast<self*>(this));
 	}
 
-	return this->m_teamColorTextures[teamColor];
+	return iterator->second;
 }
 
-inline const MpqPriorityList::TexturePtr& MpqPriorityList::teamGlowTexture(BOOST_SCOPED_ENUM(TeamColor) teamGlow) const throw (class Exception)
+inline Texture* MpqPriorityList::teamGlowTexture(BOOST_SCOPED_ENUM(TeamColor) teamGlow) const throw (class Exception)
 {
-	if (this->m_teamGlowTextures[teamGlow].get() == 0)
+	TeamColorTextures::iterator iterator = this->m_teamGlowTextures.find(teamGlow);
+
+	if (boost::is_null(iterator))
 	{
-		this->m_teamGlowTextures[teamGlow].reset(new Texture(teamGlowUrl(teamGlow)));
-		this->m_teamColorTextures[teamGlow]->setSource(const_cast<self*>(this));
+		this->m_teamGlowTextures.replace(iterator, new Texture(teamColorUrl(teamGlow)));
+		iterator->second->setSource(const_cast<self*>(this));
 	}
 
-	return this->m_teamGlowTextures[teamGlow];
+	return iterator->second;
 }
 
 inline void MpqPriorityList::refreshTriggerData(QWidget *window) throw (Exception)

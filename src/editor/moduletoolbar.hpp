@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2009 by Tamino Dauth                                    *
+ *   Copyright (C) 2012 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,7 +18,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "aieditor.hpp"
+#ifndef WC3LIB_EDITOR_MODULETOOLBAR_HPP
+#define WC3LIB_EDITOR_MODULETOOLBAR_HPP
+
+#include <boost/cast.hpp>
+
+#include <KToolBar>
+
+#include "module.hpp"
 
 namespace wc3lib
 {
@@ -26,40 +33,39 @@ namespace wc3lib
 namespace editor
 {
 
-AiEditor::AiEditor(MpqPriorityList* source, QWidget* parent, Qt::WindowFlags f): Module(source, parent, f)
+/**
+ * Tool bar which contains tool buttons for all Editor modules.
+ * Entries are created via signal when modules are created.
+ * Other than \ref ModuleMenu this can and has to be used by modules if there is no Editor instance.
+ * \sa ModuleMenu
+ */
+class ModuleToolBar : public KToolBar
 {
-}
+	Q_OBJECT
 
-void AiEditor::createFileActions(class KMenu *menu)
+	public:
+		ModuleToolBar(Module *module);
+
+		void addCustomAction(class QAction *action);
+		void addCustomSeparator();
+
+		Module* module() const;
+
+	protected slots:
+		void addModuleAction(Module *module);
+
+	private:
+		class QAction *m_leftModuleSeparator;
+		QAction *m_rightModuleSeparator;
+};
+
+inline Module* ModuleToolBar::module() const
 {
-}
-
-void AiEditor::createEditActions(class KMenu *menu)
-{
-}
-
-void AiEditor::createMenus(class KMenuBar *menuBar)
-{
-}
-
-void AiEditor::createWindowsActions(class WindowsMenu *menu)
-{
-}
-
-void AiEditor::createToolButtons(class ModuleToolBar *toolBar)
-{
-}
-
-class SettingsInterface* AiEditor::settings()
-{
-	/// @todo FIXME
-	return 0;
-}
-
-void AiEditor::onSwitchToMap(Map *map)
-{
+	return boost::polymorphic_cast<Module*>(this->parent());
 }
 
 }
 
 }
+
+#endif

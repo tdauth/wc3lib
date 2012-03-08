@@ -36,6 +36,7 @@
 #include "editor/modelviewsettings.hpp"
 #include "editor/module.hpp"
 #include "editor/modulemenu.hpp"
+#include "editor/moduletoolbar.hpp"
 #include "editor/mpqeditor.hpp"
 #include "editor/mpqprioritylist.hpp"
 #include "editor/newmapdialog.hpp"

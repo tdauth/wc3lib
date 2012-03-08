@@ -21,12 +21,11 @@
 #ifndef WC3LIB_EDITOR_MODULEMENU_HPP
 #define WC3LIB_EDITOR_MODULEMENU_HPP
 
-#include <QMap>
+#include <boost/cast.hpp>
 
 #include <KMenu>
 
 #include "module.hpp"
-#include "platform.hpp"
 
 namespace wc3lib
 {

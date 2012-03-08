@@ -50,7 +50,7 @@ class CampaignEditor : public Module
 		virtual void createEditActions(class KMenu *menu);
 		virtual void createMenus(class KMenuBar *menuBar);
 		virtual void createWindowsActions(class KMenu *menu);
-		virtual void createToolButtons(class KToolBar *toolBar);
+		virtual void createToolButtons(class ModuleToolBar *toolBar);
 		virtual class SettingsInterface* settings();
 		virtual void onSwitchToMap(class Map *map);
 		virtual QString actionName();

@@ -134,27 +134,18 @@ Editor::~Editor()
 
 	if (m_root != 0)
 		delete m_root;
-
-	// delete remaining resources
-	BOOST_FOREACH(Resources::reference value, this->m_resources)
-	{
-		qDebug() << "Cleaning up resource " << value.first;
-
-		delete value.second;
-	}
 }
 
 void Editor::addModule(class Module *module)
 {
 	this->m_modules.append(module);
 
-	// FIXME Use module->aboutData()->programName() as action name, segmentation fault due to multiple inheritance
-	KAction *action = new KAction(KIcon(":/actions/" + module->actionName() + ".png"), module->windowTitle(), this);
+	KAction *action = new KAction(KIcon(":/actions/" + module->actionName() + ".png"), module->componentData().aboutData()->programName(), this);
 	action->setShortcut(KShortcut(i18n("F%1%", this->m_modulesActionCollection->actions().size() + 1)));
 	action->setCheckable(true);
+	action->setChecked(module->hasFocus());
 	this->m_modulesActionCollection->addAction(module->actionName(), action);
-	connect(action, SIGNAL(triggered()), module, SLOT(show()));
-	connect(action, SIGNAL(triggered()), module, SLOT(setFocus()));
+	connect(action, SIGNAL(triggered()), module, SLOT(onEditorActionTrigger()));
 
 	modulesActions().insert(module, action);
 

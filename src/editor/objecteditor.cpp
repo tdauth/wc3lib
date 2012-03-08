@@ -28,6 +28,7 @@
 #include "objecteditortab.hpp"
 #include "editor.hpp"
 #include "uniteditor.hpp"
+#include "moduletoolbar.hpp"
 
 namespace wc3lib
 {
@@ -166,11 +167,12 @@ void ObjectEditor::createWindowsActions(class WindowsMenu *menu)
 {
 }
 
-void ObjectEditor::createToolButtons(class KToolBar *toolBar)
+void ObjectEditor::createToolButtons(ModuleToolBar *toolBar)
 {
-	toolBar->addAction(copyObjectAction());
-	toolBar->addAction(pasteObjectAction());
-	toolBar->addAction(newObjectAction());
+	toolBar->addCustomAction(copyObjectAction());
+	toolBar->addCustomAction(pasteObjectAction());
+	toolBar->addCustomAction(newObjectAction());
+	toolBar->addCustomSeparator();
 }
 
 class SettingsInterface* ObjectEditor::settings()

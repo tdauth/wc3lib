@@ -370,7 +370,7 @@ void TriggerEditor::createWindowsActions(class WindowsMenu *menu)
 {
 }
 
-void TriggerEditor::createToolButtons(class KToolBar *toolBar)
+void TriggerEditor::createToolButtons(class ModuleToolBar *toolBar)
 {
 }
 

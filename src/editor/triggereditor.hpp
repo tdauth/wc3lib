@@ -62,7 +62,7 @@ class TriggerEditor : public Module
 		class MapScriptWidget* mapScriptWidget() const;
 		class TriggerWidget* triggerWidget() const;
 		class VariablesDialog* variablesDialog() const;
-		KActionCollection* triggerActionCollection() const;
+		class KActionCollection* triggerActionCollection() const;
 
 	public slots:
 		/**
@@ -122,7 +122,7 @@ class TriggerEditor : public Module
 		virtual void createEditActions(class KMenu *menu);
 		virtual void createMenus(class KMenuBar *menuBar);
 		virtual void createWindowsActions(class WindowsMenu *menu);
-		virtual void createToolButtons(class KToolBar *toolBar);
+		virtual void createToolButtons(class ModuleToolBar *toolBar);
 		virtual class SettingsInterface* settings();
 		virtual KAboutData moduleAboutData() const;
 		virtual void onSwitchToMap(Map *map);
@@ -233,7 +233,7 @@ inline class VariablesDialog* TriggerEditor::variablesDialog() const
 	return m_variablesDialog;
 }
 
-inline KActionCollection* TriggerEditor::triggerActionCollection() const
+inline class KActionCollection* TriggerEditor::triggerActionCollection() const
 {
 	return m_triggerActionCollection;
 }

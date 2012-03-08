@@ -1,3 +1,8 @@
+2012-03-08 Tamino Dauth <tamino@cdauth.eu>
+* Use lib vars from "/usr/share/apps/cmake/modules/FindKDE4Internal.cmake".
+* editor: ModelEditor/OGRE crashes with mesa 8 and higher.
+* editor: Fix releasing removing resources on release.
+
 2012-02-24 Tamino Dauth <tamino@cdauth.eu>
 * Test mdlx revision and rendering.
 

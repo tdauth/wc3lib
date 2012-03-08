@@ -47,7 +47,7 @@ ModelView::~ModelView()
 {
 	if (m_freeRoot)
 		delete this->m_root;
-	
+
 	//if (this->m_frameListener)
 		//delete this->m_frameListener;
 	delete this->m_renderWindow;
@@ -58,9 +58,9 @@ void ModelView::centerView()
 {
 	/*
 	From OGRE source of OgreFrustum.cpp
-	mFOVy(Radian(Math::PI/4.0f)), 
-        mFarDist(100000.0f), 
-        mNearDist(100.0f), 
+	mFOVy(Radian(Math::PI/4.0f)),
+        mFarDist(100000.0f),
+        mNearDist(100.0f),
         */
 	this->m_camera->setPosition(Ogre::Vector3::ZERO);
 	this->m_camera->setFOVy(Ogre::Radian(Ogre::Math::PI/4.0f));
@@ -99,7 +99,7 @@ void ModelView::render()
 		initRenderWindow();
 	else if (this->m_renderWindow->isActive())
 		this->m_renderWindow->update();
-	
+
 	this->m_root->_fireFrameRenderingQueued();
 	this->m_root->_fireFrameEnded();
 
@@ -133,9 +133,8 @@ void ModelView::resizeEvent(QResizeEvent *event)
 
 void ModelView::paintEvent(QPaintEvent *event)
 {
-	this->render();
-
 	QWidget::paintEvent(event);
+	this->render();
 }
 
 void ModelView::keyPressEvent(QKeyEvent *event)
@@ -191,7 +190,7 @@ void ModelView::wheelEvent(QWheelEvent *event)
 		else
 		{
 			const Ogre::Vector3 delta(0, 0, -event->delta() * m_scrollSpeed);
-			
+
 			if (checkCameraMovementBounds(delta))
 			{
 				this->m_camera->moveRelative(delta);
@@ -216,7 +215,7 @@ void ModelView::mouseMoveEvent(QMouseEvent *event)
 			QPoint p(event->x(), event->y());
 			p -= this->m_mousePoint;
 			const Ogre::Vector3 delta(-p.x() * m_moveSpeed, p.y() * m_moveSpeed, 0);
-			
+
 			if (checkCameraMovementBounds(delta))
 			{
 				this->m_camera->moveRelative(delta);
@@ -226,7 +225,7 @@ void ModelView::mouseMoveEvent(QMouseEvent *event)
 				event->accept();
 			}
 		}
-		
+
 		if (this->m_enableMouseRotation)
 		{
 			// rotates camera around its current position
@@ -241,13 +240,13 @@ void ModelView::mouseMoveEvent(QMouseEvent *event)
 			*/
 			QPoint p(event->x(), event->y());
 			p -= this->m_mousePoint;
-			
+
 			//Ogre::Ray ray = this->m_camera->getCameraToViewportRay(p.x(), p.y());
 			//ray.
-			
+
 			const Ogre::Real radius = this->m_camera->getPosition().length();
 			const Ogre::Vector3 delta(0.0, 0.0, radius);
-			
+
 			if (checkCameraMovementBounds(delta))
 			{
 				this->m_camera->setPosition(this->m_camera->getDirection());
@@ -354,10 +353,10 @@ void ModelView::initRenderWindow()
 {
 	if (this->renderWindow() != 0)
 		return;
-	
+
 	// Parameters to pass to Ogre::Root::createRenderWindow()
 	Ogre::NameValuePairList params;
-	qDebug() << "Render window 0";
+
 	// If the user passed in any parameters then be sure to copy them into our own parameter set.
 	// NOTE: Many of the parameters the user can supply (left, top, border, etc) will be ignored
 	// as they are overridden by Qt. Some are still useful (such as FSAA).
@@ -387,7 +386,7 @@ void ModelView::initRenderWindow()
 	//externalWindowHandleParams += Ogre::StringConverter::toString((unsigned long)(info.visual()));
 
 	//qDebug() << QString("Display: %1\nScreen: %2\nWindow: %3\nVisual: %4").arg((unsigned long)(info.display())).arg((unsigned long)(info.screen())).arg((unsigned long)(winId())).arg((unsigned long)(info.visual()));
-	
+
 	//qDebug() << "external window handle params look like this: " << externalWindowHandleParams.c_str();
 #endif
 
@@ -400,10 +399,13 @@ void ModelView::initRenderWindow()
 	params["parentWindowHandle"] = externalWindowHandleParams;
 #endif
 
+	const QPoint absolutePos = this->mapToGlobal(pos());
+	params["left"] = Ogre::StringConverter::toString(absolutePos.x());
+	params["top"] = Ogre::StringConverter::toString(absolutePos.y());
+
 	// Finally create our window.
 	try
 	{
-		qDebug() << "Window name is " << name().c_str();
 		this->m_renderWindow = this->m_root->createRenderWindow(name(), width(), height(), false, &params);
 	}
 	catch (const Ogre::RenderingAPIException &exception) // cancel
@@ -413,8 +415,8 @@ void ModelView::initRenderWindow()
 		return;
 	}
 
-	this->m_renderWindow->setActive(true);
-	this->m_renderWindow->setVisible(true);
+	this->renderWindow()->setActive(true);
+	this->renderWindow()->setVisible(true);
 	// old stuff, added stuff from QtOgreWidget
 	//WId ogreWinId = 0x0;
 	//this->m_renderWindow->getCustomAttribute( "WINDOW", &ogreWinId);
@@ -434,11 +436,11 @@ OLD!
 
 	//== Ogre Initialization ==//
 	// default scene
-	this->m_sceneManager = this->m_root->createSceneManager(this->m_sceneType);
+	this->m_sceneManager = this->root()->createSceneManager(this->m_sceneType);
 	this->m_sceneManager->setAmbientLight(Ogre::ColourValue::White);
-	this->m_camera = this->m_sceneManager->createCamera("Widget_Cam");
-	this->m_viewPort = this->m_renderWindow->addViewport(this->m_camera);
-	this->m_viewPort->setBackgroundColour(Ogre::ColourValue(0.8, 0.8, 1));
+	this->m_camera = this->sceneManager()->createCamera("Widget_Cam");
+	this->m_viewPort = this->renderWindow()->addViewport(this->camera());
+	this->viewPort()->setBackgroundColour(Ogre::ColourValue(0.8, 0.8, 1));
 	/*
 	Ogre::Light *light = this->m_sceneManager->createLight("Light1");
 	light->setType(Ogre::Light::LT_POINT);

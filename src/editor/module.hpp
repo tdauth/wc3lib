@@ -25,7 +25,6 @@
 
 #include <KComponentData>
 #include <KAboutData>
-#include <KXMLGUIClient>
 #include <KMenu>
 
 #include "../core.hpp"
@@ -43,7 +42,7 @@ namespace editor
  * \note Modules should work independently without an Editor instance. They only need a data source.
  * \note Use class \ref Plugin to load modules related plugins. Since Module is based on \ref KXMLGUIClient it provides an extensible system using specific XML GUI files.
  */
-class Module : public QWidget, public KComponentData, public KXMLGUIClient
+class Module : public QWidget
 {
 	Q_OBJECT
 
@@ -55,12 +54,20 @@ class Module : public QWidget, public KComponentData, public KXMLGUIClient
 		Module(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~Module();
 		class MpqPriorityList* source() const;
+		/**
+		 * \warning Don't use in constructor since it calls virtual function \ref moduleAboutData() on initialization.
+		 */
+		KComponentData& componentData();
+		/**
+		 * \copydoc Module::componentData()
+		 */
+		const KComponentData& componentData() const;
 		class KMenu* fileMenu() const;
 		class KMenu* editMenu() const;
 		class ModuleMenu* moduleMenu() const;
 		class KMenuBar* menuBar() const;
 		class WindowsMenu* windowsMenu() const;
-		class KToolBar* toolBar() const;
+		class ModuleToolBar* toolBar() const;
 
 		/**
 		 * This function uses dynamic type checking to get the source's type.
@@ -95,10 +102,13 @@ class Module : public QWidget, public KComponentData, public KXMLGUIClient
 		virtual void createEditActions(class KMenu *menu) = 0;
 		virtual void createMenus(class KMenuBar *menuBar) = 0;
 		virtual void createWindowsActions(class WindowsMenu *menu) = 0;
-		virtual void createToolButtons(class KToolBar *toolBar) = 0;
+		/**
+		 * Use \ref ModuleToolBar::addCustomAction() or \ref ModuleToolBar::addCustomSeparator() to add stuff before the modules buttons.
+		 */
+		virtual void createToolButtons(class ModuleToolBar *toolBar) = 0;
 		virtual class SettingsInterface* settings() = 0;
 		/**
-		 * About data which is assigned to \ref KComponentData which is a base class of Module, as well.
+		 * About data which is assigned to the module and can be accessed via \ref componentData().
 		 * Default implementation returns \ref Editor::wc3libAboutData() with app and catalog name using \ref actionName().
 		 * \note Assignment runs in \ref setupUi().
 		 */
@@ -112,23 +122,28 @@ class Module : public QWidget, public KComponentData, public KXMLGUIClient
 		 */
 		virtual void onSwitchToMap(class Map *map) = 0;
 
-		virtual void focusInEvent(QFocusEvent*);
-		virtual void focusOutEvent(QFocusEvent*);
+		virtual void changeEvent(QEvent *event);
 
 		void readSettings();
 		void writeSettings();
 
 	protected slots:
+		/**
+		 * This slot is called whenever the module is selected in the Editor's "module" menu.
+		 */
+		virtual void onEditorActionTrigger();
 		virtual void triggered(QAction *action);
 
 	private:
 		class MpqPriorityList *m_source;
+		typedef QScopedPointer<KComponentData> ComponentDataPtr;
+		ComponentDataPtr m_componentData;
 		class KMenu *m_fileMenu;
 		class KMenu *m_editMenu;
 		class ModuleMenu *m_moduleMenu;
 		class KMenuBar *m_menuBar;
 		class WindowsMenu *m_windowsMenu;
-		class KToolBar *m_toolBar;
+		class ModuleToolBar *m_toolBar;
 		class QAction *m_closeAction;
 		class KAction *m_sourcesAction;
 
@@ -142,6 +157,22 @@ class Module : public QWidget, public KComponentData, public KXMLGUIClient
 inline class MpqPriorityList* Module::source() const
 {
 	return this->m_source;
+}
+
+inline KComponentData& Module::componentData()
+{
+	if (m_componentData.isNull())
+		const_cast<Module*>(this)->m_componentData.reset(new KComponentData(moduleAboutData()));
+
+	return *m_componentData;
+}
+
+inline const KComponentData& Module::componentData() const
+{
+	if (m_componentData.isNull())
+		const_cast<Module*>(this)->m_componentData.reset(new KComponentData(moduleAboutData()));
+
+	return *m_componentData;
 }
 
 inline class KMenu* Module::fileMenu() const
@@ -169,7 +200,7 @@ inline class WindowsMenu* Module::windowsMenu() const
 	return m_windowsMenu;
 }
 
-inline class KToolBar* Module::toolBar() const
+inline class ModuleToolBar* Module::toolBar() const
 {
 	return m_toolBar;
 }

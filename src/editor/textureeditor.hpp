@@ -117,9 +117,10 @@ class TextureEditor : public Module
 		virtual void createEditActions(class KMenu *menu);
 		virtual void createMenus(class KMenuBar *menuBar);
 		virtual void createWindowsActions(class WindowsMenu *menu);
-		virtual void createToolButtons(class KToolBar *toolBar);
+		virtual void createToolButtons(class ModuleToolBar *toolBar);
 		virtual class SettingsInterface* settings();
 		virtual void onSwitchToMap(class Map *map);
+		virtual KAboutData moduleAboutData() const;
 		virtual QString actionName() const;
 
 		QLabel *m_imageLabel;
@@ -201,6 +202,14 @@ inline TextureEditor::SaveDialog *TextureEditor::saveDialog() const
 		const_cast<TextureEditor*>(this)->m_saveDialog = new SaveDialog(const_cast<TextureEditor*>(this));
 
 	return this->m_saveDialog;
+}
+
+inline KAboutData TextureEditor::moduleAboutData() const
+{
+	KAboutData aboutData(Module::moduleAboutData());
+	aboutData.setProgramName(ki18n("Texture Editor"));
+
+	return aboutData;
 }
 
 inline QString TextureEditor::actionName() const

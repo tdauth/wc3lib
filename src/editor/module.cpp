@@ -21,12 +21,12 @@
 #include <QtGui>
 
 #include <KMenuBar>
-#include <KToolBar>
+#include <KAction>
 #include <KActionCollection>
-#include <KParts/Plugin>
 
 #include "module.hpp"
 #include "modulemenu.hpp"
+#include "moduletoolbar.hpp"
 #include "windowsmenu.hpp"
 #include "mpqprioritylist.hpp"
 #include "editor.hpp"
@@ -39,9 +39,12 @@ namespace wc3lib
 namespace editor
 {
 
-Module::Module(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_moduleMenu(0), m_menuBar(0), m_topLayout(new QVBoxLayout(this)), m_centerLayout(new QGridLayout(this)), QWidget(parent, f | Qt::Window), KComponentData(), KXMLGUIClient() // each module should get its own window
+Module::Module(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_moduleMenu(0), m_menuBar(0), m_topLayout(new QVBoxLayout()), m_centerLayout(new QGridLayout()), QWidget(parent, f | Qt::Window)
 {
-	topLayout()->addLayout(centerLayout());
+	QVBoxLayout *layout = new QVBoxLayout(this);
+	setLayout(layout);
+	layout->addLayout(topLayout());
+	layout->addLayout(centerLayout());
 
 	if (hasEditor())
 	{
@@ -87,8 +90,6 @@ void Module::showSourcesDialog()
 
 void Module::setupUi()
 {
-	// TODO multi inheritance (KComponentData) leads to segmentation fault?
-	//setAboutData(this->moduleAboutData());
 	this->m_menuBar = new KMenuBar(this);
 	topLayout()->addWidget(this->m_menuBar);
 
@@ -157,24 +158,11 @@ void Module::setupUi()
 	this->createWindowsActions(windowsMenu());
 
 	// tool bar
-	this->m_toolBar = new KToolBar(this);
-	topLayout()->addWidget(toolBar());
-	toolBar()->addSeparator();
+	this->m_toolBar = new ModuleToolBar(this);
+	this->topLayout()->addWidget(m_toolBar);
 
 	// user defined tool buttons
 	this->createToolButtons(toolBar());
-
-	toolBar()->addSeparator();
-
-	if (hasEditor())
-	{
-		// modules tool buttons
-		foreach (QAction *action, moduleMenu()->actions())
-			toolBar()->addAction(action);
-
-		// test map tool button
-		toolBar()->addAction(this->editor()->actionCollection()->action("testmap"));
-	}
 }
 
 KAboutData Module::moduleAboutData() const
@@ -186,20 +174,12 @@ KAboutData Module::moduleAboutData() const
 	return aboutData;
 }
 
-void Module::focusInEvent(QFocusEvent *event)
+void Module::changeEvent(QEvent* event)
 {
-	if (hasEditor())
-		const_cast<const Editor*>(editor())->modulesActions()[this]->setChecked(true);
+	QWidget::changeEvent(event);
 
-	QWidget::focusInEvent(event);
-}
-
-void Module::focusOutEvent(QFocusEvent *event)
-{
-	if (hasEditor())
-		const_cast<const Editor*>(editor())->modulesActions()[this]->setChecked(false);
-
-	QWidget::focusOutEvent(event);
+	if (event->type() == QEvent::ActivationChange && hasEditor())
+		const_cast<const Editor*>(editor())->modulesActions()[this]->setChecked(this->isActiveWindow());
 }
 
 void Module::readSettings()
@@ -216,6 +196,13 @@ void Module::writeSettings()
 	KConfigGroup configGroup(KGlobal::config(), settings->groupName());
 	settings->write(configGroup);
 	delete settings;
+}
+
+void Module::onEditorActionTrigger()
+{
+	this->show();
+	this->activateWindow();
+	this->raise();
 }
 
 void Module::triggered(QAction *action)

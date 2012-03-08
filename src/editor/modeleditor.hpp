@@ -33,7 +33,6 @@
 
 #include "../mdlx.hpp"
 #include "module.hpp"
-#include "ui_modeleditor.h"
 #include "ogremdlx.hpp"
 #include "platform.hpp"
 
@@ -46,7 +45,7 @@ namespace editor
 /**
  * We have model SLK entries listet at the tree view.
  */
-class ModelEditor : public Module, protected Ui::ModelEditor
+class ModelEditor : public Module
 {
 	Q_OBJECT
 
@@ -109,9 +108,10 @@ class ModelEditor : public Module, protected Ui::ModelEditor
 		virtual void createEditActions(class KMenu *menu);
 		virtual void createMenus(class KMenuBar *menuBar);
 		virtual void createWindowsActions(class WindowsMenu *menu);
-		virtual void createToolButtons(class KToolBar *toolBar);
+		virtual void createToolButtons(class ModuleToolBar *toolBar);
 		virtual class SettingsInterface* settings();
 		virtual void onSwitchToMap(class Map *map);
+		virtual KAboutData moduleAboutData() const;
 		virtual QString actionName() const;
 
 		// load file events
@@ -213,6 +213,14 @@ inline void ModelEditor::setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow)
 inline BOOST_SCOPED_ENUM(TeamColor) ModelEditor::teamGlow() const
 {
 	return m_teamGlow;
+}
+
+inline KAboutData ModelEditor::moduleAboutData() const
+{
+	KAboutData aboutData(Module::moduleAboutData());
+	aboutData.setProgramName(ki18n("Model Editor"));
+
+	return aboutData;
 }
 
 inline QString ModelEditor::actionName() const
