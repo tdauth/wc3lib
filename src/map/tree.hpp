@@ -29,6 +29,10 @@ namespace wc3lib
 namespace map
 {
 
+/**
+ * In Warcraft III: Reign of Chaos each tree/destructible is based on a type defined in "Units\DestructableData.slk".
+ * Each tree is stored with a unique id in its map which is returned by \ref customId().
+ */
 /// \todo Add read and write member functions, add TFT version -> TreeX.
 class Tree : public Format
 {
@@ -37,7 +41,8 @@ class Tree : public Format
 		{
 			Invisible = 0,
 			Visibile = 1,
-			Normal = 2
+			Normal = 2,
+			OutsideCameraBounds = 3 // (set to 3 when it's outside the camerabounds?)
 		};
 		BOOST_SCOPED_ENUM_END
 
@@ -47,6 +52,9 @@ class Tree : public Format
 		id treeId() const;
 		int32 variation() const;
 		const Vertex& position() const;
+		/**
+		 * (radian angle value)(degree = radian*180/pi)
+		 */
 		float32 angle() const;
 		const Vertex& scale() const;
 		BOOST_SCOPED_ENUM(Flags) flags() const;

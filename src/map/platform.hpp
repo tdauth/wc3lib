@@ -42,6 +42,8 @@ typedef uint32_t id;
 class FileFormat : public Format
 {
 	public:
+		FileFormat();
+
 		virtual const byte* fileName() const = 0;
 		/**
 		 * \return Returns the format's id in form of ASCII text with length of \ref id!
@@ -52,7 +54,51 @@ class FileFormat : public Format
 			return *reinterpret_cast<const id*>(fileTextId());
 		}
 		virtual uint32 latestFileVersion() const = 0;
+		virtual uint32 version() const
+		{
+			return m_version;
+		}
+
+		virtual std::streamsize read(InputStream &istream) throw (Exception);
+		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+
+	protected:
+		uint32 m_version;
 };
+
+inline FileFormat::FileFormat() : m_version(0)
+{
+
+}
+
+inline std::streamsize FileFormat::read(FileFormat::InputStream &istream) throw (Exception)
+{
+	id fileId;
+	std::streamsize size = 0;
+	wc3lib::read(istream, fileId, size);
+
+	if (fileId != this->fileId())
+		throw Exception(_("Unknown file id!"));
+
+	wc3lib::read(istream, this->m_version, size);
+
+	if (version() != latestFileVersion())
+		std::cerr << boost::format(_("Warning in file \"%1%\": %2% is not the latest file version %3%")) % fileName() % version() % latestFileVersion() << std::endl;
+
+	return size;
+}
+
+inline std::streamsize FileFormat::write(FileFormat::OutputStream &ostream) const throw (Exception)
+{
+	std::streamsize size = 0;
+	wc3lib::write(ostream, this->fileId(), size);
+	wc3lib::write(ostream, this->m_version, size);
+
+	if (version() != latestFileVersion())
+		std::cerr << boost::format(_("Warning in file \"%1%\": %2% is not the latest file version %3%")) % fileName() % version() % latestFileVersion() << std::endl;
+
+	return size;
+}
 
 /**
 * Custom Types

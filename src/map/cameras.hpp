@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MAP_CAMERAS_HPP
 #define WC3LIB_MAP_CAMERAS_HPP
 
+#include <boost/ptr_container/ptr_vector.hpp>
+
 #include "platform.hpp"
 #include "camera.hpp"
 
@@ -36,27 +38,20 @@ namespace map
 class Cameras : public FileFormat
 {
 	public:
-		typedef boost::shared_ptr<Camera> CameraPtr;
-		typedef std::vector<CameraPtr> CameraVector;
+		typedef boost::ptr_vector<Camera> CameraContainer;
 
-		Cameras(class W3m *w3m);
-
-		std::streamsize read(std::istream &istream) throw (class Exception);
-		std::streamsize write(std::ostream &ostream) const throw (class Exception);
+		std::streamsize read(InputStream &istream) throw (class Exception);
+		std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
 		virtual const byte* fileTextId() const;
 		virtual const byte* fileName() const;
 		virtual uint32 latestFileVersion() const;
 
-		virtual uint32 version() const;
-
-		CameraVector& cameras();
-		const CameraVector& cameras() const;
+		CameraContainer& cameras();
+		const CameraContainer& cameras() const;
 
 	protected:
-		class W3m *m_w3m;
-		uint32 m_version;
-		CameraVector m_cameras;
+		CameraContainer m_cameras;
 };
 
 inline const byte* Cameras::fileTextId() const
@@ -74,17 +69,12 @@ inline uint32 Cameras::latestFileVersion() const
 	return 0;
 }
 
-inline uint32 Cameras::version() const
-{
-	return m_version;
-}
-
-inline Cameras::CameraVector& Cameras::cameras()
+inline Cameras::CameraContainer& Cameras::cameras()
 {
 	return this->m_cameras;
 }
 
-inline const Cameras::CameraVector& Cameras::cameras() const
+inline const Cameras::CameraContainer& Cameras::cameras() const
 {
 	return this->m_cameras;
 }

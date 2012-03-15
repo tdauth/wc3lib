@@ -65,12 +65,13 @@ class Shadow : public FileFormat
 		};
 		BOOST_SCOPED_ENUM_END
 
-		typedef std::map<class Key, BOOST_SCOPED_ENUM(Type)> Data;
+		typedef std::map<Key, BOOST_SCOPED_ENUM(Type)> Data;
 
 		Shadow(class W3m *w3m);
 		virtual ~Shadow();
 
 		class W3m* w3m() const;
+
 		Data& data();
 		const Data& data() const;
 
@@ -80,7 +81,6 @@ class Shadow : public FileFormat
 		virtual const byte* fileTextId() const;
 		virtual const byte* fileName() const;
 		virtual uint32 latestFileVersion() const;
-		virtual uint32 version() const;
 
 		BOOST_SCOPED_ENUM(Type) type(const class Key &key) const;
 		/**
@@ -91,10 +91,6 @@ class Shadow : public FileFormat
 		 * Checks all 16 layer points and returns true if any of them contains shadow.
 		 */
 		bool containsShadow(int32 x, int32 y) const;
-		/**
-		 * Does also check all 16 layer points.
-		 */
-		bool tilepointContainsShadow(const class Tilepoint &tilepoint) const;
 
 		static const int32 shadowPointsPerTileset;
 
@@ -141,7 +137,7 @@ inline bool Shadow::Key::operator==(const Key &other) const
 	return this->x() == other.x() && this->y() == other.y() && this->point() == other.point();
 }
 
-inline class W3m* Shadow::w3m() const
+inline W3m *Shadow::w3m() const
 {
 	return this->m_w3m;
 }
@@ -167,11 +163,6 @@ inline const byte* Shadow::fileName() const
 }
 
 inline uint32 Shadow::latestFileVersion() const
-{
-	return 0;
-}
-
-inline uint32 Shadow::version() const
 {
 	return 0;
 }
@@ -202,11 +193,6 @@ inline bool Shadow::containsShadow(int32 x, int32 y) const
 	}
 
 	return false;
-}
-
-inline bool Shadow::tilepointContainsShadow(const class Tilepoint &tilepoint) const
-{
-	return this->containsShadow(tilepoint.x(), tilepoint.y());
 }
 
 }

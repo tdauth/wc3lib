@@ -101,12 +101,12 @@ void TriggerWidget::showTrigger(map::Trigger* trigger, const string &customText)
 		for (int32 i = 0; i < trigger->functions().size(); ++i)
 		{
 			QTreeWidgetItem *item = new QTreeWidgetItem();
-			item->setText(0, trigger->functions()[i]->name().c_str());
+			item->setText(0, trigger->functions()[i].name().c_str());
 			// TODO set icon and mark as enabled or not using ->isEnabled()
 			// TODO show hard coded parameters
-			functions().insert(item, trigger->functions()[i].get());
+			functions().insert(item, &trigger->functions()[i]);
 
-			switch (trigger->functions()[i]->type())
+			switch (trigger->functions()[i].type())
 			{
 				case map::TriggerFunction::Type::Event:
 					eventsItem()->addChild(item);

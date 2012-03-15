@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MAP_TREES_HPP
 #define WC3LIB_MAP_TREES_HPP
 
-#include <boost/multi_index/random_access_index.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 #include "platform.hpp"
 #include "tree.hpp"
@@ -32,18 +32,16 @@ namespace wc3lib
 namespace map
 {
 
+/**
+ * Trees are destructibles for Warcraft III: Reign of Chaos.
+ * They can be accessed using \ref trees().
+ * \sa Tree
+ */
 /// \todo Add read and write member functions, add TFT version -> TreesX.
 class Trees : public FileFormat
 {
 	public:
-		typedef boost::shared_ptr<Tree> TreePtr;
-		typedef std::vector<TreePtr> TreeVector;
-
-		struct Header2
-		{
-			int32 formatVersion;
-			int32 specialNumber;
-		};
+		typedef boost::ptr_vector<Tree> TreeContainer;
 
 		virtual std::streamsize read(InputStream& istream) throw (Exception);
 		virtual std::streamsize write(OutputStream& ostream) const throw (Exception);
@@ -54,13 +52,13 @@ class Trees : public FileFormat
 		virtual uint32 version() const;
 
 		uint32 subVersion() const;
-		TreeVector& trees();
-		const TreeVector& trees() const;
+		TreeContainer& trees();
+		const TreeContainer& trees() const;
 
 	protected:
 		uint32 m_version;
 		uint32 m_subVersion;
-		TreeVector m_trees;
+		TreeContainer m_trees;
 };
 
 inline const byte* Trees::fileTextId() const
@@ -88,12 +86,12 @@ inline uint32 Trees::subVersion() const
 	return this->m_subVersion;
 }
 
-inline Trees::TreeVector& Trees::trees()
+inline Trees::TreeContainer& Trees::trees()
 {
 	return this->m_trees;
 }
 
-inline const Trees::TreeVector& Trees::trees() const
+inline const Trees::TreeContainer& Trees::trees() const
 {
 	return this->m_trees;
 }

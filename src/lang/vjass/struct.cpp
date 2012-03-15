@@ -65,28 +65,28 @@ Struct::Struct(std::vector<const unsigned char*> &columnVector) : Interface(colu
 void Struct::init()
 {
 	Interface::init();
-	
+
 	if (!this->sizeExpression().empty())
 	{
 		this->m_size = this->findValue(static_cast<class Object*>(Vjassdoc::parser()->integerType()), this->m_sizeExpression);
-	
+
 		if (this->m_size != 0)
 			this->m_sizeExpression.clear();
 	}
 	else
 		this->m_sizeExpression = '-';
-	
+
 	if (!this->m_extensionExpression.empty() && this->m_extensionExpression.find(File::expressionText[File::ArrayExpression]) != 0)
 	{
 		this->m_extension = static_cast<class Interface*>(this->searchObjectInList(this->m_extensionExpression, Parser::Interfaces));
-		
+
 		if (this->m_extension == 0)
 			this->m_extension = static_cast<class Interface*>(this->searchObjectInList(this->m_extensionExpression, Parser::Structs));
-		
+
 		if (this->m_extension != 0)
 			this->m_extensionExpression.clear();
 	}
-	
+
 	m_container = this;
 	this->m_constructor = static_cast<class Method*>(this->searchObjectInList("create", Parser::Methods, Parser::CheckContainer));
 	this->m_destructor = static_cast<class Method*>(this->searchObjectInList("onDestroy", Parser::Methods, Parser::CheckContainer));
@@ -117,42 +117,42 @@ void Struct::page(std::ofstream &file) const
 	<< "\t\t<h2><a name=\"Extensions\">" << _("Extensions") << "</a></h2>\n"
 	;
 	std::list<class Interface*> extensions = this->extensions();
-	
+
 	if (!extensions.empty())
 	{
 		file << "\t\t<ul>\n";
-		
+
 		for (std::list<class Interface*>::iterator iterator = extensions.begin(); iterator != extensions.end(); ++iterator)
 		{
 			file << "\t\t\t<li>" << Object::objectPageLink(*iterator) << "</li>\n";
-			
+
 			if (iterator != --extensions.end())
 				file << "\t\t\t<li>^</li>\n";
 		}
-			
+
 		file << "\t\t</ul>\n";
 	}
 	else
 		file << "\t\t-\n";
-	
+
 	file
 	<< "\t\t<h2><a name=\"Child Structs\">" << _("Child Structs") << "</a></h2>\n"
 	;
-	
+
 	std::list<class Object*> list = Vjassdoc::parser()->getSpecificList(Parser::Structs, Struct::HasExtension(), this);
-	
+
 	if (!list.empty())
 	{
 		file << "\t\t<ul>\n";
-	
+
 		for (std::list<class Object*>::iterator iterator = list.begin(); iterator != list.end(); ++iterator)
 			file << "\t\t\t<li>" << Object::objectPageLink(*iterator) << "</li>\n";
-		
+
 		file << "\t\t</ul>\n";
 	}
 	else
 		file << "\t\t-\n";
-	
+
 	file
 	<< "\t\t<h2><a name=\"Constructor\">" << _("Constructor") << "</a></h2>\n"
 	<< "\t\t" << Object::objectPageLink(this->constructor()) << '\n'
@@ -162,7 +162,7 @@ void Struct::page(std::ofstream &file) const
 	<< "\t\t" << Object::objectPageLink(this->initializer()) << '\n'
 	<< "\t\t<h2><a name=\"Inherited Members\">" << _("Inherited Members") << "</a></h2>\n"
 	;
-	
+
 	if (this->extension() != 0 &&  dynamic_cast<class Struct*>(this->extension()) != 0)
 	{
 		class Struct *extension = static_cast<class Struct*>(this->extension());
@@ -170,22 +170,22 @@ void Struct::page(std::ofstream &file) const
 		do
 		{
 			extension->getMemberList(file);
-			
+
 			if (extension->extension() != 0 && dynamic_cast<class Struct*>(extension->extension()) != 0)
 				extension = static_cast<class Struct*>(extension->extension());
 			else
 				break;
 		}
 		while (true);
-		
+
 		file << "\t\t<h2><a name=\"Inherited Methods\">" << _("Inherited Methods") << "</a></h2>\n";
-		
+
 		extension = static_cast<class Struct*>(this->extension()); //do not check at twice
-		
+
 		do
 		{
 			extension->getMethodList(file);
-			
+
 			if (extension->extension() != 0 && dynamic_cast<class Struct*>(extension->extension()) != 0)
 				extension = static_cast<class Struct*>(extension->extension());
 			else
@@ -224,15 +224,15 @@ std::string Struct::sqlStatement() const
 std::list<class Interface*> Struct::extensions() const
 {
 	std::list<class Interface*> extensions;
-	
+
 	for (class Interface *extension = this->extension(); extension != 0; extension = static_cast<class Struct*>(extension)->extension())
 	{
 		extensions.push_front(extension);
-		
+
 		if (dynamic_cast<class Struct*>(extension) == 0)
 			break;
 	}
-	
+
 	return extensions;
 }
 

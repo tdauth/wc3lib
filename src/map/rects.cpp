@@ -28,10 +28,6 @@ namespace wc3lib
 namespace map
 {
 
-Rects::Rects(class W3m *w3m) : m_w3m(w3m)
-{
-}
-
 std::streamsize Rects::read(InputStream &istream) throw (class Exception)
 {
 	std::streamsize size = 0;
@@ -42,13 +38,13 @@ std::streamsize Rects::read(InputStream &istream) throw (class Exception)
 
 	int32 number;
 	wc3lib::read(istream, number, size);
-	this->rects().resize(number);
+	this->rects().reserve(number);
 
-	for ( ; number >= 0; --number)
+	for (int32 i = 0; i < number; ++i)
 	{
-		RectPtr rect(new Rect(this));
+		std::auto_ptr<Rect> rect(new Rect());
 		size += rect->read(istream);
-		this->rects()[rect->index()].swap(rect);
+		this->rects().push_back(rect);
 	}
 
 	return size;
@@ -64,8 +60,8 @@ std::streamsize Rects::write(OutputStream &ostream) const throw (class Exception
 	int32 number = this->rects().size();
 	wc3lib::write(ostream, number, size);
 
-	BOOST_FOREACH(RectVector::const_reference rect, this->rects())
-		size += rect->write(ostream);
+	BOOST_FOREACH(RectContainer::const_reference rect, this->rects())
+		size += rect.write(ostream);
 
 	return size;
 }

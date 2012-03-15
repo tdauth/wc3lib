@@ -26,19 +26,19 @@ namespace wc3lib
 namespace map
 {
 
-W3m::W3m() : m_environment(new Environment(this)), m_shadow(new Shadow(this)), m_pathmap(new Pathmap(this)),
+W3m::W3m() : m_environment(new Environment()), m_shadow(new Shadow(this)), m_pathmap(new Pathmap(this)),
 m_trees(new Trees()),
 m_customUnits(new CustomUnits()),
-m_info(new Info(this)),
+m_info(new Info()),
 m_strings(new MapStrings()),
 m_minimap(new Minimap()),
-m_menuMinimap(new MenuMinimap(this)),
+m_menuMinimap(new MenuMinimap()),
 m_triggers(new Triggers(this)),
-m_cameras(new Cameras(this)),
-m_rects(new Rects(this)),
-m_sounds(new Sounds(this)),
+m_cameras(new Cameras()),
+m_rects(new Rects()),
+m_sounds(new Sounds()),
 m_customTextTriggers(new CustomTextTriggers()),
-m_importedFiles(new ImportedFiles(this)), m_fileFormats(16)
+m_importedFiles(new ImportedFiles()), m_fileFormats(16)
 {
 	this->fileFormats()[0] = m_environment.get();
 	this->fileFormats()[1] = m_shadow.get();

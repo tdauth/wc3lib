@@ -1,3 +1,6 @@
+2012-03-15 Tamino Dauth <tamino@cdauth.eu>
+* map: TriggerData needs Boost Pointer Containers (make sure reserving the space and not resizing which would lead to many allocated objects).
+
 2012-03-08 Tamino Dauth <tamino@cdauth.eu>
 * Use lib vars from "/usr/share/apps/cmake/modules/FindKDE4Internal.cmake".
 * editor: ModelEditor/OGRE crashes with mesa 8 and higher.

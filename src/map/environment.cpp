@@ -29,10 +29,6 @@ namespace map
 
 const uint32 Environment::maxTilesets = 16;
 
-Environment::Environment(class W3m *w3m) : m_w3m(w3m)
-{
-}
-
 std::streamsize Environment::read(InputStream &istream) throw (class Exception)
 {
 	int32 requiredFileId;
@@ -93,9 +89,9 @@ std::streamsize Environment::read(InputStream &istream) throw (class Exception)
 	{
 		for (uint32 x = 0; x < this->maxX(); ++x)
 		{
-			TilepointPtr ptr(new Tilepoint(this, x, y));
-			size += ptr->read(istream);
-			this->m_tilepoints.insert(ptr);
+			std::auto_ptr<Tilepoint> tilepoint(new Tilepoint());
+			size += tilepoint->read(istream);
+			this->m_tilepoints.insert(Position(x, y), tilepoint);
 		}
 	}
 
@@ -140,7 +136,7 @@ std::streamsize Environment::write(OutputStream &ostream) const throw (class Exc
 	for (uint32 y = 0; y < this->maxY(); ++y)
 	{
 		for (uint32 x = 0; x < this->maxX(); ++x)
-			size += tilepoint(Position(x, y))->write(ostream);
+			size += m_tilepoints.find(Position(x, y))->second->write(ostream);
 	}
 
 	return size;

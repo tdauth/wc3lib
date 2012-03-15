@@ -30,7 +30,7 @@ namespace map
 {
 
 /**
- * Warcraft 3 replay class.
+ * Warcraft III replay class.
  * \todo Complete!
  */
 class W3g

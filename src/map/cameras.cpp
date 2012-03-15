@@ -18,6 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <boost/format.hpp>
 #include <boost/foreach.hpp>
 
 #include "cameras.hpp"
@@ -31,27 +32,23 @@ namespace wc3lib
 namespace map
 {
 
-Cameras::Cameras(class W3m *w3m) : m_w3m(w3m)
-{
-}
-
-std::streamsize Cameras::read(std::istream &istream) throw (class Exception)
+std::streamsize Cameras::read(InputStream &istream) throw (class Exception)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_version, size);
 
 	if (this->m_version != latestFileVersion())
-		throw Exception(boost::format(_("Cameras: Unknown version \"%1%\", expected \"%2%\".")) % this->m_version % latestFileVersion());
+		std::cerr << boost::format(_("Cameras: Unknown version \"%1%\", expected \"%2%\".")) % this->version() % latestFileVersion() << std::endl;
 
 	int32 number;
 	wc3lib::read(istream, number, size);
-	this->cameras().resize(number);
+	this->cameras().reserve(number);
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		CameraPtr camera(new Camera(this));
-		size += camera->read(istream);
-		this->cameras()[i].swap(camera);
+		std::auto_ptr<Camera> cam(new Camera(this));
+		size += cam->read(istream);
+		this->cameras().push_back(cam);
 	}
 
 	return size;
@@ -60,15 +57,14 @@ std::streamsize Cameras::read(std::istream &istream) throw (class Exception)
 std::streamsize Cameras::write(std::ostream &ostream) const throw (class Exception)
 {
 	if (this->version() != latestFileVersion())
-		throw Exception(boost::format(_("Cameras: Unknown version \"%1%\", expected \"%2%\".")) % this->version() % latestFileVersion());
+		std::cerr << boost::format(_("Cameras: Unknown version \"%1%\", expected \"%2%\".")) % this->version() % latestFileVersion() << std::endl;
 
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->version(), size);
-	const int32 number = this->cameras().size();
-	wc3lib::write(ostream, number, size);
+	wc3lib::write<int32>(ostream, this->cameras().size(), size);
 
-	BOOST_FOREACH(CameraVector::const_reference camera, this->cameras())
-		size += camera->write(ostream);
+	BOOST_FOREACH(CameraContainer::const_reference camera, this->cameras())
+		size += camera.write(ostream);
 
 	return size;
 }

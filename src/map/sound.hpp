@@ -44,7 +44,7 @@ class Sound : public Format
 		};
 		BOOST_SCOPED_ENUM_END
 
-		BOOST_SCOPED_ENUM_START(Flags)
+		BOOST_SCOPED_ENUM_START(Flags) /// \todo C++11 : int32
 		{
 			Looping = 0x00000001,
 			Sound3d = 0x00000002,
@@ -54,7 +54,7 @@ class Sound : public Format
 		};
 		BOOST_SCOPED_ENUM_END
 
-		BOOST_SCOPED_ENUM_START(Channel)
+		BOOST_SCOPED_ENUM_START(Channel) /// \todo C++11 : int32
 		{
 			General = 0,
 			UnitSelection = 1,

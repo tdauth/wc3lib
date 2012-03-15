@@ -29,7 +29,7 @@ namespace wc3lib
 namespace map
 {
 
-class Tilepoint : public Position
+class Tilepoint : public Format
 {
 	public:
 		BOOST_SCOPED_ENUM_START(Flags)
@@ -42,9 +42,6 @@ class Tilepoint : public Position
 		};
 		BOOST_SCOPED_ENUM_END
 
-		Tilepoint(class Environment *environment, int32 x, int32 y);
-		Tilepoint(class Environment *environment, const Position &position);
-
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
@@ -52,7 +49,6 @@ class Tilepoint : public Position
 		float32 worldEditorWaterLevel(int16 groundZeroLevel, float32 waterZeroLevel) const;
 
 	protected:
-		class Environment *m_environment;
 		int16 m_groundHeight;
 		int16 m_waterLevel;
 		BOOST_SCOPED_ENUM(Tilepoint::Flags) m_flags;

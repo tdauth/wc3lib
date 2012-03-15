@@ -22,7 +22,7 @@
 
 namespace wc3lib
 {
-	
+
 namespace map
 {
 
@@ -43,14 +43,6 @@ struct TilepointData
 
 }
 
-Tilepoint::Tilepoint(class Environment *environment, int32 x, int32 y) : Position(x, y), m_environment(environment), m_groundHeight(0), m_waterLevel(0), m_flags(Tilepoint::Flags::Ramp), m_groundTextureType(0), m_textureDetails(0), m_cliffTextureType(0), m_layerHeight(0)
-{
-}
-
-Tilepoint::Tilepoint(class Environment *environment, const Position &position) : Position(position), m_environment(environment)
-{
-}
-
 std::streamsize Tilepoint::read(InputStream &istream) throw (class Exception)
 {
 	struct TilepointData tilepointData;
@@ -59,7 +51,7 @@ std::streamsize Tilepoint::read(InputStream &istream) throw (class Exception)
 	//istream.read(reinterpret_cast<char*>(&tilepointData), 7); // sizeof(*tilepointData)
 
 	if (size != 7)
-		throw Exception(boost::str(boost::format(_("Tilepoint: Size should be 7 but is %1%.")) % size));
+		throw Exception(boost::format(_("Tilepoint: Size should be 7 but is %1%.")) % size);
 
 	this->m_groundHeight = tilepointData.groundHeight;
 	this->m_waterLevel = tilepointData.waterLevel;

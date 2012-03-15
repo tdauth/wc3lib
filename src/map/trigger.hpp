@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MAP_TRIGGER_HPP
 #define WC3LIB_MAP_TRIGGER_HPP
 
+#include <boost/ptr_container/ptr_vector.hpp>
+
 #include "platform.hpp"
 #include "triggerfunction.hpp"
 
@@ -38,8 +40,7 @@ namespace map
 class Trigger : public Format
 {
 	public:
-		typedef boost::shared_ptr<TriggerFunction> FunctionPtr;
-		typedef std::vector<FunctionPtr> Functions;
+		typedef boost::ptr_vector<TriggerFunction> Functions;
 
 		Trigger(class Triggers *triggers);
 

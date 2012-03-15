@@ -28,11 +28,6 @@ namespace wc3lib
 namespace map
 {
 
-Sounds::Sounds(wc3lib::map::W3m* w3m): m_w3m(w3m)
-{
-
-}
-
 std::streamsize Sounds::read(InputStream& istream) throw (Exception)
 {
 	std::streamsize size = 0;
@@ -43,13 +38,13 @@ std::streamsize Sounds::read(InputStream& istream) throw (Exception)
 
 	int32 number;
 	wc3lib::read(istream, number, size);
-	this->sounds().resize(number);
+	this->sounds().reserve(number);
 
 	for (int32 i = 0; i < number; --i)
 	{
-		SoundPtr ptr(new Sound());
+		std::auto_ptr<Sound> ptr(new Sound());
 		size += ptr->read(istream);
-		this->sounds()[i].swap(ptr);
+		this->sounds().push_back(ptr);
 	}
 
 	return size;
@@ -66,8 +61,8 @@ std::streamsize Sounds::write(OutputStream& ostream) const throw (Exception)
 	const int32 number = boost::numeric_cast<int32>(sounds().size());
 	wc3lib::write(ostream, number, size);
 
-	BOOST_FOREACH(SoundVector::const_reference ptr, sounds())
-		size += ptr->write(ostream);
+	BOOST_FOREACH(SoundContainer::const_reference ptr, sounds())
+		size += ptr.write(ostream);
 
 	return size;
 }

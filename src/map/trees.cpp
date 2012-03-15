@@ -30,24 +30,17 @@ namespace map
 
 std::streamsize Trees::read(InputStream &istream) throw (Exception)
 {
-	id fileId;
-	std::streamsize size = 0;
-	wc3lib::read(istream, fileId, size);
-
-	if (fileId != this->fileId())
-		throw Exception();
-
-	wc3lib::read(istream, this->m_version, size);
+	std::streamsize size = FileFormat::read(istream);
 	wc3lib::read(istream, this->m_subVersion, size);
 	int32 number;
 	wc3lib::read(istream, number, size);
-	this->trees().resize(number);
+	this->trees().reserve(number);
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		TreePtr ptr(new Tree());
-		size += ptr->read(istream);
-		trees()[i].swap(ptr);
+		std::auto_ptr<Tree> tree(new Tree());
+		size += tree->read(istream);
+		m_trees.push_back(tree);
 	}
 
 	return size;
@@ -55,15 +48,13 @@ std::streamsize Trees::read(InputStream &istream) throw (Exception)
 
 std::streamsize Trees::write(OutputStream &ostream) const throw (Exception)
 {
-	std::streamsize size = 0;
-	wc3lib::write(ostream, this->fileId(), size);
-	wc3lib::write(ostream, this->version(), size);
+	std::streamsize size = FileFormat::write(ostream);
 	wc3lib::write(ostream, this->subVersion(), size);
 	const int32 number = boost::numeric_cast<int32>(trees().size());
 	wc3lib::write(ostream, number, size);
 
-	BOOST_FOREACH(TreeVector::const_reference tree, trees())
-		size += tree->write(ostream);
+	BOOST_FOREACH(TreeContainer::const_reference tree, trees())
+		size += tree.write(ostream);
 
 	return size;
 }

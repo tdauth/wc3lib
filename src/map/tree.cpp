@@ -31,9 +31,9 @@ std::streamsize Tree::read(InputStream &istream) throw (Exception)
 	std::streamsize size = 0;
 	wc3lib::read(istream, m_treeId, size);
 	wc3lib::read(istream, m_variation, size);
-	wc3lib::read(istream, m_position, size);
+	size += m_position.read(istream);
 	wc3lib::read(istream, m_angle, size);
-	wc3lib::read(istream, m_scale, size);
+	size += m_scale.read(istream);
 	wc3lib::read<byte>(istream, (byte&)m_flags, size);
 	wc3lib::read(istream, m_life, size);
 	wc3lib::read(istream, m_customId, size);
@@ -46,9 +46,9 @@ std::streamsize Tree::write(OutputStream& ostream) const throw (Exception)
 	std::streamsize size = 0;
 	wc3lib::write(ostream, treeId(), size);
 	wc3lib::write(ostream, variation(), size);
-	wc3lib::write(ostream, position(), size);
+	size += position().write(ostream);
 	wc3lib::write(ostream, angle(), size);
-	wc3lib::write(ostream, scale(), size);
+	size += scale().write(ostream);
 	wc3lib::write<byte>(ostream, flags(), size);
 	wc3lib::write(ostream, life(), size);
 	wc3lib::write(ostream, customId(), size);

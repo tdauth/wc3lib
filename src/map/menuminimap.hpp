@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MAP_MENUMINIMAP_HPP
 #define WC3LIB_MAP_MENUMINIMAP_HPP
 
-#include <set>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 #include "platform.hpp"
 #include "../color.hpp"
@@ -46,7 +46,7 @@ class MenuMinimap : public FileFormat
 				};
 				BOOST_SCOPED_ENUM_END
 
-				Mark(int32 x, int32 y);
+				Mark();
 
 				virtual std::streamsize read(InputStream& istream) throw (Exception);
 				virtual std::streamsize write(OutputStream& ostream) const throw (Exception);
@@ -59,27 +59,20 @@ class MenuMinimap : public FileFormat
 				Bgra m_color;
 		};
 
-		typedef boost::shared_ptr<Mark> MarkPtr;
 		/// Ordered by their coordinates.
-		typedef std::set<MarkPtr> Marks;
-
-		MenuMinimap(class W3m *w3m);
+		typedef boost::ptr_vector<Mark> Marks;
 
 		virtual std::streamsize read(InputStream &istream) throw (Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
 
-		virtual uint32 version() const;
 		virtual const byte* fileName() const;
 		virtual const byte* fileTextId() const;
 		virtual uint32 latestFileVersion() const;
 
-		class W3m* w3m() const;
 		Marks& marks();
 		const Marks& marks() const;
 
 	protected:
-		class W3m *m_w3m;
-		uint32 m_version;
 		Marks m_marks;
 };
 
@@ -91,16 +84,6 @@ inline BOOST_SCOPED_ENUM(MenuMinimap::Mark::IconType) MenuMinimap::Mark::iconTyp
 inline const Bgra& MenuMinimap::Mark::color() const
 {
 	return m_color;
-}
-
-inline class W3m* MenuMinimap::w3m() const
-{
-	return m_w3m;
-}
-
-inline uint32 MenuMinimap::version() const
-{
-	return m_version;
 }
 
 inline const byte* MenuMinimap::fileName() const

@@ -24,6 +24,7 @@
 #include <map>
 
 #include <boost/bimap.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 #include "platform.hpp"
 
@@ -51,7 +52,7 @@ class Txt : public Format
 			Pairs entries;
 		};
 
-		typedef std::list<Section> Sections;
+		typedef boost::ptr_vector<Section> Sections;
 
 		Sections& sections();
 		const Sections& sections() const;
@@ -73,7 +74,7 @@ inline Txt::Sections& Txt::sections()
 	return this->m_sections;
 }
 
-inline const map::Txt::Sections& Txt::sections() const
+inline const Txt::Sections& Txt::sections() const
 {
 	return this->m_sections;
 }

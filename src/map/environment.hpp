@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MAP_ENVIRONMENT_HPP
 #define WC3LIB_MAP_ENVIRONMENT_HPP
 
-#include <set>
+#include <boost/ptr_container/ptr_map.hpp>
 
 #include "platform.hpp"
 #include "tilepoint.hpp"
@@ -36,8 +36,7 @@ class Environment : public FileFormat
 {
 	public:
 		typedef std::vector<id> Ids;
-		typedef boost::shared_ptr<Tilepoint> TilepointPtr;
-		typedef std::set<TilepointPtr> Tilepoints;
+		typedef boost::ptr_map<Position, Tilepoint> Tilepoints;
 
 		/**
 		 * There is a physical limit of usable tilesets per environment since each tilepoint (\ref Tilepoint) only uses 4 bits to refer on its ground texture type and its cliff texture type in its corresponding environment.
@@ -67,8 +66,6 @@ class Environment : public FileFormat
 		};
 		BOOST_SCOPED_ENUM_END
 
-		Environment(class W3m *w3m);
-
 		std::streamsize read(InputStream &istream) throw (class Exception);
 		std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
@@ -92,10 +89,7 @@ class Environment : public FileFormat
 		const Tilepoints& tilepoints() const;
 		Tilepoints& tilepoints();
 
-		const TilepointPtr& tilepoint(const Position &position) const  throw (Exception);
-
 	protected:
-		class W3m *m_w3m;
 		uint32 m_version;
 		BOOST_SCOPED_ENUM(MainTileset) m_mainTileset;
 		bool m_customized;
@@ -183,19 +177,6 @@ inline Environment::Tilepoints& Environment::tilepoints()
 {
 	return m_tilepoints;
 }
-
-
-inline const Environment::TilepointPtr& Environment::tilepoint(const Position &position) const throw (Exception)
-{
-	TilepointPtr ptr(new Tilepoint(const_cast<Environment*>(this), position));
-	Tilepoints::const_iterator iterator = tilepoints().find(ptr);
-
-	if (iterator == tilepoints().end())
-		throw Exception();
-
-	return *iterator;
-}
-
 
 }
 

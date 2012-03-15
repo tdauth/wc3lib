@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MAP_TRIGGERFUNCTION_HPP
 #define WC3LIB_MAP_TRIGGERFUNCTION_HPP
 
+#include <boost/ptr_container/ptr_vector.hpp>
+
 #include "platform.hpp"
 #include "triggerfunctionparameter.hpp"
 
@@ -37,8 +39,7 @@ namespace map
 class TriggerFunction : public Format
 {
 	public:
-		typedef boost::shared_ptr<TriggerFunctionParameter> ParameterPtr;
-		typedef std::vector<ParameterPtr> Parameters;
+		typedef boost::ptr_vector<TriggerFunctionParameter> Parameters;
 
 		BOOST_SCOPED_ENUM_START(Type) /// \todo C++11 : int32
 		{

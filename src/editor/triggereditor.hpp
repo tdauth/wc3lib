@@ -169,7 +169,7 @@ inline const string& TriggerEditor::triggerText(map::Trigger *trigger) const
 
 	BOOST_FOREACH(map::Triggers::TriggerEntries::const_reference trig, triggers()->triggers())
 	{
-		if (trig.get() == trigger)
+		if (&trig == trigger)
 		{
 			found = true;
 

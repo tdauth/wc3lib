@@ -102,7 +102,7 @@ std::streamsize CampaignInfo::read(InputStream &istream) throw (class Exception)
 		case 0: // =Fixed Diffculty, Only w3m maps
 			this->m_difficultyType = DifficultyType::Fixed;
 			this->m_hasW3x = false;
-			
+
 			break;
 		case 1: // =Variable Difficulty, Only w3m maps
 			this->m_difficultyType = DifficultyType::Variable;
@@ -140,23 +140,23 @@ std::streamsize CampaignInfo::read(InputStream &istream) throw (class Exception)
 
 	int32 mapTitles;
 	wc3lib::read(istream, mapTitles, size);
+	this->m_mapTitles.reserve(mapTitles);
 	int32 maps;
 	wc3lib::read(istream, maps, size);
+	this->m_maps.reserve(maps);
 
-	while (mapTitles > 0)
+	for (int32 i = 0; i < mapTitles; ++i)
 	{
-		MapTitlePtr mapTitle(new MapTitle());
-		mapTitle->read(istream);
-		this->m_mapTitles.push_back(mapTitle);
-		--mapTitles;
+		std::auto_ptr<MapTitle> title(new MapTitle());
+		size += title->read(istream);
+		this->m_mapTitles.push_back(title);
 	}
 
-	while (maps > 0)
+	for (int32 i = 0; i < maps; ++i)
 	{
-		MapPtr map(new Map());
-		map->read(istream);
+		std::auto_ptr<Map> map(new Map());
+		size += map->read(istream);
 		this->m_maps.push_back(map);
-		--maps;
 	}
 
 	return size;
@@ -173,7 +173,7 @@ std::streamsize CampaignInfo::write(OutputStream &ostream) const throw (class Ex
 	writeString(ostream, this->author(), size);
 	writeString(ostream, this->description(), size);
 	int32 flag;
-	
+
 	if (hasW3x())
 	{
 		if (difficultyType() == DifficultyType::Fixed)
@@ -185,7 +185,7 @@ std::streamsize CampaignInfo::write(OutputStream &ostream) const throw (class Ex
 		flag = 0;
 	else
 		flag = 1;
-	
+
 	wc3lib::write(ostream, flag, size);
 
 	wc3lib::write(ostream, this->backgroundScreenIndex(), size);
@@ -203,11 +203,11 @@ std::streamsize CampaignInfo::write(OutputStream &ostream) const throw (class Ex
 	wc3lib::write<int32>(ostream, mapTitles().size(), size);
 	wc3lib::write<int32>(ostream, maps().size(), size);
 
-	BOOST_FOREACH(const MapTitlePtr ptr, mapTitles())
-		size += ptr->write(ostream);
+	BOOST_FOREACH(MapTitles::const_reference ref, mapTitles())
+		size += ref.write(ostream);
 
-	BOOST_FOREACH(const MapPtr ptr, maps())
-		size += ptr->write(ostream);
+	BOOST_FOREACH(Maps::const_reference ref, maps())
+		size += ref.write(ostream);
 
 	return size;
 }

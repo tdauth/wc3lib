@@ -33,10 +33,10 @@ namespace map
 {
 
 /**
-* Collection of various customized object tables.
-* Usually used to export all custom map objects.
-* \sa CustomObjects
-*/
+ * Collection of various customized object tables.
+ * Usually used to export all custom map objects.
+ * \sa CustomObjects
+ */
 class CustomObjectsCollection : public Format
 {
 	public:

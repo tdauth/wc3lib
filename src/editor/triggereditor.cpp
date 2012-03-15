@@ -208,9 +208,9 @@ void TriggerEditor::loadTriggers(map::Triggers *triggers)
 	for (int32 i = 0; i < categoriesNumber; ++i)
 	{
 		categories()[i] = new QTreeWidgetItem(rootItem());
-		categories()[i]->setText(0, triggers->categories()[i]->name().c_str());
+		categories()[i]->setText(0, triggers->categories()[i].name().c_str());
 		/// \todo set folder icon
-		qDebug() << "Category: " << triggers->categories()[i]->name().c_str();
+		qDebug() << "Category: " << triggers->categories()[i].name().c_str();
 	}
 
 	triggerEntries().resize(triggersNumber);
@@ -219,8 +219,8 @@ void TriggerEditor::loadTriggers(map::Triggers *triggers)
 	{
 		triggerEntries()[i] = new QTreeWidgetItem(rootItem());
 		/// \todo set icon (initially on, disabled etc.)
-		triggerEntries()[i]->setText(0, triggers->triggers()[i]->name().c_str());
-		qDebug() << "Trigger: " << triggers->triggers()[i]->name().c_str();
+		triggerEntries()[i]->setText(0, triggers->triggers()[i].name().c_str());
+		qDebug() << "Trigger: " << triggers->triggers()[i].name().c_str();
 	}
 
 	m_triggers = triggers;
@@ -290,7 +290,7 @@ void TriggerEditor::openMapScript()
 
 void TriggerEditor::openTrigger(int32 index)
 {
-	openTrigger(triggers()->triggers()[index].get());
+	openTrigger(&triggers()->triggers()[index]);
 }
 
 void TriggerEditor::openTrigger(map::Trigger *trigger)

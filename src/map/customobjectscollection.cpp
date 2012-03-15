@@ -37,7 +37,7 @@ std::streamsize CustomObjectsCollection::read(InputStream &istream) throw (class
 	wc3lib::read(istream, this->m_version, size);
 
 	if (this->version() != latestFileVersion())
-		throw Exception(boost::format(_("W3O: Unknown version %1%, expected %2%.")) % this->version() % latestFileVersion());
+		std::cerr << boost::format(_("W3O: Unknown version %1%, expected %2%.")) % this->version() % latestFileVersion() << std::endl;
 
 	int32 hasUnits;
 	wc3lib::read(istream, hasUnits, size);
@@ -108,7 +108,7 @@ std::streamsize CustomObjectsCollection::read(InputStream &istream) throw (class
 std::streamsize CustomObjectsCollection::write(OutputStream &ostream) const throw (class Exception)
 {
 	if (this->version() != latestFileVersion())
-		throw Exception(boost::format(_("W3O: Unknown version %1%, expected %2%.")) % this->version() % latestFileVersion());
+		std::cerr << boost::format(_("W3O: Unknown version %1%, expected %2%.")) % this->version() % latestFileVersion() << std::endl;
 
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->m_version, size);

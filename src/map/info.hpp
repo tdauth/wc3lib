@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MAP_INFO_HPP
 #define WC3LIB_MAP_INFO_HPP
 
+#include <boost/ptr_container/ptr_vector.hpp>
+
 #include "platform.hpp"
 
 namespace wc3lib
@@ -174,8 +176,7 @@ class Info : public FileFormat
 								Rows m_rows;
 						};
 
-						typedef boost::shared_ptr<Column> ColumnsPtr;
-						typedef std::vector<ColumnsPtr> Columns;
+						typedef boost::ptr_vector<Column> Columns;
 						typedef std::vector<int32> Chances;
 
 						virtual std::streamsize read(InputStream &istream) throw (Exception);
@@ -183,6 +184,7 @@ class Info : public FileFormat
 
 						int32 number() const;
 						const string& name() const;
+						Columns& columns();
 						const Columns& columns() const;
 						const Chances& chances() const;
 
@@ -193,30 +195,23 @@ class Info : public FileFormat
 						Chances m_chances;
 				};
 
-				typedef boost::shared_ptr<Group> GroupPtr;
-				typedef std::vector<GroupPtr> Groups;
+				typedef boost::ptr_vector<Group> Groups;
 
 				virtual std::streamsize read(InputStream &istream) throw (Exception);
 				virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
 
+				Groups& groups();
 				const Groups& groups() const;
 
 			protected:
 				Groups m_groups;
 		};
 
-		typedef boost::shared_ptr<Player> PlayerPtr;
-		typedef std::vector<PlayerPtr> Players;
-		typedef boost::shared_ptr<Force> ForcePtr;
-		typedef std::vector<ForcePtr> Forces;
-		typedef boost::shared_ptr<UpgradeAvailability> UpgradeAvailabilityPtr;
-		typedef std::vector<UpgradeAvailabilityPtr> UpgradeAvailabilities;
-		typedef boost::shared_ptr<TechAvailability> TechAvailabilityPtr;
-		typedef std::vector<TechAvailabilityPtr> TechAvailabilities;
-		typedef boost::shared_ptr<RandomUnitTable> RandomUnitTablePtr;
-		typedef std::vector<RandomUnitTablePtr> RandomUnitTables;
-
-		Info(class W3m *w3m);
+		typedef boost::ptr_vector<Player> Players;
+		typedef boost::ptr_vector<Force> Forces;
+		typedef boost::ptr_vector<UpgradeAvailability> UpgradeAvailabilities;
+		typedef boost::ptr_vector<TechAvailability> TechAvailabilities;
+		typedef boost::ptr_vector<RandomUnitTable> RandomUnitTables;
 
 		std::streamsize read(InputStream &istream) throw (class Exception);
 		std::streamsize write(OutputStream &ostream) const throw (class Exception);
@@ -260,7 +255,6 @@ class Info : public FileFormat
 		const RandomUnitTables& randomUnitTables() const;
 
 	protected:
-		class W3m *m_w3m;
 		uint32 m_version;
 		int32 m_mapVersion; // number of saves (map version)
 		int32 m_editorVersion; // editor version (little endian)
@@ -398,6 +392,11 @@ inline int32 Info::RandomUnitTable::Group::number() const
 inline const string& Info::RandomUnitTable::Group::name() const
 {
 	return m_name;
+}
+
+inline Info::RandomUnitTable::Group::Columns& Info::RandomUnitTable::Group::columns()
+{
+	return m_columns;
 }
 
 inline const Info::RandomUnitTable::Group::Columns& Info::RandomUnitTable::Group::columns() const

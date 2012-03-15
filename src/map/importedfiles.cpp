@@ -71,10 +71,6 @@ std::streamsize ImportedFiles::Path::write(OutputStream &ostream) const throw (c
 	return size;
 }
 
-ImportedFiles::ImportedFiles(class Playable *playable) : m_playable(playable)
-{
-}
-
 std::streamsize ImportedFiles::read(InputStream &istream) throw (class Exception)
 {
 	std::streamsize size = 0;
@@ -85,13 +81,13 @@ std::streamsize ImportedFiles::read(InputStream &istream) throw (class Exception
 
 	int32 number;
 	wc3lib::read(istream, number, size);
-	this->paths().resize(number);
+	this->paths().reserve(number);
 
-	for (std::size_t i = 0; i < number; ++i)
+	for (int32 i = 0; i < number; ++i)
 	{
-		PathPtr path(new Path());
+		std::auto_ptr<Path> path(new Path());
 		size += path->read(istream);
-		paths()[i] = path;
+		paths().push_back(path);
 	}
 
 	return size;
@@ -107,7 +103,7 @@ std::streamsize ImportedFiles::write(OutputStream &ostream) const throw (class E
 	wc3lib::write<int32>(ostream, this->paths().size(), size);
 
 	BOOST_FOREACH(Paths::const_reference path, this->paths())
-		size += path->write(ostream);
+		size += path.write(ostream);
 
 	return size;
 }

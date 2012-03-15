@@ -26,10 +26,6 @@ namespace wc3lib
 namespace map
 {
 
-Rect::Rect(class Rects *rects) : m_rects(rects)
-{
-}
-
 std::streamsize Rect::read(InputStream &istream) throw (class Exception)
 {
 	std::streamsize size = 0;

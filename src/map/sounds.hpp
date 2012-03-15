@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MAP_SOUNDS_HPP
 #define WC3LIB_MAP_SOUNDS_HPP
 
+#include <boost/ptr_container/ptr_vector.hpp>
+
 #include "platform.hpp"
 #include "sound.hpp"
 
@@ -33,10 +35,7 @@ namespace map
 class Sounds : public FileFormat
 {
 	public:
-		typedef boost::shared_ptr<Sound> SoundPtr;
-		typedef std::vector<SoundPtr> SoundVector;
-
-		Sounds(class W3m *w3m);
+		typedef boost::ptr_vector<Sound> SoundContainer;
 
 		virtual std::streamsize read(InputStream &istream) throw (Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
@@ -46,20 +45,13 @@ class Sounds : public FileFormat
 		virtual const byte* fileTextId() const;
 		virtual uint32 latestFileVersion() const;
 
-		class W3m* w3m() const;
-		SoundVector sounds();
-		const SoundVector& sounds() const;
+		SoundContainer& sounds();
+		const SoundContainer& sounds() const;
 
 	protected:
-		class W3m *m_w3m;
 		uint32 m_version;
-		SoundVector m_sounds;
+		SoundContainer m_sounds;
 };
-
-inline class W3m* Sounds::w3m() const
-{
-	return m_w3m;
-}
 
 inline uint32 Sounds::version() const
 {
@@ -81,12 +73,12 @@ inline uint32 Sounds::latestFileVersion() const
 	return 1;
 }
 
-inline Sounds::SoundVector Sounds::sounds()
+inline Sounds::SoundContainer& Sounds::sounds()
 {
 	return m_sounds;
 }
 
-inline const Sounds::SoundVector& Sounds::sounds() const
+inline const Sounds::SoundContainer& Sounds::sounds() const
 {
 	return m_sounds;
 }

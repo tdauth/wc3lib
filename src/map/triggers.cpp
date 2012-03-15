@@ -59,34 +59,34 @@ std::streamsize Triggers::read(InputStream &istream, const TriggerData &triggerD
 
 	int32 number;
 	wc3lib::read(istream, number, size);
-	this->categories().resize(number);
+	this->categories().reserve(number);
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		CategoryPtr ptr(new TriggerCategory(this));
+		std::auto_ptr<TriggerCategory> ptr(new TriggerCategory(this));
 		size += ptr->read(istream);
-		categories()[i].swap(ptr);
+		categories().push_back(ptr);
 	}
 
 	wc3lib::read(istream, this->m_unknown0, size);
 	wc3lib::read(istream, number, size);
-	this->variables().resize(number);
+	this->variables().reserve(number);
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		VariablePtr ptr(new Variable(this));
+		std::auto_ptr<Variable> ptr(new Variable(this));
 		size += ptr->read(istream);
-		variables()[i].swap(ptr);
+		variables().push_back(ptr);
 	}
 
 	wc3lib::read(istream, number, size);
-	this->triggers().resize(number);
+	this->triggers().reserve(number);
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		TriggerPtr ptr(new Trigger(this));
+		std::auto_ptr<Trigger> ptr(new Trigger(this));
 		size += ptr->read(istream);
-		triggers()[i].swap(ptr);
+		triggers().push_back(ptr);
 	}
 
 	return size;
@@ -101,20 +101,20 @@ std::streamsize Triggers::write(OutputStream &ostream) const throw (class Except
 	wc3lib::write(ostream, number, size);
 
 	BOOST_FOREACH(Categories::const_reference value, categories())
-		size += value->write(ostream);
+		size += value.write(ostream);
 
 	wc3lib::write(ostream, this->unknown0(), size);
 	number = boost::numeric_cast<int32>(this->variables().size());
 	wc3lib::write(ostream, number, size);
 
 	BOOST_FOREACH(Variables::const_reference value, variables())
-		size += value->write(ostream);
+		size += value.write(ostream);
 
 	number = boost::numeric_cast<int32>(this->triggers().size());
 	wc3lib::write(ostream, number, size);
 
 	BOOST_FOREACH(TriggerEntries::const_reference value, triggers())
-		size += value->write(ostream);
+		size += value.write(ostream);
 
 	return size;
 }

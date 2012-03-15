@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MAP_CAMPAIGNINFO_HPP
 #define WC3LIB_MAP_CAMPAIGNINFO_HPP
 
+#include <boost/ptr_container/ptr_vector.hpp>
+
 #include "platform.hpp"
 #include "../color.hpp"
 
@@ -41,7 +43,7 @@ class CampaignInfo : public FileFormat
 		BOOST_SCOPED_ENUM_END
 
 		/// \todo Get missing race indices.
-		BOOST_SCOPED_ENUM_START(Race)
+		BOOST_SCOPED_ENUM_START(Race) /// \todo C++11 : int32
 		{
 			Human = 0
 		};
@@ -83,10 +85,8 @@ class CampaignInfo : public FileFormat
 				string m_path; // String: path of the map in the campaign archive
 		};
 
-		typedef boost::shared_ptr<MapTitle> MapTitlePtr;
-		typedef std::list<MapTitlePtr> MapTitles;
-		typedef boost::shared_ptr<Map> MapPtr;
-		typedef std::list<MapPtr> Maps;
+		typedef boost::ptr_vector<MapTitle> MapTitles;
+		typedef boost::ptr_vector<Map> Maps;
 
 		CampaignInfo(class Campaign *campaign);
 

@@ -36,7 +36,7 @@ Camera::~Camera()
 
 }
 
-std::streamsize Camera::read(std::basic_istream<byte> &istream) throw (class Exception)
+std::streamsize Camera::read(InputStream &istream) throw (class Exception)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_targetX, size);
@@ -54,7 +54,7 @@ std::streamsize Camera::read(std::basic_istream<byte> &istream) throw (class Exc
 	return size;
 }
 
-std::streamsize Camera::write(std::basic_ostream<byte> &ostream) const throw (class Exception)
+std::streamsize Camera::write(OutputStream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->m_targetX, size);

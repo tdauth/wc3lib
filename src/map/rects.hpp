@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MAP_RECTS_HPP
 #define WC3LIB_MAP_RECTS_HPP
 
+#include <boost/ptr_container/ptr_vector.hpp>
+
 #include "platform.hpp"
 #include "rect.hpp"
 
@@ -36,10 +38,8 @@ namespace map
 class Rects : public FileFormat
 {
 	public:
-		typedef boost::shared_ptr<Rect> RectPtr;
-		typedef std::vector<RectPtr> RectVector;
+		typedef boost::ptr_vector<Rect> RectContainer;
 
-		Rects(class W3m *w3m);
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
@@ -47,15 +47,11 @@ class Rects : public FileFormat
 		virtual const byte* fileName() const;
 		virtual uint32 latestFileVersion() const;
 
-		virtual uint32 version() const { return m_version; }
-
-		RectVector& rects();
-		const RectVector& rects() const;
+		RectContainer& rects();
+		const RectContainer& rects() const;
 
 	protected:
-		class W3m *m_w3m;
-		uint32 m_version;
-		RectVector m_rects;
+		RectContainer m_rects;
 };
 
 inline const byte* Rects::fileTextId() const
@@ -73,12 +69,12 @@ inline uint32 Rects::latestFileVersion() const
 	return 5;
 }
 
-inline Rects::RectVector& Rects::rects()
+inline Rects::RectContainer& Rects::rects()
 {
 	return m_rects;
 }
 
-inline const Rects::RectVector& Rects::rects() const
+inline const Rects::RectContainer& Rects::rects() const
 {
 	return m_rects;
 }

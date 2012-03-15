@@ -34,8 +34,6 @@ namespace map
 class Rect : public Format
 {
 	public:
-		Rect(class Rects *rects);
-
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
@@ -50,7 +48,6 @@ class Rect : public Format
 		const struct Rgb& color() const;
 
 	protected:
-		class Rects *m_rects;
 		float32 m_left;
 		float32 m_right;
 		float32 m_bottom;

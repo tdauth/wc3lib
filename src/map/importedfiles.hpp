@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MAP_IMPORTEDFILES_HPP
 #define WC3LIB_MAP_IMPORTEDFILES_HPP
 
+#include <boost/ptr_container/ptr_vector.hpp>
+
 #include "platform.hpp"
 
 namespace wc3lib
@@ -48,10 +50,7 @@ class ImportedFiles : public FileFormat
 				string m_path;
 		};
 
-		typedef boost::shared_ptr<Path> PathPtr;
-		typedef std::vector<PathPtr> Paths;
-
-		ImportedFiles(class Playable *playable);
+		typedef boost::ptr_vector<Path> Paths;
 
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
@@ -68,7 +67,6 @@ class ImportedFiles : public FileFormat
 		static const string campaignPrefix;
 
 	protected:
-		class Playable *m_playable;
 		uint32 m_version;
 		Paths m_paths;
 };

@@ -41,12 +41,12 @@ void VariablesDialog::showVariables(map::Triggers *triggers)
 
 	for (int32 i = 0; i < triggers->variables().size(); ++i)
 	{
-		QTableWidgetItem *item = new QTableWidgetItem(triggers->variables()[i]->name().c_str());
+		QTableWidgetItem *item = new QTableWidgetItem(triggers->variables()[i].name().c_str());
 		m_tableWidget->setItem(i, 0, item);
 		//map::TriggerData::Type *type = variableType(*ref.second.get());
-		item = new QTableWidgetItem(triggers->variables()[i]->type().c_str());
+		item = new QTableWidgetItem(triggers->variables()[i].type().c_str());
 		m_tableWidget->setItem(i, 1, item);
-		item = new QTableWidgetItem(triggers->variables()[i]->initialValue().c_str());
+		item = new QTableWidgetItem(triggers->variables()[i].initialValue().c_str());
 		m_tableWidget->setItem(i, 2, item);
 	}
 }

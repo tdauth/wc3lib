@@ -30,9 +30,9 @@ namespace map
 {
 
 /**
-* Warcraft 3 The Frozen Throne allows you to customize every possible object data using Warcraft 3's unit data format with some minor changes.
-* Corresponding type of data is stored dynamically (\ref CustomObjects::Type).
-*/
+ * Warcraft III: The Frozen Throne allows you to customize every possible object data using Warcraft III's unit data format with some minor changes.
+ * Corresponding type of data is stored dynamically (\ref CustomObjects::Type).
+ */
 class CustomObjects : public CustomUnits
 {
 	public:
@@ -79,6 +79,7 @@ class CustomObjects : public CustomUnits
 				BOOST_SCOPED_ENUM(CustomObjects::Type) type() const;
 
 			protected:
+				/// \todo C++11 override
 				virtual CustomUnits::Modification* createModification() const;
 
 				BOOST_SCOPED_ENUM(CustomObjects::Type) m_type;
@@ -90,6 +91,7 @@ class CustomObjects : public CustomUnits
 		virtual const byte* fileName() const;
 
 	protected:
+		/// \todo C++11 override
 		virtual Unit* createUnit() const;
 
 		BOOST_SCOPED_ENUM(Type) m_type;

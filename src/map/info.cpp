@@ -123,15 +123,16 @@ std::streamsize Info::RandomUnitTable::Group::read(InputStream &istream) throw (
 	wc3lib::readString(istream, m_name, size);
 	int32 number = 0;
 	wc3lib::read(istream, number, size);
-	m_columns.resize(number);
+	m_columns.reserve(number);
 
 	// columns
 	for (int32 i = 0; i < number; ++i)
 	{
 		BOOST_SCOPED_ENUM(Column::Type) type;
 		wc3lib::read<int32>(istream, (int32&)type, size);
-		m_columns[i].reset(new Column());
-		m_columns[i]->setType(type);
+		std::auto_ptr<Column> ptr(new Column());
+		ptr->setType(type);
+		m_columns.push_back(ptr);
 	}
 
 	// rows
@@ -139,14 +140,14 @@ std::streamsize Info::RandomUnitTable::Group::read(InputStream &istream) throw (
 	m_chances.resize(number);
 
 	for (int32 i = 0; i < columns().size(); ++i)
-		columns()[i]->rows().resize(number);
+		columns()[i].rows().resize(number);
 
 	for (int32 i = 0; i < number; ++i)
 	{
 		wc3lib::read(istream, m_chances[i], size);
 
 		for (int32 j = 0; j < columns().size(); ++j)
-			wc3lib::read(istream, columns()[j]->rows()[i], size);
+			wc3lib::read(istream, columns()[j].rows()[i], size);
 	}
 
 	return size;
@@ -160,7 +161,7 @@ std::streamsize Info::RandomUnitTable::Group::write(OutputStream &ostream) const
 	wc3lib::write<int32>(ostream, columns().size(), size);
 
 	BOOST_FOREACH(Columns::const_reference column, columns())
-		wc3lib::write(ostream, column->type(), size);
+		wc3lib::write(ostream, column.type(), size);
 
 	// rows
 	wc3lib::write<int32>(ostream, chances().size(), size);
@@ -171,7 +172,7 @@ std::streamsize Info::RandomUnitTable::Group::write(OutputStream &ostream) const
 		wc3lib::write(ostream, chance, size);
 
 		BOOST_FOREACH(Columns::const_reference column, columns())
-			wc3lib::write(ostream, column->rows()[i], size);
+			wc3lib::write(ostream, column.rows()[i], size);
 
 		++i;
 	}
@@ -188,8 +189,9 @@ std::streamsize Info::RandomUnitTable::read(InputStream &istream) throw (Excepti
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		this->m_groups[i].reset(new Group());
-		size += m_groups[i]->read(istream);
+		std::auto_ptr<Group> group(new Group());
+		size += group->read(istream);
+		this->m_groups.replace(i, group);
 	}
 
 	return size;
@@ -201,14 +203,9 @@ std::streamsize Info::RandomUnitTable::write(OutputStream &ostream) const throw 
 	wc3lib::write<int32>(ostream, groups().size(), size);
 
 	BOOST_FOREACH(Groups::const_reference group, groups())
-		size += group->write(ostream);
+		size += group.write(ostream);
 
 	return size;
-}
-
-
-Info::Info(class W3m *w3m) : m_w3m(w3m)
-{
 }
 
 std::streamsize Info::read(InputStream &istream) throw (class Exception)
@@ -243,48 +240,53 @@ std::streamsize Info::read(InputStream &istream) throw (class Exception)
 
 	int32 number;
 	wc3lib::read(istream, number, size);
-	m_players.resize(number);
+	m_players.reserve(number);
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		m_players[i].reset(new Player());
-		size += m_players[i]->read(istream);
+		std::auto_ptr<Player> player(new Player());
+		size += player->read(istream);
+		m_players.push_back(player);
 	}
 
 	wc3lib::read(istream, number, size);
-	m_forces.resize(number);
+	m_forces.reserve(number);
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		m_forces[i].reset(new Force());
-		size += m_forces[i]->read(istream);
+		std::auto_ptr<Force> force(new Force());
+		size += force->read(istream);
+		m_forces.push_back(force);
 	}
 
 	wc3lib::read(istream, number, size);
-	m_upgradeAvailabilities.resize(number);
+	m_upgradeAvailabilities.reserve(number);
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		m_upgradeAvailabilities[i].reset(new UpgradeAvailability());
-		size += m_upgradeAvailabilities[i]->read(istream);
+		std::auto_ptr<UpgradeAvailability> upgradeAvailability(new UpgradeAvailability());
+		size += upgradeAvailability->read(istream);
+		m_upgradeAvailabilities.push_back(upgradeAvailability);
 	}
 
 	wc3lib::read(istream, number, size);
-	m_techAvailabilities.resize(number);
+	m_techAvailabilities.reserve(number);
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		m_techAvailabilities[i].reset(new TechAvailability());
-		size += m_techAvailabilities[i]->read(istream);
+		std::auto_ptr<TechAvailability> techAvailability(new TechAvailability());
+		size += techAvailability->read(istream);
+		m_techAvailabilities.push_back(techAvailability);
 	}
 
 	wc3lib::read(istream, number, size);
-	m_randomUnitTables.resize(number);
+	m_randomUnitTables.reserve(number);
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		m_randomUnitTables[i].reset(new RandomUnitTable());
-		size += m_randomUnitTables[i]->read(istream);
+		std::auto_ptr<RandomUnitTable> randomUnitTable(new RandomUnitTable());
+		size += randomUnitTable->read(istream);
+		m_randomUnitTables.push_back(randomUnitTable);
 	}
 
 	return size;
@@ -322,28 +324,28 @@ std::streamsize Info::write(OutputStream &ostream) const throw (class Exception)
 	wc3lib::write<int32>(ostream, players().size(), size);
 
 	BOOST_FOREACH(Players::const_reference player, players())
-		size += player->write(ostream);
+		size += player.write(ostream);
 
 
 	wc3lib::write<int32>(ostream, forces().size(), size);
 
 	BOOST_FOREACH(Forces::const_reference force, forces())
-		size += force->write(ostream);
+		size += force.write(ostream);
 
 	wc3lib::write<int32>(ostream, upgradeAvailabilities().size(), size);
 
 	BOOST_FOREACH(UpgradeAvailabilities::const_reference upgradeAvailability, upgradeAvailabilities())
-		size += upgradeAvailability->write(ostream);
+		size += upgradeAvailability.write(ostream);
 
 	wc3lib::write<int32>(ostream, techAvailabilities().size(), size);
 
 	BOOST_FOREACH(TechAvailabilities::const_reference techAvailability, techAvailabilities())
-		size += techAvailability->write(ostream);
+		size += techAvailability.write(ostream);
 
 	wc3lib::write<int32>(ostream, randomUnitTables().size(), size);
 
 	BOOST_FOREACH(RandomUnitTables::const_reference randomUnitTable, randomUnitTables())
-		size += randomUnitTable->write(ostream);
+		size += randomUnitTable.write(ostream);
 
 	return size;
 }

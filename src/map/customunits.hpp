@@ -35,10 +35,21 @@ namespace map
 /**
  * Warcraft III RoC only (not in TFT), allows you to customize unit data.
  * Later, in Frozen Throne Blizzard introduced general object data modification (\ref CustomObjects).
+ * Usually stored in file "war3map.w3u" of the map.
+ * It contains two unit tables. One with the original units of Warcraft III which have been changed in the map and another with new custom units based on a original unit.
+ * Both tables can be accessed via \ref originalTable() and \ref customTable().
+ * Each unit in a table is represented by \ref CustomUnits::Unit and contains a list of modified fields (each represented by a \ref CustomUnits::Modification instance).
+ * \sa CustomObjects
  */
 class CustomUnits : public FileFormat
 {
 	public:
+		/**
+		 * Provides access to one single modification of a unit field. Each field has its unique id which is returned by \ref valueId().
+		 * All valid unit field ids are stored in "Units\UnitMetaData.slk" of the latest Warcraft MPQ archive.
+		 * The field value itself is returned by \ref value() which returns an instance of the boost::variant based class \ref Value.
+		 * \sa Unit
+		 */
 		class Modification : public Format
 		{
 			public:
@@ -63,6 +74,14 @@ class CustomUnits : public FileFormat
 				struct Value m_value;
 		};
 
+		/**
+		 * Represents one single unit entry in a table which contains a list of modifications for all modified unit fields.
+		 * Use \ref modifications() to access the list.
+		 * If \ref isOriginal() returns true it is not a custom unit.
+		 * All custom units are based on an original one whichs id can be got using \ref originalId().
+		 * The custom unit's id is returned by \ref customId() which returns 0 for original units.
+		 * \sa Modification
+		 */
 		class Unit : public Format
 		{
 			public:
@@ -101,8 +120,6 @@ class CustomUnits : public FileFormat
 		virtual const byte* fileTextId() const;
 		virtual uint32 latestFileVersion() const;
 
-		virtual uint32 version() const;
-
 		Table& originalTable();
 		const Table& originalTable() const;
 		Table& customTable();
@@ -111,7 +128,6 @@ class CustomUnits : public FileFormat
 	protected:
 		virtual Unit* createUnit() const;
 
-		uint32 m_version;
 		Table m_originalTable;
 		Table m_customTable;
 };
@@ -164,11 +180,6 @@ inline const byte* CustomUnits::fileTextId() const
 inline uint32 CustomUnits::latestFileVersion() const
 {
 	return 1;
-}
-
-inline uint32 CustomUnits::version() const
-{
-	return m_version;
 }
 
 inline CustomUnits::Table& CustomUnits::originalTable()

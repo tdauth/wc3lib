@@ -1,3 +1,11 @@
+2012-03-15 Tamino Dauth <tamino@cdauth.eu>
+* Improved API documentation.
+* map: Many formats do use Boost Pointer containers now.
+* map: Fixed reading and writing of class Tree.
+* map: Class file format implements default version and id reading and writing now and stores the version as member.
+* map: Dropped unnecessary W3m* members.
+* map: No exception is thrown anymore on not having the latest format version.
+
 2012-03-08 Tamino Dauth <tamino@cdauth.eu>
 * editor: Fixed module action checking.
 * editor: Dropped KXmlGuiClient inheritance for class Module.

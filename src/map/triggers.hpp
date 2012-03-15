@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MAP_TRIGGERS_HPP
 #define WC3LIB_MAP_TRIGGERS_HPP
 
+#include <boost/ptr_container/ptr_vector.hpp>
+
 #include "platform.hpp"
 #include "triggercategory.hpp"
 #include "variable.hpp"
@@ -40,12 +42,9 @@ namespace map
 class Triggers : public FileFormat
 {
 	public:
-		typedef boost::shared_ptr<class TriggerCategory> CategoryPtr;
-		typedef std::vector<CategoryPtr> Categories;
-		typedef boost::shared_ptr<class Variable> VariablePtr;
-		typedef std::vector<VariablePtr> Variables;
-		typedef boost::shared_ptr<class Trigger> TriggerPtr;
-		typedef std::vector<TriggerPtr> TriggerEntries;
+		typedef boost::ptr_vector<TriggerCategory> Categories;
+		typedef boost::ptr_vector<Variable> Variables;
+		typedef boost::ptr_vector<Trigger> TriggerEntries;
 
 		Triggers(class W3m *w3m);
 
@@ -60,8 +59,6 @@ class Triggers : public FileFormat
 		virtual const byte* fileName() const;
 		virtual uint32 latestFileVersion() const;
 
-		virtual uint32 version() const;
-
 		int32 unknown0() const;
 		Categories& categories();
 		const Categories& categories() const;
@@ -74,7 +71,6 @@ class Triggers : public FileFormat
 		friend class Trigger;
 
 		class W3m *m_w3m;
-		uint32 m_version;
 		int32 m_unknown0;
 		Categories m_categories;
 		Variables m_variables;
@@ -94,11 +90,6 @@ inline const byte* Triggers::fileName() const
 inline uint32 Triggers::latestFileVersion() const
 {
 	return 4;
-}
-
-inline uint32 Triggers::version() const
-{
-	return m_version;
 }
 
 inline int32 Triggers::unknown0() const

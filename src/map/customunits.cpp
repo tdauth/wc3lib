@@ -125,6 +125,7 @@ std::streamsize CustomUnits::Modification::readData(InputStream &istream) throw 
 		case Value::Type::AttributeType:
 		case Value::Type::AttackBits:
 		{
+			std::cout << ((const char*)&m_id) << std::endl;
 			string v;
 			wc3lib::readString(istream, v, size);
 			this->m_value = Value(v, type);
@@ -243,12 +244,16 @@ std::streamsize CustomUnits::Unit::read(InputStream &istream) throw (class Excep
 	int32 modifications;
 	wc3lib::read(istream, modifications, size);
 	std::cout << "Modifications " << modifications << std::endl;
-	this->modifications().resize(modifications);
+	this->modifications().reserve(modifications);
+
+	std::cout << ((const char*)&m_originalId) << std::endl;
+	std::cout << ((const char*)&m_customId) << std::endl;
 
 	for (int32 i = 0; i < modifications; ++i)
 	{
-		this->modifications().replace(i, createModification());
-		size += this->modifications()[i].read(istream);
+		std::auto_ptr<Modification> ptr(createModification());
+		size += ptr->read(istream);
+		this->modifications().push_back(ptr);
 	}
 
 	return size;
@@ -286,26 +291,28 @@ std::streamsize CustomUnits::read(InputStream &istream) throw (class Exception)
 	wc3lib::read(istream, this->m_version, size);
 
 	if (this->version() != latestFileVersion())
-		throw Exception(boost::format(_("Custom Units: Unknown version \"%1%\", expected \"%2%\".")) % this->version() % latestFileVersion());
+		std::cerr << boost::format(_("Custom Units: Unknown version \"%1%\", expected \"%2%\".")) % this->version() % latestFileVersion() << std::endl;
 
 	int32 originalUnits;
 	wc3lib::read(istream, originalUnits, size);
-	this->originalTable().resize(originalUnits);
+	this->originalTable().reserve(originalUnits);
 
 	for (int32 i = 0; i < originalUnits; ++i)
 	{
-		originalTable().replace(i, createUnit());
-		size += originalTable()[i].read(istream);
+		std::auto_ptr<Unit> ptr(createUnit());
+		size += ptr->read(istream);
+		originalTable().push_back(ptr);
 	}
 
 	int32 customUnits;
 	wc3lib::read(istream, customUnits, size);
-	this->customTable().resize(customUnits);
+	this->customTable().reserve(customUnits);
 
 	for (int32 i = 0; i < customUnits; ++i)
 	{
-		customTable().replace(i, createUnit());
-		size += customTable()[i].read(istream);
+		std::auto_ptr<Unit> ptr(createUnit());
+		size += ptr->read(istream);
+		customTable().push_back(ptr);
 	}
 
 	return size;
@@ -314,7 +321,7 @@ std::streamsize CustomUnits::read(InputStream &istream) throw (class Exception)
 std::streamsize CustomUnits::write(OutputStream &ostream) const throw (class Exception)
 {
 	if (version() != latestFileVersion())
-		throw Exception(boost::format(_("Custom Units: Unknown version \"%1%\", expected \"%2%\".")) % version() % latestFileVersion());
+		std::cerr << boost::format(_("Custom Units: Unknown version \"%1%\", expected \"%2%\".")) % version() % latestFileVersion() << std::endl;
 
 	std::streamsize size = 0;
 	wc3lib::write(ostream, version(), size);
