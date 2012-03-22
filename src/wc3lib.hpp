@@ -28,7 +28,7 @@
 /**
 * \mainpage Warcraft III Library
 * This is the API reference and documentation of the <a url="https://gitorious.org/wc3lib">wc3lib</a> project. wc3lib is an abbreviation which means "Warcraft III Library".
-* It's a collection of varios libraries which allow programmers to use Blizzard's customly developed formats with an abstract C++ interface.
+* It's a collection of various libraries which allow programmers to use Blizzard's customly developed formats with an abstract C++ interface.
 * All implementations are free and mainly under the GPLv2 license but there's some external code which is mostly under some similar license as well.
 * As mentioned above the wc3lib is split up into some different modules. Each module consists of a single library which supports one of <a url="http://blizzard.com/">Blizzard's</a> formats (except modules for \ref applicationssection "applications" and \ref editorsection "editor" which are extensions of the default modules).
 * To use the whole library you could simply include file \ref wc3lib.hpp and link your program with library "wc3lib".
@@ -36,7 +36,8 @@
 * Therefore you can include all header files of your required modules since each module has one.
 * Besides you should bear in mind that each module has its own namespace.
 * All namespaces and other declarations of the wc3lib belong to the global namespace \ref wc3lib.
-* Each module uses a header file called "platform.hpp" for its core type definitions such as integer types with specified size.
+* Each module uses a header file called "platform.hpp" for its core type definitions such as integer types with specified size. There's a global \ref platform.hpp file as well which tries to provide all shared basic types.
+* Actually, the wc3lib is divided into the following parts:
 * <ul>
 * <li>\subpage coresection </li>
 * <li>\subpage mpqsection </li>

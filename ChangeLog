@@ -1,3 +1,12 @@
+2012-03-22 Tamino Dauth <tamino@cdauth.eu>
+* editor: Class MpqPriorityList handles team colors and textures more safely now.
+* editor: Dropped redundant storage of sources in class MpqPriorityList (ordered by their priority).
+* editor: Improved class SourcesDialog.
+* editor: Fixed entry resolution of class MpqPriorityList.
+* mpq: Added initial workaround for missing BZh header.
+* mpq: Some minor revisions and optimizations.
+* mpq: std::logical_error is thrown when file key should be calculated on empty path.
+
 2012-03-15 Tamino Dauth <tamino@cdauth.eu>
 * Improved API documentation.
 * map: Many formats do use Boost Pointer containers now.

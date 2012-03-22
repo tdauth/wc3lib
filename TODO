@@ -1,3 +1,8 @@
+2012-03-22 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Encrypted files with sector table do have wrong offsets (wrong decryption)? File "font\font.ccd" has offset 2586448090. Check MpqFile::read()! StormLib uses the same offset decryption in AllocateSectorOffsets() in SBaseCommon.cpp.
+* mpq: StormLib only loads a offset table for compressed files not for imploded?
+* mpq: Somewhere we use an empty path on file key calculation!
+
 2012-03-15 Tamino Dauth <tamino@cdauth.eu>
 * map: TriggerData needs Boost Pointer Containers (make sure reserving the space and not resizing which would lead to many allocated objects).
 

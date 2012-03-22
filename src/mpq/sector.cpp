@@ -396,10 +396,29 @@ void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, os
 
 			// NOTE the following decompression statements do skip this value (starting at buffer index 1)
 			byte *realData = &data[1];
-			const uint32 realDataSize = dataSize - 1;
+			uint32 realDataSize = dataSize - 1;
 
 			if (this->compression() & Sector::Compression::Bzip2Compressed) // BZip2 compressed (see BZip2)
 			{
+
+				// TODO WORKAROUND Boost cannot omit header on decompression!
+				if (realDataSize < 3 || memcmp(realData, "BZh", 3) != 0)
+				{
+					byte *newRealData = new byte[realDataSize + 3];
+					memcpy(&newRealData[0], "BZh", 3);
+
+					if (realDataSize > 0)
+						memcpy(&newRealData[3], realData, realDataSize);
+
+					realData = newRealData;
+					realDataSize += 3;
+					std::cout << newRealData[0] << newRealData[1] << newRealData[2] << std::endl; // TEST
+
+					std::cerr << boost::format(_("%1%: Sector %2% with size %3% is missing 'BZh' header.")) % this->mpqFile()->path() % sectorIndex() % this->sectorSize() << std::endl;
+				}
+
+				std::cout << "we have bzip2 with start:\n" << realData  << std::endl;
+
 				iarraystream istream(realData, realDataSize);
 				//arraystream ostream;
 				std::basic_stringstream<byte> ostream; // TODO unbuffered stream doesnt work

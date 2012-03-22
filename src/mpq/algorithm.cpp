@@ -78,24 +78,24 @@ void EncryptData(const uint32 dwCryptTable[cryptTableSize], void *lpbyBuffer, ui
 
 void DecryptData(const uint32 dwCryptTable[cryptTableSize], void *lpbyBuffer, uint32 dwLength, uint32 dwKey)
 {
-    assert(lpbyBuffer);
+	assert(lpbyBuffer);
 
-    uint32 *lpdwBuffer = (uint32 *)lpbyBuffer;
-    uint32 seed = 0xEEEEEEEEL;
-    uint32 ch;
+	uint32 *lpdwBuffer = (uint32 *)lpbyBuffer;
+	uint32 seed = 0xEEEEEEEEL;
+	uint32 ch;
 
-    dwLength /= sizeof(uint32);
+	dwLength /= sizeof(uint32);
 
-    while(dwLength-- > 0)
-    {
-        seed += dwCryptTable[0x400 + (dwKey & 0xFF)];
-        ch = *lpdwBuffer ^ (dwKey + seed);
+	while(dwLength-- > 0)
+	{
+		seed += dwCryptTable[0x400 + (dwKey & 0xFF)];
+		ch = *lpdwBuffer ^ (dwKey + seed);
 
-        dwKey = ((~dwKey << 0x15) + 0x11111111L) | (dwKey >> 0x0B);
-        seed = ch + seed + (seed << 5) + 3;
+		dwKey = ((~dwKey << 0x15) + 0x11111111L) | (dwKey >> 0x0B);
+		seed = ch + seed + (seed << 5) + 3;
 
-	*lpdwBuffer++ = ch;
-    }
+		*lpdwBuffer++ = ch;
+	}
 }
 
 /// Based on code from StormLib.
@@ -331,7 +331,7 @@ std::streamsize decompressZlib(istream &istream, ostream &ostream, int bufferSiz
 	//boost::iostreams::zlib_params params(boost::iostreams::zlib::default_compression, boost::iostreams::zlib::deflated, boost::iostreams::zlib::default_window_bits, boost::iostreams::zlib::default_mem_level, boost::iostreams::zlib::default_strategy, true, boost::iostreams::zlib::default_crc); // TEST omit header
 	// omitting header doesn't fix it
 	//in.push(boost::iostreams::basic_zlib_decompressor<std::allocator<byte> >(params, istream.rdbuf()->in_avail()));
-	in.push(boost::iostreams::basic_zlib_decompressor<std::allocator<byte> >());
+	in.push(decompressor);
 	in.push(istream);
 
 	return boost::iostreams::copy(in, ostream);

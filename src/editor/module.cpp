@@ -39,7 +39,7 @@ namespace wc3lib
 namespace editor
 {
 
-Module::Module(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_moduleMenu(0), m_menuBar(0), m_topLayout(new QVBoxLayout()), m_centerLayout(new QGridLayout()), QWidget(parent, f | Qt::Window)
+Module::Module(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_moduleMenu(0), m_menuBar(0), m_topLayout(new QVBoxLayout()), m_centerLayout(new QGridLayout()), m_sourcesDialog(0), QWidget(parent, f | Qt::Window)
 {
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	setLayout(layout);
@@ -83,9 +83,18 @@ class Editor* Module::editor() const throw (std::bad_cast)
 
 void Module::showSourcesDialog()
 {
-	SourcesDialog *sourcesDialog = new SourcesDialog(source(), this);
-	sourcesDialog->update();
-	sourcesDialog->show();
+	if (hasEditor())
+	{
+		editor()->showSourcesDialog();
+	}
+	else
+	{
+		if (m_sourcesDialog == 0)
+			m_sourcesDialog = new SourcesDialog(source(), this);
+
+		m_sourcesDialog->update();
+		m_sourcesDialog->show();
+	}
 }
 
 void Module::setupUi()

@@ -129,10 +129,8 @@ class MpqPriorityList
 		boost::multi_index::indexed_by<
 		// simple list
 		boost::multi_index::sequenced<>,
-		// ordered by itself
-		boost::multi_index::ordered_unique<boost::multi_index::tag<MpqPriorityListEntry>, boost::multi_index::identity<MpqPriorityListEntry> >,
-		// ordered by its corresponding priority
-		boost::multi_index::ordered_non_unique<boost::multi_index::tag<MpqPriorityListEntry::Priority>, boost::multi_index::const_mem_fun<MpqPriorityListEntry, MpqPriorityListEntry::Priority, &MpqPriorityListEntry::priority> >,
+		// ordered by itself (its priority)
+		boost::multi_index::ordered_non_unique<boost::multi_index::tag<MpqPriorityListEntry>, boost::multi_index::identity<MpqPriorityListEntry> >,
 		// ordered by its corresponding URL
 		boost::multi_index::ordered_non_unique<boost::multi_index::tag<KUrl>, boost::multi_index::const_mem_fun<MpqPriorityListEntry, const KUrl&, &MpqPriorityListEntry::url> >
 
@@ -141,7 +139,7 @@ class MpqPriorityList
 		Sources;
 
 		typedef std::map<KUrl, Resource*> Resources;
-		typedef boost::ptr_map<BOOST_SCOPED_ENUM(TeamColor), boost::nullable<Texture> > TeamColorTextures;
+		typedef boost::ptr_map<BOOST_SCOPED_ENUM(TeamColor), Texture> TeamColorTextures;
 		typedef boost::scoped_ptr<map::TriggerData> TriggerDataPtr;
 
 		void setLocale(mpq::MpqFile::Locale locale);
@@ -258,6 +256,9 @@ class MpqPriorityList
 		 */
 		virtual QString tr(QWidget *widget, const QString &key, const QString &group = "", BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale = mpq::MpqFile::Locale::Neutral, const QString &defaultValue = "") const;
 
+		void readSettings(const QString &group);
+		void writeSettings(const QString &group);
+
 	protected:
 		Sources& sources();
 
@@ -334,26 +335,34 @@ inline Texture* MpqPriorityList::teamColorTexture(BOOST_SCOPED_ENUM(TeamColor) t
 {
 	TeamColorTextures::iterator iterator = this->m_teamColorTextures.find(teamColor);
 
-	if (boost::is_null(iterator))
+	if (iterator == this->m_teamColorTextures.end())
 	{
-		this->m_teamColorTextures.replace(iterator, new Texture(teamColorUrl(teamColor)));
-		iterator->second->setSource(const_cast<self*>(this));
+		std::auto_ptr<Texture> texture(new Texture(teamColorUrl(teamColor)));
+		texture->setSource(const_cast<self*>(this));
+		Texture *result = texture.get(); // improve performance on first allocation by returning it directly without calling "find"
+		this->m_teamColorTextures.insert(teamColor, texture);
+
+		return result;
 	}
 
-	return iterator->second;
+	return this->m_teamColorTextures.find(teamColor)->second;
 }
 
 inline Texture* MpqPriorityList::teamGlowTexture(BOOST_SCOPED_ENUM(TeamColor) teamGlow) const throw (class Exception)
 {
 	TeamColorTextures::iterator iterator = this->m_teamGlowTextures.find(teamGlow);
 
-	if (boost::is_null(iterator))
+	if (iterator == this->m_teamGlowTextures.end())
 	{
-		this->m_teamGlowTextures.replace(iterator, new Texture(teamColorUrl(teamGlow)));
-		iterator->second->setSource(const_cast<self*>(this));
+		std::auto_ptr<Texture> texture(new Texture(teamGlowUrl(teamGlow)));
+		texture->setSource(const_cast<self*>(this));
+		Texture *result = texture.get(); // improve performance on first allocation by returning it directly without calling "find"
+		this->m_teamGlowTextures.insert(teamGlow, texture);
+
+		return result;
 	}
 
-	return iterator->second;
+	return this->m_teamGlowTextures.find(teamGlow)->second;
 }
 
 inline void MpqPriorityList::refreshTriggerData(QWidget *window) throw (Exception)

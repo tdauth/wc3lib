@@ -6,31 +6,31 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>421</width>
-    <height>209</height>
+    <width>410</width>
+    <height>183</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Data Sources</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="KEditListBox" name="m_editListBox"/>
-   </item>
    <item row="1" column="0">
     <widget class="KDialogButtonBox" name="m_dialogButtonBox">
      <property name="standardButtons">
-      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::RestoreDefaults</set>
+      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
      </property>
     </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="KEditListWidget" name="m_editListBox"/>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>KEditListBox</class>
-   <extends>QGroupBox</extends>
-   <header>keditlistbox.h</header>
+   <class>KEditListWidget</class>
+   <extends>QWidget</extends>
+   <header>keditlistwidget.h</header>
   </customwidget>
   <customwidget>
    <class>KDialogButtonBox</class>

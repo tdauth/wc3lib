@@ -55,12 +55,17 @@ class SourcesDialog : public QDialog, protected Ui::SourcesDialog
 
 	protected slots:
 		void added(const QString &text);
+		void ok();
 		/**
 		 * \note Don't reload any sources which have already been added except there is a new one with higher priority.
 		 */
 		void apply();
-		void cancel();
 		void restoreDefaults();
+
+	protected:
+		virtual void showEvent(QShowEvent *e);
+
+		QString settingsGroup() const;
 
 	private:
 		class MpqPriorityList *m_source;

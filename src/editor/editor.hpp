@@ -148,17 +148,13 @@ class Editor : public KMainWindow, public MpqPriorityList
 		void saveMap();
 		void saveMapAs();
 
+		void showSourcesDialog();
+
 	protected:
 		virtual void changeEvent(QEvent *event);
 
 		/// Enables or disables actions which can only be used with an opened map.
 		void setMapActionsEnabled(bool enabled);
-		/**
-		 * Reads settings from configuration which usually are stored on the user's filesystem and applies them on their corresponding editor modules.
-		 * \note This does not necessarily use the same entries as the original World Editor created by Blizzard Entertainment.
-		 */
-		void readSettings();
-		void writeSettings();
 
 		ModulesActions& modulesActions();
 		MapActions& mapActions();
@@ -179,6 +175,7 @@ class Editor : public KMainWindow, public MpqPriorityList
 		Modules m_modules;
 		Maps m_maps;
 		class NewMapDialog *m_newMapDialog;
+		class SourcesDialog *m_sourcesDialog;
 };
 
 inline class Map* Editor::currentMap() const

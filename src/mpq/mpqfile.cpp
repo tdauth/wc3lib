@@ -243,8 +243,6 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 		const uint32 sectors = (this->m_hash->block()->flags() & Block::Flags::IsSingleUnit) ? 1 : this->m_hash->block()->blockSize() / sectorSize;
 
 		uint32 newOffset = 0;
-		// not necessary for single units
-		const uint32 lastSize = this->m_hash->block()->blockSize() % sectorSize;
 		// NOTE setting index before adding to container is important for index function in sectors container
 
 		for (uint32 i = 0; i < sectors; ++i)
@@ -255,8 +253,14 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 		}
 
 		// the last sector may contain less than this, depending on the size of the entire file's data.
-		if (!(this->m_hash->block()->flags() & Block::Flags::IsSingleUnit) && lastSize > 0)
-			this->m_sectors.insert(SectorPtr(newSector(this->sectors().size(), newOffset, lastSize)));
+		if (!(this->m_hash->block()->flags() & Block::Flags::IsSingleUnit))
+		{
+			// not necessary for single units
+			const uint32 lastSize = this->m_hash->block()->blockSize() % sectorSize;
+
+			if (lastSize > 0)
+				this->m_sectors.insert(SectorPtr(newSector(this->sectors().size(), newOffset, lastSize)));
+		}
 	}
 	// However, the SectorOffsetTable will be present if the file is compressed/imploded and the file is not stored as a single unit, even if there is only a single sector in the file (the size of the file is less than or equal to the archive's sector size).
 	// sector offset table

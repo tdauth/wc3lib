@@ -150,6 +150,8 @@ class Module : public QWidget
 		class QVBoxLayout *m_topLayout;
 		class QGridLayout *m_centerLayout;
 
+		class SourcesDialog *m_sourcesDialog;
+
 	private slots:
 		void switchToMap(class Map *map);
 };

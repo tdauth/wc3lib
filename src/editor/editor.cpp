@@ -36,6 +36,7 @@
 #include "modulemenu.hpp"
 #include "settings.hpp"
 #include "map.hpp"
+#include "sourcesdialog.hpp"
 
 namespace wc3lib
 {
@@ -60,7 +61,7 @@ const KAboutData& Editor::wc3libAboutData()
 	return Editor::m_wc3libAboutData;
 }
 
-Editor::Editor(QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f), m_root(0), m_currentMap(0), m_actionCollection(new KActionCollection(this)), m_modulesActionCollection(new KActionCollection(this)), m_mapsActionCollection(new KActionCollection(this)), m_newMapDialog(0)
+Editor::Editor(QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f), m_root(0), m_currentMap(0), m_actionCollection(new KActionCollection(this)), m_modulesActionCollection(new KActionCollection(this)), m_mapsActionCollection(new KActionCollection(this)), m_newMapDialog(0), m_sourcesDialog(0)
 {
 	class KAction *action = new KAction(KIcon(":/actions/newmap.png"), i18n("New map ..."), this);
 	action->setShortcut(KShortcut(i18n("Ctrl+N")));
@@ -109,9 +110,9 @@ Editor::Editor(QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f), m_r
 
 	this->setMapActionsEnabled(false);
 
-	this->readSettings();
+	this->readSettings(aboutData().appName());
 
-	if (!addDefaultSources())
+	if (sources().empty() && !addDefaultSources())
 		KMessageBox::error(this, i18n("One or several MPQ archives of Warcraft III are missing."));
 
 	/*
@@ -128,7 +129,7 @@ Editor::Editor(QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f), m_r
 
 Editor::~Editor()
 {
-	this->writeSettings();
+	this->writeSettings(aboutData().appName());
 	// do not delete allocated sub widgets (parent system of Qt already considers)
 
 
@@ -311,45 +312,21 @@ void Editor::saveMapAs()
 	currentMap()->save(url);
 }
 
+void Editor::showSourcesDialog()
+{
+	if (m_sourcesDialog == 0)
+		m_sourcesDialog = new SourcesDialog(this, this);
+
+	m_sourcesDialog->update();
+	m_sourcesDialog->show();
+}
+
 void Editor::setMapActionsEnabled(bool enabled)
 {
 	this->actionCollection()->action("closemap")->setEnabled(enabled);
 	this->actionCollection()->action("savemap")->setEnabled(enabled);
 	this->actionCollection()->action("savemapas")->setEnabled(enabled);
 	this->actionCollection()->action("savemapshadows")->setEnabled(enabled);
-}
-
-void Editor::readSettings()
-{
-	/// @todo Actions should get the same entry names and shortcuts as in the original World Editor?
-	this->m_actionCollection->setConfigGroup("Shortcuts");
-	this->m_actionCollection->readSettings(); // load shortcuts after setting default
-
-	Settings settings(this);
-	settings.read(KGlobal::config()->group("Settings"));
-	/*
-	TODO create from component data?!
-	KConfig config(this->com
-	Settings settings(this);
-	settings.read(settings.groupName()
-	*/
-}
-
-void Editor::writeSettings()
-{
-	this->m_actionCollection->setConfigGroup("Shortcuts");
-	this->m_actionCollection->writeSettings();
-
-	Settings settings(this);
-	KConfigGroup settingsConfigGroup = KGlobal::config()->group("Settings");
-	settings.write(settingsConfigGroup);
-
-	/*
-	TODO create from component data?!
-	KConfig config
-	Settings settings(this);
-	settings.write(settings.groupName());
-	*/
 }
 
 #include "moc_editor.cpp"

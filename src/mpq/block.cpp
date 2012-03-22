@@ -36,6 +36,9 @@ uint32 Block::fileKey(const boost::filesystem::path &path, const BlockTableEntry
 	// Find the file name part of the path
 	const std::string lpszFileName = path.filename().string();
 
+	if (lpszFileName.empty())
+		throw std::logic_error(_("Never try to get file keys of empty paths."));
+
 	// Hash the name to get the base key
 	uint32 nFileKey = HashString(Mpq::cryptTable(), lpszFileName.c_str(), HashType::FileKey);
 

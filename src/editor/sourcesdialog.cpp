@@ -18,12 +18,18 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <QtCore>
+#include <QtGui>
+
 #include <KLineEdit>
 #include <KUrlCompletion>
 #include <KUrlRequester>
+#include <KMessageBox>
 
 #include "sourcesdialog.hpp"
 #include "mpqprioritylist.hpp"
+#include "editor.hpp"
+#include "module.hpp"
 
 namespace wc3lib
 {
@@ -47,9 +53,26 @@ SourcesDialog::SourcesDialog(class MpqPriorityList *source, QWidget *parent, Qt:
 	//KUrlCompletion *urlCompletion = new KUrlCompletion(KUrlCompletion::DirCompletion);
 	//m_editListBox->lineEdit()->setCompletionObject(urlCompletion);
 	//m_editListBox->setCustomEditor(*requester);
+	KUrlRequester *urlRequester = new KUrlRequester(m_editListBox);
+	urlRequester->setMode(KFile::ExistingOnly | KFile::Files);
 
+	KMimeType::Ptr mpq(KMimeType::mimeType("application/x-mpq"));
+	KMimeType::Ptr w3m(KMimeType::mimeType("application/x-w3m"));
+	KMimeType::Ptr w3x(KMimeType::mimeType("application/x-w3x"));
+	KMimeType::Ptr w3n(KMimeType::mimeType("application/x-w3n"));
+	QString filter;
+
+	if (mpq.isNull() || w3m.isNull() || w3x.isNull() || w3n.isNull())
+		filter = i18n("*|All Files\n*.mpq;*.w3m;*.w3x;*.w3n|Blizzard archives");
+	else
+		filter = i18n("all/allfiles application/x-mpq application/x-w3m application/x-w3x application/x-w3n");
+
+	urlRequester->setFilter(filter);
+	KEditListWidget::CustomEditor customEditor(urlRequester, urlRequester->lineEdit());
+	m_editListBox->setCustomEditor(customEditor);
+
+	connect(m_dialogButtonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(ok()));
 	connect(m_dialogButtonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
-	connect(m_dialogButtonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(cancel()));
 	connect(m_dialogButtonBox->button(QDialogButtonBox::RestoreDefaults), SIGNAL(clicked()), this, SLOT(restoreDefaults()));
 }
 
@@ -57,14 +80,22 @@ void SourcesDialog::added(const QString& text)
 {
 }
 
+void SourcesDialog::ok()
+{
+	apply();
+	hide();
+}
+
 void SourcesDialog::apply()
 {
 	foreach (const QString &item, m_editListBox->items())
 	{
 		if (const_cast<const MpqPriorityList*>(source())->sources().get<KUrl>().find(KUrl(item)) == const_cast<const MpqPriorityList*>(source())->sources().get<KUrl>().end())
-			source()->addSource(item);
+		{
+			if (!source()->addSource(item))
+				KMessageBox::error(this, i18n("Invalid source \"%1\".", item));
+		}
 	}
-
 	QLinkedList<KUrl> invalidUrls;
 
 	foreach (MpqPriorityList::Source source, const_cast<const MpqPriorityList*>(source())->sources())
@@ -75,21 +106,50 @@ void SourcesDialog::apply()
 
 	foreach (const KUrl &url, invalidUrls)
 		source()->removeSource(url);
-}
 
-void SourcesDialog::cancel()
-{
-	m_editListBox->clear();
-	update();
+	this->source()->writeSettings(settingsGroup());
 }
 
 void SourcesDialog::restoreDefaults()
 {
 	m_editListBox->clear();
-	m_editListBox->insertItem(war3Url().toEncoded());
-	m_editListBox->insertItem(war3XUrl().toEncoded());
-	m_editListBox->insertItem(war3XLocalUrl().toEncoded());
-	m_editListBox->insertItem(war3PatchUrl().toEncoded());
+
+	if (!war3Url().isEmpty())
+		m_editListBox->insertItem(war3Url().toEncoded());
+
+	if (!war3XUrl().isEmpty())
+		m_editListBox->insertItem(war3XUrl().toEncoded());
+
+	if (!war3XLocalUrl().isEmpty())
+		m_editListBox->insertItem(war3XLocalUrl().toEncoded());
+
+	if (!war3PatchUrl().isEmpty())
+		m_editListBox->insertItem(war3PatchUrl().toEncoded());
+}
+
+void SourcesDialog::showEvent(QShowEvent *e)
+{
+	update();
+	QDialog::showEvent(e);
+}
+
+QString SourcesDialog::settingsGroup() const
+{
+	if (dynamic_cast<Editor*>(parentWidget()) != 0)
+		return static_cast<Editor*>(parentWidget())->aboutData().appName();
+	else if (dynamic_cast<Module*>(parentWidget()) != 0)
+	{
+		Module *module = static_cast<Module*>(parentWidget());
+
+		if (module->hasEditor())
+			return module->editor()->aboutData().appName();
+		else
+			return module->componentData().aboutData()->appName();
+	}
+	else
+		throw Exception(_("Sources can only have modules or editor as parent."));
+
+	return "";
 }
 
 }

@@ -126,7 +126,7 @@ std::string fileInfo(const MpqFile &file, bool humanReadable, bool decimal)
 {
 	MpqFile::Sectors sectors = file.realSectors();
 	std::stringstream sstream;
-	sstream << boost::format(_("%1%\nCompressed: %2%\nEncrypted: %3%\nImploded: %4%\nFlags: %5%\nCompressed size: %6%\nSize: %7%\nHash A: %8%\nHash B: %9%\nKey: %10%\nBlock index: %11%\nHash index: %12%")) % file.path() % boolString(file.isCompressed()) % boolString(file.isEncrypted()) % boolString(file.isImploded()) % flagsString(file.block()->flags()) % sizeString(file.compressedSize(), humanReadable, decimal) % sizeString(file.size(), humanReadable, decimal) % file.hash()->hashData().filePathHashA() % file.hash()->hashData().filePathHashB() % file.fileKey() % file.block()->index() % file.hash()->index();
+	sstream << boost::format(_("%1%\nCompressed: %2%\nEncrypted: %3%\nImploded: %4%\nFlags: %5%\nCompressed size: %6%\nSize: %7%\nHash A: %8%\nHash B: %9%\nKey: %10%\nBlock index: %11%\nHash index: %12%\nHas offset table: %13%")) % file.path() % boolString(file.isCompressed()) % boolString(file.isEncrypted()) % boolString(file.isImploded()) % flagsString(file.block()->flags()) % sizeString(file.compressedSize(), humanReadable, decimal) % sizeString(file.size(), humanReadable, decimal) % file.hash()->hashData().filePathHashA() % file.hash()->hashData().filePathHashB() % (file.path().empty() ? 0 : file.fileKey()) % file.block()->index() % file.hash()->index() % boolString(file.hasSectorOffsetTable());
 
 	if (sectors.size() > 0)
 	{
@@ -217,14 +217,6 @@ const boost::program_options::variables_map &vm)
 		return;
 	}
 
-#ifdef DEBUG
-	// TEST
-	// Creates info file for each extracted file for analysing it
-	ofstream infoOut(entryPath.string() + "info", std::ios::out);
-	infoOut << fileInfo(*file, vm.count("human-readable"), vm.count("decimal"));
-	// END TEST
-#endif
-
 	ofstream out(entryPath, std::ios::out | std::ios::binary);
 
 	try
@@ -235,6 +227,13 @@ const boost::program_options::variables_map &vm)
 	catch (Exception &exception)
 	{
 		std::cerr << boost::format(_("Error occured while extracting file \"%1%\": \"%2%\".")) % entry % exception.what() << std::endl;
+#ifdef DEBUG
+	// TEST
+	// Creates info file for each extracted file for analysing it
+	ofstream infoOut(entryPath.string() + "info", std::ios::out);
+	infoOut << fileInfo(*file, vm.count("human-readable"), vm.count("decimal"));
+	// END TEST
+#endif
 
 		return;
 	}
@@ -242,7 +241,7 @@ const boost::program_options::variables_map &vm)
 #ifdef DEBUG
 	// TEST
 	// Creates info file for each extracted file for analysing it
-	infoOut.open(entryPath.string() + "info", std::ios::out);
+	ofstream infoOut(entryPath.string() + "info", std::ios::out);
 	infoOut << fileInfo(*file, vm.count("human-readable"), vm.count("decimal"));
 	// END TEST
 #endif
@@ -515,7 +514,7 @@ int main(int argc, char *argv[])
 				if (mpq->listfileFile() != 0)
 					listfileEntries.push_front(mpq->listfileFile()->entries());
 
-				// usually does not list itself
+				// usually does not list itself, TODO performance is very poor, maybe we should just push it whenever it's not front
 				if (std::find_if(listfileEntries.begin(), listfileEntries.end(), hasListfile) == listfileEntries.end())
 					listfileEntries.push_front(Listfile::Entries(1, "(listfile)"));
 

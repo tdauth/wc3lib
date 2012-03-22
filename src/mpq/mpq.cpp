@@ -207,7 +207,7 @@ std::streamsize Mpq::read(InputStream &stream, const Listfile::Entries &listfile
 	uint64 offset = header.blockTableOffset;
 
 	if (this->format() == Mpq::Format::Mpq2 && extendedHeader.blockTableOffsetHigh > 0)
-		offset += int64(extendedHeader.blockTableOffsetHigh) << 32;
+		offset += uint64(extendedHeader.blockTableOffsetHigh) << 32;
 
 	stream.seekg(this->startPosition() + boost::numeric_cast<std::streamoff>(offset));
 	std::size_t encryptedBytesSize = header.blockTableEntries * sizeof(struct BlockTableEntry);
