@@ -19,58 +19,22 @@
  ***************************************************************************/
 
 #include <iostream>
-#include <fstream>
-#include <cstring>
+#include <string>
+#include <vector>
 
 #include <boost/format.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
+#include <boost/program_options.hpp>
+#include <boost/scoped_ptr.hpp>
+#include <boost/foreach.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 #include "../internationalisation.hpp"
-#include "../exception.hpp"
 #include "../map/environment.hpp"
 
 using namespace wc3lib;
 using namespace wc3lib::map;
-
-namespace
-{
-
-static char* version = "0.1";
-
-struct Command
-{
-	std::string name;
-	char shortName;
-	std::string help;
-	std::size_t argCount;
-	bool (*callbackFunction)(const struct Command &command, const std::list<std::string> &argParameters);
-};
-
-
-class Environment *openedEnvironment = 0;
-
-bool commandOpen(const struct Command &command, const std::list<std::string> &argParameters)
-{
-	class Environment *environment = new Environment(0);
-	std::ifstream ifstream(argParameters.front().c_str(), std::ios::in | std::ios::binary);
-
-	try
-	{
-		std::cout << boost::format(_("Read %1% bytes.")) % environment->read(ifstream) << std::endl;
-	}
-	catch (class Exception &exception)
-	{
-		delete environment;
-		std::cerr << boost::format(_("Error while reading environment file \"%1%\".")) % argParameters.front() << std::endl;
-
-		return false;
-	}
-
-	openedEnvironment = environment;
-
-	return true;
-}
-
-}
 
 int main(int argc, char *argv[])
 {
@@ -80,6 +44,7 @@ int main(int argc, char *argv[])
 	bindtextdomain("tilesetter", LOCALE_DIR);
 	textdomain("tilesetter");
 
+	static const char* version = "0.1";
 	std::cout << boost::format(_("Tilesetter version %1%")) % version << std::endl;
 	std::cout << _(
 	"Copyright (C) 2009 by Tamino Dauth\n"
@@ -101,85 +66,139 @@ int main(int argc, char *argv[])
 	"59 Temple Place - Suite 330, Boston, MA  02111-1307, USA."
 	) << std::endl;
 
-	std::list<struct Command> commands;
+	typedef std::vector<boost::filesystem::path> Paths;
+	typedef std::vector<std::string> Strings;
+	// TODO throws exception when using escaped white spaces! - string work around
+	Strings environmentStrings;
+	Paths environments;
 
-	struct Command openCommand =
+	const boost::program_options::command_line_style::style_t pstyle = boost::program_options::command_line_style::style_t(
+	boost::program_options::command_line_style::unix_style
+	);
+
+	boost::program_options::options_description desc("Allowed options");
+	desc.add_options()
+	("version,V", _("Shows current version of tilesetter."))
+	("help,h",_("Shows this text."))
+	// options
+
+	// operations
+	("reassign,r", _("Reads ground and cliff types from the first environment file and assigns them to all following."))
+
+	// input
+	("files,f", boost::program_options::value<Strings>(&environmentStrings), _("Expected environment files."))
+	;
+
+	boost::program_options::positional_options_description p;
+	p.add("files", -1);
+
+	boost::program_options::variables_map vm;
+
+	try
 	{
-		.name = "open",
-		.shortName = 'o',
-		.help = _("Opens a .w3e environment file."),
-		.argCount = 1,
-		.call = 0
-	};
-
-	commands.push_back(openCommand);
-
-	std::cout << _("Usage 1: <command name/command short name> <argument1> <argument2> ... <argumentn>") << std::endl;
-	std::cout << _("Usage 2: <command name/command short name> help") << std::endl;
-
-	for (std::size_t i = 0; i < commandsCount; ++i)
-		std::cout << boost::format(_("\tCommand \"%1%\" (\"%2%\") - %3% arguments")) % commands[i].name % commands[i].shortName % commands[i].argCount << std::endl;
-
-	std::string input;
-
-	do
+		boost::program_options::store(boost::program_options::command_line_parser(argc, argv).style(pstyle).options(desc).positional(p).run(), vm);
+	}
+	catch (std::exception &exception)
 	{
-		std::getline(std::cin, input);
-		std::string commandName(strtok(input.c_str(), " "));
-		bool found = false;
+		std::cerr << boost::format(_("Error while parsing program options: \"%1%\"")) % exception.what() << std::endl;
 
-		BOOST_FOREACH(struct Command &command, commands)
+		return EXIT_FAILURE;
+	}
+
+	boost::program_options::notify(vm);
+
+	// WORKAROUND
+	environments.resize(environmentStrings.size());
+	environments.assign(environmentStrings.begin(), environmentStrings.end());
+
+	if (vm.count("version"))
+	{
+		std::cout << boost::format(_(
+		"tilesetter %1%.\n"
+		"Copyright © 2009 Tamino Dauth\n"
+		"License GPLv2+: GNU GPL version 2 or later <http://gnu.org/licenses/gpl.html>\n"
+		"This is free software: you are free to change and redistribute it.\n"
+		"There is NO WARRANTY, to the extent permitted by law."
+		)) % version << std::endl;
+
+		return EXIT_SUCCESS;
+	}
+
+	if (vm.count("help"))
+	{
+		std::cout << desc << std::endl;
+		std::cout << _("\nReport bugs to tamino@cdauth.eu or on https://wc3lib.org") << std::endl;
+
+		return EXIT_SUCCESS;
+	}
+
+	if (environments.empty())
+	{
+		std::cerr << _("Missing environments arguments.") << std::endl;
+
+		return EXIT_FAILURE;
+	}
+
+	if (vm.count("reassign"))
+	{
+		boost::ptr_vector<map::Environment> envs;
+		envs.reserve(environments.size());
+
+		BOOST_FOREACH(Paths::const_reference path, environments)
 		{
-			if (commandName == command.name || (commandName.size() == 1 && commandName[0] == command.shortName))
+			if (!boost::filesystem::is_regular_file(path))
 			{
-				found = true;
-				bool run = true;
-				std::list<std::string> arguments;
+				std::cerr << boost::format(_("File %1% does not seem to be a regular file.")) % path << std::endl;
 
-				for (std::size_t i = 0; i < command.argCount < 1 ? 1 : command.argCount; ++i)
-				{
-					std::string argument(strtok(input.c_str(), " ");
+				return EXIT_FAILURE;
+			}
 
-					if (argument.empty())
-					{
-						run = false;
-						std::cerr << boost::format(_("Error: Missing argument %1%.")) % i + 1 << std::endl;
+			boost::filesystem::ifstream ifstream;
+			ifstream.exceptions(boost::filesystem::ifstream::badbit | boost::filesystem::ifstream::failbit | boost::filesystem::ifstream::eofbit);
 
-						break;
-					}
-					else if (i == 0 && argument == "help")
-					{
-						run = false;
-						std::cout << boost::format(_("Command help:\n%1%")) % command.help << std::endl;
+			try
+			{
+				ifstream.open(path, std::ios::in | std::ios::binary);
+				std::auto_ptr<map::Environment> env(new map::Environment());
+				env->read(ifstream);
+				envs.push_back(env);
+			}
+			catch (std::exception &exception)
+			{
+				std::cerr << boost::format(_("Error occured while opening file %1%:\n\"%2%\"")) % path % exception.what() << std::endl;
 
-						break;
-					}
-
-					arguments.push_back(argument);
-				}
-
-				if (run)
-				{
-					if (command.callbackFunction != 0)
-					{
-						if (!command.callbackFunction(command, arguments))
-							std::cerr << _("Error occured while program was running command.") << std::endl;
-					}
-					else
-						std::cerr << _("Command has no function.") << std::endl;
-				}
-
-				break;
+				return EXIT_FAILURE;
 			}
 		}
 
-		if (!found)
-			std::cout << _("Unknown command.") << std::endl;
-	}
-	while (input != "quit" && input != "q");
+		if (envs.size() < 2)
+		{
+			std::cerr << _("We need at least 2 environments.") << std::endl;
 
-	if (openedEnvironment != 0)
-		delete openedEnvironment;
+			return EXIT_FAILURE;
+		}
+
+		for (std::size_t i = 1; i < envs.size(); ++i)
+		{
+			envs[i].cliffTilesetsIds().assign(envs[0].cliffTilesetsIds().begin(), envs[0].cliffTilesetsIds().end());
+			envs[i].groundTilesetsIds().assign(envs[0].groundTilesetsIds().begin(), envs[0].groundTilesetsIds().end());
+
+			boost::filesystem::ofstream ofstream;
+			ofstream.exceptions(boost::filesystem::ofstream::badbit | boost::filesystem::ofstream::failbit | boost::filesystem::ofstream::eofbit);
+
+			try
+			{
+				ofstream.open(environments[i], std::ios::out | std::ios::binary);
+				envs[i].write(ofstream);
+			}
+			catch (std::exception &exception)
+			{
+				std::cerr << boost::format(_("Error occured while saving file %1%:\n\"%2%\"")) % environments[i] % exception.what() << std::endl;
+
+				return EXIT_FAILURE;
+			}
+		}
+	}
 
 	return EXIT_SUCCESS;
 }

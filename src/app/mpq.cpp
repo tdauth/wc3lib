@@ -366,7 +366,7 @@ int main(int argc, char *argv[])
 	if (vm.count("help"))
 	{
 		std::cout << desc << std::endl;
-		std::cout << _("\nReport bugs to tamino@cdauth.eu or on http://sourceforge.net/projects/vjasssdk/") << std::endl;
+		std::cout << _("\nReport bugs to tamino@cdauth.eu or on https://wc3lib.org") << std::endl;
 
 		return EXIT_SUCCESS;
 	}

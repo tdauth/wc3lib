@@ -15,14 +15,16 @@ endif ()
 #add_executable(jassc jassc.cpp)
 #target_link_libraries(jassc ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
-#add_executable(tilesetter tilesetter.cpp)
-#target_link_libraries(tilesetter ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
-
 if (MAP)
 	add_executable(jasstrans jasstrans.cpp)
 	target_link_libraries(jasstrans ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
 	set_property(TARGET jasstrans PROPERTY LINK_INTERFACE_LIBRARIES "")
 	install(TARGETS jasstrans DESTINATION bin)
+
+	add_executable(tilesetter tilesetter.cpp)
+	target_link_libraries(tilesetter ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
+	set_property(TARGET tilesetter PROPERTY LINK_INTERFACE_LIBRARIES "")
+	install(TARGETS tilesetter DESTINATION bin)
 endif ()
 
 if (MPQ)

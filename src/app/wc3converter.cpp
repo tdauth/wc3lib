@@ -734,7 +734,7 @@ int main(int argc, char *argv[])
 				_("\t-V, --verbose             Enables verbose mode and shows more detailed output information.\n") <<
 				_("\t-O, --readonly            Enables read-only mode. Output format is not necessary in read-only mode. This mode can be useful if you just want to try some format reading.\n") <<
 				_("\t-Q, --quiet               Disables interactive mode. You won't be asked anything while the program runs.\n") <<
-				_("\nReport bugs to tamino@cdauth.de or on http://sourceforge.net/projects/vjasssdk/") <<
+				_("\nReport bugs to tamino@cdauth.eu or on https://wc3lib.org") <<
 				std::endl;
 
 				return EXIT_SUCCESS;

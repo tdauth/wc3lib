@@ -75,14 +75,15 @@ class Environment : public FileFormat
 		virtual const byte* fileTextId() const;
 		virtual const byte* fileName() const;
 		virtual uint32 latestFileVersion() const;
-		virtual uint32 version() const { return m_version; }
 
 		uint32 mapWidth() const;
 		uint32 mapHeight() const;
 
 		BOOST_SCOPED_ENUM(MainTileset) mainTileset() const;
 		bool customized() const;
+		Ids& groundTilesetsIds();
 		const Ids& groundTilesetsIds() const;
+		Ids& cliffTilesetsIds();
 		const Ids& cliffTilesetsIds() const;
 		uint32 maxX() const;
 		uint32 maxY() const;
@@ -95,7 +96,6 @@ class Environment : public FileFormat
 	protected:
 		void clear();
 
-		uint32 m_version;
 		BOOST_SCOPED_ENUM(MainTileset) m_mainTileset;
 		bool m_customized;
 		Ids m_groundTilesetsIds;
@@ -143,9 +143,19 @@ inline bool Environment::customized() const
 	return m_customized;
 }
 
+inline Environment::Ids& Environment::groundTilesetsIds()
+{
+	return m_groundTilesetsIds;
+}
+
 inline const Environment::Ids& Environment::groundTilesetsIds() const
 {
 	return m_groundTilesetsIds;
+}
+
+inline Environment::Ids& Environment::cliffTilesetsIds()
+{
+	return m_cliffTilesetsIds;
 }
 
 inline const Environment::Ids& Environment::cliffTilesetsIds() const

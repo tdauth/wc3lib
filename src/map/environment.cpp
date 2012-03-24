@@ -38,20 +38,8 @@ Environment::~Environment()
 
 std::streamsize Environment::read(InputStream &istream) throw (class Exception)
 {
-	int32 requiredFileId;
-	std::streamsize size = 0;
-	wc3lib::read(istream, requiredFileId, size);
-
-	if (requiredFileId != fileId())
-		throw Exception(boost::format(_("Environment: Expected \"%1%\" identifier. Got unknown \"%2%\".")) % fileId() % requiredFileId);
-
-	wc3lib::read(istream, this->m_version, size);
-
-	if (this->version() != latestFileVersion())
-		std::cerr << boost::format(_("Environment: Expected version %1%. Got unknown %2%.")) % latestFileVersion() % this->version() << std::endl;
-
+	std::streamsize size = FileFormat::read(istream);
 	wc3lib::read<byte>(istream, (byte&)this->m_mainTileset, size);
-
 	uint32 customTilesetsFlag;
 	wc3lib::read(istream, customTilesetsFlag, size);
 	this->m_customized = customTilesetsFlag;
@@ -111,13 +99,7 @@ std::streamsize Environment::read(InputStream &istream) throw (class Exception)
 
 std::streamsize Environment::write(OutputStream &ostream) const throw (class Exception)
 {
-	std::streamsize size = 0;
-	wc3lib::write(ostream, fileId(), size);
-	wc3lib::write(ostream, version(), size);
-
-	if (this->version() != latestFileVersion())
-		std::cerr << boost::format(_("Environment: Expected version %1%. Got unknown %2%.")) % latestFileVersion() % this->version() << std::endl;
-
+	std::streamsize size = FileFormat::write(ostream);
 	wc3lib::write<byte>(ostream, mainTileset(), size);
 	wc3lib::write<uint32>(ostream, customized(), size);
 
