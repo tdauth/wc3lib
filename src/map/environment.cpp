@@ -53,7 +53,7 @@ std::streamsize Environment::read(InputStream &istream) throw (class Exception)
 	wc3lib::read(istream, groundTilesetsNumber, size);
 
 	if (groundTilesetsNumber > maxTilesets)
-		throw Exception(boost::format(_("Environment: Ground tilesets are limited to %1% however %2% are used.")) % maxTilesets % groundTilesetsNumber);
+		std::cerr << boost::format(_("Environment (warning): Only the first %1% ground tilesets can be used, however %2% are stored.")) % maxTilesets % groundTilesetsNumber << std::endl;
 
 	this->m_groundTilesetsIds.resize(groundTilesetsNumber);
 
@@ -68,7 +68,7 @@ std::streamsize Environment::read(InputStream &istream) throw (class Exception)
 	wc3lib::read(istream, cliffTilesetsNumber, size);
 
 	if (cliffTilesetsNumber > maxTilesets)
-		throw Exception(boost::format(_("Environment: Cliff tilesets are limited to %1% however %2% are used.")) % maxTilesets % cliffTilesetsNumber);
+		std::cerr << boost::format(_("Environment (warning): Only the first %1% cliff tilesets can be used, however %2% are stored.")) % maxTilesets % groundTilesetsNumber << std::endl;
 
 	this->m_cliffTilesetsIds.resize(cliffTilesetsNumber);
 
@@ -111,7 +111,7 @@ std::streamsize Environment::write(OutputStream &ostream) const throw (class Exc
 	wc3lib::write<uint32>(ostream, customized(), size);
 
 	if (groundTilesetsIds().size() > maxTilesets)
-		throw Exception(boost::format(_("Environment: Ground tilesets are limited to %1% however %2% are used.")) % maxTilesets % groundTilesetsIds().size());
+		std::cerr << boost::format(_("Environment (warning): Only the first %1% ground tilesets can be used, however %2% are stored.")) % maxTilesets % groundTilesetsIds().size() << std::endl;
 
 	wc3lib::write<uint32>(ostream, groundTilesetsIds().size(), size);
 
@@ -120,7 +120,7 @@ std::streamsize Environment::write(OutputStream &ostream) const throw (class Exc
 
 
 	if (cliffTilesetsIds().size() > maxTilesets)
-		throw Exception(boost::format(_("Environment: Cliff tilesets are limited to %1% however %2% are used.")) % maxTilesets % cliffTilesetsIds().size());
+		std::cerr << boost::format(_("Environment (warning): Only the first %1% ground tilesets can be used, however %2% are stored.")) % maxTilesets % cliffTilesetsIds().size() << std::endl;
 
 	wc3lib::write<uint32>(ostream, cliffTilesetsIds().size(), size);
 
