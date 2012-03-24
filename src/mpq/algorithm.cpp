@@ -24,6 +24,8 @@
 
 #include "algorithm.hpp"
 
+using namespace huffman;
+
 namespace wc3lib
 {
 

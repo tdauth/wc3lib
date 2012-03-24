@@ -15,6 +15,9 @@
 
 #include <stdint.h>
 
+namespace huffman
+{
+
 typedef intptr_t       DWORD_PTR;
 typedef intptr_t       LONG_PTR;
 typedef intptr_t       INT_PTR;
@@ -142,5 +145,7 @@ class THuffmannTree
 
     static unsigned char Table1502A630[];// Some table
 };
+
+}
 
 #endif // __HUFFMAN_H__

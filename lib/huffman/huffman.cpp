@@ -20,6 +20,9 @@
 
 #include "huffman.h"
 
+namespace huffman
+{
+
 // Special for Mac - we have to know if normal pointer greater or less
 // than 0x80000000. This variable is used in the PTR_VALID and PTR_INVALID
 // macros
@@ -1451,3 +1454,5 @@ unsigned char THuffmannTree::Table1502A630[] =
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00
 };
+
+}

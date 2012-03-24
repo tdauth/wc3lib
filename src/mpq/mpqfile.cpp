@@ -285,11 +285,6 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 		if (isEncrypted())
 			DecryptData(Mpq::cryptTable(), offsets.get(), sizeof(uint32) * offsetsSize, fileKey() - 1);
 
-		// NOTE setting index before adding to container is important for index function in sectors container
-
-		for (uint32 i = 0; i < sectors; ++i)
-			this->m_sectors.insert(SectorPtr(newSector(i, offsets[i], 0)));
-
 		/*
 		 * The last entry contains the total compressed file
 		 * size, making it possible to easily calculate the size of any given
@@ -310,11 +305,16 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 		//else
 			//std::cout << "Everything is alright!" << std::endl;
 
+		// NOTE setting index before adding to container is important for index function in sectors container
 		// calculate size of each sector
-		BOOST_REVERSE_FOREACH(SectorPtr sector, this->m_sectors)
+		for (uint32 i = sectors - 1; ; --i)
 		{
-			sector->m_sectorSize = size - sector->sectorOffset();
-			size = sector->sectorOffset();
+			this->m_sectors.insert(SectorPtr(newSector(i, offsets[i], size - offsets[i])));
+
+			if (i == 0)
+				break;
+			else
+				size = offsets[i];
 		}
 	}
 

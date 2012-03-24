@@ -279,7 +279,6 @@ std::streamsize Mpq::read(InputStream &stream, const Listfile::Entries &listfile
 			else
 				mpqFile.reset(newFile(hash.get()));
 
-
 			//mpqFile->m_path = // path can only be set if there is a listfile file or if we're able to convert its hash into file path
 			this->m_files.get<0>().push_back(mpqFile);
 

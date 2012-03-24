@@ -402,20 +402,25 @@ void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, os
 			{
 
 				// TODO WORKAROUND Boost cannot omit header on decompression!
-				if (realDataSize < 3 || memcmp(realData, "BZh", 3) != 0)
+				// Blizzard uses 9 as blockSize100k, (0x30 as workFactor)
+				// Last checked on Starcraft II
+				/*
+				if (realDataSize < 4 || memcmp(realData, "BZh", 3) != 0)
 				{
-					byte *newRealData = new byte[realDataSize + 3];
+					byte *newRealData = new byte[realDataSize + 4];
 					memcpy(&newRealData[0], "BZh", 3);
+					newRealData[3] = 9;
 
 					if (realDataSize > 0)
-						memcpy(&newRealData[3], realData, realDataSize);
+						memcpy(&newRealData[4], realData, realDataSize);
 
 					realData = newRealData;
-					realDataSize += 3;
-					std::cout << newRealData[0] << newRealData[1] << newRealData[2] << std::endl; // TEST
+					realDataSize += 4;
+					std::cout << newRealData[0] << newRealData[1] << newRealData[2] << (short)newRealData[3] << std::endl; // TEST
 
 					std::cerr << boost::format(_("%1%: Sector %2% with size %3% is missing 'BZh' header.")) % this->mpqFile()->path() % sectorIndex() % this->sectorSize() << std::endl;
 				}
+				*/
 
 				std::cout << "we have bzip2 with start:\n" << realData  << std::endl;
 

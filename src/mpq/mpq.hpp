@@ -151,9 +151,10 @@ class Mpq : public Format, private boost::noncopyable
 		// blocks are unique indices since each file must have its own block!
 		boost::multi_index::ordered_unique<boost::multi_index::tag<Block>, boost::multi_index::const_mem_fun<MpqFile, Block*, &MpqFile::block> >,
 		// hashed by corresponding hash value
-		boost::multi_index::hashed_non_unique<boost::multi_index::tag<Hash>, boost::multi_index::const_mem_fun<MpqFile, Hash*, &MpqFile::hash> >,
-		// hashed by corresponding block file key
-		boost::multi_index::hashed_non_unique<boost::multi_index::tag<uint32>, boost::multi_index::const_mem_fun<MpqFile, uint32, &MpqFile::fileKey> >
+		boost::multi_index::hashed_non_unique<boost::multi_index::tag<Hash>, boost::multi_index::const_mem_fun<MpqFile, Hash*, &MpqFile::hash> >//,
+		//// hashed by corresponding block file key
+		// NOTE don't use this since fileKey() can only be used on files with path
+		//boost::multi_index::hashed_non_unique<boost::multi_index::tag<uint32>, //boost::multi_index::const_mem_fun<MpqFile, uint32, &MpqFile::fileKey> >
 		>
 		> Files;
 

@@ -29,6 +29,10 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/timer.hpp>
 
+#ifdef DEBUG
+#include <StormLib.h>
+#endif
+
 using namespace wc3lib;
 using namespace wc3lib::mpq;
 
@@ -139,6 +143,27 @@ std::string fileInfo(const MpqFile &file, bool humanReadable, bool decimal)
 	return sstream.str();
 }
 
+#ifdef DEBUG
+std::string fileInfoStormLib(const TMPQFile &file, bool humanReadable, bool decimal)
+{
+	std::stringstream sstream;
+	//sstream << boost::format(_("%1%\nCompressed: %2%\nEncrypted: %3%\nImploded: %4%\nFlags: %5%\nCompressed size: %6%\nSize: %7%\nHash A: %8%\nHash B: %9%\nKey: %10%\nBlock index: %11%\nHash index: %12%\nHas offset table: %13%")) % file.path() % boolString(file.) % boolString(file.isEncrypted()) % boolString(file.isImploded()) % flagsString(file.block()->flags()) % sizeString(file.compressedSize(), humanReadable, decimal) % sizeString(file.size(), humanReadable, decimal) % file.hash()->hashData().filePathHashA() % file.hash()->hashData().filePathHashB() % (file.path().empty() ? 0 : file.fileKey()) % file.block()->index() % file.hash()->index() % boolString(file.hasSectorOffsetTable());
+
+	if (file.dwSectorCount > 0)
+	{
+		sstream << std::endl << boost::format(_("\n%1% Sectors:")) % file.dwSectorCount;
+
+		if (file.pFileEntry->dwFlags & MPQ_FILE_COMPRESSED)
+		{
+			for (DWORD i = 0; i < file.dwSectorCount; ++i)
+				sstream << boost::format(_("\nSector %1%:\n-- Offset: %2%")) % i % file.SectorOffsets[i];
+		}
+	}
+
+	return sstream.str();
+}
+#endif
+
 std::string formatString(BOOST_SCOPED_ENUM(Mpq::Format) format)
 {
 	switch (format)
@@ -185,6 +210,9 @@ const boost::program_options::variables_map &vm)
 
 		return;
 	}
+#ifdef DEBUG
+	std::string oldEntry = entry;
+#endif
 
 #ifdef UNIX
 	// (listfile) entries usually have Windows path format
@@ -216,6 +244,26 @@ const boost::program_options::variables_map &vm)
 
 		return;
 	}
+
+#ifdef DEBUG
+	TMPQArchive *archive;
+
+	if (SFileOpenArchive(mpq.path().c_str(), 0, MPQ_OPEN_READ_ONLY, (void**)&archive))
+	{
+		TMPQFile *file;
+
+		if (SFileOpenFileEx(archive, oldEntry.c_str(), SFILE_OPEN_FROM_MPQ, (void**)&file))
+		{
+			ofstream infoOut(entryPath.string() + "infoStormLib", std::ios::out);
+			infoOut << fileInfoStormLib(*file, vm.count("human-readable"), vm.count("decimal"));
+
+			SFileCloseFile(file);
+		}
+
+		SFileCloseArchive(archive);
+	}
+#endif
+
 
 	ofstream out(entryPath, std::ios::out | std::ios::binary);
 
