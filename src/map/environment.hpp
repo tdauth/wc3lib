@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MAP_ENVIRONMENT_HPP
 #define WC3LIB_MAP_ENVIRONMENT_HPP
 
-#include <boost/ptr_container/ptr_map.hpp>
+#include <boost/multi_array.hpp>
 
 #include "platform.hpp"
 #include "tilepoint.hpp"
@@ -36,7 +36,8 @@ class Environment : public FileFormat
 {
 	public:
 		typedef std::vector<id> Ids;
-		typedef boost::ptr_map<Position, Tilepoint> Tilepoints;
+		/// \todo We need a ptr container instead!
+		typedef boost::multi_array<Tilepoint*, 2> Tilepoints;
 
 		/**
 		 * There is a physical limit of usable tilesets per environment since each tilepoint (\ref Tilepoint) only uses 4 bits to refer on its ground texture type and its cliff texture type in its corresponding environment.
@@ -66,6 +67,8 @@ class Environment : public FileFormat
 		};
 		BOOST_SCOPED_ENUM_END
 
+		virtual ~Environment();
+
 		std::streamsize read(InputStream &istream) throw (class Exception);
 		std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
@@ -90,6 +93,8 @@ class Environment : public FileFormat
 		Tilepoints& tilepoints();
 
 	protected:
+		void clear();
+
 		uint32 m_version;
 		BOOST_SCOPED_ENUM(MainTileset) m_mainTileset;
 		bool m_customized;

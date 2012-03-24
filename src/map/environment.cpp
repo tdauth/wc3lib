@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <boost/foreach.hpp>
+
 #include "environment.hpp"
 #include "tilepoint.hpp"
 
@@ -28,6 +30,11 @@ namespace map
 {
 
 const uint32 Environment::maxTilesets = 16;
+
+Environment::~Environment()
+{
+	clear();
+}
 
 std::streamsize Environment::read(InputStream &istream) throw (class Exception)
 {
@@ -83,17 +90,21 @@ std::streamsize Environment::read(InputStream &istream) throw (class Exception)
 	wc3lib::read(istream, this->m_maxY, size);
 	wc3lib::read(istream, this->m_centerOffsetX, size);
 	wc3lib::read(istream, this->m_centerOffsetY, size);
+	Tilepoints tilepoints(boost::extents[this->maxX()][this->maxY()]);
 
 	// The first tilepoint defined in the file stands for the lower left corner of the map when looking from the top, then it goes line by line (horizontal).
 	for (uint32 y = 0; y < this->maxY(); ++y)
 	{
 		for (uint32 x = 0; x < this->maxX(); ++x)
 		{
-			std::auto_ptr<Tilepoint> tilepoint(new Tilepoint());
+			Tilepoint *tilepoint = new Tilepoint();
 			size += tilepoint->read(istream);
-			this->m_tilepoints.insert(Position(x, y), tilepoint);
+			tilepoints[x][y] = tilepoint;
 		}
 	}
+
+	clear();
+	m_tilepoints = tilepoints;
 
 	return size;
 }
@@ -136,10 +147,22 @@ std::streamsize Environment::write(OutputStream &ostream) const throw (class Exc
 	for (uint32 y = 0; y < this->maxY(); ++y)
 	{
 		for (uint32 x = 0; x < this->maxX(); ++x)
-			size += m_tilepoints.find(Position(x, y))->second->write(ostream);
+			size += tilepoints()[x][y]->write(ostream);
 	}
 
 	return size;
+}
+
+void Environment::clear()
+{
+	for (Tilepoints::iterator columnIterator = tilepoints().begin();
+columnIterator != tilepoints().end(); ++columnIterator)
+	{
+		for (Tilepoints::subarray<1>::type::iterator
+rowIterator = columnIterator->begin();
+rowIterator != columnIterator->end(); ++rowIterator)
+			delete *rowIterator;
+        }
 }
 
 }
