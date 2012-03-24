@@ -41,6 +41,7 @@ class Environment : public FileFormat
 
 		/**
 		 * There is a physical limit of usable tilesets per environment since each tilepoint (\ref Tilepoint) only uses 4 bits to refer on its ground texture type and its cliff texture type in its corresponding environment.
+		 * Indeed, you can store more than 16 different ground and cliff types since their numbers are stored as \ref uint32 values but they cannot be refered by any tilepoint of your terrain.
 		 */
 		static const uint32 maxTilesets;
 

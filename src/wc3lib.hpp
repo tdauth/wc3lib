@@ -114,7 +114,7 @@
 * <li>jassc - JASS parser and compiler for JASS-based dialects (vJass, Zinc, CJass, JASS++)</li>
 * <li>jasstrans - internationalisation tool which parses and stores strings from JASS code files</li>
 * <li>mpq - console-based, tar-like MPQ archive extractor and creator tool</li>
-* <li>tilesetter - deprecated console-based tilesetting program</li>
+* <li>tilesetter - console-based tilesetting program</li>
 * </ul>
 *
 * \namespace wc3lib
