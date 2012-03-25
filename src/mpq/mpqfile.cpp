@@ -137,9 +137,6 @@ std::streamsize MpqFile::writeData(istream &istream, ostream &ostream) const thr
 {
 	if (!mpq()->storeSectors())
 		const_cast<MpqFile*>(this)->read(istream);
-	// skip sector table by calculating its size (which is known since we have sectors already via sectors())
-	else if (hasSectorOffsetTable())
-		istream.seekg(boost::numeric_cast<std::streamoff>((sectors().size() + 1) * sizeof(uint32)), std::ios::cur);
 
 	std::streamsize bytes = 0;
 

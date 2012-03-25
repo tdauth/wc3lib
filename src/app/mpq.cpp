@@ -144,9 +144,18 @@ std::string fileInfo(const MpqFile &file, bool humanReadable, bool decimal)
 }
 
 #ifdef DEBUG
-std::string fileInfoStormLib(const TMPQFile &file, bool humanReadable, bool decimal)
+std::string fileInfoStormLib(TMPQFile &file, bool humanReadable, bool decimal)
 {
+	// TODO boost::scoped_array leads to segmentation fault in destructor
+	DWORD *buffer = new DWORD[SFileGetFileSize(&file, 0)];
+	std::cout << "File size: " <<  SFileGetFileSize(&file, 0) << std::endl;
+
+	// TODO decompression leads to segmentation fault for the second file
+	if (!SFileReadFile(&file, &buffer, SFileGetFileSize(&file, 0)))
+		std::cerr << boost::format(_("Warning: Couldn't read file \"%1%\" by StormLib for debugging.")) % file.pFileEntry->szFileName << std::endl;
+
 	std::stringstream sstream;
+	sstream << boost::format(_("%1%\nCompressed: %2%\nSize: %3%")) % file.pFileEntry->szFileName % boolString(file.pFileEntry->dwFlags & MPQ_FILE_COMPRESSED) % SFileGetFileSize(&file, 0);
 	//sstream << boost::format(_("%1%\nCompressed: %2%\nEncrypted: %3%\nImploded: %4%\nFlags: %5%\nCompressed size: %6%\nSize: %7%\nHash A: %8%\nHash B: %9%\nKey: %10%\nBlock index: %11%\nHash index: %12%\nHas offset table: %13%")) % file.path() % boolString(file.) % boolString(file.isEncrypted()) % boolString(file.isImploded()) % flagsString(file.block()->flags()) % sizeString(file.compressedSize(), humanReadable, decimal) % sizeString(file.size(), humanReadable, decimal) % file.hash()->hashData().filePathHashA() % file.hash()->hashData().filePathHashB() % (file.path().empty() ? 0 : file.fileKey()) % file.block()->index() % file.hash()->index() % boolString(file.hasSectorOffsetTable());
 
 	if (file.dwSectorCount > 0)
@@ -254,14 +263,19 @@ const boost::program_options::variables_map &vm)
 
 		if (SFileOpenFileEx(archive, oldEntry.c_str(), SFILE_OPEN_FROM_MPQ, (void**)&file))
 		{
-			ofstream infoOut(entryPath.string() + "infoStormLib", std::ios::out);
-			infoOut << fileInfoStormLib(*file, vm.count("human-readable"), vm.count("decimal"));
+			// FIXME
+			//ofstream infoOut(entryPath.string() + "infoStormLib", std::ios::out);
+			//infoOut << fileInfoStormLib(*file, vm.count("human-readable"), vm.count("decimal"));
 
 			SFileCloseFile(file);
 		}
+		else
+			std::cerr << boost::format(_("Warning: Couldn't open file \"%1%\" by StormLib for debugging.")) % oldEntry << std::endl;
 
 		SFileCloseArchive(archive);
 	}
+	else
+		std::cerr << boost::format(_("Warning: Couldn't open archive %1% by StormLib for debugging.")) % mpq.path() << std::endl;
 #endif
 
 
