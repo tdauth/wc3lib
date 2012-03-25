@@ -42,6 +42,7 @@ void Listfile::refresh()
 
 	BOOST_FOREACH(const Mpq::FilePtr &mpqFile, this->mpq()->files().get<0>())
 	{
+		// ignore empty entries and "(listfile)" itself
 		if (!mpqFile->path().empty() && mpqFile->path().string() != fileName()) /// @todo Exclude directories and file (signature)?
 			files().insert(mpqFile.get());
 	}
@@ -53,13 +54,16 @@ std::streamsize Listfile::readData()
 
 	BOOST_FOREACH(Entries::const_reference path, entries)
 	{
-		Mpq::FilePtr file = this->mpq()->findFile(path);
+		if (!path.empty()) // ignore empty entries
+		{
+			Mpq::FilePtr file = this->mpq()->findFile(path);
 
-		if (file.get() != 0)
-			this->files().insert(file.get());
-		// TEST
-		else
-			std::cerr << boost::format(_("Invalid entry in \"(listfile)\" file: %1%")) % boost::filesystem::path(path) << std::endl;
+			if (file.get() != 0)
+				this->files().insert(file.get());
+			// TEST
+			else
+				std::cerr << boost::format(_("Invalid entry in \"(listfile)\" file: %1%")) % boost::filesystem::path(path) << std::endl;
+		}
 	}
 
 	return 0;

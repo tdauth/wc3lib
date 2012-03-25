@@ -255,27 +255,30 @@ const boost::program_options::variables_map &vm)
 	}
 
 #ifdef DEBUG
-	TMPQArchive *archive;
-
-	if (SFileOpenArchive(mpq.path().c_str(), 0, MPQ_OPEN_READ_ONLY, (void**)&archive))
+	if (vm.count("debug"))
 	{
-		TMPQFile *file;
+		TMPQArchive *archive;
 
-		if (SFileOpenFileEx(archive, oldEntry.c_str(), SFILE_OPEN_FROM_MPQ, (void**)&file))
+		if (SFileOpenArchive(mpq.path().c_str(), 0, MPQ_OPEN_READ_ONLY, (void**)&archive))
 		{
-			// FIXME
-			//ofstream infoOut(entryPath.string() + "infoStormLib", std::ios::out);
-			//infoOut << fileInfoStormLib(*file, vm.count("human-readable"), vm.count("decimal"));
+			TMPQFile *file;
 
-			SFileCloseFile(file);
+			if (SFileOpenFileEx(archive, oldEntry.c_str(), SFILE_OPEN_FROM_MPQ, (void**)&file))
+			{
+				// FIXME
+				//ofstream infoOut(entryPath.string() + "infoStormLib", std::ios::out);
+				//infoOut << fileInfoStormLib(*file, vm.count("human-readable"), vm.count("decimal"));
+
+				SFileCloseFile(file);
+			}
+			else
+				std::cerr << boost::format(_("Warning: Couldn't open file \"%1%\" by StormLib for debugging.")) % oldEntry << std::endl;
+
+			SFileCloseArchive(archive);
 		}
 		else
-			std::cerr << boost::format(_("Warning: Couldn't open file \"%1%\" by StormLib for debugging.")) % oldEntry << std::endl;
-
-		SFileCloseArchive(archive);
+			std::cerr << boost::format(_("Warning: Couldn't open archive %1% by StormLib for debugging.")) % mpq.path() << std::endl;
 	}
-	else
-		std::cerr << boost::format(_("Warning: Couldn't open archive %1% by StormLib for debugging.")) % mpq.path() << std::endl;
 #endif
 
 
@@ -290,22 +293,22 @@ const boost::program_options::variables_map &vm)
 	{
 		std::cerr << boost::format(_("Error occured while extracting file \"%1%\": \"%2%\".")) % entry % exception.what() << std::endl;
 #ifdef DEBUG
-	// TEST
-	// Creates info file for each extracted file for analysing it
-	ofstream infoOut(entryPath.string() + "info", std::ios::out);
-	infoOut << fileInfo(*file, vm.count("human-readable"), vm.count("decimal"));
-	// END TEST
+		if (vm.count("debug"))
+		{
+			ofstream infoOut(entryPath.string() + "info", std::ios::out);
+			infoOut << fileInfo(*file, vm.count("human-readable"), vm.count("decimal"));
+		}
 #endif
 
 		return;
 	}
 
 #ifdef DEBUG
-	// TEST
-	// Creates info file for each extracted file for analysing it
-	ofstream infoOut(entryPath.string() + "info", std::ios::out);
-	infoOut << fileInfo(*file, vm.count("human-readable"), vm.count("decimal"));
-	// END TEST
+	if (vm.count("debug"))
+	{
+		ofstream infoOut(entryPath.string() + "info", std::ios::out);
+		infoOut << fileInfo(*file, vm.count("human-readable"), vm.count("decimal"));
+	}
 #endif
 }
 
@@ -349,6 +352,9 @@ int main(int argc, char *argv[])
 	("remove-files", _("Removes files/archives after adding them to the MPQ archives."))
 	("interactive", _("Asks for confirmation for every action."))
 	("store-sectors,s", _("Stores sector information which increases performance when accessing sector offsets and sizes (especially for encrypted files) but increases memory usage, as well."))
+#ifdef DEBUG
+	("debug", _("Creates info files for each extracted file."))
+#endif
 
 	// operations
 	("add,a", _("Adds files of MPQ archives or from hard disk to another archive."))
@@ -446,7 +452,7 @@ int main(int argc, char *argv[])
 		{
 			if (!boost::filesystem::is_regular_file(path))
 			{
-				std::cerr << boost::format(_("File \"%1%\" does not seem to be a regular file and will be skipped.")) % path.string() << std::endl;
+				std::cerr << boost::format(_("File %1% does not seem to be a regular file and will be skipped.")) % path << std::endl;
 
 				continue;
 			}
@@ -459,7 +465,7 @@ int main(int argc, char *argv[])
 			}
 			catch (wc3lib::Exception &exception)
 			{
-				std::cerr << boost::format(_("Error occured while opening file \"%1%\":\n\"%2%\"")) % path.string() % exception.what() << std::endl;
+				std::cerr << boost::format(_("Error occured while opening file %1%:\n\"%2%\"")) % path % exception.what() << std::endl;
 
 				continue;
 			}
@@ -476,31 +482,9 @@ int main(int argc, char *argv[])
 					if (file.get() != 0)
 						std::cout << fileInfo(*file, vm.count("human-readable"), vm.count("decimal")) << std::endl;
 					else
-						std::cerr << boost::format(_("Error occured while extracting file \"%1%\": File doesn't exist.")) % path << std::endl;
+						std::cerr << boost::format(_("Error occured while getting info of file %1%: File doesn't exist.")) % path << std::endl;
 				}
 			}
-
-			/*
-
-			std::size_t invalidFiles = 0;
-			BOOST_SCOPED_ENUM(Block::Flags) flags = Block::Flags::None;
-
-			BOOST_FOREACH(const Mpq::FilePtr mpqFile, mpq->files().get<0>())
-			{
-				if (mpqFile->sectors().empty())
-				{
-					++invalidFiles;
-
-					if (flags == Block::Flags::None || flags != mpqFile->block()->flags())
-					{
-						std::cout << "New flag." << std::endl;
-						flags = mpqFile->block()->flags();
-					}
-				}
-			}
-
-			std::cout << "Invalid files: " << invalidFiles << " with flags " << std::hex << flags << std::dec << std::endl;
-			*/
 		}
 	}
 
@@ -508,11 +492,11 @@ int main(int argc, char *argv[])
 	{
 		std::cout << _("Listing contained files:") << std::endl;
 
-		BOOST_FOREACH(const Paths::reference path, archivePaths)
+		BOOST_FOREACH(Paths::const_reference path, archivePaths)
 		{
 			if (!boost::filesystem::is_regular_file(path))
 			{
-				std::cerr << boost::format(_("File \"%1%\" does not seem to be a regular file and will be skipped.")) % path.string() << std::endl;
+				std::cerr << boost::format(_("File %1% does not seem to be a regular file and will be skipped.")) % path << std::endl;
 
 				continue;
 			}
@@ -525,7 +509,7 @@ int main(int argc, char *argv[])
 			}
 			catch (wc3lib::Exception &exception)
 			{
-				std::cerr << boost::format(_("Error occured while opening file \"%1%\": \"%2%\"")) % path.string() % exception.what() << std::endl;
+				std::cerr << boost::format(_("Error occured while opening file %1%: \"%2%\"")) % path % exception.what() << std::endl;
 
 				continue;
 			}
@@ -537,11 +521,11 @@ int main(int argc, char *argv[])
 
 	if (vm.count("extract"))
 	{
-		BOOST_FOREACH(const Paths::reference path, archivePaths)
+		BOOST_FOREACH(Paths::const_reference path, archivePaths)
 		{
 			if (!boost::filesystem::is_regular_file(path))
 			{
-				std::cerr << boost::format(_("File \"%1%\" does not seem to be a regular file and will be skipped.")) % path.string() << std::endl;
+				std::cerr << boost::format(_("File %1% does not seem to be a regular file and will be skipped.")) % path << std::endl;
 
 				continue;
 			}
@@ -555,21 +539,10 @@ int main(int argc, char *argv[])
 			}
 			catch (wc3lib::Exception &exception)
 			{
-				std::cerr << boost::format(_("Error occured while opening file \"%1%\": \"%2%\"")) % path.string() % exception.what() << std::endl;
+				std::cerr << boost::format(_("Error occured while opening file %1%: \"%2%\"")) % path % exception.what() << std::endl;
 
 				continue;
 			}
-
-			/*
-			boost::filesystem::path dir(path.filename());
-
-			if (!boost::filesystem::create_directories(dir))
-			{
-				std::cerr << boost::format(_("Error occured while opening file \"%1%\": Could not create output directory \"%2%\".")) % path.string() % dir << std::endl;
-
-				continue;
-			}
-			*/
 
 			if (filePaths.empty())
 			{
@@ -582,8 +555,17 @@ int main(int argc, char *argv[])
 
 				BOOST_FOREACH(Listfiles::const_reference vector, listfileEntries)
 				{
-					BOOST_FOREACH(Listfiles::value_type::value_type entry, vector)
-						extract(*mpq, entry, vm);
+#ifndef UNIX
+					typedef Listfiles::value_type::const_reference valueType;
+#else // on Unix systems we have to change the listfile entry to a Unix-like path
+					typedef Listfiles::value_type::value_type valueType;
+#endif
+
+					BOOST_FOREACH(valueType entry, vector)
+					{
+						if (!entry.empty())
+							extract(*mpq, entry, vm);
+					}
 				}
 			}
 			else

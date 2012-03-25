@@ -303,7 +303,10 @@ std::streamsize Mpq::read(InputStream &stream, const Listfile::Entries &listfile
 
 	// read listfile file and create path entries
 	BOOST_FOREACH(Listfile::Entries::const_reference path, listfileEntries.empty() ? entries : listfileEntries)
-		this->findFile(path);
+	{
+		if (!path.empty()) // ignore empty entries
+			this->findFile(path);
+	}
 
 	// refresh extended attributes if found (we should have all file instances before!)
 	if (containsAttributesFile())
