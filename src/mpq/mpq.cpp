@@ -582,7 +582,7 @@ Mpq::HashPtr Mpq::findHash(const boost::filesystem::path &path, BOOST_SCOPED_ENU
 
 	HashPtr result = findHash(HashData(path, locale, platform));
 
-	if (result.get() != 0 && !result->empty() && !result->deleted() && result->block()->file()->path().empty()) // path has not been set yet
+	if (result.get() != 0 && !result->empty() && !result->deleted() && result->block() != 0 && result->block()->file() != 0 && result->block()->file()->path().empty())
 	{
 		result->block()->file()->m_path = path;
 
@@ -611,9 +611,16 @@ const MpqFile* Mpq::findFile(const HashData &hashData) const
 	return const_cast<Mpq*>(this)->findFile(hashData);
 }
 
+// NOTE don't ever just call findFile(HashData(path, locale, platform) since it wouldn't update the path as expected
 MpqFile* Mpq::findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform)
 {
-	return findFile(HashData(path, locale, platform));
+	HashPtr hash = this->findHash(path, locale, platform);
+
+	// hash->m_mpqFile == 0 could happen in early stage when loading all hash entries
+	if (hash.get() == 0 || hash->deleted() || hash->empty())
+		return 0;
+
+	return hash->block()->file();
 }
 
 const MpqFile* Mpq::findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform) const

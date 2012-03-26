@@ -138,6 +138,13 @@ std::streamsize MpqFile::writeData(istream &istream, ostream &ostream) const thr
 	if (!mpq()->storeSectors())
 		const_cast<MpqFile*>(this)->read(istream);
 
+	if (this->sectors().empty() && hasSectorOffsetTable() && isEncrypted() && path().empty())
+	{
+		std::cerr << boost::format(_("Warning: Writing data from file with block index %1% and hash index %2% failed because we need its path to decrypt its data.")) % block()->index() % hash()->index() << std::endl;
+
+		return 0;
+	}
+
 	std::streamsize bytes = 0;
 
 	BOOST_FOREACH(const SectorPtr &sector, this->sectors())
@@ -192,7 +199,7 @@ MpqFile::Sectors MpqFile::realSectors() const throw (Exception)
 	return result;
 }
 
-MpqFile::MpqFile(class Mpq *mpq, class Hash *hash) : m_mpq(mpq), m_hash(hash), m_path("")
+MpqFile::MpqFile(class Mpq *mpq, class Hash *hash) : m_mpq(mpq), m_hash(hash)
 {
 }
 
