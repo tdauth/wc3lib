@@ -211,9 +211,9 @@ std::string entry,
 #endif
 const boost::program_options::variables_map &vm)
 {
-	mpq::Mpq::FilePtrConst file = mpq.findFile(entry);
+	const mpq::MpqFile *file = mpq.findFile(entry);
 
-	if (file.get() == 0)
+	if (file == 0)
 	{
 		std::cerr << boost::format(_("Error occured while extracting file \"%1%\": File doesn't exist.")) % entry << std::endl;
 
@@ -477,9 +477,9 @@ int main(int argc, char *argv[])
 			{
 				BOOST_FOREACH(Paths::const_reference path, filePaths)
 				{
-					Mpq::FilePtrConst file = mpq->findFile(path);
+					const MpqFile *file = mpq->findFile(path);
 
-					if (file.get() != 0)
+					if (file != 0)
 						std::cout << fileInfo(*file, vm.count("human-readable"), vm.count("decimal")) << std::endl;
 					else
 						std::cerr << boost::format(_("Error occured while getting info of file %1%: File doesn't exist.")) % path << std::endl;

@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include <boost/filesystem.hpp>
+#include <boost/scoped_ptr.hpp>
 
 #include "mpq.hpp"
 #include "sector.hpp"
@@ -171,43 +172,44 @@ std::streamsize Mpq::read(InputStream &stream, const Listfile::Entries &listfile
 	struct Header header;
 	wc3lib::read(stream, header, size);
 
-	if (memcmp(header.magic, Mpq::identifier, sizeof(Mpq::identifier)))
-		throw Exception(boost::str(boost::format(_("Missing MPQ identifier \"%1%\".")) % Mpq::identifier));
-
 	if (header.formatVersion == Mpq::formatVersion1Identifier)
 		this->m_format = Mpq::Format::Mpq1;
 	else if (header.formatVersion == Mpq::formatVersion2Identifier)
 		this->m_format = Mpq::Format::Mpq2;
 	else
-		throw Exception(boost::str(boost::format(_("Unknown MPQ format \"%1%\".")) % header.formatVersion));
+		throw Exception(boost::format(_("Unknown MPQ format \"%1%\".")) % header.formatVersion);
 
 	if (header.blockTableEntries > maxBlockId + 1)
 		throw Exception(boost::format(_("Too many block table entries (%1%). Maximum allowed value is %2% since %3% and %4% are reserved for deleted and empty block indices.")) % header.blockTableEntries % maxBlockId % Hash::blockIndexDeleted % Hash::blockIndexEmpty);
 
 	// Number of entries in the hash table. Must be a power of two, and must be less than 2^16 for the original MoPaQ format, or less than 2^20 for the Burning Crusade format.
 	if (header.hashTableEntries % 2 != 0)
-		std::cerr << boost::format(_("Warning: Hash table entries should be a power of two for MPQ file \"%1%\".\nEntries: %2%.")) % this->m_path.string() % header.hashTableEntries << std::endl;
+		std::cerr << boost::format(_("Warning: Hash table entries should be a power of two for MPQ file %1%.\nEntries: %2%.")) % this->path() % header.hashTableEntries << std::endl;
 
 	if ((this->format() == Mpq::Format::Mpq1 && header.hashTableEntries >= pow(2, 16)) || (this->format() == Mpq::Format::Mpq2 && header.hashTableEntries >= pow(2, 20)))
-		std::cerr << boost::format(_("Warning: There are too many MPQ hash table entries in MPQ file \"%1%\".\nEntries: %2%.\nFor MPQ1 it must be less than 2^16 and for MPQ2 less than 2^20.")) % this->m_path.string() % header.hashTableEntries << std::endl;
+		std::cerr << boost::format(_("Warning: There are too many MPQ hash table entries in MPQ file %1%.\nEntries: %2%.\nFor MPQ1 it must be less than 2^16 and for MPQ2 less than 2^20.")) % this->path() % header.hashTableEntries << std::endl;
 
 	// According to the StormLib this value is sometimes changed by map creators to protect their maps. As in the StormLib this value is ignored.
 	if (header.headerSize != sizeof(header))
 		std::cerr << boost::format(_("Warning: MPQ header size is not equal to real header size.\nContained header size: %1%.\nReal header size: %2%.")) % header.headerSize % sizeof(header) << std::endl;
 
-	if (header.archiveSize != this->m_size)
-		std::cerr << boost::format(_("Warning: MPQ file size of MPQ file \"%1%\" is not equal to its internal header file size.\nFile size: %2%.\nInternal header file size: %3%.")) % this->m_path.string() % this->m_size % header.archiveSize << std::endl;
+	if (header.archiveSize != this->size())
+		std::cerr << boost::format(_("Warning: MPQ file size of MPQ file %1% is not equal to its internal header file size.\nFile size: %2%.\nInternal header file size: %3%.")) % this->path() % this->size()
+		% header.archiveSize << std::endl;
 
 	this->m_sectorSize = pow(2, header.sectorSizeShift) * 512;
-	struct ExtendedHeader extendedHeader;
+	boost::scoped_ptr<ExtendedHeader> extendedHeader;
 
 	if (this->format() == Mpq::Format::Mpq2)
-		wc3lib::read(stream, extendedHeader, size);
+	{
+		extendedHeader.reset(new ExtendedHeader);
+		wc3lib::read(stream, *extendedHeader, size);
+	}
 
 	uint64 offset = header.blockTableOffset;
 
-	if (this->format() == Mpq::Format::Mpq2 && extendedHeader.blockTableOffsetHigh > 0)
-		offset += uint64(extendedHeader.blockTableOffsetHigh) << 32;
+	if (this->format() == Mpq::Format::Mpq2 && extendedHeader->blockTableOffsetHigh > 0)
+		offset += uint64(extendedHeader->blockTableOffsetHigh) << 32;
 
 	stream.seekg(this->startPosition() + boost::numeric_cast<std::streamoff>(offset));
 	std::size_t encryptedBytesSize = header.blockTableEntries * sizeof(struct BlockTableEntry);
@@ -230,7 +232,7 @@ std::streamsize Mpq::read(InputStream &stream, const Listfile::Entries &listfile
 	*/
 	if (this->format() == Mpq::Format::Mpq2)
 	{
-		stream.seekg(this->startPosition() + boost::numeric_cast<std::streamoff>(extendedHeader.extendedBlockTableOffset));
+		stream.seekg(this->startPosition() + boost::numeric_cast<std::streamoff>(extendedHeader->extendedBlockTableOffset));
 
 		BOOST_FOREACH(BlockPtr block, this->m_blocks)
 		{
@@ -243,8 +245,8 @@ std::streamsize Mpq::read(InputStream &stream, const Listfile::Entries &listfile
 	// read encrypted hash table
 	offset = header.hashTableOffset;
 
-	if (this->format() == Mpq::Format::Mpq2 && extendedHeader.hashTableOffsetHigh > 0)
-		offset += boost::numeric_cast<uint64>(extendedHeader.hashTableOffsetHigh) << 32;
+	if (this->format() == Mpq::Format::Mpq2 && extendedHeader->hashTableOffsetHigh > 0)
+		offset += uint64(extendedHeader->hashTableOffsetHigh) << 32;
 
 	stream.seekg(this->startPosition() + boost::numeric_cast<std::streamoff>(offset));
 	encryptedBytesSize = header.hashTableEntries * sizeof(struct HashTableEntry);
@@ -284,6 +286,8 @@ std::streamsize Mpq::read(InputStream &stream, const Listfile::Entries &listfile
 
 			if (storeSectors())
 				size += mpqFile->read(stream);
+
+			hash->block()->m_file = mpqFile.get();
 		}
 	}
 
@@ -295,10 +299,7 @@ std::streamsize Mpq::read(InputStream &stream, const Listfile::Entries &listfile
 		Listfile *listfileFile = this->listfileFile();
 
 		if (listfileFile != 0)
-		{
-			// read listfile file and create path entries
 			entries = listfileFile->entries();
-		}
 	}
 
 	// read listfile file and create path entries
@@ -344,22 +345,12 @@ uint32_t Mpq::version() const
 	return 0;
 }
 
-Mpq::FilePtrConst Mpq::findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform) const throw (Exception)
-{
-	return const_cast<Mpq*>(this)->findFile(path, locale, platform);
-}
-
-Mpq::FilePtrConst Mpq::findFile(const class MpqFile &mpqFile) const throw (Exception)
-{
-	return const_cast<Mpq*>(this)->findFile(mpqFile.path(), mpqFile.locale(), mpqFile.platform());
-}
-
 Mpq::FilePtr Mpq::addFile(const boost::filesystem::path &path, const byte *buffer, std::size_t bufferSize, bool overwriteExisting, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform) throw (class Exception)
 {
-	FilePtr mpqFile = this->findFile(path, locale, platform);
+	MpqFile *mpqFile = this->findFile(HashData(path, locale, platform));
 
 	// In the event of a collision (the home entry is occupied by another file), progressive overflow is used, and the file is placed in the next available hash table entry
-	if (mpqFile.get() != 0)
+	if (mpqFile != 0)
 	{
 		if (overwriteExisting)
 			mpqFile->remove();
@@ -486,30 +477,6 @@ Mpq::FilePtr Mpq::addFile(const MpqFile &mpqFile, bool addData, bool overwriteEx
 	//return this->addFile(mpqFile.path(), mpqFile.locale(), mpqFile.platform(), &stream, overwriteExisting, mpqFile.size());
 }
 
-bool Mpq::removeFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform)
-{
-	FilePtr mpqFile = this->findFile(path, locale, platform);
-
-	if (mpqFile.get() == 0)
-		return false;
-
-	mpqFile->remove();
-
-	return true;
-}
-
-bool Mpq::removeFile(const MpqFile &mpqFile)
-{
-	FilePtr file = this->findFile(mpqFile);
-
-	if (file.get() == 0)
-		return false;
-
-	file->remove();
-
-	return true;
-}
-
 bool Mpq::operator!() const
 {
 	return !this->isOpen();
@@ -598,68 +565,60 @@ void Mpq::clear()
 	this->m_isOpen = false;
 }
 
-/// @todo There seems to be some MPQ archives which do contain hash tables which do start with an empty entry. Therefore I commented checks for such tables.
-Mpq::HashPtr Mpq::findHash(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform)
+Mpq::HashPtr Mpq::findHash(const HashData &hashData)
 {
-	if (this->hashes().get<uint32>().empty()) //  || this->m_hashes.front()->empty()
-		return HashPtr();
-
-	// Compute the hashes to compare the hash table entry against
-	HashData hashData(path, locale, platform);
 	Hashes::index_iterator<HashData>::type iterator = this->hashes().get<HashData>().find(hashData);
 
-	if (iterator == this->hashes().get<HashData>().end() || (*iterator)->deleted())
+	if (iterator == this->hashes().get<HashData>().end())
 		return HashPtr();
 
 	return *iterator;
 }
 
-Mpq::HashPtr Mpq::findHash(const MpqFile &file)
+Mpq::HashPtr Mpq::findHash(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform)
 {
-	return this->findHash(file.path(), file.locale(), file.platform());
-}
+	if (this->hashes().get<uint32>().empty())
+		return HashPtr();
 
-Mpq::FilePtr Mpq::findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform) throw (Exception)
-{
-	HashPtr hash = this->findHash(path, locale, platform);
+	HashPtr result = findHash(HashData(path, locale, platform));
 
-	// hash->m_mpqFile == 0 could happen in early stage when loading all hash entries
-	if (hash.get() == 0 || hash->deleted() || hash->empty())
-		return FilePtr();
-
-	Files::index_iterator<Hash>::type iterator = this->files().get<Hash>().find(hash.get());
-
-	if (iterator == this->files().get<Hash>().end())
-		return FilePtr();
-
-	if ((*iterator)->path() != path) // path has not been set yet
+	if (result.get() != 0 && !result->empty() && !result->deleted() && result->block()->file()->path().empty()) // path has not been set yet
 	{
-		(*iterator)->m_path = path;
+		result->block()->file()->m_path = path;
 
 		// if we have a sector offset table and file is encrypted we first need to know its path for proper decryption!
 		// TODO READ SECTOR OFFSET TABLE AND DECRYPT IT NOW THAT WE HAVE ITS PATH
-		if ((*iterator)->hasSectorOffsetTable() && (*iterator)->isEncrypted() && storeSectors())
-			(*iterator)->read();
+		if (result->block()->file()->hasSectorOffsetTable() && result->block()->file()->isEncrypted() && storeSectors())
+			result->block()->file()->read();
 	}
 
-	return (*iterator);
+	return result;
 }
 
-Mpq::FilePtr Mpq::findFile(const class MpqFile &mpqFile) throw (Exception)
+MpqFile* Mpq::findFile(const HashData &hashData)
 {
-	return this->findFile(mpqFile.path(), mpqFile.locale(), mpqFile.platform());
+	HashPtr hash = this->findHash(hashData);
+
+	// hash->m_mpqFile == 0 could happen in early stage when loading all hash entries
+	if (hash.get() == 0 || hash->deleted() || hash->empty())
+		return 0;
+
+	return hash->block()->file();
 }
 
-bool Mpq::removeFile(class MpqFile *&mpqFile)
+const MpqFile* Mpq::findFile(const HashData &hashData) const
 {
-	if (mpqFile->mpq() != this)
-		return false;
+	return const_cast<Mpq*>(this)->findFile(hashData);
+}
 
-	mpqFile->remove();
-	delete mpqFile;
-	mpqFile = 0;
+MpqFile* Mpq::findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform)
+{
+	return findFile(HashData(path, locale, platform));
+}
 
-	return true;
+const MpqFile* Mpq::findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform) const
+{
+	return const_cast<Mpq*>(this)->findFile(path, locale, platform);
 }
 
 bool Mpq::check(const CryptoPP::RSA::PrivateKey &strongPrivateKey, const CryptoPP::RSA::PrivateKey &weakPrivateKey) const

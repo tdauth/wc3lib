@@ -256,19 +256,6 @@ class Mpq : public Format, private boost::noncopyable
 		const class Signature* signatureFile() const;
 
 		/**
-		 * Note that the MPQ archive has no information about file paths if there is no "(listfile)" file. This function is the best way to get your required file.
-		 * \return Returns the corresponding \ref MpqFile instance of the searched file. If no file was found it returns 0.
-		 * \throw Exception Throws an exception if updating sector table fails which is necessary if file is encrypted and path is updated the first time.
-		 */
-		FilePtrConst findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default) const  throw (Exception);
-		/**
-		 * Path of MPQ file \p mpqFile should be set if you use this method.
-		 * Does not search for the instance of \p mpqFile. Only uses its hash data!
-		 * \return Returns 0 if no file was found.
-		 */
-		FilePtrConst findFile(const class MpqFile &mpqFile) const throw (Exception);
-
-		/**
 		 * Adds a new file to the MPQ archive with path \p path, locale \p locale and platform \p platform.
 		 * \param istream This input stream is used for reading the initial file data.
 		 * \todo Replace reservedSpace by size of istream?
@@ -280,7 +267,6 @@ class Mpq : public Format, private boost::noncopyable
 		 * \param addData If this value is true contained data of the file will be added to the new one.
 		 */
 		FilePtr addFile(const class MpqFile &mpqFile, bool addData = true, bool overwriteExisting = false) throw (class Exception);
-		bool removeFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default);
 		/**
 		 * Path of MPQ file \p mpqFile should be set if you use this method.
 		 * \param mpqFile An MPQ file is searched which has the same hash value as \p mpqFile.
@@ -288,17 +274,43 @@ class Mpq : public Format, private boost::noncopyable
 		 */
 		bool removeFile(const class MpqFile &mpqFile);
 
+		/**
+		 * Searches for hash table entry using \p hashData.
+		 * This function returns used hash entries as well as deleted and empty ones.
+		 * \return Returns an empty \ref HashPtr if no hash entry was found.
+		 * \ingroup search
+		 */
+		HashPtr findHash(const HashData &hashData);
+		/**
+		 * Searches for hash table entry by generating an \ref HashData instance using \p path, \p locale and \p platform.
+		 * This function returns used hash entries as well as deleted and empty ones.
+		 * \return Returns an empty \ref HashPtr if no hash entry was found.
+		 * \note If the corresponding found file entry hasn't any path set yet it will be assigned automatically and the sector table will be read if its an encrypted file and \ref storeSectors() returns true.
+		 * \ingroup search
+		 */
 		HashPtr findHash(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default);
-		HashPtr findHash(const MpqFile &file);
-		FilePtr findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default) throw (Exception);
-		FilePtr findFile(const class MpqFile &mpqFile) throw (Exception);
 
 		/**
-		 * This function is reserved for internal uses since it gets a non-constant parameter.
-		 * \param mpqFile This file has to be contained by the MPQ archive and is completely deleted if function returns true (also its memory!). Note that the parameter has to be a reference of an MPQ file pointer and is set to 0.
-		 * \return Returns true if the MPQ file was deleted successfully.
+		 * Searches for file using \p hashData.
+		 * \return Returns 0 if no file was found.
+		 * \ingroup search
 		 */
-		bool removeFile(class MpqFile *&mpqFile);
+		MpqFile* findFile(const HashData &hashData);
+		/**
+		 * \copydoc findFile(const HashData&)
+		 */
+		const MpqFile* findFile(const HashData &hashData) const;
+		/**
+		 * Searches for file by generating an \ref HashData instance using \p path, \p locale and \p platform.
+		 * \return Returns 0 if no file was found.
+		 * \note If the corresponding found file entry hasn't any path set yet it will be assigned automatically and the sector table will be read if its an encrypted file and \ref storeSectors() returns true.
+		 * \ingroup search
+		 */
+		MpqFile* findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default);
+		/**
+		 * \copydoc findFile(const boost::filesystem::path&, BOOST_SCOPED_ENUM(MpqFile::Locale), BOOST_SCOPED_ENUM(MpqFile::Platform))
+		 */
+		const MpqFile* findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default) const;
 
 		class Listfile* listfileFile();
 		class Attributes* attributesFile();
@@ -777,32 +789,32 @@ inline Mpq::LargeSizeType Mpq::entireFileSize() const
 
 inline class Listfile* Mpq::listfileFile()
 {
-	FilePtr file = this->findFile("(listfile)");
+	MpqFile *file = this->findFile("(listfile)");
 
-	if (file.get() == 0)
+	if (file == 0)
 		return 0;
 
-	return boost::polymorphic_cast<class Listfile*>(file.get());
+	return boost::polymorphic_cast<class Listfile*>(file);
 }
 
 inline class Attributes* Mpq::attributesFile()
 {
-	FilePtr file = this->findFile("(attributes)");
+	MpqFile *file = this->findFile("(attributes)");
 
-	if (file.get() == 0)
+	if (file == 0)
 		return 0;
 
-	return boost::polymorphic_cast<class Attributes*>(file.get());
+	return boost::polymorphic_cast<class Attributes*>(file);
 }
 
 inline class Signature* Mpq::signatureFile()
 {
-	FilePtr file = this->findFile("(signature)");
+	MpqFile *file = this->findFile("(signature)");
 
-	if (file.get() == 0)
+	if (file == 0)
 		return 0;
 
-	return boost::polymorphic_cast<class Signature*>(file.get());
+	return boost::polymorphic_cast<class Signature*>(file);
 }
 
 inline class Block* Mpq::firstEmptyBlock() const

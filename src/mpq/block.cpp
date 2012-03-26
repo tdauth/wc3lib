@@ -49,7 +49,7 @@ uint32 Block::fileKey(const boost::filesystem::path &path, const BlockTableEntry
 	return nFileKey;
 }
 
-Block::Block(class Mpq *mpq, uint32 index) : m_mpq(mpq), m_index(index), m_blockOffset(0), m_extendedBlockOffset(0), m_blockSize(0), m_fileSize(0), m_flags(Block::Flags::None)
+Block::Block(class Mpq *mpq, uint32 index) : m_mpq(mpq), m_index(index), m_blockOffset(0), m_extendedBlockOffset(0), m_blockSize(0), m_fileSize(0), m_flags(Block::Flags::None), m_file(0)
 {
 }
 

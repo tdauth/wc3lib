@@ -56,10 +56,10 @@ std::streamsize Listfile::readData()
 	{
 		if (!path.empty()) // ignore empty entries
 		{
-			Mpq::FilePtr file = this->mpq()->findFile(path);
+			MpqFile *file = this->mpq()->findFile(path);
 
-			if (file.get() != 0)
-				this->files().insert(file.get());
+			if (file != 0)
+				this->files().insert(file);
 			// TEST
 			else
 				std::cerr << boost::format(_("Invalid entry in \"(listfile)\" file: %1%")) % boost::filesystem::path(path) << std::endl;

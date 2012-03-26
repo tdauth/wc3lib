@@ -103,6 +103,7 @@ class Block : public Format, private boost::noncopyable
 		uint32 fileSize() const;
 		void setFlags(BOOST_SCOPED_ENUM(Flags) flags);
 		BOOST_SCOPED_ENUM(Flags) flags() const;
+		class MpqFile* file() const;
 		// extended attributes
 		/**
 		 * \return Returns corresponding \ref CRC32 checksum stored in "(attributes)" file of the archive.
@@ -138,6 +139,7 @@ class Block : public Format, private boost::noncopyable
 		uint32 m_blockSize;
 		uint32 m_fileSize;
 		BOOST_SCOPED_ENUM(Flags) m_flags;
+		class MpqFile *m_file;
 };
 
 inline bool Block::empty() const
@@ -213,6 +215,11 @@ inline void Block::setFlags(BOOST_SCOPED_ENUM(Flags) flags)
 inline BOOST_SCOPED_ENUM(Block::Flags) Block::flags() const
 {
 	return this->m_flags;
+}
+
+inline MpqFile *Block::file() const
+{
+	return this->m_file;
 }
 
 }

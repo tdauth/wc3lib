@@ -45,7 +45,7 @@ class MpqFile : private boost::noncopyable
 {
 	public:
 		/// \todo Define all locales. <a href="http://wiki.devklog.net/index.php?title=The_MoPaQ_Archive_Format#Locales">Source</a>.
-		BOOST_SCOPED_ENUM_START(Locale) //: uint16
+		BOOST_SCOPED_ENUM_START(Locale) /// \todo C++11 : uint16
 		{
 			Neutral = 0x0,
 			Chinese = 0x404,
@@ -66,7 +66,7 @@ class MpqFile : private boost::noncopyable
 		BOOST_SCOPED_ENUM_END
 
 		/// There seems to be only one platform.
-		BOOST_SCOPED_ENUM_START(Platform) //: uint16
+		BOOST_SCOPED_ENUM_START(Platform) /// \todo C++11 : uint16
 		{
 			Default
 		};

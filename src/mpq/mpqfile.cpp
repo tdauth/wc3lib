@@ -372,9 +372,9 @@ bool MpqFile::move(const boost::filesystem::path &newPath, bool overwriteExistin
 	if (!this->m_mutex.try_lock())
 		throw Exception(boost::format(_("Unable to lock MPQ file \"%1%\".")) % path());
 
-	Mpq::FilePtr file = this->mpq()->findFile(newPath, this->locale(), this->platform());
+	MpqFile *file = this->mpq()->findFile(newPath, this->locale(), this->platform());
 
-	if (file.get() != 0)
+	if (file != 0)
 	{
 		if (!overwriteExisting)
 			return false;
