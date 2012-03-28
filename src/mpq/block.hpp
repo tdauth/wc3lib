@@ -81,6 +81,7 @@ class Block : public Format, private boost::noncopyable
 		 * Offset from the archive's beginning (including header) where the block's data starts.
 		 * Since MPQ2 format extended offsets are support which allow larger archives.
 		 * \sa extendedBlockOffset()
+		 * \sa largeOffset()
 		 */
 		uint32 blockOffset() const;
 		void setExtendedBlockOffset(uint32 extendedBlockOffset);
