@@ -28,7 +28,6 @@
 #include <boost/program_options.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/timer.hpp>
-
 #ifdef DEBUG
 #include <StormLib.h>
 #endif
@@ -146,16 +145,42 @@ std::string fileInfo(const MpqFile &file, bool humanReadable, bool decimal)
 #ifdef DEBUG
 std::string fileInfoStormLib(TMPQFile &file, bool humanReadable, bool decimal)
 {
-	// TODO boost::scoped_array leads to segmentation fault in destructor
-	DWORD *buffer = new DWORD[SFileGetFileSize(&file, 0)];
-	std::cout << "File size: " <<  SFileGetFileSize(&file, 0) << std::endl;
+	// boost::scoped_array leads to segmentation fault in destructor
+	//DWORD *buffer = new DWORD[SFileGetFileSize(&file, 0)];
+	//std::cout << "File size: " <<  SFileGetFileSize(&file, 0) << std::endl;
+
+	/*
+	SFileSetFilePointer(
+	&file,                     // File handle
+	0,                    // Low 32 bits of the file position
+	0,             // Pointer to high 32 bits of the file position
+	FILE_BEGIN                // The starting point for the file pointer move
+	);
+	*/
 
 	// TODO decompression leads to segmentation fault for the second file
-	if (!SFileReadFile(&file, &buffer, SFileGetFileSize(&file, 0)))
-		std::cerr << boost::format(_("Warning: Couldn't read file \"%1%\" by StormLib for debugging.")) % file.pFileEntry->szFileName << std::endl;
+	boost::timer timer;
+	BYTE value;
+
+	while (SFileReadFile(&file, &value, sizeof(value)))
+		;
+		//std::cerr << boost::format(_("Warning: Couldn't read file \"%1%\" by StormLib for debugging.")) % file.pFileEntry->szFileName << std::endl;
+
+	std::cout << "StormLib extraction time: " << timer.elapsed() << std::endl;
 
 	std::stringstream sstream;
-	sstream << boost::format(_("%1%\nCompressed: %2%\nSize: %3%")) % file.pFileEntry->szFileName % boolString(file.pFileEntry->dwFlags & MPQ_FILE_COMPRESSED) % SFileGetFileSize(&file, 0);
+	sstream << boost::format(_("%1%\nCompressed: %2%\nSize: %3%\nHash index: %4%\nCompressed size: %5%\nFlags: %6%")) % file.pFileEntry->szFileName % boolString(file.pFileEntry->dwFlags & MPQ_FILE_COMPRESSED) % SFileGetFileSize(&file, 0) % file.pFileEntry->dwHashIndex % file.pFileEntry->dwCmpSize % flagsString((Block::Flags::enum_type)(file.pFileEntry->dwFlags));
+
+	uint32 fileKey;
+	if (SFileGetFileInfo(
+		&file,                // Handle to a file or archive
+		SFILE_INFO_KEY,                 // Type of information to retrieve
+		&fileKey,                // Pointer to the buffer where to store the result information
+		sizeof(fileKey),                 // Size of the buffer pointed by pvFileInfo
+		0           // Size, in bytes, required to store information to pvFileInfo
+		))
+		sstream << boost::format(_("\nKey: %1%")) % fileKey;
+
 	//sstream << boost::format(_("%1%\nCompressed: %2%\nEncrypted: %3%\nImploded: %4%\nFlags: %5%\nCompressed size: %6%\nSize: %7%\nHash A: %8%\nHash B: %9%\nKey: %10%\nBlock index: %11%\nHash index: %12%\nHas offset table: %13%")) % file.path() % boolString(file.) % boolString(file.isEncrypted()) % boolString(file.isImploded()) % flagsString(file.block()->flags()) % sizeString(file.compressedSize(), humanReadable, decimal) % sizeString(file.size(), humanReadable, decimal) % file.hash()->hashData().filePathHashA() % file.hash()->hashData().filePathHashB() % (file.path().empty() ? 0 : file.fileKey()) % file.block()->index() % file.hash()->index() % boolString(file.hasSectorOffsetTable());
 
 	if (file.dwSectorCount > 0)
@@ -170,6 +195,62 @@ std::string fileInfoStormLib(TMPQFile &file, bool humanReadable, bool decimal)
 	}
 
 	return sstream.str();
+}
+
+void fileCheckStormLib(const mpq::MpqFile &mpqFile, TMPQFile &file, bool humanReadable, bool decimal)
+{
+	// TODO boost::scoped_array leads to segmentation fault in destructor
+	//DWORD *buffer = new DWORD[SFileGetFileSize(&file, 0)];
+	//std::cout << "File size: " <<  SFileGetFileSize(&file, 0) << std::endl;
+
+	// TODO decompression leads to segmentation fault for the second file
+	//if (!SFileReadFile(&file, &buffer, SFileGetFileSize(&file, 0)))
+		//std::cerr << boost::format(_("Warning: Couldn't read file \"%1%\" by StormLib for debugging.")) % file.pFileEntry->szFileName << std::endl;
+
+	if (file.dwDataSize != mpqFile.block()->blockSize())
+	{
+		throw Exception("block size");
+	}
+
+	if (file.pFileEntry->dwFileSize != mpqFile.size())
+	{
+		throw Exception("file size");
+	}
+
+	if (file.pFileEntry->ByteOffset != mpqFile.block()->largeOffset())
+	{
+		throw Exception("byte offset");
+	}
+
+	if (file.pFileEntry->wPlatform != mpqFile.platform())
+	{
+		throw Exception("platform");
+	}
+
+	if (file.pFileEntry->lcLocale != mpqFile.locale())
+	{
+		throw Exception("locale");
+	}
+
+	if (strcmp(file.pFileEntry->szFileName, mpqFile.path().filename().c_str()) != 0)
+	{
+		throw Exception("name");
+	}
+
+	if (file.pFileEntry->dwFlags != mpqFile.block()->flags())
+	{
+		throw Exception("flags");
+	}
+
+	uint32 fileKey;
+	if (SFileGetFileInfo(
+		&file,                // Handle to a file or archive
+		SFILE_INFO_KEY,                 // Type of information to retrieve
+		&fileKey,                // Pointer to the buffer where to store the result information
+		sizeof(fileKey),                 // Size of the buffer pointed by pvFileInfo
+		0           // Size, in bytes, required to store information to pvFileInfo
+		) && fileKey != mpqFile.fileKey())
+		throw Exception("key");
 }
 #endif
 
@@ -254,22 +335,53 @@ const boost::program_options::variables_map &vm)
 		return;
 	}
 
+	ofstream out(entryPath, std::ios::out | std::ios::binary);
+
+	try
+	{
+		checkStream(out);
+#ifdef DEBUG
+		boost::timer timer;
+#endif
+		file->writeData(out);
+#ifdef DEBUG
+		std::cout << "wc3lib extraction time: " << timer.elapsed() << std::endl;
+#endif
+	}
+	catch (Exception &exception)
+	{
+		std::cerr << boost::format(_("Error occured while extracting file \"%1%\": \"%2%\".")) % entry % exception.what() << std::endl;
+	}
+
 #ifdef DEBUG
 	if (vm.count("debug"))
 	{
+		ofstream infoOut(entryPath.string() + "info", std::ios::out);
+		infoOut << fileInfo(*file, vm.count("human-readable"), vm.count("decimal"));
+
+		// StormLib output
+
 		TMPQArchive *archive;
 
 		if (SFileOpenArchive(mpq.path().c_str(), 0, MPQ_OPEN_READ_ONLY, (void**)&archive))
 		{
-			TMPQFile *file;
+			TMPQFile *sFile;
 
-			if (SFileOpenFileEx(archive, oldEntry.c_str(), SFILE_OPEN_FROM_MPQ, (void**)&file))
+			if (SFileOpenFileEx(archive, oldEntry.c_str(), SFILE_OPEN_FROM_MPQ, (void**)&sFile))
 			{
-				// FIXME
-				//ofstream infoOut(entryPath.string() + "infoStormLib", std::ios::out);
-				//infoOut << fileInfoStormLib(*file, vm.count("human-readable"), vm.count("decimal"));
+				try
+				{
+					fileCheckStormLib(*file, *sFile, vm.count("human-readable"), vm.count("decimal"));
+				}
+				catch (Exception e)
+				{
+					std::cerr << file->path() << " - StormLib test failed with: " << e.what() << std::endl;
+				}
 
-				SFileCloseFile(file);
+				ofstream infoOut(entryPath.string() + "infoStormLib", std::ios::out);
+				infoOut << fileInfoStormLib(*sFile, vm.count("human-readable"), vm.count("decimal"));
+
+				SFileCloseFile(sFile);
 			}
 			else
 				std::cerr << boost::format(_("Warning: Couldn't open file \"%1%\" by StormLib for debugging.")) % oldEntry << std::endl;
@@ -278,36 +390,6 @@ const boost::program_options::variables_map &vm)
 		}
 		else
 			std::cerr << boost::format(_("Warning: Couldn't open archive %1% by StormLib for debugging.")) % mpq.path() << std::endl;
-	}
-#endif
-
-
-	ofstream out(entryPath, std::ios::out | std::ios::binary);
-
-	try
-	{
-		checkStream(out);
-		file->writeData(out);
-	}
-	catch (Exception &exception)
-	{
-		std::cerr << boost::format(_("Error occured while extracting file \"%1%\": \"%2%\".")) % entry % exception.what() << std::endl;
-#ifdef DEBUG
-		if (vm.count("debug"))
-		{
-			ofstream infoOut(entryPath.string() + "info", std::ios::out);
-			infoOut << fileInfo(*file, vm.count("human-readable"), vm.count("decimal"));
-		}
-#endif
-
-		return;
-	}
-
-#ifdef DEBUG
-	if (vm.count("debug"))
-	{
-		ofstream infoOut(entryPath.string() + "info", std::ios::out);
-		infoOut << fileInfo(*file, vm.count("human-readable"), vm.count("decimal"));
 	}
 #endif
 }

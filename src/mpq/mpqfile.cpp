@@ -30,8 +30,7 @@ namespace mpq
 
 void MpqFile::removeData()
 {
-	if (!this->m_mutex.try_lock())
-		throw Exception(boost::format(_("Unable to lock MPQ file %1%.")) % path());
+	boost::mutex::scoped_try_lock lock(this->m_mutex);
 
 	this->block()->setFileSize(0);
 
@@ -39,16 +38,13 @@ void MpqFile::removeData()
 		sector.reset();
 
 	/// \todo Clear corresponding sector table in MPQ file?
-
-	this->m_mutex.unlock();
 }
 
 std::streamsize MpqFile::readData(istream &istream, BOOST_SCOPED_ENUM(Sector::Compression) compression) throw (class Exception)
 {
 	removeData();
 
-	if (!this->m_mutex.try_lock())
-		throw Exception(boost::format(_("Unable to lock MPQ file %1%.")) % path());
+	boost::mutex::scoped_try_lock lock(this->m_mutex);
 
 	std::streamsize bytes = 0;
 	uint16 sectorSize = 0;
@@ -98,8 +94,6 @@ std::streamsize MpqFile::readData(istream &istream, BOOST_SCOPED_ENUM(Sector::Co
 	{
 		/// \todo AHH!
 	}
-
-	this->m_mutex.unlock();
 
 	return bytes;
 }
@@ -225,8 +219,7 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 	if (hasSectorOffsetTable() && isEncrypted() && path().empty())
 		return 0;
 
-	if (!this->m_mutex.try_lock())
-		throw Exception(boost::format(_("Unable to lock MPQ file %1%.")) % path());
+	boost::mutex::scoped_try_lock lock(this->m_mutex);
 
 	istream.seekg(mpq()->startPosition());
 	istream.seekg(this->block()->blockOffset(), std::ios::cur);
@@ -283,11 +276,12 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 		// last offset contains file size
 		const uint32 offsetsSize = sectors + 1;
 		boost::scoped_array<uint32> offsets(new uint32[offsetsSize]);
-		wc3lib::read(istream, offsets[0], bytes, offsetsSize * sizeof(uint32));
+		const uint32 readSize = offsetsSize * sizeof(uint32);
+		wc3lib::read(istream, offsets[0], bytes, readSize);
 
 		// The SectorOffsetTable, if present, is encrypted using the key - 1.
 		if (isEncrypted())
-			DecryptData(Mpq::cryptTable(), offsets.get(), sizeof(uint32) * offsetsSize, fileKey() - 1);
+			DecryptData(Mpq::cryptTable(), offsets.get(), readSize, fileKey() - 1);
 
 		/*
 		 * The last entry contains the total compressed file
@@ -322,8 +316,6 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 		}
 	}
 
-	this->m_mutex.unlock();
-
 	return bytes;
 }
 
@@ -354,16 +346,13 @@ std::streamsize MpqFile::write(ostream &ostream) const throw (class Exception)
 
 void MpqFile::remove() throw (class Exception)
 {
-	if (!this->m_mutex.try_lock())
-		throw Exception(boost::format(_("Unable to lock MPQ file \"%1%\".")) % path());
+	boost::mutex::scoped_try_lock lock(this->m_mutex);
 
 	this->m_hash->clear();
 
 	/// @todo Clear file content -> usually unnecessary?
 	//BOOST_FOREACH(class Sector *sector, this->m_sectors)
 		//bytes += sector->clear();
-
-	this->m_mutex.unlock();
 }
 
 bool MpqFile::rename(const std::string &newName, bool overwriteExisting) throw (class Exception)
@@ -376,8 +365,7 @@ bool MpqFile::move(const boost::filesystem::path &newPath, bool overwriteExistin
 	if (this->m_path == newPath)
 		return false;
 
-	if (!this->m_mutex.try_lock())
-		throw Exception(boost::format(_("Unable to lock MPQ file \"%1%\".")) % path());
+	boost::mutex::scoped_try_lock lock(this->m_mutex);
 
 	MpqFile *file = this->mpq()->findFile(newPath, this->locale(), this->platform());
 
@@ -390,8 +378,6 @@ bool MpqFile::move(const boost::filesystem::path &newPath, bool overwriteExistin
 	}
 
 	this->hash()->changePath(newPath);
-
-	this->m_mutex.unlock();
 
 	return true;
 }
