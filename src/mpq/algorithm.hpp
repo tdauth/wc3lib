@@ -67,12 +67,12 @@ inline const char* pkglibError(int error)
 	return "";
 }
 
-BOOST_SCOPED_ENUM_START(HashType)
+BOOST_SCOPED_ENUM_START(HashType) /// \todo C++11 : uint32
 {
-	TableOffset = 0,
-	NameA = 1,
-	NameB = 2,
-	FileKey = 3
+	TableOffset = 0x000,
+	NameA = 0x100,
+	NameB = 0x200,
+	FileKey = 0x300
 };
 BOOST_SCOPED_ENUM_END
 

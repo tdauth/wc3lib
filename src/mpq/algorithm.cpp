@@ -34,26 +34,23 @@ namespace mpq
 
 void InitializeCryptTable(uint32 dwCryptTable[cryptTableSize])
 {
-    uint32 seed = 0x00100001;
-    uint32 index1 = 0;
-    uint32 index2 = 0;
-    int16 i;
+	uint32 seed = 0x00100001;
 
-    for (index1 = 0; index1 < 0x100; index1++)
-    {
-        for (index2 = index1, i = 0; i < 5; i++, index2 += 0x100)
-        {
-            uint32 temp1, temp2;
+	for (uint32 index1 = 0; index1 < 0x100; ++index1)
+	{
+		uint32 index2 = index1;
 
-            seed  = (seed * 125 + 3) % 0x2AAAAB;
-            temp1 = (seed & 0xFFFF) << 0x10;
+		for (short i = 0; i < 5; i++, index2 += 0x100)
+		{
+			seed  = (seed * 125 + 3) % 0x2AAAAB;
+			uint32 temp1 = (seed & 0xFFFF) << 0x10;
 
-            seed  = (seed * 125 + 3) % 0x2AAAAB;
-            temp2 = (seed & 0xFFFF);
+			seed  = (seed * 125 + 3) % 0x2AAAAB;
+			uint32 temp2 = (seed & 0xFFFF);
 
-            dwCryptTable[index2] = (temp1 | temp2);
-        }
-    }
+			dwCryptTable[index2] = (temp1 | temp2);
+		}
+	}
 }
 
 void EncryptData(const uint32 dwCryptTable[cryptTableSize], void *lpbyBuffer, uint32 dwLength, uint32 dwKey)
@@ -108,13 +105,13 @@ uint32 HashString(const uint32 dwCryptTable[cryptTableSize], const char *lpszStr
     uint32 dwHashType = uint32(hashType);
     uint32 seed1 = 0x7FED7FEDL;
     uint32 seed2 = 0xEEEEEEEEL;
-    int16 ch;
+    int ch;
 
     while (*lpszString != 0)
     {
         ch = toupper(*lpszString++);
 
-        seed1 = dwCryptTable[(dwHashType * 0x100) + ch] ^ (seed1 + seed2);
+        seed1 = dwCryptTable[dwHashType + ch] ^ (seed1 + seed2);
         seed2 = ch + seed1 + seed2 + (seed2 << 5) + 3;
     }
 

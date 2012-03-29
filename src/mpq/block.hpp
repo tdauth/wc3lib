@@ -57,7 +57,10 @@ class Block : public Format, private boost::noncopyable
 		};
 		BOOST_SCOPED_ENUM_END
 
-		static uint32 fileKey(const boost::filesystem::path &path, const BlockTableEntry &blockTableEntry);
+		/**
+		 * \sa MpqFile::name()
+		 */
+		static uint32 fileKey(const string &name, const BlockTableEntry &blockTableEntry);
 
 		Block(class Mpq *mpq, uint32 index);
 		virtual ~Block();
@@ -127,7 +130,10 @@ class Block : public Format, private boost::noncopyable
 		 */
 		MD5 md5() const;
 
-		uint32 fileKey(const boost::filesystem::path &path) const;
+		/**
+		 * \sa MpqFile::name()
+		 */
+		uint32 fileKey(const string &fileName) const;
 
 	protected:
 		friend class Mpq;

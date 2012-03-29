@@ -1,5 +1,5 @@
 2012-03-28 Tamino Dauth <tamino@cdauth.eu>
-* mpq: Recent comparisions between wc3lib and StormLib showed that the file key is calculated wrongly in wc3lib for files using flags: "File, Uses Encryption Key, Encrypted, Compressed" like "font\font.ccd", for instance. Consider that "(listfile)" has the same flags and its key is equal to StormLib's one! Therefore compare offsets, sizes and crypt tables as well (everything used in Block::fileKey()).
+* FIXED: mpq: Recent comparisions between wc3lib and StormLib showed that the file key is calculated wrongly in wc3lib for files using flags: "File, Uses Encryption Key, Encrypted, Compressed" like "font\font.ccd", for instance. Consider that "(listfile)" has the same flags and its key is equal to StormLib's one! Therefore compare offsets, sizes and crypt tables as well (everything used in Block::fileKey()). Unencrypted key is already wrong which means HashString() is implemented wrongly.
 
 2012-03-24 Tamino Dauth <tamino@cdauth.eu>
 * DEPRECATED: The last sector for files with sector offset tables seems to have wrong compression information (BZip2 compression but there is none) sometimes. Probably caused by a wrong offset of the LAST sector only! This happens to encrypted as well as non-encrypted files!

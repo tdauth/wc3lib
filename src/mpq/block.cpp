@@ -31,16 +31,13 @@ namespace wc3lib
 namespace mpq
 {
 
-uint32 Block::fileKey(const boost::filesystem::path &path, const BlockTableEntry &blockTableEntry)
+uint32 Block::fileKey(const string &fileName, const BlockTableEntry &blockTableEntry)
 {
-	// Find the file name part of the path
-	const std::string lpszFileName = path.filename().string();
-
-	if (lpszFileName.empty())
-		throw std::logic_error(_("Never try to get file keys of empty paths."));
+	if (fileName.empty())
+		throw std::logic_error(_("Never try to get file keys of empty filenames."));
 
 	// Hash the name to get the base key
-	uint32 nFileKey = HashString(Mpq::cryptTable(), lpszFileName.c_str(), HashType::FileKey);
+	uint32 nFileKey = HashString(Mpq::cryptTable(), fileName.c_str(), HashType::FileKey);
 
 	// Offset-adjust the key if necessary
 	if (blockTableEntry.flags & Flags::UsesEncryptionKey)
@@ -87,7 +84,7 @@ std::streamsize Block::write(ostream &ostream) const throw (class Exception)
 	return size;
 }
 
-uint32 Block::fileKey(const boost::filesystem::path &path) const
+uint32 Block::fileKey(const string &fileName) const
 {
 	struct BlockTableEntry entry;
 	entry.blockOffset = this->m_blockOffset;
@@ -95,7 +92,7 @@ uint32 Block::fileKey(const boost::filesystem::path &path) const
 	entry.fileSize = this->m_fileSize;
 	entry.flags = this->m_flags;
 
-	return Block::fileKey(path, entry);
+	return Block::fileKey(fileName, entry);
 }
 
 CRC32 Block::crc32() const

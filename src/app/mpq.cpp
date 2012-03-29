@@ -129,7 +129,7 @@ std::string fileInfo(const MpqFile &file, bool humanReadable, bool decimal)
 {
 	MpqFile::Sectors sectors = file.realSectors();
 	std::stringstream sstream;
-	sstream << boost::format(_("%1%\nCompressed: %2%\nEncrypted: %3%\nImploded: %4%\nFlags: %5%\nCompressed size: %6%\nSize: %7%\nHash A: %8%\nHash B: %9%\nKey: %10%\nBlock index: %11%\nHash index: %12%\nHas offset table: %13%")) % file.path() % boolString(file.isCompressed()) % boolString(file.isEncrypted()) % boolString(file.isImploded()) % flagsString(file.block()->flags()) % sizeString(file.compressedSize(), humanReadable, decimal) % sizeString(file.size(), humanReadable, decimal) % file.hash()->hashData().filePathHashA() % file.hash()->hashData().filePathHashB() % (file.path().empty() ? 0 : file.fileKey()) % file.block()->index() % file.hash()->index() % boolString(file.hasSectorOffsetTable());
+	sstream << boost::format(_("%1%\nCompressed: %2%\nEncrypted: %3%\nImploded: %4%\nFlags: %5%\nCompressed size: %6%\nSize: %7%\nHash A: %8%\nHash B: %9%\nKey: %10%\nBlock index: %11%\nHash index: %12%\nHas offset table: %13%\nBlock offset: %14%\nKey (without encryption): %15%")) % file.path() % boolString(file.isCompressed()) % boolString(file.isEncrypted()) % boolString(file.isImploded()) % flagsString(file.block()->flags()) % sizeString(file.compressedSize(), humanReadable, decimal) % sizeString(file.size(), humanReadable, decimal) % file.hash()->hashData().filePathHashA() % file.hash()->hashData().filePathHashB() % (file.name().empty() || !file.isEncrypted() ? 0 : file.fileKey()) % file.block()->index() % file.hash()->index() % boolString(file.hasSectorOffsetTable()) % file.block()->largeOffset() % (file.isEncrypted() ? HashString(Mpq::cryptTable(), file.name().c_str(), HashType::FileKey) : 0);
 
 	if (sectors.size() > 0)
 	{
@@ -169,7 +169,7 @@ std::string fileInfoStormLib(TMPQFile &file, bool humanReadable, bool decimal)
 	std::cout << "StormLib extraction time: " << timer.elapsed() << std::endl;
 
 	std::stringstream sstream;
-	sstream << boost::format(_("%1%\nCompressed: %2%\nSize: %3%\nHash index: %4%\nCompressed size: %5%\nFlags: %6%")) % file.pFileEntry->szFileName % boolString(file.pFileEntry->dwFlags & MPQ_FILE_COMPRESSED) % SFileGetFileSize(&file, 0) % file.pFileEntry->dwHashIndex % file.pFileEntry->dwCmpSize % flagsString((Block::Flags::enum_type)(file.pFileEntry->dwFlags));
+	sstream << boost::format(_("\"%1%\"\nCompressed: %2%\nSize: %3%\nHash index: %4%\nCompressed size: %5%\nFlags: %6%\nBlock offset: %7%")) % file.pFileEntry->szFileName % boolString(file.pFileEntry->dwFlags & MPQ_FILE_COMPRESSED) % sizeString(SFileGetFileSize(&file, 0), humanReadable, decimal) % file.pFileEntry->dwHashIndex % sizeString(file.pFileEntry->dwCmpSize, humanReadable, decimal) % flagsString((Block::Flags::enum_type)(file.pFileEntry->dwFlags)) % file.pFileEntry->ByteOffset;
 
 	uint32 fileKey;
 	if (SFileGetFileInfo(
@@ -180,6 +180,15 @@ std::string fileInfoStormLib(TMPQFile &file, bool humanReadable, bool decimal)
 		0           // Size, in bytes, required to store information to pvFileInfo
 		))
 		sstream << boost::format(_("\nKey: %1%")) % fileKey;
+
+	uint32 fileKeyUnfixed;
+	if (SFileGetFileInfo(
+		&file,
+		SFILE_INFO_KEY_UNFIXED,
+		&fileKeyUnfixed,
+		sizeof(fileKeyUnfixed),
+			     0))
+			     sstream << boost::format(_("\nKey (without encryption): %1%")) % fileKeyUnfixed;
 
 	//sstream << boost::format(_("%1%\nCompressed: %2%\nEncrypted: %3%\nImploded: %4%\nFlags: %5%\nCompressed size: %6%\nSize: %7%\nHash A: %8%\nHash B: %9%\nKey: %10%\nBlock index: %11%\nHash index: %12%\nHas offset table: %13%")) % file.path() % boolString(file.) % boolString(file.isEncrypted()) % boolString(file.isImploded()) % flagsString(file.block()->flags()) % sizeString(file.compressedSize(), humanReadable, decimal) % sizeString(file.size(), humanReadable, decimal) % file.hash()->hashData().filePathHashA() % file.hash()->hashData().filePathHashB() % (file.path().empty() ? 0 : file.fileKey()) % file.block()->index() % file.hash()->index() % boolString(file.hasSectorOffsetTable());
 
@@ -207,7 +216,7 @@ void fileCheckStormLib(const mpq::MpqFile &mpqFile, TMPQFile &file, bool humanRe
 	//if (!SFileReadFile(&file, &buffer, SFileGetFileSize(&file, 0)))
 		//std::cerr << boost::format(_("Warning: Couldn't read file \"%1%\" by StormLib for debugging.")) % file.pFileEntry->szFileName << std::endl;
 
-	if (file.dwDataSize != mpqFile.block()->blockSize())
+	if (file.pFileEntry->dwCmpSize != mpqFile.block()->blockSize())
 	{
 		throw Exception("block size");
 	}
@@ -232,25 +241,78 @@ void fileCheckStormLib(const mpq::MpqFile &mpqFile, TMPQFile &file, bool humanRe
 		throw Exception("locale");
 	}
 
-	if (strcmp(file.pFileEntry->szFileName, mpqFile.path().filename().c_str()) != 0)
+	if (strcmp(file.pFileEntry->szFileName, mpqFile.path().c_str()) != 0)
+	{
+		throw Exception("path");
+	}
+
+	/*
+	 * FIXME
+	if (strcmp(GetPlainFileNameA(file.pFileEntry->szFileName), mpqFile.name().c_str()) != 0)
 	{
 		throw Exception("name");
 	}
+	*/
 
 	if (file.pFileEntry->dwFlags != mpqFile.block()->flags())
 	{
 		throw Exception("flags");
 	}
 
-	uint32 fileKey;
-	if (SFileGetFileInfo(
-		&file,                // Handle to a file or archive
-		SFILE_INFO_KEY,                 // Type of information to retrieve
-		&fileKey,                // Pointer to the buffer where to store the result information
-		sizeof(fileKey),                 // Size of the buffer pointed by pvFileInfo
-		0           // Size, in bytes, required to store information to pvFileInfo
-		) && fileKey != mpqFile.fileKey())
-		throw Exception("key");
+	// NOTE check before key, more precise
+	if (mpqFile.isEncrypted())
+	{
+		uint32 fileKeyUnfixed;
+		if (SFileGetFileInfo(
+			&file,
+			SFILE_INFO_KEY_UNFIXED,
+			&fileKeyUnfixed,
+			sizeof(fileKeyUnfixed),
+				0) &&
+				fileKeyUnfixed != HashString(Mpq::cryptTable(), mpqFile.name().c_str(), HashType::FileKey))
+			throw Exception("key without encryption");
+
+		uint32 fileKey;
+		if (SFileGetFileInfo(
+			&file,                // Handle to a file or archive
+			SFILE_INFO_KEY,                 // Type of information to retrieve
+			&fileKey,                // Pointer to the buffer where to store the result information
+			sizeof(fileKey),                 // Size of the buffer pointed by pvFileInfo
+			0           // Size, in bytes, required to store information to pvFileInfo
+			) && fileKey != mpqFile.fileKey())
+			throw Exception("key");
+	}
+}
+
+#define STORM_BUFFER_SIZE       0x500
+
+bool compareCryptTables()
+{
+	DWORD StormBuffer[STORM_BUFFER_SIZE];
+	DWORD dwSeed = 0x00100001;
+	DWORD index1 = 0;
+	DWORD index2 = 0;
+	int   i;
+
+	// Initialize the decryption buffer.
+	// Do nothing if already done.
+	for(index1 = 0; index1 < 0x100; index1++)
+	{
+		for(index2 = index1, i = 0; i < 5; i++, index2 += 0x100)
+		{
+			DWORD temp1, temp2;
+
+			dwSeed = (dwSeed * 125 + 3) % 0x2AAAAB;
+			temp1  = (dwSeed & 0xFFFF) << 0x10;
+
+			dwSeed = (dwSeed * 125 + 3) % 0x2AAAAB;
+			temp2  = (dwSeed & 0xFFFF);
+
+			StormBuffer[index2] = (temp1 | temp2);
+		}
+	}
+
+	return memcmp(Mpq::cryptTable(), StormBuffer, STORM_BUFFER_SIZE) == 0;
 }
 #endif
 
@@ -657,6 +719,13 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
+
+#ifdef DEBUG
+	if (!compareCryptTables())
+		std::cerr << _("Crypt tables from wc3lib and StormLib are not equal.") << std::endl;
+	else
+		std::cout << _("Crypt tables from wc3lib and StormLib are equal.") << std::endl;
+#endif
 
 	return EXIT_SUCCESS;
 }

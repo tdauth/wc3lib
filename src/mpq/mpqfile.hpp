@@ -24,8 +24,8 @@
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/mem_fun.hpp>
-
 #include <boost/thread/mutex.hpp>
+#include <boost/algorithm/string/find.hpp>
 
 #include "platform.hpp"
 #include "block.hpp"
@@ -124,10 +124,26 @@ class MpqFile : private boost::noncopyable
 		class Block* block() const;
 		/**
 		 * \return Returns the file path. Note that MPQ archives without list file don't have any information about the file paths.
+		 * \note The path has usually a Windows format. For platform safety use \ref nativePath().
+		 * \sa name()
+		 * \sa nativePath()
 		 */
 		const boost::filesystem::path& path() const;
+		/**
+		 * \sa path()
+		 * \sa toNativePath()
+		 */
+		std::string name() const;
+		/**
+		 * \sa Listfile::toNativePath()
+		 */
+		boost::filesystem::path nativePath() const;
 
 		// block attributes
+		/**
+		 * \return Returns the file's key calculated by its \ref name().
+		 * \sa Block::fileKey()
+		 */
 		uint32 fileKey() const;
 		/**
 		 * \return Returns uncompressed file size in bytes.
@@ -252,9 +268,35 @@ inline const boost::filesystem::path& MpqFile::path() const
 	return this->m_path;
 }
 
+inline std::string MpqFile::name() const
+{
+	const std::string pathString = path().string();
+	const std::string::size_type pos = pathString.find_last_of("\\");
+
+	if (pos == std::string::npos)
+		return pathString;
+	else if (pos == pathString.size() - 1)
+		return "";
+
+	return pathString.substr(pos + 1);
+}
+
+inline boost::filesystem::path MpqFile::nativePath() const
+{
+#ifdef UNIX
+	string pathString = path().string();
+	// (listfile) entries usually have Windows path format
+	boost::algorithm::replace_all(pathString, "\\", "/");
+
+	return boost::filesystem::path(pathString);
+#else
+	return path();
+#endif
+}
+
 inline uint32 MpqFile::fileKey() const
 {
-	return this->block()->fileKey(this->path());
+	return this->block()->fileKey(this->name());
 }
 
 inline uint32 MpqFile::size() const
