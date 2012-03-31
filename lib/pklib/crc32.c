@@ -12,12 +12,6 @@
 
 #include "pklib.h"
 
-static char CopyRight[] = "PKWARE Data Compression Library for Win32\r\n"
-                          "Copyright 1989-1995 PKWARE Inc.  All Rights Reserved\r\n"
-                          "Patent No. 5,051,745\r\n"
-                          "PKWARE Data Compression Library Reg. U.S. Pat. and Tm. Off.\r\n"
-                          "Version 1.11\r\n";
-
 static unsigned long crc_table[] =
 {
     0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F, 0xE963A535, 0x9E6495A3,
@@ -55,7 +49,7 @@ static unsigned long crc_table[] =
 };
 
 
-unsigned long PKEXPORT crc32pk(char * buffer, unsigned int * psize, unsigned long * old_crc)
+unsigned long PKEXPORT crc32_pklib(char * buffer, unsigned int * psize, unsigned long * old_crc)
 {
     unsigned int  size = *psize;
     unsigned long ch;

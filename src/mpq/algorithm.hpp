@@ -88,7 +88,7 @@ void DecryptData(const uint32 dwCryptTable[cryptTableSize], void *lpbyBuffer, ui
 /// Based on code from StormLib.
 uint32 HashString(const uint32 dwCryptTable[cryptTableSize], const char *lpszString, BOOST_SCOPED_ENUM(HashType) hashType);
 
-void compressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength, short compressionType, int /* compressionLevel */) throw (class Exception);
+void compressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength, int * /* pCmpType */, int /* compressionLevel */)  throw (class Exception);
 void decompressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength) throw (class Exception);
 /**
  * \sa compressWaveMono, decompressWaveMono, compressWaveStereo, decompressWaveStereo
@@ -115,15 +115,7 @@ std::streamsize compressZlib(istream &istream, ostream &ostream) throw (boost::i
  */
 std::streamsize decompressZlib(istream &istream, ostream &ostream, int bufferSize) throw (boost::iostreams::zlib_error);
 
-/// \deprecated Since we use \ref compressZlib() now.
-std::streamsize deflateStream(istream &istream, ostream &ostream) throw (class Exception);
-/**
- * \deprecated Since we use \ref decompressZlib() now.
- * \return Returns written bytes.
- */
-std::streamsize inflateStream(istream &istream, ostream &ostream, const unsigned int bufferSize) throw (class Exception);
-
-int compressHuffman(char *pbOutBuffer, int * pdwOutLength, char *pbInBuffer, int dwInLength, int *pCmpType, int /* nCmpLevel */);
+void compressHuffman(char *pbOutBuffer, int * pdwOutLength, char *pbInBuffer, int dwInLength, int *pCmpType, int /* nCmpLevel */);
 int decompressHuffman(char *pbOutBuffer, int *pdwOutLength, char *pbInBuffer, int /* dwInLength */);
 
 }

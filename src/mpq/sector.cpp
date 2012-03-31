@@ -73,7 +73,7 @@ Sector::~Sector()
 {
 }
 
-std::streamsize Sector::readData(istream &istream, short pkgCompressionType, int waveCompressionLevel) throw (class Exception)
+std::streamsize Sector::readData(istream &istream, int waveCompressionLevel) throw (class Exception)
 {
 	const std::streamoff end = wc3lib::endPosition(istream) - istream.tellg();
 	const uint32 size = end < this->mpqFile()->mpq()->sectorSize() ? boost::numeric_cast<uint32>(end) : this->mpqFile()->mpq()->sectorSize();
@@ -81,10 +81,10 @@ std::streamsize Sector::readData(istream &istream, short pkgCompressionType, int
 	std::streamsize bytes = 0;
 	wc3lib::read(istream, buffer[0], bytes, size);
 
-	return readData(buffer.get(), size);
+	return readData(buffer.get(), size, waveCompressionLevel);
 }
 
-std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, short pkgCompressionType, int waveCompressionLevel) throw  (class Exception)
+std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, int waveCompressionLevel) throw  (class Exception)
 {
 	uint32 size = 0;
 	boost::scoped_array<byte> data;
@@ -95,7 +95,7 @@ std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, sh
 		if (this->compression() & Sector::Compression::Imploded)
 		{
 			char *newData = 0;
-			compressPklib(newData, *reinterpret_cast<int*>(&size), (char*const)buffer, boost::numeric_cast<int>(bufferSize), pkgCompressionType, 0);
+			compressPklib(newData, *reinterpret_cast<int*>(&size), (char*const)buffer, boost::numeric_cast<int>(bufferSize), 0, 0);
 			data.reset(newData);
 		}
 	}
@@ -146,10 +146,7 @@ std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, sh
 			int outLength = boost::numeric_cast<int>(mpqFile()->mpq()->sectorSize());
 			boost::scoped_array<byte> out(new byte[outLength]); // NOTE do always allocate enough memory.
 			int compression = defaultHuffmanCompressionType;
-			int state = compressHuffman(out.get(), &outLength, (char*)buffer, boost::numeric_cast<unsigned>(bufferSize), &compression, 0);
-
-			if (state != 0)
-				throw Exception(boost::format(_("Huffman error %1%.")) % state);
+			compressHuffman(out.get(), &outLength, (char*)buffer, boost::numeric_cast<unsigned>(bufferSize), &compression, 0);
 
 			if (outLength < mpqFile()->mpq()->sectorSize())
 			{
@@ -191,7 +188,7 @@ std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, sh
 			int outLength = boost::numeric_cast<int>(mpqFile()->mpq()->sectorSize());
 			boost::scoped_array<byte> out(new byte[outLength]); // NOTE do always allocate enough memory.
 
-			compressPklib(out.get(), outLength, (char*const)buffer, boost::numeric_cast<int>(bufferSize), pkgCompressionType, 0);
+			compressPklib(out.get(), outLength, (char*const)buffer, boost::numeric_cast<int>(bufferSize), 0, 0);
 
 			if (outLength < mpqFile()->mpq()->sectorSize())
 			{
@@ -493,7 +490,7 @@ void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, os
 				int state = decompressHuffman(buffer.get(), &outLength, (char*)realData, boost::numeric_cast<int>(realDataSize));
 				//int state = huffman_decode_memory((const unsigned char*)realData, boost::numeric_cast<unsigned int>(realDataSize), &out, &outLength);
 
-				if (state != 0)
+				if (state != 1)
 					throw Exception(boost::format(_("Huffman error %1%.")) % state);
 
 				if (outLength < mpqFile()->mpq()->sectorSize())

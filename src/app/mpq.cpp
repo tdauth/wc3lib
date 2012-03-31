@@ -441,9 +441,11 @@ const boost::program_options::variables_map &vm)
 		// StormLib output
 
 		TMPQArchive *archive;
+		boost::timer timer;
 
 		if (SFileOpenArchive(mpq.path().c_str(), 0, MPQ_OPEN_READ_ONLY, (void**)&archive))
 		{
+			std::cout << "StormLib archive: " << timer.elapsed() << std::endl;
 			TMPQFile *sFile;
 
 			if (SFileOpenFileEx(archive, oldEntry.c_str(), SFILE_OPEN_FROM_MPQ, (void**)&sFile))
@@ -505,7 +507,7 @@ int main(int argc, char *argv[])
 	("version,V", _("Shows current version of mpq."))
 	("help,h",_("Shows this text."))
 	// options
-	("human-readable,h", boost::program_options::value<bool>()->default_value(true), _("Shows output sizes in an human-readable format."))
+	("human-readable", boost::program_options::value<bool>()->default_value(true), _("Shows output sizes in an human-readable format."))
 	("decimal,d", _("Shows decimal sizes (factor 1000 not 1024)"))
 	("format,F", boost::program_options::value<std::string>(&format)->default_value("1"), _("Selects the format of the created MPQ archive and modified files: <format:format:format>\nHere's a list of valid expressions:\n* \"1\"\n* \"2\"\n* \"listfile\"\n* \"attributes\""))
 	("list-files,L", boost::program_options::value<Strings>(&listfileStrings), _("Uses given listfiles to detect file paths of MPQ archives."))
@@ -520,7 +522,7 @@ int main(int argc, char *argv[])
 	// operations
 	("add,a", _("Adds files of MPQ archives or from hard disk to another archive."))
 	("create,c", _("Creates new MPQ archives."))
-	("diff,compare,d", _("Finds differences between archives."))
+	("diff,d", _("Finds differences between archives."))
 	("list,t", _("Lists all contained files of all read MPQ archives."))
 	("update,u", _("Only append files that are newer than the existing archives."))
 	("extract,get,x", _("Extract files from MPQ archives. If no files are specified via -f all files are extracted from given MPQ archives."))
@@ -529,7 +531,7 @@ int main(int argc, char *argv[])
 
 	// input
 	("archives,A", boost::program_options::value<Strings>(&archiveStrings), _("Expected MPQ archives."))
-	("files,f", boost::program_options::value<Strings>(&fileStrings), _("Expected MPQ archives."))
+	("files,f", boost::program_options::value<Strings>(&fileStrings), _("Expected files."))
 	;
 
 	boost::program_options::positional_options_description p;
@@ -549,6 +551,28 @@ int main(int argc, char *argv[])
 	}
 
 	boost::program_options::notify(vm);
+
+	if (vm.count("version"))
+	{
+		std::cout << boost::format(_(
+		"mpq %1%.\n"
+		"Copyright © 2010 Tamino Dauth\n"
+		"License GPLv2+: GNU GPL version 2 or later <http://gnu.org/licenses/gpl.html>\n"
+		"This is free software: you are free to change and redistribute it.\n"
+		"There is NO WARRANTY, to the extent permitted by law."
+		)) % version << std::endl;
+
+		return EXIT_SUCCESS;
+	}
+
+	if (vm.count("help"))
+	{
+		std::cout << _("Usage: mpq [options] [archives]") << std::endl << std::endl;
+		std::cout << desc << std::endl;
+		std::cout << _("\nReport bugs to tamino@cdauth.eu or on https://wc3lib.org") << std::endl;
+
+		return EXIT_SUCCESS;
+	}
 
 	// WORKAROUND
 	listfiles.resize(listfileStrings.size());
@@ -577,27 +601,6 @@ int main(int argc, char *argv[])
 		string content(size, '0');
 		in.read(&content[0], size);
 		listfileEntries.push_back(Listfile::entries(content));
-	}
-
-	if (vm.count("version"))
-	{
-		std::cout << boost::format(_(
-		"mpq %1%.\n"
-		"Copyright © 2010 Tamino Dauth\n"
-		"License GPLv2+: GNU GPL version 2 or later <http://gnu.org/licenses/gpl.html>\n"
-		"This is free software: you are free to change and redistribute it.\n"
-		"There is NO WARRANTY, to the extent permitted by law."
-		)) % version << std::endl;
-
-		return EXIT_SUCCESS;
-	}
-
-	if (vm.count("help"))
-	{
-		std::cout << desc << std::endl;
-		std::cout << _("\nReport bugs to tamino@cdauth.eu or on https://wc3lib.org") << std::endl;
-
-		return EXIT_SUCCESS;
 	}
 
 	if (archivePaths.empty())
@@ -691,12 +694,18 @@ int main(int argc, char *argv[])
 				continue;
 			}
 
+#ifdef DEBUG
+			boost::timer timer;
+#endif
 			boost::scoped_ptr<Mpq> mpq(new Mpq());
 			mpq->setStoreSectors(vm.count("store-sectors"));
 
 			try
 			{
 				std::streamsize size = mpq->open(path);
+#ifdef DEBUG
+				std::cout << "wc3lib archive: " << timer.elapsed() << std::endl;
+#endif
 			}
 			catch (wc3lib::Exception &exception)
 			{

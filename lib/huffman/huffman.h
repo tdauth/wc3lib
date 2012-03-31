@@ -47,10 +47,12 @@ class TInputStream
     unsigned long GetBit();
     unsigned long Get7Bits();
     unsigned long Get8Bits();
+    void SkipBits(unsigned int BitCount);
 
-    unsigned char * pbInBuffer;         // 00 - Input data
-    unsigned long   dwBitBuff;          // 04 - Input bit buffer
-    unsigned int    nBits;              // 08 - Number of bits remaining in 'dwValue'
+    unsigned char * pbInBuffer;         // Input data
+    unsigned char * pbInBufferEnd;      // End of the input buffer
+    unsigned long   BitBuffer;          // Input bit buffer
+    unsigned int    BitCount;           // Number of bits remaining in 'dwBitBuff'
 };
 
 // Output stream for Huffmann compression
@@ -61,7 +63,7 @@ class TOutputStream
     void PutBits(unsigned long dwBuff, unsigned int nPutBits);
 
     unsigned char * pbOutBuffer;        // 00 : Output buffer
-    unsigned long   dwOutSize;          // 04 : Size of output buffer
+    unsigned long   cbOutSize;          // 04 : Size of output buffer
     unsigned char * pbOutPos;           // 08 : Current output position
     unsigned long   dwBitBuff;          // 0C : Bit buffer
     unsigned long   nBits;              // 10 : Number of bits in the bit buffer

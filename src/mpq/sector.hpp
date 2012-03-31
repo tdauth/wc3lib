@@ -41,7 +41,6 @@ class Sector // FIXME : private boost::noncopyable
 {
 	public:
 		// TODO get best values
-		static const short defaultPkgCompressionType = 2;
 		static const int defaultWaveCompressionLevel = 3;
 		static const int defaultHuffmanCompressionType = 0;
 
@@ -66,13 +65,13 @@ class Sector // FIXME : private boost::noncopyable
 		/**
 		 * Sames as \ref readData(const byte*, uint32) but detects buffer and buffer size automatically by simply using \ref Mpq::sectorSize() of the corresponding MPQ archive or less (if input stream hasn't that much data).
 		 */
-		std::streamsize readData(istream &istream, short pkgCompressionType = defaultPkgCompressionType, int waveCompressionLevel = defaultWaveCompressionLevel) throw (class Exception);
+		std::streamsize readData(istream &istream, int waveCompressionLevel = defaultWaveCompressionLevel) throw (class Exception);
 		/**
 		 * Compresses and encrypts data from \p buffer of size \p bufferSize if necessary and writes it into the corresponding MPQ archive at the sector's place.
 		 * \note Compressed data has to be less than or equal to \ref Mpq::sectorSize() of the corresponding MPQ archive. Otherwise it throws an exception.
 		 * \return Returns size of bytes which has been written into the corresponding MPQ archive.
 		 */
-		std::streamsize readData(const byte *buffer, const uint32 bufferSize, short pkgCompressionType = defaultPkgCompressionType, int waveCompressionLevel = defaultWaveCompressionLevel) throw (class Exception);
+		std::streamsize readData(const byte *buffer, const uint32 bufferSize, int waveCompressionLevel = defaultWaveCompressionLevel) throw (class Exception);
 		/**
 		 * Writes sector data into output stream \p ostream.
 		 * \return Returns size of written data.

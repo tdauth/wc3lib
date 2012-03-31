@@ -8,6 +8,7 @@
 /* 11.03.03  1.00  Lad  Splitted from Pkware.cpp                             */
 /* 08.04.03  1.01  Lad  Renamed to explode.c to be compatible with pklib     */
 /* 02.05.03  1.01  Lad  Stress test done                                     */
+/* 22.04.10  1.01  Lad  Documented                                           */
 /*****************************************************************************/
 
 #include <assert.h>
@@ -15,10 +16,22 @@
 
 #include "pklib.h"
 
+#define PKDCL_OK                    0
+#define PKDCL_STREAM_END            1   // All data from the input stream is read
+#define PKDCL_NEED_DICT             2   // Need more data (dictionary)
+#define PKDCL_CONTINUE             10   // Internal flag, not returned to user
+#define PKDCL_GET_INPUT            11   // Internal flag, not returned to user
+
+char CopyrightPkware[] = "PKWARE Data Compression Library for Win32\r\n"
+                         "Copyright 1989-1995 PKWARE Inc.  All Rights Reserved\r\n"
+                         "Patent No. 5,051,745\r\n"
+                         "PKWARE Data Compression Library Reg. U.S. Pat. and Tm. Off.\r\n"
+                         "Version 1.11\r\n";
+
 //-----------------------------------------------------------------------------
 // Tables
 
-static unsigned char DistBits[] = 
+static unsigned char DistBits[] =
 {
     0x02, 0x04, 0x04, 0x05, 0x05, 0x05, 0x05, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06,
     0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07,
@@ -26,7 +39,7 @@ static unsigned char DistBits[] =
     0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08
 };
 
-static unsigned char DistCode[] = 
+static unsigned char DistCode[] =
 {
     0x03, 0x0D, 0x05, 0x19, 0x09, 0x11, 0x01, 0x3E, 0x1E, 0x2E, 0x0E, 0x36, 0x16, 0x26, 0x06, 0x3A,
     0x1A, 0x2A, 0x0A, 0x32, 0x12, 0x22, 0x42, 0x02, 0x7C, 0x3C, 0x5C, 0x1C, 0x6C, 0x2C, 0x4C, 0x0C,
@@ -75,7 +88,7 @@ static unsigned char ChBitsAsc[] =
     0x0D, 0x0D, 0x0C, 0x0C, 0x0C, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D
 };
 
-static unsigned short ChCodeAsc[] = 
+static unsigned short ChCodeAsc[] =
 {
     0x0490, 0x0FE0, 0x07E0, 0x0BE0, 0x03E0, 0x0DE0, 0x05E0, 0x09E0,
     0x01E0, 0x00B8, 0x0062, 0x0EE0, 0x06E0, 0x0022, 0x0AE0, 0x02E0,
@@ -108,42 +121,30 @@ static unsigned short ChCodeAsc[] =
     0x0300, 0x0D40, 0x1D00, 0x0D00, 0x1500, 0x0540, 0x0500, 0x1900,
     0x0900, 0x0940, 0x1100, 0x0100, 0x1E00, 0x0E00, 0x0140, 0x1600,
     0x0600, 0x1A00, 0x0E40, 0x0640, 0x0A40, 0x0A00, 0x1200, 0x0200,
-    0x1C00, 0x0C00, 0x1400, 0x0400, 0x1800, 0x0800, 0x1000, 0x0000  
+    0x1C00, 0x0C00, 0x1400, 0x0400, 0x1800, 0x0800, 0x1000, 0x0000
 };
-
-//-----------------------------------------------------------------------------
-// Local variables
-
-static char Copyright[] = "PKWARE Data Compression Library for Win32\r\n"
-                          "Copyright 1989-1995 PKWARE Inc.  All Rights Reserved\r\n"
-                          "Patent No. 5,051,745\r\n"
-                          "PKWARE Data Compression Library Reg. U.S. Pat. and Tm. Off.\r\n"
-                          "Version 1.11\r\n";
 
 //-----------------------------------------------------------------------------
 // Local functions
 
-// Copies a block to another location
-static void lmemcpy(void * trg, const void * src, size_t count)
+static void GenDecodeTabs(
+    unsigned char * positions,          // [out] Table of positions
+    unsigned char * start_indexes,      // [in] Table of start indexes
+    unsigned char * length_bits,        // [in] Table of lengths. Each length is stored as number of bits
+    size_t elements)                    // [in] Number of elements in start_indexes and length_bits
 {
-    memcpy(trg, src, count);
-}
+    unsigned long index;
+    unsigned long length;
+    size_t i;
 
-static void GenDecodeTabs(long count, unsigned char * bits, unsigned char * pCode, unsigned char * buffer2)
-{
-    long i;
-
-    for(i = count-1; i >= 0; i--)             // EBX - count
+    for(i = 0; i < elements; i++)
     {
-        unsigned long idx1 = pCode[i];
-        unsigned long idx2 = 1 << bits[i];
+        length = 1 << length_bits[i];   // Get the length in bytes
 
-        do
+        for(index = start_indexes[i]; index < 0x100; index += length)
         {
-            buffer2[idx1] = (unsigned char)i;
-            idx1         += idx2;
+            positions[index] = (unsigned char)i;
         }
-        while(idx1 < 0x100);
     }
 }
 
@@ -221,8 +222,10 @@ static void GenAscTabs(TDcmpStruct * pWork)
 }
 
 //-----------------------------------------------------------------------------
-// Skips given number of bits in bit buffer. Result is stored in pWork->bit_buff
-// If no data in input buffer, returns true
+// Removes given number of bits in the bit buffer. New bits are reloaded from
+// the input buffer, if needed.
+// Returns: PKDCL_OK:         Operation was successful
+//          PKDCL_STREAM_END: There are no more bits in the input buffer
 
 static int WasteBits(TDcmpStruct * pWork, unsigned long nBits)
 {
@@ -231,7 +234,7 @@ static int WasteBits(TDcmpStruct * pWork, unsigned long nBits)
     {
         pWork->extra_bits -= nBits;
         pWork->bit_buff  >>= nBits;
-        return 0;
+        return PKDCL_OK;
     }
 
     // Load input buffer if necessary
@@ -240,66 +243,80 @@ static int WasteBits(TDcmpStruct * pWork, unsigned long nBits)
     {
         pWork->in_pos = sizeof(pWork->in_buff);
         if((pWork->in_bytes = pWork->read_buf((char *)pWork->in_buff, &pWork->in_pos, pWork->param)) == 0)
-            return 1;
+            return PKDCL_STREAM_END;
         pWork->in_pos = 0;
     }
 
     // Update bit buffer
     pWork->bit_buff  |= (pWork->in_buff[pWork->in_pos++] << 8);
     pWork->bit_buff >>= (nBits - pWork->extra_bits);
-    pWork->extra_bits    = (pWork->extra_bits - nBits) + 8;
-    return 0;
+    pWork->extra_bits = (pWork->extra_bits - nBits) + 8;
+    return PKDCL_OK;
 }
 
 //-----------------------------------------------------------------------------
-// Returns : 0x000 - 0x0FF : One byte from compressed file.
-//           0x100 - 0x305 : Copy previous block (0x100 = 1 byte)
-//           0x306         : Out of buffer (?)
+// Decodes next literal from the input (compressed) data.
+// Returns : 0x000: One byte 0x00
+//           0x001: One byte 0x01
+//           ...
+//           0x0FF: One byte 0xFF
+//           0x100: Repetition, length of 0x02 bytes
+//           0x101: Repetition, length of 0x03 bytes
+//           ...
+//           0x304: Repetition, length of 0x206 bytes
+//           0x305: End of stream
+//           0x306: Error
 
 static unsigned long DecodeLit(TDcmpStruct * pWork)
 {
-    unsigned long nBits;                // Number of bits to skip
-    unsigned long value;                // Position in buffers
+    unsigned long extra_length_bits;    // Number of bits of extra literal length
+    unsigned long length_code;          // Length code
+    unsigned long value;
 
-    // Test the current bit in byte buffer. If is not set, simply return the next byte.
+    // Test the current bit in byte buffer. If is not set, simply return the next 8 bits.
     if(pWork->bit_buff & 1)
     {
-        // Skip current bit in the buffer
+        // Remove one bit from the input data
         if(WasteBits(pWork, 1))
-            return 0x306;   
-
-        // The next bits are position in buffers
-        value = pWork->position2[(pWork->bit_buff & 0xFF)];
-        
-        // Get number of bits to skip
-        if(WasteBits(pWork, pWork->LenBits[value]))
             return 0x306;
 
-        if((nBits = pWork->ExLenBits[value]) != 0)
-        {
-            unsigned long val2 = pWork->bit_buff & ((1 << nBits) - 1);
+        // The next 8 bits hold the index to the length code table
+        length_code = pWork->LengthCodes[pWork->bit_buff & 0xFF];
 
-            if(WasteBits(pWork, nBits))
+        // Remove the apropriate number of bits
+        if(WasteBits(pWork, pWork->LenBits[length_code]))
+            return 0x306;
+
+        // Are there some extra bits for the obtained length code ?
+        if((extra_length_bits = pWork->ExLenBits[length_code]) != 0)
+        {
+            unsigned long extra_length = pWork->bit_buff & ((1 << extra_length_bits) - 1);
+
+            if(WasteBits(pWork, extra_length_bits))
             {
-                if((value + val2) != 0x10E)
+                if((length_code + extra_length) != 0x10E)
                     return 0x306;
             }
-            value = pWork->LenBase[value] + val2;
+            length_code = pWork->LenBase[length_code] + extra_length;
         }
-        return value + 0x100;           // Return number of bytes to repeat
+
+        // In order to distinguish uncompressed byte from repetition length,
+        // we have to add 0x100 to the length.
+        return length_code + 0x100;
     }
 
-    // Waste one bit
+    // Remove one bit from the input data
     if(WasteBits(pWork, 1))
         return 0x306;
 
     // If the binary compression type, read 8 bits and return them as one byte.
     if(pWork->ctype == CMP_BINARY)
     {
-        value = pWork->bit_buff & 0xFF;
+        unsigned long uncompressed_byte = pWork->bit_buff & 0xFF;
+
         if(WasteBits(pWork, 8))
             return 0x306;
-        return value;
+        return uncompressed_byte;
     }
 
     // When ASCII compression ...
@@ -337,89 +354,116 @@ static unsigned long DecodeLit(TDcmpStruct * pWork)
 }
 
 //-----------------------------------------------------------------------------
-// Retrieves the number of bytes to move back 
+// Decodes the distance of the repetition, backwards relative to the
+// current output buffer position
 
-static unsigned long DecodeDist(TDcmpStruct * pWork, unsigned long dwLength)
+static unsigned long DecodeDist(TDcmpStruct * pWork, unsigned long rep_length)
 {
-    unsigned long pos   = pWork->position1[(pWork->bit_buff & 0xFF)];
-    unsigned long nSkip = pWork->DistBits[pos];     // Number of bits to skip
+    unsigned long dist_pos_code;            // Distance position code
+    unsigned long dist_pos_bits;            // Number of bits of distance position
+    unsigned long distance;                 // Distance position
 
-    // Skip the appropriate number of bits
-    if(WasteBits(pWork, nSkip) == 1)
+    // Next 2-8 bits in the input buffer is the distance position code
+    dist_pos_code = pWork->DistPosCodes[pWork->bit_buff & 0xFF];
+    dist_pos_bits = pWork->DistBits[dist_pos_code];
+    if(WasteBits(pWork, dist_pos_bits))
         return 0;
 
-    if(dwLength == 2)
+    if(rep_length == 2)
     {
-        pos = (pos << 2) | (pWork->bit_buff & 0x03);
-
-        if(WasteBits(pWork, 2) == 1)
+        // If the repetition is only 2 bytes length,
+        // then take 2 bits from the stream in order to get the distance
+        distance = (dist_pos_code << 2) | (pWork->bit_buff & 0x03);
+        if(WasteBits(pWork, 2))
             return 0;
     }
     else
     {
-        pos = (pos << pWork->dsize_bits) | (pWork->bit_buff & pWork->dsize_mask);
-
-        // Skip the bits
-        if(WasteBits(pWork, pWork->dsize_bits) == 1)
+        // If the repetition is more than 2 bytes length,
+        // then take "dsize_bits" bits in order to get the distance
+        distance = (dist_pos_code << pWork->dsize_bits) | (pWork->bit_buff & pWork->dsize_mask);
+        if(WasteBits(pWork, pWork->dsize_bits))
             return 0;
     }
-    return pos+1;
+    return distance + 1;
 }
 
 static unsigned long Expand(TDcmpStruct * pWork)
 {
-    unsigned int  copyBytes;            // Number of bytes to copy
-    unsigned long oneByte;              // One byte from compressed file
-    unsigned long dwResult;
+    unsigned long next_literal;         // Literal decoded from the compressed data
+    unsigned long result;               // Value to be returned
+    unsigned int copyBytes;             // Number of bytes to copy to the output buffer
 
     pWork->outputPos = 0x1000;          // Initialize output buffer position
 
-    // If end of data or error, terminate decompress
-    while((dwResult = oneByte = DecodeLit(pWork)) < 0x305)
+    // Decode the next literal from the input data.
+    // The returned literal can either be an uncompressed byte (next_literal < 0x100)
+    // or an encoded length of the repeating byte sequence that
+    // is to be copied to the current buffer position
+    while((result = next_literal = DecodeLit(pWork)) < 0x305)
     {
-        // If one byte is greater than 0x100, means "Repeat n - 0xFE bytes"
-        if(oneByte >= 0x100)
+        // If the literal is greater than 0x100, it holds length
+        // of repeating byte sequence
+        // literal of 0x100 means repeating sequence of 0x2 bytes
+        // literal of 0x101 means repeating sequence of 0x3 bytes
+        // ...
+        // literal of 0x305 means repeating sequence of 0x207 bytes
+        if(next_literal >= 0x100)
         {
-            unsigned char * source;          // ECX
-            unsigned char * target;          // EDX
-            unsigned long  copyLength = oneByte - 0xFE;
-            unsigned long  moveBack;
+            unsigned char * source;
+            unsigned char * target;
+            unsigned long rep_length;       // Length of the repetition, in bytes
+            unsigned long minus_dist;       // Backward distance to the repetition, relative to the current buffer position
 
-            // Get length of data to copy
-            if((moveBack = DecodeDist(pWork, copyLength)) == 0)
+            // Get the length of the repeating sequence.
+            // Note that the repeating block may overlap the current output position,
+            // for example if there was a sequence of equal bytes
+            rep_length = next_literal - 0xFE;
+
+            // Get backward distance to the repetition
+            if((minus_dist = DecodeDist(pWork, rep_length)) == 0)
             {
-                dwResult = 0x306;
+                result = 0x306;
                 break;
             }
 
             // Target and source pointer
             target = &pWork->out_buff[pWork->outputPos];
-            source = target - moveBack;
-            pWork->outputPos += copyLength;
+            source = target - minus_dist;
 
-            while(copyLength-- > 0)
+            // Update buffer output position
+            pWork->outputPos += rep_length;
+
+            // Copy the repeating sequence
+            while(rep_length-- > 0)
                 *target++ = *source++;
         }
         else
-            pWork->out_buff[pWork->outputPos++] = (unsigned char)oneByte;
-    
-        // If number of extracted bytes has reached 1/2 of output buffer,
-        // flush output buffer.
+        {
+            pWork->out_buff[pWork->outputPos++] = (unsigned char)next_literal;
+        }
+
+        // Flush the output buffer, if number of extracted bytes has reached the end
         if(pWork->outputPos >= 0x2000)
         {
             // Copy decompressed data into user buffer
             copyBytes = 0x1000;
             pWork->write_buf((char *)&pWork->out_buff[0x1000], &copyBytes, pWork->param);
 
-            // If there are some data left, keep them alive
-            lmemcpy(pWork->out_buff, &pWork->out_buff[0x1000], pWork->outputPos - 0x1000);
+            // Now copy the decompressed data to the first half of the buffer.
+            // This is needed because the decompression might reuse them as repetitions.
+            // Note that if the output buffer overflowed previously, the extra decompressed bytes
+            // are stored in "out_buff_overflow", and they will now be
+            // within decompressed part of the output buffer.
+            memcpy(pWork->out_buff, &pWork->out_buff[0x1000], pWork->outputPos - 0x1000);
             pWork->outputPos -= 0x1000;
         }
     }
 
+    // Flush any remaining decompressed bytes
     copyBytes = pWork->outputPos - 0x1000;
     pWork->write_buf((char *)&pWork->out_buff[0x1000], &copyBytes, pWork->param);
-    return dwResult;
+    return result;
 }
 
 
@@ -434,10 +478,8 @@ unsigned int explode(
 {
     TDcmpStruct * pWork = (TDcmpStruct *)work_buf;
 
-    // Set the whole work buffer to zeros
-    memset(pWork, 0, sizeof(TDcmpStruct));
-
     // Initialize work struct and load compressed data
+    // Note: The caller must zero the "work_buff" before passing it to explode
     pWork->read_buf   = read_buf;
     pWork->write_buf  = write_buf;
     pWork->param      = param;
@@ -446,14 +488,14 @@ unsigned int explode(
     if(pWork->in_bytes <= 4)
         return CMP_BAD_DATA;
 
-    pWork->ctype      = pWork->in_buff[0]; // Get the compression type
+    pWork->ctype      = pWork->in_buff[0]; // Get the compression type (CMP_BINARY or CMP_ASCII)
     pWork->dsize_bits = pWork->in_buff[1]; // Get the dictionary size
     pWork->bit_buff   = pWork->in_buff[2]; // Initialize 16-bit bit buffer
     pWork->extra_bits = 0;                 // Extra (over 8) bits
     pWork->in_pos     = 3;                 // Position in input buffer
 
     // Test for the valid dictionary size
-    if(4 > pWork->dsize_bits || pWork->dsize_bits > 6) 
+    if(4 > pWork->dsize_bits || pWork->dsize_bits > 6)
         return CMP_INVALID_DICTSIZE;
 
     pWork->dsize_mask = 0xFFFF >> (0x10 - pWork->dsize_bits); // Shifted by 'sar' instruction
@@ -463,18 +505,18 @@ unsigned int explode(
         if(pWork->ctype != CMP_ASCII)
             return CMP_INVALID_MODE;
 
-        lmemcpy(pWork->ChBitsAsc, ChBitsAsc, sizeof(pWork->ChBitsAsc));
+        memcpy(pWork->ChBitsAsc, ChBitsAsc, sizeof(pWork->ChBitsAsc));
         GenAscTabs(pWork);
     }
 
-    lmemcpy(pWork->LenBits, LenBits, sizeof(pWork->LenBits));
-    GenDecodeTabs(0x10, pWork->LenBits, LenCode, pWork->position2);
-    lmemcpy(pWork->ExLenBits, ExLenBits, sizeof(pWork->ExLenBits));
-    lmemcpy(pWork->LenBase, LenBase, sizeof(pWork->LenBase));
-    lmemcpy(pWork->DistBits, DistBits, sizeof(pWork->DistBits));
-    GenDecodeTabs(0x40, pWork->DistBits, DistCode, pWork->position1);
+    memcpy(pWork->LenBits, LenBits, sizeof(pWork->LenBits));
+    GenDecodeTabs(pWork->LengthCodes, LenCode, pWork->LenBits, sizeof(pWork->LenBits));
+    memcpy(pWork->ExLenBits, ExLenBits, sizeof(pWork->ExLenBits));
+    memcpy(pWork->LenBase, LenBase, sizeof(pWork->LenBase));
+    memcpy(pWork->DistBits, DistBits, sizeof(pWork->DistBits));
+    GenDecodeTabs(pWork->DistPosCodes, DistCode, pWork->DistBits, sizeof(pWork->DistBits));
     if(Expand(pWork) != 0x306)
         return CMP_NO_ERROR;
-        
+
     return CMP_ABORT;
 }

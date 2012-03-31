@@ -120,12 +120,10 @@ uint32 HashString(const uint32 dwCryptTable[cryptTableSize], const char *lpszStr
 
 struct DataInfo
 {
-	char *inBuffer; // Pointer to input data buffer
-	int inPosition; // Current offset in input data buffer
-	int inBytes; // Number of bytes in the input buffer
-	char *outBuffer; // Pointer to output data buffer
-	int outPosition; // Position in the output buffer
-	int maxOut; // Maximum number of bytes in the output buffer
+	char *inBuffer;		// Pointer to input data buffer
+	char *inBufferEnd;	// End of the input buffer
+	char *outBuffer;	// Pointer to output data buffer
+	char *outBufferEnd; 	// Pointer to output data buffer
 };
 
 /**
@@ -140,7 +138,7 @@ struct DataInfo
 static unsigned int readBuffer(char *buf, unsigned int *size, void *param)
 {
 	struct DataInfo *info = reinterpret_cast<struct DataInfo*>(param);
-	unsigned int maxAvailable = (info->inBytes - info->inPosition);
+	unsigned int maxAvailable = (unsigned int)(info->inBufferEnd - info->inBuffer);
 	unsigned int toRead = *size;
 
 	// Check the case when not enough data available
@@ -148,8 +146,9 @@ static unsigned int readBuffer(char *buf, unsigned int *size, void *param)
 		toRead = maxAvailable;
 
 	// Load data and increment offsets
-	memcpy(buf, info->inBuffer + info->inPosition, toRead);
-	info->inPosition += toRead;
+	memcpy(buf, info->inBuffer, toRead);
+	info->inBuffer += toRead;
+	assert(info->inBuffer <= info->inBufferEnd);
 
 	 return toRead;
 }
@@ -165,7 +164,7 @@ static unsigned int readBuffer(char *buf, unsigned int *size, void *param)
 static void writeBuffer(char *buf, unsigned int *size, void *param)
 {
 	struct DataInfo *info = reinterpret_cast<struct DataInfo*>(param);
-	unsigned int maxWrite = (info->maxOut - info->outPosition);
+	unsigned int maxWrite = (unsigned int)(info->outBufferEnd - info->outBuffer);
 	unsigned int toWrite = *size;
 
 	// Check the case when not enough space in the output buffer
@@ -173,40 +172,40 @@ static void writeBuffer(char *buf, unsigned int *size, void *param)
 		toWrite = maxWrite;
 
 	// Write output data and increments offsets
-	memcpy(info->outBuffer + info->outPosition, buf, toWrite);
-	info->outPosition += toWrite;
+	memcpy(info->outBuffer, buf, toWrite);
+	info->outBuffer += toWrite;
+	assert(info->outBuffer <= info->outBufferEnd);
 }
 
-void compressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength, short compressionType, int /* compressionLevel */)  throw (class Exception)
+void compressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength, int * /* pCmpType */, int /* compressionLevel */)  throw (class Exception)
 {
 	struct DataInfo info; // Data information
 	// Fill data information structure
 	info.inBuffer  = inBuffer;
-	info.inPosition = 0;
-	info.inBytes = inLength;
+	info.inBufferEnd = inBuffer + inLength;
 	info.outBuffer = outBuffer;
-	info.outPosition  = 0;
-	info.maxOut  = outLength;
+	info.outBufferEnd  = outBuffer + outLength;
 	boost::scoped_array<char> workBuffer(new char[CMP_BUFFER_SIZE]); // Pklib's work buffer
-	unsigned int dictonarySize; // Dictionary size
-	unsigned int ctype; // Compression type
+	memset(workBuffer.get(), 0, CMP_BUFFER_SIZE);
+	unsigned int dictonarySize;                             // Dictionary size
+	unsigned int ctype = CMP_BINARY;                    // Compression type
 
 	// Set the compression type and dictionary size
-	ctype = (compressionType == 2) ? CMP_ASCII : CMP_BINARY;
-
+	 // Set the compression type and dictionary size
 	if (inLength < 0x600)
-		dictonarySize = 0x400;
+		dictonarySize = CMP_IMPLODE_DICT_SIZE1;
 	else if(0x600 <= inLength && inLength < 0xC00)
-		dictonarySize = 0x800;
+		dictonarySize = CMP_IMPLODE_DICT_SIZE2;
 	else
-		dictonarySize = 0x1000;
+		dictonarySize = CMP_IMPLODE_DICT_SIZE3;
 
 	// Do the compression
 	unsigned int state = implode(readBuffer, writeBuffer, workBuffer.get(), &info, &ctype, &dictonarySize);
-	outLength = info.outPosition;
 
 	if (state != CMP_NO_ERROR)
 		throw Exception(boost::format(_("Implode error: \"%1%\".")) % pkglibError(state));
+
+	outLength = (int)(info.outBuffer - outBuffer);
 }
 
 void decompressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength) throw (class Exception)
@@ -214,27 +213,21 @@ void decompressPklib(char *outBuffer, int &outLength, char* const inBuffer, int 
 	struct DataInfo info; // Data information
 	// Fill data information structure
 	info.inBuffer = inBuffer;
-	info.inPosition = 0;
-	info.inBytes = inLength;
+	info.inBufferEnd = inBuffer + inLength;
 	info.outBuffer = outBuffer;
-	info.outPosition = 0;
-	info.maxOut = outLength;
+	info.outBufferEnd = outBuffer + outLength;
 	boost::scoped_array<char> workBuffer(new char[EXP_BUFFER_SIZE]); // Pklib's work buffer
+	memset(workBuffer.get(), 0, EXP_BUFFER_SIZE);
 
 	// Do the decompression
 	unsigned int state = explode(readBuffer, writeBuffer, workBuffer.get(), &info);
 
-	// Fix: If PKLIB is unable to decompress the data, they are uncompressed
-	if(info.outPosition == 0)
-	{
-		info.outPosition = std::min<int>(outLength, inLength);
-		memcpy(outBuffer, inBuffer, info.outPosition);
-	}
-
-	outLength = info.outPosition;
-
-	if (state != CMP_NO_ERROR)
+	// If PKLIB is unable to decompress the data, return 0;
+	if(info.outBuffer == outBuffer)
 		throw Exception(boost::format(_("Explode error: \"%1%\".")) % pkglibError(state));
+
+	// Give away the number of decompressed bytes
+	outLength = (int)(info.outBuffer - outBuffer);
 }
 
 int compressWaveMono(short* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength, int compressionLevel) throw (class Exception)
@@ -251,7 +244,7 @@ int compressWaveMono(short* const inBuffer, int inBufferLength, unsigned char *o
 	if (outBuffer == 0)
 		throw Exception(_("Output buffer is 0."));
 
-	outBufferLength = CompressWave(outBuffer, outBufferLength, inBuffer, inBufferLength, 1, compressionLevel);
+	outBufferLength = CompressADPCM(outBuffer, outBufferLength, inBuffer, inBufferLength, 1, compressionLevel);
 
 	return outBufferLength;
 }
@@ -261,7 +254,7 @@ int decompressWaveMono(unsigned char* const inBuffer, int inBufferLength, unsign
 	if (outBuffer == 0)
 		throw Exception(_("Output buffer is 0."));
 
-	outBufferLength = DecompressWave(outBuffer, outBufferLength, inBuffer, inBufferLength, 1);
+	outBufferLength = DecompressADPCM(outBuffer, outBufferLength, inBuffer, inBufferLength, 1);
 
 	return outBufferLength;
 }
@@ -280,7 +273,7 @@ int compressWaveStereo(short* const inBuffer, int inBufferLength, unsigned char 
 	if (outBuffer == 0)
 		throw Exception(_("Output buffer is 0."));
 
-	outBufferLength = CompressWave(outBuffer, outBufferLength, inBuffer, inBufferLength, 2, compressionLevel);
+	outBufferLength = CompressADPCM(outBuffer, outBufferLength, inBuffer, inBufferLength, 2, compressionLevel);
 
 	return outBufferLength;
 }
@@ -290,7 +283,7 @@ int decompressWaveStereo(unsigned char* const inBuffer, int inBufferLength, unsi
 	if (outBuffer == 0)
 		throw Exception(_("Output buffer is 0."));
 
-	inBufferLength = DecompressWave(outBuffer, outBufferLength, inBuffer, inBufferLength, 2);
+	inBufferLength = DecompressADPCM(outBuffer, outBufferLength, inBuffer, inBufferLength, 2);
 
 	return outBufferLength;
 }
@@ -336,101 +329,20 @@ std::streamsize decompressZlib(istream &istream, ostream &ostream, int bufferSiz
 	return boost::iostreams::copy(in, ostream);
 }
 
-std::streamsize deflateStream(istream &istream, ostream &ostream) throw (class Exception)
-{
-	throw Exception(_("Deprecated: Use compressZlib() instead!"));
-}
-
-std::streamsize inflateStream(istream &istream, ostream &ostream, const unsigned int bufferSize) throw (class Exception)
-{
-	throw Exception(_("Deprecated: Use decompressZlib() instead!"));
-	/*
-	z_stream stream;
-	stream.zalloc = Z_NULL;
-	stream.zfree = Z_NULL;
-	stream.opaque = Z_NULL;
-	stream.avail_in = 0;
-	stream.next_in = Z_NULL;
-	int state = inflateInit(&stream);
-	std::streamsize streamsize = 0;
-
-	if (state != Z_OK)
-		throw Exception(boost::format(_("Sector: ZLib error %1%.")) % zError(state));
-
-	/* decompress until deflate stream ends or end of istream */
-	/*
-	do
-	{
-		boost::scoped_array<byte> inputBuffer(new byte[bufferSize]);
-		istream.read(inputBuffer.get(), bufferSize);
-		stream.avail_in = 1;
-
-		//stream.avail_in = istream.gcount();
-		/*
-		if (stream.avail_in == 0)
-			break;
-		*/
-
-		//stream.next_in = reinterpret_cast<Bytef*>(inputBuffer.get());
-
-		/* run inflate() on input until output buffer not full */
-		/*
-		do
-		{
-			boost::scoped_array<byte> outputBuffer(new byte[bufferSize]);
-			stream.avail_out = bufferSize;
-			stream.next_out = reinterpret_cast<Bytef*>(outputBuffer.get());
-
-			state = inflate(&stream, Z_NO_FLUSH);
-
-			if (state == Z_STREAM_ERROR)
-				throw Exception(boost::str(boost::format(_("Sector: ZLib stream error %1%.")) % zError(state))); // state not clobbered
-
-			switch (state)
-			{
-			    case Z_NEED_DICT:
-				state = Z_DATA_ERROR; // and fall through
-			    case Z_DATA_ERROR:
-			    case Z_MEM_ERROR:
-
-				inflateEnd(&stream);
-
-				throw Exception(boost::str(boost::format(_("Sector: ZLib stream error %1%.")) % zError(state)));
-			}
-
-			const unsigned int have = bufferSize - stream.avail_out;
-			ostream.write(outputBuffer.get(), have);
-
-			if (!ostream)
-			{
-				inflateEnd(&stream);
-
-				throw Exception(boost::str(boost::format(_("Sector: ZLib stream error %1%.")) % zError(Z_ERRNO)));
-			}
-
-			streamsize += have;
-		}
-		while (stream.avail_out == 0);
-	}
-	while (state != Z_STREAM_END);
-
-	state = inflateEnd(&stream);
-
-	if (state != Z_OK)
-		throw Exception(boost::format(_("Sector: ZLib error %1%.")) % zError(state));
-
-	return streamsize;
-	*/
-}
-
-int compressHuffman(char *pbOutBuffer, int * pdwOutLength, char *pbInBuffer, int dwInLength, int *pCmpType, int /* nCmpLevel */)
+void compressHuffman(
+    char * pbOutBuffer,
+    int * pcbOutBuffer,
+    char * pbInBuffer,
+    int cbInBuffer,
+    int * pCmpType,
+    int /* nCmpLevel */)
 {
 	THuffmannTree ht;                   // Huffmann tree for compression
 	TOutputStream os;                   // Output stream
 
 	// Initialize output stream
 	os.pbOutBuffer = (unsigned char *)pbOutBuffer;
-	os.dwOutSize   = *pdwOutLength;
+	os.cbOutSize   = *pcbOutBuffer;
 	os.pbOutPos    = (unsigned char *)pbOutBuffer;
 	os.dwBitBuff   = 0;
 	os.nBits       = 0;
@@ -438,37 +350,37 @@ int compressHuffman(char *pbOutBuffer, int * pdwOutLength, char *pbInBuffer, int
 	// Initialize the Huffmann tree for compression
 	ht.InitTree(true);
 
-	*pdwOutLength = ht.DoCompression(&os, (unsigned char *)pbInBuffer, dwInLength, *pCmpType);
+	*pcbOutBuffer = ht.DoCompression(&os, (unsigned char *)pbInBuffer, cbInBuffer, *pCmpType);
 
 	// The following code is not necessary to run, because it has no
 	// effect on the output data. It only clears the huffmann tree, but when
 	// the tree is on the stack, who cares ?
 	//  ht.UninitTree();
-	return 0;
 }
 
-// 1500F5F0
-int decompressHuffman(char *pbOutBuffer, int *pdwOutLength, char *pbInBuffer, int /* dwInLength */)
+int decompressHuffman(char * pbOutBuffer, int * pcbOutBuffer, char * pbInBuffer, int cbInBuffer)
 {
 	THuffmannTree ht;
 	TInputStream  is;
 
 	// Initialize input stream
-	//  is.pbInBuffer  = (unsigned char *)pbInBuffer;
-	is.dwBitBuff   = *(unsigned long *)pbInBuffer;
-	pbInBuffer    += sizeof(unsigned long);
-	is.pbInBuffer  = (unsigned char *)pbInBuffer;
-	is.nBits       = 32;
+	is.pbInBufferEnd = (unsigned char *)pbInBuffer + cbInBuffer;
+	is.pbInBuffer = (unsigned char *)pbInBuffer;
+	is.BitBuffer  = 0;
+	is.BitCount   = 0;
 
 	// Initialize the Huffmann tree for compression
 	ht.InitTree(false);
-	*pdwOutLength = ht.DoDecompression((unsigned char *)pbOutBuffer, *pdwOutLength, &is);
+	*pcbOutBuffer = ht.DoDecompression((unsigned char *)pbOutBuffer, *pcbOutBuffer, &is);
+
+	if(*pcbOutBuffer == 0)
+		return 0;
 
 	// The following code is not necessary to run, because it has no
 	// effect on the output data. It only clears the huffmann tree, but when
 	// the tree is on the stack, who cares ?
 	//  ht.UninitTree();
-	return 0;
+	return 1;
 }
 
 }

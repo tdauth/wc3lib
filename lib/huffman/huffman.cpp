@@ -3,7 +3,7 @@
 /*---------------------------------------------------------------------------*/
 /* This module contains Huffmann (de)compression methods                     */
 /*                                                                           */
-/* Authors : Ladislav Zezula (ladik.zezula.net)                              */
+/* Authors : Ladislav Zezula (ladik@zezula.net)                              */
 /*           ShadowFlare     (BlakFlare@hotmail.com)                         */
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
@@ -15,13 +15,10 @@
 /* 08.12.03  2.01  Dan  High-memory handling (> 0x80000000)                  */
 /*****************************************************************************/
 
-#include <cassert>
-#include <cstring>
+#include <assert.h>
+#include <string.h>
 
 #include "huffman.h"
-
-namespace huffman
-{
 
 // Special for Mac - we have to know if normal pointer greater or less
 // than 0x80000000. This variable is used in the PTR_VALID and PTR_INVALID
@@ -32,6 +29,8 @@ static long mul = 1;
 #define PTR_INVALID(ptr)         (((LONG_PTR)(ptr) * mul) < 0)
 #define PTR_INVALID_OR_NULL(ptr) (((LONG_PTR)(ptr) * mul) <= 0)
 
+namespace huffman
+{
 
 //-----------------------------------------------------------------------------
 // Methods of the THTreeItem struct
@@ -123,10 +122,10 @@ void TOutputStream::PutBits(unsigned long dwBuff, unsigned int nPutBits)
     // Flush completed bytes
     while(nBits >= 8)
     {
-        if(dwOutSize != 0)
+        if(cbOutSize != 0)
         {
             *pbOutPos++ = (unsigned char)dwBitBuff;
-            dwOutSize--;
+            cbOutSize--;
         }
 
         dwBitBuff >>= 8;
@@ -140,48 +139,80 @@ void TOutputStream::PutBits(unsigned long dwBuff, unsigned int nPutBits)
 // Gets one bit from input stream
 unsigned long TInputStream::GetBit()
 {
-    unsigned long dwBit = (dwBitBuff & 1);
+    unsigned long dwOneBit = 0;
 
-    dwBitBuff >>= 1;
-    if(--nBits == 0)
+    // Ensure that the input stream is reloaded, if there are no bits left
+    if(BitCount == 0)
     {
-        dwBitBuff   = *(unsigned long *)pbInBuffer;
-        pbInBuffer += sizeof(unsigned long);
-        nBits       = 32;
+        // Refill the bit buffer
+        BitBuffer = *pbInBuffer++;
+        BitCount = 8;
     }
-    return dwBit;
+
+    // Copy the bit from bit buffer to the variable
+    dwOneBit = (BitBuffer & 0x01);
+    BitBuffer >>= 1;
+    BitCount--;
+
+    return dwOneBit;
 }
 
-// Gets 7 bits from the stream
+// Gets 7 bits from the stream. DOES NOT remove the bits from input stream
 unsigned long TInputStream::Get7Bits()
 {
-    if(nBits <= 7)
+    unsigned long dwReloadByte = 0;
+
+    // If there is not enough bits to get the value,
+    // we have to add 8 more bits from the input buffer
+    if(BitCount < 7)
     {
-        dwBitBuff  |= *(unsigned short *)pbInBuffer << nBits;
-        pbInBuffer += sizeof(unsigned short);
-        nBits      += 16;
+        dwReloadByte = *pbInBuffer++;
+        BitBuffer |= dwReloadByte << BitCount;
+        BitCount += 8;
     }
 
-    // Get 7 bits from input stream
- return (dwBitBuff & 0x7F);
+    // Return the first available 7 bits. DO NOT remove them from the input stream
+    return (BitBuffer & 0x7F);
 }
 
 // Gets the whole byte from the input stream.
 unsigned long TInputStream::Get8Bits()
 {
-    unsigned long dwOneByte;
+    unsigned long dwReloadByte = 0;
+    unsigned long dwOneByte = 0;
 
-    if(nBits <= 8)
+    // If there is not enough bits to get the value,
+    // we have to add 8 more bits from the input buffer
+    if(BitCount < 8)
     {
-        dwBitBuff  |= *(unsigned short *)pbInBuffer << nBits;
-        pbInBuffer += sizeof(unsigned short);
-        nBits      += 16;
+        dwReloadByte = *pbInBuffer++;
+        BitBuffer |= dwReloadByte << BitCount;
+        BitCount += 8;
     }
 
-    dwOneByte   = (dwBitBuff & 0xFF);
-    dwBitBuff >>= 8;
-    nBits      -= 8;
+    // Return the lowest 8 its
+    dwOneByte = (BitBuffer & 0xFF);
+    BitBuffer >>= 8;
+    BitCount -= 8;
     return dwOneByte;
+}
+
+void TInputStream::SkipBits(unsigned int dwBitsToSkip)
+{
+    unsigned long dwReloadByte = 0;
+
+    // If there is not enough bits in the buffer,
+    // we have to add 8 more bits from the input buffer
+    if(BitCount < dwBitsToSkip)
+    {
+        dwReloadByte = *pbInBuffer++;
+        BitBuffer |= dwReloadByte << BitCount;
+        BitCount += 8;
+    }
+
+    // Skip the remaining bits
+    BitBuffer >>= dwBitsToSkip;
+    BitCount -= dwBitsToSkip;
 }
 
 //-----------------------------------------------------------------------------
@@ -297,22 +328,22 @@ void THuffmannTree::InitTree(bool bCompression)
 // Builds Huffman tree. Called with the first 8 bits loaded from input stream
 void THuffmannTree::BuildTree(unsigned int nCmpType)
 {
-    unsigned long   maxByte;            // [ESP+10] - The greatest character found in table
-    THTreeItem   ** itemPtr;            // [ESP+14] - Pointer to Huffman tree item pointer array
-    unsigned char * byteArray;          // [ESP+1C] - Pointer to unsigned char in Table1502A630
+    unsigned long   maxByte;                // [ESP+10] - The greatest character found in table
+    THTreeItem   ** itemPtr;                // [ESP+14] - Pointer to Huffman tree item pointer array
+    unsigned char * byteArray;              // [ESP+1C] - Pointer to unsigned char in Table1502A630
     THTreeItem    * child1;
-    unsigned long   i;                  // egcs in linux doesn't like multiple for loops without an explicit i
+    unsigned long   i;                      // egcs in linux doesn't like multiple for loops without an explicit i
 
     // Loop while pointer has a valid value
-    while(PTR_VALID(pLast))             // ESI - Last entry
+    while(PTR_VALID(pLast))                 // ESI - Last entry
     {
-        THTreeItem * temp;              // EAX
+        THTreeItem * temp;                  // EAX
 
-        if(pLast->next != NULL)         // ESI->next
+        if(pLast->next != NULL)             // ESI->next
             pLast->RemoveItem();
-                                        // EDI = &offs3054
-        pItem3058   = PTR_PTR(&pItem3054);// [EDI+4]
-        pLast->prev = pItem3058;  // EAX
+                                            // EDI = &offs3054
+        pItem3058   = PTR_PTR(&pItem3054);  // [EDI+4]
+        pLast->prev = pItem3058;            // EAX
 
         temp = PTR_PTR(&pItem3054)->GetPrevItem(PTR_INT(&pItem3050));
 
@@ -323,8 +354,8 @@ void THuffmannTree::BuildTree(unsigned int nCmpType)
     // Clear all pointers in HTree item array
     memset(items306C, 0, sizeof(items306C));
 
-    maxByte = 0;                        // Greatest character found init to zero.
-    itemPtr = (THTreeItem **)&items306C; // Pointer to current entry in HTree item pointer array
+    maxByte = 0;                            // Greatest character found init to zero.
+    itemPtr = (THTreeItem **)&items306C;    // Pointer to current entry in HTree item pointer array
 
     // Ensure we have low 8 bits only
     nCmpType &= 0xFF;
@@ -796,10 +827,10 @@ unsigned int THuffmannTree::DoCompression(TOutputStream * os, unsigned char * pb
     // Flush completed bytes
     while(os->nBits >= 8)
     {
-        if(os->dwOutSize != 0)
+        if(os->cbOutSize != 0)
         {
             *os->pbOutPos++ = (unsigned char)os->dwBitBuff;
-            os->dwOutSize--;
+            os->cbOutSize--;
         }
 
         os->dwBitBuff >>= 8;
@@ -833,10 +864,10 @@ unsigned int THuffmannTree::DoCompression(TOutputStream * os, unsigned char * pb
             // Flush the whole byte(s)
             while(os->nBits >= 8)
             {
-                if(os->dwOutSize != 0)
+                if(os->cbOutSize != 0)
                 {
                     *os->pbOutPos++ = (unsigned char)os->dwBitBuff;
-                    os->dwOutSize--;
+                    os->cbOutSize--;
                 }
                 os->dwBitBuff >>= 8;
                 os->nBits -= 8;
@@ -941,10 +972,10 @@ unsigned int THuffmannTree::DoCompression(TOutputStream * os, unsigned char * pb
     // Flush the remaining bits
     while(os->nBits != 0)
     {
-        if(os->dwOutSize != 0)
+        if(os->cbOutSize != 0)
         {
             *os->pbOutPos++ = (unsigned char)os->dwBitBuff;
-            os->dwOutSize--;
+            os->cbOutSize--;
         }
         os->dwBitBuff >>= 8;
         os->nBits -= ((os->nBits > 8) ? 8 : os->nBits);
@@ -979,7 +1010,13 @@ unsigned int THuffmannTree::DoDecompression(unsigned char * pbOutBuffer, unsigne
 
     for(;;)
     {
-        n7Bits = is->Get7Bits();            // Get 7 bits from input stream
+        // Security check: If we are at the end of the input buffer,
+        // it means that the data are corrupt.
+        if(is->pbInBuffer > is->pbInBufferEnd)
+            return 0;
+
+        // Get 7 bits from input stream
+        n7Bits = is->Get7Bits();
 
         // Try to use quick decompression. Check TQDecompress array for corresponding item.
         // If found, ise the result byte instead.
@@ -993,13 +1030,11 @@ unsigned int THuffmannTree::DoDecompression(unsigned char * pbOutBuffer, unsigne
         {
             if(qd->nBits > 7)
             {
-                is->dwBitBuff >>= 7;
-                is->nBits -= 7;
+                is->SkipBits(7);
                 pItem1 = qd->pItem;
                 goto _1500E549;
             }
-            is->dwBitBuff >>= qd->nBits;
-            is->nBits -= qd->nBits;
+            is->SkipBits(qd->nBits);
             nDcmpByte = qd->dcmpByte;
         }
         else
@@ -1085,200 +1120,6 @@ _1500E549:
     return (unsigned int)(pbOutPos - pbOutBuffer);
 }
 
-/* OLD VERSION
-unsigned int THuffmannTree::DoDecompression(unsigned char * pbOutBuffer, unsigned int dwOutLength, TInputStream * is)
-{
-    THTreeItem  * pItem1;               // Current item if walking HTree
-    unsigned long bitCount;             // Bit counter if walking HTree
-    unsigned long oneByte;              // 8 bits from bit stream/Pointer to target
-    unsigned char * outPtr;             // Current pointer to output buffer
-    bool          hasQDEntry;           // true if entry for quick decompression if filled
-    THTreeItem  * itemAt7 = NULL;       // HTree item found at 7th bit
-    THTreeItem  * temp;                 // For every use
-    unsigned long dcmpByte = 0;         // Decompressed byte value
-    bool          bFlag = 0;
-
-    // Test the output length. Must not be NULL.
-    if(dwOutLength == 0)
-        return 0;
-
-    // If too few bits in input bit buffer, we have to load next 16 bits
-    is->EnsureHasMoreThan8Bits();
-
-    // Get 8 bits from input stream
-    oneByte = is->Get8Bits();
-
-    // Build the Huffman tree
-    BuildTree(oneByte);
-
-    bIsCmp0 = (oneByte == 0) ? 1 : 0;
-    outPtr  = pbOutBuffer;              // Copy pointer to output data
-
-    for(;;)
-    {
-        TQDecompress * qd;              // For quick decompress
-        unsigned long sevenBits = is->Get7Bits();// 7 bits from input stream
-
-        // Try to use quick decompression. Check TQDecompress array for corresponding item.
-        // If found, ise the result byte instead.
-        qd = &qd3474[sevenBits];
-
-        // If there is a quick-pass possible
-        hasQDEntry = (qd->offs00 == offs0004) ? 1 : 0;
-
-        // Start passing the Huffman tree. Set item to tree root item
-        pItem1 = pFirst;
-
-        // If we can use quick decompress, use it.
-        bFlag = 1;
-        if(hasQDEntry == 1)
-        {
-            // Check the bit count is greater than 7, move item to 7 levels deeper
-            if((bitCount = qd->bitCount) > 7)
-            {
-                is->dwBitBuff >>= 7;
-                is->nBits  -= 7;
-                pItem1      = qd->item; // Don't start with root item, but with some deeper-laying
-            }
-            else
-            {
-                // If OK, use their byte value
-                is->dwBitBuff >>= bitCount;
-                is->nBits  -= bitCount;
-                dcmpByte    = qd->dcmpByte;
-                bFlag       = 0;
-            }
-        }
-        else
-        {
-            pItem1 = pFirst->next->prev;
-            if(PTR_INT(pItem1) <= 0)
-                pItem1 = NULL;
-        }
-
-        if(bFlag == 1)
-        {
-            // Walk through Huffman Tree
-            bitCount = 0;               // Clear bit counter
-            do
-            {
-                pItem1 = pItem1->child;
-                if(is->GetBit() != 0)   // If current bit is set, move to previous
-                    pItem1 = pItem1->prev;  // item in current level
-
-                if(++bitCount == 7)     // If we are at 7th bit, store current HTree item.
-                    itemAt7 = pItem1;   // Store Huffman tree item
-            }
-            while(pItem1->child != NULL); // Walk until tree has no deeper level
-
-            // If quick decompress entry is not filled yet, fill it.
-            if(hasQDEntry == 0)
-            {
-                if(bitCount > 7)        // If we passed more than 7 bits, store bitCount and item
-                {
-                    qd->offs00   = offs0004;   // Value indicates that entry is resolved
-                    qd->bitCount = bitCount;   // Number of bits passed
-                    qd->item     = itemAt7;    // Store item at 7th bit
-                }
-                // If we passed less than 7 bits, fill entry and bit count multipliers
-                else
-                {
-                    unsigned long index = sevenBits & (0xFFFFFFFF >> (32 - bitCount)); // Index for quick-decompress entry
-                    unsigned long addIndex = (1 << bitCount);                          // Add value for index
-
-                    qd = &qd3474[index];
-
-                    do
-                    {
-                        qd->offs00   = offs0004;
-                        qd->bitCount = bitCount;
-                        qd->dcmpByte = pItem1->dcmpByte;
-
-                        index += addIndex;
-                        qd    += addIndex;
-                    }
-                    while(index <= 0x7F);
-                }
-            }
-            dcmpByte = pItem1->dcmpByte;
-        }
-
-        if(dcmpByte == 0x101)        // Huffman tree needs to be modified
-        {
-            // Check if there is enough bits in the buffer
-            is->EnsureHasMoreThan8Bits();
-
-            // Get 8 bits from the buffer
-            oneByte = is->Get8Bits();
-
-            // Modify Huffman tree
-            ModifyTree(oneByte);
-
-            // Get lastly added tree item
-            pItem1 = items306C[oneByte];
-
-            if(bIsCmp0 == 0 && pItem1 != NULL)
-            {
-                // 15006F15
-                do
-                {
-                    THTreeItem * pItem2 = pItem1;
-                    THTreeItem * pItem3;
-                    unsigned long byteValue;
-
-                    byteValue = ++pItem1->byteValue;
-
-                    while(PTR_INT((pItem3 = pItem2->prev)) > 0)
-                    {
-                        if(pItem3->byteValue >= byteValue)
-                            goto _15006F30;
-
-                        pItem2 = pItem2->prev;
-                    }
-                    pItem3 = NULL;
-
-                    _15006F30:
-                    if(pItem2 == pItem1)
-                        continue;
-
-                    InsertItem(&pItem305C, pItem2, SWITCH_ITEMS, pItem1);
-                    InsertItem(&pItem305C, pItem1, SWITCH_ITEMS, pItem3);
-
-                    temp = pItem2->parent->child;
-                    if(pItem1 == pItem1->parent->child)
-                        pItem1->parent->child = pItem2;
-
-                    if(pItem2 == temp)
-                        pItem2->parent->child = pItem1;
-
-                    // Switch parents of pItem1 and pItem3
-                    temp = pItem1->parent;
-                    pItem1->parent = pItem2->parent;
-                    pItem2->parent = temp;
-                    offs0004++;
-                }
-                while(PTR_INT((pItem1 = pItem1->parent)) > 0);
-            }
-            dcmpByte = oneByte;
-        }
-
-        if(dcmpByte != 0x100)        // Not at the end of data ?
-        {
-            *outPtr++ = (unsigned char)dcmpByte;
-            if(--dwOutLength > 0)
-            {
-                if(bIsCmp0 != 0)
-                    Call1500E820(items306C[pItem1->byteValue]);
-            }
-            else
-                break;
-        }
-        else
-            break;
-    }
-    return (unsigned long)(outPtr - pbOutBuffer);
-}
-*/
 
 // Table for (de)compression. Every compression type has 258 entries
 unsigned char THuffmannTree::Table1502A630[] =

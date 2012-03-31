@@ -6,13 +6,25 @@
 /*---------------------------------------------------------------------------*/
 /*   Date    Ver   Who  Comment                                              */
 /* --------  ----  ---  -------                                              */
-/* 25.04.10  1.01  Tamino Dauth  Made independent.                           */
 /* 11.03.03  1.00  Lad  Splitted from Pkware.cpp                             */
 /* 20.05.03  2.00  Lad  Added compression                                    */
 /* 19.11.03  2.01  Dan  Big endian handling                                  */
+/* 25.04.10  1.01  Tamino Dauth  Made independent.                           */
 /*****************************************************************************/
 
 #include "wave.h"
+
+// for little endian
+#define    BSWAP_INT16_UNSIGNED(a)          (a)
+#define    BSWAP_INT16_SIGNED(a)            (a)
+#define    BSWAP_INT32_UNSIGNED(a)          (a)
+#define    BSWAP_INT32_SIGNED(a)            (a)
+#define    BSWAP_INT64_SIGNED(a)            (a)
+#define    BSWAP_INT64_UNSIGNED(a)          (a)
+#define    BSWAP_ARRAY16_UNSIGNED(a,b)      {}
+#define    BSWAP_ARRAY32_UNSIGNED(a,b)      {}
+#define    BSWAP_ARRAY64_UNSIGNED(a,b)      {}
+#define    BSWAP_PART_HEADER(a)             {}
 
 //------------------------------------------------------------------------------
 // Structures
@@ -36,11 +48,11 @@ static long Table1503F120[] =
 {
     0xFFFFFFFF, 0x00000000, 0xFFFFFFFF, 0x00000004, 0xFFFFFFFF, 0x00000002, 0xFFFFFFFF, 0x00000006,
     0xFFFFFFFF, 0x00000001, 0xFFFFFFFF, 0x00000005, 0xFFFFFFFF, 0x00000003, 0xFFFFFFFF, 0x00000007,
-    0xFFFFFFFF, 0x00000001, 0xFFFFFFFF, 0x00000005, 0xFFFFFFFF, 0x00000003, 0xFFFFFFFF, 0x00000007,  
-    0xFFFFFFFF, 0x00000002, 0xFFFFFFFF, 0x00000004, 0xFFFFFFFF, 0x00000006, 0xFFFFFFFF, 0x00000008  
+    0xFFFFFFFF, 0x00000001, 0xFFFFFFFF, 0x00000005, 0xFFFFFFFF, 0x00000003, 0xFFFFFFFF, 0x00000007,
+    0xFFFFFFFF, 0x00000002, 0xFFFFFFFF, 0x00000004, 0xFFFFFFFF, 0x00000006, 0xFFFFFFFF, 0x00000008
 };
 
-static long Table1503F1A0[] =
+static long step_table[] =
 {
     0x00000007, 0x00000008, 0x00000009, 0x0000000A, 0x0000000B, 0x0000000C, 0x0000000D, 0x0000000E,
     0x00000010, 0x00000011, 0x00000013, 0x00000015, 0x00000017, 0x00000019, 0x0000001C, 0x0000001F,
@@ -60,8 +72,8 @@ static long Table1503F1A0[] =
 // CompressWave
 
 // 1500EF70
-int CompressWave(unsigned char * pbOutBuffer, int dwOutLength, short * pwInBuffer, int dwInLength, int nChannels, int nCmpLevel)
-//               ECX                          EDX
+int CompressADPCM(unsigned char * pbOutBuffer, int dwOutLength, short * pwInBuffer, int dwInLength, int nChannels, int nCmpLevel)
+//                ECX                          EDX
 {
     TWordAndByteArray Wcmp;
     TByteAndWordPtr out;                    // Pointer to the output buffer
@@ -93,7 +105,7 @@ int CompressWave(unsigned char * pbOutBuffer, int dwOutLength, short * pwInBuffe
     Wcmp.b[1] = (unsigned char)(nCmpLevel - 1);
     Wcmp.b[0] = (unsigned char)0;
 
-    *out.pw++ = (Wcmp.w);
+    *out.pw++ = BSWAP_INT16_SIGNED(Wcmp.w);
     if((out.pb - pbOutBuffer + (nChannels * 2)) > nBytesRemains)
         return (int)(out.pb - pbOutBuffer + (nChannels * 2));
 
@@ -101,8 +113,8 @@ int CompressWave(unsigned char * pbOutBuffer, int dwOutLength, short * pwInBuffe
 
     for(int i = 0; i < nChannels; i++)
     {
-        nOneWord = (*pwInBuffer++);
-        *out.pw++ = ((short)nOneWord);
+        nOneWord = BSWAP_INT16_SIGNED(*pwInBuffer++);
+        *out.pw++ = BSWAP_INT16_SIGNED((short)nOneWord);
         SInt32Array2[i] = nOneWord;
     }
 
@@ -113,10 +125,10 @@ int CompressWave(unsigned char * pbOutBuffer, int dwOutLength, short * pwInBuffe
 
     nLength = (nLength / 2) - (int)(out.pb - pbOutBuffer);
     nLength = (nLength < 0) ? 0 : nLength;
-    
+
     nIndex  = nChannels - 1;            // edi
     nWordsRemains = dwInLength / 2;     // eax
-    
+
     // ebx - nChannels
     // ecx - pwOutPos
     for(int chnl = nChannels; chnl < nWordsRemains; chnl++)
@@ -130,7 +142,7 @@ int CompressWave(unsigned char * pbOutBuffer, int dwOutLength, short * pwInBuffe
             nIndex = (nIndex == 0) ? 1 : 0;
 
         // Load one word from the input stream
-        nOneWord = (*pwInBuffer++);   // ecx - nOneWord
+        nOneWord = BSWAP_INT16_SIGNED(*pwInBuffer++);   // ecx - nOneWord
         SInt32Array3[nIndex] = nOneWord;
 
         // esi - SInt32Array2[nIndex]
@@ -141,9 +153,9 @@ int CompressWave(unsigned char * pbOutBuffer, int dwOutLength, short * pwInBuffe
         ebx = (nOneWord >= SInt32Array2[nIndex]) ? 0 : 0x40;
 
         // esi - SInt32Array2[nIndex]
-        // edx - Table1503F1A0[SInt32Array2[nIndex]]
-        // edi - (Table1503F1A0[SInt32Array1[nIndex]] >> nCmpLevel)
-        nTableValue = Table1503F1A0[SInt32Array1[nIndex]];
+        // edx - step_table[SInt32Array2[nIndex]]
+        // edi - (step_table[SInt32Array1[nIndex]] >> nCmpLevel)
+        nTableValue = step_table[SInt32Array1[nIndex]];
         dwStopBit = (unsigned long)nCmpLevel;
 
         // edi - nIndex;
@@ -164,7 +176,7 @@ int CompressWave(unsigned char * pbOutBuffer, int dwOutLength, short * pwInBuffe
                 if(SInt32Array1[nIndex] > 0x58)
                     SInt32Array1[nIndex] = 0x58;
 
-                nTableValue = Table1503F1A0[SInt32Array1[nIndex]];
+                nTableValue = step_table[SInt32Array1[nIndex]];
                 *out.pb++ = 0x81;
                 nLength--;
             }
@@ -185,7 +197,7 @@ int CompressWave(unsigned char * pbOutBuffer, int dwOutLength, short * pwInBuffe
                 }
                 if(dwBit == dwStopBit)
                     break;
-               
+
                 nTableValue >>= 1;
             }
 
@@ -206,7 +218,7 @@ int CompressWave(unsigned char * pbOutBuffer, int dwOutLength, short * pwInBuffe
             SInt32Array2[nIndex]  = nValue;
             *out.pb++ = (unsigned char)(dwBitBuff | ebx);
             nTableValue = Table1503F120[dwBitBuff & 0x1F];
-            SInt32Array1[nIndex]  = SInt32Array1[nIndex] + nTableValue; 
+            SInt32Array1[nIndex]  = SInt32Array1[nIndex] + nTableValue;
             if(SInt32Array1[nIndex] < 0)
                 SInt32Array1[nIndex] = 0;
             else if(SInt32Array1[nIndex] > 0x58)
@@ -218,10 +230,10 @@ int CompressWave(unsigned char * pbOutBuffer, int dwOutLength, short * pwInBuffe
 }
 
 //----------------------------------------------------------------------------
-// DecompressWave
+// DecompressADPCM
 
 // 1500F230
-int DecompressWave(unsigned char * pbOutBuffer, int dwOutLength, unsigned char * pbInBuffer, int dwInLength, int nChannels)
+int DecompressADPCM(unsigned char * pbOutBuffer, int dwOutLength, unsigned char * pbInBuffer, int dwInLength, int nChannels)
 {
     TByteAndWordPtr out;                // Output buffer
     TByteAndWordPtr in;
@@ -240,12 +252,12 @@ int DecompressWave(unsigned char * pbOutBuffer, int dwOutLength, unsigned char *
     // Fill the Uint32Array2 array by channel values.
     for(int i = 0; i < nChannels; i++)
     {
-        nOneWord = (*in.pw++);
+        nOneWord = BSWAP_INT16_SIGNED(*in.pw++);
         SInt32Array2[i] = nOneWord;
         if(dwOutLengthCopy < 2)
             return (int)(out.pb - pbOutBuffer);
 
-        *out.pw++ = ((short)nOneWord);
+        *out.pw++ = BSWAP_INT16_SIGNED((short)nOneWord);
         dwOutLengthCopy -= sizeof(short);
     }
 
@@ -273,7 +285,7 @@ int DecompressWave(unsigned char * pbOutBuffer, int dwOutLength, unsigned char *
                     if(dwOutLengthCopy < 2)
                         return (int)(out.pb - pbOutBuffer);
 
-                    *out.pw++ = ((unsigned short)SInt32Array2[nIndex]);
+                    *out.pw++ = BSWAP_INT16_SIGNED((unsigned short)SInt32Array2[nIndex]);
                     dwOutLength -= sizeof(unsigned short);
                     break;
 
@@ -281,7 +293,7 @@ int DecompressWave(unsigned char * pbOutBuffer, int dwOutLength, unsigned char *
                     SInt32Array1[nIndex] += 8;
                     if(SInt32Array1[nIndex] > 0x58)
                         SInt32Array1[nIndex] = 0x58;
-                    
+
                     if(nChannels == 2)
                         nIndex = (nIndex == 0) ? 1 : 0;
                     break;
@@ -302,7 +314,7 @@ int DecompressWave(unsigned char * pbOutBuffer, int dwOutLength, unsigned char *
         else
         {
             // 1500F349
-            long temp1 = Table1503F1A0[SInt32Array1[nIndex]];  // EDI
+            long temp1 = step_table[SInt32Array1[nIndex]];     // EDI
             long temp2 = temp1 >> pbInBuffer[1];               // ESI
             long temp3 = SInt32Array2[nIndex];                 // ECX
 
@@ -342,7 +354,7 @@ int DecompressWave(unsigned char * pbOutBuffer, int dwOutLength, unsigned char *
                 break;
 
             // Store the output 16-bit value
-            *out.pw++ = ((short)SInt32Array2[nIndex]);
+            *out.pw++ = BSWAP_INT16_SIGNED((short)SInt32Array2[nIndex]);
             dwOutLength -= 2;
 
             SInt32Array1[nIndex] += Table1503F120[nOneByte & 0x1F];
