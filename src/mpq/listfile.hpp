@@ -103,7 +103,7 @@ inline Listfile::Entries Listfile::entries(const string &content)
 
 inline Listfile::Entries Listfile::entries() const
 {
-	std::ostringstream stream;
+	ostringstream stream;
 	MpqFile::writeData(stream);
 
 	return entries(stream.str());

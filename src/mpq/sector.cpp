@@ -544,7 +544,7 @@ void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, os
 		}
 	}
 	// skip compression types byte if data could not be compressed properly
-	else if (this->mpqFile()->isCompressed())
+	else if (this->mpqFile()->isCompressed() || this->mpqFile()->isImploded())
 	{
 		std::cerr << boost::format(_("%1%: Sector %2% with size %3% could not be compressed properly. Archive sector size is %4%.")) % this->mpqFile()->path() % sectorIndex() % this->sectorSize() % this->mpqFile()->mpq()->sectorSize() << std::endl;
 
@@ -552,6 +552,13 @@ void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, os
 
 		return;
 	}
+
+#ifdef DEBUG
+	// decompression failed
+	if ((this->mpqFile()->isCompressed() || this->mpqFile()->isImploded()) && dataSize <= this->sectorSize()) // smaller size results because of the compression byte
+		std::cerr << boost::format(_("%1%: Sector %2% with size %3% has same or smaller size after decompression: %4%.")) % this->mpqFile()->path() % sectorIndex() % this->sectorSize() % dataSize << std::endl;
+#endif
+
 
 	ostream.write(data.get(), dataSize);
 }
