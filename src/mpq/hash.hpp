@@ -44,7 +44,7 @@ class HashData : public boost::operators<HashData>
 		HashData(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default);
 
 		HashData(const HashData &other);
-		operator=(const HashData &other);
+		HashData& operator=(const HashData &other);
 		void setFilePathHashA(int32 filePathHashA);
 		int32 filePathHashA() const;
 		void setFilePathHashB(int32 filePathHashB);

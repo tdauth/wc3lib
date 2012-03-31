@@ -41,12 +41,14 @@ HashData::HashData(const HashData &other) : m_filePathHashA(other.m_filePathHash
 {
 }
 
-HashData::operator=(const HashData &other)
+HashData& HashData::operator=(const HashData &other)
 {
 	m_filePathHashA = other.m_filePathHashA;
 	m_filePathHashB = other.m_filePathHashB;
 	m_locale = other.m_locale;
 	m_platform = other.m_platform;
+
+	return *this;
 }
 
 bool HashData::isHash(int32 nameHashA, int32 nameHashB, uint16 locale, uint16 platform) const

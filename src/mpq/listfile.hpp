@@ -44,17 +44,6 @@ class Listfile : public MpqFile
 		typedef std::vector<string> Entries;
 
 		/**
-		 * The following container can be used to get all listed files via their corresponding file paths.
-		 * Class Mpq doesn't provide such functionality by default since listfiles are optional.
-		 */
-		typedef boost::multi_index_container<MpqFile*,
-		boost::multi_index::indexed_by<
-		// blocks are unique indices since each file must have its own block!
-		boost::multi_index::ordered_unique<boost::multi_index::tag<boost::filesystem::path, std::string>, boost::multi_index::const_mem_fun<MpqFile, const boost::filesystem::path&, &MpqFile::path> >
-		>
-		> Files;
-
-		/**
 		 * Replaces on Unix-based systems / character by \.
 		 */
 		static void toListfileEntry(std::string &path);
@@ -74,39 +63,12 @@ class Listfile : public MpqFile
 		 */
 		Entries entries() const;
 
-		const Files& files() const;
-
-		/**
-		 * Considers clearing files (\ref files()), as well.
-		 */
-		virtual void removeData();
-		/**
-		 * Refreshes all entries by getting already set file paths of all files.
-		 * \note Clears already existing entries! Be sure to call this member function when paths of files are set already.
-		 */
-		void refresh();
-
-		/**
-		 * Reads data from corresponding file "(listfile)" of the archive and stores paths into container.
-		 * \note Always returns 0.
-		 */
-		std::streamsize readData();
-		/**
-		 * Writes data into corresponding file "(listfile)" of the archive.
-		 */
-		std::streamsize writeData();
-
 		virtual const char* fileName() const;
 
 	protected:
 		friend class Mpq;
 
 		Listfile(Mpq *mpq, Hash *hash);
-
-		Files& files();
-
-	private:
-		Files m_files;
 };
 
 inline void Listfile::toListfileEntry(std::string &path)
@@ -147,19 +109,9 @@ inline Listfile::Entries Listfile::entries() const
 	return entries(stream.str());
 }
 
-inline const Listfile::Files& Listfile::files() const
-{
-	return this->m_files;
-}
-
 inline const char* Listfile::fileName() const
 {
 	return "(listfile)";
-}
-
-inline Listfile::Files& Listfile::files()
-{
-	return this->m_files;
 }
 
 }

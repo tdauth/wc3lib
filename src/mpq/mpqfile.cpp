@@ -33,9 +33,7 @@ void MpqFile::removeData()
 	boost::mutex::scoped_try_lock lock(this->m_mutex);
 
 	this->block()->setFileSize(0);
-
-	BOOST_FOREACH(SectorPtr sector, this->m_sectors)
-		sector.reset();
+	this->m_sectors.clear();
 
 	/// \todo Clear corresponding sector table in MPQ file?
 }
@@ -53,13 +51,14 @@ std::streamsize MpqFile::readData(istream &istream, BOOST_SCOPED_ENUM(Sector::Co
 	{
 		if (this->block()->flags() & Block::Flags::IsSingleUnit)
 		{
-			SectorPtr sector(newSector(0, 0, 0));
-
-			if (mpq()->storeSectors())
-				this->m_sectors.insert(sector);
+			this->m_sectors.reserve(1);
+			std::auto_ptr<Sector> sector(newSector(0, 0, 0));
 
 			sector->m_compression = compression;
 			bytes = sector->readData(istream);
+
+			if (mpq()->storeSectors())
+				this->m_sectors.push_back(sector);
 		}
 		else
 		{
@@ -76,13 +75,14 @@ std::streamsize MpqFile::readData(istream &istream, BOOST_SCOPED_ENUM(Sector::Co
 				std::streamsize sizeCounter = 0;
 				wc3lib::read(istream, buffer[0], sizeCounter, sectorSize);
 
-				SectorPtr sector(newSector(sectorIndex, sectorOffset, sectorSize));
-
-				if (mpq()->storeSectors())
-					this->m_sectors.insert(sector);
+				std::auto_ptr<Sector> sector(newSector(sectorIndex, sectorOffset, sectorSize));
 
 				sector->m_compression = compression;
 				bytes += sector->readData(buffer.get(), sectorSize);
+
+
+				if (mpq()->storeSectors())
+					this->m_sectors.push_back(sector);
 
 				++sectorIndex;
 				sectorOffset += sectorSize;
@@ -141,16 +141,16 @@ std::streamsize MpqFile::writeData(istream &istream, ostream &ostream) const thr
 
 	std::streamsize bytes = 0;
 
-	BOOST_FOREACH(const SectorPtr &sector, this->sectors())
+	BOOST_FOREACH(Sectors::const_reference sector, this->sectors())
 	{
 		try
 		{
-			sector->seekg(istream);
-			bytes += sector->writeData(istream, ostream);
+			sector.seekg(istream);
+			bytes += sector.writeData(istream, ostream);
 		}
 		catch (Exception &exception)
 		{
-			throw Exception(boost::format(_("Sector error (sector %1%, file %2%):\n%3%")) % sector->sectorIndex() % this->path() % exception.what());
+			throw Exception(boost::format(_("Sector error (sector %1%, file %2%):\n%3%")) % sector.sectorIndex() % this->path() % exception.what());
 		}
 	}
 
@@ -185,7 +185,9 @@ MpqFile::Sectors MpqFile::realSectors() const throw (Exception)
 	if (!mpq()->storeSectors())
 		const_cast<MpqFile*>(this)->read();
 
-	Sectors result(sectors());
+	Sectors result;
+	result.transfer(result.begin(), const_cast<MpqFile*>(this)->sectors());
+	//const_cast<MpqFile*>(this)->sectors().transfer(result.begin(), result.end(),
 
 	if (!mpq()->storeSectors())
 		const_cast<MpqFile*>(this)->m_sectors.clear();
@@ -238,13 +240,14 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 		const uint32 sectorSize = (this->block()->flags() & Block::Flags::IsSingleUnit) ? this->block()->fileSize() : this->m_mpq->sectorSize();
 		// If the file is stored as a single unit (indicated in the file's Flags), there is effectively only a single sector, which contains the entire file data.
 		const uint32 sectors = (this->m_hash->block()->flags() & Block::Flags::IsSingleUnit) ? 1 : this->m_hash->block()->blockSize() / sectorSize;
+		this->m_sectors.reserve(sectors + 1);
 
 		uint32 newOffset = 0;
 		// NOTE setting index before adding to container is important for index function in sectors container
 
 		for (uint32 i = 0; i < sectors; ++i)
 		{
-			this->m_sectors.insert(SectorPtr(newSector(i, newOffset, sectorSize)));
+			this->m_sectors.push_back(newSector(i, newOffset, sectorSize));
 
 			newOffset += sectorSize;
 		}
@@ -256,7 +259,7 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 			const uint32 lastSize = this->m_hash->block()->blockSize() % sectorSize;
 
 			if (lastSize > 0)
-				this->m_sectors.insert(SectorPtr(newSector(this->sectors().size(), newOffset, lastSize)));
+				this->m_sectors.push_back(newSector(this->sectors().size(), newOffset, lastSize));
 		}
 	}
 	// However, the SectorOffsetTable will be present if the file is compressed/imploded and the file is not stored as a single unit, even if there is only a single sector in the file (the size of the file is less than or equal to the archive's sector size).
@@ -297,23 +300,28 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 			std::cerr << "We have " << sectors << " sectors." << std::endl;
 			std::cerr << "Read sector table block size " << size << " is not equal to original block size " << hash()->block()->blockSize() << std::endl;
 			std::cerr << "Uncompressed file size is " << this->size() << std::endl;
-			std::cerr << "First sector offset " << (*this->sectors().find(0))->sectorOffset() << std::endl;
+			std::cerr << "First sector offset " << this->sectors()[0].sectorOffset() << std::endl;
 			size = hash()->block()->blockSize();
 		}
 		//else
 			//std::cout << "Everything is alright!" << std::endl;
 
-		// NOTE setting index before adding to container is important for index function in sectors container
-		// calculate size of each sector
+		boost::scoped_array<uint32> sizes(new uint32[sectors]);
+
 		for (uint32 i = sectors - 1; ; --i)
 		{
-			this->m_sectors.insert(SectorPtr(newSector(i, offsets[i], size - offsets[i])));
+			sizes[i] = size - offsets[i];
 
 			if (i == 0)
 				break;
 			else
 				size = offsets[i];
 		}
+
+		this->m_sectors.reserve(sectors);
+
+		for (uint32 i = 0; i < sectors; ++i)
+			this->m_sectors.push_back(newSector(i, offsets[i], sizes[i]));
 	}
 
 	return bytes;

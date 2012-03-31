@@ -594,8 +594,6 @@ inline const class Listfile* Mpq::createListfileFile()
 	// TODO get empty block etc. add file ...
 	FilePtr file(new Listfile(this, hash));
 	this->m_files.get<0>().push_back(file);
-	boost::polymorphic_cast<Listfile*>(file.get())->refresh();
-	boost::polymorphic_cast<Listfile*>(file.get())->writeData();
 
 	return boost::polymorphic_cast<Listfile*>(file.get());
 }

@@ -21,9 +21,7 @@
 #ifndef WC3LIB_MPQ_MPQFILE_HPP
 #define WC3LIB_MPQ_MPQFILE_HPP
 
-#include <boost/multi_index_container.hpp>
-#include <boost/multi_index/ordered_index.hpp>
-#include <boost/multi_index/mem_fun.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/algorithm/string/find.hpp>
 
@@ -72,15 +70,7 @@ class MpqFile : private boost::noncopyable
 		};
 		BOOST_SCOPED_ENUM_END
 
-		typedef boost::shared_ptr<Sector> SectorPtr;
-		typedef
-		boost::multi_index_container<SectorPtr,
-		boost::multi_index::indexed_by<
-		// ordered by its corresponding sector table index
-		boost::multi_index::ordered_unique<boost::multi_index::tag<uint32>, boost::multi_index::const_mem_fun<Sector, uint32, &Sector::sectorIndex> >
-		>
-		>
-		Sectors;
+		typedef boost::ptr_vector<Sector> Sectors;
 
 		/**
 		 * Removes all data from file.
@@ -171,6 +161,7 @@ class MpqFile : private boost::noncopyable
 		bool fileTime(time_t &time) const;
 		MD5 md5() const;
 
+		Sectors& sectors();
 		const Sectors& sectors() const;
 		/**
 		 * If \ref Mpq::storeSectors() is false this returns all found sectors anyway since it reads them directly from the MPQ archive.
@@ -348,6 +339,11 @@ inline bool MpqFile::fileTime(time_t &time) const
 inline MD5 MpqFile::md5() const
 {
 	return this->block()->md5();
+}
+
+inline MpqFile::Sectors& MpqFile::sectors()
+{
+	return this->m_sectors;
 }
 
 inline const MpqFile::Sectors& MpqFile::sectors() const

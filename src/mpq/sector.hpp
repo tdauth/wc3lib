@@ -37,7 +37,7 @@ namespace mpq
  * Compressed sectors do usually have the size of \ref Mpq::sectorSize() (except the last one which might be smaller).
  * \note Actually there is no read and write member functions since Sectors are created by \ref MpqFile instances when data is being read or written.
  */
-class Sector : private boost::noncopyable
+class Sector // FIXME : private boost::noncopyable
 {
 	public:
 		// TODO get best values

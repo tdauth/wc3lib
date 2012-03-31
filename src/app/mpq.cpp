@@ -135,8 +135,8 @@ std::string fileInfo(const MpqFile &file, bool humanReadable, bool decimal)
 	{
 		sstream << std::endl << boost::format(_("\n%1% Sectors:")) % sectors.size();
 
-		BOOST_FOREACH(const MpqFile::SectorPtr &sector, sectors)
-				sstream << boost::format(_("\nSector %1%:\n-- Offset: %2%\n-- Size: %3%\n-- Compression: %4%")) % sector->sectorIndex() % sector->sectorOffset() % sizeString(sector->sectorSize(), humanReadable, decimal) % compressionString(sector->compression());
+		BOOST_FOREACH(MpqFile::Sectors::const_reference sector, sectors)
+				sstream << boost::format(_("\nSector %1%:\n-- Offset: %2%\n-- Size: %3%\n-- Compression: %4%")) % sector.sectorIndex() % sector.sectorOffset() % sizeString(sector.sectorSize(), humanReadable, decimal) % compressionString(sector.compression());
 	}
 
 	return sstream.str();
@@ -281,6 +281,23 @@ void fileCheckStormLib(const mpq::MpqFile &mpqFile, TMPQFile &file, bool humanRe
 			0           // Size, in bytes, required to store information to pvFileInfo
 			) && fileKey != mpqFile.fileKey())
 			throw Exception("key");
+	}
+
+	MpqFile::Sectors realSectors = mpqFile.realSectors();
+
+	if (file.dwSectorCount != realSectors.size())
+		throw Exception("sectors");
+
+	if (file.dwSectorCount > 0)
+	{
+		if (file.pFileEntry->dwFlags & MPQ_FILE_COMPRESSED)
+		{
+			for (DWORD i = 0; i < file.dwSectorCount; ++i)
+			{
+				if (file.SectorOffsets[i] != realSectors[i].sectorOffset())
+					throw Exception(boost::format("sector offset %1%") % i);
+			}
+		}
 	}
 }
 

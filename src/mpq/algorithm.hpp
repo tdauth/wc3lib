@@ -67,6 +67,9 @@ inline const char* pkglibError(int error)
 	return "";
 }
 
+/**
+ * These values need to be like they are since they're used directly in function \ref HashString() for hash value calculation.
+ */
 BOOST_SCOPED_ENUM_START(HashType) /// \todo C++11 : uint32
 {
 	TableOffset = 0x000,
