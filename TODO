@@ -1,6 +1,7 @@
 2012-04-01 Tamino Dauth <tamino@cdauth.eu>
 * mpq: New tests showed that extracting files is much slower in wc3lib than in StormLib, so improve performance!
 * mpq: Open an archive is quite expensive, especially when extracting only one single file, so don't load everything automatically?
+* mpq: Files like "war3mapMap.blp" from (4)WarChasers.w3m seem to have wrong compression types for sectors (old Bzip2 bug).
 
 2012-03-31 Tamino Dauth <tamino@cdauth.eu>
 * FIXED: mpq: .wav files like "Units\Undead\HeroLich\HeroLichPissed7.wav" aren't decompressed properly.
