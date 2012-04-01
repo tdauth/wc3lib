@@ -353,6 +353,19 @@ void Sector::seekgFromBlockStart(istream &istream) const
 	istream.seekg(boost::numeric_cast<std::streamoff>(this->sectorOffset()), std::ios::cur);
 }
 
+#ifdef DEBUG
+namespace
+{
+	void sizeCheck(uint32 dataSize, const Sector &sector, const std::string &compression)
+	{
+		// decompression failed
+		if (dataSize <= sector.sectorSize()) // smaller size results because of the compression byte
+			std::cerr << boost::format(_("%1%: Sector %2% with size %3% has same or smaller size after decompression: %4%. Compression \"%5%\".")) % sector.mpqFile()->path() % sector.sectorIndex() % sector.sectorSize() % dataSize % compression << std::endl;
+	}
+}
+#endif
+
+
 void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, ostream &ostream) const throw (Exception)
 {
 	/*
@@ -384,6 +397,9 @@ void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, os
 					data.swap(buffer);
 
 				dataSize = outLength;
+#ifdef DEBUG
+				sizeCheck(dataSize, *this, "Imploded:Imploded");
+#endif
 			}
 		}
 		// Compressed sectors (only found in compressed - not imploded - files) are compressed with one or more compression algorithms.
@@ -438,7 +454,13 @@ void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, os
 				data.reset(new byte[size]);
 				dataSize = size;
 				ostream.read(data.get(), dataSize);
+				realData = data.get();
+				realDataSize = dataSize;
 				//ostream >> data.get();
+
+#ifdef DEBUG
+				sizeCheck(dataSize, *this, "Bzip2");
+#endif
 			}
 
 			// Imploded sectors are the raw compressed data following compression with the implode algorithm (these sectors can only be in imploded files).
@@ -459,6 +481,12 @@ void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, os
 					data.swap(buffer);
 
 				dataSize = outLength;
+				realData = data.get();
+				realDataSize = dataSize;
+
+#ifdef DEBUG
+				sizeCheck(dataSize, *this, "Imploded");
+#endif
 			}
 
 			if (this->compression() & Sector::Compression::Deflated) // Deflated (see ZLib)
@@ -480,7 +508,12 @@ void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, os
 				data.reset(new byte[size]);
 				dataSize = size;
 				ostream.read(data.get(), dataSize);
-				//ostream >> data.get();
+				realData = data.get();
+				realDataSize = dataSize;
+
+#ifdef DEBUG
+				sizeCheck(dataSize, *this, "Deflated");
+#endif
 			}
 
 			if (this->compression() & Sector::Compression::Huffman) // Huffman encoded
@@ -502,6 +535,12 @@ void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, os
 					data.swap(buffer);
 
 				dataSize = outLength;
+				realData = data.get();
+				realDataSize = dataSize;
+
+#ifdef DEBUG
+				sizeCheck(dataSize, *this, "Huffman");
+#endif
 			}
 
 			if (this->compression() & Sector::Compression::ImaAdpcmStereo) // IMA ADPCM stereo
@@ -521,6 +560,12 @@ void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, os
 					data.swap(buffer);
 
 				dataSize = outLength;
+				realData = data.get();
+				realDataSize = dataSize;
+
+#ifdef DEBUG
+				sizeCheck(dataSize, *this, "Stereo");
+#endif
 			}
 
 			if (this->compression() & Sector::Compression::ImaAdpcmMono) // IMA ADPCM mono
@@ -540,6 +585,12 @@ void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, os
 					data.swap(buffer);
 
 				dataSize = outLength;
+				realData = data.get();
+				realDataSize = dataSize;
+
+#ifdef DEBUG
+				sizeCheck(dataSize, *this, "Mono");
+#endif
 			}
 		}
 	}
@@ -552,13 +603,6 @@ void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, os
 
 		return;
 	}
-
-#ifdef DEBUG
-	// decompression failed
-	if ((this->mpqFile()->isCompressed() || this->mpqFile()->isImploded()) && dataSize <= this->sectorSize()) // smaller size results because of the compression byte
-		std::cerr << boost::format(_("%1%: Sector %2% with size %3% has same or smaller size after decompression: %4%.")) % this->mpqFile()->path() % sectorIndex() % this->sectorSize() % dataSize << std::endl;
-#endif
-
 
 	ostream.write(data.get(), dataSize);
 }
