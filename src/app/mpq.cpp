@@ -27,7 +27,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 #include <boost/scoped_ptr.hpp>
-#include <boost/timer.hpp>
 #ifdef DEBUG
 #include <StormLib.h>
 #endif
@@ -159,14 +158,11 @@ std::string fileInfoStormLib(TMPQFile &file, bool humanReadable, bool decimal)
 	*/
 
 	// TODO decompression leads to segmentation fault for the second file
-	boost::timer timer;
 	BYTE value;
 
 	while (SFileReadFile(&file, &value, sizeof(value)))
 		;
 		//std::cerr << boost::format(_("Warning: Couldn't read file \"%1%\" by StormLib for debugging.")) % file.pFileEntry->szFileName << std::endl;
-
-	std::cout << "StormLib extraction time: " << timer.elapsed() << std::endl;
 
 	std::stringstream sstream;
 	sstream << boost::format(_("\"%1%\"\nCompressed: %2%\nSize: %3%\nHash index: %4%\nCompressed size: %5%\nFlags: %6%\nBlock offset: %7%")) % file.pFileEntry->szFileName % boolString(file.pFileEntry->dwFlags & MPQ_FILE_COMPRESSED) % sizeString(SFileGetFileSize(&file, 0), humanReadable, decimal) % file.pFileEntry->dwHashIndex % sizeString(file.pFileEntry->dwCmpSize, humanReadable, decimal) % flagsString((Block::Flags::enum_type)(file.pFileEntry->dwFlags)) % file.pFileEntry->ByteOffset;
@@ -419,13 +415,7 @@ const boost::program_options::variables_map &vm)
 	try
 	{
 		checkStream(out);
-#ifdef DEBUG
-		boost::timer timer;
-#endif
 		file->writeData(out);
-#ifdef DEBUG
-		std::cout << "wc3lib extraction time: " << timer.elapsed() << std::endl;
-#endif
 	}
 	catch (Exception &exception)
 	{
@@ -441,11 +431,9 @@ const boost::program_options::variables_map &vm)
 		// StormLib output
 
 		TMPQArchive *archive;
-		boost::timer timer;
 
 		if (SFileOpenArchive(mpq.path().c_str(), 0, MPQ_OPEN_READ_ONLY, (void**)&archive))
 		{
-			std::cout << "StormLib archive: " << timer.elapsed() << std::endl;
 			TMPQFile *sFile;
 
 			if (SFileOpenFileEx(archive, oldEntry.c_str(), SFILE_OPEN_FROM_MPQ, (void**)&sFile))
@@ -694,18 +682,12 @@ int main(int argc, char *argv[])
 				continue;
 			}
 
-#ifdef DEBUG
-			boost::timer timer;
-#endif
 			boost::scoped_ptr<Mpq> mpq(new Mpq());
 			mpq->setStoreSectors(vm.count("store-sectors"));
 
 			try
 			{
 				std::streamsize size = mpq->open(path);
-#ifdef DEBUG
-				std::cout << "wc3lib archive: " << timer.elapsed() << std::endl;
-#endif
 			}
 			catch (wc3lib::Exception &exception)
 			{

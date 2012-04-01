@@ -1,3 +1,7 @@
+if (DEBUG)
+	add_subdirectory(test)
+endif ()
+
 if (BLP AND MPQ AND MDLX)
 	add_executable(wc3converter wc3converter.cpp)
 	target_link_libraries(wc3converter ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
