@@ -1,3 +1,6 @@
+2012-04-16 Tamino Dauth <tamino@cdauth.eu>
+* editor/map: We need a map::TriggerData wrapper class with associative containers or do load pointers to Types etc. on loading map::Triggers.
+
 2012-04-01 Tamino Dauth <tamino@cdauth.eu>
 * mpq: New tests showed that extracting files is much slower in wc3lib than in StormLib, so improve performance!
 * mpq: Open an archive is quite expensive, especially when extracting only one single file, so don't load everything automatically?

@@ -20,9 +20,10 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include <boost/foreach.hpp>
 
 #include <QtGui>
+
+#include <boost/foreach.hpp>
 
 #include <KFileDialog>
 #include <KMenu>

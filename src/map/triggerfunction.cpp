@@ -38,10 +38,10 @@ namespace
 
 int32 functionCount(const TriggerData::Functions &functions, const string &identifier)
 {
-	BOOST_FOREACH(TriggerData::Functions::left_const_reference value, functions.left)
+	BOOST_FOREACH(TriggerData::Functions::const_reference value, functions)
 	{
-		if (value.second->code() == identifier)
-			return value.second->types().size();
+		if (value.code() == identifier)
+			return value.types().size();
 	}
 
 	throw Exception(boost::format(_("Warning: Didn't find function \"%1%\".")) % identifier);

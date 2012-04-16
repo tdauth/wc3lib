@@ -66,7 +66,6 @@ class MpqArchive : public KArchive
 {
 	public:
 		typedef QScopedPointer<mpq::Mpq> MpqPtr;
-		typedef boost::weak_ptr<mpq::MpqFile> MpqFilePtr;
 
 		static QString locale(const BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) &locale) throw (Exception);
 		static BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale(const QString &locale) throw (Exception);
@@ -87,7 +86,7 @@ class MpqArchive : public KArchive
 		virtual bool writeFile(const QString &name, const QString &user, const QString &group, const char *data, qint64 size, mode_t perm=0100644, time_t atime=UnknownTime, time_t mtime=UnknownTime, time_t ctime=UnknownTime);
 
 		const MpqPtr& mpq() const;
-		const MpqFilePtr& mpqFile() const;
+		const mpq::MpqFile* mpqFile() const;
 
 	protected:
 		friend class MpqProtocol;
@@ -108,7 +107,7 @@ class MpqArchive : public KArchive
 		virtual void virtual_hook(int id, void *data);
 
 		MpqPtr m_mpq;
-		MpqFilePtr m_mpqFile;
+		mpq::MpqFile *m_mpqFile;
 };
 
 inline QString MpqArchive::locale(const BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) &locale) throw (Exception)
@@ -282,7 +281,7 @@ inline const MpqArchive::MpqPtr& MpqArchive::mpq() const
 	return m_mpq;
 }
 
-inline const MpqArchive::MpqFilePtr& MpqArchive::mpqFile() const
+inline const mpq::MpqFile* MpqArchive::mpqFile() const
 {
 	return m_mpqFile;
 }

@@ -47,9 +47,9 @@ void Map::load() throw (Exception)
 	map->open(target.toUtf8().constData());
 
 	// triggers have to be loaded separately when trigger data file ("UI/TriggerData.txt") is available
-	mpq::Mpq::FilePtrConst file = map->findFile(map->triggers()->fileName());
+	mpq::MpqFile *file = map->findFile(map->triggers()->fileName());
 
-	if (file.get() != 0)
+	if (file != 0)
 	{
 		if (source()->triggerData().get() == 0)
 			throw Exception("Trigger data file \"UI/TriggerData.txt\" is not available.");

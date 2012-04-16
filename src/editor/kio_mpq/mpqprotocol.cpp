@@ -173,7 +173,7 @@ void MpqProtocol::listDir(const KUrl &url)
 	BOOST_SCOPED_ENUM(mpq::MpqFile::Platform) platform = mpq::MpqFile::Platform::Default;
 	path = MpqArchive::resolvePath(path, locale, platform);
 
-	mpq::Mpq::FilePtrConst file = this->m_archive->findFile(path.toUtf8().constData(), locale, platform);
+	const mpq::MpqFile *file = this->m_archive->findFile(path.toUtf8().constData(), locale, platform);
 
 	if (file != 0)
 	{
@@ -445,9 +445,8 @@ void MpqProtocol::get(const KUrl &url)
 
 		try
 		{
-			const mpq::Sector *sector = file->sectors().find(sectorIndex)->get();
-			sector->seekg(ifstream);
-			read = sector->writeData(ifstream, ostream);
+			file->sectors()[sectorIndex].seekg(ifstream);
+			read = file->sectors()[sectorIndex].writeData(ifstream, ostream);
 		}
 		catch (Exception &exception)
 		{
@@ -501,9 +500,9 @@ void MpqProtocol::put(const KUrl &url, int permissions, KIO::JobFlags flags)
 		return;
 	}
 
-	mpq::Mpq::FilePtrConst file = this->m_archive->findFile(path.toUtf8().constData(), locale, platform);
+	const mpq::MpqFile *file = this->m_archive->findFile(path.toUtf8().constData(), locale, platform);
 
-	if (file.get() != 0 && !(flags & KIO::Overwrite))
+	if (file != 0 && !(flags & KIO::Overwrite))
 	{
 		error(KIO::ERR_CANNOT_DELETE_ORIGINAL, url.prettyUrl());
 
@@ -726,7 +725,7 @@ mpq::MpqFile* MpqProtocol::resolvePath(QString& path)
 	BOOST_SCOPED_ENUM(mpq::MpqFile::Platform) platform = mpq::MpqFile::Platform::Default;
 	path = MpqArchive::resolvePath(path, locale, platform);
 
-	return this->m_archive->findFile(path.toUtf8().constData(), locale, platform).get();
+	return this->m_archive->findFile(path.toUtf8().constData(), locale, platform);
 }
 
 

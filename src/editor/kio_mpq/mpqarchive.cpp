@@ -80,13 +80,13 @@ MpqArchive::~MpqArchive()
 
 bool MpqArchive::writeData(const char *data, qint64 size)
 {
-	if (m_mpqFile.expired() || m_mpqFile.lock()->size() < size)
+	if (m_mpqFile == 0 || m_mpqFile->size() < size)
 		return false;
 
 	try
 	{
 		iarraystream stream(data, size);
-		m_mpqFile.lock()->readData(stream);
+		m_mpqFile->readData(stream);
 	}
 	catch (Exception &exception)
 	{
@@ -111,11 +111,11 @@ bool MpqArchive::writeFile(const QString &name, const QString &user, const QStri
 	return true;
 }
 
-MpqArchive::MpqArchive(const QString &fileName) : m_mpq(new mpq::Mpq()), KArchive(fileName)
+MpqArchive::MpqArchive(const QString &fileName) : m_mpq(new mpq::Mpq()), m_mpqFile(0), KArchive(fileName)
 {
 }
 
-MpqArchive::MpqArchive(QIODevice *dev) : m_mpq(new mpq::Mpq()), KArchive(dev)
+MpqArchive::MpqArchive(QIODevice *dev) : m_mpq(new mpq::Mpq()), m_mpqFile(0), KArchive(dev)
 {
 }
 
@@ -147,9 +147,9 @@ bool MpqArchive::doPrepareWriting(const QString &name, const QString &user, cons
 	BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale;
 	BOOST_SCOPED_ENUM(mpq::MpqFile::Platform) platform;
 	QString path(resolvePath(name, locale, platform));
-	mpq::Mpq::FilePtr file = this->m_mpq->findFile(path.toUtf8().constData(), locale, platform);
+	mpq::MpqFile *file = this->m_mpq->findFile(path.toUtf8().constData(), locale, platform);
 
-	if (file.get() == 0 || file->size() < size)
+	if (file == 0 || file->size() < size)
 		return false;
 
 	m_mpqFile = file;

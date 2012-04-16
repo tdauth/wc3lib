@@ -41,7 +41,7 @@ class VariablesDialog : public QDialog, protected Ui::VariablesDialog
 
 		void showVariables(map::Triggers *triggers);
 
-		map::TriggerData::Type* variableType(const map::Variable &variable) const;
+		map::TriggerData::Type* variableType(const map::Variable &variable);
 
 	private:
 		class TriggerEditor *m_triggerEditor;

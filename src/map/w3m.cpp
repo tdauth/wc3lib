@@ -69,9 +69,9 @@ std::streamsize W3m::read(InputStream &istream, const mpq::Listfile::Entries &li
 
 	BOOST_FOREACH(FileFormats::reference format, fileFormats())
 	{
-		mpq::Mpq::FilePtr file = this->findFile(format->fileName());
+		mpq::MpqFile *file = this->findFile(format->fileName());
 
-		if (file.get() != 0)
+		if (file != 0)
 		{
 			/*
 			 * FIXME
