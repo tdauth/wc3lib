@@ -40,13 +40,11 @@ class CustomTextTriggers : public FileFormat
 		virtual const byte* fileTextId() const;
 		virtual const byte* fileName() const;
 		virtual uint32 latestFileVersion() const;
-		virtual uint32 version() const;
 
 		TriggerTexts& triggerTexts();
 		const TriggerTexts& triggerTexts() const;
 
 	protected:
-		uint32 m_version;
 		TriggerTexts m_triggerTexts;
 };
 
@@ -63,11 +61,6 @@ inline const byte* CustomTextTriggers::fileName() const
 inline uint32 CustomTextTriggers::latestFileVersion() const
 {
 	return 0;
-}
-
-inline uint32 CustomTextTriggers::version() const
-{
-	return m_version;
 }
 
 inline CustomTextTriggers::TriggerTexts& CustomTextTriggers::triggerTexts()

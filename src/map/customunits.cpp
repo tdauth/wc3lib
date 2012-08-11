@@ -42,14 +42,14 @@ std::streamsize CustomUnits::Modification::read(InputStream &istream) throw (cla
 	std::streamsize size = readData(istream);
 
 	// strings and lists (are strings as well) do already have to end with a zero terminating byte
-	if (!this->value().isString() && !this->value().isList())
-	{
+	//if (!this->value().isString() && !this->value().isList())
+	//{
 		int32 end;
 		wc3lib::read(istream, end, size); // usually 0
 
 		if (end != 0)
 			std::cerr << boost::format(_("Modification \"%1%\" with type %2% end byte is not 0: %3%")) % this->valueId() % this->value().type() % end << std::endl;
-	}
+	//}
 
 	return size;
 }
@@ -59,7 +59,7 @@ std::streamsize CustomUnits::Modification::write(OutputStream &ostream) const th
 	std::streamsize size = writeData(ostream);
 
 	// strings and lists (are strings as well) do already have to end with a zero terminating byte
-	if (!this->value().isString() && !this->value().isList())
+	//if (!this->value().isString() && !this->value().isList())
 		wc3lib::write<int32>(ostream, 0, size);
 
 	return size;
@@ -125,7 +125,6 @@ std::streamsize CustomUnits::Modification::readData(InputStream &istream) throw 
 		case Value::Type::AttributeType:
 		case Value::Type::AttackBits:
 		{
-			std::cout << ((const char*)&m_id) << std::endl;
 			string v;
 			wc3lib::readString(istream, v, size);
 			this->m_value = Value(v, type);
@@ -158,6 +157,8 @@ std::streamsize CustomUnits::Modification::readData(InputStream &istream) throw 
 		case Value::Type::AbilityList:
 		case Value::Type::HeroAbilityList:
 			size += this->readList(istream, type);
+			this->writeList(std::cout);
+			std::cout << std::endl;
 
 			break;
 	}
@@ -243,11 +244,7 @@ std::streamsize CustomUnits::Unit::read(InputStream &istream) throw (class Excep
 	wc3lib::read(istream, this->m_customId, size);
 	int32 modifications;
 	wc3lib::read(istream, modifications, size);
-	std::cout << "Modifications " << modifications << std::endl;
 	this->modifications().reserve(modifications);
-
-	std::cout << ((const char*)&m_originalId) << std::endl;
-	std::cout << ((const char*)&m_customId) << std::endl;
 
 	for (int32 i = 0; i < modifications; ++i)
 	{

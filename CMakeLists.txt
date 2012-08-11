@@ -32,10 +32,9 @@ option(APP
 option(BLP
 	"Builds BLP module. Required by options EDITOR and PLUGINS."
 	ON)
-CMAKE_DEPENDENT_OPTION(MAP
+option(MAP
 	"Builds map module. Required by option EDITOR."
-	ON
-	"MPQ;BLP" OFF)
+	ON)
 option(MDLX
 	"Builds MDLX module. Required by by option EDITOR."
 	ON)

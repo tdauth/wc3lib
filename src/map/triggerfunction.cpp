@@ -21,7 +21,8 @@
 #include <boost/foreach.hpp>
 
 #include "triggerfunction.hpp"
-#include "triggerdata.hpp"
+#include "trigger.hpp"
+#include "triggers.hpp"
 
 namespace wc3lib
 {
@@ -33,57 +34,59 @@ TriggerFunction::TriggerFunction() : m_type(TriggerFunction::Type::Event), m_nam
 {
 }
 
-namespace
-{
-
-int32 functionCount(const TriggerData::Functions &functions, const string &identifier)
-{
-	BOOST_FOREACH(TriggerData::Functions::const_reference value, functions)
-	{
-		if (value.code() == identifier)
-			return value.types().size();
-	}
-
-	throw Exception(boost::format(_("Warning: Didn't find function \"%1%\".")) % identifier);
-
-	return 0;
-}
-
-}
-
 std::streamsize TriggerFunction::read(InputStream &istream, const TriggerData &triggerData) throw (class Exception)
 {
 	std::streamsize size = 0;
 	wc3lib::read<int32>(istream, (int32&)this->m_type, size);
 	readString(istream, this->m_name, size);
-	wc3lib::read<int32>(istream, (int32&)this->m_isEnabled, size);
-	int32 parameters = 0;
 
-	switch (type())
+	TriggerData::Functions::const_iterator iterator;
+
+	switch (this->type())
 	{
-		case Type::Event:
-			parameters = functionCount(triggerData.events(), name());
+		case TriggerFunction::Type::Event:
+		{
+			iterator = triggerData.events().find(this->name());
+
+			if (iterator == triggerData.events().end())
+				throw Exception(boost::format(_("Function \"%1%\" not found in events of TriggerData.txt.")) % this->name());
 
 			break;
+		}
 
-		case Type::Condition:
-			parameters = functionCount(triggerData.conditions(), name());
+		case TriggerFunction::Type::Condition:
+		{
+			iterator = triggerData.conditions().find(this->name());
+
+			if (iterator == triggerData.conditions().end())
+				throw Exception(boost::format(_("Function \"%1%\" not found in conditions of TriggerData.txt.")) % this->name());
 
 			break;
+		}
 
-		case Type::Action:
-			parameters = functionCount(triggerData.actions(), name());
+		case TriggerFunction::Type::Action:
+		{
+			iterator = triggerData.actions().find(this->name());
+
+			if (iterator == triggerData.actions().end())
+				throw Exception(boost::format(_("Function \"%1%\" not found in actions of TriggerData.txt.")) % this->name());
 
 			break;
+		}
+
+		default:
+			throw Exception(boost::format(_("Function type %1% is invalid.")) % this->type());
 	}
 
-	this->parameters().resize(parameters);
+	const int32 count = iterator->second->types().size();
+	wc3lib::read<int32>(istream, (int32&)this->m_isEnabled, size);
+	this->parameters().reserve(count);
 
-	for (int32 i = 0; i < parameters; ++i)
+	for (int32 i = 0; i < count; ++i)
 	{
 		std::auto_ptr<TriggerFunctionParameter> ptr(new TriggerFunctionParameter());
-		size += ptr->read(istream, triggerData);
-		this->parameters().replace(i, ptr);
+		size += ptr->read(istream);
+		this->parameters().push_back(ptr);
 	}
 
 	return size;

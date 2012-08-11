@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MAP_TRIGGERFUNCTIONPARAMETER_HPP
 #define WC3LIB_MAP_TRIGGERFUNCTIONPARAMETER_HPP
 
-#include <boost/scoped_ptr.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 #include "platform.hpp"
 
@@ -38,7 +38,8 @@ namespace map
 class TriggerFunctionParameter : public Format
 {
 	public:
-		typedef boost::scoped_ptr<TriggerFunctionParameter> ParameterPtr;
+		typedef boost::ptr_vector<class TriggerFunction> Functions;
+		typedef boost::ptr_vector<TriggerFunctionParameter> Parameters;
 
 		BOOST_SCOPED_ENUM_START(Type) /// \todo C++11 : int32
 		{
@@ -52,14 +53,7 @@ class TriggerFunctionParameter : public Format
 		TriggerFunctionParameter();
 		virtual ~TriggerFunctionParameter();
 
-		/**
-		 * \copydoc Trigger::read(InputStream&)
-		 */
-		virtual std::streamsize read(InputStream &istream) throw (class Exception)
-		{
-			return 0;
-		}
-		virtual std::streamsize read(InputStream &istream, const class TriggerData &triggerData) throw (class Exception);
+		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
 		BOOST_SCOPED_ENUM(Type) type() const;
@@ -69,18 +63,20 @@ class TriggerFunctionParameter : public Format
 		 * Appears only if \ref type() == \ref Type::Function.
 		 * It's used for multiple statements like multiple if then else?
 		 */
-		class TriggerFunction* function() const;
+		Functions& functions();
+		const Functions& functions() const;
 		/**
 		 * Appears only if \ref type() == \ref Type::Variable and variable is an array.
 		 * It's used for defining the array's index.
 		 */
-		const ParameterPtr& parameter() const;
+		Parameters& parameters();
+		const Parameters& parameters() const;
 
 	protected:
 		BOOST_SCOPED_ENUM(Type) m_type;
 		string m_value;
-		class TriggerFunction *m_function; /// \todo We cannot used shared ptr since header of type \ref TriggerFunction requires declaration of \ref TriggerFunctionParameter.
-		ParameterPtr m_parameter;
+		Functions m_functions;
+		Parameters m_parameters;
 };
 
 inline BOOST_SCOPED_ENUM(TriggerFunctionParameter::Type) TriggerFunctionParameter::type() const
@@ -93,14 +89,24 @@ inline const string& TriggerFunctionParameter::value() const
 	return m_value;
 }
 
-inline class TriggerFunction* TriggerFunctionParameter::function() const
+inline TriggerFunctionParameter::Functions& TriggerFunctionParameter::functions()
 {
-	return m_function;
+	return this->m_functions;
 }
 
-inline const TriggerFunctionParameter::ParameterPtr& TriggerFunctionParameter::parameter() const
+inline const TriggerFunctionParameter::Functions& TriggerFunctionParameter::functions() const
 {
-	return m_parameter;
+	return this->m_functions;
+}
+
+inline TriggerFunctionParameter::Parameters& TriggerFunctionParameter::parameters()
+{
+	return this->m_parameters;
+}
+
+inline const TriggerFunctionParameter::Parameters &TriggerFunctionParameter::parameters() const
+{
+	return this->m_parameters;
 }
 
 }

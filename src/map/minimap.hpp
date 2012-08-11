@@ -22,7 +22,12 @@
 #define WC3LIB_MAP_MINIMAP_HPP
 
 #include "platform.hpp"
+#include "wc3libConfig.h"
+#ifdef BLP
 #include "../blp.hpp"
+#else
+#warning No minimap support in map module since BLP module is not included.
+#endif
 
 namespace wc3lib
 {
@@ -30,17 +35,28 @@ namespace wc3lib
 namespace map
 {
 
-class Minimap : public FileFormat, public blp::Blp
+class Minimap : public FileFormat
+#ifdef BLP
+, public blp::Blp
+#endif
 {
 	public:
 		virtual std::streamsize read(InputStream& istream) throw (Exception)
 		{
+#ifdef BLP
 			return blp::Blp::read(istream);
+#else
+			return 0;
+#endif
 		}
 
 		virtual std::streamsize write(OutputStream& ostream) const throw (Exception)
 		{
+#ifdef BLP
 			return blp::Blp::write(ostream);
+#else
+			return 0;
+#endif
 		}
 
 		virtual const byte* fileTextId() const;

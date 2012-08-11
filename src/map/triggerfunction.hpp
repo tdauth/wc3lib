@@ -25,6 +25,7 @@
 
 #include "platform.hpp"
 #include "triggerfunctionparameter.hpp"
+#include "triggerdata.hpp"
 
 namespace wc3lib
 {
@@ -57,14 +58,12 @@ class TriggerFunction : public Format
 		Parameters& parameters();
 		const Parameters& parameters() const;
 
-		/**
-		 * \copydoc Trigger::read(InputStream&)
-		 */
 		virtual std::streamsize read(InputStream &istream) throw (class Exception)
 		{
-			return 0;
+			throw Exception(_("Not usable."));
 		}
-		virtual std::streamsize read(InputStream &istream, const class TriggerData &triggerData) throw (class Exception);
+
+		virtual std::streamsize read(InputStream &istream, const TriggerData &triggerData) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
 

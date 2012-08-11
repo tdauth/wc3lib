@@ -28,7 +28,7 @@ namespace wc3lib
 namespace map
 {
 
-TriggerCategory::TriggerCategory(class Triggers *triggers) : m_triggers(triggers), m_name(), m_index(0)
+TriggerCategory::TriggerCategory() : m_index(0)
 {
 }
 
@@ -44,8 +44,8 @@ std::streamsize TriggerCategory::read(InputStream &istream) throw (class Excepti
 std::streamsize TriggerCategory::write(OutputStream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	wc3lib::write(ostream, this->m_index, size);
-	writeString(ostream, this->m_name, size);
+	wc3lib::write(ostream, this->index(), size);
+	writeString(ostream, this->name(), size);
 
 	return size;
 }

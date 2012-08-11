@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include "variable.hpp"
+#include "triggers.hpp"
 
 namespace wc3lib
 {
@@ -26,7 +27,7 @@ namespace wc3lib
 namespace map
 {
 
-Variable::Variable(class Triggers *triggers) : m_name(), m_type(), m_number(0), m_isArray(false), m_isInitialized(false), m_initialValue()
+Variable::Variable() : m_type(0), m_number(0), m_isArray(false), m_isInitialized(false)
 {
 }
 
@@ -50,7 +51,7 @@ std::streamsize Variable::write(OutputStream &ostream) const throw (class Except
 	writeString(ostream, type(), size);
 	wc3lib::write(ostream, number(), size);
 	wc3lib::write<int32>(ostream, (const int32&)isArray(), size);
-	wc3lib::write(ostream, (const int32&)isInitialized(), size);
+	wc3lib::write<int32>(ostream, (const int32&)isInitialized(), size);
 	writeString(ostream, initialValue(), size);
 
 	return size;

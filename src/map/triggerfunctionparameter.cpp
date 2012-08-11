@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <boost/foreach.hpp>
+
 #include "triggerfunctionparameter.hpp"
 #include "triggerdata.hpp"
 #include "triggerfunction.hpp"
@@ -28,46 +30,45 @@ namespace wc3lib
 namespace map
 {
 
-TriggerFunctionParameter::TriggerFunctionParameter() : m_type(TriggerFunctionParameter::Type::Preset), m_function(0)
+TriggerFunctionParameter::TriggerFunctionParameter() : m_type(TriggerFunctionParameter::Type::Preset)
 {
 }
 
 TriggerFunctionParameter::~TriggerFunctionParameter()
 {
-	if (function() != 0)
-		delete function();
 }
 
-std::streamsize TriggerFunctionParameter::read(InputStream &istream, const TriggerData &triggerData) throw (class Exception)
+std::streamsize TriggerFunctionParameter::read(InputStream &istream) throw (class Exception)
 {
 	std::streamsize size = 0;
 	wc3lib::read<int32>(istream, (int32&)this->m_type, size);
 	readString(istream, this->m_value, size);
-	int32 value;
-	wc3lib::read(istream, value, size);
+	int32 functionCount = 0;
+	wc3lib::read(istream, functionCount, size);
 
-	if (value == 1 && type() != Type::Function)
-		std::cerr << _("Warning: Type is not function.") << std::endl;
-	else if (value > 1)
-		throw Exception(_("Value should not be greater than 1."));
+	if (functionCount > 0 && type() != Type::Function)
+		std::cerr << boost::format(_("Warning: Functions in parameter which is not of type function itself - type %1%.")) % type() << std::endl;
 
-	if (value == 1)
+	this->functions().reserve(functionCount);
+
+	for (int32 i = 0; i < functionCount; ++i)
 	{
-		m_function = new TriggerFunction();
-		size += m_function->read(istream, triggerData);
+		std::auto_ptr<TriggerFunction> function(new TriggerFunction());
+		size += function->read(istream);
+		this->functions().push_back(function);
 	}
 
-	wc3lib::read(istream, value, size);
+	int32 arrayIndexCount = 0;
+	wc3lib::read(istream, arrayIndexCount, size);
 
-	if (value == 1 && type() != Type::Variable)
-		std::cerr << _("Warning: Type is not variable.") << std::endl;
-	else if (value > 1)
-		throw Exception(_("Value should not be greater than 1."));
+	if (arrayIndexCount > 0 && type() != Type::Variable)
+		std::cerr << boost::format(_("Warning: Array index count for non-variable parameter - type %1%.")) % type() << std::endl;
 
-	if (value == 1)
+	for (int32 i = 0; i < arrayIndexCount; ++i)
 	{
-		m_parameter.reset(new TriggerFunctionParameter());
-		size += m_parameter->read(istream, triggerData);
+		std::auto_ptr<TriggerFunctionParameter> parameter(new TriggerFunctionParameter());
+		size += parameter->read(istream);
+		this->parameters().push_back(parameter);
 	}
 
 	return size;
@@ -78,22 +79,15 @@ std::streamsize TriggerFunctionParameter::write(OutputStream &ostream) const thr
 	std::streamsize size = 0;
 	wc3lib::write<int32>(ostream, this->type(), size);
 	writeString(ostream, this->value(), size);
+	wc3lib::write<int32>(ostream, this->functions().size(), size);
 
-	if (function() != 0)
-	{
-		wc3lib::write<int32>(ostream, 1, size);
-		size += function()->write(ostream);
-	}
-	else
-		wc3lib::write<int32>(ostream, 0, size);
+	BOOST_FOREACH(Functions::const_reference ref, this->functions())
+		size += ref.write(ostream);
 
-	if (parameter().get() != 0)
-	{
-		wc3lib::write<int32>(ostream, 1, size);
-		size += parameter()->write(ostream);
-	}
-	else
-		wc3lib::write<int32>(ostream, 0, size);
+	wc3lib::write<int32>(ostream, this->parameters().size(), size);
+
+	BOOST_FOREACH(Parameters::const_reference ref, this->parameters())
+		size += ref.write(ostream);
 
 	return size;
 }

@@ -46,19 +46,24 @@ void Map::load() throw (Exception)
 	MapPtr map(new map::W3m());
 	map->open(target.toUtf8().constData());
 
-	// triggers have to be loaded separately when trigger data file ("UI/TriggerData.txt") is available
-	mpq::MpqFile *file = map->findFile(map->triggers()->fileName());
-
-	if (file != 0)
+	if (map->triggers().get() != 0)
 	{
-		if (source()->triggerData().get() == 0)
-			throw Exception("Trigger data file \"UI/TriggerData.txt\" is not available.");
+		// triggers have to be loaded separately when trigger data file ("UI/TriggerData.txt") is available
+		const mpq::MpqFile *file = map->findFile(map->triggers()->fileName());
 
-		// TODO data has to be refreshed somewhere in GUI
-		//source()->refreshTriggerData(); // if trigger data is not available we cannot load trigger data
-		stringstream stream;
-		file->writeData(stream);
-		map->triggers()->read(stream, *source()->triggerData().get());
+		if (file != 0)
+		{
+			if (source()->triggerData().get() == 0)
+				throw Exception("Trigger data file \"UI/TriggerData.txt\" is not available.");
+
+			// TODO data has to be refreshed somewhere in GUI
+			//source()->refreshTriggerData(); // if trigger data is not available we cannot load trigger data
+			stringstream stream;
+			file->writeData(stream);
+			map->triggers()->read(stream, *source()->triggerData());
+		}
+		else
+			throw Exception(boost::format(_("File \"%1%\" not found although triggers exist in map.")) % map->triggers()->fileName());
 	}
 
 	this->map().swap(map); // exception safe

@@ -53,7 +53,7 @@ class TriggerEditor : public Module
 		 * \return Returns empty string if there is no custom text triggers or no valid text entry.
 		 * \note \p trigger has to be part of \ref triggers().
 		 */
-		const string& triggerText(map::Trigger *trigger) const;
+		string triggerText(map::Trigger *trigger) const;
 
 		map::Triggers* triggers() const;
 		map::CustomTextTriggers* customTextTriggers() const;
@@ -159,7 +159,7 @@ class TriggerEditor : public Module
 		KActionCollection *m_triggerActionCollection;
 };
 
-inline const string& TriggerEditor::triggerText(map::Trigger *trigger) const
+inline string TriggerEditor::triggerText(map::Trigger *trigger) const
 {
 	if (customTextTriggers() == 0)
 		return "";

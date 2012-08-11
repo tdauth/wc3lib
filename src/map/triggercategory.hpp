@@ -36,7 +36,7 @@ namespace map
 class TriggerCategory : public Format
 {
 	public:
-		TriggerCategory(class Triggers *triggers);
+		TriggerCategory();
 
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
@@ -45,7 +45,6 @@ class TriggerCategory : public Format
 		const string& name() const;
 
 	protected:
-		class Triggers *m_triggers;
 		int32 m_index;
 		string m_name;
 };

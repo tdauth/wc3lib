@@ -22,6 +22,7 @@
 #define WC3LIB_MAP_VARIABLE_HPP
 
 #include "platform.hpp"
+#include "triggerdata.hpp"
 
 namespace wc3lib
 {
@@ -36,7 +37,7 @@ namespace map
 class Variable : public Format
 {
 	public:
-		Variable(class Triggers *triggers);
+		Variable();
 
 		std::streamsize read(InputStream &istream) throw (class Exception);
 		std::streamsize write(OutputStream &ostream) const throw (class Exception);

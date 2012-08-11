@@ -27,9 +27,10 @@
 
 #include <jpeglib.h>
 
-#if JPEG_LIB_VERSION_MAJOR < 8
-#error Version 8 of jpeglib is required because of memory buffer management.
-#endif
+// NOTE doesn't work with libjpegturbo
+//#if JPEG_LIB_VERSION_MAJOR < 8
+//#error Version 8 of jpeglib is required because of memory buffer management.
+//#endif
 
 namespace wc3lib
 {

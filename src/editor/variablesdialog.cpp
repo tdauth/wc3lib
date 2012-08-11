@@ -51,15 +51,14 @@ void VariablesDialog::showVariables(map::Triggers *triggers)
 	}
 }
 
-map::TriggerData::Type* VariablesDialog::variableType(const wc3lib::map::Variable &variable)
+map::TriggerData::Type* VariablesDialog::variableType(const map::Variable &variable)
 {
-	BOOST_FOREACH(map::TriggerData::Types::reference ref, triggerEditor()->source()->triggerData().get()->types())
-	{
-		if (ref.name() == variable.type())
-			return &ref;
-	}
+	map::TriggerData::Types::iterator iterator = triggerEditor()->source()->triggerData()->types().find(variable.type());
 
-	return 0;
+	if (iterator == triggerEditor()->source()->triggerData()->types().end())
+		return 0;
+
+	return iterator->second;
 }
 
 }

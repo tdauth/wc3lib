@@ -37,25 +37,7 @@ Triggers::Triggers(class W3m *w3m) : m_w3m(w3m)
 
 std::streamsize Triggers::read(InputStream &istream, const TriggerData &triggerData) throw (class Exception)
 {
-	std::streamsize size = 0;
-	/*
-	 * TEST
-	id requiredId = fileId();
-	id fileId;
-	wc3lib::read(istream, fileId, size);
-
-	if (memcmp(&fileId, &requiredId, sizeof(fileId)) != 0)
-		*/
-	id fileId;
-	wc3lib::read(istream, fileId, size);
-
-	if (this->fileId() != fileId)
-		throw Exception(boost::format(_("Triggers: Unknown file id \"%1%\". Expected \"%2%\".")) % fileId % this->fileId());
-
-	wc3lib::read(istream, this->m_version, size);
-
-	if (this->version() != latestFileVersion())
-		throw Exception(boost::format(_("Triggers: Version %1% is not supported (version %2% only).")) % this->version() % latestFileVersion());
+	std::streamsize size = FileFormat::read(istream);
 
 	int32 number;
 	wc3lib::read(istream, number, size);
@@ -63,7 +45,7 @@ std::streamsize Triggers::read(InputStream &istream, const TriggerData &triggerD
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		std::auto_ptr<TriggerCategory> ptr(new TriggerCategory(this));
+		std::auto_ptr<TriggerCategory> ptr(new TriggerCategory());
 		size += ptr->read(istream);
 		categories().push_back(ptr);
 	}
@@ -74,7 +56,7 @@ std::streamsize Triggers::read(InputStream &istream, const TriggerData &triggerD
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		std::auto_ptr<Variable> ptr(new Variable(this));
+		std::auto_ptr<Variable> ptr(new Variable());
 		size += ptr->read(istream);
 		variables().push_back(ptr);
 	}
@@ -84,8 +66,8 @@ std::streamsize Triggers::read(InputStream &istream, const TriggerData &triggerD
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		std::auto_ptr<Trigger> ptr(new Trigger(this));
-		size += ptr->read(istream);
+		std::auto_ptr<Trigger> ptr(new Trigger());
+		size += ptr->read(istream, triggerData);
 		triggers().push_back(ptr);
 	}
 
@@ -94,9 +76,7 @@ std::streamsize Triggers::read(InputStream &istream, const TriggerData &triggerD
 
 std::streamsize Triggers::write(OutputStream &ostream) const throw (class Exception)
 {
-	std::streamsize size = 0;
-	wc3lib::write(ostream, fileId(), size);
-	wc3lib::write(ostream, this->version(), size);
+	std::streamsize size = FileFormat::write(ostream);
 	int32 number = boost::numeric_cast<int32>(this->categories().size());
 	wc3lib::write(ostream, number, size);
 

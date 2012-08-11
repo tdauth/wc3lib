@@ -32,11 +32,11 @@ namespace wc3lib
 namespace map
 {
 
-Trigger::Trigger(class Triggers *triggers) : m_triggers(triggers)
+Trigger::Trigger() : m_isEnabled(false), m_isCustomText(false), m_isInitiallyOn(false), m_unknown(0), m_category(0)
 {
 }
 
-std::streamsize Trigger::read(InputStream &istream, const TriggerData &triggerData) throw (class Exception)
+std::streamsize Trigger::read(InputStream &istream, const TriggerData &triggerData) throw (Exception)
 {
 	std::streamsize size = 0;
 	readString(istream, this->m_name, size);
@@ -56,9 +56,9 @@ std::streamsize Trigger::read(InputStream &istream, const TriggerData &triggerDa
 
 	for (int32 i = 0; i < functions; ++i)
 	{
-		std::auto_ptr<TriggerFunction> ptr(new TriggerFunction);
-		size += ptr->read(istream, triggerData);
-		this->functions().push_back(ptr);
+		std::auto_ptr<TriggerFunction> function(new TriggerFunction());
+		size += function->read(istream, triggerData);
+		this->functions().push_back(function);
 	}
 
 	return size;

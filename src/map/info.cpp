@@ -185,13 +185,13 @@ std::streamsize Info::RandomUnitTable::read(InputStream &istream) throw (Excepti
 	std::streamsize size = 0;
 	int32 number = 0;
 	wc3lib::read(istream, number, size);
-	this->m_groups.resize(number);
+	this->m_groups.reserve(number);
 
 	for (int32 i = 0; i < number; ++i)
 	{
 		std::auto_ptr<Group> group(new Group());
 		size += group->read(istream);
-		this->m_groups.replace(i, group);
+		this->m_groups.push_back(group);
 	}
 
 	return size;

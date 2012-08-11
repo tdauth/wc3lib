@@ -27,6 +27,7 @@
 #include "triggercategory.hpp"
 #include "variable.hpp"
 #include "trigger.hpp"
+#include "triggerdata.hpp"
 
 namespace wc3lib
 {
@@ -48,17 +49,19 @@ class Triggers : public FileFormat
 
 		Triggers(class W3m *w3m);
 
-		virtual std::streamsize read(InputStream &istream) throw (class Exception)
+		virtual std::streamsize read(InputStream &istream) throw (Exception)
 		{
-			return 0;
+			throw Exception(_("Not usable."));
 		}
-		virtual std::streamsize read(InputStream &istream, const class TriggerData &triggerData) throw (Exception);
+
+		virtual std::streamsize read(InputStream &istream, const TriggerData &triggerData) throw (Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
 		virtual const byte* fileTextId() const;
 		virtual const byte* fileName() const;
 		virtual uint32 latestFileVersion() const;
 
+		class W3m* w3m() const;
 		int32 unknown0() const;
 		Categories& categories();
 		const Categories& categories() const;
@@ -68,8 +71,6 @@ class Triggers : public FileFormat
 		const TriggerEntries& triggers() const;
 
 	protected:
-		friend class Trigger;
-
 		class W3m *m_w3m;
 		int32 m_unknown0;
 		Categories m_categories;
@@ -90,6 +91,11 @@ inline const byte* Triggers::fileName() const
 inline uint32 Triggers::latestFileVersion() const
 {
 	return 4;
+}
+
+inline W3m *Triggers::w3m() const
+{
+	return this->m_w3m;
 }
 
 inline int32 Triggers::unknown0() const

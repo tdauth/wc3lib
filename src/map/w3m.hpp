@@ -21,7 +21,17 @@
 #ifndef WC3LIB_MAP_W3M_HPP
 #define WC3LIB_MAP_W3M_HPP
 
+#include <vector>
+
+#include <boost/scoped_ptr.hpp>
+#include <boost/scoped_array.hpp>
+
+#include "wc3libConfig.h"
+#ifdef MPQ
 #include "../mpq.hpp"
+#else
+#warning No MPQ support in map module since MPQ module is not included.
+#endif
 #include "playable.hpp"
 #include "environment.hpp"
 #include "shadow.hpp"
@@ -46,7 +56,17 @@ namespace wc3lib
 namespace map
 {
 
-class W3m : public mpq::Mpq, public Playable
+/**
+ * Class for reading Warcraft III: Reign of Chaos maps (usually with *.w3m extension).
+ * \note When opening a map it doesn't read triggers ("war3map.wtg" - \ref map::Triggers - \ref triggers()) automatically since trigger reading requires \ref map::TriggerData!
+ * \sa W3x
+ * \todo At the moment, all files are allocated and read if they're contained by the map's MPQ archive which takes huge performance and heap allocation. Maybe add some "load on request" functionality.
+ */
+class W3m :
+#ifdef MPQ
+public mpq::Mpq,
+#endif
+public Playable
 {
 	public:
 		static const std::size_t signatureSize = 256;
@@ -72,6 +92,7 @@ class W3m : public mpq::Mpq, public Playable
 		W3m();
 		virtual ~W3m();
 
+#ifdef MPQ
 		/**
 		 * \param istream has to contain the map's header + the map's MPQ archive.
 		 * Here's a list of all possible file names:
@@ -114,6 +135,8 @@ class W3m : public mpq::Mpq, public Playable
 		{
 			return read(istream, mpq::Listfile::Entries());
 		}
+#endif
+
 		/**
 		 * Creates an MPQ archive with map header and all required files.
 		 */

@@ -62,6 +62,7 @@ W3m::~W3m()
 {
 }
 
+#ifdef MPQ
 std::streamsize W3m::read(InputStream &istream, const mpq::Listfile::Entries &listfileEntries) throw (class Exception)
 {
 	std::streamsize size = this->readHeader(istream);
@@ -69,6 +70,14 @@ std::streamsize W3m::read(InputStream &istream, const mpq::Listfile::Entries &li
 
 	BOOST_FOREACH(FileFormats::reference format, fileFormats())
 	{
+		// TODO comparison of typeid with map::Triggers would be nicer maybe
+		if (strcmp(format->fileName(), "war3map.wtg") == 0)
+		{
+			std::cerr << boost::format(_("File \"%1%\" is being skipped since triggers has to be read with trigger data.")) % format->fileName() << std::endl;
+
+			continue;
+		}
+
 		mpq::MpqFile *file = this->findFile(format->fileName());
 
 		if (file != 0)
@@ -96,6 +105,7 @@ std::streamsize W3m::read(InputStream &istream, const mpq::Listfile::Entries &li
 
 	return size;
 }
+#endif
 
 std::streamsize W3m::write(OutputStream &ostream) const throw (class Exception)
 {

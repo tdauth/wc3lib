@@ -25,6 +25,7 @@
 
 #include "platform.hpp"
 #include "triggerfunction.hpp"
+#include "triggerdata.hpp"
 
 namespace wc3lib
 {
@@ -42,16 +43,14 @@ class Trigger : public Format
 	public:
 		typedef boost::ptr_vector<TriggerFunction> Functions;
 
-		Trigger(class Triggers *triggers);
+		Trigger();
 
-		/**
-		 * Triggers cannot read without having a corresponding "TriggerData.txt" file which contains all trigger parameter information.
-		 */
-		virtual std::streamsize read(InputStream &istream) throw (class Exception)
+		virtual std::streamsize read(InputStream &istream) throw (Exception)
 		{
-			return 0;
+			throw Exception(_("Not usable."));
 		}
-		virtual std::streamsize read(InputStream &istream, const class TriggerData &triggerData) throw (Exception);
+
+		virtual std::streamsize read(InputStream &istream, const TriggerData &triggerData) throw (Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
 		class Triggers* triggers() const;
@@ -75,7 +74,6 @@ class Trigger : public Format
 		const string& triggerText() const;
 
 	protected:
-		class Triggers *m_triggers;
 		string m_name;
 		string m_description;
 		bool m_isEnabled;
@@ -85,11 +83,6 @@ class Trigger : public Format
 		int32 m_category;
 		Functions m_functions;
 };
-
-inline class Triggers* Trigger::triggers() const
-{
-	return m_triggers;
-}
 
 inline const string& Trigger::name() const
 {
