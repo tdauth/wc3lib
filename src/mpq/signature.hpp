@@ -21,7 +21,9 @@
 #ifndef WC3LIB_MPQ_SIGNATURE_HPP
 #define WC3LIB_MPQ_SIGNATURE_HPP
 
+#ifdef ENCRYPTION
 #include <crypto++/rsa.h>
+#endif
 
 #include "mpqfile.hpp"
 
@@ -49,6 +51,7 @@ class Signature : public MpqFile
 		 */
 		typedef boost::scoped_array<byte> WeakSignature;
 
+#ifdef ENCRYPTION
 		/**
 		 * \sa Mpq::checkStrong(), check()
 		 */
@@ -73,6 +76,7 @@ class Signature : public MpqFile
 		 * \sa Mpq::storedDigest()
 		 */
 		MD5 storedChecksum(const CryptoPP::RSA::PrivateKey &privateKey) const;
+#endif
 
 		virtual const char* fileName() const;
 

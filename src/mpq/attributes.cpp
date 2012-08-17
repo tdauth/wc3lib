@@ -20,10 +20,9 @@
 
 #include <boost/crc.hpp>
 
-#include <crypto++/md5.h>
-
 #include "attributes.hpp"
 #include "mpq.hpp"
+#include "platform.hpp"
 
 namespace wc3lib
 {
@@ -57,12 +56,7 @@ void Attributes::refreshFile(const MpqFile *mpqFile)
 			//setCrc32(mpqFile, boost::crc<boost::crc_32_type>((void*)buffer, size));
 
 		if (this->extendedAttributes() & ExtendedAttributes::FileMd5s)
-		{
-			CryptoPP::Weak1::MD5 checksum;
-			MD5 md5;
-			checksum.CalculateDigest((unsigned char*)&md5, (unsigned char*)buffer, size);
-			setMd5(mpqFile->block(), md5);
-		}
+			setMd5(mpqFile->block(), mpq::md5(buffer));
 	}
 }
 
@@ -179,11 +173,7 @@ bool Attributes::check(const MpqFile *mpqFile) const
 
 	if (extendedAttributes() & ExtendedAttributes::FileMd5s)
 	{
-		CryptoPP::Weak1::MD5 checksum;
-		MD5 md5;
-		checksum.CalculateDigest((unsigned char*)&md5, (unsigned char*)buffer, size);
-
-		if (md5 != this->md5(mpqFile))
+		if (mpq::md5(buffer) != this->md5(mpqFile))
 			return false;
 	}
 

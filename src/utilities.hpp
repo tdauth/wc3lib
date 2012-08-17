@@ -103,35 +103,6 @@
 namespace wc3lib
 {
 
-/**
- * Note that you can not use istream >> operators to read values (e. g. longs or floats) from binary files.
- * Thus this template function exists.
- * \deprecated This function should not be used anymore since std::istream.read reads unformatted data and there is a couple of utility functions which provide additionally read funcitonality.
- */
-template<typename T>
-inline T readValue(std::istream &istream, bool byteSwap = false)
-{
-	char bytes[sizeof(T)];
-	istream.read(bytes, sizeof(T));
-	T result = 0;
-
-	// i has to be signed?!
-	if (byteSwap)
-	{
-		for (std::size_t i = sizeof(T) - 1; i >= 0; --i)
-			result |= (bytes[i] << (i << 3));
-	}
-	else
-	{
-		std::size_t j =  sizeof(T) - 1;
-
-		for (std::size_t i = 0; i < sizeof(T); ++i, --j)
-			result |= (bytes[i] << (j << 3));
-	}
-
-	return result;
-}
-
 namespace
 {
 

@@ -21,6 +21,9 @@
 #ifndef WC3LIB_MPQ_LISTFILE_HPP
 #define WC3LIB_MPQ_LISTFILE_HPP
 
+#include <vector>
+#include <string>
+
 #include <boost/algorithm/string.hpp>
 
 #include "mpqfile.hpp"

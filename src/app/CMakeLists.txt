@@ -11,7 +11,7 @@ endif ()
 
 if (EDITOR)
 	kde4_add_executable(wc3editor wc3editor.cpp)
-	target_link_libraries(wc3editor wc3libeditor ${QT_LIBRARIES} ${KDE4_KDEUI_LIBS})
+	target_link_libraries(wc3editor ${wc3lib_CORE_LIBRARIES} wc3libeditor ${QT_LIBRARIES} ${KDE4_KDEUI_LIBS})
 	set_property(TARGET wc3editor PROPERTY LINK_INTERFACE_LIBRARIES "")
 	install(TARGETS wc3editor DESTINATION bin)
 endif ()

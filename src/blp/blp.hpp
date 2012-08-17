@@ -260,14 +260,14 @@ class Blp : public Format
 		 */
 		std::streamsize read(InputStream &istream, const std::size_t &mipMaps, const bool threads) throw (class Exception);
 
-		std::streamsize read(InputStream &istream) throw (class Exception) { read(istream, 0, true); }
+		std::streamsize read(InputStream &istream) throw (class Exception) { return read(istream, 0, true); }
 		/**
 		 * \param quality Quality for JPEG/JFIF compression (0 - 100). -1 or another invalid value means default (\ref Blp::defaultQuality).
 		 * \param mipMaps Number of MIP maps which should be written (1 - 16). 0 means actual number of existing MIP maps.
 		 * \param threads If true one thread will be created per MIP map for JPEG compression. Otherwise, no multithreading will be used.
 		 */
 		std::streamsize write(OutputStream &ostream, const int &quality, const std::size_t &mipMaps, const bool threads) const throw (class Exception);
-		std::streamsize write(OutputStream &ostream) const throw (class Exception) { write(ostream, defaultQuality, defaultMipMaps, defaultThreads); }
+		std::streamsize write(OutputStream &ostream) const throw (class Exception) { return write(ostream, defaultQuality, defaultMipMaps, defaultThreads); }
 		virtual uint32_t version() const;
 
 		/**

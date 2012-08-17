@@ -628,6 +628,7 @@ const MpqFile* Mpq::findFile(const boost::filesystem::path &path, BOOST_SCOPED_E
 	return const_cast<Mpq*>(this)->findFile(path, locale, platform);
 }
 
+#ifdef ENCRYPTION
 bool Mpq::check(const CryptoPP::RSA::PrivateKey &strongPrivateKey, const CryptoPP::RSA::PrivateKey &weakPrivateKey) const
 {
 	if (!checkStrong(strongPrivateKey) || !this->signatureFile()->check(weakPrivateKey))
@@ -734,6 +735,7 @@ std::streamsize Mpq::signStrong(const CryptoPP::RSA::PublicKey &publicKey)
 
 	return size;
 }
+#endif
 
 }
 

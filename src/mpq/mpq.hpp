@@ -30,8 +30,10 @@
 #include <boost/cast.hpp>
 #include <boost/foreach.hpp>
 
+#ifdef ENCRYPTION
 #include <crypto++/sha.h>
 #include <crypto++/rsa.h>
+#endif
 
 #include "platform.hpp"
 #include "algorithm.hpp"
@@ -347,6 +349,7 @@ class Mpq : public Format, private boost::noncopyable
 		 * \return Returns archive's strong digital signature with size of \ref Mpq::strongDigitalSignatureSize.
 		 */
 		const StrongDigitalSignature& strongDigitalSignature() const;
+#ifdef ENCRYPTION
 		/**
 		 * \return Returns true if there is no kind of signature or if stored signatures are correct.
 		 * \sa sign(), checkStrong(), strongDigitalSignature(), signatureFile()
@@ -378,6 +381,7 @@ class Mpq : public Format, private boost::noncopyable
 		 * \sa sign()
 		 */
 		std::streamsize signStrong(const CryptoPP::RSA::PublicKey &publicKey);
+#endif
 		/**
 		 * When \ref Mpq::open() or \ref Mpq::create() is called archive is opened automatically until destructor or \ref Mpq::close() is called.
 		 * For interprocess communication a file lock object is created which can be used via \ref Mpq::fileLock().

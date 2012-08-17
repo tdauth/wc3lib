@@ -1,3 +1,8 @@
+2011-10-06 Tamino Dauth <tamino@cdauth.eu>
+* mpq: We fucking need an MD5 function which is available on all platforms (provided by Boost ...). At the moment we use OpenSSL's md5 implementation in mpq::Attributes, if encryption is disabled.
+* Crypto++ cannot be used with clang.
+* mdlx::GroupMdxBlockMember cannot be abstract with clang (because it's cloned whatever in boost::ptr_vector etc.).
+
 2012-04-16 Tamino Dauth <tamino@cdauth.eu>
 * editor/map: We need a map::TriggerData wrapper class with associative containers or do load pointers to Types etc. on loading map::Triggers.
 

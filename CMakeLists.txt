@@ -52,6 +52,10 @@ CMAKE_DEPENDENT_OPTION(PLUGINS
 	"Could be used without EDITOR and installs Qt/KDE and OGRE format plugins only. Does not build the whole World Editor emulation."
 	ON
 	"BLP;MPQ" OFF)
+CMAKE_DEPENDENT_OPTION(ENCRYPTION
+	"Enables encryption support for MPQ archives which requires Crypto++. Otherwise, only OpenSSL or something similar is required for an MD5 function."
+	ON
+	"MPQ" OFF)
 option(DOC
 	"Generates doxygen documentation (doxygen is required)"
 	ON)
@@ -212,25 +216,30 @@ if (MPQ)
 	find_package(ZLIB REQUIRED)
 	include_directories(${ZLIB_INCLUDE_DIRS})
 
-	set(CRYPTOPP_INCLUDE_DIRS "${CMAKE_SYSTEM_INCLUDE_PATH}")
-	set(CRYPTOPP_LIB_DIR "${CMAKE_SYSTEM_LIBRARY_PATH}")
+	if (ENCRYPTION)
+		set(CRYPTOPP_INCLUDE_DIRS "${CMAKE_SYSTEM_INCLUDE_PATH}")
+		set(CRYPTOPP_LIB_DIR "${CMAKE_SYSTEM_LIBRARY_PATH}")
 
-	find_path(tmp "rsa.h" "${CRYPTOPP_INCLUDE_DIRS}/crypto++")
+		find_path(tmp "rsa.h" "${CRYPTOPP_INCLUDE_DIRS}/crypto++")
 
-	if (NOT (${tmp} EQUAL "tmp-NOTFOUND"))
-		include_directories(${CRYPTOPP_INCLUDE_DIRS})
-		link_directories(${CRYPTOPP_LIB_DIR})
-		find_library(CRYPTOPP_LIB NAMES crypto++ REQUIRED "${CRYPTOPP_LIB_DIR}")
+		if (NOT (${tmp} EQUAL "tmp-NOTFOUND"))
+			include_directories(${CRYPTOPP_INCLUDE_DIRS})
+			link_directories(${CRYPTOPP_LIB_DIR})
+			find_library(CRYPTOPP_LIB NAMES crypto++ REQUIRED "${CRYPTOPP_LIB_DIR}")
 
-		if (NOT (CRYPTOPP_LIB EQUAL "CRYPTOPP_LIB-NOTFOUND"))
-			set(CRYPTOPP_LIBRARIES ${CRYPTOPP_LIB})
-			message(STATUS "Crypto++ libraries: ${CRYPTOPP_LIBRARIES}")
-			set(CRYPTOPP_FOUND 1)
+			if (NOT (CRYPTOPP_LIB EQUAL "CRYPTOPP_LIB-NOTFOUND"))
+				set(CRYPTOPP_LIBRARIES ${CRYPTOPP_LIB})
+				message(STATUS "Crypto++ libraries: ${CRYPTOPP_LIBRARIES}")
+				set(CRYPTOPP_FOUND 1)
+			else ()
+				set(CRYPTOPP_FOUND 0)
+			endif ()
 		else ()
-			set(CRYPTOPP_FOUND 0)
+			message(FATAL_ERROR "\"rsa.h\" could not be found in paths: ${CRYPTOPP_INCLUDE_DIRS}.")
 		endif ()
 	else ()
-		message(FATAL_ERROR "\"rsa.h\" could not be found in paths: ${CRYPTOPP_INCLUDE_DIRS}.")
+		find_package(OpenSSL REQUIRED)
+		include_directories(${OPENSSL_INCLUDE_DIR})
 	endif ()
 
 endif ()

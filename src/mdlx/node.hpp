@@ -119,7 +119,7 @@ class Node : public MdlxProperty
 
 inline void Node::setName(const byte name[Node::nameSize])
 {
-	memcpy(this->m_name, name, sizeof(name));
+	memcpy(this->m_name, name, sizeof(byte) * Node::nameSize);
 }
 
 

@@ -11,4 +11,5 @@
 #cmakedefine W3G
 #cmakedefine EDITOR
 #cmakedefine PLUGINS
+#cmakedefine ENCRYPTION
 #cmakedefine DOC

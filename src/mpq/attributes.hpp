@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MPQ_ATTRIBUTES_HPP
 #define WC3LIB_MPQ_ATTRIBUTES_HPP
 
-#include <boost/bimap.hpp>
+#include <vector>
 
 #include "mpqfile.hpp"
 

@@ -26,6 +26,7 @@ namespace wc3lib
 namespace mpq
 {
 
+#ifdef ENCRYPTION
 bool Signature::check(const CryptoPP::RSA::PrivateKey &privateKey) const
 {
 
@@ -76,6 +77,7 @@ MD5 Signature::storedChecksum(const CryptoPP::RSA::PrivateKey &privateKey) const
 
 	return result;
 }
+#endif
 
 Signature::Signature(Mpq* mpq, Hash* hash): MpqFile(mpq, hash)
 {

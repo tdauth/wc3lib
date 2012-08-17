@@ -40,6 +40,7 @@ class Exception : public virtual std::exception, public virtual boost::exception
 		Exception(const std::string &what = "") throw ();
 		Exception(const boost::format &what) throw ();
 		virtual ~Exception() throw ();
+
 		const char* what() const throw ();
 		std::string& what();
 
