@@ -54,7 +54,7 @@ SourcesDialog::SourcesDialog(class MpqPriorityList *source, QWidget *parent, Qt:
 	//m_editListBox->lineEdit()->setCompletionObject(urlCompletion);
 	//m_editListBox->setCustomEditor(*requester);
 	KUrlRequester *urlRequester = new KUrlRequester(m_editListBox);
-	urlRequester->setMode(KFile::ExistingOnly | KFile::Files);
+	urlRequester->setMode(KFile::ExistingOnly | KFile::Files | KFile::Directory);
 
 	KMimeType::Ptr mpq(KMimeType::mimeType("application/x-mpq"));
 	KMimeType::Ptr w3m(KMimeType::mimeType("application/x-w3m"));

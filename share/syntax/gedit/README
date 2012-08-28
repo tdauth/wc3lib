@@ -1,5 +1,0 @@
-   1. Ensure that the following directory exists in my home directory
-      ~/.local/share/gtksourceview-2.0/language-specs
-   2. Download the gedit language file and put it into the above directory
-   3. Start gedit and ensure the MoinMoin entry is available under the following menu
-      View -> Highlight Mode -> Markup
