@@ -38,7 +38,7 @@ class Sequence : public Bounds, public GroupMdxBlockMember
 {
 	public:
 		static const std::size_t nameSize = 0x50;
-		
+
 		Sequence(class Sequences *sequences);
 
 		class Sequences* sequences() const;
@@ -71,7 +71,7 @@ class Sequence : public Bounds, public GroupMdxBlockMember
 
 inline class Sequences* Sequence::sequences() const
 {
-	return dynamic_cast<class Sequences*>(this->m_parent);
+	return boost::polymorphic_cast<class Sequences*>(this->parent());
 }
 
 inline const byte* Sequence::name() const

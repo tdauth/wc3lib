@@ -22,7 +22,7 @@
 #define WC3LIB_MAP_MINIMAP_HPP
 
 #include "platform.hpp"
-#include "wc3libConfig.h"
+#include "../config.h"
 #ifdef BLP
 #include "../blp.hpp"
 #else

@@ -13,7 +13,6 @@ if (NOT STATIC AND UNIX)
 	target_link_libraries(wc3libcore dl)
 endif ()
 target_link_libraries(wc3libcore ${Boost_LIBRARIES})
-set_property(TARGET wc3libcore PROPERTY LINK_INTERFACE_LIBRARIES "")
 
 if (BLP)
 	add_subdirectory(blp)

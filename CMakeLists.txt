@@ -7,16 +7,18 @@ set(wc3lib_VERSION_MAJOR 0)
 set(wc3lib_VERSION_MINOR 1)
 set(wc3lib_VERSION "${wc3lib_VERSION_MAJOR}.${wc3lib_VERSION_MINOR}")
 
+# NOTE we don't use PROJECT_BINARY_DIR since some files have to include it when they're installed on the system, as well (#include "../config.h")
 # configure a header file to pass some of the CMake settings
 # to the source code
 configure_file (
 	"${PROJECT_SOURCE_DIR}/wc3libConfig.h.in"
-	"${PROJECT_BINARY_DIR}/wc3libConfig.h"
+	"${PROJECT_SOURCE_DIR}/config.h"
 )
+install(FILES "${PROJECT_SOURCE_DIR}/config.h" DESTINATION include/wc3lib)
 
-# add the binary tree to the search path for include files
-# so that we will find TutorialConfig.h
-include_directories("${PROJECT_BINARY_DIR}")
+# add the source tree to the search path for include files
+# so that we will find config.h
+include_directories("${PROJECT_SOURCE_DIR}")
 
 include(CMakeDependentOption)
 
@@ -58,12 +60,10 @@ CMAKE_DEPENDENT_OPTION(ENCRYPTION
 	"MPQ" OFF)
 option(DOC
 	"Generates doxygen documentation (doxygen is required)"
-	ON)
+	OFF)
 
 function (WC3LIB_GET_H resultName)
 	file(GLOB list *.hpp)
-	list(APPEND result ${list})
-	file(GLOB list *.hxx)
 	list(APPEND result ${list})
 	file(GLOB list *.h)
 	list(APPEND result ${list})
@@ -73,8 +73,6 @@ endfunction ()
 # TODO Exclude moc_* files
 function (WC3LIB_GET_SRC resultName)
 	file(GLOB list *.cpp)
-	list(APPEND result ${list})
-	file(GLOB list *.cxx)
 	list(APPEND result ${list})
 	file(GLOB list *.c)
 	list(APPEND result ${list})
@@ -94,39 +92,22 @@ function (WC3LIB_GET_TXT resultName)
 endfunction ()
 
 # Used for compiler flags like -Wall
-function (WC3LIB_GET_COMPILE_FLAG variable flagName)
-	string(REGEX MATCH "\\W*${flagName}\\W*" output "${CMAKE_CXX_FLAGS}")
-	string(COMPARE EQUAL "${output}" "${flagName}" result)
-	set(${variable} ${result} PARENT_SCOPE)
-	message(STATUS "Flag \"${flagName}\" is ${result}.")
-endfunction ()
-
-# Used for compiler flags like -Wall
+# TODO CMAKE_CXX_FLAGS is not changed in cache!
+# NOTE We could use COMPILE_FLAGS property of targets.
 function (WC3LIB_ENABLE_COMPILE_FLAG flagName)
-	WC3LIB_GET_COMPILE_FLAG(isSet "${flagName}")
-	if (NOT isSet)
-		message(STATUS "Enabling flag \"${flagName}\".")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flagName}" PARENT_SCOPE)
-	endif ()
+	message(STATUS "Enabling flag \"${flagName}\".")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flagName}" GLOBAL)
 endfunction ()
 
 function (WC3LIB_DISABLE_COMPILE_FLAG flagName)
-	WC3LIB_GET_COMPILE_FLAG(isSet "${flagName}")
-	message(STATUS "Is set is ${isSet}")
-	if (isSet)
-		message(STATUS "Disabling flag \"${flagName}\".")
-		string(REPLACE "${flagName}" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" PARENT_SCOPE)
-	endif ()
+	message(STATUS "Disabling flag \"${flagName}\".")
+	string(REPLACE "${flagName}" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endfunction ()
 
 function (WC3LIB_REPLACE_COMPILE_FLAG flagName newFlagName)
-	WC3LIB_GET_COMPILE_FLAG(isSet "${flagName}")
-	if (isSet)
-		message(STATUS "Replacing flag \"${flagName}\" by \"${newFlagName}\".")
-		string(REPLACE "${flagName}" "${newFlagName}" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" PARENT_SCOPE)
-	endif ()
+	message(STATUS "Replacing flag \"${flagName}\" by \"${newFlagName}\".")
+	string(REPLACE "${flagName}" "${newFlagName}" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" GLOBAL)
 endfunction ()
 
 # get_property(input DIRECTORY PROPERTY COMPILE_DEFINITIONS)
@@ -149,8 +130,13 @@ endfunction ()
 
 # TODO: Also setup C flags since we're using C code, too (e. g. huffman lib), CMAKE_C_FLAGS
 function (WC3LIB_COMPILER_SETUP)
+	message(STATUS "C++ compiler: ${CMAKE_CXX_COMPILER_ID}")
+	if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+		message(STATUS "Setting Clang compilation flags.")
+		#WC3LIB_ENABLE_COMPILE_FLAG("-std=c++11")
+		#WC3LIB_ENABLE_COMPILE_FLAG("-stdlib=libc++")
 	# GCC options setup, has to be AFTER finding packages - Qt and KDE do overwrite CMAKE_CXX_FLAGS!
-	if (CMAKE_COMPILER_IS_GNUCC)
+	elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 		message(STATUS "Setting GCC compilation flags.")
 		# Enable exception handling, disabled by Qt.
 		# WC3LIB_REPLACE_COMPILE_FLAG("-fno-exceptions" "-fexceptions")
@@ -162,12 +148,6 @@ function (WC3LIB_COMPILER_SETUP)
 		# we're using some features of the new C++ ISO Standard such as default function templates arguments and scoped enums (via Boost)
 		#WC3LIB_ENABLE_COMPILE_FLAG("-std=c\\+\\+0x")
 		# set to parent scope since this is a function and these values should be the global C++ flags!
-		# TODO WC3LIB_ENABLE_COMPILE_FLAG doesn't set the flag in this scope!
-		# We need pthread support on Unix systems (used by Boost C++ Libraries).
-		if (UNIX)
-			WC3LIB_ENABLE_COMPILE_FLAG("-lpthread")
-		endif ()
-		set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} PARENT_SCOPE)
 	endif ()
 endfunction ()
 

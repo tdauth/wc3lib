@@ -6,7 +6,6 @@ if (MAP)
 
 	add_library(wc3libmap SHARED ${wc3lib_MAP_SRC})
 	target_link_libraries(wc3libmap wc3libcore wc3libmpq wc3libblp ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
-	set_property(TARGET wc3libmap PROPERTY LINK_INTERFACE_LIBRARIES "")
 
 	# install
 	install(TARGETS wc3libmap DESTINATION lib/wc3lib/)

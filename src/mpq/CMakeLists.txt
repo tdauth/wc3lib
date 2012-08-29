@@ -11,7 +11,6 @@ if (MPQ)
 	else ()
 		target_link_libraries(wc3libmpq ${OPENSSL_LIBRARIES})
 	endif ()
-	set_property(TARGET wc3libmpq PROPERTY LINK_INTERFACE_LIBRARIES "")
 
 	# install
 

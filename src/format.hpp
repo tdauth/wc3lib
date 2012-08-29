@@ -37,6 +37,7 @@
 */
 #include <boost/cstdint.hpp>
 
+#include "config.h"
 #include "exception.hpp"
 #include "utilities.hpp"
 #include "platform.hpp"

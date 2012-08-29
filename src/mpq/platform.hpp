@@ -21,13 +21,14 @@
 #ifndef WC3LIB_MPQ_PLATFORM_HPP
 #define WC3LIB_MPQ_PLATFORM_HPP
 
+#include "../config.h"
+#include "../platform.hpp"
+
 #ifdef ENCRYPTION
 #include <crypto++/md5.h>
 #else
 #include <openssl/md5.h>
 #endif
-
-#include "../platform.hpp"
 
 namespace wc3lib
 {
@@ -44,7 +45,7 @@ inline MD5 md5(const byte *buffer)
 	MD5 md5 = 0;
 #ifdef ENCRYPTION
 	CryptoPP::Weak1::MD5 checksum;
-	checksum.CalculateDigest((unsigned char*)&md5, (unsigned char*)buffer, size);
+	checksum.CalculateDigest((unsigned char*)&md5, (unsigned char*)buffer, sizeof(md5));
 #else
 	MD5_CTX c;
 	MD5_Init(&c);

@@ -143,6 +143,7 @@ void OgreMdlx::load() throw (Exception)
 	std::streamsize size = isMdx ? size = model->readMdx(ifstream) : size = model->readMdl(ifstream);
 
 	//model->textures()->textures().size(); // TEST
+	qDebug() << "Size: " << size;
 
 	this->mdlx()->textures()->members().size(); // TEST
 	Ogre::LogManager::getSingleton().setLogDetail(Ogre::LL_BOREME); // TEST
@@ -151,7 +152,7 @@ void OgreMdlx::load() throw (Exception)
 	{
 		this->m_sceneNode = this->m_modelView->sceneManager()->getRootSceneNode()->createChildSceneNode(mdlx()->model()->name());
 
-		//this->modelView()->camera()->setAutoTracking(true, this->m_sceneNode); // camera follows ogre mdlx automatically
+		this->modelView()->camera()->setAutoTracking(true, this->m_sceneNode); // camera follows ogre mdlx automatically
 
 		// create textures
 		mdlx::long32 id = 0;

@@ -21,6 +21,7 @@
 #ifndef WC3LIB_COLOR_HPP
 #define WC3LIB_COLOR_HPP
 
+#include "config.h"
 #include "utilities.hpp"
 #include "platform.hpp"
 #include "format.hpp"

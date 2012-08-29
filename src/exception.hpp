@@ -27,6 +27,8 @@
 #include <boost/exception/all.hpp>
 #include <boost/format.hpp>
 
+#include "config.h"
+
 namespace wc3lib
 {
 

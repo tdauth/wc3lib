@@ -23,6 +23,7 @@
 #include <boost/thread.hpp>
 
 #include "blp.hpp"
+#include "../config.h"
 #include "../libraryloader.hpp"
 
 #include <jpeglib.h>

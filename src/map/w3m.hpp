@@ -26,7 +26,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/scoped_array.hpp>
 
-#include "wc3libConfig.h"
+#include "../config.h"
 #ifdef MPQ
 #include "../mpq.hpp"
 #else

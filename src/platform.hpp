@@ -11,6 +11,8 @@
 #include <boost/iostreams/device/array.hpp>
 #include <boost/array.hpp>
 
+#include "config.h"
+
 namespace wc3lib
 {
 
@@ -107,6 +109,85 @@ typedef uint32_t flag;
 * Size (array of chars): usually 4 bytes
 */
 typedef boost::array<byte, 4> charArray;
+
+/*
+template<byte... Bytes>
+struct __CheckBytes
+{
+	static const bool valid = false;
+};
+
+template<byte Left>
+struct __CheckBytes<Left>
+{
+	static const bool valid = (
+		Left == '0' ||
+		Left == '1' ||
+		Left == '2' ||
+		Left == '3' ||
+		Left == '4' ||
+		Left == '5' ||
+		Left == '6' ||
+		Left == '7' ||
+		Left == '8' ||
+		Left == '9' ||
+		Left == 'A' ||
+		Left == 'B' ||
+		Left == 'C' ||
+		Left == 'D' ||
+		Left == 'E' ||
+		Left == 'F' ||
+		Left == 'G' ||
+		Left == 'H' ||
+		Left == 'I' ||
+		Left == 'J' ||
+		Left == 'K' ||
+		Left == 'L' ||
+		Left == 'M' ||
+		Left == 'N' ||
+		Left == 'O' ||
+		Left == 'P' ||
+		Left == 'Q' ||
+		Left == 'R' ||
+		Left == 'S' ||
+		Left == 'T' ||
+		Left == 'U' ||
+		Left == 'V' ||
+		Left == 'W' ||
+		Left == 'X' ||
+		Left == 'Y' ||
+		Left == 'Z'
+	);
+};
+
+template<byte Left, byte... Bytes>
+struct __CheckBytes<Left, Bytes...>
+{
+	static const bool valid = __CheckBytes<Left>::valid
+	&& __CheckBytes<Bytes...>::valid;
+};
+
+class Id
+{
+	public:
+		constexpr inline Id(const byte bytes[4]) : m_bytes{ bytes[0], bytes[1], bytes[2], bytes[3] }
+		{
+		}
+
+	private:
+		const byte m_bytes[4];
+};
+
+template<byte... Bytes>
+inline constexpr Id
+operator"" _id() noexcept
+{
+	static_assert(sizeof...(Bytes) != 4, "Id has invalid size.");
+	static_assert(__CheckBytes<Bytes...>::valid, "Invalid digit in id.");
+
+	return Id((byte[]){Bytes... });
+}
+*/
 
 }
 

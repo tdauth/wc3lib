@@ -97,6 +97,7 @@
 #endif
 */
 
+#include "config.h"
 #include "exception.hpp"
 #include "internationalisation.hpp"
 
@@ -398,8 +399,8 @@ std::string sizeStringBinary(T size)
 	static const std::size_t tableSize = 4;
 	static const SizeType table[tableSize] =
 	{
-		pow(1024, 3),
-		pow(1024, 2),
+		(SizeType)pow(1024, 3), // TODO compile time power
+		(SizeType)pow(1024, 2), // TODO compile time power
 		1024,
 		0
 	};
@@ -460,8 +461,8 @@ std::string sizeStringDecimal(T size)
 	static const std::size_t tableSize = 4;
 	static const SizeType table[tableSize] =
 	{
-		pow(1000, 3),
-		pow(1000, 2),
+		(SizeType)pow(1000, 3), // TODO compile time power
+		(SizeType)pow(1000, 2), // TODO compile time power
 		1000,
 		0
 	};

@@ -30,6 +30,8 @@
 #include <boost/cast.hpp>
 #include <boost/foreach.hpp>
 
+#include "../config.h"
+
 #ifdef ENCRYPTION
 #include <crypto++/sha.h>
 #include <crypto++/rsa.h>

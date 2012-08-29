@@ -18,7 +18,6 @@ add_library(qblp SHARED ${wc3lib_EDITOR_QBLP_SRC})
 target_link_libraries(qblp wc3libcore wc3libblp ${Boost_LIBRARIES} ${QT_LIBRARIES})
 # wc3libcore is necessary because of catching Exception
 # TODO drop ${Boost_LIBRARIES}
-set_property(TARGET qblp PROPERTY LINK_INTERFACE_LIBRARIES "")
 
 # install
 install(TARGETS qblp DESTINATION ${QT_PLUGINS_DIR}/imageformats)

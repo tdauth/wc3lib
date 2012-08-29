@@ -24,6 +24,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/filesystem/path.hpp>
 
+#include "config.h"
 #include "exception.hpp"
 
 namespace wc3lib

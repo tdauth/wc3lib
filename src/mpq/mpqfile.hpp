@@ -22,7 +22,6 @@
 #define WC3LIB_MPQ_MPQFILE_HPP
 
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/algorithm/string/find.hpp>
 
 #include "platform.hpp"
@@ -241,7 +240,6 @@ class MpqFile : private boost::noncopyable
 		class Hash *m_hash;
 		boost::filesystem::path m_path;
 		Sectors m_sectors;
-		boost::mutex m_mutex; // for MPQ archive
 };
 
 inline class Mpq* MpqFile::mpq() const

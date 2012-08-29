@@ -30,8 +30,6 @@ namespace mpq
 
 void MpqFile::removeData()
 {
-	boost::mutex::scoped_try_lock lock(this->m_mutex);
-
 	this->block()->setFileSize(0);
 	this->m_sectors.clear();
 
@@ -41,8 +39,6 @@ void MpqFile::removeData()
 std::streamsize MpqFile::readData(istream &istream, BOOST_SCOPED_ENUM(Sector::Compression) compression) throw (class Exception)
 {
 	removeData();
-
-	boost::mutex::scoped_try_lock lock(this->m_mutex);
 
 	std::streamsize bytes = 0;
 	uint16 sectorSize = 0;
@@ -101,11 +97,6 @@ std::streamsize MpqFile::readData(istream &istream, BOOST_SCOPED_ENUM(Sector::Co
 std::streamsize MpqFile::appendData(istream &istream) throw (class Exception)
 {
 	throw Exception(_("MpqFile: appendData is not implemented yet!"));
-
-	if (!this->m_mutex.try_lock())
-		throw Exception(boost::format(_("Unable to lock MPQ file %1%.")) % path());
-
-	this->m_mutex.unlock();
 
 	return 0;
 }
@@ -220,8 +211,6 @@ std::streamsize MpqFile::read(istream &istream) throw (class Exception)
 	// if we have a sector offset table and file is encrypted we first need to know its path for proper decryption!
 	if (hasSectorOffsetTable() && isEncrypted() && path().empty())
 		return 0;
-
-	boost::mutex::scoped_try_lock lock(this->m_mutex);
 
 	istream.seekg(mpq()->startPosition());
 	istream.seekg(this->block()->blockOffset(), std::ios::cur);
@@ -354,8 +343,6 @@ std::streamsize MpqFile::write(ostream &ostream) const throw (class Exception)
 
 void MpqFile::remove() throw (class Exception)
 {
-	boost::mutex::scoped_try_lock lock(this->m_mutex);
-
 	this->m_hash->clear();
 
 	/// @todo Clear file content -> usually unnecessary?
@@ -372,8 +359,6 @@ bool MpqFile::move(const boost::filesystem::path &newPath, bool overwriteExistin
 {
 	if (this->m_path == newPath)
 		return false;
-
-	boost::mutex::scoped_try_lock lock(this->m_mutex);
 
 	MpqFile *file = this->mpq()->findFile(newPath, this->locale(), this->platform());
 

@@ -1,3 +1,12 @@
+2012-08-29 Tamino Dauth <tamino@cdauth.eu>
+* editor: Plugin_BlpCodec has to be linked with pthread on Unix systems although it should be automatically linked with when being linked with wc3libblp (enabled transitive linking).
+* Modifying CMAKE_CXX_FLAGS does not work for cache (use property COMPILE_FLAGS?).
+* Crypto++ 5.6.1-r1 seems to have syntax errors (option ENCRYPTION requires).
+* MD5 functions on Windows and Mac without ENCRYPTION option - OpenSSL?
+* Various formatting stream errors with Clang and C++11.
+* Include "config.h" properly.
+* Test include statements for "config.h" on installation.
+
 2011-10-06 Tamino Dauth <tamino@cdauth.eu>
 * mpq: We fucking need an MD5 function which is available on all platforms (provided by Boost ...). At the moment we use OpenSSL's md5 implementation in mpq::Attributes, if encryption is disabled.
 * Crypto++ cannot be used with clang.
