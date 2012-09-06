@@ -42,6 +42,7 @@ class AmbientColors : public MdlxScalings
 		class Light* light() const;
 
 	protected:
+		/// \todo C++11 override
 		virtual Property* createAnimatedProperty();
 
 		class Light *m_light;

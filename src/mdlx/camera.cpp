@@ -60,14 +60,13 @@ std::streamsize Camera::readMdx(istream &istream) throw (class Exception)
 	wc3lib::read(istream, this->m_fieldOfView, bytes);
 	wc3lib::read(istream, this->m_farClip, bytes);
 	wc3lib::read(istream, this->m_nearClip, bytes);
-	wc3lib::read(istream, this->m_target, bytes);
+	bytes += m_target.read(istream);
 	bytes += this->m_translations->readMdx(istream);
 	bytes += this->m_rotationLengths->readMdx(istream);
 	bytes += this->m_targetTranslations->readMdx(istream);
 	//(BKCT) ?????????????????????????????????????????????????????????????????
 
-	if (bytes != nbytesi)
-		throw Exception(boost::format(_("Camera: File byte count is not equal to real byte count.\nFile byte count: %1%.\nReal byte count: %2%.\n")) % nbytesi % bytes);
+	checkBytesIncluding(bytes, nbytesi);
 
 	return bytes;
 }
@@ -76,19 +75,19 @@ std::streamsize Camera::writeMdx(ostream &ostream) const throw (class Exception)
 {
 	std::streampos position;
 	skipByteCount<long32>(ostream, position);
-	
+
 	std::streamsize bytes = 0;
 	wc3lib::write(ostream, this->m_name, bytes);
 	wc3lib::write(ostream, this->m_position, bytes);
 	wc3lib::write(ostream, this->m_fieldOfView, bytes);
 	wc3lib::write(ostream, this->m_farClip, bytes);
 	wc3lib::write(ostream, this->m_nearClip, bytes);
-	wc3lib::write(ostream, this->m_target, bytes);
+	bytes += target().write(ostream);
 	bytes += this->m_translations->writeMdx(ostream);
 	bytes += this->m_rotationLengths->writeMdx(ostream);
 	bytes += this->m_targetTranslations->writeMdx(ostream);
 	//(BKCT) ?????????????????????????????????????????????????????????????????
-	
+
 	long32 nbytesi = bytes;
 	writeByteCount(ostream, nbytesi, position, bytes, true);
 

@@ -41,6 +41,7 @@ class AmbientIntensities : public MdlxAlphas
 		class Light* light() const;
 
 	protected:
+		/// \todo C++11 override
 		virtual Property* createAnimatedProperty();
 
 		class Light *m_light;

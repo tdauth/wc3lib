@@ -56,34 +56,26 @@ std::streamsize Bounds::readMdl(istream &istream) throw (class Exception)
 // MinimumExtent, MaximumExtent and BoundsRadius only appear when their values are not 0.0.
 std::streamsize Bounds::writeMdl(ostream &ostream) const throw (class Exception)
 {
+	std::streamsize size = 0;
+
 	if (this->minimumExtent().x() != 0.0 || this->minimumExtent().y() != 0.0 || this->minimumExtent().z() != 0.0)
-		ostream
-		<< "MinimumExtent { "
-		<< this->minimumExtent().x() << ", "
-		<< this->minimumExtent().y() << ", "
-		<< this->minimumExtent().z()
-		<< "}, " << std::endl;
+		writeMdlVectorProperty(ostream, size, "MinimumExtent", this->minimumExtent(), 1);
 
 	if (this->maximumExtent().x() != 0.0 || this->maximumExtent().y() != 0.0 || this->maximumExtent().z() != 0.0)
-		ostream
-		<< "MaximumExtent { "
-		<< this->maximumExtent().x() << ", "
-		<< this->maximumExtent().y() << ", "
-		<< this->maximumExtent().z()
-		<< "}, " << std::endl;
+		writeMdlVectorProperty(ostream, size, "MaximumExtent", this->maximumExtent(), 1);
 
 	if (this->boundsRadius() != 0.0)
-		ostream << "BoundsRadius " << this->boundsRadius() << ", " << std::endl;
+		writeMdlValueProperty(ostream, size, "BoundsRadius", this->boundsRadius(), 1);
 
-	return 0;
+	return size;
 }
 
 std::streamsize Bounds::readMdx(istream &istream) throw (class Exception)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_boundsRadius, size);
-	wc3lib::read(istream, this->m_minimumExtent, size);
-	wc3lib::read(istream, this->m_maximumExtent, size);
+	size += this->m_minimumExtent.read(istream);
+	size += this->m_maximumExtent.read(istream);
 
 	return size;
 }
@@ -92,8 +84,8 @@ std::streamsize Bounds::writeMdx(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->m_boundsRadius, size);
-	wc3lib::write(ostream, this->m_minimumExtent, size);
-	wc3lib::write(ostream, this->m_maximumExtent, size);
+	size += this->m_minimumExtent.write(ostream);
+	size += this->m_maximumExtent.write(ostream);
 
 	return size;
 }

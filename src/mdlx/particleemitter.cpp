@@ -60,7 +60,7 @@ std::streamsize ParticleEmitter::readMdx(istream &istream) throw (class Exceptio
 	wc3lib::read(istream, this->m_gravity, size);
 	wc3lib::read(istream, this->m_longitude, size);
 	wc3lib::read(istream, this->m_latitidue, size);
-	wc3lib::read(istream, this->m_modelPath, size);
+	wc3lib::read(istream, this->m_modelPath, size, modelPathSize);
 	wc3lib::read(istream, this->m_unknown0, size);
 	wc3lib::read(istream, this->m_lifeSpan, size);
 	wc3lib::read(istream, this->m_initVelocity, size);
@@ -82,7 +82,7 @@ std::streamsize ParticleEmitter::writeMdx(ostream &ostream) const throw (class E
 	wc3lib::write(ostream, this->m_gravity, size);
 	wc3lib::write(ostream, this->m_longitude, size);
 	wc3lib::write(ostream, this->m_latitidue, size);
-	wc3lib::write(ostream, this->m_modelPath, size);
+	wc3lib::write(ostream, this->m_modelPath, size, modelPathSize);
 	wc3lib::write(ostream, this->m_unknown0, size);
 	wc3lib::write(ostream, this->m_lifeSpan, size);
 	wc3lib::write(ostream, this->m_initVelocity, size);

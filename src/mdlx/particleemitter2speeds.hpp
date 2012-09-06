@@ -25,7 +25,7 @@
 
 namespace wc3lib
 {
-	
+
 namespace mdlx
 {
 
@@ -37,12 +37,13 @@ class ParticleEmitter2Speeds : public MdlxAlphas
 {
 	public:
 		ParticleEmitter2Speeds(class ParticleEmitter2 *particleEmitter);
-		
+
 		class ParticleEmitter2* particleEmitter() const;
-		
+
 	private:
-		virtual class MdlxAlpha* createNewMember();
-		
+		/// \todo C++11 override
+		virtual Property* createNewMember();
+
 		class ParticleEmitter2 *m_particleEmitter;
 };
 

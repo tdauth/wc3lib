@@ -38,15 +38,15 @@ std::streamsize Sequences::readMdl(istream &istream) throw (class Exception)
 
 std::streamsize Sequences::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	ostream
-	<< "Sequences " << this->members().size() << " {\n";
+	std::streamsize size = 0;
+	writeMdlCountedBlock(ostream, size, "Sequences", this->members().size());
 
 	BOOST_FOREACH(Members::const_reference sequence, this->members())
-		sequence.writeMdl(ostream);
+		size += sequence.writeMdl(ostream);
 
-	ostream << "}\n";
+	writeMdlBlockConclusion(ostream, size);
 
-	return 0;
+	return size;
 }
 
 GroupMdxBlockMember* Sequences::createNewMember()

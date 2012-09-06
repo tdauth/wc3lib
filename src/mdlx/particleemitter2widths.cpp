@@ -25,7 +25,7 @@
 
 namespace wc3lib
 {
-	
+
 namespace mdlx
 {
 
@@ -33,7 +33,7 @@ ParticleEmitter2Widths::ParticleEmitter2Widths(class ParticleEmitter2 *particleE
 {
 }
 
-class MdlxAlpha* ParticleEmitter2Widths::createNewMember()
+ParticleEmitter2Widths::Property* ParticleEmitter2Widths::createNewMember()
 {
 	return new ParticleEmitter2Width(this);
 }

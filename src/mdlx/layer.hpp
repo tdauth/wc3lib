@@ -36,7 +36,7 @@ namespace mdlx
 class Layer : public GroupMdxBlockMember
 {
 	public:
-		BOOST_SCOPED_ENUM_START(FilterMode) // : long32
+		BOOST_SCOPED_ENUM_START(FilterMode) /// \todo C++11 : long32
 		{
 			None = 0,
 			Transparent = 1,
@@ -48,7 +48,7 @@ class Layer : public GroupMdxBlockMember
 		};
 		BOOST_SCOPED_ENUM_END
 
-		BOOST_SCOPED_ENUM_START(Shading) // : long32
+		BOOST_SCOPED_ENUM_START(Shading) /// \todo C++11 : long32
 		{
 			Unshaded = 1,
 			SphereEnvironmentMap = 2,
@@ -60,6 +60,8 @@ class Layer : public GroupMdxBlockMember
 			NoDepthSet = 128
 		};
 		BOOST_SCOPED_ENUM_END
+
+		static string filterMode(BOOST_SCOPED_ENUM(FilterMode) filterMode);
 
 		Layer(class Layers *layers);
 		virtual ~Layer();
@@ -89,6 +91,35 @@ class Layer : public GroupMdxBlockMember
 		class MaterialAlphas *m_alphas; //(KMTA)
 		class TextureIds *m_textureIds; //(KMTF) // state is long not float
 };
+
+inline string Layer::filterMode(BOOST_SCOPED_ENUM(FilterMode) filterMode)
+{
+	switch (filterMode)
+	{
+		case FilterMode::None:
+			return "None";
+
+		case FilterMode::Transparent:
+			return "Transparent";
+
+		case FilterMode::Blend:
+			return "Blend";
+
+		case FilterMode::Additive:
+			return "Additive";
+
+		case FilterMode::AddAlpha:
+			return "AddAlpha";
+
+		case FilterMode::Modulate:
+			return "Modulate";
+
+		case FilterMode::Modulate2x:
+			return "Modulate2x";
+	}
+
+	return "";
+}
 
 inline class Layers* Layer::layers() const
 {

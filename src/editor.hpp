@@ -47,6 +47,7 @@
 #include "editor/objecttablewidget.hpp"
 #include "editor/objecttablewidgetpair.hpp"
 #include "editor/ogremdlx.hpp"
+#include "editor/ogremdlxentity.hpp"
 #include "editor/plugin.hpp"
 #include "editor/polygonmodecombobox.hpp"
 #include "editor/renderstatswidget.hpp"

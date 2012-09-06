@@ -18,91 +18,24 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_VERTEX_HPP
-#define WC3LIB_VERTEX_HPP
-
-#include <vector>
-
-#include <boost/array.hpp>
-
-#include "platform.hpp"
-#include "format.hpp"
+#include "ogremdlxentity.hpp"
 
 namespace wc3lib
 {
 
-/**
- * \todo Use some boost::geometry class to inherit which provides much more functionality.
- */
-template<typename T, typename std::size_t N>
-class BasicVertex : public boost::array<T, N>, public Format
+namespace editor
 {
-	public:
-		typedef boost::array<T, N> Base;
 
-		BasicVertex(const Base &base)
-		{
-			*this = base;
-		}
+OgreMdlxEntity::OgreMdlxEntity(const Ogre::String &name, OgreMdlx *mdlx, Ogre::SceneManager *sceneManager) : m_mdlx(mdlx), m_entity(sceneManager->createEntity(name, mdlx->meshPtr())), m_globalSequence(0), m_animationState(0)
+{
+}
 
-		BasicVertex()
-		{
-			for (std::size_t i = 0; i < Base::size(); ++i)
-				(*this)[i] = 0;
-		}
-
-		/// \todo C++11 use variadic template for generic constructor with initialization or initializer list
-		BasicVertex(T x, T y, T z)
-		{
-			(*this)[0] = x;
-			(*this)[1] = y;
-			(*this)[2] = z;
-		}
-
-		BasicVertex(T x, T y)
-		{
-			(*this)[0] = x;
-			(*this)[1] = y;
-		}
-
-		T x() const
-		{
-			return (*this)[0];
-		}
-
-		T y() const
-		{
-			return (*this)[1];
-		}
-
-		T z() const
-		{
-			return (*this)[2];
-		}
-
-		virtual std::streamsize read(InputStream &istream) throw (Exception)
-		{
-			std::streamsize size = 0;
-
-			for (std::size_t i = 0; i < Base::size(); ++i)
-				wc3lib::read(istream, (*this)[i], size);
-
-			return size;
-		}
-
-		virtual std::streamsize write(OutputStream &ostream) const throw (Exception)
-		{
-			std::streamsize size = 0;
-
-			for (std::size_t i = 0; i < Base::size(); ++i)
-				wc3lib::write(ostream, (*this)[i], size);
-
-			return size;
-		}
-};
-
-typedef BasicVertex<float32, 3> Vertex;
+bool OgreMdlxEntity::frameRenderingQueued(const Ogre::FrameEvent &evt)
+{
+	if (animationState() != 0)
+		animationState()->addTime(evt.timeSinceLastFrame);
+}
 
 }
 
-#endif
+}

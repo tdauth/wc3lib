@@ -47,7 +47,29 @@ std::streamsize Material::readMdl(istream &istream) throw (class Exception)
 
 std::streamsize Material::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	return 0;
+	std::streamsize size = 0;
+	writeMdlBlock(ostream, size, "Material");
+
+	if (this->renderMode() & RenderMode::ConstantColor)
+		writeMdlProperty(ostream, size, "ConstantColor");
+
+	if (this->renderMode() & RenderMode::SortPrimitivesNearZ)
+		writeMdlProperty(ostream, size, "SortPrimitivesNearZ");
+
+	if (this->renderMode() & RenderMode::SortPrimitivesFarZ)
+		writeMdlProperty(ostream, size, "SortPrimitivesFarZ");
+
+	if (this->renderMode() & RenderMode::FullResolution)
+		writeMdlProperty(ostream, size, "FullResolution");
+
+	if (this->priorityPlane() != 0)
+		writeMdlValueProperty(ostream, size, "PriorityPlane", this->priorityPlane());
+
+	size += this->layers()->writeMdl(ostream);
+
+	writeMdlBlockConclusion(ostream, size);
+
+	return size;
 }
 
 std::streamsize Material::readMdx(istream &istream) throw (class Exception)
@@ -70,11 +92,11 @@ std::streamsize Material::writeMdx(ostream &ostream) const throw (class Exceptio
 {
 	std::streampos position;
 	skipByteCount<long32>(ostream, position);
-	
+
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->priorityPlane(), size);
 	wc3lib::write(ostream, static_cast<const long32>(this->renderMode()), size);
-	size += this->m_layers->writeMdx(ostream);
+	size += this->layers()->writeMdx(ostream);
 
 	long32 includingSize = size;
 	writeByteCount(ostream, includingSize, position, size, true);

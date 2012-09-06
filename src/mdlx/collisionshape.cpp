@@ -47,10 +47,10 @@ std::streamsize CollisionShape::readMdx(istream &istream) throw (class Exception
 	long32 shape;
 	wc3lib::read(istream, shape, size);
 	this->m_shape = static_cast<BOOST_SCOPED_ENUM(Shape)>(shape);
-	wc3lib::read(istream, this->m_vertexData, size);
+	size += this->m_vertexData.read(istream);
 
 	if (this->m_shape == Shape::Box)
-		wc3lib::read(istream, this->m_boxVertexData, size);
+		size += this->m_boxVertexData.read(istream);
 	else
 		wc3lib::read(istream, this->m_boundsRadius, size);
 
@@ -61,10 +61,10 @@ std::streamsize CollisionShape::writeMdx(ostream &ostream) const throw (class Ex
 {
 	std::streamsize size = Object::writeMdx(ostream);
 	wc3lib::write(ostream, static_cast<long32>(this->m_shape), size);
-	wc3lib::write(ostream, this->m_vertexData, size);
+	size += this->m_vertexData.write(ostream);
 
 	if (this->m_shape == Shape::Box)
-		wc3lib::write(ostream, this->m_boxVertexData, size);
+		size += this->m_boxVertexData.write(ostream);
 	else
 		wc3lib::write(ostream, this->m_boundsRadius, size);
 

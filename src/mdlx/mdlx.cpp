@@ -100,7 +100,7 @@ std::streamsize Mdlx::readMdl(istream &istream) throw (class Exception)
 std::streamsize Mdlx::writeMdl(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = this->m_version->writeMdl(ostream);
-	size += this->m_model->writeMdl(ostream);
+	size += this->m_model->writeMdl(ostream, this);
 	size += this->m_sequences->writeMdl(ostream);
 	size += this->m_globalSequences->writeMdl(ostream);
 	size += this->m_materials->writeMdl(ostream);
@@ -251,6 +251,9 @@ std::list<const class Node*> Mdlx::nodes() const
 
 const class Node* Mdlx::node(long32 id) const
 {
+	if (id == mdlx::noneId)
+		throw Exception(boost::format(_("Invalid id: %1%")) % mdlx::noneId);
+
 	std::map<long32, class Node*>::const_iterator iterator = this->m_nodes.find(id);
 
 	if (iterator == this->m_nodes.end())

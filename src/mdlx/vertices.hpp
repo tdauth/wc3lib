@@ -22,7 +22,6 @@
 #define WC3LIB_MDLX_VERTICES_HPP
 
 #include "groupmdxblock.hpp"
-#include "mdlxproperty.hpp"
 
 namespace wc3lib
 {

@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MDLX_TEXTUREIDS_HPP
 #define WC3LIB_MDLX_TEXTUREIDS_HPP
 
-#include "mdxblock.hpp"
+#include "mdlxalphas.hpp"
 
 namespace wc3lib
 {
@@ -32,52 +32,19 @@ namespace mdlx
 /**
  * MDX tag "KMTF".
  * MDL tag "TextureID".
- * State of TextureId is long not float, therefore this class does not inherit \ref MdlxAlphas.
+ * \note State of \ref TextureId is long not \ref float32, it's \ref long32 ! Therefore \ref TextureId inherits from \ref BasicMdlxAlpha<long32> !
  */
-class TextureIds : public MdxBlock
+class TextureIds : public MdlxAlphas
 {
 	public:
-		typedef std::list<class TextureId*> Ids;
-		
-		TextureIds(class Layer *layer);
+		TextureIds(class Mdlx *mdlx);
 		virtual ~TextureIds();
 
-		class Layer* layer() const;
-		BOOST_SCOPED_ENUM(LineType) lineType() const;
-		long32 globalSequenceId() const;
-		const Ids& textureIds() const;
-
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
-		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
-
 	protected:
-		class Layer *m_layer;
-		BOOST_SCOPED_ENUM(LineType) m_lineType;
-		long32 m_globalSequenceId; // 0xFFFFFFFF if none
-		Ids m_textureIds;
+		TextureIds(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlKeyword);
+
+		virtual Property* createAnimatedProperty();
 };
-
-inline class Layer* TextureIds::layer() const
-{
-	return this->m_layer;
-}
-
-inline BOOST_SCOPED_ENUM(LineType) TextureIds::lineType() const
-{
-	return this->m_lineType;
-}
-
-inline long32 TextureIds::globalSequenceId() const
-{
-	return this->m_globalSequenceId;
-}
-
-inline const TextureIds::Ids& TextureIds::textureIds() const
-{
-	return this->m_textureIds;
-}
 
 }
 

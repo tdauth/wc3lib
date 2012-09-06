@@ -140,7 +140,7 @@ inline long32 Node::parentId() const
 
 inline bool Node::hasParent() const
 {
-	return this->m_parentId != 0xFFFFFFFF;
+	return this->m_parentId != noneId;
 }
 
 inline void Node::setType(BOOST_SCOPED_ENUM(Node::Type) type)

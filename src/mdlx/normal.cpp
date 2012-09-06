@@ -44,18 +44,12 @@ std::streamsize Normal::writeMdl(ostream &ostream) const throw (class Exception)
 
 std::streamsize Normal::readMdx(istream &istream) throw (class Exception)
 {
-	std::streamsize size = 0;
-	wc3lib::read(istream, this->m_vertexData, size);
-
-	return size;
+	return this->m_vertexData.read(istream);
 }
 
 std::streamsize Normal::writeMdx(ostream &ostream) const throw (class Exception)
 {
-	std::streamsize size = 0;
-	wc3lib::write(ostream, vertexData(), size);
-
-	return size;
+	return this->vertexData().write(ostream);
 }
 
 }

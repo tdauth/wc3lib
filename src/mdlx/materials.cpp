@@ -27,7 +27,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-Materials::Materials(class Mdlx *mdlx) : GroupMdxBlock("MTLS", "Materials", false, true), m_mdlx(mdlx)
+Materials::Materials(class Mdlx *mdlx) : GroupMdxBlock("MTLS", "Materials", false, true, true), m_mdlx(mdlx)
 {
 }
 

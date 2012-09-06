@@ -86,7 +86,7 @@ inline long32 MdlxAnimatedProperties<N>::globalSequenceId() const
 template<typename std::size_t N>
 inline bool MdlxAnimatedProperties<N>::hasGlobalSequence() const
 {
-	return this->m_globalSequenceId != 0xFFFFFFFF;
+	return this->m_globalSequenceId != mdlx::noneId;
 }
 
 template<typename std::size_t N>

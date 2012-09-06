@@ -37,6 +37,10 @@ class AttachmentVisibilities : public MdlxAlphas
 {
 	public:
 		AttachmentVisibilities(class Mdlx *mdlx);
+
+	private:
+		/// \todo C++11 override
+		virtual Property* createAnimatedProperty();
 };
 
 }

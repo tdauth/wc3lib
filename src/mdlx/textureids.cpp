@@ -27,60 +27,21 @@ namespace wc3lib
 namespace mdlx
 {
 
-TextureIds::TextureIds(class Layer *layer) : MdxBlock("KMTF", "TextureID"), m_layer(layer)
+TextureIds::TextureIds(class Mdlx *mdlx) : MdlxAlphas(mdlx, "KMTF", "TextureID")
 {
 }
 
 TextureIds::~TextureIds()
 {
-	BOOST_FOREACH(TextureId *textureId, m_textureIds)
-		delete textureId;
 }
 
-std::streamsize TextureIds::readMdl(istream &istream) throw (class Exception)
+TextureIds::TextureIds(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlKeyword) : MdlxAlphas(mdlx, mdxIdentifier, mdlKeyword)
 {
-	return 0;
 }
 
-std::streamsize TextureIds::writeMdl(ostream &ostream) const throw (class Exception)
+MdlxAlphas::Property* TextureIds::createAnimatedProperty()
 {
-	return 0;
-}
-
-std::streamsize TextureIds::readMdx(istream &istream) throw (class Exception)
-{
-	std::streamsize size = MdxBlock::readMdx(istream);
-
-	if (size == 0)
-		return 0;
-
-	long32 number;
-	wc3lib::read(istream, number, size);
-	wc3lib::read<long32>(istream, (long32&)this->m_lineType, size);
-	wc3lib::read(istream, this->m_globalSequenceId, size);
-
-	for ( ; number > 0; --number)
-	{
-		class TextureId *textureId = new TextureId(this);
-		size += textureId->readMdx(istream);
-		this->m_textureIds.push_back(textureId);
-	}
-
-	return size;
-}
-
-std::streamsize TextureIds::writeMdx(ostream &ostream) const throw (class Exception)
-{
-	std::streamsize size = MdxBlock::writeMdx(ostream);
-	long32 number = boost::numeric_cast<long32>(this->m_textureIds.size());
-	wc3lib::write(ostream, number, size);
-	wc3lib::write<long32>(ostream, this->m_lineType, size);
-	wc3lib::write(ostream, this->m_globalSequenceId, size);
-
-	BOOST_FOREACH(const class TextureId *textureId, this->m_textureIds)
-		size += textureId->writeMdx(ostream);
-
-	return size;
+	return new TextureId(this);
 }
 
 }

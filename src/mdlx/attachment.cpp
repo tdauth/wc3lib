@@ -146,13 +146,12 @@ std::streamsize Attachment::readMdx(istream &istream) throw (class Exception)
 	std::streamsize size = 0;
 	wc3lib::read(istream, nbytesi, size);
 	size += Object::readMdx(istream);
-	wc3lib::read(istream, this->m_path, size);
+	wc3lib::read(istream, this->m_path, size, pathSize);
 	wc3lib::read(istream, this->m_unknown0, size);
 	wc3lib::read(istream, this->m_attachmentId, size);
 	size += this->m_visibilities->readMdx(istream);
 
-	if (size != nbytesi)
-		throw Exception(boost::str(boost::format(_("Attachment: File byte count is not equal to real byte count.\nFile byte count: %1%.\nReal byte count: %2%.\n")) % nbytesi % size));
+	checkBytesIncluding(size, nbytesi);
 
 	return size;
 }

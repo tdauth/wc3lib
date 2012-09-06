@@ -28,7 +28,7 @@ namespace mdlx
 
 MdxBlock::MdxBlock(const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlKeyword, bool optional) : m_mdlKeyword(mdlKeyword), m_optional(optional), m_exists(false)
 {
-	memcpy(reinterpret_cast<void*>(const_cast<byte*>(this->m_mdxIdentifier)), reinterpret_cast<const void*>(mdxIdentifier), sizeof(mdxIdentifier));
+	memcpy(reinterpret_cast<void*>(const_cast<byte*>(this->m_mdxIdentifier)), reinterpret_cast<const void*>(mdxIdentifier), MdxBlock::mdxIdentifierSize);
 }
 
 MdxBlock::~MdxBlock()
@@ -38,9 +38,9 @@ MdxBlock::~MdxBlock()
 /// @todo Consider optional like in Python script.
 std::streamsize MdxBlock::readMdx(istream &istream) throw (class Exception)
 {
-	const std::streampos requiredPosition = istream.tellg() + (std::streampos)sizeof(mdxIdentifier());
+	const std::streampos requiredPosition = istream.tellg() + (std::streampos)MdxBlock::mdxIdentifierSize;
 	const std::streampos end = endPosition(istream);
-	
+
 	// not enough space in stream
 	if (end < requiredPosition)
 	{
@@ -49,13 +49,13 @@ std::streamsize MdxBlock::readMdx(istream &istream) throw (class Exception)
 		else
 			throw Exception(boost::format(_("Input stream hasn't enough space. Missing %1% bytes.")) % (requiredPosition - end));
 	}
-	
-	std::streamsize size = 0;
-	byte identifier[sizeof(mdxIdentifier())];
-	istream::pos_type position = istream.tellg();
-	wc3lib::read(istream, identifier[0], size, sizeof(identifier));
 
-	if (memcmp(identifier, mdxIdentifier(), sizeof(mdxIdentifier())) != 0)
+	std::streamsize size = 0;
+	byte identifier[MdxBlock::mdxIdentifierSize];
+	const istream::pos_type position = istream.tellg();
+	wc3lib::read(istream, identifier[0], size, MdxBlock::mdxIdentifierSize);
+
+	if (memcmp(identifier, mdxIdentifier(), MdxBlock::mdxIdentifierSize) != 0)
 	{
 		if (this->optional())
 		{
@@ -65,7 +65,7 @@ std::streamsize MdxBlock::readMdx(istream &istream) throw (class Exception)
 			return 0;
 		}
 		else
-			throw Exception(boost::str(boost::format(_("Unexptected identifier \"%s\". Missing \"%s\" block name.")) % identifier % mdxIdentifier()));
+			throw Exception(boost::format(_("Unexptected identifier \"%s\". Missing \"%s\" block name.")) % identifier % mdxIdentifier());
 	}
 
 	this->m_exists = true;
@@ -90,7 +90,7 @@ std::streamsize MdxBlock::readMdl(istream &istream) throw (class Exception)
 	std::streamsize size = 0;
 	string name;
 	parseMdlNamedBlock(istream, mdlKeyword(), name, size, optional());
-	
+
 	return size;
 }
 

@@ -57,22 +57,24 @@ std::streamsize GlobalSequence::readMdl(istream &istream) throw (class Exception
 	line.erase(line.length() - 1);
 	std::istringstream sstream(line);
 	sstream >> this->m_duration;
-	
+
 	return 0;
 }
 
 std::streamsize GlobalSequence::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	ostream << "\tDuration " << this->duration() << ",\n";
-	
-	return 0;
+	std::streamsize size = 0;
+
+	writeMdlValueProperty(ostream, size, "Duration", this->duration(), 1);
+
+	return size;
 }
 
 std::streamsize GlobalSequence::readMdx(istream &istream) throw (class Exception)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_duration, size);
-	
+
 	return size;
 }
 
@@ -80,7 +82,7 @@ std::streamsize GlobalSequence::writeMdx(ostream &ostream) const throw (class Ex
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, duration(), size);
-	
+
 	return size;
 }
 

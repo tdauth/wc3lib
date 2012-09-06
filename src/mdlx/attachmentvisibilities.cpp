@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include "attachmentvisibilities.hpp"
+#include "attachmentvisibility.hpp"
 
 namespace wc3lib
 {
@@ -28,6 +29,11 @@ namespace mdlx
 
 AttachmentVisibilities::AttachmentVisibilities(class Mdlx *mdlx) : MdlxAlphas(mdlx, "KATV", "Visibility")
 {
+}
+
+AttachmentVisibilities::Property* AttachmentVisibilities::createAnimatedProperty()
+{
+	return new AttachmentVisibility(this);
 }
 
 }

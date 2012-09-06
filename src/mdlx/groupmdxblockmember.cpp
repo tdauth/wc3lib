@@ -19,6 +19,8 @@
  ***************************************************************************/
 
 #include "groupmdxblockmember.hpp"
+#include "groupmdxblock.hpp"
+#include "../exception.hpp"
 
 namespace wc3lib
 {
@@ -26,13 +28,25 @@ namespace wc3lib
 namespace mdlx
 {
 
-GroupMdxBlockMember::GroupMdxBlockMember(class GroupMdxBlock *parent, const string &mdlKeyword) : m_parent(parent), m_mdlKeyword(mdlKeyword)
+GroupMdxBlockMember::GroupMdxBlockMember(GroupMdxBlock *parent, const string &mdlKeyword) : m_parent(parent), m_mdlKeyword(mdlKeyword)
 {
 	//std::cout << "PARENT address " << parent << std::endl;
 }
 
 GroupMdxBlockMember::~GroupMdxBlockMember()
 {
+}
+
+void GroupMdxBlockMember::checkBytesIncluding(std::streamsize size, long32 nbytesi)
+{
+	if (size != nbytesi)
+		throw Exception(boost::format(_("%1%: File byte count is not equal to real byte count.\nFile byte count: %2%.\nReal byte count: %3%.\n")) % this->parent()->mdxIdentifier() % nbytesi % size);
+}
+
+void GroupMdxBlockMember::checkBytes(std::streamsize size, long32 nbytes)
+{
+	if (size != nbytes - GroupMdxBlock::mdxIdentifierSize)
+		throw Exception(boost::format(_("%1%: File byte count is not equal to real byte count.\nFile byte count: %2%.\nReal byte count: %3%.\n")) % this->parent()->mdxIdentifier() % nbytes % size);
 }
 
 }

@@ -21,15 +21,21 @@
 #include "particleemitter2latitudes.hpp"
 #include "particleemitter2.hpp"
 #include "particleemitter2s.hpp"
+#include "particleemitter2latitude.hpp"
 
 namespace wc3lib
 {
-	
+
 namespace mdlx
 {
 
 ParticleEmitter2Latitudes::ParticleEmitter2Latitudes(class ParticleEmitter2 *particleEmitter) : MdlxAlphas(particleEmitter->particleEmitters()->mdlx(), "KP2L", "Latitudes"), m_particleEmitter(particleEmitter)
 {
+}
+
+ParticleEmitter2Latitudes::Property* ParticleEmitter2Latitudes::createNewMember()
+{
+	return new ParticleEmitter2Latitude(this);
 }
 
 }

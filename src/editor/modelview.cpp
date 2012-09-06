@@ -51,11 +51,15 @@ ModelView::~ModelView()
 	//if (this->m_frameListener)
 		//delete this->m_frameListener;
 
-	//if (this->m_renderWindow != 0)
-	//	delete this->m_renderWindow;
+	if (this->renderWindow() != 0)
+	{
+		this->root()->destroyRenderTarget(this->renderWindow());
+	}
 
-	if (this->m_sceneManager != 0)
-		delete this->m_sceneManager; // destroys all entities automatically?
+	if (this->sceneManager() != 0)
+	{
+		this->root()->destroySceneManager(this->sceneManager()); // destroys all entities automatically?
+	}
 }
 
 void ModelView::centerView()

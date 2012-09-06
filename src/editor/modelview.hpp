@@ -178,7 +178,7 @@ inline Ogre::String ModelView::name() const
 	std::basic_ostringstream<Ogre::String::value_type> sstream;
 	sstream << "ModelViewWindow";
 	sstream << this;
-	
+
 	return sstream.str();
 }
 

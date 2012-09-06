@@ -33,6 +33,8 @@
 #include "attachments.hpp"
 #include "particleemitters.hpp"
 #include "particleemitter2s.hpp"
+#include "ribbonemitters.hpp"
+#include "events.hpp"
 #include "../internationalisation.hpp"
 #include "../utilities.hpp"
 
@@ -55,7 +57,7 @@ std::streamsize Model::readMdl(istream &istream) throw (class Exception)
 	string value;
 	std::streamsize size = 0;
 	parse(istream, value, size);
-	
+
 	if (value == "Model")
 	{
 		parse(istream, value, size);
@@ -95,53 +97,54 @@ std::streamsize Model::readMdl(istream &istream) throw (class Exception)
 	MaximumExtent { <float_x>, <float_y>, <float_z> },
 	BoundsRadius <float>,
 	*/
-	
-	
+
+
 	return 0;
 }
 
-std::streamsize Model::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize Model::writeMdl(ostream &ostream, const Mdlx *mdlx) const throw (class Exception)
 {
-	ostream << "Model \"" << this->m_name << "\" {\n";
+	std::streamsize size = 0;
+	writeMdlBlock(ostream, size, "Model", this->name());
 
-/*
-	mdlx stuff
-	if (this->mdlx()->geosets()->geosets().size() > 0)
-		ostream << "\tNumGeosets " << this->mdlx()->geosets()->geosets().size() << ",\n";
+	if (mdlx != 0)
+	{
+		if (mdlx->geosets()->members().size() > 0)
+			writeMdlCountedBlock(ostream, size, "NumGeosets", mdlx->geosets()->members().size(), 1);
 
-	if (this->mdlx()->geosetAnimations()->geosetAnimations().size() > 0)
-		ostream << "\tNumGeosetAnims " << this->mdlx()->geosetAnimations()->geosetAnimations().size() << ",\n";
+		if (mdlx->geosetAnimations()->members().size() > 0)
+			writeMdlCountedBlock(ostream, size, "NumGeosetAnims", mdlx->geosetAnimations()->members().size(), 1);
 
-	if (this->mdlx()->helpers()->helpers().size() > 0)
-		ostream << "\tNumHelpers " << this->mdlx()->helpers()->helpers().size() << ",\n";
+		if (mdlx->helpers()->members().size() > 0)
+			writeMdlCountedBlock(ostream, size, "NumHelpers", mdlx->helpers()->members().size(), 1);
 
-	if (this->mdlx()->lights()->lights().size() > 0)
-		ostream << "\tNumLights " << this->lights()->lights().size() << ",\n";
+		if (mdlx->lights()->members().size() > 0)
+			writeMdlCountedBlock(ostream, size, "NumLights", mdlx->lights()->members().size(), 1);
 
-	if (this->mdlx()->bones()->bones().size() > 0)
-		ostream << "\tNumBones " << this->mdlx()->bones()->bones().size() << ",\n";
+		if (mdlx->bones()->members().size() > 0)
+			writeMdlCountedBlock(ostream, size, "NumBones", mdlx->bones()->members().size(), 1);
 
-	if (this->mdlx()->attachments()->attachments().size() > 0)
-		ostream << "\tNumAttachements " << this->mdlx()->attachments()->attachments().size() << ",\n";
+		if (mdlx->attachments()->members().size() > 0)
+			writeMdlCountedBlock(ostream, size, "NumAttachments", mdlx->attachments()->members().size(), 1);
 
-	if (this->mdlx()->particleEmitters()->particleEmitters().size() > 0)
-		ostream << "\tNumParticleEmitters " << this->mdlx()->particleEmitters()->particleEmitters().size() << ",\n";
+		if (mdlx->particleEmitters()->members().size() > 0)
+			writeMdlCountedBlock(ostream, size, "NumParticleEmitters", mdlx->particleEmitters()->members().size(), 1);
 
-	if (this->mdlx()->particleEmitter2s()->particleEmitters().size() > 0)
-		ostream << "\tNumParticleEmitters2 " << this->mdlx()->particleEmitter2s()->particleEmitters().size() << ",\n";
+		if (mdlx->particleEmitter2s()->members().size() > 0)
+			writeMdlCountedBlock(ostream, size, "NumParticleEmitters2", mdlx->particleEmitter2s()->members().size(), 1);
 
-	if (this->mdlx()->ribbonEmitters->ribbonEmitters.size() > 0)
-		ostream << "\tNumRibbonEmitters " << this->mdlx()->ribbonEmitters->ribbonEmitters.size() << ",\n";
+		if (mdlx->ribbonEmitters()->members().size() > 0)
+			writeMdlCountedBlock(ostream, size, "NumRibbonEmitters", mdlx->ribbonEmitters()->members().size(), 1);
 
-	if (this->mdlx()->events()->events().size() > 0)
-		ostream << "\tNumEvents " << this->mdlx()->events()->events().size() << ",\n";
-*/
+		if (mdlx->events()->members().size() > 0)
+			writeMdlCountedBlock(ostream, size, "NumEvents", mdlx->events()->members().size(), 1);
+	}
 
-	Bounds::writeMdl(ostream);
+	size += Bounds::writeMdl(ostream);
 
-	ostream << "}\n";
+	writeMdlBlockConclusion(ostream, size);
 
-	return 0;
+	return size;
 }
 
 std::streamsize Model::readMdx(istream &istream) throw (class Exception)
@@ -149,8 +152,8 @@ std::streamsize Model::readMdx(istream &istream) throw (class Exception)
 	std::streamsize size = MdxBlock::readMdx(istream);
 	long32 nbytes = 0;
 	wc3lib::read(istream, nbytes, size);
-	wc3lib::read(istream, this->m_name, size);
-	wc3lib::read(istream, this->m_animationFileName, size);
+	wc3lib::read(istream, this->m_name, size, nameSize);
+	wc3lib::read(istream, this->m_unknown, size);
 	size += Bounds::readMdx(istream);
 	wc3lib::read(istream, this->m_blendTime, size);
 
@@ -163,10 +166,10 @@ std::streamsize Model::writeMdx(ostream &ostream) const throw (class Exception)
 	std::streampos position;
 	skipByteCount<long32>(ostream, position);
 
-	wc3lib::write(ostream, this->m_name, size);
-	wc3lib::write(ostream, this->m_animationFileName, size);
+	wc3lib::write(ostream, this->name(), size, nameSize);
+	wc3lib::write(ostream, this->unknown(), size);
 	size += Bounds::writeMdx(ostream);
-	wc3lib::write(ostream, this->m_blendTime, size);
+	wc3lib::write(ostream, this->blendTime(), size);
 
 	writeByteCount(ostream, *reinterpret_cast<const long32*>(&size), position, size, false);
 

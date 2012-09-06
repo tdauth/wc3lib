@@ -1,3 +1,6 @@
+2012-09-06 Tamino Dauth <tamino@cdauth.eu>
+* mdlx: BasicVertex writings and readings have to use BasicVertex's methods!!!
+
 2012-08-29 Tamino Dauth <tamino@cdauth.eu>
 * editor: Plugin_BlpCodec has to be linked with pthread on Unix systems although it should be automatically linked with when being linked with wc3libblp (enabled transitive linking).
 * Modifying CMAKE_CXX_FLAGS does not work for cache (use property COMPILE_FLAGS?).

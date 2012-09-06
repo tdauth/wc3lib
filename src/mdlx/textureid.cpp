@@ -27,52 +27,8 @@ namespace wc3lib
 namespace mdlx
 {
 
-TextureId::TextureId(class TextureIds *textureIds) : m_textureIds(textureIds)
+TextureId::TextureId(class TextureIds *textureIds) : BasicMdlxAlpha<long32>(textureIds)
 {
-}
-
-TextureId::~TextureId()
-{
-}
-
-std::streamsize TextureId::readMdl(istream &istream) throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize TextureId::writeMdl(ostream &ostream) const throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize TextureId::readMdx(istream &istream) throw (class Exception)
-{
-	std::streamsize size = 0;
-	wc3lib::read(istream, this->m_frame, size);
-	wc3lib::read(istream, this->m_state, size);
-	
-	if (this->m_textureIds->lineType() > 1)
-	{
-		wc3lib::read(istream, this->m_inTan, size);
-		wc3lib::read(istream, this->m_outTan, size);
-	}
-	
-	return size;
-}
-
-std::streamsize TextureId::writeMdx(std::ostream &ostream) const throw (class Exception)
-{
-	std::streamsize size = 0;
-	wc3lib::write(ostream, this->frame(), size);
-	wc3lib::write(ostream, this->state(), size);
-	
-	if (this->m_textureIds->lineType() > 1)
-	{
-		wc3lib::write(ostream, this->inTan(), size);
-		wc3lib::write(ostream, this->outTan(), size);
-	}
-	
-	return size;
 }
 
 }

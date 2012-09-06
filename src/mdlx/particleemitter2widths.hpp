@@ -42,7 +42,7 @@ class ParticleEmitter2Widths : public MdlxAlphas
 
 	private:
 		/// \todo C++11 override
-		virtual class MdlxAlpha* createNewMember();
+		virtual Property* createNewMember();
 
 		class ParticleEmitter2 *m_particleEmitter;
 };

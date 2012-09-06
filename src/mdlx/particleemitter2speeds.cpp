@@ -25,7 +25,7 @@
 
 namespace wc3lib
 {
-	
+
 namespace mdlx
 {
 
@@ -33,7 +33,7 @@ ParticleEmitter2Speeds::ParticleEmitter2Speeds(class ParticleEmitter2 *particleE
 {
 }
 
-class MdlxAlpha* ParticleEmitter2Speeds::createNewMember()
+ParticleEmitter2Speeds::Property* ParticleEmitter2Speeds::createNewMember()
 {
 	return new ParticleEmitter2Speed(this);
 }

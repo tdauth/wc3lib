@@ -38,23 +38,21 @@ std::streamsize PivotPoint::readMdl(istream &istream) throw (class Exception)
 
 std::streamsize PivotPoint::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	return 0;
+	std::streamsize size = 0;
+
+	writeMdlVectorProperty(ostream, size, "", this->vertexData());
+
+	return size;
 }
 
 std::streamsize PivotPoint::readMdx(istream &istream) throw (class Exception)
 {
-	std::streamsize size = 0;
-	wc3lib::read(istream, this->m_vertexData, size);
-	
-	return size;
+	return this->m_vertexData.read(istream);
 }
 
 std::streamsize PivotPoint::writeMdx(ostream &ostream) const throw (class Exception)
 {
-	std::streamsize size = 0;
-	wc3lib::write(ostream, vertexData(), size);
-	
-	return size;
+	return this->vertexData().write(ostream);
 }
 
 }

@@ -49,7 +49,63 @@ std::streamsize Node::readMdl(istream &istream) throw (class Exception)
 
 std::streamsize Node::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	return 0;
+	std::streamsize size = 0;
+
+	writeMdlValueProperty(ostream, size, "ObjectId", id());
+	writeMdlValueProperty(ostream, size, "Parent", parentId());
+
+	if (type() & Type::DontInheritTranslation)
+		writeMdlProperty(ostream, size, "DontInheritTranslation");
+
+	if (type() & Type::DontInheritRotation)
+		writeMdlProperty(ostream, size, "DontInheritRotation");
+
+	if (type() & Type::DontInheritScaling)
+		writeMdlProperty(ostream, size, "DontInheritScaling");
+
+	if (type() & Type::Billboarded)
+		writeMdlProperty(ostream, size, "Billboarded");
+
+	if (type() & Type::BillboardedLockX)
+		writeMdlProperty(ostream, size, "BillboardedLockX");
+
+	if (type() & Type::BillboardedLockY)
+		writeMdlProperty(ostream, size, "BillboardedLockY");
+
+	if (type() & Type::BillboardedLockZ)
+		writeMdlProperty(ostream, size, "BillboardedLockZ");
+
+	if (type() & Type::CameraAnchored)
+		writeMdlProperty(ostream, size, "CameraAnchored");
+
+	if (type() & Type::UnshadedOrEmitterUsesMdl)
+		writeMdlProperty(ostream, size, "UnshadedOrEmitterUsesMdl");
+
+	if (type() & Type::SortPrimitivesFarZOrEmitterUsesTga)
+		writeMdlProperty(ostream, size, "SortPrimitivesFarZOrEmitterUsesTga");
+
+	if (type() & Type::LineEmitter)
+		writeMdlProperty(ostream, size, "LineEmitter");
+
+	if (type() & Type::Unfogged)
+		writeMdlProperty(ostream, size, "Unfogged");
+
+	if (type() & Type::ModelSpace)
+		writeMdlProperty(ostream, size, "ModelSpace");
+
+	if (type() & Type::XYQuad)
+		writeMdlProperty(ostream, size, "XYQuad");
+
+	if (translations() != 0)
+		size += translations()->writeMdl(ostream);
+
+	if (rotations() != 0)
+		size += rotations()->writeMdl(ostream);
+
+	if (scalings() != 0)
+		size += scalings()->writeMdl(ostream);
+
+	return size;
 }
 
 std::streamsize Node::readMdx(istream &istream) throw (class Exception)

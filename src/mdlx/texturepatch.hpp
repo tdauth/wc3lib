@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MDLX_TEXTUREPATCH_HPP
 #define WC3LIB_MDLX_TEXTUREPATCH_HPP
 
-#include "platform.hpp"
+#include "mdlxproperty.hpp"
 
 namespace wc3lib
 {
@@ -29,7 +29,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-class TexturePatch
+class TexturePatch : public MdlxProperty
 {
 	public:
 		TexturePatch(class TexturePatches *texturePatches);

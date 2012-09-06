@@ -38,6 +38,8 @@ namespace mdlx
 typedef uint16 short16; /// @todo undefined length?!
 typedef uint32 long32;
 
+const long32 noneId = 0xFFFFFFFF;
+
 /**
  * MDLX format supports interpolation for scalings, translations and rotations.
  * If interpolation is not used value should be DontInterpolate.
@@ -361,11 +363,42 @@ inline istream& parseMdlProperty(istream &stream, std::list<struct MdlxPropertyI
 	return stream;
 }
 
-inline ostream& writeMdlCountedBlock(ostream &stream, const string &identifier, const long32 count, std::streamsize &size)
+inline ostream& writeStringStream(ostream &stream, ostringstream &sstream, std::streamsize &size)
+{
+	return wc3lib::write(stream, sstream.str().c_str()[0], size, sstream.str().length()); // without 0-terminating character!
+}
+
+inline ostringstream& writeMdlDepth(ostringstream &stream, std::size_t depth)
+{
+	for (std::size_t i = 0; i < depth; ++i)
+		stream << "\t";
+
+	return stream;
+}
+
+inline ostream& writeMdlBlock(ostream &stream, std::streamsize &size, const string &keyword, const string &identifier = "", std::size_t depth = 0)
 {
 	ostringstream sstream;
-	sstream << identifier << " " << count << " { \n";
-	return wc3lib::write(stream, sstream.str().c_str()[0], size, sstream.str().length()); // without 0-terminating character!
+	writeMdlDepth(sstream, depth);
+	sstream << keyword << ' ';
+
+	if (!identifier.empty())
+	{
+		sstream << '\"' << identifier << '\"' << ' ';
+	}
+
+	sstream << "{\n";
+
+	return writeStringStream(stream, sstream, size);
+}
+
+inline ostream& writeMdlCountedBlock(ostream &stream, std::streamsize &size, const string &keyword, const long32 count, std::size_t depth = 0)
+{
+	ostringstream sstream;
+	writeMdlDepth(sstream, depth);
+	sstream << keyword << " " << count << " {\n";
+
+	return writeStringStream(stream, sstream, size);
 }
 
 /**
@@ -376,12 +409,13 @@ inline ostream& writeMdlCountedBlock(ostream &stream, const string &identifier, 
  * Billboarded,
  * ...
  */
-inline ostream& writeMdlProperty(ostream &stream, const string &identifier, std::streamsize &size)
+inline ostream& writeMdlProperty(ostream &stream, std::streamsize &size, const string &identifier, std::size_t depth = 0)
 {
-	string value(identifier + ", \n");
-	wc3lib::write(stream, value.c_str()[0], size, value.length()); // without 0-terminating character!
+	ostringstream sstream;
+	writeMdlDepth(sstream, depth);
+	sstream << identifier << ",\n";
 
-	return stream;
+	return writeStringStream(stream, sstream, size);
 }
 
 /**
@@ -394,12 +428,23 @@ inline ostream& writeMdlProperty(ostream &stream, const string &identifier, std:
  * ...
  */
 template<typename T>
-inline ostream& writeMdlValueProperty(ostream &stream, const string &identifier, T value, std::streamsize &size)
+inline ostream& writeMdlValueProperty(ostream &stream, std::streamsize &size, const string &identifier, T value, std::size_t depth = 0)
 {
-	string newValue(identifier + boost::str(boost::format(" %1%,\n") % value));
-	wc3lib::write(stream, newValue.c_str()[0], size, newValue.length()); // without 0-terminating character!
+	ostringstream sstream;
+	writeMdlDepth(sstream, depth);
+	sstream << identifier << ' ' << value << ",\n";
 
-	return stream;
+	return writeStringStream(stream, sstream, size);
+}
+
+template<typename T>
+inline ostream& writeMdlValuePropertyWithQuotes(ostream &stream, std::streamsize &size, const string &identifier, T value, std::size_t depth = 0)
+{
+	ostringstream sstream;
+	writeMdlDepth(sstream, depth);
+	sstream << identifier << " \"" << value << "\",\n";
+
+	return writeStringStream(stream, sstream, size);
 }
 
 /**
@@ -410,12 +455,23 @@ inline ostream& writeMdlValueProperty(ostream &stream, const string &identifier,
  * ...
  */
 template<typename T>
-inline ostream& writeMdlStaticValueProperty(ostream &stream, const string &identifier, T value, std::streamsize &size)
+inline ostream& writeMdlStaticValueProperty(ostream &stream, std::streamsize &size, const string &identifier, T value, std::size_t depth = 0)
 {
-	string newValue("static ");
-	wc3lib::write(stream, newValue.c_str()[0], size, newValue.length()); // without 0-terminating character!
+	ostringstream sstream;
+	writeMdlDepth(sstream, depth);
+	sstream << "static " << identifier << ' ' << value << ",\n";
 
-	return writeMdlValueProperty(stream, identifier, value, size);
+	return writeStringStream(stream, sstream, size);
+}
+
+template<typename T>
+inline ostream& writeMdlStaticValuePropertyWithQuotes(ostream &stream, std::streamsize &size, const string &identifier, T value, std::size_t depth = 0)
+{
+	ostringstream sstream;
+	writeMdlDepth(sstream, depth);
+	sstream << "static " << identifier << " \"" << value << "\",\n";
+
+	return writeStringStream(stream, sstream, size);
 }
 
 /**
@@ -424,27 +480,41 @@ inline ostream& writeMdlStaticValueProperty(ostream &stream, const string &ident
  * Translation { <float_x>, <float_y>, <float_z> }
  * Rotation { <float_a>, <float_b>, <float_c>, <float_d> }
  * Scaling { <float_x>, <float_y>, <float_z> }
+ * or for pivot points
+ * { <float_x>, <float_y>, <float_z> }
  */
 template<typename VertexType> //  = BasicVertex<T, N>
-ostream& writeMdlVectorProperty(ostream &ostream, const string &identifier, const VertexType &values, std::streamsize &size)
+ostream& writeMdlVectorProperty(ostream &stream, std::streamsize &size, const string &identifier, const VertexType &values, std::size_t depth = 0)
 {
-	string value(boost::str(boost::format("%1% %2%") % identifier % (values.size() == 1 ? "" : "{ ")));
+	ostringstream sstream;
+	writeMdlDepth(sstream, depth);
+
+	if (!identifier.empty())
+		sstream << identifier << ' ';
+
+	if (values.size() > 1)
+		sstream << "{ ";
+
 	std::size_t i = 0;
 
 	BOOST_FOREACH(typename VertexType::const_reference v, values)
 	{
-		value = boost::str(boost::format("%1%%2%") % v % (i == values.size() - 1 ? " " : ", "));
+		sstream << v;
+
+		if (i == values.size() - 1)
+			sstream << " ";
+		else
+			sstream << ", ";
+
 		++i;
 	}
 
 	if (values.size() == 1)
-		value += "\n";
+		sstream << "\n";
 	else
-		value += "}\n";
+		sstream << "}\n";
 
-	wc3lib::write(ostream, value.c_str()[0], size, value.length()); // without 0-terminating character!
-
-	return ostream;
+	return writeStringStream(stream, sstream, size);
 }
 
 /**
@@ -453,19 +523,23 @@ ostream& writeMdlVectorProperty(ostream &ostream, const string &identifier, cons
  * static Color { <float_b>, <float_g>, <float_r> },
  */
 template<typename VertexType> //  = BasicVertex<T, N>
-inline ostream& writeMdlStaticVectorProperty(ostream &stream, const string &identifier, const VertexType &values, std::streamsize &size)
+inline ostream& writeMdlStaticVectorProperty(ostream &stream, std::streamsize &size, const string &identifier, const VertexType &values, std::size_t depth = 0)
 {
-	const string value("static ");
-	wc3lib::write(stream, value.c_str()[0], size, value.length()); // without 0-terminating character!
+	ostringstream sstream;
+	writeMdlDepth(sstream, depth); // TODO depth is written in writeMdlVectorProperty, as well
+	sstream << "static ";
+	writeStringStream(stream, sstream, size);
 
-	return writeMdlVectorProperty(stream, identifier, values, size);
+	return writeMdlVectorProperty(stream, size, identifier, values, depth);
 }
 
-inline ostream& writeMdlBlockConclusion(ostream &stream, std::streamsize &size)
+inline ostream& writeMdlBlockConclusion(ostream &stream, std::streamsize &size, std::size_t depth = 0)
 {
-	const string value("}\n");
+	ostringstream sstream;
+	writeMdlDepth(sstream, depth);
+	sstream << "}\n";
 
-	return wc3lib::write(stream, value.c_str()[0], size, value.length()); // without 0-terminating character!
+	return writeStringStream(stream, sstream, size);
 }
 
 }

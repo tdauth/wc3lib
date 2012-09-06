@@ -30,37 +30,59 @@ namespace wc3lib
 namespace mdlx
 {
 
-class MdlxAlpha : public MdlxAnimatedProperty<1>
+/**
+ * \param _ValueType can be specified for chunks like "KMTF" which uses \ref long32 values for texture ids instead of \ref float32 values.
+ */
+template<typename _ValueType = float32>
+class BasicMdlxAlpha : public MdlxAnimatedProperty<1>
 {
 	public:
-		MdlxAlpha(class MdlxAlphas *alphas);
-		virtual ~MdlxAlpha();
+		typedef _ValueType ValueType;
+
+		BasicMdlxAlpha(class MdlxAlphas *alphas);
+		virtual ~BasicMdlxAlpha();
 
 		class MdlxAlphas* mdlxAlphas() const;
-		float32 alpha() const;
-		float32 inTanAlpha() const;
-		float32 outTanAlpha() const;
+		_ValueType alpha() const;
+		_ValueType inTanAlpha() const;
+		_ValueType outTanAlpha() const;
 };
 
-inline class MdlxAlphas* MdlxAlpha::mdlxAlphas() const
+template<typename _ValueType>
+BasicMdlxAlpha<_ValueType>::BasicMdlxAlpha(class MdlxAlphas *alphas) : MdlxAnimatedProperty(alphas)
+{
+}
+
+template<typename _ValueType>
+BasicMdlxAlpha<_ValueType>::~BasicMdlxAlpha()
+{
+}
+
+template<typename _ValueType>
+inline class MdlxAlphas* BasicMdlxAlpha<_ValueType>::mdlxAlphas() const
 {
 	return boost::polymorphic_cast<class MdlxAlphas*>(properties());
 }
 
-inline float32 MdlxAlpha::alpha() const
+template<typename _ValueType>
+inline _ValueType BasicMdlxAlpha<_ValueType>::alpha() const
 {
 	return values()[0];
 }
 
-inline float32 MdlxAlpha::inTanAlpha() const
+template<typename _ValueType>
+inline _ValueType BasicMdlxAlpha<_ValueType>::inTanAlpha() const
 {
 	return inTan()[0];
 }
 
-inline float32 MdlxAlpha::outTanAlpha() const
+template<typename _ValueType>
+inline _ValueType BasicMdlxAlpha<_ValueType>::outTanAlpha() const
 {
 	return outTan()[0];
 }
+
+typedef BasicMdlxAlpha<float32> MdlxAlpha;
 
 }
 

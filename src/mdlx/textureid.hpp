@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MDLX_TEXTUREID_HPP
 #define WC3LIB_MDLX_TEXTUREID_HPP
 
-#include "platform.hpp"
+#include "mdlxalpha.hpp"
 
 namespace wc3lib
 {
@@ -29,57 +29,19 @@ namespace wc3lib
 namespace mdlx
 {
 
-/// State is long not float therefore it doesn't inherit \ref MdxAlpha.
-class TextureId
+/// \note State of TextureId is long not \ref float32, it's \ref long32 ! Therefore TextureId inherits from \ref BasicMdlxAlpha<long32> !
+class TextureId : public BasicMdlxAlpha<long32>
 {
 	public:
 		TextureId(class TextureIds *textureIds);
-		virtual ~TextureId();
 
 		class TextureIds* textureIds() const;
-		long32 frame() const;
-		long32 state() const;
-		float32 inTan() const;
-		float32 outTan() const;
-
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
-		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
-
-	protected:
-		class TextureIds *m_textureIds;
-		long32 m_frame;
-		long32 m_state; //(0 or 1), state is long not float!!!
-		//if (LineType > 1) {
-		float32 m_inTan;
-		float32 m_outTan;
-		//}
 };
 
 inline class TextureIds* TextureId::textureIds() const
 {
-	return this->m_textureIds;
-}
+	return boost::polymorphic_cast<class TextureIds*>(this->textureIds());
 
-inline long32 TextureId::frame() const
-{
-	return this->m_frame;
-}
-
-inline long32 TextureId::state() const
-{
-	return this->m_state;
-}
-
-inline float32 TextureId::inTan() const
-{
-	return this->m_inTan;
-}
-
-inline float32 TextureId::outTan() const
-{
-	return this->m_outTan;
 }
 
 }

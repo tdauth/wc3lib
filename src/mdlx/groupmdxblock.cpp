@@ -28,7 +28,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-GroupMdxBlock::GroupMdxBlock(byte blockName[4], const string &mdlKeyword, bool usesCounter, bool optional) : MdxBlock(blockName, mdlKeyword, optional), m_usesCounter(usesCounter)//, m_members()
+GroupMdxBlock::GroupMdxBlock(byte blockName[mdxIdentifierSize], const string &mdlKeyword, bool usesCounter, bool optional, bool usesMdlCounter) : MdxBlock(blockName, mdlKeyword, optional), m_usesCounter(usesCounter), m_usesMdlCounter(usesMdlCounter)//, m_members()
 {
 }
 
@@ -43,11 +43,23 @@ std::streamsize GroupMdxBlock::readMdl(istream &istream) throw (class Exception)
 
 std::streamsize GroupMdxBlock::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	// if not empty write keyword with number of members (if counted, e. g. "Materials"), otherwise only write members (e. g. "Light")
-	if (!mdlKeyword().empty())
-		;
+	std::streamsize size = 0;
 
-	return 0;
+	// if not empty write keyword with number of members (if counted, e. g. "Materials"), otherwise only write members (e. g. "Light")
+	if (!mdlKeyword().empty() && this->usesMdlCounter())
+	{
+		writeMdlCountedBlock(ostream, size, this->mdlKeyword(), this->members().size());
+	}
+
+	BOOST_FOREACH(Members::const_reference sequence, this->members())
+		size += sequence.writeMdl(ostream);
+
+	if (!mdlKeyword().empty() && this->usesMdlCounter())
+	{
+		writeMdlBlockConclusion(ostream, size);
+	}
+
+	return size;
 }
 
 std::streamsize GroupMdxBlock::readMdx(istream &istream) throw (class Exception)
@@ -73,6 +85,7 @@ std::streamsize GroupMdxBlock::readMdx(istream &istream) throw (class Exception)
 	{
 		long32 nbytes = 0;
 		wc3lib::read(istream, nbytes, size);
+
 		while (nbytes > 0)
 		{
 			GroupMdxBlockMember *member = this->createNewMember();

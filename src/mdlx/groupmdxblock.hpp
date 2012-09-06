@@ -47,13 +47,17 @@ class GroupMdxBlock : public MdxBlock
 		 */
 		typedef boost::ptr_list<class GroupMdxBlockMember> Members;
 
-		GroupMdxBlock(byte blockName[4], const string &mdlKeyword, bool usesCounter = true, bool optional = true);
+		GroupMdxBlock(byte blockName[mdxIdentifierSize], const string &mdlKeyword, bool usesCounter = true, bool optional = true, bool usesMdlCounter = false);
 		virtual ~GroupMdxBlock();
 
 		/**
 		 * \return Returns true if members are stored by number of them. Otherwise their size in bytes is stored (exclusive byte count -> does not include its own size).
 		 */
 		bool usesCounter() const;
+		/**
+		 * \return Returns true if members are stored in a separate MDL block like "Sequences <n>". Otherwise members are listed like attachments, for instance.
+		 */
+		bool usesMdlCounter() const;
 		Members& members();
 		const Members& members() const;
 
@@ -70,6 +74,7 @@ class GroupMdxBlock : public MdxBlock
 		virtual class GroupMdxBlockMember* createNewMember() = 0;
 
 		bool m_usesCounter;
+		bool m_usesMdlCounter;
 		/**
 		 * Provides access to all read members for child class.
 		 */
@@ -79,6 +84,11 @@ class GroupMdxBlock : public MdxBlock
 inline bool GroupMdxBlock::usesCounter() const
 {
 	return m_usesCounter;
+}
+
+inline bool GroupMdxBlock::usesMdlCounter() const
+{
+	return m_usesMdlCounter;
 }
 
 inline GroupMdxBlock::Members& GroupMdxBlock::members()

@@ -25,7 +25,7 @@
 
 namespace wc3lib
 {
-	
+
 namespace mdlx
 {
 
@@ -37,10 +37,13 @@ class ParticleEmitter2Latitudes : public MdlxAlphas
 {
 	public:
 		ParticleEmitter2Latitudes(class ParticleEmitter2 *particleEmitter);
-		
+
 		class ParticleEmitter2* particleEmitter() const;
-		
+
 	private:
+		/// \todo C++11 override
+		virtual Property* createNewMember();
+
 		class ParticleEmitter2 *m_particleEmitter;
 };
 

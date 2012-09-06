@@ -52,12 +52,12 @@ template<typename std::size_t N>
 std::streamsize MdlxAnimatedProperty<N>::writeMdl(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	writeMdlVectorProperty(ostream, boost::str(boost::format("%1%:") % frame()), values(), size);
+	writeMdlVectorProperty(ostream, size, boost::str(boost::format("%1%:") % frame()), values());
 
 	if (properties()->lineType() > LineType::Linear)
 	{
-		writeMdlVectorProperty(ostream, "InTan", inTan(), size);
-		writeMdlVectorProperty(ostream, "OutTan", outTan(), size);
+		writeMdlVectorProperty(ostream, size, "InTan", inTan());
+		writeMdlVectorProperty(ostream, size, "OutTan", outTan());
 	}
 
 	return size;

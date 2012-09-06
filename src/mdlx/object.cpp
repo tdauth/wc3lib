@@ -47,7 +47,12 @@ std::streamsize Object::readMdl(istream &istream) throw (class Exception)
 
 std::streamsize Object::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	return 0;
+	std::streamsize size = Node::writeMdl(ostream);
+
+	if (visibilities() != 0)
+		size += visibilities()->writeMdl(ostream);
+
+	return size;
 }
 
 std::streamsize Object::readMdx(istream &istream) throw (class Exception)

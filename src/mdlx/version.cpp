@@ -90,17 +90,11 @@ std::streamsize Version::readMdl(istream &istream) throw (class Exception)
 
 std::streamsize Version::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	const string result = boost::str(boost::format(
-	"// Current FormatVersion is 800\n"
-	"Version {\n"
-	"\tFormatVersion %1%,\n"
-	"}\n")
-	% version()
-	)
-	;
 	std::streamsize size = 0;
-	wc3lib::writeString(ostream, result, size);
-	
+	writeMdlBlock(ostream, size, "Version");
+	writeMdlValueProperty(ostream, size, "FormatVersion", this->version(), 1);
+	writeMdlBlockConclusion(ostream, size);
+
 	return size;
 }
 

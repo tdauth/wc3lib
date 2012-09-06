@@ -36,7 +36,7 @@ namespace mdlx
 class Geoset : public GroupMdxBlockMember, public Bounds
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Selectable)
+		BOOST_SCOPED_ENUM_START(Selectable) /// \todo C++11 : long32
 		{
 			None = 0,
 			Unselectable = 4
@@ -91,7 +91,7 @@ class Geoset : public GroupMdxBlockMember, public Bounds
 
 inline class Geosets* Geoset::geosets() const
 {
-	return boost::polymorphic_cast<class Geosets*>(this->m_parent);
+	return boost::polymorphic_cast<class Geosets*>(this->parent());
 }
 
 inline class Vertices* Geoset::vertices() const

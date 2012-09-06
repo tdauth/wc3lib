@@ -54,6 +54,8 @@ class Sequence : public Bounds, public GroupMdxBlockMember
 		float32 rarity() const;
 		long32 unknown0() const;
 
+		long32 length() const;
+
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
 		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
 		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
@@ -107,6 +109,11 @@ inline float32 Sequence::rarity() const
 inline long32 Sequence::unknown0() const
 {
 	return this->m_unknown0;
+}
+
+inline long32 Sequence::length() const
+{
+	return this->intervalEnd() - this->intervalStart();
 }
 
 }

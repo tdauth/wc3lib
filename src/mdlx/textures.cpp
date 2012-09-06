@@ -27,7 +27,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-Textures::Textures(class Mdlx *mdlx) : GroupMdxBlock("TEXS", "Textures", false), m_mdlx(mdlx)
+Textures::Textures(class Mdlx *mdlx) : GroupMdxBlock("TEXS", "Textures", false, true, true), m_mdlx(mdlx)
 {
 }
 

@@ -41,14 +41,15 @@ std::streamsize GlobalSequences::readMdl(istream &istream) throw (class Exceptio
 
 std::streamsize GlobalSequences::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	ostream << "GlobalSequences " << this->members().size() << " {\n";
+	std::streamsize size = 0;
+	writeMdlCountedBlock(ostream, size, "GlobalSequences", this->members().size());
 
 	BOOST_FOREACH(Members::const_reference globalSequence, members())
-		globalSequence.writeMdl(ostream);
+		size += globalSequence.writeMdl(ostream);
 
-	ostream << "}\n";
+	writeMdlBlockConclusion(ostream, size);
 
-	return 0;
+	return size;
 }
 
 class GroupMdxBlockMember* GlobalSequences::createNewMember()

@@ -21,6 +21,9 @@
 #ifndef WC3LIB_EDITOR_OGREMDLX_HPP
 #define WC3LIB_EDITOR_OGREMDLX_HPP
 
+#include <map>
+#include <list>
+
 #include <Ogre.h>
 
 #include "resource.hpp"
@@ -33,6 +36,8 @@ namespace wc3lib
 namespace editor
 {
 
+class ModelView;
+
 /**
  * This class can be used to display MDLX models by using the OGRE 3d rendering engine.
  * It maintains a single mesh instance in a scene which contains all converted data of the original
@@ -41,11 +46,16 @@ namespace editor
  * Each MDLX instance can have its own team color and glow which is required for proper unit displays and model testings.
  * \todo Use inherited event functions of frame listener to apply animation track data (each model instance should have its own time marker for sequences).
  */
-class OgreMdlx  : public Resource, public Ogre::FrameListener
+class OgreMdlx : public Resource, public Ogre::FrameListener
 {
 	public:
+		typedef std::map<const class mdlx::Texture*, Ogre::TexturePtr> Textures;
+		typedef std::map<const class mdlx::Material*, Ogre::MaterialPtr> Materials;
 		typedef std::map<const class mdlx::Geoset*, Ogre::ManualObject*> Geosets;
+		typedef std::map<const class mdlx::Geoset*, mdlx::long32> GeosetIds;
+		typedef std::map<const class mdlx::Geoset*, Ogre::Mesh*> GeosetMeshes;
 		typedef std::map<const class mdlx::Camera*, Ogre::Camera*> Cameras;
+		typedef std::map<const class mdlx::Sequence*, Ogre::Animation*> Sequences;
 
 		/**
 		 * This structure is required for model's collision shapes which either can be boxes or spheres.
@@ -74,22 +84,23 @@ class OgreMdlx  : public Resource, public Ogre::FrameListener
 			BOOST_SCOPED_ENUM(mdlx::CollisionShape::Shape) shape;
 		};
 
-		typedef std::map<const class mdlx::CollisionShape*, struct CollisionShape*> CollisionShapes;
+		typedef std::map<const mdlx::CollisionShape*, struct CollisionShape*> CollisionShapes;
+		typedef std::map<const mdlx::Bone*, Ogre::Bone*> Bones;
 		typedef boost::scoped_ptr<mdlx::Mdlx> MdlxPtr;
 
 		/**
 		 * Changes camera's \p ogreCamera to settings of camera \p camera.
 		 * Might be used by camera actions in any editor which have to view a specific camera.
 		 */
-		static void updateCamera(const class mdlx::Camera &camera, Ogre::Camera *ogreCamera);
+		static void updateCamera(const mdlx::Camera &camera, Ogre::Camera *ogreCamera);
 
-		OgreMdlx(const KUrl &url, class ModelView *modelView);
+		OgreMdlx(const KUrl &url, ModelView *modelView);
 		virtual ~OgreMdlx();
 
 		virtual void clear() throw ();
 
 		const MdlxPtr& mdlx() const;
-		class ModelView* modelView() const;
+		ModelView* modelView() const;
 		Ogre::SceneNode* sceneNode() const;
 
 		const Cameras& cameras() const;
@@ -99,6 +110,9 @@ class OgreMdlx  : public Resource, public Ogre::FrameListener
 		BOOST_SCOPED_ENUM(TeamColor) teamColor() const;
 		void setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow) throw (Exception);
 		BOOST_SCOPED_ENUM(TeamColor) teamGlow() const;
+
+		Ogre::String geosetName(const mdlx::Geoset &geoset, mdlx::long32 id) const;
+		Ogre::String sequenceName(const mdlx::Geoset &geoset, const mdlx::Sequence &sequence) const;
 
 		/**
 		 * Loads and analyses all data of corresponding MDLX model and refreshes displayed OGRE mesh.
@@ -140,42 +154,52 @@ class OgreMdlx  : public Resource, public Ogre::FrameListener
 		 */
 		bool useDirectoryUrl(KUrl &url, bool showMessage = false) const;
 
-		Ogre::TexturePtr createTexture(const class mdlx::Texture &texture, mdlx::long32 id) throw (class Exception);
-		Ogre::MaterialPtr createMaterial(const class mdlx::Material &material, mdlx::long32 id) throw (class Exception);
+		Ogre::Node* createNode(const mdlx::Node &node);
+		//void createNodeAnimatedProperties(const mdlx::Node &node) const;
+
+		//template<std::size_t size>
+		//std::list<Ogre::VertexAnimationTrack*> createAnimatedProperties(const mdlx::MdlxAnimatedProperties<size> &properties) const;
+
+		Ogre::TexturePtr createTexture(const mdlx::Texture &texture, mdlx::long32 id);
+		Ogre::MaterialPtr createMaterial(const mdlx::Material &material, mdlx::long32 id);
 		/**
 		* Creates manual object for specified geoset.
 		*/
-		Ogre::ManualObject* createGeoset(const class mdlx::Geoset &geoset, mdlx::long32 id) throw (class Exception);
+		Ogre::ManualObject* createGeoset(const mdlx::Geoset &geoset, mdlx::long32 id);
 
-		Ogre::Camera* createCamera(const class mdlx::Camera &camera, mdlx::long32 id) throw (class Exception);
+		Ogre::Camera* createCamera(const mdlx::Camera &camera, mdlx::long32 id);
 
 		/**
 		 * Collision shapes are required for "hit tests".
 		 */
-		CollisionShape* createCollisionShape(const class mdlx::CollisionShape &collisionShape, mdlx::long32 id) throw (class Exception);
+		CollisionShape* createCollisionShape(const mdlx::CollisionShape &collisionShape, mdlx::long32 id);
 
-		Ogre::Node* createNode(const class mdlx::Node &node);
+		Ogre::Skeleton* createSkeleton(const Ogre::String &name);
+		Ogre::Bone* createBone(const mdlx::Bone &bone, mdlx::long32 id);
+
+
 
 		/**
 		* Creates all necessary OGRE nodes with correct inheritane and returns the resulting map with all nodes and objects.
 		* @todo Allocate objects by using type information (Object::type).
 		*/
-		std::map<const class mdlx::Node*, Ogre::Node*> setupInheritance(const std::list<const class mdlx::Node*> &nodes);
+		std::map<const mdlx::Node*, Ogre::Node*> setupInheritance(const std::list<const mdlx::Node*> &nodes);
 
 		MdlxPtr m_mdlx;
-		class ModelView *m_modelView;
+		ModelView *m_modelView;
 		Ogre::SceneNode *m_sceneNode;
 
-		std::map<const class mdlx::Texture*, Ogre::TexturePtr> m_textures;
-		std::map<const class mdlx::Material*, Ogre::MaterialPtr> m_materials;
+		Textures m_textures;
+		Materials m_materials;
 		Geosets m_geosets;
+		GeosetIds m_geosetIds;
+		GeosetMeshes m_geosetMeshes;
+		Sequences m_sequences;
 		Cameras m_cameras;
 		CollisionShapes m_collisionShapes;
+		Bones m_bones;
 
 		std::map<const class mdlx::Node*, Ogre::Node*> m_nodes;
-		std::map<const class mdlx::Bone*, Ogre::Bone*> m_bones;
-
-		class GlobalSequence *m_globalSequence; /// Current global sequence which is played.
 
 		// these members are required for dynamic team glow and color settings
 		BOOST_SCOPED_ENUM(TeamColor) m_teamColor;
@@ -218,6 +242,83 @@ inline BOOST_SCOPED_ENUM(TeamColor) OgreMdlx::teamGlow() const
 {
 	return this->m_teamGlow;
 }
+
+inline Ogre::String OgreMdlx::geosetName(const mdlx::Geoset &geoset, mdlx::long32 id) const
+{
+	return Ogre::String((boost::format("%1%.Geoset%2%") % namePrefix().toUtf8().constData() % id).str().c_str());
+}
+
+inline Ogre::String OgreMdlx::sequenceName(const mdlx::Geoset &geoset, const mdlx::Sequence &sequence) const
+{
+	GeosetIds::const_iterator iterator = m_geosetIds.find(&geoset);
+
+	if (iterator == m_geosetIds.end())
+		throw Exception();
+
+	return geosetName(geoset, iterator->second) + " - " + sequence.name();
+}
+/*
+template<std::size_t size>
+std::list<Ogre::VertexAnimationTrack*> createAnimatedProperties(const mdlx::MdlxAnimatedProperties<size> &properties) const
+{
+	const mdlx::Sequence *sequence = boost::polymorphic_cast<mdlx::Sequence*>(this->mdlx()->node(properties.globalSequenceId()));
+	std::list<Ogre::VertexAnimationTrack*> results;
+
+	BOOST_FOREACH(GeosetMeshes::const_reference ref, this->m_geosetMeshes)
+	{
+		const Ogre::Animation *animation = ref.second->getAnimation(sequenceName(*ref.first, sequence->name()));
+
+		switch (properties.lineType())
+		{
+			case mdlx::LineType::DontInterpolate:
+				qDebug() << "Dont interpolate is not supported.";
+
+				break;
+
+			case mdlx::LineType::Linear:
+				animation->setInterpolationMode(Ogre::Animation::IM_LINEAR);
+
+				break
+
+			case mdlx::LineType::Hermite:
+				qDebug() << "Hermite is not supported.";
+
+				break;
+
+			case mdlx::LineType::Bezier:
+				animation->setInterpolationMode(Ogre::Animation::IM_SPLINE);
+
+				break;
+		}
+
+		Ogre::VertexAnimationTrack *track = animation->createVertexTrack(0);
+		results.push_back(track);
+
+		BOOST_FOREACH(mdlx::MdlxAnimatedProperties<size>::Properties::const_reference property, properties)
+		{
+			// TODO handle inTan and outTan if line type > 1
+			const Ogre::HardwareVertexBufferSharedPtr vertexBuffer = HardwareBufferManager::getSingleton().createVertexBuffer(size * sizeof(mdlx::float32), size, Ogre::HardwareBuffer::HBU_STATIC);
+
+			boost::scoped_array<mdlx::float32> buffer(new mdlx::float32[property.values().size()]);
+			mdlx::long32 i = 0;
+
+			BOOST_FOREACH(mdlx::MdlxAnimatedProperty<size>::Values::const_reference value, property.values())
+			{
+				buffer[i] = value;
+				++i;
+			}
+
+			const std::size_t bufferSize = size * sizeof(mdlx::float32);
+			vertexBuffer->writeData(0, bufferSize, buffer.get());
+
+			const Ogre::VertexMorphKeyFrame *keyFrame = track->createVertexMorphKeyFrame(property.frame());
+			keyFrame->setVertexBuffer(vertexBuffer);
+		}
+	}
+
+	return results;
+}
+*/
 
 }
 

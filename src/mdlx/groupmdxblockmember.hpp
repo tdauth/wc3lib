@@ -46,6 +46,9 @@ class GroupMdxBlockMember : public MdlxProperty
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception) { return 0; }; // = 0;
 		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception) { return 0; }; // = 0;
 
+		void checkBytesIncluding(std::streamsize size, long32 nbytesi);
+		void checkBytes(std::streamsize size, long32 nbytes);
+
 	protected:
 		class GroupMdxBlock *m_parent;
 

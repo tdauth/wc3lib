@@ -37,8 +37,7 @@ namespace mdlx
 class Model : public MdxBlock, public Bounds
 {
 	public:
-		static const std::size_t nameSize = 80;
-		static const std::size_t animationFileNameSize = 260;
+		static const std::size_t nameSize = 0x150;
 
 		Model(class Mdlx *mdlx);
 		virtual ~Model();
@@ -48,14 +47,15 @@ class Model : public MdxBlock, public Bounds
 		 * \return Returns name with size of \ref nameSize.
 		 */
 		const byte* name() const;
-		/**
-		 * \returns Returns animation file name with size of \ref animationFileNameSize.
-		 */
-		const byte* animationFileName() const;
+		long32 unknown() const;
 		long32 blendTime() const;
 
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
+		virtual std::streamsize writeMdl(ostream &ostream, const Mdlx *mdlx) const throw (class Exception);
+		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception)
+		{
+			return writeMdl(ostream, 0);
+		}
 		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
 		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 
@@ -63,7 +63,7 @@ class Model : public MdxBlock, public Bounds
 		class Mdlx *m_mdlx;
 		//long nbytes;
 		byte m_name[nameSize];
-		byte m_animationFileName[animationFileNameSize];
+		long32 m_unknown;
 		long32 m_blendTime;
 };
 
@@ -77,9 +77,9 @@ inline const byte* Model::name() const
 	return this->m_name;
 }
 
-inline const byte* Model::animationFileName() const
+inline long32 Model::unknown() const
 {
-	return this->m_animationFileName;
+	return this->m_unknown;
 }
 
 inline long32 Model::blendTime() const

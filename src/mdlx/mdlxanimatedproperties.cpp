@@ -51,33 +51,33 @@ std::streamsize MdlxAnimatedProperties<N>::writeMdl(ostream &ostream) const thro
 {
 	// Tag <long_count> {
 	std::streamsize size = 0;
-	writeMdlCountedBlock(ostream, mdlKeyword(), this->m_properties.size(), size);//MdlValueBlock<ValueType>::writeMdl(ostream);
+	writeMdlCountedBlock(ostream, size, mdlKeyword(), this->m_properties.size());//MdlValueBlock<ValueType>::writeMdl(ostream);
 
 	switch (lineType())
 	{
 		case LineType::DontInterpolate:
-			writeMdlProperty(ostream, "DontInterp", size);
+			writeMdlProperty(ostream, size, "DontInterp");
 
 			break;
 
 		case LineType::Linear:
-			writeMdlProperty(ostream, "Linear", size);
+			writeMdlProperty(ostream, size, "Linear");
 
 			break;
 
 		case LineType::Hermite:
-			writeMdlProperty(ostream, "Hermite", size);
+			writeMdlProperty(ostream, size, "Hermite");
 
 			break;
 
 		case LineType::Bezier:
-			writeMdlProperty(ostream, "Bezier", size);
+			writeMdlProperty(ostream, size, "Bezier");
 
 			break;
 	}
 
 	if (hasGlobalSequence())
-		writeMdlValueProperty(ostream, "GlobalSeqId", globalSequenceId(), size);
+		writeMdlValueProperty(ostream, size, "GlobalSeqId", globalSequenceId());
 
 	BOOST_FOREACH(typename Properties::const_reference property, properties())
 		size += property.writeMdl(ostream);

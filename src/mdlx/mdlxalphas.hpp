@@ -39,7 +39,8 @@ class MdlxAlphas : public MdlxAnimatedProperties<1>
 	protected:
 		MdlxAlphas(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlKeyword);
 
-		virtual MdlxAnimatedProperty<1>* createAnimatedProperty();
+		/// \todo C++11 override
+		virtual Property* createAnimatedProperty();
 };
 
 }

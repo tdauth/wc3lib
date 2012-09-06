@@ -19,6 +19,8 @@
  ***************************************************************************/
 
 #include "layer.hpp"
+#include "material.hpp"
+#include "materials.hpp"
 #include "materialalphas.hpp"
 #include "textureids.hpp"
 
@@ -28,7 +30,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-Layer::Layer(class Layers *layers) : m_alphas(new MaterialAlphas(this)), m_textureIds(new TextureIds(this)), GroupMdxBlockMember(layers, "Layer")
+Layer::Layer(class Layers *layers) : m_alphas(new MaterialAlphas(this)), m_textureIds(new TextureIds(this->layers()->material()->materials()->mdlx())), GroupMdxBlockMember(layers, "Layer")
 {
 }
 
@@ -45,7 +47,47 @@ std::streamsize Layer::readMdl(istream &istream) throw (class Exception)
 
 std::streamsize Layer::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	return 0;
+	std::streamsize size = 0;
+	writeMdlBlock(ostream, size, "Layer");
+
+	writeMdlValueProperty(ostream, size, "FilterMode", filterMode(this->filterMode()));
+
+	if (this->shading() & Shading::Unshaded)
+		writeMdlProperty(ostream, size, "Unshaded");
+
+	if (this->shading() & Shading::SphereEnvironmentMap)
+		writeMdlProperty(ostream, size, "SphereEnvironmentMap");
+
+	if (this->shading() & Shading::TwoSided)
+		writeMdlProperty(ostream, size, "TwoSided");
+
+	if (this->shading() & Shading::Unfogged)
+		writeMdlProperty(ostream, size, "Unfogged");
+
+	if (this->shading() & Shading::NoDepthTest)
+		writeMdlProperty(ostream, size, "NoDepthTest");
+
+	if (this->shading() & Shading::NoDepthSet)
+		writeMdlProperty(ostream, size, "NoDepthSet");
+
+	if (this->textureIds()->properties().empty())
+		writeMdlStaticValueProperty(ostream, size, "TextureID", this->textureId());
+	else
+		size += this->textureIds()->writeMdl(ostream);
+
+	if (tvertexAnimationId() != noneId)
+		writeMdlValueProperty(ostream, size, "TVertexAnimId", this->tvertexAnimationId());
+
+	writeMdlValueProperty(ostream, size, "CoordId", this->coordinatesId());
+
+	if (this->textureIds()->properties().empty())
+		writeMdlStaticValueProperty(ostream, size, "Alpha", this->alpha());
+	else
+		size += this->alphas()->writeMdl(ostream);
+
+	writeMdlBlockConclusion(ostream, size);
+
+	return size;
 }
 
 std::streamsize Layer::readMdx(istream &istream) throw (class Exception)
@@ -69,7 +111,7 @@ std::streamsize Layer::writeMdx(ostream &ostream) const throw (class Exception)
 {
 	std::streampos position;
 	skipByteCount<long32>(ostream, position);
-	
+
 	std::streamsize size = 0;
 	wc3lib::write(ostream, static_cast<long32>(this->filterMode()), size);
 	wc3lib::write(ostream, static_cast<long32>(this->shading()), size);

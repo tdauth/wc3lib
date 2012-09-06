@@ -37,7 +37,7 @@ namespace mdlx
 class GeosetAnimation : public GroupMdxBlockMember
 {
 	public:
-		BOOST_SCOPED_ENUM_START(ColorAnimation) // : long32
+		BOOST_SCOPED_ENUM_START(ColorAnimation) /// \todo C++11 : long32
 		{
 			None = 0,
 			DropShadow = 1,
