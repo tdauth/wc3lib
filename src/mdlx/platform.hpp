@@ -484,13 +484,13 @@ inline ostream& writeMdlStaticValuePropertyWithQuotes(ostream &stream, std::stre
  * { <float_x>, <float_y>, <float_z> }
  */
 template<typename VertexType> //  = BasicVertex<T, N>
-ostream& writeMdlVectorProperty(ostream &stream, std::streamsize &size, const string &identifier, const VertexType &values, std::size_t depth = 0)
+ostream& writeMdlVectorProperty(ostream &stream, std::streamsize &size, const string &identifier, const VertexType &values, std::size_t depth = 0, const string prefix = "")
 {
 	ostringstream sstream;
 	writeMdlDepth(sstream, depth);
 
 	if (!identifier.empty())
-		sstream << identifier << ' ';
+		sstream << prefix << identifier << ' ';
 
 	if (values.size() > 1)
 		sstream << "{ ";
@@ -525,12 +525,7 @@ ostream& writeMdlVectorProperty(ostream &stream, std::streamsize &size, const st
 template<typename VertexType> //  = BasicVertex<T, N>
 inline ostream& writeMdlStaticVectorProperty(ostream &stream, std::streamsize &size, const string &identifier, const VertexType &values, std::size_t depth = 0)
 {
-	ostringstream sstream;
-	writeMdlDepth(sstream, depth); // TODO depth is written in writeMdlVectorProperty, as well
-	sstream << "static ";
-	writeStringStream(stream, sstream, size);
-
-	return writeMdlVectorProperty(stream, size, identifier, values, depth);
+	return writeMdlVectorProperty(stream, size, identifier, values, depth, "static ");
 }
 
 inline ostream& writeMdlBlockConclusion(ostream &stream, std::streamsize &size, std::size_t depth = 0)

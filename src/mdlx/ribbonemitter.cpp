@@ -26,6 +26,7 @@
 #include "ribbonemitterheightsabove.hpp"
 #include "ribbonemitterheightsbelow.hpp"
 #include "../utilities.hpp"
+#include "../vertex.hpp"
 
 namespace wc3lib
 {
@@ -33,15 +34,12 @@ namespace wc3lib
 namespace mdlx
 {
 
-RibbonEmitter::RibbonEmitter(class RibbonEmitters *ribbonEmitters) : Node(ribbonEmitters->mdlx()), GroupMdxBlockMember(ribbonEmitters, "RibbonEmitter"), m_translations(new MdlxTranslations(ribbonEmitters->mdlx())), m_rotations(new MdlxRotations(ribbonEmitters->mdlx())), m_scalings(new MdlxScalings(ribbonEmitters->mdlx())), m_visibilities(new RibbonEmitterVisibilities(this)), m_heightsAbove(new RibbonEmitterHeightsAbove(this)), m_heightsBelow(new RibbonEmitterHeightsBelow(this))
+RibbonEmitter::RibbonEmitter(class RibbonEmitters *ribbonEmitters) : Node(ribbonEmitters->mdlx()), GroupMdxBlockMember(ribbonEmitters, "RibbonEmitter"), m_visibilities(new RibbonEmitterVisibilities(this)), m_heightsAbove(new RibbonEmitterHeightsAbove(this)), m_heightsBelow(new RibbonEmitterHeightsBelow(this))
 {
 }
 
 RibbonEmitter::~RibbonEmitter()
 {
-	delete this->m_translations;
-	delete this->m_rotations;
-	delete this->m_scalings;
 	delete this->m_visibilities;
 	delete this->m_heightsAbove;
 	delete this->m_heightsBelow;
@@ -54,7 +52,43 @@ std::streamsize RibbonEmitter::readMdl(istream &istream) throw (class Exception)
 
 std::streamsize RibbonEmitter::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	return 0;
+	std::streamsize size = 0;
+
+	writeMdlBlock(ostream, size, "RibbonEmitter", this->name());
+	size += Node::writeMdl(ostream);
+
+	if (!this->heightsAbove()->properties().empty())
+		size += this->heightsAbove()->writeMdl(ostream);
+	else
+		writeMdlStaticValueProperty(ostream, size, "HeightAbove", this->heightAboveValue());
+
+	if (!this->heightsBelow()->properties().empty())
+		size += this->heightsBelow()->writeMdl(ostream);
+	else
+		writeMdlStaticValueProperty(ostream, size, "HeightBelow", this->heightBelowValue());
+
+
+	writeMdlStaticVectorProperty(ostream, size, "Color", wc3lib::Vertex(colorRed(), colorGreen(), colorBlue()), 1);
+	writeMdlStaticValueProperty(ostream, size, "TextureSlot", this->unknown0());
+
+	if (!this->visibilities()->properties().empty())
+		size += this->visibilities()->writeMdl(ostream);
+	else
+		writeMdlStaticValueProperty(ostream, size, "Alpha", this->alpha());
+
+	writeMdlValueProperty(ostream, size, "EmissionRate", this->emissionRate());
+	writeMdlValueProperty(ostream, size, "LifeSpan", this->lifeSpan());
+
+	if (this->gravity() != 0.0)
+		writeMdlValueProperty(ostream, size, "Gravity", this->gravity());
+
+	writeMdlValueProperty(ostream, size, "Rows", this->rows());
+	writeMdlValueProperty(ostream, size, "Columns", this->columns());
+	writeMdlValueProperty(ostream, size, "MaterialID", this->materialId());
+
+	writeMdlBlockConclusion(ostream, size);
+
+	return size;
 }
 
 std::streamsize RibbonEmitter::readMdx(istream &istream) throw (class Exception)
@@ -62,20 +96,13 @@ std::streamsize RibbonEmitter::readMdx(istream &istream) throw (class Exception)
 	std::streamsize size = 0;
 	long32 nbytesi = 0;
 	wc3lib::read(istream, nbytesi, size);
-	long32 nbytesikg; // inclusive bytecount including KGXXs
-	wc3lib::read(istream, nbytesikg, size);
 	size += Node::readMdx(istream);
-	std::streamsize ikgSize = this->m_translations->readMdx(istream);
-	ikgSize += this->m_rotations->readMdx(istream);
-	ikgSize += this->m_scalings->readMdx(istream);
-	size += ikgSize;
 	wc3lib::read(istream, this->m_heightAboveValue, size);
 	wc3lib::read(istream, this->m_heightBelowValue, size);
 	wc3lib::read(istream, this->m_alpha, size);
 	wc3lib::read(istream, this->m_colorRed, size);
 	wc3lib::read(istream, this->m_colorGreen, size);
 	wc3lib::read(istream, this->m_colorBlue, size);
-	wc3lib::read(istream, this->m_colorRed, size);
 	wc3lib::read(istream, this->m_lifeSpan, size);
 	wc3lib::read(istream, this->m_unknown0, size);
 	wc3lib::read(istream, this->m_emissionRate, size);
@@ -83,7 +110,6 @@ std::streamsize RibbonEmitter::readMdx(istream &istream) throw (class Exception)
 	wc3lib::read(istream, this->m_columns, size);
 	wc3lib::read(istream, this->m_materialId, size);
 	wc3lib::read(istream, this->m_gravity, size);
-	wc3lib::read(istream, this->m_materialId, size);
 	size += this->m_visibilities->readMdx(istream);
 	size += this->m_heightsAbove->readMdx(istream);
 	size += this->m_heightsBelow->readMdx(istream);
@@ -94,22 +120,15 @@ std::streamsize RibbonEmitter::readMdx(istream &istream) throw (class Exception)
 std::streamsize RibbonEmitter::writeMdx(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	std::streampos nbytesiPosition, nbytesikgPosition;
+	std::streampos nbytesiPosition;
 	skipByteCount<long32>(ostream, nbytesiPosition);
-	skipByteCount<long32>(ostream, nbytesikgPosition);
-
 	size += Node::writeMdx(ostream);
-	std::streamsize ikgSize = this->translations()->writeMdx(ostream);
-	ikgSize += this->rotations()->writeMdx(ostream);
-	ikgSize += this->scalings()->writeMdx(ostream);
-	size += ikgSize;
 	wc3lib::write(ostream, this->m_heightAboveValue, size);
 	wc3lib::write(ostream, this->m_heightBelowValue, size);
 	wc3lib::write(ostream, this->m_alpha, size);
 	wc3lib::write(ostream, this->m_colorRed, size);
 	wc3lib::write(ostream, this->m_colorGreen, size);
 	wc3lib::write(ostream, this->m_colorBlue, size);
-	wc3lib::write(ostream, this->m_colorRed, size);
 	wc3lib::write(ostream, this->m_lifeSpan, size);
 	wc3lib::write(ostream, this->m_unknown0, size);
 	wc3lib::write(ostream, this->m_emissionRate, size);
@@ -117,15 +136,11 @@ std::streamsize RibbonEmitter::writeMdx(ostream &ostream) const throw (class Exc
 	wc3lib::write(ostream, this->m_columns, size);
 	wc3lib::write(ostream, this->m_materialId, size);
 	wc3lib::write(ostream, this->m_gravity, size);
-	wc3lib::write(ostream, this->m_materialId, size);
 	size += this->m_visibilities->writeMdx(ostream);
 	size += this->m_heightsAbove->writeMdx(ostream);
 	size += this->m_heightsBelow->writeMdx(ostream);
 
-	const long32 nbytesi = size - ikgSize + sizeof(long32); // add size of nbytesikg
-	const long32 nbytesikg = size;
-	writeByteCount(ostream, nbytesi, nbytesiPosition, size, true);
-	writeByteCount(ostream, nbytesikg, nbytesikgPosition, size, true);
+	writeByteCount(ostream, size, nbytesiPosition, size, true);
 
 	return size;
 }

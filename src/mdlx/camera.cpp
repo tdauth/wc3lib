@@ -55,8 +55,8 @@ std::streamsize Camera::readMdx(istream &istream) throw (class Exception)
 	long32 nbytesi;
 	std::streamsize bytes = 0;
 	wc3lib::read(istream, nbytesi, bytes);
-	wc3lib::read(istream, this->m_name, bytes);
-	wc3lib::read(istream, this->m_position, bytes);
+	wc3lib::read(istream, this->m_name, bytes, nameSize);
+	bytes += this->m_position.read(istream);
 	wc3lib::read(istream, this->m_fieldOfView, bytes);
 	wc3lib::read(istream, this->m_farClip, bytes);
 	wc3lib::read(istream, this->m_nearClip, bytes);
@@ -77,15 +77,15 @@ std::streamsize Camera::writeMdx(ostream &ostream) const throw (class Exception)
 	skipByteCount<long32>(ostream, position);
 
 	std::streamsize bytes = 0;
-	wc3lib::write(ostream, this->m_name, bytes);
-	wc3lib::write(ostream, this->m_position, bytes);
-	wc3lib::write(ostream, this->m_fieldOfView, bytes);
-	wc3lib::write(ostream, this->m_farClip, bytes);
-	wc3lib::write(ostream, this->m_nearClip, bytes);
+	wc3lib::write(ostream, this->name(), bytes, nameSize);
+	bytes += this->position().write(ostream);
+	wc3lib::write(ostream, this->fieldOfView(), bytes);
+	wc3lib::write(ostream, this->farClip(), bytes);
+	wc3lib::write(ostream, this->nearClip(), bytes);
 	bytes += target().write(ostream);
-	bytes += this->m_translations->writeMdx(ostream);
-	bytes += this->m_rotationLengths->writeMdx(ostream);
-	bytes += this->m_targetTranslations->writeMdx(ostream);
+	bytes += this->translations()->writeMdx(ostream);
+	bytes += this->rotationLengths()->writeMdx(ostream);
+	bytes += this->targetTranslations()->writeMdx(ostream);
 	//(BKCT) ?????????????????????????????????????????????????????????????????
 
 	long32 nbytesi = bytes;

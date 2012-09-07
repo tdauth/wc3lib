@@ -90,9 +90,8 @@ std::streamsize MdlxAnimatedProperties<N>::writeMdl(ostream &ostream) const thro
 template<typename std::size_t N>
 std::streamsize MdlxAnimatedProperties<N>::readMdx(istream &istream) throw (class Exception)
 {
-	std::cout << "Animated properties " << std::endl;
 	std::streamsize size = MdxBlock::readMdx(istream);
-	std::cout << "With size " << size << std::endl;
+
 	// is optional!
 	if (size == 0)
 		return 0;
@@ -100,9 +99,7 @@ std::streamsize MdlxAnimatedProperties<N>::readMdx(istream &istream) throw (clas
 	long32 number;
 	wc3lib::read(istream, number, size);
 	this->m_properties.reserve(number);
-	std::cout << "Requires " << number << " animated properties." << std::endl;
 	wc3lib::read(istream, *reinterpret_cast<long32*>(&this->m_lineType), size);
-	std::cout << "Line type " << lineType() << std::endl;
 	wc3lib::read(istream, this->m_globalSequenceId, size);
 
 	for (long32 i = 0; i < number; ++i)

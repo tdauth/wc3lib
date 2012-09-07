@@ -59,7 +59,7 @@ class Geoset : public GroupMdxBlockMember, public Bounds
 		class Matrices* matrices() const;
 		long32 materialId() const;
 		long32 selectionGroup() const;
-		long32 selectable() const;
+		BOOST_SCOPED_ENUM(Selectable) selectable() const;
 		Ganimations& ganimations();
 		const Ganimations& ganimations() const;
 		class TexturePatches* texturePatches() const;
@@ -81,7 +81,7 @@ class Geoset : public GroupMdxBlockMember, public Bounds
 		class Matrices *m_matrices; //MATS
 		long32 m_materialId;
 		long32 m_selectionGroup;
-		long32 m_selectable; //(0:none;4:Unselectable)
+		BOOST_SCOPED_ENUM(Geoset::Selectable) m_selectable; //(0:none;4:Unselectable)
 		//long32 nanim;
 		Ganimations m_ganimations;
 		//struct GAnimation *ganimations; //[nganim], naim?!?! Tamino Dauth
@@ -144,7 +144,7 @@ inline long32 Geoset::selectionGroup() const
 	return this->m_selectionGroup;
 }
 
-inline long32 Geoset::selectable() const
+inline BOOST_SCOPED_ENUM(Geoset::Selectable) Geoset::selectable() const
 {
 	return this->m_selectable;
 }

@@ -52,7 +52,9 @@ std::streamsize Node::writeMdl(ostream &ostream) const throw (class Exception)
 	std::streamsize size = 0;
 
 	writeMdlValueProperty(ostream, size, "ObjectId", id());
-	writeMdlValueProperty(ostream, size, "Parent", parentId());
+
+	if (parentId() != noneId)
+		writeMdlValueProperty(ostream, size, "Parent", parentId());
 
 	if (type() & Type::DontInheritTranslation)
 		writeMdlProperty(ostream, size, "DontInheritTranslation");
@@ -96,13 +98,13 @@ std::streamsize Node::writeMdl(ostream &ostream) const throw (class Exception)
 	if (type() & Type::XYQuad)
 		writeMdlProperty(ostream, size, "XYQuad");
 
-	if (translations() != 0)
+	if (!translations()->properties().empty())
 		size += translations()->writeMdl(ostream);
 
-	if (rotations() != 0)
+	if (!rotations()->properties().empty())
 		size += rotations()->writeMdl(ostream);
 
-	if (scalings() != 0)
+	if (!scalings()->properties().empty())
 		size += scalings()->writeMdl(ostream);
 
 	return size;

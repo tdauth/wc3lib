@@ -69,7 +69,48 @@ std::streamsize Geoset::readMdl(istream &istream) throw (class Exception)
 
 std::streamsize Geoset::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	throw Exception(_("Geoset::writeMdl: Not implemented yet."));
+	std::streamsize size = 0;
+	writeMdlBlock(ostream, size, "Geoset");
+
+	if (!this->vertices()->members().empty())
+		size += this->vertices()->members().size();
+
+	if (!this->normals()->members().empty())
+		size += this->normals()->members().size();
+
+	if (!this->textureVertices()->members().empty())
+		size += this->textureVertices()->members().size();
+
+	if (!this->groupVertices()->members().empty())
+		size += this->groupVertices()->members().size();
+
+
+	/*
+	 * Faces <long_grps> <long_cnt> {
+		Triangles {
+			{ <VALUES>, ... },
+		}
+	}
+	Groups <long_count> <long_nums> {
+		Matrices { <long>, ... },
+		...
+	}
+	*/
+
+	size += Bounds::writeMdl(ostream);
+
+	if (!this->ganimations().empty())
+		size += this->ganimations().size();
+
+	writeMdlValueProperty(ostream, size, "MaterialID", this->materialId());
+	writeMdlValueProperty(ostream, size, "SelectionGroup", this->selectionGroup());
+
+	if (this->selectable() == Selectable::Unselectable)
+		writeMdlProperty(ostream, size, "Unselectable");
+
+	writeMdlBlockConclusion(ostream, size);
+
+	return size;
 }
 
 std::streamsize Geoset::readMdx(istream &istream) throw (class Exception)
@@ -88,7 +129,9 @@ std::streamsize Geoset::readMdx(istream &istream) throw (class Exception)
 	size += this->m_matrices->readMdx(istream);
 	wc3lib::read(istream, this->m_materialId, size);
 	wc3lib::read(istream, this->m_selectionGroup, size);
-	wc3lib::read(istream, this->m_selectable, size);
+	long32 selectable;
+	wc3lib::read(istream, selectable, size);
+	this->m_selectable = BOOST_SCOPED_ENUM(Selectable)(selectable);
 	size += Bounds::readMdx(istream);
 	long32 geosetAnimationNumber;
 	wc3lib::read(istream, geosetAnimationNumber, size);
@@ -126,7 +169,7 @@ std::streamsize Geoset::writeMdx(ostream &ostream) const throw (class Exception)
 	size += this->m_matrices->writeMdx(ostream);
 	wc3lib::write(ostream, this->m_materialId, size);
 	wc3lib::write(ostream, this->m_selectionGroup, size);
-	wc3lib::write(ostream, this->m_selectable, size);
+	wc3lib::write<long32>(ostream, this->m_selectable, size);
 	size += Bounds::writeMdx(ostream);
 	wc3lib::write(ostream, static_cast<const long32>(this->ganimations().size()), size);
 

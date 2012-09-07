@@ -51,33 +51,21 @@ std::streamsize TextureAnimation::readMdl(istream &istream) throw (class Excepti
 
 std::streamsize TextureAnimation::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	/*
-	fstream << "\tTVertexAnim {\n";
+	std::streamsize size = 0;
+	writeMdlBlock(ostream, size, "TVertexAnim");
 
-	if (this->m_translations != 0)
-	{
-		class Translation2 *translation = *this->m_translations->translations().begin();
-		fstream << "\t\t(Translation { " << translation->x() << ", " << translation->y() << ", " << translation->z() << " })\n";
-	}
+	if (!this->translations()->properties().empty())
+		size += this->translations()->writeMdl(ostream);
 
-	/// @todo InTan and OutTan only appear when Hermite or Bezier. GlobalSeqId only appears when its value is not 0xFFFFFFFF.
-	if (this->m_rotations != 0)
-	{
-		class Rotation1 *rotation = *this->m_rotations->rotations().begin();
-		/// @todo @class Rotation1 inherits from Scaling0 which does not have members a, b, c and d. @class Rotation0 does have these values but isn't the right data type considering the specification.
-		//fstream << "\t\t(Rotation { " << rotation->a() << ", " << rotation->b() << ", " << rotation->c() << ", " << rotation->d() << " })\n";
-	}
-		
-	if (this->m_scalings != 0)
-	{
-		class Scaling1 *scaling = *this->m_scalings->scalings().begin();
-		fstream << "\t\t(Scaling { " << scaling->x() << ", " << scaling->y() << ", " << scaling->z() << " })\n";
-	}
+	if (!this->rotations()->properties().empty())
+		size += this->rotations()->writeMdl(ostream);
 
-	fstream << "\t}\n";
-	*/
-	
-	return 0;
+	if (!this->scalings()->properties().empty())
+		size += this->scalings()->writeMdl(ostream);
+
+	writeMdlBlockConclusion(ostream, size);
+
+	return size;
 }
 
 
@@ -89,10 +77,10 @@ std::streamsize TextureAnimation::readMdx(istream &istream) throw (class Excepti
 	size += this->m_translations->readMdx(istream);
 	size += this->m_rotations->readMdx(istream);
 	size += this->m_scalings->readMdx(istream);
-	
+
 	if (nbytesi != size)
 		throw Exception(boost::str(boost::format(_("Texture Animation: Error, file byte count and real byte count aren't equal.\nFile byte count: %1% bytes.\nReal byte count: %2%.")) % nbytesi % size));
-	
+
 	return size;
 }
 
@@ -100,14 +88,14 @@ std::streamsize TextureAnimation::writeMdx(ostream &ostream) const throw (class 
 {
 	std::streampos position;
 	skipByteCount<long32>(ostream, position);
-	
+
 	std::streamsize size = this->m_translations->writeMdx(ostream);
 	size += this->m_rotations->writeMdx(ostream);
 	size += this->m_scalings->writeMdx(ostream);
-	
+
 	long32 nbytesi = size;
 	writeByteCount(ostream, nbytesi, position, size, true);
-	
+
 	return size;
 }
 

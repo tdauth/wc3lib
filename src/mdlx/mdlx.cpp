@@ -278,7 +278,11 @@ std::list<const class Node*> Mdlx::children(const class Node &node) const
 void Mdlx::addNode(long32 id, class Node *node) throw (class Exception)
 {
 	if (this->m_nodes.find(id) != this->m_nodes.end() && this->m_nodes[id] != node)
-		throw Exception(boost::format(_("Mdlx: Node id %1% is already being used by node \"%2%\" and can not be overwritten by node \"%3%\".")) % id % this->m_nodes[id]->name() % node->name());
+	{
+		std::cerr << boost::format(_("Mdlx: Node id %1% is already being used by node \"%2%\" and can not be overwritten by node \"%3%\".")) % id % this->m_nodes[id]->name() % node->name() << std::endl;
+
+		return;
+	}
 
 	this->m_nodes[id] = node;
 }

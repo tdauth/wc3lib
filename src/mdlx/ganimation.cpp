@@ -38,13 +38,12 @@ std::streamsize Ganimation::readMdl(istream &istream) throw (class Exception)
 
 std::streamsize Ganimation::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	ostream
-	<< "Anim {\n"
-	;
-	Bounds::writeMdl(ostream);
-	ostream << "}";
+	std::streamsize size = 0;
+	writeMdlBlock(ostream, size, "Anim");
+	size = Bounds::writeMdl(ostream);
+	writeMdlBlockConclusion(ostream, size);
 
-	return 0;
+	return size;
 }
 
 }

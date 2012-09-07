@@ -41,9 +41,6 @@ class RibbonEmitter : public Node, public GroupMdxBlockMember
 		virtual ~RibbonEmitter();
 
 		class RibbonEmitters* ribbonEmitters() const;
-		class MdlxTranslations* translations() const;
-		class MdlxRotations* rotations() const;
-		class MdlxScalings* scalings() const;
 		float32 heightAboveValue() const;
 		float32 heightBelowValue() const;
 		float32 alpha() const;
@@ -69,9 +66,6 @@ class RibbonEmitter : public Node, public GroupMdxBlockMember
 	protected:
 		//long nbytesi;
 		//long nbytesikg; // inclusive bytecount including KGXXs
-		class MdlxTranslations *m_translations; //(KGTR)
-		class MdlxRotations *m_rotations; //(KGRT)
-		class MdlxScalings *m_scalings; //(KGSC)
 		float32 m_heightAboveValue;
 		float32 m_heightBelowValue;
 		float32 m_alpha;
@@ -90,22 +84,7 @@ class RibbonEmitter : public Node, public GroupMdxBlockMember
 
 inline class RibbonEmitters* RibbonEmitter::ribbonEmitters() const
 {
-	return boost::polymorphic_cast<class RibbonEmitters*>(this->m_parent);
-}
-
-inline class MdlxTranslations* RibbonEmitter::translations() const
-{
-	return m_translations;
-}
-
-inline class MdlxRotations* RibbonEmitter::rotations() const
-{
-	return m_rotations;
-}
-
-inline class MdlxScalings* RibbonEmitter::scalings() const
-{
-	return m_scalings;
+	return boost::polymorphic_cast<class RibbonEmitters*>(this->parent());
 }
 
 inline float32 RibbonEmitter::heightAboveValue() const

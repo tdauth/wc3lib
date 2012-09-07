@@ -37,7 +37,24 @@ std::streamsize Bone::readMdl(istream &istream) throw (class Exception)
 
 std::streamsize Bone::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	return 0;
+	std::streamsize size = 0;
+	writeMdlBlock(ostream, size, "Bone", this->name());
+
+	if (this->geosetId() == noneId)
+		writeMdlValueProperty(ostream, size, "GeosetId", "Multiple");
+	else
+		writeMdlValueProperty(ostream, size, "GeosetId", this->geosetId());
+
+	if (this->geosetAnimationId() == noneId)
+		writeMdlValueProperty(ostream, size, "GeosetAnimId", "None");
+	else
+		writeMdlValueProperty(ostream, size, "GeosetAnimId", this->geosetAnimationId());
+
+	size += Object::writeMdl(ostream);
+
+	writeMdlBlockConclusion(ostream, size);
+
+	return size;
 }
 
 std::streamsize Bone::readMdx(istream &istream) throw (class Exception)

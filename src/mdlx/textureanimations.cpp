@@ -27,7 +27,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-TextureAnimations::TextureAnimations(class Mdlx *mdlx) : GroupMdxBlock("TXAN", "TextureAnims", false), m_mdlx(mdlx)
+TextureAnimations::TextureAnimations(class Mdlx *mdlx) : GroupMdxBlock("TXAN", "TextureAnims", false, true, true), m_mdlx(mdlx)
 {
 }
 

@@ -31,16 +31,6 @@ Bones::Bones(class Mdlx *mdlx) : GroupMdxBlock("BONE", "", false), m_mdlx(mdlx)
 {
 }
 
-std::streamsize Bones::readMdl(istream &istream) throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize Bones::writeMdl(ostream &ostream) const throw (class Exception)
-{
-	return 0;
-}
-
 class GroupMdxBlockMember* Bones::createNewMember()
 {
 	return new Bone(this);

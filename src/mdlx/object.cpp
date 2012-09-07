@@ -49,7 +49,7 @@ std::streamsize Object::writeMdl(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = Node::writeMdl(ostream);
 
-	if (visibilities() != 0)
+	if (!visibilities()->properties().empty())
 		size += visibilities()->writeMdl(ostream);
 
 	return size;
