@@ -41,25 +41,21 @@ std::streamsize TextureVertex::readMdl(istream &istream) throw (class Exception)
 
 std::streamsize TextureVertex::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	return 0;
+	std::streamsize size = 0;
+
+	writeMdlVectorProperty(ostream, size, "", this->vertexData());
+
+	return size;
 }
 
 std::streamsize TextureVertex::readMdx(istream &istream) throw (class Exception)
 {
-	std::streamsize size = 0;
-	wc3lib::read(istream, this->m_x, size);
-	wc3lib::read(istream, this->m_y, size);
-
-	return size;
+	return this->vertexData().read(istream);
 }
 
 std::streamsize TextureVertex::writeMdx(ostream &ostream) const throw (class Exception)
 {
-	std::streamsize size = 0;
-	wc3lib::write(ostream, this->m_x, size);
-	wc3lib::write(ostream, this->m_y, size);
-
-	return size;
+	return this->vertexData().write(ostream);
 }
 
 }

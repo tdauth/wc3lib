@@ -35,6 +35,10 @@ MdlxRotations::~MdlxRotations()
 {
 }
 
+MdlxRotations::MdlxRotations(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlKeyword) : MdlxAnimatedProperties(mdlx, mdxIdentifier, mdlKeyword)
+{
+}
+
 MdlxRotations::Property* MdlxRotations::createAnimatedProperty()
 {
 	return new MdlxRotation(this);

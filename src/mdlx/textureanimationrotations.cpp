@@ -29,7 +29,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-TextureAnimationRotations::TextureAnimationRotations(class TextureAnimation *textureAnimation) : MdlxScalings(textureAnimation->textureAnimations()->mdlx(), "KTAR", "Rotation"), m_textureAnimation(textureAnimation)
+TextureAnimationRotations::TextureAnimationRotations(class TextureAnimation *textureAnimation) : MdlxRotations(textureAnimation->textureAnimations()->mdlx(), "KTAR", "Rotation"), m_textureAnimation(textureAnimation)
 {
 }
 

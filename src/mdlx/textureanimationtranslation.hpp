@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MDLX_TEXTUREANIMATIONTRANSLATION_HPP
 #define WC3LIB_MDLX_TEXTUREANIMATIONTRANSLATION_HPP
 
-#include "mdlxscaling.hpp"
+#include "mdlxtranslation.hpp"
 #include "textureanimationtranslations.hpp"
 
 namespace wc3lib
@@ -30,7 +30,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-class TextureAnimationTranslation : public MdlxScaling
+class TextureAnimationTranslation : public MdlxTranslation
 {
 	public:
 		TextureAnimationTranslation(class TextureAnimationTranslations *translations);

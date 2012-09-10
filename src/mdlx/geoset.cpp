@@ -27,11 +27,16 @@
 #include "vertices.hpp"
 #include "normals.hpp"
 #include "primitivetypes.hpp"
+#include "primitivetype.hpp"
 #include "primitivesizes.hpp"
+#include "primitivesize.hpp"
 #include "primitivevertices.hpp"
+#include "primitivevertex.hpp"
 #include "groupvertices.hpp"
 #include "matrixgroupcounts.hpp"
+#include "matrixgroupcount.hpp"
 #include "matrices.hpp"
+#include "matrix.hpp"
 #include "ganimation.hpp"
 #include "texturepatches.hpp"
 #include "texturevertices.hpp"
@@ -73,34 +78,100 @@ std::streamsize Geoset::writeMdl(ostream &ostream) const throw (class Exception)
 	writeMdlBlock(ostream, size, "Geoset");
 
 	if (!this->vertices()->members().empty())
-		size += this->vertices()->members().size();
+		size += this->vertices()->writeMdl(ostream);
 
 	if (!this->normals()->members().empty())
-		size += this->normals()->members().size();
+		size += this->normals()->writeMdl(ostream);
 
 	if (!this->textureVertices()->members().empty())
-		size += this->textureVertices()->members().size();
+		size += this->textureVertices()->writeMdl(ostream);
 
 	if (!this->groupVertices()->members().empty())
-		size += this->groupVertices()->members().size();
+		size += this->groupVertices()->writeMdl(ostream);
 
+	long32 count = 0;
 
-	/*
-	 * Faces <long_grps> <long_cnt> {
-		Triangles {
-			{ <VALUES>, ... },
+	BOOST_FOREACH(PrimitiveSizes::Members::const_reference ref, this->primitiveSizes()->members())
+		count += boost::polymorphic_cast<const PrimitiveSize*>(&ref)->value();
+
+	if (count > 0)
+	{
+		writeMdlCountedBlockDouble(ostream, size, "Faces", boost::numeric_cast<long32>(this->primitiveTypes()->members().size()), count, 1);
+
+		PrimitiveTypes::Members::const_iterator typesIterator = this->primitiveTypes()->members().begin();
+		PrimitiveSizes::Members::const_iterator sizesIterator = this->primitiveSizes()->members().begin();
+		PrimitiveVertices::Members::const_iterator verticesIterator = this->primitiveVertices()->members().begin();
+
+		while (typesIterator != this->primitiveTypes()->members().end())
+		{
+			const PrimitiveType *primitiveType = boost::polymorphic_cast<const PrimitiveType*>(&(*typesIterator));
+			const PrimitiveSize *primitiveSize = boost::polymorphic_cast<const PrimitiveSize*>(&(*sizesIterator));
+
+			if (primitiveType->type() == PrimitiveType::Type::Triangles)
+			{
+				writeMdlBlock(ostream, size, "Triangles");
+
+				std::vector<long32> values(primitiveSize->value());
+
+				for (long32 i = 0; i < primitiveSize->value(); ++i)
+				{
+					const PrimitiveVertex *vertex = boost::polymorphic_cast<const PrimitiveVertex*>(&(*verticesIterator));
+					values[i] = vertex->value();
+
+					++verticesIterator;
+				}
+
+				writeMdlVectorProperty(ostream, size, "", values);
+
+				writeMdlBlockConclusion(ostream, size);
+			}
+			else
+			{
+				std::cerr << boost::format(_("Unsupported primitive type:\n%1%")) % primitiveType->type() << std::endl;
+
+				/// \todo build other primitives (other than triangles)
+				for (long32 i = 0; i < primitiveSize->value(); ++i)
+					++verticesIterator; /// \todo triangles have 3 vertices, how much?
+			}
+
+			++typesIterator;
+			++sizesIterator;
 		}
+
+		writeMdlBlockConclusion(ostream, size);
 	}
-	Groups <long_count> <long_nums> {
-		Matrices { <long>, ... },
-		...
+
+	if (!this->matrixGroupCounts()->members().empty())
+	{
+		writeMdlCountedBlockDouble(ostream, size, "Groups", boost::numeric_cast<long32>(this->matrixGroupCounts()->members().size()), boost::numeric_cast<long32>(this->matrices()->members().size()), 1);
+
+		Matrices::Members::const_iterator matricesIterator = this->matrices()->members().begin();
+		MatrixGroupCounts::Members::const_iterator countsIterator = this->matrixGroupCounts()->members().begin();
+
+		while (matricesIterator != this->matrices()->members().end())
+		{
+			const MatrixGroupCount *matrixGroupCount = boost::polymorphic_cast<const MatrixGroupCount*>(&(*countsIterator));
+			std::vector<long32> values(matrixGroupCount->data());
+
+			for (long32 i = 0; i < matrixGroupCount->data(); ++i)
+			{
+				const Matrix *matrix = boost::polymorphic_cast<const Matrix*>(&(*matricesIterator));
+				values[i] = matrix->data();
+				++matricesIterator;
+			}
+
+			writeMdlVectorProperty(ostream, size, "Matrices", values);
+
+			++countsIterator;
+		}
+
+		writeMdlBlockConclusion(ostream, size);
 	}
-	*/
 
 	size += Bounds::writeMdl(ostream);
 
-	if (!this->ganimations().empty())
-		size += this->ganimations().size();
+	BOOST_FOREACH(Ganimations::const_reference ref, this->ganimations())
+		size += ref.writeMdl(ostream);
 
 	writeMdlValueProperty(ostream, size, "MaterialID", this->materialId());
 	writeMdlValueProperty(ostream, size, "SelectionGroup", this->selectionGroup());

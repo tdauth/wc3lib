@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MDLX_TEXTUREANIMATIONROTATIONS_HPP
 #define WC3LIB_MDLX_TEXTUREANIMATIONROTATIONS_HPP
 
-#include "mdlxscalings.hpp"
+#include "mdlxrotations.hpp"
 
 namespace wc3lib
 {
@@ -33,7 +33,7 @@ namespace mdlx
  * MDX tag "KTAR".
  * MDL tag "Rotation".
  */
-class TextureAnimationRotations : public MdlxScalings
+class TextureAnimationRotations : public MdlxRotations
 {
 	public:
 		TextureAnimationRotations(class TextureAnimation *textureAnimation);

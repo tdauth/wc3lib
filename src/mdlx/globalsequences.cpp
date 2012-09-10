@@ -30,26 +30,8 @@ namespace wc3lib
 namespace mdlx
 {
 
-GlobalSequences::GlobalSequences(class Mdlx *mdlx) : GroupMdxBlock("GLBS", "GlobalSequences", false), m_mdlx(mdlx)
+GlobalSequences::GlobalSequences(class Mdlx *mdlx) : GroupMdxBlock("GLBS", "GlobalSequences", false, true, true), m_mdlx(mdlx)
 {
-}
-
-std::streamsize GlobalSequences::readMdl(istream &istream) throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize GlobalSequences::writeMdl(ostream &ostream) const throw (class Exception)
-{
-	std::streamsize size = 0;
-	writeMdlCountedBlock(ostream, size, "GlobalSequences", this->members().size());
-
-	BOOST_FOREACH(Members::const_reference globalSequence, members())
-		size += globalSequence.writeMdl(ostream);
-
-	writeMdlBlockConclusion(ostream, size);
-
-	return size;
 }
 
 class GroupMdxBlockMember* GlobalSequences::createNewMember()

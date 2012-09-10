@@ -27,7 +27,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-Normals::Normals(class Geoset *geoset) : GroupMdxBlock("NRMS", "Normals"), m_geoset(geoset)
+Normals::Normals(class Geoset *geoset) : GroupMdxBlock("NRMS", "Normals", true, true, true), m_geoset(geoset)
 {
 }
 

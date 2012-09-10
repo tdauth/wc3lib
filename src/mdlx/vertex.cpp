@@ -41,17 +41,21 @@ std::streamsize Vertex::readMdl(istream &istream) throw (class Exception)
 
 std::streamsize Vertex::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	return 0;
+	std::streamsize size = 0;
+
+	writeMdlVectorProperty(ostream, size, "", this->vertexData());
+
+	return size;
 }
 
 std::streamsize Vertex::readMdx(istream &istream) throw (class Exception)
 {
-	return this->m_vertexData.read(istream);
+	return this->vertexData().read(istream);
 }
 
 std::streamsize Vertex::writeMdx(ostream &ostream) const throw (class Exception)
 {
-	return this->m_vertexData.write(ostream);
+	return this->vertexData().write(ostream);
 }
 
 }

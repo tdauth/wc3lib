@@ -56,6 +56,7 @@ std::streamsize GeosetAnimation::readMdl(istream &istream) throw (class Exceptio
 std::streamsize GeosetAnimation::writeMdl(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
+	writeMdlBlock(ostream, size, "GeosetAnim");
 
 	if (colorAnimation() == ColorAnimation::DropShadow || colorAnimation() == ColorAnimation::Both)
 		writeMdlProperty(ostream, size, "DropShadow");
@@ -79,6 +80,8 @@ std::streamsize GeosetAnimation::writeMdl(ostream &ostream) const throw (class E
 
 	writeMdlValueProperty(ostream, size, "GeosetId", geosetId());
 
+	writeMdlBlockConclusion(ostream, size);
+
 	return size;
 }
 
@@ -96,13 +99,10 @@ std::streamsize GeosetAnimation::readMdx(istream &istream) throw (class Exceptio
 	wc3lib::read(istream, this->m_colorBlue, size);
 	wc3lib::read(istream, this->m_geosetId, size);
 
-	std::cout << "Static alpha is " << this->m_staticAlpha << std::endl;
-
 	if (this->staticAlpha() == 1.0)
 		size += this->m_alphas->readMdx(istream);
 
 	size += this->m_colors->readMdx(istream); /// @todo Seems to be optional, file Krieger.mdx doesn't have this block.
-	std::cout << "After colors" << std::endl;
 
 	if (nbytesi != size)
 		throw Exception(boost::str(boost::format(_("Geoset animation: File byte count isn't equal to real byte count:\nFile byte count %1%.\nReal byte count %2%.\n")) % nbytesi % size));
@@ -124,9 +124,9 @@ std::streamsize GeosetAnimation::writeMdx(ostream &ostream) const throw (class E
 	wc3lib::write(ostream, this->geosetId(), size);
 
 	if (this->staticAlpha() == 1.0)
-		size += this->m_alphas->writeMdx(ostream);
+		size += this->alphas()->writeMdx(ostream);
 
-	size += this->m_colors->writeMdx(ostream);
+	size += this->colors()->writeMdx(ostream);
 
 	long32 nbytesi = size;
 	writeByteCount(ostream, nbytesi, position, size, true);

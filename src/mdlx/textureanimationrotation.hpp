@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MDLX_TEXTUREANIMATIONROTATION_HPP
 #define WC3LIB_MDLX_TEXTUREANIMATIONROTATION_HPP
 
-#include "mdlxscaling.hpp"
+#include "mdlxrotation.hpp"
 #include "textureanimationrotations.hpp"
 
 namespace wc3lib
@@ -30,7 +30,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-class TextureAnimationRotation : public MdlxScaling
+class TextureAnimationRotation : public MdlxRotation
 {
 	public:
 		TextureAnimationRotation(class TextureAnimationRotations *rotations);
@@ -40,7 +40,7 @@ class TextureAnimationRotation : public MdlxScaling
 
 inline class TextureAnimationRotations* TextureAnimationRotation::rotations() const
 {
-	return boost::polymorphic_cast<class TextureAnimationRotations*>(this->mdlxScalings());
+	return boost::polymorphic_cast<class TextureAnimationRotations*>(this->mdlxRotations());
 }
 
 }

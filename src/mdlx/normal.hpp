@@ -38,6 +38,7 @@ class Normal : public GroupMdxBlockMember
 		Normal(class Normals *normals);
 
 		class Normals* normals() const;
+		VertexData& vertexData();
 		const VertexData& vertexData() const;
 
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
@@ -52,6 +53,11 @@ class Normal : public GroupMdxBlockMember
 inline class Normals* Normal::normals() const
 {
 	return boost::polymorphic_cast<class Normals*>(this->parent());
+}
+
+inline VertexData& Normal::vertexData()
+{
+	return this->m_vertexData;
 }
 
 inline const VertexData& Normal::vertexData() const

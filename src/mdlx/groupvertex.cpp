@@ -27,7 +27,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-GroupVertex::GroupVertex(class GroupVertices *groupVertices) : GroupMdxBlockMember(groupVertices, "")
+GroupVertex::GroupVertex(class GroupVertices *groupVertices) : GroupMdxBlockMember(groupVertices, ""), m_data(0)
 {
 }
 
@@ -42,7 +42,11 @@ std::streamsize GroupVertex::readMdl(istream &istream) throw (class Exception)
 
 std::streamsize GroupVertex::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	return 0;
+	std::streamsize size = 0;
+
+	writeMdlProperty(ostream, size, "", this->data());
+
+	return size;
 }
 
 std::streamsize GroupVertex::readMdx(istream &istream) throw (class Exception)
@@ -56,7 +60,7 @@ std::streamsize GroupVertex::readMdx(istream &istream) throw (class Exception)
 std::streamsize GroupVertex::writeMdx(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	wc3lib::write(ostream, this->m_data, size);
+	wc3lib::write(ostream, this->data(), size);
 
 	return size;
 }

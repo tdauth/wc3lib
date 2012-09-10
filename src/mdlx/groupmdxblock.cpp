@@ -28,7 +28,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-GroupMdxBlock::GroupMdxBlock(byte blockName[mdxIdentifierSize], const string &mdlKeyword, bool usesCounter, bool optional, bool usesMdlCounter) : MdxBlock(blockName, mdlKeyword, optional), m_usesCounter(usesCounter), m_usesMdlCounter(usesMdlCounter)//, m_members()
+GroupMdxBlock::GroupMdxBlock(byte mdxIdentifier[mdxIdentifierSize], const string &mdlKeyword, bool usesCounter, bool optional, bool usesMdlCounter) : MdxBlock(mdxIdentifier, mdlKeyword, optional), m_usesCounter(usesCounter), m_usesMdlCounter(usesMdlCounter)//, m_members()
 {
 }
 
@@ -88,13 +88,23 @@ std::streamsize GroupMdxBlock::readMdx(istream &istream) throw (class Exception)
 	{
 		long32 nbytes = 0;
 		wc3lib::read(istream, nbytes, size);
+		// optional buffer should prevent rebuffering since we know the exact size, not possible for counted blocks since we don't know the size of one member
+		// NOTE if the whole file is buffered into memory it would be even faster
+		//boost::scoped_array<byte> buffer(new byte[nbytes]);
+		//istream.rdbuf()->pubsetbuf(buffer.get(), boost::numeric_cast<std::streamsize>(nbytes));
 
 		while (nbytes > 0)
 		{
 			GroupMdxBlockMember *member = this->createNewMember();
 			const std::streamsize readSize = member->readMdx(istream);
 			members().push_back(member);
-			nbytes -= boost::numeric_cast<long32>(readSize);
+
+			const long32 readSizeLong = boost::numeric_cast<long32>(readSize);
+
+			if (readSizeLong > nbytes)
+				std::cerr << boost::format(_("%1%: Read size of member is bigger than expected.\nExpected: %2%\nActual size: %3%")) % this->mdxIdentifier() % nbytes % readSizeLong << std::endl;
+
+			nbytes -= readSizeLong;
 			size += readSize;
 		}
 	}
@@ -111,7 +121,7 @@ std::streamsize GroupMdxBlock::writeMdx(ostream &ostream) const throw (class Exc
 
 	if (usesCounter())
 	{
-		long32 groupCount = this->m_members.size();
+		const long32 groupCount = boost::numeric_cast<long32>(this->members().size());
 		wc3lib::write(ostream, groupCount, size);
 
 		BOOST_FOREACH(Members::const_reference groupMdxBlockMember, this->members())

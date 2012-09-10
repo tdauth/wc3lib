@@ -26,7 +26,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-TextureAnimationTranslation::TextureAnimationTranslation(class TextureAnimationTranslations *translations) : MdlxScaling(translations)
+TextureAnimationTranslation::TextureAnimationTranslation(class TextureAnimationTranslations *translations) : MdlxTranslation(translations)
 {
 }
 

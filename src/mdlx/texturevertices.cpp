@@ -27,22 +27,12 @@ namespace wc3lib
 namespace mdlx
 {
 
-TextureVertices::TextureVertices(class Geoset *geoset) : GroupMdxBlock("UVBS", "TVertices"), m_geoset(geoset)
+TextureVertices::TextureVertices(class Geoset *geoset) : GroupMdxBlock("UVBS", "TVertices", true, true, true), m_geoset(geoset)
 {
 }
 
 TextureVertices::~TextureVertices()
 {
-}
-
-std::streamsize TextureVertices::readMdl(istream &istream) throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize TextureVertices::writeMdl(ostream &ostream) const throw (class Exception)
-{
-	return 0;
 }
 
 class GroupMdxBlockMember* TextureVertices::createNewMember()

@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MDLX_TEXTUREANIMATIONTRANSLATIONS_HPP
 #define WC3LIB_MDLX_TEXTUREANIMATIONTRANSLATIONS_HPP
 
-#include "mdlxscalings.hpp"
+#include "mdlxtranslations.hpp"
 
 namespace wc3lib
 {
@@ -33,7 +33,7 @@ namespace mdlx
  * MDX tag "KTAT".
  * MDL tag "Translation".
  */
-class TextureAnimationTranslations : public MdlxScalings
+class TextureAnimationTranslations : public MdlxTranslations
 {
 	public:
 		TextureAnimationTranslations(class TextureAnimation *textureAnimation);

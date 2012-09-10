@@ -1,6 +1,16 @@
+2012-09-10 Tamino Dauth <tamino@cdauth.eu>
+* mdlx: Normals second value is wrong?
+* DONE: mdlx: VertexGroup values should be 8-Bit unsigned ints.
+
+2012-09-09 Tamino Dauth <tamino@cdauth.eu>
+* map: BasePosition should inherit wc3lib::BasicVertex and be renamed to "BasicPosition" (reason for existence are operators! Maybe we can use something from Boost math libs?).
+* FIXED: mdlx: Fix PivotPoint, ParticleEmitter2 and TextureAnimation errors on reading MDX files.
+* mdlx: "war3/UI/Console/Human/HumanUI-TimeIndicator.mdx" has incorrect number of pivot points stored. MdlxConv.exe appends 0|0|0 pivot points automatically and ignores invalid number of stored ones (12 Pivot points which means 144 bytes, file has 77 - checked with Okteta).
+* mdlx: Finish MDL writing support!
+
 2012-09-06 Tamino Dauth <tamino@cdauth.eu>
 * mdlx: BasicVertex writings and readings have to use BasicVertex's methods!!!
-* mdlx: Ribbon emitters are not read correctly from MDX files.
+* FIXED: mdlx: Ribbon emitters are not read correctly from MDX files.
 
 2012-08-29 Tamino Dauth <tamino@cdauth.eu>
 * editor: Plugin_BlpCodec has to be linked with pthread on Unix systems although it should be automatically linked with when being linked with wc3libblp (enabled transitive linking).

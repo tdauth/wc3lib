@@ -37,7 +37,7 @@ class GroupVertex : public GroupMdxBlockMember
 		virtual ~GroupVertex();
 
 		class GroupVertices* groupVertices() const;
-		byte data() const;
+		uint8 data() const;
 
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
 		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
@@ -45,15 +45,15 @@ class GroupVertex : public GroupMdxBlockMember
 		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 
 	protected:
-		byte m_data;
+		uint8 m_data;
 };
 
 inline class GroupVertices* GroupVertex::groupVertices() const
 {
-	return boost::polymorphic_cast<class GroupVertices*>(this->m_parent);
+	return boost::polymorphic_cast<class GroupVertices*>(this->parent());
 }
 
-inline byte GroupVertex::data() const
+inline uint8 GroupVertex::data() const
 {
 	return this->m_data;
 }

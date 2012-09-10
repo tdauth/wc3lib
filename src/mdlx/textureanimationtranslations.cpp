@@ -29,7 +29,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-TextureAnimationTranslations::TextureAnimationTranslations(class TextureAnimation *textureAnimation) : MdlxScalings(textureAnimation->textureAnimations()->mdlx(), "KTAT", "Translation"), m_textureAnimation(textureAnimation)
+TextureAnimationTranslations::TextureAnimationTranslations(class TextureAnimation *textureAnimation) : MdlxTranslations(textureAnimation->textureAnimations()->mdlx(), "KTAT", "Translation"), m_textureAnimation(textureAnimation)
 {
 }
 

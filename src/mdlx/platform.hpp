@@ -75,6 +75,7 @@ BOOST_SCOPED_ENUM_START(ReplaceableId) /// \todo C++11 : long32
 BOOST_SCOPED_ENUM_END
 
 typedef wc3lib::Vertex VertexData;
+typedef wc3lib::BasicVertex<float32, 2> TextureVertexData;
 class Vertex; // workaround, we already have a class called Vertex in MDLX module!
 
 struct QuaternionData : public BasicVertex<float32, 4>
@@ -402,6 +403,20 @@ inline ostream& writeMdlCountedBlock(ostream &stream, std::streamsize &size, con
 }
 
 /**
+ * Examples are:
+ * Groups <count1> <count2>
+ * Faces <count1> <count2>
+ */
+inline ostream& writeMdlCountedBlockDouble(ostream &stream, std::streamsize &size, const string &keyword, const long32 count1, const long32 count2, std::size_t depth = 0)
+{
+	ostringstream sstream;
+	writeMdlDepth(sstream, depth);
+	sstream << keyword << ' ' << count1 << ' ' << count2 << " {\n";
+
+	return writeStringStream(stream, sstream, size);
+}
+
+/**
  * MDL properties are usually called flags and do not necessarily appear in an MDL scope.
  * Examples are:
  * DropShadow,
@@ -423,26 +438,36 @@ inline ostream& writeMdlProperty(ostream &stream, std::streamsize &size, const s
  * Examples are:
  * MaterialID <long>,
  * SelectionGroup <long>,
- * Image <string_path>,
  * ReplaceableId <long>,
  * ...
  */
 template<typename T>
-inline ostream& writeMdlValueProperty(ostream &stream, std::streamsize &size, const string &identifier, T value, std::size_t depth = 0)
+inline ostream& writeMdlValueProperty(ostream &stream, std::streamsize &size, const string &identifier, T value, std::size_t depth = 0, const string prefix = "")
 {
 	ostringstream sstream;
 	writeMdlDepth(sstream, depth);
-	sstream << identifier << ' ' << value << ",\n";
+
+	if (!identifier.empty())
+		sstream << prefix << identifier << ' ';
+
+	sstream << value << ",\n";
 
 	return writeStringStream(stream, sstream, size);
 }
 
+/**
+ * Properties like Image "path" need quotes around their string values.
+ */
 template<typename T>
-inline ostream& writeMdlValuePropertyWithQuotes(ostream &stream, std::streamsize &size, const string &identifier, T value, std::size_t depth = 0)
+inline ostream& writeMdlValuePropertyWithQuotes(ostream &stream, std::streamsize &size, const string &identifier, T value, std::size_t depth = 0, const string prefix = "")
 {
 	ostringstream sstream;
 	writeMdlDepth(sstream, depth);
-	sstream << identifier << " \"" << value << "\",\n";
+
+	if (!identifier.empty())
+		sstream << prefix << identifier << ' ';
+
+	sstream << " \"" << value << "\",\n";
 
 	return writeStringStream(stream, sstream, size);
 }
@@ -457,21 +482,13 @@ inline ostream& writeMdlValuePropertyWithQuotes(ostream &stream, std::streamsize
 template<typename T>
 inline ostream& writeMdlStaticValueProperty(ostream &stream, std::streamsize &size, const string &identifier, T value, std::size_t depth = 0)
 {
-	ostringstream sstream;
-	writeMdlDepth(sstream, depth);
-	sstream << "static " << identifier << ' ' << value << ",\n";
-
-	return writeStringStream(stream, sstream, size);
+	return writeMdlValueProperty(stream, size, identifier, value, depth, "static ");
 }
 
 template<typename T>
 inline ostream& writeMdlStaticValuePropertyWithQuotes(ostream &stream, std::streamsize &size, const string &identifier, T value, std::size_t depth = 0)
 {
-	ostringstream sstream;
-	writeMdlDepth(sstream, depth);
-	sstream << "static " << identifier << " \"" << value << "\",\n";
-
-	return writeStringStream(stream, sstream, size);
+	return writeMdlValuePropertyWithQuotes(stream, size, identifier, value, depth, "static ");
 }
 
 /**
@@ -501,18 +518,19 @@ ostream& writeMdlVectorProperty(ostream &stream, std::streamsize &size, const st
 	{
 		sstream << v;
 
-		if (i == values.size() - 1)
-			sstream << " ";
-		else
+		if (i != values.size() - 1)
 			sstream << ", ";
+		else if (values.size() > 1)
+			sstream << " ";
+
 
 		++i;
 	}
 
 	if (values.size() == 1)
-		sstream << "\n";
+		sstream << ",\n";
 	else
-		sstream << "}\n";
+		sstream << "},\n";
 
 	return writeStringStream(stream, sstream, size);
 }
@@ -526,6 +544,46 @@ template<typename VertexType> //  = BasicVertex<T, N>
 inline ostream& writeMdlStaticVectorProperty(ostream &stream, std::streamsize &size, const string &identifier, const VertexType &values, std::size_t depth = 0)
 {
 	return writeMdlVectorProperty(stream, size, identifier, values, depth, "static ");
+}
+
+/**
+ * This function is required for values with non-static size which is calculated at runtime.
+ * Examples are:
+ * Visibility <float>
+ * Matrices { <long>, <long>, <long> },
+ */
+template<typename ValueType> //  = BasicVertex<T, N>
+ostream& writeMdlVectorProperty(ostream &stream, std::streamsize &size, const string &identifier, const std::vector<ValueType> &values, std::size_t depth = 0, const string prefix = "")
+{
+	ostringstream sstream;
+	writeMdlDepth(sstream, depth);
+
+	if (!identifier.empty())
+		sstream << prefix << identifier << ' ';
+
+	if (values.size() > 1)
+		sstream << "{ ";
+
+	std::size_t i = 0;
+
+	BOOST_FOREACH(typename std::vector<ValueType>::const_reference v, values)
+	{
+		sstream << v;
+
+		if (i != values.size() - 1)
+			sstream << ", ";
+		else if (values.size() > 1)
+			sstream << " ";
+
+		++i;
+	}
+
+	if (values.size() == 1)
+		sstream << ",\n";
+	else
+		sstream << "},\n";
+
+	return writeStringStream(stream, sstream, size);
 }
 
 inline ostream& writeMdlBlockConclusion(ostream &stream, std::streamsize &size, std::size_t depth = 0)

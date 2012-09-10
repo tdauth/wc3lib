@@ -39,12 +39,16 @@ std::streamsize Normal::readMdl(istream &istream) throw (class Exception)
 
 std::streamsize Normal::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	return 0;
+	std::streamsize size = 0;
+
+	writeMdlVectorProperty(ostream, size, "", this->vertexData());
+
+	return size;
 }
 
 std::streamsize Normal::readMdx(istream &istream) throw (class Exception)
 {
-	return this->m_vertexData.read(istream);
+	return this->vertexData().read(istream);
 }
 
 std::streamsize Normal::writeMdx(ostream &ostream) const throw (class Exception)

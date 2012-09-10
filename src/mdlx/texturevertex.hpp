@@ -37,8 +37,8 @@ class TextureVertex : public GroupMdxBlockMember
 		virtual ~TextureVertex();
 
 		class TextureVertices* textureVertices() const;
-		float32 x() const;
-		float32 y() const;
+		TextureVertexData& vertexData();
+		const TextureVertexData& vertexData() const;
 
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
 		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
@@ -46,7 +46,7 @@ class TextureVertex : public GroupMdxBlockMember
 		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 
 	protected:
-		float32 m_x, m_y;
+		TextureVertexData m_vertexData;
 };
 
 inline class TextureVertices* TextureVertex::textureVertices() const
@@ -54,14 +54,14 @@ inline class TextureVertices* TextureVertex::textureVertices() const
 	return boost::polymorphic_cast<class TextureVertices*>(this->parent());
 }
 
-inline float32 TextureVertex::x() const
+inline TextureVertexData& TextureVertex::vertexData()
 {
-	return this->m_x;
+	return this->m_vertexData;
 }
 
-inline float32 TextureVertex::y() const
+inline const TextureVertexData& TextureVertex::vertexData() const
 {
-	return this->m_y;
+	return this->m_vertexData;
 }
 
 }

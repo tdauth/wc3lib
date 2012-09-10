@@ -34,7 +34,7 @@ namespace mdlx
 /**
  * Some MDX blocks are structured like:
  * byte[4]	MDX block name
- * long32	group members count / long32 group members bytes;
+ * long32 	group members count / group members bytes;
  * ...		group members list
  * This class provides a simple abstraction layer for those MDX block classes.
  * \todo Rename to GroupMdlxBlock
@@ -47,7 +47,7 @@ class GroupMdxBlock : public MdxBlock
 		 */
 		typedef boost::ptr_list<class GroupMdxBlockMember> Members;
 
-		GroupMdxBlock(byte blockName[mdxIdentifierSize], const string &mdlKeyword, bool usesCounter = true, bool optional = true, bool usesMdlCounter = false);
+		GroupMdxBlock(byte mdxIdentifier[mdxIdentifierSize], const string &mdlKeyword, bool usesCounter = true, bool optional = true, bool usesMdlCounter = false);
 		virtual ~GroupMdxBlock();
 
 		/**

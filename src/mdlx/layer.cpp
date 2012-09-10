@@ -80,7 +80,7 @@ std::streamsize Layer::writeMdl(ostream &ostream) const throw (class Exception)
 
 	writeMdlValueProperty(ostream, size, "CoordId", this->coordinatesId());
 
-	if (this->textureIds()->properties().empty())
+	if (this->alphas()->properties().empty())
 		writeMdlStaticValueProperty(ostream, size, "Alpha", this->alpha());
 	else
 		size += this->alphas()->writeMdl(ostream);

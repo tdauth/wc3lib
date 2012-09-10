@@ -39,6 +39,8 @@ class MdlxTranslations : public MdlxScalings
 		MdlxTranslations(class Mdlx *mdlx);
 
 	protected:
+		MdlxTranslations(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlKeyword);
+
 		/// \todo C++11 override
 		virtual Property* createAnimatedProperty();
 };

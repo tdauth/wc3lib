@@ -41,6 +41,8 @@ class MdlxRotations : public MdlxAnimatedProperties<4>
 		virtual ~MdlxRotations();
 
 	protected:
+		MdlxRotations(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlKeyword);
+
 		/// \todo C++11 override
 		virtual Property* createAnimatedProperty();
 };

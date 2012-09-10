@@ -27,7 +27,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-Vertices::Vertices(class Geoset *geoset) : GroupMdxBlock("VRTX", "Vertices"), m_geoset(geoset)
+Vertices::Vertices(class Geoset *geoset) : GroupMdxBlock("VRTX", "Vertices", true, true, true), m_geoset(geoset)
 {
 }
 

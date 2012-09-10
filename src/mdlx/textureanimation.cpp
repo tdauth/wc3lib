@@ -74,12 +74,11 @@ std::streamsize TextureAnimation::readMdx(istream &istream) throw (class Excepti
 	std::streamsize size = 0;
 	long32 nbytesi = 0;
 	wc3lib::read(istream, nbytesi, size);
-	size += this->m_translations->readMdx(istream);
-	size += this->m_rotations->readMdx(istream);
-	size += this->m_scalings->readMdx(istream);
+	size += this->translations()->readMdx(istream);
+	size += this->rotations()->readMdx(istream);
+	size += this->scalings()->readMdx(istream);
 
-	if (nbytesi != size)
-		throw Exception(boost::str(boost::format(_("Texture Animation: Error, file byte count and real byte count aren't equal.\nFile byte count: %1% bytes.\nReal byte count: %2%.")) % nbytesi % size));
+	checkBytesIncluding(size, nbytesi);
 
 	return size;
 }
@@ -89,9 +88,9 @@ std::streamsize TextureAnimation::writeMdx(ostream &ostream) const throw (class 
 	std::streampos position;
 	skipByteCount<long32>(ostream, position);
 
-	std::streamsize size = this->m_translations->writeMdx(ostream);
-	size += this->m_rotations->writeMdx(ostream);
-	size += this->m_scalings->writeMdx(ostream);
+	std::streamsize size = this->translations()->writeMdx(ostream);
+	size += this->rotations()->writeMdx(ostream);
+	size += this->scalings()->writeMdx(ostream);
 
 	long32 nbytesi = size;
 	writeByteCount(ostream, nbytesi, position, size, true);
