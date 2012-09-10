@@ -183,18 +183,18 @@ void OgreMdlx::load() throw (Exception)
 			Ogre::ManualObject *mo = this->createGeoset(*geoset, id);
 			this->m_geosets[geoset] = mo;
 			this->m_geosetIds[geoset] = id;
-			Ogre::Mesh *mesh = mo->convertToMesh(Ogre::String(geosetName(geoset, id) + ".mesh").get();
+			Ogre::Mesh *mesh = mo->convertToMesh(Ogre::String(geosetName(*geoset, id) + ".mesh")).get();
 			this->m_geosetMeshes[geoset] = mesh;
 			this->m_sceneNode->attachObject(mesh);
-			const Ogre::Skeleton *skeleton = this->createSkeleton(Ogre::String(mdlx()->model()->name()) + "Skeleton" + geosetName(geoset, id));
+			Ogre::Skeleton *skeleton = this->createSkeleton(Ogre::String(mdlx()->model()->name()) + "Skeleton" + geosetName(*geoset, id));
 			mesh->_notifySkeleton(skeleton);
 			mesh->setSkeletonName(skeleton->getName());
 
-			long32 seqId = 0;
+			mdlx::long32 seqId = 0;
 
 			BOOST_FOREACH(mdlx::Sequences::Members::const_reference member, this->mdlx()->sequences()->members())
 			{
-				const Ogre::Animation *animation = skeleton->createAnimation(sequenceName(geoset, boost::polymorphic_cast<mdlx::Sequence&>(member)), member.length());
+				const Ogre::Animation *animation = skeleton->createAnimation(sequenceName(geoset, boost::polymorphic_cast<const mdlx::Sequence&>(member)), member.length());
 				// TODO assign animation to member
 				++seqId;
 			}
@@ -1007,12 +1007,12 @@ Ogre::ManualObject* OgreMdlx::createGeoset(const class mdlx::Geoset &geoset, mdl
 		//qDebug() << "Adding vertex (" << (*vertexIterator)->vertexData().x << "|" << (*vertexIterator)->vertexData().y << "|" << (*vertexIterator)->vertexData().z << ")";
 		//qDebug() << "Adding normal (" << (*normalIterator)->vertexData().x << "|" << (*normalIterator)->vertexData().y << "|" << (*normalIterator)->vertexData().z << ")";
 		//qDebug() << "Adding texture coordinates (" << (*textureVertexIterator)->x() << "|" << (*textureVertexIterator)->y() << ")";
-		const mdlx::Vertex &vertex = boost::polymorphic_cast<const mdlx::Vertex&>(*vertexIterator);
-		const mdlx::Normal &normal = boost::polymorphic_cast<const mdlx::Normal&>(*normalIterator);
-		const mdlx::TextureVertex &textureVertex = boost::polymorphic_cast<const mdlx::TextureVertex&>(*textureVertexIterator);
+		const mdlx::Vertex *vertex = boost::polymorphic_cast<const mdlx::Vertex*>(&(*vertexIterator));
+		const mdlx::Normal *normal = boost::polymorphic_cast<const mdlx::Normal*>(&(*normalIterator));
+		const mdlx::TextureVertex *textureVertex = boost::polymorphic_cast<const mdlx::TextureVertex*>(&(*textureVertexIterator));
 		object->position(ogreVector3(vertex.vertexData()));
 		object->normal(ogreVector3(normal.vertexData()));
-		object->textureCoord(ogreVector2(textureVertex));
+		object->textureCoord(ogreVector2(textureVertex.vertexData()));
 		//object->colour(1.0 - this->modelView()->viewPort()->getBackgroundColour().r, 1.0 - this->modelView()->viewPort()->getBackgroundColour().g, 1.0 - this->modelView()->viewPort()->getBackgroundColour().b, 1.0 - this->modelView()->viewPort()->getBackgroundColour().a);
 		//object->index(index);
 
@@ -1131,9 +1131,9 @@ Ogre::Bone* OgreMdlx::createBone(const class mdlx::Bone &bone, mdlx::long32 id)
 	{
 		parent = createBone(boost::polymorphic_cast<mdlx::Bone*>(this->mdlx()->node(bone.parentId())) , bone.parentId());
 		ogreBone = parent->createChild(id);
-		ogreBone->setInheritTranslation(bone.inheritsTranslation());
-		ogreBone->setInheritRotation(bone.inheritsRotation());
-		ogreBone->setInheritScale(bone.inheritsScaling());
+		ogreBone->setInheritsTranslation(bone.inheritsTranslation());
+		ogreBone->setInheritsRotation(bone.inheritsRotation());
+		ogreBone->setInheritsScale(bone.inheritsScaling());
 	}
 	else
 	{

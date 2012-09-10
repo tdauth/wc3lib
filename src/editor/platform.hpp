@@ -402,9 +402,9 @@ inline Ogre::Vector3 ogreVector3(const mdlx::VertexData &vertexData)
 }
 
 /// Global type cast function.
-inline Ogre::Vector2 ogreVector2(const mdlx::TextureVertex &textureVertex)
+inline Ogre::Vector2 ogreVector2(const mdlx::TextureVertexData &textureVertexData)
 {
-	return Ogre::Vector2(textureVertex.x(), textureVertex.y());
+	return Ogre::Vector2(textureVertexData.x(), textureVertexData.y());
 }
 
 inline QString mapFilter()
