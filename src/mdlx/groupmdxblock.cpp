@@ -90,8 +90,16 @@ std::streamsize GroupMdxBlock::readMdx(istream &istream) throw (class Exception)
 		wc3lib::read(istream, nbytes, size);
 		// optional buffer should prevent rebuffering since we know the exact size, not possible for counted blocks since we don't know the size of one member
 		// NOTE if the whole file is buffered into memory it would be even faster
-		//boost::scoped_array<byte> buffer(new byte[nbytes]);
-		//istream.rdbuf()->pubsetbuf(buffer.get(), boost::numeric_cast<std::streamsize>(nbytes));
+		/*
+		const std::streamsize bufferSize = boost::numeric_cast<std::streamsize>(nbytes);
+		boost::scoped_array<byte> buffer;
+
+		if (istream.rdbuff()->in_avail() < bufferSize)
+		{
+			buffer.reset(new byte[bufferSize]);
+			istream.rdbuf()->pubsetbuf(buffer.get(), bufferSize);
+		}
+		*/
 
 		while (nbytes > 0)
 		{

@@ -2,7 +2,6 @@
 #define wc3lib_VERSION_MINOR @wc3lib_VERSION_MINOR@
 #cmakedefine DEBUG
 #cmakedefine STATIC
-#cmakedefine NORUNTIME
 #cmakedefine APP
 #cmakedefine BLP
 #cmakedefine MAP

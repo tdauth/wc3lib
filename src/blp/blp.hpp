@@ -38,7 +38,7 @@ namespace blp
  * BLP is Blizzard Entertainment's texture format.
  * There are two different format specifications: BLP1 and BLP2.
  * Besides there is the BLP0 format which isn't different from BLP1.
- * BLP0 and BLP1 are used in games Warcraft 3 and Warcraft 3 The Frozen Throne.
+ * BLP0 and BLP1 are used in games Warcraft III and Warcraft III: The Frozen Throne.
  * BLP2 is used in World of Warcraft.
  * BLP0 and BLP1 images can have two different compression modes:
  * <ul>
@@ -50,10 +50,9 @@ namespace blp
  * If an image is 32x8 the mipmap chain must be 32x8, 16x4, 8x2, 4x1, 2x1, 1x1.
  * Sizes not of powers of 2 seems to work fine too, the same rules for mipmaps
  * still applies. Ex: 24x17, 12x8 (rounded down), 6x4, 3x2, 1x1 (rounded down).
- * \note JFIF compression and decompression is realized by using library "jpeg" which is loaded dynamically (at runtime) by using class \ref LibraryLoader. Unfortunatelly some properties (structures for instance) cannot be loaded from shared object/DLL and therefore are compiled statically into wc3lib. Please make sure that you're having installed a compatible version of library "jpeg".
  *
  *
- * Little loading example:
+ * Small loading example:
  * \code
  * #include <wc3lib/core.hpp>
  * #include <wc3lib/blp.hpp>
