@@ -54,7 +54,7 @@ std::streamsize RibbonEmitter::writeMdl(ostream &ostream) const throw (class Exc
 {
 	std::streamsize size = 0;
 
-	writeMdlBlock(ostream, size, "RibbonEmitter", this->name());
+	writeMdlBlock(ostream, size, "RibbonEmitter", this->name(), 0, true);
 	size += Node::writeMdl(ostream);
 
 	if (!this->heightsAbove()->properties().empty())

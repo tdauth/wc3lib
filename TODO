@@ -3,8 +3,9 @@
 * mdlx: Rename Lengths to ParticleEmitter2Lengths.
 * mdlx: Rename ParticleEmitter2::numbers() to lengths().
 * mdlx: Fix writing MDL floating point numbers (read specification).
-* mdlx: String properties and blocks must be written with empty quotes ("") - Alliance_Exp.mdl.
+* FIXED: mdlx: String properties and blocks must be written with empty quotes ("") - Alliance_Exp.mdl.
 * mdlx: Test converted models in Warcraft since War3ModelEditor seems to have some displaying errors (wine could be the reason).
+* blp: Test writing with scoped ptr and old pointer usage.
 
 2012-09-10 Tamino Dauth <tamino@cdauth.eu>
 * FIXED: mdlx: Normals second value is wrong?

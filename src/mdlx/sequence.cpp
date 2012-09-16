@@ -39,7 +39,7 @@ std::streamsize Sequence::readMdl(istream &istream) throw (class Exception)
 std::streamsize Sequence::writeMdl(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	writeMdlBlock(ostream, size, "Anim", this->name());
+	writeMdlBlock(ostream, size, "Anim", this->name(), 0, true);
 	writeMdlVectorProperty(ostream, size, "Interval", BasicVertex<long32, 2>(this->intervalStart(), this->intervalEnd()));
 
 	if (this->noLooping() == 1)

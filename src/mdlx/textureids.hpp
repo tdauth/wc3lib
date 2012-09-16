@@ -32,17 +32,20 @@ namespace mdlx
 /**
  * MDX tag "KMTF".
  * MDL tag "TextureID".
- * \note State of \ref TextureId is long not \ref float32, it's \ref long32 ! Therefore \ref TextureId inherits from \ref BasicMdlxAlpha<long32> !
+ * \note State of \ref TextureId is long not \ref float32, it's \ref long32 ! Therefore \ref TextureIds inherits from \ref BasicMdlxAlphas<long32> !
  */
-class TextureIds : public MdlxAlphas
+class TextureIds : public BasicMdlxAlphas<long32>
 {
 	public:
+		typedef BasicMdlxAlphas<long32> Base;
+
 		TextureIds(class Mdlx *mdlx);
 		virtual ~TextureIds();
 
 	protected:
 		TextureIds(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlKeyword);
 
+		/// \todo C++11 override
 		virtual Property* createAnimatedProperty();
 };
 

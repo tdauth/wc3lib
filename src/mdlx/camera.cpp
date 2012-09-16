@@ -48,7 +48,7 @@ std::streamsize Camera::readMdl(istream &istream) throw (class Exception)
 std::streamsize Camera::writeMdl(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	writeMdlBlock(ostream, size, "Camera", this->name());
+	writeMdlBlock(ostream, size, "Camera", this->name(), 0, true);
 	writeMdlVectorProperty(ostream, size, "Position", this->position());
 	size += translations()->writeMdl(ostream);
 	size += rotationLengths()->writeMdl(ostream);

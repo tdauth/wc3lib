@@ -116,8 +116,8 @@ std::streamsize Layer::readMdx(istream &istream) throw (class Exception)
 	wc3lib::read(istream, this->m_tvertexAnimationId, size);
 	wc3lib::read(istream, this->m_coordinatesId, size);
 	wc3lib::read(istream, this->m_alpha, size);
-	size += this->m_alphas->readMdx(istream);
-	size += this->m_textureIds->readMdx(istream);
+	size += this->alphas()->readMdx(istream);
+	size += this->textureIds()->readMdx(istream);
 
 	return size;
 }
@@ -128,16 +128,17 @@ std::streamsize Layer::writeMdx(ostream &ostream) const throw (class Exception)
 	skipByteCount<long32>(ostream, position);
 
 	std::streamsize size = 0;
-	wc3lib::write(ostream, static_cast<long32>(this->filterMode()), size);
-	wc3lib::write(ostream, static_cast<long32>(this->shading()), size);
+	wc3lib::write(ostream, (long32)(this->filterMode()), size);
+	wc3lib::write(ostream, (long32)(this->shading()), size);
 	wc3lib::write(ostream, this->textureId(), size);
 	wc3lib::write(ostream, this->tvertexAnimationId(), size);
 	wc3lib::write(ostream, this->coordinatesId(), size);
 	wc3lib::write(ostream, this->alpha(), size);
+	std::streamsize oldSize = size;
 	size += this->alphas()->writeMdx(ostream);
 	size += this->textureIds()->writeMdx(ostream);
 
-	long32 nbytesi = size;
+	long32 nbytesi = boost::numeric_cast<long32>(size);
 	writeByteCount(ostream, nbytesi, position, size, true);
 
 	return size;

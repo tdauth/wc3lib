@@ -86,7 +86,7 @@ std::streamsize Attachment::readMdl(istream &istream) throw (class Exception)
 std::streamsize Attachment::writeMdl(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	writeMdlBlock(ostream, size, "Attachment", this->name());
+	writeMdlBlock(ostream, size, "Attachment", this->name(), 0, true);
 
 	size += Object::writeMdl(ostream);
 

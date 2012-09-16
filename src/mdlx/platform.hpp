@@ -369,6 +369,13 @@ inline ostream& writeStringStream(ostream &stream, ostringstream &sstream, std::
 	return wc3lib::write(stream, sstream.str().c_str()[0], size, sstream.str().length()); // without 0-terminating character!
 }
 
+inline ostringstream& setupMdlFormat(ostringstream &stream)
+{
+	stream << std::fixed << std::setprecision(6);
+
+	return stream;
+}
+
 inline ostringstream& writeMdlDepth(ostringstream &stream, std::size_t depth)
 {
 	for (std::size_t i = 0; i < depth; ++i)
@@ -377,13 +384,14 @@ inline ostringstream& writeMdlDepth(ostringstream &stream, std::size_t depth)
 	return stream;
 }
 
-inline ostream& writeMdlBlock(ostream &stream, std::streamsize &size, const string &keyword, const string &identifier = "", std::size_t depth = 0)
+inline ostream& writeMdlBlock(ostream &stream, std::streamsize &size, const string &keyword, const string &identifier = "", std::size_t depth = 0, bool forceIdentifier = false)
 {
 	ostringstream sstream;
+	setupMdlFormat(sstream);
 	writeMdlDepth(sstream, depth);
 	sstream << keyword << ' ';
 
-	if (!identifier.empty())
+	if (!identifier.empty() || forceIdentifier)
 	{
 		sstream << '\"' << identifier << '\"' << ' ';
 	}
@@ -396,6 +404,7 @@ inline ostream& writeMdlBlock(ostream &stream, std::streamsize &size, const stri
 inline ostream& writeMdlCountedBlock(ostream &stream, std::streamsize &size, const string &keyword, const long32 count, std::size_t depth = 0)
 {
 	ostringstream sstream;
+	setupMdlFormat(sstream);
 	writeMdlDepth(sstream, depth);
 	sstream << keyword << " " << count << " {\n";
 
@@ -410,6 +419,7 @@ inline ostream& writeMdlCountedBlock(ostream &stream, std::streamsize &size, con
 inline ostream& writeMdlCountedBlockDouble(ostream &stream, std::streamsize &size, const string &keyword, const long32 count1, const long32 count2, std::size_t depth = 0)
 {
 	ostringstream sstream;
+	setupMdlFormat(sstream);
 	writeMdlDepth(sstream, depth);
 	sstream << keyword << ' ' << count1 << ' ' << count2 << " {\n";
 
@@ -427,6 +437,7 @@ inline ostream& writeMdlCountedBlockDouble(ostream &stream, std::streamsize &siz
 inline ostream& writeMdlProperty(ostream &stream, std::streamsize &size, const string &identifier, std::size_t depth = 0)
 {
 	ostringstream sstream;
+	setupMdlFormat(sstream);
 	writeMdlDepth(sstream, depth);
 	sstream << identifier << ",\n";
 
@@ -445,6 +456,7 @@ template<typename T>
 inline ostream& writeMdlValueProperty(ostream &stream, std::streamsize &size, const string &identifier, T value, std::size_t depth = 0, const string prefix = "")
 {
 	ostringstream sstream;
+	setupMdlFormat(sstream);
 	writeMdlDepth(sstream, depth);
 
 	if (!identifier.empty())
@@ -462,6 +474,7 @@ template<typename T>
 inline ostream& writeMdlValuePropertyWithQuotes(ostream &stream, std::streamsize &size, const string &identifier, T value, std::size_t depth = 0, const string prefix = "")
 {
 	ostringstream sstream;
+	setupMdlFormat(sstream);
 	writeMdlDepth(sstream, depth);
 
 	if (!identifier.empty())
@@ -504,6 +517,7 @@ template<typename VertexType> //  = BasicVertex<T, N>
 ostream& writeMdlVectorProperty(ostream &stream, std::streamsize &size, const string &identifier, const VertexType &values, std::size_t depth = 0, const string prefix = "")
 {
 	ostringstream sstream;
+	setupMdlFormat(sstream);
 	writeMdlDepth(sstream, depth);
 
 	if (!identifier.empty())
@@ -556,6 +570,7 @@ template<typename ValueType> //  = BasicVertex<T, N>
 ostream& writeMdlVectorProperty(ostream &stream, std::streamsize &size, const string &identifier, const std::vector<ValueType> &values, std::size_t depth = 0, const string prefix = "", bool forceBrackets = false)
 {
 	ostringstream sstream;
+	setupMdlFormat(sstream);
 	writeMdlDepth(sstream, depth);
 
 	if (!identifier.empty())
@@ -596,6 +611,7 @@ ostream& writeMdlVectorProperty(ostream &stream, std::streamsize &size, const st
 inline ostream& writeMdlBlockConclusion(ostream &stream, std::streamsize &size, std::size_t depth = 0)
 {
 	ostringstream sstream;
+	setupMdlFormat(sstream);
 	writeMdlDepth(sstream, depth);
 	sstream << "}\n";
 
@@ -605,6 +621,7 @@ inline ostream& writeMdlBlockConclusion(ostream &stream, std::streamsize &size, 
 inline ostream& writeMdlPropertyBlockConclusion(ostream &stream, std::streamsize &size, std::size_t depth = 0)
 {
 	ostringstream sstream;
+	setupMdlFormat(sstream);
 	writeMdlDepth(sstream, depth);
 	sstream << "},\n";
 

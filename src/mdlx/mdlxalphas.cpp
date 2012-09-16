@@ -18,7 +18,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "mdlxalphas.hpp"
+#ifndef WC3LIB_MDLX_MDLXALPHAS_CPP
+#define WC3LIB_MDLX_MDLXALPHAS_CPP
+
 #include "mdlxalpha.hpp"
 
 namespace wc3lib
@@ -27,23 +29,29 @@ namespace wc3lib
 namespace mdlx
 {
 
-MdlxAlphas::MdlxAlphas(class Mdlx *mdlx) : MdlxAnimatedProperties(mdlx, "KMTA", "Alpha")
+template<typename _ValueType>
+BasicMdlxAlphas<_ValueType>::BasicMdlxAlphas(class Mdlx *mdlx) : Base(mdlx, "KMTA", "Alpha")
 {
 }
 
-MdlxAlphas::~MdlxAlphas()
+template<typename _ValueType>
+BasicMdlxAlphas<_ValueType>::~BasicMdlxAlphas()
 {
 }
 
-MdlxAlphas::MdlxAlphas(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlKeyword) : MdlxAnimatedProperties(mdlx, mdxIdentifier, mdlKeyword)
+template<typename _ValueType>
+BasicMdlxAlphas<_ValueType>::BasicMdlxAlphas(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlKeyword) : Base(mdlx, mdxIdentifier, mdlKeyword)
 {
 }
 
-MdlxAlphas::Property* MdlxAlphas::createAnimatedProperty()
+template<typename _ValueType>
+typename BasicMdlxAlphas<_ValueType>::Base::Property* BasicMdlxAlphas<_ValueType>::createAnimatedProperty()
 {
-	return new MdlxAlpha(this);
+	return new Alpha(this);
 }
 
 }
 
 }
+
+#endif

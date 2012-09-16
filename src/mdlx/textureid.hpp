@@ -29,10 +29,12 @@ namespace wc3lib
 namespace mdlx
 {
 
-/// \note State of TextureId is long not \ref float32, it's \ref long32 ! Therefore TextureId inherits from \ref BasicMdlxAlpha<long32> !
+/// \note State of TextureId is not \ref float32, it's \ref long32 ! Therefore TextureId inherits from \ref BasicMdlxAlpha<long32> !
 class TextureId : public BasicMdlxAlpha<long32>
 {
 	public:
+		typedef BasicMdlxAlpha<long32> Base;
+
 		TextureId(class TextureIds *textureIds);
 
 		class TextureIds* textureIds() const;

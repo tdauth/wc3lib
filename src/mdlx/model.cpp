@@ -105,7 +105,7 @@ std::streamsize Model::readMdl(istream &istream) throw (class Exception)
 std::streamsize Model::writeMdl(ostream &ostream, const Mdlx *mdlx) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	writeMdlBlock(ostream, size, "Model", this->name());
+	writeMdlBlock(ostream, size, "Model", this->name(), 0, true);
 
 	if (mdlx != 0)
 	{

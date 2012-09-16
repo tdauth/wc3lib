@@ -30,21 +30,37 @@ namespace wc3lib
 namespace mdlx
 {
 
-class MdlxAlphas : public MdlxAnimatedProperties<1>
+template<typename _ValueType>
+class BasicMdlxAlpha;
+
+/**
+ * \param _ValueType can be specified for chunks like "KMTF" which uses \ref long32 values for texture ids instead of \ref float32 values.
+ */
+template<typename _ValueType = float32>
+class BasicMdlxAlphas : public MdlxAnimatedProperties<1, _ValueType>
 {
 	public:
-		MdlxAlphas(class Mdlx *mdlx);
-		virtual ~MdlxAlphas();
+		typedef MdlxAnimatedProperties<1, _ValueType> Base;
+		typedef _ValueType ValueType;
+		typedef BasicMdlxAlpha<_ValueType> Alpha;
+
+		BasicMdlxAlphas(class Mdlx *mdlx);
+		virtual ~BasicMdlxAlphas();
 
 	protected:
-		MdlxAlphas(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlKeyword);
+		BasicMdlxAlphas(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlKeyword);
 
 		/// \todo C++11 override
-		virtual Property* createAnimatedProperty();
+		virtual typename Base::Property* createAnimatedProperty();
 };
 
+// TODO C++11 extern class template BasicMdlxAlphas<float32>;
+typedef BasicMdlxAlphas<float32> MdlxAlphas;
+
 }
 
 }
+
+#include "mdlxalphas.cpp"
 
 #endif

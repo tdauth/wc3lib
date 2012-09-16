@@ -312,6 +312,36 @@ inline std::basic_ostream<_CharT>& write(std::basic_ostream<_CharT> &ostream, co
 }
 
 /**
+ * Specialization for pointers where you should specify the exact size.
+ */
+template<typename T, typename _CharT>
+inline std::basic_ostream<_CharT>& write(std::basic_ostream<_CharT> &ostream, const T *value, std::streamsize &sizeCounter, std::size_t size) //  = sizeof(T) * sizeof(_CharT)
+{
+	ostream.write(reinterpret_cast<const _CharT*>(value), size);
+
+	checkStream(ostream);
+
+	sizeCounter += size; /// @todo Why isn't there any .pcount, throw exception if it is not written completely
+
+	return ostream;
+}
+
+/**
+ * Specialization for pointers where you should specify the exact size.
+ */
+template<typename T, typename _CharT>
+inline std::basic_ostream<_CharT>& write(std::basic_ostream<_CharT> &ostream, T *value, std::streamsize &sizeCounter, std::size_t size) //  = sizeof(T) * sizeof(_CharT)
+{
+	ostream.write(reinterpret_cast<const _CharT*>(value), size);
+
+	checkStream(ostream);
+
+	sizeCounter += size; /// @todo Why isn't there any .pcount, throw exception if it is not written completely
+
+	return ostream;
+}
+
+/**
 * Writes C string of value "value" into output (with 0 terminating char if size is 0).
 * @param size If size is 0 it will stop writing when reached 0-terminating char.
 */
@@ -361,7 +391,11 @@ inline std::basic_ostream<_CharT>& writeByteCount(std::basic_ostream<_CharT> &os
 {
 	const std::streampos backPosition = ostream.tellp();
 	ostream.seekp(position);
-	const T realByteCount = inclusive ? byteCount + sizeof(byteCount) * sizeof(T) : byteCount; // inclusive means size of byte count as well
+	const T realByteCount = (inclusive ? (byteCount + sizeof(byteCount) * sizeof(_CharT)) : byteCount); // inclusive means size of byte count as well
+	std::cout << "real byte count " << realByteCount << std::endl;
+	std::cout << "back pos " << backPosition << std::endl;
+	std::cout << "pos " << position << std::endl;
+	std::cout << "tellp before jumping back " << ostream.tellp() << std::endl;
 	write<T, _CharT>(ostream, realByteCount, sizeCounter);
 	ostream.seekp(backPosition); // jump back to the end or somewhere else
 

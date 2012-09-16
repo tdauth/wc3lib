@@ -62,7 +62,7 @@ std::streamsize ParticleEmitter2::readMdl(istream &istream) throw (class Excepti
 std::streamsize ParticleEmitter2::writeMdl(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	writeMdlBlock(ostream, size, "ParticleEmitter2", this->name());
+	writeMdlBlock(ostream, size, "ParticleEmitter2", this->name(), 0, true);
 
 	size += Node::writeMdl(ostream);
 
@@ -79,7 +79,10 @@ std::streamsize ParticleEmitter2::writeMdl(ostream &ostream) const throw (class 
 
 	writeMdlStaticValueProperty(ostream, size, "Variation", this->variation());
 
-	size += latitudes()->writeMdl(ostream);
+	if (latitudes()->properties().empty())
+		writeMdlStaticValueProperty(ostream, size, "Latitude", this->latitude());
+	else
+		size += latitudes()->writeMdl(ostream);
 
 	writeMdlStaticValueProperty(ostream, size, "Gravity", this->gravity());
 
@@ -190,7 +193,7 @@ std::streamsize ParticleEmitter2::readMdx(istream &istream) throw (class Excepti
 	size += Node::readMdx(istream);
 	wc3lib::read(istream, this->m_speed, size);
 	wc3lib::read(istream, this->m_variation, size);
-	wc3lib::read(istream, this->m_latitidue, size);
+	wc3lib::read(istream, this->m_latitude, size);
 	wc3lib::read(istream, this->m_gravity, size);
 	wc3lib::read(istream, this->m_lifespan, size);
 	wc3lib::read(istream, this->m_emissionRate, size);
@@ -247,55 +250,58 @@ std::streamsize ParticleEmitter2::writeMdx(ostream &ostream) const throw (class 
 	skipByteCount<wc3lib::ostream>(ostream, position);
 
 	std::streamsize size = Node::writeMdx(ostream);
-	wc3lib::write(ostream, this->m_speed, size);
-	wc3lib::write(ostream, this->m_variation, size);
-	wc3lib::write(ostream, this->m_latitidue, size);
-	wc3lib::write(ostream, this->m_gravity, size);
-	wc3lib::write(ostream, this->m_lifespan, size);
-	wc3lib::write(ostream, this->m_emissionRate, size);
-	wc3lib::write(ostream, this->m_length, size);
-	wc3lib::write(ostream, this->m_width, size);
-	wc3lib::write<long32>(ostream, this->m_filterMode, size);
-	wc3lib::write(ostream, this->m_rows, size);
-	wc3lib::write(ostream, this->m_columns, size);
-	wc3lib::write<long32>(ostream, this->m_flags, size);
-	wc3lib::write(ostream, this->m_tailLength, size);
-	wc3lib::write(ostream, this->m_time, size);
+	wc3lib::write(ostream, this->speed(), size);
+	wc3lib::write(ostream, this->variation(), size);
+	wc3lib::write(ostream, this->latitude(), size);
+	wc3lib::write(ostream, this->gravity(), size);
+	wc3lib::write(ostream, this->lifespan(), size);
+	wc3lib::write(ostream, this->emissionRate(), size);
+	wc3lib::write(ostream, this->length(), size);
+	wc3lib::write(ostream, this->width(), size);
+	wc3lib::write<long32>(ostream, this->filterMode(), size);
+	wc3lib::write(ostream, this->rows(), size);
+	wc3lib::write(ostream, this->columns(), size);
+	wc3lib::write<long32>(ostream, this->flags(), size);
+	wc3lib::write(ostream, this->tailLength(), size);
+	wc3lib::write(ostream, this->time(), size);
 
 	BOOST_FOREACH(SegmentColors::const_reference color, this->segmentColors())
 		size += color.writeMdx(ostream);
 
-	wc3lib::write(ostream, this->m_alpha1, size);
-	wc3lib::write(ostream, this->m_alpha2, size);
-	wc3lib::write(ostream, this->m_alpha3, size);
-	wc3lib::write(ostream, this->m_scalingX, size);
-	wc3lib::write(ostream, this->m_scalingY, size);
-	wc3lib::write(ostream, this->m_scalingZ, size);
-	wc3lib::write(ostream, this->m_lifeSpanUvAnim1, size);
-	wc3lib::write(ostream, this->m_lifeSpanUvAnim2, size);
-	wc3lib::write(ostream, this->m_lifeSpanUvAnim3, size);
-	wc3lib::write(ostream, this->m_decayUvAnim1, size);
-	wc3lib::write(ostream, this->m_decayUvAnim2, size);
-	wc3lib::write(ostream, this->m_decayUvAnim3, size);
-	wc3lib::write(ostream, this->m_tailUvAnim1, size);
-	wc3lib::write(ostream, this->m_tailUvAnim2, size);
-	wc3lib::write(ostream, this->m_tailUvAnim3, size);
-	wc3lib::write(ostream, this->m_tailDecayUvAnim1, size);
-	wc3lib::write(ostream, this->m_tailDecayUvAnim2, size);
-	wc3lib::write(ostream, this->m_tailDecayUvAnim3, size);
-	wc3lib::write(ostream, this->m_textureId, size);
-	wc3lib::write(ostream, this->m_squirt, size);
-	wc3lib::write(ostream, this->m_priorityPlane, size);
-	wc3lib::write<long32>(ostream, this->m_replaceableId, size);
-	size += this->m_speeds->writeMdx(ostream);
-	size += this->m_latitudes->writeMdx(ostream);
-	size += this->m_emissionRates->writeMdx(ostream);
-	size += this->m_visibilities->writeMdx(ostream);
-	size += this->m_numbers->writeMdx(ostream);
-	size += this->m_widths->writeMdx(ostream);
+	wc3lib::write(ostream, this->alpha1(), size);
+	wc3lib::write(ostream, this->alpha2(), size);
+	wc3lib::write(ostream, this->alpha3(), size);
+	wc3lib::write(ostream, this->scalingX(), size);
+	wc3lib::write(ostream, this->scalingY(), size);
+	wc3lib::write(ostream, this->scalingZ(), size);
+	wc3lib::write(ostream, this->lifeSpanUvAnim1(), size);
+	wc3lib::write(ostream, this->lifeSpanUvAnim2(), size);
+	wc3lib::write(ostream, this->lifeSpanUvAnim3(), size);
+	wc3lib::write(ostream, this->decayUvAnim1(), size);
+	wc3lib::write(ostream, this->decayUvAnim2(), size);
+	wc3lib::write(ostream, this->decayUvAnim3(), size);
+	wc3lib::write(ostream, this->tailUvAnim1(), size);
+	wc3lib::write(ostream, this->tailUvAnim2(), size);
+	wc3lib::write(ostream, this->tailUvAnim3(), size);
+	wc3lib::write(ostream, this->tailDecayUvAnim1(), size);
+	wc3lib::write(ostream, this->tailDecayUvAnim2(), size);
+	wc3lib::write(ostream, this->tailDecayUvAnim3(), size);
+	wc3lib::write(ostream, this->textureId(), size);
+	wc3lib::write(ostream, this->squirt(), size);
+	wc3lib::write(ostream, this->priorityPlane(), size);
+	wc3lib::write<long32>(ostream, this->replaceableId(), size);
+	size += this->speeds()->writeMdx(ostream);
+	size += this->latitudes()->writeMdx(ostream);
+	size += this->emissionRates()->writeMdx(ostream);
+	size += this->visibilities()->writeMdx(ostream);
+	size += this->numbers()->writeMdx(ostream);
+	size += this->widths()->writeMdx(ostream);
 
-	long32 nbytesi = size;
+	const long32 nbytesi = boost::numeric_cast<long32>(size);
+	std::cout << "Including byte count: " << nbytesi << std::endl;
 	writeByteCount(ostream, nbytesi, position, size, true);
+
+	exit(0);
 
 	return size;
 }

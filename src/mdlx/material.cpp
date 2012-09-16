@@ -82,8 +82,10 @@ std::streamsize Material::readMdx(istream &istream) throw (class Exception)
 		throw Exception(boost::format(_("Material: Small byte count.\nBytes %d.\n")) % size);
 
 	wc3lib::read(istream, this->m_priorityPlane, size);
-	wc3lib::read(istream, *reinterpret_cast<long32*>(&this->m_renderMode), size);
-	size += this->m_layers->readMdx(istream);
+	wc3lib::read(istream, reinterpret_cast<long32&>(this->m_renderMode), size);
+	size += this->layers()->readMdx(istream);
+
+	checkBytesIncluding(size, includingSize);
 
 	return size;
 }
@@ -95,10 +97,10 @@ std::streamsize Material::writeMdx(ostream &ostream) const throw (class Exceptio
 
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->priorityPlane(), size);
-	wc3lib::write(ostream, static_cast<const long32>(this->renderMode()), size);
+	wc3lib::write(ostream, (long32)(this->renderMode()), size);
 	size += this->layers()->writeMdx(ostream);
 
-	long32 includingSize = size;
+	long32 includingSize = boost::numeric_cast<long32>(size);
 	writeByteCount(ostream, includingSize, position, size, true);
 
 	return size;

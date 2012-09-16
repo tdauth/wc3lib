@@ -34,22 +34,24 @@ namespace mdlx
  * \param _ValueType can be specified for chunks like "KMTF" which uses \ref long32 values for texture ids instead of \ref float32 values.
  */
 template<typename _ValueType = float32>
-class BasicMdlxAlpha : public MdlxAnimatedProperty<1>
+class BasicMdlxAlpha : public MdlxAnimatedProperty<1, _ValueType>
 {
 	public:
+		typedef MdlxAnimatedProperty<1, _ValueType> Base;
+		typedef BasicMdlxAlphas<_ValueType> Alphas;
 		typedef _ValueType ValueType;
 
-		BasicMdlxAlpha(class MdlxAlphas *alphas);
+		BasicMdlxAlpha(Alphas *alphas);
 		virtual ~BasicMdlxAlpha();
 
-		class MdlxAlphas* mdlxAlphas() const;
+		Alphas* mdlxAlphas() const;
 		_ValueType alpha() const;
 		_ValueType inTanAlpha() const;
 		_ValueType outTanAlpha() const;
 };
 
 template<typename _ValueType>
-BasicMdlxAlpha<_ValueType>::BasicMdlxAlpha(class MdlxAlphas *alphas) : MdlxAnimatedProperty(alphas)
+BasicMdlxAlpha<_ValueType>::BasicMdlxAlpha(Alphas *alphas) : Base(alphas)
 {
 }
 
@@ -59,27 +61,27 @@ BasicMdlxAlpha<_ValueType>::~BasicMdlxAlpha()
 }
 
 template<typename _ValueType>
-inline class MdlxAlphas* BasicMdlxAlpha<_ValueType>::mdlxAlphas() const
+inline typename BasicMdlxAlpha<_ValueType>::Alphas* BasicMdlxAlpha<_ValueType>::mdlxAlphas() const
 {
-	return boost::polymorphic_cast<class MdlxAlphas*>(properties());
+	return boost::polymorphic_cast<Alphas*>(this->properties());
 }
 
 template<typename _ValueType>
 inline _ValueType BasicMdlxAlpha<_ValueType>::alpha() const
 {
-	return values()[0];
+	return this->values()[0];
 }
 
 template<typename _ValueType>
 inline _ValueType BasicMdlxAlpha<_ValueType>::inTanAlpha() const
 {
-	return inTan()[0];
+	return this->inTan()[0];
 }
 
 template<typename _ValueType>
 inline _ValueType BasicMdlxAlpha<_ValueType>::outTanAlpha() const
 {
-	return outTan()[0];
+	return this->outTan()[0];
 }
 
 typedef BasicMdlxAlpha<float32> MdlxAlpha;

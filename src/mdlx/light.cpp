@@ -54,7 +54,7 @@ std::streamsize Light::readMdl(istream &istream) throw (class Exception)
 std::streamsize Light::writeMdl(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	writeMdlBlock(ostream, size, "Light", this->name());
+	writeMdlBlock(ostream, size, "Light", this->name(), 0, true);
 
 	size += Object::writeMdl(ostream);
 

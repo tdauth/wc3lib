@@ -21,10 +21,13 @@
 #ifndef WC3LIB_MDLX_MDLXANIMATEDPROPERTIES_HPP
 #define WC3LIB_MDLX_MDLXANIMATEDPROPERTIES_HPP
 
+#include <cstddef>
+
 #include <boost/ptr_container/ptr_vector.hpp>
 
 #include "mdlxproperty.hpp"
 #include "mdxblock.hpp"
+#include "platform.hpp"
 
 namespace wc3lib
 {
@@ -32,15 +35,16 @@ namespace wc3lib
 namespace mdlx
 {
 
-template<typename std::size_t N>
+template<typename std::size_t N, typename _ValueType>
 class MdlxAnimatedProperty;
 
-template<typename std::size_t N = 3>
+template<typename std::size_t N = 3, typename _ValueType = float32>
 class MdlxAnimatedProperties : public MdxBlock
 {
 	public:
 		static const std::size_t dimension = N;
-		typedef MdlxAnimatedProperty<N> Property;
+		typedef _ValueType ValueType;
+		typedef MdlxAnimatedProperty<N, _ValueType> Property;
 		typedef boost::ptr_vector<Property> Properties;
 		MdlxAnimatedProperties(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlIdentifier, bool optional = true);
 		virtual ~MdlxAnimatedProperties();
@@ -57,7 +61,7 @@ class MdlxAnimatedProperties : public MdxBlock
 		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 
 	protected:
-		virtual MdlxAnimatedProperty<N>* createAnimatedProperty() = 0;
+		virtual MdlxAnimatedProperty<N, _ValueType>* createAnimatedProperty() = 0;
 
 		class Mdlx *m_mdlx;
 		BOOST_SCOPED_ENUM(LineType) m_lineType; //(0:don't interp;1:linear;2:hermite;3:bezier)
@@ -65,32 +69,137 @@ class MdlxAnimatedProperties : public MdxBlock
 		Properties m_properties;
 };
 
-template<typename std::size_t N>
-inline class Mdlx* MdlxAnimatedProperties<N>::mdlx() const
+template<typename std::size_t N, typename _ValueType>
+MdlxAnimatedProperties<N, _ValueType>::MdlxAnimatedProperties(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlIdentifier, bool optional) : MdxBlock(mdxIdentifier, mdlIdentifier, optional), m_mdlx(mdlx)
+{
+}
+
+template<typename std::size_t N, typename _ValueType>
+MdlxAnimatedProperties<N, _ValueType>::~MdlxAnimatedProperties()
+{
+}
+
+template<typename std::size_t N, typename _ValueType>
+std::streamsize MdlxAnimatedProperties<N, _ValueType>::readMdl(istream &istream) throw (class Exception)
+{
+	/// \todo FIXME
+	return 0;
+}
+
+template<typename std::size_t N, typename _ValueType>
+std::streamsize MdlxAnimatedProperties<N, _ValueType>::writeMdl(ostream &ostream) const throw (class Exception)
+{
+	if (this->properties().empty())
+		return 0;
+
+	// Tag <long_count> {
+	std::streamsize size = 0;
+	writeMdlCountedBlock(ostream, size, mdlKeyword(), this->m_properties.size());//MdlValueBlock<ValueType>::writeMdl(ostream);
+
+	switch (lineType())
+	{
+		case LineType::DontInterpolate:
+			writeMdlProperty(ostream, size, "DontInterp");
+
+			break;
+
+		case LineType::Linear:
+			writeMdlProperty(ostream, size, "Linear");
+
+			break;
+
+		case LineType::Hermite:
+			writeMdlProperty(ostream, size, "Hermite");
+
+			break;
+
+		case LineType::Bezier:
+			writeMdlProperty(ostream, size, "Bezier");
+
+			break;
+	}
+
+	if (hasGlobalSequence())
+		writeMdlValueProperty(ostream, size, "GlobalSeqId", globalSequenceId());
+
+	BOOST_FOREACH(typename Properties::const_reference property, properties())
+		size += property.writeMdl(ostream);
+
+	writeMdlBlockConclusion(ostream, size);
+
+	return size;
+}
+
+template<typename std::size_t N, typename _ValueType>
+std::streamsize MdlxAnimatedProperties<N, _ValueType>::readMdx(istream &istream) throw (class Exception)
+{
+	std::streamsize size = MdxBlock::readMdx(istream);
+
+	// is optional!
+	if (size == 0)
+		return 0;
+
+	long32 number;
+	wc3lib::read(istream, number, size);
+	this->m_properties.reserve(number);
+	wc3lib::read(istream, *reinterpret_cast<long32*>(&this->m_lineType), size);
+	wc3lib::read(istream, this->m_globalSequenceId, size);
+
+	for (long32 i = 0; i < number; ++i)
+	{
+		MdlxAnimatedProperty<N, _ValueType> *property = createAnimatedProperty();
+		size += property->readMdx(istream);
+		this->m_properties.push_back(property);
+	}
+
+	return size;
+}
+
+template<typename std::size_t N, typename _ValueType>
+std::streamsize MdlxAnimatedProperties<N, _ValueType>::writeMdx(ostream &ostream) const throw (class Exception)
+{
+	std::streamsize size = MdxBlock::writeMdx(ostream);
+
+	// is optional!
+	if (size == 0)
+		return 0;
+
+	wc3lib::write<long32>(ostream, boost::numeric_cast<long32>(properties().size()), size);
+	wc3lib::write<long32>(ostream, lineType(), size);
+	wc3lib::write(ostream, globalSequenceId(), size);
+
+	BOOST_FOREACH(typename Properties::const_reference property, this->properties())
+		size += property.writeMdx(ostream);
+
+	return size;
+}
+
+template<typename std::size_t N, typename _ValueType>
+inline class Mdlx* MdlxAnimatedProperties<N, _ValueType>::mdlx() const
 {
 	return this->m_mdlx;
 }
 
-template<typename std::size_t N>
-inline BOOST_SCOPED_ENUM(LineType) MdlxAnimatedProperties<N>::lineType() const
+template<typename std::size_t N, typename _ValueType>
+inline BOOST_SCOPED_ENUM(LineType) MdlxAnimatedProperties<N, _ValueType>::lineType() const
 {
 	return this->m_lineType;
 }
 
-template<typename std::size_t N>
-inline long32 MdlxAnimatedProperties<N>::globalSequenceId() const
+template<typename std::size_t N, typename _ValueType>
+inline long32 MdlxAnimatedProperties<N, _ValueType>::globalSequenceId() const
 {
 	return this->m_globalSequenceId;
 }
 
-template<typename std::size_t N>
-inline bool MdlxAnimatedProperties<N>::hasGlobalSequence() const
+template<typename std::size_t N, typename _ValueType>
+inline bool MdlxAnimatedProperties<N, _ValueType>::hasGlobalSequence() const
 {
 	return this->m_globalSequenceId != mdlx::noneId;
 }
 
-template<typename std::size_t N>
-inline const typename MdlxAnimatedProperties<N>::Properties& MdlxAnimatedProperties<N>::properties() const
+template<typename std::size_t N, typename _ValueType>
+inline const typename MdlxAnimatedProperties<N, _ValueType>::Properties& MdlxAnimatedProperties<N, _ValueType>::properties() const
 {
 	return this->m_properties;
 }

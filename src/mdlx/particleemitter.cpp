@@ -48,7 +48,7 @@ std::streamsize ParticleEmitter::readMdl(istream &istream) throw (class Exceptio
 std::streamsize ParticleEmitter::writeMdl(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	writeMdlBlock(ostream, size, "ParticleEmitter", this->name());
+	writeMdlBlock(ostream, size, "ParticleEmitter", this->name(), 0, true);
 
 	size += Node::writeMdl(ostream);
 

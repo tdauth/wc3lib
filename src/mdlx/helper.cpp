@@ -39,7 +39,7 @@ std::streamsize Helper::readMdl(istream &istream) throw (class Exception)
 std::streamsize Helper::writeMdl(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	writeMdlBlock(ostream, size, "Helper", this->name());
+	writeMdlBlock(ostream, size, "Helper", this->name(), 0, true);
 
 	size += Object::writeMdl(ostream);
 

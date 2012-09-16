@@ -27,7 +27,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-TextureIds::TextureIds(class Mdlx *mdlx) : MdlxAlphas(mdlx, "KMTF", "TextureID")
+TextureIds::TextureIds(class Mdlx *mdlx) : Base(mdlx, "KMTF", "TextureID")
 {
 }
 
@@ -35,11 +35,11 @@ TextureIds::~TextureIds()
 {
 }
 
-TextureIds::TextureIds(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlKeyword) : MdlxAlphas(mdlx, mdxIdentifier, mdlKeyword)
+TextureIds::TextureIds(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlKeyword) : Base(mdlx, mdxIdentifier, mdlKeyword)
 {
 }
 
-MdlxAlphas::Property* TextureIds::createAnimatedProperty()
+TextureIds::Property* TextureIds::createAnimatedProperty()
 {
 	return new TextureId(this);
 }

@@ -66,7 +66,7 @@ class ParticleEmitter2 : public Node, public GroupMdxBlockMember
 		class ParticleEmitter2s* particleEmitters() const;
 		float32 speed() const;
 		float32 variation() const;
-		float32 latitidue() const;
+		float32 latitude() const;
 		float32 gravity() const;
 		float32 lifespan() const;
 		float32 emissionRate() const;
@@ -119,7 +119,7 @@ class ParticleEmitter2 : public Node, public GroupMdxBlockMember
 		//long32 nbytesikg; // inclusive bytecount including KGXXs
 		float32 m_speed;
 		float32 m_variation;
-		float32 m_latitidue;
+		float32 m_latitude;
 		float32 m_gravity;
 		float32 m_lifespan;
 		float32 m_emissionRate;
@@ -165,9 +165,9 @@ inline float32 ParticleEmitter2::variation() const
 	return this->m_variation;
 }
 
-inline float32 ParticleEmitter2::latitidue() const
+inline float32 ParticleEmitter2::latitude() const
 {
-	return this->m_latitidue;
+	return this->m_latitude;
 }
 
 inline float32 ParticleEmitter2::gravity() const

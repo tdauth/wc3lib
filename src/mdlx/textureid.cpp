@@ -27,7 +27,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-TextureId::TextureId(class TextureIds *textureIds) : BasicMdlxAlpha<long32>(textureIds)
+TextureId::TextureId(class TextureIds *textureIds) : Base(textureIds)
 {
 }
 

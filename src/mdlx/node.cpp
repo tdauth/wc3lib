@@ -109,23 +109,24 @@ std::streamsize Node::readMdx(istream &istream) throw (class Exception)
 	std::streamsize size = 0;
 	long32 nbytesi;
 	wc3lib::read(istream, nbytesi, size);
-	wc3lib::read(istream, this->m_name, size);
+	wc3lib::read(istream, this->m_name, size, nameSize);
 	wc3lib::read(istream, this->m_id, size);
 	// register!
-	//std::cout << "Name " << this->name() << std::endl;
-	//std::cout << "ID " << this->id() << std::endl;
 	this->m_mdlx->addNode(this->id(), this);
 	wc3lib::read(istream, this->m_parentId, size);
 	wc3lib::read(istream, *reinterpret_cast<long32*>(&this->m_type), size);
 
 	//if (!this->inheritsTranslation())
-		size += this->m_translations->readMdx(istream);
+	size += this->translations()->readMdx(istream);
 
 	//if (!this->inheritsRotation())
-		size += this->m_rotations->readMdx(istream);
+	size += this->rotations()->readMdx(istream);
 
 	//if (!this->inheritsScaling())
-		size += this->m_scalings->readMdx(istream);
+	size += this->scalings()->readMdx(istream);
+
+	if (size != nbytesi)
+		throw Exception(boost::format(_("Node \"%1%\" has inclusive byte count %2% but read %3% bytes.")) % this->name() % nbytesi % size);
 
 	//print(std::cout);
 
@@ -137,21 +138,26 @@ std::streamsize Node::writeMdx(ostream &ostream) const throw (class Exception)
 	std::streampos position;
 	skipByteCount<long32>(ostream, position);
 	std::streamsize size = 0;
-	wc3lib::write(ostream, this->m_name, size);
-	wc3lib::write(ostream, this->m_id, size);
-	wc3lib::write(ostream, this->m_parentId, size);
-	wc3lib::write(ostream, *reinterpret_cast<const long32*>(&this->m_type), size);
+	wc3lib::write(ostream, this->name(), size, nameSize);
+	std::cout << "Name: " << this->name() << " and size: " << nameSize << " and size after writing " << size << std::endl;
+	wc3lib::write(ostream, this->id(), size);
+	wc3lib::write(ostream, this->parentId(), size);
+	wc3lib::write<long32>(ostream, this->type(), size);
 
+	std::cout << "Size before KGXX " << size << std::endl;
 	//if (!this->inheritsTranslation())
-		size += this->m_translations->writeMdx(ostream);
+	size += this->translations()->writeMdx(ostream);
 
 	//if (!this->inheritsRotation())
-		size += this->m_rotations->writeMdx(ostream);
+	size += this->rotations()->writeMdx(ostream);
 
 	//if (!this->inheritsScaling())
-		size += this->m_scalings->writeMdx(ostream);
+	size += this->scalings()->writeMdx(ostream);
 
-	writeByteCount(ostream, *reinterpret_cast<const long32*>(&size), position, size, true);
+	std::cout << "Size after KGXX " << size << std::endl;
+
+	const long32 nbytesi = boost::numeric_cast<long32>(size);
+	writeByteCount<long32>(ostream, nbytesi, position, size, true);
 
 	return size;
 }

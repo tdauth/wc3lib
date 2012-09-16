@@ -45,7 +45,7 @@ std::streamsize Event::readMdl(istream &istream) throw (class Exception)
 std::streamsize Event::writeMdl(ostream &ostream) const throw (Exception)
 {
 	std::streamsize size = 0;
-	writeMdlBlock(ostream, size, "EventObject", this->name());
+	writeMdlBlock(ostream, size, "EventObject", this->name(), 0, true);
 
 	size += Object::writeMdl(ostream);
 	size += this->tracks()->writeMdl(ostream);
