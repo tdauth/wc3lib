@@ -42,8 +42,6 @@ class EventTracks : public GroupMdxBlock
 		class Event* event() const;
 		long32 globalSequenceId() const;
 
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
 		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
 		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 

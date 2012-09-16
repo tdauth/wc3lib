@@ -160,7 +160,7 @@ std::streamsize Geoset::writeMdl(ostream &ostream) const throw (class Exception)
 				++matricesIterator;
 			}
 
-			writeMdlVectorProperty(ostream, size, "Matrices", values);
+			writeMdlVectorProperty(ostream, size, "Matrices", values, 0, "", true);
 
 			++countsIterator;
 		}

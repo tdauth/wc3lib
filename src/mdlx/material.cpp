@@ -54,10 +54,10 @@ std::streamsize Material::writeMdl(ostream &ostream) const throw (class Exceptio
 		writeMdlProperty(ostream, size, "ConstantColor");
 
 	if (this->renderMode() & RenderMode::SortPrimitivesNearZ)
-		writeMdlProperty(ostream, size, "SortPrimitivesNearZ");
+		writeMdlProperty(ostream, size, "SortPrimsNearZ");
 
 	if (this->renderMode() & RenderMode::SortPrimitivesFarZ)
-		writeMdlProperty(ostream, size, "SortPrimitivesFarZ");
+		writeMdlProperty(ostream, size, "SortPrimsFarZ");
 
 	if (this->renderMode() & RenderMode::FullResolution)
 		writeMdlProperty(ostream, size, "FullResolution");

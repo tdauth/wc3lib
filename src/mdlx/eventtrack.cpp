@@ -42,7 +42,10 @@ std::streamsize EventTrack::readMdl(istream &istream) throw (class Exception)
 
 std::streamsize EventTrack::writeMdl(ostream &ostream) const throw (Exception)
 {
-	return 0;
+	std::streamsize size = 0;
+	writeMdlValueProperty(ostream, size, "", this->frames());
+
+	return size;
 }
 
 std::streamsize EventTrack::readMdx(istream &istream) throw (class Exception)

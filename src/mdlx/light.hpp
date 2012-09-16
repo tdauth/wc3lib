@@ -54,14 +54,12 @@ class Light : public Object, public GroupMdxBlockMember
 		BOOST_SCOPED_ENUM(Type) type() const;
 		float32 attenuationStart() const;
 		float32 attenuationEnd() const;
-		float32 colorRed() const;
-		float32 colorGreen() const;
-		float32 colorBlue() const;
+		VertexData& color();
+		const VertexData& color() const;
 		float32 intensity() const;
-		float32 ambColorRed() const;
-		float32 ambColorGreen() const;
-		float32 ambColorBlue() const;
-		float32 ambIntensity() const;
+		VertexData& ambientColor();
+		const VertexData& ambientColor() const;
+		float32 ambientIntensity() const;
 		class Intensities* intensities() const;
 		class LightAmbientVisibilities* visibilities() const;
 		class LightAmbientColors* colors() const;
@@ -78,10 +76,10 @@ class Light : public Object, public GroupMdxBlockMember
 		//OBJ
 		BOOST_SCOPED_ENUM(Type) m_type; //(0:Omnidirectional;1:Directional;2:Ambient)
 		float32 m_attenuationStart, m_attenuationEnd;
-		float32 m_colorRed, m_colorGreen, m_colorBlue;
+		VertexData m_color;
 		float32 m_intensity;
-		float32 m_ambColorRed, m_ambColorGreen, m_ambColorBlue;
-		float32 m_ambIntensity;
+		VertexData m_ambientColor;
+		float32 m_ambientIntensity;
 		class Intensities *m_intensities; //(KLAI)
 		class LightAmbientVisibilities *m_visibilities; //(KLAV)
 		class LightAmbientColors *m_colors; //(KLAC)
@@ -109,19 +107,14 @@ inline float32 Light::attenuationEnd() const
 	return this->m_attenuationEnd;
 }
 
-inline float32 Light::colorRed() const
+inline VertexData& Light::color()
 {
-	return this->m_colorRed;
+	return this->m_color;
 }
 
-inline float32 Light::colorGreen() const
+inline const VertexData& Light::color() const
 {
-	return this->m_colorBlue;
-}
-
-inline float32 Light::colorBlue() const
-{
-	return this->m_colorBlue;
+	return this->m_color;
 }
 
 inline float32 Light::intensity() const
@@ -129,24 +122,19 @@ inline float32 Light::intensity() const
 	return this->m_intensity;
 }
 
-inline float32 Light::ambColorRed() const
+inline VertexData& Light::ambientColor()
 {
-	return this->m_ambColorRed;
+	return this->m_ambientColor;
 }
 
-inline float32 Light::ambColorGreen() const
+inline const VertexData& Light::ambientColor() const
 {
-	return this->m_ambColorGreen;
+	return this->m_ambientColor;
 }
 
-inline float32 Light::ambColorBlue() const
+inline float32 Light::ambientIntensity() const
 {
-	return this->m_ambColorBlue;
-}
-
-inline float32 Light::ambIntensity() const
-{
-	return this->m_ambIntensity;
+	return this->m_ambientIntensity;
 }
 
 inline class Intensities* Light::intensities() const

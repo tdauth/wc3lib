@@ -48,7 +48,7 @@ class ParticleEmitter : public Node, public GroupMdxBlockMember
 		float32 emissionRate() const;
 		float32 gravity() const;
 		float32 longitude() const;
-		float32 latitidue() const;
+		float32 latitude() const;
 		/**
 		 * \return Returns model path with length of \ref modelPathSize.
 		 */
@@ -69,7 +69,7 @@ class ParticleEmitter : public Node, public GroupMdxBlockMember
 		float32 m_emissionRate;
 		float32 m_gravity;
 		float32 m_longitude;
-		float32 m_latitidue;
+		float32 m_latitude;
 		byte m_modelPath[modelPathSize]; //(0x100 bytes)
 		long32 m_unknown0; //(0)
 		float32 m_lifeSpan;
@@ -97,9 +97,9 @@ inline float32 ParticleEmitter::longitude() const
 	return this->m_longitude;
 }
 
-inline float32 ParticleEmitter::latitidue() const
+inline float32 ParticleEmitter::latitude() const
 {
-	return this->m_latitidue;
+	return this->m_latitude;
 }
 
 inline const byte* ParticleEmitter::modelPath() const

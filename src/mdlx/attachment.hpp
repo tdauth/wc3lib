@@ -49,7 +49,7 @@ class Attachment : public Object, public GroupMdxBlockMember
 		 * \return Returns path with length of \ref pathSize.
 		 */
 		const byte* path() const;
-		long32 unknown0() const;
+		long32 unknown0() const; // TODO maybe static visibility?
 		long32 attachmentId() const;
 		class AttachmentVisibilities* visibilities() const;
 

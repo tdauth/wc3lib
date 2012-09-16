@@ -47,7 +47,33 @@ std::streamsize ParticleEmitter::readMdl(istream &istream) throw (class Exceptio
 
 std::streamsize ParticleEmitter::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	return 0;
+	std::streamsize size = 0;
+	writeMdlBlock(ostream, size, "ParticleEmitter", this->name());
+
+	size += Node::writeMdl(ostream);
+
+	if (type() & Type::UnshadedOrEmitterUsesMdl)
+		writeMdlProperty(ostream, size, "EmitterUsesMdl");
+
+	if (type() & Type::SortPrimitivesFarZOrEmitterUsesTga)
+		writeMdlProperty(ostream, size, "EmitterUsesTga");
+
+	writeMdlStaticValueProperty(ostream, size, "EmissionRate", this->emissionRate());
+	writeMdlStaticValueProperty(ostream, size, "Gravity", this->gravity());
+	writeMdlStaticValueProperty(ostream, size, "Longitude", this->longitude());
+	writeMdlStaticValueProperty(ostream, size, "Latitude", this->latitude());
+
+	size += visibilities()->writeMdl(ostream);
+
+	writeMdlBlock(ostream, size, "Particle");
+	writeMdlStaticValueProperty(ostream, size, "LifeSpan", this->lifeSpan());
+	writeMdlStaticValueProperty(ostream, size, "InitVelocity", this->initVelocity());
+	writeMdlValueProperty(ostream, size, "Path", this->modelPath());
+	writeMdlBlockConclusion(ostream, size);
+
+	writeMdlBlockConclusion(ostream, size);
+
+	return size;
 }
 
 std::streamsize ParticleEmitter::readMdx(istream &istream) throw (class Exception)
@@ -59,7 +85,7 @@ std::streamsize ParticleEmitter::readMdx(istream &istream) throw (class Exceptio
 	wc3lib::read(istream, this->m_emissionRate, size);
 	wc3lib::read(istream, this->m_gravity, size);
 	wc3lib::read(istream, this->m_longitude, size);
-	wc3lib::read(istream, this->m_latitidue, size);
+	wc3lib::read(istream, this->m_latitude, size);
 	wc3lib::read(istream, this->m_modelPath, size, modelPathSize);
 	wc3lib::read(istream, this->m_unknown0, size);
 	wc3lib::read(istream, this->m_lifeSpan, size);
@@ -81,7 +107,7 @@ std::streamsize ParticleEmitter::writeMdx(ostream &ostream) const throw (class E
 	wc3lib::write(ostream, this->m_emissionRate, size);
 	wc3lib::write(ostream, this->m_gravity, size);
 	wc3lib::write(ostream, this->m_longitude, size);
-	wc3lib::write(ostream, this->m_latitidue, size);
+	wc3lib::write(ostream, this->m_latitude, size);
 	wc3lib::write(ostream, this->m_modelPath, size, modelPathSize);
 	wc3lib::write(ostream, this->m_unknown0, size);
 	wc3lib::write(ostream, this->m_lifeSpan, size);

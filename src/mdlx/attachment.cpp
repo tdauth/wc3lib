@@ -86,56 +86,19 @@ std::streamsize Attachment::readMdl(istream &istream) throw (class Exception)
 std::streamsize Attachment::writeMdl(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
+	writeMdlBlock(ostream, size, "Attachment", this->name());
+
 	size += Object::writeMdl(ostream);
-	// Observe properties of an Object.
-	// Path only appears if its length is greater than 0.
-	// Maximum size is 256 characters (0x100 bytes)
-	// I am unsure as to how it is determined that AttachmentID be shown...
-	// NightElfCampaign3D and UndeadCampaign3D.mdl are the only two MDLs
-	// that utilize this attribute. Their only exclusive similarity is the
-	// underscore prefixing their name string. "_Blah"
-	/*
-	ostream
-	<< "Attachment " << this->name() << " {\n"
-	<< "\tObjectId " << this->objectId() << ",\n"
-	;
 
-	if (this->parent() != 0xFFFFFFFF)
-		ostream << "\tParent " << this->parent() << ",\n";
-
-	if (this->type() & Object::BillboardedLockZ)
-		ostream << "\tBillboardedLockZ,\n";
-
-	if (this->type() & Object::BillboardedLockY)
-		ostream << "\tBillboardedLockY,\n";
-
-	if (this->type() & Object::BillboardedLockX)
-		ostream << "\tBillboardedLockX,\n";
-
-	if (this->type() & Object::Billboarded)
-		ostream << "\tBillboarded,\n";
-
-	if (this->type() & Object::CameraAnchored)
-		ostream << "\tCameraAnchored,\n";
-
-	if (this->type() & Object::DontInheritRotation)
-		ostream << "\tDontInherit { Rotation },\n";
-	else if (this->type() & Object::DontInheritTranslation)
-		ostream << "\tDontInherit { Translation },\n";
-	else if (this->type() & Object::DontInheritScaling)
-		ostream << "\tDontInherit { Scaling },\n";
-
-	ostream << "\tAttachmentID " << this->attachmentId() << ",\n";
+	writeMdlValueProperty(ostream, size, "AttachmentID", this->attachmentId());
 
 	if (strlen(this->path()) > 0)
-		ostream << "\tPath " << this->path() << ",\n";
+		writeMdlValueProperty(ostream, size, "Path", this->path());
 
-	//fstream << "\tTranslation { " << this->translations()->x() << ", " << this->translations()->y() << ", " << this->translations()->z() << " }\n";
-	//fstream << "\tRotation { " << this->rotations()->a() << ", " << this->rotations()->b() << ", " << this->rotations()->c() << ", " << this->rotations()->d() << " }\n";
-	//fstream << "\tScaling { " << this->scalings()->x() << ", " << this->scalings()->y() << ", " << this->scalings()->z() << " }\n";
-	//fstream << "\tVisibility " << this->visibilities()->value() << '\n';
-	ostream << "}\n";
-	*/
+	size += visibilities()->writeMdl(ostream);
+
+	writeMdlBlockConclusion(ostream, size);
+
 	return size;
 }
 

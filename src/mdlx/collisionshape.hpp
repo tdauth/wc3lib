@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MDLX_COLLISIONSHAPE_HPP
 #define WC3LIB_MDLX_COLLISIONSHAPE_HPP
 
+#include <vector>
+
 #include "groupmdxblockmember.hpp"
 #include "object.hpp"
 #include "collisionshapes.hpp"
@@ -37,6 +39,8 @@ namespace mdlx
 class CollisionShape : public GroupMdxBlockMember, public Object
 {
 	public:
+		typedef std::vector<VertexData> Vertices;
+
 		BOOST_SCOPED_ENUM_START(Shape) /// \todo C++11 : long32
 		{
 			Box = 0,
@@ -48,9 +52,9 @@ class CollisionShape : public GroupMdxBlockMember, public Object
 
 		class CollisionShapes* collisionShapes() const;
 		BOOST_SCOPED_ENUM(Shape) shape() const;
-		const VertexData& vertexData() const;
-		/// Only usable if shape is a box. Otherwise, it throws an exception.
-		const VertexData& boxVertexData() const throw (class Exception);
+		/// If shape is a box this returns two vertices, otherwise it returns one which is the center of the sphere.
+		Vertices& vertices();
+		const Vertices& vertices() const;
 		/// Only usable if shape is a sphere. Otherwise, it throws an exception.
 		float32 boundsRadius() const throw (class Exception);
 
@@ -61,10 +65,7 @@ class CollisionShape : public GroupMdxBlockMember, public Object
 
 	protected:
 		BOOST_SCOPED_ENUM(Shape) m_shape; //(0:box;2:sphere)
-		VertexData m_vertexData;
-		//if (Shape == 0)
-		VertexData m_boxVertexData;
-		//else
+		Vertices m_vertices;
 		float32 m_boundsRadius;
 };
 
@@ -78,17 +79,14 @@ inline BOOST_SCOPED_ENUM(CollisionShape::Shape) CollisionShape::shape() const
 	return this->m_shape;
 }
 
-inline const VertexData& CollisionShape::vertexData() const
+inline CollisionShape::Vertices& CollisionShape::vertices()
 {
-	return this->m_vertexData;
+	return this->m_vertices;
 }
 
-inline const VertexData& CollisionShape::boxVertexData() const throw (class Exception)
+inline const CollisionShape::Vertices& CollisionShape::vertices() const
 {
-	if (shape() != Shape::Box)
-		throw Exception(_("Collision shape is not a box."));
-
-	return this->m_boxVertexData;
+	return this->m_vertices;
 }
 
 inline float32 CollisionShape::boundsRadius() const throw (class Exception)

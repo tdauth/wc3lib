@@ -77,8 +77,8 @@ std::streamsize Mdlx::readMdl(istream &istream) throw (class Exception)
 	size += this->m_model->readMdl(istream);
 	size += this->m_sequences->readMdl(istream);
 	size += this->m_globalSequences->readMdl(istream);
-	size += this->m_materials->readMdl(istream);
 	size += this->m_textures->readMdl(istream);
+	size += this->m_materials->readMdl(istream);
 	size += this->m_textureAnimations->readMdl(istream);
 	size += this->m_geosets->readMdl(istream);
 	size += this->m_geosetAnimations->readMdl(istream);
@@ -103,8 +103,8 @@ std::streamsize Mdlx::writeMdl(ostream &ostream) const throw (class Exception)
 	size += this->m_model->writeMdl(ostream, this);
 	size += this->m_sequences->writeMdl(ostream);
 	size += this->m_globalSequences->writeMdl(ostream);
-	size += this->m_materials->writeMdl(ostream);
 	size += this->m_textures->writeMdl(ostream);
+	size += this->m_materials->writeMdl(ostream);
 	size += this->m_textureAnimations->writeMdl(ostream);
 	size += this->m_geosets->writeMdl(ostream);
 	size += this->m_geosetAnimations->writeMdl(ostream);

@@ -31,16 +31,6 @@ Events::Events(class Mdlx *mdlx) : GroupMdxBlock("EVTS", "", false), m_mdlx(mdlx
 {
 }
 
-std::streamsize Events::readMdl(istream &istream) throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize Events::writeMdl(ostream &ostream) const throw (class Exception)
-{
-	return 0;
-}
-
 class GroupMdxBlockMember* Events::createNewMember()
 {
 	return new Event(this);

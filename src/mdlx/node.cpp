@@ -80,12 +80,6 @@ std::streamsize Node::writeMdl(ostream &ostream) const throw (class Exception)
 	if (type() & Type::CameraAnchored)
 		writeMdlProperty(ostream, size, "CameraAnchored");
 
-	if (type() & Type::UnshadedOrEmitterUsesMdl)
-		writeMdlProperty(ostream, size, "UnshadedOrEmitterUsesMdl");
-
-	if (type() & Type::SortPrimitivesFarZOrEmitterUsesTga)
-		writeMdlProperty(ostream, size, "SortPrimitivesFarZOrEmitterUsesTga");
-
 	if (type() & Type::LineEmitter)
 		writeMdlProperty(ostream, size, "LineEmitter");
 

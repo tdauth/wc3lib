@@ -34,9 +34,9 @@ namespace wc3lib
 namespace mdlx
 {
 
-/// @todo Check signed and unsigned!
-typedef uint16 short16; /// @todo undefined length?!
-typedef uint32 long32;
+// have to be signed because of PriorityPlane -1 and other examples of negative values
+typedef int16 short16; /// @todo undefined length?!
+typedef int32 long32;
 
 const long32 noneId = 0xFFFFFFFF;
 
@@ -553,7 +553,7 @@ inline ostream& writeMdlStaticVectorProperty(ostream &stream, std::streamsize &s
  * Matrices { <long>, <long>, <long> },
  */
 template<typename ValueType> //  = BasicVertex<T, N>
-ostream& writeMdlVectorProperty(ostream &stream, std::streamsize &size, const string &identifier, const std::vector<ValueType> &values, std::size_t depth = 0, const string prefix = "")
+ostream& writeMdlVectorProperty(ostream &stream, std::streamsize &size, const string &identifier, const std::vector<ValueType> &values, std::size_t depth = 0, const string prefix = "", bool forceBrackets = false)
 {
 	ostringstream sstream;
 	writeMdlDepth(sstream, depth);
@@ -561,7 +561,7 @@ ostream& writeMdlVectorProperty(ostream &stream, std::streamsize &size, const st
 	if (!identifier.empty())
 		sstream << prefix << identifier << ' ';
 
-	if (values.size() > 1)
+	if (values.size() > 1 || forceBrackets)
 		sstream << "{ ";
 
 	std::size_t i = 0;
@@ -578,10 +578,17 @@ ostream& writeMdlVectorProperty(ostream &stream, std::streamsize &size, const st
 		++i;
 	}
 
-	if (values.size() == 1)
+	if (values.size() == 1 && !forceBrackets)
+	{
 		sstream << ",\n";
+	}
 	else
+	{
+		if (values.size() == 1)
+			sstream << ' ';
+
 		sstream << "},\n";
+	}
 
 	return writeStringStream(stream, sstream, size);
 }
@@ -591,6 +598,15 @@ inline ostream& writeMdlBlockConclusion(ostream &stream, std::streamsize &size, 
 	ostringstream sstream;
 	writeMdlDepth(sstream, depth);
 	sstream << "}\n";
+
+	return writeStringStream(stream, sstream, size);
+}
+
+inline ostream& writeMdlPropertyBlockConclusion(ostream &stream, std::streamsize &size, std::size_t depth = 0)
+{
+	ostringstream sstream;
+	writeMdlDepth(sstream, depth);
+	sstream << "},\n";
 
 	return writeStringStream(stream, sstream, size);
 }

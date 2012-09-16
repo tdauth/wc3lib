@@ -37,14 +37,11 @@ namespace mdlx
 class Event : public Object, public GroupMdxBlockMember
 {
 	public:
-		typedef std::list<long32> Frames;
-		
 		Event(class Events *events);
 		virtual ~Event();
 
 		class Events* events() const;
 		class EventTracks* tracks() const;
-		const Frames& frames() const;
 
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
 		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
@@ -57,7 +54,6 @@ class Event : public Object, public GroupMdxBlockMember
 		//long32 ntrks; // usually (1)
 		//0xFFFFFFFF!!!
 		class EventTracks *m_tracks; //KEVT
-		Frames m_frames;//[ntrks];
 };
 
 inline class Events* Event::events() const
@@ -68,11 +64,6 @@ inline class Events* Event::events() const
 inline class EventTracks* Event::tracks() const
 {
 	return this->m_tracks;
-}
-
-inline const Event::Frames& Event::frames() const
-{
-	return this->m_frames;
 }
 
 }

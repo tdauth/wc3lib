@@ -47,16 +47,19 @@ std::streamsize GroupMdxBlock::writeMdl(ostream &ostream) const throw (class Exc
 
 	if (!this->optional() || !this->members().empty())
 	{
-		// if not empty write keyword with number of members (if counted, e. g. "Materials"), otherwise only write members (e. g. "Light")
-		if (!mdlKeyword().empty() && this->usesMdlCounter())
+		// if not empty write keyword with number of members (if counted, e. g. "Materials") or without (e. g. VertexGroup), otherwise only write members (e. g. "Light")
+		if (!mdlKeyword().empty())
 		{
-			writeMdlCountedBlock(ostream, size, this->mdlKeyword(), this->members().size());
+			if (this->usesMdlCounter())
+				writeMdlCountedBlock(ostream, size, this->mdlKeyword(), this->members().size());
+			else
+				writeMdlBlock(ostream, size, this->mdlKeyword());
 		}
 
 		BOOST_FOREACH(Members::const_reference sequence, this->members())
 			size += sequence.writeMdl(ostream);
 
-		if (!mdlKeyword().empty() && this->usesMdlCounter())
+		if (!mdlKeyword().empty())
 		{
 			writeMdlBlockConclusion(ostream, size);
 		}

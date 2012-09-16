@@ -44,7 +44,7 @@ std::streamsize GroupVertex::writeMdl(ostream &ostream) const throw (class Excep
 {
 	std::streamsize size = 0;
 
-	writeMdlProperty(ostream, size, "", this->data());
+	writeMdlValueProperty(ostream, size, "", boost::numeric_cast<long32>(this->data())); // TODO without casting to long32 it's written as char?
 
 	return size;
 }

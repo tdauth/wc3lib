@@ -1018,6 +1018,9 @@ uint32_t Blp::version() const
 
 int Blp::generateMipMaps(std::size_t number, bool regenerate) throw (class Exception)
 {
+	if (number > Blp::maxMipMaps)
+		std::cerr << boost::format(_("MIP map number %1% is bigger than maximum %2%")) % number % Blp::maxMipMaps << std::endl;
+
 	number = std::max<std::size_t>(number, 1);
 	number = std::min<std::size_t>(number, Blp::maxMipMaps);
 

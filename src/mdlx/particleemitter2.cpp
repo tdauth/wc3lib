@@ -61,7 +61,125 @@ std::streamsize ParticleEmitter2::readMdl(istream &istream) throw (class Excepti
 
 std::streamsize ParticleEmitter2::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	return 0;
+	std::streamsize size = 0;
+	writeMdlBlock(ostream, size, "ParticleEmitter2", this->name());
+
+	size += Node::writeMdl(ostream);
+
+	if (type() & Type::SortPrimitivesFarZOrEmitterUsesTga)
+		writeMdlProperty(ostream, size, "SortPrimsFarZ");
+
+	if (type() & Type::UnshadedOrEmitterUsesMdl)
+		writeMdlProperty(ostream, size, "Unshaded");
+
+	if (speeds()->properties().empty())
+		writeMdlStaticValueProperty(ostream, size, "Speed", this->speed());
+	else
+		size += speeds()->writeMdl(ostream);
+
+	writeMdlStaticValueProperty(ostream, size, "Variation", this->variation());
+
+	size += latitudes()->writeMdl(ostream);
+
+	writeMdlStaticValueProperty(ostream, size, "Gravity", this->gravity());
+
+	size += visibilities()->writeMdl(ostream);
+
+	if (squirt())
+		writeMdlProperty(ostream, size, "Squirt");
+
+	writeMdlValueProperty(ostream, size, "LifeSpan", this->lifespan());
+
+	if (emissionRates()->properties().empty())
+		writeMdlStaticValueProperty(ostream, size, "EmissionRate", this->emissionRate());
+	else
+		size += emissionRates()->writeMdl(ostream);
+
+	if (widths()->properties().empty())
+		writeMdlStaticValueProperty(ostream, size, "Width", this->width());
+	else
+		size += widths()->writeMdl(ostream);
+
+	if (numbers()->properties().empty())
+		writeMdlStaticValueProperty(ostream, size, "Length", this->length());
+	else
+		size += numbers()->writeMdl(ostream);
+
+	switch (filterMode())
+	{
+		case FilterMode::Blend:
+			writeMdlProperty(ostream, size, "Blend");
+
+			break;
+
+		case FilterMode::Additive:
+			writeMdlProperty(ostream, size, "Squirt");
+
+			break;
+
+		case FilterMode::Modulate:
+			writeMdlProperty(ostream, size, "Modulate");
+
+			break;
+
+		case FilterMode::AlphaKey:
+			writeMdlProperty(ostream, size, "AlphaKey");
+
+			break;
+	}
+
+	writeMdlValueProperty(ostream, size, "Rows", this->rows());
+	writeMdlValueProperty(ostream, size, "Columns", this->columns());
+
+	switch (flags())
+	{
+		case Flags::Head:
+			writeMdlProperty(ostream, size, "Blend");
+
+			break;
+
+		case Flags::Tail:
+			writeMdlProperty(ostream, size, "Tail");
+
+			break;
+
+		case Flags::Both:
+			writeMdlProperty(ostream, size, "Both");
+
+			break;
+	}
+
+	writeMdlValueProperty(ostream, size, "TailLength", this->tailLength());
+	writeMdlValueProperty(ostream, size, "Time", this->time());
+
+	if (!segmentColors().empty())
+	{
+		writeMdlBlock(ostream, size, "SegmentColor");
+
+		BOOST_FOREACH(SegmentColors::const_reference ref, segmentColors())
+			size += ref.writeMdl(ostream);
+
+		writeMdlPropertyBlockConclusion(ostream, size);
+	}
+
+	writeMdlVectorProperty(ostream, size, "Alpha", BasicVertex<long32, 3>(boost::numeric_cast<long32>(alpha1()), boost::numeric_cast<long32>(alpha2()), boost::numeric_cast<long32>(alpha3()))); // TODO workaround with long32 since byte is written as char value
+	writeMdlVectorProperty(ostream, size, "ParticleScaling", BasicVertex<float32, 3>(scalingX(), scalingY(), scalingZ()));
+	writeMdlVectorProperty(ostream, size, "LifeSpanUVAnim", BasicVertex<long32, 3>(lifeSpanUvAnim1(), lifeSpanUvAnim2(), lifeSpanUvAnim3()));
+	writeMdlVectorProperty(ostream, size, "DecayUVAnim", BasicVertex<long32, 3>(decayUvAnim1(), decayUvAnim2(), decayUvAnim3()));
+	writeMdlVectorProperty(ostream, size, "TailUVAnim", BasicVertex<long32, 3>(tailUvAnim1(), tailUvAnim2(), tailUvAnim3()));
+	writeMdlVectorProperty(ostream, size, "TailDecayUVAnim", BasicVertex<long32, 3>(tailDecayUvAnim1(), tailDecayUvAnim2(), tailDecayUvAnim3()));
+
+	writeMdlValueProperty(ostream, size, "TextureID", this->textureId());
+
+	if (this->replaceableId() != 0)
+		writeMdlValueProperty(ostream, size, "ReplaceableId", this->replaceableId());
+
+	if (this->priorityPlane() != 0)
+		writeMdlValueProperty(ostream, size, "PriorityPlane", this->priorityPlane());
+
+	writeMdlBlockConclusion(ostream, size);
+
+	return size;
 }
 
 std::streamsize ParticleEmitter2::readMdx(istream &istream) throw (class Exception)

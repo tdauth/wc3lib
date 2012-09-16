@@ -68,7 +68,7 @@ std::streamsize RibbonEmitter::writeMdl(ostream &ostream) const throw (class Exc
 		writeMdlStaticValueProperty(ostream, size, "HeightBelow", this->heightBelowValue());
 
 
-	writeMdlStaticVectorProperty(ostream, size, "Color", wc3lib::Vertex(colorRed(), colorGreen(), colorBlue()), 1);
+	writeMdlStaticVectorProperty(ostream, size, "Color", wc3lib::Vertex(colorRed(), colorGreen(), colorBlue()));
 	writeMdlStaticValueProperty(ostream, size, "TextureSlot", this->unknown0());
 
 	if (!this->visibilities()->properties().empty())

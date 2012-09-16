@@ -49,6 +49,9 @@ std::streamsize MdlxAnimatedProperties<N>::readMdl(istream &istream) throw (clas
 template<typename std::size_t N>
 std::streamsize MdlxAnimatedProperties<N>::writeMdl(ostream &ostream) const throw (class Exception)
 {
+	if (this->properties().empty())
+		return 0;
+
 	// Tag <long_count> {
 	std::streamsize size = 0;
 	writeMdlCountedBlock(ostream, size, mdlKeyword(), this->m_properties.size());//MdlValueBlock<ValueType>::writeMdl(ostream);

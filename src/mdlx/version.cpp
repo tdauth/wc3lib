@@ -92,7 +92,7 @@ std::streamsize Version::writeMdl(ostream &ostream) const throw (class Exception
 {
 	std::streamsize size = 0;
 	writeMdlBlock(ostream, size, "Version");
-	writeMdlValueProperty(ostream, size, "FormatVersion", this->version(), 1);
+	writeMdlValueProperty(ostream, size, "FormatVersion", this->modelVersion(), 1);
 	writeMdlBlockConclusion(ostream, size);
 
 	return size;
@@ -118,9 +118,9 @@ std::streamsize Version::readMdx(istream &istream) throw (class Exception)
 std::streamsize Version::writeMdx(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = MdxBlock::writeMdx(ostream);
-	long32 nbytes = sizeof(this->m_version);
+	long32 nbytes = sizeof(this->modelVersion());
 	wc3lib::write(ostream, nbytes, size);
-	wc3lib::write(ostream, this->m_version, size);
+	wc3lib::write(ostream, this->modelVersion(), size);
 
 	return size;
 }

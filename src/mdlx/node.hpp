@@ -60,8 +60,8 @@ class Node : public MdlxProperty
 			ParticleEmitter = 4096,
 			CollisionShape = 8192,
 			RibbonEmitter = 16384,
-			UnshadedOrEmitterUsesMdl = 32768,
-			SortPrimitivesFarZOrEmitterUsesTga = 65536,
+			UnshadedOrEmitterUsesMdl = 32768, /// \note Is ignored by \ref writeMdl()
+			SortPrimitivesFarZOrEmitterUsesTga = 65536, /// \note Is ignored by \ref writeMdl()
 			LineEmitter = 131072,
 			Unfogged = 262144,
 			ModelSpace = 524288,

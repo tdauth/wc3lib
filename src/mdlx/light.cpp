@@ -53,7 +53,39 @@ std::streamsize Light::readMdl(istream &istream) throw (class Exception)
 
 std::streamsize Light::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	return 0;
+	std::streamsize size = 0;
+	writeMdlBlock(ostream, size, "Light", this->name());
+
+	size += Object::writeMdl(ostream);
+
+	writeMdlStaticValueProperty(ostream, size, "AttenuationStart", this->attenuationStart());
+	writeMdlStaticValueProperty(ostream, size, "AttenuationEnd", this->attenuationEnd());
+
+	if (intensities()->properties().empty())
+		writeMdlStaticValueProperty(ostream, size, "Intensity", this->intensity());
+	else
+		size += intensities()->writeMdl(ostream);
+
+	if (colors()->properties().empty())
+		writeMdlStaticVectorProperty(ostream, size, "Color", this->color());
+	else
+		size += colors()->writeMdl(ostream);
+
+	if (ambientIntensities()->properties().empty())
+		writeMdlStaticValueProperty(ostream, size, "AmbIntensity", this->ambientIntensity());
+	else
+		size += ambientIntensities()->writeMdl(ostream);
+
+	if (ambientColors()->properties().empty())
+		writeMdlStaticVectorProperty(ostream, size, "AmbColor", this->ambientColor());
+	else
+		size += ambientColors()->writeMdl(ostream);
+
+	size += visibilities()->writeMdl(ostream);
+
+	writeMdlBlockConclusion(ostream, size);
+
+	return size;
 }
 
 std::streamsize Light::readMdx(istream &istream) throw (class Exception)
@@ -65,20 +97,16 @@ std::streamsize Light::readMdx(istream &istream) throw (class Exception)
 	wc3lib::read<long32>(istream, reinterpret_cast<long32&>(this->m_type), size);
 	wc3lib::read(istream, this->m_attenuationStart, size);
 	wc3lib::read(istream, this->m_attenuationEnd, size);
-	wc3lib::read(istream, this->m_colorRed, size);
-	wc3lib::read(istream, this->m_colorGreen, size);
-	wc3lib::read(istream, this->m_colorBlue, size);
+	size += this->color().read(istream);
 	wc3lib::read(istream, this->m_intensity, size);
-	wc3lib::read(istream, this->m_ambColorRed, size);
-	wc3lib::read(istream, this->m_ambColorGreen, size);
-	wc3lib::read(istream, this->m_ambColorBlue, size);
-	wc3lib::read(istream, this->m_ambIntensity, size);
+	size += this->ambientColor().read(istream);
+	wc3lib::read(istream, this->m_ambientIntensity, size);
 	size += this->m_intensities->readMdx(istream);
 	size += this->m_visibilities->readMdx(istream);
 	size += this->m_colors->readMdx(istream);
 	size += this->m_ambientColors->readMdx(istream);
 	size += this->m_ambientIntensities->readMdx(istream);
-	
+
 	if (nbytesi != size)
 		throw Exception(boost::format(_("Light: Expected byte count %1% is not equal to read size %2%.")) % nbytesi % size);
 
@@ -89,27 +117,23 @@ std::streamsize Light::writeMdx(std::ostream &ostream) const throw (class Except
 {
 	std::streampos position;
 	skipByteCount<long32>(ostream, position);
-	
+
 	std::streamsize size = 0;
 	size += Object::writeMdx(ostream);
 	wc3lib::write(ostream, this->type(), size);
 	wc3lib::write(ostream, this->attenuationStart(), size);
 	wc3lib::write(ostream, this->attenuationEnd(), size);
-	wc3lib::write(ostream, this->colorRed(), size);
-	wc3lib::write(ostream, this->colorGreen(), size);
-	wc3lib::write(ostream, this->colorBlue(), size);
+	size += this->color().write(ostream);
 	wc3lib::write(ostream, this->intensity(), size);
-	wc3lib::write(ostream, this->ambColorRed(), size);
-	wc3lib::write(ostream, this->ambColorGreen(), size);
-	wc3lib::write(ostream, this->ambColorBlue(), size);
-	wc3lib::write(ostream, this->ambIntensity(), size);
+	size += this->ambientColor().write(ostream);
+	wc3lib::write(ostream, this->ambientIntensity(), size);
 	size += this->m_intensities->writeMdx(ostream);
 	size += this->m_visibilities->writeMdx(ostream);
 	size += this->m_colors->writeMdx(ostream);
 	size += this->m_ambientColors->writeMdx(ostream);
 	size += this->m_ambientIntensities->writeMdx(ostream);
-	
-	writeByteCount(ostream, static_cast<long32>(size), position, size, true);
+
+	writeByteCount(ostream, boost::numeric_cast<long32>(size), position, size, true);
 
 	return size;
 }

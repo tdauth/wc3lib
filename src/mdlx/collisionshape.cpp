@@ -38,7 +38,24 @@ std::streamsize CollisionShape::readMdl(istream &istream) throw (class Exception
 
 std::streamsize CollisionShape::writeMdl(ostream &ostream) const throw (class Exception)
 {
-	return 0;
+	std::streamsize size = 0;
+	writeMdlBlock(ostream, size, "CollisionShape", this->name());
+
+	size += Object::writeMdl(ostream);
+
+	writeMdlCountedBlock(ostream, size, "Vertices", vertices().size());
+
+	BOOST_FOREACH(Vertices::const_reference ref, vertices())
+		writeMdlVectorProperty(ostream, size, "", ref);
+
+	writeMdlBlockConclusion(ostream, size);
+
+	if (this->shape() == Shape::Sphere)
+		writeMdlValueProperty(ostream, size, "BoundsRadius", this->boundsRadius());
+
+	writeMdlBlockConclusion(ostream, size);
+
+	return size;
 }
 
 std::streamsize CollisionShape::readMdx(istream &istream) throw (class Exception)
@@ -46,13 +63,21 @@ std::streamsize CollisionShape::readMdx(istream &istream) throw (class Exception
 	std::streamsize size = Object::readMdx(istream);
 	long32 shape;
 	wc3lib::read(istream, shape, size);
-	this->m_shape = static_cast<BOOST_SCOPED_ENUM(Shape)>(shape);
-	size += this->m_vertexData.read(istream);
+	this->m_shape = (BOOST_SCOPED_ENUM(Shape))(shape);
+	VertexData vertexData;
+	size += vertexData.read(istream);
+	vertices().push_back(vertexData);
 
 	if (this->m_shape == Shape::Box)
-		size += this->m_boxVertexData.read(istream);
+	{
+		VertexData vertexData2;
+		size += vertexData2.read(istream);
+		vertices().push_back(vertexData2);
+	}
 	else
+	{
 		wc3lib::read(istream, this->m_boundsRadius, size);
+	}
 
 	return size;
 }
@@ -60,13 +85,13 @@ std::streamsize CollisionShape::readMdx(istream &istream) throw (class Exception
 std::streamsize CollisionShape::writeMdx(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = Object::writeMdx(ostream);
-	wc3lib::write(ostream, static_cast<long32>(this->m_shape), size);
-	size += this->m_vertexData.write(ostream);
+	wc3lib::write(ostream,long32(this->shape()), size);
+	size += vertices()[0].write(ostream);
 
 	if (this->m_shape == Shape::Box)
-		size += this->m_boxVertexData.write(ostream);
+		size += vertices()[1].write(ostream);
 	else
-		wc3lib::write(ostream, this->m_boundsRadius, size);
+		wc3lib::write(ostream, this->boundsRadius(), size);
 
 	return size;
 }

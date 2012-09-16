@@ -154,18 +154,13 @@ class Blp : public Format
 				const Color& colorAt(dword width, dword height) const;
 				Color& colorAt(dword width, dword height);
 
-			protected:
-				friend class Blp;
-				friend class boost::shared_ptr<MipMap>; // for destruction by shared ptr
-				template<class T>
-				friend void boost::checked_delete(T*); // for destruction by shared ptr
-
 				/**
 				 * \note Allocates \ref colors() with size of \p width * \p height.
 				 */
 				MipMap(dword width, dword height);
 				~MipMap();
 
+			protected:
 				dword m_width;
 				dword m_height;
 				Colors m_colors; //[mip map width * mip map height];
@@ -271,20 +266,23 @@ class Blp : public Format
 
 		/**
 		 * Assigns exactly \p number MIP maps to the BLP image.
-		 * \param number Has to be at least 1 and less than \ref Blp::maxMipMaps.
+		 * \param number Has to be at least 1 and \ref Blp::maxMipMaps at maximum.
 		 * \param regenerate If this value is false function only compares current MIP map number to \p number and if they are not equal it generates or removes necessary or unnecessary MIP maps. Otherwise it clears all MIP maps and truly regenerates them.
 		 * \return Returns number of truly newly created MIP maps (negative if some has been removed and 0 if it remains like it was before).
 		 * \sa Blp::mipMaps()
 		 */
 		int generateMipMaps(std::size_t number = Blp::maxMipMaps, bool regenerate = false) throw (class Exception);
 
+		/**
+		 * \return Returns true if compression type is \ref Compression::Paletted .
+		 */
 		bool hasPalette() const;
 
 		typedef boost::scoped_array<color> ColorPtr;
 
 		/**
 		 * \return Returns corresponding color palette with size \ref Blp::compressedPaletteSize. If palette doesn't exist it will be generated automatically.
-		 * \sa hasPalette(), generatePalette()
+		 * \sa hasPalette()
 		 * \throw Exception Exception safe. Throws an exception if compression is not paletted.
 		 */
 		const ColorPtr& palette() const throw (Exception);

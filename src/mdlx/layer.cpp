@@ -78,7 +78,22 @@ std::streamsize Layer::writeMdl(ostream &ostream) const throw (class Exception)
 	if (tvertexAnimationId() != noneId)
 		writeMdlValueProperty(ostream, size, "TVertexAnimId", this->tvertexAnimationId());
 
-	writeMdlValueProperty(ostream, size, "CoordId", this->coordinatesId());
+	// If CoordId for any of the Layers in a Material is nonzero, CoordId appears
+	// NOTE War3ModelEditor cannot recognize CoordId
+	bool appears = false;
+
+	BOOST_FOREACH(Layers::Members::const_reference ref, this->layers()->members())
+	{
+		if (boost::polymorphic_cast<const Layer*>(&ref)->coordinatesId() != 0)
+		{
+			appears = true;
+
+			break;
+		}
+	}
+
+	if (appears)
+		writeMdlValueProperty(ostream, size, "CoordId", this->coordinatesId());
 
 	if (this->alphas()->properties().empty())
 		writeMdlStaticValueProperty(ostream, size, "Alpha", this->alpha());

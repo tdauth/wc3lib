@@ -140,6 +140,8 @@ std::streamsize Model::writeMdl(ostream &ostream, const Mdlx *mdlx) const throw 
 			writeMdlValueProperty(ostream, size, "NumEvents", mdlx->events()->members().size(), 1);
 	}
 
+	writeMdlValueProperty(ostream, size, "BlendTime", this->blendTime());
+
 	size += Bounds::writeMdl(ostream);
 
 	writeMdlBlockConclusion(ostream, size);

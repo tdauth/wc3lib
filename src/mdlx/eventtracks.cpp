@@ -27,22 +27,12 @@ namespace wc3lib
 namespace mdlx
 {
 
-EventTracks::EventTracks(class Event *event) : GroupMdxBlock("KEVT", ""), m_event(event)
+EventTracks::EventTracks(class Event *event) : GroupMdxBlock("KEVT", "EventTrack", true, true, true), m_event(event)
 {
 }
 
 EventTracks::~EventTracks()
 {
-}
-
-std::streamsize EventTracks::readMdl(istream &istream) throw (class Exception)
-{
-	return 0;
-}
-
-std::streamsize EventTracks::writeMdl(ostream &ostream) const throw (class Exception)
-{
-	return 0;
 }
 
 std::streamsize EventTracks::readMdx(istream &istream) throw (class Exception)
