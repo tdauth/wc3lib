@@ -118,7 +118,7 @@ std::streamsize Version::readMdx(istream &istream) throw (class Exception)
 std::streamsize Version::writeMdx(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = MdxBlock::writeMdx(ostream);
-	long32 nbytes = sizeof(this->modelVersion());
+	const long32 nbytes = boost::numeric_cast<long32>(sizeof(this->modelVersion()));
 	wc3lib::write(ostream, nbytes, size);
 	wc3lib::write(ostream, this->modelVersion(), size);
 

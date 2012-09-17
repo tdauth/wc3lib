@@ -247,7 +247,7 @@ std::streamsize ParticleEmitter2::readMdx(istream &istream) throw (class Excepti
 std::streamsize ParticleEmitter2::writeMdx(ostream &ostream) const throw (class Exception)
 {
 	std::streampos position;
-	skipByteCount<wc3lib::ostream>(ostream, position);
+	skipByteCount<long32>(ostream, position);
 
 	std::streamsize size = Node::writeMdx(ostream);
 	wc3lib::write(ostream, this->speed(), size);

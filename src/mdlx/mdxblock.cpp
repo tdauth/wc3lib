@@ -60,7 +60,6 @@ std::streamsize MdxBlock::readMdx(istream &istream) throw (class Exception)
 		if (this->optional())
 		{
 			istream.seekg(position);
-			std::cout << boost::format(_("Block %1% is optional and doesn't exist.\nIt is not equal to identifier \"%2%\".")) % mdxIdentifier() % identifier << std::endl;
 
 			return 0;
 		}
@@ -81,6 +80,7 @@ std::streamsize MdxBlock::writeMdx(ostream &ostream) const throw (class Exceptio
 
 	std::streamsize size = 0;
 	wc3lib::write(ostream, mdxIdentifier()[0], size, MdxBlock::mdxIdentifierSize);
+	std::cout << boost::format(_("Block: %1%")) % mdxIdentifier() << std::endl;
 
 	return size;
 }
