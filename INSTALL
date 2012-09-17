@@ -1,26 +1,23 @@
-Consider that wc3lib supports runtime linking/loading by default which means that libraries
-will be loaded at runtime and if loading fails an exception will be thrown.
-Besides bear in mind that this does only affect external format libraries (e. g. JPEG library, not core libraries like Boost/Qt/KDE/Ogre).
 For all available compile flags/options configure via cmake please and you'll get all options with their corresponding descriptions.
-
-UI files:
-If auto generating doesn't work (as for me) you could use script "generateui.sh" which uses first argument as source root path.
+Run "cmake ." or "cmake-gui ." in the corresponding build directory to generate all Makefiles.
+Afterwards run "make install" to install the library.
 
 Requirements (actual used versions, of course you could use others which are compliant with these):
-Boost 1.46.1 (components: system filesystem thread serialization program_options iostreams)
+Boost 1.46.1 or 1.49 (components: system filesystem thread serialization program_options iostreams)
 
 for BLP flag only:
-jpeg 8b (header only - runtime loading)
+jpeg 8d or libjpeg-turbo 1.2.1
 
 for MPQ flag only:
-bzip2 1.0.6-r2 (Boost support)
+bzip2 1.0.6-r3 (Boost support)
 zlib 1.2.5-r2 (Boost support)
 crypto++ 5.6.1-r1 (RSA encryption, SHA1 and MD5 calculation)
+openssl 1.0.0j (MD5 calculation if ENCRYPTION is disabled which means that there's no dependency to crypto++)
 
 for EDITOR/PLUGINS flag only:
-qt-core 4.7.2-r1
-qt-gui 4.7.2
-kdelibs 4.7
-OGRE 1.7.3
+qt-core 4.8.2
+qt-gui 4.8.2
+kdelibs 4.9.1
+OGRE 1.8.0
 
 Don't forget to place "ogre.cfg" and "plugins.cfg" files into working directory of editor application!

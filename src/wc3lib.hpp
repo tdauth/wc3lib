@@ -27,7 +27,7 @@
 
 /**
 * \mainpage Warcraft III Library
-* This is the API reference and documentation of the <a url="https://gitorious.org/wc3lib">wc3lib</a> project. wc3lib is an abbreviation which means "Warcraft III Library".
+* This is the API reference and documentation of the wc3lib project. wc3lib is an abbreviation which means "Warcraft III Library".
 * It's a collection of various libraries which allow programmers to use Blizzard's customly developed formats with an abstract C++ interface.
 * All implementations are free and mainly under the GPLv2 license but there's some external code which is mostly under some similar license as well.
 * As mentioned above the wc3lib is split up into some different modules. Each module consists of a single library which supports one of <a url="http://blizzard.com/">Blizzard's</a> formats (except modules for \ref applicationssection "applications" and \ref editorsection "editor" which are extensions of the default modules).
@@ -48,9 +48,13 @@
 * <li>\subpage applicationssection </li>
 * </ul>
 *
+* \note Check out http://wc3lib.org for further information.
+*
 * \date Version date
-* 2011-10-20
+* 2012-09-17
 * \author Tamino Dauth <tamino@cdauth.eu>
+*
+* \copyright GNU GENERAL PUBLIC LICENSE Version 2 (except external library code)
 *
 * \page coresection Core
 * The core of the wc3lib is shared by all of its modules. It provides some basic functions and classes for exception handling, internationalisation, runtime loading of shared objects/DLLs and binary I/O.
@@ -118,7 +122,17 @@
 * </ul>
 *
 * \namespace wc3lib
-* All code elements of the wc3lib belong to this namespace!
+* \brief \ref coresection
+* \namespace wc3lib::mpq
+* \brief \ref mpqsection
+* \namespace wc3lib::blp
+* \brief \ref blpsection
+* \namespace wc3lib::mdlx
+* \brief \ref mdlxsection
+* \namespace wc3lib::map
+* \brief \ref mapsection
+* \namespace wc3lib::editor
+* \brief \ref editorsection
 */
 
 #include "core.hpp"
