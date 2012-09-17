@@ -112,7 +112,7 @@ std::streamsize Attachment::readMdx(istream &istream) throw (class Exception)
 	wc3lib::read(istream, this->m_path, size, pathSize);
 	wc3lib::read(istream, this->m_unknown0, size);
 	wc3lib::read(istream, this->m_attachmentId, size);
-	size += this->m_visibilities->readMdx(istream);
+	size += this->visibilities()->readMdx(istream);
 
 	checkBytesIncluding(size, nbytesi);
 
@@ -122,16 +122,15 @@ std::streamsize Attachment::readMdx(istream &istream) throw (class Exception)
 std::streamsize Attachment::writeMdx(ostream &out) const throw (class Exception)
 {
 	std::streampos position;
-	skipByteCount<ostream>(out, position);
+	skipByteCount<long32>(out, position);
 
-	std::streamsize size = 0;
-	size += Object::writeMdx(out);
-	wc3lib::write(out, this->m_path, size);
-	wc3lib::write(out, this->m_unknown0, size);
-	wc3lib::write(out, this->m_attachmentId, size);
-	size += this->m_visibilities->writeMdx(out);
+	std::streamsize size = Object::writeMdx(out);
+	wc3lib::write(out, this->path(), size, pathSize);
+	wc3lib::write(out, this->unknown0(), size);
+	wc3lib::write(out, this->attachmentId(), size);
+	size += this->visibilities()->writeMdx(out);
 
-	long32 nbytesi = size;
+	const long32 nbytesi = boost::numeric_cast<long32>(size);
 	writeByteCount(out, nbytesi, position, size, true);
 
 	return size;

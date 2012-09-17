@@ -1,6 +1,14 @@
 2012-09-17 Tamino Dauth <tamino@cdauth.eu>
 * FIXED: mdlx: Fix wrtiting MDX files - MdlxConv requires more bytes in node chunk of PRE2 in file "NightElf_Exp.mdx".
 * mdlx: Sometimes you must substract "mdxIdentifierSize" from "size" before using it as byte count (e. g. in chunks like MODL).
+* FIXED: mdlx: "Unknown tag EVTS in RibbonEmitter" for "AbsorbManaBirthMissile.mdx".
+* FIXED: mdlx: "Unknown tag "" in Attachment" for "AltarOfStorms.mdx".
+Block: KP2V9
+Error occured when converting file "war3x/Doodads/Cinematic/FootSwitch/FootSwitch.mdx": "Stream error.
+Exceptions "".
+RD state: "eoffail".".
+Skipping file.
+-------------------- file content seems to be corrupted - cannot read line type in animated properties!
 
 2012-09-16 Tamino Dauth <tamino@cdauth.eu>
 * mdlx: Rename EmissionRates to ParticleEmitter2EmissionRates.

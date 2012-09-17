@@ -120,8 +120,8 @@ std::streamsize RibbonEmitter::readMdx(istream &istream) throw (class Exception)
 std::streamsize RibbonEmitter::writeMdx(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	std::streampos nbytesiPosition;
-	skipByteCount<long32>(ostream, nbytesiPosition);
+	std::streampos position;
+	skipByteCount<long32>(ostream, position);
 	size += Node::writeMdx(ostream);
 	wc3lib::write(ostream, this->m_heightAboveValue, size);
 	wc3lib::write(ostream, this->m_heightBelowValue, size);
@@ -140,7 +140,8 @@ std::streamsize RibbonEmitter::writeMdx(ostream &ostream) const throw (class Exc
 	size += this->m_heightsAbove->writeMdx(ostream);
 	size += this->m_heightsBelow->writeMdx(ostream);
 
-	writeByteCount(ostream, size, nbytesiPosition, size, true);
+	const long32 nbytesi = boost::numeric_cast<long32>(size);
+	writeByteCount(ostream, nbytesi, position, size, true);
 
 	return size;
 }
