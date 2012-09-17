@@ -97,13 +97,11 @@ std::streamsize ParticleEmitter::readMdx(istream &istream) throw (class Exceptio
 
 std::streamsize ParticleEmitter::writeMdx(ostream &ostream) const throw (class Exception)
 {
-	// skipping inclusive byte counts of particle emitter and node
-	std::streampos position0, position1;
-	skipByteCount<long32>(ostream, position0);
-	skipByteCount<long32>(ostream, position1);
+	// skipping inclusive byte counts of particle emitter
+	std::streampos position;
+	skipByteCount<long32>(ostream, position);
 
 	std::streamsize size = Node::writeMdx(ostream);
-	std::streamsize nodeSize = size;
 	wc3lib::write(ostream, this->m_emissionRate, size);
 	wc3lib::write(ostream, this->m_gravity, size);
 	wc3lib::write(ostream, this->m_longitude, size);
@@ -114,8 +112,8 @@ std::streamsize ParticleEmitter::writeMdx(ostream &ostream) const throw (class E
 	wc3lib::write(ostream, this->m_initVelocity, size);
 	size += this->m_visibilities->writeMdx(ostream);
 
-	writeByteCount(ostream, *reinterpret_cast<long32*>(&size), position0, size, true);
-	writeByteCount(ostream, *reinterpret_cast<long32*>(&nodeSize), position1, size, true);
+	const long32 nbytesi = boost::numeric_cast<long32>(size);
+	writeByteCount(ostream, nbytesi, position, size, true);
 
 	return size;
 }

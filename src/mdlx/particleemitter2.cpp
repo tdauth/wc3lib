@@ -298,10 +298,7 @@ std::streamsize ParticleEmitter2::writeMdx(ostream &ostream) const throw (class 
 	size += this->widths()->writeMdx(ostream);
 
 	const long32 nbytesi = boost::numeric_cast<long32>(size);
-	std::cout << "Including byte count: " << nbytesi << std::endl;
 	writeByteCount(ostream, nbytesi, position, size, true);
-
-	exit(0);
 
 	return size;
 }

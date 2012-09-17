@@ -429,8 +429,7 @@ int main(int argc, char *argv[])
 			boost::filesystem::path realOutputFile = outputFile;
 
 			if (boost::filesystem::is_directory(outputFile))
-				realOutputFile /= path.stem().string() + "." + realOutputFormat->extension(); // TODO add whole tree path + detected extension
-
+				realOutputFile /= path.stem().string() + "." + realOutputFormat->extension();
 
 			convertFile(path, realOutputFile, *realInputFormat, *realOutputFormat, vm.count("verbose"), vm.count("overwrite"));
 		}

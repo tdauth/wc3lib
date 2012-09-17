@@ -74,8 +74,8 @@ std::streamsize Bounds::readMdx(istream &istream) throw (class Exception)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_boundsRadius, size);
-	size += this->m_minimumExtent.read(istream);
-	size += this->m_maximumExtent.read(istream);
+	size += this->minimumExtent().read(istream);
+	size += this->maximumExtent().read(istream);
 
 	return size;
 }
@@ -83,9 +83,9 @@ std::streamsize Bounds::readMdx(istream &istream) throw (class Exception)
 std::streamsize Bounds::writeMdx(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	wc3lib::write(ostream, this->m_boundsRadius, size);
-	size += this->m_minimumExtent.write(ostream);
-	size += this->m_maximumExtent.write(ostream);
+	wc3lib::write(ostream, this->boundsRadius(), size);
+	size += this->minimumExtent().write(ostream);
+	size += this->maximumExtent().write(ostream);
 
 	return size;
 }

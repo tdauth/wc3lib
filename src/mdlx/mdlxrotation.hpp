@@ -52,7 +52,7 @@ inline struct QuaternionData MdlxRotation::quaternionData() const
 	return QuaternionData(values());
 }
 
-inline struct InterpolationRotationData  MdlxRotation::interpolationData() const
+inline struct InterpolationRotationData MdlxRotation::interpolationData() const
 {
 	return InterpolationRotationData(inTan(), outTan());
 }

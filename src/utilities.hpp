@@ -392,10 +392,10 @@ inline std::basic_ostream<_CharT>& writeByteCount(std::basic_ostream<_CharT> &os
 	const std::streampos backPosition = ostream.tellp();
 	ostream.seekp(position);
 	const T realByteCount = (inclusive ? (byteCount + sizeof(byteCount) * sizeof(_CharT)) : byteCount); // inclusive means size of byte count as well
-	std::cout << "real byte count " << realByteCount << std::endl;
-	std::cout << "back pos " << backPosition << std::endl;
-	std::cout << "pos " << position << std::endl;
-	std::cout << "tellp before jumping back " << ostream.tellp() << std::endl;
+	//std::cout << "real byte count " << realByteCount << std::endl;
+	//std::cout << "back pos " << backPosition << std::endl;
+	//std::cout << "pos " << position << std::endl;
+	//std::cout << "tellp before jumping back " << ostream.tellp() << std::endl;
 	write<T, _CharT>(ostream, realByteCount, sizeCounter);
 	ostream.seekp(backPosition); // jump back to the end or somewhere else
 

@@ -139,22 +139,28 @@ std::streamsize Node::writeMdx(ostream &ostream) const throw (class Exception)
 	skipByteCount<long32>(ostream, position);
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->name(), size, nameSize);
-	std::cout << "Name: " << this->name() << " and size: " << nameSize << " and size after writing " << size << std::endl;
 	wc3lib::write(ostream, this->id(), size);
 	wc3lib::write(ostream, this->parentId(), size);
 	wc3lib::write<long32>(ostream, this->type(), size);
 
-	std::cout << "Size before KGXX " << size << std::endl;
+	//std::cout << "Size before translations with " << this->translations()->properties().size() << " members: " << size << std::endl;
+
 	//if (!this->inheritsTranslation())
 	size += this->translations()->writeMdx(ostream);
+
+	//std::cout << "Size after translations with " << this->translations()->properties().size() << " members: " << size << std::endl;
+	//std::cout << "Size before rotations with " << this->rotations()->properties().size() << " members: " << size << std::endl;
 
 	//if (!this->inheritsRotation())
 	size += this->rotations()->writeMdx(ostream);
 
+	//std::cout << "Size after rotations with " << this->rotations()->properties().size() << " members: " << size << std::endl;
+	//std::cout << "Size before scalings with " << this->scalings()->properties().size() << " members: " << size << std::endl;
+
 	//if (!this->inheritsScaling())
 	size += this->scalings()->writeMdx(ostream);
 
-	std::cout << "Size after KGXX " << size << std::endl;
+	//std::cout << "Size after scalings with " << this->scalings()->properties().size() << " members: " << size << std::endl;
 
 	const long32 nbytesi = boost::numeric_cast<long32>(size);
 	writeByteCount<long32>(ostream, nbytesi, position, size, true);

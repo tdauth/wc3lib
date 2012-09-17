@@ -173,7 +173,8 @@ std::streamsize Model::writeMdx(ostream &ostream) const throw (class Exception)
 	size += Bounds::writeMdx(ostream);
 	wc3lib::write(ostream, this->blendTime(), size);
 
-	writeByteCount(ostream, *reinterpret_cast<const long32*>(&size), position, size, false);
+	const long32 nbytes = boost::numeric_cast<long32>(size);
+	writeByteCount(ostream, nbytes, position, size, false);
 
 	return size;
 }

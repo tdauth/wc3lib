@@ -1,3 +1,6 @@
+2012-09-17 Tamino Dauth <tamino@cdauth.eu>
+* mdlx: Fix wrtiting MDX files - MdlxConv requires more bytes in node chunk of PRE2 in file "NightElf_Exp.mdx".
+
 2012-09-16 Tamino Dauth <tamino@cdauth.eu>
 * mdlx: Rename EmissionRates to ParticleEmitter2EmissionRates.
 * mdlx: Rename Lengths to ParticleEmitter2Lengths.
