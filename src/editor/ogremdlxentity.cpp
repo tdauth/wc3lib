@@ -26,14 +26,21 @@ namespace wc3lib
 namespace editor
 {
 
-OgreMdlxEntity::OgreMdlxEntity(const Ogre::String &name, OgreMdlx *mdlx, Ogre::SceneManager *sceneManager) : m_mdlx(mdlx), m_entity(sceneManager->createEntity(name, mdlx->meshPtr())), m_globalSequence(0), m_animationState(0)
+OgreMdlxEntity::OgreMdlxEntity(const Ogre::String &name, OgreMdlx *mdlx, Ogre::SceneManager *sceneManager) : m_mdlx(mdlx), m_globalSequence(0)
 {
+	BOOST_FOREACH(OgreMdlx::Geosets::const_reference ref, mdlx->geosets())
+		this->m_entities.push_back(sceneManager->createEntity(name, ref.second->getName()));
 }
 
 bool OgreMdlxEntity::frameRenderingQueued(const Ogre::FrameEvent &evt)
 {
-	if (animationState() != 0)
-		animationState()->addTime(evt.timeSinceLastFrame);
+	BOOST_FOREACH(Entities::reference ref, m_entities)
+	{
+		Ogre::ConstEnabledAnimationStateIterator it = ref->getAllAnimationStates()->getEnabledAnimationStateIterator();
+
+		while (it.hasMoreElements())
+			it.getNext()->addTime(evt.timeSinceLastFrame);
+	}
 }
 
 }

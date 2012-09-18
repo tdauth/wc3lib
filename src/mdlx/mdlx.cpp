@@ -1,9 +1,22 @@
-#include <iostream> // debug
-#include <string>
-#include <cstring>
-
-#include <boost/tokenizer.hpp>
-#include <boost/foreach.hpp>
+/***************************************************************************
+ *   Copyright (C) 2009 by Tamino Dauth                                    *
+ *   tamino@cdauth.eu                                                      *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
 
 #include "mdlx.hpp"
 #include "version.hpp"
@@ -26,15 +39,6 @@
 #include "cameras.hpp"
 #include "events.hpp"
 #include "collisionshapes.hpp"
-
-#include "object.hpp"
-#include "bone.hpp"
-#include "geoset.hpp"
-#include "pivotpoint.hpp"
-
-#include "texture.hpp"
-
-#include "../i18n.hpp"
 
 namespace wc3lib
 {
@@ -175,116 +179,6 @@ std::streamsize Mdlx::writeMdx(ostream &ostream) const throw (class Exception)
 	bytes += this->m_collisionShapes->writeMdx(ostream);
 
 	return bytes;
-}
-
-std::size_t Mdlx::replaceTexturePaths(const byte oldTexturePath[0x100], const byte newTexturePath[0x100], std::size_t number)
-{
-	std::size_t result = 0;
-
-	BOOST_FOREACH(Textures::Members::reference member, this->m_textures->members())
-	{
-		Texture *texture = boost::polymorphic_cast<Texture*>(&member);
-
-		if (memcmp(texture->texturePath(), oldTexturePath, 0x100) == 0)
-		{
-			texture->setTexturePath(newTexturePath);
-			++result;
-
-			if (number != 0 && result == number)
-				break;
-		}
-	}
-
-	return result;
-}
-
-const class Geoset* Mdlx::boneGeoset(const class Bone &bone) const
-{
-	long32 id = 0;
-
-	BOOST_FOREACH(Geosets::Members::reference geoset, this->m_geosets->members())
-	{
-		if (id == bone.geosetId())
-			return boost::polymorphic_cast<Geoset*>(&geoset);
-
-		++id;
-	}
-
-	return 0;
-}
-
-const class PivotPoint* Mdlx::nodePivotPoint(const class Node &node) const
-{
-	long32 id = 0;
-
-	BOOST_FOREACH(Geosets::Members::reference pivotPoint, this->m_pivotPoints->members())
-	{
-		if (node.id() == id)
-			return boost::polymorphic_cast<PivotPoint*>(&pivotPoint);
-
-		++id;
-	}
-
-	return 0;
-}
-
-const class Node* Mdlx::nodeParent(const class Node &node) const
-{
-	BOOST_FOREACH(NodePairType nodePair, this->m_nodes)
-	{
-		if (nodePair.first == node.parentId())
-			return nodePair.second;
-	}
-
-	return 0;
-}
-
-std::list<const class Node*> Mdlx::nodes() const
-{
-	std::list<const class Node*> result;
-
-	BOOST_FOREACH(NodePairType nodePair, this->m_nodes)
-		result.push_back(nodePair.second);
-
-	return result;
-}
-
-const class Node* Mdlx::node(long32 id) const
-{
-	if (id == mdlx::noneId)
-		throw Exception(boost::format(_("Invalid id: %1%")) % mdlx::noneId);
-
-	std::map<long32, class Node*>::const_iterator iterator = this->m_nodes.find(id);
-
-	if (iterator == this->m_nodes.end())
-		return 0;
-
-	return iterator->second;
-}
-
-std::list<const class Node*> Mdlx::children(const class Node &node) const
-{
-	std::list<const class Node*> result;
-
-	BOOST_FOREACH(NodePairType nodePair, this->m_nodes)
-	{
-		if (nodePair.second->parentId() == node.id())
-			result.push_back(nodePair.second);
-	}
-
-	return result;
-}
-
-void Mdlx::addNode(long32 id, class Node *node) throw (class Exception)
-{
-	if (this->m_nodes.find(id) != this->m_nodes.end() && this->m_nodes[id] != node)
-	{
-		std::cerr << boost::format(_("Mdlx: Node id %1% is already being used by node \"%2%\" and can not be overwritten by node \"%3%\".")) % id % this->m_nodes[id]->name() % node->name() << std::endl;
-
-		return;
-	}
-
-	this->m_nodes[id] = node;
 }
 
 }

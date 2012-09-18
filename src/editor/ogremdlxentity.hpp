@@ -21,9 +21,12 @@
 #ifndef WC3LIB_EDITOR_OGREMDLXENTITTY_HPP
 #define WC3LIB_EDITOR_OGREMDLXENTITTY_HPP
 
+#include <boost/foreach.hpp>
+
 #include <Ogre.h>
 
 #include "ogremdlx.hpp"
+#include "platform.hpp"
 
 namespace wc3lib
 {
@@ -34,6 +37,7 @@ namespace editor
 class OgreMdlxEntity : public Ogre::FrameListener
 {
 	public:
+		typedef std::list<Ogre::Entity*> Entities;
 
 		OgreMdlxEntity(const Ogre::String &name, OgreMdlx *mdlx, Ogre::SceneManager *sceneManager);
 		virtual ~OgreMdlxEntity();
@@ -41,36 +45,31 @@ class OgreMdlxEntity : public Ogre::FrameListener
 		/// \todo C++11 overide
 		virtual bool frameRenderingQueued(const Ogre::FrameEvent &evt);
 
-		Ogre::AnimationState* animationState() const;
 		bool applyAnimation(const Ogre::String &name, bool loop);
 
 	private:
 		OgreMdlx *m_mdlx;
-		Ogre::Entity *m_entity;
+		Entities m_entities;
 
 
 		class GlobalSequence *m_globalSequence; /// Current global sequence which is played.
-
-		Ogre::AnimationState *m_animationState;
 };
 
-inline Ogre::AnimationState* OgreMdlx::animationState() const
+inline bool OgreMdlxEntity::applyAnimation(const Ogre::String &name, bool loop)
 {
-	return this->m_animationState;
+	BOOST_FOREACH(Entities::reference ref, m_entities)
+	{
+		if (!ref->hasAnimationState(name))
+			return false;
+
+		Ogre::AnimationState *state = ref->getAnimationState(name);
+		state->setLoop(loop);
+		state->setEnabled(true);
+	}
 }
-
-inline bool OgreMdlx::applyAnimation(const Ogre::String &name, bool loop)
-{
-	if (!entity()->hasAnimationState(name))
-		return false;
-
-	Ogre::AnimationState *state = entity()->getAnimationState(name);
-	state->setLoop(loop);
-	state->setEnabled(true);
-	m_animationState = state;
-}
-
 
 }
 
 }
+
+#endif

@@ -24,11 +24,14 @@
 #include <map>
 #include <list>
 
+#include <boost/bimap.hpp>
+#include <boost/foreach.hpp>
+
 #include <Ogre.h>
 
 #include "resource.hpp"
-#include "../mdlx.hpp"
 #include "platform.hpp"
+#include "../mdlx.hpp"
 
 namespace wc3lib
 {
@@ -38,22 +41,154 @@ namespace editor
 
 class ModelView;
 
+/*
 /**
- * This class can be used to display MDLX models by using the OGRE 3d rendering engine.
- * It maintains a single mesh instance in a scene which contains all converted data of the original
- * MDLX model.
- * Geosets are implemented as sub meshes.
+* \param number If this value is 0 all matching paths will be changed.
+* \return Returns the number of changed texture paths.
+*/
+/*
+//std::size_t replaceTexturePaths(const byte oldTexturePath[0x100], const byte newTexturePath[0x100], std::size_t number = 0);
+//const class Geoset* boneGeoset(const class Bone &bone) const;
+/**
+* \return Returns the corresponding pivot point of node node if some exists (searched by id).
+*/
+//const class PivotPoint* nodePivotPoint(const class Node &node) const;
+//const class Node* nodeParent(const class Node &node) const;
+//std::list<const class Node*> nodes() const;
+//const class Node* node(long32 id) const;
+//std::list<const class Node*> children(const class Node &node) const;
+/*
+std::size_t Mdlx::replaceTexturePaths(const byte oldTexturePath[0x100], const byte newTexturePath[0x100], std::size_t number)
+{
+	std::size_t result = 0;
+
+	BOOST_FOREACH(Textures::Members::reference member, this->m_textures->members())
+	{
+		Texture *texture = boost::polymorphic_cast<Texture*>(&member);
+
+		if (memcmp(texture->texturePath(), oldTexturePath, 0x100) == 0)
+		{
+			texture->setTexturePath(newTexturePath);
+			++result;
+
+			if (number != 0 && result == number)
+				break;
+		}
+	}
+
+	return result;
+}
+
+const class Geoset* Mdlx::boneGeoset(const class Bone &bone) const
+{
+	long32 id = 0;
+
+	BOOST_FOREACH(Geosets::Members::reference geoset, this->m_geosets->members())
+	{
+		if (id == bone.geosetId())
+			return boost::polymorphic_cast<Geoset*>(&geoset);
+
+		++id;
+	}
+
+	return 0;
+}
+
+const class PivotPoint* Mdlx::nodePivotPoint(const class Node &node) const
+{
+	long32 id = 0;
+
+	BOOST_FOREACH(Geosets::Members::reference pivotPoint, this->m_pivotPoints->members())
+	{
+		if (node.id() == id)
+			return boost::polymorphic_cast<PivotPoint*>(&pivotPoint);
+
+		++id;
+	}
+
+	return 0;
+}
+
+const class Node* Mdlx::nodeParent(const class Node &node) const
+{
+	BOOST_FOREACH(NodePairType nodePair, this->m_nodes)
+	{
+		if (nodePair.first == node.parentId())
+			return nodePair.second;
+	}
+
+	return 0;
+}
+
+std::list<const class Node*> Mdlx::nodes() const
+{
+	std::list<const class Node*> result;
+
+	BOOST_FOREACH(NodePairType nodePair, this->m_nodes)
+		result.push_back(nodePair.second);
+
+	return result;
+}
+
+const class Node* Mdlx::node(long32 id) const
+{
+	if (id == mdlx::noneId)
+		throw Exception(boost::format(_("Invalid id: %1%")) % mdlx::noneId);
+
+	std::map<long32, class Node*>::const_iterator iterator = this->m_nodes.find(id);
+
+	if (iterator == this->m_nodes.end())
+		return 0;
+
+	return iterator->second;
+}
+
+std::list<const class Node*> Mdlx::children(const class Node &node) const
+{
+	std::list<const class Node*> result;
+
+	BOOST_FOREACH(NodePairType nodePair, this->m_nodes)
+	{
+		if (nodePair.second->parentId() == node.id())
+			result.push_back(nodePair.second);
+	}
+
+	return result;
+}
+
+void Mdlx::addNode(long32 id, class Node *node) throw (class Exception)
+{
+	if (this->m_nodes.find(id) != this->m_nodes.end() && this->m_nodes[id] != node)
+	{
+		std::cerr << boost::format(_("Mdlx: Node id %1% is already being used by node \"%2%\" and can not be overwritten by node \"%3%\".")) % id % this->m_nodes[id]->name() % node->name() << std::endl;
+
+		return;
+	}
+
+	this->m_nodes[id] = node;
+}
+*/
+
+/**
+ * This class can be used to display MDLX models by using the OGRE 3D rendering engine.
+ * It maintains multiple mesh instances which contains all converted data of the original
+ * MDLX model's geosets.
+ * To create a movable entity of geometry use \ref createEntity().
  * Each MDLX instance can have its own team color and glow which is required for proper unit displays and model testings.
  * \todo Use inherited event functions of frame listener to apply animation track data (each model instance should have its own time marker for sequences).
  */
 class OgreMdlx : public Resource, public Ogre::FrameListener
 {
 	public:
+		typedef std::map<mdlx::long32, const mdlx::Node*> Nodes;
+
 		typedef std::map<const class mdlx::Texture*, Ogre::TexturePtr> Textures;
 		typedef std::map<const class mdlx::Material*, Ogre::MaterialPtr> Materials;
-		typedef std::map<const class mdlx::Geoset*, Ogre::ManualObject*> Geosets;
-		typedef std::map<const class mdlx::Geoset*, mdlx::long32> GeosetIds;
-		typedef std::map<const class mdlx::Geoset*, Ogre::Mesh*> GeosetMeshes;
+		/**
+		 * Geoset ids have to be stored in both directions since many members need access to geosets by their id as well as you need the id of a geoset sometimes.
+		 */
+		typedef boost::bimap<const class mdlx::Geoset*, mdlx::long32> GeosetIds;
+		typedef std::map<const class mdlx::Geoset*, Ogre::Mesh*> Geosets;
 		typedef std::map<const class mdlx::Camera*, Ogre::Camera*> Cameras;
 		typedef std::map<const class mdlx::Sequence*, Ogre::Animation*> Sequences;
 
@@ -103,6 +238,8 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 		ModelView* modelView() const;
 		Ogre::SceneNode* sceneNode() const;
 
+		const GeosetIds& geosetIds() const;
+		const Geosets& geosets() const;
 		const Cameras& cameras() const;
 		const CollisionShapes& collisionShapes() const;
 
@@ -141,6 +278,12 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 
 		QString namePrefix() const;
 
+		/**
+		 * \return Returns a new entity of Geoset geometry to which animations can be applied.
+		 * \note Take care of deletion!
+		 */
+		class OgreMdlxEntity* createEntity(const Ogre::String &name);
+
 	protected:
 		typedef std::pair<const class Node*, Ogre::Node*> NodePairType;
 
@@ -160,6 +303,7 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 		//template<std::size_t size>
 		//std::list<Ogre::VertexAnimationTrack*> createAnimatedProperties(const mdlx::MdlxAnimatedProperties<size> &properties) const;
 
+		void addMdlxNodes(const mdlx::GroupMdxBlock &block);
 		Ogre::TexturePtr createTexture(const mdlx::Texture &texture, mdlx::long32 id);
 		Ogre::MaterialPtr createMaterial(const mdlx::Material &material, mdlx::long32 id);
 		/**
@@ -174,7 +318,7 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 		 */
 		CollisionShape* createCollisionShape(const mdlx::CollisionShape &collisionShape, mdlx::long32 id);
 
-		Ogre::Skeleton* createSkeleton(const Ogre::String &name);
+		Ogre::SkeletonPtr createSkeleton(const Ogre::String &name);
 		Ogre::Bone* createBone(const mdlx::Bone &bone, mdlx::long32 id);
 
 
@@ -189,11 +333,11 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 		ModelView *m_modelView;
 		Ogre::SceneNode *m_sceneNode;
 
+		Nodes m_mdlxNodes;
 		Textures m_textures;
 		Materials m_materials;
 		Geosets m_geosets;
 		GeosetIds m_geosetIds;
-		GeosetMeshes m_geosetMeshes;
 		Sequences m_sequences;
 		Cameras m_cameras;
 		CollisionShapes m_collisionShapes;
@@ -223,6 +367,16 @@ inline Ogre::SceneNode* OgreMdlx::sceneNode() const
 	return this->m_sceneNode;
 }
 
+inline const OgreMdlx::GeosetIds& OgreMdlx::geosetIds() const
+{
+	return this->m_geosetIds;
+}
+
+inline const OgreMdlx::Geosets& OgreMdlx::geosets() const
+{
+	return this->m_geosets;
+}
+
 inline const OgreMdlx::Cameras& OgreMdlx::cameras() const
 {
 	return this->m_cameras;
@@ -250,9 +404,9 @@ inline Ogre::String OgreMdlx::geosetName(const mdlx::Geoset &geoset, mdlx::long3
 
 inline Ogre::String OgreMdlx::sequenceName(const mdlx::Geoset &geoset, const mdlx::Sequence &sequence) const
 {
-	GeosetIds::const_iterator iterator = m_geosetIds.find(&geoset);
+	GeosetIds::left_map::const_iterator iterator = m_geosetIds.left.find(&geoset);
 
-	if (iterator == m_geosetIds.end())
+	if (iterator == m_geosetIds.left.end())
 		throw Exception();
 
 	return geosetName(geoset, iterator->second) + " - " + sequence.name();

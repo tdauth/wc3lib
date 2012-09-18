@@ -1,3 +1,6 @@
+2012-09-18 Tamino Dauth <tamino@cdauth.eu>
+* editor: OgreMdlx: Use Ogre::Root as parameter instead of ModelView for all manager instances.
+
 2012-09-17 Tamino Dauth <tamino@cdauth.eu>
 * FIXED: mdlx: Fix wrtiting MDX files - MdlxConv requires more bytes in node chunk of PRE2 in file "NightElf_Exp.mdx".
 * mdlx: Sometimes you must substract "mdxIdentifierSize" from "size" before using it as byte count (e. g. in chunks like MODL).

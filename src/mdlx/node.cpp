@@ -23,7 +23,6 @@
 #include "mdlxrotations.hpp"
 #include "mdlxscalings.hpp"
 #include "../utilities.hpp"
-#include "mdlx.hpp"
 
 namespace wc3lib
 {
@@ -115,8 +114,6 @@ std::streamsize Node::readMdx(istream &istream) throw (class Exception)
 
 	wc3lib::read(istream, this->m_name, size, nameSize);
 	wc3lib::read(istream, this->m_id, size);
-	// register!
-	this->m_mdlx->addNode(this->id(), this);
 	wc3lib::read(istream, this->m_parentId, size);
 	wc3lib::read(istream, *reinterpret_cast<long32*>(&this->m_type), size);
 

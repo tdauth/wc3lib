@@ -21,11 +21,6 @@
 #ifndef WC3LIB_MDLX_MDLX_HPP
 #define WC3LIB_MDLX_MDLX_HPP
 
-#include <list>
-#include <map>
-
-#include <boost/filesystem.hpp>
-
 #include "mdxblock.hpp"
 
 namespace wc3lib
@@ -77,33 +72,7 @@ class Mdlx : public MdxBlock
 		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
 		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 
-		/**
-		 * \param number If this value is 0 all matching paths will be changed.
-		 * \return Returns the number of changed texture paths.
-		 */
-		std::size_t replaceTexturePaths(const byte oldTexturePath[0x100], const byte newTexturePath[0x100], std::size_t number = 0);
-
-		const class Geoset* boneGeoset(const class Bone &bone) const;
-		/**
-		 * \return Returns the corresponding pivot point of node node if some exists (searched by id).
-		 */
-		const class PivotPoint* nodePivotPoint(const class Node &node) const;
-		const class Node* nodeParent(const class Node &node) const;
-		std::list<const class Node*> nodes() const;
-		const class Node* node(long32 id) const;
-		std::list<const class Node*> children(const class Node &node) const;
-
 	protected:
-		friend class Node;
-
-		typedef std::pair<long32, class Node*> NodePairType;
-
-		/**
-		* Nodes have to register theirself when being readed.
-		* @note Throws an exception if id is already being used.
-		*/
-		void addNode(long32 id, class Node *node) throw (class Exception);
-
 		class Version *m_version; //VERS
 		class Model *m_model; //MODL
 		class Sequences *m_sequences; //SEQS
@@ -124,8 +93,6 @@ class Mdlx : public MdxBlock
 		class Cameras *m_cameras;
 		class Events *m_events;
 		class CollisionShapes *m_collisionShapes;
-
-		std::map<long32, class Node*> m_nodes;
 };
 
 inline class Version* Mdlx::vers() const
