@@ -393,8 +393,7 @@ bool ModelEditor::openUrl(const KUrl &url)
 	try
 	{
 		ogreModel->setSource(source());
-
-		//model->textures()->textures().size(); // TEST
+		ogreModel->load();
 		KMessageBox::information(this, i18n("Read file \"%1\" successfully..", url.toEncoded().constData()));
 	}
 	catch (class Exception &exception)

@@ -128,7 +128,7 @@ void OgreMdlx::load() throw (Exception)
 {
 	QString tmpFile;
 
-	if (source()->download(url(), tmpFile, modelView()))
+	if (!source()->download(url(), tmpFile, modelView()))
 		return;
 
 	std::ios_base::openmode openmode = std::ios_base::in;
