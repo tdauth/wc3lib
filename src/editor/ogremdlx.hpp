@@ -25,13 +25,14 @@
 #include <list>
 
 #include <boost/bimap.hpp>
-#include <boost/foreach.hpp>
 
 #include <Ogre.h>
 
 #include "resource.hpp"
 #include "platform.hpp"
 #include "../mdlx.hpp"
+
+#include <boost/foreach.hpp> // NOTE include foreach after Qt stuff because of namespace bug
 
 namespace wc3lib
 {

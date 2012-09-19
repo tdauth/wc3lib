@@ -32,6 +32,12 @@ OgreMdlxEntity::OgreMdlxEntity(const Ogre::String &name, OgreMdlx *mdlx, Ogre::S
 		this->m_entities.push_back(sceneManager->createEntity(name, ref.second->getName()));
 }
 
+OgreMdlxEntity::~OgreMdlxEntity()
+{
+	BOOST_FOREACH(Entities::value_type value, m_entities)
+		delete value;
+}
+
 bool OgreMdlxEntity::frameRenderingQueued(const Ogre::FrameEvent &evt)
 {
 	BOOST_FOREACH(Entities::reference ref, m_entities)

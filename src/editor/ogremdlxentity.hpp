@@ -21,12 +21,12 @@
 #ifndef WC3LIB_EDITOR_OGREMDLXENTITTY_HPP
 #define WC3LIB_EDITOR_OGREMDLXENTITTY_HPP
 
-#include <boost/foreach.hpp>
-
 #include <Ogre.h>
 
-#include "ogremdlx.hpp"
 #include "platform.hpp"
+#include "ogremdlx.hpp"
+
+#include <boost/foreach.hpp> // NOTE include foreach after Qt stuff because of namespace bug
 
 namespace wc3lib
 {

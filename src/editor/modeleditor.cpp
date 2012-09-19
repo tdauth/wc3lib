@@ -51,7 +51,7 @@ namespace editor
 ModelEditor::ModelEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_modelView(new ModelEditorView(this)), m_settingsDialog(0), m_recentUrl(""), m_models(), m_viewMenu(0), m_renderStatsWidget(0), m_showStatsAction(0), m_teamColorDialog(0), m_teamGlowDialog(0), m_showCollisionShapesAction(0), m_teamColor(TeamColor::Red), m_teamGlow(TeamColor::Red)
 {
 	Module::setupUi();
-	//this->m_modelView->setMinimumSize(QSize(640, 480));
+	this->modelView()->setMinimumSize(QSize(640, 480));
 	//this->setAcceptDrops(true); // enable drag & drop
 	//this->modelView()->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	centerLayout()->addWidget(modelView());
@@ -84,7 +84,7 @@ ModelEditor::~ModelEditor()
 void ModelEditor::show()
 {
 	Module::show();
-	this->m_modelView->show();
+	this->modelView()->show();
 	/// @todo FIXME: Either create model view data in constructor or get the right position for this function call.
 	//readSettings(); // read settings when model view is being shown since its render window is also being created at that moment
 }
