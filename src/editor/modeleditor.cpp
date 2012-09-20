@@ -388,7 +388,7 @@ void ModelEditor::dropEvent(QDropEvent *event)
 bool ModelEditor::openUrl(const KUrl &url)
 {
 	//const Ogre::Vector3 position(0.0, 0.0, 0.0);
-	OgreMdlx *ogreModel = new OgreMdlx(url, this->m_modelView);
+	std::auto_ptr<OgreMdlx> ogreModel(new OgreMdlx(url, this->m_modelView));
 
 	try
 	{
@@ -404,13 +404,13 @@ bool ModelEditor::openUrl(const KUrl &url)
 	}
 
 	this->m_models.push_back(ogreModel);
-	this->m_modelView->root()->addFrameListener(ogreModel);
-	addCameraActions(*ogreModel);
+	this->m_modelView->root()->addFrameListener(&this->m_models.back());
+	addCameraActions(this->m_models.back());
 
 	try
 	{
-		ogreModel->setTeamColor(teamColor());
-		ogreModel->setTeamGlow(teamGlow());
+		this->m_models.back().setTeamColor(teamColor());
+		this->m_models.back().setTeamGlow(teamGlow());
 	}
 	catch (Exception &exception)
 	{

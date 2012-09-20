@@ -182,6 +182,7 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 {
 	public:
 		typedef std::map<mdlx::long32, const mdlx::Node*> Nodes;
+		typedef std::map<mdlx::long32, const mdlx::GeosetAnimation*> GeosetAnimations;
 
 		typedef std::map<const class mdlx::Texture*, Ogre::TexturePtr> Textures;
 		typedef std::map<const class mdlx::Material*, Ogre::MaterialPtr> Materials;
@@ -335,6 +336,7 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 		Ogre::SceneNode *m_sceneNode;
 
 		Nodes m_mdlxNodes;
+		GeosetAnimations m_mdlxGeosetAnimations;
 		Textures m_textures;
 		Materials m_materials;
 		Geosets m_geosets;

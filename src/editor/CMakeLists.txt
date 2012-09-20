@@ -19,7 +19,7 @@ if (EDITOR)
 
 	kde4_add_library(wc3libeditor SHARED ${wc3lib_EDITOR_SRC} ${wc3lib_EDITOR_UI_H}  ${wc3lib_EDITOR_KIO_MPQ_SRC}) # MpqProtocol::protocol is required
 	#add_dependencies(wc3libeditor UI)
-	target_link_libraries(wc3libeditor ${wc3lib_CORE_LIBRARIES} ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${OGRE_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KIO_LIBS} ${KDE4_KUTILS_LIBS} ${KDE4_KPARTS_LIBS} qblp Plugin_BlpCodec)
+	target_link_libraries(wc3libeditor ${wc3lib_CORE_LIBRARIES} ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${OGRE_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KIO_LIBS} ${KDE4_KUTILS_LIBS} ${KDE4_KPARTS_LIBS} Plugin_BlpCodec qblp)
 
 	# install
 	install(FILES ${wc3lib_EDITOR_H} ${wc3lib_EDITOR_UI_H}  PUBLIC_HEADER DESTINATION include/wc3lib/editor)

@@ -290,20 +290,13 @@ inline const MpqPriorityList::Sources& MpqPriorityList::sources() const
 inline void MpqPriorityList::addResource(class Resource *resource)
 {
 	this->m_resources.insert(std::make_pair(resource->url(), resource));
-
-	// add additional archive source
-	if ((resource->type() == Resource::Type::Map || resource->type() == Resource::Type::Campaign) && resource->url().protocol() != MpqProtocol::protocol)
-	{
-		KUrl url = resource->url();
-		url.setProtocol(MpqProtocol::protocol);
-		this->addSource(url);
-	}
+	this->addSource(resource->sourceUrl());
 }
 
 
 inline bool MpqPriorityList::removeResource(class Resource *resource)
 {
-	this->removeResource(resource->url());
+	return this->removeResource(resource->url());
 }
 
 inline bool MpqPriorityList::removeResource(const KUrl &url)
@@ -313,14 +306,8 @@ inline bool MpqPriorityList::removeResource(const KUrl &url)
 	if (iterator == this->m_resources.end())
 		return false;
 
-	// remove additional archive source
-	if ((iterator->second->type() == Resource::Type::Map || iterator->second->type() == Resource::Type::Campaign) && iterator->second->url().protocol() != MpqProtocol::protocol)
-	{
-		KUrl url = iterator->second->url();
-		url.setProtocol(MpqProtocol::protocol);
-		this->removeSource(url);
-	}
-
+	const KUrl sourceUrl = iterator->second->sourceUrl();
+	this->removeSource(sourceUrl);
 	this->m_resources.erase(iterator);
 
 	return true;

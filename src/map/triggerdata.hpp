@@ -55,6 +55,9 @@ class TriggerData : public FileFormat
 				// Value 2: Optional flag (defaults to 0) indicating to disable display of category name
 				bool displayName() const;
 
+				virtual std::streamsize read(InputStream &istream) throw (Exception);
+				virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+
 			private:
 				string m_name;
 				string m_displayText;
@@ -78,6 +81,9 @@ class TriggerData : public FileFormat
 				// If a type does not have an entry here, it will be set to null if it is a handle
 				const string& defaultValue() const;
 
+				virtual std::streamsize read(InputStream &istream) throw (Exception);
+				virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+
 			private:
 				string m_name;
 				bool m_canBeGlobal;
@@ -100,6 +106,9 @@ class TriggerData : public FileFormat
 				const string& code() const;
 				// Value 2: display text
 				const string& displayText() const;
+
+				virtual std::streamsize read(InputStream &istream) throw (Exception);
+				virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
 
 			private:
 				string m_name;
@@ -127,6 +136,9 @@ class TriggerData : public FileFormat
 				const Strings& defaults() const;
 				const Strings& limits() const;
 
+				virtual std::streamsize read(InputStream &istream) throw (Exception);
+				virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+
 			private:
 				string m_code;
 				Types m_types;
@@ -152,6 +164,9 @@ class TriggerData : public FileFormat
 				Type* returnType() const;
 				const Types& types() const;
 
+				virtual std::streamsize read(InputStream &istream) throw (Exception);
+				virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+
 			private:
 				string m_code;
 				bool m_canBeUsedInEvents;
@@ -173,6 +188,9 @@ class TriggerData : public FileFormat
 				const Functions& events() const;
 				const Functions& conditions() const;
 				const Functions& actions() const;
+
+				virtual std::streamsize read(InputStream &istream) throw (Exception);
+				virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
 
 			private:
 				string m_name;

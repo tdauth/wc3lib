@@ -32,6 +32,66 @@ namespace wc3lib
 namespace map
 {
 
+std::streamsize TriggerData::Category::read(InputStream &istream) throw (Exception)
+{
+	return 0;
+}
+
+std::streamsize TriggerData::Category::write(OutputStream &ostream) const throw (Exception)
+{
+	return 0;
+}
+
+std::streamsize TriggerData::Type::read(InputStream &istream) throw (Exception)
+{
+	return 0;
+}
+
+std::streamsize TriggerData::Type::write(OutputStream &ostream) const throw (Exception)
+{
+	return 0;
+}
+
+std::streamsize TriggerData::Parameter::read(InputStream &istream) throw (Exception)
+{
+	return 0;
+}
+
+std::streamsize TriggerData::Parameter::write(OutputStream &ostream) const throw (Exception)
+{
+	return 0;
+}
+
+std::streamsize TriggerData::Function::read(InputStream &istream) throw (Exception)
+{
+	return 0;
+}
+
+std::streamsize TriggerData::Function::write(OutputStream &ostream) const throw (Exception)
+{
+	return 0;
+}
+
+std::streamsize TriggerData::Call::read(InputStream &istream) throw (Exception)
+{
+	return 0;
+}
+
+std::streamsize TriggerData::Call::write(OutputStream &ostream) const throw (Exception)
+{
+	return 0;
+}
+
+std::streamsize TriggerData::DefaultTrigger::read(InputStream &istream) throw (Exception)
+{
+	return 0;
+}
+
+std::streamsize TriggerData::DefaultTrigger::write(OutputStream &ostream) const throw (Exception)
+{
+	return 0;
+}
+
 	/*
 namespace client
 {

@@ -21,14 +21,13 @@
 #ifndef WC3LIB_EDITOR_MODULE_HPP
 #define WC3LIB_EDITOR_MODULE_HPP
 
+#include <typeinfo>
+
 #include <QWidget>
 
 #include <KComponentData>
 #include <KAboutData>
 #include <KMenu>
-
-#include "../core.hpp"
-#include "../mpq.hpp"
 
 namespace wc3lib
 {

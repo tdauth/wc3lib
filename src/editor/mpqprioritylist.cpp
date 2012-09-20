@@ -164,18 +164,27 @@ bool MpqPriorityList::removeDefaultSources()
 
 bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window)
 {
-	if (!src.isValid())
-		return false;
+	qDebug() << "Download: " << src.url();
 
-	if (!src.isRelative())
-		return KIO::NetAccess::download(src, target, window);
+	if (!src.isRelative()) // has protocol - is absolute
+	{
+		if (KIO::NetAccess::download(src, target, window))
+			return true;
+	}
 
+	qDebug() << "Sources size: " << sources().get<MpqPriorityListEntry>().size();
+
+	// TODO only do this if it doesn't start with /
 	// Since entries are ordered by priority highest priority entry should be checked first
 	BOOST_REVERSE_FOREACH(const Source entry, sources().get<MpqPriorityListEntry>())
 	{
 		// entry path can be a directory path or something like tar:/... or mpq:/...
 		KUrl absoluteSource = entry->url();
 		absoluteSource.addPath(src.toLocalFile());
+
+		qDebug() << "entry url: " << entry->url();
+		qDebug() << "local file: " << src.toLocalFile();
+		qDebug() << "Trying " << absoluteSource.url();
 
 		if (KIO::NetAccess::download(absoluteSource, target, window))
 			return true;
@@ -186,12 +195,13 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 
 bool MpqPriorityList::upload(const QString &src, const KUrl &target, QWidget *window)
 {
-	if (!target.isValid())
-		return false;
+	if (!target.isRelative()) // has protocol - is absolute
+	{
+		if (KIO::NetAccess::upload(src, target, window))
+			return true;
+	}
 
-	if (!target.isRelative())
-		return KIO::NetAccess::upload(src, target, window);
-
+	// TODO only do this if it doesn't start with /
 	// Since entries are ordered by priority highest priority entry should be checked first
 	BOOST_REVERSE_FOREACH(const Source entry, sources().get<MpqPriorityListEntry>())
 	{

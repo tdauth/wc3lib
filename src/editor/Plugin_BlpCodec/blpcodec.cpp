@@ -36,7 +36,7 @@ void BlpCodec::startup()
 {
 	if (m_self == 0)
 	{
-		Ogre::LogManager::getSingleton().logMessage(Ogre::LML_NORMAL, _("BLP codec registering"));
+		//Ogre::LogManager::getSingleton().logMessage(Ogre::LML_NORMAL, _("BLP codec registering"));
 
 		m_self = OGRE_NEW BlpCodec();
 		Ogre::Codec::registerCodec(m_self);

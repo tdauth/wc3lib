@@ -37,6 +37,10 @@
 #include "settings.hpp"
 #include "map.hpp"
 #include "sourcesdialog.hpp"
+#include "../config.h"
+#ifdef DEBUG
+#include "Plugin_BlpCodec/blpcodec.hpp"
+#endif
 
 namespace wc3lib
 {
@@ -63,6 +67,9 @@ const KAboutData& Editor::wc3libAboutData()
 
 Editor::Editor(QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f), m_root(0), m_currentMap(0), m_actionCollection(new KActionCollection(this)), m_modulesActionCollection(new KActionCollection(this)), m_mapsActionCollection(new KActionCollection(this)), m_newMapDialog(0), m_sourcesDialog(0)
 {
+#ifdef DEBUG
+	BlpCodec::startup(); // make sure we have BLP support even if it has not been installed
+#endif
 	class KAction *action = new KAction(KIcon(":/actions/newmap.png"), i18n("New map ..."), this);
 	action->setShortcut(KShortcut(i18n("Ctrl+N")));
 	connect(action, SIGNAL(triggered()), this, SLOT(newMap()));

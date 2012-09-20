@@ -129,7 +129,7 @@ void OgreMdlx::load() throw (Exception)
 	QString tmpFile;
 
 	if (!source()->download(url(), tmpFile, modelView()))
-		return;
+		throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toUtf8().constData());
 
 	std::ios_base::openmode openmode = std::ios_base::in;
 	bool isMdx = boost::filesystem::path(tmpFile.toUtf8().constData()).extension() == ".mdx";
@@ -146,7 +146,8 @@ void OgreMdlx::load() throw (Exception)
 	//model->textures()->textures().size(); // TEST
 	qDebug() << "Size: " << size;
 
-	this->mdlx()->textures()->members().size(); // TEST
+	this->m_mdlx.swap(model);
+
 	Ogre::LogManager::getSingleton().setLogDetail(Ogre::LL_BOREME); // TEST
 
 	try
@@ -166,9 +167,17 @@ void OgreMdlx::load() throw (Exception)
 		addMdlxNodes(*this->mdlx()->particleEmitters());
 		addMdlxNodes(*this->mdlx()->ribbonEmitters());
 
+		mdlx::long32 id = 0;
+
+		BOOST_FOREACH(mdlx::GeosetAnimations::Members::const_reference member, this->mdlx()->geosetAnimations()->members())
+		{
+			m_mdlxGeosetAnimations[id] = boost::polymorphic_cast<const mdlx::GeosetAnimation*>(&member);
+			++id;
+		}
+
 
 		// create textures
-		mdlx::long32 id = 0;
+		id = 0;
 
 		BOOST_FOREACH(mdlx::Textures::Members::const_reference member, this->mdlx()->textures()->members())
 		{
@@ -195,12 +204,19 @@ void OgreMdlx::load() throw (Exception)
 			const mdlx::Geoset *geoset = boost::polymorphic_cast<const mdlx::Geoset*>(&member);
 			Ogre::ManualObject *mo = this->createGeoset(*geoset, id);
 			this->m_geosetIds.left.insert(std::make_pair(geoset, id));
-			Ogre::Mesh *mesh = mo->convertToMesh(Ogre::String(geosetName(*geoset, id) + ".mesh")).get();
+			Ogre::Mesh *mesh = mo->convertToMesh(Ogre::String(geosetName(*geoset, id) + ".mesh")).get(); // TODO mesh gets lost maybe? - specify mesh loader etc.
 			this->m_geosets[geoset] = mesh;
+			//mesh->load();
+
 			// TODO one skeleton can be shared by multiple meshes
 			Ogre::SkeletonPtr skeleton = this->createSkeleton(Ogre::String(mdlx()->model()->name()) + "Skeleton" + geosetName(*geoset, id));
+
+			qDebug() << "Skeleton name: " << skeleton->getName().c_str();
+
 			mesh->_notifySkeleton(skeleton);
 			mesh->setSkeletonName(skeleton->getName());
+
+			qDebug() << "Skeleton name 2: " << mesh->getSkeleton()->getName().c_str();
 
 			mdlx::long32 seqId = 0;
 
@@ -234,15 +250,18 @@ void OgreMdlx::load() throw (Exception)
 			++id;
 		}
 
+		/*
+		 FIXME skeleton bug
 		id = 0;
 
 		BOOST_FOREACH(mdlx::Bones::Members::const_reference member, this->mdlx()->bones()->members())
 		{
 			const mdlx::Bone *bone = boost::polymorphic_cast<const mdlx::Bone*>(&member);
-			this->m_bones[bone] = this->createBone(*bone, id);
+			this->createBone(*bone, id); // values are assigned to map in function due to recursive calls
 			//createNodeAnimatedProperties(*bone);
 			++id;
 		}
+		*/
 	}
 	catch (Ogre::Exception &exception)
 	{
@@ -1147,32 +1166,41 @@ Ogre::Bone* OgreMdlx::createBone(const class mdlx::Bone &bone, mdlx::long32 id)
 	Ogre::Bone *parent = 0;
 	Ogre::Bone *ogreBone = 0;
 
-	if (bone.hasParent())
+	Bones::iterator iterator = m_bones.find(&bone);
+
+	if (iterator == m_bones.end())
 	{
-		const mdlx::Bone *parentBone = boost::polymorphic_cast<const mdlx::Bone*>(this->m_mdlxNodes[bone.parentId()]);
-		parent = createBone(*parentBone, bone.parentId());
-		ogreBone = parent->createChild(id);
-		//ogreBone->setInheritsTranslation(bone.inheritsTranslation());
-		//ogreBone->setInheritsRotation(bone.inheritsRotation());
-		ogreBone->setInheritScale(bone.inheritsScaling());
-	}
-	else
-	{
-		const mdlx::Geoset *geoset = boost::polymorphic_cast<const mdlx::Geoset*>(this->geosetIds().right.find(bone.geosetId())->second);
-		Geosets::const_iterator iterator = this->geosets().find(geoset);
-		const Ogre::Mesh *mesh = iterator->second;
-		ogreBone = mesh->getSkeleton()->createBone((boost::format("%1%.Bone.%2%") % namePrefix().toUtf8().constData() % bone.name()).str().c_str());
-		qDebug() << "Created bone " << id;
+		if (bone.hasParent() && dynamic_cast<const mdlx::Bone*>(this->m_mdlxNodes[bone.parentId()]) != 0)
+		{
+			const mdlx::Bone *parentBone = boost::polymorphic_cast<const mdlx::Bone*>(this->m_mdlxNodes[bone.parentId()]);
+			parent = createBone(*parentBone, bone.parentId());
+			ogreBone = parent->createChild(id);
+			//ogreBone->setInheritsTranslation(bone.inheritsTranslation());
+			//ogreBone->setInheritsRotation(bone.inheritsRotation());
+			ogreBone->setInheritScale(bone.inheritsScaling());
+		}
+		else
+		{
+			const mdlx::Geoset *geoset = boost::polymorphic_cast<const mdlx::Geoset*>(this->geosetIds().right.find(bone.geosetId())->second);
+			Geosets::const_iterator iterator = this->geosets().find(geoset);
+			const Ogre::Mesh *mesh = iterator->second;
+			qDebug() << "Mesh: " << mesh->getName().c_str();
+			qDebug() << "Skeleton: " << mesh->getSkeleton()->getName().c_str();
+			ogreBone = mesh->getSkeleton()->createBone((boost::format("%1%.Bone.%2%") % namePrefix().toUtf8().constData() %bone.name()).str().c_str()); // FIXME second mesh has no skeleton although properly assigned befoire
+			qDebug() << "Created bone " << id;
+		}
 
 		if (bone.geosetAnimationId() != mdlx::noneId)
 		{
-			const mdlx::GeosetAnimation *geosetAnim = boost::polymorphic_cast<const mdlx::GeosetAnimation*>(this->m_mdlxNodes[bone.geosetAnimationId()]);
+			const mdlx::GeosetAnimation *geosetAnim = this->m_mdlxGeosetAnimations[bone.geosetAnimationId()];
 			qDebug() << "We have geoset animation " << bone.geosetAnimationId();
 			//const Ogre::Animation *animation = ogreBone->createAnimation((boost::format("GeosetAnim%1%") % bone.geosetAnimId()).c_str());
 		}
-		else
-			qDebug() << "No geoset animation assigned to bone " << bone.name();
+
+		m_bones[&bone] = ogreBone;
 	}
+	else
+		ogreBone = iterator->second;
 
 	return ogreBone;
 }

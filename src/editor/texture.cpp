@@ -182,8 +182,25 @@ void Texture::loadOgre() throw (Exception)
 			throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toUtf8().constData());
 
 		OgrePtr ogreImage(new Ogre::Image());
-		ogreImage->load(tmpFileName.toUtf8().constData(), "");
-		// TODO check correct loading state, exception handling?
+		const QString extension = QFileInfo(url().toLocalFile()).suffix(); // extension is not necessary if header contains information - Ogre::Image::load()
+
+		try
+		{
+			std::ifstream ifs(tmpFileName.toUtf8().constData(), std::ios::binary | std::ios::in);
+
+			if (!ifs)
+				throw Exception(boost::format(_("Unable to open tempory file \"%1%\".")) % tmpFileName.toUtf8().constData());
+
+			Ogre::DataStreamPtr dataStream(new Ogre::FileStreamDataStream(tmpFileName.toUtf8().constData(), &ifs, false));
+			ogreImage->load(dataStream, extension.toUtf8().constData());
+			// TODO check correct loading state, exception handling?
+
+			ifs.close();
+		}
+		catch (Ogre::Exception &exception)
+		{
+			throw Exception(exception.getFullDescription());
+		}
 
 		m_ogre.swap(ogreImage); // exception safe (won't change image if ->read throws exception
 	}
