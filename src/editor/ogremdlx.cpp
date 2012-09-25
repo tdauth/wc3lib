@@ -837,7 +837,16 @@ Ogre::TexturePtr OgreMdlx::createTexture(const class mdlx::Texture &texture, mdl
 		KUrl url(texturePath);
 		textureResource.reset(new Texture(url));
 		textureResource->setSource(source());
-		textureResource->loadOgre();
+
+		try
+		{
+			textureResource->loadOgre();
+		}
+		catch (Exception &exception)
+		{
+			std::cerr << boost::format(_("Warning: %1%")) % exception.what() << std::endl;
+		}
+
 		sourceImage = textureResource->ogre().data();
 	}
 
@@ -1041,7 +1050,9 @@ Ogre::ManualObject* OgreMdlx::createGeoset(const class mdlx::Geoset &geoset, mdl
 		throw Exception(boost::format(_("Material %1% not found for geoset %2%")) % geoset.materialId() % id);
 
 	material = iterator->second;
-	object->setRenderQueueGroupAndPriority(object->getRenderQueueGroup(), boost::numeric_cast<Ogre::ushort>(material->priorityPlane())); // set priority by corresponding material -> TODO should be applied for material?
+
+	// FIXME negative underflow
+	//object->setRenderQueueGroupAndPriority(object->getRenderQueueGroup(), boost::numeric_cast<Ogre::ushort>(material->priorityPlane())); // set priority by corresponding material -> TODO should be applied for material?
 
 	// increase processor performance
 	object->estimateVertexCount(geoset.vertices()->members().size());
