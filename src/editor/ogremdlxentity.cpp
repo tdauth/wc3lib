@@ -26,16 +26,24 @@ namespace wc3lib
 namespace editor
 {
 
-OgreMdlxEntity::OgreMdlxEntity(const Ogre::String &name, OgreMdlx *mdlx, Ogre::SceneManager *sceneManager) : m_mdlx(mdlx), m_globalSequence(0)
+OgreMdlxEntity::OgreMdlxEntity(const Ogre::String &name, OgreMdlx *mdlx, Ogre::SceneManager *sceneManager) : m_mdlx(mdlx), m_sceneManager(sceneManager), m_sceneNode(sceneManager->getRootSceneNode()->createChildSceneNode(name)), m_globalSequence(0)
 {
+	mdlx::long32 id = 0;
+
 	BOOST_FOREACH(OgreMdlx::Geosets::const_reference ref, mdlx->geosets())
-		this->m_entities.push_back(sceneManager->createEntity(name, ref.second->getName()));
+	{
+		Ogre::Entity *entity = sceneManager->createEntity(boost::str(boost::format("%1%.Geoset%2%") % name.c_str() % id).c_str(), ref.second->getName());
+		this->m_entities.push_back(entity);
+
+		this->m_sceneNode->attachObject(entity);
+
+		++id;
+	}
 }
 
 OgreMdlxEntity::~OgreMdlxEntity()
 {
-	BOOST_FOREACH(Entities::value_type value, m_entities)
-		delete value;
+	destroySceneNode(this->m_sceneNode);
 }
 
 bool OgreMdlxEntity::frameRenderingQueued(const Ogre::FrameEvent &evt)

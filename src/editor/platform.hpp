@@ -21,6 +21,8 @@
 #ifndef WC3LIB_EDITOR_PLATFORM_HPP
 #define WC3LIB_EDITOR_PLATFORM_HPP
 
+#include <boost/cast.hpp>
+
 #include <QColor>
 #include <QString>
 #include <QList>
@@ -441,6 +443,37 @@ inline QString customTextTriggersFilter()
 // TODO Use image open URL function but MIME type of BLP is not usable on debugging
 // TODO MIME filters do not work ("all/allfiles").
 //i18n("*|All Files\n*.blp|Blizzard Pictures\n*.png|Portable Network Graphics\n*.jpg|JPEG Files"), this, i18n("Open texture"));
+
+/// From http://www.ogre3d.org/forums/viewtopic.php?f=2&t=53647
+inline void destroyAllAttachedMovableObjects(Ogre::SceneNode *node)
+{
+	if(!node) return;
+
+	// Destroy all the attached objects
+	Ogre::SceneNode::ObjectIterator itObject = node->getAttachedObjectIterator(); // FIXME segmentation fault
+
+	while (itObject.hasMoreElements())
+		node->getCreator()->destroyMovableObject(itObject.getNext());
+
+	// Recurse to child SceneNodes
+	Ogre::SceneNode::ChildNodeIterator itChild = node->getChildIterator();
+
+	while ( itChild.hasMoreElements() )
+	{
+		Ogre::SceneNode* pChildNode = boost::polymorphic_cast<Ogre::SceneNode*>(itChild.getNext());
+		destroyAllAttachedMovableObjects(pChildNode);
+	}
+}
+
+/// From http://www.ogre3d.org/forums/viewtopic.php?f=2&t=53647
+inline void destroySceneNode(Ogre::SceneNode *node)
+{
+	if(!node) return;
+	destroyAllAttachedMovableObjects(node);
+	node->removeAndDestroyAllChildren();
+	node->getCreator()->destroySceneNode(node);
+}
+
 }
 
 }

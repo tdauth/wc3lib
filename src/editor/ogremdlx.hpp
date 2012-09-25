@@ -187,10 +187,14 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 		typedef std::map<const class mdlx::Texture*, Ogre::TexturePtr> Textures;
 		typedef std::map<const class mdlx::Material*, Ogre::MaterialPtr> Materials;
 		/**
+		 * Required by geosets.
+		 */
+		typedef std::map<mdlx::long32, const class mdlx::Material*> MaterialIds;
+		/**
 		 * Geoset ids have to be stored in both directions since many members need access to geosets by their id as well as you need the id of a geoset sometimes.
 		 */
 		typedef boost::bimap<const class mdlx::Geoset*, mdlx::long32> GeosetIds;
-		typedef std::map<const class mdlx::Geoset*, Ogre::Mesh*> Geosets;
+		typedef std::map<const class mdlx::Geoset*, Ogre::MeshPtr> Geosets;
 		typedef std::map<const class mdlx::Camera*, Ogre::Camera*> Cameras;
 		typedef std::map<const class mdlx::Sequence*, Ogre::Animation*> Sequences;
 
@@ -265,8 +269,9 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 		 * Detects output format by file extension (no matter what case).
 		 * Supported formats:
 		 * <ul>
-		 * <li>MDX</li>
-		 * <li>MDL</li>
+		 * <li>MDX - "mdx"</li>
+		 * <li>MDL - "mdl"</li>
+		 * <li>OGRE MESH - "mesh"</li>
 		 * </ul>
 		 * Stores file at \p url.
 		 * \param format If this value is empty format will be detected automatically by it's destination's extension. If no valid extension could be detected default format is used: MDX.
@@ -275,7 +280,7 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 		virtual void save(const KUrl &url, const QString &format) const throw (class Exception);
 		virtual void save(const KUrl &url) const throw (Exception)
 		{
-			save(url, "mdx");
+			save(url, "");
 		}
 
 		QString namePrefix() const;
@@ -339,6 +344,7 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 		GeosetAnimations m_mdlxGeosetAnimations;
 		Textures m_textures;
 		Materials m_materials;
+		MaterialIds m_materialIds;
 		Geosets m_geosets;
 		GeosetIds m_geosetIds;
 		Sequences m_sequences;

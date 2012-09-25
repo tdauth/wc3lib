@@ -64,20 +64,7 @@ void OgreMdlx::clear() throw ()
 
 	if (m_sceneNode != 0)
 	{
-		Ogre::SceneNode::ObjectIterator iterator = this->m_sceneNode->getAttachedObjectIterator();
-
-		while (iterator.hasMoreElements())
-		{
-			Ogre::MovableObject *movableObject = iterator.current()->second;
-			this->modelView()->sceneManager()->destroyMovableObject(movableObject);
-			//this->m_sceneNode->detachObject(movableObject);
-			//delete movableObject;
-
-			iterator.getNext();
-		}
-
-		this->modelView()->sceneManager()->destroySceneNode(m_sceneNode);
-		//delete m_sceneNode;
+		destroySceneNode(this->m_sceneNode);
 	}
 
 	BOOST_FOREACH(CollisionShapes::reference value, m_collisionShapes)
@@ -89,11 +76,13 @@ void OgreMdlx::setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor) throw (Excep
 	if (!source()->teamColorTexture(teamColor)->hasOgre())
 		source()->teamColorTexture(teamColor)->loadOgre();
 
+	const Ogre::Image *image = source()->teamColorTexture(teamColor)->ogre().data();
+
 	BOOST_FOREACH(Ogre::TexturePtr tex, this->m_teamColorTextures)
 	{
 		try
 		{
-			tex->loadImage(*source()->teamColorTexture(teamColor)->ogre().data());
+			tex->loadImage(*image);
 		}
 		catch (Ogre::Exception &exception)
 		{
@@ -107,13 +96,19 @@ void OgreMdlx::setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor) throw (Excep
 void OgreMdlx::setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow) throw (Exception)
 {
 	if (!source()->teamGlowTexture(teamGlow)->hasOgre())
-		source()->teamColorTexture(teamGlow)->loadOgre();
+		source()->teamGlowTexture(teamGlow)->loadOgre();
+
+	const Ogre::Image *image = source()->teamGlowTexture(teamGlow)->ogre().data();
 
 	BOOST_FOREACH(Ogre::TexturePtr tex, this->m_teamGlowTextures)
 	{
 		try
 		{
-			tex->loadImage(*source()->teamGlowTexture(teamGlow)->ogre().data());
+			qDebug() << "Pointer: " << source()->teamGlowTexture(teamGlow)->ogre().data();
+			qDebug() << "Height: " << image->getHeight();
+			qDebug() << "Width: " << image->getWidth();
+
+			tex->loadImage(*image);
 		}
 		catch (Ogre::Exception &exception)
 		{
@@ -154,7 +149,8 @@ void OgreMdlx::load() throw (Exception)
 	{
 		this->m_sceneNode = this->m_modelView->sceneManager()->getRootSceneNode()->createChildSceneNode(mdlx()->model()->name());
 
-		this->modelView()->camera()->setAutoTracking(true, this->m_sceneNode); // camera follows ogre mdlx automatically
+		// NOTE if you enable this, make sure auto tracking is removed when scene node is deleted
+		//this->modelView()->camera()->setAutoTracking(true, this->m_sceneNode); // camera follows ogre mdlx automatically
 
 		// build nodes
 		addMdlxNodes(*this->mdlx()->attachments());
@@ -193,6 +189,7 @@ void OgreMdlx::load() throw (Exception)
 		{
 			const mdlx::Material *material = boost::polymorphic_cast<const mdlx::Material*>(&member);
 			this->m_materials[material] = this->createMaterial(*material, id);
+			this->m_materialIds[id] = material;
 			++id;
 		}
 
@@ -204,11 +201,12 @@ void OgreMdlx::load() throw (Exception)
 			const mdlx::Geoset *geoset = boost::polymorphic_cast<const mdlx::Geoset*>(&member);
 			Ogre::ManualObject *mo = this->createGeoset(*geoset, id);
 			this->m_geosetIds.left.insert(std::make_pair(geoset, id));
-			Ogre::Mesh *mesh = mo->convertToMesh(Ogre::String(geosetName(*geoset, id) + ".mesh")).get(); // TODO mesh gets lost maybe? - specify mesh loader etc.
+			Ogre::MeshPtr mesh = mo->convertToMesh(Ogre::String(geosetName(*geoset, id) + ".mesh"));
 			this->m_geosets[geoset] = mesh;
 			//mesh->load();
 
 			// TODO one skeleton can be shared by multiple meshes
+			/*
 			Ogre::SkeletonPtr skeleton = this->createSkeleton(Ogre::String(mdlx()->model()->name()) + "Skeleton" + geosetName(*geoset, id));
 
 			qDebug() << "Skeleton name: " << skeleton->getName().c_str();
@@ -226,6 +224,11 @@ void OgreMdlx::load() throw (Exception)
 				// TODO assign animation to member
 				++seqId;
 			}
+			*/
+
+			// TODO attach or create entities
+			//this->modelView()->sceneManager()->attachObject(mesh);
+			mesh->load(); // Notify -Mesh object that it has been loaded
 
 
 			++id;
@@ -572,21 +575,28 @@ void OgreMdlx::save(const KUrl &url, const QString &format) const throw (class E
 
 	if (realFormat.isEmpty())
 	{
-		QString extension(QFileInfo(realFormat).suffix().toLower());
+		QString extension(QFileInfo(url.toLocalFile()).suffix().toLower());
+
+		qDebug() << "Extension: " << QFileInfo(url.toLocalFile()).suffix().toLower();
 
 		if (extension == "mdx")
 			realFormat = "mdx";
 		else if (extension == "mdl")
 			realFormat = "mdl";
+		else if (extension == "mesh")
+			realFormat = "mesh";
 		// default format
 		else
 			realFormat = "mdx";
 	}
 
-	KTemporaryFile tmpFile;
-
 	if (realFormat == "mdx" || realFormat == "mdl")
 	{
+		KTemporaryFile tmpFile;
+
+		if (!tmpFile.open()) // creates file
+			throw Exception(_("Unable to create temporary file."));
+
 		std::ios_base::openmode openmode = std::ios_base::out;
 		bool isMdx;
 
@@ -610,12 +620,18 @@ void OgreMdlx::save(const KUrl &url, const QString &format) const throw (class E
 		else
 			size = mdlx()->writeMdl(ofstream);
 
-		KMessageBox::information(modelView(), i18n("Wrote %1 file \"%2\" successfully.\nSize: %3.", isMdx ? i18n("MDX") : i18n("MDL"), tmpFile.fileName(), sizeStringBinary(size).c_str()));
+		if (!source()->upload(tmpFile.fileName(), url, modelView()))
+			throw Exception(boost::format(_("Error while uploading file \"%1%\" to destination \"%2%\".")) % tmpFile.fileName().toUtf8().constData() % url.toEncoded().constData());
+
+		KMessageBox::information(modelView(), i18n("Wrote %1 file \"%2\" successfully.\nSize: %3.", isMdx ? i18n("MDX") : i18n("MDL"), url.toEncoded().constData(), sizeStringBinary(size).c_str()));
 	}
 	else if (realFormat == "mesh")
 	{
 		boost::scoped_ptr<Ogre::MeshSerializer> serializer(new Ogre::MeshSerializer());
 		QList<KUrl> files;
+
+		if (!source()->mkdir(url, modelView()))
+			throw Exception(boost::format(_("Unable to create directory \"%1%\"")) % url.toEncoded().constData());
 
 		BOOST_FOREACH(Geosets::const_reference value, m_geosets)
 		{
@@ -624,30 +640,30 @@ void OgreMdlx::save(const KUrl &url, const QString &format) const throw (class E
 			if (it == this->geosetIds().left.end())
 				throw Exception();
 
+			KTemporaryFile tmpFile;
+
+			if (!tmpFile.open())
+				throw Exception();
+
 			ostringstream sstream;
-			sstream << "Geoset" << it->second;
-			const QFileInfo info(tmpFile.fileName());
-			KUrl geosetUrl(info.absoluteDir().absolutePath());
-			QString fileName(info.baseName() + sstream.str().c_str());
-			fileName += '.' + info.completeSuffix();
-			geosetUrl.addPath(fileName);
-			qDebug() << "Geoset URL: " << geosetUrl.toLocalFile();
-			serializer->exportMesh(value.second, geosetUrl.toLocalFile().toUtf8().constData());
+			sstream << "Geoset" << it->second << ".mesh";
+
+			serializer->exportMesh(value.second.get(), tmpFile.fileName().toUtf8().constData());
+
+			const QString fileName(sstream.str().c_str());
 			KUrl destination(url);
 			destination.addPath(fileName);
+			qDebug() << "File name: " << tmpFile.fileName();
+			qDebug() << "destination: " << destination.toLocalFile();
 
-			if (!source()->upload(geosetUrl.toLocalFile(), destination, modelView()))
-				throw Exception(boost::format(_("Error while uploading file \"%1%\" to destination \"%2%\".")) % geosetUrl.toEncoded().constData() % destination.toEncoded().constData());
+			if (!source()->upload(tmpFile.fileName(), destination, modelView()))
+				throw Exception(boost::format(_("Error while uploading file \"%1%\" to destination \"%2%\".")) % tmpFile.fileName().toUtf8().constData() % destination.toEncoded().constData());
 		}
 
-		return;
+		KMessageBox::information(modelView(), i18n("Wrote MESH file \"%1\" successfully.", url.toEncoded().constData()));
 	}
 	else
 		throw Exception(boost::format(_("Format \"%1%\" is not supported.")) % realFormat.toUtf8().constData());
-
-
-	if (!source()->upload(tmpFile.fileName(), url, modelView()))
-		throw Exception(boost::format(_("Error while uploading file \"%1%\" to destination \"%2%\".")) % tmpFile.fileName().toUtf8().constData() % url.toEncoded().constData());
 
 	/*
 	TODO
@@ -909,6 +925,8 @@ Ogre::MaterialPtr OgreMdlx::createMaterial(const class mdlx::Material &material,
 		//float32	alpha() const; TODO set alpha!
 		technique->setLightingEnabled(false); // default value
 
+		/*
+		TEST - uncomment
 		switch (layer.filterMode())
 		{
 			case mdlx::Layer::FilterMode::Transparent:
@@ -971,6 +989,7 @@ Ogre::MaterialPtr OgreMdlx::createMaterial(const class mdlx::Material &material,
 			if (layer.shading() & mdlx::Layer::Shading::NoDepthSet)
 				qDebug() << "Material: shading type \"NoDepthSet\" is not supported.";
 		}
+		*/
 
 		/*
 		Texture animation stuff
@@ -1015,24 +1034,13 @@ Ogre::ManualObject* OgreMdlx::createGeoset(const class mdlx::Geoset &geoset, mdl
 	// TODO built up binary tree before
 
 	const class mdlx::Material *material = 0;
-	mdlx::long32 materialId = 0;
 
-	BOOST_FOREACH(mdlx::Materials::Members::const_reference member, this->mdlx()->materials()->members())
-	{
-		if (materialId == geoset.materialId())
-		{
-			material = boost::polymorphic_cast<const mdlx::Material*>(&member);
+	MaterialIds::const_iterator iterator = m_materialIds.find(geoset.materialId());
 
-			break;
-		}
+	if (iterator == m_materialIds.end())
+		throw Exception(boost::format(_("Material %1% not found for geoset %2%")) % geoset.materialId() % id);
 
-		++materialId;
-	}
-
-	if (materialId != geoset.materialId())
-		throw Exception(boost::format(_("Missing material %1%")) % id);
-
-
+	material = iterator->second;
 	object->setRenderQueueGroupAndPriority(object->getRenderQueueGroup(), boost::numeric_cast<Ogre::ushort>(material->priorityPlane())); // set priority by corresponding material -> TODO should be applied for material?
 
 	// increase processor performance
@@ -1098,6 +1106,8 @@ Ogre::ManualObject* OgreMdlx::createGeoset(const class mdlx::Geoset &geoset, mdl
 
 				object->triangle(indices[0], indices[1], indices[2]);
 			}
+
+			qDebug() << "Built " << primitiveSize->value() << " triangles.";
 		}
 		else
 		{
@@ -1183,7 +1193,7 @@ Ogre::Bone* OgreMdlx::createBone(const class mdlx::Bone &bone, mdlx::long32 id)
 		{
 			const mdlx::Geoset *geoset = boost::polymorphic_cast<const mdlx::Geoset*>(this->geosetIds().right.find(bone.geosetId())->second);
 			Geosets::const_iterator iterator = this->geosets().find(geoset);
-			const Ogre::Mesh *mesh = iterator->second;
+			const Ogre::Mesh *mesh = iterator->second.get();
 			qDebug() << "Mesh: " << mesh->getName().c_str();
 			qDebug() << "Skeleton: " << mesh->getSkeleton()->getName().c_str();
 			ogreBone = mesh->getSkeleton()->createBone((boost::format("%1%.Bone.%2%") % namePrefix().toUtf8().constData() %bone.name()).str().c_str()); // FIXME second mesh has no skeleton although properly assigned befoire

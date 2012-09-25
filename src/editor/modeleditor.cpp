@@ -125,6 +125,9 @@ void ModelEditor::saveFile()
 
 	KUrl url = KFileDialog::getSaveUrl(this->m_recentUrl, i18n("*.mdl|Blizzard Model (*.mdl)\n*.mdx|Compressed Blizzard Model (*.mdx)\n*.mesh|OGRE mesh (*.mesh)\n*|All files (*)"), this);
 
+	if (url.isEmpty())
+		return;
+
 	try
 	{
 		(*this->models().begin()).save(url);
@@ -403,19 +406,22 @@ bool ModelEditor::openUrl(const KUrl &url)
 		return false;
 	}
 
+	OgreMdlx *model = ogreModel.get();
 	this->m_models.push_back(ogreModel);
-	this->m_modelView->root()->addFrameListener(&this->m_models.back());
-	addCameraActions(this->m_models.back());
+	this->m_modelView->root()->addFrameListener(model);
+	addCameraActions(*model);
 
 	try
 	{
-		this->m_models.back().setTeamColor(teamColor());
-		this->m_models.back().setTeamGlow(teamGlow());
+		model->setTeamColor(teamColor());
+		model->setTeamGlow(teamGlow());
 	}
 	catch (Exception &exception)
 	{
 		KMessageBox::error(this, i18n("Unable to assign team color %1 and team glow %2 to model \"%3\".\nException \"%4\".", teamColor(), teamGlow(), url.toEncoded().constData(), exception.what().c_str()));
 	}
+
+	m_entities.left.insert(std::make_pair(model, new OgreMdlxEntity(Ogre::String(QString(model->namePrefix() +"Entity").toUtf8().constData()), model, this->modelView()->sceneManager()))); // create entity
 
 	return true;
 }
@@ -437,6 +443,18 @@ void ModelEditor::removeModel(const OgreMdlx &ogreModel)
 
 void ModelEditor::removeModel(Models::iterator iterator)
 {
+	qDebug() << "Removing model " << iterator->namePrefix();
+
+	Entities::left_iterator entityIterator = m_entities.left.find(&*iterator);
+
+	if (entityIterator != m_entities.left.end())
+	{
+		OgreMdlxEntity *entity = entityIterator->second;
+		m_entities.left.erase(entityIterator);
+		qDebug() << "Removing model entity " << entity->sceneNode()->getName().c_str();
+		delete entity;
+	}
+
 	this->m_modelView->root()->removeFrameListener(&(*iterator));
 	removeCameraActions(*iterator);
 	m_models.erase(iterator);

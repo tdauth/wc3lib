@@ -146,7 +146,11 @@ void Texture::loadQt() throw (Exception)
 void Texture::loadOgre() throw (Exception)
 {
 	if (hasOgre())
+	{
+		Q_ASSERT(m_ogre.data());
+
 		return;
+	}
 
 	// if we have already an image it seems to be faster to read from it instead of the original file
 	if (hasBlp())
@@ -204,6 +208,8 @@ void Texture::loadOgre() throw (Exception)
 
 		m_ogre.swap(ogreImage); // exception safe (won't change image if ->read throws exception
 	}
+
+	Q_ASSERT(m_ogre.data());
 }
 
 void Texture::loadAll() throw (Exception)

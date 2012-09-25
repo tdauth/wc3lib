@@ -216,6 +216,29 @@ bool MpqPriorityList::upload(const QString &src, const KUrl &target, QWidget *wi
 	return false;
 }
 
+bool MpqPriorityList::mkdir(const KUrl &target, QWidget *window)
+{
+	if (!target.isRelative()) // has protocol - is absolute
+	{
+		if (KIO::NetAccess::mkdir(target, window))
+			return true;
+	}
+
+	// TODO only do this if it doesn't start with /
+	// Since entries are ordered by priority highest priority entry should be checked first
+	BOOST_REVERSE_FOREACH(const Source entry, sources().get<MpqPriorityListEntry>())
+	{
+		// entry path can be a directory path or something like tar:/... or mpq:/...
+		KUrl absoluteTarget = entry->url();
+		absoluteTarget.addPath(target.toLocalFile());
+
+		if (KIO::NetAccess::mkdir(absoluteTarget, window))
+			return true;
+	}
+
+	return false;
+}
+
 QMap< QString, QString > MpqPriorityList::txtEntries(QWidget *widget, const KUrl &url, const QString &group) const
 {
 	QString target;

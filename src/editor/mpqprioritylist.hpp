@@ -59,6 +59,7 @@ class MpqPriorityListEntry : public boost::operators<MpqPriorityListEntry>
 
 		bool download(const KUrl &src, QString &target, QWidget *window);
 		bool upload(const QString &src, const KUrl &target, QWidget *window);
+		bool mkdir(const KUrl &target, QWidget *window);
 
 		Priority priority() const;
 		bool isDirectory() const;
@@ -201,6 +202,7 @@ class MpqPriorityList
 		 */
 		virtual bool download(const KUrl &src, QString &target, QWidget *window);
 		virtual bool upload(const QString &src, const KUrl &target, QWidget *window);
+		virtual bool mkdir(const KUrl &target, QWidget *window);
 
 		const Sources& sources() const;
 

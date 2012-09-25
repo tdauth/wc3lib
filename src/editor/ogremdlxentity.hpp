@@ -34,6 +34,12 @@ namespace wc3lib
 namespace editor
 {
 
+/**
+ * Stores one single scene node of a corresponding \ref OgreMdlx instance which consists of several entities, for each Geoset one entity.
+ * Animations can be assigned using \ref applyAnimation().
+ *
+ * If you have a Footman model for example and want to create several units sharing the same model as in the game, you'll have to create one \ref OgreMdlx instance, load the model file and add as many entities as you'd like to which can be moved around and animated separately.
+ */
 class OgreMdlxEntity : public Ogre::FrameListener
 {
 	public:
@@ -47,8 +53,12 @@ class OgreMdlxEntity : public Ogre::FrameListener
 
 		bool applyAnimation(const Ogre::String &name, bool loop);
 
+		Ogre::SceneNode* sceneNode() const;
+
 	private:
 		OgreMdlx *m_mdlx;
+		Ogre::SceneManager *m_sceneManager;
+		Ogre::SceneNode *m_sceneNode;
 		Entities m_entities;
 
 
@@ -66,6 +76,11 @@ inline bool OgreMdlxEntity::applyAnimation(const Ogre::String &name, bool loop)
 		state->setLoop(loop);
 		state->setEnabled(true);
 	}
+}
+
+inline Ogre::SceneNode* OgreMdlxEntity::sceneNode() const
+{
+	return this->m_sceneNode;
 }
 
 }

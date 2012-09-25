@@ -1,3 +1,8 @@
+2012-09-25 Tamino Dauth <tamino@cdauth.eu>
+* editor: Implement asynchronous loading and saving for resources with KDE IO API and callback functions which do not block the GUI and rendering.
+* editor: Fix BLP -> OGRE texture colors.
+* editor: Fix segmentation fault on removing all attached nodes and childs of a scene node.
+
 2012-09-18 Tamino Dauth <tamino@cdauth.eu>
 * editor: OgreMdlx: Use Ogre::Root as parameter instead of ModelView for all manager instances.
 

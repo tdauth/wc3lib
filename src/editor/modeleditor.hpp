@@ -34,6 +34,7 @@
 #include "../mdlx.hpp"
 #include "module.hpp"
 #include "ogremdlx.hpp"
+#include "ogremdlxentity.hpp"
 #include "platform.hpp"
 
 namespace wc3lib
@@ -52,6 +53,8 @@ class ModelEditor : public Module
 	public:
 		typedef boost::ptr_list<OgreMdlx> Models;
 
+		typedef boost::bimap<const OgreMdlx*, OgreMdlxEntity*> Entities;
+
 		typedef boost::bimap<QAction*, const mdlx::Camera*> CameraActions;
 		typedef boost::bimap<const OgreMdlx::CollisionShape*, Ogre::SceneNode*> CollisionShapeNodes;
 
@@ -65,6 +68,7 @@ class ModelEditor : public Module
 		class ModelEditorView* modelView() const;
 		Models& models();
 		const Models& models() const;
+		const Entities& entities() const;
 		const CameraActions& cameraActions() const;
 		const CollisionShapeNodes& collisionShapeNodes() const;
 
@@ -129,6 +133,7 @@ class ModelEditor : public Module
 		class ModelEditorSettingsDialog *m_settingsDialog;
 		KUrl m_recentUrl;
 		Models m_models;
+		Entities m_entities;
 		CameraActions m_cameraActions;
 		CollisionShapeNodes m_collisionShapeNodes;
 
@@ -152,6 +157,11 @@ inline class ModelEditorView* ModelEditor::modelView() const
 inline ModelEditor::Models& ModelEditor::models()
 {
 	return m_models;
+}
+
+inline const ModelEditor::Entities& ModelEditor::entities() const
+{
+	return m_entities;
 }
 
 inline const ModelEditor::Models& ModelEditor::models() const
