@@ -95,13 +95,15 @@ BlpCodec::DecodeResult BlpCodec::decode(const blp::Blp &blp) const
 		for (blp::dword width = 0; width < mipMapWidth; ++width)
 		{
 			const blp::color argb = blp.mipMaps().front().colorAt(width, height).argb();
-			imageData[i] = blp::alpha(argb);
-			++i;
-			imageData[i] = blp::red(argb);
+
+			// NOTE little endian order - reverse order
+			imageData[i] = blp::blue(argb);
 			++i;
 			imageData[i] = blp::green(argb);
 			++i;
-			imageData[i] = blp::blue(argb);
+			imageData[i] = blp::red(argb);
+			++i;
+			imageData[i] = blp::alpha(argb);
 			++i;
 		}
 	}

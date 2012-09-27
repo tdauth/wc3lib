@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <algorithm>
+
 #include <QtCore>
 #include <QtGui>
 
@@ -67,22 +69,29 @@ void OgreMdlx::clear() throw ()
 		destroySceneNode(this->m_sceneNode);
 	}
 
+	BOOST_FOREACH(Textures::reference value, m_textures)
+	{
+		if (value.first->replaceableId() == mdlx::ReplaceableId::None) // don't ever removed textures with replaceable ids since they're shared by the resource's source
+		{
+			qDebug() << "Remove texture " << value.second->getName().c_str();
+			this->m_modelView->root()->getTextureManager()->remove(value.second->getName());
+		}
+	}
+
 	BOOST_FOREACH(CollisionShapes::reference value, m_collisionShapes)
 		delete value.second;
 }
 
 void OgreMdlx::setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor) throw (Exception)
 {
-	if (!source()->teamColorTexture(teamColor)->hasOgre())
-		source()->teamColorTexture(teamColor)->loadOgre();
-
-	const Ogre::Image *image = source()->teamColorTexture(teamColor)->ogre().data();
-
-	BOOST_FOREACH(Ogre::TexturePtr tex, this->m_teamColorTextures)
+	BOOST_FOREACH(TeamColorTextureUnitStates::reference state, this->m_teamColorTextureUnitStates)
 	{
 		try
 		{
-			tex->loadImage(*image);
+			if (!source()->teamColorTexture(teamColor)->hasOgreTexture())
+				source()->teamColorTexture(teamColor)->loadOgreTexture();
+
+			state->setTexture(source()->teamColorTexture(teamColor)->ogreTexture());
 		}
 		catch (Ogre::Exception &exception)
 		{
@@ -90,25 +99,19 @@ void OgreMdlx::setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor) throw (Excep
 		}
 	}
 
-	this->m_teamColor = teamColor; // exception safety
+	this->m_teamColor = teamColor;
 }
 
 void OgreMdlx::setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow) throw (Exception)
 {
-	if (!source()->teamGlowTexture(teamGlow)->hasOgre())
-		source()->teamGlowTexture(teamGlow)->loadOgre();
-
-	const Ogre::Image *image = source()->teamGlowTexture(teamGlow)->ogre().data();
-
-	BOOST_FOREACH(Ogre::TexturePtr tex, this->m_teamGlowTextures)
+	BOOST_FOREACH(TeamColorTextureUnitStates::reference state, this->m_teamGlowTextureUnitStates)
 	{
 		try
 		{
-			qDebug() << "Pointer: " << source()->teamGlowTexture(teamGlow)->ogre().data();
-			qDebug() << "Height: " << image->getHeight();
-			qDebug() << "Width: " << image->getWidth();
+			if (!source()->teamGlowTexture(teamGlow)->hasOgreTexture())
+				source()->teamGlowTexture(teamGlow)->loadOgreTexture();
 
-			tex->loadImage(*image);
+			state->setTexture(source()->teamGlowTexture(teamGlow)->ogreTexture());
 		}
 		catch (Ogre::Exception &exception)
 		{
@@ -116,7 +119,7 @@ void OgreMdlx::setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow) throw (Excepti
 		}
 	}
 
-	this->m_teamGlow = teamGlow; // exception safety
+	this->m_teamGlow = teamGlow;
 }
 
 void OgreMdlx::load() throw (Exception)
@@ -179,6 +182,7 @@ void OgreMdlx::load() throw (Exception)
 		{
 			const mdlx::Texture *texture = boost::polymorphic_cast<const mdlx::Texture*>(&member);
 			this->m_textures[texture] = this->createTexture(*texture, id);
+			this->m_textureIds[id] = texture;
 			++id;
 		}
 
@@ -201,7 +205,7 @@ void OgreMdlx::load() throw (Exception)
 			const mdlx::Geoset *geoset = boost::polymorphic_cast<const mdlx::Geoset*>(&member);
 			Ogre::ManualObject *mo = this->createGeoset(*geoset, id);
 			this->m_geosetIds.left.insert(std::make_pair(geoset, id));
-			Ogre::MeshPtr mesh = mo->convertToMesh(Ogre::String(geosetName(*geoset, id) + ".mesh"));
+			Ogre::MeshPtr mesh = mo->convertToMesh(Ogre::String(geosetName(id) + ".mesh"));
 			this->m_geosets[geoset] = mesh;
 			//mesh->load();
 
@@ -765,10 +769,9 @@ Ogre::TexturePtr OgreMdlx::createTexture(const class mdlx::Texture &texture, mdl
 	//texture.parent()->members().size();
 	//qDebug() << "First address " << this->mdlx()->textures() << " and second address " << texture.parent();
 	//abort();
-	Ogre::TexturePtr tex =
-	this->m_modelView->root()->getTextureManager()->create((boost::format("%1%.Texture%2%") % namePrefix().toUtf8().constData() % id).str().c_str(), Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+
+	QScopedPointer<Texture> textureResource;
 	Ogre::Image *sourceImage = 0;
-	boost::scoped_ptr<Texture> textureResource;
 
 	if (texture.replaceableId() != mdlx::ReplaceableId::None)
 	{
@@ -778,18 +781,40 @@ Ogre::TexturePtr OgreMdlx::createTexture(const class mdlx::Texture &texture, mdl
 		{
 			case mdlx::ReplaceableId::TeamColor:
 			{
-				sourceImage = source()->teamColorTexture(teamColor())->ogre().data();
-				this->m_teamColorTextures.push_back(tex);
+				try
+				{
+					if (!source()->teamColorTexture(teamColor())->hasOgreTexture())
+						source()->teamColorTexture(teamColor())->loadOgreTexture();
+				}
+				catch (Exception &exception)
+				{
+					std::cerr << boost::format(_("Warning: Unable to load team color %1%")) % teamColor() << std::endl;
+				}
 
-				break;
+				// NOTE this is only required since createTexture() is called again in setTeamColor() and setTeamGlow()
+				if (std::find(this->m_teamColorTextures.begin(), this->m_teamColorTextures.end(), id) == this->m_teamColorTextures.end())
+					this->m_teamColorTextures.push_back(id);
+
+				return source()->teamColorTexture(teamColor())->ogreTexture();
 			}
 
 			case mdlx::ReplaceableId::TeamGlow:
 			{
-				sourceImage = source()->teamGlowTexture(teamColor())->ogre().data();
-				this->m_teamGlowTextures.push_back(tex);
+				try
+				{
+					if (!source()->teamGlowTexture(teamGlow())->hasOgreTexture())
+						source()->teamGlowTexture(teamGlow())->loadOgreTexture();
+				}
+				catch (Exception &exception)
+				{
+					std::cerr << boost::format(_("Warning: Unable to load team glow %1%")) % teamGlow() << std::endl;
+				}
 
-				break;
+				// NOTE this is only required since createTexture() is called again in setTeamColor() and setTeamGlow()
+				if (std::find(this->m_teamGlowTextures.begin(), this->m_teamGlowTextures.end(), id) == this->m_teamGlowTextures.end())
+					this->m_teamGlowTextures.push_back(id);
+
+				return source()->teamGlowTexture(teamColor())->ogreTexture();
 			}
 
 			case mdlx::ReplaceableId::Cliff:
@@ -834,21 +859,23 @@ Ogre::TexturePtr OgreMdlx::createTexture(const class mdlx::Texture &texture, mdl
 #else
 #warning Unsupported OS?
 #endif
-		KUrl url(texturePath);
-		textureResource.reset(new Texture(url));
+		textureResource.reset(new Texture(KUrl(texturePath))); // we need a resource to use MpqPriorityList on loading!!!
 		textureResource->setSource(source());
 
 		try
 		{
 			textureResource->loadOgre();
 		}
-		catch (Exception &exception)
+		catch (Ogre::Exception &exception)
 		{
 			std::cerr << boost::format(_("Warning: %1%")) % exception.what() << std::endl;
 		}
 
 		sourceImage = textureResource->ogre().data();
 	}
+
+	Ogre::TexturePtr tex =
+	this->m_modelView->root()->getTextureManager()->create(textureName(id), Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 	if (sourceImage != 0)
 	{
@@ -873,8 +900,101 @@ Ogre::TexturePtr OgreMdlx::createTexture(const class mdlx::Texture &texture, mdl
 				break;
 		}
 	}
+	else
+		qDebug() << "No source image data";
 
 	return tex;
+}
+
+Ogre::TextureUnitState* OgreMdlx::createLayer(Ogre::Pass *pass, const mdlx::Layer &layer)
+{
+	const mdlx::Texture *texture = m_textureIds[layer.textureId()];
+
+	Ogre::String textureName = this->textureName(layer.textureId());
+
+	if (texture->replaceableId() == mdlx::ReplaceableId::TeamColor)
+	{
+		textureName = this->source()->teamColorTexture(teamColor())->ogreTexture()->getName();
+	}
+	else if (texture->replaceableId() == mdlx::ReplaceableId::TeamGlow)
+	{
+		textureName = this->source()->teamGlowTexture(teamGlow())->ogreTexture()->getName();
+	}
+
+	Ogre::TextureUnitState *state = pass->createTextureUnitState(textureName, layer.coordinatesId());
+
+	if (texture->replaceableId() == mdlx::ReplaceableId::TeamColor)
+		this->m_teamColorTextureUnitStates.push_back(state);
+	else if (texture->replaceableId() == mdlx::ReplaceableId::TeamGlow)
+		this->m_teamGlowTextureUnitStates.push_back(state);
+
+	//textureUnitState->setTextureFiltering();
+	//textureUnitState->setAlphaOperation(Ogre::LBX_MODULATE_X4);
+	//float32	alpha() const; TODO set alpha!
+	//technique->setLightingEnabled(false); // default value
+
+	switch (layer.filterMode())
+	{
+		case mdlx::Layer::FilterMode::Transparent:
+			qDebug() << "Missing support for filter mode transparent!";
+
+			break;
+
+		case mdlx::Layer::FilterMode::Blend:
+			state->setColourOperationEx(Ogre::LBX_BLEND_TEXTURE_ALPHA);
+
+			break;
+
+		case mdlx::Layer::FilterMode::Additive:
+			state->setColourOperationEx(Ogre::LBX_ADD);
+
+			break;
+
+		case mdlx::Layer::FilterMode::AddAlpha:
+			qDebug() << "Missing support for filter mode add alpha!";
+
+			break;
+
+		case mdlx::Layer::FilterMode::Modulate:
+			state->setColourOperationEx(Ogre::LBX_MODULATE);
+
+			break;
+
+		case mdlx::Layer::FilterMode::Modulate2x:
+			state->setColourOperationEx(Ogre::LBX_MODULATE_X2);
+
+			break;
+	}
+
+	if (layer.shading() == mdlx::Layer::Shading::Unshaded)
+	{
+	}
+	else
+	{
+		if (layer.shading() & mdlx::Layer::Shading::SphereEnvironmentMap)
+			qDebug() << "Material: shading type \"SphereEnvironmentMap\" is not supported.";
+
+		if (layer.shading() & mdlx::Layer::Shading::Unknown0)
+			qDebug() << "Material: shading type \"Unknown0\" is not supported.";
+
+		if (layer.shading() & mdlx::Layer::Shading::Unknown1)
+			qDebug() << "Material: shading type \"Unknown1\" is not supported.";
+
+		if (layer.shading() & mdlx::Layer::Shading::TwoSided)
+			;
+			//technique->setCullingMode(Ogre::CULL_NONE);
+
+		if (layer.shading() & mdlx::Layer::Shading::Unfogged)
+			qDebug() << "Material: shading type \"Unfogged\" is not supported.";
+
+		if (layer.shading() & mdlx::Layer::Shading::NoDepthTest)
+			qDebug() << "Material: shading type \"NoDepthTest\" is not supported.";
+
+		if (layer.shading() & mdlx::Layer::Shading::NoDepthSet)
+			qDebug() << "Material: shading type \"NoDepthSet\" is not supported.";
+	}
+
+	return state;
 }
 
 Ogre::MaterialPtr OgreMdlx::createMaterial(const class mdlx::Material &material, mdlx::long32 id)
@@ -927,78 +1047,8 @@ Ogre::MaterialPtr OgreMdlx::createMaterial(const class mdlx::Material &material,
 		qDebug() << "We have " << i << " techniques.";
 		// TEST END
 
-		Ogre::TextureUnitState *textureUnitState = pass->createTextureUnitState((boost::format("%1%.Texture%2%") % namePrefix().toUtf8().constData() % layer.textureId()).str().c_str(), layer.coordinatesId());
-
-		//textureUnitState->setTextureFiltering();
-		//textureUnitState->setAlphaOperation(Ogre::LBX_MODULATE_X4);
-		//float32	alpha() const; TODO set alpha!
 		technique->setLightingEnabled(false); // default value
-
-		/*
-		TEST - uncomment
-		switch (layer.filterMode())
-		{
-			case mdlx::Layer::FilterMode::Transparent:
-				pass->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
-				//textureUnitState->setIsAlpha(true);
-
-				break;
-
-			case mdlx::Layer::FilterMode::Blend:
-				pass->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
-				// TODO FIXME
-				//pass->setSceneBlending(Ogre::SBT_TRANSPARENT_COLOUR);
-				//textureUnitState->setColourOperation(Ogre::LBO_ALPHA_BLEND);
-
-				break;
-
-			case mdlx::Layer::FilterMode::Additive:
-				pass->setSceneBlending(Ogre::SBT_ADD);
-				//textureUnitState->setColourOperation(Ogre::LBO_ADD);
-
-				break;
-
-			case mdlx::Layer::FilterMode::AddAlpha:
-				//pass->setSceneBlending(Ogre::SceneBlendType::SBT);
-				break;
-
-			case mdlx::Layer::FilterMode::Modulate:
-				pass->setSceneBlending(Ogre::SBT_MODULATE);
-				//textureUnitState->setColourOperation(Ogre::LBO_MODULATE);
-
-				break;
-
-			case mdlx::Layer::FilterMode::Modulate2x:
-				break;
-		}
-
-		if (layer.shading() == mdlx::Layer::Shading::Unshaded)
-		{
-		}
-		else
-		{
-			if (layer.shading() & mdlx::Layer::Shading::SphereEnvironmentMap)
-				qDebug() << "Material: shading type \"SphereEnvironmentMap\" is not supported.";
-
-			if (layer.shading() & mdlx::Layer::Shading::Unknown0)
-				qDebug() << "Material: shading type \"Unknown0\" is not supported.";
-
-			if (layer.shading() & mdlx::Layer::Shading::Unknown1)
-				qDebug() << "Material: shading type \"Unknown1\" is not supported.";
-
-			if (layer.shading() & mdlx::Layer::Shading::TwoSided)
-				technique->setCullingMode(Ogre::CULL_NONE);
-
-			if (layer.shading() & mdlx::Layer::Shading::Unfogged)
-				qDebug() << "Material: shading type \"Unfogged\" is not supported.";
-
-			if (layer.shading() & mdlx::Layer::Shading::NoDepthTest)
-				qDebug() << "Material: shading type \"NoDepthTest\" is not supported.";
-
-			if (layer.shading() & mdlx::Layer::Shading::NoDepthSet)
-				qDebug() << "Material: shading type \"NoDepthSet\" is not supported.";
-		}
-		*/
+		createLayer(pass, layer);
 
 		/*
 		Texture animation stuff
@@ -1035,7 +1085,7 @@ Ogre::MaterialPtr OgreMdlx::createMaterial(const class mdlx::Material &material,
 Ogre::ManualObject* OgreMdlx::createGeoset(const class mdlx::Geoset &geoset, mdlx::long32 id)
 {
 	qDebug() << "Creating geoset";
-	Ogre::ManualObject *object = this->modelView()->sceneManager()->createManualObject(geosetName(geoset, id));
+	Ogre::ManualObject *object = this->modelView()->sceneManager()->createManualObject(geosetName(id));
 	//object->setKeepDeclarationOrder(true);
 	qDebug() << "Creating geoset";
 

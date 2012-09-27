@@ -25,6 +25,7 @@
 #include <QScopedPointer>
 
 #include <OgreImage.h>
+#include <OgreTexture.h>
 
 #include "resource.hpp"
 #include "../core.hpp"
@@ -37,8 +38,8 @@ namespace editor
 {
 
 /**
- * Provides access to one single texture in three different ways. Firstly there is an instance of \ref blp::Blp if it's a BLP image which provides you direct access to MIP map color data/color palette etc., secondly there is access to an object of \ref QImage which can be used to display your texture in your GUI and finally there is access to an object of \ref Ogre::Image which can be used to display your texture in your 3D scene.
- * You do not have to store all three objects or any of them! Everything is optional!
+ * Provides access to one single texture in four different ways. Firstly there is an instance of \ref blp::Blp if it's a BLP image which provides you direct access to MIP map color data/color palette etc., secondly there is access to an object of \ref QImage which can be used to display your texture in your GUI and finally there is access to an object of \ref Ogre::Image which can be used to display your texture in your 3D scene and its corresponding \ref Ogre::Texture instance.
+ * You do not have to store all four objects or any of them! Everything is optional!
  * Please consider that this class tries to get the most performant way to load all those objects by checking if it already has one of them and if so, using the object's buffer instead of loading it from the corresponding file again which usually is much slower than reading from memory.
  * Besides when saving the texture via \ref Texture::save() it tries to get the most performant way, as well. For example, if you save your texture as BLP image and there is a \ref blp::Blp instance already in your texture (\ref Texture::hasBlp()) it won't save the texture via its Qt or OGRE object since it's much faster to write the BLP object on disk.
  */
@@ -48,9 +49,15 @@ class Texture : public Resource
 		typedef QScopedPointer<blp::Blp> BlpPtr;
 		typedef QScopedPointer<QImage> QtPtr;
 		typedef QScopedPointer<Ogre::Image> OgrePtr;
+		typedef Ogre::TexturePtr OgreTexturePtr;
 
 		Texture(const KUrl &url);
 		virtual ~Texture();
+
+		void clearBlp();
+		void clearQt();
+		void clearOgre();
+		void clearOgreTexture();
 
 		/**
 		 * Frees all allocated texture related data.
@@ -70,6 +77,10 @@ class Texture : public Resource
 		 * \exception Exception Exception safe!
 		 */
 		virtual void loadOgre() throw (Exception);
+		/**
+		 * \exception Exception Exception safe!
+		 */
+		virtual void loadOgreTexture() throw (Exception);
 		/**
 		 * \exception Exception Exception safe!
 		 */
@@ -96,23 +107,25 @@ class Texture : public Resource
 		virtual void save(const KUrl &url, const QString &format, const QString &compression = "") const throw (Exception);
 		virtual void save(const KUrl &url) const throw (Exception)
 		{
-			save(url, "blp", "");
+			save(url, "", "");
 		}
 
 		bool hasBlp() const;
 		bool hasQt() const;
 		bool hasOgre() const;
+		bool hasOgreTexture() const;
 		bool hasAll() const;
 
 		const BlpPtr& blp() const;
 		const QtPtr& qt() const;
 		const OgrePtr& ogre() const;
+		const OgreTexturePtr& ogreTexture() const;
 
 	private:
 		BlpPtr m_blp;
 		QtPtr m_qt;
 		OgrePtr m_ogre;
-
+		OgreTexturePtr m_ogreTexture;
 };
 
 inline bool Texture::hasBlp() const
@@ -130,9 +143,14 @@ inline bool Texture::hasOgre() const
 	return ogre().data() != 0;
 }
 
+inline bool Texture::hasOgreTexture() const
+{
+	return !ogreTexture().isNull();
+}
+
 inline bool Texture::hasAll() const
 {
-	return hasBlp() && hasQt() && hasOgre();
+	return hasBlp() && hasQt() && hasOgre() && hasOgreTexture();
 }
 
 inline const Texture::BlpPtr& Texture::blp() const
@@ -149,6 +167,12 @@ inline const Texture::OgrePtr& Texture::ogre() const
 {
 	return m_ogre;
 }
+
+inline const Texture::OgreTexturePtr& Texture::ogreTexture() const
+{
+	return m_ogreTexture;
+}
+
 
 }
 

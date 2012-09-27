@@ -42,13 +42,35 @@ Texture::Texture(const KUrl &url) : Resource(url, Type::Texture)
 
 Texture::~Texture()
 {
+	m_ogreTexture.setNull();
+}
+
+void Texture::clearBlp()
+{
+	m_blp.reset();
+}
+
+void Texture::clearQt()
+{
+	m_qt.reset();
+}
+
+void Texture::clearOgre()
+{
+	m_ogre.reset();
+}
+
+void Texture::clearOgreTexture()
+{
+	m_ogreTexture.setNull();
 }
 
 void Texture::clear() throw ()
 {
-	m_blp.reset();
-	m_qt.reset();
-	m_ogre.reset();
+	clearBlp();
+	clearQt();
+	clearOgre();
+	clearOgreTexture();
 }
 
 
@@ -212,11 +234,42 @@ void Texture::loadOgre() throw (Exception)
 	Q_ASSERT(m_ogre.data());
 }
 
+void Texture::loadOgreTexture() throw (Exception)
+{
+	const bool hasOgre = this->hasOgre();
+
+	if (!hasOgre)
+		loadOgre();
+
+	Ogre::TexturePtr tex;
+
+	try
+	{
+		// TODO use custom root
+		tex = Ogre::Root::getSingleton().getTextureManager()->create(Ogre::String(QFileInfo(url().toLocalFile()).baseName().toUtf8().constData()), Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+
+		tex->loadImage(*ogre());
+	}
+	catch (Ogre::Exception &exception)
+	{
+		if (!hasOgre)
+			clearOgre();
+
+		throw Exception(exception.getFullDescription());
+	}
+
+	m_ogreTexture = tex;
+
+	if (!hasOgre)
+		clearOgre();
+}
+
 void Texture::loadAll() throw (Exception)
 {
 	loadBlp();
 	loadQt();
 	loadOgre();
+	loadOgreTexture();
 }
 
 void Texture::reload() throw (Exception)
@@ -224,6 +277,7 @@ void Texture::reload() throw (Exception)
 	bool hasBlp = this->hasBlp();
 	bool hasQt = this->hasQt();
 	bool hasOgre = this->hasOgre();
+	bool hasOgreTexture = this->hasOgreTexture();
 	clear();
 
 	if (hasBlp)
@@ -234,6 +288,9 @@ void Texture::reload() throw (Exception)
 
 	if (hasOgre)
 		loadOgre();
+
+	if (hasOgreTexture)
+		loadOgreTexture();
 }
 
 namespace
@@ -263,13 +320,23 @@ void Texture::save(const KUrl &url, const QString &format, const QString &compre
 	if (!tmpFile.open())
 		throw Exception(boost::format(_("Temporary file \"%1%\" cannot be opened.")) % tmpFile.fileName().toUtf8().constData());
 
+	QString realFormat = format;
+
+	if (realFormat.isEmpty())
+	{
+		realFormat = QFileInfo(url.toLocalFile()).suffix();
+
+		if (format.isEmpty())
+			throw Exception(_("Unknown format!"));
+	}
+
 	// get all compression options
 	const QStringList compressionOptions = compression.split(":");
-	int quality = format == "blp" ? blp::Blp::defaultQuality : -1;
+	int quality = realFormat == "blp" ? blp::Blp::defaultQuality : -1;
 	QString qualityString = compressionOption(compressionOptions, "Quality");
-	std::size_t mipMaps = format == "blp" ? blp::Blp::defaultMipMaps : 1;
+	std::size_t mipMaps = realFormat == "blp" ? blp::Blp::defaultMipMaps : 1;
 	QString mipMapsString = compressionOption(compressionOptions, "MipMaps");
-	bool threads = format == "blp" ? blp::Blp::defaultThreads : true;
+	bool threads = realFormat == "blp" ? blp::Blp::defaultThreads : true;
 	QString threadsString = compressionOption(compressionOptions, "Threads");
 
 	bool ok = false;
@@ -286,14 +353,14 @@ void Texture::save(const KUrl &url, const QString &format, const QString &compre
 	if (!threadsString.isEmpty())
 		threads = threadsString == "1" || threadsString == "true" || threadsString == "TRUE";
 
-	if (format == "blp" && hasBlp())
+	if (realFormat == "blp" && hasBlp())
 	{
 		ofstream ofstream(tmpFile.fileName().toUtf8().constData(), std::ios::binary | std::ios::out);
 		blp()->write(ofstream, quality, mipMaps, threads);
 	}
 	else if (hasQt())
 	{
-		qt()->save(&tmpFile, format.toUtf8().constData(), quality);
+		qt()->save(&tmpFile, realFormat.toUtf8().constData(), quality);
 	}
 	/// TODO we cannot convert OGRE images (write into stream etc.)
 	else

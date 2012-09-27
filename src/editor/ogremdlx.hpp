@@ -177,6 +177,9 @@ void Mdlx::addNode(long32 id, class Node *node) throw (class Exception)
  * To create a movable entity of geometry use \ref createEntity().
  * Each MDLX instance can have its own team color and glow which is required for proper unit displays and model testings.
  * \todo Use inherited event functions of frame listener to apply animation track data (each model instance should have its own time marker for sequences).
+ * \note Team color and glow textures have to be reloaded when team color or glow is changed. Reloading their images doesn't work in OGRE!
+ * \todo Replace TextureIds and GeosetIds (all objects which do not have specified their id in MDX files) by std::vector since you know for sure that their ids are in a strict order!
+ * \todo Maybe instead of two maps you could uses one with a pair of MDLX and OGRE objects.
  */
 class OgreMdlx : public Resource, public Ogre::FrameListener
 {
@@ -185,6 +188,7 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 		typedef std::map<mdlx::long32, const mdlx::GeosetAnimation*> GeosetAnimations;
 
 		typedef std::map<const class mdlx::Texture*, Ogre::TexturePtr> Textures;
+		typedef std::map<mdlx::long32, const class mdlx::Texture*> TextureIds;
 		typedef std::map<const class mdlx::Material*, Ogre::MaterialPtr> Materials;
 		/**
 		 * Required by geosets.
@@ -229,6 +233,9 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 		typedef std::map<const mdlx::Bone*, Ogre::Bone*> Bones;
 		typedef boost::scoped_ptr<mdlx::Mdlx> MdlxPtr;
 
+		typedef std::list<mdlx::long32> TeamColorTextures;
+		typedef std::list<Ogre::TextureUnitState*> TeamColorTextureUnitStates;
+
 		/**
 		 * Changes camera's \p ogreCamera to settings of camera \p camera.
 		 * Might be used by camera actions in any editor which have to view a specific camera.
@@ -254,7 +261,8 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 		void setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow) throw (Exception);
 		BOOST_SCOPED_ENUM(TeamColor) teamGlow() const;
 
-		Ogre::String geosetName(const mdlx::Geoset &geoset, mdlx::long32 id) const;
+		Ogre::String textureName(mdlx::long32 id) const;
+		Ogre::String geosetName(mdlx::long32 id) const;
 		Ogre::String sequenceName(const mdlx::Geoset &geoset, const mdlx::Sequence &sequence) const;
 
 		/**
@@ -312,6 +320,7 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 
 		void addMdlxNodes(const mdlx::GroupMdxBlock &block);
 		Ogre::TexturePtr createTexture(const mdlx::Texture &texture, mdlx::long32 id);
+		Ogre::TextureUnitState* createLayer(Ogre::Pass *pass, const mdlx::Layer &layer);
 		Ogre::MaterialPtr createMaterial(const mdlx::Material &material, mdlx::long32 id);
 		/**
 		* Creates manual object for specified geoset.
@@ -343,6 +352,7 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 		Nodes m_mdlxNodes;
 		GeosetAnimations m_mdlxGeosetAnimations;
 		Textures m_textures;
+		TextureIds m_textureIds;
 		Materials m_materials;
 		MaterialIds m_materialIds;
 		Geosets m_geosets;
@@ -357,8 +367,10 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 		// these members are required for dynamic team glow and color settings
 		BOOST_SCOPED_ENUM(TeamColor) m_teamColor;
 		BOOST_SCOPED_ENUM(TeamColor) m_teamGlow;
-		std::list<Ogre::TexturePtr> m_teamColorTextures;
-		std::list<Ogre::TexturePtr> m_teamGlowTextures;
+		TeamColorTextures m_teamColorTextures;
+		TeamColorTextureUnitStates m_teamColorTextureUnitStates;
+		TeamColorTextures m_teamGlowTextures;
+		TeamColorTextureUnitStates m_teamGlowTextureUnitStates;
 };
 
 inline const OgreMdlx::MdlxPtr& OgreMdlx::mdlx() const
@@ -406,7 +418,12 @@ inline BOOST_SCOPED_ENUM(TeamColor) OgreMdlx::teamGlow() const
 	return this->m_teamGlow;
 }
 
-inline Ogre::String OgreMdlx::geosetName(const mdlx::Geoset &geoset, mdlx::long32 id) const
+inline Ogre::String OgreMdlx::textureName(mdlx::long32 id) const
+{
+	return Ogre::String((boost::format("%1%.Texture%2%") % namePrefix().toUtf8().constData() % id).str().c_str());
+}
+
+inline Ogre::String OgreMdlx::geosetName(mdlx::long32 id) const
 {
 	return Ogre::String((boost::format("%1%.Geoset%2%") % namePrefix().toUtf8().constData() % id).str().c_str());
 }
@@ -418,7 +435,7 @@ inline Ogre::String OgreMdlx::sequenceName(const mdlx::Geoset &geoset, const mdl
 	if (iterator == m_geosetIds.left.end())
 		throw Exception();
 
-	return geosetName(geoset, iterator->second) + " - " + sequence.name();
+	return geosetName(iterator->second) + " - " + sequence.name();
 }
 /*
 template<std::size_t size>
