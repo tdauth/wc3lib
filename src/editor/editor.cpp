@@ -137,8 +137,10 @@ Editor::Editor(QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f), m_r
 Editor::~Editor()
 {
 	this->writeSettings(aboutData().appName());
-	// do not delete allocated sub widgets (parent system of Qt already considers)
-
+	// do not delete allocated sub widgets (parent system of Qt already considers) BUT
+	// we should remove modules (e. g. model editor) before freeing root!
+	foreach (Modules::value_type module, modules())
+		delete module;
 
 	if (m_root != 0)
 		delete m_root;

@@ -35,6 +35,9 @@ namespace editor
 ModuleToolBar::ModuleToolBar(Module *module) : KToolBar(module, true), m_leftModuleSeparator(0), m_rightModuleSeparator(0)
 {
 	this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+	//this->setMovable(false);
+	//this->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	//this->setFloatable(true);
 
 	if (module->hasEditor())
 	{

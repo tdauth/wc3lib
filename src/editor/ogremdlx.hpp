@@ -178,13 +178,13 @@ void Mdlx::addNode(long32 id, class Node *node) throw (class Exception)
  * Each MDLX instance can have its own team color and glow which is required for proper unit displays and model testings.
  * \todo Use inherited event functions of frame listener to apply animation track data (each model instance should have its own time marker for sequences).
  * \note Team color and glow textures have to be reloaded when team color or glow is changed. Reloading their images doesn't work in OGRE!
- * \todo Replace TextureIds and GeosetIds (all objects which do not have specified their id in MDX files) by std::vector since you know for sure that their ids are in a strict order!
+ * \todo Replace TextureIds, GeosetIds and SequenceIds (all objects which do not have specified their id in MDX files) by std::vector since you know for sure that their ids are in a strict order!
  * \todo Maybe instead of two maps you could uses one with a pair of MDLX and OGRE objects.
  */
 class OgreMdlx : public Resource, public Ogre::FrameListener
 {
 	public:
-		typedef std::map<mdlx::long32, const mdlx::Node*> Nodes;
+		typedef std::map<mdlx::long32, const mdlx::Node*> MdlxNodes;
 		typedef std::map<mdlx::long32, const mdlx::GeosetAnimation*> GeosetAnimations;
 
 		typedef std::map<const class mdlx::Texture*, Ogre::TexturePtr> Textures;
@@ -201,6 +201,7 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 		typedef std::map<const class mdlx::Geoset*, Ogre::MeshPtr> Geosets;
 		typedef std::map<const class mdlx::Camera*, Ogre::Camera*> Cameras;
 		typedef std::map<const class mdlx::Sequence*, Ogre::Animation*> Sequences;
+		typedef std::map<mdlx::long32, const class mdlx::Sequence*> SequenceIds;
 
 		/**
 		 * This structure is required for model's collision shapes which either can be boxes or spheres.
@@ -263,7 +264,6 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 
 		Ogre::String textureName(mdlx::long32 id) const;
 		Ogre::String geosetName(mdlx::long32 id) const;
-		Ogre::String sequenceName(const mdlx::Geoset &geoset, const mdlx::Sequence &sequence) const;
 
 		/**
 		 * Loads and analyses all data of corresponding MDLX model and refreshes displayed OGRE mesh.
@@ -313,10 +313,13 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 		bool useDirectoryUrl(KUrl &url, bool showMessage = false) const;
 
 		Ogre::Node* createNode(const mdlx::Node &node);
-		//void createNodeAnimatedProperties(const mdlx::Node &node) const;
+		void createNodeAnimatedProperties(const mdlx::Node &node, Ogre::Node *ogreNode);
 
-		//template<std::size_t size>
-		//std::list<Ogre::VertexAnimationTrack*> createAnimatedProperties(const mdlx::MdlxAnimatedProperties<size> &properties) const;
+		Ogre::TransformKeyFrame* createAnimatedPropertyKeyFrame(Ogre::NodeAnimationTrack *track, const mdlx::MdlxScaling &scaling) const;
+		Ogre::TransformKeyFrame* createAnimatedPropertyKeyFrame(Ogre::NodeAnimationTrack *track, const mdlx::MdlxTranslation &translation) const;
+		Ogre::TransformKeyFrame* createAnimatedPropertyKeyFrame(Ogre::NodeAnimationTrack *track, const mdlx::MdlxRotation &rotation) const;
+		template<std::size_t size>
+		void createAnimatedProperties(Ogre::Node *node, unsigned short trackId, const mdlx::MdlxAnimatedProperties<size> &properties);
 
 		void addMdlxNodes(const mdlx::GroupMdxBlock &block);
 		Ogre::TexturePtr createTexture(const mdlx::Texture &texture, mdlx::long32 id);
@@ -349,7 +352,7 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 		ModelView *m_modelView;
 		Ogre::SceneNode *m_sceneNode;
 
-		Nodes m_mdlxNodes;
+		MdlxNodes m_mdlxNodes;
 		GeosetAnimations m_mdlxGeosetAnimations;
 		Textures m_textures;
 		TextureIds m_textureIds;
@@ -358,6 +361,7 @@ class OgreMdlx : public Resource, public Ogre::FrameListener
 		Geosets m_geosets;
 		GeosetIds m_geosetIds;
 		Sequences m_sequences;
+		SequenceIds m_sequenceIds;
 		Cameras m_cameras;
 		CollisionShapes m_collisionShapes;
 		Bones m_bones;
@@ -428,77 +432,62 @@ inline Ogre::String OgreMdlx::geosetName(mdlx::long32 id) const
 	return Ogre::String((boost::format("%1%.Geoset%2%") % namePrefix().toUtf8().constData() % id).str().c_str());
 }
 
-inline Ogre::String OgreMdlx::sequenceName(const mdlx::Geoset &geoset, const mdlx::Sequence &sequence) const
+inline Ogre::TransformKeyFrame* OgreMdlx::createAnimatedPropertyKeyFrame(Ogre::NodeAnimationTrack *track, const mdlx::MdlxScaling &scaling) const
 {
-	GeosetIds::left_map::const_iterator iterator = m_geosetIds.left.find(&geoset);
+	Ogre::TransformKeyFrame *keyFrame = track->createNodeKeyFrame(scaling.frame());
+	keyFrame->setScale(ogreVertex<Ogre::Vector3>(scaling.values()));
 
-	if (iterator == m_geosetIds.left.end())
-		throw Exception();
-
-	return geosetName(iterator->second) + " - " + sequence.name();
+	return keyFrame;
 }
-/*
-template<std::size_t size>
-std::list<Ogre::VertexAnimationTrack*> createAnimatedProperties(const mdlx::MdlxAnimatedProperties<size> &properties) const
+
+inline Ogre::TransformKeyFrame* OgreMdlx::createAnimatedPropertyKeyFrame(Ogre::NodeAnimationTrack *track, const mdlx::MdlxTranslation &translation) const
 {
-	const mdlx::Sequence *sequence = boost::polymorphic_cast<mdlx::Sequence*>(this->mdlx()->node(properties.globalSequenceId()));
-	std::list<Ogre::VertexAnimationTrack*> results;
+	Ogre::TransformKeyFrame *keyFrame = track->createNodeKeyFrame(translation.frame());
+	keyFrame->setTranslate(ogreVertex<Ogre::Vector3>(translation.values()));
 
-	BOOST_FOREACH(GeosetMeshes::const_reference ref, this->m_geosetMeshes)
+	return keyFrame;
+}
+
+inline Ogre::TransformKeyFrame* OgreMdlx::createAnimatedPropertyKeyFrame(Ogre::NodeAnimationTrack *track, const mdlx::MdlxRotation &rotation) const
+{
+	Ogre::TransformKeyFrame *keyFrame = track->createNodeKeyFrame(rotation.frame());
+	keyFrame->setRotation(ogreVertex<Ogre::Quaternion>(rotation.values()));
+
+	return keyFrame;
+}
+
+template<std::size_t size>
+inline void OgreMdlx::createAnimatedProperties(Ogre::Node *node, unsigned short trackId, const mdlx::MdlxAnimatedProperties<size> &properties)
+{
+	if (properties.properties().empty())
+		return;
+
+	if (properties.globalSequenceId() == mdlx::noneId)
 	{
-		const Ogre::Animation *animation = ref.second->getAnimation(sequenceName(*ref.first, sequence->name()));
+		qDebug() << "Properties have none id!";
 
-		switch (properties.lineType())
-		{
-			case mdlx::LineType::DontInterpolate:
-				qDebug() << "Dont interpolate is not supported.";
-
-				break;
-
-			case mdlx::LineType::Linear:
-				animation->setInterpolationMode(Ogre::Animation::IM_LINEAR);
-
-				break
-
-			case mdlx::LineType::Hermite:
-				qDebug() << "Hermite is not supported.";
-
-				break;
-
-			case mdlx::LineType::Bezier:
-				animation->setInterpolationMode(Ogre::Animation::IM_SPLINE);
-
-				break;
-		}
-
-		Ogre::VertexAnimationTrack *track = animation->createVertexTrack(0);
-		results.push_back(track);
-
-		BOOST_FOREACH(mdlx::MdlxAnimatedProperties<size>::Properties::const_reference property, properties)
-		{
-			// TODO handle inTan and outTan if line type > 1
-			const Ogre::HardwareVertexBufferSharedPtr vertexBuffer = HardwareBufferManager::getSingleton().createVertexBuffer(size * sizeof(mdlx::float32), size, Ogre::HardwareBuffer::HBU_STATIC);
-
-			boost::scoped_array<mdlx::float32> buffer(new mdlx::float32[property.values().size()]);
-			mdlx::long32 i = 0;
-
-			BOOST_FOREACH(mdlx::MdlxAnimatedProperty<size>::Values::const_reference value, property.values())
-			{
-				buffer[i] = value;
-				++i;
-			}
-
-			const std::size_t bufferSize = size * sizeof(mdlx::float32);
-			vertexBuffer->writeData(0, bufferSize, buffer.get());
-
-			const Ogre::VertexMorphKeyFrame *keyFrame = track->createVertexMorphKeyFrame(property.frame());
-			keyFrame->setVertexBuffer(vertexBuffer);
-		}
+		return;
 	}
 
-	return results;
+	const mdlx::Sequence *sequence = m_sequenceIds[properties.globalSequenceId()];
+	// create a track to animate the camera's node
+	Ogre::NodeAnimationTrack *track = m_sequences[sequence]->createNodeTrack(trackId, node);
+
+        // create a new animation state to track this
+       // mAnimState = mSceneMgr->createAnimationState("CameraTrack");
+
+	BOOST_FOREACH(typename mdlx::MdlxAnimatedProperties<size>::Properties::const_reference property, properties.properties())
+	{
+		if (dynamic_cast<const mdlx::MdlxScaling*>(&property) != 0)
+			createAnimatedPropertyKeyFrame(track, *dynamic_cast<const mdlx::MdlxScaling*>(&property));
+		else if (dynamic_cast<const mdlx::MdlxTranslation*>(&property) != 0)
+			createAnimatedPropertyKeyFrame(track, *dynamic_cast<const mdlx::MdlxTranslation*>(&property));
+		else if (dynamic_cast<const mdlx::MdlxRotation*>(&property) != 0)
+			createAnimatedPropertyKeyFrame(track, *dynamic_cast<const mdlx::MdlxRotation*>(&property));
+		else
+			throw Exception(_("Unknown animated property."));
+	}
 }
-*/
 
 }
 

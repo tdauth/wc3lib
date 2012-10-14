@@ -60,6 +60,7 @@ BlpCodec::~BlpCodec()
 
 Ogre::String BlpCodec::getDataType() const
 {
+	return Ogre::String();
 }
 
 Ogre::DataStreamPtr BlpCodec::code(Ogre::MemoryDataStreamPtr &input, CodecDataPtr &pData) const
@@ -72,6 +73,7 @@ void BlpCodec::codeToFile(Ogre::MemoryDataStreamPtr &input, const Ogre::String &
 	OGRE_EXCEPT(Ogre::Exception::ERR_NOT_IMPLEMENTED, _("BLP encoding not supported"), "BlpCodec::codeToFile");
 }
 
+// TODO decode directly to paletted OGRE image if possible!
 BlpCodec::DecodeResult BlpCodec::decode(const blp::Blp &blp) const
 {
 	BlpCodec::ImageData* imgData = new BlpCodec::ImageData();
@@ -94,7 +96,7 @@ BlpCodec::DecodeResult BlpCodec::decode(const blp::Blp &blp) const
 	{
 		for (blp::dword width = 0; width < mipMapWidth; ++width)
 		{
-			const blp::color argb = blp.mipMaps().front().colorAt(width, height).argb();
+			const blp::color argb = blp.compression() == blp::Blp::Compression::Paletted ?  blp.palette()[blp.mipMaps().front().colorAt(width, height).paletteIndex()] : blp.mipMaps().front().colorAt(width, height).argb();
 
 			// NOTE little endian order - reverse order
 			imageData[i] = blp::blue(argb);

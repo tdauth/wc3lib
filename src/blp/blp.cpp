@@ -43,30 +43,7 @@ const int Blp::defaultQuality = 100;
 const std::size_t Blp::defaultMipMaps = 0;
 const bool Blp::defaultThreads = true;
 
-bool Blp::MipMap::Color::operator==(const class Color &other) const
-{
-	/*
-	color argb0 = this->argb();
-	byte alpha0 = 0;
-	color argb1 = other.argb();
-	byte alpha1 = 0;
-
-	if (this->m_mipMap->m_blp->flags() & Alpha)
-		alpha0 = this->alpha();
-
-	if (other.m_mipMap->m_blp->flags() & Alpha)
-		alpha1 = other.alpha();
-	*/
-
-	return this->argb() == other.argb() && this->alpha() == other.alpha();
-}
-
-bool Blp::MipMap::Color::operator!=(const class Color &other) const
-{
-	return !(*this == other);
-}
-
-Blp::MipMap::Color::Color() : m_argb(0), m_alpha(0), m_paletteIndex(0)
+Blp::MipMap::Color::Color() : m_alpha(0)
 {
 }
 
@@ -74,7 +51,11 @@ Blp::MipMap::Color::~Color()
 {
 }
 
-Blp::MipMap::Color::Color(color argb, byte alpha, byte paletteIndex) : m_argb(argb), m_alpha(alpha), m_paletteIndex(paletteIndex)
+Blp::MipMap::Color::Color(color argb, byte alpha) : m_value(argb), m_alpha(alpha)
+{
+}
+
+Blp::MipMap::Color::Color(byte paletteIndex, byte alpha) : m_value(paletteIndex), m_alpha(alpha)
 {
 }
 
@@ -268,7 +249,7 @@ void readMipMapJpeg(ReadData *readData)
 					if (cinfo.output_components == 4) // we do have an alpha channel
 						argb |= ((color)(0xFF - scanlines[height][component + 3]) << 24);
 
-					readData->mipMap.setColor(width, height + currentScanline, argb, 0); /// \todo Get alpha?!
+					readData->mipMap.setColor(width, height + currentScanline, argb); /// \todo Get alpha?!
 					++width;
 				}
 			}
@@ -601,7 +582,7 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps, con
 					size += readSize;
 					mipMapSize -= boost::numeric_cast<dword>(readSize);
 
-					this->mipMaps()[i].setColor(width, height, palette[index], 0, index);
+					this->mipMaps()[i].setColorIndex(width, height, index);
 				}
 			}
 

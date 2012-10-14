@@ -90,6 +90,8 @@ class ModelView : public QWidget
 		 */
 		virtual void render();
 
+		virtual QSize sizeHint() const;
+
 		//virtual void paintEvent(QPaintEvent* event);
 		virtual void showEvent(QShowEvent *event);
 		virtual void resizeEvent(QResizeEvent *event);
@@ -180,6 +182,11 @@ inline Ogre::String ModelView::name() const
 	sstream << this;
 
 	return sstream.str();
+}
+
+inline QSize ModelView::sizeHint() const
+{
+	return QSize(640, 480);
 }
 
 }

@@ -29,6 +29,7 @@
 
 #include "module.hpp"
 #include "texture.hpp"
+#include "colorpalettedialog.hpp"
 
 namespace wc3lib
 {
@@ -76,6 +77,7 @@ class TextureEditor : public Module
 
 		bool hasTexture() const;
 
+		ColorPaletteDialog* colorPaletteDialog() const;
 		SaveDialog* saveDialog() const;
 
 	public slots:
@@ -123,6 +125,8 @@ class TextureEditor : public Module
 		virtual KAboutData moduleAboutData() const;
 		virtual QString actionName() const;
 
+		virtual void resizeEvent(QResizeEvent *event);
+
 		QLabel *m_imageLabel;
 		TexturePtr m_texture;
 		MipMaps m_mipMaps;
@@ -130,13 +134,16 @@ class TextureEditor : public Module
 		bool m_showsAlphaChannel;
 		bool m_showsTransparency;
 		qreal m_factor;
+		bool m_zoomToFit;
 		KUrl m_recentUrl;
 
 		class KActionCollection *m_textureActionCollection;
 		KAction *m_showAlphaChannelAction;
 		KAction *m_showTransparencyAction;
+		KAction *m_zoomToFitAction;
 		KMenu *m_mipMapsMenu;
 
+		ColorPaletteDialog *m_colorPaletteDialog;
 		SaveDialog *m_saveDialog;
 };
 
@@ -194,6 +201,14 @@ inline qreal TextureEditor::factor() const
 inline bool TextureEditor::hasTexture() const
 {
 	return texture().data() != 0;
+}
+
+inline ColorPaletteDialog* TextureEditor::colorPaletteDialog() const
+{
+	if (this->m_colorPaletteDialog == 0)
+		const_cast<TextureEditor*>(this)->m_colorPaletteDialog = new ColorPaletteDialog(const_cast<TextureEditor*>(this));
+
+	return this->m_colorPaletteDialog;
 }
 
 inline TextureEditor::SaveDialog *TextureEditor::saveDialog() const

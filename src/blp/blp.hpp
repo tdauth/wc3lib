@@ -24,6 +24,7 @@
 #include <boost/multi_array.hpp>
 #include <boost/detail/scoped_enum_emulation.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/variant.hpp>
 
 #include "platform.hpp"
 
@@ -95,17 +96,6 @@ class Blp : public Format
 				class Color
 				{
 					public:
-						/**
-						 * Compares color with color \p other.
-						 * \return Returns true if ARGB and alpha values are equal. Otherwise it returns false.
-						 */
-						bool operator==(const class Color &other) const;
-						/**
-						 * Compares color with color \p other.
-						 * \return Returns true if ARGB or alpha values are not equal. Otherwise it returns false.
-						 */
-						bool operator!=(const class Color &other) const;
-
 						Color();
 						~Color();
 
@@ -124,13 +114,15 @@ class Blp : public Format
 						byte paletteIndex() const;
 
 					protected:
+						typedef boost::variant<color, byte> Value; // stores either argb value or palette index
+
 						friend class MipMap;
 
-						Color(color argb, byte alpha, byte paletteIndex);
+						Color(color argb, byte alpha);
+						Color(byte paletteIndex, byte alpha);
 
-						color m_argb;
+						Value m_value;
 						byte m_alpha;
-						byte m_paletteIndex; // only used for paletted compression
 				};
 
 				/**
@@ -144,8 +136,12 @@ class Blp : public Format
 				/**
 				 * Assigns MIP map color \p argb at position (\p width | \p height) with alpha \p alpha and palette index \p paletteIndex.
 				 */
-				void setColor(dword width, dword height, color argb, byte alpha = 0, byte paletteIndex = 0);
+				void setColor(dword width, dword height, color argb);
 				void setColorAlpha(dword width, dword height, byte alpha);
+				/**
+				 * Assigns MIP map color index to the image's color palette.
+				 */
+				void setColorIndex(dword width, dword height, byte index);
 				/**
 				 * Colors are stored as 2-dimensional array where the first index is the color's coordinates are [width][height].
 				 */
@@ -309,12 +305,12 @@ class Blp : public Format
 
 inline void Blp::MipMap::Color::setArgb(color argb)
 {
-	this->m_argb = argb;
+	this->m_value = argb;
 }
 
 inline color Blp::MipMap::Color::argb() const
 {
-	return this->m_argb;
+	return boost::get<color>(this->m_value);
 }
 
 inline void Blp::MipMap::Color::setAlpha(byte alpha)
@@ -329,12 +325,12 @@ inline byte Blp::MipMap::Color::alpha() const
 
 inline void Blp::MipMap::Color::setPaletteIndex(byte paletteIndex)
 {
-	this->m_paletteIndex = paletteIndex;
+	this->m_value = paletteIndex;
 }
 
 inline byte Blp::MipMap::Color::paletteIndex() const
 {
-	return this->m_paletteIndex;
+	return boost::get<byte>(this->m_value);
 }
 
 inline dword Blp::MipMap::width() const
@@ -347,9 +343,14 @@ inline dword Blp::MipMap::height() const
 	return this->m_height;
 }
 
-inline void Blp::MipMap::setColor(dword width, dword height, color argb, byte alpha, byte paletteIndex)
+inline void Blp::MipMap::setColor(dword width, dword height, color argb)
 {
-	this->m_colors[width][height] = Color(argb, alpha, paletteIndex);
+	this->m_colors[width][height].setArgb(argb);
+}
+
+inline void Blp::MipMap::setColorIndex(dword width, dword height, byte index)
+{
+	this->m_colors[width][height].setPaletteIndex(index);
 }
 
 inline void Blp::MipMap::setColorAlpha(dword width, dword height, byte alpha)

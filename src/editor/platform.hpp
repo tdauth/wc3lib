@@ -409,6 +409,36 @@ inline Ogre::Vector2 ogreVector2(const mdlx::TextureVertexData &textureVertexDat
 	return Ogre::Vector2(textureVertexData.x(), textureVertexData.y());
 }
 
+template<typename R, typename ValueType, std::size_t N>
+inline R ogreVertex(const BasicVertex<ValueType, N> &vertex)
+{
+	throw Exception(_("No valid specialization!")); // TODO static assert
+}
+
+template<>
+inline Ogre::Vector2 ogreVertex<Ogre::Vector2, float32, 2>(const BasicVertex<float32, 2> &vertex)
+{
+	return Ogre::Vector2(ogreReal(vertex[0]), ogreReal(vertex[1]));
+}
+
+template<>
+inline Ogre::Vector3 ogreVertex<Ogre::Vector3, float32, 3>(const BasicVertex<float32, 3> &vertex)
+{
+	return Ogre::Vector3(ogreReal(vertex[0]), ogreReal(vertex[1]), ogreReal(vertex[2]));
+}
+
+template<>
+inline Ogre::Vector4 ogreVertex<Ogre::Vector4, float32, 4>(const BasicVertex<float32, 4> &vertex)
+{
+	return Ogre::Vector4(ogreReal(vertex[0]), ogreReal(vertex[1]), ogreReal(vertex[2]), ogreReal(vertex[3]));
+}
+
+template<>
+inline Ogre::Quaternion ogreVertex<Ogre::Quaternion, float32, 4>(const BasicVertex<float32, 4> &vertex)
+{
+	return Ogre::Quaternion(ogreReal(vertex[0]), ogreReal(vertex[1]), ogreReal(vertex[2]), ogreReal(vertex[3]));
+}
+
 inline QString mapFilter()
 {
 	KMimeType::Ptr w3m(KMimeType::mimeType("application/x-w3m"));

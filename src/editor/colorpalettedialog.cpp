@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2009 by Tamino Dauth                                    *
+ *   Copyright (C) 2012 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,11 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <Qt/QtGui>
+#include <QtGui>
 
-#include "blpioplugin.hpp"
-#include "blpiohandler.hpp"
-#include "../../blp/blp.hpp"
+#include <KDialogButtonBox>
+
+#include "colorpalettedialog.hpp"
 
 namespace wc3lib
 {
@@ -30,48 +30,10 @@ namespace wc3lib
 namespace editor
 {
 
-Q_EXPORT_PLUGIN2(blpioplugin, BlpIOPlugin)
-
-BlpIOPlugin::BlpIOPlugin(QObject *parent) : QImageIOPlugin(parent)
+ColorPaletteDialog::ColorPaletteDialog(QWidget *parent) :
+	KDialog(parent), m_colorCells(new KColorCells(this, 2, 4))
 {
-}
-
-BlpIOPlugin::~BlpIOPlugin()
-{
-}
-
-BlpIOPlugin::Capabilities BlpIOPlugin::capabilities(QIODevice *device, const QByteArray &format) const
-{
-	if (format.toLower() == "blp")
-		return QImageIOPlugin::CanRead | QImageIOPlugin::CanWrite;
-
-	if (!(format.isEmpty() && device->isOpen()))
-		return 0;
-
-	Capabilities cap;
-	blp::dword identifier;
-
-	if (device->isReadable() && device->peek(reinterpret_cast<char*>(&identifier), sizeof(identifier)) == sizeof(identifier) && blp::Blp::hasFormat(reinterpret_cast<blp::byte*>(&identifier), sizeof(identifier)))
-		cap |= CanRead;
-
-	if (device->isWritable())
-		cap |= CanWrite;
-
-	return cap;
-}
-
-QImageIOHandler* BlpIOPlugin::create(QIODevice *device, const QByteArray &format) const
-{
-	class BlpIOHandler *result = new BlpIOHandler();
-	result->setDevice(device);
-	result->setFormat(format);
-
-	return result;
-}
-
-QStringList BlpIOPlugin::keys() const
-{
-	return QStringList("blp");
+	this->setMainWidget(colorCells());
 }
 
 }

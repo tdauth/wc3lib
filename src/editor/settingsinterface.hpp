@@ -39,6 +39,8 @@ namespace editor
 class SettingsInterface
 {
 	public:
+		virtual ~SettingsInterface();
+
 		virtual void read(const KConfigGroup &group) = 0;
 		virtual void write(KConfigGroup &group) const = 0;
 		virtual QString groupName() const = 0;

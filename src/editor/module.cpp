@@ -43,6 +43,9 @@ Module::Module(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f
 {
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	setLayout(layout);
+	topLayout()->setAlignment(Qt::AlignTop);
+	//topLayout()->widget()->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+	//topLayout()->setSizeConstraint( Qt::Horizontal);
 	layout->addLayout(topLayout());
 	layout->addLayout(centerLayout());
 

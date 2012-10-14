@@ -279,15 +279,18 @@ bool BlpIOHandler::write(const QImage &image, blp::Blp *blpImage)
 	{
 		for (int height = 0; height < image.height(); ++height)
 		{
-			// set color
-			const QRgb rgb = image.pixel(width, height);
-			int index = 0;
-
 			if (blpImage->compression() == blp::Blp::Compression::Paletted)
-				index = image.pixelIndex(width, height); // index has to be set because paletted compression can also be used
-
-			const blp::color argb = rgbaToColor(rgb);
-			mipMap.setColor(width, height, argb, qAlpha(rgb), index);
+			{
+				const int index = image.pixelIndex(width, height); // index has to be set because paletted compression can also be used
+				mipMap.setColorIndex(width, height, index);
+			}
+			else
+			{
+				// set color
+				const QRgb rgb = image.pixel(width, height);
+				const blp::color argb = rgbaToColor(rgb);
+				mipMap.setColor(width, height, argb);
+			}
 		}
 	}
 

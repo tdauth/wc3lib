@@ -45,9 +45,6 @@ ModelView::ModelView(Ogre::Root *root, QWidget *parent, Qt::WFlags f, Ogre::Scen
 
 ModelView::~ModelView()
 {
-	if (m_freeRoot)
-		delete this->m_root;
-
 	//if (this->m_frameListener)
 		//delete this->m_frameListener;
 
@@ -60,6 +57,9 @@ ModelView::~ModelView()
 	{
 		this->root()->destroyRenderTarget(this->renderWindow());
 	}
+
+	if (m_freeRoot)
+		delete this->m_root;
 }
 
 void ModelView::centerView()
@@ -141,8 +141,9 @@ void ModelView::resizeEvent(QResizeEvent *event)
 
 void ModelView::paintEvent(QPaintEvent *event)
 {
-	QWidget::paintEvent(event);
+	qDebug() << "PAINT!";
 	this->render();
+	QWidget::paintEvent(event);
 }
 
 void ModelView::keyPressEvent(QKeyEvent *event)
@@ -440,7 +441,7 @@ OLD!
 */
 
 	setAttribute(Qt::WA_PaintOnScreen);
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	//== Ogre Initialization ==//
 	// default scene

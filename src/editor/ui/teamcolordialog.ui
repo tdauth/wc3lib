@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>167</width>
+    <width>168</width>
     <height>62</height>
    </rect>
   </property>
@@ -16,6 +16,13 @@
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <widget class="KColorCombo" name="m_colorComboBox">
+     <property name="color">
+      <color>
+       <red>255</red>
+       <green>0</green>
+       <blue>0</blue>
+      </color>
+     </property>
      <item>
       <property name="text">
        <string>Red</string>
@@ -94,14 +101,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>KDialogButtonBox</class>
-   <extends>QDialogButtonBox</extends>
-   <header>kdialogbuttonbox.h</header>
-  </customwidget>
-  <customwidget>
    <class>KColorCombo</class>
    <extends>QComboBox</extends>
    <header>kcolorcombo.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KDialogButtonBox</class>
+   <extends>QDialogButtonBox</extends>
+   <header>kdialogbuttonbox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

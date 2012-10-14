@@ -43,9 +43,11 @@ namespace wc3lib
 namespace editor
 {
 
-TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_imageLabel(new QLabel(this)), m_texture(), m_showsAlphaChannel(false), m_showsTransparency(false), m_factor(1.0), m_saveDialog(0)
+TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_imageLabel(new QLabel(this)), m_texture(), m_showsAlphaChannel(false), m_showsTransparency(false), m_factor(1.0), m_zoomToFit(true), m_colorPaletteDialog(0), m_saveDialog(0)
 {
 	Module::setupUi();
+	imageLabel()->setAlignment(Qt::AlignCenter);
+	imageLabel()->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	topLayout()->addWidget(imageLabel());
 
 	/*
@@ -154,6 +156,8 @@ void TextureEditor::openFile()
 	m_showsAlphaChannel = false;
 	m_showsTransparency = false;
 	m_factor = 1.0;
+	m_zoomToFit = true;
+	this->m_zoomToFitAction->setChecked(this->m_zoomToFit);
 
 	foreach (QAction *action, m_textureActionCollection->actions())
 		action->setEnabled(true);
@@ -232,6 +236,18 @@ void TextureEditor::showSettings()
 
 void TextureEditor::editColorPalette()
 {
+	QImage &image = m_mipMaps[mipMapIndex()];
+
+	if (image.colorCount() == 0)
+		return;
+
+	this->colorPaletteDialog()->applyFromImage(image);
+
+	if (this->colorPaletteDialog()->exec() == QDialog::Accepted)
+	{
+		this->colorPaletteDialog()->applyToImage(image);
+		refreshImage();
+	}
 }
 
 void TextureEditor::makeActive()
@@ -319,6 +335,8 @@ void TextureEditor::zoomToFit()
 	if (!hasTexture())
 		return;
 
+	this->m_zoomToFit = !this->m_zoomToFit;
+	this->m_zoomToFitAction->setChecked(this->m_zoomToFit);
 	refreshImage();
 }
 
@@ -351,6 +369,8 @@ void TextureEditor::showMipMap()
 	m_showsAlphaChannel = false;
 	m_showsTransparency = false;
 	m_factor = 1.0;
+	m_zoomToFit = true;
+	this->m_zoomToFitAction->setChecked(this->m_zoomToFit);
 	refreshImage();
 }
 
@@ -364,17 +384,39 @@ void TextureEditor::refreshImage()
 	}
 
 	QPixmap newPixmap;
+	QImage image = mipMaps()[mipMapIndex()];
 
-	if (!showsAlphaChannel())
-		newPixmap = QPixmap::fromImage(mipMaps()[mipMapIndex()]).scaled(mipMaps()[mipMapIndex()].size() * this->factor());
+	if (m_zoomToFit)
+	{
+		QSize fitSize = m_imageLabel->size();
+
+
+		if (fitSize.height() > image.height() || fitSize.width() > image.width())
+			fitSize = image.size();
+
+		if (!showsAlphaChannel())
+			newPixmap = QPixmap::fromImage(image).scaled(fitSize, Qt::KeepAspectRatio);
+		else
+			newPixmap = QPixmap::fromImage(image.createAlphaMask()).scaled(fitSize, Qt::KeepAspectRatio);
+	}
 	else
-		newPixmap = QPixmap::fromImage(mipMaps()[mipMapIndex()].createAlphaMask()).scaled(mipMaps()[mipMapIndex()].size() * this->factor());
+	{
+		if (!showsAlphaChannel())
+			newPixmap = QPixmap::fromImage(image).scaled(mipMaps()[mipMapIndex()].size() * this->factor());
+		else
+			newPixmap = QPixmap::fromImage(image.createAlphaMask()).scaled(mipMaps()[mipMapIndex()].size() * this->factor());
+	}
 
 	if (showsTransparency())
 		newPixmap.setMask(this->m_imageLabel->pixmap()->createMaskFromColor(Qt::transparent));
 
+	QSize oldSize = this->m_imageLabel->size();
+
+	// TODO prevent oversizing on actual size
 	this->m_imageLabel->setPixmap(newPixmap);
-	this->m_imageLabel->resize(this->m_imageLabel->pixmap()->size());
+
+	if (!m_zoomToFit)
+		this->m_imageLabel->resize(oldSize);
 }
 
 void TextureEditor::createFileActions(class KMenu *menu)
@@ -434,10 +476,11 @@ void TextureEditor::createMenus(class KMenuBar *menuBar)
 	viewMenu->addAction(action);
 	m_textureActionCollection->addAction("actualsize", action);
 
-	action = new KAction(KIcon(":/actions/zoomtofit.png"), i18n("Zoom to fit"), this);
-	connect(action, SIGNAL(triggered()), this, SLOT(zoomToFit()));
-	viewMenu->addAction(action);
-	m_textureActionCollection->addAction("zoomtofit", action);
+	m_zoomToFitAction = new KAction(KIcon(":/actions/zoomtofit.png"), i18n("Zoom to fit"), this);
+	m_zoomToFitAction->setCheckable(true);
+	connect(m_zoomToFitAction, SIGNAL(triggered()), this, SLOT(zoomToFit()));
+	viewMenu->addAction(m_zoomToFitAction);
+	m_textureActionCollection->addAction("zoomtofit", m_zoomToFitAction);
 
 	action = KStandardAction::zoomIn(this, SLOT(zoomIn()), this);
 	viewMenu->addAction(action);
@@ -476,6 +519,14 @@ class SettingsInterface* TextureEditor::settings()
 
 void TextureEditor::onSwitchToMap(Map *map)
 {
+}
+
+void TextureEditor::resizeEvent(QResizeEvent *event)
+{
+	if (m_zoomToFit)
+		refreshImage();
+
+	Module::resizeEvent(event);
 }
 
 #include "moc_textureeditor.cpp"

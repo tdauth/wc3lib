@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2009 by Tamino Dauth                                    *
+ *   Copyright (C) 2012 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,11 +18,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <Qt/QtGui>
+#ifndef WC3LIB_COLORPALETTEDIALOG_HPP
+#define WC3LIB_COLORPALETTEDIALOG_HPP
 
-#include "blpioplugin.hpp"
-#include "blpiohandler.hpp"
-#include "../../blp/blp.hpp"
+#include <QImage>
+
+#include <KDialog>
+#include <KColorCells>
 
 namespace wc3lib
 {
@@ -30,50 +32,61 @@ namespace wc3lib
 namespace editor
 {
 
-Q_EXPORT_PLUGIN2(blpioplugin, BlpIOPlugin)
-
-BlpIOPlugin::BlpIOPlugin(QObject *parent) : QImageIOPlugin(parent)
+class ColorPaletteDialog : public KDialog
 {
-}
+	Q_OBJECT
 
-BlpIOPlugin::~BlpIOPlugin()
+	public:
+		explicit ColorPaletteDialog(QWidget *parent = 0);
+
+		bool applyFromImage(const QImage &image);
+		bool applyToImage(QImage &image);
+
+		KColorCells* colorCells() const;
+	
+	private:
+		KColorCells *m_colorCells;
+	
+};
+
+inline bool ColorPaletteDialog::applyFromImage(const QImage &image)
 {
+	this->colorCells()->setColumnCount(16);
+	this->colorCells()->setRowCount(image.colorCount() / this->colorCells()->columnCount());
+
+	int i = 0;
+
+	foreach (const QRgb &color, image.colorTable())
+	{
+		this->colorCells()->setColor(i, QColor(color));
+		++i;
+	}
+
+	return true;
 }
 
-BlpIOPlugin::Capabilities BlpIOPlugin::capabilities(QIODevice *device, const QByteArray &format) const
+inline bool ColorPaletteDialog::applyToImage(QImage &image)
 {
-	if (format.toLower() == "blp")
-		return QImageIOPlugin::CanRead | QImageIOPlugin::CanWrite;
+	if (image.colorCount() != this->colorCells()->colorCount())
+		return false;
 
-	if (!(format.isEmpty() && device->isOpen()))
-		return 0;
+	QVector<QRgb> colorTable = image.colorTable();
 
-	Capabilities cap;
-	blp::dword identifier;
+	for (int i = 0; i < colorTable.size(); i++)
+		colorTable[i] = colorCells()->color(i).rgb();
 
-	if (device->isReadable() && device->peek(reinterpret_cast<char*>(&identifier), sizeof(identifier)) == sizeof(identifier) && blp::Blp::hasFormat(reinterpret_cast<blp::byte*>(&identifier), sizeof(identifier)))
-		cap |= CanRead;
+	image.setColorTable(colorTable);
 
-	if (device->isWritable())
-		cap |= CanWrite;
-
-	return cap;
+	return true;
 }
 
-QImageIOHandler* BlpIOPlugin::create(QIODevice *device, const QByteArray &format) const
+inline class KColorCells* ColorPaletteDialog::colorCells() const
 {
-	class BlpIOHandler *result = new BlpIOHandler();
-	result->setDevice(device);
-	result->setFormat(format);
-
-	return result;
-}
-
-QStringList BlpIOPlugin::keys() const
-{
-	return QStringList("blp");
+	return this->m_colorCells;
 }
 
 }
 
 }
+
+#endif // COLORPALETTEDIALOG_HPP

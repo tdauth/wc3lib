@@ -19,3 +19,17 @@
  ***************************************************************************/
 
 #include "settingsinterface.hpp"
+
+namespace wc3lib
+{
+
+namespace editor
+{
+
+SettingsInterface::~SettingsInterface()
+{
+}
+
+}
+
+}
