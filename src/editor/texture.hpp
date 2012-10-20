@@ -68,7 +68,12 @@ class Texture : public Resource
 		/**
 		 * \exception Exception Exception safe!
 		 */
-		virtual void loadBlp() throw (Exception);
+		virtual void loadBlp(const QMap<QString, QString> &options) throw (Exception);
+		virtual void loadBlp() throw (Exception)
+		{
+			loadBlp(QMap<QString, QString>());
+		}
+
 		/**
 		 * \exception Exception Exception safe!
 		 */
@@ -94,7 +99,7 @@ class Texture : public Resource
 		/**
 		 * Saves texture at \p url with format \p format and compression options \p compression.
 		 * \param format If this value is empty format is detected by file's extension. If no valid format could be detected first usable is used in order BLP, Qt and OGRE.
-		 * \param compression Defines compression options as key-value pairs separated by : char. Example: Quality=10:OtherKey=Value.
+		 * \param compression Defines compression options as key-value pairs.
 		 * Supported compression keys are:
 		 * <ul>
 		 * <li>"Quality" - -1-100 where -1 means undefined/default quality and 100 means best. Supported by all Qt supported image formats and BLP JFIF compresion.</li>
@@ -104,10 +109,10 @@ class Texture : public Resource
 		 * \todo Option quality only works for non-BLP formats.
 		 * \exception Exception Exception safe!
 		 */
-		virtual void save(const KUrl &url, const QString &format, const QString &compression = "") const throw (Exception);
+		virtual void save(const KUrl &url, const QString &format, const QMap<QString, QString> &compression) const throw (Exception);
 		virtual void save(const KUrl &url) const throw (Exception)
 		{
-			save(url, "", "");
+			save(url, "", QMap<QString, QString>());
 		}
 
 		bool hasBlp() const;

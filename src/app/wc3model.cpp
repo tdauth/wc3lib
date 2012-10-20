@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Tamino Dauth                                    *
+ *   Copyright (C) 2012 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,50 +18,40 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <QtGui>
+#include <QScopedPointer>
 
-#include <KAction>
-#include <KActionCollection>
+#include <KApplication>
+#include <KAboutData>
+#include <KCmdLineArgs>
+#include <KLocale>
 
-#include "windowsmenu.hpp"
-#include "editor.hpp"
+#include "../editor.hpp"
 
-namespace wc3lib
+using namespace wc3lib::editor;
+
+int main(int argc, char *argv[])
 {
+	KAboutData aboutData(Editor::aboutData());
 
-namespace editor
-{
+	KCmdLineArgs::init(argc, argv, &aboutData);
+	KCmdLineOptions options;
+	options.add("", ki18n("Additional help."));
+	options.add("+[file]", ki18n("File to open"));
+	KCmdLineArgs::addCmdLineOptions(options);
 
-WindowsMenu::WindowsMenu(Module *module) : KMenu(tr("Windows"), module)
-{
-	if (module->hasEditor())
+	KApplication app;
+
+	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
+	ModelEditor *editor = new ModelEditor(source.data());
+	editor->show();
+
+	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
+
+	if (args != 0)
 	{
-		foreach (Map *map, const_cast<const Editor*>(module->editor())->maps())
-			addMapAction(map);
-
-		connect(module->editor(), SIGNAL(openedMap(Map*)), this, SLOT(addMapAction(Map*)));
-		connect(module->editor(), SIGNAL(aboutToCloseMap(Map*)), this, SLOT(removeMapAction(Map*)));
+		for (int i = 0; i < args->count(); ++i)
+			editor->openUrl(args->url(i));
 	}
-}
 
-void WindowsMenu::addMapAction(Map *map)
-{
-	if (module()->hasEditor())
-	{
-		this->addAction(const_cast<const Editor*>(module()->editor())->mapActions()[map]);
-	}
-}
-
-void WindowsMenu::removeMapAction(Map* map)
-{
-	if (module()->hasEditor())
-	{
-		this->removeAction(const_cast<const Editor*>(module()->editor())->mapActions()[map]);
-	}
-}
-
-#include "moc_windowsmenu.cpp"
-
-}
-
+	return app.exec();
 }

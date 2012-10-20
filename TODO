@@ -1,3 +1,7 @@
+2012-10-21 Tamino Dauth <tamino@cdauth.eu>
+* blp: Written JPEG MIP map data seems to be too small.
+* blp: Check if buffer size in writeJpegMipMap() is used correctly.
+
 2012-09-27 Tamino Dauth <tamino@cdauth.eu>
 * editor: Fix team color dialog (custom color and color values).
 * editor: Fix texture release error on closing editor -> check manual release of OgreMdlx and shared textures.

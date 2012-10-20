@@ -25,6 +25,7 @@
 #include <boost/detail/scoped_enum_emulation.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/variant.hpp>
+#include <boost/foreach.hpp>
 
 #include "platform.hpp"
 
@@ -64,7 +65,7 @@ namespace blp
  * blp->read(ifstream);
  * std::cout << boost::format("We have %1% MIP maps here.") % blp->mipMaps().size() << std::endl;
  *
- * BOOST_FOREACH(const Blp::MipMapPtr mipMap, blp->mipMaps())
+ * BOOST_FOREACH(Blp::MipMaps::const_reference mipMap, blp->mipMaps())
  * 	std::cout << boost::format("This mip map has height %1% and width %2%.") % mipMap->height() % mipMap->width() << std::endl;
  * {
  * 	for (dword width = 0; width < mipMap->width(); ++width)
@@ -390,6 +391,33 @@ inline BOOST_SCOPED_ENUM(Blp::Format) Blp::format() const
 
 inline void Blp::setCompression(BOOST_SCOPED_ENUM(Blp::Compression) compression)
 {
+	if (compression == this->compression())
+		return;
+
+	if ((compression == Compression::Uncompressed || compression == Compression::DirectXCompression) &&  this->format() != Format::Blp2)
+		throw Exception(boost::format(_("Compression %1% is only allowed for BLP2 images.")) % compression);
+
+	if (compression == Compression::Paletted && this->compression() == Compression::Jpeg)
+		throw Exception(_("Cannot change compression from JPEG to paletted."));
+
+	// replace palette by actual values
+	if (this->compression() == Compression::Paletted)
+	{
+		BOOST_FOREACH(MipMaps::reference ref, this->m_mipMaps)
+		{
+			for (dword height = 0; height < ref.height(); ++height)
+			{
+				for (dword width = 0; width < ref.width(); ++width)
+				{
+					MipMap::Color &color = ref.colorAt(width, height);
+					color.setArgb(this->palette()[color.paletteIndex()]);
+				}
+			}
+		}
+
+		this->m_palette.reset();
+	}
+
 	this->m_compression = compression;
 }
 

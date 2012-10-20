@@ -26,6 +26,7 @@
 #include <KUrl>
 #include <KAction>
 #include <KFileDialog>
+#include <KDialogButtonBox>
 
 #include "module.hpp"
 #include "texture.hpp"
@@ -46,10 +47,39 @@ class TextureEditor : public Module
 	Q_OBJECT
 
 	public:
-		class SaveDialog : public KFileDialog
+		class LoadDialogWidget : public QWidget
 		{
 			public:
-				SaveDialog(QWidget *parent);
+				LoadDialogWidget(QWidget *parent = 0);
+
+				class KIntNumInput *mipMapsInput() const;
+				class QCheckBox *threadsCheckBox() const;
+
+			private:
+				class KIntNumInput *m_mipMapsInput;
+				class QCheckBox *m_threadsCheckBox;
+		};
+
+		class LoadDialog : public QObject
+		{
+			public:
+				LoadDialog(QObject *parent);
+				~LoadDialog();
+
+				KFileDialog *dialog() const;
+				LoadDialogWidget *widget() const;
+				class KIntNumInput *mipMapsInput() const;
+				class QCheckBox *threadsCheckBox() const;
+
+			private:
+				KFileDialog *m_dialog;
+				LoadDialogWidget *m_widget;
+		};
+
+		class SaveDialogWidget : public QWidget
+		{
+			public:
+				SaveDialogWidget(QWidget *parent = 0);
 
 				class KIntNumInput *qualityInput() const;
 				class KIntNumInput *mipMapsInput() const;
@@ -59,6 +89,37 @@ class TextureEditor : public Module
 				class KIntNumInput *m_qualityInput;
 				class KIntNumInput *m_mipMapsInput;
 				class QCheckBox *m_threadsCheckBox;
+		};
+
+		class SaveDialog : public QObject
+		{
+			public:
+				SaveDialog(QObject *parent);
+				~SaveDialog();
+
+				KFileDialog *dialog() const;
+				SaveDialogWidget *widget() const;
+				class KIntNumInput *qualityInput() const;
+				class KIntNumInput *mipMapsInput() const;
+				class QCheckBox *threadsCheckBox() const;
+
+			private:
+				KFileDialog *m_dialog;
+				SaveDialogWidget *m_widget;
+		};
+
+		class ChargesDialog : public QDialog
+		{
+			public:
+				ChargesDialog(QWidget *parent);
+				KIntNumInput* chargesInput() const;
+				QCheckBox* hasChargesCheckBox() const;
+
+			private:
+				KDialogButtonBox *m_buttonBox;
+				KIntNumInput *m_chargesInput;
+				QCheckBox *m_hasChargesCheckBox;
+
 		};
 
 		typedef QScopedPointer<Texture> TexturePtr;
@@ -78,6 +139,8 @@ class TextureEditor : public Module
 		bool hasTexture() const;
 
 		ColorPaletteDialog* colorPaletteDialog() const;
+		ChargesDialog* chargesDialog() const;
+		LoadDialog* loadDialog() const;
 		SaveDialog* saveDialog() const;
 
 	public slots:
@@ -85,16 +148,24 @@ class TextureEditor : public Module
 		 * \note Exception safe.
 		 */
 		void openFile();
+		void openUrl(const KUrl &url, QMap<QString, QString> options);
+		void openUrl(const KUrl &url)
+		{
+			openUrl(url, QMap<QString, QString>());
+		}
+
 		void saveFile();
 		void closeFile();
 		void showSettings();
 
 		void editColorPalette();
+		void dropColorPalette();
 		void makeActive();
 		void makePassive();
 		void makeAutocast();
 		void makeInfocardNormal();
 		void makeInfocardLevel();
+		void setCharges();
 		/**
 		 * Adds little charges symbol with number \p charges to the texture.
 		 */
@@ -144,24 +215,90 @@ class TextureEditor : public Module
 		KMenu *m_mipMapsMenu;
 
 		ColorPaletteDialog *m_colorPaletteDialog;
+		ChargesDialog *m_chargesDialog;
+		LoadDialog *m_loadDialog;
 		SaveDialog *m_saveDialog;
 };
 
-inline KIntNumInput* TextureEditor::SaveDialog::qualityInput() const
-{
-	return this->m_qualityInput;
-}
-
-inline KIntNumInput* TextureEditor::SaveDialog::mipMapsInput() const
+inline KIntNumInput* TextureEditor::LoadDialogWidget::mipMapsInput() const
 {
 	return this->m_mipMapsInput;
 }
 
-inline QCheckBox* TextureEditor::SaveDialog::threadsCheckBox() const
+inline QCheckBox* TextureEditor::LoadDialogWidget::threadsCheckBox() const
 {
 	return this->m_threadsCheckBox;
 }
 
+inline KFileDialog* TextureEditor::LoadDialog::dialog() const
+{
+	return this->m_dialog;
+}
+
+inline TextureEditor::LoadDialogWidget* TextureEditor::LoadDialog::widget() const
+{
+	return this->m_widget;
+}
+
+inline KIntNumInput* TextureEditor::LoadDialog::mipMapsInput() const
+{
+	return this->m_widget->mipMapsInput();
+}
+
+inline QCheckBox* TextureEditor::LoadDialog::threadsCheckBox() const
+{
+	return this->m_widget->threadsCheckBox();
+}
+
+inline KIntNumInput* TextureEditor::SaveDialogWidget::qualityInput() const
+{
+	return this->m_qualityInput;
+}
+
+inline KIntNumInput* TextureEditor::SaveDialogWidget::mipMapsInput() const
+{
+	return this->m_mipMapsInput;
+}
+
+inline QCheckBox* TextureEditor::SaveDialogWidget::threadsCheckBox() const
+{
+	return this->m_threadsCheckBox;
+}
+
+inline KFileDialog* TextureEditor::SaveDialog::dialog() const
+{
+	return this->m_dialog;
+}
+
+inline TextureEditor::SaveDialogWidget* TextureEditor::SaveDialog::widget() const
+{
+	return this->m_widget;
+}
+
+inline KIntNumInput* TextureEditor::SaveDialog::qualityInput() const
+{
+	return this->m_widget->qualityInput();
+}
+
+inline KIntNumInput* TextureEditor::SaveDialog::mipMapsInput() const
+{
+	return this->m_widget->mipMapsInput();
+}
+
+inline QCheckBox* TextureEditor::SaveDialog::threadsCheckBox() const
+{
+	return this->m_widget->threadsCheckBox();
+}
+
+inline KIntNumInput* TextureEditor::ChargesDialog::chargesInput() const
+{
+	return this->m_chargesInput;
+}
+
+inline QCheckBox* TextureEditor::ChargesDialog::hasChargesCheckBox() const
+{
+	return this->m_hasChargesCheckBox;
+}
 
 inline QLabel* TextureEditor::imageLabel() const
 {
@@ -209,6 +346,22 @@ inline ColorPaletteDialog* TextureEditor::colorPaletteDialog() const
 		const_cast<TextureEditor*>(this)->m_colorPaletteDialog = new ColorPaletteDialog(const_cast<TextureEditor*>(this));
 
 	return this->m_colorPaletteDialog;
+}
+
+inline TextureEditor::ChargesDialog* TextureEditor::chargesDialog() const
+{
+	if (this->m_chargesDialog == 0)
+		const_cast<TextureEditor*>(this)->m_chargesDialog = new ChargesDialog(const_cast<TextureEditor*>(this));
+
+	return this->m_chargesDialog;
+}
+
+inline TextureEditor::LoadDialog *TextureEditor::loadDialog() const
+{
+	if (this->m_loadDialog == 0)
+		const_cast<TextureEditor*>(this)->m_loadDialog = new LoadDialog(const_cast<TextureEditor*>(this));
+
+	return this->m_loadDialog;
 }
 
 inline TextureEditor::SaveDialog *TextureEditor::saveDialog() const

@@ -73,8 +73,22 @@ void Texture::clear() throw ()
 	clearOgreTexture();
 }
 
+namespace
+{
 
-void Texture::loadBlp() throw (Exception)
+inline QString compressionOption(const QMap<QString, QString> &map, const QString key)
+{
+	QMap<QString, QString>::const_iterator iterator = map.find(key);
+
+	if (iterator == map.end())
+		return QString();
+
+	return iterator.value();
+}
+
+}
+
+void Texture::loadBlp(const QMap<QString, QString> &options) throw (Exception)
 {
 	if (hasBlp())
 		return;
@@ -99,7 +113,23 @@ void Texture::loadBlp() throw (Exception)
 			BlpPtr blpImage(new blp::Blp());
 
 			ifstream.seekg(0); // jump to beginning of stream
-			blpImage->read(ifstream);
+
+			// get all loading options
+			std::size_t mipMaps = blp::Blp::defaultMipMaps;
+			QString mipMapsString = compressionOption(options, "MipMaps");
+			bool threads = blp::Blp::defaultThreads;
+			QString threadsString = compressionOption(options, "Threads");
+
+			bool ok = false;
+			int tmpValue = mipMapsString.toInt(&ok);
+
+			if (tmpValue >= 1 && tmpValue <= blp::Blp::maxMipMaps)
+				mipMaps = tmpValue;
+
+			if (!threadsString.isEmpty())
+				threads = threadsString == "1" || threadsString == "true" || threadsString == "TRUE";
+
+			blpImage->read(ifstream, mipMaps, threads);
 
 			m_blp.swap(blpImage); // exception safe (won't change image if ->read throws exception
 		}
@@ -293,27 +323,7 @@ void Texture::reload() throw (Exception)
 		loadOgreTexture();
 }
 
-namespace
-{
-
-inline QString compressionOption(const QStringList &list, const QString key)
-{
-	const int index = list.indexOf(key);
-
-	if (index == -1)
-		return "";
-
-	const int charIndex = list[index].indexOf('=');
-
-	if (charIndex == -1 || charIndex == list[index].length() - 1)
-		return "";
-
-	return list[index].mid(charIndex + 1);
-}
-
-}
-
-void Texture::save(const KUrl &url, const QString &format, const QString &compression) const throw (Exception)
+void Texture::save(const KUrl &url, const QString &format, const QMap<QString, QString> &compression) const throw (Exception)
 {
 	KTemporaryFile tmpFile;
 
@@ -331,13 +341,12 @@ void Texture::save(const KUrl &url, const QString &format, const QString &compre
 	}
 
 	// get all compression options
-	const QStringList compressionOptions = compression.split(":");
 	int quality = realFormat == "blp" ? blp::Blp::defaultQuality : -1;
-	QString qualityString = compressionOption(compressionOptions, "Quality");
+	QString qualityString = compressionOption(compression, "Quality");
 	std::size_t mipMaps = realFormat == "blp" ? blp::Blp::defaultMipMaps : 1;
-	QString mipMapsString = compressionOption(compressionOptions, "MipMaps");
+	QString mipMapsString = compressionOption(compression, "MipMaps");
 	bool threads = realFormat == "blp" ? blp::Blp::defaultThreads : true;
-	QString threadsString = compressionOption(compressionOptions, "Threads");
+	QString threadsString = compressionOption(compression, "Threads");
 
 	bool ok = false;
 	int tmpValue = qualityString.toInt(&ok);

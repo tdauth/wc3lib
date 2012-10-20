@@ -85,6 +85,7 @@ class ModelEditor : public Module
 
 	public slots:
 		void openFile();
+		bool openUrl(const KUrl &url);
 		void saveFile();
 		void closeAllFiles();
 		void showSettings();
@@ -122,7 +123,6 @@ class ModelEditor : public Module
 		virtual void dragEnterEvent(QDragEnterEvent *event);
 		virtual void dropEvent(QDropEvent *event);
 
-		bool openUrl(const KUrl &url);
 		void removeModel(const OgreMdlx &ogreModel);
 		void removeModel(Models::iterator iterator);
 

@@ -107,6 +107,15 @@ namespace wc3lib
 namespace
 {
 
+template<typename T>
+std::string hexValue(T value)
+{
+	std::ostringstream sstream;
+	sstream << std::hex << value;
+
+	return sstream.str();
+}
+
 std::string iostateMessage(const std::ios_base::iostate &state)
 {
 	std::ostringstream sstream;

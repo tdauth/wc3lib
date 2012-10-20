@@ -121,7 +121,16 @@ MpqArchive::MpqArchive(QIODevice *dev) : m_mpq(new mpq::Mpq()), m_mpqFile(0), KA
 
 bool MpqArchive::closeArchive()
 {
-	this->m_mpq->close();
+	try
+	{
+		this->m_mpq->close();
+	}
+	catch (Exception e)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 KArchiveDirectory* MpqArchive::rootDir()

@@ -43,7 +43,7 @@ namespace wc3lib
 namespace editor
 {
 
-TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_imageLabel(new QLabel(this)), m_texture(), m_showsAlphaChannel(false), m_showsTransparency(false), m_factor(1.0), m_zoomToFit(true), m_colorPaletteDialog(0), m_saveDialog(0)
+TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_imageLabel(new QLabel(this)), m_texture(), m_showsAlphaChannel(false), m_showsTransparency(false), m_factor(1.0), m_zoomToFit(true), m_colorPaletteDialog(0), m_chargesDialog(0), m_loadDialog(0), m_saveDialog(0)
 {
 	Module::setupUi();
 	imageLabel()->setAlignment(Qt::AlignCenter);
@@ -87,16 +87,42 @@ TextureEditor::~TextureEditor()
 {
 }
 
-TextureEditor::SaveDialog::SaveDialog(QWidget *parent) : m_qualityInput(new KIntNumInput(this)), m_mipMapsInput(new KIntNumInput(this)), m_threadsCheckBox(new QCheckBox(this)), KFileDialog(KUrl(), i18n("*|All Files\n*.blp|Blizzard Pictures\n*.png|Portable Network Graphics\n*.jpg|JPEG Files\n*.tga|TGA Files"), parent) // TODO MIME filters do not work ("all/allfiles"). Use image filter.
+TextureEditor::LoadDialogWidget::LoadDialogWidget(QWidget *parent) : m_mipMapsInput(new KIntNumInput(this)), m_threadsCheckBox(new QCheckBox(this)), QWidget(parent)
 {
-	this->setCaption(i18n("Save texture"));
-	this->setConfirmOverwrite(true); // TODO doesn't work
-	this->setPreviewWidget(new KImageFilePreview(this));
-	this->setMode(KFile::File);
-	this->setOperationMode(Saving);
-
 	QVBoxLayout *layout = new QVBoxLayout();
-	this->layout()->addItem(layout);
+	this->setLayout(layout);
+
+	mipMapsInput()->setLabel(i18n("MIP maps:"));
+	mipMapsInput()->setMaximum(blp::Blp::maxMipMaps);
+	mipMapsInput()->setMinimum(0);
+	mipMapsInput()->setValue(blp::Blp::defaultMipMaps);
+	layout->addWidget(mipMapsInput());
+
+	threadsCheckBox()->setText(i18n("Threads:"));
+	threadsCheckBox()->setChecked(blp::Blp::defaultThreads);
+	layout->addWidget(threadsCheckBox());
+}
+
+TextureEditor::LoadDialog::LoadDialog(QObject *parent) : m_widget(new LoadDialogWidget()), QObject(parent)
+{
+	//KMimeType::Ptr mime(KMimeType::mimeType("image/x-blp"));
+	m_dialog = new KFileDialog(KUrl(), i18n("*|All Files\n*.blp|Blizzard Pictures\n*.png|Portable Network Graphics\n*.jpg|JPEG Files\n*.tga|TGA Files"), 0, m_widget); // TODO MIME filters do not work ("all/allfiles"). Use image filter.
+	dialog()->setCaption(i18n("Open texture"));
+	dialog()->setConfirmOverwrite(true); // TODO doesn't work
+	dialog()->setPreviewWidget(new KImageFilePreview(m_dialog));
+	dialog()->setMode(KFile::File);
+	dialog()->setOperationMode(KFileDialog::Opening);
+}
+
+TextureEditor::LoadDialog::~LoadDialog()
+{
+	delete m_dialog; // deletes widget as well
+}
+
+TextureEditor::SaveDialogWidget::SaveDialogWidget(QWidget *parent) : m_qualityInput(new KIntNumInput(this)), m_mipMapsInput(new KIntNumInput(this)), m_threadsCheckBox(new QCheckBox(this)), QWidget(parent)
+{
+	QVBoxLayout *layout = new QVBoxLayout();
+	this->setLayout(layout);
 
 	qualityInput()->setLabel(i18n("Quality:"));
 	qualityInput()->setMaximum(100);
@@ -115,26 +141,67 @@ TextureEditor::SaveDialog::SaveDialog(QWidget *parent) : m_qualityInput(new KInt
 	layout->addWidget(threadsCheckBox());
 }
 
+TextureEditor::SaveDialog::SaveDialog(QObject *parent) : m_widget(new SaveDialogWidget()), QObject(parent)
+{
+	//KMimeType::Ptr mime(KMimeType::mimeType("image/x-blp"));
+	m_dialog = new KFileDialog(KUrl(), i18n("*|All Files\n*.blp|Blizzard Pictures\n*.png|Portable Network Graphics\n*.jpg|JPEG Files\n*.tga|TGA Files"), 0, m_widget); // TODO MIME filters do not work ("all/allfiles"). Use image filter.
+	dialog()->setCaption(i18n("Save texture"));
+	dialog()->setConfirmOverwrite(true); // TODO doesn't work
+	dialog()->setPreviewWidget(new KImageFilePreview(m_dialog));
+	dialog()->setMode(KFile::File);
+	dialog()->setOperationMode(KFileDialog::Saving);
+}
+
+TextureEditor::SaveDialog::~SaveDialog()
+{
+	delete m_dialog; // deletes widget as well
+}
+
+TextureEditor::ChargesDialog::ChargesDialog(QWidget *parent) : m_chargesInput(new KIntNumInput(this)), m_hasChargesCheckBox(new QCheckBox(tr("Has Charges:"), this)), m_buttonBox(new KDialogButtonBox(this)), QDialog(parent)
+{
+	this->setWindowTitle(tr("Set Charges"));
+	this->setLayout(new QVBoxLayout());
+	this->layout()->addWidget(chargesInput());
+	this->layout()->addWidget(hasChargesCheckBox());
+	this->layout()->addWidget(m_buttonBox);
+
+	chargesInput()->setMaximum(100);
+	chargesInput()->setMinimum(0);
+	hasChargesCheckBox()->setChecked(true);
+	m_buttonBox->setStandardButtons(KDialogButtonBox::Ok | KDialogButtonBox::Cancel);
+
+	connect(hasChargesCheckBox(), SIGNAL(toggled(bool)), chargesInput(), SLOT(setEnabled(bool)));
+	connect(m_buttonBox->button(KDialogButtonBox::Ok), SIGNAL(pressed()), this, SLOT(accept()));
+	connect(m_buttonBox->button(KDialogButtonBox::Cancel), SIGNAL(pressed()), this, SLOT(reject()));
+}
+
 void TextureEditor::openFile()
 {
-	KMimeType::Ptr mime(KMimeType::mimeType("image/x-blp"));
 	KUrl url;
 
-	// if MIME type exists it will be considered in image open dialog
-	if (!mime.isNull())
-		url = KFileDialog::getImageOpenUrl(this->m_recentUrl, this, i18n("Open texture"));
-	else
-		url = KFileDialog::getOpenUrl(this->m_recentUrl, i18n("*|All Files"), this, i18n("Open texture"));
+	if (this->loadDialog()->dialog()->exec() == QDialog::Accepted)
+	{
+		KUrl url = loadDialog()->dialog()->selectedUrl();
 
-	if (url.isEmpty())
-		return;
+		if (url.isEmpty())
+			return;
 
+		QMap<QString, QString> options;
+		options["MipMaps"] = QString::number(loadDialog()->mipMapsInput()->value());
+		options["Threads"] = QString("%1%").arg(loadDialog()->threadsCheckBox()->isChecked());
+
+		openUrl(url, options);
+	}
+}
+
+void TextureEditor::openUrl(const KUrl &url, QMap<QString, QString> options)
+{
 	TexturePtr texture(new Texture(url));
 
 	try
 	{
 		texture->setSource(source());
-		texture->loadBlp();
+		texture->loadBlp(options);
 		texture->loadQt();
 	}
 	catch (Exception &exception)
@@ -164,6 +231,7 @@ void TextureEditor::openFile()
 
 	m_showAlphaChannelAction->setEnabled(this->texture()->qt()->hasAlphaChannel());
 	this->m_textureActionCollection->action("editcolorpalette")->setEnabled(this->texture()->qt()->format() == QImage::Format_Indexed8);
+	this->m_textureActionCollection->action("dropcolorpalette")->setEnabled(this->texture()->qt()->format() == QImage::Format_Indexed8);
 
 	m_mipMapsMenu->clear();
 	m_mipMaps.resize(this->texture()->blp()->mipMaps().size());
@@ -199,16 +267,20 @@ void TextureEditor::saveFile()
 		return;
 	}
 
-	if (saveDialog()->exec() == QDialog::Accepted)
+	if (saveDialog()->dialog()->exec() == QDialog::Accepted)
 	{
-		KUrl url = saveDialog()->selectedUrl();
+		KUrl url = saveDialog()->dialog()->selectedUrl();
 
 		if (url.isEmpty())
 			return;
 
 		try
 		{
-			this->texture()->save(url, QFileInfo(url.toLocalFile()).suffix().toLower(), QString("Quality=%1:MipMaps=%2:Threads=%3").arg(saveDialog()->qualityInput()->value()).arg(saveDialog()->mipMapsInput()->value()).arg(saveDialog()->threadsCheckBox()->isChecked()));
+			QMap<QString, QString> compression;
+			compression["Quality"] = QString::number(saveDialog()->qualityInput()->value());
+			compression["MipMaps"] = QString::number(saveDialog()->mipMapsInput()->value());
+			compression["Threads"] = QString("%1%").arg(saveDialog()->threadsCheckBox()->isChecked());
+			this->texture()->save(url, QFileInfo(url.toLocalFile()).suffix().toLower(), compression);
 		}
 		catch (Exception &exception)
 		{
@@ -250,6 +322,22 @@ void TextureEditor::editColorPalette()
 	}
 }
 
+void TextureEditor::dropColorPalette()
+{
+	if (texture()->hasBlp())
+	{
+		if (texture()->blp()->compression() == blp::Blp::Compression::Paletted)
+		{
+			texture()->blp()->setCompression(blp::Blp::Compression::Jpeg);
+			texture()->loadQt();
+			refreshImage();
+			qDebug() << "Dropped color palette!";
+		}
+	}
+	else
+		KMessageBox::error(this, tr("Dropping color palette is currently supported for BLP textures only."));
+}
+
 void TextureEditor::makeActive()
 {
 }
@@ -270,8 +358,30 @@ void TextureEditor::makeInfocardLevel()
 {
 }
 
+void TextureEditor::setCharges()
+{
+	if (this->chargesDialog()->exec() == QDialog::Accepted)
+	{
+		if (!this->chargesDialog()->hasChargesCheckBox()->isChecked())
+			refreshImage();
+		else
+			setCharges(this->chargesDialog()->chargesInput()->value());
+	}
+}
+
 void TextureEditor::setCharges(int charges)
 {
+	refreshImage();
+	QPixmap pixmap = *m_imageLabel->pixmap();
+	QPainter painter(&pixmap);
+	int x = pixmap.rect().width() - 20;
+	int y = pixmap.rect().height() - 20;
+	painter.setPen(QColor(Qt::black));
+	QRect rect(x, y, pixmap.rect().width() - x, pixmap.rect().height() - y);
+	painter.fillRect(rect, Qt::SolidPattern);
+	painter.setPen(QColor(Qt::white));
+	painter.drawText(rect, Qt::AlignCenter, QString::number(charges));
+	m_imageLabel->setPixmap(pixmap);
 }
 
 void TextureEditor::showAlphaChannel()
@@ -454,6 +564,16 @@ void TextureEditor::createEditActions(class KMenu *menu)
 	connect(action, SIGNAL(triggered()), this, SLOT(editColorPalette()));
 	menu->addAction(action);
 	m_textureActionCollection->addAction("editcolorpalette", action);
+
+	action = new KAction(KIcon(":/actions/dropcolorpalette.png"), i18n("Drop color palette"), this);
+	connect(action, SIGNAL(triggered()), this, SLOT(dropColorPalette()));
+	menu->addAction(action);
+	m_textureActionCollection->addAction("dropcolorpalette", action);
+
+	action = new KAction(KIcon(":/actions/setcharges.png"), i18n("Set charges"), this);
+	connect(action, SIGNAL(triggered()), this, SLOT(setCharges()));
+	menu->addAction(action);
+	m_textureActionCollection->addAction("setcharges", action);
 }
 
 void TextureEditor::createMenus(class KMenuBar *menuBar)
