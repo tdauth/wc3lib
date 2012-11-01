@@ -71,7 +71,7 @@ void OgreMdlx::clear() throw ()
 
 	BOOST_FOREACH(Textures::reference value, m_textures)
 	{
-		if (value.first->replaceableId() == mdlx::ReplaceableId::None) // don't ever removed textures with replaceable ids since they're shared by the resource's source
+		if (value.first->replaceableId() == mdlx::ReplaceableId::None && !value.second.isNull()) // don't ever removed textures with replaceable ids since they're shared by the resource's source, if there had been an error on loading the texture, pointer could be null!
 		{
 			qDebug() << "Remove texture " << value.second->getName().c_str();
 			this->m_modelView->root()->getTextureManager()->remove(value.second->getName());
@@ -274,6 +274,8 @@ void OgreMdlx::load() throw (Exception)
 			++id;
 		}
 
+		/*
+		 * FIXME, fix root bone creation
 		id = 0;
 
 		BOOST_FOREACH(mdlx::Bones::Members::const_reference member, this->mdlx()->bones()->members())
@@ -283,6 +285,7 @@ void OgreMdlx::load() throw (Exception)
 
 			++id;
 		}
+		*/
 
 		// WORKAROUND - each skeleton needs at least one root bone
 		id = 0;
@@ -922,7 +925,7 @@ Ogre::TexturePtr OgreMdlx::createTexture(const class mdlx::Texture &texture, mdl
 		{
 			textureResource->loadOgre();
 		}
-		catch (Ogre::Exception &exception)
+		catch (Exception &exception) // NOTE catch all exceptions, not loading texture file shouldn't stop loading model!
 		{
 			std::cerr << boost::format(_("Warning: %1%")) % exception.what() << std::endl;
 		}
@@ -970,11 +973,13 @@ Ogre::TextureUnitState* OgreMdlx::createLayer(Ogre::Pass *pass, const mdlx::Laye
 
 	if (texture->replaceableId() == mdlx::ReplaceableId::TeamColor)
 	{
-		textureName = this->source()->teamColorTexture(teamColor())->ogreTexture()->getName();
+		if (!this->source()->teamColorTexture(teamColor())->ogreTexture().isNull())
+			textureName = this->source()->teamColorTexture(teamColor())->ogreTexture()->getName();
 	}
 	else if (texture->replaceableId() == mdlx::ReplaceableId::TeamGlow)
 	{
-		textureName = this->source()->teamGlowTexture(teamGlow())->ogreTexture()->getName();
+		if (!this->source()->teamColorTexture(teamGlow())->ogreTexture().isNull())
+			textureName = this->source()->teamGlowTexture(teamGlow())->ogreTexture()->getName();
 	}
 
 	Ogre::TextureUnitState *state = pass->createTextureUnitState(textureName, layer.coordinatesId());

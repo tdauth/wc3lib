@@ -421,7 +421,9 @@ bool ModelEditor::openUrl(const KUrl &url)
 		KMessageBox::error(this, i18n("Unable to assign team color %1 and team glow %2 to model \"%3\".\nException \"%4\".", teamColor(), teamGlow(), url.toEncoded().constData(), exception.what().c_str()));
 	}
 
-	m_entities.left.insert(std::make_pair(model, new OgreMdlxEntity(Ogre::String(QString(model->namePrefix() +"Entity").toUtf8().constData()), model, this->modelView()->sceneManager()))); // create entity
+	Ogre::String entityName = Ogre::String(QString(model->namePrefix() +"Entity").toUtf8().constData());
+	qDebug() << "Scene manager for entity " << entityName.c_str() << " = " << this->modelView()->sceneManager();
+	m_entities.left.insert(std::make_pair(model, new OgreMdlxEntity(entityName, model, this->modelView()->sceneManager()))); // create entity
 
 	return true;
 }

@@ -32,7 +32,10 @@ OgreMdlxEntity::OgreMdlxEntity(const Ogre::String &name, OgreMdlx *mdlx, Ogre::S
 
 	BOOST_FOREACH(OgreMdlx::Geosets::const_reference ref, mdlx->geosets())
 	{
-		Ogre::Entity *entity = sceneManager->createEntity(boost::str(boost::format("%1%.Geoset%2%") % name.c_str() % id).c_str(), ref.second->getName());
+		qDebug() << "Mesh pointer for geoset " << id << ref.second.get();
+		Ogre::String entityName(boost::str(boost::format("%1%.Geoset%2%") % name.c_str() % id));
+		qDebug() << "Entity name for geoset " << id << ": " << entityName.c_str();
+		Ogre::Entity *entity = sceneManager->createEntity(entityName, ref.second);
 		this->m_entities.push_back(entity);
 
 		this->m_sceneNode->attachObject(entity);
