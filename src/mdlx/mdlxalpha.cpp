@@ -27,6 +27,9 @@ namespace wc3lib
 namespace mdlx
 {
 
+// TODO C++11
+//template class BasicMdlxAlpha<float32>;
+
 }
 
 }

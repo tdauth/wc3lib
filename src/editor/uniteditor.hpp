@@ -66,8 +66,6 @@ class UnitEditor : public ObjectEditorTab
 		virtual KUrl pasteObjectIconUrl() const;
 		virtual KUrl newObjectIconUrl() const;
 
-		class MetaData *m_metaData;
-
 		QTreeWidgetItem *m_standardUnitsItem;
 		QTreeWidgetItem *m_customUnitsItem;
 };

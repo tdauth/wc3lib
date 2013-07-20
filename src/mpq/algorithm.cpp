@@ -22,7 +22,14 @@
 #include <boost/iostreams/copy.hpp>
 #include <boost/scoped_array.hpp>
 
-#include "algorithm.hpp"
+#include "algorithm.hpp" // include before #ifdef to get proper flag
+#include "../config.h"
+
+#ifdef USE_ENCRYPTION
+#include <crypto++/md5.h>
+#else
+#include <openssl/md5.h>
+#endif
 
 using namespace huffman;
 
@@ -381,6 +388,21 @@ int decompressHuffman(char * pbOutBuffer, int * pcbOutBuffer, char * pbInBuffer,
 	// the tree is on the stack, who cares ?
 	//  ht.UninitTree();
 	return 1;
+}
+
+MD5 md5(const byte *buffer)
+{
+	MD5 md5 = 0;
+#ifdef USE_ENCRYPTION
+	CryptoPP::Weak1::MD5 checksum;
+	checksum.CalculateDigest((unsigned char*)&md5, (unsigned char*)buffer, sizeof(md5));
+#else
+	MD5_CTX c;
+	MD5_Init(&c);
+	MD5_Update(&c, (const void *)buffer, sizeof(md5));
+	MD5_Final((unsigned char*)&md5, &c);
+#endif
+	return md5;
 }
 
 }

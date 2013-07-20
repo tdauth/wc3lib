@@ -23,15 +23,13 @@
 
 #include "mdlxanimatedproperties.hpp"
 #include "mdlxanimatedproperty.hpp"
+#include "mdlxalpha.hpp"
 
 namespace wc3lib
 {
 
 namespace mdlx
 {
-
-template<typename _ValueType>
-class BasicMdlxAlpha;
 
 /**
  * \param _ValueType can be specified for chunks like "KMTF" which uses \ref long32 values for texture ids instead of \ref float32 values.
@@ -54,13 +52,33 @@ class BasicMdlxAlphas : public MdlxAnimatedProperties<1, _ValueType>
 		virtual typename Base::Property* createAnimatedProperty();
 };
 
-// TODO C++11 extern class template BasicMdlxAlphas<float32>;
+// TODO C++11
+//extern template class BasicMdlxAlphas<float32>;
 typedef BasicMdlxAlphas<float32> MdlxAlphas;
 
+template<typename _ValueType>
+BasicMdlxAlphas<_ValueType>::BasicMdlxAlphas(class Mdlx *mdlx) : Base(mdlx, "KMTA", "Alpha")
+{
+}
+
+template<typename _ValueType>
+BasicMdlxAlphas<_ValueType>::~BasicMdlxAlphas()
+{
+}
+
+template<typename _ValueType>
+BasicMdlxAlphas<_ValueType>::BasicMdlxAlphas(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlKeyword) : Base(mdlx, mdxIdentifier, mdlKeyword)
+{
+}
+
+template<typename _ValueType>
+typename BasicMdlxAlphas<_ValueType>::Base::Property* BasicMdlxAlphas<_ValueType>::createAnimatedProperty()
+{
+	return new Alpha(this);
 }
 
 }
 
-#include "mdlxalphas.cpp"
+}
 
 #endif

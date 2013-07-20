@@ -30,6 +30,9 @@ namespace wc3lib
 namespace mdlx
 {
 
+// TODO C++11
+//extern template class MdlxAnimatedProperty<4>;
+
 class MdlxRotation : public MdlxAnimatedProperty<4>
 {
 	public:

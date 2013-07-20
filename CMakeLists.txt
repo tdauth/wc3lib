@@ -7,18 +7,17 @@ set(wc3lib_VERSION_MAJOR 0)
 set(wc3lib_VERSION_MINOR 1)
 set(wc3lib_VERSION "${wc3lib_VERSION_MAJOR}.${wc3lib_VERSION_MINOR}")
 
-# NOTE we don't use PROJECT_BINARY_DIR since some files have to include it when they're installed on the system, as well (#include "../config.h")
-# configure a header file to pass some of the CMake settings
-# to the source code
+# NOTE config.h has to be installed since it is included in various header files and therefore required in the public API (for example #include "../config.h")
+# it contains the defines for all possible CMake options and is expected to be in the top level src directory ("include/wc3lib/")
 configure_file (
 	"${PROJECT_SOURCE_DIR}/wc3libConfig.h.in"
-	"${PROJECT_SOURCE_DIR}/config.h"
+	"${PROJECT_BINARY_DIR}/src/config.h"
 )
-install(FILES "${PROJECT_SOURCE_DIR}/config.h" DESTINATION include/wc3lib)
+install(FILES "${PROJECT_BINARY_DIR}/src/config.h" DESTINATION include/wc3lib)
 
-# add the source tree to the search path for include files
+# add the binary src tree to the search path for include files
 # so that we will find config.h
-include_directories("${PROJECT_SOURCE_DIR}")
+include_directories("${PROJECT_BINARY_DIR}/src")
 
 include(CMakeDependentOption)
 
@@ -51,7 +50,7 @@ CMAKE_DEPENDENT_OPTION(PLUGINS
 	"Could be used without EDITOR and installs Qt/KDE and OGRE format plugins only. Does not build the whole World Editor emulation."
 	ON
 	"BLP;MPQ" OFF)
-CMAKE_DEPENDENT_OPTION(ENCRYPTION
+CMAKE_DEPENDENT_OPTION(USE_ENCRYPTION
 	"Enables encryption support for MPQ archives which requires Crypto++. Otherwise, only OpenSSL or something similar is required for an MD5 function."
 	ON
 	"MPQ" OFF)
@@ -193,7 +192,7 @@ if (MPQ)
 	find_package(ZLIB REQUIRED)
 	include_directories(${ZLIB_INCLUDE_DIRS})
 
-	if (ENCRYPTION)
+	if (USE_ENCRYPTION)
 		set(CRYPTOPP_INCLUDE_DIRS "${CMAKE_SYSTEM_INCLUDE_PATH}")
 		set(CRYPTOPP_LIB_DIR "${CMAKE_SYSTEM_LIBRARY_PATH}")
 
@@ -230,6 +229,7 @@ endif ()
 set(Boost_USE_MULTITHREADED ON)
 if (DEBUG)
 	set(Boost_DEBUG ON)
+	add_definitions(-DBOOST_TEST_DYN_LINK=1)
 endif ()
 #set(Boost_DETAILED_FAILURE_MSG ON)
 #set(Boost_ADDITIONAL_VERSIONS "1.40" "1.40.0" "1.41" "1.41.0" "1.42" "1.42.0" "1.43" "1.43.0" "1.44" "1.44.0" "1.45" "1.45.0" "1.46" "1.46.0")

@@ -6,7 +6,7 @@ if (MPQ)
 
 	add_library(wc3libmpq SHARED ${wc3lib_MPQ_SRC})
 	target_link_libraries(wc3libmpq wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${BZIP2_LIBRARIES} ${ZLIB_LIBRARIES} huffman wave pklib)
-	if (ENCRYPTION)
+	if (USE_ENCRYPTION)
 		target_link_libraries(wc3libmpq ${CRYPTOPP_LIBRARIES})
 	else ()
 		target_link_libraries(wc3libmpq ${OPENSSL_LIBRARIES})

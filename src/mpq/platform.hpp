@@ -24,12 +24,6 @@
 #include "../config.h"
 #include "../platform.hpp"
 
-#ifdef ENCRYPTION
-#include <crypto++/md5.h>
-#else
-#include <openssl/md5.h>
-#endif
-
 namespace wc3lib
 {
 
@@ -39,21 +33,6 @@ namespace mpq
 typedef int32 CRC32;
 
 typedef int16_t MD5; // 128 bit
-
-inline MD5 md5(const byte *buffer)
-{
-	MD5 md5 = 0;
-#ifdef ENCRYPTION
-	CryptoPP::Weak1::MD5 checksum;
-	checksum.CalculateDigest((unsigned char*)&md5, (unsigned char*)buffer, sizeof(md5));
-#else
-	MD5_CTX c;
-	MD5_Init(&c);
-	MD5_Update(&c, (const void *)buffer, sizeof(md5));
-	MD5_Final((unsigned char*)&md5, &c);
-#endif
-	return md5;
-}
 
 struct Header
 {

@@ -187,6 +187,4 @@ inline const typename MdlxAnimatedProperty<N, _ValueType>::Values& MdlxAnimatedP
 
 }
 
-#include "mdlxanimatedproperty.cpp"
-
 #endif

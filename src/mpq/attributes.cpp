@@ -23,6 +23,7 @@
 #include "attributes.hpp"
 #include "mpq.hpp"
 #include "platform.hpp"
+#include "algorithm.hpp"
 
 namespace wc3lib
 {

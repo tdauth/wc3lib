@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010 by Tamino Dauth                                    *
+ *   Copyright (C) 2013 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,12 +18,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "format.hpp"
+#include "vertex.hpp"
 
 namespace wc3lib
 {
 
 // TODO C++11
-//template class BasicFormat<byte>; // force instantiation, so extern templates can be specified
+/*
+template class BasicVertex<float32, 2>; // force instantiation, so extern templates can be specified
+template class BasicVertex<float32, 3>;
+template class BasicVertex<float32, 4>;
+*/
 
 }

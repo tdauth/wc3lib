@@ -26,7 +26,7 @@ namespace wc3lib
 namespace mpq
 {
 
-#ifdef ENCRYPTION
+#ifdef USE_ENCRYPTION
 bool Signature::check(const CryptoPP::RSA::PrivateKey &privateKey) const
 {
 

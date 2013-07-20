@@ -43,10 +43,13 @@ ObjectEditor::ObjectEditor(class MpqPriorityList *source, QWidget *parent, Qt::W
 	topLayout()->addWidget(tabWidget());
 	setMinimumSize(QSize(200, 200)); // TEST
 
-	connect(tabWidget(), SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
+	tabWidget()->addTab(unitEditor(), unitEditor()->name());
+	unitEditor()->show();
+
 	m_currentTab = tab(0);
 	addCurrentActions();
-	//tabWidget()->addTab(unitEditor(), unitEditor()->name());
+	// connect signal and slot after adding actions and tabs first time!
+	connect(tabWidget(), SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
 
 	/*
 	const class mpq::MpqFile *unitEditorDataFile = editor->loadMpqFile("UI/UnitEditorData.txt");

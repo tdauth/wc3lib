@@ -34,21 +34,15 @@ namespace wc3lib
 namespace editor
 {
 
-UnitEditor::UnitEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_metaData(new MetaData(KUrl("Units/UnitMetaData.slk"))), ObjectEditorTab(source, parent, f)
+UnitEditor::UnitEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, KUrl("Units/UnitMetaData.slk"), parent, f)
 {
-	try
-	{
-		m_metaData->setSource(source, true);
-	}
-	catch (Exception &exception)
-	{
-		KMessageBox::error(this, i18n("Error while loading unit meta data from \"%1\":\n\"%2\".", m_metaData->url().toEncoded().constData(), exception.what().c_str()));
-	}
+	setupUi();
 }
 
 class ObjectTreeWidget* UnitEditor::createTreeWidget()
 {
 	ObjectTreeWidget *treeWidget = new ObjectTreeWidget(this);
+	treeWidget->setHeaderLabel(tr("Units"));
 
 	m_standardUnitsItem = new QTreeWidgetItem(treeWidget);
 	m_standardUnitsItem->setText(0, source()->tr(this, "WESTRING_UE_STANDARDUNITS"));

@@ -32,7 +32,7 @@
 
 #include "../config.h"
 
-#ifdef ENCRYPTION
+#ifdef USE_ENCRYPTION
 #include <crypto++/sha.h>
 #include <crypto++/rsa.h>
 #endif
@@ -351,7 +351,7 @@ class Mpq : public Format, private boost::noncopyable
 		 * \return Returns archive's strong digital signature with size of \ref Mpq::strongDigitalSignatureSize.
 		 */
 		const StrongDigitalSignature& strongDigitalSignature() const;
-#ifdef ENCRYPTION
+#ifdef USE_ENCRYPTION
 		/**
 		 * \return Returns true if there is no kind of signature or if stored signatures are correct.
 		 * \sa sign(), checkStrong(), strongDigitalSignature(), signatureFile()

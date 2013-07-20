@@ -27,9 +27,18 @@
 #include "../platform.hpp"
 #include "../vertex.hpp"
 #include "../utilities.hpp"
+#include "../format.hpp"
 
 namespace wc3lib
 {
+
+// TODO C++11
+/*
+extern template class BasicFormat<byte>; // increase compile time
+extern template class BasicVertex<float32, 2>;
+extern template class BasicVertex<float32, 3>;
+extern template class BasicVertex<float32, 4>;
+*/
 
 namespace mdlx
 {

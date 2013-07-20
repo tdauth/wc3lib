@@ -18,8 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_MDLX_MDLXANIMATEDPROPERTIES_CPP
-#define WC3LIB_MDLX_MDLXANIMATEDPROPERTIES_CPP
+#include "mdlxanimatedproperties.hpp"
 
 namespace wc3lib
 {
@@ -31,4 +30,3 @@ namespace mdlx
 
 }
 
-#endif

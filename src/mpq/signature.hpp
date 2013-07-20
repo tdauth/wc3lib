@@ -23,7 +23,7 @@
 
 #include "../config.h"
 
-#ifdef ENCRYPTION
+#ifdef USE_ENCRYPTION
 #include <crypto++/rsa.h>
 #endif
 
@@ -53,7 +53,7 @@ class Signature : public MpqFile
 		 */
 		typedef boost::scoped_array<byte> WeakSignature;
 
-#ifdef ENCRYPTION
+#ifdef USE_ENCRYPTION
 		/**
 		 * \sa Mpq::checkStrong(), check()
 		 */

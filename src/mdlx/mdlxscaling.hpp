@@ -30,6 +30,9 @@ namespace wc3lib
 namespace mdlx
 {
 
+// TODO C++11
+//extern template class MdlxAnimatedProperty<3>;
+
 class MdlxScaling : public MdlxAnimatedProperty<3>
 {
 	public:

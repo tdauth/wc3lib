@@ -23,7 +23,6 @@
 
 #include <map>
 
-#include <boost/bimap.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
 #include "platform.hpp"
@@ -37,13 +36,18 @@ namespace map
 /**
  * \brief Provides access to one single *.txt file's entries such as "UI/MiscUI.txt" or "UI/TriggerData.txt"
  * Uses Boost Spirit library for parsing the file.
+ * 
+ * \section txtgrammar Grammar of TXT Files
+ * [section name] // comment
+ * key0 = value0
+ * key1 = value1
+ * 
+ * 
  * \sa TriggerData
  */
 class Txt : public Format
 {
 	public:
-		typedef boost::bimaps::bimap<string, string> Entries;
-
 		typedef std::map<string, string> Pairs;
 
 		struct Section
@@ -57,10 +61,12 @@ class Txt : public Format
 		Sections& sections();
 		const Sections& sections() const;
 		/**
-		 * Reads all entries with their corresponding values into a map and returns the result.
-		 * \param section If this value is empty it returns all entries which do not belong to any section. Otherwise it returns all section entries only.
+		 * Returns all key value entries of section \p section.
+		 * \param section An existing section ([bla]) of the TXT file.
+		 * \throws Exception Throws an exception if section \p section does not exist.
+		 * \note Since sections are stored in a vector for more efficency while reading a TXT file this search has a complexity of O(n).
 		 */
-		Entries entries(const string section = "") const;
+		const Pairs& entries(const string section) const;
 
 		virtual std::streamsize read(InputStream &istream) throw (Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);

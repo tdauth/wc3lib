@@ -18,7 +18,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <KMessageBox>
+
+#include <QtGui>
+
 #include "objecteditortab.hpp"
+#include "objecttreewidget.hpp"
+#include "objecttablewidget.hpp"
+#include "metadata.hpp"
 
 namespace wc3lib
 {
@@ -26,21 +33,48 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectEditorTab::ObjectEditorTab(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_tabIndex(0), QWidget(parent, f)
+ObjectEditorTab::ObjectEditorTab(class MpqPriorityList *source, const KUrl &metaDataUrl, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_metaData(new MetaData(metaDataUrl)), m_tabIndex(0), m_metaDataUrlRequester(0), m_treeWidget(0), m_tableWidget(0), QWidget(parent, f)
 {
-	// TODO can not call pure virtual member function name in constructor
-	//objectEditor->tabWidget()->addTab(this, name());
-	if (hasObjectEditor())
-		m_tabIndex = objectEditor()->tabWidget()->addTab(this, ""); // NOTE changes parent to tab widget!
+	try
+	{
+		m_metaData->setSource(source, true);
+	}
+	catch (Exception &exception)
+	{
+		KMessageBox::error(this, i18n("Error while loading meta data from \"%1\":\n\"%2\".", m_metaData->url().toEncoded().constData(), exception.what().c_str()));
+	}
 }
 
-void ObjectEditorTab::showEvent(QShowEvent *event)
+void ObjectEditorTab::setMetaDataUrl(const KUrl& url)
 {
-	if (treeWidget() == 0)
-		m_treeWidget = createTreeWidget();
+	delete this->metaData();
+	this->m_metaData = new MetaData(url);
 
-	if (tableWidget() == 0)
-		m_tableWidget = createTableWidget();
+	try
+	{
+		m_metaData->setSource(this->source(), true);
+	}
+	catch (Exception &exception)
+	{
+		KMessageBox::error(this, i18n("Error while loading meta data from \"%1\":\n\"%2\".", m_metaData->url().toEncoded().constData(), exception.what().c_str()));
+	}
+}
+
+void ObjectEditorTab::setupUi()
+{
+	QVBoxLayout *layout = new QVBoxLayout(this);
+
+	qDebug() << "Show tab " << this->name();
+	m_metaDataUrlRequester = new KUrlRequester(metaData()->url(), this);
+	connect(m_metaDataUrlRequester, SIGNAL(urlSelected(KUrl)), this, SLOT(setMetaDataUrl(KUrl)));
+	layout->addWidget(m_metaDataUrlRequester);
+
+	QHBoxLayout *horizontalLayout = new QHBoxLayout();
+	layout->addLayout(horizontalLayout);
+	m_treeWidget = createTreeWidget();
+	horizontalLayout->addWidget(m_treeWidget);
+	m_tableWidget = createTableWidget();
+	horizontalLayout->addWidget(m_tableWidget);
 }
 
 #include "moc_objecteditortab.cpp"

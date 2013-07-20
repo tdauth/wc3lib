@@ -23,6 +23,7 @@
 
 #include <istream>
 #include <ostream>
+#include <sstream>
 
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/split_member.hpp>
@@ -64,18 +65,23 @@ class BasicFormat
 		 */
 		virtual std::streamsize read(InputStream &istream) throw (class Exception) = 0;
 		/// Reads input from another format object (\p other).
+		// TODO stringstream is bad for binary data
 		std::streamsize read(const BasicFormat &other) throw (class Exception)
 		{
-			boost::iostreams::basic_array<CharType> stream;
+			std::stringstream stream;
+			//boost::iostreams::basic_array<CharType> stream;
 			other.write(stream);
 
 			return read(stream);
 		}
+
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception) = 0;
 		/// Writes output into another format object (\p other).
+		// TODO stringstream is bad for binary data
 		std::streamsize write(BasicFormat &other) const throw (class Exception)
 		{
-			boost::iostreams::basic_array<CharType> stream;
+			std::stringstream stream;
+			//boost::iostreams::basic_array<CharType> stream;
 			write(stream);
 
 			return other.read(stream);
@@ -172,7 +178,5 @@ inline std::basic_ostream<_CharT>& operator<<(std::basic_ostream<_CharT> &ostrea
 typedef BasicFormat<byte> Format;
 
 }
-
-#include "format.cpp"
 
 #endif

@@ -18,9 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_MDLX_MDLXALPHAS_CPP
-#define WC3LIB_MDLX_MDLXALPHAS_CPP
-
 #include "mdlxalpha.hpp"
 
 namespace wc3lib
@@ -29,29 +26,9 @@ namespace wc3lib
 namespace mdlx
 {
 
-template<typename _ValueType>
-BasicMdlxAlphas<_ValueType>::BasicMdlxAlphas(class Mdlx *mdlx) : Base(mdlx, "KMTA", "Alpha")
-{
-}
-
-template<typename _ValueType>
-BasicMdlxAlphas<_ValueType>::~BasicMdlxAlphas()
-{
-}
-
-template<typename _ValueType>
-BasicMdlxAlphas<_ValueType>::BasicMdlxAlphas(class Mdlx *mdlx, const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlKeyword) : Base(mdlx, mdxIdentifier, mdlKeyword)
-{
-}
-
-template<typename _ValueType>
-typename BasicMdlxAlphas<_ValueType>::Base::Property* BasicMdlxAlphas<_ValueType>::createAnimatedProperty()
-{
-	return new Alpha(this);
-}
+// TODO C++11
+//template class BasicMdlxAlphas<float32>;
 
 }
 
 }
-
-#endif

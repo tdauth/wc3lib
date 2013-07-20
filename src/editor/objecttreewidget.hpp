@@ -31,7 +31,7 @@ namespace editor
 
 /**
  * Object tree widgets can be used to display game/campaign/map objects in a tree style divided into groups (e. g. their races, players etc.)
- * 
+ *
  */
 class ObjectTreeWidget : public QTreeWidget
 {

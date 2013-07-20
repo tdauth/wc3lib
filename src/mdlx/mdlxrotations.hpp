@@ -30,6 +30,9 @@ namespace wc3lib
 namespace mdlx
 {
 
+// TODO C++11
+//extern template class MdlxAnimatedProperties<4>;
+
 /**
  * MDX tag "KGRT".
  * MDL tag "Rotation".

@@ -118,6 +118,8 @@ std::streamsize decompressZlib(istream &istream, ostream &ostream, int bufferSiz
 void compressHuffman(char *pbOutBuffer, int * pdwOutLength, char *pbInBuffer, int dwInLength, int *pCmpType, int /* nCmpLevel */);
 int decompressHuffman(char *pbOutBuffer, int *pdwOutLength, char *pbInBuffer, int /* dwInLength */);
 
+MD5 md5(const byte *buffer);
+
 }
 
 }

@@ -22,13 +22,15 @@
 #define WC3LIB_MDLX_MDLXALPHA_HPP
 
 #include "mdlxanimatedproperty.hpp"
-#include "mdlxalphas.hpp"
 
 namespace wc3lib
 {
 
 namespace mdlx
 {
+
+template<typename _ValueType>
+class BasicMdlxAlphas;
 
 /**
  * \param _ValueType can be specified for chunks like "KMTF" which uses \ref long32 values for texture ids instead of \ref float32 values.
@@ -84,6 +86,8 @@ inline _ValueType BasicMdlxAlpha<_ValueType>::outTanAlpha() const
 	return this->outTan()[0];
 }
 
+// TODO C++11
+//extern template class BasicMdlxAlpha<float32>;
 typedef BasicMdlxAlpha<float32> MdlxAlpha;
 
 }
