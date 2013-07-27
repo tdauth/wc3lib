@@ -32,6 +32,37 @@
 
 using namespace wc3lib;
 
+BOOST_AUTO_TEST_CASE(TxtSimpleReadTest) {
+	string myTxt =
+	"[MySection]\n"
+	"Hello = 23"
+	;
+	
+	map::Txt txt;
+	std::basic_stringstream<byte> sstream;
+	sstream << myTxt;
+	std::cout << sstream.str() << std::endl;
+	txt.read(sstream);
+	
+	BOOST_REQUIRE(txt.sections().size() == 1);
+	bool exists = true;
+	
+	try
+	{
+		txt.entries("MySection");
+	}
+	catch (Exception e)
+	{
+		exists = false;
+	}
+	
+	BOOST_REQUIRE(exists);
+	BOOST_REQUIRE(txt.entries("MySection").size() == 1);
+	BOOST_REQUIRE(txt.sections()[0].entries.find("Hello") != txt.sections()[0].entries.end());
+	std::cout << "Value: " << txt.sections()[0].entries["Hello"] << std::endl;
+	BOOST_REQUIRE(txt.sections()[0].entries["Hello"] == "23");
+}
+
 BOOST_AUTO_TEST_CASE(TxtReadTest) {
 	string myTxt =
 	"[MySection]\n"
@@ -51,7 +82,98 @@ BOOST_AUTO_TEST_CASE(TxtReadTest) {
 	txt.read(sstream);
 	
 	BOOST_REQUIRE(txt.sections().size() == 1);
+	bool exists = true;
+	
+	try
+	{
+		txt.entries("MySection");
+	}
+	catch (Exception e)
+	{
+		exists = false;
+	}
+	
+	BOOST_REQUIRE(exists);
 	BOOST_REQUIRE(txt.entries("MySection").size() == 2);
-	BOOST_REQUIRE(txt.sections()[0].name == "Hello");
+	BOOST_REQUIRE(txt.sections()[0].entries.find("Hello") != txt.sections()[0].entries.end());
+	std::cout << "Value: " << txt.sections()[0].entries["Hello"] << std::endl;
+	BOOST_REQUIRE(txt.sections()[0].entries["Hello"] == "23");
+	
+	std::cout << "Value: " << txt.sections()[0].entries["Haha"] << std::endl;
+	BOOST_REQUIRE(txt.sections()[0].entries.find("Haha") != txt.sections()[0].entries.end());
+	BOOST_REQUIRE(txt.sections()[0].entries["Haha"] == "12");
 	
 }
+
+BOOST_AUTO_TEST_CASE(TxtReadTriggerDataTest) {
+	string myTxt =
+	//"//***************************************************************************\n"
+	"[bla]\n"
+
+	/*
+	"OperatorCompareBoolean=\"Boolean Comparison\"\n"
+	"OperatorCompareBoolean=~Value,\" \",~Operator,\" \",~Value\n"
+	*/
+	//"OperatorCompareBooleanHint = 10\n"
+	//"\n"
+/*
+	"OperatorCompareDestructible=\"Destructible Comparison\"\n"
+	"OperatorCompareDestructible=~Value,\" \",~Operator,\" \",~Value\n"
+	"OperatorCompareDestructibleHint=\n"
+	*/
+	;
+	
+	map::Txt txt;
+	std::basic_stringstream<byte> sstream;
+	sstream << myTxt;
+	std::cout << sstream.str() << std::endl;
+	txt.read(sstream);
+	
+	/*
+	BOOST_REQUIRE(txt.sections().size() == 1);
+	bool exists = true;
+	
+	try
+	{
+		txt.entries("MySection");
+	}
+	catch (Exception e)
+	{
+		exists = false;
+	}
+	
+	BOOST_REQUIRE(exists);
+	BOOST_REQUIRE(txt.entries("MySection").size() == 2);
+	BOOST_REQUIRE(txt.sections()[0].entries.find("Hello") != txt.sections()[0].entries.end());
+	std::cout << "Value: " << txt.sections()[0].entries["Hello"] << std::endl;
+	BOOST_REQUIRE(txt.sections()[0].entries["Hello"] == "23");
+	
+	std::cout << "Value: " << txt.sections()[0].entries["Haha"] << std::endl;
+	BOOST_REQUIRE(txt.sections()[0].entries.find("Haha") != txt.sections()[0].entries.end());
+	BOOST_REQUIRE(txt.sections()[0].entries["Haha"] == "12");
+	*/
+	
+}
+
+/*
+int main() {
+	string myTxt =
+	"[MySection]\n"
+	"Hello = 23\n"
+	"\n"
+	"\n"
+	"// does our ruin benefit the world?\n"
+	"\n"
+	"Haha = 12// is there an avenging power in nature?\n"
+	"\n"
+	;
+	
+	map::Txt txt;
+	std::basic_stringstream<byte> sstream;
+	sstream << myTxt;
+	std::cout << sstream.str() << std::endl;
+	txt.read(sstream);
+	
+	txt.sections().size();
+}
+*/

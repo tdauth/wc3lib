@@ -25,6 +25,8 @@
 #include "trigger.hpp"
 #include "triggerdata.hpp"
 
+#include <boost/foreach.hpp>
+
 namespace wc3lib
 {
 

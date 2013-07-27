@@ -18,7 +18,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <boost/spirit/include/phoenix.hpp>
+#include <sstream>
+
+//#include <boost/spirit/include/phoenix.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/support_multi_pass.hpp>
 #include <boost/spirit/include/classic_position_iterator.hpp> // for more detailed error information
@@ -26,6 +28,11 @@
 #include <boost/fusion/adapted/std_pair.hpp>
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
+
+#include <boost/bind.hpp>
+#include <boost/spirit/home/phoenix/core/argument.hpp>
+
+#include <boost/foreach.hpp>
 
 #include "txt.hpp"
 
@@ -78,17 +85,19 @@ struct KeyValueSquence : qi::grammar<Iterator, Txt::Pairs(), Skipper>
 
 	KeyValueSquence() : KeyValueSquence::base_type(query)
 	{
-		query =  pair > *(+qi::eol > pair > *qi::eol) > *qi::eol; // use only > for backtracking
-		pair  =  key > '=' > value; // -('=' >> value)
+		query =  pair > *(pair); // use only > for backtracking
+		pair  =  +qi::eol > key > lit('=') > -value; // -('=' >> value)
 		key   =  standard::char_("a-zA-Z_") > *standard::char_("a-zA-Z_0-9");
-		value = +standard::char_("a-zA-Z_0-9");
+		value = +(standard::char_ - qi::eol); // values can be empty or all characters except eol which indicates the and of the value
 	}
 };
 
+/*
 typedef std::istreambuf_iterator<byte> IteratorType;
 typedef boost::spirit::multi_pass<IteratorType> MultiPassIteratorType;
 
 template struct KeyValueSquence<MultiPassIteratorType>;
+*/
 
 template <typename Iterator, typename Skipper = CommentSkipper<Iterator> >
 struct SectionRule : qi::grammar<Iterator, Txt::Section(), Skipper>
@@ -101,13 +110,13 @@ struct SectionRule : qi::grammar<Iterator, Txt::Section(), Skipper>
 
 	SectionRule() : SectionRule::base_type(query)
 	{
-		query =  name > -qi::eol > -entries;
-		name  =  standard::char_('[') >> standard::char_("a-zA-Z_") >> *standard::char_("a-zA-Z_0-9") >> standard::char_(']');
+		query =  name > -entries;
+		name  =  lit('[') > standard::char_("a-zA-Z_") > *standard::char_("a-zA-Z_0-9") > lit(']');
 		entries = keyValueSequence;
 	}
 };
 
-template struct SectionRule<MultiPassIteratorType>;
+//template struct SectionRule<MultiPassIteratorType>;
 
 template <typename Iterator>
 bool parse(Iterator first, Iterator last, Txt::Sections &sections)
@@ -119,14 +128,16 @@ bool parse(Iterator first, Iterator last, Txt::Sections &sections)
 	bool r = boost::spirit::qi::phrase_parse(
 	first,
 	last,
-	(*qi::eol >> -(sectionGrammar >> *(+qi::eol >> sectionGrammar >> *qi::eol)) >> *qi::eol ), // TODO maybe it's too complex, exception is thrown from struct adaption
+	(*qi::eol > -(sectionGrammar > *(+qi::eol > sectionGrammar)) > *qi::eol),
 	// comment skipper
 	commentSkipper,
-	tmpSections // , sections store into "sections"!
+	tmpSections //sections store into "sections"!
 	);
 
 	if (first != last) // fail if we did not get a full match
+	{
 		return false;
+	}
 	
 	// TODO temporary workaround, add sections directly from heap to vector
 	BOOST_FOREACH(std::vector<Txt::Section>::const_reference ref, tmpSections) {
@@ -156,14 +167,13 @@ const Txt::Pairs& Txt::entries(const string section) const
 
 std::streamsize Txt::read(InputStream &istream) throw (Exception)
 {
-	// NOTE read http://www.boost.org/doc/libs/1_48_0/libs/spirit/doc/html/spirit/support/multi_pass.html
-	// Do we need bidirectional iterator type for proper backtracing?
 	typedef std::istreambuf_iterator<byte> IteratorType;
 	typedef boost::spirit::multi_pass<IteratorType> ForwardIteratorType;
 
 	ForwardIteratorType first = boost::spirit::make_default_multi_pass(IteratorType(istream));
 	ForwardIteratorType last;
 	
+	// used for backtracking and more detailed error output
 	namespace classic = boost::spirit::classic;
 	typedef classic::position_iterator2<ForwardIteratorType> PositionIteratorType;
 	PositionIteratorType position_begin(first, last);
@@ -189,13 +199,28 @@ std::streamsize Txt::read(InputStream &istream) throw (Exception)
 		throw Exception(msg.str());
 	}
 
-
 	return 0;
 }
 
 std::streamsize Txt::write(OutputStream &ostream) const throw (Exception)
 {
-	return 0;
+	std::streamsize size = 0;
+	
+	BOOST_FOREACH(Sections::const_reference ref, sections())
+	{
+		ostringstream osstream;
+		osstream << "[" << ref.name << "]\n";
+		wc3lib::writeString(ostream, osstream.str(), size);
+		
+		BOOST_FOREACH(Pairs::const_reference keyValuePair, ref.entries)
+		{
+			ostringstream osstream2;
+			osstream2 << keyValuePair.first << " = " << keyValuePair.second;
+			wc3lib::writeString(ostream, osstream2.str(), size);
+		}
+	}
+	
+	return size;
 }
 
 }

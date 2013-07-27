@@ -23,7 +23,7 @@
 #include <boost/scoped_array.hpp>
 
 #include "algorithm.hpp" // include before #ifdef to get proper flag
-#include "../config.h"
+#include "config.h"
 
 #ifdef USE_ENCRYPTION
 #include <crypto++/md5.h>

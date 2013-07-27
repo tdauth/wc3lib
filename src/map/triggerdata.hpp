@@ -46,12 +46,16 @@ class TriggerData : public FileFormat
 		class Category : public Format
 		{
 			public:
+				void setName(const string &name);
 				// Key: Arbitrary category identifier
 				const string& name() const;
+				void setDisplayText(const string &displayText);
 				// Value 0: Display text
 				const string& displayText() const;
+				void setIconImageFile(const string &iconImageFile);
 				// Value 1: Icon image file
 				const string& iconImageFile() const;
+				void setDisplayName(bool displayName);
 				// Value 2: Optional flag (defaults to 0) indicating to disable display of category name
 				bool displayName() const;
 
@@ -68,16 +72,24 @@ class TriggerData : public FileFormat
 		class Type : public Format
 		{
 			public:
+				Type();
+				
+				void setName(const string &name);
 				// Key: type name
 				const string& name() const;
+				void setCanBeGlobal(bool canBeGlobal);
 				// Value 0: flag (0 or 1) indicating if this type can be a global variable
 				bool canBeGlobal() const;
+				void setCanBeCompared(bool canBeCompared);
 				// Value 1: flag (0 or 1) indicating if this type can be used with comparison operators
 				bool canBeCompared() const;
+				void setDisplayText(const string &displayText);
 				// Value 2: string to display in the editor
 				const string& displayText() const;
+				void setBaseType(Type *type);
 				// Value 3: base type, used only for custom types
 				Type* baseType() const;
+				void setDefaultValue(const string &defaultValue);
 				// If a type does not have an entry here, it will be set to null if it is a handle
 				const string& defaultValue() const;
 
@@ -263,11 +275,6 @@ inline uint32 TriggerData::latestFileVersion() const
 	return 0;
 }
 
-inline const string& TriggerData::Category::name() const
-{
-	return m_name;
-}
-
 inline const TriggerData::Categories& TriggerData::categories() const
 {
 	return m_categories;
@@ -358,9 +365,29 @@ inline TriggerData::DefaultTriggers& TriggerData::defaultTriggers()
 	return m_defaultTriggers;
 }
 
+inline void TriggerData::Category::setName(const string &name)
+{
+	this->m_name = name;
+}
+
+inline const string& TriggerData::Category::name() const
+{
+	return m_name;
+}
+
+inline void TriggerData::Category::setDisplayText(const string &displayText)
+{
+	this->m_displayText = displayText;
+}
+
 inline const string& TriggerData::Category::displayText() const
 {
 	return m_displayText;
+}
+
+inline void TriggerData::Category::setIconImageFile(const string &iconImageFile)
+{
+	this->m_iconImageFile = iconImageFile;
 }
 
 inline const string& TriggerData::Category::iconImageFile() const
@@ -368,9 +395,44 @@ inline const string& TriggerData::Category::iconImageFile() const
 	return m_iconImageFile;
 }
 
+inline void TriggerData::Category::setDisplayName(bool displayName)
+{
+	this->m_displayName = displayName;
+}
+
 inline bool TriggerData::Category::displayName() const
 {
 	return m_displayName;
+}
+
+inline void TriggerData::Type::setName(const string &name)
+{
+	this->m_name = name;
+}
+
+inline void TriggerData::Type::setBaseType(TriggerData::Type *type)
+{
+	this->m_baseType = type;
+}
+
+inline void TriggerData::Type::setCanBeCompared(bool canBeCompared)
+{
+	this->m_canBeCompared = canBeCompared;
+}
+
+inline void TriggerData::Type::setDefaultValue(const string &defaultValue)
+{
+	this->m_defaultValue = defaultValue;
+}
+
+inline void TriggerData::Type::setDisplayText(const string& displayText)
+{
+	this->m_displayText = displayText;
+}
+
+inline void TriggerData::Type::setCanBeGlobal(bool canBeGlobal)
+{
+	this->m_canBeGlobal = canBeGlobal;
 }
 
 inline const string& TriggerData::Type::name() const

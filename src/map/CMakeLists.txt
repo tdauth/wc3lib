@@ -5,7 +5,15 @@ if (MAP)
 	WC3LIB_GET_SRC(wc3lib_MAP_SRC)
 
 	add_library(wc3libmap SHARED ${wc3lib_MAP_SRC})
-	target_link_libraries(wc3libmap wc3libcore wc3libmpq wc3libblp ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
+	target_link_libraries(wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
+	
+	if (MPQ)
+		target_link_libraries(wc3libmap wc3libmpq)
+	endif ()
+	
+	if (BLP)
+		target_link_libraries(wc3libmap wc3libblp)
+	endif ()
 	
 	if (DEBUG)
 		add_subdirectory(test)

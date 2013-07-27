@@ -32,6 +32,10 @@
 //#include <boost/thread.hpp>
 #include <boost/ptr_container/ptr_map.hpp>
 
+// XML support
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+
 #include <boost/program_options.hpp>
 
 #include "../core.hpp"
@@ -201,6 +205,49 @@ void convertMdlx(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3l
 	}
 }
 
+void convertText(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3lib::ofstream &out, const ConvFormat &inputFormat, const ConvFormat &outputFormat, bool verbose) throw (wc3lib::Exception)
+{
+	boost::scoped_ptr<wc3lib::map::Txt> txt(new wc3lib::map::Txt());
+
+	if (inputFormat.extension() == "txt")
+	{
+		std::streamsize bytes = txt->read(in);
+
+		if (verbose)
+			std::cout << boost::format(_("Read TXT file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
+	}
+	else if (inputFormat.extension() == "xml")
+	{
+		boost::archive::xml_iarchive ia(in);
+		ia >> BOOST_SERIALIZATION_NVP(*txt);
+	}
+	else
+	{
+		throw wc3lib::Exception(boost::format(_("File \"%1%\" is not converted with a valid input text format.\nUsed input format is %2%.")) % path.string() % inputFormat.extension());
+	}
+
+	if (outputFormat.extension() == "xml")
+	{
+		boost::archive::xml_oarchive oa(out);
+		oa << BOOST_SERIALIZATION_NVP(*txt);
+		//std::streamsize bytes = mdlx->writeMdx(out);
+
+		//if (verbose)
+		//	std::cout << boost::format(_("Wrote MDX file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
+	}
+	else if (outputFormat.extension() == "txt")
+	{
+		std::streamsize bytes = txt->write(out);
+
+		if (verbose)
+			std::cout << boost::format(_("Wrote TXT file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
+	}
+	else
+	{
+		throw wc3lib::Exception(boost::format(_("File \"%1%\" is not converted into a valid output text format.\nUsed output format is %2%.")) % path.string() % outputFormat.extension());
+	}
+}
+
 void convertFile(const boost::filesystem::path &path, const boost::filesystem::path &outputPath, const ConvFormat &inputFormat, const ConvFormat &outputFormat, bool verbose, bool overwrite) throw (wc3lib::Exception)
 {
 	std::ios_base::openmode openMode = std::ifstream::in;
@@ -235,6 +282,8 @@ void convertFile(const boost::filesystem::path &path, const boost::filesystem::p
 		convertBlp(path, ifstream, ofstream, inputFormat, outputFormat, verbose);
 	else if (inputFormat.group() == "mdlx")
 		convertMdlx(path, ifstream, ofstream, inputFormat, outputFormat, verbose);
+	else if (inputFormat.group() == "text")
+		convertText(path, ifstream, ofstream, inputFormat, outputFormat, verbose);
 	else
 		throw wc3lib::Exception(boost::format(_("Input format \"%1%\" doesn't belong to any format group.")) % inputFormat.extension());
 
@@ -340,6 +389,8 @@ int main(int argc, char *argv[])
 	ConvFormat::append("blp", "Blizzard Entertainment's texture format.", true, "blp");
 	ConvFormat::append("mdx", "Blizzard Entertainment's binary model format.", true, "mdlx");
 	ConvFormat::append("mdl", "Blizzard Entertainment's human-readable model format.", false, "mdlx");
+	ConvFormat::append("txt", "Blizzard Entertainment's TXT files.", false, "text");
+	ConvFormat::append("xml", "Extensible Markup Language", false, "text");
 
 	if (vm.count("formats"))
 	{

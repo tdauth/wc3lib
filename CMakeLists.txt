@@ -7,18 +7,6 @@ set(wc3lib_VERSION_MAJOR 0)
 set(wc3lib_VERSION_MINOR 1)
 set(wc3lib_VERSION "${wc3lib_VERSION_MAJOR}.${wc3lib_VERSION_MINOR}")
 
-# NOTE config.h has to be installed since it is included in various header files and therefore required in the public API (for example #include "../config.h")
-# it contains the defines for all possible CMake options and is expected to be in the top level src directory ("include/wc3lib/")
-configure_file (
-	"${PROJECT_SOURCE_DIR}/wc3libConfig.h.in"
-	"${PROJECT_BINARY_DIR}/src/config.h"
-)
-install(FILES "${PROJECT_BINARY_DIR}/src/config.h" DESTINATION include/wc3lib)
-
-# add the binary src tree to the search path for include files
-# so that we will find config.h
-include_directories("${PROJECT_BINARY_DIR}/src")
-
 include(CMakeDependentOption)
 
 option(STATIC
@@ -57,6 +45,24 @@ CMAKE_DEPENDENT_OPTION(USE_ENCRYPTION
 option(DOC
 	"Generates doxygen documentation (doxygen is required)"
 	OFF)
+
+# NOTE config.h has to be installed since it is included in various header files and therefore required in the public API (for example #include "../config.h")
+# it contains the defines for all possible CMake options and is expected to be in the top level src directory ("include/wc3lib/")
+configure_file (
+	"${PROJECT_SOURCE_DIR}/wc3libConfig.h.in"
+	"${PROJECT_BINARY_DIR}/src/config.h"
+)
+install(FILES "${PROJECT_BINARY_DIR}/src/config.h" DESTINATION include/wc3lib)
+install(FILES "${PROJECT_BINARY_DIR}/src/config.h" DESTINATION include/wc3lib/app)
+install(FILES "${PROJECT_BINARY_DIR}/src/config.h" DESTINATION include/wc3lib/blp)
+install(FILES "${PROJECT_BINARY_DIR}/src/config.h" DESTINATION include/wc3lib/editor)
+install(FILES "${PROJECT_BINARY_DIR}/src/config.h" DESTINATION include/wc3lib/map)
+install(FILES "${PROJECT_BINARY_DIR}/src/config.h" DESTINATION include/wc3lib/mdlx)
+install(FILES "${PROJECT_BINARY_DIR}/src/config.h" DESTINATION include/wc3lib/mpq)
+
+# add the binary src tree to the search path for include files
+# so that we will find config.h
+include_directories("${PROJECT_BINARY_DIR}/src")
 
 function (WC3LIB_GET_H resultName)
 	file(GLOB list *.hpp)

@@ -20,11 +20,12 @@
 
 #include <set>
 
-#include <boost/spirit/include/phoenix.hpp>
-#include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/include/support_istream_iterator.hpp>
+#include <boost/scoped_ptr.hpp>
+#include <boost/foreach.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "triggerdata.hpp"
+#include "txt.hpp"
 
 namespace wc3lib
 {
@@ -40,6 +41,10 @@ std::streamsize TriggerData::Category::read(InputStream &istream) throw (Excepti
 std::streamsize TriggerData::Category::write(OutputStream &ostream) const throw (Exception)
 {
 	return 0;
+}
+
+TriggerData::Type::Type() : m_baseType(0)
+{
 }
 
 std::streamsize TriggerData::Type::read(InputStream &istream) throw (Exception)
@@ -214,6 +219,58 @@ bool parse(Iterator first, Iterator last)
 
 std::streamsize TriggerData::read(InputStream &istream) throw (Exception)
 {
+	boost::scoped_ptr<Txt> txt(new Txt());
+	std::streamsize size = txt->read(istream);
+	
+	typedef std::vector<string> SplitVector;
+	
+	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerCategories"))
+	{
+		std::auto_ptr<Category> category(new Category());
+		
+		category->setName(ref.first);
+		
+		SplitVector values;
+		boost::algorithm::split(values, ref.second, boost::is_any_of(","), boost::algorithm::token_compress_on);
+		
+		category->setDisplayText(values[0]);
+		category->setIconImageFile(values[1]);
+		category->setDisplayName(boost::lexical_cast<bool>(values[2]));
+		
+		this->categories().insert(category->name(), category);
+	}
+	
+	std::map<string, string> baseTypes;
+	
+	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerTypes"))
+	{
+		std::auto_ptr<Type> type(new Type());
+		
+		type->setName(ref.first);
+		
+		SplitVector values;
+		boost::algorithm::split(values, ref.second, boost::is_any_of(","), boost::algorithm::token_compress_on);
+		
+		type->setCanBeGlobal(boost::lexical_cast<bool>(values[0]));
+		type->setCanBeCompared(boost::lexical_cast<bool>(values[1]));
+		type->setDisplayText(values[2]);
+		baseTypes[type->name()] = values[3];
+		
+		this->types().insert(type->name(), type);
+		
+	}
+	
+	// set trigger types bases
+	BOOST_FOREACH(Types::reference ref, this->types())
+	{
+		ref.second->setBaseType(this->types().find(baseTypes[ref.first])->second);
+	}
+	
+	// set trigger type defaults which are stored in a separated category
+	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerTypeDefaults"))
+	{
+		this->types().find(ref.first)->second->setDefaultValue(ref.second);
+	}
 /*
 	typedef boost::spirit::basic_istream_iterator<byte, std::char_traits<byte> > istream_iterator;
 
@@ -237,7 +294,7 @@ std::streamsize TriggerData::read(InputStream &istream) throw (Exception)
 	if (first != last)
 		throw Exception(_("Parsing error."));
 */
-	return 0;
+	return size;
 }
 
 std::streamsize TriggerData::write(OutputStream &ostream) const throw (Exception)

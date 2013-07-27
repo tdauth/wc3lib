@@ -93,14 +93,16 @@ class BasicFormat
 		// & operator is defined similar to <<.  Likewise, when the class Archive
 		// is a type of input archive the & operator is defined similar to >>.
 		template<class _ArchiveT>
-		void save(_ArchiveT &ar, const unsigned int version)
+		void save(_ArchiveT &ar, const unsigned int version) const
 		{
+			/*
 			std::basic_ostringstream<_CharT> stream; // use buffered stream!
 			*this >> stream;
 			const std::size_t bufferSize = wc3lib::endPosition(stream) + 1;
 			boost::scoped_array<_CharT> buffer(new _CharT[bufferSize]);
 			stream.rdbuf()->sgetn(buffer.get(), bufferSize);
 			ar.save_binary(static_cast<const void*>(buffer.get()), bufferSize);
+			*/
 			//boost::archive::basic_binary_oarchive<_ArchiveT>
 			//boost::basic_a
 			//boost::archive::basic_binary_oarchive::
