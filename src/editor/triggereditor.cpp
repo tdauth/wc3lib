@@ -299,6 +299,48 @@ void TriggerEditor::openTrigger(map::Trigger *trigger)
 	triggerWidget()->setEnabled(true);
 }
 
+void TriggerEditor::loadTriggerData()
+{
+	if (source() == 0)
+	{
+		KMessageBox::error(this, tr("No source available!"));
+		
+		return;
+	}
+	
+	KUrl url = KFileDialog::getOpenUrl(KUrl(), i18n("*|All Files\n*.txt|Warcraft III Trigger Data"), this, i18n("Open trigger data"));
+
+	if (url.isEmpty())
+		return;
+
+	QString target;
+
+	if (!source()->download(url, target, this))
+	{
+		KMessageBox::error(this, i18n("Unable to download trigger data from \"%1\".", url.toEncoded().constData()));
+
+		return;
+	}
+
+	map::TriggerData *triggerData = 0;
+
+	try
+	{
+		/*
+		triggerData = new map::TriggerData();
+		boost::filesystem::ifstream ifstream(target.toUtf8().constData(), std::ios::in);
+		triggerData->read(ifstream);
+		*/
+		this->source()->refreshTriggerData(this, target);
+	}
+	catch (std::exception &exception)
+	{
+		KMessageBox::error(this, i18n("Unable to read trigger data from file \"%1\".\nException: \"%2\".", target, exception.what()));
+
+		return;
+	}
+}
+
 void TriggerEditor::itemClicked(QTreeWidgetItem *item, int column)
 {
 	if (item == rootItem())
@@ -349,6 +391,10 @@ void TriggerEditor::createFileActions(class KMenu *menu)
 	action = new KAction(KIcon(":/actions/rename.png"), i18n("Rename"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(renameTrigger()));
 	triggerActionCollection()->addAction("rename", action);
+	
+	action = new KAction(KIcon(":/actions/loadtriggerdata.png"), i18n("Load trigger data"), this);
+	connect(action, SIGNAL(triggered()), this, SLOT(loadTriggerData()));
+	triggerActionCollection()->addAction("loadtriggerdata", action);
 
 	triggerActionCollection()->associateWidget(menu);
 }

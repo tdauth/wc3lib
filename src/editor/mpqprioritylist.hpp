@@ -230,7 +230,7 @@ class MpqPriorityList
 		 * \param window Widget which is used for KIO download.
 		 * \sa triggerData()
 		 */
-		void refreshTriggerData(QWidget *window) throw (Exception);
+		void refreshTriggerData(QWidget *window, const KUrl &url = KUrl("UI/TriggerData.txt")) throw (Exception);
 		/**
 		 * Trigger data which is shared between maps usually.
 		 * \note Call \ref refreshTriggerData() before using trigger data.
@@ -354,11 +354,11 @@ inline Texture* MpqPriorityList::teamGlowTexture(BOOST_SCOPED_ENUM(TeamColor) te
 	return this->m_teamGlowTextures.find(teamGlow)->second;
 }
 
-inline void MpqPriorityList::refreshTriggerData(QWidget *window) throw (Exception)
+inline void MpqPriorityList::refreshTriggerData(QWidget *window, const KUrl &url) throw (Exception)
 {
 	QString target;
 
-	if (!this->download(KUrl("UI/TriggerData.txt"), target, window))
+	if (!this->download(url, target, window))
 		throw Exception(_("Unable to download file \"UI/TriggerData.txt\"."));
 
 	TriggerDataPtr ptr(new map::TriggerData());

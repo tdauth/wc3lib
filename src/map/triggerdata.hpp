@@ -22,10 +22,13 @@
 #define WC3LIB_MAP_TRIGGERDATA_HPP
 
 #include <vector>
+#include <set>
 
 #include <boost/ptr_container/ptr_map.hpp>
+#include <boost/variant/variant.hpp>
 
 #include "platform.hpp"
+#include "txt.hpp"
 
 namespace wc3lib
 {
@@ -43,6 +46,13 @@ namespace map
 class TriggerData : public FileFormat
 {
 	public:
+		/**
+		 * Simple vector type for splitting up comma separated values in TriggerData.txt file.
+		 */
+		typedef std::vector<string> SplitVector;
+		
+		TriggerData();
+		
 		class Category : public Format
 		{
 			public:
@@ -109,14 +119,18 @@ class TriggerData : public FileFormat
 		{
 			public:
 				// Key: arbitrary text
+				void setName(const string &name);
 				const string& name() const;
 				// Value 0: variable type
+				void setType(Type *type);
 				Type* type() const;
 				// Value 1: code text (used in script)
 				// Note: If the code text is a literal string, surround it with backward single quotes (`),
 				// and they will be converted to double quotes in the script.
+				void setCode(const string &code);
 				const string& code() const;
 				// Value 2: display text
+				void setDisplayText(const string &displayText);
 				const string& displayText() const;
 
 				virtual std::streamsize read(InputStream &istream) throw (Exception);
@@ -134,29 +148,43 @@ class TriggerData : public FileFormat
 		class Function : public Format
 		{
 			public:
-				typedef std::vector<Type*> Types;
-				typedef std::vector<string> Strings;
+				/**
+				 * There exist special types which do not match any defined type:
+				 * "nothing", "AnyGlobal", "Null"
+				 * Those have to be stored as string.
+				 */
+				typedef boost::variant<Type*, string> ArgumentType;
+				typedef std::vector<ArgumentType> ArgumentTypes;
+				typedef boost::variant<string, int32, Parameter*> Value;
+				typedef std::vector<Value> Values;
 
 				// Key: script event function
+				void setCode(const string &code);
 				const string& code() const;
 				// Values: argument types
-				const Types& types() const;
+				ArgumentTypes& types();
+				const ArgumentTypes& types() const;
 				// events: Note that the first argument is always a `trigger`, and is excluded here
 
 				// optional values
+				void setCategory(Category *category);
 				Category* category() const;
-				const Strings& defaults() const;
-				const Strings& limits() const;
+				Values& defaults();
+				const Values& defaults() const;
+				Values& limits();
+				const Values& limits() const;
+				
+				virtual std::streamsize read(InputStream& istream) throw (Exception);
+				virtual std::streamsize write(OutputStream& ostream) const throw (Exception);
 
-				virtual std::streamsize read(InputStream &istream) throw (Exception);
-				virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+				virtual void fillTypes(TriggerData *triggerData, const SplitVector &values);
 
 			private:
 				string m_code;
-				Types m_types;
+				ArgumentTypes m_types;
 				Category *m_category;
-				Strings m_defaults;
-				Strings m_limits;
+				Values m_defaults;
+				Values m_limits;
 		};
 
 		// Defines function calls which may be used as parameter values
@@ -166,24 +194,20 @@ class TriggerData : public FileFormat
 		// Value 2+: argument types
 		//
 		// Note: Operators are specially handled by the editor
-		class Call : public Format
+		class Call : public Function
 		{
 			public:
-				typedef std::vector<Type*> Types;
-
-				const string& code() const;
 				bool canBeUsedInEvents() const;
-				Type* returnType() const;
-				const Types& types() const;
+				const ArgumentType& returnType() const;
+				
+				virtual std::streamsize read(InputStream& istream) throw (Exception);
+				virtual std::streamsize write(OutputStream& ostream) const throw (Exception);
 
-				virtual std::streamsize read(InputStream &istream) throw (Exception);
-				virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+				// TODO C++11 override
+				virtual void fillTypes(TriggerData *triggerData, const SplitVector &values);
 
 			private:
-				string m_code;
 				bool m_canBeUsedInEvents;
-				Type *m_returnType;
-				Types m_types;
 		};
 
 		class DefaultTrigger : public Format
@@ -191,14 +215,20 @@ class TriggerData : public FileFormat
 			public:
 				typedef std::vector<Function*> Functions;
 
+				void setName(const string &name);
 				const string& name() const;
+				void setComment(const string &comment);
 				const string& comment() const;
+				void setTriggerCategory(const string &triggerCategory);
 				/**
 				 * \sa TriggerData::defaultTriggerCategories()
 				 */
-				int32 triggerCategory() const;
+				const string& triggerCategory() const;
+				Functions& events();
 				const Functions& events() const;
+				Functions& conditions();
 				const Functions& conditions() const;
+				Functions& actions();
 				const Functions& actions() const;
 
 				virtual std::streamsize read(InputStream &istream) throw (Exception);
@@ -207,7 +237,7 @@ class TriggerData : public FileFormat
 			private:
 				string m_name;
 				string m_comment;
-				int32 m_triggerCategory;
+				string m_triggerCategory;
 				Functions m_events;
 				Functions m_conditions;
 				Functions m_actions;
@@ -220,7 +250,7 @@ class TriggerData : public FileFormat
 		typedef boost::ptr_map<string, Function> Functions;
 		typedef boost::ptr_map<string, Call> Calls;
 		typedef std::vector<string> DefaultTriggerCategories;
-		typedef boost::ptr_map<string, DefaultTrigger> DefaultTriggers;
+		typedef boost::ptr_vector<DefaultTrigger> DefaultTriggers;
 
 		virtual std::streamsize read(InputStream &istream) throw (Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
@@ -247,8 +277,22 @@ class TriggerData : public FileFormat
 		Calls& calls();
 		DefaultTriggerCategories& defaultTriggerCategories();
 		DefaultTriggers& defaultTriggers();
+		
+		typedef std::set<string> SpecialTypes;
+		
+		/**
+		 * There is some special types like "nothing" and "Null" which should be interpreted as literals instead of
+		 * searching for the corresponding type.
+		 * Otherwise, it will at least print a warning.
+		 */
+		const SpecialTypes& specialTypes() const;
 
 	private:
+		template<class FunctionType>
+		void readFunction(const Txt::Pair &ref, boost::ptr_map<string, FunctionType> &functions);
+		
+		string::size_type firstNonNumericChar(const string &value) const;
+		
 		Categories m_categories;
 		Types m_types;
 		Parameters m_parameters;
@@ -258,6 +302,8 @@ class TriggerData : public FileFormat
 		Calls m_calls;
 		DefaultTriggerCategories m_defaultTriggerCategories;
 		DefaultTriggers m_defaultTriggers;
+		
+		SpecialTypes m_specialTypes;
 };
 
 inline const byte* TriggerData::fileName() const
@@ -465,9 +511,19 @@ inline const string& TriggerData::Type::defaultValue() const
 	return m_defaultValue;
 }
 
+inline void TriggerData::Parameter::setName(const string& name)
+{
+	this->m_name = name;
+}
+
 inline const string& TriggerData::Parameter::name() const
 {
 	return m_name;
+}
+
+inline void TriggerData::Parameter::setType(TriggerData::Type* type)
+{
+	this->m_type = type;
 }
 
 inline TriggerData::Type* TriggerData::Parameter::type() const
@@ -475,9 +531,19 @@ inline TriggerData::Type* TriggerData::Parameter::type() const
 	return m_type;
 }
 
+inline void TriggerData::Parameter::setCode(const string& code)
+{
+	this->m_code = code;
+}
+
 inline const string& TriggerData::Parameter::code() const
 {
 	return m_code;
+}
+
+inline void TriggerData::Parameter::setDisplayText(const string& displayText)
+{
+	this->m_displayText = displayText;
 }
 
 inline const string& TriggerData::Parameter::displayText() const
@@ -485,14 +551,29 @@ inline const string& TriggerData::Parameter::displayText() const
 	return m_displayText;
 }
 
+inline void TriggerData::Function::setCode(const string &code)
+{
+	this->m_code = code;
+}
+
 inline const string& TriggerData::Function::code() const
 {
 	return m_code;
 }
 
-inline const TriggerData::Function::Types& TriggerData::Function::types() const
+inline TriggerData::Function::ArgumentTypes& TriggerData::Function::types()
 {
 	return m_types;
+}
+
+inline const TriggerData::Function::ArgumentTypes& TriggerData::Function::types() const
+{
+	return m_types;
+}
+
+inline void TriggerData::Function::setCategory(TriggerData::Category *category)
+{
+	this->m_category = category;
 }
 
 inline TriggerData::Category* TriggerData::Function::category() const
@@ -500,19 +581,24 @@ inline TriggerData::Category* TriggerData::Function::category() const
 	return m_category;
 }
 
-inline const TriggerData::Function::Strings& TriggerData::Function::defaults() const
+inline TriggerData::Function::Values& TriggerData::Function::defaults()
+{
+	return this->m_defaults;
+}
+
+inline const TriggerData::Function::Values& TriggerData::Function::defaults() const
 {
 	return m_defaults;
 }
 
-inline const TriggerData::Function::Strings& TriggerData::Function::limits() const
+inline TriggerData::Function::Values& TriggerData::Function::limits()
 {
-	return m_limits;
+	return this->m_limits;
 }
 
-inline const string& TriggerData::Call::code() const
+inline const TriggerData::Function::Values& TriggerData::Function::limits() const
 {
-	return m_code;
+	return m_limits;
 }
 
 inline bool TriggerData::Call::canBeUsedInEvents() const
@@ -521,15 +607,14 @@ inline bool TriggerData::Call::canBeUsedInEvents() const
 }
 
 
-inline TriggerData::Type* TriggerData::Call::returnType() const
+inline const TriggerData::Function::ArgumentType& TriggerData::Call::returnType() const
 {
-	return m_returnType;
+	return this->types()[0];
 }
 
-
-inline const TriggerData::Call::Types& TriggerData::Call::types() const
+inline void TriggerData::DefaultTrigger::setName(const string& name)
 {
-	return m_types;
+	this->m_name = name;
 }
 
 inline const string& TriggerData::DefaultTrigger::name() const
@@ -537,14 +622,29 @@ inline const string& TriggerData::DefaultTrigger::name() const
 	return m_name;
 }
 
+inline void TriggerData::DefaultTrigger::setComment(const string& comment)
+{
+	this->m_comment = comment;
+}
+
 inline const string& TriggerData::DefaultTrigger::comment() const
 {
 	return m_comment;
 }
 
-inline int32 TriggerData::DefaultTrigger::triggerCategory() const
+inline void TriggerData::DefaultTrigger::setTriggerCategory(const string &triggerCategory)
+{
+	this->m_triggerCategory = triggerCategory;
+}
+
+inline const string& TriggerData::DefaultTrigger::triggerCategory() const
 {
 	return m_triggerCategory;
+}
+
+inline TriggerData::DefaultTrigger::Functions& TriggerData::DefaultTrigger::events()
+{
+	return this->m_events;
 }
 
 inline const TriggerData::DefaultTrigger::Functions& TriggerData::DefaultTrigger::events() const
@@ -552,9 +652,19 @@ inline const TriggerData::DefaultTrigger::Functions& TriggerData::DefaultTrigger
 	return m_events;
 }
 
+inline TriggerData::DefaultTrigger::Functions& TriggerData::DefaultTrigger::conditions()
+{
+	return this->m_conditions;
+}
+
 inline const TriggerData::DefaultTrigger::Functions& TriggerData::DefaultTrigger::conditions() const
 {
 	return m_conditions;
+}
+
+inline TriggerData::DefaultTrigger::Functions& TriggerData::DefaultTrigger::actions()
+{
+	return this->m_actions;
 }
 
 inline const TriggerData::DefaultTrigger::Functions& TriggerData::DefaultTrigger::actions() const
@@ -562,7 +672,10 @@ inline const TriggerData::DefaultTrigger::Functions& TriggerData::DefaultTrigger
 	return m_actions;
 }
 
-
+inline const TriggerData::SpecialTypes& TriggerData::specialTypes() const
+{
+	return this->m_specialTypes;
+}
 
 }
 

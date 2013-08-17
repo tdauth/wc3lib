@@ -52,6 +52,8 @@ namespace map
 namespace client
 {
 
+namespace qi = boost::spirit::qi;
+
 using namespace boost::spirit;
 //using namespace boost::spirit::qi;
 using qi::double_;
@@ -62,7 +64,7 @@ using boost::phoenix::ref;
 //typedef BOOST_TYPEOF(space | lit("//") >> *(standard::char_ - qi::eol) >> qi::eol) SkipperType;
 
 /*
- * Doesn't skip eols since value pairs are separated linewise which therefore can be specified easier in the rules
+ * Doesn't consume eols since value pairs are separated linewise which therefore can be specified easier in the rules
  */
 template<typename Iterator>
 struct CommentSkipper : public qi::grammar<Iterator> {
@@ -71,7 +73,9 @@ struct CommentSkipper : public qi::grammar<Iterator> {
 	
 	CommentSkipper() : CommentSkipper::base_type(skip, "PL/0")
 	{
-		skip = ascii::blank | lit("//") >> *(standard::char_ - qi::eol) >> qi::eol;
+		skip = ascii::blank | lit("//") >> *(standard::char_ - qi::eol) >> &qi::eol; // do not consume eol, since it is required for other rules
+		
+		BOOST_SPIRIT_DEBUG_NODES((skip));
 	}
 };
 
@@ -79,31 +83,28 @@ template <typename Iterator, typename Skipper = CommentSkipper<Iterator> >
 struct KeyValueSquence : qi::grammar<Iterator, Txt::Pairs(), Skipper>
 {
 	//Txt::Pairs::value_type
-	qi::rule<Iterator, Txt::Pairs(), Skipper> query; // NOTE first rule used as parameter for base_type does always need the skipper type of the grammar
-	qi::rule<Iterator, std::pair<string, string>(), Skipper> pair;
-	qi::rule<Iterator, string()> key, value;
+	qi::rule<Iterator, Txt::Pairs(), Skipper> pairs; // NOTE first rule used as parameter for base_type does always need the skipper type of the grammar
+	qi::rule<Iterator, Txt::Pair(), Skipper> pair;
+	qi::rule<Iterator, string(), Skipper> key;
+	qi::rule<Iterator, string()> value; // only skip blanks at beginning and at the end
 
-	KeyValueSquence() : KeyValueSquence::base_type(query)
+	KeyValueSquence() : KeyValueSquence::base_type(pairs)
 	{
-		query =  pair > *(pair); // use only > for backtracking
-		pair  =  +qi::eol > key > lit('=') > -value; // -('=' >> value)
-		key   =  standard::char_("a-zA-Z_") > *standard::char_("a-zA-Z_0-9");
-		value = +(standard::char_ - qi::eol); // values can be empty or all characters except eol which indicates the and of the value
+		pairs =  +pair; // use only > for non backtracking expectations to get more specific error results
+		pair  =  +qi::eol >> key >> lit('=') >> value; // -('=' >> value)
+		key   =  standard::char_("a-zA-Z_") >> *standard::char_("a-zA-Z_0-9");
+		// don't user skipper, omit only blanks at the beginning -> see TriggerData.txt
+		value = qi::omit[*ascii::blank] >> *(standard::char_ - (qi::eol|qi::eoi|lit("//"))); // values can be empty or all characters except eol which indicates the and of the value, eoi is the end of the stream and "//" starts a comment!
+		
+		BOOST_SPIRIT_DEBUG_NODES((pairs)(pair)(key)(value));
 	}
 };
-
-/*
-typedef std::istreambuf_iterator<byte> IteratorType;
-typedef boost::spirit::multi_pass<IteratorType> MultiPassIteratorType;
-
-template struct KeyValueSquence<MultiPassIteratorType>;
-*/
 
 template <typename Iterator, typename Skipper = CommentSkipper<Iterator> >
 struct SectionRule : qi::grammar<Iterator, Txt::Section(), Skipper>
 {
 	qi::rule<Iterator, Txt::Section(), Skipper> query;
-	qi::rule<Iterator, string()> name;
+	qi::rule<Iterator, string(), Skipper> name;
 	qi::rule<Iterator, Txt::Pairs(), Skipper> entries;
 	
 	KeyValueSquence<Iterator, Skipper> keyValueSequence;
@@ -113,10 +114,10 @@ struct SectionRule : qi::grammar<Iterator, Txt::Section(), Skipper>
 		query =  name > -entries;
 		name  =  lit('[') > standard::char_("a-zA-Z_") > *standard::char_("a-zA-Z_0-9") > lit(']');
 		entries = keyValueSequence;
+		
+		BOOST_SPIRIT_DEBUG_NODES((query)(name));
 	}
 };
-
-//template struct SectionRule<MultiPassIteratorType>;
 
 template <typename Iterator>
 bool parse(Iterator first, Iterator last, Txt::Sections &sections)
@@ -128,7 +129,8 @@ bool parse(Iterator first, Iterator last, Txt::Sections &sections)
 	bool r = boost::spirit::qi::phrase_parse(
 	first,
 	last,
-	(*qi::eol > -(sectionGrammar > *(+qi::eol > sectionGrammar)) > *qi::eol),
+	*qi::eol >> (sectionGrammar % +qi::eol) >> *qi::eol > qi::eoi,
+	//(*qi::eol > -(sectionGrammar > *(+qi::eol > sectionGrammar)) > *qi::eol) > qi::eoi,
 	// comment skipper
 	commentSkipper,
 	tmpSections //sections store into "sections"!
@@ -205,18 +207,21 @@ std::streamsize Txt::read(InputStream &istream) throw (Exception)
 std::streamsize Txt::write(OutputStream &ostream) const throw (Exception)
 {
 	std::streamsize size = 0;
+	std::string out;
 	
 	BOOST_FOREACH(Sections::const_reference ref, sections())
 	{
 		ostringstream osstream;
 		osstream << "[" << ref.name << "]\n";
-		wc3lib::writeString(ostream, osstream.str(), size);
+		out =  osstream.str();
+		wc3lib::writeString(ostream, out, size, out.length());
 		
 		BOOST_FOREACH(Pairs::const_reference keyValuePair, ref.entries)
 		{
-			ostringstream osstream2;
-			osstream2 << keyValuePair.first << " = " << keyValuePair.second;
-			wc3lib::writeString(ostream, osstream2.str(), size);
+			osstream.str(""); // flush
+			osstream << keyValuePair.first << " = " << keyValuePair.second << "\n";
+			out =  osstream.str();
+			wc3lib::writeString(ostream, out, size, out.length());
 		}
 	}
 	

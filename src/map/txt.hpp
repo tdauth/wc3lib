@@ -48,7 +48,9 @@ namespace map
 class Txt : public Format
 {
 	public:
-		typedef std::map<string, string> Pairs;
+		/// We cannot use a map here since keys are not necessarily unique! For example "UI/TriggerData.txt" has multiple pairs with the same key for different options of trigger data.
+		typedef std::pair<string, string> Pair;
+		typedef std::vector<Pair> Pairs;
 
 		struct Section
 		{
