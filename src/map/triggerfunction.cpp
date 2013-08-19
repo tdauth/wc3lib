@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include <boost/foreach.hpp>
+#include <boost/variant.hpp>
 
 #include "triggerfunction.hpp"
 #include "trigger.hpp"
@@ -33,6 +34,20 @@ namespace map
 TriggerFunction::TriggerFunction() : m_type(TriggerFunction::Type::Event), m_name(), m_isEnabled(false)
 {
 }
+
+class FunctionVisitor : public boost::static_visitor<string>
+{
+	public:
+		string operator()(string v) const
+		{
+			return v;
+		}
+		
+		string operator()(TriggerData::Type *v) const
+		{
+			return v->name();
+		}
+};
 
 std::streamsize TriggerFunction::read(InputStream &istream, const TriggerData &triggerData) throw (class Exception)
 {
@@ -73,19 +88,42 @@ std::streamsize TriggerFunction::read(InputStream &istream, const TriggerData &t
 
 			break;
 		}
+		
+		case TriggerFunction::Type::Call:
+		{
+			iterator = triggerData.calls().find(this->name());
+
+			if (iterator == triggerData.calls().end())
+				throw Exception(boost::format(_("Function \"%1%\" not found in actions of TriggerData.txt.")) % this->name());
+
+			break;
+		}
 
 		default:
 			throw Exception(boost::format(_("Function type %1% is invalid.")) % this->type());
 	}
 
-	const int32 count = iterator->second->types().size();
+	// trigger calls have return type + parameters!
+	const int32 count = this->type() == TriggerFunction::Type::Call ? iterator->second->types().size() - 1 :  iterator->second->types().size();
+	std::cerr << "Function " << this->name() << std::endl;
+	std::cerr << "with " << count << " parameters" << std::endl;
 	wc3lib::read<int32>(istream, (int32&)this->m_isEnabled, size);
+	
+	if (count == 1) {
+		const string firstParameter = boost::apply_visitor(FunctionVisitor(), iterator->second->types()[(this->type() == TriggerFunction::Type::Call ? 1 : 0)]);
+		
+		// cancel if first parameter is nothing
+		if (firstParameter == "nothing") {
+			return size;
+		}
+	}
+	
 	this->parameters().reserve(count);
 
 	for (int32 i = 0; i < count; ++i)
 	{
 		std::auto_ptr<TriggerFunctionParameter> ptr(new TriggerFunctionParameter());
-		size += ptr->read(istream);
+		size += ptr->read(istream, triggerData);
 		this->parameters().push_back(ptr);
 	}
 

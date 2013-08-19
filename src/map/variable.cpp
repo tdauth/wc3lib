@@ -27,7 +27,7 @@ namespace wc3lib
 namespace map
 {
 
-Variable::Variable() : m_type(0), m_number(0), m_isArray(false), m_isInitialized(false)
+Variable::Variable() : m_number(0), m_isArray(false), m_isInitialized(false)
 {
 }
 

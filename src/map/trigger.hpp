@@ -101,7 +101,7 @@ inline const string& Trigger::description() const
 
 inline void Trigger::setEnabled(bool enabled)
 {
-	m_isEnabled = enabled;
+	this->m_isEnabled = enabled;
 }
 
 inline bool Trigger::isEnabled() const

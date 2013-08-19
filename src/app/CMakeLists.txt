@@ -10,16 +10,20 @@ endif ()
 
 if (EDITOR)
 	kde4_add_executable(wc3editor wc3editor.cpp)
-	target_link_libraries(wc3editor ${wc3lib_CORE_LIBRARIES} wc3libeditor ${QT_LIBRARIES} ${KDE4_KDEUI_LIBS})
+	target_link_libraries(wc3editor ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libtextureeditor wc3libmodeleditor wc3libtriggereditor wc3libobjecteditor ${QT_LIBRARIES} ${KDE4_KDEUI_LIBS})
 	install(TARGETS wc3editor DESTINATION bin)
 
 	kde4_add_executable(wc3texture wc3texture.cpp)
-	target_link_libraries(wc3texture ${wc3lib_CORE_LIBRARIES} wc3libeditor ${QT_LIBRARIES} ${KDE4_KDEUI_LIBS})
+	target_link_libraries(wc3texture ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libtextureeditor ${QT_LIBRARIES} ${KDE4_KDEUI_LIBS})
 	install(TARGETS wc3texture DESTINATION bin)
 
 	kde4_add_executable(wc3model wc3model.cpp)
-	target_link_libraries(wc3model ${wc3lib_CORE_LIBRARIES} wc3libeditor ${QT_LIBRARIES} ${KDE4_KDEUI_LIBS})
+	target_link_libraries(wc3model ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libmodeleditor ${QT_LIBRARIES} ${KDE4_KDEUI_LIBS})
 	install(TARGETS wc3model DESTINATION bin)
+	
+	kde4_add_executable(wc3trigger wc3trigger.cpp)
+	target_link_libraries(wc3trigger ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libtriggereditor ${QT_LIBRARIES} ${KDE4_KDEUI_LIBS})
+	install(TARGETS wc3trigger DESTINATION bin)
 endif ()
 
 #add_executable(jassc jassc.cpp)

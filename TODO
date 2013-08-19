@@ -1,3 +1,8 @@
+2013-08-19 Tamino Dauth <tamino@cdauth.eu>
+* map: Support loading and writing trigger strings!
+* editor: MpqPriorityList should store a trigger strings reference!
+* editor: TriggerEditor should use this reference to display text!
+
 2012-10-21 Tamino Dauth <tamino@cdauth.eu>
 * blp: Written JPEG MIP map data seems to be too small.
 * blp: Check if buffer size in writeJpegMipMap() is used correctly.

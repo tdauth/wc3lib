@@ -25,6 +25,11 @@
 
 #include "../editor.hpp"
 
+#include <editor/modeleditor/modeleditor.hpp>
+#include <editor/objecteditor/objecteditor.hpp>
+#include <editor/textureeditor/textureeditor.hpp>
+#include <editor/triggereditor/triggereditor.hpp>
+
 using namespace wc3lib::editor;
 
 int main(int argc, char *argv[])

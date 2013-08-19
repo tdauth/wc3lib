@@ -43,11 +43,11 @@ std::streamsize Trigger::read(InputStream &istream, const TriggerData &triggerDa
 	readString(istream, this->m_description, size);
 	int32 value;
 	wc3lib::read(istream, value, size);
-	this->m_isEnabled = value;
+	this->m_isEnabled = boost::lexical_cast<bool>(value);
 	wc3lib::read(istream, value, size);
-	this->m_isCustomText = value;
+	this->m_isCustomText = boost::lexical_cast<bool>(value);
 	wc3lib::read(istream, value, size);
-	this->m_isInitiallyOn = value;
+	this->m_isInitiallyOn = boost::lexical_cast<bool>(value);
 	wc3lib::read(istream, this->m_unknown, size);
 	wc3lib::read(istream, m_category, size);
 	int32 functions;

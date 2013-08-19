@@ -46,7 +46,8 @@ class TriggerFunction : public Format
 		{
 			Event,
 			Condition,
-			Action
+			Action,
+			Call
 		};
 		BOOST_SCOPED_ENUM_END
 

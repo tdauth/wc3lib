@@ -24,6 +24,7 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 
 #include "platform.hpp"
+#include "triggerdata.hpp"
 
 namespace wc3lib
 {
@@ -53,7 +54,12 @@ class TriggerFunctionParameter : public Format
 		TriggerFunctionParameter();
 		virtual ~TriggerFunctionParameter();
 
-		virtual std::streamsize read(InputStream &istream) throw (class Exception);
+		virtual std::streamsize read(InputStream &istream) throw (class Exception)
+		{
+			throw Exception(_("Not usable."));
+		}
+		
+		virtual std::streamsize read(InputStream &istream, const TriggerData &triggerData) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
 		BOOST_SCOPED_ENUM(Type) type() const;

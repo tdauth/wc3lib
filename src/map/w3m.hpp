@@ -42,6 +42,7 @@
 #include "minimap.hpp"
 #include "menuminimap.hpp"
 #include "customunits.hpp"
+#include "triggerdata.hpp"
 #include "triggers.hpp"
 #include "cameras.hpp"
 #include "rects.hpp"
@@ -135,6 +136,12 @@ public Playable
 		{
 			return read(istream, mpq::Listfile::Entries());
 		}
+		
+		/**
+		 * Triggers have to be read separately since they need corresponding trigger data.
+		 * \throw Exception Throws an exception if there is no triggers file or if there occured any error while reading it.
+		 */
+		virtual std::streamsize readTriggers(InputStream& istream, const TriggerData &triggerData) throw (class Exception);
 #endif
 
 		/**

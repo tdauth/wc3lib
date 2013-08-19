@@ -38,13 +38,16 @@ TriggerFunctionParameter::~TriggerFunctionParameter()
 {
 }
 
-std::streamsize TriggerFunctionParameter::read(InputStream &istream) throw (class Exception)
+std::streamsize TriggerFunctionParameter::read(InputStream &istream, const TriggerData &triggerData) throw (class Exception)
 {
 	std::streamsize size = 0;
 	wc3lib::read<int32>(istream, (int32&)this->m_type, size);
+	std::cerr << "Type: " << this->m_type << std::endl;
 	readString(istream, this->m_value, size);
+	std::cerr << "Value: " << this->m_value << std::endl;
 	int32 functionCount = 0;
 	wc3lib::read(istream, functionCount, size);
+	std::cerr << "Function count: " << functionCount << std::endl;
 
 	if (functionCount > 0 && type() != Type::Function)
 		std::cerr << boost::format(_("Warning: Functions in parameter which is not of type function itself - type %1%.")) % type() << std::endl;
@@ -54,22 +57,31 @@ std::streamsize TriggerFunctionParameter::read(InputStream &istream) throw (clas
 	for (int32 i = 0; i < functionCount; ++i)
 	{
 		std::auto_ptr<TriggerFunction> function(new TriggerFunction());
-		size += function->read(istream);
+		size += function->read(istream, triggerData);
 		this->functions().push_back(function);
 	}
+	
+	std::cerr << "After functions!" << std::endl;
 
 	int32 arrayIndexCount = 0;
 	wc3lib::read(istream, arrayIndexCount, size);
 
-	if (arrayIndexCount > 0 && type() != Type::Variable)
+	if (arrayIndexCount > 0 && type() != Type::Variable) {
 		std::cerr << boost::format(_("Warning: Array index count for non-variable parameter - type %1%.")) % type() << std::endl;
+	} else if (arrayIndexCount > 1 && type() == Type::Variable) {
+		std::cerr << boost::format(_("Warning: Array index count %1% for variable parameter is greater than 1 although multi dimensional arrays are not supported.")) % arrayIndexCount << std::endl;
+	}
+	
+	std::cerr << "Array index count " << arrayIndexCount << std::endl;
 
 	for (int32 i = 0; i < arrayIndexCount; ++i)
 	{
 		std::auto_ptr<TriggerFunctionParameter> parameter(new TriggerFunctionParameter());
-		size += parameter->read(istream);
+		size += parameter->read(istream, triggerData);
 		this->parameters().push_back(parameter);
 	}
+	
+	std::cerr << "After array indices!" << std::endl;
 
 	return size;
 }

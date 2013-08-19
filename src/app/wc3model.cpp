@@ -27,6 +27,8 @@
 
 #include "../editor.hpp"
 
+#include <editor/modeleditor/modeleditor.hpp>
+
 using namespace wc3lib::editor;
 
 int main(int argc, char *argv[])

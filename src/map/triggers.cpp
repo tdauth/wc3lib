@@ -43,6 +43,7 @@ std::streamsize Triggers::read(InputStream &istream, const TriggerData &triggerD
 
 	int32 number;
 	wc3lib::read(istream, number, size);
+	std::cerr << "Number for categories: " << number << std::endl;
 	this->categories().reserve(number);
 
 	for (int32 i = 0; i < number; ++i)
@@ -54,6 +55,7 @@ std::streamsize Triggers::read(InputStream &istream, const TriggerData &triggerD
 
 	wc3lib::read(istream, this->m_unknown0, size);
 	wc3lib::read(istream, number, size);
+	std::cerr << "Number for variables: " << number << std::endl;
 	this->variables().reserve(number);
 
 	for (int32 i = 0; i < number; ++i)

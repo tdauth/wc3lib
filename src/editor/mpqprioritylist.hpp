@@ -361,6 +361,7 @@ inline void MpqPriorityList::refreshTriggerData(QWidget *window, const KUrl &url
 	if (!this->download(url, target, window))
 		throw Exception(_("Unable to download file \"UI/TriggerData.txt\"."));
 
+	qDebug() << "Trigger data target: " << target;
 	TriggerDataPtr ptr(new map::TriggerData());
 	ifstream ifstream(target.toUtf8().constData(), std::ios::binary | std::ios::in);
 
