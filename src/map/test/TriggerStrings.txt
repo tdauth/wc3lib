@@ -1,0 +1,2907 @@
+// All entries in this file correspond to entries in TriggerData.txt
+// with the same key, and define the text to display for a given
+// function.
+//
+// The first value is the name of the function.
+// Following values are the layout of the text description,
+// and each value may either be raw text, or a parameter.
+// Parameters are distinguished from raw text with a '~' as the first
+// character.
+//
+// Any display text to have a comma must be contained in double quotes
+
+
+//***************************************************************************
+[TriggerEventStrings]
+
+// Special events not defined in common.j,
+// handled internally by the editor
+MapInitializationEvent="Map Initialization"
+MapInitializationEvent="Map initialization"
+MapInitializationEventHint=
+
+
+// Destructible events
+TriggerRegisterDeathEvent="Destructible Doodad Dies"
+TriggerRegisterDeathEvent=~Destructible Doodad," dies"
+TriggerRegisterDeathEventHint="Use 'Event Response - Dying Destructible Doodad' to refer to the destructible doodad that is dying."
+
+
+// Dialog events
+TriggerRegisterDialogEventBJ="Dialog Button Click"
+TriggerRegisterDialogEventBJ="A dialog button is clicked for ",~Dialog
+TriggerRegisterDialogEventBJHint=
+
+
+// Game events
+TriggerRegisterGameStateEventTimeOfDay="Time Of Day"
+TriggerRegisterGameStateEventTimeOfDay="The in-game time of day becomes ",~Operation," ",~Time
+TriggerRegisterGameStateEventTimeOfDayHint="A game day is 24 hours long.  Six a.m. is 6.00, and six p.m. is 18.00."
+
+TriggerRegisterVariableEvent="Value Of Real Variable"
+TriggerRegisterVariableEvent=~Variable," becomes ",~Operation," ",~Value
+TriggerRegisterVariableEventHint="This only works for variables of type 'Real'."
+
+TriggerRegisterShowSkillEventBJ="Hero Abilities Button Clicked"
+TriggerRegisterShowSkillEventBJ="The 'Hero Abilities' button is clicked"
+TriggerRegisterShowSkillEventBJHint="This event should only be used in single-player maps."
+
+TriggerRegisterBuildSubmenuEventBJ="Build Structure Button Clicked"
+TriggerRegisterBuildSubmenuEventBJ="The 'Build Structure' button is clicked"
+TriggerRegisterBuildSubmenuEventBJHint="This event should only be used in single-player maps."
+
+
+// Player events
+TriggerRegisterPlayerChatEvent="Chat Message"
+TriggerRegisterPlayerChatEvent=~Player," types a chat message containing ",~Text," as ",~Match Type
+TriggerRegisterPlayerChatEventHint="Use 'Event Response - Entered/Matched Chat Message' to refer to the chat message that was entered/matched.  Use 'Event Response - Triggering Player' to refer to the player who typed the message."
+
+TriggerRegisterPlayerEventEndCinematic="Cinematic Skipped"
+TriggerRegisterPlayerEventEndCinematic=~Player," skips a cinematic sequence"
+TriggerRegisterPlayerEventEndCinematicHint="This event occurs whenever the player presses the 'Escape' key (regardless of whether or not they are viewing a cinematic)."
+
+TriggerRegisterPlayerSelectionEventBJ="Selection Event"
+TriggerRegisterPlayerSelectionEventBJ=~Player," ",~Selects/Deselects," a unit"
+TriggerRegisterPlayerSelectionEventBJHint="Use 'Event Response - Triggering Unit' to refer to the unit being selected or deselected."
+
+TriggerRegisterPlayerStateEvent="Properties"
+TriggerRegisterPlayerStateEvent=~Player,"'s ",~Property," becomes ",~Operation," ",~Value
+TriggerRegisterPlayerStateEventHint=
+
+TriggerRegisterPlayerEventAllianceChanged="Alliance Change (Any)"
+TriggerRegisterPlayerEventAllianceChanged=~Player," changes alliance settings"
+TriggerRegisterPlayerEventAllianceChangedHint=
+
+TriggerRegisterPlayerAllianceChange="Alliance Change (Specific)"
+TriggerRegisterPlayerAllianceChange=~Player," changes ",~Alliance Type," settings"
+TriggerRegisterPlayerAllianceChangeHint=
+
+TriggerRegisterPlayerEventVictory="Victory"
+TriggerRegisterPlayerEventVictory=~Player," leaves the game with a victory"
+TriggerRegisterPlayerEventVictoryHint=
+
+TriggerRegisterPlayerEventDefeat="Defeat"
+TriggerRegisterPlayerEventDefeat=~Player," leaves the game with a defeat"
+TriggerRegisterPlayerEventDefeatHint=
+
+
+// Timer events
+TriggerRegisterTimerEventSingle="Time Elapsed"
+TriggerRegisterTimerEventSingle="Elapsed game time is ",~Time," seconds"
+TriggerRegisterTimerEventSingleHint=
+
+TriggerRegisterTimerEventPeriodic="Periodic Event"
+TriggerRegisterTimerEventPeriodic="Every ",~Time," seconds of game time"
+TriggerRegisterTimerEventPeriodicHint=
+
+TriggerRegisterTimerExpireEventBJ="Timer Expires"
+TriggerRegisterTimerExpireEventBJ=~Timer," expires"
+TriggerRegisterTimerExpireEventBJHint="A timer expires when it reaches 0.  Repeating timers expire every time they reach 0.  Use 'Event Response - Expiring Timer' to refer to the timer that is expiring."
+
+
+// Unit events
+TriggerRegisterUnitEvent="Specific Unit Event"
+TriggerRegisterUnitEvent=~Unit," ",~Event
+TriggerRegisterUnitEventHint=
+
+TriggerRegisterPlayerUnitEventSimple="Player-Owned Unit Event"
+TriggerRegisterPlayerUnitEventSimple="A unit owned by ",~Player," ",~Event
+TriggerRegisterPlayerUnitEventSimpleHint=
+
+TriggerRegisterEnterRectSimple="Unit Enters Region"
+TriggerRegisterEnterRectSimple="A unit enters ",~Region
+TriggerRegisterEnterRectSimpleHint="Use 'Event Response - Entering Unit' to refer to the unit entering the region."
+
+TriggerRegisterLeaveRectSimple="Unit Leaves Region"
+TriggerRegisterLeaveRectSimple="A unit leaves ",~Region
+TriggerRegisterLeaveRectSimpleHint="Use 'Event Response - Leaving Unit' to refer to the unit leaving the region."
+
+TriggerRegisterUnitInRangeSimple="Unit Within Range"
+TriggerRegisterUnitInRangeSimple="A unit comes within ",~Range," of ",~Unit
+TriggerRegisterUnitInRangeSimpleHint="Use 'Event Response - Triggering Unit' to refer to the unit that is entering within range."
+
+TriggerRegisterUnitLifeEvent="Life"
+TriggerRegisterUnitLifeEvent=~Unit,"'s life becomes ",~Operation," ",~Value
+TriggerRegisterUnitLifeEventHint=
+
+TriggerRegisterUnitManaEvent="Mana"
+TriggerRegisterUnitManaEvent=~Unit,"'s mana becomes ",~Operation," ",~Value
+TriggerRegisterUnitManaEventHint=
+
+
+//***************************************************************************
+[TriggerConditionStrings]
+
+OperatorCompareBoolean="Boolean Comparison"
+OperatorCompareBoolean=~Value," ",~Operator," ",~Value
+OperatorCompareBooleanHint=
+
+OperatorCompareDestructible="Destructible Comparison"
+OperatorCompareDestructible=~Value," ",~Operator," ",~Value
+OperatorCompareDestructibleHint=
+
+OperatorCompareDestructableCode="Destructible-Type Comparison"
+OperatorCompareDestructableCode=~Value," ",~Operator," ",~Value
+OperatorCompareDestructableCodeHint=
+
+OperatorCompareButton="Dialog Button Comparison"
+OperatorCompareButton=~Value," ",~Operator," ",~Value
+OperatorCompareButtonHint=
+
+OperatorCompareGameDifficulty="Game Difficulty Comparison"
+OperatorCompareGameDifficulty=~Value," ",~Operator," ",~Value
+OperatorCompareGameDifficultyHint=
+
+OperatorCompareGameSpeed="Game Speed Comparison"
+OperatorCompareGameSpeed=~Value," ",~Operator," ",~Value
+OperatorCompareGameSpeedHint=
+
+OperatorCompareHeroSkill="Hero Skill Comparison"
+OperatorCompareHeroSkill=~Value," ",~Operator," ",~Value
+OperatorCompareHeroSkillHint=
+
+OperatorCompareInteger="Integer Comparison"
+OperatorCompareInteger=~Value," ",~Operator," ",~Value
+OperatorCompareIntegerHint=
+
+OperatorCompareItem="Item Comparison"
+OperatorCompareItem=~Value," ",~Operator," ",~Value
+OperatorCompareItemHint=
+
+OperatorCompareItemCode="Item-Type Comparison"
+OperatorCompareItemCode=~Value," ",~Operator," ",~Value
+OperatorCompareItemCodeHint=
+
+OperatorCompareOrderCode="Order Comparison"
+OperatorCompareOrderCode=~Value," ",~Operator," ",~Value
+OperatorCompareOrderCodeHint=
+
+OperatorComparePlayer="Player Comparison"
+OperatorComparePlayer=~Value," ",~Operator," ",~Value
+OperatorComparePlayerHint=
+
+OperatorComparePlayerColor="Player Color Comparison"
+OperatorComparePlayerColor=~Value," ",~Operator," ",~Value
+OperatorComparePlayerColorHint=
+
+OperatorComparePlayerControl="Player Controller Comparison"
+OperatorComparePlayerControl=~Value," ",~Operator," ",~Value
+OperatorComparePlayerControlHint=
+
+OperatorComparePlayerSlotStatus="Player Slot Status Comparison"
+OperatorComparePlayerSlotStatus=~Value," ",~Operator," ",~Value
+OperatorComparePlayerSlotStatusHint=
+
+//OperatorComparePoint="Point Comparison"
+//OperatorComparePoint=~Value," ",~Operator," ",~Value
+//OperatorComparePointHint=
+
+OperatorCompareRace="Race Comparison"
+OperatorCompareRace=~Value," ",~Operator," ",~Value
+OperatorCompareRaceHint=
+
+OperatorCompareReal="Real Comparison"
+OperatorCompareReal=~Value," ",~Operator," ",~Value
+OperatorCompareRealHint=
+
+//OperatorCompareRegion="Region Comparison"
+//OperatorCompareRegion=~Value," ",~Operator," ",~Value
+//OperatorCompareRegionHint=
+
+OperatorCompareString="String Comparison"
+OperatorCompareString=~Value," ",~Operator," ",~Value
+OperatorCompareStringHint="For two strings to be equal, they must be of equal length and content."
+
+OperatorCompareTechCode="Tech-Type Comparison"
+OperatorCompareTechCode=~Value," ",~Operator," ",~Value
+OperatorCompareTechCodeHint=
+
+OperatorCompareTrigger="Trigger Comparison"
+OperatorCompareTrigger=~Value," ",~Operator," ",~Value
+OperatorCompareTriggerHint=
+
+OperatorCompareUnit="Unit Comparison"
+OperatorCompareUnit=~Value," ",~Operator," ",~Value
+OperatorCompareUnitHint=
+
+OperatorCompareUnitCode="Unit-Type Comparison"
+OperatorCompareUnitCode=~Value," ",~Operator," ",~Value
+OperatorCompareUnitCodeHint=
+
+GetBooleanAnd="And"
+GetBooleanAnd=~Condition 1," and ",~Condition 2
+GetBooleanAndHint=
+
+GetBooleanOr="Or"
+GetBooleanOr=~Condition 1," or ",~Condition 2
+GetBooleanOrHint=
+
+
+//***************************************************************************
+[TriggerActionStrings]
+
+DoNothing="Do Nothing"
+DoNothing="Do nothing"
+DoNothingHint=
+
+CommentString="Comment"
+CommentString="-------- ",~Comment Text," --------"
+CommentStringHint=
+
+TriggerSleepAction="Wait"
+TriggerSleepAction="Wait ",~Time," seconds"
+TriggerSleepActionHint=
+
+WaitForSoundBJ="Wait For Sound"
+WaitForSoundBJ="Wait for ",~Sound," to be ",~Time," seconds from finished playing"
+WaitForSoundBJHint="This action only waits if the sound is currently playing.  If the sound has not yet started, or has already finished, this action does nothing."
+
+
+// Specially handled by the editor
+SetVariable="Set Variable"
+SetVariable="Set ",~Variable," = ",~Value
+SetVariableHint=
+
+
+// Specially handled by the editor
+ReturnAction="Skip Remaining Actions"
+ReturnAction="Skip remaining actions"
+ReturnActionHint="This causes all remaining actions in the trigger to be skipped."
+
+
+// Specially handled by the editor
+IfThenElse="If / Then / Else"
+IfThenElse="If ",~Condition," then do ",~Action," else do ",~Action
+IfThenElseHint=
+
+// Specially handled by the editor
+ForLoopA="For Each Integer A, Do Action"
+ForLoopA="For each (Integer A) from ",~Start," to ",~End,", do ",~Action
+ForLoopAHint=
+
+// Specially handled by the editor
+ForLoopB="For Each Integer B, Do Action"
+ForLoopB="For each (Integer B) from ",~Start," to ",~End,", do ",~Action
+ForLoopBHint=
+
+
+// AI actions
+StartMeleeAI="Start Melee AI Script"
+StartMeleeAI="Start melee AI script for ",~Player,": ",~Script
+StartMeleeAIHint=
+
+StartCampaignAI="Start Campaign AI Script"
+StartCampaignAI="Start campaign AI script for ",~Player,": ",~Script
+StartCampaignAIHint=
+
+CommandAI="Send AI Command"
+CommandAI="Send ",~Player," the AI Command (",~Command,", ",~Data,")"
+CommandAIHint="This action is for internal use in AI scripts."
+
+RemoveGuardPosition="Ignore Unit Guard Position"
+RemoveGuardPosition="Ignore ",~Unit,"'s guard position"
+RemoveGuardPositionHint="This action tells the AI to neither use nor replace a given preplaced unit.  This has no effect on Heroes and peon-type units."
+
+RemoveAllGuardPositions="Ignore All Unit Guard Positions"
+RemoveAllGuardPositions="Ignore the guard positions of all ",~Player," units"
+RemoveAllGuardPositionsHint="This action tells the AI for the given player to neither use nor replace any of its preplaced units.  This has no effect on Heroes and peon-type units."
+
+RecycleGuardPosition="Recycle Unit Guard Position"
+RecycleGuardPosition="Recycle ",~Unit,"'s guard position"
+RecycleGuardPositionHint="This action requests that the AI recycle the guard position that once belonged to the specified unit."
+
+
+// Animation actions
+SetUnitAnimation="Play Unit Animation"
+SetUnitAnimation="Play ",~Unit,"'s ",~Animation Name," animation"
+SetUnitAnimationHint="Use 'Reset Unit Animation' to revert to a unit's normal animation."
+
+SetUnitAnimationWithRarity="Play Unit Animation (Specify Rarity)"
+SetUnitAnimationWithRarity="Play ",~Unit,"'s ",~Animation Name," animation, using only ",~Rarity," animations"
+SetUnitAnimationWithRarityHint="This animation will repeat until reset with 'Reset Unit Animation'."
+
+QueueUnitAnimationBJ="Queue Unit Animation"
+QueueUnitAnimationBJ="Queue ",~Unit,"'s ",~Animation Name," animation"
+QueueUnitAnimationBJHint=
+
+ResetUnitAnimation="Reset Unit Animation"
+ResetUnitAnimation="Reset ",~Unit,"'s animation"
+ResetUnitAnimationHint="Sets the unit's animation back to whatever the unit is doing."
+
+AddUnitAnimationPropertiesBJ="Add/Remove Unit Animation Tag"
+AddUnitAnimationPropertiesBJ=~Add/Remove," the ",~Tag," animation tag to ",~Unit
+AddUnitAnimationPropertiesBJHint=
+
+SetUnitLookAt="Lock Body-Part Facing"
+SetUnitLookAt="Lock ",~Unit,"'s ",~Source," to face ",~Unit,", offset by (",~X,", ",~Y,", ",~Z,")"
+SetUnitLookAtHint="The unit's body-part will continue to face the target until 'Reset Body-Part Facing' is used.  The offset is taken as (X, Y, Z) from the target's feet."
+
+ResetUnitLookAt="Reset Body-Part Facing"
+ResetUnitLookAt="Reset ",~Unit,"'s body-part facing"
+ResetUnitLookAtHint="Returns a unit's body-part facing to normal."
+
+SetUnitScalePercent="Change Unit Size"
+SetUnitScalePercent="Change ",~Unit,"'s size to (",~X,"%, ",~Y,"%, ",~Z,"%) of its original size"
+SetUnitScalePercentHint="The scaling values apply to (Length, Width, Height) when viewing a unit head-on."
+
+SetUnitVertexColorBJ="Change Unit Vertex Coloring"
+SetUnitVertexColorBJ="Change ",~Unit,"'s vertex coloring to (",~Red,"%, ",~Green,"%, ",~Blue,"%) with ",~Transparency,"% transparency"
+SetUnitVertexColorBJHint="The color values are (Red, Green, Blue).  Most units default to 100% red, green, and blue, with 0% transparency.  A 100% transparent unit is completely invisible."
+
+SetUnitTimeScalePercent="Change Unit Animation Speed"
+SetUnitTimeScalePercent="Change ",~Unit,"'s animation speed to ",~Percent,"% of its original speed"
+SetUnitTimeScalePercentHint="To revert a unit's animation speed to default, set its animation speed to 100%."
+
+SetUnitTurnSpeedBJ="Change Unit Turn Speed"
+SetUnitTurnSpeedBJ="Change ",~Unit," turn speed to ",~Value
+SetUnitTurnSpeedBJHint="A unit's turn speed determines how quickly the unit changes direction.  Turn speed values are expected to be between 0 and 1, with smaller numbers indicating slower turning rates."
+
+SetUnitBlendTimeBJ="Change Unit Blend Time"
+SetUnitBlendTimeBJ="Change ",~Unit," blend time to ",~Value
+SetUnitBlendTimeBJHint="A unit's blend time determines how quickly the unit's body parts turn to face a direction."
+
+SetUnitFlyHeightBJ="Change Unit Flying Height"
+SetUnitFlyHeightBJ="Change ",~Unit," flying height to ",~Height," at ",~Rate
+SetUnitFlyHeightBJHint="Only flying and hovering units use flying heights."
+
+SetUnitPropWindowBJ="Change Unit Prop Window Angle"
+SetUnitPropWindowBJ="Change ",~Unit," prop window angle to ",~Angle
+SetUnitPropWindowBJHint=
+
+SetDestructableAnimationBJ="Play Destructible Doodad Animation"
+SetDestructableAnimationBJ="Play ",~Destructible Doodad,"'s ",~Animation Name," animation"
+SetDestructableAnimationBJHint=
+
+QueueDestructableAnimationBJ="Queue Destructible Doodad Animation"
+QueueDestructableAnimationBJ="Queue ",~Destructible Doodad,"'s ",~Animation Name," animation"
+QueueDestructableAnimationBJHint=
+
+SetDoodadAnimationRectBJ="Play Animation For Doodads In Region"
+SetDoodadAnimationRectBJ="Play the ",~Animation Name," animation for all doodads of type ",~Doodad Type," within ",~Rect
+SetDoodadAnimationRectBJHint=
+
+SetDoodadAnimationBJ="Play Animation For Doodads In Circle"
+SetDoodadAnimationBJ="Play the ",~Animation Name," animation for all doodads of type ",~Doodad Type," within ",~Radius," of ",~Point
+SetDoodadAnimationBJHint=
+
+
+// Camera actions
+CameraSetupApplyForPlayer="Apply Camera Object (Timed)"
+CameraSetupApplyForPlayer="",~Apply Method," ",~Camera Object," for ",~Player," over ",~Time," seconds"
+CameraSetupApplyForPlayerHint=
+
+PanCameraToTimedLocForPlayer="Pan Camera (Timed)"
+PanCameraToTimedLocForPlayer="Pan camera for ",~Player," to ",~Point," over ",~Time," seconds"
+PanCameraToTimedLocForPlayerHint=
+
+PanCameraToTimedLocWithZForPlayer="Pan Camera With Interpolated Height (Timed)"
+PanCameraToTimedLocWithZForPlayer="Pan camera for ",~Player," to ",~Point," with height ",~Z," above the terrain over ",~Time," seconds"
+PanCameraToTimedLocWithZForPlayerHint="The camera will not drop below the terrain height during its camera path."
+
+SmartCameraPanBJ="Pan Camera As Necessary (Timed)"
+SmartCameraPanBJ="Pan camera as necessary for ",~Player," to ",~Point," over ",~Time," seconds"
+SmartCameraPanBJHint="If the camera is very far from the destination, it will snap instead of pan.  If the camera is very close to the destination, the pan request will be skipped."
+
+SetCameraFieldForPlayer="Set Camera Field (Timed)"
+SetCameraFieldForPlayer="Set ",~Player,"'s camera ",~Field," to ",~Value," over ",~Time," seconds"
+SetCameraFieldForPlayerHint=
+
+SetCameraTargetControllerNoZForPlayer="Lock Camera Target To Unit"
+SetCameraTargetControllerNoZForPlayer="Lock camera target for ",~Player," to ",~Unit,", offset by (",~X,", ",~Y,") using ",~Rotation Source
+SetCameraTargetControllerNoZForPlayerHint="The camera target is offset by (X, Y) from the center of the unit's feet."
+
+SetCameraOrientControllerForPlayerBJ="Lock Camera Orientation To Unit"
+SetCameraOrientControllerForPlayerBJ="Lock camera orientation for ",~Player," to ",~Unit,", offset by (",~X,", ",~Y,")"
+SetCameraOrientControllerForPlayerBJHint=
+
+SetCinematicCameraForPlayer="Play Cinematic Camera"
+SetCinematicCameraForPlayer="Run camera for ",~Player," through ",~Camera File," cinematic camera"
+SetCinematicCameraForPlayerHint=
+
+StopCameraForPlayerBJ="Stop Camera"
+StopCameraForPlayerBJ="Stop the camera for ",~Player
+StopCameraForPlayerBJHint=
+
+ResetToGameCameraForPlayer="Reset Game Camera"
+ResetToGameCameraForPlayer="Reset camera for ",~Player," to standard game-view over ",~Time," seconds"
+ResetToGameCameraForPlayerHint=
+
+CameraSetSmoothingFactorBJ="Change Camera Smoothing Factor"
+CameraSetSmoothingFactorBJ="Change camera smoothing factor to ",~Factor
+CameraSetSmoothingFactorBJHint=
+
+CameraResetSmoothingFactorBJ="Reset Camera Smoothing Factor"
+CameraResetSmoothingFactorBJ="Reset camera smoothing factor"
+CameraResetSmoothingFactorBJHint=
+
+CameraSetSourceNoiseForPlayer="Sway Camera Source"
+CameraSetSourceNoiseForPlayer="Sway the camera source for ",~Player," with magnitude ",~Magnitude," and velocity ",~Velocity
+CameraSetSourceNoiseForPlayerHint="This constantly sways the camera source until it is reset with 'Camera - Reset Game Camera' or 'Camera - Stop Swaying Camera'."
+
+CameraSetTargetNoiseForPlayer="Sway Camera Target"
+CameraSetTargetNoiseForPlayer="Sway the camera target for ",~Player," with magnitude ",~Magnitude," and velocity ",~Velocity
+CameraSetTargetNoiseForPlayerHint="This constantly sways the camera target until it is reset with 'Camera - Reset Game Camera' or 'Camera - Stop Swaying Camera'."
+
+CameraClearNoiseForPlayer="Stop Swaying Camera"
+CameraClearNoiseForPlayer="Stop swaying camera for ",~Player
+CameraClearNoiseForPlayerHint="This stops the camera from swaying after a 'Camera - Sway Camera Source' or 'Camera - Sway Camera Target' action is used."
+
+AdjustCameraBoundsForPlayerBJ="Extend/Shrink Camera Bounds"
+AdjustCameraBoundsForPlayerBJ=~Extend/Shrink," the camera bounds for ",~Player," west by ",~West,", east by ",~East,", north by ",~North,", and south by ",~South
+AdjustCameraBoundsForPlayerBJHint=
+
+SetCameraBoundsToRectForPlayerBJ="Set Camera Bounds"
+SetCameraBoundsToRectForPlayerBJ="Set the camera bounds for ",~Player," to ",~Region
+SetCameraBoundsToRectForPlayerBJHint="This restricts the game camera to the specified region.  Changing the camera bounds does not change the scale of the minimap."
+
+SetCameraQuickPositionLocForPlayer="Set Spacebar-Point"
+SetCameraQuickPositionLocForPlayer="Set a spacebar-point for ",~Player," at ",~Point
+SetCameraQuickPositionLocForPlayerHint="A spacebar-point is a location that the game camera jumps to when the player presses the spacebar."
+
+
+// Cinematic actions
+TransmissionFromUnitWithNameBJ="Transmission From Unit"
+TransmissionFromUnitWithNameBJ="Send transmission to ",~Player Group," from ",~Unit," named ",~Name,": Play ",~Sound," and display ",~Message,".  Modify duration: ",~Add/Set To," ",~Time," seconds and ",~Wait/Don't Wait
+TransmissionFromUnitWithNameBJHint="The duration of 'No sound' is 5 seconds."
+
+TransmissionFromUnitTypeWithNameBJ="Transmission From Unit-Type"
+TransmissionFromUnitTypeWithNameBJ="Send transmission to ",~Player Group," from a ",~Player," ",~Unit-Type," named ",~Name," at ",~Point,": Play ",~Sound," and display ",~Message,".  Modify duration: ",~Add/Set To," ",~Time," seconds and ",~Wait/Don't Wait
+TransmissionFromUnitTypeWithNameBJHint="The duration of 'No sound' is 5 seconds."
+
+CinematicModeBJ="Cinematic Mode"
+CinematicModeBJ="Turn cinematic mode ",~On/Off," for ",~Player Group
+CinematicModeBJHint=
+
+CinematicFadeBJ="Fade Filter"
+CinematicFadeBJ=~Fade Type," over ",~Duration," seconds using texture ",~Texture," and color (",~Red,", ",~Green,", ",~Blue,") with ",~Transparency,"% transparency"
+CinematicFadeBJHint="The color values are (Red, Green, Blue).  A 100% transparent color is completely invisible."
+
+CinematicFilterGenericBJ="Advanced Filter"
+CinematicFilterGenericBJ="Apply a filter over ",~Duration," seconds using ",~Blending Method," on texture ",~Texture,", starting with color (",~Red,", ",~Green,", ",~Blue,") with ",~Transparency,"% transparency and ending with color (",~Red,", ",~Green,", ",~Blue,") with ",~Transparency,"% transparency"
+CinematicFilterGenericBJHint=
+
+DisplayCineFilterBJ="Show/Hide Filter"
+DisplayCineFilterBJ=~Show/Hide," filter"
+DisplayCineFilterBJHint=
+
+PingMinimapLocForForce="Ping Minimap"
+PingMinimapLocForForce="Ping minimap for ",~Player Group," at ",~Point," for ",~Duration," seconds"
+PingMinimapLocForForceHint=
+
+UnitAddIndicatorBJ="Flash Speech Indicator For Unit"
+UnitAddIndicatorBJ="Flash a speech indicator for ",~Unit," of color (",~Red,"%, ",~Green,"%, ",~Blue,"%) with ",~Transparency,"% transparency"
+UnitAddIndicatorBJHint="The color values are (Red, Green, Blue).  A 100% transparent color is completely invisible."
+
+DestructableAddIndicatorBJ="Flash Speech Indicator For Destructible"
+DestructableAddIndicatorBJ="Flash a speech indicator for ",~Destructible," of color (",~Red,"%, ",~Green,"%, ",~Blue,"%) with ",~Transparency,"% transparency"
+DestructableAddIndicatorBJHint="The color values are (Red, Green, Blue).  A 100% transparent color is completely invisible."
+
+ItemAddIndicatorBJ="Flash Speech Indicator For Item"
+ItemAddIndicatorBJ="Flash a speech indicator for ",~Item," of color (",~Red,"%, ",~Green,"%, ",~Blue,"%) with ",~Transparency,"% transparency"
+ItemAddIndicatorBJHint="The color values are (Red, Green, Blue).  A 100% transparent color is completely invisible."
+
+ClearTextMessagesBJ="Clear Text Messages"
+ClearTextMessagesBJ="Clear the screen of text messages for ",~Player Group
+ClearTextMessagesBJHint=
+
+ShowInterfaceForceOff="Letterbox Mode On"
+ShowInterfaceForceOff="Turn on letterbox mode (hide interface) for ",~Player Group,": fade out over ",~Duration," seconds"
+ShowInterfaceForceOffHint="Puts the camera into letterbox mode, hiding the game interface."
+
+ShowInterfaceForceOn="Letterbox Mode Off"
+ShowInterfaceForceOn="Turn off letterbox mode (show interface) for ",~Player Group,": fade in over ",~Duration," seconds"
+ShowInterfaceForceOnHint="Puts the camera into normal (non-letterbox) mode, displaying the game interface."
+
+SetUserControlForceOff="Disable User Control"
+SetUserControlForceOff="Disable user control for ",~Player Group
+SetUserControlForceOffHint=
+
+SetUserControlForceOn="Enable User Control"
+SetUserControlForceOn="Enable user control for ",~Player Group
+SetUserControlForceOnHint=
+
+EnableOcclusionBJ="Enable/Disable Occlusion"
+EnableOcclusionBJ=~Enable/Disable," occlusion for ",~Player Group
+EnableOcclusionBJHint="When occlusion is enabled, trees that block vision of units become transparent."
+
+EnableWorldFogBoundaryBJ="Enable/Disable Boundary Tinting"
+EnableWorldFogBoundaryBJ=~Enable/Disable," boundary tinting for ",~Player Group
+EnableWorldFogBoundaryBJHint=
+
+
+// Countdown Timer actions
+StartTimerBJ="Start Timer"
+StartTimerBJ="Start ",~Timer," as a ",~One-Shot/Repeating," timer that will expire in ",~Time," seconds"
+StartTimerBJHint=
+
+PauseTimerBJ="Pause Timer"
+PauseTimerBJ=~Pause/Resume," ",~Timer
+PauseTimerBJHint=
+
+CreateTimerDialogBJ="Create Timer Window"
+CreateTimerDialogBJ="Create a timer window for ",~Timer," with title ",~Title
+CreateTimerDialogBJHint=
+
+DestroyTimerDialogBJ="Destroy Timer Window"
+DestroyTimerDialogBJ="Destroy ",~Timer Window
+DestroyTimerDialogBJHint=
+
+TimerDialogDisplayBJ="Show/Hide Timer Window"
+TimerDialogDisplayBJ=~Show/Hide," ",~Timer Window
+TimerDialogDisplayBJHint=
+
+TimerDialogSetTitleBJ="Change Timer Window Title"
+TimerDialogSetTitleBJ="Change the title of ",~Timer Window," to ",~Title
+TimerDialogSetTitleBJHint=
+
+TimerDialogSetTitleColorBJ="Change Timer Window Title Color"
+TimerDialogSetTitleColorBJ="Change the color of the title for ",~Timer Window," to (",~Red,"%, ",~Green,"%, ",~Blue,"%) with ",~Transparency,"% transparency"
+TimerDialogSetTitleColorBJHint="The color values are (Red, Green, Blue).  A 100% transparent color is completely invisible."
+
+TimerDialogSetTimeColorBJ="Change Timer Window Time Color"
+TimerDialogSetTimeColorBJ="Change the color of the time for ",~Timer Window," to (",~Red,"%, ",~Green,"%, ",~Blue,"%) with ",~Transparency,"% transparency"
+TimerDialogSetTimeColorBJHint="The color values are (Red, Green, Blue).  A 100% transparent color is completely invisible."
+
+//TimerDialogSetSpeedBJ="Set Timer Window Speed"
+//TimerDialogSetSpeedBJ="Set the speed of ",~Timer Window," to be ",~Factor," times normal speed"
+//TimerDialogSetSpeedBJHint=
+
+
+// Destructable actions
+CreateDestructableLoc="Create"
+CreateDestructableLoc="Create ",~Destructible Doodad Type," at ",~Point," facing ",~Direction," with scale ",~Scale," and variation ",~Variation
+CreateDestructableLocHint="The facing angle is expected in degrees, with 0 being east and 90 being north.  Use 'Last Created Destructible' to refer to this destructible."
+
+CreateDeadDestructableLocBJ="Create (Dead)"
+CreateDeadDestructableLocBJ="Create a dead ",~Destructible Doodad Type," at ",~Point," facing ",~Direction," with scale ",~Scale," and variation ",~Variation
+CreateDeadDestructableLocBJHint="The facing angle is expected in degrees, with 0 being east and 90 being north.  Use 'Last Created Destructible' to refer to this destructible."
+
+KillDestructable="Kill"
+KillDestructable="Kill ",~Destructible Doodad
+KillDestructableHint=
+
+RemoveDestructable="Remove"
+RemoveDestructable="Remove ",~Destructible Doodad
+RemoveDestructableHint=
+
+DestructableRestoreLife="Resurrect"
+DestructableRestoreLife="Resurrect ",~Destructible Doodad," with ",~Value," life and ",~Show/Hide," birth animation"
+DestructableRestoreLifeHint=
+
+SetDestructableLifePercentBJ="Set Life (To Percentage)"
+SetDestructableLifePercentBJ="Set life of ",~Destructible Doodad," to ",~Percent,"%"
+SetDestructableLifePercentBJHint=
+
+SetDestructableLife="Set Life (To Value)"
+SetDestructableLife="Set life of ",~Destructible Doodad," to ",~Value
+SetDestructableLifeHint=
+
+SetDestructableMaxLifeBJ="Set Max Life"
+SetDestructableMaxLifeBJ="Set max life of ",~Destructible Doodad," to ",~Value
+SetDestructableMaxLifeBJHint=
+
+ModifyGateBJ="Open/Close/Destroy Gate"
+ModifyGateBJ=~Open/Close/Destroy," ",~Gate
+ModifyGateBJHint=
+
+SetDestructableInvulnerableBJ="Make Invulnerable/Vulnerable"
+SetDestructableInvulnerableBJ="Make ",~Destructible Doodad," ",~Invulnerable/Vulnerable
+SetDestructableInvulnerableBJHint=
+
+EnumDestructablesInRectAll="Pick Every Destructible Doodad In Region And Do Action"
+EnumDestructablesInRectAll="Pick every destructible doodad in ",~Region," and do ",~Action
+EnumDestructablesInRectAllHint="Use 'Picked Destructible Doodad' to refer each destructible doodad as it is picked.  This works for every destructible in the region, including dead destructibles."
+
+EnumDestructablesInCircleBJ="Pick Every Destructible Doodad In Circle And Do Action"
+EnumDestructablesInCircleBJ="Pick every destructible doodad within ",~Radius," of ",~Point," and do ",~Action
+EnumDestructablesInCircleBJHint="Use 'Picked Destructible Doodad' to refer each destructible doodad as it is picked.  This works for every destructible in the region, including dead destructibles."
+
+
+// Dialog actions
+DialogDisplayBJ="Show/Hide"
+DialogDisplayBJ=~Show/Hide," ",~Dialog," for ",~Player
+DialogDisplayBJHint=
+
+DialogSetMessageBJ="Change Title"
+DialogSetMessageBJ="Change the title of ",~Dialog," to ",~Title
+DialogSetMessageBJHint=
+
+DialogAddButtonBJ="Create Dialog Button"
+DialogAddButtonBJ="Create a dialog button for ",~Dialog," labelled ",~Text
+DialogAddButtonBJHint=
+
+DialogClearBJ="Clear"
+DialogClearBJ="Clear ",~Dialog
+DialogClearBJHint="This clears the title and all buttons for the specified dialog."
+
+
+// Environment actions
+AddWeatherEffectSaveLast="Create Weather Effect"
+AddWeatherEffectSaveLast="Create at ",~Region," the weather effect ",~Weather Id
+AddWeatherEffectSaveLastHint=
+
+EnableWeatherEffect="Enable/Disable Weather Effect"
+EnableWeatherEffect="Turn ",~Weather Effect," ",~On/Off
+EnableWeatherEffectHint="You can create weather effects via the 'Environment - Create Weather Effect' action."
+
+RemoveWeatherEffectBJ="Remove Weather Effect"
+RemoveWeatherEffectBJ="Remove ",~Weather Effect
+RemoveWeatherEffectBJHint=
+
+SetSkyModel="Set Sky"
+SetSkyModel="Set sky to ",~Sky
+SetSkyModelHint=
+
+SetTerrainFogExBJ="Set Fog"
+SetTerrainFogExBJ="Set fog to style ",~Style,", z-start ",~Z-Start,", z-end ",~Z-End,", density ",~Density," and color (",~Red,"%, ",~Green,"%, ",~Blue,"%)"
+SetTerrainFogExBJHint="The color values are (Red, Green, Blue)."
+
+ResetTerrainFogBJ="Reset Fog"
+ResetTerrainFogBJ="Reset fog to default values"
+ResetTerrainFogBJHint=
+
+SetBlightRectBJ="Create/Remove Blight Region"
+SetBlightRectBJ=~Create/Remove," Blight for ",~Player," across ",~Region
+SetBlightRectBJHint=
+
+SetBlightRadiusLocBJ="Create/Remove Blight Circle"
+SetBlightRadiusLocBJ=~Create/Remove," Blight for ",~Player," from ",~Point," to a radius of ",~Radius
+SetBlightRadiusLocBJHint=
+
+
+// Game actions
+DisplayTextToForce="Text Message (Auto-Timed)"
+DisplayTextToForce="Display to ",~Player Group," the text: ",~Text
+DisplayTextToForceHint="The text is shown for an amount of time that automatically increases with the text length."
+
+DisplayTimedTextToForce="Text Message (Explicitly Timed)"
+DisplayTimedTextToForce="Display to ",~Player Group," for ",~Time," seconds the text: ",~Text
+DisplayTimedTextToForceHint=
+
+PauseGameOn="Pause Game"
+PauseGameOn="Pause the game"
+PauseGameOnHint=
+
+PauseGameOff="Unpause Game"
+PauseGameOff="Unpause the game"
+PauseGameOffHint=
+
+SetGameSpeed="Set Game Speed"
+SetGameSpeed="Set game speed to ",~Speed
+SetGameSpeedHint="You can lock the game speed with the 'Game - Lock Game Speed' trigger action."
+
+LockGameSpeedBJ="Lock Game Speed"
+LockGameSpeedBJ="Lock the game speed"
+LockGameSpeedBJHint="This prevents the game speed from being modified.  Not even triggers can modify the game speed when it is locked."
+
+UnlockGameSpeedBJ="Unlock Game Speed"
+UnlockGameSpeedBJ="Unlock the game speed"
+UnlockGameSpeedBJHint="This allows the game speed to be modified again after a 'Game - Lock Game Speed' action is used."
+
+SetMapFlag="Set Map Flag"
+SetMapFlag="Set ",~Map Flag," to ",~On/Off
+SetMapFlagHint=
+
+SetTimeOfDay="Set Time Of Day"
+SetTimeOfDay="Set the time of day to ",~Time
+SetTimeOfDayHint="A game day is 24 hours long.  Six a.m. is 6.00, and six p.m. is 18.00."
+
+SetTimeOfDayScalePercentBJ="Set Time Of Day Speed"
+SetTimeOfDayScalePercentBJ="Set time of day speed to ",~Percent,"% of the default speed"
+SetTimeOfDayScalePercentBJHint="Use 100% to revert the speed to normal."
+
+UseTimeOfDayBJ="Turn Day/Night Cycle On/Off"
+UseTimeOfDayBJ="Turn the day/night cycle ",~On/Off
+UseTimeOfDayBJHint=
+
+ShareEverythingWithTeam="Share Vision And Full Unit Control With Team"
+ShareEverythingWithTeam="Grant shared vision and full shared unit control of ",~Player," units with his/her allies"
+ShareEverythingWithTeamHint="Two players are considered allies if they are both allied with each other."
+
+MakeUnitsPassiveForPlayer="Give Units To Neutral Victim"
+MakeUnitsPassiveForPlayer="Give all ",~Player," units to the Neutral Victim player"
+MakeUnitsPassiveForPlayerHint="By default, the Neutral Victim player treats all other players as allies, but is treated as an enemy by all other players."
+
+SetNextLevelBJ="Set Next Level"
+SetNextLevelBJ="Set the next level to ",~Level
+SetNextLevelBJHint="This sets a level to be started after the current game ends."
+
+CustomVictoryBJ="Victory"
+CustomVictoryBJ="Victory ",~Player," (",~Show/Skip," dialogs, ",~Show/Skip," scores)"
+CustomVictoryBJHint=
+
+CustomDefeatBJ="Defeat"
+CustomDefeatBJ="Defeat ",~Player," with the message: ",~Message
+CustomDefeatBJHint=
+
+SetCampaignMenuRaceBJ="Set Campaign Screen"
+SetCampaignMenuRaceBJ="Set campaign to ",~Campaign
+SetCampaignMenuRaceBJHint=
+
+SetMissionAvailableBJ="Enable/Disable Mission"
+SetMissionAvailableBJ=~Enable/Disable," ",~Mission
+SetMissionAvailableBJHint=
+
+SetCampaignAvailableBJ="Enable/Disable Campaign"
+SetCampaignAvailableBJ=~Enable/Disable," the ",~Campaign
+SetCampaignAvailableBJHint=
+
+SetCinematicAvailableBJ="Enable/Disable Cinematic"
+SetCinematicAvailableBJ=~Enable/Disable," the ",~Cinematic
+SetCinematicAvailableBJHint=
+
+ForceUIKeyBJ="Force UI Key"
+ForceUIKeyBJ="Force ",~Player," to press the key ",~Key
+ForceUIKeyBJHint=
+
+ForceUICancelBJ="Force UI Cancel"
+ForceUICancelBJ="Force ",~Player," to press Escape/Cancel"
+ForceUICancelBJHint=
+
+Preload="Preload File"
+Preload="Preload ",~Filename
+PreloadHint=
+
+PreloadEnd="Begin Preloading"
+PreloadEnd="Begin preloading with a ",~Time," second timeout"
+PreloadEndHint=
+
+Preloader="Preload Batch"
+Preloader="Preload all files listed in ",~Filename
+PreloaderHint=
+
+
+// Game Cache actions
+InitGameCacheBJ="Create Game Cache"
+InitGameCacheBJ="Create a game cache from ",~Filename
+InitGameCacheBJHint="A game cache allows you to store data between maps, or between games on a given map.  If the specified file does not exist, it will be created."
+
+SaveGameCacheBJ="Save Game Cache"
+SaveGameCacheBJ="Save ",~Game Cache
+SaveGameCacheBJHint="Saves the game cache, using the same filename from which it was created."
+
+StoreUnitBJ="Store Unit"
+StoreUnitBJ="Store ",~Unit," as ",~Label," of ",~Category," in ",~Game Cache
+StoreUnitBJHint="Use the 'Game Cache - Restore Unit' actions to load this unit from a cache."
+
+StoreRealBJ="Store Real"
+StoreRealBJ="Store ",~Value," as ",~Label," of ",~Category," in ",~Game Cache
+StoreRealBJHint="Use the 'Game Cache - Load Real Value' function to load this value from a cache."
+
+StoreIntegerBJ="Store Integer"
+StoreIntegerBJ="Store ",~Value," as ",~Label," of ",~Category," in ",~Game Cache
+StoreIntegerBJHint="Use the 'Game Cache - Load Integer Value' function to load this value from a cache."
+
+StoreBooleanBJ="Store Boolean"
+StoreBooleanBJ="Store ",~Value," as ",~Label," of ",~Category," in ",~Game Cache
+StoreBooleanBJHint="Use the 'Game Cache - Load Boolean Value' function to load this value from a cache."
+
+RestoreUnitLocFacingAngleBJ="Restore Unit Facing Angle"
+RestoreUnitLocFacingAngleBJ="Restore ",~Label," of ",~Category," from ",~Game Cache," for ",~Player," at ",~Location," facing ",~Angle
+RestoreUnitLocFacingAngleBJHint="Use 'Last Restored Unit' to refer to the unit created by this action.  If the label is not found, no unit will be created, and 'Last Restored Unit' will have the value 'No Unit'."
+
+RestoreUnitLocFacingPointBJ="Restore Unit Facing Point"
+RestoreUnitLocFacingPointBJ="Restore ",~Label," of ",~Category," from ",~Game Cache," for ",~Player," at ",~Location," facing ",~Point
+RestoreUnitLocFacingPointBJHint="Use 'Last Restored Unit' to refer to the unit created by this action.  If the label is not found, no unit will be created, and 'Last Restored Unit' will have the value 'No Unit'."
+
+
+// Hero actions
+SelectHeroSkill="Learn Skill"
+SelectHeroSkill="Learn skill for ",~Hero,": ",~Skill
+SelectHeroSkillHint="This only works if the Hero has at least one skill point to spend."
+
+SetHeroLevel="Set Level"
+SetHeroLevel="Set ",~Hero," Hero-level to ",~Level,", ",~Show/Hide," level-up graphics"
+SetHeroLevelHint=
+
+SetHeroXP="Set Experience"
+SetHeroXP="Set ",~Hero," experience to ",~Quantity,", ",~Show/Hide," level-up graphics"
+SetHeroXPHint=
+
+AddHeroXPSwapped="Add Experience"
+AddHeroXPSwapped="Add ",~Quantity," experience to ",~Hero,", ",~Show/Hide," level-up graphics"
+AddHeroXPSwappedHint=
+
+SuspendHeroXPBJ="Enable/Disable Experience Gain"
+SuspendHeroXPBJ=~Enable/Disable," experience gain for ",~Hero
+SuspendHeroXPBJHint=
+
+SetPlayerHandicapXPBJ="Set Experience Rate"
+SetPlayerHandicapXPBJ="Make ",~Player," Heroes gain ",~Percent,"% experience from future kills"
+SetPlayerHandicapXPBJHint=
+
+ReviveHeroLoc="Revive (Instantly)"
+ReviveHeroLoc="Instantly revive ",~Hero," at ",~Point,", ",~Show/Hide," revival graphics"
+ReviveHeroLocHint="This revives a dead Hero at a spot on the map, even if the player has no altar.  You can also revive a Hero by issuing a 'Revive' order to an appropriate altar."
+
+UnitAddItemSwapped="Give Item To Hero"
+UnitAddItemSwapped="Give ",~Item," to ",~Hero
+UnitAddItemSwappedHint=
+
+UnitAddItemByIdSwapped="Create Item For Hero"
+UnitAddItemByIdSwapped="Create ",~Item-Type," and give it to ",~Hero
+UnitAddItemByIdSwappedHint=
+
+UnitRemoveItemSwapped="Drop Item From Hero"
+UnitRemoveItemSwapped="Drop ",~Item," from ",~Hero
+UnitRemoveItemSwappedHint="The item is removed from the Hero and placed on the ground at the Hero's feet."
+
+UnitRemoveItemFromSlotSwapped="Drop Item From Hero Inventory Slot"
+UnitRemoveItemFromSlotSwapped="Drop the item from slot ",~Index," of ",~Hero
+UnitRemoveItemFromSlotSwappedHint="If an item exists in the given slot, it is removed from the Hero and placed on the ground at the Hero's feet."
+
+UnitUseItemTarget="Use Item On A Unit"
+UnitUseItemTarget="Order ",~Hero," to use ",~Item," on ",~Unit
+UnitUseItemTargetHint=
+
+UnitUseItemPointLoc="Use Item On A Point"
+UnitUseItemPointLoc="Order ",~Hero," to use ",~Item," on ",~Point
+UnitUseItemPointLocHint=
+
+UnitUseItemDestructable="Use Item On A Destructible"
+UnitUseItemDestructable="Order ",~Hero," to use ",~Item," on ",~Destructible
+UnitUseItemDestructableHint=
+
+UnitUseItem="Use Item"
+UnitUseItem="Order ",~Hero," to use ",~Item
+UnitUseItemHint=
+
+
+// Item actions
+CreateItemLoc="Create"
+CreateItemLoc="Create ",~Item," at ",~Point
+CreateItemLocHint=
+
+RemoveItem="Remove"
+RemoveItem="Remove ",~Item
+RemoveItemHint=
+
+SetItemPositionLoc="Move (Instantly)"
+SetItemPositionLoc="Move ",~Item," to ",~Point
+SetItemPositionLocHint=
+
+SetItemLifeBJ="Set Life"
+SetItemLifeBJ="Set life of ",~Item," to ",~Value
+SetItemLifeBJHint=
+
+SetItemInvulnerableBJ="Make Invulnerable/Vulnerable"
+SetItemInvulnerableBJ="Make ",~Item," ",~Invulnerable/Vulnerable
+SetItemInvulnerableBJHint=
+
+SetItemDroppableBJ="Make Undroppable"
+SetItemDroppableBJ="Make ",~Item," ",~Droppable/Undroppable
+SetItemDroppableBJHint="An undroppable item cannot be removed from a Hero's inventory once it has been picked up."
+
+SetItemDropOnDeathBJ="Make Item Drop From Heroes Upon Death"
+SetItemDropOnDeathBJ="Make ",~Item," ",~Drop from/Stay with," Heroes upon death"
+SetItemDropOnDeathBJHint=
+
+SetItemPlayerBJ="Change Owner"
+SetItemPlayerBJ="Change ownership of ",~Item," to ",~Player," and ",~Change/Retain Color
+SetItemPlayerBJHint="Not all items are capable of changing color."
+
+
+// Leaderboard actions
+CreateLeaderboardBJ="Create"
+CreateLeaderboardBJ="Create a leaderboard for ",~Player Group," titled ",~Title
+CreateLeaderboardBJHint="If no title is specified, the title line will not be displayed."
+
+DestroyLeaderboardBJ="Destroy"
+DestroyLeaderboardBJ="Destroy ",~Leaderboard
+DestroyLeaderboardBJHint=
+
+LeaderboardSortItemsBJ="Sort"
+LeaderboardSortItemsBJ="Sort ",~Leaderboard," by ",~Field," in ",~Ascending/Descending," order"
+LeaderboardSortItemsBJHint=
+
+LeaderboardDisplayBJ="Show/Hide"
+LeaderboardDisplayBJ=~Show/Hide," ",~Leaderboard
+LeaderboardDisplayBJHint=
+
+LeaderboardSetLabelBJ="Change Title"
+LeaderboardSetLabelBJ="Change the title of ",~Leaderboard," to ",~Title
+LeaderboardSetLabelBJHint=
+
+LeaderboardSetLabelColorBJ="Change Label Colors"
+LeaderboardSetLabelColorBJ="Change the color of all labels for ",~Leaderboard," to (",~Red,"%, ",~Green,"%, ",~Blue,"%) with ",~Transparency,"% transparency"
+LeaderboardSetLabelColorBJHint="The color values are (Red, Green, Blue).  A 100% transparent color is completely invisible."
+
+LeaderboardSetValueColorBJ="Change Value Colors"
+LeaderboardSetValueColorBJ="Change the color of all values for ",~Leaderboard," to (",~Red,"%, ",~Green,"%, ",~Blue,"%) with ",~Transparency,"% transparency"
+LeaderboardSetValueColorBJHint="The color values are (Red, Green, Blue).  A 100% transparent color is completely invisible."
+
+LeaderboardSetStyleBJ="Change Style"
+LeaderboardSetStyleBJ="Change the display style for ",~Leaderboard," to ",~Show/Hide," the title, ",~Show/Hide," labels, ",~Show/Hide," values, and ",~Show/Hide," icons"
+LeaderboardSetStyleBJHint=
+
+LeaderboardAddItemBJ="Add Player"
+LeaderboardAddItemBJ="Add ",~Player," to ",~Leaderboard," with label ",~Label," and value ",~Value
+LeaderboardAddItemBJHint=
+
+LeaderboardRemovePlayerItemBJ="Remove Player"
+LeaderboardRemovePlayerItemBJ="Remove ",~Player," from ",~Leaderboard
+LeaderboardRemovePlayerItemBJHint=
+
+LeaderboardSetPlayerItemLabelBJ="Change Player Label"
+LeaderboardSetPlayerItemLabelBJ="Change the label for ",~Player," in ",~Leaderboard," to ",~Label
+LeaderboardSetPlayerItemLabelBJHint=
+
+LeaderboardSetPlayerItemLabelColorBJ="Change Player Label Color"
+LeaderboardSetPlayerItemLabelColorBJ="Change the color of the label for ",~Player," in ",~Leaderboard," to (",~Red,"%, ",~Green,"%, ",~Blue,"%) with ",~Transparency,"% transparency"
+LeaderboardSetPlayerItemLabelColorBJHint="The color values are (Red, Green, Blue).  A 100% transparent color is completely invisible."
+
+LeaderboardSetPlayerItemValueBJ="Change Player Value"
+LeaderboardSetPlayerItemValueBJ="Change the value for ",~Player," in ",~Leaderboard," to ",~Value
+LeaderboardSetPlayerItemValueBJHint=
+
+LeaderboardSetPlayerItemValueColorBJ="Change Player Value Color"
+LeaderboardSetPlayerItemValueColorBJ="Change the color of the value for ",~Player," in ",~Leaderboard," to (",~Red,"%, ",~Green,"%, ",~Blue,"%) with ",~Transparency,"% transparency"
+LeaderboardSetPlayerItemValueColorBJHint="The color values are (Red, Green, Blue).  A 100% transparent color is completely invisible."
+
+LeaderboardSetPlayerItemStyleBJ="Change Player Style"
+LeaderboardSetPlayerItemStyleBJ="Change the display style for ",~Player," in ",~Leaderboard," to ",~Show/Hide," the label, ",~Show/Hide," the value, and ",~Show/Hide," the icon"
+LeaderboardSetPlayerItemStyleBJHint=
+
+
+// Melee Game actions
+MeleeStartingVisibility="Use Melee Time Of Day"
+MeleeStartingVisibility="Use melee time of day (for all players)"
+MeleeStartingVisibilityHint=
+
+MeleeStartingHeroLimit="Hero Limits"
+MeleeStartingHeroLimit="Limit Heroes to 1 per Hero-type (for all players)"
+MeleeStartingHeroLimitHint=
+
+MeleeGrantHeroItems="Hero Starting Items"
+MeleeGrantHeroItems="Give trained Heroes a Scroll of Town Portal (for all players)"
+MeleeGrantHeroItemsHint=
+
+MeleeStartingResources="Set Starting Resources"
+MeleeStartingResources="Set starting resources (for all players)"
+MeleeStartingResourcesHint=
+
+MeleeClearExcessUnits="Remove Excess Units"
+MeleeClearExcessUnits="Remove creeps and critters from used start locations (for all players)"
+MeleeClearExcessUnitsHint="Removes all Neutral Hostile units and non-building Neutral Passive units within a radius of 1024 around each used start location."
+
+MeleeStartingUnits="Create Starting Units"
+MeleeStartingUnits="Create starting units (for all players)"
+MeleeStartingUnitsHint=
+
+MeleeStartingAI="Run AI"
+MeleeStartingAI="Run melee AI scripts (for computer players)"
+MeleeStartingAIHint="Players should have starting units and resources before this action is run."
+
+MeleeInitVictoryDefeat="Victory/Defeat Conditions"
+MeleeInitVictoryDefeat="Enforce victory/defeat conditions (for all players)"
+MeleeInitVictoryDefeatHint="Players should have starting units before this action is run."
+
+
+// Neutral Unit actions
+SetResourceAmount="Set Resources Of Gold Mine"
+SetResourceAmount="Set ",~Gold Mine," to ",~Quantity," gold"
+SetResourceAmountHint=
+
+AddResourceAmountBJ="Add Gold To Gold Mine"
+AddResourceAmountBJ="Add ",~Quantity," gold to ",~Gold Mine
+AddResourceAmountBJHint="Use a negative number to subtract."
+
+BlightGoldMineForPlayer="Haunt Gold Mine (Instantly)"
+BlightGoldMineForPlayer="Haunt ",~Gold Mine," for ",~Player
+BlightGoldMineForPlayerHint="This replaces the Gold Mine with a Haunted Gold Mine of equal resources."
+
+WaygateActivateBJ="Enable/Disable Way Gate"
+WaygateActivateBJ=~Enable/Disable," ",~Way Gate
+WaygateActivateBJHint=
+
+WaygateSetDestinationLocBJ="Set Way Gate Destination"
+WaygateSetDestinationLocBJ="Set ",~Way Gate," destination to ",~Target
+WaygateSetDestinationLocBJHint=
+
+
+// Player actions
+SetPlayerState="Set Property"
+SetPlayerState="Set ",~Player," ",~Property," to ",~Value
+SetPlayerStateHint=
+
+AdjustPlayerStateBJ="Add Property"
+AdjustPlayerStateBJ="Add ",~Value," to ",~Player," ",~Property
+AdjustPlayerStateBJHint="Use a negative number to subtract."
+
+SetPlayerFlagBJ="Turn Player Flag On/Off"
+SetPlayerFlagBJ="Turn ",~Player Flag," ",~On/Off," for ",~Player
+SetPlayerFlagBJHint=
+
+SetPlayerAllianceStateBJ="Set Alliance"
+SetPlayerAllianceStateBJ="Make ",~Player," treat ",~Player," as an ",~Alliance Setting
+SetPlayerAllianceStateBJHint="Note that neutral player slots cannot share their vision."
+
+SetPlayerAllianceBJ="Set Aspect Of Alliance"
+SetPlayerAllianceBJ="For ",~Player,", turn ",~Alliance Type," ",~On/Off," toward ",~Player
+SetPlayerAllianceBJHint="This modifies one aspect of a player's alliance state, leaving others untouched.  Note that neutral player slots cannot share their vision."
+
+SetPlayerAbilityAvailableBJ="Enable/Disable Ability"
+SetPlayerAbilityAvailableBJ=~Enable/Disable," ",~Ability," for ",~Player
+SetPlayerAbilityAvailableBJHint=
+
+SetPlayerUnitAvailableBJ="Set Training/Construction Availability Of Unit"
+SetPlayerUnitAvailableBJ="Make ",~Unit-Type," ",~Available/Unavailable," for training/construction by ",~Player
+SetPlayerUnitAvailableBJHint="This determines whether or not a type of unit can be trained or constructed by a player."
+
+SetPlayerTechResearchedSwap="Set Current Research Level"
+SetPlayerTechResearchedSwap="Set the current research level of ",~Tech," to ",~Level," for ",~Player
+SetPlayerTechResearchedSwapHint="Use 0 or 1 for simple tech, or 0..3 for three-stage upgrades."
+
+SetPlayerTechMaxAllowedSwap="Set Max Research Level"
+SetPlayerTechMaxAllowedSwap="Set the max research level of ",~Tech," to ",~Level," for ",~Player
+SetPlayerTechMaxAllowedSwapHint="Use 0 or 1 for simple tech, or 0..3 for three-stage upgrades."
+
+SetPlayerColorBJ="Change Color"
+SetPlayerColorBJ="Change color of ",~Player," to ",~Color,", ",~Changing/Retaining color," of existing units"
+SetPlayerColorBJHint=
+
+SetPlayerHandicapBJ="Set Handicap"
+SetPlayerHandicapBJ="Set ",~Player," handicap to ",~Percent,"%"
+SetPlayerHandicapBJHint="Handicaps apply to the max life of all units owned or created for the player.  Heroes are less affected by handicaps than non-Hero units."
+
+SetPlayerOnScoreScreenBJ="Show/Hide In Score Screen"
+SetPlayerOnScoreScreenBJ=~Show/Hide," ",~Player," in the post-game score screen"
+SetPlayerOnScoreScreenBJHint=
+
+
+// Player Group actions
+ForForce="Pick Every Player In Player Group And Do Action"
+ForForce="Pick every player in ",~Player Group," and do ",~Action
+ForForceHint="Use 'Picked Player' to refer each player as he/she is picked."
+
+ForceAddPlayerSimple="Add Player"
+ForceAddPlayerSimple="Add ",~Player," to ",~Player Group
+ForceAddPlayerSimpleHint="This adds a player to a Player Group variable.  This does not affect the player."
+
+ForceRemovePlayerSimple="Remove Player"
+ForceRemovePlayerSimple="Remove ",~Player," from ",~Player Group
+ForceRemovePlayerSimpleHint="This removes a player from a Player Group variable.  This does not affect the player."
+
+ForceClear="Clear"
+ForceClear="Remove all players from ",~Player Group
+ForceClearHint="This removes all players from a Player Group variable.  This does not affect the players themselves."
+
+
+// Quest actions
+QuestMessageBJ="Quest Message"
+QuestMessageBJ="Display to ",~Player Group," the ",~Quest Message Type," message: ",~Message
+QuestMessageBJHint=
+
+CreateQuestBJ="Create Quest"
+CreateQuestBJ="Create a ",~Quest Type," quest titled ",~Title," with the description ",~Description,", using icon path ",~Icon Path
+CreateQuestBJHint=
+
+DestroyQuestBJ="Destroy Quest"
+DestroyQuestBJ="Destroy ",~Quest
+DestroyQuestBJHint="Destroyed quests are removed from the quest log."
+
+QuestSetEnabledBJ="Enable/Disable Quest"
+QuestSetEnabledBJ=~Enable/Disable," ",~Quest
+QuestSetEnabledBJHint="Disabled quests are not displayed in the quest log."
+
+QuestSetCompletedBJ="Mark Quest As Completed"
+QuestSetCompletedBJ="Mark ",~Quest," as ",~Completed/Incomplete
+QuestSetCompletedBJHint=
+
+QuestSetFailedBJ="Mark Quest As Failed"
+QuestSetFailedBJ="Mark ",~Quest," as ",~Failed/Not Failed
+QuestSetFailedBJHint=
+
+QuestSetDiscoveredBJ="Mark Quest As Discovered"
+QuestSetDiscoveredBJ="Mark ",~Quest," as ",~Discovered/Undiscovered
+QuestSetDiscoveredBJHint=
+
+QuestSetTitleBJ="Change Quest Title"
+QuestSetTitleBJ="Change the title of ",~Quest," to ",~Title
+QuestSetTitleBJHint=
+
+QuestSetDescriptionBJ="Change Quest Description"
+QuestSetDescriptionBJ="Change the description of ",~Quest," to ",~Description
+QuestSetDescriptionBJHint=
+
+CreateQuestItemBJ="Create Quest Requirement"
+CreateQuestItemBJ="Create a quest requirement for ",~Quest," with the description ",~Description
+CreateQuestItemBJHint=
+
+QuestItemSetCompletedBJ="Mark Quest Requirement As Completed"
+QuestItemSetCompletedBJ="Mark ",~Quest Requirement," as ",~Completed/Incomplete
+QuestItemSetCompletedBJHint=
+
+QuestItemSetDescriptionBJ="Change Quest Requirement Description"
+QuestItemSetDescriptionBJ="Change the description of ",~Quest Requirement," to ",~Description
+QuestItemSetDescriptionBJHint=
+
+CreateDefeatConditionBJ="Create Defeat Condition"
+CreateDefeatConditionBJ="Create a defeat condition with the description ",~Description
+CreateDefeatConditionBJHint="Defeat conditions are displayed for every quest."
+
+DestroyDefeatConditionBJ="Destroy Defeat Condition"
+DestroyDefeatConditionBJ="Destroy ",~Defeat Condition
+DestroyDefeatConditionBJHint="Destroyed defeat conditions are removed from the quest log."
+
+DefeatConditionSetDescriptionBJ="Change Defeat Condition Description"
+DefeatConditionSetDescriptionBJ="Change the description of ",~Defeat Condition," to ",~Description
+DefeatConditionSetDescriptionBJHint=
+
+FlashQuestDialogButtonBJ="Flash Quest Dialog Button"
+FlashQuestDialogButtonBJ="Flash the quest dialog button"
+FlashQuestDialogButtonBJHint=
+
+
+// Region actions
+MoveRectToLoc="Move"
+MoveRectToLoc="Center ",~Region," on ",~Point
+MoveRectToLocHint="This has no effect unless the specified region is a variable."
+
+
+// Selection actions
+ClearSelection="Clear"
+ClearSelection="Clear selection"
+ClearSelectionHint="Deselect all units."
+
+SelectGroupBJ="Select Unit Group"
+SelectGroupBJ="Select ",~Unit Group
+SelectGroupBJHint="Deselects all units and selects up to 12 units of the unit group."
+
+SelectUnitSingle="Select Unit"
+SelectUnitSingle="Select ",~Unit
+SelectUnitSingleHint="Deselects all units and selects only the given unit."
+
+SelectUnitAdd="Add Unit"
+SelectUnitAdd="Add ",~Unit," to selection"
+SelectUnitAddHint="Selects the given unit in addition to whatever is already selected."
+
+SelectUnitRemove="Remove Unit"
+SelectUnitRemove="Remove ",~Unit," from selection"
+SelectUnitRemoveHint="Deselects the given unit, retaining the rest of the current selection."
+
+
+// Sound actions
+PlaySoundBJ="Play Sound"
+PlaySoundBJ="Play ",~Sound
+PlaySoundBJHint="Use the Sound Editor to create sound variables.  Note that a 3D sound must be positioned to be played."
+
+StopSoundBJ="Stop Sound"
+StopSoundBJ="Stop ",~Sound," ",~After Fading/Immediately
+StopSoundBJHint=
+
+KillSoundWhenDoneBJ="Destroy Sound"
+KillSoundWhenDoneBJ="Destroy ",~Sound
+KillSoundWhenDoneBJHint="If the sound is already playing, it will be destroyed upon finishing."
+
+SetSoundVolumeBJ="Set Sound Volume"
+SetSoundVolumeBJ="Set volume of ",~Sound," to ",~Volume,"%"
+SetSoundVolumeBJHint=
+
+SetSoundDistanceCutoffBJ="Set Sound Cutoff Distance"
+SetSoundDistanceCutoffBJ="Set cutoff distance of ",~Sound," to ",~Distance
+SetSoundDistanceCutoffBJHint=
+
+SetSoundPitchBJ="Set Sound Pitch"
+SetSoundPitchBJ="Set pitch of ",~Sound," to ",~Pitch
+SetSoundPitchBJHint=
+
+AttachSoundToUnitBJ="Attach 3D Sound To Unit"
+AttachSoundToUnitBJ="Attach ",~3D Sound," to ",~Unit
+AttachSoundToUnitBJHint=
+
+SetSoundPositionLocBJ="Set 3D Sound Position"
+SetSoundPositionLocBJ="Set position of ",~3D Sound," to ",~Point," with Z offset ",~Z
+SetSoundPositionLocBJHint="This should only be used on sounds that have the '3D Sound' flag set."
+
+SetSoundDistances="Set 3D Sound Distances"
+SetSoundDistances="Set ",~3D Sound," distances to ",~Distance," minimum and ",~Distance," maximum"
+SetSoundDistancesHint="This should only be used on sounds that have the '3D Sound' flag set in the Sound Editor."
+
+SetStackedSoundBJ="Add/Remove 3D Sound Across Region"
+SetStackedSoundBJ=~Add/Remove," ",~3D Sound," across ",~Region
+SetStackedSoundBJHint="This should only be used on sounds that have the '3D Sound' flag set in the Sound Editor."
+
+SetAmbientDaySound="Use Daytime Ambient Theme"
+SetAmbientDaySound="Use the ",~Theme," daytime ambient theme"
+SetAmbientDaySoundHint=
+
+SetAmbientNightSound="Use Nighttime Ambient Theme"
+SetAmbientNightSound="Use the ",~Theme," nighttime ambient theme"
+SetAmbientNightSoundHint=
+
+EnableDawnDusk="Enable/Disable Dawn And Dusk Sounds"
+EnableDawnDusk=~Enable/Disable," dawn and dusk sounds"
+EnableDawnDuskHint=
+
+SetMapMusicIndexedBJ="Set Music List (Using A Specific Initial Song)"
+SetMapMusicIndexedBJ="Set the music list to ",~Music,", starting with song ",~Index
+SetMapMusicIndexedBJHint="This sets the list of music to use when the current song ends.  This does not stop the currently playing music."
+
+SetMapMusicRandomBJ="Set Music List (Using A Random Initial Song)"
+SetMapMusicRandomBJ="Set the music list to ",~Music,", starting with a random song"
+SetMapMusicRandomBJHint="This sets the list of music to use when the current song ends.  This does not stop the currently playing music."
+
+ClearMapMusicBJ="Clear Music List"
+ClearMapMusicBJ="Clear the music list"
+ClearMapMusicBJHint="Clearing the music list will cause music to cease after the currently playing music ends."
+
+PlayMusicBJ="Play Music"
+PlayMusicBJ="Play ",~Music
+PlayMusicBJHint=
+
+PlayThematicMusicBJ="Play Music Theme"
+PlayThematicMusicBJ="Play ",~Music Theme
+PlayThematicMusicBJHint="This will play a music theme once, and then resume the game music."
+
+EndThematicMusicBJ="Stop Music Theme"
+EndThematicMusicBJ="Stop the currently playing music theme"
+EndThematicMusicBJHint=
+
+StopMusicBJ="Stop Music"
+StopMusicBJ="Stop music ",~After Fading/Immediately
+StopMusicBJHint=
+
+ResumeMusicBJ="Resume Music"
+ResumeMusicBJ="Resume music"
+ResumeMusicBJHint=
+
+SetMusicVolumeBJ="Set Music Volume"
+SetMusicVolumeBJ="Set music volume to ",~Volume,"%"
+SetMusicVolumeBJHint=
+
+VolumeGroupSetVolumeBJ="Set Volume Channel"
+VolumeGroupSetVolumeBJ="Set ",~Volume Channel," to ",~Volume,"%"
+VolumeGroupSetVolumeBJHint=
+
+SetCineModeVolumeGroupsBJ="Set All Volume Channels For Cinematics"
+SetCineModeVolumeGroupsBJ="Setup all volume channels for cinematics"
+SetCineModeVolumeGroupsBJHint="This uses the same volume channel settings as the 'Cinematic - Cinematic Mode' action."
+
+SetSpeechVolumeGroupsBJ="Set All Volume Channels For Speech"
+SetSpeechVolumeGroupsBJ="Setup all volume channels for speech"
+SetSpeechVolumeGroupsBJHint=
+
+VolumeGroupResetBJ="Reset All Volume Channels"
+VolumeGroupResetBJ="Reset all volume channels to 100%"
+VolumeGroupResetBJHint=
+
+
+// Special Effect actions
+AddSpecialEffectLocBJ="Create Special Effect At Point"
+AddSpecialEffectLocBJ="Create a special effect at ",~Point," using ",~Model File
+AddSpecialEffectLocBJHint=
+
+AddSpecialEffectTargetUnitBJ="Create Special Effect On Unit"
+AddSpecialEffectTargetUnitBJ="Create a special effect attached to the ",~Attachment Point," of ",~Unit," using ",~Model File
+AddSpecialEffectTargetUnitBJHint=
+
+DestroyEffectBJ="Destroy Special Effect"
+DestroyEffectBJ="Destroy ",~Special Effect
+DestroyEffectBJHint=
+
+
+// Trigger actions
+DisableTrigger="Turn Off"
+DisableTrigger="Turn off ",~Trigger
+DisableTriggerHint="Does not interrupt existing executions of the trigger, but prevents future executions."
+
+EnableTrigger="Turn On"
+EnableTrigger="Turn on ",~Trigger
+EnableTriggerHint="Allows the trigger to be executed."
+
+ConditionalTriggerExecute="Run (Checking Conditions)"
+ConditionalTriggerExecute="Run ",~Trigger," (checking conditions)"
+ConditionalTriggerExecuteHint="Runs the trigger's actions if its conditions are true."
+
+TriggerExecute="Run (Ignoring Conditions)"
+TriggerExecute="Run ",~Trigger," (ignoring conditions)"
+TriggerExecuteHint="Runs the trigger's actions while ignoring events and conditions."
+
+QueuedTriggerAddBJ="Add To Trigger Queue"
+QueuedTriggerAddBJ="Add ",~Trigger," to the trigger queue (",~Checking/Ignoring," conditions)"
+QueuedTriggerAddBJHint="Triggers added to the trigger queue are executed one at a time, in turn.  Triggers added in this manner should remove themselves using 'Trigger - Remove From Queue'."
+
+QueuedTriggerRemoveBJ="Remove From Trigger Queue"
+QueuedTriggerRemoveBJ="Remove ",~Trigger," from the trigger queue"
+QueuedTriggerRemoveBJHint="If a trigger is already running via the trigger queue, removing it will allow the next trigger in the trigger queue to run, but will not stop the trigger itself from finishing its execution."
+
+QueuedTriggerClearBJ="Clear Trigger Queue"
+QueuedTriggerClearBJ="Clear the trigger queue"
+QueuedTriggerClearBJHint="This will remove all triggers from the trigger queue."
+
+QueuedTriggerClearInactiveBJ="Clear Trigger Queue Of Pending Triggers"
+QueuedTriggerClearInactiveBJ="Clear all pending triggers from the trigger queue"
+QueuedTriggerClearInactiveBJHint="This will remove all pending triggers from the trigger queue.  If a trigger is currently running in the queue, it will not be removed."
+
+
+// Unit actions
+CreateNUnitsAtLoc="Create Units Facing Angle"
+CreateNUnitsAtLoc="Create ",~Number," ",~Unit," for ",~Player," at ",~Point," facing ",~Direction," degrees"
+CreateNUnitsAtLocHint="The facing angle is expected in degrees, with 0 being east and 90 being north.  Use 'Last Created Unit Group' to refer to these created units.  Use 'Last Created Unit' to refer to exactly one of these units."
+
+CreateNUnitsAtLocFacingLocBJ="Create Units Facing Point"
+CreateNUnitsAtLocFacingLocBJ="Create ",~Number," ",~Unit," for ",~Player," at ",~Point," facing ",~Point
+CreateNUnitsAtLocFacingLocBJHint="Use 'Last Created Unit Group' to refer to these created units.  Use 'Last Created Unit' to refer to exactly one of these units."
+
+CreateCorpseLocBJ="Create Corpse"
+CreateCorpseLocBJ="Create a ",~Unit," corpse for ",~Player," at ",~Point
+CreateCorpseLocBJHint="Not all units have corpse forms.  Use 'Last Created Unit' to refer to this unit."
+
+KillUnit="Kill"
+KillUnit="Kill ",~Unit
+KillUnitHint=
+
+RemoveUnit="Remove"
+RemoveUnit="Remove ",~Unit," from the game"
+RemoveUnitHint="Leaves no corpse.  If used on a Hero, that Hero cannot be resurrected."
+
+ExplodeUnitBJ="Explode"
+ExplodeUnitBJ="Explode ",~Unit
+ExplodeUnitBJHint=
+
+ReplaceUnitBJ="Replace"
+ReplaceUnitBJ="Replace ",~Unit," with a ",~Unit-Type," using ",~Property Usage," life and mana"
+ReplaceUnitBJHint="Use 'Last Replaced Unit' to refer to the replacement unit.  Note that any variables referring to the old unit will need to be updated."
+
+ShowUnitHide="Hide"
+ShowUnitHide="Hide ",~Unit
+ShowUnitHideHint="Use the 'Unhide Unit' action to show a unit.  Hidden units do not show up in 'Units In Region' queries."
+
+ShowUnitShow="Unhide"
+ShowUnitShow="Unhide ",~Unit
+ShowUnitShowHint="Use the 'Hide Unit' action to hide a unit.  Hidden units do not show up in 'Units In Region' queries."
+
+SetUnitColor="Change Color"
+SetUnitColor="Change color of ",~Unit," to ",~Color
+SetUnitColorHint="Changing a unit's color does not change the unit's ownership."
+
+SetUnitOwner="Change Owner"
+SetUnitOwner="Change ownership of ",~Unit," to ",~Player," and ",~Change/Retain Color
+SetUnitOwnerHint=
+
+UnitShareVisionBJ="Shared Vision"
+UnitShareVisionBJ=~Grant/Deny," shared vision of ",~Unit," to ",~Player
+UnitShareVisionBJHint="Note that neutral player slots cannot share their vision."
+
+SetUnitPositionLoc="Move Unit (Instantly)"
+SetUnitPositionLoc="Move ",~Unit," instantly to ",~Point
+SetUnitPositionLocHint=
+
+SetUnitPositionLocFacingBJ="Move Unit And Face Angle (Instantly)"
+SetUnitPositionLocFacingBJ="Move ",~Unit," instantly to ",~Point,", facing ",~Direction," degrees"
+SetUnitPositionLocFacingBJHint="The facing angle is expected in degrees, with 0 being east and 90 being north."
+
+SetUnitPositionLocFacingLocBJ="Move Unit And Face Point (Instantly)"
+SetUnitPositionLocFacingLocBJ="Move ",~Unit," instantly to ",~Point,", facing ",~Point
+SetUnitPositionLocFacingLocBJHint=
+
+SetUnitLifePercentBJ="Set Life (To Percentage)"
+SetUnitLifePercentBJ="Set life of ",~Unit," to ",~Percent,"%"
+SetUnitLifePercentBJHint=
+
+SetUnitManaPercentBJ="Set Mana (To Percentage)"
+SetUnitManaPercentBJ="Set mana of ",~Unit," to ",~Percent,"%"
+SetUnitManaPercentBJHint=
+
+SetUnitLifeBJ="Set Life (To Value)"
+SetUnitLifeBJ="Set life of ",~Unit," to ",~Value
+SetUnitLifeBJHint=
+
+SetUnitManaBJ="Set Mana (To Value)"
+SetUnitManaBJ="Set mana of ",~Unit," to ",~Value
+SetUnitManaBJHint=
+
+SetUnitInvulnerable="Make Invulnerable/Vulnerable"
+SetUnitInvulnerable="Make ",~Unit," ",~Invulnerable/Vulnerable
+SetUnitInvulnerableHint=
+
+PauseUnitBJ="Pause/Unpause"
+PauseUnitBJ=~Pause/Unpause," ",~Unit
+PauseUnitBJHint="A paused unit stops and performs no orders, but remembers its orders and continues them upon being unpaused."
+
+PauseAllUnitsBJ="Pause/Unpause All Units"
+PauseAllUnitsBJ=~Pause/Unpause," all units"
+PauseAllUnitsBJHint="A paused unit stops and performs no orders, but remembers its orders and continues them upon being unpaused.  This action only affects units that exist when this action is run."
+
+SetUnitExplodedBJ="Make Unit Explode On Death"
+SetUnitExplodedBJ="Make ",~Unit," ",~Explode/Die Normally," on death"
+SetUnitExplodedBJHint=
+
+UnitSuspendDecayBJ="Suspend Corpse Decay"
+UnitSuspendDecayBJ=~Suspend/Resume," corpse decay for ",~Unit
+UnitSuspendDecayBJHint="This only works on corpses."
+
+UnitAddSleepPerm="Make Unit Sleep"
+UnitAddSleepPerm="Make ",~Unit," ",~Sleep/Remain Awake," when unprovoked"
+UnitAddSleepPermHint="Units owned by players 1 through 12 never sleep."
+
+UnitSetCanSleepBJ="Make Unit Sleep At Night"
+UnitSetCanSleepBJ="Make ",~Unit," ",~Sleep/Remain Awake," when unprovoked at night"
+UnitSetCanSleepBJHint="Units owned by players 1 through 12 never sleep."
+
+UnitWakeUpBJ="Wake Up"
+UnitWakeUpBJ="Wake up ",~Unit
+UnitWakeUpBJHint="This affects nocturnal sleep, not magical sleep."
+
+RescueUnitBJ="Rescue Unit"
+RescueUnitBJ="Rescue ",~Unit," for ",~Player," and ",~Change/Retain Color
+RescueUnitBJHint=
+
+MakeUnitRescuableToForceBJ="Make Rescuable"
+MakeUnitRescuableToForceBJ="Make ",~Unit," ",~Rescuable/Unrescuable," by ",~Player Group
+MakeUnitRescuableToForceBJHint=
+
+SetUnitRescueRange="Set Rescue Range"
+SetUnitRescueRange="Limit rescue events for ",~Unit," to a range of ",~Range
+SetUnitRescueRangeHint="To make a unit rescuable, use 'Unit - Make Rescuable' or set the unit's owner to 'Rescuable'."
+
+SetRescueUnitColorChangeBJ="Set Rescue Behavior For Units"
+SetRescueUnitColorChangeBJ="Make units ",~Change/Retain Color," when rescued"
+SetRescueUnitColorChangeBJHint="By default, units owned by 'Rescuable' players do not change color when rescued.  This action does not affect units that have already been rescued."
+
+SetRescueBuildingColorChangeBJ="Set Rescue Behavior For Buildings"
+SetRescueBuildingColorChangeBJ="Make buildings ",~Change/Retain Color," when rescued"
+SetRescueBuildingColorChangeBJHint="By default, buildings owned by 'Rescuable' players change color when rescued.  This action does not affect buildings that have already been rescued."
+
+SetUnitFacingToFaceUnitTimed="Make Unit Face Unit"
+SetUnitFacingToFaceUnitTimed="Make ",~Unit," face ",~Unit," over ",~Time," seconds"
+SetUnitFacingToFaceUnitTimedHint="Forces a unit to face another unit.  This only works if the source unit is not moving at the time."
+
+SetUnitFacingToFaceLocTimed="Make Unit Face Point"
+SetUnitFacingToFaceLocTimed="Make ",~Unit," face ",~Point," over ",~Time," seconds"
+SetUnitFacingToFaceLocTimedHint="Forces a unit to face a point.  This only works if the source unit is not moving at the time."
+
+SetUnitFacingTimed="Make Unit Face Angle"
+SetUnitFacingTimed="Make ",~Unit," face ",~Angle," over ",~Time," seconds"
+SetUnitFacingTimedHint="Forces a unit to face a directional angle, expected in degrees, with 0 being east.  This only works if the source unit is not moving at the time."
+
+SetUnitMoveSpeed="Set Movement Speed"
+SetUnitMoveSpeed="Set ",~Unit," movement speed to ",~Speed
+SetUnitMoveSpeedHint="Common movement speeds range from 150 to 300."
+
+SetUnitPathing="Turn Collision On/Off"
+SetUnitPathing="Turn collision for ",~Unit," ",~On/Off
+SetUnitPathingHint="Collision-disabled units ignore obstacles, but are still themselves treated as obstacles."
+
+SetUnitAcquireRangeBJ="Set Acquisition Range"
+SetUnitAcquireRangeBJ="Set ",~Unit," acquisition range to ",~Range
+SetUnitAcquireRangeBJHint="The acquisition range of a unit is the distance at which the unit acquires targets to attack."
+
+UnitRemoveBuffsBJ="Remove Buffs"
+UnitRemoveBuffsBJ="Remove ",~Buff Type," buffs from ",~Unit
+UnitRemoveBuffsBJHint=
+
+UnitRemoveAbilityBJ="Remove Ability"
+UnitRemoveAbilityBJ="Remove ",~Ability," from ",~Unit
+UnitRemoveAbilityBJHint="In most cases, removing an ability in this manner is permanent."
+
+IssueTargetOrder="Issue Order Targeting A Unit"
+IssueTargetOrder="Order ",~Unit," to ",~Order," ",~Unit
+IssueTargetOrderHint=
+
+IssuePointOrderLoc="Issue Order Targeting A Point"
+IssuePointOrderLoc="Order ",~Unit," to ",~Order," ",~Point
+IssuePointOrderLocHint=
+
+IssueTargetDestructableOrder="Issue Order Targeting A Destructible"
+IssueTargetDestructableOrder="Order ",~Unit," to ",~Order," ",~Destructible
+IssueTargetDestructableOrderHint=
+
+IssueImmediateOrder="Issue Order With No Target"
+IssueImmediateOrder="Order ",~Unit," to ",~Order
+IssueImmediateOrderHint=
+
+IssueBuildOrderByIdLocBJ="Issue Build Order"
+IssueBuildOrderByIdLocBJ="Order ",~Unit," to build a ",~Unit-Type," at ",~Point
+IssueBuildOrderByIdLocBJHint=
+
+IssueTrainOrderByIdBJ="Issue Train/Upgrade Order"
+IssueTrainOrderByIdBJ="Order ",~Unit," to train/upgrade to a ",~Unit-Type
+IssueTrainOrderByIdBJHint="This action can be used to order a unit to upgrade itself.  A Town Hall, for example, can be upgraded by ordering it to train a Keep."
+
+IssueUpgradeOrderByIdBJ="Issue Research Order"
+IssueUpgradeOrderByIdBJ="Order ",~Unit," to research ",~Tech-Type
+IssueUpgradeOrderByIdBJHint="Weapons and armor upgrades can be researched multiple times via this trigger action."
+
+
+// Unit Group actions
+ForGroup="Pick Every Unit In Unit Group And Do Action"
+ForGroup="Pick every unit in ",~Unit Group," and do ",~Action
+ForGroupHint="Use 'Picked Unit' to refer each unit as it is picked.  This works for every unit in the region, including dead units."
+
+GroupAddUnitSimple="Add Unit"
+GroupAddUnitSimple="Add ",~Unit," to ",~Unit Group
+GroupAddUnitSimpleHint="This adds a unit to a Unit Group variable.  This does not affect the unit itself."
+
+GroupAddGroup="Add Unit Group"
+GroupAddGroup="Add all units of ",~Unit Group," to ",~Unit Group
+GroupAddGroupHint="This adds all units of a unit group to a Unit Group variable.  This does not affect the units themselves."
+
+GroupRemoveUnitSimple="Remove Unit"
+GroupRemoveUnitSimple="Remove ",~Unit," from ",~Unit Group
+GroupRemoveUnitSimpleHint="This removes a unit from a Unit Group variable.  This does not affect the unit itself."
+
+GroupRemoveGroup="Remove Unit Group"
+GroupRemoveGroup="Remove all units of ",~Unit Group," from ",~Unit Group
+GroupRemoveGroupHint="This removes all units of a unit group from a Unit Group variable.  This does not affect the units themselves."
+
+GroupClear="Clear"
+GroupClear="Remove all units from ",~Unit Group
+GroupClearHint="This removes all units from a Unit Group variable.  This does not affect the units themselves."
+
+GroupTargetOrder="Issue Order Targeting A Unit"
+GroupTargetOrder="Order ",~Unit Group," to ",~Order," ",~Unit
+GroupTargetOrderHint=
+
+GroupPointOrderLoc="Issue Order Targeting A Point"
+GroupPointOrderLoc="Order ",~Unit Group," to ",~Order," ",~Point
+GroupPointOrderLocHint=
+
+GroupTargetDestructableOrder="Issue Order Targeting A Destructible"
+GroupTargetDestructableOrder="Order ",~Unit Group," to ",~Order," ",~Destructible
+GroupTargetDestructableOrderHint=
+
+GroupImmediateOrder="Issue Order With No Target"
+GroupImmediateOrder="Order ",~Unit Group," to ",~Order
+GroupImmediateOrderHint=
+
+GroupTrainOrderByIdBJ="Issue Train Order"
+GroupTrainOrderByIdBJ="Order ",~Unit Group," to train a ",~Unit-Type
+GroupTrainOrderByIdBJHint="This action can also be used to order a unit to upgrade itself.  A Town Hall, for example, can be upgraded by ordering it to train a Keep."
+
+
+// Visibility actions
+FogEnableOn="Enable Fog Of War"
+FogEnableOn="Enable fog of war"
+FogEnableOnHint=
+
+FogEnableOff="Disable Fog Of War"
+FogEnableOff="Disable fog of war"
+FogEnableOffHint=
+
+FogMaskEnableOn="Enable Black Mask"
+FogMaskEnableOn="Enable black mask"
+FogMaskEnableOnHint=
+
+FogMaskEnableOff="Disable Black Mask"
+FogMaskEnableOff="Disable black mask"
+FogMaskEnableOffHint=
+
+CreateFogModifierRectBJ="Create Visibility Modifier Region"
+CreateFogModifierRectBJ="Create an initially ",~Enabled/Disabled," visibility modifier for ",~Player," emitting ",~Visibility State," across ",~Region
+CreateFogModifierRectBJHint=
+
+CreateFogModifierRadiusLocBJ="Create Visibility Modifier Circle"
+CreateFogModifierRadiusLocBJ="Create an initially ",~Enabled/Disabled," visibility modifier for ",~Player," emitting ",~Visibility State," from ",~Point," to a radius of ",~Radius
+CreateFogModifierRadiusLocBJHint=
+
+FogModifierStart="Enable Visibility Modifier"
+FogModifierStart="Enable ",~Visibility Modifier
+FogModifierStartHint=
+
+FogModifierStop="Disable Visibility Modifier"
+FogModifierStop="Disable ",~Visibility Modifier
+FogModifierStopHint=
+
+DestroyFogModifier="Destroy Visibility Modifier"
+DestroyFogModifier="Destroy ",~Visibility Modifier
+DestroyFogModifierHint=
+
+
+// Obsolete actions
+//AddPerfLogLabel="** AddPerfLogLabel **"
+//AddPerfLogLabel="** AddPerfLogLabel(",~Label,") **"
+//AddPerfLogLabelHint="** This is for debugging purposes only - remove before ship. **"
+
+//Cheat="** Cheat **"
+//Cheat="** Cheat(",~Label,") **"
+//CheatHint="** This is for debugging purposes only - remove before ship. **"
+
+
+
+//***************************************************************************
+[TriggerCallStrings]
+
+// returns boolean
+IsDestructableAliveBJ="Destructible Doodad Is Alive"
+IsDestructableAliveBJ=~Destructible Doodad," is alive"
+IsDestructableAliveBJHint=
+
+IsDestructableDeadBJ="Destructible Doodad Is Dead"
+IsDestructableDeadBJ=~Destructible Doodad," is dead"
+IsDestructableDeadBJHint=
+
+IsDestructableInvulnerableBJ="Destructible Doodad Is Invulnerable"
+IsDestructableInvulnerableBJ=~Destructible Doodad," is invulnerable"
+IsDestructableInvulnerableBJHint=
+
+IsMapFlagSet="Map Flag Set"
+IsMapFlagSet=~Map Flag," is set"
+IsMapFlagSetHint=
+
+GetStoredBooleanBJ="Load Boolean Value"
+GetStoredBooleanBJ="Load ",~Label," of ",~Category," from ",~Game Cache
+GetStoredBooleanBJHint="If the label is not found, this function returns False."
+
+UnitHasItem="Hero Has Item"
+UnitHasItem=~Hero," has ",~Item
+UnitHasItemHint=
+
+UnitHasItemOfTypeBJ="Hero Has Item Of Type"
+UnitHasItemOfTypeBJ=~Hero," has an item of type ",~Item-Type
+UnitHasItemOfTypeBJHint=
+
+IsSuspendedXP="Experience Is Disabled For Hero"
+IsSuspendedXP="Experience is disabled for ",~Hero
+IsSuspendedXPHint="Use the 'Hero - Enable/Disable Experience' action to disable a Hero's experience."
+
+IsItemInvulnerable="Item Is Invulnerable"
+IsItemInvulnerable=~Item," is invulnerable"
+IsItemInvulnerableHint=
+
+LeaderboardHasPlayerItemBJ="Leaderboard Contains Player"
+LeaderboardHasPlayerItemBJ=~Leaderboard," contains ",~Player
+LeaderboardHasPlayerItemBJHint=
+
+WaygateIsActiveBJ="Way Gate Is Enabled"
+WaygateIsActiveBJ=~Way Gate," is enabled"
+WaygateIsActiveBJHint=
+
+IsPlayerFlagSetBJ="Player Flag Is On"
+IsPlayerFlagSetBJ=~Player Flag," is on for ",~Player
+IsPlayerFlagSetBJHint=
+
+IsPlayerAlly="Player Is An Ally Of Player"
+IsPlayerAlly=~Player," is an ally of ",~Player
+IsPlayerAllyHint=
+
+IsPlayerEnemy="Player Is An Enemy Of Player"
+IsPlayerEnemy=~Player," is an enemy of ",~Player
+IsPlayerEnemyHint=
+
+GetPlayerAlliance="Player Alliance Towards Player"
+GetPlayerAlliance=~Player," is giving ",~Player," ",~Alliance Type
+GetPlayerAllianceHint=
+
+IsPlayerInForce="Player In Player Group"
+IsPlayerInForce=~Player," is in ",~Player Group
+IsPlayerInForceHint=
+
+IsQuestItemCompleted="Quest Requirement Is Completed"
+IsQuestItemCompleted=~Quest Requirement," is completed"
+IsQuestItemCompletedHint=
+
+IsQuestEnabled="Quest Is Enabled"
+IsQuestEnabled=~Quest," is enabled"
+IsQuestEnabledHint=
+
+IsQuestCompleted="Quest Is Completed"
+IsQuestCompleted=~Quest," is completed"
+IsQuestCompletedHint=
+
+IsQuestFailed="Quest Is Failed"
+IsQuestFailed=~Quest," is failed"
+IsQuestFailedHint=
+
+IsQuestDiscovered="Quest Is Discovered"
+IsQuestDiscovered=~Quest," is discovered"
+IsQuestDiscoveredHint=
+
+IsQuestRequired="Quest Is Required"
+IsQuestRequired=~Quest," is required"
+IsQuestRequiredHint=
+
+RectContainsLoc="Region Contains Point"
+RectContainsLoc=~Region," contains ",~Point
+RectContainsLocHint=
+
+IsTriggerEnabled="Trigger Is On"
+IsTriggerEnabled=~Trigger," is on"
+IsTriggerEnabledHint=
+
+TriggerEvaluate="Evaluate Trigger Conditions"
+TriggerEvaluate="Evaluate ",~Trigger," conditions"
+TriggerEvaluateHint=
+
+IsTriggerQueuedBJ="Trigger Is Queued"
+IsTriggerQueuedBJ=~Trigger," is queued"
+IsTriggerQueuedBJHint="Use 'Trigger - Add To Trigger Queue' and 'Trigger - Remove From Trigger Queue' to manipulate the trigger queue."
+
+IsTriggerQueueEmptyBJ="Trigger Queue Is Empty"
+IsTriggerQueueEmptyBJ="The trigger queue is empty"
+IsTriggerQueueEmptyBJHint="Use 'Trigger - Add To Trigger Queue' and 'Trigger - Remove From Trigger Queue' to manipulate the trigger queue."
+
+IsUnitType="Unit Classification Check"
+IsUnitType=~Unit," is ",~Type
+IsUnitTypeHint=
+
+IsUnitInGroup="Unit In Unit Group"
+IsUnitInGroup=~Unit," is in ",~Unit Group
+IsUnitInGroupHint=
+
+RectContainsUnit="Unit In Region"
+RectContainsUnit=~Region," contains ",~Unit
+RectContainsUnitHint=
+
+IsUnitAliveBJ="Unit Is Alive"
+IsUnitAliveBJ=~Unit," is alive"
+IsUnitAliveBJHint=
+
+IsUnitDeadBJ="Unit Is Dead"
+IsUnitDeadBJ=~Unit," is dead"
+IsUnitDeadBJHint=
+
+IsUnitPausedBJ="Unit Is Paused"
+IsUnitPausedBJ=~Unit," is paused"
+IsUnitPausedBJHint=
+
+IsUnitHiddenBJ="Unit Is Hidden"
+IsUnitHiddenBJ=~Unit," is hidden"
+IsUnitHiddenBJHint="A unit can be hidden with the 'Unit - Hide' trigger action, or by placing the unit into a transport, Soul Gem, altar, etc."
+
+IsUnitIllusionBJ="Unit Is An Illusion"
+IsUnitIllusionBJ=~Unit," is an illusion"
+IsUnitIllusionBJHint=
+
+UnitCanSleepPerm="Unit Sleeps"
+UnitCanSleepPerm=~Unit," sleeps when unprovoked"
+UnitCanSleepPermHint="Units owned by players 1 through 12 never sleep."
+
+UnitCanSleepBJ="Unit Sleeps At Night"
+UnitCanSleepBJ=~Unit," sleeps when unprovoked at night"
+UnitCanSleepBJHint="Units owned by players 1 through 12 never sleep."
+
+UnitIsSleepingBJ="Unit Is Sleeping"
+UnitIsSleepingBJ=~Unit," is sleeping"
+UnitIsSleepingBJHint="Units owned by players 1 through 12 never sleep."
+
+IsUnitLoadedBJ="Unit Is Being Transported"
+IsUnitLoadedBJ=~Unit," is being transported"
+IsUnitLoadedBJHint=
+
+IsUnitInTransportBJ="Unit Is In Transport"
+IsUnitInTransportBJ=~Unit," is loaded into ",~Transport
+IsUnitInTransportBJHint=
+
+IsUnitSelected="Unit Selected By Player"
+IsUnitSelected=~Unit," is selected by ",~Player
+IsUnitSelectedHint=
+
+IsUnitAlly="Unit Belongs To An Ally Of Player"
+IsUnitAlly=~Unit," belongs to an ally of ",~Player
+IsUnitAllyHint=
+
+IsUnitEnemy="Unit Belongs To An Enemy Of Player"
+IsUnitEnemy=~Unit," belongs to an enemy of ",~Player
+IsUnitEnemyHint=
+
+IsUnitGroupEmptyBJ="Unit Group Is Empty"
+IsUnitGroupEmptyBJ=~Unit Group," is empty"
+IsUnitGroupEmptyBJHint="This is true if the unit group contains no units."
+
+IsUnitGroupInRectBJ="Units Of Unit Group Are In Region"
+IsUnitGroupInRectBJ="All units of ",~Unit Group," are in ",~Region
+IsUnitGroupInRectBJHint="This is true if every unit in the unit group is in the given region."
+
+IsUnitGroupDeadBJ="Units Of Unit Group Are Dead"
+IsUnitGroupDeadBJ="All units of ",~Unit Group," are dead"
+IsUnitGroupDeadBJHint="This is true if every unit in the unit group is dead."
+
+IsFogEnabled="Fog Of War Enabled"
+IsFogEnabled="Fog of war is enabled"
+IsFogEnabledHint=
+
+IsFogMaskEnabled="Black Mask Enabled"
+IsFogMaskEnabled="Black mask is enabled"
+IsFogMaskEnabledHint=
+
+IsUnitVisible="Unit Is Visible To Player"
+IsUnitVisible=~Unit," is visible to ",~Player
+IsUnitVisibleHint=
+
+IsUnitInvisible="Unit Is Invisible To Player"
+IsUnitInvisible=~Unit," is invisible to ",~Player
+IsUnitInvisibleHint=
+
+IsUnitFogged="Unit Fogged To Player"
+IsUnitFogged=~Unit," is fogged to ",~Player
+IsUnitFoggedHint=
+
+IsUnitMasked="Unit Is Masked To Player"
+IsUnitMasked=~Unit," is masked to ",~Player
+IsUnitMaskedHint=
+
+IsLocationVisibleToPlayer="Point Visible To Player"
+IsLocationVisibleToPlayer=~Point," is visible to ",~Player
+IsLocationVisibleToPlayerHint=
+
+IsLocationFoggedToPlayer="Point Fogged To Player"
+IsLocationFoggedToPlayer=~Point," is fogged for ",~Player
+IsLocationFoggedToPlayerHint=
+
+IsLocationMaskedToPlayer="Point Masked To Player"
+IsLocationMaskedToPlayer=~Point," is masked for ",~Player
+IsLocationMaskedToPlayerHint=
+
+
+// returns integer
+OperatorInt="Arithmetic"
+OperatorInt=~Value," ",~Operator," ",~Value
+OperatorIntHint=
+
+GetForLoopIndexA="For Loop Integer A"
+GetForLoopIndexA="Integer A"
+GetForLoopIndexAHint=
+
+GetForLoopIndexB="For Loop Integer B"
+GetForLoopIndexB="Integer B"
+GetForLoopIndexBHint=
+
+R2I="Convert Real To Integer"
+R2I="Integer(",~Real,")"
+R2RHint=
+
+S2I="Convert String To Integer"
+S2I="Integer(",~String,")"
+S2IHint=
+
+GetLearnedSkillLevel="Learned Skill Level"
+GetLearnedSkillLevel="Learned skill level"
+GetLearnedSkillLevelHint=
+
+GetPlayers="Number Of Players"
+GetPlayers="Number of players"
+GetPlayersHint=
+
+GetTeams="Number Of Teams"
+GetTeams="Number of teams"
+GetTeamsHint=
+
+GetStoredIntegerBJ="Load Integer Value"
+GetStoredIntegerBJ="Load ",~Label," of ",~Category," from ",~Game Cache
+GetStoredIntegerBJHint="If the label is not found, this function returns 0."
+
+GetHeroLevel="Hero Level"
+GetHeroLevel="Hero level of ",~Hero
+GetHeroLevelHint=
+
+GetHeroXP="Hero Experience"
+GetHeroXP="Hero experience of ",~Hero
+GetHeroXPHint=
+
+LeaderboardGetPlayerIndexBJ="Leaderboard Position"
+LeaderboardGetPlayerIndexBJ="Position of ",~Player," in ",~Leaderboard
+LeaderboardGetPlayerIndexBJHint=
+
+GetRandomInt="Random Number"
+GetRandomInt="Random integer number between ",~Minimum," and ",~Maximum
+GetRandomIntHint=
+
+IMinBJ="Min"
+IMinBJ="Min(",~Value 1,", ",~Value 2,")"
+IMinBJHint=
+
+IMaxBJ="Max"
+IMaxBJ="Max(",~Value 1,", ",~Value 2,")"
+IMaxBJHint=
+
+IAbsBJ="Abs"
+IAbsBJ="Abs(",~Value,")"
+IAbsBJHint="Calculates the absolute value of a number."
+
+ISignBJ="Sign"
+ISignBJ="Sign(",~Value,")"
+ISignBJHint="Calculates the sign of a number.  The sign of a negative number is -1.  The sign of a nonnegative number is 1."
+
+ModuloInteger="Modulo"
+ModuloInteger=~Dividend," mod ",~Divisor
+ModuloIntegerHint="Calculates the remainder of a division.  Example: 12 mod 5 = 2."
+
+GetResourceAmount="Gold Remaining"
+GetResourceAmount="Resource quantity contained in ",~Gold Mine
+GetResourceAmountHint="This is for use with Gold Mines."
+
+GetPlayerState="Player Property"
+GetPlayerState=~Player," ",~Property
+GetPlayerStateHint=
+
+GetConvertedPlayerId="Player Number"
+GetConvertedPlayerId="Player number of ",~Player
+GetConvertedPlayerIdHint="Player numbers range from 1 to 16."
+
+GetPlayerStructureCount="Count Structures"
+GetPlayerStructureCount="Count structures controlled by ",~Player," (",~Include/Exclude," incomplete structures)"
+GetPlayerStructureCountHint=
+
+GetPlayerUnitCount="Count Non-Structure Units"
+GetPlayerUnitCount="Count non-structure units controlled by ",~Player," (",~Include/Exclude," incomplete units)"
+GetPlayerUnitCountHint=
+
+GetPlayerTechCountSimple="Current Research Level"
+GetPlayerTechCountSimple="Current research level of ",~Tech," for ",~Player
+GetPlayerTechCountSimpleHint="Returns 0 or 1 for simple tech, or 0..3 for three-stage upgrades."
+
+GetPlayerTechMaxAllowedSwap="Max Research Level"
+GetPlayerTechMaxAllowedSwap="Max research level of ",~Tech," for ",~Player
+GetPlayerTechMaxAllowedSwapHint="Returns 0 or 1 for simple tech, or 0..3 for three-stage upgrades."
+
+GetPlayerTeam="Player Team"
+GetPlayerTeam="Team number of ",~Player
+GetPlayerTeamHint=
+
+CountPlayersInForceBJ="Count Players In Player Group"
+CountPlayersInForceBJ="Number of players in ",~Player Group
+CountPlayersInForceBJHint=
+
+CountUnitsInGroup="Count Units In Unit Group"
+CountUnitsInGroup="Number of units in ",~Unit Group
+CountUnitsInGroupHint=
+
+GetUnitFoodUsed="Supply Used By Unit"
+GetUnitFoodUsed="Supply used by ",~Unit
+GetUnitFoodUsedHint=
+
+GetUnitFoodMade="Supply Provided By Unit"
+GetUnitFoodMade="Supply provided by ",~Unit
+GetUnitFoodMadeHint=
+
+GetFoodMade="Supply Provided By Unit-Type"
+GetFoodMade="Supply provided by ",~Unit-Type
+GetFoodMadeHint=
+
+GetUnitPointValue="Point-Value Of Unit"
+GetUnitPointValue="Point-value of ",~Unit
+GetUnitPointValueHint=
+
+GetUnitPointValueByType="Point-Value Of Unit-Type"
+GetUnitPointValueByType="Point-value of ",~Unit-Type
+GetUnitPointValueByTypeHint=
+
+GetTriggerEvalCount="Trigger Evaluation Count"
+GetTriggerEvalCount="Evaluation count of ",~Trigger
+GetTriggerEvalCountHint=
+
+GetTriggerExecCount="Trigger Execution Count"
+GetTriggerExecCount="Execution count of ",~Trigger
+GetTriggerExecCountHint=
+
+QueuedTriggerCountBJ="Count Triggers In Trigger Queue"
+QueuedTriggerCountBJ="Number of triggers in the trigger queue"
+QueuedTriggerCountBJHint="Use 'Trigger - Add To Trigger Queue' and 'Trigger - Remove From Trigger Queue' to manipulate the trigger queue."
+
+
+// returns real
+OperatorReal="Arithmetic"
+OperatorReal=~Value," ",~Operator," ",~Value
+OperatorRealHint=
+
+GetLocationX="X Of Point"
+GetLocationX="X of ",~Point
+GetLocationXHint=
+
+GetLocationY="Y Of Point"
+GetLocationY="Y of ",~Point
+GetLocationYHint=
+
+CameraSetupGetFieldSwap="Camera Field Of Camera Object"
+CameraSetupGetFieldSwap=~Camera Field," of ",~Camera Object
+CameraSetupGetFieldSwapHint=
+
+GetCameraField="Camera Field Of Current Camera"
+GetCameraField=~Camera Field," of the current camera view"
+GetCameraFieldHint=
+
+GetCameraTargetPositionX="Target X Of Current Camera"
+GetCameraTargetPositionX="Target X of current camera view"
+GetCameraTargetPositionXHint=
+
+GetCameraTargetPositionY="Target Y Of Current Camera"
+GetCameraTargetPositionY="Target Y of current camera view"
+GetCameraTargetPositionYHint=
+
+GetCameraTargetPositionZ="Target Z Of Current Camera"
+GetCameraTargetPositionZ="Target Z of current camera view"
+GetCameraTargetPositionZHint=
+
+GetCameraEyePositionX="Source X Of Current Camera"
+GetCameraEyePositionX="Source X of current camera view"
+GetCameraEyePositionXHint=
+
+GetCameraEyePositionY="Source Y Of Current Camera"
+GetCameraEyePositionY="Source Y of current camera view"
+GetCameraEyePositionYHint=
+
+GetCameraEyePositionZ="Source Z Of Current Camera"
+GetCameraEyePositionZ="Source Z of current camera view"
+GetCameraEyePositionZHint=
+
+GetLastTransmissionDurationBJ="Last Transmission Length"
+GetLastTransmissionDurationBJ="Length of last transmission"
+GetLastTransmissionDurationBJHint="This is the length, in seconds, of the last used 'Cinematic - Transmission' action."
+
+I2R="Convert Integer To Real"
+I2R="Real(",~Integer,")"
+I2RHint=
+
+S2R="Convert String To Real"
+S2R="Real(",~String,")"
+S2RHint=
+
+Deg2Rad="Convert Degrees To Radians"
+Deg2Rad="Radians(",~Degrees,")"
+Deg2RadHint=
+
+Rad2Deg="Convert Radians To Degrees"
+Rad2Deg="Degrees(",~Radians,")"
+Rad2DegHint=
+
+TimerGetElapsed="Elapsed Time"
+TimerGetElapsed="Elapsed time for ",~Timer
+TimerGetElapsedHint=
+
+TimerGetRemaining="Remaining Time"
+TimerGetRemaining="Remaining time for ",~Timer
+TimerGetRemainingHint=
+
+TimerGetTimeout="Initial Time"
+TimerGetTimeout="Initial time for ",~Timer
+TimerGetTimeoutHint=
+
+GetDestructableLife="Life"
+GetDestructableLife="Current life of ",~Destructible Doodad
+GetDestructableLifeHint="Destructibles lose life when attacked or harvested.  Like units, destructibles die when their life reaches 0."
+
+GetDestructableMaxLife="Max Life"
+GetDestructableMaxLife="Max life of ",~Destructible Doodad
+GetDestructableMaxLifeHint="Destructibles lose life when attacked or harvested.  Like units, destructibles die when their life reaches 0."
+
+GetEventDamage="Damage Taken"
+GetEventDamage="Damage taken"
+GetEventDamageHint="When responding to a 'Takes Damage' unit event, this refers to the amount of damage being taken."
+
+GetTimeOfDay="Time Of Day"
+GetTimeOfDay="In-game time of day"
+GetTimeOfDayHint="This is in game time, not real time."
+
+GetTimeOfDayScalePercentBJ="Time Of Day Speed"
+GetTimeOfDayScalePercentBJ="Current time of day speed"
+GetTimeOfDayScalePercentBJHint="This returns the time of day speed as a percentage of the default time of day speed."
+
+GetStoredRealBJ="Load Real Value"
+GetStoredRealBJ="Load ",~Label," of ",~Category," from ",~Game Cache
+GetStoredRealBJHint="If the label is not found, this function returns 0."
+
+GetItemLifeBJ="Item Life"
+GetItemLifeBJ="Current life of ",~Item
+GetItemLifeBJHint=
+
+GetRandomReal="Random Number"
+GetRandomReal="Random real number between ",~Minimum," and ",~Maximum
+GetRandomRealHint=
+
+GetRandomDirectionDeg="Random Angle"
+GetRandomDirectionDeg="Random angle"
+GetRandomDirectionDegHint="This is a random real number in the range of 0 to 360, for use as an angle or a unit facing."
+
+GetRandomPercentageBJ="Random Percentage"
+GetRandomPercentageBJ="Random percentage"
+GetRandomPercentageBJHint="This is a random real number in the range of 0 to 100, for use as a percentage."
+
+DistanceBetweenPoints="Distance Between Points"
+DistanceBetweenPoints="Distance between ",~Point," and ",~Point
+DistanceBetweenPointsHint="Returns the Euclidean distance between two points, ignoring height."
+
+AngleBetweenPoints="Angle Between Points"
+AngleBetweenPoints="Angle from ",~Point," to ",~Point
+AngleBetweenPointsHint="Returns the angle of a line from one point to another."
+
+RMinBJ="Min"
+RMinBJ="Min(",~Value 1,", ",~Value 2,")"
+RMinBJHint=
+
+RMaxBJ="Max"
+RMaxBJ="Max(",~Value 1,", ",~Value 2,")"
+RMaxBJHint=
+
+RAbsBJ="Abs"
+RAbsBJ="Abs(",~Value,")"
+RAbsBJHint="Calculates the absolute value of a number."
+
+RSignBJ="Sign"
+RSignBJ="Sign(",~Value,")"
+RSignBJHint="Calculates the sign of a number.  The sign of a negative number is -1.  The sign of a nonnegative number is 1."
+
+ModuloReal="Modulo"
+ModuloReal=~Dividend," mod ",~Divisor
+ModuloRealHint="Calculates the remainder of a division.  Example: 9.0 mod 2.5 = 1.5."
+
+Pow="Power"
+Pow="Power(",~Value,", ",~Power,")"
+PowHint=
+
+SquareRoot="Square Root"
+SquareRoot="Square root(",~Value,")"
+SquareRootHint=
+
+SinBJ="Sine"
+SinBJ="Sin(",~Angle,")"
+SinBJHint="The angle specified is expected to be in degrees."
+
+CosBJ="Cosine"
+CosBJ="Cos(",~Angle,")"
+CosBJHint="The angle specified is expected to be in degrees."
+
+TanBJ="Tangent"
+TanBJ="Tan(",~Angle,")"
+TanBJHint="The angle specified is expected to be in degrees."
+
+AsinBJ="Arcsine"
+AsinBJ="Asin(",~Value,")"
+AsinBJHint="The angle returned is in degrees."
+
+AcosBJ="Arccosine"
+AcosBJ="Acos(",~Value,")"
+AcosBJHint="The angle returned is in degrees."
+
+AtanBJ="Arctangent (From Angle)"
+AtanBJ="Atan(",~Value,")"
+AtanBJHint="The angle returned is in degrees."
+
+Atan2BJ="Arctangent (From Deltas)"
+Atan2BJ="Atan2(",~Y,", ",~X,")"
+Atan2BJHint="The angle returned is in degrees."
+
+GetPlayerHandicapXPBJ="Experience Rate"
+GetPlayerHandicapXPBJ=~Player," experience rate"
+GetPlayerHandicapXPBJHint="Experience rates are specified as percentages, with 100% being normal."
+
+GetPlayerHandicapBJ="Handicap"
+GetPlayerHandicapBJ=~Player," handicap"
+GetPlayerHandicapBJHint="Handicap values are specified as percentages, with 100% being normal."
+
+GetRectCenterX="Center X Of Region"
+GetRectCenterX="Center X of ",~Region
+GetRectCenterXHint=
+
+GetRectCenterY="Center Y Of Region"
+GetRectCenterY="Center Y of ",~Region
+GetRectCenterYHint=
+
+GetRectMinX="Min X Of Region"
+GetRectMinX="Min X of ",~Region
+GetRectMinXHint=
+
+GetRectMinY="Min Y Of Region"
+GetRectMinY="Min Y of ",~Region
+GetRectMinYHint=
+
+GetRectMaxX="Max X Of Region"
+GetRectMaxX="Max X of ",~Region
+GetRectMaxXHint=
+
+GetRectMaxY="Max Y Of Region"
+GetRectMaxY="Max Y of ",~Region
+GetRectMaxYHint=
+
+GetRectWidthBJ="Width Of Region"
+GetRectWidthBJ="Width of ",~Region
+GetRectWidthBJHint=
+
+GetRectHeightBJ="Height Of Region"
+GetRectHeightBJ="Height of ",~Region
+GetRectHeightBJHint=
+
+GetSoundDurationBJ="Sound Length"
+GetSoundDurationBJ="Length of ",~Sound
+GetSoundDurationBJHint="This returns the duration of a sound, in seconds."
+
+GetSoundFileDurationBJ="Music Length"
+GetSoundFileDurationBJ="Length of ",~Music
+GetSoundFileDurationBJHint="This returns the duration of a music score, in seconds."
+
+GetUnitStateSwap="Property"
+GetUnitStateSwap=~Property," of ",~Unit
+GetUnitStateSwapHint=
+
+GetUnitFacing="Facing Angle"
+GetUnitFacing="Facing of ",~Unit
+GetUnitFacingHint="The angle returned is in degrees, with 0 facing east."
+
+GetUnitMoveSpeed="Movement Speed (Current)"
+GetUnitMoveSpeed="Current movement speed of ",~Unit
+GetUnitMoveSpeedHint="Movement speeds commonly range from 150 to 300."
+
+GetUnitDefaultMoveSpeed="Movement Speed (Default)"
+GetUnitDefaultMoveSpeed="Default movement speed of ",~Unit
+GetUnitDefaultMoveSpeedHint="Movement speeds commonly range from 150 to 300."
+
+GetUnitAcquireRange="Acquisition Range (Current)"
+GetUnitAcquireRange="Current acquisition range of ",~Unit
+GetUnitAcquireRangeHint=
+
+GetUnitDefaultAcquireRange="Acquisition Range (Default)"
+GetUnitDefaultAcquireRange="Default acquisition range of ",~Unit
+GetUnitDefaultAcquireRangeHint=
+
+GetUnitTurnSpeed="Turn Speed (Current)"
+GetUnitTurnSpeed="Current turn speed of ",~Unit
+GetUnitTurnSpeedHint="A unit's turn speed determines how quickly the unit changes direction.  Turn speed values are expected to be between 0 and 1, with smaller numbers indicating slower turning rates."
+
+GetUnitDefaultTurnSpeed="Turn Speed (Default)"
+GetUnitDefaultTurnSpeed="Default turn speed of ",~Unit
+GetUnitDefaultTurnSpeedHint="A unit's turn speed determines how quickly the unit changes direction.  Turn speed values are expected to be between 0 and 1, with smaller numbers indicating slower turning rates."
+
+GetUnitPropWindowBJ="Prop Window Angle (Current)"
+GetUnitPropWindowBJ="Current prop window angle of ",~Unit
+GetUnitPropWindowBJHint=
+
+GetUnitDefaultPropWindowBJ="Prop Window Angle (Default)"
+GetUnitDefaultPropWindowBJ="Default prop window angle of ",~Unit
+GetUnitDefaultPropWindowBJHint=
+
+GetUnitFlyHeight="Flying Height (Current)"
+GetUnitFlyHeight="Current flying height of ",~Unit
+GetUnitFlyHeightHint="Only flying and hovering units use flying heights."
+
+GetUnitDefaultFlyHeight="Flying Height (Default)
+GetUnitDefaultFlyHeight="Default flying height of ",~Unit
+GetUnitDefaultFlyHeightHint=
+
+
+// returns string
+OperatorString="Concatenate Strings"
+OperatorString=~String 1," + ",~String 2
+OperatorStringHint=
+
+SubStringBJ="Substring"
+SubStringBJ="Substring(",~String,", ",~Start,", ",~End,")"
+SubStringBJHint="Example:  Substring(''Grunts stink'', 2, 4) = ''run''."
+
+I2S="Convert Integer To String"
+I2S="String(",~Integer,")"
+I2SHint=
+
+R2S="Convert Real To String"
+R2S="String(",~Real,")"
+R2SHint=
+
+R2SW="Convert Real To Formatted String"
+R2SW="String(",~Real,", ",~Width,", ",~Precision,")"
+R2SWHint="Examples:  String(1.234, 7, 2) = ''   1.23''.  String(1.234, 2, 5) = ''1.23400''."
+
+OrderId2StringBJ="Convert Order To String"
+OrderId2StringBJ="String(",~Order,")"
+OrderId2StringBJHint="Example order strings:  ''harvest'', ''move'', ''smart'', ''attack''."
+
+UnitId2StringBJ="Convert Unit-Type To String"
+UnitId2StringBJ="String(",~Unit-Type,")"
+UnitId2StringBJHint=
+
+GetEventPlayerChatString="Entered Chat String"
+GetEventPlayerChatString="Entered chat string"
+GetEventPlayerChatStringHint=
+
+GetEventPlayerChatStringMatched="Matched Chat String"
+GetEventPlayerChatStringMatched="Matched chat string"
+GetEventPlayerChatStringMatchedHint=
+
+GetPlayerName="Player Name"
+GetPlayerName="Name of ",~Player
+GetPlayerNameHint=
+
+GetUnitName="Unit Name"
+GetUnitName="Name of ",~Unit
+GetUnitNameHint="This returns the internal name of a unit, not the proper name of units or heroes."
+
+
+// returns location
+GetRectCenter="Center Of Region"
+GetRectCenter="Center of ",~Region
+GetRectCenterHint=
+
+GetRandomLocInRect="Random Point In Region"
+GetRandomLocInRect="Random point in ",~Region
+GetRandomLocInRectHint=
+
+OffsetLocation="Point With Offset"
+OffsetLocation=~Point," offset by (",~X,", ",~Y,")"
+OffsetLocationHint="The offset values are (X, Y)."
+
+PolarProjectionBJ="Point With Polar Offset"
+PolarProjectionBJ=~Point," offset by ",~Distance," towards ",~Angle," degrees"
+PolarProjectionBJHint=
+
+CameraSetupGetDestPositionLoc="Target Of Camera Object"
+CameraSetupGetDestPositionLoc="Target of ",~Camera Object
+CameraSetupGetDestPositionLocHint=
+
+GetCameraTargetPositionLoc="Target Of Current Camera"
+GetCameraTargetPositionLoc="Target of current camera view"
+GetCameraTargetPositionLocHint=
+
+GetCameraEyePositionLoc="Source Of Current Camera"
+GetCameraEyePositionLoc="Source of current camera view"
+GetCameraEyePositionLocHint=
+
+Location="Convert Coordinates To Point"
+Location="Point(",~X,", ",~Y,")"
+LocationHint=
+
+GetDestructableLoc="Position Of Destructible"
+GetDestructableLoc="Position of ",~Destructible
+GetDestructableLocHint=
+
+GetOrderPointLoc="Target Point Of Issued Order"
+GetOrderPointLoc="Target point of issued order"
+GetOrderPointLocHint="When responding to an 'Is Issued An Order Targeting A Point' unit event, this refers to the target of the order."
+
+GetItemLoc="Position Of Item"
+GetItemLoc="Position of ",~Item
+GetItemLocHint=
+
+WaygateGetDestinationLocBJ="Way Gate Destination"
+WaygateGetDestinationLocBJ="Destination of ",~Way Gate
+WaygateGetDestinationLocBJHint=
+
+GetPlayerStartLocationLoc="Player Start Location"
+GetPlayerStartLocationLoc=~Player," start location"
+GetPlayerStartLocationLocHint=
+
+GetUnitLoc="Position Of Unit"
+GetUnitLoc="Position of ",~Unit
+GetUnitLocHint=
+
+
+// returns rect
+GetCurrentCameraBoundsMapRectBJ="Current Camera Bounds"
+GetCurrentCameraBoundsMapRectBJ="Current camera bounds"
+GetCurrentCameraBoundsMapRectBJHint="This is the area to which the camera target is currently restricted."
+
+GetCameraBoundsMapRect="Initial Camera Bounds"
+GetCameraBoundsMapRect="Initial camera bounds"
+GetCameraBoundsMapRectHint="This is the area to which the camera target is restricted at map initialization."
+
+GetPlayableMapRect="Playable Map Area"
+GetPlayableMapRect="Playable map area"
+GetPlayableMapRectHint="This is the area to which units are restricted.  This area typically extends just beyond the camera bounds."
+
+GetEntireMapRect="Entire Map"
+GetEntireMapRect="Entire map"
+GetEntireMapRectHint="This is the entire map, including areas which cannot normally be reached by units."
+
+OffsetRectBJ="Region With Offset
+OffsetRectBJ=~Region," offset by (",~X,", ",~Y,")"
+OffsetRectBJHint="The offset values are (X, Y)."
+
+RectFromCenterSizeBJ="Convert Point With Size To Region"
+RectFromCenterSizeBJ="Region centered at ",~Point," with size (",~Width,", ",~Height,")"
+RectFromCenterSizeBJHint="The size values are (Width, Height)."
+
+Rect="Convert Coordinates To Region"
+Rect="Region(",~X1,", ",~Y1,", ",~X2,", ",~Y2,")"
+RectHint="Choose four coordinates (min X, min Y, max X, max Y) to define a rectangular region on the map."
+
+RectFromLoc="Convert Points To Region"
+RectFromLoc="Region(",~Point 1,", ",~Point 2,")"
+RectFromLocHint="Choose two points to define a rectangular region on the map."
+
+
+// returns unit
+GetLastCreatedUnit="Last Created Unit"
+GetLastCreatedUnit="Last created unit"
+GetLastCreatedUnitHint="This is the last unit created via a 'Unit - Create' trigger action."
+
+GetLastRestoredUnitBJ="Last Restored Unit"
+GetLastRestoredUnitBJ="Last restored unit"
+GetLastRestoredUnitBJHint="This is the last unit restored via a 'Game Cache - Restore Unit' trigger action."
+
+GetLastReplacedUnitBJ="Last Replaced Unit"
+GetLastReplacedUnitBJ="Last replaced unit"
+GetLastReplacedUnitBJHint="This is the last unit created via a 'Unit - Replace' trigger action."
+
+GetLastHauntedGoldMine="Last Haunted Gold Mine"
+GetLastHauntedGoldMine="Last Haunted Gold Mine"
+GetLastHauntedGoldMineHint="This is the last Haunted Gold Mine created via a 'Neutral Building - Haunt Gold Mine (Instantly)' trigger action."
+
+GetEnumUnit="Picked Unit"
+GetEnumUnit="Picked unit"
+GetEnumUnitHint="When using the 'Pick Every Unit...' action, this refers to each unit as it is picked."
+
+GetFilterUnit="Matching Unit"
+GetFilterUnit="Matching unit"
+GetFilterUnitHint="Use this to refer to the unit being considered for 'Units Matching Condition' functions."
+
+GroupPickRandomUnit="Random Unit From Unit Group"
+GroupPickRandomUnit="Random unit from ",~Unit Group
+GroupPickRandomUnitHint=
+
+GetAttackedUnitBJ="Attacked Unit"
+GetAttackedUnitBJ="Attacked unit"
+GetAttackedUnitBJHint="When responding to an 'Is Attacked' unit event, this refers to the unit that is being attacked."
+
+GetAttacker="Attacking Unit"
+GetAttacker="Attacking unit"
+GetAttackerHint="When responding to an 'Is Attacked' unit event, this refers to the attacking unit."
+
+GetCancelledStructure="Cancelled Structure"
+GetCancelledStructure="Cancelled structure"
+GetCancelledStructureHint="When responding to a 'Cancels Construction' unit event, this refers to the unit whose construction has been cancelled."
+
+GetConstructedStructure="Constructed Structure"
+GetConstructedStructure="Constructed structure"
+GetConstructedStructureHint="When responding to a 'Finishes Construction' unit event, this refers to the unit whose construction has finished."
+
+GetConstructingStructure="Constructing Structure"
+GetConstructingStructure="Constructing structure"
+GetConstructingStructureHint="When responding to a 'Begins Construction' unit event, this refers to the unit whose construction has begun."
+
+GetDecayingUnit="Decaying Unit"
+GetDecayingUnit="Decaying unit"
+GetDecayingUnitHint="When responding to a 'Decays' unit event, this refers to the unit that is decaying."
+
+GetDyingUnit="Dying Unit"
+GetDyingUnit="Dying unit"
+GetDyingUnitHint="When responding to a 'Dies' unit event, this refers to the unit that is dying."
+
+GetEnteringUnit="Entering Unit"
+GetEnteringUnit="Entering unit"
+GetEnteringUnitHint="When responding to a 'Unit Enters Region' unit event, this refers to the unit entering the region."
+
+GetManipulatingUnit="Hero Manipulating Item"
+GetManipulatingUnit="Hero manipulating item"
+GetManipulatingUnitHint="When responding to 'Uses/Acquires/Loses An Item' unit events, this refers to the Hero that is manipulating the item."
+
+GetKillingUnitBJ="Killing Unit"
+GetKillingUnitBJ="Killing unit"
+GetKillingUnitBJHint="When responding to a 'Dies' unit event, this refers to the killer of the dying unit.  In cases where a unit dies from a source other than a killing unit, this returns 'No unit'."
+
+GetLearningUnit="Learning Hero"
+GetLearningUnit="Learning Hero"
+GetLearningUnitHint="When responding to a 'Learns A Skill' unit event, this refers to the unit learning the skill."
+
+GetLeavingUnit="Leaving Unit"
+GetLeavingUnit="Leaving unit"
+GetLeavingUnitHint="When responding to a 'Unit Leaves Region' event, this refers to the unit leaving the region."
+
+GetLevelingUnit="Leveling Hero"
+GetLevelingUnit="Leveling Hero"
+GetLevelingUnitHint="When responding to a 'Gains A Level' unit event, this refers to the unit gaining the level."
+
+GetLoadedUnitBJ="Loading Unit"
+GetLoadedUnitBJ="Loading unit"
+GetLoadedUnitBJHint="When responding to an 'Is Loaded Into A Transport' unit event, this refers to the unit that is being loaded."
+
+GetOrderedUnit="Ordered Unit"
+GetOrderedUnit="Ordered unit"
+GetOrderedUnitHint="When responding to an 'Is Issued An Order' unit event, this refers to the unit receiving the order."
+
+GetResearchingUnit="Researching Unit"
+GetResearchingUnit="Researching unit"
+GetResearchingUnitHint="When responding to 'Begins/Cancels/Finishes Research' unit events, this refers to the unit doing the research."
+
+GetRevivableUnit="Revivable Hero"
+GetRevivableUnit="Revivable Hero"
+GetRevivableUnitHint="When responding to a 'Becomes Revivable' unit event, this refers to the unit that has become available for revival."
+
+GetRevivingUnit="Reviving Hero"
+GetRevivingUnit="Reviving Hero"
+GetRevivingUnitHint="When responding to 'Begins/Cancels/Finishes Reviving' unit events, this refers to the unit being revived."
+
+GetSummonedUnit="Summoned Unit"
+GetSummonedUnit="Summoned unit"
+GetSummonedUnitHint="When responding to a 'Is Summoned' unit event, this refers to the unit being summoned."
+
+GetSummoningUnit="Summoning Unit"
+GetSummoningUnit="Summoning unit"
+GetSummoningUnitHint="When responding to a 'Is Summoned' unit event, this refers to the unit performing the summoning."
+
+GetOrderTargetUnit="Target Unit Of Issued Order"
+GetOrderTargetUnit="Target unit of issued order"
+GetOrderTargetUnitHint="When responding to an 'Is Issued An Order Targeting An Object' unit event with a unit target, this refers to the target of the order."
+
+GetEventTargetUnit="Targeted Unit"
+GetEventTargetUnit="Targeted unit"
+GetEventTargetUnitHint="When responding to an 'Acquires A Target' unit event, this refers to the target being acquired."
+
+GetTrainedUnit="Trained Unit"
+GetTrainedUnit="Trained unit"
+GetTrainedUnitHint="When responding to a 'Finishes Training A Unit' unit event, this refers to the unit that was trained."
+
+GetTransportUnitBJ="Transporting Unit"
+GetTransportUnitBJ="Transporting unit"
+GetTransportUnitBJHint="When responding to an 'Is Loaded Into A Transport' unit event, this refers to the transport that loaded the unit."
+
+GetTriggerUnit="Triggering Unit"
+GetTriggerUnit="Triggering unit"
+GetTriggerUnitHint=
+
+
+// returns unitcode
+GetUnitTypeId="Unit-Type Of Unit"
+GetUnitTypeId="Unit-type of ",~Unit
+GetUnitTypeIdHint=
+
+ChooseRandomCreepBJ="Random Creep Unit-Type"
+ChooseRandomCreepBJ="Random level ",~Level," creep unit-type"
+ChooseRandomCreepBJHint=
+
+ChooseRandomNPBuildingBJ="Random Neutral Building Unit-Type"
+ChooseRandomNPBuildingBJ="Random neutral building unit-type"
+ChooseRandomNPBuildingBJHint=
+
+String2UnitIdBJ="Convert String To Unit-Type"
+String2UnitIdBJ="Unit-type(",~String,")"
+String2UnitIdBJHint=
+
+GetTrainedUnitType="Trained Unit-Type"
+GetTrainedUnitType="Trained unit-type"
+GetTrainedUnitTypeHint="When responding to 'Begins/Cancels/Finishes Training A Unit' unit events, this refers to the unit-type of the unit that is being trained."
+
+
+// returns ordercode
+String2OrderIdBJ="Convert String To Order"
+String2OrderIdBJ="Order(",~String,")"
+String2OrderIdBJHint="Example order strings:  ''harvest'', ''move'', ''smart'', ''attack''."
+
+UnitId2OrderIdBJ="Convert Unit-Type To Order"
+UnitId2OrderIdBJ="Order(",~Unit-Type,")"
+UnitId2OrderIdBJHint=
+
+GetIssuedOrderIdBJ="Issued Order"
+GetIssuedOrderIdBJ="Issued order"
+GetIssuedOrderIdBJHint="When responding to 'Is Issued An Order' unit events, this refers to the order being issued."
+
+
+// returns destructable
+GetLastCreatedDestructable="Last Created Destructible Doodad"
+GetLastCreatedDestructable="Last created destructible doodad"
+GetLastCreatedDestructableHint="This is the last destructible doodad created via a 'Destructible - Create' trigger action."
+
+RandomDestructableInRectSimpleBJ="Random Destructible Doodad In Region"
+RandomDestructableInRectSimpleBJ="Random destructible doodad in ",~Region
+RandomDestructableInRectSimpleBJHint=
+
+RandomDestructableInRectBJ="Random Destructible Doodad In Region Matching Condition"
+RandomDestructableInRectBJ="Random destructible doodad in ",~Region," matching ",~Condition
+RandomDestructableInRectBJHint=
+
+GetEnumDestructable="Picked Destructible Doodad"
+GetEnumDestructable="Picked destructible doodad"
+GetEnumDestructableHint="When using the 'Pick Every Destructible Doodad...' action, this refers to each destructible doodad as it is picked."
+
+GetFilterDestructable="Matching Destructible Doodad"
+GetFilterDestructable="Matching destructible doodad"
+GetFilterDestructableHint="Use this to refer to the destructible doodad being considered for the 'Random Destructible Doodad' functions."
+
+GetDyingDestructable="Dying Destructible Doodad"
+GetDyingDestructable="Dying destructible doodad"
+GetDyingDestructableHint="When responding to a 'Destructible Doodad Dies' event, this refers to the destructible doodad that is dying."
+
+GetOrderTargetDestructable="Target Destructible Doodad Of Issued Order"
+GetOrderTargetDestructable="Target destructible doodad of issued order"
+GetOrderTargetDestructableHint="When responding to an 'Is Issued An Order Targeting An Object' unit event with a destructible doodad target, this refers to the target of the order."
+
+
+// returns destructablecode
+GetDestructableTypeId="Destructible-Type of Destructible"
+GetDestructableTypeId="Destructible-type of ",~Destructible
+GetDestructableTypeIdHint=
+
+
+// returns item
+GetLastCreatedItem="Last Created Item"
+GetLastCreatedItem="Last created item"
+GetLastCreatedItemHint="This is the last item created via an 'Item - Create' or 'Hero - Create Item For Hero' trigger action."
+
+GetLastRemovedItem="Last Dropped Item"
+GetLastRemovedItem="Last dropped item"
+GetLastRemovedItemHint="This is the last item dropped via a 'Hero - Drop Item' trigger action."
+
+UnitItemInSlotBJ="Item Carried By Hero"
+UnitItemInSlotBJ="Item carried by ",~Hero," in slot ",~Index
+UnitItemInSlotBJHint=
+
+GetItemOfTypeFromUnitBJ="Item Carried By Hero Of Type"
+GetItemOfTypeFromUnitBJ="Item carried by ",~Hero," of type ",~Item-Type
+GetItemOfTypeFromUnitBJHint=
+
+GetManipulatedItem="Item Being Manipulated"
+GetManipulatedItem="Item being manipulated"
+GetManipulatedItemHint="When responding to 'Uses/Acquires/Loses An Item' unit events, this refers to the item being manipulated."
+
+GetOrderTargetItem="Target Item Of Issued Order"
+GetOrderTargetItem="Target item of issued order"
+GetOrderTargetItemHint="When responding to an 'Is Issued An Order Targeting An Object' unit event with an item target, this refers to the target of the order."
+
+
+// returns itemcode
+GetItemTypeId="Item-Type of Item"
+GetItemTypeId="Item-type of ",~Item
+GetItemTypeIdHint=
+
+ChooseRandomItemBJ="Random Item-Type"
+ChooseRandomItemBJ="Random level ",~Level," item-type"
+ChooseRandomItemBJHint=
+
+
+// returns techcode
+GetResearched="Researched Tech-Type"
+GetResearched="Researched tech-type"
+GetResearchedHint="When responding to 'Begins/Cancels/Finishes Research' unit events, this refers to the tech-type being researched."
+
+
+// returns heroskillcode
+GetLearnedSkillBJ="Learned Hero Skill"
+GetLearnedSkillBJ="Learned Hero Skill"
+GetLearnedSkillBJHint=
+
+
+// returns player
+GetEnumPlayer="Picked Player"
+GetEnumPlayer="Picked player"
+GetEnumPlayerHint="When using the 'Pick Every Player...' action, this refers to each player as he/she is picked."
+
+GetFilterPlayer="Matching Player"
+GetFilterPlayer="Matching player"
+GetFilterPlayerHint="Use this to refer to the player being considered for the 'All Players Matching Condition' function."
+
+GetOwningPlayer="Owner Of Unit"
+GetOwningPlayer="Owner of ",~Unit
+GetOwningPlayerHint=
+
+GetItemPlayer="Owner Of Item"
+GetItemPlayer="Owner of ",~Item
+GetItemPlayerHint=
+
+ForcePickRandomPlayer="Random Player From Player Group"
+ForcePickRandomPlayer="Random player from ",~Player Group
+ForcePickRandomPlayerHint=
+
+ConvertedPlayer="Convert Player Index To Player"
+ConvertedPlayer="Player(",~Player Index,")"
+ConvertedPlayerHint="Player indexes range from 1 to 16."
+
+GetTriggerPlayer="Event Response - Triggering Player"
+GetTriggerPlayer="Triggering player"
+GetTriggerPlayerHint=
+
+
+// returns group
+GetLastCreatedGroup="Last Created Unit Group"
+GetLastCreatedGroup="Last created unit group"
+GetLastCreatedGroupHint="This is the last set of units created via a 'Unit - Create' trigger action."
+
+GetUnitsInRectAll="Units In Region"
+GetUnitsInRectAll="Units in ",~Region
+GetUnitsInRectAllHint=
+
+GetUnitsInRectOfPlayer="Units In Region Owned By Player"
+GetUnitsInRectOfPlayer="Units in ",~Region," owned by ",~Player
+GetUnitsInRectOfPlayerHint=
+
+GetUnitsInRectMatching="Units In Region Matching Condition"
+GetUnitsInRectMatching="Units in ",~Region," matching ",~Condition
+GetUnitsInRectMatchingHint="Use 'Matching Unit' to refer to the unit on whom the comparison is being performed."
+
+GetUnitsInRangeOfLocAll="Units In Range"
+GetUnitsInRangeOfLocAll="Units within ",~Radius," of ",~Point
+GetUnitsInRangeOfLocAllHint=
+
+GetUnitsInRangeOfLocMatching="Units In Range Matching Condition"
+GetUnitsInRangeOfLocMatching="Units within ",~Radius," of ",~Point," matching ",~Condition
+GetUnitsInRangeOfLocMatchingHint="Use 'Matching Unit' to refer to the unit on whom the comparison is being performed."
+
+GetUnitsOfPlayerAll="Units Owned By Player"
+GetUnitsOfPlayerAll="Units owned by ",~Player
+GetUnitsOfPlayerAllHint=
+
+GetUnitsOfPlayerAndTypeId="Units Owned By Player Of Type"
+GetUnitsOfPlayerAndTypeId="Units owned by ",~Player," of type ",~Unit-Type
+GetUnitsOfPlayerAndTypeIdHint=
+
+GetUnitsOfPlayerMatching="Units Owned By Player Matching Condition"
+GetUnitsOfPlayerMatching="Units owned by ",~Player," matching ",~Condition
+GetUnitsOfPlayerMatchingHint="Use 'Matching Unit' to refer to the unit on whom the comparison is being performed."
+
+GetUnitsOfTypeIdAll="Units Of Type"
+GetUnitsOfTypeIdAll="Units of type ",~Unit-Type
+GetUnitsOfTypeIdAllHint=
+
+GetUnitsSelectedAll="Units Selected"
+GetUnitsSelectedAll="Units currently selected by ",~Player
+GetUnitsSelectedAllHint=
+
+
+// returns force
+GetPlayersAll="All Players"
+GetPlayersAll="All players"
+GetPlayersAllHint="Includes unused and neutral players."
+
+GetPlayersByMapControl="All Players Of Control"
+GetPlayersByMapControl="All players controlled by a ",~Control Type," player"
+GetPlayersByMapControlHint=
+
+GetPlayersMatching="All Players Matching Condition"
+GetPlayersMatching="All players matching ",~Condition
+GetPlayersMatchingHint="Use 'Matching Player' to refer to the player on whom the comparison is being performed.  This includes unused and neutral players."
+
+GetPlayersAllies="Allies Of Player"
+GetPlayersAllies="All allies of ",~Player
+GetPlayersAlliesHint="All allies of the specified player, including him/herself."
+
+GetPlayersEnemies="Enemies Of Player"
+GetPlayersEnemies="All enemies of ",~Player
+GetPlayersEnemiesHint="All enemies of the specified player."
+
+GetForceOfPlayer="Convert Player To Player Group"
+GetForceOfPlayer="Player group(",~Player,")"
+GetForceOfPlayerHint=
+
+
+// returns race
+GetPlayerRace="Race Of Player"
+GetPlayerRace="Race of ",~Player
+GetPlayerRaceHint=
+
+GetUnitRace="Race Of Unit"
+GetUnitRace="Race of ",~Unit
+GetUnitRaceHint=
+
+
+// returns camerasetup
+GetCurrentCameraSetup="Current Camera"
+GetCurrentCameraSetup="Current camera"
+GetCurrentCameraSetupHint=
+
+
+// returns fogmodifier
+GetLastCreatedFogModifier="Last Created Visibility Modifier"
+GetLastCreatedFogModifier="Last created visibility modifier"
+GetLastCreatedFogModifierHint="This is the last visibility modifier created via a 'Visibility - Create Visibility Modifier' trigger action."
+
+
+// returns trigger
+GetTriggeringTrigger="This Trigger"
+GetTriggeringTrigger="This trigger"
+GetTriggeringTriggerHint=
+
+
+// returns gamedifficulty
+GetGameDifficulty="Difficulty Level"
+GetGameDifficulty="Difficulty level"
+GetGameDifficultyHint=
+
+
+// returns gamespeed
+GetGameSpeed="Current Game Speed"
+GetGameSpeed="Current game speed"
+GetGameSpeedHint=
+
+
+// returns mapcontrol
+GetPlayerController="Player Controller"
+GetPlayerController=~Player," controller"
+GetPlayerControllerHint=
+
+
+// returns playercolor
+GetPlayerColor="Color of Player"
+GetPlayerColor="Color of ",~Player
+GetPlayerColorHint=
+
+
+// returns playerslotstate
+GetPlayerSlotState="Player Slot Status"
+GetPlayerSlotState=~Player," slot status"
+GetPlayerSlotStateHint=
+
+
+// returns effect
+GetLastCreatedEffectBJ="Last Created Special Effect"
+GetLastCreatedEffectBJ="Last created special effect"
+GetLastCreatedEffectBJHint=
+
+
+// returns weathereffect
+GetLastCreatedWeatherEffect="Last Created Weather Effect"
+GetLastCreatedWeatherEffect="Last created weather effect"
+GetLastCreatedWeatherEffectHint="This is the last weather effect created via an 'Environment - Create Weather Effect' trigger action."
+
+
+// returns sound
+GetLastPlayedSound="Last Played Sound"
+GetLastPlayedSound="Last played sound"
+GetLastPlayedSoundHint="This is the last sound played via a 'Sound - Play Sound' or 'Cinematic - Transmission' trigger action."
+
+
+// returns music
+GetLastPlayedMusic="Last Played Music"
+GetLastPlayedMusic="Last played music"
+GetLastPlayedMusicHint="This is the last music played via a 'Sound - Play Music' trigger action."
+
+
+// returns quest
+GetLastCreatedQuestBJ="Last Created Quest"
+GetLastCreatedQuestBJ="Last created quest"
+GetLastCreatedQuestBJHint="This is the last quest created via a 'Quest - Create Quest' trigger action."
+
+
+// returns questitem
+GetLastCreatedQuestItemBJ="Last Created Quest Requirement"
+GetLastCreatedQuestItemBJ="Last created quest requirement"
+GetLastCreatedQuestItemBJHint="This is the last quest requirement created via a 'Quest - Create Quest Requirement' trigger action."
+
+
+// returns defeatcondition
+GetLastCreatedDefeatConditionBJ="Last Created Defeat Condition"
+GetLastCreatedDefeatConditionBJ="Last created defeat condition"
+GetLastCreatedDefeatConditionBJHint="This is the last defeat condition created via a 'Quest - Create Defeat Condition' trigger action."
+
+
+// returns dialog
+GetClickedDialogBJ="Event Response - Clicked Dialog"
+GetClickedDialogBJ="Clicked dialog"
+GetClickedDialogBJHint="When responding to a 'Dialog - Dialog Button Click' event, this refers to the dialog containing the clicked button."
+
+
+// returns button
+GetLastCreatedButtonBJ="Last Created Dialog Button"
+GetLastCreatedButtonBJ="Last created dialog Button"
+GetLastCreatedButtonBJHint="This is the last dialog button created via a 'Dialog - Create Dialog Button' trigger action."
+
+GetClickedButtonBJ="Event Response - Clicked Dialog Button"
+GetClickedButtonBJ="Clicked dialog button"
+GetClickedButtonBJHint="When responding to a 'Dialog - Button Clicked' event, this refers to the dialog button that is being clicked."
+
+
+// returns leaderboard
+GetLastCreatedLeaderboard="Last Created Leaderboard"
+GetLastCreatedLeaderboard="Last created leaderboard"
+GetLastCreatedLeaderboardHint="This is the last leaderboard created via a 'Leaderboard - Create Leaderboard' trigger action."
+
+PlayerGetLeaderboardBJ="Leaderboard Of Player"
+PlayerGetLeaderboardBJ="Leaderboard of ",~Player
+PlayerGetLeaderboardBJHint="Each player can have at most one leaderboard."
+
+
+// returns timer
+GetLastCreatedTimerBJ="Last Started Timer"
+GetLastCreatedTimerBJ="Last started timer"
+GetLastCreatedTimerBJHint="This is the last timer started via a 'Countdown Timer - Start Timer' trigger action."
+
+GetExpiredTimer="Event Response - Expiring Timer"
+GetExpiredTimer="Expiring timer"
+GetExpiredTimerHint="When responding to a 'Time - Timer Expires' event, this refers to the timer that is expiring."
+
+
+// returns timerdialog
+GetLastCreatedTimerDialogBJ="Last Created Timer Window"
+GetLastCreatedTimerDialogBJ="Last created timer window"
+GetLastCreatedTimerDialogBJHint="This is the last timer window created via a 'Countdown Timer - Create Timer Window' trigger action."
+
+
+// returns gamecache
+GetLastCreatedGameCacheBJ="Last Created Game Cache"
+GetLastCreatedGameCacheBJ="Last created game cache"
+GetLastCreatedGameCacheBJHint="This is the last game cache created via a 'Game Cache - Create Game Cache' trigger action."
