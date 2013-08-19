@@ -18,7 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#define BOOST_TEST_MODULE TxtTest
+#define BOOST_TEST_MODULE TriggersTest
 #include <boost/test/unit_test.hpp>
 #include <sstream>
 #include <iostream>
