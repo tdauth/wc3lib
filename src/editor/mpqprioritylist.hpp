@@ -142,6 +142,7 @@ class MpqPriorityList
 		typedef std::map<KUrl, Resource*> Resources;
 		typedef boost::ptr_map<BOOST_SCOPED_ENUM(TeamColor), Texture> TeamColorTextures;
 		typedef boost::scoped_ptr<map::TriggerData> TriggerDataPtr;
+		typedef boost::scoped_ptr<map::TriggerStrings> TriggerStringsPtr;
 
 		void setLocale(mpq::MpqFile::Locale locale);
 		mpq::MpqFile::Locale locale() const;
@@ -236,6 +237,17 @@ class MpqPriorityList
 		 * \note Call \ref refreshTriggerData() before using trigger data.
 		 */
 		const TriggerDataPtr& triggerData() const;
+		
+		/**
+		 * \param window Widget which is used for KIO download.
+		 * \sa triggerStrings()
+		 */
+		void refreshTriggerStrings(QWidget *window, const KUrl &url = KUrl("UI/TriggerStrings.txt")) throw (Exception);
+		/**
+		 * Trigger strings which are shared between maps usually.
+		 * \note Call \ref refreshTriggerStrings() before using trigger strings.
+		 */
+		const TriggerStringsPtr& triggerStrings() const;
 
 		/**
 		 * Returns all corresponding key value pairs of \p group from a .txt like file with URL \p url using \p widget as download window.
@@ -272,6 +284,7 @@ class MpqPriorityList
 		mutable TeamColorTextures m_teamColorTextures;
 		mutable TeamColorTextures m_teamGlowTextures;
 		mutable TriggerDataPtr m_triggerData;
+		mutable TriggerStringsPtr m_triggerStrings;
 };
 
 inline void MpqPriorityList::setLocale(mpq::MpqFile::Locale locale)
@@ -375,6 +388,29 @@ inline void MpqPriorityList::refreshTriggerData(QWidget *window, const KUrl &url
 inline const MpqPriorityList::TriggerDataPtr& MpqPriorityList::triggerData() const
 {
 	return m_triggerData;
+}
+
+inline void MpqPriorityList::refreshTriggerStrings(QWidget *window, const KUrl &url) throw (Exception)
+{
+	QString target;
+
+	if (!this->download(url, target, window))
+		throw Exception(_("Unable to download file \"UI/TriggerStrings.txt\"."));
+
+	qDebug() << "Trigger strings target: " << target;
+	TriggerStringsPtr ptr(new map::TriggerStrings());
+	ifstream ifstream(target.toUtf8().constData(), std::ios::binary | std::ios::in);
+
+	if (!ifstream)
+		throw Exception(boost::format(_("Unable to read from file \"%1%\".")) % target.toUtf8().constData());
+
+	ptr->read(ifstream);
+	m_triggerStrings.swap(ptr); // exception safe
+}
+
+inline const MpqPriorityList::TriggerStringsPtr& MpqPriorityList::triggerStrings() const
+{
+	return m_triggerStrings;
 }
 
 }

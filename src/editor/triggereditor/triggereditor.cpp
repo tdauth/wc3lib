@@ -357,6 +357,33 @@ void TriggerEditor::loadTriggerData()
 	}
 }
 
+void TriggerEditor::loadTriggerStrings()
+{
+	if (source() == 0)
+	{
+		KMessageBox::error(this, tr("No source available!"));
+		
+		return;
+	}
+	
+	KUrl url = KFileDialog::getOpenUrl(KUrl(), i18n("*|All Files\n*.txt|Warcraft III Trigger Strings"), this, i18n("Open trigger strings"));
+
+	if (url.isEmpty())
+		return;
+
+	try
+	{
+		this->source()->refreshTriggerStrings(this, url);
+	}
+	catch (std::exception &exception)
+	{
+		KMessageBox::error(this, i18n("Unable to read trigger strings from file \"%1\".\nException: \"%2\".", url.toLocalFile(), exception.what()));
+
+		return;
+	}
+}
+
+
 void TriggerEditor::itemClicked(QTreeWidgetItem *item, int column)
 {
 	if (item == rootItem())
@@ -413,6 +440,10 @@ void TriggerEditor::createFileActions(class KMenu *menu)
 	action = new KAction(KIcon(":/actions/loadtriggerdata.png"), i18n("Load trigger data"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(loadTriggerData()));
 	triggerActionCollection()->addAction("loadtriggerdata", action);
+	
+	action = new KAction(KIcon(":/actions/loadtriggerstrings.png"), i18n("Load trigger strings"), this);
+	connect(action, SIGNAL(triggered()), this, SLOT(loadTriggerStrings()));
+	triggerActionCollection()->addAction("loadtriggerstrings", action);
 
 	triggerActionCollection()->associateWidget(menu);
 }

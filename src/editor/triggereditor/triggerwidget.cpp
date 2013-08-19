@@ -166,7 +166,8 @@ void TriggerWidget::itemDoubleClicked(QTreeWidgetItem *item, int column)
 		qDebug() << "Got trigger function: " << (*iterator)->name().c_str();
 		
 		map::TriggerData *triggerData = triggerEditor()->source()->triggerData().get();
-		TriggerFunctionDialog *dialog = new TriggerFunctionDialog(triggerData, this);
+		map::TriggerStrings *triggerStrings = triggerEditor()->source()->triggerStrings().get();
+		TriggerFunctionDialog *dialog = new TriggerFunctionDialog(triggerData, triggerStrings, this);
 		BOOST_SCOPED_ENUM(map::TriggerFunction::Type) type = map::TriggerFunction::Type::Event;
 		
 		if (item->parent() == conditionsItem()) {

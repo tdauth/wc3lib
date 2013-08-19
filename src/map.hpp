@@ -54,6 +54,7 @@
 #include "map/triggerfunction.hpp"
 #include "map/triggerfunctionparameter.hpp"
 #include "map/triggers.hpp"
+#include "map/triggerstrings.hpp"
 #include "map/txt.hpp"
 #include "map/variable.hpp"
 #include "map/w3g.hpp"

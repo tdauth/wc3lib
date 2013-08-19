@@ -35,20 +35,6 @@ TriggerFunction::TriggerFunction() : m_type(TriggerFunction::Type::Event), m_nam
 {
 }
 
-class FunctionVisitor : public boost::static_visitor<string>
-{
-	public:
-		string operator()(string v) const
-		{
-			return v;
-		}
-		
-		string operator()(TriggerData::Type *v) const
-		{
-			return v->name();
-		}
-};
-
 std::streamsize TriggerFunction::read(InputStream &istream, const TriggerData &triggerData) throw (class Exception)
 {
 	std::streamsize size = 0;
@@ -110,7 +96,7 @@ std::streamsize TriggerFunction::read(InputStream &istream, const TriggerData &t
 	wc3lib::read<int32>(istream, (int32&)this->m_isEnabled, size);
 	
 	if (count == 1) {
-		const string firstParameter = boost::apply_visitor(FunctionVisitor(), iterator->second->types()[(this->type() == TriggerFunction::Type::Call ? 1 : 0)]);
+		const string firstParameter = boost::apply_visitor(TriggerData::FunctionArgumentVisitor(), iterator->second->types()[(this->type() == TriggerFunction::Type::Call ? 1 : 0)]);
 		
 		// cancel if first parameter is nothing
 		if (firstParameter == "nothing") {

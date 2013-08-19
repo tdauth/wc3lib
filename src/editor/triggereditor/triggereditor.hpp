@@ -119,6 +119,7 @@ class TriggerEditor : public Module
 		void openTrigger(map::Trigger *trigger);
 		
 		void loadTriggerData();
+		void loadTriggerStrings();
 
 	protected slots:
 		void itemClicked(class QTreeWidgetItem *item, int column);

@@ -186,6 +186,20 @@ class TriggerData : public FileFormat
 				Values m_defaults;
 				Values m_limits;
 		};
+		
+		class FunctionArgumentVisitor : public boost::static_visitor<string>
+		{
+			public:
+				string operator()(string v) const
+				{
+					return v;
+				}
+				
+				string operator()(TriggerData::Type *v) const
+				{
+					return v->name();
+				}
+		};
 
 		// Defines function calls which may be used as parameter values
 		// Key: Function name
