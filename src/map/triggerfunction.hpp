@@ -53,8 +53,11 @@ class TriggerFunction : public Format
 
 		TriggerFunction();
 
+		void setType(BOOST_SCOPED_ENUM(Type) type);
 		BOOST_SCOPED_ENUM(Type) type() const;
+		void setName(const string &name);
 		const string& name() const;
+		void setIsEnabled(bool isEnabled);
 		bool isEnabled() const;
 		Parameters& parameters();
 		const Parameters& parameters() const;
@@ -75,14 +78,29 @@ class TriggerFunction : public Format
 		Parameters m_parameters;
 };
 
+inline void TriggerFunction::setType(BOOST_SCOPED_ENUM(TriggerFunction::Type) type)
+{
+	this->m_type = type;
+}
+
 inline BOOST_SCOPED_ENUM(TriggerFunction::Type) TriggerFunction::type() const
 {
 	return m_type;
 }
 
+inline void TriggerFunction::setName(const string& name)
+{
+	this->m_name = name;
+}
+
 inline const string& TriggerFunction::name() const
 {
 	return m_name;
+}
+
+inline void TriggerFunction::setIsEnabled(bool isEnabled)
+{
+	this->m_isEnabled = isEnabled;
 }
 
 inline bool TriggerFunction::isEnabled() const

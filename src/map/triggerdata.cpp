@@ -39,6 +39,11 @@ TriggerData::TriggerData()
 	m_specialTypes.insert("Null");
 }
 
+// Value 2: Optional flag (defaults to 0) indicating to disable display of category name
+TriggerData::Category::Category() : m_displayName(true)
+{
+}
+
 std::streamsize TriggerData::Category::read(InputStream &istream) throw (Exception)
 {
 	return 0;
@@ -154,6 +159,8 @@ void TriggerData::readFunction(const Txt::Pair& ref, boost::ptr_map<string, Func
 	if (!boost::starts_with(code, "_")) {
 		std::auto_ptr<FunctionType> functionPtr(new FunctionType());
 		function = functionPtr.get();
+		function->setCode(code);
+		std::cerr << "New function: \"" << code << "\"" << std::endl; // TEST
 		functions.insert(code, functionPtr);
 	} else {
 		code = code.substr(1);
@@ -177,7 +184,6 @@ void TriggerData::readFunction(const Txt::Pair& ref, boost::ptr_map<string, Func
 		function = iterator->second;
 	}
 	
-	function->setCode(code);
 	SplitVector values;
 	boost::algorithm::split(values, ref.second, boost::is_any_of(","), boost::algorithm::token_compress_on);
 	
@@ -282,7 +288,7 @@ std::streamsize TriggerData::read(InputStream &istream) throw (Exception)
 		}
 		
 		if (values.size() >= 3) {
-			category->setDisplayName(boost::lexical_cast<bool>(values[2]));
+			category->setDisplayName(!boost::lexical_cast<bool>(values[2]));
 		}
 		
 		this->categories().insert(name, category);

@@ -32,6 +32,9 @@ namespace wc3lib
 namespace editor
 {
 
+/**
+ * Simple modal dialog which allows users to edit global variables of triggers.
+ */
 class VariablesDialog : public QDialog, protected Ui::VariablesDialog
 {
 	public:
@@ -39,6 +42,9 @@ class VariablesDialog : public QDialog, protected Ui::VariablesDialog
 
 		class TriggerEditor* triggerEditor() const;
 
+		/**
+		 * Fills dialog with list of global variables from \p triggers.
+		 */
 		void showVariables(map::Triggers *triggers);
 
 		map::TriggerData::Type* variableType(const map::Variable &variable);

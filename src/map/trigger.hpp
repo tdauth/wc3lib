@@ -54,6 +54,7 @@ class Trigger : public Format
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
 		class Triggers* triggers() const;
+		void setName(const string &name);
 		const string& name() const;
 		void setDescription(const string &description);
 		const string& description() const;
@@ -83,6 +84,11 @@ class Trigger : public Format
 		int32 m_category;
 		Functions m_functions;
 };
+
+inline void Trigger::setName(const string& name)
+{
+	this->m_name = name;
+}
 
 inline const string& Trigger::name() const
 {

@@ -41,7 +41,9 @@ class TriggerCategory : public Format
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
+		void setIndex(int32 index);
 		int32 index() const;
+		void setName(const string &name);
 		const string& name() const;
 
 	protected:
@@ -49,9 +51,19 @@ class TriggerCategory : public Format
 		string m_name;
 };
 
+inline void TriggerCategory::setName(const string& name)
+{
+	this->m_name = name;
+}
+
 inline const string& TriggerCategory::name() const
 {
 	return this->m_name;
+}
+
+inline void TriggerCategory::setIndex(int32 index)
+{
+	this->m_index = index;
 }
 
 inline int32 TriggerCategory::index() const

@@ -25,6 +25,7 @@
 
 #include "platform.hpp"
 #include "txt.hpp"
+#include "triggerfunction.hpp"
 
 namespace wc3lib
 {
@@ -79,6 +80,9 @@ class TriggerStrings : public FileFormat
 		const Entries& actions() const;
 		Entries& calls();
 		const Entries& calls() const;
+		
+		Entries& entries(BOOST_SCOPED_ENUM(TriggerFunction::Type) type);
+		const Entries& entries(BOOST_SCOPED_ENUM(TriggerFunction::Type) type) const;
 	
 	private:
 		void readFunction(const Txt::Pair &ref, Entries &functions);
@@ -120,7 +124,6 @@ inline void TriggerStrings::Entry::setName(const string& name)
 	this->m_name = name;
 }
 
-
 inline const string& TriggerStrings::Entry::name() const
 {
 	return this->m_name;
@@ -130,7 +133,6 @@ inline void TriggerStrings::Entry::setLayout(const string& layout)
 {
 	this->m_layout = layout;
 }
-
 
 inline const string& TriggerStrings::Entry::layout() const
 {

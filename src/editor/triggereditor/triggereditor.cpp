@@ -19,12 +19,14 @@
  ***************************************************************************/
 
 #include <boost/filesystem/fstream.hpp>
+#include <boost/cast.hpp>
 
 #include <QtGui>
 
 #include <KFileDialog>
 #include <KMessageBox>
 #include <KMenu>
+#include <KMenuBar>
 #include <KAction>
 #include <KActionCollection>
 
@@ -35,6 +37,7 @@
 #include "../map.hpp"
 #include "variablesdialog.hpp"
 #include "triggertreewidgetitem.hpp"
+#include "../moduletoolbar.hpp"
 
 namespace wc3lib
 {
@@ -42,7 +45,12 @@ namespace wc3lib
 namespace editor
 {
 
-TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_triggers(0), m_customTextTriggers(0), m_freeTriggers(false), m_freeCustomTextTriggers(false), m_treeWidget(new QTreeWidget(this)), m_mapScriptWidget(new MapScriptWidget(this)), m_triggerWidget(new TriggerWidget(this)), m_variablesDialog(0), m_triggerActionCollection(0), Module(source, parent, f)
+string TriggerEditor::cutQuotes(const string& value)
+{
+	return value.substr(1, value.length() - 2); // cut quotes
+}
+
+TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_triggers(0), m_customTextTriggers(0), m_freeTriggers(false), m_freeCustomTextTriggers(false), m_newMenu(0), m_treeWidget(new QTreeWidget(this)), m_mapScriptWidget(new MapScriptWidget(this)), m_triggerWidget(new TriggerWidget(this)), m_variablesDialog(0), m_triggerActionCollection(0), m_newActionCollection(0), Module(source, parent, f)
 {
 	Module::setupUi();
 	QHBoxLayout *hLayout = new QHBoxLayout(this);
@@ -54,6 +62,9 @@ TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 	hLayout->addLayout(vLayout);
 	topLayout()->addLayout(hLayout);
 	treeWidget()->setHeaderHidden(true);
+	treeWidget()->setSelectionMode(QAbstractItemView::SingleSelection);
+	treeWidget()->setSelectionBehavior(QAbstractItemView::SelectItems);
+	treeWidget()->setEditTriggers(QAbstractItemView::SelectedClicked);
 	//centerLayout()->addWidget(triggerWidget());
 
 	connect(treeWidget(), SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(itemClicked(QTreeWidgetItem*,int)));
@@ -96,6 +107,10 @@ void TriggerEditor::openTriggersUrl(const KUrl &url)
 		
 		if (triggerData == 0) {
 			throw std::runtime_error(_("No trigger data loaded."));
+		}
+		
+		if (this->source()->triggerStrings().get() == 0) {
+			throw std::runtime_error(_("No trigger strings loaded."));
 		}
 		
 		triggers->read(ifstream, *triggerData);
@@ -192,6 +207,19 @@ void TriggerEditor::showVariables()
 	variablesDialog()->show();
 }
 
+void TriggerEditor::convertToText()
+{
+	foreach (QTreeWidgetItem *item, treeWidget()->selectedItems()) {
+		if (triggerEntries().contains(item)) {
+			map::Trigger *trigger = boost::polymorphic_cast<TriggerTreeWidgetItem*>(item)->trigger();
+	
+			if (!trigger->isCustomText()) {
+				//
+			}
+		}
+	}
+}
+
 void TriggerEditor::loadTriggers(map::Triggers *triggers)
 {
 	clear();
@@ -223,6 +251,7 @@ void TriggerEditor::loadTriggers(map::Triggers *triggers)
 	for (int32 i = 0; i < this->categories().size(); ++i)
 	{
 		categories()[i] = new QTreeWidgetItem(rootItem());
+		//categories()[i]->setFlags(item->flags() | Qt::ItemIsEditable);
 		categories()[i]->setText(0, triggers->categories()[i].name().c_str());
 		/// \todo set folder icon
 		qDebug() << "Category: " << triggers->categories()[i].name().c_str();
@@ -268,8 +297,9 @@ void TriggerEditor::loadCustomTextTriggers(map::CustomTextTriggers *customTextTr
 	if (triggers() == 0)
 		return;
 
-	if (triggerWidget()->trigger() != 0 && triggerWidget()->trigger()->isCustomText())
+	if (triggerWidget()->trigger() != 0 && triggerWidget()->trigger()->isCustomText()) {
 		triggerWidget()->textEdit()->setText(triggerText(triggerWidget()->trigger()).c_str());
+	}
 }
 
 void TriggerEditor::loadCustomTextTriggers(Map *map)
@@ -383,23 +413,121 @@ void TriggerEditor::loadTriggerStrings()
 	}
 }
 
+void TriggerEditor::newCategory()
+{
+	if (triggers() != 0) {
+		try {
+			std::auto_ptr<map::TriggerCategory> category(new map::TriggerCategory());
+			category->setName(tr("Unnamed category").toUtf8().constData());
+			category->setIndex(boost::numeric_cast<int32>(triggers()->categories().size()));
+			triggers()->categories().push_back(category);
+			
+			QTreeWidgetItem *item = new QTreeWidgetItem(rootItem());
+			item->setText(0, tr("Unnamed category"));
+			/// \todo set folder icon
+			categories().append(item);
+			
+			item->setSelected(true);
+			treeWidget()->scrollToItem(item);
+			
+		} catch (boost::bad_numeric_cast &e) {
+			KMessageBox::error(this, i18n("Invalid category index %1: \"%2\"", triggers()->categories().size(), e.what()));
+		}
+	}
+}
+
+void TriggerEditor::newTrigger()
+{
+	if (triggers() != 0) {
+		QString name = newTriggerName();
+		std::auto_ptr<map::Trigger> trigger(new map::Trigger());
+		trigger->setName(name.toUtf8().constData());
+		trigger->setEnabled(true);
+		
+		QTreeWidgetItem *parent = treeWidget()->selectedItems().first();
+		
+		if (!categories().contains(parent)) {
+			parent = rootItem();
+		}
+		
+		TriggerTreeWidgetItem *item = new TriggerTreeWidgetItem(trigger.get(), parent);
+		item->setText(0, name);
+		/// \todo set icon (initially on, disabled etc.)
+		
+		triggerEntries().push_back(item);
+		triggers()->triggers().push_back(trigger); // push back after getting trigger
+		
+		item->setSelected(true);
+		treeWidget()->scrollToItem(item);
+	}
+}
+
+void TriggerEditor::newTriggerComment()
+{
+
+}
+
+
+void TriggerEditor::newEvent()
+{
+	if (triggers() != 0) {
+		if (triggerWidget()->isVisible()) {
+			triggerWidget()->newEvent();
+		}
+	}
+}
+
+void TriggerEditor::newCondition()
+{
+	if (triggers() != 0) {
+		if (triggerWidget()->isVisible()) {
+			triggerWidget()->newCondition();
+		}
+	}
+}
+
+void TriggerEditor::newAction()
+{
+	if (triggers() != 0) {
+		if (triggerWidget()->isVisible()) {
+			triggerWidget()->newAction();
+		}
+	}
+}
+
+
 
 void TriggerEditor::itemClicked(QTreeWidgetItem *item, int column)
 {
 	if (item == rootItem())
 	{
 		openMapScript();
+		newActionCollection()->action("newtrigger")->setEnabled(false);
+		newActionCollection()->action("newtriggercomment")->setEnabled(false);
+		newActionCollection()->action("newevent")->setEnabled(false);
+		newActionCollection()->action("newcondition")->setEnabled(false);
+		newActionCollection()->action("newaction")->setEnabled(false);
 	}
 	else if (categories().contains(item))
 	{
 		qDebug() << "CATEGORY!";
 		triggerWidget()->hide();
 		mapScriptWidget()->hide();
+		newActionCollection()->action("newtrigger")->setEnabled(true);
+		newActionCollection()->action("newtriggercomment")->setEnabled(true);
+		newActionCollection()->action("newevent")->setEnabled(false);
+		newActionCollection()->action("newcondition")->setEnabled(false);
+		newActionCollection()->action("newaction")->setEnabled(false);
 	}
 	else if (triggerEntries().contains(item))
 	{
 		qDebug() << "TRIGGER!";
 		openTrigger(boost::polymorphic_cast<TriggerTreeWidgetItem*>(item)->trigger());
+		newActionCollection()->action("newtrigger")->setEnabled(true);
+		newActionCollection()->action("newtriggercomment")->setEnabled(true);
+		newActionCollection()->action("newevent")->setEnabled(true);
+		newActionCollection()->action("newcondition")->setEnabled(true);
+		newActionCollection()->action("newaction")->setEnabled(true);
 	}
 	else
 		qDebug() << "Unknown item: " << item->text(0);
@@ -450,15 +578,59 @@ void TriggerEditor::createFileActions(class KMenu *menu)
 
 void TriggerEditor::createEditActions(class KMenu *menu)
 {
-	KAction *action = new KAction(KIcon(":/actions/opentriggers.png"), i18n("Variables ..."), this);
+	menu->addSeparator();
+	KAction *action = new KAction(KIcon(":/actions/variables.png"), i18n("Variables ..."), this);
 	action->setShortcut(i18n("Ctrl+B"));
 	connect(action, SIGNAL(triggered()), this, SLOT(showVariables()));
 	triggerActionCollection()->addAction("variables", action);
+	menu->addAction(action);
+	
+	menu->addSeparator();
+	
+	action = new KAction(KIcon(":/actions/converttotext.png"), i18n("Convert To Custom Text ..."), this);
+	connect(action, SIGNAL(triggered()), this, SLOT(convertToText()));
+	triggerActionCollection()->addAction("converttotext", action);
 	menu->addAction(action);
 }
 
 void TriggerEditor::createMenus(class KMenuBar *menuBar)
 {
+	m_newMenu = new KMenu(i18n("New"), menuBar);
+	
+	m_newActionCollection = new KActionCollection((QObject*)this);
+	
+	KAction *action = new KAction(KIcon(":/actions/newcategory.png"), i18n("Category"), this);
+	connect(action, SIGNAL(triggered()), this, SLOT(newCategory()));
+	newActionCollection()->addAction("newcategory", action);
+	
+	action = new KAction(KIcon(":/actions/newtrigger.png"), i18n("Trigger"), this);
+	connect(action, SIGNAL(triggered()), this, SLOT(newTrigger()));
+	newActionCollection()->addAction("newtrigger", action);
+	
+	action = new KAction(KIcon(":/actions/newtriggercomment.png"), i18n("Trigger Comment"), this);
+	connect(action, SIGNAL(triggered()), this, SLOT(newTriggerComment()));
+	newActionCollection()->addAction("newtriggercomment", action);
+	
+	m_newMenu->addSeparator();
+	
+	action = new KAction(KIcon(":/actions/newevent.png"), i18n("Event"), this);
+	connect(action, SIGNAL(triggered()), this, SLOT(newEvent()));
+	newActionCollection()->addAction("newevent", action);
+	
+	action = new KAction(KIcon(":/actions/newcondition.png"), i18n("Condition"), this);
+	connect(action, SIGNAL(triggered()), this, SLOT(newCondition()));
+	newActionCollection()->addAction("newcondition", action);
+	
+	action = new KAction(KIcon(":/actions/newaction.png"), i18n("Action"), this);
+	connect(action, SIGNAL(triggered()), this, SLOT(newAction()));
+	newActionCollection()->addAction("newaction", action);
+	
+	newActionCollection()->associateWidget(m_newMenu);
+	
+	treeWidget()->setContextMenuPolicy(Qt::ActionsContextMenu);
+	treeWidget()->addAction(newActionCollection()->action("newcategory"));
+	treeWidget()->addAction(newActionCollection()->action("newtrigger"));
+	treeWidget()->addAction(newActionCollection()->action("newtriggercomment"));
 }
 
 void TriggerEditor::createWindowsActions(class WindowsMenu *menu)
@@ -467,6 +639,15 @@ void TriggerEditor::createWindowsActions(class WindowsMenu *menu)
 
 void TriggerEditor::createToolButtons(class ModuleToolBar *toolBar)
 {
+	toolBar->addCustomAction(triggerActionCollection()->action("variables"));
+	toolBar->addSeparator();
+	toolBar->addCustomAction(newActionCollection()->action("newcategory"));
+	toolBar->addCustomAction(newActionCollection()->action("newtrigger"));
+	toolBar->addCustomAction(newActionCollection()->action("newtriggercomment"));
+	toolBar->addSeparator();
+	toolBar->addCustomAction(newActionCollection()->action("newevent"));
+	toolBar->addCustomAction(newActionCollection()->action("newcondition"));
+	toolBar->addCustomAction(newActionCollection()->action("newAction"));
 }
 
 class SettingsInterface* TriggerEditor::settings()
@@ -478,6 +659,29 @@ class SettingsInterface* TriggerEditor::settings()
 void TriggerEditor::onSwitchToMap(Map *map)
 {
 	loadFromMap(map);
+}
+
+QString TriggerEditor::newTriggerName() const
+{
+	int index = 0;
+	
+	if (triggers() != 0) {
+		foreach (map::Triggers::TriggerEntries::const_reference ref,  triggers()->triggers()) {
+			QString triggerName = ref.name().c_str();
+			
+			if (triggerName.startsWith(tr("Unnamed trigger "))) {
+				QString suffix = triggerName.remove(0, tr("Unnamed trigger ").length());
+				bool ok = false;
+				int usedIndex = suffix.toInt(&ok);
+				
+				if (ok && usedIndex > index) {
+					index = usedIndex + 1;
+				}
+			}
+		}
+	}
+	
+	return tr("Unnamed trigger %1").arg(QString::number(index)); // TODO format with 00?
 }
 
 #include "moc_triggereditor.cpp"

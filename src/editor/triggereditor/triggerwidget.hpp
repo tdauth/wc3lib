@@ -27,6 +27,8 @@
 #include "ui_triggertopwidget.h"
 #include "../../map.hpp"
 #include "triggereditor.hpp"
+#include "triggerfunctiondialog.hpp"
+#include "../mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -49,6 +51,10 @@ class TriggerWidget : public QWidget, protected Ui::TriggerTopWidget
 		void enableTrigger(bool enable);
 		void setTriggerInitiallyOn(bool on);
 		void updateTriggerComment();
+		
+		void newEvent();
+		void newCondition();
+		void newAction();
 
 	public:
 		typedef QMap<QTreeWidgetItem*, map::TriggerFunction*> Functions;
@@ -82,7 +88,10 @@ class TriggerWidget : public QWidget, protected Ui::TriggerTopWidget
 		 * \sa functionsTreeWidget()
 		 */
 		KTextEdit* textEdit() const;
+		
+		TriggerFunctionDialog* functionDialog() const;
 
+		QString triggerFunctionName(map::TriggerFunction *triggerFunction) const;
 		void showTrigger(map::Trigger *trigger, const string &customText);
 
 	protected slots:
@@ -93,6 +102,7 @@ class TriggerWidget : public QWidget, protected Ui::TriggerTopWidget
 		Functions& functions();
 
 	private:
+		QTreeWidgetItem* addTreeItem(map::TriggerFunction *function);
 		void refreshBasicTreeItems();
 		
 		TriggerEditor *m_triggerEditor;
@@ -104,6 +114,8 @@ class TriggerWidget : public QWidget, protected Ui::TriggerTopWidget
 		QTreeWidgetItem *m_actionsItem;
 		Functions m_functions;
 		KTextEdit *m_textEdit;
+		
+		class TriggerFunctionDialog *m_functionDialog;
 };
 
 inline TriggerEditor* TriggerWidget::triggerEditor() const
@@ -149,6 +161,15 @@ inline const TriggerWidget::Functions& TriggerWidget::functions() const
 inline KTextEdit* TriggerWidget::textEdit() const
 {
 	return m_textEdit;
+}
+
+inline TriggerFunctionDialog* TriggerWidget::functionDialog() const
+{
+	if (m_functionDialog == 0 && triggerEditor()->source() != 0) {
+		const_cast<TriggerWidget*>(this)->m_functionDialog = new TriggerFunctionDialog(triggerEditor()->source()->triggerData().get(), triggerEditor()->source()->triggerStrings().get(), const_cast<TriggerWidget*>(this));
+	}
+	
+	return m_functionDialog;
 }
 
 inline void TriggerWidget::setTrigger(map::Trigger *trigger)

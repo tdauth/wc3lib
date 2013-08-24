@@ -9,9 +9,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>665</width>
+    <height>538</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>TriggerFunction</string>
@@ -19,9 +25,26 @@
   <property name="locale">
    <locale language="C" country="AnyCountry"/>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
+  <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QLabel" name="label">
+    <widget class="QCheckBox" name="m_checkBoxVariable">
+     <property name="text">
+      <string>Variable:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="KComboBox" name="m_variablesComboBox"/>
+   </item>
+   <item row="0" column="3" colspan="3">
+    <widget class="QPushButton" name="m_variablesPushButton">
+     <property name="text">
+      <string>Edit Variables</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLabel" name="m_categoryLabel">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -33,17 +56,106 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0" colspan="2">
-    <widget class="KComboBox" name="m_categoryComboBox">
+   <item row="3" column="0">
+    <widget class="QCheckBox" name="m_checkBoxFunction">
+     <property name="text">
+      <string>Function:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="KComboBox" name="m_functionComboBox"/>
+   </item>
+   <item row="4" column="1" colspan="5">
+    <widget class="QGroupBox" name="m_textGroupBox">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Text</string>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <widget class="QLabel" name="m_descriptionLabel">
+      <property name="geometry">
+       <rect>
+        <x>7</x>
+        <y>29</y>
+        <width>461</width>
+        <height>101</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Description</string>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::RichText</enum>
+      </property>
+     </widget>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QCheckBox" name="m_checkBoxImported">
+     <property name="text">
+      <string>Imported:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1" colspan="5">
+    <widget class="KComboBox" name="m_importedComboBox"/>
+   </item>
+   <item row="6" column="0">
+    <widget class="QCheckBox" name="m_checkBoxValue">
+     <property name="text">
+      <string>Value:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1" colspan="2">
+    <widget class="QTextEdit" name="m_textEdit">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
     </widget>
    </item>
-   <item row="1" column="2">
+   <item row="6" column="3">
+    <widget class="KIntNumInput" name="m_numInput"/>
+   </item>
+   <item row="6" column="4">
+    <widget class="KDoubleNumInput" name="m_numInputDouble"/>
+   </item>
+   <item row="6" column="5">
+    <widget class="QLabel" name="m_valueLabel">
+     <property name="text">
+      <string>Value description</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1" colspan="2">
+    <widget class="QPushButton" name="m_valuePushButton">
+     <property name="text">
+      <string>Select symbol</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="4" colspan="2">
+    <widget class="KDialogButtonBox" name="m_dialogButtonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3" colspan="3">
     <spacer name="horizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -56,41 +168,24 @@
      </property>
     </spacer>
    </item>
-   <item row="2" column="0" colspan="3">
-    <widget class="KComboBox" name="m_functionComboBox"/>
-   </item>
-   <item row="3" column="0" colspan="2">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Text</string>
-     </property>
-     <property name="flat">
-      <bool>true</bool>
-     </property>
-     <property name="checkable">
-      <bool>false</bool>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="m_descriptionLabel">
-        <property name="text">
-         <string>Description</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="4" column="1" colspan="2">
-    <widget class="KDialogButtonBox" name="m_dialogButtonBox">
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   <item row="2" column="1" colspan="2">
+    <widget class="KComboBox" name="m_categoryComboBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>KDoubleNumInput</class>
+   <extends>QWidget</extends>
+   <header>knuminput.h</header>
+  </customwidget>
   <customwidget>
    <class>KDialogButtonBox</class>
    <extends>QDialogButtonBox</extends>
@@ -101,7 +196,189 @@
    <extends>QComboBox</extends>
    <header>kcombobox.h</header>
   </customwidget>
+  <customwidget>
+   <class>KIntNumInput</class>
+   <extends>QWidget</extends>
+   <header>knuminput.h</header>
+  </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>m_checkBoxVariable</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>m_variablesComboBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>45</x>
+     <y>13</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>109</x>
+     <y>13</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_checkBoxVariable</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>m_variablesPushButton</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>35</x>
+     <y>21</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>382</x>
+     <y>18</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_checkBoxFunction</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>m_categoryComboBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>32</x>
+     <y>92</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>116</x>
+     <y>57</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_checkBoxFunction</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>m_functionComboBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>60</x>
+     <y>81</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>113</x>
+     <y>87</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_checkBoxFunction</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>m_textGroupBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>41</x>
+     <y>90</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>131</x>
+     <y>123</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_checkBoxImported</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>m_importedComboBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>48</x>
+     <y>272</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>133</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_checkBoxValue</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>m_textEdit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>31</x>
+     <y>383</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>193</x>
+     <y>374</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_checkBoxValue</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>m_valuePushButton</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>42</x>
+     <y>382</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>129</x>
+     <y>494</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_checkBoxValue</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>m_numInput</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>62</x>
+     <y>376</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>390</x>
+     <y>388</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_checkBoxValue</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>m_numInputDouble</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>54</x>
+     <y>379</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>499</x>
+     <y>381</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_checkBoxValue</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>m_valueLabel</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>51</x>
+     <y>374</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>592</x>
+     <y>361</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

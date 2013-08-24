@@ -56,6 +56,8 @@ class TriggerData : public FileFormat
 		class Category : public Format
 		{
 			public:
+				Category();
+				
 				void setName(const string &name);
 				// Key: Arbitrary category identifier
 				const string& name() const;

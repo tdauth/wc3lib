@@ -21,7 +21,7 @@ class TriggerTreeWidgetItem : public QTreeWidgetItem
 		TriggerTreeWidgetItem(map::Trigger *trigger, QTreeWidgetItem *parent, const QStringList& strings = QStringList(), int type = Type);
 		
 		map::Trigger* trigger() const;
-
+	
 	private:
 		map::Trigger *m_trigger;;
 };

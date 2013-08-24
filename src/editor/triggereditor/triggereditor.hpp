@@ -37,7 +37,7 @@ namespace editor
 
 /**
  * \brief The trigger editor is one of the most important modules of the World Editor when creating non-melee maps since it offers you the possibility to react on game events and therefore to define a completely new behaviour of the game.
- *
+ * 
  * \note Bear in mind that all code of custom text triggers is stored in a separate file named "war3map.wtc" (\ref map::CustomTextTriggers) whereas all trigger data is stored in "war3map.wtg" (\ref map::Triggers). Therefore you have to load both files to make custom text triggers storable. When using editor mode (\ref hasEditor()) both files will be loaded automatically. Alternatively you could use \ref loadFromMap().
  *
  * \sa VariablesDialog
@@ -49,6 +49,8 @@ class TriggerEditor : public Module
 	public:
 		typedef QVector<QTreeWidgetItem*> TreeItems;
 
+		static string cutQuotes(const string &value);
+		
 		TriggerEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 
 		/**
@@ -65,6 +67,7 @@ class TriggerEditor : public Module
 		class TriggerWidget* triggerWidget() const;
 		class VariablesDialog* variablesDialog() const;
 		class KActionCollection* triggerActionCollection() const;
+		class KActionCollection* newActionCollection() const;
 
 	public slots:
 		/**
@@ -93,6 +96,7 @@ class TriggerEditor : public Module
 		void resetTriggers();
 		void renameTrigger();
 		void showVariables();
+		void convertToText();
 
 		void loadTriggers(map::Triggers *triggers);
 		void loadTriggers(Map *map);
@@ -118,8 +122,25 @@ class TriggerEditor : public Module
 		void openTrigger(int32 index);
 		void openTrigger(map::Trigger *trigger);
 		
+		/**
+		 * Loads corresponding trigger data ("UI/TriggerData.txt") which contains definitions of trigger types, categories, functions etc. and is required to resolve all trigger functions.
+		 * \note Usually, data from the corresponding \ref MpqPriorityList::source() would be taken (\ref MpqPriorityList::triggerData()). This function is useful if the corresponding source has no trigger data file.
+		 */
 		void loadTriggerData();
+		/**
+		 * Loads corresponding trigger strings ("UI/TriggerStrings.txt") which contains string definitions and layouts for all trigger functions defined by trigger data.
+		 * This data is required for proper display of names and parameter selection.
+		 * \note Usually, data from the corresponding \ref MpqPriorityList::source() would be taken (\ref MpqPriorityList::triggerStrings()). This function is useful if the corresponding source has no trigger strings file.
+		 */
 		void loadTriggerStrings();
+		
+		
+		void newCategory();
+		void newTrigger();
+		void newTriggerComment();
+		void newEvent();
+		void newCondition();
+		void newAction();
 
 	protected slots:
 		void itemClicked(class QTreeWidgetItem *item, int column);
@@ -149,6 +170,8 @@ class TriggerEditor : public Module
 		TreeItems& triggerEntries();
 
 	private:
+		QString newTriggerName() const;
+		
 		map::Triggers *m_triggers;
 		map::CustomTextTriggers *m_customTextTriggers;
 		bool m_freeTriggers;
@@ -156,6 +179,8 @@ class TriggerEditor : public Module
 		TreeItems m_categories;
 		TreeItems m_variables;
 		TreeItems m_triggerEntries;
+		
+		KMenu *m_newMenu;
 
 		QTreeWidget *m_treeWidget;
 		QTreeWidgetItem *m_rootItem;
@@ -164,6 +189,7 @@ class TriggerEditor : public Module
 		class VariablesDialog *m_variablesDialog;
 
 		KActionCollection *m_triggerActionCollection;
+		KActionCollection *m_newActionCollection;
 };
 
 inline string TriggerEditor::triggerText(map::Trigger *trigger) const
@@ -244,6 +270,12 @@ inline class KActionCollection* TriggerEditor::triggerActionCollection() const
 {
 	return m_triggerActionCollection;
 }
+
+inline KActionCollection* TriggerEditor::newActionCollection() const
+{
+	return m_newActionCollection;
+}
+
 
 inline KAboutData TriggerEditor::moduleAboutData() const
 {
