@@ -32,8 +32,10 @@ std::streamsize CustomTextTriggers::read(InputStream& istream) throw (Exception)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, m_version, size);
+	
 	int32 number = 0;
 	wc3lib::read(istream, number, size);
+	
 	this->triggerTexts().resize(number);
 
 	for (int32 i = 0; i < number; ++i)
@@ -41,8 +43,23 @@ std::streamsize CustomTextTriggers::read(InputStream& istream) throw (Exception)
 		int32 length = 0;
 		string text;
 		wc3lib::read(istream, length, size);
-		wc3lib::readString(istream, text, size, length);
-		triggerTexts()[i] = text;
+		
+		if (length > 0) {
+			length--; // including 0-terminating char!
+			
+			if (length == 0) { // can only be 0-terminating char!
+				byte nullChar = 0;
+				wc3lib::read<char>(istream, nullChar, size);
+				
+				if (nullChar != '\0') {
+					std::cerr << boost::format(_("Expected 0-terminating character, got \"%1%\".")) % nullChar << std::endl;
+				}
+			} else {
+				wc3lib::readString(istream, text, size); // expects 0-terminating char!
+				
+				triggerTexts()[i] = text;
+			}
+		}
 	}
 
 	return size;
@@ -56,8 +73,12 @@ std::streamsize CustomTextTriggers::write(OutputStream& ostream) const throw (Ex
 
 	BOOST_FOREACH(TriggerTexts::const_reference value, triggerTexts())
 	{
-		wc3lib::write<int32>(ostream, value.size(), size);
-		wc3lib::write(ostream, value.c_str(), size, value.size());
+		const int32 length = value.size() > 0 ? boost::numeric_cast<int32>(value.size() + 1) : 0; // including 0-terminating char!
+		wc3lib::write<int32>(ostream, length, size);
+		
+		if (length > 0) {
+			wc3lib::writeString(ostream, value, size); // appends 0-terminating char!
+		}
 	}
 
 	return size;

@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(SimpleReadTest) {
 }
 
 BOOST_AUTO_TEST_CASE(ReadWriteReadTest) {
-	ifstream in("war3map.wtg", ifstream::in | ifstream::binary); // War Chasers
+	ifstream in("war3map.wct", ifstream::in | ifstream::binary); // War Chasers
 	
 	BOOST_REQUIRE(in);
 	
@@ -71,6 +71,7 @@ BOOST_AUTO_TEST_CASE(ReadWriteReadTest) {
 	
 	BOOST_REQUIRE(valid);
 	
+	in.close();
 	ofstream out("war3map.wctout", ifstream::out | ifstream::binary);
 	
 	try {
@@ -83,9 +84,11 @@ BOOST_AUTO_TEST_CASE(ReadWriteReadTest) {
 	BOOST_REQUIRE(valid);
 	
 	customTextTriggers.triggerTexts().clear(); // ensure it's empty!
+	in.open("war3map.wct", ifstream::in | ifstream::binary); // War Chasers, reopen	
 	
 	try {
 		customTextTriggers.read(in);
+	
 	}
 	catch (...) {
 		valid = false;
