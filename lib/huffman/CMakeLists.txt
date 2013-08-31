@@ -10,4 +10,4 @@ set_property(TARGET huffman PROPERTY LINK_INTERFACE_LIBRARIES "")
 # install
 
 install(TARGETS huffman DESTINATION lib/wc3lib/lib/)
-install(FILES ${wc3lib_LIB_PKLIB_H} PUBLIC_HEADER DESTINATION include/wc3lib/lib/huffman)
+install(FILES ${wc3lib_LIB_HUFFMAN_H} PUBLIC_HEADER DESTINATION include/wc3lib/lib/huffman)
