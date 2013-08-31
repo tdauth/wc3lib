@@ -1,13 +1,17 @@
 WC3LIB_ENABLE_EXCEPTIONS()
 
-WC3LIB_GET_H(wc3lib_LIB_PKLIB_H)
-WC3LIB_GET_SRC(wc3lib_LIB_PKLIB_SRC)
+set(wc3lib_LIB_PKLIB_H
+	pklib.h
+)
+set(wc3lib_LIB_PKLIB_SRC
+	crc32.c
+	explode.c
+	implode.c
+)
 
 add_library(pklib SHARED ${wc3lib_LIB_PKLIB_SRC})
-#target_link_libraries(pklib  ${Boost_LIBRARIES})
-set_property(TARGET pklib PROPERTY LINK_INTERFACE_LIBRARIES "")
 
 # install
 
 install(TARGETS pklib DESTINATION lib/wc3lib/lib/)
-install(FILES ${wc3lib_LIB_PKLIB_H} PUBLIC_HEADER DESTINATION include/wc3lib/lib/pklib)
+install(FILES ${wc3lib_LIB_PKLIB_H} DESTINATION include/wc3lib/lib/pklib)
