@@ -1,7 +1,11 @@
 WC3LIB_ENABLE_EXCEPTIONS()
 
-WC3LIB_GET_H(wc3lib_EDITOR_PLUGIN_BLPCODEC_H)
-WC3LIB_GET_SRC(wc3lib_EDITOR_PLUGIN_BLPCODEC_SRC)
+set(wc3lib_EDITOR_PLUGIN_BLPCODEC_H
+	blpcodec.hpp
+)
+set(wc3lib_EDITOR_PLUGIN_BLPCODEC_SRC
+	blpcodec.cpp
+)
 set(wc3lib_EDITOR_PLUGIN_BLPCODEC_SRC ${wc3lib_EDITOR_PLUGIN_BLPCODEC_SRC} PARENT_SCOPE)
 
 #include_directories(${OGRE_INCLUDE_DIRS})
@@ -18,4 +22,4 @@ endif ()
 
 # install
 install(TARGETS Plugin_BlpCodec DESTINATION lib/OGRE/)
-install(FILES ${wc3lib_EDITOR_PLUGIN_BLPCODEC_H} PUBLIC_HEADER DESTINATION include/wc3lib/editor/Plugin_BlpCodec)
+install(FILES ${wc3lib_EDITOR_PLUGIN_BLPCODEC_H} DESTINATION include/wc3lib/editor/Plugin_BlpCodec)

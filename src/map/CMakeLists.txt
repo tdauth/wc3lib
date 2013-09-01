@@ -103,5 +103,5 @@ if (MAP)
 
 	# install
 	install(TARGETS wc3libmap DESTINATION lib/wc3lib/)
-	install(FILES ${wc3lib_MAP_H} PUBLIC_HEADER DESTINATION include/wc3lib/map)
+	install(FILES ${wc3lib_MAP_H} DESTINATION include/wc3lib/map)
 endif ()

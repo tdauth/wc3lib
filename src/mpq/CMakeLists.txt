@@ -1,8 +1,29 @@
 if (MPQ)
 	WC3LIB_ENABLE_EXCEPTIONS()
 
-	WC3LIB_GET_H(wc3lib_MPQ_H)
-	WC3LIB_GET_SRC(wc3lib_MPQ_SRC)
+	set(wc3lib_MPQ_H
+		algorithm.hpp
+		attributes.hpp
+		block.hpp
+		hash.hpp
+		listfile.hpp
+		mpq.hpp
+		mpqfile.hpp
+		platform.hpp
+		sector.hpp
+		signature.hpp
+	)
+	set(wc3lib_MPQ_SRC
+		algorithm.cpp
+		attributes.cpp
+		block.cpp
+		hash.cpp
+		listfile.cpp
+		mpq.cpp
+		mpqfile.cpp
+		sector.cpp
+		signature.cpp
+	)
 
 	add_library(wc3libmpq SHARED ${wc3lib_MPQ_SRC})
 	target_link_libraries(wc3libmpq wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${BZIP2_LIBRARIES} ${ZLIB_LIBRARIES} huffman wave pklib)
@@ -15,5 +36,5 @@ if (MPQ)
 	# install
 
 	install(TARGETS wc3libmpq DESTINATION lib/wc3lib/)
-	install(FILES ${wc3lib_MPQ_H} PUBLIC_HEADER DESTINATION include/wc3lib/mpq)
+	install(FILES ${wc3lib_MPQ_H} DESTINATION include/wc3lib/mpq)
 endif ()

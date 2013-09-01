@@ -92,6 +92,6 @@ if (EDITOR)
 	add_subdirectory(importmanager)
 
 	# install
-	install(FILES ${wc3lib_EDITOR_H} ${wc3lib_EDITOR_UI_H}  PUBLIC_HEADER DESTINATION include/wc3lib/editor)
+	install(FILES ${wc3lib_EDITOR_H} ${wc3lib_EDITOR_UI_H}  DESTINATION include/wc3lib/editor)
 	install(FILES editor.kcfg DESTINATION ${KCFG_INSTALL_DIR})
 endif ()

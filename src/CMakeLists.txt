@@ -1,7 +1,31 @@
 WC3LIB_ENABLE_EXCEPTIONS()
 
-WC3LIB_GET_H(wc3lib_CORE_H)
-WC3LIB_GET_SRC(wc3lib_CORE_SRC)
+set(wc3lib_CORE_H
+	blp.hpp
+	color.hpp
+	core.hpp
+	editor.hpp
+	exception.hpp
+	format.hpp
+	i18n.hpp
+	internationalisation.hpp
+	lang.hpp
+	libraryloader.hpp
+	map.hpp
+	mdlx.hpp
+	mpq.hpp
+	platform.hpp
+	utilities.hpp
+	vertex.hpp
+	wc3lib.hpp
+)
+set(wc3lib_CORE_SRC
+	exception.cpp
+	format.cpp
+	libraryloader.cpp
+	utilities.cpp
+	vertex.cpp
+)
 
 if (EDITOR OR PLUGINS)
 	include_directories(${CMAKE_CURRENT_BINARY_DIR}/editor) # include binary dir since the KDE configuration class will be generated there and has to be included (also include for moc cxx files)
