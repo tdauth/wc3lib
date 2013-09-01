@@ -1,23 +1,3 @@
-# German translations for wc3lib package
-# German messages for wc3lib.
-# Copyright (C) 2013 THE wc3lib'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the wc3lib package.
-#  <tamino@cdauth.eu>, 2013.
-#
-msgid ""
-msgstr ""
-"Project-Id-Version: wc3lib 0.1\n"
-"Report-Msgid-Bugs-To: tamino@cdauth.eu\n"
-"POT-Creation-Date: 2013-09-01 14:20+0200\n"
-"PO-Revision-Date: 2013-09-01 14:26+0100\n"
-"Last-Translator: Tamino Dauth <tamino@cdauth.eu>\n"
-"Language-Team: German\n"
-"Language: de\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-
 #: ../src/app/wc3converter.cpp:50
 msgid "0.1"
 msgstr ""
@@ -25,22 +5,42 @@ msgstr ""
 #: ../src/app/wc3converter.cpp:103
 #, boost-format
 msgid "%1% does not exist."
-msgstr "%1% existiert nicht."
+msgstr ""
 
 #: ../src/app/wc3converter.cpp:119
 #, boost-format
 msgid "Skipping directory %1% since --recursive is not used."
 msgstr ""
 
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#: ../src/app/wc3converter.cpp:124 ../src/app/wc3converter.cpp:320
+#: ../src/app/wc3converter.cpp:337 ../src/app/wc3converter.cpp:338
+#: ../src/app/wc3converter.cpp:432
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: wc3lib 0.1\n"
+"Report-Msgid-Bugs-To: tamino@cdauth.eu\n"
+"POT-Creation-Date: 2013-09-01 14:20+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
 #: ../src/app/wc3converter.cpp:126
 #, boost-format
 msgid "Path %1% has not extension \"%2%\"."
-msgstr "Pfad %1% hat nicht die Endung \"%2%\"."
+msgstr ""
 
-#: ../src/app/wc3converter.cpp:140
-#: ../src/app/wc3converter.cpp:152
-#: ../src/app/wc3converter.cpp:281
-#: ../src/app/wc3converter.cpp:389
+#: ../src/app/wc3converter.cpp:140 ../src/app/wc3converter.cpp:152
+#: ../src/app/wc3converter.cpp:281 ../src/app/wc3converter.cpp:389
 msgid "blp"
 msgstr ""
 
@@ -68,8 +68,7 @@ msgid ""
 "Used output format is %2%."
 msgstr ""
 
-#: ../src/app/wc3converter.cpp:169
-#: ../src/app/wc3converter.cpp:188
+#: ../src/app/wc3converter.cpp:169 ../src/app/wc3converter.cpp:188
 #: ../src/app/wc3converter.cpp:390
 msgid "mdx"
 msgstr ""
@@ -79,8 +78,7 @@ msgstr ""
 msgid "Read MDX file successfully. %1%.\n"
 msgstr ""
 
-#: ../src/app/wc3converter.cpp:176
-#: ../src/app/wc3converter.cpp:195
+#: ../src/app/wc3converter.cpp:176 ../src/app/wc3converter.cpp:195
 #: ../src/app/wc3converter.cpp:391
 msgid "mdl"
 msgstr ""
@@ -114,8 +112,7 @@ msgid ""
 "Used output format is %2%."
 msgstr ""
 
-#: ../src/app/wc3converter.cpp:212
-#: ../src/app/wc3converter.cpp:238
+#: ../src/app/wc3converter.cpp:212 ../src/app/wc3converter.cpp:238
 #: ../src/app/wc3converter.cpp:392
 msgid "txt"
 msgstr ""
@@ -125,8 +122,7 @@ msgstr ""
 msgid "Read TXT file successfully. %1%.\n"
 msgstr ""
 
-#: ../src/app/wc3converter.cpp:219
-#: ../src/app/wc3converter.cpp:229
+#: ../src/app/wc3converter.cpp:219 ../src/app/wc3converter.cpp:229
 #: ../src/app/wc3converter.cpp:393
 msgid "xml"
 msgstr ""
@@ -153,10 +149,9 @@ msgstr ""
 #: ../src/app/wc3converter.cpp:259
 #, boost-format
 msgid "Reading file \"%1%\"."
-msgstr "Lese Datei \"%1%\"."
+msgstr ""
 
-#: ../src/app/wc3converter.cpp:264
-#: ../src/app/wc3converter.cpp:279
+#: ../src/app/wc3converter.cpp:264 ../src/app/wc3converter.cpp:279
 #, boost-format
 msgid "Error while opening file \"%1%\". Continuing with next one."
 msgstr ""
@@ -166,14 +161,12 @@ msgstr ""
 msgid "File \"%1%\" does already exist. Continuing with next one."
 msgstr ""
 
-#: ../src/app/wc3converter.cpp:283
-#: ../src/app/wc3converter.cpp:390
+#: ../src/app/wc3converter.cpp:283 ../src/app/wc3converter.cpp:390
 #: ../src/app/wc3converter.cpp:391
 msgid "mdlx"
 msgstr ""
 
-#: ../src/app/wc3converter.cpp:285
-#: ../src/app/wc3converter.cpp:392
+#: ../src/app/wc3converter.cpp:285 ../src/app/wc3converter.cpp:392
 #: ../src/app/wc3converter.cpp:393
 msgid "text"
 msgstr ""
@@ -183,14 +176,12 @@ msgstr ""
 msgid "Input format \"%1%\" doesn't belong to any format group."
 msgstr ""
 
-#: ../src/app/wc3converter.cpp:298
-#: ../src/app/wc3converter.cpp:307
+#: ../src/app/wc3converter.cpp:298 ../src/app/wc3converter.cpp:307
 #, boost-format
 msgid "Format \"%1%\" not found!"
 msgstr ""
 
-#: ../src/app/wc3converter.cpp:322
-#: ../src/app/wc3converter.cpp:323
+#: ../src/app/wc3converter.cpp:322 ../src/app/wc3converter.cpp:323
 msgid "wc3converter"
 msgstr ""
 
@@ -239,7 +230,9 @@ msgid "oformat"
 msgstr ""
 
 #: ../src/app/wc3converter.cpp:339
-msgid "If some of the input files are directories they will be iterated recursively and searched for other files with the input format extension."
+msgid ""
+"If some of the input files are directories they will be iterated recursively "
+"and searched for other files with the input format extension."
 msgstr ""
 
 #: ../src/app/wc3converter.cpp:339
@@ -247,11 +240,11 @@ msgid "recursive,R"
 msgstr ""
 
 #: ../src/app/wc3converter.cpp:340
-msgid "Overwrites existing files and directories when creating or extracting files."
+msgid ""
+"Overwrites existing files and directories when creating or extracting files."
 msgstr ""
 
-#: ../src/app/wc3converter.cpp:340
-#: ../src/app/wc3converter.cpp:485
+#: ../src/app/wc3converter.cpp:340 ../src/app/wc3converter.cpp:485
 msgid "overwrite"
 msgstr ""
 
@@ -259,8 +252,7 @@ msgstr ""
 msgid "Input files."
 msgstr ""
 
-#: ../src/app/wc3converter.cpp:341
-#: ../src/app/wc3converter.cpp:347
+#: ../src/app/wc3converter.cpp:341 ../src/app/wc3converter.cpp:347
 msgid "i"
 msgstr ""
 
@@ -268,8 +260,7 @@ msgstr ""
 msgid "Output file or directory (for multiple files)."
 msgstr ""
 
-#: ../src/app/wc3converter.cpp:342
-#: ../src/app/wc3converter.cpp:346
+#: ../src/app/wc3converter.cpp:342 ../src/app/wc3converter.cpp:346
 msgid "o"
 msgstr ""
 
@@ -290,7 +281,8 @@ msgstr ""
 #: ../src/app/wc3converter.cpp:371
 msgid ""
 "Copyright © 2009 Tamino Dauth\n"
-"License GPLv2+: GNU GPL version 2 or later <http://gnu.org/licenses/gpl.html>\n"
+"License GPLv2+: GNU GPL version 2 or later <http://gnu.org/licenses/gpl."
+"html>\n"
 "This is free software: you are free to change and redistribute it.\n"
 "There is NO WARRANTY, to the extent permitted by law."
 msgstr ""
@@ -301,15 +293,13 @@ msgstr ""
 
 #: ../src/app/wc3converter.cpp:382
 msgid "Usage: wc3converter [options] [output file/directory] [input files]"
-msgstr "Verwendung: wc3converter [Optionen] [Ausgabedatei/-verzeichnis] [Eingabedateien]"
+msgstr ""
 
 #: ../src/app/wc3converter.cpp:384
 msgid ""
 "\n"
 "Report bugs to tamino@cdauth.eu or on https://wc3lib.org"
 msgstr ""
-"\n"
-"Melden Sie Bugs an tamino@cdauth.eu oder auf https://wc3lib.org"
 
 #: ../src/app/wc3converter.cpp:389
 msgid "Blizzard Entertainment's texture format."
@@ -340,8 +330,7 @@ msgstr ""
 msgid "%1% - %2%"
 msgstr ""
 
-#: ../src/app/wc3converter.cpp:405
-#: ../src/app/wc3converter.cpp:412
+#: ../src/app/wc3converter.cpp:405 ../src/app/wc3converter.cpp:412
 #, boost-format
 msgid "Format \"%1%\" does not exist."
 msgstr ""
@@ -356,7 +345,9 @@ msgstr ""
 
 #: ../src/app/wc3converter.cpp:447
 #, boost-format
-msgid "Unable to create directory %1% which is required because of multiple input files."
+msgid ""
+"Unable to create directory %1% which is required because of multiple input "
+"files."
 msgstr ""
 
 #: ../src/app/wc3converter.cpp:460
@@ -388,4 +379,3 @@ msgid ""
 "Error occured when converting file %1%: \"%2%\".\n"
 "Skipping file."
 msgstr ""
-

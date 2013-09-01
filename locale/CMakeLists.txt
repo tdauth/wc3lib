@@ -11,6 +11,10 @@ if (APP)
 	if (BLP AND MPQ AND MDLX)
 		install(FILES de_DE/LC_MESSAGES/wc3converter.mo DESTINATION usr/share/locale/de_DE/LC_MESSAGES)
 	endif ()
+	
+	if (MPQ)
+		install(FILES de_DE/LC_MESSAGES/mpq.mo DESTINATION usr/share/locale/de_DE/LC_MESSAGES)
+	endif ()
 
 	if (EDITOR)
 		install(FILES de_DE/LC_MESSAGES/wc3editor.mo DESTINATION usr/share/locale/de_DE/LC_MESSAGES)

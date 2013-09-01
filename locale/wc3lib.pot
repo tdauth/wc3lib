@@ -1,29 +1,29 @@
-#: libraryloader.cpp:53
+#: libraryloader.cpp:53 libraryloader.cpp:54
 msgid ".dylib"
 msgstr ""
 
-#: libraryloader.cpp:55
-msgid ".so"
-msgstr ""
-
-#: libraryloader.cpp:55
+#: libraryloader.cpp:58 libraryloader.cpp:59
 msgid "lib"
 msgstr ""
 
-#: libraryloader.cpp:57
+#: libraryloader.cpp:61 libraryloader.cpp:62
+msgid ".so"
+msgstr ""
+
+#: libraryloader.cpp:64 libraryloader.cpp:65
 msgid ".dll"
 msgstr ""
 
-#: libraryloader.cpp:79
+#: libraryloader.cpp:86
 #, boost-format
-msgid "Error while loading shared object \"%1%\": %2%"
+msgid "Error while loading shared object %1%: %2%"
 msgstr ""
 
-#: libraryloader.cpp:92
+#: libraryloader.cpp:95
 msgid "Error while unloading shared object. Handle is 0."
 msgstr ""
 
-#: libraryloader.cpp:100
+#: libraryloader.cpp:103
 #, boost-format
 msgid "Error while unloading shared object \"%1%\". It has never been loaded."
 msgstr ""
@@ -33,13 +33,13 @@ msgstr ""
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#: libraryloader.cpp:126
+#: libraryloader.cpp:129
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: wc3lib 0.1\n"
 "Report-Msgid-Bugs-To: tamino@cdauth.eu\n"
-"POT-Creation-Date: 2011-08-07 09:48+0000\n"
+"POT-Creation-Date: 2013-09-01 14:20+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -48,7 +48,7 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: libraryloader.cpp:128
+#: libraryloader.cpp:131
 #, boost-format
 msgid "Error while loading symbol \"%1%\" from shared object \"%2%\": %3%"
 msgstr ""

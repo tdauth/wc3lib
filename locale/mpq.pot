@@ -1,15 +1,61 @@
+#: ../src/app/mpq.cpp:60 ../src/app/mpq.cpp:92
+msgid "Uncompressed"
+msgstr ""
+
+#: ../src/app/mpq.cpp:66 ../src/app/mpq.cpp:69 ../src/app/mpq.cpp:72
+#: ../src/app/mpq.cpp:75 ../src/app/mpq.cpp:78 ../src/app/mpq.cpp:81
+#: ../src/app/mpq.cpp:98 ../src/app/mpq.cpp:101 ../src/app/mpq.cpp:104
+#: ../src/app/mpq.cpp:107 ../src/app/mpq.cpp:110 ../src/app/mpq.cpp:113
+#: ../src/app/mpq.cpp:116 ../src/app/mpq.cpp:119
+#, boost-format
+msgid "%1%"
+msgstr ""
+
+#: ../src/app/mpq.cpp:66 ../src/app/mpq.cpp:69 ../src/app/mpq.cpp:72
+#: ../src/app/mpq.cpp:75 ../src/app/mpq.cpp:78 ../src/app/mpq.cpp:81
+#: ../src/app/mpq.cpp:98 ../src/app/mpq.cpp:101 ../src/app/mpq.cpp:104
+#: ../src/app/mpq.cpp:107 ../src/app/mpq.cpp:110 ../src/app/mpq.cpp:113
+#: ../src/app/mpq.cpp:116 ../src/app/mpq.cpp:119
+#, boost-format
+msgid "%1%, %2%"
+msgstr ""
+
+#: ../src/app/mpq.cpp:66
+msgid "File"
+msgstr ""
+
+#: ../src/app/mpq.cpp:69
+msgid "Single Unit"
+msgstr ""
+
+#: ../src/app/mpq.cpp:72
+msgid "Uses Encryption Key"
+msgstr ""
+
+#: ../src/app/mpq.cpp:75
+msgid "Encrypted"
+msgstr ""
+
+#: ../src/app/mpq.cpp:78
+msgid "Compressed"
+msgstr ""
+
+#: ../src/app/mpq.cpp:81 ../src/app/mpq.cpp:110
+msgid "Imploded"
+msgstr ""
+
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#: ../src/app/mpq.cpp:58
+#: ../src/app/mpq.cpp:86 ../src/app/mpq.cpp:124 ../src/app/mpq.cpp:471
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: wc3lib 0.1\n"
 "Report-Msgid-Bugs-To: tamino@cdauth.eu\n"
-"POT-Creation-Date: 2011-08-07 09:46+0000\n"
+"POT-Creation-Date: 2013-09-01 14:20+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,55 +64,311 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../src/app/mpq.cpp:60 ../src/app/mpq.cpp:61
+#: ../src/app/mpq.cpp:98
+msgid "ImaAdpcmMono"
+msgstr ""
+
+#: ../src/app/mpq.cpp:101
+msgid "ImaAdpcmStereo"
+msgstr ""
+
+#: ../src/app/mpq.cpp:104
+msgid "Huffman"
+msgstr ""
+
+#: ../src/app/mpq.cpp:107
+msgid "Deflated"
+msgstr ""
+
+#: ../src/app/mpq.cpp:113
+msgid "Bzip2Compressed"
+msgstr ""
+
+#: ../src/app/mpq.cpp:116
+msgid "Sparse"
+msgstr ""
+
+#: ../src/app/mpq.cpp:119
+msgid "Lzma"
+msgstr ""
+
+#: ../src/app/mpq.cpp:131
+#, boost-format
+msgid ""
+"%1%\n"
+"Compressed: %2%\n"
+"Encrypted: %3%\n"
+"Imploded: %4%\n"
+"Flags: %5%\n"
+"Compressed size: %6%\n"
+"Size: %7%\n"
+"Hash A: %8%\n"
+"Hash B: %9%\n"
+"Key: %10%\n"
+"Block index: %11%\n"
+"Hash index: %12%\n"
+"Has offset table: %13%\n"
+"Block offset: %14%\n"
+"Key (without encryption): %15%"
+msgstr ""
+
+#: ../src/app/mpq.cpp:135 ../src/app/mpq.cpp:193
+#, boost-format
+msgid ""
+"\n"
+"%1% Sectors:"
+msgstr ""
+
+#: ../src/app/mpq.cpp:138
+#, boost-format
+msgid ""
+"\n"
+"Sector %1%:\n"
+"-- Offset: %2%\n"
+"-- Size: %3%\n"
+"-- Compression: %4%"
+msgstr ""
+
+#: ../src/app/mpq.cpp:168
+#, boost-format
+msgid ""
+"\"%1%\"\n"
+"Compressed: %2%\n"
+"Size: %3%\n"
+"Hash index: %4%\n"
+"Compressed size: %5%\n"
+"Flags: %6%\n"
+"Block offset: %7%"
+msgstr ""
+
+#: ../src/app/mpq.cpp:178
+#, boost-format
+msgid ""
+"\n"
+"Key: %1%"
+msgstr ""
+
+#: ../src/app/mpq.cpp:187
+#, boost-format
+msgid ""
+"\n"
+"Key (without encryption): %1%"
+msgstr ""
+
+#: ../src/app/mpq.cpp:198
+#, boost-format
+msgid ""
+"\n"
+"Sector %1%:\n"
+"-- Offset: %2%"
+msgstr ""
+
+#: ../src/app/mpq.cpp:217
+msgid "block size"
+msgstr ""
+
+#: ../src/app/mpq.cpp:222
+msgid "file size"
+msgstr ""
+
+#: ../src/app/mpq.cpp:227
+msgid "byte offset"
+msgstr ""
+
+#: ../src/app/mpq.cpp:232
+msgid "platform"
+msgstr ""
+
+#: ../src/app/mpq.cpp:237
+msgid "locale"
+msgstr ""
+
+#: ../src/app/mpq.cpp:242
+msgid "path"
+msgstr ""
+
+#: ../src/app/mpq.cpp:255
+msgid "flags"
+msgstr ""
+
+#: ../src/app/mpq.cpp:269
+msgid "key without encryption"
+msgstr ""
+
+#: ../src/app/mpq.cpp:279
+msgid "key"
+msgstr ""
+
+#: ../src/app/mpq.cpp:285
+msgid "sectors"
+msgstr ""
+
+#: ../src/app/mpq.cpp:294
+#, boost-format
+msgid "sector offset %1%"
+msgstr ""
+
+#: ../src/app/mpq.cpp:337
+msgid "MPQ1"
+msgstr ""
+
+#: ../src/app/mpq.cpp:340
+msgid "MPQ2"
+msgstr ""
+
+#: ../src/app/mpq.cpp:343
+msgid "Invalid"
+msgstr ""
+
+#: ../src/app/mpq.cpp:349
+#, boost-format
+msgid ""
+"%1%\n"
+"Size: %2%\n"
+"Hashes: %3%\n"
+"Blocks: %4%\n"
+"Files: %5%\n"
+"Format %6%\n"
+"Used block space: %7%\n"
+"Unused block space: %8%\n"
+"Sector size: %9%\n"
+"Entire block size: %10%\n"
+"Entire file size: %11%\n"
+"Has (listfile) file: %12%\n"
+"Has (attributes) file: %13%\n"
+"Has (signature) file: %14%\n"
+"Has strong digital signature: %15%\n"
+msgstr ""
+
+#: ../src/app/mpq.cpp:352
+#, boost-format
+msgid ""
+"Extended attributes:\n"
+"Has CRC32s: %1%\n"
+"Has time stamps: %2%\n"
+"Has MD5s: %3%"
+msgstr ""
+
+#: ../src/app/mpq.cpp:359 ../src/app/mpq.cpp:706
+msgid "(listfile)"
+msgstr ""
+
+#: ../src/app/mpq.cpp:374
+#, boost-format
+msgid "Error occured while extracting file \"%1%\": File doesn't exist."
+msgstr ""
+
+#: ../src/app/mpq.cpp:389 ../src/app/mpq.cpp:406 ../src/app/mpq.cpp:502
+msgid "overwrite"
+msgstr ""
+
+#: ../src/app/mpq.cpp:391
+#, boost-format
+msgid ""
+"Error occured while creating extraction directory \"%1%\": \"Directory "
+"exists already (use --overwrite to create it anyway\"."
+msgstr ""
+
+#: ../src/app/mpq.cpp:398
+#, boost-format
+msgid ""
+"Error occured while extracting file \"%1%\": Unable to create output "
+"directory \"%2%\"."
+msgstr ""
+
+#: ../src/app/mpq.cpp:408
+#, boost-format
+msgid ""
+"Error occured while extracting file \"%1%\": \"File exists already (use --"
+"overwrite to extract it anyway\"."
+msgstr ""
+
+#: ../src/app/mpq.cpp:422
+#, boost-format
+msgid "Error occured while extracting file \"%1%\": \"%2%\"."
+msgstr ""
+
+#: ../src/app/mpq.cpp:426 ../src/app/mpq.cpp:507
+msgid "debug"
+msgstr ""
+
+#: ../src/app/mpq.cpp:428 ../src/app/mpq.cpp:601
+msgid "info"
+msgstr ""
+
+#: ../src/app/mpq.cpp:429 ../src/app/mpq.cpp:443 ../src/app/mpq.cpp:451
+#: ../src/app/mpq.cpp:626 ../src/app/mpq.cpp:635
+msgid "decimal"
+msgstr ""
+
+#: ../src/app/mpq.cpp:429 ../src/app/mpq.cpp:443 ../src/app/mpq.cpp:451
+#: ../src/app/mpq.cpp:498 ../src/app/mpq.cpp:626 ../src/app/mpq.cpp:635
+msgid "human-readable"
+msgstr ""
+
+#: ../src/app/mpq.cpp:447
+msgid " - StormLib test failed with: "
+msgstr ""
+
+#: ../src/app/mpq.cpp:450
+msgid "infoStormLib"
+msgstr ""
+
+#: ../src/app/mpq.cpp:456
+#, boost-format
+msgid "Warning: Couldn't open file \"%1%\" by StormLib for debugging."
+msgstr ""
+
+#: ../src/app/mpq.cpp:461
+#, boost-format
+msgid "Warning: Couldn't open archive %1% by StormLib for debugging."
+msgstr ""
+
+#: ../src/app/mpq.cpp:473 ../src/app/mpq.cpp:474
 msgid "mpq"
 msgstr ""
 
-#: ../src/app/mpq.cpp:63
+#: ../src/app/mpq.cpp:476
 msgid "0.1"
 msgstr ""
 
-#: ../src/app/mpq.cpp:80
+#: ../src/app/mpq.cpp:493
 msgid "Allowed options"
 msgstr ""
 
-#: ../src/app/mpq.cpp:82
+#: ../src/app/mpq.cpp:495
 msgid "Shows current version of mpq."
 msgstr ""
 
-#: ../src/app/mpq.cpp:82
+#: ../src/app/mpq.cpp:495
 msgid "version,V"
 msgstr ""
 
-#: ../src/app/mpq.cpp:83
+#: ../src/app/mpq.cpp:496
 msgid "Shows this text."
 msgstr ""
 
-#: ../src/app/mpq.cpp:83
+#: ../src/app/mpq.cpp:496
 msgid "help,h"
 msgstr ""
 
-#: ../src/app/mpq.cpp:85
+#: ../src/app/mpq.cpp:498
 msgid "Shows output sizes in an human-readable format."
 msgstr ""
 
-#: ../src/app/mpq.cpp:85
-msgid "human-readable,h"
-msgstr ""
-
-#: ../src/app/mpq.cpp:86
+#: ../src/app/mpq.cpp:499
 msgid "Shows decimal sizes (factor 1000 not 1024)"
 msgstr ""
 
-#: ../src/app/mpq.cpp:86
+#: ../src/app/mpq.cpp:499
 msgid "decimal,d"
 msgstr ""
 
-#: ../src/app/mpq.cpp:87
+#: ../src/app/mpq.cpp:500
 msgid "1"
 msgstr ""
 
-#: ../src/app/mpq.cpp:87
+#: ../src/app/mpq.cpp:500
 msgid ""
 "Selects the format of the created MPQ archive and modified files: <format:"
 "format:format>\n"
@@ -77,141 +379,152 @@ msgid ""
 "* \"attributes\""
 msgstr ""
 
-#: ../src/app/mpq.cpp:87
+#: ../src/app/mpq.cpp:500
 msgid "format,F"
 msgstr ""
 
-#: ../src/app/mpq.cpp:88
+#: ../src/app/mpq.cpp:501
 msgid "Uses given listfiles to detect file paths of MPQ archives."
 msgstr ""
 
-#: ../src/app/mpq.cpp:88
+#: ../src/app/mpq.cpp:501
 msgid "list-files,L"
 msgstr ""
 
-#: ../src/app/mpq.cpp:89
+#: ../src/app/mpq.cpp:502
 msgid ""
 "Overwrites existing files and directories when creating or extracting files."
 msgstr ""
 
-#: ../src/app/mpq.cpp:89
-msgid "overwrite"
-msgstr ""
-
-#: ../src/app/mpq.cpp:90
+#: ../src/app/mpq.cpp:503
 msgid "Removes files/archives after adding them to the MPQ archives."
 msgstr ""
 
-#: ../src/app/mpq.cpp:90
+#: ../src/app/mpq.cpp:503
 msgid "remove-files"
 msgstr ""
 
-#: ../src/app/mpq.cpp:91
+#: ../src/app/mpq.cpp:504
 msgid "Asks for confirmation for every action."
 msgstr ""
 
-#: ../src/app/mpq.cpp:91
+#: ../src/app/mpq.cpp:504
 msgid "interactive"
 msgstr ""
 
-#: ../src/app/mpq.cpp:94
+#: ../src/app/mpq.cpp:505
+msgid ""
+"Stores sector information which increases performance when accessing sector "
+"offsets and sizes (especially for encrypted files) but increases memory "
+"usage, as well."
+msgstr ""
+
+#: ../src/app/mpq.cpp:505
+msgid "store-sectors,s"
+msgstr ""
+
+#: ../src/app/mpq.cpp:507
+msgid "Creates info files for each extracted file."
+msgstr ""
+
+#: ../src/app/mpq.cpp:511
 msgid "Adds files of MPQ archives or from hard disk to another archive."
 msgstr ""
 
-#: ../src/app/mpq.cpp:94
+#: ../src/app/mpq.cpp:511
 msgid "add,a"
 msgstr ""
 
-#: ../src/app/mpq.cpp:95
+#: ../src/app/mpq.cpp:512
 msgid "Creates new MPQ archives."
 msgstr ""
 
-#: ../src/app/mpq.cpp:95
+#: ../src/app/mpq.cpp:512
 msgid "create,c"
 msgstr ""
 
-#: ../src/app/mpq.cpp:96
+#: ../src/app/mpq.cpp:513
 msgid "Finds differences between archives."
 msgstr ""
 
-#: ../src/app/mpq.cpp:96
-msgid "diff,compare,d"
+#: ../src/app/mpq.cpp:513
+msgid "diff,d"
 msgstr ""
 
-#: ../src/app/mpq.cpp:97
+#: ../src/app/mpq.cpp:514
 msgid "Lists all contained files of all read MPQ archives."
 msgstr ""
 
-#: ../src/app/mpq.cpp:97
+#: ../src/app/mpq.cpp:514
 msgid "list,t"
 msgstr ""
 
-#: ../src/app/mpq.cpp:98
+#: ../src/app/mpq.cpp:515
 msgid "Only append files that are newer than the existing archives."
 msgstr ""
 
-#: ../src/app/mpq.cpp:98
+#: ../src/app/mpq.cpp:515
 msgid "update,u"
 msgstr ""
 
-#: ../src/app/mpq.cpp:99
-msgid "Extract files from MPQ archives."
+#: ../src/app/mpq.cpp:516
+msgid ""
+"Extract files from MPQ archives. If no files are specified via -f all files "
+"are extracted from given MPQ archives."
 msgstr ""
 
-#: ../src/app/mpq.cpp:99
+#: ../src/app/mpq.cpp:516
 msgid "extract,get,x"
 msgstr ""
 
-#: ../src/app/mpq.cpp:100
+#: ../src/app/mpq.cpp:517
 msgid "Deletes files from MPQ archives."
 msgstr ""
 
-#: ../src/app/mpq.cpp:100
+#: ../src/app/mpq.cpp:517
 msgid "delete"
 msgstr ""
 
-#: ../src/app/mpq.cpp:101
-msgid "Shows some basic information about all read MPQ archives."
+#: ../src/app/mpq.cpp:518
+msgid ""
+"Shows some basic information about all read MPQ archives. If any files are "
+"specified via -f their information will be shown as well."
 msgstr ""
 
-#: ../src/app/mpq.cpp:101
+#: ../src/app/mpq.cpp:518
 msgid "info,i"
 msgstr ""
 
-#: ../src/app/mpq.cpp:102
-msgid "Compares various functionalities of wc3lib and StormLib."
-msgstr ""
-
-#: ../src/app/mpq.cpp:102
-msgid "benchmark,b"
-msgstr ""
-
-#: ../src/app/mpq.cpp:105 ../src/app/mpq.cpp:106
+#: ../src/app/mpq.cpp:521
 msgid "Expected MPQ archives."
 msgstr ""
 
-#: ../src/app/mpq.cpp:105
+#: ../src/app/mpq.cpp:521
 msgid "archives,A"
 msgstr ""
 
-#: ../src/app/mpq.cpp:106
-msgid "files,F"
+#: ../src/app/mpq.cpp:522
+msgid "Expected files."
 msgstr ""
 
-#: ../src/app/mpq.cpp:110
+#: ../src/app/mpq.cpp:522
+msgid "files,f"
+msgstr ""
+
+#: ../src/app/mpq.cpp:526
 msgid "archives"
 msgstr ""
 
-#: ../src/app/mpq.cpp:120
+#: ../src/app/mpq.cpp:536
 #, boost-format
 msgid "Error while parsing program options: \"%1%\""
 msgstr ""
 
-#: ../src/app/mpq.cpp:135
+#: ../src/app/mpq.cpp:543
 msgid "version"
 msgstr ""
 
-#: ../src/app/mpq.cpp:138
+#: ../src/app/mpq.cpp:546
 #, boost-format
 msgid ""
 "mpq %1%.\n"
@@ -222,217 +535,71 @@ msgid ""
 "There is NO WARRANTY, to the extent permitted by law."
 msgstr ""
 
-#: ../src/app/mpq.cpp:148
+#: ../src/app/mpq.cpp:556
 msgid "help"
 msgstr ""
 
-#: ../src/app/mpq.cpp:151
-msgid ""
-"\n"
-"Report bugs to tamino@cdauth.eu or on http://sourceforge.net/projects/"
-"vjasssdk/"
+#: ../src/app/mpq.cpp:558
+msgid "Usage: mpq [options] [archives]"
 msgstr ""
 
-#: ../src/app/mpq.cpp:158
+#: ../src/app/mpq.cpp:560
+msgid ""
+"\n"
+"Report bugs to tamino@cdauth.eu or on https://wc3lib.org"
+msgstr ""
+
+#: ../src/app/mpq.cpp:583
+#, boost-format
+msgid "Unable to open listfile %1%."
+msgstr ""
+
+#: ../src/app/mpq.cpp:596
 msgid "Missing archive arguments."
 msgstr ""
 
-#: ../src/app/mpq.cpp:163
-msgid "info"
-msgstr ""
-
-#: ../src/app/mpq.cpp:169 ../src/app/mpq.cpp:264 ../src/app/mpq.cpp:300
+#: ../src/app/mpq.cpp:607 ../src/app/mpq.cpp:651 ../src/app/mpq.cpp:680
 #, boost-format
-msgid "File \"%1%\" does not seem to be a regular file and will be skipped."
+msgid "File %1% does not seem to be a regular file and will be skipped."
 msgstr ""
 
-#: ../src/app/mpq.cpp:182 ../src/app/mpq.cpp:277 ../src/app/mpq.cpp:317
+#: ../src/app/mpq.cpp:620
 #, boost-format
-msgid "Error occured while opening file \"%1%\": \"%2%\""
+msgid ""
+"Error occured while opening file %1%:\n"
+"\"%2%\""
 msgstr ""
 
-#: ../src/app/mpq.cpp:189
+#: ../src/app/mpq.cpp:637
 #, boost-format
-msgid "Size: %1%"
+msgid "Error occured while getting info of file %1%: File doesn't exist."
 msgstr ""
 
-#: ../src/app/mpq.cpp:189 ../src/app/mpq.cpp:194 ../src/app/mpq.cpp:195
-#: ../src/app/mpq.cpp:196 ../src/app/mpq.cpp:197 ../src/app/mpq.cpp:198
-#: ../src/app/mpq.cpp:286 ../src/app/mpq.cpp:290
-msgid "decimal"
-msgstr ""
-
-#: ../src/app/mpq.cpp:189 ../src/app/mpq.cpp:194 ../src/app/mpq.cpp:195
-#: ../src/app/mpq.cpp:196 ../src/app/mpq.cpp:197 ../src/app/mpq.cpp:198
-#: ../src/app/mpq.cpp:286 ../src/app/mpq.cpp:290
-msgid "human-readable"
-msgstr ""
-
-#: ../src/app/mpq.cpp:190
-#, boost-format
-msgid "Hashes: %1%"
-msgstr ""
-
-#: ../src/app/mpq.cpp:191
-#, boost-format
-msgid "Blocks: %1%"
-msgstr ""
-
-#: ../src/app/mpq.cpp:192
-#, boost-format
-msgid "Files: %1%"
-msgstr ""
-
-#: ../src/app/mpq.cpp:193
-#, boost-format
-msgid "Format: %1%"
-msgstr ""
-
-#: ../src/app/mpq.cpp:194
-#, boost-format
-msgid "Used block space: %1%"
-msgstr ""
-
-#: ../src/app/mpq.cpp:195
-#, boost-format
-msgid "Unused block space: %1%"
-msgstr ""
-
-#: ../src/app/mpq.cpp:196
-#, boost-format
-msgid "Sector size: %1%"
-msgstr ""
-
-#: ../src/app/mpq.cpp:197
-#, boost-format
-msgid "Entire block size: %1%"
-msgstr ""
-
-#: ../src/app/mpq.cpp:198
-#, boost-format
-msgid "Entire file size: %1%"
-msgstr ""
-
-#: ../src/app/mpq.cpp:199
-#, boost-format
-msgid "Has strong digital signature: %1%"
-msgstr ""
-
-#: ../src/app/mpq.cpp:200
-#, boost-format
-msgid "Contains listfile file: %1%"
-msgstr ""
-
-#: ../src/app/mpq.cpp:201
-#, boost-format
-msgid "Contains attributes file: %1%"
-msgstr ""
-
-#: ../src/app/mpq.cpp:202
-#, boost-format
-msgid "Contains signature file: %1%"
-msgstr ""
-
-#: ../src/app/mpq.cpp:207
-msgid "Extended attributes:"
-msgstr ""
-
-#: ../src/app/mpq.cpp:210
-msgid "* File CRC32s"
-msgstr ""
-
-#: ../src/app/mpq.cpp:213
-msgid "* File time stamps"
-msgstr ""
-
-#: ../src/app/mpq.cpp:216
-msgid "* File MD5s"
-msgstr ""
-
-#: ../src/app/mpq.cpp:220
-msgid "Detector.js"
-msgstr ""
-
-#: ../src/app/mpq.cpp:224
-msgid "Error while searching for file."
-msgstr ""
-
-#: ../src/app/mpq.cpp:229
-msgid "Found file \"Detector.js\" and wrote "
-msgstr ""
-
-#: ../src/app/mpq.cpp:229
-msgid "bytes:"
-msgstr ""
-
-#: ../src/app/mpq.cpp:246
-msgid "New flag."
-msgstr ""
-
-#: ../src/app/mpq.cpp:252
-msgid " with flags "
-msgstr ""
-
-#: ../src/app/mpq.cpp:252
-msgid "Invalid files: "
-msgstr ""
-
-#: ../src/app/mpq.cpp:256
+#: ../src/app/mpq.cpp:643
 msgid "list"
 msgstr ""
 
-#: ../src/app/mpq.cpp:258
+#: ../src/app/mpq.cpp:645
 msgid "Listing contained files:"
 msgstr ""
 
-#: ../src/app/mpq.cpp:286
+#: ../src/app/mpq.cpp:664 ../src/app/mpq.cpp:694
 #, boost-format
-msgid "* File %1%: (Size: %2%) - %3%"
+msgid "Error occured while opening file %1%: \"%2%\""
 msgstr ""
 
-#: ../src/app/mpq.cpp:290
-#, boost-format
-msgid "%1% files total (Size: %2%)"
+#: ../src/app/mpq.cpp:674
+msgid "extract"
 msgstr ""
 
-#: ../src/app/mpq.cpp:294
-msgid "benchmark"
+#: ../src/app/mpq.cpp:686
+msgid "store-sectors"
 msgstr ""
 
-#: ../src/app/mpq.cpp:307
-msgid ""
-"Detected debug mode.\n"
-"Starting benchmark (wc3lib vs. StormLib)"
+#: ../src/app/mpq.cpp:733
+msgid "Crypt tables from wc3lib and StormLib are not equal."
 msgstr ""
 
-#: ../src/app/mpq.cpp:308
-msgid "Opening MPQ archive (wc3lib):"
-msgstr ""
-
-#: ../src/app/mpq.cpp:322 ../src/app/mpq.cpp:326 ../src/app/mpq.cpp:340
-#, boost-format
-msgid "Result: %1%s"
-msgstr ""
-
-#: ../src/app/mpq.cpp:323
-msgid "Closing MPQ archive (wc3lib):"
-msgstr ""
-
-#: ../src/app/mpq.cpp:329
-msgid "Opening MPQ archive (StormLib - read only):"
-msgstr ""
-
-#: ../src/app/mpq.cpp:341
-msgid "Closing MPQ archive (StormLib):"
-msgstr ""
-
-#: ../src/app/mpq.cpp:346
-#, boost-format
-msgid "Failed to open MPQ archive \"%1%\" by using StormLib."
-msgstr ""
-
-#: ../src/app/mpq.cpp:349
-msgid ""
-"Since program has been compiled without debug option, StormLib cannot be "
-"used."
+#: ../src/app/mpq.cpp:735
+msgid "Crypt tables from wc3lib and StormLib are equal."
 msgstr ""
