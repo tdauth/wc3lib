@@ -26,5 +26,6 @@ target_link_libraries(qblp wc3libcore wc3libblp ${Boost_LIBRARIES} ${QT_LIBRARIE
 # TODO drop ${Boost_LIBRARIES}
 
 # install
+install(TARGETS qblp DESTINATION lib)
 install(TARGETS qblp DESTINATION ${QT_PLUGINS_DIR}/imageformats)
 install(FILES ${wc3lib_EDITOR_QBLP_H} DESTINATION include/wc3lib/editor/qblp)

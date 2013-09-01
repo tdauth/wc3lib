@@ -21,5 +21,6 @@ if (UNIX)
 endif ()
 
 # install
+install(TARGETS Plugin_BlpCodec DESTINATION lib)
 install(TARGETS Plugin_BlpCodec DESTINATION lib/OGRE/)
 install(FILES ${wc3lib_EDITOR_PLUGIN_BLPCODEC_H} DESTINATION include/wc3lib/editor/Plugin_BlpCodec)
