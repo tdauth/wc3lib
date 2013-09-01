@@ -1,7 +1,13 @@
 WC3LIB_ENABLE_EXCEPTIONS()
 
-WC3LIB_GET_H(wc3lib_EDITOR_QBLP_H)
-WC3LIB_GET_SRC(wc3lib_EDITOR_QBLP_SRC)
+set(wc3lib_EDITOR_QBLP_H
+	blpiohandler.hpp
+	blpioplugin.hpp
+)
+set(wc3lib_EDITOR_QBLP_SRC
+	blpiohandler.cpp
+	blpioplugin.cpp
+)
 set(wc3lib_EDITOR_QBLP_SRC ${wc3lib_EDITOR_QBLP_SRC} PARENT_SCOPE)
 
 add_definitions(${QT_DEFINITIONS})
@@ -21,4 +27,4 @@ target_link_libraries(qblp wc3libcore wc3libblp ${Boost_LIBRARIES} ${QT_LIBRARIE
 
 # install
 install(TARGETS qblp DESTINATION ${QT_PLUGINS_DIR}/imageformats)
-install(FILES ${wc3lib_EDITOR_QBLP_H} PUBLIC_HEADER DESTINATION include/wc3lib/editor/qblp)
+install(FILES ${wc3lib_EDITOR_QBLP_H} DESTINATION include/wc3lib/editor/qblp)
