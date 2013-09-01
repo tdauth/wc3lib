@@ -1,7 +1,13 @@
 WC3LIB_ENABLE_EXCEPTIONS()
 
-WC3LIB_GET_H(wc3lib_EDITOR_KIO_MPQ_H)
-WC3LIB_GET_SRC(wc3lib_EDITOR_KIO_MPQ_SRC)
+set(wc3lib_EDITOR_KIO_MPQ_H
+	mpqarchive.hpp
+	mpqprotocol.hpp
+)
+set(wc3lib_EDITOR_KIO_MPQ_SRC
+	kio_mpq/mpqarchive.cpp
+	kio_mpq/mpqprotocol.cpp
+)
 set(wc3lib_EDITOR_KIO_MPQ_SRC ${wc3lib_EDITOR_KIO_MPQ_SRC} PARENT_SCOPE)
 
 include_directories(${KDE4_INCLUDE_DIR} ${QT_INCLUDE_DIR})
@@ -13,4 +19,4 @@ target_link_libraries(kio_mpq wc3libmpq wc3libcore ${GETTEXT_LIBRARIES} ${Boost_
 
 # install
 install(TARGETS kio_mpq  DESTINATION ${PLUGIN_INSTALL_DIR})
-install(FILES ${wc3lib_EDITOR_KIO_MPQ_H} PUBLIC_HEADER DESTINATION include/wc3lib/editor/kio_mpq)
+install(FILES ${wc3lib_EDITOR_KIO_MPQ_H} DESTINATION include/wc3lib/editor/kio_mpq)
