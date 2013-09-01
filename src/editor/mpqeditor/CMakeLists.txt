@@ -12,4 +12,5 @@ kde4_add_library(wc3libmpqeditor SHARED ${wc3lib_MPQEDITOR_SRC} ${wc3lib_MPQEDIT
 target_link_libraries(wc3libmpqeditor ${wc3lib_CORE_LIBRARIES} ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${OGRE_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KIO_LIBS} ${KDE4_KUTILS_LIBS} ${KDE4_KPARTS_LIBS} wc3libeditor)
 
 # install
+install(TARGETS wc3libmpqeditor DESTINATION lib)
 install(FILES ${wc3lib_MPQEDITOR_H} ${wc3lib_MPQEDITOR_UI_H} DESTINATION include/wc3lib/editor/mpqeditor)

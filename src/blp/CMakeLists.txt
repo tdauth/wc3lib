@@ -17,6 +17,6 @@ if (BLP)
 	target_link_libraries(wc3libblp wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${JPEG_LIBRARIES})
 
 	# install
-	install(TARGETS wc3libblp DESTINATION lib/wc3lib/)
+	install(TARGETS wc3libblp DESTINATION lib)
 	install(FILES ${wc3lib_BLP_H} DESTINATION include/wc3lib/blp)
 endif ()

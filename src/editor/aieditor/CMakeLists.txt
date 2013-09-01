@@ -12,4 +12,5 @@ kde4_add_library(wc3libaieditor SHARED ${wc3lib_AIEDITOR_SRC} ${wc3lib_AIEDITOR_
 target_link_libraries(wc3libaieditor ${wc3lib_CORE_LIBRARIES} ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${OGRE_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KIO_LIBS} ${KDE4_KUTILS_LIBS} ${KDE4_KPARTS_LIBS} wc3libeditor)
 
 # install
+install(TARGETS wc3libaieditor DESTINATION lib)
 install(FILES ${wc3lib_AIEDITOR_H} ${wc3lib_AIEDITOR_UI_H} DESTINATION include/wc3lib/editor/aieditor)

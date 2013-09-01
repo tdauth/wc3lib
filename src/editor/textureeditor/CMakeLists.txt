@@ -12,4 +12,5 @@ kde4_add_library(wc3libtextureeditor SHARED ${wc3lib_TEXTUREEDITOR_SRC} ${wc3lib
 target_link_libraries(wc3libtextureeditor ${wc3lib_CORE_LIBRARIES} ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${OGRE_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KIO_LIBS} ${KDE4_KUTILS_LIBS} ${KDE4_KPARTS_LIBS} wc3libeditor qblp)
 
 # install
+install(TARGETS wc3libtextureeditor DESTINATION lib)
 install(FILES ${wc3lib_TEXTUREEDITOR_H} ${wc3lib_TEXTUREEDITOR_UI_H} DESTINATION include/wc3lib/editor/wc3libtextureeditor)

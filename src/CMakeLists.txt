@@ -108,6 +108,6 @@ if (APP)
 endif ()
 
 # install
-install(TARGETS wc3libcore DESTINATION lib/wc3lib)
+install(TARGETS wc3libcore DESTINATION lib)
 #install(TARGETS wc3lib DESTINATION lib/wc3lib)
 install(FILES ${wc3lib_CORE_H} DESTINATION include/wc3lib)

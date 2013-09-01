@@ -284,6 +284,6 @@ if (MDLX)
 
 	# install
 
-	install(TARGETS wc3libmdlx DESTINATION lib/wc3lib/)
+	install(TARGETS wc3libmdlx DESTINATION lib)
 	install(FILES ${wc3lib_MDLX_H} DESTINATION include/wc3lib/mdlx)
 endif ()

@@ -35,6 +35,6 @@ if (MPQ)
 
 	# install
 
-	install(TARGETS wc3libmpq DESTINATION lib/wc3lib/)
+	install(TARGETS wc3libmpq DESTINATION lib)
 	install(FILES ${wc3lib_MPQ_H} DESTINATION include/wc3lib/mpq)
 endif ()
