@@ -18,7 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <KMessageBox>
+
 #include "variabledialog.hpp"
+#include "triggereditor.hpp"
+#include "../mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -26,18 +30,76 @@ namespace wc3lib
 namespace editor
 {
 
-VariableDialog::VariableDialog(QWidget *parent, Qt::WindowFlags f): QDialog(parent, f)
+VariableDialog::VariableDialog(TriggerEditor *triggerEditor, QWidget *parent, Qt::WindowFlags f): QDialog(parent, f), m_triggerEditor(triggerEditor)
 {
 	setupUi(this);
+	
+	connect(m_typeComboBox, SIGNAL(activated(int)), this, SLOT(activatedType(int)));
+	connect(m_startValueLabel, SIGNAL(linkActivated(QString)), this, SLOT(setDefaultValue(QString)));
 }
+
+void VariableDialog::activatedType(int index)
+{
+	const QString typeCode = m_typeComboBox->itemData(index).toString();
+	map::TriggerData::Types::const_iterator iterator =  m_triggerEditor->source()->triggerData()->types().find(typeCode.toUtf8().constData());
+	
+	if (iterator != m_triggerEditor->source()->triggerData()->types().end()) {
+		const map::TriggerData::Type *type = iterator->second;
+		
+		// TODO default value, possible value etc.
+		//type->
+		
+		m_startValue->setText(tr("<a href=\"type\">%1</a>").arg(type->defaultValue().c_str()));
+	}
+}
+
+void VariableDialog::setDefaultValue(QString value)
+{
+	// TODO popup window with value selection
+}
+
 
 void VariableDialog::showVariable(map::Variable *variable)
 {
+	if (m_triggerEditor->source()->triggerData().get() == 0) {
+		KMessageBox::error(this, tr("Missing trigger data."));
+		
+		return;
+	}
+	
+	m_typeComboBox->clear();
+	
+	foreach (map::TriggerData::Types::const_reference ref, m_triggerEditor->source()->triggerData()->types()) {
+		const map::TriggerData::Type *type = ref->second;
+		
+		if (type->canBeGlobal()) {
+			m_typeComboBox->addItem(type->displayText().c_str(), type->name().c_str());
+		}
+	}
+	
 	m_nameLineEdit->setText(variable->name().c_str());
-	/// TODO set combo box entries by corresponding \ref TriggerData.
-	m_typeComboBox->setItemText(0, variable->type().c_str());
-	m_arrayCheckBox->setEnabled(variable->isArray());
+	const int index = m_typeComboBox->findData(variable->type().c_str());
+	
+	if (index != -1) {
+		m_typeComboBox->setCurrentIndex(index);
+	} else {
+		qDebug() << "Missing type " << variable->type().c_str();
+	}
+	
+	m_arrayCheckBox->setChecked(variable->isArray());
+	m_arraySizeLabel->setEnabled(variable->isArray());
+	m_arraySizeSpinBox->setEnabled(variable->isArray());
+	m_arraySizeSpinBox->setValue(boost::numeric_cast<int>(variable->number()));
 	m_startValue->setText(variable->initialValue().c_str());
+}
+
+void VariableDialog::apply(map::Variable* variable)
+{
+	variable->setName(m_nameLineEdit->text().toUtf8().constData());
+	variable->setType(m_typeComboBox->itemData(m_typeComboBox->currentIndex()).toString().toUtf8().constData());
+	variable->setArray(m_arrayCheckBox->isChecked());
+	variable->setInitialized(!m_startValue->text().isEmpty()); // TODO store initial value separately for example unit type etc.
+	variable->setInitialValue(m_startValue->text().toUtf8().constData());
 }
 
 }

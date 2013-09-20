@@ -121,13 +121,15 @@ void TriggerWidget::newAction()
 TriggerWidget::TriggerWidget(class TriggerEditor *triggerEditor) : m_triggerEditor(triggerEditor), m_trigger(0), m_functionsTreeWidget(new QTreeWidget(this)), m_textEdit(new KTextEdit(this)), m_functionDialog(0), QWidget(triggerEditor)
 {
 	Ui::TriggerTopWidget::setupUi(this);
-	m_functionsLayout->addWidget(functionsTreeWidget());
-	m_functionsLayout->addWidget(textEdit());
+	m_functionsTreeWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+	m_triggerFunctionsWidget->layout()->addWidget(functionsTreeWidget());
 	// TODO set icons and text from source!
 	// TODO make collapsable by function?
 	functionsTreeWidget()->setHeaderHidden(true);
 	functionsTreeWidget()->setSelectionMode(QAbstractItemView::SingleSelection);
 	functionsTreeWidget()->setSelectionBehavior(QAbstractItemView::SelectItems);
+	functionsTreeWidget()->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+	functionsTreeWidget()->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 	refreshBasicTreeItems();
 
 	connect(functionsTreeWidget(), SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(itemDoubleClicked(QTreeWidgetItem*,int)));
@@ -182,10 +184,13 @@ void TriggerWidget::showTrigger(map::Trigger* trigger, const string &customText)
 
 		// TODO set icon and background color
 
-		if (trigger->isInitiallyOn())
-			rootItem()->setBackgroundColor(0, QColor(Qt::gray));
-		else
-			rootItem()->setBackgroundColor(0, QColor(Qt::white));
+		if (trigger->isInitiallyOn()) {
+			rootItem()->setForeground(0, QColor(Qt::black));
+		}
+		else {
+			rootItem()->setForeground(0, QColor(Qt::gray));
+			//rootItem()->setIcon(0, );
+		}
 
 		for (int32 i = 0; i < trigger->functions().size(); ++i)
 		{
@@ -193,6 +198,8 @@ void TriggerWidget::showTrigger(map::Trigger* trigger, const string &customText)
 			
 			addTreeItem(function);
 		}
+		
+		functionsTreeWidget()->expandAll(); // make all visible
 	}
 
 	setTrigger(trigger);
@@ -226,38 +233,44 @@ QTreeWidgetItem* TriggerWidget::addTreeItem(map::TriggerFunction* function)
 	if (!function->isEnabled()) {
 		item->setBackgroundColor(0, QColor(Qt::gray));
 	}
-	
-	QString text = triggerFunctionName(function);
-	QString parameters;
-	
-	foreach (map::TriggerFunction::Parameters::const_reference ref, function->parameters()) {
-		parameters += " " + QString(ref.value().c_str());
-	}
-	
-	item->setText(0, text + parameters);
-	
-	
-	
+
 	// TODO set icon and mark as enabled or not using ->isEnabled()
 	// TODO show hard coded parameters
 	functions().insert(item, function);
+	const map::TriggerData *triggerData = triggerEditor()->source()->triggerData().get();
+	const map::TriggerStrings *triggerStrings = triggerEditor()->source()->triggerStrings().get();
 
 	switch (function->type())
 	{
 		case map::TriggerFunction::Type::Event:
+		{
+			const QString text = TriggerEditor::triggerFunctionText(triggerData, triggerStrings, function->name().c_str(), function, triggerData->events(), triggerStrings->events(), false, false, true);
+			
+			item->setText(0, text);
 			eventsItem()->addChild(item);
 
 			break;
+		}
 
 		case map::TriggerFunction::Type::Condition:
+		{
+			const QString text = TriggerEditor::triggerFunctionText(triggerData, triggerStrings, function->name().c_str(), function, triggerData->conditions(), triggerStrings->conditions(), false, false, true);
+			
+			item->setText(0, text);
 			conditionsItem()->addChild(item);
 
 			break;
+		}
 
 		case map::TriggerFunction::Type::Action:
+		{
+			const QString text = TriggerEditor::triggerFunctionText(triggerData, triggerStrings, function->name().c_str(), function, triggerData->actions(), triggerStrings->actions(), false, false, true);
+			
+			item->setText(0, text);
 			actionsItem()->addChild(item);
 
 			break;
+		}
 	}
 	
 	return item;

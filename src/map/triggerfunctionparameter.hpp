@@ -62,7 +62,10 @@ class TriggerFunctionParameter : public Format
 		virtual std::streamsize read(InputStream &istream, const TriggerData &triggerData) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
+		void setType(BOOST_SCOPED_ENUM(Type) type);
 		BOOST_SCOPED_ENUM(Type) type() const;
+		
+		void setValue(const string &value);
 		const string& value() const;
 
 		/**
@@ -85,9 +88,19 @@ class TriggerFunctionParameter : public Format
 		Parameters m_parameters;
 };
 
+inline void TriggerFunctionParameter::setType(BOOST_SCOPED_ENUM(TriggerFunctionParameter::Type) type)
+{
+	this->m_type = type;
+}
+
 inline BOOST_SCOPED_ENUM(TriggerFunctionParameter::Type) TriggerFunctionParameter::type() const
 {
 	return m_type;
+}
+
+inline void TriggerFunctionParameter::setValue(const string &value)
+{
+	this->m_value = value;
 }
 
 inline const string& TriggerFunctionParameter::value() const

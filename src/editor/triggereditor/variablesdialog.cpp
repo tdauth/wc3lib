@@ -20,6 +20,9 @@
 
 #include <QtGui>
 
+#include <KComboBox>
+#include <KMessageBox>
+
 #include "variablesdialog.hpp"
 #include "triggereditor.hpp"
 #include "../mpqprioritylist.hpp"
@@ -30,22 +33,65 @@ namespace wc3lib
 namespace editor
 {
 
-VariablesDialog::VariablesDialog(class TriggerEditor *triggerEditor, Qt::WindowFlags f): m_triggerEditor(triggerEditor), QDialog(triggerEditor, f)
+VariablesDialog::VariablesDialog(class TriggerEditor *triggerEditor, Qt::WindowFlags f): m_triggerEditor(triggerEditor), QDialog(triggerEditor, f), m_triggers(0)
 {
 	setupUi(this);
+	
+	connect(m_tableWidget, SIGNAL(cellDoubleClicked(int,int)), this, SLOT(variableShown(int,int)));
+}
+
+void VariablesDialog::variableShown(int row, int column)
+{
+	map::Variable *variable = &m_triggers->variables()[row];
+	
+	this->variableDialog()->showVariable(variable);
+	
+	if (this->variableDialog()->exec() == QDialog::Accepted) {
+		this->variableDialog()->apply(variable);
+		
+		// refresh table widget row
+		((QTableWidgetItem*)this->m_tableWidget->cellWidget(row, 0))->setText(variable->name().c_str());
+		
+		map::TriggerData::Type *type = variableType(*variable);
+		
+		if (type != 0) {
+			((QTableWidgetItem*)this->m_tableWidget->cellWidget(row, 1))->setText(type->displayText().c_str());
+			
+		} else {
+			((QTableWidgetItem*)this->m_tableWidget->cellWidget(row, 1))->setText(variable->type().c_str());
+		}
+		
+		((QTableWidgetItem*)this->m_tableWidget->cellWidget(row, 2))->setText(variable->initialValue().c_str());
+	}
 }
 
 void VariablesDialog::showVariables(map::Triggers *triggers)
 {
+	if (this->triggerEditor()->source()->triggerData().get() == 0) {
+		KMessageBox::error(this, tr("No trigger data loaded."));
+		
+		return;
+	}
+	
+	m_triggers = triggers;
 	m_tableWidget->setRowCount(triggers->variables().size());
 
 	for (int32 i = 0; i < triggers->variables().size(); ++i)
 	{
-		QTableWidgetItem *item = new QTableWidgetItem(triggers->variables()[i].name().c_str());
+		const map::Variable *variable = &triggers->variables()[i];
+		QTableWidgetItem *item = new QTableWidgetItem(variable->name().c_str());
+		
 		m_tableWidget->setItem(i, 0, item);
-		//map::TriggerData::Type *type = variableType(*ref.second.get());
-		item = new QTableWidgetItem(triggers->variables()[i].type().c_str());
+		
+		map::TriggerData::Type *type = variableType(*variable);
+		
+		if (type != 0) {
+			item = new QTableWidgetItem(type->displayText().c_str());
+		} else {
+			item = new QTableWidgetItem(variable->type().c_str());
+		}
 		m_tableWidget->setItem(i, 1, item);
+		
 		item = new QTableWidgetItem(triggers->variables()[i].initialValue().c_str());
 		m_tableWidget->setItem(i, 2, item);
 	}

@@ -20,6 +20,7 @@
 
 #include <boost/filesystem/fstream.hpp>
 #include <boost/cast.hpp>
+#include <boost/format.hpp>
 
 #include <QtGui>
 
@@ -53,14 +54,17 @@ string TriggerEditor::cutQuotes(const string& value)
 TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_triggers(0), m_customTextTriggers(0), m_freeTriggers(false), m_freeCustomTextTriggers(false), m_newMenu(0), m_treeWidget(new QTreeWidget(this)), m_mapScriptWidget(new MapScriptWidget(this)), m_triggerWidget(new TriggerWidget(this)), m_variablesDialog(0), m_triggerActionCollection(0), m_newActionCollection(0), Module(source, parent, f)
 {
 	Module::setupUi();
-	QHBoxLayout *hLayout = new QHBoxLayout(this);
+	
+	QSplitter *hSplitter = new QSplitter(Qt::Horizontal, this);
+	hSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	treeWidget()->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
-	hLayout->addWidget(treeWidget());
-	QVBoxLayout *vLayout = new QVBoxLayout(this);
-	vLayout->addWidget(mapScriptWidget());
-	vLayout->addWidget(triggerWidget());
-	hLayout->addLayout(vLayout);
-	topLayout()->addLayout(hLayout);
+	mapScriptWidget()->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+	triggerWidget()->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+	hSplitter->addWidget(treeWidget());
+	hSplitter->addWidget(mapScriptWidget());
+	hSplitter->addWidget(triggerWidget());
+	
+	topLayout()->addWidget(hSplitter);
 	treeWidget()->setHeaderHidden(true);
 	treeWidget()->setSelectionMode(QAbstractItemView::SingleSelection);
 	treeWidget()->setSelectionBehavior(QAbstractItemView::SelectItems);
@@ -71,9 +75,352 @@ TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 
 	triggerWidget()->setEnabled(false);
 	mapScriptWidget()->hide();
+	triggerActionCollection()->action("savetriggers")->setEnabled(false);
 	triggerActionCollection()->action("closetriggers")->setEnabled(false);
 	triggerActionCollection()->action("closecustomtexttriggers")->setEnabled(false);
 	triggerActionCollection()->action("closeall")->setEnabled(false);
+}
+
+map::TriggerStrings::Entries::const_iterator TriggerEditor::triggerFunctionEntry(const map::TriggerStrings *triggerStrings, const string& code, BOOST_SCOPED_ENUM(map::TriggerFunction::Type) type)
+{
+	map::TriggerStrings::Entries::const_iterator iterator;
+	
+	switch (type) {
+		case map::TriggerFunction::Type::Event:
+			iterator = triggerStrings->events().find(code);
+			
+			if (iterator == triggerStrings->events().end()) {
+				throw std::runtime_error(boost::str(boost::format(_("No corresponding TriggerStrings.txt entry in events for \"%1%\".")) % code));
+			}
+			
+			break;
+			
+		case map::TriggerFunction::Type::Condition:
+			iterator = triggerStrings->conditions().find(code);
+			
+			if (iterator == triggerStrings->conditions().end()) {
+				throw std::runtime_error(boost::str(boost::format(_("No corresponding TriggerStrings.txt entry in conditions for \"%1%\".")) % code));
+			}
+			
+			break;
+			
+		case map::TriggerFunction::Type::Action:
+			iterator = triggerStrings->actions().find(code);
+			
+			if (iterator == triggerStrings->actions().end()) {
+				throw std::runtime_error(boost::str(boost::format(_("No corresponding TriggerStrings.txt entry in actions for \"%1%\".")) % code));
+			}
+			
+			break;
+			
+		case map::TriggerFunction::Type::Call:
+			iterator = triggerStrings->calls().find(code);
+			
+			if (iterator == triggerStrings->calls().end()) {
+				throw std::runtime_error(boost::str(boost::format(_("No corresponding TriggerStrings.txt entry in calls for \"%1%\".")) % code));
+			}
+			
+			break;
+	}
+	
+	return iterator;
+}
+
+int TriggerEditor::triggerFunctionLimitIntMinimum(const map::TriggerData::Function::Limit& limit, bool *hasLimit)
+{
+	int result = -1;
+	
+	try {
+		const int32 value = boost::get<int32>(limit.first);
+		result = boost::numeric_cast<int>(value);
+		
+		if (hasLimit != 0) {
+			*hasLimit = true;
+		}
+	} catch (std::exception &e) {
+		/*
+		 * parameters should only occur for defaults
+		try {
+			const map::TriggerData::Parameter *parameter = boost::get<map::TriggerData::Parameter*>(limit.first);
+			parameter->
+		} catch (std::exception &e) {
+		}
+		*/
+		
+		if (hasLimit != 0) {
+			*hasLimit = false;
+		}
+	}
+	
+	return result;
+}
+
+int TriggerEditor::triggerFunctionLimitIntMaximum(const map::TriggerData::Function::Limit& limit, bool *hasLimit)
+{
+	int result = -1;
+	
+	try {
+		const int32 value = boost::get<int32>(limit.second);
+		result = boost::numeric_cast<int>(value);
+		
+		if (hasLimit != 0) {
+			*hasLimit = true;
+		}
+	} catch (std::exception &e) {
+		/*
+		 * parameters should only occur for defaults
+		try {
+			const map::TriggerData::Parameter *parameter = boost::get<map::TriggerData::Parameter*>(limit.second);
+			parameter->
+		} catch (std::exception &e) {
+		}
+		*/
+		
+		if (hasLimit != 0) {
+			*hasLimit = false;
+		}
+	}
+	
+	return result;
+}
+
+double TriggerEditor::triggerFunctionLimitDoubleMinimum(const map::TriggerData::Function::Limit& limit, bool *hasLimit)
+{
+	double result = -1;
+	
+	try {
+		const float32 value = boost::get<float32>(limit.first);
+		result = boost::numeric_cast<double>(value);
+		
+		if (hasLimit != 0) {
+			*hasLimit = true;
+		}
+	} catch (std::exception &e) {
+		/*
+		 * parameters should only occur for defaults
+		try {
+			const map::TriggerData::Parameter *parameter = boost::get<map::TriggerData::Parameter*>(limit.first);
+			parameter->
+		} catch (std::exception &e) {
+		}
+		*/
+		
+		if (hasLimit != 0) {
+			*hasLimit = false;
+		}
+	}
+	
+	return result;
+}
+
+double TriggerEditor::triggerFunctionLimitDoubleMaximum(const map::TriggerData::Function::Limit& limit, bool *hasLimit)
+{
+	double result = -1;
+	
+	try {
+		const float32 value = boost::get<float32>(limit.second);
+		result = boost::numeric_cast<double>(value);
+		
+		if (hasLimit != 0) {
+			*hasLimit = true;
+		}
+	} catch (std::exception &e) {
+		/*
+		 * parameters should only occur for defaults
+		try {
+			const map::TriggerData::Parameter *parameter = boost::get<map::TriggerData::Parameter*>(limit.second);
+			parameter->
+		} catch (std::exception &e) {
+		}
+		*/
+		
+		if (hasLimit != 0) {
+			*hasLimit = false;
+		}
+	}
+	
+	return result;
+}
+
+QString TriggerEditor::triggerFunction(const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const map::TriggerFunction* triggerFunction)
+{
+	QString result;
+	
+	try {
+		map::TriggerStrings::Entries::const_iterator iterator = TriggerEditor::triggerFunctionEntry(triggerStrings, triggerFunction->name().c_str(), triggerFunction->type());
+		result = QString("(") + TriggerEditor::cutQuotes(iterator->second->name()).c_str();
+	} catch (std::runtime_error &e) {
+		qDebug() << e.what();
+		result = QString("(") + triggerFunction->name().c_str();
+	}
+
+	foreach (map::TriggerFunction::Parameters::const_reference ref, triggerFunction->parameters()) {
+		result += triggerFunctionParameter(triggerData, triggerStrings, &ref);
+	}
+	
+	result += ")";
+	
+	return result;
+}
+
+QString TriggerEditor::triggerFunctionParameter(const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const map::TriggerFunctionParameter *parameter)
+{
+	QString result;
+	
+	qDebug() << "Parameter value \"" << parameter->value().c_str() << "\"";
+	
+	switch (parameter->type()) {
+		case map::TriggerFunctionParameter::Type::Function: {
+			foreach (map::TriggerFunctionParameter::Functions::const_reference ref, parameter->functions()) {
+				result += triggerFunction(triggerData, triggerStrings, &ref); // call recursively all encapsulated calls
+			}
+			
+			break;
+		}
+		
+		case map::TriggerFunctionParameter::Type::Jass:
+			result = parameter->value().c_str();
+			
+			break;
+		
+		case map::TriggerFunctionParameter::Type::Preset:
+		{
+			map::TriggerData::Parameters::const_iterator iterator = triggerData->parameters().find(parameter->value());
+			
+			if (iterator != triggerData->parameters().end()) {
+				qDebug() << "Using preset display text " << iterator->second->displayText().c_str();
+				result = iterator->second->displayText().c_str();
+			} else {
+				qDebug() << "Unable to find preset " << parameter->value().c_str() << " in TriggerData.txt";
+				result = parameter->value().c_str();
+			}
+			
+			break;
+		}
+		
+		case map::TriggerFunctionParameter::Type::Variable:
+		{
+			result = parameter->value().c_str();
+			
+			break;
+		}
+	}
+	
+	return result;
+}
+
+void TriggerEditor::fillNewTriggerFunctionParameters(const map::TriggerData *triggerData, map::TriggerFunction* function)
+{
+	assert(function->parameters().empty());
+	
+	const map::TriggerData::Function *triggerDataFunction = 0;
+	
+	switch (function->type()) {
+		case map::TriggerFunction::Type::Event:
+		{
+			qDebug() << "Searching events";
+			
+			map::TriggerData::Functions::const_iterator iterator = triggerData->events().find(function->name());
+			
+			if (iterator != triggerData->events().end()) {
+				triggerDataFunction = iterator->second;
+			}
+		}
+		
+		case map::TriggerFunction::Type::Condition:
+		{
+			qDebug() << "Searching conditions";
+			
+			map::TriggerData::Functions::const_iterator iterator = triggerData->conditions().find(function->name());
+			
+			if (iterator != triggerData->conditions().end()) {
+				triggerDataFunction = iterator->second;
+			}
+		}
+		
+		case map::TriggerFunction::Type::Action:
+		{
+			qDebug() << "Searching actions";
+			
+			map::TriggerData::Functions::const_iterator iterator = triggerData->actions().find(function->name());
+			
+			if (iterator != triggerData->actions().end()) {
+				triggerDataFunction = iterator->second;
+			}
+		}
+		
+		case map::TriggerFunction::Type::Call:
+		{
+			qDebug() << "Searching calls";
+			
+			map::TriggerData::Calls::const_iterator iterator = triggerData->calls().find(function->name());
+			
+			if (iterator != triggerData->calls().end()) {
+				triggerDataFunction = iterator->second;
+			}
+		}
+		
+	}
+	
+	if (triggerDataFunction == 0) {
+		qDebug() << "Did not find function \"" << function->name().c_str() << "\"";
+		
+		throw std::runtime_error("");
+	}
+	
+	
+	
+	for (std::size_t i = 0; i < triggerDataFunction->types().size(); ++i) {
+		std::auto_ptr<map::TriggerFunctionParameter> functionParameter(new map::TriggerFunctionParameter());
+		bool gotDefault = false;
+		
+		// show default if exists
+		if (triggerDataFunction->defaults().size() > i) {
+			string parameter = boost::apply_visitor(map::TriggerData::FunctionValueVisitor(), triggerDataFunction->defaults()[i]);
+			
+			// "_" means no default value
+			if (parameter != "_") {
+				if (!parameter.empty()) {
+					
+					// defaults can be presets or calls
+					if (QChar(parameter[0]).isLetter()) {
+						map::TriggerData::Parameters::const_iterator presetIterator = triggerData->parameters().find(parameter);
+						
+						if (presetIterator != triggerData->parameters().end()) {
+							functionParameter->setType(map::TriggerFunctionParameter::Type::Preset);
+							functionParameter->setValue(parameter);
+							
+						// could be a call
+						} else {
+							map::TriggerData::Calls::const_iterator callIterator = triggerData->calls().find(parameter);
+							
+							if (callIterator != triggerData->calls().end()) {
+								functionParameter->setType(map::TriggerFunctionParameter::Type::Function);
+								functionParameter->setValue(parameter);
+								
+								// TODO set inherited calls? possible for default values?
+							}
+						}
+					// strings are enclosed by single quotes
+					} else if (parameter[0] == '\"') {
+						functionParameter->setType(map::TriggerFunctionParameter::Type::Jass);
+						functionParameter->setValue(cutQuotes(parameter));
+					}
+				}
+				
+				gotDefault = true;
+			}
+		}
+		
+		// if it's been "_" or there is no default defined use the type's function
+		if (!gotDefault) {
+			functionParameter->setType(map::TriggerFunctionParameter::Type::Function);
+			functionParameter->setValue("");
+		}
+		
+		qDebug() << "Parameter of new function: \"" << functionParameter->value().c_str() << "\"";
+		function->parameters().push_back(functionParameter);
+	}
 }
 
 void TriggerEditor::openTriggers()
@@ -159,6 +506,31 @@ void TriggerEditor::openCustomTextTriggers()
 
 	loadCustomTextTriggers(triggers);
 	setFreeCustomTextTriggers(true); // for proper deletion
+}
+
+void TriggerEditor::saveTriggers()
+{
+	if (triggers() == 0 && customTextTriggers() == 0) {
+		return;
+	}
+	
+	QString file = KFileDialog::getSaveFileName(KUrl(), triggersFilter(), this, tr("Save triggers"));
+	
+	if (file.isEmpty()) {
+		return;
+	}
+	
+	ofstream of(file.toUtf8().constData(), std::ios::out | std::ios::binary);
+	
+	try {
+		if (this->triggers() != 0) {
+			this->triggers()->write(of);
+		} else if (this->customTextTriggers() != 0) {
+			this->customTextTriggers()->write(of);
+		}
+	} catch (Exception &e) {
+		KMessageBox::error(this, tr("Error: \"%1\"").arg(e.what().c_str()));
+	}
 }
 
 void TriggerEditor::closeTriggers()
@@ -250,6 +622,7 @@ void TriggerEditor::loadTriggers(map::Triggers *triggers)
 
 	for (int32 i = 0; i < this->categories().size(); ++i)
 	{
+		m_categoryIndices.insert(triggers->categories()[i].index(), i);
 		categories()[i] = new QTreeWidgetItem(rootItem());
 		//categories()[i]->setFlags(item->flags() | Qt::ItemIsEditable);
 		categories()[i]->setText(0, triggers->categories()[i].name().c_str());
@@ -263,21 +636,32 @@ void TriggerEditor::loadTriggers(map::Triggers *triggers)
 	{
 		const int32 category = triggers->triggers()[i].category();
 		TriggerTreeWidgetItem *item = 0;
+		CategoryIndices::const_iterator iterator = m_categoryIndices.find(category);
 		
-		if (category >= 0 && category < categories().size()) {
-			item = new TriggerTreeWidgetItem(&triggers->triggers()[i], categories()[category]);
+		if (iterator != m_categoryIndices.end()) {
+			item = new TriggerTreeWidgetItem(&triggers->triggers()[i], categories()[iterator.value()]);
 		} else {
 			item = new TriggerTreeWidgetItem(&triggers->triggers()[i], rootItem());
 			qDebug() << "Invalid category index " << category;
 		}
 		
+		// TODO set icon
+		
+		if (triggers->triggers()[i].isInitiallyOn()) {
+			item->setForeground(0, QColor(Qt::black));
+		} else {
+			item->setForeground(0, QColor(Qt::gray));
+		}
+		
 		triggerEntries()[i] = item;
 		/// \todo set icon (initially on, disabled etc.)
 		triggerEntries()[i]->setText(0, triggers->triggers()[i].name().c_str());
+	
 		qDebug() << "Trigger: " << triggers->triggers()[i].name().c_str();
 	}
 
 	m_triggers = triggers;
+	triggerActionCollection()->action("savetriggers")->setEnabled(true);
 	triggerActionCollection()->action("closetriggers")->setEnabled(true);
 	triggerActionCollection()->action("closeall")->setEnabled(true);
 }
@@ -331,6 +715,7 @@ void TriggerEditor::clear()
 	triggerEntries().clear();
 	setTriggers(0);
 	m_rootItem = 0;
+	triggerActionCollection()->action("savetriggers")->setEnabled(false);
 	triggerActionCollection()->action("closetriggers")->setEnabled(false);
 
 	if (customTextTriggers() == 0)
@@ -443,6 +828,7 @@ void TriggerEditor::newTrigger()
 		std::auto_ptr<map::Trigger> trigger(new map::Trigger());
 		trigger->setName(name.toUtf8().constData());
 		trigger->setEnabled(true);
+		trigger->setInitiallyOn(true);
 		
 		QTreeWidgetItem *parent = treeWidget()->selectedItems().first();
 		
@@ -544,6 +930,10 @@ void TriggerEditor::createFileActions(class KMenu *menu)
 	action = new KAction(KIcon(":/actions/opencustomtexttriggers.png"), i18n("Open custom text triggers"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(openCustomTextTriggers()));
 	triggerActionCollection()->addAction("opencustomtexttriggers", action);
+	
+	action = new KAction(KIcon(":/actions/savetriggers.png"), i18n("Save triggers"), this);
+	connect(action, SIGNAL(triggered()), this, SLOT(saveTriggers()));
+	triggerActionCollection()->addAction("savetriggers", action);
 
 	action = new KAction(KIcon(":/actions/closetriggers.png"), i18n("Close triggers"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(closeTriggers()));
@@ -647,7 +1037,7 @@ void TriggerEditor::createToolButtons(class ModuleToolBar *toolBar)
 	toolBar->addSeparator();
 	toolBar->addCustomAction(newActionCollection()->action("newevent"));
 	toolBar->addCustomAction(newActionCollection()->action("newcondition"));
-	toolBar->addCustomAction(newActionCollection()->action("newAction"));
+	toolBar->addCustomAction(newActionCollection()->action("newaction"));
 }
 
 class SettingsInterface* TriggerEditor::settings()

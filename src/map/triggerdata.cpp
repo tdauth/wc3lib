@@ -204,11 +204,16 @@ void TriggerData::readFunction(const Txt::Pair& ref, boost::ptr_map<string, Func
 			if (iterator != this->parameters().end()) {
 				function->defaults().push_back(iterator->second);
 			} else {
-				try {
-					function->defaults().push_back(boost::lexical_cast<int32>(values[i]));
+				try { // float
+					function->defaults().push_back(boost::lexical_cast<float32>(values[i]));
 				}
-				catch (boost::bad_lexical_cast &e) {
-					function->defaults().push_back(values[i]);
+				catch (boost::bad_lexical_cast &e) { // int
+					try {
+						function->defaults().push_back(boost::lexical_cast<int32>(values[i]));
+					}
+					catch (boost::bad_lexical_cast &e) { // string
+						function->defaults().push_back(values[i]);
+					}
 				}
 			}
 		}
@@ -233,18 +238,76 @@ void TriggerData::readFunction(const Txt::Pair& ref, boost::ptr_map<string, Func
 		}
 		
 		for (std::size_t i = 0; i < values.size(); ++i) {
+			Function::Limit limit;
+			bool minimumIsInt = false;
+			bool minimumIsString = false;
+			bool minimumIsDouble = false;
+			
+			// get minimum
+			/*
+			 * NOTE parameters should only occur for defaults not for limits
 			Parameters::iterator iterator = this->parameters().find(values[i]);
 			
 			if (iterator != this->parameters().end()) {
-				function->limits().push_back(iterator->second);
+				limit.first = iterator->second;
 			} else {
-				try {
-					function->limits().push_back(boost::lexical_cast<int32>(values[i]));
+			*/
+				try { // float
+					limit.first = boost::lexical_cast<float32>(values[i]);
+					
+					minimumIsDouble = true;
 				}
-				catch (boost::bad_lexical_cast &e) {
-					function->limits().push_back(values[i]);
+				catch (boost::bad_lexical_cast &e) { // int
+					try {
+						limit.first = boost::lexical_cast<int32>(values[i]);
+						
+						minimumIsInt = true;
+						
+					} catch (boost::bad_lexical_cast &e) { // string
+						limit.first = values[i];
+						
+						minimumIsString = true;
+					}
 				}
+			//}
+			
+			++i; // get maximum
+			
+			if (i < values.size()) {
+				
+				/*
+				 * NOTE parameters should only occur for defaults not for limits
+				Parameters::iterator iterator = this->parameters().find(values[i]);
+			
+				if (iterator != this->parameters().end()) {
+					limit.second = iterator->second;
+				} else {
+				*/
+					try { // float
+						limit.second = boost::lexical_cast<float32>(values[i]);
+					
+						minimumIsDouble = true;
+					}
+					catch (boost::bad_lexical_cast &e) { // int
+						try {
+							limit.second = boost::lexical_cast<int32>(values[i]);
+							
+							minimumIsInt = true;
+							
+						} catch (boost::bad_lexical_cast &e) { // string
+							limit.second = values[i];
+							
+							minimumIsString = true;
+						}
+					}
+				//}
+				// TODO handle _ values?
+				
+			} else {
+				std::cerr << boost::format(_("Limits of function \"%1%\" miss maximum value for limit %2%")) % code % function->limits().size() << std::endl;
 			}
+			
+			function->limits().push_back(limit);
 		}
 	}
 }
@@ -335,13 +398,26 @@ std::streamsize TriggerData::read(InputStream &istream) throw (Exception)
 	// set trigger types bases
 	BOOST_FOREACH(Types::reference ref, this->types())
 	{
-		ref.second->setBaseType(this->types().find(baseTypes[ref.first])->second);
+		const string baseType = baseTypes[ref.first];
+		Types::iterator baseTypeIterator = this->types().find(baseType);
+		
+		if (baseTypeIterator != this->types().end()) {
+			ref.second->setBaseType(baseTypeIterator->second);
+		} else {
+			std::cerr << boost::format(_("Missing base type \"%1%\".")) % baseType << std::endl;
+		}
 	}
 	
 	// set trigger type defaults which are stored in a separated category
 	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerTypeDefaults"))
 	{
-		this->types().find(ref.first)->second->setDefaultValue(ref.second);
+		Types::iterator defaultIterator = this->types().find(ref.first);
+		
+		if (defaultIterator != this->types().end()) {
+			defaultIterator->second->setDefaultValue(ref.second);
+		} else {
+			std::cerr << boost::format(_("Missing default type \"%1%\".")) % ref.first << std::endl;
+		}
 	}
 	
 	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerParams"))
@@ -350,7 +426,6 @@ std::streamsize TriggerData::read(InputStream &istream) throw (Exception)
 		string name = ref.first;
 		
 		parameter->setName(name);
-		
 		
 		SplitVector values;
 		boost::algorithm::split(values, ref.second, boost::is_any_of(","), boost::algorithm::token_compress_on);

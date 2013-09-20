@@ -47,7 +47,7 @@ std::streamsize Trigger::read(InputStream &istream, const TriggerData &triggerDa
 	wc3lib::read(istream, value, size);
 	this->m_isCustomText = boost::lexical_cast<bool>(value);
 	wc3lib::read(istream, value, size);
-	this->m_isInitiallyOn = boost::lexical_cast<bool>(value);
+	this->m_isInitiallyOn = !boost::lexical_cast<bool>(value); // 0 initially on, 1 not initially on
 	wc3lib::read(istream, this->m_unknown, size);
 	wc3lib::read(istream, m_category, size);
 	int32 functions;
@@ -74,7 +74,7 @@ std::streamsize Trigger::write(OutputStream &ostream) const throw (class Excepti
 	wc3lib::write(ostream, value, size);
 	value = this->isCustomText();
 	wc3lib::write(ostream, value, size);
-	value = this->isInitiallyOn();
+	value = !this->isInitiallyOn(); // 0 initially on, 1 not initially on
 	wc3lib::write(ostream, value, size);
 	wc3lib::write(ostream, this->unknown(), size);
 	wc3lib::write(ostream, category(), size);

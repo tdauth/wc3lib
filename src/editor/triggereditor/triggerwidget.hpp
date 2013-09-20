@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_TRIGGERWIDGET_HPP
-#define WC3LIB_EDITOR_TRIGGERWIDGET_HPP
+#ifndef WC3LIB_EDITOR_TRIGGEREDITOR_TRIGGERWIDGET_HPP
+#define WC3LIB_EDITOR_TRIGGEREDITOR_TRIGGERWIDGET_HPP
 
 #include <QtGui/QWidget>
 #include <QtGui/QTreeWidget>
@@ -120,7 +120,7 @@ class TriggerWidget : public QWidget, protected Ui::TriggerTopWidget
 
 inline TriggerEditor* TriggerWidget::triggerEditor() const
 {
-	return boost::polymorphic_cast<TriggerEditor*>(parent());
+	return m_triggerEditor;
 }
 
 inline map::Trigger* TriggerWidget::trigger() const
@@ -166,7 +166,7 @@ inline KTextEdit* TriggerWidget::textEdit() const
 inline TriggerFunctionDialog* TriggerWidget::functionDialog() const
 {
 	if (m_functionDialog == 0 && triggerEditor()->source() != 0) {
-		const_cast<TriggerWidget*>(this)->m_functionDialog = new TriggerFunctionDialog(triggerEditor()->source()->triggerData().get(), triggerEditor()->source()->triggerStrings().get(), const_cast<TriggerWidget*>(this));
+		const_cast<TriggerWidget*>(this)->m_functionDialog = new TriggerFunctionDialog(triggerEditor(), triggerEditor()->source()->triggerData().get(), triggerEditor()->source()->triggerStrings().get(), this->triggerEditor()->triggers(), const_cast<TriggerWidget*>(this));
 	}
 	
 	return m_functionDialog;

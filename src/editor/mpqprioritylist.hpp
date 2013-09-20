@@ -141,6 +141,7 @@ class MpqPriorityList
 
 		typedef std::map<KUrl, Resource*> Resources;
 		typedef boost::ptr_map<BOOST_SCOPED_ENUM(TeamColor), Texture> TeamColorTextures;
+		typedef boost::scoped_ptr<map::Txt> WorldEditorStringsPtr;
 		typedef boost::scoped_ptr<map::TriggerData> TriggerDataPtr;
 		typedef boost::scoped_ptr<map::TriggerStrings> TriggerStringsPtr;
 
@@ -194,6 +195,8 @@ class MpqPriorityList
 		virtual bool removeWar3XSource();
 		virtual bool removeWar3XLocalSource();
 		virtual bool removeDefaultSources();
+		
+		virtual void refreshDefaultFiles(QWidget *window);
 
 		/**
 		 * \copydoc KIO::NetAccess::download()
@@ -227,6 +230,18 @@ class MpqPriorityList
 		 * Once requested, the image is kept in memory until it's refreshed manually.
 		 */
 		Texture* teamGlowTexture(BOOST_SCOPED_ENUM(TeamColor) teamGlow) const throw (class Exception);
+		
+		
+		/**
+		 * \param window Widget which is used for KIO download.
+		 */
+		void refreshWorldEditorStrings(QWidget *window, const KUrl &url = KUrl("UI/WorldEditStrings.txt")) throw (Exception);
+		/**
+		 * World Editor strings are shared between maps usually.
+		 * \note Call \ref refreshWorldEditorStrings() before using world editor strings.
+		 */
+		const WorldEditorStringsPtr& worldEditorStrings() const;
+		
 		/**
 		 * \param window Widget which is used for KIO download.
 		 * \sa triggerData()
@@ -248,11 +263,6 @@ class MpqPriorityList
 		 * \note Call \ref refreshTriggerStrings() before using trigger strings.
 		 */
 		const TriggerStringsPtr& triggerStrings() const;
-
-		/**
-		 * Returns all corresponding key value pairs of \p group from a .txt like file with URL \p url using \p widget as download window.
-		 */
-		virtual QMap<QString,QString> txtEntries(QWidget *widget, const KUrl &url, const QString &group = "") const;
 
 		/**
 		 * Returns localized string under key \p key in group \p group.
@@ -283,6 +293,7 @@ class MpqPriorityList
 		// team color and glow textures
 		mutable TeamColorTextures m_teamColorTextures;
 		mutable TeamColorTextures m_teamGlowTextures;
+		mutable WorldEditorStringsPtr m_worldEditorStrings;
 		mutable TriggerDataPtr m_triggerData;
 		mutable TriggerStringsPtr m_triggerStrings;
 };
@@ -365,6 +376,29 @@ inline Texture* MpqPriorityList::teamGlowTexture(BOOST_SCOPED_ENUM(TeamColor) te
 	}
 
 	return this->m_teamGlowTextures.find(teamGlow)->second;
+}
+
+inline void MpqPriorityList::refreshWorldEditorStrings(QWidget *window, const KUrl &url) throw (Exception)
+{
+	QString target;
+
+	if (!this->download(url, target, window))
+		throw Exception(boost::format(_("Unable to download file \"%1%\".")) % url.toLocalFile().toUtf8().constData());
+
+	qDebug() << "World Editor strings target: " << target;
+	WorldEditorStringsPtr ptr(new map::Txt());
+	ifstream ifstream(target.toUtf8().constData(), std::ios::binary | std::ios::in);
+
+	if (!ifstream)
+		throw Exception(boost::format(_("Unable to read from file \"%1%\".")) % target.toUtf8().constData());
+
+	ptr->read(ifstream);
+	m_worldEditorStrings.swap(ptr); // exception safe
+}
+
+inline const MpqPriorityList::WorldEditorStringsPtr& MpqPriorityList::worldEditorStrings() const
+{
+	return m_worldEditorStrings;
 }
 
 inline void MpqPriorityList::refreshTriggerData(QWidget *window, const KUrl &url) throw (Exception)

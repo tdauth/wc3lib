@@ -74,10 +74,18 @@ SourcesDialog::SourcesDialog(class MpqPriorityList *source, QWidget *parent, Qt:
 	connect(m_dialogButtonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(ok()));
 	connect(m_dialogButtonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
 	connect(m_dialogButtonBox->button(QDialogButtonBox::RestoreDefaults), SIGNAL(clicked()), this, SLOT(restoreDefaults()));
+	connect(m_editListBox, SIGNAL(added(QString)), this, SLOT(added(QString)));
 }
 
 void SourcesDialog::added(const QString& text)
 {
+	// fix mpq entries automatically
+	if (text.endsWith(".mpq") && !text.startsWith("mpq:/")) {
+		QStringList items = m_editListBox->items();
+		items.removeFirst();
+		items.push_front("mpq:/" + text);
+		m_editListBox->setItems(items);
+	}
 }
 
 void SourcesDialog::ok()

@@ -157,8 +157,13 @@ class TriggerData : public FileFormat
 				 */
 				typedef boost::variant<Type*, string> ArgumentType;
 				typedef std::vector<ArgumentType> ArgumentTypes;
-				typedef boost::variant<string, int32, Parameter*> Value;
+				typedef boost::variant<string, int32, float32, Parameter*> Value;
 				typedef std::vector<Value> Values;
+				/**
+				 * Contains minimum and maximum value.
+				 */
+				typedef std::pair<Value, Value> Limit; // TODO Parameter should only occur for defaults not for limits, use int and float only? 
+				typedef std::vector<Limit> Limits;
 
 				// Key: script event function
 				void setCode(const string &code);
@@ -173,8 +178,8 @@ class TriggerData : public FileFormat
 				Category* category() const;
 				Values& defaults();
 				const Values& defaults() const;
-				Values& limits();
-				const Values& limits() const;
+				Limits& limits();
+				const Limits& limits() const;
 				
 				virtual std::streamsize read(InputStream& istream) throw (Exception);
 				virtual std::streamsize write(OutputStream& ostream) const throw (Exception);
@@ -186,7 +191,7 @@ class TriggerData : public FileFormat
 				ArgumentTypes m_types;
 				Category *m_category;
 				Values m_defaults;
-				Values m_limits;
+				Limits m_limits;
 		};
 		
 		class FunctionArgumentVisitor : public boost::static_visitor<string>
@@ -198,6 +203,25 @@ class TriggerData : public FileFormat
 				}
 				
 				string operator()(TriggerData::Type *v) const
+				{
+					return v->name();
+				}
+		};
+		
+		class FunctionValueVisitor : public boost::static_visitor<string>
+		{
+			public:
+				string operator()(string v) const
+				{
+					return v;
+				}
+				
+				string operator()(int32 v) const
+				{
+					return boost::lexical_cast<string>(v);
+				}
+				
+				string operator()(TriggerData::Parameter *v) const
 				{
 					return v->name();
 				}
@@ -607,12 +631,12 @@ inline const TriggerData::Function::Values& TriggerData::Function::defaults() co
 	return m_defaults;
 }
 
-inline TriggerData::Function::Values& TriggerData::Function::limits()
+inline TriggerData::Function::Limits& TriggerData::Function::limits()
 {
 	return this->m_limits;
 }
 
-inline const TriggerData::Function::Values& TriggerData::Function::limits() const
+inline const TriggerData::Function::Limits& TriggerData::Function::limits() const
 {
 	return m_limits;
 }

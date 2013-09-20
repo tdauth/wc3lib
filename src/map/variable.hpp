@@ -42,11 +42,17 @@ class Variable : public Format
 		std::streamsize read(InputStream &istream) throw (class Exception);
 		std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
+		void setName(const string &name);
 		const string& name() const;
+		void setType(const string &type);
 		const string& type() const;
+		void setNumber(int32 number);
 		int32 number() const;
+		void setArray(bool isArray);
 		bool isArray() const;
+		void setInitialized(bool isInitialized);
 		bool isInitialized() const;
+		void setInitialValue(const string &initialValue);
 		const string& initialValue() const;
 
 	protected:
@@ -58,9 +64,19 @@ class Variable : public Format
 		string m_initialValue;
 };
 
+inline void Variable::setName(const string& name)
+{
+	this->m_name = name;
+}
+
 inline const string& Variable::name() const
 {
 	return m_name;
+}
+
+inline void Variable::setType(const string& type)
+{
+	this->m_type = type;
 }
 
 inline const string& Variable::type() const
@@ -68,9 +84,19 @@ inline const string& Variable::type() const
 	return m_type;
 }
 
+inline void Variable::setNumber(int32 number)
+{
+	this->m_number = number;
+}
+
 inline int32 Variable::number() const
 {
 	return m_number;
+}
+
+inline void Variable::setArray(bool isArray)
+{
+	this->m_isArray = isArray;
 }
 
 inline bool Variable::isArray() const
@@ -78,9 +104,19 @@ inline bool Variable::isArray() const
 	return m_isArray;
 }
 
+inline void Variable::setInitialized(bool isInitialized)
+{
+	this->m_isInitialized = isInitialized;
+}
+
 inline bool Variable::isInitialized() const
 {
 	return m_isInitialized;
+}
+
+inline void Variable::setInitialValue(const string& initialValue)
+{
+	this->m_initialValue = initialValue;
 }
 
 inline const string& Variable::initialValue() const

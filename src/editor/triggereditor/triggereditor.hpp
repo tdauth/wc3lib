@@ -18,11 +18,17 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_TRIGGEREDITOR_HPP
-#define WC3LIB_EDITOR_TRIGGEREDITOR_HPP
+#ifndef WC3LIB_EDITOR_TRIGGEREDITOR_TRIGGEREDITOR_HPP
+#define WC3LIB_EDITOR_TRIGGEREDITOR_TRIGGEREDITOR_HPP
 
-#include <QMap>
+#include <vector>
+
+#include <boost/algorithm/string.hpp>
+#include <boost/foreach.hpp>
+
+#include <QHash>
 #include <QTreeWidget>
+#include <QDebug>
 
 #include <KUrl>
 
@@ -41,6 +47,7 @@ namespace editor
  * \note Bear in mind that all code of custom text triggers is stored in a separate file named "war3map.wtc" (\ref map::CustomTextTriggers) whereas all trigger data is stored in "war3map.wtg" (\ref map::Triggers). Therefore you have to load both files to make custom text triggers storable. When using editor mode (\ref hasEditor()) both files will be loaded automatically. Alternatively you could use \ref loadFromMap().
  *
  * \sa VariablesDialog
+ * \sa TriggerFunctionDialog
  */
 class TriggerEditor : public Module
 {
@@ -48,7 +55,12 @@ class TriggerEditor : public Module
 
 	public:
 		typedef QVector<QTreeWidgetItem*> TreeItems;
+		/// Stores indices of tree items with keys of REAL category indices.
+		typedef QHash<int32, int> CategoryIndices;
 
+		/**
+		 * Cutting quotes from trigger string entries.
+		 */
 		static string cutQuotes(const string &value);
 		
 		TriggerEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
@@ -68,6 +80,58 @@ class TriggerEditor : public Module
 		class VariablesDialog* variablesDialog() const;
 		class KActionCollection* triggerActionCollection() const;
 		class KActionCollection* newActionCollection() const;
+		
+		/**
+		 * \return Returns an iterator to the corresponding TriggerStrings.txt entry of \p code from entries specified by \p type.
+		 */
+		static map::TriggerStrings::Entries::const_iterator triggerFunctionEntry(const map::TriggerStrings *triggerStrings, const string &code, BOOST_SCOPED_ENUM(map::TriggerFunction::Type) type);
+		
+		/**
+		 * Returns the minimum integer limit value of \p limit.
+		 * \p hasLimit If this value is not 0 it will store if there's stored a valid int limit. Otherwise no limit is given and should never be set in any numeric input.
+		 */
+		static int triggerFunctionLimitIntMinimum(const map::TriggerData::Call::Limit &limit, bool *hasLimit = 0);
+		static int triggerFunctionLimitIntMaximum(const map::TriggerData::Call::Limit &limit, bool *hasLimit = 0);
+		
+		static double triggerFunctionLimitDoubleMinimum(const map::TriggerData::Call::Limit &limit, bool *hasLimit = 0);
+		static double triggerFunctionLimitDoubleMaximum(const map::TriggerData::Call::Limit &limit, bool *hasLimit = 0);
+		
+		/**
+		 * Returns the corresponding string for \p triggerFunction's call in the following form:
+		 * <functionname>( .. sub calls( ... ) ... )
+		 */
+		static QString triggerFunction(const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const map::TriggerFunction *triggerFunction);
+		/**
+		 * Builds the corresponding string for \p parameter by encapsulating all sub calls recursively using \ref triggerFunction().
+		 * If it is only a variable, JASS call or preset, it simply returns the corresponding string.
+		 */
+		static QString triggerFunctionParameter(const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const map::TriggerFunctionParameter *parameter);
+		
+		template<class Functions>
+		static QString triggerFunctionCategoryText(const map::TriggerData* triggerData, const Functions &functions, const QString& code);
+		
+		/**
+		 * Returns formatted text of function code \p code and function \p function using its "UI/TriggerData.txt" entry and filling all ~values with parameters.
+		 * This text is usually shown in a \ref TriggerFunctionDialog when editing a function and its parameters.
+		 * 
+		 * For all parameters which are function calls itself it returns the corresponding string in the following form if \p function is not 0:
+		 * (<sub call level 1>(<sub calls level 2>))
+		 * 
+		 * If \p function is 0 it will return formatted text for a newly created function.
+		 * \param withLinks If this value is true it will create selectable links for all parameters.
+		 * \param withHint If this value is true, the function's hint will be appended after a line break.
+		 * \param withCategory If this value is true, the function's trigger category will be prepended if it is displayed in trigger editor.
+		 */
+		template<class Functions>
+		static QString triggerFunctionText(const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const QString &code, map::TriggerFunction *function, const Functions &functions, const map::TriggerStrings::Entries &entries, bool withLinks = false, bool withHint = false, bool withCategory = false);
+		
+		
+		/**
+		 * Fills \p function with default values of parameters or empty values.
+		 * \note Expects \p function to be set to its correct type and code value.
+		 * \throws std::runtime_error Throws an expection if function is not found in \p triggerData.
+		 */
+		static void fillNewTriggerFunctionParameters(const map::TriggerData *triggerData, map::TriggerFunction *function);
 
 	public slots:
 		/**
@@ -82,6 +146,9 @@ class TriggerEditor : public Module
 		 * \sa customTextTriggersFilter()
 		 */
 		void openCustomTextTriggers();
+		
+		void saveTriggers();
+		
 		/**
 		 * Similar to \ref clear().
 		 */
@@ -102,6 +169,7 @@ class TriggerEditor : public Module
 		void loadTriggers(Map *map);
 		void loadCustomTextTriggers(map::CustomTextTriggers *customTextTriggers);
 		void loadCustomTextTriggers(Map *map);
+		
 		/**
 		 * Loads triggers and custom text triggers from map \p map.
 		 * \sa loadTriggers()
@@ -176,6 +244,7 @@ class TriggerEditor : public Module
 		map::CustomTextTriggers *m_customTextTriggers;
 		bool m_freeTriggers;
 		bool m_freeCustomTextTriggers;
+		CategoryIndices m_categoryIndices; /// Stores indices of tree items with keys of REAL category indices.
 		TreeItems m_categories;
 		TreeItems m_variables;
 		TreeItems m_triggerEntries;
@@ -333,6 +402,146 @@ inline TriggerEditor::TreeItems& TriggerEditor::variables()
 inline TriggerEditor::TreeItems& TriggerEditor::triggerEntries()
 {
 	return m_triggerEntries;
+}
+
+template<class Functions>
+QString TriggerEditor::triggerFunctionCategoryText(const map::TriggerData* triggerData, const Functions &functions, const QString& code)
+{
+	map::TriggerData::Functions::const_iterator functionIterator = functions.find(code.toUtf8().constData());
+		
+	if (functionIterator != functions.end()) {
+		return QString(functionIterator->second->category()->displayText().c_str());
+	}
+	
+	return QString();
+
+}
+
+
+template<class Functions>
+QString TriggerEditor::triggerFunctionText(const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const QString &code, map::TriggerFunction *function, const Functions &functions, const map::TriggerStrings::Entries &entries, bool withLinks, bool withHint, bool withCategory)
+{
+	map::TriggerStrings::Entries::const_iterator iterator = entries.find(code.toUtf8().constData());
+	QString text;
+	
+	if (iterator != entries.end()) {
+		typedef std::vector<string> SplitVector;
+		SplitVector vector; // #2: Search for tokens
+		boost::algorithm::split(vector, iterator->second->layout(), boost::is_any_of(","), boost::token_compress_on);
+		
+		typename Functions::const_iterator functionIterator = functions.find(code.toUtf8().constData());
+		
+		if (functionIterator != functions.end()) {
+			const map::TriggerData::Function *triggerDataFunction = functionIterator->second;
+			
+			if (withCategory && triggerDataFunction->category() != 0 && triggerDataFunction->category()->displayName()) {
+				text = (triggerDataFunction->category()->displayText() + " - ").c_str();
+			}
+			
+			std::size_t i = 0;
+			
+			BOOST_FOREACH (SplitVector::reference ref, vector) {
+				if (ref[0] == '~') {
+					// encapsulated calls!
+					if (function != 0) {
+						if (function->parameters().size() > i) {
+							string parameter = triggerFunctionParameter(triggerData, triggerStrings, &function->parameters().at(i)).toUtf8().constData();
+							
+							qDebug() << "Parameter " << i << ": \"" << parameter.c_str() << "\"";
+							
+							if (parameter.empty()) { // empty parameter for newly created function
+								parameter = ref.substr(1); // cut ~
+							}
+							
+							if (withLinks) {
+								ref = boost::str(boost::format("<a href=\"%1%\">%2%</a>") % i % parameter);
+							} else {
+								ref = parameter;
+							}
+						} else {
+							qDebug() << "Invalid parameter index " << i;
+						}
+					// new function with default or name of ~Value
+					} else {
+						bool gotDefault = false;
+						
+						// show default if exists
+						if (triggerDataFunction->defaults().size() > i) {
+							string parameter = boost::apply_visitor(map::TriggerData::FunctionValueVisitor(), triggerDataFunction->defaults()[i]);
+							
+							// "_" means no default value
+							if (parameter != "_") {
+								if (!parameter.empty()) {
+									
+									// defaults can be presets or calls
+									if (QChar(parameter[0]).isLetter()) {
+										map::TriggerData::Parameters::const_iterator presetIterator = triggerData->parameters().find(parameter);
+										
+										if (presetIterator != triggerData->parameters().end()) {
+											parameter = presetIterator->second->displayText();
+											
+											
+										// could be a call
+										} else {
+											map::TriggerStrings::Entries::const_iterator callIterator = triggerStrings->calls().find(parameter);
+											
+											if (callIterator != triggerStrings->calls().end()) {
+												parameter = "(" + cutQuotes(callIterator->second->name()) + ")";
+											}
+										}
+									// strings are enclosed by single quotes
+									} else if (parameter[0] == '\"') {
+										parameter = cutQuotes(parameter);
+									}
+								}
+								
+								if (withLinks) {
+									ref = boost::str(boost::format("<a href=\"%1%\">%2%</a>") % i % parameter);
+								} else {
+									ref = parameter;
+								}
+								
+								gotDefault = true;
+							}
+						}
+						
+						// if it's been "_" or there is no default defined use the type's function
+						if (!gotDefault) {
+							const string parameter = ref.substr(1); // cut ~
+							
+							if (withLinks) {
+								ref = boost::str(boost::format("<a href=\"%1%\">%2%</a>") % i % parameter);
+							} else {
+								ref = parameter;
+							}
+						}
+					}
+					
+					++i;
+				} else {
+					ref = TriggerEditor::cutQuotes(ref);
+				}
+			}
+			
+			BOOST_FOREACH (SplitVector::reference ref, vector) {
+				text += ref.c_str();
+			}
+		} else {
+			qDebug() << "Did not find function " << code << " in trigger data";
+		}
+		
+		if (withHint && !iterator->second->hint().empty()) {
+			text += "<br>";
+			//text + tr("Hint:<br>");
+			text += cutQuotes(iterator->second->hint()).c_str();
+		} else {
+			qDebug() << "Hint is empty for " << code;
+		}
+	} else {
+		qDebug() << "Did not find function " << code << " in trigger strings";
+	}
+	
+	return text;
 }
 
 }

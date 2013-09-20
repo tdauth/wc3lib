@@ -42,9 +42,9 @@ void TriggerStrings::readFunction(const Txt::Pair &ref, Entries &functions)
 	string code = ref.first;
 	bool isHint = false;
 	bool isFirst = false;
-	string::size_type index = code.find_last_of("Hint");
+	const string::size_type index = code.rfind("Hint");
 	
-	if (index + strlen("Hint") == code.size()) {
+	if (index != string::npos && index + strlen("Hint") == code.size()) {
 		isHint = true;
 		code = code.substr(0, index);
 	}
@@ -57,6 +57,7 @@ void TriggerStrings::readFunction(const Txt::Pair &ref, Entries &functions)
 		iterator->second->setCode(code);
 		iterator->second->setName(ref.second);
 	} else if (isHint) {
+		std::cerr << "Got Hint for " << code << std::endl;
 		iterator->second->setHint(ref.second);
 	} else {
 		iterator->second->setLayout(ref.second);

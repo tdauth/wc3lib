@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>665</width>
-    <height>538</height>
+    <width>940</width>
+    <height>633</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -27,154 +27,508 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QCheckBox" name="m_checkBoxVariable">
-     <property name="text">
-      <string>Variable:</string>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_7">
+     <item>
+      <widget class="QRadioButton" name="m_radioButtonPreset">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Preset:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_5">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="KComboBox" name="m_presetComboBox"/>
+     </item>
+    </layout>
    </item>
-   <item row="0" column="1">
-    <widget class="KComboBox" name="m_variablesComboBox"/>
+   <item row="1" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QRadioButton" name="m_radioButtonVariable">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Variable:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="KComboBox" name="m_variablesComboBox"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="m_variablesSelectPushButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>select one</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="m_variablesPushButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Edit Variables</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
-   <item row="0" column="3" colspan="3">
-    <widget class="QPushButton" name="m_variablesPushButton">
-     <property name="text">
-      <string>Edit Variables</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QLabel" name="m_categoryLabel">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Category:</string>
-     </property>
-    </widget>
+   <item row="2" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="m_radioButtonFunction">
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Function:</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="m_categoryLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Category:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="KComboBox" name="m_categoryComboBox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>200</width>
+             <height>0</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Expanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>150</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="KComboBox" name="m_functionComboBox"/>
+       </item>
+      </layout>
+     </item>
+    </layout>
    </item>
    <item row="3" column="0">
-    <widget class="QCheckBox" name="m_checkBoxFunction">
-     <property name="text">
-      <string>Function:</string>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_6">
+     <item>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>145</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="m_textGroupBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>200</height>
+        </size>
+       </property>
+       <property name="title">
+        <string/>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <widget class="QLabel" name="m_descriptionLabel">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>10</y>
+          <width>521</width>
+          <height>101</height>
+         </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Description</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::RichText</enum>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </widget>
+     </item>
+    </layout>
    </item>
-   <item row="3" column="1">
-    <widget class="KComboBox" name="m_functionComboBox"/>
-   </item>
-   <item row="4" column="1" colspan="5">
-    <widget class="QGroupBox" name="m_textGroupBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="title">
-      <string>Text</string>
-     </property>
-     <property name="flat">
-      <bool>true</bool>
-     </property>
-     <property name="checkable">
-      <bool>false</bool>
-     </property>
-     <widget class="QLabel" name="m_descriptionLabel">
-      <property name="geometry">
-       <rect>
-        <x>7</x>
-        <y>29</y>
-        <width>461</width>
-        <height>101</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Description</string>
-      </property>
-      <property name="textFormat">
-       <enum>Qt::RichText</enum>
-      </property>
-     </widget>
-    </widget>
+   <item row="4" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_8">
+     <item>
+      <widget class="QRadioButton" name="m_radioButtonImported">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Imported:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_6">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="KComboBox" name="m_importedComboBox"/>
+     </item>
+    </layout>
    </item>
    <item row="5" column="0">
-    <widget class="QCheckBox" name="m_checkBoxImported">
-     <property name="text">
-      <string>Imported:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="1" colspan="5">
-    <widget class="KComboBox" name="m_importedComboBox"/>
+    <layout class="QHBoxLayout" name="horizontalLayout_9">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
+       </property>
+       <item>
+        <widget class="QRadioButton" name="m_radioButtonValue">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="sizeIncrement">
+          <size>
+           <width>100</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Value:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>5</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_7">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
+          <widget class="QTextEdit" name="m_textEdit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="m_valuePushButton">
+           <property name="text">
+            <string>Select symbol</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="KLineEdit" name="m_lineEdit"/>
+           </item>
+           <item>
+            <widget class="QFrame" name="m_booleanFrame">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>140</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_10">
+              <item>
+               <widget class="QRadioButton" name="m_radioButtonTrue">
+                <property name="text">
+                 <string>True</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="m_radioButtonFalse">
+                <property name="text">
+                 <string>False</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="KDoubleNumInput" name="m_numInputDouble"/>
+           </item>
+           <item>
+            <widget class="KIntNumInput" name="m_numInput"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="m_valueLabel">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Value description</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+    </layout>
    </item>
    <item row="6" column="0">
-    <widget class="QCheckBox" name="m_checkBoxValue">
-     <property name="text">
-      <string>Value:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="1" colspan="2">
-    <widget class="QTextEdit" name="m_textEdit">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="3">
-    <widget class="KIntNumInput" name="m_numInput"/>
-   </item>
-   <item row="6" column="4">
-    <widget class="KDoubleNumInput" name="m_numInputDouble"/>
-   </item>
-   <item row="6" column="5">
-    <widget class="QLabel" name="m_valueLabel">
-     <property name="text">
-      <string>Value description</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="1" colspan="2">
-    <widget class="QPushButton" name="m_valuePushButton">
-     <property name="text">
-      <string>Select symbol</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="4" colspan="2">
     <widget class="KDialogButtonBox" name="m_dialogButtonBox">
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="3" colspan="3">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>284</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="2" column="1" colspan="2">
-    <widget class="KComboBox" name="m_categoryComboBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
      </property>
     </widget>
    </item>
@@ -197,186 +551,162 @@
    <header>kcombobox.h</header>
   </customwidget>
   <customwidget>
+   <class>KLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>klineedit.h</header>
+  </customwidget>
+  <customwidget>
    <class>KIntNumInput</class>
    <extends>QWidget</extends>
    <header>knuminput.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>m_radioButtonPreset</tabstop>
+  <tabstop>m_presetComboBox</tabstop>
+  <tabstop>m_radioButtonVariable</tabstop>
+  <tabstop>m_variablesComboBox</tabstop>
+  <tabstop>m_variablesSelectPushButton</tabstop>
+  <tabstop>m_variablesPushButton</tabstop>
+  <tabstop>m_radioButtonFunction</tabstop>
+  <tabstop>m_categoryComboBox</tabstop>
+  <tabstop>m_functionComboBox</tabstop>
+  <tabstop>m_radioButtonImported</tabstop>
+  <tabstop>m_importedComboBox</tabstop>
+  <tabstop>m_radioButtonValue</tabstop>
+  <tabstop>m_textEdit</tabstop>
+  <tabstop>m_numInputDouble</tabstop>
+  <tabstop>m_numInput</tabstop>
+  <tabstop>m_valuePushButton</tabstop>
+  <tabstop>m_dialogButtonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
-   <sender>m_checkBoxVariable</sender>
+   <sender>m_radioButtonPreset</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>m_presetComboBox</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>61</x>
+     <y>18</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>177</x>
+     <y>15</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_radioButtonVariable</sender>
    <signal>clicked(bool)</signal>
    <receiver>m_variablesComboBox</receiver>
-   <slot>setEnabled(bool)</slot>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>40</x>
+     <y>46</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>270</x>
+     <y>45</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_radioButtonFunction</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>m_categoryComboBox</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>40</x>
+     <y>122</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>171</x>
+     <y>90</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_radioButtonFunction</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>m_functionComboBox</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>84</x>
+     <y>124</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>213</x>
+     <y>113</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_radioButtonImported</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>m_importedComboBox</receiver>
+   <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>45</x>
-     <y>13</y>
+     <y>351</y>
     </hint>
     <hint type="destinationlabel">
-     <x>109</x>
-     <y>13</y>
+     <x>167</x>
+     <y>354</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>m_checkBoxVariable</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>m_variablesPushButton</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>35</x>
-     <y>21</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>382</x>
-     <y>18</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>m_checkBoxFunction</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>m_categoryComboBox</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>32</x>
-     <y>92</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>116</x>
-     <y>57</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>m_checkBoxFunction</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>m_functionComboBox</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>60</x>
-     <y>81</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>113</x>
-     <y>87</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>m_checkBoxFunction</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>m_textGroupBox</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>41</x>
-     <y>90</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>131</x>
-     <y>123</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>m_checkBoxImported</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>m_importedComboBox</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>48</x>
-     <y>272</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>133</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>m_checkBoxValue</sender>
+   <sender>m_radioButtonValue</sender>
    <signal>clicked(bool)</signal>
    <receiver>m_textEdit</receiver>
-   <slot>setEnabled(bool)</slot>
+   <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>31</x>
-     <y>383</y>
+     <x>49</x>
+     <y>384</y>
     </hint>
     <hint type="destinationlabel">
-     <x>193</x>
-     <y>374</y>
+     <x>207</x>
+     <y>403</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>m_checkBoxValue</sender>
+   <sender>m_radioButtonValue</sender>
    <signal>clicked(bool)</signal>
-   <receiver>m_valuePushButton</receiver>
-   <slot>setEnabled(bool)</slot>
+   <receiver>m_numInputDouble</receiver>
+   <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>42</x>
+     <x>81</x>
      <y>382</y>
     </hint>
     <hint type="destinationlabel">
-     <x>129</x>
-     <y>494</y>
+     <x>437</x>
+     <y>391</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>m_checkBoxValue</sender>
+   <sender>m_radioButtonValue</sender>
    <signal>clicked(bool)</signal>
    <receiver>m_numInput</receiver>
-   <slot>setEnabled(bool)</slot>
+   <slot>setEditFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>62</x>
-     <y>376</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>390</x>
-     <y>388</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>m_checkBoxValue</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>m_numInputDouble</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>54</x>
-     <y>379</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>499</x>
+     <x>70</x>
      <y>381</y>
     </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>m_checkBoxValue</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>m_valueLabel</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>51</x>
-     <y>374</y>
-    </hint>
     <hint type="destinationlabel">
-     <x>592</x>
-     <y>361</y>
+     <x>524</x>
+     <y>385</y>
     </hint>
    </hints>
   </connection>

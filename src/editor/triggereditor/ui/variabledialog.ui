@@ -42,7 +42,7 @@
     </widget>
    </item>
    <item row="2" column="2">
-    <widget class="QLabel" name="label_3">
+    <widget class="QLabel" name="m_arraySizeLabel">
      <property name="enabled">
       <bool>false</bool>
      </property>
@@ -177,6 +177,22 @@
     <hint type="destinationlabel">
      <x>258</x>
      <y>74</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_arrayCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>m_arraySizeLabel</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>152</x>
+     <y>69</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>204</x>
+     <y>70</y>
     </hint>
    </hints>
   </connection>

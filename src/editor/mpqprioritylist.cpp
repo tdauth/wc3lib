@@ -162,6 +162,13 @@ bool MpqPriorityList::removeDefaultSources()
 	removeWar3XLocalSource();
 }
 
+void MpqPriorityList::refreshDefaultFiles(QWidget* window)
+{
+	this->refreshWorldEditorStrings(window);
+	this->refreshTriggerStrings(window);
+	this->refreshTriggerData(window);
+}
+
 bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window)
 {
 	qDebug() << "Download: " << src.url();
@@ -239,24 +246,25 @@ bool MpqPriorityList::mkdir(const KUrl &target, QWidget *window)
 	return false;
 }
 
-QMap< QString, QString > MpqPriorityList::txtEntries(QWidget *widget, const KUrl &url, const QString &group) const
-{
-	QString target;
-
-	if (!const_cast<MpqPriorityList*>(this)->download(url, target, widget))
-	{
-		qDebug() << i18n("Missing file \"%1\".", url.toEncoded().constData());
-
-		return QMap<QString,QString>();
-	}
-
-	KConfig config(target);
-
-	return config.entryMap(group);
-}
-
 QString MpqPriorityList::tr(QWidget *widget, const QString &key, const QString &group, BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale, const QString &defaultValue) const
 {
+	// TODO if group is empty, search all sections
+	if (worldEditorStrings().get() != 0) {
+		qDebug() << "Trying it in WorldEditorStrings.txt";
+		
+		try {
+			const map::Txt::Pairs &pairs = worldEditorStrings()->entries(group.toUtf8().constData());
+			
+			// TODO linear search
+			foreach (map::Txt::Pairs::const_reference ref, pairs) {
+				if (ref.first == key.toUtf8().constData()) {
+					return ref.second.c_str();
+				}
+			}
+		} catch (Exception &e) {
+		}
+	}
+	
 	QStringList files;
 	// all files which contain strings
 	files
@@ -266,15 +274,7 @@ QString MpqPriorityList::tr(QWidget *widget, const QString &key, const QString &
 	<< "UI/TipStrings.txt"
 	<< "UI/CampaignStrings.txt"
 	;
-
-	foreach (QString file, files)
-	{
-		QMap<QString, QString> entries = txtEntries(widget, file, group);
-
-		if (entries.find(key) != entries.end())
-			return entries[key];
-	}
-
+	
 	if (!defaultValue.isEmpty())
 		return defaultValue;
 
@@ -283,6 +283,8 @@ QString MpqPriorityList::tr(QWidget *widget, const QString &key, const QString &
 
 void MpqPriorityList::readSettings(const QString& group)
 {
+	qDebug() << "Reading settings for group " << group;
+	
 	QSettings settings("wc3editor", "wc3editor");
 	settings.beginGroup(group);
 	const int size = settings.beginReadArray("entries");
@@ -301,6 +303,8 @@ void MpqPriorityList::readSettings(const QString& group)
 
 void MpqPriorityList::writeSettings(const QString& group)
 {
+	qDebug() << "Writing settings for group " << group;
+	
 	QSettings settings("wc3editor", "wc3editor");
 	settings.beginGroup(group);
 	settings.beginWriteArray("entries");
@@ -309,7 +313,7 @@ void MpqPriorityList::writeSettings(const QString& group)
 	BOOST_FOREACH(const Source entry, sources().get<MpqPriorityListEntry>())
 	{
 		settings.setArrayIndex(i);
-		settings.setValue("url", entry->url());
+		settings.setValue("url", QUrl(entry->url()));
 		settings.setValue("priority", boost::numeric_cast<int>(entry->priority()));
 		++i;
 	}
