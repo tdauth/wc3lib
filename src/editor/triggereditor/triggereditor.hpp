@@ -40,6 +40,27 @@ namespace wc3lib
 
 namespace editor
 {
+/**
+ * \page triggereditorsection Trigger Editor
+ * Warcraft III provides an event-based scripting language called JASS to define the game logic. Since JASS provides many native functions which allows you to completely redefine your own game behaviour many custom maps have been created.
+ * 
+ * As most people don't know scripting or programming languages or find it hard to learn them there is a trigger editor provided by Blizzard's World Editor
+ * which allows you to call functions selecting them via an extended GUI.
+ * 
+ * Besides the trigger editor allows easier selection of game specific resources like units/destructibles on the map or other global objects.
+ * The GUI restriction when selecting parameters of functions does not only simplify choosing the proper parameters by offering them in combo boxes, additionally it assures that only valid parameters can be passed to functions.
+ * 
+ * The name "trigger editor" comes from the fact that the event-based scripting language JASS gets all function calls from so called "triggers" which react on events and can be seen as threads known from most programming languages.
+ * 
+ * One single trigger can react on as many events as the user defines. In addition to events, the user can define conditions and actions. Conditions are evaluated whenever a trigger event occurs and only if the evaluation of ALL trigger conditions returns true its actions will be called.
+ * 
+ * The main class is the module deriving class \ref TriggerEditor which allows to load one set of triggers using the map module's class \ref map::Triggers + \ref map::CustomTextTriggers for all triggers which contain JASS code only.
+ * 
+ * For corresponding trigger data and identifiers \ref map::TriggerData and \ref map::TriggerStrings are used. As \ref MpqPriorityList provides \ref MpqPriorityList::triggerData() and \ref MpqPriorityList::triggerStrings() the trigger editor will try to use them to get the necessary dependencies of trigger functions.
+ * 
+ * Additionally, the user is allowed to load his custom trigger data and strings using the file menu of the trigger editor.
+ * 
+ */
 
 /**
  * \brief The trigger editor is one of the most important modules of the World Editor when creating non-melee maps since it offers you the possibility to react on game events and therefore to define a completely new behaviour of the game.
@@ -48,6 +69,7 @@ namespace editor
  *
  * \sa VariablesDialog
  * \sa TriggerFunctionDialog
+ * \ingroup triggereditorsection
  */
 class TriggerEditor : public Module
 {
@@ -71,39 +93,83 @@ class TriggerEditor : public Module
 		 */
 		string triggerText(map::Trigger *trigger) const;
 
+		/**
+		 * \return Returns the currently loaded triggers of trigger editor.
+		 * \sa openTriggers(), loadTriggers(), customTextTriggers()
+		 */
 		map::Triggers* triggers() const;
+		/**
+		 * \return Returns the currently loaded custom text triggers of trigger editor.
+		 * \sa openCustomTextTriggers(), loadCustomTextTriggers(), triggers()
+		 */
 		map::CustomTextTriggers* customTextTriggers() const;
+		/**
+		 * \return Returns the trigger tree widget which contains triggers as well as trigger categories and trigger comments.
+		 * \sa rootItem()
+		 */
 		QTreeWidget* treeWidget() const;
+		/**
+		 * \return Returns the tree widget's root item which usually contains the name of the loaded map and allows to open the custom map script by double clicking it.
+		 * \sa treeWidget()
+		 */
 		QTreeWidgetItem* rootItem() const;
+		/**
+		 * The map script widget is a simple text edit which contains the custom map script containing custom JASS code.
+		 * It is shown when double clicking the root item of the tree widget.
+		 * It then replaces the trigger widget which is shown when a trigger is selected.
+		 * \return Returns the widget which allows editing the custom map script.
+		 * \sa triggerWidget()
+		 */
 		class MapScriptWidget* mapScriptWidget() const;
+		/**
+		 * The trigger widget allows editing a trigger's flags, comment and functions.
+		 * It is shown when double clicking a trigger in tree widget and replaces the map script widget if shown before.
+		 * \return Returns the trigger widget which might contain information of the currently selected trigger.
+		 * \sa mapScriptWidget()
+		 */
 		class TriggerWidget* triggerWidget() const;
 		class VariablesDialog* variablesDialog() const;
 		class KActionCollection* triggerActionCollection() const;
 		class KActionCollection* newActionCollection() const;
 		
 		/**
+		 * \defgroup triggerhelpers Trigger data helper functions
+		 * These static functions help formatting and retrieving trigger data.
+		 * \{
+		 */
+		
+		/**
 		 * \return Returns an iterator to the corresponding TriggerStrings.txt entry of \p code from entries specified by \p type.
 		 */
 		static map::TriggerStrings::Entries::const_iterator triggerFunctionEntry(const map::TriggerStrings *triggerStrings, const string &code, BOOST_SCOPED_ENUM(map::TriggerFunction::Type) type);
 		
+		/**\{*/
 		/**
-		 * Returns the minimum integer limit value of \p limit.
-		 * \p hasLimit If this value is not 0 it will store if there's stored a valid int limit. Otherwise no limit is given and should never be set in any numeric input.
+		 * Returns the numeric limit value of \p limit.
+		 * \p hasLimit If this value is not 0 it will store if there exists a valid numeric limit. Otherwise no limit is given and should never be set in any numeric input.
 		 */
 		static int triggerFunctionLimitIntMinimum(const map::TriggerData::Call::Limit &limit, bool *hasLimit = 0);
 		static int triggerFunctionLimitIntMaximum(const map::TriggerData::Call::Limit &limit, bool *hasLimit = 0);
 		
 		static double triggerFunctionLimitDoubleMinimum(const map::TriggerData::Call::Limit &limit, bool *hasLimit = 0);
 		static double triggerFunctionLimitDoubleMaximum(const map::TriggerData::Call::Limit &limit, bool *hasLimit = 0);
+		/**\}*/
 		
 		/**
-		 * Returns the corresponding string for \p triggerFunction's call in the following form:
-		 * <functionname>( .. sub calls( ... ) ... )
+		 * This function should be used for single lines without any extra information.
+		 * Use \ref triggerFunctionText() for advanced text output.
+		 * For parameters use \ref triggerFunctionParameter().
+		 * \return Returns the corresponding string for \p triggerFunction's call in the following form:
+		 * (<functionname>( (<sub calls 1>( <sub call 2>, ...), ...), ... ))
 		 */
 		static QString triggerFunction(const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const map::TriggerFunction *triggerFunction);
 		/**
 		 * Builds the corresponding string for \p parameter by encapsulating all sub calls recursively using \ref triggerFunction().
 		 * If it is only a variable, JASS call or preset, it simply returns the corresponding string.
+		 * 
+		 * \param triggerData Trigger data from "UI/TriggerData.txt" which is used to get information about trigger functions and presets.
+		 * \param triggerStrings Trigger strings from "UI/TriggerStrings.txt" which are used to get the corresponding identifiers of trigger functions and presets.
+		 * \param parameter Parameter of a trigger function for which the corresponding string is returned.
 		 */
 		static QString triggerFunctionParameter(const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const map::TriggerFunctionParameter *parameter);
 		
@@ -121,6 +187,7 @@ class TriggerEditor : public Module
 		 * \param withLinks If this value is true it will create selectable links for all parameters.
 		 * \param withHint If this value is true, the function's hint will be appended after a line break.
 		 * \param withCategory If this value is true, the function's trigger category will be prepended if it is displayed in trigger editor.
+		 * \return Returns the formatted string.
 		 */
 		template<class Functions>
 		static QString triggerFunctionText(const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const QString &code, map::TriggerFunction *function, const Functions &functions, const map::TriggerStrings::Entries &entries, bool withLinks = false, bool withHint = false, bool withCategory = false);
@@ -132,6 +199,8 @@ class TriggerEditor : public Module
 		 * \throws std::runtime_error Throws an expection if function is not found in \p triggerData.
 		 */
 		static void fillNewTriggerFunctionParameters(const map::TriggerData *triggerData, map::TriggerFunction *function);
+		
+		/**\}*/ // end of group triggerhelpers
 
 	public slots:
 		/**
@@ -147,6 +216,9 @@ class TriggerEditor : public Module
 		 */
 		void openCustomTextTriggers();
 		
+		/**
+		 * Opens a save dialog to save the currently loaded triggers.
+		 */
 		void saveTriggers();
 		
 		/**
@@ -162,7 +234,13 @@ class TriggerEditor : public Module
 		void closeAll();
 		void resetTriggers();
 		void renameTrigger();
+		/**
+		 * Displays the modal global variables dialog.
+		 */
 		void showVariables();
+		/**
+		 * Converts the currently open trigger into JASS code/a custom text trigger.
+		 */
 		void convertToText();
 
 		void loadTriggers(map::Triggers *triggers);
@@ -233,6 +311,7 @@ class TriggerEditor : public Module
 		 */
 		bool freeTriggers() const;
 		bool freeCustomTextTriggers() const;
+		CategoryIndices& categoryIndices();
 		TreeItems& categories();
 		TreeItems& variables();
 		TreeItems& triggerEntries();
@@ -387,6 +466,11 @@ inline bool TriggerEditor::freeTriggers() const
 inline bool TriggerEditor::freeCustomTextTriggers() const
 {
 	return m_freeCustomTextTriggers;
+}
+
+inline TriggerEditor::CategoryIndices& TriggerEditor::categoryIndices()
+{
+	return m_categoryIndices;
 }
 
 inline TriggerEditor::TreeItems& TriggerEditor::categories()

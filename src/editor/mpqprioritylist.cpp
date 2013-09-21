@@ -293,7 +293,10 @@ void MpqPriorityList::readSettings(const QString& group)
 	{
 		settings.setArrayIndex(i);
 		const KUrl url = settings.value("url").toUrl();
-		this->addSource(settings.value("url").toUrl(), settings.value("priority").toInt());
+		const int priority = settings.value("priority").toInt();
+		qDebug() << "Loading source url " << url;
+		qDebug() << "With priority " << priority;
+		this->addSource(url, priority);
 		++i;
 	}
 
@@ -310,11 +313,14 @@ void MpqPriorityList::writeSettings(const QString& group)
 	settings.beginWriteArray("entries");
 	int i = 0;
 
-	BOOST_FOREACH(const Source entry, sources().get<MpqPriorityListEntry>())
+	BOOST_FOREACH(const Source &entry, sources().get<MpqPriorityListEntry>())
 	{
 		settings.setArrayIndex(i);
-		settings.setValue("url", QUrl(entry->url()));
-		settings.setValue("priority", boost::numeric_cast<int>(entry->priority()));
+		qDebug() << "Storing url " << entry->url();
+		settings.setValue("url", entry->url());
+		const int priority = boost::numeric_cast<int>(entry->priority());
+		qDebug() << "Storing priority " << priority;
+		settings.setValue("priority", priority);
 		++i;
 	}
 

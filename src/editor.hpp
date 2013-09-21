@@ -21,6 +21,36 @@
 #ifndef WC3LIB_EDITOR_HPP
 #define WC3LIB_EDITOR_HPP
 
+namespace wc3lib
+{
+/**
+ * \page editorsection Editor module
+ * The editor module contains many classes to emulate the original World Editor created by Blizzard Entertainment.
+ * 
+ * It's based on some plugins which can be used without the whole editor module functionality, as well.
+ * 
+ * Include file \ref editor.hpp and use namspace \ref wc3lib::edtor to use this module.
+ * 
+ * Resource classes derived from \ref editor::Resource can be used to load Warcraft III date like textures (\ref editor::Texture), models (\ref editor::OgreMdlx) or maps (\ref editor::Map).
+ * 
+ * Those wrapper classes provide load and save functionality based on the KIO API and considering \ref MpqPriorityList entries.
+ * 
+ * \section pluginssection Plugins
+ * There is various plug-ins which allow you to load and save BLP textures in Qt/KDE GUIs and OGRE scenes and to access MPQ archives via KDE's KIO slave module:
+ * <ul>
+ * <li>\ref editor::BlpCodec - OGRE BLP texture support</li>
+ * <li>\ref editor::MpqProtocol - KDE I/O slave for MPQ archives</li>
+ * <li>\ref editor::BlpIOPlugin - Qt image format support for BLP textures</li>
+ * </ul>
+ * 
+ * \section modulessection World Editor Modules
+ * The editor module provides some sub modules which offer all features of one single original World Editor module:
+ * <ul>
+ * <li>\subpage triggereditorsection </li>
+ * </ul>
+ */
+}
+
 #include "editor/editor.hpp"
 #include "editor/filemetainfo.hpp"
 #include "editor/modelview.hpp"

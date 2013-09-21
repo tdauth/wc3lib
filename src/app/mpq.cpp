@@ -665,9 +665,20 @@ int main(int argc, char *argv[])
 
 				continue;
 			}
+			
+			std::list<std::string> paths;
 
 			BOOST_FOREACH(const Mpq::FilePtr mpqFile, mpq->files().get<0>())
-				std::cout << mpqFile->path() << std::endl;
+			{
+				paths.push_back(mpqFile->path().generic_string());
+			}
+			
+			paths.sort(); // sort alphabetically
+			
+			BOOST_FOREACH(const std::string &path, paths)
+			{
+				std::cout << path << std::endl;
+			}
 		}
 	}
 
