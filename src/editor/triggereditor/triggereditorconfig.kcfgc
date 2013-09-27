@@ -1,0 +1,5 @@
+File=triggereditorconfig.kcfg
+ClassName=TriggerEditorConfig
+NameSpace=wc3lib::editor
+SetUserTexts=1
+Mutators=true

@@ -86,6 +86,7 @@ class TriggerEditor : public Module
 		static string cutQuotes(const string &value);
 		
 		TriggerEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		virtual ~TriggerEditor();
 
 		/**
 		 * \return Returns empty string if there is no custom text triggers or no valid text entry.
@@ -338,6 +339,9 @@ class TriggerEditor : public Module
 
 		KActionCollection *m_triggerActionCollection;
 		KActionCollection *m_newActionCollection;
+		
+		KUrl m_openDirectory;
+		class TriggerEditorConfig *m_config;
 };
 
 inline string TriggerEditor::triggerText(map::Trigger *trigger) const

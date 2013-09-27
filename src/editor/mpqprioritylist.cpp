@@ -48,7 +48,10 @@ bool MpqPriorityList::addSource(const KUrl &url, MpqPriorityListEntry::Priority 
 		return false;
 
 	Source ptr(new MpqPriorityListEntry(url, priority));
+	
+	qDebug() << "Size before pushing back: " << sources().size();
 	sources().push_back(ptr);
+	qDebug() << "Size after pushing back: " << sources().size();
 
 	return true;
 }
@@ -194,8 +197,14 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 		qDebug() << "Trying " << absoluteSource.url();
 
 		if (KIO::NetAccess::download(absoluteSource, target, window))
+		{
+			qDebug() << "Downloaded successfully";
+			
 			return true;
+		}
 	}
+	
+	qDebug() << "Downloaded failed";
 
 	return false;
 }
@@ -286,13 +295,14 @@ void MpqPriorityList::readSettings(const QString& group)
 	qDebug() << "Reading settings for group " << group;
 	
 	QSettings settings("wc3editor", "wc3editor");
+	qDebug() << "Settings file name: " << settings.fileName();
 	settings.beginGroup(group);
 	const int size = settings.beginReadArray("entries");
 
 	for (int i = 0; i < size; ++i)
 	{
 		settings.setArrayIndex(i);
-		const KUrl url = settings.value("url").toUrl();
+		const KUrl url = KUrl(settings.value("url").toByteArray());
 		const int priority = settings.value("priority").toInt();
 		qDebug() << "Loading source url " << url;
 		qDebug() << "With priority " << priority;
@@ -312,12 +322,15 @@ void MpqPriorityList::writeSettings(const QString& group)
 	settings.beginGroup(group);
 	settings.beginWriteArray("entries");
 	int i = 0;
+	
+	qDebug() << "Size 1: " << sources().size();
+	qDebug() << "Size 2: " << sources().get<MpqPriorityListEntry>().size();
 
 	BOOST_FOREACH(const Source &entry, sources().get<MpqPriorityListEntry>())
 	{
 		settings.setArrayIndex(i);
 		qDebug() << "Storing url " << entry->url();
-		settings.setValue("url", entry->url());
+		settings.setValue("url", entry->url().toEncoded());
 		const int priority = boost::numeric_cast<int>(entry->priority());
 		qDebug() << "Storing priority " << priority;
 		settings.setValue("priority", priority);
@@ -326,6 +339,11 @@ void MpqPriorityList::writeSettings(const QString& group)
 
 	settings.endArray();
 	settings.endGroup();
+}
+
+void MpqPriorityList::clear()
+{
+	sources().clear();
 }
 
 MpqPriorityList::Sources& MpqPriorityList::sources()

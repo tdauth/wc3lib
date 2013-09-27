@@ -1,0 +1,4 @@
+File=editorconfig.kcfg
+ClassName=Configuration
+NameSpace=wc3lib::editor
+SetUserTexts=1

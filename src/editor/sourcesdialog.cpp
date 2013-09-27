@@ -39,8 +39,13 @@ namespace editor
 
 void SourcesDialog::update()
 {
-	foreach (MpqPriorityList::Source source, const_cast<const MpqPriorityList*>(source())->sources())
+	m_editListBox->clear();
+	
+	qDebug() << "Sources: " << const_cast<const MpqPriorityList*>(source())->sources().size();
+	
+	foreach (MpqPriorityList::Source source, const_cast<const MpqPriorityList*>(source())->sources()) {
 		m_editListBox->insertItem(source->url().toEncoded());
+	}
 }
 
 SourcesDialog::SourcesDialog(class MpqPriorityList *source, QWidget *parent, Qt::WFlags flags): m_source(source), QDialog(parent, flags)
@@ -54,7 +59,7 @@ SourcesDialog::SourcesDialog(class MpqPriorityList *source, QWidget *parent, Qt:
 	//m_editListBox->lineEdit()->setCompletionObject(urlCompletion);
 	//m_editListBox->setCustomEditor(*requester);
 	KUrlRequester *urlRequester = new KUrlRequester(m_editListBox);
-	urlRequester->setMode(KFile::ExistingOnly | KFile::Files | KFile::Directory);
+	//urlRequester->setMode(KFile::ExistingOnly | KFile::Files | KFile::Directory);
 
 	KMimeType::Ptr mpq(KMimeType::mimeType("application/x-mpq"));
 	KMimeType::Ptr w3m(KMimeType::mimeType("application/x-w3m"));
@@ -85,6 +90,15 @@ void SourcesDialog::added(const QString& text)
 		items.removeFirst();
 		items.push_front("mpq:/" + text);
 		m_editListBox->setItems(items);
+	} else {
+		const KUrl url(text);
+		
+		if (url.isLocalFile() && !text.startsWith("file://")) {
+			QStringList items = m_editListBox->items();
+			items.removeFirst();
+			items.push_front("file://" + text);
+			m_editListBox->setItems(items);
+		}
 	}
 }
 
@@ -96,24 +110,21 @@ void SourcesDialog::ok()
 
 void SourcesDialog::apply()
 {
+	QLinkedList<KUrl> valids;
+	
+	source()->clear(); // NOTE we always have to clear first since priorities of existing entries might have changed
+	
 	foreach (const QString &item, m_editListBox->items())
 	{
-		if (const_cast<const MpqPriorityList*>(source())->sources().get<KUrl>().find(KUrl(item)) == const_cast<const MpqPriorityList*>(source())->sources().get<KUrl>().end())
+		if (!source()->addSource(item))
 		{
-			if (!source()->addSource(item))
-				KMessageBox::error(this, i18n("Invalid source \"%1\".", item));
+			KMessageBox::error(this, i18n("Invalid source \"%1\".", item));
+		}
+		else
+		{
+			qDebug() << "Successfully added";
 		}
 	}
-	QLinkedList<KUrl> invalidUrls;
-
-	foreach (MpqPriorityList::Source source, const_cast<const MpqPriorityList*>(source())->sources())
-	{
-		if (!m_editListBox->items().contains(source->url().toEncoded()))
-			invalidUrls.push_back(source->url());
-	}
-
-	foreach (const KUrl &url, invalidUrls)
-		source()->removeSource(url);
 
 	this->source()->writeSettings(settingsGroup());
 }
@@ -149,10 +160,7 @@ QString SourcesDialog::settingsGroup() const
 	{
 		Module *module = static_cast<Module*>(parentWidget());
 
-		if (module->hasEditor())
-			return module->editor()->aboutData().appName();
-		else
-			return module->componentData().aboutData()->appName();
+		return module->settingsGroup();
 	}
 	else
 		throw Exception(_("Sources can only have modules or editor as parent."));

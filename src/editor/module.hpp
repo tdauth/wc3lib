@@ -86,6 +86,8 @@ class Module : public QWidget
 		 * \sa moduleMenu()
 		 */
 		virtual QString actionName() const = 0;
+		
+		QString settingsGroup() const;
 
 	public slots:
 		void showSourcesDialog();

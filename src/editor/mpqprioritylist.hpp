@@ -282,6 +282,11 @@ class MpqPriorityList
 
 		void readSettings(const QString &group);
 		void writeSettings(const QString &group);
+		
+		/**
+		 * Removes all sources.
+		 */
+		void clear();
 
 	protected:
 		Sources& sources();

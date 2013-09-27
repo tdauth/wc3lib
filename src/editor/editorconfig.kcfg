@@ -7,6 +7,10 @@
 	<include>kglobalsettings.h</include>
 	<include>Ogre.h</include>
 	<group name="Editor">
+		<entry name="MaxUndos" type="Int">
+			<default>256</default>
+		</entry>
+		
 		<entry name="SplitterSizes" type="IntList">
 			<label>How the main window is divided.</label>
     		</entry>
@@ -21,7 +25,7 @@
     		<entry name="OpenMaps" type="StringList">
       			<label>All maps that are opened.</label>
     		</entry>
-		<entry name="CurrentMap" type="KUrl">
+		<entry name="CurrentMap" type="Path">
       			<label>The map currently opened.</label>
     		</entry>
     		<entry name="Font" type="Font">
@@ -30,7 +34,7 @@
     		</entry>
   	</group>
   	<group name="CampaignEditor">
-  		<entry name="Campaign" type="KUrl">
+  		<entry name="Campaign" type="Path">
     			<label>The campaign currently opened.</label>
     		</entry>
   	</group>

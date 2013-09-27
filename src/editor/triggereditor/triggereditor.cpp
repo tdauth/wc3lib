@@ -39,6 +39,7 @@
 #include "variablesdialog.hpp"
 #include "triggertreewidgetitem.hpp"
 #include "../moduletoolbar.hpp"
+#include "triggereditorconfig.h"
 
 namespace wc3lib
 {
@@ -51,8 +52,29 @@ string TriggerEditor::cutQuotes(const string& value)
 	return value.substr(1, value.length() - 2); // cut quotes
 }
 
-TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_triggers(0), m_customTextTriggers(0), m_freeTriggers(false), m_freeCustomTextTriggers(false), m_newMenu(0), m_treeWidget(new QTreeWidget(this)), m_mapScriptWidget(new MapScriptWidget(this)), m_triggerWidget(new TriggerWidget(this)), m_variablesDialog(0), m_triggerActionCollection(0), m_newActionCollection(0), Module(source, parent, f)
+TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_triggers(0), m_customTextTriggers(0), m_freeTriggers(false), m_freeCustomTextTriggers(false), m_newMenu(0), m_treeWidget(new QTreeWidget(this)), m_mapScriptWidget(new MapScriptWidget(this)), m_triggerWidget(new TriggerWidget(this)), m_variablesDialog(0), m_triggerActionCollection(0), m_newActionCollection(0), m_config(new TriggerEditorConfig()), Module(source, parent, f)
 {
+	readSettings(); // fill sources first
+	
+	// Update required files if started as stand-alone module
+	if (!hasEditor())
+	{
+		try
+		{
+			this->source()->refreshWorldEditorStrings(this);
+			this->source()->refreshTriggerData(this);
+			this->source()->refreshTriggerStrings(this);
+		}
+		catch (Exception &e)
+		{
+			KMessageBox::error(this, e.what().c_str());
+		}
+	}
+	
+	// read XML configuration
+	m_config->readConfig();
+	m_openDirectory = m_config->openDirectory();
+	
 	Module::setupUi();
 	
 	QSplitter *hSplitter = new QSplitter(Qt::Horizontal, this);
@@ -79,6 +101,15 @@ TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 	triggerActionCollection()->action("closetriggers")->setEnabled(false);
 	triggerActionCollection()->action("closecustomtexttriggers")->setEnabled(false);
 	triggerActionCollection()->action("closeall")->setEnabled(false);
+}
+
+TriggerEditor::~TriggerEditor()
+{
+	writeSettings();
+	
+	m_config->writeConfig();
+	
+	delete m_config;
 }
 
 map::TriggerStrings::Entries::const_iterator TriggerEditor::triggerFunctionEntry(const map::TriggerStrings *triggerStrings, const string& code, BOOST_SCOPED_ENUM(map::TriggerFunction::Type) type)
@@ -425,11 +456,12 @@ void TriggerEditor::fillNewTriggerFunctionParameters(const map::TriggerData *tri
 
 void TriggerEditor::openTriggers()
 {
-	KUrl url = KFileDialog::getOpenUrl(KUrl(), triggersFilter(), this, i18n("Open triggers"));
+	KUrl url = KFileDialog::getOpenUrl(m_openDirectory, triggersFilter(), this, i18n("Open triggers"));
 
 	if (url.isEmpty())
 		return;
-	
+
+	m_openDirectory = url.directory();
 	this->openTriggersUrl(url);
 }
 
@@ -475,11 +507,12 @@ void TriggerEditor::openTriggersUrl(const KUrl &url)
 
 void TriggerEditor::openCustomTextTriggers()
 {
-	KUrl url = KFileDialog::getOpenUrl(KUrl(), customTextTriggersFilter(), this, i18n("Open custom text triggers"));
+	KUrl url = KFileDialog::getOpenUrl(m_openDirectory, customTextTriggersFilter(), this, i18n("Open custom text triggers"));
 
 	if (url.isEmpty())
 		return;
 
+	m_openDirectory = url.directory();
 	QString target;
 
 	if (!source()->download(url, target, this))
@@ -755,10 +788,14 @@ void TriggerEditor::loadTriggerData()
 		return;
 	}
 	
-	KUrl url = KFileDialog::getOpenUrl(KUrl(), i18n("*|All Files\n*.txt|Warcraft III Trigger Data"), this, i18n("Open trigger data"));
+	KUrl url = KFileDialog::getOpenUrl(m_openDirectory, i18n("*|All Files\n*.txt|Warcraft III Trigger Data"), this, i18n("Open trigger data"));
 
 	if (url.isEmpty())
+	{
 		return;
+	}
+	
+	m_openDirectory = url.directory();
 
 	try
 	{
@@ -781,10 +818,14 @@ void TriggerEditor::loadTriggerStrings()
 		return;
 	}
 	
-	KUrl url = KFileDialog::getOpenUrl(KUrl(), i18n("*|All Files\n*.txt|Warcraft III Trigger Strings"), this, i18n("Open trigger strings"));
+	KUrl url = KFileDialog::getOpenUrl(m_openDirectory, i18n("*|All Files\n*.txt|Warcraft III Trigger Strings"), this, i18n("Open trigger strings"));
 
 	if (url.isEmpty())
+	{
 		return;
+	}
+	
+	m_openDirectory = url.directory();
 
 	try
 	{

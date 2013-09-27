@@ -84,6 +84,18 @@ class Editor* Module::editor() const throw (std::bad_cast)
 	return boost::polymorphic_cast<Editor*>(source());
 }
 
+QString Module::settingsGroup() const
+{
+	if (this->hasEditor())
+	{
+		return this->editor()->aboutData().appName();
+	}
+	else
+	{
+		return this->componentData().aboutData()->appName();
+	}
+}
+
 void Module::showSourcesDialog()
 {
 	if (hasEditor())
@@ -196,18 +208,32 @@ void Module::changeEvent(QEvent* event)
 
 void Module::readSettings()
 {
+	/*
+	KSharedConfigPtr config(new KSharedConfig(componentData()
 	SettingsInterface *settings = this->settings();
 	KConfigGroup configGroup(KGlobal::config(), settings->groupName());
 	settings->read(configGroup);
 	delete settings;
+	*/
+	//QSettings settings("wc3editor", settingsGroup());
+	if (!this->hasEditor())
+	{
+		this->source()->readSettings(settingsGroup());
+	}
 }
 
 void Module::writeSettings()
 {
+	/*
 	SettingsInterface *settings = this->settings();
 	KConfigGroup configGroup(KGlobal::config(), settings->groupName());
 	settings->write(configGroup);
 	delete settings;
+	*/
+	if (!this->hasEditor())
+	{
+		this->source()->writeSettings(settingsGroup());
+	}
 }
 
 void Module::onEditorActionTrigger()

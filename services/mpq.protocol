@@ -1,6 +1,7 @@
 [Protocol]
 exec=kio_mpq
 protocol=mpq
+archiveMimetype=application/x-mpq
 Icon=folder
 input=none
 output=filesystem

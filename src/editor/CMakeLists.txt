@@ -73,8 +73,12 @@ if (EDITOR)
 	)
 
 	add_subdirectory(ui) # wc3lib_EDITOR_UI is set here
+	
+	include_directories(${QT_INCLUDE} ${KDE4_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR}) # include binary dir for moc files
+	
+	kde4_add_kcfg_files(wc3lib_EDITOR_SRC editorconfig.kcfgc)
 	kde4_add_ui_files(wc3lib_EDITOR_UI_H ${wc3lib_EDITOR_UI})
-
+	
 	kde4_add_library(wc3libeditor SHARED ${wc3lib_EDITOR_SRC} ${wc3lib_EDITOR_UI_H}  ${wc3lib_EDITOR_KIO_MPQ_SRC}) # MpqProtocol::protocol is required
 	#add_dependencies(wc3libeditor UI)
 	target_link_libraries(wc3libeditor ${wc3lib_CORE_LIBRARIES} ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${OGRE_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KIO_LIBS} ${KDE4_KUTILS_LIBS} ${KDE4_KPARTS_LIBS} Plugin_BlpCodec qblp)
@@ -94,5 +98,5 @@ if (EDITOR)
 	# install
 	install(TARGETS wc3libeditor DESTINATION lib)
 	install(FILES ${wc3lib_EDITOR_H} ${wc3lib_EDITOR_UI_H}  DESTINATION include/wc3lib/editor)
-	install(FILES editor.kcfg DESTINATION ${KCFG_INSTALL_DIR})
+	install(FILES editorconfig.kcfg DESTINATION ${KCFG_INSTALL_DIR})
 endif ()
