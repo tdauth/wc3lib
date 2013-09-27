@@ -70,8 +70,23 @@ bool BlpIOHandler::read(QImage *image)
 {
 	// read buffer into input stream
 	QByteArray all = this->device()->readAll();
+	
+	qDebug() << "Device error string: " << this->device()->errorString();
+	
 	iarraystream istream;
 	istream.rdbuf()->pubsetbuf(all.data(), all.size());
+	
+	// TEST
+	try
+	{
+		wc3lib::checkStream(istream);
+	}
+	catch (Exception &e)
+	{
+		qDebug() << e.what().c_str();
+	}
+	// TEST END
+	
 	QScopedPointer<blp::Blp> blpImage(new blp::Blp());
 
 	try
