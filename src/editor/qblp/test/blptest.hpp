@@ -26,7 +26,6 @@
 
 #include "../blpiohandler.hpp"
 #include "../blpioplugin.hpp"
-#include <triggereditor/triggereditor.h>
 
 namespace wc3lib
 {
