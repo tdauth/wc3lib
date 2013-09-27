@@ -25,6 +25,8 @@ target_link_libraries(qblp wc3libcore wc3libblp ${Boost_LIBRARIES} ${QT_LIBRARIE
 # wc3libcore is necessary because of catching Exception
 # TODO drop ${Boost_LIBRARIES}
 
+add_subdirectory(test)
+
 # install
 install(TARGETS qblp DESTINATION lib)
 install(TARGETS qblp DESTINATION ${QT_PLUGINS_DIR}/imageformats)

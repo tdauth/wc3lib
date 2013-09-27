@@ -68,15 +68,31 @@ bool BlpIOHandler::canRead() const
 
 bool BlpIOHandler::read(QImage *image)
 {
+	// TEST
+	/*
+	QFile *file = dynamic_cast<QFile*>(this->device());
+	qDebug() << "File error: " << file->error();
+	qDebug() << "File name: " << file->fileName();
+	qDebug() << "Device error string 1: " << this->device()->errorString();
+	qDebug() << "Is open: " << this->device()->isOpen();
+	qDebug() << "Is readable: " << this->device()->isReadable();
+	qDebug() << "At end: " << this->device()->atEnd();
+	qDebug() << "Bytes available: " << this->device()->bytesAvailable();
+	*/
+	// TEST END
+	
 	// read buffer into input stream
-	QByteArray all = this->device()->readAll();
+	const QByteArray all = this->device()->readAll();
 	
-	qDebug() << "Device error string: " << this->device()->errorString();
+	//qDebug() << "All size: " << all.size();
+	//qDebug() << "Device error string 2: " << this->device()->errorString();
 	
-	iarraystream istream;
-	istream.rdbuf()->pubsetbuf(all.data(), all.size());
+	//char *buffer = all.data(); // NOTE Store buffer for non const treatment!
+	iarraystream istream(all.constData(), all.size()); // copies buffer data!
+	//istream.rdbuf()->pubsetbuf(buffer, all.size()); TODO setting buffer directly does not work
 	
 	// TEST
+	/*
 	try
 	{
 		wc3lib::checkStream(istream);
@@ -85,6 +101,7 @@ bool BlpIOHandler::read(QImage *image)
 	{
 		qDebug() << e.what().c_str();
 	}
+	*/
 	// TEST END
 	
 	QScopedPointer<blp::Blp> blpImage(new blp::Blp());
@@ -170,7 +187,7 @@ bool BlpIOHandler::write(const QImage &image)
 	if (!write(image, blpImage.data()))
 		return false;
 
-	oarraystream ostream;
+	ostringstream ostream;
 
 	try
 	{
@@ -183,10 +200,13 @@ bool BlpIOHandler::write(const QImage &image)
 		return false;
 	}
 
-	std::streamsize bufferSize = ostream.rdbuf()->in_avail();
-	boost::scoped_array<char> buffer(new char[bufferSize]);
-	ostream.rdbuf()->sgetn(buffer.get(), bufferSize);
-	this->device()->write(buffer.get(), bufferSize);
+	const std::string data = ostream.str();
+	// NOTE using arraysink as output device is useless since it doesn't use any buffer and we don't know the exact size
+	//std::streamsize bufferSize = ostream.rdbuf()->in_avail();
+	//boost::scoped_array<char> buffer(new char[bufferSize]);
+	//ostream.rdbuf()->sgetn(buffer.get(), bufferSize);
+	
+	this->device()->write(data.c_str(), data.size());
 
 	return true;
 }
