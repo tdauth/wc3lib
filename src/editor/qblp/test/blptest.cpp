@@ -19,11 +19,11 @@
  ***************************************************************************/
 
 #include "blptest.hpp"
-#include "blptestConfig.h"
+//#include "blptestConfig.h"
 
-#ifndef QBLP_ABSOLUTE_PATH
-#error Define QBLP_ABSOLUTE_PATH! // has to contain the absolute file path of the plugin
-#endif
+//#ifndef QBLP_ABSOLUTE_PATH
+//#error Define QBLP_ABSOLUTE_PATH! // has to contain the absolute file path of the plugin
+//#endif
 
 #include <QtGui>
 #include <QtTest>
