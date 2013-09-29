@@ -92,8 +92,6 @@ void BlpTest::readTest()
 	QVERIFY(image.format() == QImage::Format_ARGB32);
 }
 
-#include "moc_blptest.cxx"
-
 }
 
 }

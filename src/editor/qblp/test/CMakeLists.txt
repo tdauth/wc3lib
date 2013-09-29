@@ -1,9 +1,9 @@
 set(wc3lib_EDITOR_QBLP_TEST_H blptest.hpp)
 set(wc3lib_EDITOR_QBLP_TEST_SRC blptest.cpp)
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
+#include_directories(${CMAKE_CURRENT_BINARY_DIR})
 QT4_WRAP_CPP(wc3lib_EDITOR_QBLP_TEST_MOC_SRC ${wc3lib_EDITOR_QBLP_TEST_H})
-add_executable(BlpTest ${wc3lib_EDITOR_QBLP_TEST_SRC})
+add_executable(BlpTest ${wc3lib_EDITOR_QBLP_TEST_SRC} ${wc3lib_EDITOR_QBLP_TEST_MOC_SRC})
 target_link_libraries(BlpTest wc3libcore wc3libblp qblp ${Boost_LIBRARIES} ${QT_QTTEST_LIBRARY} ${QT_LIBRARIES})
 add_test(NAME BlpTests COMMAND BlpTest)
 
