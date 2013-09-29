@@ -1,7 +1,11 @@
+2013-09-29 Tamino Dauth <tamino@cdauth.eu>
+* kio_mpq: Reimplement KIOSlave more like "SMPQ's" slave.
+* triggereditor: Fix layouts for TriggerFunctionDialog (if no radio button is displayed it shouldn't use any place).
+
 2013-08-19 Tamino Dauth <tamino@cdauth.eu>
-* map: Support loading and writing trigger strings!
-* editor: MpqPriorityList should store a trigger strings reference!
-* editor: TriggerEditor should use this reference to display text!
+* DONE: map: Support loading and writing trigger strings!
+* DONE: editor: MpqPriorityList should store a trigger strings reference!
+* DONE: editor: TriggerEditor should use this reference to display text!
 
 2012-10-21 Tamino Dauth <tamino@cdauth.eu>
 * blp: Written JPEG MIP map data seems to be too small.
