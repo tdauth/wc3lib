@@ -53,11 +53,25 @@ class MpqProtocol : public KIO::SlaveBase
 
 
 		MpqProtocol(const QByteArray &pool, const QByteArray &app);
+		
+		/**
+		 * Taken from "SMPQ".
+		 */
+		bool parseUrl(const KUrl &url, QString &fileName, QByteArray &archivePath);
+		/**
+		 * Taken from "SMPQ".
+		 */
+		void toArchivePath(QByteArray &to, const QString &from);
+		bool openArchive(const QString &archive, QString &error);
 
 		virtual void listDir(const KUrl &url);
 		virtual void stat(const KUrl &url);
 
 		virtual void open(const KUrl &url, QIODevice::OpenMode mode);
+		/**
+		 * Closes the opened file of the MPQ archive.
+		 */
+		virtual void close();
 		virtual void get(const KUrl &url);
 		virtual void put(const KUrl &url, int permissions, KIO::JobFlags flags);
 
@@ -76,6 +90,7 @@ class MpqProtocol : public KIO::SlaveBase
 		mpq::MpqFile* resolvePath(QString &path);
 
 		MpqArchivePtr m_archive;
+		mpq::MpqFile *m_file;
 		QString m_archiveName;
 		QDateTime m_modified;
 };

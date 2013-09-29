@@ -65,56 +65,178 @@ extern "C" int KDE_EXPORT kdemain(int argc, char **argv)
 
 const char *MpqProtocol::protocol= "mpq";
 
-MpqProtocol::MpqProtocol(const QByteArray &pool, const QByteArray &app) : KIO::SlaveBase(protocol, pool, app)
+MpqProtocol::MpqProtocol(const QByteArray &pool, const QByteArray &app) : m_file(0), KIO::SlaveBase(protocol, pool, app)
 {
 }
 
+bool MpqProtocol::parseUrl(const KUrl &url, QString &fileName, QByteArray &archivePath)
+{
+	QString path = url.path();
+
+	bool appended = false;
+
+	if (path.at(path.size() - 1) != KDIR_SEPARATOR)
+	{
+		path.append(KDIR_SEPARATOR);
+		appended = true;
+	}
+
+	int pos = 0;
+	int nextPos = 0;
+
+	while ((nextPos = path.indexOf(KDIR_SEPARATOR, pos + 1)) != -1)
+	{
+
+		if (!QFileInfo(QFile::encodeName(path.left(nextPos))).exists())
+		{
+			break;
+		}
+
+		pos = nextPos;
+	}
+
+	if (pos == 0)
+	{
+		return false;
+	}
+
+	if (appended)
+	{
+		path.chop(1);
+	}
+
+	fileName = QFile::encodeName(path.left(pos));
+
+	if (!QFileInfo(fileName).isFile())
+	{
+		return false;
+	}
+
+	toArchivePath(archivePath, path.mid(pos+1, -1));
+
+	return true;
+
+}
+
+void MpqProtocol::toArchivePath(QByteArray &to, const QString &from)
+{
+#if KDIR_SEPARATOR == '\\'
+	to = from.toUtf8();
+#else
+	to = from.toUtf8().replace(KDIR_SEPARATOR, '\\');
+#endif // KDIR_SEPARATOR == '\\'
+
+}
+
+bool MpqProtocol::openArchive(const QString &archive, QString &error)
+{
+	qDebug() << "opening archive " << archive;
+	
+	if (this->m_archive.isNull() || this->m_archive->path().string() != archive.toUtf8().constData())
+	{
+		qDebug() << "New opening!";
+		
+		MpqArchivePtr ptr(new mpq::Mpq());
+		
+		try
+		{
+			ptr->open(archive.toUtf8().constData());
+		}
+		catch (Exception &exception)
+		{
+			error = exception.what().c_str();
+			
+			return false;
+		}
+
+		m_archive.swap(ptr); // exception safety
+	}
+	
+	return true;
+}
+
+
 void MpqProtocol::open(const KUrl &url, QIODevice::OpenMode mode)
 {
-	MpqArchivePtr ptr(new mpq::Mpq());
+	QString fileName;
+	QByteArray archivePath;
+	
+	if (!parseUrl(url, fileName, archivePath))
+	{
+		error(KIO::ERR_DOES_NOT_EXIST, url.prettyUrl());
+		
+		return;
+	}
+	
+	QString errorText;
+	
+	if (!openArchive(archivePath, errorText))
+	{
+		error(KIO::ERR_ABORTED, i18n("%1: \"%2\"", archivePath.constData(), errorText));
 
+		return;
+	}
+	
+	mpq::MpqFile *file = m_archive->findFile(fileName.toUtf8().constData()); // TODO locale and platform
+	
+	if (file == 0)
+	{
+		error(KIO::ERR_DOES_NOT_EXIST, url.prettyUrl());
+		
+		return;
+	}
+	
+	this->m_file = file;
+
+	if (mode == QIODevice::ReadOnly || mode == QIODevice::ReadWrite)
+	{
+		if (QString::fromUtf8(archivePath).endsWith(".mpq", Qt::CaseInsensitive))
+		{
+			mimeType("application/x-mpq");
+		}
+		// detect MIME type by name and content, therefore read the whole file
+		else
+		{
+			stringstream stream;
+			
+			try
+			{
+				std::streamsize size = this->m_file->writeData(stream);
+				QByteArray data = stream.str().c_str();
+				KMimeType::Ptr fileMimeType = KMimeType::findByNameAndContent(url.fileName(), data);
+				mimeType(fileMimeType->name());
+				
+			}
+			catch (Exception &e)
+			{
+				qDebug() << "Unable to read file and detect MIME type: " << url.prettyUrl() << ": " << e.what().c_str();
+			}
+		}
+	}
+
+	
+	kDebug(7000) << "Successfully open";
+	KIO::filesize_t size = 0;
+	
 	try
 	{
-		ptr->open(url.toLocalFile().toUtf8().constData());
+		size = boost::numeric_cast<KIO::filesize_t>(this->m_file->compressedSize());
 	}
-	catch (Exception &exception)
+	catch (Exception &e)
 	{
-		error(KIO::ERR_ABORTED, i18n("%1: \"%2\"", url.toLocalFile(), exception.what().c_str()));
-
+		error(KIO::ERR_ABORTED, i18n("%1: %2", url.prettyUrl(), e.what().c_str()));
+		
 		return;
 	}
-
-	m_archive.swap(ptr);
-
-	/*
-	MpqArchivePtr ptr(new MpqArchive(url.toLocalFile()));
-
-	if (!ptr->open(mode))
-	{
-		error(KIO::ERR_ABORTED, url.toLocalFile());
-
-		return;
-	}
-
-	m_archive.swap(ptr);
-	*/
-
-	 // Determine the mimetype of the file to be retrieved, and emit it.
-	// This is mandatory in all slaves (for KRun/BrowserRun to work).
-	// If we're not opening the file ReadOnly or ReadWrite, don't attempt to
-	// read the file and send the mimetype.
-	/*
-	if (mode & QIODevice::ReadOnly)
-	{
-		KMimeType::Ptr mt = KMimeType::findByUrl(url, 0, true /* local URL *//* );
-		emit mimeType(mt->name());
-	}
-
-	totalSize(m_archive->mpq()->size());
+	
+	totalSize(size);
 	position(0);
+	opened();
+}
 
-	emit opened();
-	*/
+void MpqProtocol::close()
+{
+	this->m_file = 0;
 }
 
 void MpqProtocol::listDir(const KUrl &url)
