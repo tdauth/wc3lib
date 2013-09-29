@@ -197,6 +197,7 @@ void readMipMapJpeg(ReadData *readData)
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_error_mgr jerr;
 	cinfo.err = jpeg_std_error(&jerr);
+	
 	jpeg_create_decompress(&cinfo);
 
 	try
@@ -210,10 +211,18 @@ void readMipMapJpeg(ReadData *readData)
 			throw Exception(jpegError(_("Could not start decompress. Error: %1%.")));
 
 		if (readData->mipMap.width() != cinfo.image_width)
-			throw Exception(boost::format(_("Image width (%1%) is not equal to mip map width (%2%).")) % cinfo.image_width % readData->mipMap.width());
+		{
+			std::cerr << boost::format(_("Corrupted MIP map: Image width (%1%) is not equal to mip map width (%2%).")) % cinfo.image_width % readData->mipMap.width() << std::endl;
+			
+			readData->mipMap.setWidth(cinfo.image_width); // adjusting new width before reading
+		}
 
 		if (readData->mipMap.height() != cinfo.image_height)
-			throw Exception(boost::format(_("Warning: Image height (%1%) is not equal to mip map height (%2%).")) % cinfo.image_height % readData->mipMap.height());
+		{
+			std::cerr << boost::format(_("Corrupted MIP map: Image height (%1%) is not equal to mip map height (%2%).")) % cinfo.image_height % readData->mipMap.height() << std::endl;
+			
+			readData->mipMap.setHeight(cinfo.image_height); // adjusting new height before reading
+		}
 
 		if (cinfo.out_color_space != JCS_RGB)
 			std::cerr << boost::format(_("Warning: Image color space (%1%) is not equal to RGB (%2%).")) % cinfo.out_color_space % JCS_RGB << std::endl;
@@ -525,9 +534,9 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps, con
 		if (this->compression() == Blp::Compression::Paletted)
 		{
 			if (this->flags() == Blp::Flags::NoAlpha && mipMapData[i]->size != this->mipMaps()[i].width() * this->mipMaps()[i].height() * sizeof(byte))
-				std::cerr << boost::format(_("MIP map %1%: Size %2% is not equal to %3%.")) % i %  mipMapData[i]->size % (this->mipMaps()[i].width() * this->mipMaps()[i].height() * sizeof(color)) << std::endl;
+				std::cerr << boost::format(_("MIP map %1%: Size %2% is not equal to %3%.")) % i %  mipMapData[i]->size % (this->mipMaps()[i].width() * this->mipMaps()[i].height() * sizeof(byte)) << std::endl;
 			else if (this->flags() & Blp::Flags::Alpha && mipMapData[i]->size != this->mipMaps()[i].width() * this->mipMaps()[i].height() * 2 * sizeof(byte))
-				std::cerr << boost::format(_("MIP map %1%: Size %2% is not equal to %3%.")) % i %  mipMapData[i]->size % (this->mipMaps()[i].width() * this->mipMaps()[i].height() * 2 * sizeof(color)) << std::endl;
+				std::cerr << boost::format(_("MIP map %1%: Size %2% is not equal to %3%.")) % i %  mipMapData[i]->size % (this->mipMaps()[i].width() * this->mipMaps()[i].height() * 2 * sizeof(byte)) << std::endl;
 		}
 	}
 

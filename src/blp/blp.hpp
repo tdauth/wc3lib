@@ -131,7 +131,16 @@ class Blp : public Format
 				 */
 				typedef boost::multi_array<Color, 2> Colors;
 
+				/**
+				 * \note Resizes allocated color array!
+				 * \ingroup setSize
+				 */
+				void setWidth(dword width);
 				dword width() const;
+				/**
+				 * \ingroup setSize
+				 */
+				void setHeight(dword height);
 				dword height() const;
 
 				/**
@@ -334,9 +343,21 @@ inline byte Blp::MipMap::Color::paletteIndex() const
 	return boost::get<byte>(this->m_value);
 }
 
+inline void Blp::MipMap::setWidth(dword width)
+{
+	this->m_width = width;
+	this->m_colors.resize(boost::extents[this->width()][this->height()]);
+}
+
 inline dword Blp::MipMap::width() const
 {
 	return this->m_width;
+}
+
+inline void Blp::MipMap::setHeight(dword height)
+{
+	this->m_height = height;
+	this->m_colors.resize(boost::extents[this->width()][this->height()]);
 }
 
 inline dword Blp::MipMap::height() const

@@ -1,5 +1,5 @@
-install(DIRECTORY man/man1 DESTINATION share)
-install(DIRECTORY man/man5 DESTINATION share)
+install(DIRECTORY man/man1 DESTINATION share/man)
+install(DIRECTORY man/man5 DESTINATION share/man)
 
 CMAKE_DEPENDENT_OPTION(DOXYGEN_HTML
 "HTML output for API documentation."
