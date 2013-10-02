@@ -59,12 +59,23 @@ class Listfile : public MpqFile
 		 * \return Returns the container with all found file paths in \p content.
 		 */
 		static Entries entries(const string &content);
+		
+		/**
+		 * Uses \ref entries(const string&) to get all "(listfile)" entries and returns all paths starting with directory path \p dirPath.
+		 * Directories
+		 * \param recursive If this value is true, all paths in sub directories are listed, as well.
+		 * 
+		 * \note This function includes directory paths, as well which might be a little slow.
+		 * \todo Add option "directories".
+		 */
+		static Entries dirEntries(const string &content, const string &dirPath, bool recursive = true);
 
 		/**
 		 * Splits up file content at one of the following characters "; \r \n" and returns the resulting container with all split file paths.
 		 * \return Returns the container with all found file paths in file.
 		 */
 		Entries entries() const;
+		Entries dirEntries(const string &dirPath, bool recursive = true);
 
 		virtual const char* fileName() const;
 
@@ -110,6 +121,14 @@ inline Listfile::Entries Listfile::entries() const
 	MpqFile::writeData(stream);
 
 	return entries(stream.str());
+}
+
+inline Listfile::Entries Listfile::dirEntries(const string& dirPath, bool recursive)
+{
+	ostringstream stream;
+	MpqFile::writeData(stream);
+	
+	return dirEntries(stream.str(), dirPath, recursive);
 }
 
 inline const char* Listfile::fileName() const

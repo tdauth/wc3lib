@@ -119,8 +119,10 @@ inline KUrl Resource::sourceUrl() const
 	// add additional archive source
 	if (this->type() == Resource::Type::Map || this->type() == Resource::Type::Campaign)
 	{
-		if (result.protocol() != MpqProtocol::protocol)
-			result.setProtocol(MpqProtocol::protocol);
+		if (result.protocol() != "mpq")
+		{
+			result.setProtocol("mpq");
+		}
 	}
 	// add file's directory as source for relative paths as textures
 	else if (this->type() == Resource::Type::Model)

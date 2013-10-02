@@ -56,12 +56,25 @@ class MpqProtocol : public KIO::SlaveBase
 		
 		/**
 		 * Taken from "SMPQ".
+		 * 
+		 * \param fileName The file name of the MPQ archive.
+		 * \param 
 		 */
 		bool parseUrl(const KUrl &url, QString &fileName, QByteArray &archivePath);
 		/**
 		 * Taken from "SMPQ".
+		 * 
+		 * It replaces \p to by a Windows file path using '\' as separator since
+		 * (listfile) entries usually have the Windows format.
+		 * 
+		 * This function should be used on file paths refering to files in an MPQ archive.
 		 */
 		void toArchivePath(QByteArray &to, const QString &from);
+		/**
+		 * Opens archive using file path \p archive.
+		 * \param error Stores the error message if function returns true. Otherwise value won't be changed.
+		 * \return Returns true if archive has been open successfully or is already open. Otherwise if any error occurs it returns false.
+		 */
 		bool openArchive(const QString &archive, QString &error);
 
 		virtual void listDir(const KUrl &url);
@@ -72,6 +85,11 @@ class MpqProtocol : public KIO::SlaveBase
 		 * Closes the opened file of the MPQ archive.
 		 */
 		virtual void close();
+		
+		virtual void read(KIO::filesize_t size);
+		virtual void seek(KIO::filesize_t offset);
+		virtual void mkdir(const KUrl& url, int permissions);
+		
 		virtual void get(const KUrl &url);
 		virtual void put(const KUrl &url, int permissions, KIO::JobFlags flags);
 
@@ -91,6 +109,7 @@ class MpqProtocol : public KIO::SlaveBase
 
 		MpqArchivePtr m_archive;
 		mpq::MpqFile *m_file;
+		std::streampos m_seekPos;
 		QString m_archiveName;
 		QDateTime m_modified;
 };

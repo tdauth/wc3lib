@@ -21,6 +21,8 @@
 // TEST
 #include <iostream>
 
+#include <set>
+
 #include "listfile.hpp"
 #include "mpq.hpp"
 
@@ -34,6 +36,49 @@ Listfile::Listfile(Mpq* mpq, Hash* hash): MpqFile(mpq, hash)
 {
 	this->m_path = fileName();
 }
+
+Listfile::Entries Listfile::dirEntries(const string& content, const string& dirPath, bool recursive)
+{
+	Entries entries = Listfile::entries(content);
+	
+	std::set<string> dirs;
+	Entries result;
+
+	BOOST_FOREACH(Entries::reference ref, entries)
+	{
+		if (boost::starts_with(ref, dirPath))
+		{
+			string::size_type start = dirPath.length();
+			bool foundOneDir = false;
+			
+			// find all directorie paths!
+			for (string::size_type index = ref.find(start, '\\'); index != string::npos && index + 1 < ref.length(); start = index + 1)
+			{
+				dirs.insert(ref.substr(0, index + 1)); // add directories with separator at the end
+				foundOneDir = true;
+				
+				// if not recursive only use the first level of directories!
+				if (!recursive)
+				{
+					break;
+				}
+			}
+			
+			if (!recursive || !foundOneDir)
+			{
+				result.push_back(ref);
+			}
+		}
+	}
+	
+	BOOST_FOREACH(std::set<string>::const_reference ref, dirs) // TODO reference does not work, incompatible iterator
+	{
+		result.push_back(ref);
+	}
+	
+	return result;
+}
+
 
 }
 
