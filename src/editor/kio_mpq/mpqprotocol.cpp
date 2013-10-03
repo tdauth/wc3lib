@@ -315,6 +315,23 @@ void MpqProtocol::listDir(const KUrl &url)
 	}
 	
 	mpq::Listfile::Entries entries = listfile->dirEntries(archivePath.constData(), false);
+	const bool hasAttributes = m_archive->attributesFile() != 0;
+	bool hasFileTime = false;
+	
+	if (!hasAttributes)
+	{
+		warning(i18n("%1: Missing \"(attributes)\" file.", url.prettyUrl()));
+	}
+	else
+	{
+		hasFileTime = m_archive->attributesFile()->extendedAttributes() & mpq::Attributes::ExtendedAttributes::FileTimeStamps;
+		
+		if (!hasFileTime)
+		{
+			warning(i18n("%1: Missing \"(attributes)\" file time stamps.", url.prettyUrl()));
+		}
+	}
+	
 	
 	BOOST_FOREACH (mpq::Listfile::Entries::reference ref, entries)
 	{
@@ -363,12 +380,24 @@ void MpqProtocol::listDir(const KUrl &url)
 			if (file != 0)
 			{
 				//quint64 fileTime = 0;
-				time_t fileTime;
-				const bool cast = file->fileTime().toTime(fileTime);
+				time_t fileTime = 0;
 				
-				if (!cast)
+				// file time is extended attribute!
+				if (hasAttributes && hasFileTime)
 				{
-					warning(i18n("%1: Invalid file time for \"%2\": high - %3, low - %4", url.prettyUrl(), ref.c_str(), file->fileTime().highDateTime, file->fileTime().lowDateTime));
+					try
+					{
+						const bool cast = file->fileTime().toTime(fileTime);
+						
+						if (!cast)
+						{
+							warning(i18n("%1: Invalid file time for \"%2\": high - %3, low - %4", url.prettyUrl(), ref.c_str(), file->fileTime().highDateTime, file->fileTime().lowDateTime));
+						}
+					}
+					catch (mpq::Attributes::Exception &e)
+					{
+						warning(i18n("%1: File time is not stored in \"(attributes)\" file: %2", url.prettyUrl(), e.what().c_str()));
+					}
 				}
 				
 				KIO::UDSEntry entry;
@@ -426,21 +455,49 @@ void MpqProtocol::stat(const KUrl &url)
 		return;
 	}
 	
+	const bool hasAttributes = m_archive->attributesFile() != 0;
+	bool hasFileTime = false;
+	
+	if (!hasAttributes)
+	{
+		warning(i18n("%1: Missing \"(attributes)\" file.", url.prettyUrl()));
+	}
+	else
+	{
+		hasFileTime = m_archive->attributesFile()->extendedAttributes() & mpq::Attributes::ExtendedAttributes::FileTimeStamps;
+		
+		if (!hasFileTime)
+		{
+			warning(i18n("%1: Missing \"(attributes)\" file time stamps.", url.prettyUrl()));
+		}
+	}
+	
 	mpq::MpqFile *file = m_archive->findFile(archivePath.constData()); // TODO locale and platform
 			
 	if (file != 0) // TODO includes dirs?
 	{
 		//quint64 fileTime = 0;
 		time_t fileTime = 0;
-		const bool cast = file->fileTime().toTime(fileTime);
 		
-		if (!cast)
+		// file time is extended attribute!
+		if (hasAttributes && hasFileTime)
 		{
-			warning(i18n("%1: Invalid file time: high - %2, low - %3", url.prettyUrl(), file->fileTime().highDateTime, file->fileTime().lowDateTime));
+			try
+			{
+				const bool cast = file->fileTime().toTime(fileTime);
+				
+				if (!cast)
+				{
+					warning(i18n("%1: Invalid file time: high - %2, low - %3", url.prettyUrl(), file->fileTime().highDateTime, file->fileTime().lowDateTime));
+				}
+			}
+			catch (mpq::Attributes::Exception &e)
+			{
+				warning(i18n("%1: File time is not stored in \"(attributes)\" file: %2", url.prettyUrl(), e.what().c_str()));
+			}
 		}
 		
 		KIO::UDSEntry entry;
-		
 		
 		entry.insert(KIO::UDSEntry::UDS_NAME, url.path());
 		entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFREG);

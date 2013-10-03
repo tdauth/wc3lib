@@ -23,6 +23,9 @@
 
 #include <set>
 
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string_regex.hpp>
+
 #include "listfile.hpp"
 #include "mpq.hpp"
 
@@ -37,7 +40,28 @@ Listfile::Listfile(Mpq* mpq, Hash* hash): MpqFile(mpq, hash)
 	this->m_path = fileName();
 }
 
-Listfile::Entries Listfile::dirEntries(const string& content, const string& dirPath, bool recursive)
+Listfile::Entries Listfile::entries(const string &content)
+{
+	Entries result;
+	
+	// specification says:
+	// "and is simply a text file with file paths separated by ';', 0Dh, 0Ah, or some combination of these."
+	// regex gets all combinations
+	boost::algorithm::split_regex(result, content,
+		boost::regex(
+			"("
+			"\r\n;|\r;\n|\n\r;|\n;\r|;\n\r|;\r\n|"
+			"\r;|\r\n|\n\r|\n;|;\n|;\r|"
+			"\r|\n|;"
+			")"
+		));
+	// OLD
+	//boost::algorithm::split(result, value, boost::algorithm::is_any_of(";\r\n"), boost::algorithm::token_compress_on);
+
+	return result;
+}
+
+Listfile::Entries Listfile::dirEntries(const string& content, const string& dirPath, bool recursive, bool directories)
 {
 	Entries entries = Listfile::entries(content);
 	
@@ -46,47 +70,44 @@ Listfile::Entries Listfile::dirEntries(const string& content, const string& dirP
 
 	BOOST_FOREACH(Entries::reference ref, entries)
 	{
-		bool matches = false;
-		
-		if (dirPath.empty()) // root dir
-		{
-			const string::size_type index = ref.find('\\');
-			
-			matches = (index == string::npos || index == dirPath.size() - 1); // no back slash or last character
-		}
-		else
-		{
-			matches = boost::starts_with(ref, dirPath);
-		}
-		
-		if (matches)
+		if (boost::starts_with(ref, dirPath))
 		{
 			string::size_type start = dirPath.length();
 			bool foundOneDir = false;
+			string::size_type index = string::npos;
 			
 			// find all directorie paths!
-			for (string::size_type index = ref.find(start, '\\'); index != string::npos && index + 1 < ref.length(); start = index + 1)
+			do
 			{
-				dirs.insert(ref.substr(0, index + 1)); // add directories with separator at the end
-				foundOneDir = true;
+				index = ref.find('\\', start);
 				
-				// if not recursive only use the first level of directories!
-				if (!recursive)
+				if (index != string::npos)
 				{
-					break;
+					if (directories)
+					{
+						dirs.insert(ref.substr(0, index + 1)); // add directories with separator at the end
+					}
+					
+					foundOneDir = true;
+					start = index + 1;
 				}
 			}
+			// if not recursive only use the first level of directories!
+			while (recursive && index != string::npos && start < ref.length());
 			
-			if (!recursive || !foundOneDir)
+			if (recursive || !foundOneDir)
 			{
 				result.push_back(ref);
 			}
 		}
 	}
 	
-	BOOST_FOREACH(std::set<string>::const_reference ref, dirs) // TODO reference does not work, incompatible iterator
+	if (directories)
 	{
-		result.push_back(ref);
+		BOOST_FOREACH(std::set<string>::const_reference ref, dirs) // TODO reference does not work, incompatible iterator
+		{
+			result.push_back(ref);
+		}
 	}
 	
 	return result;
