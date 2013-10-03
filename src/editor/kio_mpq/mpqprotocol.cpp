@@ -150,11 +150,11 @@ bool MpqProtocol::openArchive(const QString &archive, QString &error)
 			return false;
 		}
 		
-		if (m_archive->containsAttributesFile())
+		if (ptr->containsAttributesFile())
 		{
 			try
 			{
-				m_archive->attributesFile()->readData(); // attributes data is required for file time stamps
+				ptr->attributesFile()->readData(); // attributes data is required for file time stamps
 			}
 			catch (Exception &exception)
 			{
@@ -331,7 +331,7 @@ void MpqProtocol::listDir(const KUrl &url)
 	}
 	
 	mpq::Listfile::Entries entries = listfile->dirEntries(archivePath.constData(), false);
-	const bool hasAttributes = m_archive->attributesFile() != 0;
+	const bool hasAttributes = m_archive->containsAttributesFile();
 	bool hasFileTime = false;
 	
 	if (!hasAttributes)
@@ -482,7 +482,7 @@ void MpqProtocol::stat(const KUrl &url)
 		return;
 	}
 	
-	const bool hasAttributes = m_archive->attributesFile() != 0;
+	const bool hasAttributes = m_archive->containsAttributesFile();
 	bool hasFileTime = false;
 	
 	if (!hasAttributes)
