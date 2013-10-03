@@ -149,6 +149,20 @@ bool MpqProtocol::openArchive(const QString &archive, QString &error)
 			
 			return false;
 		}
+		
+		if (m_archive->containsAttributesFile())
+		{
+			try
+			{
+				m_archive->attributesFile()->readData(); // attributes data is required for file time stamps
+			}
+			catch (Exception &exception)
+			{
+				error = exception.what().c_str();
+				
+				return false;
+			}
+		}
 
 		m_archive.swap(ptr); // exception safety
 	}
@@ -180,6 +194,8 @@ void MpqProtocol::open(const KUrl &url, QIODevice::OpenMode mode)
 	
 	mpq::MpqFile *file = m_archive->findFile(archivePath.constData()); // TODO locale and platform
 	
+	qDebug() << "Opening: " << archivePath.constData();
+	
 	if (file == 0)
 	{
 		error(KIO::ERR_DOES_NOT_EXIST, url.prettyUrl());
@@ -191,7 +207,7 @@ void MpqProtocol::open(const KUrl &url, QIODevice::OpenMode mode)
 
 	if (mode == QIODevice::ReadOnly || mode == QIODevice::ReadWrite)
 	{
-		if ( QString::fromUtf8(archivePath).endsWith(".mpq", Qt::CaseInsensitive))
+		if (QString::fromUtf8(archivePath).endsWith(".mpq", Qt::CaseInsensitive))
 		{
 			mimeType("application/x-mpq");
 		}
@@ -366,7 +382,7 @@ void MpqProtocol::listDir(const KUrl &url)
 			
 			if (!r.empty()) // cut full path
 			{
-				fileName = QFile::decodeName(string(ref.begin(), r.end()).c_str());
+				fileName = QFile::decodeName(string(++r.begin(), ref.end()).c_str());
 			}
 			else
 			{
@@ -381,6 +397,7 @@ void MpqProtocol::listDir(const KUrl &url)
 			{
 				//quint64 fileTime = 0;
 				time_t fileTime = 0;
+				bool validFileTime = false;
 				
 				// file time is extended attribute!
 				if (hasAttributes && hasFileTime)
@@ -393,6 +410,10 @@ void MpqProtocol::listDir(const KUrl &url)
 						{
 							warning(i18n("%1: Invalid file time for \"%2\": high - %3, low - %4", url.prettyUrl(), ref.c_str(), file->fileTime().highDateTime, file->fileTime().lowDateTime));
 						}
+						else
+						{
+							validFileTime = true;
+						}
 					}
 					catch (mpq::Attributes::Exception &e)
 					{
@@ -404,7 +425,13 @@ void MpqProtocol::listDir(const KUrl &url)
 				entry.insert(KIO::UDSEntry::UDS_NAME, QFile::decodeName(ref.c_str()));
 				entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFREG);
 				entry.insert(KIO::UDSEntry::UDS_SIZE, file->compressedSize());
-				entry.insert(KIO::UDSEntry::UDS_MODIFICATION_TIME, fileTime);
+				
+				
+				if (validFileTime)
+				{
+					entry.insert(KIO::UDSEntry::UDS_MODIFICATION_TIME, fileTime);
+				}
+				
 				entry.insert(KIO::UDSEntry::UDS_ACCESS, (S_IRWXU | S_IRWXG | S_IRWXO));
 				
 				KMimeType::Ptr ptr = KMimeType::findByPath(QFile::decodeName(ref.c_str())); // TODO find by content?
@@ -478,6 +505,7 @@ void MpqProtocol::stat(const KUrl &url)
 	{
 		//quint64 fileTime = 0;
 		time_t fileTime = 0;
+		bool validFileTime = false;
 		
 		// file time is extended attribute!
 		if (hasAttributes && hasFileTime)
@@ -489,6 +517,10 @@ void MpqProtocol::stat(const KUrl &url)
 				if (!cast)
 				{
 					warning(i18n("%1: Invalid file time: high - %2, low - %3", url.prettyUrl(), file->fileTime().highDateTime, file->fileTime().lowDateTime));
+				}
+				else
+				{
+					validFileTime = true;
 				}
 			}
 			catch (mpq::Attributes::Exception &e)
@@ -502,7 +534,12 @@ void MpqProtocol::stat(const KUrl &url)
 		entry.insert(KIO::UDSEntry::UDS_NAME, url.path());
 		entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFREG);
 		entry.insert(KIO::UDSEntry::UDS_SIZE, file->compressedSize());
-		entry.insert(KIO::UDSEntry::UDS_MODIFICATION_TIME, fileTime);
+		
+		if (validFileTime)
+		{
+			entry.insert(KIO::UDSEntry::UDS_MODIFICATION_TIME, fileTime);
+		}
+		
 		entry.insert(KIO::UDSEntry::UDS_ACCESS, (S_IRWXU | S_IRWXG | S_IRWXO));
 		
 		KMimeType::Ptr ptr = KMimeType::findByPath(url.path()); // TODO find by content?

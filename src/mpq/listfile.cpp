@@ -85,7 +85,10 @@ Listfile::Entries Listfile::dirEntries(const string& content, const string& dirP
 				{
 					if (directories)
 					{
-						dirs.insert(ref.substr(0, index + 1)); // add directories with separator at the end
+						
+						string dirName = ref.substr(0, index + 1); // add directories with separator at the end
+						boost::to_upper(dirName); // as hash algorithm uses to_upper characters file paths are case insensitive and therefore all directories are, too
+						dirs.insert(dirName); 
 					}
 					
 					foundOneDir = true;
