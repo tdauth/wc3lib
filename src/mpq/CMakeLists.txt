@@ -25,6 +25,11 @@ if (MPQ)
 		signature.cpp
 	)
 	
+	if (DEBUG)
+		set(Boost_DEBUG ON)
+		add_definitions(-DBOOST_TEST_DYN_LINK=1)
+	endif ()
+	
 	find_package(Boost 1.46 COMPONENTS system filesystem thread serialization program_options iostreams regex REQUIRED)
 
 	add_library(wc3libmpq SHARED ${wc3lib_MPQ_SRC})
@@ -35,7 +40,9 @@ if (MPQ)
 		target_link_libraries(wc3libmpq ${OPENSSL_LIBRARIES})
 	endif ()
 	
-	add_subdirectory(test)
+	if (DEBUG)
+		add_subdirectory(test)
+	endif ()
 
 	# install
 
