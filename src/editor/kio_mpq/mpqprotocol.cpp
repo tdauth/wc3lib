@@ -132,6 +132,13 @@ bool MpqProtocol::openArchive(const QString &archive, QString &error)
 {
 	qDebug() << "opening archive " << archive;
 	
+	// TEST
+	if (!m_archive.isNull())
+	{
+		qDebug() << "With old path " << this->m_archive->path().c_str();
+	}
+	// TEST END
+	
 	// if file paths are equal file must already be open, so don't open again
 	if (this->m_archive.isNull() || this->m_archive->path().string() != archive.toUtf8().constData())
 	{
@@ -348,6 +355,26 @@ void MpqProtocol::listDir(const KUrl &url)
 		}
 	}
 	
+	if (archivePath.isEmpty()) // root directory
+	{
+		// list files which are not listed in "(listfile)"
+		
+		if (m_archive->containsListfileFile()) // should always be the case
+		{
+			entries.push_back(m_archive->listfileFile()->fileName());
+		}
+		
+		if (m_archive->containsAttributesFile())
+		{
+			entries.push_back(m_archive->attributesFile()->fileName());
+		}
+		
+		if (m_archive->containsSignatureFile())
+		{
+			entries.push_back(m_archive->signatureFile()->fileName());
+		}
+	}
+	
 	
 	BOOST_FOREACH (mpq::Listfile::Entries::reference ref, entries)
 	{
@@ -389,7 +416,7 @@ void MpqProtocol::listDir(const KUrl &url)
 				fileName = QFile::decodeName(ref.c_str());
 			}
 			
-			qDebug() << "New path \"" << ref.c_str() << "\"";
+			qDebug() << "New path \"" << fileName << "\"";
 			
 			mpq::MpqFile *file = m_archive->findFile(ref); // TODO locale and platform
 			
@@ -422,7 +449,7 @@ void MpqProtocol::listDir(const KUrl &url)
 				}
 				
 				KIO::UDSEntry entry;
-				entry.insert(KIO::UDSEntry::UDS_NAME, QFile::decodeName(ref.c_str()));
+				entry.insert(KIO::UDSEntry::UDS_NAME, fileName);
 				entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFREG);
 				entry.insert(KIO::UDSEntry::UDS_SIZE, file->compressedSize());
 				
@@ -565,6 +592,8 @@ void MpqProtocol::get(const KUrl &url)
 {
 	QString fileName;
 	QByteArray archivePath;
+	
+	qDebug() << "Getting file " << url.prettyUrl();
 	
 	if (!parseUrl(url, fileName, archivePath))
 	{
