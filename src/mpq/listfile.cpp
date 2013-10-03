@@ -46,7 +46,20 @@ Listfile::Entries Listfile::dirEntries(const string& content, const string& dirP
 
 	BOOST_FOREACH(Entries::reference ref, entries)
 	{
-		if (boost::starts_with(ref, dirPath))
+		bool matches = false;
+		
+		if (dirPath.empty()) // root dir
+		{
+			const string::size_type index = ref.find('\\');
+			
+			matches = (index == string::npos || index == dirPath.size() - 1); // no back slash or last character
+		}
+		else
+		{
+			matches = boost::starts_with(ref, dirPath);
+		}
+		
+		if (matches)
 		{
 			string::size_type start = dirPath.length();
 			bool foundOneDir = false;

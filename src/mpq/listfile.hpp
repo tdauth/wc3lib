@@ -62,7 +62,8 @@ class Listfile : public MpqFile
 		
 		/**
 		 * Uses \ref entries(const string&) to get all "(listfile)" entries and returns all paths starting with directory path \p dirPath.
-		 * Directories
+		 * Sub directory paths will be added as well.
+		 * \param dirPath Directory path all entries should get from. If this value is empty, function uses top level directory.
 		 * \param recursive If this value is true, all paths in sub directories are listed, as well.
 		 * 
 		 * \note This function includes directory paths, as well which might be a little slow.

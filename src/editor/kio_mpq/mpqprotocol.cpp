@@ -345,10 +345,15 @@ void MpqProtocol::listDir(const KUrl &url)
 		else
 		{
 			qDebug() << "Is file";
+			QString fileName;
 			
 			if (!r.empty()) // cut full path
 			{
-				ref.erase(ref.begin(), r.end());
+				fileName = QFile::decodeName(string(ref.begin(), r.end()).c_str());
+			}
+			else
+			{
+				fileName = QFile::decodeName(ref.c_str());
 			}
 			
 			qDebug() << "New path \"" << ref.c_str() << "\"";
