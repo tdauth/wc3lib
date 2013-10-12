@@ -390,16 +390,16 @@ int decompressHuffman(char * pbOutBuffer, int * pcbOutBuffer, char * pbInBuffer,
 	return 1;
 }
 
-MD5 md5(const byte *buffer)
+MD5 md5(const byte *buffer, std::size_t bufferSize)
 {
 	MD5 md5 = 0;
 #ifdef USE_ENCRYPTION
 	CryptoPP::Weak1::MD5 checksum;
-	checksum.CalculateDigest((unsigned char*)&md5, (unsigned char*)buffer, sizeof(md5));
+	checksum.CalculateDigest((unsigned char*)&md5, (unsigned char*)buffer, bufferSize);
 #else
 	MD5_CTX c;
 	MD5_Init(&c);
-	MD5_Update(&c, (const void *)buffer, sizeof(md5));
+	MD5_Update(&c, (const void *)buffer, bufferSize);
 	MD5_Final((unsigned char*)&md5, &c);
 #endif
 	return md5;

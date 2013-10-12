@@ -21,7 +21,6 @@
 #ifndef WC3LIB_MPQ_PLATFORM_HPP
 #define WC3LIB_MPQ_PLATFORM_HPP
 
-#include "../config.h"
 #include "../platform.hpp"
 
 namespace wc3lib

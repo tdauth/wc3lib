@@ -1,3 +1,7 @@
+2013-10-10 Tamino Dauth <tamino@cdauth.eu>
+* blp/qblp: Increase performance of BLP loading (and writing), drop thread management for JPEG and read from std streams instead of copying the whole buffer.
+* mpq: Add as much Unit Tests as possible for read functions and extended attributes etc.
+
 2013-09-29 Tamino Dauth <tamino@cdauth.eu>
 * kio_mpq: Reimplement KIOSlave more like "SMPQ's" slave.
 * triggereditor: Fix layouts for TriggerFunctionDialog (if no radio button is displayed it shouldn't use any place).

@@ -32,6 +32,12 @@ namespace mpq
 {
 
 /**
+ * \brief Class for MPQ's "(attributes)" file which stores extended file attributes such as time stamps and check sums.
+ * 
+ * This class provides useful functions for accessing a file's corresponding attributes as well as refreshing/changing it.
+ * 
+ * \note Use \ref readData() to fill all attribute data structures. Without manual call all data will be empty.
+ * 
  * <a href="http://wiki.devklog.net/index.php?title=The_MoPaQ_Archive_Format#Extended_Attributes">Source</a>
  * The extended attributes are optional file attributes for files in the block table. These attributes were added at times after the MoPaQ format was already finalized, and it is not necessary for every archive to have all (or any) of the extended attributes. If an archive contains a given attribute, there will be an instance of that attribute for every block in the block table, although the attribute will be meaningless if the block is not a file. The order of the attributes for blocks correspond to the order of the blocks in the block table, and are of the same number. The attributes are stored in parallel arrays in the "(attributes)" file (default language and platform), in the archive. The attributes corresponding to this file need not be valid (and logically cannot be). Unlike all the other structures in the MoPaQ format, entries in the extended attributes are NOT guaranteed to be aligned. Also note that in some archives, malicious zeroing of the attributes has been observed, perhaps with the intent of
 breaking archive viewers.
@@ -69,6 +75,9 @@ class Attributes : public MpqFile
 		typedef std::vector<CRC32> Crc32s;
 		typedef std::vector<FILETIME> FileTimes;
 		typedef std::vector<MD5> Md5s;
+		
+		static CRC32 crc32(const byte *data, std::size_t dataSize);
+		static MD5 md5(const byte *data, std::size_t dataSize);
 
 		const Crc32s& crc32s() const;
 		const FileTimes& fileTimes() const;
@@ -77,7 +86,7 @@ class Attributes : public MpqFile
 		virtual void removeData();
 
 		/**
-		 * Refreshs extended file attributes of file \p mpqFile.
+		 * Refreshes extended file attributes of file \p mpqFile.
 		 * \note Attributes are refreshed in heap/this structure only. For synchronizing data in the corresponding MPQ archive call \ref writeData() afterwards.
 		 */
 		void refreshFile(const MpqFile *mpqFile);
@@ -116,22 +125,35 @@ class Attributes : public MpqFile
 		BOOST_SCOPED_ENUM(ExtendedAttributes) extendedAttributes() const;
 		bool hasChecksums() const;
 
-		CRC32 crc32(const MpqFile *mpqFile) const;
-		const FILETIME& fileTime(const MpqFile *mpqFile) const;
-		MD5 md5(const MpqFile *mpqFile) const;
-
 		/**
+		 * @{
+		 * \throw std::out_of_range Is thrown if index is invalid.
 		 * \throw Exception Is thrown if CRC32s aren't stored in "(attributes)"
 		 */
+		CRC32 crc32(std::size_t index) const;
 		CRC32 crc32(const Block *block) const;
+		CRC32 crc32(const MpqFile *mpqFile) const;
+		/**@}*/
+		
 		/**
-		 * \throw Exception Is thrown if time stamps aren't stored in "(attributes)"
+		 * @{
+		 * \throw std::out_of_range Is thrown if index is invalid.
+		 * \throw Exception Is thrown if file time stamps aren't stored in "(attributes)"
 		 */
+		const FILETIME& fileTime(std::size_t index) const;
 		const FILETIME& fileTime(const Block *block) const;
+		const FILETIME& fileTime(const MpqFile *mpqFile) const;
+		/**@}*/
+		
 		/**
+		 * @{
+		 * \throw std::out_of_range Is thrown if index is invalid.
 		 * \throw Exception Is thrown if MD5s aren't stored in "(attributes)"
 		 */
+		MD5 md5(std::size_t index) const;
 		MD5 md5(const Block *block) const;
+		MD5 md5(const MpqFile *mpqFile) const;
+		/**@}*/
 
 		virtual const char* fileName() const;
 
@@ -142,6 +164,7 @@ class Attributes : public MpqFile
 
 		void setVersion(uint32 version);
 		void setExtendedAttributes(BOOST_SCOPED_ENUM(ExtendedAttributes) extendedAttributes);
+		
 		void setCrc32(const Block *block, CRC32 crc32);
 		void setFileTime(const Block *block, const FILETIME &fileTime);
 		void setMd5(const Block *block, MD5 md5);
@@ -201,9 +224,35 @@ inline BOOST_SCOPED_ENUM(Attributes::ExtendedAttributes) Attributes::extendedAtt
 	return m_extendedAttributes;
 }
 
+inline CRC32 Attributes::crc32(std::size_t index) const
+{
+	if (!(extendedAttributes() & ExtendedAttributes::FileCrc32s))
+		throw Exception(ExtendedAttributes::FileCrc32s);
+	
+	return crc32s()[index];
+}
+
+inline CRC32 Attributes::crc32(const Block *block) const
+{
+	return crc32(block->index());
+}
+
 inline CRC32 Attributes::crc32(const MpqFile *mpqFile) const
 {
 	return crc32(mpqFile->block());
+}
+
+inline const FILETIME& Attributes::fileTime(std::size_t index) const
+{
+	if (!(extendedAttributes() & ExtendedAttributes::FileTimeStamps))
+		throw Exception(ExtendedAttributes::FileTimeStamps);
+
+	return fileTimes()[index];
+}
+
+inline const FILETIME& Attributes::fileTime(const Block *block) const
+{
+	return fileTime(block->index());
 }
 
 inline const FILETIME& Attributes::fileTime(const MpqFile *mpqFile) const
@@ -211,35 +260,25 @@ inline const FILETIME& Attributes::fileTime(const MpqFile *mpqFile) const
 	return fileTime(mpqFile->block());
 }
 
-inline MD5 Attributes::md5(const MpqFile *mpqFile) const
+inline MD5 Attributes::md5(std::size_t index) const
 {
-	return md5(mpqFile->block());
+	if (!(extendedAttributes() & ExtendedAttributes::FileMd5s))
+		throw Exception(ExtendedAttributes::FileMd5s);
+
+	return md5s()[index];
 }
-
-inline CRC32 Attributes::crc32(const Block *block) const
-{
-	if (!(extendedAttributes() & ExtendedAttributes::FileCrc32s))
-		throw Exception(ExtendedAttributes::FileCrc32s);
-
-	return crc32s()[block->index()];
-}
-
-
-inline const FILETIME& Attributes::fileTime(const Block *block) const
-{
-	if (!(extendedAttributes() & ExtendedAttributes::FileTimeStamps))
-		throw Exception(ExtendedAttributes::FileTimeStamps);
-
-	return fileTimes()[block->index()];
-}
-
 
 inline MD5 Attributes::md5(const Block *block) const
 {
 	if (!(extendedAttributes() & ExtendedAttributes::FileMd5s))
 		throw Exception(ExtendedAttributes::FileMd5s);
 
-	return md5s()[block->index()];
+	return md5(block->index());
+}
+
+inline MD5 Attributes::md5(const MpqFile *mpqFile) const
+{
+	return md5(mpqFile->block());
 }
 
 inline const char* Attributes::fileName() const

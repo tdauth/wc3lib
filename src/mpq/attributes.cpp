@@ -31,6 +31,20 @@ namespace wc3lib
 namespace mpq
 {
 
+CRC32 Attributes::crc32(const byte* data, std::size_t dataSize)
+{
+	boost::crc_32_type result; // TODO get correct CRC paramaters for MPQ (specification?)
+	
+	result.process_bytes((const void*)data, dataSize);
+	
+	return result.checksum();
+}
+
+MD5 Attributes::md5(const byte* data, std::size_t dataSize)
+{
+	mpq::md5(data, dataSize);
+}
+
 void Attributes::removeData()
 {
 	this->crc32s().clear();
@@ -46,18 +60,15 @@ void Attributes::refreshFile(const MpqFile *mpqFile)
 
 	if (this->hasChecksums())
 	{
-		arraystream stream;
+		stringstream stream;
 		std::streamsize size = mpqFile->writeData(stream);
-		byte *buffer;
-		stream >> buffer; // TODO don't copy (check if this makes a copy)!
+		string data = stream.str(); // TODO expensive
 
 		if (this->extendedAttributes() & ExtendedAttributes::FileCrc32s)
-			;
-			// FIXME fix the line below
-			//setCrc32(mpqFile, boost::crc<boost::crc_32_type>((void*)buffer, size));
+			setCrc32(mpqFile->block(), crc32(data.c_str(), data.size()));
 
 		if (this->extendedAttributes() & ExtendedAttributes::FileMd5s)
-			setMd5(mpqFile->block(), mpq::md5(buffer));
+			setMd5(mpqFile->block(), md5(data.c_str(), data.size()));
 	}
 }
 
@@ -160,10 +171,9 @@ bool Attributes::check(const MpqFile *mpqFile) const
 	if (!hasChecksums())
 		return true;
 
-	arraystream stream;
+	stringstream stream;
 	std::streamsize size = mpqFile->writeData(stream);
-	byte *buffer;
-	stream >> buffer; // TODO don't copy (check if this makes a copy)!
+	string data = stream.str(); // TODO expensive
 
 	if (extendedAttributes() & ExtendedAttributes::FileCrc32s)
 	{
@@ -174,7 +184,7 @@ bool Attributes::check(const MpqFile *mpqFile) const
 
 	if (extendedAttributes() & ExtendedAttributes::FileMd5s)
 	{
-		if (mpq::md5(buffer) != this->md5(mpqFile))
+		if (mpq::md5(data.c_str(), data.size()) != this->md5(mpqFile))
 			return false;
 	}
 
