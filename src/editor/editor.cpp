@@ -70,6 +70,26 @@ Editor::Editor(QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f), m_r
 #ifdef DEBUG
 	BlpCodec::startup(); // make sure we have BLP support even if it has not been installed
 #endif
+	
+	this->readSettings(aboutData().appName());
+
+	if (sources().empty() && !addDefaultSources())
+	{
+		KMessageBox::error(this, i18n("One or several MPQ archives of Warcraft III are missing."));
+	}
+	
+	// TODO refresh all shared files
+	try
+	{
+		this->refreshWorldEditorStrings(this);
+		this->refreshTriggerData(this);
+		this->refreshTriggerStrings(this);
+	}
+	catch (Exception &e)
+	{
+		KMessageBox::error(this, e.what().c_str());
+	}
+	
 	class KAction *action = new KAction(KIcon(":/actions/newmap.png"), i18n("New map ..."), this);
 	action->setShortcut(KShortcut(i18n("Ctrl+N")));
 	connect(action, SIGNAL(triggered()), this, SLOT(newMap()));
@@ -116,11 +136,6 @@ Editor::Editor(QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f), m_r
 	this->m_actionCollection->addAction("closemodule", action);
 
 	this->setMapActionsEnabled(false);
-
-	this->readSettings(aboutData().appName());
-
-	if (sources().empty() && !addDefaultSources())
-		KMessageBox::error(this, i18n("One or several MPQ archives of Warcraft III are missing."));
 
 	/*
 	QSettings settings("Blizzard Entertainment", "WorldEdit", this);

@@ -1,6 +1,8 @@
 2013-10-13 Tamino Dauth <tamino@cdauth.eu>
 * kio_mpq: Caching/storing (listfile) entries would be more efficient (maybe for mpq io slave only).
 * kio_mpq: Improve performance on reading/getting files (drop copying buffers).
+* textureeditor: Use frame with automatic scroll bars to prevent resizing on image display!
+* map::Txt: UI/WorldEditStrings.txt cannot be parsed?
 
 2013-10-10 Tamino Dauth <tamino@cdauth.eu>
 * blp/qblp: Increase performance of BLP loading (and writing), drop thread management for JPEG and read from std streams instead of copying the whole buffer.

@@ -227,38 +227,61 @@ void ObjectEditor::addCurrentActions()
 {
 	QString file;
 
+	// new object
+	
 	newObjectAction()->setText(currentTab()->newObjectText());
 
 	if (source()->download(currentTab()->newObjectIconUrl(), file, this))
+	{
 		newObjectAction()->setIcon(QIcon(file));
+	}
 
 	connect(newObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(newObject()));
 
+	// rename object
+	
 	renameObjectAction()->setText(currentTab()->renameObjectText());
 	connect(renameObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(renameObject()));
 
+	// delete object
+	
 	deleteObjectAction()->setText(currentTab()->deleteObjectText());
 	connect(deleteObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(deleteObject()));
 
+	
+	// reset object
+	
 	resetObjectAction()->setText(currentTab()->resetObjectText());
 	connect(resetObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(resetObject()));
 
 	resetAllObjectsAction()->setText(currentTab()->resetAllObjectsText());
 	connect(resetAllObjectsAction(), SIGNAL(triggered()), currentTab(), SLOT(resetAllObjects()));;
 
+	// export object
+	
 	exportAllObjectsAction()->setText(currentTab()->exportAllObjectsText());
 	connect(exportAllObjectsAction(), SIGNAL(triggered()), currentTab(), SLOT(exportAllObjects()));
 
 	importAllObjectsAction()->setText(currentTab()->importAllObjectsText());
 	connect(importAllObjectsAction(), SIGNAL(triggered()), currentTab(), SLOT(importAllObjects()));
 
+	// copy object
+	
 	copyObjectAction()->setText(currentTab()->copyObjectText());
+	
+	if (source()->download(currentTab()->copyObjectIconUrl(), file, this))
+	{
+		copyObjectAction()->setIcon(QIcon(file));
+	}
+	
 	connect(copyObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(copyObject()));
 
 	pasteObjectAction()->setText(currentTab()->pasteObjectText());
 
 	if (source()->download(currentTab()->pasteObjectIconUrl(), file, this))
+	{
 		pasteObjectAction()->setIcon(QIcon(file));
+	}
 
 	connect(pasteObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(pasteObject()));
 }

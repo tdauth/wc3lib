@@ -88,7 +88,13 @@ void SourcesDialog::added(const QString& text)
 	if (text.endsWith(".mpq") && !text.startsWith("mpq:/")) {
 		QStringList items = m_editListBox->items();
 		items.removeFirst();
-		items.push_front("mpq:/" + text);
+		QString protocol = "mpq:";
+		
+		if (!text.startsWith('/')) { // relative path
+			protocol += '/';
+		}
+		
+		items.push_front(protocol + text);
 		m_editListBox->setItems(items);
 	} else {
 		const KUrl url(text);
