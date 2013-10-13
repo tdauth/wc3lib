@@ -399,6 +399,12 @@ void MpqProtocol::listDir(const KUrl &url)
 	
 	BOOST_FOREACH (mpq::Listfile::Entries::reference ref, entries)
 	{
+		// ignore empty entries
+		if (ref.empty())
+		{
+			continue;
+		}
+		
 		boost::iterator_range<string::iterator> r = boost::find_last(ref, "\\");
 		
 		kDebug(7000) << "Entry \"" << ref.c_str() << "\"";
