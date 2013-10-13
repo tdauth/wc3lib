@@ -147,7 +147,7 @@ bool MpqProtocol::openArchive(const QString &archive, QString &error)
 	// TEST END
 	
 	// if file paths are equal file must already be open, so don't open again
-	if (this->m_archive.isNull() || this->m_archive->path().string() != archive.toUtf8().constData())
+	if (this->m_archive.isNull() || m_archiveName != archive)
 	{
 		kDebug(7000) << "New opening!";
 		
@@ -183,7 +183,10 @@ bool MpqProtocol::openArchive(const QString &archive, QString &error)
 		}
 
 		m_archive.swap(ptr); // exception safety
+		m_archiveName = archive;
 	}
+	
+	kDebug(7000) << "Success on opening archive";
 	
 	return true;
 }
@@ -356,16 +359,18 @@ void MpqProtocol::listDir(const KUrl &url)
 	
 	if (!hasAttributes)
 	{
-		warning(i18n("%1: Missing \"(attributes)\" file.", url.prettyUrl()));
+		//warning(i18n("%1: Missing \"(attributes)\" file.", url.prettyUrl()));
 	}
 	else
 	{
 		hasFileTime = m_archive->attributesFile()->extendedAttributes() & mpq::Attributes::ExtendedAttributes::FileTimeStamps;
 		
+		/*
 		if (!hasFileTime)
 		{
 			warning(i18n("%1: Missing \"(attributes)\" file time stamps.", url.prettyUrl()));
 		}
+		*/
 	}
 	
 	if (archivePath.isEmpty()) // root directory
@@ -527,20 +532,29 @@ void MpqProtocol::stat(const KUrl &url)
 	
 	if (!hasAttributes)
 	{
-		warning(i18n("%1: Missing \"(attributes)\" file.", url.prettyUrl()));
+		//warning(i18n("%1: Missing \"(attributes)\" file.", url.prettyUrl()));
 	}
 	else
 	{
 		hasFileTime = m_archive->attributesFile()->extendedAttributes() & mpq::Attributes::ExtendedAttributes::FileTimeStamps;
 		
+		/*
 		if (!hasFileTime)
 		{
 			warning(i18n("%1: Missing \"(attributes)\" file time stamps.", url.prettyUrl()));
 		}
+		*/
 	}
 	
+	kDebug(7000) << "MpqProtocol::state Searching file " << archivePath.constData();
+	
 	mpq::MpqFile *file = m_archive->findFile(archivePath.constData()); // TODO locale and platform
-			
+	
+	KIO::UDSEntry entry;
+	entry.insert(KIO::UDSEntry::UDS_NAME, url.path());
+	entry.insert(KIO::UDSEntry::UDS_ACCESS, (S_IRWXU | S_IRWXG | S_IRWXO));
+	
+	
 	if (file != 0) // TODO includes dirs?
 	{
 		//quint64 fileTime = 0;
@@ -569,9 +583,6 @@ void MpqProtocol::stat(const KUrl &url)
 			}
 		}
 		
-		KIO::UDSEntry entry;
-		
-		entry.insert(KIO::UDSEntry::UDS_NAME, url.path());
 		entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFREG);
 		entry.insert(KIO::UDSEntry::UDS_SIZE, file->compressedSize());
 		
@@ -580,24 +591,31 @@ void MpqProtocol::stat(const KUrl &url)
 			entry.insert(KIO::UDSEntry::UDS_MODIFICATION_TIME, fileTime);
 		}
 		
-		entry.insert(KIO::UDSEntry::UDS_ACCESS, (S_IRWXU | S_IRWXG | S_IRWXO));
-		
 		KMimeType::Ptr ptr = KMimeType::findByPath(url.path()); // TODO find by content?
 
 		if (!ptr.isNull())
 		{
 			entry.insert(KIO::UDSEntry::UDS_MIME_TYPE, ptr->name());
 		}
-		
-		statEntry(entry);
 	}
-	else // invalid entry or dir?
+	// directory
+	else
 	{
-		error(KIO::ERR_DOES_NOT_EXIST, url.prettyUrl());
+		// directory path has no file or directory entries and therefore cannot exist
+		if (this->m_archive->containsListfileFile() && this->m_archive->listfileFile()->dirEntries(archivePath.constData()).empty())
+		{
+			kDebug(7000) << "stat(): is no dir, no entries, does not exist.";
+			
+			error(KIO::ERR_DOES_NOT_EXIST, url.prettyUrl());
+			
+			return;
+		}
 		
-		return;
+		kDebug(7000) << "stat(): is dir";
+		entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFDIR);
 	}
 	
+	statEntry(entry);
 	finished();
 }
 

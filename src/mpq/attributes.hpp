@@ -49,6 +49,9 @@ breaking archive viewers.
 class Attributes : public MpqFile
 {
 	public:
+		/**
+		 * All types of attributes which can be stored for files.
+		 */
 		BOOST_SCOPED_ENUM_START(ExtendedAttributes) /// \todo C++11 : uint32
 		{
 			None = 0x0,
@@ -58,6 +61,13 @@ class Attributes : public MpqFile
 		};
 		BOOST_SCOPED_ENUM_END
 
+		/**
+		 * \brief Custom type for exceptions thrown if a specific type of extended attributes is not stored in the file.
+		 * 
+		 * Use \ref Exception::extendedAttributes() to get the type which is not stored.
+		 * 
+		 * \sa Attributes::ExtendedAttributes
+		 */
 		class Exception : public wc3lib::Exception
 		{
 			public:
@@ -76,9 +86,20 @@ class Attributes : public MpqFile
 		typedef std::vector<FILETIME> FileTimes;
 		typedef std::vector<MD5> Md5s;
 		
+		/**
+		 * @{
+		 * Calculates checksum from given data.
+		 * \param data Data from which checksum should be calculated.
+		 * \param dataSize Size of given data.
+		 * \return Returns the value of the calculated checksum
+		 */
 		static CRC32 crc32(const byte *data, std::size_t dataSize);
 		static MD5 md5(const byte *data, std::size_t dataSize);
+		/**@}*/
 
+		/**
+		 * Returns a vector of all checksums for all files. For each file's block its index is used to get the corresponding entry.
+		 */
 		const Crc32s& crc32s() const;
 		const FileTimes& fileTimes() const;
 		const Md5s& md5s() const;
@@ -98,6 +119,7 @@ class Attributes : public MpqFile
 
 		/**
 		 * Reads data from corresponding file "(attributes)" of the archive and stores attributes into containers.
+		 * \note This function has to be called manually. Otherwise, structures will stay empty.
 		 */
 		std::streamsize readData();
 		/**
