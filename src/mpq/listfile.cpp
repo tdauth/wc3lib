@@ -70,7 +70,7 @@ Listfile::Entries Listfile::dirEntries(const string& content, const string& dirP
 
 	BOOST_FOREACH(Entries::reference ref, entries)
 	{
-		if (boost::starts_with(ref, dirPath))
+		if (boost::istarts_with(ref, dirPath)) // paths are not case sensitive!
 		{
 			string::size_type start = dirPath.length();
 			bool foundOneDir = false;

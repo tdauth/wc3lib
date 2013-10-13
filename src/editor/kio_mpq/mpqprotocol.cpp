@@ -353,7 +353,9 @@ void MpqProtocol::listDir(const KUrl &url)
 		return;
 	}
 	
+	kDebug(7000) << "MpqProtocol::listDir entries of " << archivePath.constData();
 	mpq::Listfile::Entries entries = listfile->dirEntries(archivePath.constData(), false);
+	kDebug(7000) << "MpqProtocol::listDir entries size " << entries.size();
 	const bool hasAttributes = m_archive->containsAttributesFile();
 	bool hasFileTime = false;
 	
@@ -375,6 +377,8 @@ void MpqProtocol::listDir(const KUrl &url)
 	
 	if (archivePath.isEmpty()) // root directory
 	{
+		kDebug(7000) << "MpqProtocol::listDir is root directory, appending extra files";
+		
 		// list files which are not listed in "(listfile)"
 		
 		if (m_archive->containsListfileFile()) // should always be the case
@@ -702,6 +706,7 @@ void MpqProtocol::get(const KUrl &url)
 	// Size of a QIODevice read. It must be large enough so that the mime type check will not fail
 	const qint64 sectorSize = this->m_archive->sectorSize();
 
+	/*
 	qint64 bufferSize = sectorSize;
 	QByteArray buffer;
 	buffer.resize(bufferSize);
@@ -713,6 +718,7 @@ void MpqProtocol::get(const KUrl &url)
 
 		return;
 	}
+	*/
 
 	bool firstRead = true;
 
@@ -732,14 +738,16 @@ void MpqProtocol::get(const KUrl &url)
 
 	while (sectorIndex < file->sectors().size())
 	{
+		/*
 		if (!firstRead)
 		{
 			bufferSize = sectorSize;
 			buffer.resize(bufferSize);
 		}
+		*/
 
 		// Avoid to use bufferSize here, in case something went wrong.
-		arraystream ostream(buffer.data(), buffer.size()); // TODO check if unbuffered stream works
+		stringstream ostream; // we don't know the uncompressed size, TODO set internal buffer size to at least sector size!
 		qint64 read = 0;
 
 		try
@@ -749,16 +757,20 @@ void MpqProtocol::get(const KUrl &url)
 		}
 		catch (Exception &exception)
 		{
-			kWarning(7109) << "Read" << read << "bytes but expected" << bufferSize ;
+			kWarning(7000) << "Read" << read << "bytes but expected" << sectorSize ;
 			error(KIO::ERR_COULD_NOT_READ, i18n("%1: \"%2\".", url.prettyUrl(), exception.what().c_str()));
 
 			return;
 		}
+		
+		const string bufferString = ostream.str();
+		const QByteArray buffer(bufferString.c_str(), bufferString.size()); // TODO copy is bad
 
 		if (firstRead)
 		{
 			// We use the magic one the first data read
 			// (As magic detection is about fixed positions, we can be sure that it is enough data.)
+			
 			KMimeType::Ptr mime = KMimeType::findByNameAndContent(archivePath, buffer);
 			kDebug(7000) << "Emitting mimetype" << mime->name();
 			mimeType(mime->name());
