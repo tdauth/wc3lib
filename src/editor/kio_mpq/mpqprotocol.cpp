@@ -393,7 +393,6 @@ void MpqProtocol::listDir(const KUrl &url)
 		}
 	}
 	
-	
 	BOOST_FOREACH (mpq::Listfile::Entries::reference ref, entries)
 	{
 		boost::iterator_range<string::iterator> r = boost::find_last(ref, "\\");
@@ -511,11 +510,6 @@ void MpqProtocol::stat(const KUrl &url)
 		error(KIO::ERR_DOES_NOT_EXIST, url.prettyUrl());
 		
 		return;
-	}
-	
-	if (!archivePath.isEmpty() && archivePath.at(archivePath.size() - 1) != '\\')
-	{
-		archivePath.append('\\'); // interpret as directory
 	}
 	
 	QString errorText;
