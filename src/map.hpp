@@ -21,6 +21,21 @@
 #ifndef WC3LIB_MAP_HPP
 #define WC3LIB_MAP_HPP
 
+namespace wc3lib
+{
+/**
+ * \page mapsection Map module
+ * Use this module to read, write and modify Warcraft III maps (*.w3m, *.w3x) and campaigns (*.w3n) and their corresponding files.
+ * 
+ * Warcraft III maps and campaigns are usual MPQ archives containing some specific files, most of them in a binary format.
+ * 
+ * Include file \ref map.hpp and use namespace \ref wc3lib::map for this module.
+ * 
+ * \namespace wc3lib::map
+ * \brief \ref mapsection
+ */
+}
+
 #include "map/camera.hpp"
 #include "map/cameras.hpp"
 #include "map/campaign.hpp"

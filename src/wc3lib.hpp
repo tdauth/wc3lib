@@ -29,7 +29,29 @@
 * \mainpage Warcraft III Library
 * This is the API reference and documentation of the wc3lib project. wc3lib is an abbreviation which means "Warcraft III Library".
 * 
-* It's a collection of various libraries which allow programmers to use Blizzard's customly developed formats with an abstract C++ interface.
+* wc3lib consists of several modules which allow strict separation of areas and a clear definition of dependencies:
+* <ul>
+* <li>\subpage coresection </li>
+* <li>\subpage mpqsection </li>
+* <li>\subpage blpsection </li>
+* <li>\subpage mdlxsection </li>
+* <li>\subpage mapsection </li>
+* <li>\subpage editorsection </li>
+* <li>\subpage applicationssection </li>
+* </ul>
+* 
+* For detailed description see \ref intro
+*
+* \note Check out http://wc3lib.org for further information.
+*
+* \date Version date
+* 2013-09-20
+* \author Tamino Dauth <tamino@cdauth.eu>
+*
+* \copyright GNU GENERAL PUBLIC LICENSE Version 2 (except external library code)
+*
+* \section intro Introduction
+* wc3lib is a collection of various libraries which allow programmers to use Blizzard's customly developed formats with an abstract C++ interface.
 * All implementations are free and mainly under the GPLv2 license but there's some external code which is mostly under some similar license as well.
 * 
 * As mentioned above the wc3lib is split up into some different modules. Each module consists of a single library which supports one of <a url="http://blizzard.com/">Blizzard's</a> formats (except modules for \ref applicationssection "applications" and \ref editorsection "editor" which are extensions of the default modules).
@@ -42,86 +64,6 @@
 * All namespaces and other declarations of the wc3lib belong to the global namespace \ref wc3lib.
 * 
 * Each module uses a header file called "platform.hpp" for its core type definitions such as integer types with specified size. There's a global \ref platform.hpp file as well which tries to provide all shared basic types.
-* 
-* The wc3lib is divided into the following parts:
-* <ul>
-* <li>\subpage coresection </li>
-* <li>\subpage mpqsection </li>
-* <li>\subpage blpsection </li>
-* <li>\subpage mdlxsection </li>
-* <li>\subpage mapsection </li>
-* <li>\subpage editorsection </li>
-* <li>\subpage applicationssection </li>
-* </ul>
-*
-* \note Check out http://wc3lib.org for further information.
-*
-* \date Version date
-* 2013-09-20
-* \author Tamino Dauth <tamino@cdauth.eu>
-*
-* \copyright GNU GENERAL PUBLIC LICENSE Version 2 (except external library code)
-*
-* \page coresection Core
-* The core of the wc3lib is shared by all of its modules. It provides some basic functions and classes for exception handling, internationalisation, runtime loading of shared objects/DLLs and I/O operations.
-* 
-* Use class \ref LibraryLoader to load and unload shared objects and their symbols at runtime.
-* 
-* Class \ref Exception is the base class of all exceptions thrown by functions of the wc3lib.
-* 
-* Include \ref i18n.hpp to use \ref boost::format and gettext macros for internationalisation of your program.
-* 
-* Class \ref Format is the base class of all format related classes of the wc3lib. It supports some basic serialization member functions.
-* 
-* Include \ref utilities.hpp to use many I/O stream functions heavily used by all supported format classes. Besides it includes many default components of the STL and the Boost C++ Libraries and provides some error/info output functions with human-readable messages and class \ref Vertex.
-*
-* \page mpqsection MPQ module
-* The MPQ format (Mo'PaQ, short for Mike O'Brien Pack) is Blizzard's archive format used by most of their games.
-* 
-* It provides various features:
-* <ul>
-* <li>file hashing</li>
-* <li>locale support</li>
-* <li>file sector compression (BZip2, zlib, PKWare, wave etc.)</li>
-* <li>format extensions for archives which can be larger than 2^32 bytes</li>
-* </ul>
-* 
-* Use class \ref wc3lib::mpq::Mpq to access or create one single MPQ archive.
-* 
-* Include file \ref mpq.hpp and use namspace \ref wc3lib::mpq to use this module.
-*
-* \page blpsection BLP module
-* This module provides functionality for reading, writing and modifying Blizzard Picture files.
-* 
-* Its main class is \ref wc3lib::blp::Blp which represents one single texture.
-* 
-* The BLP format supports various features:
-* <ul>
-* <li>MIP mapping (up to 16 MIP maps)</li>
-* <li>JPEG/JFIF compression</li>
-* <li>paletted compression (similar to GIF - 256 colors)</li>
-* <li>RGBA color space</li>
-* </ul>
-* 
-* Include file \ref blp.hpp and use namspace \ref wc3lib::blp to use this module.
-*
-* \page mdlxsection MDLX module
-* This module provides several classes to read and write Blizzard's 3d graphics formats MDX (binary) and MDL (human-readable).
-* 
-* It does not provide any display/rendering functionality. Use module \ref editor for this.
-* 
-* Class \ref wc3lib::mdlx::Mdlx provides all functionality which is needed to save or load one MDX or MDL file.
-* 
-* The class easily be used to convert one format into the other one (application "wc3converter" provides this feature).
-* 
-* Include file \ref mdlx.hpp and use namespace \ref wc3lib::mdlx to use this module.
-*
-* \page mapsection Map module
-* Use this module to read, write and modify Warcraft III maps (*.w3m, *.w3x) and campaigns (*.w3n) and their corresponding files.
-* 
-* Warcraft III maps and campaigns are usual MPQ archives containing some specific files, most of them in a binary format.
-* 
-* Include file \ref map.hpp and use namespace \ref wc3lib::map to use this module.
 *
 * \page applicationssection Applications module
 * Since this module only provides some useful applications there is neither any namespace to use nor any header file to include.
@@ -134,19 +76,6 @@
 * <li>mpq - console-based, tar-like MPQ archive extractor and creator tool</li>
 * <li>tilesetter - console-based tilesetting program</li>
 * </ul>
-*
-* \namespace wc3lib
-* \brief \ref coresection
-* \namespace wc3lib::mpq
-* \brief \ref mpqsection
-* \namespace wc3lib::blp
-* \brief \ref blpsection
-* \namespace wc3lib::mdlx
-* \brief \ref mdlxsection
-* \namespace wc3lib::map
-* \brief \ref mapsection
-* \namespace wc3lib::editor
-* \brief \ref editorsection
 */
 
 #include "core.hpp"

@@ -21,6 +21,29 @@
 #ifndef WC3LIB_MPQ_HPP
 #define WC3LIB_MPQ_HPP
 
+namespace wc3lib
+{
+/**
+ * \page mpqsection MPQ module
+ * The MPQ format (Mo'PaQ, short for Mike O'Brien Pack) is Blizzard's archive format used by most of their games.
+ * 
+ * It provides various features:
+ * <ul>
+ * <li>file hashing</li>
+ * <li>locale support</li>
+ * <li>file sector compression (BZip2, zlib, PKWare, wave etc.)</li>
+ * <li>format extensions for archives which can be larger than 2^32 bytes</li>
+ * </ul>
+ * 
+ * Use class \ref wc3lib::mpq::Mpq to access or create one single MPQ archive.
+ * 
+ * Include file \ref mpq.hpp and use namspace \ref wc3lib::mpq for this module.
+ * 
+ * \namespace wc3lib::mpq
+ * \brief \ref mpqsection
+ */
+}
+
 #include "mpq/algorithm.hpp"
 #include "mpq/attributes.hpp"
 #include "mpq/block.hpp"

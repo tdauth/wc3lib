@@ -20,7 +20,26 @@
 
 #ifndef WC3LIB_BLP_HPP
 #define WC3LIB_BLP_HPP
-
+/**
+ * \page blpsection BLP module
+ * This module provides functionality for reading, writing and modifying Blizzard Picture files.
+ * 
+ * Its main class is \ref wc3lib::blp::Blp which represents one single texture.
+ * See its documentation for accessing the format.
+ * 
+ * The BLP format supports various features:
+ * <ul>
+ * <li>MIP mapping (up to 16 MIP maps)</li>
+ * <li>JPEG/JFIF compression</li>
+ * <li>paletted compression (similar to GIF - 256 colors)</li>
+ * <li>RGBA color space</li>
+ * </ul>
+ * 
+ * Include file \ref blp.hpp and use namspace \ref wc3lib::blp for this module.
+ * 
+ * \namespace wc3lib::blp
+ * \brief \ref blpsection
+ */
 #include "blp/blp.hpp"
 #include "blp/platform.hpp"
 

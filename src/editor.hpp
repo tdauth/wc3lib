@@ -48,6 +48,9 @@ namespace wc3lib
  * <ul>
  * <li>\subpage triggereditorsection </li>
  * </ul>
+ * 
+ * \namespace wc3lib::editor
+ * \brief \ref editorsection
  */
 }
 
