@@ -167,6 +167,19 @@ class Format : public Format<byte>
 }
 */
 
+/**
+ * Parses one single keyword of a MDL chunk from an input stream.
+ * The keyword can be optional which means there is no error if it doesn't appear, it's simply skipped and no bytes are read.
+ * 
+ * \param stream Input stream from which is read to find the keyword.
+ * \param keyword The keyword itself (for example "Model" or "Lights").
+ * \param sizeCounter Size variable which is increased by the number of read bytes (which is zero if no keyword was found).
+ * \param optional If this value is true, the identifier needn't to appear. This can be useful for optional chunks. Otherwise an exceptions is thrown!
+ * 
+ * \return Returns the input stream \p stream.
+ * 
+ * \throws Exception Is thrown if the keyword doesn't appear in the input stream and \p optional is false.
+ */
 inline istream& parseMdlKeyword(istream &stream, const string &keyword, std::streamsize &sizeCounter, bool optional = false) throw (class Exception)
 {
 	string identifier;

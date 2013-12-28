@@ -24,6 +24,7 @@ if (EDITOR)
 		moduletoolbar.hpp
 		mpqprioritylist.hpp
 		newmapdialog.hpp
+		ogreenvironment.hpp
 		ogremdlx.hpp
 		ogremdlxentity.hpp
 		platform.hpp
@@ -55,6 +56,7 @@ if (EDITOR)
 		moduletoolbar.cpp
 		mpqprioritylist.cpp
 		newmapdialog.cpp
+		ogreenvironment.cpp
 		ogremdlx.cpp
 		ogremdlxentity.cpp
 		plugin.cpp

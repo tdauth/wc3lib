@@ -3,6 +3,7 @@ find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
 add_executable(txttest txt.cpp)
 target_link_libraries(txttest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
+add_test(NAME TxtTest COMMAND txttest)
 add_executable(triggerdatatest triggerdata.cpp)
 target_link_libraries(triggerdatatest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
 add_executable(triggerstest triggers.cpp)

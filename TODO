@@ -1,3 +1,10 @@
+2013-12-28 Tamino Dauth <tamino@cdauth.eu>
+* editor: Create analysis document for realising terrain in OGRE using map's environment (height calculation, cliff types, textures, tilesets ...).
+
+2013-11-30 Tamino Dauth <tamino@cdauth.eu>
+* use if () in CMake instead of string comparisons with NOTFOUND content
+* use CheckCXXCompilerFlag() instead of custom checks!
+
 2013-10-13 Tamino Dauth <tamino@cdauth.eu>
 * kio_mpq: Caching/storing (listfile) entries would be more efficient (maybe for mpq io slave only).
 * kio_mpq: Improve performance on reading/getting files (drop copying buffers).
