@@ -574,8 +574,11 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps, con
 			const std::streampos position = istream.tellg();
 			istream.seekg(mipMapOffset);
 
-			if (!istream)
+			if (!istream) {
+				delete[] buffer;
+				
 				throw Exception(boost::format(_("Invalid MIP map offset %1% for MIP map %2%")) % mipMapOffset % i);
+			}
 
 			const std::size_t nullBytes = istream.tellg() - position;
 

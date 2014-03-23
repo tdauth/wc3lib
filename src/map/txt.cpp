@@ -154,7 +154,7 @@ bool parse(Iterator first, Iterator last, Txt::Sections &sections)
 
 }
 
-const Txt::Pairs& Txt::entries(const string section) const
+const Txt::Pairs& Txt::entries(const string &section) const
 {
 	for (int i = 0; i < this->sections().size(); ++i)
 	{

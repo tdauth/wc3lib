@@ -361,7 +361,7 @@ inline bool hasListfile(const Listfile::Entries &arg)
 
 void extract(const Mpq &mpq,
 #ifndef UNIX
-const std::string entry,
+const std::string &entry,
 #else
 std::string entry,
 #endif

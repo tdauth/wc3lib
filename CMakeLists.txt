@@ -27,6 +27,9 @@ option(MDLX
 option(MPQ
 	"Builds MPQ module. Required by options EDITOR and PLUGINS."
 	ON)
+option(JASS
+	"Builds JASS module."
+	ON)
 option(W3G
 	"Builds W3G module."
 	ON)

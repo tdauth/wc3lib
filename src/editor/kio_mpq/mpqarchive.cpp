@@ -125,7 +125,7 @@ bool MpqArchive::closeArchive()
 	{
 		this->m_mpq->close();
 	}
-	catch (Exception e)
+	catch (const Exception &e)
 	{
 		return false;
 	}

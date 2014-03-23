@@ -120,6 +120,9 @@ class TriggerData : public FileFormat
 		class Parameter : public Format
 		{
 			public:
+				Parameter() : m_type(0) {
+				}
+				
 				// Key: arbitrary text
 				void setName(const string &name);
 				const string& name() const;
@@ -164,6 +167,9 @@ class TriggerData : public FileFormat
 				 */
 				typedef std::pair<Value, Value> Limit; // TODO Parameter should only occur for defaults not for limits, use int and float only? 
 				typedef std::vector<Limit> Limits;
+				
+				Function() : m_category(0) {
+				}
 
 				// Key: script event function
 				void setCode(const string &code);
@@ -237,6 +243,9 @@ class TriggerData : public FileFormat
 		class Call : public Function
 		{
 			public:
+				Call() : m_canBeUsedInEvents(false) {
+				}
+				
 				bool canBeUsedInEvents() const;
 				const ArgumentType& returnType() const;
 				

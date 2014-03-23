@@ -68,7 +68,7 @@ class Txt : public Format
 		 * \throws Exception Throws an exception if section \p section does not exist.
 		 * \note Since sections are stored in a vector for more efficency while reading a TXT file this search has a complexity of O(n).
 		 */
-		const Pairs& entries(const string section) const;
+		const Pairs& entries(const string &section) const;
 
 		virtual std::streamsize read(InputStream &istream) throw (Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);

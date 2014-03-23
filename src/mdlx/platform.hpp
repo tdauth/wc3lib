@@ -475,7 +475,7 @@ inline ostream& writeMdlProperty(ostream &stream, std::streamsize &size, const s
  * ...
  */
 template<typename T>
-inline ostream& writeMdlValueProperty(ostream &stream, std::streamsize &size, const string &identifier, T value, std::size_t depth = 0, const string prefix = "")
+inline ostream& writeMdlValueProperty(ostream &stream, std::streamsize &size, const string &identifier, T value, std::size_t depth = 0, const string &prefix = "")
 {
 	ostringstream sstream;
 	setupMdlFormat(sstream);
@@ -493,7 +493,7 @@ inline ostream& writeMdlValueProperty(ostream &stream, std::streamsize &size, co
  * Properties like Image "path" need quotes around their string values.
  */
 template<typename T>
-inline ostream& writeMdlValuePropertyWithQuotes(ostream &stream, std::streamsize &size, const string &identifier, T value, std::size_t depth = 0, const string prefix = "")
+inline ostream& writeMdlValuePropertyWithQuotes(ostream &stream, std::streamsize &size, const string &identifier, T value, std::size_t depth = 0, const string &prefix = "")
 {
 	ostringstream sstream;
 	setupMdlFormat(sstream);
@@ -536,7 +536,7 @@ inline ostream& writeMdlStaticValuePropertyWithQuotes(ostream &stream, std::stre
  * { <float_x>, <float_y>, <float_z> }
  */
 template<typename VertexType> //  = BasicVertex<T, N>
-ostream& writeMdlVectorProperty(ostream &stream, std::streamsize &size, const string &identifier, const VertexType &values, std::size_t depth = 0, const string prefix = "")
+ostream& writeMdlVectorProperty(ostream &stream, std::streamsize &size, const string &identifier, const VertexType &values, std::size_t depth = 0, const string &prefix = "")
 {
 	ostringstream sstream;
 	setupMdlFormat(sstream);
@@ -589,7 +589,7 @@ inline ostream& writeMdlStaticVectorProperty(ostream &stream, std::streamsize &s
  * Matrices { <long>, <long>, <long> },
  */
 template<typename ValueType> //  = BasicVertex<T, N>
-ostream& writeMdlVectorProperty(ostream &stream, std::streamsize &size, const string &identifier, const std::vector<ValueType> &values, std::size_t depth = 0, const string prefix = "", bool forceBrackets = false)
+ostream& writeMdlVectorProperty(ostream &stream, std::streamsize &size, const string &identifier, const std::vector<ValueType> &values, std::size_t depth = 0, const string &prefix = "", bool forceBrackets = false)
 {
 	ostringstream sstream;
 	setupMdlFormat(sstream);

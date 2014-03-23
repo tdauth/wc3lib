@@ -236,7 +236,7 @@ inline std::basic_istream<_CharT>& readString(std::basic_istream<_CharT> &istrea
  * \sa read, readCString, readString
  */
 template<typename T, typename _ByteT> /// \todo typename _CharT = char for C++0x
-inline std::basic_istream<_ByteT>& parse(std::basic_istream<_ByteT> &istream, T &value, std::streamsize &sizeCounter, const std::basic_string<char> delimiters = " \t\n\r")
+inline std::basic_istream<_ByteT>& parse(std::basic_istream<_ByteT> &istream, T &value, std::streamsize &sizeCounter, const std::basic_string<char> &delimiters = " \t\n\r")
 {
 	std::streampos position;
 	char character;
