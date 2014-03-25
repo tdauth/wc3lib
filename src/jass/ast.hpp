@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <string>
+#include <ostream>
+#include <fstream>
 
 #include <boost/spirit/include/qi_symbols.hpp>
 
@@ -15,6 +17,19 @@ namespace jass
 namespace qi = boost::spirit::qi;
 
 struct jass_ast_node {
+	virtual std::string type_name() const { return "bla"; }
+};
+
+struct jass_hex_integer {
+	std::string literal;
+};
+
+struct jass_oct_integer {
+	std::string literal;
+};
+
+struct jass_four_characters {
+	char literals[4];
 };
 
 struct jass_type : public jass_ast_node {
@@ -34,6 +49,7 @@ struct jass_expression : public jass_ast_node, public jass_expression_base {
 };
 
 struct jass_function_declaration : public jass_ast_node {
+	std::string identifier;
 };
 
 struct jass_var_declaration : public jass_ast_node {
@@ -107,37 +123,133 @@ struct jass_function_reference : public jass_expression {
 	jass_function_declaration *function;
 };
 
-struct jass_types : qi::symbols<char, jass_type*>
-{
-    jass_types()
-    {
-	name("JASS types");
-	// add basic JASS types which do not have to be declared
-	add
-        ("integer", new jass_type("integer", 0))
-	("real", new jass_type("real", 0))
-	("code", new jass_type("code", 0))
-	("handle", new jass_type("handle", 0))
-	("boolean", new jass_type("boolean", 0))
-	("string", new jass_type("string", 0))
-        ;
-    }
-    
-    ~jass_types() {
-	    // TODO delete all
-	   // symbol_deleter<jass_type> deleter;
-	   // this->for_each(deleter);
-    }
+struct jass_types : qi::symbols<char, jass_type> {
+	
+	jass_types()
+	{
+		name("JASS types");
+		// add basic JASS types which do not have to be declared
+		add
+			("integer", jass_type("integer", 0))
+			("real", jass_type("real", 0))
+			("code", jass_type("code", 0))
+			("handle", jass_type("handle", 0))
+			("boolean", jass_type("boolean", 0))
+			("string", jass_type("string", 0))
+		;
+	}
 
+	~jass_types() {
+	}
+};
+
+struct jass_native : public jass_ast_node {
+	jass_function_declaration declaration;
+};
+
+struct jass_natives : public jass_ast_node, public std::vector<jass_native> {
+};
+
+struct jass_declarations : public jass_ast_node {
+	jass_types types;
+	jass_globals globals;
+	jass_natives natives;
+};
+
+struct jass_local : public jass_ast_node {
+};
+
+struct jass_locals : public jass_ast_node, public std::vector<jass_local> {
+};
+
+struct jass_statement : public jass_ast_node {
+};
+
+struct jass_statements : public jass_ast_node, public std::vector<jass_statement> {
+};
+
+struct jass_function : public jass_ast_node {
+	jass_function_declaration declaration;
+	jass_locals locals;
+	jass_statements statements;
+};
+
+struct jass_functions : public jass_ast_node, public std::vector<jass_function> {
+};
+
+struct jass_file : public jass_ast_node {
+	std::string path;
+	jass_declarations declarations;
+	jass_functions functions;
+};
+
+struct jass_files :  public jass_ast_node, public std::vector<jass_file> {
 };
 
 struct jass_ast {
-	jass_types types;
-	jass_globals globals;
+	jass_files files;
 };
 
 }
 
 }
+
+/*
+ * The specialization is required for proper debug output of Spirit.
+ * It prints attributes of rules and therefore attributes of type jass_ast_node which misses a stream output operator.
+ * Unfortunately we have to define it for every type because it does not detect inheritance and virtual methods.
+ */
+// your specialization needs to be in namespace boost::spirit::traits
+// https://stackoverflow.com/questions/5286720/how-to-define-streaming-operator-for-boostspiritqi-and-stdlist-container
+// https://svn.boost.org/trac/boost/ticket/9803
+namespace boost { namespace spirit { namespace traits
+{
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::jass::jass_ast_node>
+	{
+		static void call(Out& out, wc3lib::jass::jass_ast_node const& val)
+		{
+			out << val.type_name();
+		}
+	};
+	
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::jass::jass_local>
+	{
+		static void call(Out& out, wc3lib::jass::jass_local const& val)
+		{
+			out << val.type_name();
+		}
+	};
+	
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::jass::jass_statement>
+	{
+		static void call(Out& out, wc3lib::jass::jass_statement const& val)
+		{
+			out << val.type_name();
+		}
+	};
+	
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::jass::jass_native>
+	{
+		static void call(Out& out, wc3lib::jass::jass_native const& val)
+		{
+			out << val.type_name();
+		}
+	};
+
+	// jass_types
+	// symbol table
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::jass::jass_types>
+	{
+		static void call(Out& out, wc3lib::jass::jass_types const& val)
+		{
+			out << val.name();
+		}
+	};
+}}}
 
 #endif

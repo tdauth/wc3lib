@@ -1,13 +1,6 @@
 #define BOOST_TEST_MODULE GlobalsTest
 #include <boost/test/unit_test.hpp>
 
-#include <fstream>
-#include <iostream>
-#include <iomanip>
-
-#include <boost/spirit/include/support_multi_pass.hpp>
-#include <boost/spirit/include/classic_position_iterator.hpp> // for more detailed error information
-
 //#include <boost/foreach.hpp>
 
 #include "../../platform.hpp"
@@ -21,9 +14,16 @@ using namespace wc3lib;
 using namespace wc3lib::jass;
 
 BOOST_AUTO_TEST_CASE(GlobalsTest) {
-	ifstream in("globals.j");
+	const char* jassFile = "globals.j";
+	const char* traceFile = "globalstraces.xml";
+	
+	ifstream in(jassFile);
 	
 	BOOST_REQUIRE(in);
+	
+	Grammar::traceLog.open(traceFile);
+	
+	BOOST_REQUIRE(Grammar::traceLog);
 	
 	Grammar grammar;
 	
@@ -32,14 +32,14 @@ BOOST_AUTO_TEST_CASE(GlobalsTest) {
 	
 	try
 	{
-		valid = grammar.parse(in, ast);
+		valid = grammar.parse(in, ast, jassFile);
 	}
 	catch(const Exception &e)
 	{
 		std::cerr << e.what() << std::endl;
 	}
 	
-	std::cout << "Count of globals: " << ast.globals.size() << std::endl;
+	std::cout << "Count of globals: " << ast.files.front().declarations.globals.size() << std::endl;
 	
 	BOOST_REQUIRE(valid);
 }

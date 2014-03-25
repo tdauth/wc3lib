@@ -1,13 +1,6 @@
 #define BOOST_TEST_MODULE TypesTest
 #include <boost/test/unit_test.hpp>
 
-#include <fstream>
-#include <iostream>
-#include <iomanip>
-
-#include <boost/spirit/include/support_multi_pass.hpp>
-#include <boost/spirit/include/classic_position_iterator.hpp> // for more detailed error information
-
 //#include <boost/foreach.hpp>
 
 #include "../../platform.hpp"
@@ -21,9 +14,16 @@ using namespace wc3lib;
 using namespace wc3lib::jass;
 
 BOOST_AUTO_TEST_CASE(TypesTest) {
-	ifstream in("types.j");
+	const char* jassFile = "types.j";
+	const char* traceFile = "typestrace.xml";
+	
+	ifstream in(jassFile);
 	
 	BOOST_REQUIRE(in);
+	
+	Grammar::traceLog.open(traceFile);
+	
+	BOOST_REQUIRE(Grammar::traceLog);
 	
 	Grammar grammar;
 	jass_ast ast;
@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE(TypesTest) {
 	
 	try
 	{
-		valid = grammar.parse(in, ast);
+		valid = grammar.parse(in, ast, jassFile);
 	}
 	catch(const Exception &e)
 	{

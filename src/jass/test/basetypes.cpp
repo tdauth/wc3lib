@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE CommentsTest
+#define BOOST_TEST_MODULE BaseTypesTest
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
@@ -24,18 +24,18 @@ using namespace wc3lib;
 using namespace wc3lib::jass;
 
 /*
- * This test parses lines and skips all comments starting with //
- * End of line characters should still be at the end of the strings to detect the lines.
- * All lines are stored in a vector.
- * 
- * https://stackoverflow.com/questions/22591094/boost-spirit-new-line-and-end-of-input
+ * This test tries to find all six base types of JASS from the input file.
+ * The symbol table should add them in the first place so that they are available for ALL JASS inputs.
  */
-BOOST_AUTO_TEST_CASE(CommentsTest) {
-	ifstream in("comments.j");
+BOOST_AUTO_TEST_CASE(BaseTypesTest) {
+	const char* jassFile = "basetypes.j";
+	const char* traceFile = "basetypestrace.xml";
+	
+	ifstream in(jassFile);
 	
 	BOOST_REQUIRE(in);
 	
-	Grammar::traceLog.open("commentstraces.xml");
+	Grammar::traceLog.open(traceFile);
 	
 	BOOST_REQUIRE(Grammar::traceLog);
 	
@@ -50,9 +50,18 @@ BOOST_AUTO_TEST_CASE(CommentsTest) {
 	typedef classic::position_iterator2<ForwardIteratorType> PositionIteratorType;
 	PositionIteratorType position_begin(first, last);
 	PositionIteratorType position_end;
+	
 	jass_ast ast;
+	
+	jass_file current_file;
+	current_file.path = jassFile;
+	
+	ast.files.push_back(current_file);
+	
+	BOOST_REQUIRE(ast.files.size() == 1);
+	
 	bool valid = false;
-	std::vector<std::string> result;
+	std::vector<jass_type*> result;
 	
 	try
 	{
@@ -61,12 +70,12 @@ BOOST_AUTO_TEST_CASE(CommentsTest) {
 		namespace ascii = boost::spirit::ascii;
 		
 		client::comment_skipper<PositionIteratorType> skipper;
+		client::jass_grammar<PositionIteratorType> grammar(ast, current_file);
 	
 		valid = boost::spirit::qi::phrase_parse(
 			position_begin,
 			position_end,
-			//  | &qi::eoi
-			*qi::eol >> (*(qi::char_ - (qi::eol)) % (qi::eol)),
+			(grammar.type_identifier % qi::eol), // parse all base types separated by eol
 			skipper,
 			result
 			);
@@ -98,11 +107,6 @@ BOOST_AUTO_TEST_CASE(CommentsTest) {
 	*/
 	
 	BOOST_REQUIRE(valid);
-	BOOST_REQUIRE(result.size() == 5); // number of parsed lines, lines with comments only contain the line break and therefore result in empty strings (eol is not stored in the string)
-	//BOOST_REQUIRE(result[0] == "\n"); // NOTE The first line is ignored due to the grammar which starts with a non EOL character!
-	BOOST_REQUIRE(result[0] == "globals");
-	BOOST_REQUIRE(result[1] == "integerbla=10"); // all blanks have to be skipped
-	BOOST_REQUIRE(result[2] == "endglobals");
-	BOOST_REQUIRE(result[3] == ""); // NOTE Empty line for comment/blanks only line!
-	BOOST_REQUIRE(result[4] == "typeblaextendsinteger"); // all blanks have to be skipped
+	BOOST_REQUIRE(result.size() == 6); // there are 6 different base types which all should be found in the symbol table by default
+	//BOOST_REQUIRE(result[4] == "typeblaextendsinteger"); // all blanks have to be skipped
 }

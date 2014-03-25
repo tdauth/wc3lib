@@ -22,8 +22,16 @@ class Grammar {
 		typedef std::istreambuf_iterator<byte> IteratorType;
 		typedef boost::spirit::multi_pass<IteratorType> ForwardIteratorType;
 		
-		bool parse(InputStream &istream, jass_ast &ast);
-		bool parse(IteratorType first, IteratorType last, jass_ast &ast);
+		bool parse(InputStream &istream, jass_ast &ast, jass_file &file);
+		bool parse(IteratorType first, IteratorType last, jass_ast &ast, jass_file &file);
+		
+		/**
+		 * Creates the parsed file automatically using \p fileName as file path.
+		 * The created file will be added to the AST.
+		 */
+		bool parse(InputStream &istream, jass_ast &ast, const std::string &fileName = "JASS file");
+		
+		static std::ofstream traceLog;
 };
 
 }

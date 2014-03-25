@@ -9,6 +9,7 @@ set(wc3lib_CORE_H
 	format.hpp
 	i18n.hpp
 	internationalisation.hpp
+	jass.hpp
 	lang.hpp
 	libraryloader.hpp
 	map.hpp
