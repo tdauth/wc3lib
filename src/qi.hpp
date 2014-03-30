@@ -18,44 +18,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_JASS_GRAMMAR_HPP
-#define WC3LIB_JASS_GRAMMAR_HPP
+/**
+ * \file qi.hpp
+ * This file should be included instead of <boost/spirit/include/qi.hpp> since it uses debug mode and the global traces output filestream \ref wc3lib::spiritTraceLog if debug mode is enabled.
+ */
+#ifndef WC3LIB_QI_HPP
+#define WC3LIB_QI_HPP
 
-#include "../spirit.hpp"
+#include "spirit.hpp"
 
-#include <iterator>
-
-#include <boost/spirit/include/support_multi_pass.hpp>
-#include <boost/spirit/include/classic_position_iterator.hpp> // for more detailed error information
-
-#include "../platform.hpp"
-#include "../exception.hpp"
-#include "ast.hpp"
-
-namespace wc3lib
-{
-
-namespace jass
-{
-
-class Grammar {
-	public:
-		typedef std::basic_istream<byte> InputStream;
-		typedef std::istreambuf_iterator<byte> IteratorType;
-		typedef boost::spirit::multi_pass<IteratorType> ForwardIteratorType;
-		
-		bool parse(InputStream &istream, jass_ast &ast, jass_file &file);
-		bool parse(IteratorType first, IteratorType last, jass_ast &ast, jass_file &file);
-		
-		/**
-		 * Creates the parsed file automatically using \p fileName as file path.
-		 * The created file will be added to the AST.
-		 */
-		bool parse(InputStream &istream, jass_ast &ast, const std::string &fileName = "JASS file");
-};
-
-}
-
-}
+#include <boost/spirit/include/qi.hpp>
 
 #endif

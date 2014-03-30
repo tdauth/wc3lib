@@ -1,5 +1,3 @@
-WC3LIB_ENABLE_EXCEPTIONS()
-
 set(wc3lib_TRIGGEREDITOR_UI
 	ui/triggereditor.ui
 	ui/triggerfunctiondialog.ui

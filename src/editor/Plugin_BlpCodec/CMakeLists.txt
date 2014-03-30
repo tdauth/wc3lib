@@ -1,5 +1,3 @@
-WC3LIB_ENABLE_EXCEPTIONS()
-
 set(wc3lib_EDITOR_PLUGIN_BLPCODEC_H
 	blpcodec.hpp
 )

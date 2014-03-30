@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE TypesTest
 #include <boost/test/unit_test.hpp>
 
-//#include <boost/foreach.hpp>
+#include "../../spirit.hpp" // enable debug mode
 
 #include "../../platform.hpp"
 #include "../grammar.hpp"
@@ -21,9 +21,9 @@ BOOST_AUTO_TEST_CASE(TypesTest) {
 	
 	BOOST_REQUIRE(in);
 	
-	Grammar::traceLog.open(traceFile);
+	spiritTraceLog.open(traceFile);
 	
-	BOOST_REQUIRE(Grammar::traceLog);
+	BOOST_REQUIRE(spiritTraceLog);
 	
 	Grammar grammar;
 	jass_ast ast;

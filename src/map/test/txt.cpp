@@ -25,6 +25,7 @@
 
 //#include <boost/foreach.hpp>
 
+#include "../../spirit.hpp"
 #include "../../platform.hpp"
 #include "../txt.hpp"
 
@@ -45,6 +46,10 @@ bool isHaha(const map::Txt::Pair &pair)
 }
 
 BOOST_AUTO_TEST_CASE(TxtSimpleReadTest) {
+	spiritTraceLog.open("txtsimplereadtestraces.xml");
+	
+	BOOST_REQUIRE(spiritTraceLog);
+	
 	string myTxt =
 	"[MySection]\n"
 	"Hello = 23"

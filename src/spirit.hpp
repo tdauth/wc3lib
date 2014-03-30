@@ -18,44 +18,34 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_JASS_GRAMMAR_HPP
-#define WC3LIB_JASS_GRAMMAR_HPP
+/**
+ * \file spirit.hpp
+ * This file should be included before any Boost Spirit header since it enables Boost debugging mode for Spirit
+ * and defines a global output file stream for traces.
+ */
+#ifndef WC3LIB_SPIRIT_HPP
+#define WC3LIB_SPIRIT_HPP
 
-#include "../spirit.hpp"
-
-#include <iterator>
-
-#include <boost/spirit/include/support_multi_pass.hpp>
-#include <boost/spirit/include/classic_position_iterator.hpp> // for more detailed error information
-
-#include "../platform.hpp"
-#include "../exception.hpp"
-#include "ast.hpp"
+#include <fstream>
 
 namespace wc3lib
 {
 
-namespace jass
-{
-
-class Grammar {
-	public:
-		typedef std::basic_istream<byte> InputStream;
-		typedef std::istreambuf_iterator<byte> IteratorType;
-		typedef boost::spirit::multi_pass<IteratorType> ForwardIteratorType;
-		
-		bool parse(InputStream &istream, jass_ast &ast, jass_file &file);
-		bool parse(IteratorType first, IteratorType last, jass_ast &ast, jass_file &file);
-		
-		/**
-		 * Creates the parsed file automatically using \p fileName as file path.
-		 * The created file will be added to the AST.
-		 */
-		bool parse(InputStream &istream, jass_ast &ast, const std::string &fileName = "JASS file");
-};
+/**
+ * Define this static attribute before including Spirit stuff since we define it as our custom debugging output stream
+ * for Spirit traces.
+ * 
+ * Call spiritTraceLog.open() before running a test with the filename of your output traces XML file.
+ */
+std::ofstream spiritTraceLog;
 
 }
 
-}
+#ifdef DEBUG
+#define BOOST_SPIRIT_DEBUG
+// we use the class attribute as custom output stream for Spirit's debugging traces
+// the public attribute can be opened in each unit test customly where the user wants to have the output traces stored
+#define BOOST_SPIRIT_DEBUG_OUT wc3lib::spiritTraceLog
+#endif
 
 #endif

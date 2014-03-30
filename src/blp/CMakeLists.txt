@@ -3,8 +3,6 @@ if (BLP)
 	find_package(JPEG REQUIRED)
 	include_directories(${JPEG_INCLUDE_DIR})
 
-	WC3LIB_ENABLE_EXCEPTIONS()
-
 	set(wc3lib_BLP_H
 		blp.hpp
 		platform.hpp

@@ -1,5 +1,4 @@
 if (MAP)
-	WC3LIB_ENABLE_EXCEPTIONS()
 
 	set (wc3lib_MAP_H
 		camera.hpp

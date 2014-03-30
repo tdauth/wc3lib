@@ -1,5 +1,3 @@
-WC3LIB_ENABLE_EXCEPTIONS()
-
 set(wc3lib_EDITOR_KIO_MPQ_H
 	mpqarchive.hpp
 	mpqprotocol.hpp

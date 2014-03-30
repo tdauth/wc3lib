@@ -1,12 +1,12 @@
 if (JASS)
-	WC3LIB_ENABLE_EXCEPTIONS()
-	
+
 	# use the latest Boost Spirit framework since it provides new functions (including Phoenix)
 	find_package(Boost 1.54 COMPONENTS system REQUIRED)
 	include_directories(${Boost_INCLUDE_DIRS})
 
 	set (wc3lib_JASS_H
 		ast.hpp
+		client.hpp
 		grammar.hpp
 	)
 	set (wc3lib_JASS_SRC
@@ -18,6 +18,10 @@ if (JASS)
 	
 	if (DEBUG)
 		add_subdirectory(test)
+	endif ()
+	
+	if (JASS_LLVM)
+		add_subdirectory(llvm)
 	endif ()
 
 	# install

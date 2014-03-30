@@ -18,6 +18,13 @@ option(APP
 option(BLP
 	"Builds BLP module. Required by options EDITOR and PLUGINS."
 	ON)
+option(JASS
+	"JASS module supports Blizzard's scripting language JASS. It provides an abstract parser interface for the scripting language."
+	ON)
+CMAKE_DEPENDENT_OPTION(JASS_LLVM
+	"Builds LLVM bindings for the JASS module."
+	OFF
+	"JASS" OFF)
 option(MAP
 	"Builds map module. Required by option EDITOR."
 	ON)
@@ -26,9 +33,6 @@ option(MDLX
 	ON)
 option(MPQ
 	"Builds MPQ module. Required by options EDITOR and PLUGINS."
-	ON)
-option(JASS
-	"Builds JASS module."
 	ON)
 option(W3G
 	"Builds W3G module."
@@ -66,35 +70,6 @@ install(FILES "${PROJECT_BINARY_DIR}/src/config.h" DESTINATION include/wc3lib/mp
 # add the binary src tree to the search path for include files
 # so that we will find config.h
 include_directories("${PROJECT_BINARY_DIR}/src")
-
-function (WC3LIB_GET_H resultName)
-	file(GLOB list *.hpp)
-	list(APPEND result ${list})
-	file(GLOB list *.h)
-	list(APPEND result ${list})
-	set(${resultName} ${result} PARENT_SCOPE)
-endfunction ()
-
-# TODO Exclude moc_* files
-function (WC3LIB_GET_SRC resultName)
-	file(GLOB list *.cpp)
-	list(APPEND result ${list})
-	file(GLOB list *.c)
-	list(APPEND result ${list})
-	set(${resultName} ${result} PARENT_SCOPE)
-endfunction ()
-
-function (WC3LIB_GET_UI resultName)
-	file(GLOB list *.ui)
-	list(APPEND result ${list})
-	set(${resultName} ${result} PARENT_SCOPE)
-endfunction ()
-
-function (WC3LIB_GET_TXT resultName)
-	file(GLOB list *.txt)
-	list(APPEND result ${list})
-	set(${resultName} ${result} PARENT_SCOPE)
-endfunction ()
 
 # Used for compiler flags like -Wall
 # TODO CMAKE_CXX_FLAGS is not changed in cache!
@@ -155,10 +130,6 @@ function (WC3LIB_COMPILER_SETUP)
 		# set to parent scope since this is a function and these values should be the global C++ flags!
 	endif ()
 endfunction ()
-
-# DEPRECATED
-macro (WC3LIB_ENABLE_EXCEPTIONS)
-endmacro ()
 
 # operating system definitions
 if (UNIX)

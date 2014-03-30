@@ -21,7 +21,8 @@
 #include <sstream>
 
 //#include <boost/spirit/include/phoenix.hpp>
-#include <boost/spirit/include/qi.hpp>
+#include "../qi.hpp"
+
 #include <boost/spirit/include/support_multi_pass.hpp>
 #include <boost/spirit/include/classic_position_iterator.hpp> // for more detailed error information
 

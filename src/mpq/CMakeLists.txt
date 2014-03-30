@@ -1,5 +1,4 @@
 if (MPQ)
-	WC3LIB_ENABLE_EXCEPTIONS()
 
 	set(wc3lib_MPQ_H
 		algorithm.hpp

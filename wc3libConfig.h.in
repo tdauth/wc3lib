@@ -4,6 +4,8 @@
 #cmakedefine STATIC
 #cmakedefine APP
 #cmakedefine BLP
+#cmakedefine JASS
+#cmakedefine JASS_LLVM
 #cmakedefine MAP
 #cmakedefine MDLX
 #cmakedefine MPQ

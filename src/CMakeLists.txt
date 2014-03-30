@@ -1,5 +1,3 @@
-WC3LIB_ENABLE_EXCEPTIONS()
-
 set(wc3lib_CORE_H
 	blp.hpp
 	color.hpp

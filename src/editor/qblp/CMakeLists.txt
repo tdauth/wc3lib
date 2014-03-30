@@ -1,5 +1,3 @@
-WC3LIB_ENABLE_EXCEPTIONS()
-
 set(wc3lib_EDITOR_QBLP_H
 	blpiohandler.hpp
 	blpioplugin.hpp

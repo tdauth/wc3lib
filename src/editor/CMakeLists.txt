@@ -1,5 +1,3 @@
-WC3LIB_ENABLE_EXCEPTIONS()
-
 if (BLP AND ${OGRE_FOUND})
 	add_subdirectory(Plugin_BlpCodec)
 endif ()

@@ -1,11 +1,7 @@
 #define BOOST_TEST_MODULE BaseTypesTest
 #include <boost/test/unit_test.hpp>
 
-#include <fstream>
-#include <iostream>
-#include <iomanip>
-
-//#define BOOST_SPIRIT_DEBUG // enable debugging for Qi
+#include "../../spirit.hpp" // enable debug mode
 
 #include <boost/spirit/include/support_multi_pass.hpp>
 #include <boost/spirit/include/classic_position_iterator.hpp> // for more detailed error information
@@ -13,8 +9,7 @@
 #include <boost/foreach.hpp>
 
 #include "../../platform.hpp"
-#include "../grammar.cpp"
-#include "../ast.hpp"
+#include "../client.hpp"
 
 #ifndef BOOST_TEST_DYN_LINK
 #error Define BOOST_TEST_DYN_LINK for proper definition of main function.
@@ -35,19 +30,15 @@ BOOST_AUTO_TEST_CASE(BaseTypesTest) {
 	
 	BOOST_REQUIRE(in);
 	
-	Grammar::traceLog.open(traceFile);
+	spiritTraceLog.open(traceFile);
 	
-	BOOST_REQUIRE(Grammar::traceLog);
+	BOOST_REQUIRE(spiritTraceLog);
 	
-	typedef std::istreambuf_iterator<byte> IteratorType;
-	typedef boost::spirit::multi_pass<IteratorType> ForwardIteratorType;
-
-	ForwardIteratorType first = boost::spirit::make_default_multi_pass(IteratorType(in));
-	ForwardIteratorType last;
+	Grammar::ForwardIteratorType first = boost::spirit::make_default_multi_pass(Grammar::IteratorType(in));
+	Grammar::ForwardIteratorType last;
 	
 	// used for backtracking and more detailed error output
-	namespace classic = boost::spirit::classic;
-	typedef classic::position_iterator2<ForwardIteratorType> PositionIteratorType;
+	typedef boost::spirit::classic::position_iterator2<Grammar::ForwardIteratorType> PositionIteratorType;
 	PositionIteratorType position_begin(first, last);
 	PositionIteratorType position_end;
 	
@@ -61,7 +52,7 @@ BOOST_AUTO_TEST_CASE(BaseTypesTest) {
 	BOOST_REQUIRE(ast.files.size() == 1);
 	
 	bool valid = false;
-	std::vector<jass_type*> result;
+	std::vector<jass_type> result;
 	
 	try
 	{
@@ -75,7 +66,7 @@ BOOST_AUTO_TEST_CASE(BaseTypesTest) {
 		valid = boost::spirit::qi::phrase_parse(
 			position_begin,
 			position_end,
-			(grammar.type_identifier % qi::eol), // parse all base types separated by eol
+			(grammar.type_symbols % qi::eol), // parse all base types separated by eol
 			skipper,
 			result
 			);
@@ -88,15 +79,7 @@ BOOST_AUTO_TEST_CASE(BaseTypesTest) {
 	}
 	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e)
 	{
-		const classic::file_position_base<std::string>& pos = e.first.get_position();
-		std::stringstream msg;
-		msg <<
-		"parse error at file " << pos.file <<
-		" line " << pos.line << " column " << pos.column << std::endl <<
-		"'" << e.first.get_currentline() << "'" << std::endl <<
-		std::setw(pos.column) << " " << "^- here";
-		
-		std::cerr << msg.str() << std::endl;
+		std::cerr << client::expectationFailure(e) << std::endl;
 	}
 	
 	/*
@@ -109,4 +92,10 @@ BOOST_AUTO_TEST_CASE(BaseTypesTest) {
 	BOOST_REQUIRE(valid);
 	BOOST_REQUIRE(result.size() == 6); // there are 6 different base types which all should be found in the symbol table by default
 	//BOOST_REQUIRE(result[4] == "typeblaextendsinteger"); // all blanks have to be skipped
+	BOOST_REQUIRE(result[0].identifier == "integer");
+	BOOST_REQUIRE(result[1].identifier == "boolean");
+	BOOST_REQUIRE(result[2].identifier == "code");
+	BOOST_REQUIRE(result[3].identifier == "real");
+	BOOST_REQUIRE(result[4].identifier == "string");
+	BOOST_REQUIRE(result[5].identifier == "handle");
 }

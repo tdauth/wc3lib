@@ -1,5 +1,4 @@
 if (MDLX)
-	WC3LIB_ENABLE_EXCEPTIONS()
 
 	set(wc3lib_MDLX_H
 		ambientcolor.hpp

@@ -1,5 +1,3 @@
-WC3LIB_ENABLE_EXCEPTIONS()
-
 set(wc3lib_LIB_HUFFMAN_H
 	huffman.h
 )

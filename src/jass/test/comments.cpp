@@ -1,11 +1,7 @@
 #define BOOST_TEST_MODULE CommentsTest
 #include <boost/test/unit_test.hpp>
 
-#include <fstream>
-#include <iostream>
-#include <iomanip>
-
-//#define BOOST_SPIRIT_DEBUG // enable debugging for Qi
+#include "../../spirit.hpp" // enable debug mode
 
 #include <boost/spirit/include/support_multi_pass.hpp>
 #include <boost/spirit/include/classic_position_iterator.hpp> // for more detailed error information
@@ -13,8 +9,7 @@
 #include <boost/foreach.hpp>
 
 #include "../../platform.hpp"
-#include "../grammar.cpp"
-#include "../ast.hpp"
+#include "../client.hpp"
 
 #ifndef BOOST_TEST_DYN_LINK
 #error Define BOOST_TEST_DYN_LINK for proper definition of main function.
@@ -25,8 +20,8 @@ using namespace wc3lib::jass;
 
 /*
  * This test parses lines and skips all comments starting with //
- * End of line characters should still be at the end of the strings to detect the lines.
- * All lines are stored in a vector.
+ * Empty lines with blanks and comments only should be fully skipped and no end of line character should appear for them!
+ * Finally all non-empty lines are stored in a vector.
  * 
  * https://stackoverflow.com/questions/22591094/boost-spirit-new-line-and-end-of-input
  */
@@ -35,19 +30,15 @@ BOOST_AUTO_TEST_CASE(CommentsTest) {
 	
 	BOOST_REQUIRE(in);
 	
-	Grammar::traceLog.open("commentstraces.xml");
+	spiritTraceLog.open("commentstraces.xml");
 	
-	BOOST_REQUIRE(Grammar::traceLog);
+	BOOST_REQUIRE(spiritTraceLog);
 	
-	typedef std::istreambuf_iterator<byte> IteratorType;
-	typedef boost::spirit::multi_pass<IteratorType> ForwardIteratorType;
-
-	ForwardIteratorType first = boost::spirit::make_default_multi_pass(IteratorType(in));
-	ForwardIteratorType last;
+	Grammar::ForwardIteratorType first = boost::spirit::make_default_multi_pass(Grammar::IteratorType(in));
+	Grammar::ForwardIteratorType last;
 	
 	// used for backtracking and more detailed error output
-	namespace classic = boost::spirit::classic;
-	typedef classic::position_iterator2<ForwardIteratorType> PositionIteratorType;
+	typedef boost::spirit::classic::position_iterator2<Grammar::ForwardIteratorType> PositionIteratorType;
 	PositionIteratorType position_begin(first, last);
 	PositionIteratorType position_end;
 	jass_ast ast;
@@ -66,7 +57,7 @@ BOOST_AUTO_TEST_CASE(CommentsTest) {
 			position_begin,
 			position_end,
 			//  | &qi::eoi
-			*qi::eol >> (*(qi::char_ - (qi::eol)) % (qi::eol)),
+			*qi::eol >> (*(qi::char_ - (qi::eol)) % (qi::eol)), // each valid expression is separated by one eol TODO initial empty lines should be skipped automatically as well!
 			skipper,
 			result
 			);
@@ -79,30 +70,20 @@ BOOST_AUTO_TEST_CASE(CommentsTest) {
 	}
 	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e)
 	{
-		const classic::file_position_base<std::string>& pos = e.first.get_position();
-		std::stringstream msg;
-		msg <<
-		"parse error at file " << pos.file <<
-		" line " << pos.line << " column " << pos.column << std::endl <<
-		"'" << e.first.get_currentline() << "'" << std::endl <<
-		std::setw(pos.column) << " " << "^- here";
-		
-		std::cerr << msg.str() << std::endl;
+		std::cerr << client::expectationFailure(e) << std::endl;
 	}
 	
-	/*
-	 * for debugging output
+	// for debugging output
 	BOOST_FOREACH(std::string &value, result) {
 		std::cerr << value << std::endl;
 	}
-	*/
 	
 	BOOST_REQUIRE(valid);
-	BOOST_REQUIRE(result.size() == 5); // number of parsed lines, lines with comments only contain the line break and therefore result in empty strings (eol is not stored in the string)
+	BOOST_REQUIRE(result.size() == 4); // number of parsed lines, lines with comments only contain the line break and therefore result in empty strings (eol is not stored in the string)
 	//BOOST_REQUIRE(result[0] == "\n"); // NOTE The first line is ignored due to the grammar which starts with a non EOL character!
 	BOOST_REQUIRE(result[0] == "globals");
 	BOOST_REQUIRE(result[1] == "integerbla=10"); // all blanks have to be skipped
 	BOOST_REQUIRE(result[2] == "endglobals");
-	BOOST_REQUIRE(result[3] == ""); // NOTE Empty line for comment/blanks only line!
-	BOOST_REQUIRE(result[4] == "typeblaextendsinteger"); // all blanks have to be skipped
+	//BOOST_REQUIRE(result[3] == ""); // NOTE Empty line for comment/blanks only line! This line should be skipped automatically and not appear at all so don't check!
+	BOOST_REQUIRE(result[3] == "typeblaextendsinteger"); // all blanks have to be skipped
 }
