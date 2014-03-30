@@ -9,7 +9,7 @@
  * http://llvm.org/docs/tutorial/LangImpl3.html is used as reference example.
  */
 
-#include <limits> // required by LLVM
+//#include <cstdint> // required by LLVM
 
 //#include <llvm/IR/Verifier.h>
 #include <llvm/IR/DerivedTypes.h>

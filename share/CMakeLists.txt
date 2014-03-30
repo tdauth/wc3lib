@@ -1,1 +1,2 @@
 add_subdirectory(listfiles)
+add_subdirectory(cmake)

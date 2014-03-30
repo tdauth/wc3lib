@@ -35,8 +35,9 @@ struct results {
 	int32 integer5;
 	float32 real0;
 	std::string real1; // is a unary operation and not an integer
-	float32 real2;
+	std::string real2; // is integer because of missing dot
 	float32 real3;
+	float32 real4;
 	string stringLiteral;
 	bool booleanTrue; // initialize with wrong value to test if it is set properly
 	bool booleanFalse;
@@ -51,8 +52,9 @@ struct results {
 		integer5 = 0;
 		real0 = 0.0;
 		real1 = "";
-		real2 = 0.0;
+		real2 = "";
 		real3 = 0.0;
+		real4 = 0.0;
 		stringLiteral = "";
 		booleanTrue = false; // initialize with wrong value to test if it is set properly
 		booleanFalse = true;
@@ -70,8 +72,9 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(int32, integer5)
 	(float32, real0)
 	(std::string, real1)
-	(float32, real2)
+	(std::string, real2)
 	(float32, real3)
+	(float32, real4)
 	(string, stringLiteral)
 	(bool, booleanTrue) // initialize with wrong value to test if it is set properly
 	(bool, booleanFalse)
@@ -81,11 +84,17 @@ template <typename Iterator, typename Skipper = client::comment_skipper<Iterator
 struct MyGrammar : qi::grammar<Iterator, results(), Skipper> {
 	MyGrammar(client::jass_grammar<Iterator, Skipper> &grammar) : MyGrammar::base_type(testresults) {
 		no_integer_literal %=
-			qi::as_string[!grammar.integer_literal]
+			qi::lexeme[
+				(+qi::char_("-0-9"))
+			]
+			- grammar.integer_literal
 		;
 		
 		no_real_literal %=
-			qi::as_string[!grammar.real_literal]
+			qi::lexeme[
+				(+qi::char_("-0-9\\."))
+			]
+			- grammar.real_literal
 		;
 		
 		testresults =
@@ -101,6 +110,7 @@ struct MyGrammar : qi::grammar<Iterator, results(), Skipper> {
 			grammar.integer_literal >> +qi::eol >>
 			
 			grammar.real_literal >> +qi::eol >>
+			no_real_literal >> +qi::eol >>
 			no_real_literal >> +qi::eol >>
 			grammar.real_literal >> +qi::eol >>
 			grammar.real_literal >> +qi::eol >>
@@ -194,14 +204,25 @@ BOOST_AUTO_TEST_CASE(LiteralsTest) {
 		std::cerr << client::expectationFailure(e) << std::endl;
 	}
 	
-	/*
-	 * for debugging output
-	BOOST_FOREACH(std::string &value, result) {
-		std::cerr << value << std::endl;
-	}
-	*/
-	
 	BOOST_REQUIRE(valid);
-	//BOOST_REQUIRE(result.size() == 6); // there are 6 different base types which all should be found in the symbol table by default
-	//BOOST_REQUIRE(result[4] == "typeblaextendsinteger"); // all blanks have to be skipped
+	
+	BOOST_REQUIRE(r.identifier == "This_is_a_valid123_Identifier");
+	
+	BOOST_REQUIRE(r.integer0 == 200);
+	BOOST_REQUIRE(r.integer1 == "-5");
+	BOOST_REQUIRE(r.integer2 == 195267);
+	BOOST_REQUIRE(r.integer3 == 195267);
+	BOOST_REQUIRE(r.integer4 == 720083);
+	BOOST_REQUIRE(r.integer5 == 231);
+	
+	BOOST_CHECK_CLOSE(r.real0, 4.34, 0.0001);
+	BOOST_REQUIRE(r.real1 == "-12.");
+	BOOST_REQUIRE(r.real2 == "12");
+	BOOST_CHECK_CLOSE(r.real3, 0.23, 0.0001);
+	BOOST_REQUIRE(r.real4 == 0);
+	
+	BOOST_REQUIRE(r.stringLiteral == "this is a string \\\"like this\\\" \\n\\r");
+	
+	BOOST_REQUIRE(r.booleanTrue == true);
+	BOOST_REQUIRE(r.booleanFalse == false);
 }

@@ -126,7 +126,7 @@ function (WC3LIB_COMPILER_SETUP)
 		WC3LIB_ENABLE_COMPILE_FLAG("-fms-extensions")
 		# NOTE For next ISO!
 		# we're using some features of the new C++ ISO Standard such as default function templates arguments and scoped enums (via Boost)
-		#WC3LIB_ENABLE_COMPILE_FLAG("-std=c\\+\\+0x")
+		#WC3LIB_ENABLE_COMPILE_FLAG("-std=c++11")
 		# set to parent scope since this is a function and these values should be the global C++ flags!
 	endif ()
 endfunction ()

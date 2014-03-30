@@ -504,11 +504,29 @@ namespace boost { namespace spirit { namespace traits
 	};
 	
 	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::jass::jass_binary_operator>
+	{
+		static void call(Out& out, wc3lib::jass::jass_binary_operator const& val)
+		{
+			out << "binary_operator";
+		}
+	};
+	
+	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_binary_operation>
 	{
 		static void call(Out& out, wc3lib::jass::jass_binary_operation const& val)
 		{
 			out << val.type_name();
+		}
+	};
+	
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::jass::jass_unary_operator>
+	{
+		static void call(Out& out, wc3lib::jass::jass_unary_operator const& val)
+		{
+			out << "unary_operator";
 		}
 	};
 	

@@ -4,4 +4,3 @@ globals
 	//string peter = "This world is your world!"
 	//string emptyString = null
 endglobals
-// bla bla bla

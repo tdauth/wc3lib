@@ -7,9 +7,10 @@ This_is_a_valid123_Identifier
 0X2Fac3 // 195 267
 $aFcd3 // 720 083
 0347 // 231
-// float
+// real
 4.34
--12. // is no float - is a unary operation!
+-12. // is no real - is a unary operation!
+12 // is no real - is integer!
 .23
 0.
 // string

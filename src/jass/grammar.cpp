@@ -442,19 +442,26 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 			(lit('$') | qi::no_case["0x"]) 
 			>> hex 
 		] // TODO custom type int32?
-		| oct // TODO custom type int32?
+		| lexeme[ 
+			lit('0')
+			>> oct
+		] // TODO custom type int32?
 		| qi::uint_parser<int32>()
 	;
 	
 	real_literal %=
-		double_ // TODO parse unsigned doubles, the sign is considered as unary_operation already!
+		qi::real_parser<float32, qi::strict_ureal_policies<float32> >() // parse unsigned! if no dot is available it should be a "integer_literal" therefore use strict policies
 	;
 		
 	string_literal %=
 		lexeme[
-			lit("\"") >>
-			*(~char_("\"") | char_("\\\"")) >>
 			lit("\"")
+			>>
+			*(
+				char_ - char_('\"') - char_('\\') 
+				| lit('\\')[push_back(_val, '\\')] >> char_
+			)
+			>> lit("\"")
 		]
 	;
 	
@@ -541,7 +548,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 		type_reference[at_c<0>(_val) = _1] >>
 		-lit("array")[at_c<1>(_val) = true] >>
 		identifier[at_c<2>(_val) = _1] >>
-		lit('=') >> expression[at_c<3>(_val) = _1]
+		-(lit('=') >> expression[at_c<3>(_val) = _1])
 	;
 	
 	locals %=
