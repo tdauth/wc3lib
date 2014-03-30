@@ -54,14 +54,15 @@ BOOST_AUTO_TEST_CASE(BaseTypesTest) {
 	bool valid = false;
 	std::vector<jass_type> result;
 	
+	// grammar has to be allocated until the end of the test because it holds the symbols
+	client::comment_skipper<PositionIteratorType> skipper;
+	client::jass_grammar<PositionIteratorType> grammar(ast, current_file);
+
 	try
 	{
 		namespace phoenix = boost::phoenix;
 		namespace qi = boost::spirit::qi;
 		namespace ascii = boost::spirit::ascii;
-		
-		client::comment_skipper<PositionIteratorType> skipper;
-		client::jass_grammar<PositionIteratorType> grammar(ast, current_file);
 	
 		valid = boost::spirit::qi::phrase_parse(
 			position_begin,

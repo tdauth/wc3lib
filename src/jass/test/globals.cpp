@@ -3,6 +3,7 @@
 
 #include "../../spirit.hpp" // enable debug mode
 
+#include <boost/cast.hpp>
 //#include <boost/foreach.hpp>
 
 #include "../client.hpp"
@@ -46,14 +47,11 @@ BOOST_AUTO_TEST_CASE(GlobalsTest) {
 	bool valid = false;
 	jass_globals result;
 	
-	try
-	{
-		namespace phoenix = boost::phoenix;
-		namespace qi = boost::spirit::qi;
-		namespace ascii = boost::spirit::ascii;
-		
-		client::comment_skipper<PositionIteratorType> skipper;
-		client::jass_grammar<PositionIteratorType> grammar(ast, current_file);
+	// grammar has to be allocated until the end of the test because it holds the symbols
+	client::comment_skipper<PositionIteratorType> skipper;
+	client::jass_grammar<PositionIteratorType> grammar(ast, current_file);
+	
+	try {
 	
 		valid = boost::spirit::qi::phrase_parse(
 			position_begin,
@@ -74,7 +72,21 @@ BOOST_AUTO_TEST_CASE(GlobalsTest) {
 		std::cerr << client::expectationFailure(e) << std::endl;
 	}
 	
-	std::cout << "Count of globals: " << result.size() << std::endl;
-	
 	BOOST_REQUIRE(valid);
+	BOOST_REQUIRE(result.size() == 4);
+	
+	BOOST_REQUIRE(result[0].is_constant == false);
+	BOOST_REQUIRE(boost::get<jass_type*>(result[0].declaration.type) != 0); // TODO boost::get throws exception on fail
+	BOOST_REQUIRE(boost::get<jass_type*>(result[0].declaration.type)->identifier == "boolean");
+	BOOST_REQUIRE(result[0].declaration.is_array == true);
+	BOOST_REQUIRE(result[0].declaration.identifier == "myBoolean_123");
+	// TODO check optional assignment
+	
+	BOOST_REQUIRE(result[1].is_constant == true);
+	BOOST_REQUIRE(boost::get<jass_type*>(result[1].declaration.type) != 0); // TODO boost::get throws exception on fail
+	BOOST_REQUIRE(boost::get<jass_type*>(result[1].declaration.type)->identifier == "integer");
+	BOOST_REQUIRE(result[1].declaration.is_array == false);
+	BOOST_REQUIRE(result[1].declaration.identifier == "My_Constant");
+	//BOOST_REQUIRE(boost::get<int32>(boost::polymorphic_cast<jass_const&>(result[1].declaration.assignment).value) == 10); TODO not safe
+	// TODO check optional assignment
 }

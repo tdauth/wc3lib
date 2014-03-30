@@ -174,16 +174,12 @@ BOOST_AUTO_TEST_CASE(LiteralsTest) {
 	// one variable of corresponding type for each literal in the correct order
 	results r;
 	
-	try
-	{
-		namespace phoenix = boost::phoenix;
-		namespace qi = boost::spirit::qi;
-		namespace ascii = boost::spirit::ascii;
-		
-		client::comment_skipper<PositionIteratorType> skipper;
-		client::jass_grammar<PositionIteratorType> grammar(ast, current_file);
-		MyGrammar<PositionIteratorType> testGrammar(grammar);
+	// grammar has to be allocated until the end of the test because it holds the symbols
+	client::comment_skipper<PositionIteratorType> skipper;
+	client::jass_grammar<PositionIteratorType> grammar(ast, current_file);
+	MyGrammar<PositionIteratorType> testGrammar(grammar);
 	
+	try {
 		valid = boost::spirit::qi::phrase_parse(
 				position_begin,
 				position_end,

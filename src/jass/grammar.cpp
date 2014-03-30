@@ -533,12 +533,19 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 		| string_literal
 		| null
 	;
-		
+	
+	parentheses %=
+		lit('(') >> expression >> lit(')')
+	;
+	
 	expression %=
-		binary_operation
-		| unary_operation
-		| function_call
+		function_call
 		| array_reference
+		| function_ref
+		| var_reference
+		| constant
+		| unary_operation
+		| binary_operation
 	;
 
 	//----------------------------------------------------------------------
@@ -695,6 +702,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 	array_reference.name("array_reference");
 	function_ref.name("function_ref");
 	constant.name("constant");
+	parentheses.name("parentheses");
 	expression.name("expression");
 	//----------------------------------------------------------------------
 	// Local Declarations
@@ -773,6 +781,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 		(array_reference)
 		(function_ref)
 		(constant)
+		(parentheses)
 		(expression)
 		//----------------------------------------------------------------------
 		// Local Declarations
@@ -964,6 +973,11 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
 	wc3lib::jass::jass_const,
 	(wc3lib::jass::jass_const_value, value)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	wc3lib::jass::jass_expression_variant,
+	(wc3lib::jass::jass_expression_value, value)
 )
 
 /*

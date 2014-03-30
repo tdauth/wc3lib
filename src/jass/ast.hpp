@@ -224,6 +224,30 @@ struct jass_const : public jass_expression {
 	jass_const_value value;
 };
 
+/*
+ binary_operation
+		| unary_operation
+		| function_call
+		| array_reference
+		| function_ref
+		| var_reference
+		| constant
+*/
+
+typedef boost::variant<
+	jass_binary_operation,
+	jass_unary_operation,
+	jass_function_call,
+	jass_array_reference,
+	jass_function_ref,
+	jass_var_reference,
+	jass_const
+> jass_expression_value;
+
+struct jass_expression_variant : public jass_expression {
+	jass_expression_value value;
+};
+
 //----------------------------------------------------------------------
 // Local Declarations
 //----------------------------------------------------------------------

@@ -25,6 +25,7 @@ BOOST_AUTO_TEST_CASE(TypesTest) {
 	
 	BOOST_REQUIRE(spiritTraceLog);
 	
+	// grammar has to be allocated until the end of the test because it holds the symbols
 	Grammar grammar;
 	jass_ast ast;
 	bool valid = false;
