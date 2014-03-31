@@ -248,29 +248,30 @@ comment_skipper<Iterator>::comment_skipper() : comment_skipper<Iterator>::base_t
 	using ascii::blank;
 	using qi::eol;
 	using qi::eoi;
+	using qi::eps;
 	
 	comment %=
 		lit("//") >> *(char_ - eol)
-		;
+	;
 	
 	emptyline %=
-		+blank | // blanks only in one line
-		comment | // one comment only
-		(+blank >> comment) // blanks only followed by a comment
-		;
+		+blank // blanks only in one line
+		| comment // one comment only
+		| (+blank >> comment) // blanks only followed by a comment
+	;
 	
 	emptylines %=
 		// do not consume the eol of the last empty line because it is the eol between all skipped empty lines and the first one
 		// TODO this expression after the first eol >> causes errors why??
 		// *(emptyline >> eol) >>
-		eol >> emptyline >> *(eol >> emptyline) >> &eol; // each empty line has to start with an eol
-		;
+		eol >> -emptyline >> *(eol >> emptyline) >> &eol; // each empty line has to start with an eol
+	;
 	
 	skip %= 
-		emptylines |
-		blank |
-		comment
-		; 
+		emptylines
+		| blank
+		| comment
+	;
 	
 	emptyline.name("emptyline");
 	emptylines.name("emptylines");
@@ -540,12 +541,12 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 	
 	expression %=
 		function_call
+		| unary_operation
+		| binary_operation
 		| array_reference
 		| function_ref
 		| var_reference
 		| constant
-		| unary_operation
-		| binary_operation
 	;
 
 	//----------------------------------------------------------------------
@@ -592,12 +593,19 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 		function_parameter % lit(',')
 	;
 	
-	function_declaration %=
-		identifier >>
+	function_declaration =
+		identifier[at_c<0>(_val) = _1] >>
 		lit("takes") >>
-		function_parameters >>
-		lit("returns") >>
-		type_reference
+		(
+			lit("nothing")
+			| function_parameters[at_c<1>(_val) =_1]
+		)
+		>> lit("returns")
+		>> 
+		(
+			string("nothing")[at_c<2>(_val) = _1]
+			| type_reference[at_c<2>(_val) = _1]
+		)
 	;
 	
 	native =
@@ -622,14 +630,19 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 	;
 	
 	function =
-		lit("constant")[at_c<0>(_val) = true]
+		-lit("constant")[at_c<0>(_val) = true]
 		>> lit("function")
 		>> function_declaration[at_c<1>(_val) = _1]
 		>> eol
-		>> locals[at_c<2>(_val) = _1]
-		>> eol
-		>> statements[at_c<3>(_val) = _1]
-		>> eol
+		>> -(
+			locals[at_c<2>(_val) = _1]
+			>> eol
+		)
+		
+		>> -(
+			statements[at_c<3>(_val) = _1]
+			>> eol
+		)
 		>> lit("endfunction")
 	;
 
