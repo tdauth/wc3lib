@@ -30,6 +30,7 @@
 
 #include <boost/spirit/include/qi_symbols.hpp>
 #include <boost/detail/scoped_enum_emulation.hpp>
+#include <boost/array.hpp>
 
 #include "../platform.hpp"
 
@@ -58,76 +59,127 @@ typedef boost::variant<jass_type*, std::string> jass_type_reference;
 typedef boost::variant<jass_var_declaration*, std::string> jass_var_reference;
 typedef boost::variant<jass_function_declaration*, std::string> jass_function_reference;
 
-struct jass_expression : public jass_ast_node {
-};
-
-struct jass_array_reference : public jass_expression {
-	jass_var_reference var;
-	jass_expression index;
-};
-
 //----------------------------------------------------------------------
 // Statements
 //----------------------------------------------------------------------
-struct jass_statement : public jass_ast_node {
+struct jass_statement_node : public jass_ast_node {
 };
 
-struct jass_statements : public jass_statement, public std::vector<jass_statement> {
+struct jass_set;
+struct jass_call;
+struct jass_ifthenelse;
+struct jass_loop;
+struct jass_exitwhen;
+struct jass_return;
+struct jass_debug;
+
+typedef boost::variant<
+	boost::recursive_wrapper<jass_set>
+	, boost::recursive_wrapper<jass_call>
+	, boost::recursive_wrapper<jass_ifthenelse>
+	, boost::recursive_wrapper<jass_loop>
+	, boost::recursive_wrapper<jass_exitwhen>
+	, boost::recursive_wrapper<jass_return>
+	, boost::recursive_wrapper<jass_debug>
+> jass_statement_variant;
+
+struct jass_statement : public jass_statement_node {
+    jass_statement_variant variant;
+};
+
+struct jass_statements : public jass_statement_node, public std::vector<jass_statement> {
 };
 
 struct jass_array_reference;
 
-typedef boost::variant<jass_var_reference, jass_array_reference> jass_set_var;
+typedef boost::variant<
+	jass_var_reference
+	, boost::recursive_wrapper<jass_array_reference>
+> jass_set_var;
 
-struct jass_set : public jass_statement {
+struct jass_expression;
+
+struct jass_set : public jass_statement_node {
 	jass_set_var var;
-	jass_expression expression;
+	boost::recursive_wrapper<jass_expression> expression;
 };
 
-struct jass_function_args : public jass_statement, public std::vector<jass_expression> {
+struct jass_function_args : public jass_statement_node, public std::vector<boost::recursive_wrapper<jass_expression> > {
 	
 };
 
-struct jass_call : public jass_statement {
+struct jass_call : public jass_statement_node {
 	jass_function_reference function;
 	jass_function_args arguments;
 };
 
-struct jass_conditional_statements : public jass_expression {
-	jass_expression expression; // condition
+struct jass_conditional_statements : public jass_statement_node {
+	boost::recursive_wrapper<jass_expression> expression; // condition
 	jass_statements statements;
 };
 
-struct jass_elseifs : public jass_statement, public std::vector<jass_conditional_statements> {
+struct jass_elseifs : public jass_statement_node, public std::vector<jass_conditional_statements> {
 };
 
-struct jass_ifthenelse : public jass_statement {
+struct jass_ifthenelse : public jass_statement_node {
 	jass_conditional_statements ifexpression;
 	jass_elseifs elseifexpressions; // TODO optional!
 	jass_statements elseexpression; // TODO optional!
 };
 
-struct jass_loop : public jass_statement {
+struct jass_loop : public jass_statement_node {
 	jass_statements statements;
 };
 
-struct jass_exitwhen : public jass_statement {
-	jass_expression expression; // condition must be true so exitwhen will break the loop, expects boolean expression
+struct jass_exitwhen : public jass_statement_node {
+	boost::recursive_wrapper<jass_expression> expression; // condition must be true so exitwhen will break the loop, expects boolean expression
 };
 
-struct jass_return : public jass_statement {
-	jass_expression expression;
+struct jass_return : public jass_statement_node {
+	boost::recursive_wrapper<jass_expression> expression;
 };
 
-typedef boost::variant<jass_set, jass_call, jass_ifthenelse, jass_loop> jass_debug_statement;
+typedef boost::variant<
+	jass_set
+	, jass_call
+	, jass_ifthenelse
+	, jass_loop
+> jass_debug_statement;
 
-struct jass_debug : public jass_statement {
+struct jass_debug : public jass_statement_node {
 	jass_debug_statement statement;
 };
 
 //----------------------------------------------------------------------
 // Expressions
 //----------------------------------------------------------------------
+struct jass_expression_node : public jass_ast_node {
+};
+
+struct jass_binary_operation;
+struct jass_unary_operation;
+struct jass_function_call;
+struct jass_array_reference;
+struct jass_function_ref;
+struct jass_const;
+struct jass_parentheses;
+
+typedef boost::variant<
+	boost::recursive_wrapper<jass_const>, // use jass_const instead of a blank value. It should initialize a default value constant which can be used
+	//boost::blank, // allow variant to be empty. Otherwise endless recursion may occur: https://stackoverflow.com/questions/19578531/segfault-with-boost-variant
+	boost::recursive_wrapper<jass_binary_operation>,
+	boost::recursive_wrapper<jass_unary_operation>,
+	boost::recursive_wrapper<jass_function_call>,
+	boost::recursive_wrapper<jass_array_reference>,
+	boost::recursive_wrapper<jass_function_ref>,
+	jass_var_reference,
+	boost::recursive_wrapper<jass_parentheses>
+> jass_expression_variant;
+
+struct jass_expression : public jass_expression_node {
+	jass_expression_variant variant;
+};
+
 BOOST_SCOPED_ENUM_START(jass_binary_operator) {
 	Plus,
 	Minus,
@@ -169,9 +221,9 @@ struct jass_binary_operators : qi::symbols<char, BOOST_SCOPED_ENUM(jass_binary_o
 	}
 };
 
-struct jass_binary_operation : public jass_expression {
+struct jass_binary_operation : public jass_expression_node {
 	jass_expression first_expression;
-	jass_binary_operator op;
+	BOOST_SCOPED_ENUM(jass_binary_operator) op;
 	jass_expression second_expression;
 };
 
@@ -198,54 +250,78 @@ struct jass_unary_operators : qi::symbols<char, BOOST_SCOPED_ENUM(jass_unary_ope
 	}
 };
 
-struct jass_unary_operation : public jass_expression {
-	jass_unary_operator op;
+struct jass_unary_operation : public jass_expression_node {
+	BOOST_SCOPED_ENUM(jass_unary_operator) op;
 	jass_expression expression;
 };
 
-struct jass_function_call : public jass_expression {
+struct jass_function_call : public jass_expression_node {
 	jass_function_reference function;
 	jass_function_args arguments;
 };
 
-struct jass_function_ref : public jass_expression {
+struct jass_array_reference : public jass_expression_node {
+	jass_var_reference var;
+	jass_expression index;
+};
+
+struct jass_function_ref : public jass_expression_node {
 	jass_function_reference function;
 };
 
-struct jass_null : public jass_ast_node {
+struct jass_null : public jass_expression_node {
 };
 
-// TODO use charArray, boost::array does not work with Spirit
+/**
+ * For literals like 'AFDE' mostly used for object data.
+ * Should always have the size of 4.
+ */
 typedef std::vector<char> fourcc;
+typedef boost::array<char, 4> fourcc_array;
 
-typedef boost::variant<int32, fourcc, float32, bool, string, jass_null> jass_const_value;
+inline fourcc_array to_array(const fourcc &value) {
+	assert(value.size() == 4);
+	fourcc_array result;
+	result[0] = value[0];
+	result[1] = value[1];
+	result[2] = value[2];
+	result[3] = value[3];
+	
+	return result;
+}
 
-struct jass_const : public jass_expression {
-	jass_const_value value;
-};
-
-/*
- binary_operation
-		| unary_operation
-		| function_call
-		| array_reference
-		| function_ref
-		| var_reference
-		| constant
-*/
+inline string to_string(const fourcc &value) {
+	assert(value.size() == 4);
+	string result;
+	result += value[0];
+	result += value[1];
+	result += value[2];
+	result += value[3];
+	
+	return result;
+}
 
 typedef boost::variant<
-	jass_binary_operation,
-	jass_unary_operation,
-	jass_function_call,
-	jass_array_reference,
-	jass_function_ref,
-	jass_var_reference,
-	jass_const
-> jass_expression_value;
+	int32
+	, fourcc
+	, float32
+	, bool
+	, string
+	, jass_null
+> jass_const_variant;
 
-struct jass_expression_variant : public jass_expression {
-	jass_expression_value value;
+struct jass_const : public jass_expression_node {
+	jass_const_variant variant;
+	
+	/**
+	 * Uses the default value 0 -> integer constant.
+	 */
+	jass_const() : variant(0) {
+	}
+};
+
+struct jass_parentheses : public jass_expression_node {
+	jass_expression expression;
 };
 
 //----------------------------------------------------------------------

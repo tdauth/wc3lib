@@ -1,5 +1,6 @@
 #define wc3lib_VERSION_MAJOR @wc3lib_VERSION_MAJOR@
 #define wc3lib_VERSION_MINOR @wc3lib_VERSION_MINOR@
+#define wc3lib_VERSION_PATCH @wc3lib_VERSION_PATCH@
 #cmakedefine DEBUG
 #cmakedefine STATIC
 #cmakedefine APP

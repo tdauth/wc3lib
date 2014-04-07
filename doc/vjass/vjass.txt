@@ -1,0 +1,160 @@
+Formal syntax definition of vJass
+Based on the formal definition of JASS: http://jass.sourceforge.net/doc/bnf.shtml
+and on the vJass specification: http://www.wc3c.net/vexorian/jasshelpermanual.html
+
+TODO how to implement $sad$ in all expressions?!
+TODO how to implement .-operators or this. or super. or thistype. prefixes for expressions inside methods?!
+TODO .-operator must be usable anywhere as scope resolution!
+TODO should "onDestroy", "create" and "onInit" count be checked in the grammar?!
+It is illegal to declare onDestroy for an interface declaration, you can consider it to be automatically declared, you can use .destroy() on a variable of interface type and it will call the appropiate onDestroy method when necessary.
+TODO allow [100] size specification for global arrays and struct and interface array members http://www.wc3c.net/vexorian/jasshelpermanual.html#storarray
+TODO suppport n dimensional arrays as intended http://www.wc3c.net/vexorian/jasshelpermanual.html#twodarray
+TODO support .evaluate, .execute, .name and .exists operators on function refs/calls
+TODO key can be parsed as regular type?
+TODO support type myDyArray extends integer array [200,40000] //an enhanced dynamic array type of size 200 //max 200 instances
+TODO support colon operator
+TODO specify the usage of /* */ comments
+
+Preprocessing is the first step. It does not need to know anything about the content except preprocessor statements
+and textmacro variable references ($bla$).
+It should consume the whole files and build new ones.
+It could check if text macro variables do exist actually.
+It won't check if replacements make sense!
+BUT static ifs have to be checked before!
+
+//----------------------------------------------------------------------
+// Preprocessor
+//----------------------------------------------------------------------
+preprocessor_file := .* (preprocessor .*)*
+
+preprocessor   := import | zinc | novjass | textmacro | textmacro_call | inject | doinits | loaddata | externaltool | externalblock
+
+ppstart         := '//!'
+
+import          := ppstart 'import' path
+path            := '"'.+'"'
+
+// since the content is ignored completely it can be .*
+zinc            := ppstart 'zinc' newline .* endzinc
+endzinc         := ppstart 'endzinc'
+novjass         := ppstart 'novjass' newline .* endnovjass
+endnovjass      := ppstart 'endnovjass'
+
+textmacro       := ppstart 'textmacro' textmacro_params? newline textmacro_content newline endtextmacro
+textmacro_params   := id (',' id)*
+textmacro_content := .* (textmacro_var .*)*
+endtextmacro    := ppstart 'endtextmacro'
+
+textmacro_var   := '$' id '$'
+
+textmacro_call  := ppstart 'runtextmacro' id '(' textmacro_args? ')'
+textmacro_args  := .+ (',' .+)
+
+inject          := ppstart 'inject' ('main' | 'config') newline .* endinject
+endinject       := ppstart 'endinject'
+
+// TODO doinits may only appear in main!
+doinits         := ppstart 'dovjassinit'
+
+loaddata        := ppstart 'loaddata' path
+
+externaltool    := ppstart 'external' id externalargs
+externalargs    := (id (blank+ id)*)?
+
+externalblock   := ppstart 'externalblock' externalargs newline externalblock_statements? newline endexternalblock
+endexternalblock := ppstart 'endexternalblock'
+externalblock_statements := externalblock_statement (newline externalblock_statement)*
+externalblock_statement := ppstart 'i' .+
+
+//----------------------------------------------------------------------
+// Global Declarations
+//----------------------------------------------------------------------
+program         := vjass_file+
+
+vjass_file      := newline? (vjass_declr newline)*
+
+vjass_declr     := typedef | globals | native_func | func | vjass_lib | vjass_scope | vjass_keyword | vjass_struct | vjass_interface | vjass_dynamic_array | vjass_module | vjass_func_intf | vjass_hook // added func -> http://www.wc3c.net/vexorian/jasshelpermanual.html#gdf
+
+// http://www.wc3c.net/vexorian/jasshelpermanual.html#debp
+// causes no syntax changes!
+
+// no nested libraries
+// qualifiers like 'private'
+vjass_lib_declr   := vjass_lib_typedef | vjass_lib_globals | vjass_lib_native_func | vjass_lib_func | vjass_lib_scope | vjass_lib_keyword | vjass_lib_struct | vjass_lib_interface | vjass_lib_dynamic_array | vjass_lib_module | vjass_lib_func_intf | vjass_lib_hook
+
+vjass_lib        := ('library' | 'library_once) id ('initializer' id)? (('requires' | 'needs' | 'uses') vjass_lib_reqs)? newline (vjass_lib_declr newline)* 'endlibrary'
+vjass_lib_reqs    := vjass_lib_req (',' vjass_lib_req)*
+vjass_lib_req     := ('optional')? id
+
+vjass_qualifier           := 'public' | 'private'
+// TODO use one single expression with choices
+vjass_lib_typedef         := vjass_qualifier? typedef
+vjass_lib_globals         := 'globals' newline vjass_lib_global_var_list 'endglobals'
+vjass_lib_global_var_list := (vjass_qualifier? ('constant' type id '=' expr newline | var_declr newline))*
+vjass_lib_native_func     := vjass_qualifier? native_func
+vjass_lib_func            := vjass_qualifier? func
+vjass_lib_scope           := vjass_qualifier? vjass_scope
+vjass_lib_keyword         := vjass_qualifier? vjass_keyword
+vjass_lib_struct          := vjass_qualifier? vjass_struct
+vjass_lib_interface       := vjass_qualifier? vjass_interface
+vjass_lib_dynamic_array   := vjass_qualifier? vjass_dynamic_array
+vjass_lib_module          := vjass_qualifier? vjass_module
+vjass_lib_func_intf       := vjass_qualifier? vjass_func_intf
+vjass_lib_hook            := vjass_qualifier? vjass_hook
+
+// no nested library but nested scopes
+vjass_scope_declr := vjass_lib_declr
+
+vjass_scope       := 'scope' id ('initializer' id)? newline (vjass_scope_declr newline)* 'endscope'
+
+vjass_keyword     := 'keyword' id
+
+vjass_operator    := 'operator' ('>' | '<' | '[]'| '[]=' | id | id'=' )
+
+vjass_array_space := '[' expr ']'
+
+// allows operator overloading
+vjass_method_declr := (id | vjass_operator) 'takes' ('nothing' | param_list)  'returns' (type | 'nothing')
+
+vjass_struct      := 'struct' id vjass_array_space? ('extends' vjass_struct_extension)? newline vjass_struct_declr newline 'endstruct'
+vjass_struct_extension := ('array' vjass_array_space? | id)
+vjass_struct_attr_declr := vjass_qualifier? ('constant' type id '=' expr | var_declr)
+vjass_struct_attr_list := vjass_struct_attr_declr (newline vjass_struct_attr_declr)*
+vjass_method      := vjass_qualifier? 'static'? 'constant'? 'stub'? 'method' vjass_method_declr newline local_var_list statement_list 'endmethod'
+vjass_method_list  := vjass_method (newline vjass_method)*
+vjass_delegate     := 'delegate' id id
+vjass_delegate_list := vjass_delegate (newline vjass_delegate)*
+vjass_impl     := 'implement' 'optional'? id
+vjass_impl_list := vjass_impl (newline vjass_impl)*
+
+vjass_struct_declr := (vjass_struct_attr_list | vjass_method_list | vjass_delegate_list | vjass_impl_list)*
+
+vjass_interface              := 'interface' id vjass_array_space? newline vjass_interface_declr newline 'endinterface'
+vjass_interface_attr_declr   := vjass_struct_attr_declr // allow qualifiers like private?!
+vjass_interface_attr_list    := vjass_interface_attr_declr (newline vjass_interface_attr_declr)*
+// comp operators don't have any parameters or return type!
+vjass_comp_operator          := 'operator' ('>' | '<')
+vjass_non_comp_operator      := 'operator' ('[]'| '[]=' | id | id'=')
+vjass_interface_method_declr := vjass_comp_operator | (id | vjass_non_comp_operator) 'takes' ('nothing' | param_list)  'returns' (type | 'nothing')
+vjass_interface_method       := vjass_qualifier? 'static'? 'constant'? 'method' vjass_method_declr ('defaults' id)? // allow static methods?! allow qualifiers?!
+vjass_interface_method_list  := vjass_interface_method (newline vjass_interface_method)*
+
+vjass_interface_declr := (vjass_interface_attr_list | vjass_interface_method_list)*
+
+
+vjass_dynamic_array := 'type' id 'extends' id 'array' '[' expr ']'
+
+vjass_module := 'module' id newline vjass_module_declr newline 'endmodule'
+// modules can implement other modules
+vjass_module_declr := (vjass_struct_attr_list | vjass_method_list | vjass_impl_list)*
+
+vjass_func_intf := 'function' 'interface' func_declr
+
+// TODO id id with scope!!! (B.mymethod)
+vjass_hook      := 'hook' id id
+
+//----------------------------------------------------------------------
+// Global Statements
+//----------------------------------------------------------------------
+vjasss_staticif   := 'static' 'if' expr 'then' newline ((vjass_declr | statement) newline)* vjass_endstaticif
+vjass_endstaticif := 'endif'

@@ -320,7 +320,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 	using phoenix::push_back;
 	using phoenix::ref;
 	
-	// TODO get locals of current function as well!
+	// TODO get locals of current function as well (including function parameters which are also locals)!
 	var_reference =
 		identifier[_val = phoenix::bind(&get_var_symbol, ref(global_symbols), _1)]
 	;
@@ -430,6 +430,17 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 	// Expressions
 	//----------------------------------------------------------------------
 	
+	expression %=
+		binary_operation
+		| unary_operation
+		| function_call
+		| array_reference
+		| function_ref
+		| var_reference
+		| constant
+		| parentheses
+	;
+	
 	/*
 	* For literals we do not use parsers provided by Boost Spirit to keep the exact grammar definition
 	* and to be more flexible in type representation of integers and reals etc.
@@ -486,16 +497,28 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 			lit("null")[_val = jass_null()]
 		]
 	;
-		
+
+	// another nested binary operation can only be possible in parentheses, therefore no direct binary_operation is possible
+	// parentheses is already considered in expression
+	// this avoids endless recursion
+	binary_operation_expression %=
+		unary_operation
+		| function_call
+		| array_reference
+		| function_ref
+		| var_reference
+		| constant
+		| parentheses
+	;
+	
 	binary_operator %=
 		binary_operators
 	;
-		
 
 	binary_operation %=
-		expression
+		binary_operation_expression
 		>> binary_operator
-		>> expression
+		>> binary_operation_expression
 	;
 	
 	unary_operator %=
@@ -537,16 +560,6 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 	
 	parentheses %=
 		lit('(') >> expression >> lit(')')
-	;
-	
-	expression %=
-		function_call
-		| unary_operation
-		| binary_operation
-		| array_reference
-		| function_ref
-		| var_reference
-		| constant
 	;
 
 	//----------------------------------------------------------------------
@@ -700,6 +713,8 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 	//----------------------------------------------------------------------
 	// Expressions
 	//----------------------------------------------------------------------
+	expression.name("expression");
+	
 	integer_literal.name("integer_literal");
 	real_literal.name("real_literal");
 	string_literal.name("string_literal");
@@ -707,6 +722,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 	fourcc_literal.name("fourcc_literal");
 	null.name("null");
 	
+	binary_operation_expression.name("binary_operation_expression");
 	binary_operator.name("binary_operator");
 	binary_operation.name("binary_operation");
 	unary_operator.name("unary_operator");
@@ -716,7 +732,6 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 	function_ref.name("function_ref");
 	constant.name("constant");
 	parentheses.name("parentheses");
-	expression.name("expression");
 	//----------------------------------------------------------------------
 	// Local Declarations
 	//----------------------------------------------------------------------
@@ -779,6 +794,8 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 		//----------------------------------------------------------------------
 		// Expressions
 		//----------------------------------------------------------------------
+		(expression)
+		
 		(integer_literal)
 		(real_literal)
 		(string_literal)
@@ -786,6 +803,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 		(fourcc_literal)
 		(null)
 	
+		(binary_operation_expression)
 		(binary_operator)
 		(binary_operation)
 		(unary_operator)
@@ -795,7 +813,6 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 		(function_ref)
 		(constant)
 		(parentheses)
-		(expression)
 		//----------------------------------------------------------------------
 		// Local Declarations
 		//----------------------------------------------------------------------
@@ -906,9 +923,14 @@ bool Grammar::parse(Grammar::InputStream& istream, jass_ast& ast, const std::str
 // Statements
 //----------------------------------------------------------------------
 BOOST_FUSION_ADAPT_STRUCT(
+	wc3lib::jass::jass_statement,
+	(wc3lib::jass::jass_statement_variant, variant)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
 	wc3lib::jass::jass_set,
 	(wc3lib::jass::jass_set_var, var)
-	(wc3lib::jass::jass_expression, expression)
+	(boost::recursive_wrapper<wc3lib::jass::jass_expression>, expression)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -919,7 +941,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
 	wc3lib::jass::jass_conditional_statements,
-	(wc3lib::jass::jass_expression, expression)
+	(boost::recursive_wrapper<wc3lib::jass::jass_expression>, expression)
 	(wc3lib::jass::jass_statements, statements)
 )
 
@@ -937,12 +959,12 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
 	wc3lib::jass::jass_exitwhen,
-	(wc3lib::jass::jass_expression, expression)
+	(boost::recursive_wrapper<wc3lib::jass::jass_expression>, expression)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
 	wc3lib::jass::jass_return,
-	(wc3lib::jass::jass_expression, expression)
+	(boost::recursive_wrapper<wc3lib::jass::jass_expression>, expression)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -954,15 +976,20 @@ BOOST_FUSION_ADAPT_STRUCT(
 // Expressions
 //----------------------------------------------------------------------
 BOOST_FUSION_ADAPT_STRUCT(
+	wc3lib::jass::jass_expression,
+	(wc3lib::jass::jass_expression_variant, variant)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
 	wc3lib::jass::jass_binary_operation,
 	(wc3lib::jass::jass_expression, first_expression)
-	(wc3lib::jass::jass_binary_operator, op)
+	(BOOST_SCOPED_ENUM(wc3lib::jass::jass_binary_operator), op)
 	(wc3lib::jass::jass_expression, second_expression)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
 	wc3lib::jass::jass_unary_operation,
-	(wc3lib::jass::jass_unary_operator, op)
+	(BOOST_SCOPED_ENUM(wc3lib::jass::jass_unary_operator), op)
 	(wc3lib::jass::jass_expression, expression)
 )
 
@@ -985,36 +1012,13 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
 	wc3lib::jass::jass_const,
-	(wc3lib::jass::jass_const_value, value)
+	(wc3lib::jass::jass_const_variant, variant)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-	wc3lib::jass::jass_expression_variant,
-	(wc3lib::jass::jass_expression_value, value)
+	wc3lib::jass::jass_parentheses,
+	(wc3lib::jass::jass_expression, expression)
 )
-
-/*
-struct jass_unary_operation : public jass_expression {
-	jass_unary_operator op;
-	jass_expression expression;
-};
-
-typedef std::vector<jass_expression> jass_function_arguments;
-
-struct jass_function_call : public jass_expression {
-	jass_function_reference function;
-	jass_function_arguments args;
-};
-
-struct jass_array_reference : public jass_expression {
-	jass_var_reference var;
-	jass_expression index;
-};
-
-struct jass_function_ref : public jass_expression {
-	jass_function_reference function;
-};
-*/
 
 //----------------------------------------------------------------------
 // Local Declarations

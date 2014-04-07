@@ -5,7 +5,10 @@ project(wc3lib)
 # The version number.
 set(wc3lib_VERSION_MAJOR 0)
 set(wc3lib_VERSION_MINOR 1)
-set(wc3lib_VERSION "${wc3lib_VERSION_MAJOR}.${wc3lib_VERSION_MINOR}")
+set(wc3lib_VERSION_PATCH 0)
+set(wc3lib_VERSION "${wc3lib_VERSION_MAJOR}.${wc3lib_VERSION_MINOR}.${wc3lib_VERSION_PATCH}")
+
+enable_testing()
 
 include(CMakeDependentOption)
 
@@ -304,4 +307,48 @@ add_subdirectory(mime)
 add_subdirectory(services)
 add_subdirectory(share)
 
-#include(CPack)
+# CPack
+
+set(CPACK_COMPONENT_GROUP_APPLICATIONS_DESCRIPTION "Additional tools which help you to use the formats of Blizzard Entertainment.")
+set(CPACK_COMPONENT_GROUP_CORE_DESCRIPTION "The core of the wc3lib which supports in and output for basic formats.")
+set(CPACK_COMPONENT_GROUP_EDITOR_DESCRIPTION "The GUI layer for all basic formats.")
+
+set(CPACK_COMPONENT_APP_GROUP "Applications")
+
+if (BLP)
+	set(CPACK_COMPONENT_BLP_DISPLAY_NAME "BLP support")
+	set(CPACK_COMPONENT_BLP_DESCRIPTION "Adds image format support.")
+	set(CPACK_COMPONENT_BLP_GROUP "Core")
+endif ()
+
+if (MAP)
+	set(CPACK_COMPONENT_MAP_DISPLAY_NAME "Map (W3M/W3X/W3N) support")
+	set(CPACK_COMPONENT_MAP_GROUP "Core")
+endif ()
+
+if (MDLX)
+	set(CPACK_COMPONENT_MDLX_DISPLAY_NAME "MDX and MDL support")
+	set(CPACK_COMPONENT_MDLX_GROUP "Core")
+endif ()
+
+if (EDITOR)
+	set(CPACK_COMPONENT_EDITOR_GROUP "Editor")
+	# TODO add dependencies and add options as dependencies!
+	set(CPACK_COMPONENT_EDITOR_DEPENDS blp mdlx)
+endif ()
+
+if (PLUGINS)
+	set(CPACK_COMPONENT_PLUGINS_GROUP "Editor")
+endif ()
+
+#set(CPACK_COMPONENTS_ALL blp mdlx)
+set(CPACK_PACKAGE_NAME "wc3lib")
+set(CPACK_PACKAGE_VENDOR "wc3lib.org")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "wc3lib - Warcraft III Library")
+set(CPACK_PACKAGE_VERSION "${wc3lib_VERSION}")
+set(CPACK_PACKAGE_VERSION_MAJOR "${wc3lib_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${wc3lib_VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${wc3lib_VERSION_PATCH}")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "CPack Component Example")
+
+include(CPack)

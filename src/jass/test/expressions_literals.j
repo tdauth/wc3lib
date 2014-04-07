@@ -18,3 +18,8 @@ $aFcd3 // 720 083
 // boolean
 true
 false
+// fourc
+'AFDe'
+'2342'
+// null
+null
