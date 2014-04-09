@@ -221,6 +221,21 @@ struct jass_binary_operators : qi::symbols<char, BOOST_SCOPED_ENUM(jass_binary_o
 	}
 };
 
+struct jass_binary_boolean_operators : qi::symbols<char, BOOST_SCOPED_ENUM(jass_binary_operator)> {
+	
+	jass_binary_boolean_operators()
+	{
+		name("JASS binary boolean operators");
+		add
+			("and", jass_binary_operator::And)
+			("or", jass_binary_operator::Or)
+		;
+	}
+
+	~jass_binary_boolean_operators() {
+	}
+};
+
 struct jass_binary_operation : public jass_expression_node {
 	jass_expression first_expression;
 	BOOST_SCOPED_ENUM(jass_binary_operator) op;

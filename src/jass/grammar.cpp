@@ -157,6 +157,10 @@ namespace phoenix = boost::phoenix;
 namespace qi = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
 namespace classic = boost::spirit::classic;
+/**
+ * The Unicode namespace can be used for UTF-8 string and comments parsing in JASS.
+ */
+namespace unicode = boost::spirit::qi::unicode;
 
 template<typename T>
 struct symbol_deleter
@@ -250,14 +254,16 @@ comment_skipper<Iterator>::comment_skipper() : comment_skipper<Iterator>::base_t
 	using qi::eoi;
 	using qi::eps;
 	
+	/*
+	 * Comments may use UTF-8 characters.
+	 */
 	comment %=
-		lit("//") >> *(char_ - eol)
+		lit("//") >> *(unicode::char_ - eol)
 	;
 	
 	emptyline %=
-		+blank // blanks only in one line
+		+blank >> -comment // blanks only optionally followed by a comment
 		| comment // one comment only
-		| (+blank >> comment) // blanks only followed by a comment
 	;
 	
 	emptylines %=
@@ -464,14 +470,14 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 	real_literal %=
 		qi::real_parser<float32, qi::strict_ureal_policies<float32> >() // parse unsigned! if no dot is available it should be a "integer_literal" therefore use strict policies
 	;
-		
+	
 	string_literal %=
 		lexeme[
 			lit("\"")
 			>>
 			*(
-				char_ - char_('\"') - char_('\\') 
-				| lit('\\')[push_back(_val, '\\')] >> char_
+				unicode::char_ - char_('\"') - char_('\\') 
+				| lit('\\')[push_back(_val, '\\')] >> unicode::char_
 			)
 			>> lit("\"")
 		]
@@ -516,9 +522,14 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 	;
 
 	binary_operation %=
-		binary_operation_expression
+		(binary_operation_expression
 		>> binary_operator
-		>> binary_operation_expression
+		>> expression)
+		/*| ( // "and" and "or" can combine all expressions without parentheses
+			expression
+			>> binary_boolean_operators
+			>> expression
+		)*/
 	;
 	
 	unary_operator %=
@@ -550,9 +561,9 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 	;
 	
 	constant %=
-		integer_literal
+		real_literal // has to be checked before integer literal since dot is required
+		| integer_literal
 		| fourcc_literal
-		| real_literal
 		| boolean_literal
 		| string_literal
 		| null
@@ -622,7 +633,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 	;
 	
 	native =
-		lit("constant")[at_c<0>(_val) = true]
+		-lit("constant")[at_c<0>(_val) = true]
 		>> lit("native")
 		>> function_declaration[at_c<1>(_val) = _1]
 	;

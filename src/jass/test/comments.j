@@ -1,4 +1,5 @@
 // This is a comment in the first line 1234567890!"$?:;.-_+/=
+// This a comment with UTF-8 characters §ÄäöÜ
 globals
 	integer bla = 10 // This is a comment after an expression
 endglobals
@@ -6,4 +7,7 @@ endglobals
 
 
 
+    	    // This is a comment with blanks before followed by lines with different blanks
+	      
+      	
 type bla extends integer

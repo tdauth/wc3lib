@@ -1,0 +1,13 @@
+// binary operators
++
+-
+*
+/
+>
+<
+==
+!=
+>=
+<=
+and
+or

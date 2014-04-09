@@ -38,7 +38,9 @@ struct LiteralsResults {
 	std::string real2; // is integer because of missing dot
 	float32 real3;
 	float32 real4;
-	string stringLiteral;
+	string stringLiteral0;
+	string stringLiteral1;
+	string stringLiteral2;
 	bool booleanTrue; // initialize with wrong value to test if it is set properly
 	bool booleanFalse;
 	fourcc fourcc0;
@@ -58,7 +60,9 @@ struct LiteralsResults {
 		real2 = "";
 		real3 = 0.0;
 		real4 = 0.0;
-		stringLiteral = "";
+		stringLiteral0 = "";
+		stringLiteral1 = "";
+		stringLiteral2 = "";
 		booleanTrue = false; // initialize with wrong value to test if it is set properly
 		booleanFalse = true;
 	}
@@ -78,7 +82,9 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(std::string, real2)
 	(float32, real3)
 	(float32, real4)
-	(string, stringLiteral)
+	(string, stringLiteral0)
+	(string, stringLiteral1)
+	(string, stringLiteral2)
 	(bool, booleanTrue) // initialize with wrong value to test if it is set properly
 	(bool, booleanFalse)
 	(fourcc, fourcc0)
@@ -121,6 +127,8 @@ struct LiteralsGrammar : qi::grammar<Iterator, LiteralsResults(), Skipper> {
 			grammar.real_literal >> +qi::eol >>
 			grammar.real_literal >> +qi::eol >>
 			
+			grammar.string_literal >> +qi::eol >>
+			grammar.string_literal >> +qi::eol >>
 			grammar.string_literal >> +qi::eol >>
 			
 			grammar.boolean_literal >> +qi::eol >>
@@ -227,7 +235,9 @@ BOOST_AUTO_TEST_CASE(Literals) {
 	BOOST_CHECK_CLOSE(r.real3, 0.23, 0.0001);
 	BOOST_REQUIRE(r.real4 == 0);
 	
-	BOOST_REQUIRE(r.stringLiteral == "this is a string \\\"like this\\\" \\n\\r");
+	BOOST_REQUIRE(r.stringLiteral0 == "this is a string \\\"like this\\\" \\n\\r");
+	BOOST_REQUIRE(r.stringLiteral1 == "");
+	BOOST_REQUIRE(r.stringLiteral2 == "!§$%&/()=?+-/*,.-;:_~#'|<>äöüß");
 	
 	BOOST_REQUIRE(r.booleanTrue == true);
 	BOOST_REQUIRE(r.booleanFalse == false);
@@ -536,7 +546,7 @@ BOOST_AUTO_TEST_CASE(UnaryOperations) {
 	bool valid = false;
 	
 	// one variable of corresponding type for each binary operator
-	std::vector<jass_expression> r;
+	std::vector<jass_unary_operation> r;
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<PositionIteratorType> skipper;
@@ -568,6 +578,76 @@ BOOST_AUTO_TEST_CASE(UnaryOperations) {
 	BOOST_REQUIRE(valid);
 	
 	BOOST_REQUIRE(r.size() == 6);
+	//BOOST_REQUIRE(r[0] == jass_unary_operator::Plus);
+	//BOOST_REQUIRE(r[1] == jass_unary_operator::Minus);
+	//BOOST_REQUIRE(r[2] == jass_unary_operator::Not);
+}
+
+BOOST_AUTO_TEST_CASE(BinaryOperations) {
+	const char* jassFile = "expressions_binary_operations.j";
+	const char* traceFile = "expressions_binary_operations_trace.xml";
+	
+	ifstream in(jassFile);
+	
+	BOOST_REQUIRE(in);
+	
+	spiritTraceLog.close();
+	spiritTraceLog.open(traceFile);
+	
+	BOOST_REQUIRE(spiritTraceLog);
+
+	Grammar::ForwardIteratorType first = boost::spirit::make_default_multi_pass(Grammar::IteratorType(in));
+	Grammar::ForwardIteratorType last;
+	
+	// used for backtracking and more detailed error output
+	typedef boost::spirit::classic::position_iterator2<Grammar::ForwardIteratorType> PositionIteratorType;
+	PositionIteratorType position_begin(first, last);
+	PositionIteratorType position_end;
+	
+	jass_ast ast;
+	
+	jass_file current_file;
+	current_file.path = jassFile;
+	
+	ast.files.push_back(current_file);
+	
+	BOOST_REQUIRE(ast.files.size() == 1);
+	
+	bool valid = false;
+	
+	// one variable of corresponding type for each binary operator
+	std::vector<jass_binary_operation> r;
+	
+	// grammar has to be allocated until the end of the test because it holds the symbols
+	client::comment_skipper<PositionIteratorType> skipper;
+	client::jass_grammar<PositionIteratorType> grammar(ast, current_file);
+	
+	try {
+		valid = boost::spirit::qi::phrase_parse(
+				position_begin,
+				position_end,
+				
+					+qi::eol // TODO initial white spaces should be skipped automatically
+					>> (grammar.binary_operation % qi::eol)
+			
+				, // parse all base types separated by eol
+				skipper,
+				// results
+				r
+			);
+
+		if (position_begin != position_end) { // fail if we did not get a full match
+			std::cerr << "Begin is not equal to end!" << std::endl;
+			valid = false;
+		}
+	}
+	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e) {
+		std::cerr << client::expectationFailure(e) << std::endl;
+	}
+	
+	BOOST_REQUIRE(valid);
+	
+	BOOST_REQUIRE(r.size() == 15);
 	//BOOST_REQUIRE(r[0] == jass_unary_operator::Plus);
 	//BOOST_REQUIRE(r[1] == jass_unary_operator::Minus);
 	//BOOST_REQUIRE(r[2] == jass_unary_operator::Not);

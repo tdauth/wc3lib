@@ -15,6 +15,8 @@ $aFcd3 // 720 083
 0.
 // string
 "this is a string \"like this\" \n\r"
+"" // empty string
+"!§$%&/()=?+-/*,.-;:_~#'|<>äöüß" // special and UTF-8 characters in string
 // boolean
 true
 false

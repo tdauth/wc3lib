@@ -41,6 +41,11 @@ std::ofstream spiritTraceLog;
 
 }
 
+/**
+ * Unicode support is required for UTF-8 strings in JASS.
+ */
+#define BOOST_SPIRIT_UNICODE
+
 #ifdef DEBUG
 #define BOOST_SPIRIT_DEBUG
 // we use the class attribute as custom output stream for Spirit's debugging traces
