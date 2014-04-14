@@ -31,9 +31,8 @@ BOOST_AUTO_TEST_CASE(GlobalsTest) {
 	Grammar::ForwardIteratorType last;
 	
 	// used for backtracking and more detailed error output
-	typedef boost::spirit::classic::position_iterator2<Grammar::ForwardIteratorType> PositionIteratorType;
-	PositionIteratorType position_begin(first, last);
-	PositionIteratorType position_end;
+	Grammar::PositionIteratorType position_begin(first);
+	Grammar::PositionIteratorType position_end;
 	
 	jass_ast ast;
 	
@@ -48,8 +47,8 @@ BOOST_AUTO_TEST_CASE(GlobalsTest) {
 	jass_globals result;
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
-	client::comment_skipper<PositionIteratorType> skipper;
-	client::jass_grammar<PositionIteratorType> grammar(ast, current_file);
+	client::comment_skipper<Grammar::PositionIteratorType> skipper;
+	client::jass_grammar<Grammar::PositionIteratorType> grammar(position_begin, ast, current_file);
 	
 	try {
 	
@@ -67,15 +66,16 @@ BOOST_AUTO_TEST_CASE(GlobalsTest) {
 			valid = false;
 		}
 	}
-	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e)
+	catch(const boost::spirit::qi::expectation_failure<Grammar::PositionIteratorType> e)
 	{
-		std::cerr << client::expectationFailure(e) << std::endl;
+//		std::cerr << client::expectationFailure(e) << std::endl;
 	}
 	
 	BOOST_REQUIRE(valid);
 	BOOST_REQUIRE(result.size() == 4);
 	
 	BOOST_REQUIRE(result[0].is_constant == false);
+	BOOST_REQUIRE(result[0].declaration.type.type() == typeid(jass_type*));
 	BOOST_REQUIRE(boost::get<jass_type*>(result[0].declaration.type) != 0); // TODO boost::get throws exception on fail
 	BOOST_REQUIRE(boost::get<jass_type*>(result[0].declaration.type)->identifier == "boolean");
 	BOOST_REQUIRE(result[0].declaration.is_array == true);
@@ -83,6 +83,7 @@ BOOST_AUTO_TEST_CASE(GlobalsTest) {
 	// TODO check optional assignment
 	
 	BOOST_REQUIRE(result[1].is_constant == true);
+	BOOST_REQUIRE(result[1].declaration.type.type() == typeid(jass_type*));
 	BOOST_REQUIRE(boost::get<jass_type*>(result[1].declaration.type) != 0); // TODO boost::get throws exception on fail
 	BOOST_REQUIRE(boost::get<jass_type*>(result[1].declaration.type)->identifier == "integer");
 	BOOST_REQUIRE(result[1].declaration.is_array == false);

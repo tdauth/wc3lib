@@ -38,8 +38,10 @@ BOOST_AUTO_TEST_CASE(BaseTypesTest) {
 	Grammar::ForwardIteratorType last;
 	
 	// used for backtracking and more detailed error output
-	typedef boost::spirit::classic::position_iterator2<Grammar::ForwardIteratorType> PositionIteratorType;
-	PositionIteratorType position_begin(first, last);
+	//typedef boost::spirit::classic::position_iterator2<Grammar::ForwardIteratorType> PositionIteratorType;
+	typedef boost::spirit::line_pos_iterator<Grammar::ForwardIteratorType> PositionIteratorType;
+	//PositionIteratorType position_begin(first, last);
+	PositionIteratorType position_begin(first);
 	PositionIteratorType position_end;
 	
 	jass_ast ast;
@@ -56,7 +58,7 @@ BOOST_AUTO_TEST_CASE(BaseTypesTest) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<PositionIteratorType> skipper;
-	client::jass_grammar<PositionIteratorType> grammar(ast, current_file);
+	client::jass_grammar<PositionIteratorType> grammar(position_begin, ast, current_file);
 
 	try
 	{
@@ -80,7 +82,7 @@ BOOST_AUTO_TEST_CASE(BaseTypesTest) {
 	}
 	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e)
 	{
-		std::cerr << client::expectationFailure(e) << std::endl;
+//		std::cerr << client::expectationFailure(e) << std::endl;
 	}
 	
 	/*

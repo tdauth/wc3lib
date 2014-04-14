@@ -27,6 +27,7 @@
 
 #include <boost/spirit/include/support_multi_pass.hpp>
 #include <boost/spirit/include/classic_position_iterator.hpp> // for more detailed error information
+#include <boost/spirit/include/support_line_pos_iterator.hpp>
 
 #include "../platform.hpp"
 #include "../exception.hpp"
@@ -38,11 +39,28 @@ namespace wc3lib
 namespace jass
 {
 
+/**
+ * The Grammar contains all rules of the JASS syntax. It provides parse functions which create the
+ * resulting AST.
+ */
 class Grammar {
 	public:
 		typedef std::basic_istream<byte> InputStream;
 		typedef std::istreambuf_iterator<byte> IteratorType;
 		typedef boost::spirit::multi_pass<IteratorType> ForwardIteratorType;
+		
+		/**
+		 * Declare iterator types for better error results.
+		 * These Position iterators support tracking the current position of the parser.
+		 * When an error occurs they their information can be used for better reports.
+		 * 
+		 * Usually you would create objects of theses types from the multi pass iterator \ref ForwardIteratorType and pass
+		 * them to the \ref parse() element functions.
+		 * 
+		 * Both types are instanciated in "grammar.cpp" and can be declared as external templates to save compile time.
+		 */
+		typedef boost::spirit::classic::position_iterator2<Grammar::ForwardIteratorType> ClassicPositionIteratorType;
+		typedef boost::spirit::line_pos_iterator<Grammar::ForwardIteratorType> PositionIteratorType;
 		
 		bool parse(InputStream &istream, jass_ast &ast, jass_file &file);
 		bool parse(IteratorType first, IteratorType last, jass_ast &ast, jass_file &file);

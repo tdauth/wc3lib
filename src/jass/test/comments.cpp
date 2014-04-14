@@ -38,9 +38,8 @@ BOOST_AUTO_TEST_CASE(CommentsTest) {
 	Grammar::ForwardIteratorType last;
 	
 	// used for backtracking and more detailed error output
-	typedef boost::spirit::classic::position_iterator2<Grammar::ForwardIteratorType> PositionIteratorType;
-	PositionIteratorType position_begin(first, last);
-	PositionIteratorType position_end;
+	Grammar::PositionIteratorType position_begin(first);
+	Grammar::PositionIteratorType position_end;
 	jass_ast ast;
 	bool valid = false;
 	std::vector<std::string> result;
@@ -51,7 +50,7 @@ BOOST_AUTO_TEST_CASE(CommentsTest) {
 		namespace qi = boost::spirit::qi;
 		namespace ascii = boost::spirit::ascii;
 		
-		client::comment_skipper<PositionIteratorType> skipper;
+		client::comment_skipper<Grammar::PositionIteratorType> skipper;
 	
 		valid = boost::spirit::qi::phrase_parse(
 			position_begin,
@@ -68,9 +67,9 @@ BOOST_AUTO_TEST_CASE(CommentsTest) {
 			valid = false;
 		}
 	}
-	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e)
+	catch(const boost::spirit::qi::expectation_failure<Grammar::PositionIteratorType> e)
 	{
-		std::cerr << client::expectationFailure(e) << std::endl;
+//		std::cerr << client::expectationFailure(e) << std::endl;
 	}
 	
 	// for debugging output

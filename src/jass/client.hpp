@@ -4,6 +4,7 @@
 #include "grammar.hpp"
 
 #include "../qi.hpp"
+#include <boost/spirit/include/support_line_pos_iterator.hpp>
 
 #include "ast.hpp"
 
@@ -27,6 +28,44 @@ namespace client
 template<typename Iterator>
 std::string expectationFailure(const boost::spirit::qi::expectation_failure<Iterator> &e);
 
+template<typename It>
+struct annotation_f {
+	typedef void result_type;
+
+	annotation_f(It first) : first(first) {}
+	
+	It const first;
+
+	template<typename Val, typename File, typename First, typename Last>
+	void operator()(Val& v, File *file,  First f, Last l) const {
+		do_annotate(v, file, f, l, first);
+	}
+
+	private:
+		static void do_annotate(jass_ast_location &li, jass_file *file, It f, It l, It first) {
+			//namespace classic = boost::spirit::classic;
+			//using std::distance;
+			
+			/*
+			const classic::file_position_base<std::string>& pos = f.get_position();
+			li.file_name = pos.file;
+			li.line = pos.line;
+			li.column = pos.column;
+			li.length = distance(f, l);
+			*/
+			
+			/*
+			 * use this for 
+			 * http://www.boost.org/doc/libs/1_47_0/boost/spirit/home/support/iterators/line_pos_iterator.hpp
+			 */
+			li.file = file;
+			li.line   = boost::spirit::get_line(f);
+			li.column = boost::spirit::get_column(first, f);
+			li.length = std::distance(f, l);
+		}
+		static void do_annotate(...) { }
+};
+
 /*
  * Doesn't consume eols since value pairs are separated linewise which therefore can be specified easier in the rules
  */
@@ -45,9 +84,16 @@ template <typename Iterator, typename Skipper = comment_skipper<Iterator> >
 struct jass_grammar : qi::grammar<Iterator, jass_ast(), qi::locals<std::string>, Skipper>
 {
 	/**
+	 * \param first The starting iterator used for location information storage. Each AST node has stored its location.
 	 * \param ast An AST must be passed which is filled by the input. It can already contain nodes which might be useful for debugging.
 	 */
-	jass_grammar(jass_ast &ast, jass_file &current_file);
+	jass_grammar(Iterator first, jass_ast &ast, jass_file &current_file);
+	
+	
+	/**
+	 * Handler function to store location of AST entry.
+	 */
+	boost::phoenix::function<annotation_f<Iterator> > annotate;
 	
 	// symbols
 	qi::rule<Iterator, jass_var_reference(), Skipper> var_reference;
@@ -124,7 +170,7 @@ struct jass_grammar : qi::grammar<Iterator, jass_ast(), qi::locals<std::string>,
 	// symbol table for types
 	// this symbol table can be used in rules! types will be returned automatically when correct identifiers are found!
 	jass_ast ast;
-	jass_file current_file; // currently parsed file
+	jass_file *current_file; // currently parsed file
 	/*
 	 * Symbols for ALL files:
 	 */

@@ -35,120 +35,11 @@
 #include "../platform.hpp"
 #include "../i18n.hpp"
 
-// http://www.boost.org/doc/libs/1_55_0/libs/spirit/doc/html/spirit/advanced/customize/transform.html
-// http://www.boost.org/doc/libs/1_55_0/libs/spirit/doc/html/spirit/qi/reference/auxiliary/attr_cast.html
-// http://www.boost.org/doc/libs/1_55_0/libs/spirit/doc/html/spirit/advanced/customize/transform.html
-// https://stackoverflow.com/questions/13515623/boost-spirit-how-to-convert-basic-types
-namespace boost { namespace spirit { namespace traits
-{
-
-/*
- * For conversion from real literals to real numbers.
- */
-/*
-template <>
-struct transform_attribute<std::string, double, qi::domain>
-{
-	typedef double type;
-	
-	static double pre(const std::string & d) {
-		// TODO does it detect .343 properly?
-		return boost::lexical_cast<double>(d);
-	}
-	static void post(const std::string & val, double const& attr) {}
-	static void fail(std::string&) {}
-};
-*/
-
-// decimal int
-/*
- * Left rule is the resulting integer.
- * Right expected value is a string (lexeme).
- */
-/*
-template <>
-struct transform_attribute<int, std::string, qi::domain>
-{
-	// input type
-	typedef std::string& type;
-	
-	static std::string pre(int & d) {
-		return "";
-	}
-	static void post(int & val, const type attr) {
-		val = boost::lexical_cast<int>(attr);
-	}
-	static void fail(int &) {}
-};
-*/
-
-// octal integer has to be calculated correctly to get a decimal integer
-/*
-template <>
-struct transform_attribute<wc3lib::jass::jass_oct_integer, int, qi::domain>
-{
-	typedef int type;
-	
-	static int pre(const wc3lib::jass::jass_oct_integer & d) {
-		int result = 0;
-		
-		for (int i = d.literal.size() - 1; i >= 0 ; --i) {
-			result += boost::lexical_cast<int>(d.literal[i]) * std::pow(8, i);
-		}
-		
-		return result;
-	}
-	static void post(const wc3lib::jass::jass_oct_integer & val, bool const& attr) {}
-	static void fail(wc3lib::jass::jass_oct_integer&) {}
-};
-
-// same for hexadecimal integer
-template <>
-struct transform_attribute<wc3lib::jass::jass_hex_integer, int, qi::domain>
-{
-	typedef int type;
-	
-	static int pre(const wc3lib::jass::jass_hex_integer & d) {
-		int result = 0;
-		
-		for (int i = d.literal.size() - 1; i >= 0; --i) {
-			result += boost::lexical_cast<int>(d.literal[i]) * std::pow(16, i);
-		}
-		
-		return result;
-	}
-	static void post(const wc3lib::jass::jass_hex_integer & val, bool const& attr) {}
-	static void fail(wc3lib::jass::jass_hex_integer&) {}
-};
-	
-// in this case we just expose the embedded 'int' as the attribute instance
-// to use, allowing to leave the function 'post()' empty
-template <>
-struct transform_attribute<std::string, bool, qi::domain>
-{
-	typedef bool type;
-	
-	static bool pre(const std::string & d) { 
-		return d == "true" ? true : false;
-	}
-	static void post(const std::string & val, bool const& attr) {}
-	static void fail(std::string&) {}
-};
-*/
-
-}}}
-
 namespace wc3lib
 {
 
 namespace jass
 {
-
-/*
- * Declare iterator type for better error results.
- * It is used for template instanciation of the grammars.
- */
-typedef boost::spirit::classic::position_iterator2<Grammar::ForwardIteratorType> PositionIteratorType;
 
 namespace client {
 
@@ -162,24 +53,40 @@ namespace classic = boost::spirit::classic;
  */
 namespace unicode = boost::spirit::qi::unicode;
 
-template<typename T>
-struct symbol_deleter
-{
-    void operator() (T *value)
-    {
-        delete value;
-    }
-};
-
+/**
+ * This function can be called whenever an \ref boost::spirit::qi::expectation_failure occurs to
+ * print it in a readable format.
+ * It returns a formatted string containing file path, line and column.
+ */
 template<typename Iterator>
-std::string expectationFailure(const boost::spirit::qi::expectation_failure<Iterator> &e) {
+std::string expectationFailure(const jass_file *file, const boost::spirit::qi::expectation_failure<Iterator> &e) {
+	//const classic::file_position_base<std::string>& pos = e.first.get_position();
+	//std::stringstream msg;
+	//msg
+	//<< std::setw(boost::spirit::get_column(e.first)) << " " << _("^- here");
+
+	return boost::str(
+		boost::format(_("Parse error at file %1%:%2%")) // :%3%:\n%4%
+		% file->path
+		% boost::spirit::get_line(e.first)
+		//% boost::spirit::get_column(e.first)
+		//% e.first.get_currentline()
+		//% msg.str()
+	);
+}
+
+/**
+ * Specialization for classic position iterator type.
+ */
+template<>
+std::string expectationFailure<Grammar::ClassicPositionIteratorType>(const jass_file *file, const boost::spirit::qi::expectation_failure<Grammar::ClassicPositionIteratorType> &e) {
 	const classic::file_position_base<std::string>& pos = e.first.get_position();
 	std::stringstream msg;
 	msg
 	<< std::setw(pos.column) << " " << _("^- here");
-	
+
 	return boost::str(
-		boost::format(_("Parse error at file %1%:%2%:%3%:\n%4%\n%5%"))
+		boost::format(_("Parse error at file %1%:%2%:%3%:\n%4%"))
 		% pos.file
 		% pos.line
 		% pos.column
@@ -293,10 +200,11 @@ comment_skipper<Iterator>::comment_skipper() : comment_skipper<Iterator>::base_t
 }
 
 template <typename Iterator, typename Skipper >
-jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_file)
+jass_grammar<Iterator, Skipper>::jass_grammar(Iterator first, jass_ast &ast, jass_file &current_file)
 : jass_grammar<Iterator, Skipper>::base_type(jass, "jass")
 	, ast(ast)
-	, current_file(current_file)
+	, current_file(&current_file)
+	, annotate(first)
 {
 	using qi::eps;
 	using qi::int_parser;
@@ -371,7 +279,11 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 	
 	set %=
 		lit("set")
-		>> (var_reference | array_reference)
+		>> (
+			array_reference // check array_reference first, otherwise var_reference does always succeed
+			| var_reference
+			)
+		>> lit('=')
 		>> expression
 	;
 
@@ -388,28 +300,28 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 	;
 	
 	conditional_statements %=
-		expression >> lit("then") >> eol
-		>> statements
+		expression >> lit("then")
+		>> -(eol >> statements)
 	;
 	
 	ifthenelse %=
 		lit("if") >> conditional_statements
 		>> 
 		*(
-			lit("elseif") >> conditional_statements
+			eol >> lit("elseif") >> conditional_statements
 		)
 		>>
 		-(
-			lit("else") >> eol
-			>> statements
+			eol >> lit("else")
+			>> -(eol >> statements)
 		)
-		>> lit("endif")
+		>> eol >> lit("endif")
 	;
 	
 	loop %=
-		lit("loop") >> eol
-		>> statements
-		>> lit("endloop")
+		lit("loop")
+		>> -(eol >> statements)
+		>> eol >> lit("endloop")
 	;
 
 	exitwhen %=
@@ -442,8 +354,8 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 		| function_call
 		| array_reference
 		| function_ref
+		| constant // check constant before var reference, "true" and "false" are no identifiers!
 		| var_reference
-		| constant
 		| parentheses
 	;
 	
@@ -544,7 +456,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 	function_call %=
 		function_reference
 		>> lit('(')
-		>> args
+		>> -args
 		>> lit(')')
 	;
 	
@@ -675,24 +587,17 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 	;
 
 	
-	file %= //eps[_val = ast] >> // if no input is there generate an empty AST!
+	file %=
 		*eol >>
 		-declarations >>
 		*eol >>
 		-functions >>
-		//*(
-			//type[ast.types.add]
-			//type[phoenix::bind(&client::add_to_symbol_table, _val, _1)] // phoenix::cref(_1) phoenix::ref(_val)
-			//type[insert(at_c<0>(_val), _1.identifier, _1)] // add type to AST and to symbol table
-			// ,type_symbols.add(_1.identifier, _1)
-		//)
-		
 		*eol
 		;
 	
 	/*
-	* Parses the current file
-	*/
+	 * Parses the current file
+	 */
 	jass = 
 		eps[_val = ast] >>
 		file
@@ -782,6 +687,15 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 			<< std::endl
 	);
 	
+	/*
+	 * Store location info on success.
+	 * https://stackoverflow.com/questions/19612657/boostspirit-access-position-iterator-from-semantic-actions
+	 */
+	auto set_location_info = annotate(_val, current_file, _1, _3);
+	//qi::on_success(identifier, set_location_info);
+	//qi::on_success(string_literal, set_location_info);
+	//qi::on_success(integer_literal, set_location_info);
+	
 	BOOST_SPIRIT_DEBUG_NODES(
 		// symbols
 		(var_reference)
@@ -855,16 +769,24 @@ jass_grammar<Iterator, Skipper>::jass_grammar(jass_ast &ast, jass_file &current_
 template <typename Iterator>
 bool parse(Iterator first, Iterator last, jass_ast &ast, jass_file &current_file)
 {
-	jass_grammar<Iterator> grammar(ast, current_file);
+	jass_grammar<Iterator> grammar(first, ast, current_file);
 	comment_skipper<Iterator> commentSkipper;
+	bool r = false;
 	
-	bool r = boost::spirit::qi::phrase_parse(
-		first,
-		last,
-		grammar,
-		commentSkipper,
-		ast // store result into the passed ast
-	);
+	try {
+		r = boost::spirit::qi::phrase_parse(
+			first,
+			last,
+			grammar,
+			commentSkipper,
+			ast // store result into the passed ast
+		);
+	} 
+	catch(const boost::spirit::qi::expectation_failure<Iterator> &e) {
+		throw Exception(
+				client::expectationFailure(grammar.current_file, e)
+			);
+	}
 
 	if (first != last) // fail if we did not get a full match
 	{
@@ -879,9 +801,15 @@ bool parse(Iterator first, Iterator last, jass_ast &ast, jass_file &current_file
  * used for explicit instanciation which reduces compile time for targets which use rules from "client.hpp" because they do not need to include "grammar.cpp"
  * as long as they use the iterator type PositionIteratorType
  */
-template class comment_skipper<PositionIteratorType>;
-template class jass_grammar<PositionIteratorType, comment_skipper<PositionIteratorType> >;
-template bool parse<PositionIteratorType>(PositionIteratorType first, PositionIteratorType last, jass_ast &ast, jass_file &current_file);
+template std::string expectationFailure<Grammar::PositionIteratorType>(const jass_file *file, const boost::spirit::qi::expectation_failure<Grammar::PositionIteratorType> &e);
+template class comment_skipper<Grammar::PositionIteratorType>;
+template class jass_grammar<Grammar::PositionIteratorType, comment_skipper<Grammar::PositionIteratorType> >;
+template bool parse<Grammar::PositionIteratorType>(Grammar::PositionIteratorType first, Grammar::PositionIteratorType last, jass_ast &ast, jass_file &current_file);
+// ClassicPositionIteratorType
+template std::string expectationFailure<Grammar::ClassicPositionIteratorType>(const jass_file *file, const boost::spirit::qi::expectation_failure<Grammar::ClassicPositionIteratorType> &e);
+template class comment_skipper<Grammar::ClassicPositionIteratorType>;
+template class jass_grammar<Grammar::ClassicPositionIteratorType, comment_skipper<Grammar::ClassicPositionIteratorType> >;
+template bool parse<Grammar::ClassicPositionIteratorType>(Grammar::ClassicPositionIteratorType first, Grammar::ClassicPositionIteratorType last, jass_ast &ast, jass_file &current_file);
 
 }
 
@@ -896,18 +824,10 @@ bool Grammar::parse(IteratorType first, IteratorType last, jass_ast& ast, jass_f
 	ForwardIteratorType forwardLast = boost::spirit::make_default_multi_pass(last); // TODO has to be created? Do we need this iterator to be passed?
 	
 	// used for backtracking and more detailed error output
-	PositionIteratorType position_begin(forwardFirst, forwardLast);
+	PositionIteratorType position_begin(forwardFirst);
 	PositionIteratorType position_end;
-	bool result = false;
+	bool result = client::parse(position_begin, position_end, ast, file);
 	
-	try {
-		result = client::parse(position_begin, position_end, ast, file);
-	} 
-	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> &e) {
-		throw Exception(
-			client::expectationFailure(e)
-		);
-	}
 	
 	return result;
 }

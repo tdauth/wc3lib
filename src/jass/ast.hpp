@@ -42,7 +42,19 @@ namespace jass
 
 namespace qi = boost::spirit::qi;
 
+struct jass_file;
+
+struct jass_ast_location {
+	jass_file *file;
+	std::size_t line, column, length;
+	
+	jass_ast_location() : file(0), line(0), column(0), length(0) {
+	}
+};
+
 struct jass_ast_node {
+	jass_ast_location location;
+	
 	virtual std::string type_name() const { return "bla"; }
 };
 
@@ -55,9 +67,9 @@ struct jass_type; // forward declaration
 struct jass_var_declaration;
 struct jass_function_declaration;
 
-typedef boost::variant<jass_type*, std::string> jass_type_reference;
-typedef boost::variant<jass_var_declaration*, std::string> jass_var_reference;
-typedef boost::variant<jass_function_declaration*, std::string> jass_function_reference;
+typedef boost::variant<const jass_type*, std::string> jass_type_reference;
+typedef boost::variant<const jass_var_declaration*, std::string> jass_var_reference;
+typedef boost::variant<const jass_function_declaration*, std::string> jass_function_reference;
 
 //----------------------------------------------------------------------
 // Statements
@@ -369,6 +381,19 @@ struct jass_global_declaration : public jass_ast_node {
 struct jass_type : public jass_global_declaration {
 	string identifier;
 	jass_type_reference parent;
+	
+	/**
+	 * \return Returns true if parent type is set.
+	 */
+	bool has_parent() const {
+		if (parent.type() == typeid(string)) {
+			return !boost::get<string>(parent).empty();
+		} else if (parent.type() == typeid(jass_type*)) {
+			return boost::get<jass_type*>(parent) != 0;
+		}
+		
+		return false;
+	}
 	
 	jass_type() : parent("") { }
 	jass_type(const string &identifier, jass_type *parent) : identifier(identifier), parent(parent) { }

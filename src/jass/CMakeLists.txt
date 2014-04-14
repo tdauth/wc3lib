@@ -17,12 +17,16 @@ if (JASS)
 	include_directories(${Boost_INCLUDE_DIRS})
 
 	set (wc3lib_JASS_H
+		#analyzer.hpp
 		ast.hpp
 		client.hpp
 		grammar.hpp
+		#report.hpp
 	)
 	set (wc3lib_JASS_SRC
+		#analyzer.cpp
 		grammar.cpp
+		#report.cpp
 	)
 
 	add_library(wc3libjass SHARED ${wc3lib_JASS_SRC})

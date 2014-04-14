@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE(Literals) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<PositionIteratorType> skipper;
-	client::jass_grammar<PositionIteratorType> grammar(ast, current_file);
+	client::jass_grammar<PositionIteratorType> grammar(position_begin, ast, current_file);
 	LiteralsGrammar<PositionIteratorType> testGrammar(grammar);
 	
 	try {
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE(Literals) {
 		}
 	}
 	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e) {
-		std::cerr << client::expectationFailure(e) << std::endl;
+//		std::cerr << client::expectationFailure(e) << std::endl;
 	}
 	
 	BOOST_REQUIRE(valid);
@@ -289,7 +289,7 @@ BOOST_AUTO_TEST_CASE(BinaryOperators) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<PositionIteratorType> skipper;
-	client::jass_grammar<PositionIteratorType> grammar(ast, current_file);
+	client::jass_grammar<PositionIteratorType> grammar(position_begin, ast, current_file);
 	
 	try {
 		valid = boost::spirit::qi::phrase_parse(
@@ -311,7 +311,7 @@ BOOST_AUTO_TEST_CASE(BinaryOperators) {
 		}
 	}
 	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e) {
-		std::cerr << client::expectationFailure(e) << std::endl;
+//		std::cerr << client::expectationFailure(e) << std::endl;
 	}
 	
 	BOOST_REQUIRE(valid);
@@ -371,7 +371,7 @@ BOOST_AUTO_TEST_CASE(UnaryOperators) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<PositionIteratorType> skipper;
-	client::jass_grammar<PositionIteratorType> grammar(ast, current_file);
+	client::jass_grammar<PositionIteratorType> grammar(position_begin, ast, current_file);
 	
 	try {
 		valid = boost::spirit::qi::phrase_parse(
@@ -393,7 +393,7 @@ BOOST_AUTO_TEST_CASE(UnaryOperators) {
 		}
 	}
 	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e) {
-		std::cerr << client::expectationFailure(e) << std::endl;
+//		std::cerr << client::expectationFailure(e) << std::endl;
 	}
 	
 	BOOST_REQUIRE(valid);
@@ -461,7 +461,7 @@ BOOST_AUTO_TEST_CASE(ArrayReferences) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<PositionIteratorType> skipper;
-	client::jass_grammar<PositionIteratorType> grammar(ast, current_file);
+	client::jass_grammar<PositionIteratorType> grammar(position_begin, ast, current_file);
 	
 	try {
 		valid = boost::spirit::qi::phrase_parse(
@@ -483,12 +483,12 @@ BOOST_AUTO_TEST_CASE(ArrayReferences) {
 		}
 	}
 	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e) {
-		std::cerr << client::expectationFailure(e) << std::endl;
+//		std::cerr << client::expectationFailure(e) << std::endl;
 	}
 	
 	BOOST_REQUIRE(valid);
 	
-	BOOST_REQUIRE(r.size() == 2);
+	BOOST_REQUIRE(r.size() == 3);
 	
 	BOOST_REQUIRE(r[0].var.type() == typeid(string));
 	BOOST_REQUIRE(boost::get<string>(r[0].var) == "bla");
@@ -508,6 +508,148 @@ BOOST_AUTO_TEST_CASE(ArrayReferences) {
 	BOOST_REQUIRE(boost::get<jass_const>(boost::get<jass_binary_operation>(r[1].index.variant).second_expression.variant).variant.type() == typeid(int32));
 
 	BOOST_REQUIRE(boost::get<int32>(boost::get<jass_const>(boost::get<jass_binary_operation>(r[1].index.variant).second_expression.variant).variant) == 2);
+	
+	// TODO check 3rd binary operation
+}
+
+BOOST_AUTO_TEST_CASE(FunctionCalls) {
+	const char* jassFile = "expressions_function_calls.j";
+	const char* traceFile = "expressions_function_calls_trace.xml";
+	
+	ifstream in(jassFile);
+	
+	BOOST_REQUIRE(in);
+	
+	spiritTraceLog.close();
+	spiritTraceLog.open(traceFile);
+	
+	BOOST_REQUIRE(spiritTraceLog);
+
+	Grammar::ForwardIteratorType first = boost::spirit::make_default_multi_pass(Grammar::IteratorType(in));
+	Grammar::ForwardIteratorType last;
+	
+	// used for backtracking and more detailed error output
+	typedef boost::spirit::classic::position_iterator2<Grammar::ForwardIteratorType> PositionIteratorType;
+	PositionIteratorType position_begin(first, last);
+	PositionIteratorType position_end;
+	
+	jass_ast ast;
+	
+	jass_file current_file;
+	current_file.path = jassFile;
+	
+	ast.files.push_back(current_file);
+	
+	BOOST_REQUIRE(ast.files.size() == 1);
+	
+	bool valid = false;
+	
+	// one variable of corresponding type for each binary operator
+	std::vector<jass_function_call> r;
+	
+	// grammar has to be allocated until the end of the test because it holds the symbols
+	client::comment_skipper<PositionIteratorType> skipper;
+	client::jass_grammar<PositionIteratorType> grammar(position_begin, ast, current_file);
+	
+	try {
+		valid = boost::spirit::qi::phrase_parse(
+				position_begin,
+				position_end,
+				
+					+qi::eol // TODO initial white spaces should be skipped automatically
+					>> (grammar.function_call % qi::eol)
+			
+				, // parse all base types separated by eol
+				skipper,
+				// results
+				r
+			);
+
+		if (position_begin != position_end) { // fail if we did not get a full match
+			std::cerr << "Begin is not equal to end!" << std::endl;
+			valid = false;
+		}
+	}
+	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e) {
+//		std::cerr << client::expectationFailure(e) << std::endl;
+	}
+	
+	BOOST_REQUIRE(valid);
+	
+	BOOST_REQUIRE(r.size() == 3);
+	//BOOST_REQUIRE(r[0] == jass_unary_operator::Plus);
+	//BOOST_REQUIRE(r[1] == jass_unary_operator::Minus);
+	//BOOST_REQUIRE(r[2] == jass_unary_operator::Not);
+}
+
+BOOST_AUTO_TEST_CASE(FunctionRefs) {
+	const char* jassFile = "expressions_function_refs.j";
+	const char* traceFile = "expressions_function_refs_trace.xml";
+	
+	ifstream in(jassFile);
+	
+	BOOST_REQUIRE(in);
+	
+	spiritTraceLog.close();
+	spiritTraceLog.open(traceFile);
+	
+	BOOST_REQUIRE(spiritTraceLog);
+
+	Grammar::ForwardIteratorType first = boost::spirit::make_default_multi_pass(Grammar::IteratorType(in));
+	Grammar::ForwardIteratorType last;
+	
+	// used for backtracking and more detailed error output
+	typedef boost::spirit::classic::position_iterator2<Grammar::ForwardIteratorType> PositionIteratorType;
+	PositionIteratorType position_begin(first, last);
+	PositionIteratorType position_end;
+	
+	jass_ast ast;
+	
+	jass_file current_file;
+	current_file.path = jassFile;
+	
+	ast.files.push_back(current_file);
+	
+	BOOST_REQUIRE(ast.files.size() == 1);
+	
+	bool valid = false;
+	
+	// one variable of corresponding type for each binary operator
+	std::vector<jass_function_ref> r;
+	
+	// grammar has to be allocated until the end of the test because it holds the symbols
+	client::comment_skipper<PositionIteratorType> skipper;
+	client::jass_grammar<PositionIteratorType> grammar(position_begin, ast, current_file);
+	
+	try {
+		valid = boost::spirit::qi::phrase_parse(
+				position_begin,
+				position_end,
+				
+					+qi::eol // TODO initial white spaces should be skipped automatically
+					>> (grammar.function_ref % qi::eol)
+			
+				, // parse all base types separated by eol
+				skipper,
+				// results
+				r
+			);
+
+		if (position_begin != position_end) { // fail if we did not get a full match
+			std::cerr << "Begin is not equal to end!" << std::endl;
+			valid = false;
+		}
+	}
+	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e) {
+//		std::cerr << client::expectationFailure(e) << std::endl;
+	}
+	
+	BOOST_REQUIRE(valid);
+	
+	BOOST_REQUIRE(r.size() == 2);
+	//BOOST_REQUIRE(r[0] == jass_unary_operator::Plus);
+	//BOOST_REQUIRE(r[1] == jass_unary_operator::Minus);
+	//BOOST_REQUIRE(r[2] == jass_unary_operator::Not);
 }
 
 /*
@@ -550,7 +692,7 @@ BOOST_AUTO_TEST_CASE(UnaryOperations) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<PositionIteratorType> skipper;
-	client::jass_grammar<PositionIteratorType> grammar(ast, current_file);
+	client::jass_grammar<PositionIteratorType> grammar(position_begin, ast, current_file);
 	
 	try {
 		valid = boost::spirit::qi::phrase_parse(
@@ -572,7 +714,7 @@ BOOST_AUTO_TEST_CASE(UnaryOperations) {
 		}
 	}
 	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e) {
-		std::cerr << client::expectationFailure(e) << std::endl;
+//		std::cerr << client::expectationFailure(e) << std::endl;
 	}
 	
 	BOOST_REQUIRE(valid);
@@ -620,7 +762,7 @@ BOOST_AUTO_TEST_CASE(BinaryOperations) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<PositionIteratorType> skipper;
-	client::jass_grammar<PositionIteratorType> grammar(ast, current_file);
+	client::jass_grammar<PositionIteratorType> grammar(position_begin, ast, current_file);
 	
 	try {
 		valid = boost::spirit::qi::phrase_parse(
@@ -642,7 +784,7 @@ BOOST_AUTO_TEST_CASE(BinaryOperations) {
 		}
 	}
 	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e) {
-		std::cerr << client::expectationFailure(e) << std::endl;
+//		std::cerr << client::expectationFailure(e) << std::endl;
 	}
 	
 	BOOST_REQUIRE(valid);
