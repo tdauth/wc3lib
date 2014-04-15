@@ -10,4 +10,5 @@ endglobals
     	    // This is a comment with blanks before followed by lines with different blanks
 	      
       	
-type bla extends integer
+    // empty lines and blanks before valid expression
+  type bla extends integer

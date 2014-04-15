@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE FunctionsTest
+#define BOOST_TEST_MODULE LocalsTest
 #include <boost/test/unit_test.hpp>
 
 #include "../../spirit.hpp" // enable debug mode
@@ -15,9 +15,9 @@
 using namespace wc3lib;
 using namespace wc3lib::jass;
 
-BOOST_AUTO_TEST_CASE(FunctionsTest) {
-	const char* jassFile = "functions.j";
-	const char* traceFile = "functions_traces.xml";
+BOOST_AUTO_TEST_CASE(LocalsTest) {
+	const char* jassFile = "locals.j";
+	const char* traceFile = "locals_traces.xml";
 	
 	ifstream in(jassFile);
 	
@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(FunctionsTest) {
 	BOOST_REQUIRE(ast.files.size() == 1);
 	
 	bool valid = false;
-	jass_functions result;
+	jass_locals result;
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<Grammar::PositionIteratorType> skipper;
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(FunctionsTest) {
 		valid = boost::spirit::qi::phrase_parse(
 			position_begin,
 			position_end,
-			grammar.functions >> *qi::eol, // TODO only use eol because we have commented some functions at the end
+			grammar.locals,
 			skipper,
 			result
 		);
@@ -73,5 +73,5 @@ BOOST_AUTO_TEST_CASE(FunctionsTest) {
 	}
 	
 	BOOST_REQUIRE(valid);
-	BOOST_REQUIRE(result.size() == 3);
+	BOOST_REQUIRE(result.size() == 6);
 }

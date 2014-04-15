@@ -76,6 +76,7 @@ struct comment_skipper : public qi::grammar<Iterator> {
 	
 	qi::rule<Iterator> skip;
 	qi::rule<Iterator> emptyline;
+	qi::rule<Iterator> moreemptylines;
 	qi::rule<Iterator> emptylines;
 	qi::rule<Iterator> comment;
 };

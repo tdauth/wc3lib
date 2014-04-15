@@ -357,12 +357,13 @@ struct jass_parentheses : public jass_expression_node {
 struct jass_local_declaration : public jass_ast_node {
 };
 
+typedef boost::optional<jass_expression> jass_assignment;
+
 struct jass_var_declaration : public jass_local_declaration {
 	jass_type_reference type;
 	bool is_array;
 	string identifier;
-	jass_expression assignment; // TODO optional
-	
+	jass_assignment assignment;
 };
 
 struct jass_locals : public jass_local_declaration, public std::vector<jass_var_declaration> {

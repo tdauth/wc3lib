@@ -173,11 +173,15 @@ comment_skipper<Iterator>::comment_skipper() : comment_skipper<Iterator>::base_t
 		| comment // one comment only
 	;
 	
+	moreemptylines %=
+		(eol >> emptyline)
+	;
+	
 	emptylines %=
 		// do not consume the eol of the last empty line because it is the eol between all skipped empty lines and the first one
 		// TODO this expression after the first eol >> causes errors why??
 		// *(emptyline >> eol) >>
-		eol >> -emptyline >> *(eol >> emptyline) >> &eol; // each empty line has to start with an eol
+		eol >> -emptyline >> *moreemptylines >> &eol; // each empty line has to start with an eol
 	;
 	
 	skip %= 
@@ -187,12 +191,14 @@ comment_skipper<Iterator>::comment_skipper() : comment_skipper<Iterator>::base_t
 	;
 	
 	emptyline.name("emptyline");
+	moreemptylines.name("moreemptylines");
 	emptylines.name("emptylines");
 	comment.name("comment");
 	skip.name("skip");
 	
 	BOOST_SPIRIT_DEBUG_NODES(
 		(emptyline)
+		(moreemptylines)
 		(emptylines)
 		(comment)
 		(skip)
@@ -218,6 +224,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar(Iterator first, jass_ast &ast, jas
 	using qi::lexeme;
 	using qi::eol;
 	using qi::eoi;
+	using qi::matches;
 	using qi::attr_cast;
 	using qi::as_string;
 	using qi::as;
@@ -488,15 +495,16 @@ jass_grammar<Iterator, Skipper>::jass_grammar(Iterator first, jass_ast &ast, jas
 	//----------------------------------------------------------------------
 	// Local Declarations
 	//----------------------------------------------------------------------
+	// TODO use %= and no semantic actions
 	var_declaration =
-		type_reference[at_c<0>(_val) = _1] >>
-		-lit("array")[at_c<1>(_val) = true] >>
-		identifier[at_c<2>(_val) = _1] >>
-		-(lit('=') >> expression[at_c<3>(_val) = _1])
+		type_reference[at_c<0>(_val) = _1]
+		>> qi::matches[lit("array")][at_c<1>(_val) = _1]
+		>> identifier[at_c<2>(_val) = _1]
+		>> -(lit('=') >> expression[at_c<3>(_val) = _1])
 	;
 	
 	locals %=
-		lit("local") >> var_declaration % eol
+		(lit("local") >> var_declaration) % eol
 	;
 	
 	//----------------------------------------------------------------------
@@ -508,9 +516,9 @@ jass_grammar<Iterator, Skipper>::jass_grammar(Iterator first, jass_ast &ast, jas
 	;
 	
 	// do not use %= since we have to set the booleans in semantic actions
-	global =
-		-lit("constant")[at_c<0>(_val) = true] >>
-		var_declaration[at_c<1>(_val) = _1]
+	global %=
+		qi::matches[lit("constant")]
+		>> var_declaration
 	;
 	
 	globals %=
@@ -544,10 +552,10 @@ jass_grammar<Iterator, Skipper>::jass_grammar(Iterator first, jass_ast &ast, jas
 		)
 	;
 	
-	native =
-		-lit("constant")[at_c<0>(_val) = true]
+	native %=
+		qi::matches[lit("constant")]
 		>> lit("native")
-		>> function_declaration[at_c<1>(_val) = _1]
+		>> function_declaration
 	;
 	
 	natives %=
@@ -565,21 +573,20 @@ jass_grammar<Iterator, Skipper>::jass_grammar(Iterator first, jass_ast &ast, jas
 		% eol
 	;
 	
-	function =
-		-lit("constant")[at_c<0>(_val) = true]
+	function %=
+		qi::matches[lit("constant")]
 		>> lit("function")
-		>> function_declaration[at_c<1>(_val) = _1]
-		>> eol
+		>> function_declaration
 		>> -(
-			locals[at_c<2>(_val) = _1]
-			>> eol
+			eol
+			>> locals[at_c<2>(_val) = _1]
 		)
 		
 		>> -(
-			statements[at_c<3>(_val) = _1]
-			>> eol
+			eol
+			>> statements[at_c<3>(_val) = _1]
 		)
-		>> lit("endfunction")
+		>> eol >> lit("endfunction")
 	;
 
 	functions %=
@@ -959,7 +966,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(wc3lib::jass::jass_type_reference, type)
 	(bool, is_array)
 	(wc3lib::string, identifier)
-	(wc3lib::jass::jass_expression, assignment)
+	(wc3lib::jass::jass_assignment, assignment)
 )
 
 //----------------------------------------------------------------------
