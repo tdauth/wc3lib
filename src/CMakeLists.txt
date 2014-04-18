@@ -8,7 +8,6 @@ set(wc3lib_CORE_H
 	i18n.hpp
 	internationalisation.hpp
 	jass.hpp
-	lang.hpp
 	libraryloader.hpp
 	map.hpp
 	mdlx.hpp
@@ -41,7 +40,7 @@ target_link_libraries(wc3libcore ${Boost_LIBRARIES})
 if (BLP)
 	add_subdirectory(blp)
 endif ()
-#add_subdirectory(lang)
+
 if (MDLX)
 	add_subdirectory(mdlx)
 endif ()
@@ -72,7 +71,6 @@ endif ()
 if (JASS)
 	list(APPEND wc3lib_CORE_LIBRARIES wc3libjass)
 endif ()
-# wc3liblang
 
 if (EDITOR OR PLUGINS)
 	add_subdirectory(editor) # last one
@@ -96,7 +94,7 @@ endif ()
 if (JASS)
 	set(wc3lib_SRC ${wc3lib_SRC} ${wc3lib_JASS_SRC})
 endif ()
-# ${wc3lib_LANG_SRC}
+
 if (EDITOR)
 	set(wc3lib_LIBRARIES ${wc3lib_LIBRARIES} wc3libeditor)
 	set(wc3lib_SRC ${wc3lib_SRC} ${wc3lib_EDITOR_SRC})
