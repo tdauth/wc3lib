@@ -39,6 +39,8 @@ class Report {
 	public:
 		Report(const jass_ast_node *node, const std::string &message);
 		
+		virtual std::string output() const;
+		
 	private:
 		const jass_ast_node *m_node;
 		std::string m_message;

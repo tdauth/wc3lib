@@ -37,7 +37,7 @@ namespace wc3lib
  * 
  * Call spiritTraceLog.open() before running a test with the filename of your output traces XML file.
  */
-std::ofstream spiritTraceLog;
+extern std::ofstream spiritTraceLog;
 
 }
 

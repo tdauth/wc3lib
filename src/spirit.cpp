@@ -18,24 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "report.hpp"
+#include "spirit.hpp"
 
 namespace wc3lib
 {
 
-namespace jass
-{
-
-Report::Report(const jass_ast_node* node, const std::string& message) : m_node(node), m_message(message)
-{
-
-}
-
-std::string Report::output() const
-{
-	return m_message;
-}
-
-}
+std::ofstream spiritTraceLog;
 
 }

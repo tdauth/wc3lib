@@ -105,8 +105,6 @@ inline void add_type_to_symbol_table(jass_type_declarations &declarations, jass_
  * Otherwise the type pointer is returned.
  */
 inline jass_type_reference get_type_symbol(jass_type_declarations &types, const std::string &value) {
-	std::cout << "Searching for type " << value << std::endl;
-	
 	jass_type *type = types.find(value.c_str());
 	
 	if (type == 0) {
@@ -121,8 +119,6 @@ inline void add_var_to_symbol_table(jass_var_declarations &declarations, jass_va
 }
 
 inline jass_var_reference get_var_symbol(jass_var_declarations &vars, const std::string &value) {
-	std::cout << "Searching for var " << value << std::endl;
-	
 	jass_var_declaration *var = vars.find(value.c_str());
 	
 	if (var == 0) {
@@ -137,8 +133,6 @@ inline void add_function_to_symbol_table(jass_function_declarations &declaration
 }
 
 inline jass_function_reference get_function_symbol(jass_function_declarations &functions, const std::string &value) {
-	std::cout << "Searching for function " << value << std::endl;
-	
 	jass_function_declaration *function = functions.find(value.c_str());
 	
 	if (function == 0) {
@@ -174,20 +168,18 @@ comment_skipper<Iterator>::comment_skipper() : comment_skipper<Iterator>::base_t
 	;
 	
 	moreemptylines %=
-		(eol >> emptyline)
+		(eol >> -emptyline >> &eol)
 	;
 	
 	emptylines %=
 		// do not consume the eol of the last empty line because it is the eol between all skipped empty lines and the first one
-		// TODO this expression after the first eol >> causes errors why??
-		// *(emptyline >> eol) >>
-		eol >> -emptyline >> *moreemptylines >> &eol; // each empty line has to start with an eol
+		+moreemptylines
 	;
 	
 	skip %= 
 		emptylines
-		| blank
 		| comment
+		| blank // check blank as last value
 	;
 	
 	emptyline.name("emptyline");
@@ -339,17 +331,15 @@ jass_grammar<Iterator, Skipper>::jass_grammar(Iterator first, jass_ast &ast, jas
 		lit("return") >> -expression
 	;
 
-	/*
-	debug =
+	debug_statement %=
 		lit("debug")
 		>> (
 			set
 			| call
 			| ifthenelse
 			| loop
-		)[at_c<0>(_val) = _1]
+		)
 	;
-	*/
 	
 	//----------------------------------------------------------------------
 	// Expressions
@@ -632,7 +622,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar(Iterator first, jass_ast &ast, jas
 	loop.name("loop");
 	exitwhen.name("exitwhen");
 	return_statement.name("return_statement");
-	//debug.name("debug");
+	debug_statement.name("debug");
 	//----------------------------------------------------------------------
 	// Expressions
 	//----------------------------------------------------------------------
@@ -722,7 +712,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar(Iterator first, jass_ast &ast, jas
 		(loop)
 		(exitwhen)
 		(return_statement)
-		//(debug)
+		(debug_statement)
 		//----------------------------------------------------------------------
 		// Expressions
 		//----------------------------------------------------------------------

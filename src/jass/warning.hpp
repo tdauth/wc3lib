@@ -18,6 +18,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#ifndef WC3LIB_JASS_WARNING_HPP
+#define WC3LIB_JASS_WARNING_HPP
+
 #include "report.hpp"
 
 namespace wc3lib
@@ -26,16 +29,17 @@ namespace wc3lib
 namespace jass
 {
 
-Report::Report(const jass_ast_node* node, const std::string& message) : m_node(node), m_message(message)
+/**
+ * \brief Warnings are optional reports which make hints about special program structures to inform the user of something he might want to change.
+ */
+class Warning : public Report
 {
-
-}
-
-std::string Report::output() const
-{
-	return m_message;
-}
+	public:
+		virtual std::string output() const override;
+};
 
 }
 
 }
+
+#endif

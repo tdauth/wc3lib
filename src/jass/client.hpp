@@ -116,7 +116,7 @@ struct jass_grammar : qi::grammar<Iterator, jass_ast(), qi::locals<std::string>,
 	qi::rule<Iterator, jass_loop(), Skipper> loop;
 	qi::rule<Iterator, jass_exitwhen(), Skipper> exitwhen;
 	qi::rule<Iterator, jass_return(), Skipper> return_statement;
-	/* qi::rule<Iterator, jass_debug(), Skipper> debug; */
+	qi::rule<Iterator, jass_debug(), Skipper> debug_statement;
 	
 	//----------------------------------------------------------------------
 	// Expressions

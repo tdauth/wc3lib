@@ -21,65 +21,10 @@
 #ifndef WC3LIB_UTILITIES_HPP
 #define WC3LIB_UTILITIES_HPP
 
-/*
-#include <cmath>
-#include <cstdlib>
-#include <cstdio>
-#include <cstring>
-#include <ctime>
-#include <sstream>
-#include <iostream> // include iostream since cout is often used as utility for general output
-#include <utility>
-#include <memory>
-#include <exception>
-
-// std template library containers
-#include <map>
-#include <list>
-#include <vector>
-#include <set>
-#include <valarray>
-
-#include <boost/algorithm/string.hpp>
-#include <boost/cstdint.hpp>
-#include <boost/cast.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/thread.hpp>
-#include <boost/timer.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
-#include <boost/foreach.hpp>
-#include <boost/scope_exit.hpp>
-#include <boost/interprocess/sync/file_lock.hpp>
-#include <boost/interprocess/sync/sharable_lock.hpp>
-#include <boost/detail/scoped_enum_emulation.hpp>
-#include <boost/weak_ptr.hpp>
-#include <boost/scoped_ptr.hpp>
-#include <boost/scoped_array.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/shared_array.hpp>
-#include <boost/intrusive_ptr.hpp>
-#include <boost/io/ios_state.hpp>
-
-// Boost containers
-#include <boost/bimap.hpp>
-#include <boost/array.hpp>
-#include <boost/variant.hpp>
-#include <boost/unordered_map.hpp>
-#include <boost/unordered_set.hpp>
-#include <boost/multi_index_container.hpp>
-#include <boost/multi_index/sequenced_index.hpp>
-#include <boost/multi_index/ordered_index.hpp>
-#include <boost/multi_index/hashed_index.hpp>
-#include <boost/multi_index/identity.hpp>
-#include <boost/multi_index/member.hpp>
-#include <boost/multi_index/mem_fun.hpp>
-
-// Boost I/O
-#include <boost/iostreams/stream.hpp>
-#include <boost/iostreams/filter/bzip2.hpp>
-#include <boost/iostreams/filter/zlib.hpp>
-*/
+/**
+ * \file
+ * Provides utility functions mostly for stream operations.
+ */
 
 #include <iostream>
 #include <string>
@@ -89,13 +34,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/cstdint.hpp>
-
-/*
-#ifdef UNIX
-#include <unistd.h>
-#include <sched.h>
-#endif
-*/
 
 #include "config.h"
 #include "exception.hpp"

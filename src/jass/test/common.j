@@ -1976,7 +1976,6 @@ native EnableUserUI                 takes boolean b returns nothing
 native SuspendTimeOfDay             takes boolean b returns nothing
 native SetTimeOfDayScale            takes real r returns nothing
 native GetTimeOfDayScale            takes nothing returns real
-/// FIXME Unit portraits won't work anymore if using true for \p flag AND 0.0 for \p fadeDuration.
 native ShowInterface                takes boolean flag, real fadeDuration returns nothing
 native PauseGame                    takes boolean flag returns nothing
 native UnitAddIndicator             takes unit whichUnit, integer red, integer green, integer blue, integer alpha returns nothing

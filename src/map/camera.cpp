@@ -28,6 +28,16 @@ namespace map
 {
 
 Camera::Camera(class Cameras *cameras) : m_cameras(cameras)
+, m_targetX(0.0)
+, m_targetY(0.0)
+, m_zOffset(0.0)
+, m_rotation(0.0)
+, m_angleOfAttack(0.0)
+, m_distance(0.0)
+, m_roll(0.0)
+, m_fieldOfView(0.0)
+, m_farZ(0.0)
+, m_unknown(0.0)
 {
 }
 

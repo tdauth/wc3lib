@@ -1,6 +1,29 @@
 install(DIRECTORY man/man1 DESTINATION share/man)
 install(DIRECTORY man/man5 DESTINATION share/man)
 
+# create man pages with groff binary to test man page formatting
+# PostScript files can be reviewed by any supporting program
+if (DEBUG)
+	find_program(GROFF_BINARY groff)
+
+	if (GROFF_BINARY)
+		add_custom_target(manpages ALL
+			${GROFF_BINARY} -man -Tps ${CMAKE_CURRENT_SOURCE_DIR}/man/man1/jassc.1 > jassc.1.ps
+		COMMAND ${GROFF_BINARY} -man -Tps ${CMAKE_CURRENT_SOURCE_DIR}/man/man1/mpq.1 > mpq.1.ps
+		COMMAND ${GROFF_BINARY} -man -Tps ${CMAKE_CURRENT_SOURCE_DIR}/man/man1/wc3converter.1 > wc3converter.1.ps
+		COMMAND ${GROFF_BINARY} -man -Tps ${CMAKE_CURRENT_SOURCE_DIR}/man/man1/wc3editor.1 > wc3editor.1.ps
+		# man5
+		COMMAND ${GROFF_BINARY} -man -Tps ${CMAKE_CURRENT_SOURCE_DIR}/man/man5/blp.5 > blp.5.ps
+		COMMAND ${GROFF_BINARY} -man -Tps ${CMAKE_CURRENT_SOURCE_DIR}/man/man5/mdl.5 > mdl.5.ps
+		COMMAND ${GROFF_BINARY} -man -Tps ${CMAKE_CURRENT_SOURCE_DIR}/man/man5/mdx.5 > mdx.5.ps
+		COMMAND ${GROFF_BINARY} -man -Tps ${CMAKE_CURRENT_SOURCE_DIR}/man/man5/mpq.5 > mpq.5.ps
+		COMMAND ${GROFF_BINARY} -man -Tps ${CMAKE_CURRENT_SOURCE_DIR}/man/man5/w3g.5 > w3g.5.ps
+		COMMAND ${GROFF_BINARY} -man -Tps ${CMAKE_CURRENT_SOURCE_DIR}/man/man5/w3n.5 > w3n.5.ps
+		COMMAND ${GROFF_BINARY} -man -Tps ${CMAKE_CURRENT_SOURCE_DIR}/man/man5/w3x.5 > w3x.5.ps
+		)
+	endif ()
+endif ()
+
 CMAKE_DEPENDENT_OPTION(DOXYGEN_HTML
 "HTML output for API documentation."
 ON

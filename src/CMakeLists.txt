@@ -22,6 +22,7 @@ set(wc3lib_CORE_SRC
 	exception.cpp
 	format.cpp
 	libraryloader.cpp
+	spirit.cpp
 	utilities.cpp
 	vertex.cpp
 )

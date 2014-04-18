@@ -18,6 +18,39 @@
 using namespace wc3lib;
 using namespace wc3lib::jass;
 
+namespace ascii = boost::spirit::ascii;
+
+typedef std::vector<std::string> Expressions;
+
+template <typename Iterator, typename Skipper >
+struct comments_grammar : qi::grammar<Iterator, Expressions(), qi::locals<std::string>, Skipper>
+{
+	comments_grammar() : comments_grammar<Iterator, Skipper>::base_type(grammar_rule, "comments_grammar") {
+		using ascii::char_;
+		
+		expression %=
+			+(char_ - (qi::eol))
+		;
+		
+		// each valid expression is separated by one eol TODO initial empty lines should be skipped automatically as well!
+		grammar_rule %=
+			*qi::eol
+			>> expression % qi::eol
+		;
+		
+		expression.name("expression");
+		grammar_rule.name("grammar_rule");
+		
+		BOOST_SPIRIT_DEBUG_NODES(
+			(expression)
+			(grammar_rule)
+		);
+	}
+	
+	qi::rule<Iterator, std::string(), Skipper> expression;
+	qi::rule<Iterator, Expressions(), qi::locals<std::string>, Skipper> grammar_rule;
+};
+
 /*
  * This test parses lines and skips all comments starting with //
  * Empty lines with blanks and comments only should be fully skipped and no end of line character should appear for them!
@@ -51,12 +84,12 @@ BOOST_AUTO_TEST_CASE(CommentsTest) {
 		namespace ascii = boost::spirit::ascii;
 		
 		client::comment_skipper<Grammar::PositionIteratorType> skipper;
+		comments_grammar<Grammar::PositionIteratorType, client::comment_skipper<Grammar::PositionIteratorType> > grammar;
 	
 		valid = boost::spirit::qi::phrase_parse(
 			position_begin,
 			position_end,
-			//  | &qi::eoi
-			*qi::eol >> (*(qi::char_ - (qi::eol)) % (qi::eol)), // each valid expression is separated by one eol TODO initial empty lines should be skipped automatically as well!
+			grammar,
 			skipper,
 			result
 			);

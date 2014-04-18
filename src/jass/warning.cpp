@@ -18,7 +18,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "report.hpp"
+#include <boost/format.hpp>
+
+#include "warning.hpp"
+#include "../i18n.hpp"
 
 namespace wc3lib
 {
@@ -26,14 +29,9 @@ namespace wc3lib
 namespace jass
 {
 
-Report::Report(const jass_ast_node* node, const std::string& message) : m_node(node), m_message(message)
+std::string Warning::output() const
 {
-
-}
-
-std::string Report::output() const
-{
-	return m_message;
+	return boost::str(boost::format(_("Warning: %1%")) % Report::output());
 }
 
 }

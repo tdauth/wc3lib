@@ -36,6 +36,7 @@
 * <li>\subpage blpsection </li>
 * <li>\subpage mdlxsection </li>
 * <li>\subpage mapsection </li>
+* <li>\subpage jasssection </li>
 * <li>\subpage editorsection </li>
 * <li>\subpage applicationssection </li>
 * </ul>
@@ -45,25 +46,20 @@
 * \note Check out http://wc3lib.org for further information.
 *
 * \date Version date
-* 2013-09-20
+* 2014-04-18
 * \author Tamino Dauth <tamino@cdauth.eu>
 *
 * \copyright GNU GENERAL PUBLIC LICENSE Version 2 (except external library code)
 *
 * \section intro Introduction
-* wc3lib is a collection of various libraries which allow programmers to use Blizzard's customly developed formats with an abstract C++ interface.
-* All implementations are free and mainly under the GPLv2 license but there's some external code which is mostly under some similar license as well.
+* wc3lib is a collection of several C++ libraries which provide an API to <a href="http://blizzard.com/">Blizzard's</a> file formats of the real time strategy game <a href="blizzard.com/de-de/games/war3/">Warcraft III: Reign of Chaos</a> and its expansion Warcraft III: The Frozen Throne.
+* All implementations are free and mainly under the GPLv2 license although there still is some external code which is under a different license.
 * 
-* As mentioned above the wc3lib is split up into some different modules. Each module consists of a single library which supports one of <a url="http://blizzard.com/">Blizzard's</a> formats (except modules for \ref applicationssection "applications" and \ref editorsection "editor" which are extensions of the default modules).
+* The library is split up into several modules. The core modules consist of a single library which support one of Blizzard's formats.
+* Additional modules provide a view layer and some tools.
+* To use the library simply include headers of the required modules and link your program against the libraries.
 * 
-* To use the whole library simply include file \ref wc3lib.hpp and link your program with all module libraries starting with the prefix "wc3lib".
-* 
-* Besides you could include all header files of your required modules only since each module has one.
-* 
-* Please bear in mind that each module has its own namespace.
-* All namespaces and other declarations of the wc3lib belong to the global namespace \ref wc3lib.
-* 
-* Each module uses a header file called "platform.hpp" for its core type definitions such as integer types with specified size. There's a global \ref platform.hpp file as well which tries to provide all shared basic types.
+* Each module has its own namespace. All namespaces and other declarations of the wc3lib belong to the global namespace \ref wc3lib.
 *
 * \page applicationssection Applications module
 * Since this module only provides some useful applications there is neither any namespace to use nor any header file to include.
@@ -80,10 +76,25 @@
 
 #include "core.hpp"
 
+#ifdef BLP
 #include "blp.hpp"
+#endif
+
+#ifdef JASS
+#include "jass.hpp"
+#endif
+
+#ifdef MAP
 #include "map.hpp"
+#endif
+
+#ifdef MDLX
 #include "mdlx.hpp"
+#endif
+
+#ifdef MPQ
 #include "mpq.hpp"
+#endif
 
 #ifdef EDITOR
 #include "editor.hpp"

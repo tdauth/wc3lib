@@ -26,8 +26,10 @@ if (EDITOR)
 	install(TARGETS wc3trigger DESTINATION bin)
 endif ()
 
-#add_executable(jassc jassc.cpp)
-#target_link_libraries(jassc ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
+if (JASS)
+	add_executable(jassc jassc.cpp)
+	target_link_libraries(jassc ${wc3lib_CORE_LIBRARIES} wc3libjass ${Boost_LIBRARIES})
+endif ()
 
 if (MAP)
 	add_executable(jasstrans jasstrans.cpp)

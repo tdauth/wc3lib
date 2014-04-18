@@ -73,5 +73,5 @@ BOOST_AUTO_TEST_CASE(FunctionsTest) {
 	}
 	
 	BOOST_REQUIRE(valid);
-	BOOST_REQUIRE(result.size() == 3);
+	BOOST_REQUIRE(result.size() == 5);
 }

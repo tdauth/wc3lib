@@ -18,6 +18,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#ifndef WC3LIB_JASS_ERROR_HPP
+#define WC3LIB_JASS_ERROR_HPP
+
 #include "report.hpp"
 
 namespace wc3lib
@@ -26,16 +29,12 @@ namespace wc3lib
 namespace jass
 {
 
-Report::Report(const jass_ast_node* node, const std::string& message) : m_node(node), m_message(message)
+class Error : public Report
 {
-
-}
-
-std::string Report::output() const
-{
-	return m_message;
-}
+};
 
 }
 
 }
+
+#endif

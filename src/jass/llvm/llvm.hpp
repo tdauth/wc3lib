@@ -73,7 +73,7 @@ llvm::Value* args(llvm::IRBuilder<> &builder, jass_function_args &args) {
  */
 struct function_ref_visitor : public boost::static_visitor<llvm::StringRef> {
 	
-	llvm::StringRef operator()(const string functionName) const {
+	llvm::StringRef operator()(const string &functionName) const {
 		return functionName;
 	}
 	
