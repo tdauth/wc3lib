@@ -196,7 +196,8 @@ BOOST_AUTO_TEST_CASE(Literals) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<PositionIteratorType> skipper;
-	client::jass_grammar<PositionIteratorType> grammar(position_begin, ast, current_file);
+	client::jass_grammar<PositionIteratorType> grammar;
+	grammar.prepare(position_begin, ast, current_file);
 	LiteralsGrammar<PositionIteratorType> testGrammar(grammar);
 	
 	try {
@@ -289,7 +290,8 @@ BOOST_AUTO_TEST_CASE(BinaryOperators) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<PositionIteratorType> skipper;
-	client::jass_grammar<PositionIteratorType> grammar(position_begin, ast, current_file);
+	client::jass_grammar<PositionIteratorType> grammar;
+	grammar.prepare(position_begin, ast, current_file);
 	
 	try {
 		valid = boost::spirit::qi::phrase_parse(
@@ -371,7 +373,8 @@ BOOST_AUTO_TEST_CASE(UnaryOperators) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<PositionIteratorType> skipper;
-	client::jass_grammar<PositionIteratorType> grammar(position_begin, ast, current_file);
+	client::jass_grammar<PositionIteratorType> grammar;
+	grammar.prepare(position_begin, ast, current_file);
 	
 	try {
 		valid = boost::spirit::qi::phrase_parse(
@@ -461,7 +464,8 @@ BOOST_AUTO_TEST_CASE(ArrayReferences) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<PositionIteratorType> skipper;
-	client::jass_grammar<PositionIteratorType> grammar(position_begin, ast, current_file);
+	client::jass_grammar<PositionIteratorType> grammar;
+	grammar.prepare(position_begin, ast, current_file);
 	
 	try {
 		valid = boost::spirit::qi::phrase_parse(
@@ -549,7 +553,8 @@ BOOST_AUTO_TEST_CASE(FunctionCalls) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<PositionIteratorType> skipper;
-	client::jass_grammar<PositionIteratorType> grammar(position_begin, ast, current_file);
+	client::jass_grammar<PositionIteratorType> grammar;
+	grammar.prepare(position_begin, ast, current_file);
 	
 	try {
 		valid = boost::spirit::qi::phrase_parse(
@@ -619,7 +624,8 @@ BOOST_AUTO_TEST_CASE(FunctionRefs) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<PositionIteratorType> skipper;
-	client::jass_grammar<PositionIteratorType> grammar(position_begin, ast, current_file);
+	client::jass_grammar<PositionIteratorType> grammar;
+	grammar.prepare(position_begin, ast, current_file);
 	
 	try {
 		valid = boost::spirit::qi::phrase_parse(
@@ -692,7 +698,8 @@ BOOST_AUTO_TEST_CASE(UnaryOperations) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<PositionIteratorType> skipper;
-	client::jass_grammar<PositionIteratorType> grammar(position_begin, ast, current_file);
+	client::jass_grammar<PositionIteratorType> grammar;
+	grammar.prepare(position_begin, ast, current_file);
 	
 	try {
 		valid = boost::spirit::qi::phrase_parse(
@@ -762,7 +769,8 @@ BOOST_AUTO_TEST_CASE(BinaryOperations) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<PositionIteratorType> skipper;
-	client::jass_grammar<PositionIteratorType> grammar(position_begin, ast, current_file);
+	client::jass_grammar<PositionIteratorType> grammar;
+	grammar.prepare(position_begin, ast, current_file);
 	
 	try {
 		valid = boost::spirit::qi::phrase_parse(

@@ -32,6 +32,7 @@
 #include "../platform.hpp"
 #include "../exception.hpp"
 #include "ast.hpp"
+#include "client.hpp"
 
 namespace wc3lib
 {
@@ -70,7 +71,44 @@ class Grammar {
 		 * The created file will be added to the AST.
 		 */
 		bool parse(InputStream &istream, jass_ast &ast, const std::string &fileName = "JASS file");
+		
+		/**
+		 * \defgroup GrammarSymbols Grammar Symbols
+		 *  @{
+		 * 
+		 * Return symbol tables from parsed input.
+		 */
+		const jass_type_declarations& typeSymbols() const;
+		const jass_var_declarations& globalSymbols() const;
+		const jass_function_declarations& functionSymbols() const;
+		/** @} */
+		
+	private:
+		/*
+		 * Internal grammars for JASS grammar and its skipper.
+		 * We do not want to create a new grammar instance each time we parse something.
+		 * Therefore we use these attributes for all parsing operations.
+		 */
+		client::jass_grammar<PositionIteratorType, client::comment_skipper<PositionIteratorType> > grammar;
+		client::comment_skipper<PositionIteratorType> skipper;
 };
+
+inline const jass_type_declarations& Grammar::typeSymbols() const
+{
+	return grammar.type_symbols;
+}
+
+inline const jass_var_declarations& Grammar::globalSymbols() const
+{
+	return grammar.global_symbols;
+}
+
+inline const jass_function_declarations& Grammar::functionSymbols() const
+{
+	return grammar.function_symbols;
+}
+
+
 
 }
 

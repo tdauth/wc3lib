@@ -32,11 +32,11 @@ namespace wc3lib
 namespace jass
 {
 
-Analyzer::Analyzer(const jass_type_declarations& types, const jass_function_declarations& functions) : types(types), functions(functions)
+Analyzer::Analyzer(const jass_type_declarations& types, const jass_var_declarations &globals, const jass_function_declarations& functions) : types(types), globals(globals), functions(functions)
 {
 }
 
-std::vector<const  jass_var_declaration* > Analyzer::leakingDeclarations(const jass_ast& ast, const Destructors &destructors) const
+std::vector<const jass_var_declaration* > Analyzer::leakingDeclarations(const jass_ast& ast, const Destructors &destructors) const
 {
 	typedef std::set<const jass_var_declaration*>  Declarations;
 	Declarations allDeclarations;
@@ -224,10 +224,12 @@ std::string Analyzer::functionName(const jass_function_reference& function) cons
 
 std::string Analyzer::typeName(const jass_type_reference& type) const
 {
-	if (type.type() == typeid(jass_type*)) {
+	if (type.type() == typeid(const jass_type*)) {
+		
 		return boost::get<const jass_type*>(type)->identifier;
 	}
 	else if (type.type() == typeid(std::string)) {
+		
 		return boost::get<std::string>(type);
 	}
 	
@@ -240,7 +242,7 @@ bool Analyzer::typeReferenceIsOfBaseType(const jass_type_reference& type, const 
 	 * If "type" is of type "baseType" OR any of "type's" parent types is of type "baseType" we
 	 * return true since the types are compatible.
 	 */
-	if (type.type() == typeid(jass_type*)) {
+	if (type.type() == typeid(const jass_type*)) {
 		const jass_type *typeRef = boost::get<const jass_type*>(type);
 		
 		if (baseType.type() == typeid(jass_type*)) {
@@ -313,22 +315,235 @@ bool Analyzer::typesAreCompatible(const jass_type_reference& first, const jass_t
 	return false;
 }
 
+void Analyzer::checkTypeCompatiblity(const jass_ast_node &node, const jass_type_reference &first, const jass_type_reference &second, Reports &reports) const {
+	if (!typesAreCompatible(first, second)) {
+		reports.push_back(Report(&node, _("Invalid type.")));
+	}
+}
+
+jass_const Analyzer::evaluateConstantExpression(const jass_expression& expression, bool &isConstant) const
+{
+	isConstant = true; // set to true so that if a value is returned before the end of the function it is always automatically true
+	
+	switch (expression.whichType()) {
+		case jass_expression::Type::Constant: {
+			const jass_const &constant = boost::get<const jass_const&>(expression.variant);
+			
+			return constant;
+		}
+		
+		case jass_expression::Type::Parentheses: {
+			const jass_parentheses &parentheses = boost::get<const jass_parentheses&>(expression.variant);
+			
+			return evaluateConstantExpression(parentheses.expression, isConstant);
+		}
+		
+		case jass_expression::Type::FunctionCall: {
+			const jass_function_call &call = boost::get<const jass_function_call&>(expression.variant);
+			
+			if (call.function.type() == typeid(const jass_function_declaration*)) {
+				const jass_function_declaration &declaration = boost::get<const jass_function_declaration&>(call.function);
+				// TODO get function definition from declaration and get return expression. If return expression is const so return the const expression.
+				
+			}
+		}
+		
+		case jass_expression::Type::UnaryOperation: {
+			const jass_unary_operation &unary_operation = boost::get<const jass_unary_operation&>(expression.variant);
+			
+			const jass_const &constant = evaluateConstantExpression(unary_operation.expression, isConstant);
+			
+			if (isConstant) {
+				switch (unary_operation.op) {
+					case jass_unary_operator::Plus: {
+						switch (constant.whichType()) {
+							case jass_const::Type::Integer:
+							case jass_const::Type::Real: {
+								return constant;
+							}
+						}
+					}
+					
+					case jass_unary_operator::Minus: {
+						switch (constant.whichType()) {
+							case jass_const::Type::Integer: {
+								jass_const result;
+								result.variant = -1 * boost::get<int32>(constant.variant);
+								
+								return result;
+							}
+							
+							case jass_const::Type::Real: {
+								jass_const result;
+								result.variant = -1 * boost::get<float32>(constant.variant);
+								
+								return result;
+							}
+						}
+					}
+					
+					case jass_unary_operator::Not: {
+						switch (constant.whichType()) {
+							case jass_const::Type::Boolean: {
+								jass_const result;
+								result.variant = !boost::get<bool>(constant.variant);
+								
+								return result;
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		case jass_expression::Type::BinaryOperation: {
+			const jass_binary_operation &binary_operation = boost::get<const jass_binary_operation&>(expression.variant);
+			
+			const jass_const &firstConstant = evaluateConstantExpression(binary_operation.first_expression, isConstant);
+			
+			if (isConstant) {
+				const jass_const &secondConstant = evaluateConstantExpression(binary_operation.second_expression, isConstant);
+			
+				if (isConstant) {
+					if (typesAreCompatible(constType(firstConstant), constType(secondConstant))) {
+						switch (binary_operation.op) {
+							case jass_binary_operator::And: {
+								switch (firstConstant.whichType()) {
+									case jass_const::Type::Boolean: {
+										jass_const result;
+										result.variant = (boost::get<bool>(firstConstant.variant) && boost::get<bool>(secondConstant.variant));
+										
+										return result;
+									}
+								}
+							}
+							
+							case jass_binary_operator::Or: {
+								switch (firstConstant.whichType()) {
+									case jass_const::Type::Boolean: {
+										jass_const result;
+										result.variant = (boost::get<bool>(firstConstant.variant) || boost::get<bool>(secondConstant.variant));
+										
+										return result;
+									}
+								}
+							}
+							
+							case jass_binary_operator::Equal: {
+								switch (firstConstant.whichType()) {
+									case jass_const::Type::Boolean: {
+										jass_const result;
+										result.variant = (boost::get<bool>(firstConstant.variant) == boost::get<bool>(secondConstant.variant));
+										
+										return result;
+									}
+								}
+							}
+							
+							case jass_binary_operator::NotEqual: {
+								switch (firstConstant.whichType()) {
+									case jass_const::Type::Boolean: {
+										jass_const result;
+										result.variant = (boost::get<bool>(firstConstant.variant) != boost::get<bool>(secondConstant.variant));
+										
+										return result;
+									}
+								}
+							}
+							
+							case jass_binary_operator::Divide: {
+								switch (firstConstant.whichType()) {
+									case jass_const::Type::Integer: {
+										jass_const result;
+										result.variant = (boost::get<int32>(firstConstant.variant) / boost::get<int32>(secondConstant.variant));
+										
+										return result;
+									}
+								}
+							}
+							
+							case jass_binary_operator::Multiply: {
+								switch (firstConstant.whichType()) {
+									case jass_const::Type::Integer: {
+										jass_const result;
+										result.variant = (boost::get<int32>(firstConstant.variant) * boost::get<int32>(secondConstant.variant));
+										
+										return result;
+									}
+								}
+							}
+							
+							case jass_binary_operator::Minus: {
+								switch (firstConstant.whichType()) {
+									case jass_const::Type::Integer: {
+										jass_const result;
+										result.variant = (boost::get<int32>(firstConstant.variant) - boost::get<int32>(secondConstant.variant));
+										
+										return result;
+									}
+								}
+							}
+							
+							case jass_binary_operator::Plus: {
+								switch (firstConstant.whichType()) {
+									case jass_const::Type::Integer: {
+										jass_const result;
+										result.variant = (boost::get<int32>(firstConstant.variant) + boost::get<int32>(secondConstant.variant));
+										
+										return result;
+									}
+									
+									case jass_const::Type::String: {
+										jass_const result;
+										result.variant = (boost::get<string>(firstConstant.variant) + boost::get<string>(secondConstant.variant));
+										
+										return result;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	// if nothing returned, invalid constant!
+	isConstant = false;
+}
+
 jass_type_reference Analyzer::constType(const jass_const& constant) const
 {
 	const jass_type *result = 0;
 	
-	if (constant.variant.type() == typeid(int32)) {
-		result = types.find("integer");
-	} else if (constant.variant.type() == typeid(float32)) {
-		result = types.find("real");
-	} else if (constant.variant.type() == typeid(fourcc)) {
-		return jass_type_reference("fourcc");
-	} else if (constant.variant.type() == typeid(bool)) {
-		result = types.find("boolean");
-	} else if (constant.variant.type() == typeid(string)) {
-		result = types.find("string");
-	} else if (constant.variant.type() == typeid(jass_null)) {
-		return jass_type_reference("null");
+	switch (constant.whichType()) {
+		case jass_const::Type::Integer: {
+			result = types.find("integer");
+		
+			break;
+		}
+	
+		case jass_const::Type::Real: {
+			result = types.find("real");
+			
+			break;
+		}
+		
+		case jass_const::Type::Fourcc: {
+			return jass_type_reference("fourcc");
+		}
+		
+		case jass_const::Type::Boolean: {
+			result = types.find("boolean");
+		}
+		
+		case jass_const::Type::String: {
+			result = types.find("string");
+		}
+	
+		case jass_const::Type::Null: {
+			return jass_type_reference("null");
+		}
 	}
 	
 	return jass_type_reference(result);
@@ -343,27 +558,87 @@ jass_type_reference Analyzer::functionReferenceType(const jass_function_referenc
 	throw Exception();
 }
 
+jass_type_reference Analyzer::functionRefType(const jass_function_ref& function) const
+{
+	return this->types.find("code");
+}
+
+
 jass_type_reference Analyzer::functionCallType(const jass_function_call& call) const
 {
 	return functionReferenceType(call.function);
 }
 
+jass_type_reference Analyzer::variableReferenceType(const jass_var_reference& var) const
+{
+	switch (var.type() == typeid(const jass_var_declaration*)) {
+		const jass_var_declaration *declaration = boost::get<const jass_var_declaration*>(var);
+		
+		return declaration->type;
+	}
+	
+	return "";
+}
+
+jass_type_reference Analyzer::arrayReferenceType(const jass_array_reference& array) const
+{
+	return variableReferenceType(array.var);
+}
+
 jass_type_reference Analyzer::expressionType(const jass_expression& expression) const
 {
-	if (expression.variant.type() == typeid(jass_const)) {
-		return constType(boost::get<const jass_const>(expression.variant));
-	// always use the first expression for binary operations
-	} else if (expression.variant.type() == typeid(jass_binary_operation)) {
-		return expressionType(boost::get<jass_binary_operation>(expression.variant).first_expression);
-	} else if (expression.variant.type() == typeid(jass_unary_operation)) {
-		return expressionType(boost::get<jass_unary_operation>(expression.variant).expression);
-	} else if (expression.variant.type() == typeid(jass_function_call)) {
-		return functionCallType(boost::get<jass_function_call>(expression.variant));
+	switch (expression.whichType()) {
+		case jass_expression::Type::Constant: {
+			return constType(boost::get<const jass_const&>(expression.variant));
+		}
+	
+		// always use the first expression for binary operations
+		case jass_expression::Type::BinaryOperation: {
+			return expressionType(boost::get<const jass_binary_operation&>(expression.variant).first_expression);
+		}
 		
-		//return expressionType(boost::get<jass_function_call>(expression.variant).function);
+		case jass_expression::Type::UnaryOperation: {
+			return expressionType(boost::get<const jass_unary_operation&>(expression.variant).expression);
+		}
+		
+		case jass_expression::Type::FunctionCall: {
+			return functionCallType(boost::get<const jass_function_call&>(expression.variant));
+		}
+		
+		case jass_expression::Type::ArrayReference: {
+			return arrayReferenceType(boost::get<const jass_array_reference&>(expression.variant));
+		}
+		
+		case jass_expression::Type::VariableReference: {
+			return variableReferenceType(boost::get<const jass_var_reference&>(expression.variant));
+		}
+		
+		case jass_expression::Type::FunctionReference: {
+			return functionRefType(boost::get<const jass_function_ref&>(expression.variant));
+		}
+		
+		case jass_expression::Type::Parentheses: {
+			return expressionType(boost::get<const jass_parentheses&>(expression.variant).expression);
+		}
 	}
 	
 	throw Exception();
+}
+
+void Analyzer::checkTypeReference(const jass_ast_node &node, const jass_type_reference& type, Analyzer::Reports& reports) const
+{
+	if (type.type() == typeid(const jass_type*)) {
+		//globals.find();
+		// TODO compare declaration position with expression position!
+	} else if (type.type() == typeid(std::string)) {
+		const std::string &typeName = boost::get<const std::string&>(type);
+		
+		if (typeName != "nothing") {
+			reports.push_back(Report(&node, _("Undeclared indentifier.")));
+		}
+	} else {
+		throw Exception();
+	}
 }
 
 void Analyzer::checkUnaryOperation(const jass_unary_operation& operation, Analyzer::Reports &reports) const
@@ -457,8 +732,62 @@ void Analyzer::checkBinaryOperation(const jass_binary_operation& operation, Anal
 	const jass_type_reference firstType = expressionType(operation.first_expression);
 	const jass_type_reference secondType = expressionType(operation.second_expression);
 	
-	if (!typesAreCompatible(firstType, secondType)) {
-		reports.push_back(Report(&operation, _("Incompatible operands.")));
+	checkTypeCompatiblity(operation, firstType, secondType, reports);
+	
+	// recursive check
+	checkExpression(operation.first_expression, reports);
+	checkExpression(operation.second_expression, reports);
+}
+
+void Analyzer::checkExpression(const jass_expression& expression, Analyzer::Reports& reports) const
+{
+	switch (expression.whichType()) {
+		case jass_expression::Type::BinaryOperation: {
+			const jass_binary_operation &binaryOperation = boost::get<const jass_binary_operation&>(expression.variant);
+			
+			checkBinaryOperation(binaryOperation, reports);
+			
+			break;
+		}
+		
+		case jass_expression::Type::UnaryOperation: {
+			const jass_unary_operation &unaryOperation = boost::get<const jass_unary_operation&>(expression.variant);
+			
+			checkUnaryOperation(unaryOperation, reports);
+			
+			break;
+		}
+		
+		case jass_expression::Type::FunctionCall: {
+			const jass_function_call &call = boost::get<const jass_function_call&>(expression.variant);
+			
+			checkFunctionCall(call, reports);
+			
+			break;
+		}
+		
+		case jass_expression::Type::Parentheses: {
+			const jass_parentheses &parentheses = boost::get<const jass_parentheses&>(expression.variant);
+			
+			checkExpression(parentheses.expression, reports);
+			
+			break;
+		}
+		
+		case jass_expression::Type::VariableReference: {
+			const jass_var_reference &var = boost::get<const jass_var_reference&>(expression.variant);
+			
+			if (var.type() == typeid(const jass_var_declaration*)) {
+				//globals.find();
+				// TODO compare declaration position with expression position!
+			} else if (var.type() == typeid(std::string)) {
+				reports.push_back(Report(&expression, _("Undeclared indentifier.")));
+			} else {
+				throw Exception();
+			}
+			
+			break;
+		}
 	}
 }
 
@@ -478,10 +807,104 @@ void Analyzer::checkFunctionCall(const jass_function_call& call, Analyzer::Repor
 			
 			const jass_type_reference &parameterType = declaration->parameters[i].type;
 			
-			
+			checkTypeCompatiblity(call.arguments[i].get(), argType, parameterType, reports);
 		}
 	} else {
 		reports.push_back(Report(&call, _("Missing function declaration.")));
+	}
+}
+
+void Analyzer::checkArrayReference(const jass_array_reference& array, Analyzer::Reports& reports) const
+{
+	checkExpression(array.index, reports);
+	
+	if (typeName(expressionType(array.index)) != "integer") {
+		reports.push_back(Report(&(array.index), _("Expected integer expression.")));
+	} else {
+		bool isConstant = false;
+		const jass_const indexConst = evaluateConstantExpression(array.index, isConstant);
+		
+		// we can only check bounds for constant indices
+		if (isConstant) {
+			if (indexConst.whichType() == jass_const::Type::Integer) {
+				const int32 value = boost::get<int32>(indexConst.variant);
+				
+				if (value < 0 || value >= 8192) {
+					reports.push_back(Report(&(array.index), _("Array index must be between 0 and 8192.")));
+				}
+			// TODO should never happen!
+			} else {
+				reports.push_back(Report(&(array.index), _("Expected integer expression (error appeared in constant expression evaluation).")));
+			}
+		}
+	}
+}
+
+void Analyzer::checkVarDeclaration(const jass_var_declaration& var, Analyzer::Reports& reports) const
+{
+	if (var.assignment.is_initialized()) {
+		checkExpression(var.assignment.get(), reports);
+		
+		if (var.is_array) {
+			reports.push_back(Report(&var, _("Arrays can not be initialized.")));
+		} else {
+			checkTypeCompatiblity(var.assignment.get(), var.type, expressionType(var.assignment.get()), reports);
+		}
+	} else {
+		// TODO check for initialization somewhere and generate warning
+	}
+}
+
+void Analyzer::checkGlobal(const jass_global& global, Analyzer::Reports& reports) const
+{
+	checkVarDeclaration(global.declaration, reports);
+	
+	if (global.is_constant && !global.declaration.assignment.is_initialized()) {
+		reports.push_back(Report(&global, _("Constants must be initialized.")));
+	}
+}
+
+void Analyzer::checkFunction(const jass_function& function, Analyzer::Reports& reports) const
+{
+	BOOST_FOREACH(jass_function_parameters::const_reference parameter, function.declaration.parameters) {
+		checkTypeReference(parameter, parameter.type, reports);
+	}
+	
+	checkTypeReference(function.declaration, function.declaration.return_type, reports);
+	
+	BOOST_FOREACH(jass_locals::const_reference local, function.locals) {
+		checkVarDeclaration(local, reports);
+	}
+	
+	BOOST_FOREACH(jass_statements::const_reference statement, function.statements) {
+		switch (statement.whichType()) {
+			case jass_statement::Type::Return: {
+				const jass_return &returnStatement = boost::get<const jass_return&>(statement.variant);
+				
+				if (returnStatement.expression.is_initialized()) {
+					const jass_expression &expression = returnStatement.expression.get().get();
+					
+					if (typeName(function.declaration.return_type) == "nothing") {
+						reports.push_back(Report(&expression, _("Return expression for function without return type.")));
+					} else {
+						checkTypeCompatiblity(expression, expressionType(expression), function.declaration.return_type, reports);
+					}
+				}
+			}
+		}
+	}
+}
+
+void Analyzer::checkAst(const jass_ast& ast, Analyzer::Reports& reports) const
+{
+	BOOST_FOREACH(jass_files::const_reference file, ast.files) {
+		BOOST_FOREACH(jass_globals::const_reference global, file.declarations.globals) {
+			checkGlobal(global, reports);
+		}
+		
+		BOOST_FOREACH(jass_functions::const_reference function, file.functions) {
+			checkFunction(function, reports);
+		}
 	}
 }
 

@@ -73,3 +73,6 @@ configure_file(statements_ifthenelse.j statements_ifthenelse.j COPYONLY)
 configure_file(statements_loop.j statements_loop.j COPYONLY)
 configure_file(statements_exitwhen.j statements_exitwhen.j COPYONLY)
 configure_file(statements_return.j statements_return.j COPYONLY)
+
+add_subdirectory(ast)
+add_subdirectory(semantic)

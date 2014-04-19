@@ -1,8 +1,6 @@
 #ifndef WC3LIB_JASS_CLIENT_HPP
 #define WC3LIB_JASS_CLIENT_HPP
 
-#include "grammar.hpp"
-
 #include "../qi.hpp"
 #include <boost/spirit/include/support_line_pos_iterator.hpp>
 
@@ -84,17 +82,19 @@ struct comment_skipper : public qi::grammar<Iterator> {
 template <typename Iterator, typename Skipper = comment_skipper<Iterator> >
 struct jass_grammar : qi::grammar<Iterator, jass_ast(), qi::locals<std::string>, Skipper>
 {
+	jass_grammar();
+	
 	/**
 	 * \param first The starting iterator used for location information storage. Each AST node has stored its location.
 	 * \param ast An AST must be passed which is filled by the input. It can already contain nodes which might be useful for debugging.
 	 */
-	jass_grammar(Iterator first, jass_ast &ast, jass_file &current_file);
+	void prepare(Iterator first, jass_ast &ast, jass_file &current_file);
 	
 	
 	/**
 	 * Handler function to store location of AST entry.
 	 */
-	boost::phoenix::function<annotation_f<Iterator> > annotate;
+	//boost::phoenix::function<annotation_f<Iterator> > annotate;
 	
 	// symbols
 	qi::rule<Iterator, jass_var_reference(), Skipper> var_reference;

@@ -37,6 +37,26 @@ function StandardAI takes code heroes, code peons, code attacks returns nothing
     call StartThread(peons)
     call StartThread(attacks)
 endfunction
+
+//============================================================================
+function SleepInCombat takes nothing returns nothing
+    local integer count = 0
+    debug call Trace("SleepInCombat\n")
+    loop
+        loop
+            exitwhen not CaptainInCombat(true)  // goal is cleared
+            exitwhen CaptainIsEmpty()           // duh
+            call SuicideSleep(1)
+        endloop
+
+        set count = count + 1
+        exitwhen count >= 8
+
+        //xxx this is what it should have been; do this for next patch?
+        //call SuicideSleep(1)
+    endloop
+    debug call Trace("exit SleepInCombat\n")
+endfunction
 //===========================================================================
 // Calculate the modulus/remainder of (dividend) divided by (divisor).
 // Examples:  18 mod 5 = 3.  15 mod 5 = 0.  -8 mod 5 = 2.

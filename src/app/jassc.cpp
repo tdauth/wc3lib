@@ -66,7 +66,6 @@ int main(int argc, char *argv[])
 	;
 
 	boost::program_options::positional_options_description p;
-	p.add("o", 1); // first input is output path
 	p.add("i", -1);
 
 	boost::program_options::variables_map vm;
@@ -101,7 +100,7 @@ int main(int argc, char *argv[])
 
 	if (vm.count("help"))
 	{
-		std::cout << _("Usage: jassc [options] [output file/directory] [input files]") << std::endl << std::endl;
+		std::cout << _("Usage: jassc [options] [input files]") << std::endl << std::endl;
 		std::cout << desc << std::endl;
 		std::cout << _("\nReport bugs to tamino@cdauth.eu or on https://wc3lib.org") << std::endl;
 
@@ -140,9 +139,8 @@ int main(int argc, char *argv[])
 	 * So do only check the AST for types etc. if it had been parsed properly.
 	 */
 	if (!error) {
-		/*
-		 * TODO pass all types and declarations!
-		wc3lib::jass::Analyzer analyzer(ast.files.;
+		
+		wc3lib::jass::Analyzer analyzer(grammar.typeSymbols(), grammar.globalSymbols(), grammar.functionSymbols());
 		wc3lib::jass::Analyzer::Reports reports;
 		
 		analyzer.checkAst(ast, reports);
@@ -151,10 +149,17 @@ int main(int argc, char *argv[])
 			BOOST_FOREACH(wc3lib::jass::Analyzer::Reports::const_reference ref, reports) {
 				std::cerr << ref.output() << std::endl;
 			}
+			
+			if (vm.count("fsyntax-only")) {
+				return EXIT_FAILURE;
+			}
 		} else {
 			std::cout << _("No errors occured.") << std::endl;
+			
+			if (vm.count("fsyntax-only")) {
+				return EXIT_SUCCESS;
+			}
 		}
-		*/
 	}
 	
 	return EXIT_SUCCESS;

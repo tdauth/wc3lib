@@ -21,6 +21,14 @@
 #ifndef WC3LIB_JASS_AST_HPP
 #define WC3LIB_JASS_AST_HPP
 
+/**
+ * \file
+ * Defines structures for a basic JASS abstract syntax tree.
+ * All nodes represent declarations, expressions or statements of JASS code.
+ * 
+ * \ref jass_ast provides access to one single AST.
+ */
+
 #include <vector>
 #include <string>
 #include <ostream>
@@ -33,6 +41,7 @@
 #include <boost/array.hpp>
 
 #include "../platform.hpp"
+#include "../exception.hpp"
 
 namespace wc3lib
 {
@@ -55,7 +64,7 @@ struct jass_ast_location {
 struct jass_ast_node {
 	jass_ast_location location;
 	
-	virtual std::string type_name() const { return "bla"; }
+	virtual std::string type_name() const { return typeid(*this).name(); }
 };
 
 /**
@@ -97,6 +106,43 @@ typedef boost::variant<
 
 struct jass_statement : public jass_statement_node {
     jass_statement_variant variant;
+
+	/**
+	 * Enumeration for type information of the variant.
+	 * Instead of using \ref which() you could use \ref whichType() which returns
+	 * a precise enumeration value.
+	 */
+	BOOST_SCOPED_ENUM_START(Type) {
+		Set,
+		Call,
+		IfThenElse,
+		Loop,
+		Exitwhen,
+		Return,
+		Debug
+	};
+	BOOST_SCOPED_ENUM_END
+	
+	BOOST_SCOPED_ENUM(Type) whichType() const {
+		switch (this->variant.which()) {
+			case 0:
+				return Type::Set;
+			case 1:
+				return Type::Call;
+			case 2:
+				return Type::IfThenElse;
+			case 3:
+				return Type::Loop;
+			case 4:
+				return Type::Exitwhen;
+			case 5:
+				return Type::Return;
+			case 6:
+				return Type::Debug;
+		}
+		
+		throw Exception();
+	}
 };
 
 struct jass_statements : public jass_statement_node, public std::vector<jass_statement> {
@@ -147,8 +193,10 @@ struct jass_exitwhen : public jass_statement_node {
 	boost::recursive_wrapper<jass_expression> expression; // condition must be true so exitwhen will break the loop, expects boolean expression
 };
 
+typedef boost::optional<boost::recursive_wrapper<jass_expression> > jass_return_expression;
+
 struct jass_return : public jass_statement_node {
-	boost::recursive_wrapper<jass_expression> expression;
+	jass_return_expression expression;
 };
 
 typedef boost::variant<
@@ -190,6 +238,46 @@ typedef boost::variant<
 
 struct jass_expression : public jass_expression_node {
 	jass_expression_variant variant;
+	
+	/**
+	 * Enumeration for type information of the variant.
+	 * Instead of using \ref which() you could use \ref whichType() which returns
+	 * a precise enumeration value.
+	 */
+	BOOST_SCOPED_ENUM_START(Type) {
+		Constant,
+		BinaryOperation,
+		UnaryOperation,
+		FunctionCall,
+		ArrayReference,
+		FunctionReference,
+		VariableReference,
+		Parentheses
+	};
+	BOOST_SCOPED_ENUM_END
+	
+	BOOST_SCOPED_ENUM(Type) whichType() const {
+		switch (this->variant.which()) {
+			case 0:
+				return Type::Constant;
+			case 1:
+				return Type::BinaryOperation;
+			case 2:
+				return Type::UnaryOperation;
+			case 3:
+				return Type::FunctionCall;
+			case 4:
+				return Type::ArrayReference;
+			case 5:
+				return Type::FunctionReference;
+			case 6:
+				return Type::VariableReference;
+			case 7:
+				return Type::Parentheses;
+		}
+		
+		throw Exception();
+	}
 };
 
 BOOST_SCOPED_ENUM_START(jass_binary_operator) {
@@ -306,13 +394,35 @@ struct jass_null : public jass_expression_node {
 typedef std::vector<char> fourcc;
 typedef boost::array<char, 4> fourcc_array;
 
+inline fourcc from_array(const fourcc_array &value) {
+	assert(value.size() == 4);
+	fourcc result(4);
+	
+	for (std::size_t i = 0; i < 4; ++i) {
+		result[i] = value[i];
+	}
+	
+	return result;
+}
+
+inline fourcc from_string(const string &value) {
+	assert(value.size() == 4);
+	fourcc result(4);
+	
+	for (std::size_t i = 0; i < 4; ++i) {
+		result[i] = value[i];
+	}
+	
+	return result;
+}
+
 inline fourcc_array to_array(const fourcc &value) {
 	assert(value.size() == 4);
 	fourcc_array result;
-	result[0] = value[0];
-	result[1] = value[1];
-	result[2] = value[2];
-	result[3] = value[3];
+	
+	for (std::size_t i = 0; i < 4; ++i) {
+		result[i] = value[i];
+	}
 	
 	return result;
 }
@@ -320,10 +430,10 @@ inline fourcc_array to_array(const fourcc &value) {
 inline string to_string(const fourcc &value) {
 	assert(value.size() == 4);
 	string result;
-	result += value[0];
-	result += value[1];
-	result += value[2];
-	result += value[3];
+	
+	for (std::size_t i = 0; i < 4; ++i) {
+		result += value[i];
+	}
 	
 	return result;
 }
@@ -339,6 +449,40 @@ typedef boost::variant<
 
 struct jass_const : public jass_expression_node {
 	jass_const_variant variant;
+	
+	/**
+	 * Enumeration for type information of the variant.
+	 * Instead of using \ref which() you could use \ref whichType() which returns
+	 * a precise enumeration value.
+	 */
+	BOOST_SCOPED_ENUM_START(Type) {
+		Integer,
+		Fourcc,
+		Real,
+		Boolean,
+		String,
+		Null
+	};
+	BOOST_SCOPED_ENUM_END
+	
+	BOOST_SCOPED_ENUM(Type) whichType() const {
+		switch (this->variant.which()) {
+			case 0:
+				return Type::Integer;
+			case 1:
+				return Type::Fourcc;
+			case 2:
+				return Type::Real;
+			case 3:
+				return Type::Boolean;
+			case 4:
+				return Type::String;
+			case 5:
+				return Type::Null;
+		}
+		
+		throw Exception();
+	}
 	
 	/**
 	 * Uses the default value 0 -> integer constant.

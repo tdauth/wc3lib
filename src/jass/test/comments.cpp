@@ -10,6 +10,7 @@
 
 #include "../../platform.hpp"
 #include "../client.hpp"
+#include "../grammar.hpp"
 
 #ifndef BOOST_TEST_DYN_LINK
 #error Define BOOST_TEST_DYN_LINK for proper definition of main function.

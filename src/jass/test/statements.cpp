@@ -7,6 +7,7 @@
 //#include <boost/foreach.hpp>
 
 #include "../client.hpp"
+#include "../grammar.hpp"
 
 #ifndef BOOST_TEST_DYN_LINK
 #error Define BOOST_TEST_DYN_LINK for proper definition of main function.
@@ -49,7 +50,8 @@ BOOST_AUTO_TEST_CASE(Set) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<Grammar::PositionIteratorType> skipper;
-	client::jass_grammar<Grammar::PositionIteratorType> grammar(position_begin, ast, current_file);
+	client::jass_grammar<Grammar::PositionIteratorType> grammar;
+	grammar.prepare(position_begin, ast, current_file);
 	
 	try {
 		using boost::spirit::qi::eol;
@@ -111,7 +113,9 @@ BOOST_AUTO_TEST_CASE(Call) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<Grammar::PositionIteratorType> skipper;
-	client::jass_grammar<Grammar::PositionIteratorType> grammar(position_begin, ast, current_file);
+	client::jass_grammar<Grammar::PositionIteratorType> grammar;
+	grammar.prepare(position_begin, ast, current_file);
+	
 	
 	try {
 		using boost::spirit::qi::eol;
@@ -173,7 +177,8 @@ BOOST_AUTO_TEST_CASE(IfThenElse) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<Grammar::PositionIteratorType> skipper;
-	client::jass_grammar<Grammar::PositionIteratorType> grammar(position_begin, ast, current_file);
+	client::jass_grammar<Grammar::PositionIteratorType> grammar;
+	grammar.prepare(position_begin, ast, current_file);
 	
 	try {
 		using boost::spirit::qi::eol;
@@ -235,7 +240,8 @@ BOOST_AUTO_TEST_CASE(Loop) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<Grammar::PositionIteratorType> skipper;
-	client::jass_grammar<Grammar::PositionIteratorType> grammar(position_begin, ast, current_file);
+	client::jass_grammar<Grammar::PositionIteratorType> grammar;
+	grammar.prepare(position_begin, ast, current_file);
 	
 	try {
 		using boost::spirit::qi::eol;
@@ -297,7 +303,8 @@ BOOST_AUTO_TEST_CASE(Exitwhen) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<Grammar::PositionIteratorType> skipper;
-	client::jass_grammar<Grammar::PositionIteratorType> grammar(position_begin, ast, current_file);
+	client::jass_grammar<Grammar::PositionIteratorType> grammar;
+	grammar.prepare(position_begin, ast, current_file);
 	
 	try {
 		using boost::spirit::qi::eol;
@@ -359,7 +366,8 @@ BOOST_AUTO_TEST_CASE(Return) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<Grammar::PositionIteratorType> skipper;
-	client::jass_grammar<Grammar::PositionIteratorType> grammar(position_begin, ast, current_file);
+	client::jass_grammar<Grammar::PositionIteratorType> grammar;
+	grammar.prepare(position_begin, ast, current_file);
 	
 	try {
 		using boost::spirit::qi::eol;
@@ -421,7 +429,8 @@ BOOST_AUTO_TEST_CASE(Debug) {
 	
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<Grammar::PositionIteratorType> skipper;
-	client::jass_grammar<Grammar::PositionIteratorType> grammar(position_begin, ast, current_file);
+	client::jass_grammar<Grammar::PositionIteratorType> grammar;
+	grammar.prepare(position_begin, ast, current_file);
 	
 	try {
 		using boost::spirit::qi::eol;
@@ -447,4 +456,5 @@ BOOST_AUTO_TEST_CASE(Debug) {
 	
 	BOOST_REQUIRE(valid);
 	BOOST_REQUIRE(result.size() == 4);
+	// TODO check different types
 }

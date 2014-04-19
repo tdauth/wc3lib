@@ -198,11 +198,14 @@ comment_skipper<Iterator>::comment_skipper() : comment_skipper<Iterator>::base_t
 }
 
 template <typename Iterator, typename Skipper >
-jass_grammar<Iterator, Skipper>::jass_grammar(Iterator first, jass_ast &ast, jass_file &current_file)
-: jass_grammar<Iterator, Skipper>::base_type(jass, "jass")
-	, ast(ast)
-	, current_file(&current_file)
-	, annotate(first)
+void jass_grammar<Iterator, Skipper>::prepare(Iterator first, jass_ast &ast, jass_file &current_file) {
+	this->ast = ast;
+	this->current_file = &current_file;
+	//annotate(first);
+}
+
+template <typename Iterator, typename Skipper >
+jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper>::base_type(jass, "jass")
 {
 	using qi::eps;
 	using qi::int_parser;
@@ -269,7 +272,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar(Iterator first, jass_ast &ast, jas
 		| loop
 		| exitwhen
 		| return_statement
-		//| debug
+		| debug_statement
 	;
 	
 	statements %=
@@ -688,7 +691,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar(Iterator first, jass_ast &ast, jas
 	 * Store location info on success.
 	 * https://stackoverflow.com/questions/19612657/boostspirit-access-position-iterator-from-semantic-actions
 	 */
-	auto set_location_info = annotate(_val, current_file, _1, _3);
+	//auto set_location_info = annotate(_val, current_file, _1, _3);
 	//qi::on_success(identifier, set_location_info);
 	//qi::on_success(string_literal, set_location_info);
 	//qi::on_success(integer_literal, set_location_info);
@@ -766,7 +769,8 @@ jass_grammar<Iterator, Skipper>::jass_grammar(Iterator first, jass_ast &ast, jas
 template <typename Iterator>
 bool parse(Iterator first, Iterator last, jass_ast &ast, jass_file &current_file)
 {
-	jass_grammar<Iterator> grammar(first, ast, current_file);
+	jass_grammar<Iterator> grammar;
+	grammar.prepare(first, ast, current_file);
 	comment_skipper<Iterator> commentSkipper;
 	bool r = false;
 	
@@ -823,8 +827,27 @@ bool Grammar::parse(IteratorType first, IteratorType last, jass_ast& ast, jass_f
 	// used for backtracking and more detailed error output
 	PositionIteratorType position_begin(forwardFirst);
 	PositionIteratorType position_end;
-	bool result = client::parse(position_begin, position_end, ast, file);
+	bool result = false;
 	
+	try {
+		result = boost::spirit::qi::phrase_parse(
+			position_begin,
+			position_end,
+			this->grammar,
+			this->skipper,
+			ast // store result into the passed ast
+		);
+	} 
+	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> &e) {
+		throw Exception(
+				client::expectationFailure(grammar.current_file, e)
+			);
+	}
+
+	if (position_begin != position_end) // fail if we did not get a full match
+	{
+		return false;
+	}
 	
 	return result;
 }
@@ -892,7 +915,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
 	wc3lib::jass::jass_return,
-	(boost::recursive_wrapper<wc3lib::jass::jass_expression>, expression)
+	(wc3lib::jass::jass_return_expression, expression)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
