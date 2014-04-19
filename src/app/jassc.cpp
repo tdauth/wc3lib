@@ -124,8 +124,17 @@ int main(int argc, char *argv[])
 			wc3lib::ifstream ifstream(file);
 			
 			if (ifstream) {
-				if (!grammar.parse(ifstream, ast, ref)) {
+				
+				try {
+					if (!grammar.parse(ifstream, ast, ref)) {
+						error = true;
+						
+						std::cerr << boost::format(_("Error while parsing file \"%1%\".")) % ref << std::endl;
+					}
+				} catch (wc3lib::Exception &e) {
 					error = true;
+					
+					std::cerr << boost::format(_("Error while parsing file \"%1%\": %2%")) % ref % e.what() << std::endl;
 				}
 			}
 		} else {
