@@ -201,11 +201,12 @@ template <typename Iterator, typename Skipper >
 void jass_grammar<Iterator, Skipper>::prepare(Iterator first, jass_ast &ast, jass_file &current_file) {
 	this->ast = ast;
 	this->current_file = &current_file;
-	//annotate(first);
+	this->annotate = annotation_f<Iterator>(first);
 }
 
 template <typename Iterator, typename Skipper >
 jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper>::base_type(jass, "jass")
+, annotate(Iterator())
 {
 	using qi::eps;
 	using qi::int_parser;
@@ -225,6 +226,8 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 	using qi::as;
 	using qi::repeat;
 	using qi::on_error;
+	using qi::on_success;
+	using qi::retry;
 	using qi::fail;
 	using ascii::char_;
 	using ascii::string;
@@ -673,6 +676,20 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 	
 	file.name("file");
 	jass.name("jass");
+	
+	/*
+	 * JASS error recovery.
+	 * Whenever an invalid line is parsed just print the error and continue with the next line.
+	 * 
+	 * _1 refers to the current iterator position 
+	 * _2 refers to the end of input 
+	 * _3 refers to the position of the error 
+	 * _4 refers to the info instance returned by what() called on the failing 
+	 */
+	on_error<retry> // note: retry 
+	(
+		statement, qi::_1 = qi::_3
+	); 
 
 	on_error<fail>
 	(
@@ -691,7 +708,8 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 	 * Store location info on success.
 	 * https://stackoverflow.com/questions/19612657/boostspirit-access-position-iterator-from-semantic-actions
 	 */
-	//auto set_location_info = annotate(_val, current_file, _1, _3);
+	// TODO bind parameter current_file
+	auto set_location_info = annotate(_val, _1, _3);
 	//qi::on_success(identifier, set_location_info);
 	//qi::on_success(string_literal, set_location_info);
 	//qi::on_success(integer_literal, set_location_info);

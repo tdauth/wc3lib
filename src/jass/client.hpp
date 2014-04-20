@@ -5,6 +5,7 @@
 #include <boost/spirit/include/support_line_pos_iterator.hpp>
 
 #include "ast.hpp"
+#include "report.hpp"
 
 namespace wc3lib
 {
@@ -26,21 +27,34 @@ namespace client
 template<typename Iterator>
 std::string expectationFailure(const boost::spirit::qi::expectation_failure<Iterator> &e);
 
+/**
+ * This annotation function template can be used as handler for on_success for each
+ * parsed node to store its current location in the file.
+ */
 template<typename It>
 struct annotation_f {
 	typedef void result_type;
 
 	annotation_f(It first) : first(first) {}
+	annotation_f(const annotation_f<It> &other) : first(other.first) {}
+	annotation_f<It>& operator=(const annotation_f<It> &other) {
+		this->first = other.first;
+		
+		return *this;
+	}
 	
-	It const first;
+	It first;
 
-	template<typename Val, typename File, typename First, typename Last>
-	void operator()(Val& v, File *file,  First f, Last l) const {
-		do_annotate(v, file, f, l, first);
+	// typename File,
+	// File *file,  
+	template<typename Val, typename First, typename Last>
+	void operator()(Val& v, First f, Last l) const {
+		do_annotate(v.location, f, l, first);
 	}
 
 	private:
-		static void do_annotate(jass_ast_location &li, jass_file *file, It f, It l, It first) {
+		// jass_file *file,
+		static void do_annotate(jass_ast_location &li, It f, It l, It first) {
 			//namespace classic = boost::spirit::classic;
 			//using std::distance;
 			
@@ -56,11 +70,12 @@ struct annotation_f {
 			 * use this for 
 			 * http://www.boost.org/doc/libs/1_47_0/boost/spirit/home/support/iterators/line_pos_iterator.hpp
 			 */
-			li.file = file;
+			//li.file = file;
 			li.line   = boost::spirit::get_line(f);
 			li.column = boost::spirit::get_column(first, f);
 			li.length = std::distance(f, l);
 		}
+		
 		static void do_annotate(...) { }
 };
 
@@ -94,7 +109,7 @@ struct jass_grammar : qi::grammar<Iterator, jass_ast(), qi::locals<std::string>,
 	/**
 	 * Handler function to store location of AST entry.
 	 */
-	//boost::phoenix::function<annotation_f<Iterator> > annotate;
+	boost::phoenix::function<annotation_f<Iterator> > annotate;
 	
 	// symbols
 	qi::rule<Iterator, jass_var_reference(), Skipper> var_reference;
@@ -182,6 +197,12 @@ struct jass_grammar : qi::grammar<Iterator, jass_ast(), qi::locals<std::string>,
 	jass_binary_operators binary_operators;
 	jass_binary_boolean_operators binary_boolean_operators;
 	jass_unary_operators unary_operators;
+	
+	/*
+	 * Error reports.
+	 */
+	typedef std::vector<Report> Reports;
+	Reports reports;
 };
 
 }

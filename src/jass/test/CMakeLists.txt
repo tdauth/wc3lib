@@ -28,6 +28,10 @@ add_executable(functionstest functions.cpp)
 target_link_libraries(functionstest wc3libjass ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
 add_test(NAME FunctionsTest COMMAND functionstest)
 
+add_executable(locationstest locations.cpp)
+target_link_libraries(locationstest wc3libjass ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
+add_test(NAME LocationsTest COMMAND locationstest)
+
 add_executable(stresstest stresstest.cpp)
 target_link_libraries(stresstest wc3libjass ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
 add_test(NAME StressTest COMMAND stresstest)
