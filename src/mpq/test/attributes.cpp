@@ -5,8 +5,6 @@
 
 #include <boost/scoped_ptr.hpp>
 
-//#include <boost/foreach.hpp>
-
 #include "../mpq.hpp"
 #include "../attributes.hpp"
 
@@ -17,12 +15,12 @@
 using namespace wc3lib;
 
 BOOST_AUTO_TEST_CASE(Attributes) {
-	boost::scoped_ptr<mpq::Mpq> archive(new mpq::Mpq());
+	mpq::Mpq archive;
 	bool success = true;
 	
 	try
 	{
-		archive->open("testattributes.mpq");
+		archive.open("testattributes.mpq");
 	}
 	catch (Exception &e)
 	{
@@ -30,12 +28,12 @@ BOOST_AUTO_TEST_CASE(Attributes) {
 	}
 	
 	BOOST_REQUIRE(success);
-	BOOST_REQUIRE(archive->containsListfileFile());
-	BOOST_REQUIRE(archive->containsAttributesFile());
+	BOOST_REQUIRE(archive.containsListfileFile());
+	BOOST_REQUIRE(archive.containsAttributesFile());
 	
 	try
 	{
-		archive->attributesFile()->readData();
+		archive.attributesFile()->readData();
 	}
 	catch (Exception &e)
 	{
@@ -44,13 +42,13 @@ BOOST_AUTO_TEST_CASE(Attributes) {
 	
 	BOOST_REQUIRE(success);
 	
-	mpq::MpqFile *file = archive->findFile("test.txt");
+	mpq::MpqFile *file = archive.findFile("test.txt");
 	
 	BOOST_REQUIRE(file != 0);
 	
 	try
 	{
-		archive->attributesFile()->crc32(file);
+		archive.attributesFile()->crc32(file);
 	}
 	catch (mpq::Attributes::Exception &e)
 	{
@@ -61,7 +59,7 @@ BOOST_AUTO_TEST_CASE(Attributes) {
 	
 	try
 	{
-		archive->attributesFile()->fileTime(file);
+		archive.attributesFile()->fileTime(file);
 	}
 	catch (mpq::Attributes::Exception &e)
 	{
@@ -72,7 +70,7 @@ BOOST_AUTO_TEST_CASE(Attributes) {
 	
 	try
 	{
-		archive->attributesFile()->md5(file);
+		archive.attributesFile()->md5(file);
 	}
 	catch (mpq::Attributes::Exception &e)
 	{
@@ -97,12 +95,12 @@ BOOST_AUTO_TEST_CASE(Attributes) {
 	string dataString = data.str();
 	
 	const mpq::MD5 currentMd5 = mpq::Attributes::md5(dataString.c_str(), dataString.size());
-	const mpq::MD5 storedMd5 = archive->attributesFile()->md5(file);
+	const mpq::MD5 storedMd5 = archive.attributesFile()->md5(file);
 	std::cerr << "Current: " << currentMd5 << " Stored: " << storedMd5 << std::endl;
 	BOOST_REQUIRE(currentMd5 == storedMd5);
 	
 	const mpq::CRC32 currentCrc32 = mpq::Attributes::crc32(dataString.c_str(), dataString.size());
-	const mpq::CRC32 storedCrc32 = archive->attributesFile()->crc32(file);
+	const mpq::CRC32 storedCrc32 = archive.attributesFile()->crc32(file);
 	std::cerr << "Current: " << currentCrc32 << " Stored: " << storedCrc32 << std::endl;
 	BOOST_REQUIRE(currentCrc32 == storedCrc32);
 	

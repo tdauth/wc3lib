@@ -63,16 +63,39 @@ configure_file (
 	"${PROJECT_BINARY_DIR}/src/config.h"
 )
 install(FILES "${PROJECT_BINARY_DIR}/src/config.h" DESTINATION include/wc3lib)
-install(FILES "${PROJECT_BINARY_DIR}/src/config.h" DESTINATION include/wc3lib/app)
-install(FILES "${PROJECT_BINARY_DIR}/src/config.h" DESTINATION include/wc3lib/blp)
-install(FILES "${PROJECT_BINARY_DIR}/src/config.h" DESTINATION include/wc3lib/editor)
-install(FILES "${PROJECT_BINARY_DIR}/src/config.h" DESTINATION include/wc3lib/map)
-install(FILES "${PROJECT_BINARY_DIR}/src/config.h" DESTINATION include/wc3lib/mdlx)
-install(FILES "${PROJECT_BINARY_DIR}/src/config.h" DESTINATION include/wc3lib/mpq)
 
 # add the binary src tree to the search path for include files
 # so that we will find config.h
 include_directories("${PROJECT_BINARY_DIR}/src")
+
+# for proper "config.h" detection we use relative paths of modules as well
+if (BLP)
+	include_directories("${PROJECT_BINARY_DIR}/src/blp")
+endif ()
+
+if (MAP)
+	include_directories("${PROJECT_BINARY_DIR}/src/map")
+endif ()
+
+if (MPQ)
+	include_directories("${PROJECT_BINARY_DIR}/src/mpq")
+endif ()
+
+if (MDLX)
+	include_directories("${PROJECT_BINARY_DIR}/src/mdlx")
+endif ()
+
+if (JASS)
+	include_directories("${PROJECT_BINARY_DIR}/src/jass")
+endif ()
+
+if (W3G)
+	include_directories("${PROJECT_BINARY_DIR}/src/w3g")
+endif ()
+
+if (EDITOR)
+	include_directories("${PROJECT_BINARY_DIR}/src/editor")
+endif ()
 
 # Used for compiler flags like -Wall
 # TODO CMAKE_CXX_FLAGS is not changed in cache!

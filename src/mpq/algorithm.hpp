@@ -26,7 +26,7 @@
 #include <boost/iostreams/filter/zlib.hpp>
 
 /**
- * \file algorithm.hpp
+ * \file
  * Includes all possible compression algorithm used in MPQ archives.
  */
 

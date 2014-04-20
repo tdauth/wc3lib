@@ -54,46 +54,26 @@ namespace mpq
 
 /**
  * \brief This class allows users to read, write and modify MPQ archives. MPQ (Mo'PaQ, short for Mike O'Brien Pack) is an archiving file format used in several of Blizzard Entertainment's games.
- * Here's a simple example how to use this class:
- * \code
- * #include <wc3lib/mpq.hpp>
- * #include <boost/scoped_ptr.hpp>
  *
- * using namespace wc3lib::mpq;
- *
- * int main()
- * {
- * 	boost::scoped_ptr<Mpq> mpq(new Mpq());
- *
- * 	// Using exception handling to catch errors.
- * 	try
- * 	{
- * 		mpq->open("war3x.mpq"); // Opens an existing MPQ archive.
- * 	}
- * 	catch (Exception &exception)
- * 	{
- * 		std::cerr << "Unable to open archive: " << exception << std::endl;
- *
- * 		return EXIT_FAILURE;
- * 	}
- *
- *
- * 	const class MpqFile *mpqFile = mpq->findFile("UI/MiscData.txt"); // Default parameters search for files with neutral locale and default platform.
- *
- * 	if (mpqFile == 0)
- * 		return EXIT_FAILURE;
- *
- * 	std::cout << "MiscData.txt:\n" << mpqFile << std::endl; // Operator overloading allows you to get an MPQ file's content via << operator.
- * 	mpq->close(); // This function will be called automatically when variable mpq is being deleted.
- *
- *  	return EXIT_SUCCESS;
- * }
- * \endcode
- * There are three further classes which are related to this one and can be used by the user.
- * In fact, mostly user does only need to know \ref MpqFile which allows him constant access
- * to files contained by the MPQ archive.
+ * Use \ref Mpq::open() or \ref Mpq::create() to open an existing or create a new MPQ archive on the filesystem.
+ * 
+ * For operations on the archive there is several functions with different variations:
+ * 
  * Use \ref Mpq::addFile to add a new file which will return 0 (if an error occurs) or the new MpqFile
  * instance which refers to the newly created file.
+ * 
+ * Use \ref Mpq::removeFile() to remove a file from archive.
+ * 
+ * Use \ref Mpq::findFile() to find a file in the archive.
+ * 
+ * Special files can be accessed via the following functions:
+ * <ul>
+ * <li> \ref listfileFile() - accesses file "(listfile)" with filepath entries for all contained files </li>
+ * <li> \ref signatureFile() - accesses file "(signature)" with a digital signature of the archive </li>
+ * <li> \ref attributesFile() - accesses file "(attributes)" with extended attributes like timestamps and checksums of contained files </li>
+ * </ul>
+ * 
+ * There are three further classes which are related to this one and can be used by the user.
  * Blocks (\ref Block), hashes (\ref Hash) and files (\ref MpqFile) are stored via smart pointers from Boost C++ Libraries (\ref boost::shared_ptr) for automatic deletion when freeing an MPQ object. Furthermore, they are stored under specific conditions and indices (especially files using Boost Multiindex library).
  */
 class Mpq : public Format, private boost::noncopyable

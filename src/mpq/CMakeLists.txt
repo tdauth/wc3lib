@@ -30,9 +30,7 @@ if (MPQ)
 	endif ()
 	
 	# regex is required for listfile only
-	find_package(Boost 1.46 COMPONENTS system filesystem thread serialization program_options iostreams regex REQUIRED)
-
-	include_directories("${CMAKE_CURRENT_BINARY_DIR}") # for proper "config.h" detection
+	find_package(Boost COMPONENTS system filesystem thread serialization program_options iostreams regex REQUIRED)
 	
 	add_library(wc3libmpq SHARED ${wc3lib_MPQ_SRC})
 	target_link_libraries(wc3libmpq wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${BZIP2_LIBRARIES} ${ZLIB_LIBRARIES} wc3libhuffman wc3libwave wc3libpklib)

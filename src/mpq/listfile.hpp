@@ -56,10 +56,12 @@ class Listfile : public MpqFile
 
 		/**
 		 * Replaces on Unix-based systems / character by \.
+		 * For Windows systems it doesn't do anything.
 		 */
 		static void toListfileEntry(std::string &path);
 		/**
 		 * Replaces on Unix-based system \ character by /.
+		 * For Windows systems it doesn't do anything.
 		 */
 		static void toNativePath(std::string &entry);
 		/**
