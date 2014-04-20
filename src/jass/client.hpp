@@ -48,8 +48,18 @@ struct annotation_f {
 	// typename File,
 	// File *file,  
 	template<typename Val, typename First, typename Last>
-	void operator()(Val& v, First f, Last l) const {
-		do_annotate(v.location, f, l, first);
+	void operator()(Val v, First f, Last l) const {
+		std::cout << "do annotate" << std::endl;
+		//do_annotate(v.location, f, l, first);
+	}
+	
+	void operator()() const {
+		std::cout << "Empty call!" << std::endl;
+	}
+	
+	template<typename Val>
+	void operator()(Val v) const {
+		std::cout << "One parameter!" << std::endl;
 	}
 
 	private:

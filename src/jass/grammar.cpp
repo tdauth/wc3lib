@@ -709,8 +709,9 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 	 * https://stackoverflow.com/questions/19612657/boostspirit-access-position-iterator-from-semantic-actions
 	 */
 	// TODO bind parameter current_file
-	auto set_location_info = annotate(_val, _1, _3);
-	//qi::on_success(identifier, set_location_info);
+	//  annotate(_val, _1, _3)
+	auto set_location_info = annotate();
+	qi::on_success(identifier, set_location_info);
 	//qi::on_success(string_literal, set_location_info);
 	//qi::on_success(integer_literal, set_location_info);
 	
