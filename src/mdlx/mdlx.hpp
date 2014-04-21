@@ -46,7 +46,7 @@ class Mdlx : public MdxBlock
 		Mdlx();
 		virtual ~Mdlx();
 
-		class Version* vers() const;
+		class Version* modelVersion() const;
 		class Model* model() const;
 		class Sequences* sequences() const;
 		class GlobalSequences* globalSequences() const;
@@ -95,7 +95,7 @@ class Mdlx : public MdxBlock
 		class CollisionShapes *m_collisionShapes;
 };
 
-inline class Version* Mdlx::vers() const
+inline class Version* Mdlx::modelVersion() const
 {
 	return this->m_version;
 }

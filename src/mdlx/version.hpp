@@ -40,6 +40,7 @@ class Version : public MdxBlock
 		virtual ~Version();
 
 		class Mdlx* mdlx() const;
+		void setModelVersion(long32 version);
 		long32 modelVersion() const;
 
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
@@ -57,6 +58,11 @@ class Version : public MdxBlock
 inline class Mdlx* Version::mdlx() const
 {
 	return this->m_mdlx;
+}
+
+inline void Version::setModelVersion(long32 version)
+{
+	this->m_version = version;
 }
 
 inline long32 Version::modelVersion() const

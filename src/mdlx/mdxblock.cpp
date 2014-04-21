@@ -88,8 +88,6 @@ std::streamsize MdxBlock::writeMdx(ostream &ostream) const throw (class Exceptio
 std::streamsize MdxBlock::readMdl(istream &istream) throw (class Exception)
 {
 	std::streamsize size = 0;
-	string name;
-	parseMdlNamedBlock(istream, mdlKeyword(), name, size, optional());
 
 	return size;
 }
@@ -105,10 +103,11 @@ bool MdxBlock::moveToMdxIdentifier(istream &istream) const
 
 	while (istream)
 	{
-		istream.read(readBlockName, sizeof(readBlockName));
+		istream.read(readBlockName, MdxBlock::mdxIdentifierSize);
 
-		if (memcmp(readBlockName, mdxIdentifier(), sizeof(mdxIdentifier())) == 0)
+		if (memcmp(readBlockName, mdxIdentifier(), MdxBlock::mdxIdentifierSize) == 0) {
 			return true;
+		}
 	}
 
 	return true;

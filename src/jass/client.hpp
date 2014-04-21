@@ -21,6 +21,8 @@ namespace jass
 namespace client
 {
 
+namespace qi = boost::spirit::qi;
+
 /**
  * Returns the formatted expectation failure of Boost Spirit \p e as human readable string.
  */
