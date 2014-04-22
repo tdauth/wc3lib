@@ -32,82 +32,6 @@ namespace wc3lib
 namespace map
 {
 
-class ValueComparator : public boost::static_visitor<bool>
-{
-	public:
-                template <typename T, typename U>
-                bool operator()(const T&, const U &) const
-                {
-                        return false; // cannot compare different types
-                }
-
-		template <typename T>
-		bool operator()(T operand1, T operand2) const
-		{
-			return operand1 == operand2;
-		}
-
-		bool operator()(const string &operand1, const string &operand2) const
-		{
-			return operand1 == operand2;
-		}
-
-		bool operator()(const List &operand1, const List &operand2) const
-		{
-			if (operand1.size() != operand2.size())
-				return false;
-
-			List::const_iterator it1 = operand1.begin();
-			List::const_iterator it2 = operand2.begin();
-
-			while (it1 != operand1.end() && it2 != operand2.end())
-			{
-				if (*it1 != *it2)
-					return false;
-
-				++it1;
-				++it2;
-			}
-
-			return true;
-		}
-
-};
-
-class ValueLessComparator : public boost::static_visitor<bool>
-{
-	public:
-                template <typename T, typename U>
-                bool operator()( const T &, const U & ) const
-                {
-                        return false; // cannot compare different types
-                }
-
-		template <typename T>
-		bool operator()(T operand1, T operand2) const
-		{
-			return operand1 < operand2;
-		}
-
-		bool operator()(bool operand1, bool operand2) const
-		{
-			if (operand1 != operand2 && !operand1) // false = 0 means smaller than 1
-				return true;
-
-			return false;
-		}
-
-		bool operator()(const string &operand1, const string &operand2) const
-		{
-			return (operand1 < operand2);
-		}
-
-		bool operator()(const List &operand1, const List &operand2) const
-		{
-			return operand1.size() < operand2.size();
-		}
-};
-
 /*
 class ValueReader : public boost::static_visitor<>
 {
@@ -193,6 +117,8 @@ List
  * \sa CustomObjects::Modification
  * \todo type() is already used in class \ref boost::variant.
  * \todo Implement custom type check using stored type for calls of \ref boost::apply_visitor() and \ref boost::get().
+ * 
+ * \ingroup objectdata
  */
 class Value : public ValueBase
 {
@@ -232,135 +158,24 @@ class Value : public ValueBase
 		Value(byte value);
 		Value(List value, BOOST_SCOPED_ENUM(Type) type = Type::StringList);
 
-		BOOST_SCOPED_ENUM(Type) type() const
-		{
-			return m_type;
-		}
-
-		int32& toInteger()
-		{
-			if (type() != Type::Integer)
-				throw boost::bad_get();
-
-			return boost::get<int32>(*this);
-		}
-
-		const int32& toInteger() const
-		{
-			return const_cast<const Value*>(this)->toInteger();
-		}
-
-		bool isReal() const
-		{
-			return (type() == Type::Real || type() == Type::Unreal);
-		}
-
-		float32& toReal()
-		{
-			if (!isReal())
-				throw boost::bad_get();
-
-			return boost::get<float32>(*this);
-		}
-
-		const float32& toReal() const
-		{
-			return const_cast<const Value*>(this)->toReal();
-		}
-
-		bool isString() const
-		{
-			return (type() == Type::String
-		|| type() == Type::AttackBits
-		|| type() == Type::AttackType
-		|| type() == Type::AttributeType
-		|| type() == Type::DefenseType
-		|| type() == Type::MissileArt
-		|| type() == Type::MoveType
-		|| type() == Type::PathingTexture
-		|| type() == Type::RegenerationType
-		|| type() == Type::TargetType
-		|| type() == Type::WeaponType
-			);
-		}
-
-		string& toString()
-		{
-			if (!isString())
-				throw boost::bad_get();
-
-			return boost::get<string>(*this);
-		}
-
-		const string& toString() const
-		{
-			return const_cast<const Value*>(this)->toString();
-		}
-
-		bool& toBoolean()
-		{
-			if (type() != Type::Boolean)
-				throw boost::bad_get();
-
-			return boost::get<bool>(*this);
-		}
-
-		const bool& toBoolean() const
-		{
-			return const_cast<const Value*>(this)->toBoolean();
-		}
-
-		byte& toCharacter()
-		{
-			if (type() != Type::Character)
-				throw boost::bad_get();
-
-			return boost::get<byte>(*this);
-		}
-
-		const byte& toCharacter() const
-		{
-			return const_cast<const Value*>(this)->toCharacter();
-		}
-
-		bool isList() const
-		{
-			return (type() == Type::AbilityList
-		|| type() == Type::HeroAbilityList
-		|| type() == Type::ItemList
-		|| type() == Type::StringList
-		|| type() == Type::UnitList
-		|| type() == Type::UpgradeList);
-		}
-
-		List& toList()
-		{
-			if (!isList())
-				throw boost::bad_get();
-
-			return boost::get<List>(*this);
-		}
-
-		const List& toList() const
-		{
-			return const_cast<const Value*>(this)->toList();
-		}
-
-		bool operator<(const Value &value) const
-		{
-			if (type() == value.type())
-				return boost::apply_visitor(ValueLessComparator(), *this, value);
-
-			return false;
-		}
-
-		bool operator==(const Value &value) const
-		{
-			if (type() == value.type())
-				return boost::apply_visitor(ValueComparator(), *this, value);
-
-			return false;
-		}
+		BOOST_SCOPED_ENUM(Type) type() const;
+		int32& toInteger();
+		const int32& toInteger() const;
+		bool isReal() const;
+		float32& toReal();
+		const float32& toReal() const;
+		bool isString() const;
+		string& toString();
+		const string& toString() const;
+		bool& toBoolean();
+		const bool& toBoolean() const;
+		byte& toCharacter();
+		const byte& toCharacter() const;
+		bool isList() const;
+		List& toList();
+		const List& toList() const;
+		bool operator<(const Value &value) const;
+		bool operator==(const Value &value) const;
 
 	protected:
 		BOOST_SCOPED_ENUM(Type) m_type;

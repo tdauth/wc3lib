@@ -37,19 +37,31 @@ CustomUnits::Modification* CustomObjects::Object::createModification() const
 	return new CustomObjects::Modification(this->type());
 }
 
-CustomObjects::Modification::Modification(BOOST_SCOPED_ENUM(CustomObjects::Type) type) : m_type(type)
+CustomObjects::Modification::Modification(BOOST_SCOPED_ENUM(CustomObjects::Type) type) : m_type(type), m_level(0), m_data(0)
 {
 }
 
 std::streamsize CustomObjects::Modification::read(InputStream &istream) throw (class Exception)
 {
-	std::streamsize size = readData(istream);
+	std::streamsize size = 0;
+	wc3lib::read(istream, this->m_id, size);
+	BOOST_SCOPED_ENUM(Value::Type) type;
+	wc3lib::read<int32>(istream, (int32&)type, size);
 
+	/*
+	 * As the specification states only these three types use optional integer values to specify a level
+	 * and a specific data field for a modification.
+	 * This data is placed before the actual modification data.
+	 * 
+	 *
+	 */
 	if (this->type() == CustomObjects::Type::Doodads || this->type() == CustomObjects::Type::Abilities || this->type() == CustomObjects::Type::Upgrades)
 	{
 		wc3lib::read(istream, this->m_level, size);
 		wc3lib::read(istream, this->m_data, size);
 	}
+	
+	size += readData(istream, type);
 
 	int32 end;
 	wc3lib::read(istream, end, size);
@@ -59,14 +71,18 @@ std::streamsize CustomObjects::Modification::read(InputStream &istream) throw (c
 
 std::streamsize CustomObjects::Modification::write(OutputStream &ostream) const throw (class Exception)
 {
-	std::streamsize size = writeData(ostream);
+	std::streamsize size = 0;
+	wc3lib::write(ostream, this->valueId(), size);
+	wc3lib::write<int32>(ostream, this->value().type(), size);
 
 	if (this->type() == CustomObjects::Type::Doodads || this->type() == CustomObjects::Type::Abilities || this->type() == CustomObjects::Type::Upgrades)
 	{
-		wc3lib::write(ostream, this->m_level, size);
-		wc3lib::write(ostream, this->m_data, size);
+		wc3lib::write(ostream, this->level(), size);
+		wc3lib::write(ostream, this->data(), size);
 	}
 
+	size += writeData(ostream, this->value().type());
+	
 	int32 end = 0;
 	wc3lib::write(ostream, end, size);
 
@@ -79,34 +95,38 @@ CustomObjects::CustomObjects(BOOST_SCOPED_ENUM(CustomObjects::Type) type) : m_ty
 
 const byte* CustomObjects::fileName() const
 {
-	string name = "war3map.";
-
 	switch (this->type())
 	{
 		case Type::Units:
-			return name.append("w3u").c_str();
+			return "war3map.w3u";
 
 		case Type::Items:
-			return name.append("w3t").c_str();
+			return "war3map.w3t";
 
 		case Type::Destructibles:
-			return name.append("w3b").c_str();
+			return "war3map.w3b";
 
 		case Type::Doodads:
-			return name.append("w3d").c_str();
+			return "war3map.w3d";
 
 		case Type::Abilities:
-			return name.append("w3a").c_str();
+			return "war3map.w3a";
 
 		case Type::Buffs:
-			return name.append("w3h").c_str();
+			return "war3map.w3h";
 
 		case Type::Upgrades:
-			return name.append("w3q").c_str();
+			return "war3map.w3q";
 	}
 
-	return name.c_str();
+	return "";
 }
+
+uint32 CustomObjects::latestFileVersion() const
+{
+	return 2;
+}
+
 
 CustomUnits::Unit* CustomObjects::createUnit() const
 {

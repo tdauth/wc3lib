@@ -21,6 +21,11 @@
 #ifndef WC3LIB_MAP_CUSTOMUNITS_HPP
 #define WC3LIB_MAP_CUSTOMUNITS_HPP
 
+/**
+ * \defgroup objectdata Object Data
+ * Warcraft III allows modification of object data based on meta data information.
+ */
+
 #include <boost/ptr_container/ptr_vector.hpp>
 
 #include "platform.hpp"
@@ -40,6 +45,8 @@ namespace map
  * Both tables can be accessed via \ref originalTable() and \ref customTable().
  * Each unit in a table is represented by \ref CustomUnits::Unit and contains a list of modified fields (each represented by a \ref CustomUnits::Modification instance).
  * \sa CustomObjects
+ * 
+ * \ingroup objectdata
  */
 class CustomUnits : public FileFormat
 {
@@ -67,8 +74,11 @@ class CustomUnits : public FileFormat
 				std::streamsize readList(InputStream &istream, BOOST_SCOPED_ENUM(Value::Type) type);
 				std::streamsize writeList(OutputStream &ostream) const;
 
-				std::streamsize readData(InputStream &istream) throw (class Exception);
-				std::streamsize writeData(OutputStream &ostream) const throw (class Exception);
+				/**
+				 * Reads data into \p m_value depending on parameter \p type.
+				 */
+				std::streamsize readData(InputStream &istream, BOOST_SCOPED_ENUM(Value::Type) type) throw (class Exception);
+				std::streamsize writeData(OutputStream &ostream, BOOST_SCOPED_ENUM(Value::Type) type) const throw (class Exception);
 
 				id m_id; // from "Units\UnitMetaData.slk"
 				struct Value m_value;
@@ -124,6 +134,11 @@ class CustomUnits : public FileFormat
 		const Table& originalTable() const;
 		Table& customTable();
 		const Table& customTable() const;
+		
+		/**
+		 * Clears both tables.
+		 */
+		void clear();
 
 	protected:
 		virtual Unit* createUnit() const;

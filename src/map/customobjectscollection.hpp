@@ -46,6 +46,8 @@ class CustomObjectsCollection : public Format
 
 		std::streamsize read(InputStream &istream) throw (class Exception);
 		std::streamsize write(OutputStream &ostream) const throw (class Exception);
+		
+		void clear();
 
 		virtual uint32 latestFileVersion() const;
 		virtual const byte* fileExtension() const;
@@ -91,7 +93,7 @@ inline uint32 CustomObjectsCollection::latestFileVersion() const
 
 inline const byte* CustomObjectsCollection::fileExtension() const
 {
-	return "w3o";
+	return ".w3o";
 }
 
 inline uint32 CustomObjectsCollection::version() const

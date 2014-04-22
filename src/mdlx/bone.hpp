@@ -35,9 +35,12 @@ namespace mdlx
 
 /**
  * MDL tag "Bone".
+ * 
  * Taken from Art Tools Manual:
  * Use two different bones for unit models: "bone_head" and "bone_chest". These two bones will also be used by Warcraft when lock body-part facing action is called.
  * Use bone called "bone_turret" if you want a part of your model is rotated only when targeting another unit.
+ * 
+ * \ingroup animations
  */
 class Bone : public Object, public GroupMdxBlockMember
 {

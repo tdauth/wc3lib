@@ -34,6 +34,20 @@ namespace wc3lib
 namespace mdlx
 {
 
+/**
+ * \brief One single tuple of values for a specific time frame which is used for animating a node.
+ * 
+ * The amount of values for one single object can be specified via \p N. The value is of type \ref BasicVertex using
+ * \p N as its dimension. The value type of the vertex can be specified via \p ValueType.
+ * 
+ * The corresponding list of properties which contains the type of mathematical transformation and the corresponding global
+ * sequence can be accessed using \ref properties().
+ * 
+ * The time frame of the transformation is returned by \ref frame().
+ * 
+ * \sa MdlxAnimatedProperties
+ * \ingroup animations
+ */
 template<typename std::size_t N = 3, typename _ValueType = float32>
 class MdlxAnimatedProperty : public MdlxProperty
 {

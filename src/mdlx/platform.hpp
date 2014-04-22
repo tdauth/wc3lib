@@ -50,11 +50,18 @@ typedef int32 long32;
 const long32 noneId = 0xFFFFFFFF;
 
 /**
+ * \defgroup animations MDX and MDL animations
+ * The 3D formats MDX and MDL support different types of animations to apply transformations on nodes at specific time frames.
+ * 
+ */
+
+/**
  * MDLX format supports interpolation for scalings, translations and rotations.
  * If interpolation is not used value should be DontInterpolate.
  * If line type is Hermite or Bezier additional interpolation data is used (see structures).
  * Line type is stored as long32 in MDX files.
- * \sa InterpolationData, InterpolationRotationData
+ * \sa InterpolationData InterpolationRotationData
+ * \ingroup animations
  */
 BOOST_SCOPED_ENUM_START(LineType) /// \todo C++11 : long32
 {

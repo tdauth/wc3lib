@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Tamino Dauth                                    *
+ *   Copyright (C) 2014 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,59 +18,43 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#error mdlblock.hpp is deprecated. Use mdxblock.hpp instead!
-#ifndef WC3LIB_MDLX_MDLBLOCK_HPP
-#define WC3LIB_MDLX_MDLBLOCK_HPP
+#define BOOST_TEST_MODULE Wc3MapTest
+#include <boost/test/unit_test.hpp>
+#include <sstream>
+#include <iostream>
 
-#include "../exception.hpp"
-#include "platform.hpp"
+#include <boost/cast.hpp>
+//#include <boost/foreach.hpp>
 
-namespace wc3lib
-{
+#include "../../platform.hpp"
+#include "../w3m.hpp"
 
-namespace mdlx
-{
+#ifndef BOOST_TEST_DYN_LINK
+#error Define BOOST_TEST_DYN_LINK for proper definition of main function.
+#endif
+
+using namespace wc3lib;
 
 /**
- * MDL blocks start with their identifier followed by a bracked indicating the block's scope.
- * \sa MdxBlock, MdlValueBlock
+ * \file
+ * For this Unit Test a custom Warcraft III: The Reign of Chaos map has been created with test objects
+ * which are queried in the test cases.
  */
-class MdlBlock
-{
-	public:
-		MdlBlock(const string &mdlIdentifier, bool optional = true);
-		virtual ~MdlBlock();
 
-		const string& mdlIdentifier() const;
-		bool optional() const;
-		bool exists() const;
-
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
-
-	protected:
-		const string m_mdlIdentifier;
-		const bool m_optional;
-		bool m_exists;
-};
-
-inline const string& MdlBlock::mdlIdentifier() const
-{
-	return this->m_mdlIdentifier;
+BOOST_AUTO_TEST_CASE(Rects) {
+	map::W3m map;
+	
+	bool valid = true;
+	
+	try {
+		map.open("wc3map.w3o");
+	}
+	catch (...) {
+		valid = false;
+	}
+	
+	BOOST_REQUIRE(valid);
+	BOOST_REQUIRE(map.rects().get() != 0);
+	BOOST_REQUIRE(map.rects()->fileName() == "war3map.w3r");
+	BOOST_REQUIRE(map.rects()->rects().size() == 3);
 }
-
-inline bool MdlBlock::optional() const
-{
-	return this->m_optional;
-}
-
-inline bool MdlBlock::exists() const
-{
-	return this->m_exists;
-}
-
-}
-
-}
-
-#endif

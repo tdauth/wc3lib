@@ -51,6 +51,9 @@ class OgreMdlxEntity : public Ogre::FrameListener
 		/// \todo C++11 overide
 		virtual bool frameRenderingQueued(const Ogre::FrameEvent &evt);
 
+		/**
+		 * \return Returns true if animation \p name exists. Otherwise it will return false.
+		 */
 		bool applyAnimation(const Ogre::String &name, bool loop);
 
 		Ogre::SceneNode* sceneNode() const;
@@ -69,13 +72,16 @@ inline bool OgreMdlxEntity::applyAnimation(const Ogre::String &name, bool loop)
 {
 	BOOST_FOREACH(Entities::reference ref, m_entities)
 	{
-		if (!ref->hasAnimationState(name))
+		if (!ref->hasAnimationState(name)) {
 			return false;
+		}
 
 		Ogre::AnimationState *state = ref->getAnimationState(name);
 		state->setLoop(loop);
 		state->setEnabled(true);
 	}
+	
+	return true;
 }
 
 inline Ogre::SceneNode* OgreMdlxEntity::sceneNode() const

@@ -38,6 +38,18 @@ namespace map
 //typedef int32 version;
 typedef uint32_t id;
 
+/**
+ * Converts an ID to a readable string. Useful for comparisons and display.
+ */
+inline string idToString(id value) {
+	const std::size_t size = sizeof(id);
+	char result[size + 1];
+	result[size] = '\0';
+	memcpy(result, &value, size);
+	
+	return result;
+}
+
 /// Usually only some formats have a customized version (e. g. map shadow - "war3map.shd")
 class FileFormat : public Format
 {

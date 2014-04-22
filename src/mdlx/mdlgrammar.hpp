@@ -39,6 +39,11 @@ namespace wc3lib
 namespace mdlx
 {
 
+/**
+ * \brief Parser for MDL files based on Boost Spirit.
+ * 
+ * This class supports parsing an MDL file from an input stream.
+ */
 class MdlGrammar {
 	public:
 		typedef std::basic_istream<byte> InputStream;

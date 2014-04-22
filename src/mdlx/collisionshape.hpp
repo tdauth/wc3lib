@@ -34,6 +34,8 @@ namespace mdlx
 {
 
 /**
+ * \brief Collision shapes are used for the "hit test" which is run when the user selects a 3D model using the cursor.
+ * 
  * MDL tag "CollisionShape".
  */
 class CollisionShape : public GroupMdxBlockMember, public Object

@@ -66,7 +66,6 @@ if (MDLX)
 		matrix.hpp
 		matrixgroupcount.hpp
 		matrixgroupcounts.hpp
-		mdlblock.hpp
 		mdlgrammar.hpp
 		mdlgrammarclient.hpp
 		mdlvalueblock.hpp
@@ -207,7 +206,6 @@ if (MDLX)
 		matrix.cpp
 		matrixgroupcount.cpp
 		matrixgroupcounts.cpp
-		mdlblock.cpp
 		mdlgrammar.cpp
 		mdlvalueblock.cpp
 		mdlx.cpp

@@ -37,7 +37,9 @@ std::streamsize CustomObjectsCollection::read(InputStream &istream) throw (class
 	wc3lib::read(istream, this->m_version, size);
 
 	if (this->version() != latestFileVersion())
+	{
 		std::cerr << boost::format(_("W3O: Unknown version %1%, expected %2%.")) % this->version() % latestFileVersion() << std::endl;
+	}
 
 	int32 hasUnits;
 	wc3lib::read(istream, hasUnits, size);
@@ -135,6 +137,44 @@ std::streamsize CustomObjectsCollection::write(OutputStream &ostream) const thro
 		size += this->upgrades()->write(ostream);
 
 	return size;
+}
+
+void CustomObjectsCollection::clear()
+{
+	if (hasUnits())
+	{
+		this->units()->clear();
+	}
+	
+	if (hasItems())
+	{
+		this->items()->clear();
+	}
+	
+	if (hasDestructibles())
+	{
+		this->destructibles()->clear();
+	}
+	
+	if (hasDoodads())
+	{
+		this->doodads()->clear();
+	}
+	
+	if (hasAbilities())
+	{
+		this->abilities()->clear();
+	}
+	
+	if (hasBuffs())
+	{
+		this->buffs()->clear();
+	}
+	
+	if (hasUpgrades())
+	{
+		this->upgrades()->clear();
+	}
 }
 
 }

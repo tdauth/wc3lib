@@ -38,6 +38,34 @@ namespace mdlx
 template<typename std::size_t N, typename _ValueType>
 class MdlxAnimatedProperty;
 
+/**
+ * \brief Abstract template class for all kinds of animated properties.
+ * 
+ * Animated properties may belong to a specific global sequence.
+ * There exist different types of transformations. Usually:
+ * <ul>
+ * <li> translations </li>
+ * <li> scalings </li>
+ * <li> rotations </li>
+ * <li> transparency adjustments </li>
+ * </ul>
+ * 
+ * Each transformation type needs specific values for applying the transformation. For example a translation
+ * needs three coordinates where the corresponding node should be moved to (X, Y, Z).
+ * 
+ * Rotations usually on the other hand usually use quaternions and therefore need four values.
+ * 
+ * Therefore this class is defined as template for which the count of values can be specified with \p N
+ * and the data type with \p _ValueType.
+ *
+ * All animated properties can be accessed using \ref properties(). They share the global sequence (\ref globalSequenceId() ) and the mathemetical method of transformation which
+ * can be accessed via \ref lineType(). See \ref LineType for all supported mathematical methods.
+ * 
+ * Check if the properties belong to a global sequence using \ref hasGlobalSequence().
+ * 
+ * \sa MdlxAnimatedProperty
+ * \ingroup animations
+ */
 template<typename std::size_t N = 3, typename _ValueType = float32>
 class MdlxAnimatedProperties : public MdxBlock
 {

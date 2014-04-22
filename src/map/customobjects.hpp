@@ -48,19 +48,34 @@ class CustomObjects : public CustomUnits
 		};
 		BOOST_SCOPED_ENUM_END
 
+		/**
+		 * \brief Single value modfication entry.
+		 * 
+		 * The value id of a modification can be accessed via \ref valueId(). It is the corresponding value of the SLK file entry.
+		 * For each type of modification there exists a meta data SLK file which contains information about the field to which
+		 * the modification belongs. This information is mostly required by the World Editor because it specifies which values
+		 * can be defined by the user.
+		 * 
+		 * This is a list of all meta data SLK files from The Frozen Throne:
+		 * <ul>
+		 * <li>UnitMetaData.slk - \ref CustomObjects::Type::Unit </li>
+		 * </ul>
+		 * 
+		 * \ingroup objectdata
+		 */
 		class Modification : public CustomUnits::Modification
 		{
 			public:
 				Modification(BOOST_SCOPED_ENUM(CustomObjects::Type) type);
 				BOOST_SCOPED_ENUM(CustomObjects::Type) type() const;
 				/**
-				* Only read for doodads, abilities and upgrades. Doodads use this as variation number.
-				*/
+				 * Only read for doodads, abilities and upgrades. Doodads use this as variation number.
+				 */
 				int32 level() const;
 				/**
-				* Only read for doodads, abilities and upgrades but actually only used by abilities to refer specific raw data:
-				* A, 1 = B, 2 = C, 3 = D, 4 = F, 5 = G, 6 = H
-				*/
+				 * Only read for doodads, abilities and upgrades but actually only used by abilities to refer specific raw data:
+				 * A, 1 = B, 2 = C, 3 = D, 4 = F, 5 = G, 6 = H
+				 */
 				int32 data() const;
 
 				std::streamsize read(InputStream &istream) throw (class Exception);
@@ -89,6 +104,11 @@ class CustomObjects : public CustomUnits
 		BOOST_SCOPED_ENUM(Type) type() const;
 
 		virtual const byte* fileName() const;
+		/**
+		 * For The Frozen Throne the latest version became 2 instead of 1.
+		 * \note The specification http://wc3lib.org/spec/InsideTheW3M.html states that the version is still 1. According to tests this is wrong.
+		 */
+		virtual uint32 latestFileVersion() const;
 
 	protected:
 		/// \todo C++11 override

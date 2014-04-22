@@ -39,7 +39,12 @@ CustomUnits::Modification::~Modification()
 
 std::streamsize CustomUnits::Modification::read(InputStream &istream) throw (class Exception)
 {
-	std::streamsize size = readData(istream);
+	std::streamsize size = 0;
+	wc3lib::read(istream, this->m_id, size);
+	BOOST_SCOPED_ENUM(Value::Type) type;
+	wc3lib::read<int32>(istream, (int32&)type, size);
+	
+	size += readData(istream, type);
 
 	// strings and lists (are strings as well) do already have to end with a zero terminating byte
 	//if (!this->value().isString() && !this->value().isList())
@@ -56,7 +61,11 @@ std::streamsize CustomUnits::Modification::read(InputStream &istream) throw (cla
 
 std::streamsize CustomUnits::Modification::write(OutputStream &ostream) const throw (class Exception)
 {
-	std::streamsize size = writeData(ostream);
+	std::streamsize size = 0;
+	wc3lib::write(ostream, this->valueId(), size);
+	wc3lib::write<int32>(ostream, this->value().type(), size);
+	
+	size += writeData(ostream, this->value().type());
 
 	// strings and lists (are strings as well) do already have to end with a zero terminating byte
 	//if (!this->value().isString() && !this->value().isList())
@@ -85,13 +94,10 @@ std::streamsize CustomUnits::Modification::writeList(OutputStream &ostream) cons
 	return size;
 }
 
-std::streamsize CustomUnits::Modification::readData(InputStream &istream) throw (class Exception)
+std::streamsize CustomUnits::Modification::readData(InputStream &istream, BOOST_SCOPED_ENUM(Value::Type) type) throw (class Exception)
 {
 	std::streamsize size = 0;
-	wc3lib::read(istream, this->m_id, size);
-	BOOST_SCOPED_ENUM(Value::Type) type;
-	wc3lib::read<int32>(istream, (int32&)type, size);
-
+	
 	switch (type)
 	{
 		case Value::Type::Integer:
@@ -156,11 +162,13 @@ std::streamsize CustomUnits::Modification::readData(InputStream &istream) throw 
 		case Value::Type::StringList:
 		case Value::Type::AbilityList:
 		case Value::Type::HeroAbilityList:
+		{
 			size += this->readList(istream, type);
 			this->writeList(std::cout);
 			std::cout << std::endl;
 
 			break;
+		}
 	}
 
 	// TEST
@@ -171,24 +179,26 @@ std::streamsize CustomUnits::Modification::readData(InputStream &istream) throw 
 	return size;
 }
 
-std::streamsize CustomUnits::Modification::writeData(OutputStream &ostream) const throw (class Exception)
+std::streamsize CustomUnits::Modification::writeData(OutputStream &ostream, BOOST_SCOPED_ENUM(Value::Type) type) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	wc3lib::write(ostream, this->valueId(), size);
-	wc3lib::write<int32>(ostream, this->value().type(), size);
 
 	switch (this->value().type())
 	{
 		case Value::Type::Integer:
+		{
 			wc3lib::write(ostream, this->value().toInteger(), size);
 
 			break;
+		}
 
 		case Value::Type::Real:
 		case Value::Type::Unreal:
+		{
 			wc3lib::write(ostream, this->value().toReal(), size);
 
 			break;
+		}
 
 		case Value::Type::String:
 		case Value::Type::RegenerationType:
@@ -201,19 +211,25 @@ std::streamsize CustomUnits::Modification::writeData(OutputStream &ostream) cons
 		case Value::Type::MissileArt:
 		case Value::Type::AttributeType:
 		case Value::Type::AttackBits:
+		{
 			wc3lib::writeString(ostream, this->value().toString(), size);
 
 			break;
+		}
 
 		case Value::Type::Boolean:
+		{
 			wc3lib::write<int32>(ostream, this->value().toBoolean(), size);
 
 			break;
+		}
 
 		case Value::Type::Character:
+		{
 			wc3lib::write(ostream, this->value().toCharacter(), size);
 
 			break;
+		}
 
 		case Value::Type::UnitList:
 		case Value::Type::ItemList:
@@ -221,9 +237,11 @@ std::streamsize CustomUnits::Modification::writeData(OutputStream &ostream) cons
 		case Value::Type::StringList:
 		case Value::Type::AbilityList:
 		case Value::Type::HeroAbilityList:
+		{
 			size += this->writeList(ostream);
 
 			break;
+		}
 	}
 
 	return size;
@@ -288,9 +306,11 @@ std::streamsize CustomUnits::read(InputStream &istream) throw (class Exception)
 	wc3lib::read(istream, this->m_version, size);
 
 	if (this->version() != latestFileVersion())
+	{
 		std::cerr << boost::format(_("Custom Units: Unknown version \"%1%\", expected \"%2%\".")) % this->version() % latestFileVersion() << std::endl;
+	}
 
-	int32 originalUnits;
+	int32 originalUnits = 0;
 	wc3lib::read(istream, originalUnits, size);
 	this->originalTable().reserve(originalUnits);
 
@@ -301,7 +321,7 @@ std::streamsize CustomUnits::read(InputStream &istream) throw (class Exception)
 		originalTable().push_back(ptr);
 	}
 
-	int32 customUnits;
+	int32 customUnits = 0;
 	wc3lib::read(istream, customUnits, size);
 	this->customTable().reserve(customUnits);
 
@@ -333,6 +353,12 @@ std::streamsize CustomUnits::write(OutputStream &ostream) const throw (class Exc
 		size += unit.write(ostream);
 
 	return size;
+}
+
+void CustomUnits::clear()
+{
+	this->originalTable().clear();
+	this->customTable().clear();
 }
 
 CustomUnits::Unit* CustomUnits::createUnit() const

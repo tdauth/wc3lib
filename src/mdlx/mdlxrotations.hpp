@@ -34,8 +34,12 @@ namespace mdlx
 //extern template class MdlxAnimatedProperties<4>;
 
 /**
+ * \brief Rotations are applied using a quaternion tuple.
+ * 
  * MDX tag "KGRT".
  * MDL tag "Rotation".
+ * 
+ * \ingroup animations
  */
 class MdlxRotations : public MdlxAnimatedProperties<4>
 {
