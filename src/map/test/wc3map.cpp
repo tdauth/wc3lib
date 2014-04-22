@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(Rects) {
 	bool valid = true;
 	
 	try {
-		map.open("wc3map.w3o");
+		map.open("TestMap.w3m");
 	}
 	catch (...) {
 		valid = false;

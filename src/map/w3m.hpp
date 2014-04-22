@@ -285,6 +285,16 @@ inline const W3m::TriggersPtr& W3m::triggers() const
 	return m_triggers;
 }
 
+inline const W3m::CamerasPtr& W3m::cameras() const
+{
+	return this->m_cameras;
+}
+
+inline const W3m::RectsPtr& W3m::rects() const
+{
+	return this->m_rects;
+}
+
 inline const W3m::InfoPtr& W3m::info() const
 {
 	return m_info;
