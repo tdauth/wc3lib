@@ -54,7 +54,34 @@ BOOST_AUTO_TEST_CASE(ReadTest) {
 	const map::Rect &rect = rects.rects().at(0);
 	BOOST_REQUIRE(rect.name() == "Blue Rect");
 	BOOST_REQUIRE(rect.color() == 0xFF0000); // blue - BGR color!
-	// TODO check data from map!
+	BOOST_REQUIRE(!rect.hasWeatherEffect());
+	BOOST_REQUIRE(rect.soundName().empty());
+	BOOST_CHECK_CLOSE(rect.left(), 1120.0, 0.0001);
+	BOOST_CHECK_CLOSE(rect.right(), 1152.0, 0.0001);
+	BOOST_CHECK_CLOSE(rect.bottom(), 896.0, 0.0001);
+	BOOST_CHECK_CLOSE(rect.top(), 928.0, 0.0001);
+	
+	const map::Rect &whiteRect = rects.rects().at(1);
+	BOOST_REQUIRE(whiteRect.name() == "White Rect");
+	BOOST_REQUIRE(whiteRect.color() == 0xFFFFFF); // white - BGR color!
+	BOOST_REQUIRE(!whiteRect.hasWeatherEffect());
+	BOOST_REQUIRE(whiteRect.soundName().empty());
+	BOOST_CHECK_CLOSE(whiteRect.left(), 1024.0, 0.0001);
+	BOOST_CHECK_CLOSE(whiteRect.right(), 1152.0, 0.0001);
+	BOOST_CHECK_CLOSE(whiteRect.bottom(), 768.0, 0.0001);
+	BOOST_CHECK_CLOSE(whiteRect.top(), 896.0, 0.0001);
+	
+	const map::Rect &redRectWithWeathereffect = rects.rects().at(2);
+	BOOST_REQUIRE(redRectWithWeathereffect.name() == "Red Rect With Weathereffect");
+	BOOST_REQUIRE(redRectWithWeathereffect.color() == 0x0000FF); // red - BGR color!
+	BOOST_REQUIRE(redRectWithWeathereffect.hasWeatherEffect());
+	BOOST_REQUIRE(map::idToString(redRectWithWeathereffect.weatherEffectId()) == "RAhr"); // taken from "TERRAINART/Weather.slk" Ashenvale Heavy Rain
+	BOOST_REQUIRE(redRectWithWeathereffect.hasSound());
+	BOOST_REQUIRE(redRectWithWeathereffect.soundName() == "gg_snd_RainOfFireLoop1");
+	BOOST_CHECK_CLOSE(redRectWithWeathereffect.left(), 896.0, 0.0001);
+	BOOST_CHECK_CLOSE(redRectWithWeathereffect.right(), 1024.0, 0.0001);
+	BOOST_CHECK_CLOSE(redRectWithWeathereffect.bottom(), 768.0, 0.0001);
+	BOOST_CHECK_CLOSE(redRectWithWeathereffect.top(), 992.0, 0.0001);
 }
 
 BOOST_AUTO_TEST_CASE(ReadWriteReadTest) {
@@ -105,4 +132,37 @@ BOOST_AUTO_TEST_CASE(ReadWriteReadTest) {
 	}
 	
 	BOOST_REQUIRE(valid);
+	
+	BOOST_REQUIRE(rects.rects().size() == 3);
+	const map::Rect &rect = rects.rects().at(0);
+	BOOST_REQUIRE(rect.name() == "Blue Rect");
+	BOOST_REQUIRE(rect.color() == 0xFF0000); // blue - BGR color!
+	BOOST_REQUIRE(!rect.hasWeatherEffect());
+	BOOST_REQUIRE(rect.soundName().empty());
+	BOOST_CHECK_CLOSE(rect.left(), 1120.0, 0.0001);
+	BOOST_CHECK_CLOSE(rect.right(), 1152.0, 0.0001);
+	BOOST_CHECK_CLOSE(rect.bottom(), 896.0, 0.0001);
+	BOOST_CHECK_CLOSE(rect.top(), 928.0, 0.0001);
+	
+	const map::Rect &whiteRect = rects.rects().at(1);
+	BOOST_REQUIRE(whiteRect.name() == "White Rect");
+	BOOST_REQUIRE(whiteRect.color() == 0xFFFFFF); // white - BGR color!
+	BOOST_REQUIRE(!whiteRect.hasWeatherEffect());
+	BOOST_REQUIRE(whiteRect.soundName().empty());
+	BOOST_CHECK_CLOSE(whiteRect.left(), 1024.0, 0.0001);
+	BOOST_CHECK_CLOSE(whiteRect.right(), 1152.0, 0.0001);
+	BOOST_CHECK_CLOSE(whiteRect.bottom(), 768.0, 0.0001);
+	BOOST_CHECK_CLOSE(whiteRect.top(), 896.0, 0.0001);
+	
+	const map::Rect &redRectWithWeathereffect = rects.rects().at(2);
+	BOOST_REQUIRE(redRectWithWeathereffect.name() == "Red Rect With Weathereffect");
+	BOOST_REQUIRE(redRectWithWeathereffect.color() == 0x0000FF); // red - BGR color!
+	BOOST_REQUIRE(redRectWithWeathereffect.hasWeatherEffect());
+	BOOST_REQUIRE(map::idToString(redRectWithWeathereffect.weatherEffectId()) == "RAhr"); // taken from "TERRAINART/Weather.slk" Ashenvale Heavy Rain
+	BOOST_REQUIRE(redRectWithWeathereffect.hasSound());
+	BOOST_REQUIRE(redRectWithWeathereffect.soundName() == "gg_snd_RainOfFireLoop1");
+	BOOST_CHECK_CLOSE(redRectWithWeathereffect.left(), 896.0, 0.0001);
+	BOOST_CHECK_CLOSE(redRectWithWeathereffect.right(), 1024.0, 0.0001);
+	BOOST_CHECK_CLOSE(redRectWithWeathereffect.bottom(), 768.0, 0.0001);
+	BOOST_CHECK_CLOSE(redRectWithWeathereffect.top(), 992.0, 0.0001);
 }

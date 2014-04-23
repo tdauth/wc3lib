@@ -1,0 +1,14 @@
+Original specification:
+http://wc3lib.org/spec/InsideTheW3M.html
+
+16) "war3map.w3r" The triggers regions file
+
+order is:
+left
+bottom
+right
+top
+
+end of structure is usually -1
+
+sound name is the sound name used in JASS with prefix "gg_snd_"

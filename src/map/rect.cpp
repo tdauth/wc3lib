@@ -29,9 +29,13 @@ namespace map
 std::streamsize Rect::read(InputStream &istream) throw (class Exception)
 {
 	std::streamsize size = 0;
+	/*
+	 * Original specification states the order: left, right, bottom, top.
+	 * Tests showed the order actually is: left, bottom, right, top.
+	 */
 	wc3lib::read(istream, this->m_left, size);
-	wc3lib::read(istream, this->m_right, size);
 	wc3lib::read(istream, this->m_bottom, size);
+	wc3lib::read(istream, this->m_right, size);
 	wc3lib::read(istream, this->m_top, size);
 	readString(istream, this->m_name, size);
 	wc3lib::read(istream, this->m_index, size);
@@ -54,8 +58,8 @@ std::streamsize Rect::write(OutputStream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->left(), size);
-	wc3lib::write(ostream, this->right(), size);
 	wc3lib::write(ostream, this->bottom(), size);
+	wc3lib::write(ostream, this->right(), size);
 	wc3lib::write(ostream, this->top(), size);
 	writeString(ostream, this->name(), size);
 	wc3lib::write(ostream, this->index(), size);

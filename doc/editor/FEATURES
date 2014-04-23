@@ -15,6 +15,7 @@ Brushes:
 * When copying selection (Doodads) into another map or to another position, height should be hold correctly (WE bug).
 * Detailed height/position options can be specified for Destructibles and Doodads.
 * Pathing and detailed height/size/tilepoint settings can be specified for terrain brush.
+* Detailed position movement of rects. Usually rects have their coordinates in a float32 number but can only be moved via big cells, especially when using the number spin box.
 
 Trigger Editor:
 * Allows access to local variables (parses custom script "local" statements and provides default action to define some).

@@ -51,6 +51,7 @@ class Rect : public Format
 		 * If \ref weatherEffectId() is set to 0 there is no weather effect.
 		 */
 		bool hasWeatherEffect() const;
+		bool hasSound() const;
 
 	protected:
 		float32 m_left;
@@ -115,6 +116,10 @@ inline bool Rect::hasWeatherEffect() const
 	return this->weatherEffectId() != 0;
 }
 
+inline bool Rect::hasSound() const
+{
+	return !this->soundName().empty();
+}
 
 }
 
