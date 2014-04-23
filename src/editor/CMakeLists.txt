@@ -37,7 +37,6 @@ if (EDITOR)
 		splashscreen.hpp
 		teamcolordialog.hpp
 		texture.hpp
-		unitmetadata.hpp
 		viewportsettings.hpp
 		windowsmenu.hpp
 	)
@@ -67,7 +66,6 @@ if (EDITOR)
 		splashscreen.cpp
 		teamcolordialog.cpp
 		texture.cpp
-		unitmetadata.cpp
 		viewportsettings.cpp
 		windowsmenu.cpp
 	)

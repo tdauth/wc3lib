@@ -30,12 +30,19 @@ namespace wc3lib
 namespace editor
 {
 
+/**
+ * \brief The Frozen Throne Unit Editor module of the Object Editor.
+ *
+ * \ingroup objectdata 
+ */
 class UnitEditor : public ObjectEditorTab
 {
 	public:
 		UnitEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 
 		virtual QString name() const;
+		
+		virtual void onUpdateCollection(const map::CustomObjects& objects);
 
 	protected:
 		virtual class ObjectTreeWidget* createTreeWidget();
@@ -68,6 +75,17 @@ class UnitEditor : public ObjectEditorTab
 
 		QTreeWidgetItem *m_standardUnitsItem;
 		QTreeWidgetItem *m_customUnitsItem;
+		QTreeWidgetItem *m_humanItem;
+		QTreeWidgetItem *m_orcItem;
+		QTreeWidgetItem *m_undeadItem;
+		QTreeWidgetItem *m_nightElfItem;
+		QTreeWidgetItem *m_neutralNagaItem;
+		QTreeWidgetItem *m_neutralHostileItem;
+		QTreeWidgetItem *m_neutralPassiveItem;
+		
+		class MetaData *m_unitMetaData;
+		class MetaData *m_unitData;
+		class MetaData *m_unitUi;
 };
 
 inline QString UnitEditor::name() const

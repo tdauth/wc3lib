@@ -26,6 +26,7 @@
 #include "objecttreewidget.hpp"
 #include "objecttablewidget.hpp"
 #include "../metadata.hpp"
+#include "../mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -33,31 +34,8 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectEditorTab::ObjectEditorTab(class MpqPriorityList *source, const KUrl &metaDataUrl, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_metaData(new MetaData(metaDataUrl)), m_tabIndex(0), m_metaDataUrlRequester(0), m_treeWidget(0), m_tableWidget(0), QWidget(parent, f)
+ObjectEditorTab::ObjectEditorTab(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_tabIndex(0), m_treeWidget(0), m_tableWidget(0), QWidget(parent, f)
 {
-	try
-	{
-		m_metaData->setSource(source, true);
-	}
-	catch (Exception &exception)
-	{
-		KMessageBox::error(this, i18n("Error while loading meta data from \"%1\":\n\"%2\".", m_metaData->url().toEncoded().constData(), exception.what().c_str()));
-	}
-}
-
-void ObjectEditorTab::setMetaDataUrl(const KUrl& url)
-{
-	delete this->metaData();
-	this->m_metaData = new MetaData(url);
-
-	try
-	{
-		m_metaData->setSource(this->source(), true);
-	}
-	catch (Exception &exception)
-	{
-		KMessageBox::error(this, i18n("Error while loading meta data from \"%1\":\n\"%2\".", m_metaData->url().toEncoded().constData(), exception.what().c_str()));
-	}
 }
 
 void ObjectEditorTab::setupUi()
@@ -65,16 +43,21 @@ void ObjectEditorTab::setupUi()
 	QVBoxLayout *layout = new QVBoxLayout(this);
 
 	qDebug() << "Show tab " << this->name();
-	m_metaDataUrlRequester = new KUrlRequester(metaData()->url(), this);
-	connect(m_metaDataUrlRequester, SIGNAL(urlSelected(KUrl)), this, SLOT(setMetaDataUrl(KUrl)));
-	layout->addWidget(m_metaDataUrlRequester);
 
 	QHBoxLayout *horizontalLayout = new QHBoxLayout();
 	layout->addLayout(horizontalLayout);
 	m_treeWidget = createTreeWidget();
 	horizontalLayout->addWidget(m_treeWidget);
+	
+	QSplitter *splitter = new QSplitter(this);
+	horizontalLayout->addWidget(splitter);
+	
 	m_tableWidget = createTableWidget();
 	horizontalLayout->addWidget(m_tableWidget);
+}
+
+void ObjectEditorTab::onUpdateCollection(const map::CustomObjects& objects)
+{
 }
 
 #include "moc_objecteditortab.cpp"

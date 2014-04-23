@@ -23,6 +23,8 @@
 #include <KMenu>
 #include <KAction>
 #include <KToolBar>
+#include <KFileDialog>
+#include <KMessageBox>
 
 #include "objecteditor.hpp"
 #include "objecteditortab.hpp"
@@ -50,21 +52,6 @@ ObjectEditor::ObjectEditor(class MpqPriorityList *source, QWidget *parent, Qt::W
 	addCurrentActions();
 	// connect signal and slot after adding actions and tabs first time!
 	connect(tabWidget(), SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
-
-	/*
-	const class mpq::MpqFile *unitEditorDataFile = editor->loadMpqFile("UI/UnitEditorData.txt");
-
-	if (unitEditorDataFile != 0)
-	{
-		this->m_data = new slk::Data;
-		std::iostream iostream;
-		unitEditorDataFile->write(iostream);
-		this->m_data->read(iostream);
-	}
-	*/
-
-	//m_unitEditor = new UnitEditor(this);
-
 }
 
 ObjectEditor::~ObjectEditor()
@@ -78,10 +65,54 @@ class ObjectEditorTab* ObjectEditor::tab(int index) const
 
 void ObjectEditor::exportAll()
 {
+	if (m_collection.isNull()) 
+	{
+		KMessageBox::error(this, i18n("No object data available."));
+		
+		return;
+	}
+}
+
+void ObjectEditor::importAll(const KUrl& url)
+{
+	QString file;
+		
+	if (this->source()->download(url, file, this))
+	{
+		ifstream in(file.toUtf8().constData(), std::ios::in | std::ios::binary);
+		
+		if (in)
+		{
+			Collection collection;
+			
+			try
+			{
+				const std::streamsize size = collection->read(in);
+				
+				m_collection.swap(collection);
+				
+				KMessageBox::information(this, i18n("Successfully imported object data with size %1.", size));
+			}
+			catch (Exception &e)
+			{
+				KMessageBox::error(this, i18n("Error when opening file %1: \"%2\".", file, e.what().c_str()));
+			}
+		}
+	}
+	else
+	{
+		KMessageBox::error(this, i18n("Error while importing all object data from \"%1\".", url.toEncoded().constData()));
+	}
 }
 
 void ObjectEditor::importAll()
 {
+	const KUrl url = KFileDialog::getOpenUrl(KUrl(), objectsCollectionFilter(), this, tr("Open"));
+	
+	if (!url.isEmpty())
+	{
+		this->importAll(url);
+	}
 }
 
 void ObjectEditor::createFileActions(class KMenu *menu)
@@ -284,6 +315,46 @@ void ObjectEditor::addCurrentActions()
 	}
 
 	connect(pasteObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(pasteObject()));
+}
+
+void ObjectEditor::updateCollection(ObjectEditor::Collection& collection)
+{
+	if (collection->hasUnits())
+	{
+		this->unitEditor()->onUpdateCollection(*collection->units().get());
+	}
+	
+	/*
+	if (collection->hasItems())
+	{
+		this->itemEditor()->onUpdateCollection(*collection->items().get());
+	}
+	
+	if (collection->hasDestructibles())
+	{
+		this->destructibleEditor()->onUpdateCollection(*collection->destructibles().get());
+	}
+	
+	if (collection->hasDoodads())
+	{
+		this->doodadEditor()->onUpdateCollection(*collection->doodads().get());
+	}
+	
+	if (collection->hasAbilities())
+	{
+		this->abilityEditor()->onUpdateCollection(*collection->abilities().get());
+	}
+	
+	if (collection->hasBuffs())
+	{
+		this->buffEditor()->onUpdateCollection(*collection->buffs().get());
+	}
+	
+	if (collection->hasUpgrades())
+	{
+		this->upgradeEditor()->onUpdateCollection(*collection->upgrades().get());
+	}
+	*/
 }
 
 #include "moc_objecteditor.cpp"

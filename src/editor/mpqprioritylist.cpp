@@ -179,7 +179,11 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 	if (!src.isRelative()) // has protocol - is absolute
 	{
 		if (KIO::NetAccess::download(src, target, window))
+		{
+			qDebug() << "Downloaded successfully into file " << target;
+			
 			return true;
+		}
 	}
 
 	qDebug() << "Sources size: " << sources().get<MpqPriorityListEntry>().size();
@@ -198,7 +202,7 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 
 		if (KIO::NetAccess::download(absoluteSource, target, window))
 		{
-			qDebug() << "Downloaded successfully";
+			qDebug() << "Downloaded successfully into file " << target;
 			
 			return true;
 		}
@@ -298,16 +302,18 @@ void MpqPriorityList::readSettings(const QString& group)
 	qDebug() << "Settings file name: " << settings.fileName();
 	settings.beginGroup(group);
 	const int size = settings.beginReadArray("entries");
+	qDebug() << "Number of MPQ priority list entries: " << size;
 
 	for (int i = 0; i < size; ++i)
 	{
+		qDebug() << "i is" << i;
 		settings.setArrayIndex(i);
 		const KUrl url = KUrl(settings.value("url").toByteArray());
 		const int priority = settings.value("priority").toInt();
 		qDebug() << "Loading source url " << url;
 		qDebug() << "With priority " << priority;
 		this->addSource(url, priority);
-		++i;
+		qDebug() << "After adding source";
 	}
 
 	settings.endArray();
@@ -320,7 +326,7 @@ void MpqPriorityList::writeSettings(const QString& group)
 	
 	QSettings settings("wc3editor", "wc3editor");
 	settings.beginGroup(group);
-	settings.beginWriteArray("entries");
+	settings.beginWriteArray("entries", sources().size());
 	int i = 0;
 	
 	qDebug() << "Size 1: " << sources().size();

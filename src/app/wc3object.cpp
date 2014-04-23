@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Tamino Dauth                                    *
+ *   Copyright (C) 2014 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,26 +18,60 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "unitmetadata.hpp"
+#include <QScopedPointer>
 
-namespace wc3lib
+#include <KApplication>
+#include <KAboutData>
+#include <KCmdLineArgs>
+#include <KLocale>
+#include <KMessageBox>
+
+#include "../editor.hpp"
+#include "../exception.hpp"
+
+#include <editor/objecteditor/objecteditor.hpp>
+
+using namespace wc3lib::editor;
+
+int main(int argc, char *argv[])
 {
+	KAboutData aboutData(Editor::aboutData());
 
-namespace editor
-{
+	KCmdLineArgs::init(argc, argv, &aboutData);
+	KCmdLineOptions options;
+	options.add("", ki18n("Additional help."));
+	options.add("+[file]", ki18n("File to open"));
+	KCmdLineArgs::addCmdLineOptions(options);
 
-UnitMetaData::UnitMetaData() : MetaData(KUrl("Units/UnitMetaData.slk"))
-{
-}
+	KApplication app;
 
-map::MetaData* UnitMetaData::createMetaDataEntry()
-{
-}
+	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
+	/*
+	 * The independent editor uses its own stored settings for its sources!
+	 */
+	source->readSettings("objecteditor"); // TODO use getter function
+	
+	try
+	{
+		source->refreshDefaultFiles(0); // TODO we need a GUI
+	}
+	catch (wc3lib::Exception &e)
+	{
+		KMessageBox::error(0, i18n("Error when loading default files: %1", e.what().c_str()));
+	}
+	
+	ObjectEditor *editor = new ObjectEditor(source.data());
+	editor->show();
 
-void UnitMetaData::filleMetaDataEntry(MetaDataPtr &entry, const Row &row)
-{
-}
+	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
 
-}
+	if (args != 0)
+	{
+		for (int i = 0; i < args->count(); ++i)
+		{
+			editor->importAll(args->url(i));
+		}
+	}
 
+	return app.exec();
 }

@@ -32,6 +32,7 @@ namespace editor
 
 ObjectTableWidget::ObjectTableWidget(QWidget *parent, const MetaData *metaData)
 {
+	/*
 	int i = 0;
 
 	foreach (MetaData::MetaDataEntries::const_reference entry, metaData->metaDataEntries())
@@ -39,10 +40,12 @@ ObjectTableWidget::ObjectTableWidget(QWidget *parent, const MetaData *metaData)
 		ObjectTableWidgetPair *pair = new ObjectTableWidgetPair(this, i, entry.get());
 		++i;
 	}
+	*/
 }
 
 ObjectTableWidget::Pairs ObjectTableWidget::pairs(BOOST_SCOPED_ENUM(map::Section) section)
 {
+	/*
 	Pairs result;
 
 	foreach (ObjectTableWidgetPair *pair, pairs())
@@ -50,12 +53,14 @@ ObjectTableWidget::Pairs ObjectTableWidget::pairs(BOOST_SCOPED_ENUM(map::Section
 		if (pair->metaData()->section() == section)
 			result << pair;
 	}
+	*/
 
-	return result;
+	//return result;
 }
 
 void ObjectTableWidget::editItem(QTableWidgetItem *item)
 {
+	/*
 	foreach (ObjectTableWidgetPair *pair, m_pairs)
 	{
 		if (pair->valueItem() == item)
@@ -143,6 +148,7 @@ void ObjectTableWidget::editItem(QTableWidgetItem *item)
 			break;
 		}
 	}
+	*/
 }
 
 }

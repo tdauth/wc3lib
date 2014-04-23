@@ -450,6 +450,16 @@ inline QString mapFilter()
 	return i18n("all/allfiles application/x-w3m application/x-w3x");
 }
 
+inline QString objectsCollectionFilter()
+{
+	KMimeType::Ptr wtg(KMimeType::mimeType("application/x-w3o"));
+
+	if (wtg.isNull())
+		return i18n("*|All Files\n*.w3o|Warcraft III Objects Collection");
+
+	return i18n("all/allfiles application/x-w3o");
+}
+
 inline QString triggersFilter()
 {
 	KMimeType::Ptr wtg(KMimeType::mimeType("application/x-wtg"));

@@ -21,6 +21,8 @@
 #ifndef WC3LIB_EDITOR_METADATA_HPP
 #define WC3LIB_EDITOR_METADATA_HPP
 
+#include <boost/multi_array.hpp>
+
 #include "resource.hpp"
 #include "../map.hpp"
 
@@ -39,11 +41,23 @@ namespace editor
 class MetaData : public Resource
 {
 	public:
-		typedef QVector<QVariant> Row;
-		typedef QVector<Row> Rows;
-
-		typedef boost::shared_ptr<map::MetaData> MetaDataPtr;
-		typedef std::vector<MetaDataPtr> MetaDataEntries;
+		/**
+		 * One single cell of the SYLK table can hold one single value and supports multiple types.
+		 */
+		typedef QString Cell;
+		/**
+		 * A table is a 2-dimensional array of cells.
+		 * First index is column (x) and second index is row (y).
+		 */
+		typedef boost::multi_array<Cell, 2> Table;
+		
+		typedef Table::array_view<1>::type View;
+		typedef Table::const_array_view<1>::type ConstView;
+		
+		/**
+		 * Values of the first cells are used to get the corresponding number of row or column.
+		 */
+		typedef QHash<Cell, int> Keys;
 
 		MetaData(const KUrl &url);
 
@@ -59,18 +73,86 @@ class MetaData : public Resource
 			throw Exception(_("Saving meta data is not supported yet."));
 		}
 
-		const MetaDataEntries& metaDataEntries() const;
+		const Table& table() const;
+		const Keys& columnKeys() const;
+		const Keys& rowKeys() const;
+		ConstView row(const Cell &key) const;
+		ConstView column(const Cell &key) const;
+		ConstView row(int index) const;
+		ConstView column(int index) const;
+		
+		const Cell& value(int row, int column) const;
+		const Cell& value(int row, const Cell &columnKey) const;
+		const Cell& value(const Cell &rowKey, int column) const;
+		const Cell& value(const Cell &rowKey, const Cell &columnKey) const;
 
 	protected:
-		virtual map::MetaData* createMetaDataEntry();
-		virtual void filleMetaDataEntry(MetaDataPtr &entry, const Row &row);
-
-		MetaDataEntries m_metaDataEntries;
+		Table m_table;
+		Keys m_columnKeys;
+		Keys m_rowKeys;
 };
 
-inline const MetaData::MetaDataEntries& MetaData::metaDataEntries() const
+inline const MetaData::Table& MetaData::table() const
 {
-	return m_metaDataEntries;
+	return this->m_table;
+}
+
+inline const MetaData::Keys& MetaData::columnKeys() const
+{
+	return this->m_columnKeys;
+}
+
+inline const MetaData::Keys& MetaData::rowKeys() const
+{
+	return this->m_rowKeys;
+}
+
+inline MetaData::ConstView MetaData::row(const Cell& key) const
+{
+	return this->row(this->rowKeys()[key]);
+}
+
+inline MetaData::ConstView MetaData::row(int index) const
+{
+	typedef Table::index_range range;
+	Table::index_gen indices;
+	Table::const_array_view<1>::type myview = this->table()[indices[range(0, this->table().shape()[0])][index] ];
+	
+	return myview;
+}
+
+inline MetaData::ConstView MetaData::column(const Cell& key) const
+{
+	return this->column(this->columnKeys()[key]);
+}
+
+inline MetaData::ConstView MetaData::column(int index) const
+{
+	typedef Table::index_range range;
+	Table::index_gen indices;
+	Table::const_array_view<1>::type myview = this->table()[indices[index][range(0, this->table().shape()[1])] ];
+	
+	return myview;
+}
+
+inline const MetaData::Cell& MetaData::value(int row, int column) const
+{
+	return this->table()[column][row];
+}
+
+inline const MetaData::Cell& MetaData::value(int row, const MetaData::Cell& columnKey) const
+{
+	return this->table()[this->columnKeys()[columnKey]][row];
+}
+
+inline const MetaData::Cell& MetaData::value(const MetaData::Cell& rowKey, int column) const
+{
+	return this->table()[column][this->rowKeys()[rowKey]];
+}
+
+inline const MetaData::Cell& MetaData::value(const MetaData::Cell& rowKey, const MetaData::Cell& columnKey) const
+{
+	return this->table()[this->columnKeys()[columnKey]][this->rowKeys()[rowKey]];
 }
 
 }

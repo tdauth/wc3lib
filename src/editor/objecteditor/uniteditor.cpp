@@ -34,40 +34,172 @@ namespace wc3lib
 namespace editor
 {
 
-UnitEditor::UnitEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, KUrl("Units/UnitMetaData.slk"), parent, f)
+UnitEditor::UnitEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, parent, f)
+, m_standardUnitsItem(0)
+, m_customUnitsItem(0)
+, m_humanItem(0)
+, m_orcItem(0)
+, m_undeadItem(0)
+, m_nightElfItem(0)
+, m_neutralNagaItem(0)
+, m_neutralHostileItem(0)
+, m_neutralPassiveItem(0)
+, m_unitMetaData(0)
+, m_unitData(0)
+, m_unitUi(0)
 {
+	/*
+	 * Load default data SLK files.
+	 */
+	this->m_unitMetaData = new MetaData(KUrl("Units/UnitMetaData.slk"));
+	this->m_unitMetaData->setSource(this->source());
+	
+	try
+	{
+		this->m_unitMetaData->load();
+	}
+	catch (Exception &e)
+	{
+		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_unitMetaData->url().toEncoded().constData(), e.what().c_str()));
+	}
+	
+	this->m_unitData = new MetaData(KUrl("Units/UnitData.slk"));
+	this->m_unitData->setSource(this->source());
+	
+	try
+	{
+		this->m_unitData->load();
+	}
+	catch (Exception &e)
+	{
+		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_unitData->url().toEncoded().constData(), e.what().c_str()));
+	}
+	
+	this->m_unitUi = new MetaData(KUrl("Units/unitUI.slk"));
+	m_unitUi->setSource(this->source());
+	
+	try
+	{
+		this->m_unitUi->load();
+	}
+	catch (Exception &e)
+	{
+	}
+	
 	setupUi();
 }
 
 class ObjectTreeWidget* UnitEditor::createTreeWidget()
 {
 	ObjectTreeWidget *treeWidget = new ObjectTreeWidget(this);
-	treeWidget->setHeaderLabel(tr("Units"));
+	treeWidget->setHeaderLabel(source()->tr(this, "WESTRING_OBJTAB_UNITS"));
 
-	m_standardUnitsItem = new QTreeWidgetItem(treeWidget);
-	m_standardUnitsItem->setText(0, source()->tr(this, "WESTRING_UE_STANDARDUNITS"));
-
-
-	/// \todo Add all default unit entries
-	//m_standardUnitsItem->addChild();
-	/*
-	 * without TFT
-	m_campaignUnitsItem = new QTreeWidgetItem(treeWidget);
-	item->setText(0, source()->tr("WESTRING_UE_CAMPAIGNUNITS"));
-	*/
-
-	m_customUnitsItem = new QTreeWidgetItem(treeWidget);
-	m_customUnitsItem->setText(0, source()->tr(this, "WESTRING_UE_CUSTOMUNITS"));
-
-
-	// TODO create UnitTreeWidget
+	QList<QTreeWidgetItem*> topLevelItems;
+	this->m_standardUnitsItem = new QTreeWidgetItem(QStringList(source()->tr(this, "WESTRING_UE_STANDARDUNITS")), 0);
+	this->m_customUnitsItem = new QTreeWidgetItem(QStringList(source()->tr(this, "WESTRING_UE_CUSTOMUNITS")), 0);
+	topLevelItems << m_standardUnitsItem;
+	topLevelItems << m_customUnitsItem;
+	
+	treeWidget->addTopLevelItems(topLevelItems);
+	
+	// Races
+	m_humanItem = new QTreeWidgetItem(QStringList(source()->tr(this, "WESTRING_RACE_HUMAN")), 0);
+	m_orcItem = new QTreeWidgetItem(QStringList(source()->tr(this, "WESTRING_RACE_ORC")), 0);
+	m_undeadItem = new QTreeWidgetItem(QStringList(source()->tr(this, "WESTRING_RACE_UNDEAD")), 0);
+	m_nightElfItem = new QTreeWidgetItem(QStringList(source()->tr(this, "WESTRING_RACE_NIGHTELF")), 0);
+	m_neutralNagaItem = new QTreeWidgetItem(QStringList(source()->tr(this, "WESTRING_RACE_NEUTRAL_NAGA")), 0);
+	m_neutralHostileItem = new QTreeWidgetItem(QStringList(source()->tr(this, "WESTRING_NEUTRAL_HOSTILE")), 0);
+	m_neutralPassiveItem = new QTreeWidgetItem(QStringList(source()->tr(this, "WESTRING_NEUTRAL_PASSIVE")), 0);
+	
+	m_standardUnitsItem->addChild(m_humanItem);
+	m_standardUnitsItem->addChild(m_orcItem);
+	m_standardUnitsItem->addChild(m_undeadItem);
+	m_standardUnitsItem->addChild(m_nightElfItem);
+	m_standardUnitsItem->addChild(m_neutralNagaItem);
+	m_standardUnitsItem->addChild(m_neutralHostileItem);
+	m_standardUnitsItem->addChild(m_neutralPassiveItem);
+	
+	// add all entries from "UnitData.slk" to standard units in Unit Editor
+	if (!this->m_unitData->table().empty())
+	{
+		// skip the first row which defines the column names, start with 1
+		for (MetaData::Table::index row = 1; row < this->m_unitData->table().shape()[1]; ++row)
+		{
+			QString rawData = this->m_unitData->value(row, 0);
+			
+			
+			QTreeWidgetItem *unitItem = new QTreeWidgetItem(QStringList(rawData), 0);
+			qDebug() << "Adding unit" << rawData;
+			
+			bool ok = false;
+			int inEditor = this->m_unitUi->value(rawData, "inEditor").toInt(&ok);
+			int hiddenInEditor = this->m_unitUi->value(rawData, "hiddenInEditor").toInt(&ok);
+			
+			if (!inEditor || hiddenInEditor)
+			{
+				qDebug() << "Hiding unit " << rawData;
+				
+				continue;
+			}
+			
+			int special = this->m_unitUi->value(rawData, "special").toInt(&ok);
+			int campaign = this->m_unitUi->value(rawData, "campaign").toInt(&ok);
+			
+			QString race = this->m_unitData->value(row, "race");
+			
+			if (race == "human")
+			{
+				m_humanItem->addChild(unitItem);
+			}
+			else if (race == "orc")
+			{
+				m_orcItem->addChild(unitItem);
+			}
+			else if (race == "nightelf")
+			{
+				m_nightElfItem->addChild(unitItem);
+			}
+			else if (race == "undead")
+			{
+				m_undeadItem->addChild(unitItem);
+			}
+			else if (race == "creeps")
+			{
+				m_neutralNagaItem->addChild(unitItem);
+			}
+			else if (race == "other")
+			{
+				m_neutralPassiveItem->addChild(unitItem);
+			}
+			else if (race == "demon")
+			{
+				m_neutralHostileItem->addChild(unitItem);
+			}
+			else if (race == "naga")
+			{
+				m_neutralNagaItem->addChild(unitItem);
+			}
+			else if (race == "critters")
+			{
+				m_neutralPassiveItem->addChild(unitItem);
+			}
+			else if (race == "commoner")
+			{
+				m_neutralPassiveItem->addChild(unitItem);
+			}
+			else
+			{
+				m_standardUnitsItem->addChild(unitItem);
+			}
+		}
+	}
 
 	return treeWidget;
 }
 
 class ObjectTableWidget* UnitEditor::createTableWidget()
 {
-	return new ObjectTableWidget(this, m_metaData);
+	return new ObjectTableWidget(this, m_unitMetaData);
 }
 
 void UnitEditor::onSwitchToMap(class Map *map)
@@ -121,6 +253,26 @@ void UnitEditor::onCopyObject()
 void UnitEditor::onPasteObject()
 {
 }
+
+void UnitEditor::onUpdateCollection(const map::CustomObjects& objects)
+{
+	ObjectEditorTab::onUpdateCollection(objects);
+	
+	/*
+
+	this->treeWidget()->clear();
+	
+	QList<QTreeWidgetItem*> topLevelItems;
+	QTreeWidgetItem *standardItem = new QTreeWidgetItem(QStringList(source()->tr("WESTRING_UE_STANDARDUNITS", "UI/WorldEditStrings.txt")), 0);
+	QTreeWidgetItem *customItem = new QTreeWidgetItem(QStringList(source()->tr("WESTRING_UE_CUSTOMUNITS"), "UI/WorldEditStrings.txt"), 0);
+	topLevelItems << standardItem;
+	topLevelItems << customItem;
+	
+	this->treeWidget()->addTopLevelItems(topLevelItems);
+	*/
+}
+
+
 
 }
 

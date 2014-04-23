@@ -60,6 +60,8 @@ namespace editor
  * <li>Sound Entry Editor</li>
  * <li>Misc Editor - formerly known as "edit gameplay constants"</li>
  * </ul>
+ * 
+ * \ingroup objectdata
  */
 class ObjectEditor : public Module
 {
@@ -71,6 +73,8 @@ class ObjectEditor : public Module
 		//void objectValueChanged(const map::ObjectValue &value);
 
 	public:
+		typedef QScopedPointer<map::CustomObjectsCollection> Collection;
+		
 		ObjectEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~ObjectEditor();
 
@@ -111,6 +115,7 @@ class ObjectEditor : public Module
 
 	public slots:
 		void exportAll();
+		void importAll(const KUrl &url);
 		void importAll();
 
 	protected:
@@ -133,6 +138,11 @@ class ObjectEditor : public Module
 	protected:
 		void removeCurrentActions();
 		void addCurrentActions();
+		
+		/**
+		 * Updates the GUI of all object editor components.
+		 */
+		void updateCollection(Collection &collection);
 
 		KTabWidget *m_tabWidget;
 		// current widgets of corresponding tab widget
@@ -167,6 +177,8 @@ class ObjectEditor : public Module
 		class KAction *m_importAllObjectsAction;
 		class KAction *m_copyObjectAction;
 		class KAction *m_pasteObjectAction;
+		
+		Collection m_collection;
 };
 
 inline class KTabWidget* ObjectEditor::tabWidget() const

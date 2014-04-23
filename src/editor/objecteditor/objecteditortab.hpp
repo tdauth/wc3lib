@@ -29,6 +29,7 @@
 #include <KUrlRequester>
 
 #include "objecteditor.hpp"
+#include "../../map.hpp"
 
 namespace wc3lib
 {
@@ -41,21 +42,22 @@ class ObjectEditorTab : public QWidget
 	Q_OBJECT
 
 	public:
-		ObjectEditorTab(class MpqPriorityList *source, const KUrl &metaDataUrl, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		ObjectEditorTab(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 
 		class MpqPriorityList* source() const;
-		class MetaData *metaData() const;
+
 		/**
 		 * \return If it has an object editor (\ref hasObjectEditor()) this returns its corresponding tab index of \ref ObjectEditor::tabWidget().
 		 */
 		int tabIndex() const;
 		bool hasObjectEditor() const;
 		class ObjectEditor* objectEditor() const throw (std::bad_cast);
-		class KUrlRequester* metaDataUrlRequester() const;
 		class ObjectTreeWidget* treeWidget() const;
 		class ObjectTableWidget* tableWidget() const;
 
 		virtual QString name() const = 0;
+		
+		virtual void onUpdateCollection(const map::CustomObjects &objects);
 
 	public slots:
 		void newObject();
@@ -67,8 +69,6 @@ class ObjectEditorTab : public QWidget
 		void importAllObjects();
 		void copyObject();
 		void pasteObject();
-
-		void setMetaDataUrl(const KUrl &url);
 
 	protected:
 		friend class ObjectEditor;
@@ -105,9 +105,7 @@ class ObjectEditorTab : public QWidget
 		virtual KUrl newObjectIconUrl() const = 0;
 
 		class MpqPriorityList *m_source;
-		class MetaData *m_metaData;
 		int m_tabIndex;
-		KUrlRequester *m_metaDataUrlRequester;
 		class ObjectTreeWidget *m_treeWidget; // left side tree widget
 		class ObjectTableWidget *m_tableWidget; // centered table widget of current selected object
 };
@@ -115,11 +113,6 @@ class ObjectEditorTab : public QWidget
 inline class MpqPriorityList* ObjectEditorTab::source() const
 {
 	return m_source;
-}
-
-inline class MetaData* ObjectEditorTab::metaData() const
-{
-	return this->m_metaData;
 }
 
 inline int ObjectEditorTab::tabIndex() const
@@ -148,11 +141,6 @@ inline class ObjectEditor* ObjectEditorTab::objectEditor() const throw (std::bad
 		return boost::polymorphic_cast<class ObjectEditor*>(parentWidget()->parentWidget()->parentWidget()); // first parent is stacked widget, second tab widget and third object editor
 
 	return boost::polymorphic_cast<class ObjectEditor*>(parent());
-}
-
-inline KUrlRequester* ObjectEditorTab::metaDataUrlRequester() const
-{
-	return this->m_metaDataUrlRequester;
 }
 
 inline class ObjectTreeWidget* ObjectEditorTab::treeWidget() const
