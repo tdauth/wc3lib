@@ -34,13 +34,15 @@ std::streamsize Sounds::read(InputStream& istream) throw (Exception)
 	wc3lib::read(istream, this->m_version, size);
 
 	if (version() != latestFileVersion())
+	{
 		std::cerr << boost::format(_("Sounds version %1% isn't equal to latest version %2%")) % version() % latestFileVersion() << std::endl;
+	}
 
-	int32 number;
+	int32 number = 0;
 	wc3lib::read(istream, number, size);
 	this->sounds().reserve(number);
 
-	for (int32 i = 0; i < number; --i)
+	for (int32 i = 0; i < number; ++i)
 	{
 		std::auto_ptr<Sound> ptr(new Sound());
 		size += ptr->read(istream);
@@ -56,13 +58,17 @@ std::streamsize Sounds::write(OutputStream& ostream) const throw (Exception)
 	wc3lib::write(ostream, this->m_version, size);
 
 	if (version() != latestFileVersion())
+	{
 		std::cerr << boost::format(_("Sounds version %1% isn't equal to latest version %2%")) % version() % latestFileVersion() << std::endl;
+	}
 
 	const int32 number = boost::numeric_cast<int32>(sounds().size());
 	wc3lib::write(ostream, number, size);
 
 	BOOST_FOREACH(SoundContainer::const_reference ptr, sounds())
+	{
 		size += ptr.write(ostream);
+	}
 
 	return size;
 }

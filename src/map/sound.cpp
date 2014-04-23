@@ -35,7 +35,14 @@ std::streamsize Sound::read(InputStream &istream) throw (class Exception)
 	string eax;
 	wc3lib::readString(istream, eax, size);
 
-	if (eax == "DefaultEAXON")
+	/*
+	 * Music files seem to have an empty EAX when default value is set.
+	 * For example music "Human1.mp3".
+	 */
+	if (eax.empty()) {
+		this->m_eaxEffects = EAX::UseDefault;
+	}
+	else if (eax == "DefaultEAXON")
 		this->m_eaxEffects = EAX::Default;
 	else if (eax == "CombatSoundsEAX")
 		this->m_eaxEffects = EAX::Combat;
@@ -52,7 +59,7 @@ std::streamsize Sound::read(InputStream &istream) throw (class Exception)
 	else
 		throw Exception(boost::format(_("Sound: Unknown EAX effect \"%1%\".")) % eax);
 
-	int32 flags;
+	int32 flags = 0;
 	wc3lib::read(istream, flags, size);
 	this->m_flags = (BOOST_SCOPED_ENUM(Flags))flags;
 	wc3lib::read(istream, this->m_fadeInRate, size);
@@ -60,7 +67,8 @@ std::streamsize Sound::read(InputStream &istream) throw (class Exception)
 	wc3lib::read(istream, this->m_volume, size);
 	wc3lib::read(istream, this->m_pitch, size);
 	wc3lib::read(istream, this->m_unknown0, size);
-	int32 channel;
+	wc3lib::read(istream, this->m_unknown1, size);
+	int32 channel = 0;
 	wc3lib::read(istream, channel, size);
 	this->m_channel = (BOOST_SCOPED_ENUM(Channel))channel;
 	wc3lib::read(istream, this->m_minDistance, size);
@@ -79,12 +87,17 @@ std::streamsize Sound::read(InputStream &istream) throw (class Exception)
 std::streamsize Sound::write(OutputStream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	wc3lib::writeString(ostream, this->m_name, size);
-	wc3lib::writeString(ostream, this->m_file, size);
+	wc3lib::writeString(ostream, this->name(), size);
+	wc3lib::writeString(ostream, this->file(), size);
 	string eax;
 
 	switch (this->m_eaxEffects)
 	{
+		case EAX::UseDefault:
+			eax = "";
+			
+			break;
+		
 		case EAX::Default:
 			eax = "DefaultEAXON";
 
@@ -122,22 +135,23 @@ std::streamsize Sound::write(OutputStream &ostream) const throw (class Exception
 	}
 
 	wc3lib::writeString(ostream, eax, size);
-	wc3lib::write<int32>(ostream, this->m_flags, size);
-	wc3lib::write(ostream, this->m_fadeInRate, size);
-	wc3lib::write(ostream, this->m_fadeOutRate, size);
-	wc3lib::write(ostream, this->m_volume, size);
-	wc3lib::write(ostream, this->m_pitch, size);
-	wc3lib::write(ostream, this->m_unknown0, size);
-	wc3lib::write<int32>(ostream, this->m_channel, size);
-	wc3lib::write(ostream, this->m_minDistance, size);
-	wc3lib::write(ostream, this->m_maxDistance, size);
-	wc3lib::write(ostream, this->m_distanceCutoff, size);
-	wc3lib::write(ostream, this->m_unknown2, size);
-	wc3lib::write(ostream, this->m_unknown3, size);
-	wc3lib::write(ostream, this->m_unknown4, size);
-	wc3lib::write(ostream, this->m_unknown5, size);
-	wc3lib::write(ostream, this->m_unknown6, size);
-	wc3lib::write(ostream, this->m_unknown7, size);
+	wc3lib::write<int32>(ostream, this->flags(), size);
+	wc3lib::write(ostream, this->fadeInRate(), size);
+	wc3lib::write(ostream, this->fadeOutRate(), size);
+	wc3lib::write(ostream, this->volume(), size);
+	wc3lib::write(ostream, this->pitch(), size);
+	wc3lib::write(ostream, this->unknown0(), size);
+	wc3lib::write(ostream, this->unknown1(), size);
+	wc3lib::write<int32>(ostream, this->channel(), size);
+	wc3lib::write(ostream, this->minDistance(), size);
+	wc3lib::write(ostream, this->maxDistance(), size);
+	wc3lib::write(ostream, this->distanceCutoff(), size);
+	wc3lib::write(ostream, this->unknown2(), size);
+	wc3lib::write(ostream, this->unknown3(), size);
+	wc3lib::write(ostream, this->unknown4(), size);
+	wc3lib::write(ostream, this->unknown5(), size);
+	wc3lib::write(ostream, this->unknown6(), size);
+	wc3lib::write(ostream, this->unknown7(), size);
 
 	return size;
 }

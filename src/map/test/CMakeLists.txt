@@ -29,6 +29,10 @@ add_executable(rectstest rects.cpp)
 target_link_libraries(rectstest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
 add_test(NAME RectsTest COMMAND rectstest)
 
+add_executable(soundstest sounds.cpp)
+target_link_libraries(soundstest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
+add_test(NAME SoundsTest COMMAND soundstest)
+
 add_executable(wc3maptest wc3map.cpp)
 target_link_libraries(wc3maptest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
 add_test(NAME Wc3MapTest COMMAND wc3maptest)
@@ -40,3 +44,4 @@ configure_file(war3map.wtg war3map.wtg COPYONLY) # War Chasers
 configure_file(war3map.wct war3map.wct COPYONLY) # War Chasers
 configure_file(TestMap.w3m TestMap.w3m COPYONLY)
 configure_file(war3map.w3r war3map.w3r COPYONLY) # Reign of Chaos rects
+configure_file(war3map.w3s war3map.w3s COPYONLY) # Reign of Chaos sounds

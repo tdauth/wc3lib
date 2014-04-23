@@ -34,6 +34,7 @@ class Sound : public Format
 	public:
 		BOOST_SCOPED_ENUM_START(EAX)
 		{
+			UseDefault, /// If eax value is empty it uses the default value from the corresponding SLK file.
 			Default,
 			Combat,
 			Drums,
@@ -46,6 +47,7 @@ class Sound : public Format
 
 		BOOST_SCOPED_ENUM_START(Flags) /// \todo C++11 : int32
 		{
+			None = 0, /// Does not use any flags.
 			Looping = 0x00000001,
 			Sound3d = 0x00000002,
 			StopWhenOutOfRange = 0x00000004,
@@ -56,6 +58,7 @@ class Sound : public Format
 
 		BOOST_SCOPED_ENUM_START(Channel) /// \todo C++11 : int32
 		{
+			UseDefault = -1, /// Uses default channel from corresponding SLK file entry.
 			General = 0,
 			UnitSelection = 1,
 			UnitAcknowledgement = 2,
@@ -76,6 +79,29 @@ class Sound : public Format
 
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
+		
+		const string& name() const;
+		const string& file() const;
+		BOOST_SCOPED_ENUM(EAX) eaxEffects() const;
+		BOOST_SCOPED_ENUM(Flags) flags() const;
+		int32 fadeInRate() const;
+		int32 fadeOutRate() const;
+		int32 volume() const;
+		float32 pitch() const;
+		float32 unknown0() const;
+		int32 unknown1() const;
+		BOOST_SCOPED_ENUM(Channel) channel() const;
+		float32 minDistance() const;
+		float32 maxDistance() const;
+		float32 distanceCutoff() const;
+		float32 unknown2() const;
+		float32 unknown3() const;
+		int32 unknown4() const;
+		float32 unknown5() const;
+		float32 unknown6() const;
+		float32 unknown7() const;
+		
+		bool usesDefaultVolume() const;
 
 	protected:
 		string m_name; // gg_snd_HumanGlueScreenLoop1
@@ -110,6 +136,111 @@ class Sound : public Format
 		float32 m_unknown6; // sound cone orientation y
 		float32 m_unknown7; // sound cone orientation z
 };
+
+inline const string& Sound::name() const
+{
+	return this->m_name;
+}
+
+inline const string& Sound::file() const
+{
+	return this->m_file;
+}
+
+inline BOOST_SCOPED_ENUM(Sound::EAX) Sound::eaxEffects() const
+{
+	return this->m_eaxEffects;
+}
+
+inline BOOST_SCOPED_ENUM(Sound::Flags) Sound::flags() const
+{
+	return this->m_flags;
+}
+
+inline int32 Sound::fadeInRate() const
+{
+	return this->m_fadeInRate;
+}
+
+inline int32 Sound::fadeOutRate() const
+{
+	return this->m_fadeOutRate;
+}
+
+inline int32 Sound::volume() const
+{
+	return this->m_volume;
+}
+
+inline float32 Sound::pitch() const
+{
+	return this->m_pitch;
+}
+
+inline float32 Sound::unknown0() const
+{
+	return this->m_unknown0;
+}
+
+inline int32 Sound::unknown1() const
+{
+	return this->m_unknown1;
+}
+
+inline BOOST_SCOPED_ENUM(Sound::Channel) Sound::channel() const
+{
+	return this->m_channel;
+}
+
+inline float32 Sound::minDistance() const
+{
+	return this->m_minDistance;
+}
+
+inline float32 Sound::maxDistance() const
+{
+	return this->m_maxDistance;
+}
+
+inline float32 Sound::distanceCutoff() const
+{
+	return this->m_distanceCutoff;
+}
+
+inline float32 Sound::unknown2() const
+{
+	return this->m_unknown2;
+}
+
+inline float32 Sound::unknown3() const
+{
+	return this->m_unknown3;
+}
+
+inline int32 Sound::unknown4() const
+{
+	return this->m_unknown4;
+}
+
+inline float32 Sound::unknown5() const
+{
+	return this->m_unknown5;
+}
+
+inline float32 Sound::unknown6() const
+{
+	return this->m_unknown6;
+}
+
+inline float32 Sound::unknown7() const
+{
+	return this->m_unknown7;
+}
+
+inline bool Sound::usesDefaultVolume() const
+{
+	return this->volume() == -1;
+}
 
 }
 
