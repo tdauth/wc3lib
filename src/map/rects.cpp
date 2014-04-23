@@ -34,9 +34,11 @@ std::streamsize Rects::read(InputStream &istream) throw (class Exception)
 	wc3lib::read(istream, this->m_version, size);
 
 	if (this->version() != latestFileVersion())
+	{
 		std::cerr << boost::format(_("Rects: Unknown version \"%1%\", expected \"%2%\".")) % this->m_version % latestFileVersion() << std::endl;
+	}
 
-	int32 number;
+	int32 number = 0;
 	wc3lib::read(istream, number, size);
 	this->rects().reserve(number);
 
@@ -53,15 +55,19 @@ std::streamsize Rects::read(InputStream &istream) throw (class Exception)
 std::streamsize Rects::write(OutputStream &ostream) const throw (class Exception)
 {
 	if (this->version() != latestFileVersion())
+	{
 		std::cerr << boost::format(_("Rects: Unknown version \"%1%\", expected \"%2%\".")) % this->m_version % latestFileVersion() << std::endl;
+	}
 
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->version(), size);
-	int32 number = this->rects().size();
+	const int32 number = this->rects().size();
 	wc3lib::write(ostream, number, size);
 
 	BOOST_FOREACH(RectContainer::const_reference rect, this->rects())
+	{
 		size += rect.write(ostream);
+	}
 
 	return size;
 }

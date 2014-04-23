@@ -89,11 +89,61 @@ class Rgb : public Format
 		{
 			return m_blue;
 		}
+		
+		/**
+		 * The first 8 bits are not used (usually alpha value for argb or red value for rgba).
+		 */
+		virtual uint32_t value() const
+		{
+			return ((uint32_t)this->red() << 16) + ((uint32_t)this->green() << 8) + this->blue();
+		}
+		
+		bool operator==(uint32_t value) const
+		{
+			return this->value() == value;
+		}
+		
+		bool operator==(const Rgb &other) const
+		{
+			return this->value() == other.value();
+		}
 
 	protected:
 		uint8_t m_red;
 		uint8_t m_green;
 		uint8_t m_blue;
+};
+
+class Bgr : public Rgb
+{
+	public:
+		virtual std::streamsize read(InputStream &istream) throw (Exception)
+		{
+			std::streamsize size = 0;
+			wc3lib::read(istream, m_blue, size);
+			wc3lib::read(istream, m_green, size);
+			wc3lib::read(istream, m_red, size);
+
+			return size;
+		}
+
+		virtual std::streamsize write(OutputStream &ostream) const throw (Exception)
+		{
+			std::streamsize size = 0;
+			wc3lib::write(ostream, blue(), size);
+			wc3lib::write(ostream, green(), size);
+			wc3lib::write(ostream, red(), size);
+
+			return size;
+		}
+		
+		/**
+		 * The first 8 bits are not used (usually alpha value for argb or red value for rgba).
+		 */
+		virtual uint32_t value() const
+		{
+			return ((uint32_t)this->blue() << 16) + ((uint32_t)this->green() << 8) + this->red();
+		}
 };
 
 class Rgba : public Rgb
@@ -132,6 +182,11 @@ class Rgba : public Rgb
 		{
 			return m_alpha;
 		}
+		
+		virtual uint32_t value() const
+		{
+			return ((uint32_t)this->red() << 24) + ((uint32_t)this->green() << 16) + ((uint32_t)this->blue() << 8) + this->alpha();
+		}
 
 	protected:
 		uint8_t m_alpha;
@@ -160,6 +215,11 @@ class Bgra : public Rgba
 			wc3lib::write(ostream, alpha(), size);
 
 			return size;
+		}
+		
+		virtual uint32_t value() const
+		{
+			return ((uint32_t)this->blue() << 24) + ((uint32_t)this->green() << 16) + ((uint32_t)this->red() << 8) + this->alpha();
 		}
 };
 

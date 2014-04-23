@@ -45,7 +45,12 @@ class Rect : public Format
 		int32 index() const;
 		id weatherEffectId() const;
 		const string& soundName() const;
-		const struct Rgb& color() const;
+		const struct Bgr& color() const;
+		
+		/**
+		 * If \ref weatherEffectId() is set to 0 there is no weather effect.
+		 */
+		bool hasWeatherEffect() const;
 
 	protected:
 		float32 m_left;
@@ -56,7 +61,7 @@ class Rect : public Format
 		int32 m_index;
 		id m_weatherEffectId;
 		string m_soundName; // class Sound *m _sound
-		Rgb m_color; // no alpha!
+		Bgr m_color; // no alpha!
 
 };
 
@@ -100,10 +105,16 @@ inline const string& Rect::soundName() const
 	return this->m_soundName;
 }
 
-inline const Rgb& Rect::color() const
+inline const Bgr& Rect::color() const
 {
 	return this->m_color;
 }
+
+inline bool Rect::hasWeatherEffect() const
+{
+	return this->weatherEffectId() != 0;
+}
+
 
 }
 

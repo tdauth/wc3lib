@@ -37,7 +37,15 @@ std::streamsize Rect::read(InputStream &istream) throw (class Exception)
 	wc3lib::read(istream, this->m_index, size);
 	wc3lib::read(istream, this->m_weatherEffectId, size);
 	wc3lib::readString(istream, this->m_soundName, size);
-	wc3lib::read(istream, this->m_color, size);
+	size += this->m_color.read(istream);
+	byte end = 0;
+	wc3lib::read(istream, end, size);
+	
+	// in Reign of Chaos the ending byte usually is -1 (detected in test files)
+	if (end != -1)
+	{
+		std::cerr << boost::format(_("Incorrect end byte %1%.")) % ((int)end) << std::endl;
+	}
 
 	return size;
 }
@@ -45,15 +53,17 @@ std::streamsize Rect::read(InputStream &istream) throw (class Exception)
 std::streamsize Rect::write(OutputStream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	wc3lib::write(ostream, this->m_left, size);
-	wc3lib::write(ostream, this->m_right, size);
-	wc3lib::write(ostream, this->m_bottom, size);
-	wc3lib::write(ostream, this->m_top, size);
-	writeString(ostream, this->m_name, size);
-	wc3lib::write(ostream, this->m_index, size);
-	wc3lib::write(ostream, this->m_weatherEffectId, size);
-	wc3lib::writeString(ostream, this->m_soundName, size);
-	wc3lib::write(ostream, this->m_color, size);
+	wc3lib::write(ostream, this->left(), size);
+	wc3lib::write(ostream, this->right(), size);
+	wc3lib::write(ostream, this->bottom(), size);
+	wc3lib::write(ostream, this->top(), size);
+	writeString(ostream, this->name(), size);
+	wc3lib::write(ostream, this->index(), size);
+	wc3lib::write(ostream, this->weatherEffectId(), size);
+	wc3lib::writeString(ostream, this->soundName(), size);
+	size += this->color().write(ostream);
+	byte end = -1;
+	wc3lib::write(ostream, end, size);
 
 	return size;
 }

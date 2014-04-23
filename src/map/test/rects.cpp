@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2013 by Tamino Dauth                                    *
+ *   Copyright (C) 2014 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,15 +18,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#define BOOST_TEST_MODULE CustomTextTriggersTest
+#define BOOST_TEST_MODULE RectsTest
 #include <boost/test/unit_test.hpp>
 #include <sstream>
 #include <iostream>
 
-//#include <boost/foreach.hpp>
-
 #include "../../platform.hpp"
-#include "../customtexttriggers.hpp"
+#include "../rects.hpp"
 
 #ifndef BOOST_TEST_DYN_LINK
 #error Define BOOST_TEST_DYN_LINK for proper definition of main function.
@@ -34,36 +32,42 @@
 
 using namespace wc3lib;
 
-BOOST_AUTO_TEST_CASE(SimpleReadTest) {
-	ifstream in("war3map.wct", ifstream::in | ifstream::binary); // War Chasers
+BOOST_AUTO_TEST_CASE(ReadTest) {
+	ifstream in("war3map.w3r", ifstream::in | ifstream::binary); // TestMap.w3m
 	
 	BOOST_REQUIRE(in);
 	
-	map::CustomTextTriggers customTextTriggers;
+	map::Rects rects;
 	
 	bool valid = true;
 	
 	try {
-		customTextTriggers.read(in);
+		rects.read(in);
 	}
 	catch (...) {
 		valid = false;
 	}
 	
 	BOOST_REQUIRE(valid);
+	
+	BOOST_REQUIRE(rects.rects().size() == 3);
+	const map::Rect &rect = rects.rects().at(0);
+	BOOST_REQUIRE(rect.name() == "Blue Rect");
+	BOOST_REQUIRE(rect.color() == 0xFF0000); // blue - BGR color!
+	// TODO check data from map!
 }
 
 BOOST_AUTO_TEST_CASE(ReadWriteReadTest) {
-	ifstream in("war3map.wct", ifstream::in | ifstream::binary); // War Chasers
+	ifstream in("war3map.w3r", ifstream::in | ifstream::binary); // Reign of Chaos
 	
 	BOOST_REQUIRE(in);
 	
-	map::CustomTextTriggers customTextTriggers;
+	map::Rects rects;
 	
 	bool valid = true;
 	
 	try {
-		customTextTriggers.read(in);
+		rects.read(in);
 	}
 	catch (...) {
 		valid = false;
@@ -72,12 +76,12 @@ BOOST_AUTO_TEST_CASE(ReadWriteReadTest) {
 	BOOST_REQUIRE(valid);
 	
 	in.close();
-	ofstream out("war3map.wctout", ifstream::out | ifstream::binary);
+	ofstream out("war3map.w3rout", ifstream::out | ifstream::binary);
 	
 	BOOST_REQUIRE(out);
 	
 	try {
-		customTextTriggers.write(out);
+		rects.write(out);
 	}
 	catch (...) {
 		valid = false;
@@ -85,13 +89,15 @@ BOOST_AUTO_TEST_CASE(ReadWriteReadTest) {
 	
 	BOOST_REQUIRE(valid);
 	
-	customTextTriggers.triggerTexts().clear(); // ensure it's empty!
-	in.open("war3map.wctout", ifstream::in | ifstream::binary); // War Chasers, reopen
+	out.close(); // flush file stream
+	rects.rects().clear(); // ensure it's empty!
+	
+	in.open("war3map.w3rout", ifstream::in | ifstream::binary); // Reign of Chaos, reopen
 	
 	BOOST_REQUIRE(in);
 	
 	try {
-		customTextTriggers.read(in);
+		rects.read(in);
 	
 	}
 	catch (...) {
