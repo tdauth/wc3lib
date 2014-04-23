@@ -1,5 +1,5 @@
 
-find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+find_package(Boost COMPONENTS unit_test_framework chrono REQUIRED)
 
 add_executable(customobjectstest customobjects.cpp)
 target_link_libraries(customobjectstest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
@@ -40,6 +40,7 @@ add_test(NAME Wc3MapTest COMMAND wc3maptest)
 configure_file(customobjects.w3o customobjects.w3o COPYONLY) # The Frozen Throne
 configure_file(TriggerData.txt TriggerData.txt COPYONLY) # Warcraft III
 configure_file(TriggerStrings.txt TriggerStrings.txt COPYONLY) # Warcraft III
+configure_file(WorldEditStrings.txt WorldEditStrings.txt COPYONLY) # The Frozen Throne "War3xlocal.mpq"
 configure_file(war3map.wtg war3map.wtg COPYONLY) # War Chasers
 configure_file(war3map.wct war3map.wct COPYONLY) # War Chasers
 configure_file(TestMap.w3m TestMap.w3m COPYONLY)

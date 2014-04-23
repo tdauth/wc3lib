@@ -24,6 +24,7 @@
 #include <iostream>
 
 //#include <boost/foreach.hpp>
+#include <boost/chrono.hpp>
 
 #include "../../spirit.hpp"
 #include "../../platform.hpp"
@@ -46,7 +47,8 @@ bool isHaha(const map::Txt::Pair &pair)
 }
 
 BOOST_AUTO_TEST_CASE(TxtSimpleReadTest) {
-	spiritTraceLog.open("txtsimplereadtestraces.xml");
+	spiritTraceLog.close();
+	spiritTraceLog.open("txtsimplereadtest_traces.xml");
 	
 	BOOST_REQUIRE(spiritTraceLog);
 	
@@ -94,6 +96,11 @@ BOOST_AUTO_TEST_CASE(TxtReadTest) {
 	"\n"
 	;
 	
+	spiritTraceLog.close();
+	spiritTraceLog.open("txtreadtest_traces.xml");
+	
+	BOOST_REQUIRE(spiritTraceLog);
+	
 	map::Txt txt;
 	std::basic_stringstream<byte> sstream;
 	sstream << myTxt;
@@ -138,6 +145,11 @@ BOOST_AUTO_TEST_CASE(TxtReadTestWithSpacesAtBeginning) {
 	"Haha = 12// is there an avenging power in nature?\n"
 	"\n"
 	;
+	
+	spiritTraceLog.close();
+	spiritTraceLog.open("txtreadtestwithspacesatbeginning_traces.xml");
+	
+	BOOST_REQUIRE(spiritTraceLog);
 	
 	map::Txt txt;
 	std::basic_stringstream<byte> sstream;
@@ -201,6 +213,11 @@ BOOST_AUTO_TEST_CASE(TxtReadTriggerDataTest) {
 	"OperatorCompareDestructibleHint=\n"
 	;
 	
+	spiritTraceLog.close();
+	spiritTraceLog.open("txtreadertriggerdatatest_traces.xml");
+	
+	BOOST_REQUIRE(spiritTraceLog);
+	
 	map::Txt txt;
 	std::basic_stringstream<byte> sstream;
 	sstream << myTxt;
@@ -249,6 +266,11 @@ BOOST_AUTO_TEST_CASE(TxtWriteTriggerDataTest) {
 	"OperatorCompareDestructibleHint=\n"
 	;
 	
+	spiritTraceLog.close();
+	spiritTraceLog.open("txtwritetriggerdatatest_traces.xml");
+	
+	BOOST_REQUIRE(spiritTraceLog);
+	
 	map::Txt txt;
 	std::basic_stringstream<byte> sstream;
 	sstream << myTxt;
@@ -296,6 +318,40 @@ BOOST_AUTO_TEST_CASE(TxtWriteTriggerDataTest) {
 	BOOST_REQUIRE(std::find_if(begin, end, isOperatorCompareDestructibleHint) != end);
 	//std::cout << "Value: " << std::find_if(begin, end, isOperatorCompareDestructibleHint)->second << std::endl;
 	BOOST_REQUIRE(std::find_if(begin, end, isOperatorCompareDestructibleHint)->second == "");
+}
+
+/*
+ * We test the German "WorldEditStrings.txt" file which needs UTF-8 support and contains many many entries.
+ * This is the most realistic test since it uses an original file from The Frozen Throne.
+ */
+BOOST_AUTO_TEST_CASE(WorldEditStrings) {
+	spiritTraceLog.close();
+	spiritTraceLog.open("worldeditstrings_traces.xml");
 	
+	BOOST_REQUIRE(spiritTraceLog);
 	
+	ifstream in("WorldEditStrings.txt");
+	
+	BOOST_REQUIRE(in);
+	
+	map::Txt txt;
+	bool valid = true;
+	boost::chrono::high_resolution_clock::time_point now = boost::chrono::high_resolution_clock::now();
+	
+	try
+	{
+		txt.read(in);
+	}
+	catch (Exception &e)
+	{
+		std::cerr << e.what() << std::endl;
+		valid = false;
+	}
+	
+	BOOST_REQUIRE(valid);
+	
+	boost::chrono::high_resolution_clock::time_point finished = boost::chrono::high_resolution_clock::now();
+	boost::chrono::high_resolution_clock::duration duration = finished - now;
+	
+	std::cout << "Duration: " << duration << std::endl;
 }

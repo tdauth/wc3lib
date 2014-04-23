@@ -54,15 +54,15 @@ namespace client
 {
 
 namespace qi = boost::spirit::qi;
+namespace ascii = boost::spirit::ascii;
+namespace classic = boost::spirit::classic;
 
-using namespace boost::spirit;
-//using namespace boost::spirit::qi;
-using qi::double_;
-using qi::phrase_parse;
-using standard::space;
+/**
+ * The Unicode namespace can be used for UTF-8 string and comments parsing in a TXT file.
+ */
+namespace unicode = boost::spirit::qi::unicode;
+
 using boost::phoenix::ref;
-
-//typedef BOOST_TYPEOF(space | lit("//") >> *(standard::char_ - qi::eol) >> qi::eol) SkipperType;
 
 /*
  * Doesn't consume eols since value pairs are separated linewise which therefore can be specified easier in the rules
@@ -70,54 +70,165 @@ using boost::phoenix::ref;
 template<typename Iterator>
 struct CommentSkipper : public qi::grammar<Iterator> {
 
-	qi::rule<Iterator> skip;
-	
-	CommentSkipper() : CommentSkipper::base_type(skip, "PL/0")
+	CommentSkipper() : CommentSkipper<Iterator>::base_type(skip, "comments and blanks")
 	{
-		skip = ascii::blank | lit("//") >> *(standard::char_ - qi::eol) >> &qi::eol; // do not consume eol, since it is required for other rules
+		using qi::lit;
+		using ascii::char_;
+		using ascii::blank;
+		using qi::eol;
+		using qi::eoi;
+		using qi::eps;
 		
-		BOOST_SPIRIT_DEBUG_NODES((skip));
+		/*
+		* Comments may use UTF-8 characters.
+		*/
+		comment %=
+			lit("//") >> *(unicode::char_ - eol)
+		;
+		
+		emptyline %=
+			+blank >> -comment // blanks only optionally followed by a comment
+			| comment // one comment only
+		;
+		
+		moreemptylines %=
+			(eol >> -emptyline >> &eol)
+		;
+		
+		emptylines %=
+			// do not consume the eol of the last empty line because it is the eol between all skipped empty lines and the first one
+			+moreemptylines
+		;
+		
+		skip %= 
+			emptylines
+			| comment
+			| blank // check blank as last value
+		;
+		
+		emptyline.name("emptyline");
+		moreemptylines.name("moreemptylines");
+		emptylines.name("emptylines");
+		comment.name("comment");
+		skip.name("skip");
+		
+		BOOST_SPIRIT_DEBUG_NODES(
+			(emptyline)
+			(moreemptylines)
+			(emptylines)
+			(comment)
+			(skip)
+		);
 	}
+	
+	qi::rule<Iterator> skip;
+	qi::rule<Iterator> emptyline;
+	qi::rule<Iterator> moreemptylines;
+	qi::rule<Iterator> emptylines;
+	qi::rule<Iterator> comment;
 };
 
 template <typename Iterator, typename Skipper = CommentSkipper<Iterator> >
 struct KeyValueSquence : qi::grammar<Iterator, Txt::Pairs(), Skipper>
 {
-	//Txt::Pairs::value_type
+	KeyValueSquence() : KeyValueSquence::base_type(pairs, "key value sequence")
+	{
+		using qi::lit;
+		using qi::no_skip;
+		using ascii::char_;
+		using ascii::blank;
+		using qi::eol;
+		using qi::eoi;
+		using qi::eps;
+		
+		// use only > for non backtracking expectations to get more specific error results
+		
+		pairs =
+			pair % qi::eol
+		;
+		pair =
+			key
+			>> lit('=')
+			>> value
+		;
+		
+		key =
+			char_("a-zA-Z_")
+			>> *char_("a-zA-Z_0-9")
+		;
+		
+		// values can be empty or all characters except eol which indicates the and of the value, eoi is the end of the stream and "//" starts a comment!
+		value =
+			no_skip[
+				*(unicode::char_ - (qi::eol|lit("//")))
+			]
+		;
+		
+		/*
+		 * Define all names:
+		 */
+		pairs.name("pairs");
+		pair.name("pair");
+		key.name("key");
+		value.name("value");
+		
+		BOOST_SPIRIT_DEBUG_NODES(
+			(pairs)
+			(pair)
+			(key)
+			(value)
+		);
+	}
+	
 	qi::rule<Iterator, Txt::Pairs(), Skipper> pairs; // NOTE first rule used as parameter for base_type does always need the skipper type of the grammar
 	qi::rule<Iterator, Txt::Pair(), Skipper> pair;
 	qi::rule<Iterator, string(), Skipper> key;
 	qi::rule<Iterator, string()> value; // only skip blanks at beginning and at the end
-
-	KeyValueSquence() : KeyValueSquence::base_type(pairs)
-	{
-		pairs =  +pair; // use only > for non backtracking expectations to get more specific error results
-		pair  =  +qi::eol >> key >> lit('=') >> value; // -('=' >> value)
-		key   =  standard::char_("a-zA-Z_") >> *standard::char_("a-zA-Z_0-9");
-		// don't user skipper, omit only blanks at the beginning -> see TriggerData.txt
-		value = qi::omit[*ascii::blank] >> *(standard::char_ - (qi::eol|qi::eoi|lit("//"))); // values can be empty or all characters except eol which indicates the and of the value, eoi is the end of the stream and "//" starts a comment!
-		
-		BOOST_SPIRIT_DEBUG_NODES((pairs)(pair)(key)(value));
-	}
 };
 
 template <typename Iterator, typename Skipper = CommentSkipper<Iterator> >
 struct SectionRule : qi::grammar<Iterator, Txt::Section(), Skipper>
 {
+	SectionRule() : SectionRule::base_type(query, "section rule")
+	{
+		using qi::lit;
+		using ascii::char_;
+		using ascii::blank;
+		using qi::eol;
+		using qi::eoi;
+		using qi::eps;
+		
+		query =
+			name
+			> qi::eol
+			> -entries
+		;
+		
+		name =
+			lit('[')
+			> char_("a-zA-Z_")
+			> *char_("a-zA-Z_0-9")
+			> lit(']')
+		;
+		
+		entries = keyValueSequence;
+		
+		query.name("query");
+		name.name("name");
+		entries.name("entries");
+		
+		BOOST_SPIRIT_DEBUG_NODES(
+			(query)
+			(name)
+			(entries)
+		);
+	}
+	
 	qi::rule<Iterator, Txt::Section(), Skipper> query;
 	qi::rule<Iterator, string(), Skipper> name;
 	qi::rule<Iterator, Txt::Pairs(), Skipper> entries;
 	
 	KeyValueSquence<Iterator, Skipper> keyValueSequence;
-
-	SectionRule() : SectionRule::base_type(query)
-	{
-		query =  name > -entries;
-		name  =  lit('[') > standard::char_("a-zA-Z_") > *standard::char_("a-zA-Z_0-9") > lit(']');
-		entries = keyValueSequence;
-		
-		BOOST_SPIRIT_DEBUG_NODES((query)(name));
-	}
 };
 
 template <typename Iterator>
@@ -128,13 +239,15 @@ bool parse(Iterator first, Iterator last, Txt::Sections &sections)
 	std::vector<Txt::Section> tmpSections;
 	
 	bool r = boost::spirit::qi::phrase_parse(
-	first,
-	last,
-	*qi::eol >> (sectionGrammar % +qi::eol) >> *qi::eol > qi::eoi,
-	//(*qi::eol > -(sectionGrammar > *(+qi::eol > sectionGrammar)) > *qi::eol) > qi::eoi,
-	// comment skipper
-	commentSkipper,
-	tmpSections //sections store into "sections"!
+		first,
+		last,
+		*qi::eol // TODO do we have to consume eols at the beginning or does the skipper handle them?
+		>> (sectionGrammar % qi::eol)
+		>> *qi::eol,
+		//(*qi::eol > -(sectionGrammar > *(+qi::eol > sectionGrammar)) > *qi::eol) > qi::eoi,
+		// comment skipper
+		commentSkipper,
+		tmpSections //sections store into "sections"!
 	);
 
 	if (first != last) // fail if we did not get a full match
