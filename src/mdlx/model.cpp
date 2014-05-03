@@ -35,7 +35,7 @@
 #include "particleemitter2s.hpp"
 #include "ribbonemitters.hpp"
 #include "events.hpp"
-#include "../internationalisation.hpp"
+#include "../i18n.hpp"
 #include "../utilities.hpp"
 
 namespace wc3lib
@@ -54,51 +54,6 @@ Model::~Model()
 
 std::streamsize Model::readMdl(istream &istream) throw (class Exception)
 {
-	string value;
-	std::streamsize size = 0;
-	parse(istream, value, size);
-
-	if (value == "Model")
-	{
-		parse(istream, value, size);
-		strcpy(this->m_name, value.c_str());
-	}
-	else if (value == "NumGeosets")
-	{
-	}
-	else if (value == "NumGeosetAnims")
-	{
-	}
-	else if (value == "NumHelpers")
-	{
-	}
-	else if (value == "NumLights")
-	{
-	}
-	else if (value == "NumBones")
-	{
-	}
-	else if (value == "NumAttachments")
-	{
-	}
-	/*
-	NumGeosets <long>,
-	NumGeosetAnims <long>,
-	NumHelpers <long>,
-	NumLights <long>,
-	NumBones <long>,
-	NumAttachments <long>,
-	NumParticleEmitters <long>,
-	NumParticleEmitters2 <long>,
-	NumRibbonEmitters <long>,
-	NumEvents <long>,
-	BlendTime <long>,
-	MinimumExtent { <float_x>, <float_y>, <float_z> },
-	MaximumExtent { <float_x>, <float_y>, <float_z> },
-	BoundsRadius <float>,
-	*/
-
-
 	return 0;
 }
 

@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include <vector>
+#include <iomanip>
 
 #include "client.hpp" // defines debug, has to be included first!
 #include "ast.hpp"
@@ -106,11 +107,11 @@ inline void add_type_to_symbol_table(jass_type_declarations &declarations, jass_
  */
 inline jass_type_reference get_type_symbol(jass_type_declarations &types, const std::string &value) {
 	jass_type *type = types.find(value.c_str());
-	
+
 	if (type == 0) {
 		return value;
 	}
-	
+
 	return type;
 }
 
@@ -120,11 +121,11 @@ inline void add_var_to_symbol_table(jass_var_declarations &declarations, jass_va
 
 inline jass_var_reference get_var_symbol(jass_var_declarations &vars, const std::string &value) {
 	jass_var_declaration *var = vars.find(value.c_str());
-	
+
 	if (var == 0) {
 		return value;
 	}
-	
+
 	return var;
 }
 
@@ -134,11 +135,11 @@ inline void add_function_to_symbol_table(jass_function_declarations &declaration
 
 inline jass_function_reference get_function_symbol(jass_function_declarations &functions, const std::string &value) {
 	jass_function_declaration *function = functions.find(value.c_str());
-	
+
 	if (function == 0) {
 		return function;
 	}
-	
+
 	return function;
 }
 
@@ -154,40 +155,40 @@ comment_skipper<Iterator>::comment_skipper() : comment_skipper<Iterator>::base_t
 	using qi::eol;
 	using qi::eoi;
 	using qi::eps;
-	
+
 	/*
 	 * Comments may use UTF-8 characters.
 	 */
 	comment %=
 		lit("//") >> *(unicode::char_ - eol)
 	;
-	
+
 	emptyline %=
 		+blank >> -comment // blanks only optionally followed by a comment
 		| comment // one comment only
 	;
-	
+
 	moreemptylines %=
 		(eol >> -emptyline >> &eol)
 	;
-	
+
 	emptylines %=
 		// do not consume the eol of the last empty line because it is the eol between all skipped empty lines and the first one
 		+moreemptylines
 	;
-	
-	skip %= 
+
+	skip %=
 		emptylines
 		| comment
 		| blank // check blank as last value
 	;
-	
+
 	emptyline.name("emptyline");
 	moreemptylines.name("moreemptylines");
 	emptylines.name("emptylines");
 	comment.name("comment");
 	skip.name("skip");
-	
+
 	BOOST_SPIRIT_DEBUG_NODES(
 		(emptyline)
 		(moreemptylines)
@@ -238,33 +239,33 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 	using phoenix::at_c;
 	using phoenix::push_back;
 	using phoenix::ref;
-	
+
 	// TODO get locals of current function as well (including function parameters which are also locals)!
 	var_reference =
 		identifier[_val = phoenix::bind(&get_var_symbol, ref(global_symbols), _1)]
 	;
-	
+
 	type_reference =
 		identifier[_val = phoenix::bind(&get_type_symbol, ref(type_symbols), _1)]
 	;
-	
+
 	// gets natives as well
 	function_reference =
 		identifier[_val = phoenix::bind(&get_function_symbol, ref(function_symbols), _1)]
 	;
-	
-	identifier %= 
+
+	identifier %=
 		lexeme[
 			char_("a-zA-Z")
 			>> *char_("a-zA-Z_0-9")
 			/*
 			 * TODO This expression cannot be resolved properly by Boost Spirit
-			>> -(*char_("a-zA-Z_0-9") 
+			>> -(*char_("a-zA-Z_0-9")
 			> char_("a-zA-Z0-9"))
 			*/
 		]
 	;
-	
+
 	//----------------------------------------------------------------------
 	// Statements
 	//----------------------------------------------------------------------
@@ -277,11 +278,11 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 		| return_statement
 		| debug_statement
 	;
-	
+
 	statements %=
 		statement % eol
 	;
-	
+
 	set %=
 		lit("set")
 		>> (
@@ -295,7 +296,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 	args %=
 		expression % lit(',')
 	;
-	
+
 	call %=
 		lit("call")
 		>> function_reference
@@ -303,15 +304,15 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 		>> -args
 		>> lit(')')
 	;
-	
+
 	conditional_statements %=
 		expression >> lit("then")
 		>> -(eol >> statements)
 	;
-	
+
 	ifthenelse %=
 		lit("if") >> conditional_statements
-		>> 
+		>>
 		*(
 			eol >> lit("elseif") >> conditional_statements
 		)
@@ -322,7 +323,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 		)
 		>> eol >> lit("endif")
 	;
-	
+
 	loop %=
 		lit("loop")
 		>> -(eol >> statements)
@@ -346,11 +347,11 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 			| loop
 		)
 	;
-	
+
 	//----------------------------------------------------------------------
 	// Expressions
 	//----------------------------------------------------------------------
-	
+
 	expression %=
 		binary_operation
 		| unary_operation
@@ -361,7 +362,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 		| var_reference
 		| parentheses
 	;
-	
+
 	/*
 	* For literals we do not use parsers provided by Boost Spirit to keep the exact grammar definition
 	* and to be more flexible in type representation of integers and reals etc.
@@ -371,38 +372,38 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 	 * hex and oct are unsigned as specified by Boost Spirit
 	 */
 	integer_literal %=
-		lexeme[ 
-			(lit('$') | qi::no_case["0x"]) 
-			>> hex 
+		lexeme[
+			(lit('$') | qi::no_case["0x"])
+			>> hex
 		] // TODO custom type int32?
-		| lexeme[ 
+		| lexeme[
 			lit('0')
 			>> oct
 		] // TODO custom type int32?
 		| qi::uint_parser<int32>()
 	;
-	
+
 	real_literal %=
 		qi::real_parser<float32, qi::strict_ureal_policies<float32> >() // parse unsigned! if no dot is available it should be a "integer_literal" therefore use strict policies
 	;
-	
+
 	string_literal %=
 		lexeme[
 			lit("\"")
 			>>
 			*(
-				unicode::char_ - char_('\"') - char_('\\') 
+				unicode::char_ - char_('\"') - char_('\\')
 				| lit('\\')[push_back(_val, '\\')] >> unicode::char_
 			)
 			>> lit("\"")
 		]
 	;
-	
+
 	boolean_literal %=
 		true_
 		| false_
 	;
-		
+
 	fourcc_literal %=
 		as<fourcc>()[
 			lit('\'')
@@ -412,7 +413,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 			>> lit('\'')
 		]
 	;
-	
+
 	null %=
 		as<jass_null>()[
 			lit("null")[_val = jass_null()]
@@ -431,7 +432,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 		| constant
 		| parentheses
 	;
-	
+
 	binary_operator %=
 		binary_operators
 	;
@@ -446,7 +447,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 			>> expression
 		)*/
 	;
-	
+
 	unary_operator %=
 		unary_operators
 	;
@@ -455,26 +456,26 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 		unary_operator
 		>> expression
 	;
-	
+
 	function_call %=
 		function_reference
 		>> lit('(')
 		>> -args
 		>> lit(')')
 	;
-	
+
 	array_reference %=
 		var_reference
 		>> lit('[')
 		>> expression
 		>> lit(']')
 	;
-	
+
 	function_ref %=
 		lit("function")
 		>> function_reference
 	;
-	
+
 	constant %=
 		real_literal // has to be checked before integer literal since dot is required
 		| integer_literal
@@ -483,7 +484,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 		| string_literal
 		| null
 	;
-	
+
 	parentheses %=
 		lit('(') >> expression >> lit(')')
 	;
@@ -498,11 +499,11 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 		>> identifier[at_c<2>(_val) = _1]
 		>> -(lit('=') >> expression[at_c<3>(_val) = _1])
 	;
-	
+
 	locals %=
 		(lit("local") >> var_declaration) % eol
 	;
-	
+
 	//----------------------------------------------------------------------
 	// Global Declarations
 	//----------------------------------------------------------------------
@@ -510,29 +511,29 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 		lit("type") >> identifier >>
 		lit("extends") >> type_reference // parent type is not optional!
 	;
-	
+
 	// do not use %= since we have to set the booleans in semantic actions
 	global %=
 		qi::matches[lit("constant")]
 		>> var_declaration
 	;
-	
+
 	globals %=
 		lit("globals") >> +eol >>
 		global % +eol >> // % operator is used to generate std::vectors!
 		+eol >>
 		lit("endglobals") // >> finish // end of line or input is always expected after "endglobals"!
 	;
-	
+
 	function_parameter %=
 		type_reference
 		>> identifier
 	;
-	
+
 	function_parameters %=
 		function_parameter % lit(',')
 	;
-	
+
 	function_declaration =
 		identifier[at_c<0>(_val) = _1] >>
 		lit("takes") >>
@@ -541,23 +542,23 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 			| function_parameters[at_c<1>(_val) =_1]
 		)
 		>> lit("returns")
-		>> 
+		>>
 		(
 			string("nothing")[at_c<2>(_val) = _1]
 			| type_reference[at_c<2>(_val) = _1]
 		)
 	;
-	
+
 	native %=
 		qi::matches[lit("constant")]
 		>> lit("native")
 		>> function_declaration
 	;
-	
+
 	natives %=
 		native % eol
 	;
-	
+
 	declarations =
 		eps[_val = jass_declarations()] >>
 		(
@@ -568,7 +569,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 		)
 		% eol
 	;
-	
+
 	function %=
 		qi::matches[lit("constant")]
 		>> lit("function")
@@ -577,7 +578,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 			eol
 			>> locals[at_c<2>(_val) = _1]
 		)
-		
+
 		>> -(
 			eol
 			>> statements[at_c<3>(_val) = _1]
@@ -589,7 +590,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 		function % eol
 	;
 
-	
+
 	file %=
 		*eol >>
 		-declarations >>
@@ -597,16 +598,16 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 		-functions >>
 		*eol
 		;
-	
+
 	/*
 	 * Parses the current file
 	 */
-	jass = 
+	jass =
 		eps[_val = ast] >>
 		file
 		;
-	
-	
+
+
 	/*
 	 * put all rule names here:
 	 */
@@ -633,14 +634,14 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 	// Expressions
 	//----------------------------------------------------------------------
 	expression.name("expression");
-	
+
 	integer_literal.name("integer_literal");
 	real_literal.name("real_literal");
 	string_literal.name("string_literal");
 	boolean_literal.name("boolean_literal");
 	fourcc_literal.name("fourcc_literal");
 	null.name("null");
-	
+
 	binary_operation_expression.name("binary_operation_expression");
 	binary_operator.name("binary_operator");
 	binary_operation.name("binary_operation");
@@ -662,34 +663,34 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 	type.name("type");
 	global.name("global");
 	globals.name("globals");
-	
+
 	function_parameter.name("function_parameter");
 	function_parameters.name("function_parameters");
 	function_declaration.name("function_declaration");
 	native.name("native");
 	natives.name("natives");
-	
+
 	declarations.name("declarations");
-	
+
 	function.name("function");
 	functions.name("functions");
-	
+
 	file.name("file");
 	jass.name("jass");
-	
+
 	/*
 	 * JASS error recovery.
 	 * Whenever an invalid line is parsed just print the error and continue with the next line.
-	 * 
-	 * _1 refers to the current iterator position 
-	 * _2 refers to the end of input 
-	 * _3 refers to the position of the error 
-	 * _4 refers to the info instance returned by what() called on the failing 
+	 *
+	 * _1 refers to the current iterator position
+	 * _2 refers to the end of input
+	 * _3 refers to the position of the error
+	 * _4 refers to the info instance returned by what() called on the failing
 	 */
-	on_error<retry> // note: retry 
+	on_error<retry> // note: retry
 	(
 		statement, qi::_1 = qi::_3
-	); 
+	);
 
 	on_error<fail>
 	(
@@ -703,7 +704,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 			<< val("\"")
 			<< std::endl
 	);
-	
+
 	/*
 	 * Store location info on success.
 	 * https://stackoverflow.com/questions/19612657/boostspirit-access-position-iterator-from-semantic-actions
@@ -714,7 +715,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 	qi::on_success(identifier, set_location_info);
 	//qi::on_success(string_literal, set_location_info);
 	//qi::on_success(integer_literal, set_location_info);
-	
+
 	BOOST_SPIRIT_DEBUG_NODES(
 		// symbols
 		(var_reference)
@@ -739,14 +740,14 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 		// Expressions
 		//----------------------------------------------------------------------
 		(expression)
-		
+
 		(integer_literal)
 		(real_literal)
 		(string_literal)
 		(boolean_literal)
 		(fourcc_literal)
 		(null)
-	
+
 		(binary_operation_expression)
 		(binary_operator)
 		(binary_operation)
@@ -768,18 +769,18 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 		(type)
 		(global)
 		(globals)
-		
+
 		(function_parameter)
 		(function_parameters)
 		(function_declaration)
 		(native)
 		(natives)
-		
+
 		(declarations)
-		
+
 		(function)
 		(functions)
-		
+
 		(file)
 		(jass)
 	);
@@ -792,7 +793,7 @@ bool parse(Iterator first, Iterator last, jass_ast &ast, jass_file &current_file
 	grammar.prepare(first, ast, current_file);
 	comment_skipper<Iterator> commentSkipper;
 	bool r = false;
-	
+
 	try {
 		r = boost::spirit::qi::phrase_parse(
 			first,
@@ -801,7 +802,7 @@ bool parse(Iterator first, Iterator last, jass_ast &ast, jass_file &current_file
 			commentSkipper,
 			ast // store result into the passed ast
 		);
-	} 
+	}
 	catch(const boost::spirit::qi::expectation_failure<Iterator> &e) {
 		throw Exception(
 				client::expectationFailure(grammar.current_file, e)
@@ -842,12 +843,12 @@ bool Grammar::parse(IteratorType first, IteratorType last, jass_ast& ast, jass_f
 {
 	ForwardIteratorType forwardFirst = boost::spirit::make_default_multi_pass(first);
 	ForwardIteratorType forwardLast = boost::spirit::make_default_multi_pass(last); // TODO has to be created? Do we need this iterator to be passed?
-	
+
 	// used for backtracking and more detailed error output
 	PositionIteratorType position_begin(forwardFirst);
 	PositionIteratorType position_end;
 	bool result = false;
-	
+
 	try {
 		result = boost::spirit::qi::phrase_parse(
 			position_begin,
@@ -856,7 +857,7 @@ bool Grammar::parse(IteratorType first, IteratorType last, jass_ast& ast, jass_f
 			this->skipper,
 			ast // store result into the passed ast
 		);
-	} 
+	}
 	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> &e) {
 		throw Exception(
 				client::expectationFailure(grammar.current_file, e)
@@ -867,7 +868,7 @@ bool Grammar::parse(IteratorType first, IteratorType last, jass_ast& ast, jass_f
 	{
 		return false;
 	}
-	
+
 	return result;
 }
 
@@ -876,7 +877,7 @@ bool Grammar::parse(Grammar::InputStream& istream, jass_ast& ast, const std::str
 	jass_file file;
 	file.path = fileName;
 	ast.files.push_back(file);
-	
+
 	return this->parse(IteratorType(istream), IteratorType(), ast, file);
 }
 

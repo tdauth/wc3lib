@@ -21,6 +21,18 @@
 #ifndef WC3LIB_I18N_HPP
 #define WC3LIB_I18N_HPP
 
-#include "internationalisation.hpp"
+/**
+ * \file
+ * Defines all include statements required for translateable strings.
+ * The core modules use gettext functions for translateable strings as well as boost::format to generate them.
+ */
+
+// preparation for gettext
+#include <libintl.h>
+#include <locale.h>
+#define _(string) gettext(string)
+
+// Boost format library
+#include <boost/format.hpp>
 
 #endif

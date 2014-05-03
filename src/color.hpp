@@ -21,6 +21,17 @@
 #ifndef WC3LIB_COLOR_HPP
 #define WC3LIB_COLOR_HPP
 
+/**
+ * \file
+ * Provides basic color classes supporting I/O operations and color channels used by
+ * Warcraft III formats.
+ *
+ * \ingroup colors
+ *
+ * \defgroup colors Colors
+ * \brief Everything about colors in Warcraft III.
+ */
+
 #include "config.h"
 #include "utilities.hpp"
 #include "platform.hpp"
@@ -29,84 +40,38 @@
 namespace wc3lib
 {
 
+/**
+ * \brief Basic RGB color with storage and serialization support of three color channels.
+ *
+ * \ingroup colors
+ */
 class Rgb : public Format
 {
 	public:
-		Rgb(uint8_t red, uint8_t green, uint8_t blue) : m_red(red), m_green(green), m_blue(blue)
-		{
-		}
+		Rgb(uint8_t red, uint8_t green, uint8_t blue);
+		Rgb();
 
-		Rgb() : m_red(0), m_green(0), m_blue(0)
-		{
-		}
+		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 
-		virtual std::streamsize read(InputStream &istream) throw (class Exception)
-		{
-			std::streamsize size = 0;
-			wc3lib::read(istream, m_red, size);
-			wc3lib::read(istream, m_green, size);
-			wc3lib::read(istream, m_blue, size);
+		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
-			return size;
-		}
+		void setRed(uint8_t red);
+		uint8_t red() const;
+		void setGreen(uint8_t green);
+		uint8_t green() const;
+		void setBlue(uint8_t blue);
+		uint8_t blue() const;
 
-		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception)
-		{
-			std::streamsize size = 0;
-			wc3lib::write(ostream, red(), size);
-			wc3lib::write(ostream, green(), size);
-			wc3lib::write(ostream, blue(), size);
-
-			return size;
-		}
-
-		void setRed(uint8_t red)
-		{
-			m_red = red;
-		}
-
-		uint8_t red() const
-		{
-			return m_red;
-		}
-
-		void setGreen(uint8_t green)
-		{
-			m_green = green;
-		}
-
-		uint8_t green() const
-		{
-			return m_green;
-		}
-
-		void setBlue(uint8_t blue)
-		{
-			m_blue = blue;
-		}
-
-		uint8_t blue() const
-		{
-			return m_blue;
-		}
-		
 		/**
+		 * Computes an integer value representation containing values of all color channels.
+		 * The channel values can be extracting using binary operations like AND.
+		 *
 		 * The first 8 bits are not used (usually alpha value for argb or red value for rgba).
 		 */
-		virtual uint32_t value() const
-		{
-			return ((uint32_t)this->red() << 16) + ((uint32_t)this->green() << 8) + this->blue();
-		}
-		
-		bool operator==(uint32_t value) const
-		{
-			return this->value() == value;
-		}
-		
-		bool operator==(const Rgb &other) const
-		{
-			return this->value() == other.value();
-		}
+		virtual uint32_t value() const;
+
+		bool operator==(uint32_t value) const;
+		bool operator==(const Rgb &other) const;
 
 	protected:
 		uint8_t m_red;
@@ -117,76 +82,29 @@ class Rgb : public Format
 class Bgr : public Rgb
 {
 	public:
-		virtual std::streamsize read(InputStream &istream) throw (Exception)
-		{
-			std::streamsize size = 0;
-			wc3lib::read(istream, m_blue, size);
-			wc3lib::read(istream, m_green, size);
-			wc3lib::read(istream, m_red, size);
+		virtual std::streamsize read(InputStream &istream) throw (Exception);
+		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
 
-			return size;
-		}
-
-		virtual std::streamsize write(OutputStream &ostream) const throw (Exception)
-		{
-			std::streamsize size = 0;
-			wc3lib::write(ostream, blue(), size);
-			wc3lib::write(ostream, green(), size);
-			wc3lib::write(ostream, red(), size);
-
-			return size;
-		}
-		
 		/**
 		 * The first 8 bits are not used (usually alpha value for argb or red value for rgba).
 		 */
-		virtual uint32_t value() const
-		{
-			return ((uint32_t)this->blue() << 16) + ((uint32_t)this->green() << 8) + this->red();
-		}
+		virtual uint32_t value() const;
 };
 
 class Rgba : public Rgb
 {
 	public:
-		Rgba(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) : Rgb(red, green, blue), m_alpha(alpha)
-		{
-		}
+		Rgba(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
+		Rgba();
 
-		Rgba() : Rgb(), m_alpha(0)
-		{
-		}
+		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 
-		virtual std::streamsize read(InputStream &istream) throw (class Exception)
-		{
-			std::streamsize size = Rgb::read(istream);
-			wc3lib::read(istream, m_alpha, size);
+		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
-			return size;
-		}
+		void setAlpha(uint8_t alpha);
+		uint8_t alpha() const;
 
-		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception)
-		{
-			std::streamsize size = Rgb::write(ostream);
-			wc3lib::write(ostream, alpha(), size);
-
-			return size;
-		}
-
-		void setAlpha(uint8_t alpha)
-		{
-			m_alpha = alpha;
-		}
-
-		uint8_t alpha() const
-		{
-			return m_alpha;
-		}
-		
-		virtual uint32_t value() const
-		{
-			return ((uint32_t)this->red() << 24) + ((uint32_t)this->green() << 16) + ((uint32_t)this->blue() << 8) + this->alpha();
-		}
+		virtual uint32_t value() const;
 
 	protected:
 		uint8_t m_alpha;
@@ -195,33 +113,51 @@ class Rgba : public Rgb
 class Bgra : public Rgba
 {
 	public:
-		virtual std::streamsize read(InputStream &istream) throw (Exception)
-		{
-			std::streamsize size = 0;
-			wc3lib::read(istream, m_blue, size);
-			wc3lib::read(istream, m_green, size);
-			wc3lib::read(istream, m_red, size);
-			wc3lib::read(istream, m_alpha, size);
+		virtual std::streamsize read(InputStream &istream) throw (Exception);
+		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
 
-			return size;
-		}
-
-		virtual std::streamsize write(OutputStream &ostream) const throw (Exception)
-		{
-			std::streamsize size = 0;
-			wc3lib::write(ostream, blue(), size);
-			wc3lib::write(ostream, green(), size);
-			wc3lib::write(ostream, red(), size);
-			wc3lib::write(ostream, alpha(), size);
-
-			return size;
-		}
-		
-		virtual uint32_t value() const
-		{
-			return ((uint32_t)this->blue() << 24) + ((uint32_t)this->green() << 16) + ((uint32_t)this->red() << 8) + this->alpha();
-		}
+		virtual uint32_t value() const;
 };
+
+inline void Rgb::setRed(uint8_t red)
+{
+	this->m_red = red;
+}
+
+inline uint8_t Rgb::red() const
+{
+	return this->m_red;
+}
+
+inline void Rgb::setGreen(uint8_t green)
+{
+	this->m_green = green;
+}
+
+inline uint8_t Rgb::green() const
+{
+	return this->m_green;
+}
+
+inline void Rgb::setBlue(uint8_t blue)
+{
+	this->m_blue = blue;
+}
+
+inline uint8_t Rgb::blue() const
+{
+	return this->m_blue;
+}
+
+inline void Rgba::setAlpha(uint8_t alpha)
+{
+	this->m_alpha = alpha;
+}
+
+inline uint8_t Rgba::alpha() const
+{
+	return this->m_alpha;
+}
 
 }
 

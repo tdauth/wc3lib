@@ -18,15 +18,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <sstream>
-#include <cstring>
-
-#include <boost/tokenizer.hpp>
-#include <boost/format.hpp>
-
 #include "attachment.hpp"
 #include "attachmentvisibilities.hpp"
-#include "../internationalisation.hpp"
+#include "../i18n.hpp"
 #include "../utilities.hpp"
 
 namespace wc3lib
@@ -46,40 +40,6 @@ Attachment::~Attachment()
 
 std::streamsize Attachment::readMdl(istream &istream) throw (class Exception)
 {
-	/*
-	std::string line;
-	std::getline(istream, line);
-	boost::tokenizer<> tokenizer(line);
-	boost::tokenizer<>::iterator iterator = tokenizer.begin();
-
-	if ((*iterator) != "Attachment")
-		throw Exception("");
-
-	++iterator;
-
-	if (iterator == tokenizer.end() || sizeof((*iterator).c_str()) > 0x100) /// @todo Name size is bigger than in object?! path length?
-		throw Exception("");
-
-	for (std::size_t i = 0; i < sizeof(this->m_name); ++i)
-		this->m_name[i] = (*iterator).c_str()[i];
-
-	++iterator;
-
-	if ((*iterator) != "{")
-		throw Exception("");
-
-	std::getline(istream, line);
-	tokenizer.assign(line);
-	iterator = tokenizer.begin();
-
-	if ((*iterator) != "ObjectId")
-		throw Exception("");
-
-	++iterator;
-	std::stringstream sstream;
-	sstream << (*iterator);
-	sstream >> this->m_objectId;
-	*/
 	return 0;
 }
 
@@ -93,7 +53,9 @@ std::streamsize Attachment::writeMdl(ostream &ostream) const throw (class Except
 	writeMdlValueProperty(ostream, size, "AttachmentID", this->attachmentId());
 
 	if (strlen(this->path()) > 0)
+	{
 		writeMdlValueProperty(ostream, size, "Path", this->path());
+	}
 
 	size += visibilities()->writeMdl(ostream);
 

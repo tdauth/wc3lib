@@ -39,7 +39,7 @@ struct Header
 
 }
 
-Pathmap::Pathmap(class W3m *w3m) : m_w3m(w3m), m_version(latestFileVersion()), m_width(0), m_height(0)
+Pathmap::Pathmap() : m_version(latestFileVersion()), m_width(0), m_height(0)
 {
 }
 
@@ -55,22 +55,24 @@ std::streamsize Pathmap::read(InputStream &istream) throw (class Exception)
 	const id requiredFileId = fileId();
 
 	if (memcmp(&header.fileId, &requiredFileId, sizeof(header.fileId)) != 0)
+	{
 		throw Exception(boost::format(_("Pathmap: Unknown file id \"%1%\". Expected \"%2%\".")) % header.fileId % fileId());
+	}
 
 	this->m_version = header.version;
 	this->m_width = header.width;
 	this->m_height = header.height;
 
-	if (!this->m_data.empty())
-		this->m_data.clear();
+	this->tilepoints().resize(boost::extents[this->width()][this->height()]);
 
 	for (int32 width = 0; width < header.width; ++width)
 	{
 		for (int32 height = 0; height < header.height; ++height)
 		{
-			byte type;
+			byte type = 0;
 			wc3lib::read(istream, type, size);
-			this->m_data[Position(width, height)] = (BOOST_SCOPED_ENUM(Type))(type);
+
+			this->tilepoints()[width][height] = (BOOST_SCOPED_ENUM(Type))(type);
 		}
 	}
 
@@ -91,7 +93,7 @@ std::streamsize Pathmap::write(OutputStream &ostream) const throw (class Excepti
 	{
 		for (int32 height = 0; height < header.height; ++height)
 		{
-			byte type = (byte)this->m_data.find(Position(width, height))->second;
+			byte type = this->tilepoints()[width][height];
 			wc3lib::write(ostream, type, size);
 		}
 	}

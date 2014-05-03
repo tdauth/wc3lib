@@ -28,7 +28,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-GroupMdxBlock::GroupMdxBlock(byte mdxIdentifier[mdxIdentifierSize], const string &mdlKeyword, bool usesCounter, bool optional, bool usesMdlCounter) : MdxBlock(mdxIdentifier, mdlKeyword, optional), m_usesCounter(usesCounter), m_usesMdlCounter(usesMdlCounter)//, m_members()
+GroupMdxBlock::GroupMdxBlock(const string &mdxIdentifier, const string &mdlKeyword, bool usesCounter, bool optional, bool usesMdlCounter) : MdxBlock(mdxIdentifier, mdlKeyword, optional), m_usesCounter(usesCounter), m_usesMdlCounter(usesMdlCounter)//, m_members()
 {
 }
 

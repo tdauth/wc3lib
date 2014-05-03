@@ -19,7 +19,6 @@
  ***************************************************************************/
 
 #include "triggers.hpp"
-#include "w3m.hpp"
 #include "triggercategory.hpp"
 #include "variable.hpp"
 #include "trigger.hpp"
@@ -33,7 +32,7 @@ namespace wc3lib
 namespace map
 {
 
-Triggers::Triggers(class W3m *w3m) : m_w3m(w3m)
+Triggers::Triggers()
 {
 }
 

@@ -23,7 +23,7 @@
 #include "geosetanimation.hpp"
 #include "geosetanimationalphas.hpp"
 #include "geosetanimationcolors.hpp"
-#include "../internationalisation.hpp"
+#include "../i18n.hpp"
 #include "../utilities.hpp"
 
 namespace wc3lib

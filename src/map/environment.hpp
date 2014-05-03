@@ -21,6 +21,11 @@
 #ifndef WC3LIB_MAP_ENVIRONMENT_HPP
 #define WC3LIB_MAP_ENVIRONMENT_HPP
 
+/**
+ * \defgroup environment Map Environment
+ * \brief Each map's environment is defined by its terrain, shadow and pathmap.
+ */
+
 #include <boost/multi_array.hpp>
 
 #include "platform.hpp"
@@ -32,11 +37,22 @@ namespace wc3lib
 namespace map
 {
 
+/**
+ * \ingroup environment
+ */
 class Environment : public FileFormat
 {
 	public:
+		/**
+		 * \brief Container of ids refering to tilesets.
+		 */
 		typedef std::vector<id> Ids;
-		/// \todo We need a ptr container instead!
+		/**
+		 * All tilepoints are stored in a two-dimensional array using the X-coordinate as the first index
+		 * and the Y-coordinate as the second one.
+		 *
+		 * \todo We need a ptr container instead!
+		 */
 		typedef boost::multi_array<Tilepoint*, 2> Tilepoints;
 
 		/**

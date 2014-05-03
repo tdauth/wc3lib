@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include <sstream>
+#include <iomanip>
 
 //#include <boost/spirit/include/phoenix.hpp>
 #include "../qi.hpp"

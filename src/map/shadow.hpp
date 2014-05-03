@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MAP_SHADOW_HPP
 #define WC3LIB_MAP_SHADOW_HPP
 
-#include <boost/array.hpp>
+#include <boost/multi_array.hpp>
 
 #include "platform.hpp"
 #include "tilepoint.hpp"
@@ -33,31 +33,21 @@ namespace map
 {
 
 /**
- * "war3map.shd" is usally the map's shadow map file.
- * Each tilepoint of the map has exactly 16 shadow points.
- * Use class key to get shadow data of some point.
+ * \brief Stores information about a map's shadow map (file "war3map.shd").
+ *
+ * Each tilepoint of the map has exactly 16 shadow points. The number can be refered using \ref Shadow::shadowPointsPerTileset.
+ * This means a tilepoint is divided into 4 * 4 shadow points which can either have shadow or not (\ref Shadow::Type).
+ *
  * \note You should refresh the shadow map if you change map size!
- * \sa Tilepoint, Environment
+ *
+ * \sa Tilepoint
+ * \sa Environment
+ *
+ * \ingroup environment
  */
 class Shadow : public FileFormat
 {
 	public:
-		class Key : public boost::array<int32, 3>
-		{
-			public:
-				Key(int32 x, int32 y, int32 point);
-				int32 x() const;
-				int32 y() const;
-				int32 point() const;
-
-				/**
-				 * This operator is required since map is stored sorted.
-				 * Note that this should provide correct sorting (width * height * point).
-				 */
-				bool operator<(const Key &other) const;
-				bool operator==(const Key &other) const;
-		};
-
 		BOOST_SCOPED_ENUM_START(Type) /// \todo C++11 : byte
 		{
 			NoShadow = 0x00,
@@ -65,16 +55,26 @@ class Shadow : public FileFormat
 		};
 		BOOST_SCOPED_ENUM_END
 
-		typedef std::map<Key, BOOST_SCOPED_ENUM(Type)> Data;
+		/**
+		 * Each tilepoint from map environment is divided into 16 different shadow points (4 * 4).
+		 * Therefore the shadow file stores 16 layer points per tilepoint from environment (\ref Environment) in a three-dimensional array.
+		 * The first index is the X-coordinate, the second one the Y-coordinate and the third one a number between 0 and 15
+		 * for the corresponding layer point.
+		 */
+		typedef boost::multi_array<BOOST_SCOPED_ENUM(Type), 3> Tilepoints;
+		typedef Tilepoints::array_view<1>::type View;
+		typedef Tilepoints::const_array_view<1>::type ConstView;
 
-		Shadow(class W3m *w3m);
+		/**
+		 * The shadow file needs the width and height of the map as information.
+		 * It does not store width and height itself.
+		 */
+		Shadow(int32 width, int32 height);
 		virtual ~Shadow();
 
-		class W3m* w3m() const;
-
-		Data& data();
-		const Data& data() const;
-
+		/**
+		 * Reads a shadow file of size \ref width() * \ref height() * \ref shadowPointsPerTileset.
+		 */
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
@@ -82,74 +82,67 @@ class Shadow : public FileFormat
 		virtual const byte* fileName() const;
 		virtual uint32 latestFileVersion() const;
 
-		BOOST_SCOPED_ENUM(Type) type(const class Key &key) const;
 		/**
-		 * Just for one single layer point.
+		 * Expected shadow file size. This is used when the shadow file is read from
+		 * any input stream to calculate its size.
+		 *
+		 * @{
 		 */
-		bool containsShadow(const class Key &key) const;
+		void setWidth(int32 width);
+		int32 width() const;
+		void setHeight(int32 height);
+		int32 height() const;
 		/**
-		 * Checks all 16 layer points and returns true if any of them contains shadow.
+		 * @}
 		 */
-		bool containsShadow(int32 x, int32 y) const;
 
+		Tilepoints& tilepoints();
+		const Tilepoints& tilepoints() const;
+
+		/**
+		 * Returns the type of a shadow point of tilepoint at (\p x | \p y) with index \p index.
+		 */
+		BOOST_SCOPED_ENUM(Type) type(int32 x, int32 y, int32 index) const;
+
+		/**
+		 * Returns a sub view with all 16 shadow points for one single tilepoint at (\p x | \p y).
+		 * @{
+		 */
+		View& tilepoint(int32 x, int32 y);
+		ConstView& tilepoint(int32 x, int32 y) const;
+		/**
+		 * @}
+		 */
+
+		/**
+		 * The number of flags per one single tileset.
+		 */
 		static const int32 shadowPointsPerTileset;
 
 	protected:
-		class W3m *m_w3m;
-
-		/**
-		1byte can have 2 values:
-		0x00 = no shadow
-		0xFF = shadow
-		*/
-		Data m_data;
+		int32 m_width;
+		int32 m_height;
+		Tilepoints m_tilepoints;
 };
 
-inline Shadow::Key::Key(int32 x, int32 y, int32 point)
+inline void Shadow::setWidth(int32 width)
 {
-	(*this)[0] = x;
-	(*this)[1] = y;
-	(*this)[2] = std::min(point, Shadow::shadowPointsPerTileset - 1);
+	this->m_width = width;
 }
 
-inline int32 Shadow::Key::x() const
+inline int32 Shadow::width() const
 {
-	return (*this)[0];
+	return this->m_width;
 }
 
-inline int32 Shadow::Key::y() const
+inline void Shadow::setHeight(int32 height)
 {
-	return (*this)[1];
+	this->m_height = height;
 }
 
-inline int32 Shadow::Key::point() const
+inline int32 Shadow::height() const
 {
-	return (*this)[2];
-}
-
-inline bool Shadow::Key::operator<(const Key &other) const
-{
-	return this->y() < other.y() || (this->y() == other.y() && this->x() < other.x()) || (this->y() == other.y() && this->x() == other.x() && this->point() < other.point());
-}
-
-inline bool Shadow::Key::operator==(const Key &other) const
-{
-	return this->x() == other.x() && this->y() == other.y() && this->point() == other.point();
-}
-
-inline W3m *Shadow::w3m() const
-{
-	return this->m_w3m;
-}
-
-inline Shadow::Data &Shadow::data()
-{
-	return this->m_data;
-}
-
-inline const Shadow::Data &Shadow::data() const
-{
-	return this->m_data;
+	return this->m_height;
 }
 
 inline const byte* Shadow::fileTextId() const
@@ -167,32 +160,37 @@ inline uint32 Shadow::latestFileVersion() const
 	return 0;
 }
 
-inline BOOST_SCOPED_ENUM(Shadow::Type) Shadow::type(const Shadow::Key &key) const
+inline Shadow::Tilepoints& Shadow::tilepoints()
 {
-	Data::const_iterator iterator = this->m_data.find(key);
-
-	if (iterator == this->m_data.end())
-		return Shadow::Type::NoShadow;
-
-	return iterator->second;
+	return this->m_tilepoints;
 }
 
-inline bool Shadow::containsShadow(const Key &key) const
+inline const Shadow::Tilepoints& Shadow::tilepoints() const
 {
-	return this->type(key) == Shadow::Type::HasShadow;
+	return this->m_tilepoints;
 }
 
-inline bool Shadow::containsShadow(int32 x, int32 y) const
+inline BOOST_SCOPED_ENUM(Shadow::Type) Shadow::type(int32 x, int32 y, int32 index) const
 {
-	for (int32 point = 0; point < Shadow::shadowPointsPerTileset; ++point)
-	{
-		class Key key(x, y, point);
+	return this->tilepoints()[x][y][index];
+}
 
-		if (this->containsShadow(key))
-			return true;
-	}
+inline Shadow::View& Shadow::tilepoint(int32 x, int32 y)
+{
+	typedef Tilepoints::index_range range;
+	Tilepoints::index_gen indices;
+	Tilepoints::array_view<1>::type myview = this->tilepoints()[indices[x][y][range(0, this->tilepoints().shape()[2])] ];
 
-	return false;
+	return myview;
+}
+
+inline Shadow::ConstView& Shadow::tilepoint(int32 x, int32 y) const
+{
+	typedef Tilepoints::index_range range;
+	Tilepoints::index_gen indices;
+	Tilepoints::const_array_view<1>::type myview = this->tilepoints()[indices[x][y][range(0, this->tilepoints().shape()[2])] ];
+
+	return myview;
 }
 
 }

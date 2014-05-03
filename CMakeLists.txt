@@ -11,6 +11,8 @@ set(wc3lib_VERSION "${wc3lib_VERSION_MAJOR}.${wc3lib_VERSION_MINOR}.${wc3lib_VER
 enable_testing()
 
 include(CMakeDependentOption)
+include(CheckCCompilerFlag)
+include(CheckCXXCompilerFlag)
 
 option(APP
 	"Builds various applications for all enabled modules, not only libraries."
@@ -59,6 +61,18 @@ if (CMAKE_BUILD_TYPE STREQUAL Debug OR CMAKE_BUILD_TYPE STREQUAL debugfull OR CM
 	message(STATUS "Detected debug mode with CMake build type: \"${CMAKE_BUILD_TYPE}\".")
 	set(DEBUG ON)
 	add_definitions(-DDEBUG=1)
+
+	# add best possible output to get information about code quality
+	# TODO more generic setup of enabling all warnings/feedback the compiler offers
+	#CHECK_CXX_COMPILER_FLAG("-Wall" supportsWall)
+
+	#if (supportsWall)
+	if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+		message(STATUS "Enabled advanced warnings output.")
+		add_compile_options(-Wall)
+	else ()
+		message(WARNING "Compiler does not support -Wall.")
+	endif ()
 endif ()
 
 # required for locale files - gettext

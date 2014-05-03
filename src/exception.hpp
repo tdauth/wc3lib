@@ -24,7 +24,6 @@
 #include <exception>
 #include <string>
 
-#include <boost/exception/all.hpp>
 #include <boost/format.hpp>
 
 #include "config.h"
@@ -33,18 +32,19 @@ namespace wc3lib
 {
 
 /**
-* Default exception class base.
-* Is used by all exception classes in wc3lib.
+* \brief Default exception class base which is used for all exception classes in wc3lib.
 */
-class Exception : public virtual std::exception, public virtual boost::exception
+class Exception : public std::exception
 {
 	public:
 		Exception(const std::string &what = "") throw ();
-		Exception(const boost::format &what) throw ();
+		/**
+		 * Simplified constructor using a boost::format instance that you do not need to call .str() before passing.
+		 */
+		Exception(const boost::format &format) throw ();
 		virtual ~Exception() throw ();
 
 		const char* what() const throw ();
-		std::string& what();
 
 	protected:
 		std::string m_what;
@@ -53,11 +53,6 @@ class Exception : public virtual std::exception, public virtual boost::exception
 inline const char* Exception::what() const throw ()
 {
 	return this->m_what.c_str();
-}
-
-inline std::string& Exception::what()
-{
-	return this->m_what;
 }
 
 }

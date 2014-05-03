@@ -26,7 +26,7 @@
 
 #include "strings.hpp"
 #include "string.hpp"
-#include "../internationalisation.hpp"
+#include "../i18n.hpp"
 #include "../utilities.hpp"
 
 namespace wc3lib

@@ -26,9 +26,10 @@ namespace wc3lib
 namespace mdlx
 {
 
-MdxBlock::MdxBlock(const byte mdxIdentifier[MdxBlock::mdxIdentifierSize], const string &mdlKeyword, bool optional) : m_mdlKeyword(mdlKeyword), m_optional(optional), m_exists(false)
+MdxBlock::MdxBlock(const string &mdxIdentifier, const string &mdlKeyword, bool optional) : m_mdlKeyword(mdlKeyword), m_optional(optional), m_exists(false)
 {
-	memcpy(reinterpret_cast<void*>(const_cast<byte*>(this->m_mdxIdentifier)), reinterpret_cast<const void*>(mdxIdentifier), MdxBlock::mdxIdentifierSize);
+	assert(mdxIdentifier.size() == MdxBlock::mdxIdentifierSize);
+	memcpy(this->m_mdxIdentifier, mdxIdentifier.c_str(), MdxBlock::mdxIdentifierSize);
 }
 
 MdxBlock::~MdxBlock()

@@ -18,8 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <boost/foreach.hpp>
-
 #include "shadow.hpp"
 #include "w3m.hpp"
 
@@ -31,7 +29,7 @@ namespace map
 
 const int32 Shadow::shadowPointsPerTileset = 16;
 
-Shadow::Shadow(class W3m *w3m) : m_w3m(w3m)
+Shadow::Shadow(int32 width, int32 height) : m_width(width), m_height(height)
 {
 }
 
@@ -43,15 +41,17 @@ std::streamsize Shadow::read(InputStream &istream) throw (class Exception)
 {
 	std::streamsize size = 0;
 
-	for (int32 width = 0; width < this->w3m()->width(); ++width)
+	this->tilepoints().resize(boost::extents[this->width()][this->height()][Shadow::shadowPointsPerTileset]);
+
+	for (int32 width = 0; width < this->width(); ++width)
 	{
-		for (int32 height = 0; height < this->w3m()->height(); ++height)
+		for (int32 height = 0; height < this->height(); ++height)
 		{
 			for (int32 point = 0; point < Shadow::shadowPointsPerTileset; ++point)
 			{
-				byte data;
+				byte data = 0;
 				wc3lib::read(istream, data, size);
-				this->m_data.insert(std::make_pair(Key(width, height, point), (BOOST_SCOPED_ENUM(Shadow::Type))(data)));
+				this->tilepoints()[width][height][point] = (BOOST_SCOPED_ENUM(Shadow::Type))data;
 			}
 		}
 	}
@@ -63,9 +63,16 @@ std::streamsize Shadow::write(OutputStream &ostream) const throw (class Exceptio
 {
 	std::streamsize size = 0;
 
-	// should be sorted correctly (operator< of class Key)
-	BOOST_FOREACH(Data::const_reference value, this->data())
-		wc3lib::write<byte>(ostream, value.second, size);
+	for (int32 width = 0; width < this->width(); ++width)
+	{
+		for (int32 height = 0; height < this->height(); ++height)
+		{
+			for (int32 point = 0; point < Shadow::shadowPointsPerTileset; ++point)
+			{
+				wc3lib::write<byte>(ostream, this->type(width, height, point), size);
+			}
+		}
+	}
 
 	return size;
 }

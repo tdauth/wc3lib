@@ -87,7 +87,6 @@ public Playable
 		typedef boost::scoped_ptr<Sounds> SoundsPtr;
 		typedef boost::scoped_ptr<CustomTextTriggers> CustomTextTriggersPtr;
 		typedef boost::scoped_ptr<ImportedFiles> ImportedFilesPtr;
-		typedef std::vector<FileFormat*> FileFormats;
 		typedef boost::scoped_array<byte> Signature;
 
 		W3m();
@@ -131,12 +130,13 @@ public Playable
 		 * </ul>
 		 * \note You can use classes's virtual member functions called "fileName" to get the corresponding file name of the class's format.
 		 */
+		virtual std::streamsize readFileFormat(FileFormat *format) throw (Exception);
 		virtual std::streamsize read(InputStream &istream, const mpq::Listfile::Entries &listfileEntries) throw (class Exception);
 		virtual std::streamsize read(InputStream& istream) throw (class Exception)
 		{
 			return read(istream, mpq::Listfile::Entries());
 		}
-		
+
 		/**
 		 * Triggers have to be read separately since they need corresponding trigger data.
 		 * \throw Exception Throws an exception if there is no triggers file or if there occured any error while reading it.
@@ -151,9 +151,6 @@ public Playable
 
 		virtual int32 fileId() const;
 		virtual int32 latestFileVersion() const;
-
-		int32 width() const;
-		int32 height() const;
 
 		const string& name() const;
 		BOOST_SCOPED_ENUM(MapFlags) flags() const;
@@ -173,9 +170,6 @@ public Playable
 		const SoundsPtr& sounds() const;
 		const CustomTextTriggersPtr& customTextTriggers() const;
 		const ImportedFilesPtr& importedFiles() const;
-
-		const FileFormats& fileFormats() const;
-		FileFormats& fileFormats();
 
 		bool hasSignature() const;
 		/**
@@ -207,14 +201,6 @@ public Playable
 		SoundsPtr m_sounds;
 		CustomTextTriggersPtr m_customTextTriggers;
 		ImportedFilesPtr m_importedFiles;
-		FileFormats m_fileFormats;
-/*
-w3x
-		class ArtificialIntelligence *m_artificialIntelligence;
-		class Misc *m_misc;
-		class Skin *m_skin;
-		class Extra *m_extra;
-*/
 
 		Signature m_signature; // size of \ref signatureSize
 
@@ -228,16 +214,6 @@ inline int32 W3m::fileId() const
 inline int32 W3m::latestFileVersion() const
 {
 	return 0;
-}
-
-inline int32 W3m::width() const
-{
-	return this->m_environment->mapWidth();
-}
-
-inline int32 W3m::height() const
-{
-	return this->m_environment->mapHeight();
 }
 
 inline const string& W3m::name() const
@@ -295,9 +271,29 @@ inline const W3m::RectsPtr& W3m::rects() const
 	return this->m_rects;
 }
 
+inline const W3m::SoundsPtr& W3m::sounds() const
+{
+	return this->m_sounds;
+}
+
 inline const W3m::InfoPtr& W3m::info() const
 {
 	return m_info;
+}
+
+inline const W3m::StringsPtr& W3m::strings() const
+{
+	return this->m_strings;
+}
+
+inline const W3m::MinimapPtr& W3m::minimap() const
+{
+	return this->m_minimap;
+}
+
+inline const W3m::MenuMinimapPtr& W3m::menuMinimap() const
+{
+	return this->m_menuMinimap;
 }
 
 inline const W3m::CustomTextTriggersPtr& W3m::customTextTriggers() const
@@ -305,14 +301,9 @@ inline const W3m::CustomTextTriggersPtr& W3m::customTextTriggers() const
 	return m_customTextTriggers;
 }
 
-inline const W3m::FileFormats& W3m::fileFormats() const
+inline const W3m::ImportedFilesPtr& W3m::importedFiles() const
 {
-	return this->m_fileFormats;
-}
-
-inline W3m::FileFormats& W3m::fileFormats()
-{
-	return this->m_fileFormats;
+	return this->m_importedFiles;
 }
 
 inline bool W3m::hasSignature() const

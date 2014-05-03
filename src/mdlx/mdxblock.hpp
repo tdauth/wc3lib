@@ -38,7 +38,10 @@ class MdxBlock : public MdlxProperty
 	public:
 		static const std::size_t mdxIdentifierSize = 4;
 
-		MdxBlock(const byte mdxIdentifier[mdxIdentifierSize], const string &mdlKeyword, bool optional = true);
+		/**
+		 * \param mdxIdentifier MDX chunk tag of four characters (\ref mdxIdentifierSize). The parameter can be specified as string literal for simplified usage but it must contain exactly four characters!
+		 */
+		MdxBlock(const string &mdxIdentifier, const string &mdlKeyword, bool optional = true);
 		virtual ~MdxBlock();
 
 		/**

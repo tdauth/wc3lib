@@ -20,9 +20,7 @@ set(wc3lib_CORE_H
 	exception.hpp
 	format.hpp
 	i18n.hpp
-	internationalisation.hpp
 	jass.hpp
-	libraryloader.hpp
 	map.hpp
 	mdlx.hpp
 	mpq.hpp
@@ -32,9 +30,9 @@ set(wc3lib_CORE_H
 	wc3lib.hpp
 )
 set(wc3lib_CORE_SRC
+	color.cpp
 	exception.cpp
 	format.cpp
-	libraryloader.cpp
 	spirit.cpp
 	utilities.cpp
 	vertex.cpp

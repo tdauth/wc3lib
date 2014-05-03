@@ -37,66 +37,38 @@ namespace blp
 
 /**
  * \brief Provides uniformed access to Blizzard's texture formats "BLP0", "BLP1" and "BLP2".
- * 
+ *
  * \note For image format conversion see \ref conversion.
- * 
+ *
  * The class offers read and write functions for which several options can be specified like how many MIP maps should be read or written.
  * \ref Blp::MipMap stores the actual picture data. All MIP maps can be accessed using \ref Blp::mipMaps().
  * The first MIP map should always have the actual size of the texture and can be used in any code which should display the original image.
  * To change the number if MIP maps after reading the texture you can use \ref Blp::generateMipMaps().
- * 
+ *
  * \ref Blp::format(), \ref Blp::compression() and \ref Blp::flags() return the texture's header information. Depending on the format it supports different compression types.
  * "BLP0" and "BLP1" images can have two different compression modes:
  * <ul>
  * <li>JPEG compression (JFIF)</li>
  * <li>Paletted compression</li>
  * </ul>
- * 
+ *
  * "BLP2" introduced additional compression types:
  * <ul>
  * <li>\ref Blp::Compression::Uncompressed </li>
  * <li>\ref Blp::Compression::DirectXCompression </li>
  * </ul>
- * 
+ *
  * "BLP" format allows you to save up to 16 MIP maps per file.
  * Specification says:
  * A full MIP map chain must be present. The last MIP map must be 1x1 (no larger).
  * If an image is 32x8 the MIP map chain must be 32x8, 16x4, 8x2, 4x1, 2x1, 1x1.
  * Sizes not of powers of 2 seems to work fine too, the same rules for MIP map
  * still applies. Ex: 24x17, 12x8 (rounded down), 6x4, 3x2, 1x1 (rounded down).
- * 
+ *
  * Format "BLP0" isn't different from "BLP1".
  * "BLP0" and "BLP1" are used in games Warcraft III and Warcraft III: The Frozen Throne.
  * "BLP2" is used in World of Warcraft.
  *
- * Small loading example:
- * \code
- * #include <wc3lib/core.hpp>
- * #include <wc3lib/blp.hpp>
- *
- * using namespace wc3lib::blp;
- * std::ifstream ifstream("test.blp", std::ifstream::binary | std::ifstream::in);
- * Blp *blp = new Blp();
- * blp->read(ifstream);
- * std::cout << boost::format("We have %1% MIP maps here.") % blp->mipMaps().size() << std::endl;
- *
- * BOOST_FOREACH(Blp::MipMaps::const_reference mipMap, blp->mipMaps())
- * {
- *	std::cout << boost::format("This mip map has height %1% and width %2%.") % mipMap->height() % mipMap->width() << std::endl;
- *
- * 	for (dword width = 0; width < mipMap->width(); ++width)
- *	{
- *		for (dword height = 0; height < mipMap->height; ++height)
- *		{
- * 			std::cout << boost::format("Color %1% at position (%2%|%3%)") % mipMap->colorAt(width, height).argb() % width % height << std::endl;
- *		}
- * 	}
- * }
- *
- * std::cout << boost::format("Generated %1% MIP maps.") % blp->generateMipMaps() << std::endl;
- *
- *
- * \endcode
  * \section conversion Conversion
  * If you want to convert BLP images into other formats (e. g. JPEG or PNG) you can either write your own converter or use wc3lib's BLP Qt plugin (\ref wc3lib::editor::BlpIOPlugin).
  */
@@ -104,6 +76,8 @@ class Blp : public Format
 {
 	public:
 		/**
+		 * \brief One scaled version of the image.
+		 *
 		 * Imagine each mip map as single image containing several pixels with various colors (and alpha values).
 		 * MIP map colors are stored in a map hashed by their coordinates for fast access.
 		 * Palette index is also stored for providing paletted compression support when writing the BLP/mip map into output stream.
@@ -112,6 +86,9 @@ class Blp : public Format
 		class MipMap
 		{
 			public:
+				/**
+				 * \brief Color value of one single pixel of a MIP map.
+				 */
 				class Color
 				{
 					public:

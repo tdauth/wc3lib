@@ -25,7 +25,7 @@
 #include "textureanimationrotations.hpp"
 #include "textureanimationscalings.hpp"
 #include "../utilities.hpp"
-#include "../internationalisation.hpp"
+#include "../i18n.hpp"
 
 namespace wc3lib
 {

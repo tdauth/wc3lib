@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MAP_PATHMAP_HPP
 #define WC3LIB_MAP_PATHMAP_HPP
 
+#include <boost/multi_array.hpp>
+
 #include "platform.hpp"
 
 namespace wc3lib
@@ -29,6 +31,12 @@ namespace wc3lib
 namespace map
 {
 
+/**
+ * \brief Stores data from a pathmap file ("war3map.wpm") which contains information about the pathability of each tilepoint from the environment (\ref Environment).
+ *
+ * \ingroup pathing
+ * \ingroup environment
+ */
 class Pathmap : public FileFormat
 {
 	public:
@@ -43,9 +51,14 @@ class Pathmap : public FileFormat
 		};
 		BOOST_SCOPED_ENUM_END
 
-		typedef std::map<Position, BOOST_SCOPED_ENUM(Type)> Data;
+		/**
+		 * \brief For each tilepoint there exists an entry which defines the pathability of the tilepoint.
+		 * Therefore all entries are stored in a two-dimensional array like the tilepoints in \ref Environment.
+		 * It uses the X-coordinate as the first index and the Y-coordinate as the second one.
+		 */
+		typedef boost::multi_array<BOOST_SCOPED_ENUM(Type), 2> Tilepoints;
 
-		Pathmap(class W3m *w3m);
+		Pathmap();
 		virtual ~Pathmap();
 
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
@@ -58,14 +71,17 @@ class Pathmap : public FileFormat
 		virtual uint32 version() const;
 		int32 width() const;
 		int32 height() const;
-		BOOST_SCOPED_ENUM(Type) type(const Position &position) const throw (class Exception);
+
+		Tilepoints& tilepoints();
+		const Tilepoints& tilepoints() const;
+
+		BOOST_SCOPED_ENUM(Type) type(int32 x, int32 y) const;
 
 	protected:
-		class W3m *m_w3m;
 		uint32 m_version;
 		int32 m_width;
 		int32 m_height;
-		Data m_data;
+		Tilepoints m_tilepoints;
 };
 
 inline const byte* Pathmap::fileTextId() const
@@ -98,14 +114,19 @@ inline int32 Pathmap::height() const
 	return this->m_height;
 }
 
-inline BOOST_SCOPED_ENUM(Pathmap::Type) Pathmap::type(const Position &position) const throw (class Exception)
+inline Pathmap::Tilepoints& Pathmap::tilepoints()
 {
-	Data::const_iterator iterator = this->m_data.find(position);
+	return this->m_tilepoints;
+}
 
-	if (iterator == this->m_data.end())
-		throw Exception(boost::format(_("No pathing found at positon (%1%|%2%).")) % position.x() % position.y());
+inline const Pathmap::Tilepoints& Pathmap::tilepoints() const
+{
+	return this->m_tilepoints;
+}
 
-	return iterator->second;
+inline BOOST_SCOPED_ENUM(Pathmap::Type) Pathmap::type(int32 x, int32 y) const
+{
+	return this->m_tilepoints[x][y];
 }
 
 }

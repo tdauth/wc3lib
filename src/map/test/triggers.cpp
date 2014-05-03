@@ -36,32 +36,32 @@ using namespace wc3lib;
 
 BOOST_AUTO_TEST_CASE(TriggersSimpleReadTest) {
 	ifstream in("TriggerData.txt"); // Warcraft III trigger data
-	
+
 	BOOST_REQUIRE(in);
-	
+
 	map::TriggerData triggerData;
-	
+
 	bool valid = true;
-	
+
 	try {
 		triggerData.read(in);
 	}
 	catch (...) {
 		valid = false;
 	}
-	
+
 	BOOST_REQUIRE(valid);
-	
+
 	ifstream inTriggers("war3map.wtg", std::ios::in | std::ios::binary); // War Chasers triggers
-	map::Triggers triggers(0);
-	
+	map::Triggers triggers;
+
 	try {
 		triggers.read(in, triggerData);
-		
+
 	}
 	catch (...) {
 		valid = false;
 	}
-	
+
 	BOOST_REQUIRE(valid);
 }

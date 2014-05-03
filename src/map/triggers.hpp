@@ -47,7 +47,7 @@ class Triggers : public FileFormat
 		typedef boost::ptr_vector<Variable> Variables;
 		typedef boost::ptr_vector<Trigger> TriggerEntries;
 
-		Triggers(class W3m *w3m);
+		Triggers();
 
 		virtual std::streamsize read(InputStream &istream) throw (Exception)
 		{
@@ -61,7 +61,6 @@ class Triggers : public FileFormat
 		virtual const byte* fileName() const;
 		virtual uint32 latestFileVersion() const;
 
-		class W3m* w3m() const;
 		int32 unknown0() const;
 		Categories& categories();
 		const Categories& categories() const;
@@ -71,7 +70,6 @@ class Triggers : public FileFormat
 		const TriggerEntries& triggers() const;
 
 	protected:
-		class W3m *m_w3m;
 		int32 m_unknown0;
 		Categories m_categories;
 		Variables m_variables;
@@ -91,11 +89,6 @@ inline const byte* Triggers::fileName() const
 inline uint32 Triggers::latestFileVersion() const
 {
 	return 4;
-}
-
-inline W3m *Triggers::w3m() const
-{
-	return this->m_w3m;
 }
 
 inline int32 Triggers::unknown0() const

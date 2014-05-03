@@ -26,36 +26,23 @@ namespace wc3lib
 namespace map
 {
 
-W3m::W3m() : m_environment(new Environment()), m_shadow(new Shadow(this)), m_pathmap(new Pathmap(this)),
-m_trees(new Trees()),
-m_customUnits(new CustomUnits()),
-m_info(new Info()),
-m_strings(new MapStrings()),
-m_minimap(new Minimap()),
-m_menuMinimap(new MenuMinimap()),
-m_triggers(new Triggers(this)),
-m_cameras(new Cameras()),
-m_rects(new Rects()),
-m_sounds(new Sounds()),
-m_customTextTriggers(new CustomTextTriggers()),
-m_importedFiles(new ImportedFiles()), m_fileFormats(14)
+W3m::W3m() :
+m_environment(new Environment())
+, m_shadow(new Shadow(0, 0))
+, m_pathmap(new Pathmap())
+, m_trees(new Trees())
+, m_customUnits(new CustomUnits())
+, m_info(new Info())
+, m_strings(new MapStrings())
+, m_minimap(new Minimap())
+, m_menuMinimap(new MenuMinimap())
+, m_triggers(new Triggers())
+, m_cameras(new Cameras())
+, m_rects(new Rects())
+, m_sounds(new Sounds())
+, m_customTextTriggers(new CustomTextTriggers())
+, m_importedFiles(new ImportedFiles())
 {
-	this->fileFormats()[0] = m_environment.get();
-	this->fileFormats()[1] = m_shadow.get();
-	this->fileFormats()[2] = m_pathmap.get();
-	this->fileFormats()[3] = m_trees.get();
-	this->fileFormats()[4] = m_customUnits.get();
-	this->fileFormats()[5] = m_info.get();
-	this->fileFormats()[6] = m_strings.get();
-	this->fileFormats()[7] = m_minimap.get();
-	this->fileFormats()[8] = m_menuMinimap.get();
-	this->fileFormats()[9] = m_cameras.get();
-	this->fileFormats()[10] = m_rects.get();
-	this->fileFormats()[11] = m_sounds.get();
-	this->fileFormats()[12] = m_customTextTriggers.get();
-	this->fileFormats()[13] = m_importedFiles.get();
-	
-	// don't read triggers without having any trigger data!
 }
 
 W3m::~W3m()
@@ -63,35 +50,57 @@ W3m::~W3m()
 }
 
 #ifdef MPQ
+std::streamsize W3m::readFileFormat(FileFormat *format) throw (Exception)
+{
+	std::streamsize size = 0;
+	mpq::MpqFile *file = this->findFile(format->fileName());
+
+	if (file != 0)
+	{
+		/*
+			* FIXME
+		boost::scoped_array<byte> buffer(new byte[file->size()]);
+		arraystream stream(buffer.get(), file->size());
+		*/
+		stringstream stream;
+
+		try
+		{
+			file->writeData(stream);
+			size += format->read(stream);
+		}
+		catch (std::exception &exception)
+		{
+			throw Exception(boost::format(_("Error while reading map file \"%1%\":\n%2%")) % format->fileName() % exception.what());
+		}
+	}
+
+	return size;
+}
+
 std::streamsize W3m::read(InputStream &istream, const mpq::Listfile::Entries &listfileEntries) throw (class Exception)
 {
 	std::streamsize size = this->readHeader(istream);
 	size += mpq::Mpq::read(istream, listfileEntries);
 
-	BOOST_FOREACH(FileFormats::reference format, fileFormats())
-	{
-		mpq::MpqFile *file = this->findFile(format->fileName());
+	size += this->readFileFormat(this->environment().get());
+	// NOTE always read environment before shadow to get width and height of map!
+	size += this->readFileFormat(this->shadow().get());
 
-		if (file != 0)
-		{
-			/*
-			 * FIXME
-			boost::scoped_array<byte> buffer(new byte[file->size()]);
-			arraystream stream(buffer.get(), file->size());
-			*/
-			stringstream stream;
+	size += this->readFileFormat(this->pathmap().get());
+	size += this->readFileFormat(this->trees().get());
+	size += this->readFileFormat(this->customUnits().get());
+	size += this->readFileFormat(this->info().get());
+	size += this->readFileFormat(this->strings().get());
+	size += this->readFileFormat(this->minimap().get());
+	size += this->readFileFormat(this->menuMinimap().get());
+	size += this->readFileFormat(this->cameras().get());
+	size += this->readFileFormat(this->rects().get());
+	size += this->readFileFormat(this->sounds().get());
+	size += this->readFileFormat(this->customTextTriggers().get());
+	size += this->readFileFormat(this->importedFiles().get());
 
-			try
-			{
-				file->writeData(stream);
-				size += format->read(stream);
-			}
-			catch (std::exception &exception)
-			{
-				throw Exception(boost::format(_("Error while reading map file \"%1%\":\n%2%")) % format->fileName() % exception.what());
-			}
-		}
-	}
+	// NOTE do not read triggers without trigger data. Triggers have to be read separately!
 
 	size += this->readSignature(istream);
 
@@ -115,7 +124,7 @@ std::streamsize W3m::readTriggers(W3m::InputStream &istream, const TriggerData &
 		try
 		{
 			file->writeData(stream);
-			size += m_triggers.get()->read(stream);
+			size += m_triggers.get()->read(stream, triggerData);
 		}
 		catch (std::exception &exception)
 		{
@@ -126,7 +135,7 @@ std::streamsize W3m::readTriggers(W3m::InputStream &istream, const TriggerData &
 	{
 		throw Exception(boost::format(_("Couldn't find \"%1%\"")) % m_triggers.get()->fileName());
 	}
-	
+
 	return size;
 }
 

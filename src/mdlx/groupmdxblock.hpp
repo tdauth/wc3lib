@@ -47,7 +47,10 @@ class GroupMdxBlock : public MdxBlock
 		 */
 		typedef boost::ptr_list<class GroupMdxBlockMember> Members;
 
-		GroupMdxBlock(byte mdxIdentifier[mdxIdentifierSize], const string &mdlKeyword, bool usesCounter = true, bool optional = true, bool usesMdlCounter = false);
+		/**
+		 * \param mdxIdentifier The MDX tag of four characters. This parameter can be specified as string literal for simplified usage. It must contain exactly four characters.
+		 */
+		GroupMdxBlock(const string &mdxIdentifier, const string &mdlKeyword, bool usesCounter = true, bool optional = true, bool usesMdlCounter = false);
 		virtual ~GroupMdxBlock();
 
 		/**

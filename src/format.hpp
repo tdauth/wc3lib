@@ -21,6 +21,12 @@
 #ifndef WC3LIB_FORMAT_HPP
 #define WC3LIB_FORMAT_HPP
 
+/**
+ * \defgroup io I/O
+ * wc3lib supports I/O operations for most of Warcraft III's file formats.
+ * Base class of all formats is \ref Format.
+ */
+
 #include <istream>
 #include <ostream>
 #include <sstream>
@@ -47,18 +53,19 @@ namespace wc3lib
 {
 
 /**
- * \brief Abstract class for formats.
+ * \brief Abstract class for serializable file formats which supports basic I/O operations "read" and "write".
+ *
  * Provides some abstract functions and operators which allow you to serialize your formats and read from each other (>> and << operators).
  * Besides it implements functions \ref save() and \ref load() from Boost serialization library which allow you to use your formats with other Boost compliant libraries.
- * \p _CharT Single char type which is used for input and out streams.
+ *
+ * \ingroup io
  */
-template<typename _CharT>
-class BasicFormat
+class Format
 {
 	public:
-		typedef _CharT CharType;
-		typedef std::basic_istream<_CharT> InputStream;
-		typedef std::basic_ostream<_CharT> OutputStream;
+		typedef byte CharType;
+		typedef std::basic_istream<byte> InputStream;
+		typedef std::basic_ostream<byte> OutputStream;
 
 		/**
 		 * \return Usually this function should returns the number of read bytes. For non-binary formats or formats which won't store any byte count this value can be 0. It has been introduced for convenience for example when reading chunks of the MDX format where you do have to know how many bytes are still left.
@@ -66,7 +73,7 @@ class BasicFormat
 		virtual std::streamsize read(InputStream &istream) throw (class Exception) = 0;
 		/// Reads input from another format object (\p other).
 		// TODO stringstream is bad for binary data
-		std::streamsize read(const BasicFormat &other) throw (class Exception)
+		std::streamsize read(const Format &other) throw (class Exception)
 		{
 			std::stringstream stream;
 			//boost::iostreams::basic_array<CharType> stream;
@@ -78,7 +85,7 @@ class BasicFormat
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception) = 0;
 		/// Writes output into another format object (\p other).
 		// TODO stringstream is bad for binary data
-		std::streamsize write(BasicFormat &other) const throw (class Exception)
+		std::streamsize write(Format &other) const throw (class Exception)
 		{
 			std::stringstream stream;
 			//boost::iostreams::basic_array<CharType> stream;
@@ -133,11 +140,11 @@ class BasicFormat
 		BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 
-		class BasicFormat& operator<<(InputStream &istream) throw (class Exception);
-		const class BasicFormat& operator>>(OutputStream &ostream) const throw (class Exception);
+		Format& operator<<(InputStream &istream) throw (Exception);
+		const Format& operator>>(OutputStream &ostream) const throw (Exception);
 
 		/**
-		 * Version is required for Boost-like serialization. Most of Warcraft 3's formats do also have a version number.
+		 * Version is required for Boost-like serialization. Most of Warcraft III's formats do also have a version number.
 		 */
 		virtual uint32_t version() const
 		{
@@ -145,39 +152,33 @@ class BasicFormat
 		}
 };
 
-template<typename _CharT>
-inline class BasicFormat<_CharT>& BasicFormat<_CharT>::operator<<(BasicFormat<_CharT>::InputStream &istream) throw (class Exception)
+inline Format& Format::operator<<(InputStream &istream) throw (Exception)
 {
 	this->read(istream);
 
 	return *this;
 }
 
-template<typename _CharT>
-inline const class BasicFormat<_CharT>& BasicFormat<_CharT>::operator>>(BasicFormat<_CharT>::OutputStream &ostream) const throw (class Exception)
+inline const Format& Format::operator>>(OutputStream &ostream) const throw (Exception)
 {
 	this->write(ostream);
 
 	return *this;
 }
 
-template<typename _CharT>
-inline std::basic_istream<_CharT>& operator>>(std::basic_istream<_CharT> &istream, class BasicFormat<_CharT> &format) throw (class Exception)
+inline Format::InputStream& operator>>(Format::InputStream &istream, Format &format) throw (Exception)
 {
 	format.read(istream);
 
 	return istream;
 }
 
-template<typename _CharT>
-inline std::basic_ostream<_CharT>& operator<<(std::basic_ostream<_CharT> &ostream, const class BasicFormat<_CharT> &format) throw (class Exception)
+inline Format::OutputStream& operator<<(Format::OutputStream &ostream, const Format &format) throw (Exception)
 {
 	format.write(ostream);
 
 	return ostream;
 }
-
-typedef BasicFormat<byte> Format;
 
 }
 

@@ -40,7 +40,7 @@
 #include "ganimation.hpp"
 #include "texturepatches.hpp"
 #include "texturevertices.hpp"
-#include "../internationalisation.hpp"
+#include "../i18n.hpp"
 #include "../utilities.hpp"
 
 namespace wc3lib

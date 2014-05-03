@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MDLX_PLATFORM_HPP
 #define WC3LIB_MDLX_PLATFORM_HPP
 
+#include <iomanip>
+
 #include <boost/detail/scoped_enum_emulation.hpp>
 #include <boost/foreach.hpp>
 
@@ -52,7 +54,7 @@ const long32 noneId = 0xFFFFFFFF;
 /**
  * \defgroup animations MDX and MDL animations
  * The 3D formats MDX and MDL support different types of animations to apply transformations on nodes at specific time frames.
- * 
+ *
  */
 
 /**

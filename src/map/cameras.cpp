@@ -24,7 +24,7 @@
 #include "cameras.hpp"
 #include "camera.hpp"
 #include "../utilities.hpp"
-#include "../internationalisation.hpp"
+#include "../i18n.hpp"
 
 namespace wc3lib
 {

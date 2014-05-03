@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MAP_STRINGS_HPP
 #define WC3LIB_MAP_STRINGS_HPP
 
+#include <map>
+
 #include "platform.hpp"
 
 namespace wc3lib

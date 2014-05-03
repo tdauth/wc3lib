@@ -80,17 +80,17 @@ bool BlpIOHandler::read(QImage *image)
 	qDebug() << "Bytes available: " << this->device()->bytesAvailable();
 	*/
 	// TEST END
-	
+
 	// read buffer into input stream
 	const QByteArray all = this->device()->readAll();
-	
+
 	//qDebug() << "All size: " << all.size();
 	//qDebug() << "Device error string 2: " << this->device()->errorString();
-	
+
 	//char *buffer = all.data(); // NOTE Store buffer for non const treatment!
 	iarraystream istream(all.constData(), all.size()); // copies buffer data!
 	//istream.rdbuf()->pubsetbuf(buffer, all.size()); TODO setting buffer directly does not work
-	
+
 	// TEST
 	/*
 	try
@@ -103,7 +103,7 @@ bool BlpIOHandler::read(QImage *image)
 	}
 	*/
 	// TEST END
-	
+
 	QScopedPointer<blp::Blp> blpImage(new blp::Blp());
 
 	try
@@ -112,7 +112,7 @@ bool BlpIOHandler::read(QImage *image)
 	}
 	catch (class Exception &exception)
 	{
-		qDebug() << "BLP Input Exception: " << exception.what().c_str();
+		qDebug() << "BLP Input Exception: " << exception.what();
 
 		return false;
 	}
@@ -195,7 +195,7 @@ bool BlpIOHandler::write(const QImage &image)
 	}
 	catch (class Exception &exception)
 	{
-		qDebug() << "BLP Output Exception: " << exception.what().c_str();
+		qDebug() << "BLP Output Exception: " << exception.what();
 
 		return false;
 	}
@@ -205,7 +205,7 @@ bool BlpIOHandler::write(const QImage &image)
 	//std::streamsize bufferSize = ostream.rdbuf()->in_avail();
 	//boost::scoped_array<char> buffer(new char[bufferSize]);
 	//ostream.rdbuf()->sgetn(buffer.get(), bufferSize);
-	
+
 	this->device()->write(data.c_str(), data.size());
 
 	return true;

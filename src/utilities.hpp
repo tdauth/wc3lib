@@ -37,7 +37,7 @@
 
 #include "config.h"
 #include "exception.hpp"
-#include "internationalisation.hpp"
+#include "i18n.hpp"
 
 namespace wc3lib
 {
@@ -54,7 +54,7 @@ std::string hexValue(T value)
 	return sstream.str();
 }
 
-std::string iostateMessage(const std::ios_base::iostate &state)
+inline std::string iostateMessage(const std::ios_base::iostate &state)
 {
 	std::ostringstream sstream;
 
@@ -77,7 +77,9 @@ template<typename _CharT>
 void checkStream(std::basic_ios<_CharT> &stream) throw (class Exception)
 {
 	if (!stream)
-		throw Exception(boost::format(_("Stream error.\nExceptions \"%1%\".\nRD state: \"%2%\".")) % iostateMessage(stream.exceptions()) % iostateMessage(stream.rdstate()));
+	{
+		throw Exception(boost::str(boost::format(_("Stream error.\nExceptions \"%1%\".\nRD state: \"%2%\".")) % iostateMessage(stream.exceptions()) % iostateMessage(stream.rdstate())).c_str());
+	}
 }
 
 }
@@ -101,7 +103,9 @@ inline std::basic_istream<_CharT>& read(std::basic_istream<_CharT> &istream, T &
 	checkStream(istream);
 
 	if (istream.gcount() != size)
-		throw Exception(boost::format(_("Input stream read size %1% is not equal to expected size %2%.")) % istream.gcount() % size);
+	{
+		throw Exception(boost::str(boost::format(_("Input stream read size %1% is not equal to expected size %2%.")) % istream.gcount() % size).c_str());
+	}
 
 	sizeCounter += istream.gcount();
 

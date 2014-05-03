@@ -27,7 +27,7 @@ Exception::Exception(const std::string &what) throw () : m_what(what)
 {
 }
 
-Exception::Exception(const boost::format &what) throw () : m_what(boost::str(what))
+Exception::Exception(const boost::format &format) throw () : m_what(format.str())
 {
 }
 
