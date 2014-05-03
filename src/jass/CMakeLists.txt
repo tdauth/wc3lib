@@ -1,4 +1,6 @@
 if (JASS)
+	# for proper "config.h" detection we use relative paths of modules as well
+	include_directories("${PROJECT_BINARY_DIR}/src/jass")
 
 	# http://www.guyrutenberg.com/2014/01/05/enabling-c11-c0x-in-cmake/
 	# include(CheckCXXCompilerFlag)
@@ -34,11 +36,11 @@ if (JASS)
 
 	add_library(wc3libjass SHARED ${wc3lib_JASS_SRC})
 	target_link_libraries(wc3libjass wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
-	
+
 	if (DEBUG)
 		add_subdirectory(test)
 	endif ()
-	
+
 	if (JASS_LLVM)
 		add_subdirectory(llvm)
 	endif ()

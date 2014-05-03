@@ -1,3 +1,50 @@
+if (EDITOR OR PLUGINS)
+	# for proper "config.h" detection we use relative paths of modules as well
+	include_directories("${PROJECT_BINARY_DIR}/src/editor")
+
+	if (EDITOR)
+		find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
+	elseif (PLUGINS)
+		find_package(Qt4 COMPONENTS QtCore QtGui)
+	endif ()
+
+	if (${QT4_FOUND})
+		include(${QT_USE_FILE})
+		add_definitions(${QT_DEFINITIONS})
+		include_directories(${QT_INCLUDE_DIR})
+	endif ()
+
+	if (EDITOR)
+		find_package(KDE4 REQUIRED)
+	elseif (PLUGINS)
+		find_package(KDE4) # only for MPQ plugins
+	endif ()
+
+	if (${KDE4_FOUND})
+		include(KDE4Defaults)
+		add_definitions(${KDE4_DEFINITIONS})
+		include_directories(${KDE4_INCLUDE_DIR} ${KDE4_INCLUDES})
+		link_directories(${KDE4_LIB_DIR})
+	endif ()
+
+	# OGRE does not install the CMake file into the module path. It uses the library path instead.
+	find_path(OGRE_CMAKE_MODULE_DIR FindOGRE.cmake PATHS ${CMAKE_MODULE_PATH} ${CMAKE_SYSTEM_LIBRARY_PATH} PATH_SUFFIXES OGRE/cmake)
+
+	if (OGRE_CMAKE_MODULE_DIR)
+		message(STATUS "Found OGRE CMake module in directory: ${OGRE_CMAKE_MODULE_DIR}")
+		set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${OGRE_CMAKE_MODULE_DIR})
+	else ()
+		message(FATAL_ERROR "Did not find OGRE CMake module.")
+	endif ()
+
+	find_package(OGRE COMPONENTS Paging Terrain REQUIRED)
+
+	if (${OGRE_FOUND})
+		include_directories(${OGRE_INCLUDE_DIRS})
+		link_directories(${OGRE_LIB_DIR})
+	endif ()
+endif ()
+
 if (BLP AND ${OGRE_FOUND})
 	add_subdirectory(Plugin_BlpCodec)
 endif ()
@@ -71,16 +118,16 @@ if (EDITOR)
 	)
 
 	add_subdirectory(ui) # wc3lib_EDITOR_UI is set here
-	
+
 	include_directories(${QT_INCLUDE} ${KDE4_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR}) # include binary dir for moc files
-	
+
 	kde4_add_kcfg_files(wc3lib_EDITOR_SRC editorconfig.kcfgc)
 	kde4_add_ui_files(wc3lib_EDITOR_UI_H ${wc3lib_EDITOR_UI})
-	
+
+	message(STATUS "Flags: ${CMAKE_CXX_FLAGS}")
 	kde4_add_library(wc3libeditor SHARED ${wc3lib_EDITOR_SRC} ${wc3lib_EDITOR_UI_H})
-	#add_dependencies(wc3libeditor UI)
 	target_link_libraries(wc3libeditor ${wc3lib_CORE_LIBRARIES} ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${OGRE_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KIO_LIBS} ${KDE4_KUTILS_LIBS} ${KDE4_KPARTS_LIBS} Plugin_BlpCodec qblp)
-	
+
 	add_subdirectory(aieditor)
 	add_subdirectory(campaigneditor)
 	add_subdirectory(triggereditor)

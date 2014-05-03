@@ -1,4 +1,7 @@
 if (BLP)
+	# for proper "config.h" detection we use relative paths of modules as well
+	include_directories("${PROJECT_BINARY_DIR}/src/blp")
+
 	# Static linking with JPEG (BLP library)
 	find_package(JPEG REQUIRED)
 	include_directories(${JPEG_INCLUDE_DIR})

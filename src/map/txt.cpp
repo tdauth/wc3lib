@@ -32,6 +32,9 @@
 
 #include <boost/bind.hpp>
 #include <boost/spirit/home/phoenix/core/argument.hpp>
+#include <boost/spirit/home/phoenix/operator.hpp>
+#include <boost/spirit/home/phoenix/container.hpp>
+#include <boost/spirit/home/phoenix/object.hpp>
 
 #include <boost/foreach.hpp>
 
@@ -54,6 +57,7 @@ namespace client
 {
 
 namespace qi = boost::spirit::qi;
+namespace phoenix = boost::phoenix;
 namespace ascii = boost::spirit::ascii;
 namespace classic = boost::spirit::classic;
 
@@ -78,40 +82,40 @@ struct CommentSkipper : public qi::grammar<Iterator> {
 		using qi::eol;
 		using qi::eoi;
 		using qi::eps;
-		
+
 		/*
 		* Comments may use UTF-8 characters.
 		*/
 		comment %=
 			lit("//") >> *(unicode::char_ - eol)
 		;
-		
+
 		emptyline %=
 			+blank >> -comment // blanks only optionally followed by a comment
 			| comment // one comment only
 		;
-		
+
 		moreemptylines %=
 			(eol >> -emptyline >> &eol)
 		;
-		
+
 		emptylines %=
 			// do not consume the eol of the last empty line because it is the eol between all skipped empty lines and the first one
 			+moreemptylines
 		;
-		
-		skip %= 
+
+		skip %=
 			emptylines
 			| comment
 			| blank // check blank as last value
 		;
-		
+
 		emptyline.name("emptyline");
 		moreemptylines.name("moreemptylines");
 		emptylines.name("emptylines");
 		comment.name("comment");
 		skip.name("skip");
-		
+
 		BOOST_SPIRIT_DEBUG_NODES(
 			(emptyline)
 			(moreemptylines)
@@ -120,7 +124,7 @@ struct CommentSkipper : public qi::grammar<Iterator> {
 			(skip)
 		);
 	}
-	
+
 	qi::rule<Iterator> skip;
 	qi::rule<Iterator> emptyline;
 	qi::rule<Iterator> moreemptylines;
@@ -140,30 +144,31 @@ struct KeyValueSquence : qi::grammar<Iterator, Txt::Pairs(), Skipper>
 		using qi::eol;
 		using qi::eoi;
 		using qi::eps;
-		
+
 		// use only > for non backtracking expectations to get more specific error results
-		
-		pairs =
+
+		pairs %=
 			pair % qi::eol
 		;
-		pair =
+
+		pair %=
 			key
 			>> lit('=')
 			>> value
 		;
-		
-		key =
+
+		key %=
 			char_("a-zA-Z_")
 			>> *char_("a-zA-Z_0-9")
 		;
-		
+
 		// values can be empty or all characters except eol which indicates the and of the value, eoi is the end of the stream and "//" starts a comment!
-		value =
+		value %=
 			no_skip[
 				*(unicode::char_ - (qi::eol|lit("//")))
 			]
 		;
-		
+
 		/*
 		 * Define all names:
 		 */
@@ -171,7 +176,7 @@ struct KeyValueSquence : qi::grammar<Iterator, Txt::Pairs(), Skipper>
 		pair.name("pair");
 		key.name("key");
 		value.name("value");
-		
+
 		BOOST_SPIRIT_DEBUG_NODES(
 			(pairs)
 			(pair)
@@ -179,7 +184,7 @@ struct KeyValueSquence : qi::grammar<Iterator, Txt::Pairs(), Skipper>
 			(value)
 		);
 	}
-	
+
 	qi::rule<Iterator, Txt::Pairs(), Skipper> pairs; // NOTE first rule used as parameter for base_type does always need the skipper type of the grammar
 	qi::rule<Iterator, Txt::Pair(), Skipper> pair;
 	qi::rule<Iterator, string(), Skipper> key;
@@ -187,9 +192,9 @@ struct KeyValueSquence : qi::grammar<Iterator, Txt::Pairs(), Skipper>
 };
 
 template <typename Iterator, typename Skipper = CommentSkipper<Iterator> >
-struct SectionRule : qi::grammar<Iterator, Txt::Section(), Skipper>
+struct SectionGrammar : qi::grammar<Iterator, Txt::Section(), Skipper>
 {
-	SectionRule() : SectionRule::base_type(query, "section rule")
+	SectionGrammar() : SectionGrammar::base_type(query, "section grammar")
 	{
 		using qi::lit;
 		using ascii::char_;
@@ -197,70 +202,114 @@ struct SectionRule : qi::grammar<Iterator, Txt::Section(), Skipper>
 		using qi::eol;
 		using qi::eoi;
 		using qi::eps;
-		
-		query =
+		using qi::_val;
+		using phoenix::push_back;
+		using phoenix::new_;
+
+		query %=
 			name
 			> qi::eol
 			> -entries
 		;
-		
-		name =
+
+		name %=
 			lit('[')
 			> char_("a-zA-Z_")
 			> *char_("a-zA-Z_0-9")
 			> lit(']')
 		;
-		
-		entries = keyValueSequence;
-		
+
+		entries %=
+			keyValueSequence
+		;
+
 		query.name("query");
 		name.name("name");
 		entries.name("entries");
-		
+
 		BOOST_SPIRIT_DEBUG_NODES(
 			(query)
 			(name)
 			(entries)
 		);
 	}
-	
+
 	qi::rule<Iterator, Txt::Section(), Skipper> query;
 	qi::rule<Iterator, string(), Skipper> name;
 	qi::rule<Iterator, Txt::Pairs(), Skipper> entries;
-	
+
 	KeyValueSquence<Iterator, Skipper> keyValueSequence;
+};
+
+template <typename Iterator, typename Skipper = CommentSkipper<Iterator> >
+struct TxtGrammar : qi::grammar<Iterator, Txt::Sections(), Skipper>
+{
+	TxtGrammar() : TxtGrammar::base_type(sections, "txt grammar")
+	{
+		using qi::lit;
+		using ascii::char_;
+		using ascii::blank;
+		using qi::lexeme;
+		using qi::byte_;
+		using qi::eol;
+		using qi::eoi;
+		using qi::eps;
+		using qi::_val;
+		using phoenix::push_back;
+		using phoenix::new_;
+
+		/*
+		 * https://en.wikipedia.org/wiki/Byte_order_mark
+		 * https://en.wikipedia.org/wiki/Byte_order_mark#UTF-8
+		 */
+		bomMarker %=
+			lexeme[
+				byte_(0xEF)
+				> byte_(0xBB)
+				> byte_(0xBF)
+			]
+		;
+
+		sections %=
+			-bomMarker
+			>> *eol // TODO do we have to consume eols at the beginning or does the skipper handle them?
+			>> (sectionGrammar % eol)
+			>> *eol
+		;
+
+		bomMarker.name("bom_marker");
+		sections.name("sections");
+
+		BOOST_SPIRIT_DEBUG_NODES(
+			(bomMarker)
+			(sections)
+		);
+	}
+
+	qi::rule<Iterator, Skipper> bomMarker;
+	qi::rule<Iterator, Txt::Sections(), Skipper> sections;
+
+	SectionGrammar<Iterator, Skipper> sectionGrammar;
 };
 
 template <typename Iterator>
 bool parse(Iterator first, Iterator last, Txt::Sections &sections)
 {
-	SectionRule<Iterator> sectionGrammar;
+	TxtGrammar<Iterator> grammar;
 	CommentSkipper<Iterator> commentSkipper;
-	std::vector<Txt::Section> tmpSections;
-	
+
 	bool r = boost::spirit::qi::phrase_parse(
 		first,
 		last,
-		*qi::eol // TODO do we have to consume eols at the beginning or does the skipper handle them?
-		>> (sectionGrammar % qi::eol)
-		>> *qi::eol,
-		//(*qi::eol > -(sectionGrammar > *(+qi::eol > sectionGrammar)) > *qi::eol) > qi::eoi,
+		grammar,
 		// comment skipper
 		commentSkipper,
-		tmpSections //sections store into "sections"!
+		sections //sections store into "sections"!
 	);
 
 	if (first != last) // fail if we did not get a full match
 	{
 		return false;
-	}
-	
-	// TODO temporary workaround, add sections directly from heap to vector
-	BOOST_FOREACH(std::vector<Txt::Section>::const_reference ref, tmpSections) {
-		std::auto_ptr<Txt::Section> s(new Txt::Section());
-		s->name = ref.name;
-		s->entries = ref.entries;
-		sections.push_back(s);
 	}
 
 	return r;
@@ -288,7 +337,7 @@ std::streamsize Txt::read(InputStream &istream) throw (Exception)
 
 	ForwardIteratorType first = boost::spirit::make_default_multi_pass(IteratorType(istream));
 	ForwardIteratorType last;
-	
+
 	// used for backtracking and more detailed error output
 	namespace classic = boost::spirit::classic;
 	typedef classic::position_iterator2<ForwardIteratorType> PositionIteratorType;
@@ -302,7 +351,7 @@ std::streamsize Txt::read(InputStream &istream) throw (Exception)
 		this->sections()))
 			throw Exception(_("Parsing error."));
 	}
-	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e)
+	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> &e)
 	{
 		const classic::file_position_base<std::string>& pos = e.first.get_position();
 		std::stringstream msg;
@@ -311,7 +360,7 @@ std::streamsize Txt::read(InputStream &istream) throw (Exception)
 		" line " << pos.line << " column " << pos.column << std::endl <<
 		"'" << e.first.get_currentline() << "'" << std::endl <<
 		std::setw(pos.column) << " " << "^- here";
-		
+
 		throw Exception(msg.str());
 	}
 
@@ -322,14 +371,14 @@ std::streamsize Txt::write(OutputStream &ostream) const throw (Exception)
 {
 	std::streamsize size = 0;
 	std::string out;
-	
+
 	BOOST_FOREACH(Sections::const_reference ref, sections())
 	{
 		ostringstream osstream;
 		osstream << "[" << ref.name << "]\n";
 		out =  osstream.str();
 		wc3lib::writeString(ostream, out, size, out.length());
-		
+
 		BOOST_FOREACH(Pairs::const_reference keyValuePair, ref.entries)
 		{
 			osstream.str(""); // flush
@@ -338,7 +387,7 @@ std::streamsize Txt::write(OutputStream &ostream) const throw (Exception)
 			wc3lib::writeString(ostream, out, size, out.length());
 		}
 	}
-	
+
 	return size;
 }
 

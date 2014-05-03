@@ -34,15 +34,15 @@ namespace mpq
 CRC32 Attributes::crc32(const byte* data, std::size_t dataSize)
 {
 	boost::crc_32_type result; // TODO get correct CRC paramaters for MPQ (specification?)
-	
+
 	result.process_bytes((const void*)data, dataSize);
-	
+
 	return result.checksum();
 }
 
 MD5 Attributes::md5(const byte* data, std::size_t dataSize)
 {
-	mpq::md5(data, dataSize);
+	return mpq::md5(data, dataSize);
 }
 
 void Attributes::removeData()

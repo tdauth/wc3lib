@@ -22,7 +22,8 @@
 #define WC3LIB_MPQ_MPQFILE_HPP
 
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <boost/algorithm/string/find.hpp>
+//#include <boost/algorithm/string/find.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 #include "platform.hpp"
 #include "block.hpp"

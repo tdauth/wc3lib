@@ -1,4 +1,6 @@
 if (MDLX)
+	# for proper "config.h" detection we use relative paths of modules as well
+	include_directories("${PROJECT_BINARY_DIR}/src/mdlx")
 
 	set(wc3lib_MDLX_H
 		ambientcolor.hpp
@@ -281,7 +283,7 @@ if (MDLX)
 
 	add_library(wc3libmdlx SHARED ${wc3lib_MDLX_SRC})
 	target_link_libraries(wc3libmdlx wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
-	
+
 	if (DEBUG)
 		add_subdirectory(test)
 	endif ()

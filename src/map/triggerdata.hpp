@@ -25,6 +25,7 @@
 #include <set>
 
 #include <boost/ptr_container/ptr_map.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/variant/variant.hpp>
 
 #include "platform.hpp"

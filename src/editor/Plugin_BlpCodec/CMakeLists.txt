@@ -11,7 +11,7 @@ set(wc3lib_EDITOR_PLUGIN_BLPCODEC_SRC ${wc3lib_EDITOR_PLUGIN_BLPCODEC_SRC} PAREN
 # BLP OGRE plugin
 # allows you to read BLP image files by using class Ogre::Image
 add_library(Plugin_BlpCodec SHARED ${wc3lib_EDITOR_PLUGIN_BLPCODEC_SRC})
-target_link_libraries(Plugin_BlpCodec wc3libblp ${Boost_LIBRARIES} OgreMain ${GETTEXT_LIBRARIES}) # ${OGRE_LIBRARIES}
+target_link_libraries(Plugin_BlpCodec wc3libblp ${Boost_LIBRARIES} ${OGRE_LIBRARIES} ${GETTEXT_LIBRARIES})
 # TODO drop ${Boost_LIBRARIES}
 # TODO workaround
 if (UNIX)

@@ -21,9 +21,16 @@
 #ifndef WC3LIB_MAP_TXT_HPP
 #define WC3LIB_MAP_TXT_HPP
 
-#include <map>
+/**
+ * \defgroup txt TXT files
+ * 
+ * \section txtgrammar Grammar of TXT Files
+ * [section name] // comment
+ * key0 = value0
+ * key1 = value1
+ */
 
-#include <boost/ptr_container/ptr_vector.hpp>
+#include <map>
 
 #include "platform.hpp"
 
@@ -34,15 +41,13 @@ namespace map
 {
 
 /**
- * \brief Provides access to one single *.txt file's entries such as "UI/MiscUI.txt" or "UI/TriggerData.txt"
+ * \brief Provides access to one single .txt file's entries such as "UI/MiscUI.txt" or "UI/TriggerData.txt"
+ * 
+ * All sections can be accessed by \ref sections() which returns a vector of \ref Section instances.
+ * 
  * Uses Boost Spirit library for parsing the file.
  * 
- * \section txtgrammar Grammar of TXT Files
- * [section name] // comment
- * key0 = value0
- * key1 = value1
- * 
- * 
+ * \ingroup txt
  * \sa TriggerData
  */
 class Txt : public Format
@@ -52,13 +57,24 @@ class Txt : public Format
 		typedef std::pair<string, string> Pair;
 		typedef std::vector<Pair> Pairs;
 
+		/**
+		 * One single section a .txt file usually indicated by a [section name] expression.
+		 * Each section has its name plus any number number of key value pairs.
+		 * 
+		 * \ingroup txt
+		 */
 		struct Section
 		{
 			string name;
 			Pairs entries;
 		};
 
-		typedef boost::ptr_vector<Section> Sections;
+		/**
+		 * Type for all sections stored in a .txt file.
+		 * 
+		 * \ingroup txt
+		 */
+		typedef std::vector<Section> Sections;
 
 		Sections& sections();
 		const Sections& sections() const;

@@ -665,7 +665,6 @@ void Analyzer::checkUnaryOperation(const jass_unary_operation& operation, Analyz
 	}
 }
 
-
 void Analyzer::checkBinaryOperatorWithExpression(BOOST_SCOPED_ENUM(jass_binary_operator) op, const jass_expression& expression, Analyzer::Reports& reports) const
 {
 	const jass_type_reference type = expressionType(expression);

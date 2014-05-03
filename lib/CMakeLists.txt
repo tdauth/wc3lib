@@ -1,4 +1,6 @@
 if (MPQ)
+	add_compile_options(-fms-extensions)
+
 	add_subdirectory(huffman)
 	list(APPEND linkDirectories huffman)
 	add_subdirectory(pklib)

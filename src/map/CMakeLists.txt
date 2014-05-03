@@ -1,4 +1,6 @@
 if (MAP)
+	# for proper "config.h" detection we use relative paths of modules as well
+	include_directories("${PROJECT_BINARY_DIR}/src/map")
 
 	set (wc3lib_MAP_H
 		camera.hpp
@@ -87,15 +89,15 @@ if (MAP)
 
 	add_library(wc3libmap SHARED ${wc3lib_MAP_SRC})
 	target_link_libraries(wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
-	
+
 	if (MPQ)
 		target_link_libraries(wc3libmap wc3libmpq)
 	endif ()
-	
+
 	if (BLP)
 		target_link_libraries(wc3libmap wc3libblp)
 	endif ()
-	
+
 	if (DEBUG)
 		add_subdirectory(test)
 	endif ()

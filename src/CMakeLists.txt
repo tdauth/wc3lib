@@ -1,3 +1,17 @@
+find_package(Gettext REQUIRED)
+
+# Boost
+set(Boost_USE_MULTITHREADED ON)
+if (DEBUG)
+	#set(Boost_DEBUG ON)
+	add_definitions(-DBOOST_TEST_DYN_LINK=1)
+endif ()
+
+find_package(Boost COMPONENTS system filesystem thread serialization program_options iostreams REQUIRED)
+
+link_directories(${Boost_LIBRARY_DIRS})
+include_directories(${GETTEXT_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})
+
 set(wc3lib_CORE_H
 	blp.hpp
 	color.hpp
@@ -31,7 +45,7 @@ if (EDITOR OR PLUGINS)
 endif ()
 
 add_library(wc3libcore ${wc3lib_CREATION_MODE} ${wc3lib_CORE_SRC})
-if (NOT STATIC AND UNIX)
+if (UNIX)
 	# TODO: dl is required for using dlopen etc. (cross platform?)
 	target_link_libraries(wc3libcore dl)
 endif ()
@@ -100,21 +114,10 @@ if (EDITOR)
 	set(wc3lib_SRC ${wc3lib_SRC} ${wc3lib_EDITOR_SRC})
 endif ()
 
-#add_library(wc3lib SHARED ${wc3lib_SRC})
-#if (NOT FLAG_STATIC_USE)
-	# TODO: dl is required for using dlopen etc. (cross platform?)
-#	target_link_libraries(wc3lib dl)
-#endif ()
-#target_link_libraries(wc3lib ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
-#if (FLAG_EDITOR_USE)
-#	target_link_libraries(wc3lib ${OGRE_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KIO_LIBS} ${KDE4_KUTILS_LIBS} ${KDE4_KPARTS_LIBS})
-#endif ()
-
 if (APP)
 	add_subdirectory(app)
 endif ()
 
 # install
 install(TARGETS wc3libcore DESTINATION lib)
-#install(TARGETS wc3lib DESTINATION lib/wc3lib)
 install(FILES ${wc3lib_CORE_H} DESTINATION include/wc3lib)

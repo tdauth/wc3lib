@@ -12,9 +12,6 @@ enable_testing()
 
 include(CMakeDependentOption)
 
-option(STATIC
-	"Everything will be linked statically with applications if possible (creates big static wc3lib library)."
-	OFF)
 option(APP
 	"Builds various applications for all enabled modules, not only libraries."
 	ON)
@@ -56,6 +53,18 @@ option(DOC
 	"Generates doxygen documentation (doxygen is required)"
 	OFF)
 
+# custom compilation definitions
+# run debug detection before configuring file to set proper preprocessor
+if (CMAKE_BUILD_TYPE STREQUAL Debug OR CMAKE_BUILD_TYPE STREQUAL debugfull OR CMAKE_BUILD_TYPE STREQUAL debugfull OR CMAKE_BUILD_TYPE STREQUAL Profile OR DEBUG)
+	message(STATUS "Detected debug mode with CMake build type: \"${CMAKE_BUILD_TYPE}\".")
+	set(DEBUG ON)
+	add_definitions(-DDEBUG=1)
+endif ()
+
+# required for locale files - gettext
+# set definition before configuring file
+add_definitions(-DLOCALE_DIR=\"${CMAKE_INSTALL_PREFIX}/share/locale\")
+
 # NOTE config.h has to be installed since it is included in various header files and therefore required in the public API (for example #include "../config.h")
 # it contains the defines for all possible CMake options and is expected to be in the top level src directory ("include/wc3lib/")
 configure_file (
@@ -67,95 +76,6 @@ install(FILES "${PROJECT_BINARY_DIR}/src/config.h" DESTINATION include/wc3lib)
 # add the binary src tree to the search path for include files
 # so that we will find config.h
 include_directories("${PROJECT_BINARY_DIR}/src")
-
-# for proper "config.h" detection we use relative paths of modules as well
-if (BLP)
-	include_directories("${PROJECT_BINARY_DIR}/src/blp")
-endif ()
-
-if (MAP)
-	include_directories("${PROJECT_BINARY_DIR}/src/map")
-endif ()
-
-if (MPQ)
-	include_directories("${PROJECT_BINARY_DIR}/src/mpq")
-endif ()
-
-if (MDLX)
-	include_directories("${PROJECT_BINARY_DIR}/src/mdlx")
-endif ()
-
-if (JASS)
-	include_directories("${PROJECT_BINARY_DIR}/src/jass")
-endif ()
-
-if (W3G)
-	include_directories("${PROJECT_BINARY_DIR}/src/w3g")
-endif ()
-
-if (EDITOR)
-	include_directories("${PROJECT_BINARY_DIR}/src/editor")
-endif ()
-
-# Used for compiler flags like -Wall
-# TODO CMAKE_CXX_FLAGS is not changed in cache!
-# NOTE We could use COMPILE_FLAGS property of targets.
-function (WC3LIB_ENABLE_COMPILE_FLAG flagName)
-	message(STATUS "Enabling flag \"${flagName}\".")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flagName}" GLOBAL)
-endfunction ()
-
-function (WC3LIB_DISABLE_COMPILE_FLAG flagName)
-	message(STATUS "Disabling flag \"${flagName}\".")
-	string(REPLACE "${flagName}" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-endfunction ()
-
-function (WC3LIB_REPLACE_COMPILE_FLAG flagName newFlagName)
-	message(STATUS "Replacing flag \"${flagName}\" by \"${newFlagName}\".")
-	string(REPLACE "${flagName}" "${newFlagName}" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" GLOBAL)
-endfunction ()
-
-# get_property(input DIRECTORY PROPERTY COMPILE_DEFINITIONS)
-# Used for -DBLA=1, cmake cache entry
-function (WC3LIB_GET_COMPILE_DEFINITION variable definitionName)
-	#set(variable 0 PARENT_SCOPE)
-	#get_property(input DIRECTORY PROPERTY COMPILE_DEFINITIONS)
-	#string(REGEX MATCH "\\W*-D ${definitionName}\\W*" output "${input}")
-	#string(COMPARE EQUAL "${output}" "-D ${definitionName}" result)
-	#if (result)
-	#	set(variable 1 PARENT_SCOPE)
-	#endif ()
-	get_property(input CACHE "${definitionName}" PROPERTY VALUE)
-	if (NOT input)
-		set(input 0)
-	endif ()
-	set("${variable}" ${input} PARENT_SCOPE)
-	message(STATUS "Definition \"${definitionName}\" is ${input}.")
-endfunction ()
-
-# TODO: Also setup C flags since we're using C code, too (e. g. huffman lib), CMAKE_C_FLAGS
-function (WC3LIB_COMPILER_SETUP)
-	message(STATUS "C++ compiler: ${CMAKE_CXX_COMPILER_ID}")
-	if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-		message(STATUS "Setting Clang compilation flags.")
-		#WC3LIB_ENABLE_COMPILE_FLAG("-std=c++11")
-		#WC3LIB_ENABLE_COMPILE_FLAG("-stdlib=libc++")
-	# GCC options setup, has to be AFTER finding packages - Qt and KDE do overwrite CMAKE_CXX_FLAGS!
-	elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-		message(STATUS "Setting GCC compilation flags.")
-		# Enable exception handling, disabled by Qt.
-		# WC3LIB_REPLACE_COMPILE_FLAG("-fno-exceptions" "-fexceptions")
-		# Required for dynamic linking
-		WC3LIB_ENABLE_COMPILE_FLAG("-fPIC")
-		# -fms-extensions is required by huffman lib since it uses anonymous struct which is not supported by ISO C!
-		WC3LIB_ENABLE_COMPILE_FLAG("-fms-extensions")
-		# NOTE For next ISO!
-		# we're using some features of the new C++ ISO Standard such as default function templates arguments and scoped enums (via Boost)
-		#WC3LIB_ENABLE_COMPILE_FLAG("-std=c++11")
-		# set to parent scope since this is a function and these values should be the global C++ flags!
-	endif ()
-endfunction ()
 
 # operating system definitions
 if (UNIX)
@@ -174,151 +94,6 @@ elseif (WIN32)
 else ()
 	message(WARNING "Unknown operating system!")
 endif ()
-
-# custom compilation definitions
-if (CMAKE_BUILD_TYPE STREQUAL Debug OR CMAKE_BUILD_TYPE STREQUAL debugfull OR CMAKE_BUILD_TYPE STREQUAL debugfull OR CMAKE_BUILD_TYPE STREQUAL Profile OR DEBUG)
-	message(STATUS "Detected debug mode: ${CMAKE_BUILD_TYPE}.")
-	set(DEBUG ON)
-	add_definitions(-DDEBUG=1)
-endif ()
-
-if (STATIC)
-	set(wc3lib_CREATION_MODE STATIC)
-else ()
-	set(wc3lib_CREATION_MODE SHARED)
-endif ()
-
-find_package(Gettext REQUIRED)
-
-# Both compression libraries are required by Boost "iostreams" component which is used for the "mpq" module.
-# Crypto++ library is required for RSA encryption and SHA1 digest and MD5 checksum calculation (Boost does only support CRC).
-if (MPQ)
-	find_package(BZip2 REQUIRED)
-	include_directories(${BZIP2_INCLUDE_DIR})
-	find_package(ZLIB REQUIRED)
-	include_directories(${ZLIB_INCLUDE_DIRS})
-
-	if (USE_ENCRYPTION)
-		set(CRYPTOPP_INCLUDE_DIRS "${CMAKE_SYSTEM_INCLUDE_PATH}")
-		set(CRYPTOPP_LIB_DIR "${CMAKE_SYSTEM_LIBRARY_PATH}")
-
-		find_path(tmp "rsa.h" "${CRYPTOPP_INCLUDE_DIRS}/crypto++")
-
-		if (NOT (${tmp} EQUAL "tmp-NOTFOUND"))
-			include_directories(${CRYPTOPP_INCLUDE_DIRS})
-			link_directories(${CRYPTOPP_LIB_DIR})
-			find_library(CRYPTOPP_LIB NAMES crypto++ REQUIRED "${CRYPTOPP_LIB_DIR}")
-
-			if (NOT (CRYPTOPP_LIB EQUAL "CRYPTOPP_LIB-NOTFOUND"))
-				set(CRYPTOPP_LIBRARIES ${CRYPTOPP_LIB})
-				message(STATUS "Crypto++ libraries: ${CRYPTOPP_LIBRARIES}")
-				set(CRYPTOPP_FOUND 1)
-			else ()
-				set(CRYPTOPP_FOUND 0)
-			endif ()
-		else ()
-			message(FATAL_ERROR "\"rsa.h\" could not be found in paths: ${CRYPTOPP_INCLUDE_DIRS}.")
-		endif ()
-	else ()
-		find_package(OpenSSL REQUIRED)
-		include_directories(${OPENSSL_INCLUDE_DIR})
-	endif ()
-
-endif ()
-
-# Boost
-if (STATIC)
-	set(Boost_USE_STATIC_LIBS ON)
-else ()
-	set(Boost_USE_STATIC_LIBS OFF)
-endif ()
-set(Boost_USE_MULTITHREADED ON)
-if (DEBUG)
-	set(Boost_DEBUG ON)
-	add_definitions(-DBOOST_TEST_DYN_LINK=1)
-endif ()
-#set(Boost_DETAILED_FAILURE_MSG ON)
-#set(Boost_ADDITIONAL_VERSIONS "1.40" "1.40.0" "1.41" "1.41.0" "1.42" "1.42.0" "1.43" "1.43.0" "1.44" "1.44.0" "1.45" "1.45.0" "1.46" "1.46.0")
-find_package(Boost COMPONENTS system filesystem thread serialization program_options iostreams REQUIRED)
-
-if (EDITOR OR PLUGINS)
-	if (EDITOR)
-		find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
-	elseif (PLUGINS)
-		find_package(Qt4 COMPONENTS QtCore QtGui)
-	endif ()
-
-	if (${QT4_FOUND})
-		include(${QT_USE_FILE})
-		add_definitions(${QT_DEFINITIONS})
-		include_directories(${QT_INCLUDE_DIR})
-	endif ()
-
-	if (EDITOR)
-		find_package(KDE4 REQUIRED)
-	elseif (PLUGINS)
-		find_package(KDE4) # only for MPQ plugins
-	endif ()
-
-	if (${KDE4_FOUND})
-		add_definitions(${KDE4_DEFINITIONS})
-		include_directories(${KDE4_INCLUDE_DIR} ${KDE4_INCLUDES})
-		link_directories(${KDE4_LIB_DIR})
-	endif ()
-
-	set (OGRE_INCLUDE_DIRS "${CMAKE_SYSTEM_INCLUDE_PATH}/OGRE" "${CMAKE_SYSTEM_INCLUDE_PATH}/OGRE/Terrain")
-	set(OGRE_LIB_DIR "${CMAKE_SYSTEM_LIBRARY_PATH}")
-
-	find_path(tmp "Ogre.h" ${OGRE_INCLUDE_DIRS})
-
-	if (tmp)
-		include_directories(${OGRE_INCLUDE_DIRS})
-		link_directories(${OGRE_LIB_DIR})
-
-		if (EDITOR)
-			find_library(OGRE_MAIN NAMES OgreMain REQUIRED "${OGRE_LIB_DIR}")
-			find_library(OGRE_TERRAIN NAMES OgreTerrain REQUIRED "${OGRE_LIB_DIR}")
-		elseif (PLUGINS)
-			find_library(OGRE_MAIN NAMES OgreMain "${OGRE_LIB_DIR}")
-		endif ()
-
-		if (NOT (OGRE_MAIN EQUAL "OGRE_MAIN-NOTFOUND") AND (NOT EDITOR OR NOT (OGRE_TERRAIN EQUAL "OGRE_TERRAIN-NOTFOUND")))
-			set(OGRE_LIBRARIES ${OGRE_MAIN})
-			if (EDITOR)
-				set(OGRE_LIBRARIES ${OGRE_LIBRARIES} ${OGRE_TERRAIN})
-			endif ()
-			message(STATUS "OGRE libraries: ${OGRE_LIBRARIES}")
-			set(OGRE_FOUND 1)
-		else ()
-			set(OGRE_FOUND 0)
-		endif ()
-	elseif (EDITOR)
-		message(FATAL_ERROR "\"Ogre.h\" could not be found in paths: ${OGRE_INCLUDE_DIRS}.")
-	else ()
-		set(OGRE_FOUND 0) # for plugins
-	endif ()
-else ()
-	set(QT4_FOUND 0)
-	set(KDE4_FOUND 0)
-	set(OGRE_FOUND 0)
-endif ()
-
-# TODO: is only required when using -DJPEG and -DSTATIC
-#find_library(OPENJPEG_LIBS openjpeg) # todo Use custom cmake module to find openjpeg.
-
-link_directories(${Boost_LIBRARY_DIRS})
-include_directories(${GETTEXT_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})
-
-# Reset flags, Qt and KDE do set them to CRAP!
-set(CMAKE_CXX_FLAGS "")
-set(CMAKE_C_FLAGS "")
-WC3LIB_COMPILER_SETUP()
-
-message(STATUS "C++ Compile flags are: \"${CMAKE_CXX_FLAGS}\".")
-message(STATUS "C Compile flags are: \"${CMAKE_C_FLAGS}\".")
-
-# required for locale files - gettext
-add_definitions(-DLOCALE_DIR=\"${CMAKE_INSTALL_PREFIX}/share/locale\")
 
 include_directories(src lib)
 

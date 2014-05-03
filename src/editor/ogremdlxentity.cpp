@@ -58,6 +58,8 @@ bool OgreMdlxEntity::frameRenderingQueued(const Ogre::FrameEvent &evt)
 		while (it.hasMoreElements())
 			it.getNext()->addTime(evt.timeSinceLastFrame);
 	}
+
+	return true;
 }
 
 }

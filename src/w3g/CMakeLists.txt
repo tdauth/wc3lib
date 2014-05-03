@@ -1,5 +1,6 @@
 if (W3G)
-	WC3LIB_ENABLE_EXCEPTIONS()
+	# for proper "config.h" detection we use relative paths of modules as well
+	include_directories("${PROJECT_BINARY_DIR}/src/w3g")
 
 	set(wc3lib_W3G_H
 		platform.hpp
