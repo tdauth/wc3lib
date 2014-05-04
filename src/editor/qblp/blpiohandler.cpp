@@ -108,7 +108,7 @@ bool BlpIOHandler::read(QImage *image)
 
 	try
 	{
-		blpImage->read(istream, 1, blp::Blp::defaultThreads); // only read the first MIP map, QImage does not support MIP mapping
+		blpImage->read(istream, 1); // only read the first MIP map, QImage does not support MIP mapping
 	}
 	catch (class Exception &exception)
 	{
@@ -191,7 +191,7 @@ bool BlpIOHandler::write(const QImage &image)
 
 	try
 	{
-		blpImage->write(ostream, option(Quality).toInt(), blp::Blp::defaultMipMaps, blp::Blp::defaultThreads);
+		blpImage->write(ostream, option(Quality).toInt(), blp::Blp::defaultMipMaps);
 	}
 	catch (class Exception &exception)
 	{

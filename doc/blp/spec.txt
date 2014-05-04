@@ -1,0 +1,4 @@
+Original specification:
+http://wc3lib.org/spec/BLP.txt
+
+Additional information for BLP JPEG data:

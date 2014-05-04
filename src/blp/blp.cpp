@@ -18,8 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <boost/thread.hpp>
-
 #include "blp.hpp"
 
 #include <jpeglib.h>
@@ -41,7 +39,6 @@ const std::size_t Blp::maxMipMaps = 16;
 const std::size_t Blp::compressedPaletteSize = 256;
 const int Blp::defaultQuality = 100;
 const std::size_t Blp::defaultMipMaps = 0;
-const bool Blp::defaultThreads = true;
 
 Blp::MipMap::Color::Color() : m_alpha(0)
 {
@@ -159,73 +156,50 @@ std::string jpegError(const std::string &message)
 	return boost::str(boost::format(message) % (jpeg_std_error(0)->jpeg_message_table != 0 ? jpeg_std_error(0)->jpeg_message_table[jpeg_std_error(0)->last_jpeg_message] : _("No error")));
 }
 
-struct ReadData
-{
-	ReadData(Blp::MipMap &mipMap, unsigned char * const data, const std::size_t dataSize) : mipMap(mipMap), data(data), dataSize(dataSize), finished(false)
-	{
-	}
-
-	Blp::MipMap &mipMap;
-	unsigned char * const data; /// All required data from stream which has size \ref dataSize (does contain JPEG header as well). Note that this buffer has to be deleted/freed by the \ref readMipMapJpeg function! Usually this happens when decompressor is being destroyed. Therefore it cannot be a \ref boost::scoped_ptr since it wouldn't be freed by delete operator.
-	const std::size_t dataSize;
-	bool finished;
-	std::string stateMessage;
-};
-
-struct WriteData
-{
-	WriteData(const Blp::MipMap &mipMap, bool isFirst, int quality) : mipMap(mipMap), dataSize(0), isFirst(isFirst), quality(quality), headerSize(0), finished(false)
-	{
-	}
-
-	const Blp::MipMap &mipMap;
-	boost::scoped_array<unsigned char> data; /// All required data from stream which has size \ref dataSize (does contain JPEG header as well). \todo Should be a scoped_array, check thread deletion bug!
-	std::size_t dataSize;
-	bool isFirst;
-	int quality; /// Reaches from 0-100.
-	std::size_t headerSize; /// Only useful if isFirst is true (header size in buffer \ref data).
-	bool finished;
-	std::string stateMessage;
-};
-
 /**
- * Function for multithreading. Has to be thread-safe!
+ * Reads JPEG MIP map data from \p buffer of size \p bufferSize into \p mipMap.
  */
-void readMipMapJpeg(ReadData *readData)
+void readMipMapJpeg(Blp::MipMap &mipMap, byte *buffer, dword bufferSize)
 {
 	JSAMPARRAY scanlines = 0; // will be filled later
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_error_mgr jerr;
 	cinfo.err = jpeg_std_error(&jerr);
-	
+
 	jpeg_create_decompress(&cinfo);
 
 	try
 	{
-		jpeg_mem_src(&cinfo, readData->data, readData->dataSize);
+		jpeg_mem_src(&cinfo, buffer, bufferSize);
 
 		if (jpeg_read_header(&cinfo, true) != JPEG_HEADER_OK) // TODO segmentation fault, when it's not a JPEG file and doesn start with 0xff 0xd8!
-			throw Exception(jpegError(_("Did not find header. Error: %1%.")));
-
-		if (!jpeg_start_decompress(&cinfo))
-			throw Exception(jpegError(_("Could not start decompress. Error: %1%.")));
-
-		if (readData->mipMap.width() != cinfo.image_width)
 		{
-			std::cerr << boost::format(_("Corrupted MIP map: Image width (%1%) is not equal to mip map width (%2%).")) % cinfo.image_width % readData->mipMap.width() << std::endl;
-			
-			readData->mipMap.setWidth(cinfo.image_width); // adjusting new width before reading
+			throw Exception(jpegError(_("Did not find header. Error: %1%.")));
 		}
 
-		if (readData->mipMap.height() != cinfo.image_height)
+		if (!jpeg_start_decompress(&cinfo))
 		{
-			std::cerr << boost::format(_("Corrupted MIP map: Image height (%1%) is not equal to mip map height (%2%).")) % cinfo.image_height % readData->mipMap.height() << std::endl;
-			
-			readData->mipMap.setHeight(cinfo.image_height); // adjusting new height before reading
+			throw Exception(jpegError(_("Could not start decompress. Error: %1%.")));
+		}
+
+		if (mipMap.width() != cinfo.image_width)
+		{
+			std::cerr << boost::format(_("Corrupted MIP map: Image width (%1%) is not equal to mip map width (%2%).")) % cinfo.image_width % mipMap.width() << std::endl;
+
+			mipMap.setWidth(cinfo.image_width); // adjusting new width before reading
+		}
+
+		if (mipMap.height() != cinfo.image_height)
+		{
+			std::cerr << boost::format(_("Corrupted MIP map: Image height (%1%) is not equal to mip map height (%2%).")) % cinfo.image_height % mipMap.height() << std::endl;
+
+			mipMap.setHeight(cinfo.image_height); // adjusting new height before reading
 		}
 
 		if (cinfo.out_color_space != JCS_RGB)
+		{
 			std::cerr << boost::format(_("Warning: Image color space (%1%) is not equal to RGB (%2%).")) % cinfo.out_color_space % JCS_RGB << std::endl;
+		}
 
 		/// \todo Get as much required scanlines as possible (highest divident) to increase speed. Actually it could be equal to the MIP maps height which will lead to reading the whole MIP map with one single \ref jpeg_read_scanlines call
 		const JDIMENSION requiredScanlines = cinfo.output_height; // increase this value to read more scanlines in one step
@@ -258,41 +232,38 @@ void readMipMapJpeg(ReadData *readData)
 					if (cinfo.output_components == 4) // we do have an alpha channel
 						argb |= ((color)(0xFF - scanlines[height][component + 3]) << 24);
 
-					readData->mipMap.setColor(width, height + currentScanline, argb); /// \todo Get alpha?!
+					mipMap.setColor(width, height + currentScanline, argb); /// \todo Get alpha?!
 					++width;
 				}
 			}
 		}
 	}
+	/*
+	 * Clean up before throwing exception.
+	 */
 	catch (std::exception &exception)
 	{
 		// jpeg_abort_decompress is only used when cinfo has to be used again.
 		jpeg_destroy_decompress(&cinfo); // discard object
-		readData->stateMessage = exception.what();
 
-		return;
-	}
-	catch (...)
-	{
-		// jpeg_abort_decompress is only used when cinfo has to be used again.
-		jpeg_destroy_decompress(&cinfo); // discard object
-
-		return;
+		throw exception;
 	}
 
 	jpeg_finish_decompress(&cinfo);
 
 	if (!cinfo.saw_JFIF_marker)
+	{
 		std::cerr << boost::format(_("Warning: Did not find JFIF marker. JFIF format is used by default!\nThis is the JFIF version of the image %1%.%2%")) % cinfo.JFIF_major_version % cinfo.JFIF_minor_version << std::endl;
+	}
 
 	jpeg_destroy_decompress(&cinfo);
-	readData->finished = true;
 }
 
 /**
- * Function for multithreading. Has to be thread-safe!
+ * \param isFirst Is the first MIP map. If so it will contain more header information than others.
+ * \param quality 0-100
  */
-void writeMipMapJpeg(WriteData *writeData)
+void writeMipMapJpeg(const Blp::MipMap &mipMap, unsigned char *&buffer, unsigned long &bufferSize, bool isFirst, int quality)
 {
 	JSAMPARRAY scanlines = 0; // will be filled later
 
@@ -303,34 +274,29 @@ void writeMipMapJpeg(WriteData *writeData)
 
 	try
 	{
-		const JDIMENSION imageWidth = boost::numeric_cast<JDIMENSION>(writeData->mipMap.width());
-		const JDIMENSION imageHeight = boost::numeric_cast<JDIMENSION>(writeData->mipMap.height());
+		const JDIMENSION imageWidth = boost::numeric_cast<JDIMENSION>(mipMap.width());
+		const JDIMENSION imageHeight = boost::numeric_cast<JDIMENSION>(mipMap.height());
 		const int inputComponents = 3; // TODO ARGB, 4
 		/// \todo Get as much required scanlines as possible (highest divident) to increase speed. Actually it could be equal to the MIP maps height which will lead to reading the whole MIP map with one single \ref jpeg_write_scanlines call
 		const JDIMENSION requiredScanlines = imageHeight; // increase this value to read more scanlines in one step
 		assert(requiredScanlines <= imageHeight && requiredScanlines > 0);
 		const JDIMENSION scanlineSize = imageWidth * inputComponents; // JSAMPLEs per row in output buffer
-		unsigned char *data = 0;
 
-		unsigned long size = 0; //= requiredScanlines * scanlineSize + 1024; // size of uncompressed scanlines + estimated header size, TODO jpeglib uses its own buffer size 4096 instead
-		jpeg_mem_dest(&cinfo, &data, &size);
+		jpeg_mem_dest(&cinfo, &buffer, &bufferSize);
 		cinfo.image_width = imageWidth;
 		cinfo.image_height = imageHeight;
 		cinfo.input_components = inputComponents;
 		cinfo.in_color_space = JCS_RGB;
 		jpeg_set_defaults(&cinfo);
-		jpeg_set_quality(&cinfo, writeData->quality, false);
+		jpeg_set_quality(&cinfo, quality, false);
 
-		if (writeData->isFirst)
+		if (isFirst)
+		{
 			jpeg_write_tables(&cinfo);
+		}
 
 		jpeg_start_compress(&cinfo, false); // only write tables for the first MIP map
 		// TODO also share JFIF header? cinfo.write_JFIF_header = writeData->isFirst;
-		// get header size
-		//std::cout << "Free in buffer " << cinfo.dest->free_in_buffer << std::endl;
-
-		//writeData->headerSize =  cinfo.dest->free_in_buffer > size ? cinfo.dest->free_in_buffer : boost::numeric_cast<std::size_t>(size - cinfo.dest->free_in_buffer); // boost::numeric_cast<std::size_t>(size - cinfo.dest->free_in_buffer);
-		//std::cout << "Header size: " << writeData->headerSize << std::endl;
 
 		scanlines = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, scanlineSize, requiredScanlines);
 
@@ -349,88 +315,45 @@ void writeMipMapJpeg(WriteData *writeData)
 					// TODO why is component 0 blue, component 1 green and component 2 red?
 					// Red and Blue colors are swapped.
 					// http://www.wc3c.net/showpost.php?p=1046264&postcount=2
-					const color argb = writeData->mipMap.colorAt(width, height).argb();
+					const color argb = mipMap.colorAt(width, height).argb();
 					scanlines[height][component] = blue(argb);
 					scanlines[height][component + 1] = green(argb);
 					scanlines[height][component + 2] = red(argb);
 
 					if (cinfo.input_components == 4) // we do have an alpha channel
+					{
 						scanlines[height][component + 3] = 0xFF - alpha(argb);
+					}
 
 					++width;
 				}
 			}
 
 			const JDIMENSION dimension = jpeg_write_scanlines(&cinfo, scanlines, requiredScanlines);
-			std::cout << "Written " << dimension << " scanlines " << " and we have size " << size << std::endl;
+			std::cout << "Written " << dimension << " scanlines " << " and we have size " << bufferSize << std::endl;
 
 			if (dimension != requiredScanlines)
+			{
 				throw Exception(boost::format(_("Number of written scan lines is not equal to %1%. It is %2%.")) % requiredScanlines % dimension);
+			}
 		}
 
 		// output buffer data for further treatment
 		std::cout << "Free in buffer " << cinfo.dest->free_in_buffer << std::endl;
-		std::cout << "Size " << size << std::endl;
-		writeData->dataSize = cinfo.dest->free_in_buffer > size ? cinfo.dest->free_in_buffer : boost::numeric_cast<std::size_t>(size - cinfo.dest->free_in_buffer); // TODO free_in_buffer is larger than size
-		std::cout << "Data size " << writeData->dataSize << std::endl;
-		writeData->data.reset(new unsigned char[writeData->dataSize]);
-		memcpy(writeData->data.get(), data, writeData->dataSize); // TODO memcpy seems to be necessary since data is allocated on stack? Otherwise we could reset with data!
-
-		/*
-		 *NOTE each MIP map needs header data except tables since marker FFC0 is required for each one
-		if (writeData->isFirst)
-		{
-		*/
-			std::size_t i = 0;
-			std::size_t offset = 0;
-			bool foundOffset = false;
-
-			while (i < writeData->dataSize)
-			{
-				if (writeData->data[i] == 0xFF)
-				{
-					++i;
-
-					if (i < writeData->dataSize && writeData->data[i] == 0xDA)
-					{
-						offset = i - 1;
-						foundOffset = true;
-
-						break;
-					}
-				}
-				else
-					++i;
-			}
-
-
-			if (!foundOffset)
-			{
-				throw Exception(_("Didn't find start of scan 0xFFDA!"));
-			}
-
-			writeData->headerSize = offset;
-		//}
 	}
+	/*
+	 * Cleanup before throwing exception.
+	 */
 	catch (std::exception &exception)
 	{
 		// jpeg_abort_compress is only used when cinfo has to be used again.
 		jpeg_destroy_compress(&cinfo); // discard object
-		writeData->stateMessage = exception.what();
 
-		return;
-	}
-	catch (...)
-	{
-		// jpeg_abort_compress is only used when cinfo has to be used again.
-		jpeg_destroy_compress(&cinfo); // discard object
-
-		return;
+		throw exception;
 	}
 
 	jpeg_finish_compress(&cinfo);
 	jpeg_destroy_compress(&cinfo);
-	writeData->finished = true;
 }
 
 }
@@ -438,14 +361,25 @@ void writeMipMapJpeg(WriteData *writeData)
 namespace
 {
 
-struct MipMapHeaderData
+/**
+ * \brief Used to store offset and size of a MIP map from header data of the BLP image for later usage.
+ *
+ * Instances of this struct are stored in an array to access them later for each MIP map by its index.
+ * We need this separate struct since there is two different header structs: \ref BlpHeader and \ref BlpHeader2
+ * which share the offset and size data but we want to access both for one single MIP map.
+ */
+struct MipMapHeader
 {
+	MipMapHeader() : offset(0), size(0)
+	{
+	}
+
 	dword offset, size;
 };
 
 }
 
-std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps, const bool threads) throw (class Exception)
+std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps) throw (class Exception)
 {
 	this->clear();
 	// header
@@ -454,8 +388,10 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps, con
 	wc3lib::read(istream, identifier, size);
 	this->m_format = format((byte*)&identifier, sizeof(identifier));
 
-	typedef boost::shared_ptr<MipMapHeaderData> MipMapHeaderDataPtr;
-	std::vector<MipMapHeaderDataPtr> mipMapData(Blp::maxMipMaps);
+	/*
+	 * Store offset and size of MIP maps in an array to access it by its index later.
+	 */
+	std::vector<MipMapHeader> mipMapHeaders(Blp::maxMipMaps);
 
 	if (this->format() == Blp::Format::Blp0 || this->format() == Blp::Format::Blp1)
 	{
@@ -470,9 +406,8 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps, con
 
 		for (std::size_t i = 0; i < Blp::maxMipMaps; ++i)
 		{
-			mipMapData[i].reset(new MipMapHeaderData);
-			mipMapData[i]->offset = header.mipMapOffset[i],
-			mipMapData[i]->size = header.mipMapSize[i];
+			mipMapHeaders[i].offset = header.mipMapOffset[i],
+			mipMapHeaders[i].size = header.mipMapSize[i];
 		}
 	}
 	// BLP2
@@ -509,179 +444,149 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps, con
 
 		for (std::size_t i = 0; i < Blp::maxMipMaps; ++i)
 		{
-			mipMapData[i].reset(new MipMapHeaderData);
-			mipMapData[i]->offset = header.mipMapOffset[i],
-			mipMapData[i]->size = header.mipMapSize[i];
+			mipMapHeaders[i].offset = header.mipMapOffset[i],
+			mipMapHeaders[i].size = header.mipMapSize[i];
 		}
 	}
 
+	/*
+	 * Calculate number of required MIP maps.
+	 * If the user has specified a number of MIP maps to be read (mipMaps != 0)
+	 * which is in range of require MIP maps it is used.
+	 * The user defined number cannot be greater than the calculated number of MIP maps.
+	 */
+	const bool useCustomMipMapsCount = mipMaps != 0; // user has specified a number of MIP maps to be read
 	std::size_t mipMapsCount = requiredMipMaps(this->m_width, this->m_height);
 
-	if (mipMaps != 0 && mipMaps < mipMapsCount)
-		mipMapsCount = mipMaps;
+	if (useCustomMipMapsCount)
+	{
+		if (mipMaps < mipMapsCount)
+		{
+			mipMapsCount = mipMaps;
+		}
+		else if (mipMaps > mipMapsCount)
+		{
+			std::cerr << boost::format(_("Invalid specified number of MIP maps to be read: %1%. Maximum number is: %2%.")) % mipMaps % mipMapsCount << std::endl;
+		}
+	}
 
+	/*
+	 * Reading 0 MIP maps makes no sense but we still support it to avoid errors.
+	 */
 	if (mipMapsCount == 0)
-		throw Exception(_("Detected 0 MIP maps (too little)."));
+	{
+		std::cerr << _("Detected 0 MIP maps (too little).") << std::endl;
+	}
 
-	//std::cout << "Required mip maps are " << mipMapsCount << " with width " << this->m_width << " and height " << this->m_height << std::endl; // TEST
-
+	/*
+	 * Allocate all MIP maps.
+	 */
 	this->mipMaps().resize(mipMapsCount, 0);
 
 	for (std::size_t i = 0; i < mipMapsCount; ++i)
 	{
 		this->mipMaps().replace(i, new MipMap(this->mipMapWidth(i), this->mipMapHeight(i)));
-
-		if (this->compression() == Blp::Compression::Paletted)
-		{
-			if (this->flags() == Blp::Flags::NoAlpha && mipMapData[i]->size != this->mipMaps()[i].width() * this->mipMaps()[i].height() * sizeof(byte))
-				std::cerr << boost::format(_("MIP map %1%: Size %2% is not equal to %3%.")) % i %  mipMapData[i]->size % (this->mipMaps()[i].width() * this->mipMaps()[i].height() * sizeof(byte)) << std::endl;
-			else if (this->flags() & Blp::Flags::Alpha && mipMapData[i]->size != this->mipMaps()[i].width() * this->mipMaps()[i].height() * 2 * sizeof(byte))
-				std::cerr << boost::format(_("MIP map %1%: Size %2% is not equal to %3%.")) % i %  mipMapData[i]->size % (this->mipMaps()[i].width() * this->mipMaps()[i].height() * 2 * sizeof(byte)) << std::endl;
-		}
 	}
 
-	if (this->compression() == Blp::Compression::Jpeg)
+	/*
+	 * Read process depending on compression type.
+	 */
+	switch (this->compression())
 	{
-		if (BITS_IN_JSAMPLE > sizeof(byte) * 8)
-			throw Exception(boost::format(_("Too many bits in one single sample (one single pixel color channel): %1%. BLP/wc3lib allows maximum sample size of %2%.")) % BITS_IN_JSAMPLE % (sizeof(byte) * 8));
-
-		dword jpegHeaderSize;
-		wc3lib::read(istream, jpegHeaderSize, size);
-
-		if (jpegHeaderSize != 624) // usual size of headers of Blizzard BLPs
-			std::cerr << boost::format(_("Warning: JPEG (JFIF) header size is not equal to 624 which is the usual size of Blizzard's JPEG compressed BLPs. It is %1%.")) % jpegHeaderSize << std::endl;
-
-		boost::scoped_array<byte> jpegHeader(new byte[jpegHeaderSize]);
-		wc3lib::read(istream, jpegHeader[0], size, jpegHeaderSize);
-
-		/**
-		 * For each MIP map a thread is added to thread group.
-		 * All threads are started nearly at the same time after preparing all necessary buffer data etc.
-		 * When MIP reading has finished (with or without any erros) current main thread checks for any errors and continues work.
-		 */
-		boost::ptr_vector<ReadData> readData(this->mipMaps().size());
-
-		/// \todo Sort thread priorities by MIP map size Current thread gets low priority after starting all!!!
-		for (std::size_t i = 0; i < this->mipMaps().size(); ++i)
+		case Blp::Compression::Jpeg:
 		{
-			const dword mipMapOffset = mipMapData[i]->offset;
-			const dword mipMapSize = mipMapData[i]->size;
-			// all mipmaps use the same header, jpeg header has been allocated before and is copied into each mip map buffer.
-			const std::size_t bufferSize = boost::numeric_cast<std::size_t>(jpegHeaderSize) + boost::numeric_cast<std::size_t>(mipMapSize);
-			unsigned char *buffer = new unsigned char[bufferSize]; // buffer has to be deleted by JPEG decompressor
-			memcpy(reinterpret_cast<void*>(buffer), reinterpret_cast<const void*>(jpegHeader.get()), jpegHeaderSize); // copy header data
-			// moving to offset, skipping null bytes
-			const std::streampos position = istream.tellg();
-			istream.seekg(mipMapOffset);
-
-			if (!istream) {
-				delete[] buffer;
-				
-				throw Exception(boost::format(_("Invalid MIP map offset %1% for MIP map %2%")) % mipMapOffset % i);
+			if (BITS_IN_JSAMPLE > sizeof(byte) * 8)
+			{
+				throw Exception(boost::format(_("Too many bits in one single sample (one single pixel color channel): %1%. BLP/wc3lib allows maximum sample size of %2%.")) % BITS_IN_JSAMPLE % (sizeof(byte) * 8));
 			}
 
-			const std::size_t nullBytes = istream.tellg() - position;
+			dword jpegHeaderSize = 0;
+			wc3lib::read(istream, jpegHeaderSize, size);
 
-			if (nullBytes > 0)
-				std::cout << boost::format(_("Ignoring %1% 0 bytes.")) % nullBytes << std::endl;
-
-			// read mip map data starting at header offset, header has already been copied into buffer
-			wc3lib::read(istream, buffer[jpegHeaderSize], size, boost::numeric_cast<std::streamsize>(mipMapSize));
-			readData.push_back(new ReadData(this->mipMaps()[i], buffer, bufferSize));
-		}
-
-		if (threads)
-		{
-			boost::thread_group threadGroup; // added threads are being destroyed automatically when group is being destroyed
-
-			for (std::size_t i = 0; i < readData.size(); ++i)
-				threadGroup.create_thread(boost::bind(&readMipMapJpeg, &readData[i]));
-
-			threadGroup.join_all(); // wait for all threads have finished
-		}
-		else
-		{
-			for (std::size_t i = 0; i < readData.size(); ++i)
-				readMipMapJpeg(&readData[i]);
-		}
-
-		// continue, check for errors during thread operations
-		for (std::size_t i = 0; i < readData.size(); ++i)
-		{
-			if (!readData[i].finished)
-				throw Exception(boost::format(_("Error during read process of MIP map %1%:\n%2%")) % i % readData[i].stateMessage);
-		}
-	}
-	else if (this->compression() == Blp::Compression::Paletted)
-	{
-		ColorPtr palette(new color[Blp::compressedPaletteSize]); // uncompressed 1 and 2 only use 256 different colors.
-
-		for (std::size_t i = 0; i < Blp::compressedPaletteSize; ++i)
-			wc3lib::read(istream, palette[i], size);
-
-		for (std::size_t i = 0; i < this->mipMaps().size(); ++i)
-		{
-			const dword mipMapOffset = mipMapData[i]->offset;
-			dword mipMapSize = mipMapData[i]->size;
-			const std::streampos position = istream.tellg();
-			istream.seekg(mipMapOffset);
-			const std::size_t nullBytes = istream.tellg() - position;
-
-			if (nullBytes > 0)
-				std::cout << boost::format(_("Ignoring %1% 0 bytes.")) % nullBytes << std::endl;
-
-
-			for (dword height = 0; height < this->mipMaps()[i].height(); ++height)
+			if (jpegHeaderSize != 624) // usual size of headers of Blizzard BLPs
 			{
-				for (dword width = 0; width < this->mipMaps()[i].width(); ++width)
-				{
-					byte index;
-					std::streamsize readSize = 0;
-					wc3lib::read(istream, index, readSize);
-					size += readSize;
-					mipMapSize -= boost::numeric_cast<dword>(readSize);
-
-					this->mipMaps()[i].setColorIndex(width, height, index);
-				}
+				std::cerr << boost::format(_("Warning: JPEG (JFIF) header size is not equal to 624 which is the usual size of Blizzard's JPEG compressed BLPs. It is %1%.")) % jpegHeaderSize << std::endl;
 			}
 
-			if (this->flags() & Blp::Flags::Alpha)
+			boost::scoped_array<byte> jpegHeader(new byte[jpegHeaderSize]);
+			wc3lib::read(istream, jpegHeader[0], size, jpegHeaderSize * sizeof(byte));
+
+			for (std::size_t i = 0; i < this->mipMaps().size(); ++i)
 			{
+				const dword mipMapOffset = mipMapHeaders[i].offset;
+				const dword mipMapSize = mipMapHeaders[i].size;
+				istream.seekg(mipMapOffset);
+				/*
+				 * Allocated buffer which uses JPEG header for each MIP map as well.
+				 */
+				const dword bufferSize = jpegHeaderSize + mipMapSize;
+				boost::scoped_array<byte> buffer(new byte[jpegHeaderSize + mipMapSize]);
+				memcpy(buffer.get(), jpegHeader.get(), jpegHeaderSize);
+
+
+				// read mip map data starting at header offset, header has already been copied into buffer
+				wc3lib::read(istream, buffer[jpegHeaderSize], size, boost::numeric_cast<std::streamsize>(mipMapSize));
+
+
+				readMipMapJpeg(this->mipMaps()[i], buffer.get(), bufferSize);
+			}
+
+			break;
+		}
+
+		case Blp::Compression::Paletted:
+		{
+			/*
+			 * Uncompressed 1 and 2 only use 256 different colors.
+			 *
+			 * Read color palette.
+			 */
+			m_palette.reset(new color[Blp::compressedPaletteSize]);
+			wc3lib::read(istream, m_palette[0], size, Blp::compressedPaletteSize * sizeof(color));
+
+			for (std::size_t i = 0; i < this->mipMaps().size(); ++i)
+			{
+				const dword mipMapOffset = mipMapHeaders[i].offset;
+
+				/*
+				 * Move to absolute offset and read color indices.
+				 */
+				istream.seekg(mipMapOffset);
+
 				for (dword height = 0; height < this->mipMaps()[i].height(); ++height)
 				{
 					for (dword width = 0; width < this->mipMaps()[i].width(); ++width)
 					{
-						byte alpha;
-						std::streamsize readSize = 0;
-						wc3lib::read(istream, alpha, readSize);
-						size += readSize;
-						mipMapSize -= boost::numeric_cast<dword>(readSize);
-						this->mipMaps()[i].setColorAlpha(width, height, alpha);
+						byte index = 0;
+						wc3lib::read(istream, index, size);
+						this->mipMaps()[i].setColorIndex(width, height, index);
+					}
+				}
+
+				if (this->flags() & Blp::Flags::Alpha)
+				{
+					for (dword height = 0; height < this->mipMaps()[i].height(); ++height)
+					{
+						for (dword width = 0; width < this->mipMaps()[i].width(); ++width)
+						{
+							byte alpha = 0;
+							wc3lib::read(istream, alpha, size);
+							this->mipMaps()[i].setColorAlpha(width, height, alpha);
+						}
 					}
 				}
 			}
 
-			// skip unnecessary bytes
-			if (mipMapSize != 0)
-				istream.seekg(mipMapSize, std::ios_base::cur);
+			break;
 		}
 
-		m_palette.swap(palette); // exception safe
+		default:
+		{
+			std::cerr << boost::format(_("Unsupported compression mode: %1%.")) % this->compression() << std::endl;
+
+			break;
+		}
 	}
-	else
-		throw Exception(boost::format(_("Unknown compression mode: %1%.")) % this->compression());
-
-	//std::cout << "Read " << size << " bytes." << std::endl;
-
-	// check mip maps
-	/*
-	- A full mipmap chain must be present. The last mipmap must be 1x1 (no larger).
-	If an image is 32x8 the mipmap chain must be 32x8, 16x4, 8x2, 4x1, 2x1, 1x1.
-	Sizes not of powers of 2 seems to work fine too, the same rules for mipmaps
-	still applies. Ex: 24x17, 12x8 (rounded down), 6x4, 3x2, 1x1 (rounded down).
-	*/
-	if (this->mipMaps().size() > 1 && (this->mipMaps().back().width() != 1 || this->mipMaps().back().height() != 1))
-		std::cerr << boost::format(_("Last MIP map has not a size of 1x1 (%1%x%2%).")) % this->mipMaps().back().width() % this->mipMaps().back().height();
 
 	return size;
 }
@@ -699,7 +604,7 @@ namespace
  * <a href="https://secure.wikimedia.org/wikipedia/en/wiki/JPEG#Syntax_and_structure">Source</a>
  * \todo (from Wikipedia) Within the entropy-coded data, after any 0xFF byte, a 0x00 byte is inserted by the encoder before the next byte, so that there does not appear to be a marker where none is intended, preventing framing errors. Decoders must skip this 0x00 byte. This technique, called byte stuffing (see JPEG specification section F.1.2.3), is only applied to the entropy-coded data, not to marker payload data.
  */
-bool writeJpegMarker(Blp::OutputStream &ostream, std::streamsize &size, bool variableMarkerSize, word markerSize, const byte marker, const unsigned char *buffer, const std::size_t bufferSize) throw (Exception)
+bool writeJpegMarkerFromBufferToStream(Blp::OutputStream &ostream, std::streamsize &size, bool variableMarkerSize, word markerSize, const byte marker, const unsigned char *buffer, const std::size_t bufferSize) throw (Exception)
 {
 	if (marker == 0x00)
 		throw Exception(_("0x00 marker is invalid! This value must be safed for 0xFF bytes in encoded data!"));
@@ -746,25 +651,32 @@ bool writeJpegMarker(Blp::OutputStream &ostream, std::streamsize &size, bool var
 
 }
 
-std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std::size_t &mipMaps, const bool threads) const throw (class Exception)
+std::streamsize Blp::write(OutputStream &ostream, int quality, std::size_t mipMaps) const throw (class Exception)
 {
+	/*
+	 * Check and fix input options.
+	 */
 	if (quality < -1)
 	{
 		std::cerr << boost::format(_("Invalid quality %1%. Minimum value is -1 which indicates using default quality.")) % quality << std::endl;
-		const_cast<int&>(quality) = -1;
+		quality = -1;
 	}
 	else if (quality > 100)
 	{
 		std::cerr << boost::format(_("Invalid quality %1%. Maximum value is 100 which indicates using best quality.")) % quality << std::endl;
-		const_cast<int&>(quality) = 100;
+		quality = 100;
 	}
 
 	if (mipMaps > Blp::maxMipMaps)
 	{
 		std::cerr << boost::format(_("Invalid MIP maps number %1%. Maximum value is %2%.")) % mipMaps % Blp::maxMipMaps << std::endl;
-		const_cast<std::size_t&>(mipMaps) = Blp::maxMipMaps;
+		mipMaps = Blp::maxMipMaps;
 	}
 
+	/*
+	 * If MIP maps number is not specified (mipMaps == 0) use the current number.
+	 * Otherwise use the user defined number.
+	 */
 	const std::size_t actualMipMaps = mipMaps == 0 ? this->mipMaps().size() : mipMaps;
 	std::streamsize size = 0;
 
@@ -793,8 +705,8 @@ std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std:
 			break;
 	}
 
-
-	dword startOffset = 0; /// Offset where MIP map offsets and sizes are written down at the end of the whole writing process.
+	// Offset where MIP map offsets and sizes are written down at the end of the whole writing process.
+	dword startOffset = 0;
 
 	if (this->format() == Blp::Format::Blp0 || this->format() == Blp::Format::Blp1)
 	{
@@ -833,9 +745,17 @@ std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std:
 			header.type = 1;
 
 			if (this->compression() == Blp::Compression::Uncompressed)
+			{
 				header.encoding = 1;
+			}
 			else if (this->compression() == Blp::Compression::DirectXCompression)
+			{
 				header.encoding = 2;
+			}
+			else
+			{
+				throw Exception(boost::format(_("Unsupported compression for BLP2: %1%")) % this->compression());
+			}
 		}
 
 		header.alphaDepth = (byte)(this->flags());
@@ -850,7 +770,9 @@ std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std:
 
 		// fill palette
 		if (this->compression() == Blp::Compression::Uncompressed || this->compression() == Blp::Compression::DirectXCompression)
+		{
 			memcpy(static_cast<void*>(header.palette), static_cast<const void*>(palette().get()), Blp::compressedPaletteSize);
+		}
 
 		header.hasMips = (actualMipMaps > 1);
 
@@ -875,201 +797,149 @@ std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std:
 		startOffset = 17;
 	}
 
-	std::vector<dword> offsets(actualMipMaps, 0);
-	std::vector<dword> sizes(actualMipMaps, 0);
+	std::vector<MipMapHeader> mipMapHeaders(actualMipMaps);
 
-	if (this->compression() == Blp::Compression::Jpeg)
+	switch (this->compression())
 	{
-		/**
-		 * For each MIP map a thread is added to thread group.
-		 * All threads are started nearly at the same time after preparing all necessary buffer data etc.
-		 * When MIP writing has finished (with or without any erros) current main thread checks for any errors and continues work.
-		 */
-		//typedef boost::shared_ptr<WriteData> WriteDataType;
-		boost::ptr_vector<WriteData> writeData(actualMipMaps);
-
-		/// \todo Sort thread priorities by MIP map size. Current thread gets low priority after starting all!!!
-		for (std::size_t i = 0; i < actualMipMaps; ++i)
-			writeData.push_back(new WriteData(this->mipMaps()[i], i == 0, (quality < 0 || quality > 100 ? Blp::defaultQuality : quality)));
-
-		if (threads)
+		case Blp::Compression::Jpeg:
 		{
-			boost::thread_group threadGroup; // added threads are being destroyed automatically when group is being destroyed
-
-			for (std::size_t i = 0; i < writeData.size(); ++i)
-				threadGroup.create_thread(boost::bind(&writeMipMapJpeg, &writeData[i]));
-
-			threadGroup.join_all(); // wait for all threads have finished
-		}
-		else
-		{
-			for (std::size_t i = 0; i < writeData.size(); ++i)
-				writeMipMapJpeg(&writeData[i]);
-		}
-
-		// continue, check for errors during thread operations
-		for (std::size_t i = 0; i < writeData.size(); ++i)
-		{
-			if (!writeData[i].finished)
-				throw Exception(boost::format(_("Error during write process of MIP map %1%:\n%2%")) % i % writeData[i].stateMessage);
-		}
-
-		if (writeData[0].headerSize == 0)
-			throw Exception(_("First MIP map has no JPEG header data."));
-
-		// skip shared header size
-		std::streampos headerPosition = ostream.tellp();
-		ostream.seekp(sizeof(dword), std::ios::cur);
-		std::streamsize headerSize = 0;
-
-		/*
-		THIS VERSION TRIES TO WRITE AN EMPTY SHARED HEADER AND TO GIVE EACH MAP ITS OWN HEADER
-
-		wc3lib::write<word>(ostream, 0xD8FF, headerSize); // marker 0xD8FF swapped for little endian
-		//wc3lib::write(ostream, writeData[0].data.get(), headerSize, writeData[0].headerSize);
-
-		// write shared header size and jump back again
-		writeByteCount(ostream, boost::numeric_cast<dword>(headerSize), headerPosition, size);
-		size += headerSize;
-
-		for (std::size_t i = 0; i < writeData.size(); ++i)
-		{
-			offsets[i] = ostream.tellp();
-			std::streamsize mipMapSize = 0;
-			wc3lib::write(ostream, writeData[i].data.get(), mipMapSize, writeData[i].dataSize);
-			//wc3lib::write(ostream, &(writeData[i].data[writeData[i].headerSize]), mipMapSize, writeData[i].dataSize - writeData[i].headerSize);
-			sizes[i] = mipMapSize;
-			size += mipMapSize;
-			std::cout << "MIP map " << i << ": " << mipMapSize << std::endl;
-		}
-		*/
-
-		// THE VERSION BELOW TRIES TO ONLY WRITE NECESSARY MARKER DATA PER MIP MAP AND WRITES ALL SHARED MARKER DATA INTO JPEG HEADER
-
-		// NOTE marker reference: https://secure.wikimedia.org/wikipedia/en/wiki/JPEG#Syntax_and_structure
-		// TODO would be much faster not to write unnecessary marker data for other MIP maps than first but seems to be impossible with jpeglib. Unfortunately, MIP maps still need some parts of their headers including their size information!
-		// TODO jpeg lib written buffer starts with 0x98 and doesn't contain 0xD8
-		//if (!writeJpegMarker(ostream, headerSize, false, 0, 0xD8, &(writeData[0].data[0]), writeData[0].headerSize)) // image start
-		//	throw Exception(_("Missing image start marker 0xD8."));
-
-		wc3lib::write<word>(ostream, 0xD8FF, headerSize); // marker 0xD8FF swapped for little endian
-
-		// start after image start to increase performance
-		// TODO huffman table marker data size seems to be too large (marker is found and size is read - 2 bytes - which include its own size of 2).
-		if (!writeJpegMarker(ostream, headerSize, true, 0, 0xC4, &(writeData[0].data[headerSize]), writeData[0].headerSize - headerSize)) // huffman table
-			throw Exception(_("Missing huffman table marker 0xC4."));
-
-		// start after huffman table to increase performance
-		if (!writeJpegMarker(ostream, headerSize, true, 0, 0xDB, &(writeData[0].data[headerSize]), writeData[0].headerSize - headerSize)) // quantization table
-			throw Exception(_("Missing quantization table marker 0xDB."));
-
-		// TODO support APPn marker which should be equal for all MIP maps (meta data)
-		// TODO Are markers really stored end to end as written down on Wikipedia? If not we cannot start after already read markers!
-		// start after quantization table to increase performance
-		writeJpegMarker(ostream, headerSize, true, 0, 0xFE, &(writeData[0].data[headerSize]), writeData[0].headerSize - headerSize); // image comment
-
-		if (headerSize != 624) // usual size of headers of Blizzard BLPs
-			std::cerr << boost::format(_("Warning: JPEG (JFIF) header size is not equal to 624 which is the usual size of Blizzard's JPEG compressed BLPs. It is %1%.")) % headerSize << std::endl;
-
-		// write shared header size and jump back again
-		writeByteCount(ostream, boost::numeric_cast<dword>(headerSize), headerPosition, size);
-		size += headerSize;
-
-		// write MIP map data
-		for (std::size_t i = 0; i < writeData.size(); ++i)
-		{
-			// TEST
-			std::ostringstream osstream;
-			osstream << "mipMap" << i;
-			std::ofstream ofstream(osstream.str().c_str(), std::ofstream::out | std::ofstream::binary);
-
-			if (ofstream)
-				std::cout << "yeah" << std::endl;
-			else
-				std::cout << "hahaha: " << iostateMessage(ofstream.rdstate()) << std::endl;
-
-			const std::size_t dataSize = writeData[i].dataSize - writeData[i].headerSize;
-			ofstream.write((const char*)&writeData[i].data[writeData[i].headerSize], dataSize);
-			ofstream.close();
-			// END TEST
-
-			if (writeData[i].headerSize == 0)
-				throw Exception(boost::format(_("MIP map %1% misses header data which is required for marker 0xC0.")) % i);
-
-			offsets[i] = ostream.tellp();
-			std::streamsize mipMapSize = 0;
-			// write non-shared MIP map header data
-			if (!writeJpegMarker(ostream, mipMapSize, true, 0, 0xC0, &(writeData[i].data[0]), writeData[i].headerSize)) // start of frame
-				throw Exception(boost::format(_("Missing start of frame marker 0xC0 for MIP map %1%.")) % i);
-
-			std::cout << "Written " << mipMapSize << " of start of frame" << std::endl;
-
-			if (!writeJpegMarker(ostream, mipMapSize, true, 0, 0xDA, &(writeData[i].data[writeData[i].headerSize]), writeData[i].dataSize - writeData[i].headerSize)) // start of scan
-				throw Exception(boost::format(_("Missing start of scan marker 0xDA for MIP map %1%.")) % i);
-
-			sizes[i] = mipMapSize;
-			size += mipMapSize;
-			std::cout << "MIP map " << i << ": " << mipMapSize << std::endl;
-		}
-
-		/*
-		 *TODO seems to be optional
-		if (!writeJpegMarker(ostream, size, false, 0, 0xD9, &(writeData[0].data[writeData[0].dataSize- 4]), 4))
-			throw Exception(_("Missing end of image marker 0xD9 for MIP map 0/the whole image."));
-		*/
-
-		std::cout << "Written " << size << " bytes!" << std::endl;
-	}
-	else if (this->compression() == Blp::Compression::Paletted)
-	{
-		// write palette, palette has always size of Blp::compressedPaletteSize (remaining colors have value 0).
-		if (format() != Blp::Format::Blp2)
-			wc3lib::write(ostream, palette()[0], size, Blp::compressedPaletteSize * sizeof(color));
-
-		// write mip maps
-		for (std::size_t i = 0; i < actualMipMaps; ++i)
-		{
-			dword mipMapOffset = ostream.tellp();
-			dword mipMapSize = size;
-
-			for (dword height = 0; height < this->mipMaps()[i].height(); ++height)
+			for (std::size_t i = 0; i < actualMipMaps; ++i)
 			{
-				for (dword width = 0; width < this->mipMaps()[i].width(); ++width)
-				{
-					byte index = this->mipMaps()[i].colorAt(width, height).paletteIndex();
-					wc3lib::write(ostream, index, size);
+				unsigned char *tmpBuffer = 0;
+				unsigned long bufferSize = 0;
 
-					/*
-					if (this->m_flags == Blp::Alpha)
-					{
-						byte alpha = mipMap->colorAt(width, height).alpha();
-						wc3lib::write(ostream, alpha, size);
-					}
-					*/
+				writeMipMapJpeg(this->mipMaps()[i], tmpBuffer, bufferSize, i == 0, quality);
+
+				/*
+				 * Make sure buffer is freed on leaving the scope to avoid memory leaks.
+				 */
+				boost::scoped_array<unsigned char> buffer;
+				buffer.reset(tmpBuffer);
+
+				/*
+				 * Write JPEG header before first MIP map.
+				 */
+				if (i == 0)
+				{
+					// skip shared header size
+					std::streampos headerPosition = ostream.tellp();
+					ostream.seekp(sizeof(dword), std::ios::cur);
+					std::streamsize headerSize = 0;
+
+					// NOTE marker reference: https://secure.wikimedia.org/wikipedia/en/wiki/JPEG#Syntax_and_structure
+					// TODO would be much faster not to write unnecessary marker data for other MIP maps than first but seems to be impossible with jpeglib. Unfortunately, MIP maps still need some parts of their headers including their size information!
+					// TODO jpeg lib written buffer starts with 0x98 and doesn't contain 0xD8
+					//if (!writeJpegMarker(ostream, headerSize, false, 0, 0xD8, &(writeData[0].data[0]), writeData[0].headerSize)) // image start
+					//	throw Exception(_("Missing image start marker 0xD8."));
+
+					wc3lib::write<word>(ostream, 0xD8FF, headerSize); // marker 0xD8FF swapped for little endian
+
+					// start after image start to increase performance
+					// TODO huffman table marker data size seems to be too large (marker is found and size is read - 2 bytes - which include its own size of 2).
+					if (!writeJpegMarkerFromBufferToStream(ostream, headerSize, true, 0, 0xC4, buffer.get(), bufferSize)) // huffman table
+						throw Exception(_("Missing huffman table marker 0xC4."));
+
+					// start after huffman table to increase performance
+					if (!writeJpegMarkerFromBufferToStream(ostream, headerSize, true, 0, 0xDB, buffer.get(), bufferSize)) // quantization table
+						throw Exception(_("Missing quantization table marker 0xDB."));
+
+					// TODO support APPn marker which should be equal for all MIP maps (meta data)
+					// TODO Are markers really stored end to end as written down on Wikipedia? If not we cannot start after already read markers!
+					// start after quantization table to increase performance
+					writeJpegMarkerFromBufferToStream(ostream, headerSize, true, 0, 0xFE, buffer.get(), bufferSize); // image comment
+
+					if (headerSize != 624) // usual size of headers of Blizzard BLPs
+						std::cerr << boost::format(_("Warning: JPEG (JFIF) header size is not equal to 624 which is the usual size of Blizzard's JPEG compressed BLPs. It is %1%.")) % headerSize << std::endl;
+
+					// write shared header size and jump back again
+					writeByteCount(ostream, boost::numeric_cast<dword>(headerSize), headerPosition, size);
+					size += headerSize;
 				}
+
+				mipMapHeaders[i].offset = boost::numeric_cast<dword>(OutputStream::off_type(ostream.tellp()));
+
+				std::streamsize mipMapSize = 0;
+
+				// write non-shared MIP map header data
+				if (!writeJpegMarkerFromBufferToStream(ostream, mipMapSize, true, 0, 0xC0, buffer.get(), bufferSize)) // start of frame
+				{
+					throw Exception(boost::format(_("Missing start of frame marker 0xC0 for MIP map %1%.")) % i);
+				}
+
+				std::cout << "Written " << mipMapSize << " of start of frame" << std::endl;
+
+				if (!writeJpegMarkerFromBufferToStream(ostream, mipMapSize, true, 0, 0xDA, buffer.get(), bufferSize)) // start of scan
+				{
+					throw Exception(boost::format(_("Missing start of scan marker 0xDA for MIP map %1%.")) % i);
+				}
+
+				wc3lib::write(ostream, buffer[0], size, bufferSize);
+
+				mipMapHeaders[i].size = boost::numeric_cast<dword>(bufferSize) + boost::numeric_cast<dword>(mipMapSize);
 			}
 
-			if (this->m_flags & Blp::Flags::Alpha)
+			/*
+			*TODO seems to be optional
+			if (!writeJpegMarker(ostream, size, false, 0, 0xD9, &(writeData[0].data[writeData[0].dataSize- 4]), 4))
+				throw Exception(_("Missing end of image marker 0xD9 for MIP map 0/the whole image."));
+			*/
+
+			std::cout << "Written " << size << " bytes!" << std::endl;
+
+			break;
+		}
+
+		case Blp::Compression::Paletted:
+		{
+			// write palette, palette has always size of Blp::compressedPaletteSize (remaining colors have value 0).
+			if (format() != Blp::Format::Blp2)
 			{
+				wc3lib::write(ostream, palette()[0], size, Blp::compressedPaletteSize * sizeof(color));
+			}
+
+			// write mip maps
+			for (std::size_t i = 0; i < actualMipMaps; ++i)
+			{
+				const dword mipMapOffset = boost::numeric_cast<dword>(OutputStream::off_type(ostream.tellp()));
+				std::streamsize mipMapSize = 0;
+
 				for (dword height = 0; height < this->mipMaps()[i].height(); ++height)
 				{
 					for (dword width = 0; width < this->mipMaps()[i].width(); ++width)
 					{
-						byte alpha = this->mipMaps()[i].colorAt(width, height).alpha();
-						wc3lib::write(ostream, alpha, size);
+						const byte index = this->mipMaps()[i].colorAt(width, height).paletteIndex();
+						wc3lib::write(ostream, index, mipMapSize);
 					}
 				}
+
+				if (this->m_flags & Blp::Flags::Alpha)
+				{
+					for (dword height = 0; height < this->mipMaps()[i].height(); ++height)
+					{
+						for (dword width = 0; width < this->mipMaps()[i].width(); ++width)
+						{
+							const byte alpha = this->mipMaps()[i].colorAt(width, height).alpha();
+							wc3lib::write(ostream, alpha, mipMapSize);
+						}
+					}
+				}
+
+				mipMapHeaders[i].offset = mipMapOffset;
+				mipMapHeaders[i].size = boost::numeric_cast<dword>(mipMapSize);
+
+				size += mipMapSize;
 			}
 
-			// set MIP map header data
-			mipMapSize = size - mipMapSize;
+			break;
+		}
 
-			offsets[i] = mipMapOffset;
-			sizes[i] = mipMapSize;
+		default:
+		{
+			std::cerr << boost::format(_("Unknown compression mode: %1%.")) % (dword)this->compression() << std::endl;
+
+			break;
 		}
 	}
-	else
-		throw Exception(boost::format(_("Unknown compression mode: %1%.")) % (dword)this->compression());
 
 	// write MIP map header data, jump to header
 	std::streampos position = ostream.tellp();
@@ -1078,26 +948,37 @@ std::streamsize Blp::write(OutputStream &ostream, const int &quality, const std:
 	for (std::size_t index = 0; index < actualMipMaps; ++index)
 	{
 		std::streamsize tmpSize = 0;
-		// For BLP2 we would count size at twice since it has been in header already.
-		wc3lib::write(ostream, offsets[index], format() == Blp::Format::Blp2 ? tmpSize : size);
+		wc3lib::write(ostream, mipMapHeaders[index].offset, tmpSize);
 
+		// For BLP2 we would count size at twice since it has been in header already.
+		if (format() != Blp::Format::Blp2)
+		{
+			size += tmpSize;
+		}
 	}
 
 	// skip remaining offsets
-	const std::size_t remaining = Blp::maxMipMaps - (mipMaps == 0 ? this->mipMaps().size() : mipMaps);
-	ostream.seekp(remaining * sizeof(dword), std::ios::cur);
+	const std::size_t remainingMipMaps = Blp::maxMipMaps - this->mipMaps().size();
+	ostream.seekp(remainingMipMaps * sizeof(dword), std::ios::cur);
 
 	for (std::size_t index = 0; index < actualMipMaps; ++index)
 	{
 		std::streamsize tmpSize = 0;
+		wc3lib::write(ostream, mipMapHeaders[index].size, tmpSize);
+
 		// For BLP2 we would count size at twice since it has been in header already.
-		wc3lib::write(ostream, sizes[index], format() == Blp::Format::Blp2 ? tmpSize : size);
+		if (format() != Blp::Format::Blp2)
+		{
+			size += tmpSize;
+		}
 
 	}
 
 	// Add skipped MIP map header data size to written size. This data has been skipped at the beginning of writing process.
-	if (format() != Blp::Format::Blp2 && remaining > 0)
-		size += remaining * sizeof(dword) * 2;
+	if (format() != Blp::Format::Blp2 && remainingMipMaps > 0)
+	{
+		size += remainingMipMaps * sizeof(dword) * 2;
+	}
 
 	ostream.seekp(position); // jump back to the end of stream
 

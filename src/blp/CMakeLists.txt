@@ -17,6 +17,10 @@ if (BLP)
 	add_library(wc3libblp SHARED ${wc3lib_BLP_SRC})
 	target_link_libraries(wc3libblp wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${JPEG_LIBRARIES})
 
+	if (DEBUG)
+		add_subdirectory(test)
+	endif ()
+
 	# install
 	install(TARGETS wc3libblp DESTINATION lib)
 	install(FILES ${wc3lib_BLP_H} DESTINATION include/wc3lib/blp)

@@ -117,19 +117,16 @@ void Texture::loadBlp(const QMap<QString, QString> &options) throw (Exception)
 			// get all loading options
 			std::size_t mipMaps = blp::Blp::defaultMipMaps;
 			QString mipMapsString = compressionOption(options, "MipMaps");
-			bool threads = blp::Blp::defaultThreads;
-			QString threadsString = compressionOption(options, "Threads");
 
 			bool ok = false;
 			int tmpValue = mipMapsString.toInt(&ok);
 
 			if (tmpValue >= 1 && tmpValue <= blp::Blp::maxMipMaps)
+			{
 				mipMaps = tmpValue;
+			}
 
-			if (!threadsString.isEmpty())
-				threads = threadsString == "1" || threadsString == "true" || threadsString == "TRUE";
-
-			blpImage->read(ifstream, mipMaps, threads);
+			blpImage->read(ifstream, mipMaps);
 
 			m_blp.swap(blpImage); // exception safe (won't change image if ->read throws exception
 		}
@@ -328,7 +325,9 @@ void Texture::save(const KUrl &url, const QString &format, const QMap<QString, Q
 	KTemporaryFile tmpFile;
 
 	if (!tmpFile.open())
+	{
 		throw Exception(boost::format(_("Temporary file \"%1%\" cannot be opened.")) % tmpFile.fileName().toUtf8().constData());
+	}
 
 	QString realFormat = format;
 
@@ -345,27 +344,26 @@ void Texture::save(const KUrl &url, const QString &format, const QMap<QString, Q
 	QString qualityString = compressionOption(compression, "Quality");
 	std::size_t mipMaps = realFormat == "blp" ? blp::Blp::defaultMipMaps : 1;
 	QString mipMapsString = compressionOption(compression, "MipMaps");
-	bool threads = realFormat == "blp" ? blp::Blp::defaultThreads : true;
-	QString threadsString = compressionOption(compression, "Threads");
 
 	bool ok = false;
 	int tmpValue = qualityString.toInt(&ok);
 
 	if (ok && tmpValue >= -1 && tmpValue <= 100)
+	{
 		quality = tmpValue;
+	}
 
 	tmpValue = mipMapsString.toInt(&ok);
 
 	if (tmpValue >= 1 && tmpValue <= blp::Blp::maxMipMaps)
+	{
 		mipMaps = tmpValue;
-
-	if (!threadsString.isEmpty())
-		threads = threadsString == "1" || threadsString == "true" || threadsString == "TRUE";
+	}
 
 	if (realFormat == "blp" && hasBlp())
 	{
 		ofstream ofstream(tmpFile.fileName().toUtf8().constData(), std::ios::binary | std::ios::out);
-		blp()->write(ofstream, quality, mipMaps, threads);
+		blp()->write(ofstream, quality, mipMaps);
 	}
 	else if (hasQt())
 	{
@@ -378,7 +376,9 @@ void Texture::save(const KUrl &url, const QString &format, const QMap<QString, Q
 	}
 
 	if  (!this->source()->upload(tmpFile.fileName(), url, 0))
+	{
 		throw Exception(boost::format(_("Unable to upload temporary file \"%1%\" to URL \"%2%\"")) % tmpFile.fileName().toUtf8().constData() % url.toEncoded().constData());
+	}
 }
 
 }

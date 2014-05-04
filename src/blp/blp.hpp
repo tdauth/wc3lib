@@ -174,7 +174,6 @@ class Blp : public Format
 		/// Default JPEG quality which reaches from 0 - 100.
 		static const int defaultQuality;
 		static const std::size_t defaultMipMaps;
-		static const bool defaultThreads;
 
 		/// \todo Don't seem to have the right values!!!
 		BOOST_SCOPED_ENUM_START(Format) /// \todo C++11 : dword
@@ -246,23 +245,19 @@ class Blp : public Format
 		/**
 		 * Reads BLP texture from input stream \p istream and detects its format and necessary data automatically.
 		 * Throws an exception of type \ref Exception if any error occured during read process.
-		 * \note JFIF decompression is implemented by using exactly one thread for each MIP map. First buffer is filled with required compressed MIP map data from stream and after that a thread is started which decompresses the buffer's data.
-		 * \todo Add multithreading support for MIP maps of paletted compression (JPEG is already implemented).
 		 * \param istream Input stream which is read from.
 		 * \param mipMaps Number of MIP maps which should be read (1 - 16). 0 means actual number of existing MIP maps. If there is less MIP maps than this parameter specifies only all available will be read!
-		 * \param threads If true one thread will be created per MIP map for JPEG decompression. Otherwise, no multithreading will be used.
 		 * \return Size of read bytes (\ref byte). Note that this value can be smaller than the BLP file since it seems that there are unnecessary 0 bytes in some BLP files.
 		 */
-		std::streamsize read(InputStream &istream, const std::size_t &mipMaps, const bool threads) throw (class Exception);
+		std::streamsize read(InputStream &istream, const std::size_t &mipMaps) throw (class Exception);
 
-		std::streamsize read(InputStream &istream) throw (class Exception) { return read(istream, 0, true); }
+		std::streamsize read(InputStream &istream) throw (class Exception) { return read(istream, 0); }
 		/**
 		 * \param quality Quality for JPEG/JFIF compression (0 - 100). -1 or another invalid value means default (\ref Blp::defaultQuality).
 		 * \param mipMaps Number of MIP maps which should be written (1 - 16). 0 means actual number of existing MIP maps.
-		 * \param threads If true one thread will be created per MIP map for JPEG compression. Otherwise, no multithreading will be used.
 		 */
-		std::streamsize write(OutputStream &ostream, const int &quality, const std::size_t &mipMaps, const bool threads) const throw (class Exception);
-		std::streamsize write(OutputStream &ostream) const throw (class Exception) { return write(ostream, defaultQuality, defaultMipMaps, defaultThreads); }
+		std::streamsize write(OutputStream &ostream, int quality, std::size_t mipMaps) const throw (class Exception);
+		std::streamsize write(OutputStream &ostream) const throw (class Exception) { return write(ostream, defaultQuality, defaultMipMaps); }
 		virtual uint32_t version() const;
 
 		/**
@@ -407,33 +402,6 @@ inline BOOST_SCOPED_ENUM(Blp::Format) Blp::format() const
 
 inline void Blp::setCompression(BOOST_SCOPED_ENUM(Blp::Compression) compression)
 {
-	if (compression == this->compression())
-		return;
-
-	if ((compression == Compression::Uncompressed || compression == Compression::DirectXCompression) &&  this->format() != Format::Blp2)
-		throw Exception(boost::format(_("Compression %1% is only allowed for BLP2 images.")) % compression);
-
-	if (compression == Compression::Paletted && this->compression() == Compression::Jpeg)
-		throw Exception(_("Cannot change compression from JPEG to paletted."));
-
-	// replace palette by actual values
-	if (this->compression() == Compression::Paletted)
-	{
-		BOOST_FOREACH(MipMaps::reference ref, this->m_mipMaps)
-		{
-			for (dword height = 0; height < ref.height(); ++height)
-			{
-				for (dword width = 0; width < ref.width(); ++width)
-				{
-					MipMap::Color &color = ref.colorAt(width, height);
-					color.setArgb(this->palette()[color.paletteIndex()]);
-				}
-			}
-		}
-
-		this->m_palette.reset();
-	}
-
 	this->m_compression = compression;
 }
 
