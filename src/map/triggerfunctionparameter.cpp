@@ -42,7 +42,7 @@ std::streamsize TriggerFunctionParameter::read(InputStream &istream, const Trigg
 {
 	std::streamsize size = 0;
 	wc3lib::read<int32>(istream, (int32&)this->m_type, size);
-	std::cerr << "Type: " << this->m_type << std::endl;
+	std::cerr << "Type: " << static_cast<int32>(this->m_type) << std::endl;
 	readString(istream, this->m_value, size);
 	std::cerr << "Value: " << this->m_value << std::endl;
 	int32 functionCount = 0;
@@ -50,7 +50,7 @@ std::streamsize TriggerFunctionParameter::read(InputStream &istream, const Trigg
 	std::cerr << "Function count: " << functionCount << std::endl;
 
 	if (functionCount > 0 && type() != Type::Function)
-		std::cerr << boost::format(_("Warning: Functions in parameter which is not of type function itself - type %1%.")) % type() << std::endl;
+		std::cerr << boost::format(_("Warning: Functions in parameter which is not of type function itself - type %1%.")) % static_cast<int32>(type()) << std::endl;
 
 	this->functions().reserve(functionCount);
 
@@ -60,18 +60,18 @@ std::streamsize TriggerFunctionParameter::read(InputStream &istream, const Trigg
 		size += function->read(istream, triggerData);
 		this->functions().push_back(function);
 	}
-	
+
 	std::cerr << "After functions!" << std::endl;
 
 	int32 arrayIndexCount = 0;
 	wc3lib::read(istream, arrayIndexCount, size);
 
 	if (arrayIndexCount > 0 && type() != Type::Variable) {
-		std::cerr << boost::format(_("Warning: Array index count for non-variable parameter - type %1%.")) % type() << std::endl;
+		std::cerr << boost::format(_("Warning: Array index count for non-variable parameter - type %1%.")) % static_cast<int32>(type()) << std::endl;
 	} else if (arrayIndexCount > 1 && type() == Type::Variable) {
 		std::cerr << boost::format(_("Warning: Array index count %1% for variable parameter is greater than 1 although multi dimensional arrays are not supported.")) % arrayIndexCount << std::endl;
 	}
-	
+
 	std::cerr << "Array index count " << arrayIndexCount << std::endl;
 
 	for (int32 i = 0; i < arrayIndexCount; ++i)
@@ -80,7 +80,7 @@ std::streamsize TriggerFunctionParameter::read(InputStream &istream, const Trigg
 		size += parameter->read(istream, triggerData);
 		this->parameters().push_back(parameter);
 	}
-	
+
 	std::cerr << "After array indices!" << std::endl;
 
 	return size;
@@ -89,7 +89,7 @@ std::streamsize TriggerFunctionParameter::read(InputStream &istream, const Trigg
 std::streamsize TriggerFunctionParameter::write(OutputStream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	wc3lib::write<int32>(ostream, this->type(), size);
+	wc3lib::write<int32>(ostream, static_cast<int32>(this->type()), size);
 	writeString(ostream, this->value(), size);
 	wc3lib::write<int32>(ostream, this->functions().size(), size);
 

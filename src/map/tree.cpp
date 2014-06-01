@@ -49,7 +49,7 @@ std::streamsize Tree::write(OutputStream& ostream) const throw (Exception)
 	size += position().write(ostream);
 	wc3lib::write(ostream, angle(), size);
 	size += scale().write(ostream);
-	wc3lib::write<byte>(ostream, flags(), size);
+	wc3lib::write<byte>(ostream, static_cast<byte>(flags()), size);
 	wc3lib::write(ostream, life(), size);
 	wc3lib::write(ostream, customId(), size);
 

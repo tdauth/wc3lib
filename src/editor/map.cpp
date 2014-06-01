@@ -53,14 +53,16 @@ void Map::load() throw (Exception)
 
 		if (file != 0)
 		{
-			if (source()->triggerData().get() == 0)
+			if (source()->sharedData()->triggerData().get() == 0)
+			{
 				throw Exception("Trigger data file \"UI/TriggerData.txt\" is not available.");
+			}
 
 			// TODO data has to be refreshed somewhere in GUI
 			//source()->refreshTriggerData(); // if trigger data is not available we cannot load trigger data
 			stringstream stream;
 			file->writeData(stream);
-			map->triggers()->read(stream, *source()->triggerData());
+			map->triggers()->read(stream, *source()->sharedData()->triggerData());
 		}
 		else
 			throw Exception(boost::format(_("File \"%1%\" not found although triggers exist in map.")) % map->triggers()->fileName());

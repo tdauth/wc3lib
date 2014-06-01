@@ -77,7 +77,7 @@ public Playable
 		typedef boost::scoped_ptr<Pathmap> PathmapPtr;
 		typedef boost::scoped_ptr<Trees> TreesPtr;
 		typedef boost::scoped_ptr<Info> InfoPtr;
-		typedef boost::scoped_ptr<MapStrings> StringsPtr;
+		typedef boost::scoped_ptr<Strings> StringsPtr;
 		typedef boost::scoped_ptr<Minimap> MinimapPtr;
 		typedef boost::scoped_ptr<MenuMinimap> MenuMinimapPtr;
 		typedef boost::scoped_ptr<CustomUnits> CustomUnitsPtr;
@@ -153,7 +153,7 @@ public Playable
 		virtual int32 latestFileVersion() const;
 
 		const string& name() const;
-		BOOST_SCOPED_ENUM(MapFlags) flags() const;
+		MapFlags flags() const;
 		int32 maxPlayers() const;
 		const EnvironmentPtr& environment() const;
 		const ShadowPtr& shadow() const;
@@ -183,7 +183,7 @@ public Playable
 		std::streamsize writeHeader(OutputStream &ostream) const throw (class Exception);
 
 		string m_name;
-		BOOST_SCOPED_ENUM(MapFlags) m_flags;
+		MapFlags m_flags;
 		int32 m_maxPlayers;
 
 		EnvironmentPtr m_environment;
@@ -221,7 +221,7 @@ inline const string& W3m::name() const
 	return m_name;
 }
 
-inline BOOST_SCOPED_ENUM(MapFlags) W3m::flags() const
+inline MapFlags W3m::flags() const
 {
 	return m_flags;
 }

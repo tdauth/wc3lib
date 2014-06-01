@@ -25,7 +25,7 @@
  * \file
  * Defines structures for a basic JASS abstract syntax tree.
  * All nodes represent declarations, expressions or statements of JASS code.
- * 
+ *
  * \ref jass_ast provides access to one single AST.
  */
 
@@ -37,7 +37,6 @@
 #include "../spirit.hpp"
 
 #include <boost/spirit/include/qi_symbols.hpp>
-#include <boost/detail/scoped_enum_emulation.hpp>
 #include <boost/array.hpp>
 
 #include "../platform.hpp"
@@ -56,14 +55,14 @@ struct jass_file;
 struct jass_ast_location {
 	jass_file *file;
 	std::size_t line, column, length;
-	
+
 	jass_ast_location() : file(0), line(0), column(0), length(0) {
 	}
 };
 
 struct jass_ast_node {
 	jass_ast_location location;
-	
+
 	virtual std::string type_name() const { return typeid(*this).name(); }
 };
 
@@ -122,7 +121,7 @@ struct jass_statement : public jass_statement_node {
 		Debug
 	};
 	BOOST_SCOPED_ENUM_END
-	
+
 	BOOST_SCOPED_ENUM(Type) whichType() const {
 		switch (this->variant.which()) {
 			case 0:
@@ -140,7 +139,7 @@ struct jass_statement : public jass_statement_node {
 			case 6:
 				return Type::Debug;
 		}
-		
+
 		throw Exception();
 	}
 };
@@ -163,7 +162,7 @@ struct jass_set : public jass_statement_node {
 };
 
 struct jass_function_args : public jass_statement_node, public std::vector<boost::recursive_wrapper<jass_expression> > {
-	
+
 };
 
 struct jass_call : public jass_statement_node {
@@ -238,7 +237,7 @@ typedef boost::variant<
 
 struct jass_expression : public jass_expression_node {
 	jass_expression_variant variant;
-	
+
 	/**
 	 * Enumeration for type information of the variant.
 	 * Instead of using \ref which() you could use \ref whichType() which returns
@@ -255,7 +254,7 @@ struct jass_expression : public jass_expression_node {
 		Parentheses
 	};
 	BOOST_SCOPED_ENUM_END
-	
+
 	BOOST_SCOPED_ENUM(Type) whichType() const {
 		switch (this->variant.which()) {
 			case 0:
@@ -275,7 +274,7 @@ struct jass_expression : public jass_expression_node {
 			case 7:
 				return Type::Parentheses;
 		}
-		
+
 		throw Exception();
 	}
 };
@@ -297,7 +296,7 @@ BOOST_SCOPED_ENUM_START(jass_binary_operator) {
 BOOST_SCOPED_ENUM_END
 
 struct jass_binary_operators : qi::symbols<char, BOOST_SCOPED_ENUM(jass_binary_operator)> {
-	
+
 	jass_binary_operators()
 	{
 		name("JASS binary operators");
@@ -322,7 +321,7 @@ struct jass_binary_operators : qi::symbols<char, BOOST_SCOPED_ENUM(jass_binary_o
 };
 
 struct jass_binary_boolean_operators : qi::symbols<char, BOOST_SCOPED_ENUM(jass_binary_operator)> {
-	
+
 	jass_binary_boolean_operators()
 	{
 		name("JASS binary boolean operators");
@@ -350,7 +349,7 @@ BOOST_SCOPED_ENUM_START(jass_unary_operator) {
 BOOST_SCOPED_ENUM_END
 
 struct jass_unary_operators : qi::symbols<char, BOOST_SCOPED_ENUM(jass_unary_operator)> {
-	
+
 	jass_unary_operators()
 	{
 		name("JASS unary operators");
@@ -397,44 +396,44 @@ typedef boost::array<char, 4> fourcc_array;
 inline fourcc from_array(const fourcc_array &value) {
 	assert(value.size() == 4);
 	fourcc result(4);
-	
+
 	for (std::size_t i = 0; i < 4; ++i) {
 		result[i] = value[i];
 	}
-	
+
 	return result;
 }
 
 inline fourcc from_string(const string &value) {
 	assert(value.size() == 4);
 	fourcc result(4);
-	
+
 	for (std::size_t i = 0; i < 4; ++i) {
 		result[i] = value[i];
 	}
-	
+
 	return result;
 }
 
 inline fourcc_array to_array(const fourcc &value) {
 	assert(value.size() == 4);
 	fourcc_array result;
-	
+
 	for (std::size_t i = 0; i < 4; ++i) {
 		result[i] = value[i];
 	}
-	
+
 	return result;
 }
 
 inline string to_string(const fourcc &value) {
 	assert(value.size() == 4);
 	string result;
-	
+
 	for (std::size_t i = 0; i < 4; ++i) {
 		result += value[i];
 	}
-	
+
 	return result;
 }
 
@@ -449,7 +448,7 @@ typedef boost::variant<
 
 struct jass_const : public jass_expression_node {
 	jass_const_variant variant;
-	
+
 	/**
 	 * Enumeration for type information of the variant.
 	 * Instead of using \ref which() you could use \ref whichType() which returns
@@ -464,7 +463,7 @@ struct jass_const : public jass_expression_node {
 		Null
 	};
 	BOOST_SCOPED_ENUM_END
-	
+
 	BOOST_SCOPED_ENUM(Type) whichType() const {
 		switch (this->variant.which()) {
 			case 0:
@@ -480,10 +479,10 @@ struct jass_const : public jass_expression_node {
 			case 5:
 				return Type::Null;
 		}
-		
+
 		throw Exception();
 	}
-	
+
 	/**
 	 * Uses the default value 0 -> integer constant.
 	 */
@@ -526,7 +525,7 @@ struct jass_global_declaration : public jass_ast_node {
 struct jass_type : public jass_global_declaration {
 	string identifier;
 	jass_type_reference parent;
-	
+
 	/**
 	 * \return Returns true if parent type is set.
 	 */
@@ -536,10 +535,10 @@ struct jass_type : public jass_global_declaration {
 		} else if (parent.type() == typeid(jass_type*)) {
 			return boost::get<jass_type*>(parent) != 0;
 		}
-		
+
 		return false;
 	}
-	
+
 	jass_type() : parent("") { }
 	jass_type(const string &identifier, jass_type *parent) : identifier(identifier), parent(parent) { }
 	// if symbol table does not contain the parent type
@@ -550,7 +549,7 @@ struct jass_types : public jass_global_declaration, public std::vector<jass_type
 };
 
 struct jass_type_declarations : qi::symbols<char, jass_type>, public jass_global_declaration {
-	
+
 	jass_type_declarations()
 	{
 		name("JASS types");
@@ -578,7 +577,7 @@ struct jass_global : public jass_global_declaration {
  * globals
  * 	<vars|constants>
  * endglobals
- * 
+ *
  * All global and constant statements have to be placed between "globals" and "endglobals".
  * This node inherits std::vector and can be filled with global and constant declarations.
  */
@@ -591,7 +590,7 @@ struct jass_function_parameter : public jass_global_declaration {
 };
 
 struct jass_function_parameters : public jass_global_declaration, public std::vector<jass_function_parameter> {
-	
+
 };
 
 struct jass_function_declaration : public jass_global_declaration {
@@ -663,7 +662,7 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	//----------------------------------------------------------------------
 	// Statements
 	//----------------------------------------------------------------------
@@ -675,7 +674,7 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_statements>
 	{
@@ -684,7 +683,7 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_set>
 	{
@@ -693,7 +692,7 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_function_args>
 	{
@@ -702,7 +701,7 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_call>
 	{
@@ -711,7 +710,7 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_conditional_statements>
 	{
@@ -720,7 +719,7 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_elseifs>
 	{
@@ -738,7 +737,7 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_loop>
 	{
@@ -747,7 +746,7 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_exitwhen>
 	{
@@ -756,7 +755,7 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_return>
 	{
@@ -765,7 +764,7 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_debug>
 	{
@@ -774,11 +773,11 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	//----------------------------------------------------------------------
 	// Expressions
 	//----------------------------------------------------------------------
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_expression>
 	{
@@ -787,7 +786,7 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_binary_operator>
 	{
@@ -796,7 +795,7 @@ namespace boost { namespace spirit { namespace traits
 			out << "binary_operator";
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_binary_operation>
 	{
@@ -805,7 +804,7 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_unary_operator>
 	{
@@ -814,7 +813,7 @@ namespace boost { namespace spirit { namespace traits
 			out << "unary_operator";
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_unary_operation>
 	{
@@ -823,7 +822,7 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_function_call>
 	{
@@ -832,7 +831,7 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_array_reference>
 	{
@@ -841,7 +840,7 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_function_ref>
 	{
@@ -850,7 +849,7 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_null>
 	{
@@ -859,7 +858,7 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_const>
 	{
@@ -881,7 +880,7 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_var_declaration>
 	{
@@ -890,7 +889,7 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_locals>
 	{
@@ -899,11 +898,11 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	//----------------------------------------------------------------------
 	// Global Declarations
 	//----------------------------------------------------------------------
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_native>
 	{

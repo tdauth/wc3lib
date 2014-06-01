@@ -134,7 +134,7 @@ bool BlpIOHandler::supportsOption(ImageOption option) const
 			return true;
 
 		case Quality:
-			return this->option(SubType).toUInt() == blp::Blp::Compression::Jpeg;
+			return this->option(SubType).toUInt() == static_cast<blp::dword>(blp::Blp::Compression::Jpeg);
 	}
 
 	return false;
@@ -169,7 +169,7 @@ QVariant BlpIOHandler::option(ImageOption option) const
 
 			blp::dword compression(this->option(SubType).toUInt());
 
-			if (compression == blp::Blp::Compression::Jpeg)
+			if (compression == static_cast<blp::dword>(blp::Blp::Compression::Jpeg))
 			{
 				/// \todo Read JPEG header of first MIP map by using jpeg lib and get compression.
 				return 0;
@@ -265,8 +265,8 @@ bool BlpIOHandler::write(const QImage &image, blp::Blp *blpImage)
 {
 	if (!option(SubType).isNull())
 	{
-		blpImage->setCompression(BOOST_SCOPED_ENUM(blp::Blp::Compression)(option(SubType).toUInt()));
-		qDebug() << "SubType has been set to " << BOOST_SCOPED_ENUM(blp::Blp::Compression)(option(SubType).toUInt());
+		blpImage->setCompression(static_cast<blp::Blp::Compression>(option(SubType).toUInt()));
+		qDebug() << "SubType has been set to " << option(SubType).toUInt();
 	}
 	else if (image.format() == QImage::Format_Indexed8)
 	{
@@ -274,7 +274,9 @@ bool BlpIOHandler::write(const QImage &image, blp::Blp *blpImage)
 		blpImage->setCompression(blp::Blp::Compression::Paletted);
 	}
 	else
+	{
 		blpImage->setCompression(blp::Blp::Compression::Jpeg);
+	}
 
 	if (blpImage->compression() == blp::Blp::Compression::Paletted)
 	{

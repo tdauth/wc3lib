@@ -61,7 +61,7 @@ std::streamsize Sound::read(InputStream &istream) throw (class Exception)
 
 	int32 flags = 0;
 	wc3lib::read(istream, flags, size);
-	this->m_flags = (BOOST_SCOPED_ENUM(Flags))flags;
+	this->m_flags = static_cast<Flags>(flags);
 	wc3lib::read(istream, this->m_fadeInRate, size);
 	wc3lib::read(istream, this->m_fadeOutRate, size);
 	wc3lib::read(istream, this->m_volume, size);
@@ -70,7 +70,7 @@ std::streamsize Sound::read(InputStream &istream) throw (class Exception)
 	wc3lib::read(istream, this->m_unknown1, size);
 	int32 channel = 0;
 	wc3lib::read(istream, channel, size);
-	this->m_channel = (BOOST_SCOPED_ENUM(Channel))channel;
+	this->m_channel = static_cast<Channel>(channel);
 	wc3lib::read(istream, this->m_minDistance, size);
 	wc3lib::read(istream, this->m_maxDistance, size);
 	wc3lib::read(istream, this->m_distanceCutoff, size);
@@ -95,9 +95,9 @@ std::streamsize Sound::write(OutputStream &ostream) const throw (class Exception
 	{
 		case EAX::UseDefault:
 			eax = "";
-			
+
 			break;
-		
+
 		case EAX::Default:
 			eax = "DefaultEAXON";
 
@@ -135,14 +135,14 @@ std::streamsize Sound::write(OutputStream &ostream) const throw (class Exception
 	}
 
 	wc3lib::writeString(ostream, eax, size);
-	wc3lib::write<int32>(ostream, this->flags(), size);
+	wc3lib::write<int32>(ostream, static_cast<int32>(this->flags()), size);
 	wc3lib::write(ostream, this->fadeInRate(), size);
 	wc3lib::write(ostream, this->fadeOutRate(), size);
 	wc3lib::write(ostream, this->volume(), size);
 	wc3lib::write(ostream, this->pitch(), size);
 	wc3lib::write(ostream, this->unknown0(), size);
 	wc3lib::write(ostream, this->unknown1(), size);
-	wc3lib::write<int32>(ostream, this->channel(), size);
+	wc3lib::write<int32>(ostream, static_cast<int32>(this->channel()), size);
 	wc3lib::write(ostream, this->minDistance(), size);
 	wc3lib::write(ostream, this->maxDistance(), size);
 	wc3lib::write(ostream, this->distanceCutoff(), size);

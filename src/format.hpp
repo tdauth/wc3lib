@@ -67,6 +67,8 @@ class Format
 		typedef std::basic_istream<byte> InputStream;
 		typedef std::basic_ostream<byte> OutputStream;
 
+		virtual ~Format();
+
 		/**
 		 * \return Usually this function should returns the number of read bytes. For non-binary formats or formats which won't store any byte count this value can be 0. It has been introduced for convenience for example when reading chunks of the MDX format where you do have to know how many bytes are still left.
 		 */

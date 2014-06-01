@@ -55,10 +55,12 @@ std::streamsize Tilepoint::read(InputStream &istream) throw (class Exception)
 
 	this->m_groundHeight = tilepointData.groundHeight;
 	this->m_waterLevel = tilepointData.waterLevel;
-	this->m_flags = (BOOST_SCOPED_ENUM(Tilepoint::Flags))(tilepointData.flags);
+	this->m_flags = static_cast<Tilepoint::Flags>(tilepointData.flags);
 
 	if (tilepointData.boundaryFlag)
-		this->m_flags = (BOOST_SCOPED_ENUM(Tilepoint::Flags))((int)(this->m_flags) | (int)(Tilepoint::Flags::ShadowBoundary));
+	{
+		this->m_flags = this->m_flags | Tilepoint::Flags::ShadowBoundary;
+	}
 
 	this->m_groundTextureType = tilepointData.groundTextureType;
 	this->m_textureDetails = tilepointData.textureDetails;
@@ -73,7 +75,7 @@ std::streamsize Tilepoint::write(OutputStream &ostream) const throw (class Excep
 	tilepointData.groundHeight = this->m_groundHeight;
 	tilepointData.boundaryFlag = this->m_flags & Tilepoint::Flags::ShadowBoundary;
 	tilepointData.waterLevel = this->m_waterLevel;
-	tilepointData.flags = (unsigned int)(this->m_flags);
+	tilepointData.flags = static_cast<uint16>(this->m_flags); // only the first 4 bits because ShadowBoundary has already been used
 	tilepointData.groundTextureType = this->m_groundTextureType;
 	tilepointData.textureDetails = this->m_textureDetails;
 	tilepointData.layerHeight = this->m_layerHeight;

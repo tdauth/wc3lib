@@ -31,7 +31,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-Material::Material(class Materials *materials) : m_layers(new Layers(this)), GroupMdxBlockMember(materials, "Material")
+Material::Material(class Materials *materials) : GroupMdxBlockMember(materials, "Material"), m_layers(new Layers(this))
 {
 }
 

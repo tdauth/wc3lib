@@ -48,12 +48,11 @@ namespace map
 class Shadow : public FileFormat
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Type) /// \todo C++11 : byte
+		enum class Type : uint8
 		{
 			NoShadow = 0x00,
 			HasShadow = 0xFF
 		};
-		BOOST_SCOPED_ENUM_END
 
 		/**
 		 * Each tilepoint from map environment is divided into 16 different shadow points (4 * 4).
@@ -61,7 +60,7 @@ class Shadow : public FileFormat
 		 * The first index is the X-coordinate, the second one the Y-coordinate and the third one a number between 0 and 15
 		 * for the corresponding layer point.
 		 */
-		typedef boost::multi_array<BOOST_SCOPED_ENUM(Type), 3> Tilepoints;
+		typedef boost::multi_array<Type, 3> Tilepoints;
 		typedef Tilepoints::array_view<1>::type View;
 		typedef Tilepoints::const_array_view<1>::type ConstView;
 
@@ -102,14 +101,14 @@ class Shadow : public FileFormat
 		/**
 		 * Returns the type of a shadow point of tilepoint at (\p x | \p y) with index \p index.
 		 */
-		BOOST_SCOPED_ENUM(Type) type(int32 x, int32 y, int32 index) const;
+		Type type(int32 x, int32 y, int32 index) const;
 
 		/**
 		 * Returns a sub view with all 16 shadow points for one single tilepoint at (\p x | \p y).
 		 * @{
 		 */
-		View& tilepoint(int32 x, int32 y);
-		ConstView& tilepoint(int32 x, int32 y) const;
+		View tilepoint(int32 x, int32 y);
+		ConstView tilepoint(int32 x, int32 y) const;
 		/**
 		 * @}
 		 */
@@ -170,12 +169,12 @@ inline const Shadow::Tilepoints& Shadow::tilepoints() const
 	return this->m_tilepoints;
 }
 
-inline BOOST_SCOPED_ENUM(Shadow::Type) Shadow::type(int32 x, int32 y, int32 index) const
+inline Shadow::Type Shadow::type(int32 x, int32 y, int32 index) const
 {
 	return this->tilepoints()[x][y][index];
 }
 
-inline Shadow::View& Shadow::tilepoint(int32 x, int32 y)
+inline Shadow::View Shadow::tilepoint(int32 x, int32 y)
 {
 	typedef Tilepoints::index_range range;
 	Tilepoints::index_gen indices;
@@ -184,7 +183,7 @@ inline Shadow::View& Shadow::tilepoint(int32 x, int32 y)
 	return myview;
 }
 
-inline Shadow::ConstView& Shadow::tilepoint(int32 x, int32 y) const
+inline Shadow::ConstView Shadow::tilepoint(int32 x, int32 y) const
 {
 	typedef Tilepoints::index_range range;
 	Tilepoints::index_gen indices;

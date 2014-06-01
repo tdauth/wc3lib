@@ -43,22 +43,20 @@ class ParticleEmitter2 : public Node, public GroupMdxBlockMember
 		static const std::size_t segmentColorsSize = 3;
 		typedef boost::ptr_array<class SegmentColor, segmentColorsSize> SegmentColors;
 
-		BOOST_SCOPED_ENUM_START(FilterMode) /// \todo C++11 : long32
+		enum class FilterMode : long32
 		{
 			Blend = 0,
 			Additive = 1,
 			Modulate = 2,
 			AlphaKey = 4
 		};
-		BOOST_SCOPED_ENUM_END
 
-		BOOST_SCOPED_ENUM_START(Flags) /// \todo C++11 : long32
+		enum class Flags : long32
 		{
 			Head = 0,
 			Tail = 1,
 			Both = 2
 		};
-		BOOST_SCOPED_ENUM_END
 
 		ParticleEmitter2(class ParticleEmitter2s *particleEmitters);
 		virtual ~ParticleEmitter2();
@@ -72,10 +70,10 @@ class ParticleEmitter2 : public Node, public GroupMdxBlockMember
 		float32 emissionRate() const;
 		float32 length() const;
 		float32 width() const;
-		BOOST_SCOPED_ENUM(FilterMode) filterMode() const;
+		FilterMode filterMode() const;
 		long32 rows() const;
 		long32 columns() const;
-		BOOST_SCOPED_ENUM(Flags) flags() const;
+		Flags flags() const;
 		float32 tailLength() const;
 		float32 time() const;
 		SegmentColors& segmentColors();
@@ -101,7 +99,7 @@ class ParticleEmitter2 : public Node, public GroupMdxBlockMember
 		long32 textureId() const;
 		long32 squirt() const;
 		long32 priorityPlane() const;
-		BOOST_SCOPED_ENUM(ReplaceableId) replaceableId() const;
+		ReplaceableId replaceableId() const;
 		class ParticleEmitter2Speeds* speeds() const;
 		class ParticleEmitter2Latitudes* latitudes() const;
 		class EmissionRates* emissionRates() const;
@@ -125,10 +123,10 @@ class ParticleEmitter2 : public Node, public GroupMdxBlockMember
 		float32 m_emissionRate;
 		float32 m_length;
 		float32 m_width;
-		BOOST_SCOPED_ENUM(FilterMode) m_filterMode; //(0:Blend;1:Additive;2:Modulate;4:AlphaKey)
+		FilterMode m_filterMode; //(0:Blend;1:Additive;2:Modulate;4:AlphaKey)
 		long32 m_rows;
 		long32 m_columns;
-		BOOST_SCOPED_ENUM(Flags) m_flags; //(0:Head;1:Tail;2:Both)
+		Flags m_flags; //(0:Head;1:Tail;2:Both)
 		float32 m_tailLength;
 		float32 m_time;
 		SegmentColors m_segmentColors;
@@ -141,7 +139,7 @@ class ParticleEmitter2 : public Node, public GroupMdxBlockMember
 		long32 m_textureId;
 		long32 m_squirt; //(1:Squirt)
 		long32 m_priorityPlane;
-		BOOST_SCOPED_ENUM(ReplaceableId) m_replaceableId;
+		ReplaceableId m_replaceableId;
 		class ParticleEmitter2Speeds *m_speeds; //(KP2S)
 		class ParticleEmitter2Latitudes *m_latitudes; //(KP2L)
 		class EmissionRates *m_emissionRates; //(KP2E)
@@ -195,7 +193,7 @@ inline float32 ParticleEmitter2::width() const
 	return this->m_width;
 }
 
-inline BOOST_SCOPED_ENUM(ParticleEmitter2::FilterMode) ParticleEmitter2::filterMode() const
+inline ParticleEmitter2::FilterMode ParticleEmitter2::filterMode() const
 {
 	return this->m_filterMode;
 }
@@ -210,7 +208,7 @@ inline long32 ParticleEmitter2::columns() const
 	return this->m_columns;
 }
 
-inline BOOST_SCOPED_ENUM(ParticleEmitter2::Flags) ParticleEmitter2::flags() const
+inline ParticleEmitter2::Flags ParticleEmitter2::flags() const
 {
 	return this->m_flags;
 }
@@ -340,7 +338,7 @@ inline long32 ParticleEmitter2::priorityPlane() const
 	return this->m_priorityPlane;
 }
 
-inline BOOST_SCOPED_ENUM(ReplaceableId) ParticleEmitter2::replaceableId() const
+inline ReplaceableId ParticleEmitter2::replaceableId() const
 {
 	return this->m_replaceableId;
 }

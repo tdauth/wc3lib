@@ -45,8 +45,8 @@ class Rect : public Format
 		int32 index() const;
 		id weatherEffectId() const;
 		const string& soundName() const;
-		const struct Bgr& color() const;
-		
+		const Bgr& color() const;
+
 		/**
 		 * If \ref weatherEffectId() is set to 0 there is no weather effect.
 		 */

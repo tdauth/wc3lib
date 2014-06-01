@@ -21,9 +21,7 @@
 #ifndef WC3LIB_VERTEX_HPP
 #define WC3LIB_VERTEX_HPP
 
-#include <vector>
-
-#include <boost/array.hpp>
+#include <array>
 
 #include "platform.hpp"
 #include "format.hpp"
@@ -32,37 +30,94 @@ namespace wc3lib
 {
 
 /**
- * \todo Use some boost::geometry class to inherit which provides much more functionality.
+ * \brief Basic type for N-dimensional vertex which can be serialized and deserialized.
  */
 template<typename T, typename std::size_t N>
-class BasicVertex : public boost::array<T, N>, public Format
+class BasicVertex : public std::array<T, N>, public Format
 {
 	public:
-		typedef boost::array<T, N> Base;
+		typedef std::array<T, N> Base;
 
-		BasicVertex(const Base &base)
+		BasicVertex() : Base()
 		{
-			*this = base;
 		}
 
-		BasicVertex()
+		BasicVertex(const BasicVertex<T, N> &other) : Base(other) {
+		}
+
+		virtual std::streamsize read(InputStream &istream) throw (Exception)
 		{
+			std::streamsize size = 0;
+
 			for (std::size_t i = 0; i < Base::size(); ++i)
-				(*this)[i] = 0;
+			{
+				wc3lib::read(istream, (*this)[i], size);
+			}
+
+			return size;
 		}
 
-		/// \todo C++11 use variadic template for generic constructor with initialization or initializer list
-		BasicVertex(T x, T y, T z)
+		virtual std::streamsize write(OutputStream &ostream) const throw (Exception)
+		{
+			std::streamsize size = 0;
+
+			for (std::size_t i = 0; i < Base::size(); ++i)
+			{
+				wc3lib::write(ostream, (*this)[i], size);
+			}
+
+			return size;
+		}
+};
+
+template<typename T = float32>
+class Vertex2d : public BasicVertex<T, 2>
+{
+	public:
+		typedef BasicVertex<T, 2> Base;
+
+		Vertex2d() : Base()
+		{
+		}
+
+		Vertex2d(T x, T y)
+		{
+			(*this)[0] = x;
+			(*this)[1] = y;
+		}
+
+		Vertex2d(const Base &other) : Base(other) {
+		}
+
+		T x() const
+		{
+			return (*this)[0];
+		}
+
+		T y() const
+		{
+			return (*this)[1];
+		}
+};
+
+template<typename T = float32>
+class Vertex3d : public BasicVertex<T, 3>
+{
+	public:
+		typedef BasicVertex<T, 3> Base;
+
+		Vertex3d() : Base()
+		{
+		}
+
+		Vertex3d(T x, T y, T z)
 		{
 			(*this)[0] = x;
 			(*this)[1] = y;
 			(*this)[2] = z;
 		}
 
-		BasicVertex(T x, T y)
-		{
-			(*this)[0] = x;
-			(*this)[1] = y;
+		Vertex3d(const Base &other) : Base(other) {
 		}
 
 		T x() const
@@ -79,29 +134,49 @@ class BasicVertex : public boost::array<T, N>, public Format
 		{
 			return (*this)[2];
 		}
-
-		virtual std::streamsize read(InputStream &istream) throw (Exception)
-		{
-			std::streamsize size = 0;
-
-			for (std::size_t i = 0; i < Base::size(); ++i)
-				wc3lib::read(istream, (*this)[i], size);
-
-			return size;
-		}
-
-		virtual std::streamsize write(OutputStream &ostream) const throw (Exception)
-		{
-			std::streamsize size = 0;
-
-			for (std::size_t i = 0; i < Base::size(); ++i)
-				wc3lib::write(ostream, (*this)[i], size);
-
-			return size;
-		}
 };
 
-typedef BasicVertex<float32, 3> Vertex;
+template<typename T = float32>
+class Quaternion : public BasicVertex<T, 4>
+{
+	public:
+		typedef BasicVertex<T, 4> Base;
+
+		Quaternion() : Base()
+		{
+		}
+
+		Quaternion(T a, T b, T c, T d)
+		{
+			(*this)[0] = a;
+			(*this)[1] = b;
+			(*this)[2] = c;
+			(*this)[3] = d;
+		}
+
+		Quaternion(const Base &other) : Base(other) {
+		}
+
+		T a() const
+		{
+			return (*this)[0];
+		}
+
+		T b() const
+		{
+			return (*this)[1];
+		}
+
+		T c() const
+		{
+			return (*this)[2];
+		}
+
+		T d() const
+		{
+			return (*this)[2];
+		}
+};
 
 }
 

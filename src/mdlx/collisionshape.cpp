@@ -27,7 +27,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-CollisionShape::CollisionShape(class CollisionShapes *collisionShapes) : Object(collisionShapes->mdlx()), GroupMdxBlockMember(collisionShapes, "CollisionShape")
+CollisionShape::CollisionShape(class CollisionShapes *collisionShapes) : GroupMdxBlockMember(collisionShapes, "CollisionShape"), Object(collisionShapes->mdlx())
 {
 }
 
@@ -63,7 +63,7 @@ std::streamsize CollisionShape::readMdx(istream &istream) throw (class Exception
 	std::streamsize size = Object::readMdx(istream);
 	long32 shape;
 	wc3lib::read(istream, shape, size);
-	this->m_shape = (BOOST_SCOPED_ENUM(Shape))(shape);
+	this->m_shape = static_cast<Shape>(shape);
 	VertexData vertexData;
 	size += vertexData.read(istream);
 	vertices().push_back(vertexData);

@@ -35,7 +35,7 @@ namespace mdlx
 
 /**
  * \brief Collision shapes are used for the "hit test" which is run when the user selects a 3D model using the cursor.
- * 
+ *
  * MDL tag "CollisionShape".
  */
 class CollisionShape : public GroupMdxBlockMember, public Object
@@ -43,17 +43,16 @@ class CollisionShape : public GroupMdxBlockMember, public Object
 	public:
 		typedef std::vector<VertexData> Vertices;
 
-		BOOST_SCOPED_ENUM_START(Shape) /// \todo C++11 : long32
+		enum class Shape : long32
 		{
 			Box = 0,
 			Sphere = 2
 		};
-		BOOST_SCOPED_ENUM_END
 
 		CollisionShape(class CollisionShapes *collisionShapes);
 
 		class CollisionShapes* collisionShapes() const;
-		BOOST_SCOPED_ENUM(Shape) shape() const;
+		Shape shape() const;
 		/// If shape is a box this returns two vertices, otherwise it returns one which is the center of the sphere.
 		Vertices& vertices();
 		const Vertices& vertices() const;
@@ -66,7 +65,7 @@ class CollisionShape : public GroupMdxBlockMember, public Object
 		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 
 	protected:
-		BOOST_SCOPED_ENUM(Shape) m_shape; //(0:box;2:sphere)
+		Shape m_shape; //(0:box;2:sphere)
 		Vertices m_vertices;
 		float32 m_boundsRadius;
 };
@@ -76,7 +75,7 @@ inline class CollisionShapes* CollisionShape::collisionShapes() const
 	return boost::polymorphic_cast<class CollisionShapes*>(this->parent());
 }
 
-inline BOOST_SCOPED_ENUM(CollisionShape::Shape) CollisionShape::shape() const
+inline CollisionShape::Shape CollisionShape::shape() const
 {
 	return this->m_shape;
 }

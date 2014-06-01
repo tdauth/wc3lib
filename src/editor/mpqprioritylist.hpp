@@ -29,11 +29,10 @@
 
 #include "platform.hpp"
 #include "../mpq.hpp"
-#include "../map.hpp"
 #include "resource.hpp"
 #include "texture.hpp"
 #include "ogremdlx.hpp"
-#include "kio_mpq/mpqprotocol.hpp"
+#include "warcraftiiishared.hpp"
 
 namespace wc3lib
 {
@@ -126,6 +125,11 @@ class MpqPriorityList
 		typedef MpqPriorityList self;
 
 		typedef boost::shared_ptr<MpqPriorityListEntry> Source;
+		/**
+		 * List of available sources for one single \ref MpqPriorityList.
+		 * The list provides ordered versions where entries are ordered by their priority.
+		 * Additionally it provides a hashed version using a source's URL as hash key.
+		 */
 		typedef boost::multi_index_container<Source,
 		boost::multi_index::indexed_by<
 		// simple list
@@ -139,11 +143,17 @@ class MpqPriorityList
 
 		Sources;
 
+		typedef boost::scoped_ptr<WarcraftIIIShared> SharedDataPtr;
+
 		typedef std::map<KUrl, Resource*> Resources;
-		typedef boost::ptr_map<BOOST_SCOPED_ENUM(TeamColor), Texture> TeamColorTextures;
-		typedef boost::scoped_ptr<map::Txt> WorldEditorStringsPtr;
-		typedef boost::scoped_ptr<map::TriggerData> TriggerDataPtr;
-		typedef boost::scoped_ptr<map::TriggerStrings> TriggerStringsPtr;
+
+		MpqPriorityList();
+		virtual ~MpqPriorityList();
+
+		/**
+		 * \return Returns all shared data for the World Editor.
+		 */
+		const SharedDataPtr& sharedData() const;
 
 		void setLocale(mpq::MpqFile::Locale locale);
 		mpq::MpqFile::Locale locale() const;
@@ -195,8 +205,6 @@ class MpqPriorityList
 		virtual bool removeWar3XSource();
 		virtual bool removeWar3XLocalSource();
 		virtual bool removeDefaultSources();
-		
-		virtual void refreshDefaultFiles(QWidget *window);
 
 		/**
 		 * \copydoc KIO::NetAccess::download()
@@ -222,67 +230,9 @@ class MpqPriorityList
 		virtual bool removeResource(const KUrl &url);
 		const Resources& resources() const;
 
-		/**
-		 * Once requested, the image is kept in memory until it's refreshed manually.
-		 */
-		Texture* teamColorTexture(BOOST_SCOPED_ENUM(TeamColor) teamColor) const throw (class Exception);
-		/**
-		 * Once requested, the image is kept in memory until it's refreshed manually.
-		 */
-		Texture* teamGlowTexture(BOOST_SCOPED_ENUM(TeamColor) teamGlow) const throw (class Exception);
-		
-		
-		/**
-		 * \param window Widget which is used for KIO download.
-		 */
-		void refreshWorldEditorStrings(QWidget *window, const KUrl &url = KUrl("UI/WorldEditStrings.txt")) throw (Exception);
-		/**
-		 * World Editor strings are shared between maps usually.
-		 * \note Call \ref refreshWorldEditorStrings() before using world editor strings.
-		 */
-		const WorldEditorStringsPtr& worldEditorStrings() const;
-		
-		/**
-		 * \param window Widget which is used for KIO download.
-		 * \sa triggerData()
-		 */
-		void refreshTriggerData(QWidget *window, const KUrl &url = KUrl("UI/TriggerData.txt")) throw (Exception);
-		/**
-		 * Trigger data which is shared between maps usually.
-		 * \note Call \ref refreshTriggerData() before using trigger data.
-		 */
-		const TriggerDataPtr& triggerData() const;
-		
-		/**
-		 * \param window Widget which is used for KIO download.
-		 * \sa triggerStrings()
-		 */
-		void refreshTriggerStrings(QWidget *window, const KUrl &url = KUrl("UI/TriggerStrings.txt")) throw (Exception);
-		/**
-		 * Trigger strings which are shared between maps usually.
-		 * \note Call \ref refreshTriggerStrings() before using trigger strings.
-		 */
-		const TriggerStringsPtr& triggerStrings() const;
-
-		/**
-		 * Returns localized string under key \p key in group \p group.
-		 * Call tr("WESTRING_APPNAME", "WorldEditStrings", \ref mpq::MpqFile::German) to get the text "WARCRAFT III - Welt-Editor" from file "UI/WorldEditStrings.txt" of MPQ archive "War3xlocal.mpq" (Frozen Throne), for instance.
-		 * Localized keyed and grouped strings are found under following paths of current MPQ with the highest priority and corresponding locale \p locale:
-		 * <ul>
-		 * <li>UI/CampaignStrings.txt</li>
-		 * <li>UI/TipStrings.txt</li>
-		 * <li>UI/TriggerStrings.txt</li>
-		 * <li>UI/WorldEditGameStrings.txt</li>
-		 * <li>UI/TriggerStrings.txt</li>
-		 * <li>UI/WorldEditStrings.txt</li>
-		 * </ul>
-		 * \param defaultValue If corresponding key entry could not be found (e. g. files are not available or it simply does not exist) this value is shown as string if its length is bigger than 0.
-		 */
-		virtual QString tr(QWidget *widget, const QString &key, const QString &group = "", BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale = mpq::MpqFile::Locale::Neutral, const QString &defaultValue = "") const;
-
 		void readSettings(const QString &group);
 		void writeSettings(const QString &group);
-		
+
 		/**
 		 * Removes all sources.
 		 */
@@ -291,17 +241,17 @@ class MpqPriorityList
 	protected:
 		Sources& sources();
 
+		SharedDataPtr m_sharedData;
 		mpq::MpqFile::Locale m_locale;
 
 		Sources m_sources;
 		Resources m_resources;
-		// team color and glow textures
-		mutable TeamColorTextures m_teamColorTextures;
-		mutable TeamColorTextures m_teamGlowTextures;
-		mutable WorldEditorStringsPtr m_worldEditorStrings;
-		mutable TriggerDataPtr m_triggerData;
-		mutable TriggerStringsPtr m_triggerStrings;
 };
+
+inline const MpqPriorityList::SharedDataPtr& MpqPriorityList::sharedData() const
+{
+	return this->m_sharedData;
+}
 
 inline void MpqPriorityList::setLocale(mpq::MpqFile::Locale locale)
 {
@@ -347,109 +297,6 @@ inline bool MpqPriorityList::removeResource(const KUrl &url)
 inline const MpqPriorityList::Resources& MpqPriorityList::resources() const
 {
 	return this->m_resources;
-}
-
-inline Texture* MpqPriorityList::teamColorTexture(BOOST_SCOPED_ENUM(TeamColor) teamColor) const throw (class Exception)
-{
-	TeamColorTextures::iterator iterator = this->m_teamColorTextures.find(teamColor);
-
-	if (iterator == this->m_teamColorTextures.end())
-	{
-		std::auto_ptr<Texture> texture(new Texture(teamColorUrl(teamColor)));
-		texture->setSource(const_cast<self*>(this));
-		Texture *result = texture.get(); // improve performance on first allocation by returning it directly without calling "find"
-		this->m_teamColorTextures.insert(teamColor, texture);
-
-		return result;
-	}
-
-	return this->m_teamColorTextures.find(teamColor)->second;
-}
-
-inline Texture* MpqPriorityList::teamGlowTexture(BOOST_SCOPED_ENUM(TeamColor) teamGlow) const throw (class Exception)
-{
-	TeamColorTextures::iterator iterator = this->m_teamGlowTextures.find(teamGlow);
-
-	if (iterator == this->m_teamGlowTextures.end())
-	{
-		std::auto_ptr<Texture> texture(new Texture(teamGlowUrl(teamGlow)));
-		texture->setSource(const_cast<self*>(this));
-		Texture *result = texture.get(); // improve performance on first allocation by returning it directly without calling "find"
-		this->m_teamGlowTextures.insert(teamGlow, texture);
-
-		return result;
-	}
-
-	return this->m_teamGlowTextures.find(teamGlow)->second;
-}
-
-inline void MpqPriorityList::refreshWorldEditorStrings(QWidget *window, const KUrl &url) throw (Exception)
-{
-	QString target;
-
-	if (!this->download(url, target, window))
-		throw Exception(boost::format(_("Unable to download file \"%1%\".")) % url.toLocalFile().toUtf8().constData());
-
-	qDebug() << "World Editor strings target: " << target;
-	WorldEditorStringsPtr ptr(new map::Txt());
-	ifstream ifstream(target.toUtf8().constData(), std::ios::binary | std::ios::in);
-
-	if (!ifstream)
-		throw Exception(boost::format(_("Unable to read from file \"%1%\".")) % target.toUtf8().constData());
-
-	ptr->read(ifstream);
-	m_worldEditorStrings.swap(ptr); // exception safe
-}
-
-inline const MpqPriorityList::WorldEditorStringsPtr& MpqPriorityList::worldEditorStrings() const
-{
-	return m_worldEditorStrings;
-}
-
-inline void MpqPriorityList::refreshTriggerData(QWidget *window, const KUrl &url) throw (Exception)
-{
-	QString target;
-
-	if (!this->download(url, target, window))
-		throw Exception(_("Unable to download file \"UI/TriggerData.txt\"."));
-
-	qDebug() << "Trigger data target: " << target;
-	TriggerDataPtr ptr(new map::TriggerData());
-	ifstream ifstream(target.toUtf8().constData(), std::ios::binary | std::ios::in);
-
-	if (!ifstream)
-		throw Exception(boost::format(_("Unable to read from file \"%1%\".")) % target.toUtf8().constData());
-
-	ptr->read(ifstream);
-	m_triggerData.swap(ptr); // exception safe
-}
-
-inline const MpqPriorityList::TriggerDataPtr& MpqPriorityList::triggerData() const
-{
-	return m_triggerData;
-}
-
-inline void MpqPriorityList::refreshTriggerStrings(QWidget *window, const KUrl &url) throw (Exception)
-{
-	QString target;
-
-	if (!this->download(url, target, window))
-		throw Exception(_("Unable to download file \"UI/TriggerStrings.txt\"."));
-
-	qDebug() << "Trigger strings target: " << target;
-	TriggerStringsPtr ptr(new map::TriggerStrings());
-	ifstream ifstream(target.toUtf8().constData(), std::ios::binary | std::ios::in);
-
-	if (!ifstream)
-		throw Exception(boost::format(_("Unable to read from file \"%1%\".")) % target.toUtf8().constData());
-
-	ptr->read(ifstream);
-	m_triggerStrings.swap(ptr); // exception safe
-}
-
-inline const MpqPriorityList::TriggerStringsPtr& MpqPriorityList::triggerStrings() const
-{
-	return m_triggerStrings;
 }
 
 }

@@ -37,21 +37,20 @@ namespace mdlx
 class GeosetAnimation : public GroupMdxBlockMember
 {
 	public:
-		BOOST_SCOPED_ENUM_START(ColorAnimation) /// \todo C++11 : long32
+		enum class ColorAnimation : long32
 		{
 			None = 0,
 			DropShadow = 1,
 			Color = 2,
 			Both = 3
 		};
-		BOOST_SCOPED_ENUM_END
 
 		GeosetAnimation(class GeosetAnimations *geosetAnimations);
 		virtual ~GeosetAnimation();
 
 		class GeosetAnimations* geosetAnimations() const;
 		float32 staticAlpha() const;
-		BOOST_SCOPED_ENUM(ColorAnimation) colorAnimation() const;
+		ColorAnimation colorAnimation() const;
 		float32 colorRed() const;
 		float32 colorGreen() const;
 		float32 colorBlue() const;
@@ -66,7 +65,7 @@ class GeosetAnimation : public GroupMdxBlockMember
 
 	protected:
 		float32 m_staticAlpha; //(1.0:use KGAO)
-		BOOST_SCOPED_ENUM(ColorAnimation) m_colorAnimation; //(0:none;1:DropShadow;2:Color;3:Both)
+		ColorAnimation m_colorAnimation; //(0:none;1:DropShadow;2:Color;3:Both)
 		float32 m_colorRed, m_colorGreen, m_colorBlue; //(default:1)
 		long32 m_geosetId;
 		class GeosetAnimationAlphas *m_alphas; //(KGAO)
@@ -83,7 +82,7 @@ inline float32 GeosetAnimation::staticAlpha() const
 	return this->m_staticAlpha;
 }
 
-inline BOOST_SCOPED_ENUM(GeosetAnimation::ColorAnimation) GeosetAnimation::colorAnimation() const
+inline GeosetAnimation::ColorAnimation GeosetAnimation::colorAnimation() const
 {
 	return this->m_colorAnimation;
 }

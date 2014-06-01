@@ -42,7 +42,7 @@ std::streamsize Texture::writeMdl(ostream &ostream) const throw (class Exception
 	writeMdlValuePropertyWithQuotes(ostream, size, "Image", this->texturePath(), 1);
 
 	if (this->replaceableId() != ReplaceableId::None)
-		writeMdlValueProperty(ostream, size, "ReplaceableId", this->replaceableId(), 1);
+		writeMdlValueProperty(ostream, size, "ReplaceableId", static_cast<long32>(this->replaceableId()), 1);
 
 	if (this->wrapping() == Wrapping::WrapWidth || this->wrapping() == Wrapping::Both)
 		writeMdlProperty(ostream, size, "WrapWidth", 1);
@@ -69,10 +69,10 @@ std::streamsize Texture::readMdx(istream &istream) throw (class Exception)
 std::streamsize Texture::writeMdx(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	wc3lib::write(ostream, static_cast<const long32&>(this->replaceableId()), size);
+	wc3lib::write(ostream, static_cast<long32>(this->replaceableId()), size);
 	wc3lib::write(ostream, this->texturePath(), size, texturePathSize);
 	wc3lib::write(ostream, this->unknown0(), size);
-	wc3lib::write(ostream, static_cast<const long32&>(this->wrapping()), size);
+	wc3lib::write(ostream, static_cast<long32>(this->wrapping()), size);
 
 	return size;
 }

@@ -28,7 +28,7 @@ namespace wc3lib
 namespace map
 {
 
-MenuMinimap::Mark::Mark() : Position()
+MenuMinimap::Mark::Mark() : Vertex2d<int32>()
 {
 }
 
@@ -36,7 +36,7 @@ std::streamsize MenuMinimap::Mark::read(InputStream &istream) throw (Exception)
 {
 	std::streamsize size = 0;
 	wc3lib::read<int32>(istream, (int32&)m_iconType, size);
-	size += Position::read(istream);
+	size += Vertex2d<int32>::read(istream);
 	size += m_color.read(istream);
 
 	return size;
@@ -46,7 +46,7 @@ std::streamsize MenuMinimap::Mark::write(OutputStream &ostream) const throw (Exc
 {
 	std::streamsize size = 0;
 	wc3lib::write<int32>(ostream, (int32)iconType(), size);
-	size += Position::write(ostream);
+	size += Vertex2d<int32>::write(ostream);
 	size += m_color.write(ostream);
 
 	return size;

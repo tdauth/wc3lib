@@ -17,7 +17,6 @@ if (MAP)
 		itemset.hpp
 		mapstrings.hpp
 		menuminimap.hpp
-		metadata.hpp
 		minimap.hpp
 		object.hpp
 		pathmap.hpp
@@ -28,8 +27,6 @@ if (MAP)
 		shadow.hpp
 		sound.hpp
 		sounds.hpp
-		string.hpp
-		strings.hpp
 		tilepoint.hpp
 		tree.hpp
 		trees.hpp
@@ -69,7 +66,6 @@ if (MAP)
 		shadow.cpp
 		sound.cpp
 		sounds.cpp
-		strings.cpp
 		tilepoint.cpp
 		tree.cpp
 		trees.cpp

@@ -88,10 +88,12 @@ void OgreMdlx::setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor) throw (Excep
 	{
 		try
 		{
-			if (!source()->teamColorTexture(teamColor)->hasOgreTexture())
-				source()->teamColorTexture(teamColor)->loadOgreTexture();
+			if (!source()->sharedData()->teamColorTexture(teamColor)->hasOgreTexture())
+			{
+				source()->sharedData()->teamColorTexture(teamColor)->loadOgreTexture();
+			}
 
-			state->setTexture(source()->teamColorTexture(teamColor)->ogreTexture());
+			state->setTexture(source()->sharedData()->teamColorTexture(teamColor)->ogreTexture());
 		}
 		catch (Ogre::Exception &exception)
 		{
@@ -108,10 +110,12 @@ void OgreMdlx::setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow) throw (Excepti
 	{
 		try
 		{
-			if (!source()->teamGlowTexture(teamGlow)->hasOgreTexture())
-				source()->teamGlowTexture(teamGlow)->loadOgreTexture();
+			if (!source()->sharedData()->teamGlowTexture(teamGlow)->hasOgreTexture())
+			{
+				source()->sharedData()->teamGlowTexture(teamGlow)->loadOgreTexture();
+			}
 
-			state->setTexture(source()->teamGlowTexture(teamGlow)->ogreTexture());
+			state->setTexture(source()->sharedData()->teamGlowTexture(teamGlow)->ogreTexture());
 		}
 		catch (Ogre::Exception &exception)
 		{
@@ -842,38 +846,44 @@ Ogre::TexturePtr OgreMdlx::createTexture(const class mdlx::Texture &texture, mdl
 			{
 				try
 				{
-					if (!source()->teamColorTexture(teamColor())->hasOgreTexture())
-						source()->teamColorTexture(teamColor())->loadOgreTexture();
+					if (!source()->sharedData()->teamColorTexture(teamColor())->hasOgreTexture())
+					{
+						source()->sharedData()->teamColorTexture(teamColor())->loadOgreTexture();
+					}
 				}
 				catch (Exception &exception)
 				{
-					std::cerr << boost::format(_("Warning: Unable to load team color %1%")) % teamColor() << std::endl;
+					std::cerr << boost::format(_("Warning: Unable to load team color %1%")) % static_cast<mdlx::long32>(teamColor()) << std::endl;
 				}
 
 				// NOTE this is only required since createTexture() is called again in setTeamColor() and setTeamGlow()
 				if (std::find(this->m_teamColorTextures.begin(), this->m_teamColorTextures.end(), id) == this->m_teamColorTextures.end())
 					this->m_teamColorTextures.push_back(id);
 
-				return source()->teamColorTexture(teamColor())->ogreTexture();
+				return source()->sharedData()->teamColorTexture(teamColor())->ogreTexture();
 			}
 
 			case mdlx::ReplaceableId::TeamGlow:
 			{
 				try
 				{
-					if (!source()->teamGlowTexture(teamGlow())->hasOgreTexture())
-						source()->teamGlowTexture(teamGlow())->loadOgreTexture();
+					if (!source()->sharedData()->teamGlowTexture(teamGlow())->hasOgreTexture())
+					{
+						source()->sharedData()->teamGlowTexture(teamGlow())->loadOgreTexture();
+					}
 				}
 				catch (Exception &exception)
 				{
-					std::cerr << boost::format(_("Warning: Unable to load team glow %1%")) % teamGlow() << std::endl;
+					std::cerr << boost::format(_("Warning: Unable to load team glow %1%")) % static_cast<int>(teamGlow()) << std::endl;
 				}
 
 				// NOTE this is only required since createTexture() is called again in setTeamColor() and setTeamGlow()
 				if (std::find(this->m_teamGlowTextures.begin(), this->m_teamGlowTextures.end(), id) == this->m_teamGlowTextures.end())
+				{
 					this->m_teamGlowTextures.push_back(id);
+				}
 
-				return source()->teamGlowTexture(teamColor())->ogreTexture();
+				return source()->sharedData()->teamGlowTexture(teamColor())->ogreTexture();
 			}
 
 			case mdlx::ReplaceableId::Cliff:
@@ -973,21 +983,29 @@ Ogre::TextureUnitState* OgreMdlx::createLayer(Ogre::Pass *pass, const mdlx::Laye
 
 	if (texture->replaceableId() == mdlx::ReplaceableId::TeamColor)
 	{
-		if (!this->source()->teamColorTexture(teamColor())->ogreTexture().isNull())
-			textureName = this->source()->teamColorTexture(teamColor())->ogreTexture()->getName();
+		if (!this->source()->sharedData()->teamColorTexture(teamColor())->ogreTexture().isNull())
+		{
+			textureName = this->source()->sharedData()->teamColorTexture(teamColor())->ogreTexture()->getName();
+		}
 	}
 	else if (texture->replaceableId() == mdlx::ReplaceableId::TeamGlow)
 	{
-		if (!this->source()->teamColorTexture(teamGlow())->ogreTexture().isNull())
-			textureName = this->source()->teamGlowTexture(teamGlow())->ogreTexture()->getName();
+		if (!this->source()->sharedData()->teamColorTexture(teamGlow())->ogreTexture().isNull())
+		{
+			textureName = this->source()->sharedData()->teamGlowTexture(teamGlow())->ogreTexture()->getName();
+		}
 	}
 
 	Ogre::TextureUnitState *state = pass->createTextureUnitState(textureName, layer.coordinatesId());
 
 	if (texture->replaceableId() == mdlx::ReplaceableId::TeamColor)
+	{
 		this->m_teamColorTextureUnitStates.push_back(state);
+	}
 	else if (texture->replaceableId() == mdlx::ReplaceableId::TeamGlow)
+	{
 		this->m_teamGlowTextureUnitStates.push_back(state);
+	}
 
 	//textureUnitState->setTextureFiltering();
 	//textureUnitState->setAlphaOperation(Ogre::LBX_MODULATE_X4);
@@ -1233,11 +1251,13 @@ Ogre::ManualObject* OgreMdlx::createGeoset(const class mdlx::Geoset &geoset, mdl
 		}
 		else
 		{
-			KMessageBox::error(this->modelView(), i18n("Unsupported primitive type:\n%1", primitiveType->type()));
+			KMessageBox::error(this->modelView(), i18n("Unsupported primitive type:\n%1", static_cast<mdlx::long32>(primitiveType->type())));
 
 			/// \todo build other primitives (other than triangles)
 			for (mdlx::long32 i = 0; i < primitiveSize->value(); ++i)
+			{
 				++pVertexIterator; /// \todo triangles have 3 vertices, how much?
+			}
 		}
 
 		++pTypeIterator;

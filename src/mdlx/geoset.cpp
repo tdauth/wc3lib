@@ -127,7 +127,7 @@ std::streamsize Geoset::writeMdl(ostream &ostream) const throw (class Exception)
 			}
 			else
 			{
-				std::cerr << boost::format(_("Unsupported primitive type:\n%1%")) % primitiveType->type() << std::endl;
+				std::cerr << boost::format(_("Unsupported primitive type:\n%1%")) % static_cast<long32>(primitiveType->type()) << std::endl;
 
 				/// \todo build other primitives (other than triangles)
 				for (long32 i = 0; i < primitiveSize->value(); ++i)
@@ -202,7 +202,7 @@ std::streamsize Geoset::readMdx(istream &istream) throw (class Exception)
 	wc3lib::read(istream, this->m_selectionGroup, size);
 	long32 selectable;
 	wc3lib::read(istream, selectable, size);
-	this->m_selectable = BOOST_SCOPED_ENUM(Selectable)(selectable);
+	this->m_selectable = static_cast<Selectable>(selectable);
 	size += Bounds::readMdx(istream);
 	long32 geosetAnimationNumber;
 	wc3lib::read(istream, geosetAnimationNumber, size);
@@ -230,25 +230,27 @@ std::streamsize Geoset::writeMdx(ostream &ostream) const throw (class Exception)
 	skipByteCount<long32>(ostream, position);
 
 	std::streamsize size = 0;
-	size += this->m_vertices->writeMdx(ostream);
-	size += this->m_normals->writeMdx(ostream);
-	size += this->m_primitveTypes->writeMdx(ostream);
-	size += this->m_primitiveSizes->writeMdx(ostream);
-	size += this->m_primitiveVertices->writeMdx(ostream);
-	size += this->m_groupVertices->writeMdx(ostream);
-	size += this->m_matrixGroupCounts->writeMdx(ostream);
-	size += this->m_matrices->writeMdx(ostream);
-	wc3lib::write(ostream, this->m_materialId, size);
-	wc3lib::write(ostream, this->m_selectionGroup, size);
-	wc3lib::write<long32>(ostream, this->m_selectable, size);
+	size += this->vertices()->writeMdx(ostream);
+	size += this->normals()->writeMdx(ostream);
+	size += this->primitiveTypes()->writeMdx(ostream);
+	size += this->primitiveSizes()->writeMdx(ostream);
+	size += this->primitiveVertices()->writeMdx(ostream);
+	size += this->groupVertices()->writeMdx(ostream);
+	size += this->matrixGroupCounts()->writeMdx(ostream);
+	size += this->matrices()->writeMdx(ostream);
+	wc3lib::write(ostream, this->materialId(), size);
+	wc3lib::write(ostream, this->selectionGroup(), size);
+	wc3lib::write<long32>(ostream, static_cast<long32>(this->selectable()), size);
 	size += Bounds::writeMdx(ostream);
 	wc3lib::write(ostream, static_cast<const long32>(this->ganimations().size()), size);
 
 	BOOST_FOREACH(Ganimations::const_reference ganimation, this->ganimations())
+	{
 		size += ganimation.writeMdx(ostream);
+	}
 
-	size += this->m_texturePatches->writeMdx(ostream);
-	size += this->m_textureVertices->writeMdx(ostream);
+	size += this->texturePatches()->writeMdx(ostream);
+	size += this->textureVertices()->writeMdx(ostream);
 
 	long32 nbytesi = size; // Magos specification says including byte count!
 	writeByteCount(ostream, nbytesi, position, size, true);

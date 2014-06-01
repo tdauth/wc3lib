@@ -98,7 +98,7 @@ std::streamsize Environment::read(InputStream &istream) throw (class Exception)
 std::streamsize Environment::write(OutputStream &ostream) const throw (class Exception)
 {
 	std::streamsize size = FileFormat::write(ostream);
-	wc3lib::write<byte>(ostream, mainTileset(), size);
+	wc3lib::write<byte>(ostream, static_cast<byte>(mainTileset()), size);
 	wc3lib::write<uint32>(ostream, customized(), size);
 
 	if (groundTilesetsIds().size() > maxTilesets)

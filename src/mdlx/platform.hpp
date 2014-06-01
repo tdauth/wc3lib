@@ -23,7 +23,6 @@
 
 #include <iomanip>
 
-#include <boost/detail/scoped_enum_emulation.hpp>
 #include <boost/foreach.hpp>
 
 #include "../platform.hpp"
@@ -65,20 +64,19 @@ const long32 noneId = 0xFFFFFFFF;
  * \sa InterpolationData InterpolationRotationData
  * \ingroup animations
  */
-BOOST_SCOPED_ENUM_START(LineType) /// \todo C++11 : long32
+enum class LineType : long32
 {
 	DontInterpolate = 0,
 	Linear = 1,
 	Hermite = 2,
 	Bezier = 3
 };
-BOOST_SCOPED_ENUM_END
 
 /**
  * \todo Finish enum.
  * \sa Texture, ParticleEmitter2
  */
-BOOST_SCOPED_ENUM_START(ReplaceableId) /// \todo C++11 : long32
+enum class ReplaceableId : long32
 {
 	None = 0,
 	TeamColor = 1,
@@ -90,19 +88,8 @@ BOOST_SCOPED_ENUM_START(ReplaceableId) /// \todo C++11 : long32
 	NorthrendTree = 34,
 	MushroomTree = 35
 };
-BOOST_SCOPED_ENUM_END
 
-typedef wc3lib::Vertex VertexData;
-typedef wc3lib::BasicVertex<float32, 2> TextureVertexData;
-class Vertex; // workaround, we already have a class called Vertex in MDLX module!
-
-struct QuaternionData : public BasicVertex<float32, 4>
-{
-	QuaternionData(const Base& base)
-	{
-		*this = base;
-	}
-};
+typedef Vertex3d<float32> VertexData;
 
 struct InterpolationData //: public Format
 {
@@ -113,6 +100,8 @@ struct InterpolationData //: public Format
 	VertexData inTan;
 	VertexData outTan;
 };
+
+typedef Quaternion<float32> QuaternionData;
 
 struct InterpolationRotationData// : public Format
 {

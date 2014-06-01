@@ -105,7 +105,7 @@ inline QVariant valueToVariant(const map::Value &value)
 	return QVariant();
 }
 
-BOOST_SCOPED_ENUM_START(TeamColor)
+enum class TeamColor
 {
 	Red,
 	Blue,
@@ -122,7 +122,6 @@ BOOST_SCOPED_ENUM_START(TeamColor)
 	Black,
 	MaxTeamColors
 };
-BOOST_SCOPED_ENUM_END
 
 /**
  * Converts team color enumeration value into Qt RGB color.
@@ -130,7 +129,7 @@ BOOST_SCOPED_ENUM_END
  * \return Returns corresponding Qt RGB color.
  * \sa teamColor(const QColor&)
  */
-inline QColor teamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor)
+inline QColor teamColor(TeamColor teamColor)
 {
 	switch (teamColor)
 	{
@@ -181,9 +180,9 @@ inline QColor teamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor)
  * Converts Qt RGB color into team color enumeration value.
  * \param color Qt RGB color which is converted.
  * \return Returns corresponding team color enumeration value.
- * \sa teamColor(BOOST_SCOPED_ENUM(TeamColor))
+ * \sa teamColor(TeamColor)
  */
-inline BOOST_SCOPED_ENUM(TeamColor) teamColor(const QColor &color)
+inline TeamColor teamColor(const QColor &color)
 {
 	if (color == Qt::red)
 		return TeamColor::Red;
@@ -219,7 +218,7 @@ inline BOOST_SCOPED_ENUM(TeamColor) teamColor(const QColor &color)
  * Required by textures which use replaceable id \ref mdlx::ReplaceableId::TeamColor.
  * \sa mdlx::ReplaceableId, mdlx::Texture
  */
-inline KUrl teamColorUrl(BOOST_SCOPED_ENUM(TeamColor) teamColor)
+inline KUrl teamColorUrl(TeamColor teamColor)
 {
 	QString number = QString::number((int)teamColor);
 
@@ -233,7 +232,7 @@ inline KUrl teamColorUrl(BOOST_SCOPED_ENUM(TeamColor) teamColor)
  * Required by textures which use replaceable id \ref mdlx::ReplaceableId::TeamGlow.
  * \sa mdlx::ReplaceableId, mdlx::Texture
  */
-inline KUrl teamGlowUrl(BOOST_SCOPED_ENUM(TeamColor) teamGlow)
+inline KUrl teamGlowUrl(TeamColor teamGlow)
 {
 	QString number = QString::number((int)teamGlow);
 
@@ -404,7 +403,7 @@ inline Ogre::Vector3 ogreVector3(const mdlx::VertexData &vertexData)
 }
 
 /// Global type cast function.
-inline Ogre::Vector2 ogreVector2(const mdlx::TextureVertexData &textureVertexData)
+inline Ogre::Vector2 ogreVector2(const Vertex2d<float32> &textureVertexData)
 {
 	return Ogre::Vector2(textureVertexData.x(), textureVertexData.y());
 }

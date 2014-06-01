@@ -43,7 +43,7 @@ class MpqFile : private boost::noncopyable
 {
 	public:
 		/// \todo Define all locales. <a href="http://wiki.devklog.net/index.php?title=The_MoPaQ_Archive_Format#Locales">Source</a>.
-		BOOST_SCOPED_ENUM_START(Locale) /// \todo C++11 : uint16
+		enum class Locale : uint16
 		{
 			Neutral = 0x0,
 			Chinese = 0x404,
@@ -61,14 +61,12 @@ class MpqFile : private boost::noncopyable
 			Russsian = 0x419,
 			EnglishUK = 0x809
 		};
-		BOOST_SCOPED_ENUM_END
 
 		/// There seems to be only one platform.
-		BOOST_SCOPED_ENUM_START(Platform) /// \todo C++11 : uint16
+		enum class Platform : uint16
 		{
 			Default
 		};
-		BOOST_SCOPED_ENUM_END
 
 		typedef boost::ptr_vector<Sector> Sectors;
 
@@ -85,7 +83,7 @@ class MpqFile : private boost::noncopyable
 		 * \return Returns size of read data.
 		 * \throws Exception Usually thrown when there is not enough space in file's corresponding block. Throws an exception if file is locked as well.
 		 */
-		virtual std::streamsize readData(istream &istream, BOOST_SCOPED_ENUM(Sector::Compression) compression = Sector::Compression::Uncompressed) throw (class Exception);
+		virtual std::streamsize readData(istream &istream, Sector::Compression compression = Sector::Compression::Uncompressed) throw (class Exception);
 		/**
 		 * Reads data from stream \p istream and appends it to the already existing file data.
 		 * \return Returns the number of read bytes.
@@ -103,8 +101,8 @@ class MpqFile : private boost::noncopyable
 		virtual std::streamsize writeData(istream &istream, ostream &ostream) const throw (Exception);
 
 		// hash attributes
-		BOOST_SCOPED_ENUM(Locale) locale() const;
-		BOOST_SCOPED_ENUM(Platform) platform() const;
+		Locale locale() const;
+		Platform platform() const;
 
 		class Mpq* mpq() const;
 		class Hash* hash() const;
@@ -176,10 +174,10 @@ class MpqFile : private boost::noncopyable
 		 */
 		bool hasSectorOffsetTable() const;
 
-		static uint16 localeToInt(BOOST_SCOPED_ENUM(Locale) locale);
-		static BOOST_SCOPED_ENUM(Locale) intToLocale(uint16 value);
-		static uint16 platformToInt(BOOST_SCOPED_ENUM(Platform) platform);
-		static BOOST_SCOPED_ENUM(Platform) intToPlatform(uint16 value);
+		static uint16 localeToInt(Locale locale);
+		static Locale intToLocale(uint16 value);
+		static uint16 platformToInt(Platform platform);
+		static Platform intToPlatform(uint16 value);
 
 		/**
 		* Appends data of file \p mpqFile.
@@ -205,8 +203,8 @@ class MpqFile : private boost::noncopyable
 		virtual class Sector* newSector(uint32 index, uint32 offset, uint32 size) throw ();
 
 		/**
-		* MPQ files are created by @class Mpq only.
-		*/
+		 * MPQ files are created by \ref Mpq only.
+		 */
 		MpqFile(class Mpq *mpq, class Hash *hash);
 
 		template<class T>
@@ -355,24 +353,24 @@ inline bool MpqFile::hasSectorOffsetTable() const
 	return !(this->block()->flags() & Block::Flags::IsSingleUnit) && ((this->block()->flags() & Block::Flags::IsCompressed) || (this->block()->flags() & Block::Flags::IsImploded));
 }
 
-inline uint16 MpqFile::localeToInt(BOOST_SCOPED_ENUM(MpqFile::Locale) locale)
+inline uint16 MpqFile::localeToInt(MpqFile::Locale locale)
 {
-	return (uint16)(locale); // TODO boost::numeric_cast<
+	return static_cast<uint16>(locale);
 }
 
-inline BOOST_SCOPED_ENUM(MpqFile::Locale) MpqFile::intToLocale(uint16 value)
+inline MpqFile::Locale MpqFile::intToLocale(uint16 value)
 {
-	return BOOST_SCOPED_ENUM(MpqFile::Locale)(value);
+	return (MpqFile::Locale)(value);
 }
 
-inline uint16 MpqFile::platformToInt(BOOST_SCOPED_ENUM(MpqFile::Platform) platform)
+inline uint16 MpqFile::platformToInt(MpqFile::Platform platform)
 {
-	return (uint16)(platform); // TODO boost::numeric_cast<
+	return static_cast<uint16>(platform);
 }
 
-inline BOOST_SCOPED_ENUM(MpqFile::Platform) MpqFile::intToPlatform(uint16 value)
+inline MpqFile::Platform MpqFile::intToPlatform(uint16 value)
 {
-	return BOOST_SCOPED_ENUM(MpqFile::Platform)(value);
+	return static_cast<MpqFile::Platform>(value);
 }
 
 /**

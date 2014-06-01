@@ -42,7 +42,7 @@ namespace mdlx
 class Node : public MdlxProperty
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Type) /// \todo C++ : long32
+		enum class Type : long32
 		{
 			Helper = 0,
 			DontInheritTranslation = 1,
@@ -67,7 +67,6 @@ class Node : public MdlxProperty
 			ModelSpace = 524288,
 			XYQuad = 1048576
 		};
-		BOOST_SCOPED_ENUM_END
 
 		static const std::size_t nameSize = 0x50;
 
@@ -85,8 +84,8 @@ class Node : public MdlxProperty
 		/**
 		 * Type additions will be hold.
 		 */
-		void setType(BOOST_SCOPED_ENUM(Type) type);
-		BOOST_SCOPED_ENUM(Type) type() const;
+		void setType(Type type);
+		Type type() const;
 		void setTranslations(class MdlxTranslations *translations);
 		class MdlxTranslations* translations() const;
 		void setRotations(class MdlxRotations *rotations);
@@ -110,12 +109,16 @@ class Node : public MdlxProperty
 		byte m_name[nameSize];
 		long32 m_id;
 		long32 m_parentId;
-		BOOST_SCOPED_ENUM(Type) m_type;
+		Type m_type;
 		class MdlxTranslations *m_translations;
 		class MdlxRotations *m_rotations;
 		class MdlxScalings *m_scalings;
 };
 
+inline constexpr bool operator&(Node::Type x, Node::Type y)
+{
+	return static_cast<bool>(static_cast<long32>(x) & static_cast<long32>(y));
+}
 
 inline void Node::setName(const byte name[Node::nameSize])
 {
@@ -143,12 +146,12 @@ inline bool Node::hasParent() const
 	return this->m_parentId != noneId;
 }
 
-inline void Node::setType(BOOST_SCOPED_ENUM(Node::Type) type)
+inline void Node::setType(Node::Type type)
 {
 	this->m_type = type;
 }
 
-inline BOOST_SCOPED_ENUM(Node::Type) Node::type() const
+inline Node::Type Node::type() const
 {
 	return this->m_type;
 }

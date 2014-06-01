@@ -32,30 +32,32 @@ namespace wc3lib
 namespace map
 {
 
+/**
+ * \brief The menu minimap of a Warcraft III map which contains special markers.
+ */
 class MenuMinimap : public FileFormat
 {
 	public:
-		class Mark : public Position
+		class Mark : public Vertex2d<int32>
 		{
 			public:
-				BOOST_SCOPED_ENUM_START(IconType) /// \todo C++11 : int32
+				enum class IconType : int32
 				{
 					GoldMine,
 					House,
 					PlayerStart
 				};
-				BOOST_SCOPED_ENUM_END
 
 				Mark();
 
 				virtual std::streamsize read(InputStream& istream) throw (Exception);
 				virtual std::streamsize write(OutputStream& ostream) const throw (Exception);
 
-				BOOST_SCOPED_ENUM(IconType) iconType() const;
+				IconType iconType() const;
 				const Bgra& color() const;
 
 			protected:
-				BOOST_SCOPED_ENUM(IconType) m_iconType;
+				IconType m_iconType;
 				Bgra m_color;
 		};
 
@@ -76,7 +78,7 @@ class MenuMinimap : public FileFormat
 		Marks m_marks;
 };
 
-inline BOOST_SCOPED_ENUM(MenuMinimap::Mark::IconType) MenuMinimap::Mark::iconType() const
+inline MenuMinimap::Mark::IconType MenuMinimap::Mark::iconType() const
 {
 	return m_iconType;
 }

@@ -40,7 +40,7 @@ namespace map
 class Pathmap : public FileFormat
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Type) /// \todo C++11 : byte
+		enum class Type : uint8
 		{
 			Walk = 0x02,
 			Fly = 0x04,
@@ -49,14 +49,13 @@ class Pathmap : public FileFormat
 			Water = 0x40,
 			Unknown = 0x80
 		};
-		BOOST_SCOPED_ENUM_END
 
 		/**
 		 * \brief For each tilepoint there exists an entry which defines the pathability of the tilepoint.
 		 * Therefore all entries are stored in a two-dimensional array like the tilepoints in \ref Environment.
 		 * It uses the X-coordinate as the first index and the Y-coordinate as the second one.
 		 */
-		typedef boost::multi_array<BOOST_SCOPED_ENUM(Type), 2> Tilepoints;
+		typedef boost::multi_array<Type, 2> Tilepoints;
 
 		Pathmap();
 		virtual ~Pathmap();
@@ -75,7 +74,7 @@ class Pathmap : public FileFormat
 		Tilepoints& tilepoints();
 		const Tilepoints& tilepoints() const;
 
-		BOOST_SCOPED_ENUM(Type) type(int32 x, int32 y) const;
+		Type type(int32 x, int32 y) const;
 
 	protected:
 		uint32 m_version;
@@ -124,7 +123,7 @@ inline const Pathmap::Tilepoints& Pathmap::tilepoints() const
 	return this->m_tilepoints;
 }
 
-inline BOOST_SCOPED_ENUM(Pathmap::Type) Pathmap::type(int32 x, int32 y) const
+inline Pathmap::Type Pathmap::type(int32 x, int32 y) const
 {
 	return this->m_tilepoints[x][y];
 }

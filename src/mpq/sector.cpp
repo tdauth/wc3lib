@@ -230,7 +230,7 @@ std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, in
 	if (this->mpqFile()->isCompressed())
 	{
 		boost::scoped_array<byte> newData(new byte[size + 1]);
-		newData[0] = compression();
+		newData[0] = static_cast<byte>(compression());
 		memcpy(&newData[1], data.get(), size);
 		data.swap(newData);
 	}
@@ -323,7 +323,7 @@ bool Sector::compressionSucceded() const
 
 void Sector::setCompression(byte value)
 {
-	this->m_compression = (BOOST_SCOPED_ENUM(Compression))(value);
+	this->m_compression = static_cast<Compression>(value);
 }
 
 uint32 Sector::sectorKey() const

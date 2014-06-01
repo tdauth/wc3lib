@@ -37,10 +37,12 @@ Matrix::~Matrix()
 
 std::streamsize Matrix::readMdl(istream &istream) throw (class Exception)
 {
+	return 0;
 }
 
 std::streamsize Matrix::writeMdl(ostream &ostream) const throw (class Exception)
 {
+	return 0;
 }
 
 std::streamsize Matrix::readMdx(istream &istream) throw (class Exception)

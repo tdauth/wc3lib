@@ -105,7 +105,7 @@ void DecryptData(const uint32 dwCryptTable[cryptTableSize], void *lpbyBuffer, ui
 }
 
 /// Based on code from StormLib.
-uint32 HashString(const uint32 dwCryptTable[cryptTableSize], const char *lpszString, BOOST_SCOPED_ENUM(HashType) hashType)
+uint32 HashString(const uint32 dwCryptTable[cryptTableSize], const char *lpszString, HashType hashType)
 {
     assert(lpszString);
 

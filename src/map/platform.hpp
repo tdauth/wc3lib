@@ -22,7 +22,6 @@
 #define WC3LIB_MAP_PLATFORM_HPP
 
 #include <boost/array.hpp>
-#include <boost/detail/scoped_enum_emulation.hpp>
 
 #include "../platform.hpp"
 #include "../format.hpp"
@@ -46,11 +45,18 @@ inline string idToString(id value) {
 	char result[size + 1];
 	result[size] = '\0';
 	memcpy(result, &value, size);
-	
+
 	return result;
 }
 
-/// Usually only some formats have a customized version (e. g. map shadow - "war3map.shd")
+/**
+ * \brief Abstract class for file formats of a Warcraft III map or campaign archive.
+ *
+ * File formats do have a default name and a version number.
+ * There's also documented the latest version number (supported by the latest release versions of Warcraft III).
+ *
+ * Usually only some formats have a customized version (e. g. map shadow - "war3map.shd")
+ */
 class FileFormat : public Format
 {
 	public:
@@ -121,78 +127,7 @@ inline std::streamsize FileFormat::write(FileFormat::OutputStream &ostream) cons
 
 typedef std::vector<string> List;
 
-template<typename T = int32>
-class BasePosition : public boost::array<T, 2>, public Format, public boost::operators<BasePosition<T> >
-{
-	public:
-		BasePosition()
-		{
-			(*this)[0] = 0;
-			(*this)[1] = 0;
-		}
-
-		BasePosition(T x, T y)
-		{
-			(*this)[0] = x;
-			(*this)[1] = y;
-		}
-
-		void setX(T x)
-		{
-			(*this)[0] = x;
-		}
-
-		T x() const
-		{
-			return (*this)[0];
-		}
-
-		void setY(T y)
-		{
-			(*this)[1] = y;
-		}
-
-		T y() const
-		{
-			return (*this)[1];
-		}
-
-		virtual std::streamsize read(InputStream &istream) throw (Exception)
-		{
-			std::streamsize size = 0;
-			wc3lib::read(istream, (*this)[0], size);
-			wc3lib::read(istream, (*this)[1], size);
-
-			return size;
-		}
-
-		virtual std::streamsize write(OutputStream &ostream) const throw (Exception)
-		{
-			std::streamsize size = 0;
-			wc3lib::write(ostream, (*this)[0], size);
-			wc3lib::write(ostream, (*this)[1], size);
-
-			return size;
-		}
-
-		bool operator==(const BasePosition &position) const
-		{
-			return x() == position.x() && y() == position.y();
-		}
-
-		// FIXME
-		bool operator<(const BasePosition &position) const
-		{
-			//return x() < position.x() && y() < position.y();
-			return sqrt(pow((x() - position.x()), 2) + pow((y() - position.y()), 2)) < 0;
-			//return (y() / x() - position.y() /  position.x()) < 0;
-		}
-};
-
-typedef BasePosition<int32> Position;
-typedef BasePosition<float32> FloatPosition;
-
-BOOST_SCOPED_ENUM_START(MapFlags) /// \todo C++11 : int32
+enum class MapFlags : int32
 {
 	HideMinimapInPreviewScreens = 0x0001,
 	ModifyAllyPriorities = 0x0002,
@@ -208,7 +143,6 @@ BOOST_SCOPED_ENUM_START(MapFlags) /// \todo C++11 : int32
 	ShowWaterWavesOnCliffShores = 0x0800,
 	ShowWaterWavesOnRollingShores = 0x1000
 };
-BOOST_SCOPED_ENUM_END
 
 }
 

@@ -32,6 +32,7 @@
 #include <Ogre.h>
 
 #include "editor.hpp"
+#include "warcraftiiishared.hpp"
 #include "module.hpp"
 #include "modulemenu.hpp"
 #include "settings.hpp"
@@ -65,7 +66,14 @@ const KAboutData& Editor::wc3libAboutData()
 	return Editor::m_wc3libAboutData;
 }
 
-Editor::Editor(QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f), m_root(0), m_currentMap(0), m_actionCollection(new KActionCollection(this)), m_modulesActionCollection(new KActionCollection(this)), m_mapsActionCollection(new KActionCollection(this)), m_newMapDialog(0), m_sourcesDialog(0)
+Editor::Editor(QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f)
+, m_root(0)
+, m_currentMap(0)
+, m_actionCollection(new KActionCollection(this))
+, m_modulesActionCollection(new KActionCollection(this))
+, m_mapsActionCollection(new KActionCollection(this))
+, m_newMapDialog(0)
+, m_sourcesDialog(0)
 {
 #ifdef DEBUG
 	BlpCodec::startup(); // make sure we have BLP support even if it has not been installed
@@ -81,9 +89,7 @@ Editor::Editor(QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f), m_r
 	// TODO refresh all shared files
 	try
 	{
-		this->refreshWorldEditorStrings(this);
-		this->refreshTriggerData(this);
-		this->refreshTriggerStrings(this);
+		this->sharedData()->refreshDefaultFiles(this);
 	}
 	catch (Exception &e)
 	{
@@ -152,6 +158,7 @@ Editor::Editor(QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f), m_r
 Editor::~Editor()
 {
 	this->writeSettings(aboutData().appName());
+
 	// do not delete allocated sub widgets (parent system of Qt already considers) BUT
 	// we should remove modules (e. g. model editor) before freeing root!
 	foreach (Modules::value_type module, modules())

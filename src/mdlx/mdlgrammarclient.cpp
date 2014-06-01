@@ -50,6 +50,7 @@ namespace client {
 namespace fusion = boost::fusion;
 namespace phoenix = boost::phoenix;
 namespace qi = boost::spirit::qi;
+namespace karma = boost::spirit::karma;
 namespace ascii = boost::spirit::ascii;
 /**
  * The Unicode namespace can be used for UTF-8 string and comments parsing in JASS.
@@ -68,40 +69,40 @@ CommentSkipper<Iterator>::CommentSkipper() : CommentSkipper<Iterator>::base_type
 	using qi::eol;
 	using qi::eoi;
 	using qi::eps;
-	
+
 	/*
 	 * Comments may use UTF-8 characters.
 	 */
 	comment %=
 		lit("//") >> *(unicode::char_ - eol)
 	;
-	
+
 	emptyline %=
 		+blank >> -comment // blanks only optionally followed by a comment
 		| comment // one comment only
 	;
-	
+
 	moreemptylines %=
 		(eol >> -emptyline >> &eol)
 	;
-	
+
 	emptylines %=
 		// do not consume the eol of the last empty line because it is the eol between all skipped empty lines and the first one
 		+moreemptylines
 	;
-	
-	skip %= 
+
+	skip %=
 		emptylines
 		| comment
 		| blank // check blank as last value
 	;
-	
+
 	emptyline.name("emptyline");
 	moreemptylines.name("moreemptylines");
 	emptylines.name("emptylines");
 	comment.name("comment");
 	skip.name("skip");
-	
+
 	BOOST_SPIRIT_DEBUG_NODES(
 		(emptyline)
 		(moreemptylines)
@@ -111,8 +112,24 @@ CommentSkipper<Iterator>::CommentSkipper() : CommentSkipper<Iterator>::base_type
 	);
 }
 
+/**
+ * @{
+ */
+template<typename T, typename... Arguments>
+std::unique_ptr<T> assignPointer(Arguments... parameters) {
+	return std::unique_ptr<T>(new T(parameters...));
+}
+
+template<typename T>
+typename std::unique_ptr<T>::pointer pointerValue(std::unique_ptr<T> &ptr) {
+	return ptr.release();
+}
+/**
+ * @}
+ */
+
 template <typename Iterator, typename Skipper >
-MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::base_type(mdl, "mdl")
+MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::base_type(mdl, "mdl"), result(new Mdlx())
 {
 	using qi::eps;
 	using qi::int_parser;
@@ -145,28 +162,35 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 	using phoenix::push_back;
 	using phoenix::ref;
 	using phoenix::new_;
-	
+
+	/*
 	mdl =
-		eps[_val = Mdlx()]
+		eps[_val = result.release()]
+		-version[at_c<0>(_val) = phoenix::bind(&pointerValueVersion, qi::_r1)]
 	;
-	
-	// TODO use %=, get rid of memory leaks
+	*/
+
+	// TODO Boost Spirits needs move semantics support to support unique pointers
+	/*
 	version =
-		lit("Version")[_val = phoenix::new_<Version>(Version(0))]
+		lit("Version")[_val = phoenix::bind(&assignPointerVers, result.get())]
 		>> lit('{')
 			>> lit("FormatVersion")
-			>> qi::int_parser<long32>()
+			>> qi::int_parser<long32>()[at_c<0>(_val) = _1]
 		>> lit('}')
 	;
-	
-	
+	*/
+
+
 	/*
 	 * put all rule names here:
 	 */
 	mdl.name("mdl");
-	
+	version.name("version");
+
 	BOOST_SPIRIT_DEBUG_NODES(
 		(mdl)
+		(version)
 	);
 }
 
@@ -191,6 +215,61 @@ bool parse(Iterator first, Iterator last, Mdlx &mdlx)
 	return r;
 }
 
+template <typename Iterator >
+MdlGenerator<Iterator>::MdlGenerator() : MdlGenerator<Iterator>::base_type(mdl, "mdl")
+{
+	using karma::eps;
+	using karma::lit;
+	using karma::_val;
+	using ascii::string;
+	using karma::right_align;
+	using karma::eol;
+
+	using phoenix::at_c;
+
+	mdl =
+		version
+	;
+
+	version %=
+		lit("Version")
+		<< lit('{')
+		<< eol
+		<< right_align(8)[
+			lit("FormatVersion")
+			<< karma::int_generator<long32>()[at_c<0>(_val)]
+			<< eol
+		]
+		<< lit('}')
+	;
+
+	model %=
+		lit("Model")
+		<< string[at_c<0>(_val)] // model name
+		<< lit('{')
+		<< eol
+		<< right_align(8)[
+			lit("BlendTime")
+			<< karma::int_generator<long32>()[at_c<2>(_val)]
+			<< eol
+		]
+		<< lit('}')
+	;
+
+	/*
+	 * put all rule names here:
+	 */
+	mdl.name("mdl");
+	version.name("version");
+	model.name("model");
+
+	BOOST_SPIRIT_DEBUG_NODES(
+		(mdl)
+		(version)
+		(model)
+	);
+}
+
 }
 
 }
@@ -202,8 +281,20 @@ bool parse(Iterator first, Iterator last, Mdlx &mdlx)
  * Only add attributes which should be parsed!
  */
 BOOST_FUSION_ADAPT_ADT(
-	wc3lib::mdlx::Version,
-	(wc3lib::mdlx::long32, wc3lib::mdlx::long32, obj.modelVersion(), obj.setModelVersion(val))
+	wc3lib::mdlx::client::MdlxType,
+	(wc3lib::mdlx::Version*, wc3lib::mdlx::Version*, obj->modelVersion(), obj->setModelVersion(val))
+)
+
+BOOST_FUSION_ADAPT_ADT(
+	wc3lib::mdlx::client::ModelType,
+	(const wc3lib::byte*, const wc3lib::byte*, obj->name(), obj->setName(val))
+	(wc3lib::mdlx::long32, wc3lib::mdlx::long32, obj->unknown(), obj->setUnknown(val))
+	(wc3lib::mdlx::long32, wc3lib::mdlx::long32, obj->blendTime(), obj->setBlendTime(val))
+)
+
+BOOST_FUSION_ADAPT_ADT(
+	wc3lib::mdlx::client::VersionType,
+	(wc3lib::mdlx::long32, wc3lib::mdlx::long32, obj->modelVersion(), obj->setModelVersion(val))
 )
 
 #endif

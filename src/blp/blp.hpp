@@ -22,7 +22,6 @@
 #define WC3LIB_BLP_BLP_HPP
 
 #include <boost/multi_array.hpp>
-#include <boost/detail/scoped_enum_emulation.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/variant.hpp>
 #include <boost/foreach.hpp>
@@ -169,44 +168,41 @@ class Blp : public Format
 
 		/// Number of maximum MIP maps which can be hold by one BLP file.
 		static const std::size_t maxMipMaps;
-		/// Size of color palette (always the same) used by BLP files with compression \ref BLP::Compression::Paletted.
+		/// Size of color palette (always the same) used by BLP files with compression \ref Blp::Compression::Paletted.
 		static const std::size_t compressedPaletteSize;
 		/// Default JPEG quality which reaches from 0 - 100.
 		static const int defaultQuality;
 		static const std::size_t defaultMipMaps;
 
 		/// \todo Don't seem to have the right values!!!
-		BOOST_SCOPED_ENUM_START(Format) /// \todo C++11 : dword
+		enum class Format : dword
 		{
 			Blp0 = (dword)'BLP0', /// Reign of Chaos
 			Blp1 = (dword)'BLP1', /// Warcraft The Frozen Throne
 			Blp2 = (dword)'BLP2' /// World of Warcraft
 		};
-		BOOST_SCOPED_ENUM_END
 
-		BOOST_SCOPED_ENUM_START(Compression) /// \todo C++11 : dword
+		enum class Compression : dword
 		{
 			Jpeg = 0, /// JFIF!
 			Paletted = 1, /// Uses color palette with up to 256 different colors (\ref Blp::compressedPaletteSize).
 			Uncompressed = 2, /// BLP2 only.
 			DirectXCompression = 3 /// BLP2 only.
 		};
-		BOOST_SCOPED_ENUM_END
 
-		BOOST_SCOPED_ENUM_START(Flags) /// \todo C++11 : dword
+		enum class Flags : dword
 		{
 			NoAlpha = 0,
 			Alpha1Bit = 1, /// BLP2 only.
 			Alpha4Bit = 4,  /// BLP2 only (DXT3 only).
 			Alpha = 8
 		};
-		BOOST_SCOPED_ENUM_END
 
 		/**
 		 * \return Returns auto-detected BLP format of buffer \p buffer with size \p bufferSize. Buffer can be larger than required (only first 4 bytes are checked).
 		 * \throw Exception Is thrown if no format was detected.
 		 */
-		static BOOST_SCOPED_ENUM(Format) format(const byte *buffer, const std::size_t bufferSize) throw (class Exception);
+		static Format format(const byte *buffer, const std::size_t bufferSize) throw (class Exception);
 		/**
 		 * \return Returns true if \p buffer with size of \p bufferSize contains any BLP magic number/format identifier. Otherwise it returns false.
 		 */
@@ -215,12 +211,12 @@ class Blp : public Format
 		Blp();
 		virtual ~Blp();
 
-		void setFormat(BOOST_SCOPED_ENUM(Format) format);
-		BOOST_SCOPED_ENUM(Format) format() const;
-		void setCompression(BOOST_SCOPED_ENUM(Compression) compression);
-		BOOST_SCOPED_ENUM(Compression) compression() const;
-		void setFlags(BOOST_SCOPED_ENUM(Flags) flags);
-		BOOST_SCOPED_ENUM(Flags) flags() const;
+		void setFormat(Format format);
+		Format format() const;
+		void setCompression(Compression compression);
+		Compression compression() const;
+		void setFlags(Flags flags);
+		Flags flags() const;
 		void setWidth(dword width);
 		dword width() const;
 		void setHeight(dword height);
@@ -253,8 +249,11 @@ class Blp : public Format
 
 		std::streamsize read(InputStream &istream) throw (class Exception) { return read(istream, 0); }
 		/**
+		 * \param ostream The output stream in which the BLP file is written to.
 		 * \param quality Quality for JPEG/JFIF compression (0 - 100). -1 or another invalid value means default (\ref Blp::defaultQuality).
 		 * \param mipMaps Number of MIP maps which should be written (1 - 16). 0 means actual number of existing MIP maps.
+		 *
+		 * \return Returns the number of written bytes.
 		 */
 		std::streamsize write(OutputStream &ostream, int quality, std::size_t mipMaps) const throw (class Exception);
 		std::streamsize write(OutputStream &ostream) const throw (class Exception) { return write(ostream, defaultQuality, defaultMipMaps); }
@@ -289,10 +288,10 @@ class Blp : public Format
 		dword mipMapHeight(std::size_t index) const;
 
 		// header
-		BOOST_SCOPED_ENUM(Format) m_format;
-		BOOST_SCOPED_ENUM(Compression) m_compression;		//0 - Uses JPEG compression
+		Format m_format;
+		Compression m_compression;		//0 - Uses JPEG compression
 						//1 - Uses palettes (uncompressed)
-		BOOST_SCOPED_ENUM(Flags) m_flags;			//#8 - Uses alpha channel (?)
+		Flags m_flags;			//#8 - Uses alpha channel (?)
 		dword m_width;
 		dword m_height;
 		dword m_pictureType;		//3 - Uncompressed index list + alpha list
@@ -302,6 +301,11 @@ class Blp : public Format
 		MipMaps m_mipMaps;
 		ColorPtr m_palette;
 };
+
+inline constexpr bool operator&(Blp::Flags x, Blp::Flags y)
+{
+	return static_cast<bool>(static_cast<dword>(x) & static_cast<dword>(y));
+}
 
 inline void Blp::MipMap::Color::setArgb(color argb)
 {
@@ -390,32 +394,32 @@ inline Blp::MipMap::Color& Blp::MipMap::colorAt(dword width, dword height)
 	return colors()[width][height];
 }
 
-inline void Blp::setFormat(BOOST_SCOPED_ENUM(Format) format)
+inline void Blp::setFormat(Format format)
 {
 	this->m_format = format;
 }
 
-inline BOOST_SCOPED_ENUM(Blp::Format) Blp::format() const
+inline Blp::Format Blp::format() const
 {
 	return this->m_format;
 }
 
-inline void Blp::setCompression(BOOST_SCOPED_ENUM(Blp::Compression) compression)
+inline void Blp::setCompression(Blp::Compression compression)
 {
 	this->m_compression = compression;
 }
 
-inline BOOST_SCOPED_ENUM(Blp::Compression) Blp::compression() const
+inline Blp::Compression Blp::compression() const
 {
 	return this->m_compression;
 }
 
-inline void Blp::setFlags(BOOST_SCOPED_ENUM(Blp::Flags) flags)
+inline void Blp::setFlags(Blp::Flags flags)
 {
 	this->m_flags = flags;
 }
 
-inline BOOST_SCOPED_ENUM(Blp::Flags) Blp::flags() const
+inline Blp::Flags Blp::flags() const
 {
 	return this->m_flags;
 }

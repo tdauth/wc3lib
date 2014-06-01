@@ -345,7 +345,7 @@ uint32_t Mpq::version() const
 	return 0;
 }
 
-Mpq::FilePtr Mpq::addFile(const boost::filesystem::path &path, const byte *buffer, std::size_t bufferSize, bool overwriteExisting, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform) throw (class Exception)
+Mpq::FilePtr Mpq::addFile(const boost::filesystem::path &path, const byte *buffer, std::size_t bufferSize, bool overwriteExisting, MpqFile::Locale locale, MpqFile::Platform platform) throw (class Exception)
 {
 	MpqFile *mpqFile = this->findFile(HashData(path, locale, platform));
 
@@ -575,7 +575,7 @@ Mpq::HashPtr Mpq::findHash(const HashData &hashData)
 	return *iterator;
 }
 
-Mpq::HashPtr Mpq::findHash(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform)
+Mpq::HashPtr Mpq::findHash(const boost::filesystem::path &path, MpqFile::Locale locale, MpqFile::Platform platform)
 {
 	if (this->hashes().get<uint32>().empty())
 		return HashPtr();

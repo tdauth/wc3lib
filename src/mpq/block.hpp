@@ -21,8 +21,6 @@
 #ifndef WC3LIB_MPQ_BLOCK_HPP
 #define WC3LIB_MPQ_BLOCK_HPP
 
-#include <boost/detail/scoped_enum_emulation.hpp>
-
 #include "../format.hpp"
 #include "platform.hpp"
 
@@ -45,7 +43,7 @@ namespace mpq
 class Block : public Format, private boost::noncopyable
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Flags) /// \todo C++11 : uint32
+		enum class Flags : uint32
 		{
 			None = 0x0,
 			IsFile = 0x80000000,
@@ -55,7 +53,6 @@ class Block : public Format, private boost::noncopyable
 			IsCompressed = 0x00000200,
 			IsImploded = 0x00000100
 		};
-		BOOST_SCOPED_ENUM_END
 
 		/**
 		 * \sa MpqFile::name()
@@ -105,8 +102,8 @@ class Block : public Format, private boost::noncopyable
 		 * \return Returns the actual uncompressed file size in bytes which might be bigger than \ref blockSize() if file is compressed.
 		 */
 		uint32 fileSize() const;
-		void setFlags(BOOST_SCOPED_ENUM(Flags) flags);
-		BOOST_SCOPED_ENUM(Flags) flags() const;
+		void setFlags(Flags flags);
+		Flags flags() const;
 		class MpqFile* file() const;
 		// extended attributes
 		/**
@@ -145,9 +142,14 @@ class Block : public Format, private boost::noncopyable
 		uint16 m_extendedBlockOffset;
 		uint32 m_blockSize;
 		uint32 m_fileSize;
-		BOOST_SCOPED_ENUM(Flags) m_flags;
+		Flags m_flags;
 		class MpqFile *m_file;
 };
+
+inline constexpr bool operator&(Block::Flags x, Block::Flags y)
+{
+	return static_cast<bool>(static_cast<uint32>(x) & static_cast<uint32>(y));
+}
 
 inline bool Block::empty() const
 {
@@ -214,12 +216,12 @@ inline uint32 Block::fileSize() const
 	return this->m_fileSize;
 }
 
-inline void Block::setFlags(BOOST_SCOPED_ENUM(Flags) flags)
+inline void Block::setFlags(Flags flags)
 {
 	this->m_flags = flags;
 }
 
-inline BOOST_SCOPED_ENUM(Block::Flags) Block::flags() const
+inline Block::Flags Block::flags() const
 {
 	return this->m_flags;
 }

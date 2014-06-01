@@ -41,16 +41,16 @@ class TriggerStrings : public FileFormat
 {
 	public:
 		TriggerStrings();
-		
+
 		virtual const byte* fileName() const;
 		virtual const byte* fileTextId() const;
 		virtual uint32 latestFileVersion() const;
-		
+
 		class Entry
 		{
 			public:
 				Entry();
-				
+
 				void setCode(const string &code);
 				const string& code() const;
 				void setName(const string &name);
@@ -59,19 +59,19 @@ class TriggerStrings : public FileFormat
 				const string& layout() const;
 				void setHint(const string &hint);
 				const string& hint() const;
-				
+
 			private:
 				string m_code;
 				string m_name;
 				string m_layout;
 				string m_hint;
 		};
-		
+
 		typedef boost::ptr_map<string, Entry> Entries;
-		
+
 		virtual std::streamsize read(InputStream& istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream& ostream) const throw (class Exception);
-		
+
 		Entries& events();
 		const Entries& events() const;
 		Entries& conditions();
@@ -80,13 +80,13 @@ class TriggerStrings : public FileFormat
 		const Entries& actions() const;
 		Entries& calls();
 		const Entries& calls() const;
-		
-		Entries& entries(BOOST_SCOPED_ENUM(TriggerFunction::Type) type);
-		const Entries& entries(BOOST_SCOPED_ENUM(TriggerFunction::Type) type) const;
-	
+
+		Entries& entries(TriggerFunction::Type type);
+		const Entries& entries(TriggerFunction::Type type) const;
+
 	private:
 		void readFunction(const Txt::Pair &ref, Entries &functions);
-		
+
 		Entries m_events;
 		Entries m_conditions;
 		Entries m_actions;

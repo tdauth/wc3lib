@@ -1,13 +1,12 @@
 find_package(Gettext REQUIRED)
 
 # Boost
-set(Boost_USE_MULTITHREADED ON)
 if (DEBUG)
 	#set(Boost_DEBUG ON)
 	add_definitions(-DBOOST_TEST_DYN_LINK=1)
 endif ()
 
-find_package(Boost COMPONENTS system filesystem thread serialization program_options iostreams REQUIRED)
+find_package(Boost COMPONENTS system filesystem serialization program_options iostreams REQUIRED)
 
 link_directories(${Boost_LIBRARY_DIRS})
 include_directories(${GETTEXT_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})

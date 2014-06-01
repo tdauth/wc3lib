@@ -37,27 +37,26 @@ namespace map
 class Tree : public Format
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Flags) /// \todo C++11 : byte
+		enum class Flags : byte
 		{
 			Invisible = 0,
 			Visibile = 1,
 			Normal = 2,
 			OutsideCameraBounds = 3 // (set to 3 when it's outside the camerabounds?)
 		};
-		BOOST_SCOPED_ENUM_END
 
 		virtual std::streamsize read(InputStream &istream) throw (Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
 
 		id treeId() const;
 		int32 variation() const;
-		const Vertex& position() const;
+		const Vertex3d<float32>& position() const;
 		/**
 		 * (radian angle value)(degree = radian*180/pi)
 		 */
 		float32 angle() const;
-		const Vertex& scale() const;
-		BOOST_SCOPED_ENUM(Flags) flags() const;
+		const Vertex3d<float32>& scale() const;
+		Flags flags() const;
 		byte life() const;
 		int32 customId() const;
 
@@ -66,10 +65,10 @@ class Tree : public Format
 	protected:
 		id m_treeId;
 		int32 m_variation;
-		Vertex m_position;
+		Vertex3d<float32> m_position;
 		float32 m_angle;
-		Vertex m_scale;
-		BOOST_SCOPED_ENUM(Flags) m_flags;
+		Vertex3d<float32> m_scale;
+		Flags m_flags;
 		byte m_life; // (integer stored in %, 100% is 0x64, 170% is 0xAA for example)
 		//tft
 		//int randomItemTable;
@@ -88,7 +87,7 @@ inline int32 Tree::variation() const
 	return m_variation;
 }
 
-inline const Vertex& Tree::position() const
+inline const Vertex3d<float32>& Tree::position() const
 {
 	return m_position;
 }
@@ -98,12 +97,12 @@ inline float32 Tree::angle() const
 	return m_angle;
 }
 
-inline const Vertex& Tree::scale() const
+inline const Vertex3d<float32>& Tree::scale() const
 {
 	return m_scale;
 }
 
-inline BOOST_SCOPED_ENUM(Tree::Flags) Tree::flags() const
+inline Tree::Flags Tree::flags() const
 {
 	return m_flags;
 }

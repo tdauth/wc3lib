@@ -40,7 +40,7 @@ class MdlxAnimatedProperty;
 
 /**
  * \brief Abstract template class for all kinds of animated properties.
- * 
+ *
  * Animated properties may belong to a specific global sequence.
  * There exist different types of transformations. Usually:
  * <ul>
@@ -49,20 +49,20 @@ class MdlxAnimatedProperty;
  * <li> rotations </li>
  * <li> transparency adjustments </li>
  * </ul>
- * 
+ *
  * Each transformation type needs specific values for applying the transformation. For example a translation
  * needs three coordinates where the corresponding node should be moved to (X, Y, Z).
- * 
+ *
  * Rotations usually on the other hand usually use quaternions and therefore need four values.
- * 
+ *
  * Therefore this class is defined as template for which the count of values can be specified with \p N
  * and the data type with \p _ValueType.
  *
  * All animated properties can be accessed using \ref properties(). They share the global sequence (\ref globalSequenceId() ) and the mathemetical method of transformation which
  * can be accessed via \ref lineType(). See \ref LineType for all supported mathematical methods.
- * 
+ *
  * Check if the properties belong to a global sequence using \ref hasGlobalSequence().
- * 
+ *
  * \sa MdlxAnimatedProperty
  * \ingroup animations
  */
@@ -78,7 +78,7 @@ class MdlxAnimatedProperties : public MdxBlock
 		virtual ~MdlxAnimatedProperties();
 
 		class Mdlx* mdlx() const;
-		BOOST_SCOPED_ENUM(LineType) lineType() const;
+		LineType lineType() const;
 		long32 globalSequenceId() const;
 		bool hasGlobalSequence() const;
 		const Properties& properties() const;
@@ -92,7 +92,7 @@ class MdlxAnimatedProperties : public MdxBlock
 		virtual MdlxAnimatedProperty<N, _ValueType>* createAnimatedProperty() = 0;
 
 		class Mdlx *m_mdlx;
-		BOOST_SCOPED_ENUM(LineType) m_lineType; //(0:don't interp;1:linear;2:hermite;3:bezier)
+		LineType m_lineType; //(0:don't interp;1:linear;2:hermite;3:bezier)
 		long32 m_globalSequenceId; // 0xFFFFFFFF if none
 		Properties m_properties;
 };
@@ -193,7 +193,7 @@ std::streamsize MdlxAnimatedProperties<N, _ValueType>::writeMdx(ostream &ostream
 		return 0;
 
 	wc3lib::write<long32>(ostream, boost::numeric_cast<long32>(properties().size()), size);
-	wc3lib::write<long32>(ostream, lineType(), size);
+	wc3lib::write<long32>(ostream, static_cast<long32>(lineType()), size);
 	wc3lib::write(ostream, globalSequenceId(), size);
 
 	BOOST_FOREACH(typename Properties::const_reference property, this->properties())
@@ -209,7 +209,7 @@ inline class Mdlx* MdlxAnimatedProperties<N, _ValueType>::mdlx() const
 }
 
 template<typename std::size_t N, typename _ValueType>
-inline BOOST_SCOPED_ENUM(LineType) MdlxAnimatedProperties<N, _ValueType>::lineType() const
+inline LineType MdlxAnimatedProperties<N, _ValueType>::lineType() const
 {
 	return this->m_lineType;
 }

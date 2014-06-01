@@ -22,10 +22,10 @@
 #define WC3LIB_EDITOR_MPQPROTOCOL_HPP
 
 #include <QScopedPointer>
+#include <QDateTime>
 
 #include <KIO/SlaveBase>
 
-#include "mpqarchive.hpp"
 #include "../../core.hpp"
 #include "../../mpq.hpp"
 
@@ -53,20 +53,20 @@ class MpqProtocol : public KIO::SlaveBase
 
 
 		MpqProtocol(const QByteArray &pool, const QByteArray &app);
-		
+
 		/**
 		 * Taken from "SMPQ".
-		 * 
+		 *
 		 * \param fileName The file name of the MPQ archive.
-		 * \param 
+		 * \param
 		 */
 		bool parseUrl(const KUrl &url, QString &fileName, QByteArray &archivePath);
 		/**
 		 * Taken from "SMPQ".
-		 * 
+		 *
 		 * It replaces \p to by a Windows file path using '\' as separator since
 		 * (listfile) entries usually have the Windows format.
-		 * 
+		 *
 		 * This function should be used on file paths refering to files in an MPQ archive.
 		 */
 		void toArchivePath(QByteArray &to, const QString &from);
@@ -85,17 +85,16 @@ class MpqProtocol : public KIO::SlaveBase
 		 * Closes the opened file of the MPQ archive.
 		 */
 		virtual void close();
-		
+
 		virtual void read(KIO::filesize_t size);
 		virtual void seek(KIO::filesize_t offset);
 		virtual void mkdir(const KUrl& url, int permissions);
-		
+
 		virtual void get(const KUrl &url);
 		virtual void put(const KUrl &url, int permissions, KIO::JobFlags flags);
 
 	private:
 		void createRootUDSEntry(KIO::UDSEntry &entry);
-		void createUDSEntry(const KArchiveEntry *archiveEntry, KIO::UDSEntry &entry);
 		void createUDSEntry(const mpq::MpqFile &mpqFile, KIO::UDSEntry &entry);
 		/**
 		* \brief find, check and open the archive file
@@ -105,7 +104,6 @@ class MpqProtocol : public KIO::SlaveBase
 		* \return true if file was found, false if there was an error
 		*/
 		bool checkNewFile(const KUrl &url, QString &path, KIO::Error &errorNum, QIODevice::OpenMode openMode);
-		mpq::MpqFile* resolvePath(QString &path);
 
 		MpqArchivePtr m_archive;
 		mpq::MpqFile *m_file;

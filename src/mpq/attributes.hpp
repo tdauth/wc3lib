@@ -33,11 +33,11 @@ namespace mpq
 
 /**
  * \brief Class for MPQ's "(attributes)" file which stores extended file attributes such as time stamps and check sums.
- * 
+ *
  * This class provides useful functions for accessing a file's corresponding attributes as well as refreshing/changing it.
- * 
+ *
  * \note Use \ref readData() to fill all attribute data structures. Without manual call all data will be empty.
- * 
+ *
  * <a href="http://wiki.devklog.net/index.php?title=The_MoPaQ_Archive_Format#Extended_Attributes">Source</a>
  * The extended attributes are optional file attributes for files in the block table. These attributes were added at times after the MoPaQ format was already finalized, and it is not necessary for every archive to have all (or any) of the extended attributes. If an archive contains a given attribute, there will be an instance of that attribute for every block in the block table, although the attribute will be meaningless if the block is not a file. The order of the attributes for blocks correspond to the order of the blocks in the block table, and are of the same number. The attributes are stored in parallel arrays in the "(attributes)" file (default language and platform), in the archive. The attributes corresponding to this file need not be valid (and logically cannot be). Unlike all the other structures in the MoPaQ format, entries in the extended attributes are NOT guaranteed to be aligned. Also note that in some archives, malicious zeroing of the attributes has been observed, perhaps with the intent of
 breaking archive viewers.
@@ -52,32 +52,31 @@ class Attributes : public MpqFile
 		/**
 		 * All types of attributes which can be stored for files.
 		 */
-		BOOST_SCOPED_ENUM_START(ExtendedAttributes) /// \todo C++11 : uint32
+		enum class ExtendedAttributes : uint32
 		{
 			None = 0x0,
 			FileCrc32s = 0x00000001,
 			FileTimeStamps = 0x00000002,
 			FileMd5s = 0x00000004
 		};
-		BOOST_SCOPED_ENUM_END
 
 		/**
 		 * \brief Custom type for exceptions thrown if a specific type of extended attributes is not stored in the file.
-		 * 
+		 *
 		 * Use \ref Exception::extendedAttributes() to get the type which is not stored.
-		 * 
+		 *
 		 * \sa Attributes::ExtendedAttributes
 		 */
 		class Exception : public wc3lib::Exception
 		{
 			public:
-				Exception(BOOST_SCOPED_ENUM(ExtendedAttributes) extendedAttributes, const std::string &what = "") throw ();
-				Exception(BOOST_SCOPED_ENUM(ExtendedAttributes) extendedAttributes, const boost::format &what) throw ();
+				Exception(ExtendedAttributes extendedAttributes, const std::string &what = "") throw ();
+				Exception(ExtendedAttributes extendedAttributes, const boost::format &what) throw ();
 
-				BOOST_SCOPED_ENUM(ExtendedAttributes) extendedAttributes() const;
+				ExtendedAttributes extendedAttributes() const;
 
 			private:
-				BOOST_SCOPED_ENUM(ExtendedAttributes) m_extendedAttributes;
+				ExtendedAttributes m_extendedAttributes;
 		};
 
 		static const int32 latestVersion = 100;
@@ -85,7 +84,7 @@ class Attributes : public MpqFile
 		typedef std::vector<CRC32> Crc32s;
 		typedef std::vector<FILETIME> FileTimes;
 		typedef std::vector<MD5> Md5s;
-		
+
 		/**
 		 * @{
 		 * Calculates checksum from given data.
@@ -144,7 +143,7 @@ class Attributes : public MpqFile
 		 * \ref latestVersion contains the latest format version.
 		 */
 		virtual uint32_t version() const;
-		BOOST_SCOPED_ENUM(ExtendedAttributes) extendedAttributes() const;
+		ExtendedAttributes extendedAttributes() const;
 		bool hasChecksums() const;
 
 		/**
@@ -156,7 +155,7 @@ class Attributes : public MpqFile
 		CRC32 crc32(const Block *block) const;
 		CRC32 crc32(const MpqFile *mpqFile) const;
 		/**@}*/
-		
+
 		/**
 		 * @{
 		 * \throw std::out_of_range Is thrown if index is invalid.
@@ -166,7 +165,7 @@ class Attributes : public MpqFile
 		const FILETIME& fileTime(const Block *block) const;
 		const FILETIME& fileTime(const MpqFile *mpqFile) const;
 		/**@}*/
-		
+
 		/**
 		 * @{
 		 * \throw std::out_of_range Is thrown if index is invalid.
@@ -182,11 +181,11 @@ class Attributes : public MpqFile
 	protected:
 		friend class Mpq;
 
-		Attributes(Mpq *mpq, Hash *hash, BOOST_SCOPED_ENUM(ExtendedAttributes) extendedAttributes, uint32 version = latestVersion);
+		Attributes(Mpq *mpq, Hash *hash, ExtendedAttributes extendedAttributes, uint32 version = latestVersion);
 
 		void setVersion(uint32 version);
-		void setExtendedAttributes(BOOST_SCOPED_ENUM(ExtendedAttributes) extendedAttributes);
-		
+		void setExtendedAttributes(ExtendedAttributes extendedAttributes);
+
 		void setCrc32(const Block *block, CRC32 crc32);
 		void setFileTime(const Block *block, const FILETIME &fileTime);
 		void setMd5(const Block *block, MD5 md5);
@@ -197,11 +196,16 @@ class Attributes : public MpqFile
 
 	private:
 		uint32 m_version;
-		BOOST_SCOPED_ENUM(ExtendedAttributes) m_extendedAttributes;
+		ExtendedAttributes m_extendedAttributes;
 		Crc32s m_crc32s;
 		FileTimes m_fileTimes;
 		Md5s m_md5s;
 };
+
+inline constexpr bool operator&(Attributes::ExtendedAttributes x, Attributes::ExtendedAttributes y)
+{
+	return static_cast<bool>(static_cast<uint32>(x) & static_cast<uint32>(y));
+}
 
 inline const Attributes::Crc32s& Attributes::crc32s() const
 {
@@ -218,15 +222,15 @@ inline const Attributes::Md5s& Attributes::md5s() const
 	return this->m_md5s;
 }
 
-inline Attributes::Exception::Exception(BOOST_SCOPED_ENUM(Attributes::ExtendedAttributes) extendedAttributes, const std::string &what) throw () : m_extendedAttributes(extendedAttributes), wc3lib::Exception(what)
+inline Attributes::Exception::Exception(Attributes::ExtendedAttributes extendedAttributes, const std::string &what) throw () : wc3lib::Exception(what), m_extendedAttributes(extendedAttributes)
 {
 }
 
-inline Attributes::Exception::Exception(BOOST_SCOPED_ENUM(Attributes::ExtendedAttributes) extendedAttributes, const boost::format &what) throw () : m_extendedAttributes(extendedAttributes), wc3lib::Exception(what)
+inline Attributes::Exception::Exception(Attributes::ExtendedAttributes extendedAttributes, const boost::format &what) throw () : wc3lib::Exception(what), m_extendedAttributes(extendedAttributes)
 {
 }
 
-inline BOOST_SCOPED_ENUM(Attributes::ExtendedAttributes) Attributes::Exception::extendedAttributes() const
+inline Attributes::ExtendedAttributes Attributes::Exception::extendedAttributes() const
 {
 	return this->m_extendedAttributes;
 }
@@ -241,7 +245,7 @@ inline uint32_t Attributes::version() const
 	return this->m_version;
 }
 
-inline BOOST_SCOPED_ENUM(Attributes::ExtendedAttributes) Attributes::extendedAttributes() const
+inline Attributes::ExtendedAttributes Attributes::extendedAttributes() const
 {
 	return m_extendedAttributes;
 }
@@ -250,7 +254,7 @@ inline CRC32 Attributes::crc32(std::size_t index) const
 {
 	if (!(extendedAttributes() & ExtendedAttributes::FileCrc32s))
 		throw Exception(ExtendedAttributes::FileCrc32s);
-	
+
 	return crc32s()[index];
 }
 
@@ -313,7 +317,7 @@ inline void Attributes::setVersion(uint32 version)
 	this->m_version = version;
 }
 
-inline void Attributes::setExtendedAttributes(BOOST_SCOPED_ENUM(Attributes::ExtendedAttributes) extendedAttributes)
+inline void Attributes::setExtendedAttributes(Attributes::ExtendedAttributes extendedAttributes)
 {
 	this->m_extendedAttributes = extendedAttributes;
 }

@@ -35,6 +35,16 @@ MpqPriorityListEntry::MpqPriorityListEntry(const KUrl &url, Priority priority) :
 {
 }
 
+MpqPriorityList::MpqPriorityList() : m_sharedData(new WarcraftIIIShared(this))
+{
+
+}
+
+MpqPriorityList::~MpqPriorityList()
+{
+}
+
+
 bool MpqPriorityList::addSource(const KUrl &url, MpqPriorityListEntry::Priority priority)
 {
 	// proper URLs must refer to directories or archives
@@ -48,7 +58,7 @@ bool MpqPriorityList::addSource(const KUrl &url, MpqPriorityListEntry::Priority 
 		return false;
 
 	Source ptr(new MpqPriorityListEntry(url, priority));
-	
+
 	qDebug() << "Size before pushing back: " << sources().size();
 	sources().push_back(ptr);
 	qDebug() << "Size after pushing back: " << sources().size();
@@ -165,13 +175,6 @@ bool MpqPriorityList::removeDefaultSources()
 	removeWar3XLocalSource();
 }
 
-void MpqPriorityList::refreshDefaultFiles(QWidget* window)
-{
-	this->refreshWorldEditorStrings(window);
-	this->refreshTriggerStrings(window);
-	this->refreshTriggerData(window);
-}
-
 bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window)
 {
 	qDebug() << "Download: " << src.url();
@@ -181,7 +184,7 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 		if (KIO::NetAccess::download(src, target, window))
 		{
 			qDebug() << "Downloaded successfully into file " << target;
-			
+
 			return true;
 		}
 	}
@@ -203,11 +206,11 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 		if (KIO::NetAccess::download(absoluteSource, target, window))
 		{
 			qDebug() << "Downloaded successfully into file " << target;
-			
+
 			return true;
 		}
 	}
-	
+
 	qDebug() << "Downloaded failed";
 
 	return false;
@@ -259,45 +262,10 @@ bool MpqPriorityList::mkdir(const KUrl &target, QWidget *window)
 	return false;
 }
 
-QString MpqPriorityList::tr(QWidget *widget, const QString &key, const QString &group, BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale, const QString &defaultValue) const
-{
-	// TODO if group is empty, search all sections
-	if (worldEditorStrings().get() != 0) {
-		qDebug() << "Trying it in WorldEditorStrings.txt";
-		
-		try {
-			const map::Txt::Pairs &pairs = worldEditorStrings()->entries(group.toUtf8().constData());
-			
-			// TODO linear search
-			foreach (map::Txt::Pairs::const_reference ref, pairs) {
-				if (ref.first == key.toUtf8().constData()) {
-					return ref.second.c_str();
-				}
-			}
-		} catch (Exception &e) {
-		}
-	}
-	
-	QStringList files;
-	// all files which contain strings
-	files
-	<< "UI/WorldEditStrings.txt"
-	<< "UI/WorldEditGameStrings.txt"
-	<< "UI/TriggerStrings.txt"
-	<< "UI/TipStrings.txt"
-	<< "UI/CampaignStrings.txt"
-	;
-	
-	if (!defaultValue.isEmpty())
-		return defaultValue;
-
-	return group + "[" + key + "]";
-}
-
 void MpqPriorityList::readSettings(const QString& group)
 {
 	qDebug() << "Reading settings for group " << group;
-	
+
 	QSettings settings("wc3editor", "wc3editor");
 	qDebug() << "Settings file name: " << settings.fileName();
 	settings.beginGroup(group);
@@ -323,12 +291,12 @@ void MpqPriorityList::readSettings(const QString& group)
 void MpqPriorityList::writeSettings(const QString& group)
 {
 	qDebug() << "Writing settings for group " << group;
-	
+
 	QSettings settings("wc3editor", "wc3editor");
 	settings.beginGroup(group);
 	settings.beginWriteArray("entries", sources().size());
 	int i = 0;
-	
+
 	qDebug() << "Size 1: " << sources().size();
 	qDebug() << "Size 2: " << sources().get<MpqPriorityListEntry>().size();
 

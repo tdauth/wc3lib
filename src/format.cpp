@@ -23,7 +23,8 @@
 namespace wc3lib
 {
 
-// TODO C++11
-//template class BasicFormat<byte>; // force instantiation, so extern templates can be specified
+Format::~Format()
+{
+}
 
 }

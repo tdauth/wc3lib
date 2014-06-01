@@ -29,6 +29,8 @@ namespace wc3lib
 namespace mdlx
 {
 
+class Version;
+
 /**
  * Provides access to one single MDX/MDL model which can be read from any input stream.
  * Since MDLX is a node-based format you can access various properties by their node ids (\ref long32 integers).
@@ -46,7 +48,8 @@ class Mdlx : public MdxBlock
 		Mdlx();
 		virtual ~Mdlx();
 
-		class Version* modelVersion() const;
+		void setModelVersion(Version *version);
+		Version* modelVersion() const;
 		class Model* model() const;
 		class Sequences* sequences() const;
 		class GlobalSequences* globalSequences() const;
@@ -95,7 +98,12 @@ class Mdlx : public MdxBlock
 		class CollisionShapes *m_collisionShapes;
 };
 
-inline class Version* Mdlx::modelVersion() const
+inline void Mdlx::setModelVersion(Version* version)
+{
+	this->m_version = version;
+}
+
+inline Version* Mdlx::modelVersion() const
 {
 	return this->m_version;
 }

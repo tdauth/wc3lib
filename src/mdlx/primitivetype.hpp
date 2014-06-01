@@ -39,17 +39,16 @@ class PrimitiveType : public GroupMdxBlockMember
 		//??? - Triangle strip
 		//??? - Quads
 		//??? - Quad strip
-		BOOST_SCOPED_ENUM_START(Type) /// \todo C++11 : long32
+		enum class Type : long32
 		{
 			Triangles = 4
 		};
-		BOOST_SCOPED_ENUM_END
 
 		PrimitiveType(class PrimitiveTypes *primitiveTypes);
 		virtual ~PrimitiveType();
 
 		class PrimitiveTypes* primitiveTypes() const;
-		BOOST_SCOPED_ENUM(Type) type() const;
+		Type type() const;
 
 		virtual std::streamsize readMdl(std::istream &istream) throw (class Exception);
 		virtual std::streamsize writeMdl(std::ostream &ostream) const throw (class Exception);
@@ -57,7 +56,7 @@ class PrimitiveType : public GroupMdxBlockMember
 		virtual std::streamsize writeMdx(std::ostream &ostream) const throw (class Exception);
 
 	protected:
-		BOOST_SCOPED_ENUM(Type) m_type;
+		Type m_type;
 };
 
 inline class PrimitiveTypes* PrimitiveType::primitiveTypes() const
@@ -65,7 +64,7 @@ inline class PrimitiveTypes* PrimitiveType::primitiveTypes() const
 	return boost::polymorphic_cast<class PrimitiveTypes*>(this->parent());
 }
 
-inline BOOST_SCOPED_ENUM(PrimitiveType::Type) PrimitiveType::type() const
+inline PrimitiveType::Type PrimitiveType::type() const
 {
 	return this->m_type;
 }

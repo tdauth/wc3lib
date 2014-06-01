@@ -74,7 +74,7 @@ std::streamsize TriggerFunction::read(InputStream &istream, const TriggerData &t
 
 			break;
 		}
-		
+
 		case TriggerFunction::Type::Call:
 		{
 			iterator = triggerData.calls().find(this->name());
@@ -86,7 +86,7 @@ std::streamsize TriggerFunction::read(InputStream &istream, const TriggerData &t
 		}
 
 		default:
-			throw Exception(boost::format(_("Function type %1% is invalid.")) % this->type());
+			throw Exception(boost::format(_("Function type %1% is invalid.")) % static_cast<int32>(this->type()));
 	}
 
 	// trigger calls have return type + parameters!
@@ -94,16 +94,16 @@ std::streamsize TriggerFunction::read(InputStream &istream, const TriggerData &t
 	std::cerr << "Function " << this->name() << std::endl;
 	std::cerr << "with " << count << " parameters" << std::endl;
 	wc3lib::read<int32>(istream, (int32&)this->m_isEnabled, size);
-	
+
 	if (count == 1) {
 		const string firstParameter = boost::apply_visitor(TriggerData::FunctionArgumentVisitor(), iterator->second->types()[(this->type() == TriggerFunction::Type::Call ? 1 : 0)]);
-		
+
 		// cancel if first parameter is nothing
 		if (firstParameter == "nothing") {
 			return size;
 		}
 	}
-	
+
 	this->parameters().reserve(count);
 
 	for (int32 i = 0; i < count; ++i)
@@ -119,12 +119,14 @@ std::streamsize TriggerFunction::read(InputStream &istream, const TriggerData &t
 std::streamsize TriggerFunction::write(OutputStream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	wc3lib::write<int32>(ostream, this->type(), size);
+	wc3lib::write<int32>(ostream, static_cast<int32>(this->type()), size);
 	writeString(ostream, this->m_name, size);
 	wc3lib::write<int32>(ostream, this->isEnabled(), size);
 
 	BOOST_FOREACH(Parameters::const_reference value, this->parameters())
+	{
 		size += value.write(ostream);
+	}
 
 	return size;
 }

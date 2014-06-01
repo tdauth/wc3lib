@@ -28,7 +28,7 @@ namespace wc3lib
 namespace map
 {
 
-CustomObjects::Object::Object(BOOST_SCOPED_ENUM(CustomObjects::Type) type) : m_type(type)
+CustomObjects::Object::Object(CustomObjects::Type type) : m_type(type)
 {
 }
 
@@ -37,7 +37,7 @@ CustomUnits::Modification* CustomObjects::Object::createModification() const
 	return new CustomObjects::Modification(this->type());
 }
 
-CustomObjects::Modification::Modification(BOOST_SCOPED_ENUM(CustomObjects::Type) type) : m_type(type), m_level(0), m_data(0)
+CustomObjects::Modification::Modification(CustomObjects::Type type) : m_type(type), m_level(0), m_data(0)
 {
 }
 
@@ -45,14 +45,14 @@ std::streamsize CustomObjects::Modification::read(InputStream &istream) throw (c
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_id, size);
-	BOOST_SCOPED_ENUM(Value::Type) type;
+	Value::Type type;
 	wc3lib::read<int32>(istream, (int32&)type, size);
 
 	/*
 	 * As the specification states only these three types use optional integer values to specify a level
 	 * and a specific data field for a modification.
 	 * This data is placed before the actual modification data.
-	 * 
+	 *
 	 *
 	 */
 	if (this->type() == CustomObjects::Type::Doodads || this->type() == CustomObjects::Type::Abilities || this->type() == CustomObjects::Type::Upgrades)
@@ -60,7 +60,7 @@ std::streamsize CustomObjects::Modification::read(InputStream &istream) throw (c
 		wc3lib::read(istream, this->m_level, size);
 		wc3lib::read(istream, this->m_data, size);
 	}
-	
+
 	size += readData(istream, type);
 
 	int32 end;
@@ -73,7 +73,7 @@ std::streamsize CustomObjects::Modification::write(OutputStream &ostream) const 
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->valueId(), size);
-	wc3lib::write<int32>(ostream, this->value().type(), size);
+	wc3lib::write<int32>(ostream, static_cast<int32>(this->value().type()), size);
 
 	if (this->type() == CustomObjects::Type::Doodads || this->type() == CustomObjects::Type::Abilities || this->type() == CustomObjects::Type::Upgrades)
 	{
@@ -82,14 +82,14 @@ std::streamsize CustomObjects::Modification::write(OutputStream &ostream) const 
 	}
 
 	size += writeData(ostream, this->value().type());
-	
+
 	int32 end = 0;
 	wc3lib::write(ostream, end, size);
 
 	return size;
 }
 
-CustomObjects::CustomObjects(BOOST_SCOPED_ENUM(CustomObjects::Type) type) : m_type(type)
+CustomObjects::CustomObjects(CustomObjects::Type type) : m_type(type)
 {
 }
 

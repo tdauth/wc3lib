@@ -41,7 +41,7 @@ namespace mdlx
 
 /**
  * \brief Parser for MDL files based on Boost Spirit.
- * 
+ *
  * This class supports parsing an MDL file from an input stream.
  */
 class MdlGrammar {
@@ -49,25 +49,27 @@ class MdlGrammar {
 		typedef std::basic_istream<byte> InputStream;
 		typedef std::istreambuf_iterator<byte> IteratorType;
 		typedef boost::spirit::multi_pass<IteratorType> ForwardIteratorType;
-		
+
 		/**
 		 * Declare iterator types for better error results.
 		 * These Position iterators support tracking the current position of the parser.
 		 * When an error occurs they their information can be used for better reports.
-		 * 
+		 *
 		 * Usually you would create objects of theses types from the multi pass iterator \ref ForwardIteratorType and pass
 		 * them to the \ref parse() element functions.
-		 * 
+		 *
 		 * Both types are instanciated in "grammar.cpp" and can be declared as external templates to save compile time.
 		 */
 		typedef boost::spirit::classic::position_iterator2<MdlGrammar::ForwardIteratorType> ClassicPositionIteratorType;
 		typedef boost::spirit::line_pos_iterator<MdlGrammar::ForwardIteratorType> PositionIteratorType;
-		
+
+		typedef std::unique_ptr<Mdlx> ResultType;
+
 		MdlGrammar();
-		
-		bool parse(InputStream &istream, Mdlx &mdlx);
-		bool parse(IteratorType first, IteratorType last, Mdlx &mdlx);
-		
+
+		bool parse(InputStream &istream, ResultType &result);
+		bool parse(IteratorType first, IteratorType last, ResultType &result);
+
 	private:
 		/*
 		 * Internal grammars for MDL grammar and its skipper.

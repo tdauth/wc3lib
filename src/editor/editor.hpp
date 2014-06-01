@@ -37,7 +37,11 @@ namespace wc3lib
 namespace editor
 {
 
+class WarcraftIIIShared;
+
 /**
+ * \brief This class emulates the Warcraft III World Editor. It provides all necessary editor modules.
+ *
  * Editor holds all resources and required MPQ archives since it inherits from \ref MpqPriorityList.
  * If a resource is required (by its URL) it could theoretically be cached if implemented in class Resource.
  * Just use \ref Editor#resources()[URL] to refer to your required resource.

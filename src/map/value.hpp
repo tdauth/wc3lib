@@ -117,13 +117,13 @@ List
  * \sa CustomObjects::Modification
  * \todo type() is already used in class \ref boost::variant.
  * \todo Implement custom type check using stored type for calls of \ref boost::apply_visitor() and \ref boost::get().
- * 
+ *
  * \ingroup objectdata
  */
 class Value : public ValueBase
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Type) /// \todo C++11 : int32
+		enum class Type : int32
 		{
 			Integer = 0,
 			Real = 1,
@@ -148,17 +148,16 @@ class Value : public ValueBase
 			AttributeType = 20,
 			AttackBits = 21
 		};
-		BOOST_SCOPED_ENUM_END
 
 		Value();
 		Value(int32 value);
-		Value(float32 value, BOOST_SCOPED_ENUM(Type) type = Type::Real);
-		Value(const string &value, BOOST_SCOPED_ENUM(Type) type = Type::String);
+		Value(float32 value, Type type = Type::Real);
+		Value(const string &value, Type type = Type::String);
 		Value(bool value);
 		Value(byte value);
-		Value(List value, BOOST_SCOPED_ENUM(Type) type = Type::StringList);
+		Value(List value, Type type = Type::StringList);
 
-		BOOST_SCOPED_ENUM(Type) type() const;
+		Type type() const;
 		int32& toInteger();
 		const int32& toInteger() const;
 		bool isReal() const;
@@ -178,7 +177,7 @@ class Value : public ValueBase
 		bool operator==(const Value &value) const;
 
 	protected:
-		BOOST_SCOPED_ENUM(Type) m_type;
+		Type m_type;
 };
 
 }

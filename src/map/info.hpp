@@ -38,43 +38,41 @@ class Info : public FileFormat
 		class Player : public Format
 		{
 			public:
-				BOOST_SCOPED_ENUM_START(Type) /// \todo C++11 : int32
+				enum class Type : int32
 				{
 					Human = 1,
 					Computer = 2,
 					Neutral = 3,
 					Rescuable = 4
 				};
-				BOOST_SCOPED_ENUM_END
 
-				BOOST_SCOPED_ENUM_START(Race) /// \todo C++11 : int32
+				enum class Race : int32
 				{
 					Human = 1,
 					Orc = 2,
 					Undead = 3,
 					NightElf = 4
 				};
-				BOOST_SCOPED_ENUM_END
 
 				virtual std::streamsize read(InputStream &istream) throw (Exception);
 				virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
 
 				int32 number() const;
-				BOOST_SCOPED_ENUM(Type) type() const;
-				BOOST_SCOPED_ENUM(Race) race() const;
+				Type type() const;
+				Race race() const;
 				bool hasFixedStartPosition() const;
 				const string& name() const;
-				const FloatPosition& position() const;
+				const Vertex2d<float32>& position() const;
 				int32 allowLowPriorityFlags() const;
 				int32 allowHighPriorityFlags() const;
 
 			protected:
 				int32 m_number;
-				BOOST_SCOPED_ENUM(Type) m_type;
-				BOOST_SCOPED_ENUM(Race) m_race;
+				Type m_type;
+				Race m_race;
 				bool m_hasFixedStartPosition; /// \ref int32
 				string m_name;
-				FloatPosition m_position;
+				Vertex2d<float32> m_position;
 				int32 m_allowLowPriorityFlags;
 				int32 m_allowHighPriorityFlags;
 
@@ -83,7 +81,7 @@ class Info : public FileFormat
 		class Force : public Format
 		{
 			public:
-				BOOST_SCOPED_ENUM_START(Flags) /// \todo C++0x : int32
+				enum class Flags : int32
 				{
 					Allied = 0x00000001,
 					AlliedVictory = 0x00000002,
@@ -91,17 +89,16 @@ class Info : public FileFormat
 					ShareUnitControl = 0x00000010,
 					ShareAdvancedUnitControl = 0x00000020
 				};
-				BOOST_SCOPED_ENUM_END
 
 				virtual std::streamsize read(InputStream &istream) throw (Exception);
 				virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
 
-				BOOST_SCOPED_ENUM(Flags) flags() const;
+				Flags flags() const;
 				int32 playerMask() const;
 				const string& name() const;
 
 			protected:
-				BOOST_SCOPED_ENUM(Flags) m_flags;
+				Flags m_flags;
 				int32 m_playerMask; // (bit "x"=1 --> player "x" is in this force)
 				string m_name;
 		};
@@ -109,13 +106,12 @@ class Info : public FileFormat
 		class UpgradeAvailability : public Format
 		{
 			public:
-				BOOST_SCOPED_ENUM_START(Availability) /// \todo C++11 : int32
+				enum class Availability : int32
 				{
 					Unavailable = 0,
 					Available = 1,
 					Researched = 2
 				};
-				BOOST_SCOPED_ENUM_END
 
 				virtual std::streamsize read(InputStream &istream) throw (Exception);
 				virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
@@ -155,16 +151,15 @@ class Info : public FileFormat
 							public:
 								typedef std::vector<id> Rows;
 
-								BOOST_SCOPED_ENUM_START(Type) /// \todo C++11 : int32
+								enum class Type : int32
 								{
 									UnitTable = 0,
 									BuildingTable = 1,
 									ItemTable = 2
 								};
-								BOOST_SCOPED_ENUM_END
 
-								void setType(BOOST_SCOPED_ENUM(Type) type);
-								BOOST_SCOPED_ENUM(Type) type() const;
+								void setType(Type type);
+								Type type() const;
 								/**
 								 * Each row corresponds to one chance. Therefore rows do always have the size of \ref Group::chances().size().
 								 */
@@ -172,7 +167,7 @@ class Info : public FileFormat
 								const Rows& rows() const;
 
 							protected:
-								BOOST_SCOPED_ENUM(Type) m_type;
+								Type m_type;
 								Rows m_rows;
 						};
 
@@ -238,7 +233,7 @@ class Info : public FileFormat
 		const int32* cameraBounds() const;
 		int32 playableWidth() const;
 		int32 playableHeight() const;
-		BOOST_SCOPED_ENUM(MapFlags) flags() const;
+		MapFlags flags() const;
 		byte mainGroundType() const;
 		int32 campaignBackgroundIndex() const;
 		const string& loadingScreenText() const;
@@ -266,7 +261,7 @@ class Info : public FileFormat
 		int32 m_cameraBounds[4];
 		int32 m_playableWidth;
 		int32 m_playableHeight;
-		BOOST_SCOPED_ENUM(MapFlags) m_flags;
+		MapFlags m_flags;
 		byte m_mainGroundType;
 		int32 m_campaignBackgroundIndex;
 		string m_loadingScreenText;
@@ -288,12 +283,12 @@ inline int32 Info::Player::number() const
 	return m_number;
 }
 
-inline BOOST_SCOPED_ENUM(Info::Player::Type) Info::Player::type() const
+inline Info::Player::Type Info::Player::type() const
 {
 	return m_type;
 }
 
-inline BOOST_SCOPED_ENUM(Info::Player::Race) Info::Player::race() const
+inline Info::Player::Race Info::Player::race() const
 {
 	return m_race;
 }
@@ -308,7 +303,7 @@ inline const string& Info::Player::name() const
 	return m_name;
 }
 
-inline const FloatPosition& Info::Player::position() const
+inline const Vertex2d<float32>& Info::Player::position() const
 {
 	return m_position;
 }
@@ -324,7 +319,7 @@ inline int32 Info::Player::allowHighPriorityFlags() const
 }
 
 
-inline BOOST_SCOPED_ENUM(Info::Force::Flags) Info::Force::flags() const
+inline Info::Force::Flags Info::Force::flags() const
 {
 	return m_flags;
 }
@@ -364,12 +359,12 @@ inline id Info::TechAvailability::tech() const
 	return m_tech;
 }
 
-inline void Info::RandomUnitTable::Group::Column::setType(BOOST_SCOPED_ENUM(Info::RandomUnitTable::Group::Column::Type) type)
+inline void Info::RandomUnitTable::Group::Column::setType(Info::RandomUnitTable::Group::Column::Type type)
 {
 	m_type = type;
 }
 
-inline BOOST_SCOPED_ENUM(Info::RandomUnitTable::Group::Column::Type) Info::RandomUnitTable::Group::Column::type() const
+inline Info::RandomUnitTable::Group::Column::Type Info::RandomUnitTable::Group::Column::type() const
 {
 	return m_type;
 }
@@ -484,7 +479,7 @@ inline int32 Info::playableHeight() const
 	return m_playableHeight;
 }
 
-inline BOOST_SCOPED_ENUM(MapFlags) Info::flags() const
+inline MapFlags Info::flags() const
 {
 	return m_flags;
 }

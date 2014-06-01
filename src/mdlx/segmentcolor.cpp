@@ -42,7 +42,7 @@ std::streamsize SegmentColor::readMdl(istream &istream) throw (class Exception)
 std::streamsize SegmentColor::writeMdl(ostream &ostream) const throw (class Exception)
 {
 	std::streamsize size = 0;
-	writeMdlVectorProperty(ostream, size, "Color", BasicVertex<float32, 3>(blue(), green(), red()));
+	writeMdlVectorProperty(ostream, size, "Color", VertexData(blue(), green(), red()));
 
 	return size;
 }

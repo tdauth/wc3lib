@@ -823,13 +823,13 @@ bool parse(Iterator first, Iterator last, jass_ast &ast, jass_file &current_file
  * as long as they use the iterator type PositionIteratorType
  */
 template std::string expectationFailure<Grammar::PositionIteratorType>(const jass_file *file, const boost::spirit::qi::expectation_failure<Grammar::PositionIteratorType> &e);
-template class comment_skipper<Grammar::PositionIteratorType>;
-template class jass_grammar<Grammar::PositionIteratorType, comment_skipper<Grammar::PositionIteratorType> >;
+template struct comment_skipper<Grammar::PositionIteratorType>;
+template struct jass_grammar<Grammar::PositionIteratorType, comment_skipper<Grammar::PositionIteratorType> >;
 template bool parse<Grammar::PositionIteratorType>(Grammar::PositionIteratorType first, Grammar::PositionIteratorType last, jass_ast &ast, jass_file &current_file);
 // ClassicPositionIteratorType
 template std::string expectationFailure<Grammar::ClassicPositionIteratorType>(const jass_file *file, const boost::spirit::qi::expectation_failure<Grammar::ClassicPositionIteratorType> &e);
-template class comment_skipper<Grammar::ClassicPositionIteratorType>;
-template class jass_grammar<Grammar::ClassicPositionIteratorType, comment_skipper<Grammar::ClassicPositionIteratorType> >;
+template struct comment_skipper<Grammar::ClassicPositionIteratorType>;
+template struct jass_grammar<Grammar::ClassicPositionIteratorType, comment_skipper<Grammar::ClassicPositionIteratorType> >;
 template bool parse<Grammar::ClassicPositionIteratorType>(Grammar::ClassicPositionIteratorType first, Grammar::ClassicPositionIteratorType last, jass_ast &ast, jass_file &current_file);
 
 }

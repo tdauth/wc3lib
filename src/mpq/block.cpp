@@ -40,8 +40,10 @@ uint32 Block::fileKey(const string &fileName, const BlockTableEntry &blockTableE
 	uint32 nFileKey = HashString(Mpq::cryptTable(), fileName.c_str(), HashType::FileKey);
 
 	// Offset-adjust the key if necessary
-	if (blockTableEntry.flags & Flags::UsesEncryptionKey)
+	if (static_cast<Flags>(blockTableEntry.flags) & Flags::UsesEncryptionKey)
+	{
 		nFileKey = (nFileKey + blockTableEntry.blockOffset) ^ blockTableEntry.fileSize;
+	}
 
 	return nFileKey;
 }
@@ -66,7 +68,7 @@ std::streamsize Block::read(istream &istream) throw (class Exception)
 	this->m_blockOffset = entry.blockOffset;
 	this->m_blockSize = entry.blockSize;
 	this->m_fileSize = entry.fileSize;
-	this->m_flags = (BOOST_SCOPED_ENUM(Block::Flags))(entry.flags);
+	this->m_flags = static_cast<Block::Flags>(entry.flags);
 
 	return size;
 }
@@ -90,7 +92,7 @@ uint32 Block::fileKey(const string &fileName) const
 	entry.blockOffset = this->m_blockOffset;
 	entry.blockSize = this->m_blockSize;
 	entry.fileSize = this->m_fileSize;
-	entry.flags = this->m_flags;
+	entry.flags = static_cast<uint32>(this->m_flags);
 
 	return Block::fileKey(fileName, entry);
 }

@@ -33,7 +33,7 @@ HashData::HashData(int32 filePathHashA, int32 filePathHashB, uint16 locale, uint
 {
 }
 
-HashData::HashData(const boost::filesystem::path& path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform) : m_filePathHashA(HashString(Mpq::cryptTable(), path.string().c_str(), HashType::NameA)), m_filePathHashB(HashString(Mpq::cryptTable(), path.string().c_str(), HashType::NameB)), m_locale(MpqFile::localeToInt(locale)), m_platform(MpqFile::platformToInt(platform))
+HashData::HashData(const boost::filesystem::path& path, MpqFile::Locale locale, MpqFile::Platform platform) : m_filePathHashA(HashString(Mpq::cryptTable(), path.string().c_str(), HashType::NameA)), m_filePathHashB(HashString(Mpq::cryptTable(), path.string().c_str(), HashType::NameB)), m_locale(MpqFile::localeToInt(locale)), m_platform(MpqFile::platformToInt(platform))
 {
 }
 
@@ -56,11 +56,10 @@ bool HashData::isHash(int32 nameHashA, int32 nameHashB, uint16 locale, uint16 pl
 	return this->m_filePathHashA == nameHashA && this->m_filePathHashB == nameHashB && this->m_locale == locale && this->m_platform == platform;
 }
 
-bool HashData::isHash(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale, BOOST_SCOPED_ENUM(MpqFile::Platform) platform) const
+bool HashData::isHash(const boost::filesystem::path &path, MpqFile::Locale locale, MpqFile::Platform platform) const
 {
 	return isHash(HashString(Mpq::cryptTable(), path.string().c_str(), HashType::NameA), HashString(Mpq::cryptTable(), path.string().c_str(), HashType::NameB), MpqFile::localeToInt(locale), MpqFile::platformToInt(platform));
 }
-
 
 const uint32 Hash::blockIndexDeleted = 0xFFFFFFFE;
 const uint32 Hash::blockIndexEmpty = 0xFFFFFFFF;

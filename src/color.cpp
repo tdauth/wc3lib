@@ -31,6 +31,10 @@ Rgb::Rgb() : m_red(0), m_green(0), m_blue(0)
 {
 }
 
+Rgb::~Rgb()
+{
+}
+
 std::streamsize Rgb::read(InputStream &istream) throw (class Exception)
 {
 	std::streamsize size = 0;

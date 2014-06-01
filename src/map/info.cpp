@@ -47,8 +47,8 @@ std::streamsize Info::Player::write(OutputStream &ostream) const throw (Exceptio
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, number(), size);
-	wc3lib::write<int32>(ostream, type(), size);
-	wc3lib::write<int32>(ostream, race(), size);
+	wc3lib::write<int32>(ostream, static_cast<int32>(type()), size);
+	wc3lib::write<int32>(ostream, static_cast<int32>(race()), size);
 	wc3lib::write<int32>(ostream, hasFixedStartPosition(), size);
 	wc3lib::writeString(ostream, name(), size);
 	size += position().write(ostream);
@@ -71,7 +71,7 @@ std::streamsize Info::Force::read(InputStream &istream) throw (Exception)
 std::streamsize Info::Force::write(OutputStream &ostream) const throw (Exception)
 {
 	std::streamsize size = 0;
-	wc3lib::write<int32>(ostream, flags(), size);
+	wc3lib::write<int32>(ostream, static_cast<int32>(flags()), size);
 	wc3lib::write(ostream, playerMask(), size);
 	wc3lib::writeString(ostream, name(), size);
 
@@ -128,7 +128,7 @@ std::streamsize Info::RandomUnitTable::Group::read(InputStream &istream) throw (
 	// columns
 	for (int32 i = 0; i < number; ++i)
 	{
-		BOOST_SCOPED_ENUM(Column::Type) type;
+		Column::Type type = Column::Type::UnitTable;
 		wc3lib::read<int32>(istream, (int32&)type, size);
 		std::auto_ptr<Column> ptr(new Column());
 		ptr->setType(type);
@@ -310,7 +310,7 @@ std::streamsize Info::write(OutputStream &ostream) const throw (class Exception)
 	wc3lib::write(ostream, cameraBounds(), size);
 	wc3lib::write(ostream, playableWidth(), size);
 	wc3lib::write(ostream, playableHeight(), size);
-	wc3lib::write<int32>(ostream, (const int32&)flags(), size);
+	wc3lib::write<int32>(ostream, static_cast<int32>(flags()), size);
 	wc3lib::write(ostream, mainGroundType(), size);
 	wc3lib::write(ostream, campaignBackgroundIndex(), size);
 	wc3lib::writeString(ostream, loadingScreenText(), size);

@@ -24,7 +24,7 @@
 #include <unistd.h>
 #include <cstdio>
 
-#include <QFile>
+#include <QtCore>
 
 #include <KMimeType>
 #include <KDebug>
@@ -65,7 +65,7 @@ extern "C" int KDE_EXPORT kdemain(int argc, char **argv)
 
 const char *MpqProtocol::protocol= "mpq";
 
-MpqProtocol::MpqProtocol(const QByteArray &pool, const QByteArray &app) : m_file(0), m_seekPos(0), KIO::SlaveBase(protocol, pool, app)
+MpqProtocol::MpqProtocol(const QByteArray &pool, const QByteArray &app) : KIO::SlaveBase(protocol, pool, app), m_file(0), m_seekPos(0)
 {
 	kDebug(7000) << "Created MPQ slave";
 }
@@ -73,7 +73,7 @@ MpqProtocol::MpqProtocol(const QByteArray &pool, const QByteArray &app) : m_file
 bool MpqProtocol::parseUrl(const KUrl &url, QString &fileName, QByteArray &archivePath)
 {
 	kDebug(7000) << "MPQ: Parsing url " << url.prettyUrl();
-	
+
 	QString path = url.path();
 
 	bool appended = false;
@@ -113,12 +113,12 @@ bool MpqProtocol::parseUrl(const KUrl &url, QString &fileName, QByteArray &archi
 	if (!QFileInfo(fileName).isFile())
 	{
 		kDebug(7000) << "Is not a file";
-		
+
 		return false;
 	}
 
 	toArchivePath(archivePath, path.mid(pos+1, -1));
-	
+
 	kDebug(7000) << "Got it with archive path " << archivePath.constData() << "\nand file name " << fileName;
 
 	return true;
@@ -138,34 +138,35 @@ void MpqProtocol::toArchivePath(QByteArray &to, const QString &from)
 bool MpqProtocol::openArchive(const QString &archive, QString &error)
 {
 	kDebug(7000) << "opening archive " << archive;
-	
+
 	// TEST
 	if (!m_archive.isNull())
 	{
 		kDebug(7000) << "With old path " << this->m_archive->path().c_str();
 	}
 	// TEST END
-	
+
 	// if file paths are equal file must already be open, so don't open again
 	if (this->m_archive.isNull() || m_archiveName != archive)
 	{
 		kDebug(7000) << "New opening!";
-		
+
 		MpqArchivePtr ptr(new mpq::Mpq());
-		
+		ptr->setStoreSectors(false); // improves speed on opening massively, never read sectors when opening archive
+
 		try
 		{
 			ptr->open(archive.toUtf8().constData());
 		}
 		catch (Exception &exception)
 		{
-			error = exception.what().c_str();
-			
+			error = exception.what();
+
 			kDebug(7000) << "Error: " << error;
-			
+
 			return false;
 		}
-		
+
 		if (ptr->containsAttributesFile())
 		{
 			try
@@ -174,10 +175,10 @@ bool MpqProtocol::openArchive(const QString &archive, QString &error)
 			}
 			catch (Exception &exception)
 			{
-				error = exception.what().c_str();
-				
+				error = exception.what();
+
 				kDebug(7000) << "Error: " << error;
-				
+
 				return false;
 			}
 		}
@@ -185,9 +186,9 @@ bool MpqProtocol::openArchive(const QString &archive, QString &error)
 		m_archive.swap(ptr); // exception safety
 		m_archiveName = archive;
 	}
-	
+
 	kDebug(7000) << "Success on opening archive";
-	
+
 	return true;
 }
 
@@ -196,34 +197,34 @@ void MpqProtocol::open(const KUrl &url, QIODevice::OpenMode mode)
 {
 	QString fileName;
 	QByteArray archivePath;
-	
+
 	if (!parseUrl(url, fileName, archivePath))
 	{
 		error(KIO::ERR_DOES_NOT_EXIST, url.prettyUrl());
-		
+
 		return;
 	}
-	
+
 	QString errorText;
-	
+
 	if (!openArchive(fileName, errorText))
 	{
 		error(KIO::ERR_ABORTED, i18n("%1: \"%2\"", fileName, errorText));
 
 		return;
 	}
-	
+
 	mpq::MpqFile *file = m_archive->findFile(archivePath.constData()); // TODO locale and platform
-	
+
 	kDebug(7000) << "Opening: " << archivePath.constData();
-	
+
 	if (file == 0)
 	{
 		error(KIO::ERR_DOES_NOT_EXIST, url.prettyUrl());
-		
+
 		return;
 	}
-	
+
 	this->m_file = file;
 
 	if (mode == QIODevice::ReadOnly || mode == QIODevice::ReadWrite)
@@ -236,37 +237,37 @@ void MpqProtocol::open(const KUrl &url, QIODevice::OpenMode mode)
 		else
 		{
 			stringstream stream;
-			
+
 			try
 			{
 				std::streamsize size = this->m_file->writeData(stream);
 				QByteArray data = stream.str().c_str();
 				KMimeType::Ptr fileMimeType = KMimeType::findByNameAndContent(url.fileName(), data);
 				mimeType(fileMimeType->name());
-				
+
 			}
 			catch (Exception &e)
 			{
-				kDebug(7000) << "Unable to read file and detect MIME type: " << url.prettyUrl() << ": " << e.what().c_str();
+				kDebug(7000) << "Unable to read file and detect MIME type: " << url.prettyUrl() << ": " << e.what();
 			}
 		}
 	}
 
-	
+
 	kDebug(7000) << "Successfully open";
 	KIO::filesize_t size = 0;
-	
+
 	try
 	{
 		size = boost::numeric_cast<KIO::filesize_t>(this->m_file->compressedSize());
 	}
 	catch (Exception &e)
 	{
-		error(KIO::ERR_ABORTED, i18n("%1: %2", url.prettyUrl(), e.what().c_str()));
-		
+		error(KIO::ERR_ABORTED, i18n("%1: %2", url.prettyUrl(), e.what()));
+
 		return;
 	}
-	
+
 	totalSize(size);
 	position(0);
 	opened();
@@ -281,22 +282,22 @@ void MpqProtocol::close()
 void MpqProtocol::read(KIO::filesize_t size)
 {
 	stringstream sstream;
-	
+
 	try // TODO faster way without writing ALL data
 	{
 		m_file->writeData(sstream); // write data first to decompress everything
 	}
 	catch (Exception &e)
 	{
-		error(KIO::ERR_COULD_NOT_READ, i18n("%1: %2", m_file->path().c_str(), e.what().c_str()));
-		
+		error(KIO::ERR_COULD_NOT_READ, i18n("%1: %2", m_file->path().c_str(), e.what()));
+
 		return;
 	}
-	
+
 	sstream.seekg(m_seekPos);
 	byte content[size];
 	sstream.read(content, size);
-	
+
 	data(QByteArray::fromRawData(content, size));
 }
 
@@ -309,7 +310,7 @@ void MpqProtocol::mkdir(const KUrl& url, int permissions)
 {
 	// MPQ archives does not support directory structure
 	// Only simulate creating directory
-	
+
 	finished();
 }
 
@@ -319,21 +320,21 @@ void MpqProtocol::listDir(const KUrl &url)
 
 	QString fileName;
 	QByteArray archivePath;
-	
+
 	if (!parseUrl(url, fileName, archivePath))
 	{
 		error(KIO::ERR_DOES_NOT_EXIST, url.prettyUrl());
-		
+
 		return;
 	}
-	
+
 	if (!archivePath.isEmpty() && archivePath.at(archivePath.size() - 1) != '\\')
 	{
 		archivePath.append('\\'); // interpret as directory
 	}
 
 	QString errorText;
-	
+
 	if (!openArchive(fileName, errorText))
 	{
 		// use slave defined for custom text other than error code!
@@ -341,10 +342,10 @@ void MpqProtocol::listDir(const KUrl &url)
 
 		return;
 	}
-	
+
 	// TODO get all files contained in directory using (listfile)
 	mpq::Listfile *listfile = m_archive->listfileFile();
-	
+
 	if (listfile == 0)
 	{
 		// use slave defined for custom text other than error code!
@@ -352,13 +353,13 @@ void MpqProtocol::listDir(const KUrl &url)
 
 		return;
 	}
-	
+
 	kDebug(7000) << "MpqProtocol::listDir entries of " << archivePath.constData();
 	mpq::Listfile::Entries entries = listfile->dirEntries(archivePath.constData(), false);
 	kDebug(7000) << "MpqProtocol::listDir entries size " << entries.size();
 	const bool hasAttributes = m_archive->containsAttributesFile();
 	bool hasFileTime = false;
-	
+
 	if (!hasAttributes)
 	{
 		//warning(i18n("%1: Missing \"(attributes)\" file.", url.prettyUrl()));
@@ -366,7 +367,7 @@ void MpqProtocol::listDir(const KUrl &url)
 	else
 	{
 		hasFileTime = m_archive->attributesFile()->extendedAttributes() & mpq::Attributes::ExtendedAttributes::FileTimeStamps;
-		
+
 		/*
 		if (!hasFileTime)
 		{
@@ -374,29 +375,29 @@ void MpqProtocol::listDir(const KUrl &url)
 		}
 		*/
 	}
-	
+
 	if (archivePath.isEmpty()) // root directory
 	{
 		kDebug(7000) << "MpqProtocol::listDir is root directory, appending extra files";
-		
+
 		// list files which are not listed in "(listfile)"
-		
+
 		if (m_archive->containsListfileFile()) // should always be the case
 		{
 			entries.push_back(m_archive->listfileFile()->fileName());
 		}
-		
+
 		if (m_archive->containsAttributesFile())
 		{
 			entries.push_back(m_archive->attributesFile()->fileName());
 		}
-		
+
 		if (m_archive->containsSignatureFile())
 		{
 			entries.push_back(m_archive->signatureFile()->fileName());
 		}
 	}
-	
+
 	BOOST_FOREACH (mpq::Listfile::Entries::reference ref, entries)
 	{
 		// ignore empty entries
@@ -404,25 +405,25 @@ void MpqProtocol::listDir(const KUrl &url)
 		{
 			continue;
 		}
-		
+
 		boost::iterator_range<string::iterator> r = boost::find_last(ref, "\\");
-		
+
 		kDebug(7000) << "Entry \"" << ref.c_str() << "\"";
-		
+
 		if (!r.empty() && r.begin() == --ref.end()) // is directory, ends with back slash
 		{
 			kDebug(7000) << "Is dir";
-			
+
 			ref.erase(ref.size() - 1);
 			r = boost::find_last(ref, "\\");
-			
+
 			if (!r.empty()) // cut full path
 			{
 				ref.erase(ref.begin(), r.end());
 			}
-			
+
 			kDebug(7000) << "New path \"" << ref.c_str() << "\"";
-			
+
 			KIO::UDSEntry entry;
 			entry.insert(KIO::UDSEntry::UDS_NAME, QFile::decodeName(ref.c_str()));
 			entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFDIR);
@@ -433,7 +434,7 @@ void MpqProtocol::listDir(const KUrl &url)
 		{
 			kDebug(7000) << "Is file";
 			QString fileName;
-			
+
 			if (!r.empty()) // cut full path
 			{
 				fileName = QFile::decodeName(string(++r.begin(), ref.end()).c_str());
@@ -442,24 +443,24 @@ void MpqProtocol::listDir(const KUrl &url)
 			{
 				fileName = QFile::decodeName(ref.c_str());
 			}
-			
+
 			kDebug(7000) << "New path \"" << fileName << "\"";
-			
+
 			mpq::MpqFile *file = m_archive->findFile(ref); // TODO locale and platform
-			
+
 			if (file != 0)
 			{
 				//quint64 fileTime = 0;
 				time_t fileTime = 0;
 				bool validFileTime = false;
-				
+
 				// file time is extended attribute!
 				if (hasAttributes && hasFileTime)
 				{
 					try
 					{
 						const bool cast = file->fileTime().toTime(fileTime);
-						
+
 						if (!cast)
 						{
 							warning(i18n("%1: Invalid file time for \"%2\": high - %3, low - %4", url.prettyUrl(), ref.c_str(), file->fileTime().highDateTime, file->fileTime().lowDateTime));
@@ -471,30 +472,30 @@ void MpqProtocol::listDir(const KUrl &url)
 					}
 					catch (mpq::Attributes::Exception &e)
 					{
-						warning(i18n("%1: File time is not stored in \"(attributes)\" file: %2", url.prettyUrl(), e.what().c_str()));
+						warning(i18n("%1: File time is not stored in \"(attributes)\" file: %2", url.prettyUrl(), e.what()));
 					}
 				}
-				
+
 				KIO::UDSEntry entry;
 				entry.insert(KIO::UDSEntry::UDS_NAME, fileName);
 				entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFREG);
 				entry.insert(KIO::UDSEntry::UDS_SIZE, file->compressedSize());
-				
-				
+
+
 				if (validFileTime)
 				{
 					entry.insert(KIO::UDSEntry::UDS_MODIFICATION_TIME, fileTime);
 				}
-				
+
 				entry.insert(KIO::UDSEntry::UDS_ACCESS, (S_IRWXU | S_IRWXG | S_IRWXO));
-				
+
 				KMimeType::Ptr ptr = KMimeType::findByPath(QFile::decodeName(ref.c_str())); // TODO find by content?
 
 				if (!ptr.isNull())
 				{
 					entry.insert(KIO::UDSEntry::UDS_MIME_TYPE, ptr->name());
 				}
-				
+
 				listEntry(entry, false);
 			}
 			else // invalid entry
@@ -503,7 +504,7 @@ void MpqProtocol::listDir(const KUrl &url)
 			}
 		}
 	}
-	
+
 	listEntry(KIO::UDSEntry(), true); // ready
 	finished();
 }
@@ -514,26 +515,26 @@ void MpqProtocol::stat(const KUrl &url)
 
 	QString fileName;
 	QByteArray archivePath;
-	
+
 	if (!parseUrl(url, fileName, archivePath))
 	{
 		error(KIO::ERR_DOES_NOT_EXIST, url.prettyUrl());
-		
+
 		return;
 	}
-	
+
 	QString errorText;
-	
+
 	if (!openArchive(fileName, errorText))
 	{
 		error(KIO::ERR_ABORTED, i18n("%1: \"%2\"", url.prettyUrl(), errorText));
 
 		return;
 	}
-	
+
 	const bool hasAttributes = m_archive->containsAttributesFile();
 	bool hasFileTime = false;
-	
+
 	if (!hasAttributes)
 	{
 		//warning(i18n("%1: Missing \"(attributes)\" file.", url.prettyUrl()));
@@ -541,7 +542,7 @@ void MpqProtocol::stat(const KUrl &url)
 	else
 	{
 		hasFileTime = m_archive->attributesFile()->extendedAttributes() & mpq::Attributes::ExtendedAttributes::FileTimeStamps;
-		
+
 		/*
 		if (!hasFileTime)
 		{
@@ -549,29 +550,29 @@ void MpqProtocol::stat(const KUrl &url)
 		}
 		*/
 	}
-	
+
 	kDebug(7000) << "MpqProtocol::state Searching file " << archivePath.constData();
-	
+
 	mpq::MpqFile *file = m_archive->findFile(archivePath.constData()); // TODO locale and platform
-	
+
 	KIO::UDSEntry entry;
 	entry.insert(KIO::UDSEntry::UDS_NAME, url.path());
 	entry.insert(KIO::UDSEntry::UDS_ACCESS, (S_IRWXU | S_IRWXG | S_IRWXO));
-	
-	
+
+
 	if (file != 0) // TODO includes dirs?
 	{
 		//quint64 fileTime = 0;
 		time_t fileTime = 0;
 		bool validFileTime = false;
-		
+
 		// file time is extended attribute!
 		if (hasAttributes && hasFileTime)
 		{
 			try
 			{
 				const bool cast = file->fileTime().toTime(fileTime);
-				
+
 				if (!cast)
 				{
 					warning(i18n("%1: Invalid file time: high - %2, low - %3", url.prettyUrl(), file->fileTime().highDateTime, file->fileTime().lowDateTime));
@@ -583,18 +584,18 @@ void MpqProtocol::stat(const KUrl &url)
 			}
 			catch (mpq::Attributes::Exception &e)
 			{
-				warning(i18n("%1: File time is not stored in \"(attributes)\" file: %2", url.prettyUrl(), e.what().c_str()));
+				warning(i18n("%1: File time is not stored in \"(attributes)\" file: %2", url.prettyUrl(), e.what()));
 			}
 		}
-		
+
 		entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFREG);
 		entry.insert(KIO::UDSEntry::UDS_SIZE, file->compressedSize());
-		
+
 		if (validFileTime)
 		{
 			entry.insert(KIO::UDSEntry::UDS_MODIFICATION_TIME, fileTime);
 		}
-		
+
 		KMimeType::Ptr ptr = KMimeType::findByPath(url.path()); // TODO find by content?
 
 		if (!ptr.isNull())
@@ -609,16 +610,16 @@ void MpqProtocol::stat(const KUrl &url)
 		if (this->m_archive->containsListfileFile() && this->m_archive->listfileFile()->dirEntries(archivePath.constData()).empty())
 		{
 			kDebug(7000) << "stat(): is no dir, no entries, does not exist.";
-			
+
 			error(KIO::ERR_DOES_NOT_EXIST, url.prettyUrl());
-			
+
 			return;
 		}
-		
+
 		kDebug(7000) << "stat(): is dir";
 		entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFDIR);
 	}
-	
+
 	statEntry(entry);
 	finished();
 }
@@ -627,18 +628,18 @@ void MpqProtocol::get(const KUrl &url)
 {
 	QString fileName;
 	QByteArray archivePath;
-	
+
 	kDebug(7000) << "Getting file " << url.prettyUrl();
-	
+
 	if (!parseUrl(url, fileName, archivePath))
 	{
 		error(KIO::ERR_DOES_NOT_EXIST, url.prettyUrl());
-		
+
 		return;
 	}
-	
+
 	QString errorText;
-	
+
 	if (!openArchive(fileName, errorText))
 	{
 		error(KIO::ERR_ABORTED, i18n("%1: \"%2\"", url.prettyUrl(), errorText));
@@ -764,11 +765,11 @@ void MpqProtocol::get(const KUrl &url)
 		catch (Exception &exception)
 		{
 			kWarning(7000) << "Read" << read << "bytes but expected" << sectorSize ;
-			error(KIO::ERR_COULD_NOT_READ, i18n("%1: \"%2\".", url.prettyUrl(), exception.what().c_str()));
+			error(KIO::ERR_COULD_NOT_READ, i18n("%1: \"%2\".", url.prettyUrl(), exception.what()));
 
 			return;
 		}
-		
+
 		const string bufferString = ostream.str();
 		const QByteArray buffer(bufferString.c_str(), bufferString.size()); // TODO copy is bad
 
@@ -776,7 +777,7 @@ void MpqProtocol::get(const KUrl &url)
 		{
 			// We use the magic one the first data read
 			// (As magic detection is about fixed positions, we can be sure that it is enough data.)
-			
+
 			KMimeType::Ptr mime = KMimeType::findByNameAndContent(archivePath, buffer);
 			kDebug(7000) << "Emitting mimetype" << mime->name();
 			mimeType(mime->name());
@@ -796,19 +797,19 @@ void MpqProtocol::get(const KUrl &url)
 
 void MpqProtocol::put(const KUrl &url, int permissions, KIO::JobFlags flags)
 {
-	
+
 	QString fileName;
 	QByteArray archivePath;
-	
+
 	if (!parseUrl(url, fileName, archivePath))
 	{
 		error(KIO::ERR_DOES_NOT_EXIST, url.prettyUrl());
-		
+
 		return;
 	}
-	
+
 	QString errorText;
-	
+
 	if (!openArchive(fileName, errorText))
 	{
 		error(KIO::ERR_ABORTED, i18n("%1: \"%2\"", fileName, errorText));
@@ -816,13 +817,13 @@ void MpqProtocol::put(const KUrl &url, int permissions, KIO::JobFlags flags)
 		return;
 	}
 
-	BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale = mpq::MpqFile::Locale::Neutral; // TODO get from URL
-	BOOST_SCOPED_ENUM(mpq::MpqFile::Platform) platform = mpq::MpqFile::Platform::Default;
-	
+	mpq::MpqFile::Locale locale = mpq::MpqFile::Locale::Neutral; // TODO get from URL
+	mpq::MpqFile::Platform platform = mpq::MpqFile::Platform::Default;
+
 	// TODO read URL into temporary local file and add file to MPQ archive!
-	
+
 	warning(i18n("Not supported yet!"));
-	
+
 	finished();
 
 	/*
@@ -832,7 +833,7 @@ void MpqProtocol::put(const KUrl &url, int permissions, KIO::JobFlags flags)
 
 		return;
 	}
-	
+
 	Q
 
 	const mpq::MpqFile *file = this->m_archive->findFile(archivePath.constData(), locale, platform);
@@ -885,16 +886,6 @@ void MpqProtocol::createRootUDSEntry(KIO::UDSEntry &entry)
 	entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFDIR);
 	entry.insert(KIO::UDSEntry::UDS_MODIFICATION_TIME, m_modified.toTime_t());
 	//entry.insert( KIO::UDSEntry::UDS_ACCESS, 07777 ); // fake 'x' permissions, this is a pseudo-directory
-}
-
-void MpqProtocol::createUDSEntry(const KArchiveEntry *archiveEntry, KIO::UDSEntry &entry)
-{
-	entry.clear();
-	entry.insert(KIO::UDSEntry::UDS_NAME, archiveEntry->name() );
-	entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, archiveEntry->permissions() & S_IFMT); // keep file type only
-	entry.insert(KIO::UDSEntry::UDS_SIZE, archiveEntry->isFile() ? ((KArchiveFile *)archiveEntry)->size() : 0L);
-	entry.insert(KIO::UDSEntry::UDS_MODIFICATION_TIME, archiveEntry->date());
-	entry.insert(KIO::UDSEntry::UDS_LINK_DEST, archiveEntry->symLinkTarget());
 }
 
 void MpqProtocol::createUDSEntry(const mpq::MpqFile &mpqFile, KIO::UDSEntry &entry)
@@ -1053,15 +1044,6 @@ bool MpqProtocol::checkNewFile(const KUrl &url, QString &path, KIO::Error &error
 	m_archiveName = archiveFile;
 
 	return true;
-}
-
-mpq::MpqFile* MpqProtocol::resolvePath(QString& path)
-{
-	BOOST_SCOPED_ENUM(mpq::MpqFile::Locale) locale = mpq::MpqFile::Locale::Neutral;
-	BOOST_SCOPED_ENUM(mpq::MpqFile::Platform) platform = mpq::MpqFile::Platform::Default;
-	path = MpqArchive::resolvePath(path, locale, platform);
-
-	return this->m_archive->findFile(path.toUtf8().constData(), locale, platform);
 }
 
 

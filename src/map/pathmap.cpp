@@ -69,10 +69,10 @@ std::streamsize Pathmap::read(InputStream &istream) throw (class Exception)
 	{
 		for (int32 height = 0; height < header.height; ++height)
 		{
-			byte type = 0;
+			uint8 type = 0;
 			wc3lib::read(istream, type, size);
 
-			this->tilepoints()[width][height] = (BOOST_SCOPED_ENUM(Type))(type);
+			this->tilepoints()[width][height] = static_cast<Type>(type);
 		}
 	}
 
@@ -93,7 +93,7 @@ std::streamsize Pathmap::write(OutputStream &ostream) const throw (class Excepti
 	{
 		for (int32 height = 0; height < header.height; ++height)
 		{
-			byte type = this->tilepoints()[width][height];
+			uint8 type = static_cast<uint8>(this->tilepoints()[width][height]);
 			wc3lib::write(ostream, type, size);
 		}
 	}

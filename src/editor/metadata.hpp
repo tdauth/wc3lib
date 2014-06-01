@@ -34,7 +34,6 @@ namespace editor
 
 /**
  * Base class for all possible meta data formats (units, abilities, upgrades etc.).
- * Simply reimplement virtual member functions \ref createMetaDataEntry() and \ref filleMetaDataEntry() to create and fill your custom meta data.
  * \todo Add more abstract class which is the base of water data, sound data etc. as well.
  * Resource URL should refer a SYLK file.
  */
@@ -50,10 +49,10 @@ class MetaData : public Resource
 		 * First index is column (x) and second index is row (y).
 		 */
 		typedef boost::multi_array<Cell, 2> Table;
-		
+
 		typedef Table::array_view<1>::type View;
 		typedef Table::const_array_view<1>::type ConstView;
-		
+
 		/**
 		 * Values of the first cells are used to get the corresponding number of row or column.
 		 */
@@ -80,7 +79,7 @@ class MetaData : public Resource
 		ConstView column(const Cell &key) const;
 		ConstView row(int index) const;
 		ConstView column(int index) const;
-		
+
 		const Cell& value(int row, int column) const;
 		const Cell& value(int row, const Cell &columnKey) const;
 		const Cell& value(const Cell &rowKey, int column) const;
@@ -117,7 +116,7 @@ inline MetaData::ConstView MetaData::row(int index) const
 	typedef Table::index_range range;
 	Table::index_gen indices;
 	Table::const_array_view<1>::type myview = this->table()[indices[range(0, this->table().shape()[0])][index] ];
-	
+
 	return myview;
 }
 
@@ -131,7 +130,7 @@ inline MetaData::ConstView MetaData::column(int index) const
 	typedef Table::index_range range;
 	Table::index_gen indices;
 	Table::const_array_view<1>::type myview = this->table()[indices[index][range(0, this->table().shape()[1])] ];
-	
+
 	return myview;
 }
 

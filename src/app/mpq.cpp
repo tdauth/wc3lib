@@ -54,7 +54,7 @@ std::string sizeString(T size, bool humanReadable, bool decimal)
 	return result.str();
 }
 
-std::string flagsString(BOOST_SCOPED_ENUM(Block::Flags) flags)
+std::string flagsString(Block::Flags flags)
 {
 	if (flags == Block::Flags::None)
 		return _("Uncompressed");
@@ -165,7 +165,15 @@ std::string fileInfoStormLib(TMPQFile &file, bool humanReadable, bool decimal)
 		//std::cerr << boost::format(_("Warning: Couldn't read file \"%1%\" by StormLib for debugging.")) % file.pFileEntry->szFileName << std::endl;
 
 	std::stringstream sstream;
-	sstream << boost::format(_("\"%1%\"\nCompressed: %2%\nSize: %3%\nHash index: %4%\nCompressed size: %5%\nFlags: %6%\nBlock offset: %7%")) % file.pFileEntry->szFileName % boolString(file.pFileEntry->dwFlags & MPQ_FILE_COMPRESSED) % sizeString(SFileGetFileSize(&file, 0), humanReadable, decimal) % file.pFileEntry->dwHashIndex % sizeString(file.pFileEntry->dwCmpSize, humanReadable, decimal) % flagsString((Block::Flags::enum_type)(file.pFileEntry->dwFlags)) % file.pFileEntry->ByteOffset;
+	sstream << boost::format(_("\"%1%\"\nCompressed: %2%\nSize: %3%\nHash index: %4%\nCompressed size: %5%\nFlags: %6%\nBlock offset: %7%"))
+		% file.pFileEntry->szFileName
+		% boolString(file.pFileEntry->dwFlags & MPQ_FILE_COMPRESSED)
+		% sizeString(SFileGetFileSize(&file, 0), humanReadable, decimal)
+		% file.pFileEntry->dwHashIndex
+		% sizeString(file.pFileEntry->dwCmpSize, humanReadable, decimal)
+		% flagsString(static_cast<Block::Flags>(file.pFileEntry->dwFlags))
+		% file.pFileEntry->ByteOffset
+	;
 
 	uint32 fileKey;
 	if (SFileGetFileInfo(
@@ -227,12 +235,12 @@ void fileCheckStormLib(const mpq::MpqFile &mpqFile, TMPQFile &file, bool humanRe
 		throw Exception("byte offset");
 	}
 
-	if (file.pFileEntry->wPlatform != mpqFile.platform())
+	if (file.pFileEntry->wPlatform != static_cast<uint16>(mpqFile.platform()))
 	{
 		throw Exception("platform");
 	}
 
-	if (file.pFileEntry->lcLocale != mpqFile.locale())
+	if (file.pFileEntry->lcLocale != static_cast<uint16>(mpqFile.locale()))
 	{
 		throw Exception("locale");
 	}
@@ -250,7 +258,7 @@ void fileCheckStormLib(const mpq::MpqFile &mpqFile, TMPQFile &file, bool humanRe
 	}
 	*/
 
-	if (file.pFileEntry->dwFlags != mpqFile.block()->flags())
+	if (file.pFileEntry->dwFlags != static_cast<uint16>(mpqFile.block()->flags()))
 	{
 		throw Exception("flags");
 	}
@@ -665,16 +673,16 @@ int main(int argc, char *argv[])
 
 				continue;
 			}
-			
+
 			std::list<std::string> paths;
 
 			BOOST_FOREACH(const Mpq::FilePtr mpqFile, mpq->files().get<0>())
 			{
 				paths.push_back(mpqFile->path().generic_string());
 			}
-			
+
 			paths.sort(); // sort alphabetically
-			
+
 			BOOST_FOREACH(const std::string &path, paths)
 			{
 				std::cout << path << std::endl;

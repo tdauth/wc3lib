@@ -35,6 +35,14 @@ namespace editor
 {
 
 /**
+ * \page objecteditorsection Object Editor
+ * The Object Editor is responsible for editting any object data of a map.
+ * Object data contains information of types which are used for instances (objects).
+ *
+ * \ingroup objectdata
+ */
+
+/**
  * Supports usual tabbed object editors:
  * <ul>
  * <li>Unit Editor</li>
@@ -60,7 +68,7 @@ namespace editor
  * <li>Sound Entry Editor</li>
  * <li>Misc Editor - formerly known as "edit gameplay constants"</li>
  * </ul>
- * 
+ *
  * \ingroup objectdata
  */
 class ObjectEditor : public Module
@@ -74,7 +82,7 @@ class ObjectEditor : public Module
 
 	public:
 		typedef QScopedPointer<map::CustomObjectsCollection> Collection;
-		
+
 		ObjectEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~ObjectEditor();
 
@@ -138,7 +146,7 @@ class ObjectEditor : public Module
 	protected:
 		void removeCurrentActions();
 		void addCurrentActions();
-		
+
 		/**
 		 * Updates the GUI of all object editor components.
 		 */
@@ -177,7 +185,7 @@ class ObjectEditor : public Module
 		class KAction *m_importAllObjectsAction;
 		class KAction *m_copyObjectAction;
 		class KAction *m_pasteObjectAction;
-		
+
 		Collection m_collection;
 };
 

@@ -21,7 +21,6 @@
 #ifndef WC3LIB_MPQ_ALGORITHM_HPP
 #define WC3LIB_MPQ_ALGORITHM_HPP
 
-#include <boost/detail/scoped_enum_emulation.hpp>
 #include <boost/iostreams/filter/bzip2.hpp>
 #include <boost/iostreams/filter/zlib.hpp>
 
@@ -70,14 +69,13 @@ inline const char* pkglibError(int error)
 /**
  * These values need to be like they are since they're used directly in function \ref HashString() for hash value calculation.
  */
-BOOST_SCOPED_ENUM_START(HashType) /// \todo C++11 : uint32
+enum class HashType : uint32
 {
 	TableOffset = 0x000,
 	NameA = 0x100,
 	NameB = 0x200,
 	FileKey = 0x300
 };
-BOOST_SCOPED_ENUM_END
 
 const std::size_t cryptTableSize = 0x500;
 /// The encryption and hashing functions use a number table in their procedures. This table must be initialized before the functions are called the first time.
@@ -86,7 +84,7 @@ void EncryptData(const uint32 dwCryptTable[cryptTableSize], void *lpbyBuffer, ui
 void DecryptData(const uint32 dwCryptTable[cryptTableSize], void *lpbyBuffer, uint32 dwLength, uint32 dwKey);
 
 /// Based on code from StormLib.
-uint32 HashString(const uint32 dwCryptTable[cryptTableSize], const char *lpszString, BOOST_SCOPED_ENUM(HashType) hashType);
+uint32 HashString(const uint32 dwCryptTable[cryptTableSize], const char *lpszString, HashType hashType);
 
 void compressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength, int * /* pCmpType */, int /* compressionLevel */)  throw (class Exception);
 void decompressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength) throw (class Exception);

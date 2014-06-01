@@ -165,20 +165,24 @@ std::streamsize ParticleEmitter2::writeMdl(ostream &ostream) const throw (class 
 		writeMdlPropertyBlockConclusion(ostream, size);
 	}
 
-	writeMdlVectorProperty(ostream, size, "Alpha", BasicVertex<long32, 3>(boost::numeric_cast<long32>(alpha1()), boost::numeric_cast<long32>(alpha2()), boost::numeric_cast<long32>(alpha3()))); // TODO workaround with long32 since byte is written as char value
-	writeMdlVectorProperty(ostream, size, "ParticleScaling", BasicVertex<float32, 3>(scalingX(), scalingY(), scalingZ()));
-	writeMdlVectorProperty(ostream, size, "LifeSpanUVAnim", BasicVertex<long32, 3>(lifeSpanUvAnim1(), lifeSpanUvAnim2(), lifeSpanUvAnim3()));
-	writeMdlVectorProperty(ostream, size, "DecayUVAnim", BasicVertex<long32, 3>(decayUvAnim1(), decayUvAnim2(), decayUvAnim3()));
-	writeMdlVectorProperty(ostream, size, "TailUVAnim", BasicVertex<long32, 3>(tailUvAnim1(), tailUvAnim2(), tailUvAnim3()));
-	writeMdlVectorProperty(ostream, size, "TailDecayUVAnim", BasicVertex<long32, 3>(tailDecayUvAnim1(), tailDecayUvAnim2(), tailDecayUvAnim3()));
+	writeMdlVectorProperty(ostream, size, "Alpha", Vertex3d<long32>(boost::numeric_cast<long32>(alpha1()), boost::numeric_cast<long32>(alpha2()), boost::numeric_cast<long32>(alpha3()))); // TODO workaround with long32 since byte is written as char value
+	writeMdlVectorProperty(ostream, size, "ParticleScaling", Vertex3d<float32>(scalingX(), scalingY(), scalingZ()));
+	writeMdlVectorProperty(ostream, size, "LifeSpanUVAnim", Vertex3d<long32>(lifeSpanUvAnim1(), lifeSpanUvAnim2(), lifeSpanUvAnim3()));
+	writeMdlVectorProperty(ostream, size, "DecayUVAnim", Vertex3d<long32>(decayUvAnim1(), decayUvAnim2(), decayUvAnim3()));
+	writeMdlVectorProperty(ostream, size, "TailUVAnim", Vertex3d<long32>(tailUvAnim1(), tailUvAnim2(), tailUvAnim3()));
+	writeMdlVectorProperty(ostream, size, "TailDecayUVAnim", Vertex3d<long32>(tailDecayUvAnim1(), tailDecayUvAnim2(), tailDecayUvAnim3()));
 
 	writeMdlValueProperty(ostream, size, "TextureID", this->textureId());
 
-	if (this->replaceableId() != 0)
-		writeMdlValueProperty(ostream, size, "ReplaceableId", this->replaceableId());
+	if (this->replaceableId() != ReplaceableId::None)
+	{
+		writeMdlValueProperty(ostream, size, "ReplaceableId", static_cast<long32>(this->replaceableId()));
+	}
 
 	if (this->priorityPlane() != 0)
+	{
 		writeMdlValueProperty(ostream, size, "PriorityPlane", this->priorityPlane());
+	}
 
 	writeMdlBlockConclusion(ostream, size);
 
@@ -258,10 +262,10 @@ std::streamsize ParticleEmitter2::writeMdx(ostream &ostream) const throw (class 
 	wc3lib::write(ostream, this->emissionRate(), size);
 	wc3lib::write(ostream, this->length(), size);
 	wc3lib::write(ostream, this->width(), size);
-	wc3lib::write<long32>(ostream, this->filterMode(), size);
+	wc3lib::write<long32>(ostream, static_cast<long32>(this->filterMode()), size);
 	wc3lib::write(ostream, this->rows(), size);
 	wc3lib::write(ostream, this->columns(), size);
-	wc3lib::write<long32>(ostream, this->flags(), size);
+	wc3lib::write<long32>(ostream, static_cast<long32>(this->flags()), size);
 	wc3lib::write(ostream, this->tailLength(), size);
 	wc3lib::write(ostream, this->time(), size);
 
@@ -289,7 +293,7 @@ std::streamsize ParticleEmitter2::writeMdx(ostream &ostream) const throw (class 
 	wc3lib::write(ostream, this->textureId(), size);
 	wc3lib::write(ostream, this->squirt(), size);
 	wc3lib::write(ostream, this->priorityPlane(), size);
-	wc3lib::write<long32>(ostream, this->replaceableId(), size);
+	wc3lib::write<long32>(ostream, static_cast<long32>(this->replaceableId()), size);
 	size += this->speeds()->writeMdx(ostream);
 	size += this->latitudes()->writeMdx(ostream);
 	size += this->emissionRates()->writeMdx(ostream);

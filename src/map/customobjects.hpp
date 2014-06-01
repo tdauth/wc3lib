@@ -32,11 +32,15 @@ namespace map
 /**
  * Warcraft III: The Frozen Throne allows you to customize every possible object data using Warcraft III's unit data format with some minor changes.
  * Corresponding type of data is stored dynamically (\ref CustomObjects::Type).
+ *
+ * \sa CustomUnits
+ * \sa CustomObjectsCollection
+ * \ingroup objectdata
  */
 class CustomObjects : public CustomUnits
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Type)
+		enum class Type : int32
 		{
 			Units,
 			Items,
@@ -46,28 +50,27 @@ class CustomObjects : public CustomUnits
 			Buffs,
 			Upgrades
 		};
-		BOOST_SCOPED_ENUM_END
 
 		/**
 		 * \brief Single value modfication entry.
-		 * 
+		 *
 		 * The value id of a modification can be accessed via \ref valueId(). It is the corresponding value of the SLK file entry.
 		 * For each type of modification there exists a meta data SLK file which contains information about the field to which
 		 * the modification belongs. This information is mostly required by the World Editor because it specifies which values
 		 * can be defined by the user.
-		 * 
+		 *
 		 * This is a list of all meta data SLK files from The Frozen Throne:
 		 * <ul>
 		 * <li>UnitMetaData.slk - \ref CustomObjects::Type::Unit </li>
 		 * </ul>
-		 * 
+		 *
 		 * \ingroup objectdata
 		 */
 		class Modification : public CustomUnits::Modification
 		{
 			public:
-				Modification(BOOST_SCOPED_ENUM(CustomObjects::Type) type);
-				BOOST_SCOPED_ENUM(CustomObjects::Type) type() const;
+				Modification(CustomObjects::Type type);
+				CustomObjects::Type type() const;
 				/**
 				 * Only read for doodads, abilities and upgrades. Doodads use this as variation number.
 				 */
@@ -82,7 +85,7 @@ class CustomObjects : public CustomUnits
 				std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
 			protected:
-				BOOST_SCOPED_ENUM(CustomObjects::Type) m_type;
+				CustomObjects::Type m_type;
 				int32 m_level; // level/variation
 				int32 m_data; // A, 1 = B, 2 = C, 3 = D, 4 = F, 5 = G, 6 = H
 		};
@@ -90,18 +93,18 @@ class CustomObjects : public CustomUnits
 		class Object : public CustomUnits::Unit
 		{
 			public:
-				Object(BOOST_SCOPED_ENUM(CustomObjects::Type) type);
-				BOOST_SCOPED_ENUM(CustomObjects::Type) type() const;
+				Object(CustomObjects::Type type);
+				CustomObjects::Type type() const;
 
 			protected:
 				/// \todo C++11 override
 				virtual CustomUnits::Modification* createModification() const;
 
-				BOOST_SCOPED_ENUM(CustomObjects::Type) m_type;
+				CustomObjects::Type m_type;
 		};
 
-		CustomObjects(BOOST_SCOPED_ENUM(Type) type);
-		BOOST_SCOPED_ENUM(Type) type() const;
+		CustomObjects(Type type);
+		Type type() const;
 
 		virtual const byte* fileName() const;
 		/**
@@ -114,15 +117,15 @@ class CustomObjects : public CustomUnits
 		/// \todo C++11 override
 		virtual Unit* createUnit() const;
 
-		BOOST_SCOPED_ENUM(Type) m_type;
+		Type m_type;
 };
 
-inline BOOST_SCOPED_ENUM(CustomObjects::Type) CustomObjects::Object::type() const
+inline CustomObjects::Type CustomObjects::Object::type() const
 {
 	return this->m_type;
 }
 
-inline BOOST_SCOPED_ENUM(CustomObjects::Type) CustomObjects::Modification::type() const
+inline CustomObjects::Type CustomObjects::Modification::type() const
 {
 	return this->m_type;
 }
@@ -137,7 +140,7 @@ inline int32 CustomObjects::Modification::data() const
 	return this->m_data;
 }
 
-inline BOOST_SCOPED_ENUM(CustomObjects::Type) CustomObjects::type() const
+inline CustomObjects::Type CustomObjects::type() const
 {
 	return this->m_type;
 }

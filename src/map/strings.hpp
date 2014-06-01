@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2009 by Tamino Dauth                                    *
+ *   Copyright (C) 2011 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,12 +18,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_MAP_STRINGS_HPP
-#define WC3LIB_MAP_STRINGS_HPP
+#ifndef WC3LIB_MAP_MAPSTRINGS_HPP
+#define WC3LIB_MAP_MAPSTRINGS_HPP
 
-#include <map>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 #include "platform.hpp"
+#include "strings.hpp"
 
 namespace wc3lib
 {
@@ -31,71 +32,44 @@ namespace wc3lib
 namespace map
 {
 
-/**
- * Class for FDF and WTS file formats.
- */
-class Strings : public Format
+class MapStrings : public FileFormat
 {
 	public:
-		typedef std::map<std::size_t, class String*> StringList; // key is string id
-		typedef std::pair<std::size_t, class String*> StringListValue;
-		typedef std::pair<std::size_t, const class String*> StringListValueConst;
-
-		BOOST_SCOPED_ENUM_START(ConflictResult)
+		struct Entry
 		{
-			UseBoth,
-			UseFirst,
-			UseSecond
+			string key;
+			string value;
 		};
-		BOOST_SCOPED_ENUM_END
 
-		typedef BOOST_SCOPED_ENUM(ConflictResult) (*ConflictFunction)(const class String &string1, const class String &string2);
+		typedef boost::ptr_vector<Entry> Entries;
 
+		virtual std::streamsize read(InputStream &istream) throw (Exception);
+		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
 
-		Strings();
-		virtual ~Strings();
-
-		const boost::filesystem::path& path() const;
-		const StringList& stringList() const;
-
-		/**
-		* This function allows you to parse JASS or similar code files. It detects all necessary translation functions and their parameter string values.
-		* @note It recognizes line and block comments (// and /*).
-		* @param path Each string entry needs a corresponding file path and line for usage comparison.
-		* @param ostream Should not be 0 if replace is true. Output stream for replaced version.
-		* @param translationFunctions List of translation function identifiers which should be recognized.
-		* @param conflictFunction If this value is not 0 function will be called when two strings have the same default string. Use Strings::ConflictResult as return value to solve such conflicts.
-		* @return Returns pair with get and put stream sizes.
-		*/
-		virtual std::pair<std::streamsize, std::streamsize> parse(const boost::filesystem::path &path, std::basic_istream<byte> &istream, std::basic_ostream<byte> *ostream = 0, const bool replace = false, const bool fill = true, const bool ignoreReplacedValues = true, const std::list<std::string> &translationFunctions = std::list<std::string>(1, "GetLocalizedString"), ConflictFunction conflictFunction = 0) throw (class Exception);
-
-		/**
-		* Reads WTS format.
-		*/
-		virtual std::streamsize read(InputStream &istream) throw (class Exception);
-		/**
-		* Writes WTS format.
-		*/
-		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
-
-		virtual std::streamsize readFdf(InputStream &istream) throw (class Exception);
-		virtual std::streamsize writeFdf(OutputStream &ostream) const throw (class Exception);
-
-		virtual void list(OutputStream  &ostream) const;
-
-	protected:
-		boost::filesystem::path m_path;
-		StringList m_stringList;
+		virtual const byte* fileTextId() const;
+		virtual const byte* fileName() const;
+		virtual uint32 latestFileVersion() const;
+		virtual uint32 version() const;
 };
 
-inline const boost::filesystem::path& Strings::path() const
+inline const byte* MapStrings::fileTextId() const
 {
-	return this->m_path;
+	return "";
 }
 
-inline const Strings::StringList& Strings::stringList() const
+inline const byte* MapStrings::fileName() const
 {
-	return this->m_stringList;
+	return "war3map.wts";
+}
+
+inline uint32 MapStrings::latestFileVersion() const
+{
+	return 0;
+}
+
+inline uint32 MapStrings::version() const
+{
+	return 0;
 }
 
 }

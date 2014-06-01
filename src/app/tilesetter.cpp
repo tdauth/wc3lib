@@ -30,7 +30,7 @@
 #include <boost/foreach.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
-#include "../internationalisation.hpp"
+#include "../i18n.hpp"
 #include "../map/environment.hpp"
 
 using namespace wc3lib;

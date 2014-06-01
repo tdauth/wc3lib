@@ -110,13 +110,13 @@ Value::Value(int32 value) : ValueBase(value), m_type(Type::Integer)
 {
 }
 
-Value::Value(float32 value, BOOST_SCOPED_ENUM(Type) type) : ValueBase(value), m_type(type)
+Value::Value(float32 value, Type type) : ValueBase(value), m_type(type)
 {
 	if (!isReal())
 		throw Exception(_(""));
 }
 
-Value::Value(const string &value, BOOST_SCOPED_ENUM(Type) type) : ValueBase(value), m_type(type)
+Value::Value(const string &value, Type type) : ValueBase(value), m_type(type)
 {
 	if (!isString())
 		throw Exception(_(""));
@@ -130,13 +130,13 @@ Value::Value(byte value) : ValueBase(value), m_type(Type::Character)
 {
 }
 
-Value::Value(List value, BOOST_SCOPED_ENUM(Type) type) : ValueBase(value), m_type(type)
+Value::Value(List value, Type type) : ValueBase(value), m_type(type)
 {
 	if (!isList())
 		throw Exception(_(""));
 }
 
-BOOST_SCOPED_ENUM(Value::Type) Value::type() const
+Value::Type Value::type() const
 {
 	return m_type;
 }

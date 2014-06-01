@@ -45,7 +45,7 @@ namespace map
  * Both tables can be accessed via \ref originalTable() and \ref customTable().
  * Each unit in a table is represented by \ref CustomUnits::Unit and contains a list of modified fields (each represented by a \ref CustomUnits::Modification instance).
  * \sa CustomObjects
- * 
+ *
  * \ingroup objectdata
  */
 class CustomUnits : public FileFormat
@@ -67,25 +67,26 @@ class CustomUnits : public FileFormat
 				std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
 				id valueId() const;
-				struct Value& value();
-				const struct Value& value() const;
+				Value& value();
+				const Value& value() const;
 
 			protected:
-				std::streamsize readList(InputStream &istream, BOOST_SCOPED_ENUM(Value::Type) type);
+				std::streamsize readList(InputStream &istream, Value::Type type);
 				std::streamsize writeList(OutputStream &ostream) const;
 
 				/**
 				 * Reads data into \p m_value depending on parameter \p type.
 				 */
-				std::streamsize readData(InputStream &istream, BOOST_SCOPED_ENUM(Value::Type) type) throw (class Exception);
-				std::streamsize writeData(OutputStream &ostream, BOOST_SCOPED_ENUM(Value::Type) type) const throw (class Exception);
+				std::streamsize readData(InputStream &istream, Value::Type type) throw (class Exception);
+				std::streamsize writeData(OutputStream &ostream, Value::Type type) const throw (class Exception);
 
 				id m_id; // from "Units\UnitMetaData.slk"
-				struct Value m_value;
+				Value m_value;
 		};
 
 		/**
-		 * Represents one single unit entry in a table which contains a list of modifications for all modified unit fields.
+		 * \brief Represents one single unit entry in a table which contains a list of modifications for all modified unit fields.
+		 * 
 		 * Use \ref modifications() to access the list.
 		 * If \ref isOriginal() returns true it is not a custom unit.
 		 * All custom units are based on an original one whichs id can be got using \ref originalId().
@@ -95,6 +96,9 @@ class CustomUnits : public FileFormat
 		class Unit : public Format
 		{
 			public:
+				/**
+				 * \brief List of modifications for one single unit entry.
+				 */
 				typedef boost::ptr_vector<Modification> Modifications;
 
 				Unit();
@@ -118,6 +122,9 @@ class CustomUnits : public FileFormat
 				Modifications m_modifications;
 		};
 
+		/**
+		 * \brief List of unit entries for a custom units file.
+		 */
 		typedef boost::ptr_vector<Unit> Table;
 
 		CustomUnits();
@@ -134,7 +141,7 @@ class CustomUnits : public FileFormat
 		const Table& originalTable() const;
 		Table& customTable();
 		const Table& customTable() const;
-		
+
 		/**
 		 * Clears both tables.
 		 */

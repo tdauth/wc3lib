@@ -41,19 +41,19 @@ std::streamsize CustomUnits::Modification::read(InputStream &istream) throw (cla
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_id, size);
-	BOOST_SCOPED_ENUM(Value::Type) type;
+	Value::Type type;
 	wc3lib::read<int32>(istream, (int32&)type, size);
-	
+
 	size += readData(istream, type);
 
 	// strings and lists (are strings as well) do already have to end with a zero terminating byte
 	//if (!this->value().isString() && !this->value().isList())
 	//{
-		int32 end;
+		int32 end = 0;
 		wc3lib::read(istream, end, size); // usually 0
 
 		if (end != 0)
-			std::cerr << boost::format(_("Modification \"%1%\" with type %2% end byte is not 0: %3%")) % this->valueId() % this->value().type() % end << std::endl;
+			std::cerr << boost::format(_("Modification \"%1%\" with type %2% end byte is not 0: %3%")) % this->valueId() % static_cast<int32>(this->value().type()) % end << std::endl;
 	//}
 
 	return size;
@@ -63,8 +63,8 @@ std::streamsize CustomUnits::Modification::write(OutputStream &ostream) const th
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->valueId(), size);
-	wc3lib::write<int32>(ostream, this->value().type(), size);
-	
+	wc3lib::write<int32>(ostream, static_cast<int32>(this->value().type()), size);
+
 	size += writeData(ostream, this->value().type());
 
 	// strings and lists (are strings as well) do already have to end with a zero terminating byte
@@ -74,7 +74,7 @@ std::streamsize CustomUnits::Modification::write(OutputStream &ostream) const th
 	return size;
 }
 
-std::streamsize CustomUnits::Modification::readList(InputStream &istream, BOOST_SCOPED_ENUM(Value::Type) type)
+std::streamsize CustomUnits::Modification::readList(InputStream &istream, Value::Type type)
 {
 	std::streamsize size = 0;
 	string str;
@@ -94,10 +94,10 @@ std::streamsize CustomUnits::Modification::writeList(OutputStream &ostream) cons
 	return size;
 }
 
-std::streamsize CustomUnits::Modification::readData(InputStream &istream, BOOST_SCOPED_ENUM(Value::Type) type) throw (class Exception)
+std::streamsize CustomUnits::Modification::readData(InputStream &istream, Value::Type type) throw (class Exception)
 {
 	std::streamsize size = 0;
-	
+
 	switch (type)
 	{
 		case Value::Type::Integer:
@@ -179,7 +179,7 @@ std::streamsize CustomUnits::Modification::readData(InputStream &istream, BOOST_
 	return size;
 }
 
-std::streamsize CustomUnits::Modification::writeData(OutputStream &ostream, BOOST_SCOPED_ENUM(Value::Type) type) const throw (class Exception)
+std::streamsize CustomUnits::Modification::writeData(OutputStream &ostream, Value::Type type) const throw (class Exception)
 {
 	std::streamsize size = 0;
 

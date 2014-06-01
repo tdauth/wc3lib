@@ -36,12 +36,11 @@ namespace mdlx
 class Geoset : public GroupMdxBlockMember, public Bounds
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Selectable) /// \todo C++11 : long32
+		enum class Selectable : long32
 		{
 			None = 0,
 			Unselectable = 4
 		};
-		BOOST_SCOPED_ENUM_END
 
 		typedef boost::ptr_vector<class Ganimation> Ganimations;
 
@@ -59,7 +58,7 @@ class Geoset : public GroupMdxBlockMember, public Bounds
 		class Matrices* matrices() const;
 		long32 materialId() const;
 		long32 selectionGroup() const;
-		BOOST_SCOPED_ENUM(Selectable) selectable() const;
+		Selectable selectable() const;
 		Ganimations& ganimations();
 		const Ganimations& ganimations() const;
 		class TexturePatches* texturePatches() const;
@@ -81,7 +80,7 @@ class Geoset : public GroupMdxBlockMember, public Bounds
 		class Matrices *m_matrices; //MATS
 		long32 m_materialId;
 		long32 m_selectionGroup;
-		BOOST_SCOPED_ENUM(Geoset::Selectable) m_selectable; //(0:none;4:Unselectable)
+		Selectable m_selectable; //(0:none;4:Unselectable)
 		//long32 nanim;
 		Ganimations m_ganimations;
 		//struct GAnimation *ganimations; //[nganim], naim?!?! Tamino Dauth
@@ -144,7 +143,7 @@ inline long32 Geoset::selectionGroup() const
 	return this->m_selectionGroup;
 }
 
-inline BOOST_SCOPED_ENUM(Geoset::Selectable) Geoset::selectable() const
+inline Geoset::Selectable Geoset::selectable() const
 {
 	return this->m_selectable;
 }

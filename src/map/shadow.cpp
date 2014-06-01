@@ -49,9 +49,9 @@ std::streamsize Shadow::read(InputStream &istream) throw (class Exception)
 		{
 			for (int32 point = 0; point < Shadow::shadowPointsPerTileset; ++point)
 			{
-				byte data = 0;
+				uint8 data = 0;
 				wc3lib::read(istream, data, size);
-				this->tilepoints()[width][height][point] = (BOOST_SCOPED_ENUM(Shadow::Type))data;
+				this->tilepoints()[width][height][point] = static_cast<Shadow::Type>(data);
 			}
 		}
 	}
@@ -69,7 +69,7 @@ std::streamsize Shadow::write(OutputStream &ostream) const throw (class Exceptio
 		{
 			for (int32 point = 0; point < Shadow::shadowPointsPerTileset; ++point)
 			{
-				wc3lib::write<byte>(ostream, this->type(width, height, point), size);
+				wc3lib::write<uint8>(ostream, static_cast<uint8>(this->type(width, height, point)), size);
 			}
 		}
 	}

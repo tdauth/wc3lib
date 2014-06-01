@@ -41,8 +41,8 @@ class MdlxRotation : public MdlxAnimatedProperty<4>
 
 		class MdlxRotations* mdlxRotations() const;
 
-		struct QuaternionData quaternionData() const;
-		struct InterpolationRotationData interpolationData() const;
+		QuaternionData quaternionData() const;
+		InterpolationRotationData interpolationData() const;
 };
 
 inline class MdlxRotations* MdlxRotation::mdlxRotations() const
@@ -50,12 +50,12 @@ inline class MdlxRotations* MdlxRotation::mdlxRotations() const
 	return boost::polymorphic_cast<MdlxRotations*>(this->properties());
 }
 
-inline struct QuaternionData MdlxRotation::quaternionData() const
+inline QuaternionData MdlxRotation::quaternionData() const
 {
 	return QuaternionData(values());
 }
 
-inline struct InterpolationRotationData MdlxRotation::interpolationData() const
+inline InterpolationRotationData MdlxRotation::interpolationData() const
 {
 	return InterpolationRotationData(inTan(), outTan());
 }

@@ -32,30 +32,30 @@ namespace wc3lib
 namespace map
 {
 
+class Campaign;
+
 class CampaignInfo : public FileFormat
 {
 	public:
-		BOOST_SCOPED_ENUM_START(DifficultyType)
+		enum class DifficultyType
 		{
 			Fixed,
 			Variable
 		};
-		BOOST_SCOPED_ENUM_END
 
 		/// \todo Get missing race indices.
-		BOOST_SCOPED_ENUM_START(Race) /// \todo C++11 : int32
+		enum class Race : int32
 		{
 			Human = 0
 		};
-		BOOST_SCOPED_ENUM_END
 
 		class MapTitle : public Format
 		{
 			public:
 				MapTitle();
 
-				virtual std::streamsize read(InputStream &istream) throw (class Exception);
-				virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
+				virtual std::streamsize read(InputStream &istream) throw (class Exception) override;
+				virtual std::streamsize write(OutputStream &ostream) const throw (class Exception) override;
 
 				bool isVisibleFromTheBeginning() const;
 				const string& chapterTitle() const;
@@ -74,8 +74,8 @@ class CampaignInfo : public FileFormat
 			public:
 				Map();
 
-				virtual std::streamsize read(InputStream &istream) throw (class Exception);
-				virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
+				virtual std::streamsize read(InputStream &istream) throw (class Exception) override;
+				virtual std::streamsize write(OutputStream &ostream) const throw (class Exception) override;
 
 				const string& unknown() const;
 				const string& path() const;
@@ -88,24 +88,24 @@ class CampaignInfo : public FileFormat
 		typedef boost::ptr_vector<MapTitle> MapTitles;
 		typedef boost::ptr_vector<Map> Maps;
 
-		CampaignInfo(class Campaign *campaign);
+		CampaignInfo(Campaign *campaign);
 
-		virtual std::streamsize read(InputStream &istream) throw (class Exception);
-		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
+		virtual std::streamsize read(InputStream &istream) throw (Exception) override;
+		virtual std::streamsize write(OutputStream &ostream) const throw (Exception) override;
 
-		virtual uint32 latestFileVersion() const;
-		virtual const byte* fileName() const;
+		virtual uint32 latestFileVersion() const override;
+		virtual const byte* fileName() const override;
 
-		virtual uint32 version() const;
+		virtual uint32 version() const override;
 
-		class Campaign* campaign() const;
+		Campaign* campaign() const;
 		uint32 campaignVersion() const;
 		uint32 editorVersion() const;
 		const string& name() const;
 		const string& difficulty() const;
 		const string& author() const;
 		const string& description() const;
-		BOOST_SCOPED_ENUM(DifficultyType) difficultyType() const;
+		DifficultyType difficultyType() const;
 		bool hasW3x() const;
 		int32 backgroundScreenIndex() const;
 		const string& backgroundScreen() const;
@@ -117,12 +117,12 @@ class CampaignInfo : public FileFormat
 		float32 fogEndZHeight() const;
 		float32 fogDensity() const;
 		const Rgba& fogColor() const;
-		BOOST_SCOPED_ENUM(Race) race() const;
+		Race race() const;
 		const MapTitles& mapTitles() const;
 		const Maps& maps() const;
 
 	protected:
-		class Campaign *m_campaign;
+		Campaign *m_campaign;
 		uint32 m_version;
 		uint32 m_campaignVersion;
 		uint32 m_editorVersion;
@@ -130,7 +130,7 @@ class CampaignInfo : public FileFormat
 		string m_difficulty;
 		string m_author;
 		string m_description;
-		BOOST_SCOPED_ENUM(DifficultyType) m_difficultyType;
+		DifficultyType m_difficultyType;
 		bool m_hasW3x;
 		int32 m_backgroundScreenIndex; // campaign background screen index (-1 = none or custom path)
 		string m_backgroundScreen; // path of custom background screen (empty if none or preset)
@@ -141,8 +141,8 @@ class CampaignInfo : public FileFormat
 		float32 m_fogStartZHeight;
 		float32 m_fogEndZHeight;
 		float32 m_fogDensity;
-		struct Rgba m_fogColor;
-		BOOST_SCOPED_ENUM(Race) m_race;
+		Rgba m_fogColor;
+		Race m_race;
 		MapTitles m_mapTitles;
 		Maps m_maps;
 };
@@ -192,7 +192,7 @@ inline uint32 CampaignInfo::version() const
 	return this->m_version;
 }
 
-inline class Campaign* CampaignInfo::campaign() const
+inline Campaign* CampaignInfo::campaign() const
 {
 	return m_campaign;
 }
@@ -227,7 +227,7 @@ inline const string& CampaignInfo::description() const
 	return m_description;
 }
 
-inline BOOST_SCOPED_ENUM(CampaignInfo::DifficultyType) CampaignInfo::difficultyType() const
+inline CampaignInfo::DifficultyType CampaignInfo::difficultyType() const
 {
 	return m_difficultyType;
 }
@@ -287,7 +287,7 @@ inline const Rgba& CampaignInfo::fogColor() const
 	return m_fogColor;
 }
 
-inline BOOST_SCOPED_ENUM(CampaignInfo::Race) CampaignInfo::race() const
+inline CampaignInfo::Race CampaignInfo::race() const
 {
 	return m_race;
 }

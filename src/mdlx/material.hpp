@@ -36,7 +36,7 @@ namespace mdlx
 class Material : public GroupMdxBlockMember
 {
 	public:
-		BOOST_SCOPED_ENUM_START(RenderMode) /// \todo C++11 : long32
+		enum class RenderMode : long32
 		{
 			ConstantColor = 1,
 			Unknown0 = 2,
@@ -45,7 +45,6 @@ class Material : public GroupMdxBlockMember
 			SortPrimitivesFarZ = 16,
 			FullResolution = 32
 		};
-		BOOST_SCOPED_ENUM_END
 
 		Material(class Materials *materials);
 		virtual ~Material();
@@ -56,7 +55,7 @@ class Material : public GroupMdxBlockMember
 		 * Alpha-queued geosets can be made to draw in a specific order with relation to each other in the same model. The lower the value is, the sooner it is rendererd. Values between -20 and 20 are regularly used.
 		 */
 		long32 priorityPlane() const;
-		BOOST_SCOPED_ENUM(RenderMode) renderMode() const;
+		RenderMode renderMode() const;
 		class Layers* layers() const;
 
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
@@ -67,9 +66,14 @@ class Material : public GroupMdxBlockMember
 	protected:
 		//long nbytesi;
 		long32 m_priorityPlane;
-		BOOST_SCOPED_ENUM(RenderMode) m_renderMode;
+		RenderMode m_renderMode;
 		class Layers *m_layers;
 };
+
+inline constexpr bool operator&(Material::RenderMode x, Material::RenderMode y)
+{
+	return static_cast<bool>(static_cast<long32>(x) & static_cast<long32>(y));
+}
 
 inline class Materials* Material::materials() const
 {
@@ -81,7 +85,7 @@ inline long32 Material::priorityPlane() const
 	return this->m_priorityPlane;
 }
 
-inline BOOST_SCOPED_ENUM(Material::RenderMode) Material::renderMode() const
+inline Material::RenderMode Material::renderMode() const
 {
 	return this->m_renderMode;
 }

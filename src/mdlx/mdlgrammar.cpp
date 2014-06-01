@@ -75,30 +75,30 @@ MdlGrammar::MdlGrammar()
 {
 }
 
-bool MdlGrammar::parse(MdlGrammar::InputStream& istream, Mdlx &mdlx)
+bool MdlGrammar::parse(MdlGrammar::InputStream& istream, ResultType &result)
 {
-	return this->parse(IteratorType(istream), IteratorType(), mdlx);
+	return this->parse(IteratorType(istream), IteratorType(), result);
 }
 
-bool MdlGrammar::parse(IteratorType first, IteratorType last, Mdlx &mdlx)
+bool MdlGrammar::parse(IteratorType first, IteratorType last, ResultType &result)
 {
 	ForwardIteratorType forwardFirst = boost::spirit::make_default_multi_pass(first);
 	ForwardIteratorType forwardLast = boost::spirit::make_default_multi_pass(last); // TODO has to be created? Do we need this iterator to be passed?
-	
+
 	// used for backtracking and more detailed error output
 	PositionIteratorType position_begin(forwardFirst);
 	PositionIteratorType position_end;
-	bool result = false;
-	
+	bool failed = false;
+
 	try {
-		result = boost::spirit::qi::phrase_parse(
+		failed = boost::spirit::qi::phrase_parse(
 			position_begin,
 			position_end,
 			this->grammar,
 			this->skipper,
-			mdlx // store result into the passed ast
+			result
 		);
-	} 
+	}
 	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> &e) {
 		throw Exception(expectationFailure(e));
 	}
@@ -107,8 +107,8 @@ bool MdlGrammar::parse(IteratorType first, IteratorType last, Mdlx &mdlx)
 	{
 		return false;
 	}
-	
-	return result;
+
+	return failed;
 }
 
 }

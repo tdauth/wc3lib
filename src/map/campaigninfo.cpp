@@ -136,7 +136,7 @@ std::streamsize CampaignInfo::read(InputStream &istream) throw (class Exception)
 	wc3lib::read(istream, this->m_fogColor, size);
 	int32 race;
 	wc3lib::read<int32>(istream, race, size);
-	this->m_race = BOOST_SCOPED_ENUM(Race)(race);
+	this->m_race = static_cast<Race>(race);
 
 	int32 mapTitles;
 	wc3lib::read(istream, mapTitles, size);
@@ -177,14 +177,22 @@ std::streamsize CampaignInfo::write(OutputStream &ostream) const throw (class Ex
 	if (hasW3x())
 	{
 		if (difficultyType() == DifficultyType::Fixed)
+		{
 			flag = 2;
+		}
 		else
+		{
 			flag = 3;
+		}
 	}
 	else if (difficultyType() == DifficultyType::Fixed)
+	{
 		flag = 0;
+	}
 	else
+	{
 		flag = 1;
+	}
 
 	wc3lib::write(ostream, flag, size);
 
@@ -198,7 +206,7 @@ std::streamsize CampaignInfo::write(OutputStream &ostream) const throw (class Ex
 	wc3lib::write(ostream, this->fogEndZHeight(), size);
 	wc3lib::write(ostream, this->fogDensity(), size);
 	wc3lib::write(ostream, this->fogColor(), size);
-	wc3lib::write<int32>(ostream, race(), size);
+	wc3lib::write<int32>(ostream, static_cast<int32>(race()), size);
 
 	wc3lib::write<int32>(ostream, mapTitles().size(), size);
 	wc3lib::write<int32>(ostream, maps().size(), size);

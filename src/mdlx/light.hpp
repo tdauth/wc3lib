@@ -39,19 +39,18 @@ namespace mdlx
 class Light : public Object, public GroupMdxBlockMember
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Type) /// \todo C++11 : long32
+		enum class Type : long32
 		{
 			Omnidirectional = 0,
 			Directional = 1,
 			Ambient = 2
 		};
-		BOOST_SCOPED_ENUM_END
 
 		Light(class Lights *lights);
 		virtual ~Light();
 
 		class Lights* lights() const;
-		BOOST_SCOPED_ENUM(Type) type() const;
+		Type type() const;
 		float32 attenuationStart() const;
 		float32 attenuationEnd() const;
 		VertexData& color();
@@ -72,9 +71,7 @@ class Light : public Object, public GroupMdxBlockMember
 		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 
 	protected:
-		//long nbytesi;
-		//OBJ
-		BOOST_SCOPED_ENUM(Type) m_type; //(0:Omnidirectional;1:Directional;2:Ambient)
+		Type m_type;
 		float32 m_attenuationStart, m_attenuationEnd;
 		VertexData m_color;
 		float32 m_intensity;
@@ -92,7 +89,7 @@ inline class Lights* Light::lights() const
 	return boost::polymorphic_cast<class Lights*>(this->parent());
 }
 
-inline BOOST_SCOPED_ENUM(Light::Type) Light::type() const
+inline Light::Type Light::type() const
 {
 	return this->m_type;
 }

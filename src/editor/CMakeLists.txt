@@ -10,7 +10,6 @@ if (EDITOR OR PLUGINS)
 
 	if (${QT4_FOUND})
 		include(${QT_USE_FILE})
-		add_definitions(${QT_DEFINITIONS})
 		include_directories(${QT_INCLUDE_DIR})
 	endif ()
 
@@ -22,7 +21,6 @@ if (EDITOR OR PLUGINS)
 
 	if (${KDE4_FOUND})
 		include(KDE4Defaults)
-		add_definitions(${KDE4_DEFINITIONS})
 		include_directories(${KDE4_INCLUDE_DIR} ${KDE4_INCLUDES})
 		link_directories(${KDE4_LIB_DIR})
 	endif ()
@@ -73,7 +71,6 @@ if (EDITOR)
 		ogremdlx.hpp
 		ogremdlxentity.hpp
 		platform.hpp
-		plugin.hpp
 		polygonmodecombobox.hpp
 		renderstatswidget.hpp
 		rendersystemsettings.hpp
@@ -85,6 +82,7 @@ if (EDITOR)
 		teamcolordialog.hpp
 		texture.hpp
 		viewportsettings.hpp
+		warcraftiiishared.hpp
 		windowsmenu.hpp
 	)
 	set(wc3lib_EDITOR_SRC
@@ -103,7 +101,6 @@ if (EDITOR)
 		ogreenvironment.cpp
 		ogremdlx.cpp
 		ogremdlxentity.cpp
-		plugin.cpp
 		renderstatswidget.cpp
 		rendersystemsettings.cpp
 		resource.cpp
@@ -114,6 +111,7 @@ if (EDITOR)
 		teamcolordialog.cpp
 		texture.cpp
 		viewportsettings.cpp
+		warcraftiiishared.cpp
 		windowsmenu.cpp
 	)
 
@@ -125,8 +123,15 @@ if (EDITOR)
 	kde4_add_ui_files(wc3lib_EDITOR_UI_H ${wc3lib_EDITOR_UI})
 
 	kde4_add_library(wc3libeditor SHARED ${wc3lib_EDITOR_SRC} ${wc3lib_EDITOR_UI_H})
-	target_link_libraries(wc3libeditor ${wc3lib_CORE_LIBRARIES} ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${OGRE_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KIO_LIBS} ${KDE4_KUTILS_LIBS} ${KDE4_KPARTS_LIBS} Plugin_BlpCodec qblp)
+	target_link_libraries(wc3libeditor ${wc3lib_CORE_LIBRARIES} ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${OGRE_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KIO_LIBS} ${KDE4_KUTILS_LIBS} ${KDE4_KPARTS_LIBS})
 
+	# The plugins are used directly in debug mode
+	# therefore they are linked as shared libraries.
+	if (DEBUG)
+		target_link_libraries(wc3libeditor Plugin_BlpCodec qblp)
+	endif ()
+
+	add_subdirectory(mapsettingseditor)
 	add_subdirectory(aieditor)
 	add_subdirectory(campaigneditor)
 	add_subdirectory(triggereditor)

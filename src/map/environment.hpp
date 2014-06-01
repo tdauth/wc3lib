@@ -61,7 +61,7 @@ class Environment : public FileFormat
 		 */
 		static const uint32 maxTilesets;
 
-		BOOST_SCOPED_ENUM_START(MainTileset) /// \todo C++11 : byte
+		enum class MainTileset : byte
 		{
 			Ashenvale = 'A',
 			Barrens = 'B',
@@ -82,7 +82,6 @@ class Environment : public FileFormat
 			Outland = 'O',
 			BlackCitadel = 'K'
 		};
-		BOOST_SCOPED_ENUM_END
 
 		virtual ~Environment();
 
@@ -96,7 +95,7 @@ class Environment : public FileFormat
 		uint32 mapWidth() const;
 		uint32 mapHeight() const;
 
-		BOOST_SCOPED_ENUM(MainTileset) mainTileset() const;
+		MainTileset mainTileset() const;
 		bool customized() const;
 		Ids& groundTilesetsIds();
 		const Ids& groundTilesetsIds() const;
@@ -113,7 +112,7 @@ class Environment : public FileFormat
 	protected:
 		void clear();
 
-		BOOST_SCOPED_ENUM(MainTileset) m_mainTileset;
+		MainTileset m_mainTileset;
 		bool m_customized;
 		Ids m_groundTilesetsIds;
 		Ids m_cliffTilesetsIds;
@@ -150,7 +149,7 @@ inline uint32 Environment::mapHeight() const
 	return maxY() - 1;
 }
 
-inline BOOST_SCOPED_ENUM(Environment::MainTileset) Environment::mainTileset() const
+inline Environment::MainTileset Environment::mainTileset() const
 {
 	return m_mainTileset;
 }

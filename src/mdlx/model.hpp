@@ -43,11 +43,14 @@ class Model : public MdxBlock, public Bounds
 		virtual ~Model();
 
 		class Mdlx* mdlx() const;
+		void setName(const byte name[nameSize]);
 		/**
 		 * \return Returns name with size of \ref nameSize.
 		 */
 		const byte* name() const;
+		void setUnknown(long32 unknown);
 		long32 unknown() const;
+		void setBlendTime(long32 blendTime);
 		long32 blendTime() const;
 
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
@@ -72,14 +75,29 @@ inline class Mdlx* Model::mdlx() const
 	return this->m_mdlx;
 }
 
+inline void Model::setName(const byte name[Model::nameSize])
+{
+	memcpy(this->m_name, name, nameSize);
+}
+
 inline const byte* Model::name() const
 {
 	return this->m_name;
 }
 
+inline void Model::setUnknown(long32 unknown)
+{
+	this->m_unknown = unknown;
+}
+
 inline long32 Model::unknown() const
 {
 	return this->m_unknown;
+}
+
+inline void Model::setBlendTime(long32 blendTime)
+{
+	this->m_blendTime = blendTime;
 }
 
 inline long32 Model::blendTime() const

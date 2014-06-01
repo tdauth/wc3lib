@@ -32,7 +32,7 @@ namespace map
 class Sound : public Format
 {
 	public:
-		BOOST_SCOPED_ENUM_START(EAX)
+		enum class EAX
 		{
 			UseDefault, /// If eax value is empty it uses the default value from the corresponding SLK file.
 			Default,
@@ -43,9 +43,8 @@ class Sound : public Format
 			HeroSpeech,
 			Doodads
 		};
-		BOOST_SCOPED_ENUM_END
 
-		BOOST_SCOPED_ENUM_START(Flags) /// \todo C++11 : int32
+		enum class Flags : int32
 		{
 			None = 0, /// Does not use any flags.
 			Looping = 0x00000001,
@@ -54,9 +53,8 @@ class Sound : public Format
 			Music = 0x00000008,
 			Unknown = 0x00000010
 		};
-		BOOST_SCOPED_ENUM_END
 
-		BOOST_SCOPED_ENUM_START(Channel) /// \todo C++11 : int32
+		enum class Channel : int32
 		{
 			UseDefault = -1, /// Uses default channel from corresponding SLK file entry.
 			General = 0,
@@ -75,22 +73,21 @@ class Sound : public Format
 			Birth = 13,
 			Fire = 14
 		};
-		BOOST_SCOPED_ENUM_END
 
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
-		
+
 		const string& name() const;
 		const string& file() const;
-		BOOST_SCOPED_ENUM(EAX) eaxEffects() const;
-		BOOST_SCOPED_ENUM(Flags) flags() const;
+		EAX eaxEffects() const;
+		Flags flags() const;
 		int32 fadeInRate() const;
 		int32 fadeOutRate() const;
 		int32 volume() const;
 		float32 pitch() const;
 		float32 unknown0() const;
 		int32 unknown1() const;
-		BOOST_SCOPED_ENUM(Channel) channel() const;
+		Channel channel() const;
 		float32 minDistance() const;
 		float32 maxDistance() const;
 		float32 distanceCutoff() const;
@@ -100,21 +97,21 @@ class Sound : public Format
 		float32 unknown5() const;
 		float32 unknown6() const;
 		float32 unknown7() const;
-		
+
 		bool usesDefaultVolume() const;
 
 	protected:
 		string m_name; // gg_snd_HumanGlueScreenLoop1
 		string m_file; // "Sound\Ambient\HumanGlueScreenLoop1.wav"
-		BOOST_SCOPED_ENUM(EAX) m_eaxEffects;
-		BOOST_SCOPED_ENUM(Flags) m_flags;
+		EAX m_eaxEffects;
+		Flags m_flags;
 		int32 m_fadeInRate;
 		int32 m_fadeOutRate;
 		int32 m_volume;
 		float32 m_pitch;
 		float32 m_unknown0; //  SetSoundDuration             takes sound soundHandle, integer duration??
 		int32 m_unknown1; // -1 or 8
-		BOOST_SCOPED_ENUM(Channel) m_channel;
+		Channel m_channel;
 		float32 m_minDistance;
 		float32 m_maxDistance;
 		float32 m_distanceCutoff;
@@ -137,6 +134,11 @@ class Sound : public Format
 		float32 m_unknown7; // sound cone orientation z
 };
 
+inline constexpr bool operator&(Sound::Flags x, Sound::Flags y)
+{
+	return static_cast<bool>(static_cast<int32>(x) & static_cast<int32>(y));
+}
+
 inline const string& Sound::name() const
 {
 	return this->m_name;
@@ -147,12 +149,12 @@ inline const string& Sound::file() const
 	return this->m_file;
 }
 
-inline BOOST_SCOPED_ENUM(Sound::EAX) Sound::eaxEffects() const
+inline Sound::EAX Sound::eaxEffects() const
 {
 	return this->m_eaxEffects;
 }
 
-inline BOOST_SCOPED_ENUM(Sound::Flags) Sound::flags() const
+inline Sound::Flags Sound::flags() const
 {
 	return this->m_flags;
 }
@@ -187,7 +189,7 @@ inline int32 Sound::unknown1() const
 	return this->m_unknown1;
 }
 
-inline BOOST_SCOPED_ENUM(Sound::Channel) Sound::channel() const
+inline Sound::Channel Sound::channel() const
 {
 	return this->m_channel;
 }

@@ -37,27 +37,26 @@ namespace mdlx
 class Texture : public GroupMdxBlockMember
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Wrapping) /// \todo C++11 : long32
+		enum class Wrapping : long32
 		{
 			WrapWidth = 1,
 			WrapHeight = 2,
 			Both = 3
 		};
-		BOOST_SCOPED_ENUM_END
 
 		static const std::size_t texturePathSize = 0x100;
 
 		Texture(class Textures *textures);
 
 		class Textures* textures() const;
-		BOOST_SCOPED_ENUM(ReplaceableId) replaceableId() const;
+		ReplaceableId replaceableId() const;
 		void setTexturePath(const byte texturePath[texturePathSize]);
 		/**
 		 * \return Returns ASCII texture path with length \ref texturePathSize.
 		 */
 		const byte* texturePath() const;
 		long32 unknown0() const;
-		BOOST_SCOPED_ENUM(Wrapping) wrapping() const;
+		Wrapping wrapping() const;
 
 		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
 		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
@@ -65,10 +64,10 @@ class Texture : public GroupMdxBlockMember
 		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 
 	protected:
-		BOOST_SCOPED_ENUM(ReplaceableId) m_replaceableId;
+		ReplaceableId m_replaceableId;
 		byte m_texturePath[texturePathSize]; //(0x100 bytes)
 		long32 m_unknown0; //(0)
-		BOOST_SCOPED_ENUM(Wrapping) m_wrapping; //(1:WrapWidth;2:WrapHeight;3:Both)
+		Wrapping m_wrapping; //(1:WrapWidth;2:WrapHeight;3:Both)
 };
 
 inline class Textures* Texture::textures() const
@@ -76,7 +75,7 @@ inline class Textures* Texture::textures() const
 	return boost::polymorphic_cast<class Textures*>(this->parent());
 }
 
-inline BOOST_SCOPED_ENUM(ReplaceableId) Texture::replaceableId() const
+inline ReplaceableId Texture::replaceableId() const
 {
 	return this->m_replaceableId;
 }
@@ -96,7 +95,7 @@ inline long32 Texture::unknown0() const
 	return this->m_unknown0;
 }
 
-inline BOOST_SCOPED_ENUM(Texture::Wrapping) Texture::wrapping() const
+inline Texture::Wrapping Texture::wrapping() const
 {
 	return this->m_wrapping;
 }

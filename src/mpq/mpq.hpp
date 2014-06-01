@@ -56,23 +56,23 @@ namespace mpq
  * \brief This class allows users to read, write and modify MPQ archives. MPQ (Mo'PaQ, short for Mike O'Brien Pack) is an archiving file format used in several of Blizzard Entertainment's games.
  *
  * Use \ref Mpq::open() or \ref Mpq::create() to open an existing or create a new MPQ archive on the filesystem.
- * 
+ *
  * For operations on the archive there is several functions with different variations:
- * 
+ *
  * Use \ref Mpq::addFile to add a new file which will return 0 (if an error occurs) or the new MpqFile
  * instance which refers to the newly created file.
- * 
+ *
  * Use \ref Mpq::removeFile() to remove a file from archive.
- * 
+ *
  * Use \ref Mpq::findFile() to find a file in the archive.
- * 
+ *
  * Special files can be accessed via the following functions:
  * <ul>
  * <li> \ref listfileFile() - accesses file "(listfile)" with filepath entries for all contained files </li>
  * <li> \ref signatureFile() - accesses file "(signature)" with a digital signature of the archive </li>
  * <li> \ref attributesFile() - accesses file "(attributes)" with extended attributes like timestamps and checksums of contained files </li>
  * </ul>
- * 
+ *
  * There are three further classes which are related to this one and can be used by the user.
  * Blocks (\ref Block), hashes (\ref Hash) and files (\ref MpqFile) are stored via smart pointers from Boost C++ Libraries (\ref boost::shared_ptr) for automatic deletion when freeing an MPQ object. Furthermore, they are stored under specific conditions and indices (especially files using Boost Multiindex library).
  */
@@ -81,12 +81,11 @@ class Mpq : public Format, private boost::noncopyable
 	public:
 		typedef uint64 LargeSizeType;
 
-		BOOST_SCOPED_ENUM_START(Format)
+		enum class Format
 		{
 			Mpq1, /// Original format (Starcraft, Warcraft 3, Warcraft 3 The Frozen Throne, World of Warcraft)
 			Mpq2 /// Burning Crusade, large files (size can be larger than 2^32 -> up to 2^64)
 		};
-		BOOST_SCOPED_ENUM_END
 
 		typedef boost::shared_ptr<Block> BlockPtr;
 		typedef boost::shared_ptr<const Block> BlockPtrConst;
@@ -182,7 +181,7 @@ class Mpq : public Format, private boost::noncopyable
 		 * \param overwriteExisting If this value is true existing any file at file path \p path will be overwritten before creating file/archive. Otherwise an exception will be thrown if there already is some file at the given path.
 		 * \return Returns size of all created file data in bytes.
 		 */
-		std::streamsize create(const boost::filesystem::path &path, bool overwriteExisting = false, std::streampos startPosition = 0, BOOST_SCOPED_ENUM(Format) format = Format::Mpq1, uint32 sectorSize = 4096) throw (class Exception);
+		std::streamsize create(const boost::filesystem::path &path, bool overwriteExisting = false, std::streampos startPosition = 0, Format format = Format::Mpq1, uint32 sectorSize = 4096) throw (class Exception);
 		/**
 		 * \param listfileEntries Instead of relying on an internal "(listfile)" file of the archive you can pass your own list of all files (internal file will be ignored!). If it's empty this list is ignored.
 		 */
@@ -227,7 +226,7 @@ class Mpq : public Format, private boost::noncopyable
 		 * \return Returns the file instance of the created file. If it does already exist the instance to the current file will be returned (note that it won't be refreshed by this member function!).
 		 * \sa Mpq::containsAttributesFile(), Mpq::attributesFile()
 		 */
-		const class Attributes* createAttributesFile(BOOST_SCOPED_ENUM(Attributes::ExtendedAttributes) extendedAttributes);
+		const class Attributes* createAttributesFile(Attributes::ExtendedAttributes extendedAttributes);
 		const class Attributes* attributesFile() const;
 
 		/**
@@ -244,7 +243,7 @@ class Mpq : public Format, private boost::noncopyable
 		 * \param istream This input stream is used for reading the initial file data.
 		 * \todo Replace reservedSpace by size of istream?
 		 */
-		FilePtr addFile(const boost::filesystem::path &path, const byte *buffer, std::size_t bufferSize, bool overwriteExisting = false, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default) throw (class Exception);
+		FilePtr addFile(const boost::filesystem::path &path, const byte *buffer, std::size_t bufferSize, bool overwriteExisting = false, MpqFile::Locale locale = MpqFile::Locale::Neutral, MpqFile::Platform platform = MpqFile::Platform::Default) throw (class Exception);
 		/**
 		 * Path of MPQ file \p mpqFile should be set if you use this method.
 		 * Does not add \p mpqFile. Only uses its meta data (beside you set \p addData to true)!
@@ -272,7 +271,7 @@ class Mpq : public Format, private boost::noncopyable
 		 * \note If the corresponding found file entry hasn't any path set yet it will be assigned automatically and the sector table will be read if its an encrypted file and \ref storeSectors() returns true.
 		 * \ingroup search
 		 */
-		HashPtr findHash(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default);
+		HashPtr findHash(const boost::filesystem::path &path, MpqFile::Locale locale = MpqFile::Locale::Neutral, MpqFile::Platform platform = MpqFile::Platform::Default);
 
 		/**
 		 * Searches for file using \p hashData.
@@ -290,11 +289,11 @@ class Mpq : public Format, private boost::noncopyable
 		 * \note If the corresponding found file entry hasn't any path set yet it will be assigned automatically and the sector table will be read if its an encrypted file and \ref storeSectors() returns true.
 		 * \ingroup search
 		 */
-		MpqFile* findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default);
+		MpqFile* findFile(const boost::filesystem::path &path, MpqFile::Locale locale = MpqFile::Locale::Neutral, MpqFile::Platform platform = MpqFile::Platform::Default);
 		/**
 		 * \copydoc findFile(const boost::filesystem::path&, BOOST_SCOPED_ENUM(MpqFile::Locale), BOOST_SCOPED_ENUM(MpqFile::Platform))
 		 */
-		const MpqFile* findFile(const boost::filesystem::path &path, BOOST_SCOPED_ENUM(MpqFile::Locale) locale = MpqFile::Locale::Neutral, BOOST_SCOPED_ENUM(MpqFile::Platform) platform = MpqFile::Platform::Default) const;
+		const MpqFile* findFile(const boost::filesystem::path &path, MpqFile::Locale locale = MpqFile::Locale::Neutral, MpqFile::Platform platform = MpqFile::Platform::Default) const;
 
 		class Listfile* listfileFile();
 		class Attributes* attributesFile();
@@ -309,7 +308,7 @@ class Mpq : public Format, private boost::noncopyable
 		 * \return Returns the start position of the MPQ archive in its file.
 		 */
 		std::streampos startPosition() const;
-		BOOST_SCOPED_ENUM(Format) format() const;
+		Format format() const;
 		/**
 		 * Usually the sector size has type uint16 and is computed by using formula:
 		 * pow(2, sectorSizeShift) * 512. Instead of computing it every time we save
@@ -484,7 +483,7 @@ class Mpq : public Format, private boost::noncopyable
 		boost::filesystem::path m_path;
 		std::streampos m_startPosition;
 		std::streampos m_strongDigitalSignaturePosition; // position of strong digital signature in archive starting at its header ('NGIS')!
-		BOOST_SCOPED_ENUM(Format) m_format;
+		Format m_format;
 		uint32 m_sectorSize;
 		StrongDigitalSignature m_strongDigitalSignature;
 		bool m_isOpen;
@@ -595,7 +594,7 @@ inline bool Mpq::containsAttributesFile() const
 	return this->attributesFile() != 0;
 }
 
-inline const class Attributes* Mpq::createAttributesFile(BOOST_SCOPED_ENUM(Attributes::ExtendedAttributes) extendedAttributes)
+inline const class Attributes* Mpq::createAttributesFile(Attributes::ExtendedAttributes extendedAttributes)
 {
 	if (this->containsAttributesFile())
 		return attributesFile();
@@ -643,7 +642,7 @@ inline std::streampos Mpq::startPosition() const
 	return this->m_startPosition;
 }
 
-inline BOOST_SCOPED_ENUM(Mpq::Format) Mpq::format() const
+inline Mpq::Format Mpq::format() const
 {
 	return this->m_format;
 }

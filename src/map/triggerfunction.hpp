@@ -42,19 +42,18 @@ class TriggerFunction : public Format
 	public:
 		typedef boost::ptr_vector<TriggerFunctionParameter> Parameters;
 
-		BOOST_SCOPED_ENUM_START(Type) /// \todo C++11 : int32
+		enum class Type : int32
 		{
 			Event,
 			Condition,
 			Action,
 			Call
 		};
-		BOOST_SCOPED_ENUM_END
 
 		TriggerFunction();
 
-		void setType(BOOST_SCOPED_ENUM(Type) type);
-		BOOST_SCOPED_ENUM(Type) type() const;
+		void setType(Type type);
+		Type type() const;
 		void setName(const string &name);
 		const string& name() const;
 		void setIsEnabled(bool isEnabled);
@@ -72,18 +71,18 @@ class TriggerFunction : public Format
 
 
 	protected:
-		BOOST_SCOPED_ENUM(Type) m_type;
+		Type m_type;
 		string m_name;
 		bool m_isEnabled;
 		Parameters m_parameters;
 };
 
-inline void TriggerFunction::setType(BOOST_SCOPED_ENUM(TriggerFunction::Type) type)
+inline void TriggerFunction::setType(TriggerFunction::Type type)
 {
 	this->m_type = type;
 }
 
-inline BOOST_SCOPED_ENUM(TriggerFunction::Type) TriggerFunction::type() const
+inline TriggerFunction::Type TriggerFunction::type() const
 {
 	return m_type;
 }

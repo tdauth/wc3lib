@@ -42,6 +42,7 @@ namespace wc3lib
 {
 
 typedef char byte;
+typedef unsigned char ubyte;
 typedef int8_t int8; // not unsigned
 typedef uint8_t uint8;
 /**

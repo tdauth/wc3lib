@@ -36,7 +36,7 @@ namespace mdlx
 class Layer : public GroupMdxBlockMember
 {
 	public:
-		BOOST_SCOPED_ENUM_START(FilterMode) /// \todo C++11 : long32
+		enum class FilterMode : long32
 		{
 			None = 0,
 			Transparent = 1,
@@ -46,9 +46,8 @@ class Layer : public GroupMdxBlockMember
 			Modulate = 5,
 			Modulate2x = 6
 		};
-		BOOST_SCOPED_ENUM_END
 
-		BOOST_SCOPED_ENUM_START(Shading) /// \todo C++11 : long32
+		enum class Shading : long32
 		{
 			Unshaded = 1,
 			SphereEnvironmentMap = 2,
@@ -59,16 +58,15 @@ class Layer : public GroupMdxBlockMember
 			NoDepthTest = 64,
 			NoDepthSet = 128
 		};
-		BOOST_SCOPED_ENUM_END
 
-		static string filterMode(BOOST_SCOPED_ENUM(FilterMode) filterMode);
+		static string filterMode(FilterMode filterMode);
 
 		Layer(class Layers *layers);
 		virtual ~Layer();
 
 		class Layers* layers() const;
-		BOOST_SCOPED_ENUM(FilterMode) filterMode() const;
-		BOOST_SCOPED_ENUM(Shading) shading() const;
+		FilterMode filterMode() const;
+		Shading shading() const;
 		long32 textureId() const;
 		long32 tvertexAnimationId() const;
 		long32 coordinatesId() const;
@@ -82,8 +80,8 @@ class Layer : public GroupMdxBlockMember
 		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
 
 	protected:
-		BOOST_SCOPED_ENUM(FilterMode) m_filterMode;
-		BOOST_SCOPED_ENUM(Shading) m_shading;
+		FilterMode m_filterMode;
+		Shading m_shading;
 		long32 m_textureId;
 		long32 m_tvertexAnimationId; // 0xFFFFFFFF if none
 		long32 m_coordinatesId;
@@ -92,7 +90,17 @@ class Layer : public GroupMdxBlockMember
 		class TextureIds *m_textureIds; //(KMTF) // state is long not float
 };
 
-inline string Layer::filterMode(BOOST_SCOPED_ENUM(FilterMode) filterMode)
+inline constexpr bool operator&(Layer::FilterMode x, Layer::FilterMode y)
+{
+	return static_cast<bool>(static_cast<long32>(x) & static_cast<long32>(y));
+}
+
+inline constexpr bool operator&(Layer::Shading x, Layer::Shading y)
+{
+	return static_cast<bool>(static_cast<long32>(x) & static_cast<long32>(y));
+}
+
+inline string Layer::filterMode(FilterMode filterMode)
 {
 	switch (filterMode)
 	{
@@ -126,12 +134,12 @@ inline class Layers* Layer::layers() const
 	return boost::polymorphic_cast<class Layers*>(this->parent());
 }
 
-inline BOOST_SCOPED_ENUM(Layer::FilterMode) Layer::filterMode() const
+inline Layer::FilterMode Layer::filterMode() const
 {
 	return this->m_filterMode;
 }
 
-inline BOOST_SCOPED_ENUM(Layer::Shading) Layer::shading() const
+inline Layer::Shading Layer::shading() const
 {
 	return this->m_shading;
 }

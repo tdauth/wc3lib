@@ -30,7 +30,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-Layer::Layer(class Layers *layers) : m_alphas(new MaterialAlphas(this)), m_textureIds(new TextureIds(this->layers()->material()->materials()->mdlx())), GroupMdxBlockMember(layers, "Layer")
+Layer::Layer(class Layers *layers) : GroupMdxBlockMember(layers, "Layer"), m_alphas(new MaterialAlphas(this)), m_textureIds(new TextureIds(this->layers()->material()->materials()->mdlx()))
 {
 }
 
@@ -108,7 +108,7 @@ std::streamsize Layer::writeMdl(ostream &ostream) const throw (class Exception)
 std::streamsize Layer::readMdx(istream &istream) throw (class Exception)
 {
 	std::streamsize size = 0;
-	long32 nbytesi;
+	long32 nbytesi = 0;
 	wc3lib::read(istream, nbytesi, size);
 	wc3lib::read<long32>(istream, *reinterpret_cast<long32*>(&this->m_filterMode), size);
 	wc3lib::read<long32>(istream, *reinterpret_cast<long32*>(&this->m_shading), size);
@@ -134,7 +134,6 @@ std::streamsize Layer::writeMdx(ostream &ostream) const throw (class Exception)
 	wc3lib::write(ostream, this->tvertexAnimationId(), size);
 	wc3lib::write(ostream, this->coordinatesId(), size);
 	wc3lib::write(ostream, this->alpha(), size);
-	std::streamsize oldSize = size;
 	size += this->alphas()->writeMdx(ostream);
 	size += this->textureIds()->writeMdx(ostream);
 

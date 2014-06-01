@@ -142,7 +142,7 @@ std::streamsize Node::writeMdx(ostream &ostream) const throw (class Exception)
 	wc3lib::write(ostream, this->name(), size, nameSize);
 	wc3lib::write(ostream, this->id(), size);
 	wc3lib::write(ostream, this->parentId(), size);
-	wc3lib::write<long32>(ostream, this->type(), size);
+	wc3lib::write<long32>(ostream, static_cast<long32>(this->type()), size);
 
 	//if (!this->inheritsTranslation())
 	size += this->translations()->writeMdx(ostream);

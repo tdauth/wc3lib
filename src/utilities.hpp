@@ -46,7 +46,7 @@ namespace
 {
 
 template<typename T>
-std::string hexValue(T value)
+inline std::string hexValue(T value)
 {
 	std::ostringstream sstream;
 	sstream << std::hex << value;
@@ -74,7 +74,7 @@ inline std::string iostateMessage(const std::ios_base::iostate &state)
 }
 
 template<typename _CharT>
-void checkStream(std::basic_ios<_CharT> &stream) throw (class Exception)
+inline void checkStream(std::basic_ios<_CharT> &stream) throw (class Exception)
 {
 	if (!stream)
 	{
@@ -96,7 +96,7 @@ void checkStream(std::basic_ios<_CharT> &stream) throw (class Exception)
  * \return Returns input stream istream for further treatment.
  */
 template<typename T, typename _CharT>
-inline std::basic_istream<_CharT>& read(std::basic_istream<_CharT> &istream, T &value, std::streamsize &sizeCounter, std::size_t size = sizeof(T) * sizeof(_CharT)) throw (class Exception)
+inline std::basic_istream<_CharT>& read(std::basic_istream<_CharT> &istream, T &value, std::streamsize &sizeCounter, std::streamsize size = sizeof(T) * sizeof(_CharT)) throw (class Exception)
 {
 	istream.read(reinterpret_cast<_CharT*>(&value), size);
 
@@ -113,14 +113,19 @@ inline std::basic_istream<_CharT>& read(std::basic_istream<_CharT> &istream, T &
 }
 
 /**
- * Reads C string char into value "value" (with 0-terminating if size is 0).
+ * \brief Reads C string char into value "value" (with 0-terminating if size is 0).
+ *
  * Usually you should use type "char" but other types may also be supported by stream.
+ * \param istream The input stream which is read from.
+ * \param sizeCounter This counter is increased by the number of bytes which are read from the stream.
  * \param value This value is filled with an array of \p _CharT values. You'll have to take care about memory release!
  * \param size If this value is 0 it will stop when reaching 0-terminating char.
  * \param terminatingChar Customizable terminating char.
+ *
+ * \return Returns \p istream which is read from.
  */
 template<typename _CharT>
-inline std::basic_istream<_CharT>& readCString(std::basic_istream<_CharT> &istream, _CharT *&value, std::streamsize &sizeCounter, std::size_t size = 0, _CharT terminatingChar = '\0') throw (class Exception)
+inline std::basic_istream<_CharT>& readCString(std::basic_istream<_CharT> &istream, _CharT *&value, std::streamsize &sizeCounter, std::streamsize size = 0, _CharT terminatingChar = '\0') throw (class Exception)
 {
 	// value is filled by this function
 	if (value != 0)
@@ -162,7 +167,7 @@ inline std::basic_istream<_CharT>& readCString(std::basic_istream<_CharT> &istre
 }
 
 template<typename _CharT>
-inline std::basic_istream<_CharT>& readString(std::basic_istream<_CharT> &istream, std::basic_string<_CharT> &value, std::streamsize &sizeCounter, std::size_t size = 0) throw (class Exception)
+inline std::basic_istream<_CharT>& readString(std::basic_istream<_CharT> &istream, std::basic_string<_CharT> &value, std::streamsize &sizeCounter, std::streamsize size = 0) throw (class Exception)
 {
 	_CharT *cString = 0;
 	readCString(istream, cString, sizeCounter, size);
@@ -240,7 +245,7 @@ inline bool eof(std::basic_istream<_CharT> &istream)
 }
 
 template<typename _CharT>
-inline std::basic_istream<_CharT>& readLine(std::basic_istream<_CharT> &istream, std::string &value, std::streamsize &sizeCounter, std::size_t size = 0)
+inline std::basic_istream<_CharT>& readLine(std::basic_istream<_CharT> &istream, std::string &value, std::streamsize &sizeCounter, std::streamsize size = 0)
 {
 	_CharT *cString = 0;
 	readCString(istream, cString, sizeCounter, size, '\n');
@@ -251,7 +256,7 @@ inline std::basic_istream<_CharT>& readLine(std::basic_istream<_CharT> &istream,
 }
 
 template<typename T, typename _CharT>
-inline std::basic_ostream<_CharT>& write(std::basic_ostream<_CharT> &ostream, const T &value, std::streamsize &sizeCounter, std::size_t size = sizeof(T) * sizeof(_CharT))
+inline std::basic_ostream<_CharT>& write(std::basic_ostream<_CharT> &ostream, const T &value, std::streamsize &sizeCounter, std::streamsize size = sizeof(T) * sizeof(_CharT))
 {
 	ostream.write(reinterpret_cast<const _CharT*>(&value), size);
 
@@ -266,13 +271,13 @@ inline std::basic_ostream<_CharT>& write(std::basic_ostream<_CharT> &ostream, co
  * Specialization for pointers where you should specify the exact size.
  */
 template<typename T, typename _CharT>
-inline std::basic_ostream<_CharT>& write(std::basic_ostream<_CharT> &ostream, const T *value, std::streamsize &sizeCounter, std::size_t size) //  = sizeof(T) * sizeof(_CharT)
+inline std::basic_ostream<_CharT>& write(std::basic_ostream<_CharT> &ostream, const T *value, std::streamsize &sizeCounter, std::streamsize size) //  = sizeof(T) * sizeof(_CharT)
 {
 	ostream.write(reinterpret_cast<const _CharT*>(value), size);
 
 	checkStream(ostream);
 
-	sizeCounter += size; /// @todo Why isn't there any .pcount, throw exception if it is not written completely
+	sizeCounter += size; /// \todo Why isn't there any .pcount, throw exception if it is not written completely
 
 	return ostream;
 }
@@ -281,35 +286,41 @@ inline std::basic_ostream<_CharT>& write(std::basic_ostream<_CharT> &ostream, co
  * Specialization for pointers where you should specify the exact size.
  */
 template<typename T, typename _CharT>
-inline std::basic_ostream<_CharT>& write(std::basic_ostream<_CharT> &ostream, T *value, std::streamsize &sizeCounter, std::size_t size) //  = sizeof(T) * sizeof(_CharT)
+inline std::basic_ostream<_CharT>& write(std::basic_ostream<_CharT> &ostream, T *value, std::streamsize &sizeCounter, std::streamsize size) //  = sizeof(T) * sizeof(_CharT)
 {
 	ostream.write(reinterpret_cast<const _CharT*>(value), size);
 
 	checkStream(ostream);
 
-	sizeCounter += size; /// @todo Why isn't there any .pcount, throw exception if it is not written completely
+	sizeCounter += size; /// \todo Why isn't there any .pcount, throw exception if it is not written completely
 
 	return ostream;
 }
 
 /**
-* Writes C string of value "value" into output (with 0 terminating char if size is 0).
-* @param size If size is 0 it will stop writing when reached 0-terminating char.
+* \brief Writes C string of value "value" into output (with 0 terminating char if size is 0).
+* 
+* \param ostream The output stream which is written into.
+* \param value The value which is written into the output stream \p ostream.
+* \param sizeCounter This counter is increased automatically by the number of written bytes.
+* \param size If size is 0 it will stop writing when reached 0-terminating char.
+*
+* \return Returns the output stream in which is written (\p ostream).
 */
 template<typename _CharT>
-inline std::basic_ostream<_CharT>& writeCString(std::basic_ostream<_CharT> &ostream, const _CharT *value, std::streamsize &sizeCounter, std::size_t size = 0)
+inline std::basic_ostream<_CharT>& writeCString(std::basic_ostream<_CharT> &ostream, const _CharT *value, std::streamsize &sizeCounter, std::streamsize size = 0)
 {
 	return write(ostream, value, sizeCounter, size == 0 ? strlen(value) + 1 : size);
 }
 
 template<typename _CharT>
-inline std::basic_ostream<_CharT>& writeString(std::basic_ostream<_CharT> &ostream, const std::basic_string<_CharT> &value, std::streamsize &sizeCounter, std::size_t size = 0)
+inline std::basic_ostream<_CharT>& writeString(std::basic_ostream<_CharT> &ostream, const std::basic_string<_CharT> &value, std::streamsize &sizeCounter, std::streamsize size = 0)
 {
 	return writeCString(ostream, value.data(), sizeCounter, size);
 }
 
 template<typename _CharT>
-inline std::basic_ostream<_CharT>& writeLine(std::basic_ostream<_CharT> &ostream, const _CharT *value, std::streamsize &sizeCounter, std::size_t size = 0)
+inline std::basic_ostream<_CharT>& writeLine(std::basic_ostream<_CharT> &ostream, const _CharT *value, std::streamsize &sizeCounter, std::streamsize size = 0)
 {
 	_CharT newValue[strlen(value) + 2];
 	memcpy(newValue, value, strlen(value));
@@ -320,7 +331,7 @@ inline std::basic_ostream<_CharT>& writeLine(std::basic_ostream<_CharT> &ostream
 }
 
 template<typename _CharT>
-inline std::basic_ostream<_CharT>& writeLine(std::basic_ostream<_CharT> &ostream, const std::basic_string<_CharT> &value, std::streamsize &sizeCounter, std::size_t size = 0)
+inline std::basic_ostream<_CharT>& writeLine(std::basic_ostream<_CharT> &ostream, const std::basic_string<_CharT> &value, std::streamsize &sizeCounter, std::streamsize size = 0)
 {
 	const std::basic_string<_CharT> newValue = value + '\n';
 
@@ -328,13 +339,14 @@ inline std::basic_ostream<_CharT>& writeLine(std::basic_ostream<_CharT> &ostream
 }
 
 /**
- * Writes byte count at a previous position. Required by binary formats which need to store byte counts (inclusive and exclusive) after writing all data into output stream.
+ * Writes byte count at a previous position and jumps back to the current position.
+ * Required by binary formats which need to store byte counts (inclusive and exclusive) after writing all data into output stream.
  * \param ostream Output stream which byte count is written into.
  * \param byteCount Byte count which is written into output stream at position "position".
  * \param position Position in output stream where byte count is written into.
  * \param sizeCounter Counter of written output size which is increased by written size of byte count. \note Do not forget to initialise this value since increment assignment operator (+=) is used.
  * \param inclusive If this value is true size of value "byteCount" will by added automatically to byte count. Therefore it writes inclusive byte count (useful for the MDLX format for instance).
- * @return Returns output stream "ostream" for any further treatment.
+ * \return Returns output stream "ostream" for any further treatment.
  * \sa skipByteCount
  */
 template<typename T, typename _CharT>

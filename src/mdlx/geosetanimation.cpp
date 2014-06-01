@@ -93,7 +93,7 @@ std::streamsize GeosetAnimation::readMdx(istream &istream) throw (class Exceptio
 	wc3lib::read(istream, this->m_staticAlpha, size);
 	long32 colorAnimation;
 	wc3lib::read(istream, colorAnimation, size);
-	this->m_colorAnimation = static_cast<BOOST_SCOPED_ENUM(ColorAnimation)>(colorAnimation);
+	this->m_colorAnimation = static_cast<ColorAnimation>(colorAnimation);
 	wc3lib::read(istream, this->m_colorRed, size);
 	wc3lib::read(istream, this->m_colorGreen, size);
 	wc3lib::read(istream, this->m_colorBlue, size);

@@ -21,9 +21,8 @@
 #ifndef WC3LIB_EDITOR_RESOURCE_HPP
 #define WC3LIB_EDITOR_RESOURCE_HPP
 
-#include <boost/detail/scoped_enum_emulation.hpp>
-
 #include <QFileInfo>
+#include <QDir>
 
 #include <KUrl>
 
@@ -51,7 +50,7 @@ class Resource
 		 * Model's directories are added as additional source entries for corresponding textures with relative paths.
 		 * \sa type(), sourceUrl()
 		 */
-		BOOST_SCOPED_ENUM_START(Type)
+		enum class Type
 		{
 			Texture,
 			Model,
@@ -61,9 +60,8 @@ class Resource
 			Campaign,
 			MetaData
 		};
-		BOOST_SCOPED_ENUM_END
 
-		Resource(const KUrl &url, BOOST_SCOPED_ENUM(Type) type);
+		Resource(const KUrl &url, Type type);
 		virtual ~Resource();
 		/**
 		 * Assigns the corresponding source.
@@ -80,7 +78,7 @@ class Resource
 		 * \sa MpqPriorityList::upload()
 		 */
 		const KUrl& url() const;
-		BOOST_SCOPED_ENUM(Type) type() const;
+		Type type() const;
 		/**
 		 * Formatted URL used as source.
 		 * \note This should ALWAYS return the same URL for one resource it is added and removed as source whenever the resource is added or removed to or from a \ref MpqPriorityList instance.
@@ -94,7 +92,7 @@ class Resource
 	protected:
 		class MpqPriorityList *m_source;
 		KUrl m_url;
-		BOOST_SCOPED_ENUM(Type) m_type;
+		Type m_type;
 };
 
 inline class MpqPriorityList* Resource::source() const
@@ -107,7 +105,7 @@ inline const KUrl& Resource::url() const
 	return m_url;
 }
 
-inline BOOST_SCOPED_ENUM(Resource::Type) Resource::type() const
+inline Resource::Type Resource::type() const
 {
 	return m_type;
 }

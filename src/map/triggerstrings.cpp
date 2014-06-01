@@ -41,16 +41,15 @@ void TriggerStrings::readFunction(const Txt::Pair &ref, Entries &functions)
 {
 	string code = ref.first;
 	bool isHint = false;
-	bool isFirst = false;
 	const string::size_type index = code.rfind("Hint");
-	
+
 	if (index != string::npos && index + strlen("Hint") == code.size()) {
 		isHint = true;
 		code = code.substr(0, index);
 	}
-	
+
 	Entries::iterator iterator = functions.find(code);
-	
+
 	if (iterator == functions.end()) {
 		iterator = functions.insert(code, new Entry()).first;
 		std::cerr << "New entry \"" << code << "\"" << std::endl;
@@ -68,23 +67,23 @@ std::streamsize TriggerStrings::read(TriggerStrings::InputStream& istream) throw
 {
 	boost::scoped_ptr<Txt> txt(new Txt());
 	std::streamsize size = txt->read(istream);
-	
+
 	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerEventStrings")) {
 		readFunction(ref, this->events());
 	}
-	
+
 	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerConditionStrings")) {
 		readFunction(ref, this->conditions());
 	}
-	
+
 	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerActionStrings")) {
 		readFunction(ref, this->actions());
 	}
-	
+
 	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerCallStrings")) {
 		readFunction(ref, this->calls());
 	}
-	
+
 	return size;
 }
 
@@ -93,42 +92,42 @@ std::streamsize TriggerStrings::write(TriggerStrings::OutputStream& ostream) con
     return 0;
 }
 
-TriggerStrings::Entries& TriggerStrings::entries(BOOST_SCOPED_ENUM(TriggerFunction::Type) type)
+TriggerStrings::Entries& TriggerStrings::entries(TriggerFunction::Type type)
 {
 	switch (type) {
 		case TriggerFunction::Type::Event:
 			return this->events();
-		
+
 		case TriggerFunction::Type::Condition:
 			return this->conditions();
-			
+
 		case TriggerFunction::Type::Action:
 			return this->actions();
-			
+
 		case TriggerFunction::Type::Call:
 			return this->calls();
 	}
-	
+
 	throw 0;
 }
 
-const TriggerStrings::Entries& TriggerStrings::entries(BOOST_SCOPED_ENUM(TriggerFunction::Type) type) const
+const TriggerStrings::Entries& TriggerStrings::entries(TriggerFunction::Type type) const
 {
 	switch (type) {
 		case TriggerFunction::Type::Event:
 			return this->events();
-		
+
 		case TriggerFunction::Type::Condition:
 			return this->conditions();
-			
+
 		case TriggerFunction::Type::Action:
 			return this->actions();
-			
+
 		case TriggerFunction::Type::Call:
 			return this->calls();
 	}
-	
-	throw 0;
+
+	throw Exception(boost::format(_("Unknown trigger function type: %1%")) % static_cast<int32>(type));
 }
 
 

@@ -21,7 +21,6 @@
 #ifndef WC3LIB_MPQ_SECTOR_HPP
 #define WC3LIB_MPQ_SECTOR_HPP
 
-#include <boost/detail/scoped_enum_emulation.hpp>
 #include <boost/scoped_array.hpp>
 
 #include "platform.hpp"
@@ -34,7 +33,7 @@ namespace mpq
 
 /**
  * \brief Blocks are divided into one or several sectors.
- * 
+ *
  * Each \ref Block instance consists of one or several sectors which can have different compression types (\ref Compression).
  * Compressed sectors do usually have the size of \ref Mpq::sectorSize() (except the last one which might be smaller).
  * \note Actually there is no read and write member functions since Sectors are created by \ref MpqFile instances when data is being read or written.
@@ -46,7 +45,7 @@ class Sector // FIXME : private boost::noncopyable
 		static const int defaultWaveCompressionLevel = 3;
 		static const int defaultHuffmanCompressionType = 0;
 
-		BOOST_SCOPED_ENUM_START(Compression) /// \todo C++11 : byte
+		enum class Compression : uint8
 		{
 			Uncompressed = 0,
 			ImaAdpcmMono = 0x40, // IMA ADPCM mono
@@ -59,7 +58,6 @@ class Sector // FIXME : private boost::noncopyable
 			Sparse = 0x20, /// <a href="http://www.zezula.net/en/mpq/stormlib/sfileaddfileex.html">Source</a>.
 			Lzma = 0x12 /// <a href="http://www.zezula.net/en/mpq/stormlib/sfileaddfileex.html">Source</a>.
 		};
-		BOOST_SCOPED_ENUM_END
 
 		Sector(class MpqFile *mpqFile, uint32 index, uint32 offset, uint32 size);
 		virtual ~Sector();
@@ -99,7 +97,7 @@ class Sector // FIXME : private boost::noncopyable
 		uint32 sectorIndex() const;
 		uint32 sectorOffset() const;
 		uint32 sectorSize() const;
-		BOOST_SCOPED_ENUM(Compression) compression() const;
+		Compression compression() const;
 
 		/**
 		 * Individual sectors in a compressed or imploded file may be stored uncompressed; this occurs if and only if the file data the sector contains could not be compressed by the algorithm(s) used (if the compressed sector size was greater than or equal to the size of the file data), and is indicated by the sector's size in SectorOffsetTable being equal to the size of the file data in the sector (which may be calculated from the FileSize).
@@ -123,8 +121,13 @@ class Sector // FIXME : private boost::noncopyable
 		uint32 m_sectorIndex;
 		uint32 m_sectorOffset;
 		uint32 m_sectorSize; // not required, added by wc3lib, should be the compressed size!
-		BOOST_SCOPED_ENUM(Compression) m_compression;
+		Compression m_compression;
 };
+
+inline constexpr bool operator&(Sector::Compression x, Sector::Compression y)
+{
+	return static_cast<bool>(static_cast<byte>(x) & static_cast<byte>(y));
+}
 
 inline class MpqFile* Sector::mpqFile() const
 {
@@ -146,7 +149,7 @@ inline uint32 Sector::sectorSize() const
 	return this->m_sectorSize;
 }
 
-inline BOOST_SCOPED_ENUM(Sector::Compression) Sector::compression() const
+inline Sector::Compression Sector::compression() const
 {
 	return this->m_compression;
 }

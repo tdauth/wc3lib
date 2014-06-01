@@ -1,12 +1,9 @@
 set(wc3lib_EDITOR_KIO_MPQ_H
-	mpqarchive.hpp
 	mpqprotocol.hpp
 )
 set(wc3lib_EDITOR_KIO_MPQ_SRC
-	kio_mpq/mpqarchive.cpp
-	kio_mpq/mpqprotocol.cpp
+	mpqprotocol.cpp
 )
-set(wc3lib_EDITOR_KIO_MPQ_SRC ${wc3lib_EDITOR_KIO_MPQ_SRC} PARENT_SCOPE)
 
 include_directories(${KDE4_INCLUDE_DIR} ${QT_INCLUDE_DIR})
 include(${QT_USE_FILE})
@@ -14,7 +11,7 @@ include(${QT_USE_FILE})
 add_subdirectory(test)
 
 # MPQ KDE plugin
-kde4_add_plugin(kio_mpq mpqprotocol.cpp mpqarchive.cpp)
+kde4_add_plugin(kio_mpq ${wc3lib_EDITOR_KIO_MPQ_SRC})
 target_link_libraries(kio_mpq wc3libmpq wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KIO_LIBS})
 
 # install

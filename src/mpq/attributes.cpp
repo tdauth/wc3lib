@@ -94,7 +94,7 @@ std::streamsize Attributes::readData()
 	struct ExtendedAttributesHeader extendedAttributesHeader;
 	wc3lib::read(stream, extendedAttributesHeader, size);
 	setVersion(extendedAttributesHeader.version);
-	setExtendedAttributes(BOOST_SCOPED_ENUM(ExtendedAttributes)(extendedAttributesHeader.attributesPresent));
+	setExtendedAttributes(static_cast<ExtendedAttributes>(extendedAttributesHeader.attributesPresent));
 
 	if (this->extendedAttributes() & ExtendedAttributes::FileCrc32s)
 	{
@@ -139,7 +139,7 @@ std::streamsize Attributes::writeData()
 {
 	struct ExtendedAttributesHeader extendedAttributesHeader;
 	extendedAttributesHeader.version = latestVersion;
-	extendedAttributesHeader.attributesPresent = extendedAttributes();
+	extendedAttributesHeader.attributesPresent = static_cast<uint32>(extendedAttributes());
 	arraystream stream;
 	std::streamsize size = 0;
 	wc3lib::write(stream, extendedAttributesHeader, size);
@@ -205,7 +205,7 @@ bool Attributes::check() const
 	return true;
 }
 
-Attributes::Attributes(Mpq *mpq, Hash *hash, BOOST_SCOPED_ENUM(ExtendedAttributes) extendedAttributes, uint32 version) : m_extendedAttributes(extendedAttributes), m_version(version), MpqFile(mpq, hash)
+Attributes::Attributes(Mpq *mpq, Hash *hash, ExtendedAttributes extendedAttributes, uint32 version) : m_extendedAttributes(extendedAttributes), m_version(version), MpqFile(mpq, hash)
 {
 	this->m_path = fileName();
 }

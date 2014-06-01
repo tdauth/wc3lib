@@ -36,7 +36,7 @@ void MpqFile::removeData()
 	/// \todo Clear corresponding sector table in MPQ file?
 }
 
-std::streamsize MpqFile::readData(istream &istream, BOOST_SCOPED_ENUM(Sector::Compression) compression) throw (class Exception)
+std::streamsize MpqFile::readData(istream &istream, Sector::Compression compression) throw (class Exception)
 {
 	removeData();
 
@@ -151,12 +151,12 @@ std::streamsize MpqFile::writeData(istream &istream, ostream &ostream) const thr
 	return bytes;
 }
 
-BOOST_SCOPED_ENUM(MpqFile::Locale) MpqFile::locale() const
+MpqFile::Locale MpqFile::locale() const
 {
 	return MpqFile::intToLocale(this->m_hash->hashData().locale());
 }
 
-BOOST_SCOPED_ENUM(MpqFile::Platform) MpqFile::platform() const
+MpqFile::Platform MpqFile::platform() const
 {
 	return MpqFile::intToPlatform(this->m_hash->hashData().platform());
 }

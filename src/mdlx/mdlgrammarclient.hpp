@@ -24,7 +24,10 @@
 #include "../qi.hpp"
 #include <boost/spirit/include/support_line_pos_iterator.hpp>
 
+#include <boost/spirit/include/karma.hpp>
+
 #include "mdlx.hpp"
+#include "model.hpp"
 #include "version.hpp"
 
 namespace wc3lib
@@ -42,6 +45,7 @@ namespace client
 {
 
 namespace qi = boost::spirit::qi;
+namespace karma = boost::spirit::karma;
 
 /**
  * Doesn't consume eols since value pairs are separated linewise which therefore can be specified easier in the rules.
@@ -49,9 +53,9 @@ namespace qi = boost::spirit::qi;
  */
 template<typename Iterator>
 struct CommentSkipper : public qi::grammar<Iterator> {
-	
+
 	CommentSkipper();
-	
+
 	qi::rule<Iterator> skip;
 	qi::rule<Iterator> emptyline;
 	qi::rule<Iterator> moreemptylines;
@@ -59,13 +63,26 @@ struct CommentSkipper : public qi::grammar<Iterator> {
 	qi::rule<Iterator> comment;
 };
 
+/**
+ * We use unique_ptr types which release their pointers on successfull passing
+ * to avoid memory leaks whenever a rule fails which has already allocated a value.
+ *
+ * \todo Unfortunately Boost Spirit does not support unique pointers because of copy semantics and missing move semantics support.
+ */
+typedef std::unique_ptr<Mdlx> MdlxType;
+typedef std::unique_ptr<Model> ModelType;
+typedef std::unique_ptr<Version> VersionType;
+
 template <typename Iterator, typename Skipper = CommentSkipper<Iterator> >
-struct MdlGrammar : qi::grammar<Iterator, Mdlx(), qi::locals<std::string>, Skipper>
+struct MdlGrammar : qi::grammar<Iterator, MdlxType(), qi::locals<std::string>, Skipper>
 {
 	MdlGrammar();
 
-	qi::rule<Iterator, Mdlx(), qi::locals<std::string>, Skipper> mdl;
-	qi::rule<Iterator, Version*(), Skipper> version;
+	qi::rule<Iterator, MdlxType(), qi::locals<std::string>, Skipper> mdl;
+	qi::rule<Iterator, ModelType(), Skipper> model;
+	qi::rule<Iterator, VersionType(), Skipper> version;
+
+	MdlxType result;
 };
 
 /**
@@ -73,6 +90,16 @@ struct MdlGrammar : qi::grammar<Iterator, Mdlx(), qi::locals<std::string>, Skipp
  */
 template <typename Iterator>
 bool parse(Iterator first, Iterator last, Mdlx &mdlx);
+
+template <typename Iterator>
+struct MdlGenerator : karma::grammar<Iterator, MdlxType()>
+{
+	MdlGenerator();
+
+	karma::rule<Iterator, MdlxType()> mdl;
+	karma::rule<Iterator, ModelType()> model;
+	karma::rule<Iterator, VersionType()> version;
+};
 
 }
 

@@ -32,15 +32,15 @@ namespace map
 class Tilepoint : public Format
 {
 	public:
-		BOOST_SCOPED_ENUM_START(Flags)
+		enum class Flags : uint16
 		{
+			// FIXME does not fit into 4 bits
 			ShadowBoundary = 0x4000,
 			Ramp = 0x0010,
 			Blight = 0x0020,
 			Water = 0x0040,
 			CameraBoundary = 0x0080
 		};
-		BOOST_SCOPED_ENUM_END
 
 		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
@@ -51,12 +51,22 @@ class Tilepoint : public Format
 	protected:
 		int16 m_groundHeight;
 		int16 m_waterLevel;
-		BOOST_SCOPED_ENUM(Tilepoint::Flags) m_flags;
+		Tilepoint::Flags m_flags;
 		unsigned int m_groundTextureType:4;
 		byte m_textureDetails;
 		unsigned int m_cliffTextureType:4;
 		unsigned int m_layerHeight:4;
 };
+
+inline constexpr bool operator&(Tilepoint::Flags x, Tilepoint::Flags y)
+{
+	return static_cast<bool>(static_cast<uint16>(x) & static_cast<uint16>(y));
+}
+
+inline constexpr Tilepoint::Flags operator|(Tilepoint::Flags x, Tilepoint::Flags y)
+{
+	return static_cast<Tilepoint::Flags>(static_cast<uint16>(x) | static_cast<uint16>(y));
+}
 
 inline int16 Tilepoint::worldEditorHeight(int16 layer, int16 groundZeroLevel, int16 layerZeroLevel) const
 {

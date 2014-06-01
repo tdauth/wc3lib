@@ -64,7 +64,7 @@ Blp::MipMap::~MipMap()
 {
 }
 
-BOOST_SCOPED_ENUM(Blp::Format) Blp::format(const byte *buffer, const std::size_t bufferSize) throw (Exception)
+Blp::Format Blp::format(const byte *buffer, const std::size_t bufferSize) throw (Exception)
 {
 	if (bufferSize < sizeof(dword))
 		throw Exception(boost::format(_("Error while reading BLP file. BLP identifier is too short: %1%. Expected size of %2%.")) % bufferSize % sizeof(dword));
@@ -260,10 +260,15 @@ void readMipMapJpeg(Blp::MipMap &mipMap, byte *buffer, dword bufferSize)
 }
 
 /**
+ * See section "Abbreviated datastreams and multiple images" in
+ * https://www.opensource.apple.com/source/tcl/tcl-87/tcl_ext/tkimg/tkimg/libjpeg/libjpeg.doc
+ * or
+ * /usr/share/doc/libjpeg-turbo-1.3.0-r3/libjpeg.txt.bz2
+ *
  * \param isFirst Is the first MIP map. If so it will contain more header information than others.
  * \param quality 0-100
  */
-void writeMipMapJpeg(const Blp::MipMap &mipMap, unsigned char *&buffer, unsigned long &bufferSize, bool isFirst, int quality)
+void writeMipMapJpeg(const Blp::MipMap &mipMap, unsigned char *&buffer, unsigned long &bufferSize, bool isFirst, unsigned long &headerSize, int quality)
 {
 	JSAMPARRAY scanlines = 0; // will be filled later
 
@@ -287,15 +292,19 @@ void writeMipMapJpeg(const Blp::MipMap &mipMap, unsigned char *&buffer, unsigned
 		cinfo.image_height = imageHeight;
 		cinfo.input_components = inputComponents;
 		cinfo.in_color_space = JCS_RGB;
+
 		jpeg_set_defaults(&cinfo);
 		jpeg_set_quality(&cinfo, quality, false);
 
+		// only write tables for the first MIP map, so the first MIP map contains all header data as well!
 		if (isFirst)
 		{
 			jpeg_write_tables(&cinfo);
 		}
 
-		jpeg_start_compress(&cinfo, false); // only write tables for the first MIP map
+		jpeg_start_compress(&cinfo, false);
+		headerSize = bufferSize;
+		std::cout << "Internal header size: " << headerSize << std::endl;
 		// TODO also share JFIF header? cinfo.write_JFIF_header = writeData->isFirst;
 
 		scanlines = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, scanlineSize, requiredScanlines);
@@ -397,8 +406,8 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps) thr
 	{
 		struct BlpHeader header;
 		wc3lib::read(istream, header, size);
-		this->m_compression = (BOOST_SCOPED_ENUM(Compression))(header.compression);
-		this->m_flags = (BOOST_SCOPED_ENUM(Flags))(header.flags);
+		this->m_compression = static_cast<Compression>(header.compression);
+		this->m_flags = static_cast<Flags>(header.flags);
 		this->m_width = header.width;
 		this->m_height = header.height;
 		this->m_pictureType = header.pictureType;
@@ -426,7 +435,7 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps) thr
 				this->m_compression = Blp::Compression::DirectXCompression;
 		}
 
-		this->m_flags = static_cast<BOOST_SCOPED_ENUM(Flags)>(header.alphaDepth);
+		this->m_flags = static_cast<Flags>(header.alphaDepth);
 		// header.alphaEncoding
 		/*
 		TODO
@@ -582,7 +591,7 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps) thr
 
 		default:
 		{
-			std::cerr << boost::format(_("Unsupported compression mode: %1%.")) % this->compression() << std::endl;
+			std::cerr << boost::format(_("Unsupported compression mode: %1%.")) % static_cast<dword>(this->compression()) << std::endl;
 
 			break;
 		}
@@ -754,7 +763,7 @@ std::streamsize Blp::write(OutputStream &ostream, int quality, std::size_t mipMa
 			}
 			else
 			{
-				throw Exception(boost::format(_("Unsupported compression for BLP2: %1%")) % this->compression());
+				throw Exception(boost::format(_("Unsupported compression for BLP2: %1%")) % static_cast<dword>(this->compression()));
 			}
 		}
 
@@ -807,8 +816,9 @@ std::streamsize Blp::write(OutputStream &ostream, int quality, std::size_t mipMa
 			{
 				unsigned char *tmpBuffer = 0;
 				unsigned long bufferSize = 0;
+				unsigned long headerSize = 0;
 
-				writeMipMapJpeg(this->mipMaps()[i], tmpBuffer, bufferSize, i == 0, quality);
+				writeMipMapJpeg(this->mipMaps()[i], tmpBuffer, bufferSize, i == 0, headerSize, quality);
 
 				/*
 				 * Make sure buffer is freed on leaving the scope to avoid memory leaks.
@@ -816,9 +826,16 @@ std::streamsize Blp::write(OutputStream &ostream, int quality, std::size_t mipMa
 				boost::scoped_array<unsigned char> buffer;
 				buffer.reset(tmpBuffer);
 
+				if (i == 0)
+				{
+					std::cout << "Header size: " << headerSize << std::endl;
+					wc3lib::write(ostream, boost::numeric_cast<dword>(headerSize), size);
+				}
+
 				/*
 				 * Write JPEG header before first MIP map.
 				 */
+				/*
 				if (i == 0)
 				{
 					// skip shared header size
@@ -855,11 +872,13 @@ std::streamsize Blp::write(OutputStream &ostream, int quality, std::size_t mipMa
 					writeByteCount(ostream, boost::numeric_cast<dword>(headerSize), headerPosition, size);
 					size += headerSize;
 				}
+				*/
 
 				mipMapHeaders[i].offset = boost::numeric_cast<dword>(OutputStream::off_type(ostream.tellp()));
 
 				std::streamsize mipMapSize = 0;
 
+				/*
 				// write non-shared MIP map header data
 				if (!writeJpegMarkerFromBufferToStream(ostream, mipMapSize, true, 0, 0xC0, buffer.get(), bufferSize)) // start of frame
 				{
@@ -872,9 +891,9 @@ std::streamsize Blp::write(OutputStream &ostream, int quality, std::size_t mipMa
 				{
 					throw Exception(boost::format(_("Missing start of scan marker 0xDA for MIP map %1%.")) % i);
 				}
+				*/
 
 				wc3lib::write(ostream, buffer[0], size, bufferSize);
-
 				mipMapHeaders[i].size = boost::numeric_cast<dword>(bufferSize) + boost::numeric_cast<dword>(mipMapSize);
 			}
 
@@ -912,7 +931,7 @@ std::streamsize Blp::write(OutputStream &ostream, int quality, std::size_t mipMa
 					}
 				}
 
-				if (this->m_flags & Blp::Flags::Alpha)
+				if (this->flags() & Blp::Flags::Alpha)
 				{
 					for (dword height = 0; height < this->mipMaps()[i].height(); ++height)
 					{

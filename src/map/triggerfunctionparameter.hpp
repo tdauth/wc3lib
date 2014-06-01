@@ -42,14 +42,13 @@ class TriggerFunctionParameter : public Format
 		typedef boost::ptr_vector<class TriggerFunction> Functions;
 		typedef boost::ptr_vector<TriggerFunctionParameter> Parameters;
 
-		BOOST_SCOPED_ENUM_START(Type) /// \todo C++11 : int32
+		enum class Type : int32
 		{
 			Preset,
 			Variable,
 			Function,
 			Jass
 		};
-		BOOST_SCOPED_ENUM_END
 
 		TriggerFunctionParameter();
 		virtual ~TriggerFunctionParameter();
@@ -58,13 +57,13 @@ class TriggerFunctionParameter : public Format
 		{
 			throw Exception(_("Not usable."));
 		}
-		
+
 		virtual std::streamsize read(InputStream &istream, const TriggerData &triggerData) throw (class Exception);
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
-		void setType(BOOST_SCOPED_ENUM(Type) type);
-		BOOST_SCOPED_ENUM(Type) type() const;
-		
+		void setType(Type type);
+		Type type() const;
+
 		void setValue(const string &value);
 		const string& value() const;
 
@@ -82,18 +81,18 @@ class TriggerFunctionParameter : public Format
 		const Parameters& parameters() const;
 
 	protected:
-		BOOST_SCOPED_ENUM(Type) m_type;
+		Type m_type;
 		string m_value;
 		Functions m_functions;
 		Parameters m_parameters;
 };
 
-inline void TriggerFunctionParameter::setType(BOOST_SCOPED_ENUM(TriggerFunctionParameter::Type) type)
+inline void TriggerFunctionParameter::setType(TriggerFunctionParameter::Type type)
 {
 	this->m_type = type;
 }
 
-inline BOOST_SCOPED_ENUM(TriggerFunctionParameter::Type) TriggerFunctionParameter::type() const
+inline TriggerFunctionParameter::Type TriggerFunctionParameter::type() const
 {
 	return m_type;
 }
