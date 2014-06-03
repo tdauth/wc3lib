@@ -43,7 +43,7 @@ Listfile::Listfile(Mpq* mpq, Hash* hash): MpqFile(mpq, hash)
 Listfile::Entries Listfile::entries(const string &content)
 {
 	Entries result;
-	
+
 	// specification says:
 	// "and is simply a text file with file paths separated by ';', 0Dh, 0Ah, or some combination of these."
 	// regex gets all combinations
@@ -64,7 +64,7 @@ Listfile::Entries Listfile::entries(const string &content)
 Listfile::Entries Listfile::dirEntries(const string& content, const string& dirPath, bool recursive, bool directories)
 {
 	Entries entries = Listfile::entries(content);
-	
+
 	std::set<string> dirs;
 	Entries result;
 
@@ -75,36 +75,36 @@ Listfile::Entries Listfile::dirEntries(const string& content, const string& dirP
 			string::size_type start = dirPath.length();
 			bool foundOneDir = false;
 			string::size_type index = string::npos;
-			
+
 			// find all directorie paths!
 			do
 			{
 				index = ref.find('\\', start);
-				
+
 				if (index != string::npos)
 				{
 					if (directories)
 					{
-						
+
 						string dirName = ref.substr(0, index + 1); // add directories with separator at the end
 						boost::to_upper(dirName); // as hash algorithm uses to_upper characters file paths are case insensitive and therefore all directories are, too
-						dirs.insert(dirName); 
+						dirs.insert(dirName);
 					}
-					
+
 					foundOneDir = true;
 					start = index + 1;
 				}
 			}
 			// if not recursive only use the first level of directories!
 			while (recursive && index != string::npos && start < ref.length());
-			
+
 			if (recursive || !foundOneDir)
 			{
 				result.push_back(ref);
 			}
 		}
 	}
-	
+
 	if (directories)
 	{
 		BOOST_FOREACH(std::set<string>::const_reference ref, dirs) // TODO reference does not work, incompatible iterator
@@ -112,10 +112,30 @@ Listfile::Entries Listfile::dirEntries(const string& content, const string& dirP
 			result.push_back(ref);
 		}
 	}
-	
+
 	return result;
 }
 
+void Listfile::toListfileEntry(std::string &path)
+{
+#ifdef UNIX
+	// (listfile) entries usually have Windows path format
+	boost::algorithm::replace_all(path, "/", "\\");
+#else
+#warning This functions is only necessary on Unix systems!
+#endif
+}
+
+void Listfile::toNativePath(std::string &entry)
+{
+
+#ifdef UNIX
+	// (listfile) entries usually have Windows path format
+	boost::algorithm::replace_all(entry, "\\", "/");
+#else
+#warning This functions is only necessary on Unix systems!
+#endif
+}
 
 }
 

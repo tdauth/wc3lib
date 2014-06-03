@@ -36,16 +36,16 @@ namespace mpq
 
 /**
  * Each MPQ archive can contain one single "(listfile)" file with neutral locale and default platform which contains all paths (usually in Windows style) separated by one of the following characters: ";\r\n" OR ANY COMBINATION OF THESE!
- * 
+ *
  * Since only hashes of file paths, locales and platforms are stored by default you usually don't know which files do belong to the archive.
  * Therefore listfiles can help especially when extracting all files from an archive or simply to do not loose any file path information.
- * 
+ *
  * On Unix platforms \ref Listfile::toNativePath() can be used to convert one single entry to a Unix path.
- * 
+ *
  * Use \ref Listfile::entries() to get all entries stored as vector of strings.
- * 
+ *
  * Use \ref Listfile::dirEntries() if you want filter entries by directory and identify sub directories.
- * 
+ *
  * \sa Attributes
  * \sa Signature
  */
@@ -69,15 +69,15 @@ class Listfile : public MpqFile
 		 * \return Returns the container with all found file paths in \p content.
 		 */
 		static Entries entries(const string &content);
-		
+
 		/**
 		 * Uses \ref entries(const string&) to get all "(listfile)" entries and returns all paths starting with directory path \p dirPath.
 		 * Sub directory paths will be added as well having a \ character as suffix.
-		 * 
+		 *
 		 * \param dirPath Directory path all entries should get from. If this value is empty, function uses top level directory.
 		 * \param recursive If this value is true, all paths in sub directories are listed, as well.
 		 * \param directories If this value is true, sub directory paths will be added as well having a \ character as suffix.
-		 * 
+		 *
 		 * \todo Adding all directories might be a little slow (in recursive mode etc.).
 		 * \note All directories will be appended to the end of the result if \p directories is set true. Their order depends on the order of the set they are stored in. The set is used since they could occur multiple times but the user usually needs them only once.
 		 */
@@ -98,27 +98,6 @@ class Listfile : public MpqFile
 		Listfile(Mpq *mpq, Hash *hash);
 };
 
-inline void Listfile::toListfileEntry(std::string &path)
-{
-#ifdef UNIX
-	// (listfile) entries usually have Windows path format
-	boost::algorithm::replace_all(path, "/", "\\");
-#else
-#warning This functions is only necessary on Unix systems!
-#endif
-}
-
-inline void Listfile::toNativePath(std::string &entry)
-{
-
-#ifdef UNIX
-	// (listfile) entries usually have Windows path format
-	boost::algorithm::replace_all(entry, "\\", "/");
-#else
-#warning This functions is only necessary on Unix systems!
-#endif
-}
-
 inline Listfile::Entries Listfile::entries() const
 {
 	ostringstream stream;
@@ -131,7 +110,7 @@ inline Listfile::Entries Listfile::dirEntries(const string& dirPath, bool recurs
 {
 	ostringstream stream;
 	MpqFile::writeData(stream);
-	
+
 	return dirEntries(stream.str(), dirPath, recursive, directories);
 }
 

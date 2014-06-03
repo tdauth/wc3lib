@@ -46,6 +46,10 @@ find_path(wc3lib_INCLUDE_DIR
   PATHS ${wc3lib_PKGCONF_INCLUDE_DIRS}
 )
 
+# TODO add to include dirs include/wc3lib/lib
+# for external libs
+list(APPEND wc3lib_INCLUDE_DIR "${wc3lib_INCLUDE_DIR}/lib")
+
 # Finally the library itself
 find_library(wc3lib_LIBRARY
   NAMES wc3lib
@@ -61,12 +65,12 @@ if(wc3lib_FIND_COMPONENTS )
 			NAMES ${comp}.hpp
 			PATHS ${wc3lib_PKGCONF_INCLUDE_DIRS}
 		)
-		
+
 		find_library(wc3lib_${comp}_LIBRARY
 			NAMES wc3lib${comp}
 			PATHS ${wc3lib_PKGCONF_LIBRARY_DIRS}
 		)
-		
+
 		set(wc3lib_PROCESS_INCLUDES wc3lib_${comp}_INCLUDE_DIR wc3lib_INCLUDE_DIRS)
 		set(wc3lib_PROCESS_LIBS wc3lib_${comp}_LIBRARY wc3lib_LIBRARIES)
 	endforeach()
