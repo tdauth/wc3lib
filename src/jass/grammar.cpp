@@ -341,9 +341,9 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 	ifthenelse %=
 		lit("if") >> conditional_statements
 		>>
-		*(
+		-(*(
 			eol >> lit("elseif") >> conditional_statements
-		)
+		))
 		>>
 		-(
 			eol >> lit("else")
@@ -955,8 +955,8 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
 	wc3lib::jass::jass_ifthenelse,
 	(wc3lib::jass::jass_conditional_statements, ifexpression)
-	(wc3lib::jass::jass_elseifs, elseifexpressions)
-	(wc3lib::jass::jass_statements, elseexpression)
+	(wc3lib::jass::jass_ifthenelse_elseifs, elseifexpressions)
+	(wc3lib::jass::jass_ifthenelse_else, elseexpression)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(

@@ -30,6 +30,7 @@
  */
 
 #include <vector>
+#include <array>
 #include <string>
 #include <ostream>
 #include <fstream>
@@ -37,7 +38,6 @@
 #include "../spirit.hpp"
 
 #include <boost/spirit/include/qi_symbols.hpp>
-#include <boost/array.hpp>
 
 #include "../platform.hpp"
 #include "../exception.hpp"
@@ -178,10 +178,14 @@ struct jass_conditional_statements : public jass_statement_node {
 struct jass_elseifs : public jass_statement_node, public std::vector<jass_conditional_statements> {
 };
 
+// TODO use boost::optional for both
+typedef jass_elseifs jass_ifthenelse_elseifs;
+typedef jass_statements jass_ifthenelse_else;
+
 struct jass_ifthenelse : public jass_statement_node {
 	jass_conditional_statements ifexpression;
-	jass_elseifs elseifexpressions; // TODO optional!
-	jass_statements elseexpression; // TODO optional!
+	jass_ifthenelse_elseifs elseifexpressions;
+	jass_ifthenelse_else elseexpression;
 };
 
 struct jass_loop : public jass_statement_node {
@@ -391,7 +395,7 @@ struct jass_null : public jass_expression_node {
  * Should always have the size of 4.
  */
 typedef std::vector<char> fourcc;
-typedef boost::array<char, 4> fourcc_array;
+typedef std::array<char, 4> fourcc_array;
 
 inline fourcc from_array(const fourcc_array &value) {
 	assert(value.size() == 4);
