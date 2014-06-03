@@ -24,6 +24,8 @@ set(wc3lib_CORE_H
 	mdlx.hpp
 	mpq.hpp
 	platform.hpp
+	qi.hpp
+	spirit.hpp
 	utilities.hpp
 	vertex.hpp
 	wc3lib.hpp
