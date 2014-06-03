@@ -348,6 +348,21 @@ void MpqProtocol::listDir(const KUrl &url)
 
 	if (listfile == 0)
 	{
+		// /usr/share/wc3lib/listfiles/
+		QFileInfo info("/usr/share/wc3lib/listfiles/");
+
+		if (info.isDir() && info.isReadable())
+		{
+			QDir dir(info.fileName());
+
+			foreach (QFileInfo fileInfo, dir.entryInfoList("*.txt"))
+			{
+			}
+		}
+	}
+
+	if (listfile == 0)
+	{
 		// use slave defined for custom text other than error code!
 		error(KIO::ERR_SLAVE_DEFINED, i18n("%1: Missing (listfile).", url.prettyUrl()));
 

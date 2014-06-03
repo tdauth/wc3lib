@@ -1,1 +1,1 @@
-#add_subdirectory(Modules)
+install(FILES Modules/Findwc3lib.cmake DESTINATION share/wc3lib/cmake/Modules)

@@ -31,6 +31,8 @@ namespace jass
 
 class Error : public Report
 {
+	public:
+		Error(const jass_ast_node *node, const std::string &message);
 };
 
 }

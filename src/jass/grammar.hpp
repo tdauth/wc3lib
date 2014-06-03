@@ -49,48 +49,61 @@ class Grammar {
 		typedef std::basic_istream<byte> InputStream;
 		typedef std::istreambuf_iterator<byte> IteratorType;
 		typedef boost::spirit::multi_pass<IteratorType> ForwardIteratorType;
-		
+
 		/**
 		 * Declare iterator types for better error results.
 		 * These Position iterators support tracking the current position of the parser.
 		 * When an error occurs they their information can be used for better reports.
-		 * 
+		 *
 		 * Usually you would create objects of theses types from the multi pass iterator \ref ForwardIteratorType and pass
 		 * them to the \ref parse() element functions.
-		 * 
+		 *
 		 * Both types are instanciated in "grammar.cpp" and can be declared as external templates to save compile time.
 		 */
 		typedef boost::spirit::classic::position_iterator2<Grammar::ForwardIteratorType> ClassicPositionIteratorType;
 		typedef boost::spirit::line_pos_iterator<Grammar::ForwardIteratorType> PositionIteratorType;
-		
+		typedef client::jass_grammar<PositionIteratorType, client::comment_skipper<PositionIteratorType> > JassGrammar;
+		typedef client::comment_skipper<PositionIteratorType> Skipper;
+
 		bool parse(InputStream &istream, jass_ast &ast, jass_file &file);
 		bool parse(IteratorType first, IteratorType last, jass_ast &ast, jass_file &file);
-		
+
 		/**
 		 * Creates the parsed file automatically using \p fileName as file path.
 		 * The created file will be added to the AST.
 		 */
 		bool parse(InputStream &istream, jass_ast &ast, const std::string &fileName = "JASS file");
-		
+
 		/**
 		 * \defgroup GrammarSymbols Grammar Symbols
 		 *  @{
-		 * 
+		 *
 		 * Return symbol tables from parsed input.
 		 */
 		const jass_type_declarations& typeSymbols() const;
 		const jass_var_declarations& globalSymbols() const;
 		const jass_function_declarations& functionSymbols() const;
 		/** @} */
-		
+
+		/**
+		 * \return Returns all reports which occured during the parsing.
+		 */
+		const JassGrammar::Reports& reports() const;
+
+		/**
+		 * Clears the state of the grammar.
+		 * Clears all symbols and reports.
+		 */
+		void clear();
+
 	private:
 		/*
 		 * Internal grammars for JASS grammar and its skipper.
 		 * We do not want to create a new grammar instance each time we parse something.
 		 * Therefore we use these attributes for all parsing operations.
 		 */
-		client::jass_grammar<PositionIteratorType, client::comment_skipper<PositionIteratorType> > grammar;
-		client::comment_skipper<PositionIteratorType> skipper;
+		JassGrammar grammar;
+		Skipper skipper;
 };
 
 inline const jass_type_declarations& Grammar::typeSymbols() const
@@ -108,7 +121,10 @@ inline const jass_function_declarations& Grammar::functionSymbols() const
 	return grammar.function_symbols;
 }
 
-
+inline const Grammar::JassGrammar::Reports& Grammar::reports() const
+{
+	return grammar.reports;
+}
 
 }
 

@@ -24,12 +24,15 @@
 #include "client.hpp" // defines debug, has to be included first!
 #include "ast.hpp"
 #include "grammar.hpp"
+#include "error.hpp"
 
 #include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/phoenix_fusion.hpp>
 #include <boost/spirit/include/phoenix_stl.hpp>
 #include <boost/spirit/include/phoenix_bind.hpp>
+#include <boost/spirit/include/phoenix_scope.hpp>
+#include <boost/spirit/include/phoenix_statement.hpp>
 
 #include <boost/fusion/include/adapt_struct.hpp>
 
@@ -239,6 +242,10 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 	using phoenix::at_c;
 	using phoenix::push_back;
 	using phoenix::ref;
+	using phoenix::let;
+	using phoenix::bind;
+	using phoenix::if_;
+	//using phoenix::local_names;
 
 	// TODO get locals of current function as well (including function parameters which are also locals)!
 	var_reference =
@@ -283,15 +290,36 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 		statement % eol
 	;
 
+	/*
+	 * Whenever a "set" keyword occurs we expect all three expressions.
+	 * Otherwise the line is invalid.
+	 */
 	set %=
 		lit("set")
-		>> (
+		> (
 			array_reference // check array_reference first, otherwise var_reference does always succeed
 			| var_reference
 			)
-		>> lit('=')
-		>> expression
+		> lit('=')
+		> expression
 	;
+
+	/*
+	on_error<fail>(set,
+		let(_a = bind(&boost::spirit::info::tag, _4))
+		[
+			if_("=" == _a)
+			[
+				reports.push_back(Error(0, "Missing =.")) // _4, _1, _2, _3
+			]
+			.else_
+			[
+				// TODO check for which component is missing.
+				reports.push_back(Error(0, "Invalid set statement.")) // _4, _1, _2, _3
+			]
+		]
+	);
+	*/
 
 	args %=
 		expression % lit(',')
@@ -879,6 +907,14 @@ bool Grammar::parse(Grammar::InputStream& istream, jass_ast& ast, const std::str
 	ast.files.push_back(file);
 
 	return this->parse(IteratorType(istream), IteratorType(), ast, file);
+}
+
+void Grammar::clear()
+{
+	grammar.type_symbols.clear();
+	grammar.global_symbols.clear();
+	grammar.function_symbols.clear();
+	grammar.reports.clear();
 }
 
 }
