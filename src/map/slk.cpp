@@ -93,14 +93,6 @@ struct RecordSkipper : public qi::grammar<Iterator> {
 			>> -lit(";E")
 		;
 
-		b_record %=
-			lit('B')
-			>> lit(";X")
-			>> +int_
-			>> lit(";Y")
-			>> +int_
-		;
-
 		p_record %=
 			lit('P')
 			>> *char_
@@ -108,7 +100,6 @@ struct RecordSkipper : public qi::grammar<Iterator> {
 
 		skip_record %=
 			id_record
-			| b_record
 			| p_record
 		;
 
@@ -136,6 +127,8 @@ struct RecordSkipper : public qi::grammar<Iterator> {
 	qi::rule<Iterator> skip;
 };
 
+typedef std::pair<std::size_t, std::size_t> SlkSize;
+
 template <typename Iterator, typename Skipper = RecordSkipper<Iterator> >
 struct SlkGrammar : qi::grammar<Iterator, Slk::Table(), Skipper>
 {
@@ -153,6 +146,16 @@ struct SlkGrammar : qi::grammar<Iterator, Slk::Table(), Skipper>
 		using qi::_val;
 		using phoenix::push_back;
 		using phoenix::new_;
+
+		// TODO whenever a B record appears, resize the cells array!
+		b_record %=
+			lit('B')
+			>> lit(";X")
+			>> int_
+			>> lit(";Y")
+			>> int_
+			// TODO support ;D0 0 117 16
+		;
 
 		/*
 		c_record =
@@ -184,17 +187,20 @@ struct SlkGrammar : qi::grammar<Iterator, Slk::Table(), Skipper>
 		;
 		*/
 
+		b_record.name("b_record");
 		c_record.name("c_record");
 		e_record.name("e_record");
 		cells.name("cells");
 
 		BOOST_SPIRIT_DEBUG_NODES(
+			(b_record)
 			(c_record)
 			(e_record)
 			(cells)
 		);
 	}
 
+	qi::rule<Iterator, SlkSize(), Skipper> b_record;
 	qi::rule<Iterator, Slk::Cell(), Skipper> c_record;
 	qi::rule<Iterator, Skipper> e_record;
 	qi::rule<Iterator, Slk::Table(), Skipper> cells;

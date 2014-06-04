@@ -62,9 +62,9 @@ BOOST_AUTO_TEST_CASE(UnitMetaData) {
 		std::cerr << e.what() << std::endl;
 	}
 
-	// 16 columns
+	// 17 columns
 	// 118 rows
 	BOOST_REQUIRE(valid);
-	BOOST_REQUIRE(slk.table().shape()[0] == 16);
+	BOOST_REQUIRE(slk.table().shape()[0] == 17);
 	BOOST_REQUIRE(slk.table().shape()[1] == 118);
 }
