@@ -9,6 +9,10 @@ add_executable(txttest txt.cpp)
 target_link_libraries(txttest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
 add_test(NAME TxtTest COMMAND txttest)
 
+add_executable(slktest slk.cpp)
+target_link_libraries(slktest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
+add_test(NAME SlkTest COMMAND slktest)
+
 add_executable(triggerdatatest triggerdata.cpp)
 target_link_libraries(triggerdatatest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
 add_test(NAME TriggerDataTest COMMAND triggerdatatest)
@@ -41,6 +45,7 @@ configure_file(customobjects.w3o customobjects.w3o COPYONLY) # The Frozen Throne
 configure_file(TriggerData.txt TriggerData.txt COPYONLY) # Warcraft III
 configure_file(TriggerStrings.txt TriggerStrings.txt COPYONLY) # Warcraft III
 configure_file(WorldEditStrings.txt WorldEditStrings.txt COPYONLY) # The Frozen Throne "War3xlocal.mpq"
+configure_file(UnitMetaData.slk UnitMetaData.slk COPYONLY) # Reign of Chaos "war3.mpq"
 configure_file(war3map.wtg war3map.wtg COPYONLY) # War Chasers
 configure_file(war3map.wct war3map.wct COPYONLY) # War Chasers
 configure_file(TestMap.w3m TestMap.w3m COPYONLY)

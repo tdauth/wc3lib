@@ -25,6 +25,7 @@ if (MAP)
 		rect.hpp
 		rects.hpp
 		shadow.hpp
+		slk.hpp
 		sound.hpp
 		sounds.hpp
 		tilepoint.hpp
@@ -64,6 +65,7 @@ if (MAP)
 		rect.cpp
 		rects.cpp
 		shadow.cpp
+		slk.cpp
 		sound.cpp
 		sounds.cpp
 		tilepoint.cpp
