@@ -127,7 +127,7 @@ struct RecordSkipper : public qi::grammar<Iterator> {
 	qi::rule<Iterator> skip;
 };
 
-typedef std::pair<std::size_t, std::size_t> SlkSize;
+typedef std::pair<Slk::Table::size_type, Slk::Table::size_type> SlkSize;
 
 template <typename Iterator, typename Skipper = RecordSkipper<Iterator> >
 struct SlkGrammar : qi::grammar<Iterator, Slk::Table(), Skipper>
@@ -212,18 +212,38 @@ struct SlkGenerator : karma::grammar<Iterator, Slk::Table()>
 	SlkGenerator() : SlkGenerator::base_type(cells, "slk generator")
 	{
 		using karma::eps;
+		using karma::lit;
+		using karma::int_;
+		using karma::int_generator;
 
+		/*
+		 TODO print maximum size
+		b_record %=
+			lit('B')
+			>> lit(";X")
+			>> int_generator<Slk::Table::size_type>()
+			>> lit(";Y")
+			>> int_generator<Slk::Table::size_type>()
+		;
+		*/
+
+		/*
 		cells =
 			eps
+			>> b_record
 		;
+		*/
 
+		b_record.name("b_record");
 		cells.name("cells");
 
 		BOOST_SPIRIT_DEBUG_NODES(
+			(b_record)
 			(cells)
 		);
 	}
 
+	karma::rule<Iterator, SlkSize()> b_record;
 	karma::rule<Iterator, Slk::Table()> cells;
 };
 

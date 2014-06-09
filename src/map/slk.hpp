@@ -95,19 +95,33 @@ class Slk : public Format
 		 */
 
 		/**
-		 * Extracts one single row at \p column.
+		 * \return Returns the maximum number of columns of the SLK table.
+		 *
+		 * \note Colums are the first dimension (x) of the multi array \ref Table.
+		 */
+		Table::size_type columns() const;
+
+		/**
+		 * \return Returns the maximum number of rows of the SLK table.
+		 *
+		 * \note Rows are the second dimension (y) of the multi array \ref Table.
+		 */
+		Table::size_type rows() const;
+
+		/**
+		 * Extracts one single column at \p column.
 		 * \return The result is returned as array view.
 		 *
 		 * @{
 		 */
-		View& row(int column);
-		ConstView row(int column) const;
+		View& column(int column);
+		ConstView column(int column) const;
 		/**
 		 * @}
 		 */
 
-		View& column(int row);
-		ConstView column(int row) const;
+		View& row(int row);
+		ConstView row(int row) const;
 
 		Cell& cell(int row, int column);
 		const Cell& cell(int row, int column) const;
@@ -126,20 +140,31 @@ inline const Slk::Table& Slk::table() const
 	return this->m_table;
 }
 
-inline Slk::ConstView Slk::row(int column) const
+inline Slk::Table::size_type Slk::columns() const
+{
+	return this->table().shape()[0];
+}
+
+inline Slk::Table::size_type Slk::rows() const
+{
+	return this->table().shape()[1];
+}
+
+
+inline Slk::ConstView Slk::column(int column) const
 {
 	typedef Table::index_range range;
 	Table::index_gen indices;
-	Table::const_array_view<1>::type myview = this->table()[indices[range(0, this->table().shape()[0])][column] ];
+	Table::const_array_view<1>::type myview = this->table()[indices[column][range(0, this->table().shape()[1])] ];
 
 	return myview;
 }
 
-inline Slk::ConstView Slk::column(int row) const
+inline Slk::ConstView Slk::row(int row) const
 {
 	typedef Table::index_range range;
 	Table::index_gen indices;
-	Table::const_array_view<1>::type myview = this->table()[indices[row][range(0, this->table().shape()[1])] ];
+	Table::const_array_view<1>::type myview = this->table()[indices[range(0, this->table().shape()[0])][row] ];
 
 	return myview;
 }
