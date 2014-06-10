@@ -75,8 +75,37 @@ struct jass_type; // forward declaration
 struct jass_var_declaration;
 struct jass_function_declaration;
 
+/**
+ * The type which belongs to variant \ref jass_type_reference.
+ */
+enum class jass_type_reference_type
+{
+	Declaration,
+	String
+};
+
 typedef boost::variant<const jass_type*, std::string> jass_type_reference;
+
+/**
+ * The type which belongs to variant \ref jass_var_reference.
+ */
+enum class jass_var_reference_type
+{
+	Declaration,
+	String
+};
+
 typedef boost::variant<const jass_var_declaration*, std::string> jass_var_reference;
+
+/**
+ * The type which belongs to variant \ref jass_function_reference.
+ */
+enum class jass_function_reference_type
+{
+	Declaration,
+	String
+};
+
 typedef boost::variant<const jass_function_declaration*, std::string> jass_function_reference;
 
 //----------------------------------------------------------------------
@@ -148,6 +177,15 @@ struct jass_statements : public jass_statement_node, public std::vector<jass_sta
 };
 
 struct jass_array_reference;
+
+/**
+ * Corresponding type of \ref jass_set_var.
+ */
+enum class jass_set_var_type
+{
+	VarReference,
+	ArrayReference
+};
 
 typedef boost::variant<
 	jass_var_reference
