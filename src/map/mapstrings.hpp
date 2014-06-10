@@ -18,11 +18,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_MAP_MAPSTRINGS_HPP
-#define WC3LIB_MAP_MAPSTRINGS_HPP
+#ifndef WC3LIB_MAP_STRINGS_HPP
+#define WC3LIB_MAP_STRINGS_HPP
+
+#include <boost/ptr_container/ptr_vector.hpp>
 
 #include "platform.hpp"
-#include "strings.hpp"
 
 namespace wc3lib
 {
@@ -30,34 +31,44 @@ namespace wc3lib
 namespace map
 {
 
-class MapStrings : public FileFormat, public Strings
+/**
+ * \brief Map strings file "war3map.wts".
+ *
+ * \todo Implement Boost Qi parser and Karma generator!
+ */
+class Strings : public FileFormat
 {
 	public:
-		virtual std::streamsize read(InputStream &istream) throw (Exception);
-		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+		struct Entry
+		{
+			string key;
+			string value;
+		};
 
-		virtual const byte* fileTextId() const;
-		virtual const byte* fileName() const;
-		virtual uint32 latestFileVersion() const;
-		virtual uint32 version() const;
+		typedef boost::ptr_vector<Entry> Entries;
+
+		virtual const byte* fileName() const override;
+		virtual const byte* fileTextId() const override;
+		virtual uint32 latestFileVersion() const override;
+
+		virtual std::streamsize read(InputStream& istream) throw (Exception) override;
+		virtual std::streamsize write(OutputStream& ostream) const throw (Exception) override;
+
+	private:
+		Entries m_entries;
 };
 
-inline const byte* MapStrings::fileTextId() const
-{
-	return "";
-}
-
-inline const byte* MapStrings::fileName() const
+inline const byte* Strings::fileName() const
 {
 	return "war3map.wts";
 }
 
-inline uint32 MapStrings::latestFileVersion() const
+inline const byte* Strings::fileTextId() const
 {
-	return 0;
+	return "";
 }
 
-inline uint32 MapStrings::version() const
+inline uint32 Strings::latestFileVersion() const
 {
 	return 0;
 }

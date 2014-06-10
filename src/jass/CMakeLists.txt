@@ -21,6 +21,7 @@ if (JASS)
 	set (wc3lib_JASS_H
 		analyzer.hpp
 		ast.hpp
+		astvisitors.hpp
 		client.hpp
 		error.hpp
 		grammar.hpp

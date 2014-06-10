@@ -84,7 +84,7 @@ enum class jass_type_reference_type
 	String
 };
 
-typedef boost::variant<const jass_type*, std::string> jass_type_reference;
+typedef boost::variant<const jass_type*, string> jass_type_reference;
 
 /**
  * The type which belongs to variant \ref jass_var_reference.
@@ -95,7 +95,7 @@ enum class jass_var_reference_type
 	String
 };
 
-typedef boost::variant<const jass_var_declaration*, std::string> jass_var_reference;
+typedef boost::variant<const jass_var_declaration*, string> jass_var_reference;
 
 /**
  * The type which belongs to variant \ref jass_function_reference.
@@ -106,7 +106,7 @@ enum class jass_function_reference_type
 	String
 };
 
-typedef boost::variant<const jass_function_declaration*, std::string> jass_function_reference;
+typedef boost::variant<const jass_function_declaration*, string> jass_function_reference;
 
 //----------------------------------------------------------------------
 // Statements
