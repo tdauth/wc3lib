@@ -43,7 +43,7 @@ if (EDITOR OR PLUGINS)
 	include_directories(${CMAKE_CURRENT_BINARY_DIR}/editor) # include binary dir since the KDE configuration class will be generated there and has to be included (also include for moc cxx files)
 endif ()
 
-add_library(wc3libcore ${wc3lib_CREATION_MODE} ${wc3lib_CORE_SRC})
+add_library(wc3libcore SHARED ${wc3lib_CREATION_MODE} ${wc3lib_CORE_SRC})
 if (UNIX)
 	# TODO: dl is required for using dlopen etc. (cross platform?)
 	target_link_libraries(wc3libcore dl)
