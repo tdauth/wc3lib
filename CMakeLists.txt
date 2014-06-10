@@ -11,7 +11,6 @@ set(wc3lib_VERSION "${wc3lib_VERSION_MAJOR}.${wc3lib_VERSION_MINOR}.${wc3lib_VER
 enable_testing()
 
 # Add C++11 support explicitely.
-add_compile_options(-std=c11)
 add_compile_options(-std=c++11)
 
 include(CMakeDependentOption)

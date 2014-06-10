@@ -7,7 +7,11 @@ set(wc3lib_LIB_PKLIB_SRC
 	implode.c
 )
 
+
+
 add_library(wc3libpklib SHARED ${wc3lib_LIB_PKLIB_SRC})
+set_source_files_properties(${wc3lib_LIB_PKLIB_H} ${wc3lib_LIB_PKLIB_SRC} PROPERTIES LANGUAGE CXX)
+set_target_properties(wc3libpklib PROPERTIES LINKER_LANGUAGE CXX)
 
 # install
 
