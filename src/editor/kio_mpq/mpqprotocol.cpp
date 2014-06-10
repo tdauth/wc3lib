@@ -349,6 +349,7 @@ void MpqProtocol::listDir(const KUrl &url)
 	if (listfile == 0)
 	{
 		// /usr/share/wc3lib/listfiles/
+		/*
 		QFileInfo info("/usr/share/wc3lib/listfiles/");
 
 		if (info.isDir() && info.isReadable())
@@ -359,6 +360,7 @@ void MpqProtocol::listDir(const KUrl &url)
 			{
 			}
 		}
+		*/
 	}
 
 	if (listfile == 0)
