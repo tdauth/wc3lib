@@ -18,7 +18,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "lexer.hpp"
+#ifndef WC3LIB_JASS_LEXER_HPP
+#define WC3LIB_JASS_LEXER_HPP
+
+#include "../spirit.hpp"
+#include "../platform.hpp"
+#include <boost/spirit/include/lex_lexertl.hpp>
+#include <boost/spirit/include/support_istream_iterator.hpp>
 
 namespace wc3lib
 {
@@ -26,14 +32,7 @@ namespace wc3lib
 namespace jass
 {
 
-enum class Token {
-	Comment,
-	Newline,
-	ID,
-	String,
-	Real,
-	Integer
-};
+namespace lex = boost::spirit::lex;
 
 template <typename Lexer>
 struct lexer : lex::lexer<Lexer>
@@ -43,7 +42,7 @@ struct lexer : lex::lexer<Lexer>
 		using boost::spirit::lex::_end;
 		using boost::spirit::lex::_pass;
 		using boost::phoenix::ref;
-		using boost::phoenix::construct;
+		//using boost::phoenix::construct;
 
 		/*
 		 * Patterns can be refered.
@@ -138,20 +137,27 @@ struct lexer : lex::lexer<Lexer>
 	lex::token_def<string> id;
 };
 
+typedef lex::lexertl::token<
+		char const*, boost::mpl::vector<std::string>
+		> token_type;
+typedef lex::lexertl::lexer<token_type> lexer_type;
+
 template<typename Iterator>
-bool tokenize(Iterator first, Iterator last, lexer<lexer_type> &lexer)
+bool tokenize(Iterator first, Iterator last, lexer<lexer_type> &l)
 {
 	typedef lexer<lexer_type>::iterator_type iterator_type;
 
 	lexer<lexer_type> lex;
 
-	return lex::tokenize(first, last, lexer);
+	return lex::tokenize(first, last, l);
 }
 
-bool tokenize(const string &value, lexer<lexer_type> &lexer)
+/*
+bool tokenize(const string &value, lexer<lexer_type> &l)
 {
-	return tokenize(value.begin(), value.end(), lexer);
+	return tokenize(value.cbegin(), value.cend(), l);
 }
+*/
 
 bool tokenize(istream &in, lexer<lexer_type> &l)
 {
@@ -164,3 +170,5 @@ bool tokenize(istream &in, lexer<lexer_type> &l)
 }
 
 }
+
+#endif

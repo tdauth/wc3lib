@@ -40,7 +40,7 @@ namespace jass
 /**
  * Extracts the string identifier from a JASS AST node.
  */
-class identifier : public boost::static_visitor<string>
+class identifier_visitor : public boost::static_visitor<string>
 {
 	public:
 		string operator()(const string &id) const
@@ -73,6 +73,14 @@ class identifier : public boost::static_visitor<string>
 		/**
 		 * @}
 		 */
+
+		/**
+		 * \ref jass_function_reference
+		 */
+		string operator()(const jass_function_declaration *declaration) const
+		{
+			return declaration->identifier;
+		}
 };
 
 }

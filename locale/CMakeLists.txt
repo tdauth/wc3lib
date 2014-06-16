@@ -11,7 +11,7 @@ if (APP)
 	if (BLP AND MPQ AND MDLX)
 		install(FILES de_DE/LC_MESSAGES/wc3converter.mo DESTINATION usr/share/locale/de_DE/LC_MESSAGES)
 	endif ()
-	
+
 	if (MPQ)
 		install(FILES de_DE/LC_MESSAGES/mpq.mo DESTINATION usr/share/locale/de_DE/LC_MESSAGES)
 	endif ()
@@ -21,5 +21,10 @@ if (APP)
 	endif ()
 endif ()
 
-install(FILES de_DE/LC_MESSAGES/wc3lib.mo DESTINATION usr/share/locale/de_DE/LC_MESSAGES)
+#find_package(Gettext REQUIRED)
+
+#GETTEXT_PROCESS_POT(wc3lib.pot ALL INSTALL_DESTINATION usr/share/locale LANGUAGES de_DE)
+
+
+#install(FILES de_DE/LC_MESSAGES/wc3lib.mo DESTINATION usr/share/locale/de_DE/LC_MESSAGES)
 #install(FILES en_GB/LC_MESSAGES/converter.mo en_GB/LC_MESSAGES/editor.mo en_GB/LC_MESSAGES/mpq.mo en_GB/LC_MESSAGES/wc3lib.mo DESTINATION usr/share/locale/en_GB/LC_MESSAGES)

@@ -140,7 +140,7 @@ struct jass_statement : public jass_statement_node {
 	 * Instead of using \ref which() you could use \ref whichType() which returns
 	 * a precise enumeration value.
 	 */
-	BOOST_SCOPED_ENUM_START(Type) {
+	enum class Type {
 		Set,
 		Call,
 		IfThenElse,
@@ -149,9 +149,8 @@ struct jass_statement : public jass_statement_node {
 		Return,
 		Debug
 	};
-	BOOST_SCOPED_ENUM_END
 
-	BOOST_SCOPED_ENUM(Type) whichType() const {
+	Type whichType() const {
 		switch (this->variant.which()) {
 			case 0:
 				return Type::Set;
@@ -285,7 +284,7 @@ struct jass_expression : public jass_expression_node {
 	 * Instead of using \ref which() you could use \ref whichType() which returns
 	 * a precise enumeration value.
 	 */
-	BOOST_SCOPED_ENUM_START(Type) {
+	enum class Type {
 		Constant,
 		BinaryOperation,
 		UnaryOperation,
@@ -295,9 +294,8 @@ struct jass_expression : public jass_expression_node {
 		VariableReference,
 		Parentheses
 	};
-	BOOST_SCOPED_ENUM_END
 
-	BOOST_SCOPED_ENUM(Type) whichType() const {
+	Type whichType() const {
 		switch (this->variant.which()) {
 			case 0:
 				return Type::Constant;
@@ -321,7 +319,7 @@ struct jass_expression : public jass_expression_node {
 	}
 };
 
-BOOST_SCOPED_ENUM_START(jass_binary_operator) {
+enum class jass_binary_operator {
 	Plus,
 	Minus,
 	Multiply,
@@ -335,9 +333,8 @@ BOOST_SCOPED_ENUM_START(jass_binary_operator) {
 	And,
 	Or
 };
-BOOST_SCOPED_ENUM_END
 
-struct jass_binary_operators : qi::symbols<char, BOOST_SCOPED_ENUM(jass_binary_operator)> {
+struct jass_binary_operators : qi::symbols<char, jass_binary_operator> {
 
 	jass_binary_operators()
 	{
@@ -362,7 +359,7 @@ struct jass_binary_operators : qi::symbols<char, BOOST_SCOPED_ENUM(jass_binary_o
 	}
 };
 
-struct jass_binary_boolean_operators : qi::symbols<char, BOOST_SCOPED_ENUM(jass_binary_operator)> {
+struct jass_binary_boolean_operators : qi::symbols<char, jass_binary_operator> {
 
 	jass_binary_boolean_operators()
 	{
@@ -379,18 +376,17 @@ struct jass_binary_boolean_operators : qi::symbols<char, BOOST_SCOPED_ENUM(jass_
 
 struct jass_binary_operation : public jass_expression_node {
 	jass_expression first_expression;
-	BOOST_SCOPED_ENUM(jass_binary_operator) op;
+	jass_binary_operator op;
 	jass_expression second_expression;
 };
 
-BOOST_SCOPED_ENUM_START(jass_unary_operator) {
+enum class jass_unary_operator {
 	Plus,
 	Minus,
 	Not
 };
-BOOST_SCOPED_ENUM_END
 
-struct jass_unary_operators : qi::symbols<char, BOOST_SCOPED_ENUM(jass_unary_operator)> {
+struct jass_unary_operators : qi::symbols<char, jass_unary_operator> {
 
 	jass_unary_operators()
 	{
@@ -407,7 +403,7 @@ struct jass_unary_operators : qi::symbols<char, BOOST_SCOPED_ENUM(jass_unary_ope
 };
 
 struct jass_unary_operation : public jass_expression_node {
-	BOOST_SCOPED_ENUM(jass_unary_operator) op;
+	jass_unary_operator op;
 	jass_expression expression;
 };
 
@@ -496,7 +492,7 @@ struct jass_const : public jass_expression_node {
 	 * Instead of using \ref which() you could use \ref whichType() which returns
 	 * a precise enumeration value.
 	 */
-	BOOST_SCOPED_ENUM_START(Type) {
+	enum class Type {
 		Integer,
 		Fourcc,
 		Real,
@@ -504,9 +500,8 @@ struct jass_const : public jass_expression_node {
 		String,
 		Null
 	};
-	BOOST_SCOPED_ENUM_END
 
-	BOOST_SCOPED_ENUM(Type) whichType() const {
+	Type whichType() const {
 		switch (this->variant.which()) {
 			case 0:
 				return Type::Integer;

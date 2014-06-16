@@ -84,4 +84,5 @@ configure_file(statements_exitwhen.j statements_exitwhen.j COPYONLY)
 configure_file(statements_return.j statements_return.j COPYONLY)
 
 add_subdirectory(ast)
+add_subdirectory(lexer)
 add_subdirectory(semantic)
