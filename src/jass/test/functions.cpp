@@ -19,42 +19,42 @@ using namespace wc3lib::jass;
 BOOST_AUTO_TEST_CASE(FunctionsTest) {
 	const char* jassFile = "functions.j";
 	const char* traceFile = "functions_traces.xml";
-	
+
 	ifstream in(jassFile);
-	
+
 	BOOST_REQUIRE(in);
-	
+
 	spiritTraceLog.open(traceFile);
-	
+
 	BOOST_REQUIRE(spiritTraceLog);
-	
+
 	Grammar::ForwardIteratorType first = boost::spirit::make_default_multi_pass(Grammar::IteratorType(in));
 	Grammar::ForwardIteratorType last;
-	
+
 	// used for backtracking and more detailed error output
 	Grammar::PositionIteratorType position_begin(first);
 	Grammar::PositionIteratorType position_end;
-	
+
 	jass_ast ast;
-	
+
 	jass_file current_file;
 	current_file.path = jassFile;
-	
+
 	ast.files.push_back(current_file);
-	
+
 	BOOST_REQUIRE(ast.files.size() == 1);
-	
+
 	bool valid = false;
 	jass_functions result;
-	
+
 	// grammar has to be allocated until the end of the test because it holds the symbols
 	client::comment_skipper<Grammar::PositionIteratorType> skipper;
 	client::jass_grammar<Grammar::PositionIteratorType> grammar;
 	grammar.prepare(position_begin, ast, current_file);
-	
+
 	try {
 		namespace qi = boost::spirit::qi;
-		
+
 		valid = boost::spirit::qi::phrase_parse(
 			position_begin,
 			position_end,
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(FunctionsTest) {
 	{
 //		std::cerr << client::expectationFailure(e) << std::endl;
 	}
-	
+
 	BOOST_REQUIRE(valid);
-	BOOST_REQUIRE(result.size() == 5);
+	BOOST_REQUIRE(result.size() == 6);
 }

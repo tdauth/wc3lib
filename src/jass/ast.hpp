@@ -75,38 +75,101 @@ struct jass_type; // forward declaration
 struct jass_var_declaration;
 struct jass_function_declaration;
 
-/**
- * The type which belongs to variant \ref jass_type_reference.
- */
-enum class jass_type_reference_type
+typedef boost::variant<const jass_type*, string> jass_type_reference_variant;
+
+struct jass_type_reference : public jass_ast_node
 {
-	Declaration,
-	String
+	jass_type_reference_variant variant;
+
+	jass_type_reference() : variant("")
+	{
+	}
+
+	enum class Type
+	{
+		Declaration,
+		String
+	};
+
+	Type whichType() const
+	{
+		switch (this->variant.which())
+		{
+			case 0:
+				return Type::Declaration;
+
+			case 1:
+				return Type::String;
+		}
+
+		throw std::runtime_error("Invalid type.");
+	}
 };
 
-typedef boost::variant<const jass_type*, string> jass_type_reference;
+typedef boost::variant<const jass_var_declaration*, string> jass_var_reference_variant;
 
-/**
- * The type which belongs to variant \ref jass_var_reference.
- */
-enum class jass_var_reference_type
+struct jass_var_reference : public jass_ast_node
 {
-	Declaration,
-	String
+	jass_var_reference_variant variant;
+
+	jass_var_reference() : variant("")
+	{
+	}
+
+	/**
+	 * The type which belongs to variant \ref jass_var_reference.
+	 */
+	enum class Type
+	{
+		Declaration,
+		String
+	};
+
+	Type whichType() const
+	{
+		switch (this->variant.which())
+		{
+			case 0:
+				return Type::Declaration;
+
+			case 1:
+				return Type::String;
+		}
+
+		throw std::runtime_error("Invalid type.");
+	}
 };
 
-typedef boost::variant<const jass_var_declaration*, string> jass_var_reference;
+typedef boost::variant<const jass_function_declaration*, string> jass_function_reference_variant;
 
-/**
- * The type which belongs to variant \ref jass_function_reference.
- */
-enum class jass_function_reference_type
+struct jass_function_reference : public jass_ast_node
 {
-	Declaration,
-	String
-};
+	jass_function_reference_variant variant;
 
-typedef boost::variant<const jass_function_declaration*, string> jass_function_reference;
+	jass_function_reference() : variant("")
+	{
+	}
+
+	enum class Type
+	{
+		Declaration,
+		String
+	};
+
+	Type whichType() const
+	{
+		switch (this->variant.which())
+		{
+			case 0:
+				return Type::Declaration;
+
+			case 1:
+				return Type::String;
+		}
+
+		throw std::runtime_error("Invalid type.");
+	}
+};
 
 //----------------------------------------------------------------------
 // Statements
@@ -133,7 +196,7 @@ typedef boost::variant<
 > jass_statement_variant;
 
 struct jass_statement : public jass_statement_node {
-    jass_statement_variant variant;
+	jass_statement_variant variant;
 
 	/**
 	 * Enumeration for type information of the variant.
@@ -567,19 +630,22 @@ struct jass_type : public jass_global_declaration {
 	 * \return Returns true if parent type is set.
 	 */
 	bool has_parent() const {
-		if (parent.type() == typeid(string)) {
-			return !boost::get<string>(parent).empty();
-		} else if (parent.type() == typeid(jass_type*)) {
-			return boost::get<jass_type*>(parent) != 0;
+		switch (parent.whichType())
+		{
+			case jass_type_reference::Type::String:
+			return !boost::get<const string&>(parent.variant).empty();
+
+			case jass_type_reference::Type::Declaration:
+				return boost::get<const jass_type*>(parent.variant) != 0;
 		}
 
 		return false;
 	}
 
-	jass_type() : parent("") { }
-	jass_type(const string &identifier, jass_type *parent) : identifier(identifier), parent(parent) { }
+	jass_type() { }
+	jass_type(const string &identifier, jass_type *parent) : identifier(identifier) { this->parent.variant = parent; }
 	// if symbol table does not contain the parent type
-	jass_type(const string &identifier) : identifier(identifier), parent("") { }
+	jass_type(const string &identifier) : identifier(identifier) { }
 };
 
 struct jass_types : public jass_global_declaration, public std::vector<jass_type> {

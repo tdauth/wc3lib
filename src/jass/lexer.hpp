@@ -34,6 +34,22 @@ namespace jass
 
 namespace lex = boost::spirit::lex;
 
+enum class Token
+{
+	If,
+	Then,
+	Else,
+	Function,
+	Max
+};
+
+/**
+ * \brief JASS lexer for tokenizing JASS files.
+ *
+ * Boost Spirit offers the optional usage of a separate lexer.
+ * Using a separate lexer/scanner might improve the performance since when applying grammar rules
+ * the input is already tokenized and the lookup does not need to be very big.
+ */
 template <typename Lexer>
 struct lexer : lex::lexer<Lexer>
 {
@@ -50,14 +66,14 @@ struct lexer : lex::lexer<Lexer>
 		this->self.add_pattern
 			("DIGIT", "[0-9]")
 			("LETTER", "[a-zA-Z]")
-			("WHITESPACES", "[ \t]+")
+		//	("WHITESPACES", "[ \t]+")
 		;
 
 		/*
 		 * Define all tokens as class attributes that they can be accessed by the parser.
 		 */
-		comments = "//.*";
-		whitespaces = "{WHITESPACES}";
+		//comments = "//.*";
+		//whitespaces = "{WHITESPACES}";
 
 		plus = "+";
 		minus = "-";
@@ -71,19 +87,25 @@ struct lexer : lex::lexer<Lexer>
 
 		if_keyword = "if";
 		else_keyword = "else";
+		function_keyword = "function";
+		takes_keyword = "takes";
+		returns_keyword = "returns";
+		nothing_keyword = "nothing";
+		endfunction_keyword = "endfunction";
 
-		integer ="{DIGIT}+";
-		id = "{LETTER}({DIGIT}|{LETTER})";
+		//integer ="{DIGIT}+";
+		id = "{LETTER}({DIGIT}|{LETTER})+";
 
 		/*
 		 * add all tokens
 		 */
-		this->self +=
-			comments
-			| whitespaces
-		; //[_pass = lex::pass_flags::pass_ignore]; // Kommentare werden übersprungen
+		//this->self +=
+			//comments
+		//	whitespaces
+		//; //[_pass = lex::pass_flags::pass_ignore]; // Kommentare werden übersprungen
 
 		// operators
+		/*
 		this->self +=
 			plus
 			| minus
@@ -95,16 +117,21 @@ struct lexer : lex::lexer<Lexer>
 			| unequal
 			| and_op
 		;
+		*/
 
 		// keywords
 		this->self +=
 			if_keyword
 			| else_keyword
+			| function_keyword
+			| takes_keyword
+			| returns_keyword
+			| nothing_keyword
+			| endfunction_keyword
 		;
 
 		this->self.add
-			("[ \t]+") // whitespaces
-			(integer)
+			//(integer)
 			(id)
 		;
 	}
@@ -129,27 +156,33 @@ struct lexer : lex::lexer<Lexer>
 	lex::token_def<char> and_op;
 
 	// Schlüsselwörter müssen nichts speichern. Ihr Auftreten alleine reicht aus, um den Parser zu steuern.
-	lex::token_def<> if_keyword;
-	lex::token_def<> then_keword;
-	lex::token_def<> else_keyword;
+	lex::token_def<Token> if_keyword;
+	lex::token_def<Token> then_keword;
+	lex::token_def<Token> else_keyword;
+	lex::token_def<Token> function_keyword;
+	lex::token_def<Token> takes_keyword;
+	lex::token_def<Token> returns_keyword;
+	lex::token_def<Token> nothing_keyword;
+	lex::token_def<Token> endfunction_keyword;
 
 	lex::token_def<int32> integer;
 	lex::token_def<string> id;
 };
 
 typedef lex::lexertl::token<
-		char const*, boost::mpl::vector<std::string>
+		boost::spirit::istream_iterator
+		//char const*, boost::mpl::vector<std::string>
 		> token_type;
 typedef lex::lexertl::lexer<token_type> lexer_type;
 
-template<typename Iterator>
-bool tokenize(Iterator first, Iterator last, lexer<lexer_type> &l)
+template<typename Iterator, typename F>
+bool tokenize(Iterator first, Iterator last, lexer<lexer_type> &l, F f)
 {
 	typedef lexer<lexer_type>::iterator_type iterator_type;
 
 	lexer<lexer_type> lex;
 
-	return lex::tokenize(first, last, l);
+	return lex::tokenize(first, last, l, f);
 }
 
 /*
@@ -159,12 +192,13 @@ bool tokenize(const string &value, lexer<lexer_type> &l)
 }
 */
 
-bool tokenize(istream &in, lexer<lexer_type> &l)
+template<typename F>
+bool tokenize(istream &in, lexer<lexer_type> &l, F f)
 {
 	boost::spirit::istream_iterator first(in);
 	boost::spirit::istream_iterator last;
 
-	return tokenize(first, last, l);
+	return tokenize(first, last, l, f);
 }
 
 }

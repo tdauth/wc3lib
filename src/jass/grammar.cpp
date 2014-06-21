@@ -108,42 +108,62 @@ inline void add_type_to_symbol_table(jass_type_declarations &declarations, jass_
  * If type is not found the identifier string is returned.
  * Otherwise the type pointer is returned.
  */
-inline jass_type_reference get_type_symbol(jass_type_declarations &types, const std::string &value) {
+inline jass_type_reference_variant get_type_symbol(jass_type_declarations &types, const string &value) {
+	jass_type_reference_variant result;
 	jass_type *type = types.find(value.c_str());
 
 	if (type == 0) {
-		return value;
+		result = value;
+	} else {
+		result = type;
 	}
 
-	return type;
+	return result;
+}
+
+/**
+ * Returns a type reference to the type "nothing"
+ * which might be used as a return type for a function.
+ */
+inline jass_type_reference get_type_nothing() {
+	jass_type_reference result;
+	result.variant = "nothing";
+
+	return result;
 }
 
 inline void add_var_to_symbol_table(jass_var_declarations &declarations, jass_var_declaration &var) {
 	declarations.add(var.identifier, var);
 }
 
-inline jass_var_reference get_var_symbol(jass_var_declarations &vars, const std::string &value) {
+inline jass_var_reference_variant get_var_symbol(jass_var_declarations &vars, const string &value) {
+	jass_var_reference_variant result;
 	jass_var_declaration *var = vars.find(value.c_str());
 
 	if (var == 0) {
-		return value;
+		result = value;
+	} else {
+		result = var;
 	}
 
-	return var;
+	return result;
 }
 
 inline void add_function_to_symbol_table(jass_function_declarations &declarations, jass_function_declaration &function) {
 	declarations.add(function.identifier, function);
 }
 
-inline jass_function_reference get_function_symbol(jass_function_declarations &functions, const std::string &value) {
+inline jass_function_reference_variant get_function_symbol(jass_function_declarations &functions, const string &value) {
+	jass_function_reference_variant result;
 	jass_function_declaration *function = functions.find(value.c_str());
 
 	if (function == 0) {
-		return function;
+		result = value;
+	} else {
+		result = function;
 	}
 
-	return function;
+	return result;
 }
 
 /*
@@ -249,16 +269,16 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 
 	// TODO get locals of current function as well (including function parameters which are also locals)!
 	var_reference =
-		identifier[_val = phoenix::bind(&get_var_symbol, ref(global_symbols), _1)]
+		identifier[at_c<0>(_val) = phoenix::bind(&get_var_symbol, ref(global_symbols), _1)]
 	;
 
 	type_reference =
-		identifier[_val = phoenix::bind(&get_type_symbol, ref(type_symbols), _1)]
+		identifier[at_c<0>(_val) = phoenix::bind(&get_type_symbol, ref(type_symbols), _1)]
 	;
 
 	// gets natives as well
 	function_reference =
-		identifier[_val = phoenix::bind(&get_function_symbol, ref(function_symbols), _1)]
+		identifier[at_c<0>(_val) = phoenix::bind(&get_function_symbol, ref(function_symbols), _1)]
 	;
 
 	identifier %=
@@ -271,6 +291,10 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 			> char_("a-zA-Z0-9"))
 			*/
 		]
+	;
+
+	type_nothing %=
+		lit("nothing")[_val = phoenix::bind(&get_type_nothing)]
 	;
 
 	//----------------------------------------------------------------------
@@ -572,7 +596,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 		>> lit("returns")
 		>>
 		(
-			string("nothing")[at_c<2>(_val) = _1]
+			type_nothing[at_c<2>(_val) = _1]
 			| type_reference[at_c<2>(_val) = _1]
 		)
 	;
@@ -925,6 +949,20 @@ void Grammar::clear()
  * All parsed structures have to be defined manually for Fusion.
  * Only add attributes which should be parsed!
  */
+BOOST_FUSION_ADAPT_STRUCT(
+	wc3lib::jass::jass_type_reference,
+	(wc3lib::jass::jass_type_reference_variant, variant)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	wc3lib::jass::jass_var_reference,
+	(wc3lib::jass::jass_var_reference_variant, variant)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+	wc3lib::jass::jass_function_reference,
+	(wc3lib::jass::jass_function_reference_variant, variant)
+)
 
 //----------------------------------------------------------------------
 // Statements

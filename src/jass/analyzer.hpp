@@ -37,9 +37,9 @@ namespace jass
  * Performs specific analysises on an AST and returns results.
  * It supports all analysises of the basic static semantic of a JASS program so it can be used
  * by any JASS compiler for static semantic checks.
- * 
+ *
  * Function \ref checkAst() does a normal static semantic check on a whole AST according to all JASS syntax rules.
- * 
+ *
  * \note As it should passively analyse AST nodes it does not perform any modifications! Therefore all parameters are passed const.
  */
 class Analyzer {
@@ -50,16 +50,16 @@ class Analyzer {
 		 * or warning of one single AST entry.
 		 */
 		typedef std::vector<Report> Reports;
-		
+
 		/**
 		 * The analyzer needs symbol tables to get information about declared types, variables and functions.
 		 */
 		Analyzer(const jass_type_declarations &types, const jass_var_declarations &globals, const jass_function_declarations &functions);
-		
+
 		/**
 		 *\defgroup LeakAnalysis Static memory leak analysis
 		 * @{
-		 * 
+		 *
 		 * Checks for proper destruction of leaking objects.
 		 */
 
@@ -67,51 +67,66 @@ class Analyzer {
 		 * Multimap of destructor functions for specific JASS types.
 		 * Each JASS type can have multiple destructor functions. For example "rect" has
 		 * defined "RemoveRect" in file "common.j" as its destructing function.
-		 * 
+		 *
 		 * Destructors are only required for "agent" derived types which might leak.
 		 */
-		typedef std::multimap<jass_type_reference, std::string> Destructors;	
-	
+		typedef std::multimap<jass_type_reference_variant, std::string> Destructors;
+
 		/**
 		 * Analyses all variable declarations in \p ast and returns a list of declarations for which never any
 		 * destructor function is called.
 		 * The destructors for the corresponding types are defined in \p destructors using the type as key and the function
 		 * names as value. One type can have multiple destructors. Therefore a multimap is used.
-		 * 
+		 *
 		 * To get the default destructors call \ref commonjDestructors().
-		 * 
+		 *
 		 * The resulting vector contains all leaking variable declarations helping the user to find memory leaks in his
 		 * program.
 		 */
 		std::vector<const jass_var_declaration*> leakingDeclarations(const jass_ast &ast, const Destructors &destructors) const;
-		
+
 		/**
 		 * Returns a multimap of all "common.j" native types which have destructors with their corresponding destructor function.
 		 * Usually only one single function is defined to free a native type.
 		 */
 		Destructors commonjDestructors() const;
-		
+
 		/**
 		 * Uses the default destructors defined in "common.j" to analyse leaking variable destructions.
 		 * For example type "rect" uses destructor "RemoveRect()"
 		 */
 		std::vector<const jass_var_declaration*> leakingDeclarations(const jass_ast &ast) const;
 		/** @} */
-		
+
 		std::string functionName(const jass_function_reference &function) const;
 		std::string typeName(const jass_type_reference &type) const;
 		bool typeReferenceIsOfBaseType(const jass_type_reference &type, const jass_type_reference &baseType) const;
 		bool typesAreCompatible(const jass_type_reference &first, const jass_type_reference &second) const;
 		void checkTypeCompatiblity(const jass_ast_node &node, const jass_type_reference &first, const jass_type_reference &second, Reports &reports) const;
-		
+
+		/**
+		 * @{
+		 *
+		 * \return Returns the basic JASS type.
+		 */
+		jass_type_reference handle() const;
+		jass_type_reference code() const;
+		jass_type_reference integer() const;
+		jass_type_reference boolean() const;
+		jass_type_reference string() const;
+		jass_type_reference real() const;
+		jass_type_reference fourcc() const;
+		jass_type_reference null() const;
+		/** @} */
+
 		/**
 		 * Evaluates constant expression \p expression and returns its result.
 		 * If the expression is not constant \p isConstant is set to false. Otherwise it is set to true.
-		 * 
+		 *
 		 * Constant expression evaluation can be useful for static value checks or optimizations.
 		 */
 		jass_const evaluateConstantExpression(const jass_expression &expression,  bool &isConstant) const;
-		
+
 		jass_type_reference functionReferenceType(const jass_function_reference &function) const;
 		/**
 		 * All function references have type "code".
@@ -122,11 +137,11 @@ class Analyzer {
 		jass_type_reference variableReferenceType(const jass_var_reference &var) const;
 		jass_type_reference arrayReferenceType(const jass_array_reference &array) const;
 		jass_type_reference expressionType(const jass_expression &expression) const;
-		
+
 		/**
 		 *\defgroup StaticChecks Static AST Checks
 		 * @{
-		 * 
+		 *
 		 * Check for static types and semantic of statements, expressions and declarations.
 		 * All methods fill \p reports with errors and warnings using the semantic rules of JASS.
 		 */
@@ -140,7 +155,7 @@ class Analyzer {
 		 * For arrays constant indices expressions can be checked for being between 0 and 8192.
 		 */
 		void checkArrayReference(const jass_array_reference &array, Reports &reports) const;
-		
+
 		void checkVarDeclaration(const jass_var_declaration &var, Reports &reports) const;
 		void checkGlobal(const jass_global &global, Reports &reports) const;
 		/**
@@ -154,7 +169,7 @@ class Analyzer {
 		void checkFunction(const jass_function &function, Reports &reports) const;
 		void checkAst(const jass_ast &ast, Reports &reports) const;
 		/** @} */
-		
+
 	private:
 		const jass_type_declarations &types;
 		const jass_var_declarations &globals;
