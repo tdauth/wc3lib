@@ -34,7 +34,7 @@ namespace wc3lib
 /**
  * Define this static attribute before including Spirit stuff since we define it as our custom debugging output stream
  * for Spirit traces.
- * 
+ *
  * Call spiritTraceLog.open() before running a test with the filename of your output traces XML file.
  */
 extern std::ofstream spiritTraceLog;
@@ -46,11 +46,18 @@ extern std::ofstream spiritTraceLog;
  */
 #define BOOST_SPIRIT_UNICODE
 
+/**
+ * By default Boost Spirit selects Phoenix V2 for compatibility reasons.
+ * V3 fixes many issues and is therefore enabled.
+ */
+#define BOOST_SPIRIT_USE_PHOENIX_V3
+
 #ifdef DEBUG
 #define BOOST_SPIRIT_DEBUG
 // we use the class attribute as custom output stream for Spirit's debugging traces
 // the public attribute can be opened in each unit test customly where the user wants to have the output traces stored
 #define BOOST_SPIRIT_DEBUG_OUT wc3lib::spiritTraceLog
+#define BOOST_SPIRIT_LEXERTL_DEBUG // enable debugging of lexer
 #endif
 
 #endif
