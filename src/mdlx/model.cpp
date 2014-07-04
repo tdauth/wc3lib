@@ -44,7 +44,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-Model::Model(class Mdlx *mdlx) : MdxBlock("MODL", "Model", false), m_mdlx(mdlx)
+Model::Model() : MdxBlock("MODL", "Model", false)
 {
 }
 
@@ -97,7 +97,7 @@ std::streamsize Model::writeMdl(ostream &ostream, const Mdlx *mdlx) const throw 
 
 	writeMdlValueProperty(ostream, size, "BlendTime", this->blendTime());
 
-	size += Bounds::writeMdl(ostream);
+	size += this->bounds().writeMdl(ostream);
 
 	writeMdlBlockConclusion(ostream, size);
 
@@ -111,7 +111,7 @@ std::streamsize Model::readMdx(istream &istream) throw (class Exception)
 	wc3lib::read(istream, nbytes, size);
 	wc3lib::read(istream, this->m_name, size, nameSize);
 	wc3lib::read(istream, this->m_unknown, size);
-	size += Bounds::readMdx(istream);
+	size += this->m_bounds.readMdx(istream);
 	wc3lib::read(istream, this->m_blendTime, size);
 
 	return size;
@@ -125,7 +125,7 @@ std::streamsize Model::writeMdx(ostream &ostream) const throw (class Exception)
 
 	wc3lib::write(ostream, this->name(), size, nameSize);
 	wc3lib::write(ostream, this->unknown(), size);
-	size += Bounds::writeMdx(ostream);
+	size += this->bounds().writeMdx(ostream);
 	wc3lib::write(ostream, this->blendTime(), size);
 
 	const long32 nbytes = boost::numeric_cast<long32>(size - mdxIdentifierSize);

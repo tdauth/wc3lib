@@ -35,6 +35,8 @@ namespace map
 /**
  * \todo Add derived class TriggerFunctionParameterX.
  * \sa TriggerFunctionParameterX
+ *
+ * \ingroup triggers
  */
 class TriggerFunctionParameter : public Format
 {

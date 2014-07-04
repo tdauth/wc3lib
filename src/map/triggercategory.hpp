@@ -32,6 +32,8 @@ namespace map
 /**
  * \todo Add derived class TriggerCategoryX.
  * \sa TriggerCategoryX
+ *
+ * \ingroup triggers
  */
 class TriggerCategory : public Format
 {

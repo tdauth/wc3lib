@@ -1,3 +1,13 @@
+2014-07-01 Tamino Dauth <tamino@cdauth.eu>
+* mdlx: Create MDL grammar based on Boost Spirit Qi.
+* mdlx: Create MDL generator based on Boost Spirit Karma.
+* mdlx: Create MDX grammar based on Boost Spirit Qi.
+* mdlx: Create MDX generator based on Boost Spirit Karma.
+* mdlx: Simplify classes, drop multiple animated value classes and pass identifiers in the grammars.
+* core: Remove "throw Exception()" qualifier.
+* mdlx: Provide Interpolator class which calculates interpolations used for animations.
+* editor: Create parser for particle effects/particle effects displaying class.
+
 2013-12-28 Tamino Dauth <tamino@cdauth.eu>
 * editor: Create analysis document for realising terrain in OGRE using map's environment (height calculation, cliff types, textures, tilesets ...).
 

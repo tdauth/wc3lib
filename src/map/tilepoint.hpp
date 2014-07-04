@@ -48,14 +48,22 @@ class Tilepoint : public Format
 		int16 worldEditorHeight(int16 layer, int16 groundZeroLevel, int16 layerZeroLevel) const;
 		float32 worldEditorWaterLevel(int16 groundZeroLevel, float32 waterZeroLevel) const;
 
+		int16 groundHeight() const;
+		int16 waterLevel() const;
+		Tilepoint::Flags flags() const;
+		int8 groundTextureType() const;
+		byte textureDetails() const;
+		int8 cliffTextureType() const;
+		int8 layerHeight() const;
+
 	protected:
 		int16 m_groundHeight;
 		int16 m_waterLevel;
 		Tilepoint::Flags m_flags;
-		unsigned int m_groundTextureType:4;
+		int8 m_groundTextureType;
 		byte m_textureDetails;
-		unsigned int m_cliffTextureType:4;
-		unsigned int m_layerHeight:4;
+		int8 m_cliffTextureType;
+		int8 m_layerHeight;
 };
 
 inline constexpr bool operator&(Tilepoint::Flags x, Tilepoint::Flags y)

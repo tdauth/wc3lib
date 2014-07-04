@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2009 by Tamino Dauth                                    *
+ *   Copyright (C) 2014 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,10 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_MDLX_VERSION_HPP
-#define WC3LIB_MDLX_VERSION_HPP
+#include "mdlgenerator.hpp"
+#include "mdlgrammarclient.cpp" // we need all actual template implementations
 
-#include "mdxblock.hpp"
+#include "../platform.hpp"
+#include "../i18n.hpp"
 
 namespace wc3lib
 {
@@ -29,43 +30,27 @@ namespace wc3lib
 namespace mdlx
 {
 
-/**
- * MDX tag "VERS".
- * MDL tag "Version".
- */
-class Version : public MdxBlock
+MdlGenerator::MdlGenerator()
 {
-	public:
-		Version();
-		virtual ~Version();
+}
 
-		void setModelVersion(long32 version);
-		long32 modelVersion() const;
-
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
-		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
-
-		static const long32 currentVersion;
-
-	protected:
-		long32 m_version;
-};
-
-inline void Version::setModelVersion(long32 version)
+bool MdlGenerator::generate(OutputStream &istream, const Mdlx &source)
 {
-	this->m_version = version;
+	return this->generate(IteratorType(istream), source);
 }
 
-inline long32 Version::modelVersion() const
+bool MdlGenerator::generate(IteratorType sink, const Mdlx &source)
 {
-	return this->m_version;
+	/*
+	 * typedef std::ostream_iterator<byte> Iterator;
+	client::SlkGenerator<Iterator> generator;
+
+	return boost::spirit::karma::generate(Iterator(ostream), generator, this->table());
+	*/
+
+	return boost::spirit::karma::generate(sink, grammar, &source);
 }
 
 }
 
 }
-
-#endif
-

@@ -28,7 +28,7 @@ namespace mdlx
 
 const long32 Version::currentVersion = 800;
 
-Version::Version(class Mdlx *mdlx) : MdxBlock("VERS", "Version", false), m_mdlx(mdlx)
+Version::Version() : MdxBlock("VERS", "Version", false), m_version(0)
 {
 }
 

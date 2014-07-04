@@ -34,8 +34,12 @@ namespace map
 {
 
 /**
+ * \brief Stores all strings corresponding to trigger data from \ref TriggerData.
+ *
  * "UI/TriggerStrings.txt" contains the corresponding strings for all trigger function types which are displayed in trigger editor
  * to help users understanding the meaning of function parameters and functions at all.
+ *
+ * \ingroup triggers
  */
 class TriggerStrings : public FileFormat
 {
@@ -81,8 +85,18 @@ class TriggerStrings : public FileFormat
 		Entries& calls();
 		const Entries& calls() const;
 
+		/**
+		 * \return Returns the entries only for \p type.
+		 *
+		 * \throws Exception Throws an exception if \p type is invalid.
+		 *
+		 * @{
+		 */
 		Entries& entries(TriggerFunction::Type type);
 		const Entries& entries(TriggerFunction::Type type) const;
+		/**
+		 * @}
+		 */
 
 	private:
 		void readFunction(const Txt::Pair &ref, Entries &functions);

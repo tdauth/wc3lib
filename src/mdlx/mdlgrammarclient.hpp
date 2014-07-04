@@ -29,6 +29,7 @@
 #include "mdlx.hpp"
 #include "model.hpp"
 #include "version.hpp"
+#include "bounds.hpp"
 
 namespace wc3lib
 {
@@ -74,15 +75,22 @@ typedef std::unique_ptr<Model> ModelType;
 typedef std::unique_ptr<Version> VersionType;
 
 template <typename Iterator, typename Skipper = CommentSkipper<Iterator> >
-struct MdlGrammar : qi::grammar<Iterator, MdlxType(), qi::locals<std::string>, Skipper>
+struct MdlGrammar : qi::grammar<Iterator, Mdlx*(), qi::locals<std::string>, Skipper>
 {
 	MdlGrammar();
 
-	qi::rule<Iterator, MdlxType(), qi::locals<std::string>, Skipper> mdl;
-	qi::rule<Iterator, ModelType(), Skipper> model;
-	qi::rule<Iterator, VersionType(), Skipper> version;
+	qi::rule<Iterator, long32(), Skipper> integer_literal;
+	qi::rule<Iterator, float32(), Skipper> real_literal;
+	qi::rule<Iterator, string(), Skipper> string_literal;
+	qi::rule<Iterator, VertexData(), Skipper> vertexData;
 
-	MdlxType result;
+	qi::rule<Iterator, Mdlx*(), qi::locals<std::string>, Skipper> mdl;
+	qi::rule<Iterator, Model*(), Skipper> model;
+	qi::rule<Iterator, Version*(), Skipper> version;
+
+	qi::rule<Iterator, Bounds(), Skipper> bounds;
+
+	Mdlx *result;
 };
 
 /**
@@ -92,13 +100,20 @@ template <typename Iterator>
 bool parse(Iterator first, Iterator last, Mdlx &mdlx);
 
 template <typename Iterator>
-struct MdlGenerator : karma::grammar<Iterator, MdlxType()>
+struct MdlGenerator : karma::grammar<Iterator, Mdlx*()>
 {
 	MdlGenerator();
 
-	karma::rule<Iterator, MdlxType()> mdl;
-	karma::rule<Iterator, ModelType()> model;
-	karma::rule<Iterator, VersionType()> version;
+	karma::rule<Iterator, long32()> integer_literal;
+	karma::rule<Iterator, float32()> real_literal;
+	karma::rule<Iterator, string()> string_literal;
+	karma::rule<Iterator, VertexData()> vertexData;
+
+	karma::rule<Iterator, Mdlx*()> mdl;
+	karma::rule<Iterator, Model*()> model;
+	karma::rule<Iterator, Version*()> version;
+
+	karma::rule<Iterator, Bounds()> bounds;
 };
 
 }

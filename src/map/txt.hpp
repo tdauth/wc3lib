@@ -23,7 +23,7 @@
 
 /**
  * \defgroup txt TXT files
- * 
+ *
  * \section txtgrammar Grammar of TXT Files
  * [section name] // comment
  * key0 = value0
@@ -41,14 +41,14 @@ namespace map
 {
 
 /**
- * \brief Provides access to one single .txt file's entries such as "UI/MiscUI.txt" or "UI/TriggerData.txt"
- * 
+ * \brief Provides access to one single .txt file's entries such as "UI/MiscUI.txt" or "UI/TriggerData.txt".
+ *
  * All sections can be accessed by \ref sections() which returns a vector of \ref Section instances.
- * 
+ *
  * Uses Boost Spirit library for parsing the file.
- * 
+ *
  * \ingroup txt
- * \sa TriggerData
+ * \sa TriggerData TriggerStrings
  */
 class Txt : public Format
 {
@@ -60,7 +60,7 @@ class Txt : public Format
 		/**
 		 * One single section a .txt file usually indicated by a [section name] expression.
 		 * Each section has its name plus any number number of key value pairs.
-		 * 
+		 *
 		 * \ingroup txt
 		 */
 		struct Section
@@ -71,7 +71,7 @@ class Txt : public Format
 
 		/**
 		 * Type for all sections stored in a .txt file.
-		 * 
+		 *
 		 * \ingroup txt
 		 */
 		typedef std::vector<Section> Sections;
@@ -83,11 +83,12 @@ class Txt : public Format
 		 * \param section An existing section ([bla]) of the TXT file.
 		 * \throws Exception Throws an exception if section \p section does not exist.
 		 * \note Since sections are stored in a vector for more efficency while reading a TXT file this search has a complexity of O(n).
+		 * \note \p section is not necessarily unique! The first section with the name will be returned.
 		 */
 		const Pairs& entries(const string &section) const;
 
-		virtual std::streamsize read(InputStream &istream) throw (Exception);
-		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+		virtual std::streamsize read(InputStream &istream) throw (Exception) override;
+		virtual std::streamsize write(OutputStream &ostream) const throw (Exception) override;
 
 	private:
 		Sections m_sections;

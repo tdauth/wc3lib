@@ -30,19 +30,24 @@ namespace wc3lib
 namespace mdlx
 {
 
+class Mdlx;
+
 /**
  * MDX tag "MODL".
  * MDL tag "Model".
  */
-class Model : public MdxBlock, public Bounds
+class Model : public MdxBlock
 {
 	public:
 		static const std::size_t nameSize = 0x150;
 
-		Model(class Mdlx *mdlx);
+		Model();
 		virtual ~Model();
 
-		class Mdlx* mdlx() const;
+		void setBounds(const Bounds &bounds);
+		const Bounds& bounds() const;
+
+		void setName(const string &name);
 		void setName(const byte name[nameSize]);
 		/**
 		 * \return Returns name with size of \ref nameSize.
@@ -64,15 +69,32 @@ class Model : public MdxBlock, public Bounds
 
 	protected:
 		class Mdlx *m_mdlx;
+		Bounds m_bounds;
 		//long nbytes;
 		byte m_name[nameSize];
 		long32 m_unknown;
 		long32 m_blendTime;
 };
 
-inline class Mdlx* Model::mdlx() const
+inline void Model::setBounds(const Bounds& bounds)
 {
-	return this->m_mdlx;
+	this->m_bounds = bounds;
+}
+
+inline const Bounds& Model::bounds() const
+{
+	return this->m_bounds;
+}
+
+inline void Model::setName(const string &name)
+{
+	if (name.size() > Model::nameSize)
+	{
+		throw Exception();
+	}
+
+	memset(this->m_name, 0, nameSize); // init name with 0 bytes
+	memcpy(this->m_name, name.c_str(), name.size()); // copy without 0 terminating string
 }
 
 inline void Model::setName(const byte name[Model::nameSize])

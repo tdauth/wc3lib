@@ -27,6 +27,9 @@ namespace mdlx
 {
 
 Bounds::Bounds()
+: m_boundsRadius(0.0)
+, m_minimumExtent(0.0, 0.0, 0.0)
+, m_maximumExtent(0.0, 0.0, 0.0)
 {
 }
 

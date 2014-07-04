@@ -95,6 +95,7 @@ CommentSkipper<Iterator>::CommentSkipper() : CommentSkipper<Iterator>::base_type
 		emptylines
 		| comment
 		| blank // check blank as last value
+		| eol
 	;
 
 	emptyline.name("emptyline");
@@ -124,6 +125,17 @@ template<typename T>
 typename std::unique_ptr<T>::pointer pointerValue(std::unique_ptr<T> &ptr) {
 	return ptr.release();
 }
+// resetPointer
+
+template<typename T>
+void resetPointer(std::unique_ptr<T> &target, std::unique_ptr<T> &source) {
+	target.reset(source.release());
+}
+
+template<typename T, typename... Arguments>
+void newPointer(std::unique_ptr<T> &target, Arguments... parameters) {
+	target.reset(new T(parameters...));
+}
 /**
  * @}
  */
@@ -133,6 +145,7 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 {
 	using qi::eps;
 	using qi::int_parser;
+	using qi::real_parser;
 	using qi::double_;
 	using qi::lit;
 	using qi::oct;
@@ -163,35 +176,117 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 	using phoenix::ref;
 	using phoenix::new_;
 
+	integer_literal %=
+		lexeme[
+			qi::int_parser<long32>()
+		]
+	;
+
+	real_literal %=
+		lexeme[
+			qi::real_parser<float32>()
+		]
+	;
+
+	string_literal %=
+		lexeme[
+			lit("\"")
+			>>
+			*(
+				unicode::char_ - unicode::char_('\"') - unicode::char_('\\')
+				| lit('\\')[push_back(_val, '\\')] >> unicode::char_
+			)
+			>> lit("\"")
+		]
+	;
+
+	vertexData =
+		real_literal[at_c<0>(_val) = _1] >> lit(',')
+		>> real_literal[at_c<1>(_val) = _1] >> lit(',')
+		>> real_literal[at_c<2>(_val) = _1]
+	;
+
 	/*
 	mdl =
-		eps[_val = result.release()]
-		-version[at_c<0>(_val) = phoenix::bind(&pointerValueVersion, qi::_r1)]
-	;
-	*/
+		eps[_val = phoenix::new_<Mdlx>()] //[phoenix::bind(&resetPointer<Mdlx>, phoenix::ref(_val), phoenix::ref(result))]
+		>> (
+			-version[at_c<0>(_val) = qi::_1]
+			//>> model[at_c<1>(_val) = qi::_2]
 
-	// TODO Boost Spirits needs move semantics support to support unique pointers
-	/*
-	version =
-		lit("Version")[_val = phoenix::bind(&assignPointerVers, result.get())]
+		)
+	;
+
+	on_error<fail>(mdl,
+		phoenix::delete_(_val)
+	);
+
+	model %=
+		lit("Model")[_val = phoenix::new_<Model>()]
+		>> string_literal
 		>> lit('{')
-			>> lit("FormatVersion")
-			>> qi::int_parser<long32>()[at_c<0>(_val) = _1]
+			>> lit("BlendTime") >> integer_literal
+			>> bounds
 		>> lit('}')
 	;
-	*/
 
+	on_error<fail>(model,
+		phoenix::delete_(_val)
+	);
+	*/
+/*
+	Model "Alliance_Exp" {
+	BlendTime 150,
+	MinimumExtent { -16849.500000, -3155.110107, -9140.349609 },
+	MaximumExtent { 786.507019, 16107.799805, 5544.810059 },
+}
+*/
+
+	// TODO Boost Spirits needs move semantics support to support unique pointers
+	version =
+		lit("Version")[_val = phoenix::new_<Version>()] //[phoenix::bind(&newPointer<Version>, phoenix::ref(_val))] //  phoenix::ref(result)
+		>> lit('{')
+			>> lit("FormatVersion")
+			>> integer_literal[at_c<0>(_val) = _1]
+			>> lit(',')
+		>> lit('}')
+	;
+
+	on_error<fail>(version,
+		phoenix::delete_(_val)
+	);
+
+	// MinimumExtent, MaximumExtent, and BoundsRadius are left out if their
+	// values are 0.0.
+	bounds =
+		lit("MinimumExtent") >> lit('{')
+			>> vertexData[at_c<0>(_val) = _1]
+		>> lit('}') >> lit(',')
+
+		>> lit("MaximumExtent")
+			>> vertexData[at_c<1>(_val) = _1]
+		>> lit('}') >> lit(',')
+
+		>> lit("BoundsRadius")
+			>> real_literal[at_c<2>(_val) = _1]
+		>> lit(',')
+	;
 
 	/*
 	 * put all rule names here:
 	 */
 	mdl.name("mdl");
+	model.name("model");
 	version.name("version");
+	bounds.name("bounds");
 
+	/*
 	BOOST_SPIRIT_DEBUG_NODES(
 		(mdl)
+		(model)
 		(version)
+		(bounds)
 	);
+	*/
 }
 
 template <typename Iterator>
@@ -221,11 +316,42 @@ MdlGenerator<Iterator>::MdlGenerator() : MdlGenerator<Iterator>::base_type(mdl, 
 	using karma::eps;
 	using karma::lit;
 	using karma::_val;
+	using ascii::char_;
 	using ascii::string;
 	using karma::right_align;
 	using karma::eol;
+	using namespace boost::spirit;
 
 	using phoenix::at_c;
+	using phoenix::val;
+	using phoenix::push_back;
+	using phoenix::ref;
+	using phoenix::new_;
+
+	/*
+	integer_literal %=
+		karma::int_generator<long32>()
+	;
+
+	real_literal %=
+		karma::real_generator<float32>()
+	;
+
+	string_literal %=
+		lit("\"")
+		<<
+		*(
+			unicode::char_ - char_('\"') - char_('\\')
+			| lit('\\')[push_back(_val, '\\')] << unicode::char_
+		)
+		<< lit("\"")
+	;
+
+	vertexData =
+		real_literal[at_c<0>(_val) = _1]
+		<< lit(',') << real_literal[at_c<1>(_val) = _1]
+		<< lit(',') << real_literal[at_c<2>(_val) = _1]
+	;
 
 	mdl =
 		version
@@ -237,7 +363,7 @@ MdlGenerator<Iterator>::MdlGenerator() : MdlGenerator<Iterator>::base_type(mdl, 
 		<< eol
 		<< right_align(8)[
 			lit("FormatVersion")
-			<< karma::int_generator<long32>()[at_c<0>(_val)]
+			<< karma::int_generator<long32>()[at_c<0>(_val) = _1]
 			<< eol
 		]
 		<< lit('}')
@@ -245,16 +371,31 @@ MdlGenerator<Iterator>::MdlGenerator() : MdlGenerator<Iterator>::base_type(mdl, 
 
 	model %=
 		lit("Model")
-		<< string[at_c<0>(_val)] // model name
+		<< string[at_c<0>(_val) = _1] // model name
 		<< lit('{')
 		<< eol
 		<< right_align(8)[
 			lit("BlendTime")
-			<< karma::int_generator<long32>()[at_c<2>(_val)]
+			<< karma::int_generator<long32>()[at_c<2>(_val) = _1]
 			<< eol
 		]
 		<< lit('}')
 	;
+
+	bounds %=
+		lit("MinimumExtent") << lit('{')
+			<< vertexData[at_c<0>(_val) = _1]
+		<< lit('}') << lit(',')
+
+		<< lit("MaximumExtent")
+			<< vertexData[at_c<1>(_val) = _1]
+		<< lit('}') >> lit(',')
+
+		<< lit("BoundsRadius")
+			<< real_literal[at_c<2>(_val) = _1]
+		<< lit(',')
+	;
+	*/
 
 	/*
 	 * put all rule names here:
@@ -281,20 +422,34 @@ MdlGenerator<Iterator>::MdlGenerator() : MdlGenerator<Iterator>::base_type(mdl, 
  * Only add attributes which should be parsed!
  */
 BOOST_FUSION_ADAPT_ADT(
-	wc3lib::mdlx::client::MdlxType,
-	(wc3lib::mdlx::Version*, wc3lib::mdlx::Version*, obj->modelVersion(), obj->setModelVersion(val))
+	wc3lib::mdlx::VertexData,
+	(wc3lib::float32, wc3lib::float32, obj.x(), obj.setX(val))
+	(wc3lib::float32, wc3lib::float32, obj.y(), obj.setY(val))
+	(wc3lib::float32, wc3lib::float32, obj.z(), obj.setZ(val))
 )
 
 BOOST_FUSION_ADAPT_ADT(
-	wc3lib::mdlx::client::ModelType,
+	wc3lib::mdlx::Mdlx*,
+)
+
+BOOST_FUSION_ADAPT_ADT(
+	wc3lib::mdlx::Model*,
 	(const wc3lib::byte*, const wc3lib::byte*, obj->name(), obj->setName(val))
-	(wc3lib::mdlx::long32, wc3lib::mdlx::long32, obj->unknown(), obj->setUnknown(val))
+	//(wc3lib::mdlx::long32, wc3lib::mdlx::long32, obj->unknown(), obj->setUnknown(val))
 	(wc3lib::mdlx::long32, wc3lib::mdlx::long32, obj->blendTime(), obj->setBlendTime(val))
+	(const wc3lib::mdlx::Bounds&, const wc3lib::mdlx::Bounds&, obj->bounds(), obj->setBounds(val))
 )
 
 BOOST_FUSION_ADAPT_ADT(
-	wc3lib::mdlx::client::VersionType,
+	wc3lib::mdlx::Version*,
 	(wc3lib::mdlx::long32, wc3lib::mdlx::long32, obj->modelVersion(), obj->setModelVersion(val))
+)
+
+BOOST_FUSION_ADAPT_ADT(
+	wc3lib::mdlx::Bounds,
+	(const wc3lib::mdlx::VertexData&, const wc3lib::mdlx::VertexData&, obj.minimumExtent(), obj.minimumExtent() = val)
+	(const wc3lib::mdlx::VertexData&, const wc3lib::mdlx::VertexData&, obj.maximumExtent(), obj.maximumExtent() = val)
+	(wc3lib::float32, wc3lib::float32, obj.boundsRadius(), obj.setBoundsRadius(val))
 )
 
 #endif

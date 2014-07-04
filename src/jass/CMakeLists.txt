@@ -24,6 +24,7 @@ if (JASS)
 		astvisitors.hpp
 		client.hpp
 		error.hpp
+		generator.hpp
 		grammar.hpp
 		report.hpp
 		warning.hpp

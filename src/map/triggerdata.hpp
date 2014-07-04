@@ -38,11 +38,16 @@ namespace map
 {
 
 /**
+ * \brief Provides access to the game's available trigger functions, types and presets.
+ *
  * Provides access to "UI/TriggerData.txt" file.
+ * For corresponding identifiers you need to create a \ref TriggerStrings instance.
  * This class is required when implementing a trigger editor to get all possible categories, events, conditions, actions, types and calls.
  * It provides performant search functionality by storing entries in maps indicated by their name.
  * Currently, this is necessary for classes like \ref Variable, \ref TriggerFunction and \ref TriggerFunctionParameter which rely on trigger data entries for proper reading.
  * \todo Finish, using Boost Spirit to parse!
+ *
+ * \ingroup triggers
  */
 class TriggerData : public FileFormat
 {
@@ -51,14 +56,14 @@ class TriggerData : public FileFormat
 		 * Simple vector type for splitting up comma separated values in TriggerData.txt file.
 		 */
 		typedef std::vector<string> SplitVector;
-		
+
 		TriggerData();
-		
+
 		class Category : public Format
 		{
 			public:
 				Category();
-				
+
 				void setName(const string &name);
 				// Key: Arbitrary category identifier
 				const string& name() const;
@@ -86,7 +91,7 @@ class TriggerData : public FileFormat
 		{
 			public:
 				Type();
-				
+
 				void setName(const string &name);
 				// Key: type name
 				const string& name() const;
@@ -123,7 +128,7 @@ class TriggerData : public FileFormat
 			public:
 				Parameter() : m_type(0) {
 				}
-				
+
 				// Key: arbitrary text
 				void setName(const string &name);
 				const string& name() const;
@@ -166,9 +171,9 @@ class TriggerData : public FileFormat
 				/**
 				 * Contains minimum and maximum value.
 				 */
-				typedef std::pair<Value, Value> Limit; // TODO Parameter should only occur for defaults not for limits, use int and float only? 
+				typedef std::pair<Value, Value> Limit; // TODO Parameter should only occur for defaults not for limits, use int and float only?
 				typedef std::vector<Limit> Limits;
-				
+
 				Function() : m_category(0) {
 				}
 
@@ -187,7 +192,7 @@ class TriggerData : public FileFormat
 				const Values& defaults() const;
 				Limits& limits();
 				const Limits& limits() const;
-				
+
 				virtual std::streamsize read(InputStream& istream) throw (Exception);
 				virtual std::streamsize write(OutputStream& ostream) const throw (Exception);
 
@@ -200,7 +205,7 @@ class TriggerData : public FileFormat
 				Values m_defaults;
 				Limits m_limits;
 		};
-		
+
 		class FunctionArgumentVisitor : public boost::static_visitor<string>
 		{
 			public:
@@ -208,13 +213,13 @@ class TriggerData : public FileFormat
 				{
 					return v;
 				}
-				
+
 				string operator()(TriggerData::Type *v) const
 				{
 					return v->name();
 				}
 		};
-		
+
 		class FunctionValueVisitor : public boost::static_visitor<string>
 		{
 			public:
@@ -222,12 +227,12 @@ class TriggerData : public FileFormat
 				{
 					return v;
 				}
-				
+
 				string operator()(int32 v) const
 				{
 					return boost::lexical_cast<string>(v);
 				}
-				
+
 				string operator()(TriggerData::Parameter *v) const
 				{
 					return v->name();
@@ -246,10 +251,10 @@ class TriggerData : public FileFormat
 			public:
 				Call() : m_canBeUsedInEvents(false) {
 				}
-				
+
 				bool canBeUsedInEvents() const;
 				const ArgumentType& returnType() const;
-				
+
 				virtual std::streamsize read(InputStream& istream) throw (Exception);
 				virtual std::streamsize write(OutputStream& ostream) const throw (Exception);
 
@@ -327,9 +332,9 @@ class TriggerData : public FileFormat
 		Calls& calls();
 		DefaultTriggerCategories& defaultTriggerCategories();
 		DefaultTriggers& defaultTriggers();
-		
+
 		typedef std::set<string> SpecialTypes;
-		
+
 		/**
 		 * There is some special types like "nothing" and "Null" which should be interpreted as literals instead of
 		 * searching for the corresponding type.
@@ -340,9 +345,9 @@ class TriggerData : public FileFormat
 	private:
 		template<class FunctionType>
 		void readFunction(const Txt::Pair &ref, boost::ptr_map<string, FunctionType> &functions);
-		
+
 		string::size_type firstNonNumericChar(const string &value) const;
-		
+
 		Categories m_categories;
 		Types m_types;
 		Parameters m_parameters;
@@ -352,7 +357,7 @@ class TriggerData : public FileFormat
 		Calls m_calls;
 		DefaultTriggerCategories m_defaultTriggerCategories;
 		DefaultTriggers m_defaultTriggers;
-		
+
 		SpecialTypes m_specialTypes;
 };
 

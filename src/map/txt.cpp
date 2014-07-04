@@ -28,14 +28,16 @@
 #include <boost/spirit/include/classic_position_iterator.hpp> // for more detailed error information
 
 #include <boost/fusion/adapted/std_pair.hpp>
-#include <boost/fusion/adapted/struct/adapt_struct.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
 
-#include <boost/bind.hpp>
-#include <boost/spirit/home/phoenix/core/argument.hpp>
-#include <boost/spirit/home/phoenix/operator.hpp>
-#include <boost/spirit/home/phoenix/container.hpp>
-#include <boost/spirit/home/phoenix/object.hpp>
+#include <boost/spirit/include/phoenix_core.hpp>
+#include <boost/spirit/include/phoenix_operator.hpp>
+#include <boost/spirit/include/phoenix_fusion.hpp>
+#include <boost/spirit/include/phoenix_stl.hpp>
+#include <boost/spirit/include/phoenix_bind.hpp>
+#include <boost/spirit/include/phoenix_scope.hpp>
+#include <boost/spirit/include/phoenix_statement.hpp>
+#include <boost/spirit/include/phoenix_object.hpp>
 
 #include <boost/foreach.hpp>
 
@@ -350,7 +352,9 @@ std::streamsize Txt::read(InputStream &istream) throw (Exception)
 		if (!client::parse(position_begin,
 		position_end,
 		this->sections()))
+		{
 			throw Exception(_("Parsing error."));
+		}
 	}
 	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> &e)
 	{

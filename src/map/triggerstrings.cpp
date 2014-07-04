@@ -43,22 +43,27 @@ void TriggerStrings::readFunction(const Txt::Pair &ref, Entries &functions)
 	bool isHint = false;
 	const string::size_type index = code.rfind("Hint");
 
-	if (index != string::npos && index + strlen("Hint") == code.size()) {
+	if (index != string::npos && index + strlen("Hint") == code.size())
+	{
 		isHint = true;
 		code = code.substr(0, index);
 	}
 
 	Entries::iterator iterator = functions.find(code);
 
-	if (iterator == functions.end()) {
+	if (iterator == functions.end())
+	{
 		iterator = functions.insert(code, new Entry()).first;
 		std::cerr << "New entry \"" << code << "\"" << std::endl;
 		iterator->second->setCode(code);
 		iterator->second->setName(ref.second);
-	} else if (isHint) {
+	}
+	else if (isHint)
+	{
 		std::cerr << "Got Hint for " << code << std::endl;
 		iterator->second->setHint(ref.second);
-	} else {
+	} else
+	{
 		iterator->second->setLayout(ref.second);
 	}
 }
@@ -68,19 +73,23 @@ std::streamsize TriggerStrings::read(TriggerStrings::InputStream& istream) throw
 	boost::scoped_ptr<Txt> txt(new Txt());
 	std::streamsize size = txt->read(istream);
 
-	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerEventStrings")) {
+	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerEventStrings"))
+	{
 		readFunction(ref, this->events());
 	}
 
-	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerConditionStrings")) {
+	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerConditionStrings"))
+	{
 		readFunction(ref, this->conditions());
 	}
 
-	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerActionStrings")) {
+	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerActionStrings"))
+	{
 		readFunction(ref, this->actions());
 	}
 
-	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerCallStrings")) {
+	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerCallStrings"))
+	{
 		readFunction(ref, this->calls());
 	}
 
@@ -94,42 +103,59 @@ std::streamsize TriggerStrings::write(TriggerStrings::OutputStream& ostream) con
 
 TriggerStrings::Entries& TriggerStrings::entries(TriggerFunction::Type type)
 {
-	switch (type) {
+	switch (type)
+	{
 		case TriggerFunction::Type::Event:
+		{
 			return this->events();
+		}
 
 		case TriggerFunction::Type::Condition:
+		{
 			return this->conditions();
+		}
 
 		case TriggerFunction::Type::Action:
+		{
 			return this->actions();
+		}
 
 		case TriggerFunction::Type::Call:
+		{
 			return this->calls();
-	}
-
-	throw 0;
-}
-
-const TriggerStrings::Entries& TriggerStrings::entries(TriggerFunction::Type type) const
-{
-	switch (type) {
-		case TriggerFunction::Type::Event:
-			return this->events();
-
-		case TriggerFunction::Type::Condition:
-			return this->conditions();
-
-		case TriggerFunction::Type::Action:
-			return this->actions();
-
-		case TriggerFunction::Type::Call:
-			return this->calls();
+		}
 	}
 
 	throw Exception(boost::format(_("Unknown trigger function type: %1%")) % static_cast<int32>(type));
 }
 
+const TriggerStrings::Entries& TriggerStrings::entries(TriggerFunction::Type type) const
+{
+	switch (type)
+	{
+		case TriggerFunction::Type::Event:
+		{
+			return this->events();
+		}
+
+		case TriggerFunction::Type::Condition:
+		{
+			return this->conditions();
+		}
+
+		case TriggerFunction::Type::Action:
+		{
+			return this->actions();
+		}
+
+		case TriggerFunction::Type::Call:
+		{
+			return this->calls();
+		}
+	}
+
+	throw Exception(boost::format(_("Unknown trigger function type: %1%")) % static_cast<int32>(type));
+}
 
 }
 

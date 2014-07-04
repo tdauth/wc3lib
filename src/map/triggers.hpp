@@ -21,6 +21,24 @@
 #ifndef WC3LIB_MAP_TRIGGERS_HPP
 #define WC3LIB_MAP_TRIGGERS_HPP
 
+/**
+ * \defgroup triggers Triggers
+ * Warcraft III uses the event based scripting language JASS (\ref jass) to allow users to control the game's logic.
+ * The scripting language is also accessable via the trigger editor, a GUI
+ * which allows you to create triggers with events, conditions and actions.
+ * When the map is saved, triggers are converted into one single map script.
+ *
+ * The GUI triggers are saved as well in the map MPQ archive in the files "war3map.wtg" and
+ * "war3map.wtc".
+ * The first one contains all triggers with functions and variables.
+ * The second one contains all triggers which do only contain custom text/JASS code.
+ *
+ * \ref wc3lib::map::Triggers allows access to the triggers file "war3map.wtg".
+ * \ref wc3lib::map::CustomTextTriggers allows access to the triggers with custom text/JASS code.
+ *
+ * All data in triggers refers to the game's defined trigger data (\ref wc3lib::map::TriggerData) and trigger strings (\ref wc3lib::map::TriggerStrings).
+ */
+
 #include <boost/ptr_container/ptr_vector.hpp>
 
 #include "platform.hpp"
@@ -39,6 +57,8 @@ namespace map
  * \note You have to use a corresponding \ref TriggerData instance to fill all contained triggers. This is necessary because trigger parameter data is associated with data of \ref TriggerData.
  * \todo Add derived class TriggersX.
  * \sa TriggersX
+ *
+ * \ingroup triggers
  */
 class Triggers : public FileFormat
 {

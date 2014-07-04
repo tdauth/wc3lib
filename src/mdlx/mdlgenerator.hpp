@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2009 by Tamino Dauth                                    *
+ *   Copyright (C) 2014 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,10 +18,22 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_MDLX_VERSION_HPP
-#define WC3LIB_MDLX_VERSION_HPP
+#ifndef WC3LIB_MDLX_MDLGENERATOR_HPP
+#define WC3LIB_MDLX_MDLGENERATOR_HPP
 
-#include "mdxblock.hpp"
+/**
+ * \file
+ * \ingroup mdlsupport
+ */
+
+#include "../spirit.hpp"
+#include <boost/spirit/include/karma.hpp>
+
+#include <iterator>
+
+#include "../platform.hpp"
+#include "../exception.hpp"
+#include "mdlgrammarclient.hpp"
 
 namespace wc3lib
 {
@@ -30,42 +42,38 @@ namespace mdlx
 {
 
 /**
- * MDX tag "VERS".
- * MDL tag "Version".
+ * \brief Generator for MDL files.
+ *
+ * This class supports generating an MDL file from an \ref Mdlx object.
+ *
+ * \ingroup mdlsupport
  */
-class Version : public MdxBlock
+class MdlGenerator
 {
 	public:
-		Version();
-		virtual ~Version();
+		typedef std::basic_ostream<byte> OutputStream;
+		typedef std::ostreambuf_iterator<byte> IteratorType;
 
-		void setModelVersion(long32 version);
-		long32 modelVersion() const;
+		MdlGenerator();
 
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
-		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
+		/**
+		 * Generates an MDL file into \p ostream from model \p source.
+		 * \return Returns true if generation succeeded.
+		 */
+		bool generate(OutputStream &istream, const Mdlx &source);
+		bool generate(IteratorType sink, const Mdlx &source);
 
-		static const long32 currentVersion;
-
-	protected:
-		long32 m_version;
+	private:
+		/*
+		 * Internal grammars for MDL grammar.
+		 * We do not want to create a new grammar instance each time we parse something.
+		 * Therefore we use these attributes for all parsing operations.
+		 */
+		client::MdlGenerator<IteratorType> grammar;
 };
-
-inline void Version::setModelVersion(long32 version)
-{
-	this->m_version = version;
-}
-
-inline long32 Version::modelVersion() const
-{
-	return this->m_version;
-}
 
 }
 
 }
 
 #endif
-

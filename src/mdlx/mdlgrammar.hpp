@@ -21,6 +21,13 @@
 #ifndef WC3LIB_MDLX_MDLGRAMMAR_HPP
 #define WC3LIB_MDLX_MDLGRAMMAR_HPP
 
+/**
+ * \defgroup mdlsupport MDL support
+ *
+ * wc3lib supports parsing MDL files through an EBNF grammar.
+ * The class \ref MdlGrammar provides parsing methods.
+ */
+
 #include "../spirit.hpp"
 
 #include <iterator>
@@ -63,12 +70,14 @@ class MdlGrammar {
 		typedef boost::spirit::classic::position_iterator2<MdlGrammar::ForwardIteratorType> ClassicPositionIteratorType;
 		typedef boost::spirit::line_pos_iterator<MdlGrammar::ForwardIteratorType> PositionIteratorType;
 
-		typedef std::unique_ptr<Mdlx> ResultType;
-
 		MdlGrammar();
 
-		bool parse(InputStream &istream, ResultType &result);
-		bool parse(IteratorType first, IteratorType last, ResultType &result);
+		/**
+		 * Parses the MDL input from input stream \p istream and stores the result into \p result.
+		 * If parsing succeeds it returns true. Otherwise it returns false.
+		 */
+		bool parse(InputStream &istream, Mdlx* &result);
+		bool parse(IteratorType first, IteratorType last, Mdlx* &result);
 
 	private:
 		/*

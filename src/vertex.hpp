@@ -120,14 +120,29 @@ class Vertex3d : public BasicVertex<T, 3>
 		Vertex3d(const Base &other) : Base(other) {
 		}
 
+		void setX(T x)
+		{
+			(*this)[0] = x;
+		}
+
 		T x() const
 		{
 			return (*this)[0];
 		}
 
+		void setY(T y)
+		{
+			(*this)[1] = y;
+		}
+
 		T y() const
 		{
 			return (*this)[1];
+		}
+
+		void setZ(T z)
+		{
+			(*this)[2] = z;
 		}
 
 		T z() const

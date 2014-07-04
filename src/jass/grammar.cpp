@@ -643,11 +643,12 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 	;
 
 
-	file %=
+	file =
+		// skip file path attribute, only required for the generator
 		*eol >>
-		-declarations >>
+		-declarations[at_c<1>(_val) = _1] >>
 		*eol >>
-		-functions >>
+		-functions[at_c<2>(_val) = _1] >>
 		*eol
 		;
 
@@ -836,6 +837,35 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 		(file)
 		(jass)
 	);
+}
+
+namespace karma_unicode = boost::spirit::karma::unicode;
+
+template<typename Iterator>
+jass_generator<Iterator>::jass_generator() : jass_generator<Iterator>::base_type(jass, "jass")
+{
+	using karma::eps;
+	using karma::lit;
+	using karma::eol;
+	using karma_unicode::string;
+
+	identifier %=
+		string
+	;
+
+	type_nothing %=
+		lit("nothing")
+	;
+
+	file =
+		lit("// File: ")
+		>> string
+		>> eol
+	;
+
+	jass =
+		eps
+	;
 }
 
 template <typename Iterator>
@@ -1127,6 +1157,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
 	wc3lib::jass::jass_file,
+	(std::string, path)
 	(wc3lib::jass::jass_declarations, declarations)
 	(wc3lib::jass::jass_functions, functions)
 )

@@ -22,6 +22,12 @@
 #define WC3LIB_JASS_AST_HPP
 
 /**
+ * \defgroup jassast JASS Abstract Syntax Tree
+ *
+ * To build an Abstract Syntax Tree from JASS input you need to parse the whole input
+ */
+
+/**
  * \file
  * Defines structures for a basic JASS abstract syntax tree.
  * All nodes represent declarations, expressions or statements of JASS code.
@@ -52,6 +58,9 @@ namespace qi = boost::spirit::qi;
 
 struct jass_file;
 
+/**
+ * \brief Provides location information of one single JASS AST node.
+ */
 struct jass_ast_location {
 	jass_file *file;
 	std::size_t line, column, length;
@@ -63,6 +72,10 @@ struct jass_ast_location {
 struct jass_ast_node {
 	jass_ast_location location;
 
+	/**
+	 * Prints the AST node's type name.
+	 * This function is used for debugging to print an attributes name/value when traces are enabled.
+	 */
 	virtual std::string type_name() const { return typeid(*this).name(); }
 };
 

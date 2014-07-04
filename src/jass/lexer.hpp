@@ -34,12 +34,16 @@ namespace jass
 
 namespace lex = boost::spirit::lex;
 
-enum class Token
+enum class Token : std::size_t
 {
 	If,
 	Then,
 	Else,
 	Function,
+	EndFunction,
+	Takes,
+	Nothing,
+	Returns,
 	Max
 };
 
@@ -49,6 +53,8 @@ enum class Token
  * Boost Spirit offers the optional usage of a separate lexer.
  * Using a separate lexer/scanner might improve the performance since when applying grammar rules
  * the input is already tokenized and the lookup does not need to be very big.
+ *
+ * For each token \ref Token is used to determine its ID.
  */
 template <typename Lexer>
 struct lexer : lex::lexer<Lexer>
@@ -66,14 +72,14 @@ struct lexer : lex::lexer<Lexer>
 		this->self.add_pattern
 			("DIGIT", "[0-9]")
 			("LETTER", "[a-zA-Z]")
-		//	("WHITESPACES", "[ \t]+")
+			("WHITESPACES", "[ \\t]+")
+			("COMMENT", "\\/\\/.*\\n")
 		;
 
 		/*
 		 * Define all tokens as class attributes that they can be accessed by the parser.
 		 */
-		//comments = "//.*";
-		//whitespaces = "{WHITESPACES}";
+		whitespaces = "({COMMENT} | {WHITESPACES})+";
 
 		plus = "+";
 		minus = "-";
@@ -98,11 +104,7 @@ struct lexer : lex::lexer<Lexer>
 
 		/*
 		 * add all tokens
-		 */
-		//this->self +=
-			//comments
-		//	whitespaces
-		//; //[_pass = lex::pass_flags::pass_ignore]; // Kommentare werden übersprungen
+		; //[_pass = lex::pass_flags::pass_ignore]; // Kommentare werden übersprungen
 
 		// operators
 		/*
@@ -120,69 +122,86 @@ struct lexer : lex::lexer<Lexer>
 		*/
 
 		// keywords
-		this->self +=
-			if_keyword
-			| else_keyword
-			| function_keyword
-			| takes_keyword
-			| returns_keyword
-			| nothing_keyword
-			| endfunction_keyword
+		this->self.add
+			(if_keyword, (std::size_t)Token::If)
+			(else_keyword, (std::size_t)Token::Else)
+			(function_keyword, (std::size_t)Token::Function)
+			(takes_keyword, (std::size_t)Token::Takes)
+			(nothing_keyword, (std::size_t)Token::Nothing)
+			(endfunction_keyword, (std::size_t)Token::EndFunction)
 		;
 
 		this->self.add
 			//(integer)
 			(id)
 		;
+
+		this->self("WS") = whitespaces;
 	}
 
 	/*
 	 * Alle Tokentypen besitzen ein Attribut.
 	 */
 
-	// Kommentare liefern kein Ergebnis. Sie sollen übersprungen werden.
-	lex::token_def<> comments;
-	lex::token_def<> whitespaces;
+	/*
+	 * Whitespaces should simply be omitted.
+	 * TODO Add the possibility to store comments in the AST.
+	 */
+	lex::token_def<lex::omit> whitespaces;
 
-	// Operatoren liefern ein einzelnes Zeichen zurück.
-	lex::token_def<char> plus;
-	lex::token_def<char> minus;
-	lex::token_def<char> multiply;
-	lex::token_def<char> divide;
-	lex::token_def<char> less_than;
-	lex::token_def<char> greater_than;
-	lex::token_def<char> assign;
-	lex::token_def<char> unequal;
-	lex::token_def<char> and_op;
+	// Operators are identified by their token ids as well.
+	// We do not need to store anything.
+	lex::token_def<> plus;
+	lex::token_def<> minus;
+	lex::token_def<> multiply;
+	lex::token_def<> divide;
+	lex::token_def<> less_than;
+	lex::token_def<> greater_than;
+	lex::token_def<> assign;
+	lex::token_def<> unequal;
+	lex::token_def<> and_op;
 
 	// Schlüsselwörter müssen nichts speichern. Ihr Auftreten alleine reicht aus, um den Parser zu steuern.
-	lex::token_def<Token> if_keyword;
-	lex::token_def<Token> then_keword;
-	lex::token_def<Token> else_keyword;
-	lex::token_def<Token> function_keyword;
-	lex::token_def<Token> takes_keyword;
-	lex::token_def<Token> returns_keyword;
-	lex::token_def<Token> nothing_keyword;
-	lex::token_def<Token> endfunction_keyword;
+	lex::token_def<> if_keyword;
+	lex::token_def<> then_keword;
+	lex::token_def<> else_keyword;
+	lex::token_def<> function_keyword;
+	lex::token_def<> takes_keyword;
+	lex::token_def<> returns_keyword;
+	lex::token_def<> nothing_keyword;
+	lex::token_def<> endfunction_keyword;
 
 	lex::token_def<int32> integer;
 	lex::token_def<string> id;
 };
 
+/**
+ * \brief Corresponding token data type of JASS Scanner \ref lexer.
+ */
 typedef lex::lexertl::token<
 		boost::spirit::istream_iterator
 		//char const*, boost::mpl::vector<std::string>
 		> token_type;
+/**
+ * \brief Corresponding lexer data type of JASS Scanner \ref lexer. This type can be passed as the template parameter \p Lexer for \ref lexer.
+ */
 typedef lex::lexertl::lexer<token_type> lexer_type;
 
+/**
+ * \brief Basic tokenizer function which uses Scanner \p l to tokenize the input from the iterator range \p first and \p last.
+ *
+ * For simpler input stream usage use \ref tokenize(istream&, lexer<lexer_type> &, F).
+ */
 template<typename Iterator, typename F>
 bool tokenize(Iterator first, Iterator last, lexer<lexer_type> &l, F f)
 {
+	/*
 	typedef lexer<lexer_type>::iterator_type iterator_type;
 
 	lexer<lexer_type> lex;
+	*/
 
-	return lex::tokenize(first, last, l, f);
+	return lex::tokenize(first, last, l, f, "WS");
 }
 
 /*

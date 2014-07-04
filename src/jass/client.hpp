@@ -22,6 +22,7 @@
 #define WC3LIB_JASS_CLIENT_HPP
 
 #include "../qi.hpp"
+#include <boost/spirit/include/karma.hpp>
 #include <boost/spirit/include/support_line_pos_iterator.hpp>
 
 #include "ast.hpp"
@@ -42,6 +43,7 @@ namespace client
 {
 
 namespace qi = boost::spirit::qi;
+namespace karma = boost::spirit::karma;
 
 /**
  * Returns the formatted expectation failure of Boost Spirit \p e as human readable string.
@@ -144,7 +146,9 @@ struct jass_grammar : qi::grammar<Iterator, jass_ast(), qi::locals<std::string>,
 	 */
 	boost::phoenix::function<annotation_f<Iterator> > annotate;
 
-	// symbols
+	//----------------------------------------------------------------------
+	// Symbols
+	//----------------------------------------------------------------------
 	qi::rule<Iterator, jass_var_reference(), Skipper> var_reference;
 	qi::rule<Iterator, jass_type_reference(), Skipper> type_reference;
 	qi::rule<Iterator, jass_function_reference(), Skipper> function_reference;
@@ -237,6 +241,28 @@ struct jass_grammar : qi::grammar<Iterator, jass_ast(), qi::locals<std::string>,
 	 */
 	typedef std::vector<Report> Reports;
 	Reports reports;
+};
+
+template<typename Iterator>
+struct jass_generator : public karma::grammar<Iterator, jass_ast()>
+{
+	jass_generator();
+
+	//----------------------------------------------------------------------
+	// Symbols
+	//----------------------------------------------------------------------
+	karma::rule<Iterator, jass_var_reference()> var_reference;
+	karma::rule<Iterator, jass_type_reference()> type_reference;
+	karma::rule<Iterator, jass_function_reference()> function_reference;
+
+	karma::rule<Iterator, string()> identifier;
+	karma::rule<Iterator, jass_type_reference()> type_nothing;
+
+	//----------------------------------------------------------------------
+	// Global Declarations
+	//----------------------------------------------------------------------
+	karma::rule<Iterator, jass_file()> file;
+	karma::rule<Iterator, jass_ast()> jass;
 };
 
 }

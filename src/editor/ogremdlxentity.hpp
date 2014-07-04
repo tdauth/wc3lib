@@ -56,6 +56,7 @@ class OgreMdlxEntity : public Ogre::FrameListener
 		 */
 		bool applyAnimation(const Ogre::String &name, bool loop);
 
+		OgreMdlx* mdlx() const;
 		Ogre::SceneNode* sceneNode() const;
 
 	private:
@@ -80,8 +81,13 @@ inline bool OgreMdlxEntity::applyAnimation(const Ogre::String &name, bool loop)
 		state->setLoop(loop);
 		state->setEnabled(true);
 	}
-	
+
 	return true;
+}
+
+inline OgreMdlx* OgreMdlxEntity::mdlx() const
+{
+	return this->m_mdlx;
 }
 
 inline Ogre::SceneNode* OgreMdlxEntity::sceneNode() const

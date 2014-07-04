@@ -33,11 +33,14 @@
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
 
-#include <boost/bind.hpp>
-#include <boost/spirit/home/phoenix/core/argument.hpp>
-#include <boost/spirit/home/phoenix/operator.hpp>
-#include <boost/spirit/home/phoenix/container.hpp>
-#include <boost/spirit/home/phoenix/object.hpp>
+#include <boost/spirit/include/phoenix_core.hpp>
+#include <boost/spirit/include/phoenix_operator.hpp>
+#include <boost/spirit/include/phoenix_fusion.hpp>
+#include <boost/spirit/include/phoenix_stl.hpp>
+#include <boost/spirit/include/phoenix_bind.hpp>
+#include <boost/spirit/include/phoenix_scope.hpp>
+#include <boost/spirit/include/phoenix_statement.hpp>
+#include <boost/spirit/include/phoenix_object.hpp>
 
 #include <boost/foreach.hpp>
 
@@ -70,8 +73,8 @@ using boost::phoenix::ref;
  * Formatting is not required we only need the cell content.
  */
 template<typename Iterator>
-struct RecordSkipper : public qi::grammar<Iterator> {
-
+struct RecordSkipper : public qi::grammar<Iterator>
+{
 	RecordSkipper() : RecordSkipper<Iterator>::base_type(skip, "formatting records")
 	{
 		using qi::lit;
@@ -129,24 +132,61 @@ struct RecordSkipper : public qi::grammar<Iterator> {
 
 typedef std::pair<Slk::Table::size_type, Slk::Table::size_type> SlkSize;
 
+void resizeTable(Slk::Table &table, const SlkSize &size)
+{
+	table.resize(boost::extents[size.first][size.second]);
+}
+
+/**
+ * The actual Qi based grammar for SLK files.
+ * All SLK files contain records separated by eol characters.
+ * There is different types of records from which only need those on which
+ * cell values depend on.
+ */
 template <typename Iterator, typename Skipper = RecordSkipper<Iterator> >
 struct SlkGrammar : qi::grammar<Iterator, Slk::Table(), Skipper>
 {
 	SlkGrammar() : SlkGrammar::base_type(cells, "slk grammar")
 	{
-		using qi::lit;
-		using ascii::char_;
-		using ascii::blank;
-		using qi::lexeme;
-		using qi::byte_;
+		using qi::eps;
+		using qi::int_parser;
+		using qi::double_;
 		using qi::int_;
+		using qi::lit;
+		using qi::oct;
+		using qi::hex;
+		using qi::true_;
+		using qi::false_;
+		using qi::_val;
+		using qi::lexeme;
 		using qi::eol;
 		using qi::eoi;
-		using qi::eps;
-		using qi::_val;
-		using phoenix::push_back;
-		using phoenix::new_;
+		using qi::matches;
+		using qi::attr_cast;
+		using qi::as_string;
+		using qi::as;
+		using qi::repeat;
+		using qi::on_error;
+		using qi::on_success;
+		using qi::retry;
+		using qi::fail;
+		using ascii::char_;
+		using ascii::string;
+		using namespace qi::labels;
 
+
+		using phoenix::val;
+		using phoenix::at_c;
+		using phoenix::push_back;
+		using phoenix::ref;
+		using phoenix::let;
+		using phoenix::bind;
+		using phoenix::if_;
+
+		/*
+		 * B records define the actual size of the spreadsheet.
+		 * They contain the number of columns and rows.
+		 */
 		// TODO whenever a B record appears, resize the cells array!
 		b_record %=
 			lit('B')
@@ -187,6 +227,14 @@ struct SlkGrammar : qi::grammar<Iterator, Slk::Table(), Skipper>
 		;
 		*/
 
+		/*
+		record =
+			b_record[phoenix::bind(&resizeTable, phoenix::ref(_1), phoenix::ref(result))]
+			| c_record
+			| e_record
+		;
+		*/
+
 		b_record.name("b_record");
 		c_record.name("c_record");
 		e_record.name("e_record");
@@ -203,6 +251,7 @@ struct SlkGrammar : qi::grammar<Iterator, Slk::Table(), Skipper>
 	qi::rule<Iterator, SlkSize(), Skipper> b_record;
 	qi::rule<Iterator, Slk::Cell(), Skipper> c_record;
 	qi::rule<Iterator, Skipper> e_record;
+	qi::rule<Iterator, Skipper> record;
 	qi::rule<Iterator, Slk::Table(), Skipper> cells;
 };
 

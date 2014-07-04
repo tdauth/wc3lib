@@ -40,7 +40,13 @@ namespace map
  * In the default Warcraft III: Reign of Chaos installation there exist several files in the "war3.mpq" archive which define
  * meta data:
  * <ul>
- * <li>Units/UnitMetaData.slk - defines all meta data</li>
+ * <li>Units/UnitMetaData.slk - defines all meta data for units</li>
+ * <li>UI/SkinMetaData.slk - defines all selectable icons and skins</li>
+ * </ul>
+ *
+ * For Warcraft III: The Frozen Throne additional meta data files exist in th "war3x.mpq" archive:
+ * <ul>
+ * <li>Units
  * </ul>
  *
  * Meta data specifies the fields of handles (like "Unit" or "Sound"). It defines which values can be assigned to those fields.
@@ -76,8 +82,8 @@ class Slk : public Format
 		typedef Table::array_view<1>::type View;
 		typedef Table::const_array_view<1>::type ConstView;
 
-		virtual std::streamsize read(InputStream& istream) throw(class Exception) override;
-		virtual std::streamsize write(OutputStream& ostream) const throw(class Exception) override;
+		virtual std::streamsize read(InputStream &istream) throw(class Exception) override;
+		virtual std::streamsize write(OutputStream &ostream) const throw(class Exception) override;
 
 		/**
 		 * Allows access to the whole table of the SLK sheet.

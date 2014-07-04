@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MPQ_SIGNATURE_HPP
 #define WC3LIB_MPQ_SIGNATURE_HPP
 
-#include "../config.h"
+#include "platform.hpp"
 
 #ifdef USE_ENCRYPTION
 #include <crypto++/rsa.h>

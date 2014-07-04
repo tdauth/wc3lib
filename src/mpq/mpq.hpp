@@ -30,14 +30,16 @@
 #include <boost/cast.hpp>
 #include <boost/foreach.hpp>
 
-#include "../config.h"
+/*
+ * Get definitions first.
+ */
+#include "platform.hpp"
 
 #ifdef USE_ENCRYPTION
 #include <crypto++/sha.h>
 #include <crypto++/rsa.h>
 #endif
 
-#include "platform.hpp"
 #include "algorithm.hpp"
 #include "hash.hpp"
 #include "block.hpp"
