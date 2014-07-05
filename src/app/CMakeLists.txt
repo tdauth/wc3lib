@@ -66,6 +66,7 @@ endif ()
 if (JASS)
 	add_executable(jassc jassc.cpp)
 	target_link_libraries(jassc ${wc3lib_CORE_LIBRARIES} wc3libjass ${Boost_LIBRARIES})
+	install(TARGETS jassc DESTINATION bin)
 endif ()
 
 if (MAP)
