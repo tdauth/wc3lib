@@ -8,7 +8,9 @@ set(wc3lib_EDITOR_KIO_MPQ_SRC
 include_directories(${KDE4_INCLUDE_DIR} ${QT_INCLUDE_DIR})
 include(${QT_USE_FILE})
 
-add_subdirectory(test)
+if (DEBUG)
+	add_subdirectory(test)
+endif ()
 
 # MPQ KDE plugin
 kde4_add_plugin(kio_mpq ${wc3lib_EDITOR_KIO_MPQ_SRC})

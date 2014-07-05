@@ -18,7 +18,9 @@ target_link_libraries(qblp wc3libcore wc3libblp ${Boost_LIBRARIES} ${QT_LIBRARIE
 # wc3libcore is necessary because of catching Exception
 # TODO drop ${Boost_LIBRARIES}
 
-add_subdirectory(test)
+if (DEBUG)
+	add_subdirectory(test)
+endif ()
 
 # install
 install(TARGETS qblp DESTINATION lib)
