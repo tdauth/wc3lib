@@ -77,7 +77,7 @@ public Playable
 		typedef boost::scoped_ptr<Pathmap> PathmapPtr;
 		typedef boost::scoped_ptr<Trees> TreesPtr;
 		typedef boost::scoped_ptr<Info> InfoPtr;
-		typedef boost::scoped_ptr<Strings> StringsPtr;
+		typedef boost::scoped_ptr<MapStrings> MapStringsPtr;
 		typedef boost::scoped_ptr<Minimap> MinimapPtr;
 		typedef boost::scoped_ptr<MenuMinimap> MenuMinimapPtr;
 		typedef boost::scoped_ptr<CustomUnits> CustomUnitsPtr;
@@ -161,7 +161,7 @@ public Playable
 		const TreesPtr& trees() const;
 		const CustomUnitsPtr& customUnits() const;
 		const InfoPtr& info() const;
-		const StringsPtr& strings() const;
+		const MapStringsPtr& strings() const;
 		const MinimapPtr& minimap() const;
 		const MenuMinimapPtr& menuMinimap() const;
 		const TriggersPtr& triggers() const;
@@ -192,7 +192,7 @@ public Playable
 		TreesPtr m_trees;
 		CustomUnitsPtr m_customUnits;
 		InfoPtr m_info;
-		StringsPtr m_strings;
+		MapStringsPtr m_strings;
 		MinimapPtr m_minimap;
 		MenuMinimapPtr m_menuMinimap;
 		TriggersPtr m_triggers;
@@ -281,7 +281,7 @@ inline const W3m::InfoPtr& W3m::info() const
 	return m_info;
 }
 
-inline const W3m::StringsPtr& W3m::strings() const
+inline const W3m::MapStringsPtr& W3m::strings() const
 {
 	return this->m_strings;
 }

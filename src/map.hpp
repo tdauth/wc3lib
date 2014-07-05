@@ -58,7 +58,6 @@ namespace wc3lib
 #include "map/shadow.hpp"
 #include "map/sound.hpp"
 #include "map/sounds.hpp"
-#include "map/strings.hpp"
 #include "map/tilepoint.hpp"
 #include "map/tree.hpp"
 #include "map/trees.hpp"

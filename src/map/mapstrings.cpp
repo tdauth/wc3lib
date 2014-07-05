@@ -26,12 +26,12 @@ namespace wc3lib
 namespace map
 {
 
-std::streamsize Strings::read(InputStream &istream) throw (Exception)
+std::streamsize MapStrings::read(InputStream &istream) throw (Exception)
 {
 	return 0;
 }
 
-std::streamsize Strings::write(OutputStream &ostream) const throw (Exception)
+std::streamsize MapStrings::write(OutputStream &ostream) const throw (Exception)
 {
 	return 0;
 }

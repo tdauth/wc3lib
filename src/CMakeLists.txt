@@ -12,17 +12,11 @@ link_directories(${Boost_LIBRARY_DIRS})
 include_directories(${GETTEXT_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})
 
 set(wc3lib_CORE_H
-	blp.hpp
 	color.hpp
 	core.hpp
-	editor.hpp
 	exception.hpp
 	format.hpp
 	i18n.hpp
-	jass.hpp
-	map.hpp
-	mdlx.hpp
-	mpq.hpp
 	platform.hpp
 	qi.hpp
 	spirit.hpp
@@ -89,28 +83,24 @@ if (EDITOR OR PLUGINS)
 	add_subdirectory(editor) # last one
 endif ()
 
-# all available libraries
-set(wc3lib_LIBRARIES ${wc3lib_CORE_LIBRARIES})
-set(wc3lib_SRC ${wc3lib_CORE_SRC})
 if (BLP)
-	set(wc3lib_SRC ${wc3lib_SRC} ${wc3lib_BLP_SRC})
+	install(FILES blp.hpp DESTINATION include/wc3lib)
 endif ()
 if (MDLX)
-	set(wc3lib_SRC ${wc3lib_SRC} ${wc3lib_MDLX_SRC})
+	install(FILES mdlx.hpp DESTINATION include/wc3lib)
 endif ()
 if (MPQ)
-	set(wc3lib_SRC ${wc3lib_SRC} ${wc3lib_MPQ_SRC})
+	install(FILES mpq.hpp DESTINATION include/wc3lib)
 endif ()
 if (MAP)
-	set(wc3lib_SRC ${wc3lib_SRC} ${wc3lib_MAP_SRC})
+	install(FILES map.hpp DESTINATION include/wc3lib)
 endif ()
 if (JASS)
-	set(wc3lib_SRC ${wc3lib_SRC} ${wc3lib_JASS_SRC})
+	install(FILES jass.hpp DESTINATION include/wc3lib)
 endif ()
 
 if (EDITOR)
-	set(wc3lib_LIBRARIES ${wc3lib_LIBRARIES} wc3libeditor)
-	set(wc3lib_SRC ${wc3lib_SRC} ${wc3lib_EDITOR_SRC})
+	install(FILES editor.hpp DESTINATION include/wc3lib)
 endif ()
 
 if (APP)

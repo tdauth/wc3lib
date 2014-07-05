@@ -36,7 +36,7 @@ namespace map
  *
  * \todo Implement Boost Qi parser and Karma generator!
  */
-class Strings : public FileFormat
+class MapStrings : public FileFormat
 {
 	public:
 		struct Entry
@@ -58,17 +58,17 @@ class Strings : public FileFormat
 		Entries m_entries;
 };
 
-inline const byte* Strings::fileName() const
+inline const byte* MapStrings::fileName() const
 {
 	return "war3map.wts";
 }
 
-inline const byte* Strings::fileTextId() const
+inline const byte* MapStrings::fileTextId() const
 {
 	return "";
 }
 
-inline uint32 Strings::latestFileVersion() const
+inline uint32 MapStrings::latestFileVersion() const
 {
 	return 0;
 }
