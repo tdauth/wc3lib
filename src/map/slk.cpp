@@ -146,7 +146,12 @@ void resizeTable(Slk::Table &table, const SlkSize &size)
 template <typename Iterator, typename Skipper = RecordSkipper<Iterator> >
 struct SlkGrammar : qi::grammar<Iterator, Slk::Table(), Skipper>
 {
-	SlkGrammar() : SlkGrammar::base_type(cells, "slk grammar")
+	void prepare(Slk::Table &result)
+	{
+		this->result = result;
+	}
+
+	SlkGrammar(Slk::Table &result) : SlkGrammar::base_type(cells, "slk grammar"), result(result)
 	{
 		using qi::eps;
 		using qi::int_parser;
@@ -197,7 +202,6 @@ struct SlkGrammar : qi::grammar<Iterator, Slk::Table(), Skipper>
 			// TODO support ;D0 0 117 16
 		;
 
-		/*
 		c_record =
 			lit('C')[_val = ""]
 			>> lit(";X")
@@ -221,19 +225,17 @@ struct SlkGrammar : qi::grammar<Iterator, Slk::Table(), Skipper>
 			// TODO store only the cell value and the index!
 		;
 
-		cells =
-			c_record % eol
-			>> e_record
-		;
-		*/
-
-		/*
 		record =
-			b_record[phoenix::bind(&resizeTable, phoenix::ref(_1), phoenix::ref(result))]
+			b_record[phoenix::bind(&resizeTable, phoenix::ref(result), phoenix::ref(_1))]
 			| c_record
 			| e_record
 		;
-		*/
+
+		cells =
+			eps[ref(row) = 0]
+			>> record % eol
+			>> e_record
+		;
 
 		b_record.name("b_record");
 		c_record.name("c_record");
@@ -253,6 +255,10 @@ struct SlkGrammar : qi::grammar<Iterator, Slk::Table(), Skipper>
 	qi::rule<Iterator, Skipper> e_record;
 	qi::rule<Iterator, Skipper> record;
 	qi::rule<Iterator, Slk::Table(), Skipper> cells;
+
+	Slk::Table result;
+	Slk::Table::size_type row;
+	Slk::Table::size_type column;
 };
 
 template <typename Iterator>
@@ -299,7 +305,7 @@ struct SlkGenerator : karma::grammar<Iterator, Slk::Table()>
 template <typename Iterator>
 bool parse(Iterator first, Iterator last, Slk::Table &table)
 {
-	SlkGrammar<Iterator> grammar;
+	SlkGrammar<Iterator> grammar(table);
 	RecordSkipper<Iterator> recordSkipper;
 
 	bool r = boost::spirit::qi::phrase_parse(
