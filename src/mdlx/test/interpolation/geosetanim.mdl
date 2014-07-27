@@ -1,0 +1,30 @@
+Version {
+	FormatVersion 800,
+}
+Model "Interpolation" {
+	BlendTime 150,
+}
+// Geoset animation with no interpolation and three values
+GeosetAnim {
+	Alpha 3 {
+		DontInterp,
+		0: 0.000000,
+		100: 1.000000,
+		200: 2.000000,
+	}
+
+	GeosetId 0,
+}
+
+// Geoset animation with linear interpolation and three values
+GeosetAnim {
+	Alpha 3 {
+		Linear,
+		0: 0.000000,
+		100: 1.000000,
+		200: 2.000000,
+	}
+
+	GeosetId 0,
+}
+// TODO bezier and hermite with intan and outtan

@@ -17,4 +17,5 @@ configure_file(Orc_Exp.mdx Orc_Exp.mdx COPYONLY)
 configure_file(Undead3D_Exp.mdl Undead3D_Exp.mdl COPYONLY)
 configure_file(Undead3D_Exp.mdx Undead3D_Exp.mdx COPYONLY)
 
+add_subdirectory(interpolation)
 add_subdirectory(mdl)
