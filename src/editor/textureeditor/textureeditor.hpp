@@ -124,6 +124,7 @@ class KDE_EXPORT TextureEditor : public Module
 		TextureEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~TextureEditor();
 
+		QScrollArea* scrollArea() const;
 		QLabel* imageLabel() const;
 		const TexturePtr& texture() const;
 		const MipMaps& mipMaps() const;
@@ -192,8 +193,9 @@ class KDE_EXPORT TextureEditor : public Module
 		virtual KAboutData moduleAboutData() const;
 		virtual QString actionName() const;
 
-		virtual void resizeEvent(QResizeEvent *event);
+		virtual void resizeEvent(QResizeEvent *event) override;
 
+		QScrollArea *m_scrollArea;
 		QLabel *m_imageLabel;
 		TexturePtr m_texture;
 		MipMaps m_mipMaps;
@@ -274,6 +276,11 @@ inline KIntNumInput* TextureEditor::ChargesDialog::chargesInput() const
 inline QCheckBox* TextureEditor::ChargesDialog::hasChargesCheckBox() const
 {
 	return this->m_hasChargesCheckBox;
+}
+
+inline QScrollArea* TextureEditor::scrollArea() const
+{
+	return this->m_scrollArea;
 }
 
 inline QLabel* TextureEditor::imageLabel() const

@@ -43,12 +43,33 @@ namespace wc3lib
 namespace editor
 {
 
-TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_imageLabel(new QLabel(this)), m_texture(), m_showsAlphaChannel(false), m_showsTransparency(false), m_factor(1.0), m_zoomToFit(true), m_colorPaletteDialog(0), m_chargesDialog(0), m_loadDialog(0), m_saveDialog(0)
+TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f)
+: Module(source, parent, f)
+, m_imageLabel(new QLabel(this))
+, m_texture()
+, m_showsAlphaChannel(false)
+, m_showsTransparency(false)
+, m_factor(1.0)
+, m_zoomToFit(true)
+, m_colorPaletteDialog(0)
+, m_chargesDialog(0)
+, m_loadDialog(0)
+, m_saveDialog(0)
+, m_scrollArea(new QScrollArea(this))
 {
 	Module::setupUi();
+
 	imageLabel()->setAlignment(Qt::AlignCenter);
 	imageLabel()->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	topLayout()->addWidget(imageLabel());
+
+	scrollArea()->setFrameShape(QFrame::NoFrame);
+	scrollArea()->setAlignment(Qt::AlignCenter);
+	scrollArea()->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	scrollArea()->setWidget(imageLabel());
+	scrollArea()->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+	scrollArea()->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
+	topLayout()->addWidget(scrollArea());
 
 	/*
 	KService::Ptr service = KService::serviceByDesktopPath("gvpart.desktop");
@@ -149,7 +170,11 @@ TextureEditor::SaveDialog::~SaveDialog()
 	delete m_dialog; // deletes widget as well
 }
 
-TextureEditor::ChargesDialog::ChargesDialog(QWidget *parent) : m_chargesInput(new KIntNumInput(this)), m_hasChargesCheckBox(new QCheckBox(tr("Has Charges:"), this)), m_buttonBox(new KDialogButtonBox(this)), QDialog(parent)
+TextureEditor::ChargesDialog::ChargesDialog(QWidget *parent)
+: QDialog(parent)
+, m_chargesInput(new KIntNumInput(this))
+, m_hasChargesCheckBox(new QCheckBox(tr("Has Charges:"), this))
+, m_buttonBox(new KDialogButtonBox(this))
 {
 	this->setWindowTitle(tr("Set Charges"));
 	this->setLayout(new QVBoxLayout());
@@ -435,7 +460,9 @@ void TextureEditor::actualSize()
 void TextureEditor::zoomToFit()
 {
 	if (!hasTexture())
+	{
 		return;
+	}
 
 	this->m_zoomToFit = !this->m_zoomToFit;
 	this->m_zoomToFitAction->setChecked(this->m_zoomToFit);
@@ -481,6 +508,9 @@ void TextureEditor::refreshImage()
 	if (!hasTexture())
 	{
 		this->m_imageLabel->setPixmap(QPixmap());
+		// set the minimum size so that the scroll area will show scroll bars for the whole image size
+		this->m_imageLabel->setMinimumSize(QSize(0, 0));
+		this->m_imageLabel->setMaximumSize(QSize(0, 0));
 
 		return;
 	}
@@ -490,35 +520,51 @@ void TextureEditor::refreshImage()
 
 	if (m_zoomToFit)
 	{
-		QSize fitSize = m_imageLabel->size();
+		const QSize fitSize = this->scrollArea()->maximumViewportSize();
 
-
-		if (fitSize.height() > image.height() || fitSize.width() > image.width())
-			fitSize = image.size();
 
 		if (!showsAlphaChannel())
+		{
 			newPixmap = QPixmap::fromImage(image).scaled(fitSize, Qt::KeepAspectRatio);
+		}
 		else
+		{
 			newPixmap = QPixmap::fromImage(image.createAlphaMask()).scaled(fitSize, Qt::KeepAspectRatio);
+		}
 	}
 	else
 	{
 		if (!showsAlphaChannel())
+		{
 			newPixmap = QPixmap::fromImage(image).scaled(mipMaps()[mipMapIndex()].size() * this->factor());
+		}
 		else
+		{
 			newPixmap = QPixmap::fromImage(image.createAlphaMask()).scaled(mipMaps()[mipMapIndex()].size() * this->factor());
+		}
 	}
 
 	if (showsTransparency())
+	{
 		newPixmap.setMask(this->m_imageLabel->pixmap()->createMaskFromColor(Qt::transparent));
+	}
 
-	QSize oldSize = this->m_imageLabel->size();
-
-	// TODO prevent oversizing on actual size
 	this->m_imageLabel->setPixmap(newPixmap);
 
-	if (!m_zoomToFit)
-		this->m_imageLabel->resize(oldSize);
+	// fit to the viewport's size
+	if (this->m_zoomToFit)
+	{
+		const QSize fitSize = this->scrollArea()->maximumViewportSize();
+
+		this->m_imageLabel->setMinimumSize(fitSize);
+		this->m_imageLabel->setMaximumSize(fitSize);
+	}
+	// set the minimum size so that the scroll area will show scroll bars for the whole image size
+	else
+	{
+		this->m_imageLabel->setMinimumSize(newPixmap.size());
+		this->m_imageLabel->setMaximumSize(newPixmap.size());
+	}
 }
 
 void TextureEditor::createFileActions(class KMenu *menu)
@@ -636,7 +682,9 @@ void TextureEditor::onSwitchToMap(Map *map)
 void TextureEditor::resizeEvent(QResizeEvent *event)
 {
 	if (m_zoomToFit)
+	{
 		refreshImage();
+	}
 
 	Module::resizeEvent(event);
 }
