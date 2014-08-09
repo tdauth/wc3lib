@@ -63,6 +63,11 @@ if (EDITOR)
 	kde4_add_executable(wc3trigger wc3trigger.cpp)
 	target_link_libraries(wc3trigger ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libtriggereditor ${QT_LIBRARIES} ${KDE4_KDEUI_LIBS})
 	install(TARGETS wc3trigger DESTINATION bin)
+
+	if (DEBUG)
+		configure_file(ogre.cfg ogre.cfg COPYONLY)
+		configure_file(plugins.cfg plugins.cfg COPYONLY)
+	endif ()
 endif ()
 
 if (JASS)
