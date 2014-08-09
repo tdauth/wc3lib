@@ -1,3 +1,6 @@
+2014-08-09 Tamino Dauth <tamino@cdauth.eu>
+* Added tag "v0.1" with a working version of editor
+
 2012-03-22 Tamino Dauth <tamino@cdauth.eu>
 * editor: Class MpqPriorityList handles team colors and textures more safely now.
 * editor: Dropped redundant storage of sources in class MpqPriorityList (ordered by their priority).
