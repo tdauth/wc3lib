@@ -13,11 +13,18 @@ if (EDITOR OR PLUGINS)
 		include_directories(${QT_INCLUDE_DIR})
 	endif ()
 
+	# NOTE find_package(KDE4 ... ) adds C++ compile flags such as -fvisibilit=hidden which leads to undefined reference errors.
+	# You have to use KDE_EXPORT before every class declaration to prevent this or to manually set the compile flags.
+	# This workaround restores the old compile flags.
+	#set(CMAKE_CXX_FLAGS_OLD "${CMAKE_CXX_FLAGS}")
+
 	if (EDITOR)
 		find_package(KDE4 REQUIRED)
 	elseif (PLUGINS)
 		find_package(KDE4) # only for MPQ plugins
 	endif ()
+
+	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_OLD}")
 
 	if (${KDE4_FOUND})
 		include(KDE4Defaults)
@@ -43,6 +50,9 @@ if (EDITOR OR PLUGINS)
 	endif ()
 endif ()
 
+message(STATUS "C++ Flags: ${CMAKE_CXX_FLAGS}")
+message(STATUS "C+ Flags: ${CMAKE_C_FLAGS}")
+
 if ((EDITOR OR PLUGINS) AND BLP AND ${OGRE_FOUND})
 	add_subdirectory(Plugin_BlpCodec)
 endif ()
@@ -57,7 +67,6 @@ if (EDITOR)
 	set(wc3lib_EDITOR_H
 		colorpalettedialog.hpp
 		editor.hpp
-		filemetainfo.hpp
 		map.hpp
 		metadata.hpp
 		modelview.hpp
@@ -88,7 +97,6 @@ if (EDITOR)
 	set(wc3lib_EDITOR_SRC
 		colorpalettedialog.cpp
 		editor.cpp
-		filemetainfo.cpp
 		map.cpp
 		metadata.cpp
 		modelview.cpp
@@ -125,9 +133,6 @@ if (EDITOR)
 	kde4_add_library(wc3libeditor SHARED ${wc3lib_EDITOR_SRC} ${wc3lib_EDITOR_UI_H})
 	# NOTE Plugin_BlpCodec qblp are required for class Texture which converts directly for Qt and OGRE
 	target_link_libraries(wc3libeditor ${wc3lib_CORE_LIBRARIES} ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${OGRE_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KIO_LIBS} ${KDE4_KUTILS_LIBS} ${KDE4_KPARTS_LIBS} Plugin_BlpCodec qblp)
-	#get_target_property(LIBS wc3libeditor INTERFACE_LINK_LIBRARIES)
-	#message(STATUS "Var: ${LIBS} and ${INTERFACE_LINK_LIBRARIES}")
-	#set_target_properties(wc3libeditor PROPERTIES LINK_INTERFACE_LIBRARIES "${LIBS}")
 
 	add_subdirectory(mapsettingseditor)
 	add_subdirectory(aieditor)
@@ -135,7 +140,8 @@ if (EDITOR)
 	add_subdirectory(triggereditor)
 	add_subdirectory(modeleditor)
 	add_subdirectory(mpqeditor)
-	add_subdirectory(objecteditor)
+	# TODO fix object editor
+	#add_subdirectory(objecteditor)
 	add_subdirectory(objectmanager)
 	add_subdirectory(terraineditor)
 	add_subdirectory(textureeditor)

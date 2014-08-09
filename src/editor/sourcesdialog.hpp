@@ -23,6 +23,8 @@
 
 #include <QDialog>
 
+#include <kdemacros.h>
+
 #include "ui_sourcesdialog.h"
 
 namespace wc3lib
@@ -38,7 +40,7 @@ namespace editor
  * \note Since MpqPriorityList doesn't provide any signals you'll have to call update when any changes on its source were made.
  * \todo URLs which are at the top of the list do have a higher priority than others which are at the bottom of the list! Update priorities when calling \ref apply().
  */
-class SourcesDialog : public QDialog, protected Ui::SourcesDialog
+class KDE_EXPORT SourcesDialog : public QDialog, protected Ui::SourcesDialog
 {
 	Q_OBJECT
 

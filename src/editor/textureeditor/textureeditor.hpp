@@ -22,7 +22,9 @@
 #define WC3LIB_EDITOR_TEXTUREEDITOR_HPP
 
 #include <QScopedPointer>
+#include <QCheckBox>
 
+#include <kdemacros.h>
 #include <KUrl>
 #include <KAction>
 #include <KFileDialog>
@@ -42,7 +44,7 @@ namespace editor
  * Allows you to open, view, modify and store skins/textures.
  * \todo Needs item list from object editor (skin meta data, splat meta data and ubersplat meta data).
  */
-class TextureEditor : public Module
+class KDE_EXPORT TextureEditor : public Module
 {
 	Q_OBJECT
 
@@ -53,11 +55,9 @@ class TextureEditor : public Module
 				LoadDialogWidget(QWidget *parent = 0);
 
 				class KIntNumInput *mipMapsInput() const;
-				class QCheckBox *threadsCheckBox() const;
 
 			private:
 				class KIntNumInput *m_mipMapsInput;
-				class QCheckBox *m_threadsCheckBox;
 		};
 
 		class LoadDialog : public QObject
@@ -69,7 +69,6 @@ class TextureEditor : public Module
 				KFileDialog *dialog() const;
 				LoadDialogWidget *widget() const;
 				class KIntNumInput *mipMapsInput() const;
-				class QCheckBox *threadsCheckBox() const;
 
 			private:
 				KFileDialog *m_dialog;
@@ -83,12 +82,10 @@ class TextureEditor : public Module
 
 				class KIntNumInput *qualityInput() const;
 				class KIntNumInput *mipMapsInput() const;
-				class QCheckBox *threadsCheckBox() const;
 
 			private:
 				class KIntNumInput *m_qualityInput;
 				class KIntNumInput *m_mipMapsInput;
-				class QCheckBox *m_threadsCheckBox;
 		};
 
 		class SaveDialog : public QObject
@@ -101,7 +98,6 @@ class TextureEditor : public Module
 				SaveDialogWidget *widget() const;
 				class KIntNumInput *qualityInput() const;
 				class KIntNumInput *mipMapsInput() const;
-				class QCheckBox *threadsCheckBox() const;
 
 			private:
 				KFileDialog *m_dialog;
@@ -225,11 +221,6 @@ inline KIntNumInput* TextureEditor::LoadDialogWidget::mipMapsInput() const
 	return this->m_mipMapsInput;
 }
 
-inline QCheckBox* TextureEditor::LoadDialogWidget::threadsCheckBox() const
-{
-	return this->m_threadsCheckBox;
-}
-
 inline KFileDialog* TextureEditor::LoadDialog::dialog() const
 {
 	return this->m_dialog;
@@ -245,11 +236,6 @@ inline KIntNumInput* TextureEditor::LoadDialog::mipMapsInput() const
 	return this->m_widget->mipMapsInput();
 }
 
-inline QCheckBox* TextureEditor::LoadDialog::threadsCheckBox() const
-{
-	return this->m_widget->threadsCheckBox();
-}
-
 inline KIntNumInput* TextureEditor::SaveDialogWidget::qualityInput() const
 {
 	return this->m_qualityInput;
@@ -258,11 +244,6 @@ inline KIntNumInput* TextureEditor::SaveDialogWidget::qualityInput() const
 inline KIntNumInput* TextureEditor::SaveDialogWidget::mipMapsInput() const
 {
 	return this->m_mipMapsInput;
-}
-
-inline QCheckBox* TextureEditor::SaveDialogWidget::threadsCheckBox() const
-{
-	return this->m_threadsCheckBox;
 }
 
 inline KFileDialog* TextureEditor::SaveDialog::dialog() const
@@ -283,11 +264,6 @@ inline KIntNumInput* TextureEditor::SaveDialog::qualityInput() const
 inline KIntNumInput* TextureEditor::SaveDialog::mipMapsInput() const
 {
 	return this->m_widget->mipMapsInput();
-}
-
-inline QCheckBox* TextureEditor::SaveDialog::threadsCheckBox() const
-{
-	return this->m_widget->threadsCheckBox();
 }
 
 inline KIntNumInput* TextureEditor::ChargesDialog::chargesInput() const

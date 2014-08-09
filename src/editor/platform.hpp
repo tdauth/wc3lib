@@ -438,6 +438,21 @@ inline Ogre::Quaternion ogreVertex<Ogre::Quaternion, float32, 4>(const BasicVert
 	return Ogre::Quaternion(ogreReal(vertex[0]), ogreReal(vertex[1]), ogreReal(vertex[2]), ogreReal(vertex[3]));
 }
 
+/**
+ * \defgroup dialogfilters Dialog Filters
+ *
+ * \brief Filters for file types in GUI dialogs.
+ *
+ * \note For filters MIME types are used if available. If not simple translated strings are used as fall back.
+ */
+
+/**
+ * \brief Returns the filter string for GUI dialogs which is required for Warcraft III map files.
+ *
+ * \note Includes all files.
+ *
+ * \ingroup dialogfilters
+ */
 inline QString mapFilter()
 {
 	KMimeType::Ptr w3m(KMimeType::mimeType("application/x-w3m"));
@@ -449,6 +464,13 @@ inline QString mapFilter()
 	return i18n("all/allfiles application/x-w3m application/x-w3x");
 }
 
+/**
+ * \brief Returns the filter string for GUI dialogs which is required for Warcraft III object collection files
+ *
+ * \note Includes all files.
+ *
+ * \ingroup dialogfilters
+ */
 inline QString objectsCollectionFilter()
 {
 	KMimeType::Ptr wtg(KMimeType::mimeType("application/x-w3o"));
@@ -459,6 +481,13 @@ inline QString objectsCollectionFilter()
 	return i18n("all/allfiles application/x-w3o");
 }
 
+/**
+ * \brief Returns the filter string for GUI dialogs which is required for Warcraft III trigger files.
+ *
+ * \note Includes all files.
+ *
+ * \ingroup dialogfilters
+ */
 inline QString triggersFilter()
 {
 	KMimeType::Ptr wtg(KMimeType::mimeType("application/x-wtg"));
@@ -469,6 +498,13 @@ inline QString triggersFilter()
 	return i18n("all/allfiles application/x-wtg");
 }
 
+/**
+ * \brief Returns the filter string for GUI dialogs which is required for Warcraft III custom text trigger files.
+ *
+ * \note Includes all files.
+ *
+ * \ingroup dialogfilters
+ */
 inline QString customTextTriggersFilter()
 {
 	KMimeType::Ptr wtc(KMimeType::mimeType("application/x-wtc"));
@@ -483,7 +519,11 @@ inline QString customTextTriggersFilter()
 // TODO MIME filters do not work ("all/allfiles").
 //i18n("*|All Files\n*.blp|Blizzard Pictures\n*.png|Portable Network Graphics\n*.jpg|JPEG Files"), this, i18n("Open texture"));
 
-/// From http://www.ogre3d.org/forums/viewtopic.php?f=2&t=53647
+/**
+ * \brief Destroys \p node and all attached movable objects recursively.
+ *
+ * From http://www.ogre3d.org/forums/viewtopic.php?f=2&t=53647
+ */
 inline void destroyAllAttachedMovableObjects(Ogre::SceneNode *node)
 {
 	if(!node) return;

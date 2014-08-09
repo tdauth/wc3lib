@@ -21,6 +21,8 @@
 #ifndef WC3LIB_EDITOR_MODELVIEWSETTINGS_HPP
 #define WC3LIB_EDITOR_MODELVIEWSETTINGS_HPP
 
+#include <kdemacros.h>
+
 #include "settingsinterface.hpp"
 
 namespace wc3lib
@@ -29,7 +31,7 @@ namespace wc3lib
 namespace editor
 {
 
-class ModelViewSettings : public SettingsInterface
+class KDE_EXPORT ModelViewSettings : public SettingsInterface
 {
 	public:
 		ModelViewSettings(class ModelView *modelView);

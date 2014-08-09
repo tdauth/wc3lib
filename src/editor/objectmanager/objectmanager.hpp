@@ -21,6 +21,8 @@
 #ifndef WC3LIB_EDITOR_OBJECTMANAGER_HPP
 #define WC3LIB_EDITOR_OBJECTMANAGER_HPP
 
+#include <kdemacros.h>
+
 #include "../module.hpp"
 
 namespace wc3lib
@@ -29,7 +31,7 @@ namespace wc3lib
 namespace editor
 {
 
-class ObjectManager : public Module
+class KDE_EXPORT ObjectManager : public Module
 {
 	public:
 		ObjectManager(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);

@@ -23,6 +23,8 @@
 
 #include <QWidget>
 
+#include <kdemacros.h>
+
 #include "ui_renderstatswidget.h"
 
 namespace wc3lib
@@ -36,7 +38,7 @@ namespace editor
 * Shows some render statistics of its model view's current render target.
 * Is updated automatically each time the model view renders a frame.
 */
-class RenderStatsWidget : public QWidget, protected Ui::RenderStatsWidget
+class KDE_EXPORT RenderStatsWidget : public QWidget, protected Ui::RenderStatsWidget
 {
 	Q_OBJECT
 

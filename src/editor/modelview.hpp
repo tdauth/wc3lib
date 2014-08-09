@@ -26,6 +26,8 @@
 #include <QWidget>
 #include <QString>
 
+#include <kdemacros.h>
+
 #include <Ogre.h>
 
 namespace wc3lib
@@ -43,7 +45,7 @@ namespace editor
  * <a href="http://qt-apps.org/content/show.php/QtOgre+Framework?content=92912">source 1</a>, <a href="http://www.ogre3d.org/tikiwiki/QtOgre">source 2</a>
  * \sa mdlx::Mdlx, OgreMdlx
  */
-class ModelView : public QWidget
+class KDE_EXPORT ModelView : public QWidget
 {
 	Q_OBJECT
 

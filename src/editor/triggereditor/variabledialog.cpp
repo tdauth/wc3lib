@@ -33,7 +33,7 @@ namespace editor
 VariableDialog::VariableDialog(TriggerEditor *triggerEditor, QWidget *parent, Qt::WindowFlags f): QDialog(parent, f), m_triggerEditor(triggerEditor)
 {
 	setupUi(this);
-	
+
 	connect(m_typeComboBox, SIGNAL(activated(int)), this, SLOT(activatedType(int)));
 	connect(m_startValueLabel, SIGNAL(linkActivated(QString)), this, SLOT(setDefaultValue(QString)));
 }
@@ -41,14 +41,14 @@ VariableDialog::VariableDialog(TriggerEditor *triggerEditor, QWidget *parent, Qt
 void VariableDialog::activatedType(int index)
 {
 	const QString typeCode = m_typeComboBox->itemData(index).toString();
-	map::TriggerData::Types::const_iterator iterator =  m_triggerEditor->source()->triggerData()->types().find(typeCode.toUtf8().constData());
-	
-	if (iterator != m_triggerEditor->source()->triggerData()->types().end()) {
+	map::TriggerData::Types::const_iterator iterator =  m_triggerEditor->source()->sharedData()->triggerData()->types().find(typeCode.toUtf8().constData());
+
+	if (iterator != m_triggerEditor->source()->sharedData()->triggerData()->types().end()) {
 		const map::TriggerData::Type *type = iterator->second;
-		
+
 		// TODO default value, possible value etc.
 		//type->
-		
+
 		m_startValue->setText(tr("<a href=\"type\">%1</a>").arg(type->defaultValue().c_str()));
 	}
 }
@@ -61,31 +61,31 @@ void VariableDialog::setDefaultValue(QString value)
 
 void VariableDialog::showVariable(map::Variable *variable)
 {
-	if (m_triggerEditor->source()->triggerData().get() == 0) {
+	if (m_triggerEditor->source()->sharedData()->triggerData().get() == 0) {
 		KMessageBox::error(this, tr("Missing trigger data."));
-		
+
 		return;
 	}
-	
+
 	m_typeComboBox->clear();
-	
-	foreach (map::TriggerData::Types::const_reference ref, m_triggerEditor->source()->triggerData()->types()) {
+
+	foreach (map::TriggerData::Types::const_reference ref, m_triggerEditor->source()->sharedData()->triggerData()->types()) {
 		const map::TriggerData::Type *type = ref->second;
-		
+
 		if (type->canBeGlobal()) {
 			m_typeComboBox->addItem(type->displayText().c_str(), type->name().c_str());
 		}
 	}
-	
+
 	m_nameLineEdit->setText(variable->name().c_str());
 	const int index = m_typeComboBox->findData(variable->type().c_str());
-	
+
 	if (index != -1) {
 		m_typeComboBox->setCurrentIndex(index);
 	} else {
 		qDebug() << "Missing type " << variable->type().c_str();
 	}
-	
+
 	m_arrayCheckBox->setChecked(variable->isArray());
 	m_arraySizeLabel->setEnabled(variable->isArray());
 	m_arraySizeSpinBox->setEnabled(variable->isArray());

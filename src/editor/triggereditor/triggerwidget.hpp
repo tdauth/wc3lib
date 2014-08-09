@@ -51,7 +51,7 @@ class TriggerWidget : public QWidget, protected Ui::TriggerTopWidget
 		void enableTrigger(bool enable);
 		void setTriggerInitiallyOn(bool on);
 		void updateTriggerComment();
-		
+
 		void newEvent();
 		void newCondition();
 		void newAction();
@@ -88,7 +88,7 @@ class TriggerWidget : public QWidget, protected Ui::TriggerTopWidget
 		 * \sa functionsTreeWidget()
 		 */
 		KTextEdit* textEdit() const;
-		
+
 		TriggerFunctionDialog* functionDialog() const;
 
 		QString triggerFunctionName(map::TriggerFunction *triggerFunction) const;
@@ -104,7 +104,7 @@ class TriggerWidget : public QWidget, protected Ui::TriggerTopWidget
 	private:
 		QTreeWidgetItem* addTreeItem(map::TriggerFunction *function);
 		void refreshBasicTreeItems();
-		
+
 		TriggerEditor *m_triggerEditor;
 		map::Trigger *m_trigger;
 		QTreeWidget *m_functionsTreeWidget;
@@ -114,7 +114,7 @@ class TriggerWidget : public QWidget, protected Ui::TriggerTopWidget
 		QTreeWidgetItem *m_actionsItem;
 		Functions m_functions;
 		KTextEdit *m_textEdit;
-		
+
 		class TriggerFunctionDialog *m_functionDialog;
 };
 
@@ -166,9 +166,9 @@ inline KTextEdit* TriggerWidget::textEdit() const
 inline TriggerFunctionDialog* TriggerWidget::functionDialog() const
 {
 	if (m_functionDialog == 0 && triggerEditor()->source() != 0) {
-		const_cast<TriggerWidget*>(this)->m_functionDialog = new TriggerFunctionDialog(triggerEditor(), triggerEditor()->source()->triggerData().get(), triggerEditor()->source()->triggerStrings().get(), this->triggerEditor()->triggers(), const_cast<TriggerWidget*>(this));
+		const_cast<TriggerWidget*>(this)->m_functionDialog = new TriggerFunctionDialog(triggerEditor(), triggerEditor()->source()->sharedData()->triggerData().get(), triggerEditor()->source()->sharedData()->triggerStrings().get(), this->triggerEditor()->triggers(), const_cast<TriggerWidget*>(this));
 	}
-	
+
 	return m_functionDialog;
 }
 

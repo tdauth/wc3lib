@@ -23,6 +23,8 @@
 
 #include <QSplashScreen>
 
+#include <kdemacros.h>
+
 namespace wc3lib
 {
 
@@ -36,7 +38,7 @@ namespace editor
  * \todo Add class SplashScreenX for splash screen of Frozen Throne's World Editor.
  * \sa SplashScreenX
  */
-class SplashScreen : public QSplashScreen
+class KDE_EXPORT SplashScreen : public QSplashScreen
 {
 	public:
 		SplashScreen(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f = 0);

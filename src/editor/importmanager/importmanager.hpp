@@ -21,6 +21,8 @@
 #ifndef WC3LIB_EDITOR_IMPORTMANAGER_HPP
 #define WC3LIB_EDITOR_IMPORTMANAGER_HPP
 
+#include <kdemacros.h>
+
 #include "../module.hpp"
 
 namespace wc3lib
@@ -29,7 +31,7 @@ namespace wc3lib
 namespace editor
 {
 
-class ImportManager : public Module
+class KDE_EXPORT ImportManager : public Module
 {
 	public:
 		ImportManager(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);

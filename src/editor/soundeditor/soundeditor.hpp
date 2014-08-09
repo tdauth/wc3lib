@@ -21,6 +21,8 @@
 #ifndef WC3LIB_EDITOR_SOUNDEDITOR_HPP
 #define WC3LIB_EDITOR_SOUNDEDITOR_HPP
 
+#include <kdemacros.h>
+
 #include "../module.hpp"
 
 namespace wc3lib
@@ -29,7 +31,7 @@ namespace wc3lib
 namespace editor
 {
 
-class SoundEditor : public Module
+class KDE_EXPORT SoundEditor : public Module
 {
 	public:
 		SoundEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);

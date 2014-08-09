@@ -26,6 +26,7 @@
 
 #include <QWidget>
 
+#include <kdemacros.h>
 #include <KUrl>
 
 #include "platform.hpp"
@@ -58,7 +59,7 @@ class MpqPriorityList;
  *
  * Instead of refreshing all default files manually you can use \ref refreshDefaultFiles() which does the same job.
  */
-class WarcraftIIIShared
+class KDE_EXPORT WarcraftIIIShared
 {
 	public:
 		typedef boost::ptr_map<TeamColor, Texture> TeamColorTextures;

@@ -55,19 +55,19 @@ void TriggerWidget::newEvent()
 {
 	functionDialog()->fill(map::TriggerFunction::Type::Event);
 	functionDialog()->show();
-	
+
 	if (functionDialog()->result() == QDialog::Accepted) {
 		std::auto_ptr<map::TriggerFunction> function(new map::TriggerFunction());
 		function->setType(map::TriggerFunction::Type::Event);
 		function->setName(functionDialog()->functionName());
 		function->setIsEnabled(true);
-		
+
 		// TODO set parameters
-		
+
 		QTreeWidgetItem *item = addTreeItem(function.get());
-		
+
 		this->trigger()->functions().push_back(function);
-		
+
 		item->setSelected(true);
 		functionsTreeWidget()->scrollToItem(item);
 	}
@@ -77,19 +77,19 @@ void TriggerWidget::newCondition()
 {
 	functionDialog()->fill(map::TriggerFunction::Type::Condition);
 	functionDialog()->show();
-	
+
 	if (functionDialog()->result() == QDialog::Accepted) {
 		std::auto_ptr<map::TriggerFunction> function(new map::TriggerFunction());
 		function->setType(map::TriggerFunction::Type::Condition);
 		function->setName(functionDialog()->functionName());
 		function->setIsEnabled(true);
-		
+
 		// TODO set parameters
-		
+
 		QTreeWidgetItem *item = addTreeItem(function.get());
-		
+
 		this->trigger()->functions().push_back(function);
-		
+
 		item->setSelected(true);
 		functionsTreeWidget()->scrollToItem(item);
 	}
@@ -99,19 +99,19 @@ void TriggerWidget::newAction()
 {
 	functionDialog()->fill(map::TriggerFunction::Type::Action);
 	functionDialog()->show();
-	
+
 	if (functionDialog()->result() == QDialog::Accepted) {
 		std::auto_ptr<map::TriggerFunction> function(new map::TriggerFunction());
 		function->setType(map::TriggerFunction::Type::Action);
 		function->setName(functionDialog()->functionName());
 		function->setIsEnabled(true);
-		
+
 		// TODO set parameters
-		
+
 		QTreeWidgetItem *item = addTreeItem(function.get());
-		
+
 		this->trigger()->functions().push_back(function);
-		
+
 		item->setSelected(true);
 		functionsTreeWidget()->scrollToItem(item);
 	}
@@ -140,17 +140,17 @@ TriggerWidget::TriggerWidget(class TriggerEditor *triggerEditor) : m_triggerEdit
 QString TriggerWidget::triggerFunctionName(map::TriggerFunction* triggerFunction) const
 {
 	if (this->triggerEditor()->source() != 0) {
-		map::TriggerStrings *triggerStrings = this->triggerEditor()->source()->triggerStrings().get();
-		
+		map::TriggerStrings *triggerStrings = this->triggerEditor()->source()->sharedData()->triggerStrings().get();
+
 		if (triggerStrings != 0) {
 			map::TriggerStrings::Entries::const_iterator iterator = triggerStrings->entries(triggerFunction->type()).find(triggerFunction->name());
-			
+
 			if (iterator != triggerStrings->entries(triggerFunction->type()).end()) {
 				return TriggerEditor::cutQuotes(iterator->second->name()).c_str();
 			}
 		}
 	}
-	
+
 	return triggerFunction->name().c_str();
 }
 
@@ -195,10 +195,10 @@ void TriggerWidget::showTrigger(map::Trigger* trigger, const string &customText)
 		for (int32 i = 0; i < trigger->functions().size(); ++i)
 		{
 			map::TriggerFunction *function = &trigger->functions()[i];
-			
+
 			addTreeItem(function);
 		}
-		
+
 		functionsTreeWidget()->expandAll(); // make all visible
 	}
 
@@ -219,9 +219,9 @@ void TriggerWidget::itemDoubleClicked(QTreeWidgetItem *item, int column)
 	// TODO open parameters window
 	if (iterator != functions().end()) {
 		qDebug() << "Got trigger function: " << (*iterator)->name().c_str();
-		
+
 		functionDialog()->fill(this->functions()[item]);
-		
+
 		functionDialog()->show();
 	}
 }
@@ -229,7 +229,7 @@ void TriggerWidget::itemDoubleClicked(QTreeWidgetItem *item, int column)
 QTreeWidgetItem* TriggerWidget::addTreeItem(map::TriggerFunction* function)
 {
 	QTreeWidgetItem *item = new QTreeWidgetItem();
-	
+
 	if (!function->isEnabled()) {
 		item->setBackgroundColor(0, QColor(Qt::gray));
 	}
@@ -237,15 +237,15 @@ QTreeWidgetItem* TriggerWidget::addTreeItem(map::TriggerFunction* function)
 	// TODO set icon and mark as enabled or not using ->isEnabled()
 	// TODO show hard coded parameters
 	functions().insert(item, function);
-	const map::TriggerData *triggerData = triggerEditor()->source()->triggerData().get();
-	const map::TriggerStrings *triggerStrings = triggerEditor()->source()->triggerStrings().get();
+	const map::TriggerData *triggerData = triggerEditor()->source()->sharedData()->triggerData().get();
+	const map::TriggerStrings *triggerStrings = triggerEditor()->source()->sharedData()->triggerStrings().get();
 
 	switch (function->type())
 	{
 		case map::TriggerFunction::Type::Event:
 		{
 			const QString text = TriggerEditor::triggerFunctionText(triggerData, triggerStrings, function->name().c_str(), function, triggerData->events(), triggerStrings->events(), false, false, true);
-			
+
 			item->setText(0, text);
 			eventsItem()->addChild(item);
 
@@ -255,7 +255,7 @@ QTreeWidgetItem* TriggerWidget::addTreeItem(map::TriggerFunction* function)
 		case map::TriggerFunction::Type::Condition:
 		{
 			const QString text = TriggerEditor::triggerFunctionText(triggerData, triggerStrings, function->name().c_str(), function, triggerData->conditions(), triggerStrings->conditions(), false, false, true);
-			
+
 			item->setText(0, text);
 			conditionsItem()->addChild(item);
 
@@ -265,14 +265,14 @@ QTreeWidgetItem* TriggerWidget::addTreeItem(map::TriggerFunction* function)
 		case map::TriggerFunction::Type::Action:
 		{
 			const QString text = TriggerEditor::triggerFunctionText(triggerData, triggerStrings, function->name().c_str(), function, triggerData->actions(), triggerStrings->actions(), false, false, true);
-			
+
 			item->setText(0, text);
 			actionsItem()->addChild(item);
 
 			break;
 		}
 	}
-	
+
 	return item;
 }
 
@@ -282,7 +282,7 @@ void TriggerWidget::refreshBasicTreeItems()
 	m_eventsItem = new QTreeWidgetItem(rootItem());
 	m_conditionsItem = new QTreeWidgetItem(rootItem());
 	m_actionsItem = new QTreeWidgetItem(rootItem());
-	
+
 	eventsItem()->setText(0, tr("Events"));
 	conditionsItem()->setText(0, tr("Conditions"));
 	actionsItem()->setText(0, tr("Actions"));

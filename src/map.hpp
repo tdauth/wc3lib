@@ -56,6 +56,7 @@ namespace wc3lib
 #include "map/rect.hpp"
 #include "map/rects.hpp"
 #include "map/shadow.hpp"
+#include "map/slk.hpp"
 #include "map/sound.hpp"
 #include "map/sounds.hpp"
 #include "map/tilepoint.hpp"

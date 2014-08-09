@@ -87,7 +87,7 @@ TextureEditor::~TextureEditor()
 {
 }
 
-TextureEditor::LoadDialogWidget::LoadDialogWidget(QWidget *parent) : m_mipMapsInput(new KIntNumInput(this)), m_threadsCheckBox(new QCheckBox(this)), QWidget(parent)
+TextureEditor::LoadDialogWidget::LoadDialogWidget(QWidget *parent) : m_mipMapsInput(new KIntNumInput(this)), QWidget(parent)
 {
 	QVBoxLayout *layout = new QVBoxLayout();
 	this->setLayout(layout);
@@ -97,10 +97,6 @@ TextureEditor::LoadDialogWidget::LoadDialogWidget(QWidget *parent) : m_mipMapsIn
 	mipMapsInput()->setMinimum(0);
 	mipMapsInput()->setValue(blp::Blp::defaultMipMaps);
 	layout->addWidget(mipMapsInput());
-
-	threadsCheckBox()->setText(i18n("Threads:"));
-	threadsCheckBox()->setChecked(blp::Blp::defaultThreads);
-	layout->addWidget(threadsCheckBox());
 }
 
 TextureEditor::LoadDialog::LoadDialog(QObject *parent) : m_widget(new LoadDialogWidget()), QObject(parent)
@@ -119,7 +115,7 @@ TextureEditor::LoadDialog::~LoadDialog()
 	delete m_dialog; // deletes widget as well
 }
 
-TextureEditor::SaveDialogWidget::SaveDialogWidget(QWidget *parent) : m_qualityInput(new KIntNumInput(this)), m_mipMapsInput(new KIntNumInput(this)), m_threadsCheckBox(new QCheckBox(this)), QWidget(parent)
+TextureEditor::SaveDialogWidget::SaveDialogWidget(QWidget *parent) : m_qualityInput(new KIntNumInput(this)), m_mipMapsInput(new KIntNumInput(this)), QWidget(parent)
 {
 	QVBoxLayout *layout = new QVBoxLayout();
 	this->setLayout(layout);
@@ -135,10 +131,6 @@ TextureEditor::SaveDialogWidget::SaveDialogWidget(QWidget *parent) : m_qualityIn
 	mipMapsInput()->setMinimum(0);
 	mipMapsInput()->setValue(blp::Blp::defaultMipMaps);
 	layout->addWidget(mipMapsInput());
-
-	threadsCheckBox()->setText(i18n("Threads:"));
-	threadsCheckBox()->setChecked(blp::Blp::defaultThreads);
-	layout->addWidget(threadsCheckBox());
 }
 
 TextureEditor::SaveDialog::SaveDialog(QObject *parent) : m_widget(new SaveDialogWidget()), QObject(parent)
@@ -188,7 +180,6 @@ void TextureEditor::openFile()
 
 		QMap<QString, QString> options;
 		options["MipMaps"] = QString::number(loadDialog()->mipMapsInput()->value());
-		options["Threads"] = QString("%1%").arg(loadDialog()->threadsCheckBox()->isChecked());
 
 		openUrl(url, options);
 	}
@@ -206,7 +197,7 @@ void TextureEditor::openUrl(const KUrl &url, QMap<QString, QString> options)
 	}
 	catch (Exception &exception)
 	{
-		KMessageBox::error(this, i18n("Unable to read BLP image from file \"%1\".\nException:\n\"%2\".", url.toLocalFile(), exception.what().c_str()));
+		KMessageBox::error(this, i18n("Unable to read BLP image from file \"%1\".\nException:\n\"%2\".", url.toLocalFile(), exception.what()));
 
 		return;
 	}
@@ -227,7 +218,9 @@ void TextureEditor::openUrl(const KUrl &url, QMap<QString, QString> options)
 	this->m_zoomToFitAction->setChecked(this->m_zoomToFit);
 
 	foreach (QAction *action, m_textureActionCollection->actions())
+	{
 		action->setEnabled(true);
+	}
 
 	m_showAlphaChannelAction->setEnabled(this->texture()->qt()->hasAlphaChannel());
 	this->m_textureActionCollection->action("editcolorpalette")->setEnabled(this->texture()->qt()->format() == QImage::Format_Indexed8);
@@ -279,12 +272,11 @@ void TextureEditor::saveFile()
 			QMap<QString, QString> compression;
 			compression["Quality"] = QString::number(saveDialog()->qualityInput()->value());
 			compression["MipMaps"] = QString::number(saveDialog()->mipMapsInput()->value());
-			compression["Threads"] = QString("%1%").arg(saveDialog()->threadsCheckBox()->isChecked());
 			this->texture()->save(url, QFileInfo(url.toLocalFile()).suffix().toLower(), compression);
 		}
 		catch (Exception &exception)
 		{
-			KMessageBox::error(this, i18n("Unable to save image to file \"%1\".\nException:\n\"%2\".", url.toEncoded().constData(), exception.what().c_str()));
+			KMessageBox::error(this, i18n("Unable to save image to file \"%1\".\nException:\n\"%2\".", url.toEncoded().constData(), exception.what()));
 
 			return;
 		}

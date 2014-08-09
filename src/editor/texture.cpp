@@ -119,7 +119,7 @@ void Texture::loadBlp(const QMap<QString, QString> &options) throw (Exception)
 			QString mipMapsString = compressionOption(options, "MipMaps");
 
 			bool ok = false;
-			int tmpValue = mipMapsString.toInt(&ok);
+			std::size_t tmpValue = mipMapsString.toULong(&ok);
 
 			if (tmpValue >= 1 && tmpValue <= blp::Blp::maxMipMaps)
 			{

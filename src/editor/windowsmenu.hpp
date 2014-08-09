@@ -21,6 +21,7 @@
 #ifndef WC3LIB_EDITOR_WINDOWSMENU_HPP
 #define WC3LIB_EDITOR_WINDOWSMENU_HPP
 
+#include <kdemacros.h>
 #include <KMenu>
 
 #include "platform.hpp"
@@ -35,7 +36,7 @@ namespace editor
 /**
  * \sa ModuleMenu
  */
-class WindowsMenu : public KMenu
+class KDE_EXPORT WindowsMenu : public KMenu
 {
 	Q_OBJECT
 

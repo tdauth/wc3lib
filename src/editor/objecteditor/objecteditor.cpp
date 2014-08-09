@@ -65,10 +65,10 @@ class ObjectEditorTab* ObjectEditor::tab(int index) const
 
 void ObjectEditor::exportAll()
 {
-	if (m_collection.isNull()) 
+	if (m_collection.isNull())
 	{
 		KMessageBox::error(this, i18n("No object data available."));
-		
+
 		return;
 	}
 }
@@ -76,26 +76,26 @@ void ObjectEditor::exportAll()
 void ObjectEditor::importAll(const KUrl& url)
 {
 	QString file;
-		
+
 	if (this->source()->download(url, file, this))
 	{
 		ifstream in(file.toUtf8().constData(), std::ios::in | std::ios::binary);
-		
+
 		if (in)
 		{
 			Collection collection;
-			
+
 			try
 			{
 				const std::streamsize size = collection->read(in);
-				
+
 				m_collection.swap(collection);
-				
+
 				KMessageBox::information(this, i18n("Successfully imported object data with size %1.", size));
 			}
 			catch (Exception &e)
 			{
-				KMessageBox::error(this, i18n("Error when opening file %1: \"%2\".", file, e.what().c_str()));
+				KMessageBox::error(this, i18n("Error when opening file %1: \"%2\".", file, e.what()));
 			}
 		}
 	}
@@ -108,7 +108,7 @@ void ObjectEditor::importAll(const KUrl& url)
 void ObjectEditor::importAll()
 {
 	const KUrl url = KFileDialog::getOpenUrl(KUrl(), objectsCollectionFilter(), this, tr("Open"));
-	
+
 	if (!url.isEmpty())
 	{
 		this->importAll(url);
@@ -142,11 +142,11 @@ void ObjectEditor::createFileActions(class KMenu *menu)
 	m_importAllObjectsAction = new KAction(this);
 	menu->addAction(importAllObjectsAction());
 
-	KAction *action = new KAction(source()->tr(this, "WESTRING_MENU_OE_EXPORTALL", "WorldEditStrings"), this);
+	KAction *action = new KAction(source()->sharedData()->tr("WESTRING_MENU_OE_EXPORTALL", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(exportAll()));
 
-	action = new KAction(source()->tr(this, "WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"), this);
+	action = new KAction(source()->sharedData()->tr("WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(importAll()));
 }
@@ -161,33 +161,33 @@ void ObjectEditor::createEditActions(class KMenu *menu)
 
 	menu->addSeparator();
 
-	KAction *action = new KAction(source()->tr(this, "WESTRING_MENU_VIEWINPALETTE", "WorldEditStrings"), this);
+	KAction *action = new KAction(source()->sharedData()->tr("WESTRING_MENU_VIEWINPALETTE", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(viewInPalette()));
 
-	action = new KAction(source()->tr(this, "WESTRING_MENU_OE_FIND", "WorldEditStrings"), this);
+	action = new KAction(source()->sharedData()->tr("WESTRING_MENU_OE_FIND", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(find()));
 
-	action = new KAction(source()->tr(this, "WESTRING_MENU_OE_FINDNEXT", "WorldEditStrings"), this);
+	action = new KAction(source()->sharedData()->tr("WESTRING_MENU_OE_FINDNEXT", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(findNext()));
 
-	action = new KAction(source()->tr(this, "WESTRING_MENU_OE_FINDPREV", "WorldEditStrings"), this);
+	action = new KAction(source()->sharedData()->tr("WESTRING_MENU_OE_FINDPREV", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(findPrevious()));
 
 	menu->addSeparator();
 
-	action = new KAction(source()->tr(this, "WESTRING_MENU_OE_MODIFYFIELD", "WorldEditStrings"), this);
+	action = new KAction(source()->sharedData()->tr("WESTRING_MENU_OE_MODIFYFIELD", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(modifyField()));
 
-	action = new KAction(source()->tr(this, "WESTRING_MENU_OE_RESETFIELD", "WorldEditStrings"), this);
+	action = new KAction(source()->sharedData()->tr("WESTRING_MENU_OE_RESETFIELD", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(resetField()));
 
-	action = new KAction(source()->tr(this, "WESTRING_MENU_OE_AUTOFILL", "WorldEditStrings"), this);
+	action = new KAction(source()->sharedData()->tr("WESTRING_MENU_OE_AUTOFILL", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(autoFill()));
 }
@@ -259,7 +259,7 @@ void ObjectEditor::addCurrentActions()
 	QString file;
 
 	// new object
-	
+
 	newObjectAction()->setText(currentTab()->newObjectText());
 
 	if (source()->download(currentTab()->newObjectIconUrl(), file, this))
@@ -270,18 +270,18 @@ void ObjectEditor::addCurrentActions()
 	connect(newObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(newObject()));
 
 	// rename object
-	
+
 	renameObjectAction()->setText(currentTab()->renameObjectText());
 	connect(renameObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(renameObject()));
 
 	// delete object
-	
+
 	deleteObjectAction()->setText(currentTab()->deleteObjectText());
 	connect(deleteObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(deleteObject()));
 
-	
+
 	// reset object
-	
+
 	resetObjectAction()->setText(currentTab()->resetObjectText());
 	connect(resetObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(resetObject()));
 
@@ -289,7 +289,7 @@ void ObjectEditor::addCurrentActions()
 	connect(resetAllObjectsAction(), SIGNAL(triggered()), currentTab(), SLOT(resetAllObjects()));;
 
 	// export object
-	
+
 	exportAllObjectsAction()->setText(currentTab()->exportAllObjectsText());
 	connect(exportAllObjectsAction(), SIGNAL(triggered()), currentTab(), SLOT(exportAllObjects()));
 
@@ -297,14 +297,14 @@ void ObjectEditor::addCurrentActions()
 	connect(importAllObjectsAction(), SIGNAL(triggered()), currentTab(), SLOT(importAllObjects()));
 
 	// copy object
-	
+
 	copyObjectAction()->setText(currentTab()->copyObjectText());
-	
+
 	if (source()->download(currentTab()->copyObjectIconUrl(), file, this))
 	{
 		copyObjectAction()->setIcon(QIcon(file));
 	}
-	
+
 	connect(copyObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(copyObject()));
 
 	pasteObjectAction()->setText(currentTab()->pasteObjectText());
@@ -323,33 +323,33 @@ void ObjectEditor::updateCollection(ObjectEditor::Collection& collection)
 	{
 		this->unitEditor()->onUpdateCollection(*collection->units().get());
 	}
-	
+
 	/*
 	if (collection->hasItems())
 	{
 		this->itemEditor()->onUpdateCollection(*collection->items().get());
 	}
-	
+
 	if (collection->hasDestructibles())
 	{
 		this->destructibleEditor()->onUpdateCollection(*collection->destructibles().get());
 	}
-	
+
 	if (collection->hasDoodads())
 	{
 		this->doodadEditor()->onUpdateCollection(*collection->doodads().get());
 	}
-	
+
 	if (collection->hasAbilities())
 	{
 		this->abilityEditor()->onUpdateCollection(*collection->abilities().get());
 	}
-	
+
 	if (collection->hasBuffs())
 	{
 		this->buffEditor()->onUpdateCollection(*collection->buffs().get());
 	}
-	
+
 	if (collection->hasUpgrades())
 	{
 		this->upgradeEditor()->onUpdateCollection(*collection->upgrades().get());

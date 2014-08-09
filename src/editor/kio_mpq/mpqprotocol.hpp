@@ -24,6 +24,7 @@
 #include <QScopedPointer>
 #include <QDateTime>
 
+#include <kdemacros.h>
 #include <KIO/SlaveBase>
 
 #include "../../core.hpp"
@@ -42,7 +43,7 @@ namespace editor
  * \todo Finish and make installable as KDE plugin (such like qblp).
  * \todo Use KIO::SlaveBase member functions to provide meta data (extended attributes).
  */
-class MpqProtocol : public KIO::SlaveBase
+class KDE_EXPORT MpqProtocol : public KIO::SlaveBase
 {
 	public:
 		static const char *protocol;

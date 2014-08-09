@@ -23,6 +23,7 @@
 
 #include <QImage>
 
+#include <kdemacros.h>
 #include <KDialog>
 #include <KColorCells>
 
@@ -32,7 +33,7 @@ namespace wc3lib
 namespace editor
 {
 
-class ColorPaletteDialog : public KDialog
+class KDE_EXPORT ColorPaletteDialog : public KDialog
 {
 	Q_OBJECT
 
@@ -43,10 +44,10 @@ class ColorPaletteDialog : public KDialog
 		bool applyToImage(QImage &image);
 
 		KColorCells* colorCells() const;
-	
+
 	private:
 		KColorCells *m_colorCells;
-	
+
 };
 
 inline bool ColorPaletteDialog::applyFromImage(const QImage &image)

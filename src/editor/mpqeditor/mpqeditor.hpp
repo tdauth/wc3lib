@@ -21,6 +21,8 @@
 #ifndef WC3LIB_EDITOR_MPQEDITOR_HPP
 #define WC3LIB_EDITOR_MPQEDITOR_HPP
 
+#include <kdemacros.h>
+
 #include "../module.hpp"
 #include "../../mpq.hpp"
 #include "platform.hpp"
@@ -37,7 +39,7 @@ namespace editor
  * Moreover it allows you to easily open Warcraft III's default MPQ archives and all other MPQ entries from editor's MPQ priority list (\ref MpqPriorityList) plus all opened maps and campaigns in editor.
  * \sa MpqProtocol, MpqArchive, MpqPriorityList
  */
-class MpqEditor : public Module
+class KDE_EXPORT MpqEditor : public Module
 {
 	Q_OBJECT
 

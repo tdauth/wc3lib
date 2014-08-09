@@ -26,6 +26,8 @@
 
 #include <boost/bimap.hpp>
 
+#include <kdemacros.h>
+
 #include <Ogre.h>
 
 #include "resource.hpp"
@@ -181,7 +183,7 @@ void Mdlx::addNode(long32 id, class Node *node) throw (class Exception)
  * \todo Replace TextureIds, GeosetIds and SequenceIds (all objects which do not have specified their id in MDX files) by std::vector since you know for sure that their ids are in a strict order!
  * \todo Maybe instead of two maps you could uses one with a pair of MDLX and OGRE objects.
  */
-class OgreMdlx : public Resource, public Ogre::FrameListener
+class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 {
 	public:
 		typedef std::map<mdlx::long32, const mdlx::Node*> MdlxNodes;

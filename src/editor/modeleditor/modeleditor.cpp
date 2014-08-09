@@ -134,7 +134,7 @@ void ModelEditor::saveFile()
 	}
 	catch (Exception exception)
 	{
-		KMessageBox::error(this, i18n("Unable to write file \"%1\".\nException \"%2\".", url.toEncoded().constData(), exception.what().c_str()));
+		KMessageBox::error(this, i18n("Unable to write file \"%1\".\nException \"%2\".", url.toEncoded().constData(), exception.what()));
 	}
 }
 
@@ -269,7 +269,7 @@ void ModelEditor::showCollisionShapes()
 			{
 				std::string name = boost::str(boost::format("%1%.CollisionShape%2%") % value.namePrefix().toUtf8().constData() % i);
 				Ogre::SceneNode *sceneNode = value.sceneNode()->createChildSceneNode(name.c_str());
-				qDebug() << "Showing shape of type " << collisionShape.second->shape << " with name " << name.c_str();
+				qDebug() << "Showing shape of type " << static_cast<mdlx::long32>(collisionShape.second->shape) << " with name " << name.c_str();
 
 				switch (collisionShape.second->shape)
 				{
@@ -401,7 +401,7 @@ bool ModelEditor::openUrl(const KUrl &url)
 	}
 	catch (class Exception &exception)
 	{
-		KMessageBox::error(this, i18n("Unable to read file \"%1\".\nException \"%2\".", url.toEncoded().constData(), exception.what().c_str()));
+		KMessageBox::error(this, i18n("Unable to read file \"%1\".\nException \"%2\".", url.toEncoded().constData(), exception.what()));
 
 		return false;
 	}
@@ -418,7 +418,7 @@ bool ModelEditor::openUrl(const KUrl &url)
 	}
 	catch (Exception &exception)
 	{
-		KMessageBox::error(this, i18n("Unable to assign team color %1 and team glow %2 to model \"%3\".\nException \"%4\".", teamColor(), teamGlow(), url.toEncoded().constData(), exception.what().c_str()));
+		KMessageBox::error(this, i18n("Unable to assign team color %1 and team glow %2 to model \"%3\".\nException \"%4\".", static_cast<int>(teamColor()), static_cast<int>(teamGlow()), url.toEncoded().constData(), exception.what()));
 	}
 
 	Ogre::String entityName = Ogre::String(QString(model->namePrefix() +"Entity").toUtf8().constData());

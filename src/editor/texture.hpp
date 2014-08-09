@@ -24,6 +24,8 @@
 #include <QImage>
 #include <QScopedPointer>
 
+#include <kdemacros.h>
+
 #include <OgreImage.h>
 #include <OgreTexture.h>
 
@@ -43,7 +45,7 @@ namespace editor
  * Please consider that this class tries to get the most performant way to load all those objects by checking if it already has one of them and if so, using the object's buffer instead of loading it from the corresponding file again which usually is much slower than reading from memory.
  * Besides when saving the texture via \ref Texture::save() it tries to get the most performant way, as well. For example, if you save your texture as BLP image and there is a \ref blp::Blp instance already in your texture (\ref Texture::hasBlp()) it won't save the texture via its Qt or OGRE object since it's much faster to write the BLP object on disk.
  */
-class Texture : public Resource
+class KDE_EXPORT Texture : public Resource
 {
 	public:
 		typedef QScopedPointer<blp::Blp> BlpPtr;

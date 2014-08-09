@@ -101,6 +101,11 @@ class Slk : public Format
 		 */
 
 		/**
+		 * Clears the table.
+		 */
+		void clear();
+
+		/**
 		 * \return Returns the maximum number of columns of the SLK table.
 		 *
 		 * \note Colums are the first dimension (x) of the multi array \ref Table.
@@ -144,6 +149,11 @@ inline Slk::Table& Slk::table()
 inline const Slk::Table& Slk::table() const
 {
 	return this->m_table;
+}
+
+inline void Slk::clear()
+{
+	m_table.resize(boost::extents[0][0]);
 }
 
 inline Slk::Table::size_type Slk::columns() const

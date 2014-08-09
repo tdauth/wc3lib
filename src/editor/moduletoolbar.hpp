@@ -23,6 +23,7 @@
 
 #include <boost/cast.hpp>
 
+#include <kdemacros.h>
 #include <KToolBar>
 
 #include "module.hpp"
@@ -39,7 +40,7 @@ namespace editor
  * Other than \ref ModuleMenu this can and has to be used by modules if there is no Editor instance.
  * \sa ModuleMenu
  */
-class ModuleToolBar : public KToolBar
+class KDE_EXPORT ModuleToolBar : public KToolBar
 {
 	Q_OBJECT
 

@@ -40,13 +40,7 @@ class TerrainBrush : public Brush
 		virtual void onPlace(int32 x, int32 y);
 
 	protected:
-		int16 m_groundHeight;
-		int16 m_waterLevel:15;
-		BOOST_SCOPED_ENUM(map::Tilepoint::Flags) m_flags;
-		unsigned int m_groundTextureType:4;
-		byte m_textureDetails;
-		unsigned int m_cliffTextureType:4;
-		unsigned int m_layerHeight:4;
+		map::Tilepoint m_tilepoint;
 };
 
 }

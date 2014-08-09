@@ -38,20 +38,20 @@ class ObjectTableWidget : public QTableWidget
 	public:
 		typedef QVector<QVariant> Entries;
 		typedef QLinkedList<class ObjectTableWidgetPair*> Pairs;
-		
+
 		ObjectTableWidget(QWidget *parent, const MetaData *metaData);
-		
+
 		Pairs& pairs();
 		const Pairs& pairs() const;
-		Pairs pairs(BOOST_SCOPED_ENUM(map::Section) section);
-	
+		//Pairs pairs(map::Section section);
+
 	protected:
 		/**
 		 * Items are not edited directly like usual table items. Usually a simple dialog with OK and cancel button is shown.
 		 * This functions handles all edit requests!
 		 */
 		virtual void editItem(QTableWidgetItem *item);
-		
+
 		Pairs m_pairs;
 };
 

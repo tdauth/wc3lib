@@ -24,6 +24,7 @@
 #include <QSettings>
 #include <QLinkedList>
 
+#include <kdemacros.h>
 #include <KMainWindow>
 #include <KAboutData>
 
@@ -47,7 +48,7 @@ class WarcraftIIIShared;
  * Just use \ref Editor#resources()[URL] to refer to your required resource.
  * @todo Each Module has it's own tool bar with all other modules.
  */
-class Editor : public KMainWindow, public MpqPriorityList
+class KDE_EXPORT Editor : public KMainWindow, public MpqPriorityList
 {
 	Q_OBJECT
 

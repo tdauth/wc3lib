@@ -128,13 +128,24 @@ bool BlpIOHandler::supportsOption(ImageOption option) const
 	switch (option)
 	{
 		case SubType:
+		{
 			return true;
+		}
 
 		case Size:
+		{
 			return true;
+		}
 
 		case Quality:
+		{
 			return this->option(SubType).toUInt() == static_cast<blp::dword>(blp::Blp::Compression::Jpeg);
+		}
+
+		default:
+		{
+			return false;
+		}
 	}
 
 	return false;

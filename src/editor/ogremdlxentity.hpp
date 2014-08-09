@@ -21,6 +21,8 @@
 #ifndef WC3LIB_EDITOR_OGREMDLXENTITTY_HPP
 #define WC3LIB_EDITOR_OGREMDLXENTITTY_HPP
 
+#include <kdemacros.h>
+
 #include <Ogre.h>
 
 #include "platform.hpp"
@@ -40,7 +42,7 @@ namespace editor
  *
  * If you have a Footman model for example and want to create several units sharing the same model as in the game, you'll have to create one \ref OgreMdlx instance, load the model file and add as many entities as you'd like to which can be moved around and animated separately.
  */
-class OgreMdlxEntity : public Ogre::FrameListener
+class KDE_EXPORT OgreMdlxEntity : public Ogre::FrameListener
 {
 	public:
 		typedef std::list<Ogre::Entity*> Entities;

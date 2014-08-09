@@ -43,12 +43,14 @@ if (EDITOR)
 	endif ()
 
 	kde4_add_executable(wc3editor wc3editor.cpp)
-	target_link_libraries(wc3editor ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libtextureeditor wc3libmodeleditor wc3libtriggereditor wc3libobjecteditor ${QT_LIBRARIES} ${KDE4_KDEUI_LIBS})
+	# TODO fix wc3libobjecteditor
+	target_link_libraries(wc3editor ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libtextureeditor wc3libmodeleditor wc3libtriggereditor ${QT_LIBRARIES} ${KDE4_KDEUI_LIBS})
 	install(TARGETS wc3editor DESTINATION bin)
 
-	kde4_add_executable(wc3object wc3object.cpp)
-	target_link_libraries(wc3object ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libobjecteditor ${QT_LIBRARIES} ${KDE4_KDEUI_LIBS})
-	install(TARGETS wc3object DESTINATION bin)
+	# TODO fix object editor
+	#kde4_add_executable(wc3object wc3object.cpp)
+	#target_link_libraries(wc3object ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libobjecteditor ${QT_LIBRARIES} ${KDE4_KDEUI_LIBS})
+	#install(TARGETS wc3object DESTINATION bin)
 
 	kde4_add_executable(wc3texture wc3texture.cpp)
 	target_link_libraries(wc3texture ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libtextureeditor ${QT_LIBRARIES} ${KDE4_KDEUI_LIBS})

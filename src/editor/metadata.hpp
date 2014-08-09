@@ -21,7 +21,9 @@
 #ifndef WC3LIB_EDITOR_METADATA_HPP
 #define WC3LIB_EDITOR_METADATA_HPP
 
-#include <boost/multi_array.hpp>
+#include <unordered_map>
+
+#include <kdemacros.h>
 
 #include "resource.hpp"
 #include "../map.hpp"
@@ -33,38 +35,26 @@ namespace editor
 {
 
 /**
- * Base class for all possible meta data formats (units, abilities, upgrades etc.).
- * \todo Add more abstract class which is the base of water data, sound data etc. as well.
- * Resource URL should refer a SYLK file.
+ * \brief Base class for all possible meta data formats (units, abilities, upgrades etc.).
+ *
+ * Uses \ref map::Slk to load a SYLK file which contains all meta data.
+ * In addition to \ref map::Slk it stores columns and rows by keys (their first cell values) through hashing.
+ * This allows fast access of columns or rows by keys which is usually required for meta data.
+ *
+ * \todo Remove unnecessary wrapper methods which are duplicated from \ref map::Slk.
  */
-class MetaData : public Resource
+class KDE_EXPORT MetaData : public Resource
 {
 	public:
 		/**
-		 * One single cell of the SYLK table can hold one single value and supports multiple types.
-		 */
-		typedef QString Cell;
-		/**
-		 * A table is a 2-dimensional array of cells.
-		 * First index is column (x) and second index is row (y).
-		 */
-		typedef boost::multi_array<Cell, 2> Table;
-
-		typedef Table::array_view<1>::type View;
-		typedef Table::const_array_view<1>::type ConstView;
-
-		/**
 		 * Values of the first cells are used to get the corresponding number of row or column.
 		 */
-		typedef QHash<Cell, int> Keys;
+		typedef std::unordered_map<map::Slk::Cell, int> Keys;
 
 		MetaData(const KUrl &url);
 
 		virtual void clear() throw ();
 
-		/**
-		 * Provides simple SYLK file parser functionality.
-		 */
 		virtual void load() throw (Exception);
 		virtual void reload() throw (Exception);
 		virtual void save(const KUrl &url) const throw (Exception)
@@ -72,28 +62,31 @@ class MetaData : public Resource
 			throw Exception(_("Saving meta data is not supported yet."));
 		}
 
-		const Table& table() const;
+		map::Slk& slk();
+		const map::Slk& slk() const;
 		const Keys& columnKeys() const;
 		const Keys& rowKeys() const;
-		ConstView row(const Cell &key) const;
-		ConstView column(const Cell &key) const;
-		ConstView row(int index) const;
-		ConstView column(int index) const;
+		map::Slk::ConstView row(const map::Slk::Cell &key) const;
+		map::Slk::ConstView column(const map::Slk::Cell &key) const;
 
-		const Cell& value(int row, int column) const;
-		const Cell& value(int row, const Cell &columnKey) const;
-		const Cell& value(const Cell &rowKey, int column) const;
-		const Cell& value(const Cell &rowKey, const Cell &columnKey) const;
+		const map::Slk::Cell& value(int row, const map::Slk::Cell &columnKey) const;
+		const map::Slk::Cell& value(const map::Slk::Cell &rowKey, int column) const;
+		const map::Slk:: Cell& value(const map::Slk::Cell &rowKey, const map::Slk::Cell &columnKey) const;
 
 	protected:
-		Table m_table;
+		map::Slk m_slk;
 		Keys m_columnKeys;
 		Keys m_rowKeys;
 };
 
-inline const MetaData::Table& MetaData::table() const
+inline map::Slk& MetaData::slk()
 {
-	return this->m_table;
+	return this->m_slk;
+}
+
+inline const map::Slk& MetaData::slk() const
+{
+	return this->m_slk;
 }
 
 inline const MetaData::Keys& MetaData::columnKeys() const
@@ -106,52 +99,71 @@ inline const MetaData::Keys& MetaData::rowKeys() const
 	return this->m_rowKeys;
 }
 
-inline MetaData::ConstView MetaData::row(const Cell& key) const
+inline map::Slk::ConstView MetaData::row(const map::Slk::Cell &key) const
 {
-	return this->row(this->rowKeys()[key]);
+	Keys::const_iterator iterator = this->rowKeys().find(key);
+
+	if (iterator == this->rowKeys().end())
+	{
+		throw Exception(boost::format(_("Row %1% does not exist.")) % key);
+	}
+
+	return this->slk().row(iterator->second);
 }
 
-inline MetaData::ConstView MetaData::row(int index) const
+inline map::Slk::ConstView MetaData::column(const map::Slk::Cell &key) const
 {
-	typedef Table::index_range range;
-	Table::index_gen indices;
-	Table::const_array_view<1>::type myview = this->table()[indices[range(0, this->table().shape()[0])][index] ];
+	Keys::const_iterator iterator = this->columnKeys().find(key);
 
-	return myview;
+	if (iterator == this->columnKeys().end())
+	{
+		throw Exception();
+	}
+
+	return this->slk().column(iterator->second);
 }
 
-inline MetaData::ConstView MetaData::column(const Cell& key) const
+inline const map::Slk::Cell& MetaData::value(int row, const map::Slk::Cell &columnKey) const
 {
-	return this->column(this->columnKeys()[key]);
+	Keys::const_iterator iterator = this->columnKeys().find(columnKey);
+
+	if (iterator == this->columnKeys().end())
+	{
+		throw Exception();
+	}
+
+	return this->slk().table()[iterator->second][row];
 }
 
-inline MetaData::ConstView MetaData::column(int index) const
+inline const map::Slk::Cell& MetaData::value(const map::Slk::Cell &rowKey, int column) const
 {
-	typedef Table::index_range range;
-	Table::index_gen indices;
-	Table::const_array_view<1>::type myview = this->table()[indices[index][range(0, this->table().shape()[1])] ];
+	Keys::const_iterator iterator = this->rowKeys().find(rowKey);
 
-	return myview;
+	if (iterator == this->rowKeys().end())
+	{
+		throw Exception();
+	}
+
+	return this->slk().table()[column][iterator->second];
 }
 
-inline const MetaData::Cell& MetaData::value(int row, int column) const
+inline const map::Slk::Cell& MetaData::value(const map::Slk::Cell &rowKey, const map::Slk::Cell &columnKey) const
 {
-	return this->table()[column][row];
-}
+	Keys::const_iterator columnIterator = this->columnKeys().find(columnKey);
 
-inline const MetaData::Cell& MetaData::value(int row, const MetaData::Cell& columnKey) const
-{
-	return this->table()[this->columnKeys()[columnKey]][row];
-}
+	if (columnIterator == this->columnKeys().end())
+	{
+		throw Exception();
+	}
 
-inline const MetaData::Cell& MetaData::value(const MetaData::Cell& rowKey, int column) const
-{
-	return this->table()[column][this->rowKeys()[rowKey]];
-}
+	Keys::const_iterator rowIterator = this->rowKeys().find(rowKey);
 
-inline const MetaData::Cell& MetaData::value(const MetaData::Cell& rowKey, const MetaData::Cell& columnKey) const
-{
-	return this->table()[this->columnKeys()[columnKey]][this->rowKeys()[rowKey]];
+	if (rowIterator == this->rowKeys().end())
+	{
+		throw Exception();
+	}
+
+	return this->slk().table()[columnIterator->second][rowIterator->second];
 }
 
 }

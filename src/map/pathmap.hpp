@@ -128,6 +128,16 @@ inline Pathmap::Type Pathmap::type(int32 x, int32 y) const
 	return this->m_tilepoints[x][y];
 }
 
+inline constexpr bool operator&(Pathmap::Type x, Pathmap::Type y)
+{
+	return static_cast<bool>(static_cast<uint8>(x) & static_cast<uint8>(y));
+}
+
+inline constexpr Pathmap::Type operator|(Pathmap::Type x, Pathmap::Type y)
+{
+	return static_cast<Pathmap::Type>(static_cast<uint8>(x) | static_cast<uint8>(y));
+}
+
 }
 
 }

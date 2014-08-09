@@ -23,6 +23,8 @@
 
 #include <Ogre.h>
 
+#include <kdemacros.h>
+
 #include "settingsinterface.hpp"
 
 namespace wc3lib
@@ -31,7 +33,7 @@ namespace wc3lib
 namespace editor
 {
 
-class RenderSystemSettings : public SettingsInterface
+class KDE_EXPORT RenderSystemSettings : public SettingsInterface
 {
 	public:
 		RenderSystemSettings(Ogre::RenderSystem *renderSystem);

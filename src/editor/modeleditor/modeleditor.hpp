@@ -25,6 +25,7 @@
 
 #include <QDebug>
 
+#include <kdemacros.h>
 #include <KUrl>
 #include <KMessageBox>
 #include <KLocale>
@@ -46,7 +47,7 @@ namespace editor
 /**
  * We have model SLK entries listet at the tree view.
  */
-class ModelEditor : public Module
+class KDE_EXPORT ModelEditor : public Module
 {
 	Q_OBJECT
 
@@ -179,10 +180,10 @@ inline const ModelEditor::CollisionShapeNodes& ModelEditor::collisionShapeNodes(
 	return m_collisionShapeNodes;
 }
 
-inline void ModelEditor::setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor)
+inline void ModelEditor::setTeamColor(TeamColor teamColor)
 {
 	m_teamColor = teamColor;
-	qDebug() << "Changing team color to " << teamColor;
+	qDebug() << "Changing team color to " << static_cast<int>(teamColor);
 
 	BOOST_FOREACH(Models::reference value, this->models())
 	{
@@ -192,20 +193,20 @@ inline void ModelEditor::setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor)
 		}
 		catch (Exception &exception)
 		{
-			KMessageBox::error(this, i18n("Unable to assign team color %1 and to model \"%2\".\nException \"%3\".", this->teamColor(), value.url().toEncoded().constData(), exception.what().c_str()));
+			KMessageBox::error(this, i18n("Unable to assign team color %1 and to model \"%2\".\nException \"%3\".", static_cast<int>(this->teamColor()), value.url().toEncoded().constData(), exception.what()));
 		}
 	}
 }
 
-inline BOOST_SCOPED_ENUM(TeamColor) ModelEditor::teamColor() const
+inline TeamColor ModelEditor::teamColor() const
 {
 	return m_teamColor;
 }
 
-inline void ModelEditor::setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow)
+inline void ModelEditor::setTeamGlow(TeamColor teamGlow)
 {
 	m_teamGlow = teamGlow;
-	qDebug() << "Changing team glow to " << teamGlow;
+	qDebug() << "Changing team glow to " << static_cast<int>(teamGlow);
 
 	BOOST_FOREACH(Models::reference value, this->models())
 	{
@@ -215,12 +216,12 @@ inline void ModelEditor::setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow)
 		}
 		catch (Exception &exception)
 		{
-			KMessageBox::error(this, i18n("Unable to assign team glow %1 and to model \"%2\".\nException \"%3\".", this->teamGlow(), value.url().toEncoded().constData(), exception.what().c_str()));
+			KMessageBox::error(this, i18n("Unable to assign team glow %1 and to model \"%2\".\nException \"%3\".", static_cast<int>(this->teamGlow()), value.url().toEncoded().constData(), exception.what()));
 		}
 	}
 }
 
-inline BOOST_SCOPED_ENUM(TeamColor) ModelEditor::teamGlow() const
+inline TeamColor ModelEditor::teamGlow() const
 {
 	return m_teamGlow;
 }

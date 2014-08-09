@@ -25,6 +25,7 @@
 
 #include <QFileInfo>
 
+#include <kdemacros.h>
 #include <KUrl>
 
 #include "platform.hpp"
@@ -45,7 +46,7 @@ namespace editor
  * An entry can either be an archive or a URL of a directory.
  * Each entry has its own priority. Entries with higher priority will be returned more likely than those with less priority.
  */
-class MpqPriorityListEntry : public boost::operators<MpqPriorityListEntry>
+class KDE_EXPORT MpqPriorityListEntry : public boost::operators<MpqPriorityListEntry>
 {
 	public:
 		typedef MpqPriorityListEntry self;
@@ -119,7 +120,7 @@ inline bool MpqPriorityListEntry::operator==(const self& other) const
  * \sa MpqPriorityListEntry
  * \sa Resource
  */
-class MpqPriorityList
+class KDE_EXPORT MpqPriorityList
 {
 	public:
 		typedef MpqPriorityList self;

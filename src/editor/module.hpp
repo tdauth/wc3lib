@@ -25,6 +25,7 @@
 
 #include <QWidget>
 
+#include <kdemacros.h>
 #include <KComponentData>
 #include <KAboutData>
 #include <KMenu>
@@ -41,7 +42,7 @@ namespace editor
  * \note Modules should work independently without an Editor instance. They only need a data source.
  * \note Use class \ref Plugin to load modules related plugins. Since Module is based on \ref KXMLGUIClient it provides an extensible system using specific XML GUI files.
  */
-class Module : public QWidget
+class KDE_EXPORT Module : public QWidget
 {
 	Q_OBJECT
 
@@ -86,7 +87,7 @@ class Module : public QWidget
 		 * \sa moduleMenu()
 		 */
 		virtual QString actionName() const = 0;
-		
+
 		QString settingsGroup() const;
 
 	public slots:

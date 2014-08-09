@@ -33,10 +33,10 @@ namespace editor
 
 void TerrainEditor::loadEnvironment(const map::Environment &environment)
 {
-	this->m_terrainGroup->loadAllTerrains(true);
+	//this->m_terrainGroup->loadAllTerrains(true);
 }
 
-TerrainEditor::TerrainEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_modelView(new ModelView(hasEditor() ? editor()->root() : 0)), m_terrainGlobals(new Ogre::TerrainGlobalOptions()), m_terrainGroup(0)
+TerrainEditor::TerrainEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_modelView(new ModelView(hasEditor() ? editor()->root() : 0))//, m_terrainGlobals(new Ogre::TerrainGlobalOptions()), m_terrainGroup(0)
 {
 	setWindowTitle(i18n("Terrain Editor"));
 	Module::setupUi();
@@ -45,7 +45,7 @@ TerrainEditor::TerrainEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 
 TerrainEditor::~TerrainEditor()
 {
-	delete m_terrainGlobals;
+	//delete m_terrainGlobals;
 }
 
 void TerrainEditor::show()
@@ -53,10 +53,12 @@ void TerrainEditor::show()
 	Module::show();
 	this->m_modelView->show();
 
+	/*
 	if (m_terrainGroup != 0)
 	{
 		m_terrainGroup = new Ogre::TerrainGroup(modelView()->sceneManager(), Ogre::Terrain::ALIGN_X_Y, 513, 12000.0f);
 		m_terrainGroup->setOrigin(Ogre::Vector3::ZERO);
+	*/
 		/*
 		m_terrainGroup->setMaxPixelError(8);
 		// testing composite map
@@ -66,7 +68,7 @@ void TerrainEditor::show()
 		m_terrainGroup->setCompositeMapAmbient(modelView()->sceneManager()->getAmbientLight());
 		m_terrainGroup->setCompositeMapDiffuse(modelView()->sceneManager()->light()->getDiffuseColour());
 		*/
-	}
+	//}
 }
 
 void TerrainEditor::createFileActions(class KMenu *menu)

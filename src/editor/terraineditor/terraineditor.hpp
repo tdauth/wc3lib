@@ -21,9 +21,9 @@
 #ifndef WC3LIB_EDITOR_TERRAINEDITOR_HPP
 #define WC3LIB_EDITOR_TERRAINEDITOR_HPP
 
+#include <kdemacros.h>
+
 #include <Ogre.h>
-#include <OgreTerrain.h>
-#include <OgreTerrainGroup.h>
 
 #include "../../map.hpp"
 
@@ -41,7 +41,7 @@ namespace editor
 * \todo Use customized version of model view which sends selection events to terrain editor.
 * \todo Maybe you should add a custom UI like for other sub editors.
 */
-class TerrainEditor : public Module
+class KDE_EXPORT TerrainEditor : public Module
 {
 	Q_OBJECT
 
@@ -68,8 +68,8 @@ class TerrainEditor : public Module
 
 		class ModelView *m_modelView;
 
-		Ogre::TerrainGlobalOptions *m_terrainGlobals;
-		Ogre::TerrainGroup *m_terrainGroup;
+		//Ogre::TerrainGlobalOptions *m_terrainGlobals;
+		//Ogre::TerrainGroup *m_terrainGroup;
 };
 
 inline class ModelView* TerrainEditor::modelView() const

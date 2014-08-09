@@ -39,7 +39,14 @@ namespace wc3lib
 namespace editor
 {
 
-Module::Module(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_moduleMenu(0), m_menuBar(0), m_topLayout(new QVBoxLayout()), m_centerLayout(new QGridLayout()), m_sourcesDialog(0), QWidget(parent, f | Qt::Window)
+Module::Module(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f)
+: QWidget(parent, f | Qt::Window)
+, m_source(source)
+, m_moduleMenu(0)
+, m_menuBar(0)
+, m_topLayout(new QVBoxLayout())
+, m_centerLayout(new QGridLayout())
+, m_sourcesDialog(0)
 {
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	setLayout(layout);

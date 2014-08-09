@@ -30,6 +30,7 @@
 #include <QTreeWidget>
 #include <QDebug>
 
+#include <kdemacros.h>
 #include <KUrl>
 
 #include "../module.hpp"
@@ -71,7 +72,7 @@ namespace editor
  * \sa TriggerFunctionDialog
  * \ingroup triggereditorsection
  */
-class TriggerEditor : public Module
+class KDE_EXPORT TriggerEditor : public Module
 {
 	Q_OBJECT
 

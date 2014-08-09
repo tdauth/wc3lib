@@ -22,7 +22,6 @@
 
 #include "blpcodec.hpp"
 #include "../../i18n.hpp"
-#include "../../platform.h"
 
 namespace wc3lib
 {

@@ -21,6 +21,8 @@
 #ifndef WC3LIB_EDITOR_VIEWPORTSETTINGS_HPP
 #define WC3LIB_EDITOR_VIEWPORTSETTINGS_HPP
 
+#include <kdemacros.h>
+
 #include <Ogre.h>
 
 #include "settingsinterface.hpp"
@@ -32,7 +34,7 @@ namespace editor
 {
 
 /// Each view port includes one camera (and of course its settings).
-class ViewPortSettings : public SettingsInterface
+class KDE_EXPORT ViewPortSettings : public SettingsInterface
 {
 	public:
 		ViewPortSettings(Ogre::Viewport *viewPort);

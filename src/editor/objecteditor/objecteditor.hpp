@@ -23,6 +23,7 @@
 
 #include <QVariant>
 
+#include <kdemacros.h>
 #include <KTabWidget>
 
 #include "../module.hpp"
@@ -71,7 +72,7 @@ namespace editor
  *
  * \ingroup objectdata
  */
-class ObjectEditor : public Module
+class KDE_EXPORT ObjectEditor : public Module
 {
 	Q_OBJECT
 

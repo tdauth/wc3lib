@@ -21,6 +21,8 @@
 #ifndef WC3LIB_EDITOR_BLPIOHANDLER_HPP
 #define WC3LIB_EDITOR_BLPIOHANDLER_HPP
 
+#include <kdemacros.h>
+
 #include <QtGui/QImageIOHandler>
 
 #include "../../blp/blp.hpp"
@@ -36,7 +38,7 @@ namespace editor
  * You do not necessarily have to use a device to read from. There are also member functions which do only use BLP objects.
  * \sa BlpIOPlugin
  */
-class BlpIOHandler : public QImageIOHandler
+class KDE_EXPORT BlpIOHandler : public QImageIOHandler
 {
 	public:
 		BlpIOHandler();

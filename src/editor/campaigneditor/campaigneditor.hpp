@@ -21,6 +21,7 @@
 #ifndef WC3LIB_EDITOR_CAMPAIGNEDITOR_HPP
 #define WC3LIB_EDITOR_CAMPAIGNEDITOR_HPP
 
+#include <kdemacros.h>
 #include <KUrl>
 
 #include "../module.hpp"
@@ -34,7 +35,7 @@ namespace editor
 /**
  * The campaign editor allows you to edit exactly one single campaign at the same time.
  */
-class CampaignEditor : public Module
+class KDE_EXPORT CampaignEditor : public Module
 {
 	Q_OBJECT
 

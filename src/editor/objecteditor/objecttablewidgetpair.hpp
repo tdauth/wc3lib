@@ -27,6 +27,7 @@
 #include "../../core.hpp"
 #include "../../map.hpp"
 #include "../platform.hpp"
+#include "../metadata.hpp"
 
 namespace wc3lib
 {
@@ -38,39 +39,44 @@ namespace editor
  * Provides access to two corresponding table widget items.
  * First is description of value, second is the value itself.
  * Values which are not default (custom values) are usually marked by another color.
+ *
+ * The description is stored in the meta data file (for example UnitMetaData.slk) which can be accessed via \ref metaData().
+ * The meta data stores also the category and additinal displa information
+ *
+ * The default value is stored in a data file (for example UnitData.txt) which can be accessed via \ref data().
  */
 class ObjectTableWidgetPair : public QObject
 {
 	public:
-		ObjectTableWidgetPair(QTableWidget *tableWidget, int row, map::MetaData *metaData);
+		ObjectTableWidgetPair(QTableWidget *tableWidget, int row, MetaData *metaData, const map::Slk::Cell &id);
 		~ObjectTableWidgetPair();
-		
+
 		QTableWidget* tableWidget() const;
 		int row() const;
-		
+
 		void reset();
 		bool isDefault() const;
-		
-		map::MetaData* metaData() const;
-		void setData(map::Data *data);
-		map::Data* data() const;
+
+		MetaData* metaData() const;
+		void setId(const map::Slk::Cell &id);
+		const map::Slk::Cell& id() const;
 		/**
 		 * \return Returns value of data by using corresponding meta data.
 		 */
 		const map::Value& defaultValue() const;
 		/**
-		 * Assigns 
+		 * Assigns
 		 */
 		void setCustomValue(const map::Value &customValue);
 		const map::Value& customValue() const;
 		QTableWidgetItem* descriptionItem() const;
 		QTableWidgetItem* valueItem() const;
-		
+
 	protected:
 		void update();
-		
-		map::MetaData *m_metaData; // meta data describes which kind of value and description this pair have
-		map::Data *m_data;
+
+		MetaData *m_metaData; // meta data describes which kind of value and description this pair have
+		map::Slk::Cell m_id;
 		map::Value m_customValue;
 		QTableWidgetItem *m_descriptionItem;
 		QTableWidgetItem *m_valueItem;
@@ -97,25 +103,27 @@ inline bool ObjectTableWidgetPair::isDefault() const
 	return customValue() == defaultValue();
 }
 
-inline map::MetaData* ObjectTableWidgetPair::metaData() const
+inline MetaData* ObjectTableWidgetPair::metaData() const
 {
 	return m_metaData;
 }
 
-inline void ObjectTableWidgetPair::setData(map::Data *data)
+inline void ObjectTableWidgetPair::setId(const map::Slk::Cell &id)
 {
-	m_data = data;
+	m_id = id;
 	m_customValue = defaultValue();
 	update();
 }
 
-inline map::Data* ObjectTableWidgetPair::data() const
+inline const map::Slk::Cell& ObjectTableWidgetPair::id() const
 {
-	return m_data;
+	return m_id;
 }
 
 inline const map::Value& ObjectTableWidgetPair::defaultValue() const
 {
+	return this->metaData()->value(this->id(), 0)
+
 	return data()->left.find(metaData())->second;
 }
 

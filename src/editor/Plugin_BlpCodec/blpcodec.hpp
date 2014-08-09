@@ -21,6 +21,8 @@
 #ifndef WC3LIB_EDITOR_BLPCODEC_HPP
 #define WC3LIB_EDITOR_BLPCODEC_HPP
 
+#include <kdemacros.h>
+
 #include <Ogre.h>
 #include <OgreImageCodec.h>
 
@@ -35,7 +37,7 @@ namespace editor
 /**
  * \todo Add MIP map support.
  */
-class BlpCodec : public Ogre::ImageCodec
+class KDE_EXPORT BlpCodec : public Ogre::ImageCodec
 {
 	public:
 		/**

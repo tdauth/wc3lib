@@ -24,6 +24,7 @@
 #include <QFileInfo>
 #include <QDir>
 
+#include <kdemacros.h>
 #include <KUrl>
 
 #include "../core.hpp"
@@ -41,7 +42,7 @@ namespace editor
  * Besides each resource has its corresponding file URL and data source which makes all resource instance completly independent from each other.
  * Resources depend on \ref MpqPriorityList instances, called sources, when being loaded or saved. Therefore one single source instance can be assigned to each resource.
  */
-class Resource
+class KDE_EXPORT Resource
 {
 	public:
 		/**
