@@ -23,6 +23,8 @@ if (EDITOR)
 		add_definitions(${KDE4_DEFINITIONS})
 		include_directories(${KDE4_INCLUDE_DIR} ${KDE4_INCLUDES})
 		link_directories(${KDE4_LIB_DIR})
+		# NOTE enable exception handling which might be disabled by KDE CMake module
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${KDE4_ENABLE_EXCEPTIONS}")
 	endif ()
 
 	# OGRE does not install the CMake file into the module path. It uses the library path instead.

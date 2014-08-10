@@ -173,7 +173,7 @@ void Mdlx::addNode(long32 id, class Node *node) throw (class Exception)
 */
 
 /**
- * This class can be used to display MDLX models by using the OGRE 3D rendering engine.
+ * \brief This class can be used to display MDLX models by using the OGRE 3D rendering engine.
  * It maintains multiple mesh instances which contains all converted data of the original
  * MDLX model's geosets.
  * To create a movable entity of geometry use \ref createEntity().
@@ -259,10 +259,10 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		const Cameras& cameras() const;
 		const CollisionShapes& collisionShapes() const;
 
-		void setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor) throw (Exception);
-		BOOST_SCOPED_ENUM(TeamColor) teamColor() const;
-		void setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow) throw (Exception);
-		BOOST_SCOPED_ENUM(TeamColor) teamGlow() const;
+		void setTeamColor(TeamColor teamColor) throw (Exception);
+		TeamColor teamColor() const;
+		void setTeamGlow(TeamColor teamGlow) throw (Exception);
+		TeamColor teamGlow() const;
 
 		Ogre::String textureName(mdlx::long32 id) const;
 		Ogre::String geosetName(mdlx::long32 id) const;
@@ -371,8 +371,8 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		std::map<const class mdlx::Node*, Ogre::Node*> m_nodes;
 
 		// these members are required for dynamic team glow and color settings
-		BOOST_SCOPED_ENUM(TeamColor) m_teamColor;
-		BOOST_SCOPED_ENUM(TeamColor) m_teamGlow;
+		TeamColor m_teamColor;
+		TeamColor m_teamGlow;
 		TeamColorTextures m_teamColorTextures;
 		TeamColorTextureUnitStates m_teamColorTextureUnitStates;
 		TeamColorTextures m_teamGlowTextures;
