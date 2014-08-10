@@ -24,12 +24,12 @@ if (EDITOR OR PLUGINS)
 		find_package(KDE4) # only for MPQ plugins
 	endif ()
 
-	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_OLD}")
-
 	if (${KDE4_FOUND})
 		include(KDE4Defaults)
 		include_directories(${KDE4_INCLUDE_DIR} ${KDE4_INCLUDES})
 		link_directories(${KDE4_LIB_DIR})
+		# NOTE enable exception handling which might be disabled by KDE CMake module
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${KDE4_ENABLE_EXCEPTIONS}")
 	endif ()
 
 	# OGRE does not install the CMake file into the module path. It uses the library path instead.
