@@ -66,8 +66,8 @@ TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 	scrollArea()->setAlignment(Qt::AlignCenter);
 	scrollArea()->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	scrollArea()->setWidget(imageLabel());
-	scrollArea()->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-	scrollArea()->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+	scrollArea()->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+	scrollArea()->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
 	topLayout()->addWidget(scrollArea());
 
