@@ -31,7 +31,9 @@ namespace wc3lib
 namespace editor
 {
 
-ModelEditorView::ModelEditorView(class ModelEditor *modelEditor, Qt::WFlags f, Ogre::SceneType ogreSceneType, const Ogre::NameValuePairList *ogreParameters) : ModelView(modelEditor->hasEditor() ? modelEditor->editor()->root() : 0, modelEditor, f, ogreSceneType, ogreParameters), m_hitTest(false) /// TODO m_hitTest(true) should be usual, changed for school only
+ModelEditorView::ModelEditorView(Root *root, class ModelEditor *modelEditor, Qt::WFlags f, Ogre::SceneType ogreSceneType, const Ogre::NameValuePairList *ogreParameters)
+: ModelView(root, modelEditor, f, ogreSceneType, ogreParameters)
+, m_hitTest(false) /// TODO m_hitTest(true) should be usual, changed for school only
 {
 }
 
@@ -45,13 +47,13 @@ void ModelEditorView::mousePressEvent(QMouseEvent *event)
 	{
 		//QPoint point(event->globalX() - this->modelView()->x(), event->globalY() - this->modelView()->y());
 		QPoint point(event->x(), event->y());
-		
+
 		qDebug() << "Selection event in model editor trying \"hit test\"!\nCoordinates are (" << point.x() << "|" << point.y() << ")";
 		Ogre::Ray mouseRay = this->camera()->getCameraToViewportRay(point.x() / float(this->width()), point.y() / float(this->height()));
 		// map of selections results sorted by selection distance
 		typedef std::map<Ogre::Real, class OgreMdlx*> Results;
 		Results results;
-		
+
 		/*
 		Ogre::RaySceneQuery *raySceneQuery = this->modelView()->sceneManager()->createRayQuery(mouseRay);
 		raySceneQuery->setRay(mouseRay);
@@ -70,34 +72,34 @@ void ModelEditorView::mousePressEvent(QMouseEvent *event)
 		{
 			OgreMdlx *ogreMdlx = value.second;
 			bool selected = false;
-			
+
 			BOOST_FOREACH(OgreMdlx::CollisionShapes::value_type collisionShapeValue, ogreMdlx->collisionShapes())
 			{
 				OgreMdlx::CollisionShape *collisionShape = collisionShapeValue.second;
 				std::pair<bool, Ogre::Real> result;
-				
+
 				if (collisionShape->shape == mdlx::CollisionShape::Box)
 					result = mouseRay.intersects(*(collisionShape->box));
 				// sphere
 				else
 					result = mouseRay.intersects(*(collisionShape->sphere));
-				
+
 				// intersects
 				if (result.first)
 				{
 					selected = true;
 					results[result.second] = ogreMdlx;
-					
+
 					break;
 				}
 			}
-			
+
 			if (selected)
 				qDebug() << "SELECTED MODEL " << ogreMdlx->mdlx()->model()->name();
 		}
-		
+
 		qDebug() << "Here are all selection results sorted by distance:";
-		
+
 		BOOST_FOREACH(Results::const_reference value, results)
 			qDebug() << "Name \"" << value.second->mdlx()->model()->name() << "\", distance " << value.first;
 				/*
@@ -109,7 +111,7 @@ void ModelEditorView::mousePressEvent(QMouseEvent *event)
 		raySceneQuery = 0;
 		*/
 	}
-	
+
 	ModelView::mousePressEvent(event);
 }
 

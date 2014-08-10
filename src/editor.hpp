@@ -81,5 +81,7 @@ namespace wc3lib
 #include "editor/aieditor/aieditor.hpp"
 #include "editor/campaigneditor/campaigneditor.hpp"
 #include "editor/importmanager/importmanager.hpp"
+#include "editor/modeleditor/modeleditor.hpp"
+#include "editor/modeleditor/modeleditorview.hpp"
 
 #endif

@@ -39,7 +39,23 @@ namespace wc3lib
 namespace editor
 {
 
-ModelView::ModelView(Ogre::Root *root, QWidget *parent, Qt::WFlags f, Ogre::SceneType ogreSceneType, const Ogre::NameValuePairList *ogreParameters) : QWidget(parent, f), m_root(root == 0 ? new Ogre::Root() : root), m_freeRoot(root == 0), m_sceneType(ogreSceneType), m_parameters(ogreParameters), m_renderWindow(0), m_sceneManager(0), m_camera(0), m_viewPort(0), m_changeFarClip(false), m_enableMouseMovement(false), m_enableMouseRotation(false), m_rotateSpeed(1.0), m_moveSpeed(2.0), m_scrollSpeed(0.80), m_yawValue(0.0), m_pitchValue(0.0)
+ModelView::ModelView(Root *root, QWidget *parent, Qt::WFlags f, Ogre::SceneType ogreSceneType, const Ogre::NameValuePairList *ogreParameters)
+: QWidget(parent, f)
+, m_root(root)
+, m_sceneType(ogreSceneType)
+, m_parameters(ogreParameters)
+, m_renderWindow(0)
+, m_sceneManager(0)
+, m_camera(0)
+, m_viewPort(0)
+, m_changeFarClip(false)
+, m_enableMouseMovement(false)
+, m_enableMouseRotation(false)
+, m_rotateSpeed(1.0)
+, m_moveSpeed(2.0)
+, m_scrollSpeed(0.80)
+, m_yawValue(0.0)
+, m_pitchValue(0.0)
 {
 }
 
@@ -57,9 +73,6 @@ ModelView::~ModelView()
 	{
 		this->root()->destroyRenderTarget(this->renderWindow());
 	}
-
-	if (m_freeRoot)
-		delete this->m_root;
 }
 
 void ModelView::centerView()
@@ -104,9 +117,13 @@ void ModelView::render()
 	this->m_root->_fireFrameStarted();
 
 	if (this->m_renderWindow == 0)
+	{
 		initRenderWindow();
+	}
 	else if (this->m_renderWindow->isActive())
+	{
 		this->m_renderWindow->update();
+	}
 
 	this->m_root->_fireFrameRenderingQueued();
 	this->m_root->_fireFrameEnded();
@@ -361,7 +378,9 @@ void ModelView::mouseReleaseEvent(QMouseEvent *event)
 void ModelView::initRenderWindow()
 {
 	if (this->renderWindow() != 0)
+	{
 		return;
+	}
 
 	// Parameters to pass to Ogre::Root::createRenderWindow()
 	Ogre::NameValuePairList params;
@@ -370,7 +389,9 @@ void ModelView::initRenderWindow()
 	// NOTE: Many of the parameters the user can supply (left, top, border, etc) will be ignored
 	// as they are overridden by Qt. Some are still useful (such as FSAA).
 	if(this->m_parameters != 0)
+	{
 		params.insert(this->m_parameters->begin(), this->m_parameters->end());
+	}
 
 	// The external windows handle parameters are platform-specific
 	Ogre::String externalWindowHandleParams;

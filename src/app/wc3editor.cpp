@@ -42,31 +42,36 @@ int main(int argc, char *argv[])
     	options.add("+[file]", ki18n("File to open"));
     	KCmdLineArgs::addCmdLineOptions(options);
 
-	class KApplication app;
+	KApplication app;
 
-	class Editor *editor = new Editor();
+	Root root;
 
-	SplashScreen *splash = new SplashScreen(editor, editor);
-	splash->show();
-	editor->show();
-	editor->addModule(new ModelEditor(editor, editor));
-//	editor->addModule(new ObjectEditor(editor, editor));
-	editor->addModule(new TextureEditor(editor, editor));
-	//editor->addModule(new ModelEditor(editor, editor));
-	TriggerEditor *triggerEditor = new TriggerEditor(editor, editor);
-	editor->addModule(triggerEditor);
-	triggerEditor->show();
-	//TerrainEditor *terrainEditor = new TerrainEditor(editor, editor);
-	//editor->addModule(terrainEditor);
-	//terrainEditor->show();
-	/*
-	/// @todo Allow parsing multiple files as arguments.
-	/// FIXME Crashes application when canceling file dialog.
-	KCmdLineArgs *args = KCmdLineArgs::parsedArgs("+[file]");
+	if (root.configure())
+	{
+		Editor *editor = new Editor(&root);
 
-	for (int i = 0; i < args->count(); ++i)
-		editor.openMap(args->url(i));
-	*/
+		SplashScreen *splash = new SplashScreen(editor, editor);
+		splash->show();
+		editor->show();
+		editor->addModule(new ModelEditor(&root, editor, editor));
+	//	editor->addModule(new ObjectEditor(editor, editor));
+		editor->addModule(new TextureEditor(editor, editor));
+		//editor->addModule(new ModelEditor(editor, editor));
+		TriggerEditor *triggerEditor = new TriggerEditor(editor, editor);
+		editor->addModule(triggerEditor);
+		triggerEditor->show();
+		//TerrainEditor *terrainEditor = new TerrainEditor(editor, editor);
+		//editor->addModule(terrainEditor);
+		//terrainEditor->show();
+		/*
+		/// @todo Allow parsing multiple files as arguments.
+		/// FIXME Crashes application when canceling file dialog.
+		KCmdLineArgs *args = KCmdLineArgs::parsedArgs("+[file]");
+
+		for (int i = 0; i < args->count(); ++i)
+			editor.openMap(args->url(i));
+		*/
+	}
 
 	return app.exec();
 }

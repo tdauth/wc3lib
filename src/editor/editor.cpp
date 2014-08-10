@@ -66,8 +66,8 @@ const KAboutData& Editor::wc3libAboutData()
 	return Editor::m_wc3libAboutData;
 }
 
-Editor::Editor(QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f)
-, m_root(0)
+Editor::Editor(Root *root, QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f)
+, m_root(root)
 , m_currentMap(0)
 , m_actionCollection(new KActionCollection(this))
 , m_modulesActionCollection(new KActionCollection(this))
@@ -162,10 +162,14 @@ Editor::~Editor()
 	// do not delete allocated sub widgets (parent system of Qt already considers) BUT
 	// we should remove modules (e. g. model editor) before freeing root!
 	foreach (Modules::value_type module, modules())
+	{
 		delete module;
+	}
 
 	if (m_root != 0)
+	{
 		delete m_root;
+	}
 }
 
 void Editor::addModule(class Module *module)
@@ -184,43 +188,8 @@ void Editor::addModule(class Module *module)
 	emit this->createdModule(module);
 }
 
-Ogre::Root* Editor::root() const
+Root* Editor::root() const
 {
-	// setup a renderer
-	if (m_root == 0)
-	{
-		const_cast<class Editor*>(this)->m_root = new Ogre::Root();
-
-		const Ogre::RenderSystemList &renderers = m_root->getAvailableRenderers();
-
-		// we need at least one renderer to do anything useful
-		if (!renderers.empty())
-		{
-			Ogre::RenderSystem *renderSystem = renderers.front();
-
-			// user might pass back a null renderer, which would be bad!
-			/*
-			* TEST could we continue without a render system?
-			if (renderSystem == 0)
-				throw Exception();
-			*/
-
-			// configuration is setup automatically by ogre.cfg file
-			if (renderSystem != 0)
-			{
-				renderSystem->setConfigOption("Full Screen", "No");
-				m_root->setRenderSystem(renderSystem);
-				// initialize without creating window
-				m_root->saveConfig();
-				m_root->initialise(false); // don't create a window
-			}
-			else
-				qDebug() << "No render system!";
-		}
-	}
-	//else if (m_root->getRenderSystem()->getConfigOptions()["Full Screen"].currentValue == "Yes")
-		//KMessageBox::information(this, i18n("Full screen is enabled."));
-
 	return m_root;
 }
 

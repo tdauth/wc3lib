@@ -30,6 +30,8 @@
 
 #include <Ogre.h>
 
+#include "root.hpp"
+
 namespace wc3lib
 {
 
@@ -54,11 +56,11 @@ class KDE_EXPORT ModelView : public QWidget
 
 	public:
 		/**
-		 * \param root If this value is 0 a new default \ref Ogre::Root object will be allocated and freed when model view is freed.
+		 * \param root The \ref Root instance of the OGRE 3D graphics system.
 		 * \param ogreSceneType OGRE scene type which will be set for the scene manager of the widget. Should be changed for terrain (ST_EXTERIOR_FAR, ST_EXTERIOR_REAL_FAR).
 		 * \param ogreParameters OGRE window parameters.
 		 */
-		ModelView(Ogre::Root *root = 0, QWidget *parent = 0, Qt::WFlags f = 0, Ogre::SceneType ogreSceneType = Ogre::ST_EXTERIOR_CLOSE, const Ogre::NameValuePairList *ogreParameters = 0);
+		ModelView(Root *root, QWidget *parent = 0, Qt::WFlags f = 0, Ogre::SceneType ogreSceneType = Ogre::ST_EXTERIOR_CLOSE, const Ogre::NameValuePairList *ogreParameters = 0);
 		virtual ~ModelView();
 
 		//virtual void show();
@@ -71,7 +73,7 @@ class KDE_EXPORT ModelView : public QWidget
 		void setPolygonModeWireframe();
 		void setPolygonModeSolid();
 
-		Ogre::Root* root() const;
+		Root* root() const;
 		Ogre::RenderWindow* renderWindow() const;
 		Ogre::SceneManager* sceneManager() const;
 		void setCamera(Ogre::Camera *camera);
@@ -120,8 +122,7 @@ class KDE_EXPORT ModelView : public QWidget
 		bool checkCameraMovementBounds(const Ogre::Vector3 &delta);
 
 		const Ogre::NameValuePairList *m_parameters;
-		Ogre::Root *m_root;
-		bool m_freeRoot;
+		Root *m_root;
 		Ogre::RenderWindow *m_renderWindow;
 
 		// default scene
@@ -145,7 +146,7 @@ class KDE_EXPORT ModelView : public QWidget
 		Ogre::Real m_pitchValue;
 };
 
-inline Ogre::Root* ModelView::root() const
+inline Root* ModelView::root() const
 {
 	return this->m_root;
 }

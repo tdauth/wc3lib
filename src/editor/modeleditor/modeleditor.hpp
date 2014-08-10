@@ -36,7 +36,8 @@
 #include "../module.hpp"
 #include "../ogremdlx.hpp"
 #include "../ogremdlxentity.hpp"
-#include "platform.hpp"
+#include "../root.hpp"
+#include "../platform.hpp"
 
 namespace wc3lib
 {
@@ -59,7 +60,7 @@ class KDE_EXPORT ModelEditor : public Module
 		typedef boost::bimap<QAction*, const mdlx::Camera*> CameraActions;
 		typedef boost::bimap<const OgreMdlx::CollisionShape*, Ogre::SceneNode*> CollisionShapeNodes;
 
-		ModelEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		ModelEditor(Root *root, class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~ModelEditor();
 
 		virtual void show();
@@ -76,13 +77,13 @@ class KDE_EXPORT ModelEditor : public Module
 		/**
 		 * Assigns the team color \p teamColor to all open models in model editor.
 		 */
-		void setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor);
-		BOOST_SCOPED_ENUM(TeamColor) teamColor() const;
+		void setTeamColor(TeamColor teamColor);
+		TeamColor teamColor() const;
 		/**
 		 * Assigns the team glow \p teamGlow to all open models in model editor.
 		 */
-		void setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow);
-		BOOST_SCOPED_ENUM(TeamColor) teamGlow() const;
+		void setTeamGlow(TeamColor teamGlow);
+		TeamColor teamGlow() const;
 
 	public slots:
 		void openFile();
@@ -146,8 +147,8 @@ class KDE_EXPORT ModelEditor : public Module
 		class KAction *m_showStatsAction;
 		class KAction *m_showCollisionShapesAction;
 
-		BOOST_SCOPED_ENUM(TeamColor) m_teamColor;
-		BOOST_SCOPED_ENUM(TeamColor) m_teamGlow;
+		TeamColor m_teamColor;
+		TeamColor m_teamGlow;
 };
 
 inline class ModelEditorView* ModelEditor::modelView() const

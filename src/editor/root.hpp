@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2012 by Tamino Dauth                                    *
+ *   Copyright (C) 2014 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,48 +18,41 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <QScopedPointer>
+#ifndef WC3LIB_EDITOR_ROOT_HPP
+#define WC3LIB_EDITOR_ROOT_HPP
 
-#include <KApplication>
-#include <KAboutData>
-#include <KCmdLineArgs>
-#include <KLocale>
+#include <kdemacros.h>
 
 #include <Ogre.h>
 
-#include "../editor.hpp"
-
-using namespace wc3lib::editor;
-
-int main(int argc, char *argv[])
+namespace wc3lib
 {
-	KAboutData aboutData(Editor::aboutData());
 
-	KCmdLineArgs::init(argc, argv, &aboutData);
-	KCmdLineOptions options;
-	options.add("", ki18n("Additional help."));
-	options.add("+[file]", ki18n("File to open"));
-	KCmdLineArgs::addCmdLineOptions(options);
+namespace editor
+{
 
-	KApplication app;
+/**
+ * \brief Wrapper class for \ref Ogre::Root which handles the configuration paths.
+ *
+ * Use \ref configure() to make sure the renderer system is configured.
+ */
+class KDE_EXPORT Root : public Ogre::Root
+{
+	public:
+		Root();
 
-	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
-	Root root;
+		/**
+		 * \return Returns true if the configuration succeeded.
+		 */
+		bool configure();
 
-	if (root.configure())
-	{
-		ModelEditor *editor = new ModelEditor(&root, source.data());
+	private:
+		Ogre::String m_pluginsCfg;
+		Ogre::String m_ogreCfg;
+};
 
-		editor->show();
-
-		KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
-
-		if (args != 0)
-		{
-			for (int i = 0; i < args->count(); ++i)
-				editor->openUrl(args->url(i));
-		}
-	}
-
-	return app.exec();
 }
+
+}
+
+#endif

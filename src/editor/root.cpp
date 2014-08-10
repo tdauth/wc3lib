@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2012 by Tamino Dauth                                    *
+ *   Copyright (C) 2014 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,48 +18,55 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <QScopedPointer>
+#include <QtCore>
 
-#include <KApplication>
-#include <KAboutData>
-#include <KCmdLineArgs>
-#include <KLocale>
+#include "root.hpp"
+#include "../config.h"
 
-#include <Ogre.h>
-
-#include "../editor.hpp"
-
-using namespace wc3lib::editor;
-
-int main(int argc, char *argv[])
+namespace wc3lib
 {
-	KAboutData aboutData(Editor::aboutData());
 
-	KCmdLineArgs::init(argc, argv, &aboutData);
-	KCmdLineOptions options;
-	options.add("", ki18n("Additional help."));
-	options.add("+[file]", ki18n("File to open"));
-	KCmdLineArgs::addCmdLineOptions(options);
+namespace editor
+{
 
-	KApplication app;
+/*
+ * Define as static constants due to initialization order.
+ */
+#ifdef DEBUG
+static const char* ogreCfg = "ogre.cfg";
+static const char* pluginsCfg = "plugins.cfg";
+#else
+#ifdef Q_OS_UNIX
+static const char* ogreCfg = "/etc/wc3lib/ogre.cfg";
+static const char* pluginsCfg = "/etc/wc3lib/plugins.cfg";
+#else // TODO set Windows paths
+static const char* ogreCfg = "ogre.cfg";
+static const char* pluginsCfg = "plugins.cfg";
+#endif
+#endif
 
-	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
-	Root root;
+Root::Root()
+: Ogre::Root(pluginsCfg, ogreCfg)
+, m_ogreCfg(ogreCfg)
+, m_pluginsCfg(pluginsCfg)
+{
+#ifdef DEBUG
+	qDebug() << "Using debug paths: " << pluginsCfg << " and " << ogreCfg;
+#endif
+}
 
-	if (root.configure())
+bool Root::configure()
+{
+	// configure
+	// Show the configuration dialog and initialise the system
+	if(!restoreConfig())
 	{
-		ModelEditor *editor = new ModelEditor(&root, source.data());
-
-		editor->show();
-
-		KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
-
-		if (args != 0)
-		{
-			for (int i = 0; i < args->count(); ++i)
-				editor->openUrl(args->url(i));
-		}
+		return showConfigDialog();
 	}
 
-	return app.exec();
+	return true;
+}
+
+}
+
 }

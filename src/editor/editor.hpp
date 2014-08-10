@@ -31,6 +31,7 @@
 #include "platform.hpp"
 #include "mpqprioritylist.hpp"
 #include "newmapdialog.hpp"
+#include "root.hpp"
 
 namespace wc3lib
 {
@@ -90,7 +91,7 @@ class KDE_EXPORT Editor : public KMainWindow, public MpqPriorityList
 		static const KAboutData& aboutData();
 		static const KAboutData& wc3libAboutData();
 
-		Editor(QWidget *parent = 0, Qt::WindowFlags f = Qt::Window);
+		Editor(Root *root, QWidget *parent = 0, Qt::WindowFlags f = Qt::Window);
 		virtual ~Editor();
 
 		/**
@@ -105,7 +106,7 @@ class KDE_EXPORT Editor : public KMainWindow, public MpqPriorityList
 		 * \throw Exception Throws an exception if no available renderer was found.
 		 * \todo Support "ogre.cfg" and "plugins.cfg" path options (for \ref ModelView as well).
 		 */
-		Ogre::Root* root() const;
+		Root* root() const;
 		class Map* currentMap() const;
 
 		/**
@@ -169,7 +170,7 @@ class KDE_EXPORT Editor : public KMainWindow, public MpqPriorityList
 		static KAboutData m_aboutData;
 		static KAboutData m_wc3libAboutData;
 
-		Ogre::Root *m_root;
+		Root *m_root;
 		class Map *m_currentMap;
 
 		class KActionCollection *m_actionCollection;

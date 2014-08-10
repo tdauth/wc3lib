@@ -22,6 +22,7 @@
 #define WC3LIB_EDITOR_MODELEDITORVIEW_HPP
 
 #include "../modelview.hpp"
+#include "../root.hpp"
 
 namespace wc3lib
 {
@@ -35,17 +36,17 @@ namespace editor
 class ModelEditorView : public ModelView
 {
 	public:
-		ModelEditorView(class ModelEditor *modelEditor, Qt::WFlags f = 0, Ogre::SceneType ogreSceneType = Ogre::ST_EXTERIOR_CLOSE, const Ogre::NameValuePairList *ogreParameters = 0);
+		ModelEditorView(Root *root, class ModelEditor *modelEditor, Qt::WFlags f = 0, Ogre::SceneType ogreSceneType = Ogre::ST_EXTERIOR_CLOSE, const Ogre::NameValuePairList *ogreParameters = 0);
 		virtual ~ModelEditorView();
-		
+
 		class ModelEditor* modelEditor() const;
 		void setHitTest(bool hitTest);
 		bool hitTest() const;
-		
+
 	protected:
 		/// Implements "hit test" based selection. \sa ModelEditor::hitTest.
 		virtual void mousePressEvent(QMouseEvent *event);
-		
+
 		class ModelEditor *m_modelEditor;
 		bool m_hitTest;
 };

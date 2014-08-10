@@ -84,6 +84,7 @@ if (EDITOR)
 		renderstatswidget.hpp
 		rendersystemsettings.hpp
 		resource.hpp
+		root.hpp
 		settings.hpp
 		settingsinterface.hpp
 		sourcesdialog.hpp
@@ -112,6 +113,7 @@ if (EDITOR)
 		renderstatswidget.cpp
 		rendersystemsettings.cpp
 		resource.cpp
+		root.cpp
 		settings.cpp
 		settingsinterface.cpp
 		sourcesdialog.cpp

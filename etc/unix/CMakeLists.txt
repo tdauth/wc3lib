@@ -1,0 +1,1 @@
+install (FILES ogre.cfg plugins.cfg DESTINATION /etc)

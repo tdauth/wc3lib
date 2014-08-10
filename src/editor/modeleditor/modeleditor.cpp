@@ -48,7 +48,20 @@ namespace wc3lib
 namespace editor
 {
 
-ModelEditor::ModelEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_modelView(new ModelEditorView(this)), m_settingsDialog(0), m_recentUrl(""), m_models(), m_viewMenu(0), m_renderStatsWidget(0), m_showStatsAction(0), m_teamColorDialog(0), m_teamGlowDialog(0), m_showCollisionShapesAction(0), m_teamColor(TeamColor::Red), m_teamGlow(TeamColor::Red)
+ModelEditor::ModelEditor(Root *root, class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f)
+: Module(source, parent, f)
+, m_modelView(new ModelEditorView(root, this))
+, m_settingsDialog(0)
+, m_recentUrl("")
+, m_models()
+, m_viewMenu(0)
+, m_renderStatsWidget(0)
+, m_showStatsAction(0)
+, m_teamColorDialog(0)
+, m_teamGlowDialog(0)
+, m_showCollisionShapesAction(0)
+, m_teamColor(TeamColor::Red)
+, m_teamGlow(TeamColor::Red)
 {
 	Module::setupUi();
 	//this->modelView()->setMinimumSize(QSize(640, 480));
