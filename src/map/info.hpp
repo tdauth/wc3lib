@@ -35,6 +35,7 @@ namespace map
  * \brief The info file ("war3map.w3i") covers basic map information such as players, forces, available researches and random unit tables of the map.
  *
  * This class supports the format for Warcraft III: Reign of Chaos.
+ * All types like players or forces are supported by nested classes.
  *
  * \todo Implement InfoX for expansion.
  */
@@ -44,6 +45,8 @@ class Info : public FileFormat
 		class Player : public Format
 		{
 			public:
+				typedef Vertex2d<float32> Position;
+
 				enum class Type : int32
 				{
 					Human = 1,
@@ -68,7 +71,7 @@ class Info : public FileFormat
 				Race race() const;
 				bool hasFixedStartPosition() const;
 				const string& name() const;
-				const Vertex2d<float32>& position() const;
+				const Position& position() const;
 				int32 allowLowPriorityFlags() const;
 				int32 allowHighPriorityFlags() const;
 
@@ -78,7 +81,7 @@ class Info : public FileFormat
 				Race m_race;
 				bool m_hasFixedStartPosition; /// \ref int32
 				string m_name;
-				Vertex2d<float32> m_position;
+				Position m_position;
 				int32 m_allowLowPriorityFlags;
 				int32 m_allowHighPriorityFlags;
 
@@ -234,11 +237,11 @@ class Info : public FileFormat
 		virtual std::streamsize read(InputStream &istream) throw (class Exception) override;
 		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception) override;
 
-		virtual const byte* fileTextId() const;
-		virtual uint32 latestFileVersion() const;
-		virtual const byte* fileName() const;
+		virtual const byte* fileTextId() const override;
+		virtual uint32 latestFileVersion() const override;
+		virtual const byte* fileName() const override;
 
-		virtual uint32 version() const;
+		virtual uint32 version() const override;
 
 		int32 mapVersion() const;
 		int32 editorVersion() const;
@@ -281,6 +284,19 @@ class Info : public FileFormat
 		 * Empties players, forces, availabilities and tables.
 		 */
 		void clear();
+
+		/**
+		 * Calculates the actual integer value by using \ref cameraBounds() and \ref playableWidth() or \ref playableHeight().
+		 * The actual width for example is: camera bound[0] + playable width + camera bound[1]
+		 * The actual height is: camera bound[2] + playable height + camera bound[3]
+		 *
+		 * @{
+		 */
+		int32 calculateMapWidth() const;
+		int32 calculateMapHeight() const;
+		/**
+		 * @}
+		 */
 
 	protected:
 		uint32 m_version;
@@ -336,7 +352,7 @@ inline const string& Info::Player::name() const
 	return m_name;
 }
 
-inline const Vertex2d<float32>& Info::Player::position() const
+inline const Info::Player::Position& Info::Player::position() const
 {
 	return m_position;
 }

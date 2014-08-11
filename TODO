@@ -1,3 +1,15 @@
+2014-08-11 Tamino Dauth <tamino@cdauth.eu>
+* Test "war3map.w3u" support with War Chasers map (Modifications etc.).
+* Test "war3map.w3i" with map which has random unit tables (custom map).
+* Improve War Chasers "war3map.w3i" test.
+* mpq: Allow opening archives in readonly modes which does not lock the file (which needs writing permission), see class editor::Map.
+* mpq: Fix decompression error for War Chasers minimap (Bzip2).
+* mpq: Add Unit Tests with different files created by another MPQ supporting tool (an external tool please such as StormLib).
+* Fix StormLib comparison tests (latest version of StormLib on github has a changed API!).
+* editor: Fix renderer freeze when creating a render window in editor::ModelView.
+* fix CMake module to find wc3lib.
+* Compile on Windows!
+
 2014-07-01 Tamino Dauth <tamino@cdauth.eu>
 * mdlx: Create MDL grammar based on Boost Spirit Qi.
 * mdlx: Create MDL generator based on Boost Spirit Karma.
@@ -18,7 +30,7 @@
 2013-10-13 Tamino Dauth <tamino@cdauth.eu>
 * kio_mpq: Caching/storing (listfile) entries would be more efficient (maybe for mpq io slave only).
 * kio_mpq: Improve performance on reading/getting files (drop copying buffers).
-* textureeditor: Use frame with automatic scroll bars to prevent resizing on image display!
+* DONE: textureeditor: Use frame with automatic scroll bars to prevent resizing on image display!
 * map::Txt: UI/WorldEditStrings.txt cannot be parsed?
 
 2013-10-10 Tamino Dauth <tamino@cdauth.eu>
@@ -127,7 +139,7 @@ Skipping file.
 2012-03-08 Tamino Dauth <tamino@cdauth.eu>
 * Use lib vars from "/usr/share/apps/cmake/modules/FindKDE4Internal.cmake".
 * editor: ModelEditor/OGRE crashes with mesa 8 and higher.
-* editor: Fix releasing removing resources on release.
+* DONE: editor: Fix releasing removing resources on release.
 
 2012-02-24 Tamino Dauth <tamino@cdauth.eu>
 * Test mdlx revision and rendering.

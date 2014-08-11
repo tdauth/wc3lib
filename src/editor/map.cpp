@@ -39,7 +39,17 @@ void Map::load() throw (Exception)
 	QString target;
 
 	if (!this->source()->download(url(), target, 0))
-		throw Exception();
+	{
+		throw Exception(boost::format(_("Error on downloading %1%.")) % url().toEncoded().constData());
+	}
+
+	// TODO should not be locked by default
+	QFileInfo info(target);
+
+	if (!info.isWritable())
+	{
+		throw Exception(boost::format(_("File must be writable since MPQ archives are locked by default.")));
+	}
 
 	ifstream istream(target.toUtf8().constData(), std::ios::in | std::ios::binary);
 

@@ -416,6 +416,18 @@ void Info::clear()
 	this->randomUnitTables().clear();
 }
 
+int32 Info::calculateMapWidth() const
+{
+	return this->m_cameraBounds[0] + this->playableWidth() + this->m_cameraBounds[1];
+}
+
+
+int32 Info::calculateMapHeight() const
+{
+	return this->m_cameraBounds[2] + this->playableHeight() + this->m_cameraBounds[3];
+}
+
+
 }
 
 }
