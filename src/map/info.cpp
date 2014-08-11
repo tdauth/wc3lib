@@ -78,12 +78,21 @@ std::streamsize Info::Force::write(OutputStream &ostream) const throw (Exception
 	return size;
 }
 
+Info::UpgradeAvailability::UpgradeAvailability()
+: m_playerMask(0)
+, m_upgrade(0)
+, m_level(0)
+, m_availability(Availability::Unavailable)
+{
+}
+
 std::streamsize Info::UpgradeAvailability::read(InputStream &istream) throw (Exception)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, m_playerMask, size);
 	wc3lib::read(istream, m_upgrade, size);
 	wc3lib::read(istream, m_level, size);
+	wc3lib::read(istream, m_availability, size);
 
 	return size;
 }
@@ -94,6 +103,7 @@ std::streamsize Info::UpgradeAvailability::write(OutputStream &ostream) const th
 	wc3lib::write(ostream, playerMask(), size);
 	wc3lib::write(ostream, upgrade(), size);
 	wc3lib::write(ostream, level(), size);
+	wc3lib::write<int32>(ostream, static_cast<int32>(availability()), size);
 
 	return size;
 }
@@ -116,6 +126,28 @@ std::streamsize Info::TechAvailability::write(OutputStream &ostream) const throw
 	return size;
 }
 
+
+Info::RandomUnitTable::Group::Column::Column() : m_type(Column::Type::UnitTable)
+{
+
+}
+
+std::streamsize Info::RandomUnitTable::Group::Column::read(InputStream& istream) throw (Exception)
+{
+	std::streamsize size = 0;
+	wc3lib::read<int32>(istream, (int32&)m_type, size);
+
+	return size;
+}
+
+std::streamsize Info::RandomUnitTable::Group::Column::write(OutputStream& ostream) const throw (Exception)
+{
+	std::streamsize size = 0;
+	wc3lib::write<int32>(ostream, static_cast<int32>(type()), size);
+
+	return size;
+}
+
 std::streamsize Info::RandomUnitTable::Group::read(InputStream &istream) throw (Exception)
 {
 	std::streamsize size = 0;
@@ -128,26 +160,29 @@ std::streamsize Info::RandomUnitTable::Group::read(InputStream &istream) throw (
 	// columns
 	for (int32 i = 0; i < number; ++i)
 	{
-		Column::Type type = Column::Type::UnitTable;
-		wc3lib::read<int32>(istream, (int32&)type, size);
 		std::auto_ptr<Column> ptr(new Column());
-		ptr->setType(type);
+		size += ptr->read(istream);
 		m_columns.push_back(ptr);
 	}
 
-	// rows
+	// number of rows
 	wc3lib::read(istream, number, size);
 	m_chances.resize(number);
 
 	for (int32 i = 0; i < columns().size(); ++i)
+	{
 		columns()[i].rows().resize(number);
+	}
 
 	for (int32 i = 0; i < number; ++i)
 	{
 		wc3lib::read(istream, m_chances[i], size);
 
+		// read the id per column of the row
 		for (int32 j = 0; j < columns().size(); ++j)
+		{
 			wc3lib::read(istream, columns()[j].rows()[i], size);
+		}
 	}
 
 	return size;
@@ -161,7 +196,9 @@ std::streamsize Info::RandomUnitTable::Group::write(OutputStream &ostream) const
 	wc3lib::write<int32>(ostream, columns().size(), size);
 
 	BOOST_FOREACH(Columns::const_reference column, columns())
-		wc3lib::write(ostream, column.type(), size);
+	{
+		size += column.write(ostream);
+	}
 
 	// rows
 	wc3lib::write<int32>(ostream, chances().size(), size);
@@ -172,7 +209,9 @@ std::streamsize Info::RandomUnitTable::Group::write(OutputStream &ostream) const
 		wc3lib::write(ostream, chance, size);
 
 		BOOST_FOREACH(Columns::const_reference column, columns())
+		{
 			wc3lib::write(ostream, column.rows()[i], size);
+		}
 
 		++i;
 	}
@@ -203,7 +242,9 @@ std::streamsize Info::RandomUnitTable::write(OutputStream &ostream) const throw 
 	wc3lib::write<int32>(ostream, groups().size(), size);
 
 	BOOST_FOREACH(Groups::const_reference group, groups())
+	{
 		size += group.write(ostream);
+	}
 
 	return size;
 }
@@ -213,9 +254,10 @@ std::streamsize Info::read(InputStream &istream) throw (class Exception)
 	std::streamsize size = 0;
 	wc3lib::read(istream, m_version, size);
 
-	// FIXME we're reading version 18 but 13 is latest!
 	if (version() != latestFileVersion())
+	{
 		std::cerr << boost::format(_("Info: Unsupported version %1%. Latest version is %2%.")) % version() % latestFileVersion() << std::endl;
+	}
 
 	wc3lib::read(istream, m_mapVersion, size);
 	wc3lib::read(istream, m_editorVersion, size);
@@ -238,7 +280,7 @@ std::streamsize Info::read(InputStream &istream) throw (class Exception)
 	wc3lib::readString(istream, m_prologueScreenTitle, size);
 	wc3lib::readString(istream, m_prologueScreenSubtitle, size);
 
-	int32 number;
+	int32 number = 0;
 	wc3lib::read(istream, number, size);
 	m_players.reserve(number);
 
@@ -249,6 +291,7 @@ std::streamsize Info::read(InputStream &istream) throw (class Exception)
 		m_players.push_back(player);
 	}
 
+	number = 0;
 	wc3lib::read(istream, number, size);
 	m_forces.reserve(number);
 
@@ -259,6 +302,7 @@ std::streamsize Info::read(InputStream &istream) throw (class Exception)
 		m_forces.push_back(force);
 	}
 
+	number = 0;
 	wc3lib::read(istream, number, size);
 	m_upgradeAvailabilities.reserve(number);
 
@@ -297,7 +341,9 @@ std::streamsize Info::write(OutputStream &ostream) const throw (class Exception)
 	std::streamsize size = 0;
 
 	if (version() != latestFileVersion())
+	{
 		std::cerr << boost::format(_("Info: Unsupported version %1%. Latest version is %2%.")) % version() % latestFileVersion() << std::endl;
+	}
 
 	wc3lib::write(ostream, version(), size);
 	wc3lib::write(ostream, mapVersion(), size);
@@ -306,8 +352,9 @@ std::streamsize Info::write(OutputStream &ostream) const throw (class Exception)
 	wc3lib::writeString(ostream, author(), size);
 	wc3lib::writeString(ostream, description(), size);
 	wc3lib::writeString(ostream, playersRecommended(), size);
-	wc3lib::write(ostream, cameraBoundsJass(), size);
-	wc3lib::write(ostream, cameraBounds(), size);
+	// TODO write arrays by using member functions and sizes
+	wc3lib::write(ostream, m_cameraBoundsJass, size);
+	wc3lib::write(ostream, m_cameraBounds, size);
 	wc3lib::write(ostream, playableWidth(), size);
 	wc3lib::write(ostream, playableHeight(), size);
 	wc3lib::write<int32>(ostream, static_cast<int32>(flags()), size);
@@ -324,30 +371,49 @@ std::streamsize Info::write(OutputStream &ostream) const throw (class Exception)
 	wc3lib::write<int32>(ostream, players().size(), size);
 
 	BOOST_FOREACH(Players::const_reference player, players())
+	{
 		size += player.write(ostream);
+	}
 
 
 	wc3lib::write<int32>(ostream, forces().size(), size);
 
 	BOOST_FOREACH(Forces::const_reference force, forces())
+	{
 		size += force.write(ostream);
+	}
 
 	wc3lib::write<int32>(ostream, upgradeAvailabilities().size(), size);
 
 	BOOST_FOREACH(UpgradeAvailabilities::const_reference upgradeAvailability, upgradeAvailabilities())
+	{
 		size += upgradeAvailability.write(ostream);
+	}
 
 	wc3lib::write<int32>(ostream, techAvailabilities().size(), size);
 
 	BOOST_FOREACH(TechAvailabilities::const_reference techAvailability, techAvailabilities())
+	{
 		size += techAvailability.write(ostream);
+	}
 
 	wc3lib::write<int32>(ostream, randomUnitTables().size(), size);
 
 	BOOST_FOREACH(RandomUnitTables::const_reference randomUnitTable, randomUnitTables())
+	{
 		size += randomUnitTable.write(ostream);
+	}
 
 	return size;
+}
+
+void Info::clear()
+{
+	this->players().clear();
+	this->forces().clear();
+	this->upgradeAvailabilities().clear();
+	this->techAvailabilities().clear();
+	this->randomUnitTables().clear();
 }
 
 }

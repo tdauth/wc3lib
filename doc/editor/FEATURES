@@ -40,3 +40,6 @@ New modules:
 * MPQ editor
 * Model editor
 * Texture editor
+
+Upgrade availability:
+* can be optimized by removing available entries.

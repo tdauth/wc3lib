@@ -31,7 +31,13 @@ namespace wc3lib
 namespace map
 {
 
-/// \todo Implement InfoX for expansion.
+/**
+ * \brief The info file ("war3map.w3i") covers basic map information such as players, forces, available researches and random unit tables of the map.
+ *
+ * This class supports the format for Warcraft III: Reign of Chaos.
+ *
+ * \todo Implement InfoX for expansion.
+ */
 class Info : public FileFormat
 {
 	public:
@@ -113,19 +119,27 @@ class Info : public FileFormat
 					Researched = 2
 				};
 
+				UpgradeAvailability();
+
 				virtual std::streamsize read(InputStream &istream) throw (Exception) override;
 				virtual std::streamsize write(OutputStream &ostream) const throw (Exception) override;
 
 				int32 playerMask() const;
 				id upgrade() const;
 				int32 level() const;
+				Availability availability() const;
 
 			protected:
 				int32 m_playerMask; // (bit "x"=1 if this change applies for player "x")
 				id m_upgrade; // upgrade id (as in UpgradeData.slk)
 				int32 m_level; // Level of the upgrade for which the availability is changed (this is actually the level - 1, so 1 => 0)
+				Availability m_availability;
 		};
 
+		/**
+		 * We do not need to specify the availability.
+		 * If it is in the list that means "not available".
+		 */
 		class TechAvailability : public Format
 		{
 			public:
@@ -146,7 +160,7 @@ class Info : public FileFormat
 				class Group : public Format
 				{
 					public:
-						class Column
+						class Column : public Format
 						{
 							public:
 								typedef std::vector<id> Rows;
@@ -157,6 +171,11 @@ class Info : public FileFormat
 									BuildingTable = 1,
 									ItemTable = 2
 								};
+
+								Column();
+
+								virtual std::streamsize read(InputStream &istream) throw (Exception) override;
+								virtual std::streamsize write(OutputStream &ostream) const throw (Exception) override;
 
 								void setType(Type type);
 								Type type() const;
@@ -172,6 +191,9 @@ class Info : public FileFormat
 						};
 
 						typedef boost::ptr_vector<Column> Columns;
+						/**
+						 * Chances are set per row.
+						 */
 						typedef std::vector<int32> Chances;
 
 						virtual std::streamsize read(InputStream &istream) throw (Exception) override;
@@ -181,6 +203,7 @@ class Info : public FileFormat
 						const string& name() const;
 						Columns& columns();
 						const Columns& columns() const;
+						Chances& chances();
 						const Chances& chances() const;
 
 					protected:
@@ -243,11 +266,21 @@ class Info : public FileFormat
 		const string& prologueScreenText() const;
 		const string& prologueScreenTitle() const;
 		const string& prologueScreenSubtitle() const;
+		Players& players();
 		const Players& players() const;
+		Forces& forces();
 		const Forces& forces() const;
+		UpgradeAvailabilities& upgradeAvailabilities();
 		const UpgradeAvailabilities& upgradeAvailabilities() const;
+		TechAvailabilities& techAvailabilities();
 		const TechAvailabilities& techAvailabilities() const;
+		RandomUnitTables& randomUnitTables();
 		const RandomUnitTables& randomUnitTables() const;
+
+		/**
+		 * Empties players, forces, availabilities and tables.
+		 */
+		void clear();
 
 	protected:
 		uint32 m_version;
@@ -349,6 +382,11 @@ inline int32 Info::UpgradeAvailability::level() const
 	return m_level;
 }
 
+inline Info::UpgradeAvailability::Availability Info::UpgradeAvailability::availability() const
+{
+	return m_availability;
+}
+
 inline int32 Info::TechAvailability::playerMask() const
 {
 	return m_playerMask;
@@ -397,6 +435,11 @@ inline Info::RandomUnitTable::Group::Columns& Info::RandomUnitTable::Group::colu
 inline const Info::RandomUnitTable::Group::Columns& Info::RandomUnitTable::Group::columns() const
 {
 	return m_columns;
+}
+
+inline Info::RandomUnitTable::Group::Chances& Info::RandomUnitTable::Group::chances()
+{
+	return m_chances;
 }
 
 inline const Info::RandomUnitTable::Group::Chances& Info::RandomUnitTable::Group::chances() const
@@ -529,9 +572,19 @@ inline const string& Info::prologueScreenSubtitle() const
 	return m_prologueScreenSubtitle;
 }
 
+inline Info::Players& Info::players()
+{
+	return this->m_players;
+}
+
 inline const Info::Players& Info::players() const
 {
 	return m_players;
+}
+
+inline Info::Forces& Info::forces()
+{
+	return this->m_forces;
 }
 
 inline const Info::Forces& Info::forces() const
@@ -539,14 +592,29 @@ inline const Info::Forces& Info::forces() const
 	return m_forces;
 }
 
+inline Info::UpgradeAvailabilities& Info::upgradeAvailabilities()
+{
+	return this->m_upgradeAvailabilities;
+}
+
 inline const Info::UpgradeAvailabilities& Info::upgradeAvailabilities() const
 {
 	return m_upgradeAvailabilities;
 }
 
+inline Info::TechAvailabilities& Info::techAvailabilities()
+{
+	return this->m_techAvailabilities;
+}
+
 inline const Info::TechAvailabilities& Info::techAvailabilities() const
 {
 	return m_techAvailabilities;
+}
+
+inline Info::RandomUnitTables& Info::randomUnitTables()
+{
+	return this->m_randomUnitTables;
 }
 
 inline const Info::RandomUnitTables& Info::randomUnitTables() const
