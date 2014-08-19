@@ -56,7 +56,6 @@ Block::Block(uint32 index)
 , m_blockSize(0)
 , m_fileSize(0)
 , m_flags(Block::Flags::None)
-, m_file(0)
 {
 }
 

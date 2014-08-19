@@ -26,6 +26,10 @@ namespace wc3lib
 namespace mpq
 {
 
+Signature::Signature() : MpqFile()
+{
+}
+
 #ifdef USE_ENCRYPTION
 bool Signature::check(const CryptoPP::RSA::PrivateKey &privateKey) const
 {
@@ -67,7 +71,7 @@ MD5 Signature::storedChecksum(const CryptoPP::RSA::PrivateKey &privateKey)
 {
 	arraystream stream;
 	std::streamsize bufferSize = this->writeData(stream);
-	byte *buffer;
+	byte *buffer = 0;
 	stream >> buffer; // TODO Don't copy!
 	// decrypting digest
 	CryptoPP::RSAES_OAEP_SHA_Decryptor decryptor(privateKey);

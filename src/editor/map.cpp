@@ -59,9 +59,9 @@ void Map::load() throw (Exception)
 	if (map->triggers().get() != 0)
 	{
 		// triggers have to be loaded separately when trigger data file ("UI/TriggerData.txt") is available
-		mpq::MpqFile *file = map->findFile(map->triggers()->fileName());
+		mpq::MpqFile file = map->findFile(map->triggers()->fileName());
 
-		if (file != 0)
+		if (file.isValid())
 		{
 			if (source()->sharedData()->triggerData().get() == 0)
 			{
@@ -71,7 +71,7 @@ void Map::load() throw (Exception)
 			// TODO data has to be refreshed somewhere in GUI
 			//source()->refreshTriggerData(); // if trigger data is not available we cannot load trigger data
 			stringstream stream;
-			file->writeData(stream);
+			file.writeData(stream);
 			map->triggers()->read(stream, *source()->sharedData()->triggerData());
 		}
 		else

@@ -53,9 +53,9 @@ W3m::~W3m()
 std::streamsize W3m::readFileFormat(FileFormat *format) throw (Exception)
 {
 	std::streamsize size = 0;
-	mpq::MpqFile *file = this->findFile(format->fileName());
+	mpq::MpqFile file = this->findFile(format->fileName());
 
-	if (file != 0)
+	if (file.isValid())
 	{
 		/*
 			* FIXME
@@ -66,7 +66,7 @@ std::streamsize W3m::readFileFormat(FileFormat *format) throw (Exception)
 
 		try
 		{
-			file->writeData(stream);
+			file.writeData(stream);
 			size += format->read(stream);
 		}
 		catch (std::exception &exception)
@@ -121,9 +121,9 @@ std::streamsize W3m::read(InputStream &istream) throw (class Exception)
 std::streamsize W3m::readTriggers(const TriggerData &triggerData) throw (class Exception)
 {
 	std::streamsize size = 0;
-	mpq::MpqFile *file = this->findFile(m_triggers.get()->fileName());
+	mpq::MpqFile file = this->findFile(m_triggers.get()->fileName());
 
-	if (file != 0)
+	if (file.isValid())
 	{
 		/*
 		 * FIXME
@@ -134,7 +134,7 @@ std::streamsize W3m::readTriggers(const TriggerData &triggerData) throw (class E
 
 		try
 		{
-			file->writeData(stream);
+			file.writeData(stream);
 			size += m_triggers.get()->read(stream, triggerData);
 		}
 		catch (std::exception &exception)

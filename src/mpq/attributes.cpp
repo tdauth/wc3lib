@@ -58,6 +58,9 @@ bool Attributes::checkMd5(const byte *data, std::size_t dataSize, MD5 md5)
 	return mpq::md5(data, dataSize) == md5;
 }
 
+Attributes::Attributes() : MpqFile()
+{
+}
 
 void Attributes::removeData()
 {

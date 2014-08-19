@@ -31,7 +31,6 @@ namespace mpq
 {
 
 class Mpq;
-class MpqFile;
 
 /**
  * \brief Blocks are used to provide data for a file in an MPQ archive.
@@ -116,12 +115,6 @@ class Block : public Format, private boost::noncopyable
 		Flags flags() const;
 
 		/**
-		 * \return Returns the corresponding file of the block. Each block has one corresponding file.
-		 */
-		MpqFile* file() const;
-		// extended attributes
-
-		/**
 		 * Calculates the hash key for the given file name \p fileName.
 		 * If the file's block is encrypted (\ref Flags::UsesEncryptionKey) it also has to be decrypted.
 		 *
@@ -143,17 +136,15 @@ class Block : public Format, private boost::noncopyable
 		friend std::auto_ptr<Block>;
 
 		/**
-		 * The constructor has to fill the block data which cannot be read directly from a \ref BlockTableEntry
-		 * except for the corresponding file which is set to 0 by default.
+		 * The constructor has to fill the block data which cannot be read directly from a \ref BlockTableEntry.
 		 *
-		 * \note The file and the extended block offset have to be set using \ref setFile() and \ref setExtendedBlockOffset().
+		 * \note The extended block offset have to be set using \ref setFile() and \ref setExtendedBlockOffset().
 		 */
 		Block(uint32 index);
 		virtual ~Block();
 
 		std::streamsize read(istream &istream) throw (class Exception);
 
-		void setFile(MpqFile *file);
 		void setFileSize(uint32 fileSize);
 		void setBlockSize(uint32 blockSize);
 		void setExtendedBlockOffset(uint16 extendedBlockOffset);
@@ -167,7 +158,6 @@ class Block : public Format, private boost::noncopyable
 		uint32 m_blockSize;
 		uint32 m_fileSize;
 		Flags m_flags;
-		MpqFile *m_file;
 };
 
 inline constexpr bool operator&(Block::Flags x, Block::Flags y)
@@ -243,16 +233,6 @@ inline void Block::setFlags(Flags flags)
 inline Block::Flags Block::flags() const
 {
 	return this->m_flags;
-}
-
-inline void Block::setFile(MpqFile* file)
-{
-	this->m_file = file;
-}
-
-inline MpqFile *Block::file() const
-{
-	return this->m_file;
 }
 
 inline BlockTableEntry Block::toBlockTableEntry() const

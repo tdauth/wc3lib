@@ -65,7 +65,7 @@ extern "C" int KDE_EXPORT kdemain(int argc, char **argv)
 
 const char *MpqProtocol::protocol= "mpq";
 
-MpqProtocol::MpqProtocol(const QByteArray &pool, const QByteArray &app) : KIO::SlaveBase(protocol, pool, app), m_file(0), m_seekPos(0)
+MpqProtocol::MpqProtocol(const QByteArray &pool, const QByteArray &app) : KIO::SlaveBase(protocol, pool, app), m_seekPos(0)
 {
 	kDebug(7000) << "Created MPQ slave";
 }
@@ -168,9 +168,20 @@ bool MpqProtocol::openArchive(const QString &archive, QString &error)
 
 		if (ptr->containsAttributesFile())
 		{
+			mpq::Attributes attributes = ptr->attributesFile();
+
+			if (!attributes.isValid())
+			{
+				error = "Attributes file is not valid";
+
+				kDebug(7000) << "Error: " << error;
+
+				return false;
+			}
+
 			try
 			{
-				ptr->attributesFile()->attributes(this->m_crcs, this->m_fileTimes, this->m_md5s); // attributes data is required for file time stamps
+				attributes.attributes(this->m_crcs, this->m_fileTimes, this->m_md5s); // attributes data is required for file time stamps
 			}
 			catch (Exception &exception)
 			{
@@ -213,11 +224,11 @@ void MpqProtocol::open(const KUrl &url, QIODevice::OpenMode mode)
 		return;
 	}
 
-	mpq::MpqFile *file = m_archive->findFile(archivePath.constData()); // TODO locale and platform
+	mpq::MpqFile file = m_archive->findFile(archivePath.constData()); // TODO locale and platform
 
 	kDebug(7000) << "Opening: " << archivePath.constData();
 
-	if (file == 0)
+	if (!file.isValid())
 	{
 		error(KIO::ERR_DOES_NOT_EXIST, url.prettyUrl());
 
@@ -239,7 +250,7 @@ void MpqProtocol::open(const KUrl &url, QIODevice::OpenMode mode)
 
 			try
 			{
-				std::streamsize size = this->m_file->writeData(stream);
+				std::streamsize size = this->m_file.writeData(stream);
 				QByteArray data = stream.str().c_str();
 				KMimeType::Ptr fileMimeType = KMimeType::findByNameAndContent(url.fileName(), data);
 				mimeType(fileMimeType->name());
@@ -258,7 +269,7 @@ void MpqProtocol::open(const KUrl &url, QIODevice::OpenMode mode)
 
 	try
 	{
-		size = boost::numeric_cast<KIO::filesize_t>(this->m_file->compressedSize());
+		size = boost::numeric_cast<KIO::filesize_t>(this->m_file.compressedSize());
 	}
 	catch (Exception &e)
 	{
@@ -274,8 +285,8 @@ void MpqProtocol::open(const KUrl &url, QIODevice::OpenMode mode)
 
 void MpqProtocol::close()
 {
-	this->m_file = 0;
 	this->m_seekPos = 0;
+	this->m_file.close();
 }
 
 void MpqProtocol::read(KIO::filesize_t size)
@@ -284,11 +295,11 @@ void MpqProtocol::read(KIO::filesize_t size)
 
 	try // TODO faster way without writing ALL data
 	{
-		m_file->writeData(sstream); // write data first to decompress everything
+		m_file.writeData(sstream); // write data first to decompress everything
 	}
 	catch (Exception &e)
 	{
-		error(KIO::ERR_COULD_NOT_READ, i18n("%1: %2", m_file->path().c_str(), e.what()));
+		error(KIO::ERR_COULD_NOT_READ, i18n("%1: %2", m_file.path().c_str(), e.what()));
 
 		return;
 	}
@@ -343,9 +354,9 @@ void MpqProtocol::listDir(const KUrl &url)
 	}
 
 	// TODO get all files contained in directory using (listfile)
-	mpq::Listfile *listfile = m_archive->listfileFile();
+	mpq::Listfile listfile = m_archive->listfileFile();
 
-	if (listfile == 0)
+	if (!listfile.isValid())
 	{
 		// /usr/share/wc3lib/listfiles/
 		/*
@@ -362,7 +373,7 @@ void MpqProtocol::listDir(const KUrl &url)
 		*/
 	}
 
-	if (listfile == 0)
+	if (!listfile.isValid())
 	{
 		// use slave defined for custom text other than error code!
 		error(KIO::ERR_SLAVE_DEFINED, i18n("%1: Missing (listfile).", url.prettyUrl()));
@@ -371,9 +382,10 @@ void MpqProtocol::listDir(const KUrl &url)
 	}
 
 	kDebug(7000) << "MpqProtocol::listDir entries of " << archivePath.constData();
-	mpq::Listfile::Entries entries = listfile->dirEntries(archivePath.constData(), false);
+	mpq::Listfile::Entries entries = listfile.dirEntries(archivePath.constData(), false);
 	kDebug(7000) << "MpqProtocol::listDir entries size " << entries.size();
 	const bool hasAttributes = m_archive->containsAttributesFile();
+	mpq::Attributes attributes;
 	bool hasFileTime = false;
 
 	if (!hasAttributes)
@@ -382,7 +394,8 @@ void MpqProtocol::listDir(const KUrl &url)
 	}
 	else
 	{
-		hasFileTime = m_archive->attributesFile()->extendedAttributes() & mpq::Attributes::ExtendedAttributes::FileTimeStamps;
+		attributes = this->m_archive->attributesFile();
+		hasFileTime = attributes.extendedAttributes() & mpq::Attributes::ExtendedAttributes::FileTimeStamps;
 
 		/*
 		if (!hasFileTime)
@@ -400,17 +413,17 @@ void MpqProtocol::listDir(const KUrl &url)
 
 		if (m_archive->containsListfileFile()) // should always be the case
 		{
-			entries.push_back(m_archive->listfileFile()->fileName());
+			entries.push_back("(listfile)");
 		}
 
 		if (m_archive->containsAttributesFile())
 		{
-			entries.push_back(m_archive->attributesFile()->fileName());
+			entries.push_back("(attributes)");
 		}
 
 		if (m_archive->containsSignatureFile())
 		{
-			entries.push_back(m_archive->signatureFile()->fileName());
+			entries.push_back("(signature)");
 		}
 	}
 
@@ -462,9 +475,9 @@ void MpqProtocol::listDir(const KUrl &url)
 
 			kDebug(7000) << "New path \"" << fileName << "\"";
 
-			mpq::MpqFile *file = m_archive->findFile(ref); // TODO locale and platform
+			mpq::MpqFile file = m_archive->findFile(ref); // TODO locale and platform
 
-			if (file != 0)
+			if (file.isValid())
 			{
 				//quint64 fileTime = 0;
 				time_t fileTime = 0;
@@ -473,9 +486,9 @@ void MpqProtocol::listDir(const KUrl &url)
 				// file time is extended attribute!
 				if (hasAttributes && hasFileTime)
 				{
-					if (m_fileTimes.size() > file->block()->index())
+					if (m_fileTimes.size() > file.block()->index())
 					{
-						mpq::FILETIME &storedFileTime = m_fileTimes[file->block()->index()];
+						mpq::FILETIME &storedFileTime = m_fileTimes[file.block()->index()];
 						const bool cast = storedFileTime.toTime(fileTime);
 
 						if (!cast)
@@ -496,7 +509,7 @@ void MpqProtocol::listDir(const KUrl &url)
 				KIO::UDSEntry entry;
 				entry.insert(KIO::UDSEntry::UDS_NAME, fileName);
 				entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFREG);
-				entry.insert(KIO::UDSEntry::UDS_SIZE, file->compressedSize());
+				entry.insert(KIO::UDSEntry::UDS_SIZE, file.compressedSize());
 
 
 				if (validFileTime)
@@ -558,7 +571,7 @@ void MpqProtocol::stat(const KUrl &url)
 	}
 	else
 	{
-		hasFileTime = m_archive->attributesFile()->extendedAttributes() & mpq::Attributes::ExtendedAttributes::FileTimeStamps;
+		hasFileTime = m_archive->attributesFile().extendedAttributes() & mpq::Attributes::ExtendedAttributes::FileTimeStamps;
 
 		/*
 		if (!hasFileTime)
@@ -570,14 +583,14 @@ void MpqProtocol::stat(const KUrl &url)
 
 	kDebug(7000) << "MpqProtocol::state Searching file " << archivePath.constData();
 
-	mpq::MpqFile *file = m_archive->findFile(archivePath.constData()); // TODO locale and platform
+	mpq::MpqFile file = m_archive->findFile(archivePath.constData()); // TODO locale and platform
 
 	KIO::UDSEntry entry;
 	entry.insert(KIO::UDSEntry::UDS_NAME, url.path());
 	entry.insert(KIO::UDSEntry::UDS_ACCESS, (S_IRWXU | S_IRWXG | S_IRWXO));
 
 
-	if (file != 0) // TODO includes dirs?
+	if (file.isValid()) // TODO includes dirs?
 	{
 		//quint64 fileTime = 0;
 		time_t fileTime = 0;
@@ -586,14 +599,14 @@ void MpqProtocol::stat(const KUrl &url)
 		// file time is extended attribute!
 		if (hasAttributes && hasFileTime)
 		{
-			if (m_fileTimes.size() > file->block()->index())
+			if (m_fileTimes.size() > file.block()->index())
 			{
-				mpq::FILETIME &storedFileTime = m_fileTimes[file->block()->index()];
+				mpq::FILETIME &storedFileTime = m_fileTimes[file.block()->index()];
 				const bool cast = storedFileTime.toTime(fileTime);
 
 				if (!cast)
 				{
-					warning(i18n("%1: Invalid file time for \"%2\": high - %3, low - %4", url.prettyUrl(), file->path().c_str(), storedFileTime.highDateTime, storedFileTime.lowDateTime));
+					warning(i18n("%1: Invalid file time for \"%2\": high - %3, low - %4", url.prettyUrl(), file.path().c_str(), storedFileTime.highDateTime, storedFileTime.lowDateTime));
 				}
 				else
 				{
@@ -607,7 +620,7 @@ void MpqProtocol::stat(const KUrl &url)
 		}
 
 		entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFREG);
-		entry.insert(KIO::UDSEntry::UDS_SIZE, file->compressedSize());
+		entry.insert(KIO::UDSEntry::UDS_SIZE, file.compressedSize());
 
 		if (validFileTime)
 		{
@@ -625,7 +638,7 @@ void MpqProtocol::stat(const KUrl &url)
 	else
 	{
 		// directory path has no file or directory entries and therefore cannot exist
-		if (this->m_archive->containsListfileFile() && this->m_archive->listfileFile()->dirEntries(archivePath.constData()).empty())
+		if (this->m_archive->containsListfileFile() && this->m_archive->listfileFile().dirEntries(archivePath.constData()).empty())
 		{
 			kDebug(7000) << "stat(): is no dir, no entries, does not exist.";
 
@@ -665,23 +678,23 @@ void MpqProtocol::get(const KUrl &url)
 		return;
 	}
 
-	mpq::MpqFile *file = m_archive->findFile(archivePath.constData()); // TODO locale and platform
+	mpq::MpqFile file = m_archive->findFile(archivePath.constData()); // TODO locale and platform
 
-	if (file == 0)
+	if (!file.isValid())
 	{
 		error(KIO::ERR_DOES_NOT_EXIST, url.prettyUrl());
 
 		return;
 	}
 
-	if (!file->isFile())
+	if (!file.isFile())
 	{
 		error(KIO::ERR_IS_DIRECTORY, url.prettyUrl());
 
 		return;
 	}
 
-	totalSize(file->size());
+	totalSize(file.size());
 
 	// Size of a QIODevice read. It must be large enough so that the mime type check will not fail
 	const qint64 sectorSize = this->m_archive->sectorSize();
@@ -703,7 +716,7 @@ void MpqProtocol::get(const KUrl &url)
 	}
 
 	mpq::MpqFile::Sectors sectors;
-	file->sectors(ifstream, sectors);
+	file.sectors(ifstream, sectors);
 
 	while (sectorIndex < sectors.size())
 	{

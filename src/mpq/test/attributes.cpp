@@ -33,10 +33,12 @@ BOOST_AUTO_TEST_CASE(Attributes) {
 	mpq::Attributes::Crc32s crcs;
 	mpq::Attributes::Md5s md5s;
 	mpq::Attributes::FileTimes fileTimes;
+	mpq::Attributes attributes = archive.attributesFile();
+	BOOST_REQUIRE(attributes.isValid());
 
 	try
 	{
-		archive.attributesFile()->attributes(crcs, fileTimes, md5s);
+		attributes.attributes(crcs, fileTimes, md5s);
 	}
 	catch (Exception &e)
 	{
@@ -45,19 +47,19 @@ BOOST_AUTO_TEST_CASE(Attributes) {
 
 	BOOST_REQUIRE(success);
 
-	mpq::MpqFile *file = archive.findFile("test.txt");
+	mpq::MpqFile file = archive.findFile("test.txt");
 
-	BOOST_REQUIRE(file != 0);
+	BOOST_REQUIRE(file.isValid());
 	// contains CRC32 with valid index
-	BOOST_REQUIRE(crcs.size() > file->block()->index());
-	BOOST_REQUIRE(fileTimes.size() > file->block()->index());
-	BOOST_REQUIRE(md5s.size() > file->block()->index());
+	BOOST_REQUIRE(crcs.size() > file.block()->index());
+	BOOST_REQUIRE(fileTimes.size() > file.block()->index());
+	BOOST_REQUIRE(md5s.size() > file.block()->index());
 
 	stringstream data;
 
 	try
 	{
-		file->writeData(data);
+		file.writeData(data);
 	}
 	catch (Exception &e)
 	{
@@ -69,12 +71,12 @@ BOOST_AUTO_TEST_CASE(Attributes) {
 	string dataString = data.str();
 
 	const mpq::MD5 currentMd5 = mpq::Attributes::md5(dataString.c_str(), dataString.size());
-	const mpq::MD5 storedMd5 = md5s[file->block()->index()];
+	const mpq::MD5 storedMd5 = md5s[file.block()->index()];
 	std::cerr << "Current: " << currentMd5 << " Stored: " << storedMd5 << std::endl;
 	BOOST_REQUIRE(currentMd5 == storedMd5);
 
 	const mpq::CRC32 currentCrc32 = mpq::Attributes::crc32(dataString.c_str(), dataString.size());
-	const mpq::CRC32 storedCrc32 = crcs[file->block()->index()];
+	const mpq::CRC32 storedCrc32 = crcs[file.block()->index()];
 	std::cerr << "Current: " << currentCrc32 << " Stored: " << storedCrc32 << std::endl;
 	BOOST_REQUIRE(currentCrc32 == storedCrc32);
 

@@ -244,7 +244,7 @@ std::streamsize Mpq::read(InputStream &stream) throw (class Exception)
 
 	for (uint32 i = 0; i < header.blockTableEntries; ++i)
 	{
-		std::auto_ptr<Block> ptr(newBlock(i));
+		std::auto_ptr<Block> ptr(new Block(i));
 		size += ptr->read(sstream);
 		this->m_blocks.push_back(ptr);
 	}
@@ -284,44 +284,9 @@ std::streamsize Mpq::read(InputStream &stream) throw (class Exception)
 
 	for (uint32 i = 0; i < header.hashTableEntries; ++i)
 	{
-		std::auto_ptr<Hash> hash(newHash(i));
+		std::auto_ptr<Hash> hash(new Hash(this, i));
 		size += hash->read(sstream);
 		this->m_hashes.insert(hash->hashData(), hash);
-	}
-
-	// file data / add file instances
-	BOOST_FOREACH(Hashes::value_type pair, this->m_hashes)
-	{
-		if (!pair.second->empty() && !pair.second->deleted())
-		{
-			std::auto_ptr<MpqFile> mpqFile;
-
-			/*
-			 * Decide file type by file name.
-			 * Special files have specific names.
-			 */
-			if (!containsListfileFile() && pair.second->hashData() == "(listfile)")
-			{
-				mpqFile.reset(new Listfile(this, pair.second));
-			}
-			else if (!containsAttributesFile() && pair.second->hashData() == "(attributes)")
-			{
-				mpqFile.reset(new Attributes(this, pair.second));
-			}
-			else if (!containsSignatureFile() && pair.second->hashData() == "(signature)")
-			{
-				mpqFile.reset(new Signature(this, pair.second));
-			}
-			else
-			{
-				mpqFile.reset(newFile(pair.second));
-			}
-
-			//mpqFile->m_path = // path can only be set if there is a listfile file or if we're able to convert its hash into file path
-			this->m_files.push_back(mpqFile);
-
-			pair.second->block()->setFile(mpqFile.get());
-		}
 	}
 
 	// The strong digital signature is stored immediately after the archive, in the containing file
@@ -366,48 +331,10 @@ bool Mpq::operator!() const
 	return !this->isOpen();
 }
 
-MpqFile* Mpq::newFile(class Hash *hash) throw ()
-{
-	try
-	{
-		// initially the file path is empty and can only be set using (listfile) file and matching hashes
-		return new MpqFile(this, hash, "");
-	}
-	catch (std::bad_alloc &)
-	{
-		return 0;
-	}
-}
-
-Hash* Mpq::newHash(uint32 index) throw ()
-{
-	try
-	{
-		return new Hash(this, index);
-	}
-	catch (std::bad_alloc &)
-	{
-		return 0;
-	}
-}
-
-Block* Mpq::newBlock(uint32 index) throw ()
-{
-	try
-	{
-		return new Block(index);
-	}
-	catch (std::bad_alloc &)
-	{
-		return 0;
-	}
-}
-
 void Mpq::clear()
 {
 	this->m_strongDigitalSignature.reset();
 
-	this->m_files.clear();
 	this->m_hashes.clear();
 	this->m_blocks.clear();
 
@@ -430,6 +357,19 @@ Hash* Mpq::findHash(const HashData &hashData)
 	return iterator->second;
 }
 
+const Hash* Mpq::findHash(const HashData &hashData) const
+{
+	Hashes::const_iterator iterator = this->hashes().find(hashData);
+
+	if (iterator == this->hashes().end())
+	{
+		return 0;
+	}
+
+	return iterator->second;
+}
+
+
 Hash* Mpq::findHash(const boost::filesystem::path &path, MpqFile::Locale locale, MpqFile::Platform platform)
 {
 	if (this->hashes().empty())
@@ -440,47 +380,44 @@ Hash* Mpq::findHash(const boost::filesystem::path &path, MpqFile::Locale locale,
 	return findHash(HashData(path, locale, platform));
 }
 
-MpqFile* Mpq::findFile(const HashData &hashData)
+const Hash* Mpq::findHash(const boost::filesystem::path &path, MpqFile::Locale locale, MpqFile::Platform platform) const
+{
+	if (this->hashes().empty())
+	{
+		return 0;
+	}
+
+	return findHash(HashData(path, locale, platform));
+}
+
+MpqFile Mpq::findFile(const HashData &hashData)
 {
 	Hash *hash = this->findHash(hashData);
 
-	// hash->m_mpqFile == 0 could happen in early stage when loading all hash entries
 	if (hash == 0 || hash->deleted() || hash->empty())
 	{
-		return 0;
+		return MpqFile();
 	}
 
-	return hash->block()->file();
+	return MpqFile(this, hash, "");
 }
 
-const MpqFile* Mpq::findFile(const HashData &hashData) const
-{
-	return const_cast<Mpq*>(this)->findFile(hashData);
-}
-
-// NOTE don't ever just call findFile(HashData(path, locale, platform) since it wouldn't update the path as expected
-MpqFile* Mpq::findFile(const boost::filesystem::path &path, MpqFile::Locale locale, MpqFile::Platform platform)
+MpqFile Mpq::findFile(const boost::filesystem::path &path, MpqFile::Locale locale, MpqFile::Platform platform)
 {
 	Hash *hash = this->findHash(path, locale, platform);
 
-	// hash->m_mpqFile == 0 could happen in early stage when loading all hash entries
 	if (hash == 0 || hash->deleted() || hash->empty())
 	{
-		return 0;
+		return MpqFile();
 	}
 
-	return hash->block()->file();
-}
-
-const MpqFile* Mpq::findFile(const boost::filesystem::path &path, MpqFile::Locale locale, MpqFile::Platform platform) const
-{
-	return const_cast<Mpq*>(this)->findFile(path, locale, platform);
+	return MpqFile(this, hash, path);
 }
 
 #ifdef USE_ENCRYPTION
-bool Mpq::check(const CryptoPP::RSA::PrivateKey &strongPrivateKey, const CryptoPP::RSA::PrivateKey &weakPrivateKey) const
+bool Mpq::check(const CryptoPP::RSA::PrivateKey &strongPrivateKey, const CryptoPP::RSA::PrivateKey &weakPrivateKey)
 {
-	if (!checkStrong(strongPrivateKey) || !this->signatureFile()->check(weakPrivateKey))
+	if (!checkStrong(strongPrivateKey) || !this->signatureFile().check(weakPrivateKey))
 	{
 		return false;
 	}
@@ -497,7 +434,7 @@ void Mpq::sign(const CryptoPP::RSA::PublicKey &strongPublicKey, const CryptoPP::
 
 	if (containsSignatureFile())
 	{
-		this->signatureFile()->sign(weakPublicKey);
+		this->signatureFile().sign(weakPublicKey);
 	}
 }
 
@@ -582,6 +519,50 @@ std::streamsize Mpq::signStrong(const CryptoPP::RSA::PublicKey &publicKey)
 	return size;
 }
 #endif
+
+Listfile Mpq::listfileFile()
+{
+	Hash *hash = this->findHash("(listfile)");
+
+	if (hash == 0)
+	{
+		return Listfile();
+	}
+
+	return Listfile(this, hash);
+}
+
+Attributes Mpq::attributesFile()
+{
+	Hash *hash = this->findHash("(attributes)");
+
+	if (hash == 0)
+	{
+		return Attributes();
+	}
+
+	Attributes result = Attributes(this, hash);
+	/*
+	 * Read necessary header data immediately.
+	 */
+	stringstream sstream;
+	result.writeData(sstream);
+	result.readHeader(sstream);
+
+	return result;
+}
+
+Signature Mpq::signatureFile()
+{
+	Hash *hash = this->findHash("(signature)");
+
+	if (hash == 0)
+	{
+		return Signature();
+	}
+
+	return Signature(this, hash);
+}
 
 }
 

@@ -39,7 +39,6 @@
 #include "algorithm.hpp"
 #include "hash.hpp"
 #include "block.hpp"
-#include "mpqfile.hpp"
 #include "listfile.hpp"
 #include "attributes.hpp"
 #include "signature.hpp"
@@ -49,6 +48,8 @@ namespace wc3lib
 
 namespace mpq
 {
+
+class MpqFile;
 
 /**
  * \brief This class allows users to read, write and modify MPQ archives. MPQ (Mo'PaQ, short for Mike O'Brien Pack) is an archiving file format used in several of Blizzard Entertainment's games.
@@ -95,11 +96,6 @@ class Mpq : public Format, private boost::noncopyable
 		typedef boost::ptr_unordered_map<HashData, Hash> Hashes;
 
 		/**
-		 * Files are stored as simple heap based vector.
-		 */
-		typedef boost::ptr_vector<MpqFile> Files;
-
-		/**
 		 * Array with size of \ref CryptoPP::SHA1::DIGESTSIZE.
 		 */
 		typedef boost::scoped_array<unsigned char> SHA1Digest;
@@ -130,6 +126,10 @@ class Mpq : public Format, private boost::noncopyable
 		static bool hasStrongDigitalSignature(istream &istream);
 		static std::streamsize strongDigitalSignature(istream &istream, StrongDigitalSignature &signature) throw (class Exception);
 
+		/**
+		 * Creates a new instance for an MPQ archive.
+		 * Use \ref create() or \ref open() to create or open a real archive file.
+		 */
 		Mpq();
 		virtual ~Mpq();
 
@@ -141,14 +141,11 @@ class Mpq : public Format, private boost::noncopyable
 		std::streamsize create(const boost::filesystem::path &path, bool overwriteExisting = false, std::streampos startPosition = 0, Format format = Format::Mpq1, uint32 sectorSize = 4096) throw (class Exception);
 		/**
 		 * Opens an MPQ file on the local file system at \p path.
-		 * This reads the block and hash tables and creates file objects (without paths) for each block/hash combination.
-		 *
-		 * \todo Implement readonly mode which creates a read only file lock!
+		 * This reads the block and hash tables.
 		 */
 		std::streamsize open(const boost::filesystem::path &path) throw (class Exception);
 		/**
-		 * Closes the MPQ archive which frees the file lock of the file.
-		 * It clears all hashes, blocks and files.
+		 * Closes the MPQ archive which clears all hashes and blocks.
 		 */
 		void close();
 
@@ -168,12 +165,17 @@ class Mpq : public Format, private boost::noncopyable
 		* \return Returns true if the archive contains a "(listfile)" file.
 		*/
 		bool containsListfileFile() const;
-		const Listfile* listfileFile() const;
+		Listfile listfileFile();
+
 		/**
 		 * \return Returns true if the archive contains a "(attributes)" file.
 		 */
 		bool containsAttributesFile() const;
-		const Attributes* attributesFile() const;
+		/**
+		 * \note Accesses the archive for reading the header data.
+		 * \todo Remove reading header data. Class \ref Attribute should do it itself and read it from the archive on request!
+		 */
+		Attributes attributesFile();
 
 		/**
 		 * The weak digital signature is a digital signature using Microsoft CryptoAPI. It is an implimentation
@@ -182,7 +184,7 @@ class Mpq : public Format, private boost::noncopyable
 		 * \sa hasStrongDigitalSignature()
 		 */
 		bool containsSignatureFile() const;
-		const Signature* signatureFile() const;
+		Signature signatureFile();
 
 		/**
 		 * Path of MPQ file \p mpqFile should be set if you use this method.
@@ -194,44 +196,44 @@ class Mpq : public Format, private boost::noncopyable
 		/**
 		 * Searches for hash table entry using \p hashData.
 		 * This function returns used hash entries as well as deleted and empty ones.
-		 * \return Returns an empty \ref HashPtr if no hash entry was found.
+		 * \return Returns 0 if no hash entry was found.
 		 * \ingroup search
+		 *
+		 * @{
 		 */
 		Hash* findHash(const HashData &hashData);
+		const Hash* findHash(const HashData &hashData) const;
+		/**
+		 * @}
+		 */
 		/**
 		 * Searches for hash table entry by generating an \ref HashData instance using \p path, \p locale and \p platform.
 		 * This function returns used hash entries as well as deleted and empty ones.
 		 * \return Returns an 0 if no hash entry was found.
 		 *
 		 * \ingroup search
+		 *
+		 * @{
 		 */
 		Hash* findHash(const boost::filesystem::path &path, MpqFile::Locale locale = MpqFile::Locale::Neutral, MpqFile::Platform platform = MpqFile::Platform::Default);
+		const Hash* findHash(const boost::filesystem::path &path, MpqFile::Locale locale = MpqFile::Locale::Neutral, MpqFile::Platform platform = MpqFile::Platform::Default) const;
+		/**
+		 * @}
+		 */
 
 		/**
 		 * Searches for file using \p hashData.
-		 * \return Returns 0 if no file was found.
+		 * \return Returns an invalid file if no file was found.
 		 * \ingroup search
 		 */
-		MpqFile* findFile(const HashData &hashData);
-		/**
-		 * \copydoc findFile(const HashData&)
-		 */
-		const MpqFile* findFile(const HashData &hashData) const;
+		MpqFile findFile(const HashData &hashData);
 		/**
 		 * Searches for file by generating an \ref HashData instance using \p path, \p locale and \p platform.
-		 * \return Returns 0 if no file was found.
+		 * \return Returns an invalid file if no file was found.
 		 *
 		 * \ingroup search
 		 */
-		MpqFile* findFile(const boost::filesystem::path &path, MpqFile::Locale locale = MpqFile::Locale::Neutral, MpqFile::Platform platform = MpqFile::Platform::Default);
-		/**
-		 * \copydoc findFile(const boost::filesystem::path&, MpqFile::Locale, MpqFile::Platform))
-		 */
-		const MpqFile* findFile(const boost::filesystem::path &path, MpqFile::Locale locale = MpqFile::Locale::Neutral, MpqFile::Platform platform = MpqFile::Platform::Default) const;
-
-		Listfile* listfileFile();
-		Attributes* attributesFile();
-		Signature* signatureFile();
+		MpqFile findFile(const boost::filesystem::path &path, MpqFile::Locale locale = MpqFile::Locale::Neutral, MpqFile::Platform platform = MpqFile::Platform::Default);
 
 		/**
 		 * \return Returns the size of the whole MPQ archive file.
@@ -269,7 +271,7 @@ class Mpq : public Format, private boost::noncopyable
 		 * \return Returns true if there is no kind of signature or if stored signatures are correct.
 		 * \sa sign(), checkStrong(), strongDigitalSignature(), signatureFile()
 		 */
-		bool check(const CryptoPP::RSA::PrivateKey &strongPrivateKey, const CryptoPP::RSA::PrivateKey &weakPrivateKey) const;
+		bool check(const CryptoPP::RSA::PrivateKey &strongPrivateKey, const CryptoPP::RSA::PrivateKey &weakPrivateKey);
 		/**
 		 * Updates all existing signatures.
 		 * \sa check(), signStrong(), strongDigitalSignature(), signatureFile()
@@ -302,12 +304,27 @@ class Mpq : public Format, private boost::noncopyable
 		 */
 		bool isOpen() const;
 
+		/**
+		 * \return Returns all blocks from the block table.
+		 *
+		 * @{
+		 */
 		Blocks& blocks();
 		const Blocks& blocks() const;
+		/**
+		 * @}
+		 */
+
+		/**
+		 * \return Returns all hashes from the hash table.
+		 *
+		 * @{
+		 */
 		Hashes& hashes();
 		const Hashes& hashes() const;
-		Files& files();
-		const Files& files() const;
+		/**
+		 * @}
+		 */
 
 		/**
 		 * \return Returns true if archive is not opened.
@@ -315,13 +332,6 @@ class Mpq : public Format, private boost::noncopyable
 		bool operator!() const;
 
 	protected:
-		/**
-		 * Overwrite these member functions to return custom type-based objects if you want to extend their functionality.
-		 */
-		virtual MpqFile* newFile(Hash *hash) throw ();
-		virtual Hash* newHash(uint32 index) throw ();
-		virtual Block* newBlock(uint32 index) throw ();
-
 		/**
 		 * Does not check if archive is open.
 		 * \sa Mpq::close
@@ -364,7 +374,6 @@ class Mpq : public Format, private boost::noncopyable
 		bool m_isOpen;
 		Blocks m_blocks;
 		Hashes m_hashes;
-		Files m_files;
 };
 
 inline bool Mpq::hasStrongDigitalSignature(istream &istream)
@@ -393,33 +402,17 @@ inline std::streamsize Mpq::strongDigitalSignature(istream &istream, StrongDigit
 
 inline bool Mpq::containsListfileFile() const
 {
-	return this->listfileFile() != 0;
+	return this->findHash("(listfile)") != 0;
 }
-
-inline const Listfile* Mpq::listfileFile() const
-{
-	return const_cast<Mpq*>(this)->listfileFile();
-}
-
 
 inline bool Mpq::containsAttributesFile() const
 {
-	return this->attributesFile() != 0;
-}
-
-inline const Attributes* Mpq::attributesFile() const
-{
-	return const_cast<Mpq*>(this)->attributesFile();
+	return this->findHash("(attributes)") != 0;
 }
 
 inline bool Mpq::containsSignatureFile() const
 {
-	return this->signatureFile() != 0;
-}
-
-inline const Signature* Mpq::signatureFile() const
-{
-	return const_cast<Mpq*>(this)->signatureFile();
+	return this->findHash("(signature)") != 0;
 }
 
 inline std::size_t Mpq::size() const
@@ -485,52 +478,6 @@ inline Mpq::Hashes& Mpq::hashes()
 inline const Mpq::Hashes& Mpq::hashes() const
 {
 	return this->m_hashes;
-}
-
-inline Mpq::Files& Mpq::files()
-{
-	return this->m_files;
-}
-
-inline const Mpq::Files& Mpq::files() const
-{
-	return this->m_files;
-}
-
-inline Listfile* Mpq::listfileFile()
-{
-	MpqFile *file = this->findFile("(listfile)");
-
-	if (file == 0)
-	{
-		return 0;
-	}
-
-	return boost::polymorphic_cast<Listfile*>(file);
-}
-
-inline Attributes* Mpq::attributesFile()
-{
-	MpqFile *file = this->findFile("(attributes)");
-
-	if (file == 0)
-	{
-		return 0;
-	}
-
-	return boost::polymorphic_cast<Attributes*>(file);
-}
-
-inline Signature* Mpq::signatureFile()
-{
-	MpqFile *file = this->findFile("(signature)");
-
-	if (file == 0)
-	{
-		return 0;
-	}
-
-	return boost::polymorphic_cast<Signature*>(file);
 }
 
 inline Block* Mpq::firstEmptyBlock()

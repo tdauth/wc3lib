@@ -67,15 +67,15 @@ BOOST_AUTO_TEST_CASE(ReadTest)
 	 * NOTE
 	 * the mini map had decompression issues
 	 */
-	mpq::MpqFile *file = map.findFile("war3mapMap.blp");
+	mpq::MpqFile file = map.findFile("war3mapMap.blp");
 
-	BOOST_REQUIRE(file != 0);
+	BOOST_REQUIRE(file.isValid());
 	ofstream outInfo("minimap.info");
 
 	BOOST_REQUIRE(outInfo);
 
 	outInfo << mpq::archiveInfo(map, true, true);
-	outInfo << mpq::fileInfo(*file, true, true);
+	outInfo << mpq::fileInfo(file, true, true);
 	outInfo.close();
 	ofstream outMinimap("war3mapMap.blp");
 
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE(ReadTest)
 
 	try
 	{
-		file->writeData(outMinimap);
+		file.writeData(outMinimap);
 	}
 	catch (std::exception &e)
 	{

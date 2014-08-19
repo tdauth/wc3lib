@@ -53,6 +53,8 @@ class Signature : public MpqFile
 		 */
 		typedef boost::scoped_array<byte> WeakSignature;
 
+		Signature();
+
 #ifdef USE_ENCRYPTION
 		/**
 		 * \sa Mpq::checkStrong(), check()

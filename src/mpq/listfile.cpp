@@ -35,6 +35,10 @@ namespace wc3lib
 namespace mpq
 {
 
+Listfile::Listfile() : MpqFile()
+{
+}
+
 Listfile::Listfile(Mpq *mpq, Hash *hash) : MpqFile(mpq, hash, "(listfile)")
 {
 }

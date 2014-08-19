@@ -47,9 +47,9 @@ std::string entry,
 #endif
 const boost::program_options::variables_map &vm)
 {
-	mpq::MpqFile *file = mpq.findFile(entry);
+	mpq::MpqFile file = mpq.findFile(entry);
 
-	if (file == 0)
+	if (!file.isValid())
 	{
 		std::cerr << boost::format(_("Error occured while extracting file \"%1%\": File doesn't exist.")) % entry << std::endl;
 
@@ -95,7 +95,7 @@ const boost::program_options::variables_map &vm)
 	try
 	{
 		checkStream(out);
-		file->writeData(out);
+		file.writeData(out);
 	}
 	catch (Exception &exception)
 	{
@@ -268,11 +268,11 @@ int main(int argc, char *argv[])
 			{
 				BOOST_FOREACH(Paths::const_reference path, filePaths)
 				{
-					MpqFile *file = mpq->findFile(path);
+					MpqFile file = mpq->findFile(path);
 
-					if (file != 0)
+					if (file.isValid())
 					{
-						std::cout << fileInfo(*file, vm.count("human-readable"), vm.count("decimal")) << std::endl;
+						std::cout << fileInfo(file, vm.count("human-readable"), vm.count("decimal")) << std::endl;
 					}
 					else
 					{
@@ -309,18 +309,20 @@ int main(int argc, char *argv[])
 				continue;
 			}
 
-			std::list<std::string> paths;
-
-			BOOST_FOREACH(Mpq::Files::const_reference mpqFile, mpq->files())
+			if (mpq->containsListfileFile())
 			{
-				paths.push_back(mpqFile.path().generic_string());
-			}
+				Listfile listfile = mpq->listfileFile();
 
-			paths.sort(); // sort alphabetically
+				if (listfile.isValid())
+				{
+					Listfile::Entries entries = listfile.entries();
+					std::sort(entries.begin(), entries.end()); // sort alphabetically
 
-			BOOST_FOREACH(const std::string &path, paths)
-			{
-				std::cout << path << std::endl;
+					BOOST_FOREACH(Listfile::Entries::const_reference entry, entries)
+					{
+						std::cout << entry << std::endl;
+					}
+				}
 			}
 		}
 	}
@@ -351,12 +353,16 @@ int main(int argc, char *argv[])
 
 			if (filePaths.empty())
 			{
-				if (mpq->listfileFile() != 0)
-					listfileEntries.push_front(mpq->listfileFile()->entries());
+				if (mpq->containsListfileFile())
+				{
+					listfileEntries.push_front(mpq->listfileFile().entries());
+				}
 
 				// usually does not list itself, TODO performance is very poor, maybe we should just push it whenever it's not front
 				if (std::find_if(listfileEntries.begin(), listfileEntries.end(), hasListfile) == listfileEntries.end())
+				{
 					listfileEntries.push_front(Listfile::Entries(1, "(listfile)"));
+				}
 
 				BOOST_FOREACH(Listfiles::const_reference vector, listfileEntries)
 				{

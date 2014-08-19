@@ -42,11 +42,11 @@ class Mpq;
 /**
  * \brief Provides access to a file's data which is actually a combination of its block and hash entries as well as its path which is provided by the optional "(listfile)" file and its extended attributes provided by the optional "(attributes)" file.
  *
- * \note MpqFile uses mutex locking and unlocking whenever data is being changed or read. It calls \ref boost::mutex::try_lock (immediate lock) in that case so make sure data is not locked at that moment, otherwise it throws an exception.
+ * Use \ref isValid() to check if the file is a valid file instance of an archive.
  *
  * \note Only class \ref Mpq can modify a file since it is responsible for holding all files.
  */
-class MpqFile : private boost::noncopyable
+class MpqFile
 {
 	public:
 		/// \todo Define all locales. <a href="http://wiki.devklog.net/index.php?title=The_MoPaQ_Archive_Format#Locales">Source</a>.
@@ -81,6 +81,22 @@ class MpqFile : private boost::noncopyable
 		 * Therefore we do not need a heap allocated container.
 		 */
 		typedef std::vector<Sector> Sectors;
+
+		/**
+		 * Use this default constructor to create invalid file objects.
+		 * Such objects are returned by the class \ref Mpq whenever the file is not found.
+		 * It sets the archive (\ref mpq()) and the hash (\ref hash()) to 0 which indicates that it is invalid.
+		 * \ref isValid() returns false if the file is invalid.
+		 */
+		MpqFile();
+		virtual ~MpqFile();
+
+		MpqFile(const MpqFile &other);
+
+		/**
+		 * Closes the file which makes it invalid immediately.
+		 */
+		void close();
 
 		/**
 		 * Reads data from input stream \p istream and hence overwrites old file data.
@@ -186,6 +202,11 @@ class MpqFile : private boost::noncopyable
 		 */
 		bool hasSectorOffsetTable() const;
 
+		/**
+		 * \return Returns true if the file is valid file entry of an MPQ archive (\ref Mpq). Otherwise it returns false and might be the result of a failed search in an archive. In this case it has no valid reference to an archive nor to a hash entry.
+		 */
+		bool isValid() const;
+
 		static uint16 localeToInt(Locale locale);
 		static Locale intToLocale(uint16 value);
 		static uint16 platformToInt(Platform platform);
@@ -193,16 +214,12 @@ class MpqFile : private boost::noncopyable
 
 	protected:
 		friend Mpq;
-		friend void boost::checked_delete<>(MpqFile*);
-		friend void boost::checked_delete<>(MpqFile const*);
-		friend std::auto_ptr<MpqFile>;
 
 		/**
-		 * MPQ files are created by \ref Mpq only.
+		 * Valid MPQ files are created by \ref Mpq only.
 		 * \param path Initial path which is set without any synchronization of the corresponding hash entry.
 		 */
 		MpqFile(Mpq *mpq, Hash *hash, const boost::filesystem::path &path);
-		virtual ~MpqFile();
 
 		/**
 		 * Sets the path of the file to \p path.
@@ -310,6 +327,11 @@ inline bool MpqFile::isImploded() const
 inline bool MpqFile::hasSectorOffsetTable() const
 {
 	return !(this->block()->flags() & Block::Flags::IsSingleUnit) && ((this->block()->flags() & Block::Flags::IsCompressed) || (this->block()->flags() & Block::Flags::IsImploded));
+}
+
+inline bool MpqFile::isValid() const
+{
+	return this->mpq() == 0 || this->hash() == 0;
 }
 
 inline uint16 MpqFile::localeToInt(MpqFile::Locale locale)

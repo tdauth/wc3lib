@@ -147,11 +147,25 @@ Block* MpqFile::block() const
 	return this->hash()->block();
 }
 
+MpqFile::MpqFile() : m_mpq(0), m_hash(0)
+{
+}
+
+void MpqFile::close()
+{
+	this->m_mpq = 0;
+	this->m_hash = 0;
+}
+
 MpqFile::MpqFile(Mpq *mpq, Hash *hash, const boost::filesystem::path &path) : m_mpq(mpq), m_hash(hash), m_path(path)
 {
 }
 
 MpqFile::~MpqFile()
+{
+}
+
+MpqFile::MpqFile(const MpqFile& other) : m_mpq(other.mpq()), m_hash(other.hash()), m_path(other.path())
 {
 }
 

@@ -54,6 +54,8 @@ class Listfile : public MpqFile
 	public:
 		typedef std::vector<string> Entries;
 
+		Listfile();
+
 		/**
 		 * Replaces on Unix-based systems / character by \.
 		 * For Windows systems it doesn't do anything.

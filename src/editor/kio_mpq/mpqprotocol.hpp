@@ -99,7 +99,7 @@ class KDE_EXPORT MpqProtocol : public KIO::SlaveBase
 		mpq::Attributes::Crc32s m_crcs;
 		mpq::Attributes::Md5s m_md5s;
 		mpq::Attributes::FileTimes m_fileTimes;
-		mpq::MpqFile *m_file;
+		mpq::MpqFile m_file;
 		std::streampos m_seekPos;
 		QString m_archiveName;
 		QDateTime m_modified;

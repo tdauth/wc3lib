@@ -99,6 +99,7 @@ class Attributes : public MpqFile
 		 * @}
 		 */
 
+		Attributes();
 
 		/**
 		 * Empties extended attributes.

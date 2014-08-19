@@ -726,21 +726,31 @@ void TriggerEditor::loadCustomTextTriggers(Map *map)
 
 void TriggerEditor::loadFromMap(Map* map)
 {
-	if (map->map()->findFile(map->map()->triggers()->fileName()) != 0)
+	if (map->map()->findFile(map->map()->triggers()->fileName()).isValid())
+	{
 		loadTriggers(map);
+	}
 	else
+	{
 		KMessageBox::error(this, i18n("Triggers file \"%1\" doesn't exist.", map->map()->triggers()->fileName()));
+	}
 
-	if (map->map()->findFile(map->map()->customTextTriggers()->fileName()) != 0)
+	if (map->map()->findFile(map->map()->customTextTriggers()->fileName()).isValid())
+	{
 		loadCustomTextTriggers(map);
+	}
 	else
+	{
 		KMessageBox::error(this, i18n("Custom text triggers file \"%1\" doesn't exist.", map->map()->customTextTriggers()->fileName()));
+	}
 }
 
 void TriggerEditor::clear()
 {
 	if (triggers() != 0 && freeTriggers())
+	{
 		delete triggers();
+	}
 
 	treeWidget()->clear();
 	categories().clear();
