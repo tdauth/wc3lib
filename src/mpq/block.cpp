@@ -21,7 +21,6 @@
 #include "algorithm.hpp"
 #include "block.hpp"
 #include "mpq.hpp"
-#include "attributes.hpp"
 #include "../i18n.hpp"
 #include "../utilities.hpp"
 
@@ -34,7 +33,9 @@ namespace mpq
 uint32 Block::fileKey(const string &fileName, const BlockTableEntry &blockTableEntry)
 {
 	if (fileName.empty())
+	{
 		throw std::logic_error(_("Never try to get file keys of empty filenames."));
+	}
 
 	// Hash the name to get the base key
 	uint32 nFileKey = HashString(Mpq::cryptTable(), fileName.c_str(), HashType::FileKey);
@@ -48,7 +49,14 @@ uint32 Block::fileKey(const string &fileName, const BlockTableEntry &blockTableE
 	return nFileKey;
 }
 
-Block::Block(class Mpq *mpq, uint32 index) : m_mpq(mpq), m_index(index), m_blockOffset(0), m_extendedBlockOffset(0), m_blockSize(0), m_fileSize(0), m_flags(Block::Flags::None), m_file(0)
+Block::Block(uint32 index)
+: m_index(index)
+, m_blockOffset(0)
+, m_extendedBlockOffset(0)
+, m_blockSize(0)
+, m_fileSize(0)
+, m_flags(Block::Flags::None)
+, m_file(0)
 {
 }
 
@@ -63,7 +71,9 @@ std::streamsize Block::read(istream &istream) throw (class Exception)
 	wc3lib::read(istream, entry, size);
 
 	if (size != sizeof(entry))
+	{
 		throw Exception(_("Error while reading block table entry."));
+	}
 
 	this->m_blockOffset = entry.blockOffset;
 	this->m_blockSize = entry.blockSize;
@@ -75,11 +85,7 @@ std::streamsize Block::read(istream &istream) throw (class Exception)
 
 std::streamsize Block::write(ostream &ostream) const throw (class Exception)
 {
-	struct BlockTableEntry entry;
-	entry.blockOffset = this->m_blockOffset;
-	entry.blockSize = this->m_blockSize;
-	entry.fileSize = this->m_fileSize;
-	entry.flags = static_cast<int32>(this->m_flags);
+	const BlockTableEntry entry = toBlockTableEntry();
 	std::streamsize size = 0;
 	wc3lib::write(ostream, entry, size);
 
@@ -88,11 +94,7 @@ std::streamsize Block::write(ostream &ostream) const throw (class Exception)
 
 uint32 Block::fileKey(const string &fileName) const
 {
-	struct BlockTableEntry entry;
-	entry.blockOffset = this->m_blockOffset;
-	entry.blockSize = this->m_blockSize;
-	entry.fileSize = this->m_fileSize;
-	entry.flags = static_cast<uint32>(this->m_flags);
+	BlockTableEntry entry = toBlockTableEntry();
 
 	return Block::fileKey(fileName, entry);
 }

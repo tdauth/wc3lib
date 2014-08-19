@@ -163,9 +163,8 @@ std::streamsize Attributes::writeAttributes(int32 version, ExtendedAttributes ex
 	return MpqFile::readData(stream);
 }
 
-Attributes::Attributes(Mpq *mpq, Hash *hash) : MpqFile(mpq, hash), m_version(latestVersion), m_extendedAttributes(ExtendedAttributes::None)
+Attributes::Attributes(Mpq *mpq, Hash *hash) : MpqFile(mpq, hash, "(attributes)"), m_version(latestVersion), m_extendedAttributes(ExtendedAttributes::None)
 {
-	this->m_path = fileName();
 }
 
 }

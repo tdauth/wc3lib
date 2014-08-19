@@ -137,12 +137,7 @@ public Playable
 		 * \param triggerData Is required for reading the triggers. If this value is 0, triggers will be ignored.
 		 */
 		virtual std::streamsize readAllFileFormats(const map::TriggerData *triggerData) throw (Exception);
-		virtual std::streamsize read(InputStream &istream, const mpq::Listfile::Entries &listfileEntries) throw (class Exception) override;
-		virtual std::streamsize read(InputStream& istream) throw (class Exception)
-		{
-			return read(istream, mpq::Listfile::Entries());
-		}
-
+		virtual std::streamsize read(InputStream &istream) throw (class Exception);
 		/**
 		 * Triggers have to be read separately since they need corresponding trigger data.
 		 * \throw Exception Throws an exception if there is no triggers file or if there occured any error while reading it.

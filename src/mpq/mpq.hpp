@@ -23,7 +23,6 @@
 
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/ptr_container/ptr_unordered_map.hpp>
-#include <boost/interprocess/sync/file_lock.hpp>
 #include <boost/cast.hpp>
 #include <boost/foreach.hpp>
 
@@ -68,6 +67,8 @@ namespace mpq
  * <li> \ref signatureFile() - accesses file "(signature)" with a digital signature of the archive </li>
  * <li> \ref attributesFile() - accesses file "(attributes)" with extended attributes like timestamps and checksums of contained files </li>
  * </ul>
+ *
+ * \note Synchronization is not implemented in any way since Boost IPC file locks are only "advisory locks". Therefore you should never call operations concurrently.
  *
  */
 class Mpq : public Format, private boost::noncopyable
@@ -133,26 +134,28 @@ class Mpq : public Format, private boost::noncopyable
 		virtual ~Mpq();
 
 		/**
-		 * Creates a new MPQ archive at file path \p path of format \p format starting at position \p startPosition in corresponding file and using extended attributes \p extendedAttributes and sector size \p sectorSize.
+		 * Creates a new MPQ archive at file path \p path of format \p format starting at position \p startPosition in corresponding file and using sector size \p sectorSize.
 		 * \param overwriteExisting If this value is true existing any file at file path \p path will be overwritten before creating file/archive. Otherwise an exception will be thrown if there already is some file at the given path.
 		 * \return Returns size of all created file data in bytes.
 		 */
 		std::streamsize create(const boost::filesystem::path &path, bool overwriteExisting = false, std::streampos startPosition = 0, Format format = Format::Mpq1, uint32 sectorSize = 4096) throw (class Exception);
 		/**
-		 * \param listfileEntries Instead of relying on an internal "(listfile)" file of the archive you can pass your own list of all files (internal file will be ignored!). If it's empty this list is ignored.
+		 * Opens an MPQ file on the local file system at \p path.
+		 * This reads the block and hash tables and creates file objects (without paths) for each block/hash combination.
+		 *
+		 * \todo Implement readonly mode which creates a read only file lock!
 		 */
-		std::streamsize open(const boost::filesystem::path &path, const Listfile::Entries &listfileEntries = Listfile::Entries()) throw (class Exception);
+		std::streamsize open(const boost::filesystem::path &path) throw (class Exception);
+		/**
+		 * Closes the MPQ archive which frees the file lock of the file.
+		 * It clears all hashes, blocks and files.
+		 */
 		void close();
 
 		/**
-		 * \param listfileEntries Instead of relying on an internal "(listfile)" file of the archive you can pass your own list of all files (internal file will be ignored!). If it's empty this list is ignored.
 		 * \return Returns MPQ's size in bytes.
 		 */
-		virtual std::streamsize read(InputStream &stream, const Listfile::Entries &listfileEntries) throw (Exception);
-		virtual std::streamsize read(InputStream &stream) throw (Exception)
-		{
-			return read(stream, Listfile::Entries());
-		}
+		virtual std::streamsize read(InputStream &stream) throw (Exception);
 		/**
 		 * Writes the whole MPQ archive into output stream \p ostream. Note that you don't have to call this function each time you want to save your changed data of the opened MPQ archive.
 		* If you change some data of the opened MPQ archive it's written directly into the corresponding file (the whole archive is not loaded into memory!).
@@ -296,16 +299,9 @@ class Mpq : public Format, private boost::noncopyable
 #endif
 		/**
 		 * When \ref Mpq::open() or \ref Mpq::create() is called archive is opened automatically until destructor or \ref Mpq::close() is called.
-		 * For interprocess communication a file lock object is created which can be used via \ref Mpq::fileLock().
 		 */
 		bool isOpen() const;
-		/**
-		 * The file lock is used to make sure that there is no parallel access to the archive
-		 * which would lead to an undefined state.
-		 *
-		 * \return Returns the associated file lock of the archive's file.
-		 */
-		const boost::interprocess::file_lock& fileLock();
+
 		Blocks& blocks();
 		const Blocks& blocks() const;
 		Hashes& hashes();
@@ -366,7 +362,6 @@ class Mpq : public Format, private boost::noncopyable
 		uint32 m_sectorSize;
 		StrongDigitalSignature m_strongDigitalSignature;
 		bool m_isOpen;
-		boost::interprocess::file_lock m_fileLock;
 		Blocks m_blocks;
 		Hashes m_hashes;
 		Files m_files;
@@ -470,11 +465,6 @@ inline const Mpq::StrongDigitalSignature& Mpq::strongDigitalSignature() const
 inline bool Mpq::isOpen() const
 {
 	return this->m_isOpen;
-}
-
-inline const boost::interprocess::file_lock& Mpq::fileLock()
-{
-	return m_fileLock;
 }
 
 inline Mpq::Blocks& Mpq::blocks()

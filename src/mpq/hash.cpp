@@ -94,7 +94,16 @@ bool HashData::isHash(const boost::filesystem::path &path, MpqFile::Locale local
 const uint32 Hash::blockIndexDeleted = 0xFFFFFFFE;
 const uint32 Hash::blockIndexEmpty = 0xFFFFFFFF;
 
-Hash::Hash(class Mpq *mpq, uint32 index) : m_mpq(mpq), m_index(index), m_hashData(0, 0, 0, 0), m_block(0), m_deleted(false)
+Hash::Hash(Mpq *mpq, uint32 index)
+: m_mpq(mpq)
+, m_index(index)
+, m_hashData(0, 0, 0, 0)
+, m_block(0)
+, m_deleted(false)
+{
+}
+
+Hash::~Hash()
 {
 }
 
@@ -125,19 +134,13 @@ std::streamsize Hash::read(istream &istream) throw (class Exception)
 			throw Exception(_("Error while searching for corresponding block of hash table entry."));
 		}
 	}
-	// otherwise it's empty (block == 0)
-	else
-	{
-		//std::cout << "Entry is EMPTY WAAAAAAAAAHHHHHHH" << std::hex << " with block index " << entry.fileBlockIndex << std::dec << std::endl;
-		//exit(0);
-	}
 
 	return size;
 }
 
 std::streamsize Hash::write(ostream& ostream) const throw (Exception)
 {
-	struct HashTableEntry entry = this->hashData().toEntry();
+	HashTableEntry entry = this->cHashData().toEntry();
 	std::streamsize size = 0;
 	wc3lib::write(ostream, entry, size);
 

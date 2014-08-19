@@ -43,6 +43,8 @@ class Mpq;
  * \brief Provides access to a file's data which is actually a combination of its block and hash entries as well as its path which is provided by the optional "(listfile)" file and its extended attributes provided by the optional "(attributes)" file.
  *
  * \note MpqFile uses mutex locking and unlocking whenever data is being changed or read. It calls \ref boost::mutex::try_lock (immediate lock) in that case so make sure data is not locked at that moment, otherwise it throws an exception.
+ *
+ * \note Only class \ref Mpq can modify a file since it is responsible for holding all files.
  */
 class MpqFile : private boost::noncopyable
 {
@@ -81,31 +83,12 @@ class MpqFile : private boost::noncopyable
 		typedef std::vector<Sector> Sectors;
 
 		/**
-		 * MPQ files are created by \ref Mpq only.
-		 */
-		MpqFile(Mpq *mpq, Hash *hash);
-		virtual ~MpqFile();
-
-		/**
-		 * Removes all data from file.
-		 * Clears corresponding block file size.
-		 * Deletes all corresponding data sectors.
-		 * \throws Exception Throws an exception if file is locked.
-		 */
-		virtual void removeData();
-		/**
 		 * Reads data from input stream \p istream and hence overwrites old file data.
 		 * \p compression Compression which is used for all added sectors.
 		 * \return Returns size of read data.
 		 * \throws Exception Usually thrown when there is not enough space in file's corresponding block. Throws an exception if file is locked as well.
 		 */
 		virtual std::streamsize readData(istream &istream, Sector::Compression compression = Sector::Compression::Uncompressed) throw (class Exception);
-		/**
-		 * Reads data from stream \p istream and appends it to the already existing file data.
-		 * \return Returns the number of read bytes.
-		 * \throws Exception Throws an exception if file is locked.
-		 */
-		virtual std::streamsize appendData(istream &istream) throw (class Exception);
 		/**
 		 * Writes uncompressed file data into output stream \p ostream.
 		 * \return Returns size of written data.
@@ -115,6 +98,11 @@ class MpqFile : private boost::noncopyable
 		 * Same as \ref writeData(ostream &) but doesn't work independently since it expects to be at the correct position in archive using \p istream as input archive stream.
 		 */
 		virtual std::streamsize writeData(istream &istream, ostream &ostream) throw (Exception);
+
+		/**
+		 * \todo Implement removal of all data from the block which should mark hash as deleted and clear the block and should be synchronized with the archive.
+		 */
+		virtual void removeData();
 
 		/**
 		 * Reads the file sectors' meta data.
@@ -134,16 +122,6 @@ class MpqFile : private boost::noncopyable
 		 */
 		std::streamsize writeSectors(ostream &ostream, const Sectors &sectors) const throw (class Exception);
 
-		/**
-		 * Remove file (clears file hash and block data which frees the file's used space).
-		 */
-		void remove() throw (class Exception);
-		/**
-		 * \return Returns false if the file could not be renamed or if it does already have to specified name.
-		 */
-		bool rename(const std::string &newName, bool overwriteExisting = false) throw (class Exception);
-		bool move(const boost::filesystem::path &newPath, bool overwriteExisting = false) throw (class Exception);
-
 		// hash attributes
 		Locale locale() const;
 		Platform platform() const;
@@ -162,13 +140,6 @@ class MpqFile : private boost::noncopyable
 		 * \return Returns file's corresponding block (same as hash()->block()).
 		 */
 		Block* block() const;
-
-		/**
-		 * Sets the path of the file to \p path.
-		 * Updates the hash data as well since it is always associated with the actual path entry.
-		 * If no hash is associated nothing is updated at all.
-		 */
-		void changePath(const boost::filesystem::path &path);
 
 		/**
 		 * \return Returns the file path. Note that MPQ archives without list file don't have any information about the file paths.
@@ -221,6 +192,26 @@ class MpqFile : private boost::noncopyable
 		static Platform intToPlatform(uint16 value);
 
 	protected:
+		friend Mpq;
+		friend void boost::checked_delete<>(MpqFile*);
+		friend void boost::checked_delete<>(MpqFile const*);
+		friend std::auto_ptr<MpqFile>;
+
+		/**
+		 * MPQ files are created by \ref Mpq only.
+		 * \param path Initial path which is set without any synchronization of the corresponding hash entry.
+		 */
+		MpqFile(Mpq *mpq, Hash *hash, const boost::filesystem::path &path);
+		virtual ~MpqFile();
+
+		/**
+		 * Sets the path of the file to \p path.
+		 * Updates the hash data as well since it is always associated with the actual path entry.
+		 * If no hash is associated nothing is updated at all.
+		 * \todo This can only be done by the class Mpq since it is not synchronized at the moment!!!!
+		 */
+		void changePath(const boost::filesystem::path &path);
+
 		/**
 		 * Overwrite this member function to return custom type-based objects if you want to extend their functionality.
 		 * \sa Mpq::newBlock()
@@ -229,6 +220,7 @@ class MpqFile : private boost::noncopyable
 		 */
 		virtual Sector newSector(uint32 index, uint32 offset, uint32 size) throw ();
 
+	private:
 		Mpq *m_mpq;
 		Hash *m_hash;
 		boost::filesystem::path m_path;

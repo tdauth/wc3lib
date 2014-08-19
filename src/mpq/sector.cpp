@@ -241,32 +241,34 @@ std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, in
 	NOTE compression type byte (if existing) is encrypted as well!
 	*/
 	if (this->mpqFile()->isEncrypted())
+	{
 		EncryptData(Mpq::cryptTable(), (void*)data.get(), size, this->sectorKey());
-
-	boost::interprocess::file_lock fileLock(this->mpqFile()->mpq()->path().string().c_str());
-
-	if (!fileLock.try_lock())
-		throw Exception(boost::format("Unable to lock MPQ archive of file \"%1%\".") % this->mpqFile()->path());
+	}
 
 	ofstream ofstream(this->mpqFile()->mpq()->path(), std::ios_base::out | std::ios_base::binary);
 
 	if (!ofstream)
+	{
 		throw Exception(boost::format(_("Unable to open file %1%.")) % this->mpqFile()->mpq()->path());
+	}
 
 	ofstream.seekp(this->mpqFile()->mpq()->startPosition());
 	ofstream.seekp(boost::numeric_cast<std::streamoff>(this->sectorOffset()), std::ios::cur);
 
 	if (this->mpqFile()->mpq()->format() == Mpq::Format::Mpq1)
+	{
 		ofstream.seekp(boost::numeric_cast<std::streamoff>(this->mpqFile()->hash()->block()->blockOffset()), std::ios::cur);
+	}
 	else
+	{
 		ofstream.seekp(boost::numeric_cast<std::streamoff>(this->mpqFile()->hash()->block()->largeOffset()), std::ios::cur);
+	}
 
 	// NOTE as well, this byte is encrypted with the sector data, if applicable.
 	std::streamsize bytes = 0;
 	wc3lib::write(ofstream, data[0], bytes, size);
 	this->m_sectorSize = size;
 	ofstream.close();
-	fileLock.unlock();
 
 	return bytes;
 }
@@ -276,24 +278,22 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 	const uint32 dataSize = this->sectorSize();
 
 	if (dataSize == 0)
+	{
 		return 0;
-
-	boost::interprocess::file_lock fileLock(this->mpqFile()->mpq()->path().string().c_str());
-
-	if (!fileLock.try_lock())
-		throw Exception(boost::format("Unable to lock MPQ archive of file \"%1%\" when trying to read sector data.") % this->mpqFile()->path());
+	}
 
 	ifstream ifstream(this->mpqFile()->mpq()->path(), std::ios_base::in | std::ios_base::binary);
 
 	if (!ifstream)
+	{
 		throw Exception(boost::format(_("Unable to open file %1%.")) % this->mpqFile()->mpq()->path());
+	}
 
 	seekg(ifstream);
 	boost::scoped_array<byte> data(new byte[dataSize]);
 	std::streamsize bytes = 0;
 	wc3lib::read(ifstream, data[0], bytes, dataSize);
 	ifstream.close();
-	fileLock.unlock();
 
 	decompressData(data, dataSize, ostream);
 
@@ -305,7 +305,9 @@ std::streamsize Sector::writeData(istream &istream, ostream &ostream) const thro
 	const uint32 dataSize = this->sectorSize();
 
 	if (dataSize == 0)
+	{
 		return 0;
+	}
 
 	boost::scoped_array<byte> data(new byte[dataSize]);
 	std::streamsize bytes = 0;
@@ -341,9 +343,13 @@ void Sector::seekg(istream &istream) const
 void Sector::seekgFromArchiveStart(istream &istream) const
 {
 	if (this->mpqFile()->mpq()->format() == Mpq::Format::Mpq1)
+	{
 		istream.seekg(boost::numeric_cast<std::streamoff>(this->mpqFile()->hash()->block()->blockOffset()), std::ios::cur);
+	}
 	else
+	{
 		istream.seekg(boost::numeric_cast<std::streamoff>(this->mpqFile()->hash()->block()->largeOffset()), std::ios::cur);
+	}
 
 	seekgFromBlockStart(istream);
 }
@@ -360,7 +366,9 @@ namespace
 	{
 		// decompression failed
 		if (dataSize <= sector.sectorSize()) // smaller size results because of the compression byte
+		{
 			std::cerr << boost::format(_("%1%: Sector %2% with size %3% has same or smaller size after decompression: %4%. Compression \"%5%\".")) % sector.mpqFile()->path() % sector.sectorIndex() % sector.sectorSize() % dataSize % compression << std::endl;
+		}
 	}
 }
 #endif
@@ -374,7 +382,9 @@ void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, os
 	NOTE compression type byte (if existing) is encrypted as well!
 	*/
 	if (this->mpqFile()->isEncrypted())
+	{
 		DecryptData(Mpq::cryptTable(), (void*)data.get(), dataSize, this->sectorKey());
+	}
 
 	// NOTE This byte counts towards the total sector size, meaning that the sector will be stored uncompressed if the data cannot be compressed by at least two bytes
 	if (compressionSucceded())

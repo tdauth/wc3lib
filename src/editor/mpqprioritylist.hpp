@@ -136,6 +136,34 @@ inline bool MpqPriorityListEntry::operator==(const self& other) const
 /**
  * \brief File source handling class which orders sources by their priorities to access files.
  *
+ * The MpqPriorityList has three major tasks:
+ *
+ * <ul>
+ * <li>File resolution when downloading or uploading files</li>
+ * <li>Resource handling which means to hold several resources</li>
+ * <li>Holding shared data such as trigger data and World Editor strings</li>
+ * </ul>
+ *
+ *
+ * Use the following member functions to handle files using the stored sources and the resolution of file paths of the MpqPriorityList:
+ * \ref download()
+ * \ref upload()
+ * \ref mkdir()
+ * The following member functions handle the provided sources such as MPQ archives, directories etc. which are used as base file for the files:
+ * \ref addSource()
+ * \ref removeSource()
+ * \ref sources()
+ * As MPQ supports locales you can set a default locale which is used for up- and downloads using \ref setLocale().
+ *
+ *
+ * Use the following member functions to add, remove or get resources stored in a MpqPriorityList:
+ * \ref addResource()
+ * \ref removeResource()
+ * \ref resources()
+ *
+ *
+ * The member function \ref sharedData() provides access to all shared data required by Warcraft III or the World Editor.
+ *
  * \sa MpqPriorityListEntry
  * \sa Resource
  */
@@ -171,7 +199,15 @@ class KDE_EXPORT MpqPriorityList
 		 */
 		const SharedDataPtr& sharedData() const;
 
+		/**
+		 * Sets the default locale which is used to resolve files which are being uploaded or downloaded to or from MPQ archives.
+		 *
+		 * \sa locale()
+		 */
 		void setLocale(mpq::MpqFile::Locale locale);
+		/**
+		 * \sa setLocale()
+		 */
 		mpq::MpqFile::Locale locale() const;
 
 		/**
@@ -256,6 +292,10 @@ class KDE_EXPORT MpqPriorityList
 		 */
 		virtual bool removeResource(Resource *resource);
 		virtual bool removeResource(const KUrl &url);
+
+		/**
+		 * \return Returns all hold resources.
+		 */
 		const Resources& resources() const;
 
 		void readSettings(const QString &group);

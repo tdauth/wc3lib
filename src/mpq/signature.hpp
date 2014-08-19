@@ -83,7 +83,7 @@ class Signature : public MpqFile
 		virtual const char* fileName() const;
 
 	protected:
-		friend class Mpq;
+		friend Mpq;
 
 		Signature(Mpq *mpq, Hash *hash);
 };

@@ -28,20 +28,10 @@ namespace wc3lib
 namespace mpq
 {
 
-void MpqFile::removeData()
-{
-	this->block()->setFileSize(0);
-
-	/// \todo Clear corresponding sector table in MPQ file?
-	// writeSectors(Sectors())
-}
-
 std::streamsize MpqFile::readData(istream &istream, Sector::Compression compression) throw (class Exception)
 {
-	removeData();
-
+	// TODO clear data first!
 	std::streamsize bytes = 0;
-	uint16 sectorSize = 0;
 	Sectors sectors;
 
 	if (!hasSectorOffsetTable())
@@ -95,24 +85,14 @@ std::streamsize MpqFile::readData(istream &istream, Sector::Compression compress
 	return bytes;
 }
 
-std::streamsize MpqFile::appendData(istream &istream) throw (class Exception)
-{
-	throw Exception(_("MpqFile: appendData is not implemented yet!"));
-
-	return 0;
-}
-
 std::streamsize MpqFile::writeData(ostream &ostream) throw (class Exception)
 {
-	boost::interprocess::file_lock fileLock(this->mpq()->path().string().c_str());
-
-	if (!fileLock.try_lock())
-		throw Exception(boost::format("Unable to lock MPQ archive of file \"%1%\" when trying to read sector data.") % this->path());
-
 	ifstream ifstream(this->mpq()->path(), std::ios_base::in | std::ios_base::binary);
 
 	if (!ifstream)
+	{
 		throw Exception(boost::format(_("Unable to open file %1%.")) % this->mpq()->path());
+	}
 
 	std::streamsize bytes = this->writeData(ifstream, ostream);
 
@@ -154,20 +134,20 @@ std::streamsize MpqFile::writeData(istream &istream, ostream &ostream) throw (Ex
 
 MpqFile::Locale MpqFile::locale() const
 {
-	return MpqFile::intToLocale(this->m_hash->hashData().locale());
+	return MpqFile::intToLocale(this->hash()->cHashData().locale());
 }
 
 MpqFile::Platform MpqFile::platform() const
 {
-	return MpqFile::intToPlatform(this->m_hash->hashData().platform());
+	return MpqFile::intToPlatform(this->hash()->cHashData().platform());
 }
 
 Block* MpqFile::block() const
 {
-	return this->m_hash->block();
+	return this->hash()->block();
 }
 
-MpqFile::MpqFile(class Mpq *mpq, class Hash *hash) : m_mpq(mpq), m_hash(hash)
+MpqFile::MpqFile(Mpq *mpq, Hash *hash, const boost::filesystem::path &path) : m_mpq(mpq), m_hash(hash), m_path(path)
 {
 }
 
@@ -316,62 +296,28 @@ void MpqFile::changePath(const boost::filesystem::path &path)
 
 std::streamsize MpqFile::sectors(Sectors &sectors) throw (class Exception)
 {
-	boost::interprocess::file_lock fileLock(mpq()->path().string().c_str());
-
-	if (!fileLock.try_lock())
-		throw Exception(boost::format(_("Warning: Couldn't lock MPQ file for refreshing sector data of file %1%.")) % path());
-
 	ifstream istream(mpq()->path(), std::ios::in | std::ios::binary);
 
 	if (!istream)
+	{
 		throw Exception(boost::format(_("Unable to open file %1%.")) % mpq()->path());
+	}
 
 	std::streamsize result = this->sectors(istream, sectors);
-	fileLock.unlock();
 
 	return result;
 }
-
 
 std::streamsize MpqFile::writeSectors(ostream &ostream, const Sectors &sectors) const throw (class Exception)
 {
 	return 0;
 }
 
-void MpqFile::remove() throw (class Exception)
+void MpqFile::removeData()
 {
-	this->m_hash->removeData();
-
-	/// @todo Clear file content -> usually unnecessary?
-	//BOOST_FOREACH(class Sector *sector, this->m_sectors)
-		//bytes += sector->clear();
-	throw Exception(_("Not implemented yet!"));
+	throw Exception(_("Not implemented yet."));
 }
 
-bool MpqFile::rename(const std::string &newName, bool overwriteExisting) throw (class Exception)
-{
-	return this->move((this->path().has_parent_path() ? this->path().parent_path() / newName : newName).string(), overwriteExisting);
-}
-
-bool MpqFile::move(const boost::filesystem::path &newPath, bool overwriteExisting) throw (class Exception)
-{
-	if (this->m_path == newPath)
-		return false;
-
-	MpqFile *file = this->mpq()->findFile(newPath, this->locale(), this->platform());
-
-	if (file != 0)
-	{
-		if (!overwriteExisting)
-			return false;
-
-		file->remove();
-	}
-
-	this->hash()->changePath(newPath);
-
-	return true;
-}
 
 }
 

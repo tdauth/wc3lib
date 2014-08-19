@@ -41,8 +41,10 @@ namespace mpq
  * <a href="http://wiki.devklog.net/index.php?title=The_MoPaQ_Archive_Format#Extended_Attributes">Source</a>
  * The extended attributes are optional file attributes for files in the block table. These attributes were added at times after the MoPaQ format was already finalized, and it is not necessary for every archive to have all (or any) of the extended attributes. If an archive contains a given attribute, there will be an instance of that attribute for every block in the block table, although the attribute will be meaningless if the block is not a file. The order of the attributes for blocks correspond to the order of the blocks in the block table, and are of the same number. The attributes are stored in parallel arrays in the "(attributes)" file (default language and platform), in the archive. The attributes corresponding to this file need not be valid (and logically cannot be). Unlike all the other structures in the MoPaQ format, entries in the extended attributes are NOT guaranteed to be aligned. Also note that in some archives, malicious zeroing of the attributes has been observed, perhaps with the intent of
 breaking archive viewers.
+ *
  * \todo Create common class for file based formats which do have latest file version and file name (like \ref map::FileFormat) since this class does have these attributes.
  * \todo MD5 implementation requires library Crypto++ but should only use Boost/not require an extra dependency.
+ *
  * \sa Listfile
  * \sa Signature
  */
@@ -127,7 +129,7 @@ class Attributes : public MpqFile
 		virtual const char* fileName() const;
 
 	protected:
-		friend class Mpq;
+		friend Mpq;
 
 		Attributes(Mpq *mpq, Hash *hash);
 

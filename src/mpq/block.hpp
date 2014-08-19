@@ -34,11 +34,17 @@ class Mpq;
 class MpqFile;
 
 /**
+ * \brief Blocks are used to provide data for a file in an MPQ archive.
+ *
  * Each file in an MPQ archive has exactly one corresponding block which holds all of its content.
  * Blocks are divided into sectors (\ref Sector).
  * There is some properties which are equal for all contained sectors which can be accessed via \ref flags()
  * The MPQ archive's block table is limited to a size of 2^32 (\ref uint32) - 2 since the last two values are reserved by \ref Hash::blockIndexDeleted and \ref Hash::blockIndexEmpty.
  * Use \ref Mpq::maxBlockId to get the last valid block id.
+ *
+ *
+ * \note All the block's data is kept private. Only the class \ref Mpq can modify it since it is responsible for holding all blocks.
+ *
  * \sa Sector
  * \sa Hash
  * \sa MpqFile
@@ -46,6 +52,10 @@ class MpqFile;
 class Block : public Format, private boost::noncopyable
 {
 	public:
+		/**
+		 * Each block has flags which set the type of the block.
+		 * They can be accessed using \ref flags()
+		 */
 		enum class Flags : uint32
 		{
 			None = 0x0,
@@ -58,16 +68,15 @@ class Block : public Format, private boost::noncopyable
 		};
 
 		/**
+		 * Calculates the hash key for the given file name \p fileName using block \p blockTableEntry.
+		 * If the file's block is encrypted (\ref Flags::UsesEncryptionKey) it also has to be decrypted.
+		 *
 		 * \sa MpqFile::name()
+		 * \sa Block::fileKey(const string&)
 		 */
 		static uint32 fileKey(const string &name, const BlockTableEntry &blockTableEntry);
 
-		Block(Mpq *mpq, uint32 index);
-		virtual ~Block();
-
-		std::streamsize read(istream &istream) throw (class Exception);
 		std::streamsize write(ostream &ostream) const throw (class Exception);
-		virtual uint32_t version() const { return 0; }
 
 		bool empty() const;
 		bool unused() const;
@@ -77,9 +86,8 @@ class Block : public Format, private boost::noncopyable
 		 */
 		uint64 largeOffset() const;
 
-		class Mpq* mpq() const;
 		uint32 index() const;
-		void setBlockOffset(uint32 blockOffset);
+
 		/**
 		 * Offset from the archive's beginning (including header) where the block's data starts.
 		 * Since MPQ2 format extended offsets are support which allow larger archives.
@@ -87,7 +95,7 @@ class Block : public Format, private boost::noncopyable
 		 * \sa largeOffset()
 		 */
 		uint32 blockOffset() const;
-		void setExtendedBlockOffset(uint32 extendedBlockOffset);
+
 		/**
 		 * \ref Mpq::Format::MPQ2 supports extended offsets by adding a \ref uint16 value which contains the \ref uint64's more significant bits.
 		 * Use \ref largeOffset() to get the whole offset combination.
@@ -95,50 +103,64 @@ class Block : public Format, private boost::noncopyable
 		 * \sa blockOffset()
 		 */
 		uint16 extendedBlockOffset() const;
-		void setBlockSize(uint32 blockSize);
+
 		/**
 		 * \return Returns the actual required block size in bytes which might be smaller than \ref fileSize() if file is compressed.
 		 */
 		uint32 blockSize() const;
-		void setFileSize(uint32 fileSize);
+
 		/**
 		 * \return Returns the actual uncompressed file size in bytes which might be bigger than \ref blockSize() if file is compressed.
 		 */
 		uint32 fileSize() const;
-		void setFlags(Flags flags);
 		Flags flags() const;
-		class MpqFile* file() const;
-		// extended attributes
-		/**
-		 * \return Returns corresponding \ref CRC32 checksum stored in "(attributes)" file of the archive.
-		 * \throw Attributes::Exception Is thrown if CRC32s aren't stored in "(attributes)" file.
-		 */
-		CRC32 crc32() const;
-		/**
-		 * \return Returns corresponding \ref FILETIME time stamp stored in "(attributes)" file of the archive.
-		 * \throw Attributes::Exception Is thrown if time stamps aren't stored in "(attributes)" file.
-		 */
-		const struct FILETIME& fileTime() const;
-		/**
-		 * \return Returns corresponding converted \ref FILETIME time stamp stored in "(attributes)" file of the archive.
-		 * \throw Attributes::Exception Is thrown if time stamps aren't stored in "(attributes)" file.
-		 */
-		bool fileTime(time_t &time);
-		/**
-		 * \return Returns corresponding \ref MD5 checksum stored in "(attributes)" file of the archive.
-		 * \throw Attributes::Exception Is thrown if MD5s aren't stored in "(attributes)" file.
-		 */
-		MD5 md5() const;
 
 		/**
+		 * \return Returns the corresponding file of the block. Each block has one corresponding file.
+		 */
+		MpqFile* file() const;
+		// extended attributes
+
+		/**
+		 * Calculates the hash key for the given file name \p fileName.
+		 * If the file's block is encrypted (\ref Flags::UsesEncryptionKey) it also has to be decrypted.
+		 *
 		 * \sa MpqFile::name()
+		 * \sa Block::fileKey(const string&, const BlockTableEntry&)
 		 */
 		uint32 fileKey(const string &fileName) const;
 
+		/**
+		 * \return Returns the corresponding block table entry which is written into the block table
+		 * of an MPQ archive.
+		 */
+		BlockTableEntry toBlockTableEntry() const;
+
 	protected:
 		friend Mpq;
+		friend void boost::checked_delete<>(Block*);
+		friend void boost::checked_delete<>(Block const*);
+		friend std::auto_ptr<Block>;
 
-		Mpq *m_mpq;
+		/**
+		 * The constructor has to fill the block data which cannot be read directly from a \ref BlockTableEntry
+		 * except for the corresponding file which is set to 0 by default.
+		 *
+		 * \note The file and the extended block offset have to be set using \ref setFile() and \ref setExtendedBlockOffset().
+		 */
+		Block(uint32 index);
+		virtual ~Block();
+
+		std::streamsize read(istream &istream) throw (class Exception);
+
+		void setFile(MpqFile *file);
+		void setFileSize(uint32 fileSize);
+		void setBlockSize(uint32 blockSize);
+		void setExtendedBlockOffset(uint16 extendedBlockOffset);
+		void setBlockOffset(uint32 blockOffset);
+		void setFlags(Flags flags);
+
+	private:
 		uint32 m_index;
 		uint32 m_blockOffset;
 		uint16 m_extendedBlockOffset;
@@ -168,11 +190,6 @@ inline uint64 Block::largeOffset() const
 	return ((uint64)this->m_extendedBlockOffset << 32) + (uint64)this->m_blockOffset;
 }
 
-inline class Mpq* Block::mpq() const
-{
-	return this->m_mpq;
-}
-
 inline uint32 Block::index() const
 {
 	return m_index;
@@ -188,7 +205,7 @@ inline uint32 Block::blockOffset() const
 	return this->m_blockOffset;
 }
 
-inline void Block::setExtendedBlockOffset(uint32 extendedBlockOffset)
+inline void Block::setExtendedBlockOffset(uint16 extendedBlockOffset)
 {
 	this->m_extendedBlockOffset = extendedBlockOffset;
 }
@@ -228,9 +245,25 @@ inline Block::Flags Block::flags() const
 	return this->m_flags;
 }
 
+inline void Block::setFile(MpqFile* file)
+{
+	this->m_file = file;
+}
+
 inline MpqFile *Block::file() const
 {
 	return this->m_file;
+}
+
+inline BlockTableEntry Block::toBlockTableEntry() const
+{
+	BlockTableEntry entry;
+	entry.blockOffset = this->blockOffset();
+	entry.blockSize = this->blockSize();
+	entry.fileSize = this->fileSize();
+	entry.flags = static_cast<int32>(this->flags());
+
+	return entry;
 }
 
 }

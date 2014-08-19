@@ -78,7 +78,7 @@ std::streamsize W3m::readFileFormat(FileFormat *format) throw (Exception)
 	return size;
 }
 
-std::streamsize W3m::readAllFileFormats(const TriggerData* triggerData)
+std::streamsize W3m::readAllFileFormats(const TriggerData *triggerData) throw (Exception)
 {
 	std::streamsize size = 0;
 
@@ -109,13 +109,10 @@ std::streamsize W3m::readAllFileFormats(const TriggerData* triggerData)
 }
 
 
-std::streamsize W3m::read(InputStream &istream, const mpq::Listfile::Entries &listfileEntries) throw (class Exception)
+std::streamsize W3m::read(InputStream &istream) throw (class Exception)
 {
 	std::streamsize size = this->readHeader(istream);
-	size += mpq::Mpq::read(istream, listfileEntries);
-
-
-
+	size += mpq::Mpq::read(istream);
 	size += this->readSignature(istream);
 
 	return size;

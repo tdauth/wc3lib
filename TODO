@@ -1,3 +1,10 @@
+2014-08-20 Tamino Dauth <tamino@cdauth.eu>
+* mpq: Rename Mpq to Archive.
+* mpq: Rename MpqFile to File.
+* mpq: Files should never be stored only be returned by findFile (newly created!).
+* mpq: Do not store indices for blocks and hashes (we do not need them!).
+* mpq: Add classes HashTable and BlockTable which manage the lists and do the reading and writing which the big class Mpq does at the moment.
+
 2014-08-11 Tamino Dauth <tamino@cdauth.eu>
 * Test "war3map.w3u" support with War Chasers map (Modifications etc.).
 * Test "war3map.w3i" with map which has random unit tables (custom map).

@@ -35,9 +35,8 @@ namespace wc3lib
 namespace mpq
 {
 
-Listfile::Listfile(Mpq* mpq, Hash* hash): MpqFile(mpq, hash)
+Listfile::Listfile(Mpq *mpq, Hash *hash) : MpqFile(mpq, hash, "(listfile)")
 {
-	this->m_path = fileName();
 }
 
 Listfile::Entries Listfile::entries(const string &content)

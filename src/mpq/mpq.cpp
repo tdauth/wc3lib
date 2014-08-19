@@ -51,7 +51,13 @@ const uint32* Mpq::cryptTable()
 	return const_cast<const uint32*>(cryptTable);
 }
 
-Mpq::Mpq() : m_size(0), m_path(), m_format(Mpq::Format::Mpq1), m_sectorSize(0), m_strongDigitalSignature(0), m_isOpen(false)
+Mpq::Mpq()
+: m_size(0)
+, m_path()
+, m_format(Mpq::Format::Mpq1)
+, m_sectorSize(0)
+, m_strongDigitalSignature(0)
+, m_isOpen(false)
 {
 }
 
@@ -60,33 +66,29 @@ Mpq::~Mpq()
 	this->close();
 }
 
-std::streamsize Mpq::create(const boost::filesystem::path &path, bool overwriteExisting, std::streampos startPosition, BOOST_SCOPED_ENUM(Format) format, uint32 sectorSize) throw (class Exception)
+std::streamsize Mpq::create(const boost::filesystem::path &path, bool overwriteExisting, std::streampos startPosition, Format format, uint32 sectorSize) throw (class Exception)
 {
 	this->close();
 
 	if (boost::filesystem::exists(path) && !overwriteExisting)
+	{
 		throw Exception(boost::format(_("Unable to create file \"%1%\". File does already exist.")) % path.string());
+	}
 
 	ofstream ofstream(path, std::ios::out | std::ios::binary);
 
 	if (!ofstream)
+	{
 		throw Exception(boost::format(_("Unable to create file \"%1%\".")) % path.string());
-
-	boost::interprocess::file_lock fileLock(path.string().c_str());
-
-	if (!fileLock.try_lock())
-		throw Exception(boost::format(_("Unable to lock file \"%1%\".")) % path);
+	}
 
 	ofstream.seekp(startPosition);
 
 	if (ofstream.tellp() != startPosition)
 	{
-		fileLock.unlock();
-
 		throw Exception(boost::str(boost::format(_("Unable to start in file \"%1%\" at position %2%.")) % path.string() % startPosition));
 	}
 
-	this->m_fileLock.swap(fileLock);
 	this->m_path = path;
 	this->m_format = format;
 	this->m_sectorSize = sectorSize;
@@ -109,20 +111,16 @@ std::streamsize Mpq::create(const boost::filesystem::path &path, bool overwriteE
 	return streamSize;
 }
 
-std::streamsize Mpq::open(const boost::filesystem::path &path, const Listfile::Entries &listfileEntries) throw (class Exception)
+std::streamsize Mpq::open(const boost::filesystem::path &path) throw (class Exception)
 {
 	this->close();
 
-	boost::interprocess::file_lock fileLock(path.string().c_str());
-
-	if (!fileLock.try_lock())
-		throw Exception(boost::format(_("Unable to lock file \"%1%\".")) % path);
-
-	this->m_fileLock.swap(fileLock);
 	ifstream stream(boost::filesystem::system_complete(path), std::ios_base::binary | std::ios_base::in);
 
 	if (!stream)
+	{
 		throw Exception(boost::format(_("Unable to open file \"%1%\".")) % boost::filesystem::system_complete(path));
+	}
 
 	this->m_size = boost::filesystem::file_size(boost::filesystem::system_complete(path));
 	this->m_path = boost::filesystem::system_complete(path);
@@ -130,7 +128,7 @@ std::streamsize Mpq::open(const boost::filesystem::path &path, const Listfile::E
 
 	try
 	{
-		streamSize = this->read(stream, listfileEntries);
+		streamSize = this->read(stream);
 	}
 	catch (class Exception &exception)
 	{
@@ -147,14 +145,19 @@ std::streamsize Mpq::open(const boost::filesystem::path &path, const Listfile::E
 void Mpq::close()
 {
 	if (!this->m_isOpen)
+	{
 		return;
+	}
 
 	this->clear();
 }
 
-std::streamsize Mpq::read(InputStream &stream, const Listfile::Entries &listfileEntries) throw (class Exception)
+std::streamsize Mpq::read(InputStream &stream) throw (class Exception)
 {
-	// find header structure by using file key
+	/*
+	 * Find header structure by using file key.
+	 * The header must not start at the beginning of a file so it must be seeked for it.
+	 */
 	uint32 ident;
 	std::streamsize size = 0;
 
@@ -163,7 +166,9 @@ std::streamsize Mpq::read(InputStream &stream, const Listfile::Entries &listfile
 		wc3lib::read(stream, ident, size);
 
 		if (size < 4)
+		{
 			throw Exception(boost::format(_("Missing identifier \"%1%\" (read count %2%).")) % Mpq::identifier % size);
+		}
 	}
 	while (memcmp(&ident, Mpq::identifier, 4) != 0);
 
@@ -173,11 +178,17 @@ std::streamsize Mpq::read(InputStream &stream, const Listfile::Entries &listfile
 	wc3lib::read(stream, header, size);
 
 	if (header.formatVersion == Mpq::formatVersion1Identifier)
+	{
 		this->m_format = Mpq::Format::Mpq1;
+	}
 	else if (header.formatVersion == Mpq::formatVersion2Identifier)
+	{
 		this->m_format = Mpq::Format::Mpq2;
+	}
 	else
+	{
 		throw Exception(boost::format(_("Unknown MPQ format \"%1%\".")) % header.formatVersion);
+	}
 
 	if (header.blockTableEntries > maxBlockId + 1)
 	{
@@ -186,18 +197,26 @@ std::streamsize Mpq::read(InputStream &stream, const Listfile::Entries &listfile
 
 	// Number of entries in the hash table. Must be a power of two, and must be less than 2^16 for the original MoPaQ format, or less than 2^20 for the Burning Crusade format.
 	if (header.hashTableEntries % 2 != 0)
+	{
 		std::cerr << boost::format(_("Warning: Hash table entries should be a power of two for MPQ file %1%.\nEntries: %2%.")) % this->path() % header.hashTableEntries << std::endl;
+	}
 
 	if ((this->format() == Mpq::Format::Mpq1 && header.hashTableEntries >= pow(2, 16)) || (this->format() == Mpq::Format::Mpq2 && header.hashTableEntries >= pow(2, 20)))
+	{
 		std::cerr << boost::format(_("Warning: There are too many MPQ hash table entries in MPQ file %1%.\nEntries: %2%.\nFor MPQ1 it must be less than 2^16 and for MPQ2 less than 2^20.")) % this->path() % header.hashTableEntries << std::endl;
+	}
 
 	// According to the StormLib this value is sometimes changed by map creators to protect their maps. As in the StormLib this value is ignored.
 	if (header.headerSize != sizeof(header))
+	{
 		std::cerr << boost::format(_("Warning: MPQ header size is not equal to real header size.\nContained header size: %1%.\nReal header size: %2%.")) % header.headerSize % sizeof(header) << std::endl;
+	}
 
 	if (header.archiveSize != this->size())
+	{
 		std::cerr << boost::format(_("Warning: MPQ file size of MPQ file %1% is not equal to its internal header file size.\nFile size: %2%.\nInternal header file size: %3%.")) % this->path() % this->size()
 		% header.archiveSize << std::endl;
+	}
 
 	this->m_sectorSize = pow(2, header.sectorSizeShift) * 512;
 	boost::scoped_ptr<ExtendedHeader> extendedHeader;
@@ -211,7 +230,9 @@ std::streamsize Mpq::read(InputStream &stream, const Listfile::Entries &listfile
 	uint64 offset = header.blockTableOffset;
 
 	if (this->format() == Mpq::Format::Mpq2 && extendedHeader->blockTableOffsetHigh > 0)
+	{
 		offset += uint64(extendedHeader->blockTableOffsetHigh) << 32;
+	}
 
 	stream.seekg(this->startPosition() + boost::numeric_cast<std::streamoff>(offset));
 	std::size_t encryptedBytesSize = header.blockTableEntries * sizeof(struct BlockTableEntry);
@@ -229,18 +250,18 @@ std::streamsize Mpq::read(InputStream &stream, const Listfile::Entries &listfile
 	}
 
 	/*
-	read extended block table
-	As of the Burning Crusade Friends and Family beta, this table is not encrypted.
-	*/
+	 * Read extended block table
+	 * As of the Burning Crusade Friends and Family beta, this table is not encrypted.
+	 */
 	if (this->format() == Mpq::Format::Mpq2)
 	{
 		stream.seekg(this->startPosition() + boost::numeric_cast<std::streamoff>(extendedHeader->extendedBlockTableOffset));
 
-		BOOST_FOREACH(Block &block, this->m_blocks)
+		BOOST_FOREACH(Blocks::reference block, this->m_blocks)
 		{
 			struct ExtendedBlockTableEntry extendedBlockTableEntry;
 			wc3lib::read(stream, extendedBlockTableEntry, size);
-			block.m_extendedBlockOffset = extendedBlockTableEntry.extendedBlockOffset;
+			block.setExtendedBlockOffset(extendedBlockTableEntry.extendedBlockOffset);
 		}
 	}
 
@@ -299,34 +320,13 @@ std::streamsize Mpq::read(InputStream &stream, const Listfile::Entries &listfile
 			//mpqFile->m_path = // path can only be set if there is a listfile file or if we're able to convert its hash into file path
 			this->m_files.push_back(mpqFile);
 
-			pair.second->block()->m_file = mpqFile.get();
-		}
-	}
-
-	// if custom entries were specified we do NOT use internal "(listfile)" file for path detection!
-	Listfile::Entries entries;
-
-	if (listfileEntries.empty())
-	{
-		Listfile *listfileFile = this->listfileFile();
-
-		if (listfileFile != 0)
-		{
-			entries = listfileFile->entries();
-		}
-	}
-
-	// read listfile file and create path entries
-	BOOST_FOREACH(Listfile::Entries::const_reference path, listfileEntries.empty() ? entries : listfileEntries)
-	{
-		if (!path.empty()) // ignore empty entries
-		{
-			this->findFile(path);
+			pair.second->block()->setFile(mpqFile.get());
 		}
 	}
 
 	// The strong digital signature is stored immediately after the archive, in the containing file
 	const std::streampos position = startPosition() + boost::numeric_cast<std::streampos>(header.archiveSize);
+
 	// jumps to the end of the archive
 	if (endPosition(stream) > position && Mpq::hasStrongDigitalSignature(stream))
 	{
@@ -348,10 +348,14 @@ uint32_t Mpq::version() const
 	switch (format())
 	{
 		case Format::Mpq1:
+		{
 			return formatVersion1Identifier;
+		}
 
 		case Format::Mpq2:
+		{
 			return formatVersion2Identifier;
+		}
 	}
 
 	return 0;
@@ -362,11 +366,12 @@ bool Mpq::operator!() const
 	return !this->isOpen();
 }
 
-class MpqFile* Mpq::newFile(class Hash *hash) throw ()
+MpqFile* Mpq::newFile(class Hash *hash) throw ()
 {
 	try
 	{
-		return new MpqFile(this, hash);
+		// initially the file path is empty and can only be set using (listfile) file and matching hashes
+		return new MpqFile(this, hash, "");
 	}
 	catch (std::bad_alloc &)
 	{
@@ -374,7 +379,7 @@ class MpqFile* Mpq::newFile(class Hash *hash) throw ()
 	}
 }
 
-class Hash* Mpq::newHash(uint32 index) throw ()
+Hash* Mpq::newHash(uint32 index) throw ()
 {
 	try
 	{
@@ -386,11 +391,11 @@ class Hash* Mpq::newHash(uint32 index) throw ()
 	}
 }
 
-class Block* Mpq::newBlock(uint32 index) throw ()
+Block* Mpq::newBlock(uint32 index) throw ()
 {
 	try
 	{
-		return new Block(this, index);
+		return new Block(index);
 	}
 	catch (std::bad_alloc &)
 	{
@@ -402,20 +407,14 @@ void Mpq::clear()
 {
 	this->m_strongDigitalSignature.reset();
 
-	//BOOST_FOREACH(class Block *block, this->m_blocks)
-	//	delete block;
-
-	//BOOST_FOREACH(class Hash *hash, this->m_hashes)
-	//	delete hash;
-
-	//BOOST_FOREACH(class MpqFile *file, this->m_files)
-	//	delete file;
+	this->m_files.clear();
+	this->m_hashes.clear();
+	this->m_blocks.clear();
 
 	this->m_size = 0;
 	this->m_path.clear();
 	this->m_format = Mpq::Format::Mpq1;
 	this->m_sectorSize = 0;
-	this->m_fileLock.unlock();
 	this->m_isOpen = false;
 }
 
@@ -504,12 +503,6 @@ void Mpq::sign(const CryptoPP::RSA::PublicKey &strongPublicKey, const CryptoPP::
 
 void Mpq::digest(Mpq::SHA1Digest &digest) const
 {
-	// The entire archive (ArchiveSize bytes, starting at ArchiveOffset in the containing file) is hashed as a single block (there is one known exception to that algorithm, see below).
-	if (!const_cast<Mpq*>(this)->m_fileLock.try_lock())
-	{
-		throw Exception();
-	}
-
 	boost::filesystem::ifstream ifstream(path(), std::ios::in | std::ios::binary);
 	ifstream.seekg(startPosition());
 	std::streamsize size = 0;
@@ -528,7 +521,7 @@ void Mpq::digest(Mpq::SHA1Digest &digest) const
 	memcpy(data.get(), &header, sizeof(header));
 	wc3lib::read(ifstream, data[sizeof(header)], size, header.archiveSize - sizeof(header));
 	ifstream.close();
-	const_cast<Mpq*>(this)->m_fileLock.unlock();
+
 	CryptoPP::SHA1 sha;
 	digest.reset(new unsigned char[CryptoPP::SHA1::DIGESTSIZE]);
 	sha.CalculateDigest(digest.get(), (unsigned char*)data.get(), header.archiveSize);
@@ -576,19 +569,12 @@ std::streamsize Mpq::signStrong(const CryptoPP::RSA::PublicKey &publicKey)
 	Mpq::StrongDigitalSignature signature;
 	signStrong(signature, publicKey);
 
-	// sync with archive
-	if (!this->m_fileLock.try_lock())
-	{
-		throw Exception();
-	}
-
 	boost::filesystem::ofstream ofstream(path(), std::ios::out | std::ios::binary);
 	ofstream.seekp(m_strongDigitalSignaturePosition);
 	ofstream.seekp(sizeof(uint32), std::ios::cur); // skip header
 	std::streamsize size = 0;
 	wc3lib::write(ofstream, signature[0], size, strongDigitalSignatureSize);
 	ofstream.close();
-	this->m_fileLock.unlock();
 
 	// refresh in heap
 	m_strongDigitalSignature.swap(signature);
