@@ -95,18 +95,10 @@ class KDE_EXPORT MpqProtocol : public KIO::SlaveBase
 		virtual void put(const KUrl &url, int permissions, KIO::JobFlags flags);
 
 	private:
-		void createRootUDSEntry(KIO::UDSEntry &entry);
-		void createUDSEntry(const mpq::MpqFile &mpqFile, KIO::UDSEntry &entry);
-		/**
-		* \brief find, check and open the archive file
-		* \param url The URL of the archive
-		* \param path Path where the archive really is (returned value)
-		* \param errNum KIO error number (undefined if the function returns true)
-		* \return true if file was found, false if there was an error
-		*/
-		bool checkNewFile(const KUrl &url, QString &path, KIO::Error &errorNum, QIODevice::OpenMode openMode);
-
 		MpqArchivePtr m_archive;
+		mpq::Attributes::Crc32s m_crcs;
+		mpq::Attributes::Md5s m_md5s;
+		mpq::Attributes::FileTimes m_fileTimes;
 		mpq::MpqFile *m_file;
 		std::streampos m_seekPos;
 		QString m_archiveName;

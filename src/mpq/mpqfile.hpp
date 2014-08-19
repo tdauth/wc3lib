@@ -21,8 +21,9 @@
 #ifndef WC3LIB_MPQ_MPQFILE_HPP
 #define WC3LIB_MPQ_MPQFILE_HPP
 
-#include <boost/ptr_container/ptr_vector.hpp>
-//#include <boost/algorithm/string/find.hpp>
+#include <vector>
+
+#include <boost/filesystem.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
 #include "platform.hpp"
@@ -35,9 +36,13 @@ namespace wc3lib
 namespace mpq
 {
 
+class Hash;
+class Mpq;
+
 /**
- * \brief Abstract class for mpq file access. Combines hash and block table data of file.
- * MpqFile uses mutex locking and unlocking whenever data is being changed or read. It calls \ref boost::mutex::try_lock (immediate lock) in that case so make sure data is not locked at that moment, otherwise it throws an exception.
+ * \brief Provides access to a file's data which is actually a combination of its block and hash entries as well as its path which is provided by the optional "(listfile)" file and its extended attributes provided by the optional "(attributes)" file.
+ *
+ * \note MpqFile uses mutex locking and unlocking whenever data is being changed or read. It calls \ref boost::mutex::try_lock (immediate lock) in that case so make sure data is not locked at that moment, otherwise it throws an exception.
  */
 class MpqFile : private boost::noncopyable
 {
@@ -68,7 +73,18 @@ class MpqFile : private boost::noncopyable
 			Default
 		};
 
-		typedef boost::ptr_vector<Sector> Sectors;
+		/**
+		 * The content of a file is divided into one or more sectors.
+		 * These sectors only have to be read or written when reading or writing the file's content.
+		 * Therefore we do not need a heap allocated container.
+		 */
+		typedef std::vector<Sector> Sectors;
+
+		/**
+		 * MPQ files are created by \ref Mpq only.
+		 */
+		MpqFile(Mpq *mpq, Hash *hash);
+		virtual ~MpqFile();
 
 		/**
 		 * Removes all data from file.
@@ -94,22 +110,66 @@ class MpqFile : private boost::noncopyable
 		 * Writes uncompressed file data into output stream \p ostream.
 		 * \return Returns size of written data.
 		 */
-		virtual std::streamsize writeData(ostream &ostream) const throw (class Exception);
+		virtual std::streamsize writeData(ostream &ostream) throw (class Exception);
 		/**
 		 * Same as \ref writeData(ostream &) but doesn't work independently since it expects to be at the correct position in archive using \p istream as input archive stream.
 		 */
-		virtual std::streamsize writeData(istream &istream, ostream &ostream) const throw (Exception);
+		virtual std::streamsize writeData(istream &istream, ostream &ostream) throw (Exception);
+
+		/**
+		 * Reads the file sectors' meta data.
+		 * Reads from input stream \p istream which should contain the MPQ archive and stores the result in \p sectors.
+		 *
+		 * \return Returns the read size in bytes.
+		 *
+		 * \throws Exception Throws an exception if file is locked.
+		 */
+		std::streamsize sectors(istream &istream, Sectors &sectors) throw (class Exception);
+		/**
+		 * Same as \ref read(istream &) but opens MPQ archive for reading sector table.
+		 */
+		std::streamsize sectors(Sectors &sectors) throw (class Exception);
+		/**
+		 * Writes the file sectors' meta data.
+		 */
+		std::streamsize writeSectors(ostream &ostream, const Sectors &sectors) const throw (class Exception);
+
+		/**
+		 * Remove file (clears file hash and block data which frees the file's used space).
+		 */
+		void remove() throw (class Exception);
+		/**
+		 * \return Returns false if the file could not be renamed or if it does already have to specified name.
+		 */
+		bool rename(const std::string &newName, bool overwriteExisting = false) throw (class Exception);
+		bool move(const boost::filesystem::path &newPath, bool overwriteExisting = false) throw (class Exception);
 
 		// hash attributes
 		Locale locale() const;
 		Platform platform() const;
 
-		class Mpq* mpq() const;
-		class Hash* hash() const;
+		/**
+		 * \return Returns the archive which the file does belong into.
+		 */
+		Mpq* mpq() const;
+		/**
+		 * \return Returns the corresponding hash which belongs to the file.
+		 *
+		 * \note The data must fit to file path \ref path().
+		 */
+		Hash* hash() const;
 		/**
 		 * \return Returns file's corresponding block (same as hash()->block()).
 		 */
-		class Block* block() const;
+		Block* block() const;
+
+		/**
+		 * Sets the path of the file to \p path.
+		 * Updates the hash data as well since it is always associated with the actual path entry.
+		 * If no hash is associated nothing is updated at all.
+		 */
+		void changePath(const boost::filesystem::path &path);
+
 		/**
 		 * \return Returns the file path. Note that MPQ archives without list file don't have any information about the file paths.
 		 * \note The path has usually a Windows format. For platform safety use \ref nativePath().
@@ -148,25 +208,6 @@ class MpqFile : private boost::noncopyable
 		bool isCompressed() const;
 		bool isImploded() const;
 
-		// extended attributes
-		/**
-		 * \return Returns true if checksums are correct or there isn't any stored checksums.
-		 * \sa Attributes::check()
-		 */
-		bool check() const;
-		CRC32 crc32() const;
-		const struct FILETIME& fileTime() const;
-		bool fileTime(time_t &time) const;
-		MD5 md5() const;
-
-		Sectors& sectors();
-		const Sectors& sectors() const;
-		/**
-		 * If \ref Mpq::storeSectors() is false this returns all found sectors anyway since it reads them directly from the MPQ archive.
-		 * Useful for getting detailed file information.
-		 */
-		Sectors realSectors() const throw (Exception);
-
 		/**
 		 * Compressed sectors (only found in compressed - not imploded - files) are compressed with one or more compression algorithms, and have the following structure:
 		 * \ref byte CompressionMask : Mask of the compression types applied to this sector.
@@ -179,74 +220,26 @@ class MpqFile : private boost::noncopyable
 		static uint16 platformToInt(Platform platform);
 		static Platform intToPlatform(uint16 value);
 
-		/**
-		* Appends data of file \p mpqFile.
-		*/
-		class MpqFile& operator<<(const class MpqFile &mpqFile) throw (class Exception);
-		/**
-		* Adds a copy of the file to MPQ archive \p mpq.
-		* @note Does not overwrite existing files.
-		*/
-		class MpqFile& operator>>(class Mpq &mpq) throw (class Exception);
-		/**
-		* Appends data of the file to file \p mpqFile.
-		*/
-		class MpqFile& operator>>(class MpqFile &mpqFile) throw (class Exception);
-
 	protected:
-		friend class Mpq;
-
 		/**
 		 * Overwrite this member function to return custom type-based objects if you want to extend their functionality.
 		 * \sa Mpq::newBlock()
+		 * \sa Mpq::newHash()
+		 * \sa Mpq::newFile()
 		 */
-		virtual class Sector* newSector(uint32 index, uint32 offset, uint32 size) throw ();
+		virtual Sector newSector(uint32 index, uint32 offset, uint32 size) throw ();
 
-		/**
-		 * MPQ files are created by \ref Mpq only.
-		 */
-		MpqFile(class Mpq *mpq, class Hash *hash);
-
-		template<class T>
-		friend void boost::checked_delete(T*); // for destruction by shared ptr
-		virtual ~MpqFile();
-
-		/**
-		 * Reads the file sectors' meta data.
-		 * \throws Exception Throws an exception if file is locked.
-		 */
-		std::streamsize read(istream &istream) throw (class Exception);
-		/**
-		 * Same as \ref read(istream &) but opens MPQ archive for reading sector table.
-		 */
-		std::streamsize read() throw (class Exception);
-		/**
-		 * Writes the file sectors' meta data.
-		 */
-		std::streamsize write(ostream &ostream) const throw (class Exception);
-
-		/**
-		 * Remove file (clears file hash and block data which frees the file's used space).
-		 */
-		void remove() throw (class Exception);
-		/**
-		 * \return Returns false if the file could not be renamed or if it does already have to specified name.
-		 */
-		bool rename(const std::string &newName, bool overwriteExisting = false) throw (class Exception);
-		bool move(const boost::filesystem::path &newPath, bool overwriteExisting = false) throw (class Exception);
-
-		class Mpq *m_mpq;
-		class Hash *m_hash;
+		Mpq *m_mpq;
+		Hash *m_hash;
 		boost::filesystem::path m_path;
-		Sectors m_sectors;
 };
 
-inline class Mpq* MpqFile::mpq() const
+inline Mpq* MpqFile::mpq() const
 {
 	return this->m_mpq;
 }
 
-inline class Hash* MpqFile::hash() const
+inline Hash* MpqFile::hash() const
 {
 	return this->m_hash;
 }
@@ -262,9 +255,13 @@ inline std::string MpqFile::name() const
 	const std::string::size_type pos = pathString.find_last_of("\\");
 
 	if (pos == std::string::npos)
+	{
 		return pathString;
+	}
 	else if (pos == pathString.size() - 1)
+	{
 		return "";
+	}
 
 	return pathString.substr(pos + 1);
 }
@@ -318,36 +315,6 @@ inline bool MpqFile::isImploded() const
 	return this->block()->flags() & Block::Flags::IsImploded;
 }
 
-inline CRC32 MpqFile::crc32() const
-{
-	return this->block()->crc32();
-}
-
-inline const struct FILETIME& MpqFile::fileTime() const
-{
-	return this->block()->fileTime();
-}
-
-inline bool MpqFile::fileTime(time_t &time) const
-{
-	return this->block()->fileTime(time);
-}
-
-inline MD5 MpqFile::md5() const
-{
-	return this->block()->md5();
-}
-
-inline MpqFile::Sectors& MpqFile::sectors()
-{
-	return this->m_sectors;
-}
-
-inline const MpqFile::Sectors& MpqFile::sectors() const
-{
-	return this->m_sectors;
-}
-
 inline bool MpqFile::hasSectorOffsetTable() const
 {
 	return !(this->block()->flags() & Block::Flags::IsSingleUnit) && ((this->block()->flags() & Block::Flags::IsCompressed) || (this->block()->flags() & Block::Flags::IsImploded));
@@ -371,26 +338,6 @@ inline uint16 MpqFile::platformToInt(MpqFile::Platform platform)
 inline MpqFile::Platform MpqFile::intToPlatform(uint16 value)
 {
 	return static_cast<MpqFile::Platform>(value);
-}
-
-/**
- * Appends data from input stream \p istream to file \p mpqFile.
- */
-inline istream& operator>>(istream &istream, class MpqFile &mpqFile) throw (class Exception)
-{
-	mpqFile.appendData(istream);
-
-	return istream;
-}
-
-/**
- * Writes data of the file \p mpqFile into output stream \p ostream.
- */
-inline ostream& operator<<(ostream &ostream, const class MpqFile &mpqFile) throw (class Exception)
-{
-	mpqFile.writeData(ostream);
-
-	return ostream;
 }
 
 }

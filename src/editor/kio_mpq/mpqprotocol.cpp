@@ -152,7 +152,6 @@ bool MpqProtocol::openArchive(const QString &archive, QString &error)
 		kDebug(7000) << "New opening!";
 
 		MpqArchivePtr ptr(new mpq::Mpq());
-		ptr->setStoreSectors(false); // improves speed on opening massively, never read sectors when opening archive
 
 		try
 		{
@@ -171,7 +170,7 @@ bool MpqProtocol::openArchive(const QString &archive, QString &error)
 		{
 			try
 			{
-				ptr->attributesFile()->readData(); // attributes data is required for file time stamps
+				ptr->attributesFile()->attributes(this->m_crcs, this->m_fileTimes, this->m_md5s); // attributes data is required for file time stamps
 			}
 			catch (Exception &exception)
 			{
@@ -474,22 +473,23 @@ void MpqProtocol::listDir(const KUrl &url)
 				// file time is extended attribute!
 				if (hasAttributes && hasFileTime)
 				{
-					try
+					if (m_fileTimes.size() > file->block()->index())
 					{
-						const bool cast = file->fileTime().toTime(fileTime);
+						mpq::FILETIME &storedFileTime = m_fileTimes[file->block()->index()];
+						const bool cast = storedFileTime.toTime(fileTime);
 
 						if (!cast)
 						{
-							warning(i18n("%1: Invalid file time for \"%2\": high - %3, low - %4", url.prettyUrl(), ref.c_str(), file->fileTime().highDateTime, file->fileTime().lowDateTime));
+							warning(i18n("%1: Invalid file time for \"%2\": high - %3, low - %4", url.prettyUrl(), ref.c_str(), storedFileTime.highDateTime, storedFileTime.lowDateTime));
 						}
 						else
 						{
 							validFileTime = true;
 						}
 					}
-					catch (mpq::Attributes::Exception &e)
+					else
 					{
-						warning(i18n("%1: File time is not stored in \"(attributes)\" file: %2", url.prettyUrl(), e.what()));
+						warning(i18n("%1: File time is not stored in \"(attributes)\" file.", url.prettyUrl()));
 					}
 				}
 
@@ -586,22 +586,23 @@ void MpqProtocol::stat(const KUrl &url)
 		// file time is extended attribute!
 		if (hasAttributes && hasFileTime)
 		{
-			try
+			if (m_fileTimes.size() > file->block()->index())
 			{
-				const bool cast = file->fileTime().toTime(fileTime);
+				mpq::FILETIME &storedFileTime = m_fileTimes[file->block()->index()];
+				const bool cast = storedFileTime.toTime(fileTime);
 
 				if (!cast)
 				{
-					warning(i18n("%1: Invalid file time: high - %2, low - %3", url.prettyUrl(), file->fileTime().highDateTime, file->fileTime().lowDateTime));
+					warning(i18n("%1: Invalid file time for \"%2\": high - %3, low - %4", url.prettyUrl(), file->path().c_str(), storedFileTime.highDateTime, storedFileTime.lowDateTime));
 				}
 				else
 				{
 					validFileTime = true;
 				}
 			}
-			catch (mpq::Attributes::Exception &e)
+			else
 			{
-				warning(i18n("%1: File time is not stored in \"(attributes)\" file: %2", url.prettyUrl(), e.what()));
+				warning(i18n("%1: File time is not stored in \"(attributes)\" file.", url.prettyUrl()));
 			}
 		}
 
@@ -680,69 +681,10 @@ void MpqProtocol::get(const KUrl &url)
 		return;
 	}
 
-	/*
-	 * TODO redirection
-	const KArchiveFile* archiveFileEntry = static_cast<const KArchiveFile*>(archiveEntry);
-
-	if (!archiveEntry->symLinkTarget().isEmpty())
-	{
-		kDebug(7109) << "Redirection to" << archiveEntry->symLinkTarget();
-		KUrl realURL(url, archiveEntry->symLinkTarget());
-		kDebug(7109).nospace() << "realURL=" << realURL.url();
-		redirection(realURL);
-		finished();
-
-		return;
-	}
-	*/
-
-	//kDebug(7109) << "Preparing to get the archive data";
-
-	/*
-	* The easy way would be to get the data by calling archiveFileEntry->data()
-	* However this has drawbacks:
-	* - the complete file must be read into the memory
-	* - errors are skipped, resulting in an empty file
-	*/
-
-	/*
-	boost::scoped_ptr<QIODevice> io(archiveFileEntry->createDevice());
-
-	if (!io)
-	{
-		error( KIO::ERR_SLAVE_DEFINED,
-		i18n("The archive file could not be opened, perhaps because the format is unsupported.\n%1" ,
-                url.prettyUrl()));
-
-		return;
-	}
-
-	if (!io->open(QIODevice::ReadOnly))
-	{
-		error(KIO::ERR_CANNOT_OPEN_FOR_READING, url.prettyUrl());
-
-		return;
-	}
-	*/
-
 	totalSize(file->size());
 
 	// Size of a QIODevice read. It must be large enough so that the mime type check will not fail
 	const qint64 sectorSize = this->m_archive->sectorSize();
-
-	/*
-	qint64 bufferSize = sectorSize;
-	QByteArray buffer;
-	buffer.resize(bufferSize);
-
-	if (buffer.isEmpty() && bufferSize > 0)
-	{
-		// Something went wrong
-		error(KIO::ERR_OUT_OF_MEMORY, url.prettyUrl());
-
-		return;
-	}
-	*/
 
 	bool firstRead = true;
 
@@ -760,24 +702,19 @@ void MpqProtocol::get(const KUrl &url)
 		return;
 	}
 
-	while (sectorIndex < file->sectors().size())
-	{
-		/*
-		if (!firstRead)
-		{
-			bufferSize = sectorSize;
-			buffer.resize(bufferSize);
-		}
-		*/
+	mpq::MpqFile::Sectors sectors;
+	file->sectors(ifstream, sectors);
 
+	while (sectorIndex < sectors.size())
+	{
 		// Avoid to use bufferSize here, in case something went wrong.
 		stringstream ostream; // we don't know the uncompressed size, TODO set internal buffer size to at least sector size!
 		qint64 read = 0;
 
 		try
 		{
-			file->sectors()[sectorIndex].seekg(ifstream);
-			read = file->sectors()[sectorIndex].writeData(ifstream, ostream);
+			sectors[sectorIndex].seekg(ifstream);
+			read = sectors[sectorIndex].writeData(ifstream, ostream);
 		}
 		catch (Exception &exception)
 		{
@@ -895,174 +832,6 @@ void MpqProtocol::put(const KUrl &url, int permissions, KIO::JobFlags flags)
 	finished();
 	*/
 }
-
-void MpqProtocol::createRootUDSEntry(KIO::UDSEntry &entry)
-{
-	entry.clear();
-	entry.insert(KIO::UDSEntry::UDS_NAME, "." );
-	entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFDIR);
-	entry.insert(KIO::UDSEntry::UDS_MODIFICATION_TIME, m_modified.toTime_t());
-	//entry.insert( KIO::UDSEntry::UDS_ACCESS, 07777 ); // fake 'x' permissions, this is a pseudo-directory
-}
-
-void MpqProtocol::createUDSEntry(const mpq::MpqFile &mpqFile, KIO::UDSEntry &entry)
-{
-	entry.clear();
-	entry.insert(KIO::UDSEntry::UDS_NAME, mpqFile.path().string().c_str());
-	entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, mpqFile.isFile()); // keep file type only
-	entry.insert(KIO::UDSEntry::UDS_SIZE, mpqFile.size());
-
-	if (mpqFile.mpq()->containsAttributesFile() && (mpqFile.mpq()->attributesFile()->extendedAttributes() & mpq::Attributes::ExtendedAttributes::FileTimeStamps))
-	{
-		time_t time;
-
-		if (mpqFile.fileTime(time))
-			entry.insert(KIO::UDSEntry::UDS_MODIFICATION_TIME, time);
-	}
-
-	//entry.insert(KIO::UDSEntry::UDS_MODIFICATION_TIME, mpqFile.mpq()->containsAttributesFile() && (mpqFile.mpq()->attributesFile()->extendedAttributes() & mpq::Attributes::ExtendedAttributes::FileTimeStamps) ? mpqFile.fi : );
-	//entry.insert(KIO::UDSEntry::UDS_LINK_DEST, archiveEntry->symLinkTarget());
-}
-
-bool MpqProtocol::checkNewFile(const KUrl &url, QString &path, KIO::Error &errorNum, QIODevice::OpenMode openMode)
-{
-#ifndef Q_WS_WIN
-	QString fullPath = url.path();
-#else
-	QString fullPath = url.path().remove(0, 1);
-#endif
-	kDebug(7109) << "ArchiveProtocol::checkNewFile" << fullPath;
-
-
-	// Are we already looking at that file ?
-	if (m_archive && m_archiveName == fullPath.left(m_archiveName.length()))
-	{
-		// Has it changed ?
-		KDE_struct_stat statbuf;
-
-		if (KDE_stat(QFile::encodeName(m_archiveName), &statbuf) == 0)
-		{
-			if (m_modified.toTime_t() == statbuf.st_mtime)
-			{
-				path = fullPath.mid(m_archiveName.length());
-				kDebug(7109) << "ArchiveProtocol::checkNewFile returning" << path;
-				return true;
-			}
-		}
-	}
-
-	kDebug(7109) << "Need to open a new file";
-
-	// Close previous file
-	if (m_archive)
-	{
-		m_archive->close();
-		m_archive.reset();
-	}
-
-	// Find where the tar file is in the full path
-	int pos = 0;
-	QString archiveFile;
-	path.clear();
-
-	int len = fullPath.length();
-
-	if (len != 0 && fullPath[ len - 1 ] != '/')
-		fullPath += '/';
-
-	kDebug(7109) << "the full path is" << fullPath;
-	KDE_struct_stat statbuf;
-	statbuf.st_mode = 0; // be sure to clear the directory bit
-
-	while ((pos=fullPath.indexOf( '/', pos+1 )) != -1)
-	{
-		QString tryPath = fullPath.left( pos );
-		kDebug(7109) << fullPath << "trying" << tryPath;
-
-		if (KDE_stat(QFile::encodeName(tryPath), &statbuf ) == -1)
-		{
-			// We are not in the file system anymore, either we have already enough data or we will never get any useful data anymore
-			break;
-		}
-
-		if (!S_ISDIR(statbuf.st_mode))
-		{
-			archiveFile = tryPath;
-			m_modified = QDateTime::fromTime_t(statbuf.st_mtime);
-
-			path = fullPath.mid( pos + 1 );
-			kDebug(7109).nospace() << "fullPath=" << fullPath << " path=" << path;
-			len = path.length();
-
-			if ( len > 1 )
-			{
-				if ( path[ len - 1 ] == '/' )
-				path.truncate( len - 1 );
-			}
-			else
-				path = QString::fromLatin1("/");
-
-			kDebug(7109).nospace() << "Found. archiveFile=" << archiveFile << " path=" << path;
-
-			break;
-		}
-	}
-
-	if (archiveFile.isEmpty())
-	{
-		kDebug(7109) << "ArchiveProtocol::checkNewFile: not found";
-
-		if ( S_ISDIR(statbuf.st_mode) ) // Was the last stat about a directory?
-		{
-			// Too bad, it is a directory, not an archive.
-			kDebug(7109) << "Path is a directory, not an archive.";
-			errorNum = KIO::ERR_IS_DIRECTORY;
-		}
-		else
-			errorNum = KIO::ERR_DOES_NOT_EXIST;
-
-		return false;
-	}
-
-	// Open new file
-	if ( url.protocol() == protocol ) {
-		kDebug(7109) << "Opening MPQ on" << archiveFile;
-		m_archive.reset(new mpq::Mpq());
-	}
-	/*else if ( url.protocol() == "ar" ) {
-		kDebug(7109) << "Opening KAr on " << archiveFile;
-		m_archiveFile = new KAr( archiveFile );
-	} else if ( url.protocol() == "zip" ) {
-		kDebug(7109) << "Opening KZip on " << archiveFile;
-		m_archiveFile = new KZip( archiveFile );
-	}*/ else {
-		kWarning(7109) << "Protocol" << url.protocol() << "not supported by this IOSlave" ;
-		errorNum = KIO::ERR_UNSUPPORTED_PROTOCOL;
-
-		return false;
-	}
-
-	if (!m_archive->open(archiveFile.toUtf8().constData()))
-	{
-		kDebug(7109) << "Opening" << archiveFile << "failed.";
-		m_archive.reset();
-
-		if (openMode == QIODevice::ReadOnly)
-			errorNum = KIO::ERR_CANNOT_OPEN_FOR_READING;
-		else if (openMode == QIODevice::WriteOnly || openMode == QIODevice::ReadWrite)
-			errorNum = KIO::ERR_CANNOT_OPEN_FOR_WRITING;
-		else
-			errorNum = KIO::ERR_UNKNOWN;
-
-
-		return false;
-	}
-
-	m_archiveName = archiveFile;
-
-	return true;
-}
-
 
 }
 

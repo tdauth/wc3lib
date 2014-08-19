@@ -87,7 +87,7 @@ class Listfile : public MpqFile
 		 * Splits up file content at one of the following characters "; \r \n" and returns the resulting container with all split file paths.
 		 * \return Returns the container with all found file paths in file.
 		 */
-		Entries entries() const;
+		Entries entries();
 		Entries dirEntries(const string &dirPath, bool recursive = true, bool directories = true);
 
 		virtual const char* fileName() const;
@@ -98,7 +98,7 @@ class Listfile : public MpqFile
 		Listfile(Mpq *mpq, Hash *hash);
 };
 
-inline Listfile::Entries Listfile::entries() const
+inline Listfile::Entries Listfile::entries()
 {
 	ostringstream stream;
 	MpqFile::writeData(stream);

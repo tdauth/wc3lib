@@ -63,7 +63,7 @@ MD5 Signature::checksum() const
 	return 0;
 }
 
-MD5 Signature::storedChecksum(const CryptoPP::RSA::PrivateKey &privateKey) const
+MD5 Signature::storedChecksum(const CryptoPP::RSA::PrivateKey &privateKey)
 {
 	arraystream stream;
 	std::streamsize bufferSize = this->writeData(stream);

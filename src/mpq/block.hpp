@@ -30,6 +30,9 @@ namespace wc3lib
 namespace mpq
 {
 
+class Mpq;
+class MpqFile;
+
 /**
  * Each file in an MPQ archive has exactly one corresponding block which holds all of its content.
  * Blocks are divided into sectors (\ref Sector).
@@ -59,7 +62,7 @@ class Block : public Format, private boost::noncopyable
 		 */
 		static uint32 fileKey(const string &name, const BlockTableEntry &blockTableEntry);
 
-		Block(class Mpq *mpq, uint32 index);
+		Block(Mpq *mpq, uint32 index);
 		virtual ~Block();
 
 		std::streamsize read(istream &istream) throw (class Exception);
@@ -133,17 +136,16 @@ class Block : public Format, private boost::noncopyable
 		uint32 fileKey(const string &fileName) const;
 
 	protected:
-		friend class Mpq;
-		friend class Hash;
+		friend Mpq;
 
-		class Mpq *m_mpq;
+		Mpq *m_mpq;
 		uint32 m_index;
 		uint32 m_blockOffset;
 		uint16 m_extendedBlockOffset;
 		uint32 m_blockSize;
 		uint32 m_fileSize;
 		Flags m_flags;
-		class MpqFile *m_file;
+		MpqFile *m_file;
 };
 
 inline constexpr bool operator&(Block::Flags x, Block::Flags y)

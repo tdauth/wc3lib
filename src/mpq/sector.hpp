@@ -31,6 +31,9 @@ namespace wc3lib
 namespace mpq
 {
 
+class Mpq;
+class MpqFile;
+
 /**
  * \brief Blocks are divided into one or several sectors.
  *
@@ -93,7 +96,7 @@ class Sector // FIXME : private boost::noncopyable
 		void seekgFromArchiveStart(istream &istream) const;
 		void seekgFromBlockStart(istream &istream) const;
 
-		class MpqFile* mpqFile() const;
+		MpqFile* mpqFile() const;
 		uint32 sectorIndex() const;
 		uint32 sectorOffset() const;
 		uint32 sectorSize() const;
@@ -106,10 +109,10 @@ class Sector // FIXME : private boost::noncopyable
 		bool compressionSucceded() const;
 
 	protected:
-		friend class Mpq;
-		friend class MpqFile;
+		friend Mpq;
+		friend MpqFile;
 
-		void setCompression(byte value);
+		void setCompression(Compression value);
 		uint32 sectorKey() const;
 
 		/**
@@ -117,7 +120,7 @@ class Sector // FIXME : private boost::noncopyable
 		 */
 		void decompressData(boost::scoped_array<byte> &data, uint32 dataSize, ostream &ostream) const throw (Exception);
 
-		class MpqFile *m_mpqFile;
+		MpqFile *m_mpqFile;
 		uint32 m_sectorIndex;
 		uint32 m_sectorOffset;
 		uint32 m_sectorSize; // not required, added by wc3lib, should be the compressed size!

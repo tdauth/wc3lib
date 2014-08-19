@@ -78,10 +78,9 @@ std::streamsize W3m::readFileFormat(FileFormat *format) throw (Exception)
 	return size;
 }
 
-std::streamsize W3m::read(InputStream &istream, const mpq::Listfile::Entries &listfileEntries) throw (class Exception)
+std::streamsize W3m::readAllFileFormats(const TriggerData* triggerData)
 {
-	std::streamsize size = this->readHeader(istream);
-	size += mpq::Mpq::read(istream, listfileEntries);
+	std::streamsize size = 0;
 
 	size += this->readFileFormat(this->environment().get());
 	// NOTE always read environment before shadow to get width and height of map!
@@ -101,13 +100,28 @@ std::streamsize W3m::read(InputStream &istream, const mpq::Listfile::Entries &li
 	size += this->readFileFormat(this->importedFiles().get());
 
 	// NOTE do not read triggers without trigger data. Triggers have to be read separately!
+	if (triggerData != 0)
+	{
+		size += readTriggers(*triggerData);
+	}
+
+	return size;
+}
+
+
+std::streamsize W3m::read(InputStream &istream, const mpq::Listfile::Entries &listfileEntries) throw (class Exception)
+{
+	std::streamsize size = this->readHeader(istream);
+	size += mpq::Mpq::read(istream, listfileEntries);
+
+
 
 	size += this->readSignature(istream);
 
 	return size;
 }
 
-std::streamsize W3m::readTriggers(W3m::InputStream &istream, const TriggerData &triggerData) throw (class Exception)
+std::streamsize W3m::readTriggers(const TriggerData &triggerData) throw (class Exception)
 {
 	std::streamsize size = 0;
 	mpq::MpqFile *file = this->findFile(m_triggers.get()->fileName());
@@ -157,7 +171,9 @@ std::streamsize W3m::readHeader(InputStream &istream) throw (class Exception)
 	wc3lib::read(istream, fileId, size);
 
 	if (fileId != this->fileId())
+	{
 		throw Exception(boost::format(_("W3m: Unknown file id \"%1%\". Expected \"%2%\".")) % fileId % this->fileId());
+	}
 
 	int32 unknown;
 	wc3lib::read(istream, unknown, size);
@@ -174,7 +190,12 @@ std::streamsize W3m::readSignature(InputStream &istream) throw (class Exception)
 {
 	std::streamsize result = 0;
 
-	if (!istream.eof())
+	/*
+	 * Get the end position to detect if any stream data is still available.
+	 */
+	const std::streampos end = endPosition(istream);
+
+	for (std::streampos pos = istream.tellg(); pos < (std::streamoff)end - 4; pos = istream.tellg())
 	{
 		byte signId[4];
 		wc3lib::read(istream, signId, result, 4);
@@ -184,6 +205,8 @@ std::streamsize W3m::readSignature(InputStream &istream) throw (class Exception)
 		{
 			m_signature.reset(new byte[signatureSize]);
 			wc3lib::read(istream, m_signature[0], result, signatureSize);
+
+			break;
 		}
 	}
 

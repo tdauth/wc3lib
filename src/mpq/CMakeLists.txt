@@ -13,6 +13,7 @@ if (MPQ)
 		platform.hpp
 		sector.hpp
 		signature.hpp
+		test.hpp
 	)
 	set(wc3lib_MPQ_SRC
 		algorithm.cpp
@@ -24,15 +25,8 @@ if (MPQ)
 		mpqfile.cpp
 		sector.cpp
 		signature.cpp
+		test.cpp
 	)
-
-	if (DEBUG)
-		set(Boost_DEBUG ON)
-		add_definitions(-DBOOST_TEST_DYN_LINK=1)
-	endif ()
-
-	# regex is required for listfile only
-	find_package(Boost COMPONENTS system filesystem thread serialization program_options iostreams regex REQUIRED)
 
 	# Both compression libraries are required by Boost "iostreams" component which is used for the "mpq" module.
 	# Crypto++ library is required for RSA encryption and SHA1 digest and MD5 checksum calculation (Boost does only support CRC).

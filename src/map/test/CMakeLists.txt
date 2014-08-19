@@ -45,6 +45,10 @@ add_executable(infotest info.cpp)
 target_link_libraries(infotest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
 add_test(NAME InfoTest COMMAND infotest)
 
+add_executable(warchaserstest warchasers.cpp)
+target_link_libraries(warchaserstest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
+add_test(NAME WarChasersTest COMMAND warchaserstest)
+
 configure_file(customobjects.w3o customobjects.w3o COPYONLY) # The Frozen Throne
 configure_file(TriggerData.txt TriggerData.txt COPYONLY) # Warcraft III
 configure_file(TriggerStrings.txt TriggerStrings.txt COPYONLY) # Warcraft III
@@ -56,3 +60,5 @@ configure_file(TestMap.w3m TestMap.w3m COPYONLY)
 configure_file(war3map.w3r war3map.w3r COPYONLY) # Reign of Chaos rects
 configure_file(war3map.w3s war3map.w3s COPYONLY) # Reign of Chaos sounds
 configure_file(war3map.w3i war3map.w3i COPYONLY) # Reign of Chaos War Chasers
+
+configure_file(\(4\)WarChasers.w3m \(4\)WarChasers.w3m COPYONLY)

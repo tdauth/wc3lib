@@ -77,7 +77,7 @@ class Signature : public MpqFile
 		/**
 		 * \sa Mpq::storedDigest()
 		 */
-		MD5 storedChecksum(const CryptoPP::RSA::PrivateKey &privateKey) const;
+		MD5 storedChecksum(const CryptoPP::RSA::PrivateKey &privateKey);
 #endif
 
 		virtual const char* fileName() const;

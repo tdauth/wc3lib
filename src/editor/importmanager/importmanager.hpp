@@ -37,17 +37,17 @@ class KDE_EXPORT ImportManager : public Module
 		ImportManager(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 
 	protected:
-		virtual void createFileActions(class KMenu *menu);
-		virtual void createEditActions(class KMenu *menu);
-		virtual void createMenus(class KMenuBar *menuBar);
-		virtual void createWindowsActions(class WindowsMenu *menu);
-		virtual void createToolButtons(class KToolBar *toolBar);
-		virtual class SettingsInterface* settings();
-		virtual void onSwitchToMap(class Map *map);
-		virtual QString actionName();
+		virtual void createFileActions(KMenu *menu) override;
+		virtual void createEditActions(KMenu *menu) override;
+		virtual void createMenus(KMenuBar *menuBar) override;
+		virtual void createWindowsActions(WindowsMenu *menu) override;
+		virtual void createToolButtons(ModuleToolBar *toolBar) override;
+		virtual SettingsInterface* settings() override;
+		virtual void onSwitchToMap(Map *map) override;
+		virtual QString actionName() const override;
 };
 
-inline QString ImportManager::actionName()
+inline QString ImportManager::actionName() const
 {
 	return "importmanager";
 }

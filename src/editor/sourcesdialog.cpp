@@ -40,15 +40,17 @@ namespace editor
 void SourcesDialog::update()
 {
 	m_editListBox->clear();
-	
+
 	qDebug() << "Sources: " << const_cast<const MpqPriorityList*>(source())->sources().size();
-	
-	foreach (MpqPriorityList::Source source, const_cast<const MpqPriorityList*>(source())->sources()) {
-		m_editListBox->insertItem(source->url().toEncoded());
+
+	foreach (MpqPriorityList::Sources::const_reference source, const_cast<const MpqPriorityList*>(source())->sources()) {
+		m_editListBox->insertItem(source.url().toEncoded());
 	}
 }
 
-SourcesDialog::SourcesDialog(class MpqPriorityList *source, QWidget *parent, Qt::WFlags flags): m_source(source), QDialog(parent, flags)
+SourcesDialog::SourcesDialog(class MpqPriorityList *source, QWidget *parent, Qt::WFlags flags)
+: QDialog(parent, flags)
+, m_source(source)
 {
 	setupUi(this);
 
@@ -68,9 +70,13 @@ SourcesDialog::SourcesDialog(class MpqPriorityList *source, QWidget *parent, Qt:
 	QString filter;
 
 	if (mpq.isNull() || w3m.isNull() || w3x.isNull() || w3n.isNull())
+	{
 		filter = i18n("*|All Files\n*.mpq;*.w3m;*.w3x;*.w3n|Blizzard archives");
+	}
 	else
+	{
 		filter = i18n("all/allfiles application/x-mpq application/x-w3m application/x-w3x application/x-w3n");
+	}
 
 	urlRequester->setFilter(filter);
 	KEditListWidget::CustomEditor customEditor(urlRequester, urlRequester->lineEdit());
@@ -89,16 +95,16 @@ void SourcesDialog::added(const QString& text)
 		QStringList items = m_editListBox->items();
 		items.removeFirst();
 		QString protocol = "mpq:";
-		
+
 		if (!text.startsWith('/')) { // relative path
 			protocol += '/';
 		}
-		
+
 		items.push_front(protocol + text);
 		m_editListBox->setItems(items);
 	} else {
 		const KUrl url(text);
-		
+
 		if (url.isLocalFile() && !text.startsWith("file://")) {
 			QStringList items = m_editListBox->items();
 			items.removeFirst();
@@ -117,9 +123,9 @@ void SourcesDialog::ok()
 void SourcesDialog::apply()
 {
 	QLinkedList<KUrl> valids;
-	
+
 	source()->clear(); // NOTE we always have to clear first since priorities of existing entries might have changed
-	
+
 	foreach (const QString &item, m_editListBox->items())
 	{
 		if (!source()->addSource(item))
@@ -161,7 +167,9 @@ void SourcesDialog::showEvent(QShowEvent *e)
 QString SourcesDialog::settingsGroup() const
 {
 	if (dynamic_cast<Editor*>(parentWidget()) != 0)
+	{
 		return static_cast<Editor*>(parentWidget())->aboutData().appName();
+	}
 	else if (dynamic_cast<Module*>(parentWidget()) != 0)
 	{
 		Module *module = static_cast<Module*>(parentWidget());
@@ -169,7 +177,9 @@ QString SourcesDialog::settingsGroup() const
 		return module->settingsGroup();
 	}
 	else
+	{
 		throw Exception(_("Sources can only have modules or editor as parent."));
+	}
 
 	return "";
 }

@@ -35,8 +35,8 @@ namespace mpq
  * \brief Class for MPQ's "(attributes)" file which stores extended file attributes such as time stamps and check sums.
  *
  * This class provides useful functions for accessing a file's corresponding attributes as well as refreshing/changing it.
- *
- * \note Use \ref readData() to fill all attribute data structures. Without manual call all data will be empty.
+ * Use \ref attributes() to get the stored extendend attributes from the file.
+ * Use \ref writeAttributes() to update the extended attributes.
  *
  * <a href="http://wiki.devklog.net/index.php?title=The_MoPaQ_Archive_Format#Extended_Attributes">Source</a>
  * The extended attributes are optional file attributes for files in the block table. These attributes were added at times after the MoPaQ format was already finalized, and it is not necessary for every archive to have all (or any) of the extended attributes. If an archive contains a given attribute, there will be an instance of that attribute for every block in the block table, although the attribute will be meaningless if the block is not a file. The order of the attributes for blocks correspond to the order of the blocks in the block table, and are of the same number. The attributes are stored in parallel arrays in the "(attributes)" file (default language and platform), in the archive. The attributes corresponding to this file need not be valid (and logically cannot be). Unlike all the other structures in the MoPaQ format, entries in the extended attributes are NOT guaranteed to be aligned. Also note that in some archives, malicious zeroing of the attributes has been observed, perhaps with the intent of
@@ -60,30 +60,19 @@ class Attributes : public MpqFile
 			FileMd5s = 0x00000004
 		};
 
-		/**
-		 * \brief Custom type for exceptions thrown if a specific type of extended attributes is not stored in the file.
-		 *
-		 * Use \ref Exception::extendedAttributes() to get the type which is not stored.
-		 *
-		 * \sa Attributes::ExtendedAttributes
-		 */
-		class Exception : public wc3lib::Exception
-		{
-			public:
-				Exception(ExtendedAttributes extendedAttributes, const std::string &what = "") throw ();
-				Exception(ExtendedAttributes extendedAttributes, const boost::format &what) throw ();
-
-				ExtendedAttributes extendedAttributes() const;
-
-			private:
-				ExtendedAttributes m_extendedAttributes;
-		};
-
 		static const int32 latestVersion = 100;
 
+		/**
+		 * All extended attributes are stored in a simple vector.
+		 *
+		 * @{
+		 */
 		typedef std::vector<CRC32> Crc32s;
 		typedef std::vector<FILETIME> FileTimes;
 		typedef std::vector<MD5> Md5s;
+		/**
+		 * @}
+		 */
 
 		/**
 		 * @{
@@ -97,147 +86,61 @@ class Attributes : public MpqFile
 		/**@}*/
 
 		/**
-		 * Returns a vector of all checksums for all files. For each file's block its index is used to get the corresponding entry.
+		 * Checks \p data of size \p dataSize with the given checksum and returns
+		 * if the data matches the checksum.
+		 *
+		 * @{
 		 */
-		const Crc32s& crc32s() const;
-		const FileTimes& fileTimes() const;
-		const Md5s& md5s() const;
-
-		virtual void removeData();
-
+		static bool checkCrc(const byte *data, std::size_t dataSize, CRC32 crc);
+		static bool checkMd5(const byte *data, std::size_t dataSize, MD5 md5);
 		/**
-		 * Refreshes extended file attributes of file \p mpqFile.
-		 * \note Attributes are refreshed in heap/this structure only. For synchronizing data in the corresponding MPQ archive call \ref writeData() afterwards.
+		 * @}
 		 */
-		void refreshFile(const MpqFile *mpqFile);
-		/**
-		 * Refreshes extended file attributes of all files in archive.
-		 * \note Attributes are refreshed in heap/this structure only. For synchronizing data in the corresponding MPQ archive call \ref writeData() afterwards.
-		 */
-		void refresh();
+
 
 		/**
-		 * Reads data from corresponding file "(attributes)" of the archive and stores attributes into containers.
-		 * \note This function has to be called manually. Otherwise, structures will stay empty.
+		 * Empties extended attributes.
+		 * Sets them to \ref ExtendedAttributes::None and clears the lists.
 		 */
-		std::streamsize readData();
+		virtual void removeData() override;
+
+		std::streamsize readHeader(istream &stream);
+
+
+		/**
+		 * \brief Reads the attributes from the MPQ archive intro the three parameters.
+		 */
+		std::streamsize attributes(Crc32s &crcs, FileTimes &fileTimes, Md5s &md5s);
+
 		/**
 		 * Writes data into corresponding file "(attributes)" of the archive.
+		 * \param extenedAttributes Defines which attributes are actuall used.
 		 */
-		std::streamsize writeData();
-
-		/**
-		 * Checks file data via used checksum methods (\ref Mpq::ExtendedAttributes::FileCrc32s and \ref Mpq::ExtendedAttributes::FileMd5s).
-		 * If none is used check's result is always positive.
-		 * \return Returns true if checksums are correct or there isn't any checksum method.
-		 */
-		bool check(const MpqFile *mpqFile) const;
-		/**
-		 * Checks all files of the archive via used checksum methods (\ref Mpq::ExtendedAttributes::FileCrc32s and \ref Mpq::ExtendedAttributes::FileMd5s).
-		 * If none is used check's result is always positive.
-		 * \return Returns true if checksums are correct or there isn't any checksum method.
-		 */
-		bool check() const;
+		std::streamsize writeAttributes(int32 version, ExtendedAttributes extenedAttributes, const Crc32s &crcs = Crc32s(), const FileTimes &fileTimes = FileTimes(), const Md5s &md5s = Md5s());
 
 		/**
 		 * \ref latestVersion contains the latest format version.
 		 */
 		virtual uint32_t version() const;
 		ExtendedAttributes extendedAttributes() const;
-		bool hasChecksums() const;
-
-		/**
-		 * @{
-		 * \throw std::out_of_range Is thrown if index is invalid.
-		 * \throw Exception Is thrown if CRC32s aren't stored in "(attributes)"
-		 */
-		CRC32 crc32(std::size_t index) const;
-		CRC32 crc32(const Block *block) const;
-		CRC32 crc32(const MpqFile *mpqFile) const;
-		/**@}*/
-
-		/**
-		 * @{
-		 * \throw std::out_of_range Is thrown if index is invalid.
-		 * \throw Exception Is thrown if file time stamps aren't stored in "(attributes)"
-		 */
-		const FILETIME& fileTime(std::size_t index) const;
-		const FILETIME& fileTime(const Block *block) const;
-		const FILETIME& fileTime(const MpqFile *mpqFile) const;
-		/**@}*/
-
-		/**
-		 * @{
-		 * \throw std::out_of_range Is thrown if index is invalid.
-		 * \throw Exception Is thrown if MD5s aren't stored in "(attributes)"
-		 */
-		MD5 md5(std::size_t index) const;
-		MD5 md5(const Block *block) const;
-		MD5 md5(const MpqFile *mpqFile) const;
-		/**@}*/
 
 		virtual const char* fileName() const;
 
 	protected:
 		friend class Mpq;
 
-		Attributes(Mpq *mpq, Hash *hash, ExtendedAttributes extendedAttributes, uint32 version = latestVersion);
+		Attributes(Mpq *mpq, Hash *hash);
 
-		void setVersion(uint32 version);
-		void setExtendedAttributes(ExtendedAttributes extendedAttributes);
-
-		void setCrc32(const Block *block, CRC32 crc32);
-		void setFileTime(const Block *block, const FILETIME &fileTime);
-		void setMd5(const Block *block, MD5 md5);
-
-		Crc32s& crc32s();
-		FileTimes& fileTimes();
-		Md5s& md5s();
-
-	private:
-		uint32 m_version;
+		/*
+		 * Header information:
+		 */
+		int32 m_version;
 		ExtendedAttributes m_extendedAttributes;
-		Crc32s m_crc32s;
-		FileTimes m_fileTimes;
-		Md5s m_md5s;
 };
 
 inline constexpr bool operator&(Attributes::ExtendedAttributes x, Attributes::ExtendedAttributes y)
 {
 	return static_cast<bool>(static_cast<uint32>(x) & static_cast<uint32>(y));
-}
-
-inline const Attributes::Crc32s& Attributes::crc32s() const
-{
-	return this->m_crc32s;
-}
-
-inline const Attributes::FileTimes& Attributes::fileTimes() const
-{
-	return this->m_fileTimes;
-}
-
-inline const Attributes::Md5s& Attributes::md5s() const
-{
-	return this->m_md5s;
-}
-
-inline Attributes::Exception::Exception(Attributes::ExtendedAttributes extendedAttributes, const std::string &what) throw () : wc3lib::Exception(what), m_extendedAttributes(extendedAttributes)
-{
-}
-
-inline Attributes::Exception::Exception(Attributes::ExtendedAttributes extendedAttributes, const boost::format &what) throw () : wc3lib::Exception(what), m_extendedAttributes(extendedAttributes)
-{
-}
-
-inline Attributes::ExtendedAttributes Attributes::Exception::extendedAttributes() const
-{
-	return this->m_extendedAttributes;
-}
-
-inline bool Attributes::hasChecksums() const
-{
-	return extendedAttributes() & ExtendedAttributes::FileCrc32s || extendedAttributes() & ExtendedAttributes::FileMd5s;
 }
 
 inline uint32_t Attributes::version() const
@@ -247,111 +150,13 @@ inline uint32_t Attributes::version() const
 
 inline Attributes::ExtendedAttributes Attributes::extendedAttributes() const
 {
-	return m_extendedAttributes;
-}
-
-inline CRC32 Attributes::crc32(std::size_t index) const
-{
-	if (!(extendedAttributes() & ExtendedAttributes::FileCrc32s))
-		throw Exception(ExtendedAttributes::FileCrc32s);
-
-	return crc32s()[index];
-}
-
-inline CRC32 Attributes::crc32(const Block *block) const
-{
-	return crc32(block->index());
-}
-
-inline CRC32 Attributes::crc32(const MpqFile *mpqFile) const
-{
-	return crc32(mpqFile->block());
-}
-
-inline const FILETIME& Attributes::fileTime(std::size_t index) const
-{
-	if (!(extendedAttributes() & ExtendedAttributes::FileTimeStamps))
-		throw Exception(ExtendedAttributes::FileTimeStamps);
-
-	return fileTimes()[index];
-}
-
-inline const FILETIME& Attributes::fileTime(const Block *block) const
-{
-	return fileTime(block->index());
-}
-
-inline const FILETIME& Attributes::fileTime(const MpqFile *mpqFile) const
-{
-	return fileTime(mpqFile->block());
-}
-
-inline MD5 Attributes::md5(std::size_t index) const
-{
-	if (!(extendedAttributes() & ExtendedAttributes::FileMd5s))
-		throw Exception(ExtendedAttributes::FileMd5s);
-
-	return md5s()[index];
-}
-
-inline MD5 Attributes::md5(const Block *block) const
-{
-	if (!(extendedAttributes() & ExtendedAttributes::FileMd5s))
-		throw Exception(ExtendedAttributes::FileMd5s);
-
-	return md5(block->index());
-}
-
-inline MD5 Attributes::md5(const MpqFile *mpqFile) const
-{
-	return md5(mpqFile->block());
+	return this->m_extendedAttributes;
 }
 
 inline const char* Attributes::fileName() const
 {
 	return "(attributes)";
 }
-
-inline void Attributes::setVersion(uint32 version)
-{
-	this->m_version = version;
-}
-
-inline void Attributes::setExtendedAttributes(Attributes::ExtendedAttributes extendedAttributes)
-{
-	this->m_extendedAttributes = extendedAttributes;
-}
-
-inline void Attributes::setCrc32(const Block *block, CRC32 crc32)
-{
-	this->crc32s()[block->index()] = crc32;
-}
-
-inline void Attributes::setFileTime(const Block *block, const FILETIME &fileTime)
-{
-	this->fileTimes()[block->index()] = fileTime;
-}
-
-inline void Attributes::setMd5(const Block* block, MD5 md5)
-{
-	this->md5s()[block->index()] = md5;
-}
-
-inline Attributes::Crc32s& Attributes::crc32s()
-{
-	return this->m_crc32s;
-}
-
-inline Attributes::FileTimes& Attributes::fileTimes()
-{
-	return this->m_fileTimes;
-}
-
-inline Attributes::Md5s& Attributes::md5s()
-{
-	return this->m_md5s;
-}
-
 
 }
 

@@ -6,7 +6,8 @@ if (DEBUG)
 	add_definitions(-DBOOST_TEST_DYN_LINK=1)
 endif ()
 
-find_package(Boost COMPONENTS system filesystem serialization program_options iostreams REQUIRED)
+# regex is required for listfile in mpq module
+find_package(Boost COMPONENTS system filesystem serialization program_options iostreams regex REQUIRED)
 
 link_directories(${Boost_LIBRARY_DIRS})
 include_directories(${GETTEXT_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})

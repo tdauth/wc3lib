@@ -41,6 +41,15 @@ HashData::HashData(const HashData &other) : m_filePathHashA(other.m_filePathHash
 {
 }
 
+HashData::HashData(const HashTableEntry& entry)
+{
+	this->setFilePathHashA(entry.filePathHashA);
+	this->setFilePathHashB(entry.filePathHashB);
+	this->setLocale(entry.locale);
+	this->setPlatform(entry.platform);
+}
+
+
 HashData& HashData::operator=(const HashData &other)
 {
 	m_filePathHashA = other.m_filePathHashA;
@@ -49,6 +58,27 @@ HashData& HashData::operator=(const HashData &other)
 	m_platform = other.m_platform;
 
 	return *this;
+}
+
+HashData& HashData::operator=(const HashTableEntry& entry)
+{
+	this->setFilePathHashA(entry.filePathHashA);
+	this->setFilePathHashB(entry.filePathHashB);
+	this->setLocale(entry.locale);
+	this->setPlatform(entry.platform);
+
+	return *this;
+}
+
+HashTableEntry HashData::toEntry() const
+{
+	HashTableEntry entry;
+	entry.filePathHashA = this->filePathHashA();
+	entry.filePathHashB = this->filePathHashB();
+	entry.locale = this->locale();
+	entry.platform = this->platform();
+
+	return entry;
 }
 
 bool HashData::isHash(int32 nameHashA, int32 nameHashB, uint16 locale, uint16 platform) const
@@ -75,29 +105,25 @@ std::streamsize Hash::read(istream &istream) throw (class Exception)
 	wc3lib::read(istream, entry, size);
 
 	if (size != sizeof(entry))
+	{
 		throw Exception(_("Error while reading hash table entry."));
+	}
 
-	this->hashData().setFilePathHashA(entry.filePathHashA);
-	this->hashData().setFilePathHashB(entry.filePathHashB);
-	this->hashData().setLocale(entry.locale);
-	this->hashData().setPlatform(entry.platform);
+	this->m_hashData = entry;
 
 	if (entry.fileBlockIndex == Hash::blockIndexDeleted)
 	{
 		this->m_deleted = true;
-		//std::cout << "Hash entry is deleted." << std::endl;
-		//exit(0);
 	}
 	else if (entry.fileBlockIndex != Hash::blockIndexEmpty)
 	{
-		this->m_block = this->mpq()->m_blocks.find(entry.fileBlockIndex)->get();
+		this->m_block = &this->mpq()->blocks()[entry.fileBlockIndex];
 		this->m_deleted = false;
 
-		//std::cout << "BLOCK INDEX: " << entry.fileBlockIndex << " and block address " << this->m_block << std::endl;
-		//exit(0);
-
 		if (this->m_block == 0)
+		{
 			throw Exception(_("Error while searching for corresponding block of hash table entry."));
+		}
 	}
 	// otherwise it's empty (block == 0)
 	else
@@ -109,26 +135,43 @@ std::streamsize Hash::read(istream &istream) throw (class Exception)
 	return size;
 }
 
-void Hash::clear()
+std::streamsize Hash::write(ostream& ostream) const throw (Exception)
 {
-	//exit(0);
-	// If the next entry is empty, mark this one as empty; otherwise, mark this as deleted.
-	Mpq::Hashes::index_const_iterator<HashData>::type iterator = this->m_mpq->m_hashes.get<HashData>().find(this->hashData());
+	struct HashTableEntry entry = this->hashData().toEntry();
+	std::streamsize size = 0;
+	wc3lib::write(ostream, entry, size);
 
-	if (iterator == this->m_mpq->m_hashes.get<HashData>().end())
-		return;
+	return size;
+}
+
+void Hash::removeData()
+{
+	// If the next entry is empty, mark this one as empty; otherwise, mark this as deleted.
+	Mpq::Hashes::const_iterator iterator = this->mpq()->hashes().find(this->hashData());
+
+	if (iterator == this->mpq()->hashes().end())
+	{
+		throw Exception(_("Hash is not in archive."));
+	}
 
 	++iterator;
 
 	// If the next entry is empty, mark this one as empty; otherwise, mark this as deleted.
-	if (iterator != this->m_mpq->m_hashes.get<HashData>().end() && !(*iterator)->empty())
+	if (iterator != this->mpq()->hashes().end() && !iterator->second->empty())
+	{
 		this->m_deleted = true;
+	}
+	else
+	{
+		this->m_deleted = false;
+	}
 
 	// If the block occupies space, mark the block as free space; otherwise, clear the block table entry.
-	if (this->m_block->m_blockSize > 0)
+	/*
+	if (this->block()->blockSize() > 0)
 	{
-		this->m_block->m_fileSize = 0;
-		this->m_block->m_flags = Block::Flags::None;
+		this->block()->m_fileSize = 0;
+		this->block()->m_flags = Block::Flags::None;
 	}
 	else
 	{
@@ -137,9 +180,9 @@ void Hash::clear()
 		Mpq::Blocks::iterator iterator = this->mpq()->blocks().find(this->block());
 		this->mpq()->m_blocks.erase(iterator);
 		*/
-	}
+	//}
 
-	this->m_block = 0;
+	//this->m_block = 0;
 
 	/// @todo Clear or write file hash and block data (file sync)!
 }

@@ -59,7 +59,7 @@ void Map::load() throw (Exception)
 	if (map->triggers().get() != 0)
 	{
 		// triggers have to be loaded separately when trigger data file ("UI/TriggerData.txt") is available
-		const mpq::MpqFile *file = map->findFile(map->triggers()->fileName());
+		mpq::MpqFile *file = map->findFile(map->triggers()->fileName());
 
 		if (file != 0)
 		{
@@ -75,7 +75,9 @@ void Map::load() throw (Exception)
 			map->triggers()->read(stream, *source()->sharedData()->triggerData());
 		}
 		else
+		{
 			throw Exception(boost::format(_("File \"%1%\" not found although triggers exist in map.")) % map->triggers()->fileName());
+		}
 	}
 
 	this->map().swap(map); // exception safe

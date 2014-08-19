@@ -321,9 +321,9 @@ bool Sector::compressionSucceded() const
 	return (!this->mpqFile()->isCompressed() && this->sectorSize() < this->mpqFile()->mpq()->sectorSize()) || this->sectorSize() <= this->mpqFile()->mpq()->sectorSize() - 2; // compression/implosion succeded
 }
 
-void Sector::setCompression(byte value)
+void Sector::setCompression(Compression value)
 {
-	this->m_compression = static_cast<Compression>(value);
+	this->m_compression = value;
 }
 
 uint32 Sector::sectorKey() const
@@ -405,7 +405,7 @@ void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, os
 		// Compressed sectors (only found in compressed - not imploded - files) are compressed with one or more compression algorithms.
 		else if (this->mpqFile()->isCompressed())
 		{
-			const_cast<Sector*>(this)->setCompression(data[0]); // first byte contains compression
+			const_cast<Sector*>(this)->setCompression(static_cast<Sector::Compression>(data[0])); // first byte contains compression
 
 			// NOTE the following decompression statements do skip this value (starting at buffer index 1)
 			byte *realData = &data[1];

@@ -21,11 +21,8 @@
 #ifndef WC3LIB_MPQ_MPQ_HPP
 #define WC3LIB_MPQ_MPQ_HPP
 
-#include <boost/multi_index_container.hpp>
-#include <boost/multi_index/sequenced_index.hpp>
-#include <boost/multi_index/ordered_index.hpp>
-#include <boost/multi_index/hashed_index.hpp>
-#include <boost/multi_index/mem_fun.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/ptr_container/ptr_unordered_map.hpp>
 #include <boost/interprocess/sync/file_lock.hpp>
 #include <boost/cast.hpp>
 #include <boost/foreach.hpp>
@@ -61,9 +58,6 @@ namespace mpq
  *
  * For operations on the archive there is several functions with different variations:
  *
- * Use \ref Mpq::addFile to add a new file which will return 0 (if an error occurs) or the new MpqFile
- * instance which refers to the newly created file.
- *
  * Use \ref Mpq::removeFile() to remove a file from archive.
  *
  * Use \ref Mpq::findFile() to find a file in the archive.
@@ -75,73 +69,34 @@ namespace mpq
  * <li> \ref attributesFile() - accesses file "(attributes)" with extended attributes like timestamps and checksums of contained files </li>
  * </ul>
  *
- * There are three further classes which are related to this one and can be used by the user.
- * Blocks (\ref Block), hashes (\ref Hash) and files (\ref MpqFile) are stored via smart pointers from Boost C++ Libraries (\ref boost::shared_ptr) for automatic deletion when freeing an MPQ object. Furthermore, they are stored under specific conditions and indices (especially files using Boost Multiindex library).
  */
 class Mpq : public Format, private boost::noncopyable
 {
 	public:
-		typedef uint64 LargeSizeType;
-
 		enum class Format
 		{
 			Mpq1, /// Original format (Starcraft, Warcraft 3, Warcraft 3 The Frozen Throne, World of Warcraft)
 			Mpq2 /// Burning Crusade, large files (size can be larger than 2^32 -> up to 2^64)
 		};
 
-		typedef boost::shared_ptr<Block> BlockPtr;
-		typedef boost::shared_ptr<const Block> BlockPtrConst;
 		/**
-		 * Blocks are mapped by their position in block table starting with 0. Maximum key value is \ref Mpq::blocks().size() - 1 (tag \ref uint32, index 0).
-		 * Consider that block indices \ref Hash::blockIndexDeleted and \ref Hash::blockIndexEmpty.
+		 * Blocks are indexed by their position in block table starting with 0.
+		 * Maximum index value is \ref Mpq::blocks().size() - 1.
+		 * Consider that block indices \ref Hash::blockIndexDeleted and \ref Hash::blockIndexEmpty are reserved for special purpose.
 		 */
-		typedef boost::multi_index_container<BlockPtr,
-		boost::multi_index::indexed_by<
-		// ordered by its corresponding hash table index (like blocks)
-		boost::multi_index::ordered_unique<boost::multi_index::tag<uint32>, boost::multi_index::const_mem_fun<Block, uint32, &Block::index> >
-		>
-		>
-		Blocks;
-		typedef boost::shared_ptr<Hash> HashPtr;
-		typedef boost::shared_ptr<const Hash> HashPtrConst;
-		/**
-		 * Hashes are mapped by their position in hash table starting with 0. Maximum key value is \ref Mpq::hashes().size() - 1 (tag \ref uint32, index 0).
-		 * Additionally hashes are stored hashed by their own data since they're already hash values (tag \ref HashData, index 1).
-		 */
-		typedef boost::multi_index_container<HashPtr,
-		boost::multi_index::indexed_by<
-		// ordered by its corresponding hash table index (like blocks)
-		boost::multi_index::ordered_unique<boost::multi_index::tag<uint32>, boost::multi_index::const_mem_fun<Hash, uint32, &Hash::index> >,
-		// hashed by their own value
-		boost::multi_index::hashed_non_unique<boost::multi_index::tag<HashData>, boost::multi_index::const_mem_fun<Hash, const HashData&, &Hash::hashData> >
-		>
-		>
-		Hashes;
+		typedef boost::ptr_vector<Block> Blocks;
 
-		typedef boost::shared_ptr<MpqFile> FilePtr;
-		typedef boost::shared_ptr<const MpqFile> FilePtrConst;
 		/**
-		 * Files are stored under various conditions:
-		 * <ul>
-		 * <li>as sequence (comparable to \ref std::list, index 0)</li>
-		 * <li>unique ordered and indicated by their corresponding block (tag \ref Block, index 1)</li>
-		 * <li>non unique and unordered (hashed) by their corresponding hash (tag \ref Hash, index 2)</li>
-		 * <li>non unique and unordered (hashed) by their corresponding file key (tag \ref uint32, index 3)</li>
-		 * </ul>
+		 * Hashes are stored using their hash values (\ref HashData) for fast
+		 * access on files by their file paths.
+		 * Each Hash refers to one file.
 		 */
-		typedef boost::multi_index_container<FilePtr,
-		boost::multi_index::indexed_by<
-		// first index is usual sequenced index like std::lists
-		boost::multi_index::sequenced<>,
-		// blocks are unique indices since each file must have its own block!
-		boost::multi_index::ordered_unique<boost::multi_index::tag<Block>, boost::multi_index::const_mem_fun<MpqFile, Block*, &MpqFile::block> >,
-		// hashed by corresponding hash value
-		boost::multi_index::hashed_non_unique<boost::multi_index::tag<Hash>, boost::multi_index::const_mem_fun<MpqFile, Hash*, &MpqFile::hash> >//,
-		//// hashed by corresponding block file key
-		// NOTE don't use this since fileKey() can only be used on files with path
-		//boost::multi_index::hashed_non_unique<boost::multi_index::tag<uint32>, //boost::multi_index::const_mem_fun<MpqFile, uint32, &MpqFile::fileKey> >
-		>
-		> Files;
+		typedef boost::ptr_unordered_map<HashData, Hash> Hashes;
+
+		/**
+		 * Files are stored as simple heap based vector.
+		 */
+		typedef boost::ptr_vector<MpqFile> Files;
 
 		/**
 		 * Array with size of \ref CryptoPP::SHA1::DIGESTSIZE.
@@ -166,7 +121,6 @@ class Mpq : public Format, private boost::noncopyable
 		 * \note Doesn't include any header data.
 		 */
 		static const std::size_t strongDigitalSignatureSize = 256;
-		static const bool defaultStoreSectors = true;
 
 		/**
 		 * \return Returns static crypt table with size of \ref cryptTableSize.
@@ -194,8 +148,8 @@ class Mpq : public Format, private boost::noncopyable
 		 * \param listfileEntries Instead of relying on an internal "(listfile)" file of the archive you can pass your own list of all files (internal file will be ignored!). If it's empty this list is ignored.
 		 * \return Returns MPQ's size in bytes.
 		 */
-		virtual std::streamsize read(InputStream &stream, const Listfile::Entries &listfileEntries) throw (class Exception);
-		virtual std::streamsize read(InputStream &stream) throw (class Exception)
+		virtual std::streamsize read(InputStream &stream, const Listfile::Entries &listfileEntries) throw (Exception);
+		virtual std::streamsize read(InputStream &stream) throw (Exception)
 		{
 			return read(stream, Listfile::Entries());
 		}
@@ -204,32 +158,19 @@ class Mpq : public Format, private boost::noncopyable
 		* If you change some data of the opened MPQ archive it's written directly into the corresponding file (the whole archive is not loaded into memory!).
 		 * \return Returns MPQ's size in bytes.
 		 */
-		virtual std::streamsize write(OutputStream &stream) const throw (class Exception);
+		virtual std::streamsize write(OutputStream &stream) const throw (Exception);
 		virtual uint32_t version() const;
 
 		/**
 		* \return Returns true if the archive contains a "(listfile)" file.
 		*/
 		bool containsListfileFile() const;
-		/**
-		 * Creates a "(listfile)" file if there isn't already one. All file entries which do have corresponding file paths will be added to this file.
-		 * \return Returns the file instance of the created file. If it does already exist the instance to the current file will be returned (note that it won't be refreshed by this member functio!).
-		 * \sa Mpq::containsListfileFile(), Mpq::listfileFile()
-		 */
-		const class Listfile* createListfileFile();
-		const class Listfile* listfileFile() const;
+		const Listfile* listfileFile() const;
 		/**
 		 * \return Returns true if the archive contains a "(attributes)" file.
 		 */
 		bool containsAttributesFile() const;
-		/**
-		 * Creates an "(attributes)" file if there isn't already one. The extended attributes of all block entries will be added to the file.
-		 * \param extendedAttributes These attributes are stored for each file.
-		 * \return Returns the file instance of the created file. If it does already exist the instance to the current file will be returned (note that it won't be refreshed by this member function!).
-		 * \sa Mpq::containsAttributesFile(), Mpq::attributesFile()
-		 */
-		const class Attributes* createAttributesFile(Attributes::ExtendedAttributes extendedAttributes);
-		const class Attributes* attributesFile() const;
+		const Attributes* attributesFile() const;
 
 		/**
 		 * The weak digital signature is a digital signature using Microsoft CryptoAPI. It is an implimentation
@@ -238,26 +179,14 @@ class Mpq : public Format, private boost::noncopyable
 		 * \sa hasStrongDigitalSignature()
 		 */
 		bool containsSignatureFile() const;
-		const class Signature* signatureFile() const;
+		const Signature* signatureFile() const;
 
-		/**
-		 * Adds a new file to the MPQ archive with path \p path, locale \p locale and platform \p platform.
-		 * \param istream This input stream is used for reading the initial file data.
-		 * \todo Replace reservedSpace by size of istream?
-		 */
-		FilePtr addFile(const boost::filesystem::path &path, const byte *buffer, std::size_t bufferSize, bool overwriteExisting = false, MpqFile::Locale locale = MpqFile::Locale::Neutral, MpqFile::Platform platform = MpqFile::Platform::Default) throw (class Exception);
-		/**
-		 * Path of MPQ file \p mpqFile should be set if you use this method.
-		 * Does not add \p mpqFile. Only uses its meta data (beside you set \p addData to true)!
-		 * \param addData If this value is true contained data of the file will be added to the new one.
-		 */
-		FilePtr addFile(const class MpqFile &mpqFile, bool addData = true, bool overwriteExisting = false) throw (class Exception);
 		/**
 		 * Path of MPQ file \p mpqFile should be set if you use this method.
 		 * \param mpqFile An MPQ file is searched which has the same hash value as \p mpqFile.
 		 * \return Returns true if an MPQ file was found and deleted successfully.
 		 */
-		bool removeFile(const class MpqFile &mpqFile);
+		bool removeFile(const MpqFile &mpqFile);
 
 		/**
 		 * Searches for hash table entry using \p hashData.
@@ -265,15 +194,15 @@ class Mpq : public Format, private boost::noncopyable
 		 * \return Returns an empty \ref HashPtr if no hash entry was found.
 		 * \ingroup search
 		 */
-		HashPtr findHash(const HashData &hashData);
+		Hash* findHash(const HashData &hashData);
 		/**
 		 * Searches for hash table entry by generating an \ref HashData instance using \p path, \p locale and \p platform.
 		 * This function returns used hash entries as well as deleted and empty ones.
-		 * \return Returns an empty \ref HashPtr if no hash entry was found.
-		 * \note If the corresponding found file entry hasn't any path set yet it will be assigned automatically and the sector table will be read if its an encrypted file and \ref storeSectors() returns true.
+		 * \return Returns an 0 if no hash entry was found.
+		 *
 		 * \ingroup search
 		 */
-		HashPtr findHash(const boost::filesystem::path &path, MpqFile::Locale locale = MpqFile::Locale::Neutral, MpqFile::Platform platform = MpqFile::Platform::Default);
+		Hash* findHash(const boost::filesystem::path &path, MpqFile::Locale locale = MpqFile::Locale::Neutral, MpqFile::Platform platform = MpqFile::Platform::Default);
 
 		/**
 		 * Searches for file using \p hashData.
@@ -288,18 +217,18 @@ class Mpq : public Format, private boost::noncopyable
 		/**
 		 * Searches for file by generating an \ref HashData instance using \p path, \p locale and \p platform.
 		 * \return Returns 0 if no file was found.
-		 * \note If the corresponding found file entry hasn't any path set yet it will be assigned automatically and the sector table will be read if its an encrypted file and \ref storeSectors() returns true.
+		 *
 		 * \ingroup search
 		 */
 		MpqFile* findFile(const boost::filesystem::path &path, MpqFile::Locale locale = MpqFile::Locale::Neutral, MpqFile::Platform platform = MpqFile::Platform::Default);
 		/**
-		 * \copydoc findFile(const boost::filesystem::path&, BOOST_SCOPED_ENUM(MpqFile::Locale), BOOST_SCOPED_ENUM(MpqFile::Platform))
+		 * \copydoc findFile(const boost::filesystem::path&, MpqFile::Locale, MpqFile::Platform))
 		 */
 		const MpqFile* findFile(const boost::filesystem::path &path, MpqFile::Locale locale = MpqFile::Locale::Neutral, MpqFile::Platform platform = MpqFile::Platform::Default) const;
 
-		class Listfile* listfileFile();
-		class Attributes* attributesFile();
-		class Signature* signatureFile();
+		Listfile* listfileFile();
+		Attributes* attributesFile();
+		Signature* signatureFile();
 
 		/**
 		 * \return Returns the size of the whole MPQ archive file.
@@ -371,15 +300,11 @@ class Mpq : public Format, private boost::noncopyable
 		 */
 		bool isOpen() const;
 		/**
-		 * \param storeSectors If this value becomes true all sector tables are loaded immediately in this function.
-		 * \note It is recommended to set this value to false when only extracting many files e. g. since it heavily reduces memory usage but slows down sector meta data access at later time (e. g. when reading file data again). Besides you should consider that you won't have access to the sector information via member functions of class \ref MpqFile at all when setting this value to false.
+		 * The file lock is used to make sure that there is no parallel access to the archive
+		 * which would lead to an undefined state.
+		 *
+		 * \return Returns the associated file lock of the archive's file.
 		 */
-		void setStoreSectors(bool storeSectors) throw (Exception);
-		/**
-		 * \return If this function returns true, all sector meta data (offset, size etc.) is stored in heap which consumes much memory but increases sector data access performance. Sector data is loaded for all found non-encrypted files when opening the archive and their paths are not known. For encrypted files it is loaded when \ref findHash() detects the file's corresponding path as their sector table can only be read when knowing the file's path.
-		 * \note Default value for newly created archives is \ref defaultStoreSectors.
-		 */
-		bool storeSectors() const;
 		const boost::interprocess::file_lock& fileLock();
 		Blocks& blocks();
 		const Blocks& blocks() const;
@@ -389,65 +314,17 @@ class Mpq : public Format, private boost::noncopyable
 		const Files& files() const;
 
 		/**
-		 * \return Returns the sum of all block sizes.
-		 * \warning \ref T can be too small to hold all block's sizes since each block's size is defined as \ref int32 value.
-		 * \sa Block::blockSize
-		 */
-		LargeSizeType entireBlockSize() const;
-		/**
-		 * \return Returns the sum of all sizes of all used blocks.
-		 * \warning \ref T can be too small to hold all sizes of all used blocks since each block's size is defined as \ref int32 value.
-		 * \sa Block::blockSize, Block::empty
-		 */
-		LargeSizeType entireUsedBlockSize() const;
-		/**
-		 * \return Returns the sum of all sizes of all empty blocks.
-		 * \warning \ref T can be too small to hold all sizes of all empty blocks since each block's size is defined as \ref int32 value.
-		 * \sa Block::blockSize, Block::empty
-		 */
-		LargeSizeType entireEmptyBlockSize() const;
-		/**
-		 * \return Returns the sum of all file sizes (uncompressed).
-		 * \warning \ref T can be too small to hold all file sizes since each file's size is defined as \ref int32 value.
-		 * * \sa Block::fileSize
-		 */
-		LargeSizeType entireFileSize() const;
-
-		/**
 		 * \return Returns true if archive is not opened.
 		 */
 		bool operator!() const;
-		/**
-		 * Copies data of file \p mpqFile and adds it to the MPQ archive.
-		 * Does not overwrite existing files.
-		 * \return Returns *this.
-		 */
-		class Mpq& operator<<(const class MpqFile &mpqFile) throw (class Exception);
-		/**
-		 * Copies data of all files of MPQ archive \p mpq to the MPQ archive.
-		 * Does not overwrite existing files.
-		 * \return Returns *this.
-		 */
-		class Mpq& operator<<(const class Mpq &mpq) throw (class Exception);
-		/**
-		 * Copies data of alle files of the MPQ archive to MPQ archive \p mpq.
-		 * \return Returns *this.
-		 */
-		class Mpq& operator>>(class Mpq &mpq) throw (class Exception);
 
 	protected:
-		friend class MpqFile;
-		friend class Hash;
-		friend class Block;
-
-		Mpq(const Mpq &mpq);
-
 		/**
 		 * Overwrite these member functions to return custom type-based objects if you want to extend their functionality.
 		 */
-		virtual class MpqFile* newFile(class Hash *hash) throw ();
-		virtual class Hash* newHash(uint32 index) throw ();
-		virtual class Block* newBlock(uint32 index) throw ();
+		virtual MpqFile* newFile(Hash *hash) throw ();
+		virtual Hash* newHash(uint32 index) throw ();
+		virtual Block* newBlock(uint32 index) throw ();
 
 		/**
 		 * Does not check if archive is open.
@@ -458,25 +335,25 @@ class Mpq : public Format, private boost::noncopyable
 		/**
 		 * Empty space entries should have BlockOffset and BlockSize nonzero, and FileSize and Flags zero.
 		 */
-		class Block* firstEmptyBlock() const;
+		Block* firstEmptyBlock();
 		/**
 		 * Unused block table entries should have BlockSize, FileSize, and Flags zero.
 		 */
-		class Block* firstUnusedBlock() const;
+		Block* firstUnusedBlock();
 		/**
 		 * \return Returns the block with the biggest offset.
 		 */
-		class Block* lastOffsetBlock() const;
-		class Hash* firstEmptyHash() const;
-		class Hash* firstDeletedHash() const;
+		Block* lastOffsetBlock();
+		Hash* firstEmptyHash();
+		Hash* firstDeletedHash();
 		/**
 		 * \return Returns the next block offset as large unsigned integer. Next block offset means the offset of the next added block (last block offset + last block size / header size).
 		 */
-		uint64 nextBlockOffset() const;
+		uint64 nextBlockOffset();
 		/**
 		 * Same as function \ref Mpq::nextBlockOffset but divides large offset value into \p blockOffset and \p extendedBlockOffset.
 		 */
-		void nextBlockOffsets(uint32 &blockOffset, uint16 &extendedBlockOffset) const;
+		void nextBlockOffsets(uint32 &blockOffset, uint16 &extendedBlockOffset);
 
 		/// This value is required for getting the first block offset (relative to the beginning of archive).
 		static const std::size_t headerSize;
@@ -489,7 +366,6 @@ class Mpq : public Format, private boost::noncopyable
 		uint32 m_sectorSize;
 		StrongDigitalSignature m_strongDigitalSignature;
 		bool m_isOpen;
-		bool m_storeSectors;
 		boost::interprocess::file_lock m_fileLock;
 		Blocks m_blocks;
 		Hashes m_hashes;
@@ -520,72 +396,12 @@ inline std::streamsize Mpq::strongDigitalSignature(istream &istream, StrongDigit
 	return size;
 }
 
-inline ostream& operator<<(ostream &stream, const class Mpq &mpq) throw (class Exception)
-{
-	mpq.write(stream);
-
-	return stream;
-}
-
-inline istream& operator>>(istream &stream, class Mpq &mpq) throw (class Exception)
-{
-	mpq.read(stream);
-
-	return stream;
-}
-
-inline bool operator>(const class Mpq &mpq1, const class Mpq &mpq2)
-{
-	return mpq1.size() > mpq2.size();
-}
-
-inline bool operator<(const class Mpq &mpq1, const class Mpq &mpq2)
-{
-	return mpq1.size() < mpq2.size();
-}
-
-inline bool operator>=(const class Mpq &mpq1, const class Mpq &mpq2)
-{
-	return mpq1.size() >= mpq2.size();
-}
-
-inline bool operator<=(const class Mpq &mpq1, const class Mpq &mpq2)
-{
-	return mpq1.size() <= mpq2.size();
-}
-
-inline bool operator==(const class Mpq &mpq1, const class Mpq &mpq2)
-{
-	return mpq1.size() == mpq2.size();
-}
-
-inline bool operator!=(const class Mpq &mpq1, const class Mpq &mpq2)
-{
-	return mpq1.size() != mpq2.size();
-}
-
 inline bool Mpq::containsListfileFile() const
 {
 	return this->listfileFile() != 0;
 }
 
-inline const class Listfile* Mpq::createListfileFile()
-{
-	if (this->containsListfileFile())
-		return this->listfileFile();
-
-	Hash *hash = firstEmptyHash();
-	hash->hashData().setLocale(MpqFile::Locale::Neutral);
-	hash->hashData().setPlatform(MpqFile::Platform::Default);
-	hash->changePath("(listfile)");
-	// TODO get empty block etc. add file ...
-	FilePtr file(new Listfile(this, hash));
-	this->m_files.get<0>().push_back(file);
-
-	return boost::polymorphic_cast<Listfile*>(file.get());
-}
-
-inline const class Listfile* Mpq::listfileFile() const
+inline const Listfile* Mpq::listfileFile() const
 {
 	return const_cast<Mpq*>(this)->listfileFile();
 }
@@ -596,25 +412,7 @@ inline bool Mpq::containsAttributesFile() const
 	return this->attributesFile() != 0;
 }
 
-inline const class Attributes* Mpq::createAttributesFile(Attributes::ExtendedAttributes extendedAttributes)
-{
-	if (this->containsAttributesFile())
-		return attributesFile();
-
-	Hash *hash = firstEmptyHash();
-	hash->hashData().setLocale(MpqFile::Locale::Neutral);
-	hash->hashData().setPlatform(MpqFile::Platform::Default);
-	hash->changePath("(attributes)");
-	// TODO get empty block etc. add file ...
-	FilePtr file(new Attributes(this, hash, extendedAttributes));
-	this->m_files.get<0>().push_back(file);
-	boost::polymorphic_cast<Attributes*>(file.get())->refresh();
-	boost::polymorphic_cast<Attributes*>(file.get())->writeData();
-
-	return boost::polymorphic_cast<Attributes*>(file.get());
-}
-
-inline const class Attributes* Mpq::attributesFile() const
+inline const Attributes* Mpq::attributesFile() const
 {
 	return const_cast<Mpq*>(this)->attributesFile();
 }
@@ -624,7 +422,7 @@ inline bool Mpq::containsSignatureFile() const
 	return this->signatureFile() != 0;
 }
 
-inline const class Signature* Mpq::signatureFile() const
+inline const Signature* Mpq::signatureFile() const
 {
 	return const_cast<Mpq*>(this)->signatureFile();
 }
@@ -674,19 +472,6 @@ inline bool Mpq::isOpen() const
 	return this->m_isOpen;
 }
 
-inline void Mpq::setStoreSectors(bool storeSectors) throw (Exception)
-{
-	m_storeSectors = storeSectors;
-
-	BOOST_FOREACH(const FilePtr &ptr, files())
-		ptr->read(); // read sector table
-}
-
-inline bool Mpq::storeSectors() const
-{
-	return this->m_storeSectors;
-}
-
 inline const boost::interprocess::file_lock& Mpq::fileLock()
 {
 	return m_fileLock;
@@ -722,120 +507,80 @@ inline const Mpq::Files& Mpq::files() const
 	return this->m_files;
 }
 
-inline Mpq::LargeSizeType Mpq::entireBlockSize() const
-{
-	Mpq::LargeSizeType result = 0;
-
-	BOOST_FOREACH(const BlockPtr &block, this->blocks())
-		result += block->blockSize();
-
-	return result;
-}
-
-inline Mpq::LargeSizeType Mpq::entireUsedBlockSize() const
-{
-	Mpq::LargeSizeType result = 0;
-
-	BOOST_FOREACH(const BlockPtr &block, this->blocks())
-	{
-		if (!block->empty())
-			result += block->blockSize();
-	}
-
-	return result;
-}
-
-inline Mpq::LargeSizeType Mpq::entireEmptyBlockSize() const
-{
-	Mpq::LargeSizeType result = 0;
-
-	BOOST_FOREACH(const BlockPtr &block, this->blocks())
-	{
-		if (block->empty())
-			result += block->blockSize();
-	}
-
-	return result;
-}
-
-inline Mpq::LargeSizeType Mpq::entireFileSize() const
-{
-	Mpq::LargeSizeType result = 0;
-
-	BOOST_FOREACH(const BlockPtr &block, this->blocks())
-	{
-		// usually size should be 0 if it's not a file but anyway we should check
-		if (block->flags() & Block::Flags::IsFile)
-			result += block->fileSize();
-	}
-
-	return result;
-}
-
-inline class Listfile* Mpq::listfileFile()
+inline Listfile* Mpq::listfileFile()
 {
 	MpqFile *file = this->findFile("(listfile)");
 
 	if (file == 0)
+	{
 		return 0;
+	}
 
-	return boost::polymorphic_cast<class Listfile*>(file);
+	return boost::polymorphic_cast<Listfile*>(file);
 }
 
-inline class Attributes* Mpq::attributesFile()
+inline Attributes* Mpq::attributesFile()
 {
 	MpqFile *file = this->findFile("(attributes)");
 
 	if (file == 0)
+	{
 		return 0;
+	}
 
-	return boost::polymorphic_cast<class Attributes*>(file);
+	return boost::polymorphic_cast<Attributes*>(file);
 }
 
-inline class Signature* Mpq::signatureFile()
+inline Signature* Mpq::signatureFile()
 {
 	MpqFile *file = this->findFile("(signature)");
 
 	if (file == 0)
+	{
 		return 0;
+	}
 
-	return boost::polymorphic_cast<class Signature*>(file);
+	return boost::polymorphic_cast<Signature*>(file);
 }
 
-inline class Block* Mpq::firstEmptyBlock() const
+inline Block* Mpq::firstEmptyBlock()
 {
-	BOOST_FOREACH(const BlockPtr &block, this->blocks())
+	BOOST_FOREACH(Block &block, this->blocks())
 	{
-		if (block->empty())
-			return block.get();
+		if (block.empty())
+		{
+			return &block;
+		}
 	}
 
 	return 0;
 }
 
-inline class Block* Mpq::firstUnusedBlock() const
+inline Block* Mpq::firstUnusedBlock()
 {
-	BOOST_FOREACH(const BlockPtr &block, this->blocks())
+	BOOST_FOREACH(Block &block, this->blocks())
 	{
-		if (block->unused())
-			return block.get();
+		if (block.unused())
+		{
+			return &block;
+		}
 	}
 
 	return 0;
 }
 
-inline class Block* Mpq::lastOffsetBlock() const
+inline Block* Mpq::lastOffsetBlock()
 {
 	uint64 offset = 0;
 	class Block *result = 0;
 
-	BOOST_FOREACH(const BlockPtr &block, this->blocks())
+	BOOST_FOREACH(Block &block, this->blocks())
 	{
-		const uint64 newOffset = block->largeOffset();
+		const uint64 newOffset = block.largeOffset();
 
 		if (newOffset > offset)
 		{
-			result = block.get();
+			result = &block;
 			offset = newOffset;
 		}
 	}
@@ -844,39 +589,45 @@ inline class Block* Mpq::lastOffsetBlock() const
 }
 
 
-inline class Hash* Mpq::firstEmptyHash() const
+inline Hash* Mpq::firstEmptyHash()
 {
-	BOOST_FOREACH(const HashPtr &hash, this->hashes())
+	BOOST_FOREACH(Hashes::value_type pair, this->hashes())
 	{
-		if (hash->empty())
-			return hash.get();
+		if (pair.second->empty())
+		{
+			return pair.second;
+		}
 	}
 
 	return 0;
 }
 
-inline class Hash* Mpq::firstDeletedHash() const
+inline Hash* Mpq::firstDeletedHash()
 {
-	BOOST_FOREACH(const HashPtr &hash, this->hashes())
+	BOOST_FOREACH(Hashes::value_type pair, this->hashes())
 	{
-		if (hash->deleted())
-			return hash.get();
+		if (pair.second->deleted())
+		{
+			return pair.second;
+		}
 	}
 
 	return 0;
 }
 
-inline uint64 Mpq::nextBlockOffset() const
+inline uint64 Mpq::nextBlockOffset()
 {
-	class Block *block = this->lastOffsetBlock();
+	Block *block = this->lastOffsetBlock();
 
 	if (block == 0)
+	{
 		return Mpq::headerSize;
+	}
 
-	return block->largeOffset() + block->m_blockSize;
+	return block->largeOffset() + block->blockSize();
 }
 
-inline void Mpq::nextBlockOffsets(uint32 &blockOffset, uint16 &extendedBlockOffset) const
+inline void Mpq::nextBlockOffsets(uint32 &blockOffset, uint16 &extendedBlockOffset)
 {
 	uint64 offset = this->nextBlockOffset();
 	blockOffset = int32(offset << 16); // die hinteren Bits werden abgeschnitten???

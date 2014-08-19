@@ -50,18 +50,12 @@ bool MpqPriorityList::addSource(const KUrl &url, MpqPriorityListEntry::Priority 
 	// proper URLs must refer to directories or archives
 	/// \todo Support all archive properties and remote directories (smb).
 	if (!QFileInfo(url.toLocalFile()).isDir() && url.protocol() != "mpq" && url.protocol() != "tar")
+	{
 		return false;
+	}
 
-	Sources::index_const_iterator<KUrl>::type iterator = sources().get<KUrl>().find(url);
-
-	if (iterator != sources().get<KUrl>().end())
-		return false;
-
-	Source ptr(new MpqPriorityListEntry(url, priority));
-
-	qDebug() << "Size before pushing back: " << sources().size();
-	sources().push_back(ptr);
-	qDebug() << "Size after pushing back: " << sources().size();
+	std::auto_ptr<MpqPriorityListEntry> ptr(new MpqPriorityListEntry(url, priority));
+	sources().insert(ptr);
 
 	return true;
 }
@@ -71,7 +65,9 @@ bool MpqPriorityList::addWar3Source()
 	KUrl url = war3Url();
 
 	if (url.isEmpty())
+	{
 		return false;
+	}
 
 	return addSource(url, 20);
 }
@@ -81,7 +77,9 @@ bool MpqPriorityList::addWar3PatchSource()
 	KUrl url = war3PatchUrl();
 
 	if (url.isEmpty())
+	{
 		return false;
+	}
 
 	return addSource(url, 22);
 }
@@ -91,7 +89,9 @@ bool MpqPriorityList::addWar3XSource()
 	KUrl url = war3XUrl();
 
 	if (url.isEmpty())
+	{
 		return false;
+	}
 
 	return addSource(url, 21);
 }
@@ -101,7 +101,9 @@ bool MpqPriorityList::addWar3XLocalSource()
 	KUrl url = war3XLocalUrl();
 
 	if (url.isEmpty())
+	{
 		return false;
+	}
 
 	return addSource(url, 21);
 }
@@ -114,14 +116,30 @@ bool MpqPriorityList::addDefaultSources()
 	addWar3XLocalSource();
 }
 
-bool MpqPriorityList::removeSource(const KUrl &url)
+bool MpqPriorityList::removeSource(const KUrl& url)
 {
-	Sources::index_iterator<KUrl>::type iterator = sources().get<KUrl>().find(url);
+	Sources::iterator iterator = std::find_if(this->sources().begin(), this->sources().end(), [&url](Sources::const_reference ref){ return ref.url() == url; });
 
-	if (iterator == sources().get<KUrl>().end())
+	if (iterator == this->sources().end())
+	{
 		return false;
+	}
 
-	sources().get<KUrl>().erase(iterator);
+	this->m_sources.erase(iterator);
+
+	return true;
+}
+
+bool MpqPriorityList::removeSource(Source &source)
+{
+	Sources::iterator iterator = sources().find(source);
+
+	if (iterator == sources().end())
+	{
+		return false;
+	}
+
+	sources().erase(iterator);
 
 	return true;
 }
@@ -131,7 +149,9 @@ bool MpqPriorityList::removeWar3Source()
 	KUrl url = war3Url();
 
 	if (url.isEmpty())
+	{
 		return false;
+	}
 
 	return removeSource(url);
 }
@@ -189,17 +209,17 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 		}
 	}
 
-	qDebug() << "Sources size: " << sources().get<MpqPriorityListEntry>().size();
+	qDebug() << "Sources size: " << sources().size();
 
 	// TODO only do this if it doesn't start with /
 	// Since entries are ordered by priority highest priority entry should be checked first
-	BOOST_REVERSE_FOREACH(const Source entry, sources().get<MpqPriorityListEntry>())
+	BOOST_REVERSE_FOREACH(Sources::const_reference entry, sources())
 	{
 		// entry path can be a directory path or something like tar:/... or mpq:/...
-		KUrl absoluteSource = entry->url();
+		KUrl absoluteSource = entry.url();
 		absoluteSource.addPath(src.toLocalFile());
 
-		qDebug() << "entry url: " << entry->url();
+		qDebug() << "entry url: " << entry.url();
 		qDebug() << "local file: " << src.toLocalFile();
 		qDebug() << "Trying " << absoluteSource.url();
 
@@ -226,14 +246,16 @@ bool MpqPriorityList::upload(const QString &src, const KUrl &target, QWidget *wi
 
 	// TODO only do this if it doesn't start with /
 	// Since entries are ordered by priority highest priority entry should be checked first
-	BOOST_REVERSE_FOREACH(const Source entry, sources().get<MpqPriorityListEntry>())
+	BOOST_REVERSE_FOREACH(Sources::const_reference entry, sources())
 	{
 		// entry path can be a directory path or something like tar:/... or mpq:/...
-		KUrl absoluteTarget = entry->url();
+		KUrl absoluteTarget = entry.url();
 		absoluteTarget.addPath(target.toLocalFile());
 
 		if (KIO::NetAccess::upload(src, absoluteTarget, window))
+		{
 			return true;
+		}
 	}
 
 	return false;
@@ -244,19 +266,23 @@ bool MpqPriorityList::mkdir(const KUrl &target, QWidget *window)
 	if (!target.isRelative()) // has protocol - is absolute
 	{
 		if (KIO::NetAccess::mkdir(target, window))
+		{
 			return true;
+		}
 	}
 
 	// TODO only do this if it doesn't start with /
 	// Since entries are ordered by priority highest priority entry should be checked first
-	BOOST_REVERSE_FOREACH(const Source entry, sources().get<MpqPriorityListEntry>())
+	BOOST_REVERSE_FOREACH(Sources::const_reference entry, sources())
 	{
 		// entry path can be a directory path or something like tar:/... or mpq:/...
-		KUrl absoluteTarget = entry->url();
+		KUrl absoluteTarget = entry.url();
 		absoluteTarget.addPath(target.toLocalFile());
 
 		if (KIO::NetAccess::mkdir(absoluteTarget, window))
+		{
 			return true;
+		}
 	}
 
 	return false;
@@ -298,14 +324,13 @@ void MpqPriorityList::writeSettings(const QString& group)
 	int i = 0;
 
 	qDebug() << "Size 1: " << sources().size();
-	qDebug() << "Size 2: " << sources().get<MpqPriorityListEntry>().size();
 
-	BOOST_FOREACH(const Source &entry, sources().get<MpqPriorityListEntry>())
+	BOOST_FOREACH(Sources::const_reference entry, sources())
 	{
 		settings.setArrayIndex(i);
-		qDebug() << "Storing url " << entry->url();
-		settings.setValue("url", entry->url().toEncoded());
-		const int priority = boost::numeric_cast<int>(entry->priority());
+		qDebug() << "Storing url " << entry.url();
+		settings.setValue("url", entry.url().toEncoded());
+		const int priority = boost::numeric_cast<int>(entry.priority());
 		qDebug() << "Storing priority " << priority;
 		settings.setValue("priority", priority);
 		++i;

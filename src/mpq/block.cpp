@@ -97,28 +97,6 @@ uint32 Block::fileKey(const string &fileName) const
 	return Block::fileKey(fileName, entry);
 }
 
-CRC32 Block::crc32() const
-{
-	return this->mpq()->attributesFile()->crc32(this);
-}
-
-
-const FILETIME& Block::fileTime() const
-{
-	return this->mpq()->attributesFile()->fileTime(this);
-}
-
-bool Block::fileTime(time_t& time)
-{
-	return this->mpq()->attributesFile()->fileTime(this).toTime(time);
-}
-
-
-MD5 Block::md5() const
-{
-	return this->mpq()->attributesFile()->md5(this);
-}
-
 }
 
 }

@@ -30,23 +30,23 @@ ImportManager::ImportManager(class MpqPriorityList *source, QWidget *parent, Qt:
 {
 }
 
-void ImportManager::createFileActions(class KMenu *menu)
+void ImportManager::createFileActions(KMenu *menu)
 {
 }
 
-void ImportManager::createEditActions(class KMenu *menu)
+void ImportManager::createEditActions(KMenu *menu)
 {
 }
 
-void ImportManager::createMenus(class KMenuBar *menuBar)
+void ImportManager::createMenus(KMenuBar *menuBar)
 {
 }
 
-void ImportManager::createWindowsActions(class WindowsMenu *menu)
+void ImportManager::createWindowsActions(WindowsMenu *menu)
 {
 }
 
-void ImportManager::createToolButtons(class KToolBar *toolBar)
+void ImportManager::createToolButtons(ModuleToolBar *toolBar)
 {
 }
 
