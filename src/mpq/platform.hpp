@@ -123,7 +123,9 @@ struct FILETIME : public boost::operators<FILETIME>
 		uint64 nTime = ((uint64)this->highDateTime << 32) + this->lowDateTime;
 
 		if (nTime < EPOCH_OFFSET)
+		{
 			return false;
+		}
 
 		nTime -= EPOCH_OFFSET;	// Convert the time base from 01/01/1601 to 01/01/1970
 		nTime /= 10000000ULL;	// Convert 100 ns to sec
@@ -132,7 +134,9 @@ struct FILETIME : public boost::operators<FILETIME>
 
 		// Test for overflow (FILETIME is 64 bits, time_t is 32 bits)
 		if ((nTime - (uint64)time) > 0)
+		{
 			return false;
+		}
 
 		return true;
 	}

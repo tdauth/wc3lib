@@ -92,8 +92,10 @@ class Mpq : public Format, private boost::noncopyable
 		 * Hashes are stored using their hash values (\ref HashData) for fast
 		 * access on files by their file paths.
 		 * Each Hash refers to one file.
+		 *
+		 * \note Since hashes can be empty or deleted a multimap is required.
 		 */
-		typedef boost::ptr_unordered_map<HashData, Hash> Hashes;
+		typedef boost::ptr_unordered_multimap<HashData, Hash> Hashes;
 
 		/**
 		 * Array with size of \ref CryptoPP::SHA1::DIGESTSIZE.

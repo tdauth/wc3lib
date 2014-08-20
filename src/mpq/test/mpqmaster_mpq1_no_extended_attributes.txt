@@ -1,0 +1,67 @@
+MPQ Master 1.2.0 build 36
+
+operation compact was done
+
+archive size: 65,655 bytes
+file count: 3
+has listfile
+no attributes
+no signature
+hashtable size: 4096
+blocktable size: 3
+block size: 4096 (sector size)
+
+
+(listfile):
+filename: (listfile)
+file size: 45 Bytes
+compressed: 41 Bytes
+attributes: PKWare DCL compressed
+extended attributes: None
+locale: Neutral
+hash index: 2137
+block index: 0
+position: 32
+hash value 1: 4251285776
+hash value 2: 1318820007
+file seed: 758057620
+fixed seed: 758057620
+content:
+(listfile)
+test\testfile.txt
+testfile.txt
+
+folder test:
+this is just a folder!
+
+testfile.txt:
+filename: testfile.txt
+file size: 4 Bytes
+compressed: 4 Bytes
+Attributes: Not compressed
+Extended Attributes: None, Fixed Seed
+Locale: Neutral
+hash index: 1988
+block index: 1
+position: 73
+hash value 1: 3243839721
+hash value 2: 2428968833
+file seed: 1642495560
+fixed seed: 1642495637
+content: Test
+
+test/testfile.txt:
+filename: test\testfile.txt
+file size: 4 Bytes
+compressed: 4 Bytes
+Attributes: Not compressed
+Extended Attributes: None, Fixed Seed
+Locale: Neutral
+Hash Index: 4006
+Block Index: 2
+Position: 77
+Hash value 1: 884325497
+Hash Value 2: 2158454357
+File Seed: 1642495560
+Fixed Seed: 1642495633
+Content: Test

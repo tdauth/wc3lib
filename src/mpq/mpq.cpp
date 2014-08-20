@@ -174,7 +174,7 @@ std::streamsize Mpq::read(InputStream &stream) throw (class Exception)
 
 	stream.seekg(-4, std::ios::cur);
 	this->m_startPosition = stream.tellg();
-	struct Header header;
+	Header header;
 	wc3lib::read(stream, header, size);
 
 	if (header.formatVersion == Mpq::formatVersion1Identifier)

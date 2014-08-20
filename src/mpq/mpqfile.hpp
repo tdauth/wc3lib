@@ -229,14 +229,6 @@ class MpqFile
 		 */
 		void changePath(const boost::filesystem::path &path);
 
-		/**
-		 * Overwrite this member function to return custom type-based objects if you want to extend their functionality.
-		 * \sa Mpq::newBlock()
-		 * \sa Mpq::newHash()
-		 * \sa Mpq::newFile()
-		 */
-		virtual Sector newSector(uint32 index, uint32 offset, uint32 size) throw ();
-
 	private:
 		Mpq *m_mpq;
 		Hash *m_hash;
@@ -331,7 +323,7 @@ inline bool MpqFile::hasSectorOffsetTable() const
 
 inline bool MpqFile::isValid() const
 {
-	return this->mpq() == 0 || this->hash() == 0;
+	return this->mpq() != 0 && this->hash() != 0;
 }
 
 inline uint16 MpqFile::localeToInt(MpqFile::Locale locale)

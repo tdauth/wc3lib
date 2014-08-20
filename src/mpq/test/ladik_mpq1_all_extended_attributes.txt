@@ -1,0 +1,45 @@
+Ladik's MPQ Editor version 3.5.0.759
+StormLib v 9.00
+
+Max. number of files: 4000
+Hash table size: 4096
+MPQ format 1.0
+creates attributes file
+compatible to Frozen Throne
+No listfile
+No signature
+attributes!
+
+archive properties (displayed in ladiks MPQ editor):
+archive name: ?!?!
+header size: 32
+archive size: 65624
+format version: 0
+hash table position??
+hash table size (entries): 4096
+block table size (entries): 2
+file count: 2
+file sector size: 4096
+
+
+files:
+
+testfile.txt - Text: Test
+properties:
+name: testfile.txt
+hash: 1988
+codename1: C15910E9 (hexa)
+codename2: 90C71F81 (hexa)
+file index: 1
+file size: 4
+compressed size: 12
+file flags: 80030200 (hexa) - compressed, encrypted, decryption key adjusted
+compression ration: 300 %
+file time (ex): 20.8.2014 12:18
+file local: neutral
+
+
+folder has no properties (folders are not stored I guess)
+test/testfile.txt - Text: Test
+properties:
+name: test

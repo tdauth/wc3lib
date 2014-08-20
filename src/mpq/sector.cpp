@@ -65,7 +65,13 @@ inline const char* zlibError(int error)
 
 }
 
-Sector::Sector(class MpqFile *mpqFile, uint32 index, uint32 offset, uint32 size) : m_mpqFile(mpqFile), m_sectorIndex(index), m_sectorOffset(offset), m_sectorSize(size), m_compression(Sector::Compression::Uncompressed)
+Sector::Sector(MpqFile *mpqFile, uint32 index, uint32 offset, uint32 size, uint32 uncompressedSize)
+: m_mpqFile(mpqFile)
+, m_sectorIndex(index)
+, m_sectorOffset(offset)
+, m_sectorSize(size)
+, m_uncompressedSize(uncompressedSize)
+, m_compression(Sector::Compression::Uncompressed)
 {
 }
 
@@ -320,7 +326,10 @@ std::streamsize Sector::writeData(istream &istream, ostream &ostream) const thro
 
 bool Sector::compressionSucceded() const
 {
-	return (!this->mpqFile()->isCompressed() && this->sectorSize() < this->mpqFile()->mpq()->sectorSize()) || this->sectorSize() <= this->mpqFile()->mpq()->sectorSize() - 2; // compression/implosion succeded
+	/*
+	 * Individual sectors in a compressed or imploded file may be stored uncompressed; this occurs if and only if the file data the sector contains could not be compressed by the algorithm(s) used (if the compressed sector size was greater than or equal to the size of the file data), and is indicated by the sector's size in SectorOffsetTable being equal to the size of the file data in the sector (which may be calculated from the FileSize).
+	 */
+	return this->sectorSize() < this->uncompressedSize();
 }
 
 void Sector::setCompression(Compression value)
@@ -580,14 +589,10 @@ void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, os
 			}
 		}
 	}
-	// skip compression types byte if data could not be compressed properly
+	// If data could not be compressed properly there is no compression byte since it can always be determined if compression succeeded by checking the byte counts.
 	else if (this->mpqFile()->isCompressed() || this->mpqFile()->isImploded())
 	{
-		std::cerr << boost::format(_("%1%: Sector %2% with size %3% could not be compressed properly. Archive sector size is %4%.")) % this->mpqFile()->path() % sectorIndex() % this->sectorSize() % this->mpqFile()->mpq()->sectorSize() << std::endl;
-
-		ostream.write(&data[1], dataSize - 1);
-
-		return;
+		std::cerr << boost::format(_("%1%: Sector %2% with compressed size %3% and uncompressed size %4% could not be compressed properly. Archive sector size (uncompressed) is %5%.")) % this->mpqFile()->path() % sectorIndex() % this->sectorSize() % this->uncompressedSize() % this->mpqFile()->mpq()->sectorSize() << std::endl;
 	}
 
 	ostream.write(data.get(), dataSize);

@@ -62,7 +62,7 @@ class Sector // FIXME : private boost::noncopyable
 			Lzma = 0x12 /// <a href="http://www.zezula.net/en/mpq/stormlib/sfileaddfileex.html">Source</a>.
 		};
 
-		Sector(class MpqFile *mpqFile, uint32 index, uint32 offset, uint32 size);
+		Sector(MpqFile *mpqFile, uint32 index, uint32 offset, uint32 size, uint32 uncompressedSize);
 		virtual ~Sector();
 
 		/**
@@ -99,7 +99,14 @@ class Sector // FIXME : private boost::noncopyable
 		MpqFile* mpqFile() const;
 		uint32 sectorIndex() const;
 		uint32 sectorOffset() const;
+		/**
+		 * \return Returns the compressed size of the sector.
+		 */
 		uint32 sectorSize() const;
+		/**
+		 * \return Returns the uncompressed size of the sector.
+		 */
+		uint32 uncompressedSize() const;
 		Compression compression() const;
 
 		/**
@@ -124,6 +131,7 @@ class Sector // FIXME : private boost::noncopyable
 		uint32 m_sectorIndex;
 		uint32 m_sectorOffset;
 		uint32 m_sectorSize; // not required, added by wc3lib, should be the compressed size!
+		uint32 m_uncompressedSize;
 		Compression m_compression;
 };
 
@@ -150,6 +158,11 @@ inline uint32 Sector::sectorOffset() const
 inline uint32 Sector::sectorSize() const
 {
 	return this->m_sectorSize;
+}
+
+inline uint32 Sector::uncompressedSize() const
+{
+	return this->m_uncompressedSize;
 }
 
 inline Sector::Compression Sector::compression() const

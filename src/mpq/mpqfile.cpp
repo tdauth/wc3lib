@@ -30,59 +30,7 @@ namespace mpq
 
 std::streamsize MpqFile::readData(istream &istream, Sector::Compression compression) throw (class Exception)
 {
-	// TODO clear data first!
-	std::streamsize bytes = 0;
-	Sectors sectors;
-
-	if (!hasSectorOffsetTable())
-	{
-		if (this->block()->flags() & Block::Flags::IsSingleUnit)
-		{
-			sectors.reserve(1);
-			Sector sector(newSector(0, 0, 0));
-
-			sector.setCompression(compression);
-			bytes = sector.readData(istream);
-
-			sectors.push_back(sector);
-		}
-		else
-		{
-			uint32 sectorIndex = 0;
-			uint32 sectorOffset = 0;
-
-			// split into equal sized (sometimes except last one) sectors
-			while (!eof(istream))
-			{
-				// if last one it may be smaller than MPQ's sector size
-				const uint32 e = endPosition(istream)- istream.tellg();
-				const uint32 sectorSize = e >= this->mpq()->sectorSize() ? this->mpq()->sectorSize() : e;
-				boost::scoped_array<byte> buffer(new byte[sectorSize]);
-				std::streamsize sizeCounter = 0;
-				wc3lib::read(istream, buffer[0], sizeCounter, sectorSize);
-
-				Sector sector(newSector(sectorIndex, sectorOffset, sectorSize));
-
-				sector.setCompression(compression);
-				bytes += sector.readData(buffer.get(), sectorSize);
-
-				sectors.push_back(sector);
-
-				++sectorIndex;
-				sectorOffset += sectorSize;
-			}
-		}
-	}
-	// compressed
-	else
-	{
-		/// \todo AHH!
-	}
-
-	// TODO write sectors into MPQ archive
-	// writeSectors(sectors)
-
-	return bytes;
+	throw Exception(_("Not supported yet!"));
 }
 
 std::streamsize MpqFile::writeData(ostream &ostream) throw (class Exception)
@@ -169,11 +117,6 @@ MpqFile::MpqFile(const MpqFile& other) : m_mpq(other.mpq()), m_hash(other.hash()
 {
 }
 
-Sector MpqFile::newSector(uint32 index, uint32 offset, uint32 size) throw ()
-{
-	return Sector(this, index, offset, size);
-}
-
 std::streamsize MpqFile::sectors(istream &istream, Sectors &sectors) throw (class Exception)
 {
 	// if we have a sector offset table and file is encrypted we first need to know its path for proper decryption!
@@ -198,30 +141,38 @@ std::streamsize MpqFile::sectors(istream &istream, Sectors &sectors) throw (clas
 	{
 		//std::cout << "File is not imploded/compressed or it's a single unit " << std::endl;
 
-		const uint32 sectorSize = (this->block()->flags() & Block::Flags::IsSingleUnit) ? this->block()->fileSize() : this->m_mpq->sectorSize();
-		// If the file is stored as a single unit (indicated in the file's Flags), there is effectively only a single sector, which contains the entire file data.
-		const uint32 sectorsCount = (this->m_hash->block()->flags() & Block::Flags::IsSingleUnit) ? 1 : this->m_hash->block()->blockSize() / sectorSize;
-		sectors.reserve(sectorsCount + 1);
-
-		uint32 newOffset = 0;
-		// NOTE setting index before adding to container is important for index function in sectors container
-
-		for (uint32 i = 0; i < sectorsCount; ++i)
+		// a single unit file only has one sector
+		if (this->block()->flags() & Block::Flags::IsSingleUnit)
 		{
-			sectors.push_back(newSector(i, newOffset, sectorSize));
-
-			newOffset += sectorSize;
+			const uint32 sectorOffset = 0;
+			const uint32 sectorSize = this->block()->fileSize();
+			const uint32 uncompressedSectorSize = this->mpq()->sectorSize();
+			sectors.push_back(Sector(this, 0, sectorOffset, sectorSize, uncompressedSectorSize));
 		}
-
-		// the last sector may contain less than this, depending on the size of the entire file's data.
-		if (!(this->m_hash->block()->flags() & Block::Flags::IsSingleUnit))
+		// otherwise the number of sectors can be calculated
+		else
 		{
-			// not necessary for single units
-			const uint32 lastSize = this->m_hash->block()->blockSize() % sectorSize;
+			const uint32 sectorSize = this->mpq()->sectorSize();
+			const uint32 sectorsCount = this->hash()->block()->blockSize() / sectorSize;
+			sectors.reserve(sectorsCount + 1); // the last sector might use less size than the default one so reserve + 1
 
-			if (lastSize > 0)
+			uint32 newOffset = 0;
+			uint32 size = this->hash()->block()->fileSize();
+
+			for (uint32 i = 0; i < sectorsCount; ++i)
 			{
-				sectors.push_back(newSector(sectors.size(), newOffset, lastSize));
+				const uint32 uncompressedSectorSize = mpq()->sectorSize() > size ? size : this->mpq()->sectorSize(); // use remaining size of the block if it is smaller than the default expected uncompressed sector size
+
+				sectors.push_back(Sector(this, i, newOffset, sectorSize, uncompressedSectorSize));
+
+				newOffset += sectorSize;
+				size -= uncompressedSectorSize;
+			}
+
+			// the last sector might use less size (remaining bytes)
+			if (size > 0)
+			{
+				sectors.push_back(Sector(this, sectors.size(), newOffset, size, size));
 			}
 		}
 	}
@@ -251,47 +202,41 @@ std::streamsize MpqFile::sectors(istream &istream, Sectors &sectors) throw (clas
 			DecryptData(Mpq::cryptTable(), offsets.get(), readSize, fileKey() - 1);
 		}
 
-		/*
-		 * The last entry contains the total compressed file
-		 * size, making it possible to easily calculate the size of any given
-		 * sector by simple subtraction.
-		 */
-		uint32 size = offsets[sectorsCount];
-
 		// TEST
-		if (hash()->block()->blockSize() != size)
+		if (hash()->block()->blockSize() != offsets[sectorsCount])
 		{
 			std::cerr << "File: " << this->path() << std::endl;
 			std::cerr << "We have " << sectorsCount << " sectors." << std::endl;
-			std::cerr << "Read sector table block size " << size << " is not equal to original block size " << hash()->block()->blockSize() << std::endl;
+			std::cerr << "Read sector table block size " << offsets[sectorsCount] << " is not equal to original block size " << hash()->block()->blockSize() << std::endl;
 			std::cerr << "Uncompressed file size is " << this->size() << std::endl;
 			std::cerr << "First sector offset " << sectors[0].sectorOffset() << std::endl;
-			size = hash()->block()->blockSize();
+			//size = hash()->block()->blockSize();
 		}
 		//else
 			//std::cout << "Everything is alright!" << std::endl;
 
-		boost::scoped_array<uint32> sizes(new uint32[sectorsCount]);
-
-		for (uint32 i = sectorsCount - 1; ; --i)
-		{
-			sizes[i] = size - offsets[i];
-
-			if (i == 0)
-			{
-				break;
-			}
-			else
-			{
-				size = offsets[i];
-			}
-		}
-
 		sectors.reserve(sectorsCount);
+		// the actual compressed file size, starting from the first offset of data
+		uint32 size = offsets[sectorsCount] - offsets[0];
+
+		if (offsets[0] > 0)
+		{
+			std::cerr << boost::format(_("%1% useless bytes in file %2%.")) % offsets[0] % this->path() << std::endl;
+		}
 
 		for (uint32 i = 0; i < sectorsCount; ++i)
 		{
-			sectors.push_back(newSector(i, offsets[i], sizes[i]));
+			/*
+			 * The last entry contains the total compressed file
+			 * size, making it possible to easily calculate the size of any given
+			 * sector by simple subtraction.
+			 */
+			const uint32 sectorSize = offsets[i + 1] - offsets[i]; // works since last offset contains file size
+			const uint32 uncompressedSectorSize = mpq()->sectorSize() > size ? size : this->mpq()->sectorSize(); // use remaining size of the block if it is smaller than the default expected uncompressed sector size
+
+			sectors.push_back(Sector(this, i, offsets[i], sectorSize, uncompressedSectorSize));
+
+			size -= uncompressedSectorSize;
 		}
 	}
 
