@@ -46,7 +46,7 @@ void SlaveTest::initTestCase()
 	m_loader = new QPluginLoader(QBLP_ABSOLUTE_PATH, this);
 	QVERIFY2(m_loader->load(), m_loader->errorString().toUtf8().constData());
 	QVERIFY(m_loader->isLoaded());
-	
+
 	m_plugin = dynamic_cast<BlpIOPlugin*>(m_loader->instance());
 	QVERIFY(m_plugin != 0);
 	*/
@@ -73,18 +73,20 @@ void SlaveTest::downloadTest()
 	url.setProtocol("mpq");
 	url.addPath("testattributes.mpq");
 	url.addPath("test.txt");
-	
+
 	QVERIFY(url.isValid());
-	
+
+	//m_protocol.listDir();
+
 	//KIO::TransferJob *job = KIO::get(url);
 	//connect(job, SIGNAL(
 	//connect(job, SIGNAL(data(KIO::Job*,QByteArray)), this, SLOT
-	
+
 	//const bool success = KIO::NetAccess::download(url, "tmpFile", 0);
-	
+
 	//QVERIFY(success);
-	
-	
+
+
 	//QCOMPARE(byteCount, image.byteCount()); // new byte count == old byte count
 }
 

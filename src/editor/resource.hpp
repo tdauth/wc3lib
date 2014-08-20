@@ -28,7 +28,7 @@
 #include <KUrl>
 
 #include "../core.hpp"
-#include "kio_mpq/mpqprotocol.hpp"
+#include "kio_mpq/kio_mpq.hpp"
 
 namespace wc3lib
 {

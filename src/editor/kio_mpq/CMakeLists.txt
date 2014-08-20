@@ -1,8 +1,8 @@
 set(wc3lib_EDITOR_KIO_MPQ_H
-	mpqprotocol.hpp
+	kio_mpq.hpp
 )
 set(wc3lib_EDITOR_KIO_MPQ_SRC
-	mpqprotocol.cpp
+	kio_mpq.cpp
 )
 
 include_directories(${KDE4_INCLUDE_DIR} ${QT_INCLUDE_DIR})

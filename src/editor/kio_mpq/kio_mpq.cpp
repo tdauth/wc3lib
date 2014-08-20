@@ -38,7 +38,7 @@
 #include <KUser>
 #include <KTemporaryFile>
 
-#include "mpqprotocol.hpp"
+#include "kio_mpq.hpp"
 
 namespace wc3lib
 {
@@ -57,20 +57,24 @@ extern "C" int KDE_EXPORT kdemain(int argc, char **argv)
 		exit(-1);
 	}
 
-	MpqProtocol slave(argv[2], argv[3]);
+	MpqSlave slave(argv[2], argv[3]);
 	slave.dispatchLoop();
 
 	return 0;
 }
 
-const char *MpqProtocol::protocol= "mpq";
+const char *MpqSlave::protocol= "mpq";
 
-MpqProtocol::MpqProtocol(const QByteArray &pool, const QByteArray &app) : KIO::SlaveBase(protocol, pool, app), m_seekPos(0)
+MpqSlave::MpqSlave(const QByteArray &pool, const QByteArray &app) : KIO::SlaveBase(protocol, pool, app), m_seekPos(0)
 {
 	kDebug(7000) << "Created MPQ slave";
 }
 
-bool MpqProtocol::parseUrl(const KUrl &url, QString &fileName, QByteArray &archivePath)
+MpqSlave::~MpqSlave()
+{
+}
+
+bool MpqSlave::parseUrl(const KUrl &url, QString &fileName, QByteArray &archivePath)
 {
 	kDebug(7000) << "MPQ: Parsing url " << url.prettyUrl();
 
@@ -125,7 +129,7 @@ bool MpqProtocol::parseUrl(const KUrl &url, QString &fileName, QByteArray &archi
 
 }
 
-void MpqProtocol::toArchivePath(QByteArray &to, const QString &from)
+void MpqSlave::toArchivePath(QByteArray &to, const QString &from)
 {
 #if KDIR_SEPARATOR == '\\'
 	to = from.toUtf8();
@@ -135,7 +139,7 @@ void MpqProtocol::toArchivePath(QByteArray &to, const QString &from)
 
 }
 
-bool MpqProtocol::openArchive(const QString &archive, QString &error)
+bool MpqSlave::openArchive(const QString &archive, QString &error)
 {
 	kDebug(7000) << "opening archive " << archive;
 
@@ -203,7 +207,7 @@ bool MpqProtocol::openArchive(const QString &archive, QString &error)
 }
 
 
-void MpqProtocol::open(const KUrl &url, QIODevice::OpenMode mode)
+void MpqSlave::open(const KUrl &url, QIODevice::OpenMode mode)
 {
 	QString fileName;
 	QByteArray archivePath;
@@ -283,13 +287,13 @@ void MpqProtocol::open(const KUrl &url, QIODevice::OpenMode mode)
 	opened();
 }
 
-void MpqProtocol::close()
+void MpqSlave::close()
 {
 	this->m_seekPos = 0;
 	this->m_file.close();
 }
 
-void MpqProtocol::read(KIO::filesize_t size)
+void MpqSlave::read(KIO::filesize_t size)
 {
 	stringstream sstream;
 
@@ -311,12 +315,12 @@ void MpqProtocol::read(KIO::filesize_t size)
 	data(QByteArray::fromRawData(content, size));
 }
 
-void MpqProtocol::seek(KIO::filesize_t offset)
+void MpqSlave::seek(KIO::filesize_t offset)
 {
 	this->m_seekPos += offset;
 }
 
-void MpqProtocol::mkdir(const KUrl& url, int permissions)
+void MpqSlave::mkdir(const KUrl& url, int permissions)
 {
 	// MPQ archives does not support directory structure
 	// Only simulate creating directory
@@ -324,7 +328,7 @@ void MpqProtocol::mkdir(const KUrl& url, int permissions)
 	finished();
 }
 
-void MpqProtocol::listDir(const KUrl &url)
+void MpqSlave::listDir(const KUrl &url)
 {
 	kDebug(7000) << "MpqProtocol::listDir" << url.url();
 
@@ -539,7 +543,7 @@ void MpqProtocol::listDir(const KUrl &url)
 	finished();
 }
 
-void MpqProtocol::stat(const KUrl &url)
+void MpqSlave::stat(const KUrl &url)
 {
 	kDebug(7000) << "MpqProtocol::stat" << url.url();
 
@@ -655,7 +659,7 @@ void MpqProtocol::stat(const KUrl &url)
 	finished();
 }
 
-void MpqProtocol::get(const KUrl &url)
+void MpqSlave::get(const KUrl &url)
 {
 	QString fileName;
 	QByteArray archivePath;
@@ -762,7 +766,7 @@ void MpqProtocol::get(const KUrl &url)
 	finished();
 }
 
-void MpqProtocol::put(const KUrl &url, int permissions, KIO::JobFlags flags)
+void MpqSlave::put(const KUrl &url, int permissions, KIO::JobFlags flags)
 {
 
 	QString fileName;

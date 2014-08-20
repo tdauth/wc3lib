@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_MPQPROTOCOL_HPP
-#define WC3LIB_EDITOR_MPQPROTOCOL_HPP
+#ifndef WC3LIB_EDITOR_KIO_MPQ_HPP
+#define WC3LIB_EDITOR_KIO_MPQ_HPP
 
 #include <QScopedPointer>
 #include <QDateTime>
@@ -43,7 +43,7 @@ namespace editor
  * \todo Finish and make installable as KDE plugin (such like qblp).
  * \todo Use KIO::SlaveBase member functions to provide meta data (extended attributes).
  */
-class KDE_EXPORT MpqProtocol : public KIO::SlaveBase
+class KDE_EXPORT MpqSlave : public KIO::SlaveBase
 {
 	public:
 		static const char *protocol;
@@ -53,8 +53,26 @@ class KDE_EXPORT MpqProtocol : public KIO::SlaveBase
 		typedef QScopedPointer<mpq::Mpq> MpqArchivePtr;
 
 
-		MpqProtocol(const QByteArray &pool, const QByteArray &app);
+		MpqSlave(const QByteArray &pool, const QByteArray &app);
+		virtual ~MpqSlave();
 
+		virtual void listDir(const KUrl &url) override;
+		virtual void stat(const KUrl &url) override;
+
+		virtual void open(const KUrl &url, QIODevice::OpenMode mode) override;
+		/**
+		 * Closes the opened file of the MPQ archive.
+		 */
+		virtual void close();
+
+		virtual void read(KIO::filesize_t size) override;
+		virtual void seek(KIO::filesize_t offset);
+		virtual void mkdir(const KUrl& url, int permissions) override;
+
+		virtual void get(const KUrl &url) override;
+		virtual void put(const KUrl &url, int permissions, KIO::JobFlags flags) override;
+
+	private:
 		/**
 		 * Taken from "SMPQ".
 		 *
@@ -78,23 +96,6 @@ class KDE_EXPORT MpqProtocol : public KIO::SlaveBase
 		 */
 		bool openArchive(const QString &archive, QString &error);
 
-		virtual void listDir(const KUrl &url);
-		virtual void stat(const KUrl &url);
-
-		virtual void open(const KUrl &url, QIODevice::OpenMode mode);
-		/**
-		 * Closes the opened file of the MPQ archive.
-		 */
-		virtual void close();
-
-		virtual void read(KIO::filesize_t size);
-		virtual void seek(KIO::filesize_t offset);
-		virtual void mkdir(const KUrl& url, int permissions);
-
-		virtual void get(const KUrl &url);
-		virtual void put(const KUrl &url, int permissions, KIO::JobFlags flags);
-
-	private:
 		MpqArchivePtr m_archive;
 		mpq::Attributes::Crc32s m_crcs;
 		mpq::Attributes::Md5s m_md5s;

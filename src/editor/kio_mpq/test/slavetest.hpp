@@ -26,6 +26,8 @@
 
 #include <KIO/NetAccess>
 
+#include "../kio_mpq.hpp"
+
 namespace wc3lib
 {
 
@@ -44,12 +46,8 @@ class SlaveTest : public QObject
 		void cleanup();
 
 		void downloadTest();
-		
+
 	private:
-		/*
-		QPluginLoader *m_loader;
-		class BlpIOPlugin *m_plugin;
-		*/
 };
 
 }
