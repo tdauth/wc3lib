@@ -20,8 +20,8 @@
 
 #include "algorithm.hpp"
 #include "sector.hpp"
-#include "mpq.hpp"
-#include "mpqfile.hpp"
+#include "archive.hpp"
+#include "file.hpp"
 
 namespace wc3lib
 {
@@ -65,7 +65,7 @@ inline const char* zlibError(int error)
 
 }
 
-Sector::Sector(MpqFile *mpqFile, uint32 index, uint32 offset, uint32 size, uint32 uncompressedSize)
+Sector::Sector(File *mpqFile, uint32 index, uint32 offset, uint32 size, uint32 uncompressedSize)
 : m_mpqFile(mpqFile)
 , m_sectorIndex(index)
 , m_sectorOffset(offset)
@@ -248,7 +248,7 @@ std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, in
 	*/
 	if (this->mpqFile()->isEncrypted())
 	{
-		EncryptData(Mpq::cryptTable(), (void*)data.get(), size, this->sectorKey());
+		EncryptData(Archive::cryptTable(), (void*)data.get(), size, this->sectorKey());
 	}
 
 	ofstream ofstream(this->mpqFile()->mpq()->path(), std::ios_base::out | std::ios_base::binary);
@@ -261,7 +261,7 @@ std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, in
 	ofstream.seekp(this->mpqFile()->mpq()->startPosition());
 	ofstream.seekp(boost::numeric_cast<std::streamoff>(this->sectorOffset()), std::ios::cur);
 
-	if (this->mpqFile()->mpq()->format() == Mpq::Format::Mpq1)
+	if (this->mpqFile()->mpq()->format() == Archive::Format::Mpq1)
 	{
 		ofstream.seekp(boost::numeric_cast<std::streamoff>(this->mpqFile()->hash()->block()->blockOffset()), std::ios::cur);
 	}
@@ -351,7 +351,7 @@ void Sector::seekg(istream &istream) const
 
 void Sector::seekgFromArchiveStart(istream &istream) const
 {
-	if (this->mpqFile()->mpq()->format() == Mpq::Format::Mpq1)
+	if (this->mpqFile()->mpq()->format() == Archive::Format::Mpq1)
 	{
 		istream.seekg(boost::numeric_cast<std::streamoff>(this->mpqFile()->hash()->block()->blockOffset()), std::ios::cur);
 	}
@@ -392,7 +392,7 @@ void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, os
 	*/
 	if (this->mpqFile()->isEncrypted())
 	{
-		DecryptData(Mpq::cryptTable(), (void*)data.get(), dataSize, this->sectorKey());
+		DecryptData(Archive::cryptTable(), (void*)data.get(), dataSize, this->sectorKey());
 	}
 
 	// NOTE This byte counts towards the total sector size, meaning that the sector will be stored uncompressed if the data cannot be compressed by at least two bytes

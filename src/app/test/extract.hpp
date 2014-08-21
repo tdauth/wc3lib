@@ -32,7 +32,7 @@ namespace test
 
 int compareExtraction(const boost::filesystem::path &archivePath, const boost::filesystem::path &filePath, const boost::filesystem::path &target);
 
-int compareExtraction(mpq::Mpq &archive, TMPQArchive &stormArchive, const boost::filesystem::path &filePath, const boost::filesystem::path &target);
+int compareExtraction(mpq::Archive &archive, TMPQArchive &stormArchive, const boost::filesystem::path &filePath, const boost::filesystem::path &target);
 
 }
 

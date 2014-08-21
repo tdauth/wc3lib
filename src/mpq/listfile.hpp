@@ -26,7 +26,7 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "mpqfile.hpp"
+#include "file.hpp"
 
 namespace wc3lib
 {
@@ -49,7 +49,7 @@ namespace mpq
  * \sa Attributes
  * \sa Signature
  */
-class Listfile : public MpqFile
+class Listfile : public File
 {
 	public:
 		typedef std::vector<string> Entries;
@@ -95,15 +95,15 @@ class Listfile : public MpqFile
 		virtual const char* fileName() const;
 
 	protected:
-		friend Mpq;
+		friend Archive;
 
-		Listfile(Mpq *mpq, Hash *hash);
+		Listfile(Archive *mpq, Hash *hash);
 };
 
 inline Listfile::Entries Listfile::entries()
 {
 	ostringstream stream;
-	MpqFile::writeData(stream);
+	   File::writeData(stream);
 
 	return entries(stream.str());
 }
@@ -111,7 +111,7 @@ inline Listfile::Entries Listfile::entries()
 inline Listfile::Entries Listfile::dirEntries(const string& dirPath, bool recursive, bool directories)
 {
 	ostringstream stream;
-	MpqFile::writeData(stream);
+	   File::writeData(stream);
 
 	return dirEntries(stream.str(), dirPath, recursive, directories);
 }

@@ -5,7 +5,7 @@
 
 #include <boost/scoped_ptr.hpp>
 
-#include "../mpq.hpp"
+#include "../archive.hpp"
 #include "../attributes.hpp"
 
 #ifndef BOOST_TEST_DYN_LINK
@@ -20,7 +20,7 @@ using namespace wc3lib;
  */
 BOOST_AUTO_TEST_CASE(LadikMpq1AllExtendedAttributes)
 {
-	mpq::Mpq archive;
+	mpq::Archive archive;
 	bool success = true;
 
 	try
@@ -33,17 +33,17 @@ BOOST_AUTO_TEST_CASE(LadikMpq1AllExtendedAttributes)
 	}
 
 	BOOST_REQUIRE(success);
-	BOOST_REQUIRE(archive.format() == mpq::Mpq::Format::Mpq1);
+	BOOST_REQUIRE(archive.format() == mpq::Archive::Format::Mpq1);
 	// TODO wrong size of hash table?
 	//std::cerr << "Hashes size: " << archive.hashes().size() << std::endl;
 	BOOST_REQUIRE(archive.hashes().size() == 4096);
 	BOOST_REQUIRE(archive.blocks().size() == 2);
 	BOOST_REQUIRE(archive.sectorSize() == 4096);
 
-	mpq::MpqFile testfile = archive.findFile("testfile.txt");
+	mpq::File testfile = archive.findFile("testfile.txt");
 	BOOST_REQUIRE(testfile.isValid());
 	BOOST_REQUIRE(testfile.compressedSize() == 12);
-	BOOST_REQUIRE(testfile.locale() == mpq::MpqFile::Locale::Neutral);
+	BOOST_REQUIRE(testfile.locale() == mpq::File::Locale::Neutral);
 	// TODO test file hash and block data
 
 	success = true;
@@ -67,15 +67,18 @@ BOOST_AUTO_TEST_CASE(LadikMpq1AllExtendedAttributes)
 	BOOST_REQUIRE(!archive.containsSignatureFile());
 	BOOST_REQUIRE(archive.containsAttributesFile());
 
-	mpq::Attributes::Crc32s crcs;
-	mpq::Attributes::Md5s md5s;
-	mpq::Attributes::FileTimes fileTimes;
 	mpq::Attributes attributes = archive.attributesFile();
 	BOOST_REQUIRE(attributes.isValid());
 
+	int32 version = 0;
+	mpq::Attributes::ExtendedAttributes extendedAttributes = mpq::Attributes::ExtendedAttributes::None;
+	mpq::Attributes::Crc32s crcs;
+	mpq::Attributes::FileTimes fileTimes;
+	mpq::Attributes::Md5s md5s;
+
 	try
 	{
-		attributes.attributes(crcs, fileTimes, md5s);
+		attributes.attributes(version, extendedAttributes, crcs, fileTimes, md5s);
 	}
 	catch (Exception &e)
 	{
@@ -84,6 +87,9 @@ BOOST_AUTO_TEST_CASE(LadikMpq1AllExtendedAttributes)
 
 	BOOST_REQUIRE(success);
 
+	BOOST_REQUIRE(extendedAttributes | mpq::Attributes::ExtendedAttributes::FileCrc32s);
+	BOOST_REQUIRE(extendedAttributes | mpq::Attributes::ExtendedAttributes::FileTimeStamps);
+	BOOST_REQUIRE(extendedAttributes | mpq::Attributes::ExtendedAttributes::FileMd5s);
 
 	// contains CRC32 with valid index
 	BOOST_REQUIRE(crcs.size() > testfile.block()->index());
@@ -113,9 +119,12 @@ BOOST_AUTO_TEST_CASE(LadikMpq1AllExtendedAttributes)
 	BOOST_REQUIRE(localtime->tm_min == 17);
 }
 
-BOOST_AUTO_TEST_CASE(Attributes)
+/*
+ * NOTE has no file time stamps.
+ */
+BOOST_AUTO_TEST_CASE(Crc32s)
 {
-	mpq::Mpq archive;
+	mpq::Archive archive;
 	bool success = true;
 
 	try
@@ -130,15 +139,17 @@ BOOST_AUTO_TEST_CASE(Attributes)
 	BOOST_REQUIRE(success);
 	BOOST_REQUIRE(archive.containsListfileFile());
 	BOOST_REQUIRE(archive.containsAttributesFile());
+	int32 version = 0;
+	mpq::Attributes::ExtendedAttributes extendedAttributes = mpq::Attributes::ExtendedAttributes::None;
 	mpq::Attributes::Crc32s crcs;
-	mpq::Attributes::Md5s md5s;
 	mpq::Attributes::FileTimes fileTimes;
+	mpq::Attributes::Md5s md5s;
 	mpq::Attributes attributes = archive.attributesFile();
 	BOOST_REQUIRE(attributes.isValid());
 
 	try
 	{
-		attributes.attributes(crcs, fileTimes, md5s);
+		attributes.attributes(version, extendedAttributes, crcs, fileTimes, md5s);
 	}
 	catch (Exception &e)
 	{
@@ -146,14 +157,17 @@ BOOST_AUTO_TEST_CASE(Attributes)
 	}
 
 	BOOST_REQUIRE(success);
+	BOOST_REQUIRE(extendedAttributes & mpq::Attributes::ExtendedAttributes::FileCrc32s);
+	BOOST_REQUIRE(!(extendedAttributes & mpq::Attributes::ExtendedAttributes::FileTimeStamps));
+	BOOST_REQUIRE(!(extendedAttributes & mpq::Attributes::ExtendedAttributes::FileMd5s));
 
-	mpq::MpqFile file = archive.findFile("test.txt");
+	mpq::File file = archive.findFile("test.txt");
 
 	BOOST_REQUIRE(file.isValid());
 	// contains CRC32 with valid index
 	BOOST_REQUIRE(crcs.size() > file.block()->index());
-	BOOST_REQUIRE(fileTimes.size() > file.block()->index());
-	BOOST_REQUIRE(md5s.size() > file.block()->index());
+	BOOST_REQUIRE(fileTimes.size() == 0);
+	BOOST_REQUIRE(md5s.size() == 0);
 
 	stringstream data;
 
@@ -168,17 +182,17 @@ BOOST_AUTO_TEST_CASE(Attributes)
 
 	BOOST_REQUIRE(success);
 
-	string dataString = data.str();
+	const string dataString = data.str();
 
+	/*
 	const mpq::MD5 currentMd5 = mpq::Attributes::md5(dataString.c_str(), dataString.size());
 	const mpq::MD5 storedMd5 = md5s[file.block()->index()];
 	std::cerr << "Current: " << currentMd5 << " Stored: " << storedMd5 << std::endl;
 	BOOST_REQUIRE(currentMd5 == storedMd5);
+	*/
 
 	const mpq::CRC32 currentCrc32 = mpq::Attributes::crc32(dataString.c_str(), dataString.size());
 	const mpq::CRC32 storedCrc32 = crcs[file.block()->index()];
 	std::cerr << "Current: " << currentCrc32 << " Stored: " << storedCrc32 << std::endl;
 	BOOST_REQUIRE(currentCrc32 == storedCrc32);
-
-	// TODO test time stamp by manual comparison
 }

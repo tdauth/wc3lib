@@ -53,7 +53,7 @@ W3m::~W3m()
 std::streamsize W3m::readFileFormat(FileFormat *format) throw (Exception)
 {
 	std::streamsize size = 0;
-	mpq::MpqFile file = this->findFile(format->fileName());
+	mpq::File file = this->findFile(format->fileName());
 
 	if (file.isValid())
 	{
@@ -112,7 +112,7 @@ std::streamsize W3m::readAllFileFormats(const TriggerData *triggerData) throw (E
 std::streamsize W3m::read(InputStream &istream) throw (class Exception)
 {
 	std::streamsize size = this->readHeader(istream);
-	size += mpq::Mpq::read(istream);
+	size += mpq::Archive::read(istream);
 	size += this->readSignature(istream);
 
 	return size;
@@ -121,7 +121,7 @@ std::streamsize W3m::read(InputStream &istream) throw (class Exception)
 std::streamsize W3m::readTriggers(const TriggerData &triggerData) throw (class Exception)
 {
 	std::streamsize size = 0;
-	mpq::MpqFile file = this->findFile(m_triggers.get()->fileName());
+	mpq::File file = this->findFile(m_triggers.get()->fileName());
 
 	if (file.isValid())
 	{

@@ -27,7 +27,7 @@
 #include <crypto++/rsa.h>
 #endif
 
-#include "mpqfile.hpp"
+#include "file.hpp"
 
 namespace wc3lib
 {
@@ -38,11 +38,11 @@ namespace mpq
 /**
  * Provides access to the MPQ archive's weak digital signature file ("(signature)") which is an RSA 512-bit encrypted MD5 checksum created by all of the archive's data (including its header etc.).
  * For more relyable signing you could use a strong digital signature as well which is simply appended to the MPQ archive with the leading indicating characters 'NGIS' and contains an RSA 2048-bit encrypted SHA1 digest.
- * \sa Mpq::strongDigitalSignature()
+ * \sa Archive:strongDigitalSignature()
  * \sa Listfile
  * \sa Attributes
  */
-class Signature : public MpqFile
+class Signature : public File
 {
 	public:
 		/// \note Doesn't include any header data.
@@ -57,27 +57,27 @@ class Signature : public MpqFile
 
 #ifdef USE_ENCRYPTION
 		/**
-		 * \sa Mpq::checkStrong(), check()
+		 * \sa Archive:checkStrong(), check()
 		 */
 		bool check(const CryptoPP::RSA::PrivateKey &privateKey) const;
 		/**
 		 * Generates signature with size of \ref size.
 		 * \param signature Array of written bytes which is reset and filled with the encrypted signature data.
-		 * \sa Mpq::signStrong() const
+		 * \sa Archive:signStrong() const
 		 */
 		void sign(WeakSignature &signature, const CryptoPP::RSA::PublicKey &publicKey) const;
 		/**
 		 * Updates signature.
 		 * \return Returns the number of written bytes (usually \ref size - default signature length of 512 bit RSA encrypted signature).
-		 * \sa Mpq::signStrong()
+		 * \sa Archive:signStrong()
 		 */
 		std::streamsize sign(const CryptoPP::RSA::PublicKey &publicKey);
 		/**
-		 * \sa Mpq::digest()
+		 * \sa Archive:digest()
 		 */
 		MD5 checksum() const;
 		/**
-		 * \sa Mpq::storedDigest()
+		 * \sa Archive:storedDigest()
 		 */
 		MD5 storedChecksum(const CryptoPP::RSA::PrivateKey &privateKey);
 #endif
@@ -85,9 +85,9 @@ class Signature : public MpqFile
 		virtual const char* fileName() const;
 
 	protected:
-		friend Mpq;
+		friend Archive;
 
-		Signature(Mpq *mpq, Hash *hash);
+		Signature(Archive *mpq, Hash *hash);
 };
 
 inline const char* Signature::fileName() const

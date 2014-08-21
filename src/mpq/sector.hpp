@@ -31,15 +31,15 @@ namespace wc3lib
 namespace mpq
 {
 
-class Mpq;
-class MpqFile;
+class Archive;
+class File;
 
 /**
  * \brief Blocks are divided into one or several sectors.
  *
  * Each \ref Block instance consists of one or several sectors which can have different compression types (\ref Compression).
- * Compressed sectors do usually have the size of \ref Mpq::sectorSize() (except the last one which might be smaller).
- * \note Actually there is no read and write member functions since Sectors are created by \ref MpqFile instances when data is being read or written.
+ * Compressed sectors do usually have the size of \ref Archive:sectorSize() (except the last one which might be smaller).
+ * \note Actually there is no read and write member functions since Sectors are created by \ref File instances when data is being read or written.
  */
 class Sector // FIXME : private boost::noncopyable
 {
@@ -62,16 +62,16 @@ class Sector // FIXME : private boost::noncopyable
 			Lzma = 0x12 /// <a href="http://www.zezula.net/en/mpq/stormlib/sfileaddfileex.html">Source</a>.
 		};
 
-		Sector(MpqFile *mpqFile, uint32 index, uint32 offset, uint32 size, uint32 uncompressedSize);
+		Sector(File *mpqFile, uint32 index, uint32 offset, uint32 size, uint32 uncompressedSize);
 		virtual ~Sector();
 
 		/**
-		 * Sames as \ref readData(const byte*, uint32) but detects buffer and buffer size automatically by simply using \ref Mpq::sectorSize() of the corresponding MPQ archive or less (if input stream hasn't that much data).
+		 * Sames as \ref readData(const byte*, uint32) but detects buffer and buffer size automatically by simply using \ref Archive:sectorSize() of the corresponding MPQ archive or less (if input stream hasn't that much data).
 		 */
 		std::streamsize readData(istream &istream, int waveCompressionLevel = defaultWaveCompressionLevel) throw (class Exception);
 		/**
 		 * Compresses and encrypts data from \p buffer of size \p bufferSize if necessary and writes it into the corresponding MPQ archive at the sector's place.
-		 * \note Compressed data has to be less than or equal to \ref Mpq::sectorSize() of the corresponding MPQ archive. Otherwise it throws an exception.
+		 * \note Compressed data has to be less than or equal to \ref Archive:sectorSize() of the corresponding MPQ archive. Otherwise it throws an exception.
 		 * \return Returns size of bytes which has been written into the corresponding MPQ archive.
 		 */
 		std::streamsize readData(const byte *buffer, const uint32 bufferSize, int waveCompressionLevel = defaultWaveCompressionLevel) throw (class Exception);
@@ -96,7 +96,7 @@ class Sector // FIXME : private boost::noncopyable
 		void seekgFromArchiveStart(istream &istream) const;
 		void seekgFromBlockStart(istream &istream) const;
 
-		MpqFile* mpqFile() const;
+		  File* mpqFile() const;
 		uint32 sectorIndex() const;
 		uint32 sectorOffset() const;
 		/**
@@ -116,8 +116,8 @@ class Sector // FIXME : private boost::noncopyable
 		bool compressionSucceded() const;
 
 	protected:
-		friend Mpq;
-		friend MpqFile;
+		friend Archive;
+		friend File;
 
 		void setCompression(Compression value);
 		uint32 sectorKey() const;
@@ -127,7 +127,7 @@ class Sector // FIXME : private boost::noncopyable
 		 */
 		void decompressData(boost::scoped_array<byte> &data, uint32 dataSize, ostream &ostream) const throw (Exception);
 
-		MpqFile *m_mpqFile;
+		  File *m_mpqFile;
 		uint32 m_sectorIndex;
 		uint32 m_sectorOffset;
 		uint32 m_sectorSize; // not required, added by wc3lib, should be the compressed size!
@@ -140,7 +140,7 @@ inline constexpr bool operator&(Sector::Compression x, Sector::Compression y)
 	return static_cast<bool>(static_cast<byte>(x) & static_cast<byte>(y));
 }
 
-inline class MpqFile* Sector::mpqFile() const
+inline class File* Sector::mpqFile() const
 {
 	return this->m_mpqFile;
 }

@@ -49,18 +49,18 @@ namespace wc3lib
 namespace mpq
 {
 
-class MpqFile;
+class File;
 
 /**
  * \brief This class allows users to read, write and modify MPQ archives. MPQ (Mo'PaQ, short for Mike O'Brien Pack) is an archiving file format used in several of Blizzard Entertainment's games.
  *
- * Use \ref Mpq::open() or \ref Mpq::create() to open an existing or create a new MPQ archive on the filesystem.
+ * Use \ref Archive:open() or \ref Archive:create() to open an existing or create a new MPQ archive on the filesystem.
  *
  * For operations on the archive there is several functions with different variations:
  *
- * Use \ref Mpq::removeFile() to remove a file from archive.
+ * Use \ref Archive:removeFile() to remove a file from archive.
  *
- * Use \ref Mpq::findFile() to find a file in the archive.
+ * Use \ref Archive:findFile() to find a file in the archive.
  *
  * Special files can be accessed via the following functions:
  * <ul>
@@ -72,7 +72,7 @@ class MpqFile;
  * \note Synchronization is not implemented in any way since Boost IPC file locks are only "advisory locks". Therefore you should never call operations concurrently.
  *
  */
-class Mpq : public Format, private boost::noncopyable
+class Archive : public Format, private boost::noncopyable
 {
 	public:
 		enum class Format
@@ -83,7 +83,7 @@ class Mpq : public Format, private boost::noncopyable
 
 		/**
 		 * Blocks are indexed by their position in block table starting with 0.
-		 * Maximum index value is \ref Mpq::blocks().size() - 1.
+		 * Maximum index value is \ref Archive:blocks().size() - 1.
 		 * Consider that block indices \ref Hash::blockIndexDeleted and \ref Hash::blockIndexEmpty are reserved for special purpose.
 		 */
 		typedef boost::ptr_vector<Block> Blocks;
@@ -132,8 +132,8 @@ class Mpq : public Format, private boost::noncopyable
 		 * Creates a new instance for an MPQ archive.
 		 * Use \ref create() or \ref open() to create or open a real archive file.
 		 */
-		Mpq();
-		virtual ~Mpq();
+		  Archive();
+		virtual ~Archive();
 
 		/**
 		 * Creates a new MPQ archive at file path \p path of format \p format starting at position \p startPosition in corresponding file and using sector size \p sectorSize.
@@ -193,7 +193,7 @@ class Mpq : public Format, private boost::noncopyable
 		 * \param mpqFile An MPQ file is searched which has the same hash value as \p mpqFile.
 		 * \return Returns true if an MPQ file was found and deleted successfully.
 		 */
-		bool removeFile(const MpqFile &mpqFile);
+		bool removeFile(const File &mpqFile);
 
 		/**
 		 * Searches for hash table entry using \p hashData.
@@ -217,8 +217,8 @@ class Mpq : public Format, private boost::noncopyable
 		 *
 		 * @{
 		 */
-		Hash* findHash(const boost::filesystem::path &path, MpqFile::Locale locale = MpqFile::Locale::Neutral, MpqFile::Platform platform = MpqFile::Platform::Default);
-		const Hash* findHash(const boost::filesystem::path &path, MpqFile::Locale locale = MpqFile::Locale::Neutral, MpqFile::Platform platform = MpqFile::Platform::Default) const;
+		Hash* findHash(const boost::filesystem::path &path, File::Locale locale = File::Locale::Neutral, File::Platform platform = File::Platform::Default);
+		const Hash* findHash(const boost::filesystem::path &path, File::Locale locale = File::Locale::Neutral, File::Platform platform = File::Platform::Default) const;
 		/**
 		 * @}
 		 */
@@ -228,14 +228,14 @@ class Mpq : public Format, private boost::noncopyable
 		 * \return Returns an invalid file if no file was found.
 		 * \ingroup search
 		 */
-		MpqFile findFile(const HashData &hashData);
+		  File findFile(const HashData &hashData);
 		/**
 		 * Searches for file by generating an \ref HashData instance using \p path, \p locale and \p platform.
 		 * \return Returns an invalid file if no file was found.
 		 *
 		 * \ingroup search
 		 */
-		MpqFile findFile(const boost::filesystem::path &path, MpqFile::Locale locale = MpqFile::Locale::Neutral, MpqFile::Platform platform = MpqFile::Platform::Default);
+		  File findFile(const boost::filesystem::path &path, File::Locale locale = File::Locale::Neutral, File::Platform platform = File::Platform::Default);
 
 		/**
 		 * \return Returns the size of the whole MPQ archive file.
@@ -251,7 +251,7 @@ class Mpq : public Format, private boost::noncopyable
 		 * Usually the sector size has type uint16 and is computed by using formula:
 		 * pow(2, sectorSizeShift) * 512. Instead of computing it every time we save
 		 * the computed result and use uint32.
-		 * \sa Mpq::sectorSizeShift
+		 * \sa Archive:sectorSizeShift
 		 */
 		uint32 sectorSize() const;
 		/**
@@ -265,7 +265,7 @@ class Mpq : public Format, private boost::noncopyable
 		 */
 		bool hasStrongDigitalSignature() const;
 		/**
-		 * \return Returns archive's strong digital signature with size of \ref Mpq::strongDigitalSignatureSize.
+		 * \return Returns archive's strong digital signature with size of \ref Archive:strongDigitalSignatureSize.
 		 */
 		const StrongDigitalSignature& strongDigitalSignature() const;
 #ifdef USE_ENCRYPTION
@@ -302,7 +302,7 @@ class Mpq : public Format, private boost::noncopyable
 		std::streamsize signStrong(const CryptoPP::RSA::PublicKey &publicKey);
 #endif
 		/**
-		 * When \ref Mpq::open() or \ref Mpq::create() is called archive is opened automatically until destructor or \ref Mpq::close() is called.
+		 * When \ref Archive:open() or \ref Archive:create() is called archive is opened automatically until destructor or \ref Archive:close() is called.
 		 */
 		bool isOpen() const;
 
@@ -336,7 +336,7 @@ class Mpq : public Format, private boost::noncopyable
 	protected:
 		/**
 		 * Does not check if archive is open.
-		 * \sa Mpq::close
+		 * \sa Archive:close
 		 */
 		void clear();
 
@@ -359,7 +359,7 @@ class Mpq : public Format, private boost::noncopyable
 		 */
 		uint64 nextBlockOffset();
 		/**
-		 * Same as function \ref Mpq::nextBlockOffset but divides large offset value into \p blockOffset and \p extendedBlockOffset.
+		 * Same as function \ref Archive:nextBlockOffset but divides large offset value into \p blockOffset and \p extendedBlockOffset.
 		 */
 		void nextBlockOffsets(uint32 &blockOffset, uint16 &extendedBlockOffset);
 
@@ -378,7 +378,7 @@ class Mpq : public Format, private boost::noncopyable
 		Hashes m_hashes;
 };
 
-inline bool Mpq::hasStrongDigitalSignature(istream &istream)
+inline bool Archive::hasStrongDigitalSignature(istream &istream)
 {
 	static const uint32 identifier = 'NGIS';
 	uint32 data;
@@ -391,7 +391,7 @@ inline bool Mpq::hasStrongDigitalSignature(istream &istream)
 	return result;
 }
 
-inline std::streamsize Mpq::strongDigitalSignature(istream &istream, StrongDigitalSignature &signature) throw (class Exception)
+inline std::streamsize Archive::strongDigitalSignature(istream &istream, StrongDigitalSignature &signature) throw (class Exception)
 {
 	istream.seekg(sizeof(uint32), std::ios::cur); // skip header
 	StrongDigitalSignature sig(new char[strongDigitalSignatureSize]);
@@ -402,87 +402,87 @@ inline std::streamsize Mpq::strongDigitalSignature(istream &istream, StrongDigit
 	return size;
 }
 
-inline bool Mpq::containsListfileFile() const
+inline bool Archive::containsListfileFile() const
 {
 	return this->findHash("(listfile)") != 0;
 }
 
-inline bool Mpq::containsAttributesFile() const
+inline bool Archive::containsAttributesFile() const
 {
 	return this->findHash("(attributes)") != 0;
 }
 
-inline bool Mpq::containsSignatureFile() const
+inline bool Archive::containsSignatureFile() const
 {
 	return this->findHash("(signature)") != 0;
 }
 
-inline std::size_t Mpq::size() const
+inline std::size_t Archive::size() const
 {
 	return this->m_size;
 }
 
-inline const boost::filesystem::path& Mpq::path() const
+inline const boost::filesystem::path& Archive::path() const
 {
 	return this->m_path;
 }
 
-inline std::streampos Mpq::startPosition() const
+inline std::streampos Archive::startPosition() const
 {
 	return this->m_startPosition;
 }
 
-inline Mpq::Format Mpq::format() const
+inline Archive::Format Archive::format() const
 {
 	return this->m_format;
 }
 
-inline uint32 Mpq::sectorSize() const
+inline uint32 Archive::sectorSize() const
 {
 	return this->m_sectorSize;
 }
 
-inline uint16 Mpq::sectorSizeShift() const
+inline uint16 Archive::sectorSizeShift() const
 {
 	return sqrt(this->m_sectorSize / 512);
 }
 
-inline bool Mpq::hasStrongDigitalSignature() const
+inline bool Archive::hasStrongDigitalSignature() const
 {
 	return this->m_strongDigitalSignature.get() != 0;
 }
 
-inline const Mpq::StrongDigitalSignature& Mpq::strongDigitalSignature() const
+inline const Archive::StrongDigitalSignature& Archive::strongDigitalSignature() const
 {
 	return this->m_strongDigitalSignature;
 }
 
-inline bool Mpq::isOpen() const
+inline bool Archive::isOpen() const
 {
 	return this->m_isOpen;
 }
 
-inline Mpq::Blocks& Mpq::blocks()
+inline Archive::Blocks& Archive::blocks()
 {
 	return this->m_blocks;
 }
 
-inline const Mpq::Blocks& Mpq::blocks() const
+inline const Archive::Blocks& Archive::blocks() const
 {
 	return this->m_blocks;
 }
 
-inline Mpq::Hashes& Mpq::hashes()
+inline Archive::Hashes& Archive::hashes()
 {
 	return this->m_hashes;
 }
 
-inline const Mpq::Hashes& Mpq::hashes() const
+inline const Archive::Hashes& Archive::hashes() const
 {
 	return this->m_hashes;
 }
 
-inline Block* Mpq::firstEmptyBlock()
+inline Block* Archive::firstEmptyBlock()
 {
 	BOOST_FOREACH(Block &block, this->blocks())
 	{
@@ -495,7 +495,7 @@ inline Block* Mpq::firstEmptyBlock()
 	return 0;
 }
 
-inline Block* Mpq::firstUnusedBlock()
+inline Block* Archive::firstUnusedBlock()
 {
 	BOOST_FOREACH(Block &block, this->blocks())
 	{
@@ -508,7 +508,7 @@ inline Block* Mpq::firstUnusedBlock()
 	return 0;
 }
 
-inline Block* Mpq::lastOffsetBlock()
+inline Block* Archive::lastOffsetBlock()
 {
 	uint64 offset = 0;
 	class Block *result = 0;
@@ -528,7 +528,7 @@ inline Block* Mpq::lastOffsetBlock()
 }
 
 
-inline Hash* Mpq::firstEmptyHash()
+inline Hash* Archive::firstEmptyHash()
 {
 	BOOST_FOREACH(Hashes::value_type pair, this->hashes())
 	{
@@ -541,7 +541,7 @@ inline Hash* Mpq::firstEmptyHash()
 	return 0;
 }
 
-inline Hash* Mpq::firstDeletedHash()
+inline Hash* Archive::firstDeletedHash()
 {
 	BOOST_FOREACH(Hashes::value_type pair, this->hashes())
 	{
@@ -554,19 +554,19 @@ inline Hash* Mpq::firstDeletedHash()
 	return 0;
 }
 
-inline uint64 Mpq::nextBlockOffset()
+inline uint64 Archive::nextBlockOffset()
 {
 	Block *block = this->lastOffsetBlock();
 
 	if (block == 0)
 	{
-		return Mpq::headerSize;
+		return Archive::headerSize;
 	}
 
 	return block->largeOffset() + block->blockSize();
 }
 
-inline void Mpq::nextBlockOffsets(uint32 &blockOffset, uint16 &extendedBlockOffset)
+inline void Archive::nextBlockOffsets(uint32 &blockOffset, uint16 &extendedBlockOffset)
 {
 	uint64 offset = this->nextBlockOffset();
 	blockOffset = int32(offset << 16); // die hinteren Bits werden abgeschnitten???

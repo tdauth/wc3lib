@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 	if (argc < 2)
 		return 1;
 
-	boost::scoped_ptr<mpq::Mpq> archive(new mpq::Mpq());
+	boost::scoped_ptr<mpq::Archive> archive(new mpq::Archive());
 	mpq::Listfile::Entries entries;
 	const boost::filesystem::path archivePath = argv[1];
 
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 
 	counter = 0;
 	differences = 0;
-	archive.reset(new mpq::Mpq());
+	archive.reset(new mpq::Archive());
 	archive->setStoreSectors(true);
 
 	try

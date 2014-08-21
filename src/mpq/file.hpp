@@ -37,16 +37,16 @@ namespace mpq
 {
 
 class Hash;
-class Mpq;
+class Archive;
 
 /**
  * \brief Provides access to a file's data which is actually a combination of its block and hash entries as well as its path which is provided by the optional "(listfile)" file and its extended attributes provided by the optional "(attributes)" file.
  *
  * Use \ref isValid() to check if the file is a valid file instance of an archive.
  *
- * \note Only class \ref Mpq can modify a file since it is responsible for holding all files.
+ * \note Only class \ref Archivecan modify a file since it is responsible for holding all files.
  */
-class MpqFile
+class File
 {
 	public:
 		/// \todo Define all locales. <a href="http://wiki.devklog.net/index.php?title=The_MoPaQ_Archive_Format#Locales">Source</a>.
@@ -84,14 +84,14 @@ class MpqFile
 
 		/**
 		 * Use this default constructor to create invalid file objects.
-		 * Such objects are returned by the class \ref Mpq whenever the file is not found.
+		 * Such objects are returned by the class \ref Archivewhenever the file is not found.
 		 * It sets the archive (\ref mpq()) and the hash (\ref hash()) to 0 which indicates that it is invalid.
 		 * \ref isValid() returns false if the file is invalid.
 		 */
-		MpqFile();
-		virtual ~MpqFile();
+		  File();
+		virtual ~File();
 
-		MpqFile(const MpqFile &other);
+		  File(const File &other);
 
 		/**
 		 * Closes the file which makes it invalid immediately.
@@ -145,7 +145,7 @@ class MpqFile
 		/**
 		 * \return Returns the archive which the file does belong into.
 		 */
-		Mpq* mpq() const;
+		Archive* mpq() const;
 		/**
 		 * \return Returns the corresponding hash which belongs to the file.
 		 *
@@ -203,7 +203,7 @@ class MpqFile
 		bool hasSectorOffsetTable() const;
 
 		/**
-		 * \return Returns true if the file is valid file entry of an MPQ archive (\ref Mpq). Otherwise it returns false and might be the result of a failed search in an archive. In this case it has no valid reference to an archive nor to a hash entry.
+		 * \return Returns true if the file is valid file entry of an MPQ archive (\ref Archive. Otherwise it returns false and might be the result of a failed search in an archive. In this case it has no valid reference to an archive nor to a hash entry.
 		 */
 		bool isValid() const;
 
@@ -213,44 +213,44 @@ class MpqFile
 		static Platform intToPlatform(uint16 value);
 
 	protected:
-		friend Mpq;
+		friend Archive;
 
 		/**
-		 * Valid MPQ files are created by \ref Mpq only.
+		 * Valid MPQ files are created by \ref Archiveonly.
 		 * \param path Initial path which is set without any synchronization of the corresponding hash entry.
 		 */
-		MpqFile(Mpq *mpq, Hash *hash, const boost::filesystem::path &path);
+		  File(Archive *mpq, Hash *hash, const boost::filesystem::path &path);
 
 		/**
 		 * Sets the path of the file to \p path.
 		 * Updates the hash data as well since it is always associated with the actual path entry.
 		 * If no hash is associated nothing is updated at all.
-		 * \todo This can only be done by the class Mpq since it is not synchronized at the moment!!!!
+		 * \todo This can only be done by the class Archivesince it is not synchronized at the moment!!!!
 		 */
 		void changePath(const boost::filesystem::path &path);
 
 	private:
-		Mpq *m_mpq;
+		Archive *m_mpq;
 		Hash *m_hash;
 		boost::filesystem::path m_path;
 };
 
-inline Mpq* MpqFile::mpq() const
+inline Archive* File::mpq() const
 {
 	return this->m_mpq;
 }
 
-inline Hash* MpqFile::hash() const
+inline Hash* File::hash() const
 {
 	return this->m_hash;
 }
 
-inline const boost::filesystem::path& MpqFile::path() const
+inline const boost::filesystem::path& File::path() const
 {
 	return this->m_path;
 }
 
-inline std::string MpqFile::name() const
+inline std::string File::name() const
 {
 	const std::string pathString = path().string();
 	const std::string::size_type pos = pathString.find_last_of("\\");
@@ -267,7 +267,7 @@ inline std::string MpqFile::name() const
 	return pathString.substr(pos + 1);
 }
 
-inline boost::filesystem::path MpqFile::nativePath() const
+inline boost::filesystem::path File::nativePath() const
 {
 #ifdef UNIX
 	string pathString = path().string();
@@ -280,70 +280,70 @@ inline boost::filesystem::path MpqFile::nativePath() const
 #endif
 }
 
-inline uint32 MpqFile::fileKey() const
+inline uint32 File::fileKey() const
 {
 	return this->block()->fileKey(this->name());
 }
 
-inline uint32 MpqFile::size() const
+inline uint32 File::size() const
 {
 	return this->block()->fileSize();
 }
 
 /// @todo FIXME (return compressed and not real size)
-inline uint32 MpqFile::compressedSize() const
+inline uint32 File::compressedSize() const
 {
 	return this->block()->blockSize();
 }
 
-inline bool MpqFile::isFile() const
+inline bool File::isFile() const
 {
 	return this->block()->flags() & Block::Flags::IsFile;
 }
 
-inline bool MpqFile::isEncrypted() const
+inline bool File::isEncrypted() const
 {
 	return this->block()->flags() & Block::Flags::IsEncrypted;
 }
 
-inline bool MpqFile::isCompressed() const
+inline bool File::isCompressed() const
 {
 	return this->block()->flags() & Block::Flags::IsCompressed;
 }
 
-inline bool MpqFile::isImploded() const
+inline bool File::isImploded() const
 {
 	return this->block()->flags() & Block::Flags::IsImploded;
 }
 
-inline bool MpqFile::hasSectorOffsetTable() const
+inline bool File::hasSectorOffsetTable() const
 {
 	return !(this->block()->flags() & Block::Flags::IsSingleUnit) && ((this->block()->flags() & Block::Flags::IsCompressed) || (this->block()->flags() & Block::Flags::IsImploded));
 }
 
-inline bool MpqFile::isValid() const
+inline bool File::isValid() const
 {
 	return this->mpq() != 0 && this->hash() != 0;
 }
 
-inline uint16 MpqFile::localeToInt(MpqFile::Locale locale)
+inline uint16 File::localeToInt(File::Locale locale)
 {
 	return static_cast<uint16>(locale);
 }
 
-inline MpqFile::Locale MpqFile::intToLocale(uint16 value)
+inline File::Locale File::intToLocale(uint16 value)
 {
-	return (MpqFile::Locale)(value);
+	return (File::Locale)(value);
 }
 
-inline uint16 MpqFile::platformToInt(MpqFile::Platform platform)
+inline uint16 File::platformToInt(File::Platform platform)
 {
 	return static_cast<uint16>(platform);
 }
 
-inline MpqFile::Platform MpqFile::intToPlatform(uint16 value)
+inline File::Platform File::intToPlatform(uint16 value)
 {
-	return static_cast<MpqFile::Platform>(value);
+	return static_cast<File::Platform>(value);
 }
 
 }

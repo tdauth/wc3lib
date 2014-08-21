@@ -35,7 +35,7 @@ namespace wc3lib
  * <li>format extensions for archives which can be larger than 2^32 bytes</li>
  * </ul>
  *
- * Use class \ref wc3lib::mpq::Mpq to access or create one single MPQ archive.
+ * Use class \ref wc3lib::mpq::Archive to access or create one single MPQ archive.
  *
  * Include file \ref mpq.hpp and use namspace \ref wc3lib::mpq for this module.
  *
@@ -45,12 +45,12 @@ namespace wc3lib
 }
 
 #include "mpq/algorithm.hpp"
+#include "mpq/archive.hpp"
 #include "mpq/attributes.hpp"
 #include "mpq/block.hpp"
+#include "mpq/file.hpp"
 #include "mpq/hash.hpp"
 #include "mpq/listfile.hpp"
-#include "mpq/mpq.hpp"
-#include "mpq/mpqfile.hpp"
 #include "mpq/platform.hpp"
 #include "mpq/sector.hpp"
 #include "mpq/signature.hpp"

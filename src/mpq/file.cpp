@@ -18,9 +18,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "mpqfile.hpp"
+#include "file.hpp"
 #include "hash.hpp"
-#include "mpq.hpp"
+#include "archive.hpp"
 
 namespace wc3lib
 {
@@ -28,12 +28,12 @@ namespace wc3lib
 namespace mpq
 {
 
-std::streamsize MpqFile::readData(istream &istream, Sector::Compression compression) throw (class Exception)
+std::streamsize File::readData(istream &istream, Sector::Compression compression) throw (class Exception)
 {
 	throw Exception(_("Not supported yet!"));
 }
 
-std::streamsize MpqFile::writeData(ostream &ostream) throw (class Exception)
+std::streamsize File::writeData(ostream &ostream) throw (class Exception)
 {
 	ifstream ifstream(this->mpq()->path(), std::ios_base::in | std::ios_base::binary);
 
@@ -47,7 +47,7 @@ std::streamsize MpqFile::writeData(ostream &ostream) throw (class Exception)
 	return bytes;
 }
 
-std::streamsize MpqFile::writeData(istream &istream, ostream &ostream) throw (Exception)
+std::streamsize File::writeData(istream &istream, ostream &ostream) throw (Exception)
 {
 	/*
 	 * Read sectors from MPQ archive file and store them.
@@ -80,44 +80,44 @@ std::streamsize MpqFile::writeData(istream &istream, ostream &ostream) throw (Ex
 	return bytes;
 }
 
-MpqFile::Locale MpqFile::locale() const
+File::Locale File::locale() const
 {
-	return MpqFile::intToLocale(this->hash()->cHashData().locale());
+	return File::intToLocale(this->hash()->cHashData().locale());
 }
 
-MpqFile::Platform MpqFile::platform() const
+File::Platform File::platform() const
 {
-	return MpqFile::intToPlatform(this->hash()->cHashData().platform());
+	return File::intToPlatform(this->hash()->cHashData().platform());
 }
 
-Block* MpqFile::block() const
+Block* File::block() const
 {
 	return this->hash()->block();
 }
 
-MpqFile::MpqFile() : m_mpq(0), m_hash(0)
+File::File() : m_mpq(0), m_hash(0)
 {
 }
 
-void MpqFile::close()
+void File::close()
 {
 	this->m_mpq = 0;
 	this->m_hash = 0;
 }
 
-MpqFile::MpqFile(Mpq *mpq, Hash *hash, const boost::filesystem::path &path) : m_mpq(mpq), m_hash(hash), m_path(path)
+File::File(Archive *mpq, Hash *hash, const boost::filesystem::path &path) : m_mpq(mpq), m_hash(hash), m_path(path)
 {
 }
 
-MpqFile::~MpqFile()
+File::~File()
 {
 }
 
-MpqFile::MpqFile(const MpqFile& other) : m_mpq(other.mpq()), m_hash(other.hash()), m_path(other.path())
+File::File(const File& other) : m_mpq(other.mpq()), m_hash(other.hash()), m_path(other.path())
 {
 }
 
-std::streamsize MpqFile::sectors(istream &istream, Sectors &sectors) throw (class Exception)
+std::streamsize File::sectors(istream &istream, Sectors &sectors) throw (class Exception)
 {
 	// if we have a sector offset table and file is encrypted we first need to know its path for proper decryption!
 	if (hasSectorOffsetTable() && isEncrypted() && path().empty())
@@ -128,7 +128,7 @@ std::streamsize MpqFile::sectors(istream &istream, Sectors &sectors) throw (clas
 	istream.seekg(mpq()->startPosition());
 	istream.seekg(this->block()->blockOffset(), std::ios::cur);
 
-	if (mpq()->format() == Mpq::Format::Mpq2 && block()->extendedBlockOffset() > 0)
+	if (mpq()->format() == Archive::Format::Mpq2 && block()->extendedBlockOffset() > 0)
 	{
 		istream.seekg(block()->extendedBlockOffset(), std::ios::cur);
 	}
@@ -199,7 +199,7 @@ std::streamsize MpqFile::sectors(istream &istream, Sectors &sectors) throw (clas
 		// The SectorOffsetTable, if present, is encrypted using the key - 1.
 		if (isEncrypted())
 		{
-			DecryptData(Mpq::cryptTable(), offsets.get(), readSize, fileKey() - 1);
+			DecryptData(Archive::cryptTable(), offsets.get(), readSize, fileKey() - 1);
 		}
 
 		// TEST
@@ -243,7 +243,7 @@ std::streamsize MpqFile::sectors(istream &istream, Sectors &sectors) throw (clas
 	return bytes;
 }
 
-void MpqFile::changePath(const boost::filesystem::path &path)
+void File::changePath(const boost::filesystem::path &path)
 {
 	this->m_path = path;
 
@@ -253,7 +253,7 @@ void MpqFile::changePath(const boost::filesystem::path &path)
 	}
 }
 
-std::streamsize MpqFile::sectors(Sectors &sectors) throw (class Exception)
+std::streamsize File::sectors(Sectors &sectors) throw (class Exception)
 {
 	ifstream istream(mpq()->path(), std::ios::in | std::ios::binary);
 
@@ -267,12 +267,12 @@ std::streamsize MpqFile::sectors(Sectors &sectors) throw (class Exception)
 	return result;
 }
 
-std::streamsize MpqFile::writeSectors(ostream &ostream, const Sectors &sectors) const throw (class Exception)
+std::streamsize File::writeSectors(ostream &ostream, const Sectors &sectors) const throw (class Exception)
 {
 	return 0;
 }
 
-void MpqFile::removeData()
+void File::removeData()
 {
 	throw Exception(_("Not implemented yet."));
 }

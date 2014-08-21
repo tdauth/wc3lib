@@ -35,9 +35,9 @@ std::string sizeString(T size, bool humanReadable, bool decimal)
 
 std::string flagsString(Block::Flags flags);
 std::string compressionString(Sector::Compression compression);
-std::string fileInfo(MpqFile &file, bool humanReadable, bool decimal);
-std::string formatString(Mpq::Format format);
-std::string archiveInfo(Mpq &archive, bool humanReadable, bool decimal);
+std::string fileInfo(File &file, bool humanReadable, bool decimal);
+std::string formatString(Archive::Format format);
+std::string archiveInfo(Archive &archive, bool humanReadable, bool decimal);
 
 }
 

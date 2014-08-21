@@ -65,7 +65,7 @@ extern "C" int KDE_EXPORT kdemain(int argc, char **argv)
 
 const char *MpqSlave::protocol= "mpq";
 
-MpqSlave::MpqSlave(const QByteArray &pool, const QByteArray &app) : KIO::SlaveBase(protocol, pool, app), m_seekPos(0)
+MpqSlave::MpqSlave(const QByteArray &pool, const QByteArray &app) : KIO::SlaveBase(protocol, pool, app), m_seekPos(0), m_attributesVersion(0), m_extendedAttributes(mpq::Attributes::ExtendedAttributes::None)
 {
 	kDebug(7000) << "Created MPQ slave";
 }
@@ -155,7 +155,7 @@ bool MpqSlave::openArchive(const QString &archive, QString &error)
 	{
 		kDebug(7000) << "New opening!";
 
-		MpqArchivePtr ptr(new mpq::Mpq());
+		MpqArchivePtr ptr(new mpq::Archive());
 
 		try
 		{
@@ -185,7 +185,7 @@ bool MpqSlave::openArchive(const QString &archive, QString &error)
 
 			try
 			{
-				attributes.attributes(this->m_crcs, this->m_fileTimes, this->m_md5s); // attributes data is required for file time stamps
+				attributes.attributes(this->m_attributesVersion, this->m_extendedAttributes, this->m_crcs, this->m_fileTimes, this->m_md5s); // attributes data is required for file time stamps
 			}
 			catch (Exception &exception)
 			{
@@ -228,7 +228,7 @@ void MpqSlave::open(const KUrl &url, QIODevice::OpenMode mode)
 		return;
 	}
 
-	mpq::MpqFile file = m_archive->findFile(archivePath.constData()); // TODO locale and platform
+	mpq::File file = m_archive->findFile(archivePath.constData()); // TODO locale and platform
 
 	kDebug(7000) << "Opening: " << archivePath.constData();
 
@@ -399,7 +399,7 @@ void MpqSlave::listDir(const KUrl &url)
 	else
 	{
 		attributes = this->m_archive->attributesFile();
-		hasFileTime = attributes.extendedAttributes() & mpq::Attributes::ExtendedAttributes::FileTimeStamps;
+		hasFileTime = this->m_extendedAttributes & mpq::Attributes::ExtendedAttributes::FileTimeStamps;
 
 		/*
 		if (!hasFileTime)
@@ -479,7 +479,7 @@ void MpqSlave::listDir(const KUrl &url)
 
 			kDebug(7000) << "New path \"" << fileName << "\"";
 
-			mpq::MpqFile file = m_archive->findFile(ref); // TODO locale and platform
+			mpq::File file = m_archive->findFile(ref); // TODO locale and platform
 
 			if (file.isValid())
 			{
@@ -575,7 +575,7 @@ void MpqSlave::stat(const KUrl &url)
 	}
 	else
 	{
-		hasFileTime = m_archive->attributesFile().extendedAttributes() & mpq::Attributes::ExtendedAttributes::FileTimeStamps;
+		hasFileTime = this->m_extendedAttributes & mpq::Attributes::ExtendedAttributes::FileTimeStamps;
 
 		/*
 		if (!hasFileTime)
@@ -587,7 +587,7 @@ void MpqSlave::stat(const KUrl &url)
 
 	kDebug(7000) << "MpqProtocol::state Searching file " << archivePath.constData();
 
-	mpq::MpqFile file = m_archive->findFile(archivePath.constData()); // TODO locale and platform
+	mpq::File file = m_archive->findFile(archivePath.constData()); // TODO locale and platform
 
 	KIO::UDSEntry entry;
 	entry.insert(KIO::UDSEntry::UDS_NAME, url.path());
@@ -682,7 +682,7 @@ void MpqSlave::get(const KUrl &url)
 		return;
 	}
 
-	mpq::MpqFile file = m_archive->findFile(archivePath.constData()); // TODO locale and platform
+	mpq::File file = m_archive->findFile(archivePath.constData()); // TODO locale and platform
 
 	if (!file.isValid())
 	{
@@ -719,7 +719,7 @@ void MpqSlave::get(const KUrl &url)
 		return;
 	}
 
-	mpq::MpqFile::Sectors sectors;
+	mpq::File::Sectors sectors;
 	file.sectors(ifstream, sectors);
 
 	while (sectorIndex < sectors.size())
@@ -788,8 +788,8 @@ void MpqSlave::put(const KUrl &url, int permissions, KIO::JobFlags flags)
 		return;
 	}
 
-	mpq::MpqFile::Locale locale = mpq::MpqFile::Locale::Neutral; // TODO get from URL
-	mpq::MpqFile::Platform platform = mpq::MpqFile::Platform::Default;
+	mpq::File::Locale locale = mpq::File::Locale::Neutral; // TODO get from URL
+	mpq::File::Platform platform = mpq::File::Platform::Default;
 
 	// TODO read URL into temporary local file and add file to MPQ archive!
 

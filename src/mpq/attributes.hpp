@@ -23,7 +23,7 @@
 
 #include <vector>
 
-#include "mpqfile.hpp"
+#include "file.hpp"
 
 namespace wc3lib
 {
@@ -48,7 +48,7 @@ breaking archive viewers.
  * \sa Listfile
  * \sa Signature
  */
-class Attributes : public MpqFile
+class Attributes : public File
 {
 	public:
 		/**
@@ -107,13 +107,10 @@ class Attributes : public MpqFile
 		 */
 		virtual void removeData() override;
 
-		std::streamsize readHeader(istream &stream);
-
-
 		/**
 		 * \brief Reads the attributes from the MPQ archive intro the three parameters.
 		 */
-		std::streamsize attributes(Crc32s &crcs, FileTimes &fileTimes, Md5s &md5s);
+		std::streamsize attributes(int32 &version, ExtendedAttributes &format, Crc32s &crcs, FileTimes &fileTimes, Md5s &md5s);
 
 		/**
 		 * Writes data into corresponding file "(attributes)" of the archive.
@@ -121,24 +118,12 @@ class Attributes : public MpqFile
 		 */
 		std::streamsize writeAttributes(int32 version, ExtendedAttributes extenedAttributes, const Crc32s &crcs = Crc32s(), const FileTimes &fileTimes = FileTimes(), const Md5s &md5s = Md5s());
 
-		/**
-		 * \ref latestVersion contains the latest format version.
-		 */
-		virtual uint32_t version() const;
-		ExtendedAttributes extendedAttributes() const;
-
 		virtual const char* fileName() const;
 
 	protected:
-		friend Mpq;
+		friend Archive;
 
-		Attributes(Mpq *mpq, Hash *hash);
-
-		/*
-		 * Header information:
-		 */
-		int32 m_version;
-		ExtendedAttributes m_extendedAttributes;
+		Attributes(Archive *mpq, Hash *hash);
 };
 
 inline constexpr bool operator&(Attributes::ExtendedAttributes x, Attributes::ExtendedAttributes y)
@@ -146,14 +131,9 @@ inline constexpr bool operator&(Attributes::ExtendedAttributes x, Attributes::Ex
 	return static_cast<bool>(static_cast<uint32>(x) & static_cast<uint32>(y));
 }
 
-inline uint32_t Attributes::version() const
+inline constexpr Attributes::ExtendedAttributes operator|(Attributes::ExtendedAttributes x, Attributes::ExtendedAttributes y)
 {
-	return this->m_version;
-}
-
-inline Attributes::ExtendedAttributes Attributes::extendedAttributes() const
-{
-	return this->m_extendedAttributes;
+	return static_cast<Attributes::ExtendedAttributes>(static_cast<uint32>(x) | static_cast<uint32>(y));
 }
 
 inline const char* Attributes::fileName() const

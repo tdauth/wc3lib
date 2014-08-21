@@ -58,28 +58,16 @@ bool Attributes::checkMd5(const byte *data, std::size_t dataSize, MD5 md5)
 	return mpq::md5(data, dataSize) == md5;
 }
 
-Attributes::Attributes() : MpqFile()
+Attributes::Attributes() : File()
 {
 }
 
 void Attributes::removeData()
 {
-	this->m_extendedAttributes = ExtendedAttributes::None,
-	this->writeAttributes(this->version(), this->extendedAttributes()); // write empty data
+	this->writeAttributes(latestVersion, ExtendedAttributes::None); // write empty data
 }
 
-std::streamsize Attributes::readHeader(istream &stream)
-{
-	std::streamsize size = 0;
-	struct ExtendedAttributesHeader extendedAttributesHeader;
-	wc3lib::read(stream, extendedAttributesHeader, size);
-	m_version = extendedAttributesHeader.version;
-	m_extendedAttributes = static_cast<ExtendedAttributes>(extendedAttributesHeader.attributesPresent);
-
-	return size;
-}
-
-std::streamsize Attributes::attributes(Crc32s &crcs, FileTimes &fileTimes, Md5s &md5s)
+std::streamsize Attributes::attributes(int32 &version, ExtendedAttributes &extendedAttributes, Crc32s &crcs, FileTimes &fileTimes, Md5s &md5s)
 {
 	/*
 	boost::scoped_array<byte> data(new byte[this->size()]); // TODO works with buffered stream stringstream but not with unbuffered?
@@ -87,11 +75,14 @@ std::streamsize Attributes::attributes(Crc32s &crcs, FileTimes &fileTimes, Md5s 
 	*/
 	stringstream stream;
 	std::streamsize size = 0;
-	size = MpqFile::writeData(stream);
+	size = File::writeData(stream);
 
-	readHeader(stream);
+	ExtendedAttributesHeader extendedAttributesHeader;
+	wc3lib::read(stream, extendedAttributesHeader, size);
+	version = extendedAttributesHeader.version;
+	extendedAttributes = static_cast<ExtendedAttributes>(extendedAttributesHeader.attributesPresent);
 
-	if (this->extendedAttributes() & ExtendedAttributes::FileCrc32s)
+	if (extendedAttributes & ExtendedAttributes::FileCrc32s)
 	{
 		crcs.resize(this->mpq()->blocks().size());
 
@@ -103,7 +94,7 @@ std::streamsize Attributes::attributes(Crc32s &crcs, FileTimes &fileTimes, Md5s 
 		}
 	}
 
-	if (this->extendedAttributes() & ExtendedAttributes::FileTimeStamps)
+	if (extendedAttributes & ExtendedAttributes::FileTimeStamps)
 	{
 		fileTimes.resize(this->mpq()->blocks().size());
 
@@ -115,7 +106,7 @@ std::streamsize Attributes::attributes(Crc32s &crcs, FileTimes &fileTimes, Md5s 
 		}
 	}
 
-	if (this->extendedAttributes() & ExtendedAttributes::FileMd5s)
+	if (extendedAttributes & ExtendedAttributes::FileMd5s)
 	{
 		md5s.resize(this->mpq()->blocks().size());
 
@@ -139,7 +130,7 @@ std::streamsize Attributes::writeAttributes(int32 version, ExtendedAttributes ex
 	std::streamsize size = 0;
 	wc3lib::write(stream, extendedAttributesHeader, size);
 
-	if (this->extendedAttributes() & ExtendedAttributes::FileCrc32s)
+	if (extenedAttributes & ExtendedAttributes::FileCrc32s)
 	{
 		BOOST_FOREACH(Crc32s::const_reference ref, crcs)
 		{
@@ -147,7 +138,7 @@ std::streamsize Attributes::writeAttributes(int32 version, ExtendedAttributes ex
 		}
 	}
 
-	if (this->extendedAttributes() & ExtendedAttributes::FileTimeStamps)
+	if (extenedAttributes & ExtendedAttributes::FileTimeStamps)
 	{
 		BOOST_FOREACH(FileTimes::const_reference ref, fileTimes)
 		{
@@ -155,7 +146,7 @@ std::streamsize Attributes::writeAttributes(int32 version, ExtendedAttributes ex
 		}
 	}
 
-	if (this->extendedAttributes() & ExtendedAttributes::FileMd5s)
+	if (extenedAttributes & ExtendedAttributes::FileMd5s)
 	{
 		BOOST_FOREACH(Md5s::const_reference ref, md5s)
 		{
@@ -163,10 +154,10 @@ std::streamsize Attributes::writeAttributes(int32 version, ExtendedAttributes ex
 		}
 	}
 
-	return MpqFile::readData(stream);
+	return File::readData(stream);
 }
 
-Attributes::Attributes(Mpq *mpq, Hash *hash) : MpqFile(mpq, hash, "(attributes)"), m_version(latestVersion), m_extendedAttributes(ExtendedAttributes::None)
+Attributes::Attributes(Archive *mpq, Hash *hash) : File(mpq, hash, "(attributes)")
 {
 }
 

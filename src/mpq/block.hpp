@@ -30,7 +30,7 @@ namespace wc3lib
 namespace mpq
 {
 
-class Mpq;
+class Archive;
 
 /**
  * \brief Blocks are used to provide data for a file in an MPQ archive.
@@ -39,14 +39,14 @@ class Mpq;
  * Blocks are divided into sectors (\ref Sector).
  * There is some properties which are equal for all contained sectors which can be accessed via \ref flags()
  * The MPQ archive's block table is limited to a size of 2^32 (\ref uint32) - 2 since the last two values are reserved by \ref Hash::blockIndexDeleted and \ref Hash::blockIndexEmpty.
- * Use \ref Mpq::maxBlockId to get the last valid block id.
+ * Use \ref Archive:maxBlockId to get the last valid block id.
  *
  *
- * \note All the block's data is kept private. Only the class \ref Mpq can modify it since it is responsible for holding all blocks.
+ * \note All the block's data is kept private. Only the class \ref Archivecan modify it since it is responsible for holding all blocks.
  *
  * \sa Sector
  * \sa Hash
- * \sa MpqFile
+ * \sa File
  */
 class Block : public Format, private boost::noncopyable
 {
@@ -61,7 +61,7 @@ class Block : public Format, private boost::noncopyable
 			IsFile = 0x80000000,
 			IsSingleUnit = 0x01000000,
 			UsesEncryptionKey = 0x00020000, /// Synonym for "BLOCK_OFFSET_ADJUSTED_KEY" which means that the file's key depends on its block offset and file size. \sa fileKey()
-			IsEncrypted = 0x00010000, /// In encrypted files each file sector (\ref Sector) has to be decrypted by its custom sector key which is the sum of its corresponding file key and its index starting at 0. \sa fileKey(), MpqFile::fileKey(), Sector::sectorKey()
+			IsEncrypted = 0x00010000, /// In encrypted files each file sector (\ref Sector) has to be decrypted by its custom sector key which is the sum of its corresponding file key and its index starting at 0. \sa fileKey(), File::fileKey(), Sector::sectorKey()
 			IsCompressed = 0x00000200,
 			IsImploded = 0x00000100
 		};
@@ -70,7 +70,7 @@ class Block : public Format, private boost::noncopyable
 		 * Calculates the hash key for the given file name \p fileName using block \p blockTableEntry.
 		 * If the file's block is encrypted (\ref Flags::UsesEncryptionKey) it also has to be decrypted.
 		 *
-		 * \sa MpqFile::name()
+		 * \sa File::name()
 		 * \sa Block::fileKey(const string&)
 		 */
 		static uint32 fileKey(const string &name, const BlockTableEntry &blockTableEntry);
@@ -81,7 +81,7 @@ class Block : public Format, private boost::noncopyable
 		bool unused() const;
 		/**
 		 * Combines values from \ref blockOffset() and \ref extendedBlockOffset() and returns the result.
-		 * \note This is only required when \ref Mpq::Format::MPQ2 or higher is used.
+		 * \note This is only required when \ref Archive:Format::MPQ2 or higher is used.
 		 */
 		uint64 largeOffset() const;
 
@@ -96,7 +96,7 @@ class Block : public Format, private boost::noncopyable
 		uint32 blockOffset() const;
 
 		/**
-		 * \ref Mpq::Format::MPQ2 supports extended offsets by adding a \ref uint16 value which contains the \ref uint64's more significant bits.
+		 * \ref Archive:Format::MPQ2 supports extended offsets by adding a \ref uint16 value which contains the \ref uint64's more significant bits.
 		 * Use \ref largeOffset() to get the whole offset combination.
 		 * \sa largeOffset()
 		 * \sa blockOffset()
@@ -118,7 +118,7 @@ class Block : public Format, private boost::noncopyable
 		 * Calculates the hash key for the given file name \p fileName.
 		 * If the file's block is encrypted (\ref Flags::UsesEncryptionKey) it also has to be decrypted.
 		 *
-		 * \sa MpqFile::name()
+		 * \sa File::name()
 		 * \sa Block::fileKey(const string&, const BlockTableEntry&)
 		 */
 		uint32 fileKey(const string &fileName) const;
@@ -130,7 +130,7 @@ class Block : public Format, private boost::noncopyable
 		BlockTableEntry toBlockTableEntry() const;
 
 	protected:
-		friend Mpq;
+		friend Archive;
 		friend void boost::checked_delete<>(Block*);
 		friend void boost::checked_delete<>(Block const*);
 		friend std::auto_ptr<Block>;

@@ -25,7 +25,7 @@ using namespace wc3lib::mpq;
 
 main(int argc, char *argv[])
 {
-	boost::scoped_ptr<Mpq> mpq(new Mpq());
+	boost::scoped_ptr<Archive> mpq(new Archive());
 	
 	try
 	{

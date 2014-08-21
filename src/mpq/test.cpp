@@ -1,4 +1,5 @@
 #include "test.hpp"
+#include "attributes.hpp"
 
 namespace wc3lib
 {
@@ -185,9 +186,9 @@ std::string compressionString(Sector::Compression compression)
 	return "";
 }
 
-std::string fileInfo(MpqFile &file, bool humanReadable, bool decimal)
+std::string fileInfo(File &file, bool humanReadable, bool decimal)
 {
-	MpqFile::Sectors sectors;
+	   File::Sectors sectors;
 	file.sectors(sectors);
 	std::stringstream sstream;
 	sstream << boost::format(_("%1%\nCompressed: %2%\nEncrypted: %3%\nImploded: %4%\nFlags: %5%\nCompressed size: %6%\nSize: %7%\nHash A: %8%\nHash B: %9%\nKey: %10%\nBlock index: %11%\nHash index: %12%\nHas offset table: %13%\nBlock offset: %14%\nKey (without encryption): %15%"))
@@ -205,14 +206,14 @@ std::string fileInfo(MpqFile &file, bool humanReadable, bool decimal)
 	% file.hash()->index() // 12
 	% boolString(file.hasSectorOffsetTable()) // 13
 	% file.block()->largeOffset() // 14
-	% (file.isEncrypted() ? HashString(Mpq::cryptTable(), file.name().c_str(), HashType::FileKey) : 0) // 15
+	% (file.isEncrypted() ? HashString(Archive::cryptTable(), file.name().c_str(), HashType::FileKey) : 0) // 15
 	;
 
 	if (sectors.size() > 0)
 	{
 		sstream << std::endl << boost::format(_("\n%1% Sectors:")) % sectors.size();
 
-		BOOST_FOREACH(MpqFile::Sectors::const_reference sector, sectors)
+		BOOST_FOREACH(File::Sectors::const_reference sector, sectors)
 		{
 				sstream << boost::format(_("\nSector %1%:\n-- Offset: %2%\n-- Size: %3%\n-- Compression: %4%"))
 					% sector.sectorIndex()
@@ -226,21 +227,21 @@ std::string fileInfo(MpqFile &file, bool humanReadable, bool decimal)
 	return sstream.str();
 }
 
-std::string formatString(Mpq::Format format)
+std::string formatString(Archive::Format format)
 {
 	switch (format)
 	{
-		case Mpq::Format::Mpq1:
+		case Archive::Format::Mpq1:
 			return _("MPQ1");
 
-		case Mpq::Format::Mpq2:
+		case Archive::Format::Mpq2:
 			return _("MPQ2");
 	}
 
 	return _("Invalid");
 }
 
-std::string archiveInfo(Mpq &archive, bool humanReadable, bool decimal)
+std::string archiveInfo(Archive &archive, bool humanReadable, bool decimal)
 {
 	std::stringstream sstream;
 	sstream << boost::format(_("%1%\nSize: %2%\nHashes: %3%\nBlocks: %4%\nFormat %5%\nSector size: %6%\nHas (listfile) file: %7%\nHas (attributes) file: %8%\nHas (signature) file: %9%\nHas strong digital signature: %10%\n"))
@@ -259,10 +260,24 @@ std::string archiveInfo(Mpq &archive, bool humanReadable, bool decimal)
 	if (archive.containsAttributesFile())
 	{
 		Attributes attributes = archive.attributesFile();
+		int32 version = 0;
+		Attributes::ExtendedAttributes extendedAttributes = Attributes::ExtendedAttributes::None;
+		Attributes::Crc32s crcs;
+		Attributes::FileTimes fileTimes;
+		Attributes::Md5s md5s;
+		attributes.attributes(version, extendedAttributes, crcs, fileTimes, md5s);
 
-		if (attributes.extendedAttributes() != Attributes::ExtendedAttributes::None)
+		if (extendedAttributes != Attributes::ExtendedAttributes::None)
 		{
-			sstream << boost::format(_("Extended attributes:\nHas CRC32s: %1%\nHas time stamps: %2%\nHas MD5s: %3%")) % boolString(attributes.extendedAttributes() & Attributes::ExtendedAttributes::FileCrc32s) % boolString(attributes.extendedAttributes() & Attributes::ExtendedAttributes::FileTimeStamps) % boolString(attributes.extendedAttributes() & Attributes::ExtendedAttributes::FileMd5s);
+			sstream
+			<< boost::format(_("Extended attributes:\nHas CRC32s: %1%\nHas time stamps: %2%\nHas MD5s: %3%\nNumber of CRC32s: %4%\nNumber of time stamps: %5%\nNumber of MD5s: %6%"))
+			% boolString(extendedAttributes & Attributes::ExtendedAttributes::FileCrc32s)
+			% boolString(extendedAttributes & Attributes::ExtendedAttributes::FileTimeStamps)
+			% boolString(extendedAttributes & Attributes::ExtendedAttributes::FileMd5s)
+			% crcs.size()
+			% fileTimes.size()
+			% md5s.size()
+			;
 		}
 	}
 

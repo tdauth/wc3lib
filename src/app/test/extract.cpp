@@ -62,7 +62,7 @@ void extractStormLib(TMPQArchive &archive, const boost::filesystem::path &filePa
 		std::cerr << boost::format(_("Couldn't open file %1%.")) % filePath << std::endl;
 }
 
-void extract(mpq::Mpq &archive, const boost::filesystem::path &filePath, const boost::filesystem::path &target)
+void extract(mpq::Archive &archive, const boost::filesystem::path &filePath, const boost::filesystem::path &target)
 {
 	boost::filesystem::ofstream ofstream(target, std::ios::out | std::ios::binary);
 
@@ -73,7 +73,7 @@ void extract(mpq::Mpq &archive, const boost::filesystem::path &filePath, const b
 		return;
 	}
 
-	const mpq::MpqFile *file = archive.findFile(filePath);
+	const mpq::File *file = archive.findFile(filePath);
 
 	if (file != 0)
 	{
@@ -106,7 +106,7 @@ void extractStormLib(const boost::filesystem::path &archivePath, const boost::fi
 
 void extract(const boost::filesystem::path &archivePath, const boost::filesystem::path &filePath, const boost::filesystem::path &target)
 {
-	boost::scoped_ptr<mpq::Mpq> archive(new mpq::Mpq());
+	boost::scoped_ptr<mpq::Archive> archive(new mpq::Archive());
 
 	if (archive->open(archivePath))
 	{
@@ -142,7 +142,7 @@ int compareExtraction(const boost::filesystem::path &archivePath, const boost::f
 	return stormTimes.wall - wc3libTimes.wall;
 }
 
-int compareExtraction(mpq::Mpq &archive, TMPQArchive &stormArchive, const boost::filesystem::path &filePath, const boost::filesystem::path &target)
+int compareExtraction(mpq::Archive &archive, TMPQArchive &stormArchive, const boost::filesystem::path &filePath, const boost::filesystem::path &target)
 {
 	boost::timer::cpu_timer timer;
 	timer.start();

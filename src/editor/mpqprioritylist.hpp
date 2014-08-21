@@ -204,11 +204,11 @@ class KDE_EXPORT MpqPriorityList
 		 *
 		 * \sa locale()
 		 */
-		void setLocale(mpq::MpqFile::Locale locale);
+		void setLocale(mpq::File::Locale locale);
 		/**
 		 * \sa setLocale()
 		 */
-		mpq::MpqFile::Locale locale() const;
+		mpq::File::Locale locale() const;
 
 		/**
 		 * Adds a source with URL \p url and priorioty \p priority to the priority list.
@@ -310,7 +310,7 @@ class KDE_EXPORT MpqPriorityList
 		Sources& sources();
 
 		SharedDataPtr m_sharedData;
-		mpq::MpqFile::Locale m_locale;
+		mpq::File::Locale m_locale;
 
 		Sources m_sources;
 		Resources m_resources;
@@ -321,12 +321,12 @@ inline const MpqPriorityList::SharedDataPtr& MpqPriorityList::sharedData() const
 	return this->m_sharedData;
 }
 
-inline void MpqPriorityList::setLocale(mpq::MpqFile::Locale locale)
+inline void MpqPriorityList::setLocale(mpq::File::Locale locale)
 {
 	this->m_locale = locale;
 }
 
-inline mpq::MpqFile::Locale MpqPriorityList::locale() const
+inline mpq::File::Locale MpqPriorityList::locale() const
 {
 	return this->m_locale;
 }

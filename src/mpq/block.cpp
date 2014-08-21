@@ -38,7 +38,7 @@ uint32 Block::fileKey(const string &fileName, const BlockTableEntry &blockTableE
 	}
 
 	// Hash the name to get the base key
-	uint32 nFileKey = HashString(Mpq::cryptTable(), fileName.c_str(), HashType::FileKey);
+	uint32 nFileKey = HashString(Archive::cryptTable(), fileName.c_str(), HashType::FileKey);
 
 	// Offset-adjust the key if necessary
 	if (static_cast<Flags>(blockTableEntry.flags) & Flags::UsesEncryptionKey)

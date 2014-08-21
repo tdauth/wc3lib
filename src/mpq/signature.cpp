@@ -26,7 +26,7 @@ namespace wc3lib
 namespace mpq
 {
 
-Signature::Signature() : MpqFile()
+Signature::Signature() : File()
 {
 }
 
@@ -63,7 +63,7 @@ std::streamsize Signature::sign(const CryptoPP::RSA::PublicKey &publicKey)
 
 MD5 Signature::checksum() const
 {
-	// TODO implement similar to \ref Mpq::digest() when it's finished
+	// TODO implement similar to \ref Archive:digest() when it's finished
 	return 0;
 }
 
@@ -83,7 +83,7 @@ MD5 Signature::storedChecksum(const CryptoPP::RSA::PrivateKey &privateKey)
 }
 #endif
 
-Signature::Signature(Mpq *mpq, Hash *hash): MpqFile(mpq, hash, "(signature)")
+Signature::Signature(Archive *mpq, Hash *hash): File(mpq, hash, "(signature)")
 {
 }
 

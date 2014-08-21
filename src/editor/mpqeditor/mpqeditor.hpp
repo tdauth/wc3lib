@@ -44,7 +44,7 @@ class KDE_EXPORT MpqEditor : public Module
 	Q_OBJECT
 
 	public:
-		typedef boost::shared_ptr<mpq::Mpq> MpqPtr;
+		typedef boost::shared_ptr<mpq::Archive> MpqPtr;
 		typedef std::list<MpqPtr> List;
 
 		MpqEditor(wc3lib::editor::MpqPriorityList* source, QWidget* parent = 0, Qt::WindowFlags f = 0);

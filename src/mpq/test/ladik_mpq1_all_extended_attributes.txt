@@ -4,7 +4,7 @@ StormLib v 9.00
 Max. number of files: 4000
 Hash table size: 4096
 MPQ format 1.0
-creates attributes file
+creates attributes file (did not work)
 compatible to Frozen Throne
 No listfile
 No signature

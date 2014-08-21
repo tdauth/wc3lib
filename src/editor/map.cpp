@@ -59,7 +59,7 @@ void Map::load() throw (Exception)
 	if (map->triggers().get() != 0)
 	{
 		// triggers have to be loaded separately when trigger data file ("UI/TriggerData.txt") is available
-		mpq::MpqFile file = map->findFile(map->triggers()->fileName());
+		mpq::File file = map->findFile(map->triggers()->fileName());
 
 		if (file.isValid())
 		{

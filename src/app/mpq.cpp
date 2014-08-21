@@ -39,7 +39,7 @@ inline bool hasListfile(const Listfile::Entries &arg)
 	return std::find(arg.begin(), arg.end(), "(listfile)") != arg.end();
 }
 
-void extract(Mpq &mpq,
+void extract(Archive &mpq,
 #ifndef UNIX
 const std::string &entry,
 #else
@@ -47,7 +47,7 @@ std::string entry,
 #endif
 const boost::program_options::variables_map &vm)
 {
-	mpq::MpqFile file = mpq.findFile(entry);
+	mpq::File file = mpq.findFile(entry);
 
 	if (!file.isValid())
 	{
@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
 				continue;
 			}
 
-			boost::scoped_ptr<Mpq> mpq(new Mpq());
+			boost::scoped_ptr<Archive> mpq(new Archive());
 
 			try
 			{
@@ -268,7 +268,7 @@ int main(int argc, char *argv[])
 			{
 				BOOST_FOREACH(Paths::const_reference path, filePaths)
 				{
-					MpqFile file = mpq->findFile(path);
+					               File file = mpq->findFile(path);
 
 					if (file.isValid())
 					{
@@ -296,7 +296,7 @@ int main(int argc, char *argv[])
 				continue;
 			}
 
-			boost::scoped_ptr<Mpq> mpq(new Mpq());
+			boost::scoped_ptr<Archive> mpq(new Archive());
 
 			try
 			{
@@ -338,7 +338,7 @@ int main(int argc, char *argv[])
 				continue;
 			}
 
-			boost::scoped_ptr<Mpq> mpq(new Mpq());
+			boost::scoped_ptr<Archive> mpq(new Archive());
 
 			try
 			{

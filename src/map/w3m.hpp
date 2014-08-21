@@ -65,7 +65,7 @@ namespace map
  */
 class W3m :
 #ifdef MPQ
-public mpq::Mpq,
+public mpq::Archive,
 #endif
 public Playable
 {

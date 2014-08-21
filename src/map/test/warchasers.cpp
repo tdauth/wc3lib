@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(ReadTest)
 	 * NOTE
 	 * the mini map had decompression issues
 	 */
-	mpq::MpqFile file = map.findFile("war3mapMap.blp");
+	mpq::File file = map.findFile("war3mapMap.blp");
 
 	BOOST_REQUIRE(file.isValid());
 	ofstream outInfo("minimap.info");

@@ -4,12 +4,12 @@ if (MPQ)
 
 	set(wc3lib_MPQ_H
 		algorithm.hpp
+		archive.hpp
 		attributes.hpp
 		block.hpp
+		file.hpp
 		hash.hpp
 		listfile.hpp
-		mpq.hpp
-		mpqfile.hpp
 		platform.hpp
 		sector.hpp
 		signature.hpp
@@ -17,12 +17,12 @@ if (MPQ)
 	)
 	set(wc3lib_MPQ_SRC
 		algorithm.cpp
+		archive.cpp
 		attributes.cpp
 		block.cpp
+		file.cpp
 		hash.cpp
 		listfile.cpp
-		mpq.cpp
-		mpqfile.cpp
 		sector.cpp
 		signature.cpp
 		test.cpp
