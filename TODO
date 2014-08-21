@@ -6,6 +6,7 @@
 * mpq: Add classes HashTable and BlockTable which manage the lists and do the reading and writing which the big class Mpq does at the moment.
 * mpq: Add assignment operator and copy constructor to file classes (allow multiple instances).
 * mpq: Fix attributes test.
+* mpq: Simplify reading of sector tables, simplify class Sector.
 
 2014-08-11 Tamino Dauth <tamino@cdauth.eu>
 * Test "war3map.w3u" support with War Chasers map (Modifications etc.).
