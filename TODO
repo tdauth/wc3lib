@@ -1,6 +1,12 @@
+2014-08-22 Tamino Dauth <tamino@cdauth.eu>
+* editor: Add drag & drop support for MPQ Editor.
+* editor: Add more edit functions to MPQ Editor.
+* editor: Add better usuability features (icons, better tree widget, search filters).
+* editor: Add MPQ Editor export for war3 import files from Frozen Throne (maps?).
+
 2014-08-20 Tamino Dauth <tamino@cdauth.eu>
-* mpq: Rename Mpq to Archive.
-* mpq: Rename MpqFile to File.
+* DONE: mpq: Rename Mpq to Archive.
+* DONE: mpq: Rename MpqFile to File.
 * DONE: mpq: Files should never be stored only be returned by findFile (newly created!).
 * mpq: Do not store indices for blocks and hashes (we do not need them!).
 * mpq: Add classes HashTable and BlockTable which manage the lists and do the reading and writing which the big class Mpq does at the moment.
@@ -12,8 +18,8 @@
 * Test "war3map.w3u" support with War Chasers map (Modifications etc.).
 * Test "war3map.w3i" with map which has random unit tables (custom map).
 * Improve War Chasers "war3map.w3i" test.
-* mpq: Allow opening archives in readonly modes which does not lock the file (which needs writing permission), see class editor::Map.
-* mpq: Fix decompression error for War Chasers minimap (Bzip2).
+* DONE: mpq: Allow opening archives in readonly modes which does not lock the file (which needs writing permission), see class editor::Map.
+* DONE: mpq: Fix decompression error for War Chasers minimap (Bzip2).
 * mpq: Add Unit Tests with different files created by another MPQ supporting tool (an external tool please such as StormLib).
 * Fix StormLib comparison tests (latest version of StormLib on github has a changed API!).
 * editor: Fix renderer freeze when creating a render window in editor::ModelView.
