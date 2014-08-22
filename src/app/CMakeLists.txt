@@ -58,6 +58,11 @@ if (EDITOR)
 	target_link_libraries(wc3texture ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libtextureeditor ${QT_LIBRARIES} ${KDE4_KDEUI_LIBS})
 	install(TARGETS wc3texture DESTINATION bin)
 
+	include_directories("${CMAKE_CURRENT_BINARY_DIR}/../editor/mpqeditor")
+	kde4_add_executable(wc3mpq wc3mpq.cpp)
+	target_link_libraries(wc3mpq ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libmpqeditor ${QT_LIBRARIES} ${KDE4_KDEUI_LIBS} ${OGRE_LIBRARIES})
+	install(TARGETS wc3mpq DESTINATION bin)
+
 	kde4_add_executable(wc3model wc3model.cpp)
 	target_link_libraries(wc3model ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libmodeleditor ${QT_LIBRARIES} ${KDE4_KDEUI_LIBS} ${OGRE_LIBRARIES})
 	install(TARGETS wc3model DESTINATION bin)

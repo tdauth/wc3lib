@@ -55,6 +55,7 @@ namespace wc3lib
 }
 
 #include "editor/editor.hpp"
+#include "editor/listfilesdialog.hpp"
 #include "editor/modelview.hpp"
 #include "editor/modelviewsettings.hpp"
 #include "editor/module.hpp"

@@ -228,14 +228,14 @@ class Archive : public Format, private boost::noncopyable
 		 * \return Returns an invalid file if no file was found.
 		 * \ingroup search
 		 */
-		  File findFile(const HashData &hashData);
+		File findFile(const HashData &hashData);
 		/**
 		 * Searches for file by generating an \ref HashData instance using \p path, \p locale and \p platform.
 		 * \return Returns an invalid file if no file was found.
 		 *
 		 * \ingroup search
 		 */
-		  File findFile(const boost::filesystem::path &path, File::Locale locale = File::Locale::Neutral, File::Platform platform = File::Platform::Default);
+		File findFile(const boost::filesystem::path &path, File::Locale locale = File::Locale::Neutral, File::Platform platform = File::Platform::Default);
 
 		/**
 		 * \return Returns the size of the whole MPQ archive file.

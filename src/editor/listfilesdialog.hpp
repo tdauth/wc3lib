@@ -18,50 +18,70 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_MPQ_TEST
-#define WC3LIB_MPQ_TEST
+#ifndef WC3LIB_EDITOR_LISTFILESDIALOG_HPP
+#define WC3LIB_EDITOR_LISTFILESDIALOG_HPP
 
-#include "mpq.hpp"
+#include <KDialog>
 
-/**
- * \file
- * Defines test functions for debugging the MPQ format support.
- * The functions bring properties of archives, files and sectors in a readable form which could be printed
- * to the output stream of written into a file.
- */
+#include <QDir>
+#include <QList>
+#include <QCheckBox>
+
+#include "../mpq/listfile.hpp"
 
 namespace wc3lib
 {
 
-namespace mpq
+namespace editor
 {
 
-template<typename T>
-std::string sizeString(T size, bool humanReadable, bool decimal)
+/**
+ * \brief A simple dialog which allows you to select listfiles when openeing an MPQ archive.
+ *
+ * The default listfiles are determined by the wc3lib installation and are found in "/usr/share/wc3lib/listfiles/".
+ * Additionally listfiles can be added.
+ */
+class KDE_EXPORT ListfilesDialog : public QDialog
 {
-	if (humanReadable)
-	{
-		if (decimal)
-			return sizeStringDecimal<T>(size);
-		else
-			return sizeStringBinary<T>(size);
-	}
+	Q_OBJECT
 
-	std::ostringstream result;
-	result << size;
+	public:
+		explicit ListfilesDialog(QWidget* parent = 0, Qt::WindowFlags flags = 0);
 
-	return result.str();
+		/**
+		 * \return Returns only files which are checked by the user.
+		 */
+		QFileInfoList checkedFiles() const;
+		const QFileInfoList& files() const;
+
+		/**
+		 * \return Returns all (listfile) entries from all checked files only.
+		 */
+		mpq::Listfile::Entries checkedEntries() const;
+
+	public slots:
+		void addFiles();
+		/**
+		 * Adds a new file to the checkable list which can be used as listfile.
+		 */
+		void addFile(const QFileInfo &fileInfo);
+		void checkAll(bool check);
+
+	private:
+		void fill();
+
+		QLayout *m_fileListLayout;
+		QFileInfoList m_files;
+		QList<QCheckBox*> m_checkBoxes;
+};
+
+inline const QFileInfoList& ListfilesDialog::files() const
+{
+	return this->m_files;
 }
 
-std::string flagsString(Block::Flags flags);
-std::string compressionString(Sector::Compression compression);
-std::string fileInfo(File &file, bool humanReadable, bool decimal);
-std::string formatString(Archive::Format format);
-std::string archiveInfo(Archive &archive, bool humanReadable, bool decimal);
-
 }
 
 }
 
-
-#endif
+#endif // LISTFILESDIALOG_H

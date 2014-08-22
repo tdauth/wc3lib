@@ -67,6 +67,7 @@ if (EDITOR)
 	set(wc3lib_EDITOR_H
 		colorpalettedialog.hpp
 		editor.hpp
+		listfilesdialog.hpp
 		map.hpp
 		metadata.hpp
 		modelview.hpp
@@ -98,6 +99,7 @@ if (EDITOR)
 	set(wc3lib_EDITOR_SRC
 		colorpalettedialog.cpp
 		editor.cpp
+		listfilesdialog.cpp
 		map.cpp
 		metadata.cpp
 		modelview.cpp

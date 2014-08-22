@@ -48,15 +48,23 @@ class Sector // FIXME : private boost::noncopyable
 		static const int defaultWaveCompressionLevel = 3;
 		static const int defaultHuffmanCompressionType = 0;
 
+		/**
+		 * For compressed files (\ref mpq::File::isCompressed()) or imploded files (\ref mpq::File::isImploded()) a compression type might be set
+		 * for each sector but only if its compression succeded (\ref compressionSucceded()).
+		 *
+		 * The different decompression algorithms are provided in \ref algorithm.hpp.
+		 *
+		 * Use \ref compression() to get a sectors compression type.
+		 */
 		enum class Compression : uint8
 		{
 			Uncompressed = 0,
-			ImaAdpcmMono = 0x40, // IMA ADPCM mono
-			ImaAdpcmStereo = 0x80, // IMA ADPCM stereo
-			Huffman = 0x01, // Huffman encoded
-			Deflated = 0x02, // Deflated (see ZLib)
-			Imploded = 0x08, // Imploded (see PKWare Data Compression Library)
-			Bzip2Compressed = 0x10, // BZip2 compressed (see BZip2)
+			ImaAdpcmMono = 0x40, /// IMA ADPCM mono
+			ImaAdpcmStereo = 0x80, /// IMA ADPCM stereo
+			Huffman = 0x01, /// Huffman encoded
+			Deflated = 0x02, /// Deflated (see ZLib)
+			Imploded = 0x08, /// Imploded (see PKWare Data Compression Library)
+			Bzip2Compressed = 0x10, /// BZip2 compressed (see BZip2)
 
 			Sparse = 0x20, /// <a href="http://www.zezula.net/en/mpq/stormlib/sfileaddfileex.html">Source</a>.
 			Lzma = 0x12 /// <a href="http://www.zezula.net/en/mpq/stormlib/sfileaddfileex.html">Source</a>.

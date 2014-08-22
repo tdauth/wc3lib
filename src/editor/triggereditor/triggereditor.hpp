@@ -302,7 +302,7 @@ class KDE_EXPORT TriggerEditor : public Module
 		virtual class SettingsInterface* settings();
 		virtual KAboutData moduleAboutData() const;
 		virtual void onSwitchToMap(Map *map);
-		virtual QString actionName() const;
+		virtual QString actionName() const override;
 
 		void setTriggers(map::Triggers *triggers);
 		void setCustomTextTriggers(map::CustomTextTriggers *customTextTriggers);
