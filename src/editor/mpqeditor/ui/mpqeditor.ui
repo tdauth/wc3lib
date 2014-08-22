@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>546</width>
-    <height>229</height>
+    <width>650</width>
+    <height>479</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,16 +35,50 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="contextMenuPolicy">
+       <enum>Qt::CustomContextMenu</enum>
+      </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::ExtendedSelection</enum>
+      </property>
+      <property name="sortingEnabled">
+       <bool>true</bool>
+      </property>
       <attribute name="headerVisible">
-       <bool>false</bool>
+       <bool>true</bool>
+      </attribute>
+      <attribute name="headerShowSortIndicator" stdset="0">
+       <bool>true</bool>
       </attribute>
       <column>
        <property name="text">
-        <string notr="true">1</string>
+        <string notr="true">Name</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Size</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Compressed Size</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Locale</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Attributes</string>
        </property>
       </column>
      </widget>
-     <widget class="QListWidget" name="m_filesListWidget"/>
     </widget>
    </item>
   </layout>

@@ -48,16 +48,18 @@ int main(int argc, char *argv[])
 
 	if (root.configure())
 	{
-		ModelEditor *editor = new ModelEditor(&root, source.data());
+		ModelEditor editor(&root, source.data());
 
-		editor->show();
+		editor.show();
 
 		KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
 
 		if (args != 0)
 		{
 			for (int i = 0; i < args->count(); ++i)
-				editor->openUrl(args->url(i));
+			{
+				editor.openUrl(args->url(i));
+			}
 		}
 	}
 

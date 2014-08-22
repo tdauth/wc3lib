@@ -251,7 +251,7 @@ class Hash : public Format, private boost::noncopyable
 		HashData& hashData();
 
 	private:
-		  Archive *m_mpq;
+		Archive *m_mpq;
 		uint32 m_index;
 		HashData m_hashData;
 		Block *m_block; // if this value is 0 it has never been used

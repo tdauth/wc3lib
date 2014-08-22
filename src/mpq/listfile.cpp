@@ -64,14 +64,12 @@ Listfile::Entries Listfile::entries(const string &content)
 	return result;
 }
 
-Listfile::Entries Listfile::dirEntries(const string& content, const string& dirPath, bool recursive, bool directories)
+Listfile::Entries Listfile::dirEntries(const Listfile::Entries &entries, const string &dirPath, bool recursive, bool directories)
 {
-	Entries entries = Listfile::entries(content);
-
 	std::set<string> dirs;
 	Entries result;
 
-	BOOST_FOREACH(Entries::reference ref, entries)
+	BOOST_FOREACH(Entries::const_reference ref, entries)
 	{
 		if (boost::istarts_with(ref, dirPath)) // paths are not case sensitive!
 		{
@@ -117,6 +115,13 @@ Listfile::Entries Listfile::dirEntries(const string& content, const string& dirP
 	}
 
 	return result;
+}
+
+Listfile::Entries Listfile::dirEntries(const string& content, const string& dirPath, bool recursive, bool directories)
+{
+	Entries entries = Listfile::entries(content);
+
+	return dirEntries(entries, dirPath, recursive, directories);
 }
 
 void Listfile::toListfileEntry(std::string &path)

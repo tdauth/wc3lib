@@ -1,8 +1,10 @@
 set(wc3lib_MPQEDITOR_H
 	mpqeditor.hpp
+	fileinfodialog.hpp
 )
 set(wc3lib_MPQEDITOR_SRC
 	mpqeditor.cpp
+	fileinfodialog.cpp
 )
 
 add_subdirectory(ui)

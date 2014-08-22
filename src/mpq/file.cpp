@@ -137,58 +137,48 @@ std::streamsize File::sectors(istream &istream, Sectors &sectors) throw (class E
 
 	// This table is not present if this information can be calculated.
 	// If the file is not compressed/imploded, then the size and offset of all sectors is known, based on the archive's SectorSizeShift. If the file is stored as a single unit compressed/imploded, then the SectorOffsetTable is omitted, as the single file "sector" corresponds to BlockSize and FileSize, as mentioned previously.
-	if  (!hasSectorOffsetTable())
+	if (!this->isCompressed() && !this->isImploded())
 	{
-		//std::cout << "File is not imploded/compressed or it's a single unit " << std::endl;
-
-		// a single unit file only has one sector
-		if (this->block()->flags() & Block::Flags::IsSingleUnit)
+		if (this->size() != this->compressedSize())
 		{
-			const uint32 sectorOffset = 0;
-			const uint32 sectorSize = this->block()->fileSize();
-			const uint32 uncompressedSectorSize = this->mpq()->sectorSize();
-			sectors.push_back(Sector(this, 0, sectorOffset, sectorSize, uncompressedSectorSize));
+			std::cerr << boost::format(_("Although file %1% is not compressed or imploded, compressed size %2% differs from uncompressed size %3%.")) % this->path() % this->compressedSize() % this->size() << std::endl;
 		}
-		// otherwise the number of sectors can be calculated
-		else
+
+		const uint32 sectorSize = this->mpq()->sectorSize();
+		const uint32 sectorsCount = this->compressedSize() / sectorSize;
+		sectors.reserve(sectorsCount + 1); // the last sector might use less size than the default one so reserve + 1
+
+		uint32 newOffset = 0;
+		// The sectors are not compressed so the size of each sector is the same in both cases.
+		uint32 remainingUncompressedSize = this->size();
+
+		for (uint32 i = 0; i < sectorsCount; ++i)
 		{
-			const uint32 sectorSize = this->mpq()->sectorSize();
-			const uint32 sectorsCount = this->hash()->block()->blockSize() / sectorSize;
-			sectors.reserve(sectorsCount + 1); // the last sector might use less size than the default one so reserve + 1
+			sectors.push_back(Sector(this, i, newOffset, sectorSize, sectorSize));
 
-			uint32 newOffset = 0;
-			uint32 size = this->hash()->block()->fileSize();
-
-			for (uint32 i = 0; i < sectorsCount; ++i)
-			{
-				const uint32 uncompressedSectorSize = mpq()->sectorSize() > size ? size : this->mpq()->sectorSize(); // use remaining size of the block if it is smaller than the default expected uncompressed sector size
-
-				sectors.push_back(Sector(this, i, newOffset, sectorSize, uncompressedSectorSize));
-
-				newOffset += sectorSize;
-				size -= uncompressedSectorSize;
-			}
-
-			// the last sector might use less size (remaining bytes)
-			if (size > 0)
-			{
-				sectors.push_back(Sector(this, sectors.size(), newOffset, size, size));
-			}
+			newOffset += sectorSize;
+			remainingUncompressedSize -= sectorSize;
 		}
+
+		// the last sector might use less size (remaining bytes)
+		if (remainingUncompressedSize > 0)
+		{
+			sectors.push_back(Sector(this, sectors.size(), newOffset, remainingUncompressedSize, remainingUncompressedSize));
+		}
+	}
+	// a single unit file only has one sector
+	else if ((this->block()->flags() & Block::Flags::IsSingleUnit) && (this->isCompressed() || this->isImploded()))
+	{
+		const uint32 sectorOffset = 0;
+		const uint32 compressedSectorSize = this->block()->blockSize();
+		const uint32 uncompressedSectorSize = this->block()->fileSize();
+		sectors.push_back(Sector(this, 0, sectorOffset, compressedSectorSize, uncompressedSectorSize));
 	}
 	// However, the SectorOffsetTable will be present if the file is compressed/imploded and the file is not stored as a single unit, even if there is only a single sector in the file (the size of the file is less than or equal to the archive's sector size).
 	// sector offset table
 	else
 	{
-		// sector number calculation from StormLib
-		// hf->nBlocks  = (hf->pBlock->dwFSize + ha->dwBlockSize - 1) / ha->dwBlockSize;
-
 		const uint32 sectorsCount = (this->block()->fileSize() + this->mpq()->sectorSize() - 1) / this->mpq()->sectorSize();
-
-		// StormLib specific implementation (extra data)?!
-		//dwToRead = (hf->nBlocks+1) * sizeof(DWORD);
-		//if(hf->pBlock->dwFlags & MPQ_FILE_HAS_EXTRA)
-			//dwToRead += sizeof(DWORD);
 
 		// last offset contains file size
 		const uint32 offsetsSize = sectorsCount + 1;
@@ -203,21 +193,20 @@ std::streamsize File::sectors(istream &istream, Sectors &sectors) throw (class E
 		}
 
 		// TEST
-		if (hash()->block()->blockSize() != offsets[sectorsCount])
+		if (this->compressedSize() != offsets[sectorsCount])
 		{
 			std::cerr << "File: " << this->path() << std::endl;
 			std::cerr << "We have " << sectorsCount << " sectors." << std::endl;
-			std::cerr << "Read sector table block size " << offsets[sectorsCount] << " is not equal to original block size " << hash()->block()->blockSize() << std::endl;
+			std::cerr << "Read sector table block size " << offsets[sectorsCount] << " is not equal to original block size " << this->compressedSize() << std::endl;
 			std::cerr << "Uncompressed file size is " << this->size() << std::endl;
 			std::cerr << "First sector offset " << sectors[0].sectorOffset() << std::endl;
-			//size = hash()->block()->blockSize();
 		}
-		//else
-			//std::cout << "Everything is alright!" << std::endl;
 
 		sectors.reserve(sectorsCount);
 		// the actual compressed file size, starting from the first offset of data
 		uint32 size = offsets[sectorsCount] - offsets[0];
+		// The remaining uncompressed size of the file
+		uint32 remainingUncompressedSize = this->size();
 
 		if (offsets[0] > 0)
 		{
@@ -232,11 +221,11 @@ std::streamsize File::sectors(istream &istream, Sectors &sectors) throw (class E
 			 * sector by simple subtraction.
 			 */
 			const uint32 sectorSize = offsets[i + 1] - offsets[i]; // works since last offset contains file size
-			const uint32 uncompressedSectorSize = mpq()->sectorSize() > size ? size : this->mpq()->sectorSize(); // use remaining size of the block if it is smaller than the default expected uncompressed sector size
+			const uint32 uncompressedSectorSize = mpq()->sectorSize() > remainingUncompressedSize ? remainingUncompressedSize : this->mpq()->sectorSize(); // use remaining size of the block if it is smaller than the default expected uncompressed sector size
 
 			sectors.push_back(Sector(this, i, offsets[i], sectorSize, uncompressedSectorSize));
 
-			size -= uncompressedSectorSize;
+			remainingUncompressedSize -= uncompressedSectorSize;
 		}
 	}
 

@@ -48,18 +48,17 @@ int main(int argc, char *argv[])
 
 	if (root.configure())
 	{
-		Editor *editor = new Editor(&root);
+		Editor editor(&root);
 
-		SplashScreen *splash = new SplashScreen(editor, editor);
-		splash->show();
-		editor->show();
-		editor->addModule(new ModelEditor(&root, editor, editor));
+		SplashScreen splash(&editor, &editor);
+		splash.show();
+		editor.show();
+		editor.addModule(new ModelEditor(&root, &editor, &editor));
 	//	editor->addModule(new ObjectEditor(editor, editor));
-		editor->addModule(new TextureEditor(editor, editor));
+		editor.addModule(new TextureEditor(&editor, &editor));
 		//editor->addModule(new ModelEditor(editor, editor));
-		TriggerEditor *triggerEditor = new TriggerEditor(editor, editor);
-		editor->addModule(triggerEditor);
-		triggerEditor->show();
+		TriggerEditor *triggerEditor = new TriggerEditor(&editor, &editor);
+		editor.addModule(triggerEditor);
 		//TerrainEditor *terrainEditor = new TerrainEditor(editor, editor);
 		//editor->addModule(terrainEditor);
 		//terrainEditor->show();

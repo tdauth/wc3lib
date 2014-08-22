@@ -74,7 +74,7 @@ void ListfilesDialog::fill()
 
 	QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
 	connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(accept()));
-	connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(accept()));
+	connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
 	layout->addWidget(buttonBox, Qt::AlignBottom);
 }
 
@@ -122,11 +122,12 @@ mpq::Listfile::Entries ListfilesDialog::checkedEntries() const
 
 void ListfilesDialog::addFiles()
 {
-	KUrl::List urls = KFileDialog::getOpenUrls(KUrl(), "*.txt", this, tr("Add listfile"));
+	KUrl::List urls = KFileDialog::getOpenUrls(this->m_addUrl, "*.txt", this, tr("Add listfile"));
 
 	foreach (KUrl::List::const_reference ref, urls)
 	{
 		this->addFile(QFileInfo(ref.toLocalFile()));
+		this->m_addUrl = ref.directory();
 	}
 }
 

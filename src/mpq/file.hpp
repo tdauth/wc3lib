@@ -88,7 +88,7 @@ class File
 		 * It sets the archive (\ref mpq()) and the hash (\ref hash()) to 0 which indicates that it is invalid.
 		 * \ref isValid() returns false if the file is invalid.
 		 */
-		  File();
+		File();
 		virtual ~File();
 
 		  File(const File &other);
@@ -219,7 +219,7 @@ class File
 		 * Valid MPQ files are created by \ref Archiveonly.
 		 * \param path Initial path which is set without any synchronization of the corresponding hash entry.
 		 */
-		  File(Archive *mpq, Hash *hash, const boost::filesystem::path &path);
+		File(Archive *mpq, Hash *hash, const boost::filesystem::path &path);
 
 		/**
 		 * Sets the path of the file to \p path.

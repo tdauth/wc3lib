@@ -43,8 +43,8 @@ int main(int argc, char *argv[])
 	KApplication app;
 
 	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
-	TriggerEditor *editor = new TriggerEditor(source.data());
-	editor->show();
+	TriggerEditor editor(source.data());
+	editor.show();
 
 	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
 
@@ -52,7 +52,9 @@ int main(int argc, char *argv[])
 	if (args != 0)
 	{
 		for (int i = 0; i < args->count(); ++i)
-			editor->openTriggersUrl(args->url(i));
+		{
+			editor.openTriggersUrl(args->url(i));
+		}
 	}
 
 	return app.exec();

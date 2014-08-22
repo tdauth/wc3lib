@@ -126,8 +126,13 @@ class KDE_EXPORT Module : public QWidget
 
 		virtual void changeEvent(QEvent *event);
 
-		void readSettings();
-		void writeSettings();
+		/**
+		 * Reads settings of the module.
+		 * This has to be called manually in the derived class.
+		 * By default it reads the source list of the module.
+		 */
+		virtual void readSettings();
+		virtual void writeSettings();
 
 	protected slots:
 		/**

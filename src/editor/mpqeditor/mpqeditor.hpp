@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_MPQEDITOR_HPP
-#define WC3LIB_EDITOR_MPQEDITOR_HPP
+#ifndef WC3LIB_EDITOR_MPQEDITOR_MPQEDITOR_HPP
+#define WC3LIB_EDITOR_MPQEDITOR_MPQEDITOR_HPP
 
 #include <kdemacros.h>
 #include <KActionCollection>
@@ -34,6 +34,9 @@ namespace wc3lib
 
 namespace editor
 {
+
+class ListfilesDialog;
+class FileInfoDialog;
 
 /**
  * \brief Simple file editor which can handle multiple MPQ archives.
@@ -51,15 +54,27 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		typedef std::list<MpqPtr> List;
 
 		MpqEditor(wc3lib::editor::MpqPriorityList* source, QWidget* parent = 0, Qt::WindowFlags f = 0);
+		virtual ~MpqEditor();
 
 		const List& mpqArchives() const;
 		const List& selection() const;
 
-		void openMpqArchive(const KUrl &url);
+		/**
+		 * \return Returns true if opening succeeded.
+		 */
+		bool openMpqArchive(const KUrl &url);
+
+		ListfilesDialog* listfilesDialog() const;
 
 	public slots:
 		void newMpqArchive();
 		void openMpqArchives();
+		/**
+		 * This slot can only be called by an action which is part of \ref m_archiveHistoryActions.
+		 * Otherwise nothing happens.
+		 */
+		void openRecentArchive();
+		void clearHistory();
 		void saveMpqArchive();
 		void closeMpqArchives();
 		void optimizeMpqArchives();
@@ -98,23 +113,77 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		virtual void onSwitchToMap(Map *map) override;
 		virtual QString actionName() const override;
 
-		QTreeWidgetItem* constructFile(const QString &path, QTreeWidgetItem *topItem);
-		QSet<QString> uniqueDirs(const mpq::Listfile::Entries &entries) const;
+		virtual void readSettings() override;
+		virtual void writeSettings() override;
+
+		/**
+		 * For all tree widget items the corresponding archive must be stored.
+		 */
+		typedef QHash<QTreeWidgetItem*, mpq::Archive*> FileItems;
+
+		/**
+		 * \return Returns only entries which are contained by \p archive.
+		 */
+		mpq::Listfile::Entries uniqueFiles(const mpq::Listfile::Entries &entries, mpq::Archive &archive) const;
+
+		/**
+		 * \brief Constructs all tree items for one single archive.
+		 *
+		 * Constructs all tree widget items for \p entries which must be contained by \p archive.
+		 * To ensure this you have to call \ref uniqueFiles() before.
+		 * \param topItem The top level tree widgte item which is used for top level directory files in the archive as well as top level directories.
+		 *
+		 * \return Returns all created items.
+		 */
+		FileItems constructItems(const mpq::Listfile::Entries &entries, QTreeWidgetItem *topItem, mpq::Archive &archive);
+
+		/**
+		 * Creates a tree widget item with all necessary column information for file \p path of \p archive.
+		 *
+		 * \return Returns 0 if the file is not part of the archive.
+		 */
+		QTreeWidgetItem* fileToItem(const boost::filesystem::path &path, mpq::Archive &archive);
+
+		bool extractFile(const QString &path, mpq::Archive &archive, const QString &target);
+
+		QString fileName(const QString &path);
+		QString baseName(const QString &path);
+
+		void addRecentAction(const KUrl &url);
 
 		List& mpqArchives();
 		List& selection();
 
 		List m_mpqArchives;
-		mpq::Listfile::Entries m_listfileEntries;
+		FileItems m_archiveFileItems;
 		List m_selection;
 
-		KUrl m_openStartUrl;
-		KUrl m_saveStartUrl;
-		KUrl m_addStartUrl;
-		KUrl m_extractStartUrl;
+		KUrl m_openUrl;
+		KUrl m_saveUrl;
+		KUrl m_addUrl;
+		KUrl m_extractUrl;
+		QList<KUrl> m_archiveHistory;
 
 		KActionCollection *m_fileActions;
+		KMenu *m_recentArchivesMenu;
+		QAction *m_recentArchivesSeparator;
+		KActionCollection *m_archiveHistoryActions;
+
+		KAction *m_extractAction;
+
+		ListfilesDialog *m_listfilesDialog;
+		FileInfoDialog *m_fileInfoDialog;
+
+	private slots:
+		void fileIsOpen(QTreeWidgetItem *item, int column);
+		void contextMenu(QPoint point);
+		void updateSelection();
 };
+
+inline ListfilesDialog* MpqEditor::listfilesDialog() const
+{
+	return this->m_listfilesDialog;
+}
 
 inline const MpqEditor::List& MpqEditor::mpqArchives() const
 {

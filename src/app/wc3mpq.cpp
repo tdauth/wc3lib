@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2012 by Tamino Dauth                                    *
+ *   Copyright (C) 2014 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -27,7 +27,7 @@
 
 #include "../editor.hpp"
 
-#include <editor/textureeditor/textureeditor.hpp>
+#include "../editor/mpqeditor/mpqeditor.hpp"
 
 using namespace wc3lib::editor;
 
@@ -43,17 +43,16 @@ int main(int argc, char *argv[])
 	KApplication app;
 
 	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
-	TextureEditor editor(source.data());
+	MpqEditor editor(source.data());
 	editor.show();
 
 	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
 
+	// TODO determine by extension what should be open!
 	if (args != 0)
 	{
-		for (int i = 0; i < args->count(); ++i)
-		{
-			editor.openUrl(args->url(i));
-		}
+		//for (int i = 0; i < args->count(); ++i)
+		//	editor->openTriggersUrl(args->url(i));
 	}
 
 	return app.exec();

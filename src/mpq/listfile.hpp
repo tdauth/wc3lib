@@ -82,8 +82,14 @@ class Listfile : public File
 		 *
 		 * \todo Adding all directories might be a little slow (in recursive mode etc.).
 		 * \note All directories will be appended to the end of the result if \p directories is set true. Their order depends on the order of the set they are stored in. The set is used since they could occur multiple times but the user usually needs them only once.
+		 *
+		 * @{
 		 */
 		static Entries dirEntries(const string &content, const string &dirPath, bool recursive = true, bool directories = true);
+		static Entries dirEntries(const Entries &entries, const string &dirPath, bool recursive = true, bool directories = true);
+		/**
+		 * @}
+		 */
 
 		/**
 		 * Splits up file content at one of the following characters "; \r \n" and returns the resulting container with all split file paths.
