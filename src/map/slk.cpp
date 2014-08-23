@@ -132,9 +132,26 @@ struct RecordSkipper : public qi::grammar<Iterator>
 
 typedef std::pair<Slk::Table::size_type, Slk::Table::size_type> SlkSize;
 
+struct CellData
+{
+	CellData() : x(0), y(0)
+	{
+	}
+
+	Slk::Table::size_type x, y;
+	Slk::Cell cell;
+};
+
 void resizeTable(Slk::Table &table, const SlkSize &size)
 {
 	table.resize(boost::extents[size.first][size.second]);
+	std::cerr << "Resizing table: " << size.first << "x" << size.second << std::endl;
+}
+
+void setCell(Slk::Table &table, const CellData &cell, Slk::Table::size_type &row)
+{
+	table[cell.x][cell.y] = cell.cell;
+	row++;
 }
 
 /**
@@ -144,7 +161,7 @@ void resizeTable(Slk::Table &table, const SlkSize &size)
  * cell values depend on.
  */
 template <typename Iterator, typename Skipper = RecordSkipper<Iterator> >
-struct SlkGrammar : qi::grammar<Iterator, Slk::Table(), Skipper>
+struct SlkGrammar : qi::grammar<Iterator, Skipper>
 {
 	void prepare(Slk::Table &result)
 	{
@@ -203,11 +220,11 @@ struct SlkGrammar : qi::grammar<Iterator, Slk::Table(), Skipper>
 		;
 
 		c_record =
-			lit('C')[_val = ""]
+			lit('C')
 			>> lit(";X")
-			>> int_
+			>> int_[at_c<0>(_val) = _1]
 			>> lit(";Y")
-			>> int_
+			>> int_[at_c<1>(_val) = _1]
 
 			>>
 			-(
@@ -218,17 +235,20 @@ struct SlkGrammar : qi::grammar<Iterator, Slk::Table(), Skipper>
 			>>
 			-(
 				lit(";K")
-				>> +char_[_val = _1]
+				>> +char_[at_c<2>(_val) = _1]
 			)
 
 			// TODO all possible fields!
 			// TODO store only the cell value and the index!
 		;
 
+		e_record =
+			lit('E')
+		;
+
 		record =
 			b_record[phoenix::bind(&resizeTable, phoenix::ref(result), phoenix::ref(_1))]
-			| c_record
-			| e_record
+			| c_record[phoenix::bind(&setCell, phoenix::ref(result), phoenix::ref(_1), phoenix::ref(row))]
 		;
 
 		cells =
@@ -251,10 +271,10 @@ struct SlkGrammar : qi::grammar<Iterator, Slk::Table(), Skipper>
 	}
 
 	qi::rule<Iterator, SlkSize(), Skipper> b_record;
-	qi::rule<Iterator, Slk::Cell(), Skipper> c_record;
+	qi::rule<Iterator, CellData(), Skipper> c_record;
 	qi::rule<Iterator, Skipper> e_record;
 	qi::rule<Iterator, Skipper> record;
-	qi::rule<Iterator, Slk::Table(), Skipper> cells;
+	qi::rule<Iterator, Skipper> cells;
 
 	Slk::Table result;
 	Slk::Table::size_type row;
@@ -312,8 +332,7 @@ bool parse(Iterator first, Iterator last, Slk::Table &table)
 		first,
 		last,
 		grammar,
-		recordSkipper,
-		table
+		recordSkipper
 	);
 
 	if (first != last) // fail if we did not get a full match
@@ -343,8 +362,8 @@ std::streamsize Slk::read(InputStream &istream) throw (class Exception)
 	try
 	{
 		if (!client::parse(position_begin,
-		position_end,
-		this->table()))
+			position_end,
+			this->table()))
 		{
 			throw Exception(_("Parsing error."));
 		}
@@ -376,3 +395,10 @@ std::streamsize Slk::write(OutputStream &ostream) const throw (class Exception)
 }
 
 }
+
+BOOST_FUSION_ADAPT_STRUCT(
+	wc3lib::map::client::CellData,
+	(wc3lib::map::Slk::Table::size_type, x)
+	(wc3lib::map::Slk::Table::size_type, y)
+	(wc3lib::map::Slk::Cell, cell)
+)
