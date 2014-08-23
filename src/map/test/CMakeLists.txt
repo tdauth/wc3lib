@@ -53,7 +53,12 @@ configure_file(customobjects.w3o customobjects.w3o COPYONLY) # The Frozen Throne
 configure_file(TriggerData.txt TriggerData.txt COPYONLY) # Warcraft III
 configure_file(TriggerStrings.txt TriggerStrings.txt COPYONLY) # Warcraft III
 configure_file(WorldEditStrings.txt WorldEditStrings.txt COPYONLY) # The Frozen Throne "War3xlocal.mpq"
+configure_file(UnitAbilities.slk UnitAbilities.slk COPYONLY) # Reign of Chaos "war3.mpq"
+configure_file(UnitBalance.slk UnitBalance.slk COPYONLY) # Reign of Chaos "war3.mpq"
+configure_file(UnitData.slk UnitData.slk COPYONLY) # Reign of Chaos "war3.mpq"
 configure_file(UnitMetaData.slk UnitMetaData.slk COPYONLY) # Reign of Chaos "war3.mpq"
+configure_file(UnitUI.slk UnitUI.slk COPYONLY) # Reign of Chaos "war3.mpq"
+configure_file(UpgradeData.slk UpgradeData.slk COPYONLY) # Reign of Chaos "war3.mpq"
 configure_file(war3map.wtg war3map.wtg COPYONLY) # War Chasers
 configure_file(war3map.wct war3map.wct COPYONLY) # War Chasers
 configure_file(TestMap.w3m TestMap.w3m COPYONLY)

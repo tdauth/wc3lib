@@ -96,91 +96,30 @@ struct RecordSkipper : public qi::grammar<Iterator>
 			)
 		;
 
-		p_field %=
-			lit(";P")
-			>> *literal
-		;
-
-		f_field %=
-			lit(";F")
-			>> *literal
-		;
-
-		m_field %=
-			lit(";M")
-			>> *literal
-		;
-
-		l_field %=
-			lit(";L")
-			>> *literal
-		;
-
-		s_field %=
-			lit(";S")
-			>> *literal
-		;
-
-		v_field %=
-			lit(";V")
-			>> *literal
-		;
-
-		g_field %=
-			lit(";G")
-			>> *literal
-		;
-
-		d_field %=
-			lit(";D")
-			>> *literal
-		;
-
-
-		w_field %=
-			lit(";W")
-			>> *literal
-		;
-
-		e_field %=
-			lit(";E")
-			>> *literal
-		;
-
-		k_field %=
-			lit(";K")
+		field %=
+			lit(";")
+			>> char_('A', 'Z')
 			>> *literal
 		;
 
 		id_record %=
 			lit("ID")
-			>> p_field
-			>> -lit(";N")
-			>> -lit(";E")
+			>> +field
 		;
 
 		p_record %=
 			lit('P')
-			>>
-			+(
-				p_field
-				// NOTE is not listed on Wikipedia but present in Warcraft's SLK files
-				| f_field
-				| m_field
-				| e_field
-				| s_field
-				| l_field
-			)
+			>> +field
 		;
 
 		f_record %=
 			lit('F')
-			>> +(p_field | d_field | m_field | w_field)
+			>> +field
 		;
 
 		o_record %=
 			lit('O')
-			>> +(l_field | s_field | d_field | v_field | k_field | g_field)
+			>> +field
 		;
 
 		skip_record %=
@@ -200,17 +139,7 @@ struct RecordSkipper : public qi::grammar<Iterator>
 		;
 
 		literal.name("literal");
-		p_field.name("p_field");
-		f_field.name("f_field");
-		m_field.name("m_field");
-		d_field.name("d_field");
-		l_field.name("l_field");
-		s_field.name("s_field");
-		v_field.name("v_field");
-		g_field.name("g_field");
-		w_field.name("w_field");
-		e_field.name("e_field");
-		k_field.name("k_field");
+		field.name("field");
 		id_record.name("id_record");
 		p_record.name("p_record");
 		f_record.name("f_record");
@@ -220,17 +149,7 @@ struct RecordSkipper : public qi::grammar<Iterator>
 
 		BOOST_SPIRIT_DEBUG_NODES(
 			(literal)
-			(p_field)
-			(f_field)
-			(m_field)
-			(d_field)
-			(l_field)
-			(s_field)
-			(v_field)
-			(g_field)
-			(w_field)
-			(e_field)
-			(k_field)
+			(field)
 			(id_record)
 			(p_record)
 			(f_record)
@@ -242,17 +161,7 @@ struct RecordSkipper : public qi::grammar<Iterator>
 
 	qi::rule<Iterator> literal;
 
-	qi::rule<Iterator> p_field;
-	qi::rule<Iterator> f_field;
-	qi::rule<Iterator> m_field;
-	qi::rule<Iterator> d_field;
-	qi::rule<Iterator> l_field;
-	qi::rule<Iterator> s_field;
-	qi::rule<Iterator> v_field;
-	qi::rule<Iterator> g_field;
-	qi::rule<Iterator> w_field;
-	qi::rule<Iterator> e_field;
-	qi::rule<Iterator> k_field;
+	qi::rule<Iterator> field;
 
 	qi::rule<Iterator> id_record;
 	qi::rule<Iterator> b_record;
@@ -274,8 +183,6 @@ struct CellData
 
 	Slk::Table::size_type x, y;
 	Slk::Cell cell;
-	// TODO save optional description (;A)
-	Slk::Cell description;
 };
 
 void assignX(SlkSize &size, int x)
@@ -310,11 +217,10 @@ void setCell(Slk::Table &table, const CellData &cell)
 	}
 	else
 	{
-		std::cerr << boost::format(_("Cell data %1%|%2% with value \"%3%\" and description \"%4%\" is out of range for table with size %5%|%6%."))
+		std::cerr << boost::format(_("Cell data %1%|%2% with value \"%3%\" is out of range for table with size %4%|%5%."))
 			% cell.x
 			% cell.y
 			% cell.cell
-			% cell.description
 			% table.shape()[0]
 			% table.shape()[1]
 			<< std::endl;
@@ -433,22 +339,10 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 			)
 
 			>>
-			-(
-				lit(";E")
-				>> literal
-			)
-
-			>>
-			-(
-				(
-					lit(";K")
-					>> literal[at_c<2>(_val) = _1]
-				)
-				// in some cases descriptions appear as ;A fields
-				| (
-					lit(";A")
-					>> literal[at_c<3>(_val) = _1]
-				)
+			*(
+				(lit(";E") >> literal)
+				| (lit(";K") >> literal[at_c<2>(_val) = _1])
+				| (lit(";A") >> literal)
 			)
 
 			// TODO all possible fields!
@@ -622,5 +516,4 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(wc3lib::map::Slk::Table::size_type, x)
 	(wc3lib::map::Slk::Table::size_type, y)
 	(wc3lib::map::Slk::Cell, cell)
-	(wc3lib::map::Slk::Cell, description)
 )

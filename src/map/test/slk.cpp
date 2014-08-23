@@ -35,7 +35,69 @@
 
 using namespace wc3lib;
 
-// TODO add small tests before "Unit Meta Data"
+BOOST_AUTO_TEST_CASE(UnitAbilities)
+{
+	spiritTraceLog.close();
+	spiritTraceLog.open("unitabilities_traces.xml");
+
+	BOOST_REQUIRE(spiritTraceLog);
+
+	ifstream in("UnitAbilities.slk");
+
+	BOOST_REQUIRE(in);
+
+	map::Slk slk;
+
+	bool valid = true;
+
+	try
+	{
+		slk.read(in);
+	}
+	catch (Exception e)
+	{
+		valid = false;
+
+		std::cerr << e.what() << std::endl;
+	}
+
+	BOOST_REQUIRE(valid);
+	BOOST_REQUIRE(slk.columns() == 7);
+	BOOST_REQUIRE(slk.rows() == 325);
+	BOOST_REQUIRE(slk.cell(0, 0) == "\"unitAbilID\"");
+}
+
+BOOST_AUTO_TEST_CASE(UnitBalance)
+{
+	spiritTraceLog.close();
+	spiritTraceLog.open("unitbalance_traces.xml");
+
+	BOOST_REQUIRE(spiritTraceLog);
+
+	ifstream in("UnitBalance.slk");
+
+	BOOST_REQUIRE(in);
+
+	map::Slk slk;
+
+	bool valid = true;
+
+	try
+	{
+		slk.read(in);
+	}
+	catch (Exception e)
+	{
+		valid = false;
+
+		std::cerr << e.what() << std::endl;
+	}
+
+	BOOST_REQUIRE(valid);
+	BOOST_REQUIRE(slk.columns() == 44);
+	BOOST_REQUIRE(slk.rows() == 467);
+	BOOST_REQUIRE(slk.cell(0, 0) == "\"unitBalanceID\"");
+}
 
 BOOST_AUTO_TEST_CASE(UnitMetaData)
 {

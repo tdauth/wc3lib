@@ -577,8 +577,11 @@ void MpqEditor::extractFiles()
 					if (iterator != m_archiveFileItems.end())
 					{
 						Archive *archive = iterator.value();
+						KUrl url;
+						url.setDirectory(dir);
+						url.setFileName(fileName);
 
-						extractFile(filePath, archive->archive(), dir + fileName);
+						extractFile(filePath, archive->archive(), url.toLocalFile());
 					}
 					else
 					{
