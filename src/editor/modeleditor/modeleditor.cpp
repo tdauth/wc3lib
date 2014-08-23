@@ -280,7 +280,7 @@ void ModelEditor::showCollisionShapes()
 
 			BOOST_FOREACH(OgreMdlx::CollisionShapes::const_reference collisionShape, value.collisionShapes())
 			{
-				std::string name = boost::str(boost::format("%1%.CollisionShape%2%") % value.namePrefix().toUtf8().constData() % i);
+				std::string name = boost::str(boost::format("%1%.CollisionShape%2%") % value.namePrefix().toStdString() % i);
 				Ogre::SceneNode *sceneNode = value.sceneNode()->createChildSceneNode(name.c_str());
 				qDebug() << "Showing shape of type " << static_cast<mdlx::long32>(collisionShape.second->shape) << " with name " << name.c_str();
 
@@ -434,7 +434,7 @@ bool ModelEditor::openUrl(const KUrl &url)
 		KMessageBox::error(this, i18n("Unable to assign team color %1 and team glow %2 to model \"%3\".\nException \"%4\".", static_cast<int>(teamColor()), static_cast<int>(teamGlow()), url.toEncoded().constData(), exception.what()));
 	}
 
-	Ogre::String entityName = Ogre::String(QString(model->namePrefix() +"Entity").toUtf8().constData());
+	Ogre::String entityName = Ogre::String(QString(model->namePrefix() +"Entity").toStdString());
 	qDebug() << "Scene manager for entity " << entityName.c_str() << " = " << this->modelView()->sceneManager();
 	m_entities.left.insert(std::make_pair(model, new OgreMdlxEntity(entityName, model, this->modelView()->sceneManager()))); // create entity
 

@@ -51,10 +51,10 @@ void Map::load() throw (Exception)
 		throw Exception(boost::format(_("File must be writable since MPQ archives are locked by default.")));
 	}
 
-	ifstream istream(target.toUtf8().constData(), std::ios::in | std::ios::binary);
+	ifstream istream(target.toStdString(), std::ios::in | std::ios::binary);
 
 	MapPtr map(new map::W3m());
-	map->open(target.toUtf8().constData());
+	map->open(target.toStdString());
 
 	if (map->triggers().get() != 0)
 	{
@@ -93,14 +93,14 @@ void Map::save(const KUrl &url) const throw (Exception)
 	KTemporaryFile tmpFile;
 
 	if (!tmpFile.open())
-		throw Exception(boost::format(_("Temporary file \"%1%\" cannot be opened.")) % tmpFile.fileName().toUtf8().constData());
+		throw Exception(boost::format(_("Temporary file \"%1%\" cannot be opened.")) % tmpFile.fileName().toStdString());
 
-	ofstream ostream(tmpFile.fileName().toUtf8().constData(), std::ios::out | std::ios::binary);
+	ofstream ostream(tmpFile.fileName().toStdString(), std::ios::out | std::ios::binary);
 
 	map()->write(ostream);
 
 	if  (!this->source()->upload(tmpFile.fileName(), url, 0))
-		throw Exception(boost::format(_("Unable to upload temporary file \"%1%\" to URL \"%2%\"")) % tmpFile.fileName().toUtf8().constData() % url.toEncoded().constData());
+		throw Exception(boost::format(_("Unable to upload temporary file \"%1%\" to URL \"%2%\"")) % tmpFile.fileName().toStdString() % url.toEncoded().constData());
 }
 
 }

@@ -426,12 +426,12 @@ inline BOOST_SCOPED_ENUM(TeamColor) OgreMdlx::teamGlow() const
 
 inline Ogre::String OgreMdlx::textureName(mdlx::long32 id) const
 {
-	return Ogre::String((boost::format("%1%.Texture%2%") % namePrefix().toUtf8().constData() % id).str().c_str());
+	return Ogre::String((boost::format("%1%.Texture%2%") % namePrefix().toStdString() % id).str().c_str());
 }
 
 inline Ogre::String OgreMdlx::geosetName(mdlx::long32 id) const
 {
-	return Ogre::String((boost::format("%1%.Geoset%2%") % namePrefix().toUtf8().constData() % id).str().c_str());
+	return Ogre::String((boost::format("%1%.Geoset%2%") % namePrefix().toStdString() % id).str().c_str());
 }
 
 inline Ogre::TransformKeyFrame* OgreMdlx::createAnimatedPropertyKeyFrame(Ogre::NodeAnimationTrack *track, const mdlx::MdlxScaling &scaling) const

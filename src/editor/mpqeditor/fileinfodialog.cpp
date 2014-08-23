@@ -69,6 +69,7 @@ void FileInfoDialog::fill(mpq::Archive &archive, mpq::File &file)
 			else
 			{
 				this->m_crc32Label->setEnabled(false);
+				this->m_crc32Label->setText(tr("-"));
 			}
 
 			if ((extendedAttributes & mpq::Attributes::ExtendedAttributes::FileMd5s) && md5s.size() > file.block()->index())
@@ -79,6 +80,7 @@ void FileInfoDialog::fill(mpq::Archive &archive, mpq::File &file)
 			else
 			{
 				this->m_md5Label->setEnabled(false);
+				this->m_md5Label->setText(tr("-"));
 			}
 
 			if ((extendedAttributes & mpq::Attributes::ExtendedAttributes::FileTimeStamps) && fileTimes.size() > file.block()->index())
@@ -94,6 +96,7 @@ void FileInfoDialog::fill(mpq::Archive &archive, mpq::File &file)
 			else
 			{
 				this->m_fileTimeLabel->setEnabled(false);
+				this->m_fileTimeLabel->setText(tr("-"));
 			}
 		}
 		else
@@ -104,6 +107,9 @@ void FileInfoDialog::fill(mpq::Archive &archive, mpq::File &file)
 	else
 	{
 		this->m_extendedAttributesGroupBox->setEnabled(false);
+		this->m_crc32Label->setText(tr("-"));
+		this->m_md5Label->setText(tr("-"));
+		this->m_fileTimeLabel->setText(tr("-"));
 	}
 
 	/*

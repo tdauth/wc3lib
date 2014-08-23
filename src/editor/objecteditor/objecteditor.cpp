@@ -79,7 +79,7 @@ void ObjectEditor::importAll(const KUrl& url)
 
 	if (this->source()->download(url, file, this))
 	{
-		ifstream in(file.toUtf8().constData(), std::ios::in | std::ios::binary);
+		ifstream in(file.toStdString(), std::ios::in | std::ios::binary);
 
 		if (in)
 		{

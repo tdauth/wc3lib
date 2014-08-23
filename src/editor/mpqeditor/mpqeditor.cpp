@@ -27,6 +27,7 @@
 
 #include "mpqeditor.hpp"
 #include "../listfilesdialog.hpp"
+#include "archiveinfodialog.hpp"
 #include "fileinfodialog.hpp"
 
 namespace wc3lib
@@ -38,6 +39,7 @@ namespace editor
 MpqEditor::MpqEditor(MpqPriorityList* source, QWidget* parent, Qt::WindowFlags f)
 : Module(source, parent, f)
 , m_listfilesDialog(new ListfilesDialog(this))
+, m_archiveInfoDialog(new ArchiveInfoDialog(this))
 , m_fileInfoDialog(new FileInfoDialog(this))
 {
 	Module::setupUi();
@@ -46,6 +48,7 @@ MpqEditor::MpqEditor(MpqPriorityList* source, QWidget* parent, Qt::WindowFlags f
 	this->centerLayout()->addWidget(widget);
 
 	setWindowTitle(tr("MPQ Editor"));
+	m_archivesTreeWidget->sortByColumn(0, Qt::AscendingOrder);
 
 	connect(this->m_archivesTreeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(updateSelection()));
 	connect(this->m_archivesTreeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(fileIsOpen(QTreeWidgetItem*,int)));
@@ -58,7 +61,7 @@ MpqEditor::~MpqEditor()
 {
 	writeSettings();
 
-	closeMpqArchives();
+	closeAllMpqArchives();
 }
 
 void MpqEditor::updateSelection()
@@ -78,7 +81,7 @@ void MpqEditor::fileIsOpen(QTreeWidgetItem *item, int column)
 	{
 		qDebug() << "file is found in items";
 		const QString filePath = item->data(0, Qt::UserRole).toString();
-		mpq::Archive *archive = iterator.value();
+		mpq::Archive &archive = iterator.value()->archive();
 		qDebug() << "path:" << filePath;
 
 		/*
@@ -87,12 +90,12 @@ void MpqEditor::fileIsOpen(QTreeWidgetItem *item, int column)
 		if (!filePath.endsWith('\\'))
 		{
 			qDebug() << "regular file";
-			mpq::File file = archive->findFile(filePath.toUtf8().constData());
+			mpq::File file = archive.findFile(filePath.toStdString());
 
 			if (file.isValid())
 			{
 				qDebug() << "valid";
-				this->m_fileInfoDialog->fill(*archive, file);
+				this->m_fileInfoDialog->fill(archive, file);
 				this->m_fileInfoDialog->show();
 			}
 			else
@@ -110,6 +113,19 @@ void MpqEditor::fileIsOpen(QTreeWidgetItem *item, int column)
 			this->m_fileInfoDialog->show();
 		}
 	}
+	/*
+	 * Archive item:
+	 */
+	else
+	{
+		FileItems::iterator iterator = m_archiveTopLevelItems.find(item);
+
+		if (iterator != m_archiveTopLevelItems.end())
+		{
+			this->m_archiveInfoDialog->fill(iterator.value()->archive());
+			this->m_archiveInfoDialog->show();
+		}
+	}
 }
 
 void MpqEditor::contextMenu(QPoint point)
@@ -118,6 +134,7 @@ void MpqEditor::contextMenu(QPoint point)
 
 	KMenu *contextMenu = new KMenu(this);
 	contextMenu->addAction(m_extractAction);
+	contextMenu->addAction(m_closeAction);
 
 	contextMenu->popup(m_archivesTreeWidget->viewport()->mapToGlobal(point));
 }
@@ -144,7 +161,7 @@ mpq::Listfile::Entries MpqEditor::uniqueFiles(const mpq::Listfile::Entries &entr
 			if (file.isValid())
 			{
 				map.insert(filePath.toUpper(), filePath);
-				result.push_back(filePath.toUtf8().constData());
+				result.push_back(filePath.toStdString());
 			}
 		}
 	}
@@ -152,7 +169,7 @@ mpq::Listfile::Entries MpqEditor::uniqueFiles(const mpq::Listfile::Entries &entr
 	return result;
 }
 
-MpqEditor::FileItems MpqEditor::constructItems(const mpq::Listfile::Entries &entries, QTreeWidgetItem *topItem, mpq::Archive &archive)
+MpqEditor::FileItems MpqEditor::constructItems(const mpq::Listfile::Entries &entries, QTreeWidgetItem *topItem, Archive &archive)
 {
 	/*
 	 * Use this map to store all directory items for fast access when adding childs.
@@ -235,7 +252,12 @@ MpqEditor::FileItems MpqEditor::constructItems(const mpq::Listfile::Entries &ent
 
 	for (QMap<QString, QTreeWidgetItem*>::iterator iterator = map.begin(); iterator != map.end(); ++iterator)
 	{
-		const mpq::Listfile::Entries files = mpq::Listfile::dirEntries(entries, iterator.key().toUtf8().constData(), false, false);
+		const mpq::Listfile::Entries files = mpq::Listfile::dirEntries(entries, iterator.key().toStdString(), false, false);
+		/*
+		 * Set size column to number of entries.
+		 */
+		iterator.value()->setText(1, QString(tr("%1 files")).arg(files.size()));
+		iterator.value()->setData(1, Qt::UserRole, (quint32)files.size());
 
 		foreach (mpq::Listfile::Entries::const_reference file, files)
 		{
@@ -249,9 +271,9 @@ MpqEditor::FileItems MpqEditor::constructItems(const mpq::Listfile::Entries &ent
 	return result;
 }
 
-QTreeWidgetItem* MpqEditor::fileToItem(const boost::filesystem::path &path, mpq::Archive &archive)
+QTreeWidgetItem* MpqEditor::fileToItem(const boost::filesystem::path &path, Archive &archive)
 {
-	mpq::File file = archive.findFile(path);
+	mpq::File file = archive.archive().findFile(path);
 
 	if (file.isValid())
 	{
@@ -298,11 +320,11 @@ bool MpqEditor::openMpqArchive(const KUrl &url)
 
 		qDebug() << "Listfile entries: " << listfileEntries.size();
 
-		MpqPtr archive(new mpq::Archive());
+		std::auto_ptr<Archive> archive(new Archive());
 
 		try
 		{
-			archive->open(url.toLocalFile().toUtf8().constData());
+			archive->archive().open(url.toLocalFile().toStdString());
 		}
 		catch (Exception &e)
 		{
@@ -321,11 +343,11 @@ bool MpqEditor::openMpqArchive(const KUrl &url)
 		/*
 		 * Add entries of the contained listfile if available.
 		 */
-		if (archive->containsListfileFile())
+		if (archive->archive().containsListfileFile())
 		{
 			qDebug() << "Has custom listfile";
 
-			mpq::Listfile listfile = archive->listfileFile();
+			mpq::Listfile listfile = archive->archive().listfileFile();
 
 			if (listfile.isValid())
 			{
@@ -357,13 +379,15 @@ bool MpqEditor::openMpqArchive(const KUrl &url)
 
 		qDebug() << "Full size:" << listfileEntries.size();
 
-		mpq::Listfile::Entries files = this->uniqueFiles(listfileEntries, *archive);
+		mpq::Listfile::Entries files = this->uniqueFiles(listfileEntries, archive->archive());
 
 		qDebug() << "Filtered size:" << files.size();
 
 		QTreeWidgetItem *item = new QTreeWidgetItem(this->m_archivesTreeWidget);
-		item->setData(0, Qt::UserRole, url);
 		item->setText(0, url.fileName());
+		item->setData(0, Qt::UserRole, url);
+		item->setText(1, tr("%1 files").arg(files.size()));
+		item->setData(1, Qt::UserRole, (quint32)files.size());
 
 		FileItems items = constructItems(files, item, *archive);
 
@@ -372,8 +396,13 @@ bool MpqEditor::openMpqArchive(const KUrl &url)
 			m_archiveFileItems.insert(iterator.key(), iterator.value());
 		}
 
-		m_mpqArchives.push_back(archive);
+		archive->setItem(item);
+		archive->setEntries(files);
+		m_archiveTopLevelItems.insert(item, archive.get());
+		m_archives.push_back(archive);
 		addRecentAction(url);
+
+		item->setExpanded(true);
 
 		return true;
 	}
@@ -431,11 +460,30 @@ void MpqEditor::saveMpqArchive()
 
 void MpqEditor::closeMpqArchives()
 {
-	foreach (MpqPtr ptr, selection())
+	QList<QTreeWidgetItem*> selection = this->m_archivesTreeWidget->selectedItems();
+
+	foreach (QTreeWidgetItem *item, selection)
 	{
-		ptr->close();
-		ptr.reset();
+		FileItems::iterator iterator = this->m_archiveTopLevelItems.find(item);
+
+		if (iterator != this->m_archiveTopLevelItems.end())
+		{
+			iterator.value()->deleteItem();
+			iterator.value()->archive().close();
+			this->m_archiveTopLevelItems.erase(iterator);
+		}
 	}
+}
+
+void MpqEditor::closeAllMpqArchives()
+{
+	for (Archives::iterator iterator = this->m_archives.begin(); iterator != this->m_archives.end(); iterator = this->m_archives.erase(iterator))
+	{
+		iterator->deleteItem();
+		iterator->archive().close();
+	}
+
+	this->m_archiveTopLevelItems.clear();
 }
 
 void MpqEditor::optimizeMpqArchives()
@@ -453,33 +501,48 @@ void MpqEditor::extractFiles()
 	if (items.size() == 1)
 	{
 		QTreeWidgetItem *item = items.first();
-		const QString filePath = item->data(0, Qt::UserRole).toString();
-		const QString fileName = this->fileName(filePath);
+		FileItems::iterator iterator = m_archiveTopLevelItems.find(item);
+
 		/*
-		 * Initialize with original file name.
+		 * Is the item of an open MPQ archive.
 		 */
-		m_extractUrl.setFileName(fileName);
-		KUrl url = KFileDialog::getSaveUrl(m_extractUrl, "*", this);
-
-		if (!url.isEmpty())
+		if (iterator != m_archiveTopLevelItems.end())
 		{
-			FileItems::iterator iterator = m_archiveFileItems.find(item);
+			qDebug() << "Support extracting archives!";
+		}
+		/*
+		 * Is the item of a file or directory.
+		 */
+		else
+		{
+			const QString filePath = item->data(0, Qt::UserRole).toString();
+			const QString fileName = this->fileName(filePath);
+			/*
+			* Initialize with original file name.
+			*/
+			m_extractUrl.setFileName(fileName);
+			KUrl url = KFileDialog::getSaveUrl(m_extractUrl, "*", this);
 
-			if (iterator != m_archiveFileItems.end())
+			if (!url.isEmpty())
 			{
-				mpq::Archive *archive = iterator.value();
+				FileItems::iterator iterator = m_archiveFileItems.find(item);
 
-				if (extractFile(filePath, *archive, url.toLocalFile()))
+				if (iterator != m_archiveFileItems.end())
 				{
-					/*
-					 * Update extraction URL path on success.
-					 */
-					m_extractUrl = url.directory();
+					Archive *archive = iterator.value();
+
+					if (extractFile(filePath, archive->archive(), url.toLocalFile()))
+					{
+						/*
+						* Update extraction URL path on success.
+						*/
+						m_extractUrl = url.directory();
+					}
 				}
-			}
-			else
-			{
-				KMessageBox::error(this, i18n("File %1 is not part of any archive.", filePath));
+				else
+				{
+					KMessageBox::error(this, i18n("File %1 is not part of any archive.", filePath));
+				}
 			}
 		}
 	}
@@ -493,20 +556,35 @@ void MpqEditor::extractFiles()
 
 			foreach (QTreeWidgetItem *item, items)
 			{
-				const QString filePath = item->data(0, Qt::UserRole).toString();
-				const QString fileName = this->fileName(filePath);
-				FileItems::iterator iterator = m_archiveFileItems.find(item);
+				FileItems::iterator iterator = m_archiveTopLevelItems.find(item);
 
-				if (iterator != m_archiveFileItems.end())
+				/*
+				 * Is the item of an open MPQ archive.
+				 */
+				if (iterator != m_archiveTopLevelItems.end())
 				{
-					mpq::Archive *archive = iterator.value();
-
-					extractFile(filePath, *archive, dir + fileName);
+					qDebug() << "Support extracting archives!";
 				}
+				/*
+				 * Is a file or directory item.
+				 */
 				else
 				{
-					success = false;
-					KMessageBox::error(this, i18n("File %1 is not part of any archive.", filePath));
+					const QString filePath = item->data(0, Qt::UserRole).toString();
+					const QString fileName = this->fileName(filePath);
+					FileItems::iterator iterator = m_archiveFileItems.find(item);
+
+					if (iterator != m_archiveFileItems.end())
+					{
+						Archive *archive = iterator.value();
+
+						extractFile(filePath, archive->archive(), dir + fileName);
+					}
+					else
+					{
+						success = false;
+						KMessageBox::error(this, i18n("File %1 is not part of any archive.", filePath));
+					}
 				}
 			}
 
@@ -540,7 +618,7 @@ QString MpqEditor::fileName(const QString &path)
 
 QString MpqEditor::baseName(const QString& path)
 {
-	QString fileName = this->fileName(path);
+	QString fileName = MpqEditor::fileName(path);
 
 	const int lastIndex = fileName.lastIndexOf('.');
 
@@ -557,9 +635,9 @@ QString MpqEditor::baseName(const QString& path)
 	return fileName;
 }
 
-bool MpqEditor::extractFile(const QString &path, mpq::Archive& archive, const QString& target)
+bool MpqEditor::extractFile(const QString &path, mpq::Archive &archive, const QString& target)
 {
-	mpq::File file = archive.findFile(path.toUtf8().constData());
+	mpq::File file = archive.findFile(path.toStdString());
 
 	if (file.isValid())
 	{
@@ -570,7 +648,7 @@ bool MpqEditor::extractFile(const QString &path, mpq::Archive& archive, const QS
 			if ((outputFile.exists() && KMessageBox::questionYesNo(this, i18n("Overwrite existing file %1?", outputFile.fileName())) == KMessageBox::Yes)
 				|| !outputFile.exists())
 			{
-				ofstream out(target.toUtf8().constData(), std::ios::out | std::ios::binary);
+				ofstream out(target.toStdString(), std::ios::out | std::ios::binary);
 
 				if (out)
 				{
@@ -655,9 +733,13 @@ void MpqEditor::createFileActions(KMenu *menu)
 	connect(action, SIGNAL(triggered()), this, SLOT(clearHistory()));
 	m_recentArchivesMenu->addAction(action);
 
-	action = new KAction(KIcon(":/actions/closearchives.png"), i18n("Close archives"), this);
-	connect(action, SIGNAL(triggered()), this, SLOT(closeMpqArchives()));
-	m_fileActions->addAction("closearchives", action);
+	m_closeAction = new KAction(KIcon(":/actions/closearchives.png"), i18n("Close archives"), this);
+	connect(m_closeAction, SIGNAL(triggered()), this, SLOT(closeMpqArchives()));
+	m_fileActions->addAction("closearchives", m_closeAction);
+
+	m_closeAllAction = new KAction(KIcon(":/actions/closearchives.png"), i18n("Close all archives"), this);
+	connect(m_closeAllAction, SIGNAL(triggered()), this, SLOT(closeAllMpqArchives()));
+	m_fileActions->addAction("closearchives", m_closeAllAction);
 
 	m_fileActions->associateWidget(menu);
 }

@@ -41,7 +41,7 @@ VariableDialog::VariableDialog(TriggerEditor *triggerEditor, QWidget *parent, Qt
 void VariableDialog::activatedType(int index)
 {
 	const QString typeCode = m_typeComboBox->itemData(index).toString();
-	map::TriggerData::Types::const_iterator iterator =  m_triggerEditor->source()->sharedData()->triggerData()->types().find(typeCode.toUtf8().constData());
+	map::TriggerData::Types::const_iterator iterator =  m_triggerEditor->source()->sharedData()->triggerData()->types().find(typeCode.toStdString());
 
 	if (iterator != m_triggerEditor->source()->sharedData()->triggerData()->types().end()) {
 		const map::TriggerData::Type *type = iterator->second;
@@ -95,11 +95,11 @@ void VariableDialog::showVariable(map::Variable *variable)
 
 void VariableDialog::apply(map::Variable* variable)
 {
-	variable->setName(m_nameLineEdit->text().toUtf8().constData());
-	variable->setType(m_typeComboBox->itemData(m_typeComboBox->currentIndex()).toString().toUtf8().constData());
+	variable->setName(m_nameLineEdit->text().toStdString());
+	variable->setType(m_typeComboBox->itemData(m_typeComboBox->currentIndex()).toString().toStdString());
 	variable->setArray(m_arrayCheckBox->isChecked());
 	variable->setInitialized(!m_startValue->text().isEmpty()); // TODO store initial value separately for example unit type etc.
-	variable->setInitialValue(m_startValue->text().toUtf8().constData());
+	variable->setInitialValue(m_startValue->text().toStdString());
 }
 
 }

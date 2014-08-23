@@ -64,7 +64,7 @@ void ListfilesDialog::fill()
 	}
 
 	QCheckBox *all = new QCheckBox(tr("Check All"), this);
-	all->setChecked(true);
+	all->setChecked(false);
 	connect(all, SIGNAL(clicked(bool)), this, SLOT(checkAll(bool)));
 	layout->addWidget(all, Qt::AlignBottom);
 
@@ -112,7 +112,7 @@ mpq::Listfile::Entries ListfilesDialog::checkedEntries() const
 
 			while (!in.atEnd())
 			{
-				result.push_back(in.readLine().toUtf8().constData());
+				result.push_back(in.readLine().toStdString());
 			}
 		}
 	}

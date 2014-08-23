@@ -481,7 +481,7 @@ void TriggerEditor::openTriggersUrl(const KUrl &url)
 	try
 	{
 		triggers = new map::Triggers();
-		boost::filesystem::ifstream ifstream(target.toUtf8().constData(), std::ios::in | std::ios::binary);
+		boost::filesystem::ifstream ifstream(target.toStdString(), std::ios::in | std::ios::binary);
 		const map::TriggerData *triggerData = this->source()->sharedData()->triggerData().get();
 
 		if (triggerData == 0) {
@@ -527,7 +527,7 @@ void TriggerEditor::openCustomTextTriggers()
 	try
 	{
 		triggers = new map::CustomTextTriggers();
-		boost::filesystem::ifstream ifstream(target.toUtf8().constData(), std::ios::in | std::ios::binary);
+		boost::filesystem::ifstream ifstream(target.toStdString(), std::ios::in | std::ios::binary);
 		triggers->read(ifstream);
 	}
 	catch (std::exception &exception)
@@ -553,7 +553,7 @@ void TriggerEditor::saveTriggers()
 		return;
 	}
 
-	ofstream of(file.toUtf8().constData(), std::ios::out | std::ios::binary);
+	ofstream of(file.toStdString(), std::ios::out | std::ios::binary);
 
 	try {
 		if (this->triggers() != 0) {
@@ -854,7 +854,7 @@ void TriggerEditor::newCategory()
 	if (triggers() != 0) {
 		try {
 			std::auto_ptr<map::TriggerCategory> category(new map::TriggerCategory());
-			category->setName(tr("Unnamed category").toUtf8().constData());
+			category->setName(tr("Unnamed category").toStdString());
 			category->setIndex(boost::numeric_cast<int32>(triggers()->categories().size()));
 			triggers()->categories().push_back(category);
 
@@ -877,7 +877,7 @@ void TriggerEditor::newTrigger()
 	if (triggers() != 0) {
 		QString name = newTriggerName();
 		std::auto_ptr<map::Trigger> trigger(new map::Trigger());
-		trigger->setName(name.toUtf8().constData());
+		trigger->setName(name.toStdString());
 		trigger->setEnabled(true);
 		trigger->setInitiallyOn(true);
 

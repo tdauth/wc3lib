@@ -98,12 +98,12 @@ void Texture::loadBlp(const QMap<QString, QString> &options) throw (Exception)
 		QString tmpFileName;
 
 		if (!this->source()->download(url(), tmpFileName, 0))
-			throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toUtf8().constData());
+			throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toStdString());
 
-		ifstream ifstream(tmpFileName.toUtf8().constData(), std::ios::binary | std::ios::in);
+		ifstream ifstream(tmpFileName.toStdString(), std::ios::binary | std::ios::in);
 
 		if (!ifstream)
-			throw Exception(boost::format(_("Unable to open temporary file \"%1%\".")) % tmpFileName.toUtf8().constData());
+			throw Exception(boost::format(_("Unable to open temporary file \"%1%\".")) % tmpFileName.toStdString());
 
 		blp::dword identifier;
 		ifstream.read((blp::char8*)&identifier, sizeof(identifier));
@@ -181,12 +181,12 @@ void Texture::loadQt() throw (Exception)
 		QString tmpFileName;
 
 		if (!this->source()->download(url(), tmpFileName, 0))
-			throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toUtf8().constData());
+			throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toStdString());
 
 		QtPtr qtImage(new QImage());
 
 		if (!qtImage->load(tmpFileName))
-			throw Exception(boost::format(_("Unable to load Qt image from temporary file \"%1%\".")) % tmpFileName.toUtf8().constData());
+			throw Exception(boost::format(_("Unable to load Qt image from temporary file \"%1%\".")) % tmpFileName.toStdString());
 
 		m_qt.swap(qtImage); // exception safe (won't change image if ->read throws exception
 	}
@@ -232,20 +232,20 @@ void Texture::loadOgre() throw (Exception)
 		QString tmpFileName;
 
 		if (!this->source()->download(url(), tmpFileName, 0))
-			throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toUtf8().constData());
+			throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toStdString());
 
 		OgrePtr ogreImage(new Ogre::Image());
 		const QString extension = QFileInfo(url().toLocalFile()).suffix(); // extension is not necessary if header contains information - Ogre::Image::load()
 
 		try
 		{
-			std::ifstream ifs(tmpFileName.toUtf8().constData(), std::ios::binary | std::ios::in);
+			std::ifstream ifs(tmpFileName.toStdString(), std::ios::binary | std::ios::in);
 
 			if (!ifs)
-				throw Exception(boost::format(_("Unable to open tempory file \"%1%\".")) % tmpFileName.toUtf8().constData());
+				throw Exception(boost::format(_("Unable to open tempory file \"%1%\".")) % tmpFileName.toStdString());
 
-			Ogre::DataStreamPtr dataStream(new Ogre::FileStreamDataStream(tmpFileName.toUtf8().constData(), &ifs, false));
-			ogreImage->load(dataStream, extension.toUtf8().constData());
+			Ogre::DataStreamPtr dataStream(new Ogre::FileStreamDataStream(tmpFileName.toStdString(), &ifs, false));
+			ogreImage->load(dataStream, extension.toStdString());
 			// TODO check correct loading state, exception handling?
 
 			ifs.close();
@@ -273,7 +273,7 @@ void Texture::loadOgreTexture() throw (Exception)
 	try
 	{
 		// TODO use custom root
-		tex = Ogre::Root::getSingleton().getTextureManager()->create(Ogre::String(QFileInfo(url().toLocalFile()).baseName().toUtf8().constData()), Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		tex = Ogre::Root::getSingleton().getTextureManager()->create(Ogre::String(QFileInfo(url().toLocalFile()).baseName().toStdString()), Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 		tex->loadImage(*ogre());
 	}
@@ -326,7 +326,7 @@ void Texture::save(const KUrl &url, const QString &format, const QMap<QString, Q
 
 	if (!tmpFile.open())
 	{
-		throw Exception(boost::format(_("Temporary file \"%1%\" cannot be opened.")) % tmpFile.fileName().toUtf8().constData());
+		throw Exception(boost::format(_("Temporary file \"%1%\" cannot be opened.")) % tmpFile.fileName().toStdString());
 	}
 
 	QString realFormat = format;
@@ -362,7 +362,7 @@ void Texture::save(const KUrl &url, const QString &format, const QMap<QString, Q
 
 	if (realFormat == "blp" && hasBlp())
 	{
-		ofstream ofstream(tmpFile.fileName().toUtf8().constData(), std::ios::binary | std::ios::out);
+		ofstream ofstream(tmpFile.fileName().toStdString(), std::ios::binary | std::ios::out);
 		blp()->write(ofstream, quality, mipMaps);
 	}
 	else if (hasQt())
@@ -372,12 +372,12 @@ void Texture::save(const KUrl &url, const QString &format, const QMap<QString, Q
 	/// TODO we cannot convert OGRE images (write into stream etc.)
 	else
 	{
-		throw Exception(boost::format(_("Temporary file \"%1%\" cannot be converted by using an OGRE image: Not implemented yet!")) % tmpFile.fileName().toUtf8().constData());
+		throw Exception(boost::format(_("Temporary file \"%1%\" cannot be converted by using an OGRE image: Not implemented yet!")) % tmpFile.fileName().toStdString());
 	}
 
 	if  (!this->source()->upload(tmpFile.fileName(), url, 0))
 	{
-		throw Exception(boost::format(_("Unable to upload temporary file \"%1%\" to URL \"%2%\"")) % tmpFile.fileName().toUtf8().constData() % url.toEncoded().constData());
+		throw Exception(boost::format(_("Unable to upload temporary file \"%1%\" to URL \"%2%\"")) % tmpFile.fileName().toStdString() % url.toEncoded().constData());
 	}
 }
 

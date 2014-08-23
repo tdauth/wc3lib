@@ -1,8 +1,12 @@
 set(wc3lib_MPQEDITOR_H
+	archive.hpp
+	archiveinfodialog.hpp
 	mpqeditor.hpp
 	fileinfodialog.hpp
 )
 set(wc3lib_MPQEDITOR_SRC
+	archive.cpp
+	archiveinfodialog.cpp
 	mpqeditor.cpp
 	fileinfodialog.cpp
 )

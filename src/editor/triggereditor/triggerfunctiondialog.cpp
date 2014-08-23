@@ -160,11 +160,11 @@ void TriggerFunctionDialog::apply(map::TriggerFunctionParameter *parameter)
 		parameter->setType(map::TriggerFunctionParameter::Type::Jass);
 
 		if (m_textEdit->isVisible()) { // TODO store strings in strings file of map
-			parameter->setValue(m_textEdit->toPlainText().toUtf8().constData());
+			parameter->setValue(m_textEdit->toPlainText().toStdString());
 		} else if (m_numInput->isVisible()) {
-			parameter->setValue((QString("%1").arg(m_numInput->value())).toUtf8().constData());
+			parameter->setValue((QString("%1").arg(m_numInput->value())).toStdString());
 		} else if (m_numInputDouble->isVisible()) {
-			parameter->setValue((QString("%1").arg(m_numInputDouble->value())).toUtf8().constData());
+			parameter->setValue((QString("%1").arg(m_numInputDouble->value())).toStdString());
 		}
 	}
 }
@@ -184,7 +184,7 @@ void TriggerFunctionDialog::apply(map::TriggerFunction* function)
 
 string TriggerFunctionDialog::functionName() const
 {
-	return this->m_functionComboBox->itemData(this->m_functionComboBox->currentIndex()).toString().toUtf8().constData();
+	return this->m_functionComboBox->itemData(this->m_functionComboBox->currentIndex()).toString().toStdString();
 }
 
 template<class Functions>
@@ -193,7 +193,7 @@ void TriggerFunctionDialog::filterFunctionsByCategory(int index, const Functions
 		const map::TriggerData::Category *category = ref.second->category();
 		const string categoryName = category->name();
 
-		if (index == 0 || (categoryName == this->m_categoryComboBox->itemData(index).toString().toUtf8().constData())) {
+		if (index == 0 || (categoryName == this->m_categoryComboBox->itemData(index).toString().toStdString())) {
 			string code = ref.first;
 			map::TriggerStrings::Entries::const_iterator iterator = entries.find(code);
 
@@ -494,7 +494,7 @@ void TriggerFunctionDialog::fillInternal(map::TriggerFunction::Type type)
 template<class Functions>
 void TriggerFunctionDialog::showFunction(const QString &code, const Functions &functions, const map::TriggerStrings::Entries &entries)
 {
-	map::TriggerStrings::Entries::const_iterator iterator = entries.find(code.toUtf8().constData());
+	map::TriggerStrings::Entries::const_iterator iterator = entries.find(code.toStdString());
 
 	if (iterator != entries.end()) {
 		QString text = TriggerEditor::triggerFunctionText(triggerData(), triggerStrings(), code, function(), functions, entries, true, true);
@@ -587,7 +587,7 @@ void TriggerFunctionDialog::editParameter(const QString &parameter)
 
 	qDebug() << "Editing parameter " << index << " for real";
 
-	const string &code = this->m_functionComboBox->itemData(this->m_functionComboBox->currentIndex()).toString().toUtf8().constData();
+	const string &code = this->m_functionComboBox->itemData(this->m_functionComboBox->currentIndex()).toString().toStdString();
 	// TODO handle if function == 0
 
 	//if (function() != 0) { // actual function

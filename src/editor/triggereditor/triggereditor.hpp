@@ -496,7 +496,7 @@ inline TriggerEditor::TreeItems& TriggerEditor::triggerEntries()
 template<class Functions>
 QString TriggerEditor::triggerFunctionCategoryText(const map::TriggerData* triggerData, const Functions &functions, const QString& code)
 {
-	map::TriggerData::Functions::const_iterator functionIterator = functions.find(code.toUtf8().constData());
+	map::TriggerData::Functions::const_iterator functionIterator = functions.find(code.toStdString());
 
 	if (functionIterator != functions.end()) {
 		return QString(functionIterator->second->category()->displayText().c_str());
@@ -510,7 +510,7 @@ QString TriggerEditor::triggerFunctionCategoryText(const map::TriggerData* trigg
 template<class Functions>
 QString TriggerEditor::triggerFunctionText(const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const QString &code, map::TriggerFunction *function, const Functions &functions, const map::TriggerStrings::Entries &entries, bool withLinks, bool withHint, bool withCategory)
 {
-	map::TriggerStrings::Entries::const_iterator iterator = entries.find(code.toUtf8().constData());
+	map::TriggerStrings::Entries::const_iterator iterator = entries.find(code.toStdString());
 	QString text;
 
 	if (iterator != entries.end()) {
@@ -518,7 +518,7 @@ QString TriggerEditor::triggerFunctionText(const map::TriggerData *triggerData, 
 		SplitVector vector; // #2: Search for tokens
 		boost::algorithm::split(vector, iterator->second->layout(), boost::is_any_of(","), boost::token_compress_on);
 
-		typename Functions::const_iterator functionIterator = functions.find(code.toUtf8().constData());
+		typename Functions::const_iterator functionIterator = functions.find(code.toStdString());
 
 		if (functionIterator != functions.end()) {
 			const map::TriggerData::Function *triggerDataFunction = functionIterator->second;
@@ -534,7 +534,7 @@ QString TriggerEditor::triggerFunctionText(const map::TriggerData *triggerData, 
 					// encapsulated calls!
 					if (function != 0) {
 						if (function->parameters().size() > i) {
-							string parameter = triggerFunctionParameter(triggerData, triggerStrings, &function->parameters().at(i)).toUtf8().constData();
+							string parameter = triggerFunctionParameter(triggerData, triggerStrings, &function->parameters().at(i)).toStdString();
 
 							qDebug() << "Parameter " << i << ": \"" << parameter.c_str() << "\"";
 

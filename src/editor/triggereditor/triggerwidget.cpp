@@ -47,7 +47,7 @@ void TriggerWidget::setTriggerInitiallyOn(bool on)
 void TriggerWidget::updateTriggerComment()
 {
 	if (trigger() != 0) {
-		trigger()->setDescription(m_commentTextEdit->toPlainText().toUtf8().constData());
+		trigger()->setDescription(m_commentTextEdit->toPlainText().toStdString());
 	}
 }
 

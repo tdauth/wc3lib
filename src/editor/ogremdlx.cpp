@@ -131,15 +131,15 @@ void OgreMdlx::load() throw (Exception)
 	QString tmpFile;
 
 	if (!source()->download(url(), tmpFile, modelView()))
-		throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toUtf8().constData());
+		throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toStdString());
 
 	std::ios_base::openmode openmode = std::ios_base::in;
-	bool isMdx = boost::filesystem::path(tmpFile.toUtf8().constData()).extension() == ".mdx";
+	bool isMdx = boost::filesystem::path(tmpFile.toStdString()).extension() == ".mdx";
 
 	if (isMdx)
 		openmode |= std::ios_base::binary;
 
-	ifstream ifstream(tmpFile.toUtf8().constData(), openmode);
+	ifstream ifstream(tmpFile.toStdString(), openmode);
 
 	MdlxPtr model(new mdlx::Mdlx());
 
@@ -222,7 +222,7 @@ void OgreMdlx::load() throw (Exception)
 			mesh->setSkeletonName(skeleton->getName());
 
 			qDebug() << "Skeleton name 2: " << mesh->getSkeleton()->getName().c_str();
-			skeleton->createBone((boost::format("%1%.%2%.RootBone") % namePrefix().toUtf8().constData() % geosetName(id)).str().c_str(), boost::numeric_cast<unsigned short>(id)); // we need one root bone to create all other bones
+			skeleton->createBone((boost::format("%1%.%2%.RootBone") % namePrefix().toStdString() % geosetName(id)).str().c_str(), boost::numeric_cast<unsigned short>(id)); // we need one root bone to create all other bones
 
 			/*
 			mdlx::long32 seqId = 0;
@@ -322,7 +322,7 @@ void OgreMdlx::load() throw (Exception)
 			/*
 			if (!hasRootBone)
 			{
-				ref.second->getSkeleton()->createBone((boost::format("%1%.RootBone.%2%") % namePrefix().toUtf8().constData() % geosetName(id)).str().c_str());
+				ref.second->getSkeleton()->createBone((boost::format("%1%.RootBone.%2%") % namePrefix().toStdString() % geosetName(id)).str().c_str());
 
 				qDebug() << "Geoset " << id << " has no bones!";
 			}
@@ -677,10 +677,10 @@ void OgreMdlx::save(const KUrl &url, const QString &format) const throw (class E
 		else
 			isMdx = false;
 
-		ofstream ofstream(tmpFile.fileName().toUtf8().constData(), openmode);
+		ofstream ofstream(tmpFile.fileName().toStdString(), openmode);
 
 		if (!ofstream)
-			throw Exception(boost::format(_("Error when opening file \"%1%\".")) % tmpFile.fileName().toUtf8().constData());
+			throw Exception(boost::format(_("Error when opening file \"%1%\".")) % tmpFile.fileName().toStdString());
 
 		std::streamsize size;
 
@@ -690,7 +690,7 @@ void OgreMdlx::save(const KUrl &url, const QString &format) const throw (class E
 			size = mdlx()->writeMdl(ofstream);
 
 		if (!source()->upload(tmpFile.fileName(), url, modelView()))
-			throw Exception(boost::format(_("Error while uploading file \"%1%\" to destination \"%2%\".")) % tmpFile.fileName().toUtf8().constData() % url.toEncoded().constData());
+			throw Exception(boost::format(_("Error while uploading file \"%1%\" to destination \"%2%\".")) % tmpFile.fileName().toStdString() % url.toEncoded().constData());
 
 		KMessageBox::information(modelView(), i18n("Wrote %1 file \"%2\" successfully.\nSize: %3.", isMdx ? i18n("MDX") : i18n("MDL"), url.toEncoded().constData(), sizeStringBinary(size).c_str()));
 	}
@@ -717,7 +717,7 @@ void OgreMdlx::save(const KUrl &url, const QString &format) const throw (class E
 			ostringstream sstream;
 			sstream << "Geoset" << it->second << ".mesh";
 
-			serializer->exportMesh(value.second.get(), tmpFile.fileName().toUtf8().constData());
+			serializer->exportMesh(value.second.get(), tmpFile.fileName().toStdString());
 
 			const QString fileName(sstream.str().c_str());
 			KUrl destination(url);
@@ -726,13 +726,13 @@ void OgreMdlx::save(const KUrl &url, const QString &format) const throw (class E
 			qDebug() << "destination: " << destination.toLocalFile();
 
 			if (!source()->upload(tmpFile.fileName(), destination, modelView()))
-				throw Exception(boost::format(_("Error while uploading file \"%1%\" to destination \"%2%\".")) % tmpFile.fileName().toUtf8().constData() % destination.toEncoded().constData());
+				throw Exception(boost::format(_("Error while uploading file \"%1%\" to destination \"%2%\".")) % tmpFile.fileName().toStdString() % destination.toEncoded().constData());
 		}
 
 		KMessageBox::information(modelView(), i18n("Wrote MESH file \"%1\" successfully.", url.toEncoded().constData()));
 	}
 	else
-		throw Exception(boost::format(_("Format \"%1%\" is not supported.")) % realFormat.toUtf8().constData());
+		throw Exception(boost::format(_("Format \"%1%\" is not supported.")) % realFormat.toStdString());
 
 	/*
 	TODO
@@ -1078,7 +1078,7 @@ Ogre::TextureUnitState* OgreMdlx::createLayer(Ogre::Pass *pass, const mdlx::Laye
 
 Ogre::MaterialPtr OgreMdlx::createMaterial(const class mdlx::Material &material, mdlx::long32 id)
 {
-	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create((boost::format("%1%.Material%2%") % namePrefix().toUtf8().constData() % id).str().c_str(), Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME); // material->mdlx()->model()->name()
+	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create((boost::format("%1%.Material%2%") % namePrefix().toStdString() % id).str().c_str(), Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME); // material->mdlx()->model()->name()
 
 	// properties
 	/*
@@ -1150,7 +1150,7 @@ Ogre::MaterialPtr OgreMdlx::createMaterial(const class mdlx::Material &material,
 		plane.d = 0;
 		this->m_modelView->root()->getMeshManager()->createPlane("floor", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane, 256.0f, 256.0f, 10, 10, true, 1, 50.0f, 50.0f, Ogre::Vector3::UNIT_Z);
 		Ogre::Entity* planeEnt = this->m_modelView->sceneManager()->createEntity("plane", "floor");
-		planeEnt->setMaterialName(boost::str(boost::format("%1%.Material0") % namePrefix().toUtf8().constData()).c_str());
+		planeEnt->setMaterialName(boost::str(boost::format("%1%.Material0") % namePrefix().toStdString()).c_str());
 		planeEnt->setCastShadows(false);
 		this->m_sceneNode->attachObject(planeEnt);
 		test = true;
@@ -1284,7 +1284,7 @@ Ogre::ManualObject* OgreMdlx::createGeoset(const class mdlx::Geoset &geoset, mdl
 
 Ogre::Camera* OgreMdlx::createCamera(const mdlx::Camera &camera, mdlx::long32 id)
 {
-	Ogre::Camera *ogreCamera = this->modelView()->sceneManager()->createCamera((boost::format("%1%.Camera.%2%") % namePrefix().toUtf8().constData() % camera.name()).str().c_str());
+	Ogre::Camera *ogreCamera = this->modelView()->sceneManager()->createCamera((boost::format("%1%.Camera.%2%") % namePrefix().toStdString() % camera.name()).str().c_str());
 
 	updateCamera(camera, ogreCamera);
 
@@ -1335,7 +1335,7 @@ Ogre::Bone* OgreMdlx::createBone(const class mdlx::Bone &bone, mdlx::long32 id)
 				{
 					qDebug() << "create child with id " << id;
 					ogreBone = parent->createChild(boost::numeric_cast<unsigned short>(id));
-					//ogreBone->setName((boost::format("%1%.Bone.%2%") % namePrefix().toUtf8().constData() % bone.name()).str().c_str());
+					//ogreBone->setName((boost::format("%1%.Bone.%2%") % namePrefix().toStdString() % bone.name()).str().c_str());
 					//ogreBone->setInheritsTranslation(bone.inheritsTranslation());
 					//ogreBone->setInheritsRotation(bone.inheritsRotation());
 					//ogreBone->setInheritScale(bone.inheritsScaling());
@@ -1366,7 +1366,7 @@ Ogre::Bone* OgreMdlx::createBone(const class mdlx::Bone &bone, mdlx::long32 id)
 					//if (mesh->getSkeleton()->getNumBones() > 0 && mesh->getSkeleton()->getRootBone() != 0)
 					//	throw Exception(boost::format(_("There's already a root bone in geoset %1%!")) % bone.geosetId());
 
-					//ogreBone = mesh->getSkeleton()->createBone((boost::format("%1%.Bone.%2%") % namePrefix().toUtf8().constData() % bone.name()).str().c_str(), boost::numeric_cast<unsigned short>(id));
+					//ogreBone = mesh->getSkeleton()->createBone((boost::format("%1%.Bone.%2%") % namePrefix().toStdString() % bone.name()).str().c_str(), boost::numeric_cast<unsigned short>(id));
 					ogreBone = mesh->getSkeleton()->getRootBone()->createChild(boost::numeric_cast<unsigned short>(id));
 					qDebug() << "Created bone " << id;
 				}

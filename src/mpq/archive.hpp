@@ -132,7 +132,7 @@ class Archive : public Format, private boost::noncopyable
 		 * Creates a new instance for an MPQ archive.
 		 * Use \ref create() or \ref open() to create or open a real archive file.
 		 */
-		  Archive();
+		Archive();
 		virtual ~Archive();
 
 		/**

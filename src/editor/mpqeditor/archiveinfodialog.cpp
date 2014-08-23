@@ -18,15 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_MPQEDITOR_FILEINFODIALOG_HPP
-#define WC3LIB_EDITOR_MPQEDITOR_FILEINFODIALOG_HPP
-
-#include <QDialog>
-
-#include "../../mpq/file.hpp"
-#include "../../mpq/archive.hpp"
-
-#include "ui_fileinfodialog.h"
+#include "archiveinfodialog.hpp"
 
 namespace wc3lib
 {
@@ -34,40 +26,57 @@ namespace wc3lib
 namespace editor
 {
 
-/**
- * \brief Information dialog for one single file entry of an MPQ archive.
- *
- * It only lists all available internal information of the file.
- * The information should be copyable for the user.
- *
- * \note For directories this lists only the name since directories are no entries in archives. They are determined by the listfile entries only.
- *
- * \sa ArchiveInfoDialog
- */
-class FileInfoDialog : public QDialog, public Ui::FileInfoDialog
+ArchiveInfoDialog::ArchiveInfoDialog(QWidget *parent, Qt::WindowFlags f): QDialog(parent, f)
 {
-	public:
-		explicit FileInfoDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
+	setupUi(this);
+}
 
-		/**
-		 * Fills the dialog labels with information about \p file.
-		 *
-		 * \param file The file about which the information is displayed.
-		 *
-		 * \todo The parameter file should be const. Do not use sectors() to calculate the number of sectors. Add another member function!
-		 */
-		void fill(mpq::Archive &archive, mpq::File &file);
-		/**
-		 * Fills the dialog labels with information about the directory with path \p dirPath.
-		 */
-		void fill(const QString &dirPath);
+void ArchiveInfoDialog::fill(mpq::Archive &archive)
+{
+	this->m_filePathLabel->setText(QString::fromStdString(archive.path().string()));
 
-		static QString localeToString(mpq::File::Locale locale);
-		static QString platformToString(mpq::File::Platform platform);
-};
+	this->m_formatLabel->setText(formatToString(archive.format()));
+	this->m_hasListfileLabel->setText(boolToString(archive.containsListfileFile()));
+	this->m_hasAttributesLabel->setText(boolToString(archive.containsAttributesFile()));
+	this->m_hasSignatureLabel->setText(boolToString(archive.containsSignatureFile()));
+	this->m_hasStrongSignatureLabel->setText(boolToString(archive.hasStrongDigitalSignature()));
 
+	this->m_sizeLabel->setText(QString::fromStdString(sizeStringDecimal(archive.size())));
+	this->m_offsetLabel->setText(QString::number(archive.startPosition()));
+	this->m_sectorSizeLabel->setText(QString::fromStdString(sizeStringDecimal(archive.sectorSize())));
+	this->m_blocksLabel->setText(QString::number(archive.blocks().size()));
+	// TODO count hashes (multimap!)
+	this->m_hashesLabel->setText(QString::number(archive.hashes().size()));
+}
+
+QString ArchiveInfoDialog::formatToString(mpq::Archive::Format format)
+{
+	switch (format)
+	{
+		case mpq::Archive::Format::Mpq1:
+		{
+			return tr("MPQ 1");
+		}
+
+		case mpq::Archive::Format::Mpq2:
+		{
+			return tr("MPQ 2");
+		}
+	}
+
+	return QString();
+}
+
+QString ArchiveInfoDialog::boolToString(bool value)
+{
+	if (value)
+	{
+		return tr("Yes");
+	}
+
+	return tr("No");
 }
 
 }
 
-#endif // WC3LIB_EDITOR_MPQEDITOR_FILEINFODIALOG_HPP
+}

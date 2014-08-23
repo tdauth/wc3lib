@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Tamino Dauth                                    *
+ *   Copyright (C) 2014 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,10 +18,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <QtCore>
+#ifndef WC3LIB_EDITOR_MPQEDITOR_ARCHIVEINFODIALOG_HPP
+#define WC3LIB_EDITOR_MPQEDITOR_ARCHIVEINFODIALOG_HPP
 
-#include "metadata.hpp"
-#include "mpqprioritylist.hpp"
+#include <QDialog>
+
+#include "../../mpq.hpp"
+#include "ui_archiveinfodialog.h"
 
 namespace wc3lib
 {
@@ -29,64 +32,27 @@ namespace wc3lib
 namespace editor
 {
 
-MetaData::MetaData(const KUrl &url) : Resource(url, Type::MetaData)
+/**
+ * \brief Information dialog for MPQ archives.
+ *
+ * \sa FileInfoDialog
+ */
+class ArchiveInfoDialog : public QDialog, protected Ui::ArchiveInfoDialog
 {
-}
+	public:
+		explicit ArchiveInfoDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
 
-void MetaData::clear() throw ()
-{
-	this->slk().clear();
-	this->m_rowKeys.clear();
-	this->m_columnKeys.clear();
-}
+		/**
+		 * Fills the dialog labels with information about \p archive.
+		 */
+		void fill(mpq::Archive &archive);
 
-void MetaData::load() throw (class Exception)
-{
-	QString filePath;
-
-	if (!this->source()->download(this->url(), filePath, 0))
-	{
-		throw Exception();
-	}
-
-	ifstream in(filePath.toStdString());
-
-	if (!in)
-	{
-		throw Exception();
-	}
-
-	this->slk().read(in);
-
-
-	/*
-	 * Make rows and columns accessable over their first column/row values.
-	 */
-	this->m_columnKeys.clear();
-	this->m_rowKeys.clear();
-
-	/*
-	 * Store indices of rows and columns by the value of the first cell.
-	 */
-	for (map::Slk::Table::index column = 0; column < this->slk().table().shape()[0]; ++column)
-	{
-		map::Slk::Cell &firstColumnCell = this->slk().table()[column][0];
-		this->m_columnKeys[firstColumnCell] = column;
-	}
-
-	for (map::Slk::Table::index row = 0; row < this->slk().table().shape()[1]; ++row)
-	{
-		map::Slk::Cell &firstRowCell = this->slk().table()[0][row];
-		this->m_rowKeys[firstRowCell] = row;
-	}
-}
-
-void MetaData::reload() throw (Exception)
-{
-	clear();
-	load();
-}
+		static QString formatToString(mpq::Archive::Format format);
+		static QString boolToString(bool value);
+};
 
 }
 
 }
+
+#endif // WC3LIB_EDITOR_MPQEDITOR_ARCHIVEINFODIALOG_HPP

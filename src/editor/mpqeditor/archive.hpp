@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Tamino Dauth                                    *
+ *   Copyright (C) 2014 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,10 +18,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <QtCore>
+#ifndef WC3LIB_EDITOR_MPQEDITOR_ARCHIVE_HPP
+#define WC3LIB_EDITOR_MPQEDITOR_ARCHIVE_HPP
 
-#include "metadata.hpp"
-#include "mpqprioritylist.hpp"
+#include <QTreeWidgetItem>
+
+#include <KUrl>
+
+#include "../../mpq.hpp"
 
 namespace wc3lib
 {
@@ -29,64 +33,75 @@ namespace wc3lib
 namespace editor
 {
 
-MetaData::MetaData(const KUrl &url) : Resource(url, Type::MetaData)
+/**
+ * \brief Stores all necessary data for an open archive in th MPQ Editor.
+ */
+class Archive
 {
-}
+	public:
+		Archive();
 
-void MetaData::clear() throw ()
+		/**
+		 * \return Returns the corresponding actual archive.
+		 */
+		mpq::Archive& archive();
+
+		/**
+		 * Sets the tree widget item of the archive in the MPQ Editor.
+		 */
+		void setItem(QTreeWidgetItem *item);
+		QTreeWidgetItem* item() const;
+
+		void deleteItem();
+
+		/**
+		 * Sets the valid listfile entries which were used when opening the archive.
+		 */
+		void setEntries(const mpq::Listfile::Entries &entries);
+		const mpq::Listfile::Entries& entries() const;
+
+	private:
+		mpq::Archive m_archive;
+		QTreeWidgetItem *m_item;
+		mpq::Listfile::Entries m_entries;
+};
+
+inline mpq::Archive& Archive::archive()
 {
-	this->slk().clear();
-	this->m_rowKeys.clear();
-	this->m_columnKeys.clear();
+	return this->m_archive;
 }
 
-void MetaData::load() throw (class Exception)
+inline void Archive::setItem(QTreeWidgetItem *item)
 {
-	QString filePath;
-
-	if (!this->source()->download(this->url(), filePath, 0))
-	{
-		throw Exception();
-	}
-
-	ifstream in(filePath.toStdString());
-
-	if (!in)
-	{
-		throw Exception();
-	}
-
-	this->slk().read(in);
-
-
-	/*
-	 * Make rows and columns accessable over their first column/row values.
-	 */
-	this->m_columnKeys.clear();
-	this->m_rowKeys.clear();
-
-	/*
-	 * Store indices of rows and columns by the value of the first cell.
-	 */
-	for (map::Slk::Table::index column = 0; column < this->slk().table().shape()[0]; ++column)
-	{
-		map::Slk::Cell &firstColumnCell = this->slk().table()[column][0];
-		this->m_columnKeys[firstColumnCell] = column;
-	}
-
-	for (map::Slk::Table::index row = 0; row < this->slk().table().shape()[1]; ++row)
-	{
-		map::Slk::Cell &firstRowCell = this->slk().table()[0][row];
-		this->m_rowKeys[firstRowCell] = row;
-	}
+	this->m_item = item;
 }
 
-void MetaData::reload() throw (Exception)
+inline QTreeWidgetItem* Archive::item() const
 {
-	clear();
-	load();
+	return this->m_item;
+}
+
+inline void Archive::deleteItem()
+{
+	if (item() != 0)
+	{
+		delete m_item;
+		m_item = 0;
+	}
+}
+
+inline void Archive::setEntries(const mpq::Listfile::Entries &entries)
+{
+	this->m_entries = entries;
+}
+
+inline const mpq::Listfile::Entries& Archive::entries() const
+{
+	return this->m_entries;
 }
 
 }
 
 }
+
+#endif

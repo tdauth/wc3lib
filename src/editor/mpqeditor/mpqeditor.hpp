@@ -28,6 +28,7 @@
 #include "../../mpq.hpp"
 #include "ui_mpqeditor.h"
 #include "../platform.hpp"
+#include "archive.hpp"
 
 namespace wc3lib
 {
@@ -36,6 +37,7 @@ namespace editor
 {
 
 class ListfilesDialog;
+class ArchiveInfoDialog;
 class FileInfoDialog;
 
 /**
@@ -50,14 +52,18 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 	Q_OBJECT
 
 	public:
-		typedef boost::shared_ptr<mpq::Archive> MpqPtr;
-		typedef std::list<MpqPtr> List;
+		/**
+		 * All open MPQ archives are stored in a list.
+		 */
+		typedef boost::ptr_list<Archive> Archives;
 
 		MpqEditor(wc3lib::editor::MpqPriorityList* source, QWidget* parent = 0, Qt::WindowFlags f = 0);
 		virtual ~MpqEditor();
 
-		const List& mpqArchives() const;
-		const List& selection() const;
+		/**
+		 * \return Returns all open MPQ archives.
+		 */
+		const Archives& archives() const;
 
 		/**
 		 * \return Returns true if opening succeeded.
@@ -65,6 +71,8 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		bool openMpqArchive(const KUrl &url);
 
 		ListfilesDialog* listfilesDialog() const;
+		ArchiveInfoDialog* archiveInfoDialog() const;
+		FileInfoDialog* fileInfoDialog() const;
 
 	public slots:
 		void newMpqArchive();
@@ -76,7 +84,11 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		void openRecentArchive();
 		void clearHistory();
 		void saveMpqArchive();
+		/**
+		 * Closes only selected MPQ archives.
+		 */
 		void closeMpqArchives();
+		void closeAllMpqArchives();
 		void optimizeMpqArchives();
 
 		void addFiles();
@@ -119,7 +131,7 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		/**
 		 * For all tree widget items the corresponding archive must be stored.
 		 */
-		typedef QHash<QTreeWidgetItem*, mpq::Archive*> FileItems;
+		typedef QHash<QTreeWidgetItem*, Archive*> FileItems;
 
 		/**
 		 * \return Returns only entries which are contained by \p archive.
@@ -135,28 +147,47 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		 *
 		 * \return Returns all created items.
 		 */
-		FileItems constructItems(const mpq::Listfile::Entries &entries, QTreeWidgetItem *topItem, mpq::Archive &archive);
+		FileItems constructItems(const mpq::Listfile::Entries &entries, QTreeWidgetItem *topItem, Archive &archive);
 
 		/**
 		 * Creates a tree widget item with all necessary column information for file \p path of \p archive.
 		 *
 		 * \return Returns 0 if the file is not part of the archive.
 		 */
-		QTreeWidgetItem* fileToItem(const boost::filesystem::path &path, mpq::Archive &archive);
+		QTreeWidgetItem* fileToItem(const boost::filesystem::path &path, Archive &archive);
 
+		/**
+		 * Extracts file of \p path from \p archive to local file \p target.
+		 *
+		 * \return Returns true if extraction succeeded.
+		 */
 		bool extractFile(const QString &path, mpq::Archive &archive, const QString &target);
+		bool extractDir(const QString &path, mpq::Archive &archive, const QString &target);
 
-		QString fileName(const QString &path);
-		QString baseName(const QString &path);
+		/**
+		 * \return Returns the file name + extension of a listfile entry \p path.
+		 */
+		static QString fileName(const QString &path);
+		/**
+		 * \return Returns the base name (file name without extension) of a listfile entry \p path.
+		 */
+		static QString baseName(const QString &path);
 
+		/**
+		 * Adds \p url to recent files history.
+		 * If it does already exist it won't be added a second time.
+		 */
 		void addRecentAction(const KUrl &url);
 
-		List& mpqArchives();
-		List& selection();
+		/**
+		 * \return Returns all open MPQ archives.
+		 */
+		Archives& archives();
 
-		List m_mpqArchives;
+	private:
+		Archives m_archives;
+		FileItems m_archiveTopLevelItems;
 		FileItems m_archiveFileItems;
-		List m_selection;
 
 		KUrl m_openUrl;
 		KUrl m_saveUrl;
@@ -169,9 +200,12 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		QAction *m_recentArchivesSeparator;
 		KActionCollection *m_archiveHistoryActions;
 
+		KAction *m_closeAction;
+		KAction *m_closeAllAction;
 		KAction *m_extractAction;
 
 		ListfilesDialog *m_listfilesDialog;
+		ArchiveInfoDialog *m_archiveInfoDialog;
 		FileInfoDialog *m_fileInfoDialog;
 
 	private slots:
@@ -185,24 +219,24 @@ inline ListfilesDialog* MpqEditor::listfilesDialog() const
 	return this->m_listfilesDialog;
 }
 
-inline const MpqEditor::List& MpqEditor::mpqArchives() const
+inline ArchiveInfoDialog* MpqEditor::archiveInfoDialog() const
 {
-	return m_mpqArchives;
+	return this->m_archiveInfoDialog;
 }
 
-inline const MpqEditor::List& MpqEditor::selection() const
+inline FileInfoDialog* MpqEditor::fileInfoDialog() const
 {
-	return m_selection;
+	return this->m_fileInfoDialog;
 }
 
-inline MpqEditor::List& MpqEditor::mpqArchives()
+inline const MpqEditor::Archives& MpqEditor::archives() const
 {
-	return m_mpqArchives;
+	return m_archives;
 }
 
-inline MpqEditor::List& MpqEditor::selection()
+inline MpqEditor::Archives& MpqEditor::archives()
 {
-	return m_selection;
+	return m_archives;
 }
 
 inline QString MpqEditor::actionName() const

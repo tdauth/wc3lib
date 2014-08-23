@@ -159,7 +159,7 @@ bool MpqSlave::openArchive(const QString &archive, QString &error)
 
 		try
 		{
-			ptr->open(archive.toUtf8().constData());
+			ptr->open(archive.toStdString());
 		}
 		catch (Exception &exception)
 		{

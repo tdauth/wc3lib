@@ -83,16 +83,16 @@ void WarcraftIIIShared::refreshWorldEditorStrings(QWidget *window, const KUrl &u
 
 	if (!this->source()->download(url, target, window))
 	{
-		throw Exception(boost::format(_("Unable to download file \"%1%\".")) % url.toLocalFile().toUtf8().constData());
+		throw Exception(boost::format(_("Unable to download file \"%1%\".")) % url.toLocalFile().toStdString());
 	}
 
 	qDebug() << "World Editor strings target: " << target;
 	WorldEditorStringsPtr ptr(new map::Txt());
-	ifstream ifstream(target.toUtf8().constData(), std::ios::binary | std::ios::in);
+	ifstream ifstream(target.toStdString(), std::ios::binary | std::ios::in);
 
 	if (!ifstream)
 	{
-		throw Exception(boost::format(_("Unable to read from file \"%1%\".")) % target.toUtf8().constData());
+		throw Exception(boost::format(_("Unable to read from file \"%1%\".")) % target.toStdString());
 	}
 
 	ptr->read(ifstream);
@@ -106,11 +106,11 @@ QString WarcraftIIIShared::tr(const QString &key, const QString &group, const QS
 		qDebug() << "Trying it in WorldEditorStrings.txt";
 
 		try {
-			const map::Txt::Pairs &pairs = this->worldEditorStrings()->entries(group.toUtf8().constData());
+			const map::Txt::Pairs &pairs = this->worldEditorStrings()->entries(group.toStdString());
 
 			// TODO linear search
 			foreach (map::Txt::Pairs::const_reference ref, pairs) {
-				if (ref.first == key.toUtf8().constData()) {
+				if (ref.first == key.toStdString()) {
 					return ref.second.c_str();
 				}
 			}
@@ -147,11 +147,11 @@ void WarcraftIIIShared::refreshTriggerData(QWidget *window, const KUrl &url) thr
 
 	qDebug() << "Trigger data target: " << target;
 	TriggerDataPtr ptr(new map::TriggerData());
-	ifstream ifstream(target.toUtf8().constData(), std::ios::binary | std::ios::in);
+	ifstream ifstream(target.toStdString(), std::ios::binary | std::ios::in);
 
 	if (!ifstream)
 	{
-		throw Exception(boost::format(_("Unable to read from file \"%1%\".")) % target.toUtf8().constData());
+		throw Exception(boost::format(_("Unable to read from file \"%1%\".")) % target.toStdString());
 	}
 
 	ptr->read(ifstream);
@@ -169,11 +169,11 @@ void WarcraftIIIShared::refreshTriggerStrings(QWidget *window, const KUrl &url) 
 
 	qDebug() << "Trigger strings target: " << target;
 	TriggerStringsPtr ptr(new map::TriggerStrings());
-	ifstream ifstream(target.toUtf8().constData(), std::ios::binary | std::ios::in);
+	ifstream ifstream(target.toStdString(), std::ios::binary | std::ios::in);
 
 	if (!ifstream)
 	{
-		throw Exception(boost::format(_("Unable to read from file \"%1%\".")) % target.toUtf8().constData());
+		throw Exception(boost::format(_("Unable to read from file \"%1%\".")) % target.toStdString());
 	}
 
 	ptr->read(ifstream);

@@ -44,7 +44,7 @@ void SlaveTest::initTestCase()
 	// Called before the first testfunction is executed
 	/*
 	m_loader = new QPluginLoader(QBLP_ABSOLUTE_PATH, this);
-	QVERIFY2(m_loader->load(), m_loader->errorString().toUtf8().constData());
+	QVERIFY2(m_loader->load(), m_loader->errorString().toStdString());
 	QVERIFY(m_loader->isLoaded());
 
 	m_plugin = dynamic_cast<BlpIOPlugin*>(m_loader->instance());

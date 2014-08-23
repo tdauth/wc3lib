@@ -23,8 +23,6 @@ if (EDITOR)
 		add_definitions(${KDE4_DEFINITIONS})
 		include_directories(${KDE4_INCLUDE_DIR} ${KDE4_INCLUDES})
 		link_directories(${KDE4_LIB_DIR})
-		# NOTE enable exception handling which might be disabled by KDE CMake module
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${KDE4_ENABLE_EXCEPTIONS}")
 	endif ()
 
 	# OGRE does not install the CMake file into the module path. It uses the library path instead.
@@ -43,6 +41,10 @@ if (EDITOR)
 		include_directories(${OGRE_INCLUDE_DIRS})
 		link_directories(${OGRE_LIB_DIR})
 	endif ()
+
+	# NOTE enable exception handling which might be disabled by the KDE CMake module
+	# NOTE enable STL support which might be disabled by the KDE CMake module
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${KDE4_ENABLE_EXCEPTIONS} -UQT_NO_STL")
 
 	kde4_add_executable(wc3editor wc3editor.cpp)
 	# TODO fix wc3libobjecteditor
