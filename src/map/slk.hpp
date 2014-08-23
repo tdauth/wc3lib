@@ -185,6 +185,11 @@ inline Slk::ConstView Slk::row(int row) const
 	return myview;
 }
 
+inline Slk::Cell& Slk::cell(int row, int column)
+{
+	return this->table()[column][row];
+}
+
 inline const Slk::Cell& Slk::cell(int row, int column) const
 {
 	return this->table()[column][row];

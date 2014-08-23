@@ -37,7 +37,8 @@ using namespace wc3lib;
 
 // TODO add small tests before "Unit Meta Data"
 
-BOOST_AUTO_TEST_CASE(UnitMetaData) {
+BOOST_AUTO_TEST_CASE(UnitMetaData)
+{
 	spiritTraceLog.close();
 	spiritTraceLog.open("unitmetadata_traces.xml");
 
@@ -65,6 +66,8 @@ BOOST_AUTO_TEST_CASE(UnitMetaData) {
 	// 17 columns
 	// 118 rows
 	BOOST_REQUIRE(valid);
-	BOOST_REQUIRE(slk.table().shape()[0] == 17);
-	BOOST_REQUIRE(slk.table().shape()[1] == 118);
+	BOOST_REQUIRE(slk.columns() == 17);
+	BOOST_REQUIRE(slk.rows() == 118);
+	BOOST_REQUIRE(slk.cell(0, 0) == "\"ID\"");
+	BOOST_REQUIRE(slk.cell(0, 1) == "\"field\"");
 }

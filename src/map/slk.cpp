@@ -86,47 +86,181 @@ struct RecordSkipper : public qi::grammar<Iterator>
 		using qi::eps;
 
 		/*
-		 * Comments may use UTF-8 characters.
+		 * ; has to be escaped by using two ; characters
 		 */
+		literal %=
+			(
+				(char_ - eol) >> lit(";;")
+				| (char_ - lit(';') - eol)
+
+			)
+		;
+
+		p_field %=
+			lit(";P")
+			>> *literal
+		;
+
+		f_field %=
+			lit(";F")
+			>> *literal
+		;
+
+		m_field %=
+			lit(";M")
+			>> *literal
+		;
+
+		l_field %=
+			lit(";L")
+			>> *literal
+		;
+
+		s_field %=
+			lit(";S")
+			>> *literal
+		;
+
+		v_field %=
+			lit(";V")
+			>> *literal
+		;
+
+		g_field %=
+			lit(";G")
+			>> *literal
+		;
+
+		d_field %=
+			lit(";D")
+			>> *literal
+		;
+
+
+		w_field %=
+			lit(";W")
+			>> *literal
+		;
+
+		e_field %=
+			lit(";E")
+			>> *literal
+		;
+
+		k_field %=
+			lit(";K")
+			>> *literal
+		;
+
 		id_record %=
 			lit("ID")
-			>> lit(";P")
-			>> +char_
+			>> p_field
 			>> -lit(";N")
 			>> -lit(";E")
 		;
 
 		p_record %=
 			lit('P')
-			>> *char_
+			>>
+			+(
+				p_field
+				// NOTE is not listed on Wikipedia but present in Warcraft's SLK files
+				| f_field
+				| m_field
+				| e_field
+				| s_field
+				| l_field
+			)
+		;
+
+		f_record %=
+			lit('F')
+			>> +(p_field | d_field | m_field | w_field)
+		;
+
+		o_record %=
+			lit('O')
+			>> +(l_field | s_field | d_field | v_field | k_field | g_field)
 		;
 
 		skip_record %=
 			id_record
 			| p_record
+			| f_record
+			| o_record
 		;
 
-		skip %=
+		skip_lines %=
 			+(eol >> -skip_record >> &eol)
 		;
 
+		skip %=
+			skip_lines
+			| skip_record
+		;
+
+		literal.name("literal");
+		p_field.name("p_field");
+		f_field.name("f_field");
+		m_field.name("m_field");
+		d_field.name("d_field");
+		l_field.name("l_field");
+		s_field.name("s_field");
+		v_field.name("v_field");
+		g_field.name("g_field");
+		w_field.name("w_field");
+		e_field.name("e_field");
+		k_field.name("k_field");
 		id_record.name("id_record");
 		p_record.name("p_record");
+		f_record.name("f_record");
 		skip_record.name("skip_record");
+		skip_lines.name("skip_lines");
 		skip.name("skip");
 
 		BOOST_SPIRIT_DEBUG_NODES(
+			(literal)
+			(p_field)
+			(f_field)
+			(m_field)
+			(d_field)
+			(l_field)
+			(s_field)
+			(v_field)
+			(g_field)
+			(w_field)
+			(e_field)
+			(k_field)
 			(id_record)
 			(p_record)
+			(f_record)
 			(skip_record)
+			(skip_lines)
 			(skip)
 		);
 	}
 
+	qi::rule<Iterator> literal;
+
+	qi::rule<Iterator> p_field;
+	qi::rule<Iterator> f_field;
+	qi::rule<Iterator> m_field;
+	qi::rule<Iterator> d_field;
+	qi::rule<Iterator> l_field;
+	qi::rule<Iterator> s_field;
+	qi::rule<Iterator> v_field;
+	qi::rule<Iterator> g_field;
+	qi::rule<Iterator> w_field;
+	qi::rule<Iterator> e_field;
+	qi::rule<Iterator> k_field;
+
 	qi::rule<Iterator> id_record;
 	qi::rule<Iterator> b_record;
 	qi::rule<Iterator> p_record;
+	qi::rule<Iterator> f_record;
+	qi::rule<Iterator> o_record;
 	qi::rule<Iterator> skip_record;
+	qi::rule<Iterator> skip_lines;
 	qi::rule<Iterator> skip;
 };
 
@@ -140,7 +274,23 @@ struct CellData
 
 	Slk::Table::size_type x, y;
 	Slk::Cell cell;
+	// TODO save optional description (;A)
+	Slk::Cell description;
 };
+
+void assignX(SlkSize &size, int x)
+{
+	size.first = x;
+
+	std::cerr << "Assigning X: " << x << std::endl;
+}
+
+void assignY(SlkSize &size, int y)
+{
+	size.second = y;
+
+	std::cerr << "Assigning Y: " << y << std::endl;
+}
 
 void resizeTable(Slk::Table &table, const SlkSize &size)
 {
@@ -148,10 +298,27 @@ void resizeTable(Slk::Table &table, const SlkSize &size)
 	std::cerr << "Resizing table: " << size.first << "x" << size.second << std::endl;
 }
 
-void setCell(Slk::Table &table, const CellData &cell, Slk::Table::size_type &row)
+void setCell(Slk::Table &table, const CellData &cell)
 {
-	table[cell.x][cell.y] = cell.cell;
-	row++;
+	const Slk::Table::size_type x = cell.x - 1;
+	const Slk::Table::size_type y = cell.y - 1;
+
+	if (x < table.shape()[0] && y < table.shape()[1])
+	{
+		// if the value is continued append it
+		table[x][y] = table[x][y]  + cell.cell;
+	}
+	else
+	{
+		std::cerr << boost::format(_("Cell data %1%|%2% with value \"%3%\" and description \"%4%\" is out of range for table with size %5%|%6%."))
+			% cell.x
+			% cell.y
+			% cell.cell
+			% cell.description
+			% table.shape()[0]
+			% table.shape()[1]
+			<< std::endl;
+	}
 }
 
 /**
@@ -168,7 +335,10 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 		this->result = result;
 	}
 
-	SlkGrammar(Slk::Table &result) : SlkGrammar::base_type(cells, "slk grammar"), result(result)
+	/*
+	 * SLK starts counting at 1 so initialize values with 1.
+	 */
+	SlkGrammar(Slk::Table &result) : SlkGrammar::base_type(cells, "slk grammar"), result(result), row(1), column(1)
 	{
 		using qi::eps;
 		using qi::int_parser;
@@ -206,36 +376,79 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 		using phoenix::if_;
 
 		/*
+		 * ; has to be escaped by using two ; characters
+		 */
+		literal %=
+			+(
+				(char_ - eol) >> &lit(";;")
+				| (char_ - lit(';') - eol)
+
+			)
+		;
+
+		d_field %=
+			lit(";D")
+			>> literal
+		;
+
+		/*
 		 * B records define the actual size of the spreadsheet.
 		 * They contain the number of columns and rows.
+		 *
+		 * NOTE Do not use %= assignment since it overwrites the pair's values in wrong order.
 		 */
-		// TODO whenever a B record appears, resize the cells array!
-		b_record %=
+		b_record =
 			lit('B')
-			>> lit(";X")
-			>> int_
-			>> lit(";Y")
-			>> int_
-			// TODO support ;D0 0 117 16
+			>>
+			(
+				(
+					lit(";Y")
+					>> int_[phoenix::bind(&assignY, phoenix::ref(_val), phoenix::ref(_1))]
+					>> lit(";X")
+					>> int_[phoenix::bind(&assignX, phoenix::ref(_val), phoenix::ref(_1))]
+				)
+				| (
+					lit(";X")
+					>> int_[phoenix::bind(&assignX, phoenix::ref(_val), phoenix::ref(_1))]
+					>> lit(";Y")
+					>> int_[phoenix::bind(&assignY, phoenix::ref(_val), phoenix::ref(_1))]
+				)
+			)
+			// Warcraft III files have D fields
+			>> -d_field
 		;
 
 		c_record =
-			lit('C')
-			>> lit(";X")
-			>> int_[at_c<0>(_val) = _1]
-			>> lit(";Y")
-			>> int_[at_c<1>(_val) = _1]
-
+			lit('C')[at_c<0>(_val) = ref(column)][at_c<1>(_val) = ref(row)] // use current row by default
 			>>
+			// the whole position might be skipped in this case we use the last used X and Y
 			-(
-				lit(";E")
-				>> +char_
+				// if row value is present (Y) set the current row to that value
+				-(
+					lit(";Y")
+					>> int_[at_c<1>(_val) = _1][ref(row) = _1]
+				)
+				>> lit(";X")
+				>> int_[at_c<0>(_val) = _1]
 			)
 
 			>>
 			-(
-				lit(";K")
-				>> +char_[at_c<2>(_val) = _1]
+				lit(";E")
+				>> literal
+			)
+
+			>>
+			-(
+				(
+					lit(";K")
+					>> literal[at_c<2>(_val) = _1]
+				)
+				// in some cases descriptions appear as ;A fields
+				| (
+					lit(";A")
+					>> literal[at_c<3>(_val) = _1]
+				)
 			)
 
 			// TODO all possible fields!
@@ -248,27 +461,35 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 
 		record =
 			b_record[phoenix::bind(&resizeTable, phoenix::ref(result), phoenix::ref(_1))]
-			| c_record[phoenix::bind(&setCell, phoenix::ref(result), phoenix::ref(_1), phoenix::ref(row))]
+			| c_record[phoenix::bind(&setCell, phoenix::ref(result), phoenix::ref(_1))]
 		;
 
 		cells =
-			eps[ref(row) = 0]
+			eps[ref(column) = 1][ref(row) = 1]
+			>> *eol
 			>> record % eol
-			>> e_record
+			>> eol >> e_record >> +eol
 		;
 
+		literal.name("literal");
+		d_field.name("d_field");
 		b_record.name("b_record");
 		c_record.name("c_record");
 		e_record.name("e_record");
 		cells.name("cells");
 
 		BOOST_SPIRIT_DEBUG_NODES(
+			(literal)
+			(d_field)
 			(b_record)
 			(c_record)
 			(e_record)
 			(cells)
 		);
 	}
+
+	qi::rule<Iterator, Slk::Cell(), Skipper> literal;
+	qi::rule<Iterator, Skipper> d_field;
 
 	qi::rule<Iterator, SlkSize(), Skipper> b_record;
 	qi::rule<Iterator, CellData(), Skipper> c_record;
@@ -401,4 +622,5 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(wc3lib::map::Slk::Table::size_type, x)
 	(wc3lib::map::Slk::Table::size_type, y)
 	(wc3lib::map::Slk::Cell, cell)
+	(wc3lib::map::Slk::Cell, description)
 )
