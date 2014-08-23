@@ -27,7 +27,7 @@
 #include "../../core.hpp"
 #include "../../map.hpp"
 #include "../platform.hpp"
-#include "../metadata.hpp"
+#include "objecteditortab.hpp"
 
 namespace wc3lib
 {
@@ -48,18 +48,25 @@ namespace editor
 class ObjectTableWidgetPair : public QObject
 {
 	public:
-		ObjectTableWidgetPair(QTableWidget *tableWidget, int row, MetaData *metaData, const map::Slk::Cell &id);
+		ObjectTableWidgetPair(QTableWidget *tableWidget, ObjectEditorTab *tab, const map::Slk::Cell &objectId, const map::Slk::Cell &fieldId);
 		~ObjectTableWidgetPair();
 
 		QTableWidget* tableWidget() const;
-		int row() const;
+		ObjectEditorTab* tab() const;
 
 		void reset();
 		bool isDefault() const;
 
-		MetaData* metaData() const;
-		void setId(const map::Slk::Cell &id);
-		const map::Slk::Cell& id() const;
+		/**
+		 * Sets the object ID such as "hfoo" for the Footman."
+		 */
+		void setObjectId(const map::Slk::Cell &id);
+		const map::Slk::Cell& objectId() const;
+		/**
+		 * Sets the field ID such as "unam" for the name
+		 */
+		void setFieldId(const map::Slk::Cell &id);
+		const map::Slk::Cell& fieldId() const;
 		/**
 		 * \return Returns value of data by using corresponding meta data.
 		 */
@@ -75,12 +82,12 @@ class ObjectTableWidgetPair : public QObject
 	protected:
 		void update();
 
-		MetaData *m_metaData; // meta data describes which kind of value and description this pair have
-		map::Slk::Cell m_id;
+		ObjectEditorTab *m_tab;
+		map::Slk::Cell m_objectId;
+		map::Slk::Cell m_fieldId;
 		map::Value m_customValue;
 		QTableWidgetItem *m_descriptionItem;
 		QTableWidgetItem *m_valueItem;
-		int m_row;
 };
 
 inline QTableWidget* ObjectTableWidgetPair::tableWidget() const
@@ -88,9 +95,9 @@ inline QTableWidget* ObjectTableWidgetPair::tableWidget() const
 	return boost::polymorphic_cast<QTableWidget*>(parent());
 }
 
-inline int ObjectTableWidgetPair::row() const
+inline ObjectEditorTab* ObjectTableWidgetPair::tab() const
 {
-	return m_row;
+	return this->m_tab;
 }
 
 inline void ObjectTableWidgetPair::reset()
@@ -103,28 +110,29 @@ inline bool ObjectTableWidgetPair::isDefault() const
 	return customValue() == defaultValue();
 }
 
-inline MetaData* ObjectTableWidgetPair::metaData() const
+inline void ObjectTableWidgetPair::setObjectId(const map::Slk::Cell &id)
 {
-	return m_metaData;
+	this->m_objectId = id;
 }
 
-inline void ObjectTableWidgetPair::setId(const map::Slk::Cell &id)
+inline const map::Slk::Cell& ObjectTableWidgetPair::objectId() const
 {
-	m_id = id;
-	m_customValue = defaultValue();
-	update();
+	return this->m_objectId;
 }
 
-inline const map::Slk::Cell& ObjectTableWidgetPair::id() const
+inline void ObjectTableWidgetPair::setFieldId(const map::Slk::Cell &id)
 {
-	return m_id;
+	m_fieldId = id;
+}
+
+inline const map::Slk::Cell& ObjectTableWidgetPair::fieldId() const
+{
+	return m_fieldId;
 }
 
 inline const map::Value& ObjectTableWidgetPair::defaultValue() const
 {
-	return this->metaData()->value(this->id(), 0)
-
-	return data()->left.find(metaData())->second;
+	return this->tab()->getDataValue(objectId(), this->fieldId());
 }
 
 inline void ObjectTableWidgetPair::setCustomValue(const map::Value &customValue)

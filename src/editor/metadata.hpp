@@ -73,6 +73,10 @@ class KDE_EXPORT MetaData : public Resource
 		const map::Slk::Cell& value(const map::Slk::Cell &rowKey, int column) const;
 		const map::Slk:: Cell& value(const map::Slk::Cell &rowKey, const map::Slk::Cell &columnKey) const;
 
+		bool hasValue(const map::Slk::Cell &rowKey, const map::Slk::Cell &columnKey) const;
+
+		bool isEmpty() const;
+
 	protected:
 		map::Slk m_slk;
 		Keys m_columnKeys;
@@ -164,6 +168,30 @@ inline const map::Slk::Cell& MetaData::value(const map::Slk::Cell &rowKey, const
 	}
 
 	return this->slk().table()[columnIterator->second][rowIterator->second];
+}
+
+inline bool MetaData::hasValue(const map::Slk::Cell &rowKey, const map::Slk::Cell &columnKey) const
+{
+	Keys::const_iterator columnIterator = this->columnKeys().find(columnKey);
+
+	if (columnIterator == this->columnKeys().end())
+	{
+		return false;
+	}
+
+	Keys::const_iterator rowIterator = this->rowKeys().find(rowKey);
+
+	if (rowIterator == this->rowKeys().end())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+inline bool MetaData::isEmpty() const
+{
+	return this->m_slk.table().empty();
 }
 
 }

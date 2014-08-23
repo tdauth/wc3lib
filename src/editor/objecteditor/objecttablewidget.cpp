@@ -30,32 +30,8 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectTableWidget::ObjectTableWidget(QWidget *parent, const MetaData *metaData)
+ObjectTableWidget::ObjectTableWidget(QWidget *parent, const MetaData *metaData) : QTableWidget(0, 2, parent)
 {
-	/*
-	int i = 0;
-
-	foreach (MetaData::MetaDataEntries::const_reference entry, metaData->metaDataEntries())
-	{
-		ObjectTableWidgetPair *pair = new ObjectTableWidgetPair(this, i, entry.get());
-		++i;
-	}
-	*/
-}
-
-ObjectTableWidget::Pairs ObjectTableWidget::pairs(BOOST_SCOPED_ENUM(map::Section) section)
-{
-	/*
-	Pairs result;
-
-	foreach (ObjectTableWidgetPair *pair, pairs())
-	{
-		if (pair->metaData()->section() == section)
-			result << pair;
-	}
-	*/
-
-	//return result;
 }
 
 void ObjectTableWidget::editItem(QTableWidgetItem *item)

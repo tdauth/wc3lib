@@ -33,17 +33,18 @@ namespace wc3lib
 namespace editor
 {
 
+class ObjectTableWidgetPair;
+
 class ObjectTableWidget : public QTableWidget
 {
 	public:
 		typedef QVector<QVariant> Entries;
-		typedef QLinkedList<class ObjectTableWidgetPair*> Pairs;
+		typedef QLinkedList<ObjectTableWidgetPair*> Pairs;
 
 		ObjectTableWidget(QWidget *parent, const MetaData *metaData);
 
 		Pairs& pairs();
 		const Pairs& pairs() const;
-		//Pairs pairs(map::Section section);
 
 	protected:
 		/**

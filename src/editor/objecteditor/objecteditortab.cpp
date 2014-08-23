@@ -46,14 +46,14 @@ void ObjectEditorTab::setupUi()
 
 	QHBoxLayout *horizontalLayout = new QHBoxLayout();
 	layout->addLayout(horizontalLayout);
+
 	m_treeWidget = createTreeWidget();
-	horizontalLayout->addWidget(m_treeWidget);
-	
-	QSplitter *splitter = new QSplitter(this);
-	horizontalLayout->addWidget(splitter);
-	
 	m_tableWidget = createTableWidget();
-	horizontalLayout->addWidget(m_tableWidget);
+
+	QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
+	splitter->addWidget(m_treeWidget);
+	splitter->addWidget(m_tableWidget);
+	horizontalLayout->addWidget(splitter);
 }
 
 void ObjectEditorTab::onUpdateCollection(const map::CustomObjects& objects)

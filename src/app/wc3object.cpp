@@ -53,11 +53,11 @@ int main(int argc, char *argv[])
 
 	try
 	{
-		source->refreshDefaultFiles(0); // TODO we need a GUI
+		source->sharedData()->refreshDefaultFiles(0); // TODO we need a GUI
 	}
 	catch (wc3lib::Exception &e)
 	{
-		KMessageBox::error(0, i18n("Error when loading default files: %1", e.what().c_str()));
+		KMessageBox::error(0, i18n("Error when loading default files: %1", e.what()));
 	}
 
 	ObjectEditor editor(source.data());

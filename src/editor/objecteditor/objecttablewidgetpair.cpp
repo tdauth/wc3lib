@@ -29,26 +29,31 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectTableWidgetPair::ObjectTableWidgetPair(QTableWidget *tableWidget, int row, map::MetaData *metaData) : QObject(tableWidget), m_metaData(metaData), m_data(0), m_descriptionItem(new QTableWidgetItem()), m_valueItem(new QTableWidgetItem()), m_row(row)
+ObjectTableWidgetPair::ObjectTableWidgetPair(QTableWidget *tableWidget, ObjectEditorTab *tab, const map::Slk::Cell &objectId, const map::Slk::Cell &fieldId)
+: QObject(tableWidget)
+, m_tab(tab)
+, m_descriptionItem(new QTableWidgetItem())
+, m_valueItem(new QTableWidgetItem())
+, m_objectId(objectId)
+, m_fieldId(fieldId)
 {
 	descriptionItem()->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled); // not editable!
-	tableWidget->setItem(row, 0, descriptionItem());
 	valueItem()->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable); // editable!
-	tableWidget->setItem(row, 1, valueItem());
-	descriptionItem()->setText(this->metaData()->displayName().c_str());
+	//descriptionItem()->setText(this->metaData()->displayName().c_str());
 }
 
 ObjectTableWidgetPair::~ObjectTableWidgetPair()
 {
-	tableWidget()->removeRow(row()); // should delete pointers automatically
+	delete m_descriptionItem;
+	delete m_valueItem;
 }
 
 void ObjectTableWidgetPair::update()
 {
-	if (data() != 0)
-	{
+	//if (data() != 0)
+	//{
 		valueItem()->setData(Qt::DisplayRole, valueToVariant(customValue()));
-		
+
 		if (!isDefault())
 		{
 			descriptionItem()->setForeground(Qt::magenta);
@@ -59,8 +64,8 @@ void ObjectTableWidgetPair::update()
 			descriptionItem()->setForeground(Qt::black);
 			valueItem()->setForeground(Qt::black);
 		}
-		
-	}
+
+	//}
 }
 
 }

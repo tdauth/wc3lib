@@ -44,6 +44,8 @@ class UnitEditor : public ObjectEditorTab
 
 		virtual void onUpdateCollection(const map::CustomObjects& objects);
 
+		virtual map::Slk::Cell getDataValue(const map::Slk::Cell &objectId, const map::Slk::Cell& field) const override;
+
 	protected:
 		virtual class ObjectTreeWidget* createTreeWidget();
 		virtual class ObjectTableWidget* createTableWidget();

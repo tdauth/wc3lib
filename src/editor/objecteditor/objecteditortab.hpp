@@ -56,8 +56,15 @@ class ObjectEditorTab : public QWidget
 		class ObjectTableWidget* tableWidget() const;
 
 		virtual QString name() const = 0;
-		
+
 		virtual void onUpdateCollection(const map::CustomObjects &objects);
+
+		/**
+		 * \brief Abstract element function which is used for resolving any object data value stored in one of the many SLK files.
+		 *
+		 * \note This does not resolve meta data but actual object data (default data for existing objects).
+		 */
+		virtual map::Slk::Cell getDataValue(const map::Slk::Cell &objectId, const map::Slk::Cell &field) const = 0;
 
 	public slots:
 		void newObject();
