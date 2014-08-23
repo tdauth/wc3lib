@@ -36,67 +36,80 @@ using namespace wc3lib;
 
 BOOST_AUTO_TEST_CASE(SimpleReadTest) {
 	ifstream in("war3map.wct", ifstream::in | ifstream::binary); // War Chasers
-	
+
 	BOOST_REQUIRE(in);
-	
+
 	map::CustomTextTriggers customTextTriggers;
-	
+
 	bool valid = true;
-	
+
 	try {
 		customTextTriggers.read(in);
 	}
 	catch (...) {
 		valid = false;
 	}
-	
+
 	BOOST_REQUIRE(valid);
 }
 
 BOOST_AUTO_TEST_CASE(ReadWriteReadTest) {
 	ifstream in("war3map.wct", ifstream::in | ifstream::binary); // War Chasers
-	
+
 	BOOST_REQUIRE(in);
-	
+
 	map::CustomTextTriggers customTextTriggers;
-	
+
 	bool valid = true;
-	
+
 	try {
 		customTextTriggers.read(in);
+	}
+	catch (Exception &e) {
+		valid = false;
+		std::cerr << e.what() << std::endl;
 	}
 	catch (...) {
 		valid = false;
 	}
-	
+
 	BOOST_REQUIRE(valid);
-	
+
 	in.close();
 	ofstream out("war3map.wctout", ifstream::out | ifstream::binary);
-	
+
 	BOOST_REQUIRE(out);
-	
+
 	try {
 		customTextTriggers.write(out);
 	}
+	catch (Exception &e) {
+		valid = false;
+		std::cerr << e.what() << std::endl;
+	}
 	catch (...) {
 		valid = false;
 	}
-	
+
+	out.close();
 	BOOST_REQUIRE(valid);
-	
+
 	customTextTriggers.triggerTexts().clear(); // ensure it's empty!
 	in.open("war3map.wctout", ifstream::in | ifstream::binary); // War Chasers, reopen
-	
+
 	BOOST_REQUIRE(in);
-	
+
 	try {
 		customTextTriggers.read(in);
-	
+
+	}
+	catch (Exception &e) {
+		valid = false;
+		std::cerr << e.what() << std::endl;
 	}
 	catch (...) {
 		valid = false;
 	}
-	
+
 	BOOST_REQUIRE(valid);
 }

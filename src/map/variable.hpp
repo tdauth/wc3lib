@@ -38,9 +38,10 @@ class Variable : public Format
 {
 	public:
 		Variable();
+		virtual ~Variable();
 
-		std::streamsize read(InputStream &istream) throw (class Exception);
-		std::streamsize write(OutputStream &ostream) const throw (class Exception);
+		std::streamsize read(InputStream &istream) throw (Exception);
+		std::streamsize write(OutputStream &ostream) const throw (Exception);
 
 		void setName(const string &name);
 		const string& name() const;
@@ -114,7 +115,7 @@ inline bool Variable::isInitialized() const
 	return m_isInitialized;
 }
 
-inline void Variable::setInitialValue(const string& initialValue)
+inline void Variable::setInitialValue(const string &initialValue)
 {
 	this->m_initialValue = initialValue;
 }

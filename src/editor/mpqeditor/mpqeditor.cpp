@@ -45,6 +45,8 @@ MpqEditor::MpqEditor(MpqPriorityList* source, QWidget* parent, Qt::WindowFlags f
 	Ui::MpqEditor::setupUi(widget);
 	this->centerLayout()->addWidget(widget);
 
+	setWindowTitle(tr("MPQ Editor"));
+
 	connect(this->m_archivesTreeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(updateSelection()));
 	connect(this->m_archivesTreeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(fileIsOpen(QTreeWidgetItem*,int)));
 	connect(this->m_archivesTreeWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextMenu(QPoint)));
@@ -451,19 +453,29 @@ void MpqEditor::extractFiles()
 	if (items.size() == 1)
 	{
 		QTreeWidgetItem *item = items.first();
-		KUrl url = KFileDialog::getSaveUrl(KUrl(), "*", this);
+		const QString filePath = item->data(0, Qt::UserRole).toString();
+		const QString fileName = this->fileName(filePath);
+		/*
+		 * Initialize with original file name.
+		 */
+		m_extractUrl.setFileName(fileName);
+		KUrl url = KFileDialog::getSaveUrl(m_extractUrl, "*", this);
 
 		if (!url.isEmpty())
 		{
-			const QString filePath = item->data(0, Qt::UserRole).toString();
-			const QString fileName = this->fileName(filePath);
 			FileItems::iterator iterator = m_archiveFileItems.find(item);
 
 			if (iterator != m_archiveFileItems.end())
 			{
 				mpq::Archive *archive = iterator.value();
 
-				extractFile(filePath, *archive, url.toLocalFile());
+				if (extractFile(filePath, *archive, url.toLocalFile()))
+				{
+					/*
+					 * Update extraction URL path on success.
+					 */
+					m_extractUrl = url.directory();
+				}
 			}
 			else
 			{
@@ -473,10 +485,12 @@ void MpqEditor::extractFiles()
 	}
 	else
 	{
-		QString dir = KFileDialog::getExistingDirectory(KUrl(), this);
+		QString dir = KFileDialog::getExistingDirectory(m_extractUrl, this);
 
 		if (!dir.isEmpty())
 		{
+			bool success = true;
+
 			foreach (QTreeWidgetItem *item, items)
 			{
 				const QString filePath = item->data(0, Qt::UserRole).toString();
@@ -491,8 +505,17 @@ void MpqEditor::extractFiles()
 				}
 				else
 				{
+					success = false;
 					KMessageBox::error(this, i18n("File %1 is not part of any archive.", filePath));
 				}
+			}
+
+			/*
+			 * Update extraction URL path on success.
+			 */
+			if (success)
+			{
+				m_extractUrl = dir;
 			}
 		}
 	}

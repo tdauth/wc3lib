@@ -23,7 +23,9 @@
 
 /**
  * \file
- * Provides utility functions mostly for stream operations.
+ * \brief Provides utility functions mostly for I/O stream operations.
+ *
+ * \ingroup io
  */
 
 #include <iostream>
@@ -54,6 +56,16 @@ inline std::string hexValue(T value)
 	return sstream.str();
 }
 
+/**
+ * Converts the state of an I/O stream into a readable message.
+ * Useful for debugging and error reporting.
+ *
+ * \param state The state which is converted into a readable message.
+ *
+ * \return Returns a readable message which contains all state names of \p state.
+ *
+ * \ingroup io
+ */
 inline std::string iostateMessage(const std::ios_base::iostate &state)
 {
 	std::ostringstream sstream;
@@ -73,6 +85,16 @@ inline std::string iostateMessage(const std::ios_base::iostate &state)
 	return sstream.str();
 }
 
+/**
+ * Checks an I/O stream for its state. If an error occured it throws an \ref Exception.
+ * Useful for checking streams during read processes to get immediate feedback via Exception Handling.
+ *
+ * \param stream I/O stream which is checked.
+ *
+ * \throws Exception This exception is thrown with a readable message which contains the state of the I/O stream.
+ *
+ * \ingroup io
+ */
 template<typename _CharT>
 inline void checkStream(std::basic_ios<_CharT> &stream) throw (class Exception)
 {
@@ -94,6 +116,8 @@ inline void checkStream(std::basic_ios<_CharT> &stream) throw (class Exception)
  * \param sizeCounter Counter of read chars which is increased by function. @note Do not forget to initialise before calling this function since += operator is used.
  * \param size Size of value which is filled. Default value is size of type T in user-defined char type _CharT. Consider that real size is taken and not sizeof(T) since it only returns size in C++ language implementation char type.
  * \return Returns input stream istream for further treatment.
+ *
+ * \ingroup io
  */
 template<typename T, typename _CharT>
 inline std::basic_istream<_CharT>& read(std::basic_istream<_CharT> &istream, T &value, std::streamsize &sizeCounter, std::streamsize size = sizeof(T) * sizeof(_CharT)) throw (class Exception)
@@ -113,66 +137,78 @@ inline std::basic_istream<_CharT>& read(std::basic_istream<_CharT> &istream, T &
 }
 
 /**
- * \brief Reads C string char into value "value" (with 0-terminating if size is 0).
+ * \brief Reads a C-like string which is terminated by the character \p terminatingChar from input stream \p istream into \p value.
  *
  * Usually you should use type "char" but other types may also be supported by stream.
+ *
  * \param istream The input stream which is read from.
+ * \param value This value is filled with the value of the string.
  * \param sizeCounter This counter is increased by the number of bytes which are read from the stream.
- * \param value This value is filled with an array of \p _CharT values. You'll have to take care about memory release!
- * \param size If this value is 0 it will stop when reaching 0-terminating char.
- * \param terminatingChar Customizable terminating char.
+ * \param terminatingChar Customizable terminating char. The terminating character is not included into the resulting \p value.
+ * \param maxLength This value restricts the length of the string to avoid buffer errors. If the value is longer an exception is thrown.
  *
  * \return Returns \p istream which is read from.
+ *
+ * \throws Exception Throws an exception if the string is too long or there is any other stream errors.
+ *
+ * \ingroup io
  */
 template<typename _CharT>
-inline std::basic_istream<_CharT>& readCString(std::basic_istream<_CharT> &istream, _CharT *&value, std::streamsize &sizeCounter, std::streamsize size = 0, _CharT terminatingChar = '\0') throw (class Exception)
+inline std::basic_istream<_CharT>& readString(std::basic_istream<_CharT> &istream, std::basic_string<_CharT> &value, std::streamsize &sizeCounter, _CharT terminatingChar = '\0', const std::size_t maxLength = 1024) throw (class Exception)
 {
-	// value is filled by this function
-	if (value != 0)
-		throw Exception(_("readCString: Value should be 0."));
-
-	if (size == 0)
+	if (maxLength == 0)
 	{
-		// get 0 terminating character, get name
-		std::streampos position = istream.tellg();
-		_CharT character;
-
-		checkStream(istream);
-
-		istream.get(character);
-
-		std::size_t i = position;
-		std::size_t length = 0;
-
-		while (character != terminatingChar)
-		{
-			++i;
-			++length;
-
-			if (!istream)
-				throw Exception(_("Input stream error."));
-
-			istream.get(character);
-		}
-
-		istream.seekg(position);
-		size = length; // assign new length
+		throw Exception(_("Maximum length is 0."));
 	}
 
-	value = new _CharT[size + 1];
-	read(istream, value[0], sizeCounter, size + 1); // read terminating char but replace afterwards with user-defined, if you don't read you'll always read the same string with size 1 (0-terminating char)
-	value[size] = '\0';
+	/*
+	 * Use a string stream to buffer the input and build up
+	 * the string step by step in the most efficient way.
+	 * TODO The buffer can be limited to the size maxLength as we won't go any further.
+	 */
+	std::basic_stringstream<_CharT> sstream(std::ios::out | std::ios::binary);
+	std::size_t length = 0;
+	_CharT character = ' ';
+	bool finish = false;
 
-	return istream;
-}
+	do
+	{
+		/*
+		 * Check the stream before reading from it.
+		 * Errors would lead to an exception, so the user gets immediate feedback if
+		 * the stream is corrupted etc.
+		 */
+		checkStream(istream);
+		istream.get(character);
 
-template<typename _CharT>
-inline std::basic_istream<_CharT>& readString(std::basic_istream<_CharT> &istream, std::basic_string<_CharT> &value, std::streamsize &sizeCounter, std::streamsize size = 0) throw (class Exception)
-{
-	_CharT *cString = 0;
-	readCString(istream, cString, sizeCounter, size);
-	value = cString; // uses const cString and copies content
-	delete[] cString;
+		if (character != terminatingChar)
+		{
+			// never write formatted characters which would lead to errors for numbers etc.
+			sstream.put(character);
+			checkStream(sstream);
+
+			++length;
+
+			/*
+			* Restrict to avoid buffer errors.
+			*/
+			if (length == maxLength)
+			{
+				throw Exception(boost::format(_("0 terminated string from stream is longer that maximum length %1%.")) % maxLength);
+			}
+		}
+		else
+		{
+			finish = true;
+		}
+	}
+	while (!finish);
+
+	/*
+	 * Assign from buffered string stream.
+	 */
+	value = sstream.str();
+	sizeCounter += value.size() + 1; // + 0 terminating character
 
 	return istream;
 }
@@ -181,6 +217,8 @@ inline std::basic_istream<_CharT>& readString(std::basic_istream<_CharT> &istrea
  *  Parses next token (tokens are separated by characters in \p delimiters) in input stream \p istream and writes it into \p value.
  * \return Returns reference to input stream \p istream.
  * \sa read, readCString, readString
+ *
+ * \ingroup io
  */
 template<typename T, typename _ByteT> /// \todo typename _CharT = char for C++0x
 inline std::basic_istream<_ByteT>& parse(std::basic_istream<_ByteT> &istream, T &value, std::streamsize &sizeCounter, const std::basic_string<char> &delimiters = " \t\n\r")
@@ -226,6 +264,15 @@ inline std::basic_istream<_ByteT>& parse(std::basic_istream<_ByteT> &istream, T 
 	return istream;
 }
 
+/**
+ * \brief Gets the last position of an input stream.
+ *
+ * \param istream The input stream from which the last position is got from.
+ *
+ * \return Returns the last position of the input stream \p istream.
+ *
+ * \ingroup io
+ */
 template<typename _CharT>
 inline std::streampos endPosition(std::basic_istream<_CharT> &istream)
 {
@@ -237,6 +284,17 @@ inline std::streampos endPosition(std::basic_istream<_CharT> &istream)
 	return end;
 }
 
+/**
+ * \brief Checks if the an input stream has reached its end.
+ *
+ * Can be used if you want to check if anything is left to read in an input stream.
+ *
+ * \param istream Input stream which is checked for its position matching its end.
+ *
+ * \return Returns true if the input stream is at its end position. Otherwise it returns false.
+ *
+ * \ingroup io
+ */
 template<typename _CharT>
 inline bool eof(std::basic_istream<_CharT> &istream)
 {
@@ -244,17 +302,27 @@ inline bool eof(std::basic_istream<_CharT> &istream)
 	return istream.tellg() == endPosition(istream);
 }
 
+/**
+ * \brief Reads a '\n' terminated string from an input stream.
+ *
+ * Reads a '\n' terminated string from input stream \p istream into \p value while
+ * increasing \p sizeCounter by the number of bytes read.
+ *
+ * \return Returns the input stream \p istream which is read from.
+ *
+ * \ingroup io
+ */
 template<typename _CharT>
-inline std::basic_istream<_CharT>& readLine(std::basic_istream<_CharT> &istream, std::string &value, std::streamsize &sizeCounter, std::streamsize size = 0)
+inline std::basic_istream<_CharT>& readLine(std::basic_istream<_CharT> &istream, std::string &value, std::streamsize &sizeCounter)
 {
-	_CharT *cString = 0;
-	readCString(istream, cString, sizeCounter, size, '\n');
-	value = cString; // uses const c string and copies value
-	delete[] cString;
+	readString(istream, value, sizeCounter, '\n');
 
 	return istream;
 }
 
+/**
+ * \ingroup io
+ */
 template<typename T, typename _CharT>
 inline std::basic_ostream<_CharT>& write(std::basic_ostream<_CharT> &ostream, const T &value, std::streamsize &sizeCounter, std::streamsize size = sizeof(T) * sizeof(_CharT))
 {
@@ -269,6 +337,8 @@ inline std::basic_ostream<_CharT>& write(std::basic_ostream<_CharT> &ostream, co
 
 /**
  * Specialization for pointers where you should specify the exact size.
+ *
+ * \ingroup io
  */
 template<typename T, typename _CharT>
 inline std::basic_ostream<_CharT>& write(std::basic_ostream<_CharT> &ostream, const T *value, std::streamsize &sizeCounter, std::streamsize size) //  = sizeof(T) * sizeof(_CharT)
@@ -284,6 +354,8 @@ inline std::basic_ostream<_CharT>& write(std::basic_ostream<_CharT> &ostream, co
 
 /**
  * Specialization for pointers where you should specify the exact size.
+ *
+ * \ingroup io
  */
 template<typename T, typename _CharT>
 inline std::basic_ostream<_CharT>& write(std::basic_ostream<_CharT> &ostream, T *value, std::streamsize &sizeCounter, std::streamsize size) //  = sizeof(T) * sizeof(_CharT)
@@ -299,13 +371,15 @@ inline std::basic_ostream<_CharT>& write(std::basic_ostream<_CharT> &ostream, T 
 
 /**
 * \brief Writes C string of value "value" into output (with 0 terminating char if size is 0).
-* 
+*
 * \param ostream The output stream which is written into.
 * \param value The value which is written into the output stream \p ostream.
 * \param sizeCounter This counter is increased automatically by the number of written bytes.
 * \param size If size is 0 it will stop writing when reached 0-terminating char.
 *
 * \return Returns the output stream in which is written (\p ostream).
+*
+* \ingroup io
 */
 template<typename _CharT>
 inline std::basic_ostream<_CharT>& writeCString(std::basic_ostream<_CharT> &ostream, const _CharT *value, std::streamsize &sizeCounter, std::streamsize size = 0)
@@ -313,12 +387,18 @@ inline std::basic_ostream<_CharT>& writeCString(std::basic_ostream<_CharT> &ostr
 	return write(ostream, value, sizeCounter, size == 0 ? strlen(value) + 1 : size);
 }
 
+/**
+ * \ingroup io
+ */
 template<typename _CharT>
 inline std::basic_ostream<_CharT>& writeString(std::basic_ostream<_CharT> &ostream, const std::basic_string<_CharT> &value, std::streamsize &sizeCounter, std::streamsize size = 0)
 {
 	return writeCString(ostream, value.data(), sizeCounter, size);
 }
 
+/**
+ * \ingroup io
+ */
 template<typename _CharT>
 inline std::basic_ostream<_CharT>& writeLine(std::basic_ostream<_CharT> &ostream, const _CharT *value, std::streamsize &sizeCounter, std::streamsize size = 0)
 {
@@ -330,6 +410,9 @@ inline std::basic_ostream<_CharT>& writeLine(std::basic_ostream<_CharT> &ostream
 	return writeCString(ostream, newValue, sizeCounter, size);
 }
 
+/**
+ * \ingroup io
+ */
 template<typename _CharT>
 inline std::basic_ostream<_CharT>& writeLine(std::basic_ostream<_CharT> &ostream, const std::basic_string<_CharT> &value, std::streamsize &sizeCounter, std::streamsize size = 0)
 {
@@ -348,6 +431,8 @@ inline std::basic_ostream<_CharT>& writeLine(std::basic_ostream<_CharT> &ostream
  * \param inclusive If this value is true size of value "byteCount" will by added automatically to byte count. Therefore it writes inclusive byte count (useful for the MDLX format for instance).
  * \return Returns output stream "ostream" for any further treatment.
  * \sa skipByteCount
+ *
+ * \ingroup io
  */
 template<typename T, typename _CharT>
 inline std::basic_ostream<_CharT>& writeByteCount(std::basic_ostream<_CharT> &ostream, const T &byteCount, std::streampos position, std::streamsize &sizeCounter, bool inclusive = false)
@@ -365,6 +450,8 @@ inline std::basic_ostream<_CharT>& writeByteCount(std::basic_ostream<_CharT> &os
  * Some binary formats require chunk byte counts which can only be detected during write process after all chunk data (without the byte count itself) has been written into the output stream.
  * This function helps you to easily skip the byte counts position.
  * \sa writeByteCount
+ *
+ * \ingroup io
  */
 template<typename T, typename _CharT>
 inline std::basic_ostream<_CharT>& skipByteCount(std::basic_ostream<_CharT> &ostream, std::streampos &position)
@@ -384,6 +471,8 @@ inline std::basic_ostream<_CharT>& skipByteCount(std::basic_ostream<_CharT> &ost
  * <li>Ki</li>
  * <li>B</li>
  * </ul>
+ *
+ * \ingroup io
  */
 template<typename T>
 std::string sizeStringBinary(T size)
@@ -446,6 +535,8 @@ std::string sizeStringBinary(T size)
  * <li>k</li>
  * <li>B</li>
  * </ul>
+ *
+ * \ingroup io
  */
 template<typename T>
 std::string sizeStringDecimal(T size)
@@ -499,6 +590,9 @@ std::string sizeStringDecimal(T size)
 	return sstream.str();
 }
 
+/**
+ * \ingroup io
+ */
 inline std::string boolString(bool value)
 {
 	if (value)
@@ -507,75 +601,37 @@ inline std::string boolString(bool value)
 	return _("No");
 }
 
+/**
+ * \brief Waits for the user input in terminal to confirm or reject something.
+ *
+ * Blocks until the user has entered the valid string to confirm or reject something.
+ *
+ * \ingroup io
+ */
 inline bool expectInput()
 {
+	/*
+	 * Do not clear the buffer with an endl.
+	 * The user input should start directly ofter the : character.
+	 */
+	std::cout << _("Please confirm (by typing \"y\") or reject (by typing \"n\"):");
+
 	std::string input;
 	std::cin >> input;
 
 	while (input != _("y") && input != _("n"))
 	{
-		std::cout << _("Wrong input. Expecting new input (y/n):") << std::endl;
+		std::cerr << _("Wrong input. Expecting new input (y/n):") << std::endl;
 		std::cin >> input;
 	}
 
 	if (input == _("y"))
+	{
 		return true;
+	}
 
 	return false;
 }
-
-/*
-/// \todo Only for SCHED_FIFO or SCHED_RR.
-inline int threadPriorityMin()
-{
-#ifdef UNIX
-	sched_get_priority_min()
-#elifdef WIN32
-#endif
-}
-
-/// \todo Only for SCHED_FIFO or SCHED_RR
-inline int threadPriorityMax()
-{
-#ifdef UNIX
-	return sched_get_priority_max();
-#elifdef WIN32
-	return
-#endif
-}
-
-inline void setThreadPriority(boost::thread &thread, int priority) throw (class Exception)
-{
-#ifdef UNIX
-	int retcode;
-	int policy;
-
-	const pthread_t threadId = (pthread_t)thread.native_handle();
-
-	struct sched_param param;
-
-	if ((retcode = pthread_getschedparam(threadId, &policy, &param)) != 0)
-		throw Exception(boost::format(_("Exception: Error code %1% when getting scheduler parameters of thread %2%.")) % retcode % threadId);
-
-	std::cout << "INHERITED: ";
-	std::cout << "policy=" << ((policy == SCHED_FIFO)  ? "SCHED_FIFO" :
-                               (policy == SCHED_RR)    ? "SCHED_RR" :
-                               (policy == SCHED_OTHER) ? "SCHED_OTHER" :
-                                                         "???")
-              << ", priority=" << param.sched_priority << std::endl;
-
-
-	//policy = SCHED_FIFO;
-	param.sched_priority = priority;
-
-	if ((retcode = pthread_setschedparam(threadId, policy, &param)) != 0)
-		throw Exception(boost::format(_("Exception: Error code %1% when setting scheduler parameters for thread %2%.")) % retcode % threadId);
-#elifdef WIN32
-	HANDLE thread = (HANDLE)thread.native_handle();
-	SetThreadPriority(thread, priority);
-#endif
-}
-*/
 
 }
 

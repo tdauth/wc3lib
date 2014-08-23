@@ -31,20 +31,28 @@ Variable::Variable() : m_number(0), m_isArray(false), m_isInitialized(false)
 {
 }
 
-std::streamsize Variable::read(InputStream &istream) throw (class Exception)
+Variable::~Variable()
+{
+}
+
+std::streamsize Variable::read(InputStream &istream) throw (Exception)
 {
 	std::streamsize size = 0;
 	readString(istream, this->m_name, size);
 	readString(istream, this->m_type, size);
 	wc3lib::read(istream, this->m_number, size);
-	wc3lib::read<int32>(istream, (int32&)this->m_isArray, size);
-	wc3lib::read<int32>(istream, (int32&)this->m_isInitialized, size);
+	int32 isArray = 0;
+	wc3lib::read(istream, isArray, size);
+	this->setArray(isArray);
+	int32 isInitialized = 0;
+	wc3lib::read(istream, isInitialized, size);
+	this->setInitialized(isInitialized);
 	readString(istream, this->m_initialValue, size);
 
 	return size;
 }
 
-std::streamsize Variable::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize Variable::write(OutputStream &ostream) const throw (Exception)
 {
 	std::streamsize size = 0;
 	writeString(ostream, name(), size);

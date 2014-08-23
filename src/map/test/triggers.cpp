@@ -46,18 +46,27 @@ BOOST_AUTO_TEST_CASE(TriggersSimpleReadTest) {
 	try {
 		triggerData.read(in);
 	}
+	catch (Exception &e) {
+		valid = false;
+		std::cerr << e.what() << std::endl;
+	}
 	catch (...) {
 		valid = false;
 	}
 
+	in.close();
 	BOOST_REQUIRE(valid);
 
 	ifstream inTriggers("war3map.wtg", std::ios::in | std::ios::binary); // War Chasers triggers
 	map::Triggers triggers;
 
 	try {
-		triggers.read(in, triggerData);
+		triggers.read(inTriggers, triggerData);
 
+	}
+	catch (Exception &e) {
+		valid = false;
+		std::cerr << e.what() << std::endl;
 	}
 	catch (...) {
 		valid = false;

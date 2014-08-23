@@ -45,6 +45,10 @@ if (UNIX)
 endif ()
 target_link_libraries(wc3libcore ${Boost_LIBRARIES})
 
+if (DEBUG)
+	add_subdirectory(test)
+endif ()
+
 if (BLP)
 	add_subdirectory(blp)
 endif ()

@@ -40,7 +40,7 @@ std::streamsize Triggers::read(InputStream &istream, const TriggerData &triggerD
 {
 	std::streamsize size = FileFormat::read(istream);
 
-	int32 number;
+	int32 number = 0;
 	wc3lib::read(istream, number, size);
 	std::cerr << "Number for categories: " << number << std::endl;
 	this->categories().reserve(number);

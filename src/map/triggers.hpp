@@ -54,6 +54,8 @@ namespace map
 {
 
 /**
+ * \brief Supports reading and writing trigger files (*.wtg).
+ *
  * \note You have to use a corresponding \ref TriggerData instance to fill all contained triggers. This is necessary because trigger parameter data is associated with data of \ref TriggerData.
  * \todo Add derived class TriggersX.
  * \sa TriggersX
