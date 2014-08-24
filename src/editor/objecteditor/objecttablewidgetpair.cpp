@@ -29,7 +29,7 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectTableWidgetPair::ObjectTableWidgetPair(QTableWidget *tableWidget, ObjectEditorTab *tab, const map::Slk::Cell &objectId, const map::Slk::Cell &fieldId)
+ObjectTableWidgetPair::ObjectTableWidgetPair(QTableWidget *tableWidget, ObjectEditorTab *tab, const QString &objectId, const QString &fieldId)
 : QObject(tableWidget)
 , m_tab(tab)
 , m_descriptionItem(new QTableWidgetItem())

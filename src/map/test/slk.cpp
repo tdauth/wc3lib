@@ -99,6 +99,44 @@ BOOST_AUTO_TEST_CASE(UnitBalance)
 	BOOST_REQUIRE(slk.cell(0, 0) == "\"unitBalanceID\"");
 }
 
+BOOST_AUTO_TEST_CASE(UnitData)
+{
+	spiritTraceLog.close();
+	spiritTraceLog.open("unitdata_traces.xml");
+
+	BOOST_REQUIRE(spiritTraceLog);
+
+	ifstream in("UnitData.slk");
+
+	BOOST_REQUIRE(in);
+
+	map::Slk slk;
+
+	bool valid = true;
+
+	try
+	{
+		slk.read(in);
+	}
+	catch (Exception e)
+	{
+		valid = false;
+
+		std::cerr << e.what() << std::endl;
+	}
+
+	BOOST_REQUIRE(valid);
+	BOOST_REQUIRE(slk.columns() == 34);
+	BOOST_REQUIRE(slk.rows() == 467);
+	BOOST_REQUIRE(slk.cell(0, 0) == "\"unitID\"");
+
+	/*
+	 * Moon Priestess entry uses F records to set the position before
+	 * specifying the values with K records.
+	 */
+	BOOST_REQUIRE(slk.cell(66, 2) == "\"HeroMoonPriestess\"");
+}
+
 BOOST_AUTO_TEST_CASE(UnitMetaData)
 {
 	spiritTraceLog.close();

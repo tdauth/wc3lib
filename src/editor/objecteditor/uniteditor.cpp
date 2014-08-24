@@ -84,9 +84,39 @@ UnitEditor::UnitEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags
 	}
 	catch (Exception &e)
 	{
+		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_unitUi->url().toEncoded().constData(), e.what()));
+	}
+
+	this->m_humanUnitStrings = new MetaData(KUrl("Units/HumanUnitStrings.txt"));
+	m_humanUnitStrings->setSource(this->source());
+
+	try
+	{
+		this->m_humanUnitStrings->load();
+	}
+	catch (Exception &e)
+	{
+		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_humanUnitStrings->url().toEncoded().constData(), e.what()));
+	}
+
+	this->m_orcUnitStrings = new MetaData(KUrl("Units/OrcUnitStrings.txt"));
+	m_orcUnitStrings->setSource(this->source());
+
+	try
+	{
+		this->m_orcUnitStrings->load();
+	}
+	catch (Exception &e)
+	{
+		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_orcUnitStrings->url().toEncoded().constData(), e.what()));
 	}
 
 	setupUi();
+}
+
+UnitEditor::~UnitEditor()
+{
+	delete this->m_humanUnitStrings;
 }
 
 class ObjectTreeWidget* UnitEditor::createTreeWidget()
@@ -125,71 +155,91 @@ class ObjectTreeWidget* UnitEditor::createTreeWidget()
 		// skip the first row which defines the column names, start with 1
 		for (map::Slk::Table::size_type row = 1; row < this->m_unitData->slk().rows(); ++row)
 		{
-			QString rawData = QString::fromStdString(this->m_unitData->slk().cell(row, 0));
+			QTreeWidgetItem *unitItem = new QTreeWidgetItem();
+
+			try
+			{
+				qDebug() << "Row:" << row;
+				const QString rawData = QString::fromStdString(this->m_unitData->slk().cell(row, 0));
+				const QString txtRawData = rawData.mid(1, rawData.size() - 2);
+
+				//QString
+
+				unitItem->setText(0, txtRawData);
+				qDebug() << "Adding unit" << txtRawData;
+
+				bool ok = false;
+				int inEditor = this->m_unitUi->value(rawData, "\"inEditor\"").toInt(&ok);
+				int hiddenInEditor = this->m_unitUi->value(rawData, "\"hiddenInEditor\"").toInt(&ok);
+
+				if (!inEditor || hiddenInEditor)
+				{
+					qDebug() << "Hiding unit " << rawData;
+
+					continue;
+				}
+
+				int special = this->m_unitUi->value(rawData, "\"special\"").toInt(&ok);
+				// Frozen Throne
+				//int campaign = QString::fromStdString(this->m_unitUi->value(rawData.toStdString(), "\"campaign\"")).toInt(&ok);
+
+				QString race = this->m_unitData->value(row, "\"race\"");
 
 
-			QTreeWidgetItem *unitItem = new QTreeWidgetItem(QStringList(rawData), 0);
-			qDebug() << "Adding unit" << rawData;
+				if (race == "\"human\"")
+				{
+					qDebug() << "Human txt raw data" << txtRawData;
+					m_humanItem->addChild(unitItem);
+					unitItem->setText(0, m_humanUnitStrings->value(txtRawData, "Name"));
+				}
+				else if (race == "\"orc\"")
+				{
+					m_orcItem->addChild(unitItem);
+					unitItem->setText(0, m_orcUnitStrings->value(txtRawData, "Name"));
+				}
+				else if (race == "\"nightelf\"")
+				{
+					m_nightElfItem->addChild(unitItem);
+				}
+				else if (race == "\"undead\"")
+				{
+					m_undeadItem->addChild(unitItem);
+				}
+				else if (race == "\"creeps\"")
+				{
+					m_neutralNagaItem->addChild(unitItem);
+				}
+				else if (race == "\"other\"")
+				{
+					m_neutralPassiveItem->addChild(unitItem);
+				}
+				else if (race == "\"demon\"")
+				{
+					m_neutralHostileItem->addChild(unitItem);
+				}
+				else if (race == "\"naga\"")
+				{
+					m_neutralNagaItem->addChild(unitItem);
+				}
+				else if (race == "\"critters\"")
+				{
+					m_neutralPassiveItem->addChild(unitItem);
+				}
+				else if (race == "\"commoner\"")
+				{
+					m_neutralPassiveItem->addChild(unitItem);
+				}
+				else
+				{
+					m_standardUnitsItem->addChild(unitItem);
+				}
+			}
+			catch (Exception &e)
+			{
+				qDebug() << "Error on creating Unit " << e.what();
 
-			bool ok = false;
-			int inEditor = QString::fromStdString(this->m_unitUi->value(rawData.toStdString(), "inEditor")).toInt(&ok);
-			int hiddenInEditor = QString::fromStdString(this->m_unitUi->value(rawData.toStdString(), "hiddenInEditor")).toInt(&ok);
-
-			if (!inEditor || hiddenInEditor)
-			{
-				qDebug() << "Hiding unit " << rawData;
-
-				continue;
-			}
-
-			int special = QString::fromStdString(this->m_unitUi->value(rawData.toStdString(), "special")).toInt(&ok);
-			int campaign = QString::fromStdString(this->m_unitUi->value(rawData.toStdString(), "campaign")).toInt(&ok);
-
-			QString race = QString::fromStdString(this->m_unitData->value(row, "race"));
-
-			if (race == "human")
-			{
-				m_humanItem->addChild(unitItem);
-			}
-			else if (race == "orc")
-			{
-				m_orcItem->addChild(unitItem);
-			}
-			else if (race == "nightelf")
-			{
-				m_nightElfItem->addChild(unitItem);
-			}
-			else if (race == "undead")
-			{
-				m_undeadItem->addChild(unitItem);
-			}
-			else if (race == "creeps")
-			{
-				m_neutralNagaItem->addChild(unitItem);
-			}
-			else if (race == "other")
-			{
-				m_neutralPassiveItem->addChild(unitItem);
-			}
-			else if (race == "demon")
-			{
-				m_neutralHostileItem->addChild(unitItem);
-			}
-			else if (race == "naga")
-			{
-				m_neutralNagaItem->addChild(unitItem);
-			}
-			else if (race == "critters")
-			{
-				m_neutralPassiveItem->addChild(unitItem);
-			}
-			else if (race == "commoner")
-			{
-				m_neutralPassiveItem->addChild(unitItem);
-			}
-			else
-			{
-				m_standardUnitsItem->addChild(unitItem);
+				delete unitItem;
+				unitItem = 0;
 			}
 		}
 	}
@@ -202,7 +252,7 @@ class ObjectTableWidget* UnitEditor::createTableWidget()
 	return new ObjectTableWidget(this, m_unitMetaData);
 }
 
-map::Slk::Cell UnitEditor::getDataValue(const map::Slk::Cell &objectId, const map::Slk::Cell &field) const
+QString UnitEditor::getDataValue(const QString &objectId, const QString &field) const
 {
 	if (this->m_unitData->hasValue(objectId, field))
 	{

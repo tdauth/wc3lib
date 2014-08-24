@@ -117,11 +117,23 @@ Listfile::Entries Listfile::dirEntries(const Listfile::Entries &entries, const s
 	return result;
 }
 
-Listfile::Entries Listfile::dirEntries(const string& content, const string& dirPath, bool recursive, bool directories)
+Listfile::Entries Listfile::dirEntries(const string &content, const string &dirPath, bool recursive, bool directories)
 {
 	Entries entries = Listfile::entries(content);
 
 	return dirEntries(entries, dirPath, recursive, directories);
+}
+
+string Listfile::dirPath(const string &entry)
+{
+	const string::size_type index = entry.find_last_of('\\');
+
+	if (index != string::npos)
+	{
+		return entry.substr(0, index);
+	}
+
+	return "";
 }
 
 void Listfile::toListfileEntry(std::string &path)

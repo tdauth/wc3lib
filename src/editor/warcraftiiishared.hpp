@@ -110,7 +110,7 @@ class KDE_EXPORT WarcraftIIIShared
 		 * </ul>
 		 * \param defaultValue If corresponding key entry could not be found (e. g. files are not available or it simply does not exist) this value is shown as string if its length is bigger than 0.
 		 */
-		QString tr(const QString &key, const QString &group = "", const QString &defaultValue = "") const;
+		QString tr(const QString &key, const QString &group = "WorldEditStrings", const QString &defaultValue = "") const;
 
 		/**
 		 * \param window Widget which is used for KIO download.

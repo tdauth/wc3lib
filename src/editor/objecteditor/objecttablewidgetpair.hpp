@@ -48,7 +48,7 @@ namespace editor
 class ObjectTableWidgetPair : public QObject
 {
 	public:
-		ObjectTableWidgetPair(QTableWidget *tableWidget, ObjectEditorTab *tab, const map::Slk::Cell &objectId, const map::Slk::Cell &fieldId);
+		ObjectTableWidgetPair(QTableWidget *tableWidget, ObjectEditorTab *tab, const QString &objectId, const QString &fieldId);
 		~ObjectTableWidgetPair();
 
 		QTableWidget* tableWidget() const;
@@ -60,13 +60,13 @@ class ObjectTableWidgetPair : public QObject
 		/**
 		 * Sets the object ID such as "hfoo" for the Footman."
 		 */
-		void setObjectId(const map::Slk::Cell &id);
-		const map::Slk::Cell& objectId() const;
+		void setObjectId(const QString &id);
+		const QString& objectId() const;
 		/**
 		 * Sets the field ID such as "unam" for the name
 		 */
-		void setFieldId(const map::Slk::Cell &id);
-		const map::Slk::Cell& fieldId() const;
+		void setFieldId(const QString &id);
+		const QString& fieldId() const;
 		/**
 		 * \return Returns value of data by using corresponding meta data.
 		 */
@@ -83,8 +83,8 @@ class ObjectTableWidgetPair : public QObject
 		void update();
 
 		ObjectEditorTab *m_tab;
-		map::Slk::Cell m_objectId;
-		map::Slk::Cell m_fieldId;
+		QString m_objectId;
+		QString m_fieldId;
 		map::Value m_customValue;
 		QTableWidgetItem *m_descriptionItem;
 		QTableWidgetItem *m_valueItem;
@@ -110,29 +110,29 @@ inline bool ObjectTableWidgetPair::isDefault() const
 	return customValue() == defaultValue();
 }
 
-inline void ObjectTableWidgetPair::setObjectId(const map::Slk::Cell &id)
+inline void ObjectTableWidgetPair::setObjectId(const QString &id)
 {
 	this->m_objectId = id;
 }
 
-inline const map::Slk::Cell& ObjectTableWidgetPair::objectId() const
+inline const QString& ObjectTableWidgetPair::objectId() const
 {
 	return this->m_objectId;
 }
 
-inline void ObjectTableWidgetPair::setFieldId(const map::Slk::Cell &id)
+inline void ObjectTableWidgetPair::setFieldId(const QString &id)
 {
 	m_fieldId = id;
 }
 
-inline const map::Slk::Cell& ObjectTableWidgetPair::fieldId() const
+inline const QString& ObjectTableWidgetPair::fieldId() const
 {
 	return m_fieldId;
 }
 
 inline const map::Value& ObjectTableWidgetPair::defaultValue() const
 {
-	return this->tab()->getDataValue(objectId(), this->fieldId());
+	return this->tab()->getDataValue(objectId(), this->fieldId()).toStdString();
 }
 
 inline void ObjectTableWidgetPair::setCustomValue(const map::Value &customValue)

@@ -96,9 +96,12 @@ struct RecordSkipper : public qi::grammar<Iterator>
 			)
 		;
 
+		/*
+		 * X and Y fields must be handled by the parser.
+		 */
 		field %=
 			lit(";")
-			>> char_('A', 'Z')
+			>> char_('A', 'Z') - lit('X') - lit('Y')
 			>> *literal
 		;
 
@@ -325,7 +328,7 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 		;
 
 		c_record =
-			lit('C')[at_c<0>(_val) = ref(column)][at_c<1>(_val) = ref(row)] // use current row by default
+			lit('C')[at_c<0>(_val) = ref(column)][at_c<1>(_val) = ref(row)] // use current row and column by default
 			>>
 			// the whole position might be skipped in this case we use the last used X and Y
 			-(
@@ -334,8 +337,12 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 					lit(";Y")
 					>> int_[at_c<1>(_val) = _1][ref(row) = _1]
 				)
-				>> lit(";X")
-				>> int_[at_c<0>(_val) = _1]
+				// in some cases even the column value (X) is missing so use the current column
+				>>
+				-(
+					lit(";X")
+					>> int_[at_c<0>(_val) = _1]
+				)
 			)
 
 			>>
@@ -353,9 +360,29 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 			lit('E')
 		;
 
+		/*
+		 * F records might change the current position.
+		 */
+		f_record =
+			lit('F')
+			>>
+			-(
+				-(
+					lit(";Y")
+					>> int_[ref(row) = _1]
+				)
+				>>
+				-(
+					lit(";X")
+					>> int_[ref(column) = _1]
+				)
+			)
+		;
+
 		record =
 			b_record[phoenix::bind(&resizeTable, phoenix::ref(result), phoenix::ref(_1))]
 			| c_record[phoenix::bind(&setCell, phoenix::ref(result), phoenix::ref(_1))]
+			| f_record
 		;
 
 		cells =
@@ -370,6 +397,7 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 		b_record.name("b_record");
 		c_record.name("c_record");
 		e_record.name("e_record");
+		f_record.name("f_record");
 		cells.name("cells");
 
 		BOOST_SPIRIT_DEBUG_NODES(
@@ -378,6 +406,7 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 			(b_record)
 			(c_record)
 			(e_record)
+			(f_record)
 			(cells)
 		);
 	}
@@ -388,6 +417,7 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 	qi::rule<Iterator, SlkSize(), Skipper> b_record;
 	qi::rule<Iterator, CellData(), Skipper> c_record;
 	qi::rule<Iterator, Skipper> e_record;
+	qi::rule<Iterator, Skipper> f_record;
 	qi::rule<Iterator, Skipper> record;
 	qi::rule<Iterator, Skipper> cells;
 

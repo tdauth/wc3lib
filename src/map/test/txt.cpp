@@ -36,14 +36,14 @@
 
 using namespace wc3lib;
 
-bool isHello(const map::Txt::Pair &pair)
+bool isHello(const map::Txt::Entry &entry)
 {
-	return pair.first == "Hello";
+	return entry.first == "Hello";
 }
 
-bool isHaha(const map::Txt::Pair &pair)
+bool isHaha(const map::Txt::Entry &entry)
 {
-	return pair.first == "Haha";
+	return entry.first == "Haha";
 }
 
 BOOST_AUTO_TEST_CASE(TxtSimpleReadTest) {
@@ -77,8 +77,8 @@ BOOST_AUTO_TEST_CASE(TxtSimpleReadTest) {
 
 	BOOST_REQUIRE(exists);
 	BOOST_REQUIRE(txt.entries("MySection").size() == 1);
-	wc3lib::map::Txt::Pairs::iterator begin = txt.sections()[0].entries.begin();
-	wc3lib::map::Txt::Pairs::iterator end = txt.sections()[0].entries.end();
+	wc3lib::map::Txt::Entries::iterator begin = txt.sections()[0].entries.begin();
+	wc3lib::map::Txt::Entries::iterator end = txt.sections()[0].entries.end();
 	BOOST_REQUIRE(std::find_if(begin, end, isHello) != end);
 	//std::cout << "Value: " << std::find_if(begin, end, isHello)->second << std::endl;
 	BOOST_REQUIRE(std::find_if(begin, end, isHello)->second == "23");
@@ -121,8 +121,8 @@ BOOST_AUTO_TEST_CASE(TxtReadTest) {
 
 	BOOST_REQUIRE(exists);
 	BOOST_REQUIRE(txt.entries("MySection").size() == 2);
-	wc3lib::map::Txt::Pairs::iterator begin = txt.sections()[0].entries.begin();
-	wc3lib::map::Txt::Pairs::iterator end = txt.sections()[0].entries.end();
+	wc3lib::map::Txt::Entries::iterator begin = txt.sections()[0].entries.begin();
+	wc3lib::map::Txt::Entries::iterator end = txt.sections()[0].entries.end();
 	BOOST_REQUIRE(std::find_if(begin, end, isHello) != end);
 	//std::cout << "Value: " << std::find_if(begin, end, isHello)->second << std::endl;
 	BOOST_REQUIRE(std::find_if(begin, end, isHello)->second == "23");
@@ -171,8 +171,8 @@ BOOST_AUTO_TEST_CASE(TxtReadTestWithSpacesAtBeginning) {
 
 	BOOST_REQUIRE(exists);
 	BOOST_REQUIRE(txt.entries("MySection").size() == 2);
-	wc3lib::map::Txt::Pairs::iterator begin = txt.sections()[0].entries.begin();
-	wc3lib::map::Txt::Pairs::iterator end = txt.sections()[0].entries.end();
+	wc3lib::map::Txt::Entries::iterator begin = txt.sections()[0].entries.begin();
+	wc3lib::map::Txt::Entries::iterator end = txt.sections()[0].entries.end();
 	BOOST_REQUIRE(std::find_if(begin, end, isHello) != end);
 	//std::cout << "Value: " << std::find_if(begin, end, isHello)->second << std::endl;
 	BOOST_REQUIRE(std::find_if(begin, end, isHello)->second == "23");
@@ -183,19 +183,19 @@ BOOST_AUTO_TEST_CASE(TxtReadTestWithSpacesAtBeginning) {
 
 }
 
-bool isBla(const map::Txt::Pair &pair)
+bool isBla(const map::Txt::Entry &entry)
 {
-	return pair.first == "bla";
+	return entry.first == "bla";
 }
 
-bool isOperatorCompareBoolean(const map::Txt::Pair &pair)
+bool isOperatorCompareBoolean(const map::Txt::Entry &entry)
 {
-	return pair.first == "OperatorCompareBoolean";
+	return entry.first == "OperatorCompareBoolean";
 }
 
-bool isOperatorCompareDestructibleHint(const map::Txt::Pair &pair)
+bool isOperatorCompareDestructibleHint(const map::Txt::Entry &entry)
 {
-	return pair.first == "OperatorCompareDestructibleHint";
+	return entry.first == "OperatorCompareDestructibleHint";
 }
 
 BOOST_AUTO_TEST_CASE(TxtReadTriggerDataTest) {
@@ -240,8 +240,8 @@ BOOST_AUTO_TEST_CASE(TxtReadTriggerDataTest) {
 	BOOST_REQUIRE(exists);
 	//std::cout << "Entries count: " << txt.entries("bla").size()  << std::endl;
 	BOOST_REQUIRE(txt.entries("bla").size() == 6);
-	wc3lib::map::Txt::Pairs::iterator begin = txt.sections()[0].entries.begin();
-	wc3lib::map::Txt::Pairs::iterator end = txt.sections()[0].entries.end();
+	wc3lib::map::Txt::Entries::iterator begin = txt.sections()[0].entries.begin();
+	wc3lib::map::Txt::Entries::iterator end = txt.sections()[0].entries.end();
 	BOOST_REQUIRE(std::find_if(begin, end, isOperatorCompareBoolean) != end);
 	//std::cout << "Value: " << std::find_if(begin, end, isOperatorCompareBoolean)->second << std::endl;
 	BOOST_REQUIRE(std::find_if(begin, end, isOperatorCompareBoolean)->second == "\"Boolean Comparison\"");
@@ -309,8 +309,8 @@ BOOST_AUTO_TEST_CASE(TxtWriteTriggerDataTest) {
 	BOOST_REQUIRE(exists);
 	//std::cout << "Entries count: " << txt.entries("bla").size()  << std::endl;
 	BOOST_REQUIRE(txt.entries("bla").size() == 6);
-	wc3lib::map::Txt::Pairs::iterator begin = txt.sections()[0].entries.begin();
-	wc3lib::map::Txt::Pairs::iterator end = txt.sections()[0].entries.end();
+	wc3lib::map::Txt::Entries::iterator begin = txt.sections()[0].entries.begin();
+	wc3lib::map::Txt::Entries::iterator end = txt.sections()[0].entries.end();
 	BOOST_REQUIRE(std::find_if(begin, end, isOperatorCompareBoolean) != end);
 	//std::cout << "Value: " << std::find_if(begin, end, isOperatorCompareBoolean)->second << std::endl;
 	BOOST_REQUIRE(std::find_if(begin, end, isOperatorCompareBoolean)->second == "\"Boolean Comparison\"");

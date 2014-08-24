@@ -85,11 +85,16 @@ class Listfile : public File
 		 *
 		 * @{
 		 */
-		static Entries dirEntries(const string &content, const string &dirPath, bool recursive = true, bool directories = true);
 		static Entries dirEntries(const Entries &entries, const string &dirPath, bool recursive = true, bool directories = true);
+		static Entries dirEntries(const string &content, const string &dirPath, bool recursive = true, bool directories = true);
 		/**
 		 * @}
 		 */
+
+		/**
+		 * \return Returns the directory path only of \p entry.
+		 */
+		static string dirPath(const string &entry);
 
 		/**
 		 * Splits up file content at one of the following characters "; \r \n" and returns the resulting container with all split file paths.

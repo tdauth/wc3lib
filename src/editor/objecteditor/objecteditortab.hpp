@@ -64,7 +64,7 @@ class ObjectEditorTab : public QWidget
 		 *
 		 * \note This does not resolve meta data but actual object data (default data for existing objects).
 		 */
-		virtual map::Slk::Cell getDataValue(const map::Slk::Cell &objectId, const map::Slk::Cell &field) const = 0;
+		virtual QString getDataValue(const QString &objectId, const QString &field) const = 0;
 
 	public slots:
 		void newObject();

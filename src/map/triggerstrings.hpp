@@ -99,7 +99,7 @@ class TriggerStrings : public FileFormat
 		 */
 
 	private:
-		void readFunction(const Txt::Pair &ref, Entries &functions);
+		void readFunction(const Txt::Entry &ref, Entries &functions);
 
 		Entries m_events;
 		Entries m_conditions;

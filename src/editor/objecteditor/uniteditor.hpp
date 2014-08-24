@@ -39,12 +39,13 @@ class UnitEditor : public ObjectEditorTab
 {
 	public:
 		UnitEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		virtual ~UnitEditor();
 
 		virtual QString name() const;
 
 		virtual void onUpdateCollection(const map::CustomObjects& objects);
 
-		virtual map::Slk::Cell getDataValue(const map::Slk::Cell &objectId, const map::Slk::Cell& field) const override;
+		virtual QString getDataValue(const QString &objectId, const QString &field) const override;
 
 	protected:
 		virtual class ObjectTreeWidget* createTreeWidget();
@@ -86,8 +87,10 @@ class UnitEditor : public ObjectEditorTab
 		QTreeWidgetItem *m_neutralPassiveItem;
 
 		class MetaData *m_unitMetaData;
-		class MetaData *m_unitData;
-		class MetaData *m_unitUi;
+		MetaData *m_unitData;
+		MetaData *m_unitUi;
+		MetaData *m_humanUnitStrings;
+		MetaData *m_orcUnitStrings;
 };
 
 inline QString UnitEditor::name() const
@@ -142,17 +145,17 @@ inline QString UnitEditor::pasteObjectText() const
 
 inline KUrl UnitEditor::copyObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures\\WorldEditUI\\Editor-Toolbar-Copy.blp");
+	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Copy.blp");
 }
 
 inline KUrl UnitEditor::pasteObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures\\WorldEditUI\\Editor-Toolbar-Paste.blp");
+	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Paste.blp");
 }
 
 inline KUrl UnitEditor::newObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures\\WorldEditUI\\Editor-Unit.blp");
+	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Unit.blp");
 }
 
 }

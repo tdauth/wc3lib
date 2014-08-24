@@ -54,8 +54,8 @@ class Txt : public Format
 {
 	public:
 		/// We cannot use a map here since keys are not necessarily unique! For example "UI/TriggerData.txt" has multiple pairs with the same key for different options of trigger data.
-		typedef std::pair<string, string> Pair;
-		typedef std::vector<Pair> Pairs;
+		typedef std::pair<string, string> Entry;
+		typedef std::vector<Entry> Entries;
 
 		/**
 		 * One single section a .txt file usually indicated by a [section name] expression.
@@ -66,7 +66,7 @@ class Txt : public Format
 		struct Section
 		{
 			string name;
-			Pairs entries;
+			Entries entries;
 		};
 
 		/**
@@ -85,7 +85,7 @@ class Txt : public Format
 		 * \note Since sections are stored in a vector for more efficency while reading a TXT file this search has a complexity of O(n).
 		 * \note \p section is not necessarily unique! The first section with the name will be returned.
 		 */
-		const Pairs& entries(const string &section) const;
+		const Entries& entries(const string &section) const;
 
 		virtual std::streamsize read(InputStream &istream) throw (Exception) override;
 		virtual std::streamsize write(OutputStream &ostream) const throw (Exception) override;

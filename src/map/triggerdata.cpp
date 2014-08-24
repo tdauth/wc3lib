@@ -151,7 +151,7 @@ void TriggerData::Call::fillTypes(TriggerData *triggerData, const SplitVector &v
 }
 
 template<class FunctionType>
-void TriggerData::readFunction(const Txt::Pair& ref, boost::ptr_map<string, FunctionType> &functions)
+void TriggerData::readFunction(const Txt::Entry &ref, boost::ptr_map<string, FunctionType> &functions)
 {
 	FunctionType *function = 0;
 	string code = ref.first;
@@ -332,7 +332,7 @@ std::streamsize TriggerData::read(InputStream &istream) throw (Exception)
 	boost::scoped_ptr<Txt> txt(new Txt());
 	std::streamsize size = txt->read(istream);
 
-	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerCategories"))
+	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerCategories"))
 	{
 		std::auto_ptr<Category> category(new Category());
 
@@ -359,7 +359,7 @@ std::streamsize TriggerData::read(InputStream &istream) throw (Exception)
 
 	std::map<string, string> baseTypes;
 
-	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerTypes"))
+	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerTypes"))
 	{
 		std::auto_ptr<Type> type(new Type());
 
@@ -409,7 +409,7 @@ std::streamsize TriggerData::read(InputStream &istream) throw (Exception)
 	}
 
 	// set trigger type defaults which are stored in a separated category
-	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerTypeDefaults"))
+	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerTypeDefaults"))
 	{
 		Types::iterator defaultIterator = this->types().find(ref.first);
 
@@ -420,7 +420,7 @@ std::streamsize TriggerData::read(InputStream &istream) throw (Exception)
 		}
 	}
 
-	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerParams"))
+	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerParams"))
 	{
 		std::auto_ptr<Parameter> parameter(new Parameter());
 		string name = ref.first;
@@ -449,26 +449,26 @@ std::streamsize TriggerData::read(InputStream &istream) throw (Exception)
 		this->parameters().insert(name, parameter);
 	}
 
-	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerEvents")) {
+	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerEvents")) {
 		readFunction<Function>(ref, this->events());
 	}
 
-	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerConditions")) {
+	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerConditions")) {
 		readFunction<Function>(ref, this->conditions());
 	}
 
-	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerActions")) {
+	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerActions")) {
 		readFunction<Function>(ref, this->actions());
 	}
 
-	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerCalls")) {
+	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerCalls")) {
 		readFunction<Call>(ref, this->calls());
 	}
 
 	std::size_t numCategories = 0;
 	std::size_t actualCategories = 0;
 
-	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("DefaultTriggerCategories")) {
+	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("DefaultTriggerCategories")) {
 		if (ref.first == "NumCategories") {
 			numCategories = boost::lexical_cast<std::size_t>(ref.second);
 			this->defaultTriggerCategories().resize(numCategories);
@@ -492,7 +492,7 @@ std::streamsize TriggerData::read(InputStream &istream) throw (Exception)
 	std::size_t numTriggers = 0;
 	std::size_t actualTriggers = 0;
 
-	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("DefaultTriggers")) {
+	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("DefaultTriggers")) {
 		if (ref.first == "NumTriggers") {
 			this->defaultTriggers().resize(boost::lexical_cast<std::size_t>(ref.second));
 		} else if (boost::starts_with(ref.first, "Trigger")) {

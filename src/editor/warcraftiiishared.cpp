@@ -106,12 +106,12 @@ QString WarcraftIIIShared::tr(const QString &key, const QString &group, const QS
 		qDebug() << "Trying it in WorldEditorStrings.txt";
 
 		try {
-			const map::Txt::Pairs &pairs = this->worldEditorStrings()->entries(group.toStdString());
+			const map::Txt::Entries &entries = this->worldEditorStrings()->entries(group.toUtf8().constData());
 
 			// TODO linear search
-			foreach (map::Txt::Pairs::const_reference ref, pairs) {
-				if (ref.first == key.toStdString()) {
-					return ref.second.c_str();
+			foreach (map::Txt::Entries::const_reference ref, entries) {
+				if (ref.first == key.toUtf8().constData()) {
+					return QString::fromUtf8(ref.second.c_str());
 				}
 			}
 		} catch (Exception &e) {

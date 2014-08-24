@@ -29,18 +29,25 @@ namespace wc3lib
 namespace editor
 {
 
-MetaData::MetaData(const KUrl &url) : Resource(url, Type::MetaData)
+MetaData::MetaData(const KUrl &url) : Resource(url, Type::MetaData), m_source(map::Slk())
 {
 }
 
 void MetaData::clear() throw ()
 {
-	this->slk().clear();
-	this->m_rowKeys.clear();
-	this->m_columnKeys.clear();
+	if (hasSlk())
+	{
+		this->slk().clear();
+		this->m_rowKeys.clear();
+		this->m_columnKeys.clear();
+	}
+	else
+	{
+		this->txt().sections().clear();
+	}
 }
 
-void MetaData::load() throw (class Exception)
+void MetaData::load() throw (Exception)
 {
 	QString filePath;
 
@@ -49,35 +56,51 @@ void MetaData::load() throw (class Exception)
 		throw Exception();
 	}
 
-	ifstream in(filePath.toStdString());
+	ifstream in(filePath.toUtf8().constData());
 
 	if (!in)
 	{
 		throw Exception();
 	}
 
-	this->slk().read(in);
-
-
 	/*
 	 * Make rows and columns accessable over their first column/row values.
 	 */
 	this->m_columnKeys.clear();
 	this->m_rowKeys.clear();
+	this->m_sectionKeys.clear();
 
-	/*
-	 * Store indices of rows and columns by the value of the first cell.
-	 */
-	for (map::Slk::Table::index column = 0; column < this->slk().table().shape()[0]; ++column)
+	QString suffix = QFileInfo(this->url().fileName()).suffix().toLower();
+
+	if (suffix == "slk")
 	{
-		map::Slk::Cell &firstColumnCell = this->slk().table()[column][0];
-		this->m_columnKeys[firstColumnCell] = column;
+		this->m_source = map::Slk();
+		this->slk().read(in);
+
+		/*
+		 * Store indices of rows and columns by the value of the first cell.
+		 */
+		for (map::Slk::Table::index column = 0; column < this->slk().table().shape()[0]; ++column)
+		{
+			map::Slk::Cell &firstColumnCell = this->slk().table()[column][0];
+			this->m_columnKeys[QString::fromUtf8(firstColumnCell.c_str())] = column;
+		}
+
+		for (map::Slk::Table::index row = 0; row < this->slk().table().shape()[1]; ++row)
+		{
+			map::Slk::Cell &firstRowCell = this->slk().table()[0][row];
+			this->m_rowKeys[QString::fromUtf8(firstRowCell.c_str())] = row;
+		}
 	}
-
-	for (map::Slk::Table::index row = 0; row < this->slk().table().shape()[1]; ++row)
+	else if (suffix == "txt")
 	{
-		map::Slk::Cell &firstRowCell = this->slk().table()[0][row];
-		this->m_rowKeys[firstRowCell] = row;
+		this->m_source = map::Txt();
+		this->txt().read(in);
+
+		for (map::Txt::Sections::iterator iterator = this->txt().sections().begin(); iterator != this->txt().sections().end(); ++iterator)
+		{
+			this->m_sectionKeys[QString::fromUtf8(iterator->name.c_str())] = &(*iterator);
+		}
 	}
 }
 

@@ -47,7 +47,7 @@
 BOOST_FUSION_ADAPT_STRUCT(
 	wc3lib::map::Txt::Section,
 	(wc3lib::string, name)
-	(wc3lib::map::Txt::Pairs, entries)
+	(wc3lib::map::Txt::Entries, entries)
 )
 
 namespace wc3lib
@@ -136,7 +136,7 @@ struct CommentSkipper : public qi::grammar<Iterator> {
 };
 
 template <typename Iterator, typename Skipper = CommentSkipper<Iterator> >
-struct KeyValueSquence : qi::grammar<Iterator, Txt::Pairs(), Skipper>
+struct KeyValueSquence : qi::grammar<Iterator, Txt::Entries(), Skipper>
 {
 	KeyValueSquence() : KeyValueSquence::base_type(pairs, "key value sequence")
 	{
@@ -188,8 +188,8 @@ struct KeyValueSquence : qi::grammar<Iterator, Txt::Pairs(), Skipper>
 		);
 	}
 
-	qi::rule<Iterator, Txt::Pairs(), Skipper> pairs; // NOTE first rule used as parameter for base_type does always need the skipper type of the grammar
-	qi::rule<Iterator, Txt::Pair(), Skipper> pair;
+	qi::rule<Iterator, Txt::Entries(), Skipper> pairs; // NOTE first rule used as parameter for base_type does always need the skipper type of the grammar
+	qi::rule<Iterator, Txt::Entry(), Skipper> pair;
 	qi::rule<Iterator, string(), Skipper> key;
 	qi::rule<Iterator, string()> value; // only skip blanks at beginning and at the end
 };
@@ -239,7 +239,7 @@ struct SectionGrammar : qi::grammar<Iterator, Txt::Section(), Skipper>
 
 	qi::rule<Iterator, Txt::Section(), Skipper> query;
 	qi::rule<Iterator, string(), Skipper> name;
-	qi::rule<Iterator, Txt::Pairs(), Skipper> entries;
+	qi::rule<Iterator, Txt::Entries(), Skipper> entries;
 
 	KeyValueSquence<Iterator, Skipper> keyValueSequence;
 };
@@ -320,7 +320,7 @@ bool parse(Iterator first, Iterator last, Txt::Sections &sections)
 
 }
 
-const Txt::Pairs& Txt::entries(const string &section) const
+const Txt::Entries& Txt::entries(const string &section) const
 {
 	for (int i = 0; i < this->sections().size(); ++i)
 	{
@@ -384,7 +384,7 @@ std::streamsize Txt::write(OutputStream &ostream) const throw (Exception)
 		out =  osstream.str();
 		wc3lib::writeString(ostream, out, size, out.length());
 
-		BOOST_FOREACH(Pairs::const_reference keyValuePair, ref.entries)
+		BOOST_FOREACH(Entries::const_reference keyValuePair, ref.entries)
 		{
 			osstream.str(""); // flush
 			osstream << keyValuePair.first << " = " << keyValuePair.second << "\n";

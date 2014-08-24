@@ -37,7 +37,7 @@ TriggerStrings::Entry::Entry()
 {
 }
 
-void TriggerStrings::readFunction(const Txt::Pair &ref, Entries &functions)
+void TriggerStrings::readFunction(const Txt::Entry &ref, Entries &functions)
 {
 	string code = ref.first;
 	bool isHint = false;
@@ -73,22 +73,22 @@ std::streamsize TriggerStrings::read(TriggerStrings::InputStream& istream) throw
 	boost::scoped_ptr<Txt> txt(new Txt());
 	std::streamsize size = txt->read(istream);
 
-	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerEventStrings"))
+	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerEventStrings"))
 	{
 		readFunction(ref, this->events());
 	}
 
-	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerConditionStrings"))
+	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerConditionStrings"))
 	{
 		readFunction(ref, this->conditions());
 	}
 
-	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerActionStrings"))
+	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerActionStrings"))
 	{
 		readFunction(ref, this->actions());
 	}
 
-	BOOST_FOREACH(Txt::Pairs::const_reference ref, txt->entries("TriggerCallStrings"))
+	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerCallStrings"))
 	{
 		readFunction(ref, this->calls());
 	}

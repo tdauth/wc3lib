@@ -344,7 +344,7 @@ class TriggerData : public FileFormat
 
 	private:
 		template<class FunctionType>
-		void readFunction(const Txt::Pair &ref, boost::ptr_map<string, FunctionType> &functions);
+		void readFunction(const Txt::Entry &ref, boost::ptr_map<string, FunctionType> &functions);
 
 		string::size_type firstNonNumericChar(const string &value) const;
 
