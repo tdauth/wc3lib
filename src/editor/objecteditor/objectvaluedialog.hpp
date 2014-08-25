@@ -18,7 +18,18 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "objectintegerdialog.hpp"
+#ifndef WC3LIB_EDITOR_OBJECTVALUEDIALOG_HPP
+#define WC3LIB_EDITOR_OBJECTVALUEDIALOG_HPP
+
+#include <QDialog>
+#include <QDoubleSpinBox>
+
+#include <KIntSpinBox>
+#include <KLineEdit>
+#include <KTextEdit>
+#include <KComboBox>
+
+#include "ui_objectvaluedialog.h"
 
 namespace wc3lib
 {
@@ -26,11 +37,60 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectIntegerDialog::ObjectIntegerDialog(QWidget *parent) : KDialog(parent)
+class ObjectValueDialog : public QDialog, protected Ui::ObjectValueDialog
 {
-	setupUi(this);
+	public:
+		ObjectValueDialog(QWidget *parent = 0);
+
+		void setLabelText(const QString &text);
+
+		void setItemsVisible(bool visible);
+
+		KIntSpinBox* intSpinBox() const;
+		QDoubleSpinBox* doubleSpinBox() const;
+		QLineEdit* lineEdit() const;
+		KTextEdit* textEdit() const;
+		KComboBox* comboBox() const;
+		QCheckBox* checkBox() const;
+};
+
+inline void ObjectValueDialog::setLabelText(const QString& text)
+{
+	this->m_label->setText(text);
+}
+
+inline KIntSpinBox* ObjectValueDialog::intSpinBox() const
+{
+	return this->m_intSpinBox;
+}
+
+inline QDoubleSpinBox* ObjectValueDialog::doubleSpinBox() const
+{
+	return this->m_doubleSpinBox;
+}
+
+inline QLineEdit* ObjectValueDialog::lineEdit() const
+{
+	return this->m_lineEdit;
+}
+
+inline KTextEdit* ObjectValueDialog::textEdit() const
+{
+	return this->m_textEdit;
+}
+
+inline KComboBox* ObjectValueDialog::comboBox() const
+{
+	return this->m_comboBox;
+}
+
+inline QCheckBox* ObjectValueDialog::checkBox() const
+{
+	return this->m_checkBox;
 }
 
 }
 
 }
+
+#endif

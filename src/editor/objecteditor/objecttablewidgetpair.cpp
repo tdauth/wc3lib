@@ -20,8 +20,12 @@
 
 #include <QtGui>
 
+#include <KLineEdit>
+
 #include "objecttablewidgetpair.hpp"
 #include "objecteditor.hpp"
+#include "../mpqprioritylist.hpp"
+#include "../metadata.hpp"
 
 namespace wc3lib
 {
@@ -29,7 +33,7 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectTableWidgetPair::ObjectTableWidgetPair(QTableWidget *tableWidget, ObjectEditorTab *tab, const QString &objectId, const QString &fieldId)
+ObjectTableWidgetPair::ObjectTableWidgetPair(QTableWidget *tableWidget, ObjectEditorTab *tab, int row, const QString &objectId, const QString &fieldId)
 : QObject(tableWidget)
 , m_tab(tab)
 , m_descriptionItem(new QTableWidgetItem())
@@ -37,15 +41,22 @@ ObjectTableWidgetPair::ObjectTableWidgetPair(QTableWidget *tableWidget, ObjectEd
 , m_objectId(objectId)
 , m_fieldId(fieldId)
 {
+	QString displayName = tab->metaData()->value(row + 1, "\"displayName\"");
+	// cut "
+	displayName = displayName.mid(1, displayName.size() - 2);
+	descriptionItem()->setText(tab->source()->sharedData()->tr(displayName));
+	valueItem()->setData(Qt::UserRole, fieldId);
+
 	descriptionItem()->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled); // not editable!
 	valueItem()->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable); // editable!
 	//descriptionItem()->setText(this->metaData()->displayName().c_str());
+
+	tableWidget->setItem(row, 0, descriptionItem());
+	tableWidget->setItem(row, 1, valueItem());
 }
 
 ObjectTableWidgetPair::~ObjectTableWidgetPair()
 {
-	delete m_descriptionItem;
-	delete m_valueItem;
 }
 
 void ObjectTableWidgetPair::update()

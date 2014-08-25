@@ -157,7 +157,7 @@ void Module::setupUi()
 	}
 	else
 	{
-		m_closeAction = new QAction(tr("Close"), this);
+		m_closeAction = new QAction(source()->sharedData()->tr("WESTRING_MENU_CLOSEMODULE"), this);
 	}
 
 	this->m_fileMenu->addAction(m_closeAction);
@@ -166,7 +166,7 @@ void Module::setupUi()
 	connect(this->m_sourcesAction, SIGNAL(triggered()), this, SLOT(showSourcesDialog()));
 	this->m_fileMenu->addAction(m_sourcesAction);
 
-	this->m_editMenu = new KMenu(tr("Edit"), this);
+	this->m_editMenu = new KMenu(source()->sharedData()->tr("WESTRING_MENU_EDIT"), this);
 	this->menuBar()->addMenu(this->m_editMenu);
 
 	// create user-defined actions in edit menu

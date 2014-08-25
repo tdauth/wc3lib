@@ -20,9 +20,12 @@
 
 #include <QtGui>
 
+#include <QMessageBox>
+
 #include "objecttablewidget.hpp"
 #include "objecttablewidgetpair.hpp"
-#include "objectintegerdialog.hpp"
+#include "objectvaluedialog.hpp"
+#include "../mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -30,12 +33,109 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectTableWidget::ObjectTableWidget(QWidget *parent, const MetaData *metaData) : QTableWidget(0, 2, parent)
+ObjectTableWidget::ObjectTableWidget(ObjectEditorTab *parent) : QTableWidget(parent->metaData()->slk().rows(), 2, parent), m_tab(parent)
 {
+	const QString name = parent->source()->sharedData()->tr("WESTRING_NAME");
+	QTableWidgetItem *nameItem = new QTableWidgetItem(name);
+	this->setHorizontalHeaderItem(0, nameItem);
+
+	const QString value = parent->source()->sharedData()->tr("WESTRING_VALUE");
+	QTableWidgetItem *valueItem = new QTableWidgetItem(value);
+	this->setHorizontalHeaderItem(1, valueItem);
+
+	for (map::Slk::Table::size_type i = 0; i < tab()->metaData()->slk().rows() -  1; ++i)
+	{
+		QString fieldId = tab()->metaData()->value(i + 1, "\"ID\"");
+		fieldId = fieldId.mid(1, fieldId.size() - 2);
+		ObjectTableWidgetPair *pair = new ObjectTableWidgetPair(this, parent, i,  "", fieldId);
+		m_pairs.insert(fieldId, pair);
+		qDebug() << "pair " << i;
+	}
+
+	m_contextMenu = new QMenu(this);
+	const QString modifyField = parent->source()->sharedData()->tr("WESTRING_FIELDLIST_CM_MODIFY");
+	const QString resetField = parent->source()->sharedData()->tr("WESTRING_FIELDLIST_CM_RESET");
+	m_modifyField = new QAction(modifyField, this);
+	m_resetField = new QAction(resetField, this);
+	m_contextMenu->addAction(m_modifyField);
+	m_contextMenu->addAction(m_resetField);
+
+	connect(this, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(editItem(QTableWidgetItem*)));
+	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customContextMenuRequested(QPoint)));
+
+	this->setShowGrid(false);
+	this->setContextMenuPolicy(Qt::CustomContextMenu);
+	this->setEditTriggers(QTableWidget::NoEditTriggers);
+	this->setSelectionBehavior(QTreeWidget::SelectRows);
 }
 
 void ObjectTableWidget::editItem(QTableWidgetItem *item)
 {
+	const QString type = tab()->metaData()->value(item->row(), "\"type\"");
+
+	if (type == "\"int\"" || type == "\"unit\"")
+	{
+		ObjectValueDialog *dialog = new ObjectValueDialog(this);
+		dialog->setItemsVisible(false);
+		dialog->intSpinBox()->setVisible(true);
+		QString title = tab()->source()->sharedData()->tr("WESTRING_UE_DLG_EDITVALUE").arg(tab()->source()->sharedData()->tr("WESTRING_UE_TYPE_INT"));
+		dialog->setWindowTitle(title);
+		dialog->setLabelText(this->item(item->row(), 0)->text());
+
+		if (dialog->exec() == QDialog::Accepted)
+		{
+			item->setText(QString::number(dialog->intSpinBox()->value()));
+		}
+	}
+	else if (type == "\"real\"" || type == "\"unreal\"")
+	{
+		ObjectValueDialog *dialog = new ObjectValueDialog(this);
+		dialog->setItemsVisible(false);
+		dialog->doubleSpinBox()->setVisible(true);
+		QString title = tab()->source()->sharedData()->tr("WESTRING_UE_DLG_EDITVALUE").arg(tab()->source()->sharedData()->tr("WESTRING_UE_TYPE_REAL"));
+		dialog->setWindowTitle(title);
+		dialog->setLabelText(this->item(item->row(), 0)->text());
+
+		if (dialog->exec() == QDialog::Accepted)
+		{
+			item->setText(QString::number(dialog->intSpinBox()->value()));
+		}
+	}
+	else if (type == "\"string\"")
+	{
+		ObjectValueDialog *dialog = new ObjectValueDialog(this);
+		dialog->setItemsVisible(false);
+		dialog->lineEdit()->setVisible(true);
+		QString title = tab()->source()->sharedData()->tr("WESTRING_UE_DLG_EDITVALUE").arg(tab()->source()->sharedData()->tr("WESTRING_UE_TYPE_STRING"));
+		dialog->setWindowTitle(title);
+		dialog->setLabelText(this->item(item->row(), 0)->text());
+		dialog->lineEdit()->setText(item->text());
+
+		if (dialog->exec() == QDialog::Accepted)
+		{
+			item->setText(dialog->lineEdit()->text());
+		}
+	}
+	else if (type == "\"bool\"")
+	{
+		ObjectValueDialog *dialog = new ObjectValueDialog(this);
+		dialog->setItemsVisible(false);
+		dialog->lineEdit()->setVisible(true);
+		QString title = tab()->source()->sharedData()->tr("WESTRING_UE_DLG_EDITVALUE").arg(tab()->source()->sharedData()->tr("WESTRING_UE_TYPE_BOOL"));
+		dialog->setWindowTitle(title);
+		dialog->setLabelText(this->item(item->row(), 0)->text());
+		dialog->checkBox()->setChecked(item->text().toInt());
+
+		if (dialog->exec() == QDialog::Accepted)
+		{
+			item->setText(QString::number(dialog->checkBox()->isChecked()));
+		}
+	}
+	else
+	{
+		QMessageBox::warning(this, tr("Error"), tr("Unsupported type."));
+	}
+
 	/*
 	foreach (ObjectTableWidgetPair *pair, m_pairs)
 	{
@@ -125,6 +225,12 @@ void ObjectTableWidget::editItem(QTableWidgetItem *item)
 		}
 	}
 	*/
+}
+
+void ObjectTableWidget::customContextMenuRequested(QPoint pos)
+{
+	qDebug() << "custom context menu";
+	m_contextMenu->popup(this->viewport()->mapToGlobal(pos));
 }
 
 }

@@ -187,7 +187,12 @@ class KDE_EXPORT ObjectEditor : public Module
 		class KAction *m_copyObjectAction;
 		class KAction *m_pasteObjectAction;
 
+		QMenu *m_viewMenu;
+
 		Collection m_collection;
+
+	private slots:
+		void showRawData(bool checked);
 };
 
 inline class KTabWidget* ObjectEditor::tabWidget() const

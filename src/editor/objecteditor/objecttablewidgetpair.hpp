@@ -48,7 +48,7 @@ namespace editor
 class ObjectTableWidgetPair : public QObject
 {
 	public:
-		ObjectTableWidgetPair(QTableWidget *tableWidget, ObjectEditorTab *tab, const QString &objectId, const QString &fieldId);
+		ObjectTableWidgetPair(QTableWidget *tableWidget, ObjectEditorTab *tab, int row, const QString &objectId, const QString &fieldId);
 		~ObjectTableWidgetPair();
 
 		QTableWidget* tableWidget() const;
@@ -70,7 +70,7 @@ class ObjectTableWidgetPair : public QObject
 		/**
 		 * \return Returns value of data by using corresponding meta data.
 		 */
-		const map::Value& defaultValue() const;
+		map::Value defaultValue() const;
 		/**
 		 * Assigns
 		 */
@@ -130,7 +130,7 @@ inline const QString& ObjectTableWidgetPair::fieldId() const
 	return m_fieldId;
 }
 
-inline const map::Value& ObjectTableWidgetPair::defaultValue() const
+inline map::Value ObjectTableWidgetPair::defaultValue() const
 {
 	return this->tab()->getDataValue(objectId(), this->fieldId()).toStdString();
 }

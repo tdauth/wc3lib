@@ -25,6 +25,7 @@
 #include "uniteditor.hpp"
 #include "objecttreewidget.hpp"
 #include "objecttablewidget.hpp"
+#include "objecttablewidgetpair.hpp"
 #include "../metadata.hpp"
 #include "../map.hpp"
 
@@ -34,7 +35,7 @@ namespace wc3lib
 namespace editor
 {
 
-UnitEditor::UnitEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, parent, f)
+UnitEditor::UnitEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, new MetaData(KUrl("Units/UnitMetaData.slk")), parent, f)
 , m_standardUnitsItem(0)
 , m_customUnitsItem(0)
 , m_humanItem(0)
@@ -44,25 +45,9 @@ UnitEditor::UnitEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags
 , m_neutralNagaItem(0)
 , m_neutralHostileItem(0)
 , m_neutralPassiveItem(0)
-, m_unitMetaData(0)
 , m_unitData(0)
 , m_unitUi(0)
 {
-	/*
-	 * Load default data SLK files.
-	 */
-	this->m_unitMetaData = new MetaData(KUrl("Units/UnitMetaData.slk"));
-	this->m_unitMetaData->setSource(this->source());
-
-	try
-	{
-		this->m_unitMetaData->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_unitMetaData->url().toEncoded().constData(), e.what()));
-	}
-
 	this->m_unitData = new MetaData(KUrl("Units/UnitData.slk"));
 	this->m_unitData->setSource(this->source());
 
@@ -97,6 +82,18 @@ UnitEditor::UnitEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags
 	catch (Exception &e)
 	{
 		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_humanUnitStrings->url().toEncoded().constData(), e.what()));
+	}
+
+	this->m_humanUnitFunc = new MetaData(KUrl("Units/HumanUnitFunc.txt"));
+	this->m_humanUnitFunc->setSource(this->source());
+
+	try
+	{
+		this->m_humanUnitFunc->load();
+	}
+	catch (Exception &e)
+	{
+		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_humanUnitFunc->url().toEncoded().constData(), e.what()));
 	}
 
 	this->m_orcUnitStrings = new MetaData(KUrl("Units/OrcUnitStrings.txt"));
@@ -166,6 +163,7 @@ class ObjectTreeWidget* UnitEditor::createTreeWidget()
 				//QString
 
 				unitItem->setText(0, txtRawData);
+				unitItem->setData(0, Qt::UserRole, txtRawData);
 				qDebug() << "Adding unit" << txtRawData;
 
 				bool ok = false;
@@ -191,6 +189,14 @@ class ObjectTreeWidget* UnitEditor::createTreeWidget()
 					qDebug() << "Human txt raw data" << txtRawData;
 					m_humanItem->addChild(unitItem);
 					unitItem->setText(0, m_humanUnitStrings->value(txtRawData, "Name"));
+					QString art = m_humanUnitFunc->value(txtRawData, "Art");
+					art.replace('\\', '/');
+					QString iconFile;
+
+					if (source()->download(art, iconFile, this))
+					{
+						unitItem->setIcon(0, QIcon(iconFile));
+					}
 				}
 				else if (race == "\"orc\"")
 				{
@@ -249,19 +255,53 @@ class ObjectTreeWidget* UnitEditor::createTreeWidget()
 
 class ObjectTableWidget* UnitEditor::createTableWidget()
 {
-	return new ObjectTableWidget(this, m_unitMetaData);
+	return new ObjectTableWidget(this);
 }
 
-QString UnitEditor::getDataValue(const QString &objectId, const QString &field) const
+QString UnitEditor::getDataValue(const QString &objectId, const QString &fieldId) const
 {
-	if (this->m_unitData->hasValue(objectId, field))
+	try
 	{
-		return this->m_unitData->value(objectId, field);
-	}
+		const QString slkObjectId = QChar('\"') + objectId + '"';
+		const QString txtObjectId = objectId;
+		const QString slkField = this->metaData()->value(QChar('\"') + fieldId + '"', "\"field\"");
+		const QString txtField = slkField.mid(1, slkField.size() - 2);
 
-	if (this->m_unitUi->hasValue(objectId, field))
+		qDebug() << "SLK Object ID" << slkObjectId;
+		qDebug() << "TXT Object ID" << txtObjectId;
+		qDebug() << "SLK Field" << slkField;
+		qDebug() << "TXT Field" << txtField;
+
+		if (this->m_unitData->hasValue(slkObjectId, slkField))
+		{
+			return this->m_unitData->value(slkObjectId, slkField);
+		}
+
+		if (this->m_unitUi->hasValue(slkObjectId, slkField))
+		{
+			return this->m_unitUi->value(slkObjectId, slkField);
+		}
+
+		if (this->m_humanUnitStrings->hasValue(txtObjectId, txtField))
+		{
+			return this->m_humanUnitStrings->value(txtObjectId, txtField);
+		}
+
+		if (this->m_humanUnitFunc->hasValue(txtObjectId, txtField))
+		{
+			return this->m_humanUnitFunc->value(txtObjectId, txtField);
+		}
+
+		if (this->m_orcUnitStrings->hasValue(txtObjectId, txtField))
+		{
+			return this->m_orcUnitStrings->value(txtObjectId, txtField);
+		}
+	}
+	catch (Exception &e)
 	{
-		return this->m_unitUi->value(objectId, field);
+		qDebug() << "Exception occured";
+		qDebug() << e.what();
+		//QMessageBox::warning(this, tr("Error"), e.what());
 	}
 
 	return "";
@@ -319,6 +359,52 @@ void UnitEditor::onPasteObject()
 {
 }
 
+void UnitEditor::activateObject(QTreeWidgetItem* item, int column, const QString& rawDataId)
+{
+	qDebug() << "Activated" << rawDataId;
+
+	/*
+	 * Is folder item.
+	 * Hide everything.
+	 */
+	if (item->childCount() > 0)
+	{
+		this->tableWidget()->hideColumn(0);
+		this->tableWidget()->hideColumn(1);
+	}
+	/*
+	 * Is object item.
+	 * TODO Update table widget.
+	 */
+	else
+	{
+		this->tableWidget()->showColumn(0);
+		this->tableWidget()->showColumn(1);
+
+		for (ObjectTableWidget::Pairs::iterator iterator = this->tableWidget()->pairs().begin(); iterator != this->tableWidget()->pairs().end(); ++iterator)
+		{
+			if (showRawData())
+			{
+				qDebug() << "Raw data id" << rawDataId;
+				qDebug() << "Field id" << iterator.key();
+				iterator.value()->descriptionItem()->setText(iterator.key());
+			}
+
+			qDebug() << "Raw data id" << rawDataId;
+			qDebug() << "Field id" << iterator.key();
+
+			iterator.value()->valueItem()->setText(getDataValue(rawDataId, iterator.key()));
+		}
+	}
+	//this->tableWidget()->activateObject
+}
+
+void UnitEditor::activateFolder(QTreeWidgetItem* item, int column)
+{
+	this->tableWidget()->hideColumn(0);
+	this->tableWidget()->hideColumn(1);
+}
+
 void UnitEditor::onUpdateCollection(const map::CustomObjects& objects)
 {
 	ObjectEditorTab::onUpdateCollection(objects);
@@ -336,6 +422,7 @@ void UnitEditor::onUpdateCollection(const map::CustomObjects& objects)
 	this->treeWidget()->addTopLevelItems(topLevelItems);
 	*/
 }
+
 
 
 

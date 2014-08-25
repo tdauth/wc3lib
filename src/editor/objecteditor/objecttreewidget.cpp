@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Tamino Dauth                                    *
+ *   Copyright (C) 2014 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,12 +18,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_INTEGERDIALOG_HPP
-#define WC3LIB_EDITOR_INTEGERDIALOG_HPP
+#include <QtGui>
 
-#include <KDialog>
-
-#include "ui_integerdialog.h"
+#include "objecttreewidget.hpp"
+#include "objecteditortab.hpp"
 
 namespace wc3lib
 {
@@ -31,22 +29,21 @@ namespace wc3lib
 namespace editor
 {
 
-class ObjectIntegerDialog : public KDialog, protected Ui::IntegerDialog
+ObjectTreeWidget::ObjectTreeWidget(ObjectEditorTab *tab, Qt::WindowFlags f) : QTreeWidget(tab), m_tab(tab), m_contextMenu(new QMenu(this))
 {
-	public:
-		ObjectIntegerDialog(QWidget *parent = 0);
+	this->setItemHidden(this->headerItem(), true);
 
-		class KIntSpinBox* intSpinBox() const;
-};
+	this->setContextMenuPolicy(Qt::CustomContextMenu);
 
+	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customContextMenuRequested(QPoint)));
+}
 
-inline class KIntSpinBox* ObjectIntegerDialog::intSpinBox() const
+void ObjectTreeWidget::customContextMenuRequested(QPoint pos)
 {
-	return m_intSpinBox;
+	qDebug() << "custom context menu";
+	m_contextMenu->popup(this->viewport()->mapToGlobal(pos));
 }
 
 }
 
 }
-
-#endif

@@ -2,7 +2,7 @@ set(wc3lib_OBJECTEDITOR_H
 	abilitytablewidget.hpp
 	objecteditor.hpp
 	objecteditortab.hpp
-	objectintegerdialog.hpp
+	objectvaluedialog.hpp
 	objecttablewidget.hpp
 	objecttablewidgetpair.hpp
 	objecttreewidget.hpp
@@ -11,10 +11,10 @@ set(wc3lib_OBJECTEDITOR_H
 set(wc3lib_OBJECTEDITOR_SRC
 	objecteditor.cpp
 	objecteditortab.cpp
-	objectintegerdialog.cpp
+	objectvaluedialog.cpp
 	objecttablewidget.cpp
 	objecttablewidgetpair.cpp
-	#objecttreewidget.cpp
+	objecttreewidget.cpp
 	uniteditor.cpp
 )
 

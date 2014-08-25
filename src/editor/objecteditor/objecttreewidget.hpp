@@ -22,6 +22,7 @@
 #define WC3LIB_EDITOR_OBJECTREEWIDGET_HPP
 
 #include <QTreeWidget>
+#include <QMenu>
 
 namespace wc3lib
 {
@@ -29,17 +30,39 @@ namespace wc3lib
 namespace editor
 {
 
+class ObjectEditorTab;
 /**
  * Object tree widgets can be used to display game/campaign/map objects in a tree style divided into groups (e. g. their races, players etc.)
  *
  */
 class ObjectTreeWidget : public QTreeWidget
 {
+	Q_OBJECT
+
 	public:
-		ObjectTreeWidget(QWidget *parent = 0, Qt::WindowFlags f = 0) : QTreeWidget(parent)
-		{
-		}
+		ObjectTreeWidget(ObjectEditorTab *parent = 0, Qt::WindowFlags f = 0);
+
+		ObjectEditorTab* tab() const;
+		QMenu* contextMenu() const;
+
+	private:
+		ObjectEditorTab *m_tab;
+
+		QMenu *m_contextMenu;
+
+	private slots:
+		void customContextMenuRequested(QPoint pos);
 };
+
+inline ObjectEditorTab* ObjectTreeWidget::tab() const
+{
+	return this->m_tab;
+}
+
+inline QMenu* ObjectTreeWidget::contextMenu() const
+{
+	return this->m_contextMenu;
+}
 
 }
 

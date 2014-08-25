@@ -21,6 +21,7 @@
 #include <QtGui>
 
 #include <KMenu>
+#include <KMenuBar>
 #include <KAction>
 #include <KToolBar>
 #include <KFileDialog>
@@ -52,6 +53,8 @@ ObjectEditor::ObjectEditor(class MpqPriorityList *source, QWidget *parent, Qt::W
 	addCurrentActions();
 	// connect signal and slot after adding actions and tabs first time!
 	connect(tabWidget(), SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
+
+	setWindowTitle(this->source()->sharedData()->tr("WESTRING_MODULE_UNIT"));
 }
 
 ObjectEditor::~ObjectEditor()
@@ -195,6 +198,15 @@ void ObjectEditor::createEditActions(class KMenu *menu)
 void ObjectEditor::createMenus(class KMenuBar *menuBar)
 {
 	/// \todo Create menu "view" with meta data categories of current tab and "raw data" and sort by names actions
+	m_viewMenu = new QMenu(source()->sharedData()->tr("WESTRING_MENU_VIEW"), this);
+
+	// TODO is Frozen Throne
+	QAction *rawDataAction = new QAction(tr("Show rawdata"), this);
+	rawDataAction->setCheckable(true);
+	connect(rawDataAction, SIGNAL(triggered(bool)), this, SLOT(showRawData(bool)));
+	m_viewMenu->addAction(rawDataAction);
+
+	menuBar->addMenu(m_viewMenu);
 }
 
 void ObjectEditor::createWindowsActions(class WindowsMenu *menu)
@@ -355,6 +367,16 @@ void ObjectEditor::updateCollection(ObjectEditor::Collection& collection)
 		this->upgradeEditor()->onUpdateCollection(*collection->upgrades().get());
 	}
 	*/
+}
+
+void ObjectEditor::showRawData(bool checked)
+{
+	this->currentTab()->setShowRawData(checked);
+
+	if (!this->currentTab()->treeWidget()->selectedItems().isEmpty())
+	{
+		this->currentTab()->activateObject(this->currentTab()->treeWidget()->selectedItems().first(), 0, this->currentTab()->treeWidget()->selectedItems().first()->data(0, Qt::UserRole).toString());
+	}
 }
 
 #include "moc_objecteditor.cpp"

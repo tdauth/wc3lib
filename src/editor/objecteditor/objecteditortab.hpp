@@ -29,6 +29,7 @@
 #include <KUrlRequester>
 
 #include "objecteditor.hpp"
+#include "objecttreewidget.hpp"
 #include "../../map.hpp"
 
 namespace wc3lib
@@ -37,12 +38,14 @@ namespace wc3lib
 namespace editor
 {
 
+class MetaData;
+
 class ObjectEditorTab : public QWidget
 {
 	Q_OBJECT
 
 	public:
-		ObjectEditorTab(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		ObjectEditorTab(class MpqPriorityList *source, MetaData *metaData, QWidget *parent = 0, Qt::WindowFlags f = 0);
 
 		class MpqPriorityList* source() const;
 
@@ -55,6 +58,15 @@ class ObjectEditorTab : public QWidget
 		class ObjectTreeWidget* treeWidget() const;
 		class ObjectTableWidget* tableWidget() const;
 
+		MetaData* metaData() const;
+		void setShowRawData(bool show);
+		bool showRawData() const;
+
+		/**
+		 * \return Returns the object raw data ID of the currently selected object.
+		 */
+		QString currentObjectId() const;
+
 		virtual QString name() const = 0;
 
 		virtual void onUpdateCollection(const map::CustomObjects &objects);
@@ -64,7 +76,7 @@ class ObjectEditorTab : public QWidget
 		 *
 		 * \note This does not resolve meta data but actual object data (default data for existing objects).
 		 */
-		virtual QString getDataValue(const QString &objectId, const QString &field) const = 0;
+		virtual QString getDataValue(const QString &objectId, const QString &fieldId) const = 0;
 
 	public slots:
 		void newObject();
@@ -97,6 +109,9 @@ class ObjectEditorTab : public QWidget
 		virtual void onCopyObject() = 0;
 		virtual void onPasteObject() = 0;
 
+		virtual void activateObject(QTreeWidgetItem *item, int column, const QString &rawDataId) = 0;
+		virtual void activateFolder(QTreeWidgetItem *item, int column) = 0;
+
 		virtual QString newObjectText() const = 0;
 		virtual QString renameObjectText() const = 0;
 		virtual QString deleteObjectText() const = 0;
@@ -115,6 +130,12 @@ class ObjectEditorTab : public QWidget
 		int m_tabIndex;
 		class ObjectTreeWidget *m_treeWidget; // left side tree widget
 		class ObjectTableWidget *m_tableWidget; // centered table widget of current selected object
+		class MetaData *m_metaData;
+
+		bool m_showRawData;
+
+	private slots:
+		void itemClicked(QTreeWidgetItem *item, int column);
 };
 
 inline class MpqPriorityList* ObjectEditorTab::source() const
@@ -158,6 +179,33 @@ inline class ObjectTreeWidget* ObjectEditorTab::treeWidget() const
 inline class ObjectTableWidget* ObjectEditorTab::tableWidget() const
 {
 	return m_tableWidget;
+}
+
+inline MetaData* ObjectEditorTab::metaData() const
+{
+	return this->m_metaData;
+}
+
+inline void ObjectEditorTab::setShowRawData(bool show)
+{
+	this->m_showRawData = show;
+}
+
+inline bool ObjectEditorTab::showRawData() const
+{
+	return this->m_showRawData;
+}
+
+inline QString ObjectEditorTab::currentObjectId() const
+{
+	QList<QTreeWidgetItem*> items = this->treeWidget()->selectedItems();
+
+	if (!items.empty())
+	{
+		return items.first()->data(0, Qt::UserRole).toString();
+	}
+
+	return QString();
 }
 
 inline void ObjectEditorTab::newObject()

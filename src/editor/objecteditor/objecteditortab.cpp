@@ -34,8 +34,18 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectEditorTab::ObjectEditorTab(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_tabIndex(0), m_treeWidget(0), m_tableWidget(0), QWidget(parent, f)
+ObjectEditorTab::ObjectEditorTab(class MpqPriorityList *source, MetaData *metaData, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_metaData(metaData), m_tabIndex(0), m_treeWidget(0), m_tableWidget(0), m_showRawData(false), QWidget(parent, f)
 {
+	this->metaData()->setSource(this->source());
+
+	try
+	{
+		this->metaData()->load();
+	}
+	catch (Exception &e)
+	{
+		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->metaData()->url().toEncoded().constData(), e.what()));
+	}
 }
 
 void ObjectEditorTab::setupUi()
@@ -54,10 +64,17 @@ void ObjectEditorTab::setupUi()
 	splitter->addWidget(m_treeWidget);
 	splitter->addWidget(m_tableWidget);
 	horizontalLayout->addWidget(splitter);
+
+	connect(m_treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(itemClicked(QTreeWidgetItem*,int)));
 }
 
 void ObjectEditorTab::onUpdateCollection(const map::CustomObjects& objects)
 {
+}
+
+void ObjectEditorTab::itemClicked(QTreeWidgetItem* item, int column)
+{
+	this->activateObject(item, column, item->data(0, Qt::UserRole).toString());
 }
 
 #include "moc_objecteditortab.cpp"

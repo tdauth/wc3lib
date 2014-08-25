@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 
 	try
 	{
-		source->sharedData()->refreshDefaultFiles(0); // TODO we need a GUI
+		source->sharedData()->refreshWorldEditorStrings(0); // TODO we need a GUI
 	}
 	catch (wc3lib::Exception &e)
 	{

@@ -137,7 +137,7 @@ Editor::Editor(Root *root, QWidget *parent, Qt::WindowFlags f) : KMainWindow(par
 
 	// --
 
-	action = new KAction(KIcon(":/actions/closemodule.png"), i18n("Close module"), this);
+	action = new KAction(KIcon(":/actions/closemodule.png"), this->sharedData()->tr("WESTRING_MENU_CLOSEMODULE"), this);
 	action->setShortcut(KShortcut(i18n("Ctrl+Shift+W")));
 	this->m_actionCollection->addAction("closemodule", action);
 

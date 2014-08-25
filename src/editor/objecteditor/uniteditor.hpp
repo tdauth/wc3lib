@@ -45,11 +45,11 @@ class UnitEditor : public ObjectEditorTab
 
 		virtual void onUpdateCollection(const map::CustomObjects& objects);
 
-		virtual QString getDataValue(const QString &objectId, const QString &field) const override;
+		virtual QString getDataValue(const QString &objectId, const QString &fieldId) const override;
 
 	protected:
-		virtual class ObjectTreeWidget* createTreeWidget();
-		virtual class ObjectTableWidget* createTableWidget();
+		virtual class ObjectTreeWidget* createTreeWidget() override;
+		virtual class ObjectTableWidget* createTableWidget() override;
 		virtual void onSwitchToMap(class Map *map);
 
 		virtual void onNewObject();
@@ -61,6 +61,9 @@ class UnitEditor : public ObjectEditorTab
 		virtual void onImportAllObjects();
 		virtual void onCopyObject();
 		virtual void onPasteObject();
+
+		virtual void activateObject(QTreeWidgetItem *item, int column, const QString& rawDataId) override;
+		virtual void activateFolder(QTreeWidgetItem* item, int column) override;
 
 		virtual QString newObjectText() const;
 		virtual QString renameObjectText() const;
@@ -86,10 +89,10 @@ class UnitEditor : public ObjectEditorTab
 		QTreeWidgetItem *m_neutralHostileItem;
 		QTreeWidgetItem *m_neutralPassiveItem;
 
-		class MetaData *m_unitMetaData;
 		MetaData *m_unitData;
 		MetaData *m_unitUi;
 		MetaData *m_humanUnitStrings;
+		MetaData *m_humanUnitFunc;
 		MetaData *m_orcUnitStrings;
 };
 
@@ -100,7 +103,7 @@ inline QString UnitEditor::name() const
 
 inline QString UnitEditor::newObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_NEW", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_UE_CREATECUSTOMUNIT", "WorldEditStrings");
 }
 
 inline QString UnitEditor::renameObjectText() const

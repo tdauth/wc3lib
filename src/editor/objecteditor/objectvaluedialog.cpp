@@ -18,14 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_OBJECTABLEWIDGET_HPP
-#define WC3LIB_EDITOR_OBJECTABLEWIDGET_HPP
-
-#include <QTableWidget>
-#include <QLinkedList>
-
-#include "../map.hpp"
-#include "../metadata.hpp"
+#include "objectvaluedialog.hpp"
 
 namespace wc3lib
 {
@@ -33,60 +26,21 @@ namespace wc3lib
 namespace editor
 {
 
-class ObjectEditorTab;
-class ObjectTableWidgetPair;
-
-class ObjectTableWidget : public QTableWidget
+ObjectValueDialog::ObjectValueDialog(QWidget *parent) : QDialog(parent)
 {
-	Q_OBJECT
+	setupUi(this);
+}
 
-	public:
-		/**
-		 * All pairs are hashed by the raw data name of the field.
-		 */
-		typedef QHash<QString, ObjectTableWidgetPair*> Pairs;
-
-		ObjectTableWidget(ObjectEditorTab *parent);
-
-		ObjectEditorTab* tab() const;
-
-		Pairs& pairs();
-		const Pairs& pairs() const;
-
-	protected:
-		ObjectEditorTab *m_tab;
-		Pairs m_pairs;
-
-		QMenu *m_contextMenu;
-		QAction *m_modifyField;
-		QAction *m_resetField;
-
-	private slots:
-		/**
-		 * Items are not edited directly like usual table items. Usually a simple dialog with OK and cancel button is shown.
-		 * This functions handles all edit requests!
-		 */
-		void editItem(QTableWidgetItem *item);
-		void customContextMenuRequested(QPoint pos);
-};
-
-inline ObjectEditorTab* ObjectTableWidget::tab() const
+void ObjectValueDialog::setItemsVisible(bool visible)
 {
-	return this->m_tab;
-}
-
-inline ObjectTableWidget::Pairs& ObjectTableWidget::pairs()
-{
-	return m_pairs;
-}
-
-inline const ObjectTableWidget::Pairs& ObjectTableWidget::pairs() const
-{
-	return m_pairs;
+	this->m_intSpinBox->setVisible(visible);
+	this->m_doubleSpinBox->setVisible(visible);
+	this->m_lineEdit->setVisible(visible);
+	this->m_textEdit->setVisible(visible);
+	this->m_comboBox->setVisible(visible);
+	this->m_checkBox->setVisible(visible);
 }
 
 }
 
 }
-
-#endif

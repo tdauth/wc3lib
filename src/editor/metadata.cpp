@@ -80,13 +80,13 @@ void MetaData::load() throw (Exception)
 		/*
 		 * Store indices of rows and columns by the value of the first cell.
 		 */
-		for (map::Slk::Table::index column = 0; column < this->slk().table().shape()[0]; ++column)
+		for (map::Slk::Table::size_type column = 0; column < this->slk().table().shape()[0]; ++column)
 		{
 			map::Slk::Cell &firstColumnCell = this->slk().table()[column][0];
 			this->m_columnKeys[QString::fromUtf8(firstColumnCell.c_str())] = column;
 		}
 
-		for (map::Slk::Table::index row = 0; row < this->slk().table().shape()[1]; ++row)
+		for (map::Slk::Table::size_type row = 0; row < this->slk().table().shape()[1]; ++row)
 		{
 			map::Slk::Cell &firstRowCell = this->slk().table()[0][row];
 			this->m_rowKeys[QString::fromUtf8(firstRowCell.c_str())] = row;
