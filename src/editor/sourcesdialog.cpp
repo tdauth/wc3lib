@@ -125,10 +125,11 @@ void SourcesDialog::apply()
 	QLinkedList<KUrl> valids;
 
 	source()->clear(); // NOTE we always have to clear first since priorities of existing entries might have changed
+	MpqPriorityListEntry::Priority priority = m_editListBox->items().size();
 
 	foreach (const QString &item, m_editListBox->items())
 	{
-		if (!source()->addSource(item))
+		if (!source()->addSource(item, priority))
 		{
 			KMessageBox::error(this, i18n("Invalid source \"%1\".", item));
 		}
@@ -136,6 +137,8 @@ void SourcesDialog::apply()
 		{
 			qDebug() << "Successfully added";
 		}
+
+		--priority;
 	}
 
 	this->source()->writeSettings(settingsGroup());

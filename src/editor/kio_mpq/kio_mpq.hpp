@@ -97,6 +97,7 @@ class KDE_EXPORT MpqSlave : public KIO::SlaveBase
 		bool openArchive(const QString &archive, QString &error);
 
 		MpqArchivePtr m_archive;
+		bool m_hasAttributes;
 		int32 m_attributesVersion;
 		mpq::Attributes::ExtendedAttributes m_extendedAttributes;
 		mpq::Attributes::Crc32s m_crcs;

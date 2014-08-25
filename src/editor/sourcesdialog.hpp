@@ -33,12 +33,17 @@ namespace wc3lib
 namespace editor
 {
 
+class MpqPriorityList;
+
 /**
- * This class provides a GUI which shows a list of selected sources based on class \ref MpqPriorityList.
+ * \brief GUI dialog which allows selection of sources based on class \ref MpqPriorityList.
+ *
  * It uses a simple KDE edit list box with a URL completion model.
  * All changes on its list do directly affect its corresponding source (\ref source()).
+ *
+ * The higher entries have a higher priority than the lower entries reordering items will change priorities as well.
+ *
  * \note Since MpqPriorityList doesn't provide any signals you'll have to call update when any changes on its source were made.
- * \todo URLs which are at the top of the list do have a higher priority than others which are at the bottom of the list! Update priorities when calling \ref apply().
  */
 class KDE_EXPORT SourcesDialog : public QDialog, protected Ui::SourcesDialog
 {
@@ -51,9 +56,19 @@ class KDE_EXPORT SourcesDialog : public QDialog, protected Ui::SourcesDialog
 		void update();
 
 	public:
-		SourcesDialog(class MpqPriorityList *source, QWidget *parent = 0, Qt::WFlags flags = 0);
+		/**
+		 * Creates a new source dialog using the entries from \p source.
+		 *
+		 * \param source The source of which the entries are listed in the dialog and can be reordered.
+		 * \param parent The parent widget of the dialog.
+		 * \param flags The window flags of the dialog.
+		 */
+		SourcesDialog(MpqPriorityList *source, QWidget *parent = 0, Qt::WFlags flags = 0);
 
-		class MpqPriorityList* source() const;
+		/**
+		 * \return Returns the associated source of which the entries are listed.
+		 */
+		MpqPriorityList* source() const;
 
 	protected slots:
 		void added(const QString &text);

@@ -40,11 +40,32 @@ typedef uint32_t id;
 /**
  * Converts an ID to a readable string. Useful for comparisons and display.
  */
-inline string idToString(id value) {
+inline string idToString(id value)
+{
 	const std::size_t size = sizeof(id);
 	char result[size + 1];
 	result[size] = '\0';
 	memcpy(result, &value, size);
+
+	return result;
+}
+
+/**
+ * \brief Converts a string value to an object ID.
+ *
+ * \param value String value which is converted into an object ID. Must have the length of sizeof(id).
+ *
+ * \return Returns the converted ID if the string input is valid. Otherwise it returns 0.
+ */
+inline id stringToId(const string &value)
+{
+	if (value.size() != sizeof(id))
+	{
+		return 0;
+	}
+
+	id result = 0;
+	memcpy(&result, value.c_str(), sizeof(id));
 
 	return result;
 }

@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include <KMessageBox>
+#include <KFileDialog>
 
 #include <QtGui>
 
@@ -34,7 +35,7 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectEditorTab::ObjectEditorTab(class MpqPriorityList *source, MetaData *metaData, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_metaData(metaData), m_tabIndex(0), m_treeWidget(0), m_tableWidget(0), m_showRawData(false), QWidget(parent, f)
+ObjectEditorTab::ObjectEditorTab(class MpqPriorityList *source, MetaData *metaData, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_metaData(metaData), m_tabIndex(0), m_filterLineEdit(0), m_treeWidget(0), m_tableWidget(0), m_showRawData(false), QWidget(parent, f)
 {
 	this->metaData()->setSource(this->source());
 
@@ -51,21 +52,51 @@ ObjectEditorTab::ObjectEditorTab(class MpqPriorityList *source, MetaData *metaDa
 void ObjectEditorTab::setupUi()
 {
 	QVBoxLayout *layout = new QVBoxLayout(this);
+	QWidget *layoutWidget = new QWidget(this);
+	layoutWidget->setLayout(layout);
 
 	qDebug() << "Show tab " << this->name();
 
-	QHBoxLayout *horizontalLayout = new QHBoxLayout();
-	layout->addLayout(horizontalLayout);
+	m_filterLineEdit = new KLineEdit(this);
 
 	m_treeWidget = createTreeWidget();
 	m_tableWidget = createTableWidget();
 
 	QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
-	splitter->addWidget(m_treeWidget);
+	layout->addWidget(m_filterLineEdit);
+	layout->addWidget(m_treeWidget);
+	splitter->addWidget(layoutWidget);
 	splitter->addWidget(m_tableWidget);
-	horizontalLayout->addWidget(splitter);
+	this->setLayout(new QHBoxLayout(this));
+	this->layout()->addWidget(splitter);
 
+	connect(m_filterLineEdit, SIGNAL(textChanged(QString)), this, SLOT(filterTreeWidget(QString)));
 	connect(m_treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(itemClicked(QTreeWidgetItem*,int)));
+}
+
+void ObjectEditorTab::exportAllObjects()
+{
+	onExportAllObjects();
+	const QString suffix = QFileInfo(QString::fromStdString(this->customObjects()->fileName())).suffix();
+
+	const KUrl url = KFileDialog::getSaveUrl(KUrl(), QString("*\n*.%1").arg(suffix), this, exportAllObjectsText());
+
+	if (!url.isEmpty())
+	{
+		ofstream out(url.toLocalFile().toUtf8().constData());
+
+		if (out)
+		{
+			try
+			{
+				this->customObjects()->write(out);
+			}
+			catch (Exception &e)
+			{
+				KMessageBox::error(this, tr("Error on exporting"), e.what());
+			}
+		}
+	}
 }
 
 void ObjectEditorTab::onUpdateCollection(const map::CustomObjects& objects)
@@ -75,6 +106,12 @@ void ObjectEditorTab::onUpdateCollection(const map::CustomObjects& objects)
 void ObjectEditorTab::itemClicked(QTreeWidgetItem* item, int column)
 {
 	this->activateObject(item, column, item->data(0, Qt::UserRole).toString());
+}
+
+void ObjectEditorTab::filterTreeWidget(QString text)
+{
+	// TODO filter
+
 }
 
 #include "moc_objecteditortab.cpp"

@@ -36,6 +36,7 @@ namespace editor
 {
 
 UnitEditor::UnitEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, new MetaData(KUrl("Units/UnitMetaData.slk")), parent, f)
+, m_units(new map::CustomObjects(map::CustomObjects::Type::Units))
 , m_standardUnitsItem(0)
 , m_customUnitsItem(0)
 , m_humanItem(0)
@@ -70,6 +71,18 @@ UnitEditor::UnitEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags
 	catch (Exception &e)
 	{
 		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_unitUi->url().toEncoded().constData(), e.what()));
+	}
+
+	this->m_unitBalance = new MetaData(KUrl("Units/UnitBalance.slk"));
+	m_unitBalance->setSource(this->source());
+
+	try
+	{
+		this->m_unitBalance->load();
+	}
+	catch (Exception &e)
+	{
+		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_unitBalance->url().toEncoded().constData(), e.what()));
 	}
 
 	this->m_humanUnitStrings = new MetaData(KUrl("Units/HumanUnitStrings.txt"));
@@ -108,11 +121,72 @@ UnitEditor::UnitEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags
 		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_orcUnitStrings->url().toEncoded().constData(), e.what()));
 	}
 
+	this->m_orcUnitFunc = new MetaData(KUrl("Units/OrcUnitFunc.txt"));
+	m_orcUnitFunc->setSource(this->source());
+
+	try
+	{
+		this->m_orcUnitFunc->load();
+	}
+	catch (Exception &e)
+	{
+		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_orcUnitFunc->url().toEncoded().constData(), e.what()));
+	}
+
+	this->m_undeadUnitStrings = new MetaData(KUrl("Units/UndeadUnitStrings.txt"));
+	m_undeadUnitStrings->setSource(this->source());
+
+	try
+	{
+		this->m_undeadUnitStrings->load();
+	}
+	catch (Exception &e)
+	{
+		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_undeadUnitStrings->url().toEncoded().constData(), e.what()));
+	}
+
+	this->m_undeadUnitFunc = new MetaData(KUrl("Units/UndeadUnitFunc.txt"));
+	m_undeadUnitFunc->setSource(this->source());
+
+	try
+	{
+		this->m_undeadUnitFunc->load();
+	}
+	catch (Exception &e)
+	{
+		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_undeadUnitFunc->url().toEncoded().constData(), e.what()));
+	}
+
+	this->m_nightElfUnitStrings = new MetaData(KUrl("Units/NightElfUnitStrings.txt"));
+	m_nightElfUnitStrings->setSource(this->source());
+
+	try
+	{
+		this->m_nightElfUnitStrings->load();
+	}
+	catch (Exception &e)
+	{
+		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_nightElfUnitStrings->url().toEncoded().constData(), e.what()));
+	}
+
+	this->m_nightElfUnitFunc = new MetaData(KUrl("Units/NightElfUnitFunc.txt"));
+	m_nightElfUnitFunc->setSource(this->source());
+
+	try
+	{
+		this->m_nightElfUnitFunc->load();
+	}
+	catch (Exception &e)
+	{
+		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_nightElfUnitFunc->url().toEncoded().constData(), e.what()));
+	}
+
 	setupUi();
 }
 
 UnitEditor::~UnitEditor()
 {
+	delete this->m_units;
 	delete this->m_humanUnitStrings;
 }
 
@@ -162,7 +236,6 @@ class ObjectTreeWidget* UnitEditor::createTreeWidget()
 
 				//QString
 
-				unitItem->setText(0, txtRawData);
 				unitItem->setData(0, Qt::UserRole, txtRawData);
 				qDebug() << "Adding unit" << txtRawData;
 
@@ -177,20 +250,21 @@ class ObjectTreeWidget* UnitEditor::createTreeWidget()
 					continue;
 				}
 
-				int special = this->m_unitUi->value(rawData, "\"special\"").toInt(&ok);
-				// Frozen Throne
-				//int campaign = QString::fromStdString(this->m_unitUi->value(rawData.toStdString(), "\"campaign\"")).toInt(&ok);
+				const QString unitName = this->getDataValue(txtRawData, "unam");
 
-				QString race = this->m_unitData->value(row, "\"race\"");
-
-
-				if (race == "\"human\"")
+				if (!unitName.isEmpty())
 				{
-					qDebug() << "Human txt raw data" << txtRawData;
-					m_humanItem->addChild(unitItem);
-					unitItem->setText(0, m_humanUnitStrings->value(txtRawData, "Name"));
-					QString art = m_humanUnitFunc->value(txtRawData, "Art");
-					art.replace('\\', '/');
+					unitItem->setText(0, unitName);
+				}
+				else
+				{
+					unitItem->setText(0, txtRawData);
+				}
+
+				const QString art = MetaData::fromFilePath(this->getDataValue(txtRawData, "uico"));
+
+				if (!art.isEmpty())
+				{
 					QString iconFile;
 
 					if (source()->download(art, iconFile, this))
@@ -198,40 +272,52 @@ class ObjectTreeWidget* UnitEditor::createTreeWidget()
 						unitItem->setIcon(0, QIcon(iconFile));
 					}
 				}
-				else if (race == "\"orc\"")
+
+				int special = this->m_unitUi->value(rawData, "\"special\"").toInt(&ok);
+				// Frozen Throne
+				//int campaign = QString::fromStdString(this->m_unitUi->value(rawData.toStdString(), "\"campaign\"")).toInt(&ok);
+
+				QString race = MetaData::fromSlkString(this->m_unitData->value(row, "\"race\""));
+
+
+				if (race == "human")
+				{
+					qDebug() << "Human txt raw data" << txtRawData;
+					m_humanItem->addChild(unitItem);
+				}
+				else if (race == "orc")
 				{
 					m_orcItem->addChild(unitItem);
-					unitItem->setText(0, m_orcUnitStrings->value(txtRawData, "Name"));
 				}
-				else if (race == "\"nightelf\"")
+				else if (race == "nightelf")
 				{
 					m_nightElfItem->addChild(unitItem);
 				}
-				else if (race == "\"undead\"")
+				else if (race == "undead")
 				{
 					m_undeadItem->addChild(unitItem);
 				}
-				else if (race == "\"creeps\"")
+				else if (race == "creeps")
 				{
 					m_neutralNagaItem->addChild(unitItem);
 				}
-				else if (race == "\"other\"")
+				else if (race == "other")
 				{
 					m_neutralPassiveItem->addChild(unitItem);
 				}
-				else if (race == "\"demon\"")
+				else if (race == "demon")
 				{
 					m_neutralHostileItem->addChild(unitItem);
 				}
-				else if (race == "\"naga\"")
+				else if (race == "naga")
 				{
 					m_neutralNagaItem->addChild(unitItem);
 				}
-				else if (race == "\"critters\"")
+				else if (race == "critters")
 				{
 					m_neutralPassiveItem->addChild(unitItem);
 				}
-				else if (race == "\"commoner\"")
+				else if (race == "commoner")
 				{
 					m_neutralPassiveItem->addChild(unitItem);
 				}
@@ -258,43 +344,131 @@ class ObjectTableWidget* UnitEditor::createTableWidget()
 	return new ObjectTableWidget(this);
 }
 
+map::CustomObjects::Object* UnitEditor::currentObject() const
+{
+	const QString objectId = this->currentObjectId();
+	map::CustomObjects::Object *object = new map::CustomObjects::Object(map::CustomObjects::Type::Units);
+	// TODO which one is the custom id
+	object->setOriginalId(map::stringToId(objectId.toStdString()));
+	object->setCustomId(map::stringToId(objectId.toStdString()));
+
+	for (ObjectTableWidget::Pairs::iterator iterator = this->tableWidget()->pairs().begin(); iterator != this->tableWidget()->pairs().end(); ++iterator)
+	{
+		if (!iterator.value()->isDefault())
+		{
+			std::auto_ptr<map::CustomObjects::Modification> modification(new map::CustomObjects::Modification(map::CustomObjects::Type::Units));
+			modification->setValueId(map::stringToId(iterator.key().toStdString()));
+			modification->value() = iterator.value()->customValue();
+			object->modifications().push_back(modification);
+		}
+	}
+
+	// TODO is original or custom
+	//this->customObjects()->originalTable().push_back(object);
+
+	return object;
+}
+
 QString UnitEditor::getDataValue(const QString &objectId, const QString &fieldId) const
 {
 	try
 	{
-		const QString slkObjectId = QChar('\"') + objectId + '"';
+		const QString slkFieldId = MetaData::toSlkString(fieldId);
+		const QString slkObjectId = MetaData::toSlkString(objectId);
 		const QString txtObjectId = objectId;
-		const QString slkField = this->metaData()->value(QChar('\"') + fieldId + '"', "\"field\"");
-		const QString txtField = slkField.mid(1, slkField.size() - 2);
+		const QString slkField = this->metaData()->value(slkFieldId, "\"field\"");
+		const QString txtField = MetaData::fromSlkString(slkField);
+		const QString slk = MetaData::fromSlkString(this->metaData()->value(slkFieldId, "\"slk\""));
 
 		qDebug() << "SLK Object ID" << slkObjectId;
 		qDebug() << "TXT Object ID" << txtObjectId;
 		qDebug() << "SLK Field" << slkField;
 		qDebug() << "TXT Field" << txtField;
+		qDebug() << "SLK" << slk;
 
-		if (this->m_unitData->hasValue(slkObjectId, slkField))
+		if (slk == "UnitUI")
 		{
-			return this->m_unitData->value(slkObjectId, slkField);
+			if (this->m_unitUi->hasValue(slkObjectId, slkField))
+			{
+				return this->m_unitUi->value(slkObjectId, slkField);
+			}
 		}
-
-		if (this->m_unitUi->hasValue(slkObjectId, slkField))
+		else if (slk == "UnitData")
 		{
-			return this->m_unitUi->value(slkObjectId, slkField);
+			if (this->m_unitData->hasValue(slkObjectId, slkField))
+			{
+				return this->m_unitData->value(slkObjectId, slkField);
+			}
 		}
-
-		if (this->m_humanUnitStrings->hasValue(txtObjectId, txtField))
+		else if (slk == "UnitBalance")
 		{
-			return this->m_humanUnitStrings->value(txtObjectId, txtField);
+			if (this->m_unitBalance->hasValue(slkObjectId, slkField))
+			{
+				return this->m_unitBalance->value(slkObjectId, slkField);
+			}
 		}
-
-		if (this->m_humanUnitFunc->hasValue(txtObjectId, txtField))
+		else if (slk == "UnitWeapons")
 		{
-			return this->m_humanUnitFunc->value(txtObjectId, txtField);
 		}
-
-		if (this->m_orcUnitStrings->hasValue(txtObjectId, txtField))
+		/*
+		 * Profile means to use a TXT file from the corresponding race.
+		 */
+		else if (slk == "Profile")
 		{
-			return this->m_orcUnitStrings->value(txtObjectId, txtField);
+			if (this->m_unitData->hasValue(slkObjectId, "\"race\""))
+			{
+				QString race = this->m_unitData->value(slkObjectId, "\"race\"");
+				race = race.mid(1, race.size() - 2);
+
+				if (race == "human")
+				{
+					if (this->m_humanUnitStrings->hasValue(txtObjectId, txtField))
+					{
+						return this->m_humanUnitStrings->value(txtObjectId, txtField);
+					}
+
+					if (this->m_humanUnitFunc->hasValue(txtObjectId, txtField))
+					{
+						return this->m_humanUnitFunc->value(txtObjectId, txtField);
+					}
+				}
+				else if (race == "orc")
+				{
+					if (this->m_orcUnitStrings->hasValue(txtObjectId, txtField))
+					{
+						return this->m_orcUnitStrings->value(txtObjectId, txtField);
+					}
+
+					if (this->m_orcUnitFunc->hasValue(txtObjectId, txtField))
+					{
+						return this->m_orcUnitFunc->value(txtObjectId, txtField);
+					}
+				}
+				else if (race == "nightelf")
+				{
+					if (this->m_nightElfUnitStrings->hasValue(txtObjectId, txtField))
+					{
+						return this->m_nightElfUnitStrings->value(txtObjectId, txtField);
+					}
+
+					if (this->m_nightElfUnitFunc->hasValue(txtObjectId, txtField))
+					{
+						return this->m_nightElfUnitFunc->value(txtObjectId, txtField);
+					}
+				}
+				else if (race == "undead")
+				{
+					if (this->m_undeadUnitStrings->hasValue(txtObjectId, txtField))
+					{
+						return this->m_undeadUnitStrings->value(txtObjectId, txtField);
+					}
+
+					if (this->m_undeadUnitFunc->hasValue(txtObjectId, txtField))
+					{
+						return this->m_undeadUnitFunc->value(txtObjectId, txtField);
+					}
+				}
+			}
 		}
 	}
 	catch (Exception &e)
@@ -306,6 +480,24 @@ QString UnitEditor::getDataValue(const QString &objectId, const QString &fieldId
 
 	return "";
 }
+
+bool UnitEditor::objectIsBuilding(const QString& objectId) const
+{
+	return MetaData::fromSlkString(this->getDataValue(objectId, "ulev")) == "-";
+}
+
+bool UnitEditor::objectIsHero(const QString& objectId) const
+{
+	return MetaData::fromSlkString(this->getDataValue(objectId, "ustr")) != "-";
+}
+
+
+bool UnitEditor::objectIsUnit(const QString& objectId) const
+{
+	return !objectIsBuilding(objectId) && !objectIsHero(objectId);
+}
+
+
 
 void UnitEditor::onSwitchToMap(class Map *map)
 {
@@ -380,20 +572,54 @@ void UnitEditor::activateObject(QTreeWidgetItem* item, int column, const QString
 	{
 		this->tableWidget()->showColumn(0);
 		this->tableWidget()->showColumn(1);
+		int row = 0;
 
-		for (ObjectTableWidget::Pairs::iterator iterator = this->tableWidget()->pairs().begin(); iterator != this->tableWidget()->pairs().end(); ++iterator)
+		for (ObjectTableWidget::Pairs::iterator iterator = this->tableWidget()->pairs().begin(); iterator != this->tableWidget()->pairs().end(); ++iterator, ++row)
 		{
-			if (showRawData())
-			{
-				qDebug() << "Raw data id" << rawDataId;
-				qDebug() << "Field id" << iterator.key();
-				iterator.value()->descriptionItem()->setText(iterator.key());
-			}
+			const QString fieldId = iterator.key();
 
 			qDebug() << "Raw data id" << rawDataId;
-			qDebug() << "Field id" << iterator.key();
+			qDebug() << "Field id" << fieldId;
 
-			iterator.value()->valueItem()->setText(getDataValue(rawDataId, iterator.key()));
+			try
+			{
+				const QString useHero = MetaData::fromSlkString(this->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("useHero")));
+				const QString useUnit = MetaData::fromSlkString(this->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("useUnit")));
+				const QString useBuilding = MetaData::fromSlkString(this->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("useBuilding")));
+
+				qDebug() << "useHero" << useHero;
+				qDebug() << "useUnit" << useUnit;
+				qDebug() << "useBuilding" << useBuilding;
+				qDebug() << "Level" <<  MetaData::fromSlkString(this->getDataValue(rawDataId, "ulev"));
+
+				/*
+				* Hide fields which should not be shown.
+				*/
+				if ((useHero != "1" && objectIsHero(rawDataId))
+					|| (useUnit != "1" && objectIsUnit(rawDataId))
+					|| (useBuilding != "1" && objectIsBuilding(rawDataId)
+					)
+				)
+				{
+					qDebug() << "Hide row" << row;
+					tableWidget()->hideRow(row);
+				}
+				else
+				{
+					if (showRawData())
+					{
+						qDebug() << "Raw data id" << rawDataId;
+						qDebug() << "Field id" << fieldId;
+						iterator.value()->descriptionItem()->setText(fieldId);
+					}
+
+					iterator.value()->valueItem()->setText(getDataValue(rawDataId, iterator.key()));
+				}
+			}
+			catch (Exception &e)
+			{
+				qDebug() << e.what();
+			}
 		}
 	}
 	//this->tableWidget()->activateObject

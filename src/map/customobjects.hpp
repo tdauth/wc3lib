@@ -71,10 +71,14 @@ class CustomObjects : public CustomUnits
 			public:
 				Modification(CustomObjects::Type type);
 				CustomObjects::Type type() const;
+
+				void setLevel(int32 level);
 				/**
 				 * Only read for doodads, abilities and upgrades. Doodads use this as variation number.
 				 */
 				int32 level() const;
+
+				void setData(int32 data);
 				/**
 				 * Only read for doodads, abilities and upgrades but actually only used by abilities to refer specific raw data:
 				 * A, 1 = B, 2 = C, 3 = D, 4 = F, 5 = G, 6 = H
@@ -130,9 +134,19 @@ inline CustomObjects::Type CustomObjects::Modification::type() const
 	return this->m_type;
 }
 
+inline void CustomObjects::Modification::setLevel(int32 level)
+{
+	this->m_level = level;
+}
+
 inline int32 CustomObjects::Modification::level() const
 {
 	return this->m_level;
+}
+
+inline void CustomObjects::Modification::setData(int32 data)
+{
+	this->m_data = data;
 }
 
 inline int32 CustomObjects::Modification::data() const

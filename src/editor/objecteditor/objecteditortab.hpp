@@ -27,6 +27,7 @@
 
 #include <KUrl>
 #include <KUrlRequester>
+#include <KLineEdit>
 
 #include "objecteditor.hpp"
 #include "objecttreewidget.hpp"
@@ -55,10 +56,14 @@ class ObjectEditorTab : public QWidget
 		int tabIndex() const;
 		bool hasObjectEditor() const;
 		class ObjectEditor* objectEditor() const throw (std::bad_cast);
+		KLineEdit* filterLineEdit() const;
 		class ObjectTreeWidget* treeWidget() const;
 		class ObjectTableWidget* tableWidget() const;
 
 		MetaData* metaData() const;
+		virtual map::CustomObjects* customObjects() const = 0;
+		virtual map::CustomObjects::Object* currentObject() const = 0;
+
 		void setShowRawData(bool show);
 		bool showRawData() const;
 
@@ -128,6 +133,7 @@ class ObjectEditorTab : public QWidget
 
 		class MpqPriorityList *m_source;
 		int m_tabIndex;
+		KLineEdit *m_filterLineEdit;
 		class ObjectTreeWidget *m_treeWidget; // left side tree widget
 		class ObjectTableWidget *m_tableWidget; // centered table widget of current selected object
 		class MetaData *m_metaData;
@@ -136,6 +142,7 @@ class ObjectEditorTab : public QWidget
 
 	private slots:
 		void itemClicked(QTreeWidgetItem *item, int column);
+		void filterTreeWidget(QString text);
 };
 
 inline class MpqPriorityList* ObjectEditorTab::source() const
@@ -169,6 +176,11 @@ inline class ObjectEditor* ObjectEditorTab::objectEditor() const throw (std::bad
 		return boost::polymorphic_cast<class ObjectEditor*>(parentWidget()->parentWidget()->parentWidget()); // first parent is stacked widget, second tab widget and third object editor
 
 	return boost::polymorphic_cast<class ObjectEditor*>(parent());
+}
+
+inline KLineEdit* ObjectEditorTab::filterLineEdit() const
+{
+	return this->m_filterLineEdit;
 }
 
 inline class ObjectTreeWidget* ObjectEditorTab::treeWidget() const
@@ -231,11 +243,6 @@ inline void ObjectEditorTab::resetObject()
 inline void ObjectEditorTab::resetAllObjects()
 {
 	onResetAllObjects();
-}
-
-inline void ObjectEditorTab::exportAllObjects()
-{
-	onExportAllObjects();
 }
 
 inline void ObjectEditorTab::importAllObjects()

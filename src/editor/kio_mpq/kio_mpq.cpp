@@ -65,7 +65,7 @@ extern "C" int KDE_EXPORT kdemain(int argc, char **argv)
 
 const char *MpqSlave::protocol= "mpq";
 
-MpqSlave::MpqSlave(const QByteArray &pool, const QByteArray &app) : KIO::SlaveBase(protocol, pool, app), m_seekPos(0), m_attributesVersion(0), m_extendedAttributes(mpq::Attributes::ExtendedAttributes::None)
+MpqSlave::MpqSlave(const QByteArray &pool, const QByteArray &app) : KIO::SlaveBase(protocol, pool, app), m_hasAttributes(false), m_seekPos(0), m_attributesVersion(0), m_extendedAttributes(mpq::Attributes::ExtendedAttributes::None)
 {
 	kDebug(7000) << "Created MPQ slave";
 }
@@ -186,6 +186,7 @@ bool MpqSlave::openArchive(const QString &archive, QString &error)
 			try
 			{
 				attributes.attributes(this->m_attributesVersion, this->m_extendedAttributes, this->m_crcs, this->m_fileTimes, this->m_md5s); // attributes data is required for file time stamps
+				m_hasAttributes = true;
 			}
 			catch (Exception &exception)
 			{
@@ -388,26 +389,6 @@ void MpqSlave::listDir(const KUrl &url)
 	kDebug(7000) << "MpqProtocol::listDir entries of " << archivePath.constData();
 	mpq::Listfile::Entries entries = listfile.dirEntries(archivePath.constData(), false);
 	kDebug(7000) << "MpqProtocol::listDir entries size " << entries.size();
-	const bool hasAttributes = m_archive->containsAttributesFile();
-	mpq::Attributes attributes;
-	bool hasFileTime = false;
-
-	if (!hasAttributes)
-	{
-		//warning(i18n("%1: Missing \"(attributes)\" file.", url.prettyUrl()));
-	}
-	else
-	{
-		attributes = this->m_archive->attributesFile();
-		hasFileTime = this->m_extendedAttributes & mpq::Attributes::ExtendedAttributes::FileTimeStamps;
-
-		/*
-		if (!hasFileTime)
-		{
-			warning(i18n("%1: Missing \"(attributes)\" file time stamps.", url.prettyUrl()));
-		}
-		*/
-	}
 
 	if (archivePath.isEmpty()) // root directory
 	{
@@ -488,7 +469,7 @@ void MpqSlave::listDir(const KUrl &url)
 				bool validFileTime = false;
 
 				// file time is extended attribute!
-				if (hasAttributes && hasFileTime)
+				if (m_hasAttributes && (m_extendedAttributes & mpq::Attributes::ExtendedAttributes::FileTimeStamps))
 				{
 					if (m_fileTimes.size() > file.block()->index())
 					{
@@ -566,25 +547,6 @@ void MpqSlave::stat(const KUrl &url)
 		return;
 	}
 
-	const bool hasAttributes = m_archive->containsAttributesFile();
-	bool hasFileTime = false;
-
-	if (!hasAttributes)
-	{
-		//warning(i18n("%1: Missing \"(attributes)\" file.", url.prettyUrl()));
-	}
-	else
-	{
-		hasFileTime = this->m_extendedAttributes & mpq::Attributes::ExtendedAttributes::FileTimeStamps;
-
-		/*
-		if (!hasFileTime)
-		{
-			warning(i18n("%1: Missing \"(attributes)\" file time stamps.", url.prettyUrl()));
-		}
-		*/
-	}
-
 	kDebug(7000) << "MpqProtocol::state Searching file " << archivePath.constData();
 
 	mpq::File file = m_archive->findFile(archivePath.constData()); // TODO locale and platform
@@ -599,9 +561,10 @@ void MpqSlave::stat(const KUrl &url)
 		//quint64 fileTime = 0;
 		time_t fileTime = 0;
 		bool validFileTime = false;
+		const bool hasFileTime = m_hasAttributes && (this->m_extendedAttributes & mpq::Attributes::ExtendedAttributes::FileTimeStamps);
 
 		// file time is extended attribute!
-		if (hasAttributes && hasFileTime)
+		if (hasFileTime)
 		{
 			if (m_fileTimes.size() > file.block()->index())
 			{

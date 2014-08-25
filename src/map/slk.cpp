@@ -89,11 +89,8 @@ struct RecordSkipper : public qi::grammar<Iterator>
 		 * ; has to be escaped by using two ; characters
 		 */
 		literal %=
-			(
-				(char_ - eol) >> lit(";;")
-				| (char_ - lit(';') - eol)
-
-			)
+			lit(";;")
+			| (char_ - lit(';') - eol)
 		;
 
 		/*
@@ -288,16 +285,28 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 		 * ; has to be escaped by using two ; characters
 		 */
 		literal %=
-			+(
-				(char_ - eol) >> &lit(";;")
-				| (char_ - lit(';') - eol)
+			// rollback changes if it fails
+			qi::hold[
+				+(
+					lit(";;")[push_back(_val, ';')]
+					| (char_ - lit(';') - eol)[push_back(_val, _1)]
+				)
+			]
+		;
 
-			)
+		x_field %=
+			lit(";X")
+			> int_
+		;
+
+		y_field %=
+			lit(";Y")
+			> int_
 		;
 
 		d_field %=
 			lit(";D")
-			>> literal
+			> literal
 		;
 
 		/*
@@ -311,16 +320,12 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 			>>
 			(
 				(
-					lit(";Y")
-					>> int_[phoenix::bind(&assignY, phoenix::ref(_val), phoenix::ref(_1))]
-					>> lit(";X")
-					>> int_[phoenix::bind(&assignX, phoenix::ref(_val), phoenix::ref(_1))]
+					y_field[phoenix::bind(&assignY, phoenix::ref(_val), phoenix::ref(_1))]
+					> x_field[phoenix::bind(&assignX, phoenix::ref(_val), phoenix::ref(_1))]
 				)
 				| (
-					lit(";X")
-					>> int_[phoenix::bind(&assignX, phoenix::ref(_val), phoenix::ref(_1))]
-					>> lit(";Y")
-					>> int_[phoenix::bind(&assignY, phoenix::ref(_val), phoenix::ref(_1))]
+					x_field[phoenix::bind(&assignX, phoenix::ref(_val), phoenix::ref(_1))]
+					> y_field[phoenix::bind(&assignY, phoenix::ref(_val), phoenix::ref(_1))]
 				)
 			)
 			// Warcraft III files have D fields
@@ -329,22 +334,11 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 
 		c_record =
 			lit('C')[at_c<0>(_val) = ref(column)][at_c<1>(_val) = ref(row)] // use current row and column by default
-			>>
 			// the whole position might be skipped in this case we use the last used X and Y
-			-(
-				// if row value is present (Y) set the current row to that value
-				-(
-					lit(";Y")
-					>> int_[at_c<1>(_val) = _1][ref(row) = _1]
-				)
-				// in some cases even the column value (X) is missing so use the current column
-				>>
-				-(
-					lit(";X")
-					>> int_[at_c<0>(_val) = _1]
-				)
-			)
-
+			// if row value is present (Y) set the current row to that value
+			>> -y_field[at_c<1>(_val) = _1][ref(row) = _1]
+			// in some cases even the column value (X) is missing so use the current column
+			>> -x_field[at_c<0>(_val) = _1]
 			>>
 			*(
 				(lit(";E") >> literal)
@@ -365,18 +359,8 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 		 */
 		f_record =
 			lit('F')
-			>>
-			-(
-				-(
-					lit(";Y")
-					>> int_[ref(row) = _1]
-				)
-				>>
-				-(
-					lit(";X")
-					>> int_[ref(column) = _1]
-				)
-			)
+			>> -y_field[ref(row) = _1]
+			>> -x_field[ref(column) = _1]
 		;
 
 		record =
@@ -393,6 +377,8 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 		;
 
 		literal.name("literal");
+		x_field.name("x_field");
+		y_field.name("y_field");
 		d_field.name("d_field");
 		b_record.name("b_record");
 		c_record.name("c_record");
@@ -402,6 +388,8 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 
 		BOOST_SPIRIT_DEBUG_NODES(
 			(literal)
+			(x_field)
+			(y_field)
 			(d_field)
 			(b_record)
 			(c_record)
@@ -412,6 +400,9 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 	}
 
 	qi::rule<Iterator, Slk::Cell(), Skipper> literal;
+
+	qi::rule<Iterator, Slk::Table::size_type(), Skipper> x_field;
+	qi::rule<Iterator, Slk::Table::size_type(), Skipper> y_field;
 	qi::rule<Iterator, Skipper> d_field;
 
 	qi::rule<Iterator, SlkSize(), Skipper> b_record;

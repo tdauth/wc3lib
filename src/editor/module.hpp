@@ -40,7 +40,7 @@ namespace editor
  * \brief Abstract class for module implementation such as model or terrain editors.
  * Implement the pure virtual member functions to customize your module's menu, actions and tool buttons.
  * \note Modules should work independently without an Editor instance. They only need a data source.
- * \note Use class \ref Plugin to load modules related plugins. Since Module is based on \ref KXMLGUIClient it provides an extensible system using specific XML GUI files.
+ * \note Since Module is based on KXMLGUIClient it provides an extensible system using specific XML GUI files.
  */
 class KDE_EXPORT Module : public QWidget
 {
@@ -50,6 +50,7 @@ class KDE_EXPORT Module : public QWidget
 		/**
 		 * \param source Source where files are loaded from when requested. Should not be 0. At least you should create an empty \ref MpqPriorityList instance. To emulate Blizzard's World Editor you can use an \ref Editor instance.
 		 * \param parent Parent widget for which the module widget is created.
+		 * \param f Window flags for the module widget.
 		 */
 		Module(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~Module();

@@ -66,6 +66,7 @@ class CustomUnits : public FileFormat
 				std::streamsize read(InputStream &istream) throw (class Exception);
 				std::streamsize write(OutputStream &ostream) const throw (class Exception);
 
+				void setValueId(id valueId);
 				id valueId() const;
 				Value& value();
 				const Value& value() const;
@@ -86,7 +87,7 @@ class CustomUnits : public FileFormat
 
 		/**
 		 * \brief Represents one single unit entry in a table which contains a list of modifications for all modified unit fields.
-		 * 
+		 *
 		 * Use \ref modifications() to access the list.
 		 * If \ref isOriginal() returns true it is not a custom unit.
 		 * All custom units are based on an original one whichs id can be got using \ref originalId().
@@ -109,7 +110,9 @@ class CustomUnits : public FileFormat
 
 				bool isOriginal() { return m_customId == 0; };
 
+				void setOriginalId(id originalId);
 				id originalId() const;
+				void setCustomId(id customId);
 				id customId() const;
 				Modifications& modifications();
 				const Modifications& modifications() const;
@@ -154,6 +157,11 @@ class CustomUnits : public FileFormat
 		Table m_customTable;
 };
 
+inline void CustomUnits::Modification::setValueId(id valueId)
+{
+	this->m_id = valueId;
+}
+
 inline id CustomUnits::Modification::valueId() const
 {
 	return m_id;
@@ -169,9 +177,19 @@ inline const Value& CustomUnits::Modification::value() const
 	return m_value;
 }
 
+inline void CustomUnits::Unit::setOriginalId(id originalId)
+{
+	this->m_originalId = originalId;
+}
+
 inline id CustomUnits::Unit::originalId() const
 {
 	return m_originalId;
+}
+
+inline void CustomUnits::Unit::setCustomId(id customId)
+{
+	this->m_customId = customId;
 }
 
 inline id CustomUnits::Unit::customId() const

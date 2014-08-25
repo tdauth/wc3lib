@@ -64,6 +64,7 @@ BOOST_AUTO_TEST_CASE(UnitAbilities)
 	BOOST_REQUIRE(valid);
 	BOOST_REQUIRE(slk.columns() == 7);
 	BOOST_REQUIRE(slk.rows() == 325);
+	std::cerr << "Cell 0x0:" << slk.cell(0, 0) << std::endl;
 	BOOST_REQUIRE(slk.cell(0, 0) == "\"unitAbilID\"");
 }
 
@@ -145,6 +146,41 @@ BOOST_AUTO_TEST_CASE(UnitMetaData)
 	BOOST_REQUIRE(spiritTraceLog);
 
 	ifstream in("UnitMetaData.slk");
+
+	BOOST_REQUIRE(in);
+
+	map::Slk slk;
+
+	bool valid = true;
+
+	try
+	{
+		slk.read(in);
+	}
+	catch (Exception e)
+	{
+		valid = false;
+
+		std::cerr << e.what() << std::endl;
+	}
+
+	// 17 columns
+	// 118 rows
+	BOOST_REQUIRE(valid);
+	BOOST_REQUIRE(slk.columns() == 17);
+	BOOST_REQUIRE(slk.rows() == 118);
+	BOOST_REQUIRE(slk.cell(0, 0) == "\"ID\"");
+	BOOST_REQUIRE(slk.cell(0, 1) == "\"field\"");
+}
+
+BOOST_AUTO_TEST_CASE(UnitMetaDataLibreOffice)
+{
+	spiritTraceLog.close();
+	spiritTraceLog.open("unitmetadatalibreoffice_traces.xml");
+
+	BOOST_REQUIRE(spiritTraceLog);
+
+	ifstream in("UnitMetaDataExportedByLibreOffice.slk");
 
 	BOOST_REQUIRE(in);
 

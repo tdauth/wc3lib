@@ -32,12 +32,14 @@ namespace wc3lib
 namespace editor
 {
 
-WindowsMenu::WindowsMenu(Module *module) : KMenu(tr("Windows"), module)
+WindowsMenu::WindowsMenu(Module *module) : KMenu(module->source()->sharedData()->tr("WESTRING_MENU_WINDOW"), module)
 {
 	if (module->hasEditor())
 	{
 		foreach (Map *map, const_cast<const Editor*>(module->editor())->maps())
+		{
 			addMapAction(map);
+		}
 
 		connect(module->editor(), SIGNAL(openedMap(Map*)), this, SLOT(addMapAction(Map*)));
 		connect(module->editor(), SIGNAL(aboutToCloseMap(Map*)), this, SLOT(removeMapAction(Map*)));

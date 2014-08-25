@@ -110,6 +110,102 @@ void MetaData::reload() throw (Exception)
 	load();
 }
 
+QString MetaData::value(const QString &rowKey, const QString &columnKey) const
+{
+	if (hasSlk())
+	{
+		SlkKeys::const_iterator columnIterator = this->columnKeys().find(columnKey);
+
+		if (columnIterator == this->columnKeys().end())
+		{
+			throw Exception(boost::format(_("Column %1% not found.")) % columnKey.toUtf8().constData());
+		}
+
+		SlkKeys::const_iterator rowIterator = this->rowKeys().find(rowKey);
+
+		if (rowIterator == this->rowKeys().end())
+		{
+			throw Exception(boost::format(_("Row %1% not found.")) % rowKey.toUtf8().constData());
+		}
+
+		const map::Slk::Table::size_type column = columnIterator.value();
+		const map::Slk::Table::size_type row = rowIterator.value();
+		qDebug() << "Value " << column << "|" << row;
+		const string &var = this->slk().table()[column][row];
+
+		qDebug() << "Value var " << var.c_str();
+
+		if (column < this->slk().columns() && row < this->slk().rows())
+		{
+			return QString::fromUtf8(this->slk().table()[column][row].c_str());
+		}
+		else
+		{
+			throw Exception(boost::format(_("%1%|%2% is out of range.")) % column % row);
+		}
+	}
+	else if (hasTxt())
+	{
+		// TXT
+		TxtKeys::const_iterator rowIterator = this->sectionKeys().find(rowKey);
+
+		if (rowIterator == this->sectionKeys().end())
+		{
+			throw Exception(boost::format(_("Row %1% not found.")) % rowKey.toUtf8().constData());
+		}
+
+		const map::Txt::Section &section = *rowIterator.value();
+
+		foreach (map::Txt::Entries::const_reference entry, section.entries)
+		{
+			if (entry.first == columnKey.toUtf8().constData())
+			{
+				return QString::fromUtf8(entry.second.c_str());
+			}
+		}
+
+		throw Exception(boost::format(_("Column %1% not found.")) % columnKey.toUtf8().constData());
+	}
+
+	throw Exception();
+
+}
+
+bool MetaData::hasValue(const QString &rowKey, const QString &columnKey) const
+{
+	if (hasSlk())
+	{
+		SlkKeys::const_iterator columnIterator = this->columnKeys().find(columnKey);
+
+		if (columnIterator == this->columnKeys().end())
+		{
+			return false;
+		}
+
+		SlkKeys::const_iterator rowIterator = this->rowKeys().find(rowKey);
+
+		if (rowIterator == this->rowKeys().end())
+		{
+			return false;
+		}
+
+		return true;
+	}
+	else if (hasTxt())
+	{
+		TxtKeys::const_iterator sectionIterator = this->sectionKeys().find(rowKey);
+
+		if (sectionIterator == this->sectionKeys().end())
+		{
+			return false;
+		}
+
+		return std::find_if(sectionIterator.value()->entries.begin(), sectionIterator.value()->entries.end(), [&columnKey](const map::Txt::Entry &entry) { return columnKey == QString::fromUtf8(entry.first.c_str()); } ) != sectionIterator.value()->entries.end();
+	}
+
+	return false;
+}
+
 }
 
 }

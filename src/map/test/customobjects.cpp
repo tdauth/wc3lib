@@ -44,13 +44,13 @@ using namespace wc3lib;
 struct MyConfig {
 	MyConfig() {
 		BOOST_TEST_MESSAGE("global setup");
-		
+
 		ifstream in("customobjects.w3o", ifstream::in | ifstream::binary);
-	
+
 		if (in)
 		{
 			valid = true;
-			
+
 			try {
 				collection.read(in);
 			}
@@ -64,14 +64,14 @@ struct MyConfig {
 			valid = false;
 		}
 	}
-	
-	~MyConfig()  { 
+
+	~MyConfig()  {
 		BOOST_TEST_MESSAGE("global teardown");
-		
+
 		collection.clear();
 		valid = true;
 	}
-	
+
 	static map::CustomObjectsCollection collection;
 	static bool valid;
 };
@@ -152,6 +152,7 @@ BOOST_AUTO_TEST_CASE(Doodads) {
 	BOOST_REQUIRE(map::idToString(object->customId()) == "D000");
 	BOOST_REQUIRE(object->modifications().size() == 1); // only name field changed
 	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object->modifications().at(0));
+	std::cerr << "Mod id: " << map::idToString(modification->valueId()) << std::endl;
 	BOOST_REQUIRE(map::idToString(modification->valueId()) == "bnam"); // the values id are taken from "DestructableMetaData.slk" first column
 	BOOST_REQUIRE(modification->value().type() == map::Value::Type::String);
 	BOOST_REQUIRE(modification->value().toString() == "My Doodad");
@@ -190,6 +191,7 @@ BOOST_AUTO_TEST_CASE(Buffs) {
 	BOOST_REQUIRE(map::idToString(object->customId()) == "B000");
 	BOOST_REQUIRE(object->modifications().size() == 1); // only name field changed
 	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object->modifications().at(0));
+	std::cerr << "Second mod id: " << map::idToString(modification->valueId()) << std::endl;
 	BOOST_REQUIRE(map::idToString(modification->valueId()) == "anam"); // the values id are taken from "AbilityMetaData.slk" first column
 	BOOST_REQUIRE(modification->value().type() == map::Value::Type::String);
 	BOOST_REQUIRE(modification->value().toString() == "My Buff");

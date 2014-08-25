@@ -124,7 +124,7 @@ void Module::setupUi()
 	this->m_menuBar = new KMenuBar(this);
 	topLayout()->addWidget(this->m_menuBar);
 
-	this->m_fileMenu = new KMenu(tr("File"), this);
+	this->m_fileMenu = new KMenu(this->source()->sharedData()->tr("WESTRING_MENU_FILE"), this);
 	this->menuBar()->addMenu(this->m_fileMenu);
 	connect(this->m_fileMenu, SIGNAL(triggered(QAction *)), this, SLOT(triggered(QAction*)));
 

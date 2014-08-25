@@ -45,7 +45,13 @@ class UnitEditor : public ObjectEditorTab
 
 		virtual void onUpdateCollection(const map::CustomObjects& objects);
 
+		virtual map::CustomObjects* customObjects() const override;
+		virtual map::CustomObjects::Object* currentObject() const override;
 		virtual QString getDataValue(const QString &objectId, const QString &fieldId) const override;
+
+		bool objectIsHero(const QString &objectId) const;
+		bool objectIsUnit(const QString &objectId) const;
+		bool objectIsBuilding(const QString &objectId) const;
 
 	protected:
 		virtual class ObjectTreeWidget* createTreeWidget() override;
@@ -65,13 +71,13 @@ class UnitEditor : public ObjectEditorTab
 		virtual void activateObject(QTreeWidgetItem *item, int column, const QString& rawDataId) override;
 		virtual void activateFolder(QTreeWidgetItem* item, int column) override;
 
-		virtual QString newObjectText() const;
-		virtual QString renameObjectText() const;
-		virtual QString deleteObjectText() const;
-		virtual QString resetObjectText() const;
-		virtual QString resetAllObjectsText() const;
-		virtual QString exportAllObjectsText() const;
-		virtual QString importAllObjectsText() const;
+		virtual QString newObjectText() const override;
+		virtual QString renameObjectText() const override;
+		virtual QString deleteObjectText() const override;
+		virtual QString resetObjectText() const override;
+		virtual QString resetAllObjectsText() const override;
+		virtual QString exportAllObjectsText() const override;
+		virtual QString importAllObjectsText() const override;
 		virtual QString copyObjectText() const;
 		virtual QString pasteObjectText() const;
 
@@ -89,12 +95,24 @@ class UnitEditor : public ObjectEditorTab
 		QTreeWidgetItem *m_neutralHostileItem;
 		QTreeWidgetItem *m_neutralPassiveItem;
 
+		map::CustomObjects *m_units;
 		MetaData *m_unitData;
 		MetaData *m_unitUi;
+		MetaData *m_unitBalance;
 		MetaData *m_humanUnitStrings;
 		MetaData *m_humanUnitFunc;
 		MetaData *m_orcUnitStrings;
+		MetaData *m_orcUnitFunc;
+		MetaData *m_undeadUnitStrings;
+		MetaData *m_undeadUnitFunc;
+		MetaData *m_nightElfUnitStrings;
+		MetaData *m_nightElfUnitFunc;
 };
+
+inline map::CustomObjects* UnitEditor::customObjects() const
+{
+	return this->m_units;
+}
 
 inline QString UnitEditor::name() const
 {

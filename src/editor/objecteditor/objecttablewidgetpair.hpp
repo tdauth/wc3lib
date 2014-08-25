@@ -79,6 +79,8 @@ class ObjectTableWidgetPair : public QObject
 		QTableWidgetItem* descriptionItem() const;
 		QTableWidgetItem* valueItem() const;
 
+		void edit();
+
 	protected:
 		void update();
 

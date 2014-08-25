@@ -64,6 +64,7 @@ std::streamsize Tilepoint::read(InputStream &istream) throw (class Exception)
 
 	this->m_groundTextureType = tilepointData.groundTextureType;
 	this->m_textureDetails = tilepointData.textureDetails;
+	this->m_cliffTextureType = tilepointData.cliffTextureType;
 	this->m_layerHeight = tilepointData.layerHeight;
 
 	return size;
@@ -78,6 +79,7 @@ std::streamsize Tilepoint::write(OutputStream &ostream) const throw (class Excep
 	tilepointData.flags = static_cast<uint16>(this->m_flags); // only the first 4 bits because ShadowBoundary has already been used
 	tilepointData.groundTextureType = this->m_groundTextureType;
 	tilepointData.textureDetails = this->m_textureDetails;
+	tilepointData.cliffTextureType = this->m_cliffTextureType;
 	tilepointData.layerHeight = this->m_layerHeight;
 	std::streamsize size = 0;
 	wc3lib::write(ostream, tilepointData, size, 7);

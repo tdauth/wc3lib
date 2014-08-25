@@ -68,6 +68,8 @@ class ObjectTableWidget : public QTableWidget
 		 */
 		void editItem(QTableWidgetItem *item);
 		void customContextMenuRequested(QPoint pos);
+		void modifyField();
+		void resetField();
 };
 
 inline ObjectEditorTab* ObjectTableWidget::tab() const

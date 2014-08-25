@@ -195,7 +195,7 @@ Root* Editor::root() const
 
 void Editor::changeEvent(QEvent *event)
 {
-	/// TODO load new language MPQ archives and retranslate all textes which has been translated via \ref Editor::tr().
+	/// TODO load new language MPQ archives and retranslate all textes which has been translated via \ref wc3lib::editor::WarcraftIIIShared::tr().
 	if (event->type() == QEvent::LanguageChange)
 	{
 

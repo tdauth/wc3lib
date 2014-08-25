@@ -44,6 +44,13 @@ namespace editor
  * This class can either store a SYLK file or a .txt file and provides a unified interface
  * to retrieve any value by keys.
  *
+ * Retrieving values by keys is much faster that searching for them with linear complexity.
+ *
+ * SLK or .txt files in Warcraft III usually provide a row and column item or a section and entry name (for .txt files)
+ * from which the required value can be identified.
+ * This class allows fast access to both kind of values through hashing.
+ * Use \ref value() to get a value by both keys.
+ *
  * Uses \ref map::Slk to load a SYLK file which contains all meta data.
  * In addition to \ref map::Slk it stores columns and rows by keys (their first cell values) through hashing.
  * This allows fast access of columns or rows by keys which is usually required for meta data.
@@ -82,7 +89,17 @@ class KDE_EXPORT MetaData : public Resource
 			throw Exception(_("Saving meta data is not supported yet."));
 		}
 
+		/**
+		 * \return Returns true if there is currently an SLK file stored.
+		 *
+		 * \sa hasTxt()
+		 */
 		bool hasSlk() const;
+		/**
+		 * \return Returns true if there is currently a TXT file stored.
+		 *
+		 * \sa hasSlk()
+		 */
 		bool hasTxt() const;
 
 		map::Slk& slk();
@@ -97,11 +114,42 @@ class KDE_EXPORT MetaData : public Resource
 
 		QString value(int row, const QString &columnKey) const;
 		QString value(const QString &rowKey, int column) const;
+		/**
+		 * Searches for value \p rowKey in the first column and for value \p columnKey in the
+		 * first row.
+		 * If both values could be found it returns the corresponding cell value.
+		 *
+		 * This allows you fast retrieving of values by two keys which is usually
+		 * what you need to do to get SLK or TXT data for Warcraft III.
+		 *
+		 * \note For TXT files the \p rowKey is the section name and the \p columnKey is the entry name of an entry in that section.
+		 *
+		 * \return Returns the keys matching value. If no value is found it returns an empty string.
+		 *
+		 * \sa hasValue()
+		 */
 		QString value(const QString &rowKey, const QString &columnKey) const;
 
+		/**
+		 * \sa value()
+		 */
 		bool hasValue(const QString &rowKey, const QString &columnKey) const;
 
+		/**
+		 * \return Returns true if the underlying file entries are empty.
+		 */
 		bool isEmpty() const;
+
+		/**
+		 * Cuts " characters at start and end if available and returns resulting string.
+		 */
+		static QString fromSlkString(const QString &value);
+		static QString toSlkString(const QString &value);
+
+		/**
+		 * Converts \p value to a native file path.
+		 */
+		static QString fromFilePath(const QString &value);
 
 	protected:
 		Source m_source;
@@ -223,102 +271,6 @@ inline QString MetaData::value(const QString &rowKey, int column) const
 	return QString::fromUtf8(this->slk().table()[column][iterator.value()].c_str());
 }
 
-inline QString MetaData::value(const QString &rowKey, const QString &columnKey) const
-{
-	if (hasSlk())
-	{
-		SlkKeys::const_iterator columnIterator = this->columnKeys().find(columnKey);
-
-		if (columnIterator == this->columnKeys().end())
-		{
-			throw Exception(boost::format(_("Column %1% not found.")) % columnKey.toUtf8().constData());
-		}
-
-		SlkKeys::const_iterator rowIterator = this->rowKeys().find(rowKey);
-
-		if (rowIterator == this->rowKeys().end())
-		{
-			throw Exception(boost::format(_("Row %1% not found.")) % rowKey.toUtf8().constData());
-		}
-
-		const map::Slk::Table::size_type column = columnIterator.value();
-		const map::Slk::Table::size_type row = rowIterator.value();
-		qDebug() << "Value " << column << "|" << row;
-		const string &var = this->slk().table()[column][row];
-
-		qDebug() << "Value var " << var.c_str();
-
-		if (column < this->slk().columns() && row < this->slk().rows())
-		{
-			return QString::fromUtf8(this->slk().table()[column][row].c_str());
-		}
-		else
-		{
-			throw Exception(boost::format(_("%1%|%2% is out of range.")) % column % row);
-		}
-	}
-	else if (hasTxt())
-	{
-		// TXT
-		TxtKeys::const_iterator rowIterator = this->sectionKeys().find(rowKey);
-
-		if (rowIterator == this->sectionKeys().end())
-		{
-			throw Exception(boost::format(_("Row %1% not found.")) % rowKey.toUtf8().constData());
-		}
-
-		const map::Txt::Section &section = *rowIterator.value();
-
-		foreach (map::Txt::Entries::const_reference entry, section.entries)
-		{
-			if (entry.first == columnKey.toUtf8().constData())
-			{
-				return QString::fromUtf8(entry.second.c_str());
-			}
-		}
-
-		throw Exception(boost::format(_("Column %1% not found.")) % columnKey.toUtf8().constData());
-	}
-
-	throw Exception();
-
-}
-
-inline bool MetaData::hasValue(const QString &rowKey, const QString &columnKey) const
-{
-	if (hasSlk())
-	{
-		SlkKeys::const_iterator columnIterator = this->columnKeys().find(columnKey);
-
-		if (columnIterator == this->columnKeys().end())
-		{
-			return false;
-		}
-
-		SlkKeys::const_iterator rowIterator = this->rowKeys().find(rowKey);
-
-		if (rowIterator == this->rowKeys().end())
-		{
-			return false;
-		}
-
-		return true;
-	}
-	else if (hasTxt())
-	{
-		TxtKeys::const_iterator sectionIterator = this->sectionKeys().find(rowKey);
-
-		if (sectionIterator == this->sectionKeys().end())
-		{
-			return false;
-		}
-
-		return std::find_if(sectionIterator.value()->entries.begin(), sectionIterator.value()->entries.end(), [&columnKey](const map::Txt::Entry &entry) { return columnKey == QString::fromUtf8(entry.first.c_str()); } ) != sectionIterator.value()->entries.end();
-	}
-
-	return false;
-}
-
 inline bool MetaData::isEmpty() const
 {
 	if (hasSlk())
@@ -327,6 +279,36 @@ inline bool MetaData::isEmpty() const
 	}
 
 	return this->txt().sections().empty();
+}
+
+inline QString MetaData::fromSlkString(const QString& value)
+{
+	QString result = value;
+
+	if (result.startsWith('"'))
+	{
+		result = result.mid(1);
+	}
+
+	if (result.endsWith('"'))
+	{
+		result = result.mid(0, result.size() - 1);
+	}
+
+	return result;
+}
+
+inline QString MetaData::toSlkString(const QString& value)
+{
+	return QChar('"') + value + '"';
+}
+
+inline QString MetaData::fromFilePath(const QString& value)
+{
+	QString result = value;
+	result.replace('\\', '/');
+
+	return result;
 }
 
 }

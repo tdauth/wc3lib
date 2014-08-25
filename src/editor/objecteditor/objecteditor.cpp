@@ -201,7 +201,7 @@ void ObjectEditor::createMenus(class KMenuBar *menuBar)
 	m_viewMenu = new QMenu(source()->sharedData()->tr("WESTRING_MENU_VIEW"), this);
 
 	// TODO is Frozen Throne
-	QAction *rawDataAction = new QAction(tr("Show rawdata"), this);
+	QAction *rawDataAction = new QAction(this->source()->sharedData()->tr("WESTRING_MENU_OE_TOGGLERAWDATA"), this);
 	rawDataAction->setCheckable(true);
 	connect(rawDataAction, SIGNAL(triggered(bool)), this, SLOT(showRawData(bool)));
 	m_viewMenu->addAction(rawDataAction);

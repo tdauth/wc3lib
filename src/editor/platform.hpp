@@ -267,38 +267,52 @@ inline QVariant registryEntry(const QString &key)
 
 	// if there is no HKEY at the beginning we use user registry by default
 	if (index == -1)
+	{
 		fileName = "/.wine/user.reg";
+	}
 	else
 	{
 		QString start = key.mid(index);
 
 		if (start == "HKEY_CURRENT_USER")
+		{
 			fileName = "/.wine/user.reg";
+		}
 		else if (index != 0)  // TODO support other registry files
+		{
 			return QVariant();
+		}
 
-		realKey = realKey.mid(index + 2); // skip key root plus \\
+		realKey = realKey.mid(index + 2); /* skip key root plus \\ */
 
 		if (realKey.isEmpty())
+		{
 			return QVariant();
+		}
 	}
 
 	QFileInfo info(QDir::homePath() + fileName);
 
 	if (!info.isFile() || !info.isReadable())
+	{
 		return QVariant();
+	}
 
 	QFile file(info.absolutePath());
 
 	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+	{
 		return QVariant();
+	}
 
 	while (file.canReadLine())
 	{
 		QString line = file.readLine();
 
 		if (line.isEmpty())
+		{
 			continue;
+		}
 
 		int index = line.indexOf(key);
 
@@ -314,7 +328,9 @@ inline QVariant registryEntry(const QString &key)
 			return QVariant(line.mid(start));
 			*/
 			if (!file.canReadLine())
+			{
 				return QVariant();
+			}
 
 			return file.readLine();
 		}
