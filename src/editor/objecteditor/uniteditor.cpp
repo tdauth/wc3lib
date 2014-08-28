@@ -21,11 +21,13 @@
 #include <QtGui>
 
 #include <KMessageBox>
+#include <KFileDialog>
 
 #include "uniteditor.hpp"
 #include "objecttreewidget.hpp"
 #include "objecttablewidget.hpp"
 #include "objecttablewidgetpair.hpp"
+#include "unitmetadata.hpp"
 #include "../metadata.hpp"
 #include "../map.hpp"
 
@@ -46,148 +48,16 @@ UnitEditor::UnitEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags
 , m_neutralNagaItem(0)
 , m_neutralHostileItem(0)
 , m_neutralPassiveItem(0)
-, m_unitData(0)
-, m_unitUi(0)
+, m_unitMetaData(new UnitMetaData(source))
 {
-	this->m_unitData = new MetaData(KUrl("Units/UnitData.slk"));
-	this->m_unitData->setSource(this->source());
-
-	try
-	{
-		this->m_unitData->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_unitData->url().toEncoded().constData(), e.what()));
-	}
-
-	this->m_unitUi = new MetaData(KUrl("Units/unitUI.slk"));
-	m_unitUi->setSource(this->source());
-
-	try
-	{
-		this->m_unitUi->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_unitUi->url().toEncoded().constData(), e.what()));
-	}
-
-	this->m_unitBalance = new MetaData(KUrl("Units/UnitBalance.slk"));
-	m_unitBalance->setSource(this->source());
-
-	try
-	{
-		this->m_unitBalance->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_unitBalance->url().toEncoded().constData(), e.what()));
-	}
-
-	this->m_humanUnitStrings = new MetaData(KUrl("Units/HumanUnitStrings.txt"));
-	m_humanUnitStrings->setSource(this->source());
-
-	try
-	{
-		this->m_humanUnitStrings->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_humanUnitStrings->url().toEncoded().constData(), e.what()));
-	}
-
-	this->m_humanUnitFunc = new MetaData(KUrl("Units/HumanUnitFunc.txt"));
-	this->m_humanUnitFunc->setSource(this->source());
-
-	try
-	{
-		this->m_humanUnitFunc->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_humanUnitFunc->url().toEncoded().constData(), e.what()));
-	}
-
-	this->m_orcUnitStrings = new MetaData(KUrl("Units/OrcUnitStrings.txt"));
-	m_orcUnitStrings->setSource(this->source());
-
-	try
-	{
-		this->m_orcUnitStrings->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_orcUnitStrings->url().toEncoded().constData(), e.what()));
-	}
-
-	this->m_orcUnitFunc = new MetaData(KUrl("Units/OrcUnitFunc.txt"));
-	m_orcUnitFunc->setSource(this->source());
-
-	try
-	{
-		this->m_orcUnitFunc->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_orcUnitFunc->url().toEncoded().constData(), e.what()));
-	}
-
-	this->m_undeadUnitStrings = new MetaData(KUrl("Units/UndeadUnitStrings.txt"));
-	m_undeadUnitStrings->setSource(this->source());
-
-	try
-	{
-		this->m_undeadUnitStrings->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_undeadUnitStrings->url().toEncoded().constData(), e.what()));
-	}
-
-	this->m_undeadUnitFunc = new MetaData(KUrl("Units/UndeadUnitFunc.txt"));
-	m_undeadUnitFunc->setSource(this->source());
-
-	try
-	{
-		this->m_undeadUnitFunc->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_undeadUnitFunc->url().toEncoded().constData(), e.what()));
-	}
-
-	this->m_nightElfUnitStrings = new MetaData(KUrl("Units/NightElfUnitStrings.txt"));
-	m_nightElfUnitStrings->setSource(this->source());
-
-	try
-	{
-		this->m_nightElfUnitStrings->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_nightElfUnitStrings->url().toEncoded().constData(), e.what()));
-	}
-
-	this->m_nightElfUnitFunc = new MetaData(KUrl("Units/NightElfUnitFunc.txt"));
-	m_nightElfUnitFunc->setSource(this->source());
-
-	try
-	{
-		this->m_nightElfUnitFunc->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->m_nightElfUnitFunc->url().toEncoded().constData(), e.what()));
-	}
+	this->unitMetaData()->load(this);
 
 	setupUi();
 }
 
 UnitEditor::~UnitEditor()
 {
-	delete this->m_units;
-	delete this->m_humanUnitStrings;
+	delete this->m_unitMetaData;
 }
 
 class ObjectTreeWidget* UnitEditor::createTreeWidget()
@@ -221,17 +91,17 @@ class ObjectTreeWidget* UnitEditor::createTreeWidget()
 	m_standardUnitsItem->addChild(m_neutralPassiveItem);
 
 	// add all entries from "UnitData.slk" to standard units in Unit Editor
-	if (!this->m_unitData->isEmpty())
+	if (!this->unitMetaData()->unitData()->isEmpty())
 	{
 		// skip the first row which defines the column names, start with 1
-		for (map::Slk::Table::size_type row = 1; row < this->m_unitData->slk().rows(); ++row)
+		for (map::Slk::Table::size_type row = 1; row < this->unitMetaData()->unitData()->slk().rows(); ++row)
 		{
 			QTreeWidgetItem *unitItem = new QTreeWidgetItem();
 
 			try
 			{
 				qDebug() << "Row:" << row;
-				const QString rawData = QString::fromStdString(this->m_unitData->slk().cell(row, 0));
+				const QString rawData = QString::fromStdString(this->unitMetaData()->unitData()->slk().cell(row, 0));
 				const QString txtRawData = rawData.mid(1, rawData.size() - 2);
 
 				//QString
@@ -240,8 +110,8 @@ class ObjectTreeWidget* UnitEditor::createTreeWidget()
 				qDebug() << "Adding unit" << txtRawData;
 
 				bool ok = false;
-				int inEditor = this->m_unitUi->value(rawData, "\"inEditor\"").toInt(&ok);
-				int hiddenInEditor = this->m_unitUi->value(rawData, "\"hiddenInEditor\"").toInt(&ok);
+				int inEditor = this->unitMetaData()->unitUi()->value(rawData, "\"inEditor\"").toInt(&ok);
+				int hiddenInEditor = this->unitMetaData()->unitUi()->value(rawData, "\"hiddenInEditor\"").toInt(&ok);
 
 				if (!inEditor || hiddenInEditor)
 				{
@@ -273,11 +143,11 @@ class ObjectTreeWidget* UnitEditor::createTreeWidget()
 					}
 				}
 
-				int special = this->m_unitUi->value(rawData, "\"special\"").toInt(&ok);
+				int special = this->unitMetaData()->unitUi()->value(rawData, "\"special\"").toInt(&ok);
 				// Frozen Throne
 				//int campaign = QString::fromStdString(this->m_unitUi->value(rawData.toStdString(), "\"campaign\"")).toInt(&ok);
 
-				QString race = MetaData::fromSlkString(this->m_unitData->value(row, "\"race\""));
+				QString race = MetaData::fromSlkString(this->unitMetaData()->unitData()->value(row, "\"race\""));
 
 
 				if (race == "human")
@@ -344,29 +214,29 @@ class ObjectTableWidget* UnitEditor::createTableWidget()
 	return new ObjectTableWidget(this);
 }
 
-map::CustomObjects::Object* UnitEditor::currentObject() const
+map::CustomUnits::Unit* UnitEditor::currentUnit() const
 {
 	const QString objectId = this->currentObjectId();
-	map::CustomObjects::Object *object = new map::CustomObjects::Object(map::CustomObjects::Type::Units);
+	map::CustomUnits::Unit *unit = new map::CustomUnits::Unit();
 	// TODO which one is the custom id
-	object->setOriginalId(map::stringToId(objectId.toStdString()));
-	object->setCustomId(map::stringToId(objectId.toStdString()));
+	unit->setOriginalId(map::stringToId(objectId.toStdString()));
+	unit->setCustomId(map::stringToId(objectId.toStdString()));
 
 	for (ObjectTableWidget::Pairs::iterator iterator = this->tableWidget()->pairs().begin(); iterator != this->tableWidget()->pairs().end(); ++iterator)
 	{
 		if (!iterator.value()->isDefault())
 		{
-			std::auto_ptr<map::CustomObjects::Modification> modification(new map::CustomObjects::Modification(map::CustomObjects::Type::Units));
+			std::auto_ptr<map::CustomUnits::Modification> modification(new map::CustomUnits::Modification());
 			modification->setValueId(map::stringToId(iterator.key().toStdString()));
 			modification->value() = iterator.value()->customValue();
-			object->modifications().push_back(modification);
+			unit->modifications().push_back(modification);
 		}
 	}
 
 	// TODO is original or custom
 	//this->customObjects()->originalTable().push_back(object);
 
-	return object;
+	return unit;
 }
 
 QString UnitEditor::getDataValue(const QString &objectId, const QString &fieldId) const
@@ -388,23 +258,23 @@ QString UnitEditor::getDataValue(const QString &objectId, const QString &fieldId
 
 		if (slk == "UnitUI")
 		{
-			if (this->m_unitUi->hasValue(slkObjectId, slkField))
+			if (this->unitMetaData()->unitUi()->hasValue(slkObjectId, slkField))
 			{
-				return this->m_unitUi->value(slkObjectId, slkField);
+				return this->unitMetaData()->unitUi()->value(slkObjectId, slkField);
 			}
 		}
 		else if (slk == "UnitData")
 		{
-			if (this->m_unitData->hasValue(slkObjectId, slkField))
+			if (this->unitMetaData()->unitData()->hasValue(slkObjectId, slkField))
 			{
-				return this->m_unitData->value(slkObjectId, slkField);
+				return this->unitMetaData()->unitData()->value(slkObjectId, slkField);
 			}
 		}
 		else if (slk == "UnitBalance")
 		{
-			if (this->m_unitBalance->hasValue(slkObjectId, slkField))
+			if (this->unitMetaData()->unitBalance()->hasValue(slkObjectId, slkField))
 			{
-				return this->m_unitBalance->value(slkObjectId, slkField);
+				return this->unitMetaData()->unitBalance()->value(slkObjectId, slkField);
 			}
 		}
 		else if (slk == "UnitWeapons")
@@ -415,57 +285,57 @@ QString UnitEditor::getDataValue(const QString &objectId, const QString &fieldId
 		 */
 		else if (slk == "Profile")
 		{
-			if (this->m_unitData->hasValue(slkObjectId, "\"race\""))
+			if (this->unitMetaData()->unitData()->hasValue(slkObjectId, "\"race\""))
 			{
-				QString race = this->m_unitData->value(slkObjectId, "\"race\"");
+				QString race = this->unitMetaData()->unitData()->value(slkObjectId, "\"race\"");
 				race = race.mid(1, race.size() - 2);
 
 				if (race == "human")
 				{
-					if (this->m_humanUnitStrings->hasValue(txtObjectId, txtField))
+					if (this->unitMetaData()->humanUnitStrings()->hasValue(txtObjectId, txtField))
 					{
-						return this->m_humanUnitStrings->value(txtObjectId, txtField);
+						return this->unitMetaData()->humanUnitStrings()->value(txtObjectId, txtField);
 					}
 
-					if (this->m_humanUnitFunc->hasValue(txtObjectId, txtField))
+					if (this->unitMetaData()->humanUnitFunc()->hasValue(txtObjectId, txtField))
 					{
-						return this->m_humanUnitFunc->value(txtObjectId, txtField);
+						return this->unitMetaData()->humanUnitFunc()->value(txtObjectId, txtField);
 					}
 				}
 				else if (race == "orc")
 				{
-					if (this->m_orcUnitStrings->hasValue(txtObjectId, txtField))
+					if (this->unitMetaData()->orcUnitStrings()->hasValue(txtObjectId, txtField))
 					{
-						return this->m_orcUnitStrings->value(txtObjectId, txtField);
+						return this->unitMetaData()->orcUnitStrings()->value(txtObjectId, txtField);
 					}
 
-					if (this->m_orcUnitFunc->hasValue(txtObjectId, txtField))
+					if (this->unitMetaData()->orcUnitFunc()->hasValue(txtObjectId, txtField))
 					{
-						return this->m_orcUnitFunc->value(txtObjectId, txtField);
+						return this->unitMetaData()->orcUnitFunc()->value(txtObjectId, txtField);
 					}
 				}
 				else if (race == "nightelf")
 				{
-					if (this->m_nightElfUnitStrings->hasValue(txtObjectId, txtField))
+					if (this->unitMetaData()->nightElfUnitStrings()->hasValue(txtObjectId, txtField))
 					{
-						return this->m_nightElfUnitStrings->value(txtObjectId, txtField);
+						return this->unitMetaData()->nightElfUnitStrings()->value(txtObjectId, txtField);
 					}
 
-					if (this->m_nightElfUnitFunc->hasValue(txtObjectId, txtField))
+					if (this->unitMetaData()->nightElfUnitFunc()->hasValue(txtObjectId, txtField))
 					{
-						return this->m_nightElfUnitFunc->value(txtObjectId, txtField);
+						return this->unitMetaData()->nightElfUnitFunc()->value(txtObjectId, txtField);
 					}
 				}
 				else if (race == "undead")
 				{
-					if (this->m_undeadUnitStrings->hasValue(txtObjectId, txtField))
+					if (this->unitMetaData()->undeadUnitStrings()->hasValue(txtObjectId, txtField))
 					{
-						return this->m_undeadUnitStrings->value(txtObjectId, txtField);
+						return this->unitMetaData()->undeadUnitStrings()->value(txtObjectId, txtField);
 					}
 
-					if (this->m_undeadUnitFunc->hasValue(txtObjectId, txtField))
+					if (this->unitMetaData()->undeadUnitFunc()->hasValue(txtObjectId, txtField))
 					{
-						return this->m_undeadUnitFunc->value(txtObjectId, txtField);
+						return this->unitMetaData()->undeadUnitFunc()->value(txtObjectId, txtField);
 					}
 				}
 			}
@@ -541,6 +411,87 @@ void UnitEditor::onExportAllObjects()
 
 void UnitEditor::onImportAllObjects()
 {
+	const QString customObjectsSuffix = QFileInfo(QString::fromStdString(this->customUnits()->fileName())).suffix();
+	const QString customObjectsCollectionSuffix = "w3o";
+	const QString mapSuffix = "w3m";
+	const QString xmapSuffix = "w3x";
+
+	const KUrl url = KFileDialog::getSaveUrl(KUrl(), QString("*\n*.%1\nCustom Objects Collection *.%2\nMap (*.%3 *.%4)").arg(customObjectsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix), this, exportAllObjectsText());
+
+	if (!url.isEmpty())
+	{
+		ifstream in(url.toLocalFile().toUtf8().constData());
+		const QString suffix = QFileInfo(url.toLocalFile()).suffix();
+
+		if (in)
+		{
+			if (suffix == customObjectsSuffix)
+			{
+				try
+				{
+					this->customUnits()->clear();
+					this->customUnits()->read(in);
+				}
+				catch (Exception &e)
+				{
+					KMessageBox::error(this, tr("Error on exporting"), e.what());
+				}
+			}
+			else if (customObjectsCollectionSuffix == customObjectsSuffix)
+			{
+				try
+				{
+					std::unique_ptr<map::CustomObjectsCollection> customObjectsCollection(new map::CustomObjectsCollection());
+					customObjectsCollection->read(in);
+
+					if (customObjectsCollection->hasUnits())
+					{
+						this->m_units.reset();
+						// TODO polymorphic swap
+						//customObjectsCollection->units().swap(this->m_units);
+					}
+					else
+					{
+						KMessageBox::error(this, tr("Collection has no units."));
+					}
+				}
+				catch (Exception &e)
+				{
+					KMessageBox::error(this, e.what());
+				}
+			}
+			else if (customObjectsCollectionSuffix == customObjectsSuffix)
+			{
+				try
+				{
+					std::unique_ptr<map::W3m> map(new map::W3m());
+					map->read(in);
+
+					if (map->customUnits().get() != 0)
+					{
+						this->m_units.reset();;
+						map->customUnits().swap(this->m_units);
+					}
+					else
+					{
+						KMessageBox::error(this, tr("Collection has no units."));
+					}
+				}
+				catch (Exception &e)
+				{
+					KMessageBox::error(this, e.what());
+				}
+			}
+			else if (customObjectsCollectionSuffix == xmapSuffix)
+			{
+				KMessageBox::error(this, tr("W3X is not supported yet."));
+			}
+		}
+		else
+		{
+			KMessageBox::error(this, tr("Error on exporting file."));
+		}
+	}
 }
 
 void UnitEditor::onCopyObject()
@@ -559,7 +510,7 @@ void UnitEditor::activateObject(QTreeWidgetItem* item, int column, const QString
 	 * Is folder item.
 	 * Hide everything.
 	 */
-	if (item->childCount() > 0)
+	if (item->childCount() > 0 || rawDataId.isEmpty())
 	{
 		this->tableWidget()->hideColumn(0);
 		this->tableWidget()->hideColumn(1);

@@ -30,6 +30,8 @@ namespace wc3lib
 namespace editor
 {
 
+class UnitMetaData;
+
 /**
  * \brief The Frozen Throne Unit Editor module of the Object Editor.
  *
@@ -41,12 +43,14 @@ class UnitEditor : public ObjectEditorTab
 		UnitEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~UnitEditor();
 
+		UnitMetaData* unitMetaData() const;
+
 		virtual QString name() const;
 
 		virtual void onUpdateCollection(const map::CustomObjects& objects);
 
-		virtual map::CustomObjects* customObjects() const override;
-		virtual map::CustomObjects::Object* currentObject() const override;
+		virtual map::CustomUnits* customUnits() const override;
+		virtual map::CustomUnits::Unit* currentUnit() const override;
 		virtual QString getDataValue(const QString &objectId, const QString &fieldId) const override;
 
 		bool objectIsHero(const QString &objectId) const;
@@ -95,23 +99,19 @@ class UnitEditor : public ObjectEditorTab
 		QTreeWidgetItem *m_neutralHostileItem;
 		QTreeWidgetItem *m_neutralPassiveItem;
 
-		map::CustomObjects *m_units;
-		MetaData *m_unitData;
-		MetaData *m_unitUi;
-		MetaData *m_unitBalance;
-		MetaData *m_humanUnitStrings;
-		MetaData *m_humanUnitFunc;
-		MetaData *m_orcUnitStrings;
-		MetaData *m_orcUnitFunc;
-		MetaData *m_undeadUnitStrings;
-		MetaData *m_undeadUnitFunc;
-		MetaData *m_nightElfUnitStrings;
-		MetaData *m_nightElfUnitFunc;
+		typedef boost::scoped_ptr<map::CustomUnits> CustomUnitsPtr;
+		CustomUnitsPtr m_units;
+		UnitMetaData *m_unitMetaData;
 };
 
-inline map::CustomObjects* UnitEditor::customObjects() const
+inline UnitMetaData* UnitEditor::unitMetaData() const
 {
-	return this->m_units;
+	return this->m_unitMetaData;
+}
+
+inline map::CustomUnits* UnitEditor::customUnits() const
+{
+	return this->m_units.get();
 }
 
 inline QString UnitEditor::name() const

@@ -7,6 +7,8 @@ set(wc3lib_OBJECTEDITOR_H
 	objecttablewidgetpair.hpp
 	objecttreewidget.hpp
 	uniteditor.hpp
+	unitmetadata.hpp
+	unitselectiondialog.hpp
 )
 set(wc3lib_OBJECTEDITOR_SRC
 	objecteditor.cpp
@@ -16,6 +18,8 @@ set(wc3lib_OBJECTEDITOR_SRC
 	objecttablewidgetpair.cpp
 	objecttreewidget.cpp
 	uniteditor.cpp
+	unitmetadata.cpp
+	unitselectiondialog.cpp
 )
 
 add_subdirectory(ui)

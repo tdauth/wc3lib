@@ -50,11 +50,10 @@ ObjectEditor::ObjectEditor(class MpqPriorityList *source, QWidget *parent, Qt::W
 	unitEditor()->show();
 
 	m_currentTab = tab(0);
+	setWindowTitle(currentTab()->name());
 	addCurrentActions();
 	// connect signal and slot after adding actions and tabs first time!
 	connect(tabWidget(), SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
-
-	setWindowTitle(this->source()->sharedData()->tr("WESTRING_MODULE_UNIT"));
 }
 
 ObjectEditor::~ObjectEditor()
@@ -251,6 +250,7 @@ void ObjectEditor::currentChanged(int index)
 	removeCurrentActions();
 	m_currentTab = tab(index);
 	addCurrentActions();
+	setWindowTitle(tab(index)->name());
 }
 
 void ObjectEditor::removeCurrentActions()

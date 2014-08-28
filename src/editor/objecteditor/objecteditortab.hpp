@@ -61,8 +61,8 @@ class ObjectEditorTab : public QWidget
 		class ObjectTableWidget* tableWidget() const;
 
 		MetaData* metaData() const;
-		virtual map::CustomObjects* customObjects() const = 0;
-		virtual map::CustomObjects::Object* currentObject() const = 0;
+		virtual map::CustomUnits* customUnits() const = 0;
+		virtual map::CustomUnits::Unit* currentUnit() const = 0;
 
 		void setShowRawData(bool show);
 		bool showRawData() const;
@@ -243,11 +243,6 @@ inline void ObjectEditorTab::resetObject()
 inline void ObjectEditorTab::resetAllObjects()
 {
 	onResetAllObjects();
-}
-
-inline void ObjectEditorTab::importAllObjects()
-{
-	onImportAllObjects();
 }
 
 inline void ObjectEditorTab::copyObject()

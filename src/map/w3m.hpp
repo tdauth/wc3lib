@@ -160,6 +160,7 @@ public Playable
 		const ShadowPtr& shadow() const;
 		const PathmapPtr& pathmap() const;
 		const TreesPtr& trees() const;
+		CustomUnitsPtr& customUnits();
 		const CustomUnitsPtr& customUnits() const;
 		const InfoPtr& info() const;
 		const MapStringsPtr& strings() const;
@@ -250,6 +251,11 @@ inline const W3m::PathmapPtr& W3m::pathmap() const
 inline const W3m::TreesPtr& W3m::trees() const
 {
 	return m_trees;
+}
+
+inline W3m::CustomUnitsPtr& W3m::customUnits()
+{
+	return m_customUnits;
 }
 
 inline const W3m::CustomUnitsPtr& W3m::customUnits() const

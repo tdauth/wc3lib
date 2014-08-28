@@ -74,12 +74,20 @@ void ObjectEditorTab::setupUi()
 	connect(m_treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(itemClicked(QTreeWidgetItem*,int)));
 }
 
+
+inline void ObjectEditorTab::importAllObjects()
+{
+	onImportAllObjects();
+}
+
 void ObjectEditorTab::exportAllObjects()
 {
 	onExportAllObjects();
-	const QString suffix = QFileInfo(QString::fromStdString(this->customObjects()->fileName())).suffix();
+	const QString suffix = QFileInfo(QString::fromStdString(this->customUnits()->fileName())).suffix();
+	const QString customObjectsCollectionSuffix = "w3o";
+	const QString mapSuffix = "w3m";
 
-	const KUrl url = KFileDialog::getSaveUrl(KUrl(), QString("*\n*.%1").arg(suffix), this, exportAllObjectsText());
+	const KUrl url = KFileDialog::getSaveUrl(KUrl(), QString("*\n*.%1\nCustom Objects Collection *.%2\nMap (*.%3 *.%4)").arg(suffix).arg(customObjectsCollectionSuffix).arg(mapSuffix), this, exportAllObjectsText());
 
 	if (!url.isEmpty())
 	{
@@ -89,7 +97,7 @@ void ObjectEditorTab::exportAllObjects()
 		{
 			try
 			{
-				this->customObjects()->write(out);
+				this->customUnits()->write(out);
 			}
 			catch (Exception &e)
 			{
