@@ -207,3 +207,36 @@ BOOST_AUTO_TEST_CASE(UnitMetaDataLibreOffice)
 	BOOST_REQUIRE(slk.cell(0, 0) == "\"ID\"");
 	BOOST_REQUIRE(slk.cell(0, 1) == "\"field\"");
 }
+
+BOOST_AUTO_TEST_CASE(UnitWeapons)
+{
+	spiritTraceLog.close();
+	spiritTraceLog.open("unitweapons_traces.xml");
+
+	BOOST_REQUIRE(spiritTraceLog);
+
+	ifstream in("UnitWeapons.slk");
+
+	BOOST_REQUIRE(in);
+
+	map::Slk slk;
+
+	bool valid = true;
+
+	try
+	{
+		slk.read(in);
+	}
+	catch (Exception e)
+	{
+		valid = false;
+
+		std::cerr << e.what() << std::endl;
+	}
+
+	BOOST_REQUIRE(valid);
+	BOOST_REQUIRE(slk.columns() == 67);
+	BOOST_REQUIRE(slk.rows() == 317);
+	BOOST_REQUIRE(slk.cell(0, 0) == "\"unitWeapID\"");
+	BOOST_REQUIRE(slk.cell(0, 1) == "\"sortWeap\"");
+}

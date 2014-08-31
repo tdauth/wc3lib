@@ -34,17 +34,17 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectTableWidgetPair::ObjectTableWidgetPair(QTableWidget *tableWidget, ObjectEditorTab *tab, int row, const QString &objectId, const QString &fieldId)
+ObjectTableWidgetPair::ObjectTableWidgetPair(QTableWidget *tableWidget, ObjectEditorTab *tab, int row, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId)
 : QObject(tableWidget)
 , m_tab(tab)
 , m_descriptionItem(new QTableWidgetItem())
 , m_valueItem(new QTableWidgetItem())
-, m_objectId(objectId)
+, m_originalObjectId(originalObjectId)
+, m_customObjectId(customObjectId)
 , m_fieldId(fieldId)
 {
-	QString displayName = tab->metaData()->value(row + 1, "\"displayName\"");
+	const QString displayName = MetaData::fromSlkString(tab->metaData()->metaData()->value(row + 1, MetaData::toSlkString("displayName")));
 	// cut "
-	displayName = displayName.mid(1, displayName.size() - 2);
 	descriptionItem()->setText(tab->source()->sharedData()->tr(displayName));
 	descriptionItem()->setData(Qt::UserRole, fieldId);
 	valueItem()->setData(Qt::UserRole, fieldId);
@@ -61,36 +61,18 @@ ObjectTableWidgetPair::~ObjectTableWidgetPair()
 {
 }
 
-void ObjectTableWidgetPair::update()
-{
-	//if (data() != 0)
-	//{
-		valueItem()->setData(Qt::DisplayRole, valueToVariant(customValue()));
-
-		if (!isDefault())
-		{
-			descriptionItem()->setForeground(Qt::magenta);
-			valueItem()->setForeground(Qt::magenta);
-		}
-		else
-		{
-			descriptionItem()->setForeground(Qt::black);
-			valueItem()->setForeground(Qt::black);
-		}
-
-	//}
-}
-
 void ObjectTableWidgetPair::edit()
 {
 	try
 	{
-		const QString objectId = this->objectId();
+		const QString originalObjectId = this->originalObjectId();
+		const QString customObjectId = this->customObjectId();
 		const QString fieldId = this->fieldId();
-		qDebug() << "Object Id" << objectId;
+		qDebug() << "Original Object Id" << originalObjectId;
+		qDebug() << "Custom Object Id" << customObjectId;
 		qDebug() << "Field Id" << fieldId;
-		const QString type = MetaData::fromSlkString(tab()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("type")));
-		const QString stringExt = MetaData::fromSlkString(tab()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("stringExt")));
+		const QString type = MetaData::fromSlkString(tab()->metaData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("type")));
+		const QString stringExt = MetaData::fromSlkString(tab()->metaData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("stringExt")));
 		qDebug() << "Type:" << type;
 
 		ObjectValueDialog *dialog = new ObjectValueDialog(this->tableWidget());
@@ -102,8 +84,8 @@ void ObjectTableWidgetPair::edit()
 
 		if (type == "int" || type == "unit")
 		{
-			const QString minValue = MetaData::fromSlkString(tab()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("minVal")));
-			const QString maxValue = MetaData::fromSlkString(tab()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("maxVal")));
+			const QString minValue = MetaData::fromSlkString(tab()->metaData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("minVal")));
+			const QString maxValue = MetaData::fromSlkString(tab()->metaData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("maxVal")));
 
 			qDebug() << "Min value:" << minValue;
 			qDebug() << "Max value:" << maxValue;
@@ -139,8 +121,8 @@ void ObjectTableWidgetPair::edit()
 		}
 		else if (type == "real" || type == "unreal")
 		{
-			const QString minValue = MetaData::fromSlkString(tab()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("minVal")));
-			const QString maxValue = MetaData::fromSlkString(tab()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("maxVal")));
+			const QString minValue = MetaData::fromSlkString(tab()->metaData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("minVal")));
+			const QString maxValue = MetaData::fromSlkString(tab()->metaData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("maxVal")));
 
 			qDebug() << "Min value:" << minValue;
 			qDebug() << "Max value:" << maxValue;
@@ -205,6 +187,7 @@ void ObjectTableWidgetPair::edit()
 		{
 			title.sprintf(title.toUtf8().constData(), titleArg.toUtf8().constData());
 			dialog->setWindowTitle(title);
+			dialog->resize(dialog->minimumSize());
 
 			if (dialog->exec() == QDialog::Accepted)
 			{
@@ -241,8 +224,10 @@ void ObjectTableWidgetPair::edit()
 
 				if (successOnEdit)
 				{
-					this->descriptionItem()->setBackgroundColor(Qt::cyan);
-					this->valueItem()->setBackgroundColor(Qt::cyan);
+					this->descriptionItem()->setForeground(Qt::magenta);
+					this->valueItem()->setForeground(Qt::magenta);
+
+					this->tab()->modifyField(this->originalObjectId(), this->customObjectId(), this->fieldId(), this->modification());
 				}
 			}
 		}
@@ -255,6 +240,56 @@ void ObjectTableWidgetPair::edit()
 		QMessageBox::warning(this->tableWidget(), tr("Error"), e.what());
 	}
 }
+
+map::Value ObjectTableWidgetPair::customValue() const
+{
+	return value(this->valueItem()->text());
+}
+
+map::Value ObjectTableWidgetPair::defaultValue() const
+{
+	const QString dataValue = this->tab()->metaData()->getDataValue(this->originalObjectId(), this->fieldId());
+
+
+	return value(dataValue);
+}
+
+map::Value ObjectTableWidgetPair::value(const QString& text) const
+{
+	const map::Value::Type type = this->tab()->metaData()->fieldType(this->fieldId());
+
+	switch (type)
+	{
+		case map::Value::Type::Integer:
+		{
+			int32 data = boost::numeric_cast<int32>(text.toInt());
+
+			return map::Value(data);
+		}
+	}
+
+	return map::Value(0);
+}
+
+void ObjectTableWidgetPair::reset()
+{
+	const QString dataValue = this->tab()->metaData()->getDataValue(this->originalObjectId(), this->fieldId());
+	this->valueItem()->setText(dataValue);
+	this->descriptionItem()->setForeground(Qt::black);
+	this->valueItem()->setForeground(Qt::black);
+	this->tab()->resetField(this->originalObjectId(), this->customObjectId(), this->fieldId());
+}
+
+map::CustomUnits::Modification ObjectTableWidgetPair::modification() const
+{
+	// TODO suppoert map::CustomObjects::Modification
+	map::CustomUnits::Modification modification;
+	modification.setValueId(map::stringToId(this->fieldId().toStdString()));
+	modification.value() = this->customValue();
+
+	return modification;
+}
+
 
 }
 

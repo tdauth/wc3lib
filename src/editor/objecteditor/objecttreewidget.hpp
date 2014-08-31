@@ -40,13 +40,39 @@ class ObjectTreeWidget : public QTreeWidget
 	Q_OBJECT
 
 	public:
+		/**
+		 * \brief Stores the two object IDs. The original as well as the custom.
+		 */
+		typedef QPair<QString, QString> ObjectId;
+		/**
+		 * All items are hashed by the raw data name of the object.
+		 */
+		typedef QHash<ObjectId, QTreeWidgetItem*> Items;
+
 		ObjectTreeWidget(ObjectEditorTab *parent = 0, Qt::WindowFlags f = 0);
 
 		ObjectEditorTab* tab() const;
 		QMenu* contextMenu() const;
 
+		void insertStandardItem(const QString &originalObjectId, const QString &customObjectId, QTreeWidgetItem *item);
+		void insertCustomItem(const QString &originalObjectId, const QString &customObjectId, QTreeWidgetItem *item);
+		Items& standardItems();
+		Items& customItems();
+
+		/**
+		 * Clears only all items which are under the "Custom ..." entry.
+		 */
+		void clearCustomItems();
+
+		QString itemOriginalObjectId(const QTreeWidgetItem &item) const;
+		QString itemCustomObjectId(const QTreeWidgetItem &item) const;
+		QTreeWidgetItem* item(const QString &originalObjectId, const QString &customObjectId);
+
 	private:
 		ObjectEditorTab *m_tab;
+
+		Items m_standardItems;
+		Items m_customItems;
 
 		QMenu *m_contextMenu;
 
@@ -63,6 +89,83 @@ inline QMenu* ObjectTreeWidget::contextMenu() const
 {
 	return this->m_contextMenu;
 }
+
+inline void ObjectTreeWidget::insertStandardItem(const QString &originalObjectId, const QString &customObjectId, QTreeWidgetItem* item)
+{
+	const ObjectId objectId(originalObjectId, customObjectId);
+	this->m_standardItems.insert(objectId, item);
+	item->setData(0, Qt::UserRole, QString("%1:%2").arg(originalObjectId).arg(customObjectId));
+}
+
+inline void ObjectTreeWidget::insertCustomItem(const QString &originalObjectId, const QString &customObjectId, QTreeWidgetItem* item)
+{
+	const ObjectId objectId(originalObjectId, customObjectId);
+	this->m_customItems.insert(objectId, item);
+	item->setData(0, Qt::UserRole, QString("%1:%2").arg(originalObjectId).arg(customObjectId));
+}
+
+inline ObjectTreeWidget::Items& ObjectTreeWidget::standardItems()
+{
+	return this->m_standardItems;
+}
+
+inline ObjectTreeWidget::Items& ObjectTreeWidget::customItems()
+{
+	return this->m_customItems;
+}
+
+inline void ObjectTreeWidget::clearCustomItems()
+{
+	this->m_customItems.clear();
+}
+
+inline QString ObjectTreeWidget::itemOriginalObjectId(const QTreeWidgetItem &item) const
+{
+	const QString data = item.data(0, Qt::UserRole).toString();
+	QStringList list = data.split(':');
+
+	if (list.isEmpty())
+	{
+		return "";
+	}
+
+	return list[0];
+}
+
+inline QString ObjectTreeWidget::itemCustomObjectId(const QTreeWidgetItem &item) const
+{
+	const QString data = item.data(0, Qt::UserRole).toString();
+	QStringList list = data.split(':');
+
+	if (list.size() < 2)
+	{
+		return "";
+	}
+
+	return list[1];
+}
+
+
+inline QTreeWidgetItem* ObjectTreeWidget::item(const QString &originalObjectId, const QString &customObjectId)
+{
+	const ObjectId objectId(originalObjectId, customObjectId);
+	Items::iterator iterator = this->m_standardItems.find(objectId);
+
+	if (iterator != this->m_standardItems.end())
+	{
+		return iterator.value();
+	}
+
+	iterator = this->m_customItems.find(objectId);
+
+	if (iterator != this->m_customItems.end())
+	{
+		return iterator.value();
+	}
+
+	return 0;
+}
+
 
 }
 

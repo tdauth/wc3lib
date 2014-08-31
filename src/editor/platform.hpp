@@ -105,6 +105,65 @@ inline QVariant valueToVariant(const map::Value &value)
 	return QVariant();
 }
 
+inline QString valueToString(const map::Value &value)
+{
+	switch (value.type())
+	{
+		case map::Value::Type::Integer:
+			return QString::number(value.toInteger());
+
+		case map::Value::Type::Real:
+		case map::Value::Type::Unreal:
+			return QString::number(value.toReal());
+
+		case map::Value::Type::String:
+		case map::Value::Type::RegenerationType:
+		case map::Value::Type::AttackType:
+		case map::Value::Type::WeaponType:
+		case map::Value::Type::TargetType:
+		case map::Value::Type::MoveType:
+		case map::Value::Type::DefenseType:
+		case map::Value::Type::PathingTexture:
+		case map::Value::Type::MissileArt:
+		case map::Value::Type::AttributeType:
+		case map::Value::Type::AttackBits:
+			return QString(value.toString().c_str());
+
+		case map::Value::Type::Boolean:
+			return QString::number(value.toBoolean());
+
+		case map::Value::Type::Character:
+			return QString(value.toCharacter());
+
+		case map::Value::Type::UnitList:
+		case map::Value::Type::ItemList:
+		case map::Value::Type::UpgradeList:
+		case map::Value::Type::StringList:
+		case map::Value::Type::AbilityList:
+		case map::Value::Type::HeroAbilityList:
+		{
+			QString result;
+			int i = 0;
+
+			foreach (string value, value.toList())
+			{
+				if (i > 0)
+				{
+					result += ", ";
+					++i;
+				}
+
+				result += value.c_str();
+			}
+
+			return result;
+		}
+	}
+
+	return QString();
+}
+
+
 enum class TeamColor
 {
 	Red,

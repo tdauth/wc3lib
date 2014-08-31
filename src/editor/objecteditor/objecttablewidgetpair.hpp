@@ -27,6 +27,7 @@
 #include "../../core.hpp"
 #include "../../map.hpp"
 #include "../platform.hpp"
+#include "objectmetadata.hpp"
 #include "objecteditortab.hpp"
 
 namespace wc3lib
@@ -48,46 +49,44 @@ namespace editor
 class ObjectTableWidgetPair : public QObject
 {
 	public:
-		ObjectTableWidgetPair(QTableWidget *tableWidget, ObjectEditorTab *tab, int row, const QString &objectId, const QString &fieldId);
+		ObjectTableWidgetPair(QTableWidget *tableWidget, ObjectEditorTab *tab, int row, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
 		~ObjectTableWidgetPair();
 
 		QTableWidget* tableWidget() const;
 		ObjectEditorTab* tab() const;
 
 		void reset();
-		bool isDefault() const;
+
 
 		/**
-		 * Sets the object ID such as "hfoo" for the Footman."
+		 * Generates a value object with the correct type and data of the field.
 		 */
-		void setObjectId(const QString &id);
-		const QString& objectId() const;
+		map::Value customValue() const;
 		/**
-		 * Sets the field ID such as "unam" for the name
-		 */
-		void setFieldId(const QString &id);
-		const QString& fieldId() const;
-		/**
-		 * \return Returns value of data by using corresponding meta data.
+		 * Generates a value object with the correct type and data of the field.
 		 */
 		map::Value defaultValue() const;
-		/**
-		 * Assigns
-		 */
-		void setCustomValue(const map::Value &customValue);
-		const map::Value& customValue() const;
+
+		map::CustomUnits::Modification modification() const;
+
+		void activateObject(const QString &originalObjectId, const QString &customObjectId);
+		QString originalObjectId() const;
+		QString customObjectId() const;
+		QString fieldId() const;
+
 		QTableWidgetItem* descriptionItem() const;
 		QTableWidgetItem* valueItem() const;
 
 		void edit();
+		bool isModified() const;
 
 	protected:
-		void update();
+		map::Value value(const QString &text) const;
 
 		ObjectEditorTab *m_tab;
-		QString m_objectId;
+		QString m_originalObjectId;
+		QString m_customObjectId;
 		QString m_fieldId;
-		map::Value m_customValue;
 		QTableWidgetItem *m_descriptionItem;
 		QTableWidgetItem *m_valueItem;
 };
@@ -102,51 +101,38 @@ inline ObjectEditorTab* ObjectTableWidgetPair::tab() const
 	return this->m_tab;
 }
 
-inline void ObjectTableWidgetPair::reset()
+inline void ObjectTableWidgetPair::activateObject(const QString &originalObjectId, const QString &customObjectId)
 {
-	setCustomValue(defaultValue());
+	this->m_originalObjectId = originalObjectId;
+	this->m_customObjectId = customObjectId;
+
+	if (isModified())
+	{
+		this->descriptionItem()->setForeground(Qt::magenta);
+		this->valueItem()->setForeground(Qt::magenta);
+	}
+	else
+	{
+		this->descriptionItem()->setForeground(Qt::black);
+		this->valueItem()->setForeground(Qt::black);
+	}
 }
 
-inline bool ObjectTableWidgetPair::isDefault() const
+inline QString ObjectTableWidgetPair::originalObjectId() const
 {
-	return customValue() == defaultValue();
+	return this->m_originalObjectId;
 }
 
-inline void ObjectTableWidgetPair::setObjectId(const QString &id)
+inline QString ObjectTableWidgetPair::customObjectId() const
 {
-	this->m_objectId = id;
+	return this->m_customObjectId;
 }
 
-inline const QString& ObjectTableWidgetPair::objectId() const
+inline QString ObjectTableWidgetPair::fieldId() const
 {
-	return this->m_objectId;
+	return this->m_fieldId;
 }
 
-inline void ObjectTableWidgetPair::setFieldId(const QString &id)
-{
-	m_fieldId = id;
-}
-
-inline const QString& ObjectTableWidgetPair::fieldId() const
-{
-	return m_fieldId;
-}
-
-inline map::Value ObjectTableWidgetPair::defaultValue() const
-{
-	return this->tab()->getDataValue(objectId(), this->fieldId()).toStdString();
-}
-
-inline void ObjectTableWidgetPair::setCustomValue(const map::Value &customValue)
-{
-	m_customValue = customValue;
-	update();
-}
-
-inline const map::Value& ObjectTableWidgetPair::customValue() const
-{
-	return m_customValue;
-}
 
 inline QTableWidgetItem* ObjectTableWidgetPair::descriptionItem() const
 {
@@ -156,6 +142,11 @@ inline QTableWidgetItem* ObjectTableWidgetPair::descriptionItem() const
 inline QTableWidgetItem* ObjectTableWidgetPair::valueItem() const
 {
 	return m_valueItem;
+}
+
+inline bool ObjectTableWidgetPair::isModified() const
+{
+	return this->tab()->isFieldModified(this->originalObjectId(), this->customObjectId(), this->fieldId());
 }
 
 }

@@ -1,5 +1,4 @@
 set(wc3lib_OBJECTEDITOR_H
-	abilitytablewidget.hpp
 	objecteditor.hpp
 	objecteditortab.hpp
 	objectvaluedialog.hpp
@@ -9,6 +8,7 @@ set(wc3lib_OBJECTEDITOR_H
 	uniteditor.hpp
 	unitmetadata.hpp
 	unitselectiondialog.hpp
+	objectmetadata.hpp
 )
 set(wc3lib_OBJECTEDITOR_SRC
 	objecteditor.cpp
@@ -20,6 +20,7 @@ set(wc3lib_OBJECTEDITOR_SRC
 	uniteditor.cpp
 	unitmetadata.cpp
 	unitselectiondialog.cpp
+	objectmetadata.cpp
 )
 
 add_subdirectory(ui)

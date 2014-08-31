@@ -19,3 +19,30 @@
  ***************************************************************************/
 
 #include "unitselectiondialog.hpp"
+#include "unitmetadata.hpp"
+#include "../metadata.hpp"
+
+namespace wc3lib
+{
+
+namespace editor
+{
+
+UnitSelectionDialog::UnitSelectionDialog(UnitMetaData *unitMetaData, QWidget* parent, Qt::WindowFlags f) : QDialog(parent, f), m_metaData(unitMetaData)
+{
+	setupUi(this);
+}
+
+void UnitSelectionDialog::select(QString rawDataId)
+{
+	QString race =  MetaData::fromSlkString(this->metaData()->unitData()->value(rawDataId, MetaData::toSlkString("race")));
+
+	// list humans
+	if (race == "human")
+	{
+	}
+}
+
+}
+
+}

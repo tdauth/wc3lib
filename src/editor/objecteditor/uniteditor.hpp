@@ -22,15 +22,15 @@
 #define WC3LIB_EDITOR_UNITEDITOR_HPP
 
 #include "objecteditortab.hpp"
-#include "../editor.hpp"
+#include "unitmetadata.hpp"
+#include "../mpqprioritylist.hpp"
+#include "../warcraftiiishared.hpp"
 
 namespace wc3lib
 {
 
 namespace editor
 {
-
-class UnitMetaData;
 
 /**
  * \brief The Frozen Throne Unit Editor module of the Object Editor.
@@ -49,17 +49,24 @@ class UnitEditor : public ObjectEditorTab
 
 		virtual void onUpdateCollection(const map::CustomObjects& objects);
 
-		virtual map::CustomUnits* customUnits() const override;
-		virtual map::CustomUnits::Unit* currentUnit() const override;
-		virtual QString getDataValue(const QString &objectId, const QString &fieldId) const override;
+		virtual map::CustomUnits customUnits() const override;
+		virtual bool hasCustomUnits() const override;
+		virtual map::CustomObjects customObjects() const override;
+		virtual bool hasCustomObjects() const override;
+
+		virtual map::CustomUnits::Unit currentUnit() const override;
+		virtual map::CustomObjects::Object currentObject() const override;
 
 		bool objectIsHero(const QString &objectId) const;
 		bool objectIsUnit(const QString &objectId) const;
 		bool objectIsBuilding(const QString &objectId) const;
 
 	protected:
-		virtual class ObjectTreeWidget* createTreeWidget() override;
-		virtual class ObjectTableWidget* createTableWidget() override;
+		void addItemAsChild(const QString &originalObjectId, const QString &customObjectId, QTreeWidgetItem *item);
+
+		virtual void setupTreeWidget(ObjectTreeWidget *treeWidget) override;
+		virtual void fillTreeItem(const QString &originalObjectId, const QString &customObjectId, QTreeWidgetItem *item);
+		virtual ObjectTableWidget* createTableWidget() override;
 		virtual void onSwitchToMap(class Map *map);
 
 		virtual void onNewObject();
@@ -72,7 +79,9 @@ class UnitEditor : public ObjectEditorTab
 		virtual void onCopyObject();
 		virtual void onPasteObject();
 
-		virtual void activateObject(QTreeWidgetItem *item, int column, const QString& rawDataId) override;
+		virtual void onShowRawData(bool show) override;
+
+		virtual void activateObject(QTreeWidgetItem *item, int column, const QString &originalObjectId, const QString &customObjectId) override;
 		virtual void activateFolder(QTreeWidgetItem* item, int column) override;
 
 		virtual QString newObjectText() const override;
@@ -89,8 +98,6 @@ class UnitEditor : public ObjectEditorTab
 		virtual KUrl pasteObjectIconUrl() const;
 		virtual KUrl newObjectIconUrl() const;
 
-		QTreeWidgetItem *m_standardUnitsItem;
-		QTreeWidgetItem *m_customUnitsItem;
 		QTreeWidgetItem *m_humanItem;
 		QTreeWidgetItem *m_orcItem;
 		QTreeWidgetItem *m_undeadItem;
@@ -99,19 +106,18 @@ class UnitEditor : public ObjectEditorTab
 		QTreeWidgetItem *m_neutralHostileItem;
 		QTreeWidgetItem *m_neutralPassiveItem;
 
-		typedef boost::scoped_ptr<map::CustomUnits> CustomUnitsPtr;
-		CustomUnitsPtr m_units;
-		UnitMetaData *m_unitMetaData;
+		QTreeWidgetItem *m_customHumanItem;
+		QTreeWidgetItem *m_customOrcItem;
+		QTreeWidgetItem *m_customUndeadItem;
+		QTreeWidgetItem *m_customNightElfItem;
+		QTreeWidgetItem *m_customNeutralNagaItem;
+		QTreeWidgetItem *m_customNeutralHostileItem;
+		QTreeWidgetItem *m_customNeutralPassiveItem;
 };
 
 inline UnitMetaData* UnitEditor::unitMetaData() const
 {
-	return this->m_unitMetaData;
-}
-
-inline map::CustomUnits* UnitEditor::customUnits() const
-{
-	return this->m_units.get();
+	return boost::polymorphic_cast<UnitMetaData*>(this->metaData());
 }
 
 inline QString UnitEditor::name() const

@@ -82,8 +82,6 @@ class KDE_EXPORT ObjectEditor : public Module
 		//void objectValueChanged(const map::ObjectValue &value);
 
 	public:
-		typedef QScopedPointer<map::CustomObjectsCollection> Collection;
-
 		ObjectEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~ObjectEditor();
 
@@ -148,11 +146,6 @@ class KDE_EXPORT ObjectEditor : public Module
 		void removeCurrentActions();
 		void addCurrentActions();
 
-		/**
-		 * Updates the GUI of all object editor components.
-		 */
-		void updateCollection(Collection &collection);
-
 		KTabWidget *m_tabWidget;
 		// current widgets of corresponding tab widget
 		class ObjectEditorTab *m_currentTab;
@@ -188,8 +181,6 @@ class KDE_EXPORT ObjectEditor : public Module
 		class KAction *m_pasteObjectAction;
 
 		QMenu *m_viewMenu;
-
-		Collection m_collection;
 
 	private slots:
 		void showRawData(bool checked);

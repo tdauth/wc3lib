@@ -26,6 +26,7 @@
 #include "objecteditortab.hpp"
 #include "objecttreewidget.hpp"
 #include "objecttablewidget.hpp"
+#include "objectmetadata.hpp"
 #include "../metadata.hpp"
 #include "../mpqprioritylist.hpp"
 
@@ -35,19 +36,139 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectEditorTab::ObjectEditorTab(class MpqPriorityList *source, MetaData *metaData, QWidget *parent, Qt::WindowFlags f) : m_source(source), m_metaData(metaData), m_tabIndex(0), m_filterLineEdit(0), m_treeWidget(0), m_tableWidget(0), m_showRawData(false), QWidget(parent, f)
+ObjectEditorTab::ObjectEditorTab(class MpqPriorityList *source, ObjectMetaData *metaData, QWidget *parent, Qt::WindowFlags f)
+: QWidget(parent, f)
+, m_source(source)
+, m_metaData(metaData)
+, m_tabIndex(0)
+, m_filterLineEdit(0)
+, m_treeWidget(0)
+, m_standardObjectsItem(0)
+, m_customObjectsItem(0)
+, m_tableWidget(0)
+, m_showRawData(false)
 {
-	this->metaData()->setSource(this->source());
+	this->metaData()->load(this);
+}
 
-	try
+ObjectEditorTab::~ObjectEditorTab()
+{
+	delete this->m_metaData;
+}
+
+
+void ObjectEditorTab::modifyField(const QString &originalObjectId, const QString &customObjectId, const QString& fieldId, const map::CustomUnits::Modification &modification)
+{
+	const ObjectId objectId(originalObjectId, customObjectId);
+	Objects::iterator iterator = this->m_objects.find(objectId);
+
+	if (iterator == this->m_objects.end())
 	{
-		this->metaData()->load();
+		iterator = this->m_objects.insert(objectId, Modifications());
 	}
-	catch (Exception &e)
+
+	iterator.value().insert(fieldId, modification);
+	QTreeWidgetItem *item = this->treeWidget()->item(originalObjectId, customObjectId);
+
+	if (item != 0)
 	{
-		KMessageBox::error(this, i18n("Error on loading file \"%1\": %2", this->metaData()->url().toEncoded().constData(), e.what()));
+		item->setForeground(0, Qt::magenta);
+	}
+	else
+	{
+		qDebug() << "Missing tree widget item of object " << objectId;
 	}
 }
+
+void ObjectEditorTab::resetField(const QString &originalObjectId, const QString &customObjectId, const QString& fieldId)
+{
+	const ObjectId objectId(originalObjectId, customObjectId);
+	Objects::iterator iterator = this->m_objects.find(objectId);
+
+	if (iterator == this->m_objects.end())
+	{
+		return;
+	}
+
+	iterator.value().remove(fieldId);
+
+	if (iterator.value().empty())
+	{
+		this->m_objects.erase(iterator);
+
+		QTreeWidgetItem *item = this->treeWidget()->item(originalObjectId, customObjectId);
+
+		if (item != 0)
+		{
+			item->setForeground(0, Qt::black);
+		}
+		else
+		{
+			qDebug() << "Missing tree widget item of object " << objectId;
+		}
+	}
+}
+
+bool ObjectEditorTab::isFieldModified(const QString &originalObjectId, const QString &customObjectId, const QString& fieldId) const
+{
+	const ObjectId objectId(originalObjectId, customObjectId);
+	Objects::const_iterator iterator = this->m_objects.find(objectId);
+
+	if (iterator == this->m_objects.end())
+	{
+		return false;
+	}
+
+	return iterator.value().contains(fieldId);
+
+}
+
+void ObjectEditorTab::clearModifications()
+{
+	this->m_objects.clear();
+}
+
+bool ObjectEditorTab::fieldModificiation(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId, map::CustomUnits::Modification &modification) const
+{
+
+	const ObjectId objectId(originalObjectId, customObjectId);
+	Objects::const_iterator iterator = this->m_objects.find(objectId);
+
+	if (iterator == this->m_objects.end())
+	{
+		return false;
+	}
+
+	Modifications::const_iterator iterator2 = iterator.value().find(fieldId);
+
+	if (iterator2 == iterator.value().end())
+	{
+		return false;
+	}
+
+	modification = iterator2.value();
+
+	return true;
+
+}
+
+QString ObjectEditorTab::fieldValue(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId) const
+{
+	map::CustomUnits::Modification modification;
+
+	if (fieldModificiation(originalObjectId, customObjectId, fieldId, modification))
+	{
+		return valueToString(modification.value());
+	}
+	// Otherwise return the default value from Warcraft III
+	else
+	{
+		return this->metaData()->getDataValue(originalObjectId, fieldId);
+	}
+
+	return "";
+}
+
 
 void ObjectEditorTab::setupUi()
 {
@@ -58,8 +179,19 @@ void ObjectEditorTab::setupUi()
 	qDebug() << "Show tab " << this->name();
 
 	m_filterLineEdit = new KLineEdit(this);
+	m_filterLineEdit->setClearButtonShown(true);
 
-	m_treeWidget = createTreeWidget();
+	m_treeWidget = new ObjectTreeWidget(this);
+
+	QList<QTreeWidgetItem*> topLevelItems;
+	this->m_standardObjectsItem = new QTreeWidgetItem(m_treeWidget);
+	this->m_customObjectsItem = new QTreeWidgetItem(m_treeWidget);
+	topLevelItems << this->m_standardObjectsItem;
+	topLevelItems << this->m_standardObjectsItem;
+	m_treeWidget->addTopLevelItems(topLevelItems);
+
+	setupTreeWidget(m_treeWidget);
+
 	m_tableWidget = createTableWidget();
 
 	QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
@@ -75,7 +207,7 @@ void ObjectEditorTab::setupUi()
 }
 
 
-inline void ObjectEditorTab::importAllObjects()
+void ObjectEditorTab::importAllObjects()
 {
 	onImportAllObjects();
 }
@@ -83,43 +215,64 @@ inline void ObjectEditorTab::importAllObjects()
 void ObjectEditorTab::exportAllObjects()
 {
 	onExportAllObjects();
-	const QString suffix = QFileInfo(QString::fromStdString(this->customUnits()->fileName())).suffix();
-	const QString customObjectsCollectionSuffix = "w3o";
-	const QString mapSuffix = "w3m";
-
-	const KUrl url = KFileDialog::getSaveUrl(KUrl(), QString("*\n*.%1\nCustom Objects Collection *.%2\nMap (*.%3 *.%4)").arg(suffix).arg(customObjectsCollectionSuffix).arg(mapSuffix), this, exportAllObjectsText());
-
-	if (!url.isEmpty())
-	{
-		ofstream out(url.toLocalFile().toUtf8().constData());
-
-		if (out)
-		{
-			try
-			{
-				this->customUnits()->write(out);
-			}
-			catch (Exception &e)
-			{
-				KMessageBox::error(this, tr("Error on exporting"), e.what());
-			}
-		}
-	}
 }
 
 void ObjectEditorTab::onUpdateCollection(const map::CustomObjects& objects)
 {
 }
 
-void ObjectEditorTab::itemClicked(QTreeWidgetItem* item, int column)
+void ObjectEditorTab::importCustomUnits(const map::CustomUnits &units)
 {
-	this->activateObject(item, column, item->data(0, Qt::UserRole).toString());
+	this->clearModifications();
+	this->treeWidget()->clearCustomItems();
+
+	qDebug() << "Custom Table size:" << units.customTable().size();
+
+	for (map::CustomUnits::Table::size_type i = 0; i < units.customTable().size(); ++i)
+	{
+		const map::CustomUnits::Unit &unit = units.customTable()[i];
+		const QString originalObjectId = map::idToString(unit.originalId()).c_str();
+		const QString customObjectId = map::idToString(unit.customId()).c_str();
+		QTreeWidgetItem *item = new QTreeWidgetItem();
+
+		for (map::CustomUnits::Unit::Modifications::size_type j = 0; j < unit.modifications().size(); ++j)
+		{
+			const map::CustomUnits::Modification &modification = unit.modifications()[j];
+			this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), modification);
+		}
+
+		this->fillTreeItem(originalObjectId, customObjectId, item);
+
+		this->treeWidget()->insertCustomItem(originalObjectId, customObjectId, item);
+	}
+
+	//units.customTable()
+	// TODO read all objects
+}
+
+void ObjectEditorTab::itemClicked(QTreeWidgetItem *item, int column)
+{
+	this->activateObject(item, column, treeWidget()->itemOriginalObjectId(*item), treeWidget()->itemCustomObjectId(*item));
 }
 
 void ObjectEditorTab::filterTreeWidget(QString text)
 {
 	// TODO filter
 
+}
+
+void ObjectEditorTab::setShowRawData(bool show)
+{
+	this->m_showRawData = show;
+
+	QList<QTreeWidgetItem*> selection = treeWidget()->selectedItems();
+
+	if (!selection.isEmpty())
+	{
+		activateObject(selection.first(), 0, treeWidget()->itemOriginalObjectId(*selection.first()), treeWidget()->itemCustomObjectId(*selection.first()));
+	}
+
+	onShowRawData(show);
 }
 
 #include "moc_objecteditortab.cpp"

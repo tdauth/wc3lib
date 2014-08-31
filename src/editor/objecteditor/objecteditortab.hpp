@@ -39,14 +39,29 @@ namespace wc3lib
 namespace editor
 {
 
-class MetaData;
+class ObjectMetaData;
+class ObjectTableWidget;
 
 class ObjectEditorTab : public QWidget
 {
 	Q_OBJECT
 
 	public:
-		ObjectEditorTab(class MpqPriorityList *source, MetaData *metaData, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		/**
+		 * \brief Hash table which stores modificiations by using the field ID as hash (such as "unam").
+		 */
+		typedef QHash<QString, map::CustomUnits::Modification> Modifications;
+		/**
+		 * \brief Stores the two object IDs. The original as well as the custom.
+		 */
+		typedef QPair<QString, QString> ObjectId;
+		/**
+		 * \brief Hash table which stores objects by using the object ID pair as hash.
+		 */
+		typedef QHash<ObjectId, Modifications> Objects;
+
+		ObjectEditorTab(class MpqPriorityList *source, ObjectMetaData *metaData, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		virtual ~ObjectEditorTab();
 
 		class MpqPriorityList* source() const;
 
@@ -57,12 +72,35 @@ class ObjectEditorTab : public QWidget
 		bool hasObjectEditor() const;
 		class ObjectEditor* objectEditor() const throw (std::bad_cast);
 		KLineEdit* filterLineEdit() const;
-		class ObjectTreeWidget* treeWidget() const;
-		class ObjectTableWidget* tableWidget() const;
+		ObjectTreeWidget* treeWidget() const;
+		ObjectTableWidget* tableWidget() const;
 
-		MetaData* metaData() const;
-		virtual map::CustomUnits* customUnits() const = 0;
-		virtual map::CustomUnits::Unit* currentUnit() const = 0;
+		ObjectMetaData* metaData() const;
+		/**
+		 * Custom Units are used in Warcraft III: Reign of Chaos.
+		 * So this should throw an exception in other tabs than unit and items since they need additional data
+		 * which can be gotten from \ref customObjects().
+		 *
+		 * \return Returns the custom units of the current tab.
+		 *
+		 * \sa customObjects() hasCustomUnits()
+		 *
+		 * \throws Exception Throws an exception if custom units cannot store the object data.
+		 */
+		virtual map::CustomUnits customUnits() const = 0;
+		virtual bool hasCustomUnits() const = 0;
+		virtual map::CustomObjects customObjects() const = 0;
+		virtual bool hasCustomObjects() const = 0;
+
+		virtual map::CustomUnits::Unit currentUnit() const = 0;
+		virtual map::CustomObjects::Object currentObject() const = 0;
+
+		void modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, const map::CustomUnits::Modification &modification);
+		void resetField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
+		bool isFieldModified(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const;
+		void clearModifications();
+		bool fieldModificiation(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, map::CustomUnits::Modification &modification) const;
+		QString fieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const;
 
 		void setShowRawData(bool show);
 		bool showRawData() const;
@@ -76,12 +114,7 @@ class ObjectEditorTab : public QWidget
 
 		virtual void onUpdateCollection(const map::CustomObjects &objects);
 
-		/**
-		 * \brief Abstract element function which is used for resolving any object data value stored in one of the many SLK files.
-		 *
-		 * \note This does not resolve meta data but actual object data (default data for existing objects).
-		 */
-		virtual QString getDataValue(const QString &objectId, const QString &fieldId) const = 0;
+		void importCustomUnits(const map::CustomUnits &units);
 
 	public slots:
 		void newObject();
@@ -99,8 +132,9 @@ class ObjectEditorTab : public QWidget
 
 		virtual void setupUi();
 
-		virtual class ObjectTreeWidget* createTreeWidget() = 0;
-		virtual class ObjectTableWidget* createTableWidget() = 0;
+		virtual void setupTreeWidget(ObjectTreeWidget *treeWidget) = 0;
+		virtual void fillTreeItem(const QString &originalObjectId, const QString &customObjectId, QTreeWidgetItem *item) = 0;
+		virtual ObjectTableWidget* createTableWidget() = 0;
 
 		virtual void onSwitchToMap(class Map *map) = 0;
 
@@ -114,7 +148,9 @@ class ObjectEditorTab : public QWidget
 		virtual void onCopyObject() = 0;
 		virtual void onPasteObject() = 0;
 
-		virtual void activateObject(QTreeWidgetItem *item, int column, const QString &rawDataId) = 0;
+		virtual void onShowRawData(bool show) = 0;
+
+		virtual void activateObject(QTreeWidgetItem *item, int column, const QString &originalObjectId, const QString &customObjectId) = 0;
 		virtual void activateFolder(QTreeWidgetItem *item, int column) = 0;
 
 		virtual QString newObjectText() const = 0;
@@ -132,11 +168,19 @@ class ObjectEditorTab : public QWidget
 		virtual KUrl newObjectIconUrl() const = 0;
 
 		class MpqPriorityList *m_source;
+
 		int m_tabIndex;
+
 		KLineEdit *m_filterLineEdit;
-		class ObjectTreeWidget *m_treeWidget; // left side tree widget
+		ObjectTreeWidget *m_treeWidget; // left side tree widget
+		QTreeWidgetItem *m_standardObjectsItem;
+		QTreeWidgetItem *m_customObjectsItem;
+
 		class ObjectTableWidget *m_tableWidget; // centered table widget of current selected object
-		class MetaData *m_metaData;
+
+		ObjectMetaData *m_metaData;
+
+		Objects m_objects;
 
 		bool m_showRawData;
 
@@ -168,7 +212,7 @@ inline bool ObjectEditorTab::hasObjectEditor() const
 	return true;
 }
 
-inline class ObjectEditor* ObjectEditorTab::objectEditor() const throw (std::bad_cast)
+inline ObjectEditor* ObjectEditorTab::objectEditor() const throw (std::bad_cast)
 {
 	// TODO typeid comparison doesn't work, dynamic_cast is working workaround!
 	// NOTE parent could be tab widget of object editor
@@ -183,24 +227,19 @@ inline KLineEdit* ObjectEditorTab::filterLineEdit() const
 	return this->m_filterLineEdit;
 }
 
-inline class ObjectTreeWidget* ObjectEditorTab::treeWidget() const
+inline ObjectTreeWidget* ObjectEditorTab::treeWidget() const
 {
 	return m_treeWidget;
 }
 
-inline class ObjectTableWidget* ObjectEditorTab::tableWidget() const
+inline ObjectTableWidget* ObjectEditorTab::tableWidget() const
 {
 	return m_tableWidget;
 }
 
-inline MetaData* ObjectEditorTab::metaData() const
+inline ObjectMetaData* ObjectEditorTab::metaData() const
 {
 	return this->m_metaData;
-}
-
-inline void ObjectEditorTab::setShowRawData(bool show)
-{
-	this->m_showRawData = show;
 }
 
 inline bool ObjectEditorTab::showRawData() const

@@ -59,6 +59,7 @@ configure_file(UnitData.slk UnitData.slk COPYONLY) # Reign of Chaos "war3.mpq"
 configure_file(UnitMetaData.slk UnitMetaData.slk COPYONLY) # Reign of Chaos "war3.mpq"
 configure_file(UnitMetaDataExportedByLibreOffice.slk UnitMetaDataExportedByLibreOffice.slk COPYONLY) # Reign of Chaos "war3.mpq" exported with LibreOffice
 configure_file(UnitUI.slk UnitUI.slk COPYONLY) # Reign of Chaos "war3.mpq"
+configure_file(UnitWeapons.slk UnitWeapons.slk COPYONLY) # Reign of Chaos "war3.mpq"
 configure_file(UpgradeData.slk UpgradeData.slk COPYONLY) # Reign of Chaos "war3.mpq"
 configure_file(war3map.wtg war3map.wtg COPYONLY) # War Chasers
 configure_file(war3map.wct war3map.wct COPYONLY) # War Chasers

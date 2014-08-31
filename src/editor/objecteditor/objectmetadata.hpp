@@ -18,12 +18,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_UNITSELECTIONDIALOG_HPP
-#define WC3LIB_EDITOR_UNITSELECTIONDIALOG_HPP
+#ifndef WC3LIB_EDITOR_OBJECTMETADATA_HPP
+#define WC3LIB_EDITOR_OBJECTMETADATA_HPP
 
-#include <QDialog>
+#include <QString>
+#include <QWidget>
 
-#include "ui_unitselectiondialog.h"
+#include "../../map.hpp"
 
 namespace wc3lib
 {
@@ -31,33 +32,44 @@ namespace wc3lib
 namespace editor
 {
 
-class UnitMetaData;
+class MetaData;
 
-/**
- * \brief An icon listing dialog which allows the user to select a standard or a custom unit.
- *
- * The units are ordered by their race.
- */
-class UnitSelectionDialog : public QDialog, protected Ui::UnitSelectionDialog
+class ObjectMetaData
 {
 	public:
-		explicit UnitSelectionDialog(UnitMetaData *unitMetaData, QWidget* parent = 0, Qt::WindowFlags f = 0);
+		/**
+		 * \brief Element function which is used for resolving any object data value stored in one of the many SLK files.
+		 *
+		 * \note This does not resolve meta data but actual object data (default data for existing objects).
+		 */
+		virtual QString getDataValue(const QString &objectId, const QString &fieldId) const = 0;
 
-		void select(QString rawDataId);
+		/**
+		 * \return Returns the actual meta data which contains all raw data names of the object fields.
+		 */
+		virtual MetaData* metaData() const = 0;
 
-		UnitMetaData* metaData() const;
+		virtual void load(QWidget *widget) = 0;
 
-	private:
-		UnitMetaData *m_metaData;
+		/**
+		 * Checks if the meta data from Reign of Chaos is loaded.
+		 * This helps you to decide if the object data can be imported or exported as Reign of Chaos unit data or not.
+		 * It checks for fields using Reign of Chaos types like "unitList" or "itemList" etc. which are not used in Frozen Throne
+		 * anymore.
+		 */
+		bool isReignOfChaos() const;
+
+		/**
+		 * Returns the corresponding value type for a field ID.
+		 * This can be useful if you want to create a \ref wc3lib::map::Value object from a \ref ObjectTableWidgetPair.
+		 * The type is stored in the meta data file (\ref metaData()) in the column "type".
+		 * \throw Exception Throws an exception if the field type is not supported.
+		 */
+		map::Value::Type fieldType(const QString &fieldId) const;
 };
 
-inline UnitMetaData* UnitSelectionDialog::metaData() const
-{
-	return this->m_metaData;
 }
 
 }
 
-}
-
-#endif // WC3LIB_EDITOR_UNITSELECTIONDIALOG_HPP
+#endif // OBJECTMETADATA_H

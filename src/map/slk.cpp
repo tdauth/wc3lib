@@ -68,111 +68,6 @@ namespace unicode = boost::spirit::qi::unicode;
 
 using boost::phoenix::ref;
 
-/**
- * Skips all records which contain formatting rules.
- * Formatting is not required we only need the cell content.
- */
-template<typename Iterator>
-struct RecordSkipper : public qi::grammar<Iterator>
-{
-	RecordSkipper() : RecordSkipper<Iterator>::base_type(skip, "formatting records")
-	{
-		using qi::lit;
-		using unicode::char_;
-		using qi::int_;
-		using ascii::blank;
-		using qi::eol;
-		using qi::eoi;
-		using qi::eps;
-
-		/*
-		 * ; has to be escaped by using two ; characters
-		 */
-		literal %=
-			lit(";;")
-			| (char_ - lit(';') - eol)
-		;
-
-		/*
-		 * X and Y fields must be handled by the parser.
-		 */
-		field %=
-			lit(";")
-			>> char_('A', 'Z') - lit('X') - lit('Y')
-			>> *literal
-		;
-
-		id_record %=
-			lit("ID")
-			>> +field
-		;
-
-		p_record %=
-			lit('P')
-			>> +field
-		;
-
-		f_record %=
-			lit('F')
-			>> +field
-		;
-
-		o_record %=
-			lit('O')
-			>> +field
-		;
-
-		skip_record %=
-			id_record
-			| p_record
-			| f_record
-			| o_record
-		;
-
-		skip_lines %=
-			+(eol >> -skip_record >> &eol)
-		;
-
-		skip %=
-			skip_lines
-			| skip_record
-		;
-
-		literal.name("literal");
-		field.name("field");
-		id_record.name("id_record");
-		p_record.name("p_record");
-		f_record.name("f_record");
-		skip_record.name("skip_record");
-		skip_lines.name("skip_lines");
-		skip.name("skip");
-
-		BOOST_SPIRIT_DEBUG_NODES(
-			(literal)
-			(field)
-			(id_record)
-			(p_record)
-			(f_record)
-			(skip_record)
-			(skip_lines)
-			(skip)
-		);
-	}
-
-	qi::rule<Iterator> literal;
-
-	qi::rule<Iterator> field;
-
-	qi::rule<Iterator> id_record;
-	qi::rule<Iterator> b_record;
-	qi::rule<Iterator> p_record;
-	qi::rule<Iterator> f_record;
-	qi::rule<Iterator> o_record;
-	qi::rule<Iterator> skip_record;
-	qi::rule<Iterator> skip_lines;
-	qi::rule<Iterator> skip;
-};
-
 typedef std::pair<Slk::Table::size_type, Slk::Table::size_type> SlkSize;
 
 struct CellData
@@ -233,8 +128,8 @@ void setCell(Slk::Table &table, const CellData &cell)
  * There is different types of records from which only need those on which
  * cell values depend on.
  */
-template <typename Iterator, typename Skipper = RecordSkipper<Iterator> >
-struct SlkGrammar : qi::grammar<Iterator, Skipper>
+template <typename Iterator>
+struct SlkGrammar : qi::grammar<Iterator>
 {
 	void prepare(Slk::Table &result)
 	{
@@ -284,6 +179,14 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 		/*
 		 * ; has to be escaped by using two ; characters
 		 */
+		skipped_literal %=
+			lit(";;")
+			| (char_ - lit(';') - eol)
+		;
+
+		/*
+		 * ; has to be escaped by using two ; characters
+		 */
 		literal %=
 			// rollback changes if it fails
 			qi::hold[
@@ -293,6 +196,16 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 				)
 			]
 		;
+
+		/*
+		 * X and Y fields must be handled by the parser.
+		 */
+		skipped_field %=
+			lit(";")
+			>> char_('A', 'Z') - lit('X') - lit('Y')
+			>> *skipped_literal
+		;
+
 
 		x_field %=
 			lit(";X")
@@ -307,6 +220,21 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 		d_field %=
 			lit(";D")
 			> literal
+		;
+
+		id_record %=
+			lit("ID")
+			>> +skipped_field
+		;
+
+		p_record %=
+			lit('P')
+			>> +skipped_field
+		;
+
+		o_record %=
+			lit('O')
+			>> +skipped_field
 		;
 
 		/*
@@ -359,14 +287,20 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 		 */
 		f_record =
 			lit('F')
-			>> -y_field[ref(row) = _1]
-			>> -x_field[ref(column) = _1]
+			>> +(
+				skipped_field
+				| y_field[ref(row) = _1]
+				| x_field[ref(column) = _1]
+			)
 		;
 
 		record =
 			b_record[phoenix::bind(&resizeTable, phoenix::ref(result), phoenix::ref(_1))]
 			| c_record[phoenix::bind(&setCell, phoenix::ref(result), phoenix::ref(_1))]
 			| f_record
+			| id_record
+			| p_record
+			| o_record
 		;
 
 		cells =
@@ -376,10 +310,17 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 			>> eol >> e_record >> +eol
 		;
 
+		skipped_literal.name("skipped_literal");
 		literal.name("literal");
+		skipped_field.name("skipped_field");
 		x_field.name("x_field");
 		y_field.name("y_field");
 		d_field.name("d_field");
+
+		id_record.name("id_record");
+		p_record.name("p_record");
+		o_record.name("o_record");
+
 		b_record.name("b_record");
 		c_record.name("c_record");
 		e_record.name("e_record");
@@ -387,10 +328,17 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 		cells.name("cells");
 
 		BOOST_SPIRIT_DEBUG_NODES(
+			(skipped_literal)
 			(literal)
+			(skipped_field)
 			(x_field)
 			(y_field)
 			(d_field)
+
+			(id_record)
+			(p_record)
+			(o_record)
+
 			(b_record)
 			(c_record)
 			(e_record)
@@ -399,18 +347,24 @@ struct SlkGrammar : qi::grammar<Iterator, Skipper>
 		);
 	}
 
-	qi::rule<Iterator, Slk::Cell(), Skipper> literal;
+	qi::rule<Iterator> skipped_literal;
+	qi::rule<Iterator, Slk::Cell()> literal;
 
-	qi::rule<Iterator, Slk::Table::size_type(), Skipper> x_field;
-	qi::rule<Iterator, Slk::Table::size_type(), Skipper> y_field;
-	qi::rule<Iterator, Skipper> d_field;
+	qi::rule<Iterator> skipped_field;
+	qi::rule<Iterator, Slk::Table::size_type()> x_field;
+	qi::rule<Iterator, Slk::Table::size_type()> y_field;
+	qi::rule<Iterator> d_field;
 
-	qi::rule<Iterator, SlkSize(), Skipper> b_record;
-	qi::rule<Iterator, CellData(), Skipper> c_record;
-	qi::rule<Iterator, Skipper> e_record;
-	qi::rule<Iterator, Skipper> f_record;
-	qi::rule<Iterator, Skipper> record;
-	qi::rule<Iterator, Skipper> cells;
+	qi::rule<Iterator> id_record;
+	qi::rule<Iterator> p_record;
+	qi::rule<Iterator> o_record;
+
+	qi::rule<Iterator, SlkSize()> b_record;
+	qi::rule<Iterator, CellData()> c_record;
+	qi::rule<Iterator> e_record;
+	qi::rule<Iterator> f_record;
+	qi::rule<Iterator> record;
+	qi::rule<Iterator> cells;
 
 	Slk::Table result;
 	Slk::Table::size_type row;
@@ -462,13 +416,12 @@ template <typename Iterator>
 bool parse(Iterator first, Iterator last, Slk::Table &table)
 {
 	SlkGrammar<Iterator> grammar(table);
-	RecordSkipper<Iterator> recordSkipper;
 
 	bool r = boost::spirit::qi::phrase_parse(
 		first,
 		last,
 		grammar,
-		recordSkipper
+		!unicode::char_ // TODO empty grammar, no skipper!
 	);
 
 	if (first != last) // fail if we did not get a full match

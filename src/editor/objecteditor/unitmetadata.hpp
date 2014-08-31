@@ -23,6 +23,8 @@
 
 #include <QWidget>
 
+#include "objectmetadata.hpp"
+
 namespace wc3lib
 {
 
@@ -35,18 +37,30 @@ class MetaData;
 /**
  * \brief Stores all data for standard units and unit meta data.
  */
-class UnitMetaData
+class UnitMetaData : public ObjectMetaData
 {
 	public:
 		UnitMetaData(MpqPriorityList *source);
 
 		MpqPriorityList* source() const;
 
-		void load(QWidget *widget);
+		virtual void load(QWidget *widget) override;
 
+		/**
+		 * \brief Element function which is used for resolving any object data value stored in one of the many SLK files.
+		 *
+		 * \note This does not resolve meta data but actual object data (default data for existing objects).
+		 */
+		virtual QString getDataValue(const QString &objectId, const QString &fieldId) const override;
+
+		virtual MetaData* metaData() const override;
+
+		MetaData* unitMetaData() const;
 		MetaData* unitData() const;
 		MetaData* unitUi() const;
 		MetaData* unitBalance() const;
+		MetaData* unitWeapons() const;
+		MetaData* unitAbilities() const;
 		MetaData* humanUnitStrings() const;
 		MetaData* humanUnitFunc() const;
 		MetaData* orcUnitStrings() const;
@@ -57,9 +71,12 @@ class UnitMetaData
 		MetaData* nightElfUnitFunc() const;
 	private:
 		MpqPriorityList *m_source;
+		MetaData *m_unitMetaData;
 		MetaData *m_unitData;
 		MetaData *m_unitUi;
 		MetaData *m_unitBalance;
+		MetaData *m_unitWeapons;
+		MetaData *m_unitAbilities;
 		MetaData *m_humanUnitStrings;
 		MetaData *m_humanUnitFunc;
 		MetaData *m_orcUnitStrings;
@@ -75,6 +92,16 @@ inline MpqPriorityList* UnitMetaData::source() const
 	return this->m_source;
 }
 
+inline MetaData* UnitMetaData::metaData() const
+{
+	return this->unitMetaData();
+}
+
+inline MetaData* UnitMetaData::unitMetaData() const
+{
+	return this->m_unitMetaData;
+}
+
 inline MetaData* UnitMetaData::unitData() const
 {
 	return this->m_unitData;
@@ -88,6 +115,16 @@ inline MetaData* UnitMetaData::unitUi() const
 inline MetaData* UnitMetaData::unitBalance() const
 {
 	return this->m_unitBalance;
+}
+
+inline MetaData* UnitMetaData::unitWeapons() const
+{
+	return this->m_unitWeapons;
+}
+
+inline MetaData* UnitMetaData::unitAbilities() const
+{
+	return this->m_unitAbilities;
 }
 
 inline MetaData* UnitMetaData::humanUnitStrings() const

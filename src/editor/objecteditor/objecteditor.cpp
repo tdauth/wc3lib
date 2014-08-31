@@ -60,51 +60,20 @@ ObjectEditor::~ObjectEditor()
 {
 }
 
-class ObjectEditorTab* ObjectEditor::tab(int index) const
+ObjectEditorTab* ObjectEditor::tab(int index) const
 {
-	return boost::polymorphic_cast<class ObjectEditorTab*>(this->tabWidget()->widget(index));
+	return boost::polymorphic_cast<ObjectEditorTab*>(this->tabWidget()->widget(index));
 }
 
 void ObjectEditor::exportAll()
 {
-	if (m_collection.isNull())
-	{
-		KMessageBox::error(this, i18n("No object data available."));
-
-		return;
-	}
+	// TODO collect all tab data (requires Frozen Throne)
 }
 
 void ObjectEditor::importAll(const KUrl& url)
 {
-	QString file;
-
-	if (this->source()->download(url, file, this))
-	{
-		ifstream in(file.toStdString(), std::ios::in | std::ios::binary);
-
-		if (in)
-		{
-			Collection collection;
-
-			try
-			{
-				const std::streamsize size = collection->read(in);
-
-				m_collection.swap(collection);
-
-				KMessageBox::information(this, i18n("Successfully imported object data with size %1.", size));
-			}
-			catch (Exception &e)
-			{
-				KMessageBox::error(this, i18n("Error when opening file %1: \"%2\".", file, e.what()));
-			}
-		}
-	}
-	else
-	{
-		KMessageBox::error(this, i18n("Error while importing all object data from \"%1\".", url.toEncoded().constData()));
-	}
+	// TODO import all collection or a collection from a map (requires Frozen Throne)
+	// TODO distribute to the tabs
 }
 
 void ObjectEditor::importAll()
@@ -226,10 +195,12 @@ class SettingsInterface* ObjectEditor::settings()
 	return 0;
 }
 
-void ObjectEditor::onSwitchToMap(class Map *map)
+void ObjectEditor::onSwitchToMap(Map *map)
 {
 	for (int i = 0; i < this->tabWidget()->count(); ++i)
+	{
 		tab(i)->onSwitchToMap(map);
+	}
 }
 
 void ObjectEditor::currentChanged(int index)
@@ -329,54 +300,9 @@ void ObjectEditor::addCurrentActions()
 	connect(pasteObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(pasteObject()));
 }
 
-void ObjectEditor::updateCollection(ObjectEditor::Collection& collection)
-{
-	if (collection->hasUnits())
-	{
-		this->unitEditor()->onUpdateCollection(*collection->units().get());
-	}
-
-	/*
-	if (collection->hasItems())
-	{
-		this->itemEditor()->onUpdateCollection(*collection->items().get());
-	}
-
-	if (collection->hasDestructibles())
-	{
-		this->destructibleEditor()->onUpdateCollection(*collection->destructibles().get());
-	}
-
-	if (collection->hasDoodads())
-	{
-		this->doodadEditor()->onUpdateCollection(*collection->doodads().get());
-	}
-
-	if (collection->hasAbilities())
-	{
-		this->abilityEditor()->onUpdateCollection(*collection->abilities().get());
-	}
-
-	if (collection->hasBuffs())
-	{
-		this->buffEditor()->onUpdateCollection(*collection->buffs().get());
-	}
-
-	if (collection->hasUpgrades())
-	{
-		this->upgradeEditor()->onUpdateCollection(*collection->upgrades().get());
-	}
-	*/
-}
-
 void ObjectEditor::showRawData(bool checked)
 {
 	this->currentTab()->setShowRawData(checked);
-
-	if (!this->currentTab()->treeWidget()->selectedItems().isEmpty())
-	{
-		this->currentTab()->activateObject(this->currentTab()->treeWidget()->selectedItems().first(), 0, this->currentTab()->treeWidget()->selectedItems().first()->data(0, Qt::UserRole).toString());
-	}
 }
 
 #include "moc_objecteditor.cpp"

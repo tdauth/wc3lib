@@ -32,7 +32,7 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectTableWidget::ObjectTableWidget(ObjectEditorTab *parent) : QTableWidget(parent->metaData()->slk().rows(), 2, parent), m_tab(parent)
+ObjectTableWidget::ObjectTableWidget(ObjectEditorTab *parent) : QTableWidget(parent->metaData()->metaData()->slk().rows() - 1, 2, parent), m_tab(parent)
 {
 	const QString name = parent->source()->sharedData()->tr("WESTRING_NAME");
 	QTableWidgetItem *nameItem = new QTableWidgetItem(name);
@@ -44,11 +44,11 @@ ObjectTableWidget::ObjectTableWidget(ObjectEditorTab *parent) : QTableWidget(par
 
 	this->verticalHeader()->setVisible(false);
 
-	for (map::Slk::Table::size_type i = 0; i < tab()->metaData()->slk().rows() -  1; ++i)
+	for (map::Slk::Table::size_type i = 0; i < tab()->metaData()->metaData()->slk().rows() - 1; ++i)
 	{
-		qDebug() << "Original value: " << tab()->metaData()->value(i + 1, "\"ID\"");
-		const QString fieldId = MetaData::fromSlkString(tab()->metaData()->value(i + 1, "\"ID\""));
-		ObjectTableWidgetPair *pair = new ObjectTableWidgetPair(this, parent, i,  "", fieldId);
+		qDebug() << "Original value: " << tab()->metaData()->metaData()->value(i + 1, "\"ID\"");
+		const QString fieldId = MetaData::fromSlkString(tab()->metaData()->metaData()->value(i + 1, "\"ID\""));
+		ObjectTableWidgetPair *pair = new ObjectTableWidgetPair(this, parent, i, "", "", fieldId);
 		m_pairs.insert(fieldId, pair);
 		qDebug() << "pair " << i << ": " << fieldId;
 	}
