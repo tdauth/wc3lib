@@ -65,7 +65,7 @@ extern "C" int KDE_EXPORT kdemain(int argc, char **argv)
 
 const char *MpqSlave::protocol= "mpq";
 
-MpqSlave::MpqSlave(const QByteArray &pool, const QByteArray &app) : KIO::SlaveBase(protocol, pool, app), m_hasAttributes(false), m_seekPos(0), m_attributesVersion(0), m_extendedAttributes(mpq::Attributes::ExtendedAttributes::None)
+MpqSlave::MpqSlave(const QByteArray &pool, const QByteArray &app) : KIO::SlaveBase(protocol, pool, app), m_hasAttributes(false), m_attributesVersion(0), m_extendedAttributes(mpq::Attributes::ExtendedAttributes::None), m_seekPos(0)
 {
 	kDebug(7000) << "Created MPQ slave";
 }
@@ -159,7 +159,7 @@ bool MpqSlave::openArchive(const QString &archive, QString &error)
 
 		try
 		{
-			ptr->open(archive.toStdString());
+			ptr->open(archive.toUtf8().constData());
 		}
 		catch (Exception &exception)
 		{
