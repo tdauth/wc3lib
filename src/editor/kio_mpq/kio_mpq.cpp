@@ -478,7 +478,7 @@ void MpqSlave::listDir(const KUrl &url)
 
 						if (!cast)
 						{
-							warning(i18n("%1: Invalid file time for \"%2\": high - %3, low - %4", url.prettyUrl(), ref.c_str(), storedFileTime.highDateTime, storedFileTime.lowDateTime));
+							kDebug(7000) << i18n("%1: Invalid file time for \"%2\": high - %3, low - %4", url.prettyUrl(), ref.c_str(), storedFileTime.highDateTime, storedFileTime.lowDateTime);
 						}
 						else
 						{
@@ -487,7 +487,7 @@ void MpqSlave::listDir(const KUrl &url)
 					}
 					else
 					{
-						warning(i18n("%1: File time is not stored in \"(attributes)\" file.", url.prettyUrl()));
+						kDebug(7000) << i18n("%1: File time is not stored in \"(attributes)\" file.", url.prettyUrl());
 					}
 				}
 
@@ -573,7 +573,7 @@ void MpqSlave::stat(const KUrl &url)
 
 				if (!cast)
 				{
-					warning(i18n("%1: Invalid file time for \"%2\": high - %3, low - %4", url.prettyUrl(), file.path().c_str(), storedFileTime.highDateTime, storedFileTime.lowDateTime));
+					kDebug(7000) << i18n("%1: Invalid file time for \"%2\": high - %3, low - %4", url.prettyUrl(), file.path().c_str(), storedFileTime.highDateTime, storedFileTime.lowDateTime);
 				}
 				else
 				{
@@ -582,7 +582,7 @@ void MpqSlave::stat(const KUrl &url)
 			}
 			else
 			{
-				warning(i18n("%1: File time is not stored in \"(attributes)\" file.", url.prettyUrl()));
+				kDebug(7000) << i18n("%1: File time is not stored in \"(attributes)\" file.", url.prettyUrl());
 			}
 		}
 
