@@ -253,10 +253,6 @@ void ObjectEditorTab::exportAllObjects()
 	onExportAllObjects();
 }
 
-void ObjectEditorTab::onUpdateCollection(const map::CustomObjects& objects)
-{
-}
-
 void ObjectEditorTab::importCustomUnits(const map::CustomUnits &units)
 {
 	this->clearModifications();
@@ -309,6 +305,72 @@ void ObjectEditorTab::setShowRawData(bool show)
 	}
 
 	onShowRawData(show);
+}
+
+map::CustomUnits::Unit ObjectEditorTab::currentUnit() const
+{
+	map::CustomUnits::Unit unit;
+	// TODO which one is the custom id
+	unit.setOriginalId(map::stringToId(currentOriginalObjectId().toStdString()));
+	unit.setCustomId(map::stringToId(currentCustomObjectId().toStdString()));
+
+	Objects::const_iterator iterator = this->m_objects.find(ObjectId(currentOriginalObjectId(), currentCustomObjectId()));
+
+	if (iterator != this->m_objects.end())
+	{
+		foreach (map::CustomUnits::Modification modification, iterator.value())
+		{
+			unit.modifications().push_back(new map::CustomUnits::Modification(modification));
+		}
+	}
+
+	return unit;
+}
+
+map::CustomObjects::Object ObjectEditorTab::currentObject() const
+{
+	map::CustomObjects::Object object(map::CustomObjects::Type::Units);
+
+	return object;
+}
+
+map::CustomUnits ObjectEditorTab::customUnits() const
+{
+	map::CustomUnits units;
+
+	for (Objects::const_iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
+	{
+		map::CustomUnits::Unit unit;
+		// TODO which one is the custom id
+		unit.setOriginalId(map::stringToId(iterator.key().first.toStdString()));
+		unit.setCustomId(map::stringToId(iterator.key().second.toStdString()));
+
+		foreach (map::CustomUnits::Modification modification, iterator.value())
+		{
+			unit.modifications().push_back(new map::CustomUnits::Modification(modification));
+		}
+
+		/*
+		 * No custom ID means it is a standard unit.
+		 */
+		if (iterator.key().second.isEmpty())
+		{
+			units.originalTable().push_back(new map::CustomUnits::Unit(unit));
+		}
+		else
+		{
+			units.customTable().push_back(new map::CustomUnits::Unit(unit));
+		}
+	}
+
+	return units;
+}
+
+map::CustomObjects ObjectEditorTab::customObjects() const
+{
+	map::CustomObjects objects = map::CustomObjects(map::CustomObjects::Type::Units);
+
+	return objects;
 }
 
 #include "moc_objecteditortab.cpp"

@@ -44,6 +44,17 @@ void ObjectTreeWidget::customContextMenuRequested(QPoint pos)
 	m_contextMenu->popup(this->viewport()->mapToGlobal(pos));
 }
 
+
+void ObjectTreeWidget::clearCustomItems()
+{
+	foreach (QTreeWidgetItem *item, this->m_customItems)
+	{
+		delete item;
+	}
+
+	this->m_customItems.clear();
+}
+
 }
 
 }

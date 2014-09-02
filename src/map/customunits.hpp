@@ -61,6 +61,7 @@ class CustomUnits : public FileFormat
 		{
 			public:
 				Modification();
+				Modification(const Modification &other);
 				virtual ~Modification();
 
 				std::streamsize read(InputStream &istream) throw (class Exception);
@@ -103,6 +104,7 @@ class CustomUnits : public FileFormat
 				typedef boost::ptr_vector<Modification> Modifications;
 
 				Unit();
+				Unit(const Unit &other);
 				virtual ~Unit();
 
 				std::streamsize read(InputStream &istream) throw (class Exception);

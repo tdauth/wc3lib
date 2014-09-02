@@ -60,7 +60,8 @@ class ObjectTreeWidget : public QTreeWidget
 		Items& customItems();
 
 		/**
-		 * Clears only all items which are under the "Custom ..." entry.
+		 * Clears all items which are under the "Custom ..." entry.
+		 * \note This member function removes their entries from the hash and deletes the items.
 		 */
 		void clearCustomItems();
 
@@ -112,11 +113,6 @@ inline ObjectTreeWidget::Items& ObjectTreeWidget::standardItems()
 inline ObjectTreeWidget::Items& ObjectTreeWidget::customItems()
 {
 	return this->m_customItems;
-}
-
-inline void ObjectTreeWidget::clearCustomItems()
-{
-	this->m_customItems.clear();
 }
 
 inline QString ObjectTreeWidget::itemOriginalObjectId(const QTreeWidgetItem &item) const

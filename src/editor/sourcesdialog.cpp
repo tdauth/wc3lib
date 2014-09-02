@@ -43,12 +43,13 @@ void SourcesDialog::update()
 
 	qDebug() << "Sources: " << const_cast<const MpqPriorityList*>(source())->sources().size();
 
-	foreach (MpqPriorityList::Sources::const_reference source, const_cast<const MpqPriorityList*>(source())->sources()) {
+	BOOST_REVERSE_FOREACH(MpqPriorityList::Sources::const_reference source, const_cast<const MpqPriorityList*>(this->source())->sources())
+	{
 		m_editListBox->insertItem(source.url().toEncoded());
 	}
 }
 
-SourcesDialog::SourcesDialog(class MpqPriorityList *source, QWidget *parent, Qt::WFlags flags)
+SourcesDialog::SourcesDialog(MpqPriorityList *source, QWidget *parent, Qt::WFlags flags)
 : QDialog(parent, flags)
 , m_source(source)
 {
@@ -60,8 +61,9 @@ SourcesDialog::SourcesDialog(class MpqPriorityList *source, QWidget *parent, Qt:
 	//KUrlCompletion *urlCompletion = new KUrlCompletion(KUrlCompletion::DirCompletion);
 	//m_editListBox->lineEdit()->setCompletionObject(urlCompletion);
 	//m_editListBox->setCustomEditor(*requester);
+
 	KUrlRequester *urlRequester = new KUrlRequester(m_editListBox);
-	urlRequester->setMode(KFile::ExistingOnly | KFile::Files | KFile::Directory);
+	urlRequester->setMode(KFile::ExistingOnly | KFile::File | KFile::Directory);
 
 	KMimeType::Ptr mpq(KMimeType::mimeType("application/x-mpq"));
 	KMimeType::Ptr w3m(KMimeType::mimeType("application/x-w3m"));
@@ -90,28 +92,17 @@ SourcesDialog::SourcesDialog(class MpqPriorityList *source, QWidget *parent, Qt:
 
 void SourcesDialog::added(const QString& text)
 {
-	// fix mpq entries automatically
-	if (text.endsWith(".mpq") && !text.startsWith("mpq:/")) {
-		QStringList items = m_editListBox->items();
-		items.removeFirst();
-		QString protocol = "mpq:";
+	QStringList items = m_editListBox->items();
+	items.removeFirst();
+	QString result;
+	bool add = prepareItem(text, result);
 
-		if (!text.startsWith('/')) { // relative path
-			protocol += '/';
-		}
-
-		items.push_front(protocol + text);
-		m_editListBox->setItems(items);
-	} else {
-		const KUrl url(text);
-
-		if (url.isLocalFile() && !text.startsWith("file://")) {
-			QStringList items = m_editListBox->items();
-			items.removeFirst();
-			items.push_front("file://" + text);
-			m_editListBox->setItems(items);
-		}
+	if (add)
+	{
+		items.prepend(result);
 	}
+
+	m_editListBox->setItems(items);
 }
 
 void SourcesDialog::ok()
@@ -135,7 +126,7 @@ void SourcesDialog::apply()
 		}
 		else
 		{
-			qDebug() << "Successfully added";
+			qDebug() << "Successfully added item" << item << "with priority" << priority;
 		}
 
 		--priority;
@@ -165,6 +156,36 @@ void SourcesDialog::showEvent(QShowEvent *e)
 {
 	update();
 	QDialog::showEvent(e);
+}
+
+bool SourcesDialog::prepareItem(const QString &item, QString &result)
+{
+	// fix mpq entries automatically
+	if (item.endsWith(".mpq") && !item.startsWith("mpq:/")) {
+		QString protocol = "mpq:";
+
+		if (!item.startsWith('/')) { // relative path
+			protocol += '/';
+		}
+
+		result = protocol + item;
+
+		return true;
+	} else {
+		const KUrl url(item);
+
+		if (url.isLocalFile() && !item.startsWith("file://")) {
+			result = "file://" + item;
+
+			return true;
+		}
+
+		result = item;
+
+		return true;
+	}
+
+	return false;
 }
 
 QString SourcesDialog::settingsGroup() const

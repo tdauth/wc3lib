@@ -46,11 +46,18 @@ ObjectTableWidget::ObjectTableWidget(ObjectEditorTab *parent) : QTableWidget(par
 
 	for (map::Slk::Table::size_type i = 0; i < tab()->metaData()->metaData()->slk().rows() - 1; ++i)
 	{
-		qDebug() << "Original value: " << tab()->metaData()->metaData()->value(i + 1, "\"ID\"");
-		const QString fieldId = MetaData::fromSlkString(tab()->metaData()->metaData()->value(i + 1, "\"ID\""));
-		ObjectTableWidgetPair *pair = new ObjectTableWidgetPair(this, parent, i, "", "", fieldId);
-		m_pairs.insert(fieldId, pair);
-		qDebug() << "pair " << i << ": " << fieldId;
+		try
+		{
+			qDebug() << "Original value: " << tab()->metaData()->metaData()->value(i + 1, "\"ID\"");
+			const QString fieldId = MetaData::fromSlkString(tab()->metaData()->metaData()->value(i + 1, "\"ID\""));
+			ObjectTableWidgetPair *pair = new ObjectTableWidgetPair(this, parent, i, "", "", fieldId);
+			m_pairs.insert(fieldId, pair);
+			qDebug() << "pair " << i << ": " << fieldId;
+		}
+		catch (Exception &e)
+		{
+			qDebug() << "Exception:" << e.what();
+		}
 	}
 
 	/*

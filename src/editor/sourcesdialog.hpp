@@ -82,6 +82,8 @@ class KDE_EXPORT SourcesDialog : public QDialog, protected Ui::SourcesDialog
 	protected:
 		virtual void showEvent(QShowEvent *e);
 
+		bool prepareItem(const QString &item, QString &result);
+
 		QString settingsGroup() const;
 
 	private:

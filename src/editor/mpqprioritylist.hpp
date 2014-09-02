@@ -123,12 +123,12 @@ inline const KUrl& MpqPriorityListEntry::url() const
 	return this->m_url;
 }
 
-inline bool MpqPriorityListEntry::operator<(const self& other) const
+inline bool MpqPriorityListEntry::operator<(const self &other) const
 {
 	return this->priority() < other.priority();
 }
 
-inline bool MpqPriorityListEntry::operator==(const self& other) const
+inline bool MpqPriorityListEntry::operator==(const self &other) const
 {
 	return this->priority() == other.priority();
 }
@@ -176,6 +176,8 @@ class KDE_EXPORT MpqPriorityList
 		 * List of available sources for one single \ref MpqPriorityList.
 		 * The sources are ordered by their priority to resolve sources when dowloading or uploading a file.
 		 * Sources with higher priority should therefore be used first.
+		 *
+		 * \note About the ordering it seems that elements with little priority come first in the set, so you need to reverse the set if you want to resolve by priority.
 		 */
 		typedef boost::ptr_multiset<MpqPriorityListEntry> Sources;
 		typedef MpqPriorityListEntry Source;

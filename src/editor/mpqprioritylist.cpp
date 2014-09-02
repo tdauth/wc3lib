@@ -210,6 +210,15 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 	}
 
 	qDebug() << "Sources size: " << sources().size();
+	qDebug() << "Listing all sources:";
+
+	BOOST_FOREACH(Sources::const_reference entry, sources())
+	{
+		qDebug() << "entry url: " << entry.url();
+		qDebug() << "Priority:" << entry.priority();
+	}
+
+	qDebug() << "Trying download:";
 
 	// TODO only do this if it doesn't start with /
 	// Since entries are ordered by priority highest priority entry should be checked first
@@ -218,6 +227,7 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 		// entry path can be a directory path or something like tar:/... or mpq:/...
 		KUrl absoluteSource = entry.url();
 		absoluteSource.addPath(src.toLocalFile());
+
 
 		qDebug() << "entry url: " << entry.url();
 		qDebug() << "local file: " << src.toLocalFile();

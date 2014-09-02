@@ -88,7 +88,7 @@ void WarcraftIIIShared::refreshWorldEditorStrings(QWidget *window, const KUrl &u
 
 	qDebug() << "World Editor strings target: " << target;
 	WorldEditorStringsPtr ptr(new map::Txt());
-	ifstream ifstream(target.toStdString(), std::ios::binary | std::ios::in);
+	ifstream ifstream(target.toStdString(), std::ios::in);
 
 	if (!ifstream)
 	{
@@ -147,7 +147,7 @@ void WarcraftIIIShared::refreshTriggerData(QWidget *window, const KUrl &url) thr
 
 	qDebug() << "Trigger data target: " << target;
 	TriggerDataPtr ptr(new map::TriggerData());
-	ifstream ifstream(target.toStdString(), std::ios::binary | std::ios::in);
+	ifstream ifstream(target.toStdString(), std::ios::in);
 
 	if (!ifstream)
 	{
@@ -169,7 +169,7 @@ void WarcraftIIIShared::refreshTriggerStrings(QWidget *window, const KUrl &url) 
 
 	qDebug() << "Trigger strings target: " << target;
 	TriggerStringsPtr ptr(new map::TriggerStrings());
-	ifstream ifstream(target.toStdString(), std::ios::binary | std::ios::in);
+	ifstream ifstream(target.toStdString(), std::ios::in);
 
 	if (!ifstream)
 	{

@@ -33,6 +33,10 @@ CustomUnits::Modification::Modification() : m_id(0)
 {
 }
 
+CustomUnits::Modification::Modification(const CustomUnits::Modification &other) : m_id(other.m_id), m_value(other.m_value)
+{
+}
+
 CustomUnits::Modification::~Modification()
 {
 }
@@ -249,6 +253,11 @@ std::streamsize CustomUnits::Modification::writeData(OutputStream &ostream, Valu
 
 CustomUnits::Unit::Unit() : m_originalId(0), m_customId(0)
 {
+}
+
+CustomUnits::Unit::Unit(const CustomUnits::Unit &other) : m_originalId(other.m_originalId), m_customId(other.m_customId), m_modifications(other.m_modifications.clone())
+{
+
 }
 
 CustomUnits::Unit::~Unit()

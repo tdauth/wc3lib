@@ -278,60 +278,14 @@ void UnitEditor::fillTreeItem(const QString &originalObjectId, const QString &cu
 	}
 }
 
-class ObjectTableWidget* UnitEditor::createTableWidget()
+ObjectTableWidget* UnitEditor::createTableWidget()
 {
 	return new ObjectTableWidget(this);
-}
-
-map::CustomUnits::Unit UnitEditor::currentUnit() const
-{
-	const QString objectId = this->currentObjectId();
-	map::CustomUnits::Unit unit;
-	// TODO which one is the custom id
-	unit.setOriginalId(map::stringToId(objectId.toStdString()));
-	unit.setCustomId(map::stringToId(objectId.toStdString()));
-
-	/*
-	for (ObjectTableWidget::Pairs::iterator iterator = this->tableWidget()->pairs().begin(); iterator != this->tableWidget()->pairs().end(); ++iterator)
-	{
-		if (this->isFieldModified(objectId, iterator.key()))
-		{
-			std::auto_ptr<map::CustomUnits::Modification> modification(iterator.value()->modification());
-			unit.modifications().push_back(modification);
-		}
-	}
-	*/
-
-	// TODO is original or custom
-	//this->customObjects()->originalTable().push_back(object);
-
-	return unit;
-}
-
-map::CustomObjects::Object UnitEditor::currentObject() const
-{
-	map::CustomObjects::Object object(map::CustomObjects::Type::Units);
-
-	return object;
-}
-
-map::CustomUnits UnitEditor::customUnits() const
-{
-	map::CustomUnits units;
-
-	return units;
 }
 
 bool UnitEditor::hasCustomUnits() const
 {
 	return this->metaData()->isReignOfChaos();
-}
-
-map::CustomObjects UnitEditor::customObjects() const
-{
-	map::CustomObjects objects = map::CustomObjects(map::CustomObjects::Type::Units);
-
-	return objects;
 }
 
 bool UnitEditor::hasCustomObjects() const
@@ -648,27 +602,6 @@ void UnitEditor::activateFolder(QTreeWidgetItem* item, int column)
 	this->tableWidget()->hideColumn(0);
 	this->tableWidget()->hideColumn(1);
 }
-
-void UnitEditor::onUpdateCollection(const map::CustomObjects& objects)
-{
-	ObjectEditorTab::onUpdateCollection(objects);
-
-	/*
-
-	this->treeWidget()->clear();
-
-	QList<QTreeWidgetItem*> topLevelItems;
-	QTreeWidgetItem *standardItem = new QTreeWidgetItem(QStringList(source()->tr("WESTRING_UE_STANDARDUNITS", "UI/WorldEditStrings.txt")), 0);
-	QTreeWidgetItem *customItem = new QTreeWidgetItem(QStringList(source()->tr("WESTRING_UE_CUSTOMUNITS"), "UI/WorldEditStrings.txt"), 0);
-	topLevelItems << standardItem;
-	topLevelItems << customItem;
-
-	this->treeWidget()->addTopLevelItems(topLevelItems);
-	*/
-}
-
-
-
 
 }
 

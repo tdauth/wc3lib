@@ -47,15 +47,8 @@ class UnitEditor : public ObjectEditorTab
 
 		virtual QString name() const;
 
-		virtual void onUpdateCollection(const map::CustomObjects& objects);
-
-		virtual map::CustomUnits customUnits() const override;
 		virtual bool hasCustomUnits() const override;
-		virtual map::CustomObjects customObjects() const override;
 		virtual bool hasCustomObjects() const override;
-
-		virtual map::CustomUnits::Unit currentUnit() const override;
-		virtual map::CustomObjects::Object currentObject() const override;
 
 		bool objectIsHero(const QString &objectId) const;
 		bool objectIsUnit(const QString &objectId) const;
