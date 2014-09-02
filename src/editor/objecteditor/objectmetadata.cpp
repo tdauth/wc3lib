@@ -75,6 +75,86 @@ map::Value::Type ObjectMetaData::fieldType(const QString &fieldId) const
 	{
 		return map::Value::Type::Integer;
 	}
+	else if (type == "real")
+	{
+		return map::Value::Type::Real;
+	}
+	else if (type == "ureal")
+	{
+		return map::Value::Type::Unreal;
+	}
+	else if (type == "bool")
+	{
+		return map::Value::Type::Boolean;
+	}
+	else if (type == "stringList")
+	{
+		return map::Value::Type::StringList;
+	}
+	else if (type == "char")
+	{
+		return map::Value::Type::Character;
+	}
+	else if (type == "unitList")
+	{
+		return map::Value::Type::UnitList;
+	}
+	else if (type == "itemList")
+	{
+		return map::Value::Type::ItemList;
+	}
+	else if (type == "regenType")
+	{
+		return map::Value::Type::RegenerationType;
+	}
+	else if (type == "attackType")
+	{
+		return map::Value::Type::AttackType;
+	}
+	else if (type == "weaponType")
+	{
+		return map::Value::Type::WeaponType;
+	}
+	else if (type == "targetType")
+	{
+		return map::Value::Type::TargetType;
+	}
+	else if (type == "moveType")
+	{
+		return map::Value::Type::MoveType;
+	}
+	else if (type == "defenseType")
+	{
+		return map::Value::Type::DefenseType;
+	}
+	else if (type == "pathingTexture")
+	{
+		return map::Value::Type::PathingTexture;
+	}
+	else if (type == "upgradeList")
+	{
+		return map::Value::Type::UpgradeList;
+	}
+	else if (type == "abilityList")
+	{
+		return map::Value::Type::AbilityList;
+	}
+	else if (type == "heroAbilityList")
+	{
+		return map::Value::Type::HeroAbilityList;
+	}
+	else if (type == "missileArt")
+	{
+		return map::Value::Type::MissileArt;
+	}
+	else if (type == "attributeType")
+	{
+		return map::Value::Type::AttributeType;
+	}
+	else if (type == "attackBits")
+	{
+		return map::Value::Type::AttackBits;
+	}
 
 	throw Exception(boost::format(_("Unsupported type %1%.")) % type.toUtf8().constData());
 }

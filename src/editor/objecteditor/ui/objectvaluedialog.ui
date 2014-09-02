@@ -115,6 +115,9 @@
         </widget>
        </item>
        <item>
+        <widget class="KEditListWidget" name="m_editListWidget"/>
+       </item>
+       <item>
         <spacer name="verticalSpacer_2">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -141,6 +144,11 @@
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>KEditListWidget</class>
+   <extends>QWidget</extends>
+   <header>keditlistwidget.h</header>
+  </customwidget>
   <customwidget>
    <class>KDialogButtonBox</class>
    <extends>QDialogButtonBox</extends>

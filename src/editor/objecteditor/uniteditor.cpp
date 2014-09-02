@@ -623,7 +623,7 @@ void UnitEditor::activateObject(QTreeWidgetItem* item, int column, const QString
 						iterator.value()->descriptionItem()->setText(displayText);
 					}
 
-					const QString value = this->fieldValue(originalObjectId, customObjectId, fieldId);
+					const QString value = this->fieldReadableValue(originalObjectId, customObjectId, fieldId);
 					qDebug() << "Value:" << value << "for field id" << fieldId;
 					iterator.value()->valueItem()->setText(value);
 				}

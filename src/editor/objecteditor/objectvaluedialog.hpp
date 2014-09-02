@@ -28,6 +28,7 @@
 #include <KLineEdit>
 #include <KTextEdit>
 #include <KComboBox>
+#include <KEditListWidget>
 
 #include "ui_objectvaluedialog.h"
 
@@ -52,6 +53,7 @@ class ObjectValueDialog : public QDialog, protected Ui::ObjectValueDialog
 		KTextEdit* textEdit() const;
 		KComboBox* comboBox() const;
 		QCheckBox* checkBox() const;
+		KEditListWidget* editListWidget() const;
 };
 
 inline void ObjectValueDialog::setLabelText(const QString& text)
@@ -87,6 +89,11 @@ inline KComboBox* ObjectValueDialog::comboBox() const
 inline QCheckBox* ObjectValueDialog::checkBox() const
 {
 	return this->m_checkBox;
+}
+
+inline KEditListWidget* ObjectValueDialog::editListWidget() const
+{
+	return this->m_editListWidget;
 }
 
 }

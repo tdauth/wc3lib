@@ -54,8 +54,10 @@ class UnitMetaData : public ObjectMetaData
 		virtual QString getDataValue(const QString &objectId, const QString &fieldId) const override;
 
 		virtual MetaData* metaData() const override;
+		virtual MetaData* objectTabData() const override;
 
 		MetaData* unitMetaData() const;
+		MetaData* unitEditorData() const;
 		MetaData* unitData() const;
 		MetaData* unitUi() const;
 		MetaData* unitBalance() const;
@@ -69,9 +71,12 @@ class UnitMetaData : public ObjectMetaData
 		MetaData* undeadUnitFunc() const;
 		MetaData* nightElfUnitStrings() const;
 		MetaData* nightElfUnitFunc() const;
+		MetaData* neutralUnitStrings() const;
+		MetaData* neutralUnitFunc() const;
 	private:
 		MpqPriorityList *m_source;
 		MetaData *m_unitMetaData;
+		MetaData *m_unitEditorData;
 		MetaData *m_unitData;
 		MetaData *m_unitUi;
 		MetaData *m_unitBalance;
@@ -85,6 +90,8 @@ class UnitMetaData : public ObjectMetaData
 		MetaData *m_undeadUnitFunc;
 		MetaData *m_nightElfUnitStrings;
 		MetaData *m_nightElfUnitFunc;
+		MetaData *m_neutralUnitStrings;
+		MetaData *m_neutralUnitFunc;
 };
 
 inline MpqPriorityList* UnitMetaData::source() const
@@ -97,9 +104,19 @@ inline MetaData* UnitMetaData::metaData() const
 	return this->unitMetaData();
 }
 
+inline MetaData* UnitMetaData::objectTabData() const
+{
+	return this->unitEditorData();
+}
+
 inline MetaData* UnitMetaData::unitMetaData() const
 {
 	return this->m_unitMetaData;
+}
+
+inline MetaData* UnitMetaData::unitEditorData() const
+{
+	return this->m_unitEditorData;
 }
 
 inline MetaData* UnitMetaData::unitData() const
@@ -165,6 +182,16 @@ inline MetaData* UnitMetaData::nightElfUnitStrings() const
 inline MetaData* UnitMetaData::nightElfUnitFunc() const
 {
 	return this->m_nightElfUnitFunc;
+}
+
+inline MetaData* UnitMetaData::neutralUnitStrings() const
+{
+	return this->m_neutralUnitStrings;
+}
+
+inline MetaData* UnitMetaData::neutralUnitFunc() const
+{
+	return this->m_neutralUnitFunc;
 }
 
 }

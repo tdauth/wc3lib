@@ -61,13 +61,9 @@ class ObjectTableWidgetPair : public QObject
 		/**
 		 * Generates a value object with the correct type and data of the field.
 		 */
-		map::Value customValue() const;
-		/**
-		 * Generates a value object with the correct type and data of the field.
-		 */
 		map::Value defaultValue() const;
 
-		map::CustomUnits::Modification modification() const;
+		map::CustomUnits::Modification modification(const map::Value &value) const;
 
 		void activateObject(const QString &originalObjectId, const QString &customObjectId);
 		QString originalObjectId() const;

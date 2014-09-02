@@ -67,5 +67,7 @@ configure_file(TestMap.w3m TestMap.w3m COPYONLY)
 configure_file(war3map.w3r war3map.w3r COPYONLY) # Reign of Chaos rects
 configure_file(war3map.w3s war3map.w3s COPYONLY) # Reign of Chaos sounds
 configure_file(war3map.w3i war3map.w3i COPYONLY) # Reign of Chaos War Chasers
+configure_file(UnitEditorData.txt UnitEditorData.txt COPYONLY) # Reign of Chaos (war3.mpq)
+configure_file(NeutralUnitFunc.txt NeutralUnitFunc.txt COPYONLY) # Reign of Chaos (war3.mpq)
 
 configure_file(\(4\)WarChasers.w3m \(4\)WarChasers.w3m COPYONLY)

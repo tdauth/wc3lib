@@ -36,6 +36,7 @@ namespace editor
 UnitMetaData::UnitMetaData(MpqPriorityList *source)
 : m_source(source)
 , m_unitMetaData(0)
+, m_unitEditorData(0)
 , m_unitData(0)
 , m_unitUi(0)
 , m_unitBalance(0)
@@ -49,6 +50,8 @@ UnitMetaData::UnitMetaData(MpqPriorityList *source)
 , m_undeadUnitFunc(0)
 , m_nightElfUnitStrings(0)
 , m_nightElfUnitFunc(0)
+, m_neutralUnitStrings(0)
+, m_neutralUnitFunc(0)
 {
 
 }
@@ -75,35 +78,35 @@ QString UnitMetaData::getDataValue(const QString &objectId, const QString &field
 		{
 			if (this->unitUi()->hasValue(slkObjectId, slkField))
 			{
-				return this->unitUi()->value(slkObjectId, slkField);
+				return MetaData::fromSlkString(this->unitUi()->value(slkObjectId, slkField));
 			}
 		}
 		else if (slk == "UnitData")
 		{
 			if (this->unitData()->hasValue(slkObjectId, slkField))
 			{
-				return this->unitData()->value(slkObjectId, slkField);
+				return MetaData::fromSlkString(this->unitData()->value(slkObjectId, slkField));
 			}
 		}
 		else if (slk == "UnitBalance")
 		{
 			if (this->unitBalance()->hasValue(slkObjectId, slkField))
 			{
-				return this->unitBalance()->value(slkObjectId, slkField);
+				return MetaData::fromSlkString(this->unitBalance()->value(slkObjectId, slkField));
 			}
 		}
 		else if (slk == "UnitWeapons")
 		{
 			if (this->unitWeapons()->hasValue(slkObjectId, slkField))
 			{
-				return this->unitWeapons()->value(slkObjectId, slkField);
+				return MetaData::fromSlkString(this->unitWeapons()->value(slkObjectId, slkField));
 			}
 		}
 		else if (slk == "UnitAbilities")
 		{
 			if (this->unitAbilities()->hasValue(slkObjectId, slkField))
 			{
-				return this->unitAbilities()->value(slkObjectId, slkField);
+				return MetaData::fromSlkString(this->unitAbilities()->value(slkObjectId, slkField));
 			}
 		}
 		/*
@@ -164,6 +167,18 @@ QString UnitMetaData::getDataValue(const QString &objectId, const QString &field
 						return this->undeadUnitFunc()->value(txtObjectId, txtField);
 					}
 				}
+				else
+				{
+					if (this->neutralUnitStrings()->hasValue(txtObjectId, txtField))
+					{
+						return this->neutralUnitStrings()->value(txtObjectId, txtField);
+					}
+
+					if (this->neutralUnitFunc()->hasValue(txtObjectId, txtField))
+					{
+						return this->neutralUnitFunc()->value(txtObjectId, txtField);
+					}
+				}
 			}
 		}
 	}
@@ -191,6 +206,18 @@ void UnitMetaData::load(QWidget *widget)
 	catch (Exception &e)
 	{
 		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_unitMetaData->url().toEncoded().constData(), e.what()));
+	}
+
+	this->m_unitEditorData = new MetaData(KUrl("UI/UnitEditorData.txt"));
+	this->m_unitEditorData->setSource(this->source());
+
+	try
+	{
+		this->m_unitEditorData->load();
+	}
+	catch (Exception &e)
+	{
+		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_unitEditorData->url().toEncoded().constData(), e.what()));
 	}
 
 	this->m_unitData = new MetaData(KUrl("Units/UnitData.slk"));
@@ -347,6 +374,30 @@ void UnitMetaData::load(QWidget *widget)
 	catch (Exception &e)
 	{
 		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_nightElfUnitFunc->url().toEncoded().constData(), e.what()));
+	}
+
+	this->m_neutralUnitStrings = new MetaData(KUrl("Units/NeutralUnitStrings.txt"));
+	this->m_neutralUnitStrings->setSource(this->source());
+
+	try
+	{
+		this->m_neutralUnitStrings->load();
+	}
+	catch (Exception &e)
+	{
+		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_neutralUnitStrings->url().toEncoded().constData(), e.what()));
+	}
+
+	this->m_neutralUnitFunc = new MetaData(KUrl("Units/NeutralUnitFunc.txt"));
+	this->m_neutralUnitFunc->setSource(this->source());
+
+	try
+	{
+		this->m_neutralUnitFunc->load();
+	}
+	catch (Exception &e)
+	{
+		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_neutralUnitFunc->url().toEncoded().constData(), e.what()));
 	}
 }
 

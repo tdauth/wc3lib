@@ -161,8 +161,7 @@ struct KeyValueSquence : qi::grammar<Iterator, Txt::Entries(), Skipper>
 		;
 
 		key %=
-			char_("a-zA-Z_")
-			>> *char_("a-zA-Z_0-9")
+			+(unicode::char_ - '=' - qi::eol)
 		;
 
 		// values can be empty or all characters except eol which indicates the and of the value, eoi is the end of the stream and "//" starts a comment!
@@ -211,8 +210,7 @@ struct SectionGrammar : qi::grammar<Iterator, Txt::Section(), Skipper>
 
 		query %=
 			name
-			> qi::eol
-			> -entries
+			>> -(qi::eol >> entries)
 		;
 
 		name %=

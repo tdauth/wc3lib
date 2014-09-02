@@ -169,6 +169,42 @@ QString ObjectEditorTab::fieldValue(const QString& originalObjectId, const QStri
 	return "";
 }
 
+QString ObjectEditorTab::fieldReadableValue(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId) const
+{
+	QString fieldValue = this->fieldValue(originalObjectId, customObjectId, fieldId);
+	QString fieldType = MetaData::fromSlkString(this->metaData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("type")));
+
+	if (fieldType == "int" || fieldType == "uint" || fieldType == "real" || fieldType == "unreal" || fieldType == "string")
+	{
+		return fieldValue;
+	}
+
+	const map::Txt::Section *section = this->metaData()->objectTabData()->section(fieldType);
+
+	if (section == 0)
+	{
+		return fieldValue;
+	}
+
+	for (std::size_t i = 0; i < section->entries.size(); ++i)
+	{
+		const QString sectionValue = QString::fromUtf8(section->entries[i].second.c_str());
+		QStringList values = sectionValue.split(',');
+
+		if (values.size() == 2)
+		{
+			/*
+			 * It seems that values are existing like "Summoned" where it should be called "summoned"
+			 */
+			if (fieldValue.toLower() == values[0].toLower())
+			{
+				return this->source()->sharedData()->tr(values[1]);
+			}
+		}
+	}
+
+	return fieldValue;
+}
 
 void ObjectEditorTab::setupUi()
 {

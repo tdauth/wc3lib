@@ -113,13 +113,17 @@ Value::Value(int32 value) : ValueBase(value), m_type(Type::Integer)
 Value::Value(float32 value, Type type) : ValueBase(value), m_type(type)
 {
 	if (!isReal())
+	{
 		throw Exception(_(""));
+	}
 }
 
 Value::Value(const string &value, Type type) : ValueBase(value), m_type(type)
 {
 	if (!isString())
+	{
 		throw Exception(_(""));
+	}
 }
 
 Value::Value(bool value) : ValueBase(value), m_type(Type::Boolean)
@@ -133,7 +137,9 @@ Value::Value(byte value) : ValueBase(value), m_type(Type::Character)
 Value::Value(List value, Type type) : ValueBase(value), m_type(type)
 {
 	if (!isList())
+	{
 		throw Exception(_(""));
+	}
 }
 
 Value::Type Value::type() const

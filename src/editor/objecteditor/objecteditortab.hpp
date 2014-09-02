@@ -101,6 +101,7 @@ class ObjectEditorTab : public QWidget
 		void clearModifications();
 		bool fieldModificiation(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, map::CustomUnits::Modification &modification) const;
 		QString fieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const;
+		QString fieldReadableValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const;
 
 		void setShowRawData(bool show);
 		bool showRawData() const;

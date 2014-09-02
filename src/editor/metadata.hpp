@@ -112,6 +112,12 @@ class KDE_EXPORT MetaData : public Resource
 		map::Slk::ConstView row(const QString &key) const;
 		map::Slk::ConstView column(const QString &key) const;
 
+		/**
+		 * Can only be used for a stored TXT and returns the corresponding section of \p key
+		 * which is the section's name.
+		 */
+		map::Txt::Section* section(const QString &key) const;
+
 		QString value(int row, const QString &columnKey) const;
 		QString value(const QString &rowKey, int column) const;
 		/**
@@ -235,6 +241,18 @@ inline map::Slk::ConstView MetaData::column(const QString &key) const
 	}
 
 	return this->slk().column(iterator.value());
+}
+
+inline map::Txt::Section* MetaData::section(const QString &key) const
+{
+	TxtKeys::const_iterator iterator = this->sectionKeys().find(key);
+
+	if (iterator == this->sectionKeys().end())
+	{
+		return 0;
+	}
+
+	return iterator.value();
 }
 
 inline QString MetaData::value(int row, const QString &columnKey) const

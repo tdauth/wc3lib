@@ -177,10 +177,51 @@ void ObjectTableWidgetPair::edit()
 			dialog->checkBox()->setVisible(true);
 			dialog->checkBox()->setChecked(valueItem()->text().toInt());
 		}
+		else if (type == "stringList")
+		{
+			//titleArg = tab()->source()->sharedData()->tr("WESTRING_UE_TYPE_BOOL");
+			dialog->editListWidget()->setVisible(true);
+
+			QStringList list = valueItem()->text().split(',');
+			dialog->editListWidget()->setItems(list);
+		}
 		else
 		{
-			supported = false;
-			QMessageBox::warning(this->tableWidget(), tr("Error"), tr("Unsupported type."));
+			QString valueTypeDisplayString;
+
+			if (type == "unitClass")
+			{
+				valueTypeDisplayString = "WESTRING_UE_TYPE_UNITCLASS";
+			}
+			else if (type == "regenType")
+			{
+				valueTypeDisplayString = "WESTRING_UE_TYPE_REGENTYPE";
+			}
+
+			titleArg = tab()->source()->sharedData()->tr(valueTypeDisplayString);
+			dialog->comboBox()->setVisible(true);
+			dialog->comboBox()->clear();
+
+			const QString numValues = this->tab()->metaData()->objectTabData()->value(type, "NumValues");
+			bool ok = false;
+			int num = numValues.toInt(&ok);
+
+			if (ok)
+			{
+				for (int i = 0; i < num; ++i)
+				{
+					QStringList entries = this->tab()->metaData()->objectTabData()->value(type, QString("%1").arg(i, 2, 10, QChar('0'))).split(',');
+
+					if (entries.size() == 2)
+					{
+						dialog->comboBox()->addItem(tab()->source()->sharedData()->tr(entries[1]), entries[0]);
+					}
+				}
+
+				// we need the actual field value not the readable value to select the correct data
+				const QString fieldValue = this->tab()->fieldValue(originalObjectId, customObjectId, fieldId);
+				dialog->comboBox()->setCurrentIndex(dialog->comboBox()->findData(fieldValue));
+			}
 		}
 
 		if (supported)
@@ -192,14 +233,17 @@ void ObjectTableWidgetPair::edit()
 			if (dialog->exec() == QDialog::Accepted)
 			{
 				bool successOnEdit = true;
+				QString value;
 
 				if (type == "int" || type == "unit")
 				{
 					valueItem()->setText(QString::number(dialog->intSpinBox()->value()));
+					value = valueItem()->text();
 				}
 				else if (type == "real" || type == "unreal")
 				{
 					valueItem()->setText(QString::number(dialog->doubleSpinBox()->value()));
+					value = valueItem()->text();
 				}
 				else if (type == "string")
 				{
@@ -211,15 +255,32 @@ void ObjectTableWidgetPair::edit()
 					{
 						valueItem()->setText(dialog->lineEdit()->text());
 					}
+
+					value = valueItem()->text();
 				}
 				else if (type == "bool")
 				{
 					valueItem()->setText(QString::number(dialog->checkBox()->isChecked()));
+					value = valueItem()->text();
+				}
+				else if (type == "stringList")
+				{
+					value = dialog->editListWidget()->items().join(QChar(','));
+					valueItem()->setText(value);
 				}
 				else
 				{
-					QMessageBox::warning(this->tableWidget(), tr("Error"), tr("Unsupported type."));
-					successOnEdit = false;
+					valueItem()->setText(dialog->comboBox()->currentText());
+					value = dialog->comboBox()->itemData(dialog->comboBox()->currentIndex()).toString();
+
+					qDebug() << "Value: " << value;
+
+
+					// dialog->comboBox()->itemData(dialog->comboBox()->currentIndex()
+					//if (type == "attackBits")
+					//{
+					// TODO resolve all types
+						//value = map::Value(
 				}
 
 				if (successOnEdit)
@@ -227,7 +288,7 @@ void ObjectTableWidgetPair::edit()
 					this->descriptionItem()->setForeground(Qt::magenta);
 					this->valueItem()->setForeground(Qt::magenta);
 
-					this->tab()->modifyField(this->originalObjectId(), this->customObjectId(), this->fieldId(), this->modification());
+					this->tab()->modifyField(this->originalObjectId(), this->customObjectId(), this->fieldId(), this->modification(this->value(value)));
 				}
 			}
 		}
@@ -241,11 +302,6 @@ void ObjectTableWidgetPair::edit()
 	}
 }
 
-map::Value ObjectTableWidgetPair::customValue() const
-{
-	return value(this->valueItem()->text());
-}
-
 map::Value ObjectTableWidgetPair::defaultValue() const
 {
 	const QString dataValue = this->tab()->metaData()->getDataValue(this->originalObjectId(), this->fieldId());
@@ -254,7 +310,7 @@ map::Value ObjectTableWidgetPair::defaultValue() const
 	return value(dataValue);
 }
 
-map::Value ObjectTableWidgetPair::value(const QString& text) const
+map::Value ObjectTableWidgetPair::value(const QString &text) const
 {
 	const map::Value::Type type = this->tab()->metaData()->fieldType(this->fieldId());
 
@@ -265,6 +321,56 @@ map::Value ObjectTableWidgetPair::value(const QString& text) const
 			int32 data = boost::numeric_cast<int32>(text.toInt());
 
 			return map::Value(data);
+		}
+
+		case map::Value::Type::Real:
+		{
+			float32 data = boost::numeric_cast<float32>(text.toDouble());
+
+			return map::Value(data);
+		}
+
+		case map::Value::Type::String:
+		case map::Value::Type::RegenerationType:
+		case map::Value::Type::AttackType:
+		case map::Value::Type::WeaponType:
+		case map::Value::Type::TargetType:
+		case map::Value::Type::MoveType:
+		case map::Value::Type::DefenseType:
+		case map::Value::Type::PathingTexture:
+		case map::Value::Type::MissileArt:
+		case map::Value::Type::AttributeType:
+		case map::Value::Type::AttackBits:
+		{
+			return map::Value(text.toUtf8().constData(), type);
+		}
+
+		case map::Value::Type::Boolean:
+		{
+			return map::Value((bool)text.toInt());
+		}
+
+		case map::Value::Type::Character:
+		{
+			return map::Value(text.toUtf8().constData()[0]);
+		}
+
+		case map::Value::Type::StringList:
+		case map::Value::Type::UpgradeList:
+		case map::Value::Type::UnitList:
+		case map::Value::Type::ItemList:
+		case map::Value::Type::AbilityList:
+		case map::Value::Type::HeroAbilityList:
+		{
+			QStringList list = text.split(',');
+			map::List vector;
+
+			foreach (QString var, list)
+			{
+				vector.push_back(var.toUtf8().constData());
+			}
+
+			return map::Value(vector, type);
 		}
 	}
 
@@ -280,12 +386,12 @@ void ObjectTableWidgetPair::reset()
 	this->tab()->resetField(this->originalObjectId(), this->customObjectId(), this->fieldId());
 }
 
-map::CustomUnits::Modification ObjectTableWidgetPair::modification() const
+map::CustomUnits::Modification ObjectTableWidgetPair::modification(const map::Value &value) const
 {
 	// TODO suppoert map::CustomObjects::Modification
 	map::CustomUnits::Modification modification;
 	modification.setValueId(map::stringToId(this->fieldId().toStdString()));
-	modification.value() = this->customValue();
+	modification.value() = value;
 
 	return modification;
 }

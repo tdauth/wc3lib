@@ -320,6 +320,40 @@ BOOST_AUTO_TEST_CASE(TxtWriteTriggerDataTest) {
 	BOOST_REQUIRE(std::find_if(begin, end, isOperatorCompareDestructibleHint)->second == "");
 }
 
+BOOST_AUTO_TEST_CASE(EmptySection)
+{
+	string myTxt =
+	"[nnom]\n"
+	"\n"
+	"// Goblin Laboratory\n"
+	"[ngad]\n"
+	"Art=ReplaceableTextures\\CommandButtons\\BTNAmmoDump.blp\n"
+	"Sellunits=ngsp,nzep,ngir\n"
+	;
+
+	spiritTraceLog.close();
+	spiritTraceLog.open("txt_emptysection_traces.xml");
+
+	BOOST_REQUIRE(spiritTraceLog);
+
+	map::Txt txt;
+	std::basic_stringstream<byte> sstream;
+	sstream << myTxt;
+	bool valid = true;
+
+	try
+	{
+		txt.read(sstream);
+	}
+	catch (Exception e)
+	{
+		valid = false;
+		std::cerr << e.what() << std::endl;
+	}
+
+	BOOST_REQUIRE(valid);
+}
+
 /*
  * We test the German "WorldEditStrings.txt" file which needs UTF-8 support and contains many many entries.
  * This is the most realistic test since it uses an original file from The Frozen Throne.
@@ -355,3 +389,56 @@ BOOST_AUTO_TEST_CASE(WorldEditStrings) {
 
 	std::cout << "Duration: " << duration << std::endl;
 }
+
+BOOST_AUTO_TEST_CASE(UnitEditorData) {
+	spiritTraceLog.close();
+	spiritTraceLog.open("txttest_uniteditordata_traces.xml");
+
+	BOOST_REQUIRE(spiritTraceLog);
+
+	ifstream in("UnitEditorData.txt");
+
+	BOOST_REQUIRE(in);
+
+	map::Txt txt;
+	bool valid = true;
+
+	try
+	{
+		txt.read(in);
+	}
+	catch (Exception &e)
+	{
+		std::cerr << e.what() << std::endl;
+		valid = false;
+	}
+
+	BOOST_REQUIRE(valid);
+}
+
+BOOST_AUTO_TEST_CASE(NeutralUnitFunc) {
+	spiritTraceLog.close();
+	spiritTraceLog.open("txttest_neutralunitfunc_traces.xml");
+
+	BOOST_REQUIRE(spiritTraceLog);
+
+	ifstream in("NeutralUnitFunc.txt");
+
+	BOOST_REQUIRE(in);
+
+	map::Txt txt;
+	bool valid = true;
+
+	try
+	{
+		txt.read(in);
+	}
+	catch (Exception &e)
+	{
+		std::cerr << e.what() << std::endl;
+		valid = false;
+	}
+
+	BOOST_REQUIRE(valid);
+}
+

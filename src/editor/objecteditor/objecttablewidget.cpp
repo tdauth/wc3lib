@@ -73,6 +73,7 @@ ObjectTableWidget::ObjectTableWidget(ObjectEditorTab *parent) : QTableWidget(par
 	connect(this, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(editItem(QTableWidgetItem*)));
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customContextMenuRequested(QPoint)));
 
+	this->horizontalHeader()->setStretchLastSection(true);
 	this->setShowGrid(false);
 	this->setContextMenuPolicy(Qt::CustomContextMenu);
 	this->setEditTriggers(QTableWidget::NoEditTriggers);
@@ -98,21 +99,21 @@ void ObjectTableWidget::customContextMenuRequested(QPoint pos)
 
 void ObjectTableWidget::modifyField()
 {
-	QList<QTableWidgetItem*> items = this->selectedItems();
+	QItemSelectionModel *select = this->selectionModel();
 
-	foreach (QTableWidgetItem *item, items)
+	foreach (QModelIndex index, select->selectedRows())
 	{
-		editItem(item);
+		editItem(this->item(index.row(), 0));
 	}
 }
 
 void ObjectTableWidget::resetField()
 {
-	QList<QTableWidgetItem*> items = this->selectedItems();
+	QItemSelectionModel *select = this->selectionModel();
 
-	foreach (QTableWidgetItem *item, items)
+	foreach (QModelIndex index, select->selectedRows())
 	{
-		const QString fieldId = item->data(Qt::UserRole).toString();
+		const QString fieldId = this->item(index.row(), 0)->data(Qt::UserRole).toString();
 		Pairs::iterator iterator = this->pairs().find(fieldId);
 
 		if (iterator != this->pairs().end())

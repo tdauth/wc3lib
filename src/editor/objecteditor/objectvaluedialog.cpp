@@ -39,6 +39,7 @@ void ObjectValueDialog::setItemsVisible(bool visible)
 	this->m_textEdit->setVisible(visible);
 	this->m_comboBox->setVisible(visible);
 	this->m_checkBox->setVisible(visible);
+	this->m_editListWidget->setVisible(visible);
 }
 
 }

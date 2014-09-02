@@ -49,6 +49,11 @@ class ObjectMetaData
 		 */
 		virtual MetaData* metaData() const = 0;
 
+		/**
+		 * \return Returns the TXT file which contains data for the Object Editor GUI such as "UI/UnitEditorData.txt".
+		 */
+		virtual MetaData* objectTabData() const = 0;
+
 		virtual void load(QWidget *widget) = 0;
 
 		/**
