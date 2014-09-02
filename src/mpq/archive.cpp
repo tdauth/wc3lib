@@ -286,7 +286,8 @@ std::streamsize Archive::read(InputStream &stream) throw (class Exception)
 	{
 		std::auto_ptr<Hash> hash(new Hash(this, i));
 		size += hash->read(sstream);
-		this->m_hashes.insert(hash->cHashData(), hash);
+		const HashData hashData = hash->cHashData();
+		this->m_hashes.insert(hashData, hash);
 	}
 
 	// The strong digital signature is stored immediately after the archive, in the containing file
