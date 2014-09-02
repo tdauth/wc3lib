@@ -240,3 +240,39 @@ BOOST_AUTO_TEST_CASE(UnitWeapons)
 	BOOST_REQUIRE(slk.cell(0, 0) == "\"unitWeapID\"");
 	BOOST_REQUIRE(slk.cell(0, 1) == "\"sortWeap\"");
 }
+
+/*
+ * Frozen Thronw
+ */
+BOOST_AUTO_TEST_CASE(UnitMetaDataEX)
+{
+	spiritTraceLog.close();
+	spiritTraceLog.open("unitmetadataex_traces.xml");
+
+	BOOST_REQUIRE(spiritTraceLog);
+
+	ifstream in("UnitMetaDataEx.slk");
+
+	BOOST_REQUIRE(in);
+
+	map::Slk slk;
+
+	bool valid = true;
+
+	try
+	{
+		slk.read(in);
+	}
+	catch (Exception e)
+	{
+		valid = false;
+
+		std::cerr << e.what() << std::endl;
+	}
+
+	BOOST_REQUIRE(valid);
+	BOOST_REQUIRE(slk.columns() == 23);
+	BOOST_REQUIRE(slk.rows() == 249);
+	BOOST_REQUIRE(slk.cell(0, 0) == "\"ID\"");
+	BOOST_REQUIRE(slk.cell(0, 1) == "\"field\"");
+}

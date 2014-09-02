@@ -263,10 +263,17 @@ struct SlkGrammar : qi::grammar<Iterator>
 		c_record =
 			lit('C')[at_c<0>(_val) = ref(column)][at_c<1>(_val) = ref(row)] // use current row and column by default
 			// the whole position might be skipped in this case we use the last used X and Y
-			// if row value is present (Y) set the current row to that value
-			>> -y_field[at_c<1>(_val) = _1][ref(row) = _1]
-			// in some cases even the column value (X) is missing so use the current column
-			>> -x_field[at_c<0>(_val) = _1]
+			>> -((
+				// if row value is present (Y) set the current row to that value
+				y_field[at_c<1>(_val) = _1][ref(row) = _1]
+				// in some cases even the column value (X) is missing so use the current column
+				>> -x_field[at_c<0>(_val) = _1]
+			) | (
+				// in some cases even the column value (X) is missing so use the current column
+				x_field[at_c<0>(_val) = _1]
+				// if row value is present (Y) set the current row to that value
+				>> -y_field[at_c<1>(_val) = _1][ref(row) = _1]
+			))
 			>>
 			*(
 				(lit(";E") >> literal)
