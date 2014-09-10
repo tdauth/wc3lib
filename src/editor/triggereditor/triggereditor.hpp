@@ -176,8 +176,17 @@ class KDE_EXPORT TriggerEditor : public Module
 		 */
 		static QString triggerFunctionParameter(WarcraftIIIShared *sharedData, const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const map::TriggerFunctionParameter *parameter);
 
+		/**
+		 * Gets the actual name of a trigger category using trigger function \p code from \p functions.
+		 * Note that the category name usually is a reference to a string entry in "UI/WorldEditStrings.txt" which has to be resolved.
+		 */
 		template<class Functions>
-		static QString triggerFunctionCategoryText(const map::TriggerData* triggerData, const Functions &functions, const QString& code);
+		static QString triggerFunctionCategoryText(const Functions &functions, const QString& code);
+		/**
+		 * Gets the icon of a trigger category using the trigger category of \p code from \p functions and
+		 * loading it from \p source using \p window as loading GUI.
+		 */
+		static QIcon triggerFunctionCatgoryIcon(MpqPriorityList *source, QWidget *window, const QString &code, const map::TriggerData::Functions &functions);
 
 		/**
 		 * Returns formatted text of function code \p code and function \p function using its "UI/TriggerData.txt" entry and filling all ~values with parameters.
@@ -194,8 +203,6 @@ class KDE_EXPORT TriggerEditor : public Module
 		 */
 		template<class Functions>
 		static QString triggerFunctionText(WarcraftIIIShared *sharedData, const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const QString &code, map::TriggerFunction *function, const Functions &functions, const map::TriggerStrings::Entries &entries, bool withLinks = false, bool withHint = false, bool withCategory = false);
-
-		static QIcon triggerFunctionCatgoryIcon(MpqPriorityList *source, QWidget *window, const QString &code, const map::TriggerData::Functions &functions);
 
 		/**
 		 * \return Returns true if at least one function of \p trigger is disabled.
@@ -513,11 +520,12 @@ inline TriggerEditor::TreeItems& TriggerEditor::triggerEntries()
 }
 
 template<class Functions>
-QString TriggerEditor::triggerFunctionCategoryText(const map::TriggerData* triggerData, const Functions &functions, const QString& code)
+QString TriggerEditor::triggerFunctionCategoryText(const Functions &functions, const QString &code)
 {
-	map::TriggerData::Functions::const_iterator functionIterator = functions.find(code.toStdString());
+	map::TriggerData::Functions::const_iterator functionIterator = functions.find(code.toUtf8().constData());
 
-	if (functionIterator != functions.end()) {
+	if (functionIterator != functions.end())
+	{
 		return QString(functionIterator->second->category()->displayText().c_str());
 	}
 

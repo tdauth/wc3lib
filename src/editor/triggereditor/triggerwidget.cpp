@@ -202,7 +202,7 @@ void TriggerWidget::showTrigger(map::Trigger *trigger, const string &customText)
 
 		rootItem()->setIcon(0, TriggerEditor::triggerIcon(this->triggerEditor()->source()->sharedData().get(), this, *trigger));
 
-		for (int32 i = 0; i < trigger->functions().size(); ++i)
+		for (std::size_t i = 0; i < trigger->functions().size(); ++i)
 		{
 			map::TriggerFunction *function = &trigger->functions()[i];
 
@@ -327,6 +327,11 @@ QTreeWidgetItem* TriggerWidget::addTreeItem(map::TriggerFunction* function)
 			actionsItem()->addChild(item);
 
 			break;
+		}
+
+		case map::TriggerFunction::Type::Call:
+		{
+			throw Exception(_("Calls cannot be added in trigger widgets."));
 		}
 	}
 

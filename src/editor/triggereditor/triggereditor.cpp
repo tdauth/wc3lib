@@ -1200,7 +1200,7 @@ QString TriggerEditor::newTriggerName() const
 QIcon TriggerEditor::triggerFunctionCatgoryIcon(MpqPriorityList *source, QWidget *window, const QString &code, const map::TriggerData::Functions &functions)
 {
 
-	map::TriggerData::Functions::const_iterator functionIterator = functions.find(code.toStdString());
+	map::TriggerData::Functions::const_iterator functionIterator = functions.find(code.toUtf8().constData());
 
 	if (functionIterator != functions.end())
 	{

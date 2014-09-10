@@ -80,7 +80,7 @@ void VariablesDialog::showVariables(map::Triggers *triggers)
 	m_triggers = triggers;
 	m_tableWidget->setRowCount(triggers->variables().size());
 
-	for (int32 i = 0; i < triggers->variables().size(); ++i)
+	for (std::size_t i = 0; i < triggers->variables().size(); ++i)
 	{
 		const map::Variable *variable = &triggers->variables()[i];
 		QTableWidgetItem *item = new QTableWidgetItem(variable->name().c_str());

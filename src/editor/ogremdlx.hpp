@@ -44,134 +44,6 @@ namespace editor
 
 class ModelView;
 
-/*
-/**
-* \param number If this value is 0 all matching paths will be changed.
-* \return Returns the number of changed texture paths.
-*/
-/*
-//std::size_t replaceTexturePaths(const byte oldTexturePath[0x100], const byte newTexturePath[0x100], std::size_t number = 0);
-//const class Geoset* boneGeoset(const class Bone &bone) const;
-/**
-* \return Returns the corresponding pivot point of node node if some exists (searched by id).
-*/
-//const class PivotPoint* nodePivotPoint(const class Node &node) const;
-//const class Node* nodeParent(const class Node &node) const;
-//std::list<const class Node*> nodes() const;
-//const class Node* node(long32 id) const;
-//std::list<const class Node*> children(const class Node &node) const;
-/*
-std::size_t Mdlx::replaceTexturePaths(const byte oldTexturePath[0x100], const byte newTexturePath[0x100], std::size_t number)
-{
-	std::size_t result = 0;
-
-	BOOST_FOREACH(Textures::Members::reference member, this->m_textures->members())
-	{
-		Texture *texture = boost::polymorphic_cast<Texture*>(&member);
-
-		if (memcmp(texture->texturePath(), oldTexturePath, 0x100) == 0)
-		{
-			texture->setTexturePath(newTexturePath);
-			++result;
-
-			if (number != 0 && result == number)
-				break;
-		}
-	}
-
-	return result;
-}
-
-const class Geoset* Mdlx::boneGeoset(const class Bone &bone) const
-{
-	long32 id = 0;
-
-	BOOST_FOREACH(Geosets::Members::reference geoset, this->m_geosets->members())
-	{
-		if (id == bone.geosetId())
-			return boost::polymorphic_cast<Geoset*>(&geoset);
-
-		++id;
-	}
-
-	return 0;
-}
-
-const class PivotPoint* Mdlx::nodePivotPoint(const class Node &node) const
-{
-	long32 id = 0;
-
-	BOOST_FOREACH(Geosets::Members::reference pivotPoint, this->m_pivotPoints->members())
-	{
-		if (node.id() == id)
-			return boost::polymorphic_cast<PivotPoint*>(&pivotPoint);
-
-		++id;
-	}
-
-	return 0;
-}
-
-const class Node* Mdlx::nodeParent(const class Node &node) const
-{
-	BOOST_FOREACH(NodePairType nodePair, this->m_nodes)
-	{
-		if (nodePair.first == node.parentId())
-			return nodePair.second;
-	}
-
-	return 0;
-}
-
-std::list<const class Node*> Mdlx::nodes() const
-{
-	std::list<const class Node*> result;
-
-	BOOST_FOREACH(NodePairType nodePair, this->m_nodes)
-		result.push_back(nodePair.second);
-
-	return result;
-}
-
-const class Node* Mdlx::node(long32 id) const
-{
-	if (id == mdlx::noneId)
-		throw Exception(boost::format(_("Invalid id: %1%")) % mdlx::noneId);
-
-	std::map<long32, class Node*>::const_iterator iterator = this->m_nodes.find(id);
-
-	if (iterator == this->m_nodes.end())
-		return 0;
-
-	return iterator->second;
-}
-
-std::list<const class Node*> Mdlx::children(const class Node &node) const
-{
-	std::list<const class Node*> result;
-
-	BOOST_FOREACH(NodePairType nodePair, this->m_nodes)
-	{
-		if (nodePair.second->parentId() == node.id())
-			result.push_back(nodePair.second);
-	}
-
-	return result;
-}
-
-void Mdlx::addNode(long32 id, class Node *node) throw (class Exception)
-{
-	if (this->m_nodes.find(id) != this->m_nodes.end() && this->m_nodes[id] != node)
-	{
-		std::cerr << boost::format(_("Mdlx: Node id %1% is already being used by node \"%2%\" and can not be overwritten by node \"%3%\".")) % id % this->m_nodes[id]->name() % node->name() << std::endl;
-
-		return;
-	}
-
-	this->m_nodes[id] = node;
-}
-*/
-
 /**
  * \brief This class can be used to display MDLX models by using the OGRE 3D rendering engine.
  * It maintains multiple mesh instances which contains all converted data of the original
@@ -229,7 +101,7 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 				Ogre::Sphere *sphere;
 			};
 
-			BOOST_SCOPED_ENUM(mdlx::CollisionShape::Shape) shape;
+			mdlx::CollisionShape::Shape shape;
 		};
 
 		typedef std::map<const mdlx::CollisionShape*, struct CollisionShape*> CollisionShapes;
@@ -414,12 +286,12 @@ inline const OgreMdlx::CollisionShapes& OgreMdlx::collisionShapes() const
 	return this->m_collisionShapes;
 }
 
-inline BOOST_SCOPED_ENUM(TeamColor) OgreMdlx::teamColor() const
+inline TeamColor OgreMdlx::teamColor() const
 {
 	return this->m_teamColor;
 }
 
-inline BOOST_SCOPED_ENUM(TeamColor) OgreMdlx::teamGlow() const
+inline TeamColor OgreMdlx::teamGlow() const
 {
 	return this->m_teamGlow;
 }

@@ -42,12 +42,12 @@ namespace editor
 ObjectEditorTab::ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData, QWidget *parent, Qt::WindowFlags f)
 : QWidget(parent, f)
 , m_source(source)
-, m_objectData(objectData)
 , m_tabIndex(0)
 , m_filterLineEdit(0)
 , m_treeView(0)
 , m_treeModel(0)
 , m_tableWidget(0)
+, m_objectData(objectData)
 , m_showRawData(false)
 {
 	this->objectData()->load(this);
