@@ -37,6 +37,10 @@ VariablesDialog::VariablesDialog(class TriggerEditor *triggerEditor, Qt::WindowF
 {
 	setupUi(this);
 
+	m_tableWidget->horizontalHeaderItem(0)->setText(triggerEditor->source()->sharedData()->tr("WESTRING_VARIABLENAME"));
+	m_tableWidget->horizontalHeaderItem(1)->setText(triggerEditor->source()->sharedData()->tr("WESTRING_VARIABLETYPE"));
+	m_tableWidget->horizontalHeaderItem(2)->setText(triggerEditor->source()->sharedData()->tr("WESTRING_INITIALVALUE"));
+
 	connect(m_tableWidget, SIGNAL(cellDoubleClicked(int,int)), this, SLOT(variableShown(int,int)));
 }
 
@@ -86,13 +90,13 @@ void VariablesDialog::showVariables(map::Triggers *triggers)
 		map::TriggerData::Type *type = variableType(*variable);
 
 		if (type != 0) {
-			item = new QTableWidgetItem(type->displayText().c_str());
+			item = new QTableWidgetItem(this->triggerEditor()->source()->sharedData()->tr(type->displayText().c_str()));
 		} else {
 			item = new QTableWidgetItem(variable->type().c_str());
 		}
 		m_tableWidget->setItem(i, 1, item);
 
-		item = new QTableWidgetItem(triggers->variables()[i].initialValue().c_str());
+		item = new QTableWidgetItem(TriggerEditor::variableInitialValueText(this->triggerEditor()->source()->sharedData().get(), *variable));
 		m_tableWidget->setItem(i, 2, item);
 	}
 }

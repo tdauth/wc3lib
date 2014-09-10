@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>331</width>
-    <height>512</height>
+    <width>461</width>
+    <height>669</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -81,7 +81,11 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
-          <widget class="QDoubleSpinBox" name="m_doubleSpinBox"/>
+          <widget class="QDoubleSpinBox" name="m_doubleSpinBox">
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+          </widget>
          </item>
          <item>
           <spacer name="horizontalSpacer_2">

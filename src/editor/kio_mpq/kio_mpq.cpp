@@ -688,6 +688,7 @@ void MpqSlave::get(const KUrl &url)
 	while (sectorIndex < sectors.size())
 	{
 		// Avoid to use bufferSize here, in case something went wrong.
+		//oarraystream ostream(sectors[sectorIndex].uncompressedSize());
 		stringstream ostream; // we don't know the uncompressed size, TODO set internal buffer size to at least sector size!
 		qint64 read = 0;
 

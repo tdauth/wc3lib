@@ -36,16 +36,29 @@ namespace editor
 class ObjectEditorTab;
 class ObjectTableWidgetPair;
 
+/**
+ * \brief Table widget of the object editor which lists all values of the currently selected object.
+ *
+ * Provides a table with two columns. The first column lists the descriptions of all fields of the currently selected object.
+ * The second column lists the values of the fields of the currently selected object.
+ * Double clicking a row allows to modify one single field using a \ref ObjectValueDialog dialog.
+ *
+ * All rows can be accessed using \ref pairs() which returns a hash using the field ID as key and the pair of cells as value.
+ */
 class ObjectTableWidget : public QTableWidget
 {
 	Q_OBJECT
 
 	public:
 		/**
-		 * All pairs are hashed by the raw data name of the field.
+		 * All pairs are hashed by the ID of the field.
+		 * The IDs of all fields can be found in the corresponding meta data file (\ref wc3lib::editor::ObjectEMetaData::metaData()).
 		 */
 		typedef QHash<QString, ObjectTableWidgetPair*> Pairs;
 
+		/**
+		 * Creates a new table widget using the tab \p parent as parent widget and reference for all field data.
+		 */
 		ObjectTableWidget(ObjectEditorTab *parent);
 
 		ObjectEditorTab* tab() const;

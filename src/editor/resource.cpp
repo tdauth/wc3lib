@@ -27,20 +27,24 @@ namespace wc3lib
 namespace editor
 {
 
-Resource::Resource(const KUrl &url, BOOST_SCOPED_ENUM(Type) type) : m_source(0), m_url(url), m_type(type)
+Resource::Resource(const KUrl &url, Type type) : m_source(0), m_url(url), m_type(type)
 {
 }
 
 Resource::~Resource()
 {
 	if (this->source() != 0)
+	{
 		this->source()->removeResource(this);
+	}
 }
 
 void Resource::setSource(MpqPriorityList *source, bool load) throw (Exception)
 {
 	if (this->source() == source)
+	{
 		return;
+	}
 
 	const MpqPriorityList *oldSource = this->source();
 	m_source = source;
@@ -49,9 +53,13 @@ void Resource::setSource(MpqPriorityList *source, bool load) throw (Exception)
 	if (load)
 	{
 		if (oldSource == 0)
+		{
 			this->load();
+		}
 		else
+		{
 			this->reload();
+		}
 	}
 }
 

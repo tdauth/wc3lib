@@ -40,6 +40,11 @@ void ObjectValueDialog::setItemsVisible(bool visible)
 	this->m_comboBox->setVisible(visible);
 	this->m_checkBox->setVisible(visible);
 	this->m_editListWidget->setVisible(visible);
+
+	for (CheckBoxes::iterator iterator = this->m_checkBoxes.begin(); iterator != this->m_checkBoxes.end(); ++iterator)
+	{
+		iterator.value()->setVisible(visible);
+	}
 }
 
 }

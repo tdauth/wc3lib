@@ -18,7 +18,6 @@ if (MAP)
 		mapstrings.hpp
 		menuminimap.hpp
 		minimap.hpp
-		object.hpp
 		pathmap.hpp
 		platform.hpp
 		playable.hpp
@@ -60,7 +59,6 @@ if (MAP)
 		mapstrings.cpp
 		menuminimap.cpp
 		minimap.cpp
-		object.cpp
 		pathmap.cpp
 		rect.cpp
 		rects.cpp

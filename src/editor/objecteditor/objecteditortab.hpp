@@ -23,6 +23,7 @@
 
 #include <boost/cast.hpp>
 
+#include <QObject>
 #include <QWidget>
 
 #include <KUrl>
@@ -30,7 +31,6 @@
 #include <KLineEdit>
 
 #include "objecteditor.hpp"
-#include "objecttreewidget.hpp"
 #include "../../map.hpp"
 
 namespace wc3lib
@@ -39,8 +39,13 @@ namespace wc3lib
 namespace editor
 {
 
-class ObjectMetaData;
+class MpqPriorityList;
+class ObjectData;
+class ObjectTreeView;
+class ObjectTreeModel;
+class ObjectTreeItem;
 class ObjectTableWidget;
+class ObjectTableWidgetPair;
 class Map;
 
 /**
@@ -65,22 +70,9 @@ class ObjectEditorTab : public QWidget
 
 	public:
 		/**
-		 * \brief Hash table which stores modificiations by using the field ID as hash (such as "unam").
+		 * Creates a new object editor tab using the source \p source and standard objects data/meta data \p objectData.
 		 */
-		typedef QHash<QString, map::CustomUnits::Modification> Modifications;
-		/**
-		 * \brief Stores the two object IDs. The original as well as the custom.
-		 */
-		typedef QPair<QString, QString> ObjectId;
-		/**
-		 * \brief Hash table which stores objects by using the object ID pair as hash.
-		 */
-		typedef QHash<ObjectId, Modifications> Objects;
-
-		/**
-		 * Creates a new object editor tab using the source \p source and meta data \p metaData.
-		 */
-		ObjectEditorTab(MpqPriorityList *source, ObjectMetaData *metaData, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~ObjectEditorTab();
 
 		/**
@@ -112,72 +104,23 @@ class ObjectEditorTab : public QWidget
 		 *
 		 * \sa tableWidget()
 		 */
-		ObjectTreeWidget* treeWidget() const;
-
-		QTreeWidgetItem* standardObjectsItem() const;
-		QTreeWidgetItem* customObjectsItem() const;
+		ObjectTreeView* treeView() const;
+		ObjectTreeModel* treeModel() const;
 
 		/**
 		 * \return Returns the right edge table widget which lists descriptions and values for all fields of the currently activated object.
 		 *
-		 * \sa treeWidget()
+		 * \sa treeView()
 		 */
 		ObjectTableWidget* tableWidget() const;
 
 		/**
-		 * Each tab needs underlying meta data for the default objects.
-		 * These data is provided by the class \ref ObjectMetaData or any derived classes.
+		 * Each tab needs underlying data for the standard objects as well as meta data of all object fields..
+		 * These data is provided by the class \ref ObjectData or any derived classes.
 		 *
-		 * \return Returns the underlying meta data instance.
+		 * \return Returns the underlying standard objects data and meta data instance.
 		 */
-		ObjectMetaData* metaData() const;
-		/**
-		 * Custom Units are used in Warcraft III: Reign of Chaos.
-		 * So this should throw an exception in other tabs than unit and items since they need additional data
-		 * which can be gotten from \ref customObjects().
-		 *
-		 * \return Returns the custom units of the current tab.
-		 *
-		 * \sa customObjects() hasCustomUnits() hasCustomObjects()
-		 *
-		 * \throws Exception Throws an exception if custom units cannot store the object data.
-		 */
-		virtual map::CustomUnits customUnits() const;
-		/**
-		 * \return Returns the custom objects of the tab.
-		 *
-		 * \sa customUnits(), hasCustomObjects(), hasCustomUnits()
-		 */
-		virtual map::CustomObjects customObjects() const;
-		virtual map::CustomUnits::Unit currentUnit() const;
-		virtual map::CustomObjects::Object currentObject() const;
-
-		/**
-		 * Should return if custom units are available.
-		 * Usually only either custom units or custom objects are available depending on which meta data is loaded or if it is Reign of Chaos or Frozen Throne.
-		 *
-		 * \sa hasCustomObjects().
-		 */
-		virtual bool hasCustomUnits() const = 0;
-		/**
-		 * Should return if custom objects are available.
-		 *
-		 * \sa hasCustomUnits()
-		 */
-		virtual bool hasCustomObjects() const = 0;
-
-		/**
-		 * Modifies a single field with ID \p fieldId (taken from meta data file) of object with IDS \p originalObjectId and \p customObjectId and sets the field's modification to \p modification.
-		 * For example this happens whenever a user enters another or even the same value which overwrites the default one of the object.
-		 * All modified fields are exported when the user exports object data.
-		 */
-		void modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, const map::CustomUnits::Modification &modification);
-		void resetField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
-		bool isFieldModified(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const;
-		void clearModifications();
-		bool fieldModificiation(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, map::CustomUnits::Modification &modification) const;
-		QString fieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const;
-		QString fieldReadableValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const;
+		ObjectData* objectData() const;
 
 		/**
 		 * Shows or hides raw data IDs for objects as well as fields.
@@ -193,27 +136,15 @@ class ObjectEditorTab : public QWidget
 		 */
 		bool showRawData() const;
 
-		/**
-		 * \return Returns the original object raw data ID of the currently selected object.
-		 *
-		 * \sa currentCustomObjectId()
-		 */
-		QString currentOriginalObjectId() const;
-
-		/**
-		 * \return Returns the custom object raw data ID of the currently selected object.
-		 *
-		 * \sa currentOriginalObjectId()
-		 */
-		QString currentCustomObjectId() const;
-
 		virtual QString name() const = 0;
-
 		/**
-		 * Imports custom units \p units and replaces all existing custom units by immediately.
-		 * It updates the modifications to the loaded custom units.
+		 * Fills the item \p item with the custom object using the ID \p originalObjectId and \p customObjectId.
+		 * Usually this sets the text of the item to the name or raw data ID of the object it is refering to.
+		 * All modifications can be accessed via the standard element functions for modifications and should be available at the moment when this function
+		 * is being called.
 		 */
-		void importCustomUnits(const map::CustomUnits &units);
+		virtual void fillTreeItem(const QString &originalObjectId, const QString &customObjectId, QTreeWidgetItem *item) = 0;
+		virtual void fillTableRow(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, ObjectTableWidgetPair *pair) = 0;
 
 	public slots:
 		void newObject();
@@ -231,17 +162,7 @@ class ObjectEditorTab : public QWidget
 
 		virtual void setupUi();
 
-		/**
-		 * This element function has to setup the tree widget \p treeWidget which means it has to add all necessary standard items to the widget.
-		 */
-		virtual void setupTreeWidget(ObjectTreeWidget *treeWidget) = 0;
-		/**
-		 * Fills the item \p item with the custom object using the ID \p originalObjectId and \p customObjectId.
-		 * Usually this sets the text of the item to the name or raw data ID of the object it is refering to.
-		 * All modifications can be accessed via the standard element functions for modifications and should be available at the moment when this function
-		 * is being called.
-		 */
-		virtual void fillTreeItem(const QString &originalObjectId, const QString &customObjectId, QTreeWidgetItem *item) = 0;
+		virtual ObjectTreeModel* createTreeModel() = 0;
 		/**
 		 * Creates the table widget which lists description and values of object fields.
 		 */
@@ -265,12 +186,12 @@ class ObjectEditorTab : public QWidget
 		 * Activates object with ID \p originalObjectId and \p customObjectId by selection of \p item in column \p column.
 		 * Usually this should display the fields of the object in the table widget.
 		 */
-		virtual void activateObject(QTreeWidgetItem *item, int column, const QString &originalObjectId, const QString &customObjectId) = 0;
+		virtual void activateObject(ObjectTreeItem *item) = 0;
 		/**
 		 * Activates a folder item.
 		 * Usually this should hide the columns of the table widget since no object is selected.
 		 */
-		virtual void activateFolder(QTreeWidgetItem *item, int column) = 0;
+		virtual void activateFolder(ObjectTreeItem *item) = 0;
 
 		virtual QString newObjectText() const = 0;
 		virtual QString renameObjectText() const = 0;
@@ -294,18 +215,12 @@ class ObjectEditorTab : public QWidget
 		int m_tabIndex;
 
 		KLineEdit *m_filterLineEdit;
-		ObjectTreeWidget *m_treeWidget; // left side tree widget
-		QTreeWidgetItem *m_standardObjectsItem;
-		QTreeWidgetItem *m_customObjectsItem;
+		ObjectTreeView *m_treeView; // left side tree widget
+		ObjectTreeModel *m_treeModel;
 
-		 ObjectTableWidget *m_tableWidget; // centered table widget of current selected object
+		ObjectTableWidget *m_tableWidget; // centered table widget of current selected object
 
-		ObjectMetaData *m_metaData;
-
-		/**
-		 * Stores all modifications for all objects, standard objects as well as user defined ones.
-		 */
-		Objects m_objects;
+		ObjectData *m_objectData;
 
 		/**
 		 * Flag which stores if raw data IDs are shown.
@@ -313,11 +228,11 @@ class ObjectEditorTab : public QWidget
 		bool m_showRawData;
 
 	private slots:
-		void itemClicked(QTreeWidgetItem *item, int column);
-		void filterTreeWidget(QString text);
+		void itemClicked(QModelIndex index);
+		void filterTreeWidget(const QString &text);
 };
 
-inline class MpqPriorityList* ObjectEditorTab::source() const
+inline MpqPriorityList* ObjectEditorTab::source() const
 {
 	return m_source;
 }
@@ -334,7 +249,9 @@ inline bool ObjectEditorTab::hasObjectEditor() const
 	if (dynamic_cast<ObjectEditor*>(parent()) == 0)
 	{
 		if (dynamic_cast<KTabWidget*>(parent()) != 0)
+		{
 			return dynamic_cast<ObjectEditor*>(parentWidget()->parentWidget()->parentWidget()) != 0; // first parent is stacked widget, second tab widget and third object editor
+		}
 	}
 
 	return true;
@@ -345,7 +262,9 @@ inline ObjectEditor* ObjectEditorTab::objectEditor() const throw (std::bad_cast)
 	// TODO typeid comparison doesn't work, dynamic_cast is working workaround!
 	// NOTE parent could be tab widget of object editor
 	if (dynamic_cast<ObjectEditor*>(parent()) == 0)
+	{
 		return boost::polymorphic_cast<class ObjectEditor*>(parentWidget()->parentWidget()->parentWidget()); // first parent is stacked widget, second tab widget and third object editor
+	}
 
 	return boost::polymorphic_cast<class ObjectEditor*>(parent());
 }
@@ -355,19 +274,14 @@ inline KLineEdit* ObjectEditorTab::filterLineEdit() const
 	return this->m_filterLineEdit;
 }
 
-inline ObjectTreeWidget* ObjectEditorTab::treeWidget() const
+inline ObjectTreeView* ObjectEditorTab::treeView() const
 {
-	return m_treeWidget;
+	return m_treeView;
 }
 
-inline QTreeWidgetItem* ObjectEditorTab::standardObjectsItem() const
+inline ObjectTreeModel* ObjectEditorTab::treeModel() const
 {
-	return this->m_standardObjectsItem;
-}
-
-inline QTreeWidgetItem* ObjectEditorTab::customObjectsItem() const
-{
-	return this->m_customObjectsItem;
+	return this->m_treeModel;
 }
 
 inline ObjectTableWidget* ObjectEditorTab::tableWidget() const
@@ -375,38 +289,14 @@ inline ObjectTableWidget* ObjectEditorTab::tableWidget() const
 	return m_tableWidget;
 }
 
-inline ObjectMetaData* ObjectEditorTab::metaData() const
+inline ObjectData* ObjectEditorTab::objectData() const
 {
-	return this->m_metaData;
+	return this->m_objectData;
 }
 
 inline bool ObjectEditorTab::showRawData() const
 {
 	return this->m_showRawData;
-}
-
-inline QString ObjectEditorTab::currentOriginalObjectId() const
-{
-	const QList<QTreeWidgetItem*> items = this->treeWidget()->selectedItems();
-
-	if (!items.empty())
-	{
-		return treeWidget()->itemOriginalObjectId(*items.first());
-	}
-
-	return QString();
-}
-
-inline QString ObjectEditorTab::currentCustomObjectId() const
-{
-	const QList<QTreeWidgetItem*> items = this->treeWidget()->selectedItems();
-
-	if (!items.empty())
-	{
-		return treeWidget()->itemCustomObjectId(*items.first());
-	}
-
-	return QString();
 }
 
 inline void ObjectEditorTab::newObject()

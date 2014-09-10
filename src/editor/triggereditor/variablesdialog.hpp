@@ -39,7 +39,7 @@ namespace editor
 class VariablesDialog : public QDialog, protected Ui::VariablesDialog
 {
 	Q_OBJECT
-	
+
 	public:
 		explicit VariablesDialog(class TriggerEditor *triggerEditor, Qt::WindowFlags f = 0);
 
@@ -51,9 +51,9 @@ class VariablesDialog : public QDialog, protected Ui::VariablesDialog
 		void showVariables(map::Triggers *triggers);
 
 		map::TriggerData::Type* variableType(const map::Variable &variable);
-		
+
 		VariableDialog* variableDialog() const;
-		
+
 	public slots:
 		void variableShown(int,int);
 
@@ -62,7 +62,7 @@ class VariablesDialog : public QDialog, protected Ui::VariablesDialog
 		map::Triggers *m_triggers;
 		VariableDialog *m_variableDialog;
 
-	
+
 };
 
 inline class TriggerEditor* VariablesDialog::triggerEditor() const
@@ -75,7 +75,7 @@ inline VariableDialog* VariablesDialog::variableDialog() const
 	if (m_variableDialog == 0) {
 		const_cast<VariablesDialog*>(this)->m_variableDialog = new VariableDialog(this->triggerEditor(), const_cast<VariablesDialog*>(this));
 	}
-	
+
 	return m_variableDialog;
 }
 

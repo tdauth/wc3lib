@@ -1,26 +1,32 @@
 set(wc3lib_OBJECTEDITOR_H
 	objecteditor.hpp
 	objecteditortab.hpp
+	objectdata.hpp
 	objectvaluedialog.hpp
 	objecttablewidget.hpp
 	objecttablewidgetpair.hpp
-	objecttreewidget.hpp
+	objecttreeview.hpp
+	objecttreeitem.hpp
+	objecttreemodel.hpp
 	uniteditor.hpp
-	unitmetadata.hpp
+	unitdata.hpp
 	unitselectiondialog.hpp
-	objectmetadata.hpp
+	unittreemodel.hpp
 )
 set(wc3lib_OBJECTEDITOR_SRC
 	objecteditor.cpp
 	objecteditortab.cpp
+	objectdata.cpp
 	objectvaluedialog.cpp
 	objecttablewidget.cpp
 	objecttablewidgetpair.cpp
-	objecttreewidget.cpp
+	objecttreeview.cpp
+	objecttreeitem.cpp
+	objecttreemodel.cpp
 	uniteditor.cpp
-	unitmetadata.cpp
+	unitdata.cpp
 	unitselectiondialog.cpp
-	objectmetadata.cpp
+	unittreemodel.cpp
 )
 
 add_subdirectory(ui)

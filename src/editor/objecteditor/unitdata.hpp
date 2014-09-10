@@ -18,12 +18,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_UNITMETADATA_HPP
-#define WC3LIB_EDITOR_UNITMETADATA_HPP
+#ifndef WC3LIB_EDITOR_UNITDATA_HPP
+#define WC3LIB_EDITOR_UNITDATA_HPP
 
 #include <QWidget>
 
-#include "objectmetadata.hpp"
+#include "objectdata.hpp"
 
 namespace wc3lib
 {
@@ -35,26 +35,27 @@ class MpqPriorityList;
 class MetaData;
 
 /**
- * \brief Stores all data for standard units and unit meta data.
+ * \brief Stores all data for custom and standard units and unit meta data.
  */
-class UnitMetaData : public ObjectMetaData
+class UnitData : public ObjectData
 {
 	public:
-		UnitMetaData(MpqPriorityList *source);
-
-		MpqPriorityList* source() const;
+		UnitData(MpqPriorityList *source);
 
 		virtual void load(QWidget *widget) override;
 
-		/**
-		 * \brief Element function which is used for resolving any object data value stored in one of the many SLK files.
-		 *
-		 * \note This does not resolve meta data but actual object data (default data for existing objects).
-		 */
-		virtual QString getDataValue(const QString &objectId, const QString &fieldId) const override;
+		virtual bool hasDefaultFieldValue(const QString &objectId, const QString &fieldId) const override;
+		virtual QString defaultFieldValue(const QString &objectId, const QString &fieldId) const override;
 
 		virtual MetaData* metaData() const override;
 		virtual MetaData* objectTabData() const override;
+
+		virtual bool hasCustomUnits() const override;
+		virtual bool hasCustomObjects() const override;
+
+		bool objectIsHero(const QString &originalObjectId, const QString &customObjectId) const;
+		bool objectIsUnit(const QString &originalObjectId, const QString &customObjectId) const;
+		bool objectIsBuilding(const QString &originalObjectId, const QString &customObjectId) const;
 
 		MetaData* unitMetaData() const;
 		MetaData* unitEditorData() const;
@@ -73,8 +74,9 @@ class UnitMetaData : public ObjectMetaData
 		MetaData* nightElfUnitFunc() const;
 		MetaData* neutralUnitStrings() const;
 		MetaData* neutralUnitFunc() const;
+		MetaData* campaignUnitStrings() const;
+		MetaData* campaignUnitFunc() const;
 	private:
-		MpqPriorityList *m_source;
 		MetaData *m_unitMetaData;
 		MetaData *m_unitEditorData;
 		MetaData *m_unitData;
@@ -92,110 +94,117 @@ class UnitMetaData : public ObjectMetaData
 		MetaData *m_nightElfUnitFunc;
 		MetaData *m_neutralUnitStrings;
 		MetaData *m_neutralUnitFunc;
+		MetaData *m_campaignUnitStrings;
+		MetaData *m_campaignUnitFunc;
 };
 
-inline MpqPriorityList* UnitMetaData::source() const
-{
-	return this->m_source;
-}
-
-inline MetaData* UnitMetaData::metaData() const
+inline MetaData* UnitData::metaData() const
 {
 	return this->unitMetaData();
 }
 
-inline MetaData* UnitMetaData::objectTabData() const
+inline MetaData* UnitData::objectTabData() const
 {
 	return this->unitEditorData();
 }
 
-inline MetaData* UnitMetaData::unitMetaData() const
+inline MetaData* UnitData::unitMetaData() const
 {
 	return this->m_unitMetaData;
 }
 
-inline MetaData* UnitMetaData::unitEditorData() const
+inline MetaData* UnitData::unitEditorData() const
 {
 	return this->m_unitEditorData;
 }
 
-inline MetaData* UnitMetaData::unitData() const
+inline MetaData* UnitData::unitData() const
 {
 	return this->m_unitData;
 }
 
-inline MetaData* UnitMetaData::unitUi() const
+inline MetaData* UnitData::unitUi() const
 {
 	return this->m_unitUi;
 }
 
-inline MetaData* UnitMetaData::unitBalance() const
+inline MetaData* UnitData::unitBalance() const
 {
 	return this->m_unitBalance;
 }
 
-inline MetaData* UnitMetaData::unitWeapons() const
+inline MetaData* UnitData::unitWeapons() const
 {
 	return this->m_unitWeapons;
 }
 
-inline MetaData* UnitMetaData::unitAbilities() const
+inline MetaData* UnitData::unitAbilities() const
 {
 	return this->m_unitAbilities;
 }
 
-inline MetaData* UnitMetaData::humanUnitStrings() const
+inline MetaData* UnitData::humanUnitStrings() const
 {
 	return this->m_humanUnitStrings;
 }
 
-inline MetaData* UnitMetaData::humanUnitFunc() const
+inline MetaData* UnitData::humanUnitFunc() const
 {
 	return this->m_humanUnitFunc;
 }
 
-inline MetaData* UnitMetaData::orcUnitStrings() const
+inline MetaData* UnitData::orcUnitStrings() const
 {
 	return this->m_orcUnitStrings;
 }
 
-inline MetaData* UnitMetaData::orcUnitFunc() const
+inline MetaData* UnitData::orcUnitFunc() const
 {
 	return this->m_orcUnitFunc;
 }
 
-inline MetaData* UnitMetaData::undeadUnitStrings() const
+inline MetaData* UnitData::undeadUnitStrings() const
 {
 	return this->m_undeadUnitStrings;
 }
 
-inline MetaData* UnitMetaData::undeadUnitFunc() const
+inline MetaData* UnitData::undeadUnitFunc() const
 {
 	return this->m_undeadUnitFunc;
 }
 
-inline MetaData* UnitMetaData::nightElfUnitStrings() const
+inline MetaData* UnitData::nightElfUnitStrings() const
 {
 	return this->m_nightElfUnitStrings;
 }
 
-inline MetaData* UnitMetaData::nightElfUnitFunc() const
+inline MetaData* UnitData::nightElfUnitFunc() const
 {
 	return this->m_nightElfUnitFunc;
 }
 
-inline MetaData* UnitMetaData::neutralUnitStrings() const
+inline MetaData* UnitData::neutralUnitStrings() const
 {
 	return this->m_neutralUnitStrings;
 }
 
-inline MetaData* UnitMetaData::neutralUnitFunc() const
+inline MetaData* UnitData::neutralUnitFunc() const
 {
 	return this->m_neutralUnitFunc;
 }
 
+inline MetaData* UnitData::campaignUnitStrings() const
+{
+	return this->m_campaignUnitStrings;
+}
+
+inline MetaData* UnitData::campaignUnitFunc() const
+{
+	return this->m_campaignUnitFunc;
 }
 
 }
 
-#endif // WC3LIB_EDITOR_UNITMETADATA_HPP
+}
+
+#endif // WC3LIB_EDITOR_UNITDATA_HPP

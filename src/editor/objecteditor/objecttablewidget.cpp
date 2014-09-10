@@ -32,7 +32,7 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectTableWidget::ObjectTableWidget(ObjectEditorTab *parent) : QTableWidget(parent->metaData()->metaData()->slk().rows() - 1, 2, parent), m_tab(parent)
+ObjectTableWidget::ObjectTableWidget(ObjectEditorTab *parent) : QTableWidget(parent->objectData()->metaData()->slk().rows() - 1, 2, parent), m_tab(parent)
 {
 	const QString name = parent->source()->sharedData()->tr("WESTRING_NAME");
 	QTableWidgetItem *nameItem = new QTableWidgetItem(name);
@@ -42,22 +42,26 @@ ObjectTableWidget::ObjectTableWidget(ObjectEditorTab *parent) : QTableWidget(par
 	QTableWidgetItem *valueItem = new QTableWidgetItem(value);
 	this->setHorizontalHeaderItem(1, valueItem);
 
-	this->verticalHeader()->setVisible(false);
+	/*
+	 * Order field IDs by their sort column and add them in the correct order.
+	 */
+	typedef QMultiMap<QString, QString> OrderedFieldIds;
+	OrderedFieldIds fieldIds;
 
-	for (map::Slk::Table::size_type i = 0; i < tab()->metaData()->metaData()->slk().rows() - 1; ++i)
+	for (map::Slk::Table::size_type i = 0; i < tab()->objectData()->metaData()->slk().rows() - 1; ++i)
 	{
-		try
-		{
-			qDebug() << "Original value: " << tab()->metaData()->metaData()->value(i + 1, "\"ID\"");
-			const QString fieldId = MetaData::fromSlkString(tab()->metaData()->metaData()->value(i + 1, "\"ID\""));
-			ObjectTableWidgetPair *pair = new ObjectTableWidgetPair(this, parent, i, "", "", fieldId);
-			m_pairs.insert(fieldId, pair);
-			qDebug() << "pair " << i << ": " << fieldId;
-		}
-		catch (Exception &e)
-		{
-			qDebug() << "Exception:" << e.what();
-		}
+		const QString fieldId = MetaData::fromSlkString(tab()->objectData()->metaData()->value(i + 1, MetaData::toSlkString("ID")));
+		const QString sort = MetaData::fromSlkString(tab()->objectData()->metaData()->value(i + 1, MetaData::toSlkString("sort")));
+		fieldIds.insert(sort, fieldId);
+	}
+
+	int row = 0;
+
+	for (OrderedFieldIds::const_iterator iterator = fieldIds.begin(); iterator != fieldIds.end(); ++iterator, ++row)
+	{
+		const QString fieldId = iterator.value();
+		ObjectTableWidgetPair *pair = new ObjectTableWidgetPair(this, parent, row, "", "", fieldId);
+		m_pairs.insert(fieldId, pair);
 	}
 
 	/*
@@ -67,20 +71,18 @@ ObjectTableWidget::ObjectTableWidget(ObjectEditorTab *parent) : QTableWidget(par
 	this->hideColumn(1);
 
 	m_contextMenu = new QMenu(this);
-	const QString modifyField = parent->source()->sharedData()->tr("WESTRING_FIELDLIST_CM_MODIFY");
-	const QString resetField = parent->source()->sharedData()->tr("WESTRING_FIELDLIST_CM_RESET");
-	m_modifyField = new QAction(modifyField, this);
-	m_resetField = new QAction(resetField, this);
-	m_contextMenu->addAction(m_modifyField);
-	m_contextMenu->addAction(m_resetField);
+	m_contextMenu->addAction(tab()->objectEditor()->modifyFieldAction());
+	m_contextMenu->addAction(tab()->objectEditor()->resetFieldAction());
 
-	connect(m_modifyField, SIGNAL(triggered()), this, SLOT(modifyField()));
-	connect(m_resetField, SIGNAL(triggered()), this, SLOT(resetField()));
+	connect(tab()->objectEditor()->modifyFieldAction(), SIGNAL(triggered()), this, SLOT(modifyField()));
+	connect(tab()->objectEditor()->resetFieldAction(), SIGNAL(triggered()), this, SLOT(resetField()));
 
 	connect(this, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(editItem(QTableWidgetItem*)));
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customContextMenuRequested(QPoint)));
 
+	this->verticalHeader()->setVisible(false);
 	this->horizontalHeader()->setStretchLastSection(true);
+	this->horizontalHeader()->setSortIndicatorShown(true);
 	this->setShowGrid(false);
 	this->setContextMenuPolicy(Qt::CustomContextMenu);
 	this->setEditTriggers(QTableWidget::NoEditTriggers);

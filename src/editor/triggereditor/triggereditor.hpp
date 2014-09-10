@@ -34,6 +34,7 @@
 #include <KUrl>
 
 #include "../module.hpp"
+#include "../mpqprioritylist.hpp"
 #include "../../map.hpp"
 
 namespace wc3lib
@@ -164,7 +165,7 @@ class KDE_EXPORT TriggerEditor : public Module
 		 * \return Returns the corresponding string for \p triggerFunction's call in the following form:
 		 * (<functionname>( (<sub calls 1>( <sub call 2>, ...), ...), ... ))
 		 */
-		static QString triggerFunction(const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const map::TriggerFunction *triggerFunction);
+		static QString triggerFunction(WarcraftIIIShared *sharedData, const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const map::TriggerFunction *triggerFunction);
 		/**
 		 * Builds the corresponding string for \p parameter by encapsulating all sub calls recursively using \ref triggerFunction().
 		 * If it is only a variable, JASS call or preset, it simply returns the corresponding string.
@@ -173,7 +174,7 @@ class KDE_EXPORT TriggerEditor : public Module
 		 * \param triggerStrings Trigger strings from "UI/TriggerStrings.txt" which are used to get the corresponding identifiers of trigger functions and presets.
 		 * \param parameter Parameter of a trigger function for which the corresponding string is returned.
 		 */
-		static QString triggerFunctionParameter(const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const map::TriggerFunctionParameter *parameter);
+		static QString triggerFunctionParameter(WarcraftIIIShared *sharedData, const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const map::TriggerFunctionParameter *parameter);
 
 		template<class Functions>
 		static QString triggerFunctionCategoryText(const map::TriggerData* triggerData, const Functions &functions, const QString& code);
@@ -192,8 +193,21 @@ class KDE_EXPORT TriggerEditor : public Module
 		 * \return Returns the formatted string.
 		 */
 		template<class Functions>
-		static QString triggerFunctionText(const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const QString &code, map::TriggerFunction *function, const Functions &functions, const map::TriggerStrings::Entries &entries, bool withLinks = false, bool withHint = false, bool withCategory = false);
+		static QString triggerFunctionText(WarcraftIIIShared *sharedData, const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const QString &code, map::TriggerFunction *function, const Functions &functions, const map::TriggerStrings::Entries &entries, bool withLinks = false, bool withHint = false, bool withCategory = false);
 
+		static QIcon triggerFunctionCatgoryIcon(MpqPriorityList *source, QWidget *window, const QString &code, const map::TriggerData::Functions &functions);
+
+		/**
+		 * \return Returns true if at least one function of \p trigger is disabled.
+		 */
+		static bool triggerIsPartial(const map::Trigger &trigger);
+		/**
+		 * The trigger icon depends on its settings.
+		 * If the trigger is disabled or not initially on this will be shown in the icon.
+		 *
+		 * \return Returns the corresponding icon of \p trigger loading it from \p sharedData using \p window as loading GUI.
+		 */
+		static QIcon triggerIcon(WarcraftIIIShared *sharedData, QWidget *window, const map::Trigger &trigger);
 
 		/**
 		 * Fills \p function with default values of parameters or empty values.
@@ -203,6 +217,11 @@ class KDE_EXPORT TriggerEditor : public Module
 		static void fillNewTriggerFunctionParameters(const map::TriggerData *triggerData, map::TriggerFunction *function);
 
 		/**\}*/ // end of group triggerhelpers
+
+		/**
+		 * \return Returns the displayed text for a variable's initial value.
+		 */
+		static QString variableInitialValueText(WarcraftIIIShared *sharedData, const map::Variable &variable);
 
 	public slots:
 		/**
@@ -508,7 +527,7 @@ QString TriggerEditor::triggerFunctionCategoryText(const map::TriggerData* trigg
 
 
 template<class Functions>
-QString TriggerEditor::triggerFunctionText(const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const QString &code, map::TriggerFunction *function, const Functions &functions, const map::TriggerStrings::Entries &entries, bool withLinks, bool withHint, bool withCategory)
+QString TriggerEditor::triggerFunctionText(WarcraftIIIShared *sharedData, const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const QString &code, map::TriggerFunction *function, const Functions &functions, const map::TriggerStrings::Entries &entries, bool withLinks, bool withHint, bool withCategory)
 {
 	map::TriggerStrings::Entries::const_iterator iterator = entries.find(code.toStdString());
 	QString text;
@@ -524,7 +543,7 @@ QString TriggerEditor::triggerFunctionText(const map::TriggerData *triggerData, 
 			const map::TriggerData::Function *triggerDataFunction = functionIterator->second;
 
 			if (withCategory && triggerDataFunction->category() != 0 && triggerDataFunction->category()->displayName()) {
-				text = (triggerDataFunction->category()->displayText() + " - ").c_str();
+				text = sharedData->tr(triggerDataFunction->category()->displayText().c_str()) + " - ";
 			}
 
 			std::size_t i = 0;
@@ -534,7 +553,7 @@ QString TriggerEditor::triggerFunctionText(const map::TriggerData *triggerData, 
 					// encapsulated calls!
 					if (function != 0) {
 						if (function->parameters().size() > i) {
-							string parameter = triggerFunctionParameter(triggerData, triggerStrings, &function->parameters().at(i)).toStdString();
+							string parameter = triggerFunctionParameter(sharedData, triggerData, triggerStrings, &function->parameters().at(i)).toStdString();
 
 							qDebug() << "Parameter " << i << ": \"" << parameter.c_str() << "\"";
 
@@ -620,7 +639,7 @@ QString TriggerEditor::triggerFunctionText(const map::TriggerData *triggerData, 
 		}
 
 		if (withHint && !iterator->second->hint().empty()) {
-			text += "<br>";
+			text += "<br><br>";
 			//text + tr("Hint:<br>");
 			text += cutQuotes(iterator->second->hint()).c_str();
 		} else {

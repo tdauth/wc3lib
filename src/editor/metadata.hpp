@@ -42,14 +42,16 @@ namespace editor
  * \brief Base class for all possible meta data formats (units, abilities, upgrades etc.).
  *
  * This class can either store a SYLK file or a .txt file and provides a unified interface
- * to retrieve any value by keys.
+ * to retrieve any value by its keys.
  *
- * Retrieving values by keys is much faster that searching for them with linear complexity.
+ * Retrieving values by keys is much faster than searching for them with linear complexity.
  *
  * SLK or .txt files in Warcraft III usually provide a row and column item or a section and entry name (for .txt files)
  * from which the required value can be identified.
  * This class allows fast access to both kind of values through hashing.
  * Use \ref value() to get a value by both keys.
+ *
+ * With \ref hasValue() it can be checked if a value does actually exist.
  *
  * Uses \ref map::Slk to load a SYLK file which contains all meta data.
  * In addition to \ref map::Slk it stores columns and rows by keys (their first cell values) through hashing.
@@ -58,6 +60,10 @@ namespace editor
  * Uses \ref map::Txt to load a .txt file which contain additional object data such as strings.
  *
  * Both kind of files use the UTF-8 encoding by default.
+ *
+ * You can use \ref hasSlk() or \ref hasTxt() to check which kind of file is actually behind the interface.
+ *
+ * \note Theoretically it is possible to store several values under the same keys using multiple equally named rows, columns, sections or entries but this class assumes that each identifier is picked uniquely. An exception might be entries in sections since there can be at least one entry per section so if multiple sections have the same entry it still would be unique in that section which is enough to use it as a hash value.
  *
  * \todo Remove unnecessary wrapper methods which are duplicated from \ref map::Slk.
  */
@@ -76,7 +82,16 @@ class KDE_EXPORT MetaData : public Resource
 		/**
 		 * Use the section names as keys for the sections.
 		 */
-		typedef QHash<QString, map::Txt::Section*> TxtKeys;
+		typedef QHash<QString, map::Txt::Section*> TxtSectionKeys;
+
+		/**
+		 * The key to one TXT entry is its section and its value key.
+		 */
+		typedef QPair<map::Txt::Section*, QString> TxtEntryKey;
+		/**
+		 * Use the key of the key value pair as key for the entry.
+		 */
+		typedef QHash<TxtEntryKey, map::Txt::Entry*> TxtEntryKeys;
 
 		MetaData(const KUrl &url);
 
@@ -108,7 +123,8 @@ class KDE_EXPORT MetaData : public Resource
 		const map::Txt& txt() const;
 		const SlkKeys& columnKeys() const;
 		const SlkKeys& rowKeys() const;
-		const TxtKeys& sectionKeys() const;
+		const TxtSectionKeys& sectionKeys() const;
+		const TxtEntryKeys& entryKeys() const;
 		map::Slk::ConstView row(const QString &key) const;
 		map::Slk::ConstView column(const QString &key) const;
 
@@ -117,6 +133,7 @@ class KDE_EXPORT MetaData : public Resource
 		 * which is the section's name.
 		 */
 		map::Txt::Section* section(const QString &key) const;
+		map::Txt::Entry* entry(const QString &sectionKey, const QString &key) const;
 
 		QString value(int row, const QString &columnKey) const;
 		QString value(const QString &rowKey, int column) const;
@@ -130,7 +147,12 @@ class KDE_EXPORT MetaData : public Resource
 		 *
 		 * \note For TXT files the \p rowKey is the section name and the \p columnKey is the entry name of an entry in that section.
 		 *
-		 * \return Returns the keys matching value. If no value is found it returns an empty string.
+		 * \param rowKey The key of the row or section. Quotes will be added automatically for SLK files.
+		 * \param columnKey The key of the column or the entry. Quotes will be added automatically for SLK files.
+		 *
+		 * \return Returns the keys matching value. If no value is found it returns an empty string. For SLK and TXT files quotes are removed automatically.
+		 *
+		 * \note It removes starting and ending quotes automatically.
 		 *
 		 * \sa hasValue()
 		 */
@@ -152,6 +174,8 @@ class KDE_EXPORT MetaData : public Resource
 		static QString fromSlkString(const QString &value);
 		static QString toSlkString(const QString &value);
 
+		static QString cutQuotes(const QString &value);
+
 		/**
 		 * Converts \p value to a native file path.
 		 */
@@ -161,7 +185,8 @@ class KDE_EXPORT MetaData : public Resource
 		Source m_source;
 		SlkKeys m_columnKeys;
 		SlkKeys m_rowKeys;
-		TxtKeys m_sectionKeys;
+		TxtSectionKeys m_sectionKeys;
+		TxtEntryKeys m_entryKeys;
 };
 
 inline bool MetaData::hasSlk() const
@@ -204,9 +229,14 @@ inline const MetaData::SlkKeys& MetaData::rowKeys() const
 	return this->m_rowKeys;
 }
 
-inline const MetaData::TxtKeys& MetaData::sectionKeys() const
+inline const MetaData::TxtSectionKeys& MetaData::sectionKeys() const
 {
 	return this->m_sectionKeys;
+}
+
+inline const MetaData::TxtEntryKeys& MetaData::entryKeys() const
+{
+	return this->m_entryKeys;
 }
 
 inline map::Slk::ConstView MetaData::row(const QString &key) const
@@ -216,11 +246,11 @@ inline map::Slk::ConstView MetaData::row(const QString &key) const
 		throw Exception();
 	}
 
-	SlkKeys::const_iterator iterator = this->rowKeys().find(key);
+	SlkKeys::const_iterator iterator = this->rowKeys().find(toSlkString(key));
 
 	if (iterator == this->rowKeys().end())
 	{
-		throw Exception(boost::format(_("Row %1% does not exist.")) % key.toUtf8().constData());
+		throw Exception(boost::format(_("Missing row %1%.")) % toSlkString(key).toUtf8().constData());
 	}
 
 	return this->slk().row(iterator.value());
@@ -233,11 +263,11 @@ inline map::Slk::ConstView MetaData::column(const QString &key) const
 		throw Exception();
 	}
 
-	SlkKeys::const_iterator iterator = this->columnKeys().find(key);
+	SlkKeys::const_iterator iterator = this->columnKeys().find(toSlkString(key));
 
 	if (iterator == this->columnKeys().end())
 	{
-		throw Exception();
+		throw Exception(boost::format(_("Missing column %1%.")) % toSlkString(key).toUtf8().constData());
 	}
 
 	return this->slk().column(iterator.value());
@@ -245,9 +275,28 @@ inline map::Slk::ConstView MetaData::column(const QString &key) const
 
 inline map::Txt::Section* MetaData::section(const QString &key) const
 {
-	TxtKeys::const_iterator iterator = this->sectionKeys().find(key);
+	TxtSectionKeys::const_iterator iterator = this->sectionKeys().find(key);
 
 	if (iterator == this->sectionKeys().end())
+	{
+		return 0;
+	}
+
+	return iterator.value();
+}
+
+inline map::Txt::Entry* MetaData::entry(const QString &sectionKey, const QString& key) const
+{
+	map::Txt::Section *section = this->section(sectionKey);
+
+	if (section == 0)
+	{
+		return 0;
+	}
+
+	TxtEntryKeys::const_iterator iterator = this->entryKeys().find(TxtEntryKey(section, key));
+
+	if (iterator == this->entryKeys().end())
 	{
 		return 0;
 	}
@@ -262,14 +311,14 @@ inline QString MetaData::value(int row, const QString &columnKey) const
 		throw Exception();
 	}
 
-	SlkKeys::const_iterator iterator = this->columnKeys().find(columnKey);
+	SlkKeys::const_iterator iterator = this->columnKeys().find(toSlkString(columnKey));
 
 	if (iterator == this->columnKeys().end())
 	{
-		throw Exception();
+		throw Exception(boost::format(_("Missing column %1%.")) % toSlkString(columnKey).toUtf8().constData());
 	}
 
-	return QString::fromUtf8(this->slk().table()[iterator.value()][row].c_str());
+	return fromSlkString(QString::fromUtf8(this->slk().table()[iterator.value()][row].c_str()));
 }
 
 inline QString MetaData::value(const QString &rowKey, int column) const
@@ -279,14 +328,14 @@ inline QString MetaData::value(const QString &rowKey, int column) const
 		throw Exception();
 	}
 
-	SlkKeys::const_iterator iterator = this->rowKeys().find(rowKey);
+	SlkKeys::const_iterator iterator = this->rowKeys().find(toSlkString(rowKey));
 
 	if (iterator == this->rowKeys().end())
 	{
-		throw Exception();
+		throw Exception(boost::format(_("Missing row %1%.")) % toSlkString(rowKey).toUtf8().constData());
 	}
 
-	return QString::fromUtf8(this->slk().table()[column][iterator.value()].c_str());
+	return fromSlkString(QString::fromUtf8(this->slk().table()[column][iterator.value()].c_str()));
 }
 
 inline bool MetaData::isEmpty() const
@@ -318,7 +367,19 @@ inline QString MetaData::fromSlkString(const QString& value)
 
 inline QString MetaData::toSlkString(const QString& value)
 {
-	return QChar('"') + value + '"';
+	QString result = value;
+
+	if (!result.startsWith('"'))
+	{
+		result.prepend('"');
+	}
+
+	if (!result.endsWith('"'))
+	{
+		result.append('"');
+	}
+
+	return result;
 }
 
 inline QString MetaData::fromFilePath(const QString& value)

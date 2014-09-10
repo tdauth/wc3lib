@@ -40,6 +40,7 @@
 #include "triggertreewidgetitem.hpp"
 #include "../moduletoolbar.hpp"
 #include "triggereditorconfig.h"
+#include "../metadata.hpp"
 
 namespace wc3lib
 {
@@ -52,7 +53,20 @@ string TriggerEditor::cutQuotes(const string& value)
 	return value.substr(1, value.length() - 2); // cut quotes
 }
 
-TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_triggers(0), m_customTextTriggers(0), m_freeTriggers(false), m_freeCustomTextTriggers(false), m_newMenu(0), m_treeWidget(new QTreeWidget(this)), m_mapScriptWidget(new MapScriptWidget(this)), m_triggerWidget(new TriggerWidget(this)), m_variablesDialog(0), m_triggerActionCollection(0), m_newActionCollection(0), m_config(new TriggerEditorConfig()), Module(source, parent, f)
+TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f)
+: Module(source, parent, f)
+, m_triggers(0)
+, m_customTextTriggers(0)
+, m_freeTriggers(false)
+, m_freeCustomTextTriggers(false)
+, m_newMenu(0)
+, m_treeWidget(new QTreeWidget(this))
+, m_mapScriptWidget(new MapScriptWidget(this))
+, m_triggerWidget(new TriggerWidget(this))
+, m_variablesDialog(0)
+, m_triggerActionCollection(0)
+, m_newActionCollection(0)
+, m_config(new TriggerEditorConfig())
 {
 	readSettings(); // fill sources first
 
@@ -62,6 +76,7 @@ TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 		try
 		{
 			this->source()->sharedData()->refreshWorldEditorStrings(this);
+			this->source()->sharedData()->refreshWorldEditData(this);
 			this->source()->sharedData()->refreshTriggerData(this);
 			this->source()->sharedData()->refreshTriggerStrings(this);
 		}
@@ -81,6 +96,7 @@ TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 	hSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	treeWidget()->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 	mapScriptWidget()->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+	triggerWidget()->setupUi();
 	triggerWidget()->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 	hSplitter->addWidget(treeWidget());
 	hSplitter->addWidget(mapScriptWidget());
@@ -97,10 +113,14 @@ TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 
 	triggerWidget()->setEnabled(false);
 	mapScriptWidget()->hide();
+	triggerWidget()->hide();
 	triggerActionCollection()->action("savetriggers")->setEnabled(false);
 	triggerActionCollection()->action("closetriggers")->setEnabled(false);
 	triggerActionCollection()->action("closecustomtexttriggers")->setEnabled(false);
 	triggerActionCollection()->action("closeall")->setEnabled(false);
+
+	setWindowTitle(this->source()->sharedData()->tr("WESTRING_MODULE_SCRIPTS"));
+	setWindowIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_Module_Script", "WorldEditArt", this));
 }
 
 TriggerEditor::~TriggerEditor()
@@ -273,7 +293,7 @@ double TriggerEditor::triggerFunctionLimitDoubleMaximum(const map::TriggerData::
 	return result;
 }
 
-QString TriggerEditor::triggerFunction(const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const map::TriggerFunction* triggerFunction)
+QString TriggerEditor::triggerFunction(WarcraftIIIShared *sharedData, const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const map::TriggerFunction* triggerFunction)
 {
 	QString result;
 
@@ -285,8 +305,20 @@ QString TriggerEditor::triggerFunction(const map::TriggerData *triggerData, cons
 		result = QString("(") + triggerFunction->name().c_str();
 	}
 
-	foreach (map::TriggerFunction::Parameters::const_reference ref, triggerFunction->parameters()) {
-		result += triggerFunctionParameter(triggerData, triggerStrings, &ref);
+	bool isFirst = true;
+
+	foreach (map::TriggerFunction::Parameters::const_reference ref, triggerFunction->parameters())
+	{
+		/*
+		 * Add spaces before non function calls.
+		 */
+		if (!isFirst && ref.type() != map::TriggerFunctionParameter::Type::Function)
+		{
+			result += " ";
+		}
+
+		result += triggerFunctionParameter(sharedData, triggerData, triggerStrings, &ref);
+		isFirst = false;
 	}
 
 	result += ")";
@@ -294,34 +326,42 @@ QString TriggerEditor::triggerFunction(const map::TriggerData *triggerData, cons
 	return result;
 }
 
-QString TriggerEditor::triggerFunctionParameter(const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const map::TriggerFunctionParameter *parameter)
+QString TriggerEditor::triggerFunctionParameter(WarcraftIIIShared *sharedData, const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const map::TriggerFunctionParameter *parameter)
 {
 	QString result;
 
 	qDebug() << "Parameter value \"" << parameter->value().c_str() << "\"";
 
-	switch (parameter->type()) {
-		case map::TriggerFunctionParameter::Type::Function: {
-			foreach (map::TriggerFunctionParameter::Functions::const_reference ref, parameter->functions()) {
-				result += triggerFunction(triggerData, triggerStrings, &ref); // call recursively all encapsulated calls
+	switch (parameter->type())
+	{
+		case map::TriggerFunctionParameter::Type::Function:
+		{
+			foreach (map::TriggerFunctionParameter::Functions::const_reference ref, parameter->functions())
+			{
+				result += triggerFunction(sharedData, triggerData, triggerStrings, &ref); // call recursively all encapsulated calls
 			}
 
 			break;
 		}
 
 		case map::TriggerFunctionParameter::Type::Jass:
+		{
 			result = parameter->value().c_str();
 
 			break;
+		}
 
 		case map::TriggerFunctionParameter::Type::Preset:
 		{
 			map::TriggerData::Parameters::const_iterator iterator = triggerData->parameters().find(parameter->value());
 
-			if (iterator != triggerData->parameters().end()) {
+			if (iterator != triggerData->parameters().end())
+			{
 				qDebug() << "Using preset display text " << iterator->second->displayText().c_str();
-				result = iterator->second->displayText().c_str();
-			} else {
+				result = sharedData->tr(iterator->second->displayText().c_str());
+			}
+			else
+			{
 				qDebug() << "Unable to find preset " << parameter->value().c_str() << " in TriggerData.txt";
 				result = parameter->value().c_str();
 			}
@@ -568,13 +608,15 @@ void TriggerEditor::saveTriggers()
 
 void TriggerEditor::closeTriggers()
 {
-	clear();
+	this->clear();
 }
 
 void TriggerEditor::closeCustomTextTriggers()
 {
 	if (customTextTriggers() != 0 && freeCustomTextTriggers())
+	{
 		delete customTextTriggers();
+	}
 
 	setCustomTextTriggers(0);
 	// TODO update open trigger text (clear, warn?? consider situations when having a open map!!)
@@ -582,7 +624,13 @@ void TriggerEditor::closeCustomTextTriggers()
 	triggerActionCollection()->action("closecustomtexttriggers")->setEnabled(false);
 
 	if (triggers() == 0)
+	{
 		triggerActionCollection()->action("closeall")->setEnabled(false);
+	}
+
+	this->mapScriptWidget()->hide();
+	this->triggerWidget()->clear();
+	this->triggerWidget()->hide();
 }
 
 void TriggerEditor::closeAll()
@@ -640,7 +688,9 @@ void TriggerEditor::loadTriggers(map::Triggers *triggers)
 			qDebug() << "Root item: " << editor()->currentMap()->map()->info()->name().c_str();
 
 			if (source()->download(src, file, this))
+			{
 				rootItem()->setIcon(0, QIcon(file));
+			}
 		} else {
 			rootItem()->setText(0, tr("Current map script"));
 		}
@@ -652,45 +702,54 @@ void TriggerEditor::loadTriggers(map::Triggers *triggers)
 
 	categories().resize(triggers->categories().size());
 
-
-	for (int32 i = 0; i < this->categories().size(); ++i)
+	if (!this->categories().isEmpty())
 	{
-		m_categoryIndices.insert(triggers->categories()[i].index(), i);
-		categories()[i] = new QTreeWidgetItem(rootItem());
-		//categories()[i]->setFlags(item->flags() | Qt::ItemIsEditable);
-		categories()[i]->setText(0, triggers->categories()[i].name().c_str());
-		/// \todo set folder icon
-		qDebug() << "Category: " << triggers->categories()[i].name().c_str();
+		QIcon categoryIcon = this->source()->sharedData()->worldEditDataIcon("SEIcon_TriggerCategory", "WorldEditArt", this);
+
+		for (int32 i = 0; i < this->categories().size(); ++i)
+		{
+			m_categoryIndices.insert(triggers->categories()[i].index(), i);
+			categories()[i] = new QTreeWidgetItem(rootItem());
+			//categories()[i]->setFlags(item->flags() | Qt::ItemIsEditable);
+			categories()[i]->setText(0, triggers->categories()[i].name().c_str());
+			categories()[i]->setIcon(0, categoryIcon);
+
+			qDebug() << "Category: " << triggers->categories()[i].name().c_str();
+		}
 	}
 
 	triggerEntries().resize(triggers->triggers().size());
 
-	for (int32 i = 0; i < this->triggerEntries().size(); ++i)
+	if (!triggerEntries().isEmpty())
 	{
-		const int32 category = triggers->triggers()[i].category();
-		TriggerTreeWidgetItem *item = 0;
-		CategoryIndices::const_iterator iterator = m_categoryIndices.find(category);
+		for (int32 i = 0; i < this->triggerEntries().size(); ++i)
+		{
+			const int32 category = triggers->triggers()[i].category();
+			TriggerTreeWidgetItem *item = 0;
+			CategoryIndices::const_iterator iterator = m_categoryIndices.find(category);
 
-		if (iterator != m_categoryIndices.end()) {
-			item = new TriggerTreeWidgetItem(&triggers->triggers()[i], categories()[iterator.value()]);
-		} else {
-			item = new TriggerTreeWidgetItem(&triggers->triggers()[i], rootItem());
-			qDebug() << "Invalid category index " << category;
+			if (iterator != m_categoryIndices.end()) {
+				item = new TriggerTreeWidgetItem(&triggers->triggers()[i], categories()[iterator.value()]);
+			} else {
+				item = new TriggerTreeWidgetItem(&triggers->triggers()[i], rootItem());
+				qDebug() << "Invalid category index " << category;
+			}
+
+			// TODO set icon
+
+			if (triggers->triggers()[i].isInitiallyOn()) {
+				item->setForeground(0, QColor(Qt::black));
+			} else {
+				item->setForeground(0, QColor(Qt::gray));
+			}
+
+			item->setIcon(0, TriggerEditor::triggerIcon(this->source()->sharedData().get(), this, triggers->triggers()[i]));
+
+			triggerEntries()[i] = item;
+			triggerEntries()[i]->setText(0, triggers->triggers()[i].name().c_str());
+
+			qDebug() << "Trigger: " << triggers->triggers()[i].name().c_str();
 		}
-
-		// TODO set icon
-
-		if (triggers->triggers()[i].isInitiallyOn()) {
-			item->setForeground(0, QColor(Qt::black));
-		} else {
-			item->setForeground(0, QColor(Qt::gray));
-		}
-
-		triggerEntries()[i] = item;
-		/// \todo set icon (initially on, disabled etc.)
-		triggerEntries()[i]->setText(0, triggers->triggers()[i].name().c_str());
-
-		qDebug() << "Trigger: " << triggers->triggers()[i].name().c_str();
 	}
 
 	m_triggers = triggers;
@@ -762,7 +821,13 @@ void TriggerEditor::clear()
 	triggerActionCollection()->action("closetriggers")->setEnabled(false);
 
 	if (customTextTriggers() == 0)
+	{
 		triggerActionCollection()->action("closeall")->setEnabled(false);
+	}
+
+	this->mapScriptWidget()->hide();
+	this->triggerWidget()->clear();
+	this->triggerWidget()->hide();
 }
 
 void TriggerEditor::openMapScript()
@@ -1022,6 +1087,8 @@ void TriggerEditor::createEditActions(class KMenu *menu)
 	menu->addSeparator();
 	KAction *action = new KAction(KIcon(":/actions/variables.png"), i18n("Variables ..."), this);
 	action->setShortcut(i18n("Ctrl+B"));
+	action->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_Variables", "WorldEditArt", this));
+
 	connect(action, SIGNAL(triggered()), this, SLOT(showVariables()));
 	triggerActionCollection()->addAction("variables", action);
 	menu->addAction(action);
@@ -1041,10 +1108,12 @@ void TriggerEditor::createMenus(class KMenuBar *menuBar)
 	m_newActionCollection = new KActionCollection((QObject*)this);
 
 	KAction *action = new KAction(KIcon(":/actions/newcategory.png"), i18n("Category"), this);
+	action->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_NewCategory", "WorldEditArt", this));
 	connect(action, SIGNAL(triggered()), this, SLOT(newCategory()));
 	newActionCollection()->addAction("newcategory", action);
 
 	action = new KAction(KIcon(":/actions/newtrigger.png"), i18n("Trigger"), this);
+	action->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_NewTrigger", "WorldEditArt", this));
 	connect(action, SIGNAL(triggered()), this, SLOT(newTrigger()));
 	newActionCollection()->addAction("newtrigger", action);
 
@@ -1055,14 +1124,17 @@ void TriggerEditor::createMenus(class KMenuBar *menuBar)
 	m_newMenu->addSeparator();
 
 	action = new KAction(KIcon(":/actions/newevent.png"), i18n("Event"), this);
+	action->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_NewEvent", "WorldEditArt", this));
 	connect(action, SIGNAL(triggered()), this, SLOT(newEvent()));
 	newActionCollection()->addAction("newevent", action);
 
 	action = new KAction(KIcon(":/actions/newcondition.png"), i18n("Condition"), this);
+	action->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_NewCondition", "WorldEditArt", this));
 	connect(action, SIGNAL(triggered()), this, SLOT(newCondition()));
 	newActionCollection()->addAction("newcondition", action);
 
 	action = new KAction(KIcon(":/actions/newaction.png"), i18n("Action"), this);
+	action->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_NewAction", "WorldEditArt", this));
 	connect(action, SIGNAL(triggered()), this, SLOT(newAction()));
 	newActionCollection()->addAction("newaction", action);
 
@@ -1123,6 +1195,90 @@ QString TriggerEditor::newTriggerName() const
 	}
 
 	return tr("Unnamed trigger %1").arg(QString::number(index)); // TODO format with 00?
+}
+
+QIcon TriggerEditor::triggerFunctionCatgoryIcon(MpqPriorityList *source, QWidget *window, const QString &code, const map::TriggerData::Functions &functions)
+{
+
+	map::TriggerData::Functions::const_iterator functionIterator = functions.find(code.toStdString());
+
+	if (functionIterator != functions.end())
+	{
+		const map::TriggerData::Function *triggerDataFunction = functionIterator->second;
+
+		if (triggerDataFunction->category() != 0)
+		{
+			const QString iconFilePath = MetaData::fromFilePath(triggerDataFunction->category()->iconImageFile().c_str()) + ".blp";
+			QString iconFile;
+
+			if (source->download(iconFilePath, iconFile, window))
+			{
+				return QIcon(iconFile);
+			}
+		}
+	}
+
+	return QIcon();
+}
+
+bool TriggerEditor::triggerIsPartial(const map::Trigger &trigger)
+{
+	BOOST_FOREACH(map::Trigger::Functions::const_reference ref, trigger.functions())
+	{
+		if (!ref.isEnabled())
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+QIcon TriggerEditor::triggerIcon(WarcraftIIIShared *sharedData, QWidget *window, const map::Trigger &trigger)
+{
+	if (trigger.isEnabled() && trigger.isInitiallyOn() && !triggerIsPartial(trigger))
+	{
+		return sharedData->worldEditDataIcon("SEIcon_Trigger", "WorldEditArt", window);
+	}
+	else if (trigger.isEnabled() && !trigger.isInitiallyOn() && !triggerIsPartial(trigger))
+	{
+		return sharedData->worldEditDataIcon("SEIcon_TriggerUnused", "WorldEditArt", window);
+	}
+	else if (!trigger.isEnabled() && !trigger.isInitiallyOn())
+	{
+		return sharedData->worldEditDataIcon("SEIcon_TriggerUnusedDisabled", "WorldEditArt", window);
+	}
+	else if (!trigger.isEnabled() && trigger.isInitiallyOn())
+	{
+		return sharedData->worldEditDataIcon("SEIcon_TriggerDisabled", "WorldEditArt", window);
+	}
+	else if (trigger.isEnabled() && trigger.isInitiallyOn() && triggerIsPartial(trigger))
+	{
+		return sharedData->worldEditDataIcon("SEIcon_TriggerPartial", "WorldEditArt", window);
+	}
+	else if (trigger.isEnabled() && !trigger.isInitiallyOn() && triggerIsPartial(trigger))
+	{
+		return sharedData->worldEditDataIcon("SEIcon_TriggerUnusedPartial", "WorldEditArt", window);
+	}
+
+	return QIcon();
+}
+
+
+QString TriggerEditor::variableInitialValueText(WarcraftIIIShared *sharedData, const map::Variable &variable)
+{
+	QString initialValue;
+
+	if (variable.initialValue().empty())
+	{
+		initialValue = sharedData->tr("WESTRING_GVD_NOVALUE");
+	}
+	else
+	{
+		initialValue = variable.initialValue().c_str();
+	}
+
+	return initialValue;
 }
 
 #include "moc_triggereditor.cpp"

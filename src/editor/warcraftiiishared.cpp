@@ -32,11 +32,11 @@ namespace wc3lib
 namespace editor
 {
 
-WarcraftIIIShared::WarcraftIIIShared(MpqPriorityList* source) : m_source(source)
+WarcraftIIIShared::WarcraftIIIShared(MpqPriorityList *source) : m_source(source)
 {
 }
 
-void WarcraftIIIShared::refreshDefaultFiles(QWidget* window)
+void WarcraftIIIShared::refreshDefaultFiles(QWidget *window)
 {
 	this->refreshWorldEditorStrings(window);
 	this->refreshTriggerStrings(window);
@@ -79,54 +79,39 @@ Texture* WarcraftIIIShared::teamGlowTexture(TeamColor teamGlow) const throw (cla
 
 void WarcraftIIIShared::refreshWorldEditorStrings(QWidget *window, const KUrl &url) throw (Exception)
 {
-	QString target;
+	WorldEditorStringsPtr ptr(new MetaData(url));
+	ptr->setSource(this->source());
+	ptr->load();
 
-	if (!this->source()->download(url, target, window))
-	{
-		throw Exception(boost::format(_("Unable to download file \"%1%\".")) % url.toLocalFile().toStdString());
-	}
-
-	qDebug() << "World Editor strings target: " << target;
-	WorldEditorStringsPtr ptr(new map::Txt());
-	ifstream ifstream(target.toStdString(), std::ios::in);
-
-	if (!ifstream)
-	{
-		throw Exception(boost::format(_("Unable to read from file \"%1%\".")) % target.toStdString());
-	}
-
-	ptr->read(ifstream);
 	m_worldEditorStrings.swap(ptr); // exception safe
 }
 
 QString WarcraftIIIShared::tr(const QString &key, const QString &group, const QString &defaultValue) const
 {
-	// TODO if group is empty, search all sections
-	if (this->worldEditorStrings().get() != 0) {
-		qDebug() << "Trying it in WorldEditorStrings.txt";
+	if (this->worldEditorStrings().get() != 0)
+	{
+		try
+		{
+			const QString result = this->worldEditorStrings()->value(group, key);
 
-		try {
-			const map::Txt::Entries &entries = this->worldEditorStrings()->entries(group.toUtf8().constData());
-
-			// TODO linear search
-			foreach (map::Txt::Entries::const_reference ref, entries) {
-				if (ref.first == key.toUtf8().constData()) {
-					return QString::fromUtf8(ref.second.c_str());
-				}
+			/*
+			 * Some values like "WESTRING_UE_UNITRACE_HUMAN" refer to other keys and have to be resolved recursively until no
+			 * reference is found anymore.
+			 */
+			if (this->worldEditorStrings()->hasValue(group, result))
+			{
+				return tr(result, group, defaultValue);
 			}
-		} catch (Exception &e) {
+
+			return result;
+		}
+		/*
+		 * If an exception occured or the value does not exist just return the default value in the end.
+		 */
+		catch (Exception &e)
+		{
 		}
 	}
-
-	QStringList files;
-	// all files which contain strings
-	files
-	<< "UI/WorldEditStrings.txt"
-	<< "UI/WorldEditGameStrings.txt"
-	<< "UI/TriggerStrings.txt"
-	<< "UI/TipStrings.txt"
-	<< "UI/CampaignStrings.txt"
-	;
 
 	if (!defaultValue.isEmpty())
 	{
@@ -134,6 +119,34 @@ QString WarcraftIIIShared::tr(const QString &key, const QString &group, const QS
 	}
 
 	return group + "[" + key + "]";
+}
+
+QIcon WarcraftIIIShared::icon(const KUrl &url, QWidget *window)
+{
+	QString iconFile;
+
+	if (this->source()->download(url, iconFile, window))
+	{
+		return QIcon(iconFile);
+	}
+
+	return QIcon();
+}
+
+QIcon WarcraftIIIShared::worldEditDataIcon(const QString& key, const QString& group, QWidget* window)
+{
+	const QString filePath = MetaData::fromFilePath(this->worldEditData()->value(group, key));
+
+	return this->icon(filePath, window);
+}
+
+void WarcraftIIIShared::refreshWorldEditData(QWidget* window, const KUrl &url) throw (Exception)
+{
+	WorldEditDataPtr ptr(new MetaData(url));
+	ptr->setSource(this->source());
+	ptr->load();
+
+	m_worldEditData.swap(ptr); // exception safe
 }
 
 void WarcraftIIIShared::refreshTriggerData(QWidget *window, const KUrl &url) throw (Exception)

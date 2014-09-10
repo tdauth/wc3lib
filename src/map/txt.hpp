@@ -30,8 +30,6 @@
  * key1 = value1
  */
 
-#include <map>
-
 #include "platform.hpp"
 
 namespace wc3lib
@@ -53,15 +51,35 @@ namespace map
 class Txt : public Format
 {
 	public:
-		/// We cannot use a map here since keys are not necessarily unique! For example "UI/TriggerData.txt" has multiple pairs with the same key for different options of trigger data.
+		/**
+		 * \brief One single entry in a section has a key and a corresponding value.
+		 *
+		 * The key follows a "=" character and everything following this character including whitespaces etc. is the corresponding value.
+		 * The key is not necessarily unique.
+		 *
+		 * The key can be accessed using \ref first and the value using \ref second of the pair.
+		 *
+		 * \note We cannot use a map here since keys are not necessarily unique! For example "UI/TriggerData.txt" has multiple pairs with the same key for different options of trigger data.
+		 *
+		 * \sa wc3lib::map::Txt::Sections wc3lib::map::Txt::Entries wc3lib::map::Txt::Section
+		 */
 		typedef std::pair<string, string> Entry;
+		/**
+		 * \brief All entries of a section are stored in a single vector.
+		 *
+		 * \sa wc3lib::map::Txt::Sections wc3lib::map::Txt::Section wc3lib::map::Txt::Entry
+		 */
 		typedef std::vector<Entry> Entries;
 
 		/**
+		 * \brief A .txt section is indicated by its name (which is not necessarily unique) and its entries which can be empty as well.
+		 *
 		 * One single section a .txt file usually indicated by a [section name] expression.
-		 * Each section has its name plus any number number of key value pairs.
+		 * Each section has its name plus any number number of key value pairs called entries.
 		 *
 		 * \ingroup txt
+		 *
+		 * \sa wc3lib::map::Txt::Sections wc3lib::map::Txt::Entries wc3lib::map::Txt::Entry
 		 */
 		struct Section
 		{
@@ -70,20 +88,33 @@ class Txt : public Format
 		};
 
 		/**
-		 * Type for all sections stored in a .txt file.
+		 * \brief All sections of a .txt file are stored in a single vector.
 		 *
 		 * \ingroup txt
+		 *
+		 * \sa wc3lib::map::Txt::Section wc3lib::map::Txt::Entries wc3lib::map::Txt::Entry
 		 */
 		typedef std::vector<Section> Sections;
 
+		/**
+		 * \return Returns all sections of the .txt file.
+		 *
+		 * @{
+		 */
 		Sections& sections();
 		const Sections& sections() const;
+		/**
+		 * @}
+		 */
+
 		/**
 		 * Returns all key value entries of section \p section.
 		 * \param section An existing section ([bla]) of the TXT file.
 		 * \throws Exception Throws an exception if section \p section does not exist.
 		 * \note Since sections are stored in a vector for more efficency while reading a TXT file this search has a complexity of O(n).
 		 * \note \p section is not necessarily unique! The first section with the name will be returned.
+		 * \todo Remove this member function and use \ref wc3lib::editor::MetaData for abstract access.
+		 * \deprecated
 		 */
 		const Entries& entries(const string &section) const;
 

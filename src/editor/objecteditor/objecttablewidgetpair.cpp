@@ -43,7 +43,7 @@ ObjectTableWidgetPair::ObjectTableWidgetPair(QTableWidget *tableWidget, ObjectEd
 , m_customObjectId(customObjectId)
 , m_fieldId(fieldId)
 {
-	const QString displayName = MetaData::fromSlkString(tab->metaData()->metaData()->value(row + 1, MetaData::toSlkString("displayName")));
+	const QString displayName = MetaData::fromSlkString(tab->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("displayName")));
 	// cut "
 	descriptionItem()->setText(tab->source()->sharedData()->tr(displayName));
 	descriptionItem()->setData(Qt::UserRole, fieldId);
@@ -71,21 +71,23 @@ void ObjectTableWidgetPair::edit()
 		qDebug() << "Original Object Id" << originalObjectId;
 		qDebug() << "Custom Object Id" << customObjectId;
 		qDebug() << "Field Id" << fieldId;
-		const QString type = MetaData::fromSlkString(tab()->metaData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("type")));
-		const QString stringExt = MetaData::fromSlkString(tab()->metaData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("stringExt")));
+		const QString type = MetaData::fromSlkString(tab()->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("type")));
+		const QString stringExt = MetaData::fromSlkString(tab()->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("stringExt")));
+		const QString fieldValue = this->tab()->objectData()->fieldValue(originalObjectId, customObjectId, fieldId);
 		qDebug() << "Type:" << type;
 
 		ObjectValueDialog *dialog = new ObjectValueDialog(this->tableWidget());
+		dialog->clearCheckBoxes();
 		dialog->setItemsVisible(false);
 		QString title = tab()->source()->sharedData()->tr("WESTRING_UE_DLG_EDITVALUE");
 		QString titleArg = "";
 		dialog->setLabelText(QString(tr("%1:")).arg(this->descriptionItem()->text()));
 		bool supported = true;
 
-		if (type == "int" || type == "unit")
+		if (type == "int")
 		{
-			const QString minValue = MetaData::fromSlkString(tab()->metaData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("minVal")));
-			const QString maxValue = MetaData::fromSlkString(tab()->metaData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("maxVal")));
+			const QString minValue = MetaData::fromSlkString(tab()->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("minVal")));
+			const QString maxValue = MetaData::fromSlkString(tab()->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("maxVal")));
 
 			qDebug() << "Min value:" << minValue;
 			qDebug() << "Max value:" << maxValue;
@@ -117,12 +119,12 @@ void ObjectTableWidgetPair::edit()
 
 			titleArg = tab()->source()->sharedData()->tr("WESTRING_UE_TYPE_INT");
 			dialog->intSpinBox()->setVisible(true);
-			dialog->intSpinBox()->setValue(valueItem()->text().toInt());
+			dialog->intSpinBox()->setValue(fieldValue.toInt());
 		}
 		else if (type == "real" || type == "unreal")
 		{
-			const QString minValue = MetaData::fromSlkString(tab()->metaData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("minVal")));
-			const QString maxValue = MetaData::fromSlkString(tab()->metaData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("maxVal")));
+			const QString minValue = MetaData::fromSlkString(tab()->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("minVal")));
+			const QString maxValue = MetaData::fromSlkString(tab()->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("maxVal")));
 
 			qDebug() << "Min value:" << minValue;
 			qDebug() << "Max value:" << maxValue;
@@ -154,7 +156,7 @@ void ObjectTableWidgetPair::edit()
 
 			titleArg = tab()->source()->sharedData()->tr("WESTRING_UE_TYPE_REAL");
 			dialog->doubleSpinBox()->setVisible(true);
-			dialog->doubleSpinBox()->setValue(valueItem()->text().toDouble());
+			dialog->doubleSpinBox()->setValue(fieldValue.toDouble());
 		}
 		else if (type == "string")
 		{
@@ -163,63 +165,67 @@ void ObjectTableWidgetPair::edit()
 			if (stringExt == "1")
 			{
 				dialog->textEdit()->setVisible(true);
-				dialog->textEdit()->setText(valueItem()->text());
+				dialog->textEdit()->setText(fieldValue);
 			}
 			else
 			{
 				dialog->lineEdit()->setVisible(true);
-				dialog->lineEdit()->setText(valueItem()->text());
+				dialog->lineEdit()->setText(fieldValue);
 			}
 		}
 		else if (type == "bool")
 		{
 			titleArg = tab()->source()->sharedData()->tr("WESTRING_UE_TYPE_BOOL");
 			dialog->checkBox()->setVisible(true);
-			dialog->checkBox()->setChecked(valueItem()->text().toInt());
+			dialog->checkBox()->setChecked(fieldValue.toInt());
 		}
 		else if (type == "stringList")
 		{
 			//titleArg = tab()->source()->sharedData()->tr("WESTRING_UE_TYPE_BOOL");
 			dialog->editListWidget()->setVisible(true);
 
-			QStringList list = valueItem()->text().split(',');
+			const QStringList list = fieldValue.split(',');
 			dialog->editListWidget()->setItems(list);
 		}
 		else
 		{
-			QString valueTypeDisplayString;
-
-			if (type == "unitClass")
-			{
-				valueTypeDisplayString = "WESTRING_UE_TYPE_UNITCLASS";
-			}
-			else if (type == "regenType")
-			{
-				valueTypeDisplayString = "WESTRING_UE_TYPE_REGENTYPE";
-			}
-
+			const QString valueTypeDisplayString = "WESTRING_UE_TYPE_" + type.toUpper();
 			titleArg = tab()->source()->sharedData()->tr(valueTypeDisplayString);
-			dialog->comboBox()->setVisible(true);
-			dialog->comboBox()->clear();
 
-			const QString numValues = this->tab()->metaData()->objectTabData()->value(type, "NumValues");
-			bool ok = false;
-			int num = numValues.toInt(&ok);
+			const ObjectData::ObjectTabEntries entries = this->tab()->objectData()->objectTabEntries(type);
 
-			if (ok)
+			/*
+			 * Some types need a list of check boxes if multiple values are allowed.
+			 */
+			if (tab()->objectData()->fieldTypeAllowsMultipleSelections(fieldId))
 			{
-				for (int i = 0; i < num; ++i)
+				foreach (ObjectData::ObjectTabEntry entry, entries)
 				{
-					QStringList entries = this->tab()->metaData()->objectTabData()->value(type, QString("%1").arg(i, 2, 10, QChar('0'))).split(',');
-
-					if (entries.size() == 2)
-					{
-						dialog->comboBox()->addItem(tab()->source()->sharedData()->tr(entries[1]), entries[0]);
-					}
+					dialog->addCheckBox(entry.first, tab()->source()->sharedData()->tr(entry.second));
 				}
 
 				// we need the actual field value not the readable value to select the correct data
-				const QString fieldValue = this->tab()->fieldValue(originalObjectId, customObjectId, fieldId);
+				const QStringList fieldValues = fieldValue.split(',');
+
+				foreach (QString value, fieldValues)
+				{
+					dialog->setCheckBoxChecked(value, true);
+				}
+			}
+			/*
+			 * Other types need a combo box if only one specific type can be selected.
+			 */
+			else
+			{
+				dialog->comboBox()->clear();
+				dialog->comboBox()->setVisible(true);
+
+				foreach (ObjectData::ObjectTabEntry entry, entries)
+				{
+					dialog->comboBox()->addItem(tab()->source()->sharedData()->tr(entry.second), entry.first);
+				}
+
+				// we need the actual field value not the readable value to select the correct data
 				dialog->comboBox()->setCurrentIndex(dialog->comboBox()->findData(fieldValue));
 			}
 		}
@@ -235,43 +241,51 @@ void ObjectTableWidgetPair::edit()
 				bool successOnEdit = true;
 				QString value;
 
-				if (type == "int" || type == "unit")
+				if (type == "int")
 				{
-					valueItem()->setText(QString::number(dialog->intSpinBox()->value()));
-					value = valueItem()->text();
+					value = QString::number(dialog->intSpinBox()->value());
 				}
 				else if (type == "real" || type == "unreal")
 				{
-					valueItem()->setText(QString::number(dialog->doubleSpinBox()->value()));
-					value = valueItem()->text();
+					value = QString::number(dialog->doubleSpinBox()->value());
+					qDebug() << "Real value:" << value;
 				}
 				else if (type == "string")
 				{
 					if (stringExt == "1")
 					{
-						valueItem()->setText(dialog->textEdit()->toPlainText());
+						value = dialog->textEdit()->toPlainText();
 					}
 					else
 					{
-						valueItem()->setText(dialog->lineEdit()->text());
+						value = dialog->lineEdit()->text();
 					}
-
-					value = valueItem()->text();
 				}
 				else if (type == "bool")
 				{
-					valueItem()->setText(QString::number(dialog->checkBox()->isChecked()));
-					value = valueItem()->text();
+					value = QString::number(dialog->checkBox()->isChecked());
 				}
 				else if (type == "stringList")
 				{
 					value = dialog->editListWidget()->items().join(QChar(','));
-					valueItem()->setText(value);
+					qDebug() << "String list value:" << value;
 				}
 				else
 				{
-					valueItem()->setText(dialog->comboBox()->currentText());
-					value = dialog->comboBox()->itemData(dialog->comboBox()->currentIndex()).toString();
+					/*
+					 * Some types need a list of check boxes if multiple values are allowed.
+					 */
+					if (tab()->objectData()->fieldTypeAllowsMultipleSelections(fieldId))
+					{
+						value = dialog->checkedValues();
+					}
+					/*
+					 * Other types need a combo box if only one specific type can be selected.
+					 */
+					else
+					{
+						value = dialog->comboBox()->itemData(dialog->comboBox()->currentIndex()).toString();
+					}
 
 					qDebug() << "Value: " << value;
 
@@ -288,7 +302,9 @@ void ObjectTableWidgetPair::edit()
 					this->descriptionItem()->setForeground(Qt::magenta);
 					this->valueItem()->setForeground(Qt::magenta);
 
-					this->tab()->modifyField(this->originalObjectId(), this->customObjectId(), this->fieldId(), this->modification(this->value(value)));
+					this->tab()->objectData()->modifyField(this->originalObjectId(), this->customObjectId(), this->fieldId(), value);
+
+					valueItem()->setText(this->tab()->objectData()->fieldReadableValue(originalObjectId, customObjectId, fieldId));
 				}
 			}
 		}
@@ -302,100 +318,19 @@ void ObjectTableWidgetPair::edit()
 	}
 }
 
-map::Value ObjectTableWidgetPair::defaultValue() const
+QString ObjectTableWidgetPair::defaultValue() const
 {
-	const QString dataValue = this->tab()->metaData()->getDataValue(this->originalObjectId(), this->fieldId());
-
-
-	return value(dataValue);
-}
-
-map::Value ObjectTableWidgetPair::value(const QString &text) const
-{
-	const map::Value::Type type = this->tab()->metaData()->fieldType(this->fieldId());
-
-	switch (type)
-	{
-		case map::Value::Type::Integer:
-		{
-			int32 data = boost::numeric_cast<int32>(text.toInt());
-
-			return map::Value(data);
-		}
-
-		case map::Value::Type::Real:
-		{
-			float32 data = boost::numeric_cast<float32>(text.toDouble());
-
-			return map::Value(data);
-		}
-
-		case map::Value::Type::String:
-		case map::Value::Type::RegenerationType:
-		case map::Value::Type::AttackType:
-		case map::Value::Type::WeaponType:
-		case map::Value::Type::TargetType:
-		case map::Value::Type::MoveType:
-		case map::Value::Type::DefenseType:
-		case map::Value::Type::PathingTexture:
-		case map::Value::Type::MissileArt:
-		case map::Value::Type::AttributeType:
-		case map::Value::Type::AttackBits:
-		{
-			return map::Value(text.toUtf8().constData(), type);
-		}
-
-		case map::Value::Type::Boolean:
-		{
-			return map::Value((bool)text.toInt());
-		}
-
-		case map::Value::Type::Character:
-		{
-			return map::Value(text.toUtf8().constData()[0]);
-		}
-
-		case map::Value::Type::StringList:
-		case map::Value::Type::UpgradeList:
-		case map::Value::Type::UnitList:
-		case map::Value::Type::ItemList:
-		case map::Value::Type::AbilityList:
-		case map::Value::Type::HeroAbilityList:
-		{
-			QStringList list = text.split(',');
-			map::List vector;
-
-			foreach (QString var, list)
-			{
-				vector.push_back(var.toUtf8().constData());
-			}
-
-			return map::Value(vector, type);
-		}
-	}
-
-	return map::Value(0);
+	return this->tab()->objectData()->defaultFieldValue(this->originalObjectId(), this->fieldId());
 }
 
 void ObjectTableWidgetPair::reset()
 {
-	const QString dataValue = this->tab()->metaData()->getDataValue(this->originalObjectId(), this->fieldId());
+	const QString dataValue = this->defaultValue();
 	this->valueItem()->setText(dataValue);
 	this->descriptionItem()->setForeground(Qt::black);
 	this->valueItem()->setForeground(Qt::black);
-	this->tab()->resetField(this->originalObjectId(), this->customObjectId(), this->fieldId());
+	this->tab()->objectData()->resetField(this->originalObjectId(), this->customObjectId(), this->fieldId());
 }
-
-map::CustomUnits::Modification ObjectTableWidgetPair::modification(const map::Value &value) const
-{
-	// TODO suppoert map::CustomObjects::Modification
-	map::CustomUnits::Modification modification;
-	modification.setValueId(map::stringToId(this->fieldId().toStdString()));
-	modification.value() = value;
-
-	return modification;
-}
-
 
 }
 

@@ -118,7 +118,21 @@ void TriggerWidget::newAction()
 }
 
 
-TriggerWidget::TriggerWidget(class TriggerEditor *triggerEditor) : m_triggerEditor(triggerEditor), m_trigger(0), m_functionsTreeWidget(new QTreeWidget(this)), m_textEdit(new KTextEdit(this)), m_functionDialog(0), QWidget(triggerEditor)
+TriggerWidget::TriggerWidget(TriggerEditor *triggerEditor)
+: QWidget(triggerEditor)
+, m_triggerEditor(triggerEditor)
+, m_trigger(0)
+, m_functionsTreeWidget(new QTreeWidget(this))
+, m_rootItem(0)
+, m_eventsItem(0)
+, m_conditionsItem(0)
+, m_actionsItem(0)
+, m_textEdit(new KTextEdit(this))
+, m_functionDialog(0)
+{
+}
+
+void TriggerWidget::setupUi()
 {
 	Ui::TriggerTopWidget::setupUi(this);
 	m_functionsTreeWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -130,7 +144,6 @@ TriggerWidget::TriggerWidget(class TriggerEditor *triggerEditor) : m_triggerEdit
 	functionsTreeWidget()->setSelectionBehavior(QAbstractItemView::SelectItems);
 	functionsTreeWidget()->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 	functionsTreeWidget()->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-	refreshBasicTreeItems();
 
 	connect(functionsTreeWidget(), SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(itemDoubleClicked(QTreeWidgetItem*,int)));
 
@@ -154,15 +167,10 @@ QString TriggerWidget::triggerFunctionName(map::TriggerFunction* triggerFunction
 	return triggerFunction->name().c_str();
 }
 
-void TriggerWidget::showTrigger(map::Trigger* trigger, const string &customText)
+void TriggerWidget::showTrigger(map::Trigger *trigger, const string &customText)
 {
-	if (this->trigger() != 0)
-	{
-		setTrigger(0);
-		functionsTreeWidget()->clear();
-		this->refreshBasicTreeItems();
-		functions().clear();
-	}
+	this->clear();
+	this->refreshBasicTreeItems();
 
 	m_enabledCheckBox->setChecked(trigger->isEnabled());
 	m_onAtBeginningCheckBox->setChecked(trigger->isInitiallyOn());
@@ -192,6 +200,8 @@ void TriggerWidget::showTrigger(map::Trigger* trigger, const string &customText)
 			//rootItem()->setIcon(0, );
 		}
 
+		rootItem()->setIcon(0, TriggerEditor::triggerIcon(this->triggerEditor()->source()->sharedData().get(), this, *trigger));
+
 		for (int32 i = 0; i < trigger->functions().size(); ++i)
 		{
 			map::TriggerFunction *function = &trigger->functions()[i];
@@ -203,6 +213,43 @@ void TriggerWidget::showTrigger(map::Trigger* trigger, const string &customText)
 	}
 
 	setTrigger(trigger);
+}
+
+void TriggerWidget::clearItems()
+{
+	if (this->m_eventsItem != 0)
+	{
+		delete this->m_eventsItem;
+		this->m_eventsItem = 0;
+	}
+
+	if (this->m_conditionsItem != 0)
+	{
+		delete this->m_conditionsItem;
+		this->m_conditionsItem = 0;
+	}
+
+	if (this->m_actionsItem != 0)
+	{
+		delete this->m_actionsItem;
+		this->m_actionsItem = 0;
+	}
+
+	if (this->m_rootItem != 0)
+	{
+		delete this->m_rootItem;
+		this->m_rootItem = 0;
+	}
+
+	functionsTreeWidget()->clear();
+}
+
+void TriggerWidget::clear()
+{
+	clearItems();
+	m_functions.clear();
+
+	setTrigger(0);
 }
 
 void TriggerWidget::itemDoubleClicked(QTreeWidgetItem *item, int column)
@@ -239,14 +286,18 @@ QTreeWidgetItem* TriggerWidget::addTreeItem(map::TriggerFunction* function)
 	functions().insert(item, function);
 	const map::TriggerData *triggerData = triggerEditor()->source()->sharedData()->triggerData().get();
 	const map::TriggerStrings *triggerStrings = triggerEditor()->source()->sharedData()->triggerStrings().get();
+	const QString code = function->name().c_str();
 
 	switch (function->type())
 	{
 		case map::TriggerFunction::Type::Event:
 		{
-			const QString text = TriggerEditor::triggerFunctionText(triggerData, triggerStrings, function->name().c_str(), function, triggerData->events(), triggerStrings->events(), false, false, true);
+			const QString text = TriggerEditor::triggerFunctionText(this->triggerEditor()->source()->sharedData().get(), triggerData, triggerStrings, code, function, triggerData->events(), triggerStrings->events(), false, false, true);
+			const QIcon icon = TriggerEditor::triggerFunctionCatgoryIcon(this->triggerEditor()->source(), this, code, triggerData->events());
 
 			item->setText(0, text);
+			item->setIcon(0, icon);
+
 			eventsItem()->addChild(item);
 
 			break;
@@ -254,9 +305,12 @@ QTreeWidgetItem* TriggerWidget::addTreeItem(map::TriggerFunction* function)
 
 		case map::TriggerFunction::Type::Condition:
 		{
-			const QString text = TriggerEditor::triggerFunctionText(triggerData, triggerStrings, function->name().c_str(), function, triggerData->conditions(), triggerStrings->conditions(), false, false, true);
+			const QString text = TriggerEditor::triggerFunctionText(this->triggerEditor()->source()->sharedData().get(), triggerData, triggerStrings, code, function, triggerData->conditions(), triggerStrings->conditions(), false, false, true);
+			const QIcon icon = TriggerEditor::triggerFunctionCatgoryIcon(this->triggerEditor()->source(), this, code, triggerData->conditions());
 
 			item->setText(0, text);
+			item->setIcon(0, icon);
+
 			conditionsItem()->addChild(item);
 
 			break;
@@ -264,9 +318,12 @@ QTreeWidgetItem* TriggerWidget::addTreeItem(map::TriggerFunction* function)
 
 		case map::TriggerFunction::Type::Action:
 		{
-			const QString text = TriggerEditor::triggerFunctionText(triggerData, triggerStrings, function->name().c_str(), function, triggerData->actions(), triggerStrings->actions(), false, false, true);
+			const QString text = TriggerEditor::triggerFunctionText(this->triggerEditor()->source()->sharedData().get(), triggerData, triggerStrings, code, function, triggerData->actions(), triggerStrings->actions(), false, false, true);
+			const QIcon icon = TriggerEditor::triggerFunctionCatgoryIcon(this->triggerEditor()->source(), this, code, triggerData->actions());
 
 			item->setText(0, text);
+			item->setIcon(0, icon);
+
 			actionsItem()->addChild(item);
 
 			break;
@@ -278,10 +335,38 @@ QTreeWidgetItem* TriggerWidget::addTreeItem(map::TriggerFunction* function)
 
 void TriggerWidget::refreshBasicTreeItems()
 {
+	clearItems();
+
 	m_rootItem = new QTreeWidgetItem(functionsTreeWidget());
+
 	m_eventsItem = new QTreeWidgetItem(rootItem());
+	qDebug() << "Shared data:" << this->triggerEditor()->source()->sharedData().get();
+	qDebug() << "World Edit data:" << this->triggerEditor()->source()->sharedData()->worldEditData().get();
+	const QString eventsIconFilePath = MetaData::fromFilePath(this->triggerEditor()->source()->sharedData()->worldEditData()->value("WorldEditArt", "SEIcon_Event"));
+	QString eventsIconFile;
+
+	if (this->triggerEditor()->source()->download(eventsIconFilePath, eventsIconFile, this))
+	{
+		m_eventsItem->setIcon(0, QIcon(eventsIconFile));
+	}
+
 	m_conditionsItem = new QTreeWidgetItem(rootItem());
+	const QString conditionsIconFilePath = MetaData::fromFilePath(this->triggerEditor()->source()->sharedData()->worldEditData()->value("WorldEditArt", "SEIcon_Condition"));
+	QString conditionsIconFile;
+
+	if (this->triggerEditor()->source()->download(conditionsIconFilePath, conditionsIconFile, this))
+	{
+		m_conditionsItem->setIcon(0,  QIcon(conditionsIconFile));
+	}
+
 	m_actionsItem = new QTreeWidgetItem(rootItem());
+	const QString actionsIconFilePath = MetaData::fromFilePath(this->triggerEditor()->source()->sharedData()->worldEditData()->value("WorldEditArt", "SEIcon_Action"));
+	QString actionsIconFile;
+
+	if (this->triggerEditor()->source()->download(actionsIconFilePath, actionsIconFile, this))
+	{
+		m_actionsItem->setIcon(0,  QIcon(actionsIconFile));
+	}
 
 	eventsItem()->setText(0, tr("Events"));
 	conditionsItem()->setText(0, tr("Conditions"));

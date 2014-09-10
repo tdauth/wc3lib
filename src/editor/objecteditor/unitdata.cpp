@@ -22,7 +22,7 @@
 
 #include <KMessageBox>
 
-#include "unitmetadata.hpp"
+#include "unitdata.hpp"
 #include "../metadata.hpp"
 #include "../mpqprioritylist.hpp"
 
@@ -33,8 +33,8 @@ namespace wc3lib
 namespace editor
 {
 
-UnitMetaData::UnitMetaData(MpqPriorityList *source)
-: m_source(source)
+UnitData::UnitData(MpqPriorityList *source)
+: ObjectData(source)
 , m_unitMetaData(0)
 , m_unitEditorData(0)
 , m_unitData(0)
@@ -52,61 +52,127 @@ UnitMetaData::UnitMetaData(MpqPriorityList *source)
 , m_nightElfUnitFunc(0)
 , m_neutralUnitStrings(0)
 , m_neutralUnitFunc(0)
+, m_campaignUnitStrings(0)
+, m_campaignUnitFunc(0)
 {
 
 }
 
-QString UnitMetaData::getDataValue(const QString &objectId, const QString &fieldId) const
+bool UnitData::hasDefaultFieldValue(const QString& objectId, const QString& fieldId) const
+{
+	const QString field = this->unitMetaData()->value(fieldId, "field");
+	const QString slk = this->unitMetaData()->value(fieldId, "slk");
+
+	// TODO improve performance by not calling the hasValue() methods?
+	if (slk == "UnitUI")
+	{
+		return this->unitUi()->hasValue(objectId, field);
+	}
+	else if (slk == "UnitData")
+	{
+		return this->unitData()->hasValue(objectId, field);
+	}
+	else if (slk == "UnitBalance")
+	{
+		return this->unitBalance()->hasValue(objectId, field);
+	}
+	else if (slk == "UnitWeapons")
+	{
+		return this->unitWeapons()->hasValue(objectId, field);
+	}
+	else if (slk == "UnitAbilities")
+	{
+		return this->unitAbilities()->hasValue(objectId, field);
+	}
+	/*
+	 * Profile means to use a TXT file from the corresponding race.
+	 */
+	else if (slk == "Profile")
+	{
+		// TODO in Frozen Throne we can check if unit is in campaign but in Reign of Chaos there is no such field.
+		if (this->campaignUnitStrings()->hasValue(objectId, field)
+		 || this->campaignUnitFunc()->hasValue(objectId, field))
+		{
+			return true;
+		}
+		else if (this->unitData()->hasValue(objectId, "race"))
+		{
+			const QString race = this->unitData()->value(objectId, "race");
+
+			if (race == "human")
+			{
+				return this->humanUnitStrings()->hasValue(objectId, field)
+					|| this->humanUnitFunc()->hasValue(objectId, field);
+			}
+			else if (race == "orc")
+			{
+				return this->orcUnitStrings()->hasValue(objectId, field)
+					|| this->orcUnitFunc()->hasValue(objectId, field);
+			}
+			else if (race == "nightelf")
+			{
+				return this->nightElfUnitStrings()->hasValue(objectId, field)
+					|| this->nightElfUnitFunc()->hasValue(objectId, field);
+			}
+			else if (race == "undead")
+			{
+				return this->undeadUnitStrings()->hasValue(objectId, field)
+					|| this->undeadUnitFunc()->hasValue(objectId, field);
+			}
+			else
+			{
+				return this->neutralUnitStrings()->hasValue(objectId, field)
+					|| this->neutralUnitFunc()->hasValue(objectId, field);
+			}
+		}
+	}
+
+	return false;
+}
+
+QString UnitData::defaultFieldValue(const QString &objectId, const QString &fieldId) const
 {
 	try
 	{
-		const QString slkFieldId = MetaData::toSlkString(fieldId);
-		const QString slkObjectId = MetaData::toSlkString(objectId);
-		const QString txtObjectId = objectId;
-		const QString slkField = this->unitMetaData()->value(slkFieldId, "\"field\"");
-		const QString txtField = MetaData::fromSlkString(slkField);
-		const QString slk = MetaData::fromSlkString(this->unitMetaData()->value(slkFieldId, "\"slk\""));
+		const QString field = this->unitMetaData()->value(fieldId, "field");
+		const QString slk = this->unitMetaData()->value(fieldId, "slk");
 
-		qDebug() << "SLK Object ID" << slkObjectId;
-		qDebug() << "TXT Object ID" << txtObjectId;
-		qDebug() << "SLK Field" << slkField;
-		qDebug() << "TXT Field" << txtField;
-		qDebug() << "SLK" << slk;
+		qDebug() << "SLK:" << slk;
 
 		// TODO improve performance by not calling the hasValue() methods?
 		if (slk == "UnitUI")
 		{
-			if (this->unitUi()->hasValue(slkObjectId, slkField))
+			if (this->unitUi()->hasValue(objectId, fieldId))
 			{
-				return MetaData::fromSlkString(this->unitUi()->value(slkObjectId, slkField));
+				return this->unitUi()->value(objectId, fieldId);
 			}
 		}
 		else if (slk == "UnitData")
 		{
-			if (this->unitData()->hasValue(slkObjectId, slkField))
+			if (this->unitData()->hasValue(objectId, fieldId))
 			{
-				return MetaData::fromSlkString(this->unitData()->value(slkObjectId, slkField));
+				return this->unitData()->value(objectId, fieldId);
 			}
 		}
 		else if (slk == "UnitBalance")
 		{
-			if (this->unitBalance()->hasValue(slkObjectId, slkField))
+			if (this->unitBalance()->hasValue(objectId, fieldId))
 			{
-				return MetaData::fromSlkString(this->unitBalance()->value(slkObjectId, slkField));
+				return this->unitBalance()->value(objectId, fieldId);
 			}
 		}
 		else if (slk == "UnitWeapons")
 		{
-			if (this->unitWeapons()->hasValue(slkObjectId, slkField))
+			if (this->unitWeapons()->hasValue(objectId, fieldId))
 			{
-				return MetaData::fromSlkString(this->unitWeapons()->value(slkObjectId, slkField));
+				return this->unitWeapons()->value(objectId, fieldId);
 			}
 		}
 		else if (slk == "UnitAbilities")
 		{
-			if (this->unitAbilities()->hasValue(slkObjectId, slkField))
+			if (this->unitAbilities()->hasValue(objectId, fieldId))
 			{
-				return MetaData::fromSlkString(this->unitAbilities()->value(slkObjectId, slkField));
+				return this->unitAbilities()->value(objectId, fieldId);
 			}
 		}
 		/*
@@ -114,69 +180,77 @@ QString UnitMetaData::getDataValue(const QString &objectId, const QString &field
 		 */
 		else if (slk == "Profile")
 		{
-			if (this->unitData()->hasValue(slkObjectId, "\"race\""))
+			// TODO in Frozen Throne we can check if unit is in campaign but in Reign of Chaos there is no such field.
+			if (this->campaignUnitStrings()->hasValue(objectId, field))
 			{
-				QString race = this->unitData()->value(slkObjectId, "\"race\"");
-				race = race.mid(1, race.size() - 2);
+				return this->campaignUnitStrings()->value(objectId, field);
+			}
+			else if (this->campaignUnitFunc()->hasValue(objectId, field))
+			{
+				return this->campaignUnitFunc()->value(objectId, field);
+			}
+			else if (this->unitData()->hasValue(objectId, "race"))
+			{
+				const QString race = this->unitData()->value(objectId, "race");
 
 				if (race == "human")
 				{
-					if (this->humanUnitStrings()->hasValue(txtObjectId, txtField))
+					if (this->humanUnitStrings()->hasValue(objectId, field))
 					{
-						return this->humanUnitStrings()->value(txtObjectId, txtField);
+						return this->humanUnitStrings()->value(objectId, field);
 					}
 
-					if (this->humanUnitFunc()->hasValue(txtObjectId, txtField))
+					if (this->humanUnitFunc()->hasValue(objectId, field))
 					{
-						return this->humanUnitFunc()->value(txtObjectId, txtField);
+						return this->humanUnitFunc()->value(objectId, field);
 					}
 				}
 				else if (race == "orc")
 				{
-					if (this->orcUnitStrings()->hasValue(txtObjectId, txtField))
+					if (this->orcUnitStrings()->hasValue(objectId, field))
 					{
-						return this->orcUnitStrings()->value(txtObjectId, txtField);
+						return this->orcUnitStrings()->value(objectId, field);
 					}
 
-					if (this->orcUnitFunc()->hasValue(txtObjectId, txtField))
+					if (this->orcUnitFunc()->hasValue(objectId, field))
 					{
-						return this->orcUnitFunc()->value(txtObjectId, txtField);
+						return this->orcUnitFunc()->value(objectId, field);
 					}
 				}
 				else if (race == "nightelf")
 				{
-					if (this->nightElfUnitStrings()->hasValue(txtObjectId, txtField))
+					if (this->nightElfUnitStrings()->hasValue(objectId, field))
 					{
-						return this->nightElfUnitStrings()->value(txtObjectId, txtField);
+						return this->nightElfUnitStrings()->value(objectId, field);
 					}
 
-					if (this->nightElfUnitFunc()->hasValue(txtObjectId, txtField))
+					if (this->nightElfUnitFunc()->hasValue(objectId, field))
 					{
-						return this->nightElfUnitFunc()->value(txtObjectId, txtField);
+						return this->nightElfUnitFunc()->value(objectId, field);
 					}
 				}
 				else if (race == "undead")
 				{
-					if (this->undeadUnitStrings()->hasValue(txtObjectId, txtField))
+					if (this->undeadUnitStrings()->hasValue(objectId, field))
 					{
-						return this->undeadUnitStrings()->value(txtObjectId, txtField);
+						return this->undeadUnitStrings()->value(objectId, field);
 					}
 
-					if (this->undeadUnitFunc()->hasValue(txtObjectId, txtField))
+					if (this->undeadUnitFunc()->hasValue(objectId, field))
 					{
-						return this->undeadUnitFunc()->value(txtObjectId, txtField);
+						return this->undeadUnitFunc()->value(objectId, field);
 					}
 				}
 				else
 				{
-					if (this->neutralUnitStrings()->hasValue(txtObjectId, txtField))
+					if (this->neutralUnitStrings()->hasValue(objectId, field))
 					{
-						return this->neutralUnitStrings()->value(txtObjectId, txtField);
+						return this->neutralUnitStrings()->value(objectId, field);
 					}
 
-					if (this->neutralUnitFunc()->hasValue(txtObjectId, txtField))
+					if (this->neutralUnitFunc()->hasValue(objectId, field))
 					{
-						return this->neutralUnitFunc()->value(txtObjectId, txtField);
+						return this->neutralUnitFunc()->value(objectId, field);
 					}
 				}
 			}
@@ -194,7 +268,17 @@ QString UnitMetaData::getDataValue(const QString &objectId, const QString &field
 	return "";
 }
 
-void UnitMetaData::load(QWidget *widget)
+bool UnitData::hasCustomUnits() const
+{
+	return true;
+}
+
+bool UnitData::hasCustomObjects() const
+{
+	return true;
+}
+
+void UnitData::load(QWidget *widget)
 {
 	this->m_unitMetaData = new MetaData(KUrl("Units/UnitMetaData.slk"));
 	this->m_unitMetaData->setSource(this->source());
@@ -399,6 +483,54 @@ void UnitMetaData::load(QWidget *widget)
 	{
 		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_neutralUnitFunc->url().toEncoded().constData(), e.what()));
 	}
+
+	this->m_campaignUnitStrings = new MetaData(KUrl("Units/CampaignUnitStrings.txt"));
+	this->m_campaignUnitStrings->setSource(this->source());
+
+	try
+	{
+		this->m_campaignUnitStrings->load();
+	}
+	catch (Exception &e)
+	{
+		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_campaignUnitStrings->url().toEncoded().constData(), e.what()));
+	}
+
+	this->m_campaignUnitFunc = new MetaData(KUrl("Units/CampaignUnitFunc.txt"));
+	this->m_campaignUnitFunc->setSource(this->source());
+
+	try
+	{
+		this->m_campaignUnitFunc->load();
+	}
+	catch (Exception &e)
+	{
+		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_campaignUnitFunc->url().toEncoded().constData(), e.what()));
+	}
+}
+
+
+bool UnitData::objectIsBuilding(const QString &originalObjectId, const QString &customObjectId) const
+{
+	const QString levelVar = MetaData::fromSlkString(this->defaultFieldValue(originalObjectId, "ulev"));
+	bool ok = false;
+	levelVar.toInt(&ok);
+
+	return !ok || (((ObjectData*)this)->fieldValue(originalObjectId, customObjectId, "udbg") == "1"); // buildings have no levels, in Frozen Throne there is
+}
+
+bool UnitData::objectIsHero(const QString &originalObjectId, const QString &customObjectId) const
+{
+	const QString strengthVar = MetaData::fromSlkString(this->defaultFieldValue(originalObjectId, "ustr"));
+	bool ok = false;
+	strengthVar.toInt(&ok);
+
+	return ok;
+}
+
+bool UnitData::objectIsUnit(const QString &originalObjectId, const QString &customObjectId) const
+{
+	return unitData()->hasValue(MetaData::toSlkString(originalObjectId), MetaData::toSlkString("unitID")) && !objectIsHero(originalObjectId, customObjectId) && !objectIsBuilding(originalObjectId, customObjectId);
 }
 
 }

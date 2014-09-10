@@ -22,6 +22,10 @@
 #define WC3LIB_EDITOR_UNITSELECTIONDIALOG_HPP
 
 #include <QDialog>
+#include <QHash>
+#include <QString>
+
+#include <KPushButton>
 
 #include "ui_unitselectiondialog.h"
 
@@ -31,29 +35,63 @@ namespace wc3lib
 namespace editor
 {
 
-class UnitMetaData;
+class MpqPriorityList;
+class UnitData;
 
 /**
- * \brief An icon listing dialog which allows the user to select a standard or a custom unit.
+ * \brief An icon listing dialog which allows the user to select a standard unit.
  *
  * The units are ordered by their race.
  */
 class UnitSelectionDialog : public QDialog, protected Ui::UnitSelectionDialog
 {
+	Q_OBJECT
+
 	public:
-		explicit UnitSelectionDialog(UnitMetaData *unitMetaData, QWidget* parent = 0, Qt::WindowFlags f = 0);
+		typedef QHash<KPushButton*, QString> Buttons;
 
-		void select(QString rawDataId);
+		explicit UnitSelectionDialog(MpqPriorityList *source, UnitData *unitData, QWidget* parent = 0, Qt::WindowFlags f = 0);
 
-		UnitMetaData* metaData() const;
+		void select(const QString &objectId);
+
+		MpqPriorityList* source() const;
+		UnitData* unitData() const;
+
+		QString unitName() const;
+		const QString& originalObjectId() const;
+
+		void clear();
 
 	private:
-		UnitMetaData *m_metaData;
+		KPushButton* createButton(const QString &objectId);
+
+		MpqPriorityList *m_source;
+		UnitData *m_unitData;
+		QString m_originalObjectId;
+		Buttons m_buttons;
+
+	private slots:
+		void selectButton();
 };
 
-inline UnitMetaData* UnitSelectionDialog::metaData() const
+inline MpqPriorityList* UnitSelectionDialog::source() const
 {
-	return this->m_metaData;
+	return this->m_source;
+}
+
+inline UnitData* UnitSelectionDialog::unitData() const
+{
+	return this->m_unitData;
+}
+
+inline QString UnitSelectionDialog::unitName() const
+{
+	return this->m_nameLineEdit->text();
+}
+
+inline const QString& UnitSelectionDialog::originalObjectId() const
+{
+	return this->m_originalObjectId;
 }
 
 }

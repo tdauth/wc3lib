@@ -23,6 +23,8 @@
 
 #include <QDialog>
 #include <QDoubleSpinBox>
+#include <QCheckBox>
+#include <QHash>
 
 #include <KIntSpinBox>
 #include <KLineEdit>
@@ -38,9 +40,17 @@ namespace wc3lib
 namespace editor
 {
 
+/**
+ * \brief GUI dialog which allows selection of an field value for a specific object.
+ *
+ * The shown input widget depends on the type of the corresponding field.
+ * The dialog supports numeric types as well as text, check boxes or combo boxes.
+ */
 class ObjectValueDialog : public QDialog, protected Ui::ObjectValueDialog
 {
 	public:
+		typedef QHash<QString, QCheckBox*> CheckBoxes;
+
 		ObjectValueDialog(QWidget *parent = 0);
 
 		void setLabelText(const QString &text);
@@ -54,6 +64,15 @@ class ObjectValueDialog : public QDialog, protected Ui::ObjectValueDialog
 		KComboBox* comboBox() const;
 		QCheckBox* checkBox() const;
 		KEditListWidget* editListWidget() const;
+
+		void addCheckBox(const QString &name, const QString &value);
+		void setCheckBoxChecked(const QString &name, bool checked);
+		void clearCheckBoxes();
+		QString checkedTexts() const;
+		QString checkedValues() const;
+
+	private:
+		CheckBoxes m_checkBoxes;
 };
 
 inline void ObjectValueDialog::setLabelText(const QString& text)
@@ -95,6 +114,74 @@ inline KEditListWidget* ObjectValueDialog::editListWidget() const
 {
 	return this->m_editListWidget;
 }
+
+inline void ObjectValueDialog::addCheckBox(const QString& name, const QString& value)
+{
+	QCheckBox *checkBox = new QCheckBox(value, this);
+	this->verticalLayout->addWidget(checkBox);
+	this->m_checkBoxes.insert(name, checkBox);
+}
+
+inline void ObjectValueDialog::setCheckBoxChecked(const QString& name, bool checked)
+{
+	CheckBoxes::iterator iterator = this->m_checkBoxes.find(name);
+
+	if (iterator != this->m_checkBoxes.end())
+	{
+		iterator.value()->setChecked(checked);
+	}
+}
+
+inline void ObjectValueDialog::clearCheckBoxes()
+{
+	for (CheckBoxes::iterator iterator = this->m_checkBoxes.begin(); iterator != this->m_checkBoxes.end(); ++iterator)
+	{
+		delete iterator.value();
+	}
+
+	this->m_checkBoxes.clear();
+}
+
+inline QString ObjectValueDialog::checkedTexts() const
+{
+	QString result;
+
+	for (CheckBoxes::const_iterator iterator = this->m_checkBoxes.begin(); iterator != this->m_checkBoxes.end(); ++iterator)
+	{
+		if (iterator.value()->isChecked())
+		{
+			if (!result.isEmpty())
+			{
+				result += ",";
+			}
+
+			result += iterator.value()->text();
+		}
+	}
+
+	return result;
+}
+
+inline QString ObjectValueDialog::checkedValues() const
+{
+	QString result;
+
+	for (CheckBoxes::const_iterator iterator = this->m_checkBoxes.begin(); iterator != this->m_checkBoxes.end(); ++iterator)
+	{
+		if (iterator.value()->isChecked())
+		{
+			if (!result.isEmpty())
+			{
+				result += ",";
+			}
+
+			result += iterator.key();
+		}
+	}
+
+	return result;
+}
+
 
 }
 

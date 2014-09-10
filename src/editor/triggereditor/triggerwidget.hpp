@@ -61,6 +61,8 @@ class TriggerWidget : public QWidget, protected Ui::TriggerTopWidget
 
 		TriggerWidget(class TriggerEditor *triggerEditor);
 
+		void setupUi();
+
 		TriggerEditor* triggerEditor() const;
 		map::Trigger* trigger() const;
 		/**
@@ -93,6 +95,7 @@ class TriggerWidget : public QWidget, protected Ui::TriggerTopWidget
 
 		QString triggerFunctionName(map::TriggerFunction *triggerFunction) const;
 		void showTrigger(map::Trigger *trigger, const string &customText);
+		void clear();
 
 	protected slots:
 		void itemDoubleClicked(QTreeWidgetItem *item, int column);
@@ -100,6 +103,8 @@ class TriggerWidget : public QWidget, protected Ui::TriggerTopWidget
 	protected:
 		void setTrigger(map::Trigger *trigger);
 		Functions& functions();
+
+		void clearItems();
 
 	private:
 		QTreeWidgetItem* addTreeItem(map::TriggerFunction *function);
@@ -115,7 +120,7 @@ class TriggerWidget : public QWidget, protected Ui::TriggerTopWidget
 		Functions m_functions;
 		KTextEdit *m_textEdit;
 
-		class TriggerFunctionDialog *m_functionDialog;
+		TriggerFunctionDialog *m_functionDialog;
 };
 
 inline TriggerEditor* TriggerWidget::triggerEditor() const

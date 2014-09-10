@@ -30,7 +30,7 @@ namespace wc3lib
 namespace editor
 {
 
-VariableDialog::VariableDialog(TriggerEditor *triggerEditor, QWidget *parent, Qt::WindowFlags f): QDialog(parent, f), m_triggerEditor(triggerEditor)
+VariableDialog::VariableDialog(TriggerEditor *triggerEditor, QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), m_triggerEditor(triggerEditor)
 {
 	setupUi(this);
 
@@ -73,7 +73,8 @@ void VariableDialog::showVariable(map::Variable *variable)
 		const map::TriggerData::Type *type = ref->second;
 
 		if (type->canBeGlobal()) {
-			m_typeComboBox->addItem(type->displayText().c_str(), type->name().c_str());
+			const QString typeName = this->m_triggerEditor->source()->sharedData()->tr(type->displayText().c_str());
+			m_typeComboBox->addItem(typeName, type->name().c_str());
 		}
 	}
 
@@ -90,7 +91,8 @@ void VariableDialog::showVariable(map::Variable *variable)
 	m_arraySizeLabel->setEnabled(variable->isArray());
 	m_arraySizeSpinBox->setEnabled(variable->isArray());
 	m_arraySizeSpinBox->setValue(boost::numeric_cast<int>(variable->number()));
-	m_startValue->setText(variable->initialValue().c_str());
+	m_startValue->setText(TriggerEditor::variableInitialValueText(m_triggerEditor->source()->sharedData().get(), *variable));
+	m_deleteValuePushButton->setEnabled(!variable->initialValue().empty());
 }
 
 void VariableDialog::apply(map::Variable* variable)

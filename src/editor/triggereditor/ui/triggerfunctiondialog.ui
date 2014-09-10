@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>940</width>
-    <height>633</height>
+    <width>996</width>
+    <height>477</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -26,29 +26,10 @@
    <locale language="C" country="AnyCountry"/>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout_7">
+   <item row="4" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_6">
      <item>
-      <widget class="QRadioButton" name="m_radioButtonPreset">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Preset:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_5">
+      <spacer name="horizontalSpacer_4">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -57,82 +38,68 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
+         <width>145</width>
          <height>20</height>
         </size>
        </property>
       </spacer>
      </item>
      <item>
-      <widget class="KComboBox" name="m_presetComboBox"/>
-     </item>
-    </layout>
-   </item>
-   <item row="1" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout_4">
-     <item>
-      <widget class="QRadioButton" name="m_radioButtonVariable">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Variable:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="KComboBox" name="m_variablesComboBox"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="m_variablesSelectPushButton">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>select one</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="m_variablesPushButton">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Edit Variables</string>
-       </property>
-      </widget>
+      <layout class="QVBoxLayout" name="m_descriptionLayout">
+       <item>
+        <widget class="QLabel" name="m_descriptionTitleLabel">
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="m_descriptionFrame">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::Box</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Plain</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="1" column="0">
+           <widget class="QLabel" name="m_descriptionLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
+            </property>
+            <property name="lineWidth">
+             <number>1</number>
+            </property>
+            <property name="text">
+             <string>Description</string>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::RichText</enum>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
@@ -204,7 +171,7 @@
          <item>
           <widget class="KComboBox" name="m_categoryComboBox">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -236,16 +203,42 @@
         </layout>
        </item>
        <item>
-        <widget class="KComboBox" name="m_functionComboBox"/>
+        <widget class="KComboBox" name="m_functionComboBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
     </layout>
    </item>
-   <item row="3" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout_6">
+   <item row="0" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_7">
      <item>
-      <spacer name="horizontalSpacer_4">
+      <widget class="QRadioButton" name="m_radioButtonPreset">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Preset:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_5">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -254,65 +247,100 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>145</width>
+         <width>40</width>
          <height>20</height>
         </size>
        </property>
       </spacer>
      </item>
      <item>
-      <widget class="QGroupBox" name="m_textGroupBox">
+      <widget class="KComboBox" name="m_presetComboBox">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QRadioButton" name="m_radioButtonVariable">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
        <property name="minimumSize">
         <size>
-         <width>0</width>
-         <height>200</height>
+         <width>100</width>
+         <height>0</height>
         </size>
        </property>
-       <property name="title">
-        <string/>
+       <property name="text">
+        <string>Variable:</string>
        </property>
-       <property name="flat">
-        <bool>false</bool>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
-       <property name="checkable">
-        <bool>false</bool>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
        </property>
-       <widget class="QLabel" name="m_descriptionLabel">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>10</y>
-          <width>521</width>
-          <height>101</height>
-         </rect>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Description</string>
-        </property>
-        <property name="textFormat">
-         <enum>Qt::RichText</enum>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="KComboBox" name="m_variablesComboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="m_variablesSelectPushButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>select one</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="m_variablesPushButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Edit Variables</string>
+       </property>
       </widget>
      </item>
     </layout>
    </item>
-   <item row="4" column="0">
+   <item row="5" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_8">
      <item>
       <widget class="QRadioButton" name="m_radioButtonImported">
@@ -350,11 +378,18 @@
       </spacer>
      </item>
      <item>
-      <widget class="KComboBox" name="m_importedComboBox"/>
+      <widget class="KComboBox" name="m_importedComboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
-   <item row="5" column="0">
+   <item row="6" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_9">
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -525,7 +560,7 @@
      </item>
     </layout>
    </item>
-   <item row="6" column="0">
+   <item row="7" column="0">
     <widget class="KDialogButtonBox" name="m_dialogButtonBox">
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
@@ -562,15 +597,14 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>m_radioButtonPreset</tabstop>
-  <tabstop>m_presetComboBox</tabstop>
-  <tabstop>m_radioButtonVariable</tabstop>
-  <tabstop>m_variablesComboBox</tabstop>
+  <tabstop>m_dialogButtonBox</tabstop>
+  <tabstop>m_categoryComboBox</tabstop>
+  <tabstop>m_functionComboBox</tabstop>
   <tabstop>m_variablesSelectPushButton</tabstop>
   <tabstop>m_variablesPushButton</tabstop>
   <tabstop>m_radioButtonFunction</tabstop>
-  <tabstop>m_categoryComboBox</tabstop>
-  <tabstop>m_functionComboBox</tabstop>
+  <tabstop>m_presetComboBox</tabstop>
+  <tabstop>m_variablesComboBox</tabstop>
   <tabstop>m_radioButtonImported</tabstop>
   <tabstop>m_importedComboBox</tabstop>
   <tabstop>m_radioButtonValue</tabstop>
@@ -578,7 +612,11 @@
   <tabstop>m_numInputDouble</tabstop>
   <tabstop>m_numInput</tabstop>
   <tabstop>m_valuePushButton</tabstop>
-  <tabstop>m_dialogButtonBox</tabstop>
+  <tabstop>m_radioButtonFalse</tabstop>
+  <tabstop>m_lineEdit</tabstop>
+  <tabstop>m_radioButtonTrue</tabstop>
+  <tabstop>m_radioButtonPreset</tabstop>
+  <tabstop>m_radioButtonVariable</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -653,12 +691,12 @@
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>45</x>
-     <y>351</y>
+     <x>50</x>
+     <y>212</y>
     </hint>
     <hint type="destinationlabel">
-     <x>167</x>
-     <y>354</y>
+     <x>320</x>
+     <y>213</y>
     </hint>
    </hints>
   </connection>
@@ -669,8 +707,8 @@
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>49</x>
-     <y>384</y>
+     <x>55</x>
+     <y>241</y>
     </hint>
     <hint type="destinationlabel">
      <x>207</x>
@@ -685,12 +723,12 @@
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>81</x>
-     <y>382</y>
+     <x>87</x>
+     <y>241</y>
     </hint>
     <hint type="destinationlabel">
-     <x>437</x>
-     <y>391</y>
+     <x>759</x>
+     <y>258</y>
     </hint>
    </hints>
   </connection>
@@ -701,12 +739,12 @@
    <slot>setEditFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>70</x>
-     <y>381</y>
+     <x>76</x>
+     <y>241</y>
     </hint>
     <hint type="destinationlabel">
-     <x>524</x>
-     <y>385</y>
+     <x>875</x>
+     <y>258</y>
     </hint>
    </hints>
   </connection>

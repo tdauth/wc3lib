@@ -27,7 +27,7 @@
 #include "../../core.hpp"
 #include "../../map.hpp"
 #include "../platform.hpp"
-#include "objectmetadata.hpp"
+#include "objectdata.hpp"
 #include "objecteditortab.hpp"
 
 namespace wc3lib
@@ -61,9 +61,7 @@ class ObjectTableWidgetPair : public QObject
 		/**
 		 * Generates a value object with the correct type and data of the field.
 		 */
-		map::Value defaultValue() const;
-
-		map::CustomUnits::Modification modification(const map::Value &value) const;
+		QString defaultValue() const;
 
 		void activateObject(const QString &originalObjectId, const QString &customObjectId);
 		QString originalObjectId() const;
@@ -77,8 +75,6 @@ class ObjectTableWidgetPair : public QObject
 		bool isModified() const;
 
 	protected:
-		map::Value value(const QString &text) const;
-
 		ObjectEditorTab *m_tab;
 		QString m_originalObjectId;
 		QString m_customObjectId;
@@ -142,7 +138,7 @@ inline QTableWidgetItem* ObjectTableWidgetPair::valueItem() const
 
 inline bool ObjectTableWidgetPair::isModified() const
 {
-	return this->tab()->isFieldModified(this->originalObjectId(), this->customObjectId(), this->fieldId());
+	return this->tab()->objectData()->isFieldModified(this->originalObjectId(), this->customObjectId(), this->fieldId());
 }
 
 }

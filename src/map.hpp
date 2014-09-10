@@ -49,7 +49,6 @@ namespace wc3lib
 #include "map/itemset.hpp"
 #include "map/mapstrings.hpp"
 #include "map/menuminimap.hpp"
-#include "map/object.hpp"
 #include "map/pathmap.hpp"
 #include "map/platform.hpp"
 #include "map/playable.hpp"

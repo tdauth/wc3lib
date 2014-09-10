@@ -490,6 +490,7 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps) thr
 	/*
 	 * Allocate all MIP maps.
 	 */
+	std::cerr << "Reading " << mipMapsCount << " MIP maps." << std::endl;
 	this->mipMaps().resize(mipMapsCount, 0);
 
 	for (std::size_t i = 0; i < mipMapsCount; ++i)

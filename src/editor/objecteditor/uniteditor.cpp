@@ -24,9 +24,12 @@
 #include <KFileDialog>
 
 #include "uniteditor.hpp"
-#include "objecttreewidget.hpp"
+#include "objecttreeview.hpp"
+#include "objecttreeitem.hpp"
 #include "objecttablewidget.hpp"
 #include "objecttablewidgetpair.hpp"
+#include "unittreemodel.hpp"
+#include "unitselectiondialog.hpp"
 #include "../metadata.hpp"
 #include "../map.hpp"
 
@@ -36,8 +39,13 @@ namespace wc3lib
 namespace editor
 {
 
-UnitEditor::UnitEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, new UnitMetaData(source), parent, f)
+UnitEditor::UnitEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, new UnitData(source), parent, f)
 , m_humanItem(0)
+, m_humanUnitsItem(0)
+, m_humanBuildingsItem(0)
+, m_humanHeroesItem(0)
+, m_humanSpecialItem(0)
+, m_humanCampaignItem(0)
 , m_orcItem(0)
 , m_undeadItem(0)
 , m_nightElfItem(0)
@@ -51,6 +59,7 @@ UnitEditor::UnitEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags
 , m_customNeutralNagaItem(0)
 , m_customNeutralHostileItem(0)
 , m_customNeutralPassiveItem(0)
+, m_unitSelectionDialog(new UnitSelectionDialog(source, unitData(), this))
 {
 	setupUi();
 }
@@ -59,222 +68,184 @@ UnitEditor::~UnitEditor()
 {
 }
 
-void UnitEditor::addItemAsChild(const QString &originalObjectId, const QString &customObjectId, QTreeWidgetItem *item)
+ObjectTreeModel* UnitEditor::createTreeModel()
 {
-	const QString race = MetaData::fromSlkString(this->unitMetaData()->unitData()->value(MetaData::toSlkString(originalObjectId), "\"race\""));
-	qDebug() << "Race:" << race;
+	UnitTreeModel *model = new UnitTreeModel(this);
 
-	if (customObjectId.isEmpty())
-	{
-		if (race == "human")
-		{
-			m_humanItem->addChild(item);
-		}
-		else if (race == "orc")
-		{
-			m_orcItem->addChild(item);
-		}
-		else if (race == "nightelf")
-		{
-			m_nightElfItem->addChild(item);
-		}
-		else if (race == "undead")
-		{
-			m_undeadItem->addChild(item);
-		}
-		else if (race == "creeps")
-		{
-			m_neutralHostileItem->addChild(item);
-		}
-		else if (race == "other")
-		{
-			m_neutralPassiveItem->addChild(item);
-		}
-		else if (race == "demon")
-		{
-			m_neutralHostileItem->addChild(item);
-		}
-		else if (race == "naga")
-		{
-			m_neutralNagaItem->addChild(item);
-		}
-		else if (race == "critters")
-		{
-			m_neutralPassiveItem->addChild(item);
-		}
-		else if (race == "commoner")
-		{
-			m_neutralPassiveItem->addChild(item);
-		}
-		else
-		{
-			m_standardObjectsItem->addChild(item);
-		}
-	}
-	else
-	{
-		if (race == "human")
-		{
-			if (m_customHumanItem == 0)
-			{
-				m_customHumanItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_RACE_HUMAN")), 0);
-				m_customObjectsItem->addChild(m_customHumanItem);
-			}
+	const QString iconFilePath = MetaData::fromFilePath(this->source()->sharedData()->worldEditData()->value("WorldEditArt", "UEIcon_UnitCategory"));
+	QString iconFile;
+	bool iconSuccess = this->source()->download(KUrl(iconFilePath), iconFile, this);
 
-			m_customHumanItem->addChild(item);
-		}
-		else if (race == "orc")
-		{
-			if (m_customOrcItem == 0)
-			{
-				m_customOrcItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_RACE_ORC")), 0);
-				m_customObjectsItem->addChild(m_customOrcItem);
-			}
+	return model;
 
-			m_customOrcItem->addChild(item);
-		}
-		else if (race == "nightelf")
-		{
-			if (m_customNightElfItem == 0)
-			{
-				m_customNightElfItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_RACE_NIGHTELF")), 0);
-				m_customObjectsItem->addChild(m_customNightElfItem);
-			}
+	//treeView->setHeaderLabel(source()->sharedData()->tr("WESTRING_OBJTAB_UNITS"));
+	//m_standardObjectsItem->setText(0, source()->sharedData()->tr("WESTRING_UE_STANDARDUNITS"));
 
-			m_customNightElfItem->addChild(item);
-		}
-		else if (race == "undead")
-		{
-			if (m_customUndeadItem == 0)
-			{
-				m_customUndeadItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_RACE_UNDEAD")), 0);
-				m_customObjectsItem->addChild(m_customUndeadItem);
-			}
-
-			m_customUndeadItem->addChild(item);
-		}
-		else if (race == "creeps" || race == "demon")
-		{
-			if (m_customNeutralHostileItem == 0)
-			{
-				m_customNeutralHostileItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_NEUTRAL_HOSTILE")), 0);
-				m_customObjectsItem->addChild(m_customNeutralHostileItem);
-			}
-
-			m_customNeutralHostileItem->addChild(item);
-		}
-		else if (race == "other" || race == "critters" || race == "commoner")
-		{
-			if (m_customNeutralPassiveItem == 0)
-			{
-				m_customNeutralPassiveItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_NEUTRAL_PASSIVE")), 0);
-				m_customObjectsItem->addChild(m_customNeutralPassiveItem);
-			}
-
-			m_customNeutralPassiveItem->addChild(item);
-		}
-		else if (race == "naga")
-		{
-			if (m_customNeutralNagaItem == 0)
-			{
-				m_customNeutralNagaItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_NEUTRAL_NAGA")), 0);
-				m_customObjectsItem->addChild(m_customNeutralNagaItem);
-			}
-
-			m_customNeutralNagaItem->addChild(item);
-		}
-		else
-		{
-			m_customObjectsItem->addChild(item);
-		}
-	}
-}
-
-void UnitEditor::setupTreeWidget(ObjectTreeWidget *treeWidget)
-{
-	treeWidget->setHeaderLabel(source()->sharedData()->tr("WESTRING_OBJTAB_UNITS"));
-	m_standardObjectsItem->setText(0, source()->sharedData()->tr("WESTRING_UE_STANDARDUNITS"));
-	m_customObjectsItem->setText(0, source()->sharedData()->tr("WESTRING_UE_CUSTOMUNITS"));
-
-	// Races
-	m_humanItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_RACE_HUMAN")), 0);
-	m_orcItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_RACE_ORC")), 0);
-	m_undeadItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_RACE_UNDEAD")), 0);
-	m_nightElfItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_RACE_NIGHTELF")), 0);
-	m_neutralNagaItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_RACE_NEUTRAL_NAGA")), 0);
-	m_neutralHostileItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_NEUTRAL_HOSTILE")), 0);
-	m_neutralPassiveItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_NEUTRAL_PASSIVE")), 0);
-
-	m_standardObjectsItem->addChild(m_humanItem);
-	m_standardObjectsItem->addChild(m_orcItem);
-	m_standardObjectsItem->addChild(m_undeadItem);
-	m_standardObjectsItem->addChild(m_nightElfItem);
-	m_standardObjectsItem->addChild(m_neutralNagaItem);
-	m_standardObjectsItem->addChild(m_neutralHostileItem);
-	m_standardObjectsItem->addChild(m_neutralPassiveItem);
+// 	if (iconSuccess)
+// 	{
+// 		m_standardObjectsItem->setIcon(0, QIcon(iconFile));
+// 	}
+//
+// 	//m_customObjectsItem->setText(0, source()->sharedData()->tr("WESTRING_UE_CUSTOMUNITS"));
+//
+// 	if (iconSuccess)
+// 	{
+// 		m_customObjectsItem->setIcon(0, QIcon(iconFile));
+// 	}
+//
+// 	// Races
+// 	m_humanItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_RACE_HUMAN")), 0);
+// 	m_humanUnitsItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_UNITS")), 0);
+// 	m_humanBuildingsItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_UTYPE_BUILDING")), 0);
+// 	m_humanHeroesItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_UTYPE_HEROES")), 0);
+// 	m_humanSpecialItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_UTYPE_SPECIAL")), 0);
+// 	m_humanCampaignItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_CAMPAIGN")), 0);
+// 	m_orcItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_RACE_ORC")), 0);
+// 	m_undeadItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_RACE_UNDEAD")), 0);
+// 	m_nightElfItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_RACE_NIGHTELF")), 0);
+// 	m_neutralNagaItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_RACE_NEUTRAL_NAGA")), 0);
+// 	m_neutralHostileItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_NEUTRAL_HOSTILE")), 0);
+// 	m_neutralPassiveItem = new QTreeWidgetItem(QStringList(source()->sharedData()->tr("WESTRING_NEUTRAL_PASSIVE")), 0);
+//
+// 	m_standardObjectsItem->addChild(m_humanItem);
+// 	m_humanItem->addChild(m_humanUnitsItem);
+// 	m_humanItem->addChild(m_humanBuildingsItem);
+// 	m_humanItem->addChild(m_humanHeroesItem);
+// 	m_humanItem->addChild(m_humanSpecialItem);
+// 	m_humanItem->addChild(m_humanCampaignItem);
+// 	m_standardObjectsItem->addChild(m_orcItem);
+// 	m_standardObjectsItem->addChild(m_undeadItem);
+// 	m_standardObjectsItem->addChild(m_nightElfItem);
+// 	m_standardObjectsItem->addChild(m_neutralNagaItem);
+// 	m_standardObjectsItem->addChild(m_neutralHostileItem);
+// 	m_standardObjectsItem->addChild(m_neutralPassiveItem);
 
 	// add all entries from "UnitData.slk" to standard units in Unit Editor
-	if (!this->unitMetaData()->unitData()->isEmpty())
-	{
-		// skip the first row which defines the column names, start with 1
-		for (map::Slk::Table::size_type row = 1; row < this->unitMetaData()->unitData()->slk().rows(); ++row)
-		{
-			QTreeWidgetItem *unitItem = new QTreeWidgetItem();
-			const QString objectId = MetaData::fromSlkString(this->unitMetaData()->unitData()->slk().cell(row, 0).c_str());
-			this->fillTreeItem(objectId, "", unitItem);
-
-			this->treeWidget()->insertStandardItem(objectId, "", unitItem);
-		}
-	}
+// 	if (!this->unitData()->unitData()->isEmpty())
+// 	{
+// 		// skip the first row which defines the column names, start with 1
+// 		for (map::Slk::Table::size_type row = 1; row < this->unitData()->unitData()->slk().rows(); ++row)
+// 		{
+// 			QTreeWidgetItem *unitItem = new QTreeWidgetItem();
+// 			const QString objectId = MetaData::fromSlkString(this->unitData()->unitData()->slk().cell(row, 0).c_str());
+// 			this->fillTreeItem(objectId, "", unitItem);
+//
+// 			this->treeWidget()->insertStandardItem(objectId, "", unitItem);
+// 		}
+// 	}
 }
 
 void UnitEditor::fillTreeItem(const QString &originalObjectId, const QString &customObjectId, QTreeWidgetItem *item)
 {
-	try
+	/*
+	bool ok = false;
+	int inEditor = this->unitData()->unitUi()->value(MetaData::toSlkString(originalObjectId), MetaData::toSlkString("inEditor")).toInt(&ok);
+	int hiddenInEditor = this->unitData()->unitUi()->value(MetaData::toSlkString(originalObjectId), MetaData::toSlkString("hiddenInEditor")).toInt(&ok);
+
+	if (!inEditor || hiddenInEditor)
 	{
-		bool ok = false;
-		int inEditor = this->unitMetaData()->unitUi()->value(MetaData::toSlkString(originalObjectId), MetaData::toSlkString("inEditor")).toInt(&ok);
-		int hiddenInEditor = this->unitMetaData()->unitUi()->value(MetaData::toSlkString(originalObjectId), MetaData::toSlkString("hiddenInEditor")).toInt(&ok);
+		qDebug() << "Hiding unit " << originalObjectId << ':' << customObjectId;
 
-		if (!inEditor || hiddenInEditor)
+		return;
+	}
+
+	const QString unitName = this->objectData()->fieldValue(originalObjectId, customObjectId, "unam");
+
+	if (!unitName.isEmpty())
+	{
+		item->setText(0, unitName);
+	}
+	else
+	{
+		item->setText(0, customObjectId);
+	}
+
+	const QString art = MetaData::fromFilePath(this->objectData()->fieldValue(originalObjectId, customObjectId, "uico"));
+
+	if (!art.isEmpty())
+	{
+		QString iconFile;
+
+		if (source()->download(art, iconFile, this))
 		{
-			qDebug() << "Hiding unit " << originalObjectId << ':' << customObjectId;
+			item->setIcon(0, QIcon(iconFile));
+		}
+	}
 
-			return;
+	addItemAsChild(originalObjectId, customObjectId, item);
+	*/
+}
+
+void UnitEditor::fillTableRow(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, ObjectTableWidgetPair *pair)
+{
+	const bool isHero = unitData()->objectIsHero(originalObjectId, customObjectId);
+	const bool isUnit = unitData()->objectIsUnit(originalObjectId, customObjectId);
+	const bool isBuilding = unitData()->objectIsBuilding(originalObjectId, customObjectId);
+
+	/*
+	 * In Warcraft III: Reign of Chaos item fields are also stored in "Units/UnitMetaData.slk".
+	 * Those fields should not be displayed for units.
+	 */
+	const QString useHero = MetaData::fromSlkString(this->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("useHero")));
+	const QString useUnit = MetaData::fromSlkString(this->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("useUnit")));
+	const QString useBuilding = MetaData::fromSlkString(this->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("useBuilding")));
+
+	/*
+	* Hide fields which should not be shown.
+	*/
+	if ((useHero == "1" && isHero)
+		|| (useUnit == "1" && isUnit)
+		|| (useBuilding == "1" && isBuilding
+		)
+	)
+	{
+		pair->activateObject(originalObjectId, customObjectId);
+		/*
+			* In Frozen Throne there is a category for each value.
+			*/
+		QString category;
+
+		if (this->objectData()->metaData()->hasValue(MetaData::toSlkString(fieldId), MetaData::toSlkString("category")))
+		{
+			category = MetaData::fromSlkString(this->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("category")));
+			category = this->source()->sharedData()->worldEditData()->value("ObjectEditorCategories", category);
+			category = this->source()->sharedData()->tr(category).remove('&');
 		}
 
-		const QString unitName = this->fieldValue(originalObjectId, customObjectId, "unam");
+		const QString displayName = MetaData::fromSlkString(this->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("displayName")));
+		const QString displayText = this->source()->sharedData()->tr(displayName);
 
-		if (!unitName.isEmpty())
+		if (showRawData())
 		{
-			item->setText(0, unitName);
+			if (category.isEmpty())
+			{
+				pair->descriptionItem()->setText(tr("%1 (%2)").arg(fieldId).arg(displayText));
+			}
+			else
+			{
+				pair->descriptionItem()->setText(tr("%1 - %2 (%3)").arg(category).arg(fieldId).arg(displayText));
+			}
 		}
 		else
 		{
-			item->setText(0, customObjectId);
-		}
-
-		const QString art = MetaData::fromFilePath(this->fieldValue(originalObjectId, customObjectId, "uico"));
-
-		if (!art.isEmpty())
-		{
-			QString iconFile;
-
-			if (source()->download(art, iconFile, this))
+			if (category.isEmpty())
 			{
-				item->setIcon(0, QIcon(iconFile));
+				pair->descriptionItem()->setText(displayText);
+			}
+			else
+			{
+				pair->descriptionItem()->setText(tr("%1 - %2").arg(category).arg(displayText));
 			}
 		}
 
-		int special = this->unitMetaData()->unitUi()->value(MetaData::toSlkString(originalObjectId), "\"special\"").toInt(&ok);
-		// Frozen Throne
-		//int campaign = QString::fromStdString(this->m_unitUi->value(rawData.toStdString(), "\"campaign\"")).toInt(&ok);
-
-		addItemAsChild(originalObjectId, customObjectId, item);
+		const QString value = this->objectData()->fieldReadableValue(originalObjectId, customObjectId, fieldId);
+		pair->valueItem()->setText(value);
 	}
-	catch (Exception &e)
+	else
 	{
-		qDebug() << "Error on creating Unit " << e.what();
+		qDebug() << "Hide row with field id" << fieldId << "and description" << this->source()->sharedData()->tr(MetaData::fromSlkString(this->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("displayName")))) << "the row value is" << pair->descriptionItem()->row();
+
+		tableWidget()->hideRow(pair->descriptionItem()->row());
 	}
 }
 
@@ -283,58 +254,29 @@ ObjectTableWidget* UnitEditor::createTableWidget()
 	return new ObjectTableWidget(this);
 }
 
-bool UnitEditor::hasCustomUnits() const
-{
-	return this->metaData()->isReignOfChaos();
-}
-
-bool UnitEditor::hasCustomObjects() const
-{
-	return !this->metaData()->isReignOfChaos();
-}
-
-
-bool UnitEditor::objectIsBuilding(const QString &objectId) const
-{
-	const QString levelVar = MetaData::fromSlkString(this->metaData()->getDataValue(objectId, "ulev"));
-	bool ok = false;
-	levelVar.toInt(&ok);
-
-	return !ok; // buildings have no levels
-}
-
-bool UnitEditor::objectIsHero(const QString &objectId) const
-{
-	const QString strengthVar = MetaData::fromSlkString(this->metaData()->getDataValue(objectId, "ustr"));
-	bool ok = false;
-	strengthVar.toInt(&ok);
-
-	return ok;
-}
-
-bool UnitEditor::objectIsUnit(const QString &objectId) const
-{
-	return unitMetaData()->unitData()->hasValue(MetaData::toSlkString(objectId), MetaData::toSlkString("unitID")) && !objectIsHero(objectId) && !objectIsBuilding(objectId);
-}
-
 void UnitEditor::onSwitchToMap(Map *map)
 {
-	if (map->isW3x())
-	{
-	}
-	// W3M
-	else
-	{
-		BOOST_FOREACH(map::CustomUnits::Table::const_reference unit, map->map()->customUnits()->originalTable())
-		{
-			QTreeWidgetItem *unitItem = new QTreeWidgetItem(QStringList(tr("%1").arg(unit.originalId())), 0); // TEST usually you should get the unit's name
-			m_standardObjectsItem->addChild(unitItem); // TODO add to category item
-		}
-	}
 }
 
 void UnitEditor::onNewObject()
 {
+	QItemSelectionModel *selection = this->treeView()->selectionModel();
+	QString originalObjectId;
+
+	foreach (QModelIndex index, selection->selectedIndexes())
+	{
+		const ObjectTreeItem *item = (ObjectTreeItem*)index.internalPointer();
+		originalObjectId = item->originalObjectId();
+	}
+
+	this->unitSelectionDialog()->select(originalObjectId);
+
+	if (this->unitSelectionDialog()->exec() == QDialog::Accepted)
+	{
+		// TODO calculate custom id
+
+		this->objectData()->modifyField(this->unitSelectionDialog()->originalObjectId(), "AAAA", "unam", this->unitSelectionDialog()->unitName());
+	}
 }
 
 void UnitEditor::onRenameObject()
@@ -369,13 +311,13 @@ void UnitEditor::onExportAllObjects()
 		{
 			try
 			{
-				if (hasCustomObjects())
+				if (this->objectData()->hasCustomObjects())
 				{
-					this->customObjects().write(out);
+					this->objectData()->customObjects().write(out);
 				}
 				else
 				{
-					this->customUnits().write(out);
+					this->objectData()->customUnits().write(out);
 				}
 			}
 			catch (Exception &e)
@@ -409,7 +351,10 @@ void UnitEditor::onImportAllObjects()
 			try
 			{
 				customUnits.read(in);
-				this->importCustomUnits(customUnits);
+				this->objectData()->importCustomUnits(customUnits);
+				// TODO refresh tree widget by using object data not custom units
+				// TODO performance?
+				boost::polymorphic_cast<UnitTreeModel*>(this->treeView()->model())->load(this->source(), this->objectData(), this);
 			}
 			catch (Exception &e)
 			{
@@ -427,7 +372,10 @@ void UnitEditor::onImportAllObjects()
 
 				if (customObjectsCollection->hasUnits())
 				{
-					this->importCustomUnits(*customObjectsCollection->units());
+					this->objectData()->importCustomUnits(*customObjectsCollection->units());
+					// TODO refresh tree widget by using object data not custom units
+					// TODO performance?
+					boost::polymorphic_cast<UnitTreeModel*>(this->treeView()->model())->load(this->source(), this->objectData(), this);
 				}
 				else
 				{
@@ -447,7 +395,10 @@ void UnitEditor::onImportAllObjects()
 				map->open(url.toLocalFile().toUtf8().constData());
 				std::streamsize size = map->readFileFormat(map->customUnits().get());
 				qDebug() << "Size of custom units:" << size;
-				this->importCustomUnits(*map->customUnits());
+				this->objectData()->importCustomUnits(*map->customUnits());
+				// TODO refresh tree widget by using object data not custom units
+				// TODO performance?
+				boost::polymorphic_cast<UnitTreeModel*>(this->treeView()->model())->load(this->source(), this->objectData(), this);
 			}
 			catch (Exception &e)
 			{
@@ -475,17 +426,18 @@ void UnitEditor::onPasteObject()
 
 void UnitEditor::onShowRawData(bool show)
 {
+	/*
 	if (show)
 	{
 		for (ObjectTreeWidget::Items::iterator iterator = this->treeWidget()->standardItems().begin(); iterator != this->treeWidget()->standardItems().end(); ++iterator)
 		{
-			const QString unitName = this->fieldValue(iterator.key().first, iterator.key().second, "unam");
+			const QString unitName = this->objectData()->fieldValue(iterator.key().first, iterator.key().second, "unam");
 			iterator.value()->setText(0, QString("%1 (%2)").arg(iterator.key().first).arg(unitName));
 		}
 
 		for (ObjectTreeWidget::Items::iterator iterator = this->treeWidget()->customItems().begin(); iterator != this->treeWidget()->customItems().end(); ++iterator)
 		{
-			const QString unitName = this->fieldValue(iterator.key().first, iterator.key().second, "unam");
+			const QString unitName = this->objectData()->fieldValue(iterator.key().first, iterator.key().second, "unam");
 			iterator.value()->setText(0, QString("%1:%2 (%3)").arg(iterator.key().first).arg(iterator.key().second).arg(unitName));
 		}
 	}
@@ -493,114 +445,27 @@ void UnitEditor::onShowRawData(bool show)
 	{
 		for (ObjectTreeWidget::Items::iterator iterator = this->treeWidget()->standardItems().begin(); iterator != this->treeWidget()->standardItems().end(); ++iterator)
 		{
-			const QString unitName = this->fieldValue(iterator.key().first, iterator.key().second, "unam");
+			const QString unitName = this->objectData()->fieldValue(iterator.key().first, iterator.key().second, "unam");
 			iterator.value()->setText(0, unitName);
 		}
 
 		for (ObjectTreeWidget::Items::iterator iterator = this->treeWidget()->customItems().begin(); iterator != this->treeWidget()->customItems().end(); ++iterator)
 		{
-			const QString unitName = this->fieldValue(iterator.key().first, iterator.key().second, "unam");
+			const QString unitName = this->objectData()->fieldValue(iterator.key().first, iterator.key().second, "unam");
 			iterator.value()->setText(0, unitName);
 		}
 	}
+	*/
 }
 
-void UnitEditor::activateObject(QTreeWidgetItem* item, int column, const QString &originalObjectId, const QString &customObjectId)
+void UnitEditor::activateObject(ObjectTreeItem *item)
 {
-	qDebug() << "Activated" << originalObjectId;
-	qDebug() << "with custom ID" << customObjectId;
-
-	/*
-	 * Is folder item.
-	 * Hide everything.
-	 */
-	if (item->childCount() > 0 || originalObjectId.isEmpty())
-	{
-		this->tableWidget()->hideColumn(0);
-		this->tableWidget()->hideColumn(1);
-	}
-	/*
-	 * Is object item.
-	 * TODO Update table widget.
-	 */
-	else
-	{
-		this->tableWidget()->showColumn(0);
-		this->tableWidget()->showColumn(1);
-
-		for (ObjectTableWidget::Pairs::iterator iterator = this->tableWidget()->pairs().begin(); iterator != this->tableWidget()->pairs().end(); ++iterator)
-		{
-			const QString fieldId = iterator.key();
-
-			qDebug() << "Original object id" << originalObjectId;
-			qDebug() << "Field id" << fieldId;
-
-			const bool isHero = objectIsHero(originalObjectId);
-			const bool isUnit = objectIsUnit(originalObjectId);
-			const bool isBuilding = objectIsBuilding(originalObjectId);
-
-			try
-			{
-				/*
-				 * In Warcraft III: Reign of Chaos item fields are also stored in "Units/UnitMetaData.slk".
-				 * Those fields should not be displayed for units.
-				 */
-
-				const QString useHero = MetaData::fromSlkString(this->metaData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("useHero")));
-				const QString useUnit = MetaData::fromSlkString(this->metaData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("useUnit")));
-				const QString useBuilding = MetaData::fromSlkString(this->metaData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("useBuilding")));
-
-				qDebug() << "useHero" << useHero;
-				qDebug() << "useUnit" << useUnit;
-				qDebug() << "useBuilding" << useBuilding;
-
-				/*
-				* Hide fields which should not be shown.
-				*/
-				if ((useHero == "1" && isHero)
-					|| (useUnit == "1" && isUnit)
-					|| (useBuilding == "1" && isBuilding
-					)
-				)
-				{
-					qDebug() << "Field id" << fieldId;
-					iterator.value()->activateObject(originalObjectId, customObjectId);
-					const QString displayName = MetaData::fromSlkString(this->metaData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("displayName")));
-					const QString displayText = this->source()->sharedData()->tr(displayName);
-
-					if (showRawData())
-					{
-						iterator.value()->descriptionItem()->setText(tr("%1 (%2)").arg(fieldId).arg(displayText));
-					}
-					else
-					{
-						iterator.value()->descriptionItem()->setText(displayText);
-					}
-
-					const QString value = this->fieldReadableValue(originalObjectId, customObjectId, fieldId);
-					qDebug() << "Value:" << value << "for field id" << fieldId;
-					iterator.value()->valueItem()->setText(value);
-				}
-				else
-				{
-					qDebug() << "Hide row with field id" << fieldId << "and description" << this->source()->sharedData()->tr(MetaData::fromSlkString(this->metaData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("displayName")))) << "the row value is" << iterator.value()->descriptionItem()->row();
-
-					tableWidget()->hideRow(iterator.value()->descriptionItem()->row());
-				}
-			}
-			catch (Exception &e)
-			{
-				qDebug() << "Exception with object" << originalObjectId << ":" << customObjectId << " and field" << fieldId << ":" << e.what();
-			}
-		}
-	}
-	//this->tableWidget()->activateObject
+	qDebug() << "Activated" << item->originalObjectId();
+	qDebug() << "with custom ID" << item->customObjectId();
 }
 
-void UnitEditor::activateFolder(QTreeWidgetItem* item, int column)
+void UnitEditor::activateFolder(ObjectTreeItem *item)
 {
-	this->tableWidget()->hideColumn(0);
-	this->tableWidget()->hideColumn(1);
 }
 
 }

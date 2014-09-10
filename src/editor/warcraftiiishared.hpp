@@ -31,6 +31,7 @@
 
 #include "platform.hpp"
 #include "texture.hpp"
+#include "metadata.hpp"
 #include "../map/txt.hpp"
 #include "../map/triggerdata.hpp"
 #include "../map/triggerstrings.hpp"
@@ -50,6 +51,9 @@ class MpqPriorityList;
  *
  * Team glows can be accessed via \ref teamGlowTexture().
  *
+ * For any other icons \ref icon() can be used to load it.
+ * For specific World Editor icons \ref worldEditDataIcon() might also be useful.
+ *
  * For strings it does provide the method \ref tr() as well which searches for translations of strings
  * in the standard files.
  * Before calling the method you need to load the string files using \ref refreshWorldEditorStrings() for example.
@@ -63,7 +67,12 @@ class KDE_EXPORT WarcraftIIIShared
 {
 	public:
 		typedef boost::ptr_map<TeamColor, Texture> TeamColorTextures;
-		typedef boost::scoped_ptr<map::Txt> WorldEditorStringsPtr;
+
+		/**
+		 * The World Editor strings are accessed via \ref wc3lib::editor::MetaData which allows fast access at runtime to all strings.
+		 */
+		typedef boost::scoped_ptr<MetaData> WorldEditorStringsPtr;
+		typedef boost::scoped_ptr<MetaData> WorldEditDataPtr;
 		typedef boost::scoped_ptr<map::TriggerData> TriggerDataPtr;
 		typedef boost::scoped_ptr<map::TriggerStrings> TriggerStringsPtr;
 
@@ -101,16 +110,39 @@ class KDE_EXPORT WarcraftIIIShared
 		 * Call tr("WESTRING_APPNAME", "WorldEditStrings") to get the text "WARCRAFT III - Welt-Editor" from file "UI/WorldEditStrings.txt" of MPQ archive "War3xlocal.mpq" (Frozen Throne), for instance.
 		 * Localized keyed and grouped strings are found under following paths of current MPQ with the highest priority:
 		 * <ul>
+		 * <li>UI/WorldEditStrings.txt</li>
 		 * <li>UI/CampaignStrings.txt</li>
 		 * <li>UI/TipStrings.txt</li>
 		 * <li>UI/TriggerStrings.txt</li>
 		 * <li>UI/WorldEditGameStrings.txt</li>
 		 * <li>UI/TriggerStrings.txt</li>
-		 * <li>UI/WorldEditStrings.txt</li>
 		 * </ul>
+		 * They are checked in the listed order from top to bottom.
+		 *
 		 * \param defaultValue If corresponding key entry could not be found (e. g. files are not available or it simply does not exist) this value is shown as string if its length is bigger than 0.
+		 *
+		 * \todo Check other files (other than UI/WorldEditStrings.txt).
 		 */
 		QString tr(const QString &key, const QString &group = "WorldEditStrings", const QString &defaultValue = "") const;
+
+		/**
+		 * Creates a shared icon object.
+		 *
+		 * \todo Implement caching mechanism which increases speed of loading icons multiple times.
+		 *
+		 * \sa worldEditDataIcon()
+		 */
+		QIcon icon(const KUrl &url, QWidget *window);
+		/**
+		 * As for the World Editor most icons are defined in the file "UI/WorldEditData.txt" this member function
+		 * allows you to directly retrieve an icon from an entry of that file.
+		 *
+		 * \sa refreshWorldEditData() WorldEditData() icon()
+		 */
+		QIcon worldEditDataIcon(const QString &key, const QString &group, QWidget *window);
+
+		void refreshWorldEditData(QWidget *window, const KUrl &url = KUrl("UI/WorldEditData.txt")) throw (Exception);
+		const WorldEditDataPtr& worldEditData() const;
 
 		/**
 		 * \param window Widget which is used for KIO download.
@@ -141,6 +173,7 @@ class KDE_EXPORT WarcraftIIIShared
 		mutable TeamColorTextures m_teamColorTextures;
 		mutable TeamColorTextures m_teamGlowTextures;
 		WorldEditorStringsPtr m_worldEditorStrings;
+		WorldEditDataPtr m_worldEditData;
 		TriggerDataPtr m_triggerData;
 		TriggerStringsPtr m_triggerStrings;
 };
@@ -153,6 +186,11 @@ inline MpqPriorityList* WarcraftIIIShared::source() const
 inline const WarcraftIIIShared::WorldEditorStringsPtr& WarcraftIIIShared::worldEditorStrings() const
 {
 	return m_worldEditorStrings;
+}
+
+inline const WarcraftIIIShared::WorldEditDataPtr& WarcraftIIIShared::worldEditData() const
+{
+	return this->m_worldEditData;
 }
 
 inline const WarcraftIIIShared::TriggerDataPtr& WarcraftIIIShared::triggerData() const

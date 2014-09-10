@@ -39,12 +39,21 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectEditor::ObjectEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_tabWidget(new KTabWidget(this)), m_unitEditor(new UnitEditor(source, this, f)), Module(source, parent, f)
+ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_tabWidget(new KTabWidget(this)), m_unitEditor(0), Module(source, parent, f)
+, m_copyObjectAction(0)
+, m_pasteObjectAction(0)
+, m_modifyFieldAction(0)
+, m_resetFieldAction(0)
 {
 	Module::setupUi();
 	//Ui::ObjectEditor::setupUi(this);
 	topLayout()->addWidget(tabWidget());
 	setMinimumSize(QSize(200, 200)); // TEST
+
+	/*
+	 * Create all tabs after the actions have been created.
+	 */
+	m_unitEditor = new UnitEditor(source, this, f);
 
 	tabWidget()->addTab(unitEditor(), unitEditor()->name());
 	unitEditor()->show();
@@ -86,7 +95,7 @@ void ObjectEditor::importAll()
 	}
 }
 
-void ObjectEditor::createFileActions(class KMenu *menu)
+void ObjectEditor::createFileActions(KMenu *menu)
 {
 	m_newObjectAction = new KAction(this);
 	menu->addAction(newObjectAction());
@@ -122,13 +131,17 @@ void ObjectEditor::createFileActions(class KMenu *menu)
 	connect(action, SIGNAL(triggered()), this, SLOT(importAll()));
 }
 
-void ObjectEditor::createEditActions(class KMenu *menu)
+void ObjectEditor::createEditActions(KMenu *menu)
 {
 	m_copyObjectAction = new KAction(this);
 	menu->addAction(copyObjectAction());
 
 	m_pasteObjectAction = new KAction(this);
 	menu->addAction(pasteObjectAction());
+
+	menu->addSeparator();
+
+	// TODO add action copy field and paste field
 
 	menu->addSeparator();
 
@@ -150,20 +163,24 @@ void ObjectEditor::createEditActions(class KMenu *menu)
 
 	menu->addSeparator();
 
-	action = new KAction(source()->sharedData()->tr("WESTRING_MENU_OE_MODIFYFIELD", "WorldEditStrings"), this);
-	menu->addAction(action);
-	connect(action, SIGNAL(triggered()), this, SLOT(modifyField()));
+	menu->addSeparator();
 
-	action = new KAction(source()->sharedData()->tr("WESTRING_MENU_OE_RESETFIELD", "WorldEditStrings"), this);
-	menu->addAction(action);
-	connect(action, SIGNAL(triggered()), this, SLOT(resetField()));
+	const QString modifyField = this->source()->sharedData()->tr("WESTRING_FIELDLIST_CM_MODIFY");
+	const QString resetField = this->source()->sharedData()->tr("WESTRING_FIELDLIST_CM_RESET");
+	m_modifyFieldAction = new KAction(modifyField, this);
+	m_resetFieldAction = new KAction(resetField, this);
+	menu->addAction(m_modifyFieldAction);
+	menu->addAction(m_resetFieldAction);
+
+	connect(m_modifyFieldAction, SIGNAL(triggered()), this, SLOT(modifyField()));
+	connect(m_resetFieldAction, SIGNAL(triggered()), this, SLOT(resetField()));
 
 	action = new KAction(source()->sharedData()->tr("WESTRING_MENU_OE_AUTOFILL", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(autoFill()));
 }
 
-void ObjectEditor::createMenus(class KMenuBar *menuBar)
+void ObjectEditor::createMenus(KMenuBar *menuBar)
 {
 	/// \todo Create menu "view" with meta data categories of current tab and "raw data" and sort by names actions
 	m_viewMenu = new QMenu(source()->sharedData()->tr("WESTRING_MENU_VIEW"), this);
@@ -177,7 +194,7 @@ void ObjectEditor::createMenus(class KMenuBar *menuBar)
 	menuBar->addMenu(m_viewMenu);
 }
 
-void ObjectEditor::createWindowsActions(class WindowsMenu *menu)
+void ObjectEditor::createWindowsActions(WindowsMenu *menu)
 {
 }
 
@@ -189,7 +206,7 @@ void ObjectEditor::createToolButtons(ModuleToolBar *toolBar)
 	toolBar->addCustomSeparator();
 }
 
-class SettingsInterface* ObjectEditor::settings()
+SettingsInterface* ObjectEditor::settings()
 {
 	/// @todo FIXME
 	return 0;

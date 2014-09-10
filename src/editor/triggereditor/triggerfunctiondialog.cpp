@@ -24,6 +24,7 @@
 
 #include "triggerfunctiondialog.hpp"
 #include "triggereditor.hpp"
+#include "../mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -189,6 +190,11 @@ string TriggerFunctionDialog::functionName() const
 
 template<class Functions>
 void TriggerFunctionDialog::filterFunctionsByCategory(int index, const Functions &functions, const map::TriggerStrings::Entries &entries) {
+	/*
+	 * TODO order alphabetically by category etc.
+	 */
+	QMap<QString, QString> result;
+
 	foreach (typename Functions::const_reference ref, functions) {
 		const map::TriggerData::Category *category = ref.second->category();
 		const string categoryName = category->name();
@@ -196,18 +202,24 @@ void TriggerFunctionDialog::filterFunctionsByCategory(int index, const Functions
 		if (index == 0 || (categoryName == this->m_categoryComboBox->itemData(index).toString().toStdString())) {
 			string code = ref.first;
 			map::TriggerStrings::Entries::const_iterator iterator = entries.find(code);
+			const QString categoryText = this->triggerEditor()->source()->sharedData()->tr(category->displayText().c_str());
 
 			// show category for index 0 - "All"
 			if (iterator == entries.end()) {
-				const QString name = index == 0 && category->displayName() ? QString(tr("%1 - %2")).arg(categoryName.c_str()).arg(code.c_str()) : code.c_str();
-				this->m_functionComboBox->addItem(name, code.c_str());
+				const QString name = index == 0 && category->displayName() ? QString(tr("%1 - %2")).arg(categoryText).arg(code.c_str()) : code.c_str();
+				result.insert(name, code.c_str());
 				qDebug() << "Did not find \"" << code.c_str() << "\" in trigger strings!";
 			} else {
 				const string functionName = TriggerEditor::cutQuotes(iterator->second->name());
-				const QString name = index == 0 && category->displayName() ? QString(tr("%1 - %2")).arg(categoryName.c_str()).arg(functionName.c_str()) : functionName.c_str();
-				this->m_functionComboBox->addItem(name, code.c_str());
+				const QString name = index == 0 && category->displayName() ? QString(tr("%1 - %2")).arg(categoryText).arg(functionName.c_str()) : functionName.c_str();
+				result.insert(name, code.c_str());
 			}
 		}
+	}
+
+	for (QMap<QString, QString>::const_iterator iterator = result.begin(); iterator != result.end(); ++iterator)
+	{
+		this->m_functionComboBox->addItem(iterator.key(), iterator.value());
 	}
 }
 
@@ -282,7 +294,8 @@ void TriggerFunctionDialog::fillInternal(map::TriggerFunction::Type type)
 		m_categoryLabel->setVisible(true);
 		m_categoryComboBox->setVisible(true);
 		m_functionComboBox->setVisible(true);
-		m_textGroupBox->setVisible(true);
+		m_descriptionTitleLabel->setVisible(true);
+		m_descriptionFrame->setVisible(true);
 		m_descriptionLabel->setVisible(true);
 
 		// disable all items which are only usable for calls!
@@ -307,15 +320,20 @@ void TriggerFunctionDialog::fillInternal(map::TriggerFunction::Type type)
 
 		this->m_categoryComboBox->addItem(tr("All"), "All");
 
-		foreach (map::TriggerData::Categories::const_reference ref, triggerData()->categories()) {
-			if (ref.second->displayName()) {
-				this->m_categoryComboBox->addItem(ref.second->displayText().c_str(), ref.second->name().c_str());
+		foreach (map::TriggerData::Categories::const_reference ref, triggerData()->categories())
+		{
+			if (ref.second->displayName())
+			{
+				const QString categoryText = this->triggerEditor()->source()->sharedData()->tr(ref.second->displayText().c_str());
+				this->m_categoryComboBox->addItem(categoryText, ref.second->name().c_str());
 			}
 		}
 
 		this->changeCategory(0);
 	// Calls have extended widgets
-	} else {
+	}
+	else
+	{
 		m_radioButtonPreset->setVisible(true);
 		m_presetComboBox->setVisible(true);
 
@@ -323,7 +341,8 @@ void TriggerFunctionDialog::fillInternal(map::TriggerFunction::Type type)
 		m_categoryLabel->setVisible(false);
 		m_categoryComboBox->setVisible(false);
 		m_functionComboBox->setVisible(true);
-		m_textGroupBox->setVisible(true);
+		m_descriptionTitleLabel->setVisible(true);
+		m_descriptionFrame->setVisible(true);
 		m_descriptionLabel->setVisible(true);
 
 		m_radioButtonVariable->setVisible(true);
@@ -409,7 +428,8 @@ void TriggerFunctionDialog::fillInternal(map::TriggerFunction::Type type)
 					if (type != "AnyGlobal") { // is not custom variable
 						foreach (map::TriggerData::Parameters::const_reference ref, this->triggerData()->parameters()) {
 							if (ref.second->type()->name() == type || (!baseType.empty() && ref.second->type()->name() == baseType)) {
-								m_presetComboBox->addItem(ref.second->displayText().c_str(), ref.second->name().c_str());
+								const QString presetDescription = this->triggerEditor()->source()->sharedData()->tr(ref.second->displayText().c_str());
+								m_presetComboBox->addItem(presetDescription, ref.second->name().c_str());
 							}
 						}
 					}
@@ -470,21 +490,21 @@ void TriggerFunctionDialog::fillInternal(map::TriggerFunction::Type type)
 		case map::TriggerFunction::Type::Event:
 			setWindowTitle(tr("Configure Event"));
 			m_categoryLabel->setText(tr("Event Type"));
-			m_textGroupBox->setTitle(tr("Event Text"));
+			m_descriptionTitleLabel->setText(tr("Event Text"));
 
 			break;
 
 		case map::TriggerFunction::Type::Condition:
 			setWindowTitle(tr("Configure Condition"));
 			m_categoryLabel->setText(tr("Condition Type"));
-			m_textGroupBox->setTitle(tr("Condition Text"));
+			m_descriptionTitleLabel->setText(tr("Condition Text"));
 
 			break;
 
 		case map::TriggerFunction::Type::Action:
 			setWindowTitle(tr("Configure Action"));
 			m_categoryLabel->setText(tr("Action Type"));
-			m_textGroupBox->setTitle(tr("Action Text"));
+			m_descriptionTitleLabel->setText(tr("Action Text"));
 
 			break;
 	}
@@ -497,7 +517,7 @@ void TriggerFunctionDialog::showFunction(const QString &code, const Functions &f
 	map::TriggerStrings::Entries::const_iterator iterator = entries.find(code.toStdString());
 
 	if (iterator != entries.end()) {
-		QString text = TriggerEditor::triggerFunctionText(triggerData(), triggerStrings(), code, function(), functions, entries, true, true);
+		QString text = TriggerEditor::triggerFunctionText(this->triggerEditor()->source()->sharedData().get(), triggerData(), triggerStrings(), code, function(), functions, entries, true, true);
 
 		this->m_descriptionLabel->setText(text);
 

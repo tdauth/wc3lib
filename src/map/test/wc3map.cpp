@@ -50,6 +50,7 @@ BOOST_AUTO_TEST_CASE(Rects)
 	try
 	{
 		map.open("TestMap.w3m");
+		map.readFileFormat(map.rects().get());
 	}
 	catch (...)
 	{
