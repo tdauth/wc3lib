@@ -29,14 +29,16 @@ namespace wc3lib
 namespace map
 {
 
+class Cameras;
+
 class Camera : public Format
 {
 	public:
-		Camera(class Cameras *cameras);
-		~Camera();
+		Camera(Cameras *cameras);
+		virtual ~Camera();
 
-		std::streamsize read(InputStream &istream) throw (class Exception);
-		std::streamsize write(OutputStream &ostream) const throw (class Exception);
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
 		void setTargetX(float32 targetX);
 		float32 targetX() const;
@@ -62,7 +64,7 @@ class Camera : public Format
 		const string& name() const;
 
 	protected:
-		class Cameras *m_cameras;
+		Cameras *m_cameras;
 		float32 m_targetX;
 		float32 m_targetY;
 		float32 m_zOffset;

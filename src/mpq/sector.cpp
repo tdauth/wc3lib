@@ -79,7 +79,7 @@ Sector::~Sector()
 {
 }
 
-std::streamsize Sector::readData(istream &istream, int waveCompressionLevel) throw (class Exception)
+std::streamsize Sector::readData(istream &istream, int waveCompressionLevel)
 {
 	const std::streamoff end = wc3lib::endPosition(istream) - istream.tellg();
 	const uint32 size = end < this->mpqFile()->mpq()->sectorSize() ? boost::numeric_cast<uint32>(end) : this->mpqFile()->mpq()->sectorSize();
@@ -90,7 +90,7 @@ std::streamsize Sector::readData(istream &istream, int waveCompressionLevel) thr
 	return readData(buffer.get(), size, waveCompressionLevel);
 }
 
-std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, int waveCompressionLevel) throw  (class Exception)
+std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, int waveCompressionLevel)
 {
 	uint32 size = 0;
 	boost::scoped_array<byte> data;
@@ -279,7 +279,7 @@ std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, in
 	return bytes;
 }
 
-std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception)
+std::streamsize Sector::writeData(ostream &ostream) const
 {
 	const uint32 dataSize = this->sectorSize();
 
@@ -306,7 +306,7 @@ std::streamsize Sector::writeData(ostream &ostream) const throw (class Exception
 	return bytes;
 }
 
-std::streamsize Sector::writeData(istream &istream, ostream &ostream) const throw (Exception)
+std::streamsize Sector::writeData(istream &istream, ostream &ostream) const
 {
 	const uint32 dataSize = this->sectorSize();
 
@@ -383,7 +383,7 @@ namespace
 #endif
 
 
-void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, ostream &ostream) const throw (Exception)
+void Sector::decompressData(boost::scoped_array<byte> &data, uint32 dataSize, ostream &ostream) const
 {
 	/*
 	If the file is encrypted, each sector (after compression/implosion, if applicable) is encrypted with the file's key.

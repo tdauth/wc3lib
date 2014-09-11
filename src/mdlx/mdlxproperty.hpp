@@ -38,20 +38,20 @@ namespace mdlx
 class MdlxProperty : public Format
 {
 	public:
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception) = 0;
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception) = 0;
+		virtual std::streamsize readMdl(istream &istream) = 0;
+		virtual std::streamsize writeMdl(ostream &ostream) const = 0;
 		
-		virtual std::streamsize readMdx(istream &istream) throw (class Exception) = 0;
-		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception) = 0;
+		virtual std::streamsize readMdx(istream &istream) = 0;
+		virtual std::streamsize writeMdx(ostream &ostream) const = 0;
 		
 		/**
 		 * \brief Default read and write format is MDX.
 		 */
-		virtual inline std::streamsize read(istream &istream) throw (class Exception) { return readMdx(istream); };
+		virtual inline std::streamsize read(istream &istream) { return readMdx(istream); };
 		/**
 		 * \copybrief MdlxProperty::read
 		 */
-		virtual inline std::streamsize write(ostream &ostream) const throw (class Exception) { return writeMdx(ostream); };
+		virtual inline std::streamsize write(ostream &ostream) const { return writeMdx(ostream); };
 };
 
 }

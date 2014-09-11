@@ -26,7 +26,7 @@ namespace wc3lib
 namespace map
 {
 
-std::streamsize Rect::read(InputStream &istream) throw (class Exception)
+std::streamsize Rect::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	/*
@@ -54,7 +54,7 @@ std::streamsize Rect::read(InputStream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Rect::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize Rect::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->left(), size);

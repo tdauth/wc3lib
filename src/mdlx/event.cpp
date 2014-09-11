@@ -37,12 +37,12 @@ Event::~Event()
 	delete this->m_tracks;
 }
 
-std::streamsize Event::readMdl(istream &istream) throw (class Exception)
+std::streamsize Event::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize Event::writeMdl(ostream &ostream) const throw (Exception)
+std::streamsize Event::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlBlock(ostream, size, "EventObject", this->name(), 0, true);
@@ -55,7 +55,7 @@ std::streamsize Event::writeMdl(ostream &ostream) const throw (Exception)
 	return size;
 }
 
-std::streamsize Event::readMdx(istream &istream) throw (class Exception)
+std::streamsize Event::readMdx(istream &istream)
 {
 	std::streamsize size = Object::readMdx(istream);
 	size += this->tracks()->readMdx(istream);
@@ -63,7 +63,7 @@ std::streamsize Event::readMdx(istream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Event::writeMdx(ostream &ostream) const throw (Exception)
+std::streamsize Event::writeMdx(ostream &ostream) const
 {
 	std::streamsize size = Object::writeMdx(ostream);
 	size += this->tracks()->writeMdx(ostream);

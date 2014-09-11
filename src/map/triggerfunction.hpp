@@ -63,13 +63,13 @@ class TriggerFunction : public Format
 		Parameters& parameters();
 		const Parameters& parameters() const;
 
-		virtual std::streamsize read(InputStream &istream) throw (class Exception)
+		virtual std::streamsize read(InputStream &istream)
 		{
 			throw Exception(_("Not usable."));
 		}
 
-		virtual std::streamsize read(InputStream &istream, const TriggerData &triggerData) throw (class Exception);
-		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
+		virtual std::streamsize read(InputStream &istream, const TriggerData &triggerData);
+		virtual std::streamsize write(OutputStream &ostream) const;
 
 
 	protected:

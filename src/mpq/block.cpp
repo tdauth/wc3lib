@@ -63,7 +63,7 @@ Block::~Block()
 {
 }
 
-std::streamsize Block::read(istream &istream) throw (class Exception)
+std::streamsize Block::read(istream &istream)
 {
 	struct BlockTableEntry entry;
 	std::streamsize size = 0;
@@ -82,7 +82,7 @@ std::streamsize Block::read(istream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Block::write(ostream &ostream) const throw (class Exception)
+std::streamsize Block::write(ostream &ostream) const
 {
 	const BlockTableEntry entry = toBlockTableEntry();
 	std::streamsize size = 0;

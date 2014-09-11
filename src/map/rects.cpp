@@ -28,7 +28,7 @@ namespace wc3lib
 namespace map
 {
 
-std::streamsize Rects::read(InputStream &istream) throw (class Exception)
+std::streamsize Rects::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_version, size);
@@ -52,7 +52,7 @@ std::streamsize Rects::read(InputStream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Rects::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize Rects::write(OutputStream &ostream) const
 {
 	if (this->version() != latestFileVersion())
 	{

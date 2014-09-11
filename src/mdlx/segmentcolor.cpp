@@ -34,12 +34,12 @@ SegmentColor::~SegmentColor()
 {
 }
 
-std::streamsize SegmentColor::readMdl(istream &istream) throw (class Exception)
+std::streamsize SegmentColor::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize SegmentColor::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize SegmentColor::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlVectorProperty(ostream, size, "Color", VertexData(blue(), green(), red()));
@@ -47,7 +47,7 @@ std::streamsize SegmentColor::writeMdl(ostream &ostream) const throw (class Exce
 	return size;
 }
 
-std::streamsize SegmentColor::readMdx(istream &istream) throw (class Exception)
+std::streamsize SegmentColor::readMdx(istream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_red, size);
@@ -57,7 +57,7 @@ std::streamsize SegmentColor::readMdx(istream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize SegmentColor::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize SegmentColor::writeMdx(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->red(), size);

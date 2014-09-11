@@ -31,12 +31,12 @@ Ganimation::Ganimation(class Geoset *geoset) : m_geoset(geoset)
 }
 
 /// @todo Implement.
-std::streamsize Ganimation::readMdl(istream &istream) throw (class Exception)
+std::streamsize Ganimation::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize Ganimation::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize Ganimation::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlBlock(ostream, size, "Anim");

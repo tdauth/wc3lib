@@ -38,12 +38,12 @@ Attachment::~Attachment()
 	delete this->m_visibilities;
 }
 
-std::streamsize Attachment::readMdl(istream &istream) throw (class Exception)
+std::streamsize Attachment::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize Attachment::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize Attachment::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlBlock(ostream, size, "Attachment", this->name(), 0, true);
@@ -65,7 +65,7 @@ std::streamsize Attachment::writeMdl(ostream &ostream) const throw (class Except
 }
 
 
-std::streamsize Attachment::readMdx(istream &istream) throw (class Exception)
+std::streamsize Attachment::readMdx(istream &istream)
 {
 	long32 nbytesi = 0;
 	std::streamsize size = 0;
@@ -81,7 +81,7 @@ std::streamsize Attachment::readMdx(istream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Attachment::writeMdx(ostream &out) const throw (class Exception)
+std::streamsize Attachment::writeMdx(ostream &out) const
 {
 	std::streampos position;
 	skipByteCount<long32>(out, position);

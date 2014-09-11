@@ -82,8 +82,8 @@ class Slk : public Format
 		typedef Table::array_view<1>::type View;
 		typedef Table::const_array_view<1>::type ConstView;
 
-		virtual std::streamsize read(InputStream &istream) throw(class Exception) override;
-		virtual std::streamsize write(OutputStream &ostream) const throw(class Exception) override;
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
 		/**
 		 * Allows access to the whole table of the SLK sheet.

@@ -331,7 +331,7 @@ const Txt::Entries& Txt::entries(const string &section) const
 	throw Exception();
 }
 
-std::streamsize Txt::read(InputStream &istream) throw (Exception)
+std::streamsize Txt::read(InputStream &istream)
 {
 	typedef std::istreambuf_iterator<byte> IteratorType;
 	typedef boost::spirit::multi_pass<IteratorType> ForwardIteratorType;
@@ -370,7 +370,7 @@ std::streamsize Txt::read(InputStream &istream) throw (Exception)
 	return 0;
 }
 
-std::streamsize Txt::write(OutputStream &ostream) const throw (Exception)
+std::streamsize Txt::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	std::string out;

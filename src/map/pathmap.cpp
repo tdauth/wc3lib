@@ -47,7 +47,7 @@ Pathmap::~Pathmap()
 {
 }
 
-std::streamsize Pathmap::read(InputStream &istream) throw (class Exception)
+std::streamsize Pathmap::read(InputStream &istream)
 {
 	struct Header header;
 	std::streamsize size = 0;
@@ -79,7 +79,7 @@ std::streamsize Pathmap::read(InputStream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Pathmap::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize Pathmap::write(OutputStream &ostream) const
 {
 	struct Header header;
 	header.fileId = fileId();

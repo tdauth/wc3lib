@@ -57,12 +57,12 @@ class CollisionShape : public GroupMdxBlockMember, public Object
 		Vertices& vertices();
 		const Vertices& vertices() const;
 		/// Only usable if shape is a sphere. Otherwise, it throws an exception.
-		float32 boundsRadius() const throw (class Exception);
+		float32 boundsRadius() const;
 
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
-		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
+		virtual std::streamsize readMdl(istream &istream);
+		virtual std::streamsize writeMdl(ostream &ostream) const;
+		virtual std::streamsize readMdx(istream &istream);
+		virtual std::streamsize writeMdx(ostream &ostream) const;
 
 	protected:
 		Shape m_shape; //(0:box;2:sphere)
@@ -90,7 +90,7 @@ inline const CollisionShape::Vertices& CollisionShape::vertices() const
 	return this->m_vertices;
 }
 
-inline float32 CollisionShape::boundsRadius() const throw (class Exception)
+inline float32 CollisionShape::boundsRadius() const
 {
 	if (shape() != Shape::Sphere)
 		throw Exception(_("Collision shape is not a sphere."));

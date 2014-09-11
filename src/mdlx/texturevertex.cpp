@@ -34,12 +34,12 @@ TextureVertex::~TextureVertex()
 {
 }
 
-std::streamsize TextureVertex::readMdl(istream &istream) throw (class Exception)
+std::streamsize TextureVertex::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize TextureVertex::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize TextureVertex::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 
@@ -48,12 +48,12 @@ std::streamsize TextureVertex::writeMdl(ostream &ostream) const throw (class Exc
 	return size;
 }
 
-std::streamsize TextureVertex::readMdx(istream &istream) throw (class Exception)
+std::streamsize TextureVertex::readMdx(istream &istream)
 {
 	return this->vertexData().read(istream);
 }
 
-std::streamsize TextureVertex::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize TextureVertex::writeMdx(ostream &ostream) const
 {
 	return this->vertexData().write(ostream);
 }

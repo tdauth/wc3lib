@@ -36,17 +36,17 @@ TexturePatches::~TexturePatches()
 {
 }
 
-std::streamsize TexturePatches::readMdl(InputStream &istream) throw (class Exception)
+std::streamsize TexturePatches::readMdl(InputStream &istream)
 {
 	return 0;
 }
 
-std::streamsize TexturePatches::writeMdl(OutputStream &ostream) const throw (class Exception)
+std::streamsize TexturePatches::writeMdl(OutputStream &ostream) const
 {
 	return 0;
 }
 
-std::streamsize TexturePatches::readMdx(InputStream &istream) throw (class Exception)
+std::streamsize TexturePatches::readMdx(InputStream &istream)
 {
 	std::streamsize size = MdxBlock::readMdx(istream);
 
@@ -82,7 +82,7 @@ std::streamsize TexturePatches::readMdx(InputStream &istream) throw (class Excep
 	return size;
 }
 
-std::streamsize TexturePatches::writeMdx(OutputStream &ostream) const throw (class Exception)
+std::streamsize TexturePatches::writeMdx(OutputStream &ostream) const
 {
 	std::streamsize size = MdxBlock::writeMdx(ostream);
 

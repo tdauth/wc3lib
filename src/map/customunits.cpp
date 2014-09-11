@@ -41,7 +41,7 @@ CustomUnits::Modification::~Modification()
 {
 }
 
-std::streamsize CustomUnits::Modification::read(InputStream &istream) throw (class Exception)
+std::streamsize CustomUnits::Modification::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_id, size);
@@ -63,7 +63,7 @@ std::streamsize CustomUnits::Modification::read(InputStream &istream) throw (cla
 	return size;
 }
 
-std::streamsize CustomUnits::Modification::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize CustomUnits::Modification::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->valueId(), size);
@@ -98,7 +98,7 @@ std::streamsize CustomUnits::Modification::writeList(OutputStream &ostream) cons
 	return size;
 }
 
-std::streamsize CustomUnits::Modification::readData(InputStream &istream, Value::Type type) throw (class Exception)
+std::streamsize CustomUnits::Modification::readData(InputStream &istream, Value::Type type)
 {
 	std::streamsize size = 0;
 
@@ -183,7 +183,7 @@ std::streamsize CustomUnits::Modification::readData(InputStream &istream, Value:
 	return size;
 }
 
-std::streamsize CustomUnits::Modification::writeData(OutputStream &ostream, Value::Type type) const throw (class Exception)
+std::streamsize CustomUnits::Modification::writeData(OutputStream &ostream, Value::Type type) const
 {
 	std::streamsize size = 0;
 
@@ -264,7 +264,7 @@ CustomUnits::Unit::~Unit()
 {
 }
 
-std::streamsize CustomUnits::Unit::read(InputStream &istream) throw (class Exception)
+std::streamsize CustomUnits::Unit::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_originalId, size);
@@ -283,7 +283,7 @@ std::streamsize CustomUnits::Unit::read(InputStream &istream) throw (class Excep
 	return size;
 }
 
-std::streamsize CustomUnits::Unit::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize CustomUnits::Unit::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, originalId(), size);
@@ -309,7 +309,7 @@ CustomUnits::~CustomUnits()
 {
 }
 
-std::streamsize CustomUnits::read(InputStream &istream) throw (class Exception)
+std::streamsize CustomUnits::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_version, size);
@@ -344,7 +344,7 @@ std::streamsize CustomUnits::read(InputStream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize CustomUnits::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize CustomUnits::write(OutputStream &ostream) const
 {
 	if (version() != latestFileVersion())
 		std::cerr << boost::format(_("Custom Units: Unknown version \"%1%\", expected \"%2%\".")) % version() % latestFileVersion() << std::endl;

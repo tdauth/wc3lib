@@ -202,7 +202,7 @@ class Blp : public Format
 		 * \return Returns auto-detected BLP format of buffer \p buffer with size \p bufferSize. Buffer can be larger than required (only first 4 bytes are checked).
 		 * \throw Exception Is thrown if no format was detected.
 		 */
-		static Format format(const byte *buffer, const std::size_t bufferSize) throw (class Exception);
+		static Format format(const byte *buffer, const std::size_t bufferSize);
 		/**
 		 * \return Returns true if \p buffer with size of \p bufferSize contains any BLP magic number/format identifier. Otherwise it returns false.
 		 */
@@ -245,9 +245,9 @@ class Blp : public Format
 		 * \param mipMaps Number of MIP maps which should be read (1 - 16). 0 means actual number of existing MIP maps. If there is less MIP maps than this parameter specifies only all available will be read!
 		 * \return Size of read bytes (\ref byte). Note that this value can be smaller than the BLP file since it seems that there are unnecessary 0 bytes in some BLP files.
 		 */
-		std::streamsize read(InputStream &istream, const std::size_t &mipMaps) throw (class Exception);
+		std::streamsize read(InputStream &istream, const std::size_t &mipMaps);
 
-		std::streamsize read(InputStream &istream) throw (class Exception) { return read(istream, 0); }
+		virtual std::streamsize read(InputStream &istream) override { return read(istream, 0); }
 		/**
 		 * \param ostream The output stream in which the BLP file is written to.
 		 * \param quality Quality for JPEG/JFIF compression (0 - 100). -1 or another invalid value means default (\ref Blp::defaultQuality).
@@ -255,9 +255,9 @@ class Blp : public Format
 		 *
 		 * \return Returns the number of written bytes.
 		 */
-		std::streamsize write(OutputStream &ostream, int quality, std::size_t mipMaps) const throw (class Exception);
-		std::streamsize write(OutputStream &ostream) const throw (class Exception) { return write(ostream, defaultQuality, defaultMipMaps); }
-		virtual uint32_t version() const;
+		std::streamsize write(OutputStream &ostream, int quality, std::size_t mipMaps) const;
+		virtual std::streamsize write(OutputStream &ostream) const override { return write(ostream, defaultQuality, defaultMipMaps); }
+		virtual uint32_t version() const override;
 
 		/**
 		 * Assigns exactly \p number MIP maps to the BLP image.
@@ -266,7 +266,7 @@ class Blp : public Format
 		 * \return Returns number of truly newly created MIP maps (negative if some has been removed and 0 if it remains like it was before).
 		 * \sa Blp::mipMaps()
 		 */
-		int generateMipMaps(std::size_t number = Blp::maxMipMaps, bool regenerate = false) throw (class Exception);
+		int generateMipMaps(std::size_t number = Blp::maxMipMaps, bool regenerate = false);
 
 		/**
 		 * \return Returns true if compression type is \ref Compression::Paletted .
@@ -280,8 +280,8 @@ class Blp : public Format
 		 * \sa hasPalette()
 		 * \throw Exception Exception safe. Throws an exception if compression is not paletted.
 		 */
-		const ColorPtr& palette() const throw (Exception);
-		ColorPtr& palette() throw (Exception);
+		const ColorPtr& palette() const;
+		ColorPtr& palette();
 
 	protected:
 		dword mipMapWidth(std::size_t index) const;

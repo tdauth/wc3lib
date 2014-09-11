@@ -118,8 +118,8 @@ class Txt : public Format
 		 */
 		const Entries& entries(const string &section) const;
 
-		virtual std::streamsize read(InputStream &istream) throw (Exception) override;
-		virtual std::streamsize write(OutputStream &ostream) const throw (Exception) override;
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
 	private:
 		Sections m_sections;

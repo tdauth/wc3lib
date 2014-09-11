@@ -68,7 +68,7 @@ void TriggerStrings::readFunction(const Txt::Entry &ref, Entries &functions)
 	}
 }
 
-std::streamsize TriggerStrings::read(TriggerStrings::InputStream& istream) throw (class Exception)
+std::streamsize TriggerStrings::read(TriggerStrings::InputStream& istream)
 {
 	boost::scoped_ptr<Txt> txt(new Txt());
 	std::streamsize size = txt->read(istream);
@@ -96,7 +96,7 @@ std::streamsize TriggerStrings::read(TriggerStrings::InputStream& istream) throw
 	return size;
 }
 
-std::streamsize TriggerStrings::write(TriggerStrings::OutputStream& ostream) const throw (class Exception)
+std::streamsize TriggerStrings::write(TriggerStrings::OutputStream& ostream) const
 {
     return 0;
 }

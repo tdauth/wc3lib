@@ -26,17 +26,17 @@ void OgreEnvironment::load(map::Environment* environment)
 
 }
 
-void OgreEnvironment::load() throw (Exception)
+void OgreEnvironment::load()
 {
 
 }
 
-void OgreEnvironment::reload() throw (Exception)
+void OgreEnvironment::reload()
 {
 
 }
 
-void OgreEnvironment::save(const KUrl& url) const throw (Exception)
+void OgreEnvironment::save(const KUrl& url) const
 {
 
 }

@@ -35,7 +35,7 @@ ImportedFiles::Path::Path()
 {
 }
 
-std::streamsize ImportedFiles::Path::read(InputStream &istream) throw (class Exception)
+std::streamsize ImportedFiles::Path::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	byte hasPrefix;
@@ -57,7 +57,7 @@ std::streamsize ImportedFiles::Path::read(InputStream &istream) throw (class Exc
 	return size;
 }
 
-std::streamsize ImportedFiles::Path::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize ImportedFiles::Path::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 
@@ -71,7 +71,7 @@ std::streamsize ImportedFiles::Path::write(OutputStream &ostream) const throw (c
 	return size;
 }
 
-std::streamsize ImportedFiles::read(InputStream &istream) throw (class Exception)
+std::streamsize ImportedFiles::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_version, size);
@@ -93,7 +93,7 @@ std::streamsize ImportedFiles::read(InputStream &istream) throw (class Exception
 	return size;
 }
 
-std::streamsize ImportedFiles::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize ImportedFiles::write(OutputStream &ostream) const
 {
 	if (this->version() != latestFileVersion())
 		std::cerr << boost::format("Imported files: Unsupported version %1%, expected %2%") % this->version() % latestFileVersion() << std::endl;

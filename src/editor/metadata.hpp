@@ -97,9 +97,9 @@ class KDE_EXPORT MetaData : public Resource
 
 		virtual void clear() throw ();
 
-		virtual void load() throw (Exception);
-		virtual void reload() throw (Exception);
-		virtual void save(const KUrl &url) const throw (Exception)
+		virtual void load();
+		virtual void reload();
+		virtual void save(const KUrl &url) const
 		{
 			throw Exception(_("Saving meta data is not supported yet."));
 		}

@@ -40,12 +40,12 @@ Camera::~Camera()
 	delete this->m_targetTranslations;
 }
 
-std::streamsize Camera::readMdl(istream &istream) throw (class Exception)
+std::streamsize Camera::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize Camera::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize Camera::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlBlock(ostream, size, "Camera", this->name(), 0, true);
@@ -66,7 +66,7 @@ std::streamsize Camera::writeMdl(ostream &ostream) const throw (class Exception)
 	return size;
 }
 
-std::streamsize Camera::readMdx(istream &istream) throw (class Exception)
+std::streamsize Camera::readMdx(istream &istream)
 {
 	long32 nbytesi;
 	std::streamsize bytes = 0;
@@ -87,7 +87,7 @@ std::streamsize Camera::readMdx(istream &istream) throw (class Exception)
 	return bytes;
 }
 
-std::streamsize Camera::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize Camera::writeMdx(ostream &ostream) const
 {
 	std::streampos position;
 	skipByteCount<long32>(ostream, position);

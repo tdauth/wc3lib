@@ -23,4 +23,31 @@
 namespace wc3lib
 {
 
+std::string iostateMessage(const std::ios_base::iostate &state)
+{
+	std::ostringstream sstream;
+
+	if (state & std::ios_base::badbit)
+	{
+		sstream << "bad";
+	}
+
+	if (state & std::ios_base::eofbit)
+	{
+		sstream << "eof";
+	}
+
+	if (state & std::ios_base::failbit)
+	{
+		sstream << "fail";
+	}
+
+	if (state & std::ios_base::goodbit)
+	{
+		sstream << "good";
+	}
+
+	return sstream.str();
+}
+
 }

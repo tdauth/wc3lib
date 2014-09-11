@@ -34,12 +34,12 @@ Vertex::~Vertex()
 {
 }
 
-std::streamsize Vertex::readMdl(istream &istream) throw (class Exception)
+std::streamsize Vertex::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize Vertex::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize Vertex::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 
@@ -48,12 +48,12 @@ std::streamsize Vertex::writeMdl(ostream &ostream) const throw (class Exception)
 	return size;
 }
 
-std::streamsize Vertex::readMdx(istream &istream) throw (class Exception)
+std::streamsize Vertex::readMdx(istream &istream)
 {
 	return this->vertexData().read(istream);
 }
 
-std::streamsize Vertex::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize Vertex::writeMdx(ostream &ostream) const
 {
 	return this->vertexData().write(ostream);
 }

@@ -35,17 +35,17 @@ PrimitiveType::~PrimitiveType()
 {
 }
 
-std::streamsize PrimitiveType::readMdl(istream &istream) throw (class Exception)
+std::streamsize PrimitiveType::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize PrimitiveType::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize PrimitiveType::writeMdl(ostream &ostream) const
 {
 	return 0;
 }
 
-std::streamsize PrimitiveType::readMdx(istream &istream) throw (class Exception)
+std::streamsize PrimitiveType::readMdx(istream &istream)
 {
 	std::streamsize size = 0;
 	long32 type = 0;
@@ -56,7 +56,7 @@ std::streamsize PrimitiveType::readMdx(istream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize PrimitiveType::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize PrimitiveType::writeMdx(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write<long32>(ostream, static_cast<long32>(this->type()), size);

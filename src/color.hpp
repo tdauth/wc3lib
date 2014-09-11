@@ -52,9 +52,9 @@ class Rgb : public Format
 		Rgb();
 		virtual ~Rgb();
 
-		virtual std::streamsize read(InputStream &istream) throw (class Exception);
+		virtual std::streamsize read(InputStream &istream);
 
-		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
+		virtual std::streamsize write(OutputStream &ostream) const;
 
 		void setRed(uint8_t red);
 		uint8_t red() const;
@@ -83,8 +83,8 @@ class Rgb : public Format
 class Bgr : public Rgb
 {
 	public:
-		virtual std::streamsize read(InputStream &istream) throw (Exception);
-		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+		virtual std::streamsize read(InputStream &istream);
+		virtual std::streamsize write(OutputStream &ostream) const;
 
 		/**
 		 * The first 8 bits are not used (usually alpha value for argb or red value for rgba).
@@ -98,9 +98,9 @@ class Rgba : public Rgb
 		Rgba(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
 		Rgba();
 
-		virtual std::streamsize read(InputStream &istream) throw (class Exception);
+		virtual std::streamsize read(InputStream &istream);
 
-		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
+		virtual std::streamsize write(OutputStream &ostream) const;
 
 		void setAlpha(uint8_t alpha);
 		uint8_t alpha() const;
@@ -114,8 +114,8 @@ class Rgba : public Rgb
 class Bgra : public Rgba
 {
 	public:
-		virtual std::streamsize read(InputStream &istream) throw (Exception);
-		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+		virtual std::streamsize read(InputStream &istream);
+		virtual std::streamsize write(OutputStream &ostream) const;
 
 		virtual uint32_t value() const;
 };

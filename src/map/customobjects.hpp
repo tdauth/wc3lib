@@ -85,8 +85,8 @@ class CustomObjects : public CustomUnits
 				 */
 				int32 data() const;
 
-				std::streamsize read(InputStream &istream) throw (class Exception);
-				std::streamsize write(OutputStream &ostream) const throw (class Exception);
+				std::streamsize read(InputStream &istream);
+				std::streamsize write(OutputStream &ostream) const;
 
 			protected:
 				CustomObjects::Type m_type;

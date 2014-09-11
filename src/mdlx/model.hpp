@@ -58,14 +58,14 @@ class Model : public MdxBlock
 		void setBlendTime(long32 blendTime);
 		long32 blendTime() const;
 
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream, const Mdlx *mdlx) const throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception)
+		virtual std::streamsize readMdl(istream &istream);
+		virtual std::streamsize writeMdl(ostream &ostream, const Mdlx *mdlx) const;
+		virtual std::streamsize writeMdl(ostream &ostream) const
 		{
 			return writeMdl(ostream, 0);
 		}
-		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
+		virtual std::streamsize readMdx(istream &istream);
+		virtual std::streamsize writeMdx(ostream &ostream) const;
 
 	protected:
 		class Mdlx *m_mdlx;

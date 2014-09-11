@@ -42,8 +42,8 @@ class Tilepoint : public Format
 			CameraBoundary = 0x0080
 		};
 
-		virtual std::streamsize read(InputStream &istream) throw (class Exception);
-		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
+		virtual std::streamsize read(InputStream &istream);
+		virtual std::streamsize write(OutputStream &ostream) const;
 
 		int16 worldEditorHeight(int16 layer, int16 groundZeroLevel, int16 layerZeroLevel) const;
 		float32 worldEditorWaterLevel(int16 groundZeroLevel, float32 waterZeroLevel) const;

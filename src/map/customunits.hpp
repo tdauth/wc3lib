@@ -64,8 +64,8 @@ class CustomUnits : public FileFormat
 				Modification(const Modification &other);
 				virtual ~Modification();
 
-				std::streamsize read(InputStream &istream) throw (class Exception);
-				std::streamsize write(OutputStream &ostream) const throw (class Exception);
+				std::streamsize read(InputStream &istream);
+				std::streamsize write(OutputStream &ostream) const;
 
 				void setValueId(id valueId);
 				id valueId() const;
@@ -79,8 +79,8 @@ class CustomUnits : public FileFormat
 				/**
 				 * Reads data into \p m_value depending on parameter \p type.
 				 */
-				std::streamsize readData(InputStream &istream, Value::Type type) throw (class Exception);
-				std::streamsize writeData(OutputStream &ostream, Value::Type type) const throw (class Exception);
+				std::streamsize readData(InputStream &istream, Value::Type type);
+				std::streamsize writeData(OutputStream &ostream, Value::Type type) const;
 
 				id m_id; // from "Units\UnitMetaData.slk"
 				Value m_value;
@@ -107,8 +107,8 @@ class CustomUnits : public FileFormat
 				Unit(const Unit &other);
 				virtual ~Unit();
 
-				std::streamsize read(InputStream &istream) throw (class Exception);
-				std::streamsize write(OutputStream &ostream) const throw (class Exception);
+				std::streamsize read(InputStream &istream);
+				std::streamsize write(OutputStream &ostream) const;
 
 				bool isOriginal() { return m_customId == 0; };
 
@@ -135,8 +135,8 @@ class CustomUnits : public FileFormat
 		CustomUnits();
 		virtual ~CustomUnits();
 
-		virtual std::streamsize read(InputStream &istream) throw (class Exception);
-		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
+		virtual std::streamsize read(InputStream &istream);
+		virtual std::streamsize write(OutputStream &ostream) const;
 
 		virtual const byte* fileName() const;
 		virtual const byte* fileTextId() const;

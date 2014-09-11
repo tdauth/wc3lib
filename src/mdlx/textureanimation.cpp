@@ -44,12 +44,12 @@ TextureAnimation::~TextureAnimation()
 	delete this->m_scalings;
 }
 
-std::streamsize TextureAnimation::readMdl(istream &istream) throw (class Exception)
+std::streamsize TextureAnimation::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize TextureAnimation::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize TextureAnimation::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlBlock(ostream, size, "TVertexAnim");
@@ -69,7 +69,7 @@ std::streamsize TextureAnimation::writeMdl(ostream &ostream) const throw (class 
 }
 
 
-std::streamsize TextureAnimation::readMdx(istream &istream) throw (class Exception)
+std::streamsize TextureAnimation::readMdx(istream &istream)
 {
 	std::streamsize size = 0;
 	long32 nbytesi = 0;
@@ -83,7 +83,7 @@ std::streamsize TextureAnimation::readMdx(istream &istream) throw (class Excepti
 	return size;
 }
 
-std::streamsize TextureAnimation::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize TextureAnimation::writeMdx(ostream &ostream) const
 {
 	std::streampos position;
 	skipByteCount<long32>(ostream, position);

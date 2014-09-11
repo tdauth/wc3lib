@@ -66,7 +66,7 @@ Archive::~Archive()
 	this->close();
 }
 
-std::streamsize Archive::create(const boost::filesystem::path &path, bool overwriteExisting, std::streampos startPosition, Format format, uint32 sectorSize) throw (class Exception)
+std::streamsize Archive::create(const boost::filesystem::path &path, bool overwriteExisting, std::streampos startPosition, Format format, uint32 sectorSize)
 {
 	this->close();
 
@@ -111,7 +111,7 @@ std::streamsize Archive::create(const boost::filesystem::path &path, bool overwr
 	return streamSize;
 }
 
-std::streamsize Archive::open(const boost::filesystem::path &path) throw (class Exception)
+std::streamsize Archive::open(const boost::filesystem::path &path)
 {
 	this->close();
 
@@ -152,7 +152,7 @@ void Archive::close()
 	this->clear();
 }
 
-std::streamsize Archive::read(InputStream &stream) throw (class Exception)
+std::streamsize Archive::read(InputStream &stream)
 {
 	/*
 	 * Find header structure by using file key.
@@ -304,7 +304,7 @@ std::streamsize Archive::read(InputStream &stream) throw (class Exception)
 }
 
 /// @todo Write with format this->m_format!
-std::streamsize Archive::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize Archive::write(OutputStream &ostream) const
 {
 	return 0;
 }

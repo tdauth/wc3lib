@@ -37,7 +37,7 @@ MdxBlock::~MdxBlock()
 }
 
 /// @todo Consider optional like in Python script.
-std::streamsize MdxBlock::readMdx(istream &istream) throw (class Exception)
+std::streamsize MdxBlock::readMdx(istream &istream)
 {
 	const std::streampos requiredPosition = istream.tellg() + (std::streampos)MdxBlock::mdxIdentifierSize;
 	const std::streampos end = endPosition(istream);
@@ -74,7 +74,7 @@ std::streamsize MdxBlock::readMdx(istream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize MdxBlock::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize MdxBlock::writeMdx(ostream &ostream) const
 {
 	if (!this->exists())
 		return 0;
@@ -86,14 +86,14 @@ std::streamsize MdxBlock::writeMdx(ostream &ostream) const throw (class Exceptio
 	return size;
 }
 
-std::streamsize MdxBlock::readMdl(istream &istream) throw (class Exception)
+std::streamsize MdxBlock::readMdl(istream &istream)
 {
 	std::streamsize size = 0;
 
 	return size;
 }
 
-std::streamsize MdxBlock::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize MdxBlock::writeMdl(ostream &ostream) const
 {
 	return 0;
 }

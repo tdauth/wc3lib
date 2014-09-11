@@ -74,8 +74,8 @@ class Sound : public Format
 			Fire = 14
 		};
 
-		virtual std::streamsize read(InputStream &istream) throw (class Exception);
-		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
+		virtual std::streamsize read(InputStream &istream);
+		virtual std::streamsize write(OutputStream &ostream) const;
 
 		const string& name() const;
 		const string& file() const;

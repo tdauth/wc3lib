@@ -70,10 +70,10 @@ class MdlxAnimatedProperty : public MdlxProperty
 		Values& outTan();
 		const Values& outTan() const;
 
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
-		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
+		virtual std::streamsize readMdl(istream &istream);
+		virtual std::streamsize writeMdl(ostream &ostream) const;
+		virtual std::streamsize readMdx(istream &istream);
+		virtual std::streamsize writeMdx(ostream &ostream) const;
 
 	protected:
 		Properties *m_properties;
@@ -96,14 +96,14 @@ MdlxAnimatedProperty<N, _ValueType>::~MdlxAnimatedProperty()
 }
 
 template<typename std::size_t N, typename _ValueType>
-std::streamsize MdlxAnimatedProperty<N, _ValueType>::readMdl(istream &istream) throw (class Exception)
+std::streamsize MdlxAnimatedProperty<N, _ValueType>::readMdl(istream &istream)
 {
 	/// \todo FIXME
 	return 0;
 }
 
 template<typename std::size_t N, typename _ValueType>
-std::streamsize MdlxAnimatedProperty<N, _ValueType>::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize MdlxAnimatedProperty<N, _ValueType>::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlVectorProperty(ostream, size, boost::str(boost::format("%1%:") % frame()), values());
@@ -118,7 +118,7 @@ std::streamsize MdlxAnimatedProperty<N, _ValueType>::writeMdl(ostream &ostream) 
 }
 
 template<typename std::size_t N, typename _ValueType>
-std::streamsize MdlxAnimatedProperty<N, _ValueType>::readMdx(istream &istream) throw (class Exception)
+std::streamsize MdlxAnimatedProperty<N, _ValueType>::readMdx(istream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_frame, size);
@@ -134,7 +134,7 @@ std::streamsize MdlxAnimatedProperty<N, _ValueType>::readMdx(istream &istream) t
 }
 
 template<typename std::size_t N, typename _ValueType>
-std::streamsize MdlxAnimatedProperty<N, _ValueType>::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize MdlxAnimatedProperty<N, _ValueType>::writeMdx(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->frame(), size);

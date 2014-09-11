@@ -44,9 +44,6 @@
 namespace wc3lib
 {
 
-namespace
-{
-
 template<typename T>
 inline std::string hexValue(T value)
 {
@@ -66,24 +63,7 @@ inline std::string hexValue(T value)
  *
  * \ingroup io
  */
-inline std::string iostateMessage(const std::ios_base::iostate &state)
-{
-	std::ostringstream sstream;
-
-	if (state & std::ios_base::badbit)
-		sstream << "bad";
-
-	if (state & std::ios_base::eofbit)
-		sstream << "eof";
-
-	if (state & std::ios_base::failbit)
-		sstream << "fail";
-
-	if (state & std::ios_base::goodbit)
-		sstream << "good";
-
-	return sstream.str();
-}
+extern std::string iostateMessage(const std::ios_base::iostate &state);
 
 /**
  * Checks an I/O stream for its state. If an error occured it throws an \ref Exception.
@@ -96,14 +76,12 @@ inline std::string iostateMessage(const std::ios_base::iostate &state)
  * \ingroup io
  */
 template<typename _CharT>
-inline void checkStream(std::basic_ios<_CharT> &stream) throw (class Exception)
+inline void checkStream(std::basic_ios<_CharT> &stream)
 {
 	if (!stream)
 	{
 		throw Exception(boost::str(boost::format(_("Stream error.\nExceptions \"%1%\".\nRD state: \"%2%\".")) % iostateMessage(stream.exceptions()) % iostateMessage(stream.rdstate())).c_str());
 	}
-}
-
 }
 
 /**
@@ -120,7 +98,7 @@ inline void checkStream(std::basic_ios<_CharT> &stream) throw (class Exception)
  * \ingroup io
  */
 template<typename T, typename _CharT>
-inline std::basic_istream<_CharT>& read(std::basic_istream<_CharT> &istream, T &value, std::streamsize &sizeCounter, std::streamsize size = sizeof(T) * sizeof(_CharT)) throw (class Exception)
+inline std::basic_istream<_CharT>& read(std::basic_istream<_CharT> &istream, T &value, std::streamsize &sizeCounter, std::streamsize size = sizeof(T) * sizeof(_CharT))
 {
 	istream.read(reinterpret_cast<_CharT*>(&value), size);
 
@@ -154,7 +132,7 @@ inline std::basic_istream<_CharT>& read(std::basic_istream<_CharT> &istream, T &
  * \ingroup io
  */
 template<typename _CharT>
-inline std::basic_istream<_CharT>& readString(std::basic_istream<_CharT> &istream, std::basic_string<_CharT> &value, std::streamsize &sizeCounter, _CharT terminatingChar = '\0', const std::size_t maxLength = 1024) throw (class Exception)
+inline std::basic_istream<_CharT>& readString(std::basic_istream<_CharT> &istream, std::basic_string<_CharT> &value, std::streamsize &sizeCounter, _CharT terminatingChar = '\0', const std::size_t maxLength = 1024)
 {
 	if (maxLength == 0)
 	{

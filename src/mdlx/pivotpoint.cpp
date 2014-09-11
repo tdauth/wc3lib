@@ -31,12 +31,12 @@ PivotPoint::PivotPoint(class PivotPoints *pivotPoints) : GroupMdxBlockMember(piv
 {
 }
 
-std::streamsize PivotPoint::readMdl(istream &istream) throw (class Exception)
+std::streamsize PivotPoint::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize PivotPoint::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize PivotPoint::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 
@@ -45,12 +45,12 @@ std::streamsize PivotPoint::writeMdl(ostream &ostream) const throw (class Except
 	return size;
 }
 
-std::streamsize PivotPoint::readMdx(istream &istream) throw (class Exception)
+std::streamsize PivotPoint::readMdx(istream &istream)
 {
 	return this->m_vertexData.read(istream);
 }
 
-std::streamsize PivotPoint::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize PivotPoint::writeMdx(ostream &ostream) const
 {
 	return this->vertexData().write(ostream);
 }

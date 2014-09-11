@@ -50,7 +50,7 @@ W3m::~W3m()
 }
 
 #ifdef MPQ
-std::streamsize W3m::readFileFormat(FileFormat *format) throw (Exception)
+std::streamsize W3m::readFileFormat(FileFormat *format)
 {
 	std::streamsize size = 0;
 	mpq::File file = this->findFile(format->fileName());
@@ -78,7 +78,7 @@ std::streamsize W3m::readFileFormat(FileFormat *format) throw (Exception)
 	return size;
 }
 
-std::streamsize W3m::readAllFileFormats(const TriggerData *triggerData) throw (Exception)
+std::streamsize W3m::readAllFileFormats(const TriggerData *triggerData)
 {
 	std::streamsize size = 0;
 
@@ -109,7 +109,7 @@ std::streamsize W3m::readAllFileFormats(const TriggerData *triggerData) throw (E
 }
 
 
-std::streamsize W3m::read(InputStream &istream) throw (class Exception)
+std::streamsize W3m::read(InputStream &istream)
 {
 	std::streamsize size = this->readHeader(istream);
 	size += mpq::Archive::read(istream);
@@ -118,7 +118,7 @@ std::streamsize W3m::read(InputStream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize W3m::readTriggers(const TriggerData &triggerData) throw (class Exception)
+std::streamsize W3m::readTriggers(const TriggerData &triggerData)
 {
 	std::streamsize size = 0;
 	mpq::File file = this->findFile(m_triggers.get()->fileName());
@@ -152,7 +152,7 @@ std::streamsize W3m::readTriggers(const TriggerData &triggerData) throw (class E
 
 #endif
 
-std::streamsize W3m::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize W3m::write(OutputStream &ostream) const
 {
 	std::streamsize size = this->writeHeader(ostream);
 	// TODO create new MPQ archive in stream ostream with all corresponding file formats as MpqFile instances
@@ -161,7 +161,7 @@ std::streamsize W3m::write(OutputStream &ostream) const throw (class Exception)
 	return size;
 }
 
-std::streamsize W3m::readHeader(InputStream &istream) throw (class Exception)
+std::streamsize W3m::readHeader(InputStream &istream)
 {
 	std::streamsize size = 0;
 	int32 fileId;
@@ -183,7 +183,7 @@ std::streamsize W3m::readHeader(InputStream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize W3m::readSignature(InputStream &istream) throw (class Exception)
+std::streamsize W3m::readSignature(InputStream &istream)
 {
 	std::streamsize result = 0;
 
@@ -210,7 +210,7 @@ std::streamsize W3m::readSignature(InputStream &istream) throw (class Exception)
 	return result;
 }
 
-std::streamsize W3m::writeHeader(OutputStream &ostream) const throw (class Exception)
+std::streamsize W3m::writeHeader(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, fileId(), size);

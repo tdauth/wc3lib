@@ -34,8 +34,8 @@ class CustomTextTriggers : public FileFormat
 	public:
 		typedef std::vector<string> TriggerTexts;
 
-		virtual std::streamsize read(InputStream& istream) throw (Exception);
-		virtual std::streamsize write(OutputStream& ostream) const throw (Exception);
+		virtual std::streamsize read(InputStream& istream);
+		virtual std::streamsize write(OutputStream& ostream) const;
 
 		virtual const byte* fileTextId() const;
 		virtual const byte* fileName() const;

@@ -43,7 +43,7 @@ void WarcraftIIIShared::refreshDefaultFiles(QWidget *window)
 	this->refreshTriggerData(window);
 }
 
-Texture* WarcraftIIIShared::teamColorTexture(TeamColor teamColor) const throw (class Exception)
+Texture* WarcraftIIIShared::teamColorTexture(TeamColor teamColor) const
 {
 	TeamColorTextures::iterator iterator = this->m_teamColorTextures.find(teamColor);
 
@@ -60,7 +60,7 @@ Texture* WarcraftIIIShared::teamColorTexture(TeamColor teamColor) const throw (c
 	return this->m_teamColorTextures.find(teamColor)->second;
 }
 
-Texture* WarcraftIIIShared::teamGlowTexture(TeamColor teamGlow) const throw (class Exception)
+Texture* WarcraftIIIShared::teamGlowTexture(TeamColor teamGlow) const
 {
 	TeamColorTextures::iterator iterator = this->m_teamGlowTextures.find(teamGlow);
 
@@ -77,7 +77,7 @@ Texture* WarcraftIIIShared::teamGlowTexture(TeamColor teamGlow) const throw (cla
 	return this->m_teamGlowTextures.find(teamGlow)->second;
 }
 
-void WarcraftIIIShared::refreshWorldEditorStrings(QWidget *window, const KUrl &url) throw (Exception)
+void WarcraftIIIShared::refreshWorldEditorStrings(QWidget *window, const KUrl &url)
 {
 	WorldEditorStringsPtr ptr(new MetaData(url));
 	ptr->setSource(this->source());
@@ -140,7 +140,7 @@ QIcon WarcraftIIIShared::worldEditDataIcon(const QString& key, const QString& gr
 	return this->icon(filePath, window);
 }
 
-void WarcraftIIIShared::refreshWorldEditData(QWidget* window, const KUrl &url) throw (Exception)
+void WarcraftIIIShared::refreshWorldEditData(QWidget* window, const KUrl &url)
 {
 	WorldEditDataPtr ptr(new MetaData(url));
 	ptr->setSource(this->source());
@@ -149,7 +149,7 @@ void WarcraftIIIShared::refreshWorldEditData(QWidget* window, const KUrl &url) t
 	m_worldEditData.swap(ptr); // exception safe
 }
 
-void WarcraftIIIShared::refreshTriggerData(QWidget *window, const KUrl &url) throw (Exception)
+void WarcraftIIIShared::refreshTriggerData(QWidget *window, const KUrl &url)
 {
 	QString target;
 
@@ -171,7 +171,7 @@ void WarcraftIIIShared::refreshTriggerData(QWidget *window, const KUrl &url) thr
 	m_triggerData.swap(ptr); // exception safe
 }
 
-void WarcraftIIIShared::refreshTriggerStrings(QWidget *window, const KUrl &url) throw (Exception)
+void WarcraftIIIShared::refreshTriggerStrings(QWidget *window, const KUrl &url)
 {
 	QString target;
 

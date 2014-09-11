@@ -45,8 +45,8 @@ class Tree : public Format
 			OutsideCameraBounds = 3 // (set to 3 when it's outside the camerabounds?)
 		};
 
-		virtual std::streamsize read(InputStream &istream) throw (Exception);
-		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+		virtual std::streamsize read(InputStream &istream);
+		virtual std::streamsize write(OutputStream &ostream) const;
 
 		id treeId() const;
 		int32 variation() const;

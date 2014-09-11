@@ -77,8 +77,8 @@ class TriggerData : public FileFormat
 				// Value 2: Optional flag (defaults to 0) indicating to disable display of category name
 				bool displayName() const;
 
-				virtual std::streamsize read(InputStream &istream) throw (Exception);
-				virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+				virtual std::streamsize read(InputStream &istream);
+				virtual std::streamsize write(OutputStream &ostream) const;
 
 			private:
 				string m_name;
@@ -111,8 +111,8 @@ class TriggerData : public FileFormat
 				// If a type does not have an entry here, it will be set to null if it is a handle
 				const string& defaultValue() const;
 
-				virtual std::streamsize read(InputStream &istream) throw (Exception);
-				virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+				virtual std::streamsize read(InputStream &istream);
+				virtual std::streamsize write(OutputStream &ostream) const;
 
 			private:
 				string m_name;
@@ -144,8 +144,8 @@ class TriggerData : public FileFormat
 				void setDisplayText(const string &displayText);
 				const string& displayText() const;
 
-				virtual std::streamsize read(InputStream &istream) throw (Exception);
-				virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+				virtual std::streamsize read(InputStream &istream);
+				virtual std::streamsize write(OutputStream &ostream) const;
 
 			private:
 				string m_name;
@@ -193,8 +193,8 @@ class TriggerData : public FileFormat
 				Limits& limits();
 				const Limits& limits() const;
 
-				virtual std::streamsize read(InputStream& istream) throw (Exception);
-				virtual std::streamsize write(OutputStream& ostream) const throw (Exception);
+				virtual std::streamsize read(InputStream& istream);
+				virtual std::streamsize write(OutputStream& ostream) const;
 
 				virtual void fillTypes(TriggerData *triggerData, const SplitVector &values);
 
@@ -255,8 +255,8 @@ class TriggerData : public FileFormat
 				bool canBeUsedInEvents() const;
 				const ArgumentType& returnType() const;
 
-				virtual std::streamsize read(InputStream& istream) throw (Exception);
-				virtual std::streamsize write(OutputStream& ostream) const throw (Exception);
+				virtual std::streamsize read(InputStream& istream);
+				virtual std::streamsize write(OutputStream& ostream) const;
 
 				// TODO C++11 override
 				virtual void fillTypes(TriggerData *triggerData, const SplitVector &values);
@@ -286,8 +286,8 @@ class TriggerData : public FileFormat
 				Functions& actions();
 				const Functions& actions() const;
 
-				virtual std::streamsize read(InputStream &istream) throw (Exception);
-				virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+				virtual std::streamsize read(InputStream &istream);
+				virtual std::streamsize write(OutputStream &ostream) const;
 
 			private:
 				string m_name;
@@ -307,8 +307,8 @@ class TriggerData : public FileFormat
 		typedef std::vector<string> DefaultTriggerCategories;
 		typedef boost::ptr_vector<DefaultTrigger> DefaultTriggers;
 
-		virtual std::streamsize read(InputStream &istream) throw (Exception);
-		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+		virtual std::streamsize read(InputStream &istream);
+		virtual std::streamsize write(OutputStream &ostream) const;
 
 		virtual const byte* fileName() const;
 		virtual const byte* fileTextId() const;

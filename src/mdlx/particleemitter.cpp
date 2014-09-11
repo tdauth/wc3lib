@@ -40,12 +40,12 @@ ParticleEmitter::~ParticleEmitter()
 	delete this->m_visibilities;
 }
 
-std::streamsize ParticleEmitter::readMdl(istream &istream) throw (class Exception)
+std::streamsize ParticleEmitter::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize ParticleEmitter::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize ParticleEmitter::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlBlock(ostream, size, "ParticleEmitter", this->name(), 0, true);
@@ -76,7 +76,7 @@ std::streamsize ParticleEmitter::writeMdl(ostream &ostream) const throw (class E
 	return size;
 }
 
-std::streamsize ParticleEmitter::readMdx(istream &istream) throw (class Exception)
+std::streamsize ParticleEmitter::readMdx(istream &istream)
 {
 	long32 nbytesi;
 	std::streamsize size = 0;
@@ -95,7 +95,7 @@ std::streamsize ParticleEmitter::readMdx(istream &istream) throw (class Exceptio
 	return size;
 }
 
-std::streamsize ParticleEmitter::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize ParticleEmitter::writeMdx(ostream &ostream) const
 {
 	// skipping inclusive byte counts of particle emitter
 	std::streampos position;

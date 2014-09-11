@@ -36,7 +36,7 @@ Triggers::Triggers()
 {
 }
 
-std::streamsize Triggers::read(InputStream &istream, const TriggerData &triggerData) throw (class Exception)
+std::streamsize Triggers::read(InputStream &istream, const TriggerData &triggerData)
 {
 	std::streamsize size = FileFormat::read(istream);
 
@@ -77,7 +77,7 @@ std::streamsize Triggers::read(InputStream &istream, const TriggerData &triggerD
 	return size;
 }
 
-std::streamsize Triggers::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize Triggers::write(OutputStream &ostream) const
 {
 	std::streamsize size = FileFormat::write(ostream);
 	int32 number = boost::numeric_cast<int32>(this->categories().size());

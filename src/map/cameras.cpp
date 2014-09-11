@@ -32,7 +32,7 @@ namespace wc3lib
 namespace map
 {
 
-std::streamsize Cameras::read(InputStream &istream) throw (class Exception)
+std::streamsize Cameras::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_version, size);
@@ -54,7 +54,7 @@ std::streamsize Cameras::read(InputStream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Cameras::write(std::ostream &ostream) const throw (class Exception)
+std::streamsize Cameras::write(std::ostream &ostream) const
 {
 	if (this->version() != latestFileVersion())
 		std::cerr << boost::format(_("Cameras: Unknown version \"%1%\", expected \"%2%\".")) % this->version() % latestFileVersion() << std::endl;

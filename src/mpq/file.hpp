@@ -91,7 +91,7 @@ class File
 		File();
 		virtual ~File();
 
-		  File(const File &other);
+		File(const File &other);
 
 		/**
 		 * Closes the file which makes it invalid immediately.
@@ -104,16 +104,16 @@ class File
 		 * \return Returns size of read data.
 		 * \throws Exception Usually thrown when there is not enough space in file's corresponding block. Throws an exception if file is locked as well.
 		 */
-		virtual std::streamsize readData(istream &istream, Sector::Compression compression = Sector::Compression::Uncompressed) throw (class Exception);
+		virtual std::streamsize readData(istream &istream, Sector::Compression compression = Sector::Compression::Uncompressed);
 		/**
 		 * Writes uncompressed file data into output stream \p ostream.
 		 * \return Returns size of written data.
 		 */
-		virtual std::streamsize writeData(ostream &ostream) throw (class Exception);
+		virtual std::streamsize writeData(ostream &ostream);
 		/**
 		 * Same as \ref writeData(ostream &) but doesn't work independently since it expects to be at the correct position in archive using \p istream as input archive stream.
 		 */
-		virtual std::streamsize writeData(istream &istream, ostream &ostream) throw (Exception);
+		virtual std::streamsize writeData(istream &istream, ostream &ostream);
 
 		/**
 		 * \todo Implement removal of all data from the block which should mark hash as deleted and clear the block and should be synchronized with the archive.
@@ -128,15 +128,15 @@ class File
 		 *
 		 * \throws Exception Throws an exception if file is locked.
 		 */
-		std::streamsize sectors(istream &istream, Sectors &sectors) throw (class Exception);
+		std::streamsize sectors(istream &istream, Sectors &sectors);
 		/**
 		 * Same as \ref read(istream &) but opens MPQ archive for reading sector table.
 		 */
-		std::streamsize sectors(Sectors &sectors) throw (class Exception);
+		std::streamsize sectors(Sectors &sectors);
 		/**
 		 * Writes the file sectors' meta data.
 		 */
-		std::streamsize writeSectors(ostream &ostream, const Sectors &sectors) const throw (class Exception);
+		std::streamsize writeSectors(ostream &ostream, const Sectors &sectors) const;
 
 		// hash attributes
 		Locale locale() const;

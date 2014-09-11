@@ -50,8 +50,8 @@ class MenuMinimap : public FileFormat
 
 				Mark();
 
-				virtual std::streamsize read(InputStream& istream) throw (Exception);
-				virtual std::streamsize write(OutputStream& ostream) const throw (Exception);
+				virtual std::streamsize read(InputStream& istream);
+				virtual std::streamsize write(OutputStream& ostream) const;
 
 				IconType iconType() const;
 				const Bgra& color() const;
@@ -64,8 +64,8 @@ class MenuMinimap : public FileFormat
 		/// Ordered by their coordinates.
 		typedef boost::ptr_vector<Mark> Marks;
 
-		virtual std::streamsize read(InputStream &istream) throw (Exception);
-		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+		virtual std::streamsize read(InputStream &istream);
+		virtual std::streamsize write(OutputStream &ostream) const;
 
 		virtual const byte* fileName() const;
 		virtual const byte* fileTextId() const;

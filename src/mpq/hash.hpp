@@ -172,7 +172,7 @@ class Hash : public Format, private boost::noncopyable
 		static const uint32 blockIndexDeleted;
 		static const uint32 blockIndexEmpty;
 
-		std::streamsize write(ostream &ostream) const throw (Exception);
+		std::streamsize write(ostream &ostream) const;
 
 		/**
 		 * Clears the hash entry and writes it back to the archive.
@@ -235,7 +235,7 @@ class Hash : public Format, private boost::noncopyable
 		 * Reads all hashing data into the class.
 		 * \param index Assigns the index to the hash entry.
 		 */
-		std::streamsize read(istream &istream) throw (Exception);
+		std::streamsize read(istream &istream);
 
 		friend File; // TODO remove when changePath() is public
 

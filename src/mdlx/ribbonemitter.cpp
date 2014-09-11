@@ -45,12 +45,12 @@ RibbonEmitter::~RibbonEmitter()
 	delete this->m_heightsBelow;
 }
 
-std::streamsize RibbonEmitter::readMdl(istream &istream) throw (class Exception)
+std::streamsize RibbonEmitter::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize RibbonEmitter::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize RibbonEmitter::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 
@@ -91,7 +91,7 @@ std::streamsize RibbonEmitter::writeMdl(ostream &ostream) const throw (class Exc
 	return size;
 }
 
-std::streamsize RibbonEmitter::readMdx(istream &istream) throw (class Exception)
+std::streamsize RibbonEmitter::readMdx(istream &istream)
 {
 	std::streamsize size = 0;
 	long32 nbytesi = 0;
@@ -117,7 +117,7 @@ std::streamsize RibbonEmitter::readMdx(istream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize RibbonEmitter::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize RibbonEmitter::writeMdx(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	std::streampos position;

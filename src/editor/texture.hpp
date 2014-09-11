@@ -70,8 +70,8 @@ class KDE_EXPORT Texture : public Resource
 		/**
 		 * \exception Exception Exception safe!
 		 */
-		virtual void loadBlp(const QMap<QString, QString> &options) throw (Exception);
-		virtual void loadBlp() throw (Exception)
+		virtual void loadBlp(const QMap<QString, QString> &options);
+		virtual void loadBlp()
 		{
 			loadBlp(QMap<QString, QString>());
 		}
@@ -79,24 +79,24 @@ class KDE_EXPORT Texture : public Resource
 		/**
 		 * \exception Exception Exception safe!
 		 */
-		virtual void loadQt() throw (Exception);
+		virtual void loadQt();
 		/**
 		 * \exception Exception Exception safe!
 		 */
-		virtual void loadOgre() throw (Exception);
+		virtual void loadOgre();
 		/**
 		 * \exception Exception Exception safe!
 		 */
-		virtual void loadOgreTexture() throw (Exception);
+		virtual void loadOgreTexture();
 		/**
 		 * \exception Exception Exception safe!
 		 */
-		virtual void loadAll() throw (Exception);
-		virtual void load() throw (Exception) { loadAll(); }
+		virtual void loadAll();
+		virtual void load() { loadAll(); }
 		/**
 		 * Calls \ref clear() and frees everything. Afterwards it loads all images which has been allocated formerly.
 		 */
-		virtual void reload() throw (Exception);
+		virtual void reload();
 
 		/**
 		 * Saves texture at \p url with format \p format and compression options \p compression.
@@ -111,8 +111,8 @@ class KDE_EXPORT Texture : public Resource
 		 * \todo Option quality only works for non-BLP formats.
 		 * \exception Exception Exception safe!
 		 */
-		virtual void save(const KUrl &url, const QString &format, const QMap<QString, QString> &compression) const throw (Exception);
-		virtual void save(const KUrl &url) const throw (Exception)
+		virtual void save(const KUrl &url, const QString &format, const QMap<QString, QString> &compression) const;
+		virtual void save(const KUrl &url) const
 		{
 			save(url, "", QMap<QString, QString>());
 		}

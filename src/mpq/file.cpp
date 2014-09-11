@@ -28,12 +28,12 @@ namespace wc3lib
 namespace mpq
 {
 
-std::streamsize File::readData(istream &istream, Sector::Compression compression) throw (class Exception)
+std::streamsize File::readData(istream &istream, Sector::Compression compression)
 {
 	throw Exception(_("Not supported yet!"));
 }
 
-std::streamsize File::writeData(ostream &ostream) throw (class Exception)
+std::streamsize File::writeData(ostream &ostream)
 {
 	ifstream ifstream(this->mpq()->path(), std::ios_base::in | std::ios_base::binary);
 
@@ -47,7 +47,7 @@ std::streamsize File::writeData(ostream &ostream) throw (class Exception)
 	return bytes;
 }
 
-std::streamsize File::writeData(istream &istream, ostream &ostream) throw (Exception)
+std::streamsize File::writeData(istream &istream, ostream &ostream)
 {
 	/*
 	 * Read sectors from MPQ archive file and store them.
@@ -113,11 +113,11 @@ File::~File()
 {
 }
 
-File::File(const File& other) : m_mpq(other.mpq()), m_hash(other.hash()), m_path(other.path())
+File::File(const File &other) : m_mpq(other.mpq()), m_hash(other.hash()), m_path(other.path())
 {
 }
 
-std::streamsize File::sectors(istream &istream, Sectors &sectors) throw (class Exception)
+std::streamsize File::sectors(istream &istream, Sectors &sectors)
 {
 	// if we have a sector offset table and file is encrypted we first need to know its path for proper decryption!
 	if (hasSectorOffsetTable() && isEncrypted() && path().empty())
@@ -242,7 +242,7 @@ void File::changePath(const boost::filesystem::path &path)
 	}
 }
 
-std::streamsize File::sectors(Sectors &sectors) throw (class Exception)
+std::streamsize File::sectors(Sectors &sectors)
 {
 	ifstream istream(mpq()->path(), std::ios::in | std::ios::binary);
 
@@ -256,7 +256,7 @@ std::streamsize File::sectors(Sectors &sectors) throw (class Exception)
 	return result;
 }
 
-std::streamsize File::writeSectors(ostream &ostream, const Sectors &sectors) const throw (class Exception)
+std::streamsize File::writeSectors(ostream &ostream, const Sectors &sectors) const
 {
 	return 0;
 }

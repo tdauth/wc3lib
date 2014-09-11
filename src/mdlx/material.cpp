@@ -40,12 +40,12 @@ Material::~Material()
 	delete this->m_layers;
 }
 
-std::streamsize Material::readMdl(istream &istream) throw (class Exception)
+std::streamsize Material::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize Material::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize Material::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlBlock(ostream, size, "Material");
@@ -72,7 +72,7 @@ std::streamsize Material::writeMdl(ostream &ostream) const throw (class Exceptio
 	return size;
 }
 
-std::streamsize Material::readMdx(istream &istream) throw (class Exception)
+std::streamsize Material::readMdx(istream &istream)
 {
 	std::streamsize size = 0;
 	long32 includingSize; // including size itself!
@@ -90,7 +90,7 @@ std::streamsize Material::readMdx(istream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Material::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize Material::writeMdx(ostream &ostream) const
 {
 	std::streampos position;
 	skipByteCount<long32>(ostream, position);

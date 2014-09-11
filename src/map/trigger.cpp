@@ -36,7 +36,7 @@ Trigger::Trigger() : m_isEnabled(false), m_isCustomText(false), m_isInitiallyOn(
 {
 }
 
-std::streamsize Trigger::read(InputStream &istream, const TriggerData &triggerData) throw (Exception)
+std::streamsize Trigger::read(InputStream &istream, const TriggerData &triggerData)
 {
 	std::streamsize size = 0;
 	readString(istream, this->m_name, size);
@@ -64,7 +64,7 @@ std::streamsize Trigger::read(InputStream &istream, const TriggerData &triggerDa
 	return size;
 }
 
-std::streamsize Trigger::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize Trigger::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 

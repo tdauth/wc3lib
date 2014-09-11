@@ -39,8 +39,8 @@ class Ganimation : public Bounds
 
 		class Geoset* geoset() const;
 
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
+		virtual std::streamsize readMdl(istream &istream);
+		virtual std::streamsize writeMdl(ostream &ostream) const;
 
 	protected:
 		class Geoset *m_geoset;

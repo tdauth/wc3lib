@@ -74,8 +74,8 @@ class Shadow : public FileFormat
 		/**
 		 * Reads a shadow file of size \ref width() * \ref height() * \ref shadowPointsPerTileset.
 		 */
-		virtual std::streamsize read(InputStream &istream) throw (class Exception);
-		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
+		virtual std::streamsize read(InputStream &istream);
+		virtual std::streamsize write(OutputStream &ostream) const;
 
 		virtual const byte* fileTextId() const;
 		virtual const byte* fileName() const;

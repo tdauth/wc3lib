@@ -131,9 +131,9 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		const Cameras& cameras() const;
 		const CollisionShapes& collisionShapes() const;
 
-		void setTeamColor(TeamColor teamColor) throw (Exception);
+		void setTeamColor(TeamColor teamColor);
 		TeamColor teamColor() const;
-		void setTeamGlow(TeamColor teamGlow) throw (Exception);
+		void setTeamGlow(TeamColor teamGlow);
 		TeamColor teamGlow() const;
 
 		Ogre::String textureName(mdlx::long32 id) const;
@@ -143,8 +143,8 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		 * Loads and analyses all data of corresponding MDLX model and refreshes displayed OGRE mesh.
 		 * If \ref modelView() is based on
 		 */
-		virtual void load() throw (class Exception);
-		virtual void reload() throw (Exception);
+		virtual void load();
+		virtual void reload();
 
 		/**
 		 * Provides serialization functionality of the corresponding \ref mdlx::Mdlx instance or the OGRE scene.
@@ -159,8 +159,8 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		 * \param format If this value is empty format will be detected automatically by it's destination's extension. If no valid extension could be detected default format is used: MDX.
 		 * \throw Exception Is thrown when file could not be stored in \p url.
 		 */
-		virtual void save(const KUrl &url, const QString &format) const throw (class Exception);
-		virtual void save(const KUrl &url) const throw (Exception)
+		virtual void save(const KUrl &url, const QString &format) const;
+		virtual void save(const KUrl &url) const
 		{
 			save(url, "");
 		}

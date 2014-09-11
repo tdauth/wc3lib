@@ -36,7 +36,7 @@ GlobalSequence::GlobalSequence(class GlobalSequences *globalSequences) : GroupMd
 {
 }
 
-std::streamsize GlobalSequence::readMdl(istream &istream) throw (class Exception)
+std::streamsize GlobalSequence::readMdl(istream &istream)
 {
 	std::string line;
 	std::getline(istream, line);
@@ -61,7 +61,7 @@ std::streamsize GlobalSequence::readMdl(istream &istream) throw (class Exception
 	return 0;
 }
 
-std::streamsize GlobalSequence::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize GlobalSequence::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 
@@ -70,7 +70,7 @@ std::streamsize GlobalSequence::writeMdl(ostream &ostream) const throw (class Ex
 	return size;
 }
 
-std::streamsize GlobalSequence::readMdx(istream &istream) throw (class Exception)
+std::streamsize GlobalSequence::readMdx(istream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_duration, size);
@@ -78,7 +78,7 @@ std::streamsize GlobalSequence::readMdx(istream &istream) throw (class Exception
 	return size;
 }
 
-std::streamsize GlobalSequence::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize GlobalSequence::writeMdx(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, duration(), size);

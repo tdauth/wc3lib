@@ -34,7 +34,7 @@ CampaignInfo::MapTitle::MapTitle() : m_isVisibleFromTheBeginning(false)
 {
 }
 
-std::streamsize CampaignInfo::MapTitle::read(InputStream &istream) throw (class Exception)
+std::streamsize CampaignInfo::MapTitle::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	int32 visible;
@@ -47,7 +47,7 @@ std::streamsize CampaignInfo::MapTitle::read(InputStream &istream) throw (class 
 	return size;
 }
 
-std::streamsize CampaignInfo::MapTitle::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize CampaignInfo::MapTitle::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write<int32>(ostream, this->isVisibleFromTheBeginning(), size);
@@ -62,7 +62,7 @@ CampaignInfo::Map::Map()
 {
 }
 
-std::streamsize CampaignInfo::Map::read(InputStream &istream) throw (class Exception)
+std::streamsize CampaignInfo::Map::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	readString(istream, this->m_unknown, size);
@@ -71,7 +71,7 @@ std::streamsize CampaignInfo::Map::read(InputStream &istream) throw (class Excep
 	return size;
 }
 
-std::streamsize CampaignInfo::Map::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize CampaignInfo::Map::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	writeString(ostream, this->unknown(), size);
@@ -84,7 +84,7 @@ CampaignInfo::CampaignInfo(class Campaign *campaign) : m_campaign(campaign)
 {
 }
 
-std::streamsize CampaignInfo::read(InputStream &istream) throw (class Exception)
+std::streamsize CampaignInfo::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_version, size);
@@ -162,7 +162,7 @@ std::streamsize CampaignInfo::read(InputStream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize CampaignInfo::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize CampaignInfo::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->version(), size);

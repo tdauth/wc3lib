@@ -63,8 +63,8 @@ class Info : public FileFormat
 					NightElf = 4
 				};
 
-				virtual std::streamsize read(InputStream &istream) throw (Exception) override;
-				virtual std::streamsize write(OutputStream &ostream) const throw (Exception) override;
+				virtual std::streamsize read(InputStream &istream) override;
+				virtual std::streamsize write(OutputStream &ostream) const override;
 
 				int32 number() const;
 				Type type() const;
@@ -99,8 +99,8 @@ class Info : public FileFormat
 					ShareAdvancedUnitControl = 0x00000020
 				};
 
-				virtual std::streamsize read(InputStream &istream) throw (Exception) override;
-				virtual std::streamsize write(OutputStream &ostream) const throw (Exception) override;
+				virtual std::streamsize read(InputStream &istream) override;
+				virtual std::streamsize write(OutputStream &ostream) const override;
 
 				Flags flags() const;
 				int32 playerMask() const;
@@ -124,8 +124,8 @@ class Info : public FileFormat
 
 				UpgradeAvailability();
 
-				virtual std::streamsize read(InputStream &istream) throw (Exception) override;
-				virtual std::streamsize write(OutputStream &ostream) const throw (Exception) override;
+				virtual std::streamsize read(InputStream &istream) override;
+				virtual std::streamsize write(OutputStream &ostream) const override;
 
 				int32 playerMask() const;
 				id upgrade() const;
@@ -146,8 +146,8 @@ class Info : public FileFormat
 		class TechAvailability : public Format
 		{
 			public:
-				virtual std::streamsize read(InputStream &istream) throw (Exception) override;
-				virtual std::streamsize write(OutputStream &ostream) const throw (Exception) override;
+				virtual std::streamsize read(InputStream &istream) override;
+				virtual std::streamsize write(OutputStream &ostream) const override;
 
 				int32 playerMask() const;
 				id tech() const;
@@ -177,8 +177,8 @@ class Info : public FileFormat
 
 								Column();
 
-								virtual std::streamsize read(InputStream &istream) throw (Exception) override;
-								virtual std::streamsize write(OutputStream &ostream) const throw (Exception) override;
+								virtual std::streamsize read(InputStream &istream) override;
+								virtual std::streamsize write(OutputStream &ostream) const override;
 
 								void setType(Type type);
 								Type type() const;
@@ -199,8 +199,8 @@ class Info : public FileFormat
 						 */
 						typedef std::vector<int32> Chances;
 
-						virtual std::streamsize read(InputStream &istream) throw (Exception) override;
-						virtual std::streamsize write(OutputStream &ostream) const throw (Exception) override;
+						virtual std::streamsize read(InputStream &istream) override;
+						virtual std::streamsize write(OutputStream &ostream) const override;
 
 						int32 number() const;
 						const string& name() const;
@@ -218,8 +218,8 @@ class Info : public FileFormat
 
 				typedef boost::ptr_vector<Group> Groups;
 
-				virtual std::streamsize read(InputStream &istream) throw (Exception) override;
-				virtual std::streamsize write(OutputStream &ostream) const throw (Exception) override;
+				virtual std::streamsize read(InputStream &istream) override;
+				virtual std::streamsize write(OutputStream &ostream) const override;
 
 				Groups& groups();
 				const Groups& groups() const;
@@ -234,8 +234,8 @@ class Info : public FileFormat
 		typedef boost::ptr_vector<TechAvailability> TechAvailabilities;
 		typedef boost::ptr_vector<RandomUnitTable> RandomUnitTables;
 
-		virtual std::streamsize read(InputStream &istream) throw (class Exception) override;
-		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception) override;
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
 		virtual const byte* fileTextId() const override;
 		virtual uint32 latestFileVersion() const override;

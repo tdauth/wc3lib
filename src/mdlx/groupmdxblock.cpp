@@ -36,12 +36,12 @@ GroupMdxBlock::~GroupMdxBlock()
 {
 }
 
-std::streamsize GroupMdxBlock::readMdl(istream &istream) throw (class Exception)
+std::streamsize GroupMdxBlock::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize GroupMdxBlock::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize GroupMdxBlock::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 
@@ -68,7 +68,7 @@ std::streamsize GroupMdxBlock::writeMdl(ostream &ostream) const throw (class Exc
 	return size;
 }
 
-std::streamsize GroupMdxBlock::readMdx(istream &istream) throw (class Exception)
+std::streamsize GroupMdxBlock::readMdx(istream &istream)
 {
 	std::streamsize size = MdxBlock::readMdx(istream);
 
@@ -123,7 +123,7 @@ std::streamsize GroupMdxBlock::readMdx(istream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize GroupMdxBlock::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize GroupMdxBlock::writeMdx(ostream &ostream) const
 {
 	if (!this->exists())
 		return 0;

@@ -37,7 +37,7 @@ Shadow::~Shadow()
 {
 }
 
-std::streamsize Shadow::read(InputStream &istream) throw (class Exception)
+std::streamsize Shadow::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 
@@ -59,7 +59,7 @@ std::streamsize Shadow::read(InputStream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Shadow::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize Shadow::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 

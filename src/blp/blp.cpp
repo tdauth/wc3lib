@@ -64,7 +64,7 @@ Blp::MipMap::~MipMap()
 {
 }
 
-Blp::Format Blp::format(const byte *buffer, const std::size_t bufferSize) throw (Exception)
+Blp::Format Blp::format(const byte *buffer, const std::size_t bufferSize)
 {
 	if (bufferSize < sizeof(dword))
 		throw Exception(boost::format(_("Error while reading BLP file. BLP identifier is too short: %1%. Expected size of %2%.")) % bufferSize % sizeof(dword));
@@ -76,11 +76,17 @@ Blp::Format Blp::format(const byte *buffer, const std::size_t bufferSize) throw 
 	*/
 
 	if (memcmp(buffer, "BLP0", sizeof(dword)) == 0) /// TODO &identifier0
+	{
 		return Blp::Format::Blp0;
+	}
 	else if (memcmp(buffer, "BLP1", sizeof(dword)) == 0)
+	{
 		return Blp::Format::Blp1;
+	}
 	else if (memcmp(buffer, "BLP2", sizeof(dword)) == 0)
+	{
 		return Blp::Format::Blp2;
+	}
 
 	throw Exception(boost::format(_("Error while reading BLP file. Missing BLP identifier, got \"%1%\".")) % reinterpret_cast<const char*>(buffer));
 }
@@ -388,7 +394,7 @@ struct MipMapHeader
 
 }
 
-std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps) throw (class Exception)
+std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps)
 {
 	this->clear();
 	// header
@@ -614,7 +620,7 @@ namespace
  * <a href="https://secure.wikimedia.org/wikipedia/en/wiki/JPEG#Syntax_and_structure">Source</a>
  * \todo (from Wikipedia) Within the entropy-coded data, after any 0xFF byte, a 0x00 byte is inserted by the encoder before the next byte, so that there does not appear to be a marker where none is intended, preventing framing errors. Decoders must skip this 0x00 byte. This technique, called byte stuffing (see JPEG specification section F.1.2.3), is only applied to the entropy-coded data, not to marker payload data.
  */
-bool writeJpegMarkerFromBufferToStream(Blp::OutputStream &ostream, std::streamsize &size, bool variableMarkerSize, word markerSize, const byte marker, const unsigned char *buffer, const std::size_t bufferSize) throw (Exception)
+bool writeJpegMarkerFromBufferToStream(Blp::OutputStream &ostream, std::streamsize &size, bool variableMarkerSize, word markerSize, const byte marker, const unsigned char *buffer, const std::size_t bufferSize)
 {
 	if (marker == 0x00)
 		throw Exception(_("0x00 marker is invalid! This value must be safed for 0xFF bytes in encoded data!"));
@@ -661,7 +667,7 @@ bool writeJpegMarkerFromBufferToStream(Blp::OutputStream &ostream, std::streamsi
 
 }
 
-std::streamsize Blp::write(OutputStream &ostream, int quality, std::size_t mipMaps) const throw (class Exception)
+std::streamsize Blp::write(OutputStream &ostream, int quality, std::size_t mipMaps) const
 {
 	/*
 	 * Check and fix input options.
@@ -1010,7 +1016,7 @@ uint32_t Blp::version() const
 	return (uint32_t)format();
 }
 
-int Blp::generateMipMaps(std::size_t number, bool regenerate) throw (class Exception)
+int Blp::generateMipMaps(std::size_t number, bool regenerate)
 {
 	if (number > Blp::maxMipMaps)
 		std::cerr << boost::format(_("MIP map number %1% is bigger than maximum %2%")) % number % Blp::maxMipMaps << std::endl;
@@ -1049,12 +1055,12 @@ int Blp::generateMipMaps(std::size_t number, bool regenerate) throw (class Excep
 	return 0;
 }
 
-const Blp::ColorPtr& Blp::palette() const throw (Exception)
+const Blp::ColorPtr& Blp::palette() const
 {
 	return const_cast<Blp*>(this)->palette();
 }
 
-Blp::ColorPtr& Blp::palette() throw (Exception)
+Blp::ColorPtr& Blp::palette()
 {
 	if (!hasPalette())
 		throw Exception(_("BLP has no palette."));

@@ -39,7 +39,7 @@ Resource::~Resource()
 	}
 }
 
-void Resource::setSource(MpqPriorityList *source, bool load) throw (Exception)
+void Resource::setSource(MpqPriorityList *source, bool load)
 {
 	if (this->source() == source)
 	{

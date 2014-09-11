@@ -30,12 +30,12 @@ Bone::Bone(class Bones *bones) : Object(bones->mdlx()), GroupMdxBlockMember(bone
 {
 }
 
-std::streamsize Bone::readMdl(istream &istream) throw (class Exception)
+std::streamsize Bone::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize Bone::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize Bone::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlBlock(ostream, size, "Bone", this->name(), 0, true);
@@ -57,7 +57,7 @@ std::streamsize Bone::writeMdl(ostream &ostream) const throw (class Exception)
 	return size;
 }
 
-std::streamsize Bone::readMdx(istream &istream) throw (class Exception)
+std::streamsize Bone::readMdx(istream &istream)
 {
 	std::streamsize size = Object::readMdx(istream);
 	wc3lib::read(istream, this->m_geosetId, size);
@@ -66,7 +66,7 @@ std::streamsize Bone::readMdx(istream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Bone::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize Bone::writeMdx(ostream &ostream) const
 {
 	std::streamsize size = Object::writeMdx(ostream);
 	wc3lib::write(ostream, this->geosetId(), size);

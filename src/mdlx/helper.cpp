@@ -31,12 +31,12 @@ Helper::Helper(class Helpers *helpers) : GroupMdxBlockMember(helpers, "Helper"),
 {
 }
 
-std::streamsize Helper::readMdl(istream &istream) throw (class Exception)
+std::streamsize Helper::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize Helper::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize Helper::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlBlock(ostream, size, "Helper", this->name(), 0, true);
@@ -48,12 +48,12 @@ std::streamsize Helper::writeMdl(ostream &ostream) const throw (class Exception)
 	return size;
 }
 
-std::streamsize Helper::readMdx(istream &istream) throw (class Exception)
+std::streamsize Helper::readMdx(istream &istream)
 {
 	return Object::readMdx(istream);
 }
 
-std::streamsize Helper::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize Helper::writeMdx(ostream &ostream) const
 {
 	return Object::writeMdx(ostream);
 }

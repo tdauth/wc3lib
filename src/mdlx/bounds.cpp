@@ -38,7 +38,7 @@ Bounds::~Bounds()
 }
 
 // MinimumExtent, MaximumExtent and BoundsRadius only appear when their values are not 0.0.
-std::streamsize Bounds::readMdl(istream &istream) throw (class Exception)
+std::streamsize Bounds::readMdl(istream &istream)
 {
 	/// @todo If values do not exist they're always 0.0.
 	//boost::tokenizer<> tokenizer(istream);
@@ -57,7 +57,7 @@ std::streamsize Bounds::readMdl(istream &istream) throw (class Exception)
 }
 
 // MinimumExtent, MaximumExtent and BoundsRadius only appear when their values are not 0.0.
-std::streamsize Bounds::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize Bounds::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 
@@ -73,7 +73,7 @@ std::streamsize Bounds::writeMdl(ostream &ostream) const throw (class Exception)
 	return size;
 }
 
-std::streamsize Bounds::readMdx(istream &istream) throw (class Exception)
+std::streamsize Bounds::readMdx(istream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_boundsRadius, size);
@@ -83,7 +83,7 @@ std::streamsize Bounds::readMdx(istream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Bounds::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize Bounds::writeMdx(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->boundsRadius(), size);

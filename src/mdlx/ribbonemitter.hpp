@@ -58,10 +58,10 @@ class RibbonEmitter : public Node, public GroupMdxBlockMember
 		class RibbonEmitterHeightsAbove* heightsAbove() const;
 		class RibbonEmitterHeightsBelow* heightsBelow() const;
 
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
-		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
+		virtual std::streamsize readMdl(istream &istream);
+		virtual std::streamsize writeMdl(ostream &ostream) const;
+		virtual std::streamsize readMdx(istream &istream);
+		virtual std::streamsize writeMdx(ostream &ostream) const;
 
 	protected:
 		//long nbytesi;

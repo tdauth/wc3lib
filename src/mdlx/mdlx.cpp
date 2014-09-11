@@ -95,7 +95,7 @@ Mdlx::~Mdlx()
 	delete this->m_collisionShapes;
 }
 
-std::streamsize Mdlx::readMdl(istream &istream) throw (class Exception)
+std::streamsize Mdlx::readMdl(istream &istream)
 {
 	std::streamsize size = this->m_version->readMdl(istream);
 	size += this->m_model->readMdl(istream);
@@ -121,7 +121,7 @@ std::streamsize Mdlx::readMdl(istream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Mdlx::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize Mdlx::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = this->m_version->writeMdl(ostream);
 	size += this->m_model->writeMdl(ostream, this);
@@ -147,7 +147,7 @@ std::streamsize Mdlx::writeMdl(ostream &ostream) const throw (class Exception)
 	return size;
 }
 
-std::streamsize Mdlx::readMdx(istream &istream) throw (class Exception)
+std::streamsize Mdlx::readMdx(istream &istream)
 {
 	std::streamsize bytes = MdxBlock::readMdx(istream);
 	bytes += this->m_version->readMdx(istream);
@@ -174,7 +174,7 @@ std::streamsize Mdlx::readMdx(istream &istream) throw (class Exception)
 	return bytes;
 }
 
-std::streamsize Mdlx::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize Mdlx::writeMdx(ostream &ostream) const
 {
 	std::streamsize bytes = MdxBlock::writeMdx(ostream);
 	bytes += this->m_version->writeMdx(ostream);

@@ -37,8 +37,8 @@ class Sounds : public FileFormat
 	public:
 		typedef boost::ptr_vector<Sound> SoundContainer;
 
-		virtual std::streamsize read(InputStream &istream) throw (Exception);
-		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+		virtual std::streamsize read(InputStream &istream);
+		virtual std::streamsize write(OutputStream &ostream) const;
 
 		virtual uint32 version() const;
 		virtual const byte* fileName() const;

@@ -46,12 +46,12 @@ Light::~Light()
 	delete this->m_ambientIntensities;
 }
 
-std::streamsize Light::readMdl(istream &istream) throw (class Exception)
+std::streamsize Light::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize Light::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize Light::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlBlock(ostream, size, "Light", this->name(), 0, true);
@@ -88,7 +88,7 @@ std::streamsize Light::writeMdl(ostream &ostream) const throw (class Exception)
 	return size;
 }
 
-std::streamsize Light::readMdx(istream &istream) throw (class Exception)
+std::streamsize Light::readMdx(istream &istream)
 {
 	long32 nbytesi;
 	std::streamsize size = 0;
@@ -113,7 +113,7 @@ std::streamsize Light::readMdx(istream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Light::writeMdx(std::ostream &ostream) const throw (class Exception)
+std::streamsize Light::writeMdx(std::ostream &ostream) const
 {
 	std::streampos position;
 	skipByteCount<long32>(ostream, position);

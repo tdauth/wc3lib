@@ -35,7 +35,7 @@ TriggerFunction::TriggerFunction() : m_type(TriggerFunction::Type::Event), m_nam
 {
 }
 
-std::streamsize TriggerFunction::read(InputStream &istream, const TriggerData &triggerData) throw (class Exception)
+std::streamsize TriggerFunction::read(InputStream &istream, const TriggerData &triggerData)
 {
 	std::streamsize size = 0;
 	wc3lib::read<int32>(istream, (int32&)this->m_type, size);
@@ -116,7 +116,7 @@ std::streamsize TriggerFunction::read(InputStream &istream, const TriggerData &t
 	return size;
 }
 
-std::streamsize TriggerFunction::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize TriggerFunction::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write<int32>(ostream, static_cast<int32>(this->type()), size);

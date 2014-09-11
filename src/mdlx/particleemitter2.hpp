@@ -107,10 +107,10 @@ class ParticleEmitter2 : public Node, public GroupMdxBlockMember
 		class Lengths* numbers() const;
 		class ParticleEmitter2Widths* widths() const;
 
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
-		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
+		virtual std::streamsize readMdl(istream &istream);
+		virtual std::streamsize writeMdl(ostream &ostream) const;
+		virtual std::streamsize readMdx(istream &istream);
+		virtual std::streamsize writeMdx(ostream &ostream) const;
 
 	protected:
 		//long32 nbytesi;

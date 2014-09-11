@@ -90,16 +90,16 @@ class KDE_EXPORT WarcraftIIIShared
 		/**
 		 * Once requested, the image is kept in memory until it's refreshed manually.
 		 */
-		Texture* teamColorTexture(TeamColor teamColor) const throw (class Exception);
+		Texture* teamColorTexture(TeamColor teamColor) const;
 		/**
 		 * Once requested, the image is kept in memory until it's refreshed manually.
 		 */
-		Texture* teamGlowTexture(TeamColor teamGlow) const throw (class Exception);
+		Texture* teamGlowTexture(TeamColor teamGlow) const;
 
 		/**
 		 * \param window Widget which is used for KIO download.
 		 */
-		void refreshWorldEditorStrings(QWidget *window, const KUrl &url = KUrl("UI/WorldEditStrings.txt")) throw (Exception);
+		void refreshWorldEditorStrings(QWidget *window, const KUrl &url = KUrl("UI/WorldEditStrings.txt"));
 		/**
 		 * World Editor strings are shared between maps usually.
 		 * \note Call \ref refreshWorldEditorStrings() before using world editor strings.
@@ -141,14 +141,14 @@ class KDE_EXPORT WarcraftIIIShared
 		 */
 		QIcon worldEditDataIcon(const QString &key, const QString &group, QWidget *window);
 
-		void refreshWorldEditData(QWidget *window, const KUrl &url = KUrl("UI/WorldEditData.txt")) throw (Exception);
+		void refreshWorldEditData(QWidget *window, const KUrl &url = KUrl("UI/WorldEditData.txt"));
 		const WorldEditDataPtr& worldEditData() const;
 
 		/**
 		 * \param window Widget which is used for KIO download.
 		 * \sa triggerData()
 		 */
-		void refreshTriggerData(QWidget *window, const KUrl &url = KUrl("UI/TriggerData.txt")) throw (Exception);
+		void refreshTriggerData(QWidget *window, const KUrl &url = KUrl("UI/TriggerData.txt"));
 		/**
 		 * Trigger data which is shared between maps usually.
 		 * \note Call \ref refreshTriggerData() before using trigger data.
@@ -159,7 +159,7 @@ class KDE_EXPORT WarcraftIIIShared
 		 * \param window Widget which is used for KIO download.
 		 * \sa triggerStrings()
 		 */
-		void refreshTriggerStrings(QWidget *window, const KUrl &url = KUrl("UI/TriggerStrings.txt")) throw (Exception);
+		void refreshTriggerStrings(QWidget *window, const KUrl &url = KUrl("UI/TriggerStrings.txt"));
 		/**
 		 * Trigger strings which are shared between maps usually.
 		 * \note Call \ref refreshTriggerStrings() before using trigger strings.

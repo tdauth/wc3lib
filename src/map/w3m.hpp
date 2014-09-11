@@ -130,25 +130,25 @@ public Playable
 		 * </ul>
 		 * \note You can use classes's virtual member functions called "fileName" to get the corresponding file name of the class's format.
 		 */
-		virtual std::streamsize readFileFormat(FileFormat *format) throw (Exception);
+		virtual std::streamsize readFileFormat(FileFormat *format);
 		/**
 		 * \brief Convenience member function to read all files of the map at once.
 		 *
 		 * \param triggerData Is required for reading the triggers. If this value is 0, triggers will be ignored.
 		 */
-		virtual std::streamsize readAllFileFormats(const map::TriggerData *triggerData) throw (Exception);
-		virtual std::streamsize read(InputStream &istream) throw (class Exception);
+		virtual std::streamsize readAllFileFormats(const map::TriggerData *triggerData);
+		virtual std::streamsize read(InputStream &istream);
 		/**
 		 * Triggers have to be read separately since they need corresponding trigger data.
 		 * \throw Exception Throws an exception if there is no triggers file or if there occured any error while reading it.
 		 */
-		virtual std::streamsize readTriggers(const TriggerData &triggerData) throw (class Exception);
+		virtual std::streamsize readTriggers(const TriggerData &triggerData);
 #endif
 
 		/**
 		 * Creates an MPQ archive with map header and all required files.
 		 */
-		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
 		virtual int32 fileId() const;
 		virtual int32 latestFileVersion() const;
@@ -180,9 +180,9 @@ public Playable
 		const Signature& signature() const;
 
 	protected:
-		std::streamsize readHeader(InputStream &istream) throw (class Exception);
-		std::streamsize readSignature(InputStream &istream) throw (class Exception);
-		std::streamsize writeHeader(OutputStream &ostream) const throw (class Exception);
+		std::streamsize readHeader(InputStream &istream);
+		std::streamsize readSignature(InputStream &istream);
+		std::streamsize writeHeader(OutputStream &ostream) const;
 
 		string m_name;
 		MapFlags m_flags;

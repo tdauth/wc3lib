@@ -50,10 +50,10 @@ class PrimitiveType : public GroupMdxBlockMember
 		class PrimitiveTypes* primitiveTypes() const;
 		Type type() const;
 
-		virtual std::streamsize readMdl(std::istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(std::ostream &ostream) const throw (class Exception);
-		virtual std::streamsize readMdx(std::istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdx(std::ostream &ostream) const throw (class Exception);
+		virtual std::streamsize readMdl(std::istream &istream);
+		virtual std::streamsize writeMdl(std::ostream &ostream) const;
+		virtual std::streamsize readMdx(std::istream &istream);
+		virtual std::streamsize writeMdx(std::ostream &ostream) const;
 
 	protected:
 		Type m_type;

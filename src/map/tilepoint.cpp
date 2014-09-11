@@ -43,7 +43,7 @@ struct TilepointData
 
 }
 
-std::streamsize Tilepoint::read(InputStream &istream) throw (class Exception)
+std::streamsize Tilepoint::read(InputStream &istream)
 {
 	struct TilepointData tilepointData;
 	std::streamsize size = 0;
@@ -70,7 +70,7 @@ std::streamsize Tilepoint::read(InputStream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Tilepoint::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize Tilepoint::write(OutputStream &ostream) const
 {
 	struct TilepointData tilepointData;
 	tilepointData.groundHeight = this->m_groundHeight;

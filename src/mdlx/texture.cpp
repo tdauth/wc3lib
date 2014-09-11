@@ -30,12 +30,12 @@ Texture::Texture(class Textures *textures) : GroupMdxBlockMember(textures, "Bitm
 {
 }
 
-std::streamsize Texture::readMdl(istream &istream) throw (class Exception)
+std::streamsize Texture::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize Texture::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize Texture::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlBlock(ostream, size, "Bitmap");
@@ -55,7 +55,7 @@ std::streamsize Texture::writeMdl(ostream &ostream) const throw (class Exception
 	return size;
 }
 
-std::streamsize Texture::readMdx(istream &istream) throw (class Exception)
+std::streamsize Texture::readMdx(istream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, reinterpret_cast<long32&>(this->m_replaceableId), size);
@@ -66,7 +66,7 @@ std::streamsize Texture::readMdx(istream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Texture::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize Texture::writeMdx(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, static_cast<long32>(this->replaceableId()), size);

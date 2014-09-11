@@ -35,12 +35,12 @@ EventTrack::~EventTrack()
 {
 }
 
-std::streamsize EventTrack::readMdl(istream &istream) throw (class Exception)
+std::streamsize EventTrack::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize EventTrack::writeMdl(ostream &ostream) const throw (Exception)
+std::streamsize EventTrack::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlValueProperty(ostream, size, "", this->frames());
@@ -48,7 +48,7 @@ std::streamsize EventTrack::writeMdl(ostream &ostream) const throw (Exception)
 	return size;
 }
 
-std::streamsize EventTrack::readMdx(istream &istream) throw (class Exception)
+std::streamsize EventTrack::readMdx(istream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_frames, size);
@@ -56,7 +56,7 @@ std::streamsize EventTrack::readMdx(istream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize EventTrack::writeMdx(ostream &ostream) const throw (Exception)
+std::streamsize EventTrack::writeMdx(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->frames(), size);

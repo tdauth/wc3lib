@@ -45,7 +45,7 @@ class BasicVertex : public std::array<T, N>, public Format
 		BasicVertex(const BasicVertex<T, N> &other) : Base(other) {
 		}
 
-		virtual std::streamsize read(InputStream &istream) throw (Exception)
+		virtual std::streamsize read(InputStream &istream)
 		{
 			std::streamsize size = 0;
 
@@ -57,7 +57,7 @@ class BasicVertex : public std::array<T, N>, public Format
 			return size;
 		}
 
-		virtual std::streamsize write(OutputStream &ostream) const throw (Exception)
+		virtual std::streamsize write(OutputStream &ostream) const
 		{
 			std::streamsize size = 0;
 

@@ -32,12 +32,12 @@ Normal::Normal(class Normals *normals) : GroupMdxBlockMember(normals, "")
 {
 }
 
-std::streamsize Normal::readMdl(istream &istream) throw (class Exception)
+std::streamsize Normal::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize Normal::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize Normal::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 
@@ -46,12 +46,12 @@ std::streamsize Normal::writeMdl(ostream &ostream) const throw (class Exception)
 	return size;
 }
 
-std::streamsize Normal::readMdx(istream &istream) throw (class Exception)
+std::streamsize Normal::readMdx(istream &istream)
 {
 	return this->vertexData().read(istream);
 }
 
-std::streamsize Normal::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize Normal::writeMdx(ostream &ostream) const
 {
 	return this->vertexData().write(ostream);
 }

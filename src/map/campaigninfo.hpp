@@ -54,8 +54,8 @@ class CampaignInfo : public FileFormat
 			public:
 				MapTitle();
 
-				virtual std::streamsize read(InputStream &istream) throw (class Exception) override;
-				virtual std::streamsize write(OutputStream &ostream) const throw (class Exception) override;
+				virtual std::streamsize read(InputStream &istream) override;
+				virtual std::streamsize write(OutputStream &ostream) const override;
 
 				bool isVisibleFromTheBeginning() const;
 				const string& chapterTitle() const;
@@ -74,8 +74,8 @@ class CampaignInfo : public FileFormat
 			public:
 				Map();
 
-				virtual std::streamsize read(InputStream &istream) throw (class Exception) override;
-				virtual std::streamsize write(OutputStream &ostream) const throw (class Exception) override;
+				virtual std::streamsize read(InputStream &istream) override;
+				virtual std::streamsize write(OutputStream &ostream) const override;
 
 				const string& unknown() const;
 				const string& path() const;
@@ -90,8 +90,8 @@ class CampaignInfo : public FileFormat
 
 		CampaignInfo(Campaign *campaign);
 
-		virtual std::streamsize read(InputStream &istream) throw (Exception) override;
-		virtual std::streamsize write(OutputStream &ostream) const throw (Exception) override;
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
 		virtual uint32 latestFileVersion() const override;
 		virtual const byte* fileName() const override;

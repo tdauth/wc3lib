@@ -34,17 +34,17 @@ MatrixGroupCount::~MatrixGroupCount()
 {
 }
 
-std::streamsize MatrixGroupCount::readMdl(istream &istream) throw (class Exception)
+std::streamsize MatrixGroupCount::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize MatrixGroupCount::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize MatrixGroupCount::writeMdl(ostream &ostream) const
 {
 	return 0;
 }
 
-std::streamsize MatrixGroupCount::readMdx(istream &istream) throw (class Exception)
+std::streamsize MatrixGroupCount::readMdx(istream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_data, size);
@@ -52,7 +52,7 @@ std::streamsize MatrixGroupCount::readMdx(istream &istream) throw (class Excepti
 	return size;
 }
 
-std::streamsize MatrixGroupCount::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize MatrixGroupCount::writeMdx(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->m_data, size);

@@ -82,7 +82,7 @@ void OgreMdlx::clear() throw ()
 		delete value.second;
 }
 
-void OgreMdlx::setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor) throw (Exception)
+void OgreMdlx::setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor)
 {
 	BOOST_FOREACH(TeamColorTextureUnitStates::reference state, this->m_teamColorTextureUnitStates)
 	{
@@ -104,7 +104,7 @@ void OgreMdlx::setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor) throw (Excep
 	this->m_teamColor = teamColor;
 }
 
-void OgreMdlx::setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow) throw (Exception)
+void OgreMdlx::setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow)
 {
 	BOOST_FOREACH(TeamColorTextureUnitStates::reference state, this->m_teamGlowTextureUnitStates)
 	{
@@ -126,7 +126,7 @@ void OgreMdlx::setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow) throw (Excepti
 	this->m_teamGlow = teamGlow;
 }
 
-void OgreMdlx::load() throw (Exception)
+void OgreMdlx::load()
 {
 	QString tmpFile;
 
@@ -631,14 +631,14 @@ void OgreMdlx::load() throw (Exception)
 	*/
 }
 
-void OgreMdlx::reload() throw (Exception)
+void OgreMdlx::reload()
 {
 	clear();
 	load();
 }
 
 
-void OgreMdlx::save(const KUrl &url, const QString &format) const throw (class Exception)
+void OgreMdlx::save(const KUrl &url, const QString &format) const
 {
 	QString realFormat = format;
 

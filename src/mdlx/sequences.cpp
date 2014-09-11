@@ -31,12 +31,12 @@ Sequences::Sequences(class Mdlx *mdlx) : GroupMdxBlock("SEQS", "Sequences", fals
 {
 }
 
-std::streamsize Sequences::readMdl(istream &istream) throw (class Exception)
+std::streamsize Sequences::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize Sequences::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize Sequences::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlCountedBlock(ostream, size, "Sequences", this->members().size());

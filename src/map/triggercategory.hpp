@@ -40,8 +40,8 @@ class TriggerCategory : public Format
 	public:
 		TriggerCategory();
 
-		virtual std::streamsize read(InputStream &istream) throw (class Exception);
-		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
+		virtual std::streamsize read(InputStream &istream);
+		virtual std::streamsize write(OutputStream &ostream) const;
 
 		void setIndex(int32 index);
 		int32 index() const;

@@ -41,10 +41,10 @@ class GroupMdxBlockMember : public MdlxProperty
 		class GroupMdxBlock* parent() const;
 
 		// FIXME clang compliant for Boost Pointer Containers, non-abstract!
-		virtual std::streamsize readMdx(istream &istream) throw (class Exception) { return 0; }; // = 0;
-		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception) { return 0; }; // = 0;
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception) { return 0; }; // = 0;
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception) { return 0; }; // = 0;
+		virtual std::streamsize readMdx(istream &istream) { return 0; }; // = 0;
+		virtual std::streamsize writeMdx(ostream &ostream) const { return 0; }; // = 0;
+		virtual std::streamsize readMdl(istream &istream) { return 0; }; // = 0;
+		virtual std::streamsize writeMdl(ostream &ostream) const { return 0; }; // = 0;
 
 		void checkBytesIncluding(std::streamsize size, long32 nbytesi);
 		void checkBytes(std::streamsize size, long32 nbytes);

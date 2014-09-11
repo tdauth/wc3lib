@@ -73,8 +73,8 @@ class TriggerStrings : public FileFormat
 
 		typedef boost::ptr_map<string, Entry> Entries;
 
-		virtual std::streamsize read(InputStream& istream) throw (class Exception);
-		virtual std::streamsize write(OutputStream& ostream) const throw (class Exception);
+		virtual std::streamsize read(InputStream& istream);
+		virtual std::streamsize write(OutputStream& ostream) const;
 
 		Entries& events();
 		const Entries& events() const;

@@ -31,12 +31,12 @@ Attachments::Attachments(class Mdlx *mdlx) : GroupMdxBlock("ATCH", "", false), m
 {
 }
 
-std::streamsize Attachments::readMdl(istream &istream) throw (class Exception)
+std::streamsize Attachments::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize Attachments::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize Attachments::writeMdl(ostream &ostream) const
 {
 	return 0;
 }

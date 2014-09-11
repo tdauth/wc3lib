@@ -31,12 +31,12 @@ CollisionShapes::CollisionShapes(class Mdlx *mdlx) : GroupMdxBlock("CLID", "", f
 {
 }
 
-std::streamsize CollisionShapes::readMdl(istream &istream) throw (class Exception)
+std::streamsize CollisionShapes::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize CollisionShapes::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize CollisionShapes::writeMdl(ostream &ostream) const
 {
 	return 0;
 }

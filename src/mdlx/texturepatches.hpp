@@ -42,10 +42,10 @@ class TexturePatches : public MdxBlock
 		class Geoset* geoset() const;
 		long32 number() const;
 
-		virtual std::streamsize readMdl(InputStream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(OutputStream &ostream) const throw (class Exception);
-		virtual std::streamsize readMdx(InputStream &istream) throw (class Exception);
-		virtual std::streamsize writeMdx(OutputStream &ostream) const throw (class Exception);
+		virtual std::streamsize readMdl(InputStream &istream);
+		virtual std::streamsize writeMdl(OutputStream &ostream) const;
+		virtual std::streamsize readMdx(InputStream &istream);
+		virtual std::streamsize writeMdx(OutputStream &ostream) const;
 
 	protected:
 		class Geoset *m_geoset;

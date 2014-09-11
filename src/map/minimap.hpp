@@ -41,7 +41,7 @@ class Minimap : public FileFormat
 #endif
 {
 	public:
-		virtual std::streamsize read(InputStream& istream) throw (Exception)
+		virtual std::streamsize read(InputStream& istream)
 		{
 #ifdef BLP
 			return blp::Blp::read(istream);
@@ -50,7 +50,7 @@ class Minimap : public FileFormat
 #endif
 		}
 
-		virtual std::streamsize write(OutputStream& ostream) const throw (Exception)
+		virtual std::streamsize write(OutputStream& ostream) const
 		{
 #ifdef BLP
 			return blp::Blp::write(ostream);

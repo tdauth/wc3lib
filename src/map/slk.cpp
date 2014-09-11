@@ -441,7 +441,7 @@ bool parse(Iterator first, Iterator last, Slk::Table &table)
 
 }
 
-std::streamsize Slk::read(InputStream &istream) throw (class Exception)
+std::streamsize Slk::read(InputStream &istream)
 {
 	typedef std::istreambuf_iterator<byte> IteratorType;
 	typedef boost::spirit::multi_pass<IteratorType> ForwardIteratorType;
@@ -480,7 +480,7 @@ std::streamsize Slk::read(InputStream &istream) throw (class Exception)
 	return 0;
 }
 
-std::streamsize Slk::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize Slk::write(OutputStream &ostream) const
 {
 	typedef std::ostream_iterator<byte> Iterator;
 	client::SlkGenerator<Iterator> generator;

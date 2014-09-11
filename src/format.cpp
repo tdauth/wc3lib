@@ -27,4 +27,9 @@ Format::~Format()
 {
 }
 
+uint32_t Format::version() const
+{
+	return 0;
+}
+
 }

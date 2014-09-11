@@ -107,7 +107,7 @@ Hash::~Hash()
 {
 }
 
-std::streamsize Hash::read(istream &istream) throw (class Exception)
+std::streamsize Hash::read(istream &istream)
 {
 	struct HashTableEntry entry;
 	std::streamsize size = 0;
@@ -138,7 +138,7 @@ std::streamsize Hash::read(istream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Hash::write(ostream& ostream) const throw (Exception)
+std::streamsize Hash::write(ostream& ostream) const
 {
 	HashTableEntry entry = this->cHashData().toEntry();
 	std::streamsize size = 0;

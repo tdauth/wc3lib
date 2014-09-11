@@ -54,12 +54,12 @@ ParticleEmitter2::~ParticleEmitter2()
 	delete this->m_widths;
 }
 
-std::streamsize ParticleEmitter2::readMdl(istream &istream) throw (class Exception)
+std::streamsize ParticleEmitter2::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize ParticleEmitter2::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize ParticleEmitter2::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlBlock(ostream, size, "ParticleEmitter2", this->name(), 0, true);
@@ -189,7 +189,7 @@ std::streamsize ParticleEmitter2::writeMdl(ostream &ostream) const throw (class 
 	return size;
 }
 
-std::streamsize ParticleEmitter2::readMdx(istream &istream) throw (class Exception)
+std::streamsize ParticleEmitter2::readMdx(istream &istream)
 {
 	std::streamsize size = 0;
 	long32 nbytesi;
@@ -248,7 +248,7 @@ std::streamsize ParticleEmitter2::readMdx(istream &istream) throw (class Excepti
 	return size;
 }
 
-std::streamsize ParticleEmitter2::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize ParticleEmitter2::writeMdx(ostream &ostream) const
 {
 	std::streampos position;
 	skipByteCount<long32>(ostream, position);

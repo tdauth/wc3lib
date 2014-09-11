@@ -41,7 +41,7 @@ CustomObjects::Modification::Modification(CustomObjects::Type type) : m_type(typ
 {
 }
 
-std::streamsize CustomObjects::Modification::read(InputStream &istream) throw (class Exception)
+std::streamsize CustomObjects::Modification::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_id, size);
@@ -69,7 +69,7 @@ std::streamsize CustomObjects::Modification::read(InputStream &istream) throw (c
 	return size;
 }
 
-std::streamsize CustomObjects::Modification::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize CustomObjects::Modification::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->valueId(), size);

@@ -34,8 +34,8 @@ namespace map
 class Rect : public Format
 {
 	public:
-		virtual std::streamsize read(InputStream &istream) throw (class Exception);
-		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
 		float32 left() const;
 		float32 right() const;

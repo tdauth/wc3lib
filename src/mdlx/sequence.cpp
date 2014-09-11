@@ -31,12 +31,12 @@ Sequence::Sequence(class Sequences *sequences) : GroupMdxBlockMember(sequences, 
 {
 }
 
-std::streamsize Sequence::readMdl(istream &istream) throw (class Exception)
+std::streamsize Sequence::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize Sequence::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize Sequence::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlBlock(ostream, size, "Anim", this->name(), 0, true);
@@ -58,7 +58,7 @@ std::streamsize Sequence::writeMdl(ostream &ostream) const throw (class Exceptio
 	return size;
 }
 
-std::streamsize Sequence::readMdx(istream &istream) throw (class Exception)
+std::streamsize Sequence::readMdx(istream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, m_name, size, nameSize);
@@ -73,7 +73,7 @@ std::streamsize Sequence::readMdx(istream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Sequence::writeMdx(std::ostream &ostream) const throw (class Exception)
+std::streamsize Sequence::writeMdx(std::ostream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->name(), size, nameSize);

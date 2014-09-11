@@ -52,12 +52,12 @@ Model::~Model()
 {
 }
 
-std::streamsize Model::readMdl(istream &istream) throw (class Exception)
+std::streamsize Model::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize Model::writeMdl(ostream &ostream, const Mdlx *mdlx) const throw (class Exception)
+std::streamsize Model::writeMdl(ostream &ostream, const Mdlx *mdlx) const
 {
 	std::streamsize size = 0;
 	writeMdlBlock(ostream, size, "Model", this->name(), 0, true);
@@ -104,7 +104,7 @@ std::streamsize Model::writeMdl(ostream &ostream, const Mdlx *mdlx) const throw 
 	return size;
 }
 
-std::streamsize Model::readMdx(istream &istream) throw (class Exception)
+std::streamsize Model::readMdx(istream &istream)
 {
 	std::streamsize size = MdxBlock::readMdx(istream);
 	long32 nbytes = 0;
@@ -117,7 +117,7 @@ std::streamsize Model::readMdx(istream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Model::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize Model::writeMdx(ostream &ostream) const
 {
 	std::streamsize size = MdxBlock::writeMdx(ostream);
 	std::streampos position;

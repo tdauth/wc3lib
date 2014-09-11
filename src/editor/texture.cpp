@@ -88,7 +88,7 @@ inline QString compressionOption(const QMap<QString, QString> &map, const QStrin
 
 }
 
-void Texture::loadBlp(const QMap<QString, QString> &options) throw (Exception)
+void Texture::loadBlp(const QMap<QString, QString> &options)
 {
 	if (hasBlp())
 		return;
@@ -150,7 +150,7 @@ void Texture::loadBlp(const QMap<QString, QString> &options) throw (Exception)
 	}
 }
 
-void Texture::loadQt() throw (Exception)
+void Texture::loadQt()
 {
 	if (hasQt())
 		return;
@@ -192,7 +192,7 @@ void Texture::loadQt() throw (Exception)
 	}
 }
 
-void Texture::loadOgre() throw (Exception)
+void Texture::loadOgre()
 {
 	if (hasOgre())
 	{
@@ -261,7 +261,7 @@ void Texture::loadOgre() throw (Exception)
 	Q_ASSERT(m_ogre.data());
 }
 
-void Texture::loadOgreTexture() throw (Exception)
+void Texture::loadOgreTexture()
 {
 	const bool hasOgre = this->hasOgre();
 
@@ -291,7 +291,7 @@ void Texture::loadOgreTexture() throw (Exception)
 		clearOgre();
 }
 
-void Texture::loadAll() throw (Exception)
+void Texture::loadAll()
 {
 	loadBlp();
 	loadQt();
@@ -299,7 +299,7 @@ void Texture::loadAll() throw (Exception)
 	loadOgreTexture();
 }
 
-void Texture::reload() throw (Exception)
+void Texture::reload()
 {
 	bool hasBlp = this->hasBlp();
 	bool hasQt = this->hasQt();
@@ -320,7 +320,7 @@ void Texture::reload() throw (Exception)
 		loadOgreTexture();
 }
 
-void Texture::save(const KUrl &url, const QString &format, const QMap<QString, QString> &compression) const throw (Exception)
+void Texture::save(const KUrl &url, const QString &format, const QMap<QString, QString> &compression) const
 {
 	KTemporaryFile tmpFile;
 

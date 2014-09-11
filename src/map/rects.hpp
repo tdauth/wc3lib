@@ -40,12 +40,12 @@ class Rects : public FileFormat
 	public:
 		typedef boost::ptr_vector<Rect> RectContainer;
 
-		virtual std::streamsize read(InputStream &istream) throw (class Exception);
-		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
-		virtual const byte* fileTextId() const;
-		virtual const byte* fileName() const;
-		virtual uint32 latestFileVersion() const;
+		virtual const byte* fileTextId() const override;
+		virtual const byte* fileName() const override;
+		virtual uint32 latestFileVersion() const override;
 
 		RectContainer& rects();
 		const RectContainer& rects() const;

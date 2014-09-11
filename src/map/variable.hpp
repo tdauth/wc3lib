@@ -40,8 +40,8 @@ class Variable : public Format
 		Variable();
 		virtual ~Variable();
 
-		std::streamsize read(InputStream &istream) throw (Exception);
-		std::streamsize write(OutputStream &ostream) const throw (Exception);
+		std::streamsize read(InputStream &istream);
+		std::streamsize write(OutputStream &ostream) const;
 
 		void setName(const string &name);
 		const string& name() const;

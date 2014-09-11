@@ -34,17 +34,17 @@ PrimitiveVertex::~PrimitiveVertex()
 {
 }
 
-std::streamsize PrimitiveVertex::readMdl(std::istream &istream) throw (class Exception)
+std::streamsize PrimitiveVertex::readMdl(std::istream &istream)
 {
 	return 0;
 }
 
-std::streamsize PrimitiveVertex::writeMdl(std::ostream &ostream) const throw (class Exception)
+std::streamsize PrimitiveVertex::writeMdl(std::ostream &ostream) const
 {
 	return 0;
 }
 
-std::streamsize PrimitiveVertex::readMdx(std::istream &istream) throw (class Exception)
+std::streamsize PrimitiveVertex::readMdx(std::istream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_value, size);
@@ -52,7 +52,7 @@ std::streamsize PrimitiveVertex::readMdx(std::istream &istream) throw (class Exc
 	return size;
 }
 
-std::streamsize PrimitiveVertex::writeMdx(std::ostream &ostream) const throw (class Exception)
+std::streamsize PrimitiveVertex::writeMdx(std::ostream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->m_value, size);

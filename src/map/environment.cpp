@@ -36,7 +36,7 @@ Environment::~Environment()
 	clear();
 }
 
-std::streamsize Environment::read(InputStream &istream) throw (class Exception)
+std::streamsize Environment::read(InputStream &istream)
 {
 	std::streamsize size = FileFormat::read(istream);
 	wc3lib::read<byte>(istream, (byte&)this->m_mainTileset, size);
@@ -95,7 +95,7 @@ std::streamsize Environment::read(InputStream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Environment::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize Environment::write(OutputStream &ostream) const
 {
 	std::streamsize size = FileFormat::write(ostream);
 	wc3lib::write<byte>(ostream, static_cast<byte>(mainTileset()), size);

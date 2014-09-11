@@ -85,8 +85,8 @@ class Environment : public FileFormat
 
 		virtual ~Environment();
 
-		std::streamsize read(InputStream &istream) throw (class Exception);
-		std::streamsize write(OutputStream &ostream) const throw (class Exception);
+		std::streamsize read(InputStream &istream);
+		std::streamsize write(OutputStream &ostream) const;
 
 		virtual const byte* fileTextId() const;
 		virtual const byte* fileName() const;

@@ -126,7 +126,7 @@ class Archive : public Format, private boost::noncopyable
 		 */
 		static const uint32* cryptTable();
 		static bool hasStrongDigitalSignature(istream &istream);
-		static std::streamsize strongDigitalSignature(istream &istream, StrongDigitalSignature &signature) throw (class Exception);
+		static std::streamsize strongDigitalSignature(istream &istream, StrongDigitalSignature &signature);
 
 		/**
 		 * Creates a new instance for an MPQ archive.
@@ -140,12 +140,12 @@ class Archive : public Format, private boost::noncopyable
 		 * \param overwriteExisting If this value is true existing any file at file path \p path will be overwritten before creating file/archive. Otherwise an exception will be thrown if there already is some file at the given path.
 		 * \return Returns size of all created file data in bytes.
 		 */
-		std::streamsize create(const boost::filesystem::path &path, bool overwriteExisting = false, std::streampos startPosition = 0, Format format = Format::Mpq1, uint32 sectorSize = 4096) throw (class Exception);
+		std::streamsize create(const boost::filesystem::path &path, bool overwriteExisting = false, std::streampos startPosition = 0, Format format = Format::Mpq1, uint32 sectorSize = 4096);
 		/**
 		 * Opens an MPQ file on the local file system at \p path.
 		 * This reads the block and hash tables.
 		 */
-		std::streamsize open(const boost::filesystem::path &path) throw (class Exception);
+		std::streamsize open(const boost::filesystem::path &path);
 		/**
 		 * Closes the MPQ archive which clears all hashes and blocks.
 		 */
@@ -154,14 +154,14 @@ class Archive : public Format, private boost::noncopyable
 		/**
 		 * \return Returns MPQ's size in bytes.
 		 */
-		virtual std::streamsize read(InputStream &stream) throw (Exception);
+		virtual std::streamsize read(InputStream &stream) override;
 		/**
 		 * Writes the whole MPQ archive into output stream \p ostream. Note that you don't have to call this function each time you want to save your changed data of the opened MPQ archive.
 		* If you change some data of the opened MPQ archive it's written directly into the corresponding file (the whole archive is not loaded into memory!).
 		 * \return Returns MPQ's size in bytes.
 		 */
-		virtual std::streamsize write(OutputStream &stream) const throw (Exception);
-		virtual uint32_t version() const;
+		virtual std::streamsize write(OutputStream &stream) const override;
+		virtual uint32_t version() const override;
 
 		/**
 		* \return Returns true if the archive contains a "(listfile)" file.
@@ -391,7 +391,7 @@ inline bool Archive::hasStrongDigitalSignature(istream &istream)
 	return result;
 }
 
-inline std::streamsize Archive::strongDigitalSignature(istream &istream, StrongDigitalSignature &signature) throw (class Exception)
+inline std::streamsize Archive::strongDigitalSignature(istream &istream, StrongDigitalSignature &signature)
 {
 	istream.seekg(sizeof(uint32), std::ios::cur); // skip header
 	StrongDigitalSignature sig(new char[strongDigitalSignatureSize]);

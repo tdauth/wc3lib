@@ -42,7 +42,7 @@ GeosetAnimation::~GeosetAnimation()
 	delete this->m_colors;
 }
 
-std::streamsize GeosetAnimation::readMdl(istream &istream) throw (class Exception)
+std::streamsize GeosetAnimation::readMdl(istream &istream)
 {
 	std::streamsize size = 0;//GroupMdxBlockMember::readMdl(istream);
 
@@ -53,7 +53,7 @@ std::streamsize GeosetAnimation::readMdl(istream &istream) throw (class Exceptio
 	return size;
 }
 
-std::streamsize GeosetAnimation::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize GeosetAnimation::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlBlock(ostream, size, "GeosetAnim");
@@ -85,7 +85,7 @@ std::streamsize GeosetAnimation::writeMdl(ostream &ostream) const throw (class E
 	return size;
 }
 
-std::streamsize GeosetAnimation::readMdx(istream &istream) throw (class Exception)
+std::streamsize GeosetAnimation::readMdx(istream &istream)
 {
 	long32 nbytesi;
 	std::streamsize size = 0;
@@ -110,7 +110,7 @@ std::streamsize GeosetAnimation::readMdx(istream &istream) throw (class Exceptio
 	return size;
 }
 
-std::streamsize GeosetAnimation::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize GeosetAnimation::writeMdx(ostream &ostream) const
 {
 	std::streampos position;
 	skipByteCount<long32>(ostream, position);

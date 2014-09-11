@@ -28,7 +28,7 @@ namespace wc3lib
 namespace map
 {
 
-std::streamsize Sounds::read(InputStream& istream) throw (Exception)
+std::streamsize Sounds::read(InputStream& istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_version, size);
@@ -52,7 +52,7 @@ std::streamsize Sounds::read(InputStream& istream) throw (Exception)
 	return size;
 }
 
-std::streamsize Sounds::write(OutputStream& ostream) const throw (Exception)
+std::streamsize Sounds::write(OutputStream& ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->m_version, size);

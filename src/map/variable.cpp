@@ -35,7 +35,7 @@ Variable::~Variable()
 {
 }
 
-std::streamsize Variable::read(InputStream &istream) throw (Exception)
+std::streamsize Variable::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	readString(istream, this->m_name, size);
@@ -52,7 +52,7 @@ std::streamsize Variable::read(InputStream &istream) throw (Exception)
 	return size;
 }
 
-std::streamsize Variable::write(OutputStream &ostream) const throw (Exception)
+std::streamsize Variable::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	writeString(ostream, name(), size);

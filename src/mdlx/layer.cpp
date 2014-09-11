@@ -40,12 +40,12 @@ Layer::~Layer()
 	delete this->m_textureIds;
 }
 
-std::streamsize Layer::readMdl(istream &istream) throw (class Exception)
+std::streamsize Layer::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize Layer::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize Layer::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlBlock(ostream, size, "Layer");
@@ -105,7 +105,7 @@ std::streamsize Layer::writeMdl(ostream &ostream) const throw (class Exception)
 	return size;
 }
 
-std::streamsize Layer::readMdx(istream &istream) throw (class Exception)
+std::streamsize Layer::readMdx(istream &istream)
 {
 	std::streamsize size = 0;
 	long32 nbytesi = 0;
@@ -122,7 +122,7 @@ std::streamsize Layer::readMdx(istream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Layer::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize Layer::writeMdx(ostream &ostream) const
 {
 	std::streampos position;
 	skipByteCount<long32>(ostream, position);

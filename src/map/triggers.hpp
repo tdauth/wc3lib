@@ -71,13 +71,13 @@ class Triggers : public FileFormat
 
 		Triggers();
 
-		virtual std::streamsize read(InputStream &istream) throw (Exception)
+		virtual std::streamsize read(InputStream &istream)
 		{
 			throw Exception(_("Not usable."));
 		}
 
-		virtual std::streamsize read(InputStream &istream, const TriggerData &triggerData) throw (Exception);
-		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
+		virtual std::streamsize read(InputStream &istream, const TriggerData &triggerData);
+		virtual std::streamsize write(OutputStream &ostream) const;
 
 		virtual const byte* fileTextId() const;
 		virtual const byte* fileName() const;

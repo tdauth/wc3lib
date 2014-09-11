@@ -36,7 +36,7 @@ Version::~Version()
 {
 }
 
-std::streamsize Version::readMdl(istream &istream) throw (class Exception)
+std::streamsize Version::readMdl(istream &istream)
 {
 	/*
 	std::string line;
@@ -88,7 +88,7 @@ std::streamsize Version::readMdl(istream &istream) throw (class Exception)
 	return 0;
 }
 
-std::streamsize Version::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize Version::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlBlock(ostream, size, "Version");
@@ -98,7 +98,7 @@ std::streamsize Version::writeMdl(ostream &ostream) const throw (class Exception
 	return size;
 }
 
-std::streamsize Version::readMdx(istream &istream) throw (class Exception)
+std::streamsize Version::readMdx(istream &istream)
 {
 	std::streamsize size = MdxBlock::readMdx(istream);
 	long32 nbytes;
@@ -115,7 +115,7 @@ std::streamsize Version::readMdx(istream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Version::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize Version::writeMdx(ostream &ostream) const
 {
 	std::streamsize size = MdxBlock::writeMdx(ostream);
 	const long32 nbytes = boost::numeric_cast<long32>(sizeof(this->modelVersion()));

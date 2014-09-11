@@ -47,9 +47,9 @@ class KDE_EXPORT OgreEnvironment : public Resource
 
 		void load(map::Environment *environment);
 
-		virtual void load() throw (Exception);
-		virtual void reload() throw (Exception);
-		virtual void save(const KUrl& url) const throw (Exception);
+		virtual void load();
+		virtual void reload();
+		virtual void save(const KUrl& url) const;
 
 	private:
 		Ogre::TerrainGlobalOptions *m_terrainGlobals;

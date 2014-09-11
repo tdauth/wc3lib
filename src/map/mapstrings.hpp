@@ -51,8 +51,8 @@ class MapStrings : public FileFormat
 		virtual const byte* fileTextId() const override;
 		virtual uint32 latestFileVersion() const override;
 
-		virtual std::streamsize read(InputStream& istream) throw (Exception) override;
-		virtual std::streamsize write(OutputStream& ostream) const throw (Exception) override;
+		virtual std::streamsize read(InputStream& istream) override;
+		virtual std::streamsize write(OutputStream& ostream) const override;
 
 	private:
 		Entries m_entries;

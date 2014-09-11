@@ -31,12 +31,12 @@ CollisionShape::CollisionShape(class CollisionShapes *collisionShapes) : GroupMd
 {
 }
 
-std::streamsize CollisionShape::readMdl(istream &istream) throw (class Exception)
+std::streamsize CollisionShape::readMdl(istream &istream)
 {
 	return 0;
 }
 
-std::streamsize CollisionShape::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize CollisionShape::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlBlock(ostream, size, "CollisionShape", this->name(), 0, true);
@@ -58,7 +58,7 @@ std::streamsize CollisionShape::writeMdl(ostream &ostream) const throw (class Ex
 	return size;
 }
 
-std::streamsize CollisionShape::readMdx(istream &istream) throw (class Exception)
+std::streamsize CollisionShape::readMdx(istream &istream)
 {
 	std::streamsize size = Object::readMdx(istream);
 	long32 shape;
@@ -82,7 +82,7 @@ std::streamsize CollisionShape::readMdx(istream &istream) throw (class Exception
 	return size;
 }
 
-std::streamsize CollisionShape::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize CollisionShape::writeMdx(ostream &ostream) const
 {
 	std::streamsize size = Object::writeMdx(ostream);
 	wc3lib::write(ostream,long32(this->shape()), size);

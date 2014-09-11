@@ -35,7 +35,7 @@ Rgb::~Rgb()
 {
 }
 
-std::streamsize Rgb::read(InputStream &istream) throw (class Exception)
+std::streamsize Rgb::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, m_red, size);
@@ -45,7 +45,7 @@ std::streamsize Rgb::read(InputStream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Rgb::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize Rgb::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, red(), size);
@@ -69,7 +69,7 @@ bool Rgb::operator==(const Rgb &other) const
 	return this->value() == other.value();
 }
 
-std::streamsize Bgr::read(InputStream &istream) throw (Exception)
+std::streamsize Bgr::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, m_blue, size);
@@ -79,7 +79,7 @@ std::streamsize Bgr::read(InputStream &istream) throw (Exception)
 	return size;
 }
 
-std::streamsize Bgr::write(OutputStream &ostream) const throw (Exception)
+std::streamsize Bgr::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, blue(), size);
@@ -102,7 +102,7 @@ Rgba::Rgba() : Rgb(), m_alpha(0)
 {
 }
 
-std::streamsize Rgba::read(InputStream &istream) throw (class Exception)
+std::streamsize Rgba::read(InputStream &istream)
 {
 	std::streamsize size = Rgb::read(istream);
 	wc3lib::read(istream, m_alpha, size);
@@ -110,7 +110,7 @@ std::streamsize Rgba::read(InputStream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Rgba::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize Rgba::write(OutputStream &ostream) const
 {
 	std::streamsize size = Rgb::write(ostream);
 	wc3lib::write(ostream, alpha(), size);
@@ -123,7 +123,7 @@ uint32_t Rgba::value() const
 	return ((uint32_t)this->red() << 24) + ((uint32_t)this->green() << 16) + ((uint32_t)this->blue() << 8) + this->alpha();
 }
 
-std::streamsize Bgra::read(InputStream &istream) throw (Exception)
+std::streamsize Bgra::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, m_blue, size);
@@ -134,7 +134,7 @@ std::streamsize Bgra::read(InputStream &istream) throw (Exception)
 	return size;
 }
 
-std::streamsize Bgra::write(OutputStream &ostream) const throw (Exception)
+std::streamsize Bgra::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, blue(), size);

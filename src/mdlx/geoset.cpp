@@ -67,12 +67,12 @@ Geoset::~Geoset()
 	delete this->m_textureVertices;
 }
 
-std::streamsize Geoset::readMdl(istream &istream) throw (class Exception)
+std::streamsize Geoset::readMdl(istream &istream)
 {
 	throw Exception(_("Geoset::readMdl: Not implemented yet."));
 }
 
-std::streamsize Geoset::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize Geoset::writeMdl(ostream &ostream) const
 {
 	std::streamsize size = 0;
 	writeMdlBlock(ostream, size, "Geoset");
@@ -184,7 +184,7 @@ std::streamsize Geoset::writeMdl(ostream &ostream) const throw (class Exception)
 	return size;
 }
 
-std::streamsize Geoset::readMdx(istream &istream) throw (class Exception)
+std::streamsize Geoset::readMdx(istream &istream)
 {
 	std::streamsize size = 0;
 	long32 nbytesi; // Magos specification says including byte count!
@@ -224,7 +224,7 @@ std::streamsize Geoset::readMdx(istream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Geoset::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize Geoset::writeMdx(ostream &ostream) const
 {
 	std::streampos position;
 	skipByteCount<long32>(ostream, position);

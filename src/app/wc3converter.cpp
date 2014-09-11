@@ -133,7 +133,10 @@ bool addFilePath(const boost::filesystem::path &path, FilePaths &filePaths, bool
 	return true;
 }
 
-void convertBlp(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3lib::ofstream &out, const ConvFormat &inputFormat, const ConvFormat &outputFormat, bool verbose) throw (wc3lib::Exception)
+/**
+ * \throw wc3lib::Exception Throws an exception if an error occurs.
+ */
+void convertBlp(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3lib::ofstream &out, const ConvFormat &inputFormat, const ConvFormat &outputFormat, bool verbose)
 {
 	boost::scoped_ptr<wc3lib::blp::Blp> blp(new wc3lib::blp::Blp());
 
@@ -162,7 +165,10 @@ void convertBlp(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3li
 	}
 }
 
-void convertMdlx(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3lib::ofstream &out, const ConvFormat &inputFormat, const ConvFormat &outputFormat, bool verbose) throw (wc3lib::Exception)
+/**
+ * \throw wc3lib::Exception Throws an exception if an error occurs.
+ */
+void convertMdlx(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3lib::ofstream &out, const ConvFormat &inputFormat, const ConvFormat &outputFormat, bool verbose)
 {
 	boost::scoped_ptr<wc3lib::mdlx::Mdlx> mdlx(new wc3lib::mdlx::Mdlx());
 
@@ -205,7 +211,10 @@ void convertMdlx(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3l
 	}
 }
 
-void convertText(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3lib::ofstream &out, const ConvFormat &inputFormat, const ConvFormat &outputFormat, bool verbose) throw (wc3lib::Exception)
+/**
+ * \throw wc3lib::Exception Throws an exception if an error occurs.
+ */
+void convertText(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3lib::ofstream &out, const ConvFormat &inputFormat, const ConvFormat &outputFormat, bool verbose)
 {
 	boost::scoped_ptr<wc3lib::map::Txt> txt(new wc3lib::map::Txt());
 
@@ -216,26 +225,12 @@ void convertText(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3l
 		if (verbose)
 			std::cout << boost::format(_("Read TXT file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
 	}
-	else if (inputFormat.extension() == "xml")
-	{
-		boost::archive::xml_iarchive ia(in);
-		ia >> BOOST_SERIALIZATION_NVP(*txt);
-	}
 	else
 	{
 		throw wc3lib::Exception(boost::format(_("File \"%1%\" is not converted with a valid input text format.\nUsed input format is %2%.")) % path.string() % inputFormat.extension());
 	}
 
-	if (outputFormat.extension() == "xml")
-	{
-		boost::archive::xml_oarchive oa(out);
-		oa << BOOST_SERIALIZATION_NVP(*txt);
-		//std::streamsize bytes = mdlx->writeMdx(out);
-
-		//if (verbose)
-		//	std::cout << boost::format(_("Wrote MDX file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
-	}
-	else if (outputFormat.extension() == "txt")
+	if (outputFormat.extension() == "txt")
 	{
 		std::streamsize bytes = txt->write(out);
 
@@ -248,7 +243,10 @@ void convertText(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3l
 	}
 }
 
-void convertFile(const boost::filesystem::path &path, const boost::filesystem::path &outputPath, const ConvFormat &inputFormat, const ConvFormat &outputFormat, bool verbose, bool overwrite) throw (wc3lib::Exception)
+/**
+ * \throw wc3lib::Exception Throws an exception if an error occurs.
+ */
+void convertFile(const boost::filesystem::path &path, const boost::filesystem::path &outputPath, const ConvFormat &inputFormat, const ConvFormat &outputFormat, bool verbose, bool overwrite)
 {
 	std::ios_base::openmode openMode = std::ifstream::in;
 

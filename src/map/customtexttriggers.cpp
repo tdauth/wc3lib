@@ -28,7 +28,7 @@ namespace wc3lib
 namespace map
 {
 
-std::streamsize CustomTextTriggers::read(InputStream& istream) throw (Exception)
+std::streamsize CustomTextTriggers::read(InputStream& istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, m_version, size);
@@ -65,7 +65,7 @@ std::streamsize CustomTextTriggers::read(InputStream& istream) throw (Exception)
 	return size;
 }
 
-std::streamsize CustomTextTriggers::write(OutputStream& ostream) const throw (Exception)
+std::streamsize CustomTextTriggers::write(OutputStream& ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, version(), size);

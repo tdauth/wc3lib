@@ -28,7 +28,7 @@ namespace wc3lib
 namespace map
 {
 
-std::streamsize Info::Player::read(InputStream &istream) throw (Exception)
+std::streamsize Info::Player::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, m_number, size);
@@ -43,7 +43,7 @@ std::streamsize Info::Player::read(InputStream &istream) throw (Exception)
 	return size;
 }
 
-std::streamsize Info::Player::write(OutputStream &ostream) const throw (Exception)
+std::streamsize Info::Player::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, number(), size);
@@ -58,7 +58,7 @@ std::streamsize Info::Player::write(OutputStream &ostream) const throw (Exceptio
 	return size;
 }
 
-std::streamsize Info::Force::read(InputStream &istream) throw (Exception)
+std::streamsize Info::Force::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read<int32>(istream, (int32&)m_flags, size);
@@ -68,7 +68,7 @@ std::streamsize Info::Force::read(InputStream &istream) throw (Exception)
 	return size;
 }
 
-std::streamsize Info::Force::write(OutputStream &ostream) const throw (Exception)
+std::streamsize Info::Force::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write<int32>(ostream, static_cast<int32>(flags()), size);
@@ -86,7 +86,7 @@ Info::UpgradeAvailability::UpgradeAvailability()
 {
 }
 
-std::streamsize Info::UpgradeAvailability::read(InputStream &istream) throw (Exception)
+std::streamsize Info::UpgradeAvailability::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, m_playerMask, size);
@@ -97,7 +97,7 @@ std::streamsize Info::UpgradeAvailability::read(InputStream &istream) throw (Exc
 	return size;
 }
 
-std::streamsize Info::UpgradeAvailability::write(OutputStream &ostream) const throw (Exception)
+std::streamsize Info::UpgradeAvailability::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, playerMask(), size);
@@ -108,7 +108,7 @@ std::streamsize Info::UpgradeAvailability::write(OutputStream &ostream) const th
 	return size;
 }
 
-std::streamsize Info::TechAvailability::read(InputStream &istream) throw (Exception)
+std::streamsize Info::TechAvailability::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, m_playerMask, size);
@@ -117,7 +117,7 @@ std::streamsize Info::TechAvailability::read(InputStream &istream) throw (Except
 	return size;
 }
 
-std::streamsize Info::TechAvailability::write(OutputStream &ostream) const throw (Exception)
+std::streamsize Info::TechAvailability::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, playerMask(), size);
@@ -132,7 +132,7 @@ Info::RandomUnitTable::Group::Column::Column() : m_type(Column::Type::UnitTable)
 
 }
 
-std::streamsize Info::RandomUnitTable::Group::Column::read(InputStream& istream) throw (Exception)
+std::streamsize Info::RandomUnitTable::Group::Column::read(InputStream& istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read<int32>(istream, (int32&)m_type, size);
@@ -140,7 +140,7 @@ std::streamsize Info::RandomUnitTable::Group::Column::read(InputStream& istream)
 	return size;
 }
 
-std::streamsize Info::RandomUnitTable::Group::Column::write(OutputStream& ostream) const throw (Exception)
+std::streamsize Info::RandomUnitTable::Group::Column::write(OutputStream& ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write<int32>(ostream, static_cast<int32>(type()), size);
@@ -148,7 +148,7 @@ std::streamsize Info::RandomUnitTable::Group::Column::write(OutputStream& ostrea
 	return size;
 }
 
-std::streamsize Info::RandomUnitTable::Group::read(InputStream &istream) throw (Exception)
+std::streamsize Info::RandomUnitTable::Group::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, m_number, size);
@@ -188,7 +188,7 @@ std::streamsize Info::RandomUnitTable::Group::read(InputStream &istream) throw (
 	return size;
 }
 
-std::streamsize Info::RandomUnitTable::Group::write(OutputStream &ostream) const throw (Exception)
+std::streamsize Info::RandomUnitTable::Group::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, number(), size);
@@ -219,7 +219,7 @@ std::streamsize Info::RandomUnitTable::Group::write(OutputStream &ostream) const
 	return size;
 }
 
-std::streamsize Info::RandomUnitTable::read(InputStream &istream) throw (Exception)
+std::streamsize Info::RandomUnitTable::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	int32 number = 0;
@@ -236,7 +236,7 @@ std::streamsize Info::RandomUnitTable::read(InputStream &istream) throw (Excepti
 	return size;
 }
 
-std::streamsize Info::RandomUnitTable::write(OutputStream &ostream) const throw (Exception)
+std::streamsize Info::RandomUnitTable::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write<int32>(ostream, groups().size(), size);
@@ -249,7 +249,7 @@ std::streamsize Info::RandomUnitTable::write(OutputStream &ostream) const throw 
 	return size;
 }
 
-std::streamsize Info::read(InputStream &istream) throw (class Exception)
+std::streamsize Info::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, m_version, size);
@@ -336,7 +336,7 @@ std::streamsize Info::read(InputStream &istream) throw (class Exception)
 	return size;
 }
 
-std::streamsize Info::write(OutputStream &ostream) const throw (class Exception)
+std::streamsize Info::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 

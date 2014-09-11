@@ -26,7 +26,7 @@ namespace wc3lib
 namespace map
 {
 
-std::streamsize Tree::read(InputStream &istream) throw (Exception)
+std::streamsize Tree::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, m_treeId, size);
@@ -41,7 +41,7 @@ std::streamsize Tree::read(InputStream &istream) throw (Exception)
 	return size;
 }
 
-std::streamsize Tree::write(OutputStream& ostream) const throw (Exception)
+std::streamsize Tree::write(OutputStream& ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, treeId(), size);

@@ -47,7 +47,7 @@ void MetaData::clear() throw ()
 	}
 }
 
-void MetaData::load() throw (Exception)
+void MetaData::load()
 {
 	QString filePath;
 
@@ -112,7 +112,7 @@ void MetaData::load() throw (Exception)
 	}
 }
 
-void MetaData::reload() throw (Exception)
+void MetaData::reload()
 {
 	clear();
 	load();

@@ -83,10 +83,10 @@ class MdlxAnimatedProperties : public MdxBlock
 		bool hasGlobalSequence() const;
 		const Properties& properties() const;
 
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
-		virtual std::streamsize readMdx(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdx(ostream &ostream) const throw (class Exception);
+		virtual std::streamsize readMdl(istream &istream);
+		virtual std::streamsize writeMdl(ostream &ostream) const;
+		virtual std::streamsize readMdx(istream &istream);
+		virtual std::streamsize writeMdx(ostream &ostream) const;
 
 	protected:
 		virtual MdlxAnimatedProperty<N, _ValueType>* createAnimatedProperty() = 0;
@@ -108,14 +108,14 @@ MdlxAnimatedProperties<N, _ValueType>::~MdlxAnimatedProperties()
 }
 
 template<typename std::size_t N, typename _ValueType>
-std::streamsize MdlxAnimatedProperties<N, _ValueType>::readMdl(istream &istream) throw (class Exception)
+std::streamsize MdlxAnimatedProperties<N, _ValueType>::readMdl(istream &istream)
 {
 	/// \todo FIXME
 	return 0;
 }
 
 template<typename std::size_t N, typename _ValueType>
-std::streamsize MdlxAnimatedProperties<N, _ValueType>::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize MdlxAnimatedProperties<N, _ValueType>::writeMdl(ostream &ostream) const
 {
 	if (this->properties().empty())
 		return 0;
@@ -159,7 +159,7 @@ std::streamsize MdlxAnimatedProperties<N, _ValueType>::writeMdl(ostream &ostream
 }
 
 template<typename std::size_t N, typename _ValueType>
-std::streamsize MdlxAnimatedProperties<N, _ValueType>::readMdx(istream &istream) throw (class Exception)
+std::streamsize MdlxAnimatedProperties<N, _ValueType>::readMdx(istream &istream)
 {
 	std::streamsize size = MdxBlock::readMdx(istream);
 
@@ -184,7 +184,7 @@ std::streamsize MdlxAnimatedProperties<N, _ValueType>::readMdx(istream &istream)
 }
 
 template<typename std::size_t N, typename _ValueType>
-std::streamsize MdlxAnimatedProperties<N, _ValueType>::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize MdlxAnimatedProperties<N, _ValueType>::writeMdx(ostream &ostream) const
 {
 	std::streamsize size = MdxBlock::writeMdx(ostream);
 

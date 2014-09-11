@@ -98,8 +98,8 @@ class FileFormat : public Format
 			return m_version;
 		}
 
-		virtual std::streamsize read(InputStream &istream) throw (Exception);
-		virtual std::streamsize write(OutputStream &ostream) const throw (Exception);
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
 	protected:
 		uint32 m_version;
@@ -110,31 +110,37 @@ inline FileFormat::FileFormat() : m_version(0)
 
 }
 
-inline std::streamsize FileFormat::read(FileFormat::InputStream &istream) throw (Exception)
+inline std::streamsize FileFormat::read(FileFormat::InputStream &istream)
 {
 	id fileId;
 	std::streamsize size = 0;
 	wc3lib::read(istream, fileId, size);
 
 	if (fileId != this->fileId())
+	{
 		throw Exception(_("Unknown file id!"));
+	}
 
 	wc3lib::read(istream, this->m_version, size);
 
 	if (version() != latestFileVersion())
+	{
 		std::cerr << boost::format(_("Warning in file \"%1%\": %2% is not the latest file version %3%")) % fileName() % version() % latestFileVersion() << std::endl;
+	}
 
 	return size;
 }
 
-inline std::streamsize FileFormat::write(FileFormat::OutputStream &ostream) const throw (Exception)
+inline std::streamsize FileFormat::write(FileFormat::OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->fileId(), size);
 	wc3lib::write(ostream, this->m_version, size);
 
 	if (version() != latestFileVersion())
+	{
 		std::cerr << boost::format(_("Warning in file \"%1%\": %2% is not the latest file version %3%")) % fileName() % version() % latestFileVersion() << std::endl;
+	}
 
 	return size;
 }

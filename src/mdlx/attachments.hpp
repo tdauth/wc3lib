@@ -40,8 +40,8 @@ class Attachments : public GroupMdxBlock
 
 		class Mdlx* mdlx() const;
 
-		virtual std::streamsize readMdl(istream &istream) throw (class Exception);
-		virtual std::streamsize writeMdl(ostream &ostream) const throw (class Exception);
+		virtual std::streamsize readMdl(istream &istream);
+		virtual std::streamsize writeMdl(ostream &ostream) const;
 
 	protected:
 		/// \todo C++11 override

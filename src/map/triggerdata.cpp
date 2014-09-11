@@ -44,12 +44,12 @@ TriggerData::Category::Category() : m_displayName(true)
 {
 }
 
-std::streamsize TriggerData::Category::read(InputStream &istream) throw (Exception)
+std::streamsize TriggerData::Category::read(InputStream &istream)
 {
 	return 0;
 }
 
-std::streamsize TriggerData::Category::write(OutputStream &ostream) const throw (Exception)
+std::streamsize TriggerData::Category::write(OutputStream &ostream) const
 {
 	return 0;
 }
@@ -58,52 +58,52 @@ TriggerData::Type::Type() : m_baseType(0)
 {
 }
 
-std::streamsize TriggerData::Type::read(InputStream &istream) throw (Exception)
+std::streamsize TriggerData::Type::read(InputStream &istream)
 {
 	return 0;
 }
 
-std::streamsize TriggerData::Type::write(OutputStream &ostream) const throw (Exception)
+std::streamsize TriggerData::Type::write(OutputStream &ostream) const
 {
 	return 0;
 }
 
-std::streamsize TriggerData::Parameter::read(InputStream &istream) throw (Exception)
+std::streamsize TriggerData::Parameter::read(InputStream &istream)
 {
 	return 0;
 }
 
-std::streamsize TriggerData::Parameter::write(OutputStream &ostream) const throw (Exception)
+std::streamsize TriggerData::Parameter::write(OutputStream &ostream) const
 {
 	return 0;
 }
 
-std::streamsize TriggerData::Function::read(InputStream &istream) throw (Exception)
+std::streamsize TriggerData::Function::read(InputStream &istream)
 {
 	return 0;
 }
 
-std::streamsize TriggerData::Function::write(OutputStream &ostream) const throw (Exception)
+std::streamsize TriggerData::Function::write(OutputStream &ostream) const
 {
 	return 0;
 }
 
-std::streamsize TriggerData::Call::read(InputStream &istream) throw (Exception)
+std::streamsize TriggerData::Call::read(InputStream &istream)
 {
 	return 0;
 }
 
-std::streamsize TriggerData::Call::write(OutputStream &ostream) const throw (Exception)
+std::streamsize TriggerData::Call::write(OutputStream &ostream) const
 {
 	return 0;
 }
 
-std::streamsize TriggerData::DefaultTrigger::read(InputStream &istream) throw (Exception)
+std::streamsize TriggerData::DefaultTrigger::read(InputStream &istream)
 {
 	return 0;
 }
 
-std::streamsize TriggerData::DefaultTrigger::write(OutputStream &ostream) const throw (Exception)
+std::streamsize TriggerData::DefaultTrigger::write(OutputStream &ostream) const
 {
 	return 0;
 }
@@ -327,7 +327,7 @@ std::size_t TriggerData::firstNonNumericChar(const string& value) const
 	return index;
 }
 
-std::streamsize TriggerData::read(InputStream &istream) throw (Exception)
+std::streamsize TriggerData::read(InputStream &istream)
 {
 	boost::scoped_ptr<Txt> txt(new Txt());
 	std::streamsize size = txt->read(istream);
@@ -606,7 +606,7 @@ std::streamsize TriggerData::read(InputStream &istream) throw (Exception)
 	return size;
 }
 
-std::streamsize TriggerData::write(OutputStream &ostream) const throw (Exception)
+std::streamsize TriggerData::write(OutputStream &ostream) const
 {
 	return 0;
 }

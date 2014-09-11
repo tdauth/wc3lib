@@ -37,22 +37,22 @@ TexturePatch::~TexturePatch()
 	delete this->m_textureVertices;
 }
 
-std::streamsize TexturePatch::readMdl(istream &istream) throw (class Exception)
+std::streamsize TexturePatch::readMdl(istream &istream)
 {
 	return this->m_textureVertices->readMdl(istream);
 }
 
-std::streamsize TexturePatch::writeMdl(ostream &ostream) const throw (class Exception)
+std::streamsize TexturePatch::writeMdl(ostream &ostream) const
 {
 	return this->m_textureVertices->writeMdx(ostream);
 }
 
-std::streamsize TexturePatch::readMdx(istream &istream) throw (class Exception)
+std::streamsize TexturePatch::readMdx(istream &istream)
 {
 	return this->m_textureVertices->readMdx(istream);
 }
 
-std::streamsize TexturePatch::writeMdx(ostream &ostream) const throw (class Exception)
+std::streamsize TexturePatch::writeMdx(ostream &ostream) const
 {
 	return this->m_textureVertices->writeMdx(ostream);
 }

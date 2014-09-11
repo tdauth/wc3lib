@@ -34,7 +34,7 @@ Map::Map(const KUrl &url) : Resource(url, Type::Map)
 {
 }
 
-void Map::load() throw (Exception)
+void Map::load()
 {
 	QString target;
 
@@ -83,12 +83,12 @@ void Map::load() throw (Exception)
 	this->map().swap(map); // exception safe
 }
 
-void Map::reload() throw (Exception)
+void Map::reload()
 {
 	load();
 }
 
-void Map::save(const KUrl &url) const throw (Exception)
+void Map::save(const KUrl &url) const
 {
 	KTemporaryFile tmpFile;
 

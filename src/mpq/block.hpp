@@ -75,7 +75,7 @@ class Block : public Format, private boost::noncopyable
 		 */
 		static uint32 fileKey(const string &name, const BlockTableEntry &blockTableEntry);
 
-		std::streamsize write(ostream &ostream) const throw (class Exception);
+		std::streamsize write(ostream &ostream) const;
 
 		bool empty() const;
 		bool unused() const;
@@ -143,7 +143,7 @@ class Block : public Format, private boost::noncopyable
 		Block(uint32 index);
 		virtual ~Block();
 
-		std::streamsize read(istream &istream) throw (class Exception);
+		std::streamsize read(istream &istream);
 
 		void setFileSize(uint32 fileSize);
 		void setBlockSize(uint32 blockSize);

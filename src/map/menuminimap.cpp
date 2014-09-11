@@ -32,7 +32,7 @@ MenuMinimap::Mark::Mark() : Vertex2d<int32>()
 {
 }
 
-std::streamsize MenuMinimap::Mark::read(InputStream &istream) throw (Exception)
+std::streamsize MenuMinimap::Mark::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read<int32>(istream, (int32&)m_iconType, size);
@@ -42,7 +42,7 @@ std::streamsize MenuMinimap::Mark::read(InputStream &istream) throw (Exception)
 	return size;
 }
 
-std::streamsize MenuMinimap::Mark::write(OutputStream &ostream) const throw (Exception)
+std::streamsize MenuMinimap::Mark::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write<int32>(ostream, (int32)iconType(), size);
@@ -52,7 +52,7 @@ std::streamsize MenuMinimap::Mark::write(OutputStream &ostream) const throw (Exc
 	return size;
 }
 
-std::streamsize MenuMinimap::read(InputStream &istream) throw (Exception)
+std::streamsize MenuMinimap::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_version, size);
@@ -74,7 +74,7 @@ std::streamsize MenuMinimap::read(InputStream &istream) throw (Exception)
 	return size;
 }
 
-std::streamsize MenuMinimap::write(OutputStream &ostream) const throw (Exception)
+std::streamsize MenuMinimap::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->version(), size);

@@ -184,7 +184,7 @@ static void writeBuffer(char *buf, unsigned int *size, void *param)
 	assert(info->outBuffer <= info->outBufferEnd);
 }
 
-void compressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength, int * /* pCmpType */, int /* compressionLevel */)  throw (class Exception)
+void compressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength, int * /* pCmpType */, int /* compressionLevel */)
 {
 	struct DataInfo info; // Data information
 	// Fill data information structure
@@ -200,22 +200,30 @@ void compressPklib(char *outBuffer, int &outLength, char* const inBuffer, int in
 	// Set the compression type and dictionary size
 	 // Set the compression type and dictionary size
 	if (inLength < 0x600)
+	{
 		dictonarySize = CMP_IMPLODE_DICT_SIZE1;
-	else if(0x600 <= inLength && inLength < 0xC00)
+	}
+	else if (0x600 <= inLength && inLength < 0xC00)
+	{
 		dictonarySize = CMP_IMPLODE_DICT_SIZE2;
+	}
 	else
+	{
 		dictonarySize = CMP_IMPLODE_DICT_SIZE3;
+	}
 
 	// Do the compression
 	unsigned int state = implode(readBuffer, writeBuffer, workBuffer.get(), &info, &ctype, &dictonarySize);
 
 	if (state != CMP_NO_ERROR)
+	{
 		throw Exception(boost::format(_("Implode error: \"%1%\".")) % pkglibError(state));
+	}
 
 	outLength = (int)(info.outBuffer - outBuffer);
 }
 
-void decompressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength) throw (class Exception)
+void decompressPklib(char *outBuffer, int &outLength, char* const inBuffer, int inLength)
 {
 	struct DataInfo info; // Data information
 	// Fill data information structure
@@ -231,13 +239,15 @@ void decompressPklib(char *outBuffer, int &outLength, char* const inBuffer, int 
 
 	// If PKLIB is unable to decompress the data, return 0;
 	if(info.outBuffer == outBuffer)
+	{
 		throw Exception(boost::format(_("Explode error: \"%1%\".")) % pkglibError(state));
+	}
 
 	// Give away the number of decompressed bytes
 	outLength = (int)(info.outBuffer - outBuffer);
 }
 
-int compressWaveMono(short* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength, int compressionLevel) throw (class Exception)
+int compressWaveMono(short* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength, int compressionLevel)
 {
 	// Prepare the compression level for the next compression
 	// (After us, the Huffmann compression will be called)
@@ -256,7 +266,7 @@ int compressWaveMono(short* const inBuffer, int inBufferLength, unsigned char *o
 	return outBufferLength;
 }
 
-int decompressWaveMono(unsigned char* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength) throw (class Exception)
+int decompressWaveMono(unsigned char* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength)
 {
 	if (outBuffer == 0)
 		throw Exception(_("Output buffer is 0."));
@@ -266,7 +276,7 @@ int decompressWaveMono(unsigned char* const inBuffer, int inBufferLength, unsign
 	return outBufferLength;
 }
 
-int compressWaveStereo(short* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength, int compressionLevel) throw (class Exception)
+int compressWaveStereo(short* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength, int compressionLevel)
 {
 	// Prepare the compression type for the next compression
 	// (After us, the Huffmann compression will be called)
@@ -285,7 +295,7 @@ int compressWaveStereo(short* const inBuffer, int inBufferLength, unsigned char 
 	return outBufferLength;
 }
 
-int decompressWaveStereo(unsigned char* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength) throw (class Exception)
+int decompressWaveStereo(unsigned char* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength)
 {
 	if (outBuffer == 0)
 		throw Exception(_("Output buffer is 0."));

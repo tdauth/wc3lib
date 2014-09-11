@@ -70,7 +70,7 @@ class KDE_EXPORT Resource
 		 * \note This adds the resources to the resources of \p source which can be accessed via \ref Source::resources().
 		 * \note Additionally, this calls either \ref load() or \ref reload() depending on there has already set a source before. This only happens if \p load is true!
 		 */
-		void setSource(class MpqPriorityList *source, bool load = false) throw (Exception);
+		void setSource(class MpqPriorityList *source, bool load = false);
 		class MpqPriorityList* source() const;
 		/**
 		 * Each resource should have its unique URL which indicates where it is loaded from.
@@ -86,9 +86,9 @@ class KDE_EXPORT Resource
 		 */
 		KUrl sourceUrl() const;
 
-		virtual void load() throw (Exception) = 0;
-		virtual void reload() throw (Exception) = 0;
-		virtual void save(const KUrl &url) const throw (Exception) = 0;
+		virtual void load() = 0;
+		virtual void reload() = 0;
+		virtual void save(const KUrl &url) const = 0;
 
 	protected:
 		class MpqPriorityList *m_source;

@@ -40,9 +40,9 @@ class KDE_EXPORT Map : public Resource
 
 		Map(const KUrl &url);
 
-		virtual void load() throw (Exception);
-		virtual void reload() throw (Exception);
-		virtual void save(const KUrl &url) const throw (Exception);
+		virtual void load();
+		virtual void reload();
+		virtual void save(const KUrl &url) const;
 
 		bool isW3x() const;
 

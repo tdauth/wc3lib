@@ -39,8 +39,8 @@ class ImportedFiles : public FileFormat
 			public:
 				Path();
 
-				virtual std::streamsize read(InputStream &istream) throw (class Exception);
-				virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
+				virtual std::streamsize read(InputStream &istream);
+				virtual std::streamsize write(OutputStream &ostream) const;
 
 				bool hasPrefix() const;
 				const string& path() const;
@@ -52,8 +52,8 @@ class ImportedFiles : public FileFormat
 
 		typedef boost::ptr_vector<Path> Paths;
 
-		virtual std::streamsize read(InputStream &istream) throw (class Exception);
-		virtual std::streamsize write(OutputStream &ostream) const throw (class Exception);
+		virtual std::streamsize read(InputStream &istream);
+		virtual std::streamsize write(OutputStream &ostream) const;
 
 		virtual const byte* fileTextId() const;
 		virtual uint32 latestFileVersion() const;

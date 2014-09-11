@@ -76,22 +76,22 @@ class Sector // FIXME : private boost::noncopyable
 		/**
 		 * Sames as \ref readData(const byte*, uint32) but detects buffer and buffer size automatically by simply using \ref Archive:sectorSize() of the corresponding MPQ archive or less (if input stream hasn't that much data).
 		 */
-		std::streamsize readData(istream &istream, int waveCompressionLevel = defaultWaveCompressionLevel) throw (class Exception);
+		std::streamsize readData(istream &istream, int waveCompressionLevel = defaultWaveCompressionLevel);
 		/**
 		 * Compresses and encrypts data from \p buffer of size \p bufferSize if necessary and writes it into the corresponding MPQ archive at the sector's place.
 		 * \note Compressed data has to be less than or equal to \ref Archive:sectorSize() of the corresponding MPQ archive. Otherwise it throws an exception.
 		 * \return Returns size of bytes which has been written into the corresponding MPQ archive.
 		 */
-		std::streamsize readData(const byte *buffer, const uint32 bufferSize, int waveCompressionLevel = defaultWaveCompressionLevel) throw (class Exception);
+		std::streamsize readData(const byte *buffer, const uint32 bufferSize, int waveCompressionLevel = defaultWaveCompressionLevel);
 		/**
 		 * Writes sector data into output stream \p ostream.
 		 * \return Returns size of written data.
 		 */
-		std::streamsize writeData(ostream &ostream) const throw (class Exception);
+		std::streamsize writeData(ostream &ostream) const;
 		/**
 		 * Same as \ref writeData(ostream &) but doesn't work independently since it expects to be at the correct position in archive using \p istream as input archive stream.
 		 */
-		std::streamsize writeData(istream &istream, ostream &ostream) const throw (Exception);
+		std::streamsize writeData(istream &istream, ostream &ostream) const;
 
 		/**
 		 * Jumps to the sector's position in input stream \p istream.
@@ -133,7 +133,7 @@ class Sector // FIXME : private boost::noncopyable
 		/**
 		 * For internal usage.
 		 */
-		void decompressData(boost::scoped_array<byte> &data, uint32 dataSize, ostream &ostream) const throw (Exception);
+		void decompressData(boost::scoped_array<byte> &data, uint32 dataSize, ostream &ostream) const;
 
 		  File *m_mpqFile;
 		uint32 m_sectorIndex;
