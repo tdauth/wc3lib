@@ -1,2 +1,3 @@
+add_subdirectory(applications)
 add_subdirectory(listfiles)
 add_subdirectory(cmake)

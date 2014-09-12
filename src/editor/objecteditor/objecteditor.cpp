@@ -45,6 +45,22 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 , m_modifyFieldAction(0)
 , m_resetFieldAction(0)
 {
+	readSettings();
+
+	// Update required files if started as stand-alone module
+	if (!hasEditor())
+	{
+		try
+		{
+			source->sharedData()->refreshWorldEditorStrings(this); // TODO we need a GUI
+			source->sharedData()->refreshWorldEditData(this);
+		}
+		catch (wc3lib::Exception &e)
+		{
+			KMessageBox::error(0, i18n("Error when loading default files: %1", e.what()));
+		}
+	}
+
 	Module::setupUi();
 	//Ui::ObjectEditor::setupUi(this);
 	topLayout()->addWidget(tabWidget());

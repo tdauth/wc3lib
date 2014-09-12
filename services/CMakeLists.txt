@@ -7,7 +7,7 @@ if (EDITOR OR PLUGINS)
 		include_directories(${KDE4_INCLUDE_DIR} ${KDE4_INCLUDES})
 		link_directories(${KDE4_LIB_DIR})
 	endif ()
-	
+
 	install(FILES mpq.protocol DESTINATION ${SERVICES_INSTALL_DIR})
 	install(FILES blp.desktop DESTINATION ${SERVICES_INSTALL_DIR}/qimageioplugins/)
 endif ()

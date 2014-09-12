@@ -27,6 +27,7 @@
 
 #include "mpqeditor.hpp"
 #include "../listfilesdialog.hpp"
+#include "../mpqprioritylist.hpp"
 #include "archiveinfodialog.hpp"
 #include "fileinfodialog.hpp"
 
@@ -36,12 +37,27 @@ namespace wc3lib
 namespace editor
 {
 
-MpqEditor::MpqEditor(MpqPriorityList* source, QWidget* parent, Qt::WindowFlags f)
+MpqEditor::MpqEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f)
 : Module(source, parent, f)
 , m_listfilesDialog(new ListfilesDialog(this))
 , m_archiveInfoDialog(new ArchiveInfoDialog(this))
 , m_fileInfoDialog(new FileInfoDialog(this))
 {
+	Module::readSettings(); // fill sources first
+
+	// Update required files if started as stand-alone module
+	if (!hasEditor())
+	{
+		try
+		{
+			source->sharedData()->refreshWorldEditorStrings(this);
+		}
+		catch (wc3lib::Exception &e)
+		{
+			KMessageBox::error(0, i18n("Error when loading default files: %1", e.what()));
+		}
+	}
+
 	Module::setupUi();
 	QWidget *widget = new QWidget(this);
 	Ui::MpqEditor::setupUi(widget);
@@ -54,7 +70,9 @@ MpqEditor::MpqEditor(MpqPriorityList* source, QWidget* parent, Qt::WindowFlags f
 	connect(this->m_archivesTreeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(fileIsOpen(QTreeWidgetItem*,int)));
 	connect(this->m_archivesTreeWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextMenu(QPoint)));
 
-	readSettings(); // fill sources first
+	// read GUI settings
+	readSettings();
+
 }
 
 MpqEditor::~MpqEditor()
@@ -778,8 +796,8 @@ void MpqEditor::onSwitchToMap(Map *map)
 
 void MpqEditor::readSettings()
 {
-	Module::readSettings();
-
+	// only read GUI settings
+	// sources have to be read manually before
 	QSettings settings("wc3lib", "mpqeditor");
 
 	qDebug() << "MPQ editor settings:" << settings.fileName();

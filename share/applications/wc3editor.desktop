@@ -1,16 +1,13 @@
 [Desktop Entry]
-MimeType=application/x-game-editor;
+MimeType=application/x-w3m;application/x-w3x;
 GenericName=Warcraft III World Editor Emulation
 GenericName[de]=Warcraft-III-World-Editor-Emulation
 GenericName[en_GB]=Warcraft III World Editor Emulation
-Name=editor
-Name[de]=editor
-Name[en_GB]=editor
-Exec=editor %U
+Name=wc3editor
+Name[de]=wc3editor
+Name[en_GB]=wc3editor
+Exec=wc3editor %U
 Icon=utilities-file-archiver
-X-DocPath=editor/index.html
 Type=Application
 Terminal=false
-X-DBUS-StartupType=Unique
-X-KDE-HasTempFileOption=false
 Categories=Games;

@@ -1,0 +1,13 @@
+[Desktop Entry]
+MimeType=application/x-w3m;application/x-w3x;application/x-wtg;application/x-wct;
+GenericName=Warcraft III Trigger Editor
+GenericName[de]=Warcraft-III-Auslösereditor
+GenericName[en_GB]=Warcraft III Trigger Editor
+Name=wc3trigger
+Name[de]=wc3trigger
+Name[en_GB]=wc3trigger
+Exec=wc3trigger %U
+Icon=utilities-file-archiver
+Type=Application
+Terminal=false
+Categories=Games;

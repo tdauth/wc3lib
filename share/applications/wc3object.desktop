@@ -1,0 +1,13 @@
+[Desktop Entry]
+MimeType=application/x-w3m;application/x-w3x;
+GenericName=Warcraft III Object Editor
+GenericName[de]=Warcraft-III-Objekteditor
+GenericName[en_GB]=Warcraft III Object Editor
+Name=wc3object
+Name[de]=wc3object
+Name[en_GB]=wc3object
+Exec=wc3object %U
+Icon=utilities-file-archiver
+Type=Application
+Terminal=false
+Categories=Games;

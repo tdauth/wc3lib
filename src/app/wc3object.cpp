@@ -46,21 +46,6 @@ int main(int argc, char *argv[])
 	KApplication app;
 
 	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
-	/*
-	 * The independent editor uses its own stored settings for its sources!
-	 */
-	source->readSettings("objecteditor"); // TODO use getter function
-
-	try
-	{
-		source->sharedData()->refreshWorldEditorStrings(0); // TODO we need a GUI
-		source->sharedData()->refreshWorldEditData(0);
-	}
-	catch (wc3lib::Exception &e)
-	{
-		KMessageBox::error(0, i18n("Error when loading default files: %1", e.what()));
-	}
-
 	ObjectEditor editor(source.data());
 	editor.show();
 

@@ -1,0 +1,13 @@
+[Desktop Entry]
+MimeType=application/x-mpq;
+GenericName=Warcraft III MPQ Editor
+GenericName[de]=Warcraft-III-MPQ-Editor
+GenericName[en_GB]=Warcraft III MPQ Editor
+Name=wc3mpq
+Name[de]=wc3mpq
+Name[en_GB]=wc3mpq
+Exec=wc3mpq %U
+Icon=utilities-file-archiver
+Type=Application
+Terminal=false
+Categories=Games;

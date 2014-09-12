@@ -1,0 +1,13 @@
+[Desktop Entry]
+MimeType=model/x-mdl;model/x-mdx;
+GenericName=Warcraft III Model Editor
+GenericName[de]=Warcraft-III-Modelleditor
+GenericName[en_GB]=Warcraft III Model Editor
+Name=wc3model
+Name[de]=wc3model
+Name[en_GB]=wc3model
+Exec=wc3model %U
+Icon=utilities-file-archiver
+Type=Application
+Terminal=false
+Categories=Games;
