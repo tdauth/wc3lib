@@ -246,11 +246,11 @@ inline map::Slk::ConstView MetaData::row(const QString &key) const
 		throw Exception();
 	}
 
-	SlkKeys::const_iterator iterator = this->rowKeys().find(toSlkString(key));
+	SlkKeys::const_iterator iterator = this->rowKeys().find(key);
 
 	if (iterator == this->rowKeys().end())
 	{
-		throw Exception(boost::format(_("Missing row %1%.")) % toSlkString(key).toUtf8().constData());
+		throw Exception(boost::format(_("Missing row %1%.")) % key.toUtf8().constData());
 	}
 
 	return this->slk().row(iterator.value());
@@ -263,11 +263,11 @@ inline map::Slk::ConstView MetaData::column(const QString &key) const
 		throw Exception();
 	}
 
-	SlkKeys::const_iterator iterator = this->columnKeys().find(toSlkString(key));
+	SlkKeys::const_iterator iterator = this->columnKeys().find(key);
 
 	if (iterator == this->columnKeys().end())
 	{
-		throw Exception(boost::format(_("Missing column %1%.")) % toSlkString(key).toUtf8().constData());
+		throw Exception(boost::format(_("Missing column %1%.")) % key.toUtf8().constData());
 	}
 
 	return this->slk().column(iterator.value());
@@ -275,6 +275,11 @@ inline map::Slk::ConstView MetaData::column(const QString &key) const
 
 inline map::Txt::Section* MetaData::section(const QString &key) const
 {
+	if (!hasTxt())
+	{
+		throw Exception();
+	}
+
 	TxtSectionKeys::const_iterator iterator = this->sectionKeys().find(key);
 
 	if (iterator == this->sectionKeys().end())
@@ -287,6 +292,11 @@ inline map::Txt::Section* MetaData::section(const QString &key) const
 
 inline map::Txt::Entry* MetaData::entry(const QString &sectionKey, const QString& key) const
 {
+	if (!hasTxt())
+	{
+		throw Exception();
+	}
+
 	map::Txt::Section *section = this->section(sectionKey);
 
 	if (section == 0)
@@ -311,11 +321,11 @@ inline QString MetaData::value(int row, const QString &columnKey) const
 		throw Exception();
 	}
 
-	SlkKeys::const_iterator iterator = this->columnKeys().find(toSlkString(columnKey));
+	SlkKeys::const_iterator iterator = this->columnKeys().find(columnKey);
 
 	if (iterator == this->columnKeys().end())
 	{
-		throw Exception(boost::format(_("Missing column %1%.")) % toSlkString(columnKey).toUtf8().constData());
+		throw Exception(boost::format(_("Missing column %1%.")) % columnKey.toUtf8().constData());
 	}
 
 	return fromSlkString(QString::fromUtf8(this->slk().table()[iterator.value()][row].c_str()));
@@ -328,11 +338,11 @@ inline QString MetaData::value(const QString &rowKey, int column) const
 		throw Exception();
 	}
 
-	SlkKeys::const_iterator iterator = this->rowKeys().find(toSlkString(rowKey));
+	SlkKeys::const_iterator iterator = this->rowKeys().find(rowKey);
 
 	if (iterator == this->rowKeys().end())
 	{
-		throw Exception(boost::format(_("Missing row %1%.")) % toSlkString(rowKey).toUtf8().constData());
+		throw Exception(boost::format(_("Missing row %1%.")) % rowKey.toUtf8().constData());
 	}
 
 	return fromSlkString(QString::fromUtf8(this->slk().table()[column][iterator.value()].c_str()));

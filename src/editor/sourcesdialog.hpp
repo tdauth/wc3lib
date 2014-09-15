@@ -54,6 +54,17 @@ class KDE_EXPORT SourcesDialog : public QDialog, protected Ui::SourcesDialog
 		 * Updates the list of all source based on stored sources of corresponding source object (\ref source()).
 		 */
 		void update();
+		/**
+		 * Opens a file dialog to select a directory which contains a Warcraft III installation.
+		 * It adds all default MPQ archives in the correct order from the directory.
+		 */
+		void addWc3Dir();
+		void clear();
+
+		/**
+		 * Adds all items from \p items at the beginning of the current items.
+		 */
+		void prepend(const QStringList &items);
 
 	public:
 		/**

@@ -35,6 +35,7 @@ ObjectTreeView::ObjectTreeView(ObjectEditorTab *tab, Qt::WindowFlags f) : QTreeV
 	this->setUniformRowHeights(true); // improves performance
 	this->setSelectionMode(QAbstractItemView::SingleSelection);
 	this->setSelectionBehavior(QAbstractItemView::SelectRows);
+	this->setHeaderHidden(true);
 
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customContextMenuRequested(QPoint)));
 	m_contextMenu->addAction(tab->objectEditor()->copyObjectAction());

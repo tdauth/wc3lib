@@ -112,19 +112,9 @@ int ObjectTreeModel::rowCount(const QModelIndex &parent) const
 {
 	ObjectTreeItem *parentItem = 0;
 
-	if (parent.column() > 0)
-	{
-		return 0;
-	}
-
-	if (m_topLevelItems.isEmpty())
-	{
-		return 0;
-	}
-
 	if (!parent.isValid())
 	{
-		parentItem = m_topLevelItems.first();
+		return m_topLevelItems.size();
 	}
 	else
 	{
@@ -180,6 +170,10 @@ QModelIndex ObjectTreeModel::index(int row, int column, const QModelIndex &paren
 	{
 		childItem = m_topLevelItems.at(row);
 	}
+	else
+	{
+		qDebug() << "Error error error:" << row;
+	}
 
 	if (childItem != 0)
 	{
@@ -193,7 +187,8 @@ QModelIndex ObjectTreeModel::index(int row, int column, const QModelIndex &paren
 
 QVariant ObjectTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    return QAbstractItemModel::headerData(section, orientation, role);
+	// no header data available
+	return QVariant();
 }
 
 void ObjectTreeModel::clearCustomItems()

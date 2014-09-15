@@ -25,6 +25,8 @@
 #include <boost/ptr_container/ptr_map.hpp>
 
 #include <QWidget>
+#include <QHash>
+#include <QIcon>
 
 #include <kdemacros.h>
 #include <KUrl>
@@ -66,6 +68,11 @@ class MpqPriorityList;
 class KDE_EXPORT WarcraftIIIShared
 {
 	public:
+		/**
+		 * Shared icons are stored in a hash for fast access.
+		 */
+		typedef QHash<KUrl, QIcon> Icons;
+
 		typedef boost::ptr_map<TeamColor, Texture> TeamColorTextures;
 
 		/**
@@ -169,6 +176,7 @@ class KDE_EXPORT WarcraftIIIShared
 	private:
 		MpqPriorityList *m_source;
 
+		Icons m_icons;
 		// team color and glow textures
 		mutable TeamColorTextures m_teamColorTextures;
 		mutable TeamColorTextures m_teamGlowTextures;

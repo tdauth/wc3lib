@@ -50,8 +50,8 @@ ObjectTableWidget::ObjectTableWidget(ObjectEditorTab *parent) : QTableWidget(par
 
 	for (map::Slk::Table::size_type i = 0; i < tab()->objectData()->metaData()->slk().rows() - 1; ++i)
 	{
-		const QString fieldId = MetaData::fromSlkString(tab()->objectData()->metaData()->value(i + 1, MetaData::toSlkString("ID")));
-		const QString sort = MetaData::fromSlkString(tab()->objectData()->metaData()->value(i + 1, MetaData::toSlkString("sort")));
+		const QString fieldId = tab()->objectData()->metaData()->value(i + 1, "ID");
+		const QString sort = tab()->objectData()->metaData()->value(i + 1, "sort");
 		fieldIds.insert(sort, fieldId);
 	}
 

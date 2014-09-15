@@ -22,8 +22,7 @@
 #include <boost/test/unit_test.hpp>
 #include <sstream>
 #include <iostream>
-
-#include <boost/chrono.hpp>
+#include <chrono>
 
 #include "../../spirit.hpp"
 #include "../../platform.hpp"
@@ -64,7 +63,6 @@ BOOST_AUTO_TEST_CASE(UnitAbilities)
 	BOOST_REQUIRE(valid);
 	BOOST_REQUIRE(slk.columns() == 7);
 	BOOST_REQUIRE(slk.rows() == 325);
-	std::cerr << "Cell 0x0:" << slk.cell(0, 0) << std::endl;
 	BOOST_REQUIRE(slk.cell(0, 0) == "\"unitAbilID\"");
 }
 
@@ -242,7 +240,7 @@ BOOST_AUTO_TEST_CASE(UnitWeapons)
 }
 
 /*
- * Frozen Thronw
+ * Frozen Throne
  */
 BOOST_AUTO_TEST_CASE(UnitMetaDataEX)
 {
@@ -262,6 +260,47 @@ BOOST_AUTO_TEST_CASE(UnitMetaDataEX)
 	try
 	{
 		slk.read(in);
+	}
+	catch (Exception e)
+	{
+		valid = false;
+
+		std::cerr << e.what() << std::endl;
+	}
+
+	BOOST_REQUIRE(valid);
+	BOOST_REQUIRE(slk.columns() == 23);
+	BOOST_REQUIRE(slk.rows() == 249);
+	BOOST_REQUIRE(slk.cell(0, 0) == "\"ID\"");
+	BOOST_REQUIRE(slk.cell(0, 1) == "\"field\"");
+}
+
+/*
+ * Frozen Throne:
+ * Time value after starting multiple grammars the grammar should always be initialized statically.
+ */
+BOOST_AUTO_TEST_CASE(UnitMetaDataEXProfile)
+{
+	spiritTraceLog.close();
+	spiritTraceLog.open("unitmetadataex_traces.xml");
+
+	BOOST_REQUIRE(spiritTraceLog);
+
+	ifstream in("UnitMetaDataEx.slk");
+
+	BOOST_REQUIRE(in);
+
+	map::Slk slk;
+
+	bool valid = true;
+
+	try
+	{
+		std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+		slk.read(in);
+		std::chrono::high_resolution_clock::time_point finished = std::chrono::high_resolution_clock::now();
+		std::chrono::high_resolution_clock::duration duration = finished - now;
+		std::cerr << "Duration: " << std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() << " ms" << std::endl;
 	}
 	catch (Exception e)
 	{

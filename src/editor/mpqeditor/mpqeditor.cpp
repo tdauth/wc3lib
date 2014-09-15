@@ -51,6 +51,7 @@ MpqEditor::MpqEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f
 		try
 		{
 			source->sharedData()->refreshWorldEditorStrings(this);
+			source->sharedData()->refreshWorldEditData(this);
 		}
 		catch (wc3lib::Exception &e)
 		{
@@ -69,6 +70,8 @@ MpqEditor::MpqEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f
 	connect(this->m_archivesTreeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(updateSelection()));
 	connect(this->m_archivesTreeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(fileIsOpen(QTreeWidgetItem*,int)));
 	connect(this->m_archivesTreeWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextMenu(QPoint)));
+	connect(this->m_archivesTreeWidget, SIGNAL(itemExpanded(QTreeWidgetItem*)), this, SLOT(expandItem(QTreeWidgetItem*)));
+	connect(this->m_archivesTreeWidget, SIGNAL(itemCollapsed(QTreeWidgetItem*)), this, SLOT(collapseItem(QTreeWidgetItem*)));
 
 	// read GUI settings
 	readSettings();
@@ -88,6 +91,31 @@ void MpqEditor::updateSelection()
 
 	m_extractAction->setEnabled(!items.empty());
 }
+
+void MpqEditor::expandItem(QTreeWidgetItem *item)
+{
+	if (!m_archiveTopLevelItems.contains(item))
+	{
+		if (this->source()->sharedData()->worldEditData().get() != nullptr)
+		{
+			const QIcon folderIcon = this->source()->sharedData()->worldEditDataIcon("OMIcon_FolderOpen", "WorldEditArt", this);
+			item->setIcon(0, folderIcon);
+		}
+	}
+}
+
+void MpqEditor::collapseItem(QTreeWidgetItem *item)
+{
+	if (!m_archiveTopLevelItems.contains(item))
+	{
+		if (this->source()->sharedData()->worldEditData().get() != nullptr)
+		{
+			const QIcon folderIcon = this->source()->sharedData()->worldEditDataIcon("OMIcon_Folder", "WorldEditArt", this);
+			item->setIcon(0, folderIcon);
+		}
+	}
+}
+
 
 void MpqEditor::fileIsOpen(QTreeWidgetItem *item, int column)
 {
@@ -192,7 +220,8 @@ MpqEditor::FileItems MpqEditor::constructItems(const mpq::Listfile::Entries &ent
 	/*
 	 * Use this map to store all directory items for fast access when adding childs.
 	 */
-	QMap<QString, QTreeWidgetItem*> map;
+	typedef QMap<QString, QTreeWidgetItem*> Map;
+	Map map;
 	/*
 	 * Return all created items in the end so that they can be associated with the archive.
 	 */
@@ -216,22 +245,14 @@ MpqEditor::FileItems MpqEditor::constructItems(const mpq::Listfile::Entries &ent
 				dirName.chop(1);
 				dirName = this->fileName(dirName);
 				const QString upperDirPath = dirPath.toUpper();
-				QMap<QString, QTreeWidgetItem*>::iterator iterator = map.find(upperDirPath);
+				Map::iterator iterator = map.find(upperDirPath);
 
 				/*
 				 * Directory item does not exist already, so create the tree widget item.
 				 */
 				if (iterator == map.end())
 				{
-					QTreeWidgetItem *item = new QTreeWidgetItem();
-					/*
-					 * Show only dir name.
-					 */
-					item->setText(0, dirName);
-					/*
-					 * Store the whole dir path with / that the program knows it is a directory.
-					 */
-					item->setData(0, Qt::UserRole, upperDirPath);
+					QTreeWidgetItem *item = folderToItem(dirName, dirPath);
 
 					if (i == 0)
 					{
@@ -263,8 +284,8 @@ MpqEditor::FileItems MpqEditor::constructItems(const mpq::Listfile::Entries &ent
 		else
 		{
 			QTreeWidgetItem *item = fileToItem(*iterator, archive);
-			topItem->addChild(item);
 			result.insert(item, &archive);
+			topItem->addChild(item);
 		}
 	}
 
@@ -289,6 +310,32 @@ MpqEditor::FileItems MpqEditor::constructItems(const mpq::Listfile::Entries &ent
 	return result;
 }
 
+bool MpqEditor::itemIsFolder(QTreeWidgetItem* item) const
+{
+	return item->data(0, Qt::UserRole).toString().endsWith('\\');
+}
+
+QTreeWidgetItem* MpqEditor::folderToItem(const QString& dirName, const QString &dirPath)
+{
+	QTreeWidgetItem *item = new QTreeWidgetItem();
+	/*
+	 * Show only dir name.
+	 */
+	item->setText(0, dirName);
+	/*
+	 * Store the whole dir path with / that the program knows it is a directory.
+	 */
+	item->setData(0, Qt::UserRole, dirPath);
+
+	if (this->source()->sharedData()->worldEditData().get() != nullptr)
+	{
+		const QIcon folderIcon = this->source()->sharedData()->worldEditDataIcon("OMIcon_Folder", "WorldEditArt", this);
+		item->setIcon(0, folderIcon);
+	}
+
+	return item;
+}
+
 QTreeWidgetItem* MpqEditor::fileToItem(const boost::filesystem::path &path, Archive &archive)
 {
 	mpq::File file = archive.archive().findFile(path);
@@ -298,11 +345,19 @@ QTreeWidgetItem* MpqEditor::fileToItem(const boost::filesystem::path &path, Arch
 		const QString filePath = path.c_str();
 		QTreeWidgetItem *item = new QTreeWidgetItem();
 		item->setText(0, this->fileName(filePath));
-		item->setData(0, Qt::UserRole, filePath.toUpper());
+		item->setData(0, Qt::UserRole, filePath);
 
 		item->setText(1, sizeStringDecimal(file.size()).c_str());
 
 		item->setText(2, sizeStringDecimal(file.compressedSize()).c_str());
+
+		KMimeType::Ptr mimeType = KMimeType::findByPath(filePath);
+
+		if (!mimeType.isNull())
+		{
+			const QIcon fileTypeIcon = QIcon(mimeType->iconName());
+			item->setIcon(0, fileTypeIcon);
+		}
 
 		return item;
 	}
@@ -534,12 +589,20 @@ void MpqEditor::extractFiles()
 		else
 		{
 			const QString filePath = item->data(0, Qt::UserRole).toString();
-			const QString fileName = this->fileName(filePath);
-			/*
-			* Initialize with original file name.
-			*/
-			m_extractUrl.setFileName(fileName);
-			KUrl url = KFileDialog::getSaveUrl(m_extractUrl, "*", this);
+			QString fileName;
+			KUrl url;
+
+			if (itemIsFolder(item))
+			{
+				fileName = this->dirname(filePath);
+				url = KFileDialog::getExistingDirectoryUrl(m_extractUrl, this);
+			}
+			else
+			{
+				fileName = this->fileName(filePath);
+				m_extractUrl.setFileName(fileName);
+				url = KFileDialog::getSaveUrl(m_extractUrl, "*", this);
+			}
 
 			if (!url.isEmpty())
 			{
@@ -548,12 +611,23 @@ void MpqEditor::extractFiles()
 				if (iterator != m_archiveFileItems.end())
 				{
 					Archive *archive = iterator.value();
+					bool result = false;
 
-					if (extractFile(filePath, archive->archive(), url.toLocalFile()))
+					if (itemIsFolder(item))
 					{
-						/*
-						* Update extraction URL path on success.
-						*/
+						mpq::Listfile::Entries dirEntries = this->dirEntries(item);
+						result = extractDir(filePath, archive->archive(), url.toLocalFile(), dirEntries);
+					}
+					else
+					{
+						result = extractFile(filePath, archive->archive(), url.toLocalFile());
+					}
+
+					/*
+					 * Update extraction URL path on success.
+					 */
+					if (result)
+					{
 						m_extractUrl = url.directory();
 					}
 				}
@@ -654,6 +728,134 @@ QString MpqEditor::baseName(const QString& path)
 	}
 
 	return fileName;
+}
+
+QString MpqEditor::dirname(const QString &path)
+{
+	const int lastIndex = path.lastIndexOf('\\');
+
+	if (lastIndex != -1 && lastIndex > 0)
+	{
+		const QString result = path.mid(0, lastIndex);
+		const int secondLastIndex = result.lastIndexOf('\\');
+
+		if (secondLastIndex != -1 && secondLastIndex < result.size() - 1)
+		{
+			return result.mid(secondLastIndex + 1);
+		}
+		// top level dir
+		else
+		{
+			return result;
+		}
+	}
+
+	return QString();
+}
+
+mpq::Listfile::Entries MpqEditor::dirEntries(QTreeWidgetItem* item) const
+{
+	const QString dirPath = item->data(0, Qt::UserRole).toString();
+	mpq::Listfile::Entries result;
+	QStack<QTreeWidgetItem*> children;
+
+	for (int i = 0; i < item->childCount(); ++i)
+	{
+		children.push(item->child(i));
+	}
+
+	while (!children.isEmpty())
+	{
+		QTreeWidgetItem *child = children.pop();
+
+		if (!itemIsFolder(child))
+		{
+			const QString filePath = child->data(0, Qt::UserRole).toString();
+			qDebug() << "Dir entry:" << filePath;
+
+			result.push_back(filePath.toUtf8().constData());
+		}
+		else
+		{
+			for (int i = 0; i < child->childCount(); ++i)
+			{
+				children.push(child->child(i));
+			}
+		}
+	}
+
+	return result;
+}
+
+
+bool MpqEditor::extractDir(const QString &path, mpq::Archive &archive, const QString &target, const mpq::Listfile::Entries &dirEntries)
+{
+
+	QDir outputDir(target);
+
+	if (outputDir.exists())
+	{
+		QString dirname = this->dirname(path);
+		QDir parentDir = QDir(target + '/' + dirname);
+
+		qDebug() << "Making dir" << dirname;
+
+		if ((parentDir.exists() && KMessageBox::questionYesNo(this, i18n("Overwrite existing file %1?", parentDir.filePath())) == KMessageBox::Yes) || !parentDir.exists())
+		{
+			if (outputDir.mkdir(dirname))
+			{
+				bool result = true;
+
+				foreach (mpq::Listfile::Entries::const_reference ref, dirEntries)
+				{
+					string relativeFilePath = ref;
+					mpq::Listfile::toNativePath(relativeFilePath);
+					// cut directory path to get relative path.
+					relativeFilePath = relativeFilePath.substr(path.size());
+
+					boost::filesystem::path fileTarget = target.toUtf8().constData();
+					fileTarget /= dirname.toUtf8().constData();
+					fileTarget /= relativeFilePath;
+
+					boost::filesystem::path relativeDirPath = relativeFilePath;
+					relativeDirPath.remove_filename();
+
+					if (parentDir.mkdir(relativeDirPath.c_str()))
+					{
+						qDebug() << "relative file path:" << relativeFilePath.c_str();
+
+						qDebug() << "Extract entry:" << ref.c_str();
+						qDebug() << "Extract target:" << fileTarget.c_str();
+
+						if (!extractFile(ref.c_str(), archive, fileTarget.c_str()))
+						{
+							result = false;
+
+							break;
+						}
+					}
+					else
+					{
+						result = false;
+
+						break;
+					}
+				}
+
+				return result;
+			}
+			else
+			{
+				KMessageBox::error(this, i18n("Error on creating directory %1.", dirname));
+			}
+		}
+	}
+	else
+	{
+		KMessageBox::error(this, i18n("Directory %1 does not exist.", outputDir.absolutePath()));
+	}
+
+	return false;
 }
 
 bool MpqEditor::extractFile(const QString &path, mpq::Archive &archive, const QString& target)

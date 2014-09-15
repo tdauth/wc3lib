@@ -83,13 +83,13 @@ void MetaData::load()
 		for (map::Slk::Table::size_type column = 0; column < this->slk().table().shape()[0]; ++column)
 		{
 			map::Slk::Cell &firstColumnCell = this->slk().table()[column][0];
-			this->m_columnKeys[QString::fromUtf8(firstColumnCell.c_str())] = column;
+			this->m_columnKeys[MetaData::fromSlkString(QString::fromUtf8(firstColumnCell.c_str()))] = column;
 		}
 
 		for (map::Slk::Table::size_type row = 0; row < this->slk().table().shape()[1]; ++row)
 		{
 			map::Slk::Cell &firstRowCell = this->slk().table()[0][row];
-			this->m_rowKeys[QString::fromUtf8(firstRowCell.c_str())] = row;
+			this->m_rowKeys[MetaData::fromSlkString(QString::fromUtf8(firstRowCell.c_str()))] = row;
 		}
 	}
 	else if (suffix == "txt")
@@ -122,18 +122,18 @@ QString MetaData::value(const QString &rowKey, const QString &columnKey) const
 {
 	if (hasSlk())
 	{
-		SlkKeys::const_iterator columnIterator = this->columnKeys().find(toSlkString(columnKey));
+		SlkKeys::const_iterator columnIterator = this->columnKeys().find(columnKey);
 
 		if (columnIterator == this->columnKeys().end())
 		{
-			throw Exception(boost::format(_("Column %1% not found.")) % toSlkString(columnKey).toUtf8().constData());
+			throw Exception(boost::format(_("Column %1% not found.")) % columnKey.toUtf8().constData());
 		}
 
-		SlkKeys::const_iterator rowIterator = this->rowKeys().find(toSlkString(rowKey));
+		SlkKeys::const_iterator rowIterator = this->rowKeys().find(rowKey);
 
 		if (rowIterator == this->rowKeys().end())
 		{
-			throw Exception(boost::format(_("Row %1% not found.")) % toSlkString(rowKey).toUtf8().constData());
+			throw Exception(boost::format(_("Row %1% not found.")) % rowKey.toUtf8().constData());
 		}
 
 		const map::Slk::Table::size_type column = columnIterator.value();
@@ -180,16 +180,16 @@ bool MetaData::hasValue(const QString &rowKey, const QString &columnKey) const
 {
 	if (hasSlk())
 	{
-		qDebug() << "Has slk value:" << toSlkString(columnKey) << "|" << toSlkString(rowKey);
+		qDebug() << "Has slk value:" << columnKey << "|" << rowKey;
 
-		SlkKeys::const_iterator columnIterator = this->columnKeys().find(toSlkString(columnKey));
+		SlkKeys::const_iterator columnIterator = this->columnKeys().find(columnKey);
 
 		if (columnIterator == this->columnKeys().end())
 		{
 			return false;
 		}
 
-		SlkKeys::const_iterator rowIterator = this->rowKeys().find(toSlkString(rowKey));
+		SlkKeys::const_iterator rowIterator = this->rowKeys().find(rowKey);
 
 		if (rowIterator == this->rowKeys().end())
 		{

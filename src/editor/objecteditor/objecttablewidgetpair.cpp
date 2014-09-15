@@ -37,13 +37,13 @@ namespace editor
 ObjectTableWidgetPair::ObjectTableWidgetPair(QTableWidget *tableWidget, ObjectEditorTab *tab, int row, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId)
 : QObject(tableWidget)
 , m_tab(tab)
-, m_descriptionItem(new QTableWidgetItem())
-, m_valueItem(new QTableWidgetItem())
 , m_originalObjectId(originalObjectId)
 , m_customObjectId(customObjectId)
 , m_fieldId(fieldId)
+, m_descriptionItem(new QTableWidgetItem())
+, m_valueItem(new QTableWidgetItem())
 {
-	const QString displayName = MetaData::fromSlkString(tab->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("displayName")));
+	const QString displayName = tab->objectData()->metaData()->value(fieldId, "displayName");
 	// cut "
 	descriptionItem()->setText(tab->source()->sharedData()->tr(displayName));
 	descriptionItem()->setData(Qt::UserRole, fieldId);
@@ -71,8 +71,8 @@ void ObjectTableWidgetPair::edit()
 		qDebug() << "Original Object Id" << originalObjectId;
 		qDebug() << "Custom Object Id" << customObjectId;
 		qDebug() << "Field Id" << fieldId;
-		const QString type = MetaData::fromSlkString(tab()->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("type")));
-		const QString stringExt = MetaData::fromSlkString(tab()->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("stringExt")));
+		const QString type = tab()->objectData()->metaData()->value(fieldId, "type");
+		const QString stringExt = tab()->objectData()->metaData()->value(fieldId, "stringExt");
 		const QString fieldValue = this->tab()->objectData()->fieldValue(originalObjectId, customObjectId, fieldId);
 		qDebug() << "Type:" << type;
 
@@ -86,8 +86,8 @@ void ObjectTableWidgetPair::edit()
 
 		if (type == "int")
 		{
-			const QString minValue = MetaData::fromSlkString(tab()->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("minVal")));
-			const QString maxValue = MetaData::fromSlkString(tab()->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("maxVal")));
+			const QString minValue = tab()->objectData()->metaData()->value(fieldId, "minVal");
+			const QString maxValue = tab()->objectData()->metaData()->value(fieldId, "maxVal");
 
 			qDebug() << "Min value:" << minValue;
 			qDebug() << "Max value:" << maxValue;
@@ -123,8 +123,8 @@ void ObjectTableWidgetPair::edit()
 		}
 		else if (type == "real" || type == "unreal")
 		{
-			const QString minValue = MetaData::fromSlkString(tab()->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("minVal")));
-			const QString maxValue = MetaData::fromSlkString(tab()->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("maxVal")));
+			const QString minValue = tab()->objectData()->metaData()->value(fieldId, "minVal");
+			const QString maxValue = tab()->objectData()->metaData()->value(fieldId, "maxVal");
 
 			qDebug() << "Min value:" << minValue;
 			qDebug() << "Max value:" << maxValue;

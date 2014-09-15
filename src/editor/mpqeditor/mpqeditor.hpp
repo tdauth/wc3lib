@@ -149,6 +149,9 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		 */
 		FileItems constructItems(const mpq::Listfile::Entries &entries, QTreeWidgetItem *topItem, Archive &archive);
 
+		bool itemIsFolder(QTreeWidgetItem *item) const;
+
+		QTreeWidgetItem* folderToItem(const QString &dirName, const QString &dirPath);
 		/**
 		 * Creates a tree widget item with all necessary column information for file \p path of \p archive.
 		 *
@@ -162,7 +165,11 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		 * \return Returns true if extraction succeeded.
 		 */
 		bool extractFile(const QString &path, mpq::Archive &archive, const QString &target);
-		bool extractDir(const QString &path, mpq::Archive &archive, const QString &target);
+		/**
+		 * \return Returns all file path entries (without directories) from the files of dir item \p item recursively.
+		 */
+		mpq::Listfile::Entries dirEntries(QTreeWidgetItem *item) const;
+		bool extractDir(const QString &path, mpq::Archive &archive, const QString &target, const mpq::Listfile::Entries &dirEntries);
 
 		/**
 		 * \return Returns the file name + extension of a listfile entry \p path.
@@ -172,6 +179,8 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		 * \return Returns the base name (file name without extension) of a listfile entry \p path.
 		 */
 		static QString baseName(const QString &path);
+
+		static QString dirname(const QString &path);
 
 		/**
 		 * Adds \p url to recent files history.
@@ -212,6 +221,8 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		void fileIsOpen(QTreeWidgetItem *item, int column);
 		void contextMenu(QPoint point);
 		void updateSelection();
+		void expandItem(QTreeWidgetItem *item);
+		void collapseItem(QTreeWidgetItem *item);
 };
 
 inline ListfilesDialog* MpqEditor::listfilesDialog() const

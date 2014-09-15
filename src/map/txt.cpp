@@ -90,7 +90,7 @@ struct CommentSkipper : public qi::grammar<Iterator> {
 		* Comments may use UTF-8 characters.
 		*/
 		comment %=
-			lit("//") >> *(unicode::char_ - eol)
+			lit("//") > *(unicode::char_ - eol)
 		;
 
 		emptyline %=
@@ -156,18 +156,18 @@ struct KeyValueSquence : qi::grammar<Iterator, Txt::Entries(), Skipper>
 
 		pair %=
 			key
-			>> lit('=')
-			>> value
+			> lit('=')
+			> value
 		;
 
 		key %=
-			+(unicode::char_ - '=' - qi::eol)
+			+(unicode::char_ - lit('=') - lit('[') - qi::eol)
 		;
 
 		// values can be empty or all characters except eol which indicates the and of the value, eoi is the end of the stream and "//" starts a comment!
 		value %=
 			no_skip[
-				*(unicode::char_ - (qi::eol|lit("//")))
+				*(unicode::char_ - qi::eol - lit("//"))
 			]
 		;
 
@@ -296,8 +296,12 @@ struct TxtGrammar : qi::grammar<Iterator, Txt::Sections(), Skipper>
 template <typename Iterator>
 bool parse(Iterator first, Iterator last, Txt::Sections &sections)
 {
-	TxtGrammar<Iterator> grammar;
-	CommentSkipper<Iterator> commentSkipper;
+	/*
+	 * Use static const instances to improve the performance.
+	 * But it has to be stateless: http://stackoverflow.com/questions/16918831/how-to-benchmark-boost-spirit-parser
+	 */
+	static const TxtGrammar<Iterator> grammar;
+	static const CommentSkipper<Iterator> commentSkipper;
 
 	bool r = boost::spirit::qi::phrase_parse(
 		first,
@@ -347,14 +351,12 @@ std::streamsize Txt::read(InputStream &istream)
 
 	try
 	{
-		if (!client::parse(position_begin,
-		position_end,
-		this->sections()))
+		if (!client::parse(position_begin, position_end, this->sections()))
 		{
 			throw Exception(_("Parsing error."));
 		}
 	}
-	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> &e)
+	catch (const boost::spirit::qi::expectation_failure<PositionIteratorType> &e)
 	{
 		const classic::file_position_base<std::string>& pos = e.first.get_position();
 		std::stringstream msg;

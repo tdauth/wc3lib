@@ -37,7 +37,7 @@ map::Value::Type ObjectData::fieldType(const QString &fieldId) const
 {
 	qDebug() << "Getting type of field" << fieldId;
 
-	const QString type = MetaData::fromSlkString(this->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("type")));
+	const QString type = this->metaData()->value(fieldId, "type");
 
 	if (type == "string")
 	{
@@ -134,7 +134,7 @@ map::Value::Type ObjectData::fieldType(const QString &fieldId) const
 
 bool ObjectData::fieldTypeAllowsMultipleSelections(const QString &fieldId) const
 {
-	const QString fieldType = MetaData::fromSlkString(this->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("type")));
+	const QString fieldType = this->metaData()->value(fieldId, "type");
 
 	return (fieldType == "unitClass"
 		|| fieldType == "targetType"
@@ -380,7 +380,7 @@ QString ObjectData::fieldValue(const QString &originalObjectId, const QString &c
 QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId) const
 {
 	const QString fieldValue = this->fieldValue(originalObjectId, customObjectId, fieldId);
-	const QString fieldType = MetaData::fromSlkString(this->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("type")));
+	const QString fieldType = this->metaData()->value(fieldId, "type");
 
 	if (fieldType == "int" || fieldType == "real" || fieldType == "unreal" || fieldType == "string")
 	{

@@ -25,6 +25,7 @@
 #include <KUrlCompletion>
 #include <KUrlRequester>
 #include <KMessageBox>
+#include <KFileDialog>
 
 #include "sourcesdialog.hpp"
 #include "mpqprioritylist.hpp"
@@ -47,6 +48,96 @@ void SourcesDialog::update()
 	{
 		m_editListBox->insertItem(source.url().toEncoded());
 	}
+}
+
+void SourcesDialog::addWc3Dir()
+{
+	const KUrl url = KFileDialog::getExistingDirectoryUrl(KUrl(), this, tr("Select Warcraft III Directory"));
+
+	if (!url.isEmpty())
+	{
+		QMap<int, KUrl> urls;
+		const QFileInfo fileInfo(url.toLocalFile());
+
+		if (fileInfo.isDir())
+		{
+			qDebug() << "is dir" << fileInfo.filePath();
+			const QDir dir = QDir(fileInfo.filePath());
+
+			foreach (QFileInfo info, dir.entryInfoList())
+			{
+				if (info.isFile())
+				{
+					qDebug() << "filename" << info.fileName().toLower();
+
+					if (info.fileName().toLower() == "war3patch.mpq")
+					{
+						urls.insert(3, KUrl(info.absoluteFilePath()));
+					}
+					else if (info.fileName().toLower() == "war3xlocal.mpq")
+					{
+						urls.insert(2, KUrl(info.absoluteFilePath()));
+					}
+					else if (info.fileName().toLower() == "war3x.mpq")
+					{
+						urls.insert(1, KUrl(info.absoluteFilePath()));
+					}
+					else if (info.fileName().toLower() == "war3.mpq")
+					{
+						urls.insert(0, KUrl(info.absoluteFilePath()));
+					}
+				}
+			}
+		}
+
+		if (urls.isEmpty())
+		{
+			KMessageBox::error(this, tr("Invalid Warcraft III dir."));
+		}
+		else
+		{
+			QStringList items;
+
+			for (QMap<int, KUrl>::iterator iterator = urls.begin(); iterator != urls.end(); ++iterator)
+			{
+				items.append(iterator.value().toLocalFile());
+			}
+
+			this->prepend(items);
+		}
+	}
+}
+
+void SourcesDialog::clear()
+{
+	this->m_editListBox->clear();
+}
+
+void SourcesDialog::prepend(const QStringList &items)
+{
+	QStringList newItems;
+
+	foreach (QString item, items)
+	{
+		QString result;
+
+
+		bool add = prepareItem(item, result);
+
+		if (add)
+		{
+			newItems.append(result);
+		}
+	}
+
+	QStringList oldItems = m_editListBox->items();
+
+	foreach (QString item, newItems)
+	{
+		oldItems.prepend(item);
+	}
+
+	m_editListBox->setItems(oldItems);
 }
 
 SourcesDialog::SourcesDialog(MpqPriorityList *source, QWidget *parent, Qt::WFlags flags)
@@ -88,6 +179,8 @@ SourcesDialog::SourcesDialog(MpqPriorityList *source, QWidget *parent, Qt::WFlag
 	connect(m_dialogButtonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
 	connect(m_dialogButtonBox->button(QDialogButtonBox::RestoreDefaults), SIGNAL(clicked()), this, SLOT(restoreDefaults()));
 	connect(m_editListBox, SIGNAL(added(QString)), this, SLOT(added(QString)));
+	connect(m_wc3DirPushButton, SIGNAL(clicked()), this, SLOT(addWc3Dir()));
+	connect(m_clearPushButton, SIGNAL(clicked()), this, SLOT(clear()));
 }
 
 void SourcesDialog::added(const QString& text)

@@ -105,12 +105,12 @@ void setCell(Slk::Table &table, const CellData &cell)
 	const Slk::Table::size_type x = cell.x - 1;
 	const Slk::Table::size_type y = cell.y - 1;
 
-	if (x < table.shape()[0] && y < table.shape()[1])
-	{
-		// if the value is continued append it
-		table[x][y] = table[x][y]  + cell.cell;
-	}
-	else
+	/*
+	 * Everytime it is out of range the table has to be resized which might be inefficient.
+	 * For example when exporting a file from LibreOffice it does not contain any f records with the full size, so the table has always to be resized
+	 * when the actual X and Y values appear.
+	 */
+	if (x >= table.shape()[0] || y >= table.shape()[1])
 	{
 		std::cerr << boost::format(_("Cell data %1%|%2% with value \"%3%\" is out of range for table with size %4%|%5%."))
 			% cell.x
@@ -119,7 +119,14 @@ void setCell(Slk::Table &table, const CellData &cell)
 			% table.shape()[0]
 			% table.shape()[1]
 			<< std::endl;
+
+		const Slk::Table::size_type columns = std::max(table.shape()[0], cell.x);
+		const Slk::Table::size_type rows = std::max(table.shape()[1], cell.y);
+		resizeTable(table, SlkSize(columns, rows));
 	}
+
+	// if the value is continued append it
+	table[x][y] = table[x][y]  + cell.cell;
 }
 
 /**
@@ -129,17 +136,12 @@ void setCell(Slk::Table &table, const CellData &cell)
  * cell values depend on.
  */
 template <typename Iterator>
-struct SlkGrammar : qi::grammar<Iterator>
+struct SlkGrammar : qi::grammar<Iterator, Slk::Table(), qi::locals<Slk::Table::size_type, Slk::Table::size_type> >
 {
-	void prepare(Slk::Table &result)
-	{
-		this->result = result;
-	}
-
 	/*
 	 * SLK starts counting at 1 so initialize values with 1.
 	 */
-	SlkGrammar(Slk::Table &result) : SlkGrammar::base_type(cells, "slk grammar"), result(result), row(1), column(1)
+	SlkGrammar() : SlkGrammar::base_type(cells, "slk grammar")
 	{
 		using qi::eps;
 		using qi::int_parser;
@@ -163,6 +165,7 @@ struct SlkGrammar : qi::grammar<Iterator>
 		using qi::on_success;
 		using qi::retry;
 		using qi::fail;
+		using qi::locals;
 		using ascii::char_;
 		using ascii::string;
 		using namespace qi::labels;
@@ -261,18 +264,18 @@ struct SlkGrammar : qi::grammar<Iterator>
 		;
 
 		c_record =
-			lit('C')[at_c<0>(_val) = ref(column)][at_c<1>(_val) = ref(row)] // use current row and column by default
+			lit('C')[at_c<0>(_val) = ref(_r1)][at_c<1>(_val) = ref(_r2)] // use current row and column by default
 			// the whole position might be skipped in this case we use the last used X and Y
 			>> -((
 				// if row value is present (Y) set the current row to that value
-				y_field[at_c<1>(_val) = _1][ref(row) = _1]
+				y_field[at_c<1>(_val) = _1][ref(_r2) = _1]
 				// in some cases even the column value (X) is missing so use the current column
 				>> -x_field[at_c<0>(_val) = _1]
 			) | (
 				// in some cases even the column value (X) is missing so use the current column
 				x_field[at_c<0>(_val) = _1]
 				// if row value is present (Y) set the current row to that value
-				>> -y_field[at_c<1>(_val) = _1][ref(row) = _1]
+				>> -y_field[at_c<1>(_val) = _1][ref(_r2) = _1]
 			))
 			>>
 			*(
@@ -296,24 +299,31 @@ struct SlkGrammar : qi::grammar<Iterator>
 			lit('F')
 			>> +(
 				skipped_field
-				| y_field[ref(row) = _1]
-				| x_field[ref(column) = _1]
+				| y_field[ref(_r2) = _1]
+				| x_field[ref(_r1) = _1]
 			)
 		;
 
 		record =
-			b_record[phoenix::bind(&resizeTable, phoenix::ref(result), phoenix::ref(_1))]
-			| c_record[phoenix::bind(&setCell, phoenix::ref(result), phoenix::ref(_1))]
-			| f_record
+			b_record[phoenix::bind(&resizeTable, phoenix::ref(_r1), phoenix::ref(_1))]
+			/*
+			 * Pass column and row as inherited attribute.
+			 */
+			| c_record(ref(_r2), ref(_r3))[phoenix::bind(&setCell, phoenix::ref(_r1), phoenix::ref(_1))]
+			| f_record(ref(_r2), ref(_r3))
 			| id_record
 			| p_record
 			| o_record
 		;
 
+		/*
+		 * _a is column.
+		 * _b is row.
+		 */
 		cells =
-			eps[ref(column) = 1][ref(row) = 1]
+			eps[ref(_a) = 1][ref(_b) = 1]
 			>> *eol
-			>> record % eol
+			>> record(ref(_val), ref(_a), ref(_b)) % eol
 			>> eol >> e_record >> +eol
 		;
 
@@ -367,15 +377,20 @@ struct SlkGrammar : qi::grammar<Iterator>
 	qi::rule<Iterator> o_record;
 
 	qi::rule<Iterator, SlkSize()> b_record;
-	qi::rule<Iterator, CellData()> c_record;
+	/**
+	 * Gets column and row as inherited attributes.
+	 */
+	qi::rule<Iterator, CellData(Slk::Table::size_type&, Slk::Table::size_type&)> c_record;
 	qi::rule<Iterator> e_record;
-	qi::rule<Iterator> f_record;
-	qi::rule<Iterator> record;
-	qi::rule<Iterator> cells;
-
-	Slk::Table result;
-	Slk::Table::size_type row;
-	Slk::Table::size_type column;
+	/**
+	 * Gets column and row as inherited attributes.
+	 */
+	qi::rule<Iterator, void(Slk::Table::size_type&, Slk::Table::size_type&)> f_record;
+	/**
+	 * Gets table, column and row as inherited attributes.
+	 */
+	qi::rule<Iterator, void(Slk::Table&, Slk::Table::size_type&, Slk::Table::size_type&)> record;
+	qi::rule<Iterator, Slk::Table(), qi::locals<Slk::Table::size_type, Slk::Table::size_type> > cells;
 };
 
 template <typename Iterator>
@@ -422,13 +437,18 @@ struct SlkGenerator : karma::grammar<Iterator, Slk::Table()>
 template <typename Iterator>
 bool parse(Iterator first, Iterator last, Slk::Table &table)
 {
-	SlkGrammar<Iterator> grammar(table);
+	/*
+	 * Use static const instances to improve the performance.
+	 * But it has to be stateless: http://stackoverflow.com/questions/16918831/how-to-benchmark-boost-spirit-parser
+	 */
+	static const SlkGrammar<Iterator> grammar;
 
 	bool r = boost::spirit::qi::phrase_parse(
 		first,
 		last,
 		grammar,
-		!unicode::char_ // TODO empty grammar, no skipper!
+		!unicode::char_, // TODO empty grammar, no skipper!
+		table
 	);
 
 	if (first != last) // fail if we did not get a full match
@@ -464,7 +484,7 @@ std::streamsize Slk::read(InputStream &istream)
 			throw Exception(_("Parsing error."));
 		}
 	}
-	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> &e)
+	catch (const boost::spirit::qi::expectation_failure<PositionIteratorType> &e)
 	{
 		const classic::file_position_base<std::string> &pos = e.first.get_position();
 		std::stringstream msg;

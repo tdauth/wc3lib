@@ -65,6 +65,10 @@ class ObjectTreeModel : public QAbstractItemModel
 		Items& standardItems();
 		Items& customItems();
 
+		/**
+		 * \return Returns all items which are folders.
+		 * \note This function has O(n) complexity and should not be called oftenly.
+		 */
 		ObjectTreeItem::Children folders();
 
 		/**

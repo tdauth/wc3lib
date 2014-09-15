@@ -143,7 +143,7 @@ void ObjectEditorTab::filterTreeWidget(const QString &text)
 	{
 		QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
 		proxyModel->setSourceModel(this->m_treeModel);
-		proxyModel->setFilterRegExp(text);
+		proxyModel->setFilterWildcard(text);
 
 		this->treeView()->setModel(proxyModel);
 	}

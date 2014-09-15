@@ -123,11 +123,20 @@ QString WarcraftIIIShared::tr(const QString &key, const QString &group, const QS
 
 QIcon WarcraftIIIShared::icon(const KUrl &url, QWidget *window)
 {
+	Icons::iterator iterator = m_icons.find(url);
+
+	if (iterator != m_icons.end())
+	{
+		return iterator.value();
+	}
+
 	QString iconFile;
 
 	if (this->source()->download(url, iconFile, window))
 	{
-		return QIcon(iconFile);
+		iterator = m_icons.insert(url, QIcon(iconFile));
+
+		return iterator.value();
 	}
 
 	return QIcon();
@@ -135,7 +144,16 @@ QIcon WarcraftIIIShared::icon(const KUrl &url, QWidget *window)
 
 QIcon WarcraftIIIShared::worldEditDataIcon(const QString& key, const QString& group, QWidget* window)
 {
-	const QString filePath = MetaData::fromFilePath(this->worldEditData()->value(group, key));
+	QString filePath = MetaData::fromFilePath(this->worldEditData()->value(group, key));
+	/*
+	 * In some cases the extension is not present.
+	 */
+	QFileInfo fileInfo(filePath);
+
+	if (fileInfo.suffix().toLower() != "blp")
+	{
+		filePath += ".blp";
+	}
 
 	return this->icon(filePath, window);
 }

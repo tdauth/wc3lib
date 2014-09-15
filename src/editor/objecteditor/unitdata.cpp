@@ -512,25 +512,39 @@ void UnitData::load(QWidget *widget)
 
 bool UnitData::objectIsBuilding(const QString &originalObjectId, const QString &customObjectId) const
 {
-	const QString levelVar = MetaData::fromSlkString(this->defaultFieldValue(originalObjectId, "ulev"));
-	bool ok = false;
-	levelVar.toInt(&ok);
+	bool ok = true;
+
+	/*
+	 * Objects without a level are buildings.
+	 */
+	if (this->hasDefaultFieldValue(originalObjectId, "ulev"))
+	{
+		const QString levelVar = this->defaultFieldValue(originalObjectId, "ulev");
+		levelVar.toInt(&ok);
+	}
 
 	return !ok || (((ObjectData*)this)->fieldValue(originalObjectId, customObjectId, "udbg") == "1"); // buildings have no levels, in Frozen Throne there is
 }
 
 bool UnitData::objectIsHero(const QString &originalObjectId, const QString &customObjectId) const
 {
-	const QString strengthVar = MetaData::fromSlkString(this->defaultFieldValue(originalObjectId, "ustr"));
 	bool ok = false;
-	strengthVar.toInt(&ok);
+
+	/*
+	 * Objects with strength value are heroes.
+	 */
+	if (this->hasDefaultFieldValue(originalObjectId, "ustr"))
+	{
+		const QString strengthVar = this->defaultFieldValue(originalObjectId, "ustr");
+		strengthVar.toInt(&ok);
+	}
 
 	return ok;
 }
 
 bool UnitData::objectIsUnit(const QString &originalObjectId, const QString &customObjectId) const
 {
-	return unitData()->hasValue(MetaData::toSlkString(originalObjectId), MetaData::toSlkString("unitID")) && !objectIsHero(originalObjectId, customObjectId) && !objectIsBuilding(originalObjectId, customObjectId);
+	return unitData()->hasValue(originalObjectId, "unitID") && !objectIsHero(originalObjectId, customObjectId) && !objectIsBuilding(originalObjectId, customObjectId);
 }
 
 }
