@@ -592,6 +592,16 @@ QString UnitData::objectTilesets(const QString& originalObjectId, const QString&
 	return QString();
 }
 
+bool UnitData::showTilesetForRace(const QString& race) const
+{
+	return showLevelForRace(race);
+}
+
+bool UnitData::showLevelForRace(const QString& race) const
+{
+	return race == "creeps" || race == "other" || race == "demon" || race == "critters" || race == "common" || race == "other";
+}
+
 }
 
 }

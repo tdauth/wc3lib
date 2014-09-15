@@ -261,12 +261,18 @@ void UnitEditor::onSwitchToMap(Map *map)
 void UnitEditor::onNewObject()
 {
 	QItemSelectionModel *selection = this->treeView()->selectionModel();
+	qDebug() << "Selection:" << selection;
 	QString originalObjectId;
 
 	foreach (QModelIndex index, selection->selectedIndexes())
 	{
 		const ObjectTreeItem *item = (ObjectTreeItem*)index.internalPointer();
 		originalObjectId = item->originalObjectId();
+	}
+
+	if (originalObjectId.isEmpty())
+	{
+		originalObjectId = "hpea";
 	}
 
 	this->unitSelectionDialog()->select(originalObjectId);

@@ -64,6 +64,8 @@ class UnitData : public ObjectData
 		bool objectIsBuilding(const QString &originalObjectId, const QString &customObjectId) const;
 
 		QString objectTilesets(const QString &originalObjectId, const QString &customObjectId) const;
+		bool showTilesetForRace(const QString &race) const;
+		bool showLevelForRace(const QString &race) const;
 
 		MetaData* unitMetaData() const;
 		MetaData* unitEditorData() const;

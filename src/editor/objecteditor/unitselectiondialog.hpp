@@ -70,6 +70,8 @@ class UnitSelectionDialog : public QDialog, protected Ui::UnitSelectionDialog
 	private:
 		KPushButton* createButton(const QString &objectId);
 
+		void update();
+
 		MpqPriorityList *m_source;
 		UnitData *m_unitData;
 		QString m_originalObjectId;

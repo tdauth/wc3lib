@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>372</height>
+    <height>333</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -81,41 +81,41 @@
         <x>0</x>
         <y>0</y>
         <width>386</width>
-        <height>240</height>
+        <height>201</height>
        </rect>
       </property>
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
         <layout class="QGridLayout" name="m_unitsGridLayout"/>
        </item>
-       <item row="1" column="0">
+       <item>
         <widget class="QLabel" name="m_heroesLabel">
          <property name="text">
           <string>Heroes:</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
+       <item>
+        <layout class="QGridLayout" name="m_heroesGridLayout"/>
+       </item>
+       <item>
         <widget class="QLabel" name="m_buildingsLabel">
          <property name="text">
           <string>Buildings:</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="0">
+       <item>
         <layout class="QGridLayout" name="m_buildingsGridLayout"/>
        </item>
-       <item row="2" column="0">
-        <layout class="QGridLayout" name="m_heroesGridLayout"/>
-       </item>
-       <item row="5" column="0">
+       <item>
         <widget class="QLabel" name="m_specialLabel">
          <property name="text">
           <string>Special:</string>
          </property>
         </widget>
        </item>
-       <item row="6" column="0">
+       <item>
         <layout class="QGridLayout" name="m_specialGridLayout"/>
        </item>
       </layout>

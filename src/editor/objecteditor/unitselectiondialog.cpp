@@ -101,14 +101,14 @@ void UnitSelectionDialog::select(const QString &objectId)
 
 	QChar objectTileset;
 
-	if (!objectTilesets.isEmpty())
+	if (unitData()->showTilesetForRace(race) &&!objectTilesets.isEmpty())
 	{
 		objectTileset = objectTilesets[0];
 	}
 
 	QString objectLevel;
 
-	if (this->unitData()->hasDefaultFieldValue(objectId, "ulev"))
+	if (unitData()->showLevelForRace(race) && this->unitData()->hasDefaultFieldValue(objectId, "ulev"))
 	{
 		objectLevel = this->unitData()->fieldValue(objectId, "", "ulev");
 	}
@@ -203,7 +203,9 @@ KPushButton* UnitSelectionDialog::createButton(const QString &objectId)
 	KPushButton *button = new KPushButton(this);
 	button->setToolTip(tr("%1\n--\n%2").arg(name).arg(ubertip));
 	button->setCheckable(true);
-	button->setIconSize(QSize(64, 64));
+	button->setMaximumSize(QSize(32, 32));
+	button->setMinimumSize(QSize(32, 32));
+	button->setIconSize(QSize(32, 32));
 
 	if (!art.isEmpty())
 	{
@@ -211,6 +213,27 @@ KPushButton* UnitSelectionDialog::createButton(const QString &objectId)
 	}
 
 	return button;
+}
+
+void UnitSelectionDialog::update()
+{
+	const QString race = this->m_raceComboBox->itemData(this->m_raceComboBox->currentIndex()).toString();
+	QChar currentTileset;
+
+	if (this->m_tilesetComboBox->isVisible())
+	{
+		currentTileset = this->m_tilesetComboBox->itemData(this->m_tilesetComboBox->currentIndex()).toChar();
+	}
+
+	QString level;
+
+	if (this->m_levelComboBox->isVisible())
+	{
+		level = this->m_levelComboBox->itemData(this->m_levelComboBox->currentIndex()).toString();
+	}
+
+	this->fill(race, this->m_meleeComboBox->currentIndex(), currentTileset, level);
+	this->m_buttonGroup.buttons().first()->setChecked(true);
 }
 
 void UnitSelectionDialog::selectButton(bool checked)
@@ -234,34 +257,22 @@ void UnitSelectionDialog::nameChanged(const QString& name)
 
 void UnitSelectionDialog::changeRace(int index)
 {
-	const QString race = this->m_raceComboBox->itemData(index).toString();
-	QChar currentTileset;
-
-	if (this->m_tilesetComboBox->isVisible())
-	{
-		currentTileset = this->m_tilesetComboBox->itemData(this->m_tilesetComboBox->currentIndex()).toChar();
-	}
-
-	QString level;
-
-	if (this->m_levelComboBox->isVisible())
-	{
-		level = this->m_levelComboBox->itemData(this->m_levelComboBox->currentIndex()).toString();
-	}
-
-	this->fill(race, this->m_meleeComboBox->currentIndex(), currentTileset, level);
+	this->update();
 }
 
 void UnitSelectionDialog::changeMelee(int index)
 {
+	this->update();
 }
 
 void UnitSelectionDialog::changeTileset(int index)
 {
+	this->update();
 }
 
 void UnitSelectionDialog::changeLevel(int index)
 {
+	this->update();
 }
 
 }
