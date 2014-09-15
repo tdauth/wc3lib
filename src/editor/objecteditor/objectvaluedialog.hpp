@@ -40,11 +40,17 @@ namespace wc3lib
 namespace editor
 {
 
+class ObjectData;
+
 /**
  * \brief GUI dialog which allows selection of an field value for a specific object.
  *
  * The shown input widget depends on the type of the corresponding field.
  * The dialog supports numeric types as well as text, check boxes or combo boxes.
+ *
+ * Use \ref show() to retrieve a new field value from a newly shown object value dialog.
+ *
+ * \ingroup objectdata
  */
 class ObjectValueDialog : public QDialog, protected Ui::ObjectValueDialog
 {
@@ -70,6 +76,17 @@ class ObjectValueDialog : public QDialog, protected Ui::ObjectValueDialog
 		void clearCheckBoxes();
 		QString checkedTexts() const;
 		QString checkedValues() const;
+
+		/**
+		 * Shows an object value dialog for the object with IDs \p originalObjectId and \p customObjectId and for its field \p fieldId which allows the user to select
+		 * a new value for the corresponding field.
+		 * If the selection was successfull the function returns \p QDialog::DialogCode::Accepted.
+		 *
+		 * On success it automatically modifies the field with ID \p fieldId in \p objectData.
+		 *
+		 * \param result Sets the result to the readable value selected in the dialog.
+		 */
+		static QDialog::DialogCode show(QString &result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, ObjectData *objectData, const QString &label, QWidget *parent = 0);
 
 	private:
 		CheckBoxes m_checkBoxes;

@@ -284,6 +284,11 @@ bool UnitData::hasCustomObjects() const
 	return true;
 }
 
+QString UnitData::objectName(const QString& originalObjectId, const QString& customObjectId) const
+{
+	return this->fieldValue(originalObjectId, customObjectId, "unam");
+}
+
 void UnitData::load(QWidget *widget)
 {
 	this->m_unitMetaData = new MetaData(KUrl("Units/UnitMetaData.slk"));
@@ -564,6 +569,27 @@ bool UnitData::objectIsHero(const QString &originalObjectId, const QString &cust
 bool UnitData::objectIsUnit(const QString &originalObjectId, const QString &customObjectId) const
 {
 	return unitData()->hasValue(originalObjectId, "unitID") && !objectIsHero(originalObjectId, customObjectId) && !objectIsBuilding(originalObjectId, customObjectId);
+}
+
+QString UnitData::objectTilesets(const QString& originalObjectId, const QString& customObjectId) const
+{
+	/*
+	 * Frozen Throne
+	 */
+	if (this->metaData()->hasValue("util", "ID"))
+	{
+		return this->fieldValue(originalObjectId, customObjectId, "util");
+	}
+
+	/*
+	 * Reign of Chaos
+	 */
+	if (customObjectId.isEmpty())
+	{
+		return this->unitUi()->value(originalObjectId, "tilesets");
+	}
+
+	return QString();
 }
 
 }

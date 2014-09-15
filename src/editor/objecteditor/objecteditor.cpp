@@ -331,6 +331,7 @@ void ObjectEditor::addCurrentActions()
 	}
 
 	connect(pasteObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(pasteObject()));
+	pasteObjectAction()->setEnabled(!currentTab()->clipboardIsEmpty());
 }
 
 void ObjectEditor::showRawData(bool checked)

@@ -36,6 +36,8 @@ class MetaData;
 
 /**
  * \brief Stores all data for custom and standard units and unit meta data.
+ *
+ * \ingroup objectdata
  */
 class UnitData : public ObjectData
 {
@@ -53,9 +55,15 @@ class UnitData : public ObjectData
 		virtual bool hasCustomUnits() const override;
 		virtual bool hasCustomObjects() const override;
 
+		virtual map::CustomObjects::Type type() const override;
+
+		virtual QString objectName(const QString& originalObjectId, const QString& customObjectId) const override;
+
 		bool objectIsHero(const QString &originalObjectId, const QString &customObjectId) const;
 		bool objectIsUnit(const QString &originalObjectId, const QString &customObjectId) const;
 		bool objectIsBuilding(const QString &originalObjectId, const QString &customObjectId) const;
+
+		QString objectTilesets(const QString &originalObjectId, const QString &customObjectId) const;
 
 		MetaData* unitMetaData() const;
 		MetaData* unitEditorData() const;
@@ -97,6 +105,11 @@ class UnitData : public ObjectData
 		MetaData *m_campaignUnitStrings;
 		MetaData *m_campaignUnitFunc;
 };
+
+inline map::CustomObjects::Type UnitData::type() const
+{
+	return map::CustomObjects::Type::Units;
+}
 
 inline MetaData* UnitData::metaData() const
 {

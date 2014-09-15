@@ -88,6 +88,26 @@ void ObjectEditorTab::setupUi()
 	connect(m_treeView, SIGNAL(activated(QModelIndex)), this, SLOT(itemClicked(QModelIndex)));
 }
 
+bool ObjectEditorTab::clipboardIsEmpty()
+{
+	return this->m_clipboard.empty();
+}
+
+map::CustomObjects::Table ObjectEditorTab::selection() const
+{
+	map::CustomObjects::Table table;
+
+	QItemSelectionModel *selection = this->treeView()->selectionModel();
+
+	foreach (QModelIndex index, selection->selectedIndexes())
+	{
+		ObjectTreeItem *item = this->treeModel()->item(index);
+		table.push_back(new map::CustomObjects::Object(objectData()->customObject(item->originalObjectId(), item->customObjectId())));
+	}
+
+	return table;
+}
+
 void ObjectEditorTab::importAllObjects()
 {
 	onImportAllObjects();
@@ -141,14 +161,18 @@ void ObjectEditorTab::filterTreeWidget(const QString &text)
 	}
 	else
 	{
-		QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
-		proxyModel->setSourceModel(this->m_treeModel);
-		proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-		proxyModel->setFilterWildcard(text);
-		proxyModel->setFilterKeyColumn(0);
-		proxyModel->setFilterRole(Qt::DisplayRole);
+		QRegExp regExp = QRegExp(text, Qt::CaseInsensitive, QRegExp::FixedString);
 
-		this->treeView()->setModel(proxyModel);
+		if (regExp.isValid())
+		{
+			// TODO by default if the parent doesn't match none of the children is shown, change behaviour!!!
+			QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
+			proxyModel->setSourceModel(this->m_treeModel);
+			proxyModel->setFilterRegExp(regExp);
+			qDebug() << "Filter fixed string" << text;
+
+			this->treeView()->setModel(proxyModel);
+		}
 	}
 
 }
@@ -171,6 +195,34 @@ void ObjectEditorTab::setShowRawData(bool show)
 	*/
 
 	onShowRawData(show);
+}
+
+void ObjectEditorTab::copyObject()
+{
+	this->m_clipboard = this->selection();
+	this->objectEditor()->pasteObjectAction()->setEnabled(true);
+
+	onCopyObject();
+}
+
+inline void ObjectEditorTab::pasteObject()
+{
+	for (std::size_t i = 0; i < this->m_clipboard.size(); ++i)
+	{
+		const map::CustomUnits::Unit &unit = this->m_clipboard[i];
+		const map::CustomObjects::Object *object = boost::polymorphic_cast<const map::CustomObjects::Object*>(&unit);
+		const QString customObjectId = this->objectData()->nextCustomObjectId();
+
+		for (std::size_t j = 0; j < object->modifications().size(); ++j)
+		{
+			const map::CustomUnits::Modification &unitModification = object->modifications()[i];
+			const map::CustomObjects::Modification *modification =  boost::polymorphic_cast<const map::CustomObjects::Modification*>(&unitModification);
+
+			this->objectData()->modifyField(map::idToString(object->originalId()).c_str(), customObjectId, map::idToString(modification->valueId()).c_str(), *modification);
+		}
+	}
+
+	onPasteObject();
 }
 
 #include "moc_objecteditortab.cpp"

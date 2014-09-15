@@ -31,9 +31,10 @@ namespace wc3lib
 namespace editor
 {
 
-UnitSelectionDialog::UnitSelectionDialog(MpqPriorityList *source, UnitData *unitData, QWidget* parent, Qt::WindowFlags f) : QDialog(parent, f), m_source(source), m_unitData(unitData)
+UnitSelectionDialog::UnitSelectionDialog(MpqPriorityList *source, UnitData *unitData, QWidget* parent, Qt::WindowFlags f) : QDialog(parent, f), m_source(source), m_unitData(unitData), m_buttonGroup(new QButtonGroup(this))
 {
 	setupUi(this);
+	m_buttonGroup.setExclusive(true);
 
 	const ObjectData::ObjectTabEntries raceEntries = unitData->objectTabEntries("unitRace");
 
@@ -41,28 +42,96 @@ UnitSelectionDialog::UnitSelectionDialog(MpqPriorityList *source, UnitData *unit
 	{
 		this->m_raceComboBox->addItem(source->sharedData()->tr(entry.second), entry.first);
 	}
+
+	connect(this->m_raceComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeRace(int)));
+
+	m_meleeComboBox->addItem(source->sharedData()->tr("WESTRING_MELEE"));
+	m_meleeComboBox->addItem(source->sharedData()->tr("WESTRING_CAMPAIGN"));
+
+	connect(this->m_meleeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeMelee(int)));
+
+	map::Txt::Section *tilesetsSection =  this->source()->sharedData()->worldEditData()->section("TileSets");
+
+	for (std::size_t i = 0; i < tilesetsSection->entries.size(); ++i)
+	{
+		const map::Txt::Entry &entry = tilesetsSection->entries[i];
+		QStringList list = QString::fromUtf8(entry.second.c_str()).split(',');
+		m_tilesetComboBox->addItem(source->sharedData()->tr(list[0]), QChar(entry.first[0]));
+	}
+
+	connect(this->m_tilesetComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeTileset(int)));
+
+	this->m_levelComboBox->addItem(source->sharedData()->tr("WESTRING_ANYLEVEL"), "*");
+
+	for (int i = 1; i < 11; ++i)
+	{
+		this->m_levelComboBox->addItem(tr("Stufe %1").arg(i), QString::number(i));
+	}
+
+	connect(this->m_levelComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeLevel(int)));
+
+	connect(this->m_nameLineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(nameChanged(const QString&)));
 }
 
 void UnitSelectionDialog::clear()
 {
-	for (Buttons::iterator iterator = this->m_buttons.begin(); iterator != this->m_buttons.end(); ++iterator)
+	for (ButtonsByButton::iterator iterator = this->m_buttonsByButtons.begin(); iterator != this->m_buttonsByButtons.end(); ++iterator)
 	{
 		delete iterator.key();
 	}
 
-	m_buttons.clear();
+	m_buttonsByButtons.clear();
+	m_buttonsByObjectId.clear();
 }
 
 void UnitSelectionDialog::select(const QString &objectId)
 {
 	this->clear();
+	this->m_dialogButtonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
-	const QString race = MetaData::fromSlkString(this->unitData()->unitData()->value(MetaData::toSlkString(objectId), MetaData::toSlkString("race")));
+	const QString race = this->unitData()->unitData()->value(objectId, "race");
+	QString campaign;
 
-	// list humans
-	if (race == "human")
+	if (this->unitData()->hasDefaultFieldValue(objectId, "ucam"))
 	{
+		campaign = this->unitData()->fieldValue(objectId, "", "ucam");
 	}
+
+	QString objectTilesets = unitData()->objectTilesets(objectId, "");
+
+	QChar objectTileset;
+
+	if (!objectTilesets.isEmpty())
+	{
+		objectTileset = objectTilesets[0];
+	}
+
+	QString objectLevel;
+
+	if (this->unitData()->hasDefaultFieldValue(objectId, "ulev"))
+	{
+		objectLevel = this->unitData()->fieldValue(objectId, "", "ulev");
+	}
+
+	this->fill(race, campaign.toInt(), objectTileset, objectLevel);
+	ButtonsByObjectId::iterator iterator = m_buttonsByObjectId.find(objectId);
+
+	if (iterator != this->m_buttonsByObjectId.end())
+	{
+		iterator.value()->setChecked(true);
+	}
+	else
+	{
+		qDebug() << "Error: No button for" << objectId;
+	}
+}
+
+void UnitSelectionDialog::fill(const QString& race, int campaign, const QChar& tileset, const QString& level)
+{
+	this->clear();
+	this->m_dialogButtonBox->button(QDialogButtonBox::Ok)->setEnabled(!this->m_nameLineEdit->text().isEmpty());
+	this->m_tilesetComboBox->setVisible(!tileset.isNull());
+	this->m_levelComboBox->setVisible(!level.isEmpty());
 
 	const int maxColumns = 12;
 	int unitRow = 0;
@@ -72,30 +141,35 @@ void UnitSelectionDialog::select(const QString &objectId)
 
 	for (map::Slk::Table::size_type row = 1; row < this->unitData()->unitData()->slk().rows(); ++row)
 	{
-		const QString id = MetaData::fromSlkString(this->unitData()->unitData()->value(row, MetaData::toSlkString("unitID")));
-		qDebug() << "ID" << id;
-		const QString objectRace =  MetaData::fromSlkString(this->unitData()->unitData()->value(MetaData::toSlkString(id), MetaData::toSlkString("race")));
+		const QString unitId = this->unitData()->unitData()->value(row, "unitID");
+		qDebug() << "ID" << unitId;
+		const QString objectRace = this->unitData()->unitData()->value(unitId, "race");
 		qDebug() << "Race" << objectRace;
+		QString unitCampaign;
 
-		if (objectRace == race)
+		if (this->unitData()->hasDefaultFieldValue(unitId, "ucam"))
 		{
-			KPushButton *button = createButton(id);
-			m_buttons.insert(button, id);
-			connect(button, SIGNAL(pressed()), this, SLOT(selectButton()));
+			unitCampaign = this->unitData()->fieldValue(unitId, "", "ucam");
+		}
 
-			if (this->unitData()->objectIsUnit(id, ""))
-			{
-				this->m_unitsGridLayout->addWidget(button, unitRow, unitColumn);
-				unitColumn++;
+		QString objectTilesets = unitData()->objectTilesets(unitId, "");
 
-				if (unitColumn == maxColumns)
-				{
-					unitColumn = 0;
-					unitRow++;
-				}
-			}
-			/*
-			else if (this->unitData()->objectIsHero(id))
+		QString objectLevel;
+
+		if (this->unitData()->hasDefaultFieldValue(unitId, "ulev"))
+		{
+			objectLevel = this->unitData()->fieldValue(unitId, "", "ulev");
+		}
+
+		if (objectRace == race && campaign == unitCampaign.toInt() && (tileset.isNull() || tileset == '*' || objectTilesets == "*" || objectTilesets.contains(tileset)) && (level.isEmpty() || level == "*" || objectLevel == level))
+		{
+			KPushButton *button = createButton(unitId);
+			m_buttonsByButtons.insert(button, unitId);
+			m_buttonsByObjectId.insert(unitId, button);
+			m_buttonGroup.addButton(button);
+			connect(button, SIGNAL(clicked(bool)), this, SLOT(selectButton(bool)));
+
+			if (this->unitData()->objectIsHero(unitId, ""))
 			{
 				this->m_heroesGridLayout->addWidget(button, heroRow, heroColumn);
 				heroColumn++;
@@ -106,7 +180,17 @@ void UnitSelectionDialog::select(const QString &objectId)
 					heroRow++;
 				}
 			}
-			*/
+			else
+			{
+				this->m_unitsGridLayout->addWidget(button, unitRow, unitColumn);
+				unitColumn++;
+
+				if (unitColumn == maxColumns)
+				{
+					unitColumn = 0;
+					unitRow++;
+				}
+			}
 		}
 	}
 }
@@ -119,30 +203,65 @@ KPushButton* UnitSelectionDialog::createButton(const QString &objectId)
 	KPushButton *button = new KPushButton(this);
 	button->setToolTip(tr("%1\n--\n%2").arg(name).arg(ubertip));
 	button->setCheckable(true);
+	button->setIconSize(QSize(64, 64));
 
 	if (!art.isEmpty())
 	{
-		QString iconFile;
-
-		if (source()->download(art, iconFile, this))
-		{
-			button->setIconSize(QSize(64, 64));
-			button->setIcon(KIcon(iconFile));
-		}
+		button->setIcon(this->unitData()->source()->sharedData()->icon(KUrl(art), this));
 	}
 
 	return button;
 }
 
-void UnitSelectionDialog::selectButton()
+void UnitSelectionDialog::selectButton(bool checked)
 {
-	KPushButton *button = dynamic_cast<KPushButton*>(QObject::sender());
-	Buttons::iterator iterator = this->m_buttons.find(button);
-
-	if (iterator != this->m_buttons.end())
+	if (checked)
 	{
-		this->m_originalObjectId = iterator.value();
+		KPushButton *button = dynamic_cast<KPushButton*>(QObject::sender());
+		ButtonsByButton::iterator iterator = this->m_buttonsByButtons.find(button);
+
+		if (iterator != this->m_buttonsByButtons.end())
+		{
+			this->m_originalObjectId = iterator.value();
+		}
 	}
+}
+
+void UnitSelectionDialog::nameChanged(const QString& name)
+{
+	this->m_dialogButtonBox->button(QDialogButtonBox::Ok)->setEnabled(!name.isEmpty());
+}
+
+void UnitSelectionDialog::changeRace(int index)
+{
+	const QString race = this->m_raceComboBox->itemData(index).toString();
+	QChar currentTileset;
+
+	if (this->m_tilesetComboBox->isVisible())
+	{
+		currentTileset = this->m_tilesetComboBox->itemData(this->m_tilesetComboBox->currentIndex()).toChar();
+	}
+
+	QString level;
+
+	if (this->m_levelComboBox->isVisible())
+	{
+		level = this->m_levelComboBox->itemData(this->m_levelComboBox->currentIndex()).toString();
+	}
+
+	this->fill(race, this->m_meleeComboBox->currentIndex(), currentTileset, level);
+}
+
+void UnitSelectionDialog::changeMelee(int index)
+{
+}
+
+void UnitSelectionDialog::changeTileset(int index)
+{
+}
+
+void UnitSelectionDialog::changeLevel(int index)
+{
 }
 
 }

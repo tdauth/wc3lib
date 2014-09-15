@@ -31,21 +31,27 @@ namespace editor
 
 class UnitData;
 
+/**
+ * \brief The concrete tree model for units.
+ * \ingroup objectdata
+ */
 class UnitTreeModel : public ObjectTreeModel
 {
 	public:
 		UnitTreeModel(QObject *parent = 0);
 
 		virtual void load(MpqPriorityList *source, ObjectData *objectData, QWidget *window) override;
+		virtual ObjectTreeItem* createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString& originalObjectId, const QString& customObjectId) override;
 
 		ObjectTreeItem* standardObjectsItem(UnitData *unitData);
 		ObjectTreeItem* customObjectsItem(UnitData *unitData);
 		ObjectTreeItem* humanItem(UnitData *unitData);
-		ObjectTreeItem* humanUnitsItem(UnitData *unitData);
-		ObjectTreeItem* humanBuildingsItem(UnitData *unitData);
-		ObjectTreeItem* humanHeroesItem(UnitData *unitData);
-		ObjectTreeItem* humanSpecialItem(UnitData *unitData);
+		ObjectTreeItem* humanMeleeItem(UnitData *unitData);
 		ObjectTreeItem* humanCampaignItem(UnitData *unitData);
+		ObjectTreeItem* humanMeleeUnitsItem(UnitData *unitData);
+		ObjectTreeItem* humanMeleeBuildingsItem(UnitData *unitData);
+		ObjectTreeItem* humanMeleeHeroesItem(UnitData *unitData);
+		ObjectTreeItem* humanMeleeSpecialItem(UnitData *unitData);
 		ObjectTreeItem* orcItem(UnitData *unitData);
 		ObjectTreeItem* orcUnitsItem(UnitData *unitData);
 		ObjectTreeItem* orcBuildingsItem(UnitData *unitData);
@@ -89,11 +95,12 @@ class UnitTreeModel : public ObjectTreeModel
 		ObjectTreeItem *m_standardObjectsItem;
 		ObjectTreeItem *m_customObjectsItem;
 		ObjectTreeItem *m_humanItem;
-		ObjectTreeItem *m_humanUnitsItem;
-		ObjectTreeItem *m_humanBuildingsItem;
-		ObjectTreeItem *m_humanHeroesItem;
-		ObjectTreeItem *m_humanSpecialItem;
+		ObjectTreeItem *m_humanMeleeItem;
 		ObjectTreeItem *m_humanCampaignItem;
+		ObjectTreeItem *m_humanMeleeUnitsItem;
+		ObjectTreeItem *m_humanMeleeBuildingsItem;
+		ObjectTreeItem *m_humanMeleeHeroesItem;
+		ObjectTreeItem *m_humanMeleeSpecialItem;
 		ObjectTreeItem *m_orcItem;
 		ObjectTreeItem *m_orcUnitsItem;
 		ObjectTreeItem *m_orcBuildingsItem;

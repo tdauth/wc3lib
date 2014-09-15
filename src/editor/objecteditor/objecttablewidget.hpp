@@ -44,6 +44,8 @@ class ObjectTableWidgetPair;
  * Double clicking a row allows to modify one single field using a \ref ObjectValueDialog dialog.
  *
  * All rows can be accessed using \ref pairs() which returns a hash using the field ID as key and the pair of cells as value.
+ *
+ * \ingroup objectdata
  */
 class ObjectTableWidget : public QTableWidget
 {

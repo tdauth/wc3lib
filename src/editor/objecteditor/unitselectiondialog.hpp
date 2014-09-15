@@ -24,6 +24,7 @@
 #include <QDialog>
 #include <QHash>
 #include <QString>
+#include <QButtonGroup>
 
 #include <KPushButton>
 
@@ -42,17 +43,21 @@ class UnitData;
  * \brief An icon listing dialog which allows the user to select a standard unit.
  *
  * The units are ordered by their race.
+ *
+ * \ingroup objectdata
  */
 class UnitSelectionDialog : public QDialog, protected Ui::UnitSelectionDialog
 {
 	Q_OBJECT
 
 	public:
-		typedef QHash<KPushButton*, QString> Buttons;
+		typedef QHash<KPushButton*, QString> ButtonsByButton;
+		typedef QHash<QString, KPushButton*> ButtonsByObjectId;
 
 		explicit UnitSelectionDialog(MpqPriorityList *source, UnitData *unitData, QWidget* parent = 0, Qt::WindowFlags f = 0);
 
 		void select(const QString &objectId);
+		void fill(const QString &race, int campaign, const QChar &tileset, const QString &level);
 
 		MpqPriorityList* source() const;
 		UnitData* unitData() const;
@@ -68,10 +73,20 @@ class UnitSelectionDialog : public QDialog, protected Ui::UnitSelectionDialog
 		MpqPriorityList *m_source;
 		UnitData *m_unitData;
 		QString m_originalObjectId;
-		Buttons m_buttons;
+		ButtonsByButton m_buttonsByButtons;
+		ButtonsByObjectId m_buttonsByObjectId;
+		QButtonGroup m_buttonGroup;
 
 	private slots:
-		void selectButton();
+		/**
+		 * It changes the original object ID returned by \ref originalObjectId().
+		 */
+		void selectButton(bool checked);
+		void nameChanged(const QString &name);
+		void changeRace(int index);
+		void changeMelee(int index);
+		void changeTileset(int index);
+		void changeLevel(int index);
 };
 
 inline MpqPriorityList* UnitSelectionDialog::source() const

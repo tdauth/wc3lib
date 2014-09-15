@@ -24,6 +24,7 @@
 #include <QWidget>
 #include <QList>
 #include <QString>
+#include <QModelIndex>
 #include <QIcon>
 
 namespace wc3lib
@@ -34,7 +35,13 @@ namespace editor
 
 class MpqPriorityList;
 class ObjectData;
+class ObjectTreeModel;
 
+/**
+ * \brief An item representing one single object or folder in a tree model.
+ *
+ * \ingroup objectdata
+ */
 class ObjectTreeItem
 {
 	public:
@@ -46,6 +53,7 @@ class ObjectTreeItem
 
 		bool isFolder() const;
 
+		void setFolderText(const QString &text);
 		QString text(bool showRawData) const;
 
 		ObjectData* objectData() const;
@@ -67,6 +75,15 @@ class ObjectTreeItem
 		void setCollapsed(MpqPriorityList *source, QWidget *window);
 		void setIcon(const QIcon &icon);
 
+		QModelIndex modelIndex(ObjectTreeModel *model);
+
+		/**
+		 * Counts all items which aren't folders.
+		 * It counts items with an infinite level so this function's performance is quite poor.
+		 * Complexity is O(n).
+		 */
+		int countNonFolderItems() const;
+
 	private:
 		ObjectData *m_objectData;
 		QString m_text;
@@ -77,6 +94,11 @@ class ObjectTreeItem
 		Children m_children;
 
 };
+
+inline void ObjectTreeItem::setFolderText(const QString& text)
+{
+	this->m_text = text;
+}
 
 inline ObjectData* ObjectTreeItem::objectData() const
 {

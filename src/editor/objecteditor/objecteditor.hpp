@@ -63,6 +63,40 @@ class SoundEntryEditor;
  * The Object Editor is responsible for editting any object data of a map.
  * Object data contains information of types which are used for instances (objects).
  *
+ * There is the central abstract \ref ObjectData which stores standard and custom objects and allows retrieving information about all field types etc. etc.
+ * For concrete object data such as units or items it has to be derived.
+ * The following classes exist for concrete object data:
+ * <ul>
+ * <li>\ref UnitData - Units</li>
+ * </ul>
+ *
+ * The object editor itself is represented by the class \ref ObjectEditor.
+ * For each kind of concrete objects it provides a single tab which is derived from \ref ObjectEditorTab.
+ * This is a list of all available tabs;
+ * <ul>
+ * <li>\ref UnitEditor - Units</li>
+ * </ul>
+ *
+ * One single tab provides two views. At the left edge there is a tree view listing all objects. At the right edge there is a table view listing the field values
+ * of the currently selected object from the tree view.
+ * The two classes provide these views: \ref ObjectTreeView and \ref ObjectTableWidget (currently a widget, should be ported to \ref QTableView).
+ *
+ *
+ * As the MVC concept of abstract item views in Qt requires the developer to provide an item model for the views there is the abstract class
+ * \ref ObjectTreeModel for the tree view's model.
+ * It has to be derived as well for concrete object data.
+ * The following classes derive from the model and provide concrete object data as model:
+ * <ul>
+ * <li>\ref UnitTreeModel - Units</li>
+ * </ul>
+ *
+ *
+ * There is a bunch of supporting GUI dialogs to select different types of field values for objects.
+ * \ref ObjectValueDialog allows the user to select a new field value of any type.
+ * With \ref ObjectValueDialog::show() you can display an instance of the dialog and retrieve a new value.
+ *
+ * \ref UnitSelectionDialog allows selecting a standard or custom unit listing all unit icons and separating them by their races and other properties.
+ *
  * \ingroup objectdata
  */
 

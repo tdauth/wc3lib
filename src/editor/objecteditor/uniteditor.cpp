@@ -275,7 +275,7 @@ void UnitEditor::onNewObject()
 	{
 		// TODO calculate custom id
 
-		this->objectData()->modifyField(this->unitSelectionDialog()->originalObjectId(), "AAAA", "unam", this->unitSelectionDialog()->unitName());
+		this->objectData()->modifyField(this->unitSelectionDialog()->originalObjectId(), this->unitData()->nextCustomObjectId(), "unam", this->unitSelectionDialog()->unitName());
 	}
 }
 

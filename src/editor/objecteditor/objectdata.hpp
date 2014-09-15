@@ -44,6 +44,8 @@ class MpqPriorityList;
  * You can use \ref fieldValue() to get the value of a field of an object.
  * Custom objects are stored as modifications.
  * Modifications can be added using \ref modifyField() and be reset using \ref resetField().
+ *
+ * \ingroup objectdata
  */
 class ObjectData : public QObject
 {
@@ -51,14 +53,17 @@ class ObjectData : public QObject
 
 	signals:
 		void modificationReset(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
+		void objectCreation(const QString &originalObjectId, const QString &customObjectId);
 		void objectReset(const QString &originalObjectId, const QString &customObjectId);
 		void fieldModification(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
 
 	public:
 		/**
 		 * \brief Hash table which stores modificiations by using the field ID as hash (such as "unam").
+		 *
+		 * It stores the modifications in the format of Frozen Throne which can be converted up to Reign of Chaos if required for the export.
 		 */
-		typedef QHash<QString, map::CustomUnits::Modification> Modifications;
+		typedef QHash<QString, map::CustomObjects::Modification> Modifications;
 		/**
 		 * \brief Stores the two object IDs. The original as well as the custom.
 		 */
@@ -79,6 +84,14 @@ class ObjectData : public QObject
 		 * \throw Exception Throws an exception if the field type is not supported.
 		 */
 		map::Value::Type fieldType(const QString &fieldId) const;
+
+		/**
+		 * Some field types such as "unitList" allow multiple values separated by a "," character.
+		 *
+		 * \return Returns true if field type \p fieldType allows a list of values.
+		 */
+		bool fieldTypeIsList(const QString &fieldType) const;
+
 		/**
 		 * Some types allow multiple selections of values by checking multiple check boxes.
 		 * \return Returns true if the field with ID \p fieldId allows multiple selections.
@@ -135,6 +148,8 @@ class ObjectData : public QObject
 		 */
 		virtual void load(QWidget *widget) = 0;
 
+		virtual map::CustomObjects::Modification unitToObjectModification(const map::CustomUnits::Modification &modification) const;
+
 		/**
 		 * Custom Units are used in Warcraft III: Reign of Chaos.
 		 * So this should throw an exception in other tabs than unit and items since they need additional data
@@ -153,6 +168,16 @@ class ObjectData : public QObject
 		 * \sa customUnits(), hasCustomObjects(), hasCustomUnits()
 		 */
 		virtual map::CustomObjects customObjects() const;
+
+		virtual map::CustomObjects::Object customObject(const QString &originalObjectId, const QString &customObjectId) const;
+
+		QString objectId(int value) const;
+		/**
+		 * Each custom object needs a unique ID that is automatically calculated.
+		 */
+		virtual QString nextCustomObjectId() const;
+
+		virtual map::CustomObjects::Type type() const = 0;
 
 		/**
 		 * Should return if custom units are available.
@@ -175,7 +200,7 @@ class ObjectData : public QObject
 		 * For example this happens whenever a user enters another or even the same value which overwrites the default one of the object.
 		 * All modified fields are exported when the user exports object data.
 		 */
-		void modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, const map::CustomUnits::Modification &modification);
+		void modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, const map::CustomObjects::Modification &modification);
 		void modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, const QString &value);
 		/**
 		 * Resets the field's \p fieldId modification for object with IDs \p originalObjectId and \p customObjectId.
@@ -199,7 +224,7 @@ class ObjectData : public QObject
 		 *
 		 * \sa isFieldModified()
 		 */
-		bool fieldModificiation(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, map::CustomUnits::Modification &modification) const;
+		bool fieldModificiation(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, map::CustomObjects::Modification &modification) const;
 		QString fieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const;
 		QString fieldReadableValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const;
 
@@ -208,6 +233,14 @@ class ObjectData : public QObject
 		 * It updates the modifications to the loaded custom units.
 		 */
 		void importCustomUnits(const map::CustomUnits &units);
+
+		/**
+		 * The name of an object is required in multiple cases.
+		 * For example when listing objects of a type (for field type "unitList") or when displaying them in any view.
+		 *
+		 * \return Returns the readable name of the object with IDs \p originalObjectId and \p customObjectId.
+		 */
+		virtual QString objectName(const QString &originalObjectId, const QString &customObjectId) const = 0;
 
 	private:
 		MpqPriorityList *m_source;

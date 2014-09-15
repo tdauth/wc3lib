@@ -59,7 +59,6 @@ ObjectTreeItem::Children ObjectTreeModel::folders()
 			if (child->isFolder())
 			{
 				items.push(child);
-				result.push_back(child);
 			}
 		}
 	}
@@ -218,6 +217,58 @@ void ObjectTreeModel::clearCustomItems()
 	}
 
 	this->m_customItems.clear();
+}
+
+ObjectTreeItem* ObjectTreeModel::item(QModelIndex &index) const
+{
+	return (ObjectTreeItem*)(index.internalPointer());
+}
+
+void ObjectTreeModel::load(MpqPriorityList* source, ObjectData* objectData, QWidget* window)
+{
+	connect(objectData, SIGNAL(objectCreation(const QString&, const QString&)), this, SLOT(createObject(const QString&, const QString&)));
+	connect(objectData, SIGNAL(objectReset(const QString&, const QString&)), this, SLOT(resetObject(const QString&, const QString&)));
+	connect(objectData, SIGNAL(fieldModification(const QString &, const QString &, const QString &)), this, SLOT(modifyField(const QString&, const QString&, const QString&)));
+}
+
+void ObjectTreeModel::createObject(const QString& originalObjectId, const QString& customObjectId)
+{
+	ObjectData *objectData = dynamic_cast<ObjectData*>(sender());
+	// TODO insert item
+	// createItem should emit all signals for adding new rows
+	ObjectTreeItem *item = this->createItem(objectData->source(), objectData, 0, originalObjectId, customObjectId);
+}
+
+void ObjectTreeModel::resetObject(const QString& originalObjectId, const QString& customObjectId)
+{
+	ObjectTreeItem *item = this->item(originalObjectId, customObjectId);
+
+	if (item != 0)
+	{
+		QModelIndex index = item->modelIndex(this);
+
+		emit dataChanged(index, index);
+	}
+	else
+	{
+		qDebug() << "Missing" << originalObjectId << customObjectId;
+	}
+}
+
+void ObjectTreeModel::modifyField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId)
+{
+	ObjectTreeItem *item = this->item(originalObjectId, customObjectId);
+
+	if (item != 0)
+	{
+		QModelIndex index = item->modelIndex(this);
+
+		emit dataChanged(index, index);
+	}
+	else
+	{
+		qDebug() << "Missing" << originalObjectId << customObjectId;
+	}
 }
 
 }

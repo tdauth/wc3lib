@@ -42,9 +42,13 @@ class ObjectData;
  * which should fill the model.
  *
  * \sa ObjectData
+ *
+ * \ingroup objectdata
  */
 class ObjectTreeModel : public QAbstractItemModel
 {
+	Q_OBJECT
+
 	public:
 
 		/**
@@ -82,6 +86,8 @@ class ObjectTreeModel : public QAbstractItemModel
 		 */
 		ObjectTreeItem* item(const QString &originalObjectId, const QString &customObjectId);
 
+		ObjectTreeItem* item(QModelIndex &index) const;
+
 		virtual QVariant data(const QModelIndex &index, int role) const override;
 		virtual int columnCount(const QModelIndex &parent) const override;
 		virtual int rowCount(const QModelIndex &parent) const override;
@@ -92,8 +98,21 @@ class ObjectTreeModel : public QAbstractItemModel
 		/**
 		 * Loads all standard objects from \p objectData and fills the tree model.
 		 * The object data contains standard objects as well as custom objects.
+		 *
+		 * The default implementation connects signals of changing data from \p objectData with slots that modify the data in the model.
+		 * It should be called when loading the data as well.
 		 */
-		virtual void load(MpqPriorityList *source, ObjectData *objectData, QWidget *window) = 0;
+		virtual void load(MpqPriorityList *source, ObjectData *objectData, QWidget *window);
+		/**
+		 * Creates a new item for an object.
+		 * This member functions is required whenever new objects are added to the corresponding object data.
+		 * It also can be used in \ref load() to create the standard object items.
+		 *
+		 * The function should use beginInsertRows() and endInsertRows() to emit all signals required to recognize the insertion.
+		 */
+		virtual ObjectTreeItem* createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString &originalObjectId, const QString &customObjectId) = 0;
+
+		int topLevelRow(ObjectTreeItem *item) const;
 
 	private:
 		Items m_standardItems;
@@ -101,6 +120,10 @@ class ObjectTreeModel : public QAbstractItemModel
 
 		ObjectTreeItem::Children m_topLevelItems;
 
+	private slots:
+		void createObject(const QString &originalObjectId, const QString &customObjectId);
+		void resetObject(const QString &originalObjectId, const QString &customObjectId);
+		void modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
 };
 
 inline void ObjectTreeModel::insertTopLevelItem(ObjectTreeItem* item)
@@ -148,6 +171,11 @@ inline ObjectTreeItem* ObjectTreeModel::item(const QString &originalObjectId, co
 	}
 
 	return 0;
+}
+
+inline int ObjectTreeModel::topLevelRow(ObjectTreeItem* item) const
+{
+	return this->m_topLevelItems.indexOf(item);
 }
 
 }

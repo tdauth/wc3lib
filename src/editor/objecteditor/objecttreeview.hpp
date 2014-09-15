@@ -41,6 +41,7 @@ class ObjectEditorTab;
  * Object tree views can be used to display game/campaign/map objects in a tree style divided into groups (e. g. their races, players etc.).
  * It allows selecting and therefore activating specific objects of the list as well as resetting them.
  *
+ * \ingroup objectdata
  */
 class ObjectTreeView : public QTreeView
 {

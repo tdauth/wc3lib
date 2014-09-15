@@ -132,6 +132,17 @@ map::Value::Type ObjectData::fieldType(const QString &fieldId) const
 	return map::Value::Type::String;
 }
 
+bool ObjectData::fieldTypeIsList(const QString &fieldType) const
+{
+	return fieldType == "unitList"
+		|| fieldType == "upgradeList"
+		|| fieldType == "stringList"
+		|| fieldType == "abilityList"
+		|| fieldType == "heroAbilityList"
+		|| fieldType == "techList"
+		|| fieldType == "itemList";
+}
+
 bool ObjectData::fieldTypeAllowsMultipleSelections(const QString &fieldId) const
 {
 	const QString fieldType = this->metaData()->value(fieldId, "type");
@@ -251,7 +262,7 @@ map::Value ObjectData::value(const QString &fieldId, const QString &value) const
 	return map::Value(0);
 }
 
-void ObjectData::modifyField(const QString &originalObjectId, const QString &customObjectId, const QString& fieldId, const map::CustomUnits::Modification &modification)
+void ObjectData::modifyField(const QString &originalObjectId, const QString &customObjectId, const QString& fieldId, const map::CustomObjects::Modification &modification)
 {
 	const ObjectId objectId(originalObjectId, customObjectId);
 	Objects::iterator iterator = this->m_objects.find(objectId);
@@ -259,6 +270,8 @@ void ObjectData::modifyField(const QString &originalObjectId, const QString &cus
 	if (iterator == this->m_objects.end())
 	{
 		iterator = this->m_objects.insert(objectId, Modifications());
+
+		emit objectCreation(originalObjectId, customObjectId);
 	}
 
 	iterator.value().insert(fieldId, modification);
@@ -267,7 +280,7 @@ void ObjectData::modifyField(const QString &originalObjectId, const QString &cus
 
 void ObjectData::modifyField(const QString &originalObjectId, const QString &customObjectId, const QString& fieldId, const QString& value)
 {
-	map::CustomUnits::Modification modification;
+	map::CustomObjects::Modification modification(this->type());
 	modification.setValueId(map::stringToId(fieldId.toUtf8().constData()));
 	modification.value() = this->value(fieldId, value);
 	this->modifyField(originalObjectId, customObjectId, fieldId, modification);
@@ -336,7 +349,7 @@ void ObjectData::clearModifications()
 	this->m_objects.clear();
 }
 
-bool ObjectData::fieldModificiation(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId, map::CustomUnits::Modification &modification) const
+bool ObjectData::fieldModificiation(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId, map::CustomObjects::Modification &modification) const
 {
 
 	const ObjectId objectId(originalObjectId, customObjectId);
@@ -362,7 +375,7 @@ bool ObjectData::fieldModificiation(const QString& originalObjectId, const QStri
 
 QString ObjectData::fieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const
 {
-	map::CustomUnits::Modification modification;
+	map::CustomObjects::Modification modification(this->type());
 
 	if (fieldModificiation(originalObjectId, customObjectId, fieldId, modification))
 	{
@@ -394,6 +407,22 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 		}
 
 		return this->source()->sharedData()->tr("WESTRING_FALSE");
+	}
+	/*
+	 * For unit lists we need all the unit names.
+	 */
+	else if (fieldType == "unitList")
+	{
+		QStringList fieldValues = fieldValue.split(',');
+		QStringList result;
+
+		foreach (QString value, fieldValues)
+		{
+			// TODO which one is the custom ID
+			result.push_back(this->objectName(value, ""));
+		}
+
+		return result.join(", ");
 	}
 
 	const map::Txt::Section *section = this->objectTabData()->section(fieldType);
@@ -460,7 +489,7 @@ void ObjectData::importCustomUnits(const map::CustomUnits &units)
 		for (map::CustomUnits::Unit::Modifications::size_type j = 0; j < unit.modifications().size(); ++j)
 		{
 			const map::CustomUnits::Modification &modification = unit.modifications()[j];
-			this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), modification);
+			this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), unitToObjectModification(modification));
 		}
 	}
 
@@ -475,12 +504,23 @@ void ObjectData::importCustomUnits(const map::CustomUnits &units)
 		for (map::CustomUnits::Unit::Modifications::size_type j = 0; j < unit.modifications().size(); ++j)
 		{
 			const map::CustomUnits::Modification &modification = unit.modifications()[j];
-			this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), modification);
+			this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), unitToObjectModification(modification));
 		}
 	}
 
 	//units.customTable()
 	// TODO read all objects
+}
+
+map::CustomObjects::Modification ObjectData::unitToObjectModification(const map::CustomUnits::Modification& modification) const
+{
+	map::CustomObjects::Modification result(this->type());
+	result.setValueId(modification.valueId());
+	result.setData(0);
+	result.setLevel(0);
+	result.value() = modification.value();
+
+	return result;
 }
 
 map::CustomUnits ObjectData::customUnits() const
@@ -494,7 +534,7 @@ map::CustomUnits ObjectData::customUnits() const
 		unit.setOriginalId(map::stringToId(iterator.key().first.toStdString()));
 		unit.setCustomId(map::stringToId(iterator.key().second.toStdString()));
 
-		foreach (map::CustomUnits::Modification modification, iterator.value())
+		foreach (map::CustomObjects::Modification modification, iterator.value())
 		{
 			unit.modifications().push_back(new map::CustomUnits::Modification(modification));
 		}
@@ -520,6 +560,90 @@ map::CustomObjects ObjectData::customObjects() const
 	map::CustomObjects objects = map::CustomObjects(map::CustomObjects::Type::Units);
 
 	return objects;
+}
+
+map::CustomObjects::Object ObjectData::customObject(const QString &originalObjectId, const QString &customObjectId) const
+{
+	map::CustomObjects::Object object(this->type());
+	// TODO which one is the custom id
+	object.setOriginalId(map::stringToId(originalObjectId.toStdString()));
+	object.setCustomId(map::stringToId(customObjectId.toStdString()));
+
+	Objects::const_iterator iterator = this->m_objects.find(ObjectId(originalObjectId, customObjectId));
+
+	if (iterator != this->m_objects.constEnd())
+	{
+		foreach (map::CustomObjects::Modification modification, iterator.value())
+		{
+			object.modifications().push_back(new map::CustomObjects::Modification(modification));
+		}
+	}
+
+	return object;
+}
+
+QString ObjectData::objectId(int value) const
+{
+	QString result = QString::number(value, 16);
+
+	if (result.size() > 4)
+	{
+		throw Exception();
+	}
+	else if (result.size() < 4)
+	{
+		for (int i = result.size(); i < 4; ++i)
+		{
+			result += '0';
+		}
+	}
+
+	return result.toUpper();
+}
+
+QString ObjectData::nextCustomObjectId() const
+{
+	/*
+	 * Get all custom IDs in the correct order from the minimum ID to the maximum ID.
+	 */
+	QSet<int> customIds;
+
+	for (Objects::const_iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
+	{
+		bool ok = true;
+		int idNumber = iterator.key().second.toInt(&ok, 16);
+
+		if (!ok)
+		{
+			throw Exception();
+		}
+		else
+		{
+			customIds.insert(idNumber);
+		}
+	}
+
+	int last = -1;
+
+	foreach (int id, customIds)
+	{
+		if (last != -1)
+		{
+			if (id > last + 1)
+			{
+				return objectId(last + 1);
+			}
+		}
+
+		last = id;
+	}
+
+	if (last != -1)
+	{
+		return objectId(last + 1);
+	}
+
+	return objectId(0);
 }
 
 }

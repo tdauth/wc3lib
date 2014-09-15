@@ -53,16 +53,9 @@ class Map;
  *
  * This abstract class provides the basic interface which each tab must fulfil to provide all functionality of the object editor. A concrete tab should be realized by deriving from this class and implementing all abstract element functions.
  *
- * The tab may list custom objects as well if some are created or imported. All modifications are stored and can be accessed via different element functions:
- * <ul>
- * <li>\ref modifyField() </li>
- * <li>\ref isFieldModified() </li>
- * <li>\ref resetField() </li>
- * <li>\ref fieldModificiation() </li>
- * <li>\ref clearModifications() </li>
- * <li>\ref fieldValue() </li>
- * <li>\ref fieldReadableValue() </li>
- * </ul>
+ * The tab may list custom objects as well if some are created or imported. All modifications are stored and can be accessed via \ref objectData().
+ *
+ * \ingroup objectdata
  */
 class ObjectEditorTab : public QWidget
 {
@@ -146,6 +139,15 @@ class ObjectEditorTab : public QWidget
 		virtual void fillTreeItem(const QString &originalObjectId, const QString &customObjectId, QTreeWidgetItem *item) = 0;
 		virtual void fillTableRow(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, ObjectTableWidgetPair *pair) = 0;
 
+		virtual bool clipboardIsEmpty();
+
+		/**
+		 * \return Returns the currently selected objects as table.
+		 *
+		 * The table can be used for export or the clipboard.
+		 */
+		virtual map::CustomObjects::Table selection() const;
+
 	public slots:
 		void newObject();
 		void renameObject();
@@ -226,6 +228,11 @@ class ObjectEditorTab : public QWidget
 		 * Flag which stores if raw data IDs are shown.
 		 */
 		bool m_showRawData;
+
+		/**
+		 * Stores the currently pasted or cut objects.
+		 */
+		map::CustomObjects::Table m_clipboard;
 
 	private slots:
 		void itemClicked(QModelIndex index);
@@ -322,16 +329,6 @@ inline void ObjectEditorTab::resetObject()
 inline void ObjectEditorTab::resetAllObjects()
 {
 	onResetAllObjects();
-}
-
-inline void ObjectEditorTab::copyObject()
-{
-	onCopyObject();
-}
-
-inline void ObjectEditorTab::pasteObject()
-{
-	onPasteObject();
 }
 
 }

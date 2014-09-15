@@ -18,8 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <QtGui>
+
 #include "objecttreeitem.hpp"
 #include "objectdata.hpp"
+#include "objecttreemodel.hpp"
 #include "../metadata.hpp"
 #include "../mpqprioritylist.hpp"
 
@@ -69,7 +72,7 @@ QString ObjectTreeItem::text(bool showRawData) const
 		return this->m_text;
 	}
 
-	return this->objectData()->fieldValue(originalObjectId(), customObjectId(), "unam");
+	return this->objectData()->fieldValue(originalObjectId(), customObjectId(), "unam") + this->objectData()->fieldValue(originalObjectId(), customObjectId(), "unsf");
 }
 
 QColor ObjectTreeItem::foreground() const
@@ -90,6 +93,47 @@ void ObjectTreeItem::setExpanded(MpqPriorityList *source, QWidget *window)
 void ObjectTreeItem::setCollapsed(MpqPriorityList *source, QWidget *window)
 {
 	this->m_icon = source->sharedData()->worldEditDataIcon("UEIcon_UnitCategory", "WorldEditArt", window);
+}
+
+
+QModelIndex ObjectTreeItem::modelIndex(ObjectTreeModel *model)
+{
+	if (parent() != 0)
+	{
+		return model->index(this->row(), 0, this->parent()->modelIndex(model));
+	}
+
+	return model->index(model->topLevelRow(this), 0, QModelIndex());
+}
+
+int ObjectTreeItem::countNonFolderItems() const
+{
+	int result = 0;
+	QStack<ObjectTreeItem*> children;
+
+	foreach (ObjectTreeItem *child, this->children())
+	{
+		children.push(child);
+	}
+
+	while (!children.isEmpty())
+	{
+		ObjectTreeItem *item = children.pop();
+
+		if (item->children().isEmpty())
+		{
+			++result;
+		}
+		else
+		{
+			foreach (ObjectTreeItem *child, item->children())
+			{
+				children.push(child);
+			}
+		}
+	}
+
+	return result;
 }
 
 }

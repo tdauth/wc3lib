@@ -127,7 +127,7 @@ inline QString valueToString(const map::Value &value)
 		case map::Value::Type::MissileArt:
 		case map::Value::Type::AttributeType:
 		case map::Value::Type::AttackBits:
-			return QString(value.toString().c_str());
+			return QString::fromUtf8(value.toString().c_str());
 
 		case map::Value::Type::Boolean:
 			return QString::number(value.toBoolean());
@@ -153,7 +153,7 @@ inline QString valueToString(const map::Value &value)
 					++i;
 				}
 
-				result += value.c_str();
+				result += QString::fromUtf8(value.c_str());
 			}
 
 			return result;

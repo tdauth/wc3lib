@@ -45,6 +45,8 @@ namespace editor
  * The meta data stores also the category and additinal displa information
  *
  * The default value is stored in a data file (for example UnitData.txt) which can be accessed via \ref data().
+ *
+ * \ingroup objectdata
  */
 class ObjectTableWidgetPair : public QObject
 {
