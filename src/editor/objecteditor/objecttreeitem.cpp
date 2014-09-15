@@ -84,24 +84,12 @@ QColor ObjectTreeItem::foreground() const
 
 void ObjectTreeItem::setExpanded(MpqPriorityList *source, QWidget *window)
 {
-	const QString iconFilePath = MetaData::fromFilePath(this->objectData()->source()->sharedData()->worldEditData()->value("WorldEditArt", "UEIcon_UnitCategory"));
-	QString iconFile;
-
-	if (source->download(iconFilePath, iconFile, window))
-	{
-		this->m_icon = QIcon(iconFile);
-	}
+	this->m_icon = source->sharedData()->worldEditDataIcon("UEIcon_UnitCategory", "WorldEditArt", window);
 }
 
 void ObjectTreeItem::setCollapsed(MpqPriorityList *source, QWidget *window)
 {
-	const QString iconFilePath = MetaData::fromFilePath(this->objectData()->source()->sharedData()->worldEditData()->value("WorldEditArt", "UEIcon_UnitCategory"));
-	QString iconFile;
-
-	if (source->download(iconFilePath, iconFile, window))
-	{
-		this->m_icon = QIcon(iconFile);
-	}
+	this->m_icon = source->sharedData()->worldEditDataIcon("UEIcon_UnitCategory", "WorldEditArt", window);
 }
 
 }

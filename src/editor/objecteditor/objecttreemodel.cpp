@@ -139,12 +139,31 @@ QModelIndex ObjectTreeModel::parent(const QModelIndex &index) const
 		return QModelIndex();
 	}
 
-	return createIndex(parentItem->row(), 0, parentItem);
+	int parentRow = 0;
+
+	/*
+	 * If it is a top level item we have to calculate the row manually.
+	 */
+	if (parentItem->parent() == 0)
+	{
+		parentRow = m_topLevelItems.indexOf(parentItem);
+
+		if (parentRow == -1)
+		{
+			qDebug() << "Missing top level item:" << parentItem->text(false);
+		}
+	}
+	else
+	{
+		parentRow = parentItem->row();
+	}
+
+	return createIndex(parentRow, 0, parentItem);
 }
 
 QModelIndex ObjectTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
-	if (!hasIndex(row, column, parent))
+	if (!hasIndex(row, column, parent) || column != 0)
 	{
 		return QModelIndex();
 	}

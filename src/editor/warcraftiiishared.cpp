@@ -134,9 +134,9 @@ QIcon WarcraftIIIShared::icon(const KUrl &url, QWidget *window)
 
 	if (this->source()->download(url, iconFile, window))
 	{
-		iterator = m_icons.insert(url, QIcon(iconFile));
+		iterator = m_icons.insert(url, QPixmap(iconFile));
 
-		return iterator.value();
+		return QIcon(iterator.value());
 	}
 
 	return QIcon();

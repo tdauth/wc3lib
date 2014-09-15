@@ -60,69 +60,75 @@ UnitData::UnitData(MpqPriorityList *source)
 
 bool UnitData::hasDefaultFieldValue(const QString& objectId, const QString& fieldId) const
 {
-	const QString field = this->unitMetaData()->value(fieldId, "field");
-	const QString slk = this->unitMetaData()->value(fieldId, "slk");
-
-	// TODO improve performance by not calling the hasValue() methods?
-	if (slk == "UnitUI")
-	{
-		return this->unitUi()->hasValue(objectId, field);
-	}
-	else if (slk == "UnitData")
-	{
-		return this->unitData()->hasValue(objectId, field);
-	}
-	else if (slk == "UnitBalance")
-	{
-		return this->unitBalance()->hasValue(objectId, field);
-	}
-	else if (slk == "UnitWeapons")
-	{
-		return this->unitWeapons()->hasValue(objectId, field);
-	}
-	else if (slk == "UnitAbilities")
-	{
-		return this->unitAbilities()->hasValue(objectId, field);
-	}
 	/*
-	 * Profile means to use a TXT file from the corresponding race.
+	 * If the field does not exist it might be the case that Reign of Chaos files are loaded and not Frozen Throne.
 	 */
-	else if (slk == "Profile")
+	if (this->unitMetaData()->hasValue(fieldId, "field"))
 	{
-		// TODO in Frozen Throne we can check if unit is in campaign but in Reign of Chaos there is no such field.
-		if (this->campaignUnitStrings()->hasValue(objectId, field)
-		 || this->campaignUnitFunc()->hasValue(objectId, field))
-		{
-			return true;
-		}
-		else if (this->unitData()->hasValue(objectId, "race"))
-		{
-			const QString race = this->unitData()->value(objectId, "race");
+		const QString field = this->unitMetaData()->value(fieldId, "field");
+		const QString slk = this->unitMetaData()->value(fieldId, "slk");
 
-			if (race == "human")
+		// TODO improve performance by not calling the hasValue() methods?
+		if (slk == "UnitUI")
+		{
+			return this->unitUi()->hasValue(objectId, field);
+		}
+		else if (slk == "UnitData")
+		{
+			return this->unitData()->hasValue(objectId, field);
+		}
+		else if (slk == "UnitBalance")
+		{
+			return this->unitBalance()->hasValue(objectId, field);
+		}
+		else if (slk == "UnitWeapons")
+		{
+			return this->unitWeapons()->hasValue(objectId, field);
+		}
+		else if (slk == "UnitAbilities")
+		{
+			return this->unitAbilities()->hasValue(objectId, field);
+		}
+		/*
+		* Profile means to use a TXT file from the corresponding race.
+		*/
+		else if (slk == "Profile")
+		{
+			// TODO in Frozen Throne we can check if unit is in campaign but in Reign of Chaos there is no such field.
+			if (this->campaignUnitStrings()->hasValue(objectId, field)
+			|| this->campaignUnitFunc()->hasValue(objectId, field))
 			{
-				return this->humanUnitStrings()->hasValue(objectId, field)
-					|| this->humanUnitFunc()->hasValue(objectId, field);
+				return true;
 			}
-			else if (race == "orc")
+			else if (this->unitData()->hasValue(objectId, "race"))
 			{
-				return this->orcUnitStrings()->hasValue(objectId, field)
-					|| this->orcUnitFunc()->hasValue(objectId, field);
-			}
-			else if (race == "nightelf")
-			{
-				return this->nightElfUnitStrings()->hasValue(objectId, field)
-					|| this->nightElfUnitFunc()->hasValue(objectId, field);
-			}
-			else if (race == "undead")
-			{
-				return this->undeadUnitStrings()->hasValue(objectId, field)
-					|| this->undeadUnitFunc()->hasValue(objectId, field);
-			}
-			else
-			{
-				return this->neutralUnitStrings()->hasValue(objectId, field)
-					|| this->neutralUnitFunc()->hasValue(objectId, field);
+				const QString race = this->unitData()->value(objectId, "race");
+
+				if (race == "human")
+				{
+					return this->humanUnitStrings()->hasValue(objectId, field)
+						|| this->humanUnitFunc()->hasValue(objectId, field);
+				}
+				else if (race == "orc")
+				{
+					return this->orcUnitStrings()->hasValue(objectId, field)
+						|| this->orcUnitFunc()->hasValue(objectId, field);
+				}
+				else if (race == "nightelf")
+				{
+					return this->nightElfUnitStrings()->hasValue(objectId, field)
+						|| this->nightElfUnitFunc()->hasValue(objectId, field);
+				}
+				else if (race == "undead")
+				{
+					return this->undeadUnitStrings()->hasValue(objectId, field)
+						|| this->undeadUnitFunc()->hasValue(objectId, field);
+				}
+				else
+				{
+					return this->neutralUnitStrings()->hasValue(objectId, field)
+						|| this->neutralUnitFunc()->hasValue(objectId, field);
+				}
 			}
 		}
 	}
@@ -142,37 +148,37 @@ QString UnitData::defaultFieldValue(const QString &objectId, const QString &fiel
 		// TODO improve performance by not calling the hasValue() methods?
 		if (slk == "UnitUI")
 		{
-			if (this->unitUi()->hasValue(objectId, fieldId))
+			if (this->unitUi()->hasValue(objectId, field))
 			{
-				return this->unitUi()->value(objectId, fieldId);
+				return this->unitUi()->value(objectId, field);
 			}
 		}
 		else if (slk == "UnitData")
 		{
-			if (this->unitData()->hasValue(objectId, fieldId))
+			if (this->unitData()->hasValue(objectId, field))
 			{
-				return this->unitData()->value(objectId, fieldId);
+				return this->unitData()->value(objectId, field);
 			}
 		}
 		else if (slk == "UnitBalance")
 		{
-			if (this->unitBalance()->hasValue(objectId, fieldId))
+			if (this->unitBalance()->hasValue(objectId, field))
 			{
-				return this->unitBalance()->value(objectId, fieldId);
+				return this->unitBalance()->value(objectId, field);
 			}
 		}
 		else if (slk == "UnitWeapons")
 		{
-			if (this->unitWeapons()->hasValue(objectId, fieldId))
+			if (this->unitWeapons()->hasValue(objectId, field))
 			{
-				return this->unitWeapons()->value(objectId, fieldId);
+				return this->unitWeapons()->value(objectId, field);
 			}
 		}
 		else if (slk == "UnitAbilities")
 		{
-			if (this->unitAbilities()->hasValue(objectId, fieldId))
+			if (this->unitAbilities()->hasValue(objectId, field))
 			{
-				return this->unitAbilities()->value(objectId, fieldId);
+				return this->unitAbilities()->value(objectId, field);
 			}
 		}
 		/*
@@ -523,7 +529,20 @@ bool UnitData::objectIsBuilding(const QString &originalObjectId, const QString &
 		levelVar.toInt(&ok);
 	}
 
-	return !ok || (((ObjectData*)this)->fieldValue(originalObjectId, customObjectId, "udbg") == "1"); // buildings have no levels, in Frozen Throne there is
+	bool isBuilding = false;
+
+	/*
+	 * In Frozen Throne there is an additional field which indicates if the unit is a building.
+	 */
+	if (((ObjectData*)this)->hasDefaultFieldValue(originalObjectId, "udbg"))
+	{
+		if (((ObjectData*)this)->fieldValue(originalObjectId, customObjectId, "udbg") == "1")
+		{
+			isBuilding = true;
+		}
+	}
+
+	return !ok || isBuilding; // buildings have no levels
 }
 
 bool UnitData::objectIsHero(const QString &originalObjectId, const QString &customObjectId) const

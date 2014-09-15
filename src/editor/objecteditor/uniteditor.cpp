@@ -186,9 +186,9 @@ void UnitEditor::fillTableRow(const QString &originalObjectId, const QString &cu
 	 * In Warcraft III: Reign of Chaos item fields are also stored in "Units/UnitMetaData.slk".
 	 * Those fields should not be displayed for units.
 	 */
-	const QString useHero = MetaData::fromSlkString(this->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("useHero")));
-	const QString useUnit = MetaData::fromSlkString(this->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("useUnit")));
-	const QString useBuilding = MetaData::fromSlkString(this->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("useBuilding")));
+	const QString useHero = this->objectData()->metaData()->value(fieldId, "useHero");
+	const QString useUnit = this->objectData()->metaData()->value(fieldId, "useUnit");
+	const QString useBuilding = this->objectData()->metaData()->value(fieldId, "useBuilding");
 
 	/*
 	* Hide fields which should not be shown.
@@ -205,14 +205,14 @@ void UnitEditor::fillTableRow(const QString &originalObjectId, const QString &cu
 			*/
 		QString category;
 
-		if (this->objectData()->metaData()->hasValue(MetaData::toSlkString(fieldId), MetaData::toSlkString("category")))
+		if (this->objectData()->metaData()->hasValue(fieldId, "category"))
 		{
-			category = MetaData::fromSlkString(this->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("category")));
+			category = this->objectData()->metaData()->value(fieldId, "category");
 			category = this->source()->sharedData()->worldEditData()->value("ObjectEditorCategories", category);
 			category = this->source()->sharedData()->tr(category).remove('&');
 		}
 
-		const QString displayName = MetaData::fromSlkString(this->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("displayName")));
+		const QString displayName = this->objectData()->metaData()->value(fieldId, "displayName");
 		const QString displayText = this->source()->sharedData()->tr(displayName);
 
 		if (showRawData())
@@ -243,7 +243,7 @@ void UnitEditor::fillTableRow(const QString &originalObjectId, const QString &cu
 	}
 	else
 	{
-		qDebug() << "Hide row with field id" << fieldId << "and description" << this->source()->sharedData()->tr(MetaData::fromSlkString(this->objectData()->metaData()->value(MetaData::toSlkString(fieldId), MetaData::toSlkString("displayName")))) << "the row value is" << pair->descriptionItem()->row();
+		qDebug() << "Hide row with field id" << fieldId << "and description" << this->source()->sharedData()->tr(this->objectData()->metaData()->value(fieldId, "displayName")) << "the row value is" << pair->descriptionItem()->row();
 
 		tableWidget()->hideRow(pair->descriptionItem()->row());
 	}

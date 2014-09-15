@@ -84,7 +84,6 @@ void UnitTreeModel::load(MpqPriorityList *source, ObjectData *objectData, QWidge
 	UnitData *unitData = dynamic_cast<UnitData*>(objectData);
 
 	// add all entries from "UnitData.slk" to standard units in Unit Editor
-	/*
 	if (!unitData->unitData()->isEmpty())
 	{
 		for (map::Slk::Table::size_type row = 1; row < unitData->unitData()->slk().rows(); ++row)
@@ -95,43 +94,9 @@ void UnitTreeModel::load(MpqPriorityList *source, ObjectData *objectData, QWidge
 			parent->appendChild(item);
 
 			const QString art = objectData->defaultFieldValue(objectId, "uico");
-			QString artFile;
-
-			if (source->download(art, artFile, window))
-			{
-				item->setIcon(QIcon(artFile));
-			}
+			item->setIcon(unitData->source()->sharedData()->icon(art, window));
 		}
 	}
-	*/
-
-	standardObjectsItem(unitData);
-	customObjectsItem(unitData);
-	humanItem(unitData);
-	humanHeroesItem(unitData);
-	humanUnitsItem(unitData);
-	orcItem(unitData);
-
-	qDebug() << "Human heroes parent:" << m_humanHeroesItem->parent()->text(false);
-	qDebug() << "Human parent:" << m_humanItem->parent()->text(false);
-	const QModelIndex parent0 = this->index(0, 0, QModelIndex());
-	qDebug() << "index 0 0 with no parent:" << ((ObjectTreeItem*)parent0.internalPointer())->text(false);
-	const QModelIndex parent0parent = this->parent(parent0);
-	qDebug() << "parent:" << parent0parent.isValid();
-	const QString data0 = this->data(parent0, Qt::DisplayRole).toString();
-	qDebug() << "data:" << data0;
-	const QModelIndex parent1 = this->index(0, 0, parent0);
-	qDebug() << "index 0 0 with:" << ((ObjectTreeItem*)parent1.internalPointer())->text(false);
-	const QModelIndex parent1parent = this->parent(parent1);
-	qDebug() << "parent:" << ((ObjectTreeItem*)parent1parent.internalPointer())->text(false);
-	const QString data1 = this->data(parent1, Qt::DisplayRole).toString();
-	qDebug() << "data:" << data1;
-	const QModelIndex parent2 = this->index(0, 0, parent1);
-	qDebug() << "index 0 0 with:" << ((ObjectTreeItem*)parent2.internalPointer())->text(false);
-	const QModelIndex parent2parent = this->parent(parent2);
-	qDebug() << "parent:" << ((ObjectTreeItem*)parent2parent.internalPointer())->text(false);
-	const QString data2 = this->data(parent2, Qt::DisplayRole).toString();
-	qDebug() << "data:" << data2;
 
 	ObjectTreeItem::Children folders = this->folders();
 

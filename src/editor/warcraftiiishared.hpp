@@ -70,8 +70,10 @@ class KDE_EXPORT WarcraftIIIShared
 	public:
 		/**
 		 * Shared icons are stored in a hash for fast access.
+		 * Store pixmaps and do not create icons with file names since then the files are loaded on demand.
+		 * Store the pixmaps in memory which should be much faster.
 		 */
-		typedef QHash<KUrl, QIcon> Icons;
+		typedef QHash<KUrl, QPixmap> Icons;
 
 		typedef boost::ptr_map<TeamColor, Texture> TeamColorTextures;
 

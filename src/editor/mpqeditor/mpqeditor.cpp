@@ -800,7 +800,7 @@ bool MpqEditor::extractDir(const QString &path, mpq::Archive &archive, const QSt
 
 		qDebug() << "Making dir" << dirname;
 
-		if ((parentDir.exists() && KMessageBox::questionYesNo(this, i18n("Overwrite existing file %1?", parentDir.filePath())) == KMessageBox::Yes) || !parentDir.exists())
+		if ((parentDir.exists() && KMessageBox::questionYesNo(this, i18n("Overwrite existing file %1?", parentDir.path())) == KMessageBox::Yes) || !parentDir.exists())
 		{
 			if (outputDir.mkdir(dirname))
 			{
