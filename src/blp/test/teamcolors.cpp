@@ -126,5 +126,77 @@ BOOST_AUTO_TEST_CASE(TeamColor00Write) {
 	BOOST_REQUIRE(texture.mipMaps()[0].width() == 8);
 	BOOST_REQUIRE(texture.mipMaps()[0].height() == 8);
 	std::cerr << std::hex << "Color as hex: " << texture.mipMaps()[0].colorAt(0, 0).argb() << std::endl;
+	std::cerr.unsetf(std::ios::hex);
+	BOOST_REQUIRE(texture.mipMaps()[0].colorAt(0, 0).argb() == 0xFF0303); // red
+}
+
+BOOST_AUTO_TEST_CASE(TeamColor00WriteWithoutSharedHeader)
+{
+	ifstream in("TeamColor00.blp");
+
+	BOOST_REQUIRE(in);
+
+	blp::Blp texture;
+	bool valid = true;
+
+	try
+	{
+		texture.read(in);
+	}
+	catch (std::exception &e)
+	{
+		valid = false;
+
+		std::cerr << e.what() << std::endl;
+	}
+
+	in.close();
+
+	BOOST_REQUIRE(valid);
+
+	ofstream out("TeamColor00tmp.blp");
+
+	BOOST_REQUIRE(out);
+
+	try
+	{
+		texture.write(out, blp::Blp::defaultQuality, blp::Blp::defaultMipMaps, false);
+	}
+	catch (std::exception &e)
+	{
+		valid = false;
+
+		std::cerr << e.what() << std::endl;
+	}
+
+	out.close();
+
+	BOOST_REQUIRE(valid);
+
+	// now read again
+	in.open("TeamColor00tmp.blp");
+
+	BOOST_REQUIRE(in);
+
+	try
+	{
+		texture.read(in);
+	}
+	catch (std::exception &e)
+	{
+		valid = false;
+
+		std::cerr << e.what() << std::endl;
+	}
+
+	BOOST_REQUIRE(valid);
+
+	BOOST_REQUIRE(texture.format() == blp::Blp::Format::Blp1);
+	BOOST_REQUIRE(texture.compression() == blp::Blp::Compression::Jpeg);
+	BOOST_REQUIRE(texture.mipMaps().size() == 4);
+	BOOST_REQUIRE(texture.mipMaps()[0].width() == 8);
+	BOOST_REQUIRE(texture.mipMaps()[0].height() == 8);
+	std::cerr << std::hex << "Color as hex: " << texture.mipMaps()[0].colorAt(0, 0).argb() << std::endl;
+	std::cerr.unsetf(std::ios::hex);
 	BOOST_REQUIRE(texture.mipMaps()[0].colorAt(0, 0).argb() == 0xFF0303); // red
 }

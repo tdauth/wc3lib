@@ -207,4 +207,6 @@ BOOST_AUTO_TEST_CASE(WriteHeader2)
 			std::cerr << std::hex << "Byte in custom header but not in jpeg: " << (unsigned int)buffer2[i] << std::endl;
 		}
 	}
+
+	std::cerr.unsetf(std::ios::hex);
 }

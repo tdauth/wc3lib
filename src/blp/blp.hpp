@@ -173,6 +173,7 @@ class Blp : public Format
 		/// Default JPEG quality which reaches from 0 - 100.
 		static const int defaultQuality;
 		static const std::size_t defaultMipMaps;
+		static const bool defaultSharedHeader;
 
 		/// \todo Don't seem to have the right values!!!
 		enum class Format : dword
@@ -252,11 +253,12 @@ class Blp : public Format
 		 * \param ostream The output stream in which the BLP file is written to.
 		 * \param quality Quality for JPEG/JFIF compression (0 - 100). -1 or another invalid value means default (\ref Blp::defaultQuality).
 		 * \param mipMaps Number of MIP maps which should be written (1 - 16). 0 means actual number of existing MIP maps.
+		 * \param sharedHeader If this value is true, for the JPEG format a shared header will be written shared by all MIP maps. Usuall this makes the file smaller but the compression process slower as well.
 		 *
 		 * \return Returns the number of written bytes.
 		 */
-		std::streamsize write(OutputStream &ostream, int quality, std::size_t mipMaps) const;
-		virtual std::streamsize write(OutputStream &ostream) const override { return write(ostream, defaultQuality, defaultMipMaps); }
+		std::streamsize write(OutputStream &ostream, int quality, std::size_t mipMaps, bool sharedHeader) const;
+		virtual std::streamsize write(OutputStream &ostream) const override { return write(ostream, defaultQuality, defaultMipMaps, defaultSharedHeader); }
 		virtual uint32_t version() const override;
 
 		/**

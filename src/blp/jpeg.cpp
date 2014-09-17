@@ -307,24 +307,11 @@ void writeMipMapJpeg(const Blp::MipMap &mipMap, unsigned char *&buffer, unsigned
 
 		jpeg_set_defaults(&cinfo);
 		jpeg_set_quality(&cinfo, quality, false);
+		//jpeg_write_tables(&cinfo);
 
-		// only write tables for the first MIP map, so the first MIP map contains all header data as well!
-		//if (isFirst)
-		//{
-			jpeg_write_tables(&cinfo);
-			headerSize = bufferSize;
-		//}
-		// do not write any table if the MIP map is not the first one.
-		/*
-		else
-		{
-			//jpeg_suppress_tables(&cinfo, true);
-		}
-		*/
+		jpeg_start_compress(&cinfo, true);
 
-		std::cerr << "Has C0 - test 1:" << hasJpegMarker(0xC0, buffer, bufferSize) << std::endl;
-
-		jpeg_start_compress(&cinfo, false);
+		headerSize = bufferSize;
 
 		std::cout << "Internal header size: " << headerSize << std::endl;
 		std::cout << "New buffer size: " << bufferSize << std::endl;
@@ -332,17 +319,12 @@ void writeMipMapJpeg(const Blp::MipMap &mipMap, unsigned char *&buffer, unsigned
 		std::cout << "Free in buffer:" << cinfo.dest->free_in_buffer << std::endl;
 		// TODO also share JFIF header? cinfo.write_JFIF_header = writeData->isFirst;
 
-		std::cerr << "Has C0 - test 2:" << hasJpegMarker(0xC0, buffer, bufferSize) << std::endl;
-
 		scanlines = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, scanlineSize, requiredScanlines);
 
 		while (cinfo.next_scanline < cinfo.image_height)
 		{
-			std::cout << "next line is < image height" << std::endl;
-
 			for (dword height = cinfo.next_scanline; height < requiredScanlines; ++height)
 			{
-				std::cout << "Height " << height << std::endl;
 				dword width = 0;
 
 				// cinfo.output_components should be 3 if RGB and 4 if RGBA
@@ -366,20 +348,12 @@ void writeMipMapJpeg(const Blp::MipMap &mipMap, unsigned char *&buffer, unsigned
 			}
 
 			const JDIMENSION dimension = jpeg_write_scanlines(&cinfo, scanlines, requiredScanlines);
-			std::cout << "Written " << dimension << " scanlines " << " and we have size " << bufferSize << std::endl;
 
 			if (dimension != requiredScanlines)
 			{
 				throw Exception(boost::format(_("Number of written scan lines is not equal to %1%. It is %2%.")) % requiredScanlines % dimension);
 			}
-
-			// output buffer data for further treatment
-			std::cout << "Free in buffer " << cinfo.dest->free_in_buffer << std::endl;
-			//bufferSize -= cinfo.dest->free_in_buffer;
-			std::cerr << "Buffer size: " << bufferSize << std::endl;
 		}
-
-		std::cerr << "Has C0 - test 3:" << hasJpegMarker(0xC0, buffer, bufferSize) << std::endl;
 	}
 	/*
 	 * Cleanup before throwing exception.
@@ -394,10 +368,6 @@ void writeMipMapJpeg(const Blp::MipMap &mipMap, unsigned char *&buffer, unsigned
 
 	jpeg_finish_compress(&cinfo);
 	jpeg_destroy_compress(&cinfo);
-
-	std::cerr << "Has C0 - test 4:" << hasJpegMarker(0xC0, buffer, bufferSize) << std::endl;
-
-	std::cerr << "New buffer size: " << bufferSize << std::endl;
 }
 
 }
