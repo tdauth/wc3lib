@@ -45,6 +45,8 @@ namespace wc3lib
 namespace jass
 {
 
+const Grammar::Skipper Grammar::skipper;
+
 namespace client {
 
 namespace fusion = boost::fusion;

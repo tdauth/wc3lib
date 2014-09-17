@@ -34,8 +34,8 @@ namespace
 {
 
 /**
-* \return Returns BLP ARGB color.
-*/
+ * \return Returns BLP ARGB color.
+ */
 inline blp::color rgbaToColor(QRgb rgba)
 {
 	return (blp::color)(qAlpha(rgba)) << 24 | (rgba & 0x00FFFFFF);
@@ -227,11 +227,17 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp::MipMap &mipMap, const blp
 	QImage::Format format;
 
 	if (blpImage.compression() == blp::Blp::Compression::Paletted)
+	{
 		format = QImage::Format_Indexed8;
+	}
 	else if (blpImage.flags() & blp::Blp::Flags::Alpha)
+	{
 		format = QImage::Format_ARGB32;
+	}
 	else
+	{
 		format = QImage::Format_RGB32;
+	}
 
 	QImage result(boost::numeric_cast<int>(mipMap.width()), boost::numeric_cast<int>(mipMap.height()), format);
 
@@ -240,7 +246,9 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp::MipMap &mipMap, const blp
 		for (blp::dword width = 0; width < mipMap.width(); ++width)
 		{
 			for (blp::dword height = 0; height < mipMap.height(); ++height)
+			{
 				result.setPixel(width, height,  colorToRgba(mipMap.colorAt(width, height).argb())); // numeric_cast has already been done!
+			}
 		}
 	}
 	else
@@ -248,12 +256,16 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp::MipMap &mipMap, const blp
 		result.setColorCount(blp::Blp::compressedPaletteSize);
 
 		for (int index = 0; index < result.colorCount(); ++index)
+		{
 			result.setColor(index, colorToRgba(blpImage.palette()[index]));
+		}
 
 		for (blp::dword width = 0; width < mipMap.width(); ++width)
 		{
 			for (blp::dword height = 0; height < mipMap.height(); ++height)
+			{
 				result.setPixel(width, height, mipMap.colorAt(width, height).paletteIndex()); // numeric_cast has already been done!
+			}
 		}
 	}
 
@@ -265,7 +277,9 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp::MipMap &mipMap, const blp
 bool BlpIOHandler::read(QImage *image, const blp::Blp &blpImage)
 {
 	if (blpImage.mipMaps().empty()) // no MIP maps
+	{
 		return false;
+	}
 
 	read(image, blpImage.mipMaps().front(), blpImage);
 
@@ -294,17 +308,25 @@ bool BlpIOHandler::write(const QImage &image, blp::Blp *blpImage)
 		if (image.format() == QImage::Format_Indexed8)
 		{
 			for (int i = 0; i < image.colorTable().size(); ++i)
+			{
 				blpImage->palette()[i] = image.colorTable()[i];
+			}
 		}
 		/// \todo Otherwise we would need to generate our color table - very slow and  limited to 256 different colors.
 		else
+		{
 			return false;
+		}
 	}
 
 	if (image.hasAlphaChannel())
+	{
 		blpImage->setFlags(blp::Blp::Flags::Alpha);
+	}
 	else
+	{
 		blpImage->setFlags(blp::Blp::Flags::NoAlpha);
+	}
 
 	blpImage->setWidth(image.width());
 	blpImage->setHeight(image.height());
@@ -319,7 +341,9 @@ bool BlpIOHandler::write(const QImage &image, blp::Blp *blpImage)
 	// create mip map
 	// palette is filled automatically by Blp::write
 	if (blpImage->generateMipMaps(1) != 1)
+	{
 		return false;
+	}
 
 	blp::Blp::MipMap &mipMap = blpImage->mipMaps()[0];
 
