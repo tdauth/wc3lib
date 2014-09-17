@@ -26,7 +26,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-Bone::Bone(class Bones *bones) : Object(bones->mdlx()), GroupMdxBlockMember(bones, "Bone")
+Bone::Bone(Bones *bones) : Object(bones->mdlx()), GroupMdxBlockMember(bones, "Bone")
 {
 }
 
@@ -41,14 +41,22 @@ std::streamsize Bone::writeMdl(ostream &ostream) const
 	writeMdlBlock(ostream, size, "Bone", this->name(), 0, true);
 
 	if (this->geosetId() == noneId)
+	{
 		writeMdlValueProperty(ostream, size, "GeosetId", "Multiple");
+	}
 	else
+	{
 		writeMdlValueProperty(ostream, size, "GeosetId", this->geosetId());
+	}
 
 	if (this->geosetAnimationId() == noneId)
+	{
 		writeMdlValueProperty(ostream, size, "GeosetAnimId", "None");
+	}
 	else
+	{
 		writeMdlValueProperty(ostream, size, "GeosetAnimId", this->geosetAnimationId());
+	}
 
 	size += Object::writeMdl(ostream);
 

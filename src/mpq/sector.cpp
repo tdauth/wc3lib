@@ -35,13 +35,19 @@ namespace
 inline const char* bzip2Error(int error)
 {
 	if (error == boost::iostreams::bzip2::data_error)
+	{
 		return _("Data error: Compressed data stream is corrupted.");
+	}
 
 	if (error == boost::iostreams::bzip2::data_error_magic)
+	{
 		return _("Data error magic: Compressed data stream does not begin with the 'magic' sequence 'B' 'Z' 'h'.");
+	}
 
 	if (error == boost::iostreams::bzip2::config_error)
+	{
 		return _("Config error: libbzip2 has been improperly configured for the current platform.");
+	}
 
 	return "";
 }
@@ -49,16 +55,24 @@ inline const char* bzip2Error(int error)
 inline const char* zlibError(int error)
 {
 	if (error == boost::iostreams::zlib::stream_error)
+	{
 		return _("Stream error: Compressed data stream or parameter configuration is corrupted.");
+	}
 
 	if (error == boost::iostreams::zlib::version_error)
+	{
 		return _("Version error: Incompatible versions.");
+	}
 
 	if (error == boost::iostreams::zlib::data_error)
+	{
 		return _("Data error: Compressed data stream is corrupted.");
+	}
 
 	if (error == boost::iostreams::zlib::buf_error)
+	{
 		return _("Buff error: Internal error.");
+	}
 
 	return "";
 }
@@ -123,7 +137,9 @@ std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, in
 				memcpy(data.get(), out.get(), outLength);
 			}
 			else
+			{
 				data.swap(out);
+			}
 
 			size = outLength;
 		}
@@ -142,7 +158,9 @@ std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, in
 				memcpy(data.get(), out.get(), outLength);
 			}
 			else
+			{
 				data.swap(out);
+			}
 
 			size = outLength;
 		}
@@ -160,7 +178,9 @@ std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, in
 				memcpy(data.get(), out.get(), outLength);
 			}
 			else
+			{
 				data.swap(out);
+			}
 
 			size = outLength;
 		}
@@ -202,7 +222,9 @@ std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, in
 				memcpy(data.get(), out.get(), outLength);
 			}
 			else
+			{
 				data.swap(out);
+			}
 		}
 
 		if (this->compression() & Sector::Compression::Bzip2Compressed) // BZip2 compressed (see BZip2)
@@ -228,7 +250,9 @@ std::streamsize Sector::readData(const byte *buffer, const uint32 bufferSize, in
 	}
 
 	if (size > this->mpqFile()->mpq()->sectorSize())
+	{
 		throw Exception(boost::format(_("Size %1% is too big. %2% is maximum sector size for archive.")) % size % mpqFile()->mpq()->sectorSize());
+	}
 
 
 	// store compression byte as well before encrypting all data

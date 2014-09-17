@@ -101,9 +101,11 @@ class Grammar {
 		 * Internal grammars for JASS grammar and its skipper.
 		 * We do not want to create a new grammar instance each time we parse something.
 		 * Therefore we use these attributes for all parsing operations.
+		 *
+		 * TODO when grammar is stateless make it static const to improve the performance for multiple grammar instances.
 		 */
 		JassGrammar grammar;
-		Skipper skipper;
+		static const Skipper skipper;
 };
 
 inline const jass_type_declarations& Grammar::typeSymbols() const

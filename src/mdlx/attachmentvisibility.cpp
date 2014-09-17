@@ -25,7 +25,7 @@ namespace wc3lib
 
 namespace mdlx
 {
-	
+
 AttachmentVisibility::AttachmentVisibility(class AttachmentVisibilities *visibilities) : MdlxAlpha(visibilities)
 {
 }

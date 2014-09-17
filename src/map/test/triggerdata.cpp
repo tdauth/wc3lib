@@ -34,20 +34,23 @@
 
 using namespace wc3lib;
 
-BOOST_AUTO_TEST_CASE(TriggerDataSimpleReadTest) {
+BOOST_AUTO_TEST_CASE(TriggerDataSimpleReadTest)
+{
 	ifstream in("TriggerData.txt");
-	
+
 	BOOST_REQUIRE(in);
-	
+
 	map::TriggerData triggerData;
 	bool valid = true;
-	
-	try {
+
+	try
+	{
 		triggerData.read(in);
 	}
-	catch (...) {
+	catch (...)
+	{
 		valid = false;
 	}
-	
+
 	BOOST_REQUIRE(valid);
 }

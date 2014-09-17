@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 	// Set the text message domain.
 	bindtextdomain("jassc", LOCALE_DIR);
 	textdomain("jassc");
-	
+
 	typedef std::vector<std::string> Strings;
 	Strings headers;
 	Strings inputFiles;
@@ -55,12 +55,12 @@ int main(int argc, char *argv[])
 	boost::program_options::options_description desc("Allowed options");
 	desc.add_options()
 	("version,V", _("Shows current version of jassc."))
-	("help,h",_("Shows this text."))
+	("help,h", _("Shows this text."))
 	// options
 	("header,j", boost::program_options::value<Strings>(&headers), _("Includes JASS headers"))
 	// warning options
 	("fsyntax-only", _("Check the code for syntax errors, but don't do anything beyond that."))
-	
+
 	("i", boost::program_options::value<Strings>(&inputFiles), _("Input files."))
 	("o", boost::program_options::value<boost::filesystem::path>(&outputFile), _("Output file."))
 	;
@@ -106,70 +106,85 @@ int main(int argc, char *argv[])
 
 		return EXIT_SUCCESS;
 	}
-	
+
 	if (inputFiles.empty()) {
 		std::cerr << _("Missing input files.") << std::endl;
-		
+
 		return EXIT_FAILURE;
 	}
-	
+
 	wc3lib::jass::Grammar grammar;
 	wc3lib::jass::jass_ast ast;
 	bool error = false;
-	
-	BOOST_FOREACH(Strings::const_reference ref, inputFiles) {
+
+	BOOST_FOREACH(Strings::const_reference ref, inputFiles)
+	{
 		boost::filesystem::path file(ref);
-		
-		if (boost::filesystem::is_regular_file(file)) {
+
+		if (boost::filesystem::is_regular_file(file))
+		{
 			wc3lib::ifstream ifstream(file);
-			
-			if (ifstream) {
-				
-				try {
-					if (!grammar.parse(ifstream, ast, ref)) {
+
+			if (ifstream)
+			{
+
+				try
+				{
+					if (!grammar.parse(ifstream, ast, ref))
+					{
 						error = true;
-						
+
 						std::cerr << boost::format(_("Error while parsing file \"%1%\".")) % ref << std::endl;
 					}
-				} catch (wc3lib::Exception &e) {
+				}
+				catch (wc3lib::Exception &e)
+				{
 					error = true;
-					
+
 					std::cerr << boost::format(_("Error while parsing file \"%1%\": %2%")) % ref % e.what() << std::endl;
 				}
 			}
-		} else {
+		}
+		else
+		{
 			std::cerr << boost::format(_("File \"%1%\" is no regular file.")) % ref << std::endl;
 		}
 	}
-	
+
 	/*
 	 * If an error did occur when parsing the grammar we should not check the AST since
 	 * it will be corrupted anyways.
 	 * So do only check the AST for types etc. if it had been parsed properly.
 	 */
-	if (!error) {
-		
+	if (!error)
+	{
+
 		wc3lib::jass::Analyzer analyzer(grammar.typeSymbols(), grammar.globalSymbols(), grammar.functionSymbols());
 		wc3lib::jass::Analyzer::Reports reports;
-		
+
 		analyzer.checkAst(ast, reports);
-		
-		if (!reports.empty()) {
-			BOOST_FOREACH(wc3lib::jass::Analyzer::Reports::const_reference ref, reports) {
+
+		if (!reports.empty())
+		{
+			BOOST_FOREACH(wc3lib::jass::Analyzer::Reports::const_reference ref, reports)
+			{
 				std::cerr << ref.output() << std::endl;
 			}
-			
-			if (vm.count("fsyntax-only")) {
+
+			if (vm.count("fsyntax-only"))
+			{
 				return EXIT_FAILURE;
 			}
-		} else {
+		} else
+		{
 			std::cout << _("No errors occured.") << std::endl;
-			
-			if (vm.count("fsyntax-only")) {
+
+			if (vm.count("fsyntax-only"))
+			{
 				return EXIT_SUCCESS;
 			}
 		}
 	}
-	
+
 	return EXIT_SUCCESS;
 }

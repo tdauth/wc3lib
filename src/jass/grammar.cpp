@@ -873,7 +873,10 @@ bool parse(Iterator first, Iterator last, jass_ast &ast, jass_file &current_file
 {
 	jass_grammar<Iterator> grammar;
 	grammar.prepare(first, ast, current_file);
-	comment_skipper<Iterator> commentSkipper;
+	/*
+	 * Use static const to improve the performance for multiple parsers.
+	 */
+	static const comment_skipper<Iterator> commentSkipper;
 	bool r = false;
 
 	try {
@@ -885,7 +888,7 @@ bool parse(Iterator first, Iterator last, jass_ast &ast, jass_file &current_file
 			ast // store result into the passed ast
 		);
 	}
-	catch(const boost::spirit::qi::expectation_failure<Iterator> &e) {
+	catch (const boost::spirit::qi::expectation_failure<Iterator> &e) {
 		throw Exception(
 				client::expectationFailure(grammar.current_file, e)
 			);
@@ -940,7 +943,7 @@ bool Grammar::parse(IteratorType first, IteratorType last, jass_ast& ast, jass_f
 			ast // store result into the passed ast
 		);
 	}
-	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> &e) {
+	catch (const boost::spirit::qi::expectation_failure<PositionIteratorType> &e) {
 		throw Exception(
 				client::expectationFailure(grammar.current_file, e)
 			);

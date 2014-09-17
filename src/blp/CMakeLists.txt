@@ -8,10 +8,12 @@ if (BLP)
 
 	set(wc3lib_BLP_H
 		blp.hpp
+		jpeg.hpp
 		platform.hpp
 	)
 	set(wc3lib_BLP_SRC
 		blp.cpp
+		jpeg.cpp
 	)
 
 	add_library(wc3libblp SHARED ${wc3lib_BLP_SRC})

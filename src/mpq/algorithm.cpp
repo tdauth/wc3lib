@@ -62,24 +62,24 @@ void InitializeCryptTable(uint32 dwCryptTable[cryptTableSize])
 
 void EncryptData(const uint32 dwCryptTable[cryptTableSize], void *lpbyBuffer, uint32 dwLength, uint32 dwKey)
 {
-    assert(lpbyBuffer);
+	assert(lpbyBuffer);
 
-    uint32 *lpdwBuffer = (uint32 *)lpbyBuffer;
-    uint32 seed = 0xEEEEEEEE;
-    uint32 ch;
+	uint32 *lpdwBuffer = (uint32 *)lpbyBuffer;
+	uint32 seed = 0xEEEEEEEE;
+	uint32 ch;
 
-    dwLength /= sizeof(uint32);
+	dwLength /= sizeof(uint32);
 
-    while(dwLength-- > 0)
-    {
-        seed += dwCryptTable[0x400 + (dwKey & 0xFF)];
-        ch = *lpdwBuffer ^ (dwKey + seed);
+	while (dwLength-- > 0)
+	{
+		seed += dwCryptTable[0x400 + (dwKey & 0xFF)];
+		ch = *lpdwBuffer ^ (dwKey + seed);
 
-        dwKey = ((~dwKey << 0x15) + 0x11111111) | (dwKey >> 0x0B);
-        seed = *lpdwBuffer + seed + (seed << 5) + 3;
+		dwKey = ((~dwKey << 0x15) + 0x11111111) | (dwKey >> 0x0B);
+		seed = *lpdwBuffer + seed + (seed << 5) + 3;
 
-	*lpdwBuffer++ = ch;
-    }
+		*lpdwBuffer++ = ch;
+	}
 }
 
 void DecryptData(const uint32 dwCryptTable[cryptTableSize], void *lpbyBuffer, uint32 dwLength, uint32 dwKey)
@@ -92,7 +92,7 @@ void DecryptData(const uint32 dwCryptTable[cryptTableSize], void *lpbyBuffer, ui
 
 	dwLength /= sizeof(uint32);
 
-	while(dwLength-- > 0)
+	while (dwLength-- > 0)
 	{
 		seed += dwCryptTable[0x400 + (dwKey & 0xFF)];
 		ch = *lpdwBuffer ^ (dwKey + seed);
@@ -107,22 +107,22 @@ void DecryptData(const uint32 dwCryptTable[cryptTableSize], void *lpbyBuffer, ui
 /// Based on code from StormLib.
 uint32 HashString(const uint32 dwCryptTable[cryptTableSize], const char *lpszString, HashType hashType)
 {
-    assert(lpszString);
+	assert(lpszString);
 
-    uint32 dwHashType = uint32(hashType);
-    uint32 seed1 = 0x7FED7FEDL;
-    uint32 seed2 = 0xEEEEEEEEL;
-    int ch;
+	uint32 dwHashType = uint32(hashType);
+	uint32 seed1 = 0x7FED7FEDL;
+	uint32 seed2 = 0xEEEEEEEEL;
+	int ch;
 
-    while (*lpszString != 0)
-    {
-        ch = toupper(*lpszString++);
+	while (*lpszString != 0)
+	{
+		ch = toupper(*lpszString++);
 
-        seed1 = dwCryptTable[dwHashType + ch] ^ (seed1 + seed2);
-        seed2 = ch + seed1 + seed2 + (seed2 << 5) + 3;
-    }
+		seed1 = dwCryptTable[dwHashType + ch] ^ (seed1 + seed2);
+		seed2 = ch + seed1 + seed2 + (seed2 << 5) + 3;
+	}
 
-    return seed1;
+	return seed1;
 }
 
 struct DataInfo
@@ -149,15 +149,17 @@ static unsigned int readBuffer(char *buf, unsigned int *size, void *param)
 	unsigned int toRead = *size;
 
 	// Check the case when not enough data available
-	if(toRead > maxAvailable)
+	if (toRead > maxAvailable)
+	{
 		toRead = maxAvailable;
+	}
 
 	// Load data and increment offsets
 	memcpy(buf, info->inBuffer, toRead);
 	info->inBuffer += toRead;
 	assert(info->inBuffer <= info->inBufferEnd);
 
-	 return toRead;
+	return toRead;
 }
 
 /**
@@ -176,7 +178,9 @@ static void writeBuffer(char *buf, unsigned int *size, void *param)
 
 	// Check the case when not enough space in the output buffer
 	if(toWrite > maxWrite)
+	{
 		toWrite = maxWrite;
+	}
 
 	// Write output data and increments offsets
 	memcpy(info->outBuffer, buf, toWrite);
@@ -252,14 +256,20 @@ int compressWaveMono(short* const inBuffer, int inBufferLength, unsigned char *o
 	// Prepare the compression level for the next compression
 	// (After us, the Huffmann compression will be called)
 	if (0 < compressionLevel && compressionLevel <= 2)
+	{
 		compressionLevel = 4;
+	}
 	else if (compressionLevel == 3)
+	{
 		compressionLevel = 6;
+	}
 	else
 		compressionLevel = 5;
 
 	if (outBuffer == 0)
+	{
 		throw Exception(_("Output buffer is 0."));
+	}
 
 	outBufferLength = CompressADPCM(outBuffer, outBufferLength, inBuffer, inBufferLength, 1, compressionLevel);
 
@@ -269,7 +279,9 @@ int compressWaveMono(short* const inBuffer, int inBufferLength, unsigned char *o
 int decompressWaveMono(unsigned char* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength)
 {
 	if (outBuffer == 0)
+	{
 		throw Exception(_("Output buffer is 0."));
+	}
 
 	outBufferLength = DecompressADPCM(outBuffer, outBufferLength, inBuffer, inBufferLength, 1);
 
@@ -281,14 +293,22 @@ int compressWaveStereo(short* const inBuffer, int inBufferLength, unsigned char 
 	// Prepare the compression type for the next compression
 	// (After us, the Huffmann compression will be called)
 	if(0 < compressionLevel && compressionLevel <= 2)
+	{
 		compressionLevel = 4;
+	}
 	else if(compressionLevel == 3)
+	{
 		compressionLevel = 6;
+	}
 	else
+	{
 		compressionLevel = 5;
+	}
 
 	if (outBuffer == 0)
+	{
 		throw Exception(_("Output buffer is 0."));
+	}
 
 	outBufferLength = CompressADPCM(outBuffer, outBufferLength, inBuffer, inBufferLength, 2, compressionLevel);
 
@@ -298,14 +318,16 @@ int compressWaveStereo(short* const inBuffer, int inBufferLength, unsigned char 
 int decompressWaveStereo(unsigned char* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength)
 {
 	if (outBuffer == 0)
+	{
 		throw Exception(_("Output buffer is 0."));
+	}
 
 	inBufferLength = DecompressADPCM(outBuffer, outBufferLength, inBuffer, inBufferLength, 2);
 
 	return outBufferLength;
 }
 
-std::streamsize compressBzip2(istream &istream, ostream &ostream) throw (boost::iostreams::bzip2_error)
+std::streamsize compressBzip2(istream &istream, ostream &ostream)
 {
 	boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
 	in.push(boost::iostreams::basic_bzip2_compressor<std::allocator<byte> >());
@@ -314,7 +336,7 @@ std::streamsize compressBzip2(istream &istream, ostream &ostream) throw (boost::
 	return boost::iostreams::copy(in, ostream);
 }
 
-std::streamsize decompressBzip2(istream &istream, ostream &ostream, int bufferSize) throw (boost::iostreams::bzip2_error)
+std::streamsize decompressBzip2(istream &istream, ostream &ostream, int bufferSize)
 {
 	boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
 	boost::iostreams::basic_bzip2_decompressor<std::allocator<byte> > decompressor(boost::iostreams::bzip2::default_small, bufferSize);
@@ -324,7 +346,7 @@ std::streamsize decompressBzip2(istream &istream, ostream &ostream, int bufferSi
 	return boost::iostreams::copy(in, ostream);
 }
 
-std::streamsize compressZlib(istream &istream, ostream &ostream) throw (boost::iostreams::zlib_error)
+std::streamsize compressZlib(istream &istream, ostream &ostream)
 {
 	boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
 	in.push(boost::iostreams::basic_zlib_compressor<std::allocator<byte> >());
@@ -333,7 +355,7 @@ std::streamsize compressZlib(istream &istream, ostream &ostream) throw (boost::i
 	return boost::iostreams::copy(in, ostream);
 }
 
-std::streamsize decompressZlib(istream &istream, ostream &ostream, int bufferSize) throw (boost::iostreams::zlib_error)
+std::streamsize decompressZlib(istream &istream, ostream &ostream, int bufferSize)
 {
 	boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
 	boost::iostreams::basic_zlib_decompressor<std::allocator<byte> > decompressor(boost::iostreams::zlib_params(), bufferSize);
@@ -347,12 +369,12 @@ std::streamsize decompressZlib(istream &istream, ostream &ostream, int bufferSiz
 }
 
 void compressHuffman(
-    char * pbOutBuffer,
-    int * pcbOutBuffer,
-    char * pbInBuffer,
-    int cbInBuffer,
-    int * pCmpType,
-    int /* nCmpLevel */)
+	char * pbOutBuffer,
+	int * pcbOutBuffer,
+	char * pbInBuffer,
+	int cbInBuffer,
+	int * pCmpType,
+	int /* nCmpLevel */)
 {
 	THuffmannTree ht;                   // Huffmann tree for compression
 	TOutputStream os;                   // Output stream
@@ -391,7 +413,9 @@ int decompressHuffman(char * pbOutBuffer, int * pcbOutBuffer, char * pbInBuffer,
 	*pcbOutBuffer = ht.DoDecompression((unsigned char *)pbOutBuffer, *pcbOutBuffer, &is);
 
 	if(*pcbOutBuffer == 0)
+	{
 		return 0;
+	}
 
 	// The following code is not necessary to run, because it has no
 	// effect on the output data. It only clears the huffmann tree, but when

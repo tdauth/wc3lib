@@ -223,6 +223,7 @@ struct jass_grammar : qi::grammar<Iterator, jass_ast(), qi::locals<std::string>,
 
 	// symbol table for types
 	// this symbol table can be used in rules! types will be returned automatically when correct identifiers are found!
+	// TODO make the grammar stateless, use locals to improve the performance for multiple grammar instances.
 	jass_ast ast;
 	jass_file *current_file; // currently parsed file
 	/*

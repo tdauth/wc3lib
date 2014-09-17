@@ -58,29 +58,43 @@ std::streamsize RibbonEmitter::writeMdl(ostream &ostream) const
 	size += Node::writeMdl(ostream);
 
 	if (!this->heightsAbove()->properties().empty())
+	{
 		size += this->heightsAbove()->writeMdl(ostream);
+	}
 	else
+	{
 		writeMdlStaticValueProperty(ostream, size, "HeightAbove", this->heightAboveValue());
+	}
 
 	if (!this->heightsBelow()->properties().empty())
+	{
 		size += this->heightsBelow()->writeMdl(ostream);
+	}
 	else
+	{
 		writeMdlStaticValueProperty(ostream, size, "HeightBelow", this->heightBelowValue());
+	}
 
 
 	writeMdlStaticVectorProperty(ostream, size, "Color", VertexData(colorRed(), colorGreen(), colorBlue()));
 	writeMdlStaticValueProperty(ostream, size, "TextureSlot", this->unknown0());
 
 	if (!this->visibilities()->properties().empty())
+	{
 		size += this->visibilities()->writeMdl(ostream);
+	}
 	else
+	{
 		writeMdlStaticValueProperty(ostream, size, "Alpha", this->alpha());
+	}
 
 	writeMdlValueProperty(ostream, size, "EmissionRate", this->emissionRate());
 	writeMdlValueProperty(ostream, size, "LifeSpan", this->lifeSpan());
 
 	if (this->gravity() != 0.0)
+	{
 		writeMdlValueProperty(ostream, size, "Gravity", this->gravity());
+	}
 
 	writeMdlValueProperty(ostream, size, "Rows", this->rows());
 	writeMdlValueProperty(ostream, size, "Columns", this->columns());

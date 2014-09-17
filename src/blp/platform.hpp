@@ -87,7 +87,7 @@ inline byte blue(color c)
 
 inline byte alpha(color c)
 {
-	return byte(0xFF) - (color(c & 0xFF000000) >> 24);
+	return (c & 0xFF000000) >> 24;
 }
 
 inline color fromRgba(const Rgba &rgba)

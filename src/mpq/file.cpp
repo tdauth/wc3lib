@@ -266,7 +266,6 @@ void File::removeData()
 	throw Exception(_("Not implemented yet."));
 }
 
-
 }
 
 }

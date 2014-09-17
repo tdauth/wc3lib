@@ -108,16 +108,25 @@ int decompressWaveMono(unsigned char* const inBuffer, int inBufferLength, unsign
 int compressWaveStereo(short* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength, int compressionLevel);
 int decompressWaveStereo(unsigned char* const inBuffer, int inBufferLength, unsigned char *outBuffer, int &outBufferLength);
 
-std::streamsize compressBzip2(istream &istream, ostream &ostream) throw (boost::iostreams::bzip2_error);
+/**
+ * \throws boost::iostreams::bzip2_error Throws an exception if a compression error occurs.
+ */
+std::streamsize compressBzip2(istream &istream, ostream &ostream);
 /**
  * \param bufferSize To optimize the decompression you can set this value to the MPQ archive's sector size. If unsure use \ref boost::iostreams::default_device_buffer_size.
+ * \throws boost::iostreams::bzip2_error Throws an exception if a decompression error occurs.
  */
-std::streamsize decompressBzip2(istream &istream, ostream &ostream, int bufferSize) throw (boost::iostreams::bzip2_error);
-std::streamsize compressZlib(istream &istream, ostream &ostream) throw (boost::iostreams::zlib_error);
+std::streamsize decompressBzip2(istream &istream, ostream &ostream, int bufferSize);
+/**
+ * Compresses all data from \p istream into \p ostream.
+ * \throws boost::iostreams::zlib_error Throws an exception if a compression error occurs.
+ */
+std::streamsize compressZlib(istream &istream, ostream &ostream);
 /**
  * \param bufferSize To optimize the decompression you can set this value to the MPQ archive's sector size. If unsure use \ref boost::iostreams::default_device_buffer_size.
+ *  \throws boost::iostreams::zlib_error Throws an exception if a decompression error occurs.
  */
-std::streamsize decompressZlib(istream &istream, ostream &ostream, int bufferSize) throw (boost::iostreams::zlib_error);
+std::streamsize decompressZlib(istream &istream, ostream &ostream, int bufferSize);
 
 void compressHuffman(char *pbOutBuffer, int * pdwOutLength, char *pbInBuffer, int dwInLength, int *pCmpType, int /* nCmpLevel */);
 int decompressHuffman(char *pbOutBuffer, int *pdwOutLength, char *pbInBuffer, int /* dwInLength */);
