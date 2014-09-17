@@ -250,7 +250,7 @@ void readMipMapJpeg(Blp::MipMap &mipMap, byte *buffer, dword bufferSize)
 
 					if (cinfo.output_components == 4) // we do have an alpha channel
 					{
-						argb |= ((color)(0xFF - scanlines[height][component + 3]) << 24);
+						argb |= ((color)(scanlines[height][component + 3]) << 24);
 					}
 
 					mipMap.setColor(width, height + currentScanline, argb); /// \todo Get alpha?!
@@ -340,7 +340,7 @@ void writeMipMapJpeg(const Blp::MipMap &mipMap, unsigned char *&buffer, unsigned
 
 					if (cinfo.input_components == 4) // we do have an alpha channel
 					{
-						scanlines[height][component + 3] = 0xFF - alpha(argb);
+						scanlines[height][component + 3] = alpha(argb);
 					}
 
 					++width;

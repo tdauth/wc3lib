@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(TeamColor00) {
 	BOOST_REQUIRE(texture.mipMaps().size() == 4);
 	BOOST_REQUIRE(texture.mipMaps()[0].width() == 8);
 	BOOST_REQUIRE(texture.mipMaps()[0].height() == 8);
-	BOOST_REQUIRE(texture.mipMaps()[0].colorAt(0, 0).argb() == 0xFF0303); // red
+	BOOST_REQUIRE(texture.mipMaps()[0].colorAt(0, 0).argb() == 0xFFFF0303); // red
 }
 
 BOOST_AUTO_TEST_CASE(TeamColor00Write) {
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(TeamColor00Write) {
 	BOOST_REQUIRE(texture.mipMaps()[0].height() == 8);
 	std::cerr << std::hex << "Color as hex: " << texture.mipMaps()[0].colorAt(0, 0).argb() << std::endl;
 	std::cerr.unsetf(std::ios::hex);
-	BOOST_REQUIRE(texture.mipMaps()[0].colorAt(0, 0).argb() == 0xFF0303); // red
+	BOOST_REQUIRE(texture.mipMaps()[0].colorAt(0, 0).argb() == 0xFFFF0303); // red
 }
 
 BOOST_AUTO_TEST_CASE(TeamColor00WriteWithoutSharedHeader)
@@ -198,5 +198,5 @@ BOOST_AUTO_TEST_CASE(TeamColor00WriteWithoutSharedHeader)
 	BOOST_REQUIRE(texture.mipMaps()[0].height() == 8);
 	std::cerr << std::hex << "Color as hex: " << texture.mipMaps()[0].colorAt(0, 0).argb() << std::endl;
 	std::cerr.unsetf(std::ios::hex);
-	BOOST_REQUIRE(texture.mipMaps()[0].colorAt(0, 0).argb() == 0xFF0303); // red
+	BOOST_REQUIRE(texture.mipMaps()[0].colorAt(0, 0).argb() == 0xFFFF0303); // red
 }

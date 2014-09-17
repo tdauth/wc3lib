@@ -104,7 +104,7 @@ BlpCodec::DecodeResult BlpCodec::decode(const blp::Blp &blp) const
 			++i;
 			imageData[i] = blp::red(argb);
 			++i;
-			imageData[i] = 0xFF - blp::alpha(argb);
+			imageData[i] = blp::alpha(argb);
 			++i;
 		}
 	}

@@ -38,7 +38,7 @@ namespace
  */
 inline blp::color rgbaToColor(QRgb rgba)
 {
-	return (blp::color)((0xFF - qAlpha(rgba)) << 24) | (rgba & 0x00FFFFFF);
+	return (blp::color)((qAlpha(rgba)) << 24) | (rgba & 0x00FFFFFF);
 }
 
 /**
@@ -46,7 +46,7 @@ inline blp::color rgbaToColor(QRgb rgba)
 */
 inline QRgb colorToRgba(blp::color c)
 {
-	return qRgba(blp::red(c), blp::green(c), blp::blue(c), 0xFF - blp::alpha(c));
+	return qRgba(blp::red(c), blp::green(c), blp::blue(c), blp::alpha(c));
 }
 
 }

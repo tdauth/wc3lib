@@ -85,6 +85,10 @@ inline byte blue(color c)
 	return (c & 0x000000FF);
 }
 
+/**
+ * 0x00 means fully transparent.
+ * 0xFF means no transparency.
+ */
 inline byte alpha(color c)
 {
 	return (c & 0xFF000000) >> 24;
