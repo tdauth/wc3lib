@@ -247,7 +247,8 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp::MipMap &mipMap, const blp
 		{
 			for (blp::dword height = 0; height < mipMap.height(); ++height)
 			{
-				result.setPixel(width, height,  colorToRgba(mipMap.colorAt(width, height).argb())); // numeric_cast has already been done!
+				// numeric_cast has already been done!
+				result.setPixel(width, height, colorToRgba(mipMap.colorAt(width, height).rgba()));
 			}
 		}
 	}
@@ -264,7 +265,19 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp::MipMap &mipMap, const blp
 		{
 			for (blp::dword height = 0; height < mipMap.height(); ++height)
 			{
-				result.setPixel(width, height, mipMap.colorAt(width, height).paletteIndex()); // numeric_cast has already been done!
+				// numeric_cast has already been done!
+				result.setPixel(width, height, mipMap.paletteIndexAt(width, height));
+
+				/*
+				 * Alpha is stored per pixel and not in color palette.
+				 */
+				/*
+				 *TODO how to store alpha additionally
+				if (blpImage.flags() & blp::Blp::Flags::Alpha)
+				{
+					result.setPixel(width, height, (result.pixel(width, height) | mipMap.alphaAt(width, height)));
+				}
+				*/
 			}
 		}
 	}
@@ -330,13 +343,8 @@ bool BlpIOHandler::write(const QImage &image, blp::Blp *blpImage)
 
 	blpImage->setWidth(image.width());
 	blpImage->setHeight(image.height());
-	blpImage->setPictureType(0);
-	/*
-	if (image.hasAlphaChannel())
-		this->m_blp->setPictureType(3);
-	else
-		this->m_blp->setPictureType(5);
-	*/
+	// TODO when to use with alpha??
+	blpImage->setPictureType(blp::Blp::PictureType::PalettedWithoutAlpha);
 
 	// create mip map
 	// palette is filled automatically by Blp::write
@@ -353,6 +361,7 @@ bool BlpIOHandler::write(const QImage &image, blp::Blp *blpImage)
 		{
 			if (blpImage->compression() == blp::Blp::Compression::Paletted)
 			{
+				// TODO support custom alpha value!
 				const int index = image.pixelIndex(width, height); // index has to be set because paletted compression can also be used
 				mipMap.setColorIndex(width, height, index);
 			}
@@ -361,7 +370,7 @@ bool BlpIOHandler::write(const QImage &image, blp::Blp *blpImage)
 				// set color
 				const QRgb rgb = image.pixel(width, height);
 				const blp::color argb = rgbaToColor(rgb);
-				mipMap.setColor(width, height, argb);
+				mipMap.setColorRgba(width, height, argb);
 			}
 		}
 	}

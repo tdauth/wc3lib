@@ -47,7 +47,9 @@ typedef uint16_t word;
 typedef uint32_t dword;
 
 /**
- * \brief RGBA color stored in order ARGB with one byte per channel.
+ * \brief RGBA color with one byte per channel.
+ *
+ * Even although the JPEG stores it in BGRA it is converted into the common format of RGBA.
  */
 typedef uint32_t color;
 
@@ -70,35 +72,52 @@ struct Blp2Header
 	color palette[256];
 };
 
+/**
+ * \return Returns the red component of color \p c.
+ */
 inline byte red(color c)
+{
+	return (c & 0xFF000000) >> 24;
+}
+
+/**
+ * \return Returns the green component of color \p c.
+ */
+inline byte green(color c)
 {
 	return (c & 0x00FF0000) >> 16;
 }
 
-inline byte green(color c)
-{
-	return (c & 0x0000FF00) >> 8;
-}
-
+/**
+ * \return Returns the blue component of color \p c.
+ */
 inline byte blue(color c)
 {
-	return (c & 0x000000FF);
+	return (c & 0x0000FF00) >> 8;
 }
 
 /**
  * 0x00 means fully transparent.
  * 0xFF means no transparency.
+ *
+ * \return Returns the alpha component of color \p c.
  */
 inline byte alpha(color c)
 {
-	return (c & 0xFF000000) >> 24;
+	return (c & 0x000000FF);
 }
 
+/**
+ * Converts the color \p rgba into an RGBA integer value.
+ */
 inline color fromRgba(const Rgba &rgba)
 {
-	return (color(rgba.alpha()) << 24) + (color(rgba.red()) << 16) + (color(rgba.green()) << 8) + rgba.blue();
+	return (color(rgba.red()) << 24) | (color(rgba.green()) << 16) | (color(rgba.blue()) << 8) | (color(rgba.alpha()));
 }
 
+/**
+ * Converts the color \p value into an RGBA struct value.
+ */
 inline Rgba toRgba(color value)
 {
 	return Rgba(red(value), green(value), blue(value), alpha(value));

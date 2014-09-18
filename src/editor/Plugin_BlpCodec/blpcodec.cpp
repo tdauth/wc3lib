@@ -76,7 +76,7 @@ void BlpCodec::codeToFile(Ogre::MemoryDataStreamPtr &input, const Ogre::String &
 BlpCodec::DecodeResult BlpCodec::decode(const blp::Blp &blp) const
 {
 	BlpCodec::ImageData* imgData = new BlpCodec::ImageData();
-	imgData->format = Ogre::PF_A8R8G8B8;
+	imgData->format = Ogre::PF_R8G8B8A8;
 	imgData->height = boost::numeric_cast<std::size_t>(blp.mipMaps().front().height());
 	imgData->width = boost::numeric_cast<std::size_t>(blp.mipMaps().front().width());
 	imgData->num_mipmaps = 0;
@@ -95,16 +95,16 @@ BlpCodec::DecodeResult BlpCodec::decode(const blp::Blp &blp) const
 	{
 		for (blp::dword width = 0; width < mipMapWidth; ++width)
 		{
-			const blp::color argb = blp.compression() == blp::Blp::Compression::Paletted ?  blp.palette()[blp.mipMaps().front().colorAt(width, height).paletteIndex()] : blp.mipMaps().front().colorAt(width, height).argb();
+			const blp::color rgba = blp.compression() == blp::Blp::Compression::Paletted ?  blp.palette()[blp.mipMaps().front().colorAt(width, height).paletteIndex()] : blp.mipMaps().front().colorAt(width, height).rgba();
 
 			// NOTE little endian order - reverse order
-			imageData[i] = blp::blue(argb);
+			imageData[i] = blp::red(rgba);
 			++i;
-			imageData[i] = blp::green(argb);
+			imageData[i] = blp::green(rgba);
 			++i;
-			imageData[i] = blp::red(argb);
+			imageData[i] = blp::blue(rgba);
 			++i;
-			imageData[i] = blp::alpha(argb);
+			imageData[i] = blp::alpha(rgba);
 			++i;
 		}
 	}

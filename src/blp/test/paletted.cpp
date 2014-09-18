@@ -18,17 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-/**
- * \file
- * Unit Test which reads all team color files.
- * Those files have been analyzed by external tools:
- * - size is 8x8
- * - 4 MIP maps
- * - BLP1
- * - JPEG compression
- * - JPEG header size: 624 bytes
- */
-#define BOOST_TEST_MODULE TeamColorsTest
+#define BOOST_TEST_MODULE PalettedTest
 #include <boost/test/unit_test.hpp>
 #include <sstream>
 #include <iostream>
@@ -42,11 +32,11 @@
 using namespace wc3lib;
 
 /*
- * Red
+ * BLP1 paletted + alpha
  */
-BOOST_AUTO_TEST_CASE(TeamColor00)
+BOOST_AUTO_TEST_CASE(HumanCampaignCastle)
 {
-	ifstream in("TeamColor00.blp");
+	ifstream in("HumanCampaignCastle.blp");
 
 	BOOST_REQUIRE(in);
 
@@ -66,16 +56,16 @@ BOOST_AUTO_TEST_CASE(TeamColor00)
 
 	BOOST_REQUIRE(valid);
 	BOOST_REQUIRE(texture.format() == blp::Blp::Format::Blp1);
-	BOOST_REQUIRE(texture.compression() == blp::Blp::Compression::Jpeg);
-	BOOST_REQUIRE(texture.mipMaps().size() == 4);
-	BOOST_REQUIRE(texture.mipMaps()[0].width() == 8);
-	BOOST_REQUIRE(texture.mipMaps()[0].height() == 8);
-	BOOST_REQUIRE(texture.mipMaps()[0].colorAt(0, 0).rgba() == 0xFF0303FF); // red
+	BOOST_REQUIRE(texture.compression() == blp::Blp::Compression::Paletted);
+	BOOST_REQUIRE(texture.pictureType() == blp::Blp::PictureType::PalettedWithAlpha2);
+	BOOST_REQUIRE(texture.mipMaps().size() == 10);
+	BOOST_REQUIRE(texture.mipMaps()[0].width() == 512);
+	BOOST_REQUIRE(texture.mipMaps()[0].height() == 512);
 }
 
-BOOST_AUTO_TEST_CASE(TeamColor00Write)
+BOOST_AUTO_TEST_CASE(HumanCampaignCastleWrite)
 {
-	ifstream in("TeamColor00.blp");
+	ifstream in("HumanCampaignCastle.blp");
 
 	BOOST_REQUIRE(in);
 
@@ -94,11 +84,15 @@ BOOST_AUTO_TEST_CASE(TeamColor00Write)
 	}
 
 	in.close();
-
 	BOOST_REQUIRE(valid);
+	BOOST_REQUIRE(texture.format() == blp::Blp::Format::Blp1);
+	BOOST_REQUIRE(texture.compression() == blp::Blp::Compression::Paletted);
+	BOOST_REQUIRE(texture.pictureType() == blp::Blp::PictureType::PalettedWithAlpha2);
+	BOOST_REQUIRE(texture.mipMaps().size() == 10);
+	BOOST_REQUIRE(texture.mipMaps()[0].width() == 512);
+	BOOST_REQUIRE(texture.mipMaps()[0].height() == 512);
 
-	ofstream out("TeamColor00tmp.blp");
-
+	ofstream out("HumanCampaignCastleOut.blp", std::ios::out | std::ios::binary);
 	BOOST_REQUIRE(out);
 
 	try
@@ -113,46 +107,11 @@ BOOST_AUTO_TEST_CASE(TeamColor00Write)
 	}
 
 	out.close();
-
 	BOOST_REQUIRE(valid);
 
-	// now read again
-	in.open("TeamColor00tmp.blp");
+	in.open("HumanCampaignCastleOut.blp", std::ios::in | std::ios::binary);
 
 	BOOST_REQUIRE(in);
-
-	try
-	{
-		texture.read(in);
-	}
-	catch (std::exception &e)
-	{
-		valid = false;
-
-		std::cerr << e.what() << std::endl;
-	}
-
-	BOOST_REQUIRE(valid);
-
-	BOOST_REQUIRE(texture.format() == blp::Blp::Format::Blp1);
-	BOOST_REQUIRE(texture.compression() == blp::Blp::Compression::Jpeg);
-	BOOST_REQUIRE(texture.mipMaps().size() == 4);
-	BOOST_REQUIRE(texture.mipMaps()[0].width() == 8);
-	BOOST_REQUIRE(texture.mipMaps()[0].height() == 8);
-	std::cerr << std::hex << "Color as hex: " << texture.mipMaps()[0].colorAt(0, 0).rgba() << std::endl;
-	std::cerr.unsetf(std::ios::hex);
-	BOOST_REQUIRE(texture.mipMaps()[0].colorAt(0, 0).rgba() == 0xFF0303FF); // red
-}
-
-BOOST_AUTO_TEST_CASE(TeamColor00WriteWithoutSharedHeader)
-{
-	ifstream in("TeamColor00.blp");
-
-	BOOST_REQUIRE(in);
-
-	blp::Blp texture;
-	bool valid = true;
-
 	try
 	{
 		texture.read(in);
@@ -165,52 +124,11 @@ BOOST_AUTO_TEST_CASE(TeamColor00WriteWithoutSharedHeader)
 	}
 
 	in.close();
-
 	BOOST_REQUIRE(valid);
-
-	ofstream out("TeamColor00tmp.blp");
-
-	BOOST_REQUIRE(out);
-
-	try
-	{
-		texture.write(out, blp::Blp::defaultQuality, blp::Blp::defaultMipMaps, false);
-	}
-	catch (std::exception &e)
-	{
-		valid = false;
-
-		std::cerr << e.what() << std::endl;
-	}
-
-	out.close();
-
-	BOOST_REQUIRE(valid);
-
-	// now read again
-	in.open("TeamColor00tmp.blp");
-
-	BOOST_REQUIRE(in);
-
-	try
-	{
-		texture.read(in);
-	}
-	catch (std::exception &e)
-	{
-		valid = false;
-
-		std::cerr << e.what() << std::endl;
-	}
-
-	BOOST_REQUIRE(valid);
-
 	BOOST_REQUIRE(texture.format() == blp::Blp::Format::Blp1);
-	BOOST_REQUIRE(texture.compression() == blp::Blp::Compression::Jpeg);
-	BOOST_REQUIRE(texture.mipMaps().size() == 4);
-	BOOST_REQUIRE(texture.mipMaps()[0].width() == 8);
-	BOOST_REQUIRE(texture.mipMaps()[0].height() == 8);
-	std::cerr << std::hex << "Color as hex: " << texture.mipMaps()[0].colorAt(0, 0).rgba() << std::endl;
-	std::cerr.unsetf(std::ios::hex);
-	BOOST_REQUIRE(texture.mipMaps()[0].colorAt(0, 0).rgba() == 0xFF0303FF); // red
+	BOOST_REQUIRE(texture.compression() == blp::Blp::Compression::Paletted);
+	BOOST_REQUIRE(texture.pictureType() == blp::Blp::PictureType::PalettedWithAlpha2);
+	BOOST_REQUIRE(texture.mipMaps().size() == 10);
+	BOOST_REQUIRE(texture.mipMaps()[0].width() == 512);
+	BOOST_REQUIRE(texture.mipMaps()[0].height() == 512);
 }

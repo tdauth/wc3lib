@@ -38,7 +38,7 @@ const int Blp::defaultQuality = 100;
 const std::size_t Blp::defaultMipMaps = 0;
 const bool Blp::defaultSharedHeader = true;
 
-Blp::MipMap::Color::Color() : m_alpha(0)
+Blp::MipMap::Color::Color()
 {
 }
 
@@ -46,11 +46,16 @@ Blp::MipMap::Color::~Color()
 {
 }
 
-Blp::MipMap::Color::Color(color argb, byte alpha) : m_value(argb), m_alpha(alpha)
+Blp::MipMap::Color::Color(color rgba) : m_value(rgba)
 {
 }
 
-Blp::MipMap::Color::Color(byte paletteIndex, byte alpha) : m_value(paletteIndex), m_alpha(alpha)
+Blp::MipMap::Color::Color(byte paletteIndex) : m_value(IndexAndAlpha())
+{
+	setPaletteIndex(paletteIndex);
+}
+
+Blp::MipMap::Color::Color(byte paletteIndex, byte alpha) : m_value(IndexAndAlpha(paletteIndex, alpha))
 {
 }
 
@@ -138,7 +143,7 @@ void Blp::clear()
 	this->m_flags = Blp::Flags::NoAlpha;
 	this->m_width = 0;
 	this->m_height = 0;
-	this->m_pictureType = 5;
+	this->m_pictureType = Blp::PictureType::PalettedWithoutAlpha;
 	this->m_pictureSubType = 0;
 
 	this->mipMaps().clear();
@@ -210,7 +215,8 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps)
 		this->m_flags = static_cast<Flags>(header.flags);
 		this->m_width = header.width;
 		this->m_height = header.height;
-		this->m_pictureType = header.pictureType;
+		this->m_pictureType = static_cast<PictureType>(header.pictureType);
+		std::cerr << "Picture type: " << static_cast<dword>(m_pictureType) << std::endl;
 		this->m_pictureSubType = header.pictureSubType;
 
 		for (std::size_t i = 0; i < Blp::maxMipMaps; ++i)
@@ -373,7 +379,30 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps)
 			 * Read color palette.
 			 */
 			m_palette.reset(new color[Blp::compressedPaletteSize]);
-			wc3lib::read(istream, m_palette[0], size, Blp::compressedPaletteSize * sizeof(color));
+
+			/*
+			 * For non alpha paletted compression, the alpha value in the palette is inverted.
+			 */
+			if (this->pictureType() == blp::Blp::PictureType::PalettedWithoutAlpha)
+			{
+				for (std::size_t i = 0; i < compressedPaletteSize; ++i)
+				{
+					color rgba = 0;
+					wc3lib::read(istream, rgba, size, sizeof(color) - sizeof(byte));
+					/*
+					* Alpha is inverted.
+					*/
+					byte alpha = 0;
+					wc3lib::read(istream, alpha, size);
+					alpha = 0xFF - alpha;
+					rgba |= alpha;
+					m_palette[i] = rgba;
+				}
+			}
+			else
+			{
+				wc3lib::read(istream, m_palette[0], size, Blp::compressedPaletteSize * sizeof(color));
+			}
 
 			for (std::size_t i = 0; i < this->mipMaps().size(); ++i)
 			{
@@ -390,11 +419,11 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps)
 					{
 						byte index = 0;
 						wc3lib::read(istream, index, size);
-						this->mipMaps()[i].setColorIndex(width, height, index);
+						this->mipMaps()[i].setColor(width, height, MipMap::Color(index));
 					}
 				}
 
-				if (this->flags() & Blp::Flags::Alpha)
+				if ((this->pictureType() == blp::Blp::PictureType::PalettedWithAlpha1) || (this->pictureType() == blp::Blp::PictureType::PalettedWithAlpha2))
 				{
 					for (dword height = 0; height < this->mipMaps()[i].height(); ++height)
 					{
@@ -492,7 +521,7 @@ std::streamsize Blp::write(OutputStream &ostream, int quality, std::size_t mipMa
 		header.flags = (dword)(this->flags());
 		header.width = this->width();
 		header.height = this->height();
-		header.pictureType = this->pictureType();
+		header.pictureType = static_cast<dword>(this->pictureType());
 		header.pictureSubType = this->pictureSubType();
 
 		// offsets and sizes are assigned after writing mip maps (later, see below)
@@ -725,7 +754,25 @@ std::streamsize Blp::write(OutputStream &ostream, int quality, std::size_t mipMa
 			// write palette, palette has always size of Blp::compressedPaletteSize (remaining colors have value 0).
 			if (format() != Blp::Format::Blp2)
 			{
-				wc3lib::write(ostream, palette()[0], size, Blp::compressedPaletteSize * sizeof(color));
+				/*
+				* For non alpha paletted compression, the alpha value in the palette is inverted.
+				*/
+				if (this->pictureType() == blp::Blp::PictureType::PalettedWithoutAlpha)
+				{
+					for (std::size_t i = 0; i < compressedPaletteSize; ++i)
+					{
+						wc3lib::write(ostream, palette()[i], size, sizeof(color) - sizeof(byte));
+						/*
+						* Alpha is inverted.
+						*/
+						const byte alpha = 0xFF - blp::alpha(palette()[i]);
+						wc3lib::write(ostream, alpha, size);
+					}
+				}
+				else
+				{
+					wc3lib::write(ostream, palette()[0], size, Blp::compressedPaletteSize * sizeof(color));
+				}
 			}
 
 			// write mip maps
@@ -743,7 +790,7 @@ std::streamsize Blp::write(OutputStream &ostream, int quality, std::size_t mipMa
 					}
 				}
 
-				if (this->flags() & Blp::Flags::Alpha)
+				if ((this->pictureType() == blp::Blp::PictureType::PalettedWithAlpha1) || (this->pictureType() == blp::Blp::PictureType::PalettedWithAlpha2))
 				{
 					for (dword height = 0; height < this->mipMaps()[i].height(); ++height)
 					{

@@ -314,18 +314,17 @@ void readMipMapJpeg(Blp::MipMap &mipMap, byte *buffer, dword bufferSize)
 				// cinfo.output_components should be 3 if RGB and 4 if RGBA
 				for (int component = 0; component < scanlineSize; component += cinfo.output_components)
 				{
-					// store as ARGB (BLP)
-					// TODO why is component 0 blue, component 1 green and component 2 red?
+					// convert BGRA to RGBA
 					// Red and Blue colors are swapped.
 					// http://www.wc3c.net/showpost.php?p=1046264&postcount=2
-					color argb = ((color)scanlines[height][component]) | ((color)scanlines[height][component + 1] << 8) | ((color)scanlines[height][component + 2] << 16);
+					color rgba = ((color)scanlines[height][component] << 8) | ((color)scanlines[height][component + 1] << 16) | ((color)scanlines[height][component + 2] << 24);
 
 					if (cinfo.output_components == 4) // we do have an alpha channel
 					{
-						argb |= ((color)(scanlines[height][component + 3]) << 24);
+						rgba |= ((color)(scanlines[height][component + 3]));
 					}
 
-					mipMap.setColor(width, height + currentScanline, argb); /// \todo Get alpha?!
+					mipMap.setColor(width, height + currentScanline, rgba);
 					++width;
 				}
 			}
@@ -365,7 +364,7 @@ void writeMipMapJpeg(const Blp::MipMap &mipMap, unsigned char *&buffer, unsigned
 	{
 		const JDIMENSION imageWidth = boost::numeric_cast<JDIMENSION>(mipMap.width());
 		const JDIMENSION imageHeight = boost::numeric_cast<JDIMENSION>(mipMap.height());
-		const int inputComponents = 4; // ARGB, 4
+		const int inputComponents = 4; // actually stored as ABGR, 4 components
 		/// \todo Get as much required scanlines as possible (highest divident) to increase speed. Actually it could be equal to the MIP maps height which will lead to reading the whole MIP map with one single \ref jpeg_write_scanlines call
 		const JDIMENSION requiredScanlines = imageHeight; // increase this value to read more scanlines in one step
 		assert(requiredScanlines <= imageHeight && requiredScanlines > 0);
@@ -397,17 +396,17 @@ void writeMipMapJpeg(const Blp::MipMap &mipMap, unsigned char *&buffer, unsigned
 				// cinfo.output_components should be 3 if RGB and 4 if RGBA
 				for (int component = 0; component < scanlineSize; component += cinfo.input_components)
 				{
-					// TODO why is component 0 blue, component 1 green and component 2 red?
+					// Convert RGBA to BGRA
 					// Red and Blue colors are swapped.
 					// http://www.wc3c.net/showpost.php?p=1046264&postcount=2
-					const color argb = mipMap.colorAt(width, height).argb();
-					scanlines[height][component] = blue(argb);
-					scanlines[height][component + 1] = green(argb);
-					scanlines[height][component + 2] = red(argb);
+					const color rgba = mipMap.colorAt(width, height).rgba();
+					scanlines[height][component] = blue(rgba);
+					scanlines[height][component + 1] = green(rgba);
+					scanlines[height][component + 2] = red(rgba);
 
 					if (cinfo.input_components == 4) // we do have an alpha channel
 					{
-						scanlines[height][component + 3] = alpha(argb);
+						scanlines[height][component + 3] = alpha(rgba);
 					}
 
 					++width;

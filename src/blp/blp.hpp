@@ -80,7 +80,6 @@ class Blp : public Format
 		 * Imagine each mip map as single image containing several pixels with various colors (and alpha values).
 		 * MIP map colors are stored in a map hashed by their coordinates for fast access.
 		 * Palette index is also stored for providing paletted compression support when writing the BLP/mip map into output stream.
-		 * BLP supports ARGB colors.
 		 */
 		class MipMap
 		{
@@ -91,13 +90,36 @@ class Blp : public Format
 				class Color
 				{
 					public:
+						/**
+						 * Internal constructor to construct an empty list for the MIP map.
+						 */
 						Color();
+
+						/**
+						 * Creates a color with the RGBA color value \p rgba.
+						 * This should be used for non-paletted images.
+						 */
+						Color(color rgba);
+						/**
+						 * Creates a color with the color palette index \p paletteIndex but without any custom alpha value.
+						 * The alpha value from the palette is taken.
+						 */
+						Color(byte paletteIndex);
+						/**
+						 * Creates a color with the color palette index \p paletteIndex and the custom alpha value \p alpha.
+						 * The alpha value from the palette is ignored.
+						 */
+						Color(byte paletteIndex, byte alpha);
+
 						~Color();
 
-						void setArgb(color argb);
-						color argb() const;
+						bool hasRgba() const;
+						void setRgba(color rgba);
+						color rgba() const;
+						bool hasAlpha() const;
 						void setAlpha(byte alpha);
 						byte alpha() const;
+						bool hasPaletteIndex() const;
 						/**
 						 * Sets palette index to value \p paletteIndex.
 						 * \copydoc Color::paletteIndex()
@@ -109,15 +131,18 @@ class Blp : public Format
 						byte paletteIndex() const;
 
 					protected:
-						typedef boost::variant<color, byte> Value; // stores either argb value or palette index
-
-						friend class MipMap;
-
-						Color(color argb, byte alpha);
-						Color(byte paletteIndex, byte alpha);
+						/**
+						 * For paletted compression the alpha value is optional.
+						 */
+						typedef boost::optional<byte> Alpha;
+						/**
+						 * Stores the index to the color palette and the alpha value.
+						 */
+						typedef std::pair<byte, Alpha> IndexAndAlpha;
+						/// Stores either RGBA value or palette index + alpha.
+						typedef boost::variant<color, IndexAndAlpha> Value;
 
 						Value m_value;
-						byte m_alpha;
 				};
 
 				/**
@@ -137,10 +162,12 @@ class Blp : public Format
 				void setHeight(dword height);
 				dword height() const;
 
+				void setColor(dword width, dword height, Color color);
+
 				/**
-				 * Assigns MIP map color \p argb at position (\p width | \p height) with alpha \p alpha and palette index \p paletteIndex.
+				 * Assigns MIP map color \p rgba at position (\p width | \p height) with alpha \p alpha and palette index \p paletteIndex.
 				 */
-				void setColor(dword width, dword height, color argb);
+				void setColorRgba(dword width, dword height, color rgba);
 				void setColorAlpha(dword width, dword height, byte alpha);
 				/**
 				 * Assigns MIP map color index to the image's color palette.
@@ -153,6 +180,8 @@ class Blp : public Format
 				Colors& colors();
 				const Color& colorAt(dword width, dword height) const;
 				Color& colorAt(dword width, dword height);
+				byte paletteIndexAt(dword width, dword height) const;
+				byte alphaAt(dword width, dword height) const;
 
 				/**
 				 * \note Allocates \ref colors() with size of \p width * \p height.
@@ -199,6 +228,13 @@ class Blp : public Format
 			Alpha = 8
 		};
 
+		enum class PictureType : dword
+		{
+			PalettedWithAlpha1 = 3,
+			PalettedWithAlpha2 = 4,
+			PalettedWithoutAlpha = 5
+		};
+
 		/**
 		 * \return Returns auto-detected BLP format of buffer \p buffer with size \p bufferSize. Buffer can be larger than required (only first 4 bytes are checked).
 		 * \throw Exception Is thrown if no format was detected.
@@ -222,8 +258,8 @@ class Blp : public Format
 		dword width() const;
 		void setHeight(dword height);
 		dword height() const;
-		void setPictureType(dword pictureType);
-		dword pictureType() const;
+		void setPictureType(PictureType pictureType);
+		PictureType pictureType() const;
 		void setPictureSubType(dword pictureSubType);
 		dword pictureSubType() const;
 
@@ -278,12 +314,20 @@ class Blp : public Format
 		typedef boost::scoped_array<color> ColorPtr;
 
 		/**
+		 * Palette of RGBA colors with fixed size of \ref Blp::compressedPaletteSize.
+		 * Each pixel has an index for a corresponding color of the palette.
+		 * This sets the maximum of colors to \ref Blp::compressedPaletteSize but reduces the memory usage of the image.
 		 * \return Returns corresponding color palette with size \ref Blp::compressedPaletteSize. If palette doesn't exist it will be generated automatically.
 		 * \sa hasPalette()
 		 * \throw Exception Exception safe. Throws an exception if compression is not paletted.
+		 *
+		 * @{
 		 */
 		const ColorPtr& palette() const;
 		ColorPtr& palette();
+		/**
+		 * @}
+		 */
 
 	protected:
 		dword mipMapWidth(std::size_t index) const;
@@ -296,10 +340,8 @@ class Blp : public Format
 		Flags m_flags;			//#8 - Uses alpha channel (?)
 		dword m_width;
 		dword m_height;
-		dword m_pictureType;		//3 - Uncompressed index list + alpha list
-						//4 - Uncompressed index list + alpha list
-						//5 - Uncompressed index list
-		dword m_pictureSubType;		//1 - ???
+		PictureType m_pictureType;
+		dword m_pictureSubType; //1 - ???
 		MipMaps m_mipMaps;
 		ColorPtr m_palette;
 };
@@ -309,34 +351,49 @@ inline constexpr bool operator&(Blp::Flags x, Blp::Flags y)
 	return static_cast<bool>(static_cast<dword>(x) & static_cast<dword>(y));
 }
 
-inline void Blp::MipMap::Color::setArgb(color argb)
+inline bool Blp::MipMap::Color::hasRgba() const
 {
-	this->m_value = argb;
+	return this->m_value.which() == 0;
 }
 
-inline color Blp::MipMap::Color::argb() const
+inline void Blp::MipMap::Color::setRgba(color rgba)
+{
+	this->m_value = rgba;
+}
+
+inline color Blp::MipMap::Color::rgba() const
 {
 	return boost::get<color>(this->m_value);
 }
 
+inline bool Blp::MipMap::Color::hasAlpha() const
+{
+	return this->m_value.which() == 1 && boost::get<IndexAndAlpha>(m_value).second.is_initialized();
+}
+
 inline void Blp::MipMap::Color::setAlpha(byte alpha)
 {
-	this->m_alpha = alpha;
+	boost::get<IndexAndAlpha>(m_value).second = alpha;
 }
 
 inline byte Blp::MipMap::Color::alpha() const
 {
-	return this->m_alpha;
+	return boost::get<IndexAndAlpha>(m_value).second.get();
+}
+
+inline bool Blp::MipMap::Color::hasPaletteIndex() const
+{
+	return this->m_value.which() == 1;
 }
 
 inline void Blp::MipMap::Color::setPaletteIndex(byte paletteIndex)
 {
-	this->m_value = paletteIndex;
+	boost::get<IndexAndAlpha&>(m_value).first = paletteIndex;
 }
 
 inline byte Blp::MipMap::Color::paletteIndex() const
 {
-	return boost::get<byte>(this->m_value);
+	return boost::get<IndexAndAlpha>(m_value).first;
 }
 
 inline void Blp::MipMap::setWidth(dword width)
@@ -361,9 +418,14 @@ inline dword Blp::MipMap::height() const
 	return this->m_height;
 }
 
-inline void Blp::MipMap::setColor(dword width, dword height, color argb)
+inline void Blp::MipMap::setColor(dword width, dword height, Blp::MipMap::Color color)
 {
-	this->m_colors[width][height].setArgb(argb);
+	this->m_colors[width][height] = color;
+}
+
+inline void Blp::MipMap::setColorRgba(dword width, dword height, color rgba)
+{
+	this->m_colors[width][height].setRgba(rgba);
 }
 
 inline void Blp::MipMap::setColorIndex(dword width, dword height, byte index)
@@ -394,6 +456,16 @@ inline const Blp::MipMap::Color& Blp::MipMap::colorAt(dword width, dword height)
 inline Blp::MipMap::Color& Blp::MipMap::colorAt(dword width, dword height)
 {
 	return colors()[width][height];
+}
+
+inline blp::byte Blp::MipMap::paletteIndexAt(dword width, dword height) const
+{
+	return colors()[width][height].paletteIndex();
+}
+
+inline blp::byte Blp::MipMap::alphaAt(dword width, dword height) const
+{
+	return colors()[width][height].alpha();
 }
 
 inline void Blp::setFormat(Format format)
@@ -446,12 +518,12 @@ inline dword Blp::height() const
 	return this->m_height;
 }
 
-inline void Blp::setPictureType(dword pictureType)
+inline void Blp::setPictureType(Blp::PictureType pictureType)
 {
 	this->m_pictureType = pictureType;
 }
 
-inline dword Blp::pictureType() const
+inline Blp::PictureType Blp::pictureType() const
 {
 	return this->m_pictureType;
 }
