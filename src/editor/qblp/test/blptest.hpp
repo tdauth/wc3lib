@@ -44,9 +44,12 @@ class BlpTest : public QObject
 		void init();
 		void cleanup();
 
+		void ioHandlerReadTest();
+		void ioHandlerWriteTest();
+
 		void writeTest();
 		void readTest();
-		
+
 	private:
 		/*
 		QPluginLoader *m_loader;

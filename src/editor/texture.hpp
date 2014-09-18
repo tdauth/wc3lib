@@ -106,7 +106,7 @@ class KDE_EXPORT Texture : public Resource
 		 * <ul>
 		 * <li>"Quality" - -1-100 where -1 means undefined/default quality and 100 means best. Supported by all Qt supported image formats and BLP JFIF compresion.</li>
 		 * <li>"MipMaps" - 0-16 where 0 means undefined/default number of MIP maps and 16 is maximum. Supported by BLP format only.</li>
-		 * <li>"Threads" - true/1/TRUE or anything else where true means that threads will be created per MIP map when compressing JPEG data.</li>
+		 * <li>"SharedHeader" - true/1/TRUE means that a shared header is written for BLP files (default).</li>
 		 * </ul>
 		 * \todo Option quality only works for non-BLP formats.
 		 * \exception Exception Exception safe!

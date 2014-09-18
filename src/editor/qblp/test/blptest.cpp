@@ -43,7 +43,7 @@ void BlpTest::initTestCase()
 	m_loader = new QPluginLoader(QBLP_ABSOLUTE_PATH, this);
 	QVERIFY2(m_loader->load(), m_loader->errorString().toStdString());
 	QVERIFY(m_loader->isLoaded());
-	
+
 	m_plugin = dynamic_cast<BlpIOPlugin*>(m_loader->instance());
 	QVERIFY(m_plugin != 0);
 	*/
@@ -64,21 +64,89 @@ void BlpTest::cleanup()
     // Called after every testfunction
 }
 
+void BlpTest::ioHandlerReadTest()
+{
+	ifstream in("TeamColor00.blp", std::ios::in | std::ios::binary);
+	QVERIFY(in);
+	blp::Blp blpImage;
+	bool success = true;
+
+	try
+	{
+		blpImage.read(in);
+	}
+	catch (Exception &e)
+	{
+		success = false;
+		std::cerr << e.what() << std::endl;
+	}
+
+	QVERIFY(success);
+
+	BlpIOHandler handler;
+
+	QImage image;
+	QVERIFY(image.isNull());
+
+	QVERIFY(handler.read(&image, blpImage));
+
+	QVERIFY(!image.isNull());
+	QVERIFY(image.size() == QSize(8, 8));
+	QVERIFY(image.format() == QImage::Format_ARGB32);
+}
+
+void BlpTest::ioHandlerWriteTest()
+{
+	ifstream in("TeamColor00.blp");
+	QVERIFY(in);
+	blp::Blp blpImage;
+	bool success = true;
+
+	try
+	{
+		blpImage.read(in);
+	}
+	catch (Exception &e)
+	{
+		success = false;
+		std::cerr << e.what() << std::endl;
+	}
+
+	QVERIFY(success);
+
+	BlpIOHandler handler;
+
+	QImage image;
+	QVERIFY(image.isNull());
+
+	QVERIFY(handler.read(&image, blpImage));
+
+	QVERIFY(!image.isNull());
+	QVERIFY(image.size() == QSize(8, 8));
+	QVERIFY(image.format() == QImage::Format_ARGB32);
+
+	blpImage.clear();
+
+	QVERIFY(handler.write(image, &blpImage));
+	QVERIFY(blpImage.mipMaps()[0].width() == 8);
+	QVERIFY(blpImage.mipMaps()[0].height() == 8);
+}
+
 void BlpTest::writeTest()
 {
 	QImage image("DISBTNMagic.blp");
 	QVERIFY(!image.isNull());
 	const int byteCount = image.byteCount();
-	
+
 	QVERIFY(image.size() == QSize(64, 64));
 	QVERIFY(image.format() == QImage::Format_ARGB32);
-	
+
 	QImageWriter writer("OutDISBTNMagic.blp");
 	QVERIFY(writer.write(image));
-	
+
 	QImageReader reader("OutDISBTNMagic.blp");
 	QVERIFY(reader.read(&image));
-	
+
 	QCOMPARE(byteCount, image.byteCount()); // new byte count == old byte count
 }
 
@@ -87,7 +155,7 @@ void BlpTest::readTest()
 	QImageReader reader("DISBTNMagic.blp"); // JPEG
 	QImage image;
 	QVERIFY(reader.read(&image));
-	
+
 	QVERIFY(image.size() == QSize(64, 64));
 	QVERIFY(image.format() == QImage::Format_ARGB32);
 }

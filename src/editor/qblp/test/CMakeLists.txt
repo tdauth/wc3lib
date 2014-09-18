@@ -21,3 +21,4 @@ add_test(NAME BlpTests COMMAND BlpTest)
 
 # copy all test files
 configure_file(DISBTNMagic.blp DISBTNMagic.blp COPYONLY) # JPEG 64x64
+configure_file(TEAMCOLOR/TeamColor00.blp TeamColor00.blp COPYONLY) # Warcraft III: Reign of Chaos

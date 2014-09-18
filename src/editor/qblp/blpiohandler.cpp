@@ -118,7 +118,9 @@ bool BlpIOHandler::read(QImage *image)
 	}
 
 	if (!read(image, *blpImage))
+	{
 		return false;
+	}
 
 	return true;
 }
@@ -196,13 +198,15 @@ bool BlpIOHandler::write(const QImage &image)
 	QScopedPointer<blp::Blp> blpImage(new blp::Blp());
 
 	if (!write(image, blpImage.data()))
+	{
 		return false;
+	}
 
 	ostringstream ostream;
 
 	try
 	{
-		blpImage->write(ostream, option(Quality).toInt(), blp::Blp::defaultMipMaps);
+		blpImage->write(ostream, option(Quality).toInt(), blp::Blp::defaultMipMaps, blp::Blp::defaultSharedHeader);
 	}
 	catch (class Exception &exception)
 	{
@@ -230,13 +234,9 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp::MipMap &mipMap, const blp
 	{
 		format = QImage::Format_Indexed8;
 	}
-	else if (blpImage.flags() & blp::Blp::Flags::Alpha)
-	{
-		format = QImage::Format_ARGB32;
-	}
 	else
 	{
-		format = QImage::Format_RGB32;
+		format = QImage::Format_ARGB32;
 	}
 
 	QImage result(boost::numeric_cast<int>(mipMap.width()), boost::numeric_cast<int>(mipMap.height()), format);

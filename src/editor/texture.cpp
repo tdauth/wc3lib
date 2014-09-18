@@ -81,7 +81,9 @@ inline QString compressionOption(const QMap<QString, QString> &map, const QStrin
 	QMap<QString, QString>::const_iterator iterator = map.find(key);
 
 	if (iterator == map.end())
+	{
 		return QString();
+	}
 
 	return iterator.value();
 }
@@ -91,19 +93,25 @@ inline QString compressionOption(const QMap<QString, QString> &map, const QStrin
 void Texture::loadBlp(const QMap<QString, QString> &options)
 {
 	if (hasBlp())
+	{
 		return;
+	}
 
 	if (!hasQt()) /// TODO cannot convert from OGRE to BLP.
 	{
 		QString tmpFileName;
 
 		if (!this->source()->download(url(), tmpFileName, 0))
-			throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toStdString());
+		{
+			throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toUtf8().constData());
+		}
 
 		ifstream ifstream(tmpFileName.toStdString(), std::ios::binary | std::ios::in);
 
 		if (!ifstream)
-			throw Exception(boost::format(_("Unable to open temporary file \"%1%\".")) % tmpFileName.toStdString());
+		{
+			throw Exception(boost::format(_("Unable to open temporary file \"%1%\".")) % tmpFileName.toUtf8().constData());
+		}
 
 		blp::dword identifier;
 		ifstream.read((blp::char8*)&identifier, sizeof(identifier));
@@ -144,7 +152,9 @@ void Texture::loadBlp(const QMap<QString, QString> &options)
 		BlpPtr blpImage(new blp::Blp());
 
 		if (!ioHandler.write(*qt().data(), blpImage.data()))
+		{
 			throw Exception(_("Unable to convert Qt image into BLP."));
+		}
 
 		blpImage.swap(m_blp); // exception safe (won't change image if handler has some error
 	}
@@ -162,7 +172,9 @@ void Texture::loadQt()
 		QtPtr qtImage(new QImage());
 
 		if (!ioHandler.read(qtImage.data(), *m_blp.data()))
+		{
 			throw Exception(_("Unable to convert BLP image into Qt."));
+		}
 
 		m_qt.swap(qtImage); // exception safe (won't change image if handler has some error
 	}
@@ -172,7 +184,9 @@ void Texture::loadQt()
 
 		// TODO do we have to use getPixelBox(), does it copy the whole buffer and where do we get its size from?
 		if (!qtImage->loadFromData(ogre()->getData(), ogre()->getSize()))
+		{
 			throw Exception(_("Unable to convert OGRE image into Qt."));
+		}
 
 		m_qt.swap(qtImage); // exception safe (won't change image if handler has some error
 	}
@@ -181,12 +195,16 @@ void Texture::loadQt()
 		QString tmpFileName;
 
 		if (!this->source()->download(url(), tmpFileName, 0))
-			throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toStdString());
+		{
+			throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toUtf8().constData());
+		}
 
 		QtPtr qtImage(new QImage());
 
 		if (!qtImage->load(tmpFileName))
-			throw Exception(boost::format(_("Unable to load Qt image from temporary file \"%1%\".")) % tmpFileName.toStdString());
+		{
+			throw Exception(boost::format(_("Unable to load Qt image from temporary file \"%1%\".")) % tmpFileName.toUtf8().constData());
+		}
 
 		m_qt.swap(qtImage); // exception safe (won't change image if ->read throws exception
 	}
@@ -288,7 +306,9 @@ void Texture::loadOgreTexture()
 	m_ogreTexture = tex;
 
 	if (!hasOgre)
+	{
 		clearOgre();
+	}
 }
 
 void Texture::loadAll()
@@ -301,23 +321,31 @@ void Texture::loadAll()
 
 void Texture::reload()
 {
-	bool hasBlp = this->hasBlp();
-	bool hasQt = this->hasQt();
-	bool hasOgre = this->hasOgre();
-	bool hasOgreTexture = this->hasOgreTexture();
+	const bool hasBlp = this->hasBlp();
+	const bool hasQt = this->hasQt();
+	const bool hasOgre = this->hasOgre();
+	const bool hasOgreTexture = this->hasOgreTexture();
 	clear();
 
 	if (hasBlp)
+	{
 		loadBlp();
+	}
 
 	if (hasQt)
+	{
 		loadQt();
+	}
 
 	if (hasOgre)
+	{
 		loadOgre();
+	}
 
 	if (hasOgreTexture)
+	{
 		loadOgreTexture();
+	}
 }
 
 void Texture::save(const KUrl &url, const QString &format, const QMap<QString, QString> &compression) const
@@ -344,6 +372,8 @@ void Texture::save(const KUrl &url, const QString &format, const QMap<QString, Q
 	QString qualityString = compressionOption(compression, "Quality");
 	std::size_t mipMaps = realFormat == "blp" ? blp::Blp::defaultMipMaps : 1;
 	QString mipMapsString = compressionOption(compression, "MipMaps");
+	bool sharedHeader = blp::Blp::defaultSharedHeader;
+	QString sharedHeaderString = compressionOption(compression, "SharedHeader");
 
 	bool ok = false;
 	int tmpValue = qualityString.toInt(&ok);
@@ -360,10 +390,22 @@ void Texture::save(const KUrl &url, const QString &format, const QMap<QString, Q
 		mipMaps = tmpValue;
 	}
 
+	if (!sharedHeaderString.isEmpty())
+	{
+		if (sharedHeaderString.toLower() == "true" || sharedHeaderString.toLower() == "1")
+		{
+			sharedHeader = true;
+		}
+		else
+		{
+			sharedHeader = false;
+		}
+	}
+
 	if (realFormat == "blp" && hasBlp())
 	{
 		ofstream ofstream(tmpFile.fileName().toStdString(), std::ios::binary | std::ios::out);
-		blp()->write(ofstream, quality, mipMaps);
+		blp()->write(ofstream, quality, mipMaps, sharedHeader);
 	}
 	else if (hasQt())
 	{
