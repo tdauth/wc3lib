@@ -171,6 +171,77 @@ bool writeJpegScanFromBufferToStream(ostream& ostream, std::streamsize& size, co
 	return found;
 }
 
+bool writeJpegStartOfFrameDataFromBufferToStream(ostream& ostream, std::streamsize &size, const unsigned char *buffer, const std::size_t bufferSize, word &marker)
+{
+	bool found = false;
+	/*
+	 * From the JPEG specification:
+	 * B.2.2 Frame header syntax
+	 */
+	const byte markers[] =
+	{
+		0xC0,
+		0xC1,
+		0xC2,
+		0xC3,
+		0xC9,
+		0xCA,
+		0xCB
+
+	};
+
+	for (std::size_t i = 0; i < bufferSize && !found; ++i)
+	{
+		if (buffer[i] == 0xFF)
+		{
+			std::size_t j = i + 1;
+
+			if (j < bufferSize)
+			{
+				bool isMarker = false;
+
+				for (std::size_t index = 0; index < sizeof(markers) && !isMarker; ++index)
+				{
+					if (buffer[j] == markers[index])
+					{
+						isMarker = true;
+					}
+				}
+
+				if (isMarker)
+				{
+					// stored as little endian
+					const word actualMarker = (0xFF << 8) | buffer[j];
+
+					++j;
+
+					if (j + 1 > bufferSize) // we need 2 bytes for marker size (which could be 0 as well)
+					{
+						throw Exception(boost::format(_("JPEG marker \"%1%\" needs more data to get its own data size.")) % hexValue(marker));
+					}
+					//memcpy(&markerSize, &(buffer[j]), sizeof(markerSize));
+					const word markerSize = (word(buffer[j]) << 8) + word(buffer[j + 1]); // stored as little endian
+
+					// 0xFF + marker + marker size
+					if (i + 2 + markerSize > bufferSize)
+					{
+						throw Exception(boost::format(_("JPEG marker \"%1%\" needs more data with marker size %2% and data size %3%, starting at %4%.")) % hexValue(marker) % markerSize % bufferSize % (i + 2));
+					}
+
+					// marker size is 2 bytes long and includes its own size!
+					// write marker size + data and leave marker away
+					wc3lib::write(ostream, buffer[j], size, markerSize); // write data without marker since marker is stored into marker
+					marker = actualMarker;
+
+					found = true;
+				}
+			}
+		}
+	}
+
+	return found;
+}
+
 std::string jpegError(const std::string &message)
 {
 	return boost::str(boost::format(message) % (jpeg_std_error(0)->jpeg_message_table != 0 ? jpeg_std_error(0)->jpeg_message_table[jpeg_std_error(0)->last_jpeg_message] : _("No error")));
@@ -213,9 +284,10 @@ void readMipMapJpeg(Blp::MipMap &mipMap, byte *buffer, dword bufferSize)
 			mipMap.setHeight(cinfo.image_height); // adjusting new height before reading
 		}
 
-		if (cinfo.out_color_space != JCS_RGB)
+		// BLP uses color space 4 but actually it is bgra
+		if (cinfo.out_color_space != JCS_CMYK)
 		{
-			std::cerr << boost::format(_("Warning: Image color space (%1%) is not equal to RGB (%2%).")) % cinfo.out_color_space % JCS_RGB << std::endl;
+			std::cerr << boost::format(_("Warning: Image color space (%1%) is not equal to CMYK (%2%) - actually BGRA.")) % cinfo.out_color_space % JCS_CMYK << std::endl;
 		}
 
 		/// \todo Get as much required scanlines as possible (highest divident) to increase speed. Actually it could be equal to the MIP maps height which will lead to reading the whole MIP map with one single \ref jpeg_read_scanlines call
@@ -280,7 +352,7 @@ void readMipMapJpeg(Blp::MipMap &mipMap, byte *buffer, dword bufferSize)
 	jpeg_destroy_decompress(&cinfo);
 }
 
-void writeMipMapJpeg(const Blp::MipMap &mipMap, unsigned char *&buffer, unsigned long &bufferSize, bool isFirst, unsigned long &headerSize, int quality)
+void writeMipMapJpeg(const Blp::MipMap &mipMap, unsigned char *&buffer, unsigned long &bufferSize, int quality)
 {
 	JSAMPARRAY scanlines = 0; // will be filled later
 
@@ -311,12 +383,7 @@ void writeMipMapJpeg(const Blp::MipMap &mipMap, unsigned char *&buffer, unsigned
 
 		jpeg_start_compress(&cinfo, true);
 
-		headerSize = bufferSize;
 
-		std::cout << "Internal header size: " << headerSize << std::endl;
-		std::cout << "New buffer size: " << bufferSize << std::endl;
-		std::cout << "Non shared header size: " << bufferSize - headerSize << std::endl;
-		std::cout << "Free in buffer:" << cinfo.dest->free_in_buffer << std::endl;
 		// TODO also share JFIF header? cinfo.write_JFIF_header = writeData->isFirst;
 
 		scanlines = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, scanlineSize, requiredScanlines);

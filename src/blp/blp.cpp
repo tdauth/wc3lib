@@ -26,13 +26,6 @@
 #include "blp.hpp"
 #include "jpeg.hpp"
 
-// NOTE doesn't work with libjpegturbo
-//#if JPEG_LIB_VERSION_MAJOR < 8
-//#error Version 8 of jpeglib is required because of memory buffer management.
-//#endif
-
-//static_assert(BITS_IN_JSAMPLE > sizeof(byte) * 8, "Too many bits in one single sample (one single pixel color channel): BITS_IN_JSAMPLE. BLP/wc3lib allows maximum sample size of sizeof(byte) * 8.");
-
 namespace wc3lib
 {
 
@@ -335,6 +328,10 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps)
 
 			boost::scoped_array<byte> jpegHeader;
 
+			/*
+			 * There might be no shared header.
+			 * In this case the whole header is stored in the MIP map data.
+			 */
 			if (jpegHeaderSize > 0)
 			{
 				jpegHeader.reset(new byte[jpegHeaderSize]);
@@ -346,7 +343,7 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps)
 				const dword mipMapOffset = mipMapHeaders[i].offset;
 				const dword mipMapSize = mipMapHeaders[i].size;
 				istream.seekg(mipMapOffset);
-				std::cerr << "MIP map offset: " << mipMapOffset << std::endl;
+
 				/*
 				 * Allocated buffer which uses JPEG header for each MIP map as well.
 				 */
@@ -589,13 +586,12 @@ std::streamsize Blp::write(OutputStream &ostream, int quality, std::size_t mipMa
 			{
 				unsigned char *tmpBuffer = 0;
 				unsigned long bufferSize = 0;
-				unsigned long headerSize = 0;
 
 				/*
 				 * Write the JPEG MIP map into a temporary buffer and store the header size of the buffer.
 				 * The header should only be written for the first MIP map.
 				 */
-				writeMipMapJpeg(this->mipMaps()[i], tmpBuffer, bufferSize, i == 0, headerSize, quality);
+				writeMipMapJpeg(this->mipMaps()[i], tmpBuffer, bufferSize, quality);
 
 				/*
 				 * Make sure buffer is freed on leaving the scope to avoid memory leaks.
@@ -609,28 +605,33 @@ std::streamsize Blp::write(OutputStream &ostream, int quality, std::size_t mipMa
 				{
 					std::streamsize sstreamSize = 0;
 					stringstream sstream;
+					// stores the 0xFFC<number> marker which indicates the start of a frame
+					word startOfFrameMarker = 0;
 
+					// TODO image is bigger than from Warcraft III it self (more data in shared header?!)
 					// start of frame must be in the header as well
-					// but the last 20 Bytes which specify the size of the image are moved to each MIP map's start.
-					if (!writeJpegMarkerFromBufferToStream(sstream, sstreamSize, true, 0, 0xC0, buffer.get(), bufferSize, false))
+					// but only the 0xFFC<number> marker since the rest cannot be shared and contains information such as the size etc.
+					if (!writeJpegStartOfFrameDataFromBufferToStream(sstream, sstreamSize, buffer.get(), bufferSize, startOfFrameMarker))
 					{
 						throw Exception(_("Missing image start marker 0xC0."));
 					}
 
-					const string startOfFrameString = sstream.str();
+					/*
+					 * Validate the format of the marker.
+					 */
+					if ((startOfFrameMarker >> 4) != 0xFFC)
+					{
+						throw Exception(boost::format(_("Invalid start of frame marker %1%.")) % startOfFrameMarker);
+					}
 
 					/*
-					const std::size_t startOfFramePerMipMapSize = 20;
-					boost::scoped_array<byte> startOfFramePerMipMap(new byte[startOfFramePerMipMapSize]);
-					*/
+					 * Write start of frame into buffer which can be used later for the MIP map data.
+					 */
+					const string startOfFrameString = sstream.str();
 
 					const std::size_t startOfFrameSize = endPosition(sstream); // - (std::streamoff)(startOfFramePerMipMapSize);
 					boost::scoped_array<byte> startOfFrame(new byte[startOfFrameSize]);
-
 					memcpy(startOfFrame.get(), startOfFrameString.c_str(), startOfFrameSize);
-					//memcpy(startOfFramePerMipMap.get(), &(startOfFrame[startOfFrameSize]), startOfFramePerMipMapSize);
-
-					//std::cerr << "Start of frame size: " << startOfFrameSize << " and startOfFramePerMipMapSize: " << startOfFramePerMipMapSize << " together: " << (startOfFrameSize + startOfFramePerMipMapSize) << " and string size: " << startOfFrameString.size() << std::endl;
 
 					/*
 					 * Write header once for the first MIP map.
@@ -659,11 +660,16 @@ std::streamsize Blp::write(OutputStream &ostream, int quality, std::size_t mipMa
 							throw Exception(_("Missing image start marker 0xDB."));
 						}
 
-						writeJpegMarkerFromBufferToStream(ostream, headerSize, true, 0, 0xFE, buffer.get(), bufferSize, false); // image comment
-						writeJpegMarkerFromBufferToStream(ostream, headerSize, true, 0, 0xE0, buffer.get(), bufferSize, false); // JFIF marker
+						// optional image comment
+						writeJpegMarkerFromBufferToStream(ostream, headerSize, true, 0, 0xFE, buffer.get(), bufferSize, false);
+						// JFIF marker
+						writeJpegMarkerFromBufferToStream(ostream, headerSize, true, 0, 0xE0, buffer.get(), bufferSize, false);
 
-						std::cerr << "Header size before: " << headerSize << std::endl;
-						wc3lib::write(ostream, startOfFrame[0], headerSize, startOfFrameSize);
+						/*
+						 * Make sure the order of the two bytes is correct.
+						 */
+						wc3lib::write<byte>(ostream, (startOfFrameMarker >> 8), headerSize);
+						wc3lib::write<byte>(ostream, startOfFrameMarker, headerSize);
 						std::cerr << "Header size after: " << headerSize << std::endl;
 
 						// write shared header size and jump back again
@@ -675,9 +681,10 @@ std::streamsize Blp::write(OutputStream &ostream, int quality, std::size_t mipMa
 					 */
 					mipMapHeaders[i].offset = boost::numeric_cast<dword>(OutputStream::off_type(ostream.tellp()));
 
-					std::cerr << "MIP map " << i << " offset " << mipMapHeaders[i].offset << std::endl;
-
-					//wc3lib::write(ostream, startOfFramePerMipMap[0], mipMapSize, startOfFramePerMipMapSize);
+					/*
+					 * Now write the full start of frame except for the marker which can be shared.
+					 */
+					wc3lib::write(ostream, startOfFrame[0], mipMapSize, startOfFrameSize);
 
 					// Start of Scan
 					if (!writeJpegScanFromBufferToStream(ostream, mipMapSize, buffer.get(), bufferSize))
@@ -704,30 +711,7 @@ std::streamsize Blp::write(OutputStream &ostream, int quality, std::size_t mipMa
 					 * The MIP map has its own JPEG header now.
 					 */
 					wc3lib::write(ostream, buffer[0], mipMapSize, bufferSize);
-
-					// TEST
-					if (i == 0)
-					{
-						ofstream out("test.jpeg");
-						const char *outBuffer = (const char*)buffer.get();
-						out.write(outBuffer, bufferSize);
-						out.close();
-					}
 				}
-
-				// Start Of Scan
-				/*
-				if (!writeJpegMarkerFromBufferToStream(ostream, mipMapSize, true, 0, 0xDA, buffer.get(), bufferSize, false))
-				{
-					throw Exception(_("Missing image start marker 0xDA."));
-				}
-
-				// End Of Image
-				if (!writeJpegMarkerFromBufferToStream(ostream, mipMapSize, false, 0, 0xD9, buffer.get(), bufferSize, false))
-				{
-					throw Exception(_("Missing image start marker 0xDA."));
-				}
-				*/
 
 				mipMapHeaders[i].size = boost::numeric_cast<dword>(mipMapSize);
 				size += mipMapSize;

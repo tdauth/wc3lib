@@ -44,7 +44,8 @@ using namespace wc3lib;
 /*
  * Red
  */
-BOOST_AUTO_TEST_CASE(TeamColor00) {
+BOOST_AUTO_TEST_CASE(TeamColor00)
+{
 	ifstream in("TeamColor00.blp");
 
 	BOOST_REQUIRE(in);
@@ -52,9 +53,12 @@ BOOST_AUTO_TEST_CASE(TeamColor00) {
 	blp::Blp texture;
 	bool valid = true;
 
-	try {
+	try
+	{
 		texture.read(in);
-	} catch (std::exception &e) {
+	}
+	catch (std::exception &e)
+	{
 		valid = false;
 
 		std::cerr << e.what() << std::endl;
@@ -69,7 +73,8 @@ BOOST_AUTO_TEST_CASE(TeamColor00) {
 	BOOST_REQUIRE(texture.mipMaps()[0].colorAt(0, 0).argb() == 0xFFFF0303); // red
 }
 
-BOOST_AUTO_TEST_CASE(TeamColor00Write) {
+BOOST_AUTO_TEST_CASE(TeamColor00Write)
+{
 	ifstream in("TeamColor00.blp");
 
 	BOOST_REQUIRE(in);
@@ -77,9 +82,12 @@ BOOST_AUTO_TEST_CASE(TeamColor00Write) {
 	blp::Blp texture;
 	bool valid = true;
 
-	try {
+	try
+	{
 		texture.read(in);
-	} catch (std::exception &e) {
+	}
+	catch (std::exception &e)
+	{
 		valid = false;
 
 		std::cerr << e.what() << std::endl;
@@ -93,9 +101,12 @@ BOOST_AUTO_TEST_CASE(TeamColor00Write) {
 
 	BOOST_REQUIRE(out);
 
-	try {
+	try
+	{
 		texture.write(out);
-	} catch (std::exception &e) {
+	}
+	catch (std::exception &e)
+	{
 		valid = false;
 
 		std::cerr << e.what() << std::endl;
@@ -110,9 +121,12 @@ BOOST_AUTO_TEST_CASE(TeamColor00Write) {
 
 	BOOST_REQUIRE(in);
 
-	try {
+	try
+	{
 		texture.read(in);
-	} catch (std::exception &e) {
+	}
+	catch (std::exception &e)
+	{
 		valid = false;
 
 		std::cerr << e.what() << std::endl;

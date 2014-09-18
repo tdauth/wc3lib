@@ -51,6 +51,14 @@ bool writeJpegMarkerFromBufferToStream(ostream &ostream, std::streamsize &size, 
 bool writeJpegScanFromBufferToStream(ostream &ostream, std::streamsize &size, const unsigned char *buffer, const std::size_t bufferSize);
 
 /**
+ * Searches for any SOF and writes all data which is NOT shared between MIP maps without the SOF marker into \p ostream.
+ * This data usually is everything except for the 0xFF + marker.
+ * Writes the actual 0xFF + marker into \p marker.
+ */
+bool writeJpegStartOfFrameDataFromBufferToStream(ostream &ostream, std::streamsize &size, const unsigned char *buffer, const std::size_t bufferSize, word &marker);
+
+
+/**
  * Reads JPEG MIP map data from \p buffer of size \p bufferSize into \p mipMap.
  */
 void readMipMapJpeg(Blp::MipMap &mipMap, byte *buffer, dword bufferSize);
@@ -65,7 +73,7 @@ void readMipMapJpeg(Blp::MipMap &mipMap, byte *buffer, dword bufferSize);
  * \param isFirst Is the first MIP map. If so it will contain more header information than others.
  * \param quality 0-100
  */
-void writeMipMapJpeg(const Blp::MipMap &mipMap, unsigned char *&buffer, unsigned long &bufferSize, bool isFirst, unsigned long &headerSize, int quality);
+void writeMipMapJpeg(const Blp::MipMap &mipMap, unsigned char *&buffer, unsigned long &bufferSize, int quality);
 
 }
 
