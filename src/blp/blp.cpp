@@ -628,8 +628,7 @@ std::streamsize Blp::write(OutputStream &ostream, int quality, std::size_t mipMa
 					 * Write start of frame into buffer which can be used later for the MIP map data.
 					 */
 					const string startOfFrameString = sstream.str();
-
-					const std::size_t startOfFrameSize = endPosition(sstream); // - (std::streamoff)(startOfFramePerMipMapSize);
+					const std::size_t startOfFrameSize = endPosition(sstream);
 					boost::scoped_array<byte> startOfFrame(new byte[startOfFrameSize]);
 					memcpy(startOfFrame.get(), startOfFrameString.c_str(), startOfFrameSize);
 
@@ -670,7 +669,6 @@ std::streamsize Blp::write(OutputStream &ostream, int quality, std::size_t mipMa
 						 */
 						wc3lib::write<byte>(ostream, (startOfFrameMarker >> 8), headerSize);
 						wc3lib::write<byte>(ostream, startOfFrameMarker, headerSize);
-						std::cerr << "Header size after: " << headerSize << std::endl;
 
 						// write shared header size and jump back again
 						writeByteCount(ostream, boost::numeric_cast<dword>(headerSize), headerPosition, size);
