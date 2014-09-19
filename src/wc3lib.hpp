@@ -41,7 +41,6 @@
 * <li>\subpage applicationssection </li>
 * </ul>
 *
-* \section intro Introduction
 * wc3lib is a collection of several C++ libraries which provide an API to <a href="http://blizzard.com/">Blizzard's</a> file formats of the real time strategy game <a href="blizzard.com/de-de/games/war3/">Warcraft III: Reign of Chaos</a> and its expansion Warcraft III: The Frozen Throne.
 * All implementations are free and mainly under the GPLv2 license although there still is some external code which is under a different license.
 *
