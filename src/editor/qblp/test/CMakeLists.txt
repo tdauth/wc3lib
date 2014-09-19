@@ -4,8 +4,7 @@ set(wc3lib_EDITOR_QBLP_TEST_SRC blptest.cpp)
 QT4_WRAP_CPP(wc3lib_EDITOR_QBLP_TEST_MOC_SRC ${wc3lib_EDITOR_QBLP_TEST_H})
 add_executable(BlpTest ${wc3lib_EDITOR_QBLP_TEST_SRC} ${wc3lib_EDITOR_QBLP_TEST_MOC_SRC})
 target_link_libraries(BlpTest wc3libcore wc3libblp qblp ${Boost_LIBRARIES} ${QT_QTTEST_LIBRARY} ${QT_LIBRARIES})
-# unset QT_PLUGIN_PATH to make sure no plugins are loaded automatically
-add_test(NAME BlpTests COMMAND "QT_PLUGIN_PATH="" BlpTest")
+add_test(NAME BlpTests COMMAND BlpTest)
 
 # get build path of plugin "qblp" and copy file to current build directory to load the plugin at runtime
 get_target_property(QBLP_NAME qblp LOCATION)
