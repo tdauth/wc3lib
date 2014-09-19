@@ -143,8 +143,6 @@ QString UnitData::defaultFieldValue(const QString &objectId, const QString &fiel
 		const QString field = this->unitMetaData()->value(fieldId, "field");
 		const QString slk = this->unitMetaData()->value(fieldId, "slk");
 
-		qDebug() << "SLK:" << slk;
-
 		// TODO improve performance by not calling the hasValue() methods?
 		if (slk == "UnitUI")
 		{

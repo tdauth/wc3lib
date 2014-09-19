@@ -180,8 +180,6 @@ bool MetaData::hasValue(const QString &rowKey, const QString &columnKey) const
 {
 	if (hasSlk())
 	{
-		qDebug() << "Has slk value:" << columnKey << "|" << rowKey;
-
 		SlkKeys::const_iterator columnIterator = this->columnKeys().find(columnKey);
 
 		if (columnIterator == this->columnKeys().end())
