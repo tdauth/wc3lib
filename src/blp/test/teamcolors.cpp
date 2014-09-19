@@ -213,4 +213,8 @@ BOOST_AUTO_TEST_CASE(TeamColor00WriteWithoutSharedHeader)
 	std::cerr << std::hex << "Color as hex: " << texture.mipMaps()[0].colorAt(0, 0).rgba() << std::endl;
 	std::cerr.unsetf(std::ios::hex);
 	BOOST_REQUIRE(texture.mipMaps()[0].colorAt(0, 0).rgba() == 0xFF0303FF); // red
+	BOOST_REQUIRE(blp::red(texture.mipMaps()[0].colorAt(0, 0).rgba()) == 0xFF);
+	BOOST_REQUIRE(blp::green(texture.mipMaps()[0].colorAt(0, 0).rgba()) == 0x03);
+	BOOST_REQUIRE(blp::blue(texture.mipMaps()[0].colorAt(0, 0).rgba()) == 0x03);
+	BOOST_REQUIRE(blp::alpha(texture.mipMaps()[0].colorAt(0, 0).rgba()) == 0xFF);
 }

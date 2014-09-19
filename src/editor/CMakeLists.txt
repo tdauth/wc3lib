@@ -152,6 +152,10 @@ if (EDITOR)
 	add_subdirectory(soundeditor)
 	add_subdirectory(importmanager)
 
+	if (DEBUG)
+		add_subdirectory(test)
+	endif ()
+
 	# install
 	install(TARGETS wc3libeditor DESTINATION lib)
 	install(FILES ${wc3lib_EDITOR_H} ${wc3lib_EDITOR_UI_H}  DESTINATION include/wc3lib/editor)

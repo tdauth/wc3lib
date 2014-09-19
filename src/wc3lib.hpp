@@ -28,7 +28,7 @@
 /**
 * \mainpage Warcraft III Library
 * This is the API reference and documentation of the wc3lib project. wc3lib is an abbreviation which means "Warcraft III Library".
-* 
+*
 * wc3lib consists of several modules which allow strict separation of areas and a clear definition of dependencies:
 * <ul>
 * <li>\subpage coresection </li>
@@ -40,8 +40,16 @@
 * <li>\subpage editorsection </li>
 * <li>\subpage applicationssection </li>
 * </ul>
-* 
-* For detailed description see \ref intro
+*
+* \section intro Introduction
+* wc3lib is a collection of several C++ libraries which provide an API to <a href="http://blizzard.com/">Blizzard's</a> file formats of the real time strategy game <a href="blizzard.com/de-de/games/war3/">Warcraft III: Reign of Chaos</a> and its expansion Warcraft III: The Frozen Throne.
+* All implementations are free and mainly under the GPLv2 license although there still is some external code which is under a different license.
+*
+* The library is split up into several modules. The core modules consist of a single library which support one of Blizzard's formats.
+* Additional modules provide a view layer and some tools.
+* To use the library simply include headers of the required modules and link your program against the libraries.
+*
+* Each module has its own namespace. All namespaces and other declarations of the wc3lib belong to the global namespace \ref wc3lib.
 *
 * \note Check out http://wc3lib.org for further information.
 *
@@ -50,16 +58,6 @@
 * \author Tamino Dauth <tamino@cdauth.eu>
 *
 * \copyright GNU GENERAL PUBLIC LICENSE Version 2 (except external library code)
-*
-* \section intro Introduction
-* wc3lib is a collection of several C++ libraries which provide an API to <a href="http://blizzard.com/">Blizzard's</a> file formats of the real time strategy game <a href="blizzard.com/de-de/games/war3/">Warcraft III: Reign of Chaos</a> and its expansion Warcraft III: The Frozen Throne.
-* All implementations are free and mainly under the GPLv2 license although there still is some external code which is under a different license.
-* 
-* The library is split up into several modules. The core modules consist of a single library which support one of Blizzard's formats.
-* Additional modules provide a view layer and some tools.
-* To use the library simply include headers of the required modules and link your program against the libraries.
-* 
-* Each module has its own namespace. All namespaces and other declarations of the wc3lib belong to the global namespace \ref wc3lib.
 *
 * \page applicationssection Applications module
 * Since this module only provides some useful applications there is neither any namespace to use nor any header file to include.

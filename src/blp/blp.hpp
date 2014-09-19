@@ -74,6 +74,15 @@ namespace blp
 class Blp : public Format
 {
 	public:
+		/// Number of maximum MIP maps which can be hold by one BLP file.
+		static const std::size_t maxMipMaps;
+		/// Size of color palette (always the same) used by BLP files with compression \ref Blp::Compression::Paletted.
+		static const std::size_t compressedPaletteSize;
+		/// Default JPEG quality which reaches from 0 - 100.
+		static const int defaultQuality;
+		static const std::size_t defaultMipMaps;
+		static const bool defaultSharedHeader;
+
 		/**
 		 * \brief One scaled version of the image.
 		 *
@@ -129,6 +138,14 @@ class Blp : public Format
 						 * \ref Color::paletteIndex() is an optional value for paletted compression (\ref Blp::Compression::Paletted) which refers two the colors color value in palette.
 						 */
 						byte paletteIndex() const;
+
+						/**
+						 * Gets the color value from palette \p palette.
+						 * Depending on whether the pixel has its own alpha value or not this uses the alpha value from the palette or not.
+						 *
+						 * \return Returns the full RGBA color from the palette.
+						 */
+						color paletteColor(const color palette[Blp::compressedPaletteSize]) const;
 
 					protected:
 						/**
@@ -194,15 +211,6 @@ class Blp : public Format
 				dword m_height;
 				Colors m_colors; //[mip map width * mip map height];
 		};
-
-		/// Number of maximum MIP maps which can be hold by one BLP file.
-		static const std::size_t maxMipMaps;
-		/// Size of color palette (always the same) used by BLP files with compression \ref Blp::Compression::Paletted.
-		static const std::size_t compressedPaletteSize;
-		/// Default JPEG quality which reaches from 0 - 100.
-		static const int defaultQuality;
-		static const std::size_t defaultMipMaps;
-		static const bool defaultSharedHeader;
 
 		/// \todo Don't seem to have the right values!!!
 		enum class Format : dword
@@ -298,13 +306,9 @@ class Blp : public Format
 		virtual uint32_t version() const override;
 
 		/**
-		 * Assigns exactly \p number MIP maps to the BLP image.
-		 * \param number Has to be at least 1 and \ref Blp::maxMipMaps at maximum.
-		 * \param regenerate If this value is false function only compares current MIP map number to \p number and if they are not equal it generates or removes necessary or unnecessary MIP maps. Otherwise it clears all MIP maps and truly regenerates them.
-		 * \return Returns number of truly newly created MIP maps (negative if some has been removed and 0 if it remains like it was before).
-		 * \sa Blp::mipMaps()
+		 * Generates empty MIP maps of the required number.
 		 */
-		int generateMipMaps(std::size_t number = Blp::maxMipMaps, bool regenerate = false);
+		int generateRequiredMipMaps();
 
 		/**
 		 * \return Returns true if compression type is \ref Compression::Paletted .
@@ -328,6 +332,8 @@ class Blp : public Format
 		/**
 		 * @}
 		 */
+
+		static std::size_t requiredMipMaps(std::size_t width, std::size_t height);
 
 	protected:
 		dword mipMapWidth(std::size_t index) const;
@@ -394,6 +400,16 @@ inline void Blp::MipMap::Color::setPaletteIndex(byte paletteIndex)
 inline byte Blp::MipMap::Color::paletteIndex() const
 {
 	return boost::get<IndexAndAlpha>(m_value).first;
+}
+
+inline color Blp::MipMap::Color::paletteColor(const color palette[compressedPaletteSize]) const
+{
+	if (this->hasAlpha())
+	{
+		return ((palette[paletteIndex()] << 8) & 0xFFFFFF00) | alpha();
+	}
+
+	return palette[paletteIndex()];
 }
 
 inline void Blp::MipMap::setWidth(dword width)

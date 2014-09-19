@@ -54,6 +54,7 @@ std::streamsize Rgb::write(OutputStream &ostream) const
 
 	return size;
 }
+
 uint32_t Rgb::value() const
 {
 	return ((uint32_t)this->red() << 16) + ((uint32_t)this->green() << 8) + this->blue();

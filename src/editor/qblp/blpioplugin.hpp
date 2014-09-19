@@ -39,9 +39,9 @@ class BlpIOPlugin : public QImageIOPlugin
 	public:
 		BlpIOPlugin(QObject *parent = 0);
 		virtual ~BlpIOPlugin();
-		virtual Capabilities capabilities (QIODevice *device, const QByteArray &format) const;
-		virtual QImageIOHandler* create(QIODevice *device, const QByteArray &format = QByteArray()) const;
-		virtual QStringList keys() const;
+		virtual Capabilities capabilities (QIODevice *device, const QByteArray &format) const override;
+		virtual QImageIOHandler* create(QIODevice *device, const QByteArray &format = QByteArray()) const override;
+		virtual QStringList keys() const override;
 };
 
 }

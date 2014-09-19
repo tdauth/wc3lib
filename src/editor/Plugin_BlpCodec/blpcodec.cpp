@@ -95,7 +95,23 @@ BlpCodec::DecodeResult BlpCodec::decode(const blp::Blp &blp) const
 	{
 		for (blp::dword width = 0; width < mipMapWidth; ++width)
 		{
-			const blp::color rgba = blp.compression() == blp::Blp::Compression::Paletted ?  blp.palette()[blp.mipMaps().front().colorAt(width, height).paletteIndex()] : blp.mipMaps().front().colorAt(width, height).rgba();
+			blp::color rgba = 0;
+
+			if (blp.compression() == blp::Blp::Compression::Paletted)
+			{
+				if (blp.pictureType() == blp::Blp::PictureType::PalettedWithoutAlpha)
+				{
+					rgba = blp.palette()[blp.mipMaps().front().paletteIndexAt(width, height)];
+				}
+				else
+				{
+					rgba = blp.mipMaps().front().colorAt(width, height).paletteColor(blp.palette().get());
+				}
+			}
+			else if (blp.compression() == blp::Blp::Compression::Jpeg)
+			{
+				rgba = blp.mipMaps().front().colorAt(width, height).rgba();
+			}
 
 			// NOTE little endian order - reverse order
 			imageData[i] = blp::red(rgba);

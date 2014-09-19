@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2013 by Tamino Dauth                                    *
+ *   Copyright (C) 2014 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,59 +18,44 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_QBLP_BLPTEST_HPP
-#define WC3LIB_EDITOR_QBLP_BLPTEST_HPP
+/**
+ * \file
+ * Unit Test which tests BLP/Qt color conversion functions.
+ */
+#define BOOST_TEST_MODULE Colors
+#include <boost/test/unit_test.hpp>
+#include <sstream>
+#include <iostream>
 
-#include <QObject>
-#include <QPluginLoader>
+#include "../platform.hpp"
 
-#include "../blpiohandler.hpp"
-#include "../blpioplugin.hpp"
+#ifndef BOOST_TEST_DYN_LINK
+#error Define BOOST_TEST_DYN_LINK for proper definition of main function.
+#endif
 
-namespace wc3lib
+using namespace wc3lib;
+using namespace wc3lib::editor;
+
+BOOST_AUTO_TEST_CASE(BlpToQt)
 {
-
-namespace editor
-{
-
-class BlpTest : public QObject
-{
-	Q_OBJECT
-
-	private slots:
-		void initTestCase();
-		void cleanupTestCase();
-
-		void init();
-		void cleanup();
-
-		void ioHandlerReadTest();
-		void ioHandlerWriteTest();
-		void ioHandlerPalettedAlphaWriteTest();
-
-		/**
-		 * These test cases use the installed qblp plugin and test if the plugin
-		 * is integrated and loaded automatically.
-		 * They use QImageReader and QImageWriter which automatically checks for all supported image formats
-		 * of Qt.
-		 *
-		 * \todo the plugin should be loaded from the built file not from any installed file
-		 *
-		 * @{
-		 */
-		void writeTest();
-		void readTest();
-		/**
-		 * @}
-		 */
-
-	private:
-		QPluginLoader *m_loader;
-		BlpIOPlugin *m_plugin;
-};
-
+	// blp::color has the format RGBA
+	const blp::color value = 0xFFAACC00;
+	// QRgb has the format ARGB
+	const QRgb rgb = colorToArgb(value);
+	BOOST_CHECK(qRed(rgb) == 0xFF);
+	BOOST_CHECK(qGreen(rgb) == 0xAA);
+	BOOST_CHECK(qBlue(rgb) == 0xCC);
+	BOOST_CHECK(qAlpha(rgb) == 0x00);
 }
 
+BOOST_AUTO_TEST_CASE(QtToBlp)
+{
+	// QRgb has the format ARGB
+	const QRgb rgb = 0x00FFAACC;
+	// blp::color has the format RGBA
+	const blp::color value = argbToColor(rgb);
+	BOOST_CHECK(blp::red(value) == 0xFF);
+	BOOST_CHECK(blp::green(value) == 0xAA);
+	BOOST_CHECK(blp::blue(value) == 0xCC);
+	BOOST_CHECK(blp::alpha(value) == 0x00);
 }
-
-#endif // BLPTEST_H

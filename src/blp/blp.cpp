@@ -150,13 +150,10 @@ void Blp::clear()
 	this->palette().reset();
 }
 
-namespace
-{
-
 /**
 * \author PitzerMike, Jean-Francois Roy, Tamino Dauth
 */
-std::size_t requiredMipMaps(std::size_t width, std::size_t height)
+std::size_t Blp::requiredMipMaps(std::size_t width, std::size_t height)
 {
 	std::size_t mips = 0;
 	std::size_t value = std::min<int>(width, height);
@@ -168,8 +165,6 @@ std::size_t requiredMipMaps(std::size_t width, std::size_t height)
 	}
 
 	return mips;
-}
-
 }
 
 namespace
@@ -395,10 +390,15 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps)
 					byte alpha = 0;
 					wc3lib::read(istream, alpha, size);
 					alpha = 0xFF - alpha;
-					rgba |= alpha;
+					rgba = (color)(rgba << 8) | (color)alpha;
 					m_palette[i] = rgba;
 				}
 			}
+			/*
+			 * For a palette with extra alpha value per pixel the alpha value in the palette is ignored anyways,
+			 * so the values can be read without transformation.
+			 * The actual alpha value for each pixel follows the list of color indices per pixel.
+			 */
 			else
 			{
 				wc3lib::read(istream, m_palette[0], size, Blp::compressedPaletteSize * sizeof(color));
@@ -413,6 +413,9 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps)
 				 */
 				istream.seekg(mipMapOffset);
 
+				/*
+				 * Each pixel has a one byte value refering as index to a value in the color palette.
+				 */
 				for (dword height = 0; height < this->mipMaps()[i].height(); ++height)
 				{
 					for (dword width = 0; width < this->mipMaps()[i].width(); ++width)
@@ -423,6 +426,10 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps)
 					}
 				}
 
+				/*
+				 * For some picture types the alpha value per pixel is stored separately and not used from the color palette
+				 * since this would allow only 256 different alpha values combined with the color values.
+				 */
 				if ((this->pictureType() == blp::Blp::PictureType::PalettedWithAlpha1) || (this->pictureType() == blp::Blp::PictureType::PalettedWithAlpha2))
 				{
 					for (dword height = 0; height < this->mipMaps()[i].height(); ++height)
@@ -868,47 +875,21 @@ uint32_t Blp::version() const
 	return (uint32_t)format();
 }
 
-int Blp::generateMipMaps(std::size_t number, bool regenerate)
+int Blp::generateRequiredMipMaps()
 {
-	if (number > Blp::maxMipMaps)
+	dword width = this->width();
+	dword height = this->height();
+	const std::size_t result = requiredMipMaps(width, height);
+	m_mipMaps.resize(result, 0);
+
+	for (std::size_t i = 0; i < result; ++i)
 	{
-		std::cerr << boost::format(_("MIP map number %1% is bigger than maximum %2%")) % number % Blp::maxMipMaps << std::endl;
+		this->mipMaps().replace(i, new MipMap(width, height));
+		width /= 2;
+		height /= 2;
 	}
 
-	number = std::max<std::size_t>(number, 1);
-	number = std::min<std::size_t>(number, Blp::maxMipMaps);
-
-	if (regenerate)
-	{
-		m_mipMaps.clear();
-	}
-
-	if (number < mipMaps().size())
-	{
-		mipMaps().resize(mipMaps().size() - number, 0);
-
-		return number - mipMaps().size();
-	}
-	else if (number > mipMaps().size())
-	{
-		dword width = this->width();
-		dword height = this->height();
-		const std::size_t oldSize = mipMaps().size();
-		const int result = number - oldSize;
-		mipMaps().resize(number, 0);
-
-		for (std::size_t i = oldSize; i < number; ++i)
-		{
-			this->mipMaps().replace(i, new MipMap(width, height));
-			/// @todo Generate new scaled index and alpha list.
-			width /= 2;
-			height /= 2;
-		}
-
-		return result;
-	}
-
-	return 0;
+	return result;
 }
 
 const Blp::ColorPtr& Blp::palette() const

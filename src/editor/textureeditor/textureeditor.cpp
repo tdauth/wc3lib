@@ -36,6 +36,7 @@
 #include "textureeditor.hpp"
 #include "../qblp/blpiohandler.hpp"
 #include "../platform.hpp"
+#include "../mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -57,6 +58,21 @@ TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 , m_saveDialog(0)
 , m_scrollArea(new QScrollArea(this))
 {
+	readSettings();
+
+	// Update required files if started as stand-alone module
+	if (!hasEditor())
+	{
+		try
+		{
+			source->sharedData()->refreshWorldEditorStrings(this);
+		}
+		catch (wc3lib::Exception &e)
+		{
+			KMessageBox::error(0, i18n("Error when loading default files: %1", e.what()));
+		}
+	}
+
 	Module::setupUi();
 
 	imageLabel()->setAlignment(Qt::AlignCenter);
@@ -70,6 +86,8 @@ TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 	scrollArea()->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
 	topLayout()->addWidget(scrollArea());
+
+	setWindowTitle(tr("Texture Editor"));
 
 	/*
 	KService::Ptr service = KService::serviceByDesktopPath("gvpart.desktop");
@@ -101,7 +119,9 @@ TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 	*/
 
 	foreach (QAction *action, m_textureActionCollection->actions())
+	{
 		action->setEnabled(false);
+	}
 }
 
 TextureEditor::~TextureEditor()

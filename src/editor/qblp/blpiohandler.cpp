@@ -23,33 +23,13 @@
 
 #include "blpiohandler.hpp"
 #include "../../platform.hpp"
+#include "../platform.hpp"
 
 namespace wc3lib
 {
 
 namespace editor
 {
-
-namespace
-{
-
-/**
- * \return Returns BLP ARGB color.
- */
-inline blp::color rgbaToColor(QRgb rgba)
-{
-	return (blp::color)((qAlpha(rgba)) << 24) | (rgba & 0x00FFFFFF);
-}
-
-/**
-* \return Returns Qt RGBA color.
-*/
-inline QRgb colorToRgba(blp::color c)
-{
-	return qRgba(blp::red(c), blp::green(c), blp::blue(c), blp::alpha(c));
-}
-
-}
 
 BlpIOHandler::BlpIOHandler() : QImageIOHandler()
 {
@@ -61,54 +41,28 @@ BlpIOHandler::~BlpIOHandler()
 
 bool BlpIOHandler::canRead() const
 {
-	blp::dword identifier;
+	blp::dword identifier = 0;
 
-	return (this->device() != 0 && this->device()->isReadable() && this->device()->peek(reinterpret_cast<char*>(&identifier), sizeof(identifier)) == sizeof(identifier) && blp::Blp::hasFormat(reinterpret_cast<blp::byte*>(&identifier), sizeof(identifier)));
+	return (this->device() != 0
+		&& this->device()->isReadable()
+		&& this->device()->peek(reinterpret_cast<char*>(&identifier), sizeof(identifier)) == sizeof(identifier)
+		&& blp::Blp::hasFormat(reinterpret_cast<blp::byte*>(&identifier), sizeof(identifier)));
 }
 
 bool BlpIOHandler::read(QImage *image)
 {
-	// TEST
-	/*
-	QFile *file = dynamic_cast<QFile*>(this->device());
-	qDebug() << "File error: " << file->error();
-	qDebug() << "File name: " << file->fileName();
-	qDebug() << "Device error string 1: " << this->device()->errorString();
-	qDebug() << "Is open: " << this->device()->isOpen();
-	qDebug() << "Is readable: " << this->device()->isReadable();
-	qDebug() << "At end: " << this->device()->atEnd();
-	qDebug() << "Bytes available: " << this->device()->bytesAvailable();
-	*/
-	// TEST END
-
 	// read buffer into input stream
 	const QByteArray all = this->device()->readAll();
 
-	//qDebug() << "All size: " << all.size();
-	//qDebug() << "Device error string 2: " << this->device()->errorString();
-
-	//char *buffer = all.data(); // NOTE Store buffer for non const treatment!
 	iarraystream istream(all.constData(), all.size()); // copies buffer data!
 	//istream.rdbuf()->pubsetbuf(buffer, all.size()); TODO setting buffer directly does not work
-
-	// TEST
-	/*
-	try
-	{
-		wc3lib::checkStream(istream);
-	}
-	catch (Exception &e)
-	{
-		qDebug() << e.what().c_str();
-	}
-	*/
-	// TEST END
 
 	QScopedPointer<blp::Blp> blpImage(new blp::Blp());
 
 	try
 	{
-		blpImage->read(istream, 1); // only read the first MIP map, QImage does not support MIP mapping
+		// Read only the first MIP map, QImage does not support MIP mapping.
+		blpImage->read(istream, 1);
 	}
 	catch (class Exception &exception)
 	{
@@ -125,74 +79,6 @@ bool BlpIOHandler::read(QImage *image)
 	return true;
 }
 
-bool BlpIOHandler::supportsOption(ImageOption option) const
-{
-	switch (option)
-	{
-		case SubType:
-		{
-			return true;
-		}
-
-		case Size:
-		{
-			return true;
-		}
-
-		case Quality:
-		{
-			return this->option(SubType).toUInt() == static_cast<blp::dword>(blp::Blp::Compression::Jpeg);
-		}
-
-		default:
-		{
-			return false;
-		}
-	}
-
-	return false;
-}
-
-QVariant BlpIOHandler::option(ImageOption option) const
-{
-	switch (option)
-	{
-		case SubType:
-		{
-			if (!canRead())
-				return QVariant();
-
-			return QVariant(header().compression);
-		}
-
-		case Size:
-		{
-			if (!canRead())
-				return QVariant();
-
-			blp::BlpHeader header(this->header());
-
-			return QSize(header.width, header.height);
-		}
-
-		case Quality:
-		{
-			if (!canRead())
-				return QVariant();
-
-			blp::dword compression(this->option(SubType).toUInt());
-
-			if (compression == static_cast<blp::dword>(blp::Blp::Compression::Jpeg))
-			{
-				/// \todo Read JPEG header of first MIP map by using jpeg lib and get compression.
-				return 0;
-			}
-		}
-	}
-
-	return QVariant();
-}
-
 bool BlpIOHandler::write(const QImage &image)
 {
 	QScopedPointer<blp::Blp> blpImage(new blp::Blp());
@@ -202,11 +88,30 @@ bool BlpIOHandler::write(const QImage &image)
 		return false;
 	}
 
-	ostringstream ostream;
+	/*
+	 * We must use a temporary file or a buffered output stream since writing BLPs needs to seek forward
+	 * which is not supported by a string stream.
+	 *
+	 * TODO a binary buffered stream which directly connects to the device this->device() would be much more efficient.
+	 */
+	QTemporaryFile file;
+
+	if (!file.open())
+	{
+		return false;
+	}
+
+	qDebug() << "Temporary file: " << file.fileName();
+	fstream out(file.fileName().toUtf8().constData(), std::ios::out | std::ios::binary);
+
+	if (!out)
+	{
+		return false;
+	}
 
 	try
 	{
-		blpImage->write(ostream, option(Quality).toInt(), blp::Blp::defaultMipMaps, blp::Blp::defaultSharedHeader);
+		blpImage->write(out);
 	}
 	catch (class Exception &exception)
 	{
@@ -215,13 +120,17 @@ bool BlpIOHandler::write(const QImage &image)
 		return false;
 	}
 
-	const std::string data = ostream.str();
-	// NOTE using arraysink as output device is useless since it doesn't use any buffer and we don't know the exact size
-	//std::streamsize bufferSize = ostream.rdbuf()->in_avail();
-	//boost::scoped_array<char> buffer(new char[bufferSize]);
-	//ostream.rdbuf()->sgetn(buffer.get(), bufferSize);
+	/*
+	 * Flush stream.
+	 */
+	out.close();
 
-	this->device()->write(data.c_str(), data.size());
+	/*
+	 * Write all data into the output device.
+	 * TODO slow - see above
+	 */
+	const QByteArray data = file.readAll();
+	this->device()->write(data, data.size());
 
 	return true;
 }
@@ -229,56 +138,67 @@ bool BlpIOHandler::write(const QImage &image)
 bool BlpIOHandler::read(QImage *image, const blp::Blp::MipMap &mipMap, const blp::Blp &blpImage)
 {
 	QImage::Format format;
+	/*
+	 * Only if all alpha values are taken from the color palette as well it can be paletted in Qt.
+	 * TODO find another solution for custom alpha values.
+	 */
+	const bool paletted = blpImage.compression() == blp::Blp::Compression::Paletted && blpImage.pictureType() == blp::Blp::PictureType::PalettedWithoutAlpha;
 
-	if (blpImage.compression() == blp::Blp::Compression::Paletted)
+	if (paletted)
 	{
 		format = QImage::Format_Indexed8;
 	}
-	else
+	else if (blpImage.compression() == blp::Blp::Compression::Jpeg || blpImage.compression() == blp::Blp::Compression::Paletted)
 	{
 		format = QImage::Format_ARGB32;
+	}
+	/*
+	 * Unsupported compression.
+	 */
+	else
+	{
+		return false;
 	}
 
 	QImage result(boost::numeric_cast<int>(mipMap.width()), boost::numeric_cast<int>(mipMap.height()), format);
 
-	if (blpImage.compression() != blp::Blp::Compression::Paletted)
-	{
-		for (blp::dword width = 0; width < mipMap.width(); ++width)
-		{
-			for (blp::dword height = 0; height < mipMap.height(); ++height)
-			{
-				// numeric_cast has already been done!
-				result.setPixel(width, height, colorToRgba(mipMap.colorAt(width, height).rgba()));
-			}
-		}
-	}
-	else
+	if (paletted)
 	{
 		result.setColorCount(blp::Blp::compressedPaletteSize);
 
 		for (int index = 0; index < result.colorCount(); ++index)
 		{
-			result.setColor(index, colorToRgba(blpImage.palette()[index]));
+			result.setColor(index, colorToArgb(blpImage.palette()[index]));
 		}
+	}
 
-		for (blp::dword width = 0; width < mipMap.width(); ++width)
+	for (blp::dword width = 0; width < mipMap.width(); ++width)
+	{
+		for (blp::dword height = 0; height < mipMap.height(); ++height)
 		{
-			for (blp::dword height = 0; height < mipMap.height(); ++height)
+			if (blpImage.compression() == blp::Blp::Compression::Paletted)
 			{
-				// numeric_cast has already been done!
-				result.setPixel(width, height, mipMap.paletteIndexAt(width, height));
-
 				/*
-				 * Alpha is stored per pixel and not in color palette.
+				 * Only if it does not use a custom alpha value per pixel a palette can be used.
 				 */
-				/*
-				 *TODO how to store alpha additionally
-				if (blpImage.flags() & blp::Blp::Flags::Alpha)
+				if (blpImage.pictureType() == blp::Blp::PictureType::PalettedWithoutAlpha)
 				{
-					result.setPixel(width, height, (result.pixel(width, height) | mipMap.alphaAt(width, height)));
+					result.setPixel(width, height, mipMap.paletteIndexAt(width, height));
 				}
-				*/
+				/*
+				 * If each pixel has its custom alpha value we cannot use a paletted compression
+				 */
+				else if (blpImage.pictureType() == blp::Blp::PictureType::PalettedWithAlpha1 || blpImage.pictureType() == blp::Blp::PictureType::PalettedWithAlpha2)
+				{
+					// use the custom alpha value from the pixel and not the one from the palette
+					result.setPixel(width, height, colorToArgb(mipMap.colorAt(width, height).paletteColor(blpImage.palette().get())));
+				}
 			}
+			else if (blpImage.compression() == blp::Blp::Compression::Jpeg)
+			{
+				result.setPixel(width, height, colorToArgb(mipMap.colorAt(width, height).rgba()));
+			}
+
 		}
 	}
 
@@ -301,12 +221,10 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp &blpImage)
 
 bool BlpIOHandler::write(const QImage &image, blp::Blp *blpImage)
 {
-	if (!option(SubType).isNull())
-	{
-		blpImage->setCompression(static_cast<blp::Blp::Compression>(option(SubType).toUInt()));
-		qDebug() << "SubType has been set to " << option(SubType).toUInt();
-	}
-	else if (image.format() == QImage::Format_Indexed8)
+	blpImage->setFormat(blp::Blp::Format::Blp1);
+
+	// TODO there is no way to detect if the image is paletted but with custom alpha values?!
+	if (image.format() == QImage::Format_Indexed8)
 	{
 		qDebug() << "Is paletted";
 		blpImage->setCompression(blp::Blp::Compression::Paletted);
@@ -344,33 +262,45 @@ bool BlpIOHandler::write(const QImage &image, blp::Blp *blpImage)
 	blpImage->setWidth(image.width());
 	blpImage->setHeight(image.height());
 	// TODO when to use with alpha??
-	blpImage->setPictureType(blp::Blp::PictureType::PalettedWithoutAlpha);
+	if (blpImage->compression() == blp::Blp::Compression::Paletted)
+	{
+		blpImage->setPictureType(blp::Blp::PictureType::PalettedWithoutAlpha);
+	}
 
-	// create mip map
+	// generate all necessary MIP maps
 	// palette is filled automatically by Blp::write
-	if (blpImage->generateMipMaps(1) != 1)
+	if (blpImage->generateRequiredMipMaps() == 0)
 	{
 		return false;
 	}
 
-	blp::Blp::MipMap &mipMap = blpImage->mipMaps()[0];
-
-	for (int width = 0; width < image.width(); ++width)
+	for (std::size_t i = 0; i < blpImage->mipMaps().size(); ++i)
 	{
-		for (int height = 0; height < image.height(); ++height)
+		blp::Blp::MipMap &mipMap = blpImage->mipMaps()[i];
+		const QImage scaledImage = image.scaled(mipMap.width(), mipMap.height());
+
+		if (scaledImage.width() != mipMap.width() || scaledImage.height() != mipMap.height())
 		{
-			if (blpImage->compression() == blp::Blp::Compression::Paletted)
+			return false;
+		}
+
+		for (blp::dword width = 0; width < mipMap.width(); ++width)
+		{
+			for (blp::dword height = 0; height < mipMap.height(); ++height)
 			{
-				// TODO support custom alpha value!
-				const int index = image.pixelIndex(width, height); // index has to be set because paletted compression can also be used
-				mipMap.setColorIndex(width, height, index);
-			}
-			else
-			{
-				// set color
-				const QRgb rgb = image.pixel(width, height);
-				const blp::color argb = rgbaToColor(rgb);
-				mipMap.setColorRgba(width, height, argb);
+				if (blpImage->compression() == blp::Blp::Compression::Paletted)
+				{
+					// TODO support custom alpha value!
+					const int index = scaledImage.pixelIndex(width, height); // index has to be set because paletted compression can also be used
+					mipMap.setColorIndex(width, height, boost::numeric_cast<blp::byte>(index));
+				}
+				else
+				{
+					// set color
+					const QRgb rgb = scaledImage.pixel(width, height);
+					const blp::color argb = argbToColor(rgb);
+					mipMap.setColorRgba(width, height, argb);
+				}
 			}
 		}
 	}

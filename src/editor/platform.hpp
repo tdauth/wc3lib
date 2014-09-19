@@ -39,6 +39,7 @@
 
 #include <Ogre.h>
 
+#include "../blp.hpp"
 #include "../map.hpp"
 #include "../mdlx.hpp"
 
@@ -48,6 +49,26 @@ namespace wc3lib
 namespace editor
 {
 
+/**
+ * Converts ARGB color \p argb into a BLP RGBA color.
+ * \return Returns BLP RGBA color.
+ * \ingroup colors
+ */
+inline blp::color argbToColor(QRgb argb)
+{
+	return (argb << 8) | qAlpha(argb);
+}
+
+/**
+ * Converts BLP RGBA color \p c into a Qt ARGB color.
+* \return Returns Qt ARGB color.
+* \ingroup colors
+*/
+inline QRgb colorToArgb(blp::color c)
+{
+	return (c >> 8) | (blp::alpha(c) << 24);
+}
+
 namespace
 {
 
@@ -56,23 +77,39 @@ inline QList<QVariant> stringList(const map::List &list)
 	QList<QVariant> result;
 
 	for (std::size_t i = 0; i < list.size(); ++i)
-		result << list[i].c_str();
+	{
+		// Warcraft III usually works with UTF-8 strings
+		result << QString::fromUtf8(list[i].c_str());
+	}
 
 	return result;
 }
 
 }
 
+/**
+ * Converts a Warcraft III object data value into a QVariant keeping the type.
+ *
+ * \param value The value which is converted into a QVariant.
+ *
+ * \return Returns a QVariant with the value's content keeping its underlying type.
+ *
+ * \sa valueToString()
+ */
 inline QVariant valueToVariant(const map::Value &value)
 {
 	switch (value.type())
 	{
 		case map::Value::Type::Integer:
+		{
 			return QVariant(value.toInteger());
+		}
 
 		case map::Value::Type::Real:
 		case map::Value::Type::Unreal:
+		{
 			return QVariant(value.toReal());
+		}
 
 		case map::Value::Type::String:
 		case map::Value::Type::RegenerationType:
@@ -85,13 +122,20 @@ inline QVariant valueToVariant(const map::Value &value)
 		case map::Value::Type::MissileArt:
 		case map::Value::Type::AttributeType:
 		case map::Value::Type::AttackBits:
-			return QVariant(value.toString().c_str());
+		{
+			// Warcraft III usually works with UTF-8 strings
+			return QVariant(QString::fromUtf8(value.toString().c_str()));
+		}
 
 		case map::Value::Type::Boolean:
+		{
 			return QVariant(value.toBoolean());
+		}
 
 		case map::Value::Type::Character:
+		{
 			return QVariant(value.toCharacter());
+		}
 
 		case map::Value::Type::UnitList:
 		case map::Value::Type::ItemList:
@@ -99,22 +143,37 @@ inline QVariant valueToVariant(const map::Value &value)
 		case map::Value::Type::StringList:
 		case map::Value::Type::AbilityList:
 		case map::Value::Type::HeroAbilityList:
+		{
 			return QVariant(stringList(value.toList()));
+		}
 	}
 
 	return QVariant();
 }
 
+/**
+ * Converts a Warcraft III object data value into a QString.
+ *
+ * \param value The value which is converted into a QString.
+ *
+ * \return Returns a QString with the value's content.
+ *
+ * \sa valueToVariant()
+ */
 inline QString valueToString(const map::Value &value)
 {
 	switch (value.type())
 	{
 		case map::Value::Type::Integer:
+		{
 			return QString::number(value.toInteger());
+		}
 
 		case map::Value::Type::Real:
 		case map::Value::Type::Unreal:
+		{
 			return QString::number(value.toReal());
+		}
 
 		case map::Value::Type::String:
 		case map::Value::Type::RegenerationType:
@@ -127,13 +186,19 @@ inline QString valueToString(const map::Value &value)
 		case map::Value::Type::MissileArt:
 		case map::Value::Type::AttributeType:
 		case map::Value::Type::AttackBits:
+		{
 			return QString::fromUtf8(value.toString().c_str());
+		}
 
 		case map::Value::Type::Boolean:
+		{
 			return QString::number(value.toBoolean());
+		}
 
 		case map::Value::Type::Character:
+		{
 			return QString(value.toCharacter());
+		}
 
 		case map::Value::Type::UnitList:
 		case map::Value::Type::ItemList:
@@ -163,7 +228,16 @@ inline QString valueToString(const map::Value &value)
 	return QString();
 }
 
-
+/**
+ * \defgroup teamcolors Team Colors
+ *
+ * Team colors are used to identify the owner of a Unit.
+ * Usually parts of the texture are reserved for the team color and are colored depending on the owning player
+ * of the unit.
+ * The enum specifies all team colors which are available in Warcraft III.
+ *
+ * \ingroup teamcolors
+ */
 enum class TeamColor
 {
 	Red,
@@ -187,49 +261,77 @@ enum class TeamColor
  * \param teamColor Team color which is converted.
  * \return Returns corresponding Qt RGB color.
  * \sa teamColor(const QColor&)
+ *
+ * \ingroup teamcolors
  */
 inline QColor teamColor(TeamColor teamColor)
 {
 	switch (teamColor)
 	{
 		case TeamColor::Red:
+		{
 			return QColor(Qt::red);
+		}
 
 		case TeamColor::Blue:
+		{
 			return QColor(Qt::blue);
+		}
 
 		case TeamColor::Teal:
+		{
 			return QColor(0x1CB619);
+		}
 
 		case TeamColor::Purple:
+		{
 			return QColor(0x800080);
+		}
 
 		case TeamColor::Yellow:
+		{
 			return QColor(Qt::yellow);
+		}
 
 		case TeamColor::Orange:
+		{
 			return QColor(0xFF8000);
+		}
 
 		case TeamColor::Green:
+		{
 			return QColor(Qt::green);
+		}
 
 		case TeamColor::Pink:
+		{
 			return QColor(0xFF80C0);
+		}
 
 		case TeamColor::Gray:
+		{
 			return QColor(0xC0C0C0);
+		}
 
 		case TeamColor::LightBlue:
+		{
 			return QColor(0x0080FF);
+		}
 
 		case TeamColor::DarkGreen:
+		{
 			return QColor(0x106246);
+		}
 
 		case TeamColor::Brown:
+		{
 			return QColor(0x804000);
+		}
 
 		case TeamColor::Black:
+		{
 			return QColor(Qt::black);
+		}
 	}
 
 	return QColor(Qt::red);
@@ -240,35 +342,63 @@ inline QColor teamColor(TeamColor teamColor)
  * \param color Qt RGB color which is converted.
  * \return Returns corresponding team color enumeration value.
  * \sa teamColor(TeamColor)
+ *
+ * \ingroup teamcolors
  */
 inline TeamColor teamColor(const QColor &color)
 {
 	if (color == Qt::red)
+	{
 		return TeamColor::Red;
+	}
 	else if (color == Qt::blue)
+	{
 		return TeamColor::Blue;
+	}
 	else if (color == 0x1CB619)
+	{
 		return TeamColor::Teal;
+	}
 	else if (color == 0x800080)
+	{
 		return TeamColor::Purple;
+	}
 	else if (color == Qt::yellow)
+	{
 		return TeamColor::Yellow;
+	}
 	else if (color == 0xFF8000)
+	{
 		return TeamColor::Orange;
+	}
 	else if (color == Qt::green)
+	{
 		return TeamColor::Green;
+	}
 	else if (color == 0xFF80C0)
+	{
 		return TeamColor::Pink;
+	}
 	else if (color == 0xC0C0C0)
+	{
 		return TeamColor::Gray;
+	}
 	else if (color == 0x0080FF)
+	{
 		return TeamColor::LightBlue;
+	}
 	else if (color == 0x106246)
+	{
 		return TeamColor::DarkGreen;
+	}
 	else if (color == 0x804000)
+	{
 		return TeamColor::Brown;
+	}
 	else if (color == Qt::black)
+	{
 		return TeamColor::Black;
+	}
 
 	return TeamColor::Red;
 }
@@ -282,7 +412,9 @@ inline KUrl teamColorUrl(TeamColor teamColor)
 	QString number = QString::number((int)teamColor);
 
 	if (number.size() == 1)
+	{
 		number.prepend('0');
+	}
 
 	return KUrl("ReplaceableTextures/TeamColor/TeamColor" + number + ".blp");
 }
@@ -296,7 +428,9 @@ inline KUrl teamGlowUrl(TeamColor teamGlow)
 	QString number = QString::number((int)teamGlow);
 
 	if (number.size() == 1)
+	{
 		number.prepend('0');
+	}
 
 	return KUrl("ReplaceableTextures/TeamGlow/TeamGlow" + number + ".blp");
 }
@@ -422,7 +556,9 @@ inline KUrl war3Url()
 	KUrl url(installUrl());
 
 	if (url.isEmpty())
+	{
 		return KUrl();
+	}
 
 	url.addPath("war3.mpq");
 
@@ -434,7 +570,9 @@ inline KUrl war3XUrl()
 	KUrl url(installXUrl());
 
 	if (url.isEmpty())
+	{
 		return KUrl();
+	}
 
 	url.addPath("war3x.mpq");
 
@@ -446,7 +584,9 @@ inline KUrl war3PatchUrl()
 	KUrl url(installUrl());
 
 	if (url.isEmpty())
+	{
 		return KUrl();
+	}
 
 	url.addPath("War3Patch.mpq");
 
@@ -458,7 +598,9 @@ inline KUrl war3XLocalUrl()
 	KUrl url(installXUrl());
 
 	if (url.isEmpty())
+	{
 		return KUrl();
+	}
 
 	url.addPath("War3xlocal.mpq");
 
@@ -534,7 +676,9 @@ inline QString mapFilter()
 	KMimeType::Ptr w3x(KMimeType::mimeType("application/x-w3x"));
 
 	if (w3m.isNull() || w3x.isNull())
+	{
 		return i18n("*|All Files\n*.w3m|Warcraft III: Reign of Chaos map\n*.w3m|Warcraft III: The Frozen Throne map");
+	}
 
 	return i18n("all/allfiles application/x-w3m application/x-w3x");
 }
@@ -551,7 +695,9 @@ inline QString objectsCollectionFilter()
 	KMimeType::Ptr wtg(KMimeType::mimeType("application/x-w3o"));
 
 	if (wtg.isNull())
+	{
 		return i18n("*|All Files\n*.w3o|Warcraft III Objects Collection");
+	}
 
 	return i18n("all/allfiles application/x-w3o");
 }
@@ -568,7 +714,9 @@ inline QString triggersFilter()
 	KMimeType::Ptr wtg(KMimeType::mimeType("application/x-wtg"));
 
 	if (wtg.isNull())
+	{
 		return i18n("*|All Files\n*.wtg|Warcraft III Triggers");
+	}
 
 	return i18n("all/allfiles application/x-wtg");
 }
@@ -585,7 +733,9 @@ inline QString customTextTriggersFilter()
 	KMimeType::Ptr wtc(KMimeType::mimeType("application/x-wtc"));
 
 	if (wtc.isNull())
+	{
 		return i18n("*|All Files\n*.wtc|Warcraft III Custom Text Triggers");
+	}
 
 	return i18n("all/allfiles application/x-wtc");
 }
@@ -607,7 +757,9 @@ inline void destroyAllAttachedMovableObjects(Ogre::SceneNode *node)
 	Ogre::SceneNode::ObjectIterator itObject = node->getAttachedObjectIterator(); // FIXME segmentation fault
 
 	while (itObject.hasMoreElements())
+	{
 		node->getCreator()->destroyMovableObject(itObject.getNext());
+	}
 
 	// Recurse to child SceneNodes
 	Ogre::SceneNode::ChildNodeIterator itChild = node->getChildIterator();

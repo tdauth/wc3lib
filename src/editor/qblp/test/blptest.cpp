@@ -19,11 +19,12 @@
  ***************************************************************************/
 
 #include "blptest.hpp"
-//#include "blptestConfig.h"
+#include "../../platform.hpp"
+#include "blptestConfig.h"
 
-//#ifndef QBLP_ABSOLUTE_PATH
-//#error Define QBLP_ABSOLUTE_PATH! // has to contain the absolute file path of the plugin
-//#endif
+#ifndef QBLP_ABSOLUTE_PATH
+#error Define QBLP_ABSOLUTE_PATH! // has to contain the absolute file path of the plugin
+#endif
 
 #include <QtGui>
 #include <QtTest>
@@ -39,18 +40,21 @@ namespace editor
 void BlpTest::initTestCase()
 {
 	// Called before the first testfunction is executed
-	/*
 	m_loader = new QPluginLoader(QBLP_ABSOLUTE_PATH, this);
-	QVERIFY2(m_loader->load(), m_loader->errorString().toStdString());
+	const bool loaded = m_loader->load();
+	const QString errorString = m_loader->errorString();
+	qDebug() << errorString;
+	QVERIFY(loaded);
 	QVERIFY(m_loader->isLoaded());
 
-	m_plugin = dynamic_cast<BlpIOPlugin*>(m_loader->instance());
-	QVERIFY(m_plugin != 0);
-	*/
+	//m_plugin = dynamic_cast<BlpIOPlugin*>(m_loader->instance());
+	//QVERIFY(m_plugin != 0);
 }
 
 void BlpTest::cleanupTestCase()
 {
+	m_plugin = 0;
+	QVERIFY(m_loader->unload());
     // Called after the last testfunction was executed
 }
 
@@ -82,6 +86,12 @@ void BlpTest::ioHandlerReadTest()
 	}
 
 	QVERIFY(success);
+	QVERIFY(blpImage.format() == blp::Blp::Format::Blp1);
+	QVERIFY(blpImage.compression() == blp::Blp::Compression::Jpeg);
+	QVERIFY(blpImage.mipMaps().size() >= 1);
+	QVERIFY(blpImage.mipMaps().front().width() == 8);
+	QVERIFY(blpImage.mipMaps().front().height() == 8);
+	const blp::color blpPixel = blpImage.mipMaps().front().colorAt(0, 0).rgba();
 
 	BlpIOHandler handler;
 
@@ -93,6 +103,9 @@ void BlpTest::ioHandlerReadTest()
 	QVERIFY(!image.isNull());
 	QVERIFY(image.size() == QSize(8, 8));
 	QVERIFY(image.format() == QImage::Format_ARGB32);
+	const blp::color qtPixel = argbToColor(image.pixel(0, 0));
+
+	QVERIFY(blpPixel == qtPixel);
 }
 
 void BlpTest::ioHandlerWriteTest()
@@ -130,6 +143,61 @@ void BlpTest::ioHandlerWriteTest()
 	QVERIFY(handler.write(image, &blpImage));
 	QVERIFY(blpImage.mipMaps()[0].width() == 8);
 	QVERIFY(blpImage.mipMaps()[0].height() == 8);
+
+	// now read again
+	image = QImage();
+	QVERIFY(image.isNull());
+	QVERIFY(handler.read(&image, blpImage));
+}
+
+void BlpTest::ioHandlerPalettedAlphaWriteTest()
+{
+	ifstream in("HumanCampaignCastle.blp", std::ios::in | std::ios::binary);
+	QVERIFY(in);
+	blp::Blp blpImage;
+	bool success = true;
+
+	try
+	{
+		blpImage.read(in);
+	}
+	catch (Exception &e)
+	{
+		success = false;
+		std::cerr << e.what() << std::endl;
+	}
+
+	QVERIFY(success);
+	QVERIFY(blpImage.format() == blp::Blp::Format::Blp1);
+	QVERIFY(blpImage.compression() == blp::Blp::Compression::Paletted);
+	QVERIFY(blpImage.pictureType() == blp::Blp::PictureType::PalettedWithAlpha2);
+	QVERIFY(blpImage.mipMaps().size() >= 1);
+	QVERIFY(blpImage.mipMaps().front().width() == 512);
+	QVERIFY(blpImage.mipMaps().front().height() == 512);
+	const blp::color blpRgb = blpImage.palette()[blpImage.mipMaps().front().paletteIndexAt(0, 0)];
+	const blp::byte blpAlpha =  blpImage.mipMaps().front().alphaAt(0, 0);
+	const blp::color blpPixel = blpImage.mipMaps().front().colorAt(0, 0).paletteColor(blpImage.palette().get());
+
+	BlpIOHandler handler;
+
+	QImage image;
+	QVERIFY(image.isNull());
+
+	QVERIFY(handler.read(&image, blpImage));
+
+	QVERIFY(!image.isNull());
+	QVERIFY(image.size() == QSize(512, 512));
+	QVERIFY(image.format() == QImage::Format_ARGB32);
+
+	const blp::color qtPixel = argbToColor(image.pixel(0, 0));
+
+	std::cerr << std::hex << "BLP RGB: " << blpRgb << std::endl;
+	std::cerr << std::hex << "BLP Alpha: "<< blpAlpha << std::endl;
+	std::cerr << std::hex << "BLP RGBA: "<< blpPixel << std::endl;
+	std::cerr << std::hex << "Qt RGBA: "<< qtPixel << std::endl;
+	std::cerr.unsetf(std::ios::hex);
+
+	QVERIFY(blpPixel == qtPixel);
 }
 
 void BlpTest::writeTest()
@@ -142,9 +210,11 @@ void BlpTest::writeTest()
 	QVERIFY(image.format() == QImage::Format_ARGB32);
 
 	QImageWriter writer("OutDISBTNMagic.blp");
+	QVERIFY(writer.canWrite());
 	QVERIFY(writer.write(image));
 
 	QImageReader reader("OutDISBTNMagic.blp");
+	QVERIFY(reader.canRead());
 	QVERIFY(reader.read(&image));
 
 	QCOMPARE(byteCount, image.byteCount()); // new byte count == old byte count

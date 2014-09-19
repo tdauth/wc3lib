@@ -43,20 +43,16 @@ class KDE_EXPORT BlpIOHandler : public QImageIOHandler
 	public:
 		BlpIOHandler();
 		virtual ~BlpIOHandler();
-		virtual bool canRead() const;
+		virtual bool canRead() const override;
 		/**
 		* Assigns data from device to \p image.
 		*/
-		virtual bool read(QImage *image);
-		/**
-		 * \param option \ref Quality is only supported if option \ref SubType is \ref blp::Blp::Compression::Jpeg.
-		 */
-		virtual bool supportsOption(ImageOption option) const;
-		virtual QVariant option(ImageOption option) const;
+		virtual bool read(QImage *image) override;
+
 		/**
 		* Writes data from \p image to device.
 		*/
-		virtual bool write(const QImage &image);
+		virtual bool write(const QImage &image) override;
 
 		virtual bool read(QImage *image, const blp::Blp::MipMap &mipMap, const blp::Blp &blpImage);
 		/**
