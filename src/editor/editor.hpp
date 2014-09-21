@@ -27,6 +27,7 @@
 #include <kdemacros.h>
 #include <KMainWindow>
 #include <KAboutData>
+#include <KActionCollection>
 
 #include "platform.hpp"
 #include "mpqprioritylist.hpp"
@@ -40,6 +41,9 @@ namespace editor
 {
 
 class WarcraftIIIShared;
+class Map;
+class Module;
+class SourcesDialog;
 
 /**
  * \brief This class emulates the Warcraft III World Editor. It provides all necessary editor modules.
@@ -57,20 +61,20 @@ class KDE_EXPORT Editor : public KMainWindow, public MpqPriorityList
 		/**
 		 * Is emitted when a new module has been added via \ref addModule().
 		 */
-		void createdModule(class Module *module);
+		void createdModule(Module *module);
 		/**
 		 * This signal is being emitted when a map has been opened.
 		 */
-		void openedMap(class Map *map);
+		void openedMap(Map *map);
 		/**
 		 * Since one Editor instance allows you to edit multiple maps this signal is emitted when the currently opened map is changed.
 		 * This signal can be important to all editor's modules because they're oftenly showing map-related data
 		 */
-		void switchedToMap(class Map *map);
+		void switchedToMap(Map *map);
 		/**
 		 * Is emitted when a map is going to be closed.
 		 */
-		void aboutToCloseMap(class Map *map);
+		void aboutToCloseMap(Map *map);
 		/**
 		 * Is emitted when a map has finally been closed.
 		 * Therefore there is no Map parameter since the object has already been released.
@@ -80,13 +84,13 @@ class KDE_EXPORT Editor : public KMainWindow, public MpqPriorityList
 
 	public:
 		typedef Editor self;
-		typedef QLinkedList<class Module*> Modules;
-		typedef QMap<class Module*, class QAction*> ModulesActions;
+		typedef QLinkedList<Module*> Modules;
+		typedef QMap<Module*, QAction*> ModulesActions;
 		/**
 		 * \note Index is useful for corresponding action.
 		 */
-		typedef QList<class Map*> Maps;
-		typedef QMap<class Map*, class QAction*> MapActions;
+		typedef QList<Map*> Maps;
+		typedef QMap<Map*, QAction*> MapActions;
 
 		static const KAboutData& aboutData();
 		static const KAboutData& wc3libAboutData();
@@ -98,7 +102,7 @@ class KDE_EXPORT Editor : public KMainWindow, public MpqPriorityList
 		 * Template get element function for pointers which can be 0 and should be set/allocated when being get.
 		 * \note Emits \ref createdModule() after module has been added.
 		 */
-		void addModule(class Module *module);
+		void addModule(Module *module);
 
 		/**
 		 * When being called the first time this functions tries to allocate the OGRE root instance.
@@ -107,26 +111,26 @@ class KDE_EXPORT Editor : public KMainWindow, public MpqPriorityList
 		 * \todo Support "ogre.cfg" and "plugins.cfg" path options (for \ref ModelView as well).
 		 */
 		Root* root() const;
-		class Map* currentMap() const;
+		Map* currentMap() const;
 
 		/**
 		 * Contains many default actions shared by all module tool bars like "Open Map" etc.
 		 */
-		class KActionCollection* actionCollection() const;
+		KActionCollection* actionCollection() const;
 		/**
 		 * Contains actions of all registered modules of the editor.
 		 * \ref addModule()
 		 */
-		class KActionCollection* modulesActionCollection() const;
+		KActionCollection* modulesActionCollection() const;
 		const ModulesActions& modulesActions() const;
-		class KActionCollection* mapsActionCollection() const;
+		KActionCollection* mapsActionCollection() const;
 		const MapActions& mapActions() const;
 		const Modules& modules() const;
 		const Maps& maps() const;
 		/**
 		 * \note Allocated on request!
 		 */
-		class NewMapDialog* newMapDialog() const;
+		NewMapDialog* newMapDialog() const;
 
 	public slots:
 		/**
@@ -144,8 +148,8 @@ class KDE_EXPORT Editor : public KMainWindow, public MpqPriorityList
 		/**
 		 * Emits signal \ref switchedToMap() with \p map as parameter.
 		 */
-		void switchToMap(class Map *map);
-		void closeMap(class Map *map);
+		void switchToMap(Map *map);
+		void closeMap(Map *map);
 		/**
 		 * Closes current map.
 		 * \sa currentMap()
@@ -171,30 +175,30 @@ class KDE_EXPORT Editor : public KMainWindow, public MpqPriorityList
 		static KAboutData m_wc3libAboutData;
 
 		Root *m_root;
-		class Map *m_currentMap;
+		Map *m_currentMap;
 
-		class KActionCollection *m_actionCollection;
-		class KActionCollection *m_modulesActionCollection;
+		KActionCollection *m_actionCollection;
+		KActionCollection *m_modulesActionCollection;
 		ModulesActions m_modulesActions;
-		class KActionCollection *m_mapsActionCollection;
+		KActionCollection *m_mapsActionCollection;
 		MapActions m_mapActions;
 		Modules m_modules;
 		Maps m_maps;
-		class NewMapDialog *m_newMapDialog;
-		class SourcesDialog *m_sourcesDialog;
+		NewMapDialog *m_newMapDialog;
+		SourcesDialog *m_sourcesDialog;
 };
 
-inline class Map* Editor::currentMap() const
+inline Map* Editor::currentMap() const
 {
 	return m_currentMap;
 }
 
-inline class KActionCollection* Editor::actionCollection() const
+inline KActionCollection* Editor::actionCollection() const
 {
 	return this->m_actionCollection;
 }
 
-inline class KActionCollection* Editor::modulesActionCollection() const
+inline KActionCollection* Editor::modulesActionCollection() const
 {
 	return this->m_modulesActionCollection;
 }
@@ -204,7 +208,7 @@ inline const Editor::ModulesActions& Editor::modulesActions() const
 	return this->m_modulesActions;
 }
 
-inline class KActionCollection* Editor::mapsActionCollection() const
+inline KActionCollection* Editor::mapsActionCollection() const
 {
 	return m_mapsActionCollection;
 }
@@ -224,7 +228,7 @@ inline const Editor::Maps& Editor::maps() const
 	return m_maps;
 }
 
-inline class NewMapDialog* Editor::newMapDialog() const
+inline NewMapDialog* Editor::newMapDialog() const
 {
 	if (this->m_newMapDialog == 0)
 		const_cast<self*>(this)->m_newMapDialog = new NewMapDialog(const_cast<self*>(this), const_cast<self*>(this));

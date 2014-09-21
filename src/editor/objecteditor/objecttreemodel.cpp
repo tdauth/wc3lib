@@ -209,6 +209,58 @@ QVariant ObjectTreeModel::headerData(int section, Qt::Orientation orientation, i
 	return QVariant();
 }
 
+bool ObjectTreeModel::insertRows(int row, int count, const QModelIndex &parent)
+{
+	qDebug() << "Insert rows!";
+	ObjectTreeItem *parentItem = item(parent);
+	ObjectTreeItem::Children children = parentItem->children();
+
+	for (int i = row; i < count; ++i)
+	{
+		ObjectTreeItem *item = new ObjectTreeItem(parentItem->objectData(), "", "", parentItem);
+
+		if (i >= children.size())
+		{
+			children.push_back(item);
+		}
+		else
+		{
+			children[i] = item;
+		}
+	}
+
+	parentItem->setChildren(children);
+
+
+	return true;
+}
+
+bool ObjectTreeModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+	qDebug() << "Remove rows!";
+	ObjectTreeItem *parentItem = item(parent);
+	qDebug() << "Parent:" << parentItem->text(false);
+	qDebug() << "Rows:" << parentItem->children().count();
+	qDebug() << "Row + count:" << row + count;
+
+	if (row + count > parentItem->children().count())
+	{
+		return false;
+	}
+
+	beginRemoveRows(parent, row, count);
+
+	for (int i = row; i < count; ++i)
+	{
+		delete parentItem->children().takeAt(i);
+	}
+
+
+	endRemoveRows();
+
+	return true;
+}
+
 void ObjectTreeModel::clearCustomItems()
 {
 	foreach (ObjectTreeItem *item, this->m_customItems)
@@ -219,24 +271,64 @@ void ObjectTreeModel::clearCustomItems()
 	this->m_customItems.clear();
 }
 
-ObjectTreeItem* ObjectTreeModel::item(QModelIndex &index) const
+ObjectTreeItem* ObjectTreeModel::item(const QModelIndex &index) const
 {
 	return (ObjectTreeItem*)(index.internalPointer());
 }
 
-void ObjectTreeModel::load(MpqPriorityList* source, ObjectData* objectData, QWidget* window)
+void ObjectTreeModel::load(MpqPriorityList* source, ObjectData *objectData, QWidget *window)
 {
 	connect(objectData, SIGNAL(objectCreation(const QString&, const QString&)), this, SLOT(createObject(const QString&, const QString&)));
+	connect(objectData, SIGNAL(objectRemoval(const QString&, const QString&)), this, SLOT(removeObject(const QString&, const QString&)));
 	connect(objectData, SIGNAL(objectReset(const QString&, const QString&)), this, SLOT(resetObject(const QString&, const QString&)));
 	connect(objectData, SIGNAL(fieldModification(const QString &, const QString &, const QString &)), this, SLOT(modifyField(const QString&, const QString&, const QString&)));
 }
 
-void ObjectTreeModel::createObject(const QString& originalObjectId, const QString& customObjectId)
+void ObjectTreeModel::createObject(const QString &originalObjectId, const QString &customObjectId)
 {
 	ObjectData *objectData = dynamic_cast<ObjectData*>(sender());
+	qDebug() << "Object data:" << objectData;
+	qDebug() << "Original object:" << originalObjectId;
+	qDebug() << "Custom object:" << customObjectId;
 	// TODO insert item
 	// createItem should emit all signals for adding new rows
-	ObjectTreeItem *item = this->createItem(objectData->source(), objectData, 0, originalObjectId, customObjectId);
+	if (objectData != 0)
+	{
+		ObjectTreeItem *item = this->createItem(objectData->source(), objectData, 0, originalObjectId, customObjectId);
+	}
+}
+
+void ObjectTreeModel::removeObject(const QString &originalObjectId, const QString &customObjectId)
+{
+	ObjectData *objectData = dynamic_cast<ObjectData*>(sender());
+	qDebug() << "Object data:" << objectData;
+	qDebug() << "Original object:" << originalObjectId;
+	qDebug() << "Custom object:" << customObjectId;
+	// TODO insert item
+	// createItem should emit all signals for adding new rows
+	if (objectData != 0)
+	{
+		ObjectTreeItem *item = this->item(originalObjectId, customObjectId);
+		ObjectTreeItem *parent = item->parent();
+		QModelIndex parentIndex;
+		int row = 0;
+
+		qDebug() << "Item:" << item->text(false);
+		qDebug() << "Custom item:" <<  this->m_customItems.find(ObjectId(originalObjectId, customObjectId)).value()->text(false);
+
+		if (parent != 0)
+		{
+			parentIndex = this->parent(item->modelIndex(this));
+			row = item->row();
+		}
+		else
+		{
+			row = this->topLevelRow(item);
+		}
+
+		removeRows(row, 1, parentIndex);
+
+	}
 }
 
 void ObjectTreeModel::resetObject(const QString& originalObjectId, const QString& customObjectId)
@@ -257,13 +349,31 @@ void ObjectTreeModel::resetObject(const QString& originalObjectId, const QString
 
 void ObjectTreeModel::modifyField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId)
 {
+	ObjectData *objectData = boost::polymorphic_cast<ObjectData*>(QObject::sender());
 	ObjectTreeItem *item = this->item(originalObjectId, customObjectId);
 
 	if (item != 0)
 	{
+		ObjectTreeItem *parent = this->itemParent(objectData, originalObjectId, customObjectId);
 		QModelIndex index = item->modelIndex(this);
 
+		/*
+		 * Signal that data have changed.
+		 * For example if the name has changed it will be updated automatically in the view.
+		 */
 		emit dataChanged(index, index);
+
+		/*
+		 * If the item would have a new parent it has been moved.
+		 * For example it would have a new parent if the race or unit type has been changed.
+		 */
+		if (item->parent() != parent)
+		{
+			qDebug() << "Move the row!!";
+			beginMoveRows(index, item->row(), item->row(), parent->modelIndex(this), parent->children().size());
+			endMoveRows();
+
+		}
 	}
 	else
 	{

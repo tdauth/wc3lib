@@ -280,8 +280,11 @@ void UnitEditor::onNewObject()
 	if (this->unitSelectionDialog()->exec() == QDialog::Accepted)
 	{
 		// TODO calculate custom id
+		const QString customObjectId = this->unitData()->nextCustomObjectId();
 
-		this->objectData()->modifyField(this->unitSelectionDialog()->originalObjectId(), this->unitData()->nextCustomObjectId(), "unam", this->unitSelectionDialog()->unitName());
+		qDebug() << "Custom Object ID:" << customObjectId;
+
+		this->objectData()->modifyField(this->unitSelectionDialog()->originalObjectId(), customObjectId, "unam", this->unitSelectionDialog()->unitName());
 	}
 }
 

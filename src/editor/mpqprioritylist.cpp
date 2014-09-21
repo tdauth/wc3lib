@@ -35,6 +35,10 @@ MpqPriorityListEntry::MpqPriorityListEntry(const KUrl &url, Priority priority) :
 {
 }
 
+MpqPriorityListEntry::~MpqPriorityListEntry()
+{
+}
+
 MpqPriorityList::MpqPriorityList() : m_sharedData(new WarcraftIIIShared(this))
 {
 
@@ -42,6 +46,17 @@ MpqPriorityList::MpqPriorityList() : m_sharedData(new WarcraftIIIShared(this))
 
 MpqPriorityList::~MpqPriorityList()
 {
+	/*
+	 * Sets the source for all resources to 0 before deleting the MPQ priority list.
+	 * Otherwise when the priority list is already deleted they will try to remove themselves from this source or to load data from the source.
+	 */
+	for (Resources::iterator iterator = this->m_resources.begin(); iterator != this->m_resources.end(); ++iterator)
+	{
+
+		Resource *resource = iterator->second;
+		this->m_resources.erase(iterator);
+		resource->setSource(0);
+	}
 }
 
 

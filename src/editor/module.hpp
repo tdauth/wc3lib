@@ -24,17 +24,30 @@
 #include <typeinfo>
 
 #include <QWidget>
+#include <QVBoxLayout>
+#include <QGridLayout>
 
 #include <kdemacros.h>
 #include <KComponentData>
 #include <KAboutData>
+#include <KAction>
 #include <KMenu>
+#include <KMenuBar>
 
 namespace wc3lib
 {
 
 namespace editor
 {
+
+class MpqPriorityList;
+class ModuleMenu;
+class ModuleToolBar;
+class Editor;
+class WindowsMenu;
+class SettingsInterface;
+class Map;
+class SourcesDialog;
 
 /**
  * \brief Abstract class for module implementation such as model or terrain editors.
@@ -52,9 +65,9 @@ class KDE_EXPORT Module : public QWidget
 		 * \param parent Parent widget for which the module widget is created.
 		 * \param f Window flags for the module widget.
 		 */
-		Module(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		Module(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~Module();
-		class MpqPriorityList* source() const;
+		MpqPriorityList* source() const;
 		/**
 		 * \warning Don't use in constructor since it calls virtual function \ref moduleAboutData() on initialization.
 		 */
@@ -63,12 +76,12 @@ class KDE_EXPORT Module : public QWidget
 		 * \copydoc Module::componentData()
 		 */
 		const KComponentData& componentData() const;
-		class KMenu* fileMenu() const;
-		class KMenu* editMenu() const;
-		class ModuleMenu* moduleMenu() const;
-		class KMenuBar* menuBar() const;
-		class WindowsMenu* windowsMenu() const;
-		class ModuleToolBar* toolBar() const;
+		KMenu* fileMenu() const;
+		KMenu* editMenu() const;
+		ModuleMenu* moduleMenu() const;
+		KMenuBar* menuBar() const;
+		WindowsMenu* windowsMenu() const;
+		ModuleToolBar* toolBar() const;
 
 		/**
 		 * This function uses dynamic type checking to get the source's type.
@@ -81,7 +94,7 @@ class KDE_EXPORT Module : public QWidget
 		 * \throw std::bad_cast Throws an exception when \ref hasEditor() returns false and therefore source isn't an Editor instance.
 		 * \sa source(), hasEditor()
 		 */
-		class Editor* editor() const throw (std::bad_cast);
+		Editor* editor() const;
 
 		/**
 		 * Name of corresponding action in module menu of editor's action collection.
@@ -101,15 +114,15 @@ class KDE_EXPORT Module : public QWidget
 		 */
 		virtual void setupUi();
 
-		virtual void createFileActions(class KMenu *menu) = 0;
-		virtual void createEditActions(class KMenu *menu) = 0;
-		virtual void createMenus(class KMenuBar *menuBar) = 0;
-		virtual void createWindowsActions(class WindowsMenu *menu) = 0;
+		virtual void createFileActions(KMenu *menu) = 0;
+		virtual void createEditActions(KMenu *menu) = 0;
+		virtual void createMenus(KMenuBar *menuBar) = 0;
+		virtual void createWindowsActions(WindowsMenu *menu) = 0;
 		/**
 		 * Use \ref ModuleToolBar::addCustomAction() or \ref ModuleToolBar::addCustomSeparator() to add stuff before the modules buttons.
 		 */
-		virtual void createToolButtons(class ModuleToolBar *toolBar) = 0;
-		virtual class SettingsInterface* settings() = 0;
+		virtual void createToolButtons(ModuleToolBar *toolBar) = 0;
+		virtual SettingsInterface* settings() = 0;
 		/**
 		 * About data which is assigned to the module and can be accessed via \ref componentData().
 		 * Default implementation returns \ref Editor::wc3libAboutData() with app and catalog name using \ref actionName().
@@ -117,13 +130,13 @@ class KDE_EXPORT Module : public QWidget
 		 */
 		virtual KAboutData moduleAboutData() const;
 
-		class QVBoxLayout* topLayout() const;
-		class QGridLayout* centerLayout() const;
+		QVBoxLayout* topLayout() const;
+		QGridLayout* centerLayout() const;
 
 		/**
 		 * This event occurs when module has an \ref Editor and its opened map is changed.
 		 */
-		virtual void onSwitchToMap(class Map *map) = 0;
+		virtual void onSwitchToMap(Map *map) = 0;
 
 		virtual void changeEvent(QEvent *event);
 
@@ -143,28 +156,28 @@ class KDE_EXPORT Module : public QWidget
 		virtual void triggered(QAction *action);
 
 	private:
-		class MpqPriorityList *m_source;
+		MpqPriorityList *m_source;
 		typedef QScopedPointer<KComponentData> ComponentDataPtr;
 		ComponentDataPtr m_componentData;
-		class KMenu *m_fileMenu;
-		class KMenu *m_editMenu;
-		class ModuleMenu *m_moduleMenu;
-		class KMenuBar *m_menuBar;
-		class WindowsMenu *m_windowsMenu;
-		class ModuleToolBar *m_toolBar;
-		class QAction *m_closeAction;
-		class KAction *m_sourcesAction;
+		KMenu *m_fileMenu;
+		KMenu *m_editMenu;
+		ModuleMenu *m_moduleMenu;
+		KMenuBar *m_menuBar;
+		WindowsMenu *m_windowsMenu;
+		ModuleToolBar *m_toolBar;
+		QAction *m_closeAction;
+		KAction *m_sourcesAction;
 
-		class QVBoxLayout *m_topLayout;
-		class QGridLayout *m_centerLayout;
+		QVBoxLayout *m_topLayout;
+		QGridLayout *m_centerLayout;
 
-		class SourcesDialog *m_sourcesDialog;
+		SourcesDialog *m_sourcesDialog;
 
 	private slots:
-		void switchToMap(class Map *map);
+		void switchToMap(Map *map);
 };
 
-inline class MpqPriorityList* Module::source() const
+inline MpqPriorityList* Module::source() const
 {
 	return this->m_source;
 }
@@ -185,42 +198,42 @@ inline const KComponentData& Module::componentData() const
 	return *m_componentData;
 }
 
-inline class KMenu* Module::fileMenu() const
+inline KMenu* Module::fileMenu() const
 {
 	return m_fileMenu;
 }
 
-inline class KMenu* Module::editMenu() const
+inline KMenu* Module::editMenu() const
 {
 	return m_editMenu;
 }
 
-inline class ModuleMenu* Module::moduleMenu() const
+inline ModuleMenu* Module::moduleMenu() const
 {
 	return m_moduleMenu;
 }
 
-inline class KMenuBar* Module::menuBar() const
+inline KMenuBar* Module::menuBar() const
 {
 	return m_menuBar;
 }
 
-inline class WindowsMenu* Module::windowsMenu() const
+inline WindowsMenu* Module::windowsMenu() const
 {
 	return m_windowsMenu;
 }
 
-inline class ModuleToolBar* Module::toolBar() const
+inline ModuleToolBar* Module::toolBar() const
 {
 	return m_toolBar;
 }
 
-inline class QVBoxLayout* Module::topLayout() const
+inline QVBoxLayout* Module::topLayout() const
 {
 	return this->m_topLayout;
 }
 
-inline class QGridLayout* Module::centerLayout() const
+inline QGridLayout* Module::centerLayout() const
 {
 	return this->m_centerLayout;
 }

@@ -23,6 +23,7 @@
 #include <KMessageBox>
 
 #include "unitdata.hpp"
+#include "objecttreeitem.hpp"
 #include "../metadata.hpp"
 #include "../mpqprioritylist.hpp"
 
@@ -35,27 +36,7 @@ namespace editor
 
 UnitData::UnitData(MpqPriorityList *source)
 : ObjectData(source)
-, m_unitMetaData(0)
-, m_unitEditorData(0)
-, m_unitData(0)
-, m_unitUi(0)
-, m_unitBalance(0)
-, m_unitWeapons(0)
-, m_unitAbilities(0)
-, m_humanUnitStrings(0)
-, m_humanUnitFunc(0)
-, m_orcUnitStrings(0)
-, m_orcUnitFunc(0)
-, m_undeadUnitStrings(0)
-, m_undeadUnitFunc(0)
-, m_nightElfUnitStrings(0)
-, m_nightElfUnitFunc(0)
-, m_neutralUnitStrings(0)
-, m_neutralUnitFunc(0)
-, m_campaignUnitStrings(0)
-, m_campaignUnitFunc(0)
 {
-
 }
 
 bool UnitData::hasDefaultFieldValue(const QString& objectId, const QString& fieldId) const
@@ -289,7 +270,7 @@ QString UnitData::objectName(const QString& originalObjectId, const QString& cus
 
 void UnitData::load(QWidget *widget)
 {
-	this->m_unitMetaData = new MetaData(KUrl("Units/UnitMetaData.slk"));
+	this->m_unitMetaData.reset(new MetaData(KUrl("Units/UnitMetaData.slk")));
 	this->m_unitMetaData->setSource(this->source());
 
 	try
@@ -301,7 +282,7 @@ void UnitData::load(QWidget *widget)
 		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_unitMetaData->url().toEncoded().constData(), e.what()));
 	}
 
-	this->m_unitEditorData = new MetaData(KUrl("UI/UnitEditorData.txt"));
+	this->m_unitEditorData.reset(new MetaData(KUrl("UI/UnitEditorData.txt")));
 	this->m_unitEditorData->setSource(this->source());
 
 	try
@@ -313,7 +294,7 @@ void UnitData::load(QWidget *widget)
 		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_unitEditorData->url().toEncoded().constData(), e.what()));
 	}
 
-	this->m_unitData = new MetaData(KUrl("Units/UnitData.slk"));
+	this->m_unitData.reset(new MetaData(KUrl("Units/UnitData.slk")));
 	this->m_unitData->setSource(this->source());
 
 	try
@@ -325,7 +306,7 @@ void UnitData::load(QWidget *widget)
 		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_unitData->url().toEncoded().constData(), e.what()));
 	}
 
-	this->m_unitUi = new MetaData(KUrl("Units/unitUI.slk"));
+	this->m_unitUi.reset(new MetaData(KUrl("Units/unitUI.slk")));
 	this->m_unitUi->setSource(this->source());
 
 	try
@@ -337,7 +318,7 @@ void UnitData::load(QWidget *widget)
 		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_unitUi->url().toEncoded().constData(), e.what()));
 	}
 
-	this->m_unitBalance = new MetaData(KUrl("Units/UnitBalance.slk"));
+	this->m_unitBalance.reset(new MetaData(KUrl("Units/UnitBalance.slk")));
 	this->m_unitBalance->setSource(this->source());
 
 	try
@@ -349,7 +330,7 @@ void UnitData::load(QWidget *widget)
 		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_unitBalance->url().toEncoded().constData(), e.what()));
 	}
 
-	this->m_unitWeapons = new MetaData(KUrl("Units/UnitWeapons.slk"));
+	this->m_unitWeapons.reset(new MetaData(KUrl("Units/UnitWeapons.slk")));
 	this->m_unitWeapons->setSource(this->source());
 
 	try
@@ -361,7 +342,7 @@ void UnitData::load(QWidget *widget)
 		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_unitWeapons->url().toEncoded().constData(), e.what()));
 	}
 
-	this->m_unitAbilities = new MetaData(KUrl("Units/UnitAbilities.slk"));
+	this->m_unitAbilities.reset(new MetaData(KUrl("Units/UnitAbilities.slk")));
 	this->m_unitAbilities->setSource(this->source());
 
 	try
@@ -373,7 +354,7 @@ void UnitData::load(QWidget *widget)
 		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_unitAbilities->url().toEncoded().constData(), e.what()));
 	}
 
-	this->m_humanUnitStrings = new MetaData(KUrl("Units/HumanUnitStrings.txt"));
+	this->m_humanUnitStrings.reset(new MetaData(KUrl("Units/HumanUnitStrings.txt")));
 	this->m_humanUnitStrings->setSource(this->source());
 
 	try
@@ -385,7 +366,7 @@ void UnitData::load(QWidget *widget)
 		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_humanUnitStrings->url().toEncoded().constData(), e.what()));
 	}
 
-	this->m_humanUnitFunc = new MetaData(KUrl("Units/HumanUnitFunc.txt"));
+	this->m_humanUnitFunc.reset(new MetaData(KUrl("Units/HumanUnitFunc.txt")));
 	this->m_humanUnitFunc->setSource(this->source());
 
 	try
@@ -397,7 +378,7 @@ void UnitData::load(QWidget *widget)
 		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_humanUnitFunc->url().toEncoded().constData(), e.what()));
 	}
 
-	this->m_orcUnitStrings = new MetaData(KUrl("Units/OrcUnitStrings.txt"));
+	this->m_orcUnitStrings.reset(new MetaData(KUrl("Units/OrcUnitStrings.txt")));
 	this->m_orcUnitStrings->setSource(this->source());
 
 	try
@@ -409,7 +390,7 @@ void UnitData::load(QWidget *widget)
 		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_orcUnitStrings->url().toEncoded().constData(), e.what()));
 	}
 
-	this->m_orcUnitFunc = new MetaData(KUrl("Units/OrcUnitFunc.txt"));
+	this->m_orcUnitFunc.reset(new MetaData(KUrl("Units/OrcUnitFunc.txt")));
 	this->m_orcUnitFunc->setSource(this->source());
 
 	try
@@ -421,7 +402,7 @@ void UnitData::load(QWidget *widget)
 		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_orcUnitFunc->url().toEncoded().constData(), e.what()));
 	}
 
-	this->m_undeadUnitStrings = new MetaData(KUrl("Units/UndeadUnitStrings.txt"));
+	this->m_undeadUnitStrings.reset(new MetaData(KUrl("Units/UndeadUnitStrings.txt")));
 	this->m_undeadUnitStrings->setSource(this->source());
 
 	try
@@ -433,7 +414,7 @@ void UnitData::load(QWidget *widget)
 		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_undeadUnitStrings->url().toEncoded().constData(), e.what()));
 	}
 
-	this->m_undeadUnitFunc = new MetaData(KUrl("Units/UndeadUnitFunc.txt"));
+	this->m_undeadUnitFunc.reset(new MetaData(KUrl("Units/UndeadUnitFunc.txt")));
 	this->m_undeadUnitFunc->setSource(this->source());
 
 	try
@@ -445,7 +426,7 @@ void UnitData::load(QWidget *widget)
 		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_undeadUnitFunc->url().toEncoded().constData(), e.what()));
 	}
 
-	this->m_nightElfUnitStrings = new MetaData(KUrl("Units/NightElfUnitStrings.txt"));
+	this->m_nightElfUnitStrings.reset(new MetaData(KUrl("Units/NightElfUnitStrings.txt")));
 	this->m_nightElfUnitStrings->setSource(this->source());
 
 	try
@@ -457,7 +438,7 @@ void UnitData::load(QWidget *widget)
 		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_nightElfUnitStrings->url().toEncoded().constData(), e.what()));
 	}
 
-	this->m_nightElfUnitFunc = new MetaData(KUrl("Units/NightElfUnitFunc.txt"));
+	this->m_nightElfUnitFunc.reset(new MetaData(KUrl("Units/NightElfUnitFunc.txt")));
 	this->m_nightElfUnitFunc->setSource(this->source());
 
 	try
@@ -469,7 +450,7 @@ void UnitData::load(QWidget *widget)
 		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_nightElfUnitFunc->url().toEncoded().constData(), e.what()));
 	}
 
-	this->m_neutralUnitStrings = new MetaData(KUrl("Units/NeutralUnitStrings.txt"));
+	this->m_neutralUnitStrings.reset(new MetaData(KUrl("Units/NeutralUnitStrings.txt")));
 	this->m_neutralUnitStrings->setSource(this->source());
 
 	try
@@ -481,7 +462,7 @@ void UnitData::load(QWidget *widget)
 		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_neutralUnitStrings->url().toEncoded().constData(), e.what()));
 	}
 
-	this->m_neutralUnitFunc = new MetaData(KUrl("Units/NeutralUnitFunc.txt"));
+	this->m_neutralUnitFunc.reset(new MetaData(KUrl("Units/NeutralUnitFunc.txt")));
 	this->m_neutralUnitFunc->setSource(this->source());
 
 	try
@@ -493,7 +474,7 @@ void UnitData::load(QWidget *widget)
 		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_neutralUnitFunc->url().toEncoded().constData(), e.what()));
 	}
 
-	this->m_campaignUnitStrings = new MetaData(KUrl("Units/CampaignUnitStrings.txt"));
+	this->m_campaignUnitStrings.reset(new MetaData(KUrl("Units/CampaignUnitStrings.txt")));
 	this->m_campaignUnitStrings->setSource(this->source());
 
 	try
@@ -505,7 +486,7 @@ void UnitData::load(QWidget *widget)
 		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_campaignUnitStrings->url().toEncoded().constData(), e.what()));
 	}
 
-	this->m_campaignUnitFunc = new MetaData(KUrl("Units/CampaignUnitFunc.txt"));
+	this->m_campaignUnitFunc.reset(new MetaData(KUrl("Units/CampaignUnitFunc.txt")));
 	this->m_campaignUnitFunc->setSource(this->source());
 
 	try
@@ -521,6 +502,20 @@ void UnitData::load(QWidget *widget)
 
 bool UnitData::objectIsBuilding(const QString &originalObjectId, const QString &customObjectId) const
 {
+	/*
+	 * In Frozen Throne there is an additional field which indicates if the unit is a building.
+	 */
+	if (((ObjectData*)this)->hasDefaultFieldValue(originalObjectId, "udbg"))
+	{
+		if (((ObjectData*)this)->fieldValue(originalObjectId, customObjectId, "udbg") == "1")
+		{
+			return true;
+		}
+	}
+
+	/*
+	 * Reign of Chaos
+	 */
 	bool ok = true;
 
 	/*
@@ -532,20 +527,34 @@ bool UnitData::objectIsBuilding(const QString &originalObjectId, const QString &
 		levelVar.toInt(&ok);
 	}
 
-	bool isBuilding = false;
+	return !ok;
+}
 
+bool UnitData::objectIsSpecial(const QString& originalObjectId, const QString& customObjectId) const
+{
 	/*
-	 * In Frozen Throne there is an additional field which indicates if the unit is a building.
+	 * In Frozen Throne there is an additional field which indicates if the unit is special.
 	 */
-	if (((ObjectData*)this)->hasDefaultFieldValue(originalObjectId, "udbg"))
+	if (((ObjectData*)this)->hasDefaultFieldValue(originalObjectId, "uspe"))
 	{
-		if (((ObjectData*)this)->fieldValue(originalObjectId, customObjectId, "udbg") == "1")
+		if (((ObjectData*)this)->fieldValue(originalObjectId, customObjectId, "uspe") == "1")
 		{
-			isBuilding = true;
+			return true;
 		}
 	}
 
-	return !ok || isBuilding; // buildings have no levels
+	/*
+	 * Reign of Chaos
+	 */
+	bool ok = true;
+
+	if (this->hasDefaultFieldValue(originalObjectId, "special"))
+	{
+		const QString specialVar = this->defaultFieldValue(originalObjectId, "special");
+		specialVar.toInt(&ok);
+	}
+
+	return !ok;
 }
 
 bool UnitData::objectIsHero(const QString &originalObjectId, const QString &customObjectId) const

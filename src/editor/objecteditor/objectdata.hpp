@@ -55,6 +55,7 @@ class ObjectData : public QObject
 		void modificationReset(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
 		void objectCreation(const QString &originalObjectId, const QString &customObjectId);
 		void objectReset(const QString &originalObjectId, const QString &customObjectId);
+		void objectRemoval(const QString &originalObjectId, const QString &customObjectId);
 		void fieldModification(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
 
 	public:
@@ -100,7 +101,7 @@ class ObjectData : public QObject
 
 		/**
 		 * \return Returns true if the field value of the field with ID \p fieldId of the standard object with the ID \p objectId does exist.
-		 * \sa fieldValue()
+		 * \sa defaultValue()
 		 */
 		virtual bool hasDefaultFieldValue(const QString &objectId, const QString &fieldId) const = 0;
 
@@ -109,7 +110,7 @@ class ObjectData : public QObject
 		 *
 		 * \note This does not resolve meta data but actual object data (default data for existing objects).
 		 *
-		 * \sa hasFieldValue()
+		 * \sa hasDefaultFieldValue()
 		 */
 		virtual QString defaultFieldValue(const QString &objectId, const QString &fieldId) const = 0;
 
@@ -209,6 +210,7 @@ class ObjectData : public QObject
 		bool isFieldModified(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const;
 
 		void resetObject(const QString &originalObjectId, const QString &customObjectId);
+		void deleteObject(const QString &originalObjectId, const QString &customObjectId);
 		bool isObjectModified(const QString &originalObjectId, const QString &customObjectId) const;
 		/**
 		 * Resets all modifications for standard and custom objects.
@@ -225,6 +227,7 @@ class ObjectData : public QObject
 		 * \sa isFieldModified()
 		 */
 		bool fieldModificiation(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, map::CustomObjects::Modification &modification) const;
+		bool hasFieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const;
 		QString fieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const;
 		QString fieldReadableValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const;
 

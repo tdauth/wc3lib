@@ -51,8 +51,8 @@ class UnitSelectionDialog : public QDialog, protected Ui::UnitSelectionDialog
 	Q_OBJECT
 
 	public:
-		typedef QHash<KPushButton*, QString> ButtonsByButton;
-		typedef QHash<QString, KPushButton*> ButtonsByObjectId;
+		typedef QHash<QAbstractButton*, QString> ButtonsByButton;
+		typedef QHash<QString, QAbstractButton*> ButtonsByObjectId;
 
 		explicit UnitSelectionDialog(MpqPriorityList *source, UnitData *unitData, QWidget* parent = 0, Qt::WindowFlags f = 0);
 
@@ -63,13 +63,36 @@ class UnitSelectionDialog : public QDialog, protected Ui::UnitSelectionDialog
 		UnitData* unitData() const;
 
 		QString unitName() const;
+		/**
+		 * \return Returns the original object ID of the currently selected object (unit).
+		 */
 		const QString& originalObjectId() const;
 
 		void clear();
 
 	private:
 		KPushButton* createButton(const QString &objectId);
+		/**
+		 * Checks button \p button and sets the basic unit name to the one of the checked button.
+		 * Besides it updates the OK button and enables it if the name is not empty.
+		 */
+		void checkButton(QAbstractButton *button);
 
+		int raceIndex(const QString &race) const;
+		int campaignIndex(int campaign) const;
+
+		/**
+		 * \return Returns the corresponding tileset combo box index of tileset \p tileset.
+		 */
+		int tilesetIndex(const QChar &tileset) const;
+		/**
+		 * \return Returns the corresponding level combo box index of level \p level.
+		 */
+		int levelIndex(const QString &level) const;
+
+		/**
+		 * Updates the currently displayed units depending on the selected combo box items.
+		 */
 		void update();
 
 		MpqPriorityList *m_source;

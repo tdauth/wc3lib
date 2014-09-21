@@ -75,12 +75,17 @@ class KDE_EXPORT WarcraftIIIShared
 		 */
 		typedef QHash<KUrl, QPixmap> Icons;
 
+		/**
+		 * Team colors are stored similar to \ref Icons in a map using their team color value from \ref TeamColor
+		 * as key.
+		 */
 		typedef boost::ptr_map<TeamColor, Texture> TeamColorTextures;
 
 		/**
 		 * The World Editor strings are accessed via \ref wc3lib::editor::MetaData which allows fast access at runtime to all strings.
 		 */
 		typedef boost::scoped_ptr<MetaData> WorldEditorStringsPtr;
+		typedef boost::scoped_ptr<MetaData> WorldEditorGameStringsPtr;
 		typedef boost::scoped_ptr<MetaData> WorldEditDataPtr;
 		typedef boost::scoped_ptr<map::TriggerData> TriggerDataPtr;
 		typedef boost::scoped_ptr<map::TriggerStrings> TriggerStringsPtr;
@@ -114,6 +119,17 @@ class KDE_EXPORT WarcraftIIIShared
 		 * \note Call \ref refreshWorldEditorStrings() before using world editor strings.
 		 */
 		const WorldEditorStringsPtr& worldEditorStrings() const;
+
+		/**
+		 * \param window Widget which is used for KIO download.
+		 */
+		void refreshWorldEditorGameStrings(QWidget *window, const KUrl &url = KUrl("UI/WorldEditGameStrings.txt"));
+		/**
+		 * World Editor game strings are shared between maps usually.
+		 * \note Call \ref refreshWorldEditorGameStrings() before using world editor game strings.
+		 */
+		const WorldEditorStringsPtr& worldEditorGameStrings() const;
+
 		/**
 		 * Returns localized string under key \p key in group \p group.
 		 * Call tr("WESTRING_APPNAME", "WorldEditStrings") to get the text "WARCRAFT III - Welt-Editor" from file "UI/WorldEditStrings.txt" of MPQ archive "War3xlocal.mpq" (Frozen Throne), for instance.
@@ -183,6 +199,7 @@ class KDE_EXPORT WarcraftIIIShared
 		mutable TeamColorTextures m_teamColorTextures;
 		mutable TeamColorTextures m_teamGlowTextures;
 		WorldEditorStringsPtr m_worldEditorStrings;
+		WorldEditorGameStringsPtr m_worldEditorGameStrings;
 		WorldEditDataPtr m_worldEditData;
 		TriggerDataPtr m_triggerData;
 		TriggerStringsPtr m_triggerStrings;
@@ -195,7 +212,12 @@ inline MpqPriorityList* WarcraftIIIShared::source() const
 
 inline const WarcraftIIIShared::WorldEditorStringsPtr& WarcraftIIIShared::worldEditorStrings() const
 {
-	return m_worldEditorStrings;
+	return this->m_worldEditorStrings;
+}
+
+inline const WarcraftIIIShared::WorldEditorStringsPtr& WarcraftIIIShared::worldEditorGameStrings() const
+{
+	return this->m_worldEditorGameStrings;
 }
 
 inline const WarcraftIIIShared::WorldEditDataPtr& WarcraftIIIShared::worldEditData() const

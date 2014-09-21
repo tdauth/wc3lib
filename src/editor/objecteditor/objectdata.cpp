@@ -271,7 +271,13 @@ void ObjectData::modifyField(const QString &originalObjectId, const QString &cus
 	{
 		iterator = this->m_objects.insert(objectId, Modifications());
 
-		emit objectCreation(originalObjectId, customObjectId);
+		/*
+		 * Created a new custom object.
+		 */
+		if (!customObjectId.isEmpty())
+		{
+			emit objectCreation(originalObjectId, customObjectId);
+		}
 	}
 
 	iterator.value().insert(fieldId, modification);
@@ -331,6 +337,13 @@ void ObjectData::resetObject(const QString &originalObjectId, const QString &cus
 	}
 }
 
+void ObjectData::deleteObject(const QString& originalObjectId, const QString& customObjectId)
+{
+	resetObject(originalObjectId, customObjectId);
+
+	emit objectRemoval(originalObjectId, customObjectId);
+}
+
 bool ObjectData::isObjectModified(const QString &originalObjectId, const QString &customObjectId) const
 {
 	const ObjectId objectId(originalObjectId, customObjectId);
@@ -371,6 +384,23 @@ bool ObjectData::fieldModificiation(const QString& originalObjectId, const QStri
 
 	return true;
 
+}
+
+bool ObjectData::hasFieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const
+{
+	const ObjectId objectId(originalObjectId, customObjectId);
+	const Objects::const_iterator iterator = this->m_objects.find(objectId);
+
+	if (iterator != this->m_objects.end())
+	{
+		return iterator->find(fieldId) != iterator->end();
+	}
+	else
+	{
+		return hasDefaultFieldValue(originalObjectId, fieldId);
+	}
+
+	return false;
 }
 
 QString ObjectData::fieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const

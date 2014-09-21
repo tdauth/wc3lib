@@ -42,23 +42,26 @@ UnitTreeModel::UnitTreeModel(QObject *parent)
 , m_humanMeleeHeroesItem(0)
 , m_humanMeleeSpecialItem(0)
 , m_orcItem(0)
-, m_orcUnitsItem(0)
-, m_orcBuildingsItem(0)
-, m_orcHeroesItem(0)
-, m_orcSpecialItem(0)
+, m_orcMeleeItem(0)
 , m_orcCampaignItem(0)
+, m_orcMeleeUnitsItem(0)
+, m_orcMeleeBuildingsItem(0)
+, m_orcMeleeHeroesItem(0)
+, m_orcMeleeSpecialItem(0)
 , m_undeadItem(0)
-, m_undeadUnitsItem(0)
-, m_undeadBuildingsItem(0)
-, m_undeadHeroesItem(0)
-, m_undeadSpecialItem(0)
+, m_undeadMeleeItem(0)
 , m_undeadCampaignItem(0)
-, m_nightElfItem(0)
-, m_nightelfUnitsItem(0)
-, m_nightelfBuildingsItem(0)
-, m_nightelfHeroesItem(0)
-, m_nightelfSpecialItem(0)
+, m_undeadMeleeUnitsItem(0)
+, m_undeadMeleeBuildingsItem(0)
+, m_undeadMeleeHeroesItem(0)
+, m_undeadMeleeSpecialItem(0)
+, m_nightelfItem(0)
+, m_nightelfMeleeItem(0)
 , m_nightelfCampaignItem(0)
+, m_nightelfMeleeUnitsItem(0)
+, m_nightelfMeleeBuildingsItem(0)
+, m_nightelfMeleeHeroesItem(0)
+, m_nightelfMeleeSpecialItem(0)
 , m_neutralNagaItem(0)
 , m_neutralNagaUnitsItem(0)
 , m_neutralNagaBuildingsItem(0)
@@ -131,8 +134,10 @@ ObjectTreeItem* UnitTreeModel::createItem(MpqPriorityList *source, ObjectData *o
 	return item;
 }
 
-ObjectTreeItem* UnitTreeModel::itemParent(UnitData *unitData, const QString &originalObjectId, const QString &customObjectId)
+
+ObjectTreeItem* UnitTreeModel::itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId)
 {
+	UnitData *unitData = boost::polymorphic_cast<UnitData*>(objectData);
 	const QString race = unitData->unitData()->value(originalObjectId, "race");
 	qDebug() << "Race:" << race;
 	QString campaign;
@@ -171,74 +176,83 @@ ObjectTreeItem* UnitTreeModel::itemParent(UnitData *unitData, const QString &ori
 				}
 			}
 		}
-		/*
 		else if (race == "orc")
 		{
-			if (special == "1")
-			{
-				return orcSpecialItem(unitData);
-			}
-			else if (campaign == "1")
+			if (campaign == "1")
 			{
 				return orcCampaignItem(unitData);
 			}
-			else if (unitData->objectIsBuilding(originalObjectId, customObjectId))
-			{
-				return orcBuildingsItem(unitData);
-			}
-			else if (unitData->objectIsHero(originalObjectId, customObjectId))
-			{
-				return orcHeroesItem(unitData);
-			}
 			else
 			{
-				return orcUnitsItem(unitData);
+				if (special == "1")
+				{
+					return orcMeleeSpecialItem(unitData);
+				}
+				else if (unitData->objectIsBuilding(originalObjectId, customObjectId))
+				{
+					return orcMeleeBuildingsItem(unitData);
+				}
+				else if (unitData->objectIsHero(originalObjectId, customObjectId))
+				{
+					return orcMeleeHeroesItem(unitData);
+				}
+				else
+				{
+					return orcMeleeUnitsItem(unitData);
+				}
 			}
 		}
 		else if (race == "nightelf")
 		{
-			if (special == "1")
-			{
-				return nightelfSpecialItem(unitData);
-			}
-			else if (campaign == "1")
+			if (campaign == "1")
 			{
 				return nightelfCampaignItem(unitData);
 			}
-			else if (unitData->objectIsBuilding(originalObjectId, customObjectId))
-			{
-				return nightelfBuildingsItem(unitData);
-			}
-			else if (unitData->objectIsHero(originalObjectId, customObjectId))
-			{
-				return nightelfHeroesItem(unitData);
-			}
 			else
 			{
-				return nightelfUnitsItem(unitData);
+				if (special == "1")
+				{
+					return nightelfMeleeSpecialItem(unitData);
+				}
+				else if (unitData->objectIsBuilding(originalObjectId, customObjectId))
+				{
+					return nightelfMeleeBuildingsItem(unitData);
+				}
+				else if (unitData->objectIsHero(originalObjectId, customObjectId))
+				{
+					return nightelfMeleeHeroesItem(unitData);
+				}
+				else
+				{
+					return nightelfMeleeUnitsItem(unitData);
+				}
 			}
 		}
+		/*
 		else if (race == "undead")
 		{
-			if (special == "1")
-			{
-				return undeadSpecialItem(unitData);
-			}
-			else if (campaign == "1")
+			if (campaign == "1")
 			{
 				return undeadCampaignItem(unitData);
 			}
-			else if (unitData->objectIsBuilding(originalObjectId, customObjectId))
-			{
-				return undeadBuildingsItem(unitData);
-			}
-			else if (unitData->objectIsHero(originalObjectId, customObjectId))
-			{
-				return undeadHeroesItem(unitData);
-			}
 			else
 			{
-				return undeadUnitsItem(unitData);
+				if (special == "1")
+				{
+					return undeadMeleeSpecialItem(unitData);
+				}
+				else if (unitData->objectIsBuilding(originalObjectId, customObjectId))
+				{
+					return undeadMeleeBuildingsItem(unitData);
+				}
+				else if (unitData->objectIsHero(originalObjectId, customObjectId))
+				{
+					return undeadMeleeHeroesItem(unitData);
+				}
+				else
+				{
+					return undeadMeleeUnitsItem(unitData);
+				}
 			}
 		}
 		else if (race == "other" || race == "critters" || race == "commoner")
@@ -340,6 +354,8 @@ ObjectTreeItem* UnitTreeModel::customObjectsItem(UnitData* unitData)
 	{
 		this->m_customObjectsItem = new ObjectTreeItem(unitData, unitData->source()->sharedData()->tr("WESTRING_UE_CUSTOMUNITS"));
 		this->insertTopLevelItem(this->m_customObjectsItem);
+		beginInsertRows(QModelIndex(), topLevelRow(this->m_customObjectsItem), topLevelRow(this->m_customObjectsItem));
+		endInsertRows();
 	}
 
 	return this->m_customObjectsItem;
@@ -435,6 +451,150 @@ ObjectTreeItem* UnitTreeModel::orcItem(UnitData *unitData)
 	return this->m_orcItem;
 }
 
+ObjectTreeItem* UnitTreeModel::orcMeleeItem(UnitData* unitData)
+{
+	if (this->m_orcMeleeItem == 0)
+	{
+		qDebug() << "Constructing orc";
+		this->m_orcMeleeItem = new ObjectTreeItem(unitData, unitData->source()->sharedData()->tr("WESTRING_MELEE"), orcItem(unitData));
+		orcItem(unitData)->appendChild(this->m_orcMeleeItem);
+	}
+
+	return this->m_orcMeleeItem;
+}
+
+ObjectTreeItem* UnitTreeModel::orcCampaignItem(UnitData* unitData)
+{
+	if (this->m_orcCampaignItem == 0)
+	{
+		qDebug() << "Constructing orc";
+		this->m_orcCampaignItem = new ObjectTreeItem(unitData, unitData->source()->sharedData()->tr("WESTRING_CAMPAIGN"), orcItem(unitData));
+		orcItem(unitData)->appendChild(this->m_orcCampaignItem);
+	}
+
+	return this->m_orcCampaignItem;
+}
+
+ObjectTreeItem* UnitTreeModel::orcMeleeUnitsItem(UnitData* unitData)
+{
+	if (this->m_orcMeleeUnitsItem == 0)
+	{
+		this->m_orcMeleeUnitsItem = new ObjectTreeItem(unitData, unitData->source()->sharedData()->tr("WESTRING_MENU_OM_UNITS"), orcMeleeItem(unitData));
+		orcMeleeItem(unitData)->appendChild(this->m_orcMeleeUnitsItem);
+	}
+
+	return this->m_orcMeleeUnitsItem;
+}
+
+ObjectTreeItem* UnitTreeModel::orcMeleeBuildingsItem(UnitData* unitData)
+{
+	if (this->m_orcMeleeBuildingsItem == 0)
+	{
+		this->m_orcMeleeBuildingsItem = new ObjectTreeItem(unitData, unitData->source()->sharedData()->tr("WESTRING_UTYPE_BUILDINGS"), orcMeleeItem(unitData));
+		orcMeleeItem(unitData)->appendChild(this->m_orcMeleeBuildingsItem);
+	}
+
+	return this->m_orcMeleeBuildingsItem;
+}
+
+ObjectTreeItem* UnitTreeModel::orcMeleeHeroesItem(UnitData* unitData)
+{
+	if (this->m_orcMeleeHeroesItem == 0)
+	{
+		this->m_orcMeleeHeroesItem = new ObjectTreeItem(unitData, unitData->source()->sharedData()->tr("WESTRING_UTYPE_HEROES"), orcMeleeItem(unitData));
+		orcMeleeItem(unitData)->appendChild(this->m_orcMeleeHeroesItem);
+	}
+
+	return this->m_orcMeleeHeroesItem;
+}
+
+ObjectTreeItem* UnitTreeModel::orcMeleeSpecialItem(UnitData* unitData)
+{
+	if (this->m_orcMeleeSpecialItem == 0)
+	{
+		this->m_orcMeleeSpecialItem = new ObjectTreeItem(unitData, unitData->source()->sharedData()->tr("WESTRING_UTYPE_SPECIAL"), orcMeleeItem(unitData));
+		orcMeleeItem(unitData)->appendChild(this->m_orcMeleeSpecialItem);
+	}
+
+	return this->m_orcMeleeSpecialItem;
+}
+
+ObjectTreeItem* UnitTreeModel::nightelfItem(UnitData* unitData)
+{
+	if (this->m_nightelfItem == 0)
+	{
+		this->m_nightelfItem = new ObjectTreeItem(unitData, unitData->source()->sharedData()->tr("WESTRING_RACE_NIGHTELF"), standardObjectsItem(unitData));
+		standardObjectsItem(unitData)->appendChild(this->m_nightelfItem);
+	}
+
+	return this->m_nightelfItem;
+}
+
+ObjectTreeItem* UnitTreeModel::nightelfMeleeItem(UnitData* unitData)
+{
+	if (this->m_nightelfMeleeItem == 0)
+	{
+		this->m_nightelfMeleeItem = new ObjectTreeItem(unitData, unitData->source()->sharedData()->tr("WESTRING_MELEE"), nightelfItem(unitData));
+		nightelfItem(unitData)->appendChild(this->m_nightelfMeleeItem);
+	}
+
+	return this->m_nightelfMeleeItem;
+}
+
+ObjectTreeItem* UnitTreeModel::nightelfCampaignItem(UnitData* unitData)
+{
+	if (this->m_nightelfCampaignItem == 0)
+	{
+		this->m_nightelfCampaignItem = new ObjectTreeItem(unitData, unitData->source()->sharedData()->tr("WESTRING_CAMPAIGN"), nightelfItem(unitData));
+		nightelfItem(unitData)->appendChild(this->m_nightelfCampaignItem);
+	}
+
+	return this->m_nightelfCampaignItem;
+}
+
+ObjectTreeItem* UnitTreeModel::nightelfMeleeUnitsItem(UnitData* unitData)
+{
+	if (this->m_nightelfMeleeUnitsItem == 0)
+	{
+		this->m_nightelfMeleeUnitsItem = new ObjectTreeItem(unitData, unitData->source()->sharedData()->tr("WESTRING_UTYPE_UNITS"), nightelfMeleeItem(unitData));
+		nightelfMeleeItem(unitData)->appendChild(this->m_nightelfMeleeUnitsItem);
+	}
+
+	return this->m_nightelfMeleeUnitsItem;
+}
+
+ObjectTreeItem* UnitTreeModel::nightelfMeleeBuildingsItem(UnitData* unitData)
+{
+	if (this->m_nightelfMeleeBuildingsItem == 0)
+	{
+		this->m_nightelfMeleeBuildingsItem = new ObjectTreeItem(unitData, unitData->source()->sharedData()->tr("WESTRING_UTYPE_BUILDINGS"), nightelfMeleeItem(unitData));
+		nightelfMeleeItem(unitData)->appendChild(this->m_nightelfMeleeBuildingsItem);
+	}
+
+	return this->m_nightelfMeleeBuildingsItem;
+}
+
+ObjectTreeItem* UnitTreeModel::nightelfMeleeHeroesItem(UnitData* unitData)
+{
+	if (this->m_nightelfMeleeHeroesItem == 0)
+	{
+		this->m_nightelfMeleeHeroesItem = new ObjectTreeItem(unitData, unitData->source()->sharedData()->tr("WESTRING_UTYPE_HEROES"), nightelfMeleeItem(unitData));
+		nightelfMeleeItem(unitData)->appendChild(this->m_nightelfMeleeHeroesItem);
+	}
+
+	return this->m_nightelfMeleeHeroesItem;
+}
+
+ObjectTreeItem* UnitTreeModel::nightelfMeleeSpecialItem(UnitData* unitData)
+{
+	if (this->m_nightelfMeleeSpecialItem == 0)
+	{
+		this->m_nightelfMeleeSpecialItem = new ObjectTreeItem(unitData, unitData->source()->sharedData()->tr("WESTRING_UTYPE_SPECIAL"), nightelfMeleeItem(unitData));
+		nightelfMeleeItem(unitData)->appendChild(this->m_nightelfMeleeSpecialItem);
+	}
+
+	return this->m_nightelfMeleeSpecialItem;
+}
 
 }
 

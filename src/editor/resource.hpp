@@ -36,6 +36,8 @@ namespace wc3lib
 namespace editor
 {
 
+class MpqPriorityList;
+
 /**
  * Abstract base class for all kind of resources.
  * Provides virtual load, reload and save member functions and dynamic type information.
@@ -66,12 +68,10 @@ class KDE_EXPORT Resource
 		virtual ~Resource();
 		/**
 		 * Assigns the corresponding source.
-		 * \param load If this value is true resource will be loaded/reloaded automatically.
 		 * \note This adds the resources to the resources of \p source which can be accessed via \ref Source::resources().
-		 * \note Additionally, this calls either \ref load() or \ref reload() depending on there has already set a source before. This only happens if \p load is true!
 		 */
-		void setSource(class MpqPriorityList *source, bool load = false);
-		class MpqPriorityList* source() const;
+		void setSource(MpqPriorityList *source);
+		MpqPriorityList* source() const;
 		/**
 		 * Each resource should have its unique URL which indicates where it is loaded from.
 		 * Relative URLs will be checked from all sources paths.

@@ -39,27 +39,23 @@ Resource::~Resource()
 	}
 }
 
-void Resource::setSource(MpqPriorityList *source, bool load)
+void Resource::setSource(MpqPriorityList *source)
 {
 	if (this->source() == source)
 	{
 		return;
 	}
 
-	const MpqPriorityList *oldSource = this->source();
-	m_source = source;
-	source->addResource(this);
-
-	if (load)
+	if (this->source() != 0)
 	{
-		if (oldSource == 0)
-		{
-			this->load();
-		}
-		else
-		{
-			this->reload();
-		}
+		this->source()->removeResource(this);
+	}
+
+	m_source = source;
+
+	if (this->source() != 0)
+	{
+		source->addResource(this);
 	}
 }
 

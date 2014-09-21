@@ -52,7 +52,8 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 	{
 		try
 		{
-			source->sharedData()->refreshWorldEditorStrings(this); // TODO we need a GUI
+			source->sharedData()->refreshWorldEditorStrings(this);
+			source->sharedData()->refreshWorldEditorGameStrings(this);
 			source->sharedData()->refreshWorldEditData(this);
 		}
 		catch (wc3lib::Exception &e)

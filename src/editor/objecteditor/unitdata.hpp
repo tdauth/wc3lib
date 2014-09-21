@@ -42,6 +42,8 @@ class MetaData;
 class UnitData : public ObjectData
 {
 	public:
+		typedef QScopedPointer<MetaData> MetaDataPtr;
+
 		UnitData(MpqPriorityList *source);
 
 		virtual void load(QWidget *widget) override;
@@ -62,6 +64,7 @@ class UnitData : public ObjectData
 		bool objectIsHero(const QString &originalObjectId, const QString &customObjectId) const;
 		bool objectIsUnit(const QString &originalObjectId, const QString &customObjectId) const;
 		bool objectIsBuilding(const QString &originalObjectId, const QString &customObjectId) const;
+		bool objectIsSpecial(const QString &originalObjectId, const QString &customObjectId) const;
 
 		QString objectTilesets(const QString &originalObjectId, const QString &customObjectId) const;
 		bool showTilesetForRace(const QString &race) const;
@@ -87,25 +90,25 @@ class UnitData : public ObjectData
 		MetaData* campaignUnitStrings() const;
 		MetaData* campaignUnitFunc() const;
 	private:
-		MetaData *m_unitMetaData;
-		MetaData *m_unitEditorData;
-		MetaData *m_unitData;
-		MetaData *m_unitUi;
-		MetaData *m_unitBalance;
-		MetaData *m_unitWeapons;
-		MetaData *m_unitAbilities;
-		MetaData *m_humanUnitStrings;
-		MetaData *m_humanUnitFunc;
-		MetaData *m_orcUnitStrings;
-		MetaData *m_orcUnitFunc;
-		MetaData *m_undeadUnitStrings;
-		MetaData *m_undeadUnitFunc;
-		MetaData *m_nightElfUnitStrings;
-		MetaData *m_nightElfUnitFunc;
-		MetaData *m_neutralUnitStrings;
-		MetaData *m_neutralUnitFunc;
-		MetaData *m_campaignUnitStrings;
-		MetaData *m_campaignUnitFunc;
+		MetaDataPtr m_unitMetaData;
+		MetaDataPtr m_unitEditorData;
+		MetaDataPtr m_unitData;
+		MetaDataPtr m_unitUi;
+		MetaDataPtr m_unitBalance;
+		MetaDataPtr m_unitWeapons;
+		MetaDataPtr m_unitAbilities;
+		MetaDataPtr m_humanUnitStrings;
+		MetaDataPtr m_humanUnitFunc;
+		MetaDataPtr m_orcUnitStrings;
+		MetaDataPtr m_orcUnitFunc;
+		MetaDataPtr m_undeadUnitStrings;
+		MetaDataPtr m_undeadUnitFunc;
+		MetaDataPtr m_nightElfUnitStrings;
+		MetaDataPtr m_nightElfUnitFunc;
+		MetaDataPtr m_neutralUnitStrings;
+		MetaDataPtr m_neutralUnitFunc;
+		MetaDataPtr m_campaignUnitStrings;
+		MetaDataPtr m_campaignUnitFunc;
 };
 
 inline map::CustomObjects::Type UnitData::type() const
@@ -125,97 +128,97 @@ inline MetaData* UnitData::objectTabData() const
 
 inline MetaData* UnitData::unitMetaData() const
 {
-	return this->m_unitMetaData;
+	return this->m_unitMetaData.data();
 }
 
 inline MetaData* UnitData::unitEditorData() const
 {
-	return this->m_unitEditorData;
+	return this->m_unitEditorData.data();
 }
 
 inline MetaData* UnitData::unitData() const
 {
-	return this->m_unitData;
+	return this->m_unitData.data();
 }
 
 inline MetaData* UnitData::unitUi() const
 {
-	return this->m_unitUi;
+	return this->m_unitUi.data();
 }
 
 inline MetaData* UnitData::unitBalance() const
 {
-	return this->m_unitBalance;
+	return this->m_unitBalance.data();
 }
 
 inline MetaData* UnitData::unitWeapons() const
 {
-	return this->m_unitWeapons;
+	return this->m_unitWeapons.data();
 }
 
 inline MetaData* UnitData::unitAbilities() const
 {
-	return this->m_unitAbilities;
+	return this->m_unitAbilities.data();
 }
 
 inline MetaData* UnitData::humanUnitStrings() const
 {
-	return this->m_humanUnitStrings;
+	return this->m_humanUnitStrings.data();
 }
 
 inline MetaData* UnitData::humanUnitFunc() const
 {
-	return this->m_humanUnitFunc;
+	return this->m_humanUnitFunc.data();
 }
 
 inline MetaData* UnitData::orcUnitStrings() const
 {
-	return this->m_orcUnitStrings;
+	return this->m_orcUnitStrings.data();
 }
 
 inline MetaData* UnitData::orcUnitFunc() const
 {
-	return this->m_orcUnitFunc;
+	return this->m_orcUnitFunc.data();
 }
 
 inline MetaData* UnitData::undeadUnitStrings() const
 {
-	return this->m_undeadUnitStrings;
+	return this->m_undeadUnitStrings.data();
 }
 
 inline MetaData* UnitData::undeadUnitFunc() const
 {
-	return this->m_undeadUnitFunc;
+	return this->m_undeadUnitFunc.data();
 }
 
 inline MetaData* UnitData::nightElfUnitStrings() const
 {
-	return this->m_nightElfUnitStrings;
+	return this->m_nightElfUnitStrings.data();
 }
 
 inline MetaData* UnitData::nightElfUnitFunc() const
 {
-	return this->m_nightElfUnitFunc;
+	return this->m_nightElfUnitFunc.data();
 }
 
 inline MetaData* UnitData::neutralUnitStrings() const
 {
-	return this->m_neutralUnitStrings;
+	return this->m_neutralUnitStrings.data();
 }
 
 inline MetaData* UnitData::neutralUnitFunc() const
 {
-	return this->m_neutralUnitFunc;
+	return this->m_neutralUnitFunc.data();
 }
 
 inline MetaData* UnitData::campaignUnitStrings() const
 {
-	return this->m_campaignUnitStrings;
+	return this->m_campaignUnitStrings.data();
 }
 
 inline MetaData* UnitData::campaignUnitFunc() const
 {
-	return this->m_campaignUnitFunc;
+	return this->m_campaignUnitFunc.data();
 }
 
 }

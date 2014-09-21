@@ -32,9 +32,13 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectValueDialog::ObjectValueDialog(QWidget *parent) : QDialog(parent)
+ObjectValueDialog::ObjectValueDialog(QWidget *parent) : QDialog(parent), m_maximum(-1)
 {
 	setupUi(this);
+
+	connect(this->m_textEdit, SIGNAL(textChanged()), this, SLOT(limitText()));
+	connect(this->m_lineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(limitTextInLineEdit(const QString&)));
+	connect(this->m_editListWidget, SIGNAL(added(const QString&)), this, SLOT(limitEditList(const QString&)));
 }
 
 void ObjectValueDialog::setItemsVisible(bool visible)
@@ -73,18 +77,26 @@ QDialog::DialogCode ObjectValueDialog::show(QString &result, const QString &orig
 		dialog->setLabelText(label);
 		bool supported = true;
 
+		const QString maxValue = objectData->metaData()->value(fieldId, "maxVal");
+		bool maxOk = true;
+		const int maxValueInt = maxValue.toInt(&maxOk);
+
+		if (maxOk)
+		{
+			dialog->m_maximum = maxValueInt;
+		}
+		else
+		{
+			dialog->m_maximum = -1;
+		}
+
 		if (type == "int")
 		{
 			const QString minValue = objectData->metaData()->value(fieldId, "minVal");
-			const QString maxValue = objectData->metaData()->value(fieldId, "maxVal");
-
 			qDebug() << "Min value:" << minValue;
-			qDebug() << "Max value:" << maxValue;
 
 			bool minOk = true;
 			const int minValueInt = minValue.toInt(&minOk);
-			bool maxOk = true;
-			const int maxValueInt = maxValue.toInt(&maxOk);
 
 			if (minOk)
 			{
@@ -96,9 +108,9 @@ QDialog::DialogCode ObjectValueDialog::show(QString &result, const QString &orig
 				dialog->intSpinBox()->setMinimum(0);
 			}
 
-			if (maxOk)
+			if (dialog->m_maximum != -1)
 			{
-				dialog->intSpinBox()->setMaximum(maxValueInt);
+				dialog->intSpinBox()->setMaximum(dialog->m_maximum);
 			}
 			else
 			{
@@ -313,6 +325,44 @@ QDialog::DialogCode ObjectValueDialog::show(QString &result, const QString &orig
 
 	return QDialog::Rejected;
 }
+
+void ObjectValueDialog::limitText()
+{
+	if (m_maximum != -1)
+	{
+		const QString &text = this->m_textEdit->toPlainText();
+
+		if (text.size() > m_maximum)
+		{
+			this->m_textEdit->setText(text.mid(0, m_maximum));
+		}
+	}
+}
+
+void ObjectValueDialog::limitTextInLineEdit(const QString& text)
+{
+	if (m_maximum != -1)
+	{
+		if (text.size() > m_maximum)
+		{
+			this->m_lineEdit->setText(text.mid(0, m_maximum));
+		}
+	}
+}
+
+void ObjectValueDialog::limitEditList(const QString &text)
+{
+	if (m_maximum != -1)
+	{
+		if (m_editListWidget->items().size() > m_maximum)
+		{
+			QStringList items = m_editListWidget->items();
+			items.removeAt(m_editListWidget->items().size() - 1);
+			m_editListWidget->setItems(items);
+		}
+	}
+}
+
 
 }
 

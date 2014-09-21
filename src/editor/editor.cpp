@@ -166,6 +166,11 @@ Editor::~Editor()
 		delete module;
 	}
 
+	foreach (Maps::value_type map, maps())
+	{
+		delete map;
+	}
+
 	if (m_root != 0)
 	{
 		delete m_root;
@@ -220,11 +225,12 @@ void Editor::openMap()
 
 void Editor::openMap(const KUrl &url, bool switchTo)
 {
-	Map  *ptr = new Map(url);
+	Map *ptr = new Map(url);
 
 	try
 	{
-		ptr->setSource(this, true);
+		ptr->setSource(this);
+		ptr->load();
 	}
 	catch (Exception &exception)
 	{

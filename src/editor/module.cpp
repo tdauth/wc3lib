@@ -39,7 +39,7 @@ namespace wc3lib
 namespace editor
 {
 
-Module::Module(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f)
+Module::Module(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f)
 : QWidget(parent, f | Qt::Window)
 , m_source(source)
 , m_moduleMenu(0)
@@ -86,7 +86,7 @@ bool Module::hasEditor() const
 	*/
 }
 
-class Editor* Module::editor() const throw (std::bad_cast)
+Editor* Module::editor() const
 {
 	return boost::polymorphic_cast<Editor*>(source());
 }
@@ -258,7 +258,7 @@ void Module::triggered(QAction *action)
 	}
 }
 
-void Module::switchToMap(class Map *map)
+void Module::switchToMap(Map *map)
 {
 	onSwitchToMap(map);
 }

@@ -53,23 +53,26 @@ class UnitTreeModel : public ObjectTreeModel
 		ObjectTreeItem* humanMeleeHeroesItem(UnitData *unitData);
 		ObjectTreeItem* humanMeleeSpecialItem(UnitData *unitData);
 		ObjectTreeItem* orcItem(UnitData *unitData);
-		ObjectTreeItem* orcUnitsItem(UnitData *unitData);
-		ObjectTreeItem* orcBuildingsItem(UnitData *unitData);
-		ObjectTreeItem* orcHeroesItem(UnitData *unitData);
-		ObjectTreeItem* orcSpecialItem(UnitData *unitData);
+		ObjectTreeItem* orcMeleeItem(UnitData *unitData);
 		ObjectTreeItem* orcCampaignItem(UnitData *unitData);
+		ObjectTreeItem* orcMeleeUnitsItem(UnitData *unitData);
+		ObjectTreeItem* orcMeleeBuildingsItem(UnitData *unitData);
+		ObjectTreeItem* orcMeleeHeroesItem(UnitData *unitData);
+		ObjectTreeItem* orcMeleeSpecialItem(UnitData *unitData);
 		ObjectTreeItem* undeadItem(UnitData *unitData);
-		ObjectTreeItem* undeadUnitsItem(UnitData *unitData);
-		ObjectTreeItem* undeadBuildingsItem(UnitData *unitData);
-		ObjectTreeItem* undeadHeroesItem(UnitData *unitData);
-		ObjectTreeItem* undeadSpecialItem(UnitData *unitData);
+		ObjectTreeItem* undeadMeleeItem(UnitData *unitData);
 		ObjectTreeItem* undeadCampaignItem(UnitData *unitData);
-		ObjectTreeItem* nightElfItem(UnitData *unitData);
-		ObjectTreeItem* nightelfUnitsItem(UnitData *unitData);
-		ObjectTreeItem* nightelfBuildingsItem(UnitData *unitData);
-		ObjectTreeItem* nightelfHeroesItem(UnitData *unitData);
-		ObjectTreeItem* nightelfSpecialItem(UnitData *unitData);
+		ObjectTreeItem* undeadMeleeUnitsItem(UnitData *unitData);
+		ObjectTreeItem* undeadMeleeBuildingsItem(UnitData *unitData);
+		ObjectTreeItem* undeadMeleeHeroesItem(UnitData *unitData);
+		ObjectTreeItem* undeadMeleeSpecialItem(UnitData *unitData);
+		ObjectTreeItem* nightelfItem(UnitData *unitData);
+		ObjectTreeItem* nightelfMeleeItem(UnitData *unitData);
 		ObjectTreeItem* nightelfCampaignItem(UnitData *unitData);
+		ObjectTreeItem* nightelfMeleeUnitsItem(UnitData *unitData);
+		ObjectTreeItem* nightelfMeleeBuildingsItem(UnitData *unitData);
+		ObjectTreeItem* nightelfMeleeHeroesItem(UnitData *unitData);
+		ObjectTreeItem* nightelfMeleeSpecialItem(UnitData *unitData);
 		ObjectTreeItem* neutralNagaItem(UnitData *unitData);
 		ObjectTreeItem* neutralNagaUnitsItem(UnitData *unitData);
 		ObjectTreeItem* neutralNagaBuildingsItem(UnitData *unitData);
@@ -89,9 +92,10 @@ class UnitTreeModel : public ObjectTreeModel
 		ObjectTreeItem* neutralPassiveSpecialItem(UnitData *unitData);
 		ObjectTreeItem* neutralPassiveCampaignItem(UnitData *unitData);
 
-	private:
-		ObjectTreeItem* itemParent(UnitData *unitData, const QString &originalObjectId, const QString &customObjectId);
+	protected:
+		virtual ObjectTreeItem* itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId) override;
 
+	private:
 		ObjectTreeItem *m_standardObjectsItem;
 		ObjectTreeItem *m_customObjectsItem;
 		ObjectTreeItem *m_humanItem;
@@ -102,23 +106,26 @@ class UnitTreeModel : public ObjectTreeModel
 		ObjectTreeItem *m_humanMeleeHeroesItem;
 		ObjectTreeItem *m_humanMeleeSpecialItem;
 		ObjectTreeItem *m_orcItem;
-		ObjectTreeItem *m_orcUnitsItem;
-		ObjectTreeItem *m_orcBuildingsItem;
-		ObjectTreeItem *m_orcHeroesItem;
-		ObjectTreeItem *m_orcSpecialItem;
+		ObjectTreeItem *m_orcMeleeItem;
 		ObjectTreeItem *m_orcCampaignItem;
+		ObjectTreeItem *m_orcMeleeUnitsItem;
+		ObjectTreeItem *m_orcMeleeBuildingsItem;
+		ObjectTreeItem *m_orcMeleeHeroesItem;
+		ObjectTreeItem *m_orcMeleeSpecialItem;
 		ObjectTreeItem *m_undeadItem;
-		ObjectTreeItem *m_undeadUnitsItem;
-		ObjectTreeItem *m_undeadBuildingsItem;
-		ObjectTreeItem *m_undeadHeroesItem;
-		ObjectTreeItem *m_undeadSpecialItem;
 		ObjectTreeItem *m_undeadCampaignItem;
-		ObjectTreeItem *m_nightElfItem;
-		ObjectTreeItem *m_nightelfUnitsItem;
-		ObjectTreeItem *m_nightelfBuildingsItem;
-		ObjectTreeItem *m_nightelfHeroesItem;
-		ObjectTreeItem *m_nightelfSpecialItem;
+		ObjectTreeItem *m_undeadMeleeItem;
+		ObjectTreeItem *m_undeadMeleeUnitsItem;
+		ObjectTreeItem *m_undeadMeleeBuildingsItem;
+		ObjectTreeItem *m_undeadMeleeHeroesItem;
+		ObjectTreeItem *m_undeadMeleeSpecialItem;
+		ObjectTreeItem *m_nightelfItem;
 		ObjectTreeItem *m_nightelfCampaignItem;
+		ObjectTreeItem *m_nightelfMeleeItem;
+		ObjectTreeItem *m_nightelfMeleeUnitsItem;
+		ObjectTreeItem *m_nightelfMeleeBuildingsItem;
+		ObjectTreeItem *m_nightelfMeleeHeroesItem;
+		ObjectTreeItem *m_nightelfMeleeSpecialItem;
 		ObjectTreeItem *m_neutralNagaItem;
 		ObjectTreeItem *m_neutralNagaUnitsItem;
 		ObjectTreeItem *m_neutralNagaBuildingsItem;
@@ -137,7 +144,6 @@ class UnitTreeModel : public ObjectTreeModel
 		ObjectTreeItem *m_neutralPassiveHeroesItem;
 		ObjectTreeItem *m_neutralPassiveSpecialItem;
 		ObjectTreeItem *m_neutralPassiveCampaignItem;
-
 };
 
 }

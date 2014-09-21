@@ -86,30 +86,42 @@ void WarcraftIIIShared::refreshWorldEditorStrings(QWidget *window, const KUrl &u
 	m_worldEditorStrings.swap(ptr); // exception safe
 }
 
+void WarcraftIIIShared::refreshWorldEditorGameStrings(QWidget *window, const KUrl &url)
+{
+	WorldEditorGameStringsPtr ptr(new MetaData(url));
+	ptr->setSource(this->source());
+	ptr->load();
+
+	m_worldEditorGameStrings.swap(ptr); // exception safe
+}
+
 QString WarcraftIIIShared::tr(const QString &key, const QString &group, const QString &defaultValue) const
 {
 	if (this->worldEditorStrings().get() != 0)
 	{
-		try
-		{
-			const QString result = this->worldEditorStrings()->value(group, key);
+		QString result;
 
+		if (this->worldEditorStrings()->hasValue(group, key))
+		{
+			result = this->worldEditorStrings()->value(group, key);
+		}
+		else if (this->worldEditorGameStrings()->hasValue(group, key))
+		{
+			result = this->worldEditorGameStrings()->value(group, key);
+		}
+
+		if (!result.isEmpty())
+		{
 			/*
-			 * Some values like "WESTRING_UE_UNITRACE_HUMAN" refer to other keys and have to be resolved recursively until no
-			 * reference is found anymore.
-			 */
-			if (this->worldEditorStrings()->hasValue(group, result))
+			* Some values like "WESTRING_UE_UNITRACE_HUMAN" refer to other keys and have to be resolved recursively until no
+			* reference is found anymore.
+			*/
+			if (this->worldEditorStrings()->hasValue(group, result) || this->worldEditorGameStrings()->hasValue(group, result))
 			{
 				return tr(result, group, defaultValue);
 			}
 
 			return result;
-		}
-		/*
-		 * If an exception occured or the value does not exist just return the default value in the end.
-		 */
-		catch (Exception &e)
-		{
 		}
 	}
 

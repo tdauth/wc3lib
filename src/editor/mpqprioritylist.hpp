@@ -70,6 +70,7 @@ class KDE_EXPORT MpqPriorityListEntry : public boost::operators<MpqPriorityListE
 		 * \param url Has to refer to an archive or a directory.
 		 */
 		MpqPriorityListEntry(const KUrl &url, Priority priority);
+		virtual ~MpqPriorityListEntry();
 
 		/**
 		 * Allows to download a file synchronously from \p src to file \p target which is set by the member function.
@@ -160,6 +161,8 @@ inline bool MpqPriorityListEntry::operator==(const self &other) const
  * \ref addResource()
  * \ref removeResource()
  * \ref resources()
+ *
+ * \note You still have to take care about the deletion of resources. They won't be deleted automatically.
  *
  *
  * The member function \ref sharedData() provides access to all shared data required by Warcraft III or the World Editor.
@@ -291,6 +294,7 @@ class KDE_EXPORT MpqPriorityList
 		virtual void addResource(Resource *resource);
 		/**
 		 * Removes resource from editor. This function is called by \ref Resource::~Resource() autmatically.
+		 * You still have to delete the resource manually afterwards.
 		 */
 		virtual bool removeResource(Resource *resource);
 		virtual bool removeResource(const KUrl &url);

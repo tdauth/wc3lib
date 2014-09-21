@@ -36,6 +36,11 @@ UnitSelectionDialog::UnitSelectionDialog(MpqPriorityList *source, UnitData *unit
 	setupUi(this);
 	m_buttonGroup.setExclusive(true);
 
+	m_unitsLabel->setText(tr("%1:").arg(source->sharedData()->tr("WESTRING_UNITS")));
+	m_heroesLabel->setText(tr("%1:").arg(source->sharedData()->tr("WESTRING_UTYPE_HEROES")));
+	m_buildingsLabel->setText(tr("%1:").arg(source->sharedData()->tr("WESTRING_UTYPE_BUILDINGS")));
+	m_specialLabel->setText(tr("%1:").arg(source->sharedData()->tr("WESTRING_UTYPE_SPECIAL")));
+
 	const ObjectData::ObjectTabEntries raceEntries = unitData->objectTabEntries("unitRace");
 
 	foreach (ObjectData::ObjectTabEntry entry, raceEntries)
@@ -50,13 +55,16 @@ UnitSelectionDialog::UnitSelectionDialog(MpqPriorityList *source, UnitData *unit
 
 	connect(this->m_meleeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeMelee(int)));
 
-	map::Txt::Section *tilesetsSection =  this->source()->sharedData()->worldEditData()->section("TileSets");
+	map::Txt::Section *tilesetsSection = this->source()->sharedData()->worldEditData()->section("TileSets");
 
-	for (std::size_t i = 0; i < tilesetsSection->entries.size(); ++i)
+	if (tilesetsSection != 0)
 	{
-		const map::Txt::Entry &entry = tilesetsSection->entries[i];
-		QStringList list = QString::fromUtf8(entry.second.c_str()).split(',');
-		m_tilesetComboBox->addItem(source->sharedData()->tr(list[0]), QChar(entry.first[0]));
+		for (std::size_t i = 0; i < tilesetsSection->entries.size(); ++i)
+		{
+			const map::Txt::Entry &entry = tilesetsSection->entries[i];
+			QStringList list = QString::fromUtf8(entry.second.c_str()).split(',');
+			m_tilesetComboBox->addItem(source->sharedData()->tr(list[0]), QChar(entry.first[0]));
+		}
 	}
 
 	connect(this->m_tilesetComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeTileset(int)));
@@ -89,6 +97,8 @@ void UnitSelectionDialog::select(const QString &objectId)
 	this->clear();
 	this->m_dialogButtonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
+	this->m_originalObjectId = objectId;
+
 	const QString race = this->unitData()->unitData()->value(objectId, "race");
 	QString campaign;
 
@@ -101,7 +111,7 @@ void UnitSelectionDialog::select(const QString &objectId)
 
 	QChar objectTileset;
 
-	if (unitData()->showTilesetForRace(race) &&!objectTilesets.isEmpty())
+	if (unitData()->showTilesetForRace(race) && !objectTilesets.isEmpty() && this->m_tilesetComboBox->count() > 0)
 	{
 		objectTileset = objectTilesets[0];
 	}
@@ -118,7 +128,7 @@ void UnitSelectionDialog::select(const QString &objectId)
 
 	if (iterator != this->m_buttonsByObjectId.end())
 	{
-		iterator.value()->setChecked(true);
+		this->checkButton(iterator.value());
 	}
 	else
 	{
@@ -130,21 +140,50 @@ void UnitSelectionDialog::fill(const QString& race, int campaign, const QChar& t
 {
 	this->clear();
 	this->m_dialogButtonBox->button(QDialogButtonBox::Ok)->setEnabled(!this->m_nameLineEdit->text().isEmpty());
-	this->m_tilesetComboBox->setVisible(!tileset.isNull());
-	this->m_levelComboBox->setVisible(!level.isEmpty());
+	const int raceIndex = this->raceIndex(race);
+	this->m_raceComboBox->setCurrentIndex(raceIndex);
+
+	const int campaignIndex = this->campaignIndex(campaign);
+	this->m_meleeComboBox->setCurrentIndex(campaignIndex);
+
+	this->m_tilesetComboBox->setVisible(unitData()->showTilesetForRace(race));
+
+	if (this->m_tilesetComboBox->isVisible() && this->m_tilesetComboBox->count() > 0)
+	{
+		const int tilesetIndex = this->tilesetIndex(tileset);
+
+		if (tilesetIndex != -1)
+		{
+			this->m_tilesetComboBox->setCurrentIndex(tilesetIndex);
+		}
+	}
+
+	this->m_levelComboBox->setVisible(unitData()->showLevelForRace(race));
+
+	if (this->m_levelComboBox->isVisible() && this->m_levelComboBox->count() > 0)
+	{
+		const int levelIndex = this->levelIndex(tileset);
+
+		if (levelIndex != -1)
+		{
+			this->m_levelComboBox->setCurrentIndex(levelIndex);
+		}
+	}
 
 	const int maxColumns = 12;
 	int unitRow = 0;
 	int unitColumn = 0;
+	int buildingRow = 0;
+	int buildingColumn = 0;
 	int heroRow = 0;
 	int heroColumn = 0;
+	int specialRow = 0;
+	int specialColumn = 0;
 
 	for (map::Slk::Table::size_type row = 1; row < this->unitData()->unitData()->slk().rows(); ++row)
 	{
 		const QString unitId = this->unitData()->unitData()->value(row, "unitID");
-		qDebug() << "ID" << unitId;
 		const QString objectRace = this->unitData()->unitData()->value(unitId, "race");
-		qDebug() << "Race" << objectRace;
 		QString unitCampaign;
 
 		if (this->unitData()->hasDefaultFieldValue(unitId, "ucam"))
@@ -152,7 +191,7 @@ void UnitSelectionDialog::fill(const QString& race, int campaign, const QChar& t
 			unitCampaign = this->unitData()->fieldValue(unitId, "", "ucam");
 		}
 
-		QString objectTilesets = unitData()->objectTilesets(unitId, "");
+		const QString objectTilesets = unitData()->objectTilesets(unitId, "");
 
 		QString objectLevel;
 
@@ -178,6 +217,28 @@ void UnitSelectionDialog::fill(const QString& race, int campaign, const QChar& t
 				{
 					heroColumn = 0;
 					heroRow++;
+				}
+			}
+			else if (this->unitData()->objectIsBuilding(unitId, ""))
+			{
+				this->m_buildingsGridLayout->addWidget(button, buildingRow, buildingColumn);
+				buildingColumn++;
+
+				if (buildingColumn == maxColumns)
+				{
+					buildingColumn = 0;
+					buildingRow++;
+				}
+			}
+			else if (this->unitData()->objectIsSpecial(unitId, ""))
+			{
+				this->m_specialGridLayout->addWidget(button, specialRow, specialColumn);
+				specialColumn++;
+
+				if (specialColumn == maxColumns)
+				{
+					specialColumn = 0;
+					specialRow++;
 				}
 			}
 			else
@@ -215,6 +276,71 @@ KPushButton* UnitSelectionDialog::createButton(const QString &objectId)
 	return button;
 }
 
+int UnitSelectionDialog::raceIndex(const QString& race) const
+{
+	for (int i = 0; i < this->m_raceComboBox->count(); ++i)
+	{
+		if (this->m_raceComboBox->itemData(i).toString() == race)
+		{
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+int UnitSelectionDialog::campaignIndex(int campaign) const
+{
+	if (campaign)
+	{
+		return 1;
+	}
+
+	return 0;
+}
+
+int UnitSelectionDialog::tilesetIndex(const QChar& tileset) const
+{
+	map::Txt::Section *section = this->source()->sharedData()->worldEditData()->section("TileSets");
+
+	if (section != 0)
+	{
+		int index = 0;
+
+		foreach (map::Txt::Entries::value_type entry, section->entries)
+		{
+			if (QString::fromUtf8(entry.first.c_str())[0].toLower() == tileset.toLower())
+			{
+				return index;
+			}
+
+			++index;
+		}
+	}
+
+	return -1;
+}
+
+int UnitSelectionDialog::levelIndex(const QString& level) const
+{
+	if (level.isEmpty() || level[0] == '*')
+	{
+		return 0;
+	}
+	else
+	{
+		bool ok = false;
+		const int var = level.toInt(&ok);
+
+		if (ok && var < this->m_levelComboBox->count())
+		{
+			return var;
+		}
+	}
+
+	return -1;
+}
+
 void UnitSelectionDialog::update()
 {
 	const QString race = this->m_raceComboBox->itemData(this->m_raceComboBox->currentIndex()).toString();
@@ -224,6 +350,10 @@ void UnitSelectionDialog::update()
 	{
 		currentTileset = this->m_tilesetComboBox->itemData(this->m_tilesetComboBox->currentIndex()).toChar();
 	}
+	else if (this->unitData()->showTilesetForRace(race))
+	{
+		currentTileset = '*';
+	}
 
 	QString level;
 
@@ -231,9 +361,34 @@ void UnitSelectionDialog::update()
 	{
 		level = this->m_levelComboBox->itemData(this->m_levelComboBox->currentIndex()).toString();
 	}
+	else if (this->unitData()->showLevelForRace(race))
+	{
+		level = "*";
+	}
 
 	this->fill(race, this->m_meleeComboBox->currentIndex(), currentTileset, level);
-	this->m_buttonGroup.buttons().first()->setChecked(true);
+
+	if (!this->m_buttonGroup.buttons().isEmpty())
+	{
+		checkButton(this->m_buttonGroup.buttons().first());
+	}
+	else
+	{
+		this->m_dialogButtonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+		this->m_originalObjectId = "";
+	}
+}
+
+void UnitSelectionDialog::checkButton(QAbstractButton* button)
+{
+	ButtonsByButton::iterator iterator = this->m_buttonsByButtons.find(button);
+
+	if (iterator != this->m_buttonsByButtons.end())
+	{
+		this->m_originalObjectId = iterator.value();
+		this->m_basicUnitLabel->setText(tr("%1: %2").arg(source()->sharedData()->tr("WESTRING_UE_BASEUNIT")).arg(this->unitData()->fieldValue(this->m_originalObjectId, "", "unam")));
+		this->m_dialogButtonBox->button(QDialogButtonBox::Ok)->setEnabled(!this->m_nameLineEdit->text().isEmpty());
+	}
 }
 
 void UnitSelectionDialog::selectButton(bool checked)
@@ -241,18 +396,16 @@ void UnitSelectionDialog::selectButton(bool checked)
 	if (checked)
 	{
 		KPushButton *button = dynamic_cast<KPushButton*>(QObject::sender());
-		ButtonsByButton::iterator iterator = this->m_buttonsByButtons.find(button);
-
-		if (iterator != this->m_buttonsByButtons.end())
-		{
-			this->m_originalObjectId = iterator.value();
-		}
+		checkButton(button);
 	}
 }
 
 void UnitSelectionDialog::nameChanged(const QString& name)
 {
-	this->m_dialogButtonBox->button(QDialogButtonBox::Ok)->setEnabled(!name.isEmpty());
+	if (!this->m_originalObjectId.isEmpty())
+	{
+		this->m_dialogButtonBox->button(QDialogButtonBox::Ok)->setEnabled(!name.isEmpty());
+	}
 }
 
 void UnitSelectionDialog::changeRace(int index)

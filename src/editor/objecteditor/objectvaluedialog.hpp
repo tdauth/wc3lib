@@ -54,6 +54,8 @@ class ObjectData;
  */
 class ObjectValueDialog : public QDialog, protected Ui::ObjectValueDialog
 {
+	Q_OBJECT
+
 	public:
 		typedef QHash<QString, QCheckBox*> CheckBoxes;
 
@@ -90,6 +92,12 @@ class ObjectValueDialog : public QDialog, protected Ui::ObjectValueDialog
 
 	private:
 		CheckBoxes m_checkBoxes;
+		int m_maximum;
+
+	private slots:
+		void limitText();
+		void limitTextInLineEdit(const QString &text);
+		void limitEditList(const QString &text);
 };
 
 inline void ObjectValueDialog::setLabelText(const QString& text)

@@ -86,7 +86,7 @@ class ObjectTreeModel : public QAbstractItemModel
 		 */
 		ObjectTreeItem* item(const QString &originalObjectId, const QString &customObjectId);
 
-		ObjectTreeItem* item(QModelIndex &index) const;
+		ObjectTreeItem* item(const QModelIndex &index) const;
 
 		virtual QVariant data(const QModelIndex &index, int role) const override;
 		virtual int columnCount(const QModelIndex &parent) const override;
@@ -94,6 +94,9 @@ class ObjectTreeModel : public QAbstractItemModel
 		virtual QModelIndex parent(const QModelIndex &index) const override;
 		virtual QModelIndex index(int row, int column, const QModelIndex &parent) const override;
 		virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+
+		virtual bool insertRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
+		virtual bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
 
 		/**
 		 * Loads all standard objects from \p objectData and fills the tree model.
@@ -114,6 +117,9 @@ class ObjectTreeModel : public QAbstractItemModel
 
 		int topLevelRow(ObjectTreeItem *item) const;
 
+	protected:
+		virtual ObjectTreeItem* itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId) = 0;
+
 	private:
 		Items m_standardItems;
 		Items m_customItems;
@@ -122,6 +128,7 @@ class ObjectTreeModel : public QAbstractItemModel
 
 	private slots:
 		void createObject(const QString &originalObjectId, const QString &customObjectId);
+		void removeObject(const QString &originalObjectId, const QString &customObjectId);
 		void resetObject(const QString &originalObjectId, const QString &customObjectId);
 		void modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
 };

@@ -65,6 +65,8 @@ class ObjectTreeItem
 		QIcon icon() const;
 		QColor foreground() const;
 		void appendChild(ObjectTreeItem *child);
+		void setChildren(const Children &children);
+		Children& children();
 		const Children& children() const;
 		/**
 		 * \return Returns 0 if child at \p row does not exist.
@@ -143,6 +145,16 @@ inline QIcon ObjectTreeItem::icon() const
 inline void ObjectTreeItem::appendChild(ObjectTreeItem* child)
 {
 	this->m_children.append(child);
+}
+
+inline void ObjectTreeItem::setChildren(const ObjectTreeItem::Children &children)
+{
+	this->m_children = children;
+}
+
+inline ObjectTreeItem::Children& ObjectTreeItem::children()
+{
+	return this->m_children;
 }
 
 inline const ObjectTreeItem::Children& ObjectTreeItem::children() const

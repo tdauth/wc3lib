@@ -72,7 +72,23 @@ QString ObjectTreeItem::text(bool showRawData) const
 		return this->m_text;
 	}
 
-	return this->objectData()->fieldValue(originalObjectId(), customObjectId(), "unam") + this->objectData()->fieldValue(originalObjectId(), customObjectId(), "unsf");
+	QString name = this->objectData()->fieldValue(originalObjectId(), customObjectId(), "unam");
+
+	if (this->objectData()->hasFieldValue(originalObjectId(), customObjectId(), "unsf"))
+	{
+		const QString suffix = this->objectData()->fieldValue(originalObjectId(), customObjectId(), "unsf");
+
+		if (suffix.startsWith('('))
+		{
+			name = QObject::tr("%1 %2").arg(name).arg(suffix);
+		}
+		else
+		{
+			name = QObject::tr("%1 (%2)").arg(name).arg(suffix);
+		}
+	}
+
+	return name;
 }
 
 QColor ObjectTreeItem::foreground() const

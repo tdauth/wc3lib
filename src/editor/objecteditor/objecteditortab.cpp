@@ -74,6 +74,9 @@ void ObjectEditorTab::setupUi()
 	this->treeModel()->load(this->source(), this->objectData(), this);
 	treeView()->setModel(m_treeModel);
 
+	// TEST
+	connect(m_treeModel, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(dataChanged(const QModelIndex&, const QModelIndex&)));
+
 	m_tableWidget = createTableWidget();
 
 	QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
@@ -174,7 +177,68 @@ void ObjectEditorTab::filterTreeWidget(const QString &text)
 			this->treeView()->setModel(proxyModel);
 		}
 	}
+}
 
+void ObjectEditorTab::dataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight)
+{
+	qDebug() << "Data changed";
+}
+
+void ObjectEditorTab::deleteObject()
+{
+	const QItemSelectionModel *selection = this->treeView()->selectionModel();
+
+	if (!selection->selectedIndexes().isEmpty())
+	{
+		/*
+		 * Make sure one cannot edit any values of deleted objects.
+		 */
+		this->tableWidget()->hideColumn(0);
+		this->tableWidget()->hideColumn(1);
+
+		foreach (QModelIndex index, selection->selectedIndexes())
+		{
+			ObjectTreeItem *item = this->treeModel()->item(index);
+
+			/*
+			 * Only custom untis can be deleted.
+			 */
+			if (!item->isFolder() && !item->customObjectId().isEmpty())
+			{
+				this->objectData()->deleteObject(item->originalObjectId(), item->customObjectId());
+			}
+		}
+	}
+
+	onDeleteObject();
+}
+
+void ObjectEditorTab::resetObject()
+{
+	const QItemSelectionModel *selection = this->treeView()->selectionModel();
+
+	foreach (QModelIndex index, selection->selectedIndexes())
+	{
+		ObjectTreeItem *item = this->treeModel()->item(index);
+
+		if (!item->isFolder())
+		{
+			this->objectData()->resetObject(item->originalObjectId(), item->customObjectId());
+		}
+	}
+
+	onResetObject();
+}
+
+void ObjectEditorTab::resetAllObjects()
+{
+	for (ObjectTreeModel::Items::iterator iterator = this->treeModel()->standardItems().begin(); iterator != this->treeModel()->standardItems().end(); ++iterator)
+	{
+		ObjectTreeItem *item = iterator.value();
+		this->objectData()->resetObject(item->originalObjectId(), item->customObjectId());
+	}
+
+	onResetAllObjects();
 }
 
 void ObjectEditorTab::setShowRawData(bool show)

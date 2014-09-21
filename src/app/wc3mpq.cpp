@@ -48,11 +48,12 @@ int main(int argc, char *argv[])
 
 	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
 
-	// TODO determine by extension what should be open!
 	if (args != 0)
 	{
-		//for (int i = 0; i < args->count(); ++i)
-		//	editor->openTriggersUrl(args->url(i));
+		for (int i = 0; i < args->count(); ++i)
+		{
+			editor.openMpqArchive(args->url(i));
+		}
 	}
 
 	return app.exec();

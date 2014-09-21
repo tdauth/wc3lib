@@ -237,6 +237,8 @@ class ObjectEditorTab : public QWidget
 	private slots:
 		void itemClicked(QModelIndex index);
 		void filterTreeWidget(const QString &text);
+		// TEST
+		void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 };
 
 inline MpqPriorityList* ObjectEditorTab::source() const
@@ -314,21 +316,6 @@ inline void ObjectEditorTab::newObject()
 inline void ObjectEditorTab::renameObject()
 {
 	onRenameObject();
-}
-
-inline void ObjectEditorTab::deleteObject()
-{
-	onDeleteObject();
-}
-
-inline void ObjectEditorTab::resetObject()
-{
-	onResetObject();
-}
-
-inline void ObjectEditorTab::resetAllObjects()
-{
-	onResetAllObjects();
 }
 
 }
