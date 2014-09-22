@@ -22,8 +22,11 @@
 
 #include <QMessageBox>
 
-#include "objecttablewidget.hpp"
-#include "objecttablewidgetpair.hpp"
+#include "objecttableview.hpp"
+#include "objectvaluedialog.hpp"
+#include "objecttablemodel.hpp"
+#include "objecteditortab.hpp"
+#include "objectdata.hpp"
 #include "../mpqprioritylist.hpp"
 
 namespace wc3lib
@@ -32,38 +35,8 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectTableWidget::ObjectTableWidget(ObjectEditorTab *parent) : QTableWidget(parent->objectData()->metaData()->slk().rows() - 1, 2, parent), m_tab(parent)
+ObjectTableView::ObjectTableView(ObjectEditorTab *parent) : QTableView(parent), m_tab(parent)
 {
-	const QString name = parent->source()->sharedData()->tr("WESTRING_NAME");
-	QTableWidgetItem *nameItem = new QTableWidgetItem(name);
-	this->setHorizontalHeaderItem(0, nameItem);
-
-	const QString value = parent->source()->sharedData()->tr("WESTRING_VALUE");
-	QTableWidgetItem *valueItem = new QTableWidgetItem(value);
-	this->setHorizontalHeaderItem(1, valueItem);
-
-	/*
-	 * Order field IDs by their sort column and add them in the correct order.
-	 */
-	typedef QMultiMap<QString, QString> OrderedFieldIds;
-	OrderedFieldIds fieldIds;
-
-	for (map::Slk::Table::size_type i = 0; i < tab()->objectData()->metaData()->slk().rows() - 1; ++i)
-	{
-		const QString fieldId = tab()->objectData()->metaData()->value(i + 1, "ID");
-		const QString sort = tab()->objectData()->metaData()->value(i + 1, "sort");
-		fieldIds.insert(sort, fieldId);
-	}
-
-	int row = 0;
-
-	for (OrderedFieldIds::const_iterator iterator = fieldIds.begin(); iterator != fieldIds.end(); ++iterator, ++row)
-	{
-		const QString fieldId = iterator.value();
-		ObjectTableWidgetPair *pair = new ObjectTableWidgetPair(this, parent, row, "", "", fieldId);
-		m_pairs.insert(fieldId, pair);
-	}
-
 	/*
 	 * Hide columns initially and wait for activation of an object.
 	 */
@@ -77,10 +50,11 @@ ObjectTableWidget::ObjectTableWidget(ObjectEditorTab *parent) : QTableWidget(par
 	connect(tab()->objectEditor()->modifyFieldAction(), SIGNAL(triggered()), this, SLOT(modifyField()));
 	connect(tab()->objectEditor()->resetFieldAction(), SIGNAL(triggered()), this, SLOT(resetField()));
 
-	connect(this, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(editItem(QTableWidgetItem*)));
+	connect(this, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(editItem(const QModelIndex&)));
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customContextMenuRequested(QPoint)));
 
 	this->verticalHeader()->setVisible(false);
+	this->horizontalHeader()->setVisible(true);
 	this->horizontalHeader()->setStretchLastSection(true);
 	this->horizontalHeader()->setSortIndicatorShown(true);
 	this->setShowGrid(false);
@@ -89,46 +63,46 @@ ObjectTableWidget::ObjectTableWidget(ObjectEditorTab *parent) : QTableWidget(par
 	this->setSelectionBehavior(QTreeWidget::SelectRows);
 }
 
-void ObjectTableWidget::editItem(QTableWidgetItem *item)
+void ObjectTableView::editItem(const QModelIndex &index)
 {
-	const QString fieldId = item->data(Qt::UserRole).toString();
-	Pairs::iterator iterator = this->pairs().find(fieldId);
+	const QString fieldId = model()->data(index, Qt::UserRole).toString();
+	const QString label = QString(tr("%1:")).arg(model()->data(model()->index(index.row(), 0), Qt::DisplayRole).toString());
+	QString result;
 
-	if (iterator != this->pairs().end())
+	if (ObjectValueDialog::show(result, this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId, this->tab()->objectData(), label, this->tab()) == QDialog::Accepted)
 	{
-		iterator.value()->edit();
 	}
 }
 
-void ObjectTableWidget::customContextMenuRequested(QPoint pos)
+void ObjectTableView::resetItem(const QModelIndex& index)
+{
+	const QString fieldId = model()->data(index, Qt::UserRole).toString();
+	this->tab()->objectData()->resetField(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId);
+}
+
+void ObjectTableView::customContextMenuRequested(QPoint pos)
 {
 	qDebug() << "custom context menu";
 	m_contextMenu->popup(this->viewport()->mapToGlobal(pos));
 }
 
-void ObjectTableWidget::modifyField()
+void ObjectTableView::modifyField()
 {
 	QItemSelectionModel *select = this->selectionModel();
 
 	foreach (QModelIndex index, select->selectedRows())
 	{
-		editItem(this->item(index.row(), 0));
+		editItem(index);
 	}
 }
 
-void ObjectTableWidget::resetField()
+void ObjectTableView::resetField()
 {
 	QItemSelectionModel *select = this->selectionModel();
 
 	foreach (QModelIndex index, select->selectedRows())
 	{
-		const QString fieldId = this->item(index.row(), 0)->data(Qt::UserRole).toString();
-		Pairs::iterator iterator = this->pairs().find(fieldId);
-
-		if (iterator != this->pairs().end())
-		{
-			iterator.value()->reset();
-		}
+		resetItem(index);
 	}
 }
 

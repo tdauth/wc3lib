@@ -93,9 +93,12 @@ QString ObjectTreeItem::text(bool showRawData) const
 
 QColor ObjectTreeItem::foreground() const
 {
-	if (this->objectData()->isObjectModified(originalObjectId(), customObjectId()))
+	if (!this->isFolder())
 	{
-		return QColor(Qt::magenta);
+		if (this->objectData()->isObjectModified(originalObjectId(), customObjectId()))
+		{
+			return QColor(Qt::magenta);
+		}
 	}
 
 	return QColor(Qt::black);

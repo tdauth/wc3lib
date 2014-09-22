@@ -304,7 +304,8 @@ void readMipMapJpeg(Blp::MipMap &mipMap, byte *buffer, dword bufferSize)
 
 			if (dimension != requiredScanlines)
 			{
-				std::cerr << boost::format(_("Number of scanned lines is not equal to %1%. It is %2%.")) % requiredScanlines % dimension << std::endl;
+				// TODO occurs all the time, too much output
+				//std::cerr << boost::format(_("Number of scanned lines is not equal to %1%. It is %2%.")) % requiredScanlines % dimension << std::endl;
 			}
 
 			for (dword height = 0; height < dimension; ++height)

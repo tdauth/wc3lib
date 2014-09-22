@@ -20,6 +20,8 @@
 
 #include <QtCore>
 
+#include <KIO/NetAccess>
+
 #include "metadata.hpp"
 #include "mpqprioritylist.hpp"
 
@@ -53,14 +55,14 @@ void MetaData::load()
 
 	if (!this->source()->download(this->url(), filePath, 0))
 	{
-		throw Exception();
+		throw Exception(KIO::NetAccess::lastErrorString().toUtf8().constData());
 	}
 
 	ifstream in(filePath.toUtf8().constData());
 
 	if (!in)
 	{
-		throw Exception();
+		throw Exception(boost::format(_("Unable to open file %1%")) % filePath.constData());
 	}
 
 	/*

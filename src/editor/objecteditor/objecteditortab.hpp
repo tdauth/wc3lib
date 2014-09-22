@@ -44,8 +44,8 @@ class ObjectData;
 class ObjectTreeView;
 class ObjectTreeModel;
 class ObjectTreeItem;
-class ObjectTableWidget;
-class ObjectTableWidgetPair;
+class ObjectTableView;
+class ObjectTableModel;
 class Map;
 
 /**
@@ -105,7 +105,8 @@ class ObjectEditorTab : public QWidget
 		 *
 		 * \sa treeView()
 		 */
-		ObjectTableWidget* tableWidget() const;
+		ObjectTableView* tableView() const;
+		ObjectTableModel* tableModel() const;
 
 		/**
 		 * Each tab needs underlying data for the standard objects as well as meta data of all object fields..
@@ -130,14 +131,6 @@ class ObjectEditorTab : public QWidget
 		bool showRawData() const;
 
 		virtual QString name() const = 0;
-		/**
-		 * Fills the item \p item with the custom object using the ID \p originalObjectId and \p customObjectId.
-		 * Usually this sets the text of the item to the name or raw data ID of the object it is refering to.
-		 * All modifications can be accessed via the standard element functions for modifications and should be available at the moment when this function
-		 * is being called.
-		 */
-		virtual void fillTreeItem(const QString &originalObjectId, const QString &customObjectId, QTreeWidgetItem *item) = 0;
-		virtual void fillTableRow(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, ObjectTableWidgetPair *pair) = 0;
 
 		virtual bool clipboardIsEmpty();
 
@@ -165,10 +158,6 @@ class ObjectEditorTab : public QWidget
 		virtual void setupUi();
 
 		virtual ObjectTreeModel* createTreeModel() = 0;
-		/**
-		 * Creates the table widget which lists description and values of object fields.
-		 */
-		virtual ObjectTableWidget* createTableWidget() = 0;
 
 		virtual void onSwitchToMap(Map *map) = 0;
 
@@ -220,7 +209,8 @@ class ObjectEditorTab : public QWidget
 		ObjectTreeView *m_treeView; // left side tree widget
 		ObjectTreeModel *m_treeModel;
 
-		ObjectTableWidget *m_tableWidget; // centered table widget of current selected object
+		ObjectTableView *m_tableView; // centered table widget of current selected object
+		ObjectTableModel *m_tableModel;
 
 		ObjectData *m_objectData;
 
@@ -293,9 +283,14 @@ inline ObjectTreeModel* ObjectEditorTab::treeModel() const
 	return this->m_treeModel;
 }
 
-inline ObjectTableWidget* ObjectEditorTab::tableWidget() const
+inline ObjectTableView* ObjectEditorTab::tableView() const
 {
-	return m_tableWidget;
+	return m_tableView;
+}
+
+inline ObjectTableModel* ObjectEditorTab::tableModel() const
+{
+	return this->m_tableModel;
 }
 
 inline ObjectData* ObjectEditorTab::objectData() const

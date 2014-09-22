@@ -65,6 +65,8 @@ class KDE_EXPORT ListfilesDialog : public QDialog
 		void setAddUrl(const KUrl &url);
 		const KUrl& addUrl();
 
+		static int show(mpq::Listfile::Entries &entries, QWidget *parent = 0);
+
 	public slots:
 		/**
 		 * Opens file dialog to select multiple URLs of files which should be added to the list
@@ -84,6 +86,7 @@ class KDE_EXPORT ListfilesDialog : public QDialog
 		QFileInfoList m_files;
 		QList<QCheckBox*> m_checkBoxes;
 		KUrl m_addUrl;
+		static ListfilesDialog *m_dialog;
 };
 
 inline const QFileInfoList& ListfilesDialog::files() const

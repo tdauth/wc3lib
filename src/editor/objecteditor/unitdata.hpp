@@ -37,6 +37,9 @@ class MetaData;
 /**
  * \brief Stores all data for custom and standard units and unit meta data.
  *
+ * Uses several .txt files for the different races as sources for the default field data.
+ * Other unit data such as UI data, balance data etc. is split up into sepa .slk files.
+ *
  * \ingroup objectdata
  */
 class UnitData : public ObjectData
@@ -50,6 +53,7 @@ class UnitData : public ObjectData
 
 		virtual bool hasDefaultFieldValue(const QString &objectId, const QString &fieldId) const override;
 		virtual QString defaultFieldValue(const QString &objectId, const QString &fieldId) const override;
+		virtual bool hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const override;
 
 		virtual MetaData* metaData() const override;
 		virtual MetaData* objectTabData() const override;
@@ -67,7 +71,13 @@ class UnitData : public ObjectData
 		bool objectIsSpecial(const QString &originalObjectId, const QString &customObjectId) const;
 
 		QString objectTilesets(const QString &originalObjectId, const QString &customObjectId) const;
+		/**
+		 * \return Returns true if a tileset combo box is shown for \p race. For example when selecting a neutral unit it is shown for specific tilesets only.
+		 */
 		bool showTilesetForRace(const QString &race) const;
+		/**
+		 * \return Returns true if a level combo box is shown for \p race. This helps you finding units of a specific level (mostly used for creeps).
+		 */
 		bool showLevelForRace(const QString &race) const;
 
 		MetaData* unitMetaData() const;

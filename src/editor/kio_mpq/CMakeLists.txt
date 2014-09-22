@@ -14,7 +14,7 @@ endif ()
 
 # MPQ KDE plugin
 kde4_add_plugin(kio_mpq ${wc3lib_EDITOR_KIO_MPQ_SRC})
-target_link_libraries(kio_mpq wc3libmpq wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KIO_LIBS})
+target_link_libraries(kio_mpq wc3libmpq wc3libcore wc3libeditor ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KIO_LIBS})
 
 # install
 install(TARGETS kio_mpq  DESTINATION ${PLUGIN_INSTALL_DIR})

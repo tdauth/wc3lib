@@ -231,12 +231,13 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 		// entry path can be a directory path or something like tar:/... or mpq:/...
 		KUrl absoluteSource = entry.url();
 		absoluteSource.addPath(src.toLocalFile());
+		qDebug() << "Downloading" << absoluteSource;
 
-		if (KIO::NetAccess::download(absoluteSource, target, window))
+		if (KIO::NetAccess::exists(absoluteSource, KIO::NetAccess::SourceSide, window))
 		{
-			qDebug() << "Downloaded successfully into file " << target;
+			qDebug() << "Found!";
 
-			return true;
+			return KIO::NetAccess::download(absoluteSource, target, window);
 		}
 	}
 
@@ -250,7 +251,9 @@ bool MpqPriorityList::upload(const QString &src, const KUrl &target, QWidget *wi
 	if (!target.isRelative()) // has protocol - is absolute
 	{
 		if (KIO::NetAccess::upload(src, target, window))
+		{
 			return true;
+		}
 	}
 
 	// TODO only do this if it doesn't start with /

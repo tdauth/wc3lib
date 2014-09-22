@@ -309,6 +309,7 @@ QDialog::DialogCode ObjectValueDialog::show(QString &result, const QString &orig
 					dialog = 0;
 
 					result = objectData->fieldReadableValue(originalObjectId, customObjectId, fieldId);
+					qDebug() << "Readable value:" << result;
 
 					return QDialog::Accepted;
 				}

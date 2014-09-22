@@ -60,5 +60,6 @@ BOOST_AUTO_TEST_CASE(Rects)
 	BOOST_REQUIRE(valid);
 	BOOST_REQUIRE(map.rects().get() != 0);
 	BOOST_REQUIRE(strcmp(map.rects()->fileName(), "war3map.w3r") == 0);
+	std::cerr << "Rects:" << map.rects()->rects().size() << std::endl;
 	BOOST_REQUIRE(map.rects()->rects().size() == 3);
 }

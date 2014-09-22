@@ -29,7 +29,7 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectTreeModel::ObjectTreeModel(QObject *parent) : QAbstractItemModel(parent)
+ObjectTreeModel::ObjectTreeModel(MpqPriorityList *source, QObject *parent) : QAbstractItemModel(parent), m_source(source)
 {
 }
 
@@ -209,27 +209,62 @@ QVariant ObjectTreeModel::headerData(int section, Qt::Orientation orientation, i
 	return QVariant();
 }
 
+void ObjectTreeModel::insertRowFolders(const QStringList& folderNames, int row, QModelIndex parent)
+{
+	insertRows(row, folderNames.size(), parent);
+
+	foreach (QString name, folderNames)
+	{
+		const QModelIndex index = this->index(row, 0, parent);
+		this->item(index)->setFolderText(name);
+
+		++row;
+	}
+}
+
 bool ObjectTreeModel::insertRows(int row, int count, const QModelIndex &parent)
 {
 	qDebug() << "Insert rows!";
 	ObjectTreeItem *parentItem = item(parent);
-	ObjectTreeItem::Children children = parentItem->children();
+	ObjectTreeItem::Children children;
 
-	for (int i = row; i < count; ++i)
+	if (parentItem != 0)
 	{
-		ObjectTreeItem *item = new ObjectTreeItem(parentItem->objectData(), "", "", parentItem);
+		children = parentItem->children();
+	}
 
-		if (i >= children.size())
+	const int last = row + count - 1;
+	beginInsertRows(parent, row, last);
+
+	for (int i = row; i < last + 1; ++i)
+	{
+		ObjectTreeItem *item = new ObjectTreeItem(0, "", "", parentItem);
+
+		if (parentItem != 0)
 		{
-			children.push_back(item);
+			item->setObjectData(parentItem->objectData());
+
+			if (i >= children.size())
+			{
+				children.push_back(item);
+			}
+			else
+			{
+				children[i] = item;
+			}
 		}
 		else
 		{
-			children[i] = item;
+			this->insertTopLevelItem(item);
 		}
 	}
 
-	parentItem->setChildren(children);
+	if (parentItem != 0)
+	{
+		parentItem->setChildren(children);
+	}
+
+	endInsertRows();
 
 
 	return true;
@@ -248,11 +283,14 @@ bool ObjectTreeModel::removeRows(int row, int count, const QModelIndex &parent)
 		return false;
 	}
 
-	beginRemoveRows(parent, row, count);
+	beginRemoveRows(parent, row, row + count - 1);
 
 	for (int i = row; i < count; ++i)
 	{
-		delete parentItem->children().takeAt(i);
+		ObjectTreeItem *item = parentItem->children().takeAt(i);
+		qDebug() << "Removing item" << item->text(false);
+		delete item;
+		qDebug() << "Remaining items:" << parentItem->children().count();
 	}
 
 
@@ -354,14 +392,16 @@ void ObjectTreeModel::modifyField(const QString& originalObjectId, const QString
 
 	if (item != 0)
 	{
-		ObjectTreeItem *parent = this->itemParent(objectData, originalObjectId, customObjectId);
-		QModelIndex index = item->modelIndex(this);
+		const QModelIndex index = item->modelIndex(this);
 
 		/*
 		 * Signal that data have changed.
 		 * For example if the name has changed it will be updated automatically in the view.
 		 */
 		emit dataChanged(index, index);
+
+		const QModelIndex parentIndex = this->itemParent(objectData, originalObjectId, customObjectId);
+		ObjectTreeItem *parent = this->item(parentIndex);
 
 		/*
 		 * If the item would have a new parent it has been moved.

@@ -150,6 +150,10 @@ QIcon WarcraftIIIShared::icon(const KUrl &url, QWidget *window)
 
 		return QIcon(iterator.value());
 	}
+	else
+	{
+		qDebug() << "Error on downloading icon:" << url;
+	}
 
 	return QIcon();
 }

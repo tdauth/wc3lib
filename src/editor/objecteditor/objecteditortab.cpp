@@ -25,9 +25,9 @@
 #include <QtGui>
 
 #include "objecteditortab.hpp"
-#include "objecttablewidget.hpp"
 #include "objectdata.hpp"
-#include "objecttablewidgetpair.hpp"
+#include "objecttableview.hpp"
+#include "objecttablemodel.hpp"
 #include "objecttreeview.hpp"
 #include "objecttreemodel.hpp"
 #include "../metadata.hpp"
@@ -46,7 +46,8 @@ ObjectEditorTab::ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData
 , m_filterLineEdit(0)
 , m_treeView(0)
 , m_treeModel(0)
-, m_tableWidget(0)
+, m_tableView(0)
+, m_tableModel(0)
 , m_objectData(objectData)
 , m_showRawData(false)
 {
@@ -71,19 +72,21 @@ void ObjectEditorTab::setupUi()
 
 	m_treeView = new ObjectTreeView(this);
 	m_treeModel = createTreeModel();
-	this->treeModel()->load(this->source(), this->objectData(), this);
 	treeView()->setModel(m_treeModel);
+	this->treeModel()->load(this->source(), this->objectData(), this);
 
 	// TEST
 	connect(m_treeModel, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(dataChanged(const QModelIndex&, const QModelIndex&)));
 
-	m_tableWidget = createTableWidget();
+	m_tableView = new ObjectTableView(this);
+	m_tableModel = new ObjectTableModel(this);
+	m_tableView->setModel(m_tableModel);
 
 	QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
 	layout->addWidget(m_filterLineEdit);
 	layout->addWidget(m_treeView);
 	splitter->addWidget(layoutWidget);
-	splitter->addWidget(m_tableWidget);
+	splitter->addWidget(m_tableView);
 	this->setLayout(new QHBoxLayout(this));
 	this->layout()->addWidget(splitter);
 
@@ -124,6 +127,7 @@ void ObjectEditorTab::exportAllObjects()
 void ObjectEditorTab::itemClicked(QModelIndex index)
 {
 	ObjectTreeItem *item = (ObjectTreeItem*)(index.internalPointer());
+	qDebug() << "Item:" << item;
 	const QString originalObjectId = item->originalObjectId();
 	/*
 	 * Is folder item.
@@ -131,8 +135,8 @@ void ObjectEditorTab::itemClicked(QModelIndex index)
 	 */
 	if (item->isFolder())
 	{
-		this->tableWidget()->hideColumn(0);
-		this->tableWidget()->hideColumn(1);
+		this->tableView()->hideColumn(0);
+		this->tableView()->hideColumn(1);
 		this->activateFolder(item);
 	}
 	/*
@@ -144,13 +148,11 @@ void ObjectEditorTab::itemClicked(QModelIndex index)
 		qDebug() << "activating object" << originalObjectId;
 		const QString customObjectId = item->customObjectId();
 
-		this->tableWidget()->showColumn(0);
-		this->tableWidget()->showColumn(1);
+		tableModel()->load(objectData(), originalObjectId, customObjectId);
 
-		for (ObjectTableWidget::Pairs::iterator iterator = this->tableWidget()->pairs().begin(); iterator != this->tableWidget()->pairs().end(); ++iterator)
-		{
-			fillTableRow(originalObjectId, customObjectId, iterator.key(), iterator.value());
-		}
+		this->tableView()->horizontalHeader()->setVisible(true);
+		this->tableView()->showColumn(0);
+		this->tableView()->showColumn(1);
 
 		this->activateObject(item);
 	}
@@ -193,8 +195,8 @@ void ObjectEditorTab::deleteObject()
 		/*
 		 * Make sure one cannot edit any values of deleted objects.
 		 */
-		this->tableWidget()->hideColumn(0);
-		this->tableWidget()->hideColumn(1);
+		this->tableView()->hideColumn(0);
+		this->tableView()->hideColumn(1);
 
 		foreach (QModelIndex index, selection->selectedIndexes())
 		{

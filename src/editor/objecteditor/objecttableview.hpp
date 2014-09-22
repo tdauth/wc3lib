@@ -18,10 +18,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_OBJECTABLEWIDGET_HPP
-#define WC3LIB_EDITOR_OBJECTABLEWIDGET_HPP
+#ifndef WC3LIB_EDITOR_OBJECTABLEVIEW_HPP
+#define WC3LIB_EDITOR_OBJECTABLEVIEW_HPP
 
-#include <QTableWidget>
+#include <QTableView>
 #include <QLinkedList>
 
 #include "../map.hpp"
@@ -34,10 +34,10 @@ namespace editor
 {
 
 class ObjectEditorTab;
-class ObjectTableWidgetPair;
+class ObjectTableModel;
 
 /**
- * \brief Table widget of the object editor which lists all values of the currently selected object.
+ * \brief Table view of the object editor which lists all values of the currently selected object.
  *
  * Provides a table with two columns. The first column lists the descriptions of all fields of the currently selected object.
  * The second column lists the values of the fields of the currently selected object.
@@ -47,30 +47,21 @@ class ObjectTableWidgetPair;
  *
  * \ingroup objectdata
  */
-class ObjectTableWidget : public QTableWidget
+class ObjectTableView : public QTableView
 {
 	Q_OBJECT
 
 	public:
 		/**
-		 * All pairs are hashed by the ID of the field.
-		 * The IDs of all fields can be found in the corresponding meta data file (\ref wc3lib::editor::ObjectEMetaData::metaData()).
-		 */
-		typedef QHash<QString, ObjectTableWidgetPair*> Pairs;
-
-		/**
 		 * Creates a new table widget using the tab \p parent as parent widget and reference for all field data.
 		 */
-		ObjectTableWidget(ObjectEditorTab *parent);
+		ObjectTableView(ObjectEditorTab *parent);
 
 		ObjectEditorTab* tab() const;
-
-		Pairs& pairs();
-		const Pairs& pairs() const;
+		ObjectTableModel* tableModel() const;
 
 	protected:
 		ObjectEditorTab *m_tab;
-		Pairs m_pairs;
 
 		QMenu *m_contextMenu;
 		QAction *m_modifyField;
@@ -81,25 +72,21 @@ class ObjectTableWidget : public QTableWidget
 		 * Items are not edited directly like usual table items. Usually a simple dialog with OK and cancel button is shown.
 		 * This functions handles all edit requests!
 		 */
-		void editItem(QTableWidgetItem *item);
+		void editItem(const QModelIndex &index);
+		void resetItem(const QModelIndex &index);
 		void customContextMenuRequested(QPoint pos);
 		void modifyField();
 		void resetField();
 };
 
-inline ObjectEditorTab* ObjectTableWidget::tab() const
+inline ObjectEditorTab* ObjectTableView::tab() const
 {
 	return this->m_tab;
 }
 
-inline ObjectTableWidget::Pairs& ObjectTableWidget::pairs()
+inline ObjectTableModel* ObjectTableView::tableModel() const
 {
-	return m_pairs;
-}
-
-inline const ObjectTableWidget::Pairs& ObjectTableWidget::pairs() const
-{
-	return m_pairs;
+	return boost::polymorphic_cast<ObjectTableModel*>(this->model());
 }
 
 }

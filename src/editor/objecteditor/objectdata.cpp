@@ -209,6 +209,7 @@ map::Value ObjectData::value(const QString &fieldId, const QString &value) const
 		}
 
 		case map::Value::Type::Real:
+		case map::Value::Type::Unreal:
 		{
 			float32 data = boost::numeric_cast<float32>(value.toDouble());
 
@@ -264,6 +265,7 @@ map::Value ObjectData::value(const QString &fieldId, const QString &value) const
 
 void ObjectData::modifyField(const QString &originalObjectId, const QString &customObjectId, const QString& fieldId, const map::CustomObjects::Modification &modification)
 {
+	assert(!originalObjectId.isEmpty());
 	const ObjectId objectId(originalObjectId, customObjectId);
 	Objects::iterator iterator = this->m_objects.find(objectId);
 
@@ -339,6 +341,7 @@ void ObjectData::resetObject(const QString &originalObjectId, const QString &cus
 
 void ObjectData::deleteObject(const QString& originalObjectId, const QString& customObjectId)
 {
+	qDebug() << "Deleting object" << originalObjectId;
 	resetObject(originalObjectId, customObjectId);
 
 	emit objectRemoval(originalObjectId, customObjectId);
@@ -359,7 +362,10 @@ bool ObjectData::isObjectModified(const QString &originalObjectId, const QString
 
 void ObjectData::clearModifications()
 {
-	this->m_objects.clear();
+	for (Objects::iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
+	{
+		deleteObject(iterator.key().first, iterator.key().second);
+	}
 }
 
 bool ObjectData::fieldModificiation(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId, map::CustomObjects::Modification &modification) const

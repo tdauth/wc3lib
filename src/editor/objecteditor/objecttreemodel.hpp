@@ -60,8 +60,10 @@ class ObjectTreeModel : public QAbstractItemModel
 		 */
 		typedef QHash<ObjectId, ObjectTreeItem*> Items;
 
-		ObjectTreeModel(QObject *parent = 0);
+		ObjectTreeModel(MpqPriorityList *source, QObject *parent = 0);
 		virtual ~ObjectTreeModel();
+
+		MpqPriorityList* source() const;
 
 		void insertTopLevelItem(ObjectTreeItem *item);
 		void insertStandardItem(ObjectTreeItem *item);
@@ -92,11 +94,19 @@ class ObjectTreeModel : public QAbstractItemModel
 		virtual int columnCount(const QModelIndex &parent) const override;
 		virtual int rowCount(const QModelIndex &parent) const override;
 		virtual QModelIndex parent(const QModelIndex &index) const override;
-		virtual QModelIndex index(int row, int column, const QModelIndex &parent) const override;
+		virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
 		virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
+		/**
+		 * \note This does not set any folder text or object ID or object data (only for items which have parents) neither does it add the items to standard or custom items. This has to be done manually.
+		 */
 		virtual bool insertRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
 		virtual bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
+
+		/**
+		 * Inserts multiple folders.
+		 */
+		void insertRowFolders(const QStringList &folderNames, int row, QModelIndex parent = QModelIndex());
 
 		/**
 		 * Loads all standard objects from \p objectData and fills the tree model.
@@ -118,9 +128,10 @@ class ObjectTreeModel : public QAbstractItemModel
 		int topLevelRow(ObjectTreeItem *item) const;
 
 	protected:
-		virtual ObjectTreeItem* itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId) = 0;
+		virtual QModelIndex itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId) = 0;
 
 	private:
+		MpqPriorityList *m_source;
 		Items m_standardItems;
 		Items m_customItems;
 
@@ -132,6 +143,11 @@ class ObjectTreeModel : public QAbstractItemModel
 		void resetObject(const QString &originalObjectId, const QString &customObjectId);
 		void modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
 };
+
+inline MpqPriorityList* ObjectTreeModel::source() const
+{
+	return this->m_source;
+}
 
 inline void ObjectTreeModel::insertTopLevelItem(ObjectTreeItem* item)
 {

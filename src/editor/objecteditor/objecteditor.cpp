@@ -31,6 +31,7 @@
 #include "objecteditortab.hpp"
 #include "editor.hpp"
 #include "uniteditor.hpp"
+#include "weathereditor.hpp"
 #include "../moduletoolbar.hpp"
 
 namespace wc3lib
@@ -39,7 +40,7 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_tabWidget(new KTabWidget(this)), m_unitEditor(0), Module(source, parent, f)
+ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_tabWidget(new KTabWidget(this)), m_unitEditor(0), m_weatherEditor(0), Module(source, parent, f)
 , m_copyObjectAction(0)
 , m_pasteObjectAction(0)
 , m_modifyFieldAction(0)
@@ -71,9 +72,12 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 	 * Create all tabs after the actions have been created.
 	 */
 	m_unitEditor = new UnitEditor(source, this, f);
+	m_weatherEditor = new WeatherEditor(source, this, f);
 
 	tabWidget()->addTab(unitEditor(), unitEditor()->name());
+	tabWidget()->addTab(weatherEditor(), weatherEditor()->name());
 	unitEditor()->show();
+	weatherEditor()->show();
 
 	m_currentTab = tab(0);
 	setWindowTitle(currentTab()->name());

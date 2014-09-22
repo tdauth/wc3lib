@@ -33,6 +33,8 @@ namespace wc3lib
 namespace editor
 {
 
+ListfilesDialog *ListfilesDialog::m_dialog = 0;
+
 ListfilesDialog::ListfilesDialog(QWidget* parent, Qt::WindowFlags flags) : QDialog(parent, flags), m_fileListLayout(0)
 {
 	this->setWindowTitle(tr("Select Listfiles"));
@@ -40,6 +42,24 @@ ListfilesDialog::ListfilesDialog(QWidget* parent, Qt::WindowFlags flags) : QDial
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	this->setLayout(layout);
 	this->fill();
+}
+
+int ListfilesDialog::show(mpq::Listfile::Entries& entries, QWidget* parent)
+{
+	if (m_dialog == 0)
+	{
+		m_dialog = new ListfilesDialog(parent);
+	}
+
+	m_dialog->setParent(parent);
+	int result = m_dialog->exec();
+
+	if (result == Accepted)
+	{
+		entries = m_dialog->checkedEntries();
+	}
+
+	return result;
 }
 
 void ListfilesDialog::fill()

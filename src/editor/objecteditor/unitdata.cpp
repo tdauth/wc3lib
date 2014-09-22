@@ -253,6 +253,15 @@ QString UnitData::defaultFieldValue(const QString &objectId, const QString &fiel
 	return "";
 }
 
+bool UnitData::hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const
+{
+	const QString useUnit = this->metaData()->value(fieldId, "useUnit");
+	const QString useHero = this->metaData()->value(fieldId, "useHero");
+	const QString useBuilding = this->metaData()->value(fieldId, "useBuilding");
+
+	return (!objectIsHero(originalObjectId, customObjectId) || useHero != "1") && (!objectIsBuilding(originalObjectId, customObjectId) || useBuilding != "1") && (!objectIsUnit(originalObjectId, customObjectId) || useUnit != "1");
+}
+
 bool UnitData::hasCustomUnits() const
 {
 	return true;

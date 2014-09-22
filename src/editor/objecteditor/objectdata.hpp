@@ -232,6 +232,11 @@ class ObjectData : public QObject
 		QString fieldReadableValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const;
 
 		/**
+		 * \return Returns true if the field \p fieldId is not shown in the table view for the corresponding object.
+		 */
+		virtual bool hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const = 0;
+
+		/**
 		 * Imports custom units \p units and replaces all existing custom units by immediately.
 		 * It updates the modifications to the loaded custom units.
 		 */

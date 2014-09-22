@@ -3,8 +3,8 @@ set(wc3lib_OBJECTEDITOR_H
 	objecteditortab.hpp
 	objectdata.hpp
 	objectvaluedialog.hpp
-	objecttablewidget.hpp
-	objecttablewidgetpair.hpp
+	objecttablemodel.hpp
+	objecttableview.hpp
 	objecttreeview.hpp
 	objecttreeitem.hpp
 	objecttreemodel.hpp
@@ -12,14 +12,17 @@ set(wc3lib_OBJECTEDITOR_H
 	unitdata.hpp
 	unitselectiondialog.hpp
 	unittreemodel.hpp
+	weatherdata.hpp
+	weathereditor.hpp
+	weathertreemodel.hpp
 )
 set(wc3lib_OBJECTEDITOR_SRC
 	objecteditor.cpp
 	objecteditortab.cpp
 	objectdata.cpp
 	objectvaluedialog.cpp
-	objecttablewidget.cpp
-	objecttablewidgetpair.cpp
+	objecttablemodel.cpp
+	objecttableview.cpp
 	objecttreeview.cpp
 	objecttreeitem.cpp
 	objecttreemodel.cpp
@@ -27,6 +30,9 @@ set(wc3lib_OBJECTEDITOR_SRC
 	unitdata.cpp
 	unitselectiondialog.cpp
 	unittreemodel.cpp
+	weatherdata.cpp
+	weathereditor.cpp
+	weathertreemodel.cpp
 )
 
 add_subdirectory(ui)

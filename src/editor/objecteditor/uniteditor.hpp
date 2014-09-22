@@ -48,14 +48,11 @@ class UnitEditor : public ObjectEditorTab
 		UnitData* unitData() const;
 
 		virtual QString name() const override;
-		virtual void fillTreeItem(const QString &originalObjectId, const QString &customObjectId, QTreeWidgetItem *item) override;
-		virtual void fillTableRow(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, ObjectTableWidgetPair *pair) override;
 
 		UnitSelectionDialog* unitSelectionDialog() const;
 
 	protected:
 		virtual ObjectTreeModel* createTreeModel() override;
-		virtual ObjectTableWidget* createTableWidget() override;
 		virtual void onSwitchToMap(Map *map) override;
 
 		virtual void onNewObject();
@@ -86,27 +83,6 @@ class UnitEditor : public ObjectEditorTab
 		virtual KUrl copyObjectIconUrl() const override;
 		virtual KUrl pasteObjectIconUrl() const override;
 		virtual KUrl newObjectIconUrl() const override;
-
-		QTreeWidgetItem *m_humanItem;
-		QTreeWidgetItem *m_humanUnitsItem;
-		QTreeWidgetItem *m_humanBuildingsItem;
-		QTreeWidgetItem *m_humanHeroesItem;
-		QTreeWidgetItem *m_humanSpecialItem;
-		QTreeWidgetItem *m_humanCampaignItem;
-		QTreeWidgetItem *m_orcItem;
-		QTreeWidgetItem *m_undeadItem;
-		QTreeWidgetItem *m_nightElfItem;
-		QTreeWidgetItem *m_neutralNagaItem;
-		QTreeWidgetItem *m_neutralHostileItem;
-		QTreeWidgetItem *m_neutralPassiveItem;
-
-		QTreeWidgetItem *m_customHumanItem;
-		QTreeWidgetItem *m_customOrcItem;
-		QTreeWidgetItem *m_customUndeadItem;
-		QTreeWidgetItem *m_customNightElfItem;
-		QTreeWidgetItem *m_customNeutralNagaItem;
-		QTreeWidgetItem *m_customNeutralHostileItem;
-		QTreeWidgetItem *m_customNeutralPassiveItem;
 
 		UnitSelectionDialog *m_unitSelectionDialog;
 };

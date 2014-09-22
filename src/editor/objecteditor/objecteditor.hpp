@@ -55,7 +55,7 @@ class LightningEffectEntryEditor;
 class CliffTypeEntryEditor;
 class TilesetEntryEditor;
 class WaterEntryEditor;
-class WeatherEntryEditor;
+class WeatherEditor;
 class SoundEntryEditor;
 
 /**
@@ -122,7 +122,7 @@ class SoundEntryEditor;
  * <li>Cliff Type Entry Editor</li>
  * <li>Tileset Entry Editor</li>
  * <li>Water Entry Editor</li>
- * <li>Weather Entry Editor</li>
+ * <li>Weather Editor</li>
  * <li>Sound Entry Editor</li>
  * <li>Misc Editor - formerly known as "edit gameplay constants"</li>
  * </ul>
@@ -159,7 +159,7 @@ class KDE_EXPORT ObjectEditor : public Module
 		CliffTypeEntryEditor* cliffTypeEntryEditor() const;
 		TilesetEntryEditor* tilesetEntryEditor() const;
 		WaterEntryEditor* waterEntryEditor() const;
-		WeatherEntryEditor* weatherEntryEditor() const;
+		WeatherEditor* weatherEditor() const;
 		SoundEntryEditor* soundEntryEditor() const;
 
 		KAction* newObjectAction() const;
@@ -221,7 +221,7 @@ class KDE_EXPORT ObjectEditor : public Module
 		CliffTypeEntryEditor *m_cliffTypeEntryEditor;
 		TilesetEntryEditor *m_tilesetEntryEditor;
 		WaterEntryEditor *m_waterEntryEditor;
-		WeatherEntryEditor *m_weatherEntryEditor;
+		WeatherEditor *m_weatherEditor;
 		SoundEntryEditor *m_soundEntryEditor;
 
 		KAction *m_newObjectAction;
@@ -333,9 +333,9 @@ inline WaterEntryEditor* ObjectEditor::waterEntryEditor() const
 	return m_waterEntryEditor;
 }
 
-inline WeatherEntryEditor* ObjectEditor::weatherEntryEditor() const
+inline WeatherEditor* ObjectEditor::weatherEditor() const
 {
-	return m_weatherEntryEditor;
+	return m_weatherEditor;
 }
 
 inline SoundEntryEditor* ObjectEditor::soundEntryEditor() const

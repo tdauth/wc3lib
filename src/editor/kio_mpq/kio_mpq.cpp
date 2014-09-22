@@ -39,6 +39,7 @@
 #include <KTemporaryFile>
 
 #include "kio_mpq.hpp"
+#include "../listfilesdialog.hpp"
 
 namespace wc3lib
 {
@@ -176,7 +177,7 @@ bool MpqSlave::openArchive(const QString &archive, QString &error)
 
 			if (!attributes.isValid())
 			{
-				error = "Attributes file is not valid";
+				error = i18n("Attributes file is not valid");
 
 				kDebug(7000) << "Error: " << error;
 
@@ -360,34 +361,23 @@ void MpqSlave::listDir(const KUrl &url)
 
 	// TODO get all files contained in directory using (listfile)
 	mpq::Listfile listfile = m_archive->listfileFile();
+	mpq::Listfile::Entries entries;
 
 	if (!listfile.isValid())
 	{
-		// /usr/share/wc3lib/listfiles/
-		/*
-		QFileInfo info("/usr/share/wc3lib/listfiles/");
-
-		if (info.isDir() && info.isReadable())
+		if (ListfilesDialog::show(entries) == QDialog::Rejected)
 		{
-			QDir dir(info.fileName());
+			error(KIO::ERR_ABORTED, i18n("No listfile selected."));
 
-			foreach (QFileInfo fileInfo, dir.entryInfoList("*.txt"))
-			{
-			}
+			return;
 		}
-		*/
 	}
-
-	if (!listfile.isValid())
+	else
 	{
-		// use slave defined for custom text other than error code!
-		error(KIO::ERR_SLAVE_DEFINED, i18n("%1: Missing (listfile).", url.prettyUrl()));
-
-		return;
+		entries = listfile.dirEntries(archivePath.constData(), false);
 	}
 
-	kDebug(7000) << "MpqProtocol::listDir entries of " << archivePath.constData();
-	mpq::Listfile::Entries entries = listfile.dirEntries(archivePath.constData(), false);
+
 	kDebug(7000) << "MpqProtocol::listDir entries size " << entries.size();
 
 	if (archivePath.isEmpty()) // root directory
@@ -631,7 +621,7 @@ void MpqSlave::get(const KUrl &url)
 
 	if (!parseUrl(url, fileName, archivePath))
 	{
-		error(KIO::ERR_DOES_NOT_EXIST, url.prettyUrl());
+		error(KIO::ERR_DOES_NOT_EXIST, i18n("Error on parsing URL: \"%1\"", url.prettyUrl()));
 
 		return;
 	}
@@ -649,7 +639,7 @@ void MpqSlave::get(const KUrl &url)
 
 	if (!file.isValid())
 	{
-		error(KIO::ERR_DOES_NOT_EXIST, url.prettyUrl());
+		error(KIO::ERR_DOES_NOT_EXIST, i18n("Is no valid file: \"%1\"", url.prettyUrl()));
 
 		return;
 	}
@@ -677,7 +667,7 @@ void MpqSlave::get(const KUrl &url)
 
 	if (!ifstream)
 	{
-		error(KIO::ERR_ACCESS_DENIED, url.prettyUrl());
+		error(KIO::ERR_ACCESS_DENIED, i18n("Cannot open archive %1 for file %2.", m_archive->path().c_str(), url.prettyUrl()));
 
 		return;
 	}

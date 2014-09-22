@@ -56,7 +56,9 @@ class ObjectTreeItem
 		void setFolderText(const QString &text);
 		QString text(bool showRawData) const;
 
+		void setObjectData(ObjectData *objectData);
 		ObjectData* objectData() const;
+		void setObjectId(const QString &originalObjectId, const QString &customObjectId);
 		const QString& originalObjectId() const;
 		const QString& customObjectId() const;
 		int index();
@@ -102,9 +104,20 @@ inline void ObjectTreeItem::setFolderText(const QString& text)
 	this->m_text = text;
 }
 
+inline void ObjectTreeItem::setObjectData(ObjectData* objectData)
+{
+	this->m_objectData = objectData;
+}
+
 inline ObjectData* ObjectTreeItem::objectData() const
 {
 	return this->m_objectData;
+}
+
+inline void ObjectTreeItem::setObjectId(const QString& originalObjectId, const QString& customObjectId)
+{
+	this->m_originalObjectId = originalObjectId;
+	this->m_customObjectId = customObjectId;
 }
 
 inline const QString& ObjectTreeItem::originalObjectId() const

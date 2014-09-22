@@ -30,6 +30,7 @@ namespace editor
 {
 
 class UnitData;
+class WarcraftIIIShared;
 
 /**
  * \brief The concrete tree model for units.
@@ -38,112 +39,23 @@ class UnitData;
 class UnitTreeModel : public ObjectTreeModel
 {
 	public:
-		UnitTreeModel(QObject *parent = 0);
+		UnitTreeModel(MpqPriorityList *source, QObject *parent = 0);
 
 		virtual void load(MpqPriorityList *source, ObjectData *objectData, QWidget *window) override;
 		virtual ObjectTreeItem* createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString& originalObjectId, const QString& customObjectId) override;
 
-		ObjectTreeItem* standardObjectsItem(UnitData *unitData);
-		ObjectTreeItem* customObjectsItem(UnitData *unitData);
-		ObjectTreeItem* humanItem(UnitData *unitData);
-		ObjectTreeItem* humanMeleeItem(UnitData *unitData);
-		ObjectTreeItem* humanCampaignItem(UnitData *unitData);
-		ObjectTreeItem* humanMeleeUnitsItem(UnitData *unitData);
-		ObjectTreeItem* humanMeleeBuildingsItem(UnitData *unitData);
-		ObjectTreeItem* humanMeleeHeroesItem(UnitData *unitData);
-		ObjectTreeItem* humanMeleeSpecialItem(UnitData *unitData);
-		ObjectTreeItem* orcItem(UnitData *unitData);
-		ObjectTreeItem* orcMeleeItem(UnitData *unitData);
-		ObjectTreeItem* orcCampaignItem(UnitData *unitData);
-		ObjectTreeItem* orcMeleeUnitsItem(UnitData *unitData);
-		ObjectTreeItem* orcMeleeBuildingsItem(UnitData *unitData);
-		ObjectTreeItem* orcMeleeHeroesItem(UnitData *unitData);
-		ObjectTreeItem* orcMeleeSpecialItem(UnitData *unitData);
-		ObjectTreeItem* undeadItem(UnitData *unitData);
-		ObjectTreeItem* undeadMeleeItem(UnitData *unitData);
-		ObjectTreeItem* undeadCampaignItem(UnitData *unitData);
-		ObjectTreeItem* undeadMeleeUnitsItem(UnitData *unitData);
-		ObjectTreeItem* undeadMeleeBuildingsItem(UnitData *unitData);
-		ObjectTreeItem* undeadMeleeHeroesItem(UnitData *unitData);
-		ObjectTreeItem* undeadMeleeSpecialItem(UnitData *unitData);
-		ObjectTreeItem* nightelfItem(UnitData *unitData);
-		ObjectTreeItem* nightelfMeleeItem(UnitData *unitData);
-		ObjectTreeItem* nightelfCampaignItem(UnitData *unitData);
-		ObjectTreeItem* nightelfMeleeUnitsItem(UnitData *unitData);
-		ObjectTreeItem* nightelfMeleeBuildingsItem(UnitData *unitData);
-		ObjectTreeItem* nightelfMeleeHeroesItem(UnitData *unitData);
-		ObjectTreeItem* nightelfMeleeSpecialItem(UnitData *unitData);
-		ObjectTreeItem* neutralNagaItem(UnitData *unitData);
-		ObjectTreeItem* neutralNagaUnitsItem(UnitData *unitData);
-		ObjectTreeItem* neutralNagaBuildingsItem(UnitData *unitData);
-		ObjectTreeItem* neutralNagaHeroesItem(UnitData *unitData);
-		ObjectTreeItem* neutralNagaSpecialItem(UnitData *unitData);
-		ObjectTreeItem* neutralNagaCampaignItem(UnitData *unitData);
-		ObjectTreeItem* neutralHostileItem(UnitData *unitData);
-		ObjectTreeItem* neutralHostileUnitsItem(UnitData *unitData);
-		ObjectTreeItem* neutralHostileBuildingsItem(UnitData *unitData);
-		ObjectTreeItem* neutralHostileHeroesItem(UnitData *unitData);
-		ObjectTreeItem* neutralHostileSpecialItem(UnitData *unitData);
-		ObjectTreeItem* neutralHostileCampaignItem(UnitData *unitData);
-		ObjectTreeItem* neutralPassiveItem(UnitData *unitData);
-		ObjectTreeItem* neutralPassiveUnitsItem(UnitData *unitData);
-		ObjectTreeItem* neutralPassiveBuildingsItem(UnitData *unitData);
-		ObjectTreeItem* neutralPassiveHeroesItem(UnitData *unitData);
-		ObjectTreeItem* neutralPassiveSpecialItem(UnitData *unitData);
-		ObjectTreeItem* neutralPassiveCampaignItem(UnitData *unitData);
-
 	protected:
-		virtual ObjectTreeItem* itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId) override;
+		virtual QModelIndex itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId) override;
 
-	private:
-		ObjectTreeItem *m_standardObjectsItem;
-		ObjectTreeItem *m_customObjectsItem;
-		ObjectTreeItem *m_humanItem;
-		ObjectTreeItem *m_humanMeleeItem;
-		ObjectTreeItem *m_humanCampaignItem;
-		ObjectTreeItem *m_humanMeleeUnitsItem;
-		ObjectTreeItem *m_humanMeleeBuildingsItem;
-		ObjectTreeItem *m_humanMeleeHeroesItem;
-		ObjectTreeItem *m_humanMeleeSpecialItem;
-		ObjectTreeItem *m_orcItem;
-		ObjectTreeItem *m_orcMeleeItem;
-		ObjectTreeItem *m_orcCampaignItem;
-		ObjectTreeItem *m_orcMeleeUnitsItem;
-		ObjectTreeItem *m_orcMeleeBuildingsItem;
-		ObjectTreeItem *m_orcMeleeHeroesItem;
-		ObjectTreeItem *m_orcMeleeSpecialItem;
-		ObjectTreeItem *m_undeadItem;
-		ObjectTreeItem *m_undeadCampaignItem;
-		ObjectTreeItem *m_undeadMeleeItem;
-		ObjectTreeItem *m_undeadMeleeUnitsItem;
-		ObjectTreeItem *m_undeadMeleeBuildingsItem;
-		ObjectTreeItem *m_undeadMeleeHeroesItem;
-		ObjectTreeItem *m_undeadMeleeSpecialItem;
-		ObjectTreeItem *m_nightelfItem;
-		ObjectTreeItem *m_nightelfCampaignItem;
-		ObjectTreeItem *m_nightelfMeleeItem;
-		ObjectTreeItem *m_nightelfMeleeUnitsItem;
-		ObjectTreeItem *m_nightelfMeleeBuildingsItem;
-		ObjectTreeItem *m_nightelfMeleeHeroesItem;
-		ObjectTreeItem *m_nightelfMeleeSpecialItem;
-		ObjectTreeItem *m_neutralNagaItem;
-		ObjectTreeItem *m_neutralNagaUnitsItem;
-		ObjectTreeItem *m_neutralNagaBuildingsItem;
-		ObjectTreeItem *m_neutralNagaHeroesItem;
-		ObjectTreeItem *m_neutralNagaSpecialItem;
-		ObjectTreeItem *m_neutralNagaCampaignItem;
-		ObjectTreeItem *m_neutralHostileItem;
-		ObjectTreeItem *m_neutralHostileUnitsItem;
-		ObjectTreeItem *m_neutralHostileBuildingsItem;
-		ObjectTreeItem *m_neutralHostileHeroesItem;
-		ObjectTreeItem *m_neutralHostileSpecialItem;
-		ObjectTreeItem *m_neutralHostileCampaignItem;
-		ObjectTreeItem *m_neutralPassiveItem;
-		ObjectTreeItem *m_neutralPassiveUnitsItem;
-		ObjectTreeItem *m_neutralPassiveBuildingsItem;
-		ObjectTreeItem *m_neutralPassiveHeroesItem;
-		ObjectTreeItem *m_neutralPassiveSpecialItem;
-		ObjectTreeItem *m_neutralPassiveCampaignItem;
+		QModelIndex objectsIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
+		QModelIndex raceIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
+		QModelIndex campaignIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
+		QModelIndex unitTypeIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
+
+		void createObjects(WarcraftIIIShared *shared);
+		void createRaces(WarcraftIIIShared *shared, int row, QModelIndex parent);
+		void createRace(WarcraftIIIShared *shared, int row, QModelIndex parent);
+		void createMelee(WarcraftIIIShared *shared, int row, QModelIndex parent);
 };
 
 }
