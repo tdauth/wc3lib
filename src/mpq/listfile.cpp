@@ -64,64 +64,89 @@ Listfile::Entries Listfile::entries(const string &content)
 	return result;
 }
 
-Listfile::Entries Listfile::dirEntries(const Listfile::Entries &entries, const string &dirPath, bool recursive, bool directories)
+Listfile::Entries Listfile::caseSensitiveEntries(const Listfile::Entries& entries, const string& prefix, bool recursive)
 {
-	std::set<string> dirs;
+	/**
+	 * Uses the upper case file path as key since listfile entries are not case sensitive.
+	 * The value is still case sensitive and should be the first occurence of the path in a listfile.
+	 */
+	typedef std::map<string, string> UniqueEntries;
+	UniqueEntries uniqueEntries;
 	Entries result;
+	result.reserve(entries.size());
 
 	BOOST_FOREACH(Entries::const_reference ref, entries)
 	{
-		if (boost::istarts_with(ref, dirPath)) // paths are not case sensitive!
+		if (prefix.empty() || (ref.size() > prefix.size() && boost::istarts_with(ref, prefix))) // paths are not case sensitive!
 		{
-			string::size_type start = dirPath.length();
-			bool foundOneDir = false;
-			string::size_type index = string::npos;
+			/*
+			 * Split relative path up into directory paths and replace the single dirs by the alread found ones.
+			 */
+			std::vector<string> pathTokens;
+			//string substring = ref.substr(prefix.size());
+			boost::algorithm::split(pathTokens, ref, boost::algorithm::is_any_of("\\"), boost::algorithm::token_compress_on);
 
-			// find all directorie paths!
-			do
+			/*
+			 * If recursive is true all files which start with the prefix will be added.
+			 * Otherwise only entries in the directory of the prefix will be added, so the file name follows the prefix.
+			 */
+			if (recursive || (pathTokens.back() == ref.substr(prefix.size())))
 			{
-				index = ref.find('\\', start);
+				ostringstream caseSensitiveEntry;
+				int i = 0;
 
-				if (index != string::npos)
+				BOOST_FOREACH(std::vector<string>::reference ref, pathTokens)
 				{
-					if (directories)
-					{
+					string upperRef = ref;
+					boost::to_upper(upperRef);
+					UniqueEntries::iterator uniqueEntryIterator = uniqueEntries.find(upperRef);
 
-						string dirName = ref.substr(0, index + 1); // add directories with separator at the end
-						boost::to_upper(dirName); // as hash algorithm uses to_upper characters file paths are case insensitive and therefore all directories are, too
-						dirs.insert(dirName);
+					if (uniqueEntryIterator == uniqueEntries.end())
+					{
+						uniqueEntries.insert(std::make_pair(upperRef, ref));
+						caseSensitiveEntry << ref;
+					}
+					else
+					{
+						caseSensitiveEntry << uniqueEntryIterator->second;
 					}
 
-					foundOneDir = true;
-					start = index + 1;
+					/*
+					 * Add file path separator to all tokens except for the last one to reproduce the file path with the correct cases.
+					 */
+					if (i < pathTokens.size() - 1)
+					{
+						caseSensitiveEntry << '\\';
+					}
+
+					++i;
 				}
-			}
-			// if not recursive only use the first level of directories!
-			while (recursive && index != string::npos && start < ref.length());
 
-			if (recursive || !foundOneDir)
-			{
-				result.push_back(ref);
+				string resultingEntry = caseSensitiveEntry.str();
+				result.push_back(resultingEntry);
 			}
-		}
-	}
-
-	if (directories)
-	{
-		BOOST_FOREACH(std::set<string>::const_reference ref, dirs) // TODO reference does not work, incompatible iterator
-		{
-			result.push_back(ref);
 		}
 	}
 
 	return result;
 }
 
-Listfile::Entries Listfile::dirEntries(const string &content, const string &dirPath, bool recursive, bool directories)
+Listfile::Entries Listfile::existingEntries(const Listfile::Entries& entries, mpq::Archive& archive)
 {
-	Entries entries = Listfile::entries(content);
+	Entries result;
+	result.reserve(entries.size());
 
-	return dirEntries(entries, dirPath, recursive, directories);
+	BOOST_FOREACH(Entries::const_reference ref, entries)
+	{
+		File file = archive.findFile(ref);
+
+		if (file.isValid())
+		{
+			result.push_back(ref);
+		}
+	}
+
+	return result;
 }
 
 string Listfile::dirPath(const string &entry)

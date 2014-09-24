@@ -87,8 +87,10 @@ class ObjectValueDialog : public QDialog, protected Ui::ObjectValueDialog
 		 * On success it automatically modifies the field with ID \p fieldId in \p objectData.
 		 *
 		 * \param result Sets the result to the readable value selected in the dialog.
+		 *
+		 * \return Returns the dialog code \ref QDialog::DialogCode.
 		 */
-		static QDialog::DialogCode show(QString &result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, ObjectData *objectData, const QString &label, QWidget *parent = 0);
+		static int show(QString &result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, ObjectData *objectData, const QString &label, QWidget *parent = 0);
 
 	private:
 		CheckBoxes m_checkBoxes;

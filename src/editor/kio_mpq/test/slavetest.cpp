@@ -30,6 +30,9 @@
 
 #include <KIO/Scheduler>
 #include <KIO/JobClasses>
+#include <KService>
+
+#include "kiotestConfig.h"
 
 QTEST_MAIN(wc3lib::editor::SlaveTest);
 
@@ -41,15 +44,14 @@ namespace editor
 
 void SlaveTest::initTestCase()
 {
-	// Called before the first testfunction is executed
-	/*
-	m_loader = new QPluginLoader(QBLP_ABSOLUTE_PATH, this);
-	QVERIFY2(m_loader->load(), m_loader->errorString().toStdString());
-	QVERIFY(m_loader->isLoaded());
+	//KConfig::set
 
-	m_plugin = dynamic_cast<BlpIOPlugin*>(m_loader->instance());
-	QVERIFY(m_plugin != 0);
-	*/
+	// Called before the first testfunction is executed
+	m_loader = new QPluginLoader(KIO_MPQ_ABSOLUTE_PATH, this);
+	const bool result = m_loader->load();
+	qDebug() << "Error:" << m_loader->errorString();
+	QVERIFY(result);
+	QVERIFY(m_loader->isLoaded());
 }
 
 void SlaveTest::cleanupTestCase()
@@ -81,10 +83,12 @@ void SlaveTest::downloadTest()
 	//KIO::TransferJob *job = KIO::get(url);
 	//connect(job, SIGNAL(
 	//connect(job, SIGNAL(data(KIO::Job*,QByteArray)), this, SLOT
+	QString file;
 
-	//const bool success = KIO::NetAccess::download(url, "tmpFile", 0);
+	const bool success = KIO::NetAccess::download(url, file, 0);
 
-	//QVERIFY(success);
+	QVERIFY(success);
+	QVERIFY(QFile::exists(file));
 
 
 	//QCOMPARE(byteCount, image.byteCount()); // new byte count == old byte count

@@ -25,6 +25,7 @@
 #include <KFileDialog>
 
 #include "listfilesdialog.hpp"
+#include "platform.hpp"
 
 
 namespace wc3lib
@@ -67,20 +68,16 @@ void ListfilesDialog::fill()
 	QVBoxLayout *layout = boost::polymorphic_cast<QVBoxLayout*>(this->layout());
 	m_fileListLayout = new QVBoxLayout(this);
 	layout->addLayout(m_fileListLayout);
+	QFileInfoList listfiles = installedListfiles();
 
-	QDir dir("/usr/share/wc3lib/listfiles/");
-
-	foreach (QFileInfo fileInfo, dir.entryInfoList())
+	foreach (QFileInfo fileInfo, listfiles)
 	{
-		if (fileInfo.suffix() == "txt")
-		{
-			this->m_files.append(fileInfo);
+		this->m_files.append(fileInfo);
 
-			QCheckBox *checkBox = new QCheckBox(fileInfo.fileName(), this);
-			m_fileListLayout->addWidget(checkBox);
+		QCheckBox *checkBox = new QCheckBox(fileInfo.fileName(), this);
+		m_fileListLayout->addWidget(checkBox);
 
-			this->m_checkBoxes.append(checkBox);
-		}
+		this->m_checkBoxes.append(checkBox);
 	}
 
 	QCheckBox *all = new QCheckBox(tr("Check All"), this);

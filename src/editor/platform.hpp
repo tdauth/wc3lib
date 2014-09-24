@@ -32,6 +32,8 @@
 #else // for Windows
 #include <QSettings>
 #endif
+#include <QDir>
+#include <QFileInfo>
 
 #include <KUrl>
 #include <KMimeType>
@@ -778,6 +780,56 @@ inline void destroySceneNode(Ogre::SceneNode *node)
 	destroyAllAttachedMovableObjects(node);
 	node->removeAndDestroyAllChildren();
 	node->getCreator()->destroySceneNode(node);
+}
+
+/**
+ * wc3lib brings some standard listfiles which are installed in a directory.
+ * These can be used if an MPQ archive does not contain its own listfile.
+ */
+inline QFileInfoList installedListfiles()
+{
+#ifdef Q_OS_UNIX
+	QDir dir("/usr/share/wc3lib/listfiles/");
+#else
+#warning Windows does not support automatic listfiles yet.
+	return QFileInfoList();
+#endif
+	QFileInfoList result;
+
+	foreach (QFileInfo fileInfo, dir.entryInfoList())
+	{
+		if (fileInfo.suffix() == "txt")
+		{
+			result.append(fileInfo);
+		}
+	}
+
+	return result;
+}
+
+// http://stackoverflow.com/questions/11050977/removing-a-non-empty-folder-in-qt
+// TODO Qt 5 QDir::removeRecursively()
+inline bool removeDirRecursively(const QString & dirName)
+{
+    bool result = true;
+    QDir dir(dirName);
+
+    if (dir.exists(dirName)) {
+        Q_FOREACH(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
+            if (info.isDir()) {
+                result = removeDirRecursively(info.absoluteFilePath());
+            }
+            else {
+                result = QFile::remove(info.absoluteFilePath());
+            }
+
+            if (!result) {
+                return result;
+            }
+        }
+        result = dir.rmdir(dirName);
+    }
+    return result;
 }
 
 }

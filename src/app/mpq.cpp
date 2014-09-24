@@ -434,6 +434,11 @@ int main(int argc, char *argv[])
 					listfileEntries.push_back("(listfile)");
 				}
 
+				/*
+				 * Filter case sensitive existing.
+				 */
+				listfileEntries = Listfile::caseSensitiveEntries(Listfile::existingEntries(listfileEntries, *mpq));
+
 				DirMap dirMap;
 
 				BOOST_FOREACH(Listfile::Entries::reference entry, listfileEntries)

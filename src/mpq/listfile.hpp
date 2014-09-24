@@ -23,6 +23,7 @@
 
 #include <vector>
 #include <string>
+#include <set>
 
 #include <boost/algorithm/string.hpp>
 
@@ -72,24 +73,9 @@ class Listfile : public File
 		 */
 		static Entries entries(const string &content);
 
-		/**
-		 * Uses \ref entries(const string&) to get all "(listfile)" entries and returns all paths starting with directory path \p dirPath.
-		 * Sub directory paths will be added as well having a \ character as suffix.
-		 *
-		 * \param dirPath Directory path all entries should get from. If this value is empty, function uses top level directory.
-		 * \param recursive If this value is true, all paths in sub directories are listed, as well.
-		 * \param directories If this value is true, sub directory paths will be added as well having a \ character as suffix.
-		 *
-		 * \todo Adding all directories might be a little slow (in recursive mode etc.).
-		 * \note All directories will be appended to the end of the result if \p directories is set true. Their order depends on the order of the set they are stored in. The set is used since they could occur multiple times but the user usually needs them only once.
-		 *
-		 * @{
-		 */
-		static Entries dirEntries(const Entries &entries, const string &dirPath, bool recursive = true, bool directories = true);
-		static Entries dirEntries(const string &content, const string &dirPath, bool recursive = true, bool directories = true);
-		/**
-		 * @}
-		 */
+		static Entries caseSensitiveEntries(const Entries &entries, const string &prefix = "", bool recursive = true);
+
+		static Entries existingEntries(const Entries &entries, mpq::Archive &archive);
 
 		/**
 		 * \return Returns the directory path only of \p entry.
@@ -101,7 +87,6 @@ class Listfile : public File
 		 * \return Returns the container with all found file paths in file.
 		 */
 		Entries entries();
-		Entries dirEntries(const string &dirPath, bool recursive = true, bool directories = true);
 
 		virtual const char* fileName() const;
 
@@ -117,14 +102,6 @@ inline Listfile::Entries Listfile::entries()
 	File::writeData(stream);
 
 	return entries(stream.str());
-}
-
-inline Listfile::Entries Listfile::dirEntries(const string& dirPath, bool recursive, bool directories)
-{
-	ostringstream stream;
-	   File::writeData(stream);
-
-	return dirEntries(stream.str(), dirPath, recursive, directories);
 }
 
 inline const char* Listfile::fileName() const

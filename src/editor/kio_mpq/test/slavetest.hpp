@@ -48,6 +48,7 @@ class SlaveTest : public QObject
 		void downloadTest();
 
 	private:
+		QPluginLoader *m_loader;
 };
 
 }

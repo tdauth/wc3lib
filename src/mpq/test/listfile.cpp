@@ -3,7 +3,7 @@
 #include <sstream>
 #include <iostream>
 
-//#include <boost/foreach.hpp>
+#include <boost/foreach.hpp>
 
 #include "../listfile.hpp"
 
@@ -17,7 +17,8 @@ using namespace wc3lib;
  2.7 LISTFILE
  The listfile is a very simple extension to the MoPaQ format that contains the file paths of (most) files in the archive. The languages and platforms of the files are not stored in the listfile. The listfile is contained in the file "(listfile)" (default language and platform), and is simply a text file with file paths separated by ';', 0Dh, 0Ah, or some combination of these. The file "(listfile)" may not be listed in the listfile.
  */
-BOOST_AUTO_TEST_CASE(ListfileEntriesTest) {
+BOOST_AUTO_TEST_CASE(ListfileEntriesTest)
+{
 	stringstream sstream;
 	sstream <<
 	"bla1;"
@@ -40,60 +41,111 @@ BOOST_AUTO_TEST_CASE(ListfileEntriesTest) {
 	"bla15\r;"
 	"end"
 	;
-	
+
 	mpq::Listfile::Entries entries = mpq::Listfile::entries(sstream.str());
-	
+
 	BOOST_REQUIRE(entries.size() == 16);
 	BOOST_REQUIRE(entries[0] == "bla1");
 	BOOST_REQUIRE(entries[1] == "bla2");
-	
+
 	// ...
-	
+
 	BOOST_REQUIRE(entries[6] == "bla7");
-	
+
 	// ...
-	
+
 	BOOST_REQUIRE(entries.back() == "end");
 }
 
-BOOST_AUTO_TEST_CASE(ListfileDirEntriesTestTopLevel) {
+BOOST_AUTO_TEST_CASE(CaseSensitiveEntries)
+{
 	stringstream sstream;
 	sstream <<
-	"bla1;"
-	"bla2;"
-	"bla3;"
-	"bla4\\bla\\bla\\bla"
+	"Abilities"
+	";abilities"
+	";abilities\\Hans"
 	;
-	
-	mpq::Listfile::Entries entries = mpq::Listfile::dirEntries(sstream.str(), "", false, true); // empty directory means top level directory
-	
-	BOOST_REQUIRE(entries.size() == 4);
-	
-	BOOST_REQUIRE(entries[0] == "bla1");
-	BOOST_REQUIRE(entries[1] == "bla2");
-	BOOST_REQUIRE(entries[2] == "bla3");
-	BOOST_REQUIRE(entries[3] == "bla4\\");
+
+	mpq::Listfile::Entries entries = mpq::Listfile::entries(sstream.str());
+
+	BOOST_REQUIRE(entries.size() == 3);
+
+	mpq::Listfile::Entries uniqueEntries = mpq::Listfile::caseSensitiveEntries(entries, "", false);
+
+	/*
+	for (std::size_t i = 0; i < uniqueEntries.size(); ++i)
+	{
+		std::cerr << uniqueEntries[i] << std::endl;
+	}
+	*/
+
+	BOOST_REQUIRE(uniqueEntries.size() == 2);
+	BOOST_REQUIRE(uniqueEntries[0] == "Abilities");
+	BOOST_REQUIRE(uniqueEntries[1] == "Abilities");
 }
 
-BOOST_AUTO_TEST_CASE(ListfileDirEntriesTestTopLevelRecursive) {
+BOOST_AUTO_TEST_CASE(CaseSensitiveEntriesRecursive)
+{
 	stringstream sstream;
 	sstream <<
-	"bla1;"
-	"bla2;"
-	"bla3;"
-	"bla4\\bla\\bla\\bla"
+	"Abilities\\Hans"
+	";abilities\\Peter"
+	";abilities\\PeTeR"
+	";abILIties\\UI\\test"
+	";abilities\\ui\\test2"
 	;
-	
-	mpq::Listfile::Entries entries = mpq::Listfile::dirEntries(sstream.str(), "", true, true); // empty directory means top level directory
-	
-	BOOST_REQUIRE(entries.size() == 7);
-	
-	BOOST_REQUIRE(entries[0] == "bla1");
-	BOOST_REQUIRE(entries[1] == "bla2");
-	BOOST_REQUIRE(entries[2] == "bla3");
-	BOOST_REQUIRE(entries[3] == "bla4\\bla\\bla\\bla"); // the file itself
-	// the order of directories is not specified!
-	BOOST_REQUIRE(std::find(entries.begin(), entries.end(), "bla4\\") != entries.end());
-	BOOST_REQUIRE(std::find(entries.begin(), entries.end(), "bla4\\bla\\") != entries.end());
-	BOOST_REQUIRE(std::find(entries.begin(), entries.end(), "bla4\\bla\\bla\\") != entries.end());
+
+	mpq::Listfile::Entries entries = mpq::Listfile::entries(sstream.str());
+
+	BOOST_REQUIRE(entries.size() == 5);
+
+	mpq::Listfile::Entries uniqueEntries = mpq::Listfile::caseSensitiveEntries(entries, "", true);
+
+	/*
+	BOOST_FOREACH(mpq::Listfile::Entries::const_reference ref, uniqueEntries)
+	{
+		std::cerr << ref << std::endl;
+	}
+	*/
+
+	BOOST_CHECK(uniqueEntries.size() == 5);
+	BOOST_REQUIRE(uniqueEntries[0] == "Abilities\\Hans");
+	BOOST_REQUIRE(uniqueEntries[1] == "Abilities\\Peter");
+	BOOST_REQUIRE(uniqueEntries[2] == "Abilities\\Peter");
+	BOOST_REQUIRE(uniqueEntries[3] == "Abilities\\UI\\test");
+	BOOST_REQUIRE(uniqueEntries[4] == "Abilities\\UI\\test2");
+}
+
+BOOST_AUTO_TEST_CASE(CaseSensitiveEntriesRecursiveExtension)
+{
+	stringstream sstream;
+	sstream <<
+	"Abilities\\Hans"
+	";abilities\\Peter"
+	";abilities\\PeTeR"
+	";abILIties\\UI\\test"
+	";abilities\\ui\\test2"
+	";abilities\\ui\\test3.txt"
+	;
+
+	mpq::Listfile::Entries entries = mpq::Listfile::entries(sstream.str());
+
+	BOOST_REQUIRE(entries.size() == 6);
+
+	mpq::Listfile::Entries uniqueEntries = mpq::Listfile::caseSensitiveEntries(entries, "", true);
+
+	/*
+	BOOST_FOREACH(mpq::Listfile::Entries::const_reference ref, uniqueEntries)
+	{
+		std::cerr << ref << std::endl;
+	}
+	*/
+
+	BOOST_CHECK(uniqueEntries.size() == 6);
+	BOOST_REQUIRE(uniqueEntries[0] == "Abilities\\Hans");
+	BOOST_REQUIRE(uniqueEntries[1] == "Abilities\\Peter");
+	BOOST_REQUIRE(uniqueEntries[2] == "Abilities\\Peter");
+	BOOST_REQUIRE(uniqueEntries[3] == "Abilities\\UI\\test");
+	BOOST_REQUIRE(uniqueEntries[4] == "Abilities\\UI\\test2");
+	BOOST_REQUIRE(uniqueEntries[5] == "Abilities\\UI\\test3.txt");
 }

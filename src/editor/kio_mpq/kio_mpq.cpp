@@ -39,7 +39,7 @@
 #include <KTemporaryFile>
 
 #include "kio_mpq.hpp"
-#include "../listfilesdialog.hpp"
+#include "../platform.hpp"
 
 namespace wc3lib
 {
@@ -361,26 +361,47 @@ void MpqSlave::listDir(const KUrl &url)
 
 	// TODO get all files contained in directory using (listfile)
 	mpq::Listfile listfile = m_archive->listfileFile();
-	mpq::Listfile::Entries entries;
+	mpq::Listfile::Entries dirEntries;
 
+	/*
+	 * If the archive does not contain its own (listfile) file the installed listfiles from
+	 * wc3lib are used.
+	 * Usually only standard MPQ archives such as "War3Patch.mpq" do not contain a (listfile) file.
+	 */
 	if (!listfile.isValid())
 	{
-		if (ListfilesDialog::show(entries) == QDialog::Rejected)
+		foreach (QFileInfo fileInfo, installedListfiles())
 		{
-			error(KIO::ERR_ABORTED, i18n("No listfile selected."));
+			QFile file(fileInfo.absoluteFilePath());
 
-			return;
+			if (file.open(QIODevice::ReadOnly))
+			{
+				mpq::Listfile::Entries entries = mpq::Listfile::entries(file.readAll().constData());
+				dirEntries.insert(dirEntries.end(), entries.begin(), entries.end());
+			}
 		}
+
+		// make listfile paths unique
+		std::unique(dirEntries.begin(), dirEntries.end(), [](const string &var1, const string &var2) { string var1Upper = var1; boost::to_upper(var1Upper); string var2Upper = var2; boost::to_upper(var2Upper); return var1Upper == var2Upper; });
+
+		dirEntries = mpq::Listfile::caseSensitiveEntries(mpq::Listfile::existingEntries(dirEntries, *m_archive), archivePath.constData(), false);
 	}
+	/*
+	 * If the archive contains a (listfile) file its entries are used to check which files are in the current directory.
+	 */
 	else
 	{
-		entries = listfile.dirEntries(archivePath.constData(), false);
+		dirEntries =  mpq::Listfile::caseSensitiveEntries(listfile.entries(), archivePath.constData(), false);
 	}
 
 
-	kDebug(7000) << "MpqProtocol::listDir entries size " << entries.size();
+	kDebug(7000) << "MpqProtocol::listDir entries size " << dirEntries.size();
 
-	if (archivePath.isEmpty()) // root directory
+	/*
+	 * In the root directory there should be listed the extra files which are not
+	 * contained by the (listfile) file.
+	 */
+	if (archivePath.isEmpty())
 	{
 		kDebug(7000) << "MpqProtocol::listDir is root directory, appending extra files";
 
@@ -388,21 +409,21 @@ void MpqSlave::listDir(const KUrl &url)
 
 		if (m_archive->containsListfileFile()) // should always be the case
 		{
-			entries.push_back("(listfile)");
+			dirEntries.push_back("(listfile)");
 		}
 
 		if (m_archive->containsAttributesFile())
 		{
-			entries.push_back("(attributes)");
+			dirEntries.push_back("(attributes)");
 		}
 
 		if (m_archive->containsSignatureFile())
 		{
-			entries.push_back("(signature)");
+			dirEntries.push_back("(signature)");
 		}
 	}
 
-	BOOST_FOREACH (mpq::Listfile::Entries::reference ref, entries)
+	BOOST_FOREACH (mpq::Listfile::Entries::reference ref, dirEntries)
 	{
 		// ignore empty entries
 		if (ref.empty())
@@ -410,6 +431,9 @@ void MpqSlave::listDir(const KUrl &url)
 			continue;
 		}
 
+		/*
+		 * Directory paths do always end with \\.
+		 */
 		boost::iterator_range<string::iterator> r = boost::find_last(ref, "\\");
 
 		kDebug(7000) << "Entry \"" << ref.c_str() << "\"";
@@ -595,6 +619,7 @@ void MpqSlave::stat(const KUrl &url)
 	else
 	{
 		// directory path has no file or directory entries and therefore cannot exist
+		/*
 		if (this->m_archive->containsListfileFile() && this->m_archive->listfileFile().dirEntries(archivePath.constData()).empty())
 		{
 			kDebug(7000) << "stat(): is no dir, no entries, does not exist.";
@@ -603,6 +628,7 @@ void MpqSlave::stat(const KUrl &url)
 
 			return;
 		}
+		*/
 
 		kDebug(7000) << "stat(): is dir";
 		entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFDIR);

@@ -115,6 +115,8 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		void openWar3Patch();
 		void openWar3XLocal();
 
+		void showFileInfo();
+
 	protected:
 		virtual void createFileActions(KMenu *menu) override;
 		virtual void createEditActions(KMenu *menu) override;
@@ -132,11 +134,6 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		 * For all tree widget items the corresponding archive must be stored.
 		 */
 		typedef QHash<QTreeWidgetItem*, Archive*> FileItems;
-
-		/**
-		 * \return Returns only entries which are contained by \p archive.
-		 */
-		mpq::Listfile::Entries uniqueFiles(const mpq::Listfile::Entries &entries, mpq::Archive &archive) const;
 
 		/**
 		 * \brief Constructs all tree items for one single archive.
@@ -193,6 +190,11 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		 */
 		Archives& archives();
 
+		/**
+		 * Opens file \p filePath with the corresponding desktop application.
+		 */
+		void openFile(mpq::Archive &archive, const QString &filePath);
+
 	private:
 		Archives m_archives;
 		FileItems m_archiveTopLevelItems;
@@ -212,6 +214,7 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		KAction *m_closeAction;
 		KAction *m_closeAllAction;
 		KAction *m_extractAction;
+		KAction *m_infoAction;
 
 		ListfilesDialog *m_listfilesDialog;
 		ArchiveInfoDialog *m_archiveInfoDialog;

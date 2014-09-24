@@ -57,7 +57,7 @@ void ObjectValueDialog::setItemsVisible(bool visible)
 	}
 }
 
-QDialog::DialogCode ObjectValueDialog::show(QString &result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, ObjectData *objectData, const QString &label, QWidget *parent)
+int ObjectValueDialog::show(QString &result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, ObjectData *objectData, const QString &label, QWidget *parent)
 {
 	try
 	{

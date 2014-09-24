@@ -97,32 +97,31 @@ void WarcraftIIIShared::refreshWorldEditorGameStrings(QWidget *window, const KUr
 
 QString WarcraftIIIShared::tr(const QString &key, const QString &group, const QString &defaultValue) const
 {
-	if (this->worldEditorStrings().get() != 0)
+	QString result;
+
+	if (this->worldEditorStrings().get() != 0 && this->worldEditorStrings()->hasValue(group, key))
 	{
-		QString result;
+		result = this->worldEditorStrings()->value(group, key);
+	}
+	else if (this->worldEditorGameStrings().get() != 0 && this->worldEditorGameStrings()->hasValue(group, key))
+	{
+		result = this->worldEditorGameStrings()->value(group, key);
+	}
 
-		if (this->worldEditorStrings()->hasValue(group, key))
+	if (!result.isEmpty())
+	{
+		/*
+		* Some values like "WESTRING_UE_UNITRACE_HUMAN" refer to other keys and have to be resolved recursively until no
+		* reference is found anymore.
+		*/
+		if ((this->worldEditorStrings().get() != 0 && this->worldEditorStrings()->hasValue(group, result)) || (this->worldEditorGameStrings().get() != 0 && this->worldEditorGameStrings()->hasValue(group, result)))
 		{
-			result = this->worldEditorStrings()->value(group, key);
-		}
-		else if (this->worldEditorGameStrings()->hasValue(group, key))
-		{
-			result = this->worldEditorGameStrings()->value(group, key);
+			qDebug() << "Recursion";
+
+			return tr(result, group, defaultValue);
 		}
 
-		if (!result.isEmpty())
-		{
-			/*
-			* Some values like "WESTRING_UE_UNITRACE_HUMAN" refer to other keys and have to be resolved recursively until no
-			* reference is found anymore.
-			*/
-			if (this->worldEditorStrings()->hasValue(group, result) || this->worldEditorGameStrings()->hasValue(group, result))
-			{
-				return tr(result, group, defaultValue);
-			}
-
-			return result;
-		}
+		return result;
 	}
 
 	if (!defaultValue.isEmpty())
@@ -152,6 +151,9 @@ QIcon WarcraftIIIShared::icon(const KUrl &url, QWidget *window)
 	}
 	else
 	{
+		// Insert a pixmap even if there has been an error on downloading the file. Otherwise calls will try to download a missing file again and again.
+		iterator = m_icons.insert(url, QPixmap());
+
 		qDebug() << "Error on downloading icon:" << url;
 	}
 
