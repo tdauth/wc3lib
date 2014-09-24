@@ -382,7 +382,7 @@ void MpqSlave::listDir(const KUrl &url)
 		}
 
 		// make listfile paths unique
-		std::unique(dirEntries.begin(), dirEntries.end(), [](const string &var1, const string &var2) { string var1Upper = var1; boost::to_upper(var1Upper); string var2Upper = var2; boost::to_upper(var2Upper); return var1Upper == var2Upper; });
+		std::unique(dirEntries.begin(), dirEntries.end(), [](const string &var1, const string &var2) { return boost::iequals(var1, var2); });
 
 		dirEntries = mpq::Listfile::caseSensitiveEntries(mpq::Listfile::existingEntries(dirEntries, *m_archive), archivePath.constData(), false);
 	}
