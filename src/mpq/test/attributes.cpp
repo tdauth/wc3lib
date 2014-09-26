@@ -96,8 +96,8 @@ BOOST_AUTO_TEST_CASE(LadikMpq1AllExtendedAttributes)
 	BOOST_REQUIRE(fileTimes.size() > testfile.block()->index());
 	BOOST_REQUIRE(md5s.size() > testfile.block()->index());
 
-	const mpq::MD5 currentMd5 = mpq::Attributes::md5(dataString.c_str(), dataString.size());
-	const mpq::MD5 storedMd5 = md5s[testfile.block()->index()];
+	const mpq::MD5Checksum currentMd5 = mpq::Attributes::md5(dataString.c_str(), dataString.size());
+	const mpq::MD5Checksum storedMd5 = md5s[testfile.block()->index()];
 	std::cerr << "Current: " << currentMd5 << " Stored: " << storedMd5 << std::endl;
 	BOOST_REQUIRE(currentMd5 == storedMd5);
 

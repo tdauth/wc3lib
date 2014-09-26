@@ -41,7 +41,7 @@ CRC32 Attributes::crc32(const byte* data, std::size_t dataSize)
 	return result.checksum();
 }
 
-MD5 Attributes::md5(const byte* data, std::size_t dataSize)
+MD5Checksum Attributes::md5(const byte* data, std::size_t dataSize)
 {
 	return mpq::md5(data, dataSize);
 }
@@ -53,7 +53,7 @@ bool Attributes::checkCrc(const byte *data, std::size_t dataSize, CRC32 crc)
 	return false;
 }
 
-bool Attributes::checkMd5(const byte *data, std::size_t dataSize, MD5 md5)
+bool Attributes::checkMd5(const byte *data, std::size_t dataSize, MD5Checksum md5)
 {
 	return mpq::md5(data, dataSize) == md5;
 }
@@ -112,7 +112,7 @@ std::streamsize Attributes::attributes(int32 &version, ExtendedAttributes &exten
 
 		BOOST_FOREACH(const Block &block, this->mpq()->blocks())
 		{
-			MD5 md5;
+			MD5Checksum md5;
 			wc3lib::read(stream, md5, size);
 			md5s[block.index()] = md5;
 		}

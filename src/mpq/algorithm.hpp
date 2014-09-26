@@ -35,6 +35,7 @@
 #include <pklib/pklib.h>
 //#include <bzlib.h> // system library
 #include <wave/wave.h>
+#include <md5-cc/md5.hh>
 
 #include "platform.hpp"
 #include "../i18n.hpp"
@@ -131,7 +132,7 @@ std::streamsize decompressZlib(istream &istream, ostream &ostream, int bufferSiz
 void compressHuffman(char *pbOutBuffer, int * pdwOutLength, char *pbInBuffer, int dwInLength, int *pCmpType, int /* nCmpLevel */);
 int decompressHuffman(char *pbOutBuffer, int *pdwOutLength, char *pbInBuffer, int /* dwInLength */);
 
-MD5 md5(const byte *buffer, std::size_t bufferSize);
+MD5Checksum md5(const byte *buffer, std::size_t bufferSize);
 
 }
 

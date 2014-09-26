@@ -71,7 +71,7 @@ class Attributes : public File
 		 */
 		typedef std::vector<CRC32> Crc32s;
 		typedef std::vector<FILETIME> FileTimes;
-		typedef std::vector<MD5> Md5s;
+		typedef std::vector<MD5Checksum> Md5s;
 		/**
 		 * @}
 		 */
@@ -84,7 +84,7 @@ class Attributes : public File
 		 * \return Returns the value of the calculated checksum
 		 */
 		static CRC32 crc32(const byte *data, std::size_t dataSize);
-		static MD5 md5(const byte *data, std::size_t dataSize);
+		static MD5Checksum md5(const byte *data, std::size_t dataSize);
 		/**@}*/
 
 		/**
@@ -94,7 +94,7 @@ class Attributes : public File
 		 * @{
 		 */
 		static bool checkCrc(const byte *data, std::size_t dataSize, CRC32 crc);
-		static bool checkMd5(const byte *data, std::size_t dataSize, MD5 md5);
+		static bool checkMd5(const byte *data, std::size_t dataSize, MD5Checksum md5);
 		/**
 		 * @}
 		 */

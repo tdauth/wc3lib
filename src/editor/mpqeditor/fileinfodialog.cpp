@@ -75,7 +75,9 @@ void FileInfoDialog::fill(mpq::Archive &archive, mpq::File &file)
 			if ((extendedAttributes & mpq::Attributes::ExtendedAttributes::FileMd5s) && md5s.size() > file.block()->index())
 			{
 				this->m_md5Label->setEnabled(true);
-				this->m_md5Label->setText(QString::number(md5s[file.block()->index()]));
+				const mpq::MD5Checksum md5 = md5s[file.block()->index()];
+
+				this->m_md5Label->setText(QString::fromUtf8(md5.toString().c_str()));
 			}
 			else
 			{

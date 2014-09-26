@@ -50,10 +50,6 @@ CMAKE_DEPENDENT_OPTION(PLUGINS
 	"Could be used without EDITOR and installs Qt/KDE and OGRE format plugins only. Does not build the whole World Editor emulation."
 	ON
 	"BLP;MPQ" OFF)
-CMAKE_DEPENDENT_OPTION(USE_ENCRYPTION
-	"Enables encryption support for MPQ archives which requires Crypto++. Otherwise, only OpenSSL or something similar is required for an MD5 function."
-	ON
-	"MPQ" OFF)
 option(DOC
 	"Generates doxygen documentation (doxygen is required)"
 	OFF)

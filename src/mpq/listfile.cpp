@@ -64,7 +64,7 @@ Listfile::Entries Listfile::entries(const string &content)
 	return result;
 }
 
-Listfile::Entries Listfile::caseSensitiveEntries(const Listfile::Entries& entries, const string& prefix, bool recursive)
+Listfile::Entries Listfile::caseSensitiveFileEntries(const Listfile::Entries& entries, const string& prefix, bool recursive)
 {
 	/**
 	 * Uses the upper case file path as key since listfile entries are not case sensitive.
@@ -103,13 +103,13 @@ Listfile::Entries Listfile::caseSensitiveEntries(const Listfile::Entries& entrie
 
 					if (uniqueEntryIterator == uniqueEntries.end())
 					{
-						uniqueEntries.insert(std::make_pair(upperRef, ref));
-						caseSensitiveEntry << ref;
+						uniqueEntryIterator = uniqueEntries.insert(std::make_pair(upperRef, ref)).first;
 					}
-					else
-					{
-						caseSensitiveEntry << uniqueEntryIterator->second;
-					}
+
+					/*
+					 * Add the case sensitive path token.
+					 */
+					caseSensitiveEntry << uniqueEntryIterator->second;
 
 					/*
 					 * Add file path separator to all tokens except for the last one to reproduce the file path with the correct cases.
@@ -122,11 +122,124 @@ Listfile::Entries Listfile::caseSensitiveEntries(const Listfile::Entries& entrie
 					++i;
 				}
 
-				string resultingEntry = caseSensitiveEntry.str();
-				result.push_back(resultingEntry);
+				result.push_back(caseSensitiveEntry.str());
 			}
 		}
 	}
+
+	return result;
+}
+
+Listfile::Entries Listfile::caseSensitiveDirEntries(const Listfile::Entries& entries, const string& prefix, bool recursive)
+{
+	/**
+	 * Uses the upper case file path as key since listfile entries are not case sensitive.
+	 * The value is still case sensitive and should be the first occurence of the path in a listfile.
+	 */
+	typedef std::map<string, string> UniqueEntries;
+	UniqueEntries uniqueEntries;
+	Entries result;
+	result.reserve(entries.size());
+
+	BOOST_FOREACH(Entries::const_reference ref, entries)
+	{
+		if (prefix.empty() || (ref.size() > prefix.size() && boost::istarts_with(ref, prefix))) // paths are not case sensitive!
+		{
+			string::size_type index;
+			/*
+			 * Start searching for the directory separator after the prefix.
+			 */
+			std::size_t pos = prefix.size();
+
+			if (ref[pos] == '\\')
+			{
+				pos++;
+
+				if (pos >= ref.size())
+				{
+					break;
+				}
+			}
+
+			ostringstream caseSensitiveEntry;
+			bool isFirst = true;
+
+			do
+			{
+				/*
+				 * Search for a directory separator and if found we have at least one token of the resulting directory path.
+				 * Other tokens will be added in the while loop using case sensitive entries from the map "uniqueEntries".
+				 */
+				index = ref.find('\\', pos);
+
+				if (index != string::npos)
+				{
+					string token = ref.substr(pos, index - pos);
+					string upperToken = boost::to_upper_copy(token);
+					UniqueEntries::iterator iterator = uniqueEntries.find(upperToken);
+
+					if (iterator == uniqueEntries.end())
+					{
+						iterator = uniqueEntries.insert(std::make_pair(upperToken, token)).first;
+					}
+
+					if (!isFirst)
+					{
+						caseSensitiveEntry << '\\';
+					}
+
+					caseSensitiveEntry << iterator->second;
+					isFirst = false;
+
+					/*
+					 * Update searching start position.
+					 */
+					pos = index + 1;
+				}
+			}
+			while (recursive && index != string::npos && pos < ref.size());
+
+			result.push_back(caseSensitiveEntry.str());
+		}
+	}
+
+	return result;
+}
+
+namespace
+{
+
+/**
+ * In case sensitive comparator for strings.
+ */
+class Comparator : public std::binary_function<const string &, const string &, bool>
+{
+	public:
+		bool operator()(const string &var1, const string &var2) const
+		{
+			const string var1Upper = boost::to_upper_copy(var1);
+			const string var2Upper = boost::to_upper_copy(var2);
+
+			return strcmp(var1Upper.c_str(), var2Upper.c_str());
+		}
+};
+
+}
+
+Listfile::Entries Listfile::caseSensitiveUniqueEntries(const Listfile::Entries &entries)
+{
+	Entries result;
+	std::set<string, Comparator> uniqueEntries;
+
+	BOOST_FOREACH(Entries::const_reference ref, entries)
+	{
+		if (uniqueEntries.find(ref) == uniqueEntries.end())
+		{
+			uniqueEntries.insert(ref);
+		}
+	}
+
+	result.insert(result.begin(), uniqueEntries.begin(), uniqueEntries.end());
 
 	return result;
 }

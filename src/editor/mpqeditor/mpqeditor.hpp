@@ -28,7 +28,8 @@
 #include "../../mpq.hpp"
 #include "ui_mpqeditor.h"
 #include "../platform.hpp"
-#include "archive.hpp"
+#include "mpqtreemodel.hpp"
+#include "mpqtreeproxymodel.hpp"
 
 namespace wc3lib
 {
@@ -55,14 +56,12 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		/**
 		 * All open MPQ archives are stored in a list.
 		 */
-		typedef boost::ptr_list<Archive> Archives;
+		typedef boost::ptr_list<mpq::Archive> Archives;
 
 		MpqEditor(wc3lib::editor::MpqPriorityList* source, QWidget* parent = 0, Qt::WindowFlags f = 0);
 		virtual ~MpqEditor();
 
-		/**
-		 * \return Returns all open MPQ archives.
-		 */
+		Archives& archives();
 		const Archives& archives() const;
 
 		/**
@@ -130,31 +129,6 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		virtual void readSettings() override;
 		virtual void writeSettings() override;
 
-		/**
-		 * For all tree widget items the corresponding archive must be stored.
-		 */
-		typedef QHash<QTreeWidgetItem*, Archive*> FileItems;
-
-		/**
-		 * \brief Constructs all tree items for one single archive.
-		 *
-		 * Constructs all tree widget items for \p entries which must be contained by \p archive.
-		 * To ensure this you have to call \ref uniqueFiles() before.
-		 * \param topItem The top level tree widgte item which is used for top level directory files in the archive as well as top level directories.
-		 *
-		 * \return Returns all created items.
-		 */
-		FileItems constructItems(const mpq::Listfile::Entries &entries, QTreeWidgetItem *topItem, Archive &archive);
-
-		bool itemIsFolder(QTreeWidgetItem *item) const;
-
-		QTreeWidgetItem* folderToItem(const QString &dirName, const QString &dirPath);
-		/**
-		 * Creates a tree widget item with all necessary column information for file \p path of \p archive.
-		 *
-		 * \return Returns 0 if the file is not part of the archive.
-		 */
-		QTreeWidgetItem* fileToItem(const boost::filesystem::path &path, Archive &archive);
 
 		/**
 		 * Extracts file of \p path from \p archive to local file \p target.
@@ -162,10 +136,6 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		 * \return Returns true if extraction succeeded.
 		 */
 		bool extractFile(const QString &path, mpq::Archive &archive, const QString &target);
-		/**
-		 * \return Returns all file path entries (without directories) from the files of dir item \p item recursively.
-		 */
-		mpq::Listfile::Entries dirEntries(QTreeWidgetItem *item) const;
 		bool extractDir(const QString &path, mpq::Archive &archive, const QString &target, const mpq::Listfile::Entries &dirEntries);
 
 		/**
@@ -186,19 +156,14 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		void addRecentAction(const KUrl &url);
 
 		/**
-		 * \return Returns all open MPQ archives.
-		 */
-		Archives& archives();
-
-		/**
 		 * Opens file \p filePath with the corresponding desktop application.
 		 */
 		void openFile(mpq::Archive &archive, const QString &filePath);
 
+		MpqTreeModel* treeModel() const;
+
 	private:
 		Archives m_archives;
-		FileItems m_archiveTopLevelItems;
-		FileItems m_archiveFileItems;
 
 		KUrl m_openUrl;
 		KUrl m_saveUrl;
@@ -221,12 +186,19 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		FileInfoDialog *m_fileInfoDialog;
 
 	private slots:
-		void fileIsOpen(QTreeWidgetItem *item, int column);
+		void doubleClickItem(const QModelIndex &index);
 		void contextMenu(QPoint point);
 		void updateSelection();
-		void expandItem(QTreeWidgetItem *item);
-		void collapseItem(QTreeWidgetItem *item);
+		void expandItem(const QModelIndex &item);
+		void collapseItem(const QModelIndex &item);
+		void orderBySection(int logicalIndex);
 };
+
+inline MpqTreeModel* MpqEditor::treeModel() const
+{
+	//return boost::polymorphic_cast<MpqTreeModel*>(boost::polymorphic_cast<MpqTreeProxyModel*>(this->m_archivesTreeView->model())->sourceModel());
+	return boost::polymorphic_cast<MpqTreeModel*>(this->m_archivesTreeView->model());
+}
 
 inline ListfilesDialog* MpqEditor::listfilesDialog() const
 {

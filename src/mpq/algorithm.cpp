@@ -25,12 +25,6 @@
 #include "algorithm.hpp" // include before #ifdef to get proper flag
 #include "config.h"
 
-#ifdef USE_ENCRYPTION
-#include <crypto++/md5.h>
-#else
-#include <openssl/md5.h>
-#endif
-
 using namespace huffman;
 
 namespace wc3lib
@@ -424,19 +418,14 @@ int decompressHuffman(char * pbOutBuffer, int * pcbOutBuffer, char * pbInBuffer,
 	return 1;
 }
 
-MD5 md5(const byte *buffer, std::size_t bufferSize)
+MD5Checksum md5(const byte *buffer, std::size_t bufferSize)
 {
-	MD5 md5 = 0;
-#ifdef USE_ENCRYPTION
-	CryptoPP::Weak1::MD5 checksum;
-	checksum.CalculateDigest((unsigned char*)&md5, (unsigned char*)buffer, bufferSize);
-#else
-	MD5_CTX c;
-	MD5_Init(&c);
-	MD5_Update(&c, (const void *)buffer, bufferSize);
-	MD5_Final((unsigned char*)&md5, &c);
-#endif
-	return md5;
+	MD5 md5((unsigned char*)buffer, bufferSize);
+	md5.finalize();
+	MD5Checksum result;
+	memcpy(result.checksum, md5.raw_digest(), 16);
+
+	return result;
 }
 
 }

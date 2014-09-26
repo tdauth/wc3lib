@@ -73,8 +73,9 @@ class Listfile : public File
 		 */
 		static Entries entries(const string &content);
 
-		static Entries caseSensitiveEntries(const Entries &entries, const string &prefix = "", bool recursive = true);
+		static Entries caseSensitiveFileEntries(const Entries &entries, const string &prefix = "", bool recursive = true);
 		static Entries caseSensitiveDirEntries(const Entries &entries, const string &prefix = "", bool recursive = true);
+		static Entries caseSensitiveUniqueEntries(const Entries &entries);
 
 		static Entries existingEntries(const Entries &entries, mpq::Archive &archive);
 

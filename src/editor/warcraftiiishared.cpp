@@ -162,18 +162,23 @@ QIcon WarcraftIIIShared::icon(const KUrl &url, QWidget *window)
 
 QIcon WarcraftIIIShared::worldEditDataIcon(const QString& key, const QString& group, QWidget* window)
 {
-	QString filePath = MetaData::fromFilePath(this->worldEditData()->value(group, key));
-	/*
-	 * In some cases the extension is not present.
-	 */
-	QFileInfo fileInfo(filePath);
-
-	if (fileInfo.suffix().toLower() != "blp")
+	if (this->worldEditData().get() != 0)
 	{
-		filePath += ".blp";
+		QString filePath = MetaData::fromFilePath(this->worldEditData()->value(group, key));
+		/*
+		* In some cases the extension is not present.
+		*/
+		QFileInfo fileInfo(filePath);
+
+		if (fileInfo.suffix().toLower() != "blp")
+		{
+			filePath += ".blp";
+		}
+
+		return this->icon(filePath, window);
 	}
 
-	return this->icon(filePath, window);
+	return QIcon();
 }
 
 void WarcraftIIIShared::refreshWorldEditData(QWidget* window, const KUrl &url)

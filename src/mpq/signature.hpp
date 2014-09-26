@@ -22,11 +22,6 @@
 #define WC3LIB_MPQ_SIGNATURE_HPP
 
 #include "platform.hpp"
-
-#ifdef USE_ENCRYPTION
-#include <crypto++/rsa.h>
-#endif
-
 #include "file.hpp"
 
 namespace wc3lib
@@ -54,33 +49,6 @@ class Signature : public File
 		typedef boost::scoped_array<byte> WeakSignature;
 
 		Signature();
-
-#ifdef USE_ENCRYPTION
-		/**
-		 * \sa Archive:checkStrong(), check()
-		 */
-		bool check(const CryptoPP::RSA::PrivateKey &privateKey) const;
-		/**
-		 * Generates signature with size of \ref size.
-		 * \param signature Array of written bytes which is reset and filled with the encrypted signature data.
-		 * \sa Archive:signStrong() const
-		 */
-		void sign(WeakSignature &signature, const CryptoPP::RSA::PublicKey &publicKey) const;
-		/**
-		 * Updates signature.
-		 * \return Returns the number of written bytes (usually \ref size - default signature length of 512 bit RSA encrypted signature).
-		 * \sa Archive:signStrong()
-		 */
-		std::streamsize sign(const CryptoPP::RSA::PublicKey &publicKey);
-		/**
-		 * \sa Archive:digest()
-		 */
-		MD5 checksum() const;
-		/**
-		 * \sa Archive:storedDigest()
-		 */
-		MD5 storedChecksum(const CryptoPP::RSA::PrivateKey &privateKey);
-#endif
 
 		virtual const char* fileName() const;
 

@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(ListfileEntriesTest)
 	BOOST_REQUIRE(entries.back() == "end");
 }
 
-BOOST_AUTO_TEST_CASE(CaseSensitiveEntries)
+BOOST_AUTO_TEST_CASE(CaseFileSensitiveEntries)
 {
 	stringstream sstream;
 	sstream <<
@@ -66,11 +66,11 @@ BOOST_AUTO_TEST_CASE(CaseSensitiveEntries)
 	";abilities\\Hans"
 	;
 
-	mpq::Listfile::Entries entries = mpq::Listfile::entries(sstream.str());
+	const mpq::Listfile::Entries entries = mpq::Listfile::entries(sstream.str());
 
 	BOOST_REQUIRE(entries.size() == 3);
 
-	mpq::Listfile::Entries uniqueEntries = mpq::Listfile::caseSensitiveEntries(entries, "", false);
+	const mpq::Listfile::Entries uniqueEntries = mpq::Listfile::caseSensitiveFileEntries(entries, "", false);
 
 	/*
 	for (std::size_t i = 0; i < uniqueEntries.size(); ++i)
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE(CaseSensitiveEntries)
 	BOOST_REQUIRE(uniqueEntries[1] == "Abilities");
 }
 
-BOOST_AUTO_TEST_CASE(CaseSensitiveEntriesRecursive)
+BOOST_AUTO_TEST_CASE(CaseSensitiveFileEntriesRecursive)
 {
 	stringstream sstream;
 	sstream <<
@@ -95,11 +95,11 @@ BOOST_AUTO_TEST_CASE(CaseSensitiveEntriesRecursive)
 	";abilities\\ui\\test2"
 	;
 
-	mpq::Listfile::Entries entries = mpq::Listfile::entries(sstream.str());
+	const mpq::Listfile::Entries entries = mpq::Listfile::entries(sstream.str());
 
 	BOOST_REQUIRE(entries.size() == 5);
 
-	mpq::Listfile::Entries uniqueEntries = mpq::Listfile::caseSensitiveEntries(entries, "", true);
+	const mpq::Listfile::Entries uniqueEntries = mpq::Listfile::caseSensitiveFileEntries(entries, "", true);
 
 	/*
 	BOOST_FOREACH(mpq::Listfile::Entries::const_reference ref, uniqueEntries)
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(CaseSensitiveEntriesRecursive)
 	}
 	*/
 
-	BOOST_CHECK(uniqueEntries.size() == 5);
+	BOOST_REQUIRE(uniqueEntries.size() == 5);
 	BOOST_REQUIRE(uniqueEntries[0] == "Abilities\\Hans");
 	BOOST_REQUIRE(uniqueEntries[1] == "Abilities\\Peter");
 	BOOST_REQUIRE(uniqueEntries[2] == "Abilities\\Peter");
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE(CaseSensitiveEntriesRecursive)
 	BOOST_REQUIRE(uniqueEntries[4] == "Abilities\\UI\\test2");
 }
 
-BOOST_AUTO_TEST_CASE(CaseSensitiveEntriesRecursiveExtension)
+BOOST_AUTO_TEST_CASE(CaseSensitiveFileEntriesRecursiveExtension)
 {
 	stringstream sstream;
 	sstream <<
@@ -128,11 +128,11 @@ BOOST_AUTO_TEST_CASE(CaseSensitiveEntriesRecursiveExtension)
 	";abilities\\ui\\test3.txt"
 	;
 
-	mpq::Listfile::Entries entries = mpq::Listfile::entries(sstream.str());
+	const mpq::Listfile::Entries entries = mpq::Listfile::entries(sstream.str());
 
 	BOOST_REQUIRE(entries.size() == 6);
 
-	mpq::Listfile::Entries uniqueEntries = mpq::Listfile::caseSensitiveEntries(entries, "", true);
+	const mpq::Listfile::Entries uniqueEntries = mpq::Listfile::caseSensitiveFileEntries(entries, "", true);
 
 	/*
 	BOOST_FOREACH(mpq::Listfile::Entries::const_reference ref, uniqueEntries)
@@ -141,11 +141,79 @@ BOOST_AUTO_TEST_CASE(CaseSensitiveEntriesRecursiveExtension)
 	}
 	*/
 
-	BOOST_CHECK(uniqueEntries.size() == 6);
+	BOOST_REQUIRE(uniqueEntries.size() == 6);
 	BOOST_REQUIRE(uniqueEntries[0] == "Abilities\\Hans");
 	BOOST_REQUIRE(uniqueEntries[1] == "Abilities\\Peter");
 	BOOST_REQUIRE(uniqueEntries[2] == "Abilities\\Peter");
 	BOOST_REQUIRE(uniqueEntries[3] == "Abilities\\UI\\test");
 	BOOST_REQUIRE(uniqueEntries[4] == "Abilities\\UI\\test2");
 	BOOST_REQUIRE(uniqueEntries[5] == "Abilities\\UI\\test3.txt");
+}
+
+BOOST_AUTO_TEST_CASE(CaseSensitiveDirEntriesRecursive)
+{
+	stringstream sstream;
+	sstream <<
+	"Abilities\\Hans\\bla"
+	";abilities\\Peter\\blu"
+	";abilities\\PeTeR\\bli"
+	";abILIties\\UI\\test"
+	";abilities\\ui\\test2"
+	";abilities\\ui\\test3.txt"
+	;
+
+	mpq::Listfile::Entries entries = mpq::Listfile::entries(sstream.str());
+
+	BOOST_REQUIRE(entries.size() == 6);
+
+	mpq::Listfile::Entries uniqueEntries = mpq::Listfile::caseSensitiveDirEntries(entries, "", true);
+
+	/*
+	BOOST_FOREACH(mpq::Listfile::Entries::const_reference ref, uniqueEntries)
+	{
+		std::cerr << ref << std::endl;
+	}
+	*/
+
+	BOOST_REQUIRE(uniqueEntries.size() == 6);
+	BOOST_REQUIRE(uniqueEntries[0] == "Abilities\\Hans");
+	BOOST_REQUIRE(uniqueEntries[1] == "Abilities\\Peter");
+	BOOST_REQUIRE(uniqueEntries[2] == "Abilities\\Peter");
+	BOOST_REQUIRE(uniqueEntries[3] == "Abilities\\UI");
+	BOOST_REQUIRE(uniqueEntries[4] == "Abilities\\UI");
+	BOOST_REQUIRE(uniqueEntries[5] == "Abilities\\UI");
+}
+
+BOOST_AUTO_TEST_CASE(CaseSensitiveUniqueEntries)
+{
+	stringstream sstream;
+	sstream <<
+	"Abilities\\Hans\\bla"
+	";Abilities\\Peter\\bla"
+	";abilities\\PeTeR\\bla"
+	";Abilities\\UI\\test"
+	";aBiLiTies\\ui\\test"
+	";abilities\\ui\\test"
+	;
+
+	const mpq::Listfile::Entries entries = mpq::Listfile::entries(sstream.str());
+
+	BOOST_REQUIRE(entries.size() == 6);
+
+	const mpq::Listfile::Entries uniqueEntries = mpq::Listfile::caseSensitiveUniqueEntries(entries);
+
+	/*
+	BOOST_FOREACH(mpq::Listfile::Entries::const_reference ref, uniqueEntries)
+	{
+		std::cerr << ref << std::endl;
+	}
+	*/
+
+	BOOST_REQUIRE(uniqueEntries.size() == 3);
+	/*
+	 * The order is not kept by the function, so search in the whole container.
+	 */
+	BOOST_REQUIRE(std::find(uniqueEntries.begin(), uniqueEntries.end(), "Abilities\\Hans\\bla") != uniqueEntries.end());
+	BOOST_REQUIRE(std::find(uniqueEntries.begin(), uniqueEntries.end(), "Abilities\\Peter\\bla") != uniqueEntries.end());
+	BOOST_REQUIRE(std::find(uniqueEntries.begin(), uniqueEntries.end(), "Abilities\\UI\\test") != uniqueEntries.end());
 }

@@ -13,6 +13,8 @@ if (MPQ)
 	list(APPEND linkDirectories pklib)
 	add_subdirectory(wave)
 	list(APPEND linkDirectories wave)
+	add_subdirectory(md5-cc)
+	list(APPEND linkDirectories md5-cc)
 
 	link_directories(${linkDirectories})
 endif ()

@@ -21,6 +21,8 @@
 #ifndef WC3LIB_MPQ_PLATFORM_HPP
 #define WC3LIB_MPQ_PLATFORM_HPP
 
+#include <memory>
+
 #include "../platform.hpp"
 
 namespace wc3lib
@@ -31,7 +33,34 @@ namespace mpq
 
 typedef int32 CRC32;
 
-typedef int16_t MD5; // 128 bit
+struct MD5Checksum
+{
+	byte checksum[16]; // 128 bit
+
+	bool operator==(const MD5Checksum &other) const
+	{
+		return memcmp(checksum, other.checksum, 16) == 0;
+	}
+
+	string toString() const
+	{
+		char *text = new char[17];
+		text[16] = 0;
+		memcpy(text, this->checksum, 16);
+
+		const string result = text;
+		delete[] text;
+
+		return result;
+	}
+};
+
+inline std::ostream& operator<<(std::ostream &out, const MD5Checksum &checksum)
+{
+	out << checksum.toString();
+
+	return out;
+}
 
 struct Header
 {

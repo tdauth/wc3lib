@@ -1,13 +1,17 @@
 set(wc3lib_MPQEDITOR_H
-	archive.hpp
 	archiveinfodialog.hpp
 	mpqeditor.hpp
+	mpqtreeitem.hpp
+	mpqtreemodel.hpp
+	mpqtreeproxymodel.hpp
 	fileinfodialog.hpp
 )
 set(wc3lib_MPQEDITOR_SRC
-	archive.cpp
 	archiveinfodialog.cpp
 	mpqeditor.cpp
+	mpqtreeitem.cpp
+	mpqtreemodel.cpp
+	mpqtreeproxymodel.cpp
 	fileinfodialog.cpp
 )
 

@@ -31,11 +31,6 @@
  */
 #include "platform.hpp"
 
-#ifdef USE_ENCRYPTION
-#include <crypto++/sha.h>
-#include <crypto++/rsa.h>
-#endif
-
 #include "algorithm.hpp"
 #include "hash.hpp"
 #include "block.hpp"
@@ -268,39 +263,7 @@ class Archive : public Format, private boost::noncopyable
 		 * \return Returns archive's strong digital signature with size of \ref Archive:strongDigitalSignatureSize.
 		 */
 		const StrongDigitalSignature& strongDigitalSignature() const;
-#ifdef USE_ENCRYPTION
-		/**
-		 * \return Returns true if there is no kind of signature or if stored signatures are correct.
-		 * \sa sign(), checkStrong(), strongDigitalSignature(), signatureFile()
-		 */
-		bool check(const CryptoPP::RSA::PrivateKey &strongPrivateKey, const CryptoPP::RSA::PrivateKey &weakPrivateKey);
-		/**
-		 * Updates all existing signatures.
-		 * \sa check(), signStrong(), strongDigitalSignature(), signatureFile()
-		 */
-		void sign(const CryptoPP::RSA::PublicKey &strongPublicKey, const CryptoPP::RSA::PublicKey &weakPublicKey);
-		/**
-		 * \param digest Digest is reset by a newly generated SHA1 digest with size of \ref CryptoPP::SHA1::DIGESTSIZE.
-		 */
-		void digest(SHA1Digest &digest) const;
-		/**
-		 * \param digest Digest is reset by a newly generated SHA1 digest with size of \ref CryptoPP::SHA1::DIGESTSIZE.
-		 * \throw Exception Throws an exception if there is no strong digital signature.
-		 */
-		void storedDigest(SHA1Digest &digest, const CryptoPP::RSA::PrivateKey &privateKey) const;
-		bool checkStrong(const CryptoPP::RSA::PrivateKey &privateKey) const;
-		/**
-		 * \param signature Signature is reset by a newly created strong signature with size of \ref strongDigitalSignatureSize which contains a 2048-bit (strong) RSA key encrypted SHA1 digest.
-		 * \sa digest()
-		 */
-		void signStrong(StrongDigitalSignature &signature, const CryptoPP::RSA::PublicKey &publicKey) const;
-		/**
-		 * Explicity signs the archive with a strong signature.
-		 * \return Returns the number of written bytes which usually should be \ref strongDigitalSignatureSize + signature header size.
-		 * \sa sign()
-		 */
-		std::streamsize signStrong(const CryptoPP::RSA::PublicKey &publicKey);
-#endif
+
 		/**
 		 * When \ref Archive:open() or \ref Archive:create() is called archive is opened automatically until destructor or \ref Archive:close() is called.
 		 */

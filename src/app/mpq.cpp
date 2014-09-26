@@ -437,7 +437,7 @@ int main(int argc, char *argv[])
 				/*
 				 * Filter case sensitive existing.
 				 */
-				listfileEntries = Listfile::caseSensitiveEntries(Listfile::existingEntries(listfileEntries, *mpq));
+				listfileEntries = Listfile::caseSensitiveFileEntries(Listfile::existingEntries(listfileEntries, *mpq));
 
 				DirMap dirMap;
 

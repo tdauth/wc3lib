@@ -361,7 +361,9 @@ void MpqSlave::listDir(const KUrl &url)
 
 	// TODO get all files contained in directory using (listfile)
 	mpq::Listfile listfile = m_archive->listfileFile();
-	mpq::Listfile::Entries dirEntries;
+	mpq::Listfile::Entries allEntries;
+	mpq::Listfile::Entries dirFileEntries;
+	mpq::Listfile::Entries dirDirectoryEntries;
 
 	/*
 	 * If the archive does not contain its own (listfile) file the installed listfiles from
@@ -370,6 +372,8 @@ void MpqSlave::listDir(const KUrl &url)
 	 */
 	if (!listfile.isValid())
 	{
+
+
 		foreach (QFileInfo fileInfo, installedListfiles())
 		{
 			QFile file(fileInfo.absoluteFilePath());
@@ -377,25 +381,23 @@ void MpqSlave::listDir(const KUrl &url)
 			if (file.open(QIODevice::ReadOnly))
 			{
 				mpq::Listfile::Entries entries = mpq::Listfile::entries(file.readAll().constData());
-				dirEntries.insert(dirEntries.end(), entries.begin(), entries.end());
+				allEntries.insert(allEntries.end(), entries.begin(), entries.end());
 			}
 		}
-
-		// make listfile paths unique
-		std::unique(dirEntries.begin(), dirEntries.end(), [](const string &var1, const string &var2) { return boost::iequals(var1, var2); });
-
-		dirEntries = mpq::Listfile::caseSensitiveEntries(mpq::Listfile::existingEntries(dirEntries, *m_archive), archivePath.constData(), false);
 	}
 	/*
 	 * If the archive contains a (listfile) file its entries are used to check which files are in the current directory.
 	 */
 	else
 	{
-		dirEntries =  mpq::Listfile::caseSensitiveEntries(listfile.entries(), archivePath.constData(), false);
+		allEntries = listfile.entries();
 	}
 
+	// make listfile paths unique
+	allEntries = mpq::Listfile::caseSensitiveUniqueEntries(allEntries);
 
-	kDebug(7000) << "MpqProtocol::listDir entries size " << dirEntries.size();
+	dirFileEntries = mpq::Listfile::caseSensitiveFileEntries(mpq::Listfile::existingEntries(allEntries, *m_archive), archivePath.constData(), false);
+	dirDirectoryEntries = mpq::Listfile::caseSensitiveDirEntries(mpq::Listfile::existingEntries(allEntries, *m_archive), archivePath.constData(), false);
 
 	/*
 	 * In the root directory there should be listed the extra files which are not
@@ -409,21 +411,24 @@ void MpqSlave::listDir(const KUrl &url)
 
 		if (m_archive->containsListfileFile()) // should always be the case
 		{
-			dirEntries.push_back("(listfile)");
+			dirFileEntries.push_back("(listfile)");
 		}
 
 		if (m_archive->containsAttributesFile())
 		{
-			dirEntries.push_back("(attributes)");
+			dirFileEntries.push_back("(attributes)");
 		}
 
 		if (m_archive->containsSignatureFile())
 		{
-			dirEntries.push_back("(signature)");
+			dirFileEntries.push_back("(signature)");
 		}
 	}
 
-	BOOST_FOREACH (mpq::Listfile::Entries::reference ref, dirEntries)
+	/*
+	 * List regular files.
+	 */
+	BOOST_FOREACH (mpq::Listfile::Entries::reference ref, dirFileEntries)
 	{
 		// ignore empty entries
 		if (ref.empty())
@@ -431,107 +436,83 @@ void MpqSlave::listDir(const KUrl &url)
 			continue;
 		}
 
-		/*
-		 * Directory paths do always end with \\.
-		 */
-		boost::iterator_range<string::iterator> r = boost::find_last(ref, "\\");
+		const QString fileName = QString::fromUtf8(ref.c_str());
 
-		kDebug(7000) << "Entry \"" << ref.c_str() << "\"";
+		kDebug(7000) << "New path \"" << fileName << "\"";
 
-		if (!r.empty() && r.begin() == --ref.end()) // is directory, ends with back slash
+		mpq::File file = m_archive->findFile(ref); // TODO locale and platform
+
+		if (file.isValid())
 		{
-			kDebug(7000) << "Is dir";
+			//quint64 fileTime = 0;
+			time_t fileTime = 0;
+			bool validFileTime = false;
 
-			ref.erase(ref.size() - 1);
-			r = boost::find_last(ref, "\\");
-
-			if (!r.empty()) // cut full path
+			// file time is extended attribute!
+			if (m_hasAttributes && (m_extendedAttributes & mpq::Attributes::ExtendedAttributes::FileTimeStamps))
 			{
-				ref.erase(ref.begin(), r.end());
-			}
-
-			kDebug(7000) << "New path \"" << ref.c_str() << "\"";
-
-			KIO::UDSEntry entry;
-			entry.insert(KIO::UDSEntry::UDS_NAME, QFile::decodeName(ref.c_str()));
-			entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFDIR);
-			entry.insert(KIO::UDSEntry::UDS_ACCESS, (S_IRWXU | S_IRWXG | S_IRWXO));
-			listEntry(entry, false);
-		}
-		else
-		{
-			kDebug(7000) << "Is file";
-			QString fileName;
-
-			if (!r.empty()) // cut full path
-			{
-				fileName = QFile::decodeName(string(++r.begin(), ref.end()).c_str());
-			}
-			else
-			{
-				fileName = QFile::decodeName(ref.c_str());
-			}
-
-			kDebug(7000) << "New path \"" << fileName << "\"";
-
-			mpq::File file = m_archive->findFile(ref); // TODO locale and platform
-
-			if (file.isValid())
-			{
-				//quint64 fileTime = 0;
-				time_t fileTime = 0;
-				bool validFileTime = false;
-
-				// file time is extended attribute!
-				if (m_hasAttributes && (m_extendedAttributes & mpq::Attributes::ExtendedAttributes::FileTimeStamps))
+				if (m_fileTimes.size() > file.block()->index())
 				{
-					if (m_fileTimes.size() > file.block()->index())
-					{
-						mpq::FILETIME &storedFileTime = m_fileTimes[file.block()->index()];
-						const bool cast = storedFileTime.toTime(fileTime);
+					mpq::FILETIME &storedFileTime = m_fileTimes[file.block()->index()];
+					const bool cast = storedFileTime.toTime(fileTime);
 
-						if (!cast)
-						{
-							kDebug(7000) << i18n("%1: Invalid file time for \"%2\": high - %3, low - %4", url.prettyUrl(), ref.c_str(), storedFileTime.highDateTime, storedFileTime.lowDateTime);
-						}
-						else
-						{
-							validFileTime = true;
-						}
+					if (!cast)
+					{
+						kDebug(7000) << i18n("%1: Invalid file time for \"%2\": high - %3, low - %4", url.prettyUrl(), ref.c_str(), storedFileTime.highDateTime, storedFileTime.lowDateTime);
 					}
 					else
 					{
-						kDebug(7000) << i18n("%1: File time is not stored in \"(attributes)\" file.", url.prettyUrl());
+						validFileTime = true;
 					}
 				}
-
-				KIO::UDSEntry entry;
-				entry.insert(KIO::UDSEntry::UDS_NAME, fileName);
-				entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFREG);
-				entry.insert(KIO::UDSEntry::UDS_SIZE, file.compressedSize());
-
-
-				if (validFileTime)
+				else
 				{
-					entry.insert(KIO::UDSEntry::UDS_MODIFICATION_TIME, fileTime);
+					kDebug(7000) << i18n("%1: File time is not stored in \"(attributes)\" file.", url.prettyUrl());
 				}
-
-				entry.insert(KIO::UDSEntry::UDS_ACCESS, (S_IRWXU | S_IRWXG | S_IRWXO));
-
-				KMimeType::Ptr ptr = KMimeType::findByPath(QFile::decodeName(ref.c_str())); // TODO find by content?
-
-				if (!ptr.isNull())
-				{
-					entry.insert(KIO::UDSEntry::UDS_MIME_TYPE, ptr->name());
-				}
-
-				listEntry(entry, false);
 			}
-			else // invalid entry
+
+			KIO::UDSEntry entry;
+			entry.insert(KIO::UDSEntry::UDS_NAME, fileName);
+			entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFREG);
+			entry.insert(KIO::UDSEntry::UDS_SIZE, file.compressedSize());
+
+
+			if (validFileTime)
 			{
-				warning(i18n("%1: Invalid directory entry \"%2\"", url.prettyUrl(), ref.c_str()));
+				entry.insert(KIO::UDSEntry::UDS_MODIFICATION_TIME, fileTime);
 			}
+
+			entry.insert(KIO::UDSEntry::UDS_ACCESS, (S_IRWXU | S_IRWXG | S_IRWXO));
+
+			KMimeType::Ptr ptr = KMimeType::findByPath(QFile::decodeName(ref.c_str())); // TODO find by content?
+
+			if (!ptr.isNull())
+			{
+				entry.insert(KIO::UDSEntry::UDS_MIME_TYPE, ptr->name());
+			}
+
+			listEntry(entry, false);
 		}
+		else // invalid entry
+		{
+			warning(i18n("%1: Invalid directory entry \"%2\"", url.prettyUrl(), fileName));
+		}
+	}
+
+	/*
+	 * List directories.
+	 */
+	BOOST_FOREACH (mpq::Listfile::Entries::reference ref, dirDirectoryEntries)
+	{
+		kDebug(7000) << "Is dir";
+
+		const QString dirName = QString::fromUtf8(ref.c_str());
+
+		KIO::UDSEntry entry;
+		entry.insert(KIO::UDSEntry::UDS_NAME, dirName);
+		entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFDIR);
+		entry.insert(KIO::UDSEntry::UDS_ACCESS, (S_IRWXU | S_IRWXG | S_IRWXO));
+		listEntry(entry, false);
 	}
 
 	listEntry(KIO::UDSEntry(), true); // ready
