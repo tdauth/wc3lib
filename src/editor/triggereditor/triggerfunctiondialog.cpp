@@ -32,7 +32,16 @@ namespace wc3lib
 namespace editor
 {
 
-TriggerFunctionDialog::TriggerFunctionDialog(TriggerEditor *triggerEditor, map::TriggerData *triggerData, map::TriggerStrings *triggerStrings, map::Triggers *triggers, QWidget* parent, Qt::WindowFlags f) : QDialog(parent, f), m_type(map::TriggerFunction::Type::Event), m_triggerEditor(triggerEditor), m_triggerData(triggerData), m_triggerStrings(triggerStrings), m_triggers(triggers), m_freeFunction(false), m_function(0), m_argumentIndex(0), m_subDialog(0)
+TriggerFunctionDialog::TriggerFunctionDialog(TriggerEditor *triggerEditor, map::TriggerData *triggerData, map::TriggerStrings *triggerStrings, map::Triggers *triggers, QWidget* parent, Qt::WindowFlags f) : QDialog(parent, f)
+, m_triggerEditor(triggerEditor)
+, m_triggerData(triggerData)
+, m_triggerStrings(triggerStrings)
+, m_triggers(triggers)
+, m_type(map::TriggerFunction::Type::Event)
+, m_function(0)
+, m_freeFunction(false)
+, m_argumentIndex(0)
+, m_subDialog(0)
 {
 	setupUi(this);
 
@@ -78,7 +87,8 @@ void TriggerFunctionDialog::fill(map::TriggerFunction *function)
 	this->fill(function->type());
 
 	// evaluate parameter type!
-	if (type() == map::TriggerFunction::Type::Call) {
+	if (type() == map::TriggerFunction::Type::Call)
+	{
 		qDebug() << "TODO: support call view!";
 	}
 
@@ -87,10 +97,13 @@ void TriggerFunctionDialog::fill(map::TriggerFunction *function)
 	m_function = function;
 	const int index = this->m_functionComboBox->findData(QVariant(function->name().c_str()));
 
-	if (index != -1) {
+	if (index != -1)
+	{
 		this->m_functionComboBox->setCurrentIndex(index);
 		this->changeFunction(index);
-	} else {
+	}
+	else
+	{
 		qDebug() << "Couldn't find function " << function->name().c_str();
 	}
 
@@ -140,31 +153,43 @@ bool TriggerFunctionDialog::isValid() const
 
 void TriggerFunctionDialog::apply(map::TriggerFunctionParameter *parameter)
 {
-	if (m_radioButtonPreset->isChecked()) {
+	if (m_radioButtonPreset->isChecked())
+	{
 		parameter->setType(map::TriggerFunctionParameter::Type::Preset);
 		const int index = this->m_presetComboBox->currentIndex();
 		parameter->setValue(this->m_presetComboBox->itemData(index).toByteArray().constData());
-	} else if (m_radioButtonVariable->isChecked()) {
+	} else if (m_radioButtonVariable->isChecked())
+	{
 		parameter->setType(map::TriggerFunctionParameter::Type::Variable);
 		const int index = this->m_variablesComboBox->currentIndex();
 		parameter->setValue(this->m_variablesComboBox->itemData(index).toByteArray().constData());
-	} else if (m_radioButtonFunction->isChecked()) {
+	} else if (m_radioButtonFunction->isChecked())
+	{
 		std::auto_ptr<map::TriggerFunction> function(new map::TriggerFunction());
 		//this->apply(function.get());
 		// TODO apply function argument!
 		parameter->functions().push_back(function);
-	} else if (m_radioButtonImported->isChecked()) { // TODO Frozen Throne only?
+	}
+	else if (m_radioButtonImported->isChecked())
+	{ // TODO Frozen Throne only?
 		parameter->setType(map::TriggerFunctionParameter::Type::Jass);
 		const int index = this->m_importedComboBox->currentIndex();
 		parameter->setValue(this->m_importedComboBox->itemData(index).toByteArray().constData());
-	} else if (m_radioButtonValue->isChecked()) {
+	}
+	else if (m_radioButtonValue->isChecked())
+	{
 		parameter->setType(map::TriggerFunctionParameter::Type::Jass);
 
-		if (m_textEdit->isVisible()) { // TODO store strings in strings file of map
+		if (m_textEdit->isVisible())
+		{ // TODO store strings in strings file of map
 			parameter->setValue(m_textEdit->toPlainText().toStdString());
-		} else if (m_numInput->isVisible()) {
+		}
+		else if (m_numInput->isVisible())
+		{
 			parameter->setValue((QString("%1").arg(m_numInput->value())).toStdString());
-		} else if (m_numInputDouble->isVisible()) {
+		}
+		else if (m_numInputDouble->isVisible())
+		{
 			parameter->setValue((QString("%1").arg(m_numInputDouble->value())).toStdString());
 		}
 	}
@@ -176,9 +201,12 @@ void TriggerFunctionDialog::apply(map::TriggerFunction* function)
 	function->setName(this->m_functionComboBox->itemData(index).toByteArray().constData());
 	function->setType(m_type);
 
-	if (this->function() != 0) {
+	if (this->function() != 0)
+	{
 		function->setIsEnabled(this->function()->isEnabled());
-	} else {
+	}
+	else
+	{
 		function->setIsEnabled(true);
 	}
 }
@@ -189,27 +217,33 @@ string TriggerFunctionDialog::functionName() const
 }
 
 template<class Functions>
-void TriggerFunctionDialog::filterFunctionsByCategory(int index, const Functions &functions, const map::TriggerStrings::Entries &entries) {
+void TriggerFunctionDialog::filterFunctionsByCategory(int index, const Functions &functions, const map::TriggerStrings::Entries &entries)
+{
 	/*
 	 * TODO order alphabetically by category etc.
 	 */
 	QMap<QString, QString> result;
 
-	foreach (typename Functions::const_reference ref, functions) {
+	foreach (typename Functions::const_reference ref, functions)
+	{
 		const map::TriggerData::Category *category = ref.second->category();
 		const string categoryName = category->name();
 
-		if (index == 0 || (categoryName == this->m_categoryComboBox->itemData(index).toString().toStdString())) {
+		if (index == 0 || (categoryName == this->m_categoryComboBox->itemData(index).toString().toStdString()))
+		{
 			string code = ref.first;
 			map::TriggerStrings::Entries::const_iterator iterator = entries.find(code);
 			const QString categoryText = this->triggerEditor()->source()->sharedData()->tr(category->displayText().c_str());
 
 			// show category for index 0 - "All"
-			if (iterator == entries.end()) {
+			if (iterator == entries.end())
+			{
 				const QString name = index == 0 && category->displayName() ? QString(tr("%1 - %2")).arg(categoryText).arg(code.c_str()) : code.c_str();
 				result.insert(name, code.c_str());
 				qDebug() << "Did not find \"" << code.c_str() << "\" in trigger strings!";
-			} else {
+			}
+			else
+			{
 				const string functionName = TriggerEditor::cutQuotes(iterator->second->name());
 				const QString name = index == 0 && category->displayName() ? QString(tr("%1 - %2")).arg(categoryText).arg(functionName.c_str()) : functionName.c_str();
 				result.insert(name, code.c_str());
@@ -225,7 +259,8 @@ void TriggerFunctionDialog::filterFunctionsByCategory(int index, const Functions
 
 void TriggerFunctionDialog::acceptOnlyValid()
 {
-	if (!isValid()) {
+	if (!isValid())
+	{
 		KMessageBox::error(this, tr("Function is not valid!"));
 
 		return;
@@ -239,29 +274,39 @@ void TriggerFunctionDialog::changeCategory(int index)
 	this->m_functionComboBox->clear();
 	map::TriggerStrings::Entries::const_iterator iterator;
 
-	switch (type()) {
+	switch (type())
+	{
 		case map::TriggerFunction::Type::Event:
+		{
 			this->filterFunctionsByCategory(index, this->triggerData()->events(), this->triggerStrings()->events());
 
 			break;
+		}
 
 		case map::TriggerFunction::Type::Condition:
+		{
 			this->filterFunctionsByCategory(index, this->triggerData()->conditions(), this->triggerStrings()->conditions());
 
 			break;
+		}
 
 		case map::TriggerFunction::Type::Action:
+		{
 			this->filterFunctionsByCategory(index, this->triggerData()->actions(), this->triggerStrings()->actions());
 
 			break;
+		}
 
 		case map::TriggerFunction::Type::Call:
+		{
 			this->filterFunctionsByCategory(index, this->triggerData()->calls(), this->triggerStrings()->calls());
 
 			break;
+		}
 	}
 
-	if (this->m_functionComboBox->count() > 0) {
+	if (this->m_functionComboBox->count() > 0)
+	{
 		this->changeFunction(0);
 	}
 }
@@ -358,39 +403,47 @@ void TriggerFunctionDialog::fillInternal(map::TriggerFunction::Type type)
 		m_radioButtonValue->setVisible(true);
 
 		// fill variables
-		if (this->isSubDialog()) {
+		if (this->isSubDialog())
+		{
 			map::TriggerFunction *function = this->parentDialog()->function();
 
-			if (function != 0) {
-
+			if (function != 0)
+			{
 				string type = argumentType(function, m_argumentIndex);
 
-				if (type == "Null") { // special type for set variable, use type of variable
-					if (m_argumentIndex - 1 < 0) {
+				if (type == "Null")
+				{ // special type for set variable, use type of variable
+					if (m_argumentIndex - 1 < 0)
+					{
 						qDebug() << "Invalid usage of Null in function " << function->name().c_str();
-					} else {
+					}
+					else
+					{
 						type = argumentType(function, m_argumentIndex - 1);
 						qDebug() << "var type: " << type.c_str();
 					}
 				}
 
-				if (!type.empty()) {
-
-
+				if (!type.empty())
+				{
 					qDebug() << "Call type: " << type.c_str();
 
 					map::TriggerData::Types::const_iterator typeIterator = this->triggerData()->types().find(type);
 					string baseType;
 
-					if (typeIterator == this->triggerData()->types().end()) {
+					if (typeIterator == this->triggerData()->types().end())
+					{
 						qDebug() << "Did not find type " << type.c_str() << " in TriggerData.txt";
-					} else {
+					}
+					else
+					{
 						const map::TriggerData::Type *type = typeIterator->second;
 
 						qDebug() << "Type: " << type;
 						qDebug() << "Base Type: " << type->baseType();
 
-						if (type->baseType() != 0) { // TODO get all base types until the last recursively
+						if (type->baseType() != 0)
+						{ // TODO get all base types until the last recursively
 							baseType = type->baseType()->name();
 						}
 					}
@@ -402,16 +455,26 @@ void TriggerFunctionDialog::fillInternal(map::TriggerFunction::Type type)
 					m_numInputDouble->hide();
 					m_valuePushButton->hide();
 
-					if (type != "AnyGlobal") { // is not custom variable
-						if (type == "real" || baseType == "real") {
+					if (type != "AnyGlobal")
+					{ // is not custom variable
+						if (type == "real" || baseType == "real")
+						{
 							m_numInputDouble->show();
-						} else if (type == "integer"|| baseType == "integer") {
+						}
+						else if (type == "integer"|| baseType == "integer")
+						{
 							m_numInput->show();
-						} else if (type == "StringExt") {
+						}
+						else if (type == "StringExt")
+						{
 							m_textEdit->show();
-						} else if (type == "string" || baseType == "string") {
+						}
+						else if (type == "string" || baseType == "string")
+						{
 							m_lineEdit->show();
-						} else if (type == "boolean" || baseType == "boolean") {
+						}
+						else if (type == "boolean" || baseType == "boolean")
+						{
 							m_booleanFrame->show();
 						}
 					}
@@ -425,16 +488,20 @@ void TriggerFunctionDialog::fillInternal(map::TriggerFunction::Type type)
 					}
 
 					// show all presets of type
-					if (type != "AnyGlobal") { // is not custom variable
-						foreach (map::TriggerData::Parameters::const_reference ref, this->triggerData()->parameters()) {
-							if (ref.second->type()->name() == type || (!baseType.empty() && ref.second->type()->name() == baseType)) {
+					if (type != "AnyGlobal")
+					{ // is not custom variable
+						foreach (map::TriggerData::Parameters::const_reference ref, this->triggerData()->parameters())
+						{
+							if (ref.second->type()->name() == type || (!baseType.empty() && ref.second->type()->name() == baseType))
+							{
 								const QString presetDescription = this->triggerEditor()->source()->sharedData()->tr(ref.second->displayText().c_str());
 								m_presetComboBox->addItem(presetDescription, ref.second->name().c_str());
 							}
 						}
 					}
 
-					if (m_presetComboBox->count() == 0) {
+					if (m_presetComboBox->count() == 0)
+					{
 						m_presetComboBox->hide();
 						m_radioButtonPreset->hide();
 					}
@@ -444,28 +511,37 @@ void TriggerFunctionDialog::fillInternal(map::TriggerFunction::Type type)
 					qDebug() << "Variables: " << (&this->triggers()->variables());
 					qDebug() << "Variables size: " << this->triggers()->variables().size();
 
-					foreach (map::Triggers::Variables::const_reference ref, this->triggers()->variables()) {
-						if (ref.type() == type || type == "AnyGlobal" || (!baseType.empty() && ref.type() == baseType)) {
+					foreach (map::Triggers::Variables::const_reference ref, this->triggers()->variables())
+					{
+						if (ref.type() == type || type == "AnyGlobal" || (!baseType.empty() && ref.type() == baseType))
+						{
 							m_variablesComboBox->addItem(ref.name().c_str());
 						}
 					}
 
-					if (m_variablesComboBox->count() == 0) {
+					if (m_variablesComboBox->count() == 0)
+					{
 						m_variablesComboBox->setEnabled(false);
 					}
 
-					if (type != "AnyGlobal") {
+					if (type != "AnyGlobal")
+					{
 						// show all functions of type
-						foreach (map::TriggerData::Calls::const_reference ref, this->triggerData()->calls()) {
+						foreach (map::TriggerData::Calls::const_reference ref, this->triggerData()->calls())
+						{
 							const string returnType = boost::apply_visitor(map::TriggerData::FunctionArgumentVisitor(), ref.second->returnType());
 
-							if (returnType == type || (!baseType.empty() && returnType == baseType)) {
+							if (returnType == type || (!baseType.empty() && returnType == baseType))
+							{
 								//ref.second->code
-								try {
+								try
+								{
 									map::TriggerStrings::Entries::const_iterator iterator = TriggerEditor::triggerFunctionEntry(triggerStrings(), ref.second->code(), map::TriggerFunction::Type::Call);
 
 									m_functionComboBox->addItem(TriggerEditor::cutQuotes(iterator->second->name()).c_str(), ref.second->code().c_str());
-								} catch (std::runtime_error &e) {
+								}
+								catch (std::runtime_error &e)
+								{
 									qDebug() << e.what();
 									m_functionComboBox->addItem(ref.second->code().c_str(), ref.second->code().c_str());
 								}
@@ -473,40 +549,52 @@ void TriggerFunctionDialog::fillInternal(map::TriggerFunction::Type type)
 						}
 					}
 
-					if (m_functionComboBox->count() == 0) {
+					if (m_functionComboBox->count() == 0)
+					{
 						m_functionComboBox->hide();
 						m_radioButtonFunction->hide();
 					}
-				} else {
+				}
+				else
+				{
 					qDebug() << "Empty type!";
 				}
-			} else {
+			}
+			else
+			{
 				qDebug() << "No parent function!";
 			}
 		}
 	}
 
-	switch (this->type()) {
+	switch (this->type())
+	{
 		case map::TriggerFunction::Type::Event:
+		{
 			setWindowTitle(tr("Configure Event"));
 			m_categoryLabel->setText(tr("Event Type"));
 			m_descriptionTitleLabel->setText(tr("Event Text"));
 
 			break;
+		}
 
 		case map::TriggerFunction::Type::Condition:
+		{
 			setWindowTitle(tr("Configure Condition"));
 			m_categoryLabel->setText(tr("Condition Type"));
 			m_descriptionTitleLabel->setText(tr("Condition Text"));
 
 			break;
+		}
 
 		case map::TriggerFunction::Type::Action:
+		{
 			setWindowTitle(tr("Configure Action"));
 			m_categoryLabel->setText(tr("Action Type"));
 			m_descriptionTitleLabel->setText(tr("Action Text"));
 
 			break;
+		}
 	}
 }
 
@@ -516,12 +604,15 @@ void TriggerFunctionDialog::showFunction(const QString &code, const Functions &f
 {
 	map::TriggerStrings::Entries::const_iterator iterator = entries.find(code.toStdString());
 
-	if (iterator != entries.end()) {
+	if (iterator != entries.end())
+	{
 		QString text = TriggerEditor::triggerFunctionText(this->triggerEditor()->source()->sharedData().get(), triggerData(), triggerStrings(), code, function(), functions, entries, true, true);
 
 		this->m_descriptionLabel->setText(text);
 
-	} else {
+	}
+	else
+	{
 		qDebug() << "Did not find function " << code;
 	}
 }
@@ -535,7 +626,8 @@ typename Functions::const_iterator TriggerFunctionDialog::triggerFunction(const 
 void TriggerFunctionDialog::changeFunctionToNew(int index)
 {
 	// select a new function
-	if (m_freeFunction && m_function != 0) {
+	if (m_freeFunction && m_function != 0)
+	{
 		delete m_function;
 	}
 
@@ -546,9 +638,12 @@ void TriggerFunctionDialog::changeFunctionToNew(int index)
 	m_function->setName(m_functionComboBox->itemData(index).toByteArray().constData());
 	m_function->setIsEnabled(true);
 
-	try {
+	try
+	{
 		TriggerEditor::fillNewTriggerFunctionParameters(triggerData(), m_function);
-	} catch (std::runtime_error &e) {
+	}
+	catch (std::runtime_error &e)
+	{
 		qDebug() << e.what();
 	}
 
@@ -561,7 +656,8 @@ void TriggerFunctionDialog::changeFunction(int index)
 
 	qDebug() << "Current function " << m_function;
 
-	switch (type()) {
+	switch (type())
+	{
 		case map::TriggerFunction::Type::Event:
 		{
 			this->showFunction(code, this->triggerData()->events(), this->triggerStrings()->events());
@@ -599,7 +695,8 @@ void TriggerFunctionDialog::editParameter(const QString &parameter)
 	bool ok = false;
 	const int index = parameter.toInt(&ok);
 
-	if (!ok) {
+	if (!ok)
+	{
 		qDebug() << "Invalid index " << parameter;
 
 		return;

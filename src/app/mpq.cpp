@@ -32,21 +32,10 @@
 using namespace wc3lib;
 using namespace wc3lib::mpq;
 
-/**
- * When using listfiles we build up a map using the upper case dir name as key
- * and the first found directory name in the listfiles as value.
- * The value should always be taken as the actual directory name.
- */
-typedef std::unordered_map<string, string> DirMap;
-
 namespace
 {
 
-/**
- * \param newlyCreatedDirsForExtraction This set contains all directories which have been created during THIS extraction process.
- * \param dirMap Contains all actual dir name entries which should be used.
- */
-void extract(Archive &mpq, std::string &entry, const boost::program_options::variables_map &vm, const Listfile::Entries &listfileEntries, std::set<boost::filesystem::path> &newlyCreatedDirsForExtraction, DirMap dirMap =DirMap())
+void extract(Archive &mpq, std::string &entry, const boost::program_options::variables_map &vm)
 {
 	mpq::File file = mpq.findFile(entry);
 
@@ -62,14 +51,6 @@ void extract(Archive &mpq, std::string &entry, const boost::program_options::var
 	 * Otherwise all files would use different dir names which are case sensitively listed in the (listfile).
 	 */
 	string dirPath = Listfile::dirPath(entry);
-	string upperDirPath = dirPath;
-	boost::algorithm::to_upper(upperDirPath);
-	std::unordered_map<string, string>::const_iterator iterator = dirMap.find(upperDirPath);
-
-	if (iterator != dirMap.end())
-	{
-		dirPath = iterator->second;
-	}
 
 #ifdef DEBUG
 	std::string oldEntry = entry;
@@ -83,16 +64,15 @@ void extract(Archive &mpq, std::string &entry, const boost::program_options::var
 	// output direcotry is archive's basename in the current working directory (name without extension)
 	boost::filesystem::path outputDirectoryPath = boost::filesystem::current_path() / boost::filesystem::basename(mpq.path());
 	boost::filesystem::path entryPath = outputDirectoryPath / boost::filesystem::path(dirPath);
-	const bool directoryHasBeenCreated = newlyCreatedDirsForExtraction.find(entryPath) != newlyCreatedDirsForExtraction.end();
 
-	if (!vm.count("overwrite") && boost::filesystem::exists(entryPath) && !directoryHasBeenCreated)
+	if (!vm.count("overwrite") && boost::filesystem::exists(entryPath))
 	{
 		std::cerr << boost::format(_("Error occured while extracting file \"%1%\": \"Directory exists %2% already (use --overwrite to create it anyway\".")) % entry % entryPath << std::endl;
 
 		return;
 	}
 
-	if (!directoryHasBeenCreated && !boost::filesystem::is_directory(entryPath) && !boost::filesystem::create_directories(entryPath))
+	if (!boost::filesystem::is_directory(entryPath) && !boost::filesystem::create_directories(entryPath))
 	{
 		std::cerr << boost::format(_("Error occured while extracting file \"%1%\": Unable to create output directory %2%.")) % entry %
 		entryPath << std::endl;
@@ -101,29 +81,8 @@ void extract(Archive &mpq, std::string &entry, const boost::program_options::var
 	}
 
 	/*
-	 * Store newly created directories to prevent overwrite errors.
-	 *
-	 * TODO get a more performant way maybe which creates the directories first and extracts the files afterwards.
+	 * Now construct the whole file path with the file name from the directory path.
 	 */
-	if (!directoryHasBeenCreated)
-	{
-		boost::filesystem::path dirPath;
-
-		/*
-		 * Add all sub directories since some files might be extracted to directories above.
-		 */
-		for (boost::filesystem::path::iterator iterator = entryPath.begin(); iterator != entryPath.end(); ++iterator)
-		{
-			dirPath /= *iterator;
-
-			if (boost::algorithm::starts_with(dirPath.string(), outputDirectoryPath.string()))
-			{
-				newlyCreatedDirsForExtraction.insert(dirPath);
-				std::cout << "Adding " << dirPath << std::endl;
-			}
-		}
-	}
-
 	entryPath /= boost::filesystem::path(entry).filename();
 
 	if (!vm.count("overwrite") && boost::filesystem::exists(entryPath))
@@ -156,7 +115,6 @@ int main(int argc, char *argv[])
 	bindtextdomain("mpq", LOCALE_DIR);
 	textdomain("mpq");
 
-	static const char *version = "0.1";
 	std::string format;
 	typedef std::vector<boost::filesystem::path> Paths;
 	typedef std::vector<std::string> Strings;
@@ -226,6 +184,8 @@ int main(int argc, char *argv[])
 
 	if (vm.count("version"))
 	{
+		static const char *version = "0.1";
+
 		std::cout << boost::format(_(
 		"mpq %1%.\n"
 		"Copyright © 2010 Tamino Dauth\n"
@@ -436,23 +396,13 @@ int main(int argc, char *argv[])
 
 				/*
 				 * Filter case sensitive existing.
+				 * Case sensitive means that the first appearance of a directory name is used from a listfile for the actual directory name.
 				 */
 				listfileEntries = Listfile::caseSensitiveFileEntries(Listfile::existingEntries(listfileEntries, *mpq));
 
-				DirMap dirMap;
-
 				BOOST_FOREACH(Listfile::Entries::reference entry, listfileEntries)
 				{
-					const string &dirPath = Listfile::dirPath(entry);
-
-					if (!dirPath.empty())
-					{
-						string upperDirPath = dirPath;
-						boost::algorithm::to_upper(upperDirPath);
-						dirMap.insert(std::make_pair(upperDirPath, dirPath));
-					}
-
-					extract(*mpq, entry, vm, listfileEntries, newlyCreatedDirsForExtraction, dirMap);
+					extract(*mpq, entry, vm);
 				}
 			}
 			else
@@ -460,7 +410,7 @@ int main(int argc, char *argv[])
 				BOOST_FOREACH(Paths::reference entry, filePaths)
 				{
 					string stringEntry = entry.string();
-					extract(*mpq, stringEntry, vm, listfileEntries, newlyCreatedDirsForExtraction);
+					extract(*mpq, stringEntry, vm);
 				}
 			}
 		}

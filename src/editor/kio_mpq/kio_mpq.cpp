@@ -394,6 +394,7 @@ void MpqSlave::listDir(const KUrl &url)
 	}
 
 	// make listfile paths unique
+	// TODO low performance?
 	allEntries = mpq::Listfile::caseSensitiveUniqueEntries(allEntries);
 
 	dirFileEntries = mpq::Listfile::caseSensitiveFileEntries(mpq::Listfile::existingEntries(allEntries, *m_archive), archivePath.constData(), false);

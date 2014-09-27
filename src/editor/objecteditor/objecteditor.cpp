@@ -40,7 +40,10 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : m_tabWidget(new KTabWidget(this)), m_unitEditor(0), m_weatherEditor(0), Module(source, parent, f)
+ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f)
+, m_tabWidget(new KTabWidget(this))
+, m_unitEditor(0)
+, m_weatherEditor(0)
 , m_copyObjectAction(0)
 , m_pasteObjectAction(0)
 , m_modifyFieldAction(0)

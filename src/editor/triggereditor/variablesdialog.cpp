@@ -33,7 +33,7 @@ namespace wc3lib
 namespace editor
 {
 
-VariablesDialog::VariablesDialog(class TriggerEditor *triggerEditor, Qt::WindowFlags f): m_triggerEditor(triggerEditor), QDialog(triggerEditor, f), m_triggers(0)
+VariablesDialog::VariablesDialog(class TriggerEditor *triggerEditor, Qt::WindowFlags f) :  QDialog(triggerEditor, f), m_triggerEditor(triggerEditor), m_triggers(0)
 {
 	setupUi(this);
 
@@ -50,7 +50,8 @@ void VariablesDialog::variableShown(int row, int column)
 
 	this->variableDialog()->showVariable(variable);
 
-	if (this->variableDialog()->exec() == QDialog::Accepted) {
+	if (this->variableDialog()->exec() == QDialog::Accepted)
+	{
 		this->variableDialog()->apply(variable);
 
 		// refresh table widget row
@@ -58,10 +59,13 @@ void VariablesDialog::variableShown(int row, int column)
 
 		map::TriggerData::Type *type = variableType(*variable);
 
-		if (type != 0) {
+		if (type != 0)
+		{
 			((QTableWidgetItem*)this->m_tableWidget->cellWidget(row, 1))->setText(type->displayText().c_str());
 
-		} else {
+		}
+		else
+		{
 			((QTableWidgetItem*)this->m_tableWidget->cellWidget(row, 1))->setText(variable->type().c_str());
 		}
 
@@ -71,7 +75,8 @@ void VariablesDialog::variableShown(int row, int column)
 
 void VariablesDialog::showVariables(map::Triggers *triggers)
 {
-	if (this->triggerEditor()->source()->sharedData()->triggerData().get() == 0) {
+	if (this->triggerEditor()->source()->sharedData()->triggerData().get() == 0)
+	{
 		KMessageBox::error(this, tr("No trigger data loaded."));
 
 		return;
@@ -89,11 +94,14 @@ void VariablesDialog::showVariables(map::Triggers *triggers)
 
 		map::TriggerData::Type *type = variableType(*variable);
 
-		if (type != 0) {
+		if (type != 0)
+		{
 			item = new QTableWidgetItem(this->triggerEditor()->source()->sharedData()->tr(type->displayText().c_str()));
-		} else {
+		} else
+		{
 			item = new QTableWidgetItem(variable->type().c_str());
 		}
+
 		m_tableWidget->setItem(i, 1, item);
 
 		item = new QTableWidgetItem(TriggerEditor::variableInitialValueText(this->triggerEditor()->source()->sharedData().get(), *variable));
@@ -106,7 +114,9 @@ map::TriggerData::Type* VariablesDialog::variableType(const map::Variable &varia
 	map::TriggerData::Types::iterator iterator = triggerEditor()->source()->sharedData()->triggerData()->types().find(variable.type());
 
 	if (iterator == triggerEditor()->source()->sharedData()->triggerData()->types().end())
+	{
 		return 0;
+	}
 
 	return iterator->second;
 }

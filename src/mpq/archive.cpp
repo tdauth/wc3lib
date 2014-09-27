@@ -98,11 +98,11 @@ std::streamsize Archive::create(const boost::filesystem::path &path, bool overwr
 	{
 		streamSize = this->write(ofstream);
 	}
-	catch (class Exception &exception)
+	catch (Exception &exception)
 	{
 		this->clear();
 
-		throw exception;
+		throw;
 	}
 
 	this->m_size = boost::filesystem::file_size(path);
@@ -130,11 +130,11 @@ std::streamsize Archive::open(const boost::filesystem::path &path)
 	{
 		streamSize = this->read(stream);
 	}
-	catch (class Exception &exception)
+	catch (Exception &exception)
 	{
 		this->clear();
 
-		throw exception;
+		throw;
 	}
 
 	this->m_isOpen = true;

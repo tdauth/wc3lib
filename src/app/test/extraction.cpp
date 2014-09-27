@@ -29,7 +29,9 @@ using namespace wc3lib;
 int main(int argc, char *argv[])
 {
 	if (argc < 2)
+	{
 		return 1;
+	}
 
 	boost::scoped_ptr<mpq::Archive> archive(new mpq::Archive());
 	mpq::Listfile::Entries entries;
@@ -41,7 +43,7 @@ int main(int argc, char *argv[])
 		entries = archive->listfileFile()->entries();
 
 	}
-	catch (Exception e)
+	catch (const Exception &e)
 	{
 		return 1;
 	}
@@ -70,7 +72,7 @@ int main(int argc, char *argv[])
 	{
 		archive->open(archivePath);
 	}
-	catch (Exception e)
+	catch (const Exception &e)
 	{
 		return 1;
 	}

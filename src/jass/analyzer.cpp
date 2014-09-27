@@ -604,6 +604,8 @@ jass_const Analyzer::evaluateConstantExpression(const jass_expression& expressio
 
 	// if nothing returned, invalid constant!
 	isConstant = false;
+
+	return jass_const();
 }
 
 jass_type_reference Analyzer::constType(const jass_const& constant) const

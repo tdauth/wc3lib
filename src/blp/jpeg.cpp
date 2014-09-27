@@ -339,7 +339,7 @@ void readMipMapJpeg(Blp::MipMap &mipMap, byte *buffer, dword bufferSize)
 		// jpeg_abort_decompress is only used when cinfo has to be used again.
 		jpeg_destroy_decompress(&cinfo); // discard object
 
-		throw exception;
+		throw;
 	}
 
 	jpeg_finish_decompress(&cinfo);
@@ -430,7 +430,7 @@ void writeMipMapJpeg(const Blp::MipMap &mipMap, unsigned char *&buffer, unsigned
 		// jpeg_abort_compress is only used when cinfo has to be used again.
 		jpeg_destroy_compress(&cinfo); // discard object
 
-		throw exception;
+		throw;
 	}
 
 	jpeg_finish_compress(&cinfo);

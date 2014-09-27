@@ -46,17 +46,22 @@ namespace editor
 
 TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f)
 : Module(source, parent, f)
+, m_scrollArea(new QScrollArea(this))
 , m_imageLabel(new QLabel(this))
-, m_texture()
+, m_mipMapIndex(0)
 , m_showsAlphaChannel(false)
 , m_showsTransparency(false)
 , m_factor(1.0)
 , m_zoomToFit(true)
+, m_textureActionCollection(0)
+, m_showAlphaChannelAction(0)
+, m_showTransparencyAction(0)
+, m_zoomToFitAction(0)
+, m_mipMapsMenu(0)
 , m_colorPaletteDialog(0)
 , m_chargesDialog(0)
 , m_loadDialog(0)
 , m_saveDialog(0)
-, m_scrollArea(new QScrollArea(this))
 {
 	readSettings();
 
@@ -128,7 +133,7 @@ TextureEditor::~TextureEditor()
 {
 }
 
-TextureEditor::LoadDialogWidget::LoadDialogWidget(QWidget *parent) : m_mipMapsInput(new KIntNumInput(this)), QWidget(parent)
+TextureEditor::LoadDialogWidget::LoadDialogWidget(QWidget *parent) : QWidget(parent), m_mipMapsInput(new KIntNumInput(this))
 {
 	QVBoxLayout *layout = new QVBoxLayout();
 	this->setLayout(layout);
@@ -140,7 +145,7 @@ TextureEditor::LoadDialogWidget::LoadDialogWidget(QWidget *parent) : m_mipMapsIn
 	layout->addWidget(mipMapsInput());
 }
 
-TextureEditor::LoadDialog::LoadDialog(QObject *parent) : m_widget(new LoadDialogWidget()), QObject(parent)
+TextureEditor::LoadDialog::LoadDialog(QObject *parent) : QObject(parent), m_widget(new LoadDialogWidget())
 {
 	//KMimeType::Ptr mime(KMimeType::mimeType("image/x-blp"));
 	m_dialog = new KFileDialog(KUrl(), i18n("*|All Files\n*.blp|Blizzard Pictures\n*.png|Portable Network Graphics\n*.jpg|JPEG Files\n*.tga|TGA Files"), 0, m_widget); // TODO MIME filters do not work ("all/allfiles"). Use image filter.
@@ -156,7 +161,7 @@ TextureEditor::LoadDialog::~LoadDialog()
 	delete m_dialog; // deletes widget as well
 }
 
-TextureEditor::SaveDialogWidget::SaveDialogWidget(QWidget *parent) : m_qualityInput(new KIntNumInput(this)), m_mipMapsInput(new KIntNumInput(this)), QWidget(parent)
+TextureEditor::SaveDialogWidget::SaveDialogWidget(QWidget *parent) : QWidget(parent), m_qualityInput(new KIntNumInput(this)), m_mipMapsInput(new KIntNumInput(this))
 {
 	QVBoxLayout *layout = new QVBoxLayout();
 	this->setLayout(layout);
@@ -174,7 +179,7 @@ TextureEditor::SaveDialogWidget::SaveDialogWidget(QWidget *parent) : m_qualityIn
 	layout->addWidget(mipMapsInput());
 }
 
-TextureEditor::SaveDialog::SaveDialog(QObject *parent) : m_widget(new SaveDialogWidget()), QObject(parent)
+TextureEditor::SaveDialog::SaveDialog(QObject *parent) : QObject(parent), m_widget(new SaveDialogWidget())
 {
 	//KMimeType::Ptr mime(KMimeType::mimeType("image/x-blp"));
 	m_dialog = new KFileDialog(KUrl(), i18n("*|All Files\n*.blp|Blizzard Pictures\n*.png|Portable Network Graphics\n*.jpg|JPEG Files\n*.tga|TGA Files"), 0, m_widget); // TODO MIME filters do not work ("all/allfiles"). Use image filter.
@@ -221,7 +226,9 @@ void TextureEditor::openFile()
 		KUrl url = loadDialog()->dialog()->selectedUrl();
 
 		if (url.isEmpty())
+		{
 			return;
+		}
 
 		QMap<QString, QString> options;
 		options["MipMaps"] = QString::number(loadDialog()->mipMapsInput()->value());
@@ -310,7 +317,9 @@ void TextureEditor::saveFile()
 		KUrl url = saveDialog()->dialog()->selectedUrl();
 
 		if (url.isEmpty())
+		{
 			return;
+		}
 
 		try
 		{
@@ -331,7 +340,9 @@ void TextureEditor::saveFile()
 void TextureEditor::closeFile()
 {
 	foreach (QAction *action, m_textureActionCollection->actions())
+	{
 		action->setEnabled(false);
+	}
 
 	m_mipMapsMenu->clear();
 
@@ -348,7 +359,9 @@ void TextureEditor::editColorPalette()
 	QImage &image = m_mipMaps[mipMapIndex()];
 
 	if (image.colorCount() == 0)
+	{
 		return;
+	}
 
 	this->colorPaletteDialog()->applyFromImage(image);
 
@@ -400,9 +413,13 @@ void TextureEditor::setCharges()
 	if (this->chargesDialog()->exec() == QDialog::Accepted)
 	{
 		if (!this->chargesDialog()->hasChargesCheckBox()->isChecked())
+		{
 			refreshImage();
+		}
 		else
+		{
 			setCharges(this->chargesDialog()->chargesInput()->value());
+		}
 	}
 }
 
@@ -424,7 +441,9 @@ void TextureEditor::setCharges(int charges)
 void TextureEditor::showAlphaChannel()
 {
 	if (!hasTexture())
+	{
 		return;
+	}
 
 	if (!this->m_texture->qt()->hasAlphaChannel())
 	{
@@ -450,7 +469,9 @@ void TextureEditor::showAlphaChannel()
 void TextureEditor::showTransparency()
 {
 	if (!hasTexture())
+	{
 		return;
+	}
 
 	/// \todo According to documentation checking for mask is an expensive operation.
 
@@ -471,7 +492,9 @@ void TextureEditor::showTransparency()
 void TextureEditor::actualSize()
 {
 	if (!hasTexture())
+	{
 		return;
+	}
 
 	this->m_factor = 1.0;
 	refreshImage();
@@ -492,7 +515,9 @@ void TextureEditor::zoomToFit()
 void TextureEditor::zoomIn()
 {
 	if (!hasTexture())
+	{
 		return;
+	}
 
 	this->m_factor += 0.20;
 	refreshImage();
@@ -501,7 +526,9 @@ void TextureEditor::zoomIn()
 void TextureEditor::zoomOut()
 {
 	if (!hasTexture())
+	{
 		return;
+	}
 
 	this->m_factor -= 0.20;
 	refreshImage();
@@ -587,11 +614,11 @@ void TextureEditor::refreshImage()
 	}
 }
 
-void TextureEditor::createFileActions(class KMenu *menu)
+void TextureEditor::createFileActions(KMenu *menu)
 {
 	m_textureActionCollection = new KActionCollection((QObject*)this);
 
-	class KAction *action;
+	KAction *action;
 
 	action = new KAction(KIcon(":/actions/opentexture.png"), i18n("Open texture"), this);
 	action->setShortcut(KShortcut(i18n("Ctrl+O")));
@@ -616,7 +643,7 @@ void TextureEditor::createFileActions(class KMenu *menu)
 	menu->addAction(action);
 }
 
-void TextureEditor::createEditActions(class KMenu *menu)
+void TextureEditor::createEditActions(KMenu *menu)
 {
 	KAction *action = new KAction(KIcon(":/actions/editcolorpalette.png"), i18n("Edit color palette"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(editColorPalette()));

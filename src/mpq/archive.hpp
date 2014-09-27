@@ -49,13 +49,13 @@ class File;
 /**
  * \brief This class allows users to read, write and modify MPQ archives. MPQ (Mo'PaQ, short for Mike O'Brien Pack) is an archiving file format used in several of Blizzard Entertainment's games.
  *
- * Use \ref Archive:open() or \ref Archive:create() to open an existing or create a new MPQ archive on the filesystem.
+ * Use \ref Archive::open() or \ref Archive::create() to open an existing or create a new MPQ archive on the filesystem.
  *
  * For operations on the archive there is several functions with different variations:
  *
- * Use \ref Archive:removeFile() to remove a file from archive.
+ * Use \ref Archive::removeFile() to remove a file from archive.
  *
- * Use \ref Archive:findFile() to find a file in the archive.
+ * Use \ref Archive::findFile() to find a file in the archive.
  *
  * Special files can be accessed via the following functions:
  * <ul>

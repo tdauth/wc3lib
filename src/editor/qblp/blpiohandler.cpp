@@ -279,7 +279,7 @@ bool BlpIOHandler::write(const QImage &image, blp::Blp *blpImage)
 		blp::Blp::MipMap &mipMap = blpImage->mipMaps()[i];
 		const QImage scaledImage = image.scaled(mipMap.width(), mipMap.height());
 
-		if (scaledImage.width() != mipMap.width() || scaledImage.height() != mipMap.height())
+		if (scaledImage.width() != boost::numeric_cast<int>(mipMap.width()) || scaledImage.height() != boost::numeric_cast<int>(mipMap.height()))
 		{
 			return false;
 		}

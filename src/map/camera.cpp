@@ -27,7 +27,8 @@ namespace wc3lib
 namespace map
 {
 
-Camera::Camera(class Cameras *cameras) : m_cameras(cameras)
+Camera::Camera(class Cameras *cameras)
+: m_cameras(cameras)
 , m_targetX(0.0)
 , m_targetY(0.0)
 , m_zOffset(0.0)
