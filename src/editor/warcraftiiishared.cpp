@@ -22,6 +22,8 @@
 
 #include <QtGui>
 
+#include <KIO/NetAccess>
+
 #include "warcraftiiishared.hpp"
 #include "../exception.hpp"
 #include "mpqprioritylist.hpp"
@@ -154,7 +156,7 @@ QIcon WarcraftIIIShared::icon(const KUrl &url, QWidget *window)
 		// Insert a pixmap even if there has been an error on downloading the file. Otherwise calls will try to download a missing file again and again.
 		iterator = m_icons.insert(url, QPixmap());
 
-		qDebug() << "Error on downloading icon:" << url;
+		qDebug() << "Error on downloading icon:" << url << KIO::NetAccess::lastErrorString().toUtf8().constData();
 	}
 
 	return QIcon();

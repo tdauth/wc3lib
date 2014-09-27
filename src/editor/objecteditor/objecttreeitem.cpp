@@ -65,11 +65,68 @@ bool ObjectTreeItem::isFolder() const
 	return children().size() > 0 || this->originalObjectId().isEmpty();
 }
 
+int ObjectTreeItem::countObjects() const
+{
+	QStack<const ObjectTreeItem*> items;
+	items.push(this);
+	int result = 0;
+
+	while (!items.isEmpty())
+	{
+		const ObjectTreeItem *current = items.pop();
+
+		if (current->isFolder())
+		{
+			for (int i = 0; i < current->children().size(); ++i)
+			{
+				items.push(current->child(i));
+			}
+		}
+		else
+		{
+			++result;
+		}
+	}
+
+	return result;
+}
+
+bool ObjectTreeItem::hasModifiedObject() const
+{
+	if (this->objectData() == 0)
+	{
+		return false;
+	}
+
+	QStack<const ObjectTreeItem*> items;
+	items.push(this);
+	bool result = false;
+
+	while (!items.isEmpty() && !result)
+	{
+		const ObjectTreeItem *current = items.pop();
+
+		if (current->isFolder())
+		{
+			for (int i = 0; i < current->children().size(); ++i)
+			{
+				items.push(current->child(i));
+			}
+		}
+		else if (this->objectData()->isObjectModified(current->originalObjectId(), current->customObjectId()))
+		{
+			result = true;
+		}
+	}
+
+	return result;
+}
+
 QString ObjectTreeItem::text(bool showRawData) const
 {
 	if (isFolder())
 	{
-		return this->m_text;
+		return QObject::tr("%1 (%2)").arg(this->m_text).arg(countObjects());
 	}
 
 	QString name = this->objectData()->fieldValue(originalObjectId(), customObjectId(), "unam");
@@ -89,19 +146,6 @@ QString ObjectTreeItem::text(bool showRawData) const
 	}
 
 	return name;
-}
-
-QColor ObjectTreeItem::foreground() const
-{
-	if (!this->isFolder())
-	{
-		if (this->objectData()->isObjectModified(originalObjectId(), customObjectId()))
-		{
-			return QColor(Qt::magenta);
-		}
-	}
-
-	return QColor(Qt::black);
 }
 
 void ObjectTreeItem::setExpanded(MpqPriorityList *source, QWidget *window)

@@ -65,11 +65,22 @@ class ObjectTreeItem
 		int row();
 		ObjectTreeItem* parent() const;
 		QIcon icon() const;
-		QColor foreground() const;
 		void appendChild(ObjectTreeItem *child);
 		void setChildren(const Children &children);
 		Children& children();
 		const Children& children() const;
+
+		/**
+		 * Counts the actual objects in all sub folders as well as the current.
+		 */
+		int countObjects() const;
+		/**
+		 * Modified objects are marked with a different color.
+		 *
+		 * \return Returns true if any of the children objects or the object itself has modifications.
+		 */
+		bool hasModifiedObject() const;
+
 		/**
 		 * \return Returns 0 if child at \p row does not exist.
 		 */

@@ -38,34 +38,6 @@ ObjectTreeModel::~ObjectTreeModel()
 	qDeleteAll(this->m_topLevelItems);
 }
 
-ObjectTreeItem::Children ObjectTreeModel::folders()
-{
-	QStack<ObjectTreeItem*> items;
-
-	foreach (ObjectTreeItem *item, this->m_topLevelItems)
-	{
-		items.push(item);
-	}
-
-	ObjectTreeItem::Children result;
-
-	while (!items.isEmpty())
-	{
-		ObjectTreeItem *item = items.pop();
-		result.push_back(item);
-
-		foreach (ObjectTreeItem *child, item->children())
-		{
-			if (child->isFolder())
-			{
-				items.push(child);
-			}
-		}
-	}
-
-	return result;
-}
-
 QVariant ObjectTreeModel::data(const QModelIndex &index, int role) const
 {
 
@@ -95,7 +67,12 @@ QVariant ObjectTreeModel::data(const QModelIndex &index, int role) const
 
 	     case Qt::ForegroundRole:
 	     {
-		     return item->foreground();
+		     if (item->hasModifiedObject())
+		     {
+			     return Qt::magenta;
+		     }
+
+		     return Qt::black;
 	     }
      }
 
@@ -316,6 +293,28 @@ ObjectTreeItem* ObjectTreeModel::item(const QModelIndex &index) const
 
 void ObjectTreeModel::load(MpqPriorityList* source, ObjectData *objectData, QWidget *window)
 {
+	QStack<ObjectTreeItem*> items;
+
+	foreach (ObjectTreeItem *item, m_topLevelItems)
+	{
+		items.push(item);
+	}
+
+	while (!items.isEmpty())
+	{
+		ObjectTreeItem *item = items.pop();
+
+		if (item->isFolder())
+		{
+			item->setObjectData(objectData);
+
+			foreach (ObjectTreeItem *child, item->children())
+			{
+				items.push(child);
+			}
+		}
+	}
+
 	connect(objectData, SIGNAL(objectCreation(const QString&, const QString&)), this, SLOT(createObject(const QString&, const QString&)));
 	connect(objectData, SIGNAL(objectRemoval(const QString&, const QString&)), this, SLOT(removeObject(const QString&, const QString&)));
 	connect(objectData, SIGNAL(objectReset(const QString&, const QString&)), this, SLOT(resetObject(const QString&, const QString&)));
@@ -392,13 +391,27 @@ void ObjectTreeModel::modifyField(const QString& originalObjectId, const QString
 
 	if (item != 0)
 	{
-		const QModelIndex index = item->modelIndex(this);
+		QModelIndex topLeft;
+
+		// TODO only use the top as left if it is the first modification!
+		// TODO a function should provide if there is these two items.
+		if (customObjectId.isEmpty())
+		{
+			topLeft = index(0, 0);
+		}
+		else
+		{
+			topLeft = index(1, 0);
+		}
+
+		const QModelIndex bottomRight = item->modelIndex(this);
 
 		/*
 		 * Signal that data have changed.
 		 * For example if the name has changed it will be updated automatically in the view.
+		 * The whole object tree from the top level to the object item has to be updated since the color changes if the item got its initial modification.
 		 */
-		emit dataChanged(index, index);
+		emit dataChanged(topLeft, bottomRight);
 
 		const QModelIndex parentIndex = this->itemParent(objectData, originalObjectId, customObjectId);
 		ObjectTreeItem *parent = this->item(parentIndex);
@@ -410,7 +423,7 @@ void ObjectTreeModel::modifyField(const QString& originalObjectId, const QString
 		if (item->parent() != parent)
 		{
 			qDebug() << "Move the row!!";
-			beginMoveRows(index, item->row(), item->row(), parent->modelIndex(this), parent->children().size());
+			beginMoveRows(bottomRight, item->row(), item->row(), parent->modelIndex(this), parent->children().size());
 			endMoveRows();
 
 		}

@@ -53,14 +53,6 @@ void WeatherTreeModel::load(MpqPriorityList* source, ObjectData* objectData, QWi
 		}
 	}
 
-	ObjectTreeItem::Children folders = this->folders();
-
-	foreach (ObjectTreeItem *item, folders)
-	{
-		item->setCollapsed(source, window);
-		item->setFolderText(tr("%1 (%2)").arg(item->text(false)).arg(item->countNonFolderItems()));
-	}
-
 	ObjectTreeModel::load(source, objectData, window);
 }
 

@@ -71,11 +71,6 @@ class ObjectTreeModel : public QAbstractItemModel
 		Items& standardItems();
 		Items& customItems();
 
-		/**
-		 * \return Returns all items which are folders.
-		 * \note This function has O(n) complexity and should not be called oftenly.
-		 */
-		ObjectTreeItem::Children folders();
 
 		/**
 		 * Clears all items which are under the "Custom ..." entry.
@@ -113,6 +108,7 @@ class ObjectTreeModel : public QAbstractItemModel
 		 * The object data contains standard objects as well as custom objects.
 		 *
 		 * The default implementation connects signals of changing data from \p objectData with slots that modify the data in the model.
+		 * It also updates the object data of all exisiting folder items for safety.
 		 * It should be called when loading the data as well.
 		 */
 		virtual void load(MpqPriorityList *source, ObjectData *objectData, QWidget *window);

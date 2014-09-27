@@ -235,7 +235,7 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 
 		if (KIO::NetAccess::exists(absoluteSource, KIO::NetAccess::SourceSide, window))
 		{
-			qDebug() << "Found!";
+			qDebug() << "Found:" << absoluteSource << "and it should exist!";
 
 			return KIO::NetAccess::download(absoluteSource, target, window);
 		}
