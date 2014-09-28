@@ -156,6 +156,7 @@ BOOST_AUTO_TEST_CASE(CaseSensitiveDirEntriesRecursive)
 	sstream <<
 	"Abilities\\Hans\\bla"
 	";abilities\\Peter\\blu"
+	";abilities\\Peter\\bla"
 	";abilities\\PeTeR\\bli"
 	";abILIties\\UI\\test"
 	";abilities\\ui\\test2"
@@ -164,7 +165,7 @@ BOOST_AUTO_TEST_CASE(CaseSensitiveDirEntriesRecursive)
 
 	mpq::Listfile::Entries entries = mpq::Listfile::entries(sstream.str());
 
-	BOOST_REQUIRE(entries.size() == 6);
+	BOOST_REQUIRE(entries.size() == 7);
 
 	mpq::Listfile::Entries uniqueEntries = mpq::Listfile::caseSensitiveDirEntries(entries, "", true);
 
@@ -189,6 +190,7 @@ BOOST_AUTO_TEST_CASE(CaseSensitiveDirEntriesWithPrefix)
 	";abilities\\Peter\\blu"
 	";abilities\\PeTeR\\bli"
 	";abILIties\\UI\\test"
+	";abILIties\\UI\\test1"
 	";abilities\\ui\\test2"
 	";abilities\\ui\\test3.txt"
 	";test\\ui\\test3.txt"
@@ -196,7 +198,7 @@ BOOST_AUTO_TEST_CASE(CaseSensitiveDirEntriesWithPrefix)
 
 	const mpq::Listfile::Entries entries = mpq::Listfile::entries(sstream.str());
 
-	BOOST_REQUIRE(entries.size() == 7);
+	BOOST_REQUIRE(entries.size() == 8);
 
 	const mpq::Listfile::Entries uniqueEntries = mpq::Listfile::caseSensitiveDirEntries(entries, "Abilities", false);
 
