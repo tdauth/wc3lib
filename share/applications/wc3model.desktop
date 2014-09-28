@@ -10,4 +10,4 @@ Exec=wc3model %U
 Icon=utilities-file-archiver
 Type=Application
 Terminal=false
-Categories=Games;
+Categories=Game;
