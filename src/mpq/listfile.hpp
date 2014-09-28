@@ -74,10 +74,13 @@ class Listfile : public File
 		static Entries entries(const string &content);
 
 		static Entries caseSensitiveFileEntries(const Entries &entries, const string &prefix = "", bool recursive = true);
+		/**
+		 * \todo Entries are not unique. Most directory entries are duplicated as often as they appear. At the moment you need to call \ref caseSensitiveUniqueEntries() afterwards.
+		 */
 		static Entries caseSensitiveDirEntries(const Entries &entries, const string &prefix = "", bool recursive = true);
 		static Entries caseSensitiveUniqueEntries(const Entries &entries);
 
-		static Entries existingEntries(const Entries &entries, mpq::Archive &archive);
+		static Entries existingEntries(const Entries &entries, mpq::Archive &archive, const string &prefix = "", bool recursive = true);
 
 		/**
 		 * \return Returns the directory path only of \p entry.

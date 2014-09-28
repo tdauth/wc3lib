@@ -396,11 +396,11 @@ void MpqSlave::listDir(const KUrl &url)
 	}
 
 	// make listfile paths unique
-	// TODO low performance?
-	allEntries = mpq::Listfile::caseSensitiveUniqueEntries(allEntries);
+	allEntries = mpq::Listfile::existingEntries(allEntries, *m_archive, archivePath.constData(), false);
 
-	dirFileEntries = mpq::Listfile::caseSensitiveFileEntries(mpq::Listfile::existingEntries(allEntries, *m_archive), archivePath.constData(), false);
-	dirDirectoryEntries = mpq::Listfile::caseSensitiveDirEntries(mpq::Listfile::existingEntries(allEntries, *m_archive), archivePath.constData(), false);
+	dirFileEntries = mpq::Listfile::caseSensitiveFileEntries(allEntries, archivePath.constData(), false);
+	// make directory entries unique, otherwise they are duplicated
+	dirDirectoryEntries = mpq::Listfile::caseSensitiveUniqueEntries(mpq::Listfile::caseSensitiveDirEntries(allEntries, archivePath.constData(), false));
 
 	/*
 	 * In the root directory there should be listed the extra files which are not

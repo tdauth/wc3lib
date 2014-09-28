@@ -244,18 +244,21 @@ Listfile::Entries Listfile::caseSensitiveUniqueEntries(const Listfile::Entries &
 	return result;
 }
 
-Listfile::Entries Listfile::existingEntries(const Listfile::Entries& entries, mpq::Archive& archive)
+Listfile::Entries Listfile::existingEntries(const Listfile::Entries& entries, mpq::Archive& archive, const string &prefix, bool recursive)
 {
 	Entries result;
 	result.reserve(entries.size());
 
 	BOOST_FOREACH(Entries::const_reference ref, entries)
 	{
-		File file = archive.findFile(ref);
-
-		if (file.isValid())
+		if (prefix.empty() || (ref.size() > prefix.size() && boost::istarts_with(ref, prefix) && (recursive || ref.find(prefix.size(), '\\') == string::npos)))
 		{
-			result.push_back(ref);
+			File file = archive.findFile(ref);
+
+			if (file.isValid())
+			{
+				result.push_back(ref);
+			}
 		}
 	}
 
