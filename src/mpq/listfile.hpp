@@ -75,11 +75,9 @@ class Listfile : public File
 
 		static Entries caseSensitiveFileEntries(const Entries &entries, const string &prefix = "", bool recursive = true);
 		/**
-		 * \todo Entries are not unique. Most directory entries are duplicated as often as they appear. At the moment you need to call \ref caseSensitiveUniqueEntries() afterwards.
+		 * \note This returns unique entries which requires the function to store directories in a set.
 		 */
 		static Entries caseSensitiveDirEntries(const Entries &entries, const string &prefix = "", bool recursive = true);
-		static Entries caseSensitiveUniqueEntries(const Entries &entries);
-
 		static Entries existingEntries(const Entries &entries, mpq::Archive &archive, const string &prefix = "", bool recursive = true);
 
 		/**

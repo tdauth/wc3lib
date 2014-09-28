@@ -395,12 +395,11 @@ void MpqSlave::listDir(const KUrl &url)
 		allEntries = listfile.entries();
 	}
 
-	// make listfile paths unique
+	// only check for the existing files of the current directory
 	allEntries = mpq::Listfile::existingEntries(allEntries, *m_archive, archivePath.constData(), false);
 
 	dirFileEntries = mpq::Listfile::caseSensitiveFileEntries(allEntries, archivePath.constData(), false);
-	// make directory entries unique, otherwise they are duplicated
-	dirDirectoryEntries = mpq::Listfile::caseSensitiveUniqueEntries(mpq::Listfile::caseSensitiveDirEntries(allEntries, archivePath.constData(), false));
+	dirDirectoryEntries = mpq::Listfile::caseSensitiveDirEntries(allEntries, archivePath.constData(), false);
 
 	/*
 	 * In the root directory there should be listed the extra files which are not
