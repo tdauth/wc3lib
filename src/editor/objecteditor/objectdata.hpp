@@ -239,8 +239,18 @@ class ObjectData : public QObject
 		/**
 		 * Imports custom units \p units and replaces all existing custom units by immediately.
 		 * It updates the modifications to the loaded custom units.
+		 *
+		 * This function supports only importing custom units from Warcraft III: Reign of Chaos.
+		 *
+		 * \sa importCustomObjects()
 		 */
 		void importCustomUnits(const map::CustomUnits &units);
+		/**
+		 * Imports custom objects \p objects.
+		 *
+		 * \sa importCustomUnits()
+		 */
+		void importCustomObjects(const map::CustomObjects &objects);
 
 		/**
 		 * The name of an object is required in multiple cases.

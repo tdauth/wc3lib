@@ -121,7 +121,7 @@ void UnitEditor::onExportAllObjects()
 				{
 					this->objectData()->customObjects().write(out);
 				}
-				else
+				else if (this->objectData()->hasCustomUnits())
 				{
 					this->objectData()->customUnits().write(out);
 				}

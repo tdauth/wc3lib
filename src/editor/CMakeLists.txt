@@ -43,7 +43,7 @@ if (EDITOR OR PLUGINS)
 		message(FATAL_ERROR "Did not find OGRE CMake module.")
 	endif ()
 
-	find_package(OGRE COMPONENTS Paging Terrain REQUIRED)
+	find_package(OGRE "1.9" COMPONENTS Paging Terrain REQUIRED)
 
 	if (${OGRE_FOUND})
 		include_directories(${OGRE_INCLUDE_DIRS})

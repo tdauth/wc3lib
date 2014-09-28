@@ -64,8 +64,8 @@ class CustomUnits : public FileFormat
 				Modification(const Modification &other);
 				virtual ~Modification();
 
-				std::streamsize read(InputStream &istream);
-				std::streamsize write(OutputStream &ostream) const;
+				virtual std::streamsize read(InputStream &istream) override;
+				virtual std::streamsize write(OutputStream &ostream) const override;
 
 				void setValueId(id valueId);
 				id valueId() const;
@@ -107,8 +107,8 @@ class CustomUnits : public FileFormat
 				Unit(const Unit &other);
 				virtual ~Unit();
 
-				std::streamsize read(InputStream &istream);
-				std::streamsize write(OutputStream &ostream) const;
+				virtual std::streamsize read(InputStream &istream) override;
+				virtual std::streamsize write(OutputStream &ostream) const override;
 
 				bool isOriginal() { return m_customId == 0; };
 
@@ -120,7 +120,10 @@ class CustomUnits : public FileFormat
 				const Modifications& modifications() const;
 
 			protected:
-				virtual class Modification* createModification() const;
+				/**
+				 * This internal function must be overwritten to provide another data type for \ref Modification.
+				 */
+				virtual Modification* createModification() const;
 
 				id m_originalId;
 				id m_customId;
@@ -135,12 +138,12 @@ class CustomUnits : public FileFormat
 		CustomUnits();
 		virtual ~CustomUnits();
 
-		virtual std::streamsize read(InputStream &istream);
-		virtual std::streamsize write(OutputStream &ostream) const;
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
-		virtual const byte* fileName() const;
-		virtual const byte* fileTextId() const;
-		virtual uint32 latestFileVersion() const;
+		virtual const byte* fileName() const override;
+		virtual const byte* fileTextId() const override;
+		virtual uint32 latestFileVersion() const override;
 
 		Table& originalTable();
 		const Table& originalTable() const;
@@ -153,6 +156,9 @@ class CustomUnits : public FileFormat
 		void clear();
 
 	protected:
+		/**
+		 * This internal function must be overwritten to provide another from \ref Unit derived data type for unit objects.
+		 */
 		virtual Unit* createUnit() const;
 
 		Table m_originalTable;

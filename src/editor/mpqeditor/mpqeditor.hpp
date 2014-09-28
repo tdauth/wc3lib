@@ -23,6 +23,7 @@
 
 #include <kdemacros.h>
 #include <KActionCollection>
+#include <KAboutData>
 
 #include "../module.hpp"
 #include "../../mpq.hpp"
@@ -124,6 +125,7 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		virtual void createToolButtons(ModuleToolBar *toolBar) override;
 		virtual SettingsInterface* settings() override;
 		virtual void onSwitchToMap(Map *map) override;
+		virtual KAboutData moduleAboutData() const override;
 		virtual QString actionName() const override;
 
 		virtual void readSettings() override;
@@ -223,6 +225,14 @@ inline const MpqEditor::Archives& MpqEditor::archives() const
 inline MpqEditor::Archives& MpqEditor::archives()
 {
 	return m_archives;
+}
+
+inline KAboutData MpqEditor::moduleAboutData() const
+{
+	KAboutData aboutData(Module::moduleAboutData());
+	aboutData.setProgramName(ki18n("MPQ Editor"));
+
+	return aboutData;
 }
 
 inline QString MpqEditor::actionName() const

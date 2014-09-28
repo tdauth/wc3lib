@@ -25,10 +25,11 @@
 
 #include "../editor.hpp"
 
-#include <editor/modeleditor/modeleditor.hpp>
-#include <editor/objecteditor/objecteditor.hpp>
-#include <editor/textureeditor/textureeditor.hpp>
-#include <editor/triggereditor/triggereditor.hpp>
+#include "../editor/modeleditor/modeleditor.hpp"
+#include "../editor/objecteditor/objecteditor.hpp"
+#include "../editor/textureeditor/textureeditor.hpp"
+#include "../editor/triggereditor/triggereditor.hpp"
+#include "../editor/mpqeditor/mpqeditor.hpp"
 
 using namespace wc3lib::editor;
 
@@ -54,11 +55,15 @@ int main(int argc, char *argv[])
 		splash.show();
 		editor.show();
 		editor.addModule(new ModelEditor(&root, &editor, &editor));
-	//	editor->addModule(new ObjectEditor(editor, editor));
+		ObjectEditor *objectEditor = new ObjectEditor(&editor, &editor);
+		editor.addModule(objectEditor);
 		editor.addModule(new TextureEditor(&editor, &editor));
 		//editor->addModule(new ModelEditor(editor, editor));
 		TriggerEditor *triggerEditor = new TriggerEditor(&editor, &editor);
 		editor.addModule(triggerEditor);
+		MpqEditor *mpqEditor = new MpqEditor(&editor, &editor);
+		editor.addModule(mpqEditor);
+		mpqEditor->show();
 		//TerrainEditor *terrainEditor = new TerrainEditor(editor, editor);
 		//editor->addModule(terrainEditor);
 		//terrainEditor->show();
@@ -70,7 +75,9 @@ int main(int argc, char *argv[])
 		for (int i = 0; i < args->count(); ++i)
 			editor.openMap(args->url(i));
 		*/
+
+		return app.exec();
 	}
 
-	return app.exec();
+	return 1;
 }

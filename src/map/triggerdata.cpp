@@ -110,15 +110,22 @@ std::streamsize TriggerData::DefaultTrigger::write(OutputStream &ostream) const
 
 void TriggerData::Function::fillTypes(TriggerData *triggerData, const SplitVector &values)
 {
-	for (std::size_t i = 0; i < values.size(); ++i) {
-		if (triggerData->specialTypes().find(values[i]) != triggerData->specialTypes().end()) {
+	for (std::size_t i = 0; i < values.size(); ++i)
+	{
+		if (triggerData->specialTypes().find(values[i]) != triggerData->specialTypes().end())
+		{
 			this->types().push_back(values[i]);
-		} else {
+		}
+		else
+		{
 			TriggerData::Types::iterator iterator = triggerData->types().find(values[i]);
 
-			if (iterator != triggerData->types().end()) {
+			if (iterator != triggerData->types().end())
+			{
 				this->types().push_back(iterator->second);
-			} else {
+			}
+			else
+			{
 				this->types().push_back(values[i]);
 				std::cerr << boost::format(_("Warning: Unknown type \"%1%\" at index %2% for trigger function \"%3%\".")) % values[i] % i % this->code() << std::endl;
 			}
@@ -128,24 +135,34 @@ void TriggerData::Function::fillTypes(TriggerData *triggerData, const SplitVecto
 
 void TriggerData::Call::fillTypes(TriggerData *triggerData, const SplitVector &values)
 {
-	if (values.size() >= 1) {
+	if (values.size() >= 1)
+	{
 		this->m_canBeUsedInEvents = boost::lexical_cast<bool>(values[0]);
 
-		for (std::size_t i = 1; i < values.size(); ++i) {
-			if (triggerData->specialTypes().find(values[i]) != triggerData->specialTypes().end()) {
+		for (std::size_t i = 1; i < values.size(); ++i)
+		{
+			if (triggerData->specialTypes().find(values[i]) != triggerData->specialTypes().end())
+			{
 				this->types().push_back(values[i]);
-			} else {
+			}
+			else
+			{
 				TriggerData::Types::iterator iterator = triggerData->types().find(values[i]);
 
-				if (iterator != triggerData->types().end()) {
+				if (iterator != triggerData->types().end())
+				{
 					this->types().push_back(iterator->second);
-				} else {
+				}
+				else
+				{
 					this->types().push_back(values[i]);
 					std::cerr << boost::format(_("Warning: Unknown type \"%1%\" at index %2% for trigger function \"%3%\".")) % values[i] % i % this->code() << std::endl;
 				}
 			}
 		}
-	} else {
+	}
+	else
+	{
 		std::cerr << boost::format(_("Missing \"canBeUsedInEvents\" value for trigger call \"%1%\".")) % this->code() << std::endl;
 	}
 }
@@ -156,27 +173,34 @@ void TriggerData::readFunction(const Txt::Entry &ref, boost::ptr_map<string, Fun
 	FunctionType *function = 0;
 	string code = ref.first;
 
-	if (!boost::starts_with(code, "_")) {
+	if (!boost::starts_with(code, "_"))
+	{
 		std::auto_ptr<FunctionType> functionPtr(new FunctionType());
 		function = functionPtr.get();
 		function->setCode(code);
 		std::cerr << "New function: \"" << code << "\"" << std::endl; // TEST
 		functions.insert(code, functionPtr);
-	} else {
+	}
+	else
+	{
 		code = code.substr(1);
 
 		string::size_type index = code.find("_");
 
-		if (index != string::npos) {
+		if (index != string::npos)
+		{
 			code = code.substr(0, index);
-		} else {
+		}
+		else
+		{
 			std::cerr << boost::format(_("Missing suffix for trigger function entry \"%1%\".")) % ref.first << std::endl;
 		}
 
 		typename boost::ptr_map<string, FunctionType>::iterator iterator = functions.find(code);
 
-		if (iterator == functions.end()) {
-			std::cerr << boost::format(_("Missing base trigger function \"%1%\" for trigger function entry \"%2\".")) % code % ref.first << std::endl;
+		if (iterator == functions.end())
+		{
+			std::cerr << boost::format(_("Missing base trigger function \"%1%\" for trigger function entry \"%2%\".")) % code % ref.first << std::endl;
 
 			return;
 		}
@@ -189,55 +213,75 @@ void TriggerData::readFunction(const Txt::Entry &ref, boost::ptr_map<string, Fun
 
 	string::size_type index = ref.first.find_last_of("_");
 
-	if (index == string::npos) {
+	if (index == string::npos)
+	{
 		function->fillTypes(this, values); // since trigger calls have other values than events, conditions and actions, we call the virtual implementation!
 	}
-	else if (ref.first.substr(index + 1) == "Defaults") {
-		if (!function->defaults().empty()) {
+	else if (ref.first.substr(index + 1) == "Defaults")
+	{
+		if (!function->defaults().empty())
+		{
 			function->defaults().clear();
 			std::cerr << boost::format(_("Redefinition of defaults for trigger function \"%1%\".")) % code << std::endl;
 		}
 
-		for (std::size_t i = 0; i < values.size(); ++i) {
+		for (std::size_t i = 0; i < values.size(); ++i)
+		{
 			Parameters::iterator iterator = this->parameters().find(values[i]);
 
-			if (iterator != this->parameters().end()) {
+			if (iterator != this->parameters().end())
+			{
 				function->defaults().push_back(iterator->second);
-			} else {
-				try { // float
+			} else
+			{
+				try
+				{ // float
 					function->defaults().push_back(boost::lexical_cast<float32>(values[i]));
 				}
-				catch (boost::bad_lexical_cast &e) { // int
-					try {
+				catch (boost::bad_lexical_cast &e)
+				{ // int
+					try
+					{
 						function->defaults().push_back(boost::lexical_cast<int32>(values[i]));
 					}
-					catch (boost::bad_lexical_cast &e) { // string
+					catch (boost::bad_lexical_cast &e)
+					{ // string
 						function->defaults().push_back(values[i]);
 					}
 				}
 			}
 		}
 	}
-	else if (ref.first.substr(index + 1) == "Category") {
-		if (values.size() >= 1) {
+	else if (ref.first.substr(index + 1) == "Category")
+	{
+		if (values.size() >= 1)
+		{
 			Categories::iterator iterator = this->categories().find(values[0]);
 
-			if (iterator != this->categories().end()) {
+			if (iterator != this->categories().end())
+			{
 				function->setCategory(iterator->second);
-			} else {
+			}
+			else
+			{
 				std::cerr << boost::format(_("Invalid category \"%1%\" for trigger function \"%2\".")) % values[0] % code << std::endl;
 			}
-		} else {
+		}
+		else
+		{
 			std::cerr << boost::format(_("Empty category for trigger function \"%1%\".")) % code << std::endl;
 		}
 	}
-	else if (ref.first.substr(index + 1) == "Limits") {
-		if (!function->limits().empty()) {
+	else if (ref.first.substr(index + 1) == "Limits")
+	{
+		if (!function->limits().empty())
+		{
 			function->limits().clear();
 			std::cerr << boost::format(_("Redefinition of limits for trigger function \"%1%\".")) % code << std::endl;
 		}
 
-		for (std::size_t i = 0; i < values.size(); ++i) {
+		for (std::size_t i = 0; i < values.size(); ++i)
+		{
 			Function::Limit limit;
 			bool minimumIsInt = false;
 			bool minimumIsString = false;
@@ -252,18 +296,23 @@ void TriggerData::readFunction(const Txt::Entry &ref, boost::ptr_map<string, Fun
 				limit.first = iterator->second;
 			} else {
 			*/
-				try { // float
+				try
+				{ // float
 					limit.first = boost::lexical_cast<float32>(values[i]);
 
 					minimumIsDouble = true;
 				}
-				catch (boost::bad_lexical_cast &e) { // int
-					try {
+				catch (boost::bad_lexical_cast &e)
+				{ // int
+					try
+					{
 						limit.first = boost::lexical_cast<int32>(values[i]);
 
 						minimumIsInt = true;
 
-					} catch (boost::bad_lexical_cast &e) { // string
+					}
+					catch (boost::bad_lexical_cast &e)
+					{ // string
 						limit.first = values[i];
 
 						minimumIsString = true;
@@ -273,7 +322,8 @@ void TriggerData::readFunction(const Txt::Entry &ref, boost::ptr_map<string, Fun
 
 			++i; // get maximum
 
-			if (i < values.size()) {
+			if (i < values.size())
+			{
 
 				/*
 				 * NOTE parameters should only occur for defaults not for limits
@@ -283,18 +333,23 @@ void TriggerData::readFunction(const Txt::Entry &ref, boost::ptr_map<string, Fun
 					limit.second = iterator->second;
 				} else {
 				*/
-					try { // float
+					try
+					{ // float
 						limit.second = boost::lexical_cast<float32>(values[i]);
 
 						minimumIsDouble = true;
 					}
-					catch (boost::bad_lexical_cast &e) { // int
-						try {
+					catch (boost::bad_lexical_cast &e)
+					{ // int
+						try
+						{
 							limit.second = boost::lexical_cast<int32>(values[i]);
 
 							minimumIsInt = true;
 
-						} catch (boost::bad_lexical_cast &e) { // string
+						}
+						catch (boost::bad_lexical_cast &e)
+						{ // string
 							limit.second = values[i];
 
 							minimumIsString = true;
@@ -303,7 +358,9 @@ void TriggerData::readFunction(const Txt::Entry &ref, boost::ptr_map<string, Fun
 				//}
 				// TODO handle _ values?
 
-			} else {
+			}
+			else
+			{
 				std::cerr << boost::format(_("Limits of function \"%1%\" miss maximum value for limit %2%")) % code % function->limits().size() << std::endl;
 			}
 
@@ -316,8 +373,10 @@ std::size_t TriggerData::firstNonNumericChar(const string& value) const
 {
 	string::size_type index = string::npos;
 
-	for (string::size_type i = 0; i < value.size(); ++i) {
-		if (value[i] > '9' || value[i] < '0') { // not numeric
+	for (string::size_type i = 0; i < value.size(); ++i)
+	{
+		if (value[i] > '9' || value[i] < '0')
+		{ // not numeric
 			index = i;
 
 			break;
@@ -342,15 +401,18 @@ std::streamsize TriggerData::read(InputStream &istream)
 		SplitVector values;
 		boost::algorithm::split(values, ref.second, boost::is_any_of(","), boost::algorithm::token_compress_on);
 
-		if (values.size() >= 1) {
+		if (values.size() >= 1)
+		{
 			category->setDisplayText(values[0]);
 		}
 
-		if (values.size() >= 2) {
+		if (values.size() >= 2)
+		{
 			category->setIconImageFile(values[1]);
 		}
 
-		if (values.size() >= 3) {
+		if (values.size() >= 3)
+		{
 			category->setDisplayName(!boost::lexical_cast<bool>(values[2]));
 		}
 
@@ -371,22 +433,26 @@ std::streamsize TriggerData::read(InputStream &istream)
 		boost::algorithm::split(values, ref.second, boost::is_any_of(","), boost::algorithm::token_compress_on);
 
 		// Value 0: flag (0 or 1) indicating if this type can be a global variable
-		if (values.size() >= 1) {
+		if (values.size() >= 1)
+		{
 			type->setCanBeGlobal(boost::lexical_cast<bool>(values[0]));
 		}
 
 		// Value 1: flag (0 or 1) indicating if this type can be used with comparison operators
-		if (values.size() >= 2) {
+		if (values.size() >= 2)
+		{
 			type->setCanBeCompared(boost::lexical_cast<bool>(values[1]));
 		}
 
 		// Value 2: string to display in the editor
-		if (values.size() >= 3) {
+		if (values.size() >= 3)
+		{
 			type->setDisplayText(values[2]);
 		}
 
 		// Value 3: base type, used only for custom types
-		if (values.size() >= 4) {
+		if (values.size() >= 4)
+		{
 			baseTypes[name] = values[3];
 		} /*else {
 			std::cerr << boost::format(_("Missing base type for type \"%1%\".")) % name << std::endl;
@@ -401,9 +467,12 @@ std::streamsize TriggerData::read(InputStream &istream)
 		const string baseType = baseTypes[ref.first];
 		Types::iterator baseTypeIterator = this->types().find(baseType);
 
-		if (baseTypeIterator != this->types().end()) {
+		if (baseTypeIterator != this->types().end())
+		{
 			ref.second->setBaseType(baseTypeIterator->second);
-		} else {
+		}
+		else
+		{
 			std::cerr << boost::format(_("Missing base type \"%1%\".")) % baseType << std::endl;
 		}
 	}
@@ -413,9 +482,12 @@ std::streamsize TriggerData::read(InputStream &istream)
 	{
 		Types::iterator defaultIterator = this->types().find(ref.first);
 
-		if (defaultIterator != this->types().end()) {
+		if (defaultIterator != this->types().end())
+		{
 			defaultIterator->second->setDefaultValue(ref.second);
-		} else {
+		}
+		else
+		{
 			std::cerr << boost::format(_("Missing default type \"%1%\".")) % ref.first << std::endl;
 		}
 	}
@@ -430,54 +502,69 @@ std::streamsize TriggerData::read(InputStream &istream)
 		SplitVector values;
 		boost::algorithm::split(values, ref.second, boost::is_any_of(","), boost::algorithm::token_compress_on);
 
-		if (values.size() >= 1) {
+		if (values.size() >= 1)
+		{
 			Types::iterator iterator = this->types().find(values[0]);
 
-			if (iterator != this->types().end()) {
+			if (iterator != this->types().end())
+			{
 				parameter->setType(iterator->second);
 			}
 		}
 
-		if (values.size() >= 2) {
+		if (values.size() >= 2)
+		{
 			parameter->setCode(values[1]);
 		}
 
-		if (values.size() >= 3) {
+		if (values.size() >= 3)
+		{
 			parameter->setDisplayText(values[2]);
 		}
 
 		this->parameters().insert(name, parameter);
 	}
 
-	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerEvents")) {
+	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerEvents"))
+	{
 		readFunction<Function>(ref, this->events());
 	}
 
-	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerConditions")) {
+	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerConditions"))
+	{
 		readFunction<Function>(ref, this->conditions());
 	}
 
-	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerActions")) {
+	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerActions"))
+	{
 		readFunction<Function>(ref, this->actions());
 	}
 
-	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerCalls")) {
+	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerCalls"))
+	{
 		readFunction<Call>(ref, this->calls());
 	}
 
 	std::size_t numCategories = 0;
 	std::size_t actualCategories = 0;
 
-	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("DefaultTriggerCategories")) {
-		if (ref.first == "NumCategories") {
+	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("DefaultTriggerCategories"))
+	{
+		if (ref.first == "NumCategories")
+		{
 			numCategories = boost::lexical_cast<std::size_t>(ref.second);
 			this->defaultTriggerCategories().resize(numCategories);
-		} else if (boost::starts_with(ref.first, "Category")) {
+		}
+		else if (boost::starts_with(ref.first, "Category"))
+		{
 			std::size_t index = boost::lexical_cast<std::size_t>(ref.first.substr(strlen("Category"))) - 1;
 
-			if (index < this->defaultTriggerCategories().size()) {
+			if (index < this->defaultTriggerCategories().size())
+			{
 				this->defaultTriggerCategories()[index] = ref.second;
-			} else {
+			}
+			else
+			{
 				std::cerr << boost::format(_("Invalid index %1% for default trigger category \"%2%\".")) % index % ref.second << std::endl;
 			}
 
@@ -485,21 +572,27 @@ std::streamsize TriggerData::read(InputStream &istream)
 		}
 	}
 
-	if (numCategories != actualCategories) {
+	if (numCategories != actualCategories)
+	{
 		std::cerr << boost::format(_("Expected default trigger categories %1% are not equal to actual ones %2%.")) % numCategories % actualCategories << std::endl;
 	}
 
 	std::size_t numTriggers = 0;
 	std::size_t actualTriggers = 0;
 
-	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("DefaultTriggers")) {
-		if (ref.first == "NumTriggers") {
+	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("DefaultTriggers"))
+	{
+		if (ref.first == "NumTriggers")
+		{
 			this->defaultTriggers().resize(boost::lexical_cast<std::size_t>(ref.second));
-		} else if (boost::starts_with(ref.first, "Trigger")) {
+		}
+		else if (boost::starts_with(ref.first, "Trigger"))
+		{
 			string substr = ref.first.substr(strlen("Trigger"));
 			string::size_type substrIndex = this->firstNonNumericChar(substr);
 
-			if (substrIndex == string::npos) {
+			if (substrIndex == string::npos)
+			{
 				std::cerr << boost::format(_("Default trigger entry \"%1%\" is missing type.")) % ref.first << std::endl;
 
 				continue;
@@ -507,25 +600,34 @@ std::streamsize TriggerData::read(InputStream &istream)
 
 			const std::size_t index = boost::lexical_cast<std::size_t>(substr.substr(0, substrIndex)) - 1;
 
-			if (index < this->defaultTriggers().size()) {
+			if (index < this->defaultTriggers().size())
+			{
 				DefaultTrigger *trigger = 0;
 
-				if (this->defaultTriggers().is_null(index)) { // first creation
+				if (this->defaultTriggers().is_null(index))
+				{ // first creation
 					std::auto_ptr<DefaultTrigger> triggerPtr(new DefaultTrigger());
 					trigger = triggerPtr.get();
 					this->defaultTriggers().replace(index, triggerPtr);
 					++actualTriggers;
-				} else {
+				}
+				else
+				{
 					trigger = &this->defaultTriggers()[index];
 				}
 
 				const string type = substr.substr(substrIndex);
 
-				if (type == "Name") {
+				if (type == "Name")
+				{
 					trigger->setName(ref.second);
-				} else if (type == "Comment") {
+				}
+				else if (type == "Comment")
+				{
 					trigger->setComment(ref.second);
-				} else if (type == "Category") {
+				}
+				else if (type == "Category")
+				{
 					/*
 					 * Starts counting at 1 so subtract 1.
 					 */
@@ -539,67 +641,102 @@ std::streamsize TriggerData::read(InputStream &istream)
 					{
 						throw Exception(boost::format(_("Default trigger category %1% does not exist but is used by default trigger %2%.")) % (category + 1) % index);
 					}
-				} else if (type == "Events") {
+				}
+				else if (type == "Events")
+				{
 					const std::size_t eventsCount = boost::lexical_cast<std::size_t>(ref.second) + 1;
 					trigger->events().resize(eventsCount);
-				} else if (type == "Conditions") {
+				}
+				else if (type == "Conditions")
+				{
 					const std::size_t conditionsCount = boost::lexical_cast<std::size_t>(ref.second) + 1;
 					trigger->conditions().resize(conditionsCount);
-				} else if (type == "Actions") {
+				}
+				else if (type == "Actions")
+				{
 					const std::size_t actionsCount = boost::lexical_cast<std::size_t>(ref.second) + 1;
 					trigger->actions().resize(actionsCount);
-				} else if (boost::starts_with(type, "Event")) {
+				}
+				else if (boost::starts_with(type, "Event"))
+				{
 					const std::size_t eventIndex = boost::lexical_cast<std::size_t>(type.substr(strlen("Event"))) - 1;
 
 					Functions::iterator iterator = this->events().find(ref.second);
 
-					if (iterator != this->events().end()) {
-						if (eventIndex < trigger->events().size()) {
+					if (iterator != this->events().end())
+					{
+						if (eventIndex < trigger->events().size())
+						{
 							trigger->events()[eventIndex] = iterator->second;
-						} else {
+						}
+						else
+						{
 							std::cerr << boost::format(_("Invalid event index %1% for default trigger entry %2%.")) % eventIndex % index << std::endl;
 						}
-					} else {
+					}
+					else
+					{
 						std::cerr << boost::format(_("Default trigger entry %1% has invalid event value \"%2%\".")) % index % ref.second << std::endl;
 					}
-				} else if (boost::starts_with(type, "Condition")) {
+				}
+				else if (boost::starts_with(type, "Condition"))
+				{
 					const std::size_t conditionIndex = boost::lexical_cast<std::size_t>(type.substr(strlen("Condition"))) - 1;
 
 					Functions::iterator iterator = this->conditions().find(ref.second);
 
-					if (iterator != this->conditions().end()) {
-						if (conditionIndex < trigger->conditions().size()) {
+					if (iterator != this->conditions().end())
+					{
+						if (conditionIndex < trigger->conditions().size())
+						{
 							trigger->conditions()[conditionIndex] = iterator->second;
-						} else {
+						}
+						else
+						{
 							std::cerr << boost::format(_("Invalid condition index %1% for default trigger entry %2%.")) % conditionIndex % index << std::endl;
 						}
-					} else {
+					}
+					else
+					{
 						std::cerr << boost::format(_("Default trigger entry %1% has invalid condition value \"%2%\".")) % index % ref.second << std::endl;
 					}
-				} else if (boost::starts_with(type, "Action")) {
+				}
+				else if (boost::starts_with(type, "Action"))
+				{
 					const std::size_t actionIndex = boost::lexical_cast<std::size_t>(type.substr(strlen("Action"))) - 1;
 
 					Functions::iterator iterator = this->actions().find(ref.second);
 
-					if (iterator != this->actions().end()) {
-						if (actionIndex < trigger->actions().size()) {
+					if (iterator != this->actions().end())
+					{
+						if (actionIndex < trigger->actions().size())
+						{
 							trigger->actions()[actionIndex] = iterator->second;
-						} else {
+						}
+						else
+						{
 							std::cerr << boost::format(_("Invalid action index %1% for default trigger entry %2%.")) % actionIndex % index << std::endl;
 						}
-					} else {
+					}
+					else
+					{
 						std::cerr << boost::format(_("Default trigger entry %1% has invalid action value \"%2%\".")) % index % ref.second << std::endl;
 					}
-				} else {
+				}
+				else
+				{
 					std::cerr << boost::format(_("Default trigger entry \"%1%\" has unknown suffix \"%2%\".")) % type << std::endl;
 				}
-			} else {
+			}
+			else
+			{
 				std::cerr << boost::format(_("Invalid index %1% for default trigger \"%2%\".")) % index % ref.first << std::endl;
 			}
 		}
 	}
 
-	if (numTriggers != actualTriggers) {
+	if (numTriggers != actualTriggers)
+	{
 		std::cerr << boost::format(_("Expected default triggers %1% are not equal to actual ones %2%.")) % numTriggers % actualTriggers << std::endl;
 	}
 

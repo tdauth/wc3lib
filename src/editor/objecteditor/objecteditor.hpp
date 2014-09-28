@@ -187,7 +187,7 @@ class KDE_EXPORT ObjectEditor : public Module
 		virtual void createToolButtons(ModuleToolBar *toolBar);
 		virtual SettingsInterface* settings();
 		virtual void onSwitchToMap(Map *map);
-		virtual KAboutData moduleAboutData() const;
+		virtual KAboutData moduleAboutData() const override;
 		virtual QString actionName() const;
 
 	protected slots:

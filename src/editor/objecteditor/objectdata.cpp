@@ -155,41 +155,44 @@ bool ObjectData::fieldTypeAllowsMultipleSelections(const QString &fieldId) const
 
 ObjectData::ObjectTabEntries ObjectData::objectTabEntries(const QString &fieldType) const
 {
-	const QString numValues = this->objectTabData()->value(fieldType, "NumValues");
-	bool ok = false;
-	int num = numValues.toInt(&ok);
-
-	if (ok)
+	if (this->objectTabData()->hasValue(fieldType, "NumValues"))
 	{
-		ObjectTabEntries entries;
+		const QString numValues = this->objectTabData()->value(fieldType, "NumValues");
+		bool ok = false;
+		int num = numValues.toInt(&ok);
 
-		for (int i = 0; i < num; ++i)
+		if (ok)
 		{
-			QStringList entryValues = this->objectTabData()->value(fieldType, QString("%1").arg(i, 2, 10, QChar('0'))).split(',');
+			ObjectTabEntries entries;
 
-			if (entryValues.size() == 2)
+			for (int i = 0; i < num; ++i)
 			{
-				entries.push_back(ObjectTabEntry(entryValues[0], entryValues[1]));
+				QStringList entryValues = this->objectTabData()->value(fieldType, QString("%1").arg(i, 2, 10, QChar('0'))).split(',');
+
+				if (entryValues.size() == 2)
+				{
+					entries.push_back(ObjectTabEntry(entryValues[0], entryValues[1]));
+				}
 			}
+
+			bool sortIt = false;
+
+			if (this->objectTabData()->hasValue(fieldType, "Sort"))
+			{
+				if (this->objectTabData()->value(fieldType, "Sort") == "1")
+				{
+					sortIt = true;
+					// TODO Flag indicating to sort the list by name in editor display
+					//qSort(entries.begin(), entries.end());
+				}
+			}
+
+			return entries;
 		}
-
-		bool sortIt = false;
-
-		if (this->objectTabData()->hasValue(fieldType, "Sort"))
+		else
 		{
-			if (this->objectTabData()->value(fieldType, "Sort") == "1")
-			{
-				sortIt = true;
-				// TODO Flag indicating to sort the list by name in editor display
-				//qSort(entries.begin(), entries.end());
-			}
+			throw Exception(boost::format(_("Invalid \"NumValues\" entry for field type %1%.")) % fieldType.toUtf8().constData());
 		}
-
-		return entries;
-	}
-	else
-	{
-		throw Exception(boost::format(_("Invalid \"NumValues\" entry for field type %1%.")) % fieldType.toUtf8().constData());
 	}
 
 	return ObjectTabEntries();
@@ -548,6 +551,40 @@ void ObjectData::importCustomUnits(const map::CustomUnits &units)
 	// TODO read all objects
 }
 
+void ObjectData::importCustomObjects(const map::CustomObjects& objects)
+{
+	this->clearModifications();
+
+	for (map::CustomObjects::Table::size_type i = 0; i < objects.originalTable().size(); ++i)
+	{
+		const map::CustomObjects::Object &object = *boost::polymorphic_cast<const map::CustomObjects::Object*>(&objects.originalTable()[i]);
+		const QString originalObjectId = map::idToString(object.originalId()).c_str();
+		const QString customObjectId = map::idToString(object.customId()).c_str();
+
+		for (map::CustomObjects::Object::Modifications::size_type j = 0; j < object.modifications().size(); ++j)
+		{
+			const map::CustomObjects::Modification &modification = *boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object.modifications()[j]);
+			this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), unitToObjectModification(modification));
+		}
+	}
+
+	qDebug() << "Custom Table size:" << objects.customTable().size();
+
+	for (map::CustomObjects::Table::size_type i = 0; i < objects.customTable().size(); ++i)
+	{
+		const map::CustomObjects::Object &object = *boost::polymorphic_cast<const map::CustomObjects::Object*>(&objects.customTable()[i]);
+		const QString originalObjectId = map::idToString(object.originalId()).c_str();
+		const QString customObjectId = map::idToString(object.customId()).c_str();
+
+		for (map::CustomObjects::Object::Modifications::size_type j = 0; j < object.modifications().size(); ++j)
+		{
+			const map::CustomObjects::Modification &modification = *boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object.modifications()[j]);
+			this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), unitToObjectModification(modification));
+		}
+	}
+
+}
+
 map::CustomObjects::Modification ObjectData::unitToObjectModification(const map::CustomUnits::Modification& modification) const
 {
 	map::CustomObjects::Modification result(this->type());
@@ -594,6 +631,31 @@ map::CustomUnits ObjectData::customUnits() const
 map::CustomObjects ObjectData::customObjects() const
 {
 	map::CustomObjects objects = map::CustomObjects(map::CustomObjects::Type::Units);
+
+	for (Objects::const_iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
+	{
+		map::CustomObjects::Object object(this->type());
+		// TODO which one is the custom id
+		object.setOriginalId(map::stringToId(iterator.key().first.toStdString()));
+		object.setCustomId(map::stringToId(iterator.key().second.toStdString()));
+
+		foreach (map::CustomObjects::Modification modification, iterator.value())
+		{
+			object.modifications().push_back(new map::CustomObjects::Modification(modification));
+		}
+
+		/*
+		 * No custom ID means it is a standard unit.
+		 */
+		if (iterator.key().second.isEmpty())
+		{
+			objects.originalTable().push_back(new map::CustomObjects::Object(object));
+		}
+		else
+		{
+			objects.customTable().push_back(new map::CustomObjects::Object(object));
+		}
+	}
 
 	return objects;
 }

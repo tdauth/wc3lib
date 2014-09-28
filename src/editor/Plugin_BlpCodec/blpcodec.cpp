@@ -46,7 +46,7 @@ void BlpCodec::shutdown()
 {
 	if(m_self != 0)
 	{
-		Ogre::Codec::unRegisterCodec(m_self);
+		Ogre::Codec::unregisterCodec(m_self);
 		OGRE_DELETE m_self;
 		m_self = 0;
 	}
@@ -62,12 +62,12 @@ Ogre::String BlpCodec::getDataType() const
 	return Ogre::String();
 }
 
-Ogre::DataStreamPtr BlpCodec::code(Ogre::MemoryDataStreamPtr &input, CodecDataPtr &pData) const
+Ogre::DataStreamPtr BlpCodec::encode(Ogre::MemoryDataStreamPtr &input, CodecDataPtr &pData) const
 {
 	OGRE_EXCEPT(Ogre::Exception::ERR_NOT_IMPLEMENTED, _("BLP encoding not supported"), "BlpCodec::code");
 }
 
-void BlpCodec::codeToFile(Ogre::MemoryDataStreamPtr &input, const Ogre::String &outFileName, CodecDataPtr &pData) const
+void BlpCodec::encodeToFile(Ogre::MemoryDataStreamPtr &input, const Ogre::String &outFileName, CodecDataPtr &pData) const
 {
 	OGRE_EXCEPT(Ogre::Exception::ERR_NOT_IMPLEMENTED, _("BLP encoding not supported"), "BlpCodec::codeToFile");
 }

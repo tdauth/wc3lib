@@ -63,6 +63,21 @@ ModelEditor::ModelEditor(Root *root, class MpqPriorityList *source, QWidget *par
 , m_teamColor(TeamColor::Red)
 , m_teamGlow(TeamColor::Red)
 {
+	readSettings();
+
+	// Update required files if started as stand-alone module
+	if (!hasEditor())
+	{
+		try
+		{
+			source->sharedData()->refreshWorldEditorStrings(this);
+		}
+		catch (wc3lib::Exception &e)
+		{
+			KMessageBox::error(0, i18n("Error when loading default files: %1", e.what()));
+		}
+	}
+
 	Module::setupUi();
 	//this->modelView()->setMinimumSize(QSize(640, 480));
 	//this->setAcceptDrops(true); // enable drag & drop
@@ -121,10 +136,14 @@ void ModelEditor::openFile()
 	KUrl::List urls = KFileDialog::getOpenUrls(this->m_recentUrl, i18n("*.mdl|Blizzard Model (*.mdl)\n*.mdx|Compressed Blizzard Model (*.mdx)\n*|All files (*)"), this);
 
 	if (urls.isEmpty())
+	{
 		return;
+	}
 
 	foreach (const KUrl &url, urls)
+	{
 		this->openUrl(url);
+	}
 }
 
 void ModelEditor::saveFile()
@@ -139,7 +158,9 @@ void ModelEditor::saveFile()
 	KUrl url = KFileDialog::getSaveUrl(this->m_recentUrl, i18n("*.mdl|Blizzard Model (*.mdl)\n*.mdx|Compressed Blizzard Model (*.mdx)\n*.mesh|OGRE mesh (*.mesh)\n*|All files (*)"), this);
 
 	if (url.isEmpty())
+	{
 		return;
+	}
 
 	try
 	{
@@ -200,9 +221,13 @@ void ModelEditor::showStats()
 	}
 
 	if (this->m_renderStatsWidget->isVisible())
+	{
 		m_showStatsAction->setText(i18n("Show Stats"));
+	}
 	else
+	{
 		m_showStatsAction->setText(i18n("Hide Stats"));
+	}
 
 
 	this->m_renderStatsWidget->setVisible(!this->m_renderStatsWidget->isVisible());
@@ -337,14 +362,16 @@ void ModelEditor::showCollisionShapes()
 void ModelEditor::changeTeamColor()
 {
 	if (m_teamColorDialog == 0)
+	{
 		m_teamColorDialog = new TeamColorDialog(this);
+	}
 
 	m_teamColorDialog->setTeamColor(teamColor());
 
-	//m_teamColorDialog->show();
-
 	if (m_teamColorDialog->exec() == TeamColorDialog::Accepted)
+	{
 		setTeamColor(m_teamColorDialog->teamColor());
+	}
 
 	/*
 	QColor color;
@@ -357,14 +384,16 @@ void ModelEditor::changeTeamColor()
 void ModelEditor::changeTeamGlow()
 {
 	if (m_teamGlowDialog == 0)
+	{
 		m_teamGlowDialog = new TeamColorDialog(this);
+	}
 
 	m_teamGlowDialog->setTeamColor(teamGlow());
 
-	//m_teamGlowDialog->show();
-
 	if (m_teamGlowDialog->exec() == TeamColorDialog::Accepted)
+	{
 		setTeamGlow(m_teamColorDialog->teamColor());
+	}
 
 	/*
 	QColor color;
@@ -386,7 +415,9 @@ void ModelEditor::dragEnterEvent(QDragEnterEvent *event)
 {
 	/// @todo If it's an MDLX file event->acceptProposedAction();
 	if (event->mimeData()->hasUrls())
+	{
 		event->acceptProposedAction();
+	}
 }
 
 void ModelEditor::dropEvent(QDropEvent *event)
@@ -395,7 +426,9 @@ void ModelEditor::dropEvent(QDropEvent *event)
 	if (event->mimeData()->hasUrls())
 	{
 		foreach (QUrl url, event->mimeData()->urls())
+		{
 			this->openUrl(url);
+		}
 
 		event->accept();
 	}

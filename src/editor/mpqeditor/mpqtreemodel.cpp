@@ -114,7 +114,11 @@ void MpqTreeModel::addArchive(mpq::Archive* archive, const mpq::Listfile::Entrie
 				dirItem->setArchive(archive);
 				filePath += tokens[i];
 				dirItem->setFilePath(filePath);
-				dirItem->setIcon(this->source()->sharedData()->worldEditDataIcon("UEIcon_UnitCategory", "WorldEditArt", 0));
+
+				if (this->source()->sharedData()->worldEditData().get() != 0)
+				{
+					dirItem->setIcon(this->source()->sharedData()->worldEditDataIcon("UEIcon_UnitCategory", "WorldEditArt", 0));
+				}
 
 				iterator = dirItems.insert(key, dirItem);
 			}

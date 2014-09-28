@@ -166,6 +166,11 @@ class KDE_EXPORT WarcraftIIIShared
 		 */
 		QIcon worldEditDataIcon(const QString &key, const QString &group, QWidget *window);
 
+		/**
+		 * \return Returns all internally stored icons.
+		 */
+		const Icons& icons() const;
+
 		void refreshWorldEditData(QWidget *window, const KUrl &url = KUrl("UI/WorldEditData.txt"));
 		const WorldEditDataPtr& worldEditData() const;
 
@@ -213,6 +218,11 @@ inline MpqPriorityList* WarcraftIIIShared::source() const
 inline const WarcraftIIIShared::WorldEditorStringsPtr& WarcraftIIIShared::worldEditorStrings() const
 {
 	return this->m_worldEditorStrings;
+}
+
+inline const WarcraftIIIShared::Icons& WarcraftIIIShared::icons() const
+{
+	return this->m_icons;
 }
 
 inline const WarcraftIIIShared::WorldEditorStringsPtr& WarcraftIIIShared::worldEditorGameStrings() const

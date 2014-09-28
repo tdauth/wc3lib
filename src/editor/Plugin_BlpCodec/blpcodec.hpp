@@ -59,18 +59,18 @@ class KDE_EXPORT BlpCodec : public Ogre::ImageCodec
 		 * \copydoc Ogre::ImageCodec::code
 		 * \todo Is still not supported due to complexity of implementation (you have to support all other formats).
 		 */
-		virtual Ogre::DataStreamPtr code(Ogre::MemoryDataStreamPtr &input, CodecDataPtr &pData) const;
+		virtual Ogre::DataStreamPtr encode(Ogre::MemoryDataStreamPtr &input, CodecDataPtr &pData) const override;
 		/**
 		 * \copydoc Ogre::ImageCodec::codeToFile
 		 * \todo Is still not supported due to complexity of implementation (you have to support all other formats).
 		 */
-		virtual void codeToFile(Ogre::MemoryDataStreamPtr &input, const Ogre::String &outFileName, CodecDataPtr &pData) const;
+		virtual void encodeToFile(Ogre::MemoryDataStreamPtr &input, const Ogre::String &outFileName, CodecDataPtr &pData) const override;
 		/// \todo Support alpha value and paletted image.
 		virtual DecodeResult decode(const blp::Blp &blp) const;
 		/**
 		 * \copydoc Ogre::ImageCodec::decode
 		 */
-		virtual DecodeResult decode(Ogre::DataStreamPtr &input) const;
+		virtual DecodeResult decode(Ogre::DataStreamPtr &input) const override;
 		/**
 		 * \copydoc Ogre::ImageCodec::getType
 		 */

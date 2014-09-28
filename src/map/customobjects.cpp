@@ -32,6 +32,14 @@ CustomObjects::Object::Object(CustomObjects::Type type) : m_type(type)
 {
 }
 
+CustomObjects::Object::Object(const CustomObjects::Object &other) :  CustomUnits::Unit(other), m_type(other.type())
+{
+}
+
+CustomObjects::Object::~Object()
+{
+}
+
 CustomUnits::Modification* CustomObjects::Object::createModification() const
 {
 	return new CustomObjects::Modification(this->type());
@@ -40,6 +48,15 @@ CustomUnits::Modification* CustomObjects::Object::createModification() const
 CustomObjects::Modification::Modification(CustomObjects::Type type) : m_type(type), m_level(0), m_data(0)
 {
 }
+
+CustomObjects::Modification::Modification(const CustomObjects::Modification &other) : CustomUnits::Modification(other),  m_type(other.type()), m_level(other.level()), m_data(other.data())
+{
+}
+
+CustomObjects::Modification::~Modification()
+{
+}
+
 
 std::streamsize CustomObjects::Modification::read(InputStream &istream)
 {

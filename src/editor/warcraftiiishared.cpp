@@ -41,6 +41,8 @@ WarcraftIIIShared::WarcraftIIIShared(MpqPriorityList *source) : m_source(source)
 void WarcraftIIIShared::refreshDefaultFiles(QWidget *window)
 {
 	this->refreshWorldEditorStrings(window);
+	this->refreshWorldEditorGameStrings(window);
+	this->refreshWorldEditData(window);
 	this->refreshTriggerStrings(window);
 	this->refreshTriggerData(window);
 }

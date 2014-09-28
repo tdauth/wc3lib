@@ -55,15 +55,18 @@ UnitSelectionDialog::UnitSelectionDialog(MpqPriorityList *source, UnitData *unit
 
 	connect(this->m_meleeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeMelee(int)));
 
-	map::Txt::Section *tilesetsSection = this->source()->sharedData()->worldEditData()->section("TileSets");
-
-	if (tilesetsSection != 0)
+	if (this->source()->sharedData()->worldEditData().get() != 0)
 	{
-		for (std::size_t i = 0; i < tilesetsSection->entries.size(); ++i)
+		map::Txt::Section *tilesetsSection = this->source()->sharedData()->worldEditData()->section("TileSets");
+
+		if (tilesetsSection != 0)
 		{
-			const map::Txt::Entry &entry = tilesetsSection->entries[i];
-			QStringList list = QString::fromUtf8(entry.second.c_str()).split(',');
-			m_tilesetComboBox->addItem(source->sharedData()->tr(list[0]), QChar(entry.first[0]));
+			for (std::size_t i = 0; i < tilesetsSection->entries.size(); ++i)
+			{
+				const map::Txt::Entry &entry = tilesetsSection->entries[i];
+				QStringList list = QString::fromUtf8(entry.second.c_str()).split(',');
+				m_tilesetComboBox->addItem(source->sharedData()->tr(list[0]), QChar(entry.first[0]));
+			}
 		}
 	}
 

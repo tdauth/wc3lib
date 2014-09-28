@@ -55,14 +55,14 @@ void MetaData::load()
 
 	if (!this->source()->download(this->url(), filePath, 0))
 	{
-		throw Exception(KIO::NetAccess::lastErrorString().toUtf8().constData());
+		throw Exception(boost::format(_("Error on downloading file %1%: %2%")) % this->url().toLocalFile().toUtf8().constData() % KIO::NetAccess::lastErrorString().toUtf8().constData());
 	}
 
 	ifstream in(filePath.toUtf8().constData());
 
 	if (!in)
 	{
-		throw Exception(boost::format(_("Unable to open file %1%")) % filePath.constData());
+		throw Exception(boost::format(_("Unable to open downloaded file %1%")) % filePath.constData());
 	}
 
 	/*

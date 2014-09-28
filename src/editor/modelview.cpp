@@ -436,6 +436,8 @@ void ModelView::initRenderWindow()
 	// Finally create our window.
 	try
 	{
+		// TODO segmentation fault occurs with the useflag "threads" in OGRE:
+		// http://www.ogre3d.org/forums/viewtopic.php?f=2&t=70021
 		this->m_renderWindow = this->m_root->createRenderWindow(name(), width(), height(), false, &params);
 	}
 	catch (const Ogre::RenderingAPIException &exception) // cancel

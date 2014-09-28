@@ -96,7 +96,7 @@ Editor::Editor(Root *root, QWidget *parent, Qt::WindowFlags f) : KMainWindow(par
 		KMessageBox::error(this, e.what());
 	}
 
-	class KAction *action = new KAction(KIcon(":/actions/newmap.png"), i18n("New map ..."), this);
+	KAction *action = new KAction(KIcon(":/actions/newmap.png"), i18n("New map ..."), this);
 	action->setShortcut(KShortcut(i18n("Ctrl+N")));
 	connect(action, SIGNAL(triggered()), this, SLOT(newMap()));
 	this->m_actionCollection->addAction("newmap", action);
@@ -169,11 +169,6 @@ Editor::~Editor()
 	foreach (Maps::value_type map, maps())
 	{
 		delete map;
-	}
-
-	if (m_root != 0)
-	{
-		delete m_root;
 	}
 }
 

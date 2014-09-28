@@ -70,6 +70,9 @@ class CustomObjects : public CustomUnits
 		{
 			public:
 				Modification(CustomObjects::Type type);
+				Modification(const Modification &other);
+				virtual ~Modification();
+
 				CustomObjects::Type type() const;
 
 				void setLevel(int32 level);
@@ -85,8 +88,8 @@ class CustomObjects : public CustomUnits
 				 */
 				int32 data() const;
 
-				std::streamsize read(InputStream &istream);
-				std::streamsize write(OutputStream &ostream) const;
+				virtual std::streamsize read(InputStream &istream) override;
+				virtual std::streamsize write(OutputStream &ostream) const override;
 
 			protected:
 				CustomObjects::Type m_type;
@@ -98,11 +101,13 @@ class CustomObjects : public CustomUnits
 		{
 			public:
 				Object(CustomObjects::Type type);
+				Object(const Object &other);
+				virtual ~Object();
+
 				CustomObjects::Type type() const;
 
 			protected:
-				/// \todo C++11 override
-				virtual CustomUnits::Modification* createModification() const;
+				virtual CustomUnits::Modification* createModification() const override;
 
 				CustomObjects::Type m_type;
 		};
@@ -110,16 +115,15 @@ class CustomObjects : public CustomUnits
 		CustomObjects(Type type);
 		Type type() const;
 
-		virtual const byte* fileName() const;
+		virtual const byte* fileName() const override;
 		/**
 		 * For The Frozen Throne the latest version became 2 instead of 1.
 		 * \note The specification http://wc3lib.org/spec/InsideTheW3M.html states that the version is still 1. According to tests this is wrong.
 		 */
-		virtual uint32 latestFileVersion() const;
+		virtual uint32 latestFileVersion() const override;
 
 	protected:
-		/// \todo C++11 override
-		virtual Unit* createUnit() const;
+		virtual Unit* createUnit() const override;
 
 		Type m_type;
 };
