@@ -25,6 +25,7 @@
 
 #include "mpqtreemodel.hpp"
 #include "mpqtreeitem.hpp"
+#include "mpqeditor.hpp"
 #include "../mpqprioritylist.hpp"
 
 namespace wc3lib
@@ -33,7 +34,7 @@ namespace wc3lib
 namespace editor
 {
 
-MpqTreeModel::MpqTreeModel(QObject* parent) : QAbstractItemModel(parent)
+MpqTreeModel::MpqTreeModel(MpqPriorityList *source, QObject* parent) : QAbstractItemModel(parent), m_source(source)
 {
 }
 
@@ -48,7 +49,7 @@ MpqTreeModel::~MpqTreeModel()
 void MpqTreeModel::addArchive(mpq::Archive* archive, const mpq::Listfile::Entries &entries)
 {
 	/*
-	 * Create archive row.
+	 * Create archive row at the end of the current top level items.
 	 */
 	const int archiveRow = m_topLevelItems.count();
 
@@ -57,6 +58,9 @@ void MpqTreeModel::addArchive(mpq::Archive* archive, const mpq::Listfile::Entrie
 		throw Exception(_("Unable to add archive."));
 	}
 
+	/*
+	 * Store the index for all items which need it as parent when added.
+	 */
 	const QModelIndex archiveIndex = index(archiveRow, 0, QModelIndex());
 
 	if (!archiveIndex.isValid())
@@ -64,6 +68,9 @@ void MpqTreeModel::addArchive(mpq::Archive* archive, const mpq::Listfile::Entrie
 		throw Exception(_("Unable to get archive item."));
 	}
 
+	/*
+	 * Store the item as parent for all items which need it as parent when added.
+	 */
 	MpqTreeItem *archiveItem = this->item(archiveIndex);
 
 	if (archiveItem == 0)
@@ -71,91 +78,109 @@ void MpqTreeModel::addArchive(mpq::Archive* archive, const mpq::Listfile::Entrie
 		throw Exception(_("Unable to get archive item."));
 	}
 
+	/*
+	 * Mark the item as archive and set all MPQ data.
+	 */
 	archiveItem->setIsArchive(true);
 	archiveItem->setArchive(archive);
 	archiveItem->setEntries(entries);
 
 	/*
 	 * Add all items from the archive.
+	 * TODO create first directory items which should be much faster. Then add all files.
 	 */
 	typedef QHash<QString, MpqTreeItem*> DirectoryItems;
 	DirectoryItems dirItems;
+	const mpq::Listfile::Entries dirEntries = mpq::Listfile::caseSensitiveDirEntries(entries, "", true);
+
+	BOOST_FOREACH(mpq::Listfile::Entries::const_reference ref, dirEntries)
+	{
+		const QString dirPath = QString::fromUtf8(ref.c_str());
+		const QString dirPathKey = dirPath.toUpper();
+
+		if (dirItems.find(dirPathKey) == dirItems.end())
+		{
+			// TODO splitting it up and constructing it in var "dirPath" is more expensive than using an index and sub string.
+			const QStringList tokens = dirPath.split('\\');
+			QModelIndex parent = archiveIndex;
+			MpqTreeItem *parentItem = archiveItem;
+			QString dirPath;
+
+			for (int i = 0; i < tokens.size(); ++i)
+			{
+				if (i != 0)
+				{
+					dirPath += '\\';
+				}
+
+				dirPath += tokens[i];
+				const QString dirPathKey = dirPath.toUpper();
+				DirectoryItems::iterator iterator = dirItems.find(dirPathKey);
+
+				if (iterator == dirItems.end())
+				{
+					const int dirRow = parentItem->childCount();
+					insertRows(dirRow, 1, parent);
+
+					const QModelIndex dirIndex = index(dirRow, 0, parent);
+					MpqTreeItem *dirItem = item(dirIndex);
+					dirItem->setIsFolder(true);
+					dirItem->setArchive(archive);
+					dirItem->setFilePath(dirPath);
+
+					qDebug() << "Dir item:" << dirPath;
+					dirItems.insert(dirPathKey, dirItem);
+					parent = dirIndex;
+					parentItem = this->item(parent);
+				}
+				else
+				{
+					parentItem = iterator.value();
+					parent = parentItem->index(this);
+				}
+			}
+		}
+	}
 
 	BOOST_FOREACH(mpq::Listfile::Entries::const_reference ref, entries)
 	{
-		const QString entryPath = QString::fromUtf8(ref.c_str());
-		const QStringList tokens = entryPath.split('\\');
-		QModelIndex parent = index(archiveRow, 0);
-		MpqTreeItem *parentItem = this->item(parent);
+		const QString filePath = QString::fromUtf8(ref.c_str());
+		const QString dirpath = QString::fromUtf8(mpq::Listfile::dirPath(ref).c_str());
+		MpqTreeItem *parentItem = 0;
 
-		if (parentItem == 0)
+		if (!dirpath.isEmpty())
 		{
-			throw Exception(_("Error on getting parent item."));
-		}
+			const QString dirPathKey = dirpath.toUpper();
+			DirectoryItems::iterator iterator = dirItems.find(dirPathKey);
 
-		QString filePath;
-
-		for (int i = 0; i < tokens.size() - 1; ++i)
-		{
-			const QString key = tokens[i].toUpper();
-			DirectoryItems::iterator iterator = dirItems.find(key);
-
-			/*
-			 * If directory token does not already exist create the directory row at the correct dir tree level.
-			 */
-			if (iterator == dirItems.end())
+			if (iterator != dirItems.end())
 			{
-				const int dirRow = parentItem->childCount();
-				insertRows(dirRow, 1, parent);
-
-				const QModelIndex dirIndex = index(dirRow, 0, parent);
-				MpqTreeItem *dirItem = item(dirIndex);
-				dirItem->setIsFolder(true);
-				dirItem->setArchive(archive);
-				filePath += tokens[i];
-				dirItem->setFilePath(filePath);
-
-				if (this->source()->sharedData()->worldEditData().get() != 0)
-				{
-					dirItem->setIcon(this->source()->sharedData()->worldEditDataIcon("UEIcon_UnitCategory", "WorldEditArt", 0));
-				}
-
-				iterator = dirItems.insert(key, dirItem);
+				parentItem = iterator.value();
 			}
 			else
 			{
-				filePath += iterator.value()->name();
+				qDebug() << "Missing dir" << dirpath;
 			}
-
-			parent = iterator.value()->index(this);
-			parentItem = iterator.value();
-			filePath += '\\';
 		}
-
-		filePath += tokens.back();
-
-		const int fileRow = parentItem->childCount();
-		insertRows(fileRow, 1, parent);
-		const QModelIndex fileIndex = this->index(fileRow, 0, parent);
-		MpqTreeItem *fileItem = this->item(fileIndex);
-		fileItem->setIsFile(true);
-		fileItem->setArchive(archive);
-		fileItem->setFilePath(filePath);
-
 		/*
-		 * Set MIME type icon to show which file type it is.
+		 * Top level file
 		 */
-		KMimeType::Ptr mimeType = KMimeType::findByPath(filePath);
-
-		if (!mimeType.isNull() && !mimeType->iconName().isEmpty())
+		else
 		{
-			// TODO performance might be improved?
-			KIconLoader iconLoader;
-			//qDebug() << "Has icon:" << mimeType->iconName();
-			QPixmap pixmap = iconLoader.loadMimeTypeIcon(mimeType->iconName(), KIconLoader::Small);
-			fileItem->setIcon(QIcon(pixmap));
+			parentItem = archiveItem;
 		}
 
+		if (parentItem != 0)
+		{
+			QModelIndex parent = parentItem->index(this);
+			const int fileRow =  parentItem->childCount();
+			insertRows(fileRow, 1, parent);
+			const QModelIndex fileIndex = this->index(fileRow, 0, parent);
+			MpqTreeItem *fileItem = this->item(fileIndex);
+			fileItem->setIsFile(true);
+			fileItem->setArchive(archive);
+			fileItem->setFilePath(filePath);
+		}
 		//qDebug() << "File" << filePath << "with parent" << parentItem->name();
 	}
 }
@@ -190,7 +215,30 @@ QVariant MpqTreeModel::data(const QModelIndex& index, int role) const
 
 			case Qt::DecorationRole:
 			{
-				return item->icon();
+				if (item->isFolder())
+				{
+					if (this->source() != 0 && this->source()->sharedData().get() != 0 && this->source()->sharedData()->worldEditData().get() != 0)
+					{
+						return this->source()->sharedData()->worldEditDataIcon("UEIcon_UnitCategory", "WorldEditArt", 0);
+					}
+
+					// TODO set other icon when expanded
+				}
+				else
+				{
+					/*
+					 * Set MIME type icon to show which file type it is.
+					 */
+					KMimeType::Ptr mimeType = KMimeType::findByPath(item->filePath());
+
+					if (!mimeType.isNull() && !mimeType->iconName().isEmpty())
+					{
+						//qDebug() << "Has icon:" << mimeType->iconName();
+						QPixmap pixmap = m_iconLoader.loadMimeTypeIcon(mimeType->iconName(), KIconLoader::Small);
+
+						return QIcon(pixmap);
+					}
+				}
 			}
 		}
 	}
@@ -311,7 +359,7 @@ bool editor::MpqTreeModel::insertRows(int row, int count, const QModelIndex& par
 	return true;
 }
 
-bool editor::MpqTreeModel::removeRows(int row, int count, const QModelIndex& parent)
+bool MpqTreeModel::removeRows(int row, int count, const QModelIndex& parent)
 {
 	beginRemoveRows(parent, row, row + count - 1);
 
@@ -338,16 +386,8 @@ bool editor::MpqTreeModel::removeRows(int row, int count, const QModelIndex& par
 			if (i < topLevelItems().count())
 			{
 				item = topLevelItems().takeAt(row);
+				qDebug() << "Removing top level item" << item->filePath();
 			}
-		}
-
-		if (parentItem != 0)
-		{
-			delete parentItem;
-		}
-		else
-		{
-			return false;
 		}
 	}
 
@@ -381,6 +421,19 @@ QVariant editor::MpqTreeModel::headerData(int section, Qt::Orientation orientati
 	}
 
 	return QVariant();
+}
+
+MpqTreeItem* editor::MpqTreeModel::topLevelItem(const mpq::Archive* archive)
+{
+	foreach (MpqTreeItem *item, this->topLevelItems())
+	{
+		if (item->archive() == archive)
+		{
+			return item;
+		}
+	}
+
+	return 0;
 }
 
 }

@@ -23,6 +23,8 @@
 
 #include <QAbstractItemModel>
 
+#include <KIconLoader>
+
 #include "../../mpq.hpp"
 
 namespace wc3lib
@@ -46,7 +48,7 @@ class MpqTreeModel : public QAbstractItemModel
 	public:
 		typedef QList<MpqTreeItem*> FileItems;
 
-		MpqTreeModel(QObject *parent = 0);
+		MpqTreeModel(MpqPriorityList *source, QObject *parent = 0);
 		virtual ~MpqTreeModel();
 
 		virtual QVariant data(const QModelIndex& index, int role) const override;
@@ -83,9 +85,13 @@ class MpqTreeModel : public QAbstractItemModel
 		 * @}
 		 */
 
+		MpqTreeItem* topLevelItem(const mpq::Archive *archive);
+
 	private:
 		MpqPriorityList *m_source;
 		FileItems m_topLevelItems;
+		// TODO performance might be improved? Cache the MIME type icons!
+		KIconLoader m_iconLoader;
 };
 
 inline void MpqTreeModel::setSource(MpqPriorityList* source)

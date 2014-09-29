@@ -68,10 +68,11 @@ MpqEditor::MpqEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f
 	Ui::MpqEditor::setupUi(widget);
 	this->centerLayout()->addWidget(widget);
 	//MpqTreeProxyModel *proxyModel = new MpqTreeProxyModel(this);
-	MpqTreeModel *treeModel = new MpqTreeModel(this);
-	//proxyModel->setSourceModel(treeModel);
-	//m_archivesTreeView->setModel(proxyModel);
-	m_archivesTreeView->setModel(treeModel);
+	MpqTreeModel *treeModel = new MpqTreeModel(this->source(), this);
+	MpqTreeProxyModel *proxyModel = new MpqTreeProxyModel(this);
+	proxyModel->setSourceModel(treeModel);
+	m_archivesTreeView->setModel(proxyModel);
+	this->m_filterProxySearchLine->setProxy(proxyModel);
 
 	setWindowTitle(tr("MPQ Editor"));
 
@@ -104,7 +105,7 @@ void MpqEditor::updateSelection()
 
 void MpqEditor::expandItem(const QModelIndex &item)
 {
-	MpqTreeItem *treeItem = this->treeModel()->item(item);
+	MpqTreeItem *treeItem = this->treeModel()->item(sortFilterModel()->mapToSource(item));
 
 	if (treeItem->isFolder())
 	{
@@ -118,7 +119,7 @@ void MpqEditor::expandItem(const QModelIndex &item)
 
 void MpqEditor::collapseItem(const QModelIndex &item)
 {
-	MpqTreeItem *treeItem = this->treeModel()->item(item);
+	MpqTreeItem *treeItem = this->treeModel()->item(sortFilterModel()->mapToSource(item));
 
 	if (treeItem->isFolder())
 	{
@@ -132,7 +133,8 @@ void MpqEditor::collapseItem(const QModelIndex &item)
 
 void MpqEditor::orderBySection(int logicalIndex)
 {
-	treeModel()->sort(logicalIndex,  m_archivesTreeView->header()->sortIndicatorOrder());
+	qDebug() << "Order by section" << logicalIndex;
+	sortFilterModel()->sort(logicalIndex,  m_archivesTreeView->header()->sortIndicatorOrder());
 }
 
 void MpqEditor::openFile(mpq::Archive& archive, const QString& filePath)
@@ -182,7 +184,7 @@ void MpqEditor::openFile(mpq::Archive& archive, const QString& filePath)
 
 void MpqEditor::doubleClickItem(const QModelIndex &index)
 {
-	MpqTreeItem *item = this->treeModel()->item(index);
+	MpqTreeItem *item = this->treeModel()->item(sortFilterModel()->mapToSource(index));
 
 	if (item->isFile())
 	{
@@ -207,7 +209,7 @@ void MpqEditor::showFileInfo()
 {
 	foreach (QModelIndex index, this->m_archivesTreeView->selectionModel()->selectedIndexes())
 	{
-		MpqTreeItem *item = this->treeModel()->item(index);
+		MpqTreeItem *item = this->treeModel()->item(sortFilterModel()->mapToSource(index));
 
 		if (item->isFile())
 		{
@@ -245,28 +247,53 @@ void MpqEditor::contextMenu(QPoint point)
 	contextMenu->popup(m_archivesTreeView->viewport()->mapToGlobal(point));
 }
 
-void MpqEditor::addRecentAction(const KUrl& url)
+void MpqEditor::addRecentAction(const KUrl &url)
 {
 	/*
 	 * Do not add entries twice in a history.
-	 *
-	 * TODO move action up.
 	 */
-	if (m_archiveHistory.indexOf(url) != -1)
+	const int index = m_archiveHistory.indexOf(url);
+	KUrl actualUrl = url;
+
+	qDebug() << "URL 0:" << actualUrl;
+
+	if (index != -1)
 	{
-		return;
+		actualUrl = m_archiveHistory.takeAt(index);
+		m_archiveHistoryActions->removeAction(m_archiveHistoryActions->action(index));
 	}
 
-	const int i = m_archiveHistory.size();
-	KAction *action = new KAction(url.toLocalFile(), this);
+	qDebug() << "URL 1:" << actualUrl;
+
+	KAction *action = new KAction(actualUrl.toLocalFile(), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(openRecentArchive()));
 	m_recentArchivesMenu->insertAction(m_recentArchivesSeparator, action);
-	m_archiveHistoryActions->addAction(QString("recent%1").arg(i), action);
-	m_archiveHistory.push_back(url);
+	// TODO fix i of m_archiveHistoryActions
+	m_archiveHistoryActions->addAction(actualUrl.toLocalFile(), action);
+	m_archiveHistory.push_back(actualUrl);
 }
 
 bool MpqEditor::openMpqArchive(const KUrl &url)
 {
+	// Do not open an archive twice.
+	Archives::iterator iterator = this->archives().find(url);
+
+	if (iterator != this->archives().end())
+	{
+		MpqTreeItem *item = this->treeModel()->topLevelItem(iterator->second);
+
+		if (item != 0)
+		{
+			this->m_archivesTreeView->setCurrentIndex(this->sortFilterModel()->mapFromSource(item->index(this->treeModel())));
+		}
+		else
+		{
+			qDebug() << "Missing archive item" << url;
+		}
+
+		return true;
+	}
+
 	if (listfilesDialog()->exec() == QDialog::Accepted)
 	{
 		mpq::Listfile::Entries listfileEntries = listfilesDialog()->checkedEntries();
@@ -337,16 +364,16 @@ bool MpqEditor::openMpqArchive(const KUrl &url)
 
 		qDebug() << "Full size:" << listfileEntries.size();
 
-		// TODO too slow
-		// TODO besides
-		//mpq::Listfile::Entries files = mpq::Listfile::caseSensitiveUniqueEntries(listfileEntries);
 		const mpq::Listfile::Entries files = mpq::Listfile::existingEntries(listfileEntries, *archive);
 
 		qDebug() << "Filtered size:" << files.size();
 
 		this->treeModel()->addArchive(archive.get(), files);
-		m_archives.push_back(archive);
+		m_archives.insert(url, archive);
 		addRecentAction(url);
+
+		// call after inserting data for better performance
+		this->m_archivesTreeView->setSortingEnabled(true);
 
 		return true;
 	}
@@ -379,7 +406,7 @@ void MpqEditor::openRecentArchive()
 	{
 		const int index = this->m_archiveHistoryActions->actions().indexOf(action);
 
-		if (index != -1)
+		if (index != -1 && index < this->m_archiveHistory.size() && index >= 0)
 		{
 			openMpqArchive(this->m_archiveHistory[index]);
 		}
@@ -408,9 +435,9 @@ void MpqEditor::closeMpqArchives()
 
 	foreach (QModelIndex index, selection->selectedIndexes())
 	{
-		MpqTreeItem *item = this->treeModel()->item(index);
+		MpqTreeItem *item = this->treeModel()->item(this->sortFilterModel()->mapToSource(index));
 		mpq::Archive *archive = item->archive();
-		Archives::iterator iterator = std::find_if(this->m_archives.begin(), this->m_archives.end(), [&archive](Archives::const_reference value) { return &value == archive; });
+		Archives::iterator iterator = std::find_if(this->m_archives.begin(), this->m_archives.end(), [&archive](Archives::reference value)->bool { return value.second == archive; });
 
 		if (iterator != this->m_archives.end())
 		{
@@ -424,7 +451,7 @@ void MpqEditor::closeAllMpqArchives()
 {
 	for (Archives::iterator iterator = this->m_archives.begin(); iterator != this->m_archives.end(); iterator = this->m_archives.erase(iterator))
 	{
-		this->treeModel()->removeArchive(&(*iterator));
+		this->treeModel()->removeArchive(iterator->second);
 	}
 
 	this->m_archives.clear();
@@ -444,7 +471,7 @@ void MpqEditor::extractFiles()
 
 	if (items.size() == 1)
 	{
-		MpqTreeItem *item = this->treeModel()->item(items.first());
+		MpqTreeItem *item = this->treeModel()->item(sortFilterModel()->mapToSource(items.first()));
 
 		if (item != 0)
 		{
@@ -464,25 +491,35 @@ void MpqEditor::extractFiles()
 			if (!url.isEmpty())
 			{
 				mpq::Archive *archive = item->archive();
-				bool result = false;
+				MpqTreeItem *archiveItem = this->treeModel()->topLevelItem(archive);
 
-				if (item->isFolder())
+				if (archiveItem != 0)
 				{
-					// TODO valid dir entries, use entries of archvie
-					const mpq::Listfile::Entries dirEntries = mpq::Listfile::caseSensitiveDirEntries(item->entries(), item->filePath().toUtf8().constData(), true);
-					result = extractDir(filePath, *archive, url.toLocalFile(), dirEntries);
+					bool result = false;
+
+					if (item->isFolder())
+					{
+						// TODO valid dir entries, use entries of archvie
+						const QString prefix = item->filePath() + '\\';
+						const mpq::Listfile::Entries fileEntries = mpq::Listfile::caseSensitiveFileEntries(archiveItem->entries(), prefix.toUtf8().constData(), true);
+						result = extractDir(filePath, *archive, url.toLocalFile(), fileEntries);
+					}
+					else
+					{
+						result = extractFile(filePath, *archive, url.toLocalFile());
+					}
+
+					/*
+					* Update extraction URL path on success.
+					*/
+					if (result)
+					{
+						m_extractUrl = url.directory();
+					}
 				}
 				else
 				{
-					result = extractFile(filePath, *archive, url.toLocalFile());
-				}
-
-				/*
-				 * Update extraction URL path on success.
-				 */
-				if (result)
-				{
-					m_extractUrl = url.directory();
+					KMessageBox::error(this, i18n("Missing archive item."));
 				}
 			}
 		}
@@ -497,7 +534,7 @@ void MpqEditor::extractFiles()
 
 			foreach (QModelIndex index, items)
 			{
-				MpqTreeItem *item = this->treeModel()->item(index);
+				MpqTreeItem *item = this->treeModel()->item(sortFilterModel()->mapToSource(index));
 
 				/*
 				 * Is the item of an open MPQ archive.
@@ -622,8 +659,13 @@ bool MpqEditor::extractDir(const QString &path, mpq::Archive &archive, const QSt
 				{
 					string relativeFilePath = ref;
 					mpq::Listfile::toNativePath(relativeFilePath);
+
+					qDebug() << "relative file path 1:" << relativeFilePath.c_str();
+
 					// cut directory path to get relative path.
 					relativeFilePath = relativeFilePath.substr(path.size());
+
+					qDebug() << "relative file path 2:" << relativeFilePath.c_str();
 
 					boost::filesystem::path fileTarget = target.toUtf8().constData();
 					fileTarget /= dirname.toUtf8().constData();
@@ -632,10 +674,10 @@ bool MpqEditor::extractDir(const QString &path, mpq::Archive &archive, const QSt
 					boost::filesystem::path relativeDirPath = relativeFilePath;
 					relativeDirPath.remove_filename();
 
+					qDebug() << "relative file path:" << relativeFilePath.c_str();
+
 					if (parentDir.mkpath(relativeDirPath.c_str()))
 					{
-						qDebug() << "relative file path:" << relativeFilePath.c_str();
-
 						qDebug() << "Extract entry:" << ref.c_str();
 						qDebug() << "Extract target:" << fileTarget.c_str();
 
@@ -672,7 +714,7 @@ bool MpqEditor::extractDir(const QString &path, mpq::Archive &archive, const QSt
 	return false;
 }
 
-bool MpqEditor::extractFile(const QString &path, mpq::Archive &archive, const QString& target)
+bool MpqEditor::extractFile(const QString &path, mpq::Archive &archive, const QString &target)
 {
 	mpq::File file = archive.findFile(path.toStdString());
 
@@ -835,8 +877,16 @@ void MpqEditor::readSettings()
 	{
 		settings.setArrayIndex(i);
 		const KUrl url = KUrl(settings.value("url").toByteArray());
-		qDebug() << "Url " << i << ":" << url;
-		addRecentAction(url);
+
+		if (url.isValid())
+		{
+			qDebug() << "Url " << i << ":" << url;
+			addRecentAction(url);
+		}
+		else
+		{
+			qDebug() << "Invalid URL" << i << url;
+		}
 	}
 
 	settings.endArray();

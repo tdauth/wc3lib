@@ -64,65 +64,82 @@ Listfile::Entries Listfile::entries(const string &content)
 	return result;
 }
 
-Listfile::Entries Listfile::caseSensitiveFileEntries(const Listfile::Entries& entries, const string& prefix, bool recursive)
+Listfile::CaseSensitiveEntries Listfile::caseSensitiveEntries(const Listfile::Entries &entries)
 {
-	/**
-	 * Uses the upper case file path as key since listfile entries are not case sensitive.
-	 * The value is still case sensitive and should be the first occurence of the path in a listfile.
-	 */
-	typedef std::map<string, string> UniqueEntries;
-	UniqueEntries uniqueEntries;
+	CaseSensitiveEntries result;
+
+	BOOST_FOREACH(Entries::const_reference ref, entries)
+	{
+		/*
+		 * Split relative path up into directory paths and replace the single dirs by the alread found ones.
+		 */
+		std::vector<string> pathTokens;
+		boost::algorithm::split(pathTokens, ref, boost::algorithm::is_any_of("\\"), boost::algorithm::token_compress_on);
+		stringstream sstream;
+
+		for (std::size_t i = 0; i < pathTokens.size(); ++i)
+		{
+			if (i != 0)
+			{
+				sstream << '\\';
+			}
+
+			const string value = pathTokens[i];
+			const string key = boost::to_upper_copy(value);
+			CaseSensitiveEntries::iterator iterator = result.find(key);
+
+			if (iterator == result.end())
+			{
+				//std::cerr << "Key: " << key << ", Value: " << value << std::endl;
+				iterator = result.insert(std::make_pair(key, value)).first;
+			}
+
+			sstream << iterator->second;
+			const string longValue = sstream.str();
+			const string longKey = boost::to_upper_copy(longValue);
+			iterator = result.find(longKey);
+
+			if (iterator == result.end())
+			{
+				//std::cerr << "Key: " << longKey << ", Value: " << longValue << std::endl;
+				iterator = result.insert(std::make_pair(longKey, longValue)).first;
+			}
+		}
+	}
+
+	return result;
+}
+
+Listfile::Entries Listfile::caseSensitiveFileEntries(const Listfile::Entries &entries, const string &prefix, bool recursive)
+{
+	const Listfile::CaseSensitiveEntries uniqueEntries = caseSensitiveEntries(entries);
 	Entries result;
-	result.reserve(entries.size());
 
 	BOOST_FOREACH(Entries::const_reference ref, entries)
 	{
 		if (prefix.empty() || (ref.size() > prefix.size() && boost::istarts_with(ref, prefix))) // paths are not case sensitive!
 		{
-			/*
-			 * Split relative path up into directory paths and replace the single dirs by the alread found ones.
-			 */
-			std::vector<string> pathTokens;
-			//string substring = ref.substr(prefix.size());
-			boost::algorithm::split(pathTokens, ref, boost::algorithm::is_any_of("\\"), boost::algorithm::token_compress_on);
+			const string::size_type index = ref.find_last_of('\\');
 
-			/*
-			 * If recursive is true all files which start with the prefix will be added.
-			 * Otherwise only entries in the directory of the prefix will be added, so the file name follows the prefix.
-			 */
-			if (recursive || (pathTokens.back() == ref.substr(prefix.size())))
+			if (recursive || index == string::npos)
 			{
-				ostringstream caseSensitiveEntry;
-				int i = 0;
-
-				BOOST_FOREACH(std::vector<string>::reference ref, pathTokens)
+				if (index != string::npos)
 				{
-					string upperRef = ref;
-					boost::to_upper(upperRef);
-					UniqueEntries::iterator uniqueEntryIterator = uniqueEntries.find(upperRef);
+					const string key = boost::to_upper_copy(ref);
+					const CaseSensitiveEntries::const_iterator iterator = uniqueEntries.find(key);
 
-					if (uniqueEntryIterator == uniqueEntries.end())
+					if (iterator != uniqueEntries.end())
 					{
-						uniqueEntryIterator = uniqueEntries.insert(std::make_pair(upperRef, ref)).first;
+						result.push_back(iterator->second);
 					}
-
-					/*
-					 * Add the case sensitive path token.
-					 */
-					caseSensitiveEntry << uniqueEntryIterator->second;
-
-					/*
-					 * Add file path separator to all tokens except for the last one to reproduce the file path with the correct cases.
-					 */
-					if (i < pathTokens.size() - 1)
-					{
-						caseSensitiveEntry << '\\';
-					}
-
-					++i;
 				}
-
-				result.push_back(caseSensitiveEntry.str());
+				/*
+				* Top level file path
+				*/
+				else
+				{
+					result.push_back(ref);
+				}
 			}
 		}
 	}
@@ -132,102 +149,52 @@ Listfile::Entries Listfile::caseSensitiveFileEntries(const Listfile::Entries& en
 
 Listfile::Entries Listfile::caseSensitiveDirEntries(const Listfile::Entries& entries, const string& prefix, bool recursive)
 {
-	/**
-	 * Uses the upper case file path as key since listfile entries are not case sensitive.
-	 * The value is still case sensitive and should be the first occurence of the path in a listfile.
+	const Listfile::CaseSensitiveEntries uniqueEntries = caseSensitiveEntries(entries);
+	/*
+	 * Store which directories have already been added to the result to keep directories unique.
 	 */
-	typedef std::map<string, string> TokenEntries;
-	TokenEntries tokenEntries;
-
-	/**
-	 * Stores all full dir paths in upper case.
-	 * This allows you to check if a dir entry does already exist which prevents you from creating the same entry multiple times.
-	 */
-	typedef std::set<string> DirEntries;
-	DirEntries dirEntries;
-
+	std::set<string> dirEntriesDone;
 	Entries result;
-	result.reserve(entries.size());
 
 	BOOST_FOREACH(Entries::const_reference ref, entries)
 	{
 		if (prefix.empty() || (ref.size() > prefix.size() && boost::istarts_with(ref, prefix))) // paths are not case sensitive!
 		{
-			/*
-			 * Start searching for the directory separator after the prefix.
-			 * This behaviour is expected by the user since he might not pass directory prefixes with the corresponding \ character at the end.
-			 */
-			std::size_t pos = prefix.size();
+			std::vector<string> pathTokens;
+			boost::algorithm::split(pathTokens, ref, boost::algorithm::is_any_of("\\"), boost::algorithm::token_compress_on);
+			stringstream sstream;
 
-			if (ref[pos] == '\\')
+			for (std::size_t i = 0; i < pathTokens.size() - 1; ++i)
 			{
-				pos++;
+				const string key = boost::to_upper_copy(pathTokens[i]);
+				const CaseSensitiveEntries::const_iterator iterator = uniqueEntries.find(key);
 
-				if (pos >= ref.size())
+				if (iterator != uniqueEntries.end())
 				{
-					break;
-				}
-			}
-
-			/*
-			 * Check if the whole directory entry does already exist.
-			 */
-			string::size_type index = ref.find_last_of('\\');
-
-			if (index != string::npos && index > pos)
-			{
-				/*
-				 * The whole directory path is stored with upper case in a set to mark it as already created.
-				 * If it does not exist in the set already it must be created for the first time.
-				 */
-				const string upperDirEntry = boost::to_upper_copy(ref.substr(pos, index - pos));
-
-				if (dirEntries.find(upperDirEntry) == dirEntries.end())
-				{
-					ostringstream caseSensitiveEntry;
-					/*
-					 * Store if it is the first token.
-					 * In this case no \ character is prepended.
-					 */
-					bool isFirst = true;
-
-					do
+					if (i > 0)
 					{
-						/*
-						 * Search for a directory separator and if found we have at least one token of the resulting directory path.
-						 * Other tokens will be added in the while loop using case sensitive entries from the map "tokenEntries".
-						 */
-						index = ref.find('\\', pos);
+						sstream << '\\';
+					}
 
-						if (index != string::npos)
+					sstream << iterator->second;
+
+					const string doneValue = sstream.str();
+
+					if ((doneValue.size() > prefix.size() && boost::istarts_with(doneValue, prefix)))
+					{
+						const string doneKey = boost::to_upper_copy(doneValue);
+						const std::set<string>::const_iterator doneIterator = dirEntriesDone.find(doneKey);
+
+						if (doneIterator == dirEntriesDone.cend())
 						{
-							const string token = ref.substr(pos, index - pos);
-							const string upperToken = boost::to_upper_copy(token);
-							TokenEntries::iterator iterator = tokenEntries.find(upperToken);
-
-							if (iterator == tokenEntries.end())
-							{
-								iterator = tokenEntries.insert(std::make_pair(upperToken, token)).first;
-							}
-
-							if (!isFirst)
-							{
-								caseSensitiveEntry << '\\';
-							}
-
-							caseSensitiveEntry << iterator->second;
-							isFirst = false;
-
-							/*
-							 * Update searching start position.
-							 */
-							pos = index + 1;
+							dirEntriesDone.insert(doneKey);
+							result.push_back(doneValue);
 						}
 					}
-					while (recursive && index != string::npos && pos < ref.size());
-
-					result.push_back(caseSensitiveEntry.str());
-					dirEntries.insert(upperDirEntry);
+				}
+				else
+				{
+					throw Exception();
 				}
 			}
 		}
@@ -250,20 +217,8 @@ Listfile::Entries Listfile::existingEntries(const Listfile::Entries& entries, mp
 		{
 			/*
 			 * Start searching for the directory separator after the prefix.
-			 * This behaviour is expected by the user since he might not pass directory prefixes with the corresponding \ character at the end.
 			 */
-			std::size_t pos = prefix.size();
-
-			if (ref[pos] == '\\')
-			{
-				pos++;
-
-				if (pos >= ref.size())
-				{
-					break;
-				}
-			}
-
+			const std::size_t pos = prefix.size();
 			/*
 			 * If the function does not list entries recursively they have to be files of the current directory level starting from the prefix.
 			 * This is checked by searching for another dir separator after the one of the prefix (if there was one).

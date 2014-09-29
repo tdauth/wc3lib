@@ -395,11 +395,21 @@ void MpqSlave::listDir(const KUrl &url)
 		allEntries = listfile.entries();
 	}
 
-	// only check for the existing files of the current directory
-	allEntries = mpq::Listfile::existingEntries(allEntries, *m_archive, archivePath.constData(), false);
+	/*
+	 * The filtering prefix must indicate that it is a directory.
+	 */
+	string prefix;
 
-	dirFileEntries = mpq::Listfile::caseSensitiveFileEntries(allEntries, archivePath.constData(), false);
-	dirDirectoryEntries = mpq::Listfile::caseSensitiveDirEntries(allEntries, archivePath.constData(), false);
+	if (!archivePath.isEmpty())
+	{
+		prefix = archivePath.constData() + '\\';
+	}
+
+	// only check for the existing files of the current directory
+	allEntries = mpq::Listfile::existingEntries(allEntries, *m_archive, prefix, false);
+
+	dirFileEntries = mpq::Listfile::caseSensitiveFileEntries(allEntries, prefix, false);
+	dirDirectoryEntries = mpq::Listfile::caseSensitiveDirEntries(allEntries, prefix, false);
 
 	/*
 	 * In the root directory there should be listed the extra files which are not

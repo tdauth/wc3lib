@@ -6,6 +6,7 @@
 #include <boost/foreach.hpp>
 
 #include "../listfile.hpp"
+#include "../archive.hpp"
 
 #ifndef BOOST_TEST_DYN_LINK
 #error Define BOOST_TEST_DYN_LINK for proper definition of main function.
@@ -63,7 +64,7 @@ BOOST_AUTO_TEST_CASE(CaseFileSensitiveEntries)
 	sstream <<
 	"Abilities"
 	";abilities"
-	";abilities\\Hans"
+	";abilities\\Hans" // must be excluded since it is not recursive
 	;
 
 	const mpq::Listfile::Entries entries = mpq::Listfile::entries(sstream.str());
@@ -81,7 +82,7 @@ BOOST_AUTO_TEST_CASE(CaseFileSensitiveEntries)
 
 	BOOST_REQUIRE(uniqueEntries.size() == 2);
 	BOOST_REQUIRE(uniqueEntries[0] == "Abilities");
-	BOOST_REQUIRE(uniqueEntries[1] == "Abilities");
+	BOOST_REQUIRE(uniqueEntries[1] == "abilities");
 }
 
 BOOST_AUTO_TEST_CASE(CaseSensitiveFileEntriesRecursive)
@@ -163,11 +164,11 @@ BOOST_AUTO_TEST_CASE(CaseSensitiveDirEntriesRecursive)
 	";abilities\\ui\\test3.txt"
 	;
 
-	mpq::Listfile::Entries entries = mpq::Listfile::entries(sstream.str());
+	const mpq::Listfile::Entries entries = mpq::Listfile::entries(sstream.str());
 
 	BOOST_REQUIRE(entries.size() == 7);
 
-	mpq::Listfile::Entries uniqueEntries = mpq::Listfile::caseSensitiveDirEntries(entries, "", true);
+	const mpq::Listfile::Entries uniqueEntries = mpq::Listfile::caseSensitiveDirEntries(entries, "", true);
 
 	/*
 	BOOST_FOREACH(mpq::Listfile::Entries::const_reference ref, uniqueEntries)
@@ -176,10 +177,11 @@ BOOST_AUTO_TEST_CASE(CaseSensitiveDirEntriesRecursive)
 	}
 	*/
 
-	BOOST_REQUIRE(uniqueEntries.size() == 3);
-	BOOST_REQUIRE(uniqueEntries[0] == "Abilities\\Hans");
-	BOOST_REQUIRE(uniqueEntries[1] == "Abilities\\Peter");
-	BOOST_REQUIRE(uniqueEntries[2] == "Abilities\\UI");
+	BOOST_REQUIRE(uniqueEntries.size() == 4);
+	BOOST_REQUIRE(uniqueEntries[0] == "Abilities");
+	BOOST_REQUIRE(uniqueEntries[1] == "Abilities\\Hans");
+	BOOST_REQUIRE(uniqueEntries[2] == "Abilities\\Peter");
+	BOOST_REQUIRE(uniqueEntries[3] == "Abilities\\UI");
 }
 
 BOOST_AUTO_TEST_CASE(CaseSensitiveDirEntriesWithPrefix)
@@ -200,38 +202,6 @@ BOOST_AUTO_TEST_CASE(CaseSensitiveDirEntriesWithPrefix)
 
 	BOOST_REQUIRE(entries.size() == 8);
 
-	const mpq::Listfile::Entries uniqueEntries = mpq::Listfile::caseSensitiveDirEntries(entries, "Abilities", false);
-
-	/*
-	BOOST_FOREACH(mpq::Listfile::Entries::const_reference ref, uniqueEntries)
-	{
-		std::cerr << ref << std::endl;
-	}
-	*/
-
-	BOOST_REQUIRE(uniqueEntries.size() == 3);
-	BOOST_REQUIRE(uniqueEntries[0] == "Hans");
-	BOOST_REQUIRE(uniqueEntries[1] == "Peter");
-	BOOST_REQUIRE(uniqueEntries[2] == "UI");
-}
-
-BOOST_AUTO_TEST_CASE(CaseSensitiveDirEntriesWithPrefixAndDirSeparator)
-{
-	stringstream sstream;
-	sstream <<
-	"Abilities\\Hans\\bla"
-	";abilities\\Peter\\blu"
-	";abilities\\PeTeR\\bli"
-	";abILIties\\UI\\test"
-	";abilities\\ui\\test2"
-	";abilities\\ui\\test3.txt"
-	";test\\ui\\test3.txt"
-	;
-
-	const mpq::Listfile::Entries entries = mpq::Listfile::entries(sstream.str());
-
-	BOOST_REQUIRE(entries.size() == 7);
-
 	const mpq::Listfile::Entries uniqueEntries = mpq::Listfile::caseSensitiveDirEntries(entries, "Abilities\\", false);
 
 	/*
@@ -242,7 +212,56 @@ BOOST_AUTO_TEST_CASE(CaseSensitiveDirEntriesWithPrefixAndDirSeparator)
 	*/
 
 	BOOST_REQUIRE(uniqueEntries.size() == 3);
-	BOOST_REQUIRE(uniqueEntries[0] == "Hans");
-	BOOST_REQUIRE(uniqueEntries[1] == "Peter");
-	BOOST_REQUIRE(uniqueEntries[2] == "UI");
+	BOOST_REQUIRE(uniqueEntries[0] == "Abilities\\Hans");
+	BOOST_REQUIRE(uniqueEntries[1] == "Abilities\\Peter");
+	BOOST_REQUIRE(uniqueEntries[2] == "Abilities\\UI");
+}
+
+BOOST_AUTO_TEST_CASE(ExistingEntriesWithPrefix)
+{
+	mpq::Archive archive;
+	bool success = true;
+
+	try
+	{
+		archive.open("mpqmaster_mpq1_no_extended_attributes.mpq");
+	}
+	catch (Exception &e)
+	{
+		std::cerr << e.what() << std::endl;
+
+		success = false;
+	}
+
+	BOOST_REQUIRE(success);
+	stringstream sstream;
+	sstream <<
+	"test\\testfile.txt"
+	";testfile.txt"
+	;
+
+	const mpq::Listfile::Entries listfileEntries = mpq::Listfile::entries(sstream.str());
+
+	BOOST_REQUIRE(listfileEntries.size() == 2);
+
+	const mpq::Listfile::Entries entries = mpq::Listfile::existingEntries(listfileEntries, archive, "test\\", true);
+
+	/*
+	BOOST_FOREACH(mpq::Listfile::Entries::const_reference ref, entries)
+	{
+		std::cerr << ref << std::endl;
+	}
+	*/
+
+	BOOST_REQUIRE(entries.size() == 1);
+
+	BOOST_REQUIRE(entries[0] == "test\\testfile.txt");
+}
+
+
+BOOST_AUTO_TEST_CASE(DirPath)
+{
+	BOOST_CHECK(mpq::Listfile::dirPath("Bla") == "");
+	BOOST_CHECK(mpq::Listfile::dirPath("Bla\\bla") == "Bla");
+	BOOST_CHECK(mpq::Listfile::dirPath("Bla\\bla\\bla.txt") == "Bla\\bla");
 }

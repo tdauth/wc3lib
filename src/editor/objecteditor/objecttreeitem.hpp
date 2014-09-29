@@ -64,7 +64,7 @@ class ObjectTreeItem
 		int index();
 		int row();
 		ObjectTreeItem* parent() const;
-		QIcon icon() const;
+		const QIcon& icon() const;
 		void appendChild(ObjectTreeItem *child);
 		void setChildren(const Children &children);
 		Children& children();
@@ -161,7 +161,7 @@ inline ObjectTreeItem* ObjectTreeItem::parent() const
 	return this->m_parent;
 }
 
-inline QIcon ObjectTreeItem::icon() const
+inline const QIcon& ObjectTreeItem::icon() const
 {
 	return this->m_icon;
 }

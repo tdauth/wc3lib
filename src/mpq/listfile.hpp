@@ -23,7 +23,7 @@
 
 #include <vector>
 #include <string>
-#include <set>
+#include <map>
 
 #include <boost/algorithm/string.hpp>
 
@@ -73,8 +73,19 @@ class Listfile : public File
 		 */
 		static Entries entries(const string &content);
 
+		/**
+		 * \brief Stores the case sensitive entry paths using the upper file path as key.
+		 */
+		typedef std::map<string, string> CaseSensitiveEntries;
+
+		static CaseSensitiveEntries caseSensitiveEntries(const Entries &entries);
+
 		static Entries caseSensitiveFileEntries(const Entries &entries, const string &prefix = "", bool recursive = true);
 		/**
+		 * Gets all directory entries of \p entries starting with \p prefix.
+		 *
+		 * \param entries The listfile entries of which the directory entries are retrieved from.
+		 * \param prefix Use \ at the end of the prefix to indicate that it must be a directory.
 		 * \note This returns unique entries which requires the function to store directories in a set.
 		 */
 		static Entries caseSensitiveDirEntries(const Entries &entries, const string &prefix = "", bool recursive = true);

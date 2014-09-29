@@ -39,6 +39,10 @@ class MpqTreeProxyModel : public QSortFilterProxyModel
 
 	protected:
 		virtual bool lessThan(const QModelIndex& left, const QModelIndex& right) const override;
+		virtual bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const override;
+
+		bool filterAcceptsRowItself(int source_row, const QModelIndex &source_parent) const;
+		bool hasAcceptedChildren(int source_row, const QModelIndex &source_parent) const;
 };
 
 }

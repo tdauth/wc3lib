@@ -89,6 +89,7 @@ class KDE_EXPORT MpqSlave : public KIO::SlaveBase
 		 * This function should be used on file paths refering to files in an MPQ archive.
 		 */
 		void toArchivePath(QByteArray &to, const QString &from);
+
 		/**
 		 * Opens archive using file path \p archive.
 		 * \param error Stores the error message if function returns true. Otherwise value won't be changed.

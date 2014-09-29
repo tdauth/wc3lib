@@ -12,3 +12,4 @@ add_test(NAME AttributesTest COMMAND attributestest)
 
 configure_file(testattributes.mpq testattributes.mpq COPYONLY) # MPQ archive with extended attributes
 configure_file(ladik_mpq1_all_extended_attributes.mpq ladik_mpq1_all_extended_attributes.mpq COPYONLY)
+configure_file(mpqmaster_mpq1_no_extended_attributes.mpq mpqmaster_mpq1_no_extended_attributes.mpq COPYONLY)

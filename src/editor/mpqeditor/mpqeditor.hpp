@@ -21,9 +21,12 @@
 #ifndef WC3LIB_EDITOR_MPQEDITOR_MPQEDITOR_HPP
 #define WC3LIB_EDITOR_MPQEDITOR_MPQEDITOR_HPP
 
+#include <boost/ptr_container/ptr_map.hpp>
+
 #include <kdemacros.h>
 #include <KActionCollection>
 #include <KAboutData>
+#include <KUrl>
 
 #include "../module.hpp"
 #include "../../mpq.hpp"
@@ -55,9 +58,9 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 
 	public:
 		/**
-		 * All open MPQ archives are stored in a list.
+		 * All open MPQ archives are stored in a vector.
 		 */
-		typedef boost::ptr_list<mpq::Archive> Archives;
+		typedef boost::ptr_map<KUrl, mpq::Archive> Archives;
 
 		MpqEditor(wc3lib::editor::MpqPriorityList* source, QWidget* parent = 0, Qt::WindowFlags f = 0);
 		virtual ~MpqEditor();
@@ -73,6 +76,17 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		ListfilesDialog* listfilesDialog() const;
 		ArchiveInfoDialog* archiveInfoDialog() const;
 		FileInfoDialog* fileInfoDialog() const;
+
+		/**
+		 * \return Returns the file name + extension of a listfile entry \p path.
+		 */
+		static QString fileName(const QString &path);
+		/**
+		 * \return Returns the base name (file name without extension) of a listfile entry \p path.
+		 */
+		static QString baseName(const QString &path);
+
+		static QString dirname(const QString &path);
 
 	public slots:
 		void newMpqArchive();
@@ -141,17 +155,6 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		bool extractDir(const QString &path, mpq::Archive &archive, const QString &target, const mpq::Listfile::Entries &dirEntries);
 
 		/**
-		 * \return Returns the file name + extension of a listfile entry \p path.
-		 */
-		static QString fileName(const QString &path);
-		/**
-		 * \return Returns the base name (file name without extension) of a listfile entry \p path.
-		 */
-		static QString baseName(const QString &path);
-
-		static QString dirname(const QString &path);
-
-		/**
 		 * Adds \p url to recent files history.
 		 * If it does already exist it won't be added a second time.
 		 */
@@ -162,6 +165,7 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		 */
 		void openFile(mpq::Archive &archive, const QString &filePath);
 
+		MpqTreeProxyModel* sortFilterModel() const;
 		MpqTreeModel* treeModel() const;
 
 	private:
@@ -196,10 +200,15 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		void orderBySection(int logicalIndex);
 };
 
+inline MpqTreeProxyModel* MpqEditor::sortFilterModel() const
+{
+	return boost::polymorphic_cast<MpqTreeProxyModel*>(this->m_archivesTreeView->model());
+}
+
 inline MpqTreeModel* MpqEditor::treeModel() const
 {
 	//return boost::polymorphic_cast<MpqTreeModel*>(boost::polymorphic_cast<MpqTreeProxyModel*>(this->m_archivesTreeView->model())->sourceModel());
-	return boost::polymorphic_cast<MpqTreeModel*>(this->m_archivesTreeView->model());
+	return boost::polymorphic_cast<MpqTreeModel*>(sortFilterModel()->sourceModel());
 }
 
 inline ListfilesDialog* MpqEditor::listfilesDialog() const
