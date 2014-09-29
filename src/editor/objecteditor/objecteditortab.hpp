@@ -25,10 +25,11 @@
 
 #include <QObject>
 #include <QWidget>
+#include <QSortFilterProxyModel>
 
 #include <KUrl>
 #include <KUrlRequester>
-#include <KLineEdit>
+#include <KFilterProxySearchLine>
 
 #include "objecteditor.hpp"
 #include "../../map.hpp"
@@ -91,13 +92,14 @@ class ObjectEditorTab : public QWidget
 		 * \sa hasObjectEditor()
 		 */
 		ObjectEditor* objectEditor() const throw (std::bad_cast);
-		KLineEdit* filterLineEdit() const;
+		KFilterProxySearchLine* filterSearchLine() const;
 		/**
 		 * \return Returns the left edge tree widget which lists all objects (standard and custom).
 		 *
 		 * \sa tableWidget()
 		 */
 		ObjectTreeView* treeView() const;
+		QSortFilterProxyModel* proxyModel() const;
 		ObjectTreeModel* treeModel() const;
 
 		/**
@@ -205,7 +207,7 @@ class ObjectEditorTab : public QWidget
 
 		int m_tabIndex;
 
-		KLineEdit *m_filterLineEdit;
+		KFilterProxySearchLine *m_filterSearchLine;
 		ObjectTreeView *m_treeView; // left side tree widget
 		ObjectTreeModel *m_treeModel;
 
@@ -226,7 +228,6 @@ class ObjectEditorTab : public QWidget
 
 	private slots:
 		void itemClicked(QModelIndex index);
-		void filterTreeWidget(const QString &text);
 		// TEST
 		void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 };
@@ -268,9 +269,9 @@ inline ObjectEditor* ObjectEditorTab::objectEditor() const throw (std::bad_cast)
 	return boost::polymorphic_cast<class ObjectEditor*>(parent());
 }
 
-inline KLineEdit* ObjectEditorTab::filterLineEdit() const
+inline KFilterProxySearchLine* ObjectEditorTab::filterSearchLine() const
 {
-	return this->m_filterLineEdit;
+	return this->m_filterSearchLine;
 }
 
 inline ObjectTreeView* ObjectEditorTab::treeView() const
@@ -280,7 +281,7 @@ inline ObjectTreeView* ObjectEditorTab::treeView() const
 
 inline ObjectTreeModel* ObjectEditorTab::treeModel() const
 {
-	return this->m_treeModel;
+	return m_treeModel;
 }
 
 inline ObjectTableView* ObjectEditorTab::tableView() const

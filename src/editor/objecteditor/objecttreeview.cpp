@@ -22,6 +22,7 @@
 
 #include "objecttreeview.hpp"
 #include "objecteditortab.hpp"
+#include "objecttreemodel.hpp"
 
 namespace wc3lib
 {
@@ -74,13 +75,13 @@ void ObjectTreeView::updateActions(const QItemSelection &selected, const QItemSe
 
 void ObjectTreeView::expandItem(const QModelIndex &index)
 {
-	ObjectTreeItem *item = (ObjectTreeItem*)(index.internalPointer());
+	ObjectTreeItem *item = this->tab()->treeModel()->item(this->tab()->proxyModel()->mapToSource(index));
 	item->setExpanded(this->tab()->source(), this->tab());
 }
 
 void ObjectTreeView::collapseItem(const QModelIndex &index)
 {
-	ObjectTreeItem *item = (ObjectTreeItem*)(index.internalPointer());
+	ObjectTreeItem *item = this->tab()->treeModel()->item(this->tab()->proxyModel()->mapToSource(index));
 	item->setCollapsed(this->tab()->source(), this->tab());
 }
 

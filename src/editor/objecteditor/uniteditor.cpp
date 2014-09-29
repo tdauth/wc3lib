@@ -63,7 +63,7 @@ void UnitEditor::onNewObject()
 
 	foreach (QModelIndex index, selection->selectedIndexes())
 	{
-		const ObjectTreeItem *item = (ObjectTreeItem*)index.internalPointer();
+		const ObjectTreeItem *item = this->treeModel()->item(this->proxyModel()->mapToSource(index));
 		originalObjectId = item->originalObjectId();
 	}
 
@@ -106,8 +106,9 @@ void UnitEditor::onExportAllObjects()
 	const QString suffix = "w3u";
 	const QString customObjectsCollectionSuffix = "w3o";
 	const QString mapSuffix = "w3m";
+	const QString xmapSuffix = "w3x";
 
-	const KUrl url = KFileDialog::getSaveUrl(KUrl(), QString("*\n*.%1\nCustom Objects Collection *.%2\nMap (*.%3 *.%4)").arg(suffix).arg(customObjectsCollectionSuffix).arg(mapSuffix), this, exportAllObjectsText());
+	const KUrl url = KFileDialog::getSaveUrl(KUrl(), QString("*\n*.%1\nCustom Objects Collection *.%2\nMap (*.%3 *.%4)").arg(suffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix), this, exportAllObjectsText());
 
 	if (!url.isEmpty())
 	{

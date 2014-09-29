@@ -43,7 +43,7 @@ ObjectEditorTab::ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData
 : QWidget(parent, f)
 , m_source(source)
 , m_tabIndex(0)
-, m_filterLineEdit(0)
+, m_filterSearchLine(0)
 , m_treeView(0)
 , m_treeModel(0)
 , m_tableView(0)
@@ -67,13 +67,16 @@ void ObjectEditorTab::setupUi()
 
 	qDebug() << "Show tab " << this->name();
 
-	m_filterLineEdit = new KLineEdit(this);
-	m_filterLineEdit->setClearButtonShown(true);
+	m_filterSearchLine = new KFilterProxySearchLine(this);
 
 	m_treeView = new ObjectTreeView(this);
 	m_treeModel = createTreeModel();
-	treeView()->setModel(m_treeModel);
+	QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
+	proxyModel->setSourceModel(this->m_treeModel);
+	treeView()->setModel(proxyModel);
 	this->treeModel()->load(this->source(), this->objectData(), this);
+
+	m_filterSearchLine->setProxy(this->proxyModel());
 
 	// TEST
 	connect(m_treeModel, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(dataChanged(const QModelIndex&, const QModelIndex&)));
@@ -83,14 +86,13 @@ void ObjectEditorTab::setupUi()
 	m_tableView->setModel(m_tableModel);
 
 	QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
-	layout->addWidget(m_filterLineEdit);
+	layout->addWidget(m_filterSearchLine);
 	layout->addWidget(m_treeView);
 	splitter->addWidget(layoutWidget);
 	splitter->addWidget(m_tableView);
 	this->setLayout(new QHBoxLayout(this));
 	this->layout()->addWidget(splitter);
 
-	connect(m_filterLineEdit, SIGNAL(textChanged(QString)), this, SLOT(filterTreeWidget(const QString&)));
 	connect(m_treeView, SIGNAL(activated(QModelIndex)), this, SLOT(itemClicked(QModelIndex)));
 }
 
@@ -107,7 +109,7 @@ map::CustomObjects::Table ObjectEditorTab::selection() const
 
 	foreach (QModelIndex index, selection->selectedIndexes())
 	{
-		ObjectTreeItem *item = this->treeModel()->item(index);
+		ObjectTreeItem *item = this->treeModel()->item(proxyModel()->mapToSource(index));
 		table.push_back(new map::CustomObjects::Object(objectData()->customObject(item->originalObjectId(), item->customObjectId())));
 	}
 
@@ -126,7 +128,7 @@ void ObjectEditorTab::exportAllObjects()
 
 void ObjectEditorTab::itemClicked(QModelIndex index)
 {
-	ObjectTreeItem *item = (ObjectTreeItem*)(index.internalPointer());
+	ObjectTreeItem *item = this->treeModel()->item(this->proxyModel()->mapToSource(index));
 	qDebug() << "Item:" << item;
 	const QString originalObjectId = item->originalObjectId();
 	/*
@@ -158,29 +160,6 @@ void ObjectEditorTab::itemClicked(QModelIndex index)
 	}
 }
 
-void ObjectEditorTab::filterTreeWidget(const QString &text)
-{
-	if (text.isEmpty())
-	{
-		this->treeView()->setModel(this->m_treeModel);
-	}
-	else
-	{
-		QRegExp regExp = QRegExp(text, Qt::CaseInsensitive, QRegExp::FixedString);
-
-		if (regExp.isValid())
-		{
-			// TODO by default if the parent doesn't match none of the children is shown, change behaviour!!!
-			QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
-			proxyModel->setSourceModel(this->m_treeModel);
-			proxyModel->setFilterRegExp(regExp);
-			qDebug() << "Filter fixed string" << text;
-
-			this->treeView()->setModel(proxyModel);
-		}
-	}
-}
-
 void ObjectEditorTab::dataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight)
 {
 	qDebug() << "Data changed";
@@ -200,7 +179,7 @@ void ObjectEditorTab::deleteObject()
 
 		foreach (QModelIndex index, selection->selectedIndexes())
 		{
-			ObjectTreeItem *item = this->treeModel()->item(index);
+			ObjectTreeItem *item = this->treeModel()->item(this->proxyModel()->mapToSource(index));
 
 			/*
 			 * Only custom untis can be deleted.
@@ -290,6 +269,12 @@ inline void ObjectEditorTab::pasteObject()
 
 	onPasteObject();
 }
+
+QSortFilterProxyModel* ObjectEditorTab::proxyModel() const
+{
+	return boost::polymorphic_cast<QSortFilterProxyModel*>(this->m_treeView->model());
+}
+
 
 #include "moc_objecteditortab.cpp"
 

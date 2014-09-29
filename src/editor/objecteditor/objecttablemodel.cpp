@@ -94,11 +94,6 @@ QVariant ObjectTableModel::data(const QModelIndex& index, int role) const
 
 int ObjectTableModel::columnCount(const QModelIndex &parent) const
 {
-	if (parent.isValid())
-	{
-		return 0;
-	}
-
 	return 2;
 }
 
@@ -129,18 +124,21 @@ QModelIndex ObjectTableModel::index(int row, int column, const QModelIndex& pare
 
 QVariant ObjectTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-	if (orientation == Qt::Horizontal)
+	if (role == Qt::DisplayRole)
 	{
-		if (section == 0 && objectData() != 0)
+		if (orientation == Qt::Horizontal)
 		{
-			return objectData()->source()->sharedData()->tr("WESTRING_NAME");
-		}
-		else if (section == 1 && objectData() != 0)
-		{
-			return objectData()->source()->sharedData()->tr("WESTRING_VALUE");
+			if (section == 0 && objectData() != 0)
+			{
+				return objectData()->source()->sharedData()->tr("WESTRING_NAME");
+			}
+			else if (section == 1 && objectData() != 0)
+			{
+				return objectData()->source()->sharedData()->tr("WESTRING_VALUE");
+			}
 		}
 	}
-
+	
 	return QVariant();
 }
 

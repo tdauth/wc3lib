@@ -37,12 +37,6 @@ namespace editor
 
 ObjectTableView::ObjectTableView(ObjectEditorTab *parent) : QTableView(parent), m_tab(parent)
 {
-	/*
-	 * Hide columns initially and wait for activation of an object.
-	 */
-	this->hideColumn(0);
-	this->hideColumn(1);
-
 	m_contextMenu = new QMenu(this);
 	m_contextMenu->addAction(tab()->objectEditor()->modifyFieldAction());
 	m_contextMenu->addAction(tab()->objectEditor()->resetFieldAction());
@@ -61,6 +55,12 @@ ObjectTableView::ObjectTableView(ObjectEditorTab *parent) : QTableView(parent), 
 	this->setContextMenuPolicy(Qt::CustomContextMenu);
 	this->setEditTriggers(QTableWidget::NoEditTriggers);
 	this->setSelectionBehavior(QTreeWidget::SelectRows);
+
+	/*
+	 * Hide columns initially and wait for activation of an object.
+	 */
+	this->hideColumn(0);
+	this->hideColumn(1);
 }
 
 void ObjectTableView::editItem(const QModelIndex &index)
