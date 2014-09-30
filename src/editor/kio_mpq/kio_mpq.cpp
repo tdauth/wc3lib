@@ -607,6 +607,9 @@ void MpqSlave::stat(const KUrl &url)
 		{
 			entry.insert(KIO::UDSEntry::UDS_MIME_TYPE, ptr->name());
 		}
+
+		statEntry(entry);
+		finished();
 	}
 	/*
 	 * Making stat on dir is not supported yet.
@@ -630,8 +633,7 @@ void MpqSlave::stat(const KUrl &url)
 	}
 	*/
 
-	statEntry(entry);
-	finished();
+	error(KIO::ERR_DOES_NOT_EXIST, url.prettyUrl());
 }
 
 void MpqSlave::get(const KUrl &url)
