@@ -35,8 +35,6 @@ ObjectData::ObjectData(MpqPriorityList *source) : m_source(source)
 
 map::Value::Type ObjectData::fieldType(const QString &fieldId) const
 {
-	qDebug() << "Getting type of field" << fieldId;
-
 	const QString type = this->metaData()->value(fieldId, "type");
 
 	if (type == "string")
@@ -342,12 +340,17 @@ void ObjectData::resetObject(const QString &originalObjectId, const QString &cus
 	}
 }
 
-void ObjectData::deleteObject(const QString& originalObjectId, const QString& customObjectId)
+void ObjectData::deleteObject(const QString &originalObjectId, const QString &customObjectId)
 {
-	qDebug() << "Deleting object" << originalObjectId;
 	resetObject(originalObjectId, customObjectId);
 
-	emit objectRemoval(originalObjectId, customObjectId);
+	/*
+	 * Only custom items are actually removed.
+	 */
+	if (!customObjectId.isEmpty())
+	{
+		emit objectRemoval(originalObjectId, customObjectId);
+	}
 }
 
 bool ObjectData::isObjectModified(const QString &originalObjectId, const QString &customObjectId) const
@@ -365,9 +368,9 @@ bool ObjectData::isObjectModified(const QString &originalObjectId, const QString
 
 void ObjectData::clearModifications()
 {
-	for (Objects::iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
+	while (!this->m_objects.isEmpty())
 	{
-		deleteObject(iterator.key().first, iterator.key().second);
+		deleteObject(this->m_objects.begin().key().first, this->m_objects.begin().key().second);
 	}
 }
 
@@ -532,8 +535,6 @@ void ObjectData::importCustomUnits(const map::CustomUnits &units)
 		}
 	}
 
-	qDebug() << "Custom Table size:" << units.customTable().size();
-
 	for (map::CustomUnits::Table::size_type i = 0; i < units.customTable().size(); ++i)
 	{
 		const map::CustomUnits::Unit &unit = units.customTable()[i];
@@ -567,8 +568,6 @@ void ObjectData::importCustomObjects(const map::CustomObjects& objects)
 			this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), unitToObjectModification(modification));
 		}
 	}
-
-	qDebug() << "Custom Table size:" << objects.customTable().size();
 
 	for (map::CustomObjects::Table::size_type i = 0; i < objects.customTable().size(); ++i)
 	{

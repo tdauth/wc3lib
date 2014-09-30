@@ -87,6 +87,14 @@ class CustomUnits : public FileFormat
 		};
 
 		/**
+		 * Prevent segmentation fault when cloning modifications in a dervied class such as \ref wc3lib::map::CustomObjects::CustomObject.
+		 */
+		static inline wc3lib::map::CustomUnits::Modification* new_clone(const wc3lib::map::CustomUnits::Modification &o)
+		{
+			return new wc3lib::map::CustomUnits::Modification(o);
+		}
+
+		/**
 		 * \brief Represents one single unit entry in a table which contains a list of modifications for all modified unit fields.
 		 *
 		 * Use \ref modifications() to access the list.

@@ -101,17 +101,89 @@ ObjectEditorTab* ObjectEditor::tab(int index) const
 void ObjectEditor::exportAll()
 {
 	// TODO collect all tab data (requires Frozen Throne)
+
+	const KUrl url = KFileDialog::getSaveUrl(KUrl(), objectsCollectionFilter(), this, source()->sharedData()->tr("WESTRING_MENU_OE_EXPORTALL", "WorldEditStrings"));
+
+	if (!url.isEmpty())
+	{
+		map::CustomObjectsCollection collection;
+		map::CustomObjectsCollection::CustomObjectsPtr units(new map::CustomObjects(unitEditor()->unitData()->customObjects()));
+		collection.units().swap(units);
+
+		QTemporaryFile file;
+
+		if (file.open())
+		{
+			ofstream out(file.fileName().toUtf8().constData());
+
+			if (out)
+			{
+				try
+				{
+					collection.write(out);
+					out.close();
+					file.close();
+
+					if (!this->source()->upload(file.fileName(), url, this))
+					{
+						KMessageBox::error(this, tr("Unable to save file."));
+					}
+				}
+				catch (Exception &e)
+				{
+					KMessageBox::error(this, e.what());
+				}
+			}
+			else
+			{
+				KMessageBox::error(this, tr("Unable to open temporary file %1.").arg(file.fileName()));
+			}
+		}
+		else
+		{
+			KMessageBox::error(this, tr("Unable to open temporary file %1.").arg(file.fileName()));
+		}
+	}
 }
 
-void ObjectEditor::importAll(const KUrl& url)
+void ObjectEditor::importAll(const KUrl &url)
 {
 	// TODO import all collection or a collection from a map (requires Frozen Throne)
 	// TODO distribute to the tabs
+
+	QString file;
+
+	if (this->source()->download(url, file, this))
+	{
+		ifstream in(file.toUtf8().constData());
+
+		if (in)
+		{
+			try
+			{
+				map::CustomObjectsCollection collection;
+				collection.read(in);
+
+				if (collection.hasUnits())
+				{
+					this->unitEditor()->unitData()->importCustomObjects(*collection.units());
+				}
+			}
+			catch (Exception &e)
+			{
+				KMessageBox::error(this, e.what());
+			}
+		}
+		else
+		{
+			KMessageBox::error(this, tr("Unable to open downloaded file %1.").arg(file));
+		}
+	}
 }
 
 void ObjectEditor::importAll()
 {
-	const KUrl url = KFileDialog::getOpenUrl(KUrl(), objectsCollectionFilter(), this, tr("Open"));
+	const KUrl url = KFileDialog::getOpenUrl(KUrl(), objectsCollectionFilter(), this, source()->sharedData()->tr("WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"));
 
 	if (!url.isEmpty())
 	{

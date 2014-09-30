@@ -260,12 +260,12 @@ class Archive : public Format, private boost::noncopyable
 		 */
 		bool hasStrongDigitalSignature() const;
 		/**
-		 * \return Returns archive's strong digital signature with size of \ref Archive:strongDigitalSignatureSize.
+		 * \return Returns archive's strong digital signature with size of \ref strongDigitalSignatureSize.
 		 */
 		const StrongDigitalSignature& strongDigitalSignature() const;
 
 		/**
-		 * When \ref Archive:open() or \ref Archive:create() is called archive is opened automatically until destructor or \ref Archive:close() is called.
+		 * When \ref open() or \ref create() is called archive is opened automatically until destructor or \ref close() is called.
 		 */
 		bool isOpen() const;
 

@@ -608,12 +608,15 @@ void MpqSlave::stat(const KUrl &url)
 			entry.insert(KIO::UDSEntry::UDS_MIME_TYPE, ptr->name());
 		}
 	}
-	// directory
+	/*
+	 * Making stat on dir is not supported yet.
+	 * It would take some performance to check if any file from all valid listfile entries is a file of any sub directory of the dir.
+	 * TODO implement
 	else
 	{
 		// directory path has no file or directory entries and therefore cannot exist
-		/*
-		if (this->m_archive->containsListfileFile() && this->m_archive->listfileFile().dirEntries(archivePath.constData()).empty())
+		// TODO check installed listfiles as well
+		if (!this->m_archive->containsListfileFile() || mpq::Listfile::caseSensitiveFileEntries(this->m_archive->listfileFile().entries(), archivePath.constData(), true).empty())
 		{
 			kDebug(debugArea) << "stat(): is no dir, no entries, does not exist.";
 
@@ -621,11 +624,11 @@ void MpqSlave::stat(const KUrl &url)
 
 			return;
 		}
-		*/
 
 		kDebug(debugArea) << "stat(): is dir";
 		entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFDIR);
 	}
+	*/
 
 	statEntry(entry);
 	finished();

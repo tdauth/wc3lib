@@ -120,10 +120,12 @@ void UnitEditor::onExportAllObjects()
 			{
 				if (this->objectData()->hasCustomObjects())
 				{
+					qDebug() << "Exporting custom objects";
 					this->objectData()->customObjects().write(out);
 				}
 				else if (this->objectData()->hasCustomUnits())
 				{
+					qDebug() << "Exporting custom units";
 					this->objectData()->customUnits().write(out);
 				}
 			}
@@ -160,10 +162,9 @@ void UnitEditor::onImportAllObjects()
 				customUnits.read(in);
 				this->objectData()->importCustomUnits(customUnits);
 				// TODO refresh tree widget by using object data not custom units
-				// TODO performance?
-				boost::polymorphic_cast<UnitTreeModel*>(this->treeView()->model())->load(this->source(), this->objectData(), this);
+				treeModel()->load(this->source(), this->objectData(), this);
 			}
-			catch (Exception &e)
+			catch (std::exception &e)
 			{
 				KMessageBox::error(this, tr("Error on importing"), e.what());
 			}
@@ -181,15 +182,14 @@ void UnitEditor::onImportAllObjects()
 				{
 					this->objectData()->importCustomUnits(*customObjectsCollection->units());
 					// TODO refresh tree widget by using object data not custom units
-					// TODO performance?
-					boost::polymorphic_cast<UnitTreeModel*>(this->treeView()->model())->load(this->source(), this->objectData(), this);
+					treeModel()->load(this->source(), this->objectData(), this);
 				}
 				else
 				{
 					KMessageBox::error(this, tr("Collection has no units."));
 				}
 			}
-			catch (Exception &e)
+			catch (std::exception &e)
 			{
 				KMessageBox::error(this, e.what());
 			}
@@ -204,10 +204,9 @@ void UnitEditor::onImportAllObjects()
 				qDebug() << "Size of custom units:" << size;
 				this->objectData()->importCustomUnits(*map->customUnits());
 				// TODO refresh tree widget by using object data not custom units
-				// TODO performance?
-				boost::polymorphic_cast<UnitTreeModel*>(this->treeView()->model())->load(this->source(), this->objectData(), this);
+				treeModel()->load(this->source(), this->objectData(), this);
 			}
-			catch (Exception &e)
+			catch (std::exception &e)
 			{
 				KMessageBox::error(this, e.what());
 			}

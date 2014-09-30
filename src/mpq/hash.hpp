@@ -161,7 +161,7 @@ class Block;
  * Hash instances do always have one corresponding \ref HashData object which can be accessed via \ref hashData().
  * Like \ref Block instances each Hash instance belongs to one single \ref File instance.
  *
- * \note Modifying a hash can only be done by the class \ref Archivewhich is responsible for holding all hashes.
+ * \note Modifying a hash can only be done by the class \ref Archive which is responsible for holding all hashes.
  *
  * \sa Block
  * \sa File
@@ -225,6 +225,7 @@ class Hash : public Format, private boost::noncopyable
 		 * The corresponding block is set to 0 by default and deleted to "false".
 		 *
 		 * \param mpq The corresponding MPQ archive to which teh hash belongs to. The archive is used for finding the corresponding block.
+		 * \param index The corresponding index of the hash table entry.
 		 *
 		 * \note Other data such as the hash entry (\ref hashData()) and the corresponding block entry (\ref block()) is filled on reading the data from the MPQ archive using \ref read().
 		 */

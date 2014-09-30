@@ -237,8 +237,6 @@ inline QString valueToString(const map::Value &value)
  * Usually parts of the texture are reserved for the team color and are colored depending on the owning player
  * of the unit.
  * The enum specifies all team colors which are available in Warcraft III.
- *
- * \ingroup teamcolors
  */
 enum class TeamColor
 {

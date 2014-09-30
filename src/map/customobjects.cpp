@@ -108,6 +108,8 @@ std::streamsize CustomObjects::Modification::write(OutputStream &ostream) const
 
 CustomObjects::CustomObjects(CustomObjects::Type type) : m_type(type)
 {
+	// set latest file version by default
+	this->m_version = latestFileVersion();
 }
 
 const byte* CustomObjects::fileName() const

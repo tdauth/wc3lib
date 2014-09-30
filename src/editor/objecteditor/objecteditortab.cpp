@@ -82,6 +82,13 @@ void ObjectEditorTab::setupUi()
 	connect(m_treeModel, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(dataChanged(const QModelIndex&, const QModelIndex&)));
 
 	m_tableView = new ObjectTableView(this);
+	/*
+	 * Hide columns initially and wait for activation of an object.
+	 */
+	m_tableView->horizontalHeader()->setVisible(false);
+	m_tableView->hideColumn(0);
+	m_tableView->hideColumn(1);
+
 	m_tableModel = new ObjectTableModel(this);
 	m_tableView->setModel(m_tableModel);
 
@@ -137,6 +144,7 @@ void ObjectEditorTab::itemClicked(QModelIndex index)
 	 */
 	if (item->isFolder())
 	{
+		this->tableView()->horizontalHeader()->setVisible(false);
 		this->tableView()->hideColumn(0);
 		this->tableView()->hideColumn(1);
 		this->activateFolder(item);

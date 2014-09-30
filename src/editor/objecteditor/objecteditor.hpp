@@ -175,8 +175,14 @@ class KDE_EXPORT ObjectEditor : public Module
 		KAction* resetFieldAction() const;
 
 	public slots:
+		/**
+		 * Exports all objects from all object editor tabs as \ref wc3lib::map::CustomObjectsCollection (.w3o) file.
+		 */
 		void exportAll();
 		void importAll(const KUrl &url);
+		/**
+		 * Imports all objects from a \ref wc3lib::map::CustomObjectsCollection (.w3o) file into the different object editor tabs.
+		 */
 		void importAll();
 
 	protected:

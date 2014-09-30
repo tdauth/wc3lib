@@ -255,9 +255,12 @@ CustomUnits::Unit::Unit() : m_originalId(0), m_customId(0)
 {
 }
 
-CustomUnits::Unit::Unit(const CustomUnits::Unit &other) : m_originalId(other.m_originalId), m_customId(other.m_customId), m_modifications(other.m_modifications.clone())
+CustomUnits::Unit::Unit(const CustomUnits::Unit &other) : m_originalId(other.m_originalId), m_customId(other.m_customId)// TODO cloning crashes , m_modifications(other.m_modifications.clone())
 {
-
+	BOOST_FOREACH(Modifications::const_reference ref, other.m_modifications)
+	{
+		this->modifications().push_back(new Modification(ref));
+	}
 }
 
 CustomUnits::Unit::~Unit()
@@ -291,7 +294,9 @@ std::streamsize CustomUnits::Unit::write(OutputStream &ostream) const
 	wc3lib::write<int32>(ostream, modifications().size(), size);
 
 	BOOST_FOREACH(Modifications::const_reference modification, this->modifications())
+	{
 		size += modification.write(ostream);
+	}
 
 	return size;
 }
@@ -303,6 +308,8 @@ CustomUnits::Modification* CustomUnits::Unit::createModification() const
 
 CustomUnits::CustomUnits()
 {
+	// set latest file version by default
+	this->m_version = latestFileVersion();
 }
 
 CustomUnits::~CustomUnits()
@@ -347,19 +354,25 @@ std::streamsize CustomUnits::read(InputStream &istream)
 std::streamsize CustomUnits::write(OutputStream &ostream) const
 {
 	if (version() != latestFileVersion())
+	{
 		std::cerr << boost::format(_("Custom Units: Unknown version \"%1%\", expected \"%2%\".")) % version() % latestFileVersion() << std::endl;
+	}
 
 	std::streamsize size = 0;
 	wc3lib::write(ostream, version(), size);
 	wc3lib::write<int32>(ostream, originalTable().size(), size);
 
 	BOOST_FOREACH(Table::const_reference unit, originalTable())
+	{
 		size += unit.write(ostream);
+	}
 
 	wc3lib::write<int32>(ostream, customTable().size(), size);
 
 	BOOST_FOREACH(Table::const_reference unit, customTable())
+	{
 		size += unit.write(ostream);
+	}
 
 	return size;
 }

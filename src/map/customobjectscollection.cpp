@@ -27,7 +27,7 @@ namespace wc3lib
 namespace map
 {
 
-CustomObjectsCollection::CustomObjectsCollection() : m_units(0), m_items(0), m_destructibles(0), m_doodads(0), m_abilities(0), m_buffs(0), m_upgrades(0)
+CustomObjectsCollection::CustomObjectsCollection() : m_units(0), m_items(0), m_destructibles(0), m_doodads(0), m_abilities(0), m_buffs(0), m_upgrades(0), m_version(latestFileVersion())
 {
 }
 
@@ -41,7 +41,7 @@ std::streamsize CustomObjectsCollection::read(InputStream &istream)
 		std::cerr << boost::format(_("W3O: Unknown version %1%, expected %2%.")) % this->version() % latestFileVersion() << std::endl;
 	}
 
-	int32 hasUnits;
+	int32 hasUnits = 0;
 	wc3lib::read(istream, hasUnits, size);
 
 	if (hasUnits)
@@ -50,7 +50,7 @@ std::streamsize CustomObjectsCollection::read(InputStream &istream)
 		size += this->m_units->read(istream);
 	}
 
-	int32 hasItems;
+	int32 hasItems = 0;
 	wc3lib::read(istream, hasItems, size);
 
 	if (hasItems)
@@ -59,7 +59,7 @@ std::streamsize CustomObjectsCollection::read(InputStream &istream)
 		size += this->m_items->read(istream);
 	}
 
-	int32 hasDestructibles;
+	int32 hasDestructibles = 0;
 	wc3lib::read(istream, hasDestructibles, size);
 
 	if (hasDestructibles)
@@ -68,7 +68,7 @@ std::streamsize CustomObjectsCollection::read(InputStream &istream)
 		size += this->m_destructibles->read(istream);
 	}
 
-	int32 hasDoodads;
+	int32 hasDoodads = 0;
 	wc3lib::read(istream, hasDoodads, size);
 
 	if (hasDoodads)
@@ -77,7 +77,7 @@ std::streamsize CustomObjectsCollection::read(InputStream &istream)
 		size += this->m_doodads->read(istream);
 	}
 
-	int32 hasAbilities;
+	int32 hasAbilities = 0;
 	wc3lib::read(istream, hasAbilities, size);
 
 	if (hasAbilities)
@@ -86,7 +86,7 @@ std::streamsize CustomObjectsCollection::read(InputStream &istream)
 		size += this->m_abilities->read(istream);
 	}
 
-	int32 hasBuffs;
+	int32 hasBuffs = 0;
 	wc3lib::read(istream, hasBuffs, size);
 
 	if (hasBuffs)
@@ -95,7 +95,7 @@ std::streamsize CustomObjectsCollection::read(InputStream &istream)
 		size += this->m_buffs->read(istream);
 	}
 
-	int32 hasUpgrades;
+	int32 hasUpgrades = 0;
 	wc3lib::read(istream, hasUpgrades, size);
 
 	if (hasUpgrades)
@@ -110,31 +110,47 @@ std::streamsize CustomObjectsCollection::read(InputStream &istream)
 std::streamsize CustomObjectsCollection::write(OutputStream &ostream) const
 {
 	if (this->version() != latestFileVersion())
+	{
 		std::cerr << boost::format(_("W3O: Unknown version %1%, expected %2%.")) % this->version() % latestFileVersion() << std::endl;
+	}
 
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->m_version, size);
 
 	if (hasUnits())
+	{
 		size += this->units()->write(ostream);
+	}
 
 	if (hasItems())
+	{
 		size += this->items()->write(ostream);
+	}
 
 	if (hasDestructibles())
+	{
 		size += this->destructibles()->write(ostream);
+	}
 
 	if (hasDoodads())
+	{
 		size += this->doodads()->write(ostream);
+	}
 
 	if (hasAbilities())
+	{
 		size += this->abilities()->write(ostream);
+	}
 
 	if (hasBuffs())
+	{
 		size += this->buffs()->write(ostream);
+	}
 
 	if (hasUpgrades())
+	{
 		size += this->upgrades()->write(ostream);
+	}
 
 	return size;
 }
@@ -145,32 +161,32 @@ void CustomObjectsCollection::clear()
 	{
 		this->units()->clear();
 	}
-	
+
 	if (hasItems())
 	{
 		this->items()->clear();
 	}
-	
+
 	if (hasDestructibles())
 	{
 		this->destructibles()->clear();
 	}
-	
+
 	if (hasDoodads())
 	{
 		this->doodads()->clear();
 	}
-	
+
 	if (hasAbilities())
 	{
 		this->abilities()->clear();
 	}
-	
+
 	if (hasBuffs())
 	{
 		this->buffs()->clear();
 	}
-	
+
 	if (hasUpgrades())
 	{
 		this->upgrades()->clear();

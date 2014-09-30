@@ -50,7 +50,7 @@ class ObjectTableModel;
 class Map;
 
 /**
- * \brief A single tab of the Object Editor which theoretically could be used as standalone application as well. It supports a specific set of predefined data and meta data (\ref metaData()) and lists the standard objects by default.
+ * \brief A single tab of the Object Editor which theoretically could be used as standalone application as well. It supports a specific set of predefined data and meta data (\ref objectData()) and lists the standard objects by default.
  *
  * This abstract class provides the basic interface which each tab must fulfil to provide all functionality of the object editor. A concrete tab should be realized by deriving from this class and implementing all abstract element functions.
  *

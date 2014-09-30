@@ -144,6 +144,8 @@ class KDE_EXPORT WarcraftIIIShared
 		 * </ul>
 		 * They are checked in the listed order from top to bottom.
 		 *
+		 * \param key The key of the translated string in one of the TXT files in the the corresponding \p group.
+		 * \param group They group in one of the TXT files which contains \p key.
 		 * \param defaultValue If corresponding key entry could not be found (e. g. files are not available or it simply does not exist) this value is shown as string if its length is bigger than 0.
 		 *
 		 * \todo Check other files (other than UI/WorldEditStrings.txt).

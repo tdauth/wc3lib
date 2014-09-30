@@ -113,7 +113,7 @@ bool ObjectTreeItem::hasModifiedObject() const
 				items.push(current->child(i));
 			}
 		}
-		else if (this->objectData()->isObjectModified(current->originalObjectId(), current->customObjectId()))
+		else if (!current->customObjectId().isEmpty() || this->objectData()->isObjectModified(current->originalObjectId(), current->customObjectId()))
 		{
 			result = true;
 		}

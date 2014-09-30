@@ -210,7 +210,14 @@ class ObjectData : public QObject
 		bool isFieldModified(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const;
 
 		void resetObject(const QString &originalObjectId, const QString &customObjectId);
+		/**
+		 * Deletes an object if it is a custom object.
+		 * Otherwise it only resets the object.
+		 */
 		void deleteObject(const QString &originalObjectId, const QString &customObjectId);
+		/**
+		 * \return Returns true if the object has at least one modification.
+		 */
 		bool isObjectModified(const QString &originalObjectId, const QString &customObjectId) const;
 		/**
 		 * Resets all modifications for standard and custom objects.

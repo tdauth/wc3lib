@@ -64,9 +64,23 @@ class ObjectTreeModel : public QAbstractItemModel
 		virtual ~ObjectTreeModel();
 
 		MpqPriorityList* source() const;
+		/**
+		 * \return Returns the currently loaded object data. If no object data is loaded it returns 0.
+		 */
+		ObjectData* objectData() const;
 
+		/**
+		 * This adds the item \p item to the top level items.
+		 * This has no effect to the GUI and does not emit any signal.
+		 */
 		void insertTopLevelItem(ObjectTreeItem *item);
+		/**
+		 * \sa standardItems()
+		 */
 		void insertStandardItem(ObjectTreeItem *item);
+		/**
+		 * \sa customItems()
+		 */
 		void insertCustomItem(ObjectTreeItem *item);
 		Items& standardItems();
 		Items& customItems();
@@ -108,6 +122,8 @@ class ObjectTreeModel : public QAbstractItemModel
 		 * The object data contains standard objects as well as custom objects.
 		 *
 		 * The default implementation connects signals of changing data from \p objectData with slots that modify the data in the model.
+		 * Before connecting to the new object \p objectData it disconnects from the old object data if valid.
+		 *
 		 * It also updates the object data of all exisiting folder items for safety.
 		 * It should be called when loading the data as well.
 		 */
@@ -128,6 +144,7 @@ class ObjectTreeModel : public QAbstractItemModel
 
 	private:
 		MpqPriorityList *m_source;
+		ObjectData *m_objectData;
 		Items m_standardItems;
 		Items m_customItems;
 
@@ -143,6 +160,11 @@ class ObjectTreeModel : public QAbstractItemModel
 inline MpqPriorityList* ObjectTreeModel::source() const
 {
 	return this->m_source;
+}
+
+inline ObjectData* ObjectTreeModel::objectData() const
+{
+	return this->m_objectData;
 }
 
 inline void ObjectTreeModel::insertTopLevelItem(ObjectTreeItem* item)

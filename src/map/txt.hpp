@@ -25,9 +25,9 @@
  * \defgroup txt TXT files
  *
  * \section txtgrammar Grammar of TXT Files
- * [section name] // comment</br>
- * key0 = value0</br>
- * key1 = value1</br>
+ * [section name] // comment<br/>
+ * key0 = value0<br/>
+ * key1 = value1<br/>
  */
 
 #include "platform.hpp"

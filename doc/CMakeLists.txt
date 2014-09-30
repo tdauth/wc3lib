@@ -54,17 +54,28 @@ if (DOC)
 
 	if (DOXYGEN_FOUND)
 		# doxygen can reference external images with IMAGE_PATH, this is how we set it dynamically
-		SET(CMAKE_DOXYGEN_IMAGE_PATH
-		"${CMAKE_CURRENT_SOURCE_DIR}/img"
+		set(CMAKE_DOXYGEN_IMAGE_PATH
+			"${CMAKE_CURRENT_SOURCE_DIR}/img"
 		)
 
 		# doxygen searches for source code (defined in FILE_PATTERNS, for example: *.cpp *.h)
 		# with DOXYGEN_SOURCE_DIR we fill a list of directories and later we write it into
 		# the Doxyfile with a REGEX REPLACE (see below)
-		SET(DOXYGEN_SOURCE_DIR
-		"${CMAKE_SOURCE_DIR}/src"
+		set(DOXYGEN_SOURCE_DIR
+			"${CMAKE_SOURCE_DIR}/src"
 		)
-		SET(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/api)
+		set(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/api)
+
+		# add all include paths from CMake
+		get_directory_property(OBJECTEDITOR_INCLUDE DIRECTORY ${CMAKE_SOURCE_DIR}/src/editor/objecteditor INCLUDE_DIRECTORIES)
+		get_directory_property(MPQEDITOR_INCLUDE DIRECTORY ${CMAKE_SOURCE_DIR}/src/editor/mpqeditor INCLUDE_DIRECTORIES)
+		get_directory_property(TRIGGEREDITOR_INCLUDE DIRECTORY ${CMAKE_SOURCE_DIR}/src/editor/triggereditor INCLUDE_DIRECTORIES)
+		get_directory_property(MODELEDITOR_INCLUDE DIRECTORY ${CMAKE_SOURCE_DIR}/src/editor/modeleditor INCLUDE_DIRECTORIES)
+		get_directory_property(TEXTUREEDITOR_INCLUDE DIRECTORY ${CMAKE_SOURCE_DIR}/src/editor/textureeditor INCLUDE_DIRECTORIES)
+		#string(REPLACE ";" ":" DOXYGEN_INCLUDE_PATH ${CMAKE_INCLUDE} ${OBJECTEDITOR_INCLUDE} ${MPQEDITOR_INCLUDE} ${TRIGGEREDITOR_INCLUDE} ${MODELEDITOR_INCLUDE} ${TEXTUREEDITOR_INCLUDE})
+
+		set(DOXYGEN_INCLUDE_PATH ${CMAKE_INCLUDE} ${OBJECTEDITOR_INCLUDE} ${MPQEDITOR_INCLUDE} ${TRIGGEREDITOR_INCLUDE} ${MODELEDITOR_INCLUDE} ${TEXTUREEDITOR_INCLUDE})
+		#string(REPLACE ";" ":" DOXYGEN_INCLUDE_PATH ${DOXYGEN_INCLUDE_PATH})
 
 		# configure Doxygen options by CMake options
 		if (DOXYGEN_HTML)
@@ -72,40 +83,45 @@ if (DOC)
 		else ()
 			set(INTERNAL_DOXYGEN_HTML NO)
 		endif ()
+
 		if (DOXYGEN_LATEX)
 			set(INTERNAL_DOXYGEN_LATEX YES)
 		else ()
 			set(INTERNAL_DOXYGEN_LATEX NO)
 		endif ()
+
 		if (DOXYGEN_RTF)
 			set(INTERNAL_DOXYGEN_RTF YES)
 		else ()
 			set(INTERNAL_DOXYGEN_RTF NO)
 		endif ()
+
 		if (DOXYGEN_MAN)
 			set(INTERNAL_DOXYGEN_MAN YES)
 		else ()
 			set(INTERNAL_DOXYGEN_MAN NO)
 		endif ()
+
 		if (DOXYGEN_XML)
 			set(INTERNAL_DOXYGEN_XML YES)
 		else ()
 			set(INTERNAL_DOXYGEN_XML NO)
 		endif ()
+
 		if (DOXYGEN_SEARCH)
 			set(INTERNAL_DOXYGEN_SEARCH YES)
 		else ()
 			set(INTERNAL_DOXYGEN_SEARCH NO)
 		endif ()
 
-		CONFIGURE_FILE(doxygen.conf ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+		configure_file(doxygen.conf ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 
-		ADD_CUSTOM_TARGET(api ALL
+		add_custom_target(api ALL
 		${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
 		DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 
 		# install
-		INSTALL(DIRECTORY "${DOXYGEN_OUTPUT_DIR}" DESTINATION usr/share/doc/wc3lib/)
+		install(DIRECTORY "${DOXYGEN_OUTPUT_DIR}" DESTINATION usr/share/doc/wc3lib/)
 		#execute_process(COMMAND ${DOXYGEN_EXECUTABLE} "doxygen.conf")
 		#add_custom_target(doc COMMAND ${DOXYGEN_EXECUTABLE} doxygen.conf WORKING_DIRECTORY src COMMENT "Building documentation" VERBATIM)
 	endif ()

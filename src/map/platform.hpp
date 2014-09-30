@@ -107,7 +107,6 @@ class FileFormat : public Format
 
 inline FileFormat::FileFormat() : m_version(0)
 {
-
 }
 
 inline std::streamsize FileFormat::read(FileFormat::InputStream &istream)

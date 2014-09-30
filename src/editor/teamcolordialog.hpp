@@ -36,23 +36,23 @@ namespace editor
 
 /**
  * Widget with a \ref KColorComboBox which is limited to all available team colors in Warcraft III.
- * \sa BOOST_SCOPED_ENUM(TeamColor)
+ * \sa TeamColor
  */
 class KDE_EXPORT TeamColorDialog : public QDialog, protected Ui::TeamColorDialog
 {
 	public:
 		TeamColorDialog(QWidget *parent = 0, Qt::WFlags flags = 0);
 
-		void setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor);
-		BOOST_SCOPED_ENUM(TeamColor) teamColor() const;
+		void setTeamColor(TeamColor teamColor);
+		TeamColor teamColor() const;
 };
 
-inline void TeamColorDialog::setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor)
+inline void TeamColorDialog::setTeamColor(TeamColor teamColor)
 {
 	this->m_colorComboBox->setCurrentIndex((int)teamColor);
 }
 
-inline BOOST_SCOPED_ENUM(TeamColor) TeamColorDialog::teamColor() const
+inline TeamColor TeamColorDialog::teamColor() const
 {
 	return editor::teamColor(this->m_colorComboBox->color());
 }
