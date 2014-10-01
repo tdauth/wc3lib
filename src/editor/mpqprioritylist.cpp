@@ -231,7 +231,6 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 		// entry path can be a directory path or something like tar:/... or mpq:/...
 		KUrl absoluteSource = entry.url();
 		absoluteSource.addPath(src.toLocalFile());
-		qDebug() << "Downloading" << absoluteSource;
 
 		if (KIO::NetAccess::exists(absoluteSource, KIO::NetAccess::SourceSide, window))
 		{

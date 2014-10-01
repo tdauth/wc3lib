@@ -272,6 +272,17 @@ bool UnitData::hasCustomObjects() const
 	return true;
 }
 
+bool UnitData::hasSlks() const
+{
+	// TODO support
+	return false;
+}
+
+ObjectData::Slks UnitData::slks() const
+{
+	return ObjectData::Slks();
+}
+
 QString UnitData::objectName(const QString& originalObjectId, const QString& customObjectId) const
 {
 	return this->fieldValue(originalObjectId, customObjectId, "unam");

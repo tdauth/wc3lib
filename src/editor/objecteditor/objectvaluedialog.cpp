@@ -188,7 +188,10 @@ int ObjectValueDialog::show(QString &result, const QString &originalObjectId, co
 			const QString fieldReadableValue = objectData->fieldReadableValue(originalObjectId, customObjectId, fieldId);
 			dialog->editListWidget()->setVisible(true);
 
-			const QStringList list = fieldReadableValue.split(", ");
+			/*
+			 * Readable values are usually separated by a , followed by a space but in case there is no readable value use a regex with an optional space.
+			 */
+			const QStringList list = fieldReadableValue.split(QRegExp(",[ ]?"));
 			dialog->editListWidget()->setItems(list);
 		}
 		else

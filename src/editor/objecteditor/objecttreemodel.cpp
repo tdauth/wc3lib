@@ -22,6 +22,7 @@
 
 #include "objecttreemodel.hpp"
 #include "objectdata.hpp"
+#include "../mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -62,6 +63,11 @@ QVariant ObjectTreeModel::data(const QModelIndex &index, int role) const
 
 	     case Qt::DecorationRole:
 	     {
+		     if (item->isFolder())
+		     {
+			     return source()->sharedData()->worldEditDataIcon("UEIcon_UnitCategory", "WorldEditArt", 0);
+		     }
+
 		     return item->icon();
 	     }
 

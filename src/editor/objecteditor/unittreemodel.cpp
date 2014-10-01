@@ -59,9 +59,7 @@ ObjectTreeItem* UnitTreeModel::createItem(MpqPriorityList *source, ObjectData *o
 	UnitData *unitData = dynamic_cast<UnitData*>(objectData);
 	const QModelIndex parentIndex = itemParent(unitData, originalObjectId, customObjectId);
 	ObjectTreeItem *parent = item(parentIndex);
-	qDebug() << "Count before:" << parent->children().count();
 	insertRows(parent->children().count(), 1, parentIndex);
-	qDebug() << "Count after:" << parent->children().count();
 
 	ObjectTreeItem *item = parent->children().last();
 	item->setObjectData(objectData);

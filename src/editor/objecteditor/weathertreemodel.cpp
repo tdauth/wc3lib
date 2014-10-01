@@ -33,8 +33,8 @@ namespace editor
 WeatherTreeModel::WeatherTreeModel(MpqPriorityList* source, QObject* parent): ObjectTreeModel(source, parent)
 {
 	QStringList names;
-	names << source->sharedData()->tr("WESTRING_UE_STANDARDUNITS");
-	names << source->sharedData()->tr("WESTRING_UE_CUSTOMUNITS");
+	names << tr("Standard Weather Effects");
+	names << tr("Custom Weather Effects");
 
 	insertRowFolders(names, 0);
 }

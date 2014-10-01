@@ -87,11 +87,21 @@ void assignX(SlkSize &size, int x)
 	std::cerr << "Assigning X: " << x << std::endl;
 }
 
+Slk::Table::size_type getX(const SlkSize &size)
+{
+	return size.first;
+}
+
 void assignY(SlkSize &size, int y)
 {
 	size.second = y;
 
 	std::cerr << "Assigning Y: " << y << std::endl;
+}
+
+Slk::Table::size_type getY(const SlkSize &size)
+{
+	return size.second;
 }
 
 void resizeTable(Slk::Table &table, const SlkSize &size)
@@ -394,44 +404,90 @@ struct SlkGrammar : qi::grammar<Iterator, Slk::Table(), qi::locals<Slk::Table::s
 };
 
 template <typename Iterator>
-struct SlkGenerator : karma::grammar<Iterator, Slk::Table()>
+struct SlkGenerator : karma::grammar<Iterator, Slk::Table(), qi::locals<Slk::Table::size_type, Slk::Table::size_type> >
 {
 	SlkGenerator() : SlkGenerator::base_type(cells, "slk generator")
 	{
+		using karma::locals;
+		using karma::eol;
 		using karma::eps;
 		using karma::lit;
 		using karma::int_;
 		using karma::int_generator;
+		using karma::uint_generator;
+		using karma::_val;
+		using namespace karma::labels;
+
+		using ascii::char_;
+		using ascii::string;
+
+		using phoenix::val;
+		using phoenix::at_c;
+		using phoenix::push_back;
+		using phoenix::ref;
+		using phoenix::let;
+		using phoenix::bind;
+		using phoenix::if_;
 
 		/*
-		 TODO print maximum size
+		 * ; has to be escaped by using two ; characters
+		 */
+		/*
+		literal %=
+			+(
+				lit(";;")[push_back(_val, ';')]
+				| (char_ - lit(';') - eol)[push_back(_val, _1)]
+			)
+		;
+
 		b_record %=
 			lit('B')
-			>> lit(";X")
-			>> int_generator<Slk::Table::size_type>()
-			>> lit(";Y")
-			>> int_generator<Slk::Table::size_type>()
+			<< lit(";X")
+			<< uint_generator<Slk::Table::size_type>()[phoenix::bind(&getX, phoenix::ref(_r2))]
+			<< lit(";Y")
+			<< uint_generator<Slk::Table::size_type>()[phoenix::bind(&getY, phoenix::ref(_r3))]
+		;
+
+		c_record =
+			lit('C') << lit(";X") << literal[at_c<0>(_val) = ref(_r1)] << lit(";Y") << literal[at_c<1>(_val) = ref(_r2)] << lit(";K") << literal[at_c<2>(_val) = _1]
+		;
+
+		e_record =
+			lit('E')
 		;
 		*/
 
 		/*
+		 * _a is column.
+		 * _b is row.
+		 */
+		/*
 		cells =
-			eps
-			>> b_record
+			eps[ref(_a) = 1][ref(_b) = 1]
+			<< b_record(ref(_val), ref(_a), ref(_b)) << eol
+			<< c_record(ref(_val), ref(_a), ref(_b)) % eol
+			<< eol << e_record << eol
 		;
 		*/
 
+		cells = eol;
+
 		b_record.name("b_record");
+		e_record.name("e_record");
 		cells.name("cells");
 
 		BOOST_SPIRIT_DEBUG_NODES(
 			(b_record)
+			(e_record)
 			(cells)
 		);
 	}
 
-	karma::rule<Iterator, SlkSize()> b_record;
-	karma::rule<Iterator, Slk::Table()> cells;
+	karma::rule<Iterator, Slk::Cell()> literal;
+	karma::rule<Iterator, SlkSize(Slk::Table&, Slk::Table::size_type&, Slk::Table::size_type&)> b_record;
+	karma::rule<Iterator, CellData(Slk::Table&, Slk::Table::size_type&, Slk::Table::size_type&)> c_record;
+	karma::rule<Iterator> e_record;
+	karma::rule<Iterator, Slk::Table(), karma::locals<Slk::Table::size_type, Slk::Table::size_type> > cells;
 };
 
 template <typename Iterator>

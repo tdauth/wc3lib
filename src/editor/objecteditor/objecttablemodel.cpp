@@ -138,12 +138,17 @@ QVariant ObjectTableModel::headerData(int section, Qt::Orientation orientation, 
 			}
 		}
 	}
-	
+
 	return QVariant();
 }
 
-void ObjectTableModel::load(ObjectData* objectData, const QString& originalObjectId, const QString& customObjectId)
+void ObjectTableModel::load(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId)
 {
+	if (m_objectData != 0)
+	{
+		disconnect(m_objectData, 0, this, 0);
+	}
+
 	beginRemoveColumns(QModelIndex(), 0, 1);
 	endRemoveColumns();
 	beginRemoveRows(QModelIndex(), 0, m_itemsByRow.count());
@@ -187,7 +192,20 @@ void ObjectTableModel::load(ObjectData* objectData, const QString& originalObjec
 
 		if (!this->objectData()->hideField(this->originalObjectId(), this->customObjectId(), fieldId))
 		{
-			const QString sort = this->objectData()->metaData()->value(i + 1, "sort");
+			QString sort;
+
+			/*
+			 * Some meta data might not have the "sort" column
+			 */
+			if (this->objectData()->metaData()->hasValue(fieldId, "sort"))
+			{
+				sort = this->objectData()->metaData()->value(fieldId, "sort");
+			}
+			else
+			{
+				qDebug() << "Missing column \"sort\" for field" << i;
+			}
+
 			fieldIds.insert(sort, fieldId);
 		}
 	}
@@ -205,6 +223,7 @@ void ObjectTableModel::load(ObjectData* objectData, const QString& originalObjec
 
 	connect(objectData, SIGNAL(fieldModification(QString,QString,QString)), this, SLOT(modifyField(QString,QString,QString)));
 	connect(objectData, SIGNAL(modificationReset(QString,QString,QString)), this, SLOT(resetField(QString,QString,QString)));
+	m_objectData = objectData;
 }
 
 void ObjectTableModel::modifyField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId)

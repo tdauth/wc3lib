@@ -170,6 +170,20 @@ class ObjectData : public QObject
 		 */
 		virtual map::CustomObjects customObjects() const;
 
+		typedef QList<map::Slk> Slks;
+
+		/**
+		 * SLK files are used in Warcraft III to define standard objects.
+		 * Some object types such as weather effects do not support any other type of object.
+		 *
+		 * \return Returns the custom units of the current tab.
+		 *
+		 * \sa customObjects() hasCustomUnits() hasCustomObjects()
+		 *
+		 * \throws Exception Throws an exception if SLKs are not supported.
+		 */
+		virtual Slks slks() const = 0;
+
 		virtual map::CustomObjects::Object customObject(const QString &originalObjectId, const QString &customObjectId) const;
 
 		QString objectId(int value) const;
@@ -193,6 +207,11 @@ class ObjectData : public QObject
 		 * \sa hasCustomUnits()
 		 */
 		virtual bool hasCustomObjects() const = 0;
+
+		/**
+		 * \return Returns true if a list of SLK files is available.
+		 */
+		virtual bool hasSlks() const = 0;
 
 		map::Value value(const QString &fieldId, const QString &value) const;
 
@@ -267,7 +286,7 @@ class ObjectData : public QObject
 		 */
 		virtual QString objectName(const QString &originalObjectId, const QString &customObjectId) const = 0;
 
-	private:
+	protected:
 		MpqPriorityList *m_source;
 		/**
 		 * Stores all modifications for all objects, standard objects as well as user defined ones.
