@@ -18,14 +18,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <QtGui>
+#ifndef WC3LIB_EDITOR_ITEMTREEMODEL_HPP
+#define WC3LIB_EDITOR_ITEMTREEMODEL_HPP
 
-#include <KFileDialog>
-#include <KMessageBox>
-
-#include "weathereditor.hpp"
-#include "weathertreemodel.hpp"
-#include "weatherdata.hpp"
+#include "objecttreemodel.hpp"
 
 namespace wc3lib
 {
@@ -33,82 +29,32 @@ namespace wc3lib
 namespace editor
 {
 
-WeatherEditor::WeatherEditor(MpqPriorityList* source, QWidget* parent, Qt::WindowFlags f) : ObjectEditorTab(source, new WeatherData(source), parent, f)
+class WarcraftIIIShared;
+
+class ItemTreeModel : public ObjectTreeModel
 {
-	setupUi();
-}
+	public:
+		ItemTreeModel(MpqPriorityList *source, QObject *parent = 0);
 
-WeatherEditor::~WeatherEditor()
-{
-}
+		virtual void load(MpqPriorityList *source, ObjectData *objectData, QWidget *window) override;
+		virtual ObjectTreeItem* createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString& originalObjectId, const QString& customObjectId) override;
 
-void WeatherEditor::onSwitchToMap(Map *map)
-{
-}
+	protected:
+		virtual QModelIndex itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId) override;
 
-void WeatherEditor::onNewObject()
-{
-}
+		QModelIndex objectsIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
+		QModelIndex raceIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
+		QModelIndex campaignIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
+		QModelIndex unitTypeIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
 
-void WeatherEditor::onRenameObject()
-{
-}
-
-void WeatherEditor::onDeleteObject()
-{
-}
-
-void WeatherEditor::onResetObject()
-{
-}
-
-void WeatherEditor::onResetAllObjects()
-{
-}
-
-void WeatherEditor::onExportAllObjects()
-{
-}
-
-void WeatherEditor::onImportAllObjects()
-{
-}
-
-void WeatherEditor::onCopyObject()
-{
-}
-
-void WeatherEditor::onPasteObject()
-{
-}
-
-void WeatherEditor::onShowRawData(bool show)
-{
-}
-
-void WeatherEditor::activateFolder(ObjectTreeItem* item)
-{
-}
-
-void WeatherEditor::activateObject(ObjectTreeItem* item)
-{
-}
-
-ObjectTreeModel* WeatherEditor::createTreeModel()
-{
-	return new WeatherTreeModel(this->source(), this);
-}
-
-WeatherData* WeatherEditor::weatherData() const
-{
-	return boost::polymorphic_cast<WeatherData*>(objectData());
-}
-
-QString WeatherEditor::name() const
-{
-	return tr("Weather Editor");
-}
+		void createObjects(WarcraftIIIShared *shared);
+		void createRaces(WarcraftIIIShared *shared, int row, QModelIndex parent);
+		void createRace(WarcraftIIIShared *shared, int row, QModelIndex parent);
+		void createMelee(WarcraftIIIShared *shared, int row, QModelIndex parent);
+};
 
 }
 
 }
+
+#endif // WC3LIB_EDITOR_ITEMTREEMODEL_HPP

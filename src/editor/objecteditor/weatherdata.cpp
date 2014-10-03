@@ -117,27 +117,10 @@ void WeatherData::load(QWidget* widget)
 {
 	this->m_weatherMetaData.reset(new MetaData(KUrl("TerrainArt/WeatherMetaData.slk")));
 	this->m_weatherMetaData->setSource(this->source());
-
-	try
-	{
-		this->m_weatherMetaData->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_weatherMetaData->url().toEncoded().constData(), e.what()));
-	}
-
+	this->m_weatherMetaData->load();
 	this->m_weather.reset(new MetaData(KUrl("TerrainArt/Weather.slk")));
 	this->m_weather->setSource(this->source());
-
-	try
-	{
-		this->m_weather->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_weather->url().toEncoded().constData(), e.what()));
-	}
+	this->m_weather->load();
 }
 
 QString WeatherData::objectName(const QString& originalObjectId, const QString& customObjectId) const

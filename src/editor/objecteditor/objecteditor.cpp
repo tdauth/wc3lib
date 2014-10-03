@@ -31,6 +31,7 @@
 #include "objecteditortab.hpp"
 #include "editor.hpp"
 #include "uniteditor.hpp"
+#include "itemeditor.hpp"
 #include "weathereditor.hpp"
 #include "../moduletoolbar.hpp"
 
@@ -42,8 +43,26 @@ namespace editor
 
 ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f)
 , m_tabWidget(new KTabWidget(this))
+, m_currentTab(0)
 , m_unitEditor(0)
+, m_doodadEditor(0)
+, m_destructibleEditor(0)
+, m_itemEditor(0)
+, m_abilityEditor(0)
+, m_buffEditor(0)
+, m_upgradeEditor(0)
+// newly supported
+, m_modelEntryEditor(0)
+, m_skinEntryEditor(0)
+, m_ubersplatEntryEditor(0)
+, m_splatEntryEditor(0)
+, m_spawnEntryEditor(0)
+, m_lightningEffectEntryEditor(0)
+, m_cliffTypeEntryEditor(0)
+, m_tilesetEntryEditor(0)
+, m_waterEntryEditor(0)
 , m_weatherEditor(0)
+, m_soundEntryEditor(0)
 , m_copyObjectAction(0)
 , m_pasteObjectAction(0)
 , m_modifyFieldAction(0)
@@ -75,12 +94,12 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 	 * Create all tabs after the actions have been created.
 	 */
 	m_unitEditor = new UnitEditor(source, this, f);
+	m_itemEditor = new ItemEditor(source, this, f);
 	m_weatherEditor = new WeatherEditor(source, this, f);
 
 	tabWidget()->addTab(unitEditor(), unitEditor()->name());
+	tabWidget()->addTab(itemEditor(), itemEditor()->name());
 	tabWidget()->addTab(weatherEditor(), weatherEditor()->name());
-	unitEditor()->show();
-	weatherEditor()->show();
 
 	m_currentTab = tab(0);
 	setWindowTitle(currentTab()->name());
@@ -102,7 +121,7 @@ void ObjectEditor::exportAll()
 {
 	// TODO collect all tab data (requires Frozen Throne)
 
-	const KUrl url = KFileDialog::getSaveUrl(KUrl(), objectsCollectionFilter(), this, source()->sharedData()->tr("WESTRING_MENU_OE_EXPORTALL", "WorldEditStrings"));
+	const KUrl url = KFileDialog::getSaveUrl(KUrl(), tr("*|All Files\n%1").arg(objectsCollectionFilter()), this, source()->sharedData()->tr("WESTRING_MENU_OE_EXPORTALL", "WorldEditStrings"));
 
 	if (!url.isEmpty())
 	{
@@ -183,7 +202,7 @@ void ObjectEditor::importAll(const KUrl &url)
 
 void ObjectEditor::importAll()
 {
-	const KUrl url = KFileDialog::getOpenUrl(KUrl(), objectsCollectionFilter(), this, source()->sharedData()->tr("WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"));
+	const KUrl url = KFileDialog::getOpenUrl(KUrl(), tr("*|All Files\n%1").arg(objectsCollectionFilter()), this, source()->sharedData()->tr("WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"));
 
 	if (!url.isEmpty())
 	{

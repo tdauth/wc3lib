@@ -1,4 +1,7 @@
 set(wc3lib_OBJECTEDITOR_H
+	itemdata.hpp
+	itemeditor.hpp
+	itemtreemodel.hpp
 	objecteditor.hpp
 	objecteditortab.hpp
 	objectdata.hpp
@@ -17,6 +20,9 @@ set(wc3lib_OBJECTEDITOR_H
 	weathertreemodel.hpp
 )
 set(wc3lib_OBJECTEDITOR_SRC
+	itemdata.cpp
+	itemeditor.cpp
+	itemtreemodel.cpp
 	objecteditor.cpp
 	objecteditortab.cpp
 	objectdata.cpp

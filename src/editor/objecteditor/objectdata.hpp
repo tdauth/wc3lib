@@ -146,6 +146,8 @@ class ObjectData : public QObject
 		/**
 		 * Loads all meta data and data.
 		 * The data cannot be used before it has been loaded successfully.
+		 *
+		 * \throws Exception Throws an exception if loading fails.
 		 */
 		virtual void load(QWidget *widget) = 0;
 

@@ -533,9 +533,7 @@ std::streamsize Slk::read(InputStream &istream)
 
 	try
 	{
-		if (!client::parse(position_begin,
-			position_end,
-			this->table()))
+		if (!client::parse(position_begin, position_end, this->table()))
 		{
 			throw Exception(_("Parsing error."));
 		}
@@ -561,7 +559,12 @@ std::streamsize Slk::write(OutputStream &ostream) const
 	typedef std::ostream_iterator<byte> Iterator;
 	client::SlkGenerator<Iterator> generator;
 
-	return boost::spirit::karma::generate(Iterator(ostream), generator, this->table());
+	if (!boost::spirit::karma::generate(Iterator(ostream), generator, this->table()))
+	{
+		throw Exception(_("Generating error."));
+	}
+
+	return 0;
 }
 
 }

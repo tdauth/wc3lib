@@ -153,6 +153,13 @@ bool ObjectData::fieldTypeAllowsMultipleSelections(const QString &fieldId) const
 
 ObjectData::ObjectTabEntries ObjectData::objectTabEntries(const QString &fieldType) const
 {
+	if (this->objectTabData() == 0)
+	{
+		qDebug() << "No object tab data defined.";
+
+		return ObjectData::ObjectTabEntries();
+	}
+
 	if (this->objectTabData()->hasValue(fieldType, "NumValues"))
 	{
 		const QString numValues = this->objectTabData()->value(fieldType, "NumValues");
@@ -467,55 +474,64 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 		return result.join(", ");
 	}
 
-	const map::Txt::Section *section = this->objectTabData()->section(fieldType);
-
-	/*
-	 * If the section of the type does not exist simply return the value since there is no valid description available.
-	 */
-	if (section == 0)
+	if (this->objectTabData() != 0)
 	{
-		return fieldValue;
-	}
+		const map::Txt::Section *section = this->objectTabData()->section(fieldType);
 
-	/*
-	 * Now we have to translate ALL values separately if it is a list of values.
-	 */
-	QStringList fieldValues = fieldValue.split(',');
-	QStringList result = fieldValues;
-	int missing = result.size();
-
-	/*
-	 * If there is a section for this field type search for the entry corresponding to value and get its readable description.
-	 */
-	for (std::size_t i = 0; i < section->entries.size() && missing > 0; ++i)
-	{
-		const QString sectionValue = QString::fromUtf8(section->entries[i].second.c_str());
-		QStringList values = sectionValue.split(',');
-
-		if (values.size() == 2)
+		/*
+		 * If the section of the type does not exist simply return the value since there is no valid description available.
+		 */
+		if (section == 0)
 		{
-			/*
-			 * Check for all field values if it is matching. Whenever it is matching decrease "missing" until it is 0.
-			 */
-			for (int i = 0; i < fieldValues.size() && missing > 0; ++i)
+			return fieldValue;
+		}
+
+		/*
+		 * Now we have to translate ALL values separately if it is a list of values.
+		 */
+		QStringList fieldValues = fieldValue.split(',');
+		QStringList result = fieldValues;
+		int missing = result.size();
+
+		/*
+		 * If there is a section for this field type search for the entry corresponding to value and get its readable description.
+		 */
+		for (std::size_t i = 0; i < section->entries.size() && missing > 0; ++i)
+		{
+			const QString sectionValue = QString::fromUtf8(section->entries[i].second.c_str());
+			QStringList values = sectionValue.split(',');
+
+			if (values.size() == 2)
 			{
 				/*
-				* It seems that values are existing like "Summoned" where it should be called "summoned"
-				*/
-				if (fieldValues[i].toLower() == values[0].toLower())
+				 * Check for all field values if it is matching. Whenever it is matching decrease "missing" until it is 0.
+				 */
+				for (int i = 0; i < fieldValues.size() && missing > 0; ++i)
 				{
 					/*
-					 * Many translatable strings contain & characters to indicate the Alt shortcut
-					 * but we do not want to see this when listing the values.
+					 * It seems that values are existing like "Summoned" where it should be called "summoned"
 					 */
-					result[i] = this->source()->sharedData()->tr(values[1]).remove('&');
-					missing--;
+					if (fieldValues[i].toLower() == values[0].toLower())
+					{
+						/*
+						 * Many translatable strings contain & characters to indicate the Alt shortcut
+						 * but we do not want to see this when listing the values.
+						 */
+						result[i] = this->source()->sharedData()->tr(values[1]).remove('&');
+						missing--;
+					}
 				}
 			}
 		}
+
+		return result.join(", ");
+	}
+	else
+	{
+		qDebug() << "No object tab data defined.";
 	}
 
-	return result.join(", ");
+	return fieldValue;
 }
 
 void ObjectData::importCustomUnits(const map::CustomUnits &units)

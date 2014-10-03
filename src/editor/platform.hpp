@@ -659,8 +659,6 @@ inline Ogre::Quaternion ogreVertex<Ogre::Quaternion, float32, 4>(const BasicVert
  * \defgroup dialogfilters Dialog Filters
  *
  * \brief Filters for file types in GUI dialogs.
- *
- * \note For filters MIME types are used if available. If not simple translated strings are used as fall back.
  */
 
 /**
@@ -672,15 +670,7 @@ inline Ogre::Quaternion ogreVertex<Ogre::Quaternion, float32, 4>(const BasicVert
  */
 inline QString mapFilter()
 {
-	KMimeType::Ptr w3m(KMimeType::mimeType("application/x-w3m"));
-	KMimeType::Ptr w3x(KMimeType::mimeType("application/x-w3x"));
-
-	if (w3m.isNull() || w3x.isNull())
-	{
-		return i18n("*|All Files\n*.w3m|Warcraft III: Reign of Chaos map\n*.w3m|Warcraft III: The Frozen Throne map");
-	}
-
-	return i18n("all/allfiles application/x-w3m application/x-w3x");
+	return i18n("*.w3m|Warcraft III: Reign of Chaos map\n*.w3m|Warcraft III: The Frozen Throne map");
 }
 
 /**
@@ -692,14 +682,7 @@ inline QString mapFilter()
  */
 inline QString objectsCollectionFilter()
 {
-	KMimeType::Ptr wtg(KMimeType::mimeType("application/x-w3o"));
-
-	if (wtg.isNull())
-	{
-		return i18n("*|All Files\n*.w3o|Warcraft III Objects Collection");
-	}
-
-	return i18n("all/allfiles application/x-w3o");
+	return i18n("*.w3o|Warcraft III Objects Collection");
 }
 
 /**
@@ -711,14 +694,7 @@ inline QString objectsCollectionFilter()
  */
 inline QString triggersFilter()
 {
-	KMimeType::Ptr wtg(KMimeType::mimeType("application/x-wtg"));
-
-	if (wtg.isNull())
-	{
-		return i18n("*|All Files\n*.wtg|Warcraft III Triggers");
-	}
-
-	return i18n("all/allfiles application/x-wtg");
+	return i18n("*.wtg|Warcraft III Triggers");
 }
 
 /**
@@ -730,14 +706,7 @@ inline QString triggersFilter()
  */
 inline QString customTextTriggersFilter()
 {
-	KMimeType::Ptr wtc(KMimeType::mimeType("application/x-wtc"));
-
-	if (wtc.isNull())
-	{
-		return i18n("*|All Files\n*.wtc|Warcraft III Custom Text Triggers");
-	}
-
-	return i18n("all/allfiles application/x-wtc");
+	return i18n("*.wtc|Warcraft III Custom Text Triggers");
 }
 
 // TODO Use image open URL function but MIME type of BLP is not usable on debugging

@@ -63,11 +63,6 @@ QVariant ObjectTreeModel::data(const QModelIndex &index, int role) const
 
 	     case Qt::DecorationRole:
 	     {
-		     if (item->isFolder())
-		     {
-			     return source()->sharedData()->worldEditDataIcon("UEIcon_UnitCategory", "WorldEditArt", 0);
-		     }
-
 		     return item->icon();
 	     }
 
@@ -200,6 +195,7 @@ void ObjectTreeModel::insertRowFolders(const QStringList& folderNames, int row, 
 	{
 		const QModelIndex index = this->index(row, 0, parent);
 		this->item(index)->setFolderText(name);
+		this->item(index)->setCollapsed(this->source(), 0);
 
 		++row;
 	}

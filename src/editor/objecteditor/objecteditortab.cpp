@@ -51,7 +51,14 @@ ObjectEditorTab::ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData
 , m_objectData(objectData)
 , m_showRawData(false)
 {
-	this->objectData()->load(this);
+	try
+	{
+		this->objectData()->load(this);
+	}
+	catch (const Exception &e)
+	{
+		KMessageBox::error(this, e.what());
+	}
 }
 
 ObjectEditorTab::~ObjectEditorTab()
@@ -123,14 +130,167 @@ map::CustomObjects::Table ObjectEditorTab::selection() const
 	return table;
 }
 
-void ObjectEditorTab::importAllObjects()
-{
-	onImportAllObjects();
-}
-
 void ObjectEditorTab::exportAllObjects()
 {
-	onExportAllObjects();
+	const QString customUnitsSuffix = "w3u";
+	const QString customObjectsCollectionSuffix = "w3o";
+	const QString mapSuffix = "w3m";
+	const QString xmapSuffix = "w3x";
+	const QString slkSuffix = "slk";
+
+	const KUrl url = KFileDialog::getSaveUrl(KUrl(), QString("*\n*.%1\nCustom Objects Collection *.%2\nMap (*.%3 *.%4)\nSlk (*.%5)").arg(customUnitsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix).arg(slkSuffix), this, exportAllObjectsText());
+
+	if (!url.isEmpty())
+	{
+		const QFileInfo fileInfo(url.toLocalFile());
+		const QString suffix = fileInfo.suffix();
+
+		if (suffix == slkSuffix && !this->objectData()->hasSlks())
+		{
+			KMessageBox::error(this, tr("No SLK support."));
+
+			return;
+		}
+
+		if (suffix == customUnitsSuffix && !this->objectData()->hasCustomUnits() && !this->objectData()->hasCustomObjects())
+		{
+			KMessageBox::error(this, tr("No custom units support."));
+
+			return;
+		}
+
+		ofstream out(url.toLocalFile().toUtf8().constData());
+
+		if (out)
+		{
+			try
+			{
+				if (suffix == customUnitsSuffix)
+				{
+					if (this->objectData()->hasCustomObjects())
+					{
+						qDebug() << "Exporting custom objects";
+						this->objectData()->customObjects().write(out);
+					}
+					else if (this->objectData()->hasCustomUnits())
+					{
+						qDebug() << "Exporting custom units";
+
+						this->objectData()->customUnits().write(out);
+					}
+				}
+				else if (suffix == slkSuffix)
+				{
+					if (this->objectData()->hasSlks())
+					{
+						qDebug() << "Export SLKs";
+
+						const ObjectData::Slks slks = this->objectData()->slks();
+						int i = 0;
+
+						BOOST_FOREACH(ObjectData::Slks::const_reference ref, slks)
+						{
+							const QDir dir = fileInfo.dir();
+							const QString file = dir.absoluteFilePath(tr("out%1.slk").arg(i));
+							ofstream out(file.toUtf8().constData());
+							ref.write(out);
+
+							++i;
+						}
+					}
+				}
+			}
+			catch (Exception &e)
+			{
+				KMessageBox::error(this, tr("Error on exporting"), e.what());
+			}
+		}
+	}
+}
+
+void ObjectEditorTab::importAllObjects()
+{
+	const QString customObjectsSuffix = "w3u";
+	const QString customObjectsCollectionSuffix = "w3o";
+	const QString mapSuffix = "w3m";
+	const QString xmapSuffix = "w3x";
+
+	const KUrl url = KFileDialog::getOpenUrl(KUrl(), QString("*\n*.%1\nCustom Objects Collection *.%2\nMap (*.%3 *.%4)").arg(customObjectsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix), this, importAllObjectsText());
+
+	if (!url.isEmpty())
+	{
+		const QString suffix = QFileInfo(url.toLocalFile()).suffix();
+		qDebug() << "Suffix" << suffix;
+
+		map::CustomUnits customUnits;
+
+		if (suffix == customObjectsSuffix)
+		{
+			ifstream in(url.toLocalFile().toUtf8().constData());
+
+			try
+			{
+				customUnits.read(in);
+				this->objectData()->importCustomUnits(customUnits);
+				// TODO refresh tree widget by using object data not custom units
+				treeModel()->load(this->source(), this->objectData(), this);
+			}
+			catch (std::exception &e)
+			{
+				KMessageBox::error(this, tr("Error on importing"), e.what());
+			}
+		}
+		else if (suffix == customObjectsCollectionSuffix)
+		{
+			ifstream in(url.toLocalFile().toUtf8().constData());
+
+			try
+			{
+				std::unique_ptr<map::CustomObjectsCollection> customObjectsCollection(new map::CustomObjectsCollection());
+				customObjectsCollection->read(in);
+
+				if (customObjectsCollection->hasUnits())
+				{
+					this->objectData()->importCustomUnits(*customObjectsCollection->units());
+					// TODO refresh tree widget by using object data not custom units
+					treeModel()->load(this->source(), this->objectData(), this);
+				}
+				else
+				{
+					KMessageBox::error(this, tr("Collection has no units."));
+				}
+			}
+			catch (std::exception &e)
+			{
+				KMessageBox::error(this, e.what());
+			}
+		}
+		else if (suffix == mapSuffix)
+		{
+			try
+			{
+				std::unique_ptr<map::W3m> map(new map::W3m());
+				map->open(url.toLocalFile().toUtf8().constData());
+				std::streamsize size = map->readFileFormat(map->customUnits().get());
+				qDebug() << "Size of custom units:" << size;
+				this->objectData()->importCustomUnits(*map->customUnits());
+				// TODO refresh tree widget by using object data not custom units
+				treeModel()->load(this->source(), this->objectData(), this);
+			}
+			catch (std::exception &e)
+			{
+				KMessageBox::error(this, e.what());
+			}
+		}
+		else if (suffix == xmapSuffix)
+		{
+			KMessageBox::error(this, tr("W3X is not supported yet."));
+		}
+		else
+		{
+			KMessageBox::error(this, tr("Unknown file type."));
+		}
+	}
 }
 
 void ObjectEditorTab::itemClicked(QModelIndex index)
@@ -163,6 +323,7 @@ void ObjectEditorTab::itemClicked(QModelIndex index)
 		this->tableView()->horizontalHeader()->setVisible(true);
 		this->tableView()->showColumn(0);
 		this->tableView()->showColumn(1);
+		this->tableView()->resizeColumnsToContents();
 
 		this->activateObject(item);
 	}

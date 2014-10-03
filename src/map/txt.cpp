@@ -87,24 +87,26 @@ struct CommentSkipper : public qi::grammar<Iterator> {
 		using qi::eps;
 
 		/*
-		* Comments may use UTF-8 characters.
-		*/
+		 * Eat all lines which do not have a section or key.
+		 */
+		emptyline %=
+			// Units/ItemStrings.txt contains lines with no meaning
+			// Units/ItemFunc.txt has a comment starting with one single / (/ Stuffed Penguin)
+			+(unicode::char_ - lit('[') - lit('=') - eol)
+		;
+
+		/*
+		 * Comments may use UTF-8 characters.
+		 * Comments usually start with // but there are exceptions. The exceptions are caught by rule "emptyline"
+		 * This rule is only used in lines at the end.
+		 */
 		comment %=
 			lit("//") > *(unicode::char_ - eol)
 		;
 
-		emptyline %=
-			+blank >> -comment // blanks only optionally followed by a comment
-			| comment // one comment only
-		;
-
-		moreemptylines %=
-			(eol >> -emptyline >> &eol)
-		;
-
 		emptylines %=
 			// do not consume the eol of the last empty line because it is the eol between all skipped empty lines and the first one
-			+moreemptylines
+			+(eol >> -(comment | emptyline) >> &eol)
 		;
 
 		skip %=

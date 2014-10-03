@@ -62,6 +62,7 @@ configure_file(UnitMetaDataExportedByLibreOffice.slk UnitMetaDataExportedByLibre
 configure_file(UnitUI.slk UnitUI.slk COPYONLY) # Reign of Chaos "war3.mpq"
 configure_file(UnitWeapons.slk UnitWeapons.slk COPYONLY) # Reign of Chaos "war3.mpq"
 configure_file(UpgradeData.slk UpgradeData.slk COPYONLY) # Reign of Chaos "war3.mpq"
+configure_file(ItemFunc.txt ItemFunc.txt COPYONLY) # Frozen Throne "War3Patch.mpq"
 configure_file(war3map.wtg war3map.wtg COPYONLY) # War Chasers
 configure_file(war3map.wct war3map.wct COPYONLY) # War Chasers
 configure_file(TestMap.w3m TestMap.w3m COPYONLY)
