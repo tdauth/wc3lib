@@ -31,7 +31,7 @@ namespace wc3lib
 namespace editor
 {
 
-WeatherData::WeatherData(MpqPriorityList* source) : ObjectData(source)
+WeatherData::WeatherData(MpqPriorityList *source, QObject *parent) : ObjectData(source, parent)
 {
 }
 
@@ -123,9 +123,9 @@ void WeatherData::load(QWidget* widget)
 	this->m_weather->load();
 }
 
-QString WeatherData::objectName(const QString& originalObjectId, const QString& customObjectId) const
+QString WeatherData::objectNameFieldId() const
 {
-	return fieldValue(originalObjectId, customObjectId, "unam");
+	return "unam";
 }
 
 MetaData* WeatherData::objectTabData() const

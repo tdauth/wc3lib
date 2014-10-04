@@ -69,7 +69,7 @@ ObjectTreeItem* WeatherTreeModel::createItem(MpqPriorityList* source, ObjectData
 	item->setObjectData(objectData);
 	item->setObjectId(originalObjectId, customObjectId);
 
-	const QString art = objectData->fieldValue(originalObjectId, customObjectId, "texf");
+	const QString art = "Textures\\" + objectData->fieldValue(originalObjectId, customObjectId, "texf") + ".blp";
 	item->setIcon(objectData->source()->sharedData()->icon(art, window));
 
 	if (customObjectId.isEmpty())

@@ -139,6 +139,9 @@ class ObjectTreeModel : public QAbstractItemModel
 
 		int topLevelRow(ObjectTreeItem *item) const;
 
+		void setShowRawData(bool showRawData);
+		bool showRawData() const;
+
 	protected:
 		virtual QModelIndex itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId) = 0;
 
@@ -147,6 +150,7 @@ class ObjectTreeModel : public QAbstractItemModel
 		ObjectData *m_objectData;
 		Items m_standardItems;
 		Items m_customItems;
+		bool m_showRawData;
 
 		ObjectTreeItem::Children m_topLevelItems;
 
@@ -217,6 +221,19 @@ inline ObjectTreeItem* ObjectTreeModel::item(const QString &originalObjectId, co
 inline int ObjectTreeModel::topLevelRow(ObjectTreeItem* item) const
 {
 	return this->m_topLevelItems.indexOf(item);
+}
+
+inline void ObjectTreeModel::setShowRawData(bool showRawData)
+{
+	this->m_showRawData = showRawData;
+
+	// TODO all data changed
+	emit dataChanged(this->index(0, 0), this->index(1, 0));
+}
+
+inline bool ObjectTreeModel::showRawData() const
+{
+	return this->m_showRawData;
 }
 
 }

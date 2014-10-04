@@ -243,6 +243,7 @@ class KDE_EXPORT ObjectEditor : public Module
 		KAction *m_resetFieldAction;
 
 		QMenu *m_viewMenu;
+		QAction *m_rawDataAction;
 
 	private slots:
 		void showRawData(bool checked);

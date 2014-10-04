@@ -47,6 +47,9 @@ void ObjectValueDialog::setItemsVisible(bool visible)
 	this->m_doubleSpinBox->setVisible(visible);
 	this->m_lineEdit->setVisible(visible);
 	this->m_textEdit->setVisible(visible);
+	this->previewTextBrowser()->setVisible(visible);
+	this->insertFieldValuePushButton()->setVisible(visible);
+	this->insertColorPushButton()->setVisible(visible);
 	this->m_comboBox->setVisible(visible);
 	this->m_checkBox->setVisible(visible);
 	this->m_editListWidget->setVisible(visible);
@@ -175,6 +178,10 @@ int ObjectValueDialog::show(QString &result, const QString &originalObjectId, co
 				dialog->lineEdit()->setText(fieldValue);
 				dialog->lineEdit()->selectAll();
 			}
+
+			dialog->previewTextBrowser()->setVisible(true);
+			dialog->insertFieldValuePushButton()->setVisible(true);
+			dialog->insertColorPushButton()->setVisible(true);
 		}
 		else if (type == "bool")
 		{

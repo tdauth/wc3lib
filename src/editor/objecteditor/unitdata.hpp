@@ -47,7 +47,7 @@ class UnitData : public ObjectData
 	public:
 		typedef QScopedPointer<MetaData> MetaDataPtr;
 
-		UnitData(MpqPriorityList *source);
+		UnitData(MpqPriorityList *source, QObject *parent = 0);
 
 		virtual void load(QWidget *widget) override;
 
@@ -66,7 +66,7 @@ class UnitData : public ObjectData
 
 		virtual map::CustomObjects::Type type() const override;
 
-		virtual QString objectName(const QString& originalObjectId, const QString& customObjectId) const override;
+		virtual QString objectNameFieldId() const override;
 
 		bool objectIsHero(const QString &originalObjectId, const QString &customObjectId) const;
 		bool objectIsUnit(const QString &originalObjectId, const QString &customObjectId) const;

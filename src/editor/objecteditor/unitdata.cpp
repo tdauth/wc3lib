@@ -34,12 +34,11 @@ namespace wc3lib
 namespace editor
 {
 
-UnitData::UnitData(MpqPriorityList *source)
-: ObjectData(source)
+UnitData::UnitData(MpqPriorityList *source, QObject *parent) : ObjectData(source, parent)
 {
 }
 
-bool UnitData::hasDefaultFieldValue(const QString& objectId, const QString& fieldId) const
+bool UnitData::hasDefaultFieldValue(const QString &objectId, const QString &fieldId) const
 {
 	/*
 	 * If the field does not exist it might be the case that Reign of Chaos files are loaded and not Frozen Throne.
@@ -283,9 +282,9 @@ ObjectData::Slks UnitData::slks() const
 	return ObjectData::Slks();
 }
 
-QString UnitData::objectName(const QString& originalObjectId, const QString& customObjectId) const
+QString UnitData::objectNameFieldId() const
 {
-	return this->fieldValue(originalObjectId, customObjectId, "unam");
+	return "unam";
 }
 
 void UnitData::load(QWidget *widget)
@@ -550,7 +549,7 @@ bool UnitData::objectIsBuilding(const QString &originalObjectId, const QString &
 	return !ok;
 }
 
-bool UnitData::objectIsSpecial(const QString& originalObjectId, const QString& customObjectId) const
+bool UnitData::objectIsSpecial(const QString &originalObjectId, const QString &customObjectId) const
 {
 	/*
 	 * In Frozen Throne there is an additional field which indicates if the unit is special.
@@ -619,12 +618,12 @@ QString UnitData::objectTilesets(const QString& originalObjectId, const QString&
 	return QString();
 }
 
-bool UnitData::showTilesetForRace(const QString& race) const
+bool UnitData::showTilesetForRace(const QString &race) const
 {
 	return showLevelForRace(race);
 }
 
-bool UnitData::showLevelForRace(const QString& race) const
+bool UnitData::showLevelForRace(const QString &race) const
 {
 	return race == "creeps" || race == "other" || race == "demon" || race == "critters" || race == "common" || race == "other";
 }

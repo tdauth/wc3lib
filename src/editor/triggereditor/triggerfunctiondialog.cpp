@@ -158,12 +158,14 @@ void TriggerFunctionDialog::apply(map::TriggerFunctionParameter *parameter)
 		parameter->setType(map::TriggerFunctionParameter::Type::Preset);
 		const int index = this->m_presetComboBox->currentIndex();
 		parameter->setValue(this->m_presetComboBox->itemData(index).toByteArray().constData());
-	} else if (m_radioButtonVariable->isChecked())
+	}
+	else if (m_radioButtonVariable->isChecked())
 	{
 		parameter->setType(map::TriggerFunctionParameter::Type::Variable);
 		const int index = this->m_variablesComboBox->currentIndex();
 		parameter->setValue(this->m_variablesComboBox->itemData(index).toByteArray().constData());
-	} else if (m_radioButtonFunction->isChecked())
+	}
+	else if (m_radioButtonFunction->isChecked())
 	{
 		std::auto_ptr<map::TriggerFunction> function(new map::TriggerFunction());
 		//this->apply(function.get());

@@ -30,6 +30,7 @@
 #include "objecttablemodel.hpp"
 #include "objecttreeview.hpp"
 #include "objecttreemodel.hpp"
+#include "iddialog.hpp"
 #include "../metadata.hpp"
 #include "../mpqprioritylist.hpp"
 
@@ -44,12 +45,14 @@ ObjectEditorTab::ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData
 , m_source(source)
 , m_tabIndex(0)
 , m_filterSearchLine(0)
+, m_tableFilterSearchLine(0)
 , m_treeView(0)
 , m_treeModel(0)
 , m_tableView(0)
 , m_tableModel(0)
 , m_objectData(objectData)
 , m_showRawData(false)
+, m_idDialog(new IdDialog(this))
 {
 	try
 	{
@@ -63,17 +66,15 @@ ObjectEditorTab::ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData
 
 ObjectEditorTab::~ObjectEditorTab()
 {
-	delete this->m_objectData;
 }
 
 void ObjectEditorTab::setupUi()
 {
-	QVBoxLayout *layout = new QVBoxLayout(this);
-	QWidget *layoutWidget = new QWidget(this);
-	layoutWidget->setLayout(layout);
-
 	qDebug() << "Show tab " << this->name();
 
+	/*
+	 * Tree View
+	 */
 	m_filterSearchLine = new KFilterProxySearchLine(this);
 
 	m_treeView = new ObjectTreeView(this);
@@ -88,6 +89,11 @@ void ObjectEditorTab::setupUi()
 	// TEST
 	connect(m_treeModel, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(dataChanged(const QModelIndex&, const QModelIndex&)));
 
+	/*
+	 * Table View
+	 */
+	m_tableFilterSearchLine = new KFilterProxySearchLine(this);
+
 	m_tableView = new ObjectTableView(this);
 	/*
 	 * Hide columns initially and wait for activation of an object.
@@ -97,13 +103,29 @@ void ObjectEditorTab::setupUi()
 	m_tableView->hideColumn(1);
 
 	m_tableModel = new ObjectTableModel(this);
-	m_tableView->setModel(m_tableModel);
+
+	QSortFilterProxyModel *tableProxyModel = new QSortFilterProxyModel(this);
+	tableProxyModel->setSourceModel(this->m_tableModel);
+	m_tableView->setModel(tableProxyModel);
+
+	m_tableFilterSearchLine->setProxy(this->tableProxyModel());
+
+
+	QVBoxLayout *leftLayout = new QVBoxLayout(this);
+	QWidget *leftLayoutWidget = new QWidget(this);
+	leftLayoutWidget->setLayout(leftLayout);
+	leftLayout->addWidget(m_filterSearchLine);
+	leftLayout->addWidget(m_treeView);
+
+	QVBoxLayout *rightLayout = new QVBoxLayout(this);
+	QWidget *rightLayoutWidget = new QWidget(this);
+	rightLayoutWidget->setLayout(rightLayout);
+	rightLayout->addWidget(m_tableFilterSearchLine);
+	rightLayout->addWidget(m_tableView);
 
 	QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
-	layout->addWidget(m_filterSearchLine);
-	layout->addWidget(m_treeView);
-	splitter->addWidget(layoutWidget);
-	splitter->addWidget(m_tableView);
+	splitter->addWidget(leftLayoutWidget);
+	splitter->addWidget(rightLayoutWidget);
 	this->setLayout(new QHBoxLayout(this));
 	this->layout()->addWidget(splitter);
 
@@ -124,10 +146,60 @@ map::CustomObjects::Table ObjectEditorTab::selection() const
 	foreach (QModelIndex index, selection->selectedIndexes())
 	{
 		ObjectTreeItem *item = this->treeModel()->item(proxyModel()->mapToSource(index));
-		table.push_back(new map::CustomObjects::Object(objectData()->customObject(item->originalObjectId(), item->customObjectId())));
+
+		if (!item->isFolder())
+		{
+			table.push_back(new map::CustomObjects::Object(objectData()->customObject(item->originalObjectId(), item->customObjectId())));
+		}
 	}
 
 	return table;
+}
+
+bool ObjectEditorTab::selectObject(const QString& originalObjectId, const QString& customObjectId)
+{
+	ObjectTreeItem *item = this->treeModel()->item(originalObjectId, customObjectId);
+
+	if (item != 0)
+	{
+		QItemSelectionModel *selection = treeView()->selectionModel();
+		const QModelIndex index = item->modelIndex(this->treeModel());
+
+		if (!selection->isSelected(index))
+		{
+			selection->select(item->modelIndex(this->treeModel()), QItemSelectionModel::Rows);
+			this->treeView()->setSelectionModel(selection);
+		}
+
+		tableModel()->load(objectData(), originalObjectId, customObjectId);
+
+		this->tableView()->horizontalHeader()->setVisible(true);
+		this->tableView()->showColumn(0);
+		this->tableView()->showColumn(1);
+		this->tableView()->resizeColumnsToContents();
+		this->objectEditor()->copyObjectAction()->setEnabled(true);
+		this->objectEditor()->renameObjectAction()->setEnabled(true);
+		this->objectEditor()->deleteObjectAction()->setEnabled(true);
+		this->objectEditor()->resetObjectAction()->setEnabled(true);
+
+		this->activateObject(item);
+
+		return true;
+	}
+
+	return false;
+}
+
+bool ObjectEditorTab::modifyField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId)
+{
+	if (this->selectObject(originalObjectId, customObjectId))
+	{
+		this->tableView()->selectField(fieldId);
+
+		return true;
+	}
+
+	return false;
 }
 
 void ObjectEditorTab::exportAllObjects()
@@ -307,6 +379,10 @@ void ObjectEditorTab::itemClicked(QModelIndex index)
 		this->tableView()->horizontalHeader()->setVisible(false);
 		this->tableView()->hideColumn(0);
 		this->tableView()->hideColumn(1);
+		this->objectEditor()->copyObjectAction()->setEnabled(false);
+		this->objectEditor()->renameObjectAction()->setEnabled(false);
+		this->objectEditor()->deleteObjectAction()->setEnabled(false);
+		this->objectEditor()->resetObjectAction()->setEnabled(false);
 		this->activateFolder(item);
 	}
 	/*
@@ -318,14 +394,7 @@ void ObjectEditorTab::itemClicked(QModelIndex index)
 		qDebug() << "activating object" << originalObjectId;
 		const QString customObjectId = item->customObjectId();
 
-		tableModel()->load(objectData(), originalObjectId, customObjectId);
-
-		this->tableView()->horizontalHeader()->setVisible(true);
-		this->tableView()->showColumn(0);
-		this->tableView()->showColumn(1);
-		this->tableView()->resizeColumnsToContents();
-
-		this->activateObject(item);
+		this->selectObject(originalObjectId, customObjectId);
 	}
 }
 
@@ -369,7 +438,7 @@ void ObjectEditorTab::resetObject()
 
 	foreach (QModelIndex index, selection->selectedIndexes())
 	{
-		ObjectTreeItem *item = this->treeModel()->item(index);
+		ObjectTreeItem *item = this->treeModel()->item(proxyModel()->mapToSource(index));
 
 		if (!item->isFolder())
 		{
@@ -394,6 +463,8 @@ void ObjectEditorTab::resetAllObjects()
 void ObjectEditorTab::setShowRawData(bool show)
 {
 	this->m_showRawData = show;
+	this->treeModel()->setShowRawData(show);
+	this->tableModel()->setShowRawData(show);
 
 	//QList<QTreeWidgetItem*> selection = treeWidget()->selectedItems();
 
@@ -419,20 +490,37 @@ void ObjectEditorTab::copyObject()
 	onCopyObject();
 }
 
-inline void ObjectEditorTab::pasteObject()
+void ObjectEditorTab::pasteObject()
 {
 	for (std::size_t i = 0; i < this->m_clipboard.size(); ++i)
 	{
-		const map::CustomUnits::Unit &unit = this->m_clipboard[i];
-		const map::CustomObjects::Object *object = boost::polymorphic_cast<const map::CustomObjects::Object*>(&unit);
-		const QString customObjectId = this->objectData()->nextCustomObjectId();
+		this->idDialog()->setId(this->objectData()->nextCustomObjectId());
 
-		for (std::size_t j = 0; j < object->modifications().size(); ++j)
+		if (this->idDialog()->exec() == QDialog::Accepted)
 		{
-			const map::CustomUnits::Modification &unitModification = object->modifications()[i];
-			const map::CustomObjects::Modification *modification =  boost::polymorphic_cast<const map::CustomObjects::Modification*>(&unitModification);
+			const QString customObjectId = this->objectData()->nextCustomObjectId();
 
-			this->objectData()->modifyField(map::idToString(object->originalId()).c_str(), customObjectId, map::idToString(modification->valueId()).c_str(), *modification);
+			const map::CustomUnits::Unit &unit = this->m_clipboard[i];
+			const map::CustomObjects::Object *object = boost::polymorphic_cast<const map::CustomObjects::Object*>(&unit);
+			const QString originalObjectId = map::idToString(object->originalId()).c_str();
+
+			if (!object->modifications().empty())
+			{
+				for (std::size_t j = 0; j < object->modifications().size(); ++j)
+				{
+					const map::CustomUnits::Modification &unitModification = object->modifications()[i];
+					const map::CustomObjects::Modification *modification =  boost::polymorphic_cast<const map::CustomObjects::Modification*>(&unitModification);
+
+					this->objectData()->modifyField(originalObjectId, customObjectId, map::idToString(modification->valueId()).c_str(), *modification);
+				}
+			}
+			/*
+			* If no modifications are done at least add the object's name that a new object is created at all.
+			*/
+			else
+			{
+				this->objectData()->modifyField(originalObjectId, customObjectId, this->objectData()->objectNameFieldId(), this->objectData()->fieldValue(originalObjectId, customObjectId, this->objectData()->objectNameFieldId()));
+			}
 		}
 	}
 
@@ -444,6 +532,27 @@ QSortFilterProxyModel* ObjectEditorTab::proxyModel() const
 	return boost::polymorphic_cast<QSortFilterProxyModel*>(this->m_treeView->model());
 }
 
+QSortFilterProxyModel* ObjectEditorTab::tableProxyModel() const
+{
+	return boost::polymorphic_cast<QSortFilterProxyModel*>(this->m_tableView->model());
+}
+
+void ObjectEditorTab::renameObject()
+{
+	QItemSelectionModel *selection = this->treeView()->selectionModel();
+
+	foreach (QModelIndex index, selection->selectedIndexes())
+	{
+		ObjectTreeItem *item = this->treeModel()->item(proxyModel()->mapToSource(index));
+
+		if (item != 0 && !item->isFolder())
+		{
+			this->modifyField(item->originalObjectId(), item->customObjectId(), this->objectData()->objectNameFieldId());
+		}
+	}
+
+	onRenameObject();
+}
 
 #include "moc_objecteditortab.cpp"
 

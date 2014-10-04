@@ -136,42 +136,55 @@ map::TriggerStrings::Entries::const_iterator TriggerEditor::triggerFunctionEntry
 {
 	map::TriggerStrings::Entries::const_iterator iterator;
 
-	switch (type) {
+	switch (type)
+	{
 		case map::TriggerFunction::Type::Event:
+		{
 			iterator = triggerStrings->events().find(code);
 
-			if (iterator == triggerStrings->events().end()) {
+			if (iterator == triggerStrings->events().end())
+			{
 				throw std::runtime_error(boost::str(boost::format(_("No corresponding TriggerStrings.txt entry in events for \"%1%\".")) % code));
 			}
 
 			break;
+		}
 
 		case map::TriggerFunction::Type::Condition:
+		{
 			iterator = triggerStrings->conditions().find(code);
 
-			if (iterator == triggerStrings->conditions().end()) {
+			if (iterator == triggerStrings->conditions().end())
+			{
 				throw std::runtime_error(boost::str(boost::format(_("No corresponding TriggerStrings.txt entry in conditions for \"%1%\".")) % code));
 			}
 
 			break;
+		}
 
 		case map::TriggerFunction::Type::Action:
+		{
 			iterator = triggerStrings->actions().find(code);
 
-			if (iterator == triggerStrings->actions().end()) {
+			if (iterator == triggerStrings->actions().end())
+			{
 				throw std::runtime_error(boost::str(boost::format(_("No corresponding TriggerStrings.txt entry in actions for \"%1%\".")) % code));
 			}
 
 			break;
+		}
 
 		case map::TriggerFunction::Type::Call:
+		{
 			iterator = triggerStrings->calls().find(code);
 
-			if (iterator == triggerStrings->calls().end()) {
+			if (iterator == triggerStrings->calls().end())
+			{
 				throw std::runtime_error(boost::str(boost::format(_("No corresponding TriggerStrings.txt entry in calls for \"%1%\".")) % code));
 			}
 
 			break;
+		}
 	}
 
 	return iterator;
@@ -181,14 +194,18 @@ int TriggerEditor::triggerFunctionLimitIntMinimum(const map::TriggerData::Functi
 {
 	int result = -1;
 
-	try {
+	try
+	{
 		const int32 value = boost::get<int32>(limit.first);
 		result = boost::numeric_cast<int>(value);
 
-		if (hasLimit != 0) {
+		if (hasLimit != 0)
+		{
 			*hasLimit = true;
 		}
-	} catch (std::exception &e) {
+	}
+	catch (std::exception &e)
+	{
 		/*
 		 * parameters should only occur for defaults
 		try {
@@ -198,7 +215,8 @@ int TriggerEditor::triggerFunctionLimitIntMinimum(const map::TriggerData::Functi
 		}
 		*/
 
-		if (hasLimit != 0) {
+		if (hasLimit != 0)
+		{
 			*hasLimit = false;
 		}
 	}
@@ -210,14 +228,18 @@ int TriggerEditor::triggerFunctionLimitIntMaximum(const map::TriggerData::Functi
 {
 	int result = -1;
 
-	try {
+	try
+	{
 		const int32 value = boost::get<int32>(limit.second);
 		result = boost::numeric_cast<int>(value);
 
-		if (hasLimit != 0) {
+		if (hasLimit != 0)
+		{
 			*hasLimit = true;
 		}
-	} catch (std::exception &e) {
+	}
+	catch (std::exception &e)
+	{
 		/*
 		 * parameters should only occur for defaults
 		try {
@@ -227,7 +249,8 @@ int TriggerEditor::triggerFunctionLimitIntMaximum(const map::TriggerData::Functi
 		}
 		*/
 
-		if (hasLimit != 0) {
+		if (hasLimit != 0)
+		{
 			*hasLimit = false;
 		}
 	}
@@ -239,14 +262,18 @@ double TriggerEditor::triggerFunctionLimitDoubleMinimum(const map::TriggerData::
 {
 	double result = -1;
 
-	try {
+	try
+	{
 		const float32 value = boost::get<float32>(limit.first);
 		result = boost::numeric_cast<double>(value);
 
-		if (hasLimit != 0) {
+		if (hasLimit != 0)
+		{
 			*hasLimit = true;
 		}
-	} catch (std::exception &e) {
+	}
+	catch (std::exception &e)
+	{
 		/*
 		 * parameters should only occur for defaults
 		try {
@@ -256,7 +283,8 @@ double TriggerEditor::triggerFunctionLimitDoubleMinimum(const map::TriggerData::
 		}
 		*/
 
-		if (hasLimit != 0) {
+		if (hasLimit != 0)
+		{
 			*hasLimit = false;
 		}
 	}
@@ -268,14 +296,18 @@ double TriggerEditor::triggerFunctionLimitDoubleMaximum(const map::TriggerData::
 {
 	double result = -1;
 
-	try {
+	try
+	{
 		const float32 value = boost::get<float32>(limit.second);
 		result = boost::numeric_cast<double>(value);
 
-		if (hasLimit != 0) {
+		if (hasLimit != 0)
+		{
 			*hasLimit = true;
 		}
-	} catch (std::exception &e) {
+	}
+	catch (std::exception &e)
+	{
 		/*
 		 * parameters should only occur for defaults
 		try {
@@ -285,7 +317,8 @@ double TriggerEditor::triggerFunctionLimitDoubleMaximum(const map::TriggerData::
 		}
 		*/
 
-		if (hasLimit != 0) {
+		if (hasLimit != 0)
+		{
 			*hasLimit = false;
 		}
 	}
@@ -297,10 +330,13 @@ QString TriggerEditor::triggerFunction(WarcraftIIIShared *sharedData, const map:
 {
 	QString result;
 
-	try {
+	try
+	{
 		map::TriggerStrings::Entries::const_iterator iterator = TriggerEditor::triggerFunctionEntry(triggerStrings, triggerFunction->name().c_str(), triggerFunction->type());
 		result = QString("(") + TriggerEditor::cutQuotes(iterator->second->name()).c_str();
-	} catch (std::runtime_error &e) {
+	}
+	catch (std::runtime_error &e)
+	{
 		qDebug() << e.what();
 		result = QString("(") + triggerFunction->name().c_str();
 	}
@@ -386,14 +422,16 @@ void TriggerEditor::fillNewTriggerFunctionParameters(const map::TriggerData *tri
 
 	const map::TriggerData::Function *triggerDataFunction = 0;
 
-	switch (function->type()) {
+	switch (function->type())
+	{
 		case map::TriggerFunction::Type::Event:
 		{
 			qDebug() << "Searching events";
 
 			map::TriggerData::Functions::const_iterator iterator = triggerData->events().find(function->name());
 
-			if (iterator != triggerData->events().end()) {
+			if (iterator != triggerData->events().end())
+			{
 				triggerDataFunction = iterator->second;
 			}
 		}
@@ -404,7 +442,8 @@ void TriggerEditor::fillNewTriggerFunctionParameters(const map::TriggerData *tri
 
 			map::TriggerData::Functions::const_iterator iterator = triggerData->conditions().find(function->name());
 
-			if (iterator != triggerData->conditions().end()) {
+			if (iterator != triggerData->conditions().end())
+			{
 				triggerDataFunction = iterator->second;
 			}
 		}
@@ -415,7 +454,8 @@ void TriggerEditor::fillNewTriggerFunctionParameters(const map::TriggerData *tri
 
 			map::TriggerData::Functions::const_iterator iterator = triggerData->actions().find(function->name());
 
-			if (iterator != triggerData->actions().end()) {
+			if (iterator != triggerData->actions().end())
+			{
 				triggerDataFunction = iterator->second;
 			}
 		}
@@ -426,46 +466,54 @@ void TriggerEditor::fillNewTriggerFunctionParameters(const map::TriggerData *tri
 
 			map::TriggerData::Calls::const_iterator iterator = triggerData->calls().find(function->name());
 
-			if (iterator != triggerData->calls().end()) {
+			if (iterator != triggerData->calls().end())
+			{
 				triggerDataFunction = iterator->second;
 			}
 		}
 
 	}
 
-	if (triggerDataFunction == 0) {
+	if (triggerDataFunction == 0)
+	{
 		qDebug() << "Did not find function \"" << function->name().c_str() << "\"";
 
 		throw std::runtime_error("");
 	}
 
-
-
-	for (std::size_t i = 0; i < triggerDataFunction->types().size(); ++i) {
+	for (std::size_t i = 0; i < triggerDataFunction->types().size(); ++i)
+	{
 		std::auto_ptr<map::TriggerFunctionParameter> functionParameter(new map::TriggerFunctionParameter());
 		bool gotDefault = false;
 
 		// show default if exists
-		if (triggerDataFunction->defaults().size() > i) {
+		if (triggerDataFunction->defaults().size() > i)
+		{
 			string parameter = boost::apply_visitor(map::TriggerData::FunctionValueVisitor(), triggerDataFunction->defaults()[i]);
 
 			// "_" means no default value
-			if (parameter != "_") {
-				if (!parameter.empty()) {
-
+			if (parameter != "_")
+			{
+				if (!parameter.empty())
+				{
 					// defaults can be presets or calls
-					if (QChar(parameter[0]).isLetter()) {
+					if (QChar(parameter[0]).isLetter())
+					{
 						map::TriggerData::Parameters::const_iterator presetIterator = triggerData->parameters().find(parameter);
 
-						if (presetIterator != triggerData->parameters().end()) {
+						if (presetIterator != triggerData->parameters().end())
+						{
 							functionParameter->setType(map::TriggerFunctionParameter::Type::Preset);
 							functionParameter->setValue(parameter);
 
 						// could be a call
-						} else {
+						}
+						else
+						{
 							map::TriggerData::Calls::const_iterator callIterator = triggerData->calls().find(parameter);
 
-							if (callIterator != triggerData->calls().end()) {
+							if (callIterator != triggerData->calls().end())
+							{
 								functionParameter->setType(map::TriggerFunctionParameter::Type::Function);
 								functionParameter->setValue(parameter);
 
@@ -473,7 +521,9 @@ void TriggerEditor::fillNewTriggerFunctionParameters(const map::TriggerData *tri
 							}
 						}
 					// strings are enclosed by single quotes
-					} else if (parameter[0] == '\"') {
+					}
+					else if (parameter[0] == '\"')
+					{
 						functionParameter->setType(map::TriggerFunctionParameter::Type::Jass);
 						functionParameter->setValue(cutQuotes(parameter));
 					}
@@ -484,7 +534,8 @@ void TriggerEditor::fillNewTriggerFunctionParameters(const map::TriggerData *tri
 		}
 
 		// if it's been "_" or there is no default defined use the type's function
-		if (!gotDefault) {
+		if (!gotDefault)
+		{
 			functionParameter->setType(map::TriggerFunctionParameter::Type::Function);
 			functionParameter->setValue("");
 		}
@@ -499,7 +550,9 @@ void TriggerEditor::openTriggers()
 	KUrl url = KFileDialog::getOpenUrl(m_openDirectory, triggersFilter(), this, i18n("Open triggers"));
 
 	if (url.isEmpty())
+	{
 		return;
+	}
 
 	m_openDirectory = url.directory();
 	this->openTriggersUrl(url);
@@ -524,11 +577,13 @@ void TriggerEditor::openTriggersUrl(const KUrl &url)
 		boost::filesystem::ifstream ifstream(target.toStdString(), std::ios::in | std::ios::binary);
 		const map::TriggerData *triggerData = this->source()->sharedData()->triggerData().get();
 
-		if (triggerData == 0) {
+		if (triggerData == 0)
+		{
 			throw std::runtime_error(_("No trigger data loaded."));
 		}
 
-		if (this->source()->sharedData()->triggerStrings().get() == 0) {
+		if (this->source()->sharedData()->triggerStrings().get() == 0)
+		{
 			throw std::runtime_error(_("No trigger strings loaded."));
 		}
 
@@ -550,7 +605,9 @@ void TriggerEditor::openCustomTextTriggers()
 	KUrl url = KFileDialog::getOpenUrl(m_openDirectory, customTextTriggersFilter(), this, i18n("Open custom text triggers"));
 
 	if (url.isEmpty())
+	{
 		return;
+	}
 
 	m_openDirectory = url.directory();
 	QString target;
@@ -583,25 +640,33 @@ void TriggerEditor::openCustomTextTriggers()
 
 void TriggerEditor::saveTriggers()
 {
-	if (triggers() == 0 && customTextTriggers() == 0) {
+	if (triggers() == 0 && customTextTriggers() == 0)
+	{
 		return;
 	}
 
 	QString file = KFileDialog::getSaveFileName(KUrl(), triggersFilter(), this, tr("Save triggers"));
 
-	if (file.isEmpty()) {
+	if (file.isEmpty())
+	{
 		return;
 	}
 
 	ofstream of(file.toStdString(), std::ios::out | std::ios::binary);
 
-	try {
-		if (this->triggers() != 0) {
+	try
+	{
+		if (this->triggers() != 0)
+		{
 			this->triggers()->write(of);
-		} else if (this->customTextTriggers() != 0) {
+		}
+		else if (this->customTextTriggers() != 0)
+		{
 			this->customTextTriggers()->write(of);
 		}
-	} catch (Exception &e) {
+	}
+	catch (Exception &e)
+	{
 		KMessageBox::error(this, tr("Error: \"%1\"").arg(e.what()));
 	}
 }
@@ -652,21 +717,28 @@ void TriggerEditor::renameTrigger()
 void TriggerEditor::showVariables()
 {
 	if (variablesDialog() == 0)
+	{
 		m_variablesDialog = new VariablesDialog(this);
+	}
 
 	if (triggers() != 0)
+	{
 		variablesDialog()->showVariables(triggers());
+	}
 
 	variablesDialog()->show();
 }
 
 void TriggerEditor::convertToText()
 {
-	foreach (QTreeWidgetItem *item, treeWidget()->selectedItems()) {
-		if (triggerEntries().contains(item)) {
+	foreach (QTreeWidgetItem *item, treeWidget()->selectedItems())
+	{
+		if (triggerEntries().contains(item))
+		{
 			map::Trigger *trigger = boost::polymorphic_cast<TriggerTreeWidgetItem*>(item)->trigger();
 
-			if (!trigger->isCustomText()) {
+			if (!trigger->isCustomText())
+			{
 				//
 			}
 		}
@@ -681,7 +753,8 @@ void TriggerEditor::loadTriggers(map::Triggers *triggers)
 	if (hasEditor())
 	{
 		/// \todo get w3x and w3m icon paths
-		if (editor()->currentMap() != 0) {
+		if (editor()->currentMap() != 0)
+		{
 			const KUrl src(editor()->currentMap()->isW3x() ? "" : "");
 			QString file;
 			rootItem()->setText(0, editor()->currentMap()->map()->info()->name().c_str());
@@ -691,7 +764,9 @@ void TriggerEditor::loadTriggers(map::Triggers *triggers)
 			{
 				rootItem()->setIcon(0, QIcon(file));
 			}
-		} else {
+		}
+		else
+		{
 			rootItem()->setText(0, tr("Current map script"));
 		}
 	}
@@ -728,18 +803,24 @@ void TriggerEditor::loadTriggers(map::Triggers *triggers)
 			TriggerTreeWidgetItem *item = 0;
 			CategoryIndices::const_iterator iterator = m_categoryIndices.find(category);
 
-			if (iterator != m_categoryIndices.end()) {
+			if (iterator != m_categoryIndices.end())
+			{
 				item = new TriggerTreeWidgetItem(&triggers->triggers()[i], categories()[iterator.value()]);
-			} else {
+			}
+			else
+			{
 				item = new TriggerTreeWidgetItem(&triggers->triggers()[i], rootItem());
 				qDebug() << "Invalid category index " << category;
 			}
 
 			// TODO set icon
 
-			if (triggers->triggers()[i].isInitiallyOn()) {
+			if (triggers->triggers()[i].isInitiallyOn())
+			{
 				item->setForeground(0, QColor(Qt::black));
-			} else {
+			}
+			else
+			{
 				item->setForeground(0, QColor(Qt::gray));
 			}
 
@@ -771,9 +852,12 @@ void TriggerEditor::loadCustomTextTriggers(map::CustomTextTriggers *customTextTr
 	triggerActionCollection()->action("closeall")->setEnabled(true);
 
 	if (triggers() == 0)
+	{
 		return;
+	}
 
-	if (triggerWidget()->trigger() != 0 && triggerWidget()->trigger()->isCustomText()) {
+	if (triggerWidget()->trigger() != 0 && triggerWidget()->trigger()->isCustomText())
+	{
 		triggerWidget()->textEdit()->setText(triggerText(triggerWidget()->trigger()).c_str());
 	}
 }
@@ -916,8 +1000,10 @@ void TriggerEditor::loadTriggerStrings()
 
 void TriggerEditor::newCategory()
 {
-	if (triggers() != 0) {
-		try {
+	if (triggers() != 0)
+	{
+		try
+		{
 			std::auto_ptr<map::TriggerCategory> category(new map::TriggerCategory());
 			category->setName(tr("Unnamed category").toStdString());
 			category->setIndex(boost::numeric_cast<int32>(triggers()->categories().size()));
@@ -931,7 +1017,9 @@ void TriggerEditor::newCategory()
 			item->setSelected(true);
 			treeWidget()->scrollToItem(item);
 
-		} catch (boost::bad_numeric_cast &e) {
+		}
+		catch (boost::bad_numeric_cast &e)
+		{
 			KMessageBox::error(this, i18n("Invalid category index %1: \"%2\"", triggers()->categories().size(), e.what()));
 		}
 	}
@@ -939,7 +1027,8 @@ void TriggerEditor::newCategory()
 
 void TriggerEditor::newTrigger()
 {
-	if (triggers() != 0) {
+	if (triggers() != 0)
+	{
 		QString name = newTriggerName();
 		std::auto_ptr<map::Trigger> trigger(new map::Trigger());
 		trigger->setName(name.toStdString());
@@ -948,7 +1037,8 @@ void TriggerEditor::newTrigger()
 
 		QTreeWidgetItem *parent = treeWidget()->selectedItems().first();
 
-		if (!categories().contains(parent)) {
+		if (!categories().contains(parent))
+		{
 			parent = rootItem();
 		}
 
@@ -972,8 +1062,10 @@ void TriggerEditor::newTriggerComment()
 
 void TriggerEditor::newEvent()
 {
-	if (triggers() != 0) {
-		if (triggerWidget()->isVisible()) {
+	if (triggers() != 0)
+	{
+		if (triggerWidget()->isVisible())
+		{
 			triggerWidget()->newEvent();
 		}
 	}
@@ -981,8 +1073,10 @@ void TriggerEditor::newEvent()
 
 void TriggerEditor::newCondition()
 {
-	if (triggers() != 0) {
-		if (triggerWidget()->isVisible()) {
+	if (triggers() != 0)
+	{
+		if (triggerWidget()->isVisible())
+		{
 			triggerWidget()->newCondition();
 		}
 	}
@@ -990,14 +1084,14 @@ void TriggerEditor::newCondition()
 
 void TriggerEditor::newAction()
 {
-	if (triggers() != 0) {
-		if (triggerWidget()->isVisible()) {
+	if (triggers() != 0)
+	{
+		if (triggerWidget()->isVisible())
+		{
 			triggerWidget()->newAction();
 		}
 	}
 }
-
-
 
 void TriggerEditor::itemClicked(QTreeWidgetItem *item, int column)
 {
@@ -1032,7 +1126,9 @@ void TriggerEditor::itemClicked(QTreeWidgetItem *item, int column)
 		newActionCollection()->action("newaction")->setEnabled(true);
 	}
 	else
+	{
 		qDebug() << "Unknown item: " << item->text(0);
+	}
 }
 
 void TriggerEditor::createFileActions(class KMenu *menu)
@@ -1178,16 +1274,20 @@ QString TriggerEditor::newTriggerName() const
 {
 	int index = 0;
 
-	if (triggers() != 0) {
-		foreach (map::Triggers::TriggerEntries::const_reference ref,  triggers()->triggers()) {
+	if (triggers() != 0)
+	{
+		foreach (map::Triggers::TriggerEntries::const_reference ref,  triggers()->triggers())
+		{
 			QString triggerName = ref.name().c_str();
 
-			if (triggerName.startsWith(tr("Unnamed trigger "))) {
+			if (triggerName.startsWith(tr("Unnamed trigger ")))
+			{
 				QString suffix = triggerName.remove(0, tr("Unnamed trigger ").length());
 				bool ok = false;
 				int usedIndex = suffix.toInt(&ok);
 
-				if (ok && usedIndex > index) {
+				if (ok && usedIndex > index)
+				{
 					index = usedIndex + 1;
 				}
 			}
@@ -1199,7 +1299,6 @@ QString TriggerEditor::newTriggerName() const
 
 QIcon TriggerEditor::triggerFunctionCatgoryIcon(MpqPriorityList *source, QWidget *window, const QString &code, const map::TriggerData::Functions &functions)
 {
-
 	map::TriggerData::Functions::const_iterator functionIterator = functions.find(code.toUtf8().constData());
 
 	if (functionIterator != functions.end())
@@ -1209,12 +1308,8 @@ QIcon TriggerEditor::triggerFunctionCatgoryIcon(MpqPriorityList *source, QWidget
 		if (triggerDataFunction->category() != 0)
 		{
 			const QString iconFilePath = MetaData::fromFilePath(triggerDataFunction->category()->iconImageFile().c_str()) + ".blp";
-			QString iconFile;
 
-			if (source->download(iconFilePath, iconFile, window))
-			{
-				return QIcon(iconFile);
-			}
+			return source->sharedData()->icon(iconFilePath, window);
 		}
 	}
 

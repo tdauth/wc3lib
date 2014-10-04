@@ -59,12 +59,18 @@ class ObjectTableModel : public QAbstractItemModel
 		const QString& originalObjectId() const;
 		const QString& customObjectId() const;
 
+		int row(const QString &fieldId) const;
+
+		void setShowRawData(bool show);
+		bool showRawData() const;
+
 	private:
 		ItemsByRow m_itemsByRow;
 		ItemsByField m_itemsByField;
 		ObjectData *m_objectData;
 		QString m_originalObjectId;
 		QString m_customObjectId;
+		bool m_showRawData;
 
 	private slots:
 		void modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
@@ -84,6 +90,19 @@ inline const QString& ObjectTableModel::originalObjectId() const
 inline const QString& ObjectTableModel::customObjectId() const
 {
 	return this->m_customObjectId;
+}
+
+inline void ObjectTableModel::setShowRawData(bool show)
+{
+	this->m_showRawData = show;
+
+	// TODO update all items
+	emit dataChanged(index(0, 0), index(this->rowCount(QModelIndex()) - 1, 1));
+}
+
+inline bool ObjectTableModel::showRawData() const
+{
+	return this->m_showRawData;
 }
 
 }

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>461</width>
-    <height>669</height>
+    <width>595</width>
+    <height>702</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -103,10 +103,39 @@
         </layout>
        </item>
        <item>
-        <widget class="QLineEdit" name="m_lineEdit"/>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <item>
+            <widget class="KTextEdit" name="m_textEdit"/>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="m_lineEdit"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QTextBrowser" name="m_previewTextBrowser"/>
+         </item>
+        </layout>
        </item>
        <item>
-        <widget class="KTextEdit" name="m_textEdit"/>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QPushButton" name="m_insertFieldValuePushButton">
+           <property name="text">
+            <string>Insert Field Value</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="m_insertColorPushButton">
+           <property name="text">
+            <string>Insert Color</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="KComboBox" name="m_comboBox"/>

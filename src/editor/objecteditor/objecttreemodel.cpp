@@ -30,7 +30,7 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectTreeModel::ObjectTreeModel(MpqPriorityList *source, QObject *parent) : QAbstractItemModel(parent), m_source(source), m_objectData(0)
+ObjectTreeModel::ObjectTreeModel(MpqPriorityList *source, QObject *parent) : QAbstractItemModel(parent), m_source(source), m_objectData(0), m_showRawData(false)
 {
 }
 
@@ -58,7 +58,7 @@ QVariant ObjectTreeModel::data(const QModelIndex &index, int role) const
 
 	     case Qt::DisplayRole:
 	     {
-		     return item->text(false);
+		     return item->text(showRawData());
 	     }
 
 	     case Qt::DecorationRole:

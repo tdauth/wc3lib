@@ -142,6 +142,10 @@ Value::Value(List value, Type type) : ValueBase(value), m_type(type)
 	}
 }
 
+Value::Value(const Value& other) : ValueBase(dynamic_cast<const ValueBase&>(other)), m_type(other.m_type)
+{
+}
+
 Value::Type Value::type() const
 {
 	return m_type;

@@ -69,6 +69,9 @@ class ObjectValueDialog : public QDialog, protected Ui::ObjectValueDialog
 		QDoubleSpinBox* doubleSpinBox() const;
 		QLineEdit* lineEdit() const;
 		KTextEdit* textEdit() const;
+		QTextBrowser* previewTextBrowser() const;
+		QPushButton* insertFieldValuePushButton() const;
+		QPushButton* insertColorPushButton() const;
 		KComboBox* comboBox() const;
 		QCheckBox* checkBox() const;
 		KEditListWidget* editListWidget() const;
@@ -125,6 +128,21 @@ inline QLineEdit* ObjectValueDialog::lineEdit() const
 inline KTextEdit* ObjectValueDialog::textEdit() const
 {
 	return this->m_textEdit;
+}
+
+inline QTextBrowser* ObjectValueDialog::previewTextBrowser() const
+{
+	return this->m_previewTextBrowser;
+}
+
+inline QPushButton* ObjectValueDialog::insertFieldValuePushButton() const
+{
+	return this->m_insertFieldValuePushButton;
+}
+
+inline QPushButton* ObjectValueDialog::insertColorPushButton() const
+{
+	return this->m_insertColorPushButton;
 }
 
 inline KComboBox* ObjectValueDialog::comboBox() const

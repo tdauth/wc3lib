@@ -33,6 +33,7 @@
 #include "uniteditor.hpp"
 #include "itemeditor.hpp"
 #include "weathereditor.hpp"
+#include "objecttreemodel.hpp"
 #include "../moduletoolbar.hpp"
 
 namespace wc3lib
@@ -67,6 +68,7 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 , m_pasteObjectAction(0)
 , m_modifyFieldAction(0)
 , m_resetFieldAction(0)
+, m_rawDataAction(0)
 {
 	readSettings();
 
@@ -301,10 +303,10 @@ void ObjectEditor::createMenus(KMenuBar *menuBar)
 	m_viewMenu = new QMenu(source()->sharedData()->tr("WESTRING_MENU_VIEW"), this);
 
 	// TODO is Frozen Throne
-	QAction *rawDataAction = new QAction(this->source()->sharedData()->tr("WESTRING_MENU_OE_TOGGLERAWDATA"), this);
-	rawDataAction->setCheckable(true);
-	connect(rawDataAction, SIGNAL(triggered(bool)), this, SLOT(showRawData(bool)));
-	m_viewMenu->addAction(rawDataAction);
+	m_rawDataAction = new QAction(this->source()->sharedData()->tr("WESTRING_MENU_OE_TOGGLERAWDATA"), this);
+	m_rawDataAction->setCheckable(true);
+	connect(m_rawDataAction, SIGNAL(triggered(bool)), this, SLOT(showRawData(bool)));
+	m_viewMenu->addAction(m_rawDataAction);
 
 	menuBar->addMenu(m_viewMenu);
 }
@@ -354,6 +356,7 @@ void ObjectEditor::currentChanged(int index)
 	m_currentTab = tab(index);
 	addCurrentActions();
 	setWindowTitle(tab(index)->name());
+	m_rawDataAction->setChecked(this->currentTab()->treeModel()->showRawData());
 }
 
 void ObjectEditor::removeCurrentActions()

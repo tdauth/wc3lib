@@ -34,7 +34,7 @@ class WeatherData : public ObjectData
 	public:
 		typedef QScopedPointer<MetaData> MetaDataPtr;
 
-		WeatherData(MpqPriorityList *source);
+		WeatherData(MpqPriorityList *source, QObject *parent = 0);
 
 		virtual QString defaultFieldValue(const QString& objectId, const QString& fieldId) const override;
 		virtual bool hasDefaultFieldValue(const QString& objectId, const QString& fieldId) const override;
@@ -47,7 +47,7 @@ class WeatherData : public ObjectData
 
 		virtual Slks slks() const override;
 
-		virtual QString objectName(const QString& originalObjectId, const QString& customObjectId) const;
+		virtual QString objectNameFieldId() const;
 		virtual MetaData* objectTabData() const;
 		virtual map::CustomObjects::Type type() const;
 

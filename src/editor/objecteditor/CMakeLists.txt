@@ -1,4 +1,5 @@
 set(wc3lib_OBJECTEDITOR_H
+	iddialog.hpp
 	itemdata.hpp
 	itemeditor.hpp
 	itemtreemodel.hpp
@@ -20,6 +21,7 @@ set(wc3lib_OBJECTEDITOR_H
 	weathertreemodel.hpp
 )
 set(wc3lib_OBJECTEDITOR_SRC
+	iddialog.cpp
 	itemdata.cpp
 	itemeditor.cpp
 	itemtreemodel.cpp

@@ -69,7 +69,7 @@ void ObjectTableView::editItem(const QModelIndex &index)
 	}
 }
 
-void ObjectTableView::resetItem(const QModelIndex& index)
+void ObjectTableView::resetItem(const QModelIndex &index)
 {
 	const QString fieldId = model()->data(index, Qt::UserRole).toString();
 	this->tab()->objectData()->resetField(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId);
@@ -100,6 +100,15 @@ void ObjectTableView::resetField()
 	{
 		resetItem(index);
 	}
+}
+
+void ObjectTableView::selectField(const QString &fieldId)
+{
+	QItemSelectionModel *selection = new QItemSelectionModel(this->tableModel());
+	selection->select(this->tableModel()->index(this->tableModel()->row(fieldId), 1), QItemSelectionModel::Rows);
+	this->setSelectionModel(selection);
+	// TODO inefficient deletion
+	selection->deleteLater();
 }
 
 }

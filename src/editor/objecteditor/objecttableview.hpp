@@ -22,6 +22,7 @@
 #define WC3LIB_EDITOR_OBJECTABLEVIEW_HPP
 
 #include <QTableView>
+#include <QSortFilterProxyModel>
 #include <QLinkedList>
 
 #include "../map.hpp"
@@ -51,6 +52,10 @@ class ObjectTableView : public QTableView
 {
 	Q_OBJECT
 
+	public slots:
+		void modifyField();
+		void resetField();
+
 	public:
 		/**
 		 * Creates a new table widget using the tab \p parent as parent widget and reference for all field data.
@@ -58,7 +63,13 @@ class ObjectTableView : public QTableView
 		ObjectTableView(ObjectEditorTab *parent);
 
 		ObjectEditorTab* tab() const;
+		QSortFilterProxyModel* sortFilterProxyModel() const;
 		ObjectTableModel* tableModel() const;
+
+		/**
+		 * Selects the row with field ID \p fieldId.
+		 */
+		void selectField(const QString &fieldId);
 
 	protected:
 		ObjectEditorTab *m_tab;
@@ -75,8 +86,6 @@ class ObjectTableView : public QTableView
 		void editItem(const QModelIndex &index);
 		void resetItem(const QModelIndex &index);
 		void customContextMenuRequested(QPoint pos);
-		void modifyField();
-		void resetField();
 };
 
 inline ObjectEditorTab* ObjectTableView::tab() const
@@ -84,9 +93,14 @@ inline ObjectEditorTab* ObjectTableView::tab() const
 	return this->m_tab;
 }
 
+inline QSortFilterProxyModel* ObjectTableView::sortFilterProxyModel() const
+{
+	return boost::polymorphic_cast<QSortFilterProxyModel*>(this->model());
+}
+
 inline ObjectTableModel* ObjectTableView::tableModel() const
 {
-	return boost::polymorphic_cast<ObjectTableModel*>(this->model());
+	return boost::polymorphic_cast<ObjectTableModel*>(sortFilterProxyModel()->sourceModel());
 }
 
 }

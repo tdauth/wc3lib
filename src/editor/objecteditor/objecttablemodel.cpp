@@ -31,62 +31,89 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectTableModel::ObjectTableModel(QObject* parent) : QAbstractItemModel(parent), m_objectData(0)
+ObjectTableModel::ObjectTableModel(QObject* parent) : QAbstractItemModel(parent), m_objectData(0), m_showRawData(false)
 {
 }
 
-QVariant ObjectTableModel::data(const QModelIndex& index, int role) const
+QVariant ObjectTableModel::data(const QModelIndex &index, int role) const
 {
 	if (!index.isValid())
 	{
 		return QVariant();
 	}
 
-	const QString fieldId = objectData()->metaData()->value(m_itemsByRow[index.row()], "ID");
-
-	switch (role)
+	if (objectData()->metaData()->hasValue(m_itemsByRow[index.row()], "ID"))
 	{
-		case Qt::DisplayRole:
-		{
-			if (index.column() == 0)
-			{
-				/*
-				* In Frozen Throne there is a category for each value.
-				*/
-				QString category;
+		const QString fieldId = objectData()->metaData()->value(m_itemsByRow[index.row()], "ID");
 
-				if (objectData()->metaData()->hasValue(fieldId, "category"))
+		switch (role)
+		{
+			case Qt::DisplayRole:
+			{
+				if (index.column() == 0)
 				{
-					category = objectData()->metaData()->value(fieldId, "category");
-					category = objectData()->source()->sharedData()->worldEditData()->value("ObjectEditorCategories", category);
-					category = objectData()->source()->sharedData()->tr(category).remove('&');
+					/*
+					* In Frozen Throne there is a category for each value.
+					*/
+					QString category;
+
+					if (objectData()->metaData()->hasValue(fieldId, "category"))
+					{
+						category = objectData()->metaData()->value(fieldId, "category");
+
+						if (objectData()->source()->sharedData()->worldEditData()->hasValue("ObjectEditorCategories", category))
+						{
+							category = objectData()->source()->sharedData()->worldEditData()->value("ObjectEditorCategories", category);
+							category = objectData()->source()->sharedData()->tr(category).remove('&');
+						}
+						else
+						{
+							qDebug() << "Missing category entry for category" << category;
+						}
+					}
+
+					if (objectData()->metaData()->hasValue(fieldId, "displayName"))
+					{
+						const QString displayName = objectData()->metaData()->value(fieldId, "displayName");
+						const QString displayText = objectData()->source()->sharedData()->tr(displayName);
+
+						if (!showRawData())
+						{
+							return tr("%1").arg(displayText);
+						}
+
+						return tr("%1 (%2)").arg(fieldId).arg(displayText);
+					}
+					else
+					{
+						qDebug() << "Missing \"displayName\" for field" << fieldId;
+					}
+				}
+				else if (index.column() == 1)
+				{
+					return objectData()->fieldReadableValue(originalObjectId(), customObjectId(), fieldId);
+				}
+			}
+
+			case Qt::UserRole:
+			{
+				return m_itemsByRow[index.row()];
+			}
+
+			case Qt::ForegroundRole:
+			{
+				if (objectData()->isFieldModified(originalObjectId(), customObjectId(), fieldId))
+				{
+					return Qt::magenta;
 				}
 
-				const QString displayName = objectData()->metaData()->value(fieldId, "displayName");
-				const QString displayText = objectData()->source()->sharedData()->tr(displayName);
-
-				return tr("%1").arg(displayText);
-			}
-			else if (index.column() == 1)
-			{
-				return objectData()->fieldReadableValue(originalObjectId(), customObjectId(), fieldId);
+				return Qt::black;
 			}
 		}
-
-		case Qt::UserRole:
-		{
-			return m_itemsByRow[index.row()];
-		}
-
-		case Qt::ForegroundRole:
-		{
-			if (objectData()->isFieldModified(originalObjectId(), customObjectId(), fieldId))
-			{
-				return Qt::magenta;
-			}
-
-			return Qt::black;
-		}
+	}
+	else
+	{
+		qDebug() << "Missing ID column for row" << m_itemsByRow[index.row()];
 	}
 
 	return QVariant();
@@ -234,6 +261,11 @@ void ObjectTableModel::modifyField(const QString& originalObjectId, const QStrin
 void ObjectTableModel::resetField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId)
 {
 	emit dataChanged(index(m_itemsByField[fieldId], 0), index(m_itemsByField[fieldId], 0));
+}
+
+int ObjectTableModel::row(const QString& fieldId) const
+{
+	return this->m_itemsByField[fieldId];
 }
 
 }

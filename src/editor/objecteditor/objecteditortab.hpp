@@ -26,6 +26,7 @@
 #include <QObject>
 #include <QWidget>
 #include <QSortFilterProxyModel>
+#include <QUndoStack>
 
 #include <KUrl>
 #include <KUrlRequester>
@@ -48,6 +49,7 @@ class ObjectTreeItem;
 class ObjectTableView;
 class ObjectTableModel;
 class Map;
+class IdDialog;
 
 /**
  * \brief A single tab of the Object Editor which theoretically could be used as standalone application as well. It supports a specific set of predefined data and meta data (\ref objectData()) and lists the standard objects by default.
@@ -93,6 +95,7 @@ class ObjectEditorTab : public QWidget
 		 */
 		ObjectEditor* objectEditor() const throw (std::bad_cast);
 		KFilterProxySearchLine* filterSearchLine() const;
+		KFilterProxySearchLine* tableFilterSearchLine() const;
 		/**
 		 * \return Returns the left edge tree widget which lists all objects (standard and custom).
 		 *
@@ -108,6 +111,7 @@ class ObjectEditorTab : public QWidget
 		 * \sa treeView()
 		 */
 		ObjectTableView* tableView() const;
+		QSortFilterProxyModel* tableProxyModel() const;
 		ObjectTableModel* tableModel() const;
 
 		/**
@@ -143,8 +147,28 @@ class ObjectEditorTab : public QWidget
 		 */
 		virtual map::CustomObjects::Table selection() const;
 
+		/**
+		 * Selects object with IDs \p originalObjectId and \p customObjectId in the tree view
+		 * which also activates the object in the table view.
+		 *
+		 * \return Returns false if the object does not exist.
+		 */
+		bool selectObject(const QString &originalObjectId, const QString &customObjectId);
+
+		/**
+		 * Shows up the modification dialog for field \p fieldId after enabling the object with IDs \p originalObjectId and \p customObjectId.
+		 *
+		 * \return Returns false if the object does not exist.
+		 */
+		bool modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
+
+		IdDialog* idDialog() const;
+
 	public slots:
 		void newObject();
+		/**
+		 * Opens the edit dialog for all selected objects names.
+		 */
 		void renameObject();
 		void deleteObject();
 		void resetObject();
@@ -208,6 +232,7 @@ class ObjectEditorTab : public QWidget
 		int m_tabIndex;
 
 		KFilterProxySearchLine *m_filterSearchLine;
+		KFilterProxySearchLine *m_tableFilterSearchLine;
 		ObjectTreeView *m_treeView; // left side tree widget
 		ObjectTreeModel *m_treeModel;
 
@@ -225,6 +250,13 @@ class ObjectEditorTab : public QWidget
 		 * Stores the currently pasted or cut objects.
 		 */
 		map::CustomObjects::Table m_clipboard;
+
+		/**
+		 * Stores the command history of a single tab which allows undo and redo actions.
+		 */
+		QUndoStack m_undoStack;
+
+		IdDialog *m_idDialog;
 
 	private slots:
 		void itemClicked(QModelIndex index);
@@ -274,6 +306,11 @@ inline KFilterProxySearchLine* ObjectEditorTab::filterSearchLine() const
 	return this->m_filterSearchLine;
 }
 
+inline KFilterProxySearchLine* ObjectEditorTab::tableFilterSearchLine() const
+{
+	return this->m_tableFilterSearchLine;
+}
+
 inline ObjectTreeView* ObjectEditorTab::treeView() const
 {
 	return m_treeView;
@@ -309,9 +346,9 @@ inline void ObjectEditorTab::newObject()
 	onNewObject();
 }
 
-inline void ObjectEditorTab::renameObject()
+inline IdDialog* ObjectEditorTab::idDialog() const
 {
-	onRenameObject();
+	return this->m_idDialog;
 }
 
 }

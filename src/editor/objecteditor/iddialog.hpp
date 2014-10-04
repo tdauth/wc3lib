@@ -18,14 +18,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <QtGui>
+#ifndef WC3LIB_EDITOR_IDDIALOG_HPP
+#define WC3LIB_EDITOR_IDDIALOG_HPP
 
-#include <KFileDialog>
-#include <KMessageBox>
+#include <QDialog>
 
-#include "weathereditor.hpp"
-#include "weathertreemodel.hpp"
-#include "weatherdata.hpp"
+#include "ui_iddialog.h"
 
 namespace wc3lib
 {
@@ -33,82 +31,27 @@ namespace wc3lib
 namespace editor
 {
 
-WeatherEditor::WeatherEditor(MpqPriorityList* source, QWidget* parent, Qt::WindowFlags f) : ObjectEditorTab(source, new WeatherData(source, parent), parent, f)
+class IdDialog : public QDialog, protected Ui::IdDialog
 {
-	setupUi();
-}
+	public:
+		explicit IdDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
 
-WeatherEditor::~WeatherEditor()
+		void setId(const QString &id);
+		QString id() const;
+};
+
+inline void IdDialog::setId(const QString &id)
 {
+	this->m_lineEdit->setText(id);
 }
 
-void WeatherEditor::onSwitchToMap(Map *map)
+inline QString IdDialog::id() const
 {
-}
-
-void WeatherEditor::onNewObject()
-{
-}
-
-void WeatherEditor::onRenameObject()
-{
-}
-
-void WeatherEditor::onDeleteObject()
-{
-}
-
-void WeatherEditor::onResetObject()
-{
-}
-
-void WeatherEditor::onResetAllObjects()
-{
-}
-
-void WeatherEditor::onExportAllObjects()
-{
-}
-
-void WeatherEditor::onImportAllObjects()
-{
-}
-
-void WeatherEditor::onCopyObject()
-{
-}
-
-void WeatherEditor::onPasteObject()
-{
-}
-
-void WeatherEditor::onShowRawData(bool show)
-{
-}
-
-void WeatherEditor::activateFolder(ObjectTreeItem* item)
-{
-}
-
-void WeatherEditor::activateObject(ObjectTreeItem* item)
-{
-}
-
-ObjectTreeModel* WeatherEditor::createTreeModel()
-{
-	return new WeatherTreeModel(this->source(), this);
-}
-
-WeatherData* WeatherEditor::weatherData() const
-{
-	return boost::polymorphic_cast<WeatherData*>(objectData());
-}
-
-QString WeatherEditor::name() const
-{
-	return tr("Weather Editor");
+	return this->m_lineEdit->text();
 }
 
 }
 
 }
+
+#endif // WC3LIB_EDITOR_IDDIALOG_HPP

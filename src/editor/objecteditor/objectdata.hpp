@@ -74,7 +74,7 @@ class ObjectData : public QObject
 		 */
 		typedef QHash<ObjectId, Modifications> Objects;
 
-		ObjectData(MpqPriorityList *source);
+		ObjectData(MpqPriorityList *source, QObject *parent = 0);
 
 		MpqPriorityList* source() const;
 
@@ -284,9 +284,9 @@ class ObjectData : public QObject
 		 * The name of an object is required in multiple cases.
 		 * For example when listing objects of a type (for field type "unitList") or when displaying them in any view.
 		 *
-		 * \return Returns the readable name of the object with IDs \p originalObjectId and \p customObjectId.
+		 * \return Returns the field ID of the readable name for objects.
 		 */
-		virtual QString objectName(const QString &originalObjectId, const QString &customObjectId) const = 0;
+		virtual QString objectNameFieldId() const = 0;
 
 	protected:
 		MpqPriorityList *m_source;

@@ -29,11 +29,11 @@ namespace wc3lib
 namespace editor
 {
 
-ItemData::ItemData(MpqPriorityList* source) : ObjectData(source)
+ItemData::ItemData(MpqPriorityList *source, QObject *parent) : ObjectData(source, parent)
 {
 }
 
-QString ItemData::defaultFieldValue(const QString& objectId, const QString& fieldId) const
+QString ItemData::defaultFieldValue(const QString &objectId, const QString &fieldId) const
 {
 	if (this->metaData()->hasValue(fieldId, "slk") && this->metaData()->hasValue(fieldId, "field"))
 	{
@@ -65,7 +65,7 @@ QString ItemData::defaultFieldValue(const QString& objectId, const QString& fiel
 	return QString();
 }
 
-bool ItemData::hasDefaultFieldValue(const QString& objectId, const QString& fieldId) const
+bool ItemData::hasDefaultFieldValue(const QString &objectId, const QString &fieldId) const
 {
 	if (this->metaData()->hasValue(fieldId, "slk") && this->metaData()->hasValue(fieldId, "field"))
 	{
@@ -120,7 +120,7 @@ ObjectData::Slks ItemData::slks() const
 	return ObjectData::Slks();
 }
 
-bool ItemData::hideField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId) const
+bool ItemData::hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const
 {
 	if (this->metaData()->hasValue(fieldId, "useItem"))
 	{
@@ -132,18 +132,9 @@ bool ItemData::hideField(const QString& originalObjectId, const QString& customO
 	return true;
 }
 
-QString ItemData::objectName(const QString& originalObjectId, const QString& customObjectId) const
+QString ItemData::objectNameFieldId() const
 {
-	if (this->hasFieldValue(originalObjectId, customObjectId, "unam"))
-	{
-		return this->fieldValue(originalObjectId, customObjectId, "unam");
-	}
-	else
-	{
-		qDebug() << "Missing \"unam\" field for object" << originalObjectId << ":" << customObjectId;
-	}
-
-	return QString();
+	return "unam";
 }
 
 MetaData* ItemData::objectTabData() const

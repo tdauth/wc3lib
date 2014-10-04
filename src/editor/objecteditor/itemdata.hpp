@@ -36,7 +36,7 @@ class ItemData : public ObjectData
 	public:
 		typedef QScopedPointer<MetaData> MetaDataPtr;
 
-		ItemData(MpqPriorityList *source);
+		ItemData(MpqPriorityList *source, QObject *parent = 0);
 
 		virtual void load(QWidget *widget) override;
 
@@ -55,7 +55,7 @@ class ItemData : public ObjectData
 
 		virtual map::CustomObjects::Type type() const override;
 
-		virtual QString objectName(const QString& originalObjectId, const QString& customObjectId) const override;
+		virtual QString objectNameFieldId() const override;
 
 		MetaData* itemData() const;
 		MetaData* itemFunc() const;

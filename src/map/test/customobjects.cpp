@@ -41,8 +41,10 @@ using namespace wc3lib;
  * per category with a changed named field only.
  */
 
-struct MyConfig {
-	MyConfig() {
+struct MyConfig
+{
+	MyConfig()
+	{
 		BOOST_TEST_MESSAGE("global setup");
 
 		ifstream in("customobjects.w3o", ifstream::in | ifstream::binary);
@@ -51,10 +53,12 @@ struct MyConfig {
 		{
 			valid = true;
 
-			try {
+			try
+			{
 				collection.read(in);
 			}
-			catch (Exception &e) {
+			catch (Exception &e)
+			{
 				valid = false;
 				std::cerr << e.what() << std::endl;
 			}
@@ -65,7 +69,8 @@ struct MyConfig {
 		}
 	}
 
-	~MyConfig()  {
+	~MyConfig()
+	{
 		BOOST_TEST_MESSAGE("global teardown");
 
 		collection.clear();
@@ -81,7 +86,8 @@ bool MyConfig::valid = true;
 
 BOOST_FIXTURE_TEST_SUITE(TestSuite, MyConfig)
 
-BOOST_AUTO_TEST_CASE(Units) {
+BOOST_AUTO_TEST_CASE(Units)
+{
 	BOOST_REQUIRE(MyConfig::collection.fileExtension() == ".w3o");
 	BOOST_REQUIRE(MyConfig::valid);
 	BOOST_REQUIRE(MyConfig::collection.hasUnits());
@@ -100,7 +106,8 @@ BOOST_AUTO_TEST_CASE(Units) {
 	BOOST_REQUIRE(modification->value().toString() == "My Unit");
 }
 
-BOOST_AUTO_TEST_CASE(Items) {
+BOOST_AUTO_TEST_CASE(Items)
+{
 	BOOST_REQUIRE(MyConfig::collection.fileExtension() == ".w3o");
 	BOOST_REQUIRE(MyConfig::valid);
 	BOOST_REQUIRE(MyConfig::collection.hasItems());
@@ -119,7 +126,8 @@ BOOST_AUTO_TEST_CASE(Items) {
 	BOOST_REQUIRE(modification->value().toString() == "My Item");
 }
 
-BOOST_AUTO_TEST_CASE(Destructibles) {
+BOOST_AUTO_TEST_CASE(Destructibles)
+{
 	BOOST_REQUIRE(MyConfig::collection.fileExtension() == ".w3o");
 	BOOST_REQUIRE(MyConfig::valid);
 	BOOST_REQUIRE(MyConfig::collection.hasDestructibles());
@@ -138,7 +146,8 @@ BOOST_AUTO_TEST_CASE(Destructibles) {
 	BOOST_REQUIRE(modification->value().toString() == "My Destructible");
 }
 
-BOOST_AUTO_TEST_CASE(Doodads) {
+BOOST_AUTO_TEST_CASE(Doodads)
+{
 	BOOST_REQUIRE(MyConfig::collection.fileExtension() == ".w3o");
 	BOOST_REQUIRE(MyConfig::valid);
 	BOOST_REQUIRE(MyConfig::collection.hasDoodads());
@@ -152,13 +161,13 @@ BOOST_AUTO_TEST_CASE(Doodads) {
 	BOOST_REQUIRE(map::idToString(object->customId()) == "D000");
 	BOOST_REQUIRE(object->modifications().size() == 1); // only name field changed
 	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object->modifications().at(0));
-	std::cerr << "Mod id: " << map::idToString(modification->valueId()) << std::endl;
-	BOOST_REQUIRE(map::idToString(modification->valueId()) == "bnam"); // the values id are taken from "DestructableMetaData.slk" first column
+	BOOST_REQUIRE(map::idToString(modification->valueId()) == "dnam"); // the values id are taken from "Doodads/DoodadMetaData.slk" first column
 	BOOST_REQUIRE(modification->value().type() == map::Value::Type::String);
 	BOOST_REQUIRE(modification->value().toString() == "My Doodad");
 }
 
-BOOST_AUTO_TEST_CASE(Abilities) {
+BOOST_AUTO_TEST_CASE(Abilities)
+{
 	BOOST_REQUIRE(MyConfig::collection.fileExtension() == ".w3o");
 	BOOST_REQUIRE(MyConfig::valid);
 	BOOST_REQUIRE(MyConfig::collection.hasAbilities());
@@ -177,7 +186,8 @@ BOOST_AUTO_TEST_CASE(Abilities) {
 	BOOST_REQUIRE(modification->value().toString() == "My Ability");
 }
 
-BOOST_AUTO_TEST_CASE(Buffs) {
+BOOST_AUTO_TEST_CASE(Buffs)
+{
 	BOOST_REQUIRE(MyConfig::collection.fileExtension() == ".w3o");
 	BOOST_REQUIRE(MyConfig::valid);
 	BOOST_REQUIRE(MyConfig::collection.hasBuffs());
@@ -191,13 +201,13 @@ BOOST_AUTO_TEST_CASE(Buffs) {
 	BOOST_REQUIRE(map::idToString(object->customId()) == "B000");
 	BOOST_REQUIRE(object->modifications().size() == 1); // only name field changed
 	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object->modifications().at(0));
-	std::cerr << "Second mod id: " << map::idToString(modification->valueId()) << std::endl;
-	BOOST_REQUIRE(map::idToString(modification->valueId()) == "anam"); // the values id are taken from "AbilityMetaData.slk" first column
+	BOOST_REQUIRE(map::idToString(modification->valueId()) == "fnam"); // the values id are taken from "Units\AbilityBuffMetaData.slk" first column NOTE the file is not listed in the listfile
 	BOOST_REQUIRE(modification->value().type() == map::Value::Type::String);
 	BOOST_REQUIRE(modification->value().toString() == "My Buff");
 }
 
-BOOST_AUTO_TEST_CASE(Upgrades) {
+BOOST_AUTO_TEST_CASE(Upgrades)
+{
 	BOOST_REQUIRE(MyConfig::collection.fileExtension() == ".w3o");
 	BOOST_REQUIRE(MyConfig::valid);
 	BOOST_REQUIRE(MyConfig::collection.hasUpgrades());

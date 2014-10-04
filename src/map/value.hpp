@@ -156,6 +156,7 @@ class Value : public ValueBase
 		Value(bool value);
 		Value(byte value);
 		Value(List value, Type type = Type::StringList);
+		Value(const Value &other);
 
 		Type type() const;
 		int32& toInteger();

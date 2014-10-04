@@ -145,7 +145,17 @@ QString ObjectTreeItem::text(bool showRawData) const
 		}
 	}
 
-	return name;
+	if (!showRawData)
+	{
+		return name;
+	}
+
+	if (!customObjectId().isEmpty())
+	{
+		return QObject::tr("%1:%2 (%3)").arg(originalObjectId()).arg(customObjectId()).arg(name);
+	}
+
+	return QObject::tr("%1 (%2)").arg(originalObjectId()).arg(name);
 }
 
 void ObjectTreeItem::setExpanded(MpqPriorityList *source, QWidget *window)
@@ -157,7 +167,6 @@ void ObjectTreeItem::setCollapsed(MpqPriorityList *source, QWidget *window)
 {
 	this->m_icon = source->sharedData()->worldEditDataIcon("UEIcon_UnitCategory", "WorldEditArt", window);
 }
-
 
 QModelIndex ObjectTreeItem::modelIndex(ObjectTreeModel *model)
 {

@@ -29,7 +29,7 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectData::ObjectData(MpqPriorityList *source) : m_source(source)
+ObjectData::ObjectData(MpqPriorityList *source, QObject *parent) : QObject(parent), m_source(source)
 {
 }
 
@@ -468,7 +468,7 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 		foreach (QString value, fieldValues)
 		{
 			// TODO which one is the custom ID
-			result.push_back(this->objectName(value, ""));
+			result.push_back(this->fieldValue(value, "", this->objectNameFieldId()));
 		}
 
 		return result.join(", ");
@@ -707,7 +707,7 @@ QString ObjectData::objectId(int value) const
 	{
 		for (int i = result.size(); i < 4; ++i)
 		{
-			result += '0';
+			result.prepend('0');
 		}
 	}
 
@@ -724,7 +724,7 @@ QString ObjectData::nextCustomObjectId() const
 	for (Objects::const_iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
 	{
 		bool ok = true;
-		int idNumber = iterator.key().second.toInt(&ok, 16);
+		int idNumber = iterator.key().second.mid(1).toInt(&ok, 16);
 
 		if (!ok)
 		{
@@ -736,6 +736,7 @@ QString ObjectData::nextCustomObjectId() const
 		}
 	}
 
+	QString result;
 	int last = -1;
 
 	foreach (int id, customIds)
@@ -744,19 +745,68 @@ QString ObjectData::nextCustomObjectId() const
 		{
 			if (id > last + 1)
 			{
-				return objectId(last + 1);
+				result = objectId(last + 1);
+
+				break;
 			}
 		}
 
 		last = id;
 	}
 
-	if (last != -1)
+	if (result.isEmpty() && last != -1)
 	{
-		return objectId(last + 1);
+		result = objectId(last + 1);
+	}
+	else
+	{
+		result = objectId(0);
 	}
 
-	return objectId(0);
+	if (result.size() > 3)
+	{
+		qDebug() << "Invalid ID" << result;
+	}
+
+	switch (type())
+	{
+		case map::CustomObjects::Type::Abilities:
+		{
+			result.prepend('A');
+
+			break;
+		}
+
+		case map::CustomObjects::Type::Units:
+		{
+			result.prepend('U');
+
+			break;
+		}
+
+		case map::CustomObjects::Type::Items:
+		{
+			result.prepend('I');
+
+			break;
+		}
+
+		case map::CustomObjects::Type::Doodads:
+		{
+			result.prepend('D');
+
+			break;
+		}
+
+		default:
+		{
+			result.prepend('Z');
+
+			break;
+		}
+	}
+
+	return result;
 }
 
 }

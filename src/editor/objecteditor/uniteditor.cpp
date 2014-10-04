@@ -28,6 +28,7 @@
 #include "objecttreeitem.hpp"
 #include "unittreemodel.hpp"
 #include "unitselectiondialog.hpp"
+#include "iddialog.hpp"
 #include "../metadata.hpp"
 #include "../map.hpp"
 
@@ -37,7 +38,7 @@ namespace wc3lib
 namespace editor
 {
 
-UnitEditor::UnitEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, new UnitData(source), parent, f), m_unitSelectionDialog(new UnitSelectionDialog(source, unitData(), this))
+UnitEditor::UnitEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, new UnitData(source, parent), parent, f), m_unitSelectionDialog(new UnitSelectionDialog(source, unitData(), this))
 {
 	setupUi();
 }
@@ -72,16 +73,19 @@ void UnitEditor::onNewObject()
 		originalObjectId = "hpea";
 	}
 
-	this->unitSelectionDialog()->select(originalObjectId);
+	this->idDialog()->setId(this->unitData()->nextCustomObjectId());
 
-	if (this->unitSelectionDialog()->exec() == QDialog::Accepted)
+	if (this->idDialog()->exec() == QDialog::Accepted)
 	{
-		// TODO calculate custom id
-		const QString customObjectId = this->unitData()->nextCustomObjectId();
+		const QString customObjectId = this->idDialog()->id();
+		this->unitSelectionDialog()->select(originalObjectId);
 
-		qDebug() << "Custom Object ID:" << customObjectId;
+		if (this->unitSelectionDialog()->exec() == QDialog::Accepted)
+		{
+			qDebug() << "Custom Object ID:" << customObjectId;
 
-		this->objectData()->modifyField(this->unitSelectionDialog()->originalObjectId(), customObjectId, "unam", this->unitSelectionDialog()->unitName());
+			this->objectData()->modifyField(this->unitSelectionDialog()->originalObjectId(), customObjectId, "unam", this->unitSelectionDialog()->unitName());
+		}
 	}
 }
 

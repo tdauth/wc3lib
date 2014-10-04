@@ -31,10 +31,22 @@ namespace editor
 ItemTreeModel::ItemTreeModel(MpqPriorityList *source, QObject *parent) : ObjectTreeModel(source, parent)
 {
 	QStringList names;
-	names << source->sharedData()->tr("WESTRING_UE_ITEMS", "WorldEditStrings");
-	names << source->sharedData()->tr("WESTRING_UE_ITEMS", "WorldEditStrings");
+	names << source->sharedData()->tr("WESTRING_IE_STANDARDITEMS", "WorldEditStrings");
+	names << source->sharedData()->tr("WESTRING_IE_CUSTOMITEMS", "WorldEditStrings");
 
 	insertRowFolders(names, 0);
+
+	QStringList classes;
+	classes << source->sharedData()->tr("WESTRING_ITEMCLASS_PERMANENT", "WorldEditStrings");
+	classes << source->sharedData()->tr("WESTRING_ITEMCLASS_CHARGED", "WorldEditStrings");
+	classes << source->sharedData()->tr("WESTRING_ITEMCLASS_POWERUP", "WorldEditStrings");
+	classes << source->sharedData()->tr("WESTRING_ITEMCLASS_ARTIFACT", "WorldEditStrings");
+	classes << source->sharedData()->tr("WESTRING_ITEMCLASS_PURCHASABLE", "WorldEditStrings");
+	classes << source->sharedData()->tr("WESTRING_ITEMCLASS_CAMPAIGN", "WorldEditStrings");
+	classes << source->sharedData()->tr("WESTRING_ITEMCLASS_MISCELLANEOUS", "WorldEditStrings");
+
+	insertRowFolders(classes, 0, this->index(0, 0));
+	insertRowFolders(classes, 0, this->index(1, 0));
 }
 
 void ItemTreeModel::load(MpqPriorityList *source, ObjectData *objectData, QWidget *window)
@@ -80,15 +92,53 @@ ObjectTreeItem* ItemTreeModel::createItem(MpqPriorityList *source, ObjectData *o
 	return item;
 }
 
-
 QModelIndex ItemTreeModel::itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId)
 {
+	QModelIndex parent;
+
 	if (customObjectId.isEmpty())
 	{
-		return index(0, 0);
+		parent = index(0, 0);
+	}
+	else
+	{
+		parent = index(1, 0);
 	}
 
-	return index(1, 0);
+	const QString itemClass = objectData->fieldValue(originalObjectId, customObjectId, "icla");
+
+	if (itemClass == "Permanent")
+	{
+		return index(0, 0, parent);
+	}
+	else if (itemClass == "Charged")
+	{
+		return index(1, 0, parent);
+	}
+	else if (itemClass == "PowerUp")
+	{
+		return index(2, 0, parent);
+	}
+	else if (itemClass == "Artifact")
+	{
+		return index(3, 0, parent);
+	}
+	else if (itemClass == "Purchasable")
+	{
+		return index(4, 0, parent);
+	}
+	else if (itemClass == "Campaign")
+	{
+		return index(5, 0, parent);
+	}
+	else if (itemClass == "Miscellaneous")
+	{
+		return index(6, 0, parent);
+	}
+
+	qDebug() << "Unknown item class" << itemClass;
+
+	return index(0, 0, parent);
 }
 
 }
