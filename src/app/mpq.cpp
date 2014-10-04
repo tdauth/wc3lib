@@ -389,7 +389,7 @@ int main(int argc, char *argv[])
 
 				// usually does not list itself
 				// TODO really search for it?
-				if (std::find(listfileEntries.begin(), listfileEntries.end(), "(listfile)") != listfileEntries.end())
+				if (std::find(listfileEntries.begin(), listfileEntries.end(), "(listfile)") == listfileEntries.end())
 				{
 					listfileEntries.push_back("(listfile)");
 				}
