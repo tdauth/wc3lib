@@ -374,16 +374,10 @@ void ObjectEditor::removeCurrentActions()
 
 void ObjectEditor::addCurrentActions()
 {
-	QString file;
-
 	// new object
 
 	newObjectAction()->setText(currentTab()->newObjectText());
-
-	if (source()->download(currentTab()->newObjectIconUrl(), file, this))
-	{
-		newObjectAction()->setIcon(QIcon(file));
-	}
+	newObjectAction()->setIcon(source()->sharedData()->icon(currentTab()->newObjectIconUrl(), this));
 
 	connect(newObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(newObject()));
 
@@ -417,22 +411,13 @@ void ObjectEditor::addCurrentActions()
 	// copy object
 
 	copyObjectAction()->setText(currentTab()->copyObjectText());
-
-	if (source()->download(currentTab()->copyObjectIconUrl(), file, this))
-	{
-		copyObjectAction()->setIcon(QIcon(file));
-	}
-
+	copyObjectAction()->setIcon(source()->sharedData()->icon(currentTab()->copyObjectIconUrl(), this));
 	connect(copyObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(copyObject()));
 
 	pasteObjectAction()->setText(currentTab()->pasteObjectText());
-
-	if (source()->download(currentTab()->pasteObjectIconUrl(), file, this))
-	{
-		pasteObjectAction()->setIcon(QIcon(file));
-	}
-
+	pasteObjectAction()->setIcon(source()->sharedData()->icon(currentTab()->pasteObjectIconUrl(), this));
 	connect(pasteObjectAction(), SIGNAL(triggered()), currentTab(), SLOT(pasteObject()));
+
 	pasteObjectAction()->setEnabled(!currentTab()->clipboardIsEmpty());
 }
 

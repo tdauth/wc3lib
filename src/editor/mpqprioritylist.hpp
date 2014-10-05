@@ -303,6 +303,7 @@ class KDE_EXPORT MpqPriorityList
 		 * \return Returns all hold resources.
 		 */
 		const Resources& resources() const;
+		Resources& resources();
 
 		void readSettings(const QString &group);
 		void writeSettings(const QString &group);
@@ -368,6 +369,11 @@ inline bool MpqPriorityList::removeResource(const KUrl &url)
 }
 
 inline const MpqPriorityList::Resources& MpqPriorityList::resources() const
+{
+	return this->m_resources;
+}
+
+inline MpqPriorityList::Resources& MpqPriorityList::resources()
 {
 	return this->m_resources;
 }

@@ -498,7 +498,7 @@ void ObjectEditorTab::pasteObject()
 
 		if (this->idDialog()->exec() == QDialog::Accepted)
 		{
-			const QString customObjectId = this->objectData()->nextCustomObjectId();
+			const QString customObjectId = this->idDialog()->id();
 
 			const map::CustomUnits::Unit &unit = this->m_clipboard[i];
 			const map::CustomObjects::Object *object = boost::polymorphic_cast<const map::CustomObjects::Object*>(&unit);
