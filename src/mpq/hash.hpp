@@ -33,7 +33,7 @@ namespace mpq
 {
 
 /**
- * Simple base class for generating hash comparisons (can be used in combination with unordered types from Boost C++ Libraries as in \ref mpq::Archive:Hashes)
+ * Simple base class for generating hash comparisons (can be used in combination with unordered types from Boost C++ Libraries as in \ref mpq::Archive::Hashes)
  * \sa hash_value()
  * \sa Hash
  */
@@ -234,7 +234,6 @@ class Hash : public Format, private boost::noncopyable
 
 		/**
 		 * Reads all hashing data into the class.
-		 * \param index Assigns the index to the hash entry.
 		 */
 		std::streamsize read(istream &istream);
 

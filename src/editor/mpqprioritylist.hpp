@@ -50,7 +50,7 @@ namespace editor
  *
  * The class supports comparison operators which allow you to compare their priorities
  * or using them as keys for maps based on their priority.
- * Since the priority is not unique you should use \ref std::multimap or \ref std::multiset.
+ * Since the priority is not unique you should use std::multimap or std::multiset.
  */
 class KDE_EXPORT MpqPriorityListEntry : public boost::operators<MpqPriorityListEntry>
 {

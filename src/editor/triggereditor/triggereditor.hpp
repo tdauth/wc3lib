@@ -58,7 +58,7 @@ namespace editor
  *
  * The main class is the module deriving class \ref TriggerEditor which allows to load one set of triggers using the map module's class \ref map::Triggers + \ref map::CustomTextTriggers for all triggers which contain JASS code only.
  *
- * For corresponding trigger data and identifiers \ref map::TriggerData and \ref map::TriggerStrings are used. As \ref MpqPriorityList provides \ref MpqPriorityList::triggerData() and \ref MpqPriorityList::triggerStrings() the trigger editor will try to use them to get the necessary dependencies of trigger functions.
+ * For corresponding trigger data and identifiers \ref map::TriggerData and \ref map::TriggerStrings are used. As \ref MpqPriorityList provides \ref WarcraftIIIShared::triggerData() and \ref WarcraftIIIShared::triggerStrings() the trigger editor will try to use them to get the necessary dependencies of trigger functions.
  *
  * Additionally, the user is allowed to load his custom trigger data and strings using the file menu of the trigger editor.
  *
@@ -163,13 +163,14 @@ class KDE_EXPORT TriggerEditor : public Module
 		 * Use \ref triggerFunctionText() for advanced text output.
 		 * For parameters use \ref triggerFunctionParameter().
 		 * \return Returns the corresponding string for \p triggerFunction's call in the following form:
-		 * (<functionname>( (<sub calls 1>( <sub call 2>, ...), ...), ... ))
+		 * ( functionname( (sub calls 1(sub call 2, ...), ...), ... ))
 		 */
 		static QString triggerFunction(WarcraftIIIShared *sharedData, const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const map::TriggerFunction *triggerFunction);
 		/**
 		 * Builds the corresponding string for \p parameter by encapsulating all sub calls recursively using \ref triggerFunction().
 		 * If it is only a variable, JASS call or preset, it simply returns the corresponding string.
 		 *
+		 * \param sharedData The shared data which provides translation function \ref WarcraftIIIShared::tr() and translation sources.
 		 * \param triggerData Trigger data from "UI/TriggerData.txt" which is used to get information about trigger functions and presets.
 		 * \param triggerStrings Trigger strings from "UI/TriggerStrings.txt" which are used to get the corresponding identifiers of trigger functions and presets.
 		 * \param parameter Parameter of a trigger function for which the corresponding string is returned.
@@ -193,12 +194,20 @@ class KDE_EXPORT TriggerEditor : public Module
 		 * This text is usually shown in a \ref TriggerFunctionDialog when editing a function and its parameters.
 		 *
 		 * For all parameters which are function calls itself it returns the corresponding string in the following form if \p function is not 0:
-		 * (<sub call level 1>(<sub calls level 2>))
+		 * (sub call level 1(sub calls level 2))
 		 *
 		 * If \p function is 0 it will return formatted text for a newly created function.
+		 * \param sharedData The shared data from which the translations are done.
+		 * \param triggerData The trigger data which contains all triggers and triger functions etc.
+		 * \param triggerStrings The trigger strings which belong to \p triggerData.
+		 * \param code The code of the trigger function.
+		 * \param function The actual trigger function.
+		 * \param functions The list of functions to which \p function does belong.
+		 * \param entries The trigger string entries to which \p function does belong.
 		 * \param withLinks If this value is true it will create selectable links for all parameters.
 		 * \param withHint If this value is true, the function's hint will be appended after a line break.
 		 * \param withCategory If this value is true, the function's trigger category will be prepended if it is displayed in trigger editor.
+		 * 
 		 * \return Returns the formatted string.
 		 */
 		template<class Functions>
@@ -298,13 +307,13 @@ class KDE_EXPORT TriggerEditor : public Module
 
 		/**
 		 * Loads corresponding trigger data ("UI/TriggerData.txt") which contains definitions of trigger types, categories, functions etc. and is required to resolve all trigger functions.
-		 * \note Usually, data from the corresponding \ref MpqPriorityList::source() would be taken (\ref MpqPriorityList::triggerData()). This function is useful if the corresponding source has no trigger data file.
+		 * \note Usually, data from the corresponding \ref MpqPriorityList::shared() would be taken (\ref WarcraftIIIShared::triggerData()). This function is useful if the corresponding source has no trigger data file.
 		 */
 		void loadTriggerData();
 		/**
 		 * Loads corresponding trigger strings ("UI/TriggerStrings.txt") which contains string definitions and layouts for all trigger functions defined by trigger data.
 		 * This data is required for proper display of names and parameter selection.
-		 * \note Usually, data from the corresponding \ref MpqPriorityList::source() would be taken (\ref MpqPriorityList::triggerStrings()). This function is useful if the corresponding source has no trigger strings file.
+		 * \note Usually, data from the corresponding \ref MpqPriorityList::shared() would be taken (\ref WarcraftIIIShared::triggerStrings()). This function is useful if the corresponding source has no trigger strings file.
 		 */
 		void loadTriggerStrings();
 

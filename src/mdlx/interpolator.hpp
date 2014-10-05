@@ -50,7 +50,7 @@ class Interpolator
 
 		/**
 		 * Calculates the interpolated values at the given time frame \p frame depending
-		 * of the interpolation type of \ref animatedPorperties().
+		 * of the interpolation type of \ref Interpolator::animatedProperties().
 		 */
 		Values calculate(long32 frame);
 

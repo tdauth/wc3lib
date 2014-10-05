@@ -39,10 +39,10 @@ class Archive;
  * Blocks are divided into sectors (\ref Sector).
  * There is some properties which are equal for all contained sectors which can be accessed via \ref flags()
  * The MPQ archive's block table is limited to a size of 2^32 (\ref uint32) - 2 since the last two values are reserved by \ref Hash::blockIndexDeleted and \ref Hash::blockIndexEmpty.
- * Use \ref Archive:maxBlockId to get the last valid block id.
+ * Use \ref Archive::maxBlockId to get the last valid block id.
  *
  *
- * \note All the block's data is kept private. Only the class \ref Archivecan modify it since it is responsible for holding all blocks.
+ * \note All the block's data is kept private. Only the class \ref Archive can modify it since it is responsible for holding all blocks.
  *
  * \sa Sector
  * \sa Hash
@@ -81,7 +81,7 @@ class Block : public Format, private boost::noncopyable
 		bool unused() const;
 		/**
 		 * Combines values from \ref blockOffset() and \ref extendedBlockOffset() and returns the result.
-		 * \note This is only required when \ref Archive:Format::MPQ2 or higher is used.
+		 * \note This is only required when \ref Archive::Format::Mpq2 or higher is used.
 		 */
 		uint64 largeOffset() const;
 
@@ -96,7 +96,7 @@ class Block : public Format, private boost::noncopyable
 		uint32 blockOffset() const;
 
 		/**
-		 * \ref Archive:Format::MPQ2 supports extended offsets by adding a \ref uint16 value which contains the \ref uint64's more significant bits.
+		 * \ref Archive::Format::Mpq2 supports extended offsets by adding a \ref uint16 value which contains the \ref uint64's more significant bits.
 		 * Use \ref largeOffset() to get the whole offset combination.
 		 * \sa largeOffset()
 		 * \sa blockOffset()
@@ -138,7 +138,7 @@ class Block : public Format, private boost::noncopyable
 		/**
 		 * The constructor has to fill the block data which cannot be read directly from a \ref BlockTableEntry.
 		 *
-		 * \note The extended block offset have to be set using \ref setFile() and \ref setExtendedBlockOffset().
+		 * \note The extended block offset have to be set using \ref setExtendedBlockOffset().
 		 */
 		Block(uint32 index);
 		virtual ~Block();

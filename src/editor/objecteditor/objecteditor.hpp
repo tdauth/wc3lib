@@ -79,7 +79,7 @@ class SoundEntryEditor;
  *
  * One single tab provides two views. At the left edge there is a tree view listing all objects. At the right edge there is a table view listing the field values
  * of the currently selected object from the tree view.
- * The two classes provide these views: \ref ObjectTreeView and \ref ObjectTableWidget (currently a widget, should be ported to \ref QTableView).
+ * The two classes that provide these views are \ref ObjectTreeView and \ref ObjectTableView.
  *
  *
  * As the MVC concept of abstract item views in Qt requires the developer to provide an item model for the views there is the abstract class

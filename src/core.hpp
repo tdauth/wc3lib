@@ -33,7 +33,7 @@ namespace wc3lib
  *
  * Class \ref Format is the base class of all format related classes of the wc3lib. It supports some basic serialization member functions.
  *
- * Include \ref utilities.hpp to use many I/O stream functions heavily used by all supported format classes. Besides it includes many default components of the STL and the Boost C++ Libraries and provides some error/info output functions with human-readable messages and class \ref Vertex.
+ * Include \ref utilities.hpp to use many I/O stream functions heavily used by all supported format classes. Besides it includes many default components of the STL and the Boost C++ Libraries and provides some error/info output functions with human-readable messages and class \ref BasicVertex.
  *
  * \namespace wc3lib
  * \brief \ref coresection

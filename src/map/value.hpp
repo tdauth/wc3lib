@@ -91,7 +91,7 @@ class ValueWriter : public boost::static_visitor<>
 };
 
 /**
- * This operator is required for displaying objects of type \ref Value on \ref cout for instance.
+ * This operator is required for displaying objects of type \ref Value on std::cout for instance.
  */
 inline std::ostream& operator<<(std::ostream &ostream, const List &list)
 {
@@ -115,8 +115,8 @@ List
  * \sa ValueLessComparator
  * \sa CustomUnits::Modification
  * \sa CustomObjects::Modification
- * \todo type() is already used in class \ref boost::variant.
- * \todo Implement custom type check using stored type for calls of \ref boost::apply_visitor() and \ref boost::get().
+ * \todo type() is already used in class boost::variant.
+ * \todo Implement custom type check using stored type for calls of boost::apply_visitor() and boost::get().
  *
  * \ingroup objectdata
  */

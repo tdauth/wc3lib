@@ -61,7 +61,7 @@ class CustomObjects : public CustomUnits
 		 *
 		 * This is a list of all meta data SLK files from The Frozen Throne:
 		 * <ul>
-		 * <li>UnitMetaData.slk - \ref CustomObjects::Type::Unit </li>
+		 * <li>UnitMetaData.slk - \ref CustomObjects::Type::Units </li>
 		 * </ul>
 		 *
 		 * \ingroup objectdata

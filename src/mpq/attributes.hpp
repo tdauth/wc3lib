@@ -114,7 +114,12 @@ class Attributes : public File
 
 		/**
 		 * Writes data into corresponding file "(attributes)" of the archive.
+		 * \param version The format's version.
 		 * \param extenedAttributes Defines which attributes are actuall used.
+		 * \param crcs All CRCs which are written.
+		 * \param fileTimes All file times which are written.
+		 * \param md5s All MD5 checksums which are written.
+		 * \return Returns the number of bytes which are written.
 		 */
 		std::streamsize writeAttributes(int32 version, ExtendedAttributes extenedAttributes, const Crc32s &crcs = Crc32s(), const FileTimes &fileTimes = FileTimes(), const Md5s &md5s = Md5s());
 

@@ -38,12 +38,15 @@ namespace map
 {
 
 /**
- * Warcraft III RoC only (not in TFT), allows you to customize unit data.
+ * \brief Customized units for Warcraft III: Reign of Chaos.
+ *
+ * Warcraft III RoC only (not in TFT), allows you only to customize unit and item data.
  * Later, in Frozen Throne Blizzard introduced general object data modification (\ref CustomObjects).
- * Usually stored in file "war3map.w3u" of the map.
- * It contains two unit tables. One with the original units of Warcraft III which have been changed in the map and another with new custom units based on a original unit.
+ * The custom units are usually stored in the file "war3map.w3u" of the map.
+ * It contains two unit tables. One with the original units of Warcraft III which have been changed in the map and another with new custom units based on an original unit.
  * Both tables can be accessed via \ref originalTable() and \ref customTable().
- * Each unit in a table is represented by \ref CustomUnits::Unit and contains a list of modified fields (each represented by a \ref CustomUnits::Modification instance).
+ * Each unit in a table is represented by \ref CustomUnits::Unit and contains a list of modified fields of which each is represented by a \ref CustomUnits::Modification instance.
+ *
  * \sa CustomObjects
  *
  * \ingroup objectdata
@@ -87,7 +90,7 @@ class CustomUnits : public FileFormat
 		};
 
 		/**
-		 * Prevent segmentation fault when cloning modifications in a dervied class such as \ref wc3lib::map::CustomObjects::CustomObject.
+		 * Prevent segmentation fault when cloning modifications in a dervied class such as \ref wc3lib::map::CustomObjects::Object.
 		 */
 		static inline wc3lib::map::CustomUnits::Modification* new_clone(const wc3lib::map::CustomUnits::Modification &o)
 		{
@@ -153,10 +156,25 @@ class CustomUnits : public FileFormat
 		virtual const byte* fileTextId() const override;
 		virtual uint32 latestFileVersion() const override;
 
+		/**
+		 * The original table contains all unit entries for standard units.
+		 *
+		 * @{
+		 */
 		Table& originalTable();
 		const Table& originalTable() const;
+		/**
+		 * @}
+		 */
+		/**
+		 * The custom table contains all unit entries for custom units.
+		 * @{
+		 */
 		Table& customTable();
 		const Table& customTable() const;
+		/**
+		 * @}
+		 */
 
 		/**
 		 * Clears both tables.
@@ -165,7 +183,7 @@ class CustomUnits : public FileFormat
 
 	protected:
 		/**
-		 * This internal function must be overwritten to provide another from \ref Unit derived data type for unit objects.
+		 * This internal function must be overwritten to provide another from \ref CustomUnits::Unit derived data type for unit objects.
 		 */
 		virtual Unit* createUnit() const;
 

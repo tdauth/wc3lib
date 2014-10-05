@@ -44,7 +44,7 @@ class Archive;
  *
  * Use \ref isValid() to check if the file is a valid file instance of an archive.
  *
- * \note Only class \ref Archivecan modify a file since it is responsible for holding all files.
+ * \note Only class \ref Archive can modify a file since it is responsible for holding all files.
  */
 class File
 {
@@ -84,7 +84,7 @@ class File
 
 		/**
 		 * Use this default constructor to create invalid file objects.
-		 * Such objects are returned by the class \ref Archivewhenever the file is not found.
+		 * Such objects are returned by the class \ref Archive whenever the file is not found.
 		 * It sets the archive (\ref mpq()) and the hash (\ref hash()) to 0 which indicates that it is invalid.
 		 * \ref isValid() returns false if the file is invalid.
 		 */
@@ -130,7 +130,9 @@ class File
 		 */
 		std::streamsize sectors(istream &istream, Sectors &sectors);
 		/**
-		 * Same as \ref read(istream &) but opens MPQ archive for reading sector table.
+		 * Reads the file's sector table into \p sectors.
+		 *
+		 * \return Returns the number of bytes read.
 		 */
 		std::streamsize sectors(Sectors &sectors);
 		/**
@@ -216,7 +218,9 @@ class File
 		friend Archive;
 
 		/**
-		 * Valid MPQ files are created by \ref Archiveonly.
+		 * Valid MPQ files are created by \ref Archive only.
+		 * \param mpq The archive which the file does belong to.
+		 * \param hash The hash table entry which contains the hash entry of the file.
 		 * \param path Initial path which is set without any synchronization of the corresponding hash entry.
 		 */
 		File(Archive *mpq, Hash *hash, const boost::filesystem::path &path);

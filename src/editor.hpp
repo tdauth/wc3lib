@@ -33,13 +33,13 @@ namespace wc3lib
  *
  * Resource classes derived from \ref editor::Resource can be used to load Warcraft III date like textures (\ref editor::Texture), models (\ref editor::OgreMdlx) or maps (\ref editor::Map).
  *
- * Those wrapper classes provide load and save functionality based on the KIO API and considering \ref MpqPriorityList entries.
+ * Those wrapper classes provide load and save functionality based on the KIO API and considering \ref editor::MpqPriorityList entries.
  *
  * \section pluginssection Plugins
  * There is various plug-ins which allow you to load and save BLP textures in Qt/KDE GUIs and OGRE scenes and to access MPQ archives via KDE's KIO slave module:
  * <ul>
  * <li>\ref editor::BlpCodec - OGRE BLP texture support</li>
- * <li>\ref editor::MpqProtocol - KDE I/O slave for MPQ archives</li>
+ * <li>\ref editor::MpqSlave - KDE I/O slave for MPQ archives</li>
  * <li>\ref editor::BlpIOPlugin - Qt image format support for BLP textures</li>
  * </ul>
  *

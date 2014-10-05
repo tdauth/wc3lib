@@ -24,7 +24,7 @@
 /**
  * \defgroup io I/O
  * wc3lib supports I/O operations for most of Warcraft III's file formats.
- * Base class of all formats is \ref Format.
+ * Base class of all formats is \ref wc3lib::Format.
  */
 
 #include <istream>

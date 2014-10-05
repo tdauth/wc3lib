@@ -25,7 +25,7 @@
  * \defgroup mdlsupport MDL support
  *
  * wc3lib supports parsing MDL files through an EBNF grammar.
- * The class \ref MdlGrammar provides parsing methods.
+ * The class \ref wc3lib::mdlx::MdlGrammar provides parsing methods.
  */
 
 #include "../spirit.hpp"

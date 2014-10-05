@@ -38,7 +38,7 @@ class File;
  * \brief Blocks are divided into one or several sectors.
  *
  * Each \ref Block instance consists of one or several sectors which can have different compression types (\ref Compression).
- * Compressed sectors do usually have the size of \ref Archive:sectorSize() (except the last one which might be smaller).
+ * Compressed sectors do usually have the size of \ref Archive::sectorSize() (except the last one which might be smaller).
  * \note Actually there is no read and write member functions since Sectors are created by \ref File instances when data is being read or written.
  */
 class Sector // FIXME : private boost::noncopyable
@@ -74,12 +74,12 @@ class Sector // FIXME : private boost::noncopyable
 		virtual ~Sector();
 
 		/**
-		 * Sames as \ref readData(const byte*, uint32) but detects buffer and buffer size automatically by simply using \ref Archive:sectorSize() of the corresponding MPQ archive or less (if input stream hasn't that much data).
+		 * Same as \ref readData(const byte*, const uint32, int) but detects buffer and buffer size automatically by simply using \ref Archive::sectorSize() of the corresponding MPQ archive or less (if input stream hasn't that much data).
 		 */
 		std::streamsize readData(istream &istream, int waveCompressionLevel = defaultWaveCompressionLevel);
 		/**
 		 * Compresses and encrypts data from \p buffer of size \p bufferSize if necessary and writes it into the corresponding MPQ archive at the sector's place.
-		 * \note Compressed data has to be less than or equal to \ref Archive:sectorSize() of the corresponding MPQ archive. Otherwise it throws an exception.
+		 * \note Compressed data has to be less than or equal to \ref Archive::sectorSize() of the corresponding MPQ archive. Otherwise it throws an exception.
 		 * \return Returns size of bytes which has been written into the corresponding MPQ archive.
 		 */
 		std::streamsize readData(const byte *buffer, const uint32 bufferSize, int waveCompressionLevel = defaultWaveCompressionLevel);

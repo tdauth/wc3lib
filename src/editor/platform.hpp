@@ -237,6 +237,8 @@ inline QString valueToString(const map::Value &value)
  * Usually parts of the texture are reserved for the team color and are colored depending on the owning player
  * of the unit.
  * The enum specifies all team colors which are available in Warcraft III.
+ *
+ * Use \ref MaxTeamColors to get the number of team colors.
  */
 enum class TeamColor
 {
@@ -253,8 +255,9 @@ enum class TeamColor
 	DarkGreen,
 	Brown,
 	Black,
-	MaxTeamColors
 };
+
+static const int MaxTeamColors = static_cast<int>(TeamColor::Black) + 1;
 
 /**
  * Converts team color enumeration value into Qt RGB color.
@@ -626,7 +629,7 @@ inline Ogre::Vector2 ogreVector2(const Vertex2d<float32> &textureVertexData)
 }
 
 template<typename R, typename ValueType, std::size_t N>
-inline R ogreVertex(const BasicVertex<ValueType, N> &vertex)
+inline R ogreVertex(const BasicVertex<ValueType, N> & /* vertex */)
 {
 	throw Exception(_("No valid specialization!")); // TODO static assert
 }

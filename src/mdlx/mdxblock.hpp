@@ -40,12 +40,14 @@ class MdxBlock : public MdlxProperty
 
 		/**
 		 * \param mdxIdentifier MDX chunk tag of four characters (\ref mdxIdentifierSize). The parameter can be specified as string literal for simplified usage but it must contain exactly four characters!
+		 * \param mdlKeyword The corresponding MDL keyword of the block.
+		 * \param optional If this value is true there is no exception if the block does not exist. Otherwise an exception is thrown.
 		 */
 		MdxBlock(const string &mdxIdentifier, const string &mdlKeyword, bool optional = true);
 		virtual ~MdxBlock();
 
 		/**
-		 * \return Returns the block name with size \ref MdxBlock::blockNameSize.
+		 * \return Returns the block name with size \ref MdxBlock::mdxIdentifierSize.
 		 */
 		const byte* mdxIdentifier() const;
 		const string& mdlKeyword() const;

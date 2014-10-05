@@ -30,15 +30,16 @@ namespace mdlx
 {
 
 /**
- * No MDX block!
- * Node types can have parent relationships and inherit rotation, scaling and translation of their parent if flags are set (\ref Node::Type::inheritsTranslation, \ref Node::Type::inheritsRotation, \ref Node::Type::inheritsScaling).
+ * \note This class does not represent an MDX block!
+ *
+ * Node types can have parent relationships and inherit rotation, scaling and translation of their parent if flags are set (\ref Node::Type::DontInheritTranslation, \ref Node::Type::DontInheritRotation, \ref Node::Type::DontInheritScaling).
  * Consider that \ref Node::translations(), \ref Node::rotations() and \ref Node::scalings() won't return 0
  * if the node does inherit any of them. They do only have empty lists.
- * Use Node::hasParent to check if there is any parent inheritance relationship.
- * All objects are stored in a map of the Mdlx instance indicated with their id for easier and faster access (\ref Mdlx::node()).
- * \note MDLX format brings its own dynamic type system by saving the type of each node in its structure. Use Node::type to get an node's type.
-* \note Inclusive byte count is only related to the note structure itself (excluding any further chunk data).
-*/
+ * Use \ref Node::hasParent() to check if there is any parent inheritance relationship.
+ *
+ * \note MDLX format brings its own dynamic type system by saving the type of each node in its structure. Use \ref Node::type() to get an node's type.
+ * \note Inclusive byte count is only related to the note structure itself (excluding any further chunk data).
+ */
 class Node : public MdlxProperty
 {
 	public:

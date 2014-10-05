@@ -23,7 +23,7 @@
 
 /**
  * \defgroup triggers Triggers
- * Warcraft III uses the event based scripting language JASS (\ref jass) to allow users to control the game's logic.
+ * Warcraft III uses the event based scripting language JASS (\ref wc3lib::jass) to allow users to control the game's logic.
  * The scripting language is also accessable via the trigger editor, a GUI
  * which allows you to create triggers with events, conditions and actions.
  * When the map is saved, triggers are converted into one single map script.

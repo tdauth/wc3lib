@@ -57,7 +57,7 @@ class Txt : public Format
 		 * The key follows a "=" character and everything following this character including whitespaces etc. is the corresponding value.
 		 * The key is not necessarily unique.
 		 *
-		 * The key can be accessed using \ref first and the value using \ref second of the pair.
+		 * The key can be accessed using \ref Entry::first and the value using \ref Entry::second of the pair.
 		 *
 		 * \note We cannot use a map here since keys are not necessarily unique! For example "UI/TriggerData.txt" has multiple pairs with the same key for different options of trigger data.
 		 *

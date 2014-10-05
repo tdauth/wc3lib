@@ -85,13 +85,19 @@ class ObjectValueDialog : public QDialog, protected Ui::ObjectValueDialog
 		/**
 		 * Shows an object value dialog for the object with IDs \p originalObjectId and \p customObjectId and for its field \p fieldId which allows the user to select
 		 * a new value for the corresponding field.
-		 * If the selection was successfull the function returns \p QDialog::DialogCode::Accepted.
+		 * If the selection was successfull the function returns QDialog::DialogCode::Accepted.
 		 *
 		 * On success it automatically modifies the field with ID \p fieldId in \p objectData.
 		 *
 		 * \param result Sets the result to the readable value selected in the dialog.
+		 * \param originalObjectId The original ID of the object.
+		 * \param customObjectId The custom ID of the object.
+		 * \param fieldId The ID of the field which is modified by the dialog.
+		 * \param objectData The corresponding object data which contains all modifications and default values.
+		 * \param label The dialog's label.
+		 * \param parent The dialog's parent widget.
 		 *
-		 * \return Returns the dialog code \ref QDialog::DialogCode.
+		 * \return Returns the dialog code QDialog::DialogCode.
 		 */
 		static int show(QString &result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, ObjectData *objectData, const QString &label, QWidget *parent = 0);
 

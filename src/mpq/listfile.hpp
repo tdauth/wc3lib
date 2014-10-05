@@ -45,7 +45,9 @@ namespace mpq
  *
  * Use \ref Listfile::entries() to get all entries stored as vector of strings.
  *
- * Use \ref Listfile::dirEntries() if you want filter entries by directory and identify sub directories.
+ * Use \ref Listfile::caseSensitiveFileEntries() or \ref Listfile::caseSensitiveDirEntries()  if you want filter entries by directory and identify sub directories.
+ *
+ * \ref Listfile::existingEntries() filters only existing listfile entries.
  *
  * \sa Attributes
  * \sa Signature
@@ -53,6 +55,9 @@ namespace mpq
 class Listfile : public File
 {
 	public:
+		/**
+		 * \brief String entries of a (listfile) file.
+		 */
 		typedef std::vector<string> Entries;
 
 		Listfile();

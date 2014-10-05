@@ -27,7 +27,7 @@ namespace wc3lib
 namespace map
 {
 
-CustomObjectsCollection::CustomObjectsCollection() : m_units(0), m_items(0), m_destructibles(0), m_doodads(0), m_abilities(0), m_buffs(0), m_upgrades(0), m_version(latestFileVersion())
+CustomObjectsCollection::CustomObjectsCollection() : m_version(latestFileVersion()), m_units(0), m_items(0), m_destructibles(0), m_doodads(0), m_abilities(0), m_buffs(0), m_upgrades(0)
 {
 }
 

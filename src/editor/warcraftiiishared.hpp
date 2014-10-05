@@ -112,6 +112,7 @@ class KDE_EXPORT WarcraftIIIShared
 
 		/**
 		 * \param window Widget which is used for KIO download.
+		 * \param url The URL of the World Editor strings file.
 		 */
 		void refreshWorldEditorStrings(QWidget *window, const KUrl &url = KUrl("UI/WorldEditStrings.txt"));
 		/**
@@ -122,6 +123,7 @@ class KDE_EXPORT WarcraftIIIShared
 
 		/**
 		 * \param window Widget which is used for KIO download.
+		 * \param url The URL of the World Editor game strings file.
 		 */
 		void refreshWorldEditorGameStrings(QWidget *window, const KUrl &url = KUrl("UI/WorldEditGameStrings.txt"));
 		/**
@@ -178,6 +180,7 @@ class KDE_EXPORT WarcraftIIIShared
 
 		/**
 		 * \param window Widget which is used for KIO download.
+		 * \param url The URL of the trigger data file.
 		 * \sa triggerData()
 		 */
 		void refreshTriggerData(QWidget *window, const KUrl &url = KUrl("UI/TriggerData.txt"));
@@ -189,6 +192,7 @@ class KDE_EXPORT WarcraftIIIShared
 
 		/**
 		 * \param window Widget which is used for KIO download.
+		 * \param url The URL of the trigger strings file.
 		 * \sa triggerStrings()
 		 */
 		void refreshTriggerStrings(QWidget *window, const KUrl &url = KUrl("UI/TriggerStrings.txt"));

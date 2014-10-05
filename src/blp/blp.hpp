@@ -42,7 +42,7 @@ namespace blp
  * The class offers read and write functions for which several options can be specified like how many MIP maps should be read or written.
  * \ref Blp::MipMap stores the actual picture data. All MIP maps can be accessed using \ref Blp::mipMaps().
  * The first MIP map should always have the actual size of the texture and can be used in any code which should display the original image.
- * To change the number if MIP maps after reading the texture you can use \ref Blp::generateMipMaps().
+ * To change the number of MIP maps after reading the texture you can use \ref Blp::generateRequiredMipMaps().
  *
  * \ref Blp::format(), \ref Blp::compression() and \ref Blp::flags() return the texture's header information. Depending on the format it supports different compression types.
  * "BLP0" and "BLP1" images can have two different compression modes:

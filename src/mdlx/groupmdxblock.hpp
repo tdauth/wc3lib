@@ -43,7 +43,9 @@ class GroupMdxBlock : public MdxBlock
 {
 	public:
 		/**
-		 * \note We cannot use \ref boost::ptr_vector since blocks without counter can only estimate the number of members.
+		 * List which stores all members of a group.
+		 *
+		 * \note We cannot use boost::ptr_vector since blocks without counter can only estimate the number of members.
 		 */
 		typedef boost::ptr_list<class GroupMdxBlockMember> Members;
 

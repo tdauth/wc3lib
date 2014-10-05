@@ -60,9 +60,6 @@ class CollisionShapes;
  * For further information about both formats see \ref mdlxsection or \ref mdl and \ref mdx.
  *
  * As MDLX is a node-based format you can access various properties by their node ids (\ref long32 integers).
- * Use \ref Mdlx::nodePivotPoint to get a node's pivot point which is required for its correct position.
- * Nodes are stored in a map (\ref std::map) which allows you to access them as fast as possible since default maps are sorted.
- * \note All properties are allocated on object's construction (not only if required during reading process).
  *
  * long/float size: 32-bit
  * \todo OBJ == ?!

@@ -44,7 +44,7 @@ class ObjectTableModel;
  * The second column lists the values of the fields of the currently selected object.
  * Double clicking a row allows to modify one single field using a \ref ObjectValueDialog dialog.
  *
- * All rows can be accessed using \ref pairs() which returns a hash using the field ID as key and the pair of cells as value.
+ * To activate an object in the table view load another object into its model \ref tableModel().
  *
  * \ingroup objectdata
  */

@@ -56,9 +56,9 @@ namespace wc3lib
  *
  * \section groups Groups
  * MDX and MDL often use groups of entries for specific sections. For example lights are stored as list of entries without specified size.
- * For each group there is a class like \ref Lights which inherits \ref GroupMdxBlock and stores a number of \ref GroupMdxBlockMember, one for each entry.
+ * For each group there is a class like \ref mdlx::Lights which inherits \ref mdlx::GroupMdxBlock and stores a number of \ref mdlx::GroupMdxBlockMember, one for each entry.
  *
- * For accessing the members you have to use \ref Lights::members() and cast a member of type \ref GroupMdxBlockMember to \ref Light.
+ * For accessing the members you have to use \ref mdlx::Lights::members() and cast a member of type \ref mdlx::GroupMdxBlockMember to \ref mdlx::Light.
  *
  * The implementation therefore relies on polymorphism:
  * \code
@@ -69,14 +69,14 @@ namespace wc3lib
  * MDX and MDL support properties which can be animated using a specified time of a sequence.
  * Those properties are scalings, transformations or rotations.
  *
- * \ref MdlxAnimatedProperties is a template which offers all required data using a dimension parameter to specify which number of numeric values is used.
+ * \ref mdlx::MdlxAnimatedProperties is a template which offers all required data using a dimension parameter to specify which number of numeric values is used.
  * For example scalings and transformations usually need three coordinates whereas a rotation uses a quaternion with four values.
  * Alphas which can be animated as well only have one single value.
  *
- * Therefore \ref MdlxAnimatedProperties is the base class of \ref MdlxScalings, \ref MdlxTranslations, \ref MdlxRotations and \ref MdlxAlphas which use different dimensions (except scalings and translations).
+ * Therefore \ref mdlx::MdlxAnimatedProperties is the base class of \ref mdlx::MdlxScalings, \ref mdlx::MdlxTranslations, \ref mdlx::MdlxRotations and \ref mdlx::MdlxAlphas which use different dimensions (except scalings and translations).
  *
- * It also manages the storage of entries using \ref MdlxAnimatedProperty similar to the group member managemenent.
- * Use \ref MdlxAnimatedProperties::properties() to access all members.
+ * It also manages the storage of entries using \ref mdlx::MdlxAnimatedProperty similar to the group member managemenent.
+ * Use \ref mdlx::MdlxAnimatedProperties::properties() to access all members.
  *
  * \namespace wc3lib::mdlx
  * \brief \ref mdlxsection

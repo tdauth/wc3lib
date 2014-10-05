@@ -78,7 +78,7 @@ class Archive : public Format, private boost::noncopyable
 
 		/**
 		 * Blocks are indexed by their position in block table starting with 0.
-		 * Maximum index value is \ref Archive:blocks().size() - 1.
+		 * Maximum index value is \ref Archive::blocks().size() - 1.
 		 * Consider that block indices \ref Hash::blockIndexDeleted and \ref Hash::blockIndexEmpty are reserved for special purpose.
 		 */
 		typedef boost::ptr_vector<Block> Blocks;
@@ -92,10 +92,6 @@ class Archive : public Format, private boost::noncopyable
 		 */
 		typedef boost::ptr_unordered_multimap<HashData, Hash> Hashes;
 
-		/**
-		 * Array with size of \ref CryptoPP::SHA1::DIGESTSIZE.
-		 */
-		typedef boost::scoped_array<unsigned char> SHA1Digest;
 		/**
 		 * Array with size of \ref strongDigitalSignatureSize.
 		 * \note Doesn't include any header data.
@@ -170,7 +166,7 @@ class Archive : public Format, private boost::noncopyable
 		bool containsAttributesFile() const;
 		/**
 		 * \note Accesses the archive for reading the header data.
-		 * \todo Remove reading header data. Class \ref Attribute should do it itself and read it from the archive on request!
+		 * \todo Remove reading header data. Class \ref Attributes should do it itself and read it from the archive on request!
 		 */
 		Attributes attributesFile();
 
@@ -246,7 +242,7 @@ class Archive : public Format, private boost::noncopyable
 		 * Usually the sector size has type uint16 and is computed by using formula:
 		 * pow(2, sectorSizeShift) * 512. Instead of computing it every time we save
 		 * the computed result and use uint32.
-		 * \sa Archive:sectorSizeShift
+		 * \sa Archive::sectorSizeShift
 		 */
 		uint32 sectorSize() const;
 		/**
@@ -299,7 +295,7 @@ class Archive : public Format, private boost::noncopyable
 	protected:
 		/**
 		 * Does not check if archive is open.
-		 * \sa Archive:close
+		 * \sa Archive::close
 		 */
 		void clear();
 
@@ -322,7 +318,7 @@ class Archive : public Format, private boost::noncopyable
 		 */
 		uint64 nextBlockOffset();
 		/**
-		 * Same as function \ref Archive:nextBlockOffset but divides large offset value into \p blockOffset and \p extendedBlockOffset.
+		 * Same as function \ref Archive::nextBlockOffset but divides large offset value into \p blockOffset and \p extendedBlockOffset.
 		 */
 		void nextBlockOffsets(uint32 &blockOffset, uint16 &extendedBlockOffset);
 
