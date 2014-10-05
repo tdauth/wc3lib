@@ -27,7 +27,7 @@ add_test(NAME CustomTextTriggersTest COMMAND customtexttriggerstest)
 
 add_executable(triggerstringstest triggerstrings.cpp)
 target_link_libraries(triggerstringstest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
-add_test(NAME TriggerStringTest COMMAND triggerstringtest)
+add_test(NAME TriggerStringsTest COMMAND triggerstringstest)
 
 add_executable(rectstest rects.cpp)
 target_link_libraries(rectstest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
