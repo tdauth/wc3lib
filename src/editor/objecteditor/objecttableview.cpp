@@ -46,15 +46,23 @@ ObjectTableView::ObjectTableView(ObjectEditorTab *parent) : QTableView(parent), 
 
 	connect(this, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(editItem(const QModelIndex&)));
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customContextMenuRequested(QPoint)));
+	connect(this->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(orderBySection(int)));
 
 	this->verticalHeader()->setVisible(false);
 	this->horizontalHeader()->setVisible(true);
 	this->horizontalHeader()->setStretchLastSection(true);
 	this->horizontalHeader()->setSortIndicatorShown(true);
+	this->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
 	this->setShowGrid(false);
 	this->setContextMenuPolicy(Qt::CustomContextMenu);
 	this->setEditTriggers(QTableWidget::NoEditTriggers);
 	this->setSelectionBehavior(QTreeWidget::SelectRows);
+}
+
+void ObjectTableView::orderBySection(int logicalIndex)
+{
+	qDebug() << "Order by section" << logicalIndex;
+	this->model()->sort(logicalIndex,  this->horizontalHeader()->sortIndicatorOrder());
 }
 
 void ObjectTableView::editItem(const QModelIndex &index)

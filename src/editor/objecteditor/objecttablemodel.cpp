@@ -77,16 +77,30 @@ QVariant ObjectTableModel::data(const QModelIndex &index, int role) const
 						const QString displayName = objectData()->metaData()->value(fieldId, "displayName");
 						const QString displayText = objectData()->source()->sharedData()->tr(displayName);
 
-						if (!showRawData())
+						if (!category.isEmpty())
 						{
-							return tr("%1").arg(displayText);
-						}
+							if (!showRawData())
+							{
+								return tr("%1 - %2").arg(category).arg(displayText);
+							}
 
-						return tr("%1 (%2)").arg(fieldId).arg(displayText);
+							return tr("%1 - %2 (%3)").arg(category).arg(fieldId).arg(displayText);
+						}
+						else
+						{
+							if (!showRawData())
+							{
+								return tr("%1").arg(displayText);
+							}
+
+							return tr("%1 (%2)").arg(fieldId).arg(displayText);
+						}
 					}
 					else
 					{
 						qDebug() << "Missing \"displayName\" for field" << fieldId;
+
+						return fieldId;
 					}
 				}
 				else if (index.column() == 1)

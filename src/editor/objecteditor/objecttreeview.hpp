@@ -71,6 +71,7 @@ class ObjectTreeView : public QTreeView
 		void updateActions(const QItemSelection &selected, const QItemSelection &deselected);
 		void expandItem(const QModelIndex &index);
 		void collapseItem(const QModelIndex &index);
+		void orderBySection(int logicalIndex);
 };
 
 inline ObjectEditorTab* ObjectTreeView::tab() const

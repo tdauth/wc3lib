@@ -128,6 +128,13 @@ void MpqTreeModel::addArchive(mpq::Archive* archive, const mpq::Listfile::Entrie
 					dirItem->setArchive(archive);
 					dirItem->setFilePath(dirPath);
 
+					if (this->source() != 0 && this->source()->sharedData().get() != 0 && this->source()->sharedData()->worldEditData().get() != 0)
+					{
+						dirItem->setIcon(this->source()->sharedData()->worldEditDataIcon("UEIcon_UnitCategory", "WorldEditArt", 0));
+					}
+
+					// TODO set other icon when expanded
+
 					qDebug() << "Dir item:" << dirPath;
 					dirItems.insert(dirPathKey, dirItem);
 					parent = dirIndex;
@@ -180,6 +187,18 @@ void MpqTreeModel::addArchive(mpq::Archive* archive, const mpq::Listfile::Entrie
 			fileItem->setIsFile(true);
 			fileItem->setArchive(archive);
 			fileItem->setFilePath(filePath);
+
+			/*
+			 * Set MIME type icon to show which file type it is.
+			 */
+			KMimeType::Ptr mimeType = KMimeType::findByPath(fileItem->filePath());
+
+			if (!mimeType.isNull() && !mimeType->iconName().isEmpty())
+			{
+				// TODO performance? Cache MIME type icons?
+				//qDebug() << "Has icon:" << mimeType->iconName();
+				fileItem->setIcon(m_iconLoader.loadMimeTypeIcon(mimeType->iconName(), KIconLoader::Small));
+			}
 		}
 		//qDebug() << "File" << filePath << "with parent" << parentItem->name();
 	}
@@ -215,30 +234,7 @@ QVariant MpqTreeModel::data(const QModelIndex& index, int role) const
 
 			case Qt::DecorationRole:
 			{
-				if (item->isFolder())
-				{
-					if (this->source() != 0 && this->source()->sharedData().get() != 0 && this->source()->sharedData()->worldEditData().get() != 0)
-					{
-						return this->source()->sharedData()->worldEditDataIcon("UEIcon_UnitCategory", "WorldEditArt", 0);
-					}
-
-					// TODO set other icon when expanded
-				}
-				else
-				{
-					/*
-					 * Set MIME type icon to show which file type it is.
-					 */
-					KMimeType::Ptr mimeType = KMimeType::findByPath(item->filePath());
-
-					if (!mimeType.isNull() && !mimeType->iconName().isEmpty())
-					{
-						//qDebug() << "Has icon:" << mimeType->iconName();
-						QPixmap pixmap = m_iconLoader.loadMimeTypeIcon(mimeType->iconName(), KIconLoader::Small);
-
-						return QIcon(pixmap);
-					}
-				}
+				return item->icon();
 			}
 		}
 	}

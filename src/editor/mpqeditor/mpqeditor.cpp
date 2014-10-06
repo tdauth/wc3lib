@@ -73,6 +73,7 @@ MpqEditor::MpqEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f
 	proxyModel->setSourceModel(treeModel);
 	m_archivesTreeView->setModel(proxyModel);
 	this->m_filterProxySearchLine->setProxy(proxyModel);
+	this->m_archivesTreeView->header()->setSortIndicator(0, Qt::AscendingOrder);
 
 	setWindowTitle(tr("MPQ Editor"));
 

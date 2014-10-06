@@ -176,7 +176,10 @@ bool ObjectEditorTab::selectObject(const QString& originalObjectId, const QStrin
 		this->tableView()->horizontalHeader()->setVisible(true);
 		this->tableView()->showColumn(0);
 		this->tableView()->showColumn(1);
-		this->tableView()->resizeColumnsToContents();
+
+		this->tableView()->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
+		this->tableView()->model()->sort(0, Qt::AscendingOrder);
+
 		this->objectEditor()->copyObjectAction()->setEnabled(true);
 		this->objectEditor()->renameObjectAction()->setEnabled(true);
 		this->objectEditor()->deleteObjectAction()->setEnabled(true);
@@ -494,7 +497,9 @@ void ObjectEditorTab::pasteObject()
 {
 	for (std::size_t i = 0; i < this->m_clipboard.size(); ++i)
 	{
-		this->idDialog()->setId(this->objectData()->nextCustomObjectId());
+		const QString nextId = this->objectData()->nextCustomObjectId();
+		qDebug() << "Next ID" << nextId;
+		this->idDialog()->setId(nextId);
 
 		if (this->idDialog()->exec() == QDialog::Accepted)
 		{

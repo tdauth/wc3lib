@@ -86,6 +86,7 @@ class ObjectTableView : public QTableView
 		void editItem(const QModelIndex &index);
 		void resetItem(const QModelIndex &index);
 		void customContextMenuRequested(QPoint pos);
+		void orderBySection(int logicalIndex);
 };
 
 inline ObjectEditorTab* ObjectTableView::tab() const

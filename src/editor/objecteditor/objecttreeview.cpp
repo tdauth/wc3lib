@@ -53,6 +53,15 @@ ObjectTreeView::ObjectTreeView(ObjectEditorTab *tab, Qt::WindowFlags f) : QTreeV
 	connect(this, SIGNAL(expanded(const QModelIndex &)), this, SLOT(expandItem(const QModelIndex &)));
 	connect(this, SIGNAL(collapsed(const QModelIndex &)), this, SLOT(collapseItem(const QModelIndex &)));
 
+	connect(this->header(), SIGNAL(sectionClicked(int)), this, SLOT(orderBySection(int)));
+
+}
+
+void ObjectTreeView::orderBySection(int logicalIndex)
+{
+	qDebug() << "Order by section" << logicalIndex;
+	// TODO only order objects not folders!
+	this->model()->sort(logicalIndex,  this->header()->sortIndicatorOrder());
 }
 
 void ObjectTreeView::customContextMenuRequested(QPoint pos)
