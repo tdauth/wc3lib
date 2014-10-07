@@ -33,7 +33,7 @@ namespace editor
 
 class ItemData;
 
-class ItemEditor : public ObjectEditorTab
+class KDE_EXPORT ItemEditor : public ObjectEditorTab
 {
 	public:
 		ItemEditor(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);

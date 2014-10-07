@@ -32,7 +32,7 @@ namespace editor
 
 class WeatherData;
 
-class WeatherEditor : public ObjectEditorTab
+class KDE_EXPORT WeatherEditor : public ObjectEditorTab
 {
 	public:
 		WeatherEditor(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);

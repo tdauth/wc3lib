@@ -763,44 +763,53 @@ QString ObjectData::nextCustomObjectId() const
 		result = objectId(0);
 	}
 
-	if (result.size() > 3)
+	if (result.size() != 4)
 	{
 		qDebug() << "Invalid ID" << result;
+
+		throw Exception();
+	}
+	// The first hexa decimal value is reserved for the type.
+	else if (result[0] != '0')
+	{
+		qDebug() << "ID overflow" << result;
+
+		throw Exception();
 	}
 
 	switch (type())
 	{
 		case map::CustomObjects::Type::Abilities:
 		{
-			result.prepend('A');
+			result[0] = 'A';
 
 			break;
 		}
 
 		case map::CustomObjects::Type::Units:
 		{
-			result.prepend('U');
+			result[0] = 'U';
 
 			break;
 		}
 
 		case map::CustomObjects::Type::Items:
 		{
-			result.prepend('I');
+			result[0] = 'I';
 
 			break;
 		}
 
 		case map::CustomObjects::Type::Doodads:
 		{
-			result.prepend('D');
+			result[0] = 'D';
 
 			break;
 		}
 
 		default:
 		{
-			result.prepend('Z');
+			result[0] = 'Z';
 
 			break;
 		}

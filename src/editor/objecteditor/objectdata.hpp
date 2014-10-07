@@ -82,7 +82,7 @@ class ObjectData : public QObject
 		 * Returns the corresponding value type for a field ID.
 		 * This can be useful if you want to create a \ref wc3lib::map::Value.
 		 * The type is stored in the meta data file (\ref metaData()) in the column "type".
-		 * 
+		 *
 		 * \throw Exception Throws an exception if the field type is not supported.
 		 */
 		map::Value::Type fieldType(const QString &fieldId) const;
@@ -192,6 +192,7 @@ class ObjectData : public QObject
 		QString objectId(int value) const;
 		/**
 		 * Each custom object needs a unique ID that is automatically calculated.
+		 * \throws Exception Throws an exception if the next custom object ID is out of range or invalid.
 		 */
 		virtual QString nextCustomObjectId() const;
 

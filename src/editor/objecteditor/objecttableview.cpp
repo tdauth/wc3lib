@@ -67,6 +67,7 @@ void ObjectTableView::orderBySection(int logicalIndex)
 
 void ObjectTableView::editItem(const QModelIndex &index)
 {
+	qDebug() << "Editing item with row" << index.row();
 	const QString fieldId = model()->data(index, Qt::UserRole).toString();
 	const QString label = QString(tr("%1:")).arg(model()->data(model()->index(index.row(), 0), Qt::DisplayRole).toString());
 	QString result;

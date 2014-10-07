@@ -68,8 +68,12 @@ if (EDITOR)
 	install(TARGETS wc3model DESTINATION bin)
 
 	kde4_add_executable(wc3trigger wc3trigger.cpp)
-	target_link_libraries(wc3trigger ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libtriggereditor ${QT_LIBRARIES} ${KDE4_KDEUI_LIBS} )
+	target_link_libraries(wc3trigger ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libtriggereditor ${QT_LIBRARIES} ${KDE4_KDEUI_LIBS})
 	install(TARGETS wc3trigger DESTINATION bin)
+
+	kde4_add_executable(wc3unit wc3unit.cpp)
+	target_link_libraries(wc3unit ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libobjecteditor ${QT_LIBRARIES} ${KDE4_KDEUI_LIBS})
+	install(TARGETS wc3unit DESTINATION bin)
 
 	if (DEBUG)
 		configure_file(ogre.cfg ogre.cfg COPYONLY)

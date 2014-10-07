@@ -497,35 +497,52 @@ void ObjectEditorTab::pasteObject()
 {
 	for (std::size_t i = 0; i < this->m_clipboard.size(); ++i)
 	{
-		const QString nextId = this->objectData()->nextCustomObjectId();
-		qDebug() << "Next ID" << nextId;
-		this->idDialog()->setId(nextId);
-
-		if (this->idDialog()->exec() == QDialog::Accepted)
+		try
 		{
-			const QString customObjectId = this->idDialog()->id();
+			const QString nextId = this->objectData()->nextCustomObjectId();
+			qDebug() << "Next ID" << nextId;
+			this->idDialog()->setId(nextId);
 
-			const map::CustomUnits::Unit &unit = this->m_clipboard[i];
-			const map::CustomObjects::Object *object = boost::polymorphic_cast<const map::CustomObjects::Object*>(&unit);
-			const QString originalObjectId = map::idToString(object->originalId()).c_str();
-
-			if (!object->modifications().empty())
+			if (this->idDialog()->exec() == QDialog::Accepted)
 			{
-				for (std::size_t j = 0; j < object->modifications().size(); ++j)
-				{
-					const map::CustomUnits::Modification &unitModification = object->modifications()[i];
-					const map::CustomObjects::Modification *modification =  boost::polymorphic_cast<const map::CustomObjects::Modification*>(&unitModification);
+				const QString customObjectId = this->idDialog()->id();
+				const map::CustomUnits::Unit &unit = this->m_clipboard[i];
+				const map::CustomObjects::Object *object = boost::polymorphic_cast<const map::CustomObjects::Object*>(&unit);
+				const QString originalObjectId = map::idToString(object->originalId()).c_str();
 
-					this->objectData()->modifyField(originalObjectId, customObjectId, map::idToString(modification->valueId()).c_str(), *modification);
+				/*
+				* Custom ID is already in use, so ask the user if he wants to overwrite an existing object.
+				*/
+				if (this->objectData()->isObjectModified(originalObjectId, customObjectId))
+				{
+					if (KMessageBox::questionYesNo(this, tr("Do you want to overwrite the existing custom object %1?").arg(customObjectId)) == KMessageBox::No)
+					{
+						continue;
+					}
+				}
+
+				if (!object->modifications().empty())
+				{
+					for (std::size_t j = 0; j < object->modifications().size(); ++j)
+					{
+						const map::CustomUnits::Modification &unitModification = object->modifications()[i];
+						const map::CustomObjects::Modification *modification =  boost::polymorphic_cast<const map::CustomObjects::Modification*>(&unitModification);
+
+						this->objectData()->modifyField(originalObjectId, customObjectId, map::idToString(modification->valueId()).c_str(), *modification);
+					}
+				}
+				/*
+				* If no modifications are done at least add the object's name that a new object is created at all.
+				*/
+				else
+				{
+					this->objectData()->modifyField(originalObjectId, customObjectId, this->objectData()->objectNameFieldId(), this->objectData()->fieldValue(originalObjectId, customObjectId, this->objectData()->objectNameFieldId()));
 				}
 			}
-			/*
-			* If no modifications are done at least add the object's name that a new object is created at all.
-			*/
-			else
-			{
-				this->objectData()->modifyField(originalObjectId, customObjectId, this->objectData()->objectNameFieldId(), this->objectData()->fieldValue(originalObjectId, customObjectId, this->objectData()->objectNameFieldId()));
-			}
+		}
+		catch (Exception &e)
+		{
+			KMessageBox::error(this, e.what());
 		}
 	}
 

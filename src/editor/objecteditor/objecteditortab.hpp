@@ -60,7 +60,7 @@ class IdDialog;
  *
  * \ingroup objectdata
  */
-class ObjectEditorTab : public QWidget
+class KDE_EXPORT ObjectEditorTab : public QWidget
 {
 	Q_OBJECT
 

@@ -39,7 +39,7 @@ class UnitSelectionDialog;
  *
  * \ingroup objectdata
  */
-class UnitEditor : public ObjectEditorTab
+class KDE_EXPORT UnitEditor : public ObjectEditorTab
 {
 	public:
 		UnitEditor(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
