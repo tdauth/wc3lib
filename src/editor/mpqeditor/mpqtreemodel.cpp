@@ -204,9 +204,11 @@ void MpqTreeModel::addArchive(mpq::Archive* archive, const mpq::Listfile::Entrie
 	}
 }
 
-void editor::MpqTreeModel::removeArchive(mpq::Archive* archive)
+bool MpqTreeModel::removeArchive(mpq::Archive* archive)
 {
-	for (FileItems::iterator iterator = this->m_topLevelItems.begin(); iterator != this->m_topLevelItems.end(); ++iterator)
+	bool removed = false;
+
+	for (FileItems::iterator iterator = this->m_topLevelItems.begin(); iterator != this->m_topLevelItems.end() && !removed; ++iterator)
 	{
 		if ((*iterator)->archive() == archive)
 		{
@@ -214,9 +216,11 @@ void editor::MpqTreeModel::removeArchive(mpq::Archive* archive)
 			const QModelIndex index = item->index(this);
 			this->removeRows(item->row(this), 1, parent(index));
 
-			break;
+			removed = true;
 		}
 	}
+
+	return removed;
 }
 
 QVariant MpqTreeModel::data(const QModelIndex& index, int role) const
@@ -311,7 +315,7 @@ MpqTreeItem* MpqTreeModel::item(const QModelIndex& index) const
 	return 0;
 }
 
-bool editor::MpqTreeModel::insertRows(int row, int count, const QModelIndex& parent)
+bool MpqTreeModel::insertRows(int row, int count, const QModelIndex& parent)
 {
 	beginInsertRows(parent, row, row + count - 1);
 
@@ -355,8 +359,10 @@ bool editor::MpqTreeModel::insertRows(int row, int count, const QModelIndex& par
 	return true;
 }
 
-bool MpqTreeModel::removeRows(int row, int count, const QModelIndex& parent)
+bool MpqTreeModel::removeRows(int row, int count, const QModelIndex &parent)
 {
+	qDebug() << "Removing row" << row << "with" << count << "items from parent row" << parent.row();
+
 	beginRemoveRows(parent, row, row + count - 1);
 
 	MpqTreeItem *parentItem = 0;
@@ -376,6 +382,10 @@ bool MpqTreeModel::removeRows(int row, int count, const QModelIndex& parent)
 			{
 				item = parentItem->children().takeAt(row);
 			}
+			else
+			{
+				qDebug() << "Invalid children" << i;
+			}
 		}
 		else
 		{
@@ -384,6 +394,15 @@ bool MpqTreeModel::removeRows(int row, int count, const QModelIndex& parent)
 				item = topLevelItems().takeAt(row);
 				qDebug() << "Removing top level item" << item->filePath();
 			}
+			else
+			{
+				qDebug() << "Invalid top level row" << i;
+			}
+		}
+
+		if (item != 0)
+		{
+			delete item;
 		}
 	}
 
@@ -392,7 +411,7 @@ bool MpqTreeModel::removeRows(int row, int count, const QModelIndex& parent)
 	return true;
 }
 
-QVariant editor::MpqTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant MpqTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
 	if (orientation == Qt::Horizontal)
 	{
@@ -419,7 +438,7 @@ QVariant editor::MpqTreeModel::headerData(int section, Qt::Orientation orientati
 	return QVariant();
 }
 
-MpqTreeItem* editor::MpqTreeModel::topLevelItem(const mpq::Archive* archive)
+MpqTreeItem* MpqTreeModel::topLevelItem(const mpq::Archive* archive)
 {
 	foreach (MpqTreeItem *item, this->topLevelItems())
 	{

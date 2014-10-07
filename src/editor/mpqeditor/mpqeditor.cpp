@@ -39,6 +39,8 @@ namespace wc3lib
 namespace editor
 {
 
+const int MpqEditor::maxRecentActions = 5;
+
 MpqEditor::MpqEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f)
 : Module(source, parent, f)
 , m_extractAction(0)
@@ -253,25 +255,47 @@ void MpqEditor::addRecentAction(const KUrl &url)
 	/*
 	 * Do not add entries twice in a history.
 	 */
-	const int index = m_archiveHistory.indexOf(url);
-	KUrl actualUrl = url;
+	m_archiveHistory.removeAll(url);
 
-	qDebug() << "URL 0:" << actualUrl;
-
-	if (index != -1)
+	/*
+	 * Clear recent actions.
+	 */
+	foreach (QAction *action, m_archiveHistoryActions->actions())
 	{
-		actualUrl = m_archiveHistory.takeAt(index);
-		m_archiveHistoryActions->removeAction(m_archiveHistoryActions->action(index));
+		m_archiveHistoryActions->removeAction(action);
+		m_recentArchivesMenu->removeAction(action);
+
+		delete action;
 	}
 
-	qDebug() << "URL 1:" << actualUrl;
+	/*
+	 * Add new recent URL.
+	 */
+	m_archiveHistory.prepend(url);
 
-	KAction *action = new KAction(actualUrl.toLocalFile(), this);
-	connect(action, SIGNAL(triggered()), this, SLOT(openRecentArchive()));
-	m_recentArchivesMenu->insertAction(m_recentArchivesSeparator, action);
-	// TODO fix i of m_archiveHistoryActions
-	m_archiveHistoryActions->addAction(actualUrl.toLocalFile(), action);
-	m_archiveHistory.push_back(actualUrl);
+
+	while (m_archiveHistory.size() > maxRecentActions)
+	{
+		m_archiveHistory.removeLast();
+	}
+
+	/*
+	 * The action which comes before is below the current action.
+	 * Since the recent action always has to be added on top either use the separator if there is no other recent URLs or use the first one.
+	 */
+	QAction *before = m_recentArchivesSeparator;
+
+	for (int i = m_archiveHistory.size(); i > 0; --i)
+	{
+		const int index = i - 1;
+		KAction *action = new KAction(m_archiveHistory[index].toString(), this);
+		action->setData(m_archiveHistory[index].toEncoded());
+		connect(action, SIGNAL(triggered()), this, SLOT(openRecentArchive()));
+		m_archiveHistoryActions->addAction(action);
+		m_recentArchivesMenu->insertAction(before, action);
+
+		before = action;
+	}
 }
 
 bool MpqEditor::openMpqArchive(const KUrl &url)
@@ -401,22 +425,20 @@ void MpqEditor::openMpqArchives()
 
 void MpqEditor::openRecentArchive()
 {
-	KAction *action = dynamic_cast<KAction*>(QObject::sender());
-
-	if (action != 0)
-	{
-		const int index = this->m_archiveHistoryActions->actions().indexOf(action);
-
-		if (index != -1 && index < this->m_archiveHistory.size() && index >= 0)
-		{
-			openMpqArchive(this->m_archiveHistory[index]);
-		}
-	}
+	QAction *action = boost::polymorphic_cast<QAction*>(QObject::sender());
+	openMpqArchive(KUrl::fromEncoded(action->data().toByteArray()));
 }
 
 void MpqEditor::clearHistory()
 {
-	this->m_archiveHistoryActions->clear();
+	foreach (QAction *action, this->m_archiveHistoryActions->actions())
+	{
+		this->m_archiveHistoryActions->removeAction(action);
+		this->m_recentArchivesMenu->removeAction(action);
+
+		delete action;
+	}
+
 	this->m_archiveHistory.clear();
 }
 
@@ -806,7 +828,7 @@ void MpqEditor::createFileActions(KMenu *menu)
 
 	m_recentArchivesMenu = new KMenu(i18n("Open recent"), this);
 	m_fileActions->addAction("openrecentarchives", m_recentArchivesMenu->menuAction());
-	m_archiveHistoryActions = new KActionCollection(this);
+	m_archiveHistoryActions = new QActionGroup(this);
 
 	m_recentArchivesSeparator = m_recentArchivesMenu->addSeparator();
 	action = new KAction(i18n("Clear list"), this);

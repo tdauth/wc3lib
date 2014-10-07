@@ -57,6 +57,8 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 	Q_OBJECT
 
 	public:
+		static const int maxRecentActions;
+
 		/**
 		 * All open MPQ archives are stored in a vector.
 		 */
@@ -175,12 +177,12 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		KUrl m_saveUrl;
 		KUrl m_addUrl;
 		KUrl m_extractUrl;
-		QList<KUrl> m_archiveHistory;
+		QList<QUrl> m_archiveHistory;
 
 		KActionCollection *m_fileActions;
 		KMenu *m_recentArchivesMenu;
 		QAction *m_recentArchivesSeparator;
-		KActionCollection *m_archiveHistoryActions;
+		QActionGroup *m_archiveHistoryActions;
 
 		KAction *m_closeAction;
 		KAction *m_closeAllAction;

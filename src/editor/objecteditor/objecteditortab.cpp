@@ -511,8 +511,8 @@ void ObjectEditorTab::pasteObject()
 				const QString originalObjectId = map::idToString(object->originalId()).c_str();
 
 				/*
-				* Custom ID is already in use, so ask the user if he wants to overwrite an existing object.
-				*/
+				 * Custom ID is already in use, so ask the user if he wants to overwrite an existing object.
+				 */
 				if (this->objectData()->isObjectModified(originalObjectId, customObjectId))
 				{
 					if (KMessageBox::questionYesNo(this, tr("Do you want to overwrite the existing custom object %1?").arg(customObjectId)) == KMessageBox::No)

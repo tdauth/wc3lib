@@ -44,12 +44,14 @@ int MpqTreeItem::row(const MpqTreeModel *model) const
 
 QModelIndex MpqTreeItem::index(MpqTreeModel *model)
 {
+	QModelIndex parentIndex;
+
 	if (parent() != 0)
 	{
-		return model->index(row(model), 0, parent()->index(model));
+		parentIndex = parent()->index(model);
 	}
 
-	return model->index(row(model), 0, QModelIndex());
+	return model->index(row(model), 0, parentIndex);
 }
 
 QString MpqTreeItem::dirname() const

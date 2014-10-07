@@ -78,6 +78,18 @@ void UnitEditor::onNewObject()
 	if (this->idDialog()->exec() == QDialog::Accepted)
 	{
 		const QString customObjectId = this->idDialog()->id();
+
+		/*
+		 * Custom ID is already in use, so ask the user if he wants to overwrite an existing object.
+		 */
+		if (this->objectData()->isObjectModified(originalObjectId, customObjectId))
+		{
+			if (KMessageBox::questionYesNo(this, tr("Do you want to overwrite the existing custom object %1?").arg(customObjectId)) == KMessageBox::No)
+			{
+				return;
+			}
+		}
+
 		this->unitSelectionDialog()->select(originalObjectId);
 
 		if (this->unitSelectionDialog()->exec() == QDialog::Accepted)

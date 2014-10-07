@@ -69,7 +69,14 @@ class MpqTreeModel : public QAbstractItemModel
 		 * All contained files from \p entries will be listed as tree items.
 		 */
 		void addArchive(mpq::Archive *archive, const mpq::Listfile::Entries &entries);
-		void removeArchive(mpq::Archive *archive);
+		/**
+		 * Removes archive \p archive from the tree model which effectively removes its corresponding row with all children.
+		 *
+		 * \param archive The MPQ archive which is removed from the model.
+		 *
+		 * \return Returns true if the archive \p archive has been removed successfully. Otherwise, for example if \p archive is not part of the tree model, it returns false.
+		 */
+		bool removeArchive(mpq::Archive *archive);
 
 		void setSource(MpqPriorityList *source);
 		MpqPriorityList* source() const;
