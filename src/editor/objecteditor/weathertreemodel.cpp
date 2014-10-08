@@ -46,7 +46,7 @@ void WeatherTreeModel::load(MpqPriorityList* source, ObjectData* objectData, QWi
 	// add all entries from "Weather.slk" to standard weather effects in Unit Editor
 	if (!weatherData->weather()->isEmpty())
 	{
-		for (map::Slk::Table::size_type row = 1; row < weatherData->weather()->slk().rows(); ++row)
+		for (map::Slk::Table::size_type row = 1; row < weatherData->weather()->rows(); ++row)
 		{
 			const QString objectId = weatherData->weather()->value(row, "effectID");
 			createItem(source, objectData, window, objectId, "");

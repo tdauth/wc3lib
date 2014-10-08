@@ -17,6 +17,7 @@ target_link_libraries(shared wc3libeditor ${Boost_LIBRARIES} ${QT_LIBRARIES} ${K
 add_test(NAME SharedTest COMMAND shared)
 
 configure_file(WorldEditStrings.txt WorldEditStrings.txt COPYONLY) # Warcraft III: Reign of Chaos war3.mpq
+configure_file(war3map.wts war3map.wts COPYONLY) # Warcraft III: Reign of Chaos War Chasers
 configure_file(UnitMetaData.slk UnitMetaData.slk COPYONLY) # Warcraft III: Reign of Chaos war3.mpq
 add_executable(metadata metadata.cpp)
 target_link_libraries(metadata wc3libcore wc3libeditor ${Boost_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KDECORE_LIBS})

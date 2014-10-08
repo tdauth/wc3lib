@@ -98,10 +98,10 @@ bool WeatherData::hasSlks() const
 ObjectData::Slks WeatherData::slks() const
 {
 	map::Slk slk;
-	slk.table().resize(boost::extents[this->metaData()->slk().rows()][this->m_objects.size() + this->weather()->slk().rows()]);
+	slk.table().resize(boost::extents[this->metaData()->rows()][this->m_objects.size() + this->weather()->rows()]);
 	map::Slk::Table::size_type column = 0;
 
-	for (map::Slk::Table::size_type row = 1; row < this->metaData()->slk().rows() && column < slk.columns(); ++row, ++column)
+	for (map::Slk::Table::size_type row = 1; row < this->metaData()->rows() && column < slk.columns(); ++row, ++column)
 	{
 		const QString fieldId = this->metaData()->value(row, "ID");
 		slk.table()[column][0] = this->metaData()->value(fieldId, "field").toUtf8().constData();

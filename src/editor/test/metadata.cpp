@@ -60,8 +60,6 @@ BOOST_AUTO_TEST_CASE(Txt)
 
 
 	BOOST_REQUIRE(success);
-	BOOST_REQUIRE(metaData.hasTxt());
-	BOOST_REQUIRE(!metaData.hasSlk());
 	BOOST_REQUIRE(metaData.hasValue("WorldEditStrings", "WESTRING_LOADINGSCREEN_GENERIC"));
 	BOOST_REQUIRE(metaData.value("WorldEditStrings", "WESTRING_LOADINGSCREEN_GENERIC") == "Standard");
 }
@@ -87,8 +85,31 @@ BOOST_AUTO_TEST_CASE(Slk)
 
 
 	BOOST_REQUIRE(success);
-	BOOST_REQUIRE(!metaData.hasTxt());
-	BOOST_REQUIRE(metaData.hasSlk());
 	BOOST_REQUIRE(metaData.hasValue("ihtp", "useSpecific"));
 	BOOST_REQUIRE(metaData.value("ihtp", "useSpecific") == "");
+}
+
+BOOST_AUTO_TEST_CASE(MapStrings)
+{
+	const boost::filesystem::path current = boost::filesystem::current_path() / "war3map.wts";
+	MetaData metaData(KUrl(current.c_str()));
+	MpqPriorityList source;
+	metaData.setSource(&source);
+	bool success = true;
+
+	try
+	{
+		metaData.load();
+	}
+	catch (Exception &e)
+	{
+		success = false;
+
+		std::cerr << e.what() << std::endl;
+	}
+
+
+	BOOST_REQUIRE(success);
+	BOOST_REQUIRE(metaData.hasValue("2", ""));
+	BOOST_REQUIRE(metaData.value("2", "") == "Spieler 1");
 }

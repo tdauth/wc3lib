@@ -476,7 +476,7 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 
 	if (this->objectTabData() != 0)
 	{
-		const map::Txt::Section *section = this->objectTabData()->section(fieldType);
+		const map::Txt::Section *section = boost::polymorphic_cast<TxtTextSource*>(this->objectTabData()->textSource())->section(fieldType);
 
 		/*
 		 * If the section of the type does not exist simply return the value since there is no valid description available.

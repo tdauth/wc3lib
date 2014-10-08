@@ -57,7 +57,7 @@ UnitSelectionDialog::UnitSelectionDialog(MpqPriorityList *source, UnitData *unit
 
 	if (this->source()->sharedData()->worldEditData().get() != 0)
 	{
-		map::Txt::Section *tilesetsSection = this->source()->sharedData()->worldEditData()->section("TileSets");
+		const map::Txt::Section *tilesetsSection = boost::polymorphic_cast<TxtTextSource*>(this->source()->sharedData()->worldEditData()->textSource())->section("TileSets");
 
 		if (tilesetsSection != 0)
 		{
@@ -183,7 +183,7 @@ void UnitSelectionDialog::fill(const QString& race, int campaign, const QChar& t
 	int specialRow = 0;
 	int specialColumn = 0;
 
-	for (map::Slk::Table::size_type row = 1; row < this->unitData()->unitData()->slk().rows(); ++row)
+	for (map::Slk::Table::size_type row = 1; row < this->unitData()->unitData()->rows(); ++row)
 	{
 		const QString unitId = this->unitData()->unitData()->value(row, "unitID");
 		const QString objectRace = this->unitData()->unitData()->value(unitId, "race");
@@ -304,7 +304,7 @@ int UnitSelectionDialog::campaignIndex(int campaign) const
 
 int UnitSelectionDialog::tilesetIndex(const QChar& tileset) const
 {
-	map::Txt::Section *section = this->source()->sharedData()->worldEditData()->section("TileSets");
+	const map::Txt::Section *section = boost::polymorphic_cast<TxtTextSource*>(this->source()->sharedData()->worldEditData().get())->section("TileSets");
 
 	if (section != 0)
 	{

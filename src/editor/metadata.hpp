@@ -21,10 +21,6 @@
 #ifndef WC3LIB_EDITOR_METADATA_HPP
 #define WC3LIB_EDITOR_METADATA_HPP
 
-#include <unordered_map>
-
-#include <boost/variant.hpp>
-
 #include <QHash>
 
 #include <kdemacros.h>
@@ -37,6 +33,279 @@ namespace wc3lib
 
 namespace editor
 {
+
+class KDE_EXPORT TextSourceInterface
+{
+	public:
+		virtual ~TextSourceInterface();
+
+		virtual void read(istream &in) = 0;
+		virtual void write(ostream &out) const = 0;
+		virtual bool hasValue(const QString &rowKey, const QString &columnKey) const = 0;
+		virtual QString value(const QString &rowKey, const QString &columnKey) const = 0;
+		virtual int rows() const = 0;
+		virtual QString value(int row, const QString &columnKey) const = 0;
+		virtual bool isEmpty() const = 0;
+		virtual void clear() = 0;
+};
+
+class KDE_EXPORT SlkTextSource : public TextSourceInterface
+{
+	public:
+		/**
+		* Values of the first cells are used to get the corresponding number of row or column.
+		*/
+		typedef QHash<QString, map::Slk::Table::size_type> SlkKeys;
+
+		map::Slk& slk();
+		const map::Slk& slk() const;
+
+		const SlkKeys& columnKeys() const;
+		const SlkKeys& rowKeys() const;
+
+		virtual bool isEmpty() const override;
+		virtual void clear() override;
+		virtual bool hasValue(const QString& rowKey, const QString& columnKey) const override;
+		virtual QString value(const QString& rowKey, const QString& columnKey) const override;
+		virtual int rows() const override;
+		virtual QString value(int row, const QString& columnKey) const override;
+		virtual void read(istream &in) override;
+		virtual void write(ostream& out) const override;
+
+	private:
+		map::Slk m_slk;
+		SlkKeys m_columnKeys;
+		SlkKeys m_rowKeys;
+
+};
+
+inline map::Slk& SlkTextSource::slk()
+{
+	return this->m_slk;
+}
+
+inline const map::Slk& SlkTextSource::slk() const
+{
+	return this->m_slk;
+}
+
+inline const SlkTextSource::SlkKeys& SlkTextSource::columnKeys() const
+{
+	return this->m_columnKeys;
+}
+
+inline const SlkTextSource::SlkKeys& SlkTextSource::rowKeys() const
+{
+	return this->m_rowKeys;
+}
+
+
+inline bool SlkTextSource::isEmpty() const
+{
+	return this->m_slk.table().empty();
+}
+
+inline void SlkTextSource::clear()
+{
+	this->m_columnKeys.clear();
+	this->m_rowKeys.clear();
+	this->m_slk.clear();
+}
+
+inline int SlkTextSource::rows() const
+{
+	return this->rowKeys().size();
+}
+
+class KDE_EXPORT TxtTextSource : public TextSourceInterface
+{
+	public:
+		/**
+		* Use the section names as keys for the sections.
+		*/
+		typedef QHash<QString, const map::Txt::Section*> TxtSectionKeys;
+
+		/**
+		* The key to one TXT entry is its section and its value key.
+		*/
+		typedef QPair<const map::Txt::Section*, QString> TxtEntryKey;
+		/**
+		* Use the key of the key value pair as key for the entry.
+		*/
+		typedef QHash<TxtEntryKey, const map::Txt::Entry*> TxtEntryKeys;
+
+		map::Txt& txt();
+		const map::Txt& txt() const;
+
+		const TxtSectionKeys& sectionKeys() const;
+		const TxtEntryKeys& entryKeys() const;
+
+		/**
+		 * Can only be used for a stored TXT and returns the corresponding section of \p key
+		 * which is the section's name.
+		 */
+		const map::Txt::Section* section(const QString &key) const;
+		const map::Txt::Entry* entry(const QString &sectionKey, const QString &key) const;
+
+		virtual bool isEmpty() const override;
+		virtual void clear() override;
+		virtual bool hasValue(const QString &rowKey, const QString &columnKey) const override;
+		virtual QString value(const QString &rowKey, const QString &columnKey) const override;
+		virtual int rows() const override;
+		virtual QString value(int row, const QString& columnKey) const override;
+		virtual void read(istream &in) override;
+		virtual void write(ostream &out) const override;
+
+	private:
+		map::Txt m_txt;
+		TxtSectionKeys m_sectionKeys;
+		TxtEntryKeys m_entryKeys;
+
+};
+
+inline map::Txt& TxtTextSource::txt()
+{
+	return this->m_txt;
+}
+
+inline const map::Txt& TxtTextSource::txt() const
+{
+	return this->m_txt;
+}
+
+inline const TxtTextSource::TxtSectionKeys& TxtTextSource::sectionKeys() const
+{
+	return this->m_sectionKeys;
+}
+
+inline const TxtTextSource::TxtEntryKeys& TxtTextSource::entryKeys() const
+{
+	return this->m_entryKeys;
+}
+
+inline const map::Txt::Section* TxtTextSource::section(const QString &key) const
+{
+	TxtSectionKeys::const_iterator iterator = this->sectionKeys().find(key);
+
+	if (iterator == this->sectionKeys().end())
+	{
+		return 0;
+	}
+
+	return iterator.value();
+}
+
+inline const map::Txt::Entry* TxtTextSource::entry(const QString &sectionKey, const QString& key) const
+{
+	const map::Txt::Section *section = this->section(sectionKey);
+
+	if (section == 0)
+	{
+		return 0;
+	}
+
+	TxtEntryKeys::const_iterator iterator = this->entryKeys().find(TxtEntryKey(section, key));
+
+	if (iterator == this->entryKeys().end())
+	{
+		return 0;
+	}
+
+	return iterator.value();
+}
+
+inline bool TxtTextSource::isEmpty() const
+{
+	return this->m_txt.sections().empty();
+}
+
+inline void TxtTextSource::clear()
+{
+	this->m_entryKeys.clear();
+	this->m_sectionKeys.clear();
+	this->m_txt.sections().clear();
+}
+
+inline int TxtTextSource::rows() const
+{
+	return this->m_sectionKeys.size();
+}
+
+/**
+ * \note Ignores the column key. Only uses the row key for string keys.
+ */
+class KDE_EXPORT MapStringsTextSource : public TextSourceInterface
+{
+	public:
+		/**
+		 * Use the entry keys as key.
+		 */
+		typedef QHash<QString, const map::MapStrings::Entry*> EntryKeys;
+
+		map::MapStrings& mapStrings();
+		const map::MapStrings& mapStrings() const;
+
+		const EntryKeys& entryKeys() const;
+
+		const map::MapStrings::Entry* entry(const QString &key) const;
+
+		virtual bool isEmpty() const override;
+		virtual void clear() override;
+		virtual bool hasValue(const QString &rowKey, const QString &columnKey) const override;
+		virtual QString value(const QString &rowKey, const QString &columnKey) const override;
+		virtual int rows() const override;
+		virtual QString value(int row, const QString& columnKey) const override;
+		virtual void read(istream &in) override;
+		virtual void write(ostream &out) const override;
+
+	private:
+		map::MapStrings m_mapStrings;
+		EntryKeys m_entryKeys;
+
+};
+
+inline map::MapStrings& MapStringsTextSource::mapStrings()
+{
+	return this->m_mapStrings;
+}
+
+inline const map::MapStrings& MapStringsTextSource::mapStrings() const
+{
+	return this->m_mapStrings;
+}
+
+inline const MapStringsTextSource::EntryKeys& MapStringsTextSource::entryKeys() const
+{
+	return this->m_entryKeys;
+}
+
+inline const map::MapStrings::Entry* MapStringsTextSource::entry(const QString& key) const
+{
+	EntryKeys::const_iterator iterator = this->entryKeys().find(key);
+
+	if (iterator == this->entryKeys().end())
+	{
+		return 0;
+	}
+
+	return iterator.value();
+}
+
+inline bool MapStringsTextSource::isEmpty() const
+{
+	return this->mapStrings().entries().empty();
+}
+
+inline void MapStringsTextSource::clear()
+{
+	this->m_entryKeys.clear();
+	this->mapStrings().entries().clear();
+}
+
+inline int MapStringsTextSource::rows() const
+{
+	return this->m_entryKeys.size();
+}
 
 /**
  * \brief Base class for all possible meta data formats (units, abilities, upgrades etc.).
@@ -65,77 +334,22 @@ namespace editor
  *
  * \note Theoretically it is possible to store several values under the same keys using multiple equally named rows, columns, sections or entries but this class assumes that each identifier is picked uniquely. An exception might be entries in sections since there can be at least one entry per section so if multiple sections have the same entry it still would be unique in that section which is enough to use it as a hash value.
  *
- * \todo Remove unnecessary wrapper methods which are duplicated from \ref map::Slk.
  * \todo Add FDF support.
- * \todo Add WTS support.
  */
 class KDE_EXPORT MetaData : public Resource
 {
 	public:
-		/**
-		 * A source can be a SLK file or a TXT file.
-		 */
-		typedef boost::variant<map::Slk, map::Txt> Source;
-		/**
-		 * Values of the first cells are used to get the corresponding number of row or column.
-		 */
-		typedef QHash<QString, map::Slk::Table::size_type> SlkKeys;
-
-		/**
-		 * Use the section names as keys for the sections.
-		 */
-		typedef QHash<QString, map::Txt::Section*> TxtSectionKeys;
-
-		/**
-		 * The key to one TXT entry is its section and its value key.
-		 */
-		typedef QPair<map::Txt::Section*, QString> TxtEntryKey;
-		/**
-		 * Use the key of the key value pair as key for the entry.
-		 */
-		typedef QHash<TxtEntryKey, map::Txt::Entry*> TxtEntryKeys;
-
 		MetaData(const KUrl &url);
+		virtual ~MetaData();
 
-		virtual void clear() throw ();
+		virtual void clear();
 
 		virtual void load();
 		virtual void reload();
 		virtual void save(const KUrl &url) const;
 
-		/**
-		 * \return Returns true if there is currently an SLK file stored.
-		 *
-		 * \sa hasTxt()
-		 */
-		bool hasSlk() const;
-		/**
-		 * \return Returns true if there is currently a TXT file stored.
-		 *
-		 * \sa hasSlk()
-		 */
-		bool hasTxt() const;
+		TextSourceInterface* textSource() const;
 
-		map::Slk& slk();
-		const map::Slk& slk() const;
-		map::Txt& txt();
-		const map::Txt& txt() const;
-		const SlkKeys& columnKeys() const;
-		const SlkKeys& rowKeys() const;
-		const TxtSectionKeys& sectionKeys() const;
-		const TxtEntryKeys& entryKeys() const;
-		map::Slk::ConstView row(const QString &key) const;
-		map::Slk::ConstView column(const QString &key) const;
-
-		/**
-		 * Can only be used for a stored TXT and returns the corresponding section of \p key
-		 * which is the section's name.
-		 */
-		map::Txt::Section* section(const QString &key) const;
-		map::Txt::Entry* entry(const QString &sectionKey, const QString &key) const;
-
-		QString value(int row, const QString &columnKey) const;
-		QString value(const QString &rowKey, int column) const;
 		/**
 		 * Searches for value \p rowKey in the first column and for value \p columnKey in the
 		 * first row.
@@ -161,6 +375,8 @@ class KDE_EXPORT MetaData : public Resource
 		 * \sa value()
 		 */
 		bool hasValue(const QString &rowKey, const QString &columnKey) const;
+		int rows() const;
+		QString value(int row, const QString &columnKey) const;
 
 		/**
 		 * \return Returns true if the underlying file entries are empty.
@@ -181,180 +397,17 @@ class KDE_EXPORT MetaData : public Resource
 		static QString fromFilePath(const QString &value);
 
 	protected:
-		Source m_source;
-		SlkKeys m_columnKeys;
-		SlkKeys m_rowKeys;
-		TxtSectionKeys m_sectionKeys;
-		TxtEntryKeys m_entryKeys;
+		TextSourceInterface *m_textSource;
 };
 
-inline bool MetaData::hasSlk() const
+inline TextSourceInterface* MetaData::textSource() const
 {
-	return this->m_source.which() == 0;
-}
-
-inline bool MetaData::hasTxt() const
-{
-	return this->m_source.which() == 1;
-}
-
-inline map::Slk& MetaData::slk()
-{
-	return boost::get<map::Slk&>(this->m_source);
-}
-
-inline const map::Slk& MetaData::slk() const
-{
-	return boost::get<const map::Slk&>(this->m_source);
-}
-
-inline map::Txt& MetaData::txt()
-{
-	return boost::get<map::Txt&>(this->m_source);
-}
-
-inline const map::Txt& MetaData::txt() const
-{
-	return boost::get<const map::Txt&>(this->m_source);
-}
-
-inline const MetaData::SlkKeys& MetaData::columnKeys() const
-{
-	return this->m_columnKeys;
-}
-
-inline const MetaData::SlkKeys& MetaData::rowKeys() const
-{
-	return this->m_rowKeys;
-}
-
-inline const MetaData::TxtSectionKeys& MetaData::sectionKeys() const
-{
-	return this->m_sectionKeys;
-}
-
-inline const MetaData::TxtEntryKeys& MetaData::entryKeys() const
-{
-	return this->m_entryKeys;
-}
-
-inline map::Slk::ConstView MetaData::row(const QString &key) const
-{
-	if (!hasSlk())
-	{
-		throw Exception();
-	}
-
-	SlkKeys::const_iterator iterator = this->rowKeys().find(key);
-
-	if (iterator == this->rowKeys().end())
-	{
-		throw Exception(boost::format(_("Missing row %1%.")) % key.toUtf8().constData());
-	}
-
-	return this->slk().row(iterator.value());
-}
-
-inline map::Slk::ConstView MetaData::column(const QString &key) const
-{
-	if (!hasSlk())
-	{
-		throw Exception();
-	}
-
-	SlkKeys::const_iterator iterator = this->columnKeys().find(key);
-
-	if (iterator == this->columnKeys().end())
-	{
-		throw Exception(boost::format(_("Missing column %1%.")) % key.toUtf8().constData());
-	}
-
-	return this->slk().column(iterator.value());
-}
-
-inline map::Txt::Section* MetaData::section(const QString &key) const
-{
-	if (!hasTxt())
-	{
-		throw Exception();
-	}
-
-	TxtSectionKeys::const_iterator iterator = this->sectionKeys().find(key);
-
-	if (iterator == this->sectionKeys().end())
-	{
-		return 0;
-	}
-
-	return iterator.value();
-}
-
-inline map::Txt::Entry* MetaData::entry(const QString &sectionKey, const QString& key) const
-{
-	if (!hasTxt())
-	{
-		throw Exception();
-	}
-
-	map::Txt::Section *section = this->section(sectionKey);
-
-	if (section == 0)
-	{
-		return 0;
-	}
-
-	TxtEntryKeys::const_iterator iterator = this->entryKeys().find(TxtEntryKey(section, key));
-
-	if (iterator == this->entryKeys().end())
-	{
-		return 0;
-	}
-
-	return iterator.value();
-}
-
-inline QString MetaData::value(int row, const QString &columnKey) const
-{
-	if (!hasSlk())
-	{
-		throw Exception();
-	}
-
-	SlkKeys::const_iterator iterator = this->columnKeys().find(columnKey);
-
-	if (iterator == this->columnKeys().end())
-	{
-		throw Exception(boost::format(_("Missing column %1%.")) % columnKey.toUtf8().constData());
-	}
-
-	return fromSlkString(QString::fromUtf8(this->slk().table()[iterator.value()][row].c_str()));
-}
-
-inline QString MetaData::value(const QString &rowKey, int column) const
-{
-	if (!hasSlk())
-	{
-		throw Exception();
-	}
-
-	SlkKeys::const_iterator iterator = this->rowKeys().find(rowKey);
-
-	if (iterator == this->rowKeys().end())
-	{
-		throw Exception(boost::format(_("Missing row %1%.")) % rowKey.toUtf8().constData());
-	}
-
-	return fromSlkString(QString::fromUtf8(this->slk().table()[column][iterator.value()].c_str()));
+	return this->m_textSource;
 }
 
 inline bool MetaData::isEmpty() const
 {
-	if (hasSlk())
-	{
-		return this->slk().table().empty();
-	}
-
-	return this->txt().sections().empty();
+	return this->textSource()->isEmpty();
 }
 
 inline QString MetaData::fromSlkString(const QString& value)

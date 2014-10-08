@@ -202,7 +202,7 @@ void ObjectTableModel::load(ObjectData *objectData, const QString &originalObjec
 	m_customObjectId = customObjectId;
 	int rows = 0;
 
-	for (map::Slk::Table::size_type row = 1; row < objectData->metaData()->slk().rows(); ++row)
+	for (map::Slk::Table::size_type row = 1; row < objectData->metaData()->rows(); ++row)
 	{
 		const QString fieldId = objectData->metaData()->value(row, "ID");
 
@@ -227,7 +227,7 @@ void ObjectTableModel::load(ObjectData *objectData, const QString &originalObjec
 	typedef QMultiMap<QString, QString> OrderedFieldIds;
 	OrderedFieldIds fieldIds;
 
-	for (map::Slk::Table::size_type i = 1; i < this->objectData()->metaData()->slk().rows() - 1; ++i)
+	for (map::Slk::Table::size_type i = 1; i < this->objectData()->metaData()->rows() - 1; ++i)
 	{
 		const QString fieldId = this->objectData()->metaData()->value(i + 1, "ID");
 

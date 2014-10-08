@@ -1,0 +1,553 @@
+﻿STRING 2
+{
+Spieler 1
+}
+
+STRING 4
+{
+Kriegsjäger
+}
+
+STRING 5
+{
+4
+}
+
+STRING 6
+{
+Vier wagemutige Seelen ergreifen Besitz von einem alten Helden und erkämpfen sich gegen überwältigende Monstermassen gemeinsam ihren Weg durch eine legendäre Stadt!
+('Untertitel' einschalten.)
+}
+
+STRING 7
+{
+Blizzard Entertainment
+}
+
+STRING 8
+{
+Spieler 2
+}
+
+STRING 11
+{
+Spieler 6
+}
+
+STRING 12
+{
+Spieler 7
+}
+
+STRING 17
+{
+Schlachtschiff-Turm
+}
+
+STRING 19
+{
+Die Tore wurden geöffnet ...
+}
+
+STRING 20
+{
+Stufe 2 wurde geöffnet. Betreten für Narren auf eigene Gefahr ...
+}
+
+STRING 21
+{
+Mini-Boss - KATHUULON
+}
+
+STRING 22
+{
+Dies sind Helden aus dem Zeitalter der Legenden. Wählt einen und kämpft um die Erlösung seiner unsterblichen Seele!
+}
+
+STRING 23
+{
+KRIEGSJÄGER
+}
+
+STRING 24
+{
+Vier mutige Seelen wählen aus einer Reihe gefallener Helden und erkämpfen sich gegen überwältigende Monstermassen einen Weg durch eine legendäre Stadt!
+}
+
+STRING 25
+{
+BladeBerserker
+}
+
+STRING 27
+{
+|cff32cd32TIPP|r - Ein Mondschlüssel wurde fallen gelassen!
+}
+
+STRING 32
+{
+PERSONIFIZIERTER TOD!
+}
+
+STRING 33
+{
+Alis Laden
+}
+
+STRING 39
+{
+Höllen-Wichtel
+}
+
+STRING 40
+{
+ZEIT IN DER HÖLLE
+}
+
+STRING 41
+{
+Verbleibende Zeit im Himmel
+}
+
+STRING 43
+{
+Willkommen im Paradies. Ruht eure erschöpften Glieder aus.
+}
+
+STRING 45
+{
+Cherubim
+}
+
+STRING 49
+{
+Optimus Primo
+}
+
+STRING 50
+{
+Auftragsmörder
+}
+
+STRING 51
+{
+Skeletorus
+}
+
+STRING 53
+{
+Mumm-Rah
+}
+
+STRING 54
+{
+Schlangenauge
+}
+
+STRING 55
+{
+BeastKnight
+}
+
+STRING 59
+{
+Mini-Boss2 - Ra' Adoom
+}
+
+STRING 62
+{
+|cff32cd32TIPP|r - Ein Mondschlüssel wurde fallen gelassen.
+}
+
+STRING 64
+{
+Megotron X
+}
+
+STRING 65
+{
+MegoTron X
+}
+
+STRING 66
+{
+HellSpider
+}
+
+STRING 67
+{
+SEHT, DIE HALLE DER SPINNEN! Wenn Ihr genug Mut habt, wartet am Ende Eure Erlösung ...
+}
+
+STRING 68
+{
+|cff32cd32TIPP|r - Ihr habt einen geheimen Bereich gefunden!
+}
+
+STRING 71
+{
+|cff3232cdERFOLG!|r
+Beide Kreise wurden aktiviert. 
+Die magische Barriere wurde beseitigt, und der Weg ist nun frei!
+}
+
+STRING 72
+{
+Der Kreis wurde aktiviert!
+}
+
+STRING 75
+{
+Amys Magielädchen
+}
+
+STRING 76
+{
+Ankh der Reinkarnation deluxe
+}
+
+STRING 79
+{
+Ewiger Stolz
+}
+
+STRING 83
+{
+Schattentänzer
+}
+
+STRING 85
+{
+Titanen-Skelett
+}
+
+STRING 86
+{
+Seelen-Zerschmetterer
+}
+
+STRING 88
+{
+"HÖRET, KRIEGER! Ihr konntet den Schattenlord erfolgreich schlagen!
+Nach einer Ewigkeit ist Euer Quest der Erlösung Eurer verlorenen Seelen vorbei. Ihr seid in der Tat Helden! Eure Seelen dürfen jetzt weiterziehen, damit Ihr endlich Ruhe findet."
+}
+
+STRING 96
+{
+Ihr habt die Feinde besiegt. Das Tor hat sich geöffnet ...
+}
+
+STRING 97
+{
+Kadaver-Skelett
+}
+
+STRING 98
+{
+KITT-Dampf-Panzer
+}
+
+STRING 99
+{
+Rock 'n Roll-Dampf-Panzer
+}
+
+STRING 102
+{
+BOSS - Xaxion Drak'eem
+}
+
+STRING 103
+{
+Ihr seid tot! Eure Seele ist für immer verloren ...
+}
+
+STRING 105
+{
+|cff32cd32TIPP|r - Beobachter-Status beginnt in 8 Sekunden. Ihr könnt dann den Fortschritt Eurer Teamgefährten beobachten.
+}
+
+STRING 107
+{
+|cffcd32cdDer Ankh der Reinkarnation leuchtet hell ...|r
+}
+
+STRING 108
+{
+|cffcd32cdDer Ankh der Reinkarnation leuchtet hell ...|r
+}
+
+STRING 109
+{
+|cffcd32cdDer Ankh der Reinkarnation leuchtet hell ...|r
+}
+
+STRING 110
+{
+|cffcd32cdDer Ankh der Reinkarnation leuchtet hell ...|r
+}
+
+STRING 111
+{
+Volltreffer
+}
+
+STRING 117
+{
+Die Helden
+}
+
+STRING 119
+{
+|cFF7777CDSkeletorus|r
+'Manabrand', 'Kettenblitz', 'Brillanz-Aura' und 'Tod und Verfall'
+}
+
+STRING 121
+{
+|cFF7777CDMegotron X|r
+'Windlauf', 'Gottesschild', 'Dornen-Aura' und 'Gelassenheit'
+}
+
+STRING 122
+{
+|cFF7777CDSchlangenauge|r
+'Heiliges Licht', 'Sengpfeile', 'Eispfeile' und 'Feuerregen'
+}
+
+STRING 123
+{
+|cFF7777CDKlingen-Berserker|r
+'Todesmantel', 'Feuerbrand', 'Ausdauer-Aura' und 'Klingensturm'
+}
+
+STRING 124
+{
+|cFF7777CDMumm-Rah|r
+'Frost-Nova', 'Schlaf', 'Vampir-Aura' und 'Totenbelebung'
+}
+
+STRING 125
+{
+|cFF7777CDOptimus Primo|r
+'Schockwelle', 'Donnerschlag', 'Hingabe-Aura' und 'Avatar'
+}
+
+STRING 126
+{
+|cFF7777CDAuftragsmörder|r
+'Wucherwurzeln', 'Hieb', 'Sturmschlag' und 'Sternenregen'
+}
+
+STRING 127
+{
+|cFF7777CDBestienritter|r
+'Heiliges Licht', 'Wasser-Elementargeist beschwören', 'Wildgeist' und 'Inferno'
+}
+
+STRING 128
+{
+Die Seelenlosen
+}
+
+STRING 129
+{
+Der Kreis wurde aktiviert!
+}
+
+STRING 132
+{
+Jetzt müsst Ihr den anderen magischen Kreis suchen und aktivieren.
+}
+
+STRING 134
+{
+Jetzt müsst Ihr den anderen magischen Kreis suchen und aktivieren.
+}
+
+STRING 135
+{
+Alle Spinnen wurden vernichtet!
+}
+
+STRING 136
+{
+|cff32cd32TIPP|r - Ihr benötigt den Mondschlüssel, um diese Tür zu öffnen.
+}
+
+STRING 137
+{
+|cff32cd32TIPP|r - Ihr benötigt den Mondschlüssel, um diese Tür zu öffnen.
+}
+
+STRING 138
+{
+|cff32cd32TIPP|r - Ihr benötigt den Sonnenschlüssel, um diese Tür zu öffnen.
+}
+
+STRING 139
+{
+|cff32cd32TIPP|r - Die Erfahrung wird gleichmäßig unter allen in der Nähe befindlichen Spielern aufgeteilt.
+}
+
+STRING 140
+{
+|cff32cd32TIPP|r - Ihr erhaltet keine Erfahrung für das Töten von Monstern, solange Ihr in einem Panzer seid.
+Geht den Monstern möglichst aus dem Weg und tötet die, die sich nicht umgehen lassen.
+Sucht und vernichtet die feindlichen Dampf-Panzer, um die Endtür zu öffnen.
+}
+
+STRING 147
+{
+Der magische Kreis vernichtet alle in der Nähe befindlichen Randalierer.
+}
+
+STRING 148
+{
+Die Magie des Kreises findet keine Randalierer, die er vernichten könnte.
+}
+
+STRING 149
+{
+|cff32cd32TIPP|r - Ihr könnt die Fähigkeiten eines Helden entdecken, indem Ihr die magischen Runen lest, die vor den Helden liegen.
+}
+
+STRING 151
+{
+DEN FLUCH AUF EUCH! Euer Streben nach Erlösung wird langsam lästig. Wie auch immer, Ihr habt die heiligen Hallen des 
+Schattenlords erreicht. Euer Quest endet hier!!!
+}
+
+STRING 152
+{
+Seelen-Hüter
+}
+
+STRING 153
+{
+Seelen-Hüter
+}
+
+STRING 154
+{
+Ihr wagt es, den Schattenlord herauszufordern? Ich werde mich an Euren verlorenen Seelen laben und keine Gnade walten lassen! Kommt und ergebt Euch in Euer Schicksal!
+}
+
+STRING 155
+{
+Seelen-Hüter
+}
+
+STRING 156
+{
+So bald kehrt Ihr zurück? HAHAHA! Werden Eure Seelen der endlosen Suche nach Erlösung endlich müde? Trotzdem, Ihr habt Euch Eure Belohnung verdient. Tretet auf eine Plattform und lasst Eure Herzen bestimmen, welchen Preis Ihr erhaltet ...
+}
+
+STRING 157
+{
+Seelen-Hüter
+}
+
+STRING 158
+{
+HALT! Ich kann nicht glauben, dass solche Narren und Feiglinge es so weit geschafft haben! Wie dem auch sei ...    
+Es gibt zwei Plattformen, die aktiviert werden müssen, um diese magische Barriere zu beseitigen.
+}
+
+STRING 159
+{
+Seelen-Hüter
+}
+
+STRING 160
+{
+Habt Ihr Eure früheren Untaten bei den Lebenden vergessen?! Eure Herzen wurden gewogen, und nur die Hölle wartet jetzt auf Euch!
+}
+
+STRING 161
+{
+|cff32cd32TIPP|r - Wenn Ihr den magischen Kreis am Ende des Ganges erreicht, werden alle Spinnen vernichtet.
+}
+
+STRING 162
+{
+Seelen-Hüter
+}
+
+STRING 163
+{
+DEN FLUCH AUF EUCH! Euer Streben nach Erlösung wird langsam lästig ... wir werden ja sehen, wie Ihr mit diesen Zwergen-Vehikeln zurechtkommt! Tretet in den magischen Kreis, um Eure Reise zu beginnen.
+}
+
+STRING 166
+{
+Ra'Adoom
+}
+
+STRING 167
+{
+KOMMT, HELDEN!
+KOMMT UND HOLT EUCH DIE BELOHNUNG FÜR EURE SO GENANNTE EHRE!
+}
+
+STRING 168
+{
+Ra'Adoom
+}
+
+STRING 169
+{
+BIS ZUM NÄCHSTEN MAL ... HELDEN ...
+}
+
+STRING 170
+{
+|cff32cd32TIPP|r - Untertitel einschalten.
+}
+
+STRING 171
+{
+|cffcd32cdDas Amulett des Rückrufs zerfällt zu Staub, als Ihr es aufhebt ... und ein goldenes Glitzern erscheint dort, wo es vorher war!|r
+|cffdddd32Gold + 200|r
+}
+
+STRING 172
+{
+|cffcd32cdDie Rolle des Stadtportals verschwindet, als Ihr sie aufheben wollt. Ein Goldhaufen erscheint dort, wo sie vorher lag!|r
+|cffdddd32Gold + 200|r
+}
+
+STRING 173
+{
+|cff32cd32TIPP|r - Feuer- oder Eisstrahlen sind Eurer Gesundheit nicht zuträglich!
+}
+
+STRING 174
+{
+|cffcd32cdDie Kristallkugel zerbricht in Stücke, als Ihr versucht, sie aufzuheben. An ihrer Stelle befindet sich jetzt viel Gold!|r
+|cffdddd32Gold + 200|r
+}
+
+STRING 175
+{
+|cffcd32cdDas Goblin-Nachtsichtgerät zerfällt zu Staub, als Ihr versucht, es aufzuheben ... aber ein goldenes Glitzern erscheint dort, wo es vorher lag!|r
+|cffdddd32Gold + 200|r
+}
+
+STRING 176
+{
+|cff32cd32TIPP|r - Diese Tür öffnet sich, wenn der große Dampf-Panzer, der sie bewacht, zerstört ist.
+}
+
+STRING 177
+{
+|cffcd32cdDer Wächterschutz zerfällt zu Staub. An seiner Stelle erscheint Gold!|r
+|cffdddd32Gold + 200|r
+}
+
+STRING 178
+{
+Dungeon-Bewohner
+}
+
+

@@ -56,7 +56,7 @@ void ItemTreeModel::load(MpqPriorityList *source, ObjectData *objectData, QWidge
 	// add all entries from "UnitData.slk" to standard units in Unit Editor
 	if (!itemData->itemData()->isEmpty())
 	{
-		for (map::Slk::Table::size_type row = 1; row < itemData->itemData()->slk().rows(); ++row)
+		for (map::Slk::Table::size_type row = 1; row < itemData->itemData()->rows(); ++row)
 		{
 			const QString objectId = itemData->itemData()->value(row, "itemID");
 			createItem(source, objectData, window, objectId, "");
