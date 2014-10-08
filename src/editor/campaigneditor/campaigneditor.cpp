@@ -38,27 +38,27 @@ void CampaignEditor::closeCampaign()
 {
 }
 
-void CampaignEditor::createFileActions(class KMenu *menu)
+void CampaignEditor::createFileActions(KMenu *menu)
 {
 }
 
-void CampaignEditor::createEditActions(class KMenu *menu)
+void CampaignEditor::createEditActions(KMenu *menu)
 {
 }
 
-void CampaignEditor::createMenus(class KMenuBar *menuBar)
+void CampaignEditor::createMenus(KMenuBar *menuBar)
 {
 }
 
-void CampaignEditor::createWindowsActions(class KMenu *menu)
+void CampaignEditor::createWindowsActions(WindowsMenu *menu)
 {
 }
 
-void CampaignEditor::createToolButtons(class ModuleToolBar *toolBar)
+void CampaignEditor::createToolButtons(ModuleToolBar *toolBar)
 {
 }
 
-class SettingsInterface* CampaignEditor::settings()
+SettingsInterface* CampaignEditor::settings()
 {
 	/// @todo FIXME
 	return 0;

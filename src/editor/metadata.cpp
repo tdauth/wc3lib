@@ -114,6 +114,35 @@ void MetaData::load()
 	}
 }
 
+void MetaData::save(const KUrl &url) const
+{
+	QTemporaryFile file;
+
+	if (file.open())
+	{
+		ofstream out(file.fileName().toUtf8().constData());
+
+		if (hasSlk())
+		{
+			this->slk().write(out);
+		}
+		else
+		{
+			this->txt().write(out);
+		}
+
+		out.close();
+		file.close();
+
+		if (!this->source()->upload(file.fileName(), url, 0))
+		{
+			throw Exception(KIO::NetAccess::lastErrorString().toUtf8().constData());
+		}
+	}
+
+	throw Exception(boost::format(_("Error on opening temporary file %1%.")) % file.fileName().toUtf8().constData());
+}
+
 void MetaData::reload()
 {
 	clear();

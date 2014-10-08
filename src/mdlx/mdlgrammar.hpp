@@ -50,8 +50,11 @@ namespace mdlx
  * \brief Parser for MDL files based on Boost Spirit.
  *
  * This class supports parsing an MDL file from an input stream.
+ *
+ * \ingroup parsers
  */
-class MdlGrammar {
+class MdlGrammar
+{
 	public:
 		typedef std::basic_istream<byte> InputStream;
 		typedef std::istreambuf_iterator<byte> IteratorType;

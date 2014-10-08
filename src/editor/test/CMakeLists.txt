@@ -6,6 +6,12 @@ add_test(NAME ColorsTest COMMAND colors)
 
 add_definitions(-DTEST_MPQ_URL="mpq:/${CMAKE_CURRENT_BINARY_DIR}/test.mpq")
 configure_file(test.mpq test.mpq COPYONLY)
+add_definitions(-DTEST_DIR_URL="file:/${CMAKE_CURRENT_BINARY_DIR}")
+
+add_executable(mpqprioritylist mpqprioritylist.cpp)
+target_link_libraries(mpqprioritylist wc3libeditor ${Boost_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KDECORE_LIBS})
+add_test(NAME MpqPriorityListTest COMMAND mpqprioritylist)
+
 add_executable(shared shared.cpp)
 target_link_libraries(shared wc3libeditor ${Boost_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KDECORE_LIBS})
 add_test(NAME SharedTest COMMAND shared)

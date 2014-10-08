@@ -179,7 +179,7 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		/**
 		 * Sometimes models are loaded from local directories which do also contain their required textures, attachments, particle emitter effects etc.
 		 * In that case you can't load those required files from \ref MpqPriorityList (\ref Editor -> \ref ModelView::editor()). Hence you must load them from the local filesystem using the model's directory URL as root directory.
-		 * This function checks whether URL \p url exists in one of the MPQ archives using \ref MpqPriorityList::findFile and if not it replaces the given URL parameter by a local URL using \ref OgreMdlx::url()'s directory as root directory.
+		 * This function checks whether URL \p url exists in one of the MPQ archives using \ref MpqPriorityList::exists and if not it replaces the given URL parameter by a local URL using \ref OgreMdlx::url()'s directory as root directory.
 		 * \param url URL which is checked for and might be replaced by its local version using model's resource directory URL as root directory.
 		 * \param showMessage If this value is true it will show a message dialog if file does not exist in one of the MPQ archives.
 		 * \return Returns true if file does not exist in one of the MPQ archives and you have to try the local URL.

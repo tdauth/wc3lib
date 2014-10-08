@@ -37,6 +37,11 @@ add_executable(soundstest sounds.cpp)
 target_link_libraries(soundstest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
 add_test(NAME SoundsTest COMMAND soundstest)
 
+configure_file(SkibisCastleTD/war3map.wts SkibisCastleTD/war3map.wts COPYONLY)
+add_executable(mapstringstest mapstrings.cpp)
+target_link_libraries(mapstringstest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
+add_test(NAME MapStringsTest COMMAND mapstringstest)
+
 add_executable(wc3maptest wc3map.cpp)
 target_link_libraries(wc3maptest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
 add_test(NAME Wc3MapTest COMMAND wc3maptest)
@@ -69,6 +74,7 @@ configure_file(TestMap.w3m TestMap.w3m COPYONLY)
 configure_file(war3map.w3r war3map.w3r COPYONLY) # Reign of Chaos rects
 configure_file(war3map.w3s war3map.w3s COPYONLY) # Reign of Chaos sounds
 configure_file(war3map.w3i war3map.w3i COPYONLY) # Reign of Chaos War Chasers
+configure_file(war3map.wts war3map.wts COPYONLY) # Reign of Chaos War Chasers
 configure_file(UnitEditorData.txt UnitEditorData.txt COPYONLY) # Reign of Chaos (war3.mpq)
 configure_file(NeutralUnitFunc.txt NeutralUnitFunc.txt COPYONLY) # Reign of Chaos (war3.mpq)
 

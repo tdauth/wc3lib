@@ -59,6 +59,25 @@ MpqPriorityList::~MpqPriorityList()
 	}
 }
 
+bool MpqPriorityListEntry::isDirectory(QWidget *window) const
+{
+	if (url().isLocalFile())
+	{
+		return QFileInfo(url().toLocalFile()).isDir();
+	}
+
+	if (KIO::NetAccess::exists(url(), KIO::NetAccess::SourceSide, window))
+	{
+		KIO::UDSEntry entry;
+
+		if (KIO::NetAccess::stat(url(), entry, window))
+		{
+			return entry.isDir();
+		}
+	}
+
+	return false;
+}
 
 bool MpqPriorityList::addSource(const KUrl &url, MpqPriorityListEntry::Priority priority)
 {
@@ -210,7 +229,7 @@ bool MpqPriorityList::removeDefaultSources()
 	removeWar3XLocalSource();
 }
 
-bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window)
+bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window) const
 {
 	qDebug() << "Download: " << src.url();
 
@@ -245,7 +264,7 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 	return false;
 }
 
-bool MpqPriorityList::upload(const QString &src, const KUrl &target, QWidget *window)
+bool MpqPriorityList::upload(const QString &src, const KUrl &target, QWidget *window) const
 {
 	if (!target.isRelative()) // has protocol - is absolute
 	{
@@ -272,7 +291,7 @@ bool MpqPriorityList::upload(const QString &src, const KUrl &target, QWidget *wi
 	return false;
 }
 
-bool MpqPriorityList::mkdir(const KUrl &target, QWidget *window)
+bool MpqPriorityList::mkdir(const KUrl &target, QWidget *window) const
 {
 	if (!target.isRelative()) // has protocol - is absolute
 	{
@@ -293,6 +312,29 @@ bool MpqPriorityList::mkdir(const KUrl &target, QWidget *window)
 		if (KIO::NetAccess::mkdir(absoluteTarget, window))
 		{
 			return true;
+		}
+	}
+
+	return false;
+}
+
+bool MpqPriorityList::exists(const KUrl& url, QWidget *window) const
+{
+	if (url.isRelative())
+	{
+		// Since entries are ordered by priority highest priority entry should be checked first
+		BOOST_REVERSE_FOREACH(Sources::const_reference entry, sources())
+		{
+			// entry path can be a directory path or something like tar:/... or mpq:/...
+			KUrl absoluteSource = entry.url();
+			absoluteSource.addPath(url.toLocalFile());
+
+			if (KIO::NetAccess::exists(absoluteSource, KIO::NetAccess::SourceSide, window))
+			{
+				qDebug() << "Found:" << absoluteSource << "and it should exist!";
+
+				return true;
+			}
 		}
 	}
 

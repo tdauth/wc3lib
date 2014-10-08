@@ -68,8 +68,9 @@ class MdlGenerator
 		 * Internal grammars for MDL grammar.
 		 * We do not want to create a new grammar instance each time we parse something.
 		 * Therefore we use these attributes for all parsing operations.
+		 * Make it static that it only has to be allocated once which improves the performance when using multiple instances of class MdlGenerator.
 		 */
-		client::MdlGenerator<IteratorType> grammar;
+		static client::MdlGenerator<IteratorType> grammar;
 };
 
 }

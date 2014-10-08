@@ -46,6 +46,12 @@ class ArchiveInfoDialog;
 class FileInfoDialog;
 
 /**
+ * \page mpqeditorsection MPQ Editor
+ * The MPQ Editor provides an interface for maintaining multiple MPQ archives at the same time.
+ * It allows the user to open multiple archives, to search for and export files, directories or archives and to get all necessary information.
+ */
+
+/**
  * \brief Simple file editor which can handle multiple MPQ archives.
  *
  * Moreover it allows you to easily open Warcraft III's default MPQ archives and all other MPQ entries from editor's MPQ priority list (\ref MpqPriorityList) plus all opened maps and campaigns in editor.

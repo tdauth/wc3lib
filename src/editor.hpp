@@ -47,6 +47,8 @@ namespace wc3lib
  * The editor module provides some sub modules which offer all features of one single original World Editor module:
  * <ul>
  * <li>\subpage triggereditorsection </li>
+ * <li>\subpage objecteditorsection </li>
+ * <li>\subpage mpqeditorsection </li>
  * </ul>
  *
  * \namespace wc3lib::editor

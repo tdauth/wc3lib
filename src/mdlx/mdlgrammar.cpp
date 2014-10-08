@@ -36,7 +36,8 @@ namespace mdlx
  * It returns a formatted string containing file path, line and column.
  */
 template<typename Iterator>
-std::string expectationFailure(const boost::spirit::qi::expectation_failure<Iterator> &e) {
+std::string expectationFailure(const boost::spirit::qi::expectation_failure<Iterator> &e)
+{
 	//const classic::file_position_base<std::string>& pos = e.first.get_position();
 	//std::stringstream msg;
 	//msg
@@ -55,7 +56,8 @@ std::string expectationFailure(const boost::spirit::qi::expectation_failure<Iter
  * Specialization for classic position iterator type.
  */
 template<>
-std::string expectationFailure<MdlGrammar::ClassicPositionIteratorType>(const boost::spirit::qi::expectation_failure<MdlGrammar::ClassicPositionIteratorType> &e) {
+std::string expectationFailure<MdlGrammar::ClassicPositionIteratorType>(const boost::spirit::qi::expectation_failure<MdlGrammar::ClassicPositionIteratorType> &e)
+{
 	const boost::spirit::classic::file_position_base<std::string>& pos = e.first.get_position();
 	std::stringstream msg;
 	msg
@@ -90,7 +92,8 @@ bool MdlGrammar::parse(IteratorType first, IteratorType last, Mdlx* &result)
 	PositionIteratorType position_end;
 	bool failed = false;
 
-	try {
+	try
+	{
 		failed = boost::spirit::qi::phrase_parse(
 			position_begin,
 			position_end,
@@ -99,7 +102,8 @@ bool MdlGrammar::parse(IteratorType first, IteratorType last, Mdlx* &result)
 			result
 		);
 	}
-	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> &e) {
+	catch (const boost::spirit::qi::expectation_failure<PositionIteratorType> &e)
+	{
 		throw Exception(expectationFailure(e));
 	}
 

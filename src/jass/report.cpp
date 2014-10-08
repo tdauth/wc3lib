@@ -28,7 +28,10 @@ namespace jass
 
 Report::Report(const jass_ast_node* node, const std::string& message) : m_node(node), m_message(message)
 {
+}
 
+Report::~Report()
+{
 }
 
 std::string Report::output() const

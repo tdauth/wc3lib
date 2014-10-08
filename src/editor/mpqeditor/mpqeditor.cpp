@@ -490,7 +490,7 @@ void MpqEditor::addFiles()
 
 void MpqEditor::extractFiles()
 {
-	QModelIndexList items = this->m_archivesTreeView->selectionModel()->selectedIndexes();
+	const QModelIndexList items = this->m_archivesTreeView->selectionModel()->selectedIndexes();
 
 	if (items.size() == 1)
 	{
@@ -547,7 +547,7 @@ void MpqEditor::extractFiles()
 			}
 		}
 	}
-	else
+	else if (items.size() > 1)
 	{
 		const QString dir = KFileDialog::getExistingDirectory(m_extractUrl, this);
 

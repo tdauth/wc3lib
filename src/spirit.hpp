@@ -23,6 +23,17 @@
  * This file should be included before any Boost Spirit header since it enables Boost debugging mode for Spirit
  * and defines a global output file stream for traces.
  */
+/**
+ * \defgroup parsers Parsers
+ *
+ * wc3lib provides several parsers for various file formats. Usually they are realised using <a href="http://boost-spirit.com/home/">Boost Spirit</a> which allows to write parser
+ * generators in C++ code only.
+ * Unfortunately, it is slower than for example Bison since it does not generate code which is then compiled and much faster. Besides it does not use a separate lexer by default,
+ * so parsers must be written carefully unless you want to get bad performance.
+ *
+ * Use the header \ref spirit.hpp or \ref qi.hpp before including anything from Boost Spirit or Qi. They define important macros and the debugging output file as \ref spiritTraceLog which
+ * can be useful for Unit Tests.
+ */
 #ifndef WC3LIB_SPIRIT_HPP
 #define WC3LIB_SPIRIT_HPP
 
@@ -36,6 +47,8 @@ namespace wc3lib
  * for Spirit traces.
  *
  * Call spiritTraceLog.open() before running a test with the filename of your output traces XML file.
+ *
+ * \ingroup parsers
  */
 extern std::ofstream spiritTraceLog;
 

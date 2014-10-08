@@ -34,7 +34,7 @@ MpqTreeProxyModel::MpqTreeProxyModel(QObject* parent) : QSortFilterProxyModel(pa
 {
 }
 
-bool MpqTreeProxyModel::lessThan(const QModelIndex& left, const QModelIndex& right) const
+bool MpqTreeProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
 	MpqTreeModel *sourceModel = boost::polymorphic_cast<MpqTreeModel*>(this->sourceModel());
 

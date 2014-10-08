@@ -26,31 +26,31 @@ namespace wc3lib
 namespace editor
 {
 
-AiEditor::AiEditor(MpqPriorityList* source, QWidget* parent, Qt::WindowFlags f): Module(source, parent, f)
+AiEditor::AiEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f): Module(source, parent, f)
 {
 }
 
-void AiEditor::createFileActions(class KMenu *menu)
+void AiEditor::createFileActions(KMenu *menu)
 {
 }
 
-void AiEditor::createEditActions(class KMenu *menu)
+void AiEditor::createEditActions(KMenu *menu)
 {
 }
 
-void AiEditor::createMenus(class KMenuBar *menuBar)
+void AiEditor::createMenus(KMenuBar *menuBar)
 {
 }
 
-void AiEditor::createWindowsActions(class WindowsMenu *menu)
+void AiEditor::createWindowsActions(WindowsMenu *menu)
 {
 }
 
-void AiEditor::createToolButtons(class ModuleToolBar *toolBar)
+void AiEditor::createToolButtons(ModuleToolBar *toolBar)
 {
 }
 
-class SettingsInterface* AiEditor::settings()
+SettingsInterface* AiEditor::settings()
 {
 	/// @todo FIXME
 	return 0;

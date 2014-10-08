@@ -39,7 +39,7 @@ namespace editor
 class MpqPriorityList;
 
 /**
- * Abstract base class for all kind of resources.
+ * \brief Abstract base class for all kind of resources.
  * Provides virtual load, reload and save member functions and dynamic type information.
  * Besides each resource has its corresponding file URL and data source which makes all resource instance completly independent from each other.
  * Resources depend on \ref MpqPriorityList instances, called sources, when being loaded or saved. Therefore one single source instance can be assigned to each resource.
@@ -68,7 +68,10 @@ class KDE_EXPORT Resource
 		virtual ~Resource();
 		/**
 		 * Assigns the corresponding source.
-		 * \note This adds the resources to the resources of \p source which can be accessed via \ref Source::resources().
+		 * Removes the resource from its old source and adds it to \p source.
+		 * It the can be accessed via \p MpqPriorityList::resources().
+		 *
+		 * \sa source()
 		 */
 		void setSource(MpqPriorityList *source);
 		MpqPriorityList* source() const;
@@ -80,23 +83,18 @@ class KDE_EXPORT Resource
 		 */
 		const KUrl& url() const;
 		Type type() const;
-		/**
-		 * Formatted URL used as source.
-		 * \note This should ALWAYS return the same URL for one resource it is added and removed as source whenever the resource is added or removed to or from a \ref MpqPriorityList instance.
-		 */
-		KUrl sourceUrl() const;
 
 		virtual void load() = 0;
 		virtual void reload() = 0;
 		virtual void save(const KUrl &url) const = 0;
 
 	protected:
-		class MpqPriorityList *m_source;
+		MpqPriorityList *m_source;
 		KUrl m_url;
 		Type m_type;
 };
 
-inline class MpqPriorityList* Resource::source() const
+inline MpqPriorityList* Resource::source() const
 {
 	return m_source;
 }
@@ -109,27 +107,6 @@ inline const KUrl& Resource::url() const
 inline Resource::Type Resource::type() const
 {
 	return m_type;
-}
-
-inline KUrl Resource::sourceUrl() const
-{
-	KUrl result = this->url();
-
-	// add additional archive source
-	if (this->type() == Resource::Type::Map || this->type() == Resource::Type::Campaign)
-	{
-		if (result.protocol() != "mpq")
-		{
-			result.setProtocol("mpq");
-		}
-	}
-	// add file's directory as source for relative paths as textures
-	else if (this->type() == Resource::Type::Model)
-	{
-		result.setPath(QFileInfo(result.toLocalFile()).dir().absolutePath()); // TODO remove file info?
-	}
-
-	return result;
 }
 
 }

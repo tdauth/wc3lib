@@ -35,9 +35,11 @@ struct jass_ast_node;
  * Basic reports of the AST contain the corresponding node and the corresponding message.
  * They are used by the \ref Analyzer to report errors and warnings.
  */
-class Report {
+class Report
+{
 	public:
 		Report(const jass_ast_node *node, const std::string &message);
+		virtual ~Report();
 
 		virtual std::string output() const;
 

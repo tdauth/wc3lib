@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MAP_STRINGS_HPP
 #define WC3LIB_MAP_STRINGS_HPP
 
-#include <boost/ptr_container/ptr_vector.hpp>
+#include <vector>
 
 #include "platform.hpp"
 
@@ -34,18 +34,48 @@ namespace map
 /**
  * \brief Map strings file "war3map.wts".
  *
+ * The grammar of a map strings file consists of string entries with numbers:
+ * \code
+ * STRING 23
+ * {
+ * My Text
+ * }
+ * \endcode
+ *
  * \todo Implement Boost Qi parser and Karma generator!
  */
 class MapStrings : public FileFormat
 {
 	public:
+		/**
+		 * \brief A single string entry for a translatable string in a \ref MapStrings file.
+		 *
+		 * Each string is identified by its unique integer key.
+		 * The value itself is the translation of the string for the current language of the map.
+		 * The comment is an optional string which may contain additional information of the location of the string in the map.
+		 * For example for object data it might be something like "// Units: h02M (Stealth Maiden), Name (Name)" in Frozen Throne. This helps
+		 * to find the source of the string.
+		 */
 		struct Entry
 		{
-			string key;
+			int key;
+			/**
+			 * The comment might be important since it usually contains information about the string's location.
+			 */
+			string comment;
 			string value;
+
+			Entry() : key(0)
+			{
+			}
 		};
 
-		typedef boost::ptr_vector<Entry> Entries;
+		/**
+		 * \brief All entries of a map strings file.
+		 *
+		 * The entries are stored into a vector in the order of ther occurence in the file.
+		 */
+		typedef std::vector<Entry> Entries;
 
 		virtual const byte* fileName() const override;
 		virtual const byte* fileTextId() const override;
@@ -53,6 +83,17 @@ class MapStrings : public FileFormat
 
 		virtual std::streamsize read(InputStream& istream) override;
 		virtual std::streamsize write(OutputStream& ostream) const override;
+
+		/**
+		 * \return Returns all string entries of the file.
+		 *
+		 * @{
+		 */
+		Entries& entries();
+		const Entries& entries() const;
+		/**
+		 * @}
+		 */
 
 	private:
 		Entries m_entries;
@@ -71,6 +112,16 @@ inline const byte* MapStrings::fileTextId() const
 inline uint32 MapStrings::latestFileVersion() const
 {
 	return 0;
+}
+
+inline MapStrings::Entries& MapStrings::entries()
+{
+	return this->m_entries;
+}
+
+inline const MapStrings::Entries& MapStrings::entries() const
+{
+	return this->m_entries;
 }
 
 }

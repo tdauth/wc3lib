@@ -68,31 +68,22 @@ class KDE_EXPORT MpqPriorityListEntry : public boost::operators<MpqPriorityListE
 
 		/**
 		 * \param url Has to refer to an archive or a directory.
+		 * \param priority The priority of the entry. Higher priorities will be served first.
 		 */
 		MpqPriorityListEntry(const KUrl &url, Priority priority);
 		virtual ~MpqPriorityListEntry();
 
-		/**
-		 * Allows to download a file synchronously from \p src to file \p target which is set by the member function.
-		 *
-		 * \param window GUI window which is used as parent for any GUI actions.
-		 *
-		 * \return Returns true when the download finished. If the download failed it returns false.
-		 *
-		 * \note As it is a synchronous download this member function blocks until the download has finished or failed.
-		 */
-		bool download(const KUrl &src, QString &target, QWidget *window);
-		/**
-		 * Allows to upload local file \p src synchronously to \p target.
-		 *
-		 * \note As it is a synchronous upload this member function blocks until the upload has finished or failed.
-		 */
-		bool upload(const QString &src, const KUrl &target, QWidget *window);
-		bool mkdir(const KUrl &target, QWidget *window);
-
 		Priority priority() const;
-		bool isDirectory() const;
-		bool isArchive() const;
+		/**
+		 * Entries can be local or remote directories or archives.
+		 * This function checks if the entry is a local or remote directory.
+		 *
+		 * \param window GUI window which is used for any feedback of synchronous requests.
+		 *
+		 * \return Returns true if the entry is a directory.
+		 */
+		bool isDirectory(QWidget *window) const;
+
 		const KUrl& url() const;
 
 		bool operator<(const self& other) const;
@@ -106,17 +97,6 @@ class KDE_EXPORT MpqPriorityListEntry : public boost::operators<MpqPriorityListE
 inline MpqPriorityListEntry::Priority MpqPriorityListEntry::priority() const
 {
 	return this->m_priority;
-}
-
-inline bool MpqPriorityListEntry::isDirectory() const
-{
-	/// \todo Support remote directories (smb).
-	return url().isLocalFile() && QFileInfo(url().toLocalFile()).isDir();
-}
-
-inline bool MpqPriorityListEntry::isArchive() const
-{
-	return !isDirectory();
 }
 
 inline const KUrl& MpqPriorityListEntry::url() const
@@ -142,7 +122,7 @@ inline bool MpqPriorityListEntry::operator==(const self &other) const
  * <ul>
  * <li>File resolution when downloading or uploading files</li>
  * <li>Resource handling which means to hold several resources</li>
- * <li>Holding shared data such as trigger data and World Editor strings</li>
+ * <li>Holding shared data such as trigger data and World Editor strings (which is done by \ref WarcraftIIIShared actually which can be accessed via \ref sharedData() </li>
  * </ul>
  *
  *
@@ -156,6 +136,31 @@ inline bool MpqPriorityListEntry::operator==(const self &other) const
  * \ref sources()
  * As MPQ supports locales you can set a default locale which is used for up- and downloads using \ref setLocale().
  *
+ * When downloading a file from a specific URL it checks if the URL is absolute. If not all source URLs will be prepended in the order of priority and it will be checked for the existence of the newly created URL. If the URL exists the file will be downloaded.
+ * This means that each source is a possible location for relative URLs (usually file paths) but they are always tested in the order of their priorities.
+ * For example if you have multiple MPQ archives as Warcraft III has:
+ * <ul>
+ * <li>war3.mpq</li>
+ * <li>war3x.mpq</li>
+ * <li>War3Patch.mpq</li>
+ * <li>War3XLocal.mpq</li>
+ * </ul>
+ * Now you will have to add the MPQ archives as sources to the MpqPriorityList with the correct priority:
+ * \code
+ * MpqPriorityList list;
+ * list.addSource(KUrl("file://home/me/wc3/War3Patch.mpq", 3)
+ * list.addSource(KUrl("file://home/me/wc3/War3XLocal.mpq", 2)
+ * list.addSource(KUrl("file://home/me/wc3/war3x.mpq", 1)
+ * list.addSource(KUrl("file://home/me/wc3/war3.mpq", 0)
+ * \endcode
+ *
+ * When calling \ref download() it checks in the following order:
+ * <ul>
+ * <li>War3Patch.mpq</li>
+ * <li>War3XLocal.mpq</li>
+ * <li>war3x.mpq</li>
+ * <li>war3.mpq</li>
+ * </ul>
  *
  * Use the following member functions to add, remove or get resources stored in a MpqPriorityList:
  * \ref addResource()
@@ -278,14 +283,22 @@ class KDE_EXPORT MpqPriorityList
 		 * \note If \p src is an absolute URL it will work just like \ref KIO::NetAccess::download(). Therefore this member function should be a replacement whenever you want to download something to make relative URLs to custom sources available in your application.
 		 * \todo If it's an "mpq:/" URL and there is no locale given add one considering \ref locale().
 		 */
-		virtual bool download(const KUrl &src, QString &target, QWidget *window);
-		virtual bool upload(const QString &src, const KUrl &target, QWidget *window);
-		virtual bool mkdir(const KUrl &target, QWidget *window);
+		virtual bool download(const KUrl &src, QString &target, QWidget *window) const;
+		virtual bool upload(const QString &src, const KUrl &target, QWidget *window) const;
+		virtual bool mkdir(const KUrl &target, QWidget *window) const;
+		/**
+		 * \param url The URL which is checked for existence.
+		 * \param window GUI window which is used for any feedback.
+		 *
+		 * \return Returns true if \p url exists in at least one of the entries.
+		 */
+		virtual bool exists(const KUrl &url, QWidget *window) const;
 
 		/**
 		 * \return Returns all sources which are used by the MpqPriorityList.
 		 */
 		const Sources& sources() const;
+		Sources& sources();
 
 		/**
 		 * All added resources will also be added to MPQ priority list automaticially.
@@ -293,10 +306,14 @@ class KDE_EXPORT MpqPriorityList
 		 */
 		virtual void addResource(Resource *resource);
 		/**
-		 * Removes resource from editor. This function is called by \ref Resource::~Resource() autmatically.
-		 * You still have to delete the resource manually afterwards.
+		 * Removes resource from priority list. This function is called by \ref Resource::~Resource() autmatically.
+		 * \note You still have to delete the resource manually afterwards.
 		 */
 		virtual bool removeResource(Resource *resource);
+		/**
+		 * Removes resource with URL \p url.
+		 * \note You still have to delete the resource manually afterwards.
+		 */
 		virtual bool removeResource(const KUrl &url);
 
 		/**
@@ -314,8 +331,6 @@ class KDE_EXPORT MpqPriorityList
 		void clear();
 
 	protected:
-		Sources& sources();
-
 		SharedDataPtr m_sharedData;
 		mpq::File::Locale m_locale;
 

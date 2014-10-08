@@ -26,31 +26,31 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectManager::ObjectManager(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f)
+ObjectManager::ObjectManager(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f)
 {
 }
 
-void ObjectManager::createFileActions(class KMenu *menu)
+void ObjectManager::createFileActions(KMenu *menu)
 {
 }
 
-void ObjectManager::createEditActions(class KMenu *menu)
+void ObjectManager::createEditActions(KMenu *menu)
 {
 }
 
-void ObjectManager::createMenus(class KMenuBar *menuBar)
+void ObjectManager::createMenus(KMenuBar *menuBar)
 {
 }
 
-void ObjectManager::createWindowsActions(class KMenu *menu)
+void ObjectManager::createWindowsActions(WindowsMenu *menu)
 {
 }
 
-void ObjectManager::createToolButtons(class KToolBar *toolBar)
+void ObjectManager::createToolButtons(ModuleToolBar *toolBar)
 {
 }
 
-class SettingsInterface* ObjectManager::settings()
+SettingsInterface* ObjectManager::settings()
 {
 	/// @todo FIXME
 	return 0;

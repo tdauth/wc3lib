@@ -45,7 +45,8 @@ namespace wc3lib
 namespace mdlx
 {
 
-namespace client {
+namespace client
+{
 
 namespace fusion = boost::fusion;
 namespace phoenix = boost::phoenix;
@@ -117,23 +118,27 @@ CommentSkipper<Iterator>::CommentSkipper() : CommentSkipper<Iterator>::base_type
  * @{
  */
 template<typename T, typename... Arguments>
-std::unique_ptr<T> assignPointer(Arguments... parameters) {
+std::unique_ptr<T> assignPointer(Arguments... parameters)
+{
 	return std::unique_ptr<T>(new T(parameters...));
 }
 
 template<typename T>
-typename std::unique_ptr<T>::pointer pointerValue(std::unique_ptr<T> &ptr) {
+typename std::unique_ptr<T>::pointer pointerValue(std::unique_ptr<T> &ptr)
+{
 	return ptr.release();
 }
 // resetPointer
 
 template<typename T>
-void resetPointer(std::unique_ptr<T> &target, std::unique_ptr<T> &source) {
+void resetPointer(std::unique_ptr<T> &target, std::unique_ptr<T> &source)
+{
 	target.reset(source.release());
 }
 
 template<typename T, typename... Arguments>
-void newPointer(std::unique_ptr<T> &target, Arguments... parameters) {
+void newPointer(std::unique_ptr<T> &target, Arguments... parameters)
+{
 	target.reset(new T(parameters...));
 }
 /**

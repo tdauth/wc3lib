@@ -75,8 +75,8 @@ using boost::phoenix::ref;
  * Doesn't consume eols since value pairs are separated linewise which therefore can be specified easier in the rules
  */
 template<typename Iterator>
-struct CommentSkipper : public qi::grammar<Iterator> {
-
+struct CommentSkipper : public qi::grammar<Iterator>
+{
 	CommentSkipper() : CommentSkipper<Iterator>::base_type(skip, "comments and blanks")
 	{
 		using qi::lit;
@@ -244,6 +244,9 @@ struct SectionGrammar : qi::grammar<Iterator, Txt::Section(), Skipper>
 	KeyValueSquence<Iterator, Skipper> keyValueSequence;
 };
 
+/**
+ * \ingroup parsers
+ */
 template <typename Iterator, typename Skipper = CommentSkipper<Iterator> >
 struct TxtGrammar : qi::grammar<Iterator, Txt::Sections(), Skipper>
 {

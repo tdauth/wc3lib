@@ -144,6 +144,8 @@ void setCell(Slk::Table &table, const CellData &cell)
  * All SLK files contain records separated by eol characters.
  * There is different types of records from which only need those on which
  * cell values depend on.
+ *
+ * \ingroup parsers
  */
 template <typename Iterator>
 struct SlkGrammar : qi::grammar<Iterator, Slk::Table(), qi::locals<Slk::Table::size_type, Slk::Table::size_type> >

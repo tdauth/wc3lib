@@ -207,7 +207,7 @@ class KDE_EXPORT TriggerEditor : public Module
 		 * \param withLinks If this value is true it will create selectable links for all parameters.
 		 * \param withHint If this value is true, the function's hint will be appended after a line break.
 		 * \param withCategory If this value is true, the function's trigger category will be prepended if it is displayed in trigger editor.
-		 * 
+		 *
 		 * \return Returns the formatted string.
 		 */
 		template<class Functions>
@@ -307,13 +307,13 @@ class KDE_EXPORT TriggerEditor : public Module
 
 		/**
 		 * Loads corresponding trigger data ("UI/TriggerData.txt") which contains definitions of trigger types, categories, functions etc. and is required to resolve all trigger functions.
-		 * \note Usually, data from the corresponding \ref MpqPriorityList::shared() would be taken (\ref WarcraftIIIShared::triggerData()). This function is useful if the corresponding source has no trigger data file.
+		 * \note Usually, data from the corresponding \ref MpqPriorityList::sharedData() would be taken (\ref WarcraftIIIShared::triggerData()). This function is useful if the corresponding source has no trigger data file.
 		 */
 		void loadTriggerData();
 		/**
 		 * Loads corresponding trigger strings ("UI/TriggerStrings.txt") which contains string definitions and layouts for all trigger functions defined by trigger data.
 		 * This data is required for proper display of names and parameter selection.
-		 * \note Usually, data from the corresponding \ref MpqPriorityList::shared() would be taken (\ref WarcraftIIIShared::triggerStrings()). This function is useful if the corresponding source has no trigger strings file.
+		 * \note Usually, data from the corresponding \ref MpqPriorityList::sharedData() would be taken (\ref WarcraftIIIShared::triggerStrings()). This function is useful if the corresponding source has no trigger strings file.
 		 */
 		void loadTriggerStrings();
 

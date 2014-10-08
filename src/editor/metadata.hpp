@@ -66,6 +66,8 @@ namespace editor
  * \note Theoretically it is possible to store several values under the same keys using multiple equally named rows, columns, sections or entries but this class assumes that each identifier is picked uniquely. An exception might be entries in sections since there can be at least one entry per section so if multiple sections have the same entry it still would be unique in that section which is enough to use it as a hash value.
  *
  * \todo Remove unnecessary wrapper methods which are duplicated from \ref map::Slk.
+ * \todo Add FDF support.
+ * \todo Add WTS support.
  */
 class KDE_EXPORT MetaData : public Resource
 {
@@ -99,10 +101,7 @@ class KDE_EXPORT MetaData : public Resource
 
 		virtual void load();
 		virtual void reload();
-		virtual void save(const KUrl &url) const
-		{
-			throw Exception(_("Saving meta data is not supported yet."));
-		}
+		virtual void save(const KUrl &url) const;
 
 		/**
 		 * \return Returns true if there is currently an SLK file stored.
