@@ -290,6 +290,8 @@ class ObjectData : public QObject
 		 */
 		virtual QString objectNameFieldId() const = 0;
 
+		const Objects& objects() const;
+
 	protected:
 		MpqPriorityList *m_source;
 		/**
@@ -301,6 +303,11 @@ class ObjectData : public QObject
 inline MpqPriorityList* ObjectData::source() const
 {
 	return this->m_source;
+}
+
+inline const ObjectData::Objects& ObjectData::objects() const
+{
+	return this->m_objects;
 }
 
 }

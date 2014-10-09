@@ -216,11 +216,11 @@ inline QString valueToString(const map::Value &value)
 			{
 				if (i > 0)
 				{
-					result += ", ";
-					++i;
+					result += ",";
 				}
 
 				result += QString::fromUtf8(value.c_str());
+				++i;
 			}
 
 			return result;

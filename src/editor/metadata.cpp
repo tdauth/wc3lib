@@ -66,6 +66,23 @@ QString SlkTextSource::value(const QString &rowKey, const QString &columnKey) co
 	return value(rowIterator.value(), columnKey);
 }
 
+bool SlkTextSource::hasValue(int row, const QString &columnKey) const
+{
+	if (row >= this->slk().rows() || row < 0)
+	{
+		return false;
+	}
+
+	SlkKeys::const_iterator columnIterator = this->columnKeys().find(columnKey);
+
+	if (columnIterator == this->columnKeys().end())
+	{
+		return false;
+	}
+
+	return true;
+}
+
 QString SlkTextSource::value(int row, const QString &columnKey) const
 {
 	SlkKeys::const_iterator columnIterator = this->columnKeys().find(columnKey);
@@ -158,6 +175,26 @@ QString TxtTextSource::value(const QString& rowKey, const QString& columnKey) co
 	}
 }
 
+bool TxtTextSource::hasValue(int row, const QString& columnKey) const
+{
+	if (row >= this->m_txt.sections().size() || row < 0)
+	{
+		return false;
+	}
+
+	const map::Txt::Section *rowKey = &this->m_txt.sections()[row];
+	const TxtEntryKey entryKey = TxtEntryKey(rowKey, columnKey);
+
+	TxtEntryKeys::const_iterator columnIterator = this->entryKeys().find(entryKey);
+
+	if (columnIterator == this->entryKeys().end())
+	{
+		return false;
+	}
+
+	return true;
+}
+
 QString TxtTextSource::value(int row, const QString& columnKey) const
 {
 	const map::Txt::Section *rowKey = &this->m_txt.sections()[row];
@@ -200,21 +237,42 @@ void TxtTextSource::write(ostream &out) const
 
 bool MapStringsTextSource::hasValue(const QString &rowKey, const QString& columnKey) const
 {
-	return this->entryKeys().contains(rowKey);
+	bool ok = true;
+	int row = rowKey.toInt(&ok);
+
+	if (ok)
+	{
+		return this->entryKeys().contains(row);
+	}
+
+	return false;
 }
 
 QString MapStringsTextSource::value(const QString &rowKey, const QString& columnKey) const
 {
-	EntryKeys::const_iterator iterator = this->entryKeys().find(rowKey);
+	bool ok = true;
+	int row = rowKey.toInt(&ok);
 
-	if (iterator != this->entryKeys().end())
+	if (ok)
 	{
-		return QString::fromUtf8(iterator.value()->value.c_str());
+		EntryKeys::const_iterator iterator = this->entryKeys().find(row);
+
+		if (iterator != this->entryKeys().end())
+		{
+			return QString::fromUtf8(iterator.value()->value.c_str());
+		}
+		else
+		{
+			throw Exception(boost::format(_("String %1% not found.")) % rowKey.toUtf8().constData());
+		}
 	}
-	else
-	{
-		throw Exception(boost::format(_("String %1% not found.")) % rowKey.toUtf8().constData());
-	}
+
+	throw Exception(boost::format(_("Invalid row key %1%.")) % rowKey.toUtf8().constData());
+}
+
+bool MapStringsTextSource::hasValue(int row, const QString& columnKey) const
+{
+	return m_entryKeys.contains(row);
 }
 
 QString MapStringsTextSource::value(int row, const QString& columnKey) const
@@ -222,14 +280,17 @@ QString MapStringsTextSource::value(int row, const QString& columnKey) const
 	return QString::fromUtf8(this->mapStrings().entries()[row].value.c_str());
 }
 
-void MapStringsTextSource::read(istream& in)
+void MapStringsTextSource::read(istream &in)
 {
 	this->m_mapStrings.read(in);
 
 	BOOST_FOREACH(map::MapStrings::Entries::reference ref, this->m_mapStrings.entries())
 	{
-		m_entryKeys.insert(QString::number(ref.key), &ref);
+		m_entryKeys.insert(ref.key, &ref);
 	}
+
+	qDebug() << "Keys entries size:" << this->m_mapStrings.entries().size();
+	qDebug() << "Keys size:" << m_entryKeys.size();
 }
 
 void MapStringsTextSource::write(ostream& out) const
@@ -363,6 +424,11 @@ int MetaData::rows() const
 	}
 
 	return 0;
+}
+
+bool MetaData::hasValue(int row, const QString &columnKey) const
+{
+	return this->textSource()->hasValue(row, columnKey);
 }
 
 QString MetaData::value(int row, const QString &columnKey) const

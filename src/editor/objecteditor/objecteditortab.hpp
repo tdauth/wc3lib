@@ -258,6 +258,8 @@ class KDE_EXPORT ObjectEditorTab : public QWidget
 
 		IdDialog *m_idDialog;
 
+		KUrl m_recentImportUrl;
+
 	private slots:
 		void itemClicked(QModelIndex index);
 		// TEST

@@ -294,15 +294,16 @@ void ObjectData::modifyField(const QString &originalObjectId, const QString &cus
 	emit fieldModification(originalObjectId, customObjectId, fieldId);
 }
 
-void ObjectData::modifyField(const QString &originalObjectId, const QString &customObjectId, const QString& fieldId, const QString& value)
+void ObjectData::modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, const QString &value)
 {
 	map::CustomObjects::Modification modification(this->type());
 	modification.setValueId(map::stringToId(fieldId.toUtf8().constData()));
 	modification.value() = this->value(fieldId, value);
+
 	this->modifyField(originalObjectId, customObjectId, fieldId, modification);
 }
 
-void ObjectData::resetField(const QString &originalObjectId, const QString &customObjectId, const QString& fieldId)
+void ObjectData::resetField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId)
 {
 	const ObjectId objectId(originalObjectId, customObjectId);
 	Objects::iterator iterator = this->m_objects.find(objectId);
@@ -542,12 +543,22 @@ void ObjectData::importCustomUnits(const map::CustomUnits &units)
 	{
 		const map::CustomUnits::Unit &unit = units.originalTable()[i];
 		const QString originalObjectId = map::idToString(unit.originalId()).c_str();
-		const QString customObjectId = map::idToString(unit.customId()).c_str();
 
-		for (map::CustomUnits::Unit::Modifications::size_type j = 0; j < unit.modifications().size(); ++j)
+		/*
+		 * In Reign of Chaos items are stored in custom units as well.
+		 * If there is no original object it does not belong to the current object data.
+		 *
+		 * TODO check if original object exists -> current solution is a workaround
+		 */
+		if (this->hasDefaultFieldValue(originalObjectId, objectNameFieldId()))
 		{
-			const map::CustomUnits::Modification &modification = unit.modifications()[j];
-			this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), unitToObjectModification(modification));
+			const QString customObjectId = map::idToString(unit.customId()).c_str();
+
+			for (map::CustomUnits::Unit::Modifications::size_type j = 0; j < unit.modifications().size(); ++j)
+			{
+				const map::CustomUnits::Modification &modification = unit.modifications()[j];
+				this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), unitToObjectModification(modification));
+			}
 		}
 	}
 
@@ -555,12 +566,22 @@ void ObjectData::importCustomUnits(const map::CustomUnits &units)
 	{
 		const map::CustomUnits::Unit &unit = units.customTable()[i];
 		const QString originalObjectId = map::idToString(unit.originalId()).c_str();
-		const QString customObjectId = map::idToString(unit.customId()).c_str();
 
-		for (map::CustomUnits::Unit::Modifications::size_type j = 0; j < unit.modifications().size(); ++j)
+		/*
+		 * In Reign of Chaos items are stored in custom units as well.
+		 * If there is no original object it does not belong to the current object data.
+		 *
+		 * TODO check if original object exists -> current solution is a workaround
+		 */
+		if (this->hasDefaultFieldValue(originalObjectId, objectNameFieldId()))
 		{
-			const map::CustomUnits::Modification &modification = unit.modifications()[j];
-			this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), unitToObjectModification(modification));
+			const QString customObjectId = map::idToString(unit.customId()).c_str();
+
+			for (map::CustomUnits::Unit::Modifications::size_type j = 0; j < unit.modifications().size(); ++j)
+			{
+				const map::CustomUnits::Modification &modification = unit.modifications()[j];
+				this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), unitToObjectModification(modification));
+			}
 		}
 	}
 

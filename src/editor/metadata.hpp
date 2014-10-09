@@ -44,6 +44,7 @@ class KDE_EXPORT TextSourceInterface
 		virtual bool hasValue(const QString &rowKey, const QString &columnKey) const = 0;
 		virtual QString value(const QString &rowKey, const QString &columnKey) const = 0;
 		virtual int rows() const = 0;
+		virtual bool hasValue(int row, const QString &columnKey) const = 0;
 		virtual QString value(int row, const QString &columnKey) const = 0;
 		virtual bool isEmpty() const = 0;
 		virtual void clear() = 0;
@@ -68,6 +69,7 @@ class KDE_EXPORT SlkTextSource : public TextSourceInterface
 		virtual bool hasValue(const QString& rowKey, const QString& columnKey) const override;
 		virtual QString value(const QString& rowKey, const QString& columnKey) const override;
 		virtual int rows() const override;
+		virtual bool hasValue(int row, const QString& columnKey) const override;
 		virtual QString value(int row, const QString& columnKey) const override;
 		virtual void read(istream &in) override;
 		virtual void write(ostream& out) const override;
@@ -150,6 +152,7 @@ class KDE_EXPORT TxtTextSource : public TextSourceInterface
 		virtual bool isEmpty() const override;
 		virtual void clear() override;
 		virtual bool hasValue(const QString &rowKey, const QString &columnKey) const override;
+		virtual bool hasValue(int row, const QString& columnKey) const override;
 		virtual QString value(const QString &rowKey, const QString &columnKey) const override;
 		virtual int rows() const override;
 		virtual QString value(int row, const QString& columnKey) const override;
@@ -240,20 +243,21 @@ class KDE_EXPORT MapStringsTextSource : public TextSourceInterface
 		/**
 		 * Use the entry keys as key.
 		 */
-		typedef QHash<QString, const map::MapStrings::Entry*> EntryKeys;
+		typedef QHash<int, const map::MapStrings::Entry*> EntryKeys;
 
 		map::MapStrings& mapStrings();
 		const map::MapStrings& mapStrings() const;
 
 		const EntryKeys& entryKeys() const;
 
-		const map::MapStrings::Entry* entry(const QString &key) const;
+		const map::MapStrings::Entry* entry(int key) const;
 
 		virtual bool isEmpty() const override;
 		virtual void clear() override;
 		virtual bool hasValue(const QString &rowKey, const QString &columnKey) const override;
 		virtual QString value(const QString &rowKey, const QString &columnKey) const override;
 		virtual int rows() const override;
+		virtual bool hasValue(int row, const QString& columnKey) const override;
 		virtual QString value(int row, const QString& columnKey) const override;
 		virtual void read(istream &in) override;
 		virtual void write(ostream &out) const override;
@@ -279,7 +283,7 @@ inline const MapStringsTextSource::EntryKeys& MapStringsTextSource::entryKeys() 
 	return this->m_entryKeys;
 }
 
-inline const map::MapStrings::Entry* MapStringsTextSource::entry(const QString& key) const
+inline const map::MapStrings::Entry* MapStringsTextSource::entry(int key) const
 {
 	EntryKeys::const_iterator iterator = this->entryKeys().find(key);
 
@@ -344,9 +348,9 @@ class KDE_EXPORT MetaData : public Resource
 
 		virtual void clear();
 
-		virtual void load();
-		virtual void reload();
-		virtual void save(const KUrl &url) const;
+		virtual void load() override;
+		virtual void reload() override;
+		virtual void save(const KUrl &url) const override;
 
 		TextSourceInterface* textSource() const;
 
@@ -376,6 +380,7 @@ class KDE_EXPORT MetaData : public Resource
 		 */
 		bool hasValue(const QString &rowKey, const QString &columnKey) const;
 		int rows() const;
+		bool hasValue(int row, const QString &columnKey) const;
 		QString value(int row, const QString &columnKey) const;
 
 		/**

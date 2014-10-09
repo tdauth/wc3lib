@@ -74,7 +74,8 @@ void ObjectTableView::editItem(const QModelIndex &index)
 
 	if (ObjectValueDialog::show(result, this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId, this->tab()->objectData(), label, this->tab()) == QDialog::Accepted)
 	{
-		this->resizeColumnsToContents();
+		qDebug() << "New field value:" << this->tab()->objectData()->fieldValue(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId);
+		qDebug() << "New readable field value:" << this->tab()->objectData()->fieldReadableValue(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId);
 	}
 }
 
@@ -82,7 +83,6 @@ void ObjectTableView::resetItem(const QModelIndex &index)
 {
 	const QString fieldId = model()->data(index, Qt::UserRole).toString();
 	this->tab()->objectData()->resetField(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId);
-	this->resizeColumnsToContents();
 }
 
 void ObjectTableView::customContextMenuRequested(QPoint pos)

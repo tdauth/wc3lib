@@ -290,7 +290,7 @@ void ObjectEditorTab::importAllObjects()
 	const QString mapSuffix = "w3m";
 	const QString xmapSuffix = "w3x";
 
-	const KUrl url = KFileDialog::getOpenUrl(KUrl(), QString("*\n*.%1\nCustom Objects Collection *.%2\nMap (*.%3 *.%4)").arg(customObjectsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix), this, importAllObjectsText());
+	const KUrl url = KFileDialog::getOpenUrl(m_recentImportUrl, QString("*\n*.%1\nCustom Objects Collection *.%2\nMap (*.%3 *.%4)").arg(customObjectsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix), this, importAllObjectsText());
 
 	if (!url.isEmpty())
 	{
@@ -307,8 +307,7 @@ void ObjectEditorTab::importAllObjects()
 			{
 				customUnits.read(in);
 				this->objectData()->importCustomUnits(customUnits);
-				// TODO refresh tree widget by using object data not custom units
-				treeModel()->load(this->source(), this->objectData(), this);
+				m_recentImportUrl = url;
 			}
 			catch (std::exception &e)
 			{
@@ -327,8 +326,7 @@ void ObjectEditorTab::importAllObjects()
 				if (customObjectsCollection->hasUnits())
 				{
 					this->objectData()->importCustomUnits(*customObjectsCollection->units());
-					// TODO refresh tree widget by using object data not custom units
-					treeModel()->load(this->source(), this->objectData(), this);
+					m_recentImportUrl = url;
 				}
 				else
 				{
@@ -349,8 +347,73 @@ void ObjectEditorTab::importAllObjects()
 				std::streamsize size = map->readFileFormat(map->customUnits().get());
 				qDebug() << "Size of custom units:" << size;
 				this->objectData()->importCustomUnits(*map->customUnits());
-				// TODO refresh tree widget by using object data not custom units
-				treeModel()->load(this->source(), this->objectData(), this);
+
+				/*
+				 * All string entries are usually stored in the map strings.
+				 */
+				if (map->strings().get() != 0)
+				{
+					mpq::File stringsFile = map->findFile(map->strings()->fileName());
+
+					if (stringsFile.isValid())
+					{
+						QTemporaryFile file;
+						// keep suffix
+						file.setFileTemplate("XXXXXX.wts");
+						file.open();
+						ofstream out(file.fileName().toUtf8().constData());
+						stringsFile.writeData(out);
+						out.close();
+						file.close();
+
+						qDebug() << "Entries" << map->strings()->entries().size();
+
+						MetaData mapStringsMetaData(file.fileName());
+						mapStringsMetaData.setSource(this->source());
+						mapStringsMetaData.load();
+
+						const QString triggerStringPrefix = "TRIGSTR_";
+
+						for (ObjectData::Objects::const_iterator iterator = this->objectData()->objects().begin(); iterator != this->objectData()->objects().end(); ++iterator)
+						{
+							for (ObjectData::Modifications::const_iterator modIterator = iterator.value().begin(); modIterator != iterator.value().end(); ++modIterator)
+							{
+								if (modIterator.value().value().type() == map::Value::Type::String)
+								{
+									const QString key = valueToString(modIterator.value().value());
+
+									qDebug() << "key" << key;
+
+									if (key.startsWith(triggerStringPrefix))
+									{
+										bool ok = true;
+										const QString index = key.mid(triggerStringPrefix.size());
+										int row = index.toInt(&ok);
+
+										if (ok)
+										{
+											if (mapStringsMetaData.hasValue(row, ""))
+											{
+												qDebug() << "Translated string:" <<  mapStringsMetaData.value(row, "");
+												this->objectData()->modifyField(iterator.key().first, iterator.key().second, modIterator.key(), mapStringsMetaData.value(row, ""));
+											}
+											else
+											{
+												qDebug() << "Missing translated string" << row;
+											}
+										}
+										else
+										{
+											qDebug() << "Invalid string index" << index;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+
+				m_recentImportUrl = url;
 			}
 			catch (std::exception &e)
 			{
