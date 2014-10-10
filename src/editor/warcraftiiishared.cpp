@@ -81,6 +81,15 @@ Texture* WarcraftIIIShared::teamGlowTexture(TeamColor teamGlow) const
 	return this->m_teamGlowTextures.find(teamGlow)->second;
 }
 
+void WarcraftIIIShared::refreshMapStrings(QWidget* window, const KUrl url)
+{
+	MapStringsPtr ptr(new MetaData(url));
+	ptr->setSource(this->source());
+	ptr->load();
+
+	m_mapStrings.swap(ptr); // exception safe
+}
+
 void WarcraftIIIShared::refreshWorldEditorStrings(QWidget *window, const KUrl &url)
 {
 	WorldEditorStringsPtr ptr(new MetaData(url));
@@ -103,7 +112,11 @@ QString WarcraftIIIShared::tr(const QString &key, const QString &group, const QS
 {
 	QString result;
 
-	if (this->worldEditorStrings().get() != 0 && this->worldEditorStrings()->hasValue(group, key))
+	if (this->mapStrings().get() != 0 && this->mapStrings()->hasValue(key, ""))
+	{
+		result = this->mapStrings()->value(key, "");
+	}
+	else if (this->worldEditorStrings().get() != 0 && this->worldEditorStrings()->hasValue(group, key))
 	{
 		result = this->worldEditorStrings()->value(group, key);
 	}
@@ -115,10 +128,10 @@ QString WarcraftIIIShared::tr(const QString &key, const QString &group, const QS
 	if (!result.isEmpty())
 	{
 		/*
-		* Some values like "WESTRING_UE_UNITRACE_HUMAN" refer to other keys and have to be resolved recursively until no
-		* reference is found anymore.
-		*/
-		if ((this->worldEditorStrings().get() != 0 && this->worldEditorStrings()->hasValue(group, result)) || (this->worldEditorGameStrings().get() != 0 && this->worldEditorGameStrings()->hasValue(group, result)))
+		 * Some values like "WESTRING_UE_UNITRACE_HUMAN" refer to other keys and have to be resolved recursively until no
+		 * reference is found anymore.
+		 */
+		if ((this->mapStrings().get() != 0 && this->mapStrings()->hasValue(key, "")) || (this->worldEditorStrings().get() != 0 && this->worldEditorStrings()->hasValue(group, result)) || (this->worldEditorGameStrings().get() != 0 && this->worldEditorGameStrings()->hasValue(group, result)))
 		{
 			qDebug() << "Recursion";
 

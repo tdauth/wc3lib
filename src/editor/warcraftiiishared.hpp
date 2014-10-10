@@ -82,6 +82,10 @@ class KDE_EXPORT WarcraftIIIShared
 		typedef boost::ptr_map<TeamColor, Texture> TeamColorTextures;
 
 		/**
+		 * The strings of the current map or campaign.
+		 */
+		typedef boost::scoped_ptr<MetaData> MapStringsPtr;
+		/**
 		 * The World Editor strings are accessed via \ref wc3lib::editor::MetaData which allows fast access at runtime to all strings.
 		 */
 		typedef boost::scoped_ptr<MetaData> WorldEditorStringsPtr;
@@ -110,6 +114,9 @@ class KDE_EXPORT WarcraftIIIShared
 		 */
 		Texture* teamGlowTexture(TeamColor teamGlow) const;
 
+		void refreshMapStrings(QWidget *window, const KUrl url = KUrl("war3map.wts"));
+		const MapStringsPtr& mapStrings() const;
+
 		/**
 		 * \param window Widget which is used for KIO download.
 		 * \param url The URL of the World Editor strings file.
@@ -137,6 +144,7 @@ class KDE_EXPORT WarcraftIIIShared
 		 * Call tr("WESTRING_APPNAME", "WorldEditStrings") to get the text "WARCRAFT III - Welt-Editor" from file "UI/WorldEditStrings.txt" of MPQ archive "War3xlocal.mpq" (Frozen Throne), for instance.
 		 * Localized keyed and grouped strings are found under following paths of current MPQ with the highest priority:
 		 * <ul>
+		 * <li>war3map.wts</li>
 		 * <li>UI/WorldEditStrings.txt</li>
 		 * <li>UI/CampaignStrings.txt</li>
 		 * <li>UI/TipStrings.txt</li>
@@ -209,6 +217,7 @@ class KDE_EXPORT WarcraftIIIShared
 		// team color and glow textures
 		mutable TeamColorTextures m_teamColorTextures;
 		mutable TeamColorTextures m_teamGlowTextures;
+		MapStringsPtr m_mapStrings;
 		WorldEditorStringsPtr m_worldEditorStrings;
 		WorldEditorGameStringsPtr m_worldEditorGameStrings;
 		WorldEditDataPtr m_worldEditData;
@@ -219,6 +228,11 @@ class KDE_EXPORT WarcraftIIIShared
 inline MpqPriorityList* WarcraftIIIShared::source() const
 {
 	return this->m_source;
+}
+
+inline const WarcraftIIIShared::MapStringsPtr& WarcraftIIIShared::mapStrings() const
+{
+	return this->m_mapStrings;
 }
 
 inline const WarcraftIIIShared::WorldEditorStringsPtr& WarcraftIIIShared::worldEditorStrings() const

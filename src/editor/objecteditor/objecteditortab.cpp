@@ -213,7 +213,7 @@ void ObjectEditorTab::exportAllObjects()
 	const QString xmapSuffix = "w3x";
 	const QString slkSuffix = "slk";
 
-	const KUrl url = KFileDialog::getSaveUrl(KUrl(), QString("*\n*.%1\nCustom Objects Collection *.%2\nMap (*.%3 *.%4)\nSlk (*.%5)").arg(customUnitsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix).arg(slkSuffix), this, exportAllObjectsText());
+	const KUrl url = KFileDialog::getSaveUrl(KUrl(), QString("*\nCustom Units (*.%1)\nCustom Objects Collection (*.%2)\nMap (*.%3 *.%4)\nSlk (*.%5)").arg(customUnitsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix).arg(slkSuffix), this, exportAllObjectsText());
 
 	if (!url.isEmpty())
 	{
@@ -290,7 +290,7 @@ void ObjectEditorTab::importAllObjects()
 	const QString mapSuffix = "w3m";
 	const QString xmapSuffix = "w3x";
 
-	const KUrl url = KFileDialog::getOpenUrl(m_recentImportUrl, QString("*\n*.%1\nCustom Objects Collection *.%2\nMap (*.%3 *.%4)").arg(customObjectsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix), this, importAllObjectsText());
+	const KUrl url = KFileDialog::getOpenUrl(m_recentImportUrl, QString("*|All Files\n*.%1\nCustom Objects Collection *.%2\nMap (*.%3 *.%4)").arg(customObjectsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix), this, importAllObjectsText());
 
 	if (!url.isEmpty())
 	{
@@ -301,125 +301,90 @@ void ObjectEditorTab::importAllObjects()
 
 		if (suffix == customObjectsSuffix)
 		{
-			ifstream in(url.toLocalFile().toUtf8().constData());
-
-			try
+			if (this->objectData()->hasCustomUnits())
 			{
-				customUnits.read(in);
-				this->objectData()->importCustomUnits(customUnits);
-				m_recentImportUrl = url;
-			}
-			catch (std::exception &e)
-			{
-				KMessageBox::error(this, tr("Error on importing"), e.what());
-			}
-		}
-		else if (suffix == customObjectsCollectionSuffix)
-		{
-			ifstream in(url.toLocalFile().toUtf8().constData());
+				ifstream in(url.toLocalFile().toUtf8().constData());
 
-			try
-			{
-				std::unique_ptr<map::CustomObjectsCollection> customObjectsCollection(new map::CustomObjectsCollection());
-				customObjectsCollection->read(in);
-
-				if (customObjectsCollection->hasUnits())
+				try
 				{
-					this->objectData()->importCustomUnits(*customObjectsCollection->units());
+					customUnits.read(in);
+					this->objectData()->importCustomUnits(customUnits);
 					m_recentImportUrl = url;
 				}
-				else
+				catch (std::exception &e)
 				{
-					KMessageBox::error(this, tr("Collection has no units."));
+					KMessageBox::error(this, tr("Error on importing"), e.what());
 				}
 			}
-			catch (std::exception &e)
+			else
 			{
-				KMessageBox::error(this, e.what());
+				KMessageBox::error(this, tr("Does not support custom units."));
 			}
 		}
-		else if (suffix == mapSuffix)
+		// TODO support custom object FILES
+		else if (suffix == customObjectsCollectionSuffix)
 		{
-			try
+			if (this->objectData()->hasCustomObjects())
 			{
-				std::unique_ptr<map::W3m> map(new map::W3m());
-				map->open(url.toLocalFile().toUtf8().constData());
-				std::streamsize size = map->readFileFormat(map->customUnits().get());
-				qDebug() << "Size of custom units:" << size;
-				this->objectData()->importCustomUnits(*map->customUnits());
+				ifstream in(url.toLocalFile().toUtf8().constData());
 
-				/*
-				 * All string entries are usually stored in the map strings.
-				 */
-				if (map->strings().get() != 0)
+				try
 				{
-					mpq::File stringsFile = map->findFile(map->strings()->fileName());
+					std::unique_ptr<map::CustomObjectsCollection> customObjectsCollection(new map::CustomObjectsCollection());
+					customObjectsCollection->read(in);
 
-					if (stringsFile.isValid())
+					switch (this->objectData()->type())
 					{
-						QTemporaryFile file;
-						// keep suffix
-						file.setFileTemplate("XXXXXX.wts");
-						file.open();
-						ofstream out(file.fileName().toUtf8().constData());
-						stringsFile.writeData(out);
-						out.close();
-						file.close();
-
-						qDebug() << "Entries" << map->strings()->entries().size();
-
-						MetaData mapStringsMetaData(file.fileName());
-						mapStringsMetaData.setSource(this->source());
-						mapStringsMetaData.load();
-
-						const QString triggerStringPrefix = "TRIGSTR_";
-
-						for (ObjectData::Objects::const_iterator iterator = this->objectData()->objects().begin(); iterator != this->objectData()->objects().end(); ++iterator)
+						case map::CustomObjects::Type::Units:
 						{
-							for (ObjectData::Modifications::const_iterator modIterator = iterator.value().begin(); modIterator != iterator.value().end(); ++modIterator)
+							if (customObjectsCollection->hasUnits())
 							{
-								if (modIterator.value().value().type() == map::Value::Type::String)
-								{
-									const QString key = valueToString(modIterator.value().value());
-
-									qDebug() << "key" << key;
-
-									if (key.startsWith(triggerStringPrefix))
-									{
-										bool ok = true;
-										const QString index = key.mid(triggerStringPrefix.size());
-										int row = index.toInt(&ok);
-
-										if (ok)
-										{
-											if (mapStringsMetaData.hasValue(row, ""))
-											{
-												qDebug() << "Translated string:" <<  mapStringsMetaData.value(row, "");
-												this->objectData()->modifyField(iterator.key().first, iterator.key().second, modIterator.key(), mapStringsMetaData.value(row, ""));
-											}
-											else
-											{
-												qDebug() << "Missing translated string" << row;
-											}
-										}
-										else
-										{
-											qDebug() << "Invalid string index" << index;
-										}
-									}
-								}
+								this->objectData()->importCustomUnits(*customObjectsCollection->units());
+								m_recentImportUrl = url;
+							}
+							else
+							{
+								KMessageBox::error(this, tr("Collection has no units."));
 							}
 						}
 					}
 				}
-
-				m_recentImportUrl = url;
+				catch (std::exception &e)
+				{
+					KMessageBox::error(this, e.what());
+				}
 			}
-			catch (std::exception &e)
+			else
 			{
-				KMessageBox::error(this, e.what());
+				KMessageBox::error(this, tr("Does not support custom objects."));
 			}
 		}
+		else if (suffix == mapSuffix)
+		{
+			if (this->objectData()->hasCustomUnits())
+			{
+				try
+				{
+					std::unique_ptr<map::W3m> map(new map::W3m());
+					map->open(url.toLocalFile().toUtf8().constData());
+					std::streamsize size = map->readFileFormat(map->customUnits().get());
+					qDebug() << "Size of custom units:" << size;
+					this->objectData()->importCustomUnits(*map->customUnits());
+					this->objectData()->applyMapStrings(*map);
+
+					m_recentImportUrl = url;
+				}
+				catch (std::exception &e)
+				{
+					KMessageBox::error(this, e.what());
+				}
+			}
+			else
+			{
+				KMessageBox::error(this, tr("Does not support custom units."));
+			}
+		}
+		// TODO support custom object FILES
 		else if (suffix == xmapSuffix)
 		{
 			KMessageBox::error(this, tr("W3X is not supported yet."));

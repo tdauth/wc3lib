@@ -58,10 +58,20 @@ namespace map
 {
 
 /**
- * Class for reading Warcraft III: Reign of Chaos maps (usually with *.w3m extension).
- * \note When opening a map it doesn't read triggers ("war3map.wtg" - \ref map::Triggers - \ref triggers()) automatically since trigger reading requires \ref map::TriggerData!
+ * \brief Class for reading Warcraft III: Reign of Chaos maps (usually with *.w3m extension).
+ *
+ * To open a map and to read from a file format you have to do the following:
+ * \code
+ * W3m map;
+ * map.open("mymap.w3m");
+   // reads map strings
+ * map.readFileFormat(map.strings().get());
+ * \endcode
+ * This requires MPQ support to be enabled in wc3lib.
+ *
+ * \note When opening a map it doesn't read any file format automatically. To read all file formats at once you can use \ref readAllFileFormats().
  * \sa W3x
- * \todo At the moment, all files are allocated and read if they're contained by the map's MPQ archive which takes huge performance and heap allocation. Maybe add some "load on request" functionality.
+ * \todo Maybe allocate on request as well?
  */
 class W3m :
 #ifdef MPQ

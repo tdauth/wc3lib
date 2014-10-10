@@ -52,13 +52,18 @@ W3m::~W3m()
 #ifdef MPQ
 std::streamsize W3m::readFileFormat(FileFormat *format)
 {
+	if (format == 0)
+	{
+		return 0;
+	}
+
 	std::streamsize size = 0;
 	mpq::File file = this->findFile(format->fileName());
 
 	if (file.isValid())
 	{
 		/*
-			* FIXME
+		 * FIXME
 		boost::scoped_array<byte> buffer(new byte[file->size()]);
 		arraystream stream(buffer.get(), file->size());
 		*/

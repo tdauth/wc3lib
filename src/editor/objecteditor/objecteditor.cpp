@@ -169,9 +169,6 @@ void ObjectEditor::exportAll()
 
 void ObjectEditor::importAll(const KUrl &url)
 {
-	// TODO import all collection or a collection from a map (requires Frozen Throne)
-	// TODO distribute to the tabs
-
 	QString file;
 
 	if (this->source()->download(url, file, this))
@@ -180,19 +177,91 @@ void ObjectEditor::importAll(const KUrl &url)
 
 		if (in)
 		{
-			try
-			{
-				map::CustomObjectsCollection collection;
-				collection.read(in);
+			QFileInfo fileInfo(url.toLocalFile());
 
-				if (collection.hasUnits())
+			if (fileInfo.suffix() == "w3o")
+			{
+				try
 				{
-					this->unitEditor()->unitData()->importCustomObjects(*collection.units());
+					map::CustomObjectsCollection collection;
+					collection.read(in);
+
+					if (collection.hasUnits())
+					{
+						this->unitEditor()->unitData()->importCustomObjects(*collection.units());
+					}
+
+					if (collection.hasItems())
+					{
+						this->itemEditor()->itemData()->importCustomObjects(*collection.items());
+					}
+				}
+				catch (const Exception &e)
+				{
+					KMessageBox::error(this, e.what());
 				}
 			}
-			catch (Exception &e)
+			// TODO support custom object FILES
+			else if (fileInfo.suffix() == "w3u")
 			{
-				KMessageBox::error(this, e.what());
+				try
+				{
+					map::CustomUnits customUnits;
+					customUnits.read(in);
+
+					this->unitEditor()->unitData()->importCustomUnits(customUnits);
+					this->itemEditor()->itemData()->importCustomUnits(customUnits);
+				}
+				catch (const Exception &e)
+				{
+					KMessageBox::error(this, e.what());
+				}
+			}
+			else if (fileInfo.suffix() == "w3m")
+			{
+				try
+				{
+					map::W3m map;
+					map.open(file.toUtf8().constData());
+
+					if (map.customUnits().get() != 0)
+					{
+						map.readFileFormat(map.customUnits().get());
+						this->unitEditor()->unitData()->importCustomUnits(*map.customUnits());
+						this->unitEditor()->unitData()->applyMapStrings(map);
+						this->itemEditor()->itemData()->importCustomUnits(*map.customUnits());
+						this->itemEditor()->itemData()->applyMapStrings(map);
+					}
+				}
+				catch (const Exception &e)
+				{
+					KMessageBox::error(this, e.what());
+				}
+			}
+			else if (fileInfo.suffix() == "w3x")
+			{
+				try
+				{
+					map::W3x map;
+					map.open(file.toUtf8().constData());
+
+					if (map.customUnits().get() != 0)
+					{
+						map.readFileFormat(map.customUnits().get());
+						this->unitEditor()->unitData()->importCustomUnits(*map.customUnits());
+						this->unitEditor()->unitData()->applyMapStrings(map);
+						this->itemEditor()->itemData()->importCustomUnits(*map.customUnits());
+						this->itemEditor()->itemData()->applyMapStrings(map);
+					}
+					else
+					{
+						// TODO get custom objects collection
+					}
+				}
+				catch (const Exception &e)
+				{
+					KMessageBox::error(this, e.what());
+				}
 			}
 		}
 		else
@@ -204,7 +273,7 @@ void ObjectEditor::importAll(const KUrl &url)
 
 void ObjectEditor::importAll()
 {
-	const KUrl url = KFileDialog::getOpenUrl(KUrl(), tr("*|All Files\n%1").arg(objectsCollectionFilter()), this, source()->sharedData()->tr("WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"));
+	const KUrl url = KFileDialog::getOpenUrl(KUrl(), tr("*|All Files\n%1\nCustom Units (*.w3u)\nMap (*.w3m *.w3x)").arg(objectsCollectionFilter()), this, source()->sharedData()->tr("WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"));
 
 	if (!url.isEmpty())
 	{

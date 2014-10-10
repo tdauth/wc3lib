@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <QtGui>
+
 #include "objectdata.hpp"
 #include "../metadata.hpp"
 #include "../mpqprioritylist.hpp"
@@ -837,6 +839,78 @@ QString ObjectData::nextCustomObjectId() const
 	}
 
 	return result;
+}
+
+void ObjectData::applyMapStrings(map::W3m &w3m)
+{
+	/*
+	 * All string entries are usually stored in the map strings.
+	 */
+	if (w3m.strings().get() != 0)
+	{
+		mpq::File stringsFile = w3m.findFile(w3m.strings()->fileName());
+
+		if (stringsFile.isValid())
+		{
+			QTemporaryFile file;
+			// keep suffix
+			file.setFileTemplate("XXXXXX.wts");
+			file.open();
+			ofstream out(file.fileName().toUtf8().constData());
+			stringsFile.writeData(out);
+			out.close();
+			file.close();
+
+			qDebug() << "Entries" << w3m.strings()->entries().size();
+
+			MetaData mapStringsMetaData(file.fileName());
+			mapStringsMetaData.setSource(this->source());
+			mapStringsMetaData.load();
+
+			const QString triggerStringPrefix = "TRIGSTR_";
+
+			for (ObjectData::Objects::const_iterator iterator = this->objects().begin(); iterator != this->objects().end(); ++iterator)
+			{
+				for (ObjectData::Modifications::const_iterator modIterator = iterator.value().begin(); modIterator != iterator.value().end(); ++modIterator)
+				{
+					if (modIterator.value().value().type() == map::Value::Type::String)
+					{
+						const QString key = valueToString(modIterator.value().value());
+
+						qDebug() << "key" << key;
+
+						if (key.startsWith(triggerStringPrefix))
+						{
+							bool ok = true;
+							const QString index = key.mid(triggerStringPrefix.size());
+							int row = index.toInt(&ok);
+
+							if (ok)
+							{
+								qDebug() << "Full" << key;
+								qDebug() << "index" << index;
+								qDebug() << "Row" << row;
+
+								if (mapStringsMetaData.hasValue(row, ""))
+								{
+									qDebug() << "Translated string:" <<  mapStringsMetaData.value(row, "");
+									this->modifyField(iterator.key().first, iterator.key().second, modIterator.key(), mapStringsMetaData.value(row, ""));
+								}
+								else
+								{
+									qDebug() << "Missing translated string" << row;
+								}
+							}
+							else
+							{
+								qDebug() << "Invalid string index" << index;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 }

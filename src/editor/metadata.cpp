@@ -255,16 +255,7 @@ QString MapStringsTextSource::value(const QString &rowKey, const QString& column
 
 	if (ok)
 	{
-		EntryKeys::const_iterator iterator = this->entryKeys().find(row);
-
-		if (iterator != this->entryKeys().end())
-		{
-			return QString::fromUtf8(iterator.value()->value.c_str());
-		}
-		else
-		{
-			throw Exception(boost::format(_("String %1% not found.")) % rowKey.toUtf8().constData());
-		}
+		return value(row, columnKey);
 	}
 
 	throw Exception(boost::format(_("Invalid row key %1%.")) % rowKey.toUtf8().constData());
@@ -277,7 +268,16 @@ bool MapStringsTextSource::hasValue(int row, const QString& columnKey) const
 
 QString MapStringsTextSource::value(int row, const QString& columnKey) const
 {
-	return QString::fromUtf8(this->mapStrings().entries()[row].value.c_str());
+	EntryKeys::const_iterator iterator = this->entryKeys().find(row);
+
+	if (iterator != this->entryKeys().end())
+	{
+		return QString::fromUtf8(iterator.value()->value.c_str());
+	}
+	else
+	{
+		throw Exception(boost::format(_("String %1% not found.")) % row);
+	}
 }
 
 void MapStringsTextSource::read(istream &in)

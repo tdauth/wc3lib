@@ -292,6 +292,11 @@ class ObjectData : public QObject
 
 		const Objects& objects() const;
 
+		/**
+		 * Replaces all "TRIGSTRING_number" entries by the actual string entries of map \p w3m.
+		 */
+		void applyMapStrings(map::W3m &w3m);
+
 	protected:
 		MpqPriorityList *m_source;
 		/**
