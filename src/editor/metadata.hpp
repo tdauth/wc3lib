@@ -412,6 +412,12 @@ inline TextSourceInterface* MetaData::textSource() const
 
 inline bool MetaData::isEmpty() const
 {
+	if (this->textSource() == 0)
+		
+	{
+		return true;
+	}
+
 	return this->textSource()->isEmpty();
 }
 

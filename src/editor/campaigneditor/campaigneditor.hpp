@@ -32,6 +32,8 @@ namespace wc3lib
 namespace editor
 {
 
+class MpqPriorityList;
+
 /**
  * The campaign editor allows you to edit exactly one single campaign at the same time.
  */
@@ -40,16 +42,16 @@ class KDE_EXPORT CampaignEditor : public Module
 	Q_OBJECT
 
 	public:
-		CampaignEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		CampaignEditor(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 
 	public slots:
 		void openCampaign(const KUrl &url);
 		void closeCampaign();
 
 	protected:
-		virtual void createFileActions(KMenu *menu) override;
-		virtual void createEditActions(KMenu *menu) override;
-		virtual void createMenus(KMenuBar *menuBar) override;
+		virtual void createFileActions(QMenu *menu) override;
+		virtual void createEditActions(QMenu *menu) override;
+		virtual void createMenus(QMenuBar *menuBar) override;
 		virtual void createWindowsActions(WindowsMenu *menu) override;
 		virtual void createToolButtons(ModuleToolBar *toolBar) override;
 		virtual SettingsInterface* settings() override;

@@ -282,9 +282,13 @@ inline bool ObjectEditorTab::hasObjectEditor() const
 	// NOTE parent could be tab widget of object editor
 	if (dynamic_cast<ObjectEditor*>(parent()) == 0)
 	{
-		if (dynamic_cast<KTabWidget*>(parent()) != 0)
+		if (dynamic_cast<QTabWidget*>(parent()) != 0)
 		{
 			return dynamic_cast<ObjectEditor*>(parentWidget()->parentWidget()->parentWidget()) != 0; // first parent is stacked widget, second tab widget and third object editor
+		}
+		else
+		{
+			return false;
 		}
 	}
 

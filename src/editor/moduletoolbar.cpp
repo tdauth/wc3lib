@@ -32,7 +32,7 @@ namespace wc3lib
 namespace editor
 {
 
-ModuleToolBar::ModuleToolBar(Module *module) : KToolBar(module, true), m_leftModuleSeparator(0), m_rightModuleSeparator(0)
+ModuleToolBar::ModuleToolBar(Module *module) : QToolBar(module), m_leftModuleSeparator(0), m_rightModuleSeparator(0)
 {
 	this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 	//this->setMovable(false);
@@ -44,7 +44,9 @@ ModuleToolBar::ModuleToolBar(Module *module) : KToolBar(module, true), m_leftMod
 		m_leftModuleSeparator = this->addSeparator();
 
 		foreach (Module *mod, const_cast<const Editor*>(module->editor())->modules())
+		{
 			addModuleAction(mod);
+		}
 
 		connect(module->editor(), SIGNAL(createdModule(Module*)), this, SLOT(addModuleAction(Module*)));
 
@@ -58,17 +60,25 @@ ModuleToolBar::ModuleToolBar(Module *module) : KToolBar(module, true), m_leftMod
 void ModuleToolBar::addCustomAction(QAction *action)
 {
 	if (this->m_leftModuleSeparator == 0)
+	{
 		this->addAction(action);
+	}
 	else
+	{
 		this->insertAction(this->m_leftModuleSeparator, action);
+	}
 }
 
 void ModuleToolBar::addCustomSeparator()
 {
 	if (this->m_leftModuleSeparator == 0)
+	{
 		this->addSeparator();
+	}
 	else
+	{
 		this->insertSeparator(this->m_leftModuleSeparator);
+	}
 }
 
 void ModuleToolBar::addModuleAction(Module *module)

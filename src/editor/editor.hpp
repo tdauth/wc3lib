@@ -21,11 +21,11 @@
 #ifndef WC3LIB_EDITOR_EDITOR_HPP
 #define WC3LIB_EDITOR_EDITOR_HPP
 
+#include <QMainWindow>
 #include <QSettings>
 #include <QLinkedList>
 
 #include <kdemacros.h>
-#include <KMainWindow>
 #include <KAboutData>
 #include <KActionCollection>
 
@@ -53,7 +53,7 @@ class SourcesDialog;
  * Just use \ref Editor#resources()[URL] to refer to your required resource.
  * @todo Each Module has it's own tool bar with all other modules.
  */
-class KDE_EXPORT Editor : public KMainWindow, public MpqPriorityList
+class KDE_EXPORT Editor : public QMainWindow, public MpqPriorityList
 {
 	Q_OBJECT
 

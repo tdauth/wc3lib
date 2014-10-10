@@ -26,13 +26,13 @@
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QGridLayout>
+#include <QMenu>
+#include <QAction>
+#include <QMenuBar>
 
 #include <kdemacros.h>
 #include <KComponentData>
 #include <KAboutData>
-#include <KAction>
-#include <KMenu>
-#include <KMenuBar>
 
 namespace wc3lib
 {
@@ -76,10 +76,10 @@ class KDE_EXPORT Module : public QWidget
 		 * \copydoc Module::componentData()
 		 */
 		const KComponentData& componentData() const;
-		KMenu* fileMenu() const;
-		KMenu* editMenu() const;
+		QMenu* fileMenu() const;
+		QMenu* editMenu() const;
 		ModuleMenu* moduleMenu() const;
-		KMenuBar* menuBar() const;
+		QMenuBar* menuBar() const;
 		WindowsMenu* windowsMenu() const;
 		ModuleToolBar* toolBar() const;
 
@@ -114,9 +114,9 @@ class KDE_EXPORT Module : public QWidget
 		 */
 		virtual void setupUi();
 
-		virtual void createFileActions(KMenu *menu) = 0;
-		virtual void createEditActions(KMenu *menu) = 0;
-		virtual void createMenus(KMenuBar *menuBar) = 0;
+		virtual void createFileActions(QMenu *menu) = 0;
+		virtual void createEditActions(QMenu *menu) = 0;
+		virtual void createMenus(QMenuBar *menuBar) = 0;
 		virtual void createWindowsActions(WindowsMenu *menu) = 0;
 		/**
 		 * Use \ref ModuleToolBar::addCustomAction() or \ref ModuleToolBar::addCustomSeparator() to add stuff before the modules buttons.
@@ -159,14 +159,14 @@ class KDE_EXPORT Module : public QWidget
 		MpqPriorityList *m_source;
 		typedef QScopedPointer<KComponentData> ComponentDataPtr;
 		ComponentDataPtr m_componentData;
-		KMenu *m_fileMenu;
-		KMenu *m_editMenu;
+		QMenu *m_fileMenu;
+		QMenu *m_editMenu;
 		ModuleMenu *m_moduleMenu;
-		KMenuBar *m_menuBar;
+		QMenuBar *m_menuBar;
 		WindowsMenu *m_windowsMenu;
 		ModuleToolBar *m_toolBar;
 		QAction *m_closeAction;
-		KAction *m_sourcesAction;
+		QAction *m_sourcesAction;
 
 		QVBoxLayout *m_topLayout;
 		QGridLayout *m_centerLayout;
@@ -185,7 +185,9 @@ inline MpqPriorityList* Module::source() const
 inline KComponentData& Module::componentData()
 {
 	if (m_componentData.isNull())
+	{
 		const_cast<Module*>(this)->m_componentData.reset(new KComponentData(moduleAboutData()));
+	}
 
 	return *m_componentData;
 }
@@ -193,17 +195,19 @@ inline KComponentData& Module::componentData()
 inline const KComponentData& Module::componentData() const
 {
 	if (m_componentData.isNull())
+	{
 		const_cast<Module*>(this)->m_componentData.reset(new KComponentData(moduleAboutData()));
+	}
 
 	return *m_componentData;
 }
 
-inline KMenu* Module::fileMenu() const
+inline QMenu* Module::fileMenu() const
 {
 	return m_fileMenu;
 }
 
-inline KMenu* Module::editMenu() const
+inline QMenu* Module::editMenu() const
 {
 	return m_editMenu;
 }
@@ -213,7 +217,7 @@ inline ModuleMenu* Module::moduleMenu() const
 	return m_moduleMenu;
 }
 
-inline KMenuBar* Module::menuBar() const
+inline QMenuBar* Module::menuBar() const
 {
 	return m_menuBar;
 }

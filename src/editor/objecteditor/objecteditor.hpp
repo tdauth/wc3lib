@@ -22,10 +22,9 @@
 #define WC3LIB_EDITOR_OBJECTEDITOR_HPP
 
 #include <QVariant>
+#include <QTabWidget>
 
 #include <kdemacros.h>
-#include <KTabWidget>
-#include <KAction>
 
 #include "../module.hpp"
 #include "../../map.hpp"
@@ -137,7 +136,7 @@ class KDE_EXPORT ObjectEditor : public Module
 		ObjectEditor(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~ObjectEditor();
 
-		KTabWidget* tabWidget() const;
+		QTabWidget* tabWidget() const;
 
 		ObjectEditorTab* currentTab() const;
 
@@ -162,17 +161,17 @@ class KDE_EXPORT ObjectEditor : public Module
 		WeatherEditor* weatherEditor() const;
 		SoundEntryEditor* soundEntryEditor() const;
 
-		KAction* newObjectAction() const;
-		KAction* renameObjectAction() const;
-		KAction* deleteObjectAction() const;
-		KAction* resetObjectAction() const;
-		KAction* resetAllObjectsAction() const;
-		KAction* exportAllObjectsAction() const;
-		KAction* importAllObjectsAction() const;
-		KAction* copyObjectAction() const;
-		KAction* pasteObjectAction() const;
-		KAction* modifyFieldAction() const;
-		KAction* resetFieldAction() const;
+		QAction* newObjectAction() const;
+		QAction* renameObjectAction() const;
+		QAction* deleteObjectAction() const;
+		QAction* resetObjectAction() const;
+		QAction* resetAllObjectsAction() const;
+		QAction* exportAllObjectsAction() const;
+		QAction* importAllObjectsAction() const;
+		QAction* copyObjectAction() const;
+		QAction* pasteObjectAction() const;
+		QAction* modifyFieldAction() const;
+		QAction* resetFieldAction() const;
 
 	public slots:
 		/**
@@ -186,15 +185,15 @@ class KDE_EXPORT ObjectEditor : public Module
 		void importAll();
 
 	protected:
-		virtual void createFileActions(KMenu *menu);
-		virtual void createEditActions(KMenu *menu);
-		virtual void createMenus(KMenuBar *menuBar);
-		virtual void createWindowsActions(WindowsMenu *menu);
-		virtual void createToolButtons(ModuleToolBar *toolBar);
-		virtual SettingsInterface* settings();
-		virtual void onSwitchToMap(Map *map);
+		virtual void createFileActions(QMenu *menu) override;
+		virtual void createEditActions(QMenu *menu) override;
+		virtual void createMenus(QMenuBar *menuBar) override;
+		virtual void createWindowsActions(WindowsMenu *menu) override;
+		virtual void createToolButtons(ModuleToolBar *toolBar) override;
+		virtual SettingsInterface* settings() override;
+		virtual void onSwitchToMap(Map *map) override;
 		virtual KAboutData moduleAboutData() const override;
-		virtual QString actionName() const;
+		virtual QString actionName() const override;
 
 	protected slots:
 		/**
@@ -206,7 +205,7 @@ class KDE_EXPORT ObjectEditor : public Module
 		void removeCurrentActions();
 		void addCurrentActions();
 
-		KTabWidget *m_tabWidget;
+		QTabWidget *m_tabWidget;
 		// current widgets of corresponding tab widget
 		ObjectEditorTab *m_currentTab;
 
@@ -230,17 +229,17 @@ class KDE_EXPORT ObjectEditor : public Module
 		WeatherEditor *m_weatherEditor;
 		SoundEntryEditor *m_soundEntryEditor;
 
-		KAction *m_newObjectAction;
-		KAction *m_renameObjectAction;
-		KAction *m_deleteObjectAction;
-		KAction *m_resetObjectAction;
-		KAction *m_resetAllObjectsAction;
-		KAction *m_exportAllObjectsAction;
-		KAction *m_importAllObjectsAction;
-		KAction *m_copyObjectAction;
-		KAction *m_pasteObjectAction;
-		KAction *m_modifyFieldAction;
-		KAction *m_resetFieldAction;
+		QAction *m_newObjectAction;
+		QAction *m_renameObjectAction;
+		QAction *m_deleteObjectAction;
+		QAction *m_resetObjectAction;
+		QAction *m_resetAllObjectsAction;
+		QAction *m_exportAllObjectsAction;
+		QAction *m_importAllObjectsAction;
+		QAction *m_copyObjectAction;
+		QAction *m_pasteObjectAction;
+		QAction *m_modifyFieldAction;
+		QAction *m_resetFieldAction;
 
 		QMenu *m_viewMenu;
 		QAction *m_rawDataAction;
@@ -249,7 +248,7 @@ class KDE_EXPORT ObjectEditor : public Module
 		void showRawData(bool checked);
 };
 
-inline KTabWidget* ObjectEditor::tabWidget() const
+inline QTabWidget* ObjectEditor::tabWidget() const
 {
 	return m_tabWidget;
 }
@@ -350,57 +349,57 @@ inline SoundEntryEditor* ObjectEditor::soundEntryEditor() const
 	return m_soundEntryEditor;
 }
 
-inline KAction* ObjectEditor::newObjectAction() const
+inline QAction* ObjectEditor::newObjectAction() const
 {
 	return m_newObjectAction;
 }
 
-inline KAction* ObjectEditor::renameObjectAction() const
+inline QAction* ObjectEditor::renameObjectAction() const
 {
 	return m_renameObjectAction;
 }
 
-inline KAction* ObjectEditor::deleteObjectAction() const
+inline QAction* ObjectEditor::deleteObjectAction() const
 {
 	return m_deleteObjectAction;
 }
 
-inline KAction* ObjectEditor::resetObjectAction() const
+inline QAction* ObjectEditor::resetObjectAction() const
 {
 	return m_resetObjectAction;
 }
 
-inline KAction* ObjectEditor::resetAllObjectsAction() const
+inline QAction* ObjectEditor::resetAllObjectsAction() const
 {
 	return m_resetAllObjectsAction;
 }
 
-inline KAction* ObjectEditor::exportAllObjectsAction() const
+inline QAction* ObjectEditor::exportAllObjectsAction() const
 {
 	return m_exportAllObjectsAction;
 }
 
-inline KAction* ObjectEditor::importAllObjectsAction() const
+inline QAction* ObjectEditor::importAllObjectsAction() const
 {
 	return m_importAllObjectsAction;
 }
 
-inline KAction* ObjectEditor::copyObjectAction() const
+inline QAction* ObjectEditor::copyObjectAction() const
 {
 	return m_copyObjectAction;
 }
 
-inline KAction* ObjectEditor::pasteObjectAction() const
+inline QAction* ObjectEditor::pasteObjectAction() const
 {
 	return m_pasteObjectAction;
 }
 
-inline KAction* ObjectEditor::modifyFieldAction() const
+inline QAction* ObjectEditor::modifyFieldAction() const
 {
 	return this->m_modifyFieldAction;
 }
 
-inline KAction* ObjectEditor::resetFieldAction() const
+inline QAction* ObjectEditor::resetFieldAction() const
 {
 	return this->m_resetFieldAction;
 }

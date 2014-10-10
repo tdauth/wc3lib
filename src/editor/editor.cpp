@@ -20,11 +20,7 @@
 
 #include <QtGui>
 
-#include <KMenu>
-#include <KAction>
 #include <KActionCollection>
-#include <KMenuBar>
-#include <KLocale>
 #include <KConfig>
 #include <KFileDialog>
 #include <KMessageBox>
@@ -66,7 +62,7 @@ const KAboutData& Editor::wc3libAboutData()
 	return Editor::m_wc3libAboutData;
 }
 
-Editor::Editor(Root *root, QWidget *parent, Qt::WindowFlags f) : KMainWindow(parent, f)
+Editor::Editor(Root *root, QWidget *parent, Qt::WindowFlags f) : QMainWindow(parent, f)
 , m_root(root)
 , m_currentMap(0)
 , m_actionCollection(new KActionCollection(this))
@@ -96,49 +92,49 @@ Editor::Editor(Root *root, QWidget *parent, Qt::WindowFlags f) : KMainWindow(par
 		KMessageBox::error(this, e.what());
 	}
 
-	KAction *action = new KAction(KIcon(":/actions/newmap.png"), i18n("New map ..."), this);
-	action->setShortcut(KShortcut(i18n("Ctrl+N")));
+	QAction *action = new QAction(QIcon(":/actions/newmap.png"), i18n("New map ..."), this);
+	//action->setShortcut(KShortcut(i18n("Ctrl+N")));
 	connect(action, SIGNAL(triggered()), this, SLOT(newMap()));
 	this->m_actionCollection->addAction("newmap", action);
 
-	action = new KAction(KIcon(":/actions/openmap.png"), i18n("Open map ..."), this);
-	action->setShortcut(KShortcut(i18n("Ctrl+O")));
+	action = new QAction(QIcon(":/actions/openmap.png"), i18n("Open map ..."), this);
+	//action->setShortcut(KShortcut(i18n("Ctrl+O")));
 	connect(action, SIGNAL(triggered()), this, SLOT(openMap()));
 	this->m_actionCollection->addAction("openmap", action);
 
-	action = new KAction(KIcon(":/actions/closemap.png"), i18n("Close map"), this);
-	action->setShortcut(KShortcut(i18n("Strg+W")));
+	action = new QAction(QIcon(":/actions/closemap.png"), i18n("Close map"), this);
+	//action->setShortcut(KShortcut(i18n("Strg+W")));
 	connect(action, SIGNAL(triggered()), this, SLOT(closeMap()));
 	this->m_actionCollection->addAction("closemap", action);
 
 	// --
 
-	action = new KAction(KIcon(":/actions/savemap.png"), i18n("Save map"), this);
-	action->setShortcut(KShortcut(i18n("Ctrl+S")));
+	action = new QAction(QIcon(":/actions/savemap.png"), i18n("Save map"), this);
+	//action->setShortcut(KShortcut(i18n("Ctrl+S")));
 	connect(action, SIGNAL(triggered()), this, SLOT(saveMap()));
 	this->m_actionCollection->addAction("savemap", action);
 
-	action = new KAction(KIcon(":/actions/savemapas.png"), i18n("Save map as ..."), this);
+	action = new QAction(QIcon(":/actions/savemapas.png"), i18n("Save map as ..."), this);
 	//action->setShortcut(KShortcut(i18n("Strg+S")));
 	connect(action, SIGNAL(triggered()), this, SLOT(saveMapAs()));
 	this->m_actionCollection->addAction("savemapas", action);
 
-	action = new KAction(KIcon(":/actions/savemapshadows.png"), i18n("Calculate shadows and save map ..."), this);
+	action = new QAction(QIcon(":/actions/savemapshadows.png"), i18n("Calculate shadows and save map ..."), this);
 	//action->setShortcut(KShortcut(i18n("Strg+S")));
 	connect(action, SIGNAL(triggered()), this, SLOT(saveMapShadow()));
 	this->m_actionCollection->addAction("savemapshadows", action);
 
 	// --
 
-	action = new KAction(KIcon(":/actions/testmap.png"), i18n("Test map"), this);
-	action->setShortcut(KShortcut(i18n("Ctrl+F9")));
+	action = new QAction(QIcon(":/actions/testmap.png"), i18n("Test map"), this);
+	//action->setShortcut(KShortcut(i18n("Ctrl+F9")));
 	connect(action, SIGNAL(triggered()), this, SLOT(testMap()));
 	this->m_actionCollection->addAction("testmap", action);
 
 	// --
 
-	action = new KAction(KIcon(":/actions/closemodule.png"), this->sharedData()->tr("WESTRING_MENU_CLOSEMODULE"), this);
-	action->setShortcut(KShortcut(i18n("Ctrl+Shift+W")));
+	action = new QAction(QIcon(":/actions/closemodule.png"), this->sharedData()->tr("WESTRING_MENU_CLOSEMODULE"), this);
+	//action->setShortcut(KShortcut(i18n("Ctrl+Shift+W")));
 	this->m_actionCollection->addAction("closemodule", action);
 
 	this->setMapActionsEnabled(false);
@@ -176,8 +172,8 @@ void Editor::addModule(class Module *module)
 {
 	this->m_modules.append(module);
 
-	KAction *action = new KAction(KIcon(":/actions/" + module->actionName() + ".png"), module->componentData().aboutData()->programName(), this);
-	action->setShortcut(KShortcut(i18n("F%1%", this->m_modulesActionCollection->actions().size() + 1)));
+	QAction *action = new QAction(QIcon(":/actions/" + module->actionName() + ".png"), module->componentData().aboutData()->programName(), this);
+	//action->setShortcut(KShortcut(i18n("F%1%", this->m_modulesActionCollection->actions().size() + 1)));
 	action->setCheckable(true);
 	action->setChecked(module->hasFocus());
 	this->m_modulesActionCollection->addAction(module->actionName(), action);
@@ -212,10 +208,14 @@ void Editor::openMap()
 	KUrl::List urls = KFileDialog::getOpenUrls(KUrl(), mapFilter(), this, i18n("Open map"));
 
 	if (urls.empty())
+	{
 		return;
+	}
 
 	foreach(KUrl::List::const_reference url, urls)
+	{
 		openMap(url, url == urls.last());
+	}
 }
 
 void Editor::openMap(const KUrl &url, bool switchTo)
@@ -237,7 +237,7 @@ void Editor::openMap(const KUrl &url, bool switchTo)
 	}
 
 	// TODO set icon to w3m or w3x icon
-	KAction *action = new KAction(tr("&%1 %2").arg(mapsActionCollection()->actions().size() + 1).arg(ptr->map()->name().c_str()), this);
+	QAction *action = new QAction(tr("&%1 %2").arg(mapsActionCollection()->actions().size() + 1).arg(ptr->map()->name().c_str()), this);
 	//action->setShortcut(KShortcut(i18n("F%1%", this->m_modulesActionCollection->actions().size() + 1)));
 	action->setCheckable(true);
 	mapsActionCollection()->addAction(tr("map%1").arg(mapsActionCollection()->actions().size() + 1), action);
@@ -246,13 +246,17 @@ void Editor::openMap(const KUrl &url, bool switchTo)
 	emit openedMap(ptr);
 
 	if (switchTo)
+	{
 		switchToMap(ptr);
+	}
 }
 
 void Editor::switchToMap(class Map *map)
 {
 	if (currentMap() == 0)
+	{
 		this->setMapActionsEnabled(true);
+	}
 
 	m_currentMap = map;
 
@@ -264,10 +268,12 @@ void Editor::closeMap(class Map *map)
 {
 	// TODO switch to other open map!
 	if (currentMap() == map)
+	{
 		m_currentMap = 0;
+	}
 
 	const int index = maps().indexOf(map);
-	KAction *action = boost::polymorphic_cast<KAction*>(mapsActionCollection()->action(index));
+	QAction *action = mapsActionCollection()->action(index);
 	emit aboutToCloseMap(map);
 	this->m_mapsActionCollection->removeAction(action);
 	maps().removeAt(index);
@@ -278,9 +284,13 @@ void Editor::closeMap(class Map *map)
 	if (!maps().isEmpty())
 	{
 		if (index - 1 >= 0)
+		{
 			switchToMap(maps()[index - 1]);
+		}
 		else
+		{
 			switchToMap(maps()[index]);
+		}
 
 		for (int i = index; i < maps().size(); ++i)
 		{
@@ -290,7 +300,9 @@ void Editor::closeMap(class Map *map)
 		}
 	}
 	else
+	{
 		this->setMapActionsEnabled(false);
+	}
 }
 
 void Editor::closeMap()
@@ -308,7 +320,9 @@ void Editor::saveMapAs()
 	KUrl url = KFileDialog::getSaveUrl(KUrl(), mapFilter(), this, i18n("Save map"));
 
 	if (url.isEmpty())
+	{
 		return;
+	}
 
 	currentMap()->save(url);
 }
@@ -316,7 +330,9 @@ void Editor::saveMapAs()
 void Editor::showSourcesDialog()
 {
 	if (m_sourcesDialog == 0)
+	{
 		m_sourcesDialog = new SourcesDialog(this, this);
+	}
 
 	m_sourcesDialog->update();
 	m_sourcesDialog->show();

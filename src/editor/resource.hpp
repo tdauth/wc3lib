@@ -27,9 +27,6 @@
 #include <kdemacros.h>
 #include <KUrl>
 
-#include "../core.hpp"
-#include "kio_mpq/kio_mpq.hpp"
-
 namespace wc3lib
 {
 

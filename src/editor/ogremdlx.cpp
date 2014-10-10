@@ -23,10 +23,7 @@
 #include <QtCore>
 #include <QtGui>
 
-#include <KMessageBox>
-#include <KLocale>
 #include <KUrl>
-#include <KTemporaryFile>
 
 #include <OgreCodec.h>
 
@@ -661,10 +658,12 @@ void OgreMdlx::save(const KUrl &url, const QString &format) const
 
 	if (realFormat == "mdx" || realFormat == "mdl")
 	{
-		KTemporaryFile tmpFile;
+		QTemporaryFile tmpFile;
 
 		if (!tmpFile.open()) // creates file
+		{
 			throw Exception(_("Unable to create temporary file."));
+		}
 
 		std::ios_base::openmode openmode = std::ios_base::out;
 		bool isMdx;
@@ -675,24 +674,34 @@ void OgreMdlx::save(const KUrl &url, const QString &format) const
 			openmode |= std::ios_base::binary;
 		}
 		else
+		{
 			isMdx = false;
+		}
 
 		ofstream ofstream(tmpFile.fileName().toStdString(), openmode);
 
 		if (!ofstream)
+		{
 			throw Exception(boost::format(_("Error when opening file \"%1%\".")) % tmpFile.fileName().toStdString());
+		}
 
 		std::streamsize size;
 
 		if (isMdx)
+		{
 			size = mdlx()->writeMdx(ofstream);
+		}
 		else
+		{
 			size = mdlx()->writeMdl(ofstream);
+		}
 
 		if (!source()->upload(tmpFile.fileName(), url, modelView()))
+		{
 			throw Exception(boost::format(_("Error while uploading file \"%1%\" to destination \"%2%\".")) % tmpFile.fileName().toStdString() % url.toEncoded().constData());
+		}
 
-		KMessageBox::information(modelView(), i18n("Wrote %1 file \"%2\" successfully.\nSize: %3.", isMdx ? i18n("MDX") : i18n("MDL"), url.toEncoded().constData(), sizeStringBinary(size).c_str()));
+		QMessageBox::information(modelView(), QObject::tr("Done"), QObject::tr("Wrote %1 file \"%2\" successfully.\nSize: %3.").arg(isMdx ? QObject::tr("MDX") : QObject::tr("MDL")).arg(url.toEncoded().constData()).arg(sizeStringBinary(size).c_str()));
 	}
 	else if (realFormat == "mesh")
 	{
@@ -700,7 +709,9 @@ void OgreMdlx::save(const KUrl &url, const QString &format) const
 		QList<KUrl> files;
 
 		if (!source()->mkdir(url, modelView()))
+		{
 			throw Exception(boost::format(_("Unable to create directory \"%1%\"")) % url.toEncoded().constData());
+		}
 
 		BOOST_FOREACH(Geosets::const_reference value, m_geosets)
 		{
@@ -709,10 +720,12 @@ void OgreMdlx::save(const KUrl &url, const QString &format) const
 			if (it == this->geosetIds().left.end())
 				throw Exception();
 
-			KTemporaryFile tmpFile;
+			QTemporaryFile tmpFile;
 
 			if (!tmpFile.open())
+			{
 				throw Exception();
+			}
 
 			ostringstream sstream;
 			sstream << "Geoset" << it->second << ".mesh";
@@ -726,13 +739,17 @@ void OgreMdlx::save(const KUrl &url, const QString &format) const
 			qDebug() << "destination: " << destination.toLocalFile();
 
 			if (!source()->upload(tmpFile.fileName(), destination, modelView()))
+			{
 				throw Exception(boost::format(_("Error while uploading file \"%1%\" to destination \"%2%\".")) % tmpFile.fileName().toStdString() % destination.toEncoded().constData());
+			}
 		}
 
-		KMessageBox::information(modelView(), i18n("Wrote MESH file \"%1\" successfully.", url.toEncoded().constData()));
+		QMessageBox::information(modelView(), QObject::tr("Done"), QObject::tr("Wrote MESH file \"%1\" successfully.").arg(url.toEncoded().constData()));
 	}
 	else
+	{
 		throw Exception(boost::format(_("Format \"%1%\" is not supported.")) % realFormat.toStdString());
+	}
 
 	/*
 	TODO
@@ -954,19 +971,25 @@ Ogre::TexturePtr OgreMdlx::createTexture(const class mdlx::Texture &texture, mdl
 		switch (texture.wrapping())
 		{
 			case mdlx::Texture::Wrapping::WrapWidth:
-				KMessageBox::error(this->modelView(), i18n("Unsupported texture wrapping type:\nWrapWidth."));
+			{
+				QMessageBox::warning(this->modelView(), QObject::tr("Warning"), QObject::tr("Unsupported texture wrapping type:\nWrapWidth."));
 
 				break;
+			}
 
 			case mdlx::Texture::Wrapping::WrapHeight:
-				KMessageBox::error(this->modelView(), i18n("Unsupported texture wrapping type:\nWrapHeight."));
+			{
+				QMessageBox::warning(this->modelView(), QObject::tr("Warning"), QObject::tr("Unsupported texture wrapping type:\nWrapHeight."));
 
 				break;
+			}
 
 			case mdlx::Texture::Wrapping::Both:
-				KMessageBox::error(this->modelView(), i18n("Unsupported texture wrapping type:\nBoth."));
+			{
+				QMessageBox::warning(this->modelView(), QObject::tr("Warning"), QObject::tr("Unsupported texture wrapping type:\nBoth."));
 
 				break;
+			}
 		}
 	}
 	else
@@ -1251,7 +1274,7 @@ Ogre::ManualObject* OgreMdlx::createGeoset(const class mdlx::Geoset &geoset, mdl
 		}
 		else
 		{
-			KMessageBox::error(this->modelView(), i18n("Unsupported primitive type:\n%1", static_cast<mdlx::long32>(primitiveType->type())));
+			QMessageBox::warning(this->modelView(), QObject::tr("Warning"), QObject::tr("Unsupported primitive type:\n%1").arg(static_cast<mdlx::long32>(primitiveType->type())));
 
 			/// \todo build other primitives (other than triangles)
 			for (mdlx::long32 i = 0; i < primitiveSize->value(); ++i)

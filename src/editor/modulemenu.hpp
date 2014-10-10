@@ -23,8 +23,9 @@
 
 #include <boost/cast.hpp>
 
+#include <QMenu>
+
 #include <kdemacros.h>
-#include <KMenu>
 
 #include "module.hpp"
 
@@ -40,7 +41,7 @@ namespace editor
  * Should never be used without an \ref Editor instance.
  * \sa WindowsMenu
  */
-class KDE_EXPORT ModuleMenu : public KMenu
+class KDE_EXPORT ModuleMenu : public QMenu
 {
 	Q_OBJECT
 

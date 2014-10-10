@@ -26,9 +26,7 @@
 #include <QDebug>
 
 #include <kdemacros.h>
-#include <KUrl>
 #include <KMessageBox>
-#include <KLocale>
 
 #include <Ogre.h>
 
@@ -45,6 +43,13 @@ namespace wc3lib
 namespace editor
 {
 
+class MpqPriorityList;
+class ModelEditorView;
+class ModelEditorSettings;
+class ModelEditorSettingsDialog;
+class RenderStatsWidget;
+class TeamColorDialog;
+
 /**
  * We have model SLK entries listet at the tree view.
  */
@@ -60,14 +65,14 @@ class KDE_EXPORT ModelEditor : public Module
 		typedef boost::bimap<QAction*, const mdlx::Camera*> CameraActions;
 		typedef boost::bimap<const OgreMdlx::CollisionShape*, Ogre::SceneNode*> CollisionShapeNodes;
 
-		ModelEditor(Root *root, class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		ModelEditor(Root *root, MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~ModelEditor();
 
 		virtual void show();
 
 		void hideCollisionShapes();
 
-		class ModelEditorView* modelView() const;
+		ModelEditorView* modelView() const;
 		Models& models();
 		const Models& models() const;
 		const Entities& entities() const;
@@ -109,17 +114,17 @@ class KDE_EXPORT ModelEditor : public Module
 		void viewCamera();
 
 	protected:
-		friend class ModelEditorSettings;
+		friend ModelEditorSettings;
 
-		virtual void createFileActions(class KMenu *menu);
-		virtual void createEditActions(class KMenu *menu);
-		virtual void createMenus(class KMenuBar *menuBar);
-		virtual void createWindowsActions(class WindowsMenu *menu);
-		virtual void createToolButtons(class ModuleToolBar *toolBar);
-		virtual class SettingsInterface* settings();
-		virtual void onSwitchToMap(class Map *map);
-		virtual KAboutData moduleAboutData() const;
-		virtual QString actionName() const;
+		virtual void createFileActions(QMenu *menu) override;
+		virtual void createEditActions(QMenu *menu) override;
+		virtual void createMenus(QMenuBar *menuBar) override;
+		virtual void createWindowsActions(WindowsMenu *menu) override;
+		virtual void createToolButtons(ModuleToolBar *toolBar) override;
+		virtual SettingsInterface* settings() override;
+		virtual void onSwitchToMap(Map *map) override;
+		virtual KAboutData moduleAboutData() const override;
+		virtual QString actionName() const override;
 
 		// load file events
 		virtual void dragEnterEvent(QDragEnterEvent *event);
@@ -131,27 +136,27 @@ class KDE_EXPORT ModelEditor : public Module
 		void addCameraActions(const OgreMdlx &ogreModel);
 		void removeCameraActions(const OgreMdlx &ogreModel);
 
-		class ModelEditorView *m_modelView;
-		class ModelEditorSettingsDialog *m_settingsDialog;
+		ModelEditorView *m_modelView;
+		ModelEditorSettingsDialog *m_settingsDialog;
 		KUrl m_recentUrl;
 		Models m_models;
 		Entities m_entities;
 		CameraActions m_cameraActions;
 		CollisionShapeNodes m_collisionShapeNodes;
 
-		class KMenu *m_viewMenu;
-		class RenderStatsWidget *m_renderStatsWidget;
-		class TeamColorDialog *m_teamColorDialog;
-		class TeamColorDialog *m_teamGlowDialog;
+		QMenu *m_viewMenu;
+		RenderStatsWidget *m_renderStatsWidget;
+		TeamColorDialog *m_teamColorDialog;
+		TeamColorDialog *m_teamGlowDialog;
 
-		class KAction *m_showStatsAction;
-		class KAction *m_showCollisionShapesAction;
+		QAction *m_showStatsAction;
+		QAction *m_showCollisionShapesAction;
 
 		TeamColor m_teamColor;
 		TeamColor m_teamGlow;
 };
 
-inline class ModelEditorView* ModelEditor::modelView() const
+inline ModelEditorView* ModelEditor::modelView() const
 {
 	return this->m_modelView;
 }

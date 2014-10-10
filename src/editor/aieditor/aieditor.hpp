@@ -34,12 +34,12 @@ namespace editor
 class KDE_EXPORT AiEditor : public Module
 {
 	public:
-		AiEditor(MpqPriorityList* source, QWidget* parent = 0, Qt::WindowFlags f = 0);
+		AiEditor(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 
 	protected:
-		virtual void createFileActions(KMenu *menu) override;
-		virtual void createEditActions(KMenu *menu) override;
-		virtual void createMenus(KMenuBar *menuBar) override;
+		virtual void createFileActions(QMenu *menu) override;
+		virtual void createEditActions(QMenu *menu) override;
+		virtual void createMenus(QMenuBar *menuBar) override;
 		virtual void createWindowsActions(WindowsMenu *menu) override;
 		virtual void createToolButtons(ModuleToolBar *toolBar) override;
 		virtual SettingsInterface* settings() override;

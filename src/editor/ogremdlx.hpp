@@ -26,6 +26,8 @@
 
 #include <boost/bimap.hpp>
 
+#include <QDebug>
+
 #include <kdemacros.h>
 
 #include <Ogre.h>

@@ -30,15 +30,15 @@ AiEditor::AiEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f):
 {
 }
 
-void AiEditor::createFileActions(KMenu *menu)
+void AiEditor::createFileActions(QMenu *menu)
 {
 }
 
-void AiEditor::createEditActions(KMenu *menu)
+void AiEditor::createEditActions(QMenu *menu)
 {
 }
 
-void AiEditor::createMenus(KMenuBar *menuBar)
+void AiEditor::createMenus(QMenuBar *menuBar)
 {
 }
 

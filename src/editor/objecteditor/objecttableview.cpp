@@ -38,11 +38,15 @@ namespace editor
 ObjectTableView::ObjectTableView(ObjectEditorTab *parent) : QTableView(parent), m_tab(parent)
 {
 	m_contextMenu = new QMenu(this);
-	m_contextMenu->addAction(tab()->objectEditor()->modifyFieldAction());
-	m_contextMenu->addAction(tab()->objectEditor()->resetFieldAction());
 
-	connect(tab()->objectEditor()->modifyFieldAction(), SIGNAL(triggered()), this, SLOT(modifyField()));
-	connect(tab()->objectEditor()->resetFieldAction(), SIGNAL(triggered()), this, SLOT(resetField()));
+	if (this->tab()->hasObjectEditor())
+	{
+		m_contextMenu->addAction(tab()->objectEditor()->modifyFieldAction());
+		m_contextMenu->addAction(tab()->objectEditor()->resetFieldAction());
+
+		connect(tab()->objectEditor()->modifyFieldAction(), SIGNAL(triggered()), this, SLOT(modifyField()));
+		connect(tab()->objectEditor()->resetFieldAction(), SIGNAL(triggered()), this, SLOT(resetField()));
+	}
 
 	connect(this, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(editItem(const QModelIndex&)));
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customContextMenuRequested(QPoint)));

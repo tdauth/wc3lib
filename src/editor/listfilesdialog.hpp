@@ -21,8 +21,7 @@
 #ifndef WC3LIB_EDITOR_LISTFILESDIALOG_HPP
 #define WC3LIB_EDITOR_LISTFILESDIALOG_HPP
 
-#include <KDialog>
-
+#include <QDialog>
 #include <QDir>
 #include <QList>
 #include <QCheckBox>

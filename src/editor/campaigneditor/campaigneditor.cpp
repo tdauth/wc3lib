@@ -26,7 +26,7 @@ namespace wc3lib
 namespace editor
 {
 
-CampaignEditor::CampaignEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f)
+CampaignEditor::CampaignEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f)
 {
 }
 
@@ -38,15 +38,15 @@ void CampaignEditor::closeCampaign()
 {
 }
 
-void CampaignEditor::createFileActions(KMenu *menu)
+void CampaignEditor::createFileActions(QMenu *menu)
 {
 }
 
-void CampaignEditor::createEditActions(KMenu *menu)
+void CampaignEditor::createEditActions(QMenu *menu)
 {
 }
 
-void CampaignEditor::createMenus(KMenuBar *menuBar)
+void CampaignEditor::createMenus(QMenuBar *menuBar)
 {
 }
 

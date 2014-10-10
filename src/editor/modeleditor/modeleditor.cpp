@@ -26,9 +26,6 @@
 #include <boost/foreach.hpp>
 
 #include <KFileDialog>
-#include <KMenu>
-#include <KMenuBar>
-#include <KAction>
 #include <KColorDialog>
 #include <KIO/NetAccess>
 
@@ -514,7 +511,7 @@ void ModelEditor::addCameraActions(const OgreMdlx &ogreModel)
 	{
 		BOOST_FOREACH(OgreMdlx::Cameras::const_reference iterator, ogreModel.cameras())
 		{
-			KAction *action = new KAction(KIcon(":/actions/viewcamera.png"), i18n("Camera: %1", iterator.first->name()), this);
+			QAction *action = new QAction(QIcon(":/actions/viewcamera.png"), i18n("Camera: %1", iterator.first->name()), this);
 			connect(action, SIGNAL(triggered()), this, SLOT(viewCamera()));
 			this->m_viewMenu->addAction(action);
 			this->m_cameraActions.left.insert(CameraActions::left_value_type(action, iterator.first));
@@ -539,87 +536,87 @@ void ModelEditor::removeCameraActions(const OgreMdlx &ogreModel)
 	}
 }
 
-void ModelEditor::createFileActions(class KMenu *menu)
+void ModelEditor::createFileActions(QMenu *menu)
 {
-	class KAction *action;
+	QAction *action = 0;
 
-	action = new KAction(KIcon(":/actions/openmodel.png"), i18n("Open model"), this);
-	action->setShortcut(KShortcut(i18n("Ctrl+O")));
+	action = new QAction(QIcon(":/actions/openmodel.png"), i18n("Open model"), this);
+	//action->setShortcut(KShortcut(i18n("Ctrl+O")));
 	connect(action, SIGNAL(triggered()), this, SLOT(openFile()));
 	menu->addAction(action);
 
-	action = new KAction(KIcon(":/actions/savemodel.png"), i18n("Save model"), this);
-	action->setShortcut(KShortcut(i18n("Ctrl+S")));
+	action = new QAction(QIcon(":/actions/savemodel.png"), i18n("Save model"), this);
+	//action->setShortcut(KShortcut(i18n("Ctrl+S")));
 	connect(action, SIGNAL(triggered()), this, SLOT(saveFile()));
 	menu->addAction(action);
 
-	action = new KAction(KIcon(":/actions/closeallmodels.png"), i18n("Close all models"), this);
+	action = new QAction(QIcon(":/actions/closeallmodels.png"), i18n("Close all models"), this);
 	//action->setShortcut(KShortcut(i18n("
 	connect(action, SIGNAL(triggered()), this, SLOT(closeAllFiles()));
 	menu->addAction(action);
 
-	action = new KAction(KIcon(":/actions/settings.png"), i18n("Settings"), this);
+	action = new QAction(QIcon(":/actions/settings.png"), i18n("Settings"), this);
 	//action->setShortcut(KShortcut(i18n("Ctrl+O")));
 	connect(action, SIGNAL(triggered()), this, SLOT(settings()));
 	menu->addAction(action);
 }
 
-void ModelEditor::createEditActions(class KMenu *menu)
+void ModelEditor::createEditActions(QMenu *menu)
 {
 	qDebug() << "Edit actions";
 }
 
-void ModelEditor::createMenus(class KMenuBar *menuBar)
+void ModelEditor::createMenus(QMenuBar *menuBar)
 {
-	KMenu *viewMenu = new KMenu(i18n("View"), this);
+	QMenu *viewMenu = new QMenu(i18n("View"), this);
 	this->m_viewMenu = viewMenu;
 	menuBar->addMenu(viewMenu);
 
 	// test actions for one single view port/camera
 
-	KAction *action = new KAction(KIcon(":/actions/centerview.png"), i18n("Center View"), this);
+	QAction *action = new QAction(QIcon(":/actions/centerview.png"), i18n("Center View"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(centerView()));
 	viewMenu->addAction(action);
 
-	action = new KAction(KIcon(":/actions/polygonmodepoints.png"), i18n("Polygon Mode Points"), this);
+	action = new QAction(QIcon(":/actions/polygonmodepoints.png"), i18n("Polygon Mode Points"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(setPolygonModePoints()));
 	viewMenu->addAction(action);
 
-	action = new KAction(KIcon(":/actions/polygonmodewireframe.png"), i18n("Polygon Mode Wireframe"), this);
+	action = new QAction(QIcon(":/actions/polygonmodewireframe.png"), i18n("Polygon Mode Wireframe"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(setPolygonModeWireframe()));
 	viewMenu->addAction(action);
 
-	action = new KAction(KIcon(":/actions/polygonmodesolid.png"), i18n("Polygon Mode Solid"), this);
+	action = new QAction(QIcon(":/actions/polygonmodesolid.png"), i18n("Polygon Mode Solid"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(setPolygonModeSolid()));
 	viewMenu->addAction(action);
 
-	action = new KAction(KIcon(":/actions/showstats.png"), i18n("Show Stats"), this);
+	action = new QAction(QIcon(":/actions/showstats.png"), i18n("Show Stats"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(showStats()));
 	viewMenu->addAction(action);
 	m_showStatsAction = action;
 
-	action = new KAction(KIcon(":/actions/showcollisionshapes.png"), i18n("Show Collision Shapes"), this);
+	action = new QAction(QIcon(":/actions/showcollisionshapes.png"), i18n("Show Collision Shapes"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(showCollisionShapes()));
 	viewMenu->addAction(action);
 	m_showCollisionShapesAction = action;
 
-	action = new KAction(KIcon(":/actions/changeteamcolor.png"), i18n("Change team color"), this);
+	action = new QAction(QIcon(":/actions/changeteamcolor.png"), i18n("Change team color"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(changeTeamColor()));
 	viewMenu->addAction(action);
 
-	action = new KAction(KIcon(":/actions/changeteamglow.png"), i18n("Change team glow"), this);
+	action = new QAction(QIcon(":/actions/changeteamglow.png"), i18n("Change team glow"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(changeTeamGlow()));
 	viewMenu->addAction(action);
 
 	qDebug() << "Menus";
 }
 
-void ModelEditor::createWindowsActions(class WindowsMenu *menu)
+void ModelEditor::createWindowsActions(WindowsMenu *menu)
 {
 	qDebug() << "Windows";
 }
 
-void ModelEditor::createToolButtons(class ModuleToolBar *toolBar)
+void ModelEditor::createToolButtons(ModuleToolBar *toolBar)
 {
 	qDebug() << "Tool buttons";
 }

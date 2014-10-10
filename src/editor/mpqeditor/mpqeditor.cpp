@@ -242,7 +242,7 @@ void MpqEditor::contextMenu(QPoint point)
 {
 	//QList<QTreeWidgetItem*> items = this->m_archivesTreeWidget->selectedItems();
 
-	KMenu *contextMenu = new KMenu(this);
+	QMenu *contextMenu = new QMenu(this);
 	contextMenu->addAction(m_extractAction);
 	contextMenu->addAction(m_infoAction);
 	contextMenu->addAction(m_closeAction);
@@ -818,46 +818,46 @@ void MpqEditor::openWar3XLocal()
 	openMpqArchive(war3XLocalUrl());
 }
 
-void MpqEditor::createFileActions(KMenu *menu)
+void MpqEditor::createFileActions(QMenu *menu)
 {
 	m_fileActions = new KActionCollection(this);
 
-	KAction *action = new KAction(KIcon(":/actions/openarchives.png"), i18n("Open archives"), this);
+	QAction *action = new QAction(QIcon(":/actions/openarchives.png"), i18n("Open archives"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(openMpqArchives()));
 	m_fileActions->addAction("openarchives", action);
 
-	m_recentArchivesMenu = new KMenu(i18n("Open recent"), this);
+	m_recentArchivesMenu = new QMenu(i18n("Open recent"), this);
 	m_fileActions->addAction("openrecentarchives", m_recentArchivesMenu->menuAction());
 	m_archiveHistoryActions = new QActionGroup(this);
 
 	m_recentArchivesSeparator = m_recentArchivesMenu->addSeparator();
-	action = new KAction(i18n("Clear list"), this);
+	action = new QAction(i18n("Clear list"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(clearHistory()));
 	m_recentArchivesMenu->addAction(action);
 
-	m_closeAction = new KAction(KIcon(":/actions/closearchives.png"), i18n("Close archives"), this);
+	m_closeAction = new QAction(QIcon(":/actions/closearchives.png"), i18n("Close archives"), this);
 	connect(m_closeAction, SIGNAL(triggered()), this, SLOT(closeMpqArchives()));
 	m_fileActions->addAction("closearchives", m_closeAction);
 
-	m_closeAllAction = new KAction(KIcon(":/actions/closearchives.png"), i18n("Close all archives"), this);
+	m_closeAllAction = new QAction(QIcon(":/actions/closearchives.png"), i18n("Close all archives"), this);
 	connect(m_closeAllAction, SIGNAL(triggered()), this, SLOT(closeAllMpqArchives()));
 	m_fileActions->addAction("closearchives", m_closeAllAction);
 
 	m_fileActions->associateWidget(menu);
 }
 
-void MpqEditor::createEditActions(KMenu *menu)
+void MpqEditor::createEditActions(QMenu *menu)
 {
-	m_extractAction = new KAction(KIcon(":/actions/extract.png"), i18n("Extract files"), this);
+	m_extractAction = new QAction(QIcon(":/actions/extract.png"), i18n("Extract files"), this);
 	connect(m_extractAction, SIGNAL(triggered()), this, SLOT(extractFiles()));
 	menu->addAction(m_extractAction);
 
-	m_infoAction = new KAction(KIcon(":/actions/showfileinfo.png"), i18n("File info"), this);
+	m_infoAction = new QAction(QIcon(":/actions/showfileinfo.png"), i18n("File info"), this);
 	connect(m_infoAction, SIGNAL(triggered()), this, SLOT(showFileInfo()));
 	menu->addAction(m_infoAction);
 }
 
-void MpqEditor::createMenus(KMenuBar *menuBar)
+void MpqEditor::createMenus(QMenuBar *menuBar)
 {
 }
 

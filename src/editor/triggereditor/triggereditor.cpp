@@ -26,9 +26,6 @@
 
 #include <KFileDialog>
 #include <KMessageBox>
-#include <KMenu>
-#include <KMenuBar>
-#include <KAction>
 #include <KActionCollection>
 
 #include "triggereditor.hpp"
@@ -1131,57 +1128,57 @@ void TriggerEditor::itemClicked(QTreeWidgetItem *item, int column)
 	}
 }
 
-void TriggerEditor::createFileActions(class KMenu *menu)
+void TriggerEditor::createFileActions(QMenu *menu)
 {
 	m_triggerActionCollection = new KActionCollection((QObject*)this);
 
-	KAction *action = new KAction(KIcon(":/actions/opentriggers.png"), i18n("Open triggers"), this);
+	QAction *action = new QAction(QIcon(":/actions/opentriggers.png"), i18n("Open triggers"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(openTriggers()));
 	triggerActionCollection()->addAction("opentriggers", action);
 
-	action = new KAction(KIcon(":/actions/opencustomtexttriggers.png"), i18n("Open custom text triggers"), this);
+	action = new QAction(QIcon(":/actions/opencustomtexttriggers.png"), i18n("Open custom text triggers"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(openCustomTextTriggers()));
 	triggerActionCollection()->addAction("opencustomtexttriggers", action);
 
-	action = new KAction(KIcon(":/actions/savetriggers.png"), i18n("Save triggers"), this);
+	action = new QAction(KIcon(":/actions/savetriggers.png"), i18n("Save triggers"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(saveTriggers()));
 	triggerActionCollection()->addAction("savetriggers", action);
 
-	action = new KAction(KIcon(":/actions/closetriggers.png"), i18n("Close triggers"), this);
+	action = new QAction(QIcon(":/actions/closetriggers.png"), i18n("Close triggers"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(closeTriggers()));
 	triggerActionCollection()->addAction("closetriggers", action);
 
-	action = new KAction(KIcon(":/actions/closecustomtexttriggers.png"), i18n("Close custom text triggers"), this);
+	action = new QAction(QIcon(":/actions/closecustomtexttriggers.png"), i18n("Close custom text triggers"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(closeCustomTextTriggers()));
 	triggerActionCollection()->addAction("closecustomtexttriggers", action);
 
-	action = new KAction(KIcon(":/actions/closeall.png"), i18n("Close all"), this);
+	action = new QAction(KIcon(":/actions/closeall.png"), i18n("Close all"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(closeAll()));
 	triggerActionCollection()->addAction("closeall", action);
 
-	action = new KAction(KIcon(":/actions/resettriggers.png"), i18n("Reset triggers"), this);
+	action = new QAction(QIcon(":/actions/resettriggers.png"), i18n("Reset triggers"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(resetTriggers()));
 	triggerActionCollection()->addAction("resettriggers", action);
 
-	action = new KAction(KIcon(":/actions/rename.png"), i18n("Rename"), this);
+	action = new QAction(QIcon(":/actions/rename.png"), i18n("Rename"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(renameTrigger()));
 	triggerActionCollection()->addAction("rename", action);
 
-	action = new KAction(KIcon(":/actions/loadtriggerdata.png"), i18n("Load trigger data"), this);
+	action = new QAction(QIcon(":/actions/loadtriggerdata.png"), i18n("Load trigger data"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(loadTriggerData()));
 	triggerActionCollection()->addAction("loadtriggerdata", action);
 
-	action = new KAction(KIcon(":/actions/loadtriggerstrings.png"), i18n("Load trigger strings"), this);
+	action = new QAction(QIcon(":/actions/loadtriggerstrings.png"), i18n("Load trigger strings"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(loadTriggerStrings()));
 	triggerActionCollection()->addAction("loadtriggerstrings", action);
 
 	triggerActionCollection()->associateWidget(menu);
 }
 
-void TriggerEditor::createEditActions(class KMenu *menu)
+void TriggerEditor::createEditActions(QMenu *menu)
 {
 	menu->addSeparator();
-	KAction *action = new KAction(KIcon(":/actions/variables.png"), i18n("Variables ..."), this);
+	QAction *action = new QAction(QIcon(":/actions/variables.png"), i18n("Variables ..."), this);
 	action->setShortcut(i18n("Ctrl+B"));
 	action->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_Variables", "WorldEditArt", this));
 
@@ -1191,45 +1188,45 @@ void TriggerEditor::createEditActions(class KMenu *menu)
 
 	menu->addSeparator();
 
-	action = new KAction(KIcon(":/actions/converttotext.png"), i18n("Convert To Custom Text ..."), this);
+	action = new QAction(QIcon(":/actions/converttotext.png"), i18n("Convert To Custom Text ..."), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(convertToText()));
 	triggerActionCollection()->addAction("converttotext", action);
 	menu->addAction(action);
 }
 
-void TriggerEditor::createMenus(class KMenuBar *menuBar)
+void TriggerEditor::createMenus(QMenuBar *menuBar)
 {
-	m_newMenu = new KMenu(i18n("New"), menuBar);
+	m_newMenu = new QMenu(i18n("New"), menuBar);
 
 	m_newActionCollection = new KActionCollection((QObject*)this);
 
-	KAction *action = new KAction(KIcon(":/actions/newcategory.png"), i18n("Category"), this);
+	QAction *action = new QAction(QIcon(":/actions/newcategory.png"), i18n("Category"), this);
 	action->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_NewCategory", "WorldEditArt", this));
 	connect(action, SIGNAL(triggered()), this, SLOT(newCategory()));
 	newActionCollection()->addAction("newcategory", action);
 
-	action = new KAction(KIcon(":/actions/newtrigger.png"), i18n("Trigger"), this);
+	action = new QAction(QIcon(":/actions/newtrigger.png"), i18n("Trigger"), this);
 	action->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_NewTrigger", "WorldEditArt", this));
 	connect(action, SIGNAL(triggered()), this, SLOT(newTrigger()));
 	newActionCollection()->addAction("newtrigger", action);
 
-	action = new KAction(KIcon(":/actions/newtriggercomment.png"), i18n("Trigger Comment"), this);
+	action = new QAction(QIcon(":/actions/newtriggercomment.png"), i18n("Trigger Comment"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(newTriggerComment()));
 	newActionCollection()->addAction("newtriggercomment", action);
 
 	m_newMenu->addSeparator();
 
-	action = new KAction(KIcon(":/actions/newevent.png"), i18n("Event"), this);
+	action = new QAction(QIcon(":/actions/newevent.png"), i18n("Event"), this);
 	action->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_NewEvent", "WorldEditArt", this));
 	connect(action, SIGNAL(triggered()), this, SLOT(newEvent()));
 	newActionCollection()->addAction("newevent", action);
 
-	action = new KAction(KIcon(":/actions/newcondition.png"), i18n("Condition"), this);
+	action = new QAction(QIcon(":/actions/newcondition.png"), i18n("Condition"), this);
 	action->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_NewCondition", "WorldEditArt", this));
 	connect(action, SIGNAL(triggered()), this, SLOT(newCondition()));
 	newActionCollection()->addAction("newcondition", action);
 
-	action = new KAction(KIcon(":/actions/newaction.png"), i18n("Action"), this);
+	action = new QAction(QIcon(":/actions/newaction.png"), i18n("Action"), this);
 	action->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_NewAction", "WorldEditArt", this));
 	connect(action, SIGNAL(triggered()), this, SLOT(newAction()));
 	newActionCollection()->addAction("newaction", action);
@@ -1242,11 +1239,11 @@ void TriggerEditor::createMenus(class KMenuBar *menuBar)
 	treeWidget()->addAction(newActionCollection()->action("newtriggercomment"));
 }
 
-void TriggerEditor::createWindowsActions(class WindowsMenu *menu)
+void TriggerEditor::createWindowsActions(WindowsMenu *menu)
 {
 }
 
-void TriggerEditor::createToolButtons(class ModuleToolBar *toolBar)
+void TriggerEditor::createToolButtons(ModuleToolBar *toolBar)
 {
 	toolBar->addCustomAction(triggerActionCollection()->action("variables"));
 	toolBar->addSeparator();
@@ -1259,7 +1256,7 @@ void TriggerEditor::createToolButtons(class ModuleToolBar *toolBar)
 	toolBar->addCustomAction(newActionCollection()->action("newaction"));
 }
 
-class SettingsInterface* TriggerEditor::settings()
+SettingsInterface* TriggerEditor::settings()
 {
 	/// @todo FIXME
 	return 0;

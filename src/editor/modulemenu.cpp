@@ -32,10 +32,12 @@ namespace wc3lib
 namespace editor
 {
 
-ModuleMenu::ModuleMenu(Module *module) : KMenu(tr("Module"), module)
+ModuleMenu::ModuleMenu(Module *module) : QMenu(tr("Module"), module)
 {
 	foreach (Module *mod, const_cast<const Editor*>(module->editor())->modules())
+	{
 		addModuleAction(mod);
+	}
 
 	connect(module->editor(), SIGNAL(createdModule(Module*)), this, SLOT(addModuleAction(Module*)));
 }

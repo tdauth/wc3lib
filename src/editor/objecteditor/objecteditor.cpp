@@ -20,10 +20,6 @@
 
 #include <QtGui>
 
-#include <KMenu>
-#include <KMenuBar>
-#include <KAction>
-#include <KToolBar>
 #include <KFileDialog>
 #include <KMessageBox>
 
@@ -43,7 +39,7 @@ namespace editor
 {
 
 ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f)
-, m_tabWidget(new KTabWidget(this))
+, m_tabWidget(new QTabWidget(this))
 , m_currentTab(0)
 , m_unitEditor(0)
 , m_doodadEditor(0)
@@ -281,48 +277,48 @@ void ObjectEditor::importAll()
 	}
 }
 
-void ObjectEditor::createFileActions(KMenu *menu)
+void ObjectEditor::createFileActions(QMenu *menu)
 {
-	m_newObjectAction = new KAction(this);
+	m_newObjectAction = new QAction(this);
 	menu->addAction(newObjectAction());
 
-	m_renameObjectAction = new KAction(this);
+	m_renameObjectAction = new QAction(this);
 	menu->addAction(renameObjectAction());
 
-	m_deleteObjectAction = new KAction(this);
+	m_deleteObjectAction = new QAction(this);
 	menu->addAction(deleteObjectAction());
 
 	menu->addSeparator();
 
-	m_resetObjectAction = new KAction(this);
+	m_resetObjectAction = new QAction(this);
 	menu->addAction(resetObjectAction());
 
-	m_resetAllObjectsAction = new KAction(this);
+	m_resetAllObjectsAction = new QAction(this);
 	menu->addAction(resetAllObjectsAction());
 
 	menu->addSeparator();
 
-	m_exportAllObjectsAction = new KAction(this);
+	m_exportAllObjectsAction = new QAction(this);
 	menu->addAction(exportAllObjectsAction());
 
-	m_importAllObjectsAction = new KAction(this);
+	m_importAllObjectsAction = new QAction(this);
 	menu->addAction(importAllObjectsAction());
 
-	KAction *action = new KAction(source()->sharedData()->tr("WESTRING_MENU_OE_EXPORTALL", "WorldEditStrings"), this);
+	QAction *action = new QAction(source()->sharedData()->tr("WESTRING_MENU_OE_EXPORTALL", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(exportAll()));
 
-	action = new KAction(source()->sharedData()->tr("WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"), this);
+	action = new QAction(source()->sharedData()->tr("WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(importAll()));
 }
 
-void ObjectEditor::createEditActions(KMenu *menu)
+void ObjectEditor::createEditActions(QMenu *menu)
 {
-	m_copyObjectAction = new KAction(this);
+	m_copyObjectAction = new QAction(this);
 	menu->addAction(copyObjectAction());
 
-	m_pasteObjectAction = new KAction(this);
+	m_pasteObjectAction = new QAction(this);
 	menu->addAction(pasteObjectAction());
 
 	menu->addSeparator();
@@ -331,19 +327,19 @@ void ObjectEditor::createEditActions(KMenu *menu)
 
 	menu->addSeparator();
 
-	KAction *action = new KAction(source()->sharedData()->tr("WESTRING_MENU_VIEWINPALETTE", "WorldEditStrings"), this);
+	QAction *action = new QAction(source()->sharedData()->tr("WESTRING_MENU_VIEWINPALETTE", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(viewInPalette()));
 
-	action = new KAction(source()->sharedData()->tr("WESTRING_MENU_OE_FIND", "WorldEditStrings"), this);
+	action = new QAction(source()->sharedData()->tr("WESTRING_MENU_OE_FIND", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(find()));
 
-	action = new KAction(source()->sharedData()->tr("WESTRING_MENU_OE_FINDNEXT", "WorldEditStrings"), this);
+	action = new QAction(source()->sharedData()->tr("WESTRING_MENU_OE_FINDNEXT", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(findNext()));
 
-	action = new KAction(source()->sharedData()->tr("WESTRING_MENU_OE_FINDPREV", "WorldEditStrings"), this);
+	action = new QAction(source()->sharedData()->tr("WESTRING_MENU_OE_FINDPREV", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(findPrevious()));
 
@@ -353,20 +349,20 @@ void ObjectEditor::createEditActions(KMenu *menu)
 
 	const QString modifyField = this->source()->sharedData()->tr("WESTRING_FIELDLIST_CM_MODIFY");
 	const QString resetField = this->source()->sharedData()->tr("WESTRING_FIELDLIST_CM_RESET");
-	m_modifyFieldAction = new KAction(modifyField, this);
-	m_resetFieldAction = new KAction(resetField, this);
+	m_modifyFieldAction = new QAction(modifyField, this);
+	m_resetFieldAction = new QAction(resetField, this);
 	menu->addAction(m_modifyFieldAction);
 	menu->addAction(m_resetFieldAction);
 
 	connect(m_modifyFieldAction, SIGNAL(triggered()), this, SLOT(modifyField()));
 	connect(m_resetFieldAction, SIGNAL(triggered()), this, SLOT(resetField()));
 
-	action = new KAction(source()->sharedData()->tr("WESTRING_MENU_OE_AUTOFILL", "WorldEditStrings"), this);
+	action = new QAction(source()->sharedData()->tr("WESTRING_MENU_OE_AUTOFILL", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(autoFill()));
 }
 
-void ObjectEditor::createMenus(KMenuBar *menuBar)
+void ObjectEditor::createMenus(QMenuBar *menuBar)
 {
 	/// \todo Create menu "view" with meta data categories of current tab and "raw data" and sort by names actions
 	m_viewMenu = new QMenu(source()->sharedData()->tr("WESTRING_MENU_VIEW"), this);

@@ -20,9 +20,6 @@
 
 #include <QtGui>
 
-#include <KAction>
-#include <KActionCollection>
-
 #include "windowsmenu.hpp"
 #include "editor.hpp"
 
@@ -32,7 +29,7 @@ namespace wc3lib
 namespace editor
 {
 
-WindowsMenu::WindowsMenu(Module *module) : KMenu(module->source()->sharedData()->tr("WESTRING_MENU_WINDOW"), module)
+WindowsMenu::WindowsMenu(Module *module) : QMenu(module->source()->sharedData()->tr("WESTRING_MENU_WINDOW"), module)
 {
 	if (module->hasEditor())
 	{

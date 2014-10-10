@@ -30,15 +30,15 @@ ObjectManager::ObjectManager(MpqPriorityList *source, QWidget *parent, Qt::Windo
 {
 }
 
-void ObjectManager::createFileActions(KMenu *menu)
+void ObjectManager::createFileActions(QMenu *menu)
 {
 }
 
-void ObjectManager::createEditActions(KMenu *menu)
+void ObjectManager::createEditActions(QMenu *menu)
 {
 }
 
-void ObjectManager::createMenus(KMenuBar *menuBar)
+void ObjectManager::createMenus(QMenuBar *menuBar)
 {
 }
 

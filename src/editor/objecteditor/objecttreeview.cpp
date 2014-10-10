@@ -39,15 +39,19 @@ ObjectTreeView::ObjectTreeView(ObjectEditorTab *tab, Qt::WindowFlags f) : QTreeV
 	this->setHeaderHidden(true);
 
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customContextMenuRequested(QPoint)));
-	m_contextMenu->addAction(tab->objectEditor()->copyObjectAction());
-	m_contextMenu->addAction(tab->objectEditor()->pasteObjectAction());
-	// TODO add action "select in palette"
-	m_contextMenu->addSeparator();
-	m_contextMenu->addAction(tab->objectEditor()->newObjectAction());
-	m_contextMenu->addAction(tab->objectEditor()->renameObjectAction());
-	m_contextMenu->addAction(tab->objectEditor()->deleteObjectAction());
-	m_contextMenu->addSeparator();
-	m_contextMenu->addAction(tab->objectEditor()->resetObjectAction());
+
+	if (this->tab()->hasObjectEditor())
+	{
+		m_contextMenu->addAction(tab->objectEditor()->copyObjectAction());
+		m_contextMenu->addAction(tab->objectEditor()->pasteObjectAction());
+		// TODO add action "select in palette"
+		m_contextMenu->addSeparator();
+		m_contextMenu->addAction(tab->objectEditor()->newObjectAction());
+		m_contextMenu->addAction(tab->objectEditor()->renameObjectAction());
+		m_contextMenu->addAction(tab->objectEditor()->deleteObjectAction());
+		m_contextMenu->addSeparator();
+		m_contextMenu->addAction(tab->objectEditor()->resetObjectAction());
+	}
 
 	//connect(this, SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), this, SLOT(updateActions(const QItemSelection &, const QItemSelection &)));
 	connect(this, SIGNAL(expanded(const QModelIndex &)), this, SLOT(expandItem(const QModelIndex &)));
@@ -73,13 +77,16 @@ void ObjectTreeView::customContextMenuRequested(QPoint pos)
 
 void ObjectTreeView::updateActions(const QItemSelection &selected, const QItemSelection &deselected)
 {
-	const bool isFolder = onlyFoldersSelected();
-	const bool isCustomObject = isCustomObjectSelected();
+	if (this->tab()->hasObjectEditor())
+	{
+		const bool isFolder = onlyFoldersSelected();
+		const bool isCustomObject = isCustomObjectSelected();
 
-	this->tab()->objectEditor()->copyObjectAction()->setEnabled(!isFolder);
-	this->tab()->objectEditor()->resetObjectAction()->setEnabled(isCustomObject);
-	this->tab()->objectEditor()->deleteObjectAction()->setEnabled(isCustomObject);
-	this->tab()->objectEditor()->renameObjectAction()->setEnabled(isCustomObject);
+		this->tab()->objectEditor()->copyObjectAction()->setEnabled(!isFolder);
+		this->tab()->objectEditor()->resetObjectAction()->setEnabled(isCustomObject);
+		this->tab()->objectEditor()->deleteObjectAction()->setEnabled(isCustomObject);
+		this->tab()->objectEditor()->renameObjectAction()->setEnabled(isCustomObject);
+	}
 }
 
 void ObjectTreeView::expandItem(const QModelIndex &index)

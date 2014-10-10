@@ -54,7 +54,7 @@ void ItemTreeModel::load(MpqPriorityList *source, ObjectData *objectData, QWidge
 	ItemData *itemData = dynamic_cast<ItemData*>(objectData);
 
 	// add all entries from "UnitData.slk" to standard units in Unit Editor
-	if (!itemData->itemData()->isEmpty())
+	if (itemData->itemData() != 0 &&   !itemData->itemData()->isEmpty())
 	{
 		for (map::Slk::Table::size_type row = 1; row < itemData->itemData()->rows(); ++row)
 		{

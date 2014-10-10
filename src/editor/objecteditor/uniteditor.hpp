@@ -94,7 +94,7 @@ inline UnitData* UnitEditor::unitData() const
 
 inline QString UnitEditor::name() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_OBJTAB_UNITS", "WorldEditStrings");
+	return this->source()->sharedData()->tr("WESTRING_OBJTAB_UNITS", "WorldEditStrings");
 }
 
 inline UnitSelectionDialog* UnitEditor::unitSelectionDialog() const
@@ -104,47 +104,47 @@ inline UnitSelectionDialog* UnitEditor::unitSelectionDialog() const
 
 inline QString UnitEditor::newObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_UE_CREATECUSTOMUNIT", "WorldEditStrings");
+	return this->source()->sharedData()->tr("WESTRING_UE_CREATECUSTOMUNIT", "WorldEditStrings");
 }
 
 inline QString UnitEditor::renameObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_RENAME", "WorldEditStrings");
+	return this->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_RENAME", "WorldEditStrings");
 }
 
 inline QString UnitEditor::deleteObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_DELETE", "WorldEditStrings");
+	return this->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_DELETE", "WorldEditStrings");
 }
 
 inline QString UnitEditor::resetObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_RESETSEL", "WorldEditStrings");
+	return this->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_RESETSEL", "WorldEditStrings");
 }
 
 inline QString UnitEditor::resetAllObjectsText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_RESETALL", "WorldEditStrings");
+	return this->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_RESETALL", "WorldEditStrings");
 }
 
 inline QString UnitEditor::exportAllObjectsText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_EXPORT", "WorldEditStrings");
+	return this->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_EXPORT", "WorldEditStrings");
 }
 
 inline QString UnitEditor::importAllObjectsText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_IMPORT", "WorldEditStrings");
+	return this->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_IMPORT", "WorldEditStrings");
 }
 
 inline QString UnitEditor::copyObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_COPY", "WorldEditStrings");
+	return this->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_COPY", "WorldEditStrings");
 }
 
 inline QString UnitEditor::pasteObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_PASTE", "WorldEditStrings");
+	return this->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_PASTE", "WorldEditStrings");
 }
 
 inline KUrl UnitEditor::copyObjectIconUrl() const

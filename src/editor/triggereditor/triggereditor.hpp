@@ -329,14 +329,14 @@ class KDE_EXPORT TriggerEditor : public Module
 		void itemClicked(class QTreeWidgetItem *item, int column);
 
 	protected:
-		virtual void createFileActions(class KMenu *menu);
-		virtual void createEditActions(class KMenu *menu);
-		virtual void createMenus(class KMenuBar *menuBar);
-		virtual void createWindowsActions(class WindowsMenu *menu);
-		virtual void createToolButtons(class ModuleToolBar *toolBar);
-		virtual class SettingsInterface* settings();
-		virtual KAboutData moduleAboutData() const;
-		virtual void onSwitchToMap(Map *map);
+		virtual void createFileActions(QMenu *menu) override;
+		virtual void createEditActions(QMenu *menu) override;
+		virtual void createMenus(QMenuBar *menuBar) override;
+		virtual void createWindowsActions(WindowsMenu *menu) override;
+		virtual void createToolButtons(ModuleToolBar *toolBar) override;
+		virtual SettingsInterface* settings() override;
+		virtual KAboutData moduleAboutData() const override;
+		virtual void onSwitchToMap(Map *map) override;
 		virtual QString actionName() const override;
 
 		void setTriggers(map::Triggers *triggers);
@@ -365,7 +365,7 @@ class KDE_EXPORT TriggerEditor : public Module
 		TreeItems m_variables;
 		TreeItems m_triggerEntries;
 
-		KMenu *m_newMenu;
+		QMenu *m_newMenu;
 
 		QTreeWidget *m_treeWidget;
 		QTreeWidgetItem *m_rootItem;

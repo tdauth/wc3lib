@@ -69,12 +69,16 @@ inline bool ColorPaletteDialog::applyFromImage(const QImage &image)
 inline bool ColorPaletteDialog::applyToImage(QImage &image)
 {
 	if (image.colorCount() != this->colorCells()->colorCount())
+	{
 		return false;
+	}
 
 	QVector<QRgb> colorTable = image.colorTable();
 
 	for (int i = 0; i < colorTable.size(); i++)
+	{
 		colorTable[i] = colorCells()->color(i).rgb();
+	}
 
 	image.setColorTable(colorTable);
 

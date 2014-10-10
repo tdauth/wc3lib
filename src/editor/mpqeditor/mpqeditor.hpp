@@ -1,3 +1,4 @@
+
 /***************************************************************************
  *   Copyright (C) 2009 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
@@ -140,9 +141,9 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		void showFileInfo();
 
 	protected:
-		virtual void createFileActions(KMenu *menu) override;
-		virtual void createEditActions(KMenu *menu) override;
-		virtual void createMenus(KMenuBar *menuBar) override;
+		virtual void createFileActions(QMenu *menu) override;
+		virtual void createEditActions(QMenu *menu) override;
+		virtual void createMenus(QMenuBar *menuBar) override;
 		virtual void createWindowsActions(WindowsMenu *menu) override;
 		virtual void createToolButtons(ModuleToolBar *toolBar) override;
 		virtual SettingsInterface* settings() override;
@@ -186,14 +187,14 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		QList<QUrl> m_archiveHistory;
 
 		KActionCollection *m_fileActions;
-		KMenu *m_recentArchivesMenu;
+		QMenu *m_recentArchivesMenu;
 		QAction *m_recentArchivesSeparator;
 		QActionGroup *m_archiveHistoryActions;
 
-		KAction *m_closeAction;
-		KAction *m_closeAllAction;
-		KAction *m_extractAction;
-		KAction *m_infoAction;
+		QAction *m_closeAction;
+		QAction *m_closeAllAction;
+		QAction *m_extractAction;
+		QAction *m_infoAction;
 
 		ListfilesDialog *m_listfilesDialog;
 		ArchiveInfoDialog *m_archiveInfoDialog;

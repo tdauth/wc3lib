@@ -20,10 +20,6 @@
 
 #include <QtGui>
 
-#include <KMenuBar>
-#include <KAction>
-#include <KActionCollection>
-
 #include "module.hpp"
 #include "modulemenu.hpp"
 #include "moduletoolbar.hpp"
@@ -121,10 +117,10 @@ void Module::showSourcesDialog()
 
 void Module::setupUi()
 {
-	this->m_menuBar = new KMenuBar(this);
+	this->m_menuBar = new QMenuBar(this);
 	topLayout()->addWidget(this->m_menuBar);
 
-	this->m_fileMenu = new KMenu(this->source()->sharedData()->tr("WESTRING_MENU_FILE"), this);
+	this->m_fileMenu = new QMenu(this->source()->sharedData()->tr("WESTRING_MENU_FILE"), this);
 	this->menuBar()->addMenu(this->m_fileMenu);
 	connect(this->m_fileMenu, SIGNAL(triggered(QAction *)), this, SLOT(triggered(QAction*)));
 
@@ -162,11 +158,11 @@ void Module::setupUi()
 
 	this->m_fileMenu->addAction(m_closeAction);
 
-	this->m_sourcesAction = new KAction(tr("Sources"), this);
+	this->m_sourcesAction = new QAction(tr("Sources"), this);
 	connect(this->m_sourcesAction, SIGNAL(triggered()), this, SLOT(showSourcesDialog()));
 	this->m_fileMenu->addAction(m_sourcesAction);
 
-	this->m_editMenu = new KMenu(source()->sharedData()->tr("WESTRING_MENU_EDIT"), this);
+	this->m_editMenu = new QMenu(source()->sharedData()->tr("WESTRING_MENU_EDIT"), this);
 	this->menuBar()->addMenu(this->m_editMenu);
 
 	// create user-defined actions in edit menu

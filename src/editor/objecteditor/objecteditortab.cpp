@@ -180,10 +180,13 @@ bool ObjectEditorTab::selectObject(const QString& originalObjectId, const QStrin
 		this->tableView()->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
 		this->tableView()->model()->sort(0, Qt::AscendingOrder);
 
-		this->objectEditor()->copyObjectAction()->setEnabled(true);
-		this->objectEditor()->renameObjectAction()->setEnabled(true);
-		this->objectEditor()->deleteObjectAction()->setEnabled(true);
-		this->objectEditor()->resetObjectAction()->setEnabled(true);
+		if (this->hasObjectEditor())
+		{
+			this->objectEditor()->copyObjectAction()->setEnabled(true);
+			this->objectEditor()->renameObjectAction()->setEnabled(true);
+			this->objectEditor()->deleteObjectAction()->setEnabled(true);
+			this->objectEditor()->resetObjectAction()->setEnabled(true);
+		}
 
 		this->activateObject(item);
 
@@ -410,10 +413,15 @@ void ObjectEditorTab::itemClicked(QModelIndex index)
 		this->tableView()->horizontalHeader()->setVisible(false);
 		this->tableView()->hideColumn(0);
 		this->tableView()->hideColumn(1);
-		this->objectEditor()->copyObjectAction()->setEnabled(false);
-		this->objectEditor()->renameObjectAction()->setEnabled(false);
-		this->objectEditor()->deleteObjectAction()->setEnabled(false);
-		this->objectEditor()->resetObjectAction()->setEnabled(false);
+
+		if (this->hasObjectEditor())
+		{
+			this->objectEditor()->copyObjectAction()->setEnabled(false);
+			this->objectEditor()->renameObjectAction()->setEnabled(false);
+			this->objectEditor()->deleteObjectAction()->setEnabled(false);
+			this->objectEditor()->resetObjectAction()->setEnabled(false);
+		}
+
 		this->activateFolder(item);
 	}
 	/*
@@ -516,7 +524,11 @@ void ObjectEditorTab::setShowRawData(bool show)
 void ObjectEditorTab::copyObject()
 {
 	this->m_clipboard = this->selection();
-	this->objectEditor()->pasteObjectAction()->setEnabled(true);
+
+	if (this->hasObjectEditor())
+	{
+		this->objectEditor()->pasteObjectAction()->setEnabled(true);
+	}
 
 	onCopyObject();
 }

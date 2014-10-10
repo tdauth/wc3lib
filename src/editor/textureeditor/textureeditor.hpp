@@ -26,7 +26,7 @@
 
 #include <kdemacros.h>
 #include <KUrl>
-#include <KAction>
+#include <QAction>
 #include <KFileDialog>
 #include <KDialogButtonBox>
 
@@ -183,15 +183,15 @@ class KDE_EXPORT TextureEditor : public Module
 	protected:
 		void refreshImage();
 
-		virtual void createFileActions(class KMenu *menu);
-		virtual void createEditActions(class KMenu *menu);
-		virtual void createMenus(class KMenuBar *menuBar);
-		virtual void createWindowsActions(class WindowsMenu *menu);
-		virtual void createToolButtons(class ModuleToolBar *toolBar);
-		virtual class SettingsInterface* settings();
-		virtual void onSwitchToMap(class Map *map);
-		virtual KAboutData moduleAboutData() const;
-		virtual QString actionName() const;
+		virtual void createFileActions(QMenu *menu) override;
+		virtual void createEditActions(QMenu *menu) override;
+		virtual void createMenus(QMenuBar *menuBar) override;
+		virtual void createWindowsActions(WindowsMenu *menu) override;
+		virtual void createToolButtons(ModuleToolBar *toolBar) override;
+		virtual SettingsInterface* settings() override;
+		virtual void onSwitchToMap(Map *map) override;
+		virtual KAboutData moduleAboutData() const override;
+		virtual QString actionName() const override;
 
 		virtual void resizeEvent(QResizeEvent *event) override;
 
@@ -207,10 +207,10 @@ class KDE_EXPORT TextureEditor : public Module
 		KUrl m_recentUrl;
 
 		class KActionCollection *m_textureActionCollection;
-		KAction *m_showAlphaChannelAction;
-		KAction *m_showTransparencyAction;
-		KAction *m_zoomToFitAction;
-		KMenu *m_mipMapsMenu;
+		QAction *m_showAlphaChannelAction;
+		QAction *m_showTransparencyAction;
+		QAction *m_zoomToFitAction;
+		QMenu *m_mipMapsMenu;
 
 		ColorPaletteDialog *m_colorPaletteDialog;
 		ChargesDialog *m_chargesDialog;
@@ -326,7 +326,9 @@ inline bool TextureEditor::hasTexture() const
 inline ColorPaletteDialog* TextureEditor::colorPaletteDialog() const
 {
 	if (this->m_colorPaletteDialog == 0)
+	{
 		const_cast<TextureEditor*>(this)->m_colorPaletteDialog = new ColorPaletteDialog(const_cast<TextureEditor*>(this));
+	}
 
 	return this->m_colorPaletteDialog;
 }
@@ -334,7 +336,9 @@ inline ColorPaletteDialog* TextureEditor::colorPaletteDialog() const
 inline TextureEditor::ChargesDialog* TextureEditor::chargesDialog() const
 {
 	if (this->m_chargesDialog == 0)
+	{
 		const_cast<TextureEditor*>(this)->m_chargesDialog = new ChargesDialog(const_cast<TextureEditor*>(this));
+	}
 
 	return this->m_chargesDialog;
 }
@@ -342,7 +346,9 @@ inline TextureEditor::ChargesDialog* TextureEditor::chargesDialog() const
 inline TextureEditor::LoadDialog *TextureEditor::loadDialog() const
 {
 	if (this->m_loadDialog == 0)
+	{
 		const_cast<TextureEditor*>(this)->m_loadDialog = new LoadDialog(const_cast<TextureEditor*>(this));
+	}
 
 	return this->m_loadDialog;
 }
@@ -350,7 +356,9 @@ inline TextureEditor::LoadDialog *TextureEditor::loadDialog() const
 inline TextureEditor::SaveDialog *TextureEditor::saveDialog() const
 {
 	if (this->m_saveDialog == 0)
+	{
 		const_cast<TextureEditor*>(this)->m_saveDialog = new SaveDialog(const_cast<TextureEditor*>(this));
+	}
 
 	return this->m_saveDialog;
 }

@@ -69,7 +69,7 @@ void UnitEditor::onNewObject()
 	}
 
 	if (originalObjectId.isEmpty())
-	{
+	{  
 		originalObjectId = "hpea";
 	}
 
