@@ -54,7 +54,10 @@ ObjectTableView::ObjectTableView(ObjectEditorTab *parent) : QTableView(parent), 
 
 	this->verticalHeader()->setVisible(false);
 	this->horizontalHeader()->setVisible(true);
-	this->horizontalHeader()->setStretchLastSection(true);
+	/*
+	 * The sections should be stretched to the text.
+	 */
+	this->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 	this->horizontalHeader()->setSortIndicatorShown(true);
 	this->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
 	this->setShowGrid(false);

@@ -163,6 +163,22 @@ class KDE_EXPORT WarcraftIIIShared
 		QString tr(const QString &key, const QString &group = "WorldEditStrings", const QString &defaultValue = "") const;
 
 		/**
+		 * Creates a shared pixmap object.
+		 *
+		 * \todo Implement caching mechanism which increases speed of loading pixmaps multiple times.
+		 *
+		 * \sa worldEditDataPixmap()
+		 */
+		QPixmap pixmap(const KUrl &url, QWidget *window);
+		/**
+		 * As for the World Editor most icons are defined in the file "UI/WorldEditData.txt" this member function
+		 * allows you to directly retrieve an icon from an entry of that file.
+		 *
+		 * \sa refreshWorldEditData() WorldEditData() pixmap()
+		 */
+		QPixmap worldEditDataPixmap(const QString &key, const QString &group, QWidget *window);
+
+		/**
 		 * Creates a shared icon object.
 		 *
 		 * \todo Implement caching mechanism which increases speed of loading icons multiple times.

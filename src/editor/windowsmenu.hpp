@@ -59,4 +59,4 @@ inline Module* WindowsMenu::module() const
 
 }
 
-#endif // WINDOWSMENU_HPP
+#endif // WC3LIB_EDITOR_WINDOWSMENU_HPP

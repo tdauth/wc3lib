@@ -30,7 +30,7 @@ namespace wc3lib
 namespace editor
 {
 
-WeatherTreeModel::WeatherTreeModel(MpqPriorityList* source, QObject* parent): ObjectTreeModel(source, parent)
+WeatherTreeModel::WeatherTreeModel(MpqPriorityList *source, QObject *parent): ObjectTreeModel(source, parent)
 {
 	QStringList names;
 	names << tr("Standard Weather Effects");
@@ -39,12 +39,12 @@ WeatherTreeModel::WeatherTreeModel(MpqPriorityList* source, QObject* parent): Ob
 	insertRowFolders(names, 0);
 }
 
-void WeatherTreeModel::load(MpqPriorityList* source, ObjectData* objectData, QWidget* window)
+void WeatherTreeModel::load(MpqPriorityList *source, ObjectData *objectData, QWidget *window)
 {
 	WeatherData *weatherData = dynamic_cast<WeatherData*>(objectData);
 
 	// add all entries from "Weather.slk" to standard weather effects in Unit Editor
-	if (!weatherData->weather()->isEmpty())
+	if (weatherData != 0 && weatherData->weather() != 0 && !weatherData->weather()->isEmpty())
 	{
 		for (map::Slk::Table::size_type row = 1; row < weatherData->weather()->rows(); ++row)
 		{
@@ -56,7 +56,7 @@ void WeatherTreeModel::load(MpqPriorityList* source, ObjectData* objectData, QWi
 	ObjectTreeModel::load(source, objectData, window);
 }
 
-ObjectTreeItem* WeatherTreeModel::createItem(MpqPriorityList* source, ObjectData* objectData, QWidget* window, const QString& originalObjectId, const QString& customObjectId)
+ObjectTreeItem* WeatherTreeModel::createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString &originalObjectId, const QString &customObjectId)
 {
 	WeatherData *weatherData = dynamic_cast<WeatherData*>(objectData);
 	const QModelIndex parentIndex = itemParent(weatherData, originalObjectId, customObjectId);
@@ -84,7 +84,7 @@ ObjectTreeItem* WeatherTreeModel::createItem(MpqPriorityList* source, ObjectData
 	return item;
 }
 
-QModelIndex WeatherTreeModel::itemParent(ObjectData* objectData, const QString& originalObjectId, const QString& customObjectId)
+QModelIndex WeatherTreeModel::itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId)
 {
 	if (customObjectId.isEmpty())
 	{

@@ -149,7 +149,7 @@ QString WarcraftIIIShared::tr(const QString &key, const QString &group, const QS
 	return group + "[" + key + "]";
 }
 
-QIcon WarcraftIIIShared::icon(const KUrl &url, QWidget *window)
+QPixmap WarcraftIIIShared::pixmap(const KUrl &url, QWidget *window)
 {
 	Icons::iterator iterator = m_icons.find(url);
 
@@ -164,7 +164,7 @@ QIcon WarcraftIIIShared::icon(const KUrl &url, QWidget *window)
 	{
 		iterator = m_icons.insert(url, QPixmap(iconFile));
 
-		return QIcon(iterator.value());
+		return iterator.value();
 	}
 	else
 	{
@@ -174,10 +174,10 @@ QIcon WarcraftIIIShared::icon(const KUrl &url, QWidget *window)
 		qDebug() << "Error on downloading icon:" << url << KIO::NetAccess::lastErrorString().toUtf8().constData();
 	}
 
-	return QIcon();
+	return QPixmap();
 }
 
-QIcon WarcraftIIIShared::worldEditDataIcon(const QString& key, const QString& group, QWidget* window)
+QPixmap WarcraftIIIShared::worldEditDataPixmap(const QString &key, const QString &group, QWidget *window)
 {
 	if (this->worldEditData().get() != 0)
 	{
@@ -192,13 +192,24 @@ QIcon WarcraftIIIShared::worldEditDataIcon(const QString& key, const QString& gr
 			filePath += ".blp";
 		}
 
-		return this->icon(filePath, window);
+		return this->pixmap(filePath, window);
 	}
 
-	return QIcon();
+	return QPixmap();
 }
 
-void WarcraftIIIShared::refreshWorldEditData(QWidget* window, const KUrl &url)
+
+QIcon WarcraftIIIShared::icon(const KUrl &url, QWidget *window)
+{
+	return QIcon(pixmap(url, window));
+}
+
+QIcon WarcraftIIIShared::worldEditDataIcon(const QString &key, const QString &group, QWidget *window)
+{
+	return QIcon(worldEditDataPixmap(key, group, window));
+}
+
+void WarcraftIIIShared::refreshWorldEditData(QWidget *window, const KUrl &url)
 {
 	WorldEditDataPtr ptr(new MetaData(url));
 	ptr->setSource(this->source());

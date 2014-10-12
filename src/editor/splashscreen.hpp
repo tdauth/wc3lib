@@ -31,17 +31,19 @@ namespace wc3lib
 namespace editor
 {
 
+class MpqPriorityList;
+
 /**
  * Default World Editor splash screen which shows license when World Editor is being started for the first time.
  * Otherwise it shows compact information and logo only.
  * Besides it should play sound "Uther's Return".
  * \todo Add class SplashScreenX for splash screen of Frozen Throne's World Editor.
- * \sa SplashScreenX
  */
 class KDE_EXPORT SplashScreen : public QSplashScreen
 {
 	public:
-		SplashScreen(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f = 0);
+		SplashScreen(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f = 0);
+		virtual ~SplashScreen();
 };
 
 }
