@@ -271,15 +271,15 @@ bool UnitData::hasCustomObjects() const
 	return true;
 }
 
-bool UnitData::hasSlks() const
+bool UnitData::hasMetaDataList() const
 {
 	// TODO support
 	return false;
 }
 
-ObjectData::Slks UnitData::slks() const
+ObjectData::MetaDataList UnitData::metaDataList() const
 {
-	return ObjectData::Slks();
+	return ObjectData::MetaDataList();
 }
 
 QString UnitData::objectNameFieldId() const

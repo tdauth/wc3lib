@@ -46,20 +46,7 @@ class KDE_EXPORT WeatherEditor : public ObjectEditorTab
 		virtual ObjectTreeModel* createTreeModel() override;
 		virtual void onSwitchToMap(Map *map) override;
 
-		virtual void onNewObject();
-		virtual void onRenameObject();
-		virtual void onDeleteObject();
-		virtual void onResetObject();
-		virtual void onResetAllObjects();
-		virtual void onExportAllObjects() override;
-		virtual void onImportAllObjects() override;
-		virtual void onCopyObject();
-		virtual void onPasteObject();
-
-		virtual void onShowRawData(bool show) override;
-
-		virtual void activateObject(ObjectTreeItem *item) override;
-		virtual void activateFolder(ObjectTreeItem *item) override;
+		virtual void onNewObject() override;
 
 		virtual QString newObjectText() const override;
 		virtual QString renameObjectText() const override;

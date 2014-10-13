@@ -18,8 +18,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_ITEMDATA_HPP
-#define WC3LIB_EDITOR_ITEMDATA_HPP
+#ifndef WC3LIB_EDITOR_MISCDATA_HPP
+#define WC3LIB_EDITOR_MISCDATA_HPP
+
+#include <QWidget>
 
 #include "objectdata.hpp"
 
@@ -30,13 +32,17 @@ namespace editor
 {
 
 class MpqPriorityList;
+class MetaData;
 
-class ItemData : public ObjectData
+/**
+ * \brief Stores all data for custom and standard misc data.
+ *
+ * \ingroup objectdata
+ */
+class MiscData : public ObjectData
 {
 	public:
-		typedef QScopedPointer<MetaData> MetaDataPtr;
-
-		ItemData(MpqPriorityList *source, QObject *parent = 0);
+		MiscData(MpqPriorityList *source, QObject *parent = 0);
 
 		virtual void load(QWidget *widget) override;
 
@@ -57,39 +63,63 @@ class ItemData : public ObjectData
 
 		virtual QString objectNameFieldId() const override;
 
-		MetaData* itemData() const;
-		MetaData* itemFunc() const;
-		MetaData* itemStrings() const;
+		MetaData* miscMetaData() const;
+		MetaData* miscGame() const;
+		MetaData* customV0() const;
+		MetaData* customV1() const;
+		MetaData* meleeV0() const;
 
 	private:
-		MetaDataPtr m_metaData;
-		MetaDataPtr m_itemData;
-		MetaDataPtr m_itemFunc;
-		MetaDataPtr m_itemStrings;
+		MetaDataPtr m_miscMetaData;
+		MetaDataPtr m_miscGame;
+		MetaDataPtr m_customV0;
+		MetaDataPtr m_customV1;
+		MetaDataPtr m_meleeV0;
+
 };
 
-inline MetaData* ItemData::metaData() const
+inline map::CustomObjects::Type MiscData::type() const
 {
-	return this->m_metaData.data();
+	return map::CustomObjects::Type::Units;
 }
 
-inline MetaData* ItemData::itemData() const
+inline MetaData* MiscData::metaData() const
 {
-	return this->m_itemData.data();
+	return this->miscMetaData();
 }
 
-inline MetaData* ItemData::itemFunc() const
+inline MetaData* MiscData::objectTabData() const
 {
-	return this->m_itemFunc.data();
+	return 0;
 }
 
-inline MetaData* ItemData::itemStrings() const
+inline MetaData* MiscData::miscMetaData() const
 {
-	return this->m_itemStrings.data();
+	return this->m_miscMetaData.data();
+}
+
+inline MetaData* MiscData::miscGame() const
+{
+	return this->m_miscGame.data();
+}
+
+inline MetaData* MiscData::customV0() const
+{
+	return this->m_customV0.data();
+}
+
+inline MetaData* MiscData::customV1() const
+{
+	return this->m_customV1.data();
+}
+
+inline MetaData* MiscData::meleeV0() const
+{
+	return this->m_meleeV0.data();
 }
 
 }
 
 }
 
-#endif // WC3LIB_EDITOR_ITEMDATA_HPP
+#endif // WC3LIB_EDITOR_MISCDATA_HPP

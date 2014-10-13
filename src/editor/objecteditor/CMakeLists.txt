@@ -3,6 +3,9 @@ set(wc3lib_OBJECTEDITOR_H
 	itemdata.hpp
 	itemeditor.hpp
 	itemtreemodel.hpp
+	misceditor.hpp
+	miscdata.hpp
+	misctreemodel.hpp
 	objecteditor.hpp
 	objecteditortab.hpp
 	objectdata.hpp
@@ -25,6 +28,9 @@ set(wc3lib_OBJECTEDITOR_SRC
 	itemdata.cpp
 	itemeditor.cpp
 	itemtreemodel.cpp
+	misceditor.cpp
+	miscdata.cpp
+	misctreemodel.cpp
 	objecteditor.cpp
 	objecteditortab.cpp
 	objectdata.cpp

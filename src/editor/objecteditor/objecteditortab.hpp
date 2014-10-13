@@ -184,31 +184,8 @@ class KDE_EXPORT ObjectEditorTab : public QWidget
 		virtual void setupUi();
 
 		virtual ObjectTreeModel* createTreeModel() = 0;
-
 		virtual void onSwitchToMap(Map *map) = 0;
-
 		virtual void onNewObject() = 0;
-		virtual void onRenameObject() = 0;
-		virtual void onDeleteObject() = 0;
-		virtual void onResetObject() = 0;
-		virtual void onResetAllObjects() = 0;
-		virtual void onExportAllObjects() = 0;
-		virtual void onImportAllObjects() = 0;
-		virtual void onCopyObject() = 0;
-		virtual void onPasteObject() = 0;
-
-		virtual void onShowRawData(bool show) = 0;
-
-		/**
-		 * Activates object with ID \p originalObjectId and \p customObjectId by selection of \p item in column \p column.
-		 * Usually this should display the fields of the object in the table widget.
-		 */
-		virtual void activateObject(ObjectTreeItem *item) = 0;
-		/**
-		 * Activates a folder item.
-		 * Usually this should hide the columns of the table widget since no object is selected.
-		 */
-		virtual void activateFolder(ObjectTreeItem *item) = 0;
 
 		virtual QString newObjectText() const = 0;
 		virtual QString renameObjectText() const = 0;

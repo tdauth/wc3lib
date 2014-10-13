@@ -69,7 +69,7 @@ void UnitEditor::onNewObject()
 	}
 
 	if (originalObjectId.isEmpty())
-	{  
+	{
 		originalObjectId = "hpea";
 	}
 
@@ -99,82 +99,6 @@ void UnitEditor::onNewObject()
 			this->objectData()->modifyField(this->unitSelectionDialog()->originalObjectId(), customObjectId, "unam", this->unitSelectionDialog()->unitName());
 		}
 	}
-}
-
-void UnitEditor::onRenameObject()
-{
-}
-
-void UnitEditor::onDeleteObject()
-{
-}
-
-void UnitEditor::onResetObject()
-{
-}
-
-void UnitEditor::onResetAllObjects()
-{
-}
-
-void UnitEditor::onExportAllObjects()
-{
-}
-
-void UnitEditor::onImportAllObjects()
-{
-}
-
-void UnitEditor::onCopyObject()
-{
-}
-
-void UnitEditor::onPasteObject()
-{
-}
-
-void UnitEditor::onShowRawData(bool show)
-{
-	/*
-	if (show)
-	{
-		for (ObjectTreeWidget::Items::iterator iterator = this->treeWidget()->standardItems().begin(); iterator != this->treeWidget()->standardItems().end(); ++iterator)
-		{
-			const QString unitName = this->objectData()->fieldValue(iterator.key().first, iterator.key().second, "unam");
-			iterator.value()->setText(0, QString("%1 (%2)").arg(iterator.key().first).arg(unitName));
-		}
-
-		for (ObjectTreeWidget::Items::iterator iterator = this->treeWidget()->customItems().begin(); iterator != this->treeWidget()->customItems().end(); ++iterator)
-		{
-			const QString unitName = this->objectData()->fieldValue(iterator.key().first, iterator.key().second, "unam");
-			iterator.value()->setText(0, QString("%1:%2 (%3)").arg(iterator.key().first).arg(iterator.key().second).arg(unitName));
-		}
-	}
-	else
-	{
-		for (ObjectTreeWidget::Items::iterator iterator = this->treeWidget()->standardItems().begin(); iterator != this->treeWidget()->standardItems().end(); ++iterator)
-		{
-			const QString unitName = this->objectData()->fieldValue(iterator.key().first, iterator.key().second, "unam");
-			iterator.value()->setText(0, unitName);
-		}
-
-		for (ObjectTreeWidget::Items::iterator iterator = this->treeWidget()->customItems().begin(); iterator != this->treeWidget()->customItems().end(); ++iterator)
-		{
-			const QString unitName = this->objectData()->fieldValue(iterator.key().first, iterator.key().second, "unam");
-			iterator.value()->setText(0, unitName);
-		}
-	}
-	*/
-}
-
-void UnitEditor::activateObject(ObjectTreeItem *item)
-{
-	qDebug() << "Activated" << item->originalObjectId();
-	qDebug() << "with custom ID" << item->customObjectId();
-}
-
-void UnitEditor::activateFolder(ObjectTreeItem *item)
-{
 }
 
 }

@@ -29,6 +29,7 @@
 #include "uniteditor.hpp"
 #include "itemeditor.hpp"
 #include "weathereditor.hpp"
+#include "misceditor.hpp"
 #include "objecttreemodel.hpp"
 #include "../moduletoolbar.hpp"
 
@@ -60,6 +61,7 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 , m_waterEntryEditor(0)
 , m_weatherEditor(0)
 , m_soundEntryEditor(0)
+, m_miscEditor(0)
 , m_copyObjectAction(0)
 , m_pasteObjectAction(0)
 , m_modifyFieldAction(0)
@@ -94,10 +96,12 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 	m_unitEditor = new UnitEditor(source, this, f);
 	m_itemEditor = new ItemEditor(source, this, f);
 	m_weatherEditor = new WeatherEditor(source, this, f);
+	m_miscEditor = new MiscEditor(source, this, f);
 
 	tabWidget()->addTab(unitEditor(), unitEditor()->name());
 	tabWidget()->addTab(itemEditor(), itemEditor()->name());
 	tabWidget()->addTab(weatherEditor(), weatherEditor()->name());
+	tabWidget()->addTab(miscEditor(), miscEditor()->name());
 
 	m_currentTab = tab(0);
 	setWindowTitle(currentTab()->name());

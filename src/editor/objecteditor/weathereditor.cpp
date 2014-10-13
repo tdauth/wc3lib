@@ -50,50 +50,6 @@ void WeatherEditor::onNewObject()
 {
 }
 
-void WeatherEditor::onRenameObject()
-{
-}
-
-void WeatherEditor::onDeleteObject()
-{
-}
-
-void WeatherEditor::onResetObject()
-{
-}
-
-void WeatherEditor::onResetAllObjects()
-{
-}
-
-void WeatherEditor::onExportAllObjects()
-{
-}
-
-void WeatherEditor::onImportAllObjects()
-{
-}
-
-void WeatherEditor::onCopyObject()
-{
-}
-
-void WeatherEditor::onPasteObject()
-{
-}
-
-void WeatherEditor::onShowRawData(bool show)
-{
-}
-
-void WeatherEditor::activateFolder(ObjectTreeItem* item)
-{
-}
-
-void WeatherEditor::activateObject(ObjectTreeItem* item)
-{
-}
-
 ObjectTreeModel* WeatherEditor::createTreeModel()
 {
 	return new WeatherTreeModel(this->source(), this);

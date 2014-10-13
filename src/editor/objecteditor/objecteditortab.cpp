@@ -188,8 +188,6 @@ bool ObjectEditorTab::selectObject(const QString& originalObjectId, const QStrin
 			this->objectEditor()->resetObjectAction()->setEnabled(true);
 		}
 
-		this->activateObject(item);
-
 		return true;
 	}
 
@@ -214,21 +212,15 @@ void ObjectEditorTab::exportAllObjects()
 	const QString customObjectsCollectionSuffix = "w3o";
 	const QString mapSuffix = "w3m";
 	const QString xmapSuffix = "w3x";
-	const QString slkSuffix = "slk";
 
-	const KUrl url = KFileDialog::getSaveUrl(KUrl(), QString("*\nCustom Units (*.%1)\nCustom Objects Collection (*.%2)\nMap (*.%3 *.%4)\nSlk (*.%5)").arg(customUnitsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix).arg(slkSuffix), this, exportAllObjectsText());
+	const KUrl url = KFileDialog::getSaveUrl(KUrl(), QString("*\nCustom Units (*.%1)\nCustom Objects Collection (*.%2)\nMap (*.%3 *.%4)").arg(customUnitsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix), this, exportAllObjectsText());
 
 	if (!url.isEmpty())
 	{
 		const QFileInfo fileInfo(url.toLocalFile());
 		const QString suffix = fileInfo.suffix();
 
-		if (suffix == slkSuffix && !this->objectData()->hasSlks())
-		{
-			KMessageBox::error(this, tr("No SLK support."));
-
-			return;
-		}
+		// TODO support directory for meta data file list
 
 		if (suffix == customUnitsSuffix && !this->objectData()->hasCustomUnits() && !this->objectData()->hasCustomObjects())
 		{
@@ -255,26 +247,6 @@ void ObjectEditorTab::exportAllObjects()
 						qDebug() << "Exporting custom units";
 
 						this->objectData()->customUnits().write(out);
-					}
-				}
-				else if (suffix == slkSuffix)
-				{
-					if (this->objectData()->hasSlks())
-					{
-						qDebug() << "Export SLKs";
-
-						const ObjectData::Slks slks = this->objectData()->slks();
-						int i = 0;
-
-						BOOST_FOREACH(ObjectData::Slks::const_reference ref, slks)
-						{
-							const QDir dir = fileInfo.dir();
-							const QString file = dir.absoluteFilePath(tr("out%1.slk").arg(i));
-							ofstream out(file.toUtf8().constData());
-							ref.write(out);
-
-							++i;
-						}
 					}
 				}
 			}
@@ -421,8 +393,6 @@ void ObjectEditorTab::itemClicked(QModelIndex index)
 			this->objectEditor()->deleteObjectAction()->setEnabled(false);
 			this->objectEditor()->resetObjectAction()->setEnabled(false);
 		}
-
-		this->activateFolder(item);
 	}
 	/*
 	 * Is object item.
@@ -467,8 +437,6 @@ void ObjectEditorTab::deleteObject()
 			}
 		}
 	}
-
-	onDeleteObject();
 }
 
 void ObjectEditorTab::resetObject()
@@ -484,8 +452,6 @@ void ObjectEditorTab::resetObject()
 			this->objectData()->resetObject(item->originalObjectId(), item->customObjectId());
 		}
 	}
-
-	onResetObject();
 }
 
 void ObjectEditorTab::resetAllObjects()
@@ -495,8 +461,6 @@ void ObjectEditorTab::resetAllObjects()
 		ObjectTreeItem *item = iterator.value();
 		this->objectData()->resetObject(item->originalObjectId(), item->customObjectId());
 	}
-
-	onResetAllObjects();
 }
 
 void ObjectEditorTab::setShowRawData(bool show)
@@ -517,8 +481,6 @@ void ObjectEditorTab::setShowRawData(bool show)
 		itemClicked(selection.first(), 0);
 	}
 	*/
-
-	onShowRawData(show);
 }
 
 void ObjectEditorTab::copyObject()
@@ -529,8 +491,6 @@ void ObjectEditorTab::copyObject()
 	{
 		this->objectEditor()->pasteObjectAction()->setEnabled(true);
 	}
-
-	onCopyObject();
 }
 
 void ObjectEditorTab::pasteObject()
@@ -585,8 +545,6 @@ void ObjectEditorTab::pasteObject()
 			KMessageBox::error(this, e.what());
 		}
 	}
-
-	onPasteObject();
 }
 
 QSortFilterProxyModel* ObjectEditorTab::proxyModel() const
@@ -612,8 +570,6 @@ void ObjectEditorTab::renameObject()
 			this->modifyField(item->originalObjectId(), item->customObjectId(), this->objectData()->objectNameFieldId());
 		}
 	}
-
-	onRenameObject();
 }
 
 #include "moc_objecteditortab.cpp"

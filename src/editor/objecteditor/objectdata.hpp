@@ -59,6 +59,8 @@ class ObjectData : public QObject
 		void fieldModification(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
 
 	public:
+		typedef QScopedPointer<MetaData> MetaDataPtr;
+
 		/**
 		 * \brief Hash table which stores modificiations by using the field ID as hash (such as "unam").
 		 *
@@ -173,19 +175,24 @@ class ObjectData : public QObject
 		 */
 		virtual map::CustomObjects customObjects() const;
 
-		typedef QList<map::Slk> Slks;
+		/**
+		 * \return Returns true if a list of \ref MetaData files is available.
+		 */
+		virtual bool hasMetaDataList() const = 0;
+
+		typedef QList<MetaData> MetaDataList;
 
 		/**
-		 * SLK files are used in Warcraft III to define standard objects.
+		 * \ref MetaData files are used in Warcraft III to define standard objects.
 		 * Some object types such as weather effects do not support any other type of object.
 		 *
-		 * \return Returns the custom units of the current tab.
+		 * \return Returns the list of meta data files for the custom objects.
 		 *
-		 * \sa customObjects() hasCustomUnits() hasCustomObjects()
+		 * \sa hasMetaDataList() customObjects() hasCustomUnits() hasCustomObjects()
 		 *
-		 * \throws Exception Throws an exception if SLKs are not supported.
+		 * \throws Exception Throws an exception if Meta Data files are not supported.
 		 */
-		virtual Slks slks() const = 0;
+		virtual MetaDataList metaDataList() const = 0;
 
 		virtual map::CustomObjects::Object customObject(const QString &originalObjectId, const QString &customObjectId) const;
 
@@ -211,11 +218,6 @@ class ObjectData : public QObject
 		 * \sa hasCustomUnits()
 		 */
 		virtual bool hasCustomObjects() const = 0;
-
-		/**
-		 * \return Returns true if a list of SLK files is available.
-		 */
-		virtual bool hasSlks() const = 0;
 
 		map::Value value(const QString &fieldId, const QString &value) const;
 

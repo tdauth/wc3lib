@@ -127,7 +127,7 @@ QVariant ObjectTableModel::data(const QModelIndex &index, int role) const
 	}
 	else
 	{
-		qDebug() << "Missing ID column for row" << m_itemsByRow[index.row()];
+		qDebug() << "Missing ID column for row" << m_itemsByRow[index.row()] << "with number" << index.row();
 	}
 
 	return QVariant();
@@ -206,60 +206,29 @@ void ObjectTableModel::load(ObjectData *objectData, const QString &originalObjec
 	{
 		const QString fieldId = objectData->metaData()->value(row, "ID");
 
-		if (objectData->hideField(this->originalObjectId(), this->customObjectId(), fieldId))
+		/*
+		 * Skip empty rows.
+		 */
+		if (!fieldId.isEmpty())
 		{
-			qDebug() << "Hide row with field id" << fieldId << "and description" << objectData->source()->sharedData()->tr(objectData->metaData()->value(fieldId, "displayName"));
-		}
-		else
-		{
-			rows++;
+			if (objectData->hideField(this->originalObjectId(), this->customObjectId(), fieldId))
+			{
+				qDebug() << "Hide row with field id" << fieldId << "and description" << objectData->source()->sharedData()->tr(objectData->metaData()->value(fieldId, "displayName"));
+			}
+			else
+			{
+				m_itemsByRow.insert(rows, fieldId);
+				m_itemsByField.insert(fieldId, rows);
+
+				rows++;
+			}
 		}
 	}
 
 	beginInsertColumns(QModelIndex(), 0, 1);
 	endInsertColumns();
 
-	beginInsertRows(QModelIndex(), 0, rows);
-
-	/*
-	 * Order field IDs by their sort column and add them in the correct order.
-	 */
-	typedef QMultiMap<QString, QString> OrderedFieldIds;
-	OrderedFieldIds fieldIds;
-
-	for (map::Slk::Table::size_type i = 1; i < this->objectData()->metaData()->rows() - 1; ++i)
-	{
-		const QString fieldId = this->objectData()->metaData()->value(i + 1, "ID");
-
-		if (!this->objectData()->hideField(this->originalObjectId(), this->customObjectId(), fieldId))
-		{
-			QString sort;
-
-			/*
-			 * Some meta data might not have the "sort" column
-			 */
-			if (this->objectData()->metaData()->hasValue(fieldId, "sort"))
-			{
-				sort = this->objectData()->metaData()->value(fieldId, "sort");
-			}
-			else
-			{
-				qDebug() << "Missing column \"sort\" for field" << i;
-			}
-
-			fieldIds.insert(sort, fieldId);
-		}
-	}
-
-	int row = 0;
-
-	for (OrderedFieldIds::const_iterator iterator = fieldIds.begin(); iterator != fieldIds.end(); ++iterator, ++row)
-	{
-		const QString fieldId = iterator.value();
-		m_itemsByRow.insert(row, fieldId);
-		m_itemsByField.insert(fieldId, row);
-	}
-
+	beginInsertRows(QModelIndex(), 0, rows - 1);
 	endInsertRows();
 
 	connect(objectData, SIGNAL(fieldModification(QString,QString,QString)), this, SLOT(modifyField(QString,QString,QString)));

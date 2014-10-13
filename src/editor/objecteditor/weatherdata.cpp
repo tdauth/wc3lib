@@ -90,13 +90,14 @@ bool WeatherData::hasCustomObjects() const
 	return false;
 }
 
-bool WeatherData::hasSlks() const
+bool WeatherData::hasMetaDataList() const
 {
 	return true;
 }
 
-ObjectData::Slks WeatherData::slks() const
+ObjectData::MetaDataList WeatherData::metaDataList() const
 {
+	/*
 	map::Slk slk;
 	slk.table().resize(boost::extents[this->metaData()->rows()][this->m_objects.size() + this->weather()->rows()]);
 	map::Slk::Table::size_type column = 0;
@@ -111,6 +112,10 @@ ObjectData::Slks WeatherData::slks() const
 	result.append(slk);
 
 	return result;
+	TODO create files
+	*/
+
+	return MetaDataList();
 }
 
 void WeatherData::load(QWidget* widget)

@@ -18,17 +18,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <QtGui>
+#ifndef WC3LIB_EDITOR_MISCTREEMODEL_HPP
+#define WC3LIB_EDITOR_MISCTREEMODEL_HPP
 
-#include <KMessageBox>
-#include <KFileDialog>
-
-#include "itemeditor.hpp"
-#include "objecttreeview.hpp"
-#include "objecttreeitem.hpp"
-#include "itemtreemodel.hpp"
-#include "../metadata.hpp"
-#include "../map.hpp"
+#include "objecttreemodel.hpp"
 
 namespace wc3lib
 {
@@ -36,28 +29,27 @@ namespace wc3lib
 namespace editor
 {
 
-ItemEditor::ItemEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, new ItemData(source, parent), parent, f)
+class UnitData;
+class WarcraftIIIShared;
+
+/**
+ * \brief The concrete tree model for misc data.
+ * \ingroup objectdata
+ */
+class MiscTreeModel : public ObjectTreeModel
 {
-	setupUi();
-}
+	public:
+		MiscTreeModel(MpqPriorityList *source, QObject *parent = 0);
 
-ItemEditor::~ItemEditor()
-{
-}
+		virtual void load(MpqPriorityList *source, ObjectData *objectData, QWidget *window) override;
+		virtual ObjectTreeItem* createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString& originalObjectId, const QString& customObjectId) override;
 
-ObjectTreeModel* ItemEditor::createTreeModel()
-{
-	return new ItemTreeModel(this->source(), this);
-}
-
-void ItemEditor::onSwitchToMap(Map *map)
-{
-}
-
-void ItemEditor::onNewObject()
-{
-}
+	protected:
+		virtual QModelIndex itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId) override;
+};
 
 }
 
 }
+
+#endif // WC3LIB_EDITOR_MISCTREEMODEL_HPP

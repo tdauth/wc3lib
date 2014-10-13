@@ -56,6 +56,7 @@ class TilesetEntryEditor;
 class WaterEntryEditor;
 class WeatherEditor;
 class SoundEntryEditor;
+class MiscEditor;
 
 /**
  * \page objecteditorsection Object Editor
@@ -160,6 +161,7 @@ class KDE_EXPORT ObjectEditor : public Module
 		WaterEntryEditor* waterEntryEditor() const;
 		WeatherEditor* weatherEditor() const;
 		SoundEntryEditor* soundEntryEditor() const;
+		MiscEditor* miscEditor() const;
 
 		QAction* newObjectAction() const;
 		QAction* renameObjectAction() const;
@@ -228,6 +230,7 @@ class KDE_EXPORT ObjectEditor : public Module
 		WaterEntryEditor *m_waterEntryEditor;
 		WeatherEditor *m_weatherEditor;
 		SoundEntryEditor *m_soundEntryEditor;
+		MiscEditor *m_miscEditor;
 
 		QAction *m_newObjectAction;
 		QAction *m_renameObjectAction;
@@ -347,6 +350,11 @@ inline WeatherEditor* ObjectEditor::weatherEditor() const
 inline SoundEntryEditor* ObjectEditor::soundEntryEditor() const
 {
 	return m_soundEntryEditor;
+}
+
+inline MiscEditor* ObjectEditor::miscEditor() const
+{
+	return this->m_miscEditor;
 }
 
 inline QAction* ObjectEditor::newObjectAction() const

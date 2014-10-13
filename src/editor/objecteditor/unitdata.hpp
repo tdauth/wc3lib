@@ -60,9 +60,9 @@ class UnitData : public ObjectData
 
 		virtual bool hasCustomUnits() const override;
 		virtual bool hasCustomObjects() const override;
-		virtual bool hasSlks() const override;
+		virtual bool hasMetaDataList() const override;
 
-		virtual Slks slks() const override;
+		virtual MetaDataList metaDataList() const override;
 
 		virtual map::CustomObjects::Type type() const override;
 

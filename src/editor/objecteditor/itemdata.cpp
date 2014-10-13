@@ -111,15 +111,15 @@ bool ItemData::hasCustomObjects() const
 	return true;
 }
 
-bool ItemData::hasSlks() const
+bool ItemData::hasMetaDataList() const
 {
 	return true;
 }
 
-ObjectData::Slks ItemData::slks() const
+ObjectData::MetaDataList ItemData::metaDataList() const
 {
 	// TODO support slks
-	return ObjectData::Slks();
+	return ObjectData::MetaDataList();
 }
 
 bool ItemData::hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const

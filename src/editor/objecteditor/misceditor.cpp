@@ -18,17 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <QtGui>
-
-#include <KMessageBox>
-#include <KFileDialog>
-
-#include "itemeditor.hpp"
-#include "objecttreeview.hpp"
-#include "objecttreeitem.hpp"
-#include "itemtreemodel.hpp"
-#include "../metadata.hpp"
-#include "../map.hpp"
+#include "misceditor.hpp"
+#include "misctreemodel.hpp"
 
 namespace wc3lib
 {
@@ -36,25 +27,25 @@ namespace wc3lib
 namespace editor
 {
 
-ItemEditor::ItemEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, new ItemData(source, parent), parent, f)
+MiscEditor::MiscEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, new MiscData(source, parent), parent, f)
 {
 	setupUi();
 }
 
-ItemEditor::~ItemEditor()
+MiscEditor::~MiscEditor()
 {
 }
 
-ObjectTreeModel* ItemEditor::createTreeModel()
+ObjectTreeModel* MiscEditor::createTreeModel()
 {
-	return new ItemTreeModel(this->source(), this);
+	return new MiscTreeModel(this->source(), this);
 }
 
-void ItemEditor::onSwitchToMap(Map *map)
+void MiscEditor::onSwitchToMap(Map *map)
 {
 }
 
-void ItemEditor::onNewObject()
+void MiscEditor::onNewObject()
 {
 }
 
