@@ -42,7 +42,7 @@ class UnitSelectionDialog;
 class KDE_EXPORT UnitEditor : public ObjectEditorTab
 {
 	public:
-		UnitEditor(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		UnitEditor(MpqPriorityList *source, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~UnitEditor();
 
 		UnitData* unitData() const;

@@ -49,23 +49,6 @@ ItemTreeModel::ItemTreeModel(MpqPriorityList *source, QObject *parent) : ObjectT
 	insertRowFolders(classes, 0, this->index(1, 0));
 }
 
-void ItemTreeModel::load(MpqPriorityList *source, ObjectData *objectData, QWidget *window)
-{
-	ItemData *itemData = dynamic_cast<ItemData*>(objectData);
-
-	// add all entries from "UnitData.slk" to standard units in Unit Editor
-	if (itemData->itemData() != 0 &&   !itemData->itemData()->isEmpty())
-	{
-		for (map::Slk::Table::size_type row = 1; row < itemData->itemData()->rows(); ++row)
-		{
-			const QString objectId = itemData->itemData()->value(row, "itemID");
-			createItem(source, objectData, window, objectId, "");
-		}
-	}
-
-	ObjectTreeModel::load(source, objectData, window);
-}
-
 ObjectTreeItem* ItemTreeModel::createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString &originalObjectId, const QString &customObjectId)
 {
 	ItemData *itemData = dynamic_cast<ItemData*>(objectData);

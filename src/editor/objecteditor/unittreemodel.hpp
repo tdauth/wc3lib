@@ -41,7 +41,6 @@ class UnitTreeModel : public ObjectTreeModel
 	public:
 		UnitTreeModel(MpqPriorityList *source, QObject *parent = 0);
 
-		virtual void load(MpqPriorityList *source, ObjectData *objectData, QWidget *window) override;
 		virtual ObjectTreeItem* createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString& originalObjectId, const QString& customObjectId) override;
 
 	protected:

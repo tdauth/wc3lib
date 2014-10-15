@@ -39,23 +39,6 @@ WeatherTreeModel::WeatherTreeModel(MpqPriorityList *source, QObject *parent): Ob
 	insertRowFolders(names, 0);
 }
 
-void WeatherTreeModel::load(MpqPriorityList *source, ObjectData *objectData, QWidget *window)
-{
-	WeatherData *weatherData = dynamic_cast<WeatherData*>(objectData);
-
-	// add all entries from "Weather.slk" to standard weather effects in Unit Editor
-	if (weatherData != 0 && weatherData->weather() != 0 && !weatherData->weather()->isEmpty())
-	{
-		for (map::Slk::Table::size_type row = 1; row < weatherData->weather()->rows(); ++row)
-		{
-			const QString objectId = weatherData->weather()->value(row, "effectID");
-			createItem(source, objectData, window, objectId, "");
-		}
-	}
-
-	ObjectTreeModel::load(source, objectData, window);
-}
-
 ObjectTreeItem* WeatherTreeModel::createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString &originalObjectId, const QString &customObjectId)
 {
 	WeatherData *weatherData = dynamic_cast<WeatherData*>(objectData);

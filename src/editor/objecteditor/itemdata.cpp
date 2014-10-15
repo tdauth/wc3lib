@@ -35,6 +35,22 @@ ItemData::ItemData(MpqPriorityList *source, QObject *parent) : ObjectData(source
 {
 }
 
+ObjectData::StandardObjecIds ItemData::standardObjectIds() const
+{
+	StandardObjecIds result;
+
+	// add all entries from "UnitData.slk" to standard units in Unit Editor
+	if (this->itemData() != 0 && !this->itemData()->isEmpty())
+	{
+		for (map::Slk::Table::size_type row = 1; row < this->itemData()->rows(); ++row)
+		{
+			result << this->itemData()->value(row, "itemID");
+		}
+	}
+
+	return result;
+}
+
 QString ItemData::defaultFieldValue(const QString &objectId, const QString &fieldId) const
 {
 	if (this->metaData()->hasValue(fieldId, "slk") && this->metaData()->hasValue(fieldId, "field"))
@@ -134,9 +150,25 @@ bool ItemData::hideField(const QString &originalObjectId, const QString &customO
 	return true;
 }
 
-QString ItemData::objectNameFieldId() const
+QString ItemData::objectName(const QString &originalObjectId, const QString &customObjectId) const
 {
-	return "unam";
+	QString name = fieldReadableValue(originalObjectId, customObjectId, "unam");
+
+	if (this->hasFieldValue(originalObjectId, customObjectId, "unsf"))
+	{
+		const QString suffix = this->fieldReadableValue(originalObjectId, customObjectId, "unsf");
+
+		if (suffix.startsWith('('))
+		{
+			name = QObject::tr("%1 %2").arg(name).arg(suffix);
+		}
+		else
+		{
+			name = QObject::tr("%1 (%2)").arg(name).arg(suffix);
+		}
+	}
+
+	return name;
 }
 
 MetaData* ItemData::objectTabData() const

@@ -37,23 +37,6 @@ UnitTreeModel::UnitTreeModel(MpqPriorityList *source, QObject *parent)
 	createObjects(source->sharedData().get());
 }
 
-void UnitTreeModel::load(MpqPriorityList *source, ObjectData *objectData, QWidget *window)
-{
-	UnitData *unitData = dynamic_cast<UnitData*>(objectData);
-
-	// add all entries from "UnitData.slk" to standard units in Unit Editor
-	if (unitData->unitData() != 0 && !unitData->unitData()->isEmpty())
-	{
-		for (map::Slk::Table::size_type row = 1; row < unitData->unitData()->rows(); ++row)
-		{
-			const QString objectId = unitData->unitData()->value(row, "unitID");
-			createItem(source, objectData, window, objectId, "");
-		}
-	}
-
-	ObjectTreeModel::load(source, objectData, window);
-}
-
 ObjectTreeItem* UnitTreeModel::createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString& originalObjectId, const QString& customObjectId)
 {
 	UnitData *unitData = dynamic_cast<UnitData*>(objectData);

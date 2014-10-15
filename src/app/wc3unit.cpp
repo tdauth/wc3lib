@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 	KApplication app;
 
 	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
-	UnitEditor editor(source.data());
+	UnitEditor editor(source.data(), 0);
 	editor.show();
 
 	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();

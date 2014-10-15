@@ -35,7 +35,7 @@ class WeatherData;
 class KDE_EXPORT WeatherEditor : public ObjectEditorTab
 {
 	public:
-		WeatherEditor(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		WeatherEditor(MpqPriorityList *source, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~WeatherEditor();
 
 		WeatherData* weatherData() const;

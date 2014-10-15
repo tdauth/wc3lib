@@ -30,7 +30,7 @@
 #include "objecttablemodel.hpp"
 #include "objecttreeview.hpp"
 #include "objecttreemodel.hpp"
-#include "iddialog.hpp"
+#include "objectiddialog.hpp"
 #include "../metadata.hpp"
 #include "../mpqprioritylist.hpp"
 
@@ -40,7 +40,7 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectEditorTab::ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData, QWidget *parent, Qt::WindowFlags f)
+ObjectEditorTab::ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent, Qt::WindowFlags f)
 : QWidget(parent, f)
 , m_source(source)
 , m_tabIndex(0)
@@ -51,8 +51,9 @@ ObjectEditorTab::ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData
 , m_tableView(0)
 , m_tableModel(0)
 , m_objectData(objectData)
+, m_objectEditor(objectEditor)
 , m_showRawData(false)
-, m_idDialog(new IdDialog(this))
+, m_idDialog(new ObjectIdDialog(this))
 {
 	try
 	{
@@ -85,9 +86,6 @@ void ObjectEditorTab::setupUi()
 	this->treeModel()->load(this->source(), this->objectData(), this);
 
 	m_filterSearchLine->setProxy(this->proxyModel());
-
-	// TEST
-	connect(m_treeModel, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(dataChanged(const QModelIndex&, const QModelIndex&)));
 
 	/*
 	 * Table View
@@ -184,7 +182,7 @@ bool ObjectEditorTab::selectObject(const QString& originalObjectId, const QStrin
 		{
 			this->objectEditor()->copyObjectAction()->setEnabled(true);
 			this->objectEditor()->renameObjectAction()->setEnabled(true);
-			this->objectEditor()->deleteObjectAction()->setEnabled(true);
+			this->objectEditor()->deleteObjectAction()->setEnabled(!customObjectId.isEmpty());
 			this->objectEditor()->resetObjectAction()->setEnabled(true);
 		}
 
@@ -407,23 +405,12 @@ void ObjectEditorTab::itemClicked(QModelIndex index)
 	}
 }
 
-void ObjectEditorTab::dataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight)
-{
-	qDebug() << "Data changed";
-}
-
 void ObjectEditorTab::deleteObject()
 {
 	const QItemSelectionModel *selection = this->treeView()->selectionModel();
 
 	if (!selection->selectedIndexes().isEmpty())
 	{
-		/*
-		 * Make sure one cannot edit any values of deleted objects.
-		 */
-		this->tableView()->hideColumn(0);
-		this->tableView()->hideColumn(1);
-
 		foreach (QModelIndex index, selection->selectedIndexes())
 		{
 			ObjectTreeItem *item = this->treeModel()->item(this->proxyModel()->mapToSource(index));
@@ -433,6 +420,12 @@ void ObjectEditorTab::deleteObject()
 			 */
 			if (!item->isFolder() && !item->customObjectId().isEmpty())
 			{
+				/*
+				 * Make sure one cannot edit any values of deleted objects.
+				 */
+				this->tableView()->hideColumn(0);
+				this->tableView()->hideColumn(1);
+
 				this->objectData()->deleteObject(item->originalObjectId(), item->customObjectId());
 			}
 		}
@@ -536,7 +529,7 @@ void ObjectEditorTab::pasteObject()
 				*/
 				else
 				{
-					this->objectData()->modifyField(originalObjectId, customObjectId, this->objectData()->objectNameFieldId(), this->objectData()->fieldValue(originalObjectId, customObjectId, this->objectData()->objectNameFieldId()));
+					this->objectData()->createObject(originalObjectId, customObjectId);
 				}
 			}
 		}
@@ -567,7 +560,8 @@ void ObjectEditorTab::renameObject()
 
 		if (item != 0 && !item->isFolder())
 		{
-			this->modifyField(item->originalObjectId(), item->customObjectId(), this->objectData()->objectNameFieldId());
+			// TODO get name field if available
+			//this->modifyField(item->originalObjectId(), item->customObjectId(), this->objectData()->objectNameFieldId());
 		}
 	}
 }

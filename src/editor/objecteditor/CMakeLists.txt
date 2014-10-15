@@ -1,5 +1,5 @@
 set(wc3lib_OBJECTEDITOR_H
-	iddialog.hpp
+	objectiddialog.hpp
 	itemdata.hpp
 	itemeditor.hpp
 	itemtreemodel.hpp
@@ -15,6 +15,7 @@ set(wc3lib_OBJECTEDITOR_H
 	objecttreeview.hpp
 	objecttreeitem.hpp
 	objecttreemodel.hpp
+	objectlistwidget.hpp
 	uniteditor.hpp
 	unitdata.hpp
 	unitselectiondialog.hpp
@@ -24,7 +25,7 @@ set(wc3lib_OBJECTEDITOR_H
 	weathertreemodel.hpp
 )
 set(wc3lib_OBJECTEDITOR_SRC
-	iddialog.cpp
+	objectiddialog.cpp
 	itemdata.cpp
 	itemeditor.cpp
 	itemtreemodel.cpp
@@ -40,6 +41,7 @@ set(wc3lib_OBJECTEDITOR_SRC
 	objecttreeview.cpp
 	objecttreeitem.cpp
 	objecttreemodel.cpp
+	objectlistwidget.cpp
 	uniteditor.cpp
 	unitdata.cpp
 	unitselectiondialog.cpp

@@ -35,6 +35,22 @@ WeatherData::WeatherData(MpqPriorityList *source, QObject *parent) : ObjectData(
 {
 }
 
+ObjectData::StandardObjecIds WeatherData::standardObjectIds() const
+{
+	StandardObjecIds result;
+
+	// add all entries from "Weather.slk" to standard weather effects in Unit Editor
+	if (this->weather() != 0 && !this->weather()->isEmpty())
+	{
+		for (map::Slk::Table::size_type row = 1; row < this->weather()->rows(); ++row)
+		{
+			result << this->weather()->value(row, "effectID");
+		}
+	}
+
+	return result;
+}
+
 QString WeatherData::defaultFieldValue(const QString& objectId, const QString& fieldId) const
 {
 	/*
@@ -128,9 +144,9 @@ void WeatherData::load(QWidget* widget)
 	this->m_weather->load();
 }
 
-QString WeatherData::objectNameFieldId() const
+QString WeatherData::objectName(const QString &originalObjectId, const QString &customObjectId) const
 {
-	return "unam";
+	return fieldReadableValue(originalObjectId, customObjectId, "unam");
 }
 
 MetaData* WeatherData::objectTabData() const

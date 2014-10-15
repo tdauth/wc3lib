@@ -18,8 +18,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "misceditor.hpp"
-#include "misctreemodel.hpp"
+#ifndef WC3LIB_EDITOR_OBJECTIDDIALOG_HPP
+#define WC3LIB_EDITOR_OBJECTIDDIALOG_HPP
+
+#include <QDialog>
+
+#include "ui_objectiddialog.h"
 
 namespace wc3lib
 {
@@ -27,28 +31,32 @@ namespace wc3lib
 namespace editor
 {
 
-MiscEditor::MiscEditor(MpqPriorityList *source, ObjectEditor *objectEditor, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, new MiscData(source, parent), objectEditor, parent, f)
+/**
+ * \brief Simple line edit dialog to select an ID for a newly created object.
+ *
+ * \ingroup objectdata
+ */
+class ObjectIdDialog : public QDialog, protected Ui::ObjectIdDialog
 {
-	setupUi();
-}
+	public:
+		explicit ObjectIdDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
 
-MiscEditor::~MiscEditor()
+		void setId(const QString &id);
+		QString id() const;
+};
+
+inline void ObjectIdDialog::setId(const QString &id)
 {
+	this->m_lineEdit->setText(id);
 }
 
-ObjectTreeModel* MiscEditor::createTreeModel()
+inline QString ObjectIdDialog::id() const
 {
-	return new MiscTreeModel(this->source(), this);
-}
-
-void MiscEditor::onSwitchToMap(Map *map)
-{
-}
-
-void MiscEditor::onNewObject()
-{
+	return this->m_lineEdit->text();
 }
 
 }
 
 }
+
+#endif // WC3LIB_EDITOR_OBJECTIDDIALOG_HPP

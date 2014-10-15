@@ -40,21 +40,6 @@ MiscTreeModel::MiscTreeModel(MpqPriorityList *source, QObject *parent)
 	insertRowFolders(names, 0);
 }
 
-void MiscTreeModel::load(MpqPriorityList *source, ObjectData *objectData, QWidget *window)
-{
-	MiscData *miscData = dynamic_cast<MiscData*>(objectData);
-
-	if (miscData != 0)
-	{
-		createItem(source, objectData, window, "miscGame", "");
-		createItem(source, objectData, window, "customv0", "");
-		createItem(source, objectData, window, "customv1", "");
-		createItem(source, objectData, window, "meleev0", "");
-	}
-
-	ObjectTreeModel::load(source, objectData, window);
-}
-
 ObjectTreeItem* MiscTreeModel::createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString& originalObjectId, const QString& customObjectId)
 {
 	const QModelIndex parentIndex = itemParent(objectData, originalObjectId, customObjectId);

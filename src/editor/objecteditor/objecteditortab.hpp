@@ -49,7 +49,7 @@ class ObjectTreeItem;
 class ObjectTableView;
 class ObjectTableModel;
 class Map;
-class IdDialog;
+class ObjectIdDialog;
 
 /**
  * \brief A single tab of the Object Editor which theoretically could be used as standalone application as well. It supports a specific set of predefined data and meta data (\ref objectData()) and lists the standard objects by default.
@@ -68,7 +68,7 @@ class KDE_EXPORT ObjectEditorTab : public QWidget
 		/**
 		 * Creates a new object editor tab using the source \p source and standard objects data/meta data \p objectData.
 		 */
-		ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor = 0, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~ObjectEditorTab();
 
 		/**
@@ -88,12 +88,11 @@ class KDE_EXPORT ObjectEditorTab : public QWidget
 		 */
 		bool hasObjectEditor() const;
 		/**
-		 * \return Returns the associated parent Object Editor.
-		 * \throws std::bad_cast This might throw an exception if no Object Editor is associated. Use \ref hasObjectEditor() to check before.
+		 * \return Returns the associated parent Object Editor. Returns 0 if no object editor is associated.
 		 *
 		 * \sa hasObjectEditor()
 		 */
-		ObjectEditor* objectEditor() const throw (std::bad_cast);
+		ObjectEditor* objectEditor() const;
 		KFilterProxySearchLine* filterSearchLine() const;
 		KFilterProxySearchLine* tableFilterSearchLine() const;
 		/**
@@ -162,7 +161,7 @@ class KDE_EXPORT ObjectEditorTab : public QWidget
 		 */
 		bool modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
 
-		IdDialog* idDialog() const;
+		ObjectIdDialog* idDialog() const;
 
 	public slots:
 		void newObject();
@@ -217,6 +216,7 @@ class KDE_EXPORT ObjectEditorTab : public QWidget
 		ObjectTableModel *m_tableModel;
 
 		ObjectData *m_objectData;
+		ObjectEditor *m_objectEditor;
 
 		/**
 		 * Flag which stores if raw data IDs are shown.
@@ -233,14 +233,12 @@ class KDE_EXPORT ObjectEditorTab : public QWidget
 		 */
 		QUndoStack m_undoStack;
 
-		IdDialog *m_idDialog;
+		ObjectIdDialog *m_idDialog;
 
 		KUrl m_recentImportUrl;
 
 	private slots:
 		void itemClicked(QModelIndex index);
-		// TEST
-		void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 };
 
 inline MpqPriorityList* ObjectEditorTab::source() const
@@ -255,33 +253,12 @@ inline int ObjectEditorTab::tabIndex() const
 
 inline bool ObjectEditorTab::hasObjectEditor() const
 {
-	// TODO typeid comparison doesn't work, dynamic_cast is working workaround!
-	// NOTE parent could be tab widget of object editor
-	if (dynamic_cast<ObjectEditor*>(parent()) == 0)
-	{
-		if (dynamic_cast<QTabWidget*>(parent()) != 0)
-		{
-			return dynamic_cast<ObjectEditor*>(parentWidget()->parentWidget()->parentWidget()) != 0; // first parent is stacked widget, second tab widget and third object editor
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	return true;
+	return objectEditor() != 0;
 }
 
-inline ObjectEditor* ObjectEditorTab::objectEditor() const throw (std::bad_cast)
+inline ObjectEditor* ObjectEditorTab::objectEditor() const
 {
-	// TODO typeid comparison doesn't work, dynamic_cast is working workaround!
-	// NOTE parent could be tab widget of object editor
-	if (dynamic_cast<ObjectEditor*>(parent()) == 0)
-	{
-		return boost::polymorphic_cast<class ObjectEditor*>(parentWidget()->parentWidget()->parentWidget()); // first parent is stacked widget, second tab widget and third object editor
-	}
-
-	return boost::polymorphic_cast<class ObjectEditor*>(parent());
+	return this->m_objectEditor;
 }
 
 inline KFilterProxySearchLine* ObjectEditorTab::filterSearchLine() const
@@ -329,7 +306,7 @@ inline void ObjectEditorTab::newObject()
 	onNewObject();
 }
 
-inline IdDialog* ObjectEditorTab::idDialog() const
+inline ObjectIdDialog* ObjectEditorTab::idDialog() const
 {
 	return this->m_idDialog;
 }

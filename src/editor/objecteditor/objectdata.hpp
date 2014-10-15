@@ -45,6 +45,15 @@ class MpqPriorityList;
  * Custom objects are stored as modifications.
  * Modifications can be added using \ref modifyField() and be reset using \ref resetField().
  *
+ * Call \ref load() to load the standard objects and the meta data files.
+ *
+ * This class allows you registering slots at the modifications of objects.
+ * For instance, signal \ref fieldModification() is emitted whenever a modification is done.
+ * If you're creating any GUI you can use the signal to update your data.
+ *
+ * Importing and exporting is supported as well. Use \ref importCustomUnits() or \ref importCustomObjects() to import any custom data and
+ * \ref customUnits(), \ref customObjects() and \ref metaDataList() for exporting it.
+ *
  * \ingroup objectdata
  */
 class ObjectData : public QObject
@@ -59,6 +68,9 @@ class ObjectData : public QObject
 		void fieldModification(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
 
 	public:
+		/**
+		 * All text sources are hold on heap as long as the object data exists.
+		 */
 		typedef QScopedPointer<MetaData> MetaDataPtr;
 
 		/**
@@ -136,11 +148,16 @@ class ObjectData : public QObject
 		 */
 		virtual MetaData* objectTabData() const = 0;
 
+		/**
+		 * Each object data entry has the name of the type and its readable form.
+		 * For example, "foot" and "WESTRING_UE_MOVETYPE_FOOT" for the section "moveType".
+		 */
 		typedef QPair<QString, QString> ObjectTabEntry;
 		typedef QLinkedList<ObjectTabEntry> ObjectTabEntries;
 
 		/**
 		 * Returns all possible entries for \p fieldType.
+		 * Field types are specified in the meta data file (\ref metaData()) such as "moveType" or "string".
 		 *
 		 * \sa objectTabData()
 		 */
@@ -222,6 +239,11 @@ class ObjectData : public QObject
 		map::Value value(const QString &fieldId, const QString &value) const;
 
 		/**
+		 * Creates object with IDs \p originalObjectId and \p customObjectId without any modifications.
+		 */
+		void createObject(const QString &originalObjectId, const QString &customObjectId);
+
+		/**
 		 * Modifies a single field with ID \p fieldId (taken from meta data file) of object with IDS \p originalObjectId and \p customObjectId and sets the field's modification to \p modification.
 		 * For example this happens whenever a user enters another or even the same value which overwrites the default one of the object.
 		 * All modified fields are exported when the user exports object data.
@@ -288,9 +310,9 @@ class ObjectData : public QObject
 		 * The name of an object is required in multiple cases.
 		 * For example when listing objects of a type (for field type "unitList") or when displaying them in any view.
 		 *
-		 * \return Returns the field ID of the readable name for objects.
+		 * \return Returns the readable name of the object.
 		 */
-		virtual QString objectNameFieldId() const = 0;
+		virtual QString objectName(const QString &originalObjectId, const QString &customObjectId) const = 0;
 
 		const Objects& objects() const;
 
@@ -298,6 +320,13 @@ class ObjectData : public QObject
 		 * Replaces all "TRIGSTRING_number" entries by the actual string entries of map \p w3m.
 		 */
 		void applyMapStrings(map::W3m &w3m);
+
+		typedef QList<QString> StandardObjecIds;
+
+		/**
+		 * \return Returns all standard object IDs.
+		 */
+		virtual StandardObjecIds standardObjectIds() const = 0;
 
 	protected:
 		MpqPriorityList *m_source;

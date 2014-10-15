@@ -37,6 +37,17 @@ MiscData::MiscData(MpqPriorityList *source, QObject *parent) : ObjectData(source
 {
 }
 
+ObjectData::StandardObjecIds MiscData::standardObjectIds() const
+{
+	StandardObjecIds result;
+	result << "mgam";
+	result << "mcv0";
+	result << "mcv1";
+	result << "mmv0";
+
+	return result;
+}
+
 bool MiscData::hasDefaultFieldValue(const QString &objectId, const QString &fieldId) const
 {
 	/*
@@ -47,19 +58,19 @@ bool MiscData::hasDefaultFieldValue(const QString &objectId, const QString &fiel
 		const QString field = this->miscMetaData()->value(fieldId, "field");
 		const QString slk = this->miscMetaData()->value(fieldId, "slk");
 
-		if (objectId == "miscGame")
+		if (objectId == "mgam")
 		{
 			return this->miscGame()->hasValue("Misc", field);
 		}
-		else if (objectId == "customv0")
+		else if (objectId == "mcv0")
 		{
 			return this->customV0()->hasValue("Misc", field);
 		}
-		else if (objectId == "customv1")
+		else if (objectId == "mcv1")
 		{
 			return this->customV1()->hasValue("Misc", field);
 		}
-		else if (objectId == "meleev0")
+		else if (objectId == "mmv0")
 		{
 			return this->meleeV0()->hasValue("Misc", field);
 		}
@@ -80,19 +91,19 @@ QString MiscData::defaultFieldValue(const QString &objectId, const QString &fiel
 			const QString field = this->miscMetaData()->value(fieldId, "field");
 			const QString slk = this->miscMetaData()->value(fieldId, "slk");
 
-			if (objectId == "miscGame")
+			if (objectId == "mgam")
 			{
 				return this->miscGame()->value("Misc", field);
 			}
-			else if (objectId == "customv0")
+			else if (objectId == "mcv0")
 			{
 				return this->customV0()->value("Misc", field);
 			}
-			else if (objectId == "customv1")
+			else if (objectId == "mcv1")
 			{
 				return this->customV1()->value("Misc", field);
 			}
-			else if (objectId == "meleev0")
+			else if (objectId == "mmv0")
 			{
 				return this->meleeV0()->value("Misc", field);
 			}
@@ -136,9 +147,14 @@ ObjectData::MetaDataList MiscData::metaDataList() const
 	return ObjectData::MetaDataList();
 }
 
-QString MiscData::objectNameFieldId() const
+QString MiscData::objectName(const QString &originalObjectId, const QString &customObjectId) const
 {
-	return "unam";
+	if (customObjectId.isEmpty())
+	{
+		return QObject::tr("Misc Data: %1").arg(originalObjectId);
+	}
+
+	return QObject::tr("Misc Data: %1:%2").arg(originalObjectId).arg(customObjectId);
 }
 
 void MiscData::load(QWidget *widget)

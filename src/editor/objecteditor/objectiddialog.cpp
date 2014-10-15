@@ -18,7 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "iddialog.hpp"
+#include "objectiddialog.hpp"
 
 namespace wc3lib
 {
@@ -26,7 +26,7 @@ namespace wc3lib
 namespace editor
 {
 
-IdDialog::IdDialog(QWidget* parent, Qt::WindowFlags f) : QDialog(parent, f)
+ObjectIdDialog::ObjectIdDialog(QWidget* parent, Qt::WindowFlags f) : QDialog(parent, f)
 {
 	setupUi(this);
 }

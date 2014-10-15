@@ -18,10 +18,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_WEATHERDATA_HPP
-#define WC3LIB_EDITOR_WEATHERDATA_HPP
+#ifndef WC3LIB_EDITOR_OBJECTLISTWIDGET_HPP
+#define WC3LIB_EDITOR_OBJECTLISTWIDGET_HPP
 
+#include <QWidget>
+
+#include "ui_objectlistwidget.h"
 #include "objectdata.hpp"
+#include "../../map.hpp"
 
 namespace wc3lib
 {
@@ -29,58 +33,42 @@ namespace wc3lib
 namespace editor
 {
 
-class WeatherData : public ObjectData
+class MpqPriorityList;
+
+class ObjectListWidget : public QWidget, protected Ui::ObjectListWidget
 {
+	Q_OBJECT
+
+	public slots:
+		void addObject();
+		
 	public:
-		typedef QScopedPointer<MetaData> MetaDataPtr;
+		typedef QList<ObjectData::ObjectId> ObjectIds;
+		explicit ObjectListWidget(MpqPriorityList *source, ObjectData *objectData, QWidget* parent = 0, Qt::WindowFlags f = 0);
 
-		WeatherData(MpqPriorityList *source, QObject *parent = 0);
+		void load(ObjectIds &objects);
+		ObjectIds objects() const;
 
-		virtual StandardObjecIds standardObjectIds() const override;
-		virtual QString defaultFieldValue(const QString& objectId, const QString& fieldId) const override;
-		virtual bool hasDefaultFieldValue(const QString& objectId, const QString& fieldId) const override;
-		virtual bool hideField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId) const override;
-
-
-		virtual bool hasCustomUnits() const override;
-		virtual bool hasCustomObjects() const override;
-		virtual bool hasMetaDataList() const override;
-
-		virtual MetaDataList metaDataList() const override;
-
-		virtual QString objectName(const QString &originalObjectId, const QString &customObjectId) const;
-		virtual MetaData* objectTabData() const;
-		virtual map::CustomObjects::Type type() const;
-
-
-		virtual void load(QWidget* widget) override;
-
-		virtual MetaData* metaData() const override;
-
-		MetaData* weather() const;
+		MpqPriorityList* source() const;
+		ObjectData* objectData() const;
 
 	private:
-		MetaDataPtr m_weatherMetaData;
-		MetaDataPtr m_weather;
+		MpqPriorityList *m_source;
+		ObjectData *m_objectData;
 };
 
-inline MetaData* WeatherData::metaData() const
+inline MpqPriorityList* ObjectListWidget::source() const
 {
-	return this->m_weatherMetaData.data();
+	return this->m_source;
 }
 
-inline MetaData* WeatherData::weather() const
+inline ObjectData* ObjectListWidget::objectData() const
 {
-	return this->m_weather.data();
-}
-
-inline map::CustomObjects::Type WeatherData::type() const
-{
-	return map::CustomObjects::Type::Abilities;
+	return this->m_objectData;
 }
 
 }
 
 }
 
-#endif // WC3LIB_EDITOR_WEATHERDATA_HPP
+#endif // WC3LIB_EDITOR_OBJECTLISTWIDGET_HPP

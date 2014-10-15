@@ -38,6 +38,22 @@ UnitData::UnitData(MpqPriorityList *source, QObject *parent) : ObjectData(source
 {
 }
 
+ObjectData::StandardObjecIds UnitData::standardObjectIds() const
+{
+	StandardObjecIds result;
+
+	// add all entries from "UnitData.slk" to standard units in Unit Editor
+	if (this->unitData() != 0 && !this->unitData()->isEmpty())
+	{
+		for (map::Slk::Table::size_type row = 1; row < this->unitData()->rows(); ++row)
+		{
+			result << this->unitData()->value(row, "unitID");
+		}
+	}
+
+	return result;
+}
+
 bool UnitData::hasDefaultFieldValue(const QString &objectId, const QString &fieldId) const
 {
 	/*
@@ -282,9 +298,25 @@ ObjectData::MetaDataList UnitData::metaDataList() const
 	return ObjectData::MetaDataList();
 }
 
-QString UnitData::objectNameFieldId() const
+QString UnitData::objectName(const QString &originalObjectId, const QString &customObjectId) const
 {
-	return "unam";
+	QString name = fieldReadableValue(originalObjectId, customObjectId, "unam");
+
+	if (this->hasFieldValue(originalObjectId, customObjectId, "unsf"))
+	{
+		const QString suffix = this->fieldReadableValue(originalObjectId, customObjectId, "unsf");
+
+		if (suffix.startsWith('('))
+		{
+			name = QObject::tr("%1 %2").arg(name).arg(suffix);
+		}
+		else
+		{
+			name = QObject::tr("%1 (%2)").arg(name).arg(suffix);
+		}
+	}
+
+	return name;
 }
 
 void UnitData::load(QWidget *widget)

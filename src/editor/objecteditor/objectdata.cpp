@@ -273,7 +273,7 @@ map::Value ObjectData::value(const QString &fieldId, const QString &value) const
 	return map::Value(0);
 }
 
-void ObjectData::modifyField(const QString &originalObjectId, const QString &customObjectId, const QString& fieldId, const map::CustomObjects::Modification &modification)
+void ObjectData::createObject(const QString& originalObjectId, const QString& customObjectId)
 {
 	assert(!originalObjectId.isEmpty());
 	const ObjectId objectId(originalObjectId, customObjectId);
@@ -290,6 +290,18 @@ void ObjectData::modifyField(const QString &originalObjectId, const QString &cus
 		{
 			emit objectCreation(originalObjectId, customObjectId);
 		}
+	}
+}
+
+void ObjectData::modifyField(const QString &originalObjectId, const QString &customObjectId, const QString& fieldId, const map::CustomObjects::Modification &modification)
+{
+	assert(!originalObjectId.isEmpty());
+	const ObjectId objectId(originalObjectId, customObjectId);
+	Objects::iterator iterator = this->m_objects.find(objectId);
+
+	if (iterator == this->m_objects.end())
+	{
+		createObject(originalObjectId, customObjectId);
 	}
 
 	iterator.value().insert(fieldId, modification);
@@ -346,13 +358,19 @@ void ObjectData::resetObject(const QString &originalObjectId, const QString &cus
 
 	if (iterator != this->m_objects.end())
 	{
-		this->m_objects.erase(iterator);
+		iterator.value().clear();
 	}
 }
 
 void ObjectData::deleteObject(const QString &originalObjectId, const QString &customObjectId)
 {
-	resetObject(originalObjectId, customObjectId);
+	const ObjectId objectId(originalObjectId, customObjectId);
+	Objects::iterator iterator = this->m_objects.find(objectId);
+
+	if (iterator != this->m_objects.end())
+	{
+		m_objects.erase(iterator);
+	}
 
 	/*
 	 * Only custom items are actually removed.
@@ -471,7 +489,7 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 		foreach (QString value, fieldValues)
 		{
 			// TODO which one is the custom ID
-			result.push_back(this->fieldValue(value, "", this->objectNameFieldId()));
+			result.push_back(this->objectName(value, ""));
 		}
 
 		return result.join(", ");
@@ -549,10 +567,8 @@ void ObjectData::importCustomUnits(const map::CustomUnits &units)
 		/*
 		 * In Reign of Chaos items are stored in custom units as well.
 		 * If there is no original object it does not belong to the current object data.
-		 *
-		 * TODO check if original object exists -> current solution is a workaround
 		 */
-		if (this->hasDefaultFieldValue(originalObjectId, objectNameFieldId()))
+		if (this->standardObjectIds().contains(originalObjectId))
 		{
 			const QString customObjectId = map::idToString(unit.customId()).c_str();
 
@@ -572,10 +588,8 @@ void ObjectData::importCustomUnits(const map::CustomUnits &units)
 		/*
 		 * In Reign of Chaos items are stored in custom units as well.
 		 * If there is no original object it does not belong to the current object data.
-		 *
-		 * TODO check if original object exists -> current solution is a workaround
 		 */
-		if (this->hasDefaultFieldValue(originalObjectId, objectNameFieldId()))
+		if (this->standardObjectIds().contains(originalObjectId))
 		{
 			const QString customObjectId = map::idToString(unit.customId()).c_str();
 

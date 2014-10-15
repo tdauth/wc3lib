@@ -26,9 +26,9 @@
 #include "uniteditor.hpp"
 #include "objecttreeview.hpp"
 #include "objecttreeitem.hpp"
+#include "objectiddialog.hpp"
 #include "unittreemodel.hpp"
 #include "unitselectiondialog.hpp"
-#include "iddialog.hpp"
 #include "../metadata.hpp"
 #include "../map.hpp"
 
@@ -38,7 +38,7 @@ namespace wc3lib
 namespace editor
 {
 
-UnitEditor::UnitEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, new UnitData(source, parent), parent, f), m_unitSelectionDialog(new UnitSelectionDialog(source, unitData(), this))
+UnitEditor::UnitEditor(MpqPriorityList *source, ObjectEditor *objectEditor, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, new UnitData(source, parent), objectEditor, parent, f), m_unitSelectionDialog(new UnitSelectionDialog(source, unitData(), this))
 {
 	setupUi();
 }

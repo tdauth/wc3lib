@@ -36,7 +36,7 @@ class ItemData;
 class KDE_EXPORT ItemEditor : public ObjectEditorTab
 {
 	public:
-		ItemEditor(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		ItemEditor(MpqPriorityList *source, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~ItemEditor();
 
 		ItemData* itemData() const;

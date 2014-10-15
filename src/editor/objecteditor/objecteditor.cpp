@@ -93,10 +93,10 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 	/*
 	 * Create all tabs after the actions have been created.
 	 */
-	m_unitEditor = new UnitEditor(source, this, f);
-	m_itemEditor = new ItemEditor(source, this, f);
-	m_weatherEditor = new WeatherEditor(source, this, f);
-	m_miscEditor = new MiscEditor(source, this, f);
+	m_unitEditor = new UnitEditor(source, this, this, f);
+	m_itemEditor = new ItemEditor(source, this, this, f);
+	m_weatherEditor = new WeatherEditor(source, this, this, f);
+	m_miscEditor = new MiscEditor(source, this, this, f);
 
 	tabWidget()->addTab(unitEditor(), unitEditor()->name());
 	tabWidget()->addTab(itemEditor(), itemEditor()->name());

@@ -288,6 +288,13 @@ ObjectTreeItem* ObjectTreeModel::item(const QModelIndex &index) const
 
 void ObjectTreeModel::load(MpqPriorityList* source, ObjectData *objectData, QWidget *window)
 {
+	const ObjectData::StandardObjecIds ids = objectData->standardObjectIds();
+
+	foreach (QString id, ids)
+	{
+		createItem(source, objectData, window, id, "");
+	}
+
 	/*
 	 * Disconnect from old invalid object data first.
 	 */

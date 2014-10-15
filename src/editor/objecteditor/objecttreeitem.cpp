@@ -129,21 +129,7 @@ QString ObjectTreeItem::text(bool showRawData) const
 		return QObject::tr("%1 (%2)").arg(this->m_text).arg(countObjects());
 	}
 
-	QString name = this->objectData()->fieldValue(originalObjectId(), customObjectId(), "unam");
-
-	if (this->objectData()->hasFieldValue(originalObjectId(), customObjectId(), "unsf"))
-	{
-		const QString suffix = this->objectData()->fieldValue(originalObjectId(), customObjectId(), "unsf");
-
-		if (suffix.startsWith('('))
-		{
-			name = QObject::tr("%1 %2").arg(name).arg(suffix);
-		}
-		else
-		{
-			name = QObject::tr("%1 (%2)").arg(name).arg(suffix);
-		}
-	}
+	QString name = this->objectData()->objectName(originalObjectId(), customObjectId());
 
 	if (!showRawData)
 	{

@@ -18,12 +18,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_IDDIALOG_HPP
-#define WC3LIB_EDITOR_IDDIALOG_HPP
+#include <QtGui>
 
-#include <QDialog>
-
-#include "ui_iddialog.h"
+#include "objectlistwidget.hpp"
+#include "../mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -31,27 +29,46 @@ namespace wc3lib
 namespace editor
 {
 
-class IdDialog : public QDialog, protected Ui::IdDialog
+void ObjectListWidget::addObject()
 {
-	public:
-		explicit IdDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
+	qDebug() << "Select";
+}
 
-		void setId(const QString &id);
-		QString id() const;
-};
-
-inline void IdDialog::setId(const QString &id)
+ObjectListWidget::ObjectListWidget(MpqPriorityList *source, ObjectData *objectData, QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), m_source(source), m_objectData(objectData)
 {
-	this->m_lineEdit->setText(id);
+	setupUi(this);
+
+	connect(this->m_addPushButton, SIGNAL(triggered()), this, SLOT(addObject()));
 }
 
-inline QString IdDialog::id() const
+void ObjectListWidget::load(ObjectIds &objects)
 {
-	return this->m_lineEdit->text();
+	foreach (ObjectData::ObjectId objectId, objects)
+	{
+		const QString name = this->objectData()->objectName(objectId.first, objectId.second);
+		//QIcon icon = this->source()->sharedData()->icon()
+		QListWidgetItem *item = new QListWidgetItem(name);
+		QString data = QString("%1:%2").arg(objectId.first).arg(objectId.second);
+		item->setData(Qt::UserRole, data);
+		this->m_listWidget->addItem(item);
+	}
+}
+
+ObjectListWidget::ObjectIds ObjectListWidget::objects() const
+{
+	ObjectIds result;
+
+	for (int i = 0; i < this->m_listWidget->count(); ++i)
+	{
+		const QString data = this->m_listWidget->item(i)->data(Qt::UserRole).toString();
+		QStringList list = data.split(':');
+
+		result.push_back(ObjectData::ObjectId(list[0], list[1]));
+	}
+
+	return result;
 }
 
 }
 
 }
-
-#endif // WC3LIB_EDITOR_IDDIALOG_HPP
