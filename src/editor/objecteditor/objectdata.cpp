@@ -150,7 +150,111 @@ bool ObjectData::fieldTypeAllowsMultipleSelections(const QString &fieldId) const
 	return (fieldType == "unitClass"
 		|| fieldType == "targetType"
 		|| fieldType == "targetList"
-		|| fieldType == "tilesetList");
+		|| fieldType == "tilesetList"
+		|| fieldType == "versionFlags"
+	);
+}
+
+
+bool ObjectData::hasDefaultFieldValue(const QString &objectId, const QString &fieldId) const
+{
+	MetaDataList metaDataList = this->resolveDefaultField(objectId, fieldId);
+
+	if (!metaDataList.isEmpty())
+	{
+		const QString field = this->metaData()->value(fieldId, "field");
+		/*
+		 * The index is used for button positions for example when multiple fields share the same field name such as "Buttonpos".
+		 */
+		const QString index = this->metaData()->value(fieldId, "index");
+		bool hasValue = false;
+		QString value;
+
+		foreach (MetaData *metaData, metaDataList)
+		{
+			if (metaData->hasValue(objectId, field))
+			{
+				value = metaData->value(objectId, field);
+				hasValue = true;
+
+				break;
+			}
+		}
+
+		if (hasValue)
+		{
+			bool ok = true;
+			int indexValue = index.toInt(&ok);
+
+			if (ok)
+			{
+				if (indexValue != -1)
+				{
+					return indexValue < value.split(',').size();
+				}
+				else
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+QString ObjectData::defaultFieldValue(const QString &objectId, const QString &fieldId) const
+{
+	MetaDataList metaDataList = this->resolveDefaultField(objectId, fieldId);
+
+	if (!metaDataList.isEmpty())
+	{
+		const QString field = this->metaData()->value(fieldId, "field");
+		/*
+		 * The index is used for button positions for example when multiple fields share the same field name such as "Buttonpos".
+		 */
+		const QString index = this->metaData()->value(fieldId, "index");
+		bool hasValue = false;
+		QString value;
+
+		foreach (MetaData *metaData, metaDataList)
+		{
+			if (metaData->hasValue(objectId, field))
+			{
+				value = metaData->value(objectId, field);
+				hasValue = true;
+
+				break;
+			}
+		}
+
+		if (hasValue)
+		{
+			bool ok = true;
+			int indexValue = index.toInt(&ok);
+
+			if (ok)
+			{
+				if (indexValue != -1)
+				{
+					const QStringList values = value.split(',');
+
+					if (indexValue < values.size())
+					{
+						return values[indexValue];
+					}
+				}
+				else
+				{
+					return value;
+				}
+			}
+		}
+	}
+
+	qDebug() << "Data value not found:" << objectId << fieldId;
+
+	return "";
 }
 
 ObjectData::ObjectTabEntries ObjectData::objectTabEntries(const QString &fieldType) const
@@ -302,10 +406,14 @@ void ObjectData::modifyField(const QString &originalObjectId, const QString &cus
 	if (iterator == this->m_objects.end())
 	{
 		createObject(originalObjectId, customObjectId);
+		iterator = this->m_objects.find(objectId);
 	}
 
-	iterator.value().insert(fieldId, modification);
-	emit fieldModification(originalObjectId, customObjectId, fieldId);
+	if (iterator != this->m_objects.end())
+	{
+		iterator.value().insert(fieldId, modification);
+		emit fieldModification(originalObjectId, customObjectId, fieldId);
+	}
 }
 
 void ObjectData::modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, const QString &value)

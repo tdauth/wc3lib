@@ -51,65 +51,28 @@ ObjectData::StandardObjecIds ItemData::standardObjectIds() const
 	return result;
 }
 
-QString ItemData::defaultFieldValue(const QString &objectId, const QString &fieldId) const
+ObjectData::MetaDataList ItemData::resolveDefaultField(const QString& objectId, const QString& fieldId) const
 {
-	if (this->metaData()->hasValue(fieldId, "slk") && this->metaData()->hasValue(fieldId, "field"))
+	MetaDataList result;
+
+	if (this->metaData()->hasValue(fieldId, "slk"))
 	{
 		const QString slk = this->metaData()->value(fieldId, "slk");
-		const QString field = this->metaData()->value(fieldId, "field");
 
 		if (slk == "ItemData")
 		{
-			if (this->itemData()->hasValue(objectId, field))
-			{
-				return this->itemData()->value(objectId, field);
-			}
+			result.push_back(this->metaData());
 		}
 		else if (slk == "Profile")
 		{
-			if (this->itemFunc()->hasValue(objectId, field))
-			{
-				return this->itemFunc()->value(objectId, field);
-			}
-			else if (this->itemStrings()->hasValue(objectId, field))
-			{
-				return this->itemStrings()->value(objectId, field);
-			}
+			result.push_back(this->itemFunc());
+			result.push_back(this->itemStrings());
 		}
 	}
 
 	qDebug() << "Missing value" << fieldId << "for object" << objectId;
 
-	return QString();
-}
-
-bool ItemData::hasDefaultFieldValue(const QString &objectId, const QString &fieldId) const
-{
-	if (this->metaData()->hasValue(fieldId, "slk") && this->metaData()->hasValue(fieldId, "field"))
-	{
-		const QString slk = this->metaData()->value(fieldId, "slk");
-		const QString field = this->metaData()->value(fieldId, "field");
-
-		if (slk == "ItemData")
-		{
-			return this->itemData()->hasValue(objectId, field);
-		}
-		else if (slk == "Profile")
-		{
-			if (this->itemFunc()->hasValue(objectId, field))
-			{
-				return true;
-			}
-			else if (this->itemStrings()->hasValue(objectId, field))
-			{
-				return true;
-			}
-		}
-	}
-
-	qDebug() << "Missing value" << fieldId << "for object" << objectId;
-
-	return false;
+	return result;
 }
 
 map::CustomObjects::Type ItemData::type() const

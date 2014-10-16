@@ -51,44 +51,24 @@ ObjectData::StandardObjecIds WeatherData::standardObjectIds() const
 	return result;
 }
 
-QString WeatherData::defaultFieldValue(const QString& objectId, const QString& fieldId) const
+ObjectData::MetaDataList WeatherData::resolveDefaultField(const QString& objectId, const QString& fieldId) const
 {
+	MetaDataList result;
+
 	/*
 	 * If the field does not exist it might be the case that Reign of Chaos files are loaded and not Frozen Throne.
 	 */
 	if (this->metaData()->hasValue(fieldId, "field"))
 	{
-		const QString field = this->metaData()->value(fieldId, "field");
 		const QString slk = this->metaData()->value(fieldId, "slk");
 
 		if (slk == "Weather")
 		{
-			return this->weather()->value(objectId, field);
+			result.push_back(this->weather());
 		}
 	}
 
-	return QString();
-}
-
-
-bool WeatherData::hasDefaultFieldValue(const QString& objectId, const QString& fieldId) const
-{
-	/*
-	 * If the field does not exist it might be the case that Reign of Chaos files are loaded and not Frozen Throne.
-	 */
-	if (this->metaData()->hasValue(fieldId, "field"))
-	{
-		const QString field = this->metaData()->value(fieldId, "field");
-		const QString slk = this->metaData()->value(fieldId, "slk");
-
-		// TODO improve performance by not calling the hasValue() methods?
-		if (slk == "Weather")
-		{
-			return this->weather()->hasValue(objectId, field);
-		}
-	}
-
-	return false;
+	return result;
 }
 
 bool WeatherData::hideField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId) const
@@ -152,6 +132,14 @@ QString WeatherData::objectName(const QString &originalObjectId, const QString &
 MetaData* WeatherData::objectTabData() const
 {
 	return 0;
+}
+
+QString WeatherData::nextCustomObjectId() const
+{
+	QString result = ObjectData::nextCustomObjectId();
+	result[0] = 'W';
+
+	return result;
 }
 
 }

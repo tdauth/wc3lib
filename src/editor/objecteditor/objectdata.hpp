@@ -116,11 +116,19 @@ class KDE_EXPORT ObjectData : public QObject
 		 */
 		bool fieldTypeAllowsMultipleSelections(const QString &fieldId) const;
 
+		typedef QList<MetaData*> MetaDataList;
+		/**
+		 * Overwrite this element function to resolve meta data files by the field ID \p fieldId.
+		 *
+		 * \return Returns a list of meta data which might contain the default value of field \p fieldId.
+		 */
+		virtual MetaDataList resolveDefaultField(const QString &objectId, const QString &fieldId) const = 0;
+
 		/**
 		 * \return Returns true if the field value of the field with ID \p fieldId of the standard object with the ID \p objectId does exist.
 		 * \sa defaultValue()
 		 */
-		virtual bool hasDefaultFieldValue(const QString &objectId, const QString &fieldId) const = 0;
+		virtual bool hasDefaultFieldValue(const QString &objectId, const QString &fieldId) const;
 
 		/**
 		 * \brief Element function which is used for resolving any object data value stored in one of the many SLK files.
@@ -129,7 +137,7 @@ class KDE_EXPORT ObjectData : public QObject
 		 *
 		 * \sa hasDefaultFieldValue()
 		 */
-		virtual QString defaultFieldValue(const QString &objectId, const QString &fieldId) const = 0;
+		virtual QString defaultFieldValue(const QString &objectId, const QString &fieldId) const;
 
 		/**
 		 * The meta data specifies which fields do exist for objects and specify the IDs and types of those fields.
@@ -198,8 +206,6 @@ class KDE_EXPORT ObjectData : public QObject
 		 * \return Returns true if a list of \ref MetaData files is available.
 		 */
 		virtual bool hasMetaDataList() const = 0;
-
-		typedef QList<MetaData> MetaDataList;
 
 		/**
 		 * \ref MetaData files are used in Warcraft III to define standard objects.

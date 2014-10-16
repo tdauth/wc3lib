@@ -51,19 +51,17 @@ ObjectData::StandardObjecIds AbilityData::standardObjectIds() const
 	return result;
 }
 
-QString AbilityData::defaultFieldValue(const QString &objectId, const QString &fieldId) const
+ObjectData::MetaDataList AbilityData::resolveDefaultField(const QString& objectId, const QString& fieldId) const
 {
-	if (this->metaData()->hasValue(fieldId, "slk") && this->metaData()->hasValue(fieldId, "field"))
+	MetaDataList result;
+
+	if (this->metaData()->hasValue(fieldId, "slk"))
 	{
 		const QString slk = this->metaData()->value(fieldId, "slk");
-		const QString field = this->metaData()->value(fieldId, "field");
 
 		if (slk == "AbilityData")
 		{
-			if (this->abilityData()->hasValue(objectId, field))
-			{
-				return this->abilityData()->value(objectId, field);
-			}
+			result.push_back(this->abilityData());
 		}
 		else if (slk == "Profile")
 		{
@@ -72,98 +70,44 @@ QString AbilityData::defaultFieldValue(const QString &objectId, const QString &f
 
 			if (sort == "item")
 			{
-				if (this->itemAbilityStrings()->hasValue(objectId, field))
-				{
-					return this->itemAbilityStrings()->value(objectId, field);
-				}
-
-				if (this->itemAbilityFunc()->hasValue(objectId, field))
-				{
-					return this->itemAbilityFunc()->value(objectId, field);
-				}
+				result.push_back(this->itemAbilityStrings());
+				result.push_back(this->itemAbilityFunc());
 			}
 			else
 			{
 				// TODO in Frozen Throne we can check if unit is in campaign but in Reign of Chaos there is no such field.
-				if (this->campaignAbilityStrings()->hasValue(objectId, field))
-				{
-					return this->campaignAbilityStrings()->value(objectId, field);
-				}
-				else if (this->campaignAbilityFunc()->hasValue(objectId, field))
-				{
-					return this->campaignAbilityFunc()->value(objectId, field);
-				}
-				else if (race == "human")
-				{
-					if (this->humanAbilityStrings()->hasValue(objectId, field))
-					{
-						return this->humanAbilityStrings()->value(objectId, field);
-					}
+				result.push_back(this->campaignAbilityStrings());
+				result.push_back(this->campaignAbilityFunc());
 
-					if (this->humanAbilityFunc()->hasValue(objectId, field))
-					{
-						return this->humanAbilityFunc()->value(objectId, field);
-					}
+				if (race == "human")
+				{
+					result.push_back(this->humanAbilityStrings());
+					result.push_back(this->humanAbilityFunc());
 				}
 				else if (race == "orc")
 				{
-					if (this->orcAbilityStrings()->hasValue(objectId, field))
-					{
-						return this->orcAbilityStrings()->value(objectId, field);
-					}
-
-					if (this->orcAbilityFunc()->hasValue(objectId, field))
-					{
-						return this->orcAbilityFunc()->value(objectId, field);
-					}
+					result.push_back(this->orcAbilityStrings());
+					result.push_back(this->orcAbilityFunc());
 				}
 				else if (race == "nightelf")
 				{
-					if (this->nightElfAbilityStrings()->hasValue(objectId, field))
-					{
-						return this->nightElfAbilityStrings()->value(objectId, field);
-					}
-
-					if (this->nightElfAbilityFunc()->hasValue(objectId, field))
-					{
-						return this->nightElfAbilityFunc()->value(objectId, field);
-					}
+					result.push_back(this->nightElfAbilityStrings());
+					result.push_back(this->nightElfAbilityFunc());
 				}
 				else if (race == "undead")
 				{
-					if (this->undeadAbilityStrings()->hasValue(objectId, field))
-					{
-						return this->undeadAbilityStrings()->value(objectId, field);
-					}
-
-					if (this->undeadAbilityFunc()->hasValue(objectId, field))
-					{
-						return this->undeadAbilityFunc()->value(objectId, field);
-					}
+					result.push_back(this->undeadAbilityStrings());
+					result.push_back(this->undeadAbilityFunc());
 				}
 				else if (race == "neutral")
 				{
-					if (this->neutralAbilityStrings()->hasValue(objectId, field))
-					{
-						return this->neutralAbilityStrings()->value(objectId, field);
-					}
-
-					if (this->neutralAbilityFunc()->hasValue(objectId, field))
-					{
-						return this->neutralAbilityFunc()->value(objectId, field);
-					}
+					result.push_back(this->neutralAbilityStrings());
+					result.push_back(this->neutralAbilityFunc());
 				}
 				else
 				{
-					if (this->commonAbilityStrings()->hasValue(objectId, field))
-					{
-						return this->commonAbilityStrings()->value(objectId, field);
-					}
-
-					if (this->commonAbilityFunc()->hasValue(objectId, field))
-					{
-						return this->commonAbilityFunc()->value(objectId, field);
-					}
+					result.push_back(this->commonAbilityStrings());
+					result.push_back(this->commonAbilityFunc());
 				}
 			}
 
@@ -173,117 +117,7 @@ QString AbilityData::defaultFieldValue(const QString &objectId, const QString &f
 
 	qDebug() << "Missing value" << fieldId << "for object" << objectId;
 
-	return QString();
-}
-
-bool AbilityData::hasDefaultFieldValue(const QString &objectId, const QString &fieldId) const
-{
-	if (this->metaData()->hasValue(fieldId, "slk") && this->metaData()->hasValue(fieldId, "field"))
-	{
-		const QString slk = this->metaData()->value(fieldId, "slk");
-		const QString field = this->metaData()->value(fieldId, "field");
-
-		if (slk == "AbilityData")
-		{
-			return this->abilityData()->hasValue(objectId, field);
-		}
-		else if (slk == "Profile")
-		{
-			const QString race = this->abilityData()->value(objectId, "race");
-			const QString sort = this->abilityData()->value(objectId, "sort");
-
-			if (sort == "item")
-			{
-				return this->itemAbilityStrings()->hasValue(objectId, field) || this->itemAbilityFunc()->hasValue(objectId, field);
-			}
-			else
-			{
-				// TODO in Frozen Throne we can check if unit is in campaign but in Reign of Chaos there is no such field.
-				if (this->campaignAbilityStrings()->hasValue(objectId, field))
-				{
-					return true;
-				}
-				else if (this->campaignAbilityFunc()->hasValue(objectId, field))
-				{
-					return true;
-				}
-				else if (race == "human")
-				{
-					if (this->humanAbilityStrings()->hasValue(objectId, field))
-					{
-						return true;
-					}
-
-					if (this->humanAbilityFunc()->hasValue(objectId, field))
-					{
-						return true;
-					}
-				}
-				else if (race == "orc")
-				{
-					if (this->orcAbilityStrings()->hasValue(objectId, field))
-					{
-						return true;
-					}
-
-					if (this->orcAbilityFunc()->hasValue(objectId, field))
-					{
-						return true;
-					}
-				}
-				else if (race == "nightelf")
-				{
-					if (this->nightElfAbilityStrings()->hasValue(objectId, field))
-					{
-						return true;
-					}
-
-					if (this->nightElfAbilityFunc()->hasValue(objectId, field))
-					{
-						return true;
-					}
-				}
-				else if (race == "undead")
-				{
-					if (this->undeadAbilityStrings()->hasValue(objectId, field))
-					{
-						return true;
-					}
-
-					if (this->undeadAbilityFunc()->hasValue(objectId, field))
-					{
-						return true;
-					}
-				}
-				else if (race == "neutral")
-				{
-					if (this->neutralAbilityStrings()->hasValue(objectId, field))
-					{
-						return true;
-					}
-
-					if (this->neutralAbilityFunc()->hasValue(objectId, field))
-					{
-						return true;
-					}
-				}
-				else
-				{
-					if (this->commonAbilityStrings()->hasValue(objectId, field))
-					{
-						return true;
-					}
-
-					if (this->commonAbilityFunc()->hasValue(objectId, field))
-					{
-						return true;
-					}
-				}
-			}
-		}
-	}
-
-	return false;
+	return result;
 }
 
 map::CustomObjects::Type AbilityData::type() const

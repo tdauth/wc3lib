@@ -49,8 +49,8 @@ void ObjectListDialog::load(const QStringList &objects)
 	foreach (QString objectId, objects)
 	{
 		const QStringList list = objectId.split(':');
-		const QString originalObjectId = list[0];
-		const QString customObjectId = list[1];
+		const QString originalObjectId = list.size() >= 1 ? list[0] : "";
+		const QString customObjectId = list.size() >= 2 ? list[1] : "";
 		const QString name = this->objectData()->objectName(originalObjectId, customObjectId);
 		//QIcon icon = this->source()->sharedData()->icon()
 		QListWidgetItem *item = new QListWidgetItem(name);
@@ -80,12 +80,7 @@ int ObjectListDialog::getObjectIds(const QString& originalObjectId, const QStrin
 	const QString type = objectData->metaData()->value(fieldId, "type");
 	const QString stringExt = objectData->metaData()->value(fieldId, "stringExt");
 	const QString fieldValue = objectData->fieldValue(originalObjectId, customObjectId, fieldId);
-	ObjectData *listObjectData = 0;
-
-	if (type == "unitList")
-	{
-		listObjectData = sharedObjectData->unitData().get();
-	}
+	ObjectData *listObjectData = sharedObjectData->resolveByFieldType(type);
 
 	if (listObjectData != 0)
 	{

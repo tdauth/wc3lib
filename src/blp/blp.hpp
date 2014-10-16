@@ -402,7 +402,7 @@ inline byte Blp::MipMap::Color::paletteIndex() const
 	return boost::get<IndexAndAlpha>(m_value).first;
 }
 
-inline color Blp::MipMap::Color::paletteColor(const color palette[compressedPaletteSize]) const
+inline color Blp::MipMap::Color::paletteColor(const color palette[Blp::compressedPaletteSize]) const
 {
 	if (this->hasAlpha())
 	{

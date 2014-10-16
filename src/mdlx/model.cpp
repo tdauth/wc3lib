@@ -65,34 +65,54 @@ std::streamsize Model::writeMdl(ostream &ostream, const Mdlx *mdlx) const
 	if (mdlx != 0)
 	{
 		if (mdlx->geosets()->members().size() > 0)
+		{
 			writeMdlValueProperty(ostream, size, "NumGeosets", mdlx->geosets()->members().size(), 1);
+		}
 
 		if (mdlx->geosetAnimations()->members().size() > 0)
+		{
 			writeMdlValueProperty(ostream, size, "NumGeosetAnims", mdlx->geosetAnimations()->members().size(), 1);
+		}
 
 		if (mdlx->helpers()->members().size() > 0)
+		{
 			writeMdlValueProperty(ostream, size, "NumHelpers", mdlx->helpers()->members().size(), 1);
+		}
 
 		if (mdlx->lights()->members().size() > 0)
+		{
 			writeMdlValueProperty(ostream, size, "NumLights", mdlx->lights()->members().size(), 1);
+		}
 
 		if (mdlx->bones()->members().size() > 0)
+		{
 			writeMdlValueProperty(ostream, size, "NumBones", mdlx->bones()->members().size(), 1);
+		}
 
 		if (mdlx->attachments()->members().size() > 0)
+		{
 			writeMdlValueProperty(ostream, size, "NumAttachments", mdlx->attachments()->members().size(), 1);
+		}
 
 		if (mdlx->particleEmitters()->members().size() > 0)
+		{
 			writeMdlValueProperty(ostream, size, "NumParticleEmitters", mdlx->particleEmitters()->members().size(), 1);
+		}
 
 		if (mdlx->particleEmitter2s()->members().size() > 0)
+		{
 			writeMdlValueProperty(ostream, size, "NumParticleEmitters2", mdlx->particleEmitter2s()->members().size(), 1);
+		}
 
 		if (mdlx->ribbonEmitters()->members().size() > 0)
+		{
 			writeMdlValueProperty(ostream, size, "NumRibbonEmitters", mdlx->ribbonEmitters()->members().size(), 1);
+		}
 
 		if (mdlx->events()->members().size() > 0)
+		{
 			writeMdlValueProperty(ostream, size, "NumEvents", mdlx->events()->members().size(), 1);
+		}
 	}
 
 	writeMdlValueProperty(ostream, size, "BlendTime", this->blendTime());

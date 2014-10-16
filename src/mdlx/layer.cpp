@@ -53,30 +53,48 @@ std::streamsize Layer::writeMdl(ostream &ostream) const
 	writeMdlValueProperty(ostream, size, "FilterMode", filterMode(this->filterMode()));
 
 	if (this->shading() & Shading::Unshaded)
+	{
 		writeMdlProperty(ostream, size, "Unshaded");
+	}
 
 	if (this->shading() & Shading::SphereEnvironmentMap)
+	{
 		writeMdlProperty(ostream, size, "SphereEnvironmentMap");
+	}
 
 	if (this->shading() & Shading::TwoSided)
+	{
 		writeMdlProperty(ostream, size, "TwoSided");
+	}
 
 	if (this->shading() & Shading::Unfogged)
+	{
 		writeMdlProperty(ostream, size, "Unfogged");
+	}
 
 	if (this->shading() & Shading::NoDepthTest)
+	{
 		writeMdlProperty(ostream, size, "NoDepthTest");
+	}
 
 	if (this->shading() & Shading::NoDepthSet)
+	{
 		writeMdlProperty(ostream, size, "NoDepthSet");
+	}
 
 	if (this->textureIds()->properties().empty())
+	{
 		writeMdlStaticValueProperty(ostream, size, "TextureID", this->textureId());
+	}
 	else
+	{
 		size += this->textureIds()->writeMdl(ostream);
+	}
 
 	if (tvertexAnimationId() != noneId)
+	{
 		writeMdlValueProperty(ostream, size, "TVertexAnimId", this->tvertexAnimationId());
+	}
 
 	// If CoordId for any of the Layers in a Material is nonzero, CoordId appears
 	// NOTE War3ModelEditor cannot recognize CoordId
@@ -93,12 +111,18 @@ std::streamsize Layer::writeMdl(ostream &ostream) const
 	}
 
 	if (appears)
+	{
 		writeMdlValueProperty(ostream, size, "CoordId", this->coordinatesId());
+	}
 
 	if (this->alphas()->properties().empty())
+	{
 		writeMdlStaticValueProperty(ostream, size, "Alpha", this->alpha());
+	}
 	else
+	{
 		size += this->alphas()->writeMdl(ostream);
+	}
 
 	writeMdlBlockConclusion(ostream, size);
 

@@ -47,8 +47,7 @@ class KDE_EXPORT MiscData : public ObjectData
 		virtual void load(QWidget *widget) override;
 
 		virtual StandardObjecIds standardObjectIds() const override;
-		virtual bool hasDefaultFieldValue(const QString &objectId, const QString &fieldId) const override;
-		virtual QString defaultFieldValue(const QString &objectId, const QString &fieldId) const override;
+		virtual MetaDataList resolveDefaultField(const QString& objectId, const QString& fieldId) const override;
 		virtual bool hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const override;
 
 		virtual MetaData* metaData() const override;
@@ -61,6 +60,7 @@ class KDE_EXPORT MiscData : public ObjectData
 		virtual MetaDataList metaDataList() const override;
 
 		virtual map::CustomObjects::Type type() const override;
+		virtual QString nextCustomObjectId() const;
 
 		virtual QString objectName(const QString &originalObjectId, const QString &customObjectId) const override;
 

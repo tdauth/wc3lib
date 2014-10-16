@@ -54,36 +54,37 @@ ObjectData::StandardObjecIds UnitData::standardObjectIds() const
 	return result;
 }
 
-bool UnitData::hasDefaultFieldValue(const QString &objectId, const QString &fieldId) const
+UnitData::MetaDataList UnitData::resolveDefaultField(const QString& objectId, const QString& fieldId) const
 {
+	MetaDataList result;
+
 	/*
 	 * If the field does not exist it might be the case that Reign of Chaos files are loaded and not Frozen Throne.
 	 */
-	if (this->unitMetaData()->hasValue(fieldId, "field"))
+	if (this->unitMetaData()->hasValue(fieldId, "slk"))
 	{
-		const QString field = this->unitMetaData()->value(fieldId, "field");
 		const QString slk = this->unitMetaData()->value(fieldId, "slk");
 
 		// TODO improve performance by not calling the hasValue() methods?
 		if (slk == "UnitUI")
 		{
-			return this->unitUi()->hasValue(objectId, field);
+			result.push_back(this->unitUi());
 		}
 		else if (slk == "UnitData")
 		{
-			return this->unitData()->hasValue(objectId, field);
+			result.push_back(this->unitData());
 		}
 		else if (slk == "UnitBalance")
 		{
-			return this->unitBalance()->hasValue(objectId, field);
+			result.push_back(this->unitBalance());
 		}
 		else if (slk == "UnitWeapons")
 		{
-			return this->unitWeapons()->hasValue(objectId, field);
+			result.push_back(this->unitWeapons());
 		}
 		else if (slk == "UnitAbilities")
 		{
-			return this->unitAbilities()->hasValue(objectId, field);
+			result.push_back(this->unitAbilities());
 		}
 		/*
 		* Profile means to use a TXT file from the corresponding race.
@@ -91,181 +92,43 @@ bool UnitData::hasDefaultFieldValue(const QString &objectId, const QString &fiel
 		else if (slk == "Profile")
 		{
 			// TODO in Frozen Throne we can check if unit is in campaign but in Reign of Chaos there is no such field.
-			if (this->campaignUnitStrings()->hasValue(objectId, field)
-			|| this->campaignUnitFunc()->hasValue(objectId, field))
-			{
-				return true;
-			}
-			else if (this->unitData()->hasValue(objectId, "race"))
+			result.push_back(this->campaignUnitStrings());
+			result.push_back(this->campaignUnitFunc());
+
+			if (this->unitData()->hasValue(objectId, "race"))
 			{
 				const QString race = this->unitData()->value(objectId, "race");
 
 				if (race == "human")
 				{
-					return this->humanUnitStrings()->hasValue(objectId, field)
-						|| this->humanUnitFunc()->hasValue(objectId, field);
+					result.push_back(this->humanUnitStrings());
+					result.push_back(this->humanUnitFunc());
 				}
 				else if (race == "orc")
 				{
-					return this->orcUnitStrings()->hasValue(objectId, field)
-						|| this->orcUnitFunc()->hasValue(objectId, field);
+					result.push_back(this->orcUnitStrings());
+					result.push_back(this->orcUnitFunc());
 				}
 				else if (race == "nightelf")
 				{
-					return this->nightElfUnitStrings()->hasValue(objectId, field)
-						|| this->nightElfUnitFunc()->hasValue(objectId, field);
+					result.push_back(this->nightElfUnitStrings());
+					result.push_back(this->nightElfUnitFunc());
 				}
 				else if (race == "undead")
 				{
-					return this->undeadUnitStrings()->hasValue(objectId, field)
-						|| this->undeadUnitFunc()->hasValue(objectId, field);
+					result.push_back(this->undeadUnitStrings());
+					result.push_back(this->undeadUnitFunc());
 				}
 				else
 				{
-					return this->neutralUnitStrings()->hasValue(objectId, field)
-						|| this->neutralUnitFunc()->hasValue(objectId, field);
+					result.push_back(this->neutralUnitStrings());
+					result.push_back(this->neutralUnitFunc());
 				}
 			}
 		}
 	}
 
-	return false;
-}
-
-QString UnitData::defaultFieldValue(const QString &objectId, const QString &fieldId) const
-{
-	try
-	{
-		const QString field = this->unitMetaData()->value(fieldId, "field");
-		const QString slk = this->unitMetaData()->value(fieldId, "slk");
-
-		// TODO improve performance by not calling the hasValue() methods?
-		if (slk == "UnitUI")
-		{
-			if (this->unitUi()->hasValue(objectId, field))
-			{
-				return this->unitUi()->value(objectId, field);
-			}
-		}
-		else if (slk == "UnitData")
-		{
-			if (this->unitData()->hasValue(objectId, field))
-			{
-				return this->unitData()->value(objectId, field);
-			}
-		}
-		else if (slk == "UnitBalance")
-		{
-			if (this->unitBalance()->hasValue(objectId, field))
-			{
-				return this->unitBalance()->value(objectId, field);
-			}
-		}
-		else if (slk == "UnitWeapons")
-		{
-			if (this->unitWeapons()->hasValue(objectId, field))
-			{
-				return this->unitWeapons()->value(objectId, field);
-			}
-		}
-		else if (slk == "UnitAbilities")
-		{
-			if (this->unitAbilities()->hasValue(objectId, field))
-			{
-				return this->unitAbilities()->value(objectId, field);
-			}
-		}
-		/*
-		 * Profile means to use a TXT file from the corresponding race.
-		 */
-		else if (slk == "Profile")
-		{
-			// TODO in Frozen Throne we can check if unit is in campaign but in Reign of Chaos there is no such field.
-			if (this->campaignUnitStrings()->hasValue(objectId, field))
-			{
-				return this->campaignUnitStrings()->value(objectId, field);
-			}
-			else if (this->campaignUnitFunc()->hasValue(objectId, field))
-			{
-				return this->campaignUnitFunc()->value(objectId, field);
-			}
-			else if (this->unitData()->hasValue(objectId, "race"))
-			{
-				const QString race = this->unitData()->value(objectId, "race");
-
-				if (race == "human")
-				{
-					if (this->humanUnitStrings()->hasValue(objectId, field))
-					{
-						return this->humanUnitStrings()->value(objectId, field);
-					}
-
-					if (this->humanUnitFunc()->hasValue(objectId, field))
-					{
-						return this->humanUnitFunc()->value(objectId, field);
-					}
-				}
-				else if (race == "orc")
-				{
-					if (this->orcUnitStrings()->hasValue(objectId, field))
-					{
-						return this->orcUnitStrings()->value(objectId, field);
-					}
-
-					if (this->orcUnitFunc()->hasValue(objectId, field))
-					{
-						return this->orcUnitFunc()->value(objectId, field);
-					}
-				}
-				else if (race == "nightelf")
-				{
-					if (this->nightElfUnitStrings()->hasValue(objectId, field))
-					{
-						return this->nightElfUnitStrings()->value(objectId, field);
-					}
-
-					if (this->nightElfUnitFunc()->hasValue(objectId, field))
-					{
-						return this->nightElfUnitFunc()->value(objectId, field);
-					}
-				}
-				else if (race == "undead")
-				{
-					if (this->undeadUnitStrings()->hasValue(objectId, field))
-					{
-						return this->undeadUnitStrings()->value(objectId, field);
-					}
-
-					if (this->undeadUnitFunc()->hasValue(objectId, field))
-					{
-						return this->undeadUnitFunc()->value(objectId, field);
-					}
-				}
-				else
-				{
-					if (this->neutralUnitStrings()->hasValue(objectId, field))
-					{
-						return this->neutralUnitStrings()->value(objectId, field);
-					}
-
-					if (this->neutralUnitFunc()->hasValue(objectId, field))
-					{
-						return this->neutralUnitFunc()->value(objectId, field);
-					}
-				}
-			}
-		}
-	}
-	catch (Exception &e)
-	{
-		qDebug() << "Exception occured";
-		qDebug() << e.what();
-		//QMessageBox::warning(this, tr("Error"), e.what());
-	}
-
-	qDebug() << "Data value not found:" << objectId << fieldId;
-
-	return "";
+	return result;
 }
 
 bool UnitData::hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const
@@ -323,231 +186,80 @@ void UnitData::load(QWidget *widget)
 {
 	this->m_unitMetaData.reset(new MetaData(KUrl("Units/UnitMetaData.slk")));
 	this->m_unitMetaData->setSource(this->source());
-
-	try
-	{
-		this->m_unitMetaData->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_unitMetaData->url().toEncoded().constData(), e.what()));
-	}
+	this->m_unitMetaData->load();
 
 	this->m_unitEditorData.reset(new MetaData(KUrl("UI/UnitEditorData.txt")));
 	this->m_unitEditorData->setSource(this->source());
-
-	try
-	{
-		this->m_unitEditorData->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_unitEditorData->url().toEncoded().constData(), e.what()));
-	}
+	this->m_unitEditorData->load();
 
 	this->m_unitData.reset(new MetaData(KUrl("Units/UnitData.slk")));
 	this->m_unitData->setSource(this->source());
-
-	try
-	{
-		this->m_unitData->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_unitData->url().toEncoded().constData(), e.what()));
-	}
+	this->m_unitData->load();
 
 	this->m_unitUi.reset(new MetaData(KUrl("Units/unitUI.slk")));
 	this->m_unitUi->setSource(this->source());
-
-	try
-	{
-		this->m_unitUi->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_unitUi->url().toEncoded().constData(), e.what()));
-	}
+	this->m_unitUi->load();
 
 	this->m_unitBalance.reset(new MetaData(KUrl("Units/UnitBalance.slk")));
 	this->m_unitBalance->setSource(this->source());
-
-	try
-	{
-		this->m_unitBalance->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_unitBalance->url().toEncoded().constData(), e.what()));
-	}
+	this->m_unitBalance->load();
 
 	this->m_unitWeapons.reset(new MetaData(KUrl("Units/UnitWeapons.slk")));
 	this->m_unitWeapons->setSource(this->source());
-
-	try
-	{
-		this->m_unitWeapons->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_unitWeapons->url().toEncoded().constData(), e.what()));
-	}
+	this->m_unitWeapons->load();
 
 	this->m_unitAbilities.reset(new MetaData(KUrl("Units/UnitAbilities.slk")));
 	this->m_unitAbilities->setSource(this->source());
-
-	try
-	{
-		this->m_unitAbilities->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_unitAbilities->url().toEncoded().constData(), e.what()));
-	}
+	this->m_unitAbilities->load();
 
 	this->m_humanUnitStrings.reset(new MetaData(KUrl("Units/HumanUnitStrings.txt")));
 	this->m_humanUnitStrings->setSource(this->source());
-
-	try
-	{
-		this->m_humanUnitStrings->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_humanUnitStrings->url().toEncoded().constData(), e.what()));
-	}
+	this->m_humanUnitStrings->load();
 
 	this->m_humanUnitFunc.reset(new MetaData(KUrl("Units/HumanUnitFunc.txt")));
 	this->m_humanUnitFunc->setSource(this->source());
-
-	try
-	{
-		this->m_humanUnitFunc->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_humanUnitFunc->url().toEncoded().constData(), e.what()));
-	}
+	this->m_humanUnitFunc->load();
 
 	this->m_orcUnitStrings.reset(new MetaData(KUrl("Units/OrcUnitStrings.txt")));
 	this->m_orcUnitStrings->setSource(this->source());
-
-	try
-	{
-		this->m_orcUnitStrings->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_orcUnitStrings->url().toEncoded().constData(), e.what()));
-	}
+	this->m_orcUnitStrings->load();
 
 	this->m_orcUnitFunc.reset(new MetaData(KUrl("Units/OrcUnitFunc.txt")));
 	this->m_orcUnitFunc->setSource(this->source());
-
-	try
-	{
-		this->m_orcUnitFunc->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_orcUnitFunc->url().toEncoded().constData(), e.what()));
-	}
+	this->m_orcUnitFunc->load();
 
 	this->m_undeadUnitStrings.reset(new MetaData(KUrl("Units/UndeadUnitStrings.txt")));
 	this->m_undeadUnitStrings->setSource(this->source());
+	this->m_undeadUnitStrings->load();
 
-	try
-	{
-		this->m_undeadUnitStrings->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_undeadUnitStrings->url().toEncoded().constData(), e.what()));
-	}
 
 	this->m_undeadUnitFunc.reset(new MetaData(KUrl("Units/UndeadUnitFunc.txt")));
 	this->m_undeadUnitFunc->setSource(this->source());
-
-	try
-	{
-		this->m_undeadUnitFunc->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_undeadUnitFunc->url().toEncoded().constData(), e.what()));
-	}
+	this->m_undeadUnitFunc->load();
 
 	this->m_nightElfUnitStrings.reset(new MetaData(KUrl("Units/NightElfUnitStrings.txt")));
 	this->m_nightElfUnitStrings->setSource(this->source());
-
-	try
-	{
-		this->m_nightElfUnitStrings->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_nightElfUnitStrings->url().toEncoded().constData(), e.what()));
-	}
+	this->m_nightElfUnitStrings->load();
 
 	this->m_nightElfUnitFunc.reset(new MetaData(KUrl("Units/NightElfUnitFunc.txt")));
 	this->m_nightElfUnitFunc->setSource(this->source());
-
-	try
-	{
-		this->m_nightElfUnitFunc->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_nightElfUnitFunc->url().toEncoded().constData(), e.what()));
-	}
+	this->m_nightElfUnitFunc->load();
 
 	this->m_neutralUnitStrings.reset(new MetaData(KUrl("Units/NeutralUnitStrings.txt")));
 	this->m_neutralUnitStrings->setSource(this->source());
-
-	try
-	{
-		this->m_neutralUnitStrings->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_neutralUnitStrings->url().toEncoded().constData(), e.what()));
-	}
+	this->m_neutralUnitStrings->load();
 
 	this->m_neutralUnitFunc.reset(new MetaData(KUrl("Units/NeutralUnitFunc.txt")));
 	this->m_neutralUnitFunc->setSource(this->source());
-
-	try
-	{
-		this->m_neutralUnitFunc->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_neutralUnitFunc->url().toEncoded().constData(), e.what()));
-	}
+	this->m_neutralUnitFunc->load();
 
 	this->m_campaignUnitStrings.reset(new MetaData(KUrl("Units/CampaignUnitStrings.txt")));
 	this->m_campaignUnitStrings->setSource(this->source());
-
-	try
-	{
-		this->m_campaignUnitStrings->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_campaignUnitStrings->url().toEncoded().constData(), e.what()));
-	}
+	this->m_campaignUnitStrings->load();
 
 	this->m_campaignUnitFunc.reset(new MetaData(KUrl("Units/CampaignUnitFunc.txt")));
 	this->m_campaignUnitFunc->setSource(this->source());
-
-	try
-	{
-		this->m_campaignUnitFunc->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_campaignUnitFunc->url().toEncoded().constData(), e.what()));
-	}
+	this->m_campaignUnitFunc->load();
 }
 
 

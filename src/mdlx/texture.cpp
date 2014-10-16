@@ -42,13 +42,19 @@ std::streamsize Texture::writeMdl(ostream &ostream) const
 	writeMdlValuePropertyWithQuotes(ostream, size, "Image", this->texturePath(), 1);
 
 	if (this->replaceableId() != ReplaceableId::None)
+	{
 		writeMdlValueProperty(ostream, size, "ReplaceableId", static_cast<long32>(this->replaceableId()), 1);
+	}
 
 	if (this->wrapping() == Wrapping::WrapWidth || this->wrapping() == Wrapping::Both)
+	{
 		writeMdlProperty(ostream, size, "WrapWidth", 1);
+	}
 
 	if (this->wrapping() == Wrapping::WrapHeight || this->wrapping() == Wrapping::Both)
+	{
 		writeMdlProperty(ostream, size, "WrapHeight", 1);
+	}
 
 	writeMdlBlockConclusion(ostream, size);
 

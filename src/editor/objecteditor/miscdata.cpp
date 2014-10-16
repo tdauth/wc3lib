@@ -48,77 +48,36 @@ ObjectData::StandardObjecIds MiscData::standardObjectIds() const
 	return result;
 }
 
-bool MiscData::hasDefaultFieldValue(const QString &objectId, const QString &fieldId) const
+ObjectData::MetaDataList MiscData::resolveDefaultField(const QString& objectId, const QString& fieldId) const
 {
+	MetaDataList result;
+
 	/*
 	 * If the field does not exist it might be the case that Reign of Chaos files are loaded and not Frozen Throne.
 	 */
-	if (this->miscMetaData()->hasValue(fieldId, "field"))
+	if (this->miscMetaData()->hasValue(fieldId, "slk"))
 	{
-		const QString field = this->miscMetaData()->value(fieldId, "field");
 		const QString slk = this->miscMetaData()->value(fieldId, "slk");
 
 		if (objectId == "mgam")
 		{
-			return this->miscGame()->hasValue("Misc", field);
+			result.push_back(this->miscGame());
 		}
 		else if (objectId == "mcv0")
 		{
-			return this->customV0()->hasValue("Misc", field);
+			result.push_back(this->customV0());
 		}
 		else if (objectId == "mcv1")
 		{
-			return this->customV1()->hasValue("Misc", field);
+			result.push_back(this->customV1());
 		}
 		else if (objectId == "mmv0")
 		{
-			return this->meleeV0()->hasValue("Misc", field);
+			result.push_back(this->meleeV0());
 		}
 	}
 
-	return false;
-}
-
-QString MiscData::defaultFieldValue(const QString &objectId, const QString &fieldId) const
-{
-	try
-	{
-		/*
-		 * If the field does not exist it might be the case that Reign of Chaos files are loaded and not Frozen Throne.
-		 */
-		if (this->miscMetaData()->hasValue(fieldId, "field"))
-		{
-			const QString field = this->miscMetaData()->value(fieldId, "field");
-			const QString slk = this->miscMetaData()->value(fieldId, "slk");
-
-			if (objectId == "mgam")
-			{
-				return this->miscGame()->value("Misc", field);
-			}
-			else if (objectId == "mcv0")
-			{
-				return this->customV0()->value("Misc", field);
-			}
-			else if (objectId == "mcv1")
-			{
-				return this->customV1()->value("Misc", field);
-			}
-			else if (objectId == "mmv0")
-			{
-				return this->meleeV0()->value("Misc", field);
-			}
-		}
-	}
-	catch (Exception &e)
-	{
-		qDebug() << "Exception occured";
-		qDebug() << e.what();
-		//QMessageBox::warning(this, tr("Error"), e.what());
-	}
-
-	qDebug() << "Data value not found:" << objectId << fieldId;
-
-	return "";
+	return result;
 }
 
 bool MiscData::hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const
@@ -145,6 +104,14 @@ bool MiscData::hasMetaDataList() const
 ObjectData::MetaDataList MiscData::metaDataList() const
 {
 	return ObjectData::MetaDataList();
+}
+
+QString MiscData::nextCustomObjectId() const
+{
+	QString result = ObjectData::nextCustomObjectId();
+	result[0] = 'M';
+
+	return result;
 }
 
 QString MiscData::objectName(const QString &originalObjectId, const QString &customObjectId) const

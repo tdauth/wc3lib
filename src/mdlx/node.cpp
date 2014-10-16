@@ -53,52 +53,84 @@ std::streamsize Node::writeMdl(ostream &ostream) const
 	writeMdlValueProperty(ostream, size, "ObjectId", id());
 
 	if (parentId() != noneId)
+	{
 		writeMdlValueProperty(ostream, size, "Parent", parentId());
+	}
 
 	if (type() & Type::DontInheritTranslation)
+	{
 		writeMdlProperty(ostream, size, "DontInheritTranslation");
+	}
 
 	if (type() & Type::DontInheritRotation)
+	{
 		writeMdlProperty(ostream, size, "DontInheritRotation");
+	}
 
 	if (type() & Type::DontInheritScaling)
+	{
 		writeMdlProperty(ostream, size, "DontInheritScaling");
+	}
 
 	if (type() & Type::Billboarded)
+	{
 		writeMdlProperty(ostream, size, "Billboarded");
+	}
 
 	if (type() & Type::BillboardedLockX)
+	{
 		writeMdlProperty(ostream, size, "BillboardedLockX");
+	}
 
 	if (type() & Type::BillboardedLockY)
+	{
 		writeMdlProperty(ostream, size, "BillboardedLockY");
+	}
 
 	if (type() & Type::BillboardedLockZ)
+	{
 		writeMdlProperty(ostream, size, "BillboardedLockZ");
+	}
 
 	if (type() & Type::CameraAnchored)
+	{
 		writeMdlProperty(ostream, size, "CameraAnchored");
+	}
 
 	if (type() & Type::LineEmitter)
+	{
 		writeMdlProperty(ostream, size, "LineEmitter");
+	}
 
 	if (type() & Type::Unfogged)
+	{
 		writeMdlProperty(ostream, size, "Unfogged");
+	}
 
 	if (type() & Type::ModelSpace)
+	{
 		writeMdlProperty(ostream, size, "ModelSpace");
+	}
 
 	if (type() & Type::XYQuad)
+	{
 		writeMdlProperty(ostream, size, "XYQuad");
+	}
 
 	if (!translations()->properties().empty())
+	{
 		size += translations()->writeMdl(ostream);
+	}
 
 	if (!rotations()->properties().empty())
+	{
 		size += rotations()->writeMdl(ostream);
+	}
 
 	if (!scalings()->properties().empty())
+	{
 		size += scalings()->writeMdl(ostream);
+	}
 
 	return size;
 }
@@ -110,7 +142,9 @@ std::streamsize Node::readMdx(istream &istream)
 	wc3lib::read(istream, nbytesi, size);
 
 	if (nbytesi < sizeof(nbytesi))
+	{
 		throw Exception(boost::format(_("Node inclusive byte count %1% is smaller than its own size %2%!")) % nbytesi % sizeof(nbytesi));
+	}
 
 	wc3lib::read(istream, this->m_name, size, nameSize);
 	wc3lib::read(istream, this->m_id, size);
@@ -127,7 +161,9 @@ std::streamsize Node::readMdx(istream &istream)
 	size += this->scalings()->readMdx(istream);
 
 	if (size != nbytesi)
+	{
 		throw Exception(boost::format(_("Node \"%1%\" has inclusive byte count %2% but read %3% bytes.")) % this->name() % nbytesi % size);
+	}
 
 	//print(std::cout);
 
