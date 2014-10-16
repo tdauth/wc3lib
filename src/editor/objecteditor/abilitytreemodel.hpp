@@ -18,8 +18,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "misceditor.hpp"
-#include "misctreemodel.hpp"
+#ifndef WC3LIB_EDITOR_ABILITYTREEMODEL_HPP
+#define WC3LIB_EDITOR_ABILITYTREEMODEL_HPP
+
+#include "objecttreemodel.hpp"
 
 namespace wc3lib
 {
@@ -27,28 +29,30 @@ namespace wc3lib
 namespace editor
 {
 
-MiscEditor::MiscEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, objectData, objectEditor, parent, f)
+class WarcraftIIIShared;
+
+class AbilityTreeModel : public ObjectTreeModel
 {
-	setupUi();
-}
+	public:
+		AbilityTreeModel(MpqPriorityList *source, QObject *parent = 0);
 
-MiscEditor::~MiscEditor()
-{
-}
+		virtual ObjectTreeItem* createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString& originalObjectId, const QString& customObjectId) override;
 
-ObjectTreeModel* MiscEditor::createTreeModel()
-{
-	return new MiscTreeModel(this->source(), this);
-}
+	protected:
+		virtual QModelIndex itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId) override;
 
-void MiscEditor::onSwitchToMap(Map *map)
-{
-}
+		QModelIndex objectsIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
+		QModelIndex raceIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
+		QModelIndex abilityTypeIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
 
-void MiscEditor::onNewObject()
-{
-}
+		void createObjects(WarcraftIIIShared *shared);
+		void createRaces(WarcraftIIIShared *shared, int row, QModelIndex parent);
+		void createRace(WarcraftIIIShared *shared, int row, QModelIndex parent);
+		void createMelee(WarcraftIIIShared *shared, int row, QModelIndex parent);
+};
 
 }
 
 }
+
+#endif // WC3LIB_EDITOR_ABILITYTREEMODEL_HPP

@@ -26,6 +26,8 @@
 #include <QHash>
 #include <QPair>
 
+#include <kdemacros.h>
+
 #include "../../map.hpp"
 
 namespace wc3lib
@@ -56,7 +58,7 @@ class MpqPriorityList;
  *
  * \ingroup objectdata
  */
-class ObjectData : public QObject
+class KDE_EXPORT ObjectData : public QObject
 {
 	Q_OBJECT
 

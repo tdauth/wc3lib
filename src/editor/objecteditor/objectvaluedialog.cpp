@@ -124,6 +124,7 @@ int ObjectValueDialog::show(QString &result, const QString &originalObjectId, co
 			titleArg = objectData->source()->sharedData()->tr("WESTRING_UE_TYPE_INT");
 			dialog->intSpinBox()->setVisible(true);
 			dialog->intSpinBox()->setValue(fieldValue.toInt());
+			dialog->intSpinBox()->selectAll();
 		}
 		else if (type == "real" || type == "unreal")
 		{
@@ -161,6 +162,7 @@ int ObjectValueDialog::show(QString &result, const QString &originalObjectId, co
 			titleArg = objectData->source()->sharedData()->tr("WESTRING_UE_TYPE_REAL");
 			dialog->doubleSpinBox()->setVisible(true);
 			dialog->doubleSpinBox()->setValue(fieldValue.toDouble());
+			dialog->doubleSpinBox()->selectAll();
 		}
 		else if (type == "string")
 		{

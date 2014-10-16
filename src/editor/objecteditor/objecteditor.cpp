@@ -24,10 +24,12 @@
 #include <KMessageBox>
 
 #include "objecteditor.hpp"
+#include "sharedobjectdata.hpp"
 #include "objecteditortab.hpp"
 #include "editor.hpp"
 #include "uniteditor.hpp"
 #include "itemeditor.hpp"
+#include "abilityeditor.hpp"
 #include "weathereditor.hpp"
 #include "misceditor.hpp"
 #include "objecttreemodel.hpp"
@@ -42,6 +44,7 @@ namespace editor
 ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f)
 , m_tabWidget(new QTabWidget(this))
 , m_currentTab(0)
+, m_sharedObjectData(new SharedObjectData(source))
 , m_unitEditor(0)
 , m_doodadEditor(0)
 , m_destructibleEditor(0)
@@ -93,25 +96,26 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 	/*
 	 * Create all tabs after the actions have been created.
 	 */
-	m_unitEditor = new UnitEditor(source, this, this, f);
-	m_itemEditor = new ItemEditor(source, this, this, f);
-	m_weatherEditor = new WeatherEditor(source, this, this, f);
-	m_miscEditor = new MiscEditor(source, this, this, f);
+	m_unitEditor = new UnitEditor(source, m_sharedObjectData->unitData().get(), this, this, f);
+	m_itemEditor = new ItemEditor(source, m_sharedObjectData->itemData().get(), this, this, f);
+	m_abilityEditor = new AbilityEditor(source, m_sharedObjectData->abilityData().get(), this, this, f);
+	m_weatherEditor = new WeatherEditor(source, m_sharedObjectData->weatherData().get(), this, this, f);
+	m_miscEditor = new MiscEditor(source, m_sharedObjectData->miscData().get(), this, this, f);
 
 	tabWidget()->addTab(unitEditor(), unitEditor()->name());
 	tabWidget()->addTab(itemEditor(), itemEditor()->name());
+	tabWidget()->addTab(abilityEditor(), abilityEditor()->name());
 	tabWidget()->addTab(weatherEditor(), weatherEditor()->name());
 	tabWidget()->addTab(miscEditor(), miscEditor()->name());
 
-	m_currentTab = tab(0);
-	setWindowTitle(currentTab()->name());
-	addCurrentActions();
+	currentChanged(0);
 	// connect signal and slot after adding actions and tabs first time!
 	connect(tabWidget(), SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
 }
 
 ObjectEditor::~ObjectEditor()
 {
+	delete m_sharedObjectData;
 }
 
 ObjectEditorTab* ObjectEditor::tab(int index) const
@@ -426,6 +430,35 @@ void ObjectEditor::currentChanged(int index)
 	addCurrentActions();
 	setWindowTitle(tab(index)->name());
 	m_rawDataAction->setChecked(this->currentTab()->treeModel()->showRawData());
+
+	/*
+	 * Load data on request when the tab is shown for the first time.
+	 */
+	if (m_currentTab->objectData() != 0 && m_currentTab->objectData()->metaData() == 0)
+	{
+		qDebug() << "Show" << m_currentTab->name() << "first time";
+		/*
+		 * Indicate loading by changing the cursor to busy.
+		 * The process of loading object data might take quite some time.
+		 */
+		QCursor cursor = this->cursor();
+		cursor.setShape(Qt::BusyCursor);
+		this->setCursor(cursor);
+
+		try
+		{
+			m_currentTab->objectData()->load(m_currentTab);
+			m_currentTab->treeModel()->load(this->source(), m_currentTab->objectData(), this);
+		}
+		catch (const Exception &e)
+		{
+			KMessageBox::error(this, e.what());
+		}
+
+		cursor = this->cursor();
+		cursor.setShape(Qt::ArrowCursor);
+		this->setCursor(cursor);
+	}
 }
 
 void ObjectEditor::removeCurrentActions()

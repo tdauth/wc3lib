@@ -24,6 +24,7 @@
 
 #include "objecttableview.hpp"
 #include "objectvaluedialog.hpp"
+#include "objectlistdialog.hpp"
 #include "objecttablemodel.hpp"
 #include "objecteditortab.hpp"
 #include "objectdata.hpp"
@@ -77,9 +78,14 @@ void ObjectTableView::editItem(const QModelIndex &index)
 	qDebug() << "Editing item with row" << index.row();
 	const QString fieldId = model()->data(index, Qt::UserRole).toString();
 	const QString label = QString(tr("%1:")).arg(model()->data(model()->index(index.row(), 0), Qt::DisplayRole).toString());
+	const QString type = this->tab()->objectData()->metaData()->value(fieldId, "type");
 	QString result;
 
-	if (ObjectValueDialog::show(result, this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId, this->tab()->objectData(), label, this->tab()) == QDialog::Accepted)
+	if (this->tab()->objectData()->fieldTypeIsList(type))
+	{
+		ObjectListDialog::getObjectIds(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId, this->tab()->objectData(), this->tab()->objectEditor()->sharedObjectData(), label, this);
+	}
+	else if (ObjectValueDialog::show(result, this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId, this->tab()->objectData(), label, this->tab()) == QDialog::Accepted)
 	{
 		qDebug() << "New field value:" << this->tab()->objectData()->fieldValue(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId);
 		qDebug() << "New readable field value:" << this->tab()->objectData()->fieldReadableValue(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId);

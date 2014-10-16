@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Tamino Dauth                                    *
+ *   Copyright (C) 2014 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,13 +18,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_UNITEDITOR_HPP
-#define WC3LIB_EDITOR_UNITEDITOR_HPP
+#ifndef WC3LIB_EDITOR_ABILITYEDITOR_HPP
+#define WC3LIB_EDITOR_ABILITYEDITOR_HPP
 
 #include "objecteditortab.hpp"
-#include "unitdata.hpp"
+#include "abilitydata.hpp"
 #include "../mpqprioritylist.hpp"
-#include "../warcraftiiishared.hpp"
 
 namespace wc3lib
 {
@@ -32,24 +31,15 @@ namespace wc3lib
 namespace editor
 {
 
-class UnitSelectionDialog;
-
-/**
- * \brief The Frozen Throne Unit Editor module of the Object Editor.
- *
- * \ingroup objectdata
- */
-class KDE_EXPORT UnitEditor : public ObjectEditorTab
+class AbilityEditor : public ObjectEditorTab
 {
 	public:
-		UnitEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
-		virtual ~UnitEditor();
+		AbilityEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		virtual ~AbilityEditor();
 
-		UnitData* unitData() const;
+		AbilityData* abilityData() const;
 
 		virtual QString name() const override;
-
-		UnitSelectionDialog* unitSelectionDialog() const;
 
 	protected:
 		virtual ObjectTreeModel* createTreeModel() override;
@@ -70,81 +60,74 @@ class KDE_EXPORT UnitEditor : public ObjectEditorTab
 		virtual KUrl copyObjectIconUrl() const override;
 		virtual KUrl pasteObjectIconUrl() const override;
 		virtual KUrl newObjectIconUrl() const override;
-
-		UnitSelectionDialog *m_unitSelectionDialog;
 };
 
-inline UnitData* UnitEditor::unitData() const
+inline AbilityData* AbilityEditor::abilityData() const
 {
-	return boost::polymorphic_cast<UnitData*>(this->objectData());
+	return boost::polymorphic_cast<AbilityData*>(this->objectData());
 }
 
-inline QString UnitEditor::name() const
+inline QString AbilityEditor::name() const
 {
-	return this->source()->sharedData()->tr("WESTRING_OBJTAB_UNITS", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_OBJTAB_ABILITIES", "WorldEditStrings");
 }
 
-inline UnitSelectionDialog* UnitEditor::unitSelectionDialog() const
+inline QString AbilityEditor::newObjectText() const
 {
-	return this->m_unitSelectionDialog;
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_ABIL_NEW", "WorldEditStrings");
 }
 
-inline QString UnitEditor::newObjectText() const
+inline QString AbilityEditor::renameObjectText() const
 {
-	return this->source()->sharedData()->tr("WESTRING_UE_CREATECUSTOMUNIT", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_ABIL_RENAME", "WorldEditStrings");
 }
 
-inline QString UnitEditor::renameObjectText() const
+inline QString AbilityEditor::deleteObjectText() const
 {
-	return this->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_RENAME", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_ABIL_DELETE", "WorldEditStrings");
 }
 
-inline QString UnitEditor::deleteObjectText() const
+inline QString AbilityEditor::resetObjectText() const
 {
-	return this->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_DELETE", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_ABIL_RESETSEL", "WorldEditStrings");
 }
 
-inline QString UnitEditor::resetObjectText() const
+inline QString AbilityEditor::resetAllObjectsText() const
 {
-	return this->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_RESETSEL", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_ABIL_RESETALL", "WorldEditStrings");
 }
 
-inline QString UnitEditor::resetAllObjectsText() const
+inline QString AbilityEditor::exportAllObjectsText() const
 {
-	return this->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_RESETALL", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_ABIL_EXPORT", "WorldEditStrings");
 }
 
-inline QString UnitEditor::exportAllObjectsText() const
+inline QString AbilityEditor::importAllObjectsText() const
 {
-	return this->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_EXPORT", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_ABIL_IMPORT", "WorldEditStrings");
 }
 
-inline QString UnitEditor::importAllObjectsText() const
+inline QString AbilityEditor::copyObjectText() const
 {
-	return this->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_IMPORT", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_ABIL_COPY", "WorldEditStrings");
 }
 
-inline QString UnitEditor::copyObjectText() const
+inline QString AbilityEditor::pasteObjectText() const
 {
-	return this->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_COPY", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_ABIL_PASTE", "WorldEditStrings");
 }
 
-inline QString UnitEditor::pasteObjectText() const
-{
-	return this->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_PASTE", "WorldEditStrings");
-}
-
-inline KUrl UnitEditor::copyObjectIconUrl() const
+inline KUrl AbilityEditor::copyObjectIconUrl() const
 {
 	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Copy.blp");
 }
 
-inline KUrl UnitEditor::pasteObjectIconUrl() const
+inline KUrl AbilityEditor::pasteObjectIconUrl() const
 {
 	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Paste.blp");
 }
 
-inline KUrl UnitEditor::newObjectIconUrl() const
+inline KUrl AbilityEditor::newObjectIconUrl() const
 {
 	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Unit.blp");
 }
@@ -153,4 +136,4 @@ inline KUrl UnitEditor::newObjectIconUrl() const
 
 }
 
-#endif
+#endif // WC3LIB_EDITOR_ABILITYEDITOR_HPP

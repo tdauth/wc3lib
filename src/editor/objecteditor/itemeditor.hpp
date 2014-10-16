@@ -36,7 +36,7 @@ class ItemData;
 class KDE_EXPORT ItemEditor : public ObjectEditorTab
 {
 	public:
-		ItemEditor(MpqPriorityList *source, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		ItemEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~ItemEditor();
 
 		ItemData* itemData() const;
@@ -76,47 +76,47 @@ inline QString ItemEditor::name() const
 
 inline QString ItemEditor::newObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_UE_CREATECUSTOMUNIT", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_ITEM_NEW", "WorldEditStrings");
 }
 
 inline QString ItemEditor::renameObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_RENAME", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_ITEM_RENAME", "WorldEditStrings");
 }
 
 inline QString ItemEditor::deleteObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_DELETE", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_ITEM_DELETE", "WorldEditStrings");
 }
 
 inline QString ItemEditor::resetObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_RESETSEL", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_ITEM_RESETSEL", "WorldEditStrings");
 }
 
 inline QString ItemEditor::resetAllObjectsText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_RESETALL", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_ITEM_RESETALL", "WorldEditStrings");
 }
 
 inline QString ItemEditor::exportAllObjectsText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_EXPORT", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_ITEM_EXPORT", "WorldEditStrings");
 }
 
 inline QString ItemEditor::importAllObjectsText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_IMPORT", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_ITEM_IMPORT", "WorldEditStrings");
 }
 
 inline QString ItemEditor::copyObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_COPY", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_ITEM_COPY", "WorldEditStrings");
 }
 
 inline QString ItemEditor::pasteObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_PASTE", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_ITEM_PASTE", "WorldEditStrings");
 }
 
 inline KUrl ItemEditor::copyObjectIconUrl() const

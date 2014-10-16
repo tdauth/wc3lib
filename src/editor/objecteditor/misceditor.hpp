@@ -37,7 +37,7 @@ class KDE_EXPORT MiscEditor : public ObjectEditorTab
 {
 	public:
 		public:
-		MiscEditor(MpqPriorityList *source, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		MiscEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~MiscEditor();
 
 		MiscData* miscData() const;

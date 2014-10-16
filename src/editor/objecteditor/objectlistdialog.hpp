@@ -18,12 +18,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_OBJECTLISTWIDGET_HPP
-#define WC3LIB_EDITOR_OBJECTLISTWIDGET_HPP
+#ifndef WC3LIB_EDITOR_OBJECTLISTDIALOG_HPP
+#define WC3LIB_EDITOR_OBJECTLISTDIALOG_HPP
 
-#include <QWidget>
+#include <QDialog>
 
-#include "ui_objectlistwidget.h"
+#include "ui_objectlistdialog.h"
 #include "objectdata.hpp"
 #include "../../map.hpp"
 
@@ -34,35 +34,57 @@ namespace editor
 {
 
 class MpqPriorityList;
+class SharedObjectData;
 
-class ObjectListWidget : public QWidget, protected Ui::ObjectListWidget
+/**
+ * \brief Dialog to select a list of objects.
+ */
+class ObjectListDialog : public QDialog, protected Ui::ObjectListDialog
 {
 	Q_OBJECT
 
 	public slots:
 		void addObject();
-		
+
 	public:
-		typedef QList<ObjectData::ObjectId> ObjectIds;
-		explicit ObjectListWidget(MpqPriorityList *source, ObjectData *objectData, QWidget* parent = 0, Qt::WindowFlags f = 0);
+		explicit ObjectListDialog(MpqPriorityList *source, ObjectData *objectData, QWidget* parent = 0, Qt::WindowFlags f = 0);
 
-		void load(ObjectIds &objects);
-		ObjectIds objects() const;
+		void load(const QStringList &objects);
+		QStringList objects() const;
 
+		void setSource(MpqPriorityList *source);
 		MpqPriorityList* source() const;
+		void setObjectData(ObjectData *objectData);
 		ObjectData* objectData() const;
 
+		/**
+		 * Lists object IDs depending on the value of field \p fieldId of object with IDs \p originalObjectId and \p customObjectId.
+		 */
+		static int getObjectIds(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, ObjectData *objectData, SharedObjectData *sharedObjectData, const QString &label, QWidget* parent = 0, Qt::WindowFlags f = 0);
+		static int getObjectIds(QStringList &result, MpqPriorityList *source, ObjectData *objectData, const QString &label, QWidget* parent = 0, Qt::WindowFlags f = 0);
 	private:
 		MpqPriorityList *m_source;
 		ObjectData *m_objectData;
+
+		static ObjectListDialog *m_dialog;
 };
 
-inline MpqPriorityList* ObjectListWidget::source() const
+inline void ObjectListDialog::setSource(MpqPriorityList* source)
+{
+	this->m_source = source;
+}
+
+inline MpqPriorityList* ObjectListDialog::source() const
 {
 	return this->m_source;
 }
 
-inline ObjectData* ObjectListWidget::objectData() const
+inline void ObjectListDialog::setObjectData(ObjectData* objectData)
+{
+	this->m_objectData = objectData;
+}
+
+inline ObjectData* ObjectListDialog::objectData() const
 {
 	return this->m_objectData;
 }
@@ -71,4 +93,4 @@ inline ObjectData* ObjectListWidget::objectData() const
 
 }
 
-#endif // WC3LIB_EDITOR_OBJECTLISTWIDGET_HPP
+#endif // WC3LIB_EDITOR_OBJECTLISTDIALOG_HPP

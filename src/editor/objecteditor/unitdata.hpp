@@ -42,7 +42,7 @@ class MetaData;
  *
  * \ingroup objectdata
  */
-class UnitData : public ObjectData
+class KDE_EXPORT UnitData : public ObjectData
 {
 	public:
 		typedef QScopedPointer<MetaData> MetaDataPtr;

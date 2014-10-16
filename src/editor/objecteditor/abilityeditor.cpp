@@ -20,8 +20,12 @@
 
 #include <QtGui>
 
-#include "objectlistwidget.hpp"
-#include "../mpqprioritylist.hpp"
+#include "abilityeditor.hpp"
+#include "objecttreeview.hpp"
+#include "objecttreeitem.hpp"
+#include "abilitytreemodel.hpp"
+#include "../metadata.hpp"
+#include "../map.hpp"
 
 namespace wc3lib
 {
@@ -29,44 +33,26 @@ namespace wc3lib
 namespace editor
 {
 
-void ObjectListWidget::addObject()
+AbilityEditor::AbilityEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, objectData, objectEditor, parent, f)
 {
-	qDebug() << "Select";
+	setupUi();
 }
 
-ObjectListWidget::ObjectListWidget(MpqPriorityList *source, ObjectData *objectData, QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), m_source(source), m_objectData(objectData)
+AbilityEditor::~AbilityEditor()
 {
-	setupUi(this);
-
-	connect(this->m_addPushButton, SIGNAL(triggered()), this, SLOT(addObject()));
 }
 
-void ObjectListWidget::load(ObjectIds &objects)
+ObjectTreeModel* AbilityEditor::createTreeModel()
 {
-	foreach (ObjectData::ObjectId objectId, objects)
-	{
-		const QString name = this->objectData()->objectName(objectId.first, objectId.second);
-		//QIcon icon = this->source()->sharedData()->icon()
-		QListWidgetItem *item = new QListWidgetItem(name);
-		QString data = QString("%1:%2").arg(objectId.first).arg(objectId.second);
-		item->setData(Qt::UserRole, data);
-		this->m_listWidget->addItem(item);
-	}
+	return new AbilityTreeModel(this->source(), this);
 }
 
-ObjectListWidget::ObjectIds ObjectListWidget::objects() const
+void AbilityEditor::onSwitchToMap(Map *map)
 {
-	ObjectIds result;
+}
 
-	for (int i = 0; i < this->m_listWidget->count(); ++i)
-	{
-		const QString data = this->m_listWidget->item(i)->data(Qt::UserRole).toString();
-		QStringList list = data.split(':');
-
-		result.push_back(ObjectData::ObjectId(list[0], list[1]));
-	}
-
-	return result;
+void AbilityEditor::onNewObject()
+{
 }
 
 }

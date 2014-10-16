@@ -58,6 +58,8 @@ class WeatherEditor;
 class SoundEntryEditor;
 class MiscEditor;
 
+class SharedObjectData;
+
 /**
  * \page objecteditorsection Object Editor
  * The Object Editor is responsible for editting any object data of a map.
@@ -68,6 +70,10 @@ class MiscEditor;
  * The following classes exist for concrete object data:
  * <ul>
  * <li>\ref UnitData - Units</li>
+ * <li>\ref ItemData - Items</li>
+ * <li>\ref AbilityData - Abilities</li>
+ * <li>\ref WeatherData - Weather Effects</li>
+ * <li>\ref MiscData - Misc Data</li>
  * </ul>
  *
  * The object editor itself is represented by the class \ref ObjectEditor.
@@ -127,6 +133,8 @@ class MiscEditor;
  * <li>Misc Editor - formerly known as "edit gameplay constants"</li>
  * </ul>
  *
+ * \note The tab loads the object data \p objectData on request when it is shown for the first time. This should reduce performance on start up of the object editor. Besides it is the same behaviour as in the World Editor.
+ *
  * \ingroup objectdata
  */
 class KDE_EXPORT ObjectEditor : public Module
@@ -175,6 +183,8 @@ class KDE_EXPORT ObjectEditor : public Module
 		QAction* modifyFieldAction() const;
 		QAction* resetFieldAction() const;
 
+		SharedObjectData* sharedObjectData() const;
+
 	public slots:
 		/**
 		 * Exports all objects from all object editor tabs as \ref wc3lib::map::CustomObjectsCollection (.w3o) file.
@@ -210,6 +220,8 @@ class KDE_EXPORT ObjectEditor : public Module
 		QTabWidget *m_tabWidget;
 		// current widgets of corresponding tab widget
 		ObjectEditorTab *m_currentTab;
+
+		SharedObjectData *m_sharedObjectData;
 
 		UnitEditor *m_unitEditor;
 		DoodadEditor *m_doodadEditor;
@@ -410,6 +422,11 @@ inline QAction* ObjectEditor::modifyFieldAction() const
 inline QAction* ObjectEditor::resetFieldAction() const
 {
 	return this->m_resetFieldAction;
+}
+
+inline SharedObjectData* ObjectEditor::sharedObjectData() const
+{
+	return this->m_sharedObjectData;
 }
 
 inline KAboutData ObjectEditor::moduleAboutData() const

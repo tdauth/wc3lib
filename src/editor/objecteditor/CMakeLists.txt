@@ -1,4 +1,7 @@
 set(wc3lib_OBJECTEDITOR_H
+	abilitydata.hpp
+	abilityeditor.hpp
+	abilitytreemodel.hpp
 	objectiddialog.hpp
 	itemdata.hpp
 	itemeditor.hpp
@@ -15,7 +18,8 @@ set(wc3lib_OBJECTEDITOR_H
 	objecttreeview.hpp
 	objecttreeitem.hpp
 	objecttreemodel.hpp
-	objectlistwidget.hpp
+	objectlistdialog.hpp
+	sharedobjectdata.hpp
 	uniteditor.hpp
 	unitdata.hpp
 	unitselectiondialog.hpp
@@ -25,6 +29,9 @@ set(wc3lib_OBJECTEDITOR_H
 	weathertreemodel.hpp
 )
 set(wc3lib_OBJECTEDITOR_SRC
+	abilitydata.cpp
+	abilityeditor.cpp
+	abilitytreemodel.cpp
 	objectiddialog.cpp
 	itemdata.cpp
 	itemeditor.cpp
@@ -41,7 +48,8 @@ set(wc3lib_OBJECTEDITOR_SRC
 	objecttreeview.cpp
 	objecttreeitem.cpp
 	objecttreemodel.cpp
-	objectlistwidget.cpp
+	objectlistdialog.cpp
+	sharedobjectdata.cpp
 	uniteditor.cpp
 	unitdata.cpp
 	unitselectiondialog.cpp

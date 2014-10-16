@@ -30,6 +30,7 @@
 #include "../exception.hpp"
 
 #include "../editor/objecteditor/uniteditor.hpp"
+#include "../editor/objecteditor/objecttreemodel.hpp"
 
 using namespace wc3lib::editor;
 
@@ -46,7 +47,10 @@ int main(int argc, char *argv[])
 	KApplication app;
 
 	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
-	UnitEditor editor(source.data(), 0);
+	QScopedPointer<UnitData> unitData(new UnitData(source.data()));
+	UnitEditor editor(source.data(), unitData.data(), 0);
+	unitData->load(&editor);
+	editor.treeModel()->load(source.data(), unitData.data(), &editor);
 	editor.show();
 
 	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();

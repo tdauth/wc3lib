@@ -29,13 +29,9 @@ namespace wc3lib
 namespace editor
 {
 
-class MpqPriorityList;
-
-class ItemData : public ObjectData
+class KDE_EXPORT ItemData : public ObjectData
 {
 	public:
-		typedef QScopedPointer<MetaData> MetaDataPtr;
-
 		ItemData(MpqPriorityList *source, QObject *parent = 0);
 
 		virtual void load(QWidget *widget) override;

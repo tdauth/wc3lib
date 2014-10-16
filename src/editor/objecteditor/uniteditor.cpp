@@ -38,7 +38,7 @@ namespace wc3lib
 namespace editor
 {
 
-UnitEditor::UnitEditor(MpqPriorityList *source, ObjectEditor *objectEditor, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, new UnitData(source, parent), objectEditor, parent, f), m_unitSelectionDialog(new UnitSelectionDialog(source, unitData(), this))
+UnitEditor::UnitEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, objectData, objectEditor, parent, f), m_unitSelectionDialog(new UnitSelectionDialog(source, unitData(), this))
 {
 	setupUi();
 }

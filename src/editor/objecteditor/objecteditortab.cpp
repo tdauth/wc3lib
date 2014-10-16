@@ -55,14 +55,6 @@ ObjectEditorTab::ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData
 , m_showRawData(false)
 , m_idDialog(new ObjectIdDialog(this))
 {
-	try
-	{
-		this->objectData()->load(this);
-	}
-	catch (const Exception &e)
-	{
-		KMessageBox::error(this, e.what());
-	}
 }
 
 ObjectEditorTab::~ObjectEditorTab()
@@ -83,7 +75,6 @@ void ObjectEditorTab::setupUi()
 	QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
 	proxyModel->setSourceModel(this->m_treeModel);
 	treeView()->setModel(proxyModel);
-	this->treeModel()->load(this->source(), this->objectData(), this);
 
 	m_filterSearchLine->setProxy(this->proxyModel());
 

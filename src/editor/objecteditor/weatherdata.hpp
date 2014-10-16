@@ -29,11 +29,9 @@ namespace wc3lib
 namespace editor
 {
 
-class WeatherData : public ObjectData
+class KDE_EXPORT WeatherData : public ObjectData
 {
 	public:
-		typedef QScopedPointer<MetaData> MetaDataPtr;
-
 		WeatherData(MpqPriorityList *source, QObject *parent = 0);
 
 		virtual StandardObjecIds standardObjectIds() const override;
