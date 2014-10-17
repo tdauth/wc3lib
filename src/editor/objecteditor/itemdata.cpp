@@ -20,10 +20,9 @@
 
 #include <QtCore>
 
-#include <KMessageBox>
-
 #include "itemdata.hpp"
 #include "../metadata.hpp"
+#include "../mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -61,13 +60,17 @@ ObjectData::MetaDataList ItemData::resolveDefaultField(const QString& objectId, 
 
 		if (slk == "ItemData")
 		{
-			result.push_back(this->metaData());
+			result.push_back(this->itemData());
 		}
 		else if (slk == "Profile")
 		{
 			result.push_back(this->itemFunc());
 			result.push_back(this->itemStrings());
 		}
+	}
+	else
+	{
+		qDebug() << "Missing slk value" << fieldId << "for object" << objectId;
 	}
 
 	qDebug() << "Missing value" << fieldId << "for object" << objectId;
@@ -132,6 +135,18 @@ QString ItemData::objectName(const QString &originalObjectId, const QString &cus
 	}
 
 	return name;
+}
+
+QIcon ItemData::objectIcon(const QString& originalObjectId, const QString& customObjectId, QWidget* window) const
+{
+	const QString art = this->fieldValue(originalObjectId, customObjectId, "uico");
+
+	if (!art.isEmpty())
+	{
+		return this->source()->sharedData()->icon(art, window);
+	}
+
+	return QIcon();
 }
 
 MetaData* ItemData::objectTabData() const

@@ -52,6 +52,7 @@ class KDE_EXPORT AbilityData : public ObjectData
 		virtual map::CustomObjects::Type type() const override;
 
 		virtual QString objectName(const QString &originalObjectId, const QString &customObjectId) const override;
+		virtual QIcon objectIcon(const QString& originalObjectId, const QString& customObjectId, QWidget* window) const override;
 
 		MetaData* abilityData() const;
 

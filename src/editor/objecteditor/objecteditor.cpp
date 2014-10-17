@@ -448,7 +448,35 @@ void ObjectEditor::currentChanged(int index)
 		try
 		{
 			m_currentTab->objectData()->load(m_currentTab);
-			m_currentTab->treeModel()->load(this->source(), m_currentTab->objectData(), this);
+		}
+		catch (const Exception &e)
+		{
+			KMessageBox::error(this, e.what());
+		}
+
+		cursor = this->cursor();
+		cursor.setShape(Qt::ArrowCursor);
+		this->setCursor(cursor);
+	}
+
+
+	/*
+	 * Load data on request when the tab is shown for the first time.
+	 */
+	if (m_currentTab->objectData() != 0 && m_currentTab->treeModel()->objectData() == 0)
+	{
+		qDebug() << "Show" << m_currentTab->name() << "first time";
+		/*
+		 * Indicate loading by changing the cursor to busy.
+		 * The process of loading object data might take quite some time.
+		 */
+		QCursor cursor = this->cursor();
+		cursor.setShape(Qt::BusyCursor);
+		this->setCursor(cursor);
+
+		try
+		{
+			m_currentTab->treeModel()->load(m_currentTab->source(), m_currentTab->objectData(), m_currentTab);
 		}
 		catch (const Exception &e)
 		{

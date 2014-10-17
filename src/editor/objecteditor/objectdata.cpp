@@ -249,6 +249,10 @@ QString ObjectData::defaultFieldValue(const QString &objectId, const QString &fi
 					return value;
 				}
 			}
+			else
+			{
+				qDebug() << "Invalid index value" << index << "for object" << objectId << "with field" << fieldId;
+			}
 		}
 	}
 

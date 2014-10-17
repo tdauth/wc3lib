@@ -60,9 +60,10 @@ class KDE_EXPORT MiscData : public ObjectData
 		virtual MetaDataList metaDataList() const override;
 
 		virtual map::CustomObjects::Type type() const override;
-		virtual QString nextCustomObjectId() const;
+		virtual QString nextCustomObjectId() const override;
 
 		virtual QString objectName(const QString &originalObjectId, const QString &customObjectId) const override;
+		virtual QIcon objectIcon(const QString& originalObjectId, const QString& customObjectId, QWidget* window) const override;
 
 		MetaData* miscMetaData() const;
 		MetaData* miscGame() const;

@@ -42,9 +42,7 @@ ObjectTreeItem* AbilityTreeModel::createItem(MpqPriorityList *source, ObjectData
 	ObjectTreeItem *item = parent->children().last();
 	item->setObjectData(objectData);
 	item->setObjectId(originalObjectId, customObjectId);
-
-	const QString art = objectData->fieldValue(originalObjectId, customObjectId, "aart");
-	item->setIcon(objectData->source()->sharedData()->icon(art, window));
+	item->setIcon(objectData->objectIcon(originalObjectId, customObjectId, window));
 
 	if (customObjectId.isEmpty())
 	{

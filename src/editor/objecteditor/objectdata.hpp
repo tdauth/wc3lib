@@ -321,6 +321,7 @@ class KDE_EXPORT ObjectData : public QObject
 		 * \return Returns the readable name of the object.
 		 */
 		virtual QString objectName(const QString &originalObjectId, const QString &customObjectId) const = 0;
+		virtual QIcon objectIcon(const QString &originalObjectId, const QString &customObjectId, QWidget *window) const = 0;
 
 		const Objects& objects() const;
 

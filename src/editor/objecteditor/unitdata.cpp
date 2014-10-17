@@ -182,6 +182,18 @@ QString UnitData::objectName(const QString &originalObjectId, const QString &cus
 	return name;
 }
 
+QIcon UnitData::objectIcon(const QString& originalObjectId, const QString& customObjectId, QWidget *window) const
+{
+	const QString art = this->fieldValue(originalObjectId, customObjectId, "uico");
+
+	if (!art.isEmpty())
+	{
+		return this->source()->sharedData()->icon(art, window);
+	}
+
+	return QIcon();
+}
+
 void UnitData::load(QWidget *widget)
 {
 	this->m_unitMetaData.reset(new MetaData(KUrl("Units/UnitMetaData.slk")));

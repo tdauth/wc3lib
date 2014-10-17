@@ -24,6 +24,7 @@
 
 #include "weatherdata.hpp"
 #include "../metadata.hpp"
+#include "../mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -58,7 +59,7 @@ ObjectData::MetaDataList WeatherData::resolveDefaultField(const QString& objectI
 	/*
 	 * If the field does not exist it might be the case that Reign of Chaos files are loaded and not Frozen Throne.
 	 */
-	if (this->metaData()->hasValue(fieldId, "field"))
+	if (this->metaData()->hasValue(fieldId, "slk"))
 	{
 		const QString slk = this->metaData()->value(fieldId, "slk");
 
@@ -127,6 +128,13 @@ void WeatherData::load(QWidget* widget)
 QString WeatherData::objectName(const QString &originalObjectId, const QString &customObjectId) const
 {
 	return fieldReadableValue(originalObjectId, customObjectId, "unam");
+}
+
+QIcon WeatherData::objectIcon(const QString& originalObjectId, const QString& customObjectId, QWidget* window) const
+{
+	const QString art = "Textures\\" + this->fieldValue(originalObjectId, customObjectId, "texf") + ".blp";
+
+	return this->source()->sharedData()->icon(art, window);
 }
 
 MetaData* WeatherData::objectTabData() const

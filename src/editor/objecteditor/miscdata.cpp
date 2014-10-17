@@ -124,6 +124,11 @@ QString MiscData::objectName(const QString &originalObjectId, const QString &cus
 	return QObject::tr("Misc Data: %1:%2").arg(originalObjectId).arg(customObjectId);
 }
 
+QIcon MiscData::objectIcon(const QString& originalObjectId, const QString& customObjectId, QWidget* window) const
+{
+	return QIcon();
+}
+
 void MiscData::load(QWidget *widget)
 {
 	this->m_miscMetaData.reset(new MetaData(KUrl("Units/MiscMetaData.slk")));

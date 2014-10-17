@@ -24,6 +24,7 @@
 
 #include "abilitydata.hpp"
 #include "../metadata.hpp"
+#include "../mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -235,6 +236,18 @@ QString AbilityData::objectName(const QString &originalObjectId, const QString &
 	}
 
 	return name;
+}
+
+QIcon AbilityData::objectIcon(const QString& originalObjectId, const QString& customObjectId, QWidget* window) const
+{
+	const QString art = this->fieldValue(originalObjectId, customObjectId, "aart");
+
+	if (!art.isEmpty())
+	{
+		return this->source()->sharedData()->icon(art, window);
+	}
+
+	return QIcon();
 }
 
 MetaData* AbilityData::objectTabData() const

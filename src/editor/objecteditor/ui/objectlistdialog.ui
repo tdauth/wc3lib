@@ -25,28 +25,28 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QPushButton" name="pushButton_3">
+    <widget class="QPushButton" name="m_editPushButton">
      <property name="text">
       <string>Edit</string>
      </property>
     </widget>
    </item>
    <item row="1" column="2">
-    <widget class="QPushButton" name="pushButton_4">
+    <widget class="QPushButton" name="m_removePushButton">
      <property name="text">
       <string>Remove</string>
      </property>
     </widget>
    </item>
    <item row="2" column="0" colspan="2">
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="m_moveUpPushButton">
      <property name="text">
       <string>Up</string>
      </property>
     </widget>
    </item>
    <item row="2" column="2">
-    <widget class="QPushButton" name="pushButton_2">
+    <widget class="QPushButton" name="m_moveDownPushButton">
      <property name="text">
       <string>Down</string>
      </property>
@@ -62,5 +62,38 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>ObjectListDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>252</x>
+     <y>280</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>56</x>
+     <y>276</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>ObjectListDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>270</x>
+     <y>284</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>110</x>
+     <y>282</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

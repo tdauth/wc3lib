@@ -45,6 +45,9 @@ class ObjectListDialog : public QDialog, protected Ui::ObjectListDialog
 
 	public slots:
 		void addObject();
+		void removeObject();
+		void moveObjectUp();
+		void moveObjectDown();
 
 	public:
 		explicit ObjectListDialog(MpqPriorityList *source, ObjectData *objectData, QWidget* parent = 0, Qt::WindowFlags f = 0);

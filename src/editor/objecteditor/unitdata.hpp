@@ -67,6 +67,7 @@ class KDE_EXPORT UnitData : public ObjectData
 		virtual map::CustomObjects::Type type() const override;
 
 		virtual QString objectName(const QString &originalObjectId, const QString &customObjectId) const override;
+		virtual QIcon objectIcon(const QString& originalObjectId, const QString& customObjectId, QWidget *window) const override;
 
 		bool objectIsHero(const QString &originalObjectId, const QString &customObjectId) const;
 		bool objectIsUnit(const QString &originalObjectId, const QString &customObjectId) const;

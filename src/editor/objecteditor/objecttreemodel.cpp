@@ -426,6 +426,7 @@ void ObjectTreeModel::modifyField(const QString &originalObjectId, const QString
 
 		const QModelIndex parentIndex = this->itemParent(objectData, originalObjectId, customObjectId);
 		ObjectTreeItem *parent = this->item(parentIndex);
+		qDebug() << "Parents:" << item->parent()->text(false) << parent->text(false);
 
 		/*
 		 * If the item would have a new parent it has been moved.
