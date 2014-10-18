@@ -34,7 +34,7 @@ namespace wc3lib
 namespace editor
 {
 
-WarcraftIIIShared::WarcraftIIIShared(MpqPriorityList *source) : m_source(source)
+WarcraftIIIShared::WarcraftIIIShared(MpqPriorityList *source) : m_source(source), m_sharedObjectData(new SharedObjectData(source))
 {
 }
 

@@ -24,7 +24,7 @@
 #include <QDialog>
 
 #include "ui_objectlistdialog.h"
-#include "objectdata.hpp"
+#include "../objectdata.hpp"
 #include "../../map.hpp"
 
 namespace wc3lib
@@ -37,7 +37,7 @@ class MpqPriorityList;
 class SharedObjectData;
 
 /**
- * \brief Dialog to select a list of objects.
+ * \brief Dialog to select a list of objects or literal values.
  */
 class ObjectListDialog : public QDialog, protected Ui::ObjectListDialog
 {
@@ -45,6 +45,7 @@ class ObjectListDialog : public QDialog, protected Ui::ObjectListDialog
 
 	public slots:
 		void addObject();
+		void editObject();
 		void removeObject();
 		void moveObjectUp();
 		void moveObjectDown();
@@ -60,14 +61,30 @@ class ObjectListDialog : public QDialog, protected Ui::ObjectListDialog
 		void setObjectData(ObjectData *objectData);
 		ObjectData* objectData() const;
 
+		void setFieldTypeObjectData(ObjectData *objectData);
+		ObjectData* fieldTypeObjectData() const;
+		void setOriginalObjectId(const QString &originalObjectId);
+		const QString& originalObjectId() const;
+		void setCustomObjectId(const QString &customObjectId);
+		const QString& customObjectId() const;
+		void setFieldId(const QString &fieldId);
+		const QString& fieldId() const;
+
 		/**
 		 * Lists object IDs depending on the value of field \p fieldId of object with IDs \p originalObjectId and \p customObjectId.
 		 */
 		static int getObjectIds(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, ObjectData *objectData, SharedObjectData *sharedObjectData, const QString &label, QWidget* parent = 0, Qt::WindowFlags f = 0);
-		static int getObjectIds(QStringList &result, MpqPriorityList *source, ObjectData *objectData, const QString &label, QWidget* parent = 0, Qt::WindowFlags f = 0);
+		static int getObjectIds(QStringList &result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, MpqPriorityList *source, ObjectData *objectData, ObjectData* fieldTypeObjectData, const QString &label, QWidget* parent = 0, Qt::WindowFlags f = 0);
 	private:
 		MpqPriorityList *m_source;
 		ObjectData *m_objectData;
+		/**
+		 * The Object Data where the field type objects are taken from.
+		 */
+		ObjectData *m_fieldTypeObjectData;
+		QString m_originalObjectId;
+		QString m_customObjectId;
+		QString m_fieldId;
 
 		static ObjectListDialog *m_dialog;
 };
@@ -90,6 +107,46 @@ inline void ObjectListDialog::setObjectData(ObjectData* objectData)
 inline ObjectData* ObjectListDialog::objectData() const
 {
 	return this->m_objectData;
+}
+
+inline void ObjectListDialog::setFieldTypeObjectData(ObjectData* objectData)
+{
+	this->m_fieldTypeObjectData = objectData;
+}
+
+inline ObjectData* ObjectListDialog::fieldTypeObjectData() const
+{
+	return this->m_fieldTypeObjectData;
+}
+
+inline void ObjectListDialog::setOriginalObjectId(const QString &originalObjectId)
+{
+	this->m_originalObjectId = originalObjectId;
+}
+
+inline const QString& ObjectListDialog::originalObjectId() const
+{
+	return this->m_originalObjectId;
+}
+
+inline void ObjectListDialog::setCustomObjectId(const QString& customObjectId)
+{
+	this->m_customObjectId = customObjectId;
+}
+
+inline const QString& ObjectListDialog::customObjectId() const
+{
+	return this->m_customObjectId;
+}
+
+inline void ObjectListDialog::setFieldId(const QString& fieldId)
+{
+	this->m_fieldId = fieldId;
+}
+
+inline const QString& ObjectListDialog::fieldId() const
+{
+	return this->m_fieldId;
 }
 
 }

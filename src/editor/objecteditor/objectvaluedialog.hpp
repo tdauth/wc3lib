@@ -48,9 +48,12 @@ class ObjectData;
  * The shown input widget depends on the type of the corresponding field.
  * The dialog supports numeric types as well as text, check boxes or combo boxes.
  *
- * Use \ref show() to retrieve a new field value from a newly shown object value dialog.
+ * Use \ref getValue() to retrieve a new field value from a newly shown object value dialog.
+ *
+ * \note For list of objects use \ref ObjectListDialog.
  *
  * \ingroup objectdata
+ * \sa ObjectListDialog
  */
 class ObjectValueDialog : public QDialog, protected Ui::ObjectValueDialog
 {
@@ -69,12 +72,8 @@ class ObjectValueDialog : public QDialog, protected Ui::ObjectValueDialog
 		QDoubleSpinBox* doubleSpinBox() const;
 		QLineEdit* lineEdit() const;
 		KTextEdit* textEdit() const;
-		QTextBrowser* previewTextBrowser() const;
-		QPushButton* insertFieldValuePushButton() const;
-		QPushButton* insertColorPushButton() const;
 		KComboBox* comboBox() const;
 		QCheckBox* checkBox() const;
-		KEditListWidget* editListWidget() const;
 
 		void addCheckBox(const QString &name, const QString &value);
 		void setCheckBoxChecked(const QString &name, bool checked);
@@ -89,7 +88,7 @@ class ObjectValueDialog : public QDialog, protected Ui::ObjectValueDialog
 		 *
 		 * On success it automatically modifies the field with ID \p fieldId in \p objectData.
 		 *
-		 * \param result Sets the result to the readable value selected in the dialog.
+		 * \param result Sets the result to the value selected in the dialog.
 		 * \param originalObjectId The original ID of the object.
 		 * \param customObjectId The custom ID of the object.
 		 * \param fieldId The ID of the field which is modified by the dialog.
@@ -99,7 +98,9 @@ class ObjectValueDialog : public QDialog, protected Ui::ObjectValueDialog
 		 *
 		 * \return Returns the dialog code QDialog::DialogCode.
 		 */
-		static int show(QString &result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, ObjectData *objectData, const QString &label, QWidget *parent = 0);
+		static int getValue(QString &result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, ObjectData *objectData, const QString &label, QWidget *parent = 0);
+
+		static int getValue(QString &result, const QString &fieldType, const QString &fieldValue, const QString &fieldReadableValue, const QString &stringExt, const QString &maxValue, const QString &minValue, ObjectData *objectData, const QString &label, QWidget *parent = 0);
 
 	private:
 		CheckBoxes m_checkBoxes;
@@ -108,7 +109,6 @@ class ObjectValueDialog : public QDialog, protected Ui::ObjectValueDialog
 	private slots:
 		void limitText();
 		void limitTextInLineEdit(const QString &text);
-		void limitEditList(const QString &text);
 };
 
 inline void ObjectValueDialog::setLabelText(const QString& text)
@@ -136,21 +136,6 @@ inline KTextEdit* ObjectValueDialog::textEdit() const
 	return this->m_textEdit;
 }
 
-inline QTextBrowser* ObjectValueDialog::previewTextBrowser() const
-{
-	return this->m_previewTextBrowser;
-}
-
-inline QPushButton* ObjectValueDialog::insertFieldValuePushButton() const
-{
-	return this->m_insertFieldValuePushButton;
-}
-
-inline QPushButton* ObjectValueDialog::insertColorPushButton() const
-{
-	return this->m_insertColorPushButton;
-}
-
 inline KComboBox* ObjectValueDialog::comboBox() const
 {
 	return this->m_comboBox;
@@ -159,11 +144,6 @@ inline KComboBox* ObjectValueDialog::comboBox() const
 inline QCheckBox* ObjectValueDialog::checkBox() const
 {
 	return this->m_checkBox;
-}
-
-inline KEditListWidget* ObjectValueDialog::editListWidget() const
-{
-	return this->m_editListWidget;
 }
 
 inline void ObjectValueDialog::addCheckBox(const QString& name, const QString& value)

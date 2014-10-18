@@ -24,7 +24,7 @@
 #include <KMessageBox>
 
 #include "objecteditor.hpp"
-#include "sharedobjectdata.hpp"
+#include "../sharedobjectdata.hpp"
 #include "objecteditortab.hpp"
 #include "editor.hpp"
 #include "uniteditor.hpp"
@@ -441,22 +441,7 @@ void ObjectEditor::currentChanged(int index)
 		 * Indicate loading by changing the cursor to busy.
 		 * The process of loading object data might take quite some time.
 		 */
-		QCursor cursor = this->cursor();
-		cursor.setShape(Qt::BusyCursor);
-		this->setCursor(cursor);
-
-		try
-		{
-			m_currentTab->objectData()->load(m_currentTab);
-		}
-		catch (const Exception &e)
-		{
-			KMessageBox::error(this, e.what());
-		}
-
-		cursor = this->cursor();
-		cursor.setShape(Qt::ArrowCursor);
-		this->setCursor(cursor);
+		m_currentTab->objectData()->loadOnRequest(this);
 	}
 
 

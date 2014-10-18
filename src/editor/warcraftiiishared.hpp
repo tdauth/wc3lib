@@ -34,6 +34,7 @@
 #include "platform.hpp"
 #include "texture.hpp"
 #include "metadata.hpp"
+#include "sharedobjectdata.hpp"
 #include "../map/txt.hpp"
 #include "../map/triggerdata.hpp"
 #include "../map/triggerstrings.hpp"
@@ -93,6 +94,8 @@ class KDE_EXPORT WarcraftIIIShared
 		typedef boost::scoped_ptr<MetaData> WorldEditDataPtr;
 		typedef boost::scoped_ptr<map::TriggerData> TriggerDataPtr;
 		typedef boost::scoped_ptr<map::TriggerStrings> TriggerStringsPtr;
+
+		typedef boost::scoped_ptr<SharedObjectData> SharedObjectDataPtr;
 
 		WarcraftIIIShared(MpqPriorityList *source);
 
@@ -226,6 +229,9 @@ class KDE_EXPORT WarcraftIIIShared
 		 */
 		const TriggerStringsPtr& triggerStrings() const;
 
+		SharedObjectDataPtr& sharedObjectData();
+		const SharedObjectDataPtr& sharedObjectData() const;
+
 	private:
 		MpqPriorityList *m_source;
 
@@ -239,6 +245,7 @@ class KDE_EXPORT WarcraftIIIShared
 		WorldEditDataPtr m_worldEditData;
 		TriggerDataPtr m_triggerData;
 		TriggerStringsPtr m_triggerStrings;
+		SharedObjectDataPtr m_sharedObjectData;
 };
 
 inline MpqPriorityList* WarcraftIIIShared::source() const
@@ -279,6 +286,16 @@ inline const WarcraftIIIShared::TriggerDataPtr& WarcraftIIIShared::triggerData()
 inline const WarcraftIIIShared::TriggerStringsPtr& WarcraftIIIShared::triggerStrings() const
 {
 	return m_triggerStrings;
+}
+
+inline WarcraftIIIShared::SharedObjectDataPtr& WarcraftIIIShared::sharedObjectData()
+{
+	return this->m_sharedObjectData;
+}
+
+inline const WarcraftIIIShared::SharedObjectDataPtr& WarcraftIIIShared::sharedObjectData() const
+{
+	return this->m_sharedObjectData;
 }
 
 }

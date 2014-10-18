@@ -20,11 +20,9 @@
 
 #include <QtGui>
 
-#include <KMessageBox>
-
 #include "weatherdata.hpp"
-#include "../metadata.hpp"
-#include "../mpqprioritylist.hpp"
+#include "metadata.hpp"
+#include "mpqprioritylist.hpp"
 
 namespace wc3lib
 {

@@ -25,7 +25,7 @@
 #include <QtGui>
 
 #include "objecteditortab.hpp"
-#include "objectdata.hpp"
+#include "../objectdata.hpp"
 #include "objecttableview.hpp"
 #include "objecttablemodel.hpp"
 #include "objecttreeview.hpp"
@@ -160,7 +160,7 @@ bool ObjectEditorTab::selectObject(const QString& originalObjectId, const QStrin
 			this->treeView()->setSelectionModel(selection);
 		}
 
-		tableModel()->load(objectData(), originalObjectId, customObjectId);
+		tableModel()->load(objectData(), originalObjectId, customObjectId, this);
 
 		this->tableView()->horizontalHeader()->setVisible(true);
 		this->tableView()->showColumn(0);

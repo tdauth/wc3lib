@@ -21,9 +21,10 @@
 #include <QtGui>
 
 #include "objectdata.hpp"
-#include "../metadata.hpp"
-#include "../mpqprioritylist.hpp"
-#include "../platform.hpp"
+#include "metadata.hpp"
+#include "mpqprioritylist.hpp"
+#include "sharedobjectdata.hpp"
+#include "platform.hpp"
 
 namespace wc3lib
 {
@@ -134,19 +135,77 @@ map::Value::Type ObjectData::fieldType(const QString &fieldId) const
 
 bool ObjectData::fieldTypeIsList(const QString &fieldType) const
 {
+	return fieldTypeIsLiteralList(fieldType)
+		|| fieldTypeIsObjectList(fieldType)
+		;
+}
+
+bool ObjectData::fieldTypeIsLiteralList(const QString &fieldType) const
+{
+	return fieldType == "intList"
+		|| fieldType == "unrealList"
+		|| fieldType == "stringList"
+		;
+}
+
+QString ObjectData::fieldLiteralTypeFromListType(const QString &fieldLiteralListType) const
+{
+	QString result = fieldLiteralListType;
+	const int index = fieldLiteralListType.lastIndexOf("List");
+
+	if (index != -1)
+	{
+		result.truncate(index);
+
+		return result;
+	}
+
+	return "";
+}
+
+bool ObjectData::loadOnRequest(QWidget* widget)
+{
+	if (this->metaData() == 0)
+	{
+		/*
+		* Indicate loading by changing the cursor to busy.
+		* The process of loading object data might take quite some time.
+		*/
+		QCursor cursor = widget->cursor();
+		cursor.setShape(Qt::BusyCursor);
+		widget->setCursor(cursor);
+
+		try
+		{
+			this->load(widget);
+		}
+		catch (const Exception &e)
+		{
+			QMessageBox::warning(widget, QObject::tr("Error"), e.what());
+
+			return false;
+		}
+
+		cursor = widget->cursor();
+		cursor.setShape(Qt::ArrowCursor);
+		widget->setCursor(cursor);
+	}
+
+	return true;
+}
+
+bool ObjectData::fieldTypeIsObjectList(const QString& fieldType) const
+{
 	return fieldType == "unitList"
 		|| fieldType == "upgradeList"
-		|| fieldType == "stringList"
 		|| fieldType == "abilityList"
 		|| fieldType == "heroAbilityList"
 		|| fieldType == "techList"
 		|| fieldType == "itemList";
 }
 
-bool ObjectData::fieldTypeAllowsMultipleSelections(const QString &fieldId) const
+bool ObjectData::fieldTypeAllowsMultipleSelections(const QString &fieldType) const
 {
-	const QString fieldType = this->metaData()->value(fieldId, "type");
-
 	return (fieldType == "unitClass"
 		|| fieldType == "targetType"
 		|| fieldType == "targetList"
@@ -591,20 +650,25 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 		return this->source()->sharedData()->tr("WESTRING_FALSE");
 	}
 	/*
-	 * For unit lists we need all the unit names.
+	 * For object lists we need all the object names.
 	 */
-	else if (fieldType == "unitList")
+	else if (this->fieldTypeIsObjectList(fieldType))
 	{
-		QStringList fieldValues = fieldValue.split(',');
-		QStringList result;
+		ObjectData *objectData = this->source()->sharedData()->sharedObjectData()->resolveByFieldType(fieldType);
 
-		foreach (QString value, fieldValues)
+		if (objectData != 0)
 		{
-			// TODO which one is the custom ID
-			result.push_back(this->objectName(value, ""));
-		}
+			QStringList fieldValues = fieldValue.split(',');
+			QStringList result;
 
-		return result.join(", ");
+			foreach (QString value, fieldValues)
+			{
+				// TODO which one is the custom ID
+				result.push_back(objectData->objectName(value, ""));
+			}
+
+			return result.join(", ");
+		}
 	}
 
 	if (this->objectTabData() != 0)

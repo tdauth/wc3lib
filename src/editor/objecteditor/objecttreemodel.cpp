@@ -21,7 +21,7 @@
 #include <QtGui>
 
 #include "objecttreemodel.hpp"
-#include "objectdata.hpp"
+#include "../objectdata.hpp"
 #include "../mpqprioritylist.hpp"
 
 namespace wc3lib

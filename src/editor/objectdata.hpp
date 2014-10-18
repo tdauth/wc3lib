@@ -28,7 +28,7 @@
 
 #include <kdemacros.h>
 
-#include "../../map.hpp"
+#include "../map.hpp"
 
 namespace wc3lib
 {
@@ -109,12 +109,15 @@ class KDE_EXPORT ObjectData : public QObject
 		 * \return Returns true if field type \p fieldType allows a list of values.
 		 */
 		bool fieldTypeIsList(const QString &fieldType) const;
+		bool fieldTypeIsLiteralList(const QString &fieldType) const;
+		QString fieldLiteralTypeFromListType(const QString &fieldLiteralListType) const;
+		bool fieldTypeIsObjectList(const QString &fieldType) const;
 
 		/**
 		 * Some types allow multiple selections of values by checking multiple check boxes.
-		 * \return Returns true if the field with ID \p fieldId allows multiple selections.
+		 * \return Returns true if the field with type \p fieldType allows multiple selections.
 		 */
-		bool fieldTypeAllowsMultipleSelections(const QString &fieldId) const;
+		bool fieldTypeAllowsMultipleSelections(const QString &fieldType) const;
 
 		typedef QList<MetaData*> MetaDataList;
 		/**
@@ -180,6 +183,12 @@ class KDE_EXPORT ObjectData : public QObject
 		 * \throws Exception Throws an exception if loading fails.
 		 */
 		virtual void load(QWidget *widget) = 0;
+		/**
+		 * Loads object data changing the cursor of \p widget to "busy" while loading the data.
+		 *
+		 * \return Returns true if the data has been loaded successfully. Otherwise it returns false and pops up a message box.
+		 */
+		bool loadOnRequest(QWidget *widget);
 
 		virtual map::CustomObjects::Modification unitToObjectModification(const map::CustomUnits::Modification &modification) const;
 

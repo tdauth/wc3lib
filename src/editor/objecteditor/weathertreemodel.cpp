@@ -21,7 +21,7 @@
 #include <QtGui>
 
 #include "weathertreemodel.hpp"
-#include "weatherdata.hpp"
+#include "../weatherdata.hpp"
 #include "../mpqprioritylist.hpp"
 
 namespace wc3lib

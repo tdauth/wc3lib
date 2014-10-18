@@ -1,17 +1,13 @@
 set(wc3lib_OBJECTEDITOR_H
-	abilitydata.hpp
 	abilityeditor.hpp
 	abilitytreemodel.hpp
 	objectiddialog.hpp
-	itemdata.hpp
 	itemeditor.hpp
 	itemtreemodel.hpp
 	misceditor.hpp
-	miscdata.hpp
 	misctreemodel.hpp
 	objecteditor.hpp
 	objecteditortab.hpp
-	objectdata.hpp
 	objectvaluedialog.hpp
 	objecttablemodel.hpp
 	objecttableview.hpp
@@ -19,29 +15,23 @@ set(wc3lib_OBJECTEDITOR_H
 	objecttreeitem.hpp
 	objecttreemodel.hpp
 	objectlistdialog.hpp
-	sharedobjectdata.hpp
 	uniteditor.hpp
 	unitdata.hpp
 	unitselectiondialog.hpp
 	unittreemodel.hpp
-	weatherdata.hpp
 	weathereditor.hpp
 	weathertreemodel.hpp
 )
 set(wc3lib_OBJECTEDITOR_SRC
-	abilitydata.cpp
 	abilityeditor.cpp
 	abilitytreemodel.cpp
 	objectiddialog.cpp
-	itemdata.cpp
 	itemeditor.cpp
 	itemtreemodel.cpp
 	misceditor.cpp
-	miscdata.cpp
 	misctreemodel.cpp
 	objecteditor.cpp
 	objecteditortab.cpp
-	objectdata.cpp
 	objectvaluedialog.cpp
 	objecttablemodel.cpp
 	objecttableview.cpp
@@ -49,12 +39,9 @@ set(wc3lib_OBJECTEDITOR_SRC
 	objecttreeitem.cpp
 	objecttreemodel.cpp
 	objectlistdialog.cpp
-	sharedobjectdata.cpp
 	uniteditor.cpp
-	unitdata.cpp
 	unitselectiondialog.cpp
 	unittreemodel.cpp
-	weatherdata.cpp
 	weathereditor.cpp
 	weathertreemodel.cpp
 )

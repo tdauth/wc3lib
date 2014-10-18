@@ -23,7 +23,7 @@
 #include <KIconButton>
 
 #include "unitselectiondialog.hpp"
-#include "unitdata.hpp"
+#include "../unitdata.hpp"
 #include "../metadata.hpp"
 #include "../mpqprioritylist.hpp"
 

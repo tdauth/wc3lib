@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>595</width>
-    <height>702</height>
+    <width>450</width>
+    <height>461</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -97,27 +97,6 @@
            </item>
           </layout>
          </item>
-         <item>
-          <widget class="QTextBrowser" name="m_previewTextBrowser"/>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
-         <item>
-          <widget class="QPushButton" name="m_insertFieldValuePushButton">
-           <property name="text">
-            <string>Insert Field Value</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="m_insertColorPushButton">
-           <property name="text">
-            <string>Insert Color</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
        <item>
@@ -129,9 +108,6 @@
           <string/>
          </property>
         </widget>
-       </item>
-       <item>
-        <widget class="KEditListWidget" name="m_editListWidget"/>
        </item>
        <item>
         <spacer name="verticalSpacer_2">
@@ -160,11 +136,6 @@
   </layout>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>KEditListWidget</class>
-   <extends>QWidget</extends>
-   <header>keditlistwidget.h</header>
-  </customwidget>
   <customwidget>
    <class>KDialogButtonBox</class>
    <extends>QDialogButtonBox</extends>

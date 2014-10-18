@@ -20,11 +20,9 @@
 
 #include <QtCore>
 
-#include <KMessageBox>
-
 #include "abilitydata.hpp"
-#include "../metadata.hpp"
-#include "../mpqprioritylist.hpp"
+#include "metadata.hpp"
+#include "mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -100,13 +98,16 @@ ObjectData::MetaDataList AbilityData::resolveDefaultField(const QString& objectI
 					result.push_back(this->undeadAbilityStrings());
 					result.push_back(this->undeadAbilityFunc());
 				}
-				else if (race == "neutral")
+				/*
+				 * neutral
+				 * common
+				 * etc.
+				 * TODO which races exactly
+				 */
+				else
 				{
 					result.push_back(this->neutralAbilityStrings());
 					result.push_back(this->neutralAbilityFunc());
-				}
-				else
-				{
 					result.push_back(this->commonAbilityStrings());
 					result.push_back(this->commonAbilityFunc());
 				}

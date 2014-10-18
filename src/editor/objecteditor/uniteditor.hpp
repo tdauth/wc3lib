@@ -22,7 +22,7 @@
 #define WC3LIB_EDITOR_UNITEDITOR_HPP
 
 #include "objecteditortab.hpp"
-#include "unitdata.hpp"
+#include "../unitdata.hpp"
 #include "../mpqprioritylist.hpp"
 #include "../warcraftiiishared.hpp"
 

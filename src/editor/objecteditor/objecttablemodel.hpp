@@ -53,7 +53,7 @@ class ObjectTableModel : public QAbstractItemModel
 		virtual QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
 		virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
-		void load(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
+		void load(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId, QWidget *widget);
 
 		ObjectData* objectData() const;
 		const QString& originalObjectId() const;

@@ -18,9 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <QtGui>
+
 #include "unittreemodel.hpp"
-#include "objectdata.hpp"
-#include "unitdata.hpp"
+#include "../objectdata.hpp"
+#include "../unitdata.hpp"
 #include "../mpqprioritylist.hpp"
 #include "../warcraftiiishared.hpp"
 
@@ -49,7 +51,7 @@ ObjectTreeItem* UnitTreeModel::createItem(MpqPriorityList *source, ObjectData *o
 	item->setObjectId(originalObjectId, customObjectId);
 
 	const QString art = objectData->fieldValue(originalObjectId, customObjectId, "uico");
-	item->setIcon(objectData->source()->sharedData()->icon(art, window));
+	item->setIcon(source->sharedData()->icon(art, window));
 
 	if (customObjectId.isEmpty())
 	{
@@ -62,7 +64,6 @@ ObjectTreeItem* UnitTreeModel::createItem(MpqPriorityList *source, ObjectData *o
 
 	return item;
 }
-
 
 QModelIndex UnitTreeModel::itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId)
 {

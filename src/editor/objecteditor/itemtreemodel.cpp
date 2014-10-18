@@ -19,7 +19,7 @@
  ***************************************************************************/
 
 #include "itemtreemodel.hpp"
-#include "itemdata.hpp"
+#include "../itemdata.hpp"
 #include "../mpqprioritylist.hpp"
 
 namespace wc3lib

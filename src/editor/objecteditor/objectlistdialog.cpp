@@ -21,8 +21,9 @@
 #include <QtGui>
 
 #include "objectlistdialog.hpp"
-#include "sharedobjectdata.hpp"
+#include "../sharedobjectdata.hpp"
 #include "../mpqprioritylist.hpp"
+#include "objectvaluedialog.hpp"
 
 namespace wc3lib
 {
@@ -34,7 +35,58 @@ ObjectListDialog *ObjectListDialog::m_dialog = 0;
 
 void ObjectListDialog::addObject()
 {
-	qDebug() << "Select";
+	const QString type = this->objectData()->metaData()->value(fieldId(), "type");
+
+	if (objectData()->fieldTypeIsLiteralList(type))
+	{
+		const QString fieldType = this->objectData()->fieldLiteralTypeFromListType(type);
+		const QString stringExt = objectData()->metaData()->value(fieldId(), "stringExt");
+		const QString maxValue = objectData()->metaData()->hasValue(fieldId(), "maxValue") ? objectData()->metaData()->value(fieldId(), "maxValue") : "";
+		const QString minValue = objectData()->metaData()->hasValue(fieldId(), "minValue") ? objectData()->metaData()->value(fieldId(), "minValue") : "";
+		const QString fieldValue = "";
+		const QString fieldReadableValue = "";
+		QString result;
+
+		if (ObjectValueDialog::getValue(result, fieldType, fieldValue, fieldReadableValue, stringExt, maxValue, minValue, this->objectData(), tr("test"), this) == QDialog::Accepted)
+		{
+			QStringList objects = this->objects();
+			objects.prepend(result);
+			this->load(objects);
+		}
+	}
+	else
+	{
+	}
+}
+
+void ObjectListDialog::editObject()
+{
+	QList<QListWidgetItem*> selection = this->m_listWidget->selectedItems();
+
+	if (!selection.isEmpty())
+	{
+		const QString type = this->objectData()->metaData()->value(fieldId(), "type");
+
+		if (objectData()->fieldTypeIsLiteralList(type))
+		{
+			const QString fieldType = this->objectData()->fieldLiteralTypeFromListType(type);
+			const QString stringExt = objectData()->metaData()->value(fieldId(), "stringExt");
+			const QString maxValue = objectData()->metaData()->hasValue(fieldId(), "maxValue") ? objectData()->metaData()->value(fieldId(), "maxValue") : "";
+			const QString minValue = objectData()->metaData()->hasValue(fieldId(), "minValue") ? objectData()->metaData()->value(fieldId(), "minValue") : "";
+			const QString fieldValue = selection.first()->data(Qt::UserRole).toString();
+			const QString fieldReadableValue = selection.first()->text();
+			QString result;
+
+			if (ObjectValueDialog::getValue(result, fieldType, fieldValue, fieldReadableValue, stringExt, maxValue, minValue, this->objectData(), tr("test"), this) == QDialog::Accepted)
+			{
+				selection.first()->setData(Qt::UserRole, result);
+				selection.first()->setText(result);
+			}
+		}
+		else
+		{
+		}
+	}
 }
 
 void ObjectListDialog::removeObject()
@@ -85,47 +137,67 @@ void ObjectListDialog::moveObjectDown()
 	}
 }
 
-ObjectListDialog::ObjectListDialog(MpqPriorityList *source, ObjectData *objectData, QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), m_source(source), m_objectData(objectData)
+ObjectListDialog::ObjectListDialog(MpqPriorityList *source, ObjectData *objectData, QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), m_source(source), m_objectData(objectData), m_fieldTypeObjectData(0)
 {
 	setupUi(this);
 
 	connect(this->m_addPushButton, SIGNAL(clicked(bool)), this, SLOT(addObject()));
+	connect(this->m_editPushButton, SIGNAL(clicked(bool)), this, SLOT(editObject()));
 	connect(this->m_removePushButton, SIGNAL(clicked(bool)), this, SLOT(removeObject()));
 	connect(this->m_moveUpPushButton, SIGNAL(clicked(bool)), this, SLOT(moveObjectUp()));
 	connect(this->m_moveDownPushButton, SIGNAL(clicked(bool)), this, SLOT(moveObjectDown()));
+	connect(this->m_listWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(editObject()));
 }
 
 void ObjectListDialog::load(const QStringList &objects)
 {
 	this->m_listWidget->clear();
+	const QString type = this->objectData()->metaData()->value(fieldId(), "type");
 
-	foreach (QString objectId, objects)
+
+	if (this->objectData()->fieldTypeIsObjectList(type))
 	{
-		const QStringList list = objectId.split(':');
-		const QString originalObjectId = list.size() >= 1 ? list[0] : "";
-		const QString customObjectId = list.size() >= 2 ? list[1] : "";
-		QString name = this->objectData()->objectName(originalObjectId, customObjectId);
-
-		if (name.isEmpty())
+		foreach (QString objectId, objects)
 		{
-			name = QString("%1:%2").arg(originalObjectId).arg(customObjectId);
+			const QStringList list = objectId.split(':');
+			const QString originalObjectId = list.size() >= 1 ? list[0] : "";
+			const QString customObjectId = list.size() >= 2 ? list[1] : "";
+			QString name = this->fieldTypeObjectData()->objectName(originalObjectId, customObjectId);
+
+			if (name.isEmpty())
+			{
+				name = QString("%1:%2").arg(originalObjectId).arg(customObjectId);
+			}
+
+			QIcon icon = this->fieldTypeObjectData()->objectIcon(originalObjectId, customObjectId, this);
+			QListWidgetItem *item = new QListWidgetItem(icon, name);
+			QString data;
+
+			if (!customObjectId.isEmpty())
+			{
+				data = QString("%1:%2").arg(originalObjectId).arg(customObjectId);
+			}
+			else
+			{
+				data = originalObjectId;
+			}
+
+			item->setData(Qt::UserRole, data);
+			this->m_listWidget->addItem(item);
 		}
-
-		QIcon icon = this->objectData()->objectIcon(originalObjectId, customObjectId, this);
-		QListWidgetItem *item = new QListWidgetItem(icon, name);
-		QString data;
-
-		if (!customObjectId.isEmpty())
+	}
+	else if (this->objectData()->fieldTypeIsLiteralList(type))
+	{
+		foreach (QString value, objects)
 		{
-			data = QString("%1:%2").arg(originalObjectId).arg(customObjectId);
+			QListWidgetItem *item = new QListWidgetItem(value);
+			item->setData(Qt::UserRole, value);
+			this->m_listWidget->addItem(item);
 		}
-		else
-		{
-			data = originalObjectId;
-		}
-
-		item->setData(Qt::UserRole, data);
-		this->m_listWidget->addItem(item);
+	}
+	else
+	{
+		qDebug() << "Unsupported type" << type;
 	}
 }
 
@@ -148,54 +220,40 @@ int ObjectListDialog::getObjectIds(const QString& originalObjectId, const QStrin
 	const QString type = objectData->metaData()->value(fieldId, "type");
 	const QString stringExt = objectData->metaData()->value(fieldId, "stringExt");
 	const QString fieldValue = objectData->fieldValue(originalObjectId, customObjectId, fieldId);
-	ObjectData *listObjectData = sharedObjectData->resolveByFieldType(type);
+	ObjectData *fieldTypeObjectData = objectData;
 
-	if (listObjectData != 0)
+	if (objectData->fieldTypeIsObjectList(type))
 	{
-		if (listObjectData->metaData() == 0)
+		ObjectData *listObjectData = sharedObjectData->resolveByFieldType(type);
+
+		if (listObjectData != 0)
 		{
-			/*
-			* Indicate loading by changing the cursor to busy.
-			* The process of loading object data might take quite some time.
-			*/
-			QCursor cursor = parent->cursor();
-			cursor.setShape(Qt::BusyCursor);
-			parent->setCursor(cursor);
-
-			try
+			if (!listObjectData->loadOnRequest(parent))
 			{
-				listObjectData->load(parent);
-			}
-			catch (const Exception &e)
-			{
-				QMessageBox::warning(parent, tr("Error"), e.what());
-
 				return QDialog::Rejected;
 			}
 
-			cursor = parent->cursor();
-			cursor.setShape(Qt::ArrowCursor);
-			parent->setCursor(cursor);
+			fieldTypeObjectData = listObjectData;
 		}
-
-		const QString objects = objectData->fieldValue(originalObjectId, customObjectId, fieldId);
-		qDebug() << "Objects:" << objects;
-		QStringList objectList = objects.split(',');
-
-		if (getObjectIds(objectList, listObjectData->source(), listObjectData, label, parent, f) == QDialog::Accepted)
+		else
 		{
-			objectData->modifyField(originalObjectId, customObjectId, fieldId, objectList.join(","));
+			return QDialog::Rejected;
 		}
 	}
-	else
+
+	const QString objects = objectData->fieldValue(originalObjectId, customObjectId, fieldId);
+	qDebug() << "Objects:" << objects;
+	QStringList objectList = objects.split(',');
+
+	if (getObjectIds(objectList, originalObjectId, customObjectId, fieldId, objectData->source(), objectData, fieldTypeObjectData, label, parent, f) == QDialog::Accepted)
 	{
-		qDebug() << "Missing object data for field type" << type;
+		objectData->modifyField(originalObjectId, customObjectId, fieldId, objectList.join(","));
 	}
 
 	return QDialog::Rejected;
 }
 
-int ObjectListDialog::getObjectIds(QStringList& result, MpqPriorityList* source, ObjectData* objectData, const QString& label, QWidget* parent, Qt::WindowFlags f)
+int ObjectListDialog::getObjectIds(QStringList& result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, MpqPriorityList* source, ObjectData* objectData, ObjectData* fieldTypeObjectData, const QString& label, QWidget* parent, Qt::WindowFlags f)
 {
 	if (m_dialog != 0)
 	{
@@ -205,6 +263,10 @@ int ObjectListDialog::getObjectIds(QStringList& result, MpqPriorityList* source,
 
 	m_dialog = new ObjectListDialog(source, objectData, parent, f);
 	m_dialog->setWindowTitle(label);
+	m_dialog->setFieldTypeObjectData(fieldTypeObjectData);
+	m_dialog->setOriginalObjectId(originalObjectId);
+	m_dialog->setCustomObjectId(customObjectId);
+	m_dialog->setFieldId(fieldId);
 	m_dialog->load(result);
 
 	const int exitCode = m_dialog->exec();

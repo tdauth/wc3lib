@@ -22,7 +22,7 @@
 #define WC3LIB_EDITOR_MISCEDITOR_HPP
 
 #include "objecteditortab.hpp"
-#include "miscdata.hpp"
+#include "../miscdata.hpp"
 #include "../mpqprioritylist.hpp"
 
 namespace wc3lib

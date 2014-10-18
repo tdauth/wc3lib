@@ -19,7 +19,7 @@
  ***************************************************************************/
 
 #include "abilitytreemodel.hpp"
-#include "abilitydata.hpp"
+#include "../abilitydata.hpp"
 #include "../mpqprioritylist.hpp"
 
 namespace wc3lib

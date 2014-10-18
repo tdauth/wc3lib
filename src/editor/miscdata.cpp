@@ -20,11 +20,9 @@
 
 #include <QtGui>
 
-#include <KMessageBox>
-
 #include "miscdata.hpp"
-#include "../metadata.hpp"
-#include "../mpqprioritylist.hpp"
+#include "metadata.hpp"
+#include "mpqprioritylist.hpp"
 
 
 namespace wc3lib
@@ -133,63 +131,19 @@ void MiscData::load(QWidget *widget)
 {
 	this->m_miscMetaData.reset(new MetaData(KUrl("Units/MiscMetaData.slk")));
 	this->m_miscMetaData->setSource(this->source());
-
-	try
-	{
-		this->m_miscMetaData->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_miscMetaData->url().toEncoded().constData(), e.what()));
-	}
-
+	this->m_miscMetaData->load();
 	this->m_miscGame.reset(new MetaData(KUrl("Units/miscgame.txt")));
 	this->m_miscGame->setSource(this->source());
-
-	try
-	{
-		this->m_miscGame->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_miscGame->url().toEncoded().constData(), e.what()));
-	}
-
+	this->m_miscGame->load();
 	this->m_customV0.reset(new MetaData(KUrl("Custom_V0/Units/miscgame.txt")));
 	this->m_customV0->setSource(this->source());
-
-	try
-	{
-		this->m_customV0->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_customV0->url().toEncoded().constData(), e.what()));
-	}
-
+	this->m_customV0->load();
 	this->m_customV1.reset(new MetaData(KUrl("Custom_V1/Units/miscgame.txt")));
 	this->m_customV1->setSource(this->source());
-
-	try
-	{
-		this->m_customV1->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_customV1->url().toEncoded().constData(), e.what()));
-	}
-
+	this->m_customV1->load();
 	this->m_meleeV0.reset(new MetaData(KUrl("melee_v0/Units/miscgame.txt")));
 	this->m_meleeV0->setSource(this->source());
-
-	try
-	{
-		this->m_meleeV0->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(widget, i18n("Error on loading file \"%1\": %2", this->m_meleeV0->url().toEncoded().constData(), e.what()));
-	}
+	this->m_meleeV0->load();
 }
 
 }

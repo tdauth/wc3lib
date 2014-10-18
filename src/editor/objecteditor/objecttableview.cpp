@@ -27,7 +27,7 @@
 #include "objectlistdialog.hpp"
 #include "objecttablemodel.hpp"
 #include "objecteditortab.hpp"
-#include "objectdata.hpp"
+#include "../objectdata.hpp"
 #include "../mpqprioritylist.hpp"
 
 namespace wc3lib
@@ -85,7 +85,7 @@ void ObjectTableView::editItem(const QModelIndex &index)
 	{
 		ObjectListDialog::getObjectIds(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId, this->tab()->objectData(), this->tab()->objectEditor()->sharedObjectData(), label, this);
 	}
-	else if (ObjectValueDialog::show(result, this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId, this->tab()->objectData(), label, this->tab()) == QDialog::Accepted)
+	else if (ObjectValueDialog::getValue(result, this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId, this->tab()->objectData(), label, this->tab()) == QDialog::Accepted)
 	{
 		qDebug() << "New field value:" << this->tab()->objectData()->fieldValue(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId);
 		qDebug() << "New readable field value:" << this->tab()->objectData()->fieldReadableValue(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId);

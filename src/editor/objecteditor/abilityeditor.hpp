@@ -22,7 +22,7 @@
 #define WC3LIB_EDITOR_ABILITYEDITOR_HPP
 
 #include "objecteditortab.hpp"
-#include "abilitydata.hpp"
+#include "../abilitydata.hpp"
 #include "../mpqprioritylist.hpp"
 
 namespace wc3lib

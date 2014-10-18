@@ -25,7 +25,7 @@
 
 #include "weathereditor.hpp"
 #include "weathertreemodel.hpp"
-#include "weatherdata.hpp"
+#include "../weatherdata.hpp"
 
 namespace wc3lib
 {

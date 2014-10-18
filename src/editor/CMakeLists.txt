@@ -66,11 +66,14 @@ endif ()
 
 if (EDITOR)
 	set(wc3lib_EDITOR_H
+		abilitydata.hpp
 		colorpalettedialog.hpp
 		editor.hpp
+		itemdata.hpp
 		listfilesdialog.hpp
 		map.hpp
 		metadata.hpp
+		miscdata.hpp
 		modelview.hpp
 		modelviewsettings.hpp
 		module.hpp
@@ -78,6 +81,7 @@ if (EDITOR)
 		moduletoolbar.hpp
 		mpqprioritylist.hpp
 		newmapdialog.hpp
+		objectdata.hpp
 		ogreenvironment.hpp
 		ogremdlx.hpp
 		ogremdlxentity.hpp
@@ -89,20 +93,26 @@ if (EDITOR)
 		root.hpp
 		settings.hpp
 		settingsinterface.hpp
+		sharedobjectdata.hpp
 		sourcesdialog.hpp
 		splashscreen.hpp
 		teamcolordialog.hpp
 		texture.hpp
+		unitdata.hpp
 		viewportsettings.hpp
 		warcraftiiishared.hpp
+		weatherdata.hpp
 		windowsmenu.hpp
 	)
 	set(wc3lib_EDITOR_SRC
+		abilitydata.cpp
 		colorpalettedialog.cpp
 		editor.cpp
+		itemdata.cpp
 		listfilesdialog.cpp
 		map.cpp
 		metadata.cpp
+		miscdata.cpp
 		modelview.cpp
 		modelviewsettings.cpp
 		module.cpp
@@ -110,6 +120,7 @@ if (EDITOR)
 		moduletoolbar.cpp
 		mpqprioritylist.cpp
 		newmapdialog.cpp
+		objectdata.cpp
 		ogreenvironment.cpp
 		ogremdlx.cpp
 		ogremdlxentity.cpp
@@ -119,12 +130,15 @@ if (EDITOR)
 		root.cpp
 		settings.cpp
 		settingsinterface.cpp
+		sharedobjectdata.cpp
 		sourcesdialog.cpp
 		splashscreen.cpp
 		teamcolordialog.cpp
 		texture.cpp
+		unitdata.cpp
 		viewportsettings.cpp
 		warcraftiiishared.cpp
+		weatherdata.cpp
 		windowsmenu.cpp
 	)
 

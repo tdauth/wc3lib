@@ -21,7 +21,7 @@
 #include <QtGui>
 
 #include "objectvaluedialog.hpp"
-#include "objectdata.hpp"
+#include "../objectdata.hpp"
 #include "../metadata.hpp"
 #include "../mpqprioritylist.hpp"
 #include "../warcraftiiishared.hpp"
@@ -38,7 +38,6 @@ ObjectValueDialog::ObjectValueDialog(QWidget *parent) : QDialog(parent), m_maxim
 
 	connect(this->m_textEdit, SIGNAL(textChanged()), this, SLOT(limitText()));
 	connect(this->m_lineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(limitTextInLineEdit(const QString&)));
-	connect(this->m_editListWidget, SIGNAL(added(const QString&)), this, SLOT(limitEditList(const QString&)));
 }
 
 void ObjectValueDialog::setItemsVisible(bool visible)
@@ -47,12 +46,8 @@ void ObjectValueDialog::setItemsVisible(bool visible)
 	this->m_doubleSpinBox->setVisible(visible);
 	this->m_lineEdit->setVisible(visible);
 	this->m_textEdit->setVisible(visible);
-	this->previewTextBrowser()->setVisible(visible);
-	this->insertFieldValuePushButton()->setVisible(visible);
-	this->insertColorPushButton()->setVisible(visible);
 	this->m_comboBox->setVisible(visible);
 	this->m_checkBox->setVisible(visible);
-	this->m_editListWidget->setVisible(visible);
 
 	for (CheckBoxes::iterator iterator = this->m_checkBoxes.begin(); iterator != this->m_checkBoxes.end(); ++iterator)
 	{
@@ -60,18 +55,32 @@ void ObjectValueDialog::setItemsVisible(bool visible)
 	}
 }
 
-int ObjectValueDialog::show(QString &result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, ObjectData *objectData, const QString &label, QWidget *parent)
+int ObjectValueDialog::getValue(QString &result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, ObjectData *objectData, const QString &label, QWidget *parent)
+{
+	qDebug() << "Original Object Id" << originalObjectId;
+	qDebug() << "Custom Object Id" << customObjectId;
+	qDebug() << "Field Id" << fieldId;
+	const QString type = objectData->metaData()->value(fieldId, "type");
+	const QString stringExt = objectData->metaData()->value(fieldId, "stringExt");
+	const QString fieldValue = objectData->fieldValue(originalObjectId, customObjectId, fieldId);
+	const QString fieldReadableValue = objectData->fieldReadableValue(originalObjectId, customObjectId, fieldId);
+	const QString minValue = objectData->metaData()->value(fieldId, "minVal");
+	const QString maxValue = objectData->metaData()->value(fieldId, "maxVal");
+
+	if (getValue(result, type, fieldValue, fieldReadableValue, stringExt, maxValue, minValue, objectData, label, parent) == QDialog::Accepted)
+	{
+		objectData->modifyField(originalObjectId, customObjectId, fieldId, result);
+
+		return QDialog::Accepted;
+	}
+
+	return QDialog::Rejected;
+}
+
+int ObjectValueDialog::getValue(QString& result, const QString& fieldType, const QString &fieldValue, const QString &fieldReadableValue, const QString& stringExt, const QString& maxValue, const QString& minValue, ObjectData* objectData, const QString& label, QWidget* parent)
 {
 	try
 	{
-		qDebug() << "Original Object Id" << originalObjectId;
-		qDebug() << "Custom Object Id" << customObjectId;
-		qDebug() << "Field Id" << fieldId;
-		const QString type = objectData->metaData()->value(fieldId, "type");
-		const QString stringExt = objectData->metaData()->value(fieldId, "stringExt");
-		const QString fieldValue = objectData->fieldValue(originalObjectId, customObjectId, fieldId);
-		qDebug() << "Type:" << type;
-
 		ObjectValueDialog *dialog = new ObjectValueDialog(parent);
 		dialog->clearCheckBoxes();
 		dialog->setItemsVisible(false);
@@ -80,7 +89,6 @@ int ObjectValueDialog::show(QString &result, const QString &originalObjectId, co
 		dialog->setLabelText(label);
 		bool supported = true;
 
-		const QString maxValue = objectData->metaData()->value(fieldId, "maxVal");
 		bool maxOk = true;
 		const int maxValueInt = maxValue.toInt(&maxOk);
 
@@ -93,9 +101,8 @@ int ObjectValueDialog::show(QString &result, const QString &originalObjectId, co
 			dialog->m_maximum = -1;
 		}
 
-		if (type == "int")
+		if (fieldType == "int")
 		{
-			const QString minValue = objectData->metaData()->value(fieldId, "minVal");
 			qDebug() << "Min value:" << minValue;
 
 			bool minOk = true;
@@ -126,11 +133,8 @@ int ObjectValueDialog::show(QString &result, const QString &originalObjectId, co
 			dialog->intSpinBox()->setValue(fieldValue.toInt());
 			dialog->intSpinBox()->selectAll();
 		}
-		else if (type == "real" || type == "unreal")
+		else if (fieldType == "real" || fieldType == "unreal")
 		{
-			const QString minValue = objectData->metaData()->value(fieldId, "minVal");
-			const QString maxValue = objectData->metaData()->value(fieldId, "maxVal");
-
 			qDebug() << "Min value:" << minValue;
 			qDebug() << "Max value:" << maxValue;
 
@@ -164,7 +168,7 @@ int ObjectValueDialog::show(QString &result, const QString &originalObjectId, co
 			dialog->doubleSpinBox()->setValue(fieldValue.toDouble());
 			dialog->doubleSpinBox()->selectAll();
 		}
-		else if (type == "string")
+		else if (fieldType == "string")
 		{
 			titleArg = objectData->source()->sharedData()->tr("WESTRING_UE_TYPE_STRING");
 
@@ -180,40 +184,24 @@ int ObjectValueDialog::show(QString &result, const QString &originalObjectId, co
 				dialog->lineEdit()->setText(fieldValue);
 				dialog->lineEdit()->selectAll();
 			}
-
-			dialog->previewTextBrowser()->setVisible(true);
-			dialog->insertFieldValuePushButton()->setVisible(true);
-			dialog->insertColorPushButton()->setVisible(true);
 		}
-		else if (type == "bool")
+		else if (fieldType == "bool")
 		{
 			titleArg = objectData->source()->sharedData()->tr("WESTRING_UE_TYPE_BOOL");
 			dialog->checkBox()->setVisible(true);
 			dialog->checkBox()->setChecked(fieldValue.toInt());
 		}
-		else if (objectData->fieldTypeIsList(type))
-		{
-			//titleArg = tab()->source()->sharedData()->tr("WESTRING_UE_TYPE_BOOL");
-			const QString fieldReadableValue = objectData->fieldReadableValue(originalObjectId, customObjectId, fieldId);
-			dialog->editListWidget()->setVisible(true);
-
-			/*
-			 * Readable values are usually separated by a , followed by a space but in case there is no readable value use a regex with an optional space.
-			 */
-			const QStringList list = fieldReadableValue.split(QRegExp(",[ ]?"));
-			dialog->editListWidget()->setItems(list);
-		}
 		else
 		{
-			const QString valueTypeDisplayString = "WESTRING_UE_TYPE_" + type.toUpper();
+			const QString valueTypeDisplayString = "WESTRING_UE_TYPE_" + fieldType.toUpper();
 			titleArg = objectData->source()->sharedData()->tr(valueTypeDisplayString);
 
-			const ObjectData::ObjectTabEntries entries = objectData->objectTabEntries(type);
+			const ObjectData::ObjectTabEntries entries = objectData->objectTabEntries(fieldType);
 
 			/*
 			 * Some types need a list of check boxes if multiple values are allowed.
 			 */
-			if (objectData->fieldTypeAllowsMultipleSelections(fieldId))
+			if (objectData->fieldTypeAllowsMultipleSelections(fieldType))
 			{
 				foreach (ObjectData::ObjectTabEntry entry, entries)
 				{
@@ -257,16 +245,16 @@ int ObjectValueDialog::show(QString &result, const QString &originalObjectId, co
 				bool successOnEdit = true;
 				QString value;
 
-				if (type == "int")
+				if (fieldType == "int")
 				{
 					value = QString::number(dialog->intSpinBox()->value());
 				}
-				else if (type == "real" || type == "unreal")
+				else if (fieldType == "real" || fieldType == "unreal")
 				{
 					value = QString::number(dialog->doubleSpinBox()->value());
 					qDebug() << "Real value:" << value;
 				}
-				else if (type == "string")
+				else if (fieldType == "string")
 				{
 					if (stringExt == "1")
 					{
@@ -277,22 +265,16 @@ int ObjectValueDialog::show(QString &result, const QString &originalObjectId, co
 						value = dialog->lineEdit()->text();
 					}
 				}
-				else if (type == "bool")
+				else if (fieldType == "bool")
 				{
 					value = QString::number(dialog->checkBox()->isChecked());
-				}
-				else if (objectData->fieldTypeIsList(type))
-				{
-					// TODO join the raw data ids not the displayed text!!!
-					value = dialog->editListWidget()->items().join(QChar(','));
-					qDebug() << "String list value:" << value;
 				}
 				else
 				{
 					/*
 					 * Some types need a list of check boxes if multiple values are allowed.
 					 */
-					if (objectData->fieldTypeAllowsMultipleSelections(fieldId))
+					if (objectData->fieldTypeAllowsMultipleSelections(fieldType))
 					{
 						value = dialog->checkedValues();
 					}
@@ -316,12 +298,10 @@ int ObjectValueDialog::show(QString &result, const QString &originalObjectId, co
 
 				if (successOnEdit)
 				{
-					objectData->modifyField(originalObjectId, customObjectId, fieldId, value);
 					delete dialog;
 					dialog = 0;
 
-					result = objectData->fieldReadableValue(originalObjectId, customObjectId, fieldId);
-					qDebug() << "Readable value:" << result;
+					result = value;
 
 					return QDialog::Accepted;
 				}
@@ -362,20 +342,6 @@ void ObjectValueDialog::limitTextInLineEdit(const QString& text)
 		}
 	}
 }
-
-void ObjectValueDialog::limitEditList(const QString &text)
-{
-	if (m_maximum != -1)
-	{
-		if (m_editListWidget->items().size() > m_maximum)
-		{
-			QStringList items = m_editListWidget->items();
-			items.removeAt(m_editListWidget->items().size() - 1);
-			m_editListWidget->setItems(items);
-		}
-	}
-}
-
 
 }
 

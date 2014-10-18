@@ -21,7 +21,7 @@
 #include <QtGui>
 
 #include "objecttreeitem.hpp"
-#include "objectdata.hpp"
+#include "../objectdata.hpp"
 #include "objecttreemodel.hpp"
 #include "../metadata.hpp"
 #include "../mpqprioritylist.hpp"

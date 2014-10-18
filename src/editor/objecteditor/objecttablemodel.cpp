@@ -21,7 +21,7 @@
 #include <QtGui>
 
 #include "objecttablemodel.hpp"
-#include "objectdata.hpp"
+#include "../objectdata.hpp"
 #include "../metadata.hpp"
 #include "../mpqprioritylist.hpp"
 
@@ -61,14 +61,17 @@ QVariant ObjectTableModel::data(const QModelIndex &index, int role) const
 					{
 						category = objectData()->metaData()->value(fieldId, "category");
 
-						if (objectData()->source()->sharedData()->worldEditData()->hasValue("ObjectEditorCategories", category))
+						if (!category.isEmpty())
 						{
-							category = objectData()->source()->sharedData()->worldEditData()->value("ObjectEditorCategories", category);
-							category = objectData()->source()->sharedData()->tr(category).remove('&');
-						}
-						else
-						{
-							qDebug() << "Missing category entry for category" << category;
+							if (objectData()->source()->sharedData()->worldEditData()->hasValue("ObjectEditorCategories", category))
+							{
+								category = objectData()->source()->sharedData()->worldEditData()->value("ObjectEditorCategories", category);
+								category = objectData()->source()->sharedData()->tr(category).remove('&');
+							}
+							else
+							{
+								qDebug() << "Missing category entry for category" << category;
+							}
 						}
 					}
 
@@ -183,7 +186,7 @@ QVariant ObjectTableModel::headerData(int section, Qt::Orientation orientation, 
 	return QVariant();
 }
 
-void ObjectTableModel::load(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId)
+void ObjectTableModel::load(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId, QWidget *widget)
 {
 	if (m_objectData != 0)
 	{
@@ -217,6 +220,18 @@ void ObjectTableModel::load(ObjectData *objectData, const QString &originalObjec
 			}
 			else
 			{
+				/*
+				 * Make sure object data for field is loaded.
+				 */
+				const QString fieldType = objectData->metaData()->value(row, "type");
+
+				ObjectData *fieldObjectData = this->objectData()->source()->sharedData()->sharedObjectData()->resolveByFieldType(fieldType);
+
+				if (fieldObjectData != 0)
+				{
+					fieldObjectData->loadOnRequest(widget);
+				}
+
 				m_itemsByRow.insert(rows, fieldId);
 				m_itemsByField.insert(fieldId, rows);
 

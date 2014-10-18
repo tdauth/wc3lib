@@ -20,12 +20,9 @@
 
 #include <QtGui>
 
-#include <KMessageBox>
-
 #include "unitdata.hpp"
-#include "objecttreeitem.hpp"
-#include "../metadata.hpp"
-#include "../mpqprioritylist.hpp"
+#include "metadata.hpp"
+#include "mpqprioritylist.hpp"
 
 
 namespace wc3lib

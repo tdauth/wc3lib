@@ -19,7 +19,7 @@
  ***************************************************************************/
 
 #include "misctreemodel.hpp"
-#include "miscdata.hpp"
+#include "../miscdata.hpp"
 #include "../mpqprioritylist.hpp"
 #include "../warcraftiiishared.hpp"
 

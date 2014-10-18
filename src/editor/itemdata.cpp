@@ -21,8 +21,8 @@
 #include <QtCore>
 
 #include "itemdata.hpp"
-#include "../metadata.hpp"
-#include "../mpqprioritylist.hpp"
+#include "metadata.hpp"
+#include "mpqprioritylist.hpp"
 
 namespace wc3lib
 {
