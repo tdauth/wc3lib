@@ -46,6 +46,7 @@ class KDE_EXPORT SharedObjectData
 		typedef boost::scoped_ptr<ObjectData> ObjectDataPtr;
 
 		SharedObjectData(MpqPriorityList *source);
+		virtual ~SharedObjectData();
 
 		virtual void load(QWidget *widget);
 

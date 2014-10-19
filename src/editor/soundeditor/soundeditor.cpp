@@ -26,37 +26,37 @@ namespace wc3lib
 namespace editor
 {
 
-SoundEditor::SoundEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f)
+SoundEditor::SoundEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f)
 {
 }
 
-void SoundEditor::createFileActions(class KMenu *menu)
+void SoundEditor::createFileActions(QMenu *menu)
 {
 }
 
-void SoundEditor::createEditActions(class KMenu *menu)
+void SoundEditor::createEditActions(QMenu *menu)
 {
 }
 
-void SoundEditor::createMenus(class KMenuBar *menuBar)
+void SoundEditor::createMenus(QMenuBar *menuBar)
 {
 }
 
-void SoundEditor::createWindowsActions(class KMenu *menu)
+void SoundEditor::createWindowsActions(WindowsMenu *menu)
 {
 }
 
-void SoundEditor::createToolButtons(class KToolBar *toolBar)
+void SoundEditor::createToolButtons(ModuleToolBar *toolBar)
 {
 }
 
-class SettingsInterface* SoundEditor::settings()
+SettingsInterface* SoundEditor::settings()
 {
 	/// @todo FIXME
 	return 0;
 }
 
-void SoundEditor::onSwitchToMap(Map* map)
+void SoundEditor::onSwitchToMap(Map *map)
 {
 }
 

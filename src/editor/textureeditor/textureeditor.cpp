@@ -194,9 +194,9 @@ TextureEditor::SaveDialog::~SaveDialog()
 
 TextureEditor::ChargesDialog::ChargesDialog(QWidget *parent)
 : QDialog(parent)
+, m_buttonBox(new KDialogButtonBox(this))
 , m_chargesInput(new KIntNumInput(this))
 , m_hasChargesCheckBox(new QCheckBox(tr("Has Charges:"), this))
-, m_buttonBox(new KDialogButtonBox(this))
 {
 	this->setWindowTitle(tr("Set Charges"));
 	this->setLayout(new QVBoxLayout());

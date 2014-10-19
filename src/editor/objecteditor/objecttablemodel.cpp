@@ -205,7 +205,7 @@ void ObjectTableModel::load(ObjectData *objectData, const QString &originalObjec
 	m_customObjectId = customObjectId;
 	int rows = 0;
 
-	for (map::Slk::Table::size_type row = 1; row < objectData->metaData()->rows(); ++row)
+	for (int row = 1; row < objectData->metaData()->rows(); ++row)
 	{
 		const QString fieldId = objectData->metaData()->value(row, "ID");
 

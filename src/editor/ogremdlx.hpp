@@ -158,6 +158,7 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		 * <li>OGRE MESH - "mesh"</li>
 		 * </ul>
 		 * Stores file at \p url.
+		 * \param url The URL where the model is saved to.
 		 * \param format If this value is empty format will be detected automatically by it's destination's extension. If no valid extension could be detected default format is used: MDX.
 		 * \throw Exception Is thrown when file could not be stored in \p url.
 		 */

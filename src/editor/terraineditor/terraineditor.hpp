@@ -49,30 +49,30 @@ class KDE_EXPORT TerrainEditor : public Module
 		void loadEnvironment(const map::Environment &environment);
 
 	public:
-		TerrainEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		TerrainEditor(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~TerrainEditor();
 
 		virtual void show();
 
-		class ModelView* modelView() const;
+		ModelView* modelView() const;
 
 	protected:
-		virtual void createFileActions(class KMenu *menu);
-		virtual void createEditActions(class KMenu *menu);
-		virtual void createMenus(class KMenuBar *menuBar);
-		virtual void createWindowsActions(class WindowsMenu *menu);
-		virtual void createToolButtons(class KToolBar *toolBar);
-		virtual class SettingsInterface* settings();
-		virtual void onSwitchToMap(class Map *map);
-		virtual QString actionName() const;
+		virtual void createFileActions(QMenu *menu) override;
+		virtual void createEditActions(QMenu *menu) override;
+		virtual void createMenus(QMenuBar *menuBar) override;
+		virtual void createWindowsActions(WindowsMenu *menu) override;
+		virtual void createToolButtons(ModuleToolBar *toolBar) override;
+		virtual SettingsInterface* settings() override;
+		virtual void onSwitchToMap(Map *map) override;
+		virtual QString actionName() const override;
 
-		class ModelView *m_modelView;
+		ModelView *m_modelView;
 
 		//Ogre::TerrainGlobalOptions *m_terrainGlobals;
 		//Ogre::TerrainGroup *m_terrainGroup;
 };
 
-inline class ModelView* TerrainEditor::modelView() const
+inline ModelView* TerrainEditor::modelView() const
 {
 	return this->m_modelView;
 }

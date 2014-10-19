@@ -250,7 +250,9 @@ void Texture::loadOgre()
 		QString tmpFileName;
 
 		if (!this->source()->download(url(), tmpFileName, 0))
+		{
 			throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toStdString());
+		}
 
 		OgrePtr ogreImage(new Ogre::Image());
 		const QString extension = QFileInfo(url().toLocalFile()).suffix(); // extension is not necessary if header contains information - Ogre::Image::load()
@@ -260,7 +262,9 @@ void Texture::loadOgre()
 			std::ifstream ifs(tmpFileName.toStdString(), std::ios::binary | std::ios::in);
 
 			if (!ifs)
+			{
 				throw Exception(boost::format(_("Unable to open tempory file \"%1%\".")) % tmpFileName.toStdString());
+			}
 
 			Ogre::DataStreamPtr dataStream(new Ogre::FileStreamDataStream(tmpFileName.toStdString(), &ifs, false));
 			ogreImage->load(dataStream, extension.toStdString());
@@ -298,7 +302,9 @@ void Texture::loadOgreTexture()
 	catch (Ogre::Exception &exception)
 	{
 		if (!hasOgre)
+		{
 			clearOgre();
+		}
 
 		throw Exception(exception.getFullDescription());
 	}
@@ -364,7 +370,9 @@ void Texture::save(const KUrl &url, const QString &format, const QMap<QString, Q
 		realFormat = QFileInfo(url.toLocalFile()).suffix();
 
 		if (format.isEmpty())
+		{
 			throw Exception(_("Unknown format!"));
+		}
 	}
 
 	// get all compression options
@@ -385,7 +393,7 @@ void Texture::save(const KUrl &url, const QString &format, const QMap<QString, Q
 
 	tmpValue = mipMapsString.toInt(&ok);
 
-	if (tmpValue >= 1 && tmpValue <= blp::Blp::maxMipMaps)
+	if (tmpValue >= 1 && tmpValue <= boost::numeric_cast<int>(blp::Blp::maxMipMaps))
 	{
 		mipMaps = tmpValue;
 	}

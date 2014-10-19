@@ -36,7 +36,7 @@ void TerrainEditor::loadEnvironment(const map::Environment &environment)
 	//this->m_terrainGroup->loadAllTerrains(true);
 }
 
-TerrainEditor::TerrainEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_modelView(new ModelView(hasEditor() ? editor()->root() : 0))//, m_terrainGlobals(new Ogre::TerrainGlobalOptions()), m_terrainGroup(0)
+TerrainEditor::TerrainEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_modelView(new ModelView(hasEditor() ? editor()->root() : 0))//, m_terrainGlobals(new Ogre::TerrainGlobalOptions()), m_terrainGroup(0)
 {
 	setWindowTitle(i18n("Terrain Editor"));
 	Module::setupUi();
@@ -71,33 +71,33 @@ void TerrainEditor::show()
 	//}
 }
 
-void TerrainEditor::createFileActions(class KMenu *menu)
+void TerrainEditor::createFileActions(QMenu *menu)
 {
 }
 
-void TerrainEditor::createEditActions(class KMenu *menu)
+void TerrainEditor::createEditActions(QMenu *menu)
 {
 }
 
-void TerrainEditor::createMenus(class KMenuBar *menuBar)
+void TerrainEditor::createMenus(QMenuBar *menuBar)
 {
 }
 
-void TerrainEditor::createWindowsActions(class WindowsMenu *menu)
+void TerrainEditor::createWindowsActions(WindowsMenu *menu)
 {
 }
 
-void TerrainEditor::createToolButtons(class KToolBar *toolBar)
+void TerrainEditor::createToolButtons(ModuleToolBar *toolBar)
 {
 }
 
-class SettingsInterface* TerrainEditor::settings()
+SettingsInterface* TerrainEditor::settings()
 {
 	/// @todo FIXME
 	return 0;
 }
 
-void TerrainEditor::onSwitchToMap(Map* map)
+void TerrainEditor::onSwitchToMap(Map *map)
 {
 }
 

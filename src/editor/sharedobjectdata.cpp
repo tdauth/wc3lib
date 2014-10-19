@@ -42,6 +42,10 @@ SharedObjectData::SharedObjectData(MpqPriorityList *source) : m_source(source)
 {
 }
 
+SharedObjectData::~SharedObjectData()
+{
+}
+
 void SharedObjectData::load(QWidget *widget)
 {
 	m_unitData->load(widget);

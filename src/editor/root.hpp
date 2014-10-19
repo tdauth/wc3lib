@@ -47,8 +47,8 @@ class KDE_EXPORT Root : public Ogre::Root
 		bool configure();
 
 	private:
-		Ogre::String m_pluginsCfg;
 		Ogre::String m_ogreCfg;
+		Ogre::String m_pluginsCfg;
 };
 
 }

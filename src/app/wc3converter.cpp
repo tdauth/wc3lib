@@ -112,7 +112,9 @@ bool addFilePath(const boost::filesystem::path &path, FilePaths &filePaths, bool
 			boost::filesystem::directory_iterator endIterator;
 
 			for (boost::filesystem::directory_iterator iterator(path); iterator != endIterator; ++iterator)
+			{
 				addFilePath(iterator->path(), filePaths, recursive, extension);
+			}
 		}
 		else
 		{
@@ -145,7 +147,9 @@ void convertBlp(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3li
 		std::streamsize bytes = blp->read(in);
 
 		if (verbose)
+		{
 			std::cout << boost::format(_("Read BLP file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
+		}
 	}
 	else
 	{
@@ -157,7 +161,9 @@ void convertBlp(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3li
 		std::streamsize bytes = blp->write(out);
 
 		if (verbose)
+		{
 			std::cout << boost::format(_("Wrote BLP file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
+		}
 	}
 	else
 	{
@@ -177,14 +183,18 @@ void convertMdlx(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3l
 		std::streamsize bytes = mdlx->readMdx(in);
 
 		if (verbose)
+		{
 			std::cout << boost::format(_("Read MDX file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
+		}
 	}
 	else if (inputFormat.extension() == "mdl")
 	{
 		std::streamsize bytes = mdlx->readMdl(in);
 
 		if (verbose)
+		{
 			std::cout << boost::format(_("Read MDL file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
+		}
 	}
 	else
 	{
@@ -196,14 +206,18 @@ void convertMdlx(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3l
 		std::streamsize bytes = mdlx->writeMdx(out);
 
 		if (verbose)
+		{
 			std::cout << boost::format(_("Wrote MDX file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
+		}
 	}
 	else if (outputFormat.extension() == "mdl")
 	{
 		std::streamsize bytes = mdlx->writeMdl(out);
 
 		if (verbose)
+		{
 			std::cout << boost::format(_("Wrote MDL file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
+		}
 	}
 	else
 	{
@@ -223,7 +237,9 @@ void convertText(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3l
 		std::streamsize bytes = txt->read(in);
 
 		if (verbose)
+		{
 			std::cout << boost::format(_("Read TXT file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
+		}
 	}
 	else
 	{
@@ -235,7 +251,9 @@ void convertText(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3l
 		std::streamsize bytes = txt->write(out);
 
 		if (verbose)
+		{
 			std::cout << boost::format(_("Wrote TXT file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
+		}
 	}
 	else
 	{
@@ -251,15 +269,21 @@ void convertFile(const boost::filesystem::path &path, const boost::filesystem::p
 	std::ios_base::openmode openMode = std::ifstream::in;
 
 	if (inputFormat.isBinary())
+	{
 		openMode |= std::ifstream::binary;
+	}
 
 	if (verbose)
+	{
 		std::cout << boost::format(_("Reading file \"%1%\".")) % path.string() << std::endl;
+	}
 
 	boost::filesystem::ifstream ifstream(path, openMode);
 
 	if (!ifstream)
+	{
 		throw wc3lib::Exception(boost::format(_("Error while opening file \"%1%\". Continuing with next one.")) % path.string());
+	}
 
 	boost::filesystem::ofstream ofstream;
 
@@ -269,21 +293,33 @@ void convertFile(const boost::filesystem::path &path, const boost::filesystem::p
 		openMode |= std::ofstream::binary;
 
 	if (!overwrite && boost::filesystem::exists(outputPath))
+	{
 		throw wc3lib::Exception(boost::format(_("File \"%1%\" does already exist. Continuing with next one.")) % outputPath);
+	}
 
 	ofstream.open(outputPath, openMode);
 
 	if (!ofstream)
+	{
 		throw wc3lib::Exception(boost::format(_("Error while opening file \"%1%\". Continuing with next one.")) % outputPath);
+	}
 
 	if (inputFormat.group() == "blp")
+	{
 		convertBlp(path, ifstream, ofstream, inputFormat, outputFormat, verbose);
+	}
 	else if (inputFormat.group() == "mdlx")
+	{
 		convertMdlx(path, ifstream, ofstream, inputFormat, outputFormat, verbose);
+	}
 	else if (inputFormat.group() == "text")
+	{
 		convertText(path, ifstream, ofstream, inputFormat, outputFormat, verbose);
+	}
 	else
+	{
 		throw wc3lib::Exception(boost::format(_("Input format \"%1%\" doesn't belong to any format group.")) % inputFormat.extension());
+	}
 
 	ifstream.close();
 	ofstream.close();
@@ -393,7 +429,9 @@ int main(int argc, char *argv[])
 	if (vm.count("formats"))
 	{
 		BOOST_FOREACH(ConvFormat::Formats::value_type v, ConvFormat::formats)
+		{
 			std::cout << boost::format(_("%1% - %2%")) % v.second->extension() % v.second->description() << std::endl;
+		}
 
 		return EXIT_SUCCESS;
 	}
@@ -416,10 +454,14 @@ int main(int argc, char *argv[])
 	ConvFormat *outputFormat = 0;
 
 	if (!inputFormatExtension.empty())
+	{
 		inputFormat = ConvFormat::formats.find(inputFormatExtension)->second;
+	}
 
 	if (!outputFormatExtension.empty())
+	{
 		outputFormat = ConvFormat::formats.find(outputFormatExtension)->second;
+	}
 
 	FilePaths inputFilePaths;
 
@@ -451,7 +493,9 @@ int main(int argc, char *argv[])
 	ConvFormat *realOutputFormat = outputFormat;
 
 	if (realOutputFormat == 0)
+	{
 		realOutputFormat = formatByExtension(outputFile);
+	}
 
 	if (realOutputFormat == 0)
 	{
@@ -467,22 +511,30 @@ int main(int argc, char *argv[])
 			ConvFormat *realInputFormat = inputFormat;
 
 			if (realInputFormat == 0)
+			{
 				realInputFormat = formatByExtension(path);
+			}
 
 			if (realOutputFormat == 0)
+			{
 				throw wc3lib::Exception(boost::format(_("Input file format couldn't be determined by extension of %1%.")) % path);
+			}
 
 			if (realInputFormat->group() != realOutputFormat->group())
+			{
 				throw wc3lib::Exception(boost::format(_("\"%1%\" and \"%2%\" are not convertible.")) % realInputFormat->extension() % realOutputFormat->extension());
+			}
 
 			boost::filesystem::path realOutputFile = outputFile;
 
 			if (boost::filesystem::is_directory(outputFile))
+			{
 				realOutputFile /= path.stem().string() + "." + realOutputFormat->extension();
+			}
 
 			convertFile(path, realOutputFile, *realInputFormat, *realOutputFormat, vm.count("verbose"), vm.count("overwrite"));
 		}
-		catch (const class wc3lib::Exception &exception)
+		catch (const wc3lib::Exception &exception)
 		{
 			std::cerr << boost::format(_("Error occured when converting file %1%: \"%2%\".\nSkipping file.")) % path % exception.what() << std::endl;
 

@@ -185,7 +185,7 @@ void UnitSelectionDialog::fill(const QString& race, int campaign, const QChar& t
 	int specialRow = 0;
 	int specialColumn = 0;
 
-	for (map::Slk::Table::size_type row = 1; row < this->unitData()->unitData()->rows(); ++row)
+	for (int row = 1; row < this->unitData()->unitData()->rows(); ++row)
 	{
 		const QString unitId = this->unitData()->unitData()->value(row, "unitID");
 		const QString objectRace = this->unitData()->unitData()->value(unitId, "race");

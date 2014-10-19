@@ -34,20 +34,20 @@ namespace editor
 class KDE_EXPORT SoundEditor : public Module
 {
 	public:
-		SoundEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		SoundEditor(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 
 	protected:
-		virtual void createFileActions(class KMenu *menu);
-		virtual void createEditActions(class KMenu *menu);
-		virtual void createMenus(class KMenuBar *menuBar);
-		virtual void createWindowsActions(class KMenu *menu);
-		virtual void createToolButtons(class KToolBar *toolBar);
-		virtual class SettingsInterface* settings();
-		virtual void onSwitchToMap(Map *map);
-		virtual QString actionName();
+		virtual void createFileActions(QMenu *menu) override;
+		virtual void createEditActions(QMenu *menu) override;
+		virtual void createMenus(QMenuBar *menuBar) override;
+		virtual void createWindowsActions(WindowsMenu *menu) override;
+		virtual void createToolButtons(ModuleToolBar *toolBar) override;
+		virtual SettingsInterface* settings() override;
+		virtual void onSwitchToMap(Map *map) override;
+		virtual QString actionName() const override;
 };
 
-inline QString SoundEditor::actionName()
+inline QString SoundEditor::actionName() const
 {
 	return "soundeditor";
 }

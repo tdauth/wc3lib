@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <boost/cast.hpp>
+
 #include <QtCore>
 
 #include <KIO/NetAccess>
@@ -68,7 +70,7 @@ QString SlkTextSource::value(const QString &rowKey, const QString &columnKey) co
 
 bool SlkTextSource::hasValue(int row, const QString &columnKey) const
 {
-	if (row >= this->slk().rows() || row < 0)
+	if (row >= boost::numeric_cast<int>(this->slk().rows()) || row < 0)
 	{
 		return false;
 	}
@@ -177,7 +179,7 @@ QString TxtTextSource::value(const QString& rowKey, const QString& columnKey) co
 
 bool TxtTextSource::hasValue(int row, const QString& columnKey) const
 {
-	if (row >= this->m_txt.sections().size() || row < 0)
+	if (row >= boost::numeric_cast<int>(this->m_txt.sections().size()) || row < 0)
 	{
 		return false;
 	}

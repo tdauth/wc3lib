@@ -10,7 +10,7 @@ namespace wc3lib
 namespace editor
 {
 
-TriggerTreeWidgetItem::TriggerTreeWidgetItem(map::Trigger *trigger, QTreeWidgetItem *parent, const QStringList& strings, int type) : m_trigger(trigger), QTreeWidgetItem(parent, strings, type)
+TriggerTreeWidgetItem::TriggerTreeWidgetItem(map::Trigger *trigger, QTreeWidgetItem *parent, const QStringList& strings, int type) : QTreeWidgetItem(parent, strings, type), m_trigger(trigger)
 {
 }
 
