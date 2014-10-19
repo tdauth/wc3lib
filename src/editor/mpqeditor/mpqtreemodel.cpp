@@ -309,7 +309,7 @@ MpqTreeItem* MpqTreeModel::item(const QModelIndex& index) const
 {
 	if (index.isValid())
 	{
-		return (MpqTreeItem*)index.internalPointer();
+		return static_cast<MpqTreeItem*>(index.internalPointer());
 	}
 
 	return 0;

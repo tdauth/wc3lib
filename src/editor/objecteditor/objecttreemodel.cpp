@@ -47,7 +47,7 @@ QVariant ObjectTreeModel::data(const QModelIndex &index, int role) const
          return QVariant();
      }
 
-     ObjectTreeItem *item = static_cast<ObjectTreeItem*>(index.internalPointer());
+     ObjectTreeItem *item = this->item(index);
 
      switch (role)
      {
@@ -95,7 +95,7 @@ int ObjectTreeModel::rowCount(const QModelIndex &parent) const
 	}
 	else
 	{
-		parentItem = static_cast<ObjectTreeItem*>(parent.internalPointer());
+		parentItem = this->item(parent);
 	}
 
 	return parentItem->children().size();
@@ -108,7 +108,7 @@ QModelIndex ObjectTreeModel::parent(const QModelIndex &index) const
 		return QModelIndex();
 	 }
 
-	ObjectTreeItem *childItem = static_cast<ObjectTreeItem*>(index.internalPointer());
+	ObjectTreeItem *childItem = this->item(index);
 	ObjectTreeItem *parentItem = childItem->parent();
 
 	if (parentItem == 0)
@@ -153,7 +153,7 @@ QModelIndex ObjectTreeModel::index(int row, int column, const QModelIndex &paren
 	}
 	else
 	{
-		parentItem = static_cast<ObjectTreeItem*>(parent.internalPointer());
+		parentItem = this->item(parent);
 	}
 
 	ObjectTreeItem *childItem = 0;
@@ -283,7 +283,7 @@ void ObjectTreeModel::clearCustomItems()
 
 ObjectTreeItem* ObjectTreeModel::item(const QModelIndex &index) const
 {
-	return (ObjectTreeItem*)(index.internalPointer());
+	return static_cast<ObjectTreeItem*>(index.internalPointer());
 }
 
 void ObjectTreeModel::load(MpqPriorityList* source, ObjectData *objectData, QWidget *window)
