@@ -43,20 +43,19 @@ class Trees : public FileFormat
 	public:
 		typedef boost::ptr_vector<Tree> TreeContainer;
 
-		virtual std::streamsize read(InputStream& istream);
-		virtual std::streamsize write(OutputStream& ostream) const;
+		virtual std::streamsize read(InputStream& istream) override;
+		virtual std::streamsize write(OutputStream& ostream) const override;
 
-		virtual const byte* fileTextId() const;
-		virtual const byte* fileName() const;
-		virtual uint32 latestFileVersion() const;
-		virtual uint32 version() const;
+		virtual const byte* fileTextId() const override;
+		virtual const byte* fileName() const override;
+		virtual uint32 latestFileVersion() const override;
+		virtual uint32 version() const override;
 
 		uint32 subVersion() const;
 		TreeContainer& trees();
 		const TreeContainer& trees() const;
 
 	protected:
-		uint32 m_version;
 		uint32 m_subVersion;
 		TreeContainer m_trees;
 };

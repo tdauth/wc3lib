@@ -39,8 +39,8 @@ class ImportedFiles : public FileFormat
 			public:
 				Path();
 
-				virtual std::streamsize read(InputStream &istream);
-				virtual std::streamsize write(OutputStream &ostream) const;
+				virtual std::streamsize read(InputStream &istream) override;
+				virtual std::streamsize write(OutputStream &ostream) const override;
 
 				bool hasPrefix() const;
 				const string& path() const;
@@ -52,14 +52,14 @@ class ImportedFiles : public FileFormat
 
 		typedef boost::ptr_vector<Path> Paths;
 
-		virtual std::streamsize read(InputStream &istream);
-		virtual std::streamsize write(OutputStream &ostream) const;
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
-		virtual const byte* fileTextId() const;
-		virtual uint32 latestFileVersion() const;
-		virtual const byte* fileName() const;
+		virtual const byte* fileTextId() const override;
+		virtual uint32 latestFileVersion() const override;
+		virtual const byte* fileName() const override;
 
-		virtual uint32 version() const;
+		virtual uint32 version() const override;
 		Paths& paths();
 		const Paths& paths() const;
 
@@ -67,7 +67,6 @@ class ImportedFiles : public FileFormat
 		static const string campaignPrefix;
 
 	protected:
-		uint32 m_version;
 		Paths m_paths;
 };
 

@@ -39,7 +39,7 @@ struct Header
 
 }
 
-Pathmap::Pathmap() : m_version(latestFileVersion()), m_width(0), m_height(0)
+Pathmap::Pathmap() : FileFormat(latestFileVersion()), m_width(0), m_height(0)
 {
 }
 

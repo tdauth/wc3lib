@@ -102,11 +102,18 @@ class FileFormat : public Format
 		virtual std::streamsize write(OutputStream &ostream) const override;
 
 	protected:
+		FileFormat(uint32 version);
+
 		uint32 m_version;
 };
 
 inline FileFormat::FileFormat() : m_version(0)
 {
+}
+
+inline FileFormat::FileFormat(uint32 version) : m_version(version)
+{
+
 }
 
 inline std::streamsize FileFormat::read(FileFormat::InputStream &istream)

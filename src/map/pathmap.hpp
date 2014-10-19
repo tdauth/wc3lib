@@ -60,14 +60,14 @@ class Pathmap : public FileFormat
 		Pathmap();
 		virtual ~Pathmap();
 
-		virtual std::streamsize read(InputStream &istream);
-		virtual std::streamsize write(OutputStream &ostream) const;
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
-		virtual const byte* fileTextId() const;
-		virtual const byte* fileName() const;
-		virtual uint32 latestFileVersion() const;
+		virtual const byte* fileTextId() const override;
+		virtual const byte* fileName() const override;
+		virtual uint32 latestFileVersion() const override;
 
-		virtual uint32 version() const;
+		virtual uint32 version() const override;
 		int32 width() const;
 		int32 height() const;
 
@@ -77,7 +77,6 @@ class Pathmap : public FileFormat
 		Type type(int32 x, int32 y) const;
 
 	protected:
-		uint32 m_version;
 		int32 m_width;
 		int32 m_height;
 		Tilepoints m_tilepoints;

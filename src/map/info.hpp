@@ -299,7 +299,6 @@ class Info : public FileFormat
 		 */
 
 	protected:
-		uint32 m_version;
 		int32 m_mapVersion; // number of saves (map version)
 		int32 m_editorVersion; // editor version (little endian)
 		string m_name;

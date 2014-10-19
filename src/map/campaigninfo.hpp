@@ -123,7 +123,6 @@ class CampaignInfo : public FileFormat
 
 	protected:
 		Campaign *m_campaign;
-		uint32 m_version;
 		uint32 m_campaignVersion;
 		uint32 m_editorVersion;
 		string m_name;
