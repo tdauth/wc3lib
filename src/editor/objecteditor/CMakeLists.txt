@@ -16,7 +16,6 @@ set(wc3lib_OBJECTEDITOR_H
 	objecttreemodel.hpp
 	objectlistdialog.hpp
 	uniteditor.hpp
-	unitdata.hpp
 	unitselectiondialog.hpp
 	unittreemodel.hpp
 	weathereditor.hpp
