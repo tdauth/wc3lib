@@ -123,6 +123,11 @@ void WeatherData::load(QWidget* widget)
 	this->m_weather->load();
 }
 
+MetaData* WeatherData::objectTabData() const
+{
+	return this->source()->sharedData()->sharedObjectData()->unitEditorData().get();
+}
+
 QString WeatherData::objectName(const QString &originalObjectId, const QString &customObjectId) const
 {
 	return fieldReadableValue(originalObjectId, customObjectId, "unam");
@@ -133,11 +138,6 @@ QIcon WeatherData::objectIcon(const QString& originalObjectId, const QString& cu
 	const QString art = "Textures\\" + this->fieldValue(originalObjectId, customObjectId, "texf") + ".blp";
 
 	return this->source()->sharedData()->icon(art, window);
-}
-
-MetaData* WeatherData::objectTabData() const
-{
-	return 0;
 }
 
 QString WeatherData::nextCustomObjectId() const

@@ -85,6 +85,8 @@ Editor::Editor(Root *root, QWidget *parent, Qt::WindowFlags f) : QMainWindow(par
 	try
 	{
 		this->sharedData()->refreshDefaultFiles(this);
+		this->sharedData()->sharedObjectData()->unitEditorData()->setSource(this);
+		this->sharedData()->sharedObjectData()->unitEditorData()->load();
 	}
 	catch (Exception &e)
 	{

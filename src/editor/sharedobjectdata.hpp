@@ -1,3 +1,4 @@
+
 /***************************************************************************
  *   Copyright (C) 2014 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
@@ -44,6 +45,7 @@ class KDE_EXPORT SharedObjectData
 {
 	public:
 		typedef boost::scoped_ptr<ObjectData> ObjectDataPtr;
+		typedef boost::scoped_ptr<MetaData> MetaDataPtr;
 
 		SharedObjectData(MpqPriorityList *source);
 		virtual ~SharedObjectData();
@@ -55,6 +57,7 @@ class KDE_EXPORT SharedObjectData
 		const ObjectDataPtr& abilityData() const;
 		const ObjectDataPtr& weatherData() const;
 		const ObjectDataPtr& miscData() const;
+		const MetaDataPtr& unitEditorData() const;
 
 		/**
 		 * Depending on the type \p fieldType it returns the corresponding object data.
@@ -68,6 +71,7 @@ class KDE_EXPORT SharedObjectData
 		ObjectDataPtr m_abilityData;
 		ObjectDataPtr m_weatherData;
 		ObjectDataPtr m_miscData;
+		MetaDataPtr m_unitEditorData;
 };
 
 inline const SharedObjectData::ObjectDataPtr& SharedObjectData::unitData() const
@@ -93,6 +97,11 @@ inline const SharedObjectData::ObjectDataPtr& SharedObjectData::weatherData() co
 inline const SharedObjectData::ObjectDataPtr& SharedObjectData::miscData() const
 {
 	return this->m_miscData;
+}
+
+inline const SharedObjectData::MetaDataPtr& SharedObjectData::unitEditorData() const
+{
+	return this->m_unitEditorData;
 }
 
 }

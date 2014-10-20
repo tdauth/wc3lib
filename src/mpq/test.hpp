@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MPQ_TEST
 #define WC3LIB_MPQ_TEST
 
-#include "mpq.hpp"
+#include "../mpq.hpp"
 
 /**
  * \file

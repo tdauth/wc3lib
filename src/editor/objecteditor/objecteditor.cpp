@@ -44,7 +44,6 @@ namespace editor
 ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f)
 , m_tabWidget(new QTabWidget(this))
 , m_currentTab(0)
-, m_sharedObjectData(new SharedObjectData(source))
 , m_unitEditor(0)
 , m_doodadEditor(0)
 , m_destructibleEditor(0)
@@ -81,6 +80,8 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 			source->sharedData()->refreshWorldEditorStrings(this);
 			source->sharedData()->refreshWorldEditorGameStrings(this);
 			source->sharedData()->refreshWorldEditData(this);
+			source->sharedData()->sharedObjectData()->unitEditorData()->setSource(source);
+			source->sharedData()->sharedObjectData()->unitEditorData()->load();
 		}
 		catch (wc3lib::Exception &e)
 		{
@@ -96,11 +97,11 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 	/*
 	 * Create all tabs after the actions have been created.
 	 */
-	m_unitEditor = new UnitEditor(source, m_sharedObjectData->unitData().get(), this, this, f);
-	m_itemEditor = new ItemEditor(source, m_sharedObjectData->itemData().get(), this, this, f);
-	m_abilityEditor = new AbilityEditor(source, m_sharedObjectData->abilityData().get(), this, this, f);
-	m_weatherEditor = new WeatherEditor(source, m_sharedObjectData->weatherData().get(), this, this, f);
-	m_miscEditor = new MiscEditor(source, m_sharedObjectData->miscData().get(), this, this, f);
+	m_unitEditor = new UnitEditor(source, source->sharedData()->sharedObjectData()->unitData().get(), this, this, f);
+	m_itemEditor = new ItemEditor(source, source->sharedData()->sharedObjectData()->itemData().get(), this, this, f);
+	m_abilityEditor = new AbilityEditor(source, source->sharedData()->sharedObjectData()->abilityData().get(), this, this, f);
+	m_weatherEditor = new WeatherEditor(source, source->sharedData()->sharedObjectData()->weatherData().get(), this, this, f);
+	m_miscEditor = new MiscEditor(source, source->sharedData()->sharedObjectData()->miscData().get(), this, this, f);
 
 	tabWidget()->addTab(unitEditor(), unitEditor()->name());
 	tabWidget()->addTab(itemEditor(), itemEditor()->name());
@@ -115,7 +116,6 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 
 ObjectEditor::~ObjectEditor()
 {
-	delete m_sharedObjectData;
 }
 
 ObjectEditorTab* ObjectEditor::tab(int index) const
@@ -434,7 +434,7 @@ void ObjectEditor::currentChanged(int index)
 	/*
 	 * Load data on request when the tab is shown for the first time.
 	 */
-	if (m_currentTab->objectData() != 0 && m_currentTab->objectData()->metaData() == 0)
+	if (m_currentTab->objectData() != 0)
 	{
 		qDebug() << "Show" << m_currentTab->name() << "first time";
 		/*

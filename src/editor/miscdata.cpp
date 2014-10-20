@@ -146,6 +146,11 @@ void MiscData::load(QWidget *widget)
 	this->m_meleeV0->load();
 }
 
+MetaData* MiscData::objectTabData() const
+{
+	return this->source()->sharedData()->sharedObjectData()->unitEditorData().get();
+}
+
 }
 
 }

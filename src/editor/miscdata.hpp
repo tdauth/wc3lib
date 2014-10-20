@@ -90,11 +90,6 @@ inline MetaData* MiscData::metaData() const
 	return this->miscMetaData();
 }
 
-inline MetaData* MiscData::objectTabData() const
-{
-	return 0;
-}
-
 inline MetaData* MiscData::miscMetaData() const
 {
 	return this->m_miscMetaData.data();

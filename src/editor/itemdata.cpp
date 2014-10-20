@@ -149,12 +149,6 @@ QIcon ItemData::objectIcon(const QString& originalObjectId, const QString& custo
 	return QIcon();
 }
 
-MetaData* ItemData::objectTabData() const
-{
-	// TODO needs "UI/UnitEditorData.txt"? share with unit data.
-	return 0;
-}
-
 void ItemData::load(QWidget *widget)
 {
 	// TODO same meta data as for units -> share it!
@@ -170,6 +164,11 @@ void ItemData::load(QWidget *widget)
 	this->m_itemStrings.reset(new MetaData(KUrl("Units/ItemStrings.txt")));
 	this->m_itemStrings->setSource(this->source());
 	this->m_itemStrings->load();
+}
+
+MetaData* ItemData::objectTabData() const
+{
+	return this->source()->sharedData()->sharedObjectData()->unitEditorData().get();
 }
 
 }

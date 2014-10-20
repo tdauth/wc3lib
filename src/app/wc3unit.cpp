@@ -47,11 +47,33 @@ int main(int argc, char *argv[])
 	KApplication app;
 
 	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
+	source->sharedData()->sharedObjectData()->unitEditorData()->setSource(source.data());
+
+	try
+	{
+		source->sharedData()->sharedObjectData()->unitEditorData()->load();
+	}
+	catch (wc3lib::Exception &e)
+	{
+		KMessageBox::error(0, e.what());
+	}
+
 	QScopedPointer<UnitData> unitData(new UnitData(source.data()));
 	UnitEditor editor(source.data(), unitData.data(), 0);
-	unitData->load(&editor);
-	editor.treeModel()->load(source.data(), unitData.data(), &editor);
-	editor.show();
+
+	try
+	{
+		unitData->load(&editor);
+		editor.treeModel()->load(source.data(), unitData.data(), &editor);
+	}
+	catch (wc3lib::Exception &e)
+	{
+		KMessageBox::error(0, e.what());
+	}
+
+	QMainWindow mainWindow;
+	mainWindow.setCentralWidget(&editor);
+	mainWindow.show();
 
 	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
 

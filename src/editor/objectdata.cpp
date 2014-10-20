@@ -636,7 +636,7 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 	const QString fieldValue = this->fieldValue(originalObjectId, customObjectId, fieldId);
 	const QString fieldType = this->metaData()->value(fieldId, "type");
 
-	if (fieldType == "int" || fieldType == "real" || fieldType == "unreal" || fieldType == "string")
+	if (fieldType == "int" || fieldType == "real" || fieldType == "unreal" || fieldType == "string" || fieldType == "char")
 	{
 		return fieldValue;
 	}
@@ -649,8 +649,28 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 
 		return this->source()->sharedData()->tr("WESTRING_FALSE");
 	}
+	else if (fieldType == "model" || fieldType == "icon")
+	{
+		QString result = fieldValue;
+		int index = result.lastIndexOf('\\');
+
+		if (index != -1 && result.size() > index + 1)
+		{
+			result = result.mid(index + 1);
+		}
+
+		index = result.lastIndexOf('.');
+
+		if (index != -1)
+		{
+			result = result.mid(0, index);
+		}
+
+		return result;
+	}
 	/*
 	 * For object lists we need all the object names.
+	 * NOTE the object data must be loaded before. Make sure that the table view or whatever loads it on request before displaying it.
 	 */
 	else if (this->fieldTypeIsObjectList(fieldType))
 	{
@@ -668,6 +688,10 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 			}
 
 			return result.join(", ");
+		}
+		else
+		{
+			qDebug() << "Could not resolve field type" << fieldType;
 		}
 	}
 

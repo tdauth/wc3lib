@@ -83,7 +83,7 @@ void ObjectTableView::editItem(const QModelIndex &index)
 
 	if (this->tab()->objectData()->fieldTypeIsList(type))
 	{
-		ObjectListDialog::getObjectIds(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId, this->tab()->objectData(), this->tab()->objectEditor()->sharedObjectData(), label, this);
+		ObjectListDialog::getObjectIds(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId, this->tab()->objectData(), this->tab()->source()->sharedData()->sharedObjectData().get(), label, this);
 	}
 	else if (ObjectValueDialog::getValue(result, this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId, this->tab()->objectData(), label, this->tab()) == QDialog::Accepted)
 	{

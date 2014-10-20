@@ -58,8 +58,6 @@ class WeatherEditor;
 class SoundEntryEditor;
 class MiscEditor;
 
-class SharedObjectData;
-
 /**
  * \page objecteditorsection Object Editor
  * The Object Editor is responsible for editting any object data of a map.
@@ -183,8 +181,6 @@ class KDE_EXPORT ObjectEditor : public Module
 		QAction* modifyFieldAction() const;
 		QAction* resetFieldAction() const;
 
-		SharedObjectData* sharedObjectData() const;
-
 	public slots:
 		/**
 		 * Exports all objects from all object editor tabs as \ref wc3lib::map::CustomObjectsCollection (.w3o) file.
@@ -220,8 +216,6 @@ class KDE_EXPORT ObjectEditor : public Module
 		QTabWidget *m_tabWidget;
 		// current widgets of corresponding tab widget
 		ObjectEditorTab *m_currentTab;
-
-		SharedObjectData *m_sharedObjectData;
 
 		UnitEditor *m_unitEditor;
 		DoodadEditor *m_doodadEditor;
@@ -422,11 +416,6 @@ inline QAction* ObjectEditor::modifyFieldAction() const
 inline QAction* ObjectEditor::resetFieldAction() const
 {
 	return this->m_resetFieldAction;
-}
-
-inline SharedObjectData* ObjectEditor::sharedObjectData() const
-{
-	return this->m_sharedObjectData;
 }
 
 inline KAboutData ObjectEditor::moduleAboutData() const

@@ -78,6 +78,14 @@ ObjectData::MetaDataList AbilityData::resolveDefaultField(const QString& objectI
 				result.push_back(this->campaignAbilityStrings());
 				result.push_back(this->campaignAbilityFunc());
 
+				/*
+				 * It seems that some race abilities are specified in the neutral/common files.
+				 */
+				result.push_back(this->neutralAbilityStrings());
+				result.push_back(this->neutralAbilityFunc());
+				result.push_back(this->commonAbilityStrings());
+				result.push_back(this->commonAbilityFunc());
+
 				if (race == "human")
 				{
 					result.push_back(this->humanAbilityStrings());
@@ -97,19 +105,6 @@ ObjectData::MetaDataList AbilityData::resolveDefaultField(const QString& objectI
 				{
 					result.push_back(this->undeadAbilityStrings());
 					result.push_back(this->undeadAbilityFunc());
-				}
-				/*
-				 * neutral
-				 * common
-				 * etc.
-				 * TODO which races exactly
-				 */
-				else
-				{
-					result.push_back(this->neutralAbilityStrings());
-					result.push_back(this->neutralAbilityFunc());
-					result.push_back(this->commonAbilityStrings());
-					result.push_back(this->commonAbilityFunc());
 				}
 			}
 
@@ -251,12 +246,6 @@ QIcon AbilityData::objectIcon(const QString& originalObjectId, const QString& cu
 	return QIcon();
 }
 
-MetaData* AbilityData::objectTabData() const
-{
-	// TODO needs "UI/UnitEditorData.txt"? share with unit data.
-	return 0;
-}
-
 void AbilityData::load(QWidget *widget)
 {
 	// TODO same meta data as for units -> share it!
@@ -322,6 +311,11 @@ void AbilityData::load(QWidget *widget)
 	this->m_campaignAbilityStrings.reset(new MetaData(KUrl("Units/CampaignAbilityStrings.txt")));
 	this->m_campaignAbilityStrings->setSource(this->source());
 	this->m_campaignAbilityStrings->load();
+}
+
+MetaData* AbilityData::objectTabData() const
+{
+	return this->source()->sharedData()->sharedObjectData()->unitEditorData().get();
 }
 
 bool AbilityData::objectIsHero(const QString& originalObjectId, const QString& customObjectId) const

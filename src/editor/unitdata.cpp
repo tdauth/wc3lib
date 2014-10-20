@@ -197,10 +197,6 @@ void UnitData::load(QWidget *widget)
 	this->m_unitMetaData->setSource(this->source());
 	this->m_unitMetaData->load();
 
-	this->m_unitEditorData.reset(new MetaData(KUrl("UI/UnitEditorData.txt")));
-	this->m_unitEditorData->setSource(this->source());
-	this->m_unitEditorData->load();
-
 	this->m_unitData.reset(new MetaData(KUrl("Units/UnitData.slk")));
 	this->m_unitData->setSource(this->source());
 	this->m_unitData->load();
@@ -271,6 +267,10 @@ void UnitData::load(QWidget *widget)
 	this->m_campaignUnitFunc->load();
 }
 
+MetaData* UnitData::objectTabData() const
+{
+	return this->source()->sharedData()->sharedObjectData()->unitEditorData().get();
+}
 
 bool UnitData::objectIsBuilding(const QString &originalObjectId, const QString &customObjectId) const
 {

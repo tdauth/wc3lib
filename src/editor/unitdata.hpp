@@ -45,8 +45,6 @@ class MetaData;
 class KDE_EXPORT UnitData : public ObjectData
 {
 	public:
-		typedef QScopedPointer<MetaData> MetaDataPtr;
-
 		UnitData(MpqPriorityList *source, QObject *parent = 0);
 
 		virtual void load(QWidget *widget) override;
@@ -105,7 +103,6 @@ class KDE_EXPORT UnitData : public ObjectData
 		MetaData* campaignUnitFunc() const;
 	private:
 		MetaDataPtr m_unitMetaData;
-		MetaDataPtr m_unitEditorData;
 		MetaDataPtr m_unitData;
 		MetaDataPtr m_unitUi;
 		MetaDataPtr m_unitBalance;
@@ -135,19 +132,9 @@ inline MetaData* UnitData::metaData() const
 	return this->unitMetaData();
 }
 
-inline MetaData* UnitData::objectTabData() const
-{
-	return this->unitEditorData();
-}
-
 inline MetaData* UnitData::unitMetaData() const
 {
 	return this->m_unitMetaData.data();
-}
-
-inline MetaData* UnitData::unitEditorData() const
-{
-	return this->m_unitEditorData.data();
 }
 
 inline MetaData* UnitData::unitData() const

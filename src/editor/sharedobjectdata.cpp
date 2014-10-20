@@ -26,6 +26,7 @@
 #include "abilitydata.hpp"
 #include "weatherdata.hpp"
 #include "miscdata.hpp"
+#include "metadata.hpp"
 
 namespace wc3lib
 {
@@ -39,6 +40,7 @@ SharedObjectData::SharedObjectData(MpqPriorityList *source) : m_source(source)
 , m_abilityData(new AbilityData(source))
 , m_weatherData(new WeatherData(source))
 , m_miscData(new MiscData(source))
+, m_unitEditorData(new MetaData(KUrl("UI/UnitEditorData.txt")))
 {
 }
 
@@ -53,6 +55,8 @@ void SharedObjectData::load(QWidget *widget)
 	m_abilityData->load(widget);
 	m_weatherData->load(widget);
 	m_miscData->load(widget);
+	m_unitEditorData->setSource(this->m_source);
+	m_unitEditorData->load();
 }
 
 ObjectData* SharedObjectData::resolveByFieldType(const QString &fieldType) const

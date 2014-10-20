@@ -168,7 +168,7 @@ int ObjectValueDialog::getValue(QString& result, const QString& fieldType, const
 			dialog->doubleSpinBox()->setValue(fieldValue.toDouble());
 			dialog->doubleSpinBox()->selectAll();
 		}
-		else if (fieldType == "string")
+		else if (fieldType == "string" || fieldType == "char")
 		{
 			titleArg = objectData->source()->sharedData()->tr("WESTRING_UE_TYPE_STRING");
 
@@ -183,6 +183,14 @@ int ObjectValueDialog::getValue(QString& result, const QString& fieldType, const
 				dialog->lineEdit()->setVisible(true);
 				dialog->lineEdit()->setText(fieldValue);
 				dialog->lineEdit()->selectAll();
+			}
+
+			/*
+			 * Limit chars to 1 by default, for example hotkeys.
+			 */
+			if (fieldType == "char")
+			{
+				dialog->m_maximum = 1;
 			}
 		}
 		else if (fieldType == "bool")
@@ -254,7 +262,7 @@ int ObjectValueDialog::getValue(QString& result, const QString& fieldType, const
 					value = QString::number(dialog->doubleSpinBox()->value());
 					qDebug() << "Real value:" << value;
 				}
-				else if (fieldType == "string")
+				else if (fieldType == "string" || fieldType == "char")
 				{
 					if (stringExt == "1")
 					{
