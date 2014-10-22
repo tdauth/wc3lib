@@ -42,7 +42,7 @@ ObjectData::StandardObjecIds UnitData::standardObjectIds() const
 	// add all entries from "UnitData.slk" to standard units in Unit Editor
 	if (this->unitData() != 0 && !this->unitData()->isEmpty())
 	{
-		for (map::Slk::Table::size_type row = 1; row < this->unitData()->rows(); ++row)
+		for (int row = 1; row < this->unitData()->rows(); ++row)
 		{
 			result << this->unitData()->value(row, "unitID");
 		}
@@ -51,7 +51,7 @@ ObjectData::StandardObjecIds UnitData::standardObjectIds() const
 	return result;
 }
 
-UnitData::MetaDataList UnitData::resolveDefaultField(const QString& objectId, const QString& fieldId) const
+UnitData::MetaDataList UnitData::resolveDefaultField(const QString &objectId, const QString &fieldId) const
 {
 	MetaDataList result;
 
@@ -179,7 +179,7 @@ QString UnitData::objectName(const QString &originalObjectId, const QString &cus
 	return name;
 }
 
-QIcon UnitData::objectIcon(const QString& originalObjectId, const QString& customObjectId, QWidget *window) const
+QIcon UnitData::objectIcon(const QString &originalObjectId, const QString &customObjectId, QWidget *window) const
 {
 	const QString art = this->fieldValue(originalObjectId, customObjectId, "uico");
 
@@ -277,9 +277,9 @@ bool UnitData::objectIsBuilding(const QString &originalObjectId, const QString &
 	/*
 	 * In Frozen Throne there is an additional field which indicates if the unit is a building.
 	 */
-	if (((ObjectData*)this)->hasDefaultFieldValue(originalObjectId, "udbg"))
+	if (this->hasDefaultFieldValue(originalObjectId, "udbg"))
 	{
-		if (((ObjectData*)this)->fieldValue(originalObjectId, customObjectId, "udbg") == "1")
+		if (this->fieldValue(originalObjectId, customObjectId, "udbg") == "1")
 		{
 			return true;
 		}
@@ -307,9 +307,9 @@ bool UnitData::objectIsSpecial(const QString &originalObjectId, const QString &c
 	/*
 	 * In Frozen Throne there is an additional field which indicates if the unit is special.
 	 */
-	if (((ObjectData*)this)->hasDefaultFieldValue(originalObjectId, "uspe"))
+	if (this->hasDefaultFieldValue(originalObjectId, "uspe"))
 	{
-		if (((ObjectData*)this)->fieldValue(originalObjectId, customObjectId, "uspe") == "1")
+		if (this->fieldValue(originalObjectId, customObjectId, "uspe") == "1")
 		{
 			return true;
 		}
@@ -350,7 +350,7 @@ bool UnitData::objectIsUnit(const QString &originalObjectId, const QString &cust
 	return unitData()->hasValue(originalObjectId, "unitID") && !objectIsHero(originalObjectId, customObjectId) && !objectIsBuilding(originalObjectId, customObjectId);
 }
 
-QString UnitData::objectTilesets(const QString& originalObjectId, const QString& customObjectId) const
+QString UnitData::objectTilesets(const QString &originalObjectId, const QString &customObjectId) const
 {
 	/*
 	 * Frozen Throne

@@ -41,7 +41,7 @@ ObjectData::StandardObjecIds AbilityData::standardObjectIds() const
 	// add all entries from "UnitData.slk" to standard units in Unit Editor
 	if (this->abilityData() != 0 && !this->abilityData()->isEmpty())
 	{
-		for (map::Slk::Table::size_type row = 1; row < this->abilityData()->rows(); ++row)
+		for (int row = 1; row < this->abilityData()->rows(); ++row)
 		{
 			result << this->abilityData()->value(row, "alias");
 		}

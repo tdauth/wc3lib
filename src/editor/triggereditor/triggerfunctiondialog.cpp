@@ -791,17 +791,20 @@ void TriggerFunctionDialog::editParameter(const QString &parameter)
 
 				map::TriggerData::Calls::const_iterator iterator = this->triggerData()->calls().find(type);
 
-				if (type == "real" || baseType == "real") {
+				if (type == "real" || baseType == "real")
+				{
 					bool ok = false;
 					const double value = QString(functionParameter->value().c_str()).toDouble(&ok);
 
-					if (!ok) {
+					if (!ok)
+					{
 						qDebug() << "Invalid double: \"" << functionParameter->value().c_str();
 					} else {
 						subDialog()->m_numInputDouble->setValue(value);
 					}
 
-					if (iterator != this->triggerData()->calls().end() && iterator->second->limits().size() > index) {
+					if (iterator != this->triggerData()->calls().end() && iterator->second->limits().size() > boost::numeric_cast<std::size_t>(index))
+					{
 						const map::TriggerData::Call::Limit &limit = iterator->second->limits()[index];
 						bool hasMinium = false;
 						bool hasMaximum = false;
@@ -826,17 +829,23 @@ void TriggerFunctionDialog::editParameter(const QString &parameter)
 
 						m_valueLabel->setText(labelText);
 					}
-				} else if (type == "integer" || baseType == "integer") {
+				}
+				else if (type == "integer" || baseType == "integer")
+				{
 					bool ok = false;
 					const int value = QString(functionParameter->value().c_str()).toInt(&ok);
 
-					if (!ok) {
+					if (!ok)
+					{
 						qDebug() << "Invalid integer: \"" << functionParameter->value().c_str();
-					} else {
+					}
+					else
+					{
 						subDialog()->m_numInput->setValue(value);
 					}
 
-					if (iterator != this->triggerData()->calls().end() && iterator->second->limits().size() > index) {
+					if (iterator != this->triggerData()->calls().end() && iterator->second->limits().size() > boost::numeric_cast<std::size_t>(index))
+					{
 						const map::TriggerData::Call::Limit &limit = iterator->second->limits()[index];
 						bool hasMinium = false;
 						bool hasMaximum = false;

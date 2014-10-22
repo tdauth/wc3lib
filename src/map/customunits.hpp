@@ -92,9 +92,9 @@ class CustomUnits : public FileFormat
 		/**
 		 * Prevent segmentation fault when cloning modifications in a dervied class such as \ref wc3lib::map::CustomObjects::Object.
 		 */
-		static inline wc3lib::map::CustomUnits::Modification* new_clone(const wc3lib::map::CustomUnits::Modification &o)
+		static inline Modification* new_clone(const Modification &o)
 		{
-			return new wc3lib::map::CustomUnits::Modification(o);
+			return new Modification(o);
 		}
 
 		/**

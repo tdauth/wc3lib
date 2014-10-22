@@ -110,7 +110,7 @@ inline bool editor::ObjectTreeView::isCustomObjectSelected() const
 
 	foreach (QModelIndex index, selection->selectedIndexes())
 	{
-		const ObjectTreeItem *item = (const ObjectTreeItem*)(index.internalPointer());
+		const ObjectTreeItem *item = static_cast<const ObjectTreeItem*>(index.internalPointer());
 
 		/*
 		 * At least one selected item must be a custom object item.

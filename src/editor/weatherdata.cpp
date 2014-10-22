@@ -41,7 +41,7 @@ ObjectData::StandardObjecIds WeatherData::standardObjectIds() const
 	// add all entries from "Weather.slk" to standard weather effects in Unit Editor
 	if (this->weather() != 0 && !this->weather()->isEmpty())
 	{
-		for (map::Slk::Table::size_type row = 1; row < this->weather()->rows(); ++row)
+		for (int row = 1; row < this->weather()->rows(); ++row)
 		{
 			result << this->weather()->value(row, "effectID");
 		}
@@ -113,7 +113,7 @@ ObjectData::MetaDataList WeatherData::metaDataList() const
 	return MetaDataList();
 }
 
-void WeatherData::load(QWidget* widget)
+void WeatherData::load(QWidget *widget)
 {
 	this->m_weatherMetaData.reset(new MetaData(KUrl("TerrainArt/WeatherMetaData.slk")));
 	this->m_weatherMetaData->setSource(this->source());

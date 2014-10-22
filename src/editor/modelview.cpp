@@ -41,8 +41,8 @@ namespace editor
 
 ModelView::ModelView(Root *root, QWidget *parent, Qt::WFlags f, Ogre::SceneType ogreSceneType, const Ogre::NameValuePairList *ogreParameters)
 : QWidget(parent, f)
-, m_root(root)
 , m_parameters(ogreParameters)
+, m_root(root)
 , m_renderWindow(0)
 , m_sceneType(ogreSceneType)
 , m_sceneManager(0)

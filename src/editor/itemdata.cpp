@@ -41,7 +41,7 @@ ObjectData::StandardObjecIds ItemData::standardObjectIds() const
 	// add all entries from "UnitData.slk" to standard units in Unit Editor
 	if (this->itemData() != 0 && !this->itemData()->isEmpty())
 	{
-		for (map::Slk::Table::size_type row = 1; row < this->itemData()->rows(); ++row)
+		for (int row = 1; row < this->itemData()->rows(); ++row)
 		{
 			result << this->itemData()->value(row, "itemID");
 		}

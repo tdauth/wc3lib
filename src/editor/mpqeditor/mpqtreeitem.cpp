@@ -58,7 +58,7 @@ QString MpqTreeItem::dirname() const
 {
 	const int lastIndex = filePath().lastIndexOf('\\');
 
-	if (lastIndex != -1 && lastIndex > 0)
+	if (lastIndex > 0)
 	{
 		const QString result = filePath().mid(0, lastIndex);
 		const int secondLastIndex = result.lastIndexOf('\\');

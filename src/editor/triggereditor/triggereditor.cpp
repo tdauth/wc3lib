@@ -919,7 +919,8 @@ void TriggerEditor::openMapScript()
 
 void TriggerEditor::openTrigger(int32 index)
 {
-	if (index >= triggers()->triggers().size()) {
+	if (boost::numeric_cast<std::size_t>(index) >= triggers()->triggers().size())
+	{
 		qDebug() << "Invalid trigger index " << index;
 		return;
 	}
