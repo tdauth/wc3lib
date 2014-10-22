@@ -10,6 +10,9 @@ set(wc3lib_VERSION "${wc3lib_VERSION_MAJOR}.${wc3lib_VERSION_MINOR}.${wc3lib_VER
 
 enable_testing()
 
+# required to generate the "DartConfiguration.tcl" file in the build directory and to find valgrind
+include(CTest)
+
 # Add C++11 support explicitely.
 add_compile_options(-std=c++11)
 
