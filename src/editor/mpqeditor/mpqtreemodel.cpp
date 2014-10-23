@@ -195,9 +195,7 @@ void MpqTreeModel::addArchive(mpq::Archive* archive, const mpq::Listfile::Entrie
 
 			if (!mimeType.isNull() && !mimeType->iconName().isEmpty())
 			{
-				// TODO performance? Cache MIME type icons?
-				//qDebug() << "Has icon:" << mimeType->iconName();
-				fileItem->setIcon(m_iconLoader.loadMimeTypeIcon(mimeType->iconName(), KIconLoader::Small));
+				fileItem->setIcon( m_iconLoader.loadMimeTypeIcon(mimeType->iconName(), KIconLoader::Small));
 			}
 		}
 		//qDebug() << "File" << filePath << "with parent" << parentItem->name();
@@ -223,7 +221,7 @@ bool MpqTreeModel::removeArchive(mpq::Archive* archive)
 	return removed;
 }
 
-QVariant MpqTreeModel::data(const QModelIndex& index, int role) const
+QVariant MpqTreeModel::data(const QModelIndex &index, int role) const
 {
 	if (index.isValid())
 	{
@@ -241,6 +239,10 @@ QVariant MpqTreeModel::data(const QModelIndex& index, int role) const
 				return item->icon();
 			}
 		}
+	}
+	else
+	{
+		qDebug() << "index is not valid row" << index.row();
 	}
 
 	return QVariant();
@@ -325,6 +327,10 @@ bool MpqTreeModel::insertRows(int row, int count, const QModelIndex& parent)
 	{
 		parentItem = item(parent);
 	}
+	else
+	{
+		qDebug() << "Insert top level row:" << row << "with count" << count;
+	}
 
 	for (int i = row; i < row + count; ++i)
 	{
@@ -343,6 +349,8 @@ bool MpqTreeModel::insertRows(int row, int count, const QModelIndex& parent)
 		}
 		else
 		{
+			qDebug() << "No parent";
+
 			if (i >= m_topLevelItems.size())
 			{
 				m_topLevelItems.push_back(item);

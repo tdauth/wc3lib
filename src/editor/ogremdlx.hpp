@@ -24,6 +24,7 @@
 #include <map>
 #include <list>
 
+#include <boost/scoped_ptr.hpp>
 #include <boost/bimap.hpp>
 
 #include <QDebug>
@@ -337,7 +338,9 @@ template<std::size_t size>
 inline void OgreMdlx::createAnimatedProperties(Ogre::Node *node, unsigned short trackId, const mdlx::MdlxAnimatedProperties<size> &properties)
 {
 	if (properties.properties().empty())
+	{
 		return;
+	}
 
 	if (properties.globalSequenceId() == mdlx::noneId)
 	{
@@ -356,13 +359,21 @@ inline void OgreMdlx::createAnimatedProperties(Ogre::Node *node, unsigned short 
 	BOOST_FOREACH(typename mdlx::MdlxAnimatedProperties<size>::Properties::const_reference property, properties.properties())
 	{
 		if (dynamic_cast<const mdlx::MdlxScaling*>(&property) != 0)
+		{
 			createAnimatedPropertyKeyFrame(track, *dynamic_cast<const mdlx::MdlxScaling*>(&property));
+		}
 		else if (dynamic_cast<const mdlx::MdlxTranslation*>(&property) != 0)
+		{
 			createAnimatedPropertyKeyFrame(track, *dynamic_cast<const mdlx::MdlxTranslation*>(&property));
+		}
 		else if (dynamic_cast<const mdlx::MdlxRotation*>(&property) != 0)
+		{
 			createAnimatedPropertyKeyFrame(track, *dynamic_cast<const mdlx::MdlxRotation*>(&property));
+		}
 		else
+		{
 			throw Exception(_("Unknown animated property."));
+		}
 	}
 }
 

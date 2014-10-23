@@ -21,7 +21,6 @@
 #ifndef WC3LIB_EDITOR_BLPIOPLUGIN_HPP
 #define WC3LIB_EDITOR_BLPIOPLUGIN_HPP
 
-
 #include <QtGui/QImageIOPlugin>
 
 namespace wc3lib

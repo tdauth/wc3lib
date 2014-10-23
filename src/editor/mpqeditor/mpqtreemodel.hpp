@@ -97,7 +97,7 @@ class MpqTreeModel : public QAbstractItemModel
 	private:
 		MpqPriorityList *m_source;
 		FileItems m_topLevelItems;
-		// TODO performance might be improved? Cache the MIME type icons!
+		// KIconLoader caches icons already.
 		KIconLoader m_iconLoader;
 };
 

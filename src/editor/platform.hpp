@@ -42,7 +42,7 @@
 #include <Ogre.h>
 
 #include "../blp.hpp"
-#include "../map.hpp"
+#include "../map/value.hpp"
 #include "../mdlx.hpp"
 
 namespace wc3lib

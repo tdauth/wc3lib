@@ -40,6 +40,8 @@ bool MpqTreeProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
 
 	const MpqTreeItem *leftItem = sourceModel->item(left);
 	const MpqTreeItem *rightItem = sourceModel->item(right);
+	QVariant leftData = sourceModel->data(left, Qt::DisplayRole);
+	QVariant rightData = sourceModel->data(right, Qt::DisplayRole);
 
 	if (leftItem != 0 && rightItem != 0)
 	{
@@ -55,6 +57,11 @@ bool MpqTreeProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
 	else
 	{
 		qDebug() << "Did not find one of the items.";
+	}
+
+	if (leftData.type() == QVariant::String)
+	{
+		return leftData.toString() < rightData.toString();
 	}
 
 	return QSortFilterProxyModel::lessThan(left, right);
