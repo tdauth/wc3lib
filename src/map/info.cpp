@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include <boost/foreach.hpp>
+#include <boost/cast.hpp>
 
 #include "info.hpp"
 
@@ -169,7 +170,7 @@ std::streamsize Info::RandomUnitTable::Group::read(InputStream &istream)
 	wc3lib::read(istream, number, size);
 	m_chances.resize(number);
 
-	for (int32 i = 0; i < columns().size(); ++i)
+	for (std::size_t i = 0; i < columns().size(); ++i)
 	{
 		columns()[i].rows().resize(number);
 	}
@@ -179,7 +180,7 @@ std::streamsize Info::RandomUnitTable::Group::read(InputStream &istream)
 		wc3lib::read(istream, m_chances[i], size);
 
 		// read the id per column of the row
-		for (int32 j = 0; j < columns().size(); ++j)
+		for (int32 j = 0; boost::numeric_cast<std::size_t>(j) < columns().size(); ++j)
 		{
 			wc3lib::read(istream, columns()[j].rows()[i], size);
 		}

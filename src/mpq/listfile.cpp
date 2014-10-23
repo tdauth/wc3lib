@@ -250,6 +250,19 @@ string Listfile::dirPath(const string &entry)
 	return "";
 }
 
+string Listfile::fileName(const string &entry)
+{
+	const string::size_type index = entry.find_last_of('\\');
+
+	if (index != string::npos && entry.size() > (index + 1))
+	{
+		return entry.substr(index + 1);
+	}
+
+	return "";
+}
+
+
 void Listfile::toListfileEntry(std::string &path)
 {
 #ifdef UNIX

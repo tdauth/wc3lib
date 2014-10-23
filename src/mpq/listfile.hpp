@@ -102,6 +102,11 @@ class Listfile : public File
 		static string dirPath(const string &entry);
 
 		/**
+		 * \return Returns the filename of \p entry.
+		 */
+		static string fileName(const string &entry);
+
+		/**
 		 * Splits up file content at one of the following characters "; \r \n" and returns the resulting container with all split file paths.
 		 * \return Returns the container with all found file paths in file.
 		 */

@@ -518,7 +518,7 @@ void MpqSlave::listDir(const KUrl &url)
 	{
 		kDebug(debugArea) << "Is dir";
 
-		const QString dirName = QString::fromUtf8(ref.c_str());
+		const QString dirName = QString::fromUtf8(mpq::Listfile::fileName(ref).c_str());
 
 		KIO::UDSEntry entry;
 		entry.insert(KIO::UDSEntry::UDS_NAME, dirName);

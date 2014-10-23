@@ -87,9 +87,9 @@ BOOST_AUTO_TEST_CASE(LadikMpq1AllExtendedAttributes)
 
 	BOOST_REQUIRE(success);
 
-	BOOST_REQUIRE(extendedAttributes | mpq::Attributes::ExtendedAttributes::FileCrc32s);
-	BOOST_REQUIRE(extendedAttributes | mpq::Attributes::ExtendedAttributes::FileTimeStamps);
-	BOOST_REQUIRE(extendedAttributes | mpq::Attributes::ExtendedAttributes::FileMd5s);
+	BOOST_REQUIRE(extendedAttributes & mpq::Attributes::ExtendedAttributes::FileCrc32s);
+	BOOST_REQUIRE(extendedAttributes & mpq::Attributes::ExtendedAttributes::FileTimeStamps);
+	BOOST_REQUIRE(extendedAttributes & mpq::Attributes::ExtendedAttributes::FileMd5s);
 
 	// contains CRC32 with valid index
 	BOOST_REQUIRE(crcs.size() > testfile.block()->index());

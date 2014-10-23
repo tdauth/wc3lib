@@ -196,11 +196,12 @@ BOOST_AUTO_TEST_CASE(CaseSensitiveDirEntriesWithPrefix)
 	";abilities\\ui\\test2"
 	";abilities\\ui\\test3.txt"
 	";test\\ui\\test3.txt"
+	";test\\ui\\anothersubdir\\myfile.txt"
 	;
 
 	const mpq::Listfile::Entries entries = mpq::Listfile::entries(sstream.str());
 
-	BOOST_REQUIRE(entries.size() == 8);
+	BOOST_REQUIRE(entries.size() == 9);
 
 	const mpq::Listfile::Entries uniqueEntries = mpq::Listfile::caseSensitiveDirEntries(entries, "Abilities\\", false);
 
@@ -258,10 +259,17 @@ BOOST_AUTO_TEST_CASE(ExistingEntriesWithPrefix)
 	BOOST_REQUIRE(entries[0] == "test\\testfile.txt");
 }
 
-
 BOOST_AUTO_TEST_CASE(DirPath)
 {
 	BOOST_CHECK(mpq::Listfile::dirPath("Bla") == "");
 	BOOST_CHECK(mpq::Listfile::dirPath("Bla\\bla") == "Bla");
 	BOOST_CHECK(mpq::Listfile::dirPath("Bla\\bla\\bla.txt") == "Bla\\bla");
+}
+
+BOOST_AUTO_TEST_CASE(FileName)
+{
+	const string filePath1 = "UI\\peter\\test.txt";
+	BOOST_CHECK(mpq::Listfile::fileName(filePath1) == "test.txt");
+	const string filePath2 = "UI\\peter\\";
+	BOOST_CHECK(mpq::Listfile::fileName(filePath2) == "");
 }
