@@ -682,17 +682,19 @@ void MpqSlave::get(const KUrl &url)
 
 	kDebug(debugArea) << "Is file";
 
-	totalSize(file.size());
+	const KIO::filesize_t fileSize = file.size();
+	totalSize(fileSize);
 
-	// How much file do we still have to process?
-	uint32 sectorIndex = 0;
-	KIO::filesize_t processed = 0;
 	qint64 read = 0;
-	stringstream ostream; // we don't know the uncompressed size, TODO set internal buffer size to at least sector size!
+
+	// directly write into an array without reallocating anything, since we know the exact size
+	char buffer[fileSize];
+	boost::iostreams::basic_array_sink<char> sr(buffer, fileSize);
+	boost::iostreams::stream< boost::iostreams::basic_array_sink<char> > source(sr);
 
 	try
 	{
-		read = file.writeData(ostream);
+		read = file.writeData(source);
 	}
 	catch (Exception &exception)
 	{
@@ -701,15 +703,17 @@ void MpqSlave::get(const KUrl &url)
 		return;
 	}
 
-	const string bufferString = ostream.str();
-	const QByteArray buffer(bufferString.c_str(), bufferString.size()); // TODO copy is bad
-
-	// TODO slow?
-	KMimeType::Ptr mime = KMimeType::findByNameAndContent(archivePath, buffer);
+	// fromRawData does not create a copy
+	// only use 1024 bytes at maximum to identify the MIME type
+	const QByteArray content = QByteArray::fromRawData(buffer, std::min<KIO::filesize_t>(fileSize, 1024));
+	KMimeType::Ptr mime = KMimeType::findByNameAndContent(archivePath, content);
 	kDebug(debugArea) << "Emitting mimetype" << mime->name();
 	mimeType(mime->name());
 
-	data(buffer);
+	// fromRawData does not create a copy
+	const QByteArray byteArray = QByteArray::fromRawData(buffer, fileSize);
+
+	data(byteArray);
 	processedSize(KIO::filesize_t(read));
 
 	// empty byte array to mark the end of the data
