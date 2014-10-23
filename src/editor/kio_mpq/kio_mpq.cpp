@@ -684,68 +684,35 @@ void MpqSlave::get(const KUrl &url)
 
 	totalSize(file.size());
 
-	// Size of a QIODevice read. It must be large enough so that the mime type check will not fail
-	const qint64 sectorSize = this->m_archive->sectorSize();
-
-	bool firstRead = true;
-
 	// How much file do we still have to process?
 	uint32 sectorIndex = 0;
 	KIO::filesize_t processed = 0;
+	qint64 read = 0;
+	stringstream ostream; // we don't know the uncompressed size, TODO set internal buffer size to at least sector size!
 
-	// open for better streaming
-	ifstream ifstream(m_archive->path(), std::ios::binary | std::ios::in);
-
-	if (!ifstream)
+	try
 	{
-		error(KIO::ERR_ACCESS_DENIED, i18n("Cannot open archive %1 for file %2.", m_archive->path().c_str(), url.prettyUrl()));
+		read = file.writeData(ostream);
+	}
+	catch (Exception &exception)
+	{
+		error(KIO::ERR_COULD_NOT_READ, i18n("%1: \"%2\".", url.prettyUrl(), exception.what()));
 
 		return;
 	}
 
-	mpq::File::Sectors sectors;
-	file.sectors(ifstream, sectors);
+	const string bufferString = ostream.str();
+	const QByteArray buffer(bufferString.c_str(), bufferString.size()); // TODO copy is bad
 
-	while (sectorIndex < sectors.size())
-	{
-		// Avoid to use bufferSize here, in case something went wrong.
-		//oarraystream ostream(sectors[sectorIndex].uncompressedSize());
-		stringstream ostream; // we don't know the uncompressed size, TODO set internal buffer size to at least sector size!
-		qint64 read = 0;
+	// TODO slow?
+	KMimeType::Ptr mime = KMimeType::findByNameAndContent(archivePath, buffer);
+	kDebug(debugArea) << "Emitting mimetype" << mime->name();
+	mimeType(mime->name());
 
-		try
-		{
-			sectors[sectorIndex].seekg(ifstream);
-			read = sectors[sectorIndex].writeData(ifstream, ostream);
-		}
-		catch (Exception &exception)
-		{
-			kWarning(debugArea) << "Read" << read << "bytes but expected" << sectorSize ;
-			error(KIO::ERR_COULD_NOT_READ, i18n("%1: \"%2\".", url.prettyUrl(), exception.what()));
+	data(buffer);
+	processedSize(KIO::filesize_t(read));
 
-			return;
-		}
-
-		const string bufferString = ostream.str();
-		const QByteArray buffer(bufferString.c_str(), bufferString.size()); // TODO copy is bad
-
-		if (firstRead)
-		{
-			// We use the magic one the first data read
-			// (As magic detection is about fixed positions, we can be sure that it is enough data.)
-
-			KMimeType::Ptr mime = KMimeType::findByNameAndContent(archivePath, buffer);
-			kDebug(debugArea) << "Emitting mimetype" << mime->name();
-			mimeType(mime->name());
-			firstRead = false;
-		}
-
-		data(buffer);
-		processed += read;
-		processedSize(processed);
-		++sectorIndex;
-	}
-
+	// empty byte array to mark the end of the data
 	data(QByteArray());
 
 	finished();
