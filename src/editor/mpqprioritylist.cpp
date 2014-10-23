@@ -229,6 +229,19 @@ bool MpqPriorityList::removeDefaultSources()
 	removeWar3XLocalSource();
 }
 
+namespace
+{
+
+void toRelativeUrl(QString &filePath)
+{
+	if (QDir::separator() != '\\')
+	{
+		filePath.replace(QChar('\\'),  QDir::separator());
+	}
+}
+
+}
+
 bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window) const
 {
 	qDebug() << "Download: " << src.url();
@@ -249,7 +262,9 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 	{
 		// entry path can be a directory path or something like tar:/... or mpq:/...
 		KUrl absoluteSource = entry.url();
-		absoluteSource.addPath(src.toLocalFile());
+		QString archiveSrc = src.toLocalFile();
+		toRelativeUrl(archiveSrc);
+		absoluteSource.addPath(archiveSrc);
 
 		if (KIO::NetAccess::exists(absoluteSource, KIO::NetAccess::SourceSide, window))
 		{
@@ -280,7 +295,9 @@ bool MpqPriorityList::upload(const QString &src, const KUrl &target, QWidget *wi
 	{
 		// entry path can be a directory path or something like tar:/... or mpq:/...
 		KUrl absoluteTarget = entry.url();
-		absoluteTarget.addPath(target.toLocalFile());
+		QString archiveTarget = target.toLocalFile();
+		toRelativeUrl(archiveTarget);
+		absoluteTarget.addPath(archiveTarget);
 
 		if (KIO::NetAccess::upload(src, absoluteTarget, window))
 		{

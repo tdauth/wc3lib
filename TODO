@@ -1,3 +1,6 @@
+2014-10-23 Tamino Dauth <tamino@cdauth.eu>
+* kio_mpq: Improve performance. Object Editor is much much faster when using a directory as source!
+
 2014-10-04 Tamino Dauth <tamino@cdauth.eu>
 * editor: Units\AbilityBuffMetaData.slk and Units\AbilityBuffData.slk are not listed in the (listfile) for war3x.
 * mpq: Changing directory does not work.
