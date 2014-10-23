@@ -448,7 +448,7 @@ void MpqSlave::listDir(const KUrl &url)
 			continue;
 		}
 
-		const QString fileName = QString::fromUtf8(ref.c_str());
+		const QString fileName = QString::fromUtf8(mpq::Listfile::fileName(ref).c_str());
 
 		kDebug(debugArea) << "New path \"" << fileName << "\"";
 
