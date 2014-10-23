@@ -143,9 +143,11 @@ class Blp : public Format
 						 * Gets the color value from palette \p palette.
 						 * Depending on whether the pixel has its own alpha value or not this uses the alpha value from the palette or not.
 						 *
+						 * \param palette Array with size \ref Blp::compressedPaletteSize.
+						 *
 						 * \return Returns the full RGBA color from the palette.
 						 */
-						color paletteColor(const color palette[Blp::compressedPaletteSize]) const;
+						color paletteColor(const color *palette) const;
 
 					protected:
 						/**
@@ -402,7 +404,7 @@ inline byte Blp::MipMap::Color::paletteIndex() const
 	return boost::get<IndexAndAlpha>(m_value).first;
 }
 
-inline color Blp::MipMap::Color::paletteColor(const color palette[Blp::compressedPaletteSize]) const
+inline color Blp::MipMap::Color::paletteColor(const color *palette) const
 {
 	if (this->hasAlpha())
 	{
