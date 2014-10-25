@@ -65,24 +65,6 @@ TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 , m_newActionCollection(0)
 , m_config(new TriggerEditorConfig())
 {
-	readSettings(); // fill sources first
-
-	// Update required files if started as stand-alone module
-	if (!hasEditor())
-	{
-		try
-		{
-			this->source()->sharedData()->refreshWorldEditorStrings(this);
-			this->source()->sharedData()->refreshWorldEditData(this);
-			this->source()->sharedData()->refreshTriggerData(this);
-			this->source()->sharedData()->refreshTriggerStrings(this);
-		}
-		catch (Exception &e)
-		{
-			KMessageBox::error(this, e.what());
-		}
-	}
-
 	// read XML configuration
 	m_config->readConfig();
 	m_openDirectory = m_config->openDirectory();
@@ -115,9 +97,6 @@ TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 	triggerActionCollection()->action("closetriggers")->setEnabled(false);
 	triggerActionCollection()->action("closecustomtexttriggers")->setEnabled(false);
 	triggerActionCollection()->action("closeall")->setEnabled(false);
-
-	setWindowTitle(this->source()->sharedData()->tr("WESTRING_MODULE_SCRIPTS"));
-	setWindowIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_Module_Script", "WorldEditArt", this));
 }
 
 TriggerEditor::~TriggerEditor()
@@ -129,7 +108,46 @@ TriggerEditor::~TriggerEditor()
 	delete m_config;
 }
 
-map::TriggerStrings::Entries::const_iterator TriggerEditor::triggerFunctionEntry(const map::TriggerStrings *triggerStrings, const string& code, BOOST_SCOPED_ENUM(map::TriggerFunction::Type) type)
+bool TriggerEditor::configure()
+{
+	readSettings(); // fill sources first
+
+	// Update required files if started as stand-alone module
+	if (!hasEditor())
+	{
+		if (!this->source()->configure(this))
+		{
+			return false;
+		}
+
+		try
+		{
+			this->source()->sharedData()->refreshWorldEditorStrings(this);
+			this->source()->sharedData()->refreshWorldEditData(this);
+			this->source()->sharedData()->refreshTriggerData(this);
+			this->source()->sharedData()->refreshTriggerStrings(this);
+		}
+		catch (Exception &e)
+		{
+			KMessageBox::error(this, e.what());
+
+			return false;
+		}
+	}
+
+	retranslateUi();
+
+	return true;
+}
+
+void TriggerEditor::retranslateUi()
+{
+	Module::retranslateUi();
+	setWindowTitle(this->source()->sharedData()->tr("WESTRING_MODULE_SCRIPTS"));
+	setWindowIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_Module_Script", "WorldEditArt", this));
+}
+
+map::TriggerStrings::Entries::const_iterator TriggerEditor::triggerFunctionEntry(const map::TriggerStrings *triggerStrings, const string& code, map::TriggerFunction::Type type)
 {
 	map::TriggerStrings::Entries::const_iterator iterator;
 

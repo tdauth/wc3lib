@@ -60,21 +60,6 @@ ModelEditor::ModelEditor(Root *root, class MpqPriorityList *source, QWidget *par
 , m_teamColor(TeamColor::Red)
 , m_teamGlow(TeamColor::Red)
 {
-	readSettings();
-
-	// Update required files if started as stand-alone module
-	if (!hasEditor())
-	{
-		try
-		{
-			source->sharedData()->refreshWorldEditorStrings(this);
-		}
-		catch (wc3lib::Exception &e)
-		{
-			KMessageBox::error(0, i18n("Error when loading default files: %1", e.what()));
-		}
-	}
-
 	Module::setupUi();
 	//this->modelView()->setMinimumSize(QSize(640, 480));
 	//this->setAcceptDrops(true); // enable drag & drop
@@ -112,6 +97,38 @@ void ModelEditor::show()
 	this->modelView()->show();
 	/// @todo FIXME: Either create model view data in constructor or get the right position for this function call.
 	//readSettings(); // read settings when model view is being shown since its render window is also being created at that moment
+}
+
+bool ModelEditor::configure()
+{
+	readSettings();
+
+	if (!this->modelView()->root()->configure())
+	{
+		return false;
+	}
+
+	// Update required files if started as stand-alone module
+	if (!hasEditor())
+	{
+		try
+		{
+			source()->sharedData()->refreshWorldEditorStrings(this);
+		}
+		catch (wc3lib::Exception &e)
+		{
+			KMessageBox::error(0, i18n("Error when loading default files: %1", e.what()));
+
+			return false;
+		}
+	}
+
+	return true;
+}
+
+void ModelEditor::retranslateUi()
+{
+	Module::retranslateUi();
 }
 
 void ModelEditor::hideCollisionShapes()

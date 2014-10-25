@@ -60,21 +60,6 @@ TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 , m_loadDialog(0)
 , m_saveDialog(0)
 {
-	readSettings();
-
-	// Update required files if started as stand-alone module
-	if (!hasEditor())
-	{
-		try
-		{
-			source->sharedData()->refreshWorldEditorStrings(this);
-		}
-		catch (wc3lib::Exception &e)
-		{
-			KMessageBox::error(0, i18n("Error when loading default files: %1", e.what()));
-		}
-	}
-
 	Module::setupUi();
 
 	imageLabel()->setAlignment(Qt::AlignCenter);
@@ -128,6 +113,38 @@ TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 
 TextureEditor::~TextureEditor()
 {
+}
+
+bool TextureEditor::configure()
+{
+	readSettings();
+
+	// Update required files if started as stand-alone module
+	if (!hasEditor())
+	{
+		if (!this->source()->configure(this))
+		{
+			return false;
+		}
+
+		try
+		{
+			source()->sharedData()->refreshWorldEditorStrings(this);
+		}
+		catch (wc3lib::Exception &e)
+		{
+			KMessageBox::error(0, i18n("Error when loading default files: %1", e.what()));
+
+			return false;
+		}
+	}
+
+	return true;
+}
+
+void TextureEditor::retranslateUi()
+{
+	Module::retranslateUi();
 }
 
 TextureEditor::LoadDialogWidget::LoadDialogWidget(QWidget *parent) : QWidget(parent), m_mipMapsInput(new KIntNumInput(this))

@@ -74,6 +74,9 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		MpqEditor(wc3lib::editor::MpqPriorityList* source, QWidget* parent = 0, Qt::WindowFlags f = 0);
 		virtual ~MpqEditor();
 
+		virtual bool configure() override;
+		virtual void retranslateUi() override;
+
 		Archives& archives();
 		const Archives& archives() const;
 

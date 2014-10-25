@@ -277,9 +277,9 @@ bool UnitData::objectIsBuilding(const QString &originalObjectId, const QString &
 	/*
 	 * In Frozen Throne there is an additional field which indicates if the unit is a building.
 	 */
-	if (this->hasDefaultFieldValue(originalObjectId, "udbg"))
+	if (this->hasDefaultFieldValue(originalObjectId, "ubdg"))
 	{
-		if (this->fieldValue(originalObjectId, customObjectId, "udbg") == "1")
+		if (this->fieldValue(originalObjectId, customObjectId, "ubdg") == "1")
 		{
 			return true;
 		}

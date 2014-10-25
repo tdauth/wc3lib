@@ -49,35 +49,10 @@ MpqEditor::MpqEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f
 , m_archiveInfoDialog(new ArchiveInfoDialog(this))
 , m_fileInfoDialog(new FileInfoDialog(this))
 {
-	Module::readSettings(); // fill sources first
-
-	// Update required files if started as stand-alone module
-	if (!hasEditor())
-	{
-		try
-		{
-			source->sharedData()->refreshWorldEditorStrings(this);
-			source->sharedData()->refreshWorldEditData(this);
-		}
-		catch (wc3lib::Exception &e)
-		{
-			KMessageBox::error(0, i18n("Error when loading default files: %1", e.what()));
-		}
-	}
-
 	Module::setupUi();
 	QWidget *widget = new QWidget(this);
 	Ui::MpqEditor::setupUi(widget);
 	this->centerLayout()->addWidget(widget);
-	//MpqTreeProxyModel *proxyModel = new MpqTreeProxyModel(this);
-	MpqTreeModel *treeModel = new MpqTreeModel(this->source(), this);
-	MpqTreeProxyModel *proxyModel = new MpqTreeProxyModel(this);
-	proxyModel->setSourceModel(treeModel);
-	m_archivesTreeView->setModel(proxyModel);
-	this->m_filterProxySearchLine->setProxy(proxyModel);
-	this->m_archivesTreeView->header()->setSortIndicator(0, Qt::AscendingOrder);
-
-	setWindowTitle(tr("MPQ Editor"));
 
 	connect(this->m_archivesTreeView, SIGNAL(itemSelectionChanged()), this, SLOT(updateSelection()));
 	connect(this->m_archivesTreeView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(doubleClickItem(const QModelIndex &)));
@@ -86,9 +61,6 @@ MpqEditor::MpqEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f
 	connect(this->m_archivesTreeView, SIGNAL(collapsed(const QModelIndex&)), this, SLOT(collapseItem(QTreeWidgetItem*)));
 	connect(this->m_archivesTreeView->header(), SIGNAL(sectionClicked(int)), this, SLOT(orderBySection(int)));
 
-	// read GUI settings
-	readSettings();
-
 }
 
 MpqEditor::~MpqEditor()
@@ -96,6 +68,49 @@ MpqEditor::~MpqEditor()
 	writeSettings();
 
 	closeAllMpqArchives();
+}
+
+bool MpqEditor::configure()
+{
+	// read GUI settings
+	readSettings();
+
+	// Update required files if started as stand-alone module
+	if (!hasEditor())
+	{
+		if (!source()->configure(this))
+		{
+			return false;
+		}
+
+		try
+		{
+			source()->sharedData()->refreshWorldEditorStrings(this);
+			source()->sharedData()->refreshWorldEditData(this);
+		}
+		catch (wc3lib::Exception &e)
+		{
+			KMessageBox::error(0, i18n("Error when loading default files: %1", e.what()));
+
+			return false;
+		}
+	}
+
+	MpqTreeModel *treeModel = new MpqTreeModel(this->source(), this);
+	MpqTreeProxyModel *proxyModel = new MpqTreeProxyModel(this);
+	proxyModel->setSourceModel(treeModel);
+	m_archivesTreeView->setModel(proxyModel);
+	this->m_filterProxySearchLine->setProxy(proxyModel);
+	this->m_archivesTreeView->header()->setSortIndicator(0, Qt::AscendingOrder);
+
+	return true;
+
+}
+
+void MpqEditor::retranslateUi()
+{
+	Module::retranslateUi();
+	setWindowTitle(tr("MPQ Editor"));
 }
 
 void MpqEditor::updateSelection()
@@ -881,6 +896,7 @@ void MpqEditor::onSwitchToMap(Map *map)
 
 void MpqEditor::readSettings()
 {
+	Module::readSettings();
 	// only read GUI settings
 	// sources have to be read manually before
 	QSettings settings("wc3lib", "mpqeditor");

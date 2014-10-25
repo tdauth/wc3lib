@@ -181,6 +181,9 @@ class KDE_EXPORT ObjectEditor : public Module
 		QAction* modifyFieldAction() const;
 		QAction* resetFieldAction() const;
 
+		virtual bool configure() override;
+		virtual void retranslateUi() override;
+
 	public slots:
 		/**
 		 * Exports all objects from all object editor tabs as \ref wc3lib::map::CustomObjectsCollection (.w3o) file.

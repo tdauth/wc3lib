@@ -70,38 +70,51 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 , m_resetFieldAction(0)
 , m_rawDataAction(0)
 {
+	Module::setupUi();
+	//Ui::ObjectEditor::setupUi(this);
+	topLayout()->addWidget(tabWidget());
+}
+
+ObjectEditor::~ObjectEditor()
+{
+}
+
+bool ObjectEditor::configure()
+{
 	readSettings();
 
 	// Update required files if started as stand-alone module
 	if (!hasEditor())
 	{
+		if (!source()->configure(this))
+		{
+			return false;
+		}
+
 		try
 		{
-			source->sharedData()->refreshWorldEditorStrings(this);
-			source->sharedData()->refreshWorldEditorGameStrings(this);
-			source->sharedData()->refreshWorldEditData(this);
-			source->sharedData()->sharedObjectData()->unitEditorData()->setSource(source);
-			source->sharedData()->sharedObjectData()->unitEditorData()->load();
+			source()->sharedData()->refreshWorldEditorStrings(this);
+			source()->sharedData()->refreshWorldEditorGameStrings(this);
+			source()->sharedData()->refreshWorldEditData(this);
+			source()->sharedData()->sharedObjectData()->unitEditorData()->setSource(source());
+			source()->sharedData()->sharedObjectData()->unitEditorData()->load();
 		}
 		catch (wc3lib::Exception &e)
 		{
 			KMessageBox::error(0, i18n("Error when loading default files: %1", e.what()));
+
+			return false;
 		}
 	}
-
-	Module::setupUi();
-	//Ui::ObjectEditor::setupUi(this);
-	topLayout()->addWidget(tabWidget());
-	setMinimumSize(QSize(200, 200)); // TEST
 
 	/*
 	 * Create all tabs after the actions have been created.
 	 */
-	m_unitEditor = new UnitEditor(source, source->sharedData()->sharedObjectData()->unitData().get(), this, this, f);
-	m_itemEditor = new ItemEditor(source, source->sharedData()->sharedObjectData()->itemData().get(), this, this, f);
-	m_abilityEditor = new AbilityEditor(source, source->sharedData()->sharedObjectData()->abilityData().get(), this, this, f);
-	m_weatherEditor = new WeatherEditor(source, source->sharedData()->sharedObjectData()->weatherData().get(), this, this, f);
-	m_miscEditor = new MiscEditor(source, source->sharedData()->sharedObjectData()->miscData().get(), this, this, f);
+	m_unitEditor = new UnitEditor(source(), source()->sharedData()->sharedObjectData()->unitData().get(), this, this);
+	m_itemEditor = new ItemEditor(source(), source()->sharedData()->sharedObjectData()->itemData().get(), this, this);
+	m_abilityEditor = new AbilityEditor(source(), source()->sharedData()->sharedObjectData()->abilityData().get(), this, this);
+	m_weatherEditor = new WeatherEditor(source(), source()->sharedData()->sharedObjectData()->weatherData().get(), this, this);
+	m_miscEditor = new MiscEditor(source(), source()->sharedData()->sharedObjectData()->miscData().get(), this, this);
 
 	tabWidget()->addTab(unitEditor(), unitEditor()->name());
 	tabWidget()->addTab(itemEditor(), itemEditor()->name());
@@ -112,10 +125,23 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 	currentChanged(0);
 	// connect signal and slot after adding actions and tabs first time!
 	connect(tabWidget(), SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
+
+	retranslateUi();
+
+	return true;
 }
 
-ObjectEditor::~ObjectEditor()
+void ObjectEditor::retranslateUi()
 {
+	Module::retranslateUi();
+
+	m_viewMenu->setTitle(source()->sharedData()->tr("WESTRING_MENU_VIEW"));
+	m_rawDataAction->setText(this->source()->sharedData()->tr("WESTRING_MENU_OE_TOGGLERAWDATA"));
+
+	const QString modifyField = this->source()->sharedData()->tr("WESTRING_FIELDLIST_CM_MODIFY");
+	const QString resetField = this->source()->sharedData()->tr("WESTRING_FIELDLIST_CM_RESET");
+	m_modifyFieldAction->setText(modifyField);
+	m_resetFieldAction->setText(resetField);
 }
 
 ObjectEditorTab* ObjectEditor::tab(int index) const
@@ -355,10 +381,8 @@ void ObjectEditor::createEditActions(QMenu *menu)
 
 	menu->addSeparator();
 
-	const QString modifyField = this->source()->sharedData()->tr("WESTRING_FIELDLIST_CM_MODIFY");
-	const QString resetField = this->source()->sharedData()->tr("WESTRING_FIELDLIST_CM_RESET");
-	m_modifyFieldAction = new QAction(modifyField, this);
-	m_resetFieldAction = new QAction(resetField, this);
+	m_modifyFieldAction = new QAction(this);
+	m_resetFieldAction = new QAction(this);
 	menu->addAction(m_modifyFieldAction);
 	menu->addAction(m_resetFieldAction);
 

@@ -90,6 +90,9 @@ class KDE_EXPORT TriggerEditor : public Module
 		TriggerEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~TriggerEditor();
 
+		virtual bool configure() override;
+		virtual void retranslateUi() override;
+
 		/**
 		 * \return Returns empty string if there is no custom text triggers or no valid text entry.
 		 * \note \p trigger has to be part of \ref triggers().

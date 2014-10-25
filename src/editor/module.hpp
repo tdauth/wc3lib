@@ -104,6 +104,13 @@ class KDE_EXPORT Module : public QWidget
 
 		QString settingsGroup() const;
 
+		/**
+		 * Configures the settings and sources before showing the module.
+		 * \note You should load translations from \ref retranslateUi() after loading the sources successfully.
+		 */
+		virtual bool configure() = 0;
+		virtual void retranslateUi();
+
 	public slots:
 		void showSourcesDialog();
 
@@ -139,6 +146,8 @@ class KDE_EXPORT Module : public QWidget
 		virtual void onSwitchToMap(Map *map) = 0;
 
 		virtual void changeEvent(QEvent *event);
+
+
 
 		/**
 		 * Reads settings of the module.

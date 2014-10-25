@@ -24,6 +24,7 @@
 #include <KMessageBox>
 
 #include "mpqprioritylist.hpp"
+#include "sourcesdialog.hpp"
 
 namespace wc3lib
 {
@@ -413,6 +414,23 @@ void MpqPriorityList::writeSettings(const QString& group)
 void MpqPriorityList::clear()
 {
 	sources().clear();
+}
+
+bool MpqPriorityList::configure(QWidget *parent)
+{
+	if (!this->sources().empty())
+	{
+		return true;
+	}
+
+	SourcesDialog sourcesDialog(this, parent);
+
+	if (sourcesDialog.exec() == QDialog::Accepted)
+	{
+		return true;
+	}
+
+	return false;
 }
 
 MpqPriorityList::Sources& MpqPriorityList::sources()

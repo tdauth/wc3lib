@@ -68,6 +68,9 @@ class KDE_EXPORT ModelEditor : public Module
 		ModelEditor(Root *root, MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~ModelEditor();
 
+		virtual bool configure() override;
+		virtual void retranslateUi() override;
+
 		virtual void show();
 
 		void hideCollisionShapes();

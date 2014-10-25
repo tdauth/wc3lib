@@ -62,6 +62,19 @@ Module::~Module()
 {
 }
 
+void Module::retranslateUi()
+{
+	this->m_fileMenu->setTitle(this->source()->sharedData()->tr("WESTRING_MENU_FILE"));
+
+	if (!hasEditor())
+	{
+		m_closeAction->setText(source()->sharedData()->tr("WESTRING_MENU_CLOSEMODULE"));
+	}
+
+	this->m_sourcesAction->setText(tr("Sources"));
+	this->m_editMenu->setTitle(source()->sharedData()->tr("WESTRING_MENU_EDIT"));
+}
+
 bool Module::hasEditor() const
 {
 	// TODO typeid comparison doesn't work, dynamic_cast is working workaround!
@@ -201,12 +214,18 @@ KAboutData Module::moduleAboutData() const
 	return aboutData;
 }
 
-void Module::changeEvent(QEvent* event)
+void Module::changeEvent(QEvent *event)
 {
 	QWidget::changeEvent(event);
 
 	if (event->type() == QEvent::ActivationChange && hasEditor())
+	{
 		const_cast<const Editor*>(editor())->modulesActions()[this]->setChecked(this->isActiveWindow());
+	}
+	else if (event->type() == QEvent::LanguageChange)
+	{
+		this->retranslateUi();
+	}
 }
 
 void Module::readSettings()

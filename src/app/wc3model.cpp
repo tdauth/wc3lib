@@ -45,11 +45,10 @@ int main(int argc, char *argv[])
 
 	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
 	Root root;
+	ModelEditor editor(&root, source.data());
 
-	if (root.configure())
+	if (editor.configure())
 	{
-		ModelEditor editor(&root, source.data());
-
 		editor.show();
 
 		KCmdLineArgs *args = KCmdLineArgs::parsedArgs();

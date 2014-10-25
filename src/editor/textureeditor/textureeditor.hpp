@@ -124,6 +124,9 @@ class KDE_EXPORT TextureEditor : public Module
 		TextureEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~TextureEditor();
 
+		virtual bool configure() override;
+		virtual void retranslateUi() override;
+
 		QScrollArea* scrollArea() const;
 		QLabel* imageLabel() const;
 		const TexturePtr& texture() const;

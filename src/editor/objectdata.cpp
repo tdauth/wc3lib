@@ -300,13 +300,11 @@ QString ObjectData::defaultFieldValue(const QString &objectId, const QString &fi
 
 					if (indexValue < values.size())
 					{
-						return values[indexValue];
+						value = values[indexValue];
 					}
 				}
-				else
-				{
-					return value;
-				}
+
+				return value;
 			}
 			else
 			{
@@ -665,6 +663,40 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 {
 	const QString fieldValue = this->fieldValue(originalObjectId, customObjectId, fieldId);
 	const QString fieldType = this->metaData()->value(fieldId, "type");
+
+	/*
+	 * If value is "-" or "_" for example it should return a default value.
+	 */
+	bool ok = true;
+
+	if (fieldType == "int")
+	{
+		fieldValue.toInt(&ok);
+
+		if (!ok)
+		{
+			return "0";
+		}
+	}
+	else if (fieldType == "real" || fieldType == "unreal")
+	{
+		fieldValue.toDouble(&ok);
+
+		if (!ok)
+		{
+			return "0.0";
+		}
+	}
+	else if (fieldType == "bool")
+	{
+		fieldValue.toInt(&ok);
+
+		if (!ok)
+		{
+			return "0";
+		}
+	}
+
 
 	if (fieldType == "int" || fieldType == "real" || fieldType == "unreal" || fieldType == "string" || fieldType == "char")
 	{

@@ -44,15 +44,19 @@ int main(int argc, char *argv[])
 
 	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
 	MpqEditor editor(source.data());
-	editor.show();
 
-	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
-
-	if (args != 0)
+	if (editor.configure())
 	{
-		for (int i = 0; i < args->count(); ++i)
+		editor.show();
+
+		KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
+
+		if (args != 0)
 		{
-			editor.openMpqArchive(args->url(i));
+			for (int i = 0; i < args->count(); ++i)
+			{
+				editor.openMpqArchive(args->url(i));
+			}
 		}
 	}
 
