@@ -99,6 +99,7 @@ void ObjectListDialog::removeObject()
 		this->m_listWidget->removeItemWidget(selection.first());
 		QStringList list = this->objects();
 		list.removeAt(oldRow);
+		qDebug() << "Remove item at" << oldRow;
 		this->load(list);
 	}
 }
@@ -151,6 +152,7 @@ ObjectListDialog::ObjectListDialog(MpqPriorityList *source, ObjectData *objectDa
 
 void ObjectListDialog::load(const QStringList &objects)
 {
+	qDebug() << "Loading objects with size" << objects.size();
 	this->m_listWidget->clear();
 	const QString type = this->objectData()->metaData()->value(fieldId(), "type");
 
@@ -243,11 +245,15 @@ int ObjectListDialog::getObjectIds(const QString& originalObjectId, const QStrin
 
 	const QString objects = objectData->fieldValue(originalObjectId, customObjectId, fieldId);
 	qDebug() << "Objects:" << objects;
-	QStringList objectList = objects.split(',');
+	/*
+	 * Empty objects should not generate one single empty object.
+	 */
+	QStringList objectList = objects.isEmpty() ? QStringList() : objects.split(',');
 
 	if (getObjectIds(objectList, originalObjectId, customObjectId, fieldId, objectData->source(), objectData, fieldTypeObjectData, label, parent, f) == QDialog::Accepted)
 	{
-		objectData->modifyField(originalObjectId, customObjectId, fieldId, objectList.join(","));
+		const QString value = objectList.join(",");
+		objectData->modifyField(originalObjectId, customObjectId, fieldId, value);
 	}
 
 	return QDialog::Rejected;

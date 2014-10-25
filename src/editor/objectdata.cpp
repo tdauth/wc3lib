@@ -322,6 +322,32 @@ QString ObjectData::defaultFieldValue(const QString &objectId, const QString &fi
 
 ObjectData::ObjectTabEntries ObjectData::objectTabEntries(const QString &fieldType) const
 {
+	/*
+	 * Tilesets are stored in "UI/WorldEditData.txt" not in "UI/UnitEditorData.txt".
+	 */
+	if (fieldType == "tilesetList" && this->source()->sharedData()->worldEditData().get() != 0)
+	{
+		ObjectTabEntries entries;
+		entries.push_back(ObjectData::ObjectTabEntry("*", "WESTRING_EVERY"));
+
+		const map::Txt::Section *section = boost::polymorphic_cast<const TxtTextSource*>(this->source()->sharedData()->worldEditData()->textSource())->section("TileSets");
+
+		if (section != 0)
+		{
+			for (std::size_t i = 0; i < section->entries.size(); ++i)
+			{
+				const QStringList values = QString::fromUtf8(section->entries[i].second.c_str()).split(',');
+
+				if (!values.isEmpty())
+				{
+					entries.push_back(ObjectData::ObjectTabEntry(QString::fromUtf8(section->entries[i].first.c_str()), values[0]));
+				}
+			}
+		}
+
+		return entries;
+	}
+
 	if (this->objectTabData() == 0)
 	{
 		qDebug() << "No object tab data defined.";
@@ -425,12 +451,16 @@ map::Value ObjectData::value(const QString &fieldId, const QString &value) const
 		case map::Value::Type::AbilityList:
 		case map::Value::Type::HeroAbilityList:
 		{
-			QStringList list = value.split(',');
 			map::List vector;
 
-			foreach (QString var, list)
+			if (!value.isEmpty())
 			{
-				vector.push_back(var.toUtf8().constData());
+				QStringList list = value.split(',');
+
+				foreach (QString var, list)
+				{
+					vector.push_back(var.toUtf8().constData());
+				}
 			}
 
 			return map::Value(vector, type);
@@ -694,62 +724,53 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 			qDebug() << "Could not resolve field type" << fieldType;
 		}
 	}
-
-	if (this->objectTabData() != 0)
+	else
 	{
-		const map::Txt::Section *section = boost::polymorphic_cast<TxtTextSource*>(this->objectTabData()->textSource())->section(fieldType);
+		const ObjectTabEntries entries = this->objectTabEntries(fieldType);
 
-		/*
-		 * If the section of the type does not exist simply return the value since there is no valid description available.
-		 */
-		if (section == 0)
+		if (entries.isEmpty())
 		{
 			return fieldValue;
 		}
 
-		/*
-		 * Now we have to translate ALL values separately if it is a list of values.
-		 */
-		QStringList fieldValues = fieldValue.split(',');
-		QStringList result = fieldValues;
-		int missing = result.size();
+		const QStringList fieldValues = fieldValue.split(',');
+		QStringList result;
 
-		/*
-		 * If there is a section for this field type search for the entry corresponding to value and get its readable description.
-		 */
-		for (std::size_t i = 0; i < section->entries.size() && missing > 0; ++i)
+		foreach (QString value, fieldValues)
 		{
-			const QString sectionValue = QString::fromUtf8(section->entries[i].second.c_str());
-			QStringList values = sectionValue.split(',');
+			bool found = false;
 
-			if (values.size() == 2)
+			/*
+			* If there is a section for this field type search for the entry corresponding to value and get its readable description.
+			*/
+			foreach (ObjectTabEntry entry, entries)
 			{
 				/*
-				 * Check for all field values if it is matching. Whenever it is matching decrease "missing" until it is 0.
+				 * It seems that values are existing like "Summoned" where it should be called "summoned"
 				 */
-				for (int i = 0; i < fieldValues.size() && missing > 0; ++i)
+				if (entry.first.toLower() == value.toLower())
 				{
-					/*
-					 * It seems that values are existing like "Summoned" where it should be called "summoned"
-					 */
-					if (fieldValues[i].toLower() == values[0].toLower())
-					{
-						/*
-						 * Many translatable strings contain & characters to indicate the Alt shortcut
-						 * but we do not want to see this when listing the values.
-						 */
-						result[i] = this->source()->sharedData()->tr(values[1]).remove('&');
-						missing--;
-					}
+					 /*
+					  * Many translatable strings contain & characters to indicate the Alt shortcut
+					  * but we do not want to see this when listing the values.
+					  */
+					result.push_back(this->source()->sharedData()->tr(entry.second).remove('&'));
+
+					found = true;
+
+					break;
 				}
+			}
+
+			if (!found)
+			{
+				result.push_back(value);
+
+				qDebug() << "Missing entry for value" << value;
 			}
 		}
 
 		return result.join(", ");
-	}
-	else
-	{
-		qDebug() << "No object tab data defined.";
 	}
 
 	return fieldValue;

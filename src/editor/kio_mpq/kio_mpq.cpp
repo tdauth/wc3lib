@@ -411,6 +411,8 @@ void MpqSlave::listDir(const KUrl &url)
 	dirFileEntries = mpq::Listfile::caseSensitiveFileEntries(allEntries, prefix, false);
 	dirDirectoryEntries = mpq::Listfile::caseSensitiveDirEntries(allEntries, prefix, false);
 
+	warning(QObject::tr("Out prefix: %1\ncount all entries: %2\n count dir file entries: %3\nCount dir dir entries: %4").arg(prefix.c_str()).arg(allEntries.size()).arg(dirFileEntries.size()).arg(dirDirectoryEntries.size()));
+
 	/*
 	 * In the root directory there should be listed the extra files which are not
 	 * contained by the (listfile) file.

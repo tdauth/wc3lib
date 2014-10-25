@@ -424,18 +424,20 @@ void ObjectTreeModel::modifyField(const QString &originalObjectId, const QString
 		 */
 		emit dataChanged(topLeft, bottomRight);
 
+		ObjectTreeItem *oldParent = item->parent();
+		const QModelIndex oldParentIndex = oldParent->modelIndex(this);
 		const QModelIndex parentIndex = this->itemParent(objectData, originalObjectId, customObjectId);
 		ObjectTreeItem *parent = this->item(parentIndex);
-		qDebug() << "Parents:" << item->parent()->text(false) << parent->text(false);
+		qDebug() << "Parents:" << oldParent->text(false) << parent->text(false);
 
 		/*
 		 * If the item would have a new parent it has been moved.
 		 * For example it would have a new parent if the race or unit type has been changed.
 		 */
-		if (item->parent() != parent)
+		if (oldParent != parent)
 		{
 			qDebug() << "Move the row!!";
-			beginMoveRows(bottomRight, item->row(), item->row(), parent->modelIndex(this), parent->children().size());
+			beginMoveRows(oldParentIndex, item->row(), item->row(), parentIndex, parent->children().size() - 1);
 			endMoveRows();
 
 		}
