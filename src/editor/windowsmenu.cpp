@@ -29,7 +29,7 @@ namespace wc3lib
 namespace editor
 {
 
-WindowsMenu::WindowsMenu(Module *module) : QMenu(module->source()->sharedData()->tr("WESTRING_MENU_WINDOW"), module)
+WindowsMenu::WindowsMenu(Module *module) : QMenu(module)
 {
 	if (module->hasEditor())
 	{
@@ -41,6 +41,11 @@ WindowsMenu::WindowsMenu(Module *module) : QMenu(module->source()->sharedData()-
 		connect(module->editor(), SIGNAL(openedMap(Map*)), this, SLOT(addMapAction(Map*)));
 		connect(module->editor(), SIGNAL(aboutToCloseMap(Map*)), this, SLOT(removeMapAction(Map*)));
 	}
+}
+
+void WindowsMenu::retranslateUi()
+{
+	this->setTitle(module()->source()->sharedData()->tr("WESTRING_MENU_WINDOW"));
 }
 
 void WindowsMenu::addMapAction(Map *map)

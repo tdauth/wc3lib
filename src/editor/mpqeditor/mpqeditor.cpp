@@ -103,6 +103,8 @@ bool MpqEditor::configure()
 	this->m_filterProxySearchLine->setProxy(proxyModel);
 	this->m_archivesTreeView->header()->setSortIndicator(0, Qt::AscendingOrder);
 
+	retranslateUi();
+
 	return true;
 
 }

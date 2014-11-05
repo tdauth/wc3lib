@@ -95,7 +95,10 @@ class Sector // FIXME : private boost::noncopyable
 
 		/**
 		 * Jumps to the sector's position in input stream \p istream.
+		 * This means: archive offset + block offset + sector offset.
 		 * \note Doesn't jump relative to the stream's current position.
+		 *
+		 * \sa seekgFromArchiveStart() seekgFromBlockStart()
 		 */
 		void seekg(istream &istream) const;
 		/**
@@ -104,8 +107,11 @@ class Sector // FIXME : private boost::noncopyable
 		void seekgFromArchiveStart(istream &istream) const;
 		void seekgFromBlockStart(istream &istream) const;
 
-		  File* mpqFile() const;
+		File* mpqFile() const;
 		uint32 sectorIndex() const;
+		/**
+		 * \return Returns the offset of the sector relative to the block offset.
+		 */
 		uint32 sectorOffset() const;
 		/**
 		 * \return Returns the compressed size of the sector.
@@ -115,6 +121,11 @@ class Sector // FIXME : private boost::noncopyable
 		 * \return Returns the uncompressed size of the sector.
 		 */
 		uint32 uncompressedSize() const;
+		/**
+		 * The compression mode determines how the data must be compressed/decompressed.
+		 *
+		 * \return Returns the compression mode of the sector.
+		 */
 		Compression compression() const;
 
 		/**
@@ -133,9 +144,9 @@ class Sector // FIXME : private boost::noncopyable
 		/**
 		 * For internal usage.
 		 */
-		void decompressData(boost::scoped_array<byte> &data, uint32 dataSize, ostream &ostream) const;
+		void decompressData(byte *data, uint32 dataSize, ostream &ostream) const;
 
-		  File *m_mpqFile;
+		File *m_mpqFile;
 		uint32 m_sectorIndex;
 		uint32 m_sectorOffset;
 		uint32 m_sectorSize; // not required, added by wc3lib, should be the compressed size!

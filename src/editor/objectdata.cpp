@@ -163,7 +163,7 @@ QString ObjectData::fieldLiteralTypeFromListType(const QString &fieldLiteralList
 	return "";
 }
 
-bool ObjectData::loadOnRequest(QWidget* widget)
+bool ObjectData::loadOnRequest(QWidget *widget)
 {
 	if (this->metaData() == 0)
 	{
@@ -223,17 +223,18 @@ bool ObjectData::hasDefaultFieldValue(const QString &objectId, const QString &fi
 	{
 		const QString field = this->metaData()->value(fieldId, "field");
 		/*
-		 * The index is used for button positions for example when multiple fields share the same field name such as "Buttonpos".
+		 * The section is used if no object ID is given (for example for Misc Data) and is the .txt file's section which contains the field value.
 		 */
-		const QString index = this->metaData()->value(fieldId, "index");
+		const QString section = this->metaData()->value(fieldId, "section");
+		const QString rowKey = section.isEmpty() ? objectId : section;
 		bool hasValue = false;
 		QString value;
 
 		foreach (MetaData *metaData, metaDataList)
 		{
-			if (metaData->hasValue(objectId, field))
+			if (metaData->hasValue(rowKey, field))
 			{
-				value = metaData->value(objectId, field);
+				value = metaData->value(rowKey, field);
 				hasValue = true;
 
 				break;
@@ -242,6 +243,10 @@ bool ObjectData::hasDefaultFieldValue(const QString &objectId, const QString &fi
 
 		if (hasValue)
 		{
+			/*
+			 * The index is used for button positions for example when multiple fields share the same field name such as "Buttonpos".
+			 */
+			const QString index = this->metaData()->value(fieldId, "index");
 			bool ok = true;
 			int indexValue = index.toInt(&ok);
 
@@ -270,17 +275,18 @@ QString ObjectData::defaultFieldValue(const QString &objectId, const QString &fi
 	{
 		const QString field = this->metaData()->value(fieldId, "field");
 		/*
-		 * The index is used for button positions for example when multiple fields share the same field name such as "Buttonpos".
+		 * The section is used if no object ID is given (for example for Misc Data) and is the .txt file's section which contains the field value.
 		 */
-		const QString index = this->metaData()->value(fieldId, "index");
+		const QString section = this->metaData()->value(fieldId, "section");
+		const QString rowKey = section.isEmpty() ? objectId : section;
 		bool hasValue = false;
 		QString value;
 
 		foreach (MetaData *metaData, metaDataList)
 		{
-			if (metaData->hasValue(objectId, field))
+			if (metaData->hasValue(rowKey, field))
 			{
-				value = metaData->value(objectId, field);
+				value = metaData->value(rowKey, field);
 				hasValue = true;
 
 				break;
@@ -289,6 +295,10 @@ QString ObjectData::defaultFieldValue(const QString &objectId, const QString &fi
 
 		if (hasValue)
 		{
+			/*
+			 * The index is used for button positions for example when multiple fields share the same field name such as "Buttonpos".
+			 */
+			const QString index = this->metaData()->value(fieldId, "index");
 			bool ok = true;
 			int indexValue = index.toInt(&ok);
 
@@ -468,7 +478,7 @@ map::Value ObjectData::value(const QString &fieldId, const QString &value) const
 	return map::Value(0);
 }
 
-void ObjectData::createObject(const QString& originalObjectId, const QString& customObjectId)
+void ObjectData::createObject(const QString &originalObjectId, const QString &customObjectId)
 {
 	assert(!originalObjectId.isEmpty());
 	const ObjectId objectId(originalObjectId, customObjectId);
@@ -488,7 +498,7 @@ void ObjectData::createObject(const QString& originalObjectId, const QString& cu
 	}
 }
 
-void ObjectData::modifyField(const QString &originalObjectId, const QString &customObjectId, const QString& fieldId, const map::CustomObjects::Modification &modification)
+void ObjectData::modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, const map::CustomObjects::Modification &modification)
 {
 	assert(!originalObjectId.isEmpty());
 	const ObjectId objectId(originalObjectId, customObjectId);

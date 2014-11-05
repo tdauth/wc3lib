@@ -105,12 +105,14 @@ void ObjectEditorTab::setupUi()
 	leftLayoutWidget->setLayout(leftLayout);
 	leftLayout->addWidget(m_filterSearchLine);
 	leftLayout->addWidget(m_treeView);
+	leftLayoutWidget->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding));
 
 	QVBoxLayout *rightLayout = new QVBoxLayout(this);
 	QWidget *rightLayoutWidget = new QWidget(this);
 	rightLayoutWidget->setLayout(rightLayout);
 	rightLayout->addWidget(m_tableFilterSearchLine);
 	rightLayout->addWidget(m_tableView);
+	rightLayoutWidget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
 	QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
 	splitter->addWidget(leftLayoutWidget);

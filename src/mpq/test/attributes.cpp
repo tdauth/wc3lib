@@ -61,6 +61,8 @@ BOOST_AUTO_TEST_CASE(LadikMpq1AllExtendedAttributes)
 
 	BOOST_REQUIRE(success);
 	const string dataString = data.str();
+	std::cerr << "Data string:" << dataString << std::endl;
+	std::cerr << "Data string size:" << dataString.size() << std::endl;
 	BOOST_REQUIRE(dataString == "Test");
 
 	BOOST_REQUIRE(!archive.containsListfileFile());

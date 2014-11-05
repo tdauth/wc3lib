@@ -45,6 +45,8 @@ class KDE_EXPORT WindowsMenu : public QMenu
 
 		Module* module() const;
 
+		void retranslateUi();
+
 	protected slots:
 		void addMapAction(Map *map);
 		void removeMapAction(Map *map);

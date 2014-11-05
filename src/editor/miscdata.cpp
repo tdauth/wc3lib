@@ -46,7 +46,7 @@ ObjectData::StandardObjecIds MiscData::standardObjectIds() const
 	return result;
 }
 
-ObjectData::MetaDataList MiscData::resolveDefaultField(const QString& objectId, const QString& fieldId) const
+ObjectData::MetaDataList MiscData::resolveDefaultField(const QString &objectId, const QString &fieldId) const
 {
 	MetaDataList result;
 
@@ -144,6 +144,7 @@ void MiscData::load(QWidget *widget)
 	this->m_meleeV0.reset(new MetaData(KUrl("melee_v0/Units/miscgame.txt")));
 	this->m_meleeV0->setSource(this->source());
 	this->m_meleeV0->load();
+	// TODO get item functions and unit data
 }
 
 MetaData* MiscData::objectTabData() const

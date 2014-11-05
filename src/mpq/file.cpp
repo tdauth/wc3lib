@@ -42,9 +42,7 @@ std::streamsize File::writeData(ostream &ostream)
 		throw Exception(boost::format(_("Unable to open file %1%.")) % this->mpq()->path());
 	}
 
-	std::streamsize bytes = this->writeData(ifstream, ostream);
-
-	return bytes;
+	return this->writeData(ifstream, ostream);
 }
 
 std::streamsize File::writeData(istream &istream, ostream &ostream)

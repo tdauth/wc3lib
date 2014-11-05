@@ -107,8 +107,21 @@ class KDE_EXPORT Module : public QWidget
 		/**
 		 * Configures the settings and sources before showing the module.
 		 * \note You should load translations from \ref retranslateUi() after loading the sources successfully.
+		 *
+		 * The default implementation opens a source dialog if the module is started as stand-alone application and the sources are empty.
+		 * If accepted it retranslates the UI and returns true. Otherwise it returns false.
+		 *
+		 * When overriding this element function you can refresh required files after making sure the sources has been configured.
+		 * Besides you could prevent opening the GUI if this method returns false.
+		 *
+		 * The GUI should always be shown AFTER calling this element function.
+		 *
+		 * \return Returns true if the configuration has been successful. For example, when the user rejects the sources dialog it returns false.
 		 */
-		virtual bool configure() = 0;
+		virtual bool configure();
+		/**
+		 * Updates the translated strings in the GUI.
+		 */
 		virtual void retranslateUi();
 
 	public slots:

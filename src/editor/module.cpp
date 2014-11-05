@@ -62,6 +62,24 @@ Module::~Module()
 {
 }
 
+bool Module::configure()
+{
+	readSettings();
+
+	// Configure source if started as stand-alone module.
+	if (!hasEditor())
+	{
+		if (!source()->configure(this))
+		{
+			return false;
+		}
+	}
+
+	retranslateUi();
+
+	return true;
+}
+
 void Module::retranslateUi()
 {
 	this->m_fileMenu->setTitle(this->source()->sharedData()->tr("WESTRING_MENU_FILE"));
@@ -73,6 +91,7 @@ void Module::retranslateUi()
 
 	this->m_sourcesAction->setText(tr("Sources"));
 	this->m_editMenu->setTitle(source()->sharedData()->tr("WESTRING_MENU_EDIT"));
+	this->m_windowsMenu->retranslateUi();
 }
 
 bool Module::hasEditor() const
@@ -133,7 +152,7 @@ void Module::setupUi()
 	this->m_menuBar = new QMenuBar(this);
 	topLayout()->addWidget(this->m_menuBar);
 
-	this->m_fileMenu = new QMenu(this->source()->sharedData()->tr("WESTRING_MENU_FILE"), this);
+	this->m_fileMenu = new QMenu(this);
 	this->menuBar()->addMenu(this->m_fileMenu);
 	connect(this->m_fileMenu, SIGNAL(triggered(QAction *)), this, SLOT(triggered(QAction*)));
 
@@ -166,16 +185,16 @@ void Module::setupUi()
 	}
 	else
 	{
-		m_closeAction = new QAction(source()->sharedData()->tr("WESTRING_MENU_CLOSEMODULE"), this);
+		m_closeAction = new QAction(this);
 	}
 
 	this->m_fileMenu->addAction(m_closeAction);
 
-	this->m_sourcesAction = new QAction(tr("Sources"), this);
+	this->m_sourcesAction = new QAction(this);
 	connect(this->m_sourcesAction, SIGNAL(triggered()), this, SLOT(showSourcesDialog()));
 	this->m_fileMenu->addAction(m_sourcesAction);
 
-	this->m_editMenu = new QMenu(source()->sharedData()->tr("WESTRING_MENU_EDIT"), this);
+	this->m_editMenu = new QMenu(this);
 	this->menuBar()->addMenu(this->m_editMenu);
 
 	// create user-defined actions in edit menu
