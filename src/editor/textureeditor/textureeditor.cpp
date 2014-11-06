@@ -139,6 +139,8 @@ bool TextureEditor::configure()
 		}
 	}
 
+	retranslateUi();
+
 	return true;
 }
 

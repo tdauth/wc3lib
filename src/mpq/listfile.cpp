@@ -147,7 +147,7 @@ Listfile::Entries Listfile::caseSensitiveFileEntries(const Listfile::Entries &en
 	return result;
 }
 
-Listfile::Entries Listfile::caseSensitiveDirEntries(const Listfile::Entries& entries, const string& prefix, bool recursive)
+Listfile::Entries Listfile::caseSensitiveDirEntries(const Listfile::Entries &entries, const string &prefix, bool recursive)
 {
 	const Listfile::CaseSensitiveEntries uniqueEntries = caseSensitiveEntries(entries);
 	/*
@@ -158,13 +158,25 @@ Listfile::Entries Listfile::caseSensitiveDirEntries(const Listfile::Entries& ent
 
 	BOOST_FOREACH(Entries::const_reference ref, entries)
 	{
-		if (prefix.empty() || (ref.size() > prefix.size() && boost::istarts_with(ref, prefix))) // paths are not case sensitive!
+		if (
+			ref.size() > prefix.size()
+			// paths are not case sensitive!
+			&& (prefix.empty() || boost::istarts_with(ref, prefix))
+			)
 		{
+			/*
+			 * Now take for each dirname token the case sensitive corresponding entry.
+			 */
 			std::vector<string> pathTokens;
 			boost::algorithm::split(pathTokens, ref, boost::algorithm::is_any_of("\\"), boost::algorithm::token_compress_on);
 			stringstream sstream;
+			const std::size_t dirPathTokensSize = pathTokens.size() - 1;
+			/*
+			 * Count the inner directory levels to make sure that none recursive entries are being added if not wished by the user.
+			 */
+			std::size_t countInnerDirLevels = 0;
 
-			for (std::size_t i = 0; i < pathTokens.size() - 1; ++i)
+			for (std::size_t i = 0; i < dirPathTokensSize && (recursive || countInnerDirLevels < 1); ++i)
 			{
 				const string key = boost::to_upper_copy(pathTokens[i]);
 				const CaseSensitiveEntries::const_iterator iterator = uniqueEntries.find(key);
@@ -182,6 +194,7 @@ Listfile::Entries Listfile::caseSensitiveDirEntries(const Listfile::Entries& ent
 
 					if ((doneValue.size() > prefix.size() && boost::istarts_with(doneValue, prefix)))
 					{
+						++countInnerDirLevels;
 						const string doneKey = boost::to_upper_copy(doneValue);
 						const std::set<string>::const_iterator doneIterator = dirEntriesDone.find(doneKey);
 

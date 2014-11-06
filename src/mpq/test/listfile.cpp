@@ -184,7 +184,53 @@ BOOST_AUTO_TEST_CASE(CaseSensitiveDirEntriesRecursive)
 	BOOST_REQUIRE(uniqueEntries[3] == "Abilities\\UI");
 }
 
+/*
+ * Tests listing directory dir entries with the prefix "Abilities\\" but without recursion.
+ * Therefore the directory "testDir" should not be listed at all.
+ */
 BOOST_AUTO_TEST_CASE(CaseSensitiveDirEntriesWithPrefix)
+{
+	stringstream sstream;
+	sstream <<
+	"Abilities\\Hans\\bla"
+	";abilities\\Peter\\blu"
+	";abilities\\PeTeR\\bli"
+	";abILIties\\UI\\test"
+	";abILIties\\UI\\test1"
+	";abilities\\ui\\test2"
+	";abilities\\ui\\test3.txt"
+	/*
+	 * This is a recursive sub directory called "testDir" which should not be listed since recursive is "false".
+	 */
+	";abilities\\ui\\testDir\\test"
+	";test\\ui\\test3.txt"
+	";test\\ui\\anothersubdir\\myfile.txt"
+	;
+
+	const mpq::Listfile::Entries entries = mpq::Listfile::entries(sstream.str());
+
+	BOOST_REQUIRE(entries.size() == 10);
+
+	const mpq::Listfile::Entries uniqueEntries = mpq::Listfile::caseSensitiveDirEntries(entries, "Abilities\\", false);
+
+	/*
+	BOOST_FOREACH(mpq::Listfile::Entries::const_reference ref, uniqueEntries)
+	{
+		std::cerr << ref << std::endl;
+	}
+	*/
+
+	BOOST_REQUIRE(uniqueEntries.size() == 3);
+	BOOST_REQUIRE(uniqueEntries[0] == "Abilities\\Hans");
+	BOOST_REQUIRE(uniqueEntries[1] == "Abilities\\Peter");
+	BOOST_REQUIRE(uniqueEntries[2] == "Abilities\\UI");
+}
+
+/*
+ * Tests if all directory entries are detected without recursion and prefix.
+ * If no recursion and no prefix is used it must list all directories in the top level directory.
+ */
+BOOST_AUTO_TEST_CASE(CaseSensitiveDirEntriesWithEmptyPrefix)
 {
 	stringstream sstream;
 	sstream <<
@@ -203,7 +249,7 @@ BOOST_AUTO_TEST_CASE(CaseSensitiveDirEntriesWithPrefix)
 
 	BOOST_REQUIRE(entries.size() == 9);
 
-	const mpq::Listfile::Entries uniqueEntries = mpq::Listfile::caseSensitiveDirEntries(entries, "Abilities\\", false);
+	const mpq::Listfile::Entries uniqueEntries = mpq::Listfile::caseSensitiveDirEntries(entries, "", false);
 
 	/*
 	BOOST_FOREACH(mpq::Listfile::Entries::const_reference ref, uniqueEntries)
@@ -212,10 +258,9 @@ BOOST_AUTO_TEST_CASE(CaseSensitiveDirEntriesWithPrefix)
 	}
 	*/
 
-	BOOST_REQUIRE(uniqueEntries.size() == 3);
-	BOOST_REQUIRE(uniqueEntries[0] == "Abilities\\Hans");
-	BOOST_REQUIRE(uniqueEntries[1] == "Abilities\\Peter");
-	BOOST_REQUIRE(uniqueEntries[2] == "Abilities\\UI");
+	BOOST_REQUIRE(uniqueEntries.size() == 2);
+	BOOST_REQUIRE(uniqueEntries[0] == "Abilities");
+	BOOST_REQUIRE(uniqueEntries[1] == "test");
 }
 
 BOOST_AUTO_TEST_CASE(ExistingEntriesWithPrefix)
