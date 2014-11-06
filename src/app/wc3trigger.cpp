@@ -44,16 +44,20 @@ int main(int argc, char *argv[])
 
 	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
 	TriggerEditor editor(source.data());
-	editor.show();
 
-	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
-
-	// TODO determine by extension what should be open!
-	if (args != 0)
+	if (editor.configure())
 	{
-		for (int i = 0; i < args->count(); ++i)
+		editor.show();
+
+		KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
+
+		// TODO determine by extension what should be open!
+		if (args != 0)
 		{
-			editor.openTriggersUrl(args->url(i));
+			for (int i = 0; i < args->count(); ++i)
+			{
+				editor.openTriggersUrl(args->url(i));
+			}
 		}
 	}
 

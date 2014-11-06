@@ -317,7 +317,7 @@ MpqTreeItem* MpqTreeModel::item(const QModelIndex& index) const
 	return 0;
 }
 
-bool MpqTreeModel::insertRows(int row, int count, const QModelIndex& parent)
+bool MpqTreeModel::insertRows(int row, int count, const QModelIndex &parent)
 {
 	beginInsertRows(parent, row, row + count - 1);
 
@@ -386,30 +386,33 @@ bool MpqTreeModel::removeRows(int row, int count, const QModelIndex &parent)
 
 		if (parentItem != 0)
 		{
-			if (i < parentItem->childCount())
+			if (row < parentItem->childCount())
 			{
 				item = parentItem->children().takeAt(row);
 			}
 			else
 			{
-				qDebug() << "Invalid children" << i;
+				qDebug() << "Invalid children" << row;
 			}
 		}
 		else
 		{
-			if (i < topLevelItems().count())
+			if (row < topLevelItems().count())
 			{
 				item = topLevelItems().takeAt(row);
 				qDebug() << "Removing top level item" << item->filePath();
 			}
 			else
 			{
-				qDebug() << "Invalid top level row" << i;
+				qDebug() << "Invalid top level row" << row;
 			}
 		}
 
 		if (item != 0)
 		{
+			/*
+			 * Should delete its children as well.
+			 */
 			delete item;
 		}
 	}
