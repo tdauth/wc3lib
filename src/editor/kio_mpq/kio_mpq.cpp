@@ -439,6 +439,9 @@ void MpqSlave::listDir(const KUrl &url)
 		}
 	}
 
+	// TEST
+	warning("1");
+
 	/*
 	 * List regular files.
 	 */
@@ -485,6 +488,12 @@ void MpqSlave::listDir(const KUrl &url)
 				}
 			}
 
+			// TEST
+			if (fileName.isEmpty())
+			{
+				warning(i18n("Is empty: %1 from %2", fileName, ref.c_str()));
+			}
+
 			KIO::UDSEntry entry;
 			entry.insert(KIO::UDSEntry::UDS_NAME, fileName);
 			entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFREG);
@@ -513,6 +522,9 @@ void MpqSlave::listDir(const KUrl &url)
 		}
 	}
 
+	// TEST
+	warning("2");
+
 	/*
 	 * List directories.
 	 */
@@ -522,6 +534,12 @@ void MpqSlave::listDir(const KUrl &url)
 
 		const QString dirName = QString::fromUtf8(mpq::Listfile::fileName(ref).c_str());
 
+		// TEST
+		if (dirName.isEmpty())
+		{
+			warning(i18n("Is empty: %1 from %2", dirName, ref.c_str()));
+		}
+
 		KIO::UDSEntry entry;
 		entry.insert(KIO::UDSEntry::UDS_NAME, dirName);
 		entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFDIR);
@@ -529,8 +547,14 @@ void MpqSlave::listDir(const KUrl &url)
 		listEntry(entry, false);
 	}
 
+	// TEST
+	warning("3");
+
 	listEntry(KIO::UDSEntry(), true); // ready
 	finished();
+
+	// TEST
+	warning("4");
 }
 
 void MpqSlave::stat(const KUrl &url)

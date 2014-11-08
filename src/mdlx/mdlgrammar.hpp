@@ -73,23 +73,30 @@ class MdlGrammar
 		typedef boost::spirit::classic::position_iterator2<MdlGrammar::ForwardIteratorType> ClassicPositionIteratorType;
 		typedef boost::spirit::line_pos_iterator<MdlGrammar::ForwardIteratorType> PositionIteratorType;
 
+
+		typedef client::CommentSkipper<PositionIteratorType> Skipper;
+		typedef client::MdlGrammar<PositionIteratorType, Skipper> Grammar;
+
 		MdlGrammar();
 
 		/**
 		 * Parses the MDL input from input stream \p istream and stores the result into \p result.
 		 * If parsing succeeds it returns true. Otherwise it returns false.
 		 */
-		bool parse(InputStream &istream, Mdlx* &result);
-		bool parse(IteratorType first, IteratorType last, Mdlx* &result);
+		bool parse(InputStream &istream, Mdlx &result);
+		bool parse(IteratorType first, IteratorType last, Mdlx &result);
 
 	private:
 		/*
 		 * Internal grammars for MDL grammar and its skipper.
 		 * We do not want to create a new grammar instance each time we parse something.
 		 * Therefore we use these attributes for all parsing operations.
+		 *
+		 * Use static attributes to avoid multiple allocations of the same grammar and skipper for multiple instances
+		 * of "MdlGrammar".
 		 */
-		client::MdlGrammar<PositionIteratorType, client::CommentSkipper<PositionIteratorType> > grammar;
-		client::CommentSkipper<PositionIteratorType> skipper;
+		static Grammar grammar;
+		static Skipper skipper;
 };
 
 }

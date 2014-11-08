@@ -146,7 +146,7 @@ void newPointer(std::unique_ptr<T> &target, Arguments... parameters)
  */
 
 template <typename Iterator, typename Skipper >
-MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::base_type(mdl, "mdl"), result(new Mdlx())
+MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::base_type(mdl, "mdl")
 {
 	using qi::eps;
 	using qi::int_parser;
@@ -198,8 +198,12 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 			lit("\"")
 			>>
 			*(
-				unicode::char_ - unicode::char_('\"') - unicode::char_('\\')
-				| lit('\\')[push_back(_val, '\\')] >> unicode::char_
+				(
+					unicode::char_ - unicode::char_('\"') - unicode::char_('\\')
+				)
+				| (
+					lit('\\')[push_back(_val, '\\')] >> unicode::char_
+				)
 			)
 			>> lit("\"")
 		]
@@ -211,20 +215,12 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 		>> real_literal[at_c<2>(_val) = _1]
 	;
 
-	/*
 	mdl =
-		eps[_val = phoenix::new_<Mdlx>()] //[phoenix::bind(&resetPointer<Mdlx>, phoenix::ref(_val), phoenix::ref(result))]
-		>> (
-			-version[at_c<0>(_val) = qi::_1]
-			//>> model[at_c<1>(_val) = qi::_2]
-
-		)
+		-version[at_c<0>(_val) = qi::_1]
+		//>> model[at_c<1>(_val) = qi::_2]
 	;
 
-	on_error<fail>(mdl,
-		phoenix::delete_(_val)
-	);
-
+	/*
 	model %=
 		lit("Model")[_val = phoenix::new_<Model>()]
 		>> string_literal
@@ -263,35 +259,51 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 	// MinimumExtent, MaximumExtent, and BoundsRadius are left out if their
 	// values are 0.0.
 	bounds =
-		lit("MinimumExtent") >> lit('{')
+		-(
+			lit("MinimumExtent")
+			>> lit('{')
 			>> vertexData[at_c<0>(_val) = _1]
-		>> lit('}') >> lit(',')
-
-		>> lit("MaximumExtent")
+			>> lit('}')
+			>> lit(',')
+		)
+		>>
+		-(
+			lit("MaximumExtent")
+			>> lit('{')
 			>> vertexData[at_c<1>(_val) = _1]
-		>> lit('}') >> lit(',')
-
-		>> lit("BoundsRadius")
+			>> lit('}')
+			>> lit(',')
+		)
+		>>
+		-(
+			lit("BoundsRadius")
 			>> real_literal[at_c<2>(_val) = _1]
-		>> lit(',')
+			>> lit(',')
+		)
 	;
 
 	/*
 	 * put all rule names here:
 	 */
+	integer_literal.name("integer_literal");
+	real_literal.name("real_literal");
+	string_literal.name("string_literal");
+	vertexData.name("vertex_data");
 	mdl.name("mdl");
 	model.name("model");
 	version.name("version");
 	bounds.name("bounds");
 
-	/*
 	BOOST_SPIRIT_DEBUG_NODES(
+		(integer_literal)
+		(real_literal)
+		(string_literal)
+		(vertexData)
 		(mdl)
 		(model)
 		(version)
 		(bounds)
 	);
-	*/
 }
 
 template <typename Iterator>
@@ -434,7 +446,8 @@ BOOST_FUSION_ADAPT_ADT(
 )
 
 BOOST_FUSION_ADAPT_ADT(
-	wc3lib::mdlx::Mdlx*,
+	wc3lib::mdlx::Mdlx,
+	(const wc3lib::mdlx::Version*, wc3lib::mdlx::Version*, obj.modelVersion(), obj.setModelVersion(val))
 )
 
 BOOST_FUSION_ADAPT_ADT(

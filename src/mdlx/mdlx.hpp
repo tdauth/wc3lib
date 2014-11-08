@@ -71,6 +71,7 @@ class Mdlx : public MdxBlock
 		Mdlx();
 		virtual ~Mdlx();
 
+		void setModelVersion(Version *version);
 		Version* modelVersion() const;
 		Model* model() const;
 		Sequences* sequences() const;
@@ -119,6 +120,11 @@ class Mdlx : public MdxBlock
 		Events *m_events;
 		CollisionShapes *m_collisionShapes;
 };
+
+inline void Mdlx::setModelVersion(Version *version)
+{
+	this->m_version = version;
+}
 
 inline Version* Mdlx::modelVersion() const
 {

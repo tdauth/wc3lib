@@ -30,6 +30,9 @@ namespace wc3lib
 namespace mdlx
 {
 
+MdlGrammar::Grammar MdlGrammar::grammar;
+MdlGrammar::Skipper MdlGrammar::skipper;
+
 /**
  * This function can be called whenever an boost::spirit::qi::expectation_failure occurs to
  * print it in a readable format.
@@ -77,12 +80,12 @@ MdlGrammar::MdlGrammar()
 {
 }
 
-bool MdlGrammar::parse(MdlGrammar::InputStream& istream, Mdlx* &result)
+bool MdlGrammar::parse(MdlGrammar::InputStream& istream, Mdlx &result)
 {
 	return this->parse(IteratorType(istream), IteratorType(), result);
 }
 
-bool MdlGrammar::parse(IteratorType first, IteratorType last, Mdlx* &result)
+bool MdlGrammar::parse(IteratorType first, IteratorType last, Mdlx &result)
 {
 	ForwardIteratorType forwardFirst = boost::spirit::make_default_multi_pass(first);
 	ForwardIteratorType forwardLast = boost::spirit::make_default_multi_pass(last); // TODO has to be created? Do we need this iterator to be passed?

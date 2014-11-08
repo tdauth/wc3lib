@@ -53,8 +53,8 @@ namespace karma = boost::spirit::karma;
  * MDL supports single line comments started by "//"
  */
 template<typename Iterator>
-struct CommentSkipper : public qi::grammar<Iterator> {
-
+struct CommentSkipper : public qi::grammar<Iterator>
+{
 	CommentSkipper();
 
 	qi::rule<Iterator> skip;
@@ -75,7 +75,7 @@ typedef std::unique_ptr<Model> ModelType;
 typedef std::unique_ptr<Version> VersionType;
 
 template <typename Iterator, typename Skipper = CommentSkipper<Iterator> >
-struct MdlGrammar : qi::grammar<Iterator, Mdlx*(), qi::locals<std::string>, Skipper>
+struct MdlGrammar : qi::grammar<Iterator, Mdlx(), qi::locals<std::string>, Skipper>
 {
 	MdlGrammar();
 
@@ -84,13 +84,11 @@ struct MdlGrammar : qi::grammar<Iterator, Mdlx*(), qi::locals<std::string>, Skip
 	qi::rule<Iterator, string(), Skipper> string_literal;
 	qi::rule<Iterator, VertexData(), Skipper> vertexData;
 
-	qi::rule<Iterator, Mdlx*(), qi::locals<std::string>, Skipper> mdl;
+	qi::rule<Iterator, Mdlx(), qi::locals<std::string>, Skipper> mdl;
 	qi::rule<Iterator, Model*(), Skipper> model;
 	qi::rule<Iterator, Version*(), Skipper> version;
 
 	qi::rule<Iterator, Bounds(), Skipper> bounds;
-
-	Mdlx *result;
 };
 
 /**
@@ -100,7 +98,7 @@ template <typename Iterator>
 bool parse(Iterator first, Iterator last, Mdlx &mdlx);
 
 template <typename Iterator>
-struct MdlGenerator : karma::grammar<Iterator, Mdlx*()>
+struct MdlGenerator : karma::grammar<Iterator, Mdlx()>
 {
 	MdlGenerator();
 
@@ -109,13 +107,65 @@ struct MdlGenerator : karma::grammar<Iterator, Mdlx*()>
 	karma::rule<Iterator, string()> string_literal;
 	karma::rule<Iterator, VertexData()> vertexData;
 
-	karma::rule<Iterator, Mdlx*()> mdl;
+	karma::rule<Iterator, Mdlx()> mdl;
 	karma::rule<Iterator, Model*()> model;
 	karma::rule<Iterator, Version*()> version;
 
 	karma::rule<Iterator, Bounds()> bounds;
 };
 
+}
+
+}
+
+}
+
+
+/*
+ * The specialization is required for proper debug output of Spirit.
+ * It prints attributes of rules and therefore attributes of type jass_ast_node which misses a stream output operator.
+ * Unfortunately we have to define it for every type because it does not detect inheritance and virtual methods.
+ */
+// your specialization needs to be in namespace boost::spirit::traits
+// https://stackoverflow.com/questions/5286720/how-to-define-streaming-operator-for-boostspiritqi-and-stdlist-container
+// https://svn.boost.org/trac/boost/ticket/9803
+namespace boost { namespace spirit { namespace traits
+{
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Mdlx>
+	{
+		static void call(Out& out, wc3lib::mdlx::Mdlx const& val)
+		{
+			out << "mdlx";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Model*>
+	{
+		static void call(Out& out, wc3lib::mdlx::Model* const& val)
+		{
+			out << "model";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Version*>
+	{
+		static void call(Out& out, wc3lib::mdlx::Version* const& val)
+		{
+			out << "version";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Bounds>
+	{
+		static void call(Out& out, wc3lib::mdlx::Bounds const& val)
+		{
+			out << "bounds";
+		}
+	};
 }
 
 }

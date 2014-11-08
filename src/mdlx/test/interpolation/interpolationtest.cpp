@@ -29,6 +29,7 @@
 #include "../../platform.hpp"
 #include "../../mdlgrammar.hpp"
 #include "../../interpolator.hpp"
+#include "../../geosetanimations.hpp"
 
 #ifndef BOOST_TEST_DYN_LINK
 #error Define BOOST_TEST_DYN_LINK for proper definition of main function.
@@ -37,7 +38,8 @@
 using namespace wc3lib;
 using namespace wc3lib::mdlx;
 
-BOOST_AUTO_TEST_CASE(GeosetAnim) {
+BOOST_AUTO_TEST_CASE(GeosetAnim)
+{
 	spiritTraceLog.close();
 	spiritTraceLog.open("geosetanim_traces.xml");
 
@@ -47,8 +49,14 @@ BOOST_AUTO_TEST_CASE(GeosetAnim) {
 
 	BOOST_REQUIRE(in);
 
-	Mdlx *result = 0;
+	Mdlx result;
 	MdlGrammar grammar;
 	BOOST_REQUIRE(grammar.parse(in, result));
-	BOOST_REQUIRE(result);
+	BOOST_REQUIRE(result.geosetAnimations() != 0);
+	BOOST_REQUIRE(result.geosetAnimations()->members().size() == 2);
+
+	Interpolator<1, float32> interpolator;
+	//interpolator.setAnimatedProperties(&result->geosetAnimations()->members().front());
+
+	//BOOST_REQUIRE(interpolator.animatedProperties() == &result->geosetAnimations()->members().front());
 }

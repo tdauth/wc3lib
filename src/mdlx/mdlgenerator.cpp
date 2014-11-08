@@ -50,7 +50,7 @@ bool MdlGenerator::generate(IteratorType sink, const Mdlx &source)
 	return boost::spirit::karma::generate(Iterator(ostream), generator, this->table());
 	*/
 
-	return boost::spirit::karma::generate(sink, grammar, &source);
+	return boost::spirit::karma::generate(sink, grammar, source);
 }
 
 }

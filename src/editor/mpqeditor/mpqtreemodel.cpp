@@ -195,7 +195,7 @@ void MpqTreeModel::addArchive(mpq::Archive* archive, const mpq::Listfile::Entrie
 
 			if (!mimeType.isNull() && !mimeType->iconName().isEmpty())
 			{
-				fileItem->setIcon( m_iconLoader.loadMimeTypeIcon(mimeType->iconName(), KIconLoader::Small));
+				fileItem->setIcon(m_iconLoader.loadMimeTypeIcon(mimeType->iconName(), KIconLoader::Small));
 			}
 		}
 		//qDebug() << "File" << filePath << "with parent" << parentItem->name();

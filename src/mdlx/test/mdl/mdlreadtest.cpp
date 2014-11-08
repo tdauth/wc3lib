@@ -37,7 +37,8 @@
 using namespace wc3lib;
 using namespace wc3lib::mdlx;
 
-BOOST_AUTO_TEST_CASE(MdlBounds) {
+BOOST_AUTO_TEST_CASE(MdlBounds)
+{
 	spiritTraceLog.close();
 	spiritTraceLog.open("mdlbounds_traces.xml");
 
@@ -72,9 +73,20 @@ BOOST_AUTO_TEST_CASE(MdlBounds) {
 
 	BOOST_REQUIRE(r);
 	BOOST_REQUIRE(first == last);
+
+	BOOST_CHECK_CLOSE(result.minimumExtent()[0], -16849.500000, 0.0001);
+	BOOST_CHECK_CLOSE(result.minimumExtent()[1], -3155.110107, 0.0001);
+	BOOST_CHECK_CLOSE(result.minimumExtent()[2], -9140.349609, 0.0001);
+
+	BOOST_CHECK_CLOSE(result.maximumExtent()[0], 786.507019, 0.0001);
+	BOOST_CHECK_CLOSE(result.maximumExtent()[1], 16107.799805, 0.0001);
+	BOOST_CHECK_CLOSE(result.maximumExtent()[2], 5544.810059, 0.0001);
+
+	BOOST_CHECK_CLOSE(result.boundsRadius(), 2324.42, 0.0001);
 }
 
-BOOST_AUTO_TEST_CASE(MdlVersion) {
+BOOST_AUTO_TEST_CASE(MdlVersion)
+{
 	spiritTraceLog.close();
 	spiritTraceLog.open("mdlversion_traces.xml");
 
@@ -84,11 +96,9 @@ BOOST_AUTO_TEST_CASE(MdlVersion) {
 
 	BOOST_REQUIRE(in);
 
-	Mdlx *result = 0;
+	Mdlx result;
 	MdlGrammar grammar;
 
 	BOOST_REQUIRE(grammar.parse(in, result));
-	BOOST_REQUIRE(result != 0);
-
-	BOOST_REQUIRE(result->modelVersion()->modelVersion() == 800);
+	BOOST_REQUIRE(result.modelVersion()->modelVersion() == 800);
 }
