@@ -96,9 +96,78 @@ BOOST_AUTO_TEST_CASE(MdlVersion)
 
 	BOOST_REQUIRE(in);
 
-	Mdlx result;
-	MdlGrammar grammar;
+	client::MdlGrammar<MdlGrammar::PositionIteratorType, client::CommentSkipper<MdlGrammar::PositionIteratorType>> grammar;
+	client::CommentSkipper<MdlGrammar::PositionIteratorType> commentSkipper;
 
-	BOOST_REQUIRE(grammar.parse(in, result));
-	BOOST_REQUIRE(result.modelVersion()->modelVersion() == 800);
+	MdlGrammar::IteratorType first = MdlGrammar::IteratorType(in);
+	MdlGrammar::IteratorType last;
+
+	MdlGrammar::ForwardIteratorType forwardFirst = boost::spirit::make_default_multi_pass(first);
+	MdlGrammar::ForwardIteratorType forwardLast = boost::spirit::make_default_multi_pass(last); // TODO has to be created? Do we need this iterator to be passed?
+
+	// used for backtracking and more detailed error output
+	MdlGrammar::PositionIteratorType position_begin(forwardFirst);
+	MdlGrammar::PositionIteratorType position_end;
+
+	Version *result = 0;
+
+	bool r = boost::spirit::qi::phrase_parse(
+			position_begin,
+			position_end,
+			grammar.version,
+			commentSkipper,
+			result
+	);
+
+	BOOST_REQUIRE(r);
+	BOOST_REQUIRE(first == last);
+
+	BOOST_REQUIRE(result != 0);
+	BOOST_CHECK(result->modelVersion() == 800);
+
+	delete result;
+}
+
+BOOST_AUTO_TEST_CASE(MdlModel)
+{
+	spiritTraceLog.close();
+	spiritTraceLog.open("mdlmodel_traces.xml");
+
+	BOOST_REQUIRE(spiritTraceLog);
+
+	ifstream in("model.mdl");
+
+	BOOST_REQUIRE(in);
+
+	client::MdlGrammar<MdlGrammar::PositionIteratorType, client::CommentSkipper<MdlGrammar::PositionIteratorType>> grammar;
+	client::CommentSkipper<MdlGrammar::PositionIteratorType> commentSkipper;
+
+	MdlGrammar::IteratorType first = MdlGrammar::IteratorType(in);
+	MdlGrammar::IteratorType last;
+
+	MdlGrammar::ForwardIteratorType forwardFirst = boost::spirit::make_default_multi_pass(first);
+	MdlGrammar::ForwardIteratorType forwardLast = boost::spirit::make_default_multi_pass(last); // TODO has to be created? Do we need this iterator to be passed?
+
+	// used for backtracking and more detailed error output
+	MdlGrammar::PositionIteratorType position_begin(forwardFirst);
+	MdlGrammar::PositionIteratorType position_end;
+
+	Model *result = 0;
+
+	bool r = boost::spirit::qi::phrase_parse(
+			position_begin,
+			position_end,
+			grammar.model,
+			commentSkipper,
+			result
+	);
+
+	BOOST_REQUIRE(r);
+	BOOST_REQUIRE(first == last);
+
+	BOOST_REQUIRE(result != 0);
+
+	// TODO check model properties
+
+	delete result;
 }

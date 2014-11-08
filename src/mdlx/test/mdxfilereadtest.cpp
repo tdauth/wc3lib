@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2013 by Tamino Dauth                                    *
+ *   Copyright (C) 2014 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,7 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#define BOOST_TEST_MODULE MdlReadTest
+#define BOOST_TEST_MODULE MdxFileReadTest
 #include <boost/test/unit_test.hpp>
 #include <sstream>
 #include <iostream>
@@ -27,7 +27,9 @@
 
 //#include "../../platform.hpp"
 #include "../platform.hpp"
-#include "../mdlgrammar.hpp"
+#include "../mdlx.hpp"
+#include "../model.hpp"
+#include "../version.hpp"
 
 #ifndef BOOST_TEST_DYN_LINK
 #error Define BOOST_TEST_DYN_LINK for proper definition of main function.
@@ -36,11 +38,42 @@
 using namespace wc3lib;
 using namespace wc3lib::mdlx;
 
-BOOST_AUTO_TEST_CASE(Orc) {
-	spiritTraceLog.close();
-	spiritTraceLog.open("mdlorc_traces.xml");
-	
-	BOOST_REQUIRE(spiritTraceLog);
-	
-	MdlGrammar grammar;
+BOOST_AUTO_TEST_CASE(Orc)
+{
+	ifstream in("Orc_Exp.mdx");
+
+	BOOST_REQUIRE(in);
+
+	Mdlx model;
+	bool valid = true;
+	std::size_t size = 0;
+
+	try {
+		size = model.readMdx(in);
+	} catch (Exception &e) {
+		valid = false;
+		std::cerr << e.what() << std::endl;
+	}
+
+	BOOST_REQUIRE(valid);
+
+	BOOST_REQUIRE(model.model() != 0);
+	BOOST_REQUIRE(strcmp(model.model()->name(), "Orc_Exp") == 0);
+	BOOST_REQUIRE(model.modelVersion() != 0);
+	BOOST_REQUIRE(model.modelVersion()->modelVersion() == 800);
+	/*
+	 * Sequences 2 {
+	 * GlobalSequences 17 {
+	 * Textures 23 {
+	 * Materials 26 {
+	 * TextureAnims 1 {
+	 * PivotPoints 168 {
+	 * 4 lights
+	 * 12 helpers
+	 * 1 camera
+	 * 3 event objects
+	 * 6 geoset animations
+	 * ?? geosets
+	 * ?? bones
+	 */
 }

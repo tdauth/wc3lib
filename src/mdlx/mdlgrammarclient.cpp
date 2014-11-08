@@ -220,20 +220,20 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 		//>> model[at_c<1>(_val) = qi::_2]
 	;
 
-	/*
-	model %=
+	model =
 		lit("Model")[_val = phoenix::new_<Model>()]
-		>> string_literal
+		>> string_literal[at_c<0>(_val) = _1]
 		>> lit('{')
-			>> lit("BlendTime") >> integer_literal
-			>> bounds
+			>> lit("BlendTime") >> integer_literal[at_c<1>(_val) = _1]
+			>> lit(',')
+			>> bounds[at_c<2>(_val) = _1]
 		>> lit('}')
 	;
 
 	on_error<fail>(model,
 		phoenix::delete_(_val)
 	);
-	*/
+
 /*
 	Model "Alliance_Exp" {
 	BlendTime 150,

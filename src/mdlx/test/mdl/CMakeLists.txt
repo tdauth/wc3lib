@@ -4,3 +4,4 @@ add_test(MdlReadTestSimple mdlreadtestsimple)
 
 configure_file(bounds.mdl bounds.mdl COPYONLY)
 configure_file(version.mdl version.mdl COPYONLY)
+configure_file(model.mdl model.mdl COPYONLY)

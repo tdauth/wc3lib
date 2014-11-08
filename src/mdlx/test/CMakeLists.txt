@@ -1,12 +1,12 @@
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
-add_executable(mdlreadtest mdlreadtest.cpp)
-target_link_libraries(mdlreadtest wc3libmdlx wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
-add_test(MdlReadTest mdlreadtest)
+add_executable(mdlfilereadtest mdlfilereadtest.cpp)
+target_link_libraries(mdlfilereadtest wc3libmdlx wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
+add_test(MdlFileReadTest mdlfilereadtest)
 
-add_executable(mdxreadtest mdxreadtest.cpp)
-target_link_libraries(mdxreadtest wc3libmdlx wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
-add_test(MdxReadTest mdxreadtest)
+add_executable(mdxfilereadtest mdxfilereadtest.cpp)
+target_link_libraries(mdxfilereadtest wc3libmdlx wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
+add_test(MdxFileReadTest mdxfilereadtest)
 
 configure_file(Alliance_Exp.mdl Alliance_Exp.mdl COPYONLY)
 configure_file(Alliance_Exp.mdx Alliance_Exp.mdx COPYONLY)
