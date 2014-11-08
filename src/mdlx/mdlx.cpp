@@ -39,6 +39,7 @@
 #include "cameras.hpp"
 #include "events.hpp"
 #include "collisionshapes.hpp"
+#include "mdlgrammar.hpp"
 
 namespace wc3lib
 {
@@ -97,6 +98,7 @@ Mdlx::~Mdlx()
 
 std::streamsize Mdlx::readMdl(istream &istream)
 {
+	/*
 	std::streamsize size = this->m_version->readMdl(istream);
 	size += this->m_model->readMdl(istream);
 	size += this->m_sequences->readMdl(istream);
@@ -119,6 +121,12 @@ std::streamsize Mdlx::readMdl(istream &istream)
 	size += this->m_collisionShapes->readMdl(istream);
 
 	return size;
+	*/
+
+	MdlGrammar grammar;
+	grammar.parse(istream, *this);
+
+	return 0;
 }
 
 std::streamsize Mdlx::writeMdl(ostream &ostream) const

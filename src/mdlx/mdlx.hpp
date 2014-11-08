@@ -93,6 +93,9 @@ class Mdlx : public MdxBlock
 		Events* events() const;
 		CollisionShapes* collisionShapes() const;
 
+		/**
+		 * Uses \ref MdlGrammar to parse the input stream \p istream for an MDL file.
+		 */
 		virtual std::streamsize readMdl(istream &istream);
 		virtual std::streamsize writeMdl(ostream &ostream) const;
 		virtual std::streamsize readMdx(istream &istream);
