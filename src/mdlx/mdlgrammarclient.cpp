@@ -852,10 +852,16 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 	matrix =
 		lit("Matrices")
 		>> lit('{')
-		>> repeat(_a)[
-			integer_literal
-			>> lit(',')
-		][at_c<0>(_val) = _1]
+		// TODO is it possible to calcualte this number. Probably not!
+		>> (
+			+(
+				integer_literal
+				>> (
+					lit(',')
+					| &lit('}')
+				)
+			)
+		)[at_c<0>(_val) = _1]
 		>> lit('}')
 	;
 
@@ -865,8 +871,9 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 		>> integer_literal[_b = _1]
 		>> lit('{')
 		>> repeat(_a)[
-			matrix
-		][_val = _1]
+			matrix[push_back(_val, _1)]
+			>> lit(',')
+		]//[_val = _1]
 		>> lit('}')
 	;
 

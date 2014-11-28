@@ -215,3 +215,49 @@ BOOST_AUTO_TEST_CASE(MdlFaces)
 	BOOST_REQUIRE(faces.vertices().front() == 0);
 	BOOST_REQUIRE(faces.vertices().back() == 154);
 }
+
+BOOST_AUTO_TEST_CASE(MdlGroups)
+{
+	spiritTraceLog.close();
+	spiritTraceLog.open("mdlgroups_traces.xml");
+
+	BOOST_REQUIRE(spiritTraceLog);
+
+	ifstream in("groups.mdl");
+
+	BOOST_REQUIRE(in);
+
+	client::MdlGrammar<MdlGrammar::PositionIteratorType, client::CommentSkipper<MdlGrammar::PositionIteratorType>> grammar;
+	client::CommentSkipper<MdlGrammar::PositionIteratorType> commentSkipper;
+
+	MdlGrammar::IteratorType first = MdlGrammar::IteratorType(in);
+	MdlGrammar::IteratorType last;
+
+	MdlGrammar::ForwardIteratorType forwardFirst = boost::spirit::make_default_multi_pass(first);
+	MdlGrammar::ForwardIteratorType forwardLast = boost::spirit::make_default_multi_pass(last); // TODO has to be created? Do we need this iterator to be passed?
+
+	// used for backtracking and more detailed error output
+	MdlGrammar::PositionIteratorType position_begin(forwardFirst);
+	MdlGrammar::PositionIteratorType position_end;
+
+	Geoset::Matrices result;
+
+	bool r = boost::spirit::qi::phrase_parse(
+			position_begin,
+			position_end,
+			grammar.groups,
+			commentSkipper,
+			result
+	);
+
+	BOOST_REQUIRE(r);
+	BOOST_REQUIRE(first == last);
+
+	BOOST_REQUIRE(result.size() == 33);
+	const Matrix &front = result.front();
+	BOOST_REQUIRE(front.values().size() == 1);
+	BOOST_REQUIRE(front.values()[0] == 16);
+	const Matrix &back = result.back();
+	BOOST_REQUIRE(back.values().size() == 1);
+	BOOST_REQUIRE(back.values()[0] == 48);
+}
