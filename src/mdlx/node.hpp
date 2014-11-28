@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MDLX_NODE
 #define WC3LIB_MDLX_NODE
 
-#include "mdlxproperty.hpp"
+#include "mdlxanimatedproperties.hpp"
 
 namespace wc3lib
 {
@@ -40,7 +40,7 @@ namespace mdlx
  * \note MDLX format brings its own dynamic type system by saving the type of each node in its structure. Use \ref Node::type() to get an node's type.
  * \note Inclusive byte count is only related to the note structure itself (excluding any further chunk data).
  */
-class Node : public MdlxProperty
+class Node
 {
 	public:
 		enum class Type : long32
@@ -71,8 +71,7 @@ class Node : public MdlxProperty
 
 		static const std::size_t nameSize = 0x50;
 
-		Node(class Mdlx *mdlx);
-		virtual ~Node();
+		Node();
 
 		void setName(const byte name[nameSize]);
 		/**
@@ -87,33 +86,25 @@ class Node : public MdlxProperty
 		 */
 		void setType(Type type);
 		Type type() const;
-		void setTranslations(class MdlxTranslations *translations);
-		class MdlxTranslations* translations() const;
-		void setRotations(class MdlxRotations *rotations);
-		class MdlxRotations* rotations() const;
-		void setScalings(class MdlxScalings *scalings);
-		class MdlxScalings* scalings() const;
+		void setTranslations(const Translations &translations);
+		const Translations& translations() const;
+		void setRotations(const Rotations &rotations);
+		const Rotations& rotations() const;
+		void setScalings(const Scalings &scalings);
+		const Scalings& scalings() const;
 
 		bool inheritsTranslation() const;
 		bool inheritsRotation() const;
 		bool inheritsScaling() const;
 
-		virtual std::streamsize readMdl(istream &istream);
-		virtual std::streamsize writeMdl(ostream &ostream) const;
-		virtual std::streamsize readMdx(istream &istream);
-		virtual std::streamsize writeMdx(ostream &ostream) const;
-
-		ostream& print(ostream &ostream) const;
-
 	protected:
-		class Mdlx *m_mdlx;
 		byte m_name[nameSize];
 		long32 m_id;
 		long32 m_parentId;
 		Type m_type;
-		class MdlxTranslations *m_translations;
-		class MdlxRotations *m_rotations;
-		class MdlxScalings *m_scalings;
+		Translations m_translations;
+		Rotations m_rotations;
+		Scalings m_scalings;
 };
 
 inline constexpr bool operator&(Node::Type x, Node::Type y)
@@ -125,7 +116,6 @@ inline void Node::setName(const byte name[Node::nameSize])
 {
 	memcpy(this->m_name, name, sizeof(byte) * Node::nameSize);
 }
-
 
 inline const byte* Node::name() const
 {
@@ -157,32 +147,32 @@ inline Node::Type Node::type() const
 	return this->m_type;
 }
 
-inline void Node::setTranslations(class MdlxTranslations *translations)
+inline void Node::setTranslations(const Translations &translations)
 {
 	this->m_translations = translations;
 }
 
-inline class MdlxTranslations* Node::translations() const
+inline const Translations& Node::translations() const
 {
 	return this->m_translations;
 }
 
-inline void Node::setRotations(class MdlxRotations *rotations)
+inline void Node::setRotations(const Rotations &rotations)
 {
 	this->m_rotations = rotations;
 }
 
-inline class MdlxRotations* Node::rotations() const
+inline const Rotations& Node::rotations() const
 {
 	return this->m_rotations;
 }
 
-inline void Node::setScalings(class MdlxScalings *scalings)
+inline void Node::setScalings(const Scalings &scalings)
 {
 	this->m_scalings = scalings;
 }
 
-inline class MdlxScalings* Node::scalings() const
+inline const Scalings& Node::scalings() const
 {
 	return this->m_scalings;
 }

@@ -28,8 +28,7 @@
 //#include "../../platform.hpp"
 #include "../platform.hpp"
 #include "../mdlx.hpp"
-#include "../model.hpp"
-#include "../version.hpp"
+#include "../mdxgrammarclient.hpp"
 
 #ifndef BOOST_TEST_DYN_LINK
 #error Define BOOST_TEST_DYN_LINK for proper definition of main function.
@@ -48,19 +47,21 @@ BOOST_AUTO_TEST_CASE(Orc)
 	bool valid = true;
 	std::size_t size = 0;
 
-	try {
-		size = model.readMdx(in);
-	} catch (Exception &e) {
+	try
+	{
+		// TODO parse via grammar
+		//size = model.readMdx(in);
+	}
+	catch (Exception &e)
+	{
 		valid = false;
 		std::cerr << e.what() << std::endl;
 	}
 
 	BOOST_REQUIRE(valid);
 
-	BOOST_REQUIRE(model.model() != 0);
-	BOOST_REQUIRE(strcmp(model.model()->name(), "Orc_Exp") == 0);
-	BOOST_REQUIRE(model.modelVersion() != 0);
-	BOOST_REQUIRE(model.modelVersion()->modelVersion() == 800);
+	BOOST_REQUIRE(strcmp(model.model().name(), "Orc_Exp") == 0);
+	BOOST_REQUIRE(model.modelVersion() == 800);
 	/*
 	 * Sequences 2 {
 	 * GlobalSequences 17 {

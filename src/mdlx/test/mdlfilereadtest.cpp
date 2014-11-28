@@ -22,6 +22,9 @@
 #include <boost/test/unit_test.hpp>
 #include <sstream>
 #include <iostream>
+#include <chrono>
+
+#include <boost/format.hpp>
 
 //#include <boost/foreach.hpp>
 
@@ -43,5 +46,19 @@ BOOST_AUTO_TEST_CASE(Orc)
 
 	BOOST_REQUIRE(spiritTraceLog);
 
+	ifstream in("Orc_Exp.mdl");
+
+	BOOST_REQUIRE(in);
+
 	MdlGrammar grammar;
+	Mdlx result;
+
+	const std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
+	BOOST_REQUIRE(grammar.parse(in, result));
+	const std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
+	const std::chrono::system_clock::duration duration = end - start;
+
+	BOOST_TEST_MESSAGE(boost::str(boost::format("Orc time: %1") % duration.count()));
+
+	BOOST_REQUIRE(strcmp(result.model().name(), "Orc_Exp") == 0);
 }

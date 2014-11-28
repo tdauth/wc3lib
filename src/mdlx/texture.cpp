@@ -26,61 +26,8 @@ namespace wc3lib
 namespace mdlx
 {
 
-Texture::Texture(class Textures *textures) : GroupMdxBlockMember(textures, "Bitmap")
+Texture::Texture() : m_replaceableId(ReplaceableId::None), m_unknown0(0), m_wrapping(Wrapping::None)
 {
-}
-
-std::streamsize Texture::readMdl(istream &istream)
-{
-	return 0;
-}
-
-std::streamsize Texture::writeMdl(ostream &ostream) const
-{
-	std::streamsize size = 0;
-	writeMdlBlock(ostream, size, "Bitmap");
-	writeMdlValuePropertyWithQuotes(ostream, size, "Image", this->texturePath(), 1);
-
-	if (this->replaceableId() != ReplaceableId::None)
-	{
-		writeMdlValueProperty(ostream, size, "ReplaceableId", static_cast<long32>(this->replaceableId()), 1);
-	}
-
-	if (this->wrapping() == Wrapping::WrapWidth || this->wrapping() == Wrapping::Both)
-	{
-		writeMdlProperty(ostream, size, "WrapWidth", 1);
-	}
-
-	if (this->wrapping() == Wrapping::WrapHeight || this->wrapping() == Wrapping::Both)
-	{
-		writeMdlProperty(ostream, size, "WrapHeight", 1);
-	}
-
-	writeMdlBlockConclusion(ostream, size);
-
-	return size;
-}
-
-std::streamsize Texture::readMdx(istream &istream)
-{
-	std::streamsize size = 0;
-	wc3lib::read(istream, reinterpret_cast<long32&>(this->m_replaceableId), size);
-	wc3lib::read(istream, this->m_texturePath, size, texturePathSize);
-	wc3lib::read(istream, this->m_unknown0, size);
-	wc3lib::read(istream, reinterpret_cast<long32&>(this->m_wrapping), size);
-
-	return size;
-}
-
-std::streamsize Texture::writeMdx(ostream &ostream) const
-{
-	std::streamsize size = 0;
-	wc3lib::write(ostream, static_cast<long32>(this->replaceableId()), size);
-	wc3lib::write(ostream, this->texturePath(), size, texturePathSize);
-	wc3lib::write(ostream, this->unknown0(), size);
-	wc3lib::write(ostream, static_cast<long32>(this->wrapping()), size);
-
-	return size;
 }
 
 }

@@ -22,8 +22,6 @@
 #define WC3LIB_MDLX_EVENT_HPP
 
 #include "object.hpp"
-#include "groupmdxblockmember.hpp"
-#include "events.hpp"
 
 namespace wc3lib
 {
@@ -34,34 +32,31 @@ namespace mdlx
 /**
  * MDL tag "EventObject".
  */
-class Event : public Object, public GroupMdxBlockMember
+class Event : public Object
 {
 	public:
-		Event(class Events *events);
-		virtual ~Event();
+		typedef std::vector<long32> Tracks;
 
-		class Events* events() const;
-		class EventTracks* tracks() const;
+		Event();
 
-		virtual std::streamsize readMdl(istream &istream);
-		virtual std::streamsize writeMdl(ostream &ostream) const;
-		virtual std::streamsize readMdx(istream &istream);
-		virtual std::streamsize writeMdx(ostream &ostream) const;
+		long32 globalSequenceId() const;
+		const Tracks& tracks() const;
 
 	protected:
 		//OBJ
 		//byte *bla; //ASCII "KEVT" // Actually a separate object
 		//long32 ntrks; // usually (1)
 		//0xFFFFFFFF!!!
-		class EventTracks *m_tracks; //KEVT
+		long32 m_globalSequenceId; /// Event tracks global sequence ID.
+		Tracks m_tracks;
 };
 
-inline class Events* Event::events() const
+inline long32 Event::globalSequenceId() const
 {
-	return boost::polymorphic_cast<class Events*>(this->parent());
+	return this->m_globalSequenceId;
 }
 
-inline class EventTracks* Event::tracks() const
+inline const Event::Tracks& Event::tracks() const
 {
 	return this->m_tracks;
 }

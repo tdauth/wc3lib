@@ -2,6 +2,7 @@ Version {
 	FormatVersion 800,
 }
 Model "Interpolation" {
+	NumGeosetAnims 2,
 	BlendTime 150,
 }
 // Geoset animation with no interpolation and three values

@@ -21,8 +21,8 @@
 #ifndef WC3LIB_MDLX_LAYER_HPP
 #define WC3LIB_MDLX_LAYER_HPP
 
-#include "groupmdxblockmember.hpp"
-#include "layers.hpp"
+#include "platform.hpp"
+#include "mdlxanimatedproperties.hpp"
 
 namespace wc3lib
 {
@@ -33,7 +33,7 @@ namespace mdlx
 /**
  * MDL tag "Layer".
  */
-class Layer : public GroupMdxBlockMember
+class Layer
 {
 	public:
 		enum class FilterMode : long32
@@ -59,25 +59,32 @@ class Layer : public GroupMdxBlockMember
 			NoDepthSet = 128
 		};
 
+		/**
+		 * Use \ref BasicMdlxAlphas<long32>::setAlpha() to assign the texture ID.
+		 */
+		typedef MdlxAnimatedProperties<1, long32> TextureIds;
+		typedef TextureIds::Property TextureId;
+
 		static string filterMode(FilterMode filterMode);
 
-		Layer(class Layers *layers);
-		virtual ~Layer();
+		Layer();
 
-		class Layers* layers() const;
+		void setFilterMode(FilterMode filterMode);
 		FilterMode filterMode() const;
+		void setShading(Shading shading);
 		Shading shading() const;
+		void setTextureId(long32 textureId);
 		long32 textureId() const;
+		void setTVertexAnimationId(long32 tvertexAnimationId);
 		long32 tvertexAnimationId() const;
+		void setCoordinatesId(long32 coordinatesId);
 		long32 coordinatesId() const;
+		void setAlpha(float32 alpha);
 		float32 alpha() const;
-		class MaterialAlphas* alphas() const;
-		class TextureIds* textureIds() const;
-
-		virtual std::streamsize readMdl(istream &istream);
-		virtual std::streamsize writeMdl(ostream &ostream) const;
-		virtual std::streamsize readMdx(istream &istream);
-		virtual std::streamsize writeMdx(ostream &ostream) const;
+		void setAlphas(const Alphas &alphas);
+		const Alphas& alphas() const;
+		void setTextureIds(const TextureIds &textureIds);
+		const TextureIds& textureIds() const;
 
 	protected:
 		FilterMode m_filterMode;
@@ -86,8 +93,8 @@ class Layer : public GroupMdxBlockMember
 		long32 m_tvertexAnimationId; // 0xFFFFFFFF if none
 		long32 m_coordinatesId;
 		float32 m_alpha; //(0(transparent)->1(opaque))
-		class MaterialAlphas *m_alphas; //(KMTA)
-		class TextureIds *m_textureIds; //(KMTF) // state is long not float
+		Alphas m_alphas; //(KMTA)
+		TextureIds m_textureIds; //(KMTF) // state is long not float
 };
 
 inline constexpr bool operator&(Layer::FilterMode x, Layer::FilterMode y)
@@ -129,9 +136,9 @@ inline string Layer::filterMode(FilterMode filterMode)
 	return "";
 }
 
-inline class Layers* Layer::layers() const
+inline void Layer::setFilterMode(Layer::FilterMode filterMode)
 {
-	return boost::polymorphic_cast<class Layers*>(this->parent());
+	this->m_filterMode = filterMode;
 }
 
 inline Layer::FilterMode Layer::filterMode() const
@@ -139,9 +146,19 @@ inline Layer::FilterMode Layer::filterMode() const
 	return this->m_filterMode;
 }
 
+inline void Layer::setShading(Layer::Shading shading)
+{
+	this->m_shading = shading;
+}
+
 inline Layer::Shading Layer::shading() const
 {
 	return this->m_shading;
+}
+
+inline void Layer::setTextureId(long32 textureId)
+{
+	this->m_textureId = textureId;
 }
 
 inline long32 Layer::textureId() const
@@ -149,9 +166,19 @@ inline long32 Layer::textureId() const
 	return this->m_textureId;
 }
 
+inline void Layer::setTVertexAnimationId(long32 tvertexAnimationId)
+{
+	this->m_tvertexAnimationId = tvertexAnimationId;
+}
+
 inline long32 Layer::tvertexAnimationId() const
 {
 	return this->m_tvertexAnimationId;
+}
+
+inline void Layer::setCoordinatesId(long32 coordinatesId)
+{
+	this->m_coordinatesId = coordinatesId;
 }
 
 inline long32 Layer::coordinatesId() const
@@ -159,17 +186,32 @@ inline long32 Layer::coordinatesId() const
 	return this->m_coordinatesId;
 }
 
+inline void Layer::setAlpha(float32 alpha)
+{
+	this->m_alpha = alpha;
+}
+
 inline float32 Layer::alpha() const
 {
 	return this->m_alpha;
 }
 
-inline class MaterialAlphas* Layer::alphas() const
+inline void Layer::setAlphas(const Alphas &alphas)
+{
+	this->m_alphas = alphas;
+}
+
+inline const Alphas& Layer::alphas() const
 {
 	return this->m_alphas;
 }
 
-inline class TextureIds* Layer::textureIds() const
+inline void Layer::setTextureIds(const Layer::TextureIds &textureIds)
+{
+	this->m_textureIds = textureIds;
+}
+
+inline const Layer::TextureIds& Layer::textureIds() const
 {
 	return this->m_textureIds;
 }

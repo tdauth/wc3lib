@@ -30,8 +30,8 @@ namespace wc3lib
 namespace mdlx
 {
 
-MdlGrammar::Grammar MdlGrammar::grammar;
-MdlGrammar::Skipper MdlGrammar::skipper;
+const MdlGrammar::Grammar MdlGrammar::grammar;
+const MdlGrammar::Skipper MdlGrammar::skipper;
 
 /**
  * This function can be called whenever an boost::spirit::qi::expectation_failure occurs to

@@ -21,8 +21,8 @@
 #ifndef WC3LIB_MDLX_CAMERA_HPP
 #define WC3LIB_MDLX_CAMERA_HPP
 
-#include "groupmdxblockmember.hpp"
-#include "cameras.hpp"
+#include "platform.hpp"
+#include "mdlxanimatedproperties.hpp"
 
 namespace wc3lib
 {
@@ -34,15 +34,12 @@ namespace mdlx
 /**
  * MDL tag "Camera".
  */
-class Camera : public GroupMdxBlockMember
+class Camera
 {
 	public:
 		static const std::size_t nameSize = 0x50;
 
-		Camera(class Cameras *cameras);
-		virtual ~Camera();
-
-		class Cameras* cameras() const;
+		Camera();
 
 		/**
 		 * \return Returns name with length of \ref Camera::nameSize.
@@ -53,14 +50,9 @@ class Camera : public GroupMdxBlockMember
 		float32 farClip() const;
 		float32 nearClip() const;
 		const VertexData& target() const;
-		class CameraTranslations* translations() const;
-		class CameraRotationLengths* rotationLengths() const;
-		class CameraTargetTranslations* targetTranslations() const;
-
-		virtual std::streamsize readMdl(istream &istream);
-		virtual std::streamsize writeMdl(ostream &ostream) const;
-		virtual std::streamsize readMdx(istream &istream);
-		virtual std::streamsize writeMdx(ostream &ostream) const;
+		const Translations& translations() const;
+		const Alphas& rotationLengths() const;
+		const Translations& targetTranslations() const;
 
 	protected:
 		//long nbytesi;
@@ -70,16 +62,11 @@ class Camera : public GroupMdxBlockMember
 		float32 m_farClip;
 		float32 m_nearClip;
 		VertexData m_target;
-		class CameraTranslations *m_translations; //(KCTR)
-		class CameraRotationLengths *m_rotationLengths; //(KCRL)
-		class CameraTargetTranslations *m_targetTranslations; //(KTTR)
+		Translations m_translations; //(KCTR)
+		Alphas m_rotationLengths; //(KCRL)
+		Translations m_targetTranslations; //(KTTR)
 		//(BKCT) ?????????????????????????????????????????????????????????????????
 };
-
-inline class Cameras* Camera::cameras() const
-{
-	return boost::polymorphic_cast<class Cameras*>(this->parent());
-}
 
 inline const byte* Camera::name() const
 {
@@ -111,17 +98,17 @@ inline const VertexData& Camera::target() const
 	return this->m_target;
 }
 
-inline class CameraTranslations* Camera::translations() const
+inline const Translations& Camera::translations() const
 {
 	return this->m_translations;
 }
 
-inline class CameraRotationLengths* Camera::rotationLengths() const
+inline const Alphas& Camera::rotationLengths() const
 {
 	return this->m_rotationLengths;
 }
 
-inline class CameraTargetTranslations* Camera::targetTranslations() const
+inline const Translations& Camera::targetTranslations() const
 {
 	return this->m_targetTranslations;
 }

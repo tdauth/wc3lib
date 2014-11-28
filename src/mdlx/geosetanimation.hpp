@@ -21,9 +21,8 @@
 #ifndef WC3LIB_MDLX_GEOSETANIMATION_HPP
 #define WC3LIB_MDLX_GEOSETANIMATION_HPP
 
-#include "mdlxproperty.hpp"
-#include "groupmdxblockmember.hpp"
-#include "geosetanimations.hpp"
+#include "platform.hpp"
+#include "mdlxanimatedproperties.hpp"
 
 namespace wc3lib
 {
@@ -34,7 +33,7 @@ namespace mdlx
 /**
  * MDL tag "GeosetAnim".
  */
-class GeosetAnimation : public GroupMdxBlockMember
+class GeosetAnimation
 {
 	public:
 		enum class ColorAnimation : long32
@@ -45,36 +44,33 @@ class GeosetAnimation : public GroupMdxBlockMember
 			Both = 3
 		};
 
-		GeosetAnimation(class GeosetAnimations *geosetAnimations);
-		virtual ~GeosetAnimation();
+		GeosetAnimation();
 
-		class GeosetAnimations* geosetAnimations() const;
+		void setStaticAlpha(float32 alpha);
 		float32 staticAlpha() const;
+		void setColorAnimation(ColorAnimation colorAnimation);
 		ColorAnimation colorAnimation() const;
-		float32 colorRed() const;
-		float32 colorGreen() const;
-		float32 colorBlue() const;
+		void setColor(const VertexData &color);
+		const VertexData& color() const;
+		void setGeosetId(long32 geosetId);
 		long32 geosetId() const;
-		class GeosetAnimationAlphas* alphas() const;
-		class GeosetAnimationColors* colors() const;
-
-		virtual std::streamsize readMdl(istream &istream);
-		virtual std::streamsize writeMdl(ostream &ostream) const;
-		virtual std::streamsize readMdx(istream &istream);
-		virtual std::streamsize writeMdx(ostream &ostream) const;
+		void setAlphas(const Alphas &alphas);
+		const Alphas& alphas() const;
+		void setColors(const Scalings &colors);
+		const Scalings& colors() const;
 
 	protected:
 		float32 m_staticAlpha; //(1.0:use KGAO)
 		ColorAnimation m_colorAnimation; //(0:none;1:DropShadow;2:Color;3:Both)
-		float32 m_colorRed, m_colorGreen, m_colorBlue; //(default:1)
+		VertexData m_color; //(default:1)
 		long32 m_geosetId;
-		class GeosetAnimationAlphas *m_alphas; //(KGAO)
-		class GeosetAnimationColors *m_colors; //(KGAC)
+		Alphas m_alphas; //(KGAO)
+		Scalings m_colors; //(KGAC)
 };
 
-inline class GeosetAnimations* GeosetAnimation::geosetAnimations() const
+inline void GeosetAnimation::setStaticAlpha(float32 alpha)
 {
-	return boost::polymorphic_cast<class GeosetAnimations*>(this->parent());
+	this->m_staticAlpha = alpha;
 }
 
 inline float32 GeosetAnimation::staticAlpha() const
@@ -82,24 +78,29 @@ inline float32 GeosetAnimation::staticAlpha() const
 	return this->m_staticAlpha;
 }
 
+inline void GeosetAnimation::setColorAnimation(GeosetAnimation::ColorAnimation colorAnimation)
+{
+	this->m_colorAnimation = colorAnimation;
+}
+
 inline GeosetAnimation::ColorAnimation GeosetAnimation::colorAnimation() const
 {
 	return this->m_colorAnimation;
 }
 
-inline float32 GeosetAnimation::colorRed() const
+inline void GeosetAnimation::setColor(const VertexData &color)
 {
-	return this->m_colorRed;
+	this->m_color = color;
 }
 
-inline float32 GeosetAnimation::colorGreen() const
+inline const VertexData& GeosetAnimation::color() const
 {
-	return this->m_colorGreen;
+	return this->m_color;
 }
 
-inline float32 GeosetAnimation::colorBlue() const
+inline void GeosetAnimation::setGeosetId(long32 geosetId)
 {
-	return this->m_colorBlue;
+	this->m_geosetId = geosetId;
 }
 
 inline long32 GeosetAnimation::geosetId() const
@@ -107,12 +108,22 @@ inline long32 GeosetAnimation::geosetId() const
 	return this->m_geosetId;
 }
 
-inline class GeosetAnimationAlphas* GeosetAnimation::alphas() const
+inline void GeosetAnimation::setAlphas(const Alphas &alphas)
+{
+	this->m_alphas = alphas;
+}
+
+inline const Alphas& GeosetAnimation::alphas() const
 {
 	return this->m_alphas;
 }
 
-inline class GeosetAnimationColors* GeosetAnimation::colors() const
+inline void GeosetAnimation::setColors(const Scalings &colors)
+{
+	this->m_colors = colors;
+}
+
+inline const Scalings& GeosetAnimation::colors() const
 {
 	return this->m_colors;
 }

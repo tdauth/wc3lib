@@ -25,15 +25,33 @@ namespace wc3lib
 {
 /**
  * \page coresection Core
- * The core of the wc3lib is shared by all of its modules. It provides some basic functions and classes for exception handling, internationalisation, runtime loading of shared objects/DLLs and I/O operations.
+ * The core of the wc3lib is shared by all of its modules. It provides some basic functions and classes for exception handling, internationalisation and I/O operations as well as basic data types for Warcraft III formats.
  *
  * Class \ref Exception is the base class of all exceptions thrown by functions of the wc3lib.
  *
- * Include \ref i18n.hpp to use \ref boost::format and gettext macros for internationalisation of your program.
+ * Include \ref i18n.hpp to use boost::format() and gettext macros for internationalisation of your program.
  *
  * Class \ref Format is the base class of all format related classes of the wc3lib. It supports some basic serialization member functions.
  *
- * Include \ref utilities.hpp to use many I/O stream functions heavily used by all supported format classes. Besides it includes many default components of the STL and the Boost C++ Libraries and provides some error/info output functions with human-readable messages and class \ref BasicVertex.
+ * Include \ref utilities.hpp to use many I/O stream functions heavily used by all supported format classes. Besides it includes many default components of the STL and the Boost C++ Libraries and provides some error/info output functions with human-readable messages.
+ *
+ * Basic data types are provided as well which can be used for serialization as well as data access.
+ * Include \ref vertex.hpp to use the vertex types.
+ * The following classes allow access to vertices of all kinds used in Warcraft III:
+ * <ul>
+ * <li>\ref BasicVertex </li>
+ * <li>\ref Vertex2d </li>
+ * <li>\ref Vertex3d </li>
+ * <li>\ref Quaternion </li>
+ * </ul>
+ *
+ * Colors are represented as well (\ref color.hpp):
+ * <ul>
+ * <li>\ref Rgb </li>
+ * <li>\ref Bgr </li>
+ * <li>\ref Rgba </li>
+ * <li>\ref Bgra </li>
+ * </ul>
  *
  * \namespace wc3lib
  * \brief \ref coresection

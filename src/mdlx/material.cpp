@@ -18,12 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <boost/format.hpp>
-
 #include "material.hpp"
-#include "layers.hpp"
-#include "../i18n.hpp"
-#include "../utilities.hpp"
 
 namespace wc3lib
 {
@@ -31,79 +26,8 @@ namespace wc3lib
 namespace mdlx
 {
 
-Material::Material(class Materials *materials) : GroupMdxBlockMember(materials, "Material"), m_layers(new Layers(this))
+Material::Material() : m_priorityPlane(0), m_renderMode(RenderMode::ConstantColor)
 {
-}
-
-Material::~Material()
-{
-	delete this->m_layers;
-}
-
-std::streamsize Material::readMdl(istream &istream)
-{
-	return 0;
-}
-
-std::streamsize Material::writeMdl(ostream &ostream) const
-{
-	std::streamsize size = 0;
-	writeMdlBlock(ostream, size, "Material");
-
-	if (this->renderMode() & RenderMode::ConstantColor)
-		writeMdlProperty(ostream, size, "ConstantColor");
-
-	if (this->renderMode() & RenderMode::SortPrimitivesNearZ)
-		writeMdlProperty(ostream, size, "SortPrimsNearZ");
-
-	if (this->renderMode() & RenderMode::SortPrimitivesFarZ)
-		writeMdlProperty(ostream, size, "SortPrimsFarZ");
-
-	if (this->renderMode() & RenderMode::FullResolution)
-		writeMdlProperty(ostream, size, "FullResolution");
-
-	if (this->priorityPlane() != 0)
-		writeMdlValueProperty(ostream, size, "PriorityPlane", this->priorityPlane());
-
-	size += this->layers()->writeMdl(ostream);
-
-	writeMdlBlockConclusion(ostream, size);
-
-	return size;
-}
-
-std::streamsize Material::readMdx(istream &istream)
-{
-	std::streamsize size = 0;
-	long32 includingSize; // including size itself!
-	wc3lib::read(istream, includingSize, size);
-
-	if (size <= 0)
-		throw Exception(boost::format(_("Material: Small byte count.\nBytes %d.\n")) % size);
-
-	wc3lib::read(istream, this->m_priorityPlane, size);
-	wc3lib::read(istream, reinterpret_cast<long32&>(this->m_renderMode), size);
-	size += this->layers()->readMdx(istream);
-
-	checkBytesIncluding(size, includingSize);
-
-	return size;
-}
-
-std::streamsize Material::writeMdx(ostream &ostream) const
-{
-	std::streampos position;
-	skipByteCount<long32>(ostream, position);
-
-	std::streamsize size = 0;
-	wc3lib::write(ostream, this->priorityPlane(), size);
-	wc3lib::write(ostream, (long32)(this->renderMode()), size);
-	size += this->layers()->writeMdx(ostream);
-
-	long32 includingSize = boost::numeric_cast<long32>(size);
-	writeByteCount(ostream, includingSize, position, size, true);
-
-	return size;
 }
 
 }

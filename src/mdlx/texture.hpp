@@ -21,9 +21,7 @@
 #ifndef WC3LIB_MDLX_TEXTURE_HPP
 #define WC3LIB_MDLX_TEXTURE_HPP
 
-#include "groupmdxblockmember.hpp"
-#include "mdlxproperty.hpp"
-#include "textures.hpp"
+#include "platform.hpp"
 
 namespace wc3lib
 {
@@ -34,11 +32,12 @@ namespace mdlx
 /**
  * MDL tag "Bitmap".
  */
-class Texture : public GroupMdxBlockMember
+class Texture
 {
 	public:
 		enum class Wrapping : long32
 		{
+			None = 0,
 			WrapWidth = 1,
 			WrapHeight = 2,
 			Both = 3
@@ -46,22 +45,19 @@ class Texture : public GroupMdxBlockMember
 
 		static const std::size_t texturePathSize = 0x100;
 
-		Texture(class Textures *textures);
+		Texture();
 
-		class Textures* textures() const;
+		void setReplaceableId(ReplaceableId replaceableId);
 		ReplaceableId replaceableId() const;
 		void setTexturePath(const byte texturePath[texturePathSize]);
+		void setTexturePath(const string &texturePath);
 		/**
 		 * \return Returns ASCII texture path with length \ref texturePathSize.
 		 */
 		const byte* texturePath() const;
 		long32 unknown0() const;
+		void setWrapping(Wrapping wrapping);
 		Wrapping wrapping() const;
-
-		virtual std::streamsize readMdl(istream &istream);
-		virtual std::streamsize writeMdl(ostream &ostream) const;
-		virtual std::streamsize readMdx(istream &istream);
-		virtual std::streamsize writeMdx(ostream &ostream) const;
 
 	protected:
 		ReplaceableId m_replaceableId;
@@ -70,9 +66,9 @@ class Texture : public GroupMdxBlockMember
 		Wrapping m_wrapping; //(1:WrapWidth;2:WrapHeight;3:Both)
 };
 
-inline class Textures* Texture::textures() const
+inline void Texture::setReplaceableId(ReplaceableId replaceableId)
 {
-	return boost::polymorphic_cast<class Textures*>(this->parent());
+	this->m_replaceableId = replaceableId;
 }
 
 inline ReplaceableId Texture::replaceableId() const
@@ -85,6 +81,16 @@ inline void Texture::setTexturePath(const byte texturePath[Texture::texturePathS
 	memcpy(this->m_texturePath, texturePath, Texture::texturePathSize);
 }
 
+inline void Texture::setTexturePath(const string &texturePath)
+{
+	if (texturePath.size() + 1 > texturePathSize)
+	{
+		throw std::out_of_range("");
+	}
+
+	memcpy(this->m_texturePath, texturePath.c_str(), texturePath.size() + 1);
+}
+
 inline const char* Texture::texturePath() const
 {
 	return this->m_texturePath;
@@ -93,6 +99,11 @@ inline const char* Texture::texturePath() const
 inline long32 Texture::unknown0() const
 {
 	return this->m_unknown0;
+}
+
+inline void Texture::setWrapping(Texture::Wrapping wrapping)
+{
+	this->m_wrapping = wrapping;
 }
 
 inline Texture::Wrapping Texture::wrapping() const

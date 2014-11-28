@@ -22,6 +22,7 @@
 #define WC3LIB_MDLX_OBJECT_HPP
 
 #include "node.hpp"
+#include "mdlxanimatedproperties.hpp"
 
 namespace wc3lib
 {
@@ -32,27 +33,22 @@ namespace mdlx
 class Object : public Node
 {
 	public:
-		Object(class Mdlx *mdlx);
+		Object();
 		virtual ~Object();
 
-		void setVisibilties(class AttachmentVisibilities *visibilities);
-		class AttachmentVisibilities* visibilities() const;
-
-		virtual std::streamsize readMdl(istream &istream);
-		virtual std::streamsize writeMdl(ostream &ostream) const;
-		virtual std::streamsize readMdx(istream &istream);
-		virtual std::streamsize writeMdx(ostream &ostream) const;
+		void setVisibilties(const Alphas &alphas);
+		const Alphas& visibilities() const;
 
 	protected:
-		class AttachmentVisibilities *m_visibilities; //(KATV)
+		Alphas m_visibilities; //(KATV)
 };
 
-inline void Object::setVisibilties(class AttachmentVisibilities *visibilities)
+inline void Object::setVisibilties(const Alphas &alphas)
 {
-	this->m_visibilities = visibilities;
+	this->m_visibilities = alphas;
 }
 
-inline class AttachmentVisibilities* Object::visibilities() const
+inline const Alphas& Object::visibilities() const
 {
 	return this->m_visibilities;
 }

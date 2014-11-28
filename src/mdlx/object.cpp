@@ -19,11 +19,6 @@
  ***************************************************************************/
 
 #include "object.hpp"
-#include "mdlxtranslations.hpp"
-#include "mdlxrotations.hpp"
-#include "mdlxscalings.hpp"
-#include "attachmentvisibilities.hpp"
-#include "mdlx.hpp"
 
 namespace wc3lib
 {
@@ -31,44 +26,12 @@ namespace wc3lib
 namespace mdlx
 {
 
-Object::Object(class Mdlx *mdlx) : Node(mdlx), m_visibilities(new AttachmentVisibilities(mdlx))
+Object::Object()
 {
 }
 
 Object::~Object()
 {
-	delete this->m_visibilities;
-}
-
-std::streamsize Object::readMdl(istream &istream)
-{
-	return 0;
-}
-
-std::streamsize Object::writeMdl(ostream &ostream) const
-{
-	std::streamsize size = Node::writeMdl(ostream);
-
-	if (!visibilities()->properties().empty())
-		size += visibilities()->writeMdl(ostream);
-
-	return size;
-}
-
-std::streamsize Object::readMdx(istream &istream)
-{
-	std::streamsize size = Node::readMdx(istream);
-	size += this->m_visibilities->readMdx(istream);
-
-	return size;
-}
-
-std::streamsize Object::writeMdx(ostream &ostream) const
-{
-	std::streamsize size = Node::writeMdx(ostream);
-	size += this->m_visibilities->writeMdx(ostream);
-
-	return size;
 }
 
 }

@@ -56,12 +56,14 @@ bool OgreMdlxEntity::frameRenderingQueued(const Ogre::FrameEvent &evt)
 		Ogre::ConstEnabledAnimationStateIterator it = ref->getAllAnimationStates()->getEnabledAnimationStateIterator();
 
 		while (it.hasMoreElements())
+		{
 			it.getNext()->addTime(evt.timeSinceLastFrame);
+		}
 	}
-	
+
 	/*
 	 * TODO manual animations? because they are not convertible?
-	 * 
+	 *
 	 * Bezier:
 	 * Translation
 	 * 3300: {3.928450, 22.930901, -7.930980 },
@@ -69,12 +71,12 @@ bool OgreMdlxEntity::frameRenderingQueued(const Ogre::FrameEvent &evt)
 			OutTan { 4.401370, 25.691401, -8.885750 },
 	 * approximate movement function starting from the current position to the other position depending
 	 on the time value?
-	 
+
 	 * War3ModelEditor provides a renderer already:
 	 class Interpolator
 	 * VOID INTERPOLATOR::GetInterpolatedValue(D3DXVECTOR4& Vector, CONST SEQUENCE_TIME& Time)
 	 */
-	
+
 
 	return true;
 }

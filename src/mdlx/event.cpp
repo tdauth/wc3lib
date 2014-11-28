@@ -19,8 +19,6 @@
  ***************************************************************************/
 
 #include "event.hpp"
-#include "events.hpp"
-#include "eventtracks.hpp"
 
 namespace wc3lib
 {
@@ -28,47 +26,8 @@ namespace wc3lib
 namespace mdlx
 {
 
-Event::Event(class Events *events) : Object(events->mdlx()), GroupMdxBlockMember(events, "EventObject"), m_tracks(new EventTracks(this))
+Event::Event() : Object()
 {
-}
-
-Event::~Event()
-{
-	delete this->m_tracks;
-}
-
-std::streamsize Event::readMdl(istream &istream)
-{
-	return 0;
-}
-
-std::streamsize Event::writeMdl(ostream &ostream) const
-{
-	std::streamsize size = 0;
-	writeMdlBlock(ostream, size, "EventObject", this->name(), 0, true);
-
-	size += Object::writeMdl(ostream);
-	size += this->tracks()->writeMdl(ostream);
-
-	writeMdlBlockConclusion(ostream, size);
-
-	return size;
-}
-
-std::streamsize Event::readMdx(istream &istream)
-{
-	std::streamsize size = Object::readMdx(istream);
-	size += this->tracks()->readMdx(istream);
-
-	return size;
-}
-
-std::streamsize Event::writeMdx(ostream &ostream) const
-{
-	std::streamsize size = Object::writeMdx(ostream);
-	size += this->tracks()->writeMdx(ostream);
-
-	return size;
 }
 
 }

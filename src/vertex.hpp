@@ -37,34 +37,31 @@ class BasicVertex : public std::array<T, N>, public Format
 {
 	public:
 		typedef std::array<T, N> Base;
+		static const constexpr std::streamsize dataSize = N * sizeof(T) * sizeof(byte);
 
 		BasicVertex() : Base()
 		{
 		}
 
-		BasicVertex(const BasicVertex<T, N> &other) : Base(other) {
+		BasicVertex(const BasicVertex<T, N> &other) : Base(other)
+		{
 		}
 
-		virtual std::streamsize read(InputStream &istream)
+		virtual std::streamsize read(InputStream &istream) override
 		{
 			std::streamsize size = 0;
 
-			for (std::size_t i = 0; i < Base::size(); ++i)
-			{
-				wc3lib::read(istream, (*this)[i], size);
-			}
+			typename Base::pointer data = this->data();
+			std::cerr << "Data size: " << dataSize << std::endl;
+			wc3lib::read(istream, data, size, dataSize);
 
 			return size;
 		}
 
-		virtual std::streamsize write(OutputStream &ostream) const
+		virtual std::streamsize write(OutputStream &ostream) const override
 		{
 			std::streamsize size = 0;
-
-			for (std::size_t i = 0; i < Base::size(); ++i)
-			{
-				wc3lib::write(ostream, (*this)[i], size);
-			}
+			wc3lib::write(ostream, this->data(), size, dataSize);
 
 			return size;
 		}
@@ -86,7 +83,8 @@ class Vertex2d : public BasicVertex<T, 2>
 			(*this)[1] = y;
 		}
 
-		Vertex2d(const Base &other) : Base(other) {
+		Vertex2d(const Base &other) : Base(other)
+		{
 		}
 
 		T x() const
@@ -117,7 +115,8 @@ class Vertex3d : public BasicVertex<T, 3>
 			(*this)[2] = z;
 		}
 
-		Vertex3d(const Base &other) : Base(other) {
+		Vertex3d(const Base &other) : Base(other)
+		{
 		}
 
 		void setX(T x)
@@ -169,7 +168,8 @@ class Quaternion : public BasicVertex<T, 4>
 			(*this)[3] = d;
 		}
 
-		Quaternion(const Base &other) : Base(other) {
+		Quaternion(const Base &other) : Base(other)
+		{
 		}
 
 		T a() const
@@ -189,7 +189,7 @@ class Quaternion : public BasicVertex<T, 4>
 
 		T d() const
 		{
-			return (*this)[2];
+			return (*this)[3];
 		}
 };
 

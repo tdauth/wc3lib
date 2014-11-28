@@ -19,7 +19,6 @@
  ***************************************************************************/
 
 #include "camera.hpp"
-#include "../utilities.hpp"
 
 namespace wc3lib
 {
@@ -27,9 +26,8 @@ namespace wc3lib
 namespace map
 {
 
-Camera::Camera(class Cameras *cameras)
-: m_cameras(cameras)
-, m_targetX(0.0)
+Camera::Camera()
+: m_targetX(0.0)
 , m_targetY(0.0)
 , m_zOffset(0.0)
 , m_rotation(0.0)
@@ -40,11 +38,6 @@ Camera::Camera(class Cameras *cameras)
 , m_farZ(0.0)
 , m_unknown(0.0)
 {
-}
-
-Camera::~Camera()
-{
-
 }
 
 std::streamsize Camera::read(InputStream &istream)

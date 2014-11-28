@@ -32,3 +32,5 @@ class MdxGrammar : public qi::grammar<Iterator, Mdlx*()>
 }
 
 }
+
+#endif

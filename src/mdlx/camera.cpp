@@ -19,9 +19,6 @@
  ***************************************************************************/
 
 #include "camera.hpp"
-#include "cameratranslations.hpp"
-#include "camerarotationlengths.hpp"
-#include "cameratargettranslations.hpp"
 
 namespace wc3lib
 {
@@ -29,85 +26,8 @@ namespace wc3lib
 namespace mdlx
 {
 
-Camera::Camera(class Cameras *cameras) : GroupMdxBlockMember(cameras, "Camera"), m_translations(new CameraTranslations(this)), m_rotationLengths(new CameraRotationLengths(this)), m_targetTranslations(new CameraTargetTranslations(this))
+Camera::Camera()
 {
-}
-
-Camera::~Camera()
-{
-	delete this->m_translations;
-	delete this->m_rotationLengths;
-	delete this->m_targetTranslations;
-}
-
-std::streamsize Camera::readMdl(istream &istream)
-{
-	return 0;
-}
-
-std::streamsize Camera::writeMdl(ostream &ostream) const
-{
-	std::streamsize size = 0;
-	writeMdlBlock(ostream, size, "Camera", this->name(), 0, true);
-	writeMdlVectorProperty(ostream, size, "Position", this->position());
-	size += translations()->writeMdl(ostream);
-	size += rotationLengths()->writeMdl(ostream);
-	writeMdlValueProperty(ostream, size, "FieldOfView", this->fieldOfView());
-	writeMdlValueProperty(ostream, size, "FarClip", this->farClip());
-	writeMdlValueProperty(ostream, size, "NearClip", this->nearClip());
-
-	writeMdlBlock(ostream, size, "Target");
-	writeMdlVectorProperty(ostream, size, "Position", this->target());
-	size += targetTranslations()->writeMdl(ostream);
-	writeMdlBlockConclusion(ostream, size);
-
-	writeMdlBlockConclusion(ostream, size);
-
-	return size;
-}
-
-std::streamsize Camera::readMdx(istream &istream)
-{
-	long32 nbytesi;
-	std::streamsize bytes = 0;
-	wc3lib::read(istream, nbytesi, bytes);
-	wc3lib::read(istream, this->m_name, bytes, nameSize);
-	bytes += this->m_position.read(istream);
-	wc3lib::read(istream, this->m_fieldOfView, bytes);
-	wc3lib::read(istream, this->m_farClip, bytes);
-	wc3lib::read(istream, this->m_nearClip, bytes);
-	bytes += m_target.read(istream);
-	bytes += this->m_translations->readMdx(istream);
-	bytes += this->m_rotationLengths->readMdx(istream);
-	bytes += this->m_targetTranslations->readMdx(istream);
-	//(BKCT) ?????????????????????????????????????????????????????????????????
-
-	checkBytesIncluding(bytes, nbytesi);
-
-	return bytes;
-}
-
-std::streamsize Camera::writeMdx(ostream &ostream) const
-{
-	std::streampos position;
-	skipByteCount<long32>(ostream, position);
-
-	std::streamsize bytes = 0;
-	wc3lib::write(ostream, this->name(), bytes, nameSize);
-	bytes += this->position().write(ostream);
-	wc3lib::write(ostream, this->fieldOfView(), bytes);
-	wc3lib::write(ostream, this->farClip(), bytes);
-	wc3lib::write(ostream, this->nearClip(), bytes);
-	bytes += target().write(ostream);
-	bytes += this->translations()->writeMdx(ostream);
-	bytes += this->rotationLengths()->writeMdx(ostream);
-	bytes += this->targetTranslations()->writeMdx(ostream);
-	//(BKCT) ?????????????????????????????????????????????????????????????????
-
-	long32 nbytesi = bytes;
-	writeByteCount(ostream, nbytesi, position, bytes, true);
-
-	return bytes;
 }
 
 }

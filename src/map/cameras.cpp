@@ -38,7 +38,9 @@ std::streamsize Cameras::read(InputStream &istream)
 	wc3lib::read(istream, this->m_version, size);
 
 	if (this->m_version != latestFileVersion())
+	{
 		std::cerr << boost::format(_("Cameras: Unknown version \"%1%\", expected \"%2%\".")) % this->version() % latestFileVersion() << std::endl;
+	}
 
 	int32 number;
 	wc3lib::read(istream, number, size);
@@ -46,7 +48,7 @@ std::streamsize Cameras::read(InputStream &istream)
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		std::auto_ptr<Camera> cam(new Camera(this));
+		std::auto_ptr<Camera> cam(new Camera());
 		size += cam->read(istream);
 		this->cameras().push_back(cam);
 	}
@@ -57,14 +59,18 @@ std::streamsize Cameras::read(InputStream &istream)
 std::streamsize Cameras::write(std::ostream &ostream) const
 {
 	if (this->version() != latestFileVersion())
+	{
 		std::cerr << boost::format(_("Cameras: Unknown version \"%1%\", expected \"%2%\".")) % this->version() % latestFileVersion() << std::endl;
+	}
 
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->version(), size);
 	wc3lib::write<int32>(ostream, this->cameras().size(), size);
 
 	BOOST_FOREACH(CameraContainer::const_reference camera, this->cameras())
+	{
 		size += camera.write(ostream);
+	}
 
 	return size;
 }

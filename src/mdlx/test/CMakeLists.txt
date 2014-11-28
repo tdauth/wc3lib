@@ -8,6 +8,7 @@ add_executable(mdxfilereadtest mdxfilereadtest.cpp)
 target_link_libraries(mdxfilereadtest wc3libmdlx wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
 add_test(MdxFileReadTest mdxfilereadtest)
 
+# MDL files are converted by MdlxConv
 configure_file(Alliance_Exp.mdl Alliance_Exp.mdl COPYONLY)
 configure_file(Alliance_Exp.mdx Alliance_Exp.mdx COPYONLY)
 configure_file(NightElf_Exp.mdl NightElf_Exp.mdl COPYONLY)

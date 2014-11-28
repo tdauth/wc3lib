@@ -52,9 +52,8 @@ class Rgb : public Format
 		Rgb();
 		virtual ~Rgb();
 
-		virtual std::streamsize read(InputStream &istream);
-
-		virtual std::streamsize write(OutputStream &ostream) const;
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
 		void setRed(uint8_t red);
 		uint8_t red() const;
@@ -83,8 +82,8 @@ class Rgb : public Format
 class Bgr : public Rgb
 {
 	public:
-		virtual std::streamsize read(InputStream &istream);
-		virtual std::streamsize write(OutputStream &ostream) const;
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
 		/**
 		 * The first 8 bits are not used (usually alpha value for argb or red value for rgba).
@@ -98,9 +97,8 @@ class Rgba : public Rgb
 		Rgba(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
 		Rgba();
 
-		virtual std::streamsize read(InputStream &istream);
-
-		virtual std::streamsize write(OutputStream &ostream) const;
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
 		void setAlpha(uint8_t alpha);
 		uint8_t alpha() const;
@@ -114,8 +112,8 @@ class Rgba : public Rgb
 class Bgra : public Rgba
 {
 	public:
-		virtual std::streamsize read(InputStream &istream);
-		virtual std::streamsize write(OutputStream &ostream) const;
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
 		virtual uint32_t value() const;
 };

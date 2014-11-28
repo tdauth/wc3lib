@@ -21,11 +21,8 @@
 #ifndef WC3LIB_MDLX_PARTICLEEMITTER_HPP
 #define WC3LIB_MDLX_PARTICLEEMITTER_HPP
 
-#include <boost/cast.hpp>
-
 #include "node.hpp"
-#include "groupmdxblockmember.hpp"
-#include "particleemitters.hpp"
+#include "mdlxanimatedproperties.hpp"
 
 namespace wc3lib
 {
@@ -36,15 +33,14 @@ namespace mdlx
 /**
  * MDL tag "ParticleEmitter".
  */
-class ParticleEmitter : public Node, public GroupMdxBlockMember
+class ParticleEmitter : public Node
 {
 	public:
 		static const std::size_t modelPathSize = 0x100;
 
-		ParticleEmitter(class ParticleEmitters *particleEmitters);
+		ParticleEmitter();
 		virtual ~ParticleEmitter();
 
-		class ParticleEmitters* particleEmitters() const;
 		float32 emissionRate() const;
 		float32 gravity() const;
 		float32 longitude() const;
@@ -56,12 +52,7 @@ class ParticleEmitter : public Node, public GroupMdxBlockMember
 		long32 unknown0() const;
 		float32 lifeSpan() const;
 		float32 initVelocity() const;
-		class ParticleEmitterVisibilities* visibilities() const;
-
-		virtual std::streamsize readMdl(istream &istream);
-		virtual std::streamsize writeMdl(ostream &ostream) const;
-		virtual std::streamsize readMdx(istream &istream);
-		virtual std::streamsize writeMdx(ostream &ostream) const;
+		const Alphas& visibilities() const;
 
 	protected:
 		//long32 nbytesi;
@@ -74,13 +65,8 @@ class ParticleEmitter : public Node, public GroupMdxBlockMember
 		long32 m_unknown0; //(0)
 		float32 m_lifeSpan;
 		float32 m_initVelocity;
-		class ParticleEmitterVisibilities *m_visibilities; //(KPEV)
+		Alphas m_visibilities; //(KPEV)
 };
-
-inline class ParticleEmitters* ParticleEmitter::particleEmitters() const
-{
-	return boost::polymorphic_cast<class ParticleEmitters*>(this->parent());
-}
 
 inline float32 ParticleEmitter::emissionRate() const
 {
@@ -122,7 +108,7 @@ inline float32 ParticleEmitter::initVelocity() const
 	return this->m_initVelocity;
 }
 
-inline class ParticleEmitterVisibilities* ParticleEmitter::visibilities() const
+inline const Alphas& ParticleEmitter::visibilities() const
 {
 	return this->m_visibilities;
 }

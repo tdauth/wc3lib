@@ -50,8 +50,7 @@ class KDE_EXPORT OgreMdlxEntity : public Ogre::FrameListener
 		OgreMdlxEntity(const Ogre::String &name, OgreMdlx *mdlx, Ogre::SceneManager *sceneManager);
 		virtual ~OgreMdlxEntity();
 
-		/// \todo C++11 overide
-		virtual bool frameRenderingQueued(const Ogre::FrameEvent &evt);
+		virtual bool frameRenderingQueued(const Ogre::FrameEvent &evt) override;
 
 		/**
 		 * \return Returns true if animation \p name exists. Otherwise it will return false.
@@ -75,7 +74,8 @@ inline bool OgreMdlxEntity::applyAnimation(const Ogre::String &name, bool loop)
 {
 	BOOST_FOREACH(Entities::reference ref, m_entities)
 	{
-		if (!ref->hasAnimationState(name)) {
+		if (!ref->hasAnimationState(name))
+		{
 			return false;
 		}
 

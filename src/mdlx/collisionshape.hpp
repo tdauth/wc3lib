@@ -23,9 +23,7 @@
 
 #include <vector>
 
-#include "groupmdxblockmember.hpp"
 #include "object.hpp"
-#include "collisionshapes.hpp"
 
 namespace wc3lib
 {
@@ -38,7 +36,7 @@ namespace mdlx
  *
  * MDL tag "CollisionShape".
  */
-class CollisionShape : public GroupMdxBlockMember, public Object
+class CollisionShape : public Object
 {
 	public:
 		typedef std::vector<VertexData> Vertices;
@@ -49,9 +47,8 @@ class CollisionShape : public GroupMdxBlockMember, public Object
 			Sphere = 2
 		};
 
-		CollisionShape(class CollisionShapes *collisionShapes);
+		CollisionShape();
 
-		class CollisionShapes* collisionShapes() const;
 		Shape shape() const;
 		/// If shape is a box this returns two vertices, otherwise it returns one which is the center of the sphere.
 		Vertices& vertices();
@@ -59,21 +56,11 @@ class CollisionShape : public GroupMdxBlockMember, public Object
 		/// Only usable if shape is a sphere. Otherwise, it throws an exception.
 		float32 boundsRadius() const;
 
-		virtual std::streamsize readMdl(istream &istream);
-		virtual std::streamsize writeMdl(ostream &ostream) const;
-		virtual std::streamsize readMdx(istream &istream);
-		virtual std::streamsize writeMdx(ostream &ostream) const;
-
 	protected:
 		Shape m_shape; //(0:box;2:sphere)
 		Vertices m_vertices;
 		float32 m_boundsRadius;
 };
-
-inline class CollisionShapes* CollisionShape::collisionShapes() const
-{
-	return boost::polymorphic_cast<class CollisionShapes*>(this->parent());
-}
 
 inline CollisionShape::Shape CollisionShape::shape() const
 {
@@ -93,7 +80,9 @@ inline const CollisionShape::Vertices& CollisionShape::vertices() const
 inline float32 CollisionShape::boundsRadius() const
 {
 	if (shape() != Shape::Sphere)
+	{
 		throw Exception(_("Collision shape is not a sphere."));
+	}
 
 	return this->m_boundsRadius;
 }

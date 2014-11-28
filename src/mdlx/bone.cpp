@@ -26,61 +26,8 @@ namespace wc3lib
 namespace mdlx
 {
 
-Bone::Bone(Bones *bones) : Object(bones->mdlx()), GroupMdxBlockMember(bones, "Bone")
+Bone::Bone() : Object()
 {
-}
-
-std::streamsize Bone::readMdl(istream &istream)
-{
-	return 0;
-}
-
-std::streamsize Bone::writeMdl(ostream &ostream) const
-{
-	std::streamsize size = 0;
-	writeMdlBlock(ostream, size, "Bone", this->name(), 0, true);
-
-	if (this->geosetId() == noneId)
-	{
-		writeMdlValueProperty(ostream, size, "GeosetId", "Multiple");
-	}
-	else
-	{
-		writeMdlValueProperty(ostream, size, "GeosetId", this->geosetId());
-	}
-
-	if (this->geosetAnimationId() == noneId)
-	{
-		writeMdlValueProperty(ostream, size, "GeosetAnimId", "None");
-	}
-	else
-	{
-		writeMdlValueProperty(ostream, size, "GeosetAnimId", this->geosetAnimationId());
-	}
-
-	size += Object::writeMdl(ostream);
-
-	writeMdlBlockConclusion(ostream, size);
-
-	return size;
-}
-
-std::streamsize Bone::readMdx(istream &istream)
-{
-	std::streamsize size = Object::readMdx(istream);
-	wc3lib::read(istream, this->m_geosetId, size);
-	wc3lib::read(istream, this->m_geosetAnimationId, size);
-
-	return size;
-}
-
-std::streamsize Bone::writeMdx(ostream &ostream) const
-{
-	std::streamsize size = Object::writeMdx(ostream);
-	wc3lib::write(ostream, this->geosetId(), size);
-	wc3lib::write(ostream, this->geosetAnimationId(), size);
-
-	return size;
 }
 
 }

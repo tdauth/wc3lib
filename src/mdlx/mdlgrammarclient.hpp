@@ -28,8 +28,9 @@
 
 #include "mdlx.hpp"
 #include "model.hpp"
-#include "version.hpp"
 #include "bounds.hpp"
+#include "geosetanimation.hpp"
+#include "mdlxanimatedproperties.hpp"
 
 namespace wc3lib
 {
@@ -64,31 +65,101 @@ struct CommentSkipper : public qi::grammar<Iterator>
 	qi::rule<Iterator> comment;
 };
 
-/**
- * We use unique_ptr types which release their pointers on successfull passing
- * to avoid memory leaks whenever a rule fails which has already allocated a value.
- *
- * \todo Unfortunately Boost Spirit does not support unique pointers because of copy semantics and missing move semantics support.
- */
-typedef std::unique_ptr<Mdlx> MdlxType;
-typedef std::unique_ptr<Model> ModelType;
-typedef std::unique_ptr<Version> VersionType;
+typedef BasicVertex<long32, 1> VertexInteger1d;
+typedef BasicVertex<float32, 1> VertexReal1d;
+typedef Vertex2d<float32> VertexReal2d;
+typedef VertexData VertexReal3d;
+typedef BasicVertex<float32, 4> VertexReal4d;
 
+/**
+ * Qi based grammar for the MDL file format.
+ * \ingroup mdl
+ */
 template <typename Iterator, typename Skipper = CommentSkipper<Iterator> >
-struct MdlGrammar : qi::grammar<Iterator, Mdlx(), qi::locals<std::string>, Skipper>
+struct MdlGrammar : qi::grammar<Iterator, Mdlx(), qi::locals<long32, long32, long32>, Skipper>
 {
 	MdlGrammar();
 
 	qi::rule<Iterator, long32(), Skipper> integer_literal;
+	qi::rule<Iterator, uint8(), Skipper> byte_integer_literal;
+	qi::rule<Iterator, short16(), Skipper> short_integer_literal;
 	qi::rule<Iterator, float32(), Skipper> real_literal;
 	qi::rule<Iterator, string(), Skipper> string_literal;
-	qi::rule<Iterator, VertexData(), Skipper> vertexData;
 
-	qi::rule<Iterator, Mdlx(), qi::locals<std::string>, Skipper> mdl;
-	qi::rule<Iterator, Model*(), Skipper> model;
-	qi::rule<Iterator, Version*(), Skipper> version;
+	qi::rule<Iterator, VertexInteger1d(), Skipper> vertex_integer_1d;
+	qi::rule<Iterator, VertexReal1d(), Skipper> vertex_real_1d;
+	qi::rule<Iterator, VertexReal2d(), Skipper> vertex_real_2d;
+	qi::rule<Iterator, VertexReal3d(), Skipper> vertex_real_3d;
+	qi::rule<Iterator, VertexReal4d(), Skipper> vertex_real_4d;
+
+	qi::rule<Iterator, LineType(), Skipper> line_type;
+	qi::rule<Iterator, long32(), Skipper> global_sequence_id;
+
+	/*
+	 * "a" is the number of geosets
+	 * "b" is the number of geoset animations
+	 * "c" is the number of sequences
+	 */
+	qi::rule<Iterator, Mdlx(), qi::locals<long32, long32, long32>, Skipper> mdl;
+	/*
+	 * All numbers are passed as attribute references and are set in the model rule.
+	 * 0: Number of Geosets
+	 * 1: Number of Geoset Animations
+	 */
+	qi::rule<Iterator, Model(long32&, long32&), Skipper> model;
+	qi::rule<Iterator, long32(), Skipper> version;
+	qi::rule<Iterator, GeosetAnimation(), Skipper> geoset_animation;
+	qi::rule<Iterator, Sequence(), Skipper> sequence;
+	// pass the number of sequences as reference
+	qi::rule<Iterator, Mdlx::Sequences(long32&), Skipper, qi::locals<long32> > sequences;
+	qi::rule<Iterator, Mdlx::GlobalSequences(), Skipper, qi::locals<long32> > global_sequences;
+	qi::rule<Iterator, ReplaceableId(), Skipper> replaceable_id;
+	qi::rule<Iterator, Texture::Wrapping(), Skipper> wrapping_both;
+	qi::rule<Iterator, Texture::Wrapping(), Skipper> wrapping_one;
+	qi::rule<Iterator, Texture::Wrapping(), Skipper> wrapping;
+	qi::rule<Iterator, Texture(), Skipper> texture;
+	qi::rule<Iterator, Mdlx::Textures(), Skipper, qi::locals<long32> > textures;
+	qi::rule<Iterator, Layer::FilterMode(), Skipper> filter_mode;
+	qi::rule<Iterator, long32(), Skipper> texture_id;
+	qi::rule<Iterator, Layer::TextureId(), Skipper> animated_texture_id;
+	qi::rule<Iterator, Layer::TextureIds(), Skipper, qi::locals<long32> > animated_texture_ids;
+	qi::rule<Iterator, Layer(), Skipper> layer;
+	qi::rule<Iterator, Material::Layers(), Skipper> layers;
+	qi::rule<Iterator, Material(), Skipper> material;
+	qi::rule<Iterator, Mdlx::Materials(), Skipper, qi::locals<long32> > materials;
+	qi::rule<Iterator, TextureAnimation(), Skipper> texture_animation;
+	qi::rule<Iterator, Mdlx::TextureAnimations(), Skipper, qi::locals<long32> > texture_animations;
+
+	qi::rule<Iterator, Geoset::Vertices(), Skipper, qi::locals<long32> > vertices;
+	qi::rule<Iterator, Geoset::Normals(), Skipper, qi::locals<long32> > normals;
+	qi::rule<Iterator, Geoset::TextureVertices(), Skipper, qi::locals<long32> > texture_vertices;
+	qi::rule<Iterator, Geoset::GroupVertices(), Skipper> group_vertices;
+	qi::rule<Iterator, Faces(), Skipper> faces_group;
+	qi::rule<Iterator, Geoset::Faces(), Skipper, qi::locals<long32, long32> > faces;
+	qi::rule<Iterator, Matrix(), Skipper, qi::locals<long32, long32> > matrix;
+	qi::rule<Iterator, Geoset::Matrices(), Skipper, qi::locals<long32, long32> > groups;
+	/*
+	 * Gets passed the number of sequences in the model.
+	 */
+	qi::rule<Iterator, Geoset(long32), Skipper> geoset;
+
 
 	qi::rule<Iterator, Bounds(), Skipper> bounds;
+
+	qi::rule<Iterator, float32(), Skipper> alpha;
+	qi::rule<Iterator, Alpha(), Skipper> animated_alpha;
+	qi::rule<Iterator, Alphas(), Skipper, qi::locals<long32> > animated_alphas;
+
+	qi::rule<Iterator, VertexData(), Skipper> color;
+	qi::rule<Iterator, Scaling(), Skipper> animated_color;
+	qi::rule<Iterator, Scalings(), Skipper, qi::locals<long32> > animated_colors;
+
+	qi::rule<Iterator, Translation(), Skipper> animated_translation;
+	qi::rule<Iterator, Translations(), Skipper, qi::locals<long32> > animated_translations;
+	qi::rule<Iterator, Rotation(), Skipper> animated_rotation;
+	qi::rule<Iterator, Rotations(), Skipper, qi::locals<long32> > animated_rotations;
+	qi::rule<Iterator, Scaling(), Skipper> animated_scaling;
+	qi::rule<Iterator, Scalings(), Skipper, qi::locals<long32> > animated_scalings;
 };
 
 /**
@@ -108,8 +179,8 @@ struct MdlGenerator : karma::grammar<Iterator, Mdlx()>
 	karma::rule<Iterator, VertexData()> vertexData;
 
 	karma::rule<Iterator, Mdlx()> mdl;
-	karma::rule<Iterator, Model*()> model;
-	karma::rule<Iterator, Version*()> version;
+	karma::rule<Iterator, Model()> model;
+	karma::rule<Iterator, long32()> version;
 
 	karma::rule<Iterator, Bounds()> bounds;
 };
@@ -129,8 +200,54 @@ struct MdlGenerator : karma::grammar<Iterator, Mdlx()>
 // your specialization needs to be in namespace boost::spirit::traits
 // https://stackoverflow.com/questions/5286720/how-to-define-streaming-operator-for-boostspiritqi-and-stdlist-container
 // https://svn.boost.org/trac/boost/ticket/9803
-namespace boost { namespace spirit { namespace traits
+namespace boost
 {
+
+namespace spirit
+{
+
+namespace traits
+{
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::LineType>
+	{
+		static void call(Out& out, wc3lib::mdlx::LineType const& val)
+		{
+			out << "line_type";
+
+			switch (val)
+			{
+				case wc3lib::mdlx::LineType::DontInterpolate:
+				{
+					out << "DontInterpolate";
+
+					break;
+				}
+
+				case wc3lib::mdlx::LineType::Linear:
+				{
+					out << "Linear";
+
+					break;
+				}
+
+				case wc3lib::mdlx::LineType::Hermite:
+				{
+					out << "Hermite";
+
+					break;
+				}
+
+				case wc3lib::mdlx::LineType::Bezier:
+				{
+					out << "Bezier";
+
+					break;
+				}
+			}
+		}
+	};
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Mdlx>
 	{
@@ -141,20 +258,11 @@ namespace boost { namespace spirit { namespace traits
 	};
 
 	template <typename Out>
-	struct print_attribute_debug<Out, wc3lib::mdlx::Model*>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Model>
 	{
-		static void call(Out& out, wc3lib::mdlx::Model* const& val)
+		static void call(Out& out, wc3lib::mdlx::Model const& val)
 		{
 			out << "model";
-		}
-	};
-
-	template <typename Out>
-	struct print_attribute_debug<Out, wc3lib::mdlx::Version*>
-	{
-		static void call(Out& out, wc3lib::mdlx::Version* const& val)
-		{
-			out << "version";
 		}
 	};
 
@@ -162,6 +270,190 @@ namespace boost { namespace spirit { namespace traits
 	struct print_attribute_debug<Out, wc3lib::mdlx::Bounds>
 	{
 		static void call(Out& out, wc3lib::mdlx::Bounds const& val)
+		{
+			out << "bounds";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::GeosetAnimation>
+	{
+		static void call(Out& out, wc3lib::mdlx::GeosetAnimation const& val)
+		{
+			out << "geoset_animation";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Sequence>
+	{
+		static void call(Out& out, wc3lib::mdlx::Sequence const& val)
+		{
+			out << "sequence";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::ReplaceableId>
+	{
+		static void call(Out& out, wc3lib::mdlx::ReplaceableId const& val)
+		{
+			out << "replaceable_id";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Texture::Wrapping>
+	{
+		static void call(Out& out, wc3lib::mdlx::Texture::Wrapping const& val)
+		{
+			out << "wrapping";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Texture>
+	{
+		static void call(Out& out, wc3lib::mdlx::Texture const& val)
+		{
+			out << "texture";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Layer::FilterMode>
+	{
+		static void call(Out& out, wc3lib::mdlx::Layer::FilterMode const& val)
+		{
+			out << "filter_mode";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Layer::TextureId>
+	{
+		static void call(Out& out, wc3lib::mdlx::Layer::TextureId const& val)
+		{
+			out << "texture_id";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Layer::TextureIds>
+	{
+		static void call(Out& out, wc3lib::mdlx::Layer::TextureIds const& val)
+		{
+			out << "texture_ids";
+		}
+	};
+
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Layer>
+	{
+		static void call(Out& out, wc3lib::mdlx::Layer const& val)
+		{
+			out << "layer";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Material>
+	{
+		static void call(Out& out, wc3lib::mdlx::Material const& val)
+		{
+			out << "material";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::TextureAnimation>
+	{
+		static void call(Out& out, wc3lib::mdlx::TextureAnimation const& val)
+		{
+			out << "texture_animation";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Faces>
+	{
+		static void call(Out& out, wc3lib::mdlx::Faces const& val)
+		{
+			out << "faces";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Matrix>
+	{
+		static void call(Out& out, wc3lib::mdlx::Matrix const& val)
+		{
+			out << "matrix";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Geoset>
+	{
+		static void call(Out& out, wc3lib::mdlx::Geoset const& val)
+		{
+			out << "geoset";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Alpha>
+	{
+		static void call(Out& out, wc3lib::mdlx::Alpha const& val)
+		{
+			out << "bounds";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Alphas>
+	{
+		static void call(Out& out, wc3lib::mdlx::Alphas const& val)
+		{
+			out << "bounds";
+		}
+	};
+
+	/*
+	 * Defines for Translation and Color as well.
+	 */
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Scaling>
+	{
+		static void call(Out& out, wc3lib::mdlx::Scaling const& val)
+		{
+			out << "bounds";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Scalings>
+	{
+		static void call(Out& out, wc3lib::mdlx::Scalings const& val)
+		{
+			out << "bounds";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Rotation>
+	{
+		static void call(Out& out, wc3lib::mdlx::Rotation const& val)
+		{
+			out << "bounds";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Rotations>
+	{
+		static void call(Out& out, wc3lib::mdlx::Rotations const& val)
 		{
 			out << "bounds";
 		}

@@ -21,11 +21,8 @@
 #ifndef WC3LIB_MDLX_LIGHT_HPP
 #define WC3LIB_MDLX_LIGHT_HPP
 
-#include <boost/cast.hpp>
-
 #include "object.hpp"
-#include "groupmdxblockmember.hpp"
-#include "lights.hpp"
+#include "mdlxanimatedproperties.hpp"
 
 namespace wc3lib
 {
@@ -36,7 +33,7 @@ namespace mdlx
 /**
  * MDL tag "Light".
  */
-class Light : public Object, public GroupMdxBlockMember
+class Light : public Object
 {
 	public:
 		enum class Type : long32
@@ -46,10 +43,8 @@ class Light : public Object, public GroupMdxBlockMember
 			Ambient = 2
 		};
 
-		Light(class Lights *lights);
-		virtual ~Light();
+		Light();
 
-		class Lights* lights() const;
 		Type type() const;
 		float32 attenuationStart() const;
 		float32 attenuationEnd() const;
@@ -59,16 +54,11 @@ class Light : public Object, public GroupMdxBlockMember
 		VertexData& ambientColor();
 		const VertexData& ambientColor() const;
 		float32 ambientIntensity() const;
-		class Intensities* intensities() const;
-		class LightAmbientVisibilities* visibilities() const;
-		class LightAmbientColors* colors() const;
-		class AmbientColors* ambientColors() const;
-		class AmbientIntensities* ambientIntensities() const;
-
-		virtual std::streamsize readMdl(istream &istream);
-		virtual std::streamsize writeMdl(ostream &ostream) const;
-		virtual std::streamsize readMdx(istream &istream);
-		virtual std::streamsize writeMdx(ostream &ostream) const;
+		const Alphas& intensities() const;
+		const Alphas& visibilities() const;
+		const Scalings& colors() const;
+		const Scalings& ambientColors() const;
+		const Scalings& ambientIntensities() const;
 
 	protected:
 		Type m_type;
@@ -77,17 +67,12 @@ class Light : public Object, public GroupMdxBlockMember
 		float32 m_intensity;
 		VertexData m_ambientColor;
 		float32 m_ambientIntensity;
-		class Intensities *m_intensities; //(KLAI)
-		class LightAmbientVisibilities *m_visibilities; //(KLAV)
-		class LightAmbientColors *m_colors; //(KLAC)
-		class AmbientColors *m_ambientColors; //(KLBC)
-		class AmbientIntensities *m_ambientIntensities; //(KLBI)
+		Alphas m_intensities; //(KLAI)
+		Alphas m_visibilities; //(KLAV)
+		Scalings m_colors; //(KLAC)
+		Scalings m_ambientColors; //(KLBC)
+		Scalings m_ambientIntensities; //(KLBI)
 };
-
-inline class Lights* Light::lights() const
-{
-	return boost::polymorphic_cast<class Lights*>(this->parent());
-}
 
 inline Light::Type Light::type() const
 {
@@ -134,27 +119,27 @@ inline float32 Light::ambientIntensity() const
 	return this->m_ambientIntensity;
 }
 
-inline class Intensities* Light::intensities() const
+inline const Alphas& Light::intensities() const
 {
 	return this->m_intensities;
 }
 
-inline class LightAmbientVisibilities* Light::visibilities() const
+inline const Alphas& Light::visibilities() const
 {
 	return this->m_visibilities;
 }
 
-inline class LightAmbientColors* Light::colors() const
+inline const Scalings& Light::colors() const
 {
 	return this->m_colors;
 }
 
-inline class AmbientColors* Light::ambientColors() const
+inline const Scalings& Light::ambientColors() const
 {
 	return this->m_ambientColors;
 }
 
-inline class AmbientIntensities* Light::ambientIntensities() const
+inline const Scalings& Light::ambientIntensities() const
 {
 	return this->m_ambientIntensities;
 }

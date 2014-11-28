@@ -21,12 +21,9 @@
 #ifndef WC3LIB_MDLX_MDLXANIMATEDPROPERTY_HPP
 #define WC3LIB_MDLX_MDLXANIMATEDPROPERTY_HPP
 
-#include <boost/cast.hpp> // for polymorphic down casts of properties()
 #include <boost/array.hpp>
 
-#include "mdlxproperty.hpp"
-#include "mdlxanimatedproperties.hpp"
-#include "../utilities.hpp"
+#include "platform.hpp"
 
 namespace wc3lib
 {
@@ -36,47 +33,40 @@ namespace mdlx
 
 /**
  * \brief One single tuple of values for a specific time frame which is used for animating a node.
- * 
+ *
  * The amount of values for one single object can be specified via \p N. The value is of type \ref BasicVertex using
  * \p N as its dimension. The value type of the vertex can be specified via \p ValueType.
- * 
+ *
  * The corresponding list of properties which contains the type of mathematical transformation and the corresponding global
  * sequence can be accessed using \ref properties().
- * 
+ *
  * The time frame of the transformation is returned by \ref frame().
- * 
+ *
  * \sa MdlxAnimatedProperties
  * \ingroup animations
  */
 template<typename std::size_t N = 3, typename _ValueType = float32>
-class MdlxAnimatedProperty : public MdlxProperty
+class MdlxAnimatedProperty
 {
 	public:
 		static const std::size_t dimension = N;
 
 		typedef _ValueType ValueType;
 		typedef BasicVertex<ValueType, N> Values;
-		typedef MdlxAnimatedProperties<N, _ValueType> Properties;
 
-		MdlxAnimatedProperty(Properties *properties);
+		MdlxAnimatedProperty();
 		virtual ~MdlxAnimatedProperty();
 
-		Properties* properties() const;
+		void setFrame(long32 frame);
 		long32 frame() const;
-		Values& values();
+		void setValues(const Values &values);
 		const Values& values() const;
-		Values& inTan();
+		void setInTan(const Values &inTan);
 		const Values& inTan() const;
-		Values& outTan();
+		void setOutTan(const Values &outTan);
 		const Values& outTan() const;
 
-		virtual std::streamsize readMdl(istream &istream);
-		virtual std::streamsize writeMdl(ostream &ostream) const;
-		virtual std::streamsize readMdx(istream &istream);
-		virtual std::streamsize writeMdx(ostream &ostream) const;
-
 	protected:
-		Properties *m_properties;
 		long32 m_frame;
 
 		Values m_values;
@@ -86,7 +76,7 @@ class MdlxAnimatedProperty : public MdlxProperty
 };
 
 template<typename std::size_t N, typename _ValueType>
-MdlxAnimatedProperty<N, _ValueType>::MdlxAnimatedProperty(MdlxAnimatedProperty<N, _ValueType>::Properties *properties) : m_properties(properties)
+MdlxAnimatedProperty<N, _ValueType>::MdlxAnimatedProperty()
 {
 }
 
@@ -96,63 +86,9 @@ MdlxAnimatedProperty<N, _ValueType>::~MdlxAnimatedProperty()
 }
 
 template<typename std::size_t N, typename _ValueType>
-std::streamsize MdlxAnimatedProperty<N, _ValueType>::readMdl(istream &istream)
+inline void MdlxAnimatedProperty<N, _ValueType>::setFrame(long32 frame)
 {
-	/// \todo FIXME
-	return 0;
-}
-
-template<typename std::size_t N, typename _ValueType>
-std::streamsize MdlxAnimatedProperty<N, _ValueType>::writeMdl(ostream &ostream) const
-{
-	std::streamsize size = 0;
-	writeMdlVectorProperty(ostream, size, boost::str(boost::format("%1%:") % frame()), values());
-
-	if (properties()->lineType() > LineType::Linear)
-	{
-		writeMdlVectorProperty(ostream, size, "InTan", inTan());
-		writeMdlVectorProperty(ostream, size, "OutTan", outTan());
-	}
-
-	return size;
-}
-
-template<typename std::size_t N, typename _ValueType>
-std::streamsize MdlxAnimatedProperty<N, _ValueType>::readMdx(istream &istream)
-{
-	std::streamsize size = 0;
-	wc3lib::read(istream, this->m_frame, size);
-	size += values().read(istream);
-
-	if (properties()->lineType() > LineType::Linear)
-	{
-		size += inTan().read(istream);
-		size += outTan().read(istream);
-	}
-
-	return size;
-}
-
-template<typename std::size_t N, typename _ValueType>
-std::streamsize MdlxAnimatedProperty<N, _ValueType>::writeMdx(ostream &ostream) const
-{
-	std::streamsize size = 0;
-	wc3lib::write(ostream, this->frame(), size);
-	size += values().write(ostream);
-
-	if (properties()->lineType() > LineType::Linear)
-	{
-		size += inTan().write(ostream);
-		size += outTan().write(ostream);
-	}
-
-	return size;
-}
-
-template<typename std::size_t N, typename _ValueType>
-inline typename MdlxAnimatedProperty<N, _ValueType>::Properties* MdlxAnimatedProperty<N, _ValueType>::properties() const
-{
-	return this->m_properties;
+	this->m_frame = frame;
 }
 
 template<typename std::size_t N, typename _ValueType>
@@ -162,9 +98,9 @@ inline long32 MdlxAnimatedProperty<N, _ValueType>::frame() const
 }
 
 template<typename std::size_t N, typename _ValueType>
-inline typename MdlxAnimatedProperty<N, _ValueType>::Values& MdlxAnimatedProperty<N, _ValueType>::values()
+inline void MdlxAnimatedProperty<N, _ValueType>::setValues(const typename MdlxAnimatedProperty<N, _ValueType>::Values &values)
 {
-	return m_values;
+	this->m_values = values;
 }
 
 template<typename std::size_t N, typename _ValueType>
@@ -174,9 +110,9 @@ inline const typename MdlxAnimatedProperty<N, _ValueType>::Values& MdlxAnimatedP
 }
 
 template<typename std::size_t N, typename _ValueType>
-inline typename MdlxAnimatedProperty<N, _ValueType>::Values& MdlxAnimatedProperty<N, _ValueType>::inTan()
+inline void MdlxAnimatedProperty<N, _ValueType>::setInTan(const typename MdlxAnimatedProperty<N, _ValueType>::Values &inTan)
 {
-	return m_inTan;
+	this->m_inTan = inTan;
 }
 
 template<typename std::size_t N, typename _ValueType>
@@ -186,9 +122,9 @@ inline const typename MdlxAnimatedProperty<N, _ValueType>::Values& MdlxAnimatedP
 }
 
 template<typename std::size_t N, typename _ValueType>
-inline typename MdlxAnimatedProperty<N, _ValueType>::Values& MdlxAnimatedProperty<N, _ValueType>::outTan()
+inline void MdlxAnimatedProperty<N, _ValueType>::setOutTan(const typename MdlxAnimatedProperty<N, _ValueType>::Values &outTan)
 {
-	return m_outTan;
+	this->m_outTan = outTan;
 }
 
 template<typename std::size_t N, typename _ValueType>

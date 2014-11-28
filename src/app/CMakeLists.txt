@@ -3,6 +3,8 @@ if (DEBUG)
 endif ()
 
 if (BLP AND MPQ AND MDLX AND MAP)
+	include_directories("${CMAKE_CURRENT_BINARY_DIR}/../map")
+
 	add_executable(wc3converter wc3converter.cpp)
 	target_link_libraries(wc3converter ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
 	install(TARGETS wc3converter DESTINATION bin)

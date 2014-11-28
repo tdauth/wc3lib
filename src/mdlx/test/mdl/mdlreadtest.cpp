@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE(MdlVersion)
 	MdlGrammar::PositionIteratorType position_begin(forwardFirst);
 	MdlGrammar::PositionIteratorType position_end;
 
-	Version *result = 0;
+	long32 result;
 
 	bool r = boost::spirit::qi::phrase_parse(
 			position_begin,
@@ -121,11 +121,7 @@ BOOST_AUTO_TEST_CASE(MdlVersion)
 
 	BOOST_REQUIRE(r);
 	BOOST_REQUIRE(first == last);
-
-	BOOST_REQUIRE(result != 0);
-	BOOST_CHECK(result->modelVersion() == 800);
-
-	delete result;
+	BOOST_CHECK(result == 800);
 }
 
 BOOST_AUTO_TEST_CASE(MdlModel)
@@ -152,12 +148,12 @@ BOOST_AUTO_TEST_CASE(MdlModel)
 	MdlGrammar::PositionIteratorType position_begin(forwardFirst);
 	MdlGrammar::PositionIteratorType position_end;
 
-	Model *result = 0;
+	Mdlx result;
 
 	bool r = boost::spirit::qi::phrase_parse(
 			position_begin,
 			position_end,
-			grammar.model,
+			grammar,
 			commentSkipper,
 			result
 	);
@@ -165,9 +161,57 @@ BOOST_AUTO_TEST_CASE(MdlModel)
 	BOOST_REQUIRE(r);
 	BOOST_REQUIRE(first == last);
 
-	BOOST_REQUIRE(result != 0);
+	BOOST_REQUIRE(strcmp(result.model().name(), "MyModelName") == 0);
+	BOOST_REQUIRE(result.model().blendTime() == 150);
+	BOOST_CHECK_CLOSE(result.model().bounds().minimumExtent()[0], -16849.500000, 0.0001);
+	BOOST_CHECK_CLOSE(result.model().bounds().minimumExtent()[1], -3155.110107, 0.0001);
+	BOOST_CHECK_CLOSE(result.model().bounds().minimumExtent()[2], -9140.349609, 0.0001);
+	BOOST_CHECK_CLOSE(result.model().bounds().maximumExtent()[0], 786.507019, 0.0001);
+	BOOST_CHECK_CLOSE(result.model().bounds().maximumExtent()[1], 16107.799805, 0.0001);
+	BOOST_CHECK_CLOSE(result.model().bounds().maximumExtent()[2], 5544.810059, 0.0001);
+}
 
-	// TODO check model properties
+BOOST_AUTO_TEST_CASE(MdlFaces)
+{
+	spiritTraceLog.close();
+	spiritTraceLog.open("mdlfaces_traces.xml");
 
-	delete result;
+	BOOST_REQUIRE(spiritTraceLog);
+
+	ifstream in("faces.mdl");
+
+	BOOST_REQUIRE(in);
+
+	client::MdlGrammar<MdlGrammar::PositionIteratorType, client::CommentSkipper<MdlGrammar::PositionIteratorType>> grammar;
+	client::CommentSkipper<MdlGrammar::PositionIteratorType> commentSkipper;
+
+	MdlGrammar::IteratorType first = MdlGrammar::IteratorType(in);
+	MdlGrammar::IteratorType last;
+
+	MdlGrammar::ForwardIteratorType forwardFirst = boost::spirit::make_default_multi_pass(first);
+	MdlGrammar::ForwardIteratorType forwardLast = boost::spirit::make_default_multi_pass(last); // TODO has to be created? Do we need this iterator to be passed?
+
+	// used for backtracking and more detailed error output
+	MdlGrammar::PositionIteratorType position_begin(forwardFirst);
+	MdlGrammar::PositionIteratorType position_end;
+
+	Geoset::Faces result;
+
+	bool r = boost::spirit::qi::phrase_parse(
+			position_begin,
+			position_end,
+			grammar.faces,
+			commentSkipper,
+			result
+	);
+
+	BOOST_REQUIRE(r);
+	BOOST_REQUIRE(first == last);
+
+	BOOST_REQUIRE(result.size() == 1);
+	const Faces &faces = result.front();
+	BOOST_REQUIRE(faces.vertices().size() == 810);
+	BOOST_REQUIRE(faces.type() == Faces::Type::Triangles);
+	BOOST_REQUIRE(faces.vertices().front() == 0);
+	BOOST_REQUIRE(faces.vertices().back() == 154);
 }

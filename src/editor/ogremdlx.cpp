@@ -39,7 +39,7 @@ namespace wc3lib
 namespace editor
 {
 
-void OgreMdlx::updateCamera(const class mdlx::Camera &camera, Ogre::Camera *ogreCamera)
+void OgreMdlx::updateCamera(const mdlx::Camera &camera, Ogre::Camera *ogreCamera)
 {
 	ogreCamera->setPosition(ogreVector3(camera.position()));
 	ogreCamera->setFOVy(Ogre::Radian(camera.fieldOfView()));
@@ -48,7 +48,7 @@ void OgreMdlx::updateCamera(const class mdlx::Camera &camera, Ogre::Camera *ogre
 	ogreCamera->setDirection(ogreVector3(camera.target()));
 }
 
-OgreMdlx::OgreMdlx(const KUrl &url, class ModelView *modelView) : Resource(url, Resource::Type::Model), m_modelView(modelView), m_sceneNode(0), m_teamColor(TeamColor::Red), m_teamGlow(TeamColor::Red)
+OgreMdlx::OgreMdlx(const KUrl &url, ModelView *modelView) : Resource(url, Resource::Type::Model), m_modelView(modelView), m_sceneNode(0), m_teamColor(TeamColor::Red), m_teamGlow(TeamColor::Red)
 {
 }
 
@@ -75,11 +75,19 @@ void OgreMdlx::clear() throw ()
 		}
 	}
 
+	m_textures.clear();
+
 	BOOST_FOREACH(CollisionShapes::reference value, m_collisionShapes)
+	{
 		delete value.second;
+	}
+
+	m_collisionShapes.clear();
+
+	// TODO clear all
 }
 
-void OgreMdlx::setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor)
+void OgreMdlx::setTeamColor(TeamColor teamColor)
 {
 	BOOST_FOREACH(TeamColorTextureUnitStates::reference state, this->m_teamColorTextureUnitStates)
 	{
@@ -101,7 +109,7 @@ void OgreMdlx::setTeamColor(BOOST_SCOPED_ENUM(TeamColor) teamColor)
 	this->m_teamColor = teamColor;
 }
 
-void OgreMdlx::setTeamGlow(BOOST_SCOPED_ENUM(TeamColor) teamGlow)
+void OgreMdlx::setTeamGlow(TeamColor teamGlow)
 {
 	BOOST_FOREACH(TeamColorTextureUnitStates::reference state, this->m_teamGlowTextureUnitStates)
 	{
@@ -128,13 +136,17 @@ void OgreMdlx::load()
 	QString tmpFile;
 
 	if (!source()->download(url(), tmpFile, modelView()))
-		throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toStdString());
+	{
+		throw Exception(boost::format(_("Unable to download file from URL \"%1%\".")) % url().toLocalFile().toUtf8().constData());
+	}
 
 	std::ios_base::openmode openmode = std::ios_base::in;
 	bool isMdx = boost::filesystem::path(tmpFile.toStdString()).extension() == ".mdx";
 
 	if (isMdx)
+	{
 		openmode |= std::ios_base::binary;
+	}
 
 	ifstream ifstream(tmpFile.toStdString(), openmode);
 
@@ -307,12 +319,18 @@ void OgreMdlx::load()
 					Ogre::Bone *bone = iterator.getNext();
 
 					if (bone == 0)
+					{
 						qDebug() << "empty bone in geoset " << id;
+					}
 					else
+					{
 						qDebug() << "Not empty bone!";
+					}
 
 					if (bone != 0 && bone->getParent() == 0)
+					{
 						hasRootBone = true;
+					}
 				}
 			}
 
@@ -634,7 +652,6 @@ void OgreMdlx::reload()
 	load();
 }
 
-
 void OgreMdlx::save(const KUrl &url, const QString &format) const
 {
 	QString realFormat = format;
@@ -646,14 +663,22 @@ void OgreMdlx::save(const KUrl &url, const QString &format) const
 		qDebug() << "Extension: " << QFileInfo(url.toLocalFile()).suffix().toLower();
 
 		if (extension == "mdx")
+		{
 			realFormat = "mdx";
+		}
 		else if (extension == "mdl")
+		{
 			realFormat = "mdl";
+		}
 		else if (extension == "mesh")
+		{
 			realFormat = "mesh";
+		}
 		// default format
 		else
+		{
 			realFormat = "mdx";
+		}
 	}
 
 	if (realFormat == "mdx" || realFormat == "mdl")
@@ -771,40 +796,56 @@ OgreMdlxEntity* OgreMdlx::createEntity(const Ogre::String &name)
 	return new OgreMdlxEntity(name, this, this->modelView()->sceneManager());
 }
 
-Ogre::Node* OgreMdlx::createNode(const class mdlx::Node &node)
+Ogre::Node* OgreMdlx::createNode(const mdlx::Node &node)
 {
 	Ogre::Node *result = 0;
 
 	if (node.type() & mdlx::Node::Type::Helper)
+	{
 		return 0;
+	}
 
 	if (node.type() & mdlx::Node::Type::Bone)
+	{
 		return 0;
+	}
 
 	if (node.type() & mdlx::Node::Type::Light)
+	{
 		return 0;
+	}
 
 	if (node.type() & mdlx::Node::Type::EventObject)
+	{
 		return 0;
+	}
 
 	if (node.type() & mdlx::Node::Type::Attachment)
+	{
 		return 0;
+	}
 
 	if (node.type() & mdlx::Node::Type::ParticleEmitter)
+	{
 		return 0;
+	}
 
 	if (node.type() & mdlx::Node::Type::CollisionShape)
+	{
 		return 0;
+	}
 
 	if (node.type() & mdlx::Node::Type::RibbonEmitter)
+	{
 		return 0;
+	}
 
 	return result;
 }
 
 void OgreMdlx::createNodeAnimatedProperties(const mdlx::Node &node, Ogre::Node *ogreNode)
 {
-	createAnimatedProperties(ogreNode, 0,*node.translations());
+	createAnimatedProperties(ogreNode, 0, *node.translations());
 	createAnimatedProperties(ogreNode, 1, *node.scalings());
 	createAnimatedProperties(ogreNode, 2, *node.rotations());
 }
@@ -844,7 +885,7 @@ void OgreMdlx::addMdlxNodes(const mdlx::GroupMdxBlock &block)
 	}
 }
 
-Ogre::TexturePtr OgreMdlx::createTexture(const class mdlx::Texture &texture, mdlx::long32 id)
+Ogre::TexturePtr OgreMdlx::createTexture(const mdlx::Texture &texture, mdlx::long32 id)
 {
 	//texture.parent()->members().size();
 	//qDebug() << "First address " << this->mdlx()->textures() << " and second address " << texture.parent();
@@ -1140,6 +1181,7 @@ Ogre::MaterialPtr OgreMdlx::createMaterial(const class mdlx::Material &material,
 		// TEST
 		Ogre::Material::TechniqueIterator iterator = mat->getTechniqueIterator();
 		int i = 0;
+
 		while (iterator.hasMoreElements())
 		{
 			iterator.getNext();
@@ -1184,7 +1226,7 @@ Ogre::MaterialPtr OgreMdlx::createMaterial(const class mdlx::Material &material,
 	return mat;
 }
 
-Ogre::ManualObject* OgreMdlx::createGeoset(const class mdlx::Geoset &geoset, mdlx::long32 id)
+Ogre::ManualObject* OgreMdlx::createGeoset(const mdlx::Geoset &geoset, mdlx::long32 id)
 {
 	qDebug() << "Creating geoset";
 	Ogre::ManualObject *object = this->modelView()->sceneManager()->createManualObject(geosetName(id));
@@ -1199,7 +1241,9 @@ Ogre::ManualObject* OgreMdlx::createGeoset(const class mdlx::Geoset &geoset, mdl
 	MaterialIds::const_iterator iterator = m_materialIds.find(geoset.materialId());
 
 	if (iterator == m_materialIds.end())
+	{
 		throw Exception(boost::format(_("Material %1% not found for geoset %2%")) % geoset.materialId() % id);
+	}
 
 	material = iterator->second;
 
@@ -1242,7 +1286,9 @@ Ogre::ManualObject* OgreMdlx::createGeoset(const class mdlx::Geoset &geoset, mdl
 	qDebug() << "Built " << index << " vertices.";
 
 	if (geoset.primitiveTypes()->members().size() != geoset.primitiveSizes()->members().size())
+	{
 		throw Exception((boost::format(_("Primitives error: Types size (%1%) and sizes size (%2%) are not equal.")) % geoset.primitiveTypes()->members().size()) % geoset.primitiveSizes()->members().size());
+	}
 
 	// build primitives
 	mdlx::PrimitiveTypes::Members::const_iterator pTypeIterator = geoset.primitiveTypes()->members().begin();
@@ -1322,10 +1368,14 @@ OgreMdlx::CollisionShape* OgreMdlx::createCollisionShape(const mdlx::CollisionSh
 	cs->shape = collisionShape.shape();
 
 	if (collisionShape.shape() == mdlx::CollisionShape::Shape::Box)
+	{
 		cs->box = new Ogre::AxisAlignedBox(ogreVector3(collisionShape.vertices()[0]), ogreVector3(collisionShape.vertices()[1]));
+	}
 	// sphere
 	else
+	{
 		cs->sphere = new Ogre::Sphere(ogreVector3(collisionShape.vertices()[0]), ogreReal(collisionShape.boundsRadius()));
+	}
 
 	return cs;
 }
@@ -1394,10 +1444,14 @@ Ogre::Bone* OgreMdlx::createBone(const class mdlx::Bone &bone, mdlx::long32 id)
 					qDebug() << "Created bone " << id;
 				}
 				else
+				{
 					qDebug() << "Didn't find geoset with id " << bone.geosetId() << "!";
+				}
 			}
 			else
+			{
 				qDebug() << "Multiple geosets aren't supported yet!";
+			}
 		}
 
 		if (bone.geosetAnimationId() != mdlx::noneId)
@@ -1414,15 +1468,17 @@ Ogre::Bone* OgreMdlx::createBone(const class mdlx::Bone &bone, mdlx::long32 id)
 		}
 	}
 	else
+	{
 		ogreBone = iterator->second;
+	}
 
 	return ogreBone;
 }
 
-std::map<const class mdlx::Node*, Ogre::Node*> OgreMdlx::setupInheritance(const std::list<const class mdlx::Node*> &initialNodes)
+OgreMdlx::NodeInheritance OgreMdlx::setupInheritance(const std::list<const mdlx::Node*> &initialNodes)
 {
-	std::list<const class mdlx::Node*> resultingNodes(initialNodes);
-	std::map<const class mdlx::Node*, Ogre::Node*> nodes;
+	std::list<const mdlx::Node*> resultingNodes(initialNodes);
+	OgreMdlx::NodeInheritance nodes;
 
 	/*
 	BOOST_FOREACH(const class Node *node, resultingNodes)

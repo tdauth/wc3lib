@@ -21,7 +21,7 @@
 #ifndef WC3LIB_MDLX_BOUNDS_HPP
 #define WC3LIB_MDLX_BOUNDS_HPP
 
-#include "mdlxproperty.hpp"
+#include "platform.hpp"
 
 namespace wc3lib
 {
@@ -32,16 +32,11 @@ namespace mdlx
 /**
  * Should be inherited by classes \ref Model, \ref Sequence, \ref Geoset and \ref Ganimation.
  */
-class Bounds : public MdlxProperty
+class Bounds
 {
 	public:
 		Bounds();
 		virtual ~Bounds();
-
-		virtual std::streamsize readMdl(istream &istream);
-		virtual std::streamsize writeMdl(ostream &ostream) const;
-		virtual std::streamsize readMdx(istream &istream);
-		virtual std::streamsize writeMdx(ostream &ostream) const;
 
 		void setBoundsRadius(float32 boundsRadius);
 		float32 boundsRadius() const;

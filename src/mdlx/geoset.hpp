@@ -21,11 +21,12 @@
 #ifndef WC3LIB_MDLX_GEOSET_HPP
 #define WC3LIB_MDLX_GEOSET_HPP
 
-#include <boost/ptr_container/ptr_vector.hpp>
+#include <vector>
 
-#include "groupmdxblockmember.hpp"
 #include "bounds.hpp"
-#include "geosets.hpp"
+#include "faces.hpp"
+#include "matrix.hpp"
+
 
 namespace wc3lib
 {
@@ -33,7 +34,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-class Geoset : public GroupMdxBlockMember, public Bounds
+class Geoset : public Bounds
 {
 	public:
 		enum class Selectable : long32
@@ -42,95 +43,109 @@ class Geoset : public GroupMdxBlockMember, public Bounds
 			Unselectable = 4
 		};
 
-		typedef boost::ptr_vector<class Ganimation> Ganimations;
+		typedef std::vector<VertexData> Vertices;
+		typedef std::vector<VertexData> Normals;
+		typedef std::vector<wc3lib::mdlx::Faces> Faces;
+		typedef std::vector<uint8> GroupVertices;
+		typedef std::vector<Matrix> Matrices;
+		typedef std::vector<Bounds> Ganimations;
+		typedef std::vector<Vertex2d<float32> > TexturePatches;
+		typedef std::vector<Vertex2d<float32> > TextureVertices;
 
-		Geoset(class Geosets *geosets);
-		virtual ~Geoset();
+		Geoset();
 
-		class Geosets* geosets() const;
-		class Vertices* vertices() const;
-		class Normals* normals() const;
-		class PrimitiveTypes* primitiveTypes() const;
-		class PrimitiveSizes* primitiveSizes() const;
-		class PrimitiveVertices* primitiveVertices() const;
-		class GroupVertices* groupVertices() const;
-		class MatrixGroupCounts* matrixGroupCounts() const;
-		class Matrices* matrices() const;
+		void setVertices(const Vertices &vertices);
+		const Vertices& vertices() const;
+		void setNormals(const Normals &normals);
+		const Normals& normals() const;
+		void setFaces(const Faces &faces);
+		const Faces& faces() const;
+		void setGroupVertices(const GroupVertices &groupVertices);
+		const GroupVertices& groupVertices() const;
+		void setMatrices(const Matrices &matrices);
+		const Matrices& matrices() const;
+		void setMaterialId(long32 materialId);
 		long32 materialId() const;
+		void setSelectionGroup(long32 selectionGroup);
 		long32 selectionGroup() const;
+		void setSelectable(Selectable selectable);
 		Selectable selectable() const;
-		Ganimations& ganimations();
+		void setGanimations(const Ganimations &ganimations);
 		const Ganimations& ganimations() const;
-		class TexturePatches* texturePatches() const;
-		class TextureVertices* textureVertices() const;
-
-		virtual std::streamsize readMdl(istream &istream);
-		virtual std::streamsize writeMdl(ostream &ostream) const;
-		virtual std::streamsize readMdx(istream &istream);
-		virtual std::streamsize writeMdx(ostream &ostream) const;
+		void setTexturePatches(const TexturePatches &texturePatches);
+		const TexturePatches& texturePatches() const;
+		void setTextureVertices(const TextureVertices &textureVertices);
+		const TextureVertices& textureVertices() const;
 
 	protected:
-		class Vertices *m_vertices; //VRTX
-		class Normals *m_normals; //NRMS
-		class PrimitiveTypes *m_primitveTypes; //PTYP
-		class PrimitiveSizes *m_primitiveSizes; //PCNT
-		class PrimitiveVertices *m_primitiveVertices; //PVTX
-		class GroupVertices *m_groupVertices; //GNDX
-		class MatrixGroupCounts *m_matrixGroupCounts; //MTGC
-		class Matrices *m_matrices; //MATS
+		Vertices m_vertices; //VRTX
+		Normals m_normals; //NRMS
+		Faces m_faces; // primitives
+		GroupVertices m_groupVertices; //GNDX
+		Matrices m_matrices; //MATS
 		long32 m_materialId;
 		long32 m_selectionGroup;
 		Selectable m_selectable; //(0:none;4:Unselectable)
 		//long32 nanim;
 		Ganimations m_ganimations;
-		//struct GAnimation *ganimations; //[nganim], naim?!?! Tamino Dauth
-		class TexturePatches *m_texturePatches; //UVAS
-		class TextureVertices *m_textureVertices; //UVBS
+		//struct GAnimation ganimations; //[nganim], naim?!?! Tamino Dauth
+		TexturePatches m_texturePatches; //UVAS
+		TextureVertices m_textureVertices; //UVBS
 };
 
-inline class Geosets* Geoset::geosets() const
+inline void Geoset::setVertices(const Geoset::Vertices &vertices)
 {
-	return boost::polymorphic_cast<class Geosets*>(this->parent());
+	this->m_vertices = vertices;
 }
 
-inline class Vertices* Geoset::vertices() const
+inline const Geoset::Vertices& Geoset::vertices() const
 {
 	return this->m_vertices;
 }
 
-inline class Normals* Geoset::normals() const
+inline void Geoset::setNormals(const Geoset::Normals &normals)
+{
+	this->m_normals = normals;
+}
+
+inline const Geoset::Normals& Geoset::normals() const
 {
 	return this->m_normals;
 }
 
-inline class PrimitiveTypes* Geoset::primitiveTypes() const
+inline void Geoset::setFaces(const Geoset::Faces &faces)
 {
-	return this->m_primitveTypes;
+	this->m_faces = faces;
 }
 
-inline class PrimitiveSizes* Geoset::primitiveSizes() const
+inline const Geoset::Faces& Geoset::faces() const
 {
-	return this->m_primitiveSizes;
+	return this->m_faces;
 }
 
-inline class PrimitiveVertices* Geoset::primitiveVertices() const
+inline void Geoset::setGroupVertices(const Geoset::GroupVertices &groupVertices)
 {
-	return this->m_primitiveVertices;
+	this->m_groupVertices = groupVertices;
 }
 
-inline class GroupVertices* Geoset::groupVertices() const
+inline const Geoset::GroupVertices& Geoset::groupVertices() const
 {
 	return this->m_groupVertices;
 }
 
-inline class MatrixGroupCounts* Geoset::matrixGroupCounts() const
+inline void Geoset::setMatrices(const Geoset::Matrices &matrices)
 {
-	return this->m_matrixGroupCounts;
+	this->m_matrices = matrices;
 }
 
-inline class Matrices* Geoset::matrices() const
+inline const Geoset::Matrices& Geoset::matrices() const
 {
 	return this->m_matrices;
+}
+
+inline void Geoset::setMaterialId(long32 materialId)
+{
+	this->m_materialId = materialId;
 }
 
 inline long32 Geoset::materialId() const
@@ -138,9 +153,19 @@ inline long32 Geoset::materialId() const
 	return this->m_materialId;
 }
 
+inline void Geoset::setSelectionGroup(long32 selectionGroup)
+{
+	this->m_selectionGroup = selectionGroup;
+}
+
 inline long32 Geoset::selectionGroup() const
 {
 	return this->m_selectionGroup;
+}
+
+inline void Geoset::setSelectable(Geoset::Selectable selectable)
+{
+	this->m_selectable = selectable;
 }
 
 inline Geoset::Selectable Geoset::selectable() const
@@ -148,22 +173,32 @@ inline Geoset::Selectable Geoset::selectable() const
 	return this->m_selectable;
 }
 
-inline Geoset::Ganimations& Geoset::ganimations()
+inline void Geoset::setGanimations(const Ganimations &ganimations)
+{
+	this->m_ganimations = ganimations;
+}
+
+inline const Geoset::Geoset::Ganimations& Geoset::ganimations() const
 {
 	return this->m_ganimations;
 }
 
-inline const Geoset::Ganimations& Geoset::ganimations() const
+inline void Geoset::setTexturePatches(const Geoset::TexturePatches &texturePatches)
 {
-	return this->m_ganimations;
+	this->m_texturePatches = texturePatches;
 }
 
-inline class TexturePatches* Geoset::texturePatches() const
+inline const Geoset::TexturePatches& Geoset::texturePatches() const
 {
 	return this->m_texturePatches;
 }
 
-inline class TextureVertices* Geoset::textureVertices() const
+inline void Geoset::setTextureVertices(const Geoset::TextureVertices &textureVertices)
+{
+	this->m_textureVertices = textureVertices;
+}
+
+inline const Geoset::TextureVertices& Geoset::textureVertices() const
 {
 	return this->m_textureVertices;
 }

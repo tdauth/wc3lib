@@ -22,8 +22,7 @@
 #define WC3LIB_MDLX_RIBBONEMITTER_HPP
 
 #include "node.hpp"
-#include "groupmdxblockmember.hpp"
-#include "ribbonemitters.hpp"
+#include "mdlxanimatedproperties.hpp"
 
 namespace wc3lib
 {
@@ -34,13 +33,12 @@ namespace mdlx
 /**
  * MDL tag "RibbonEmitter".
  */
-class RibbonEmitter : public Node, public GroupMdxBlockMember
+class RibbonEmitter : public Node
 {
 	public:
-		RibbonEmitter(class RibbonEmitters *ribbonEmitters);
+		RibbonEmitter();
 		virtual ~RibbonEmitter();
 
-		class RibbonEmitters* ribbonEmitters() const;
 		float32 heightAboveValue() const;
 		float32 heightBelowValue() const;
 		float32 alpha() const;
@@ -54,14 +52,9 @@ class RibbonEmitter : public Node, public GroupMdxBlockMember
 		long32 columns() const;
 		long32 materialId() const;
 		float32 gravity() const;
-		class RibbonEmitterVisibilities* visibilities() const;
-		class RibbonEmitterHeightsAbove* heightsAbove() const;
-		class RibbonEmitterHeightsBelow* heightsBelow() const;
-
-		virtual std::streamsize readMdl(istream &istream);
-		virtual std::streamsize writeMdl(ostream &ostream) const;
-		virtual std::streamsize readMdx(istream &istream);
-		virtual std::streamsize writeMdx(ostream &ostream) const;
+		const Alphas& visibilities() const;
+		const Alphas& heightsAbove() const;
+		const Alphas&  heightsBelow() const;
 
 	protected:
 		//long nbytesi;
@@ -77,15 +70,10 @@ class RibbonEmitter : public Node, public GroupMdxBlockMember
 		long32 m_columns;
 		long32 m_materialId;
 		float32 m_gravity;
-		class RibbonEmitterVisibilities *m_visibilities; //(KRVS)
-		class RibbonEmitterHeightsAbove *m_heightsAbove; //(KRHA)
-		class RibbonEmitterHeightsBelow *m_heightsBelow; //(KRHB)
+		Alphas m_visibilities; //(KRVS)
+		Alphas m_heightsAbove; //(KRHA)
+		Alphas m_heightsBelow; //(KRHB)
 };
-
-inline class RibbonEmitters* RibbonEmitter::ribbonEmitters() const
-{
-	return boost::polymorphic_cast<class RibbonEmitters*>(this->parent());
-}
 
 inline float32 RibbonEmitter::heightAboveValue() const
 {
@@ -152,17 +140,17 @@ inline float32 RibbonEmitter::gravity() const
 	return m_gravity;
 }
 
-inline class RibbonEmitterVisibilities* RibbonEmitter::visibilities() const
+inline const Alphas& RibbonEmitter::visibilities() const
 {
 	return m_visibilities;
 }
 
-inline class RibbonEmitterHeightsAbove* RibbonEmitter::heightsAbove() const
+inline const Alphas& RibbonEmitter::heightsAbove() const
 {
 	return m_heightsAbove;
 }
 
-inline class RibbonEmitterHeightsBelow* RibbonEmitter::heightsBelow() const
+inline const Alphas& RibbonEmitter::heightsBelow() const
 {
 	return m_heightsBelow;
 }

@@ -21,12 +21,11 @@
 #ifndef WC3LIB_MDLX_PARTICLEEMITTER2_HPP
 #define WC3LIB_MDLX_PARTICLEEMITTER2_HPP
 
-#include <boost/ptr_container/ptr_array.hpp>
-#include <boost/cast.hpp>
+#include <array>
 
+#include "platform.hpp"
 #include "node.hpp"
-#include "groupmdxblockmember.hpp"
-#include "particleemitter2s.hpp"
+#include "mdlxanimatedproperties.hpp"
 
 namespace wc3lib
 {
@@ -37,11 +36,11 @@ namespace mdlx
 /**
  * MDL tag "ParticleEmitter2".
  */
-class ParticleEmitter2 : public Node, public GroupMdxBlockMember
+class ParticleEmitter2 : public Node
 {
 	public:
 		static const std::size_t segmentColorsSize = 3;
-		typedef boost::ptr_array<class SegmentColor, segmentColorsSize> SegmentColors;
+		typedef std::array<VertexData, segmentColorsSize> SegmentColors;
 
 		enum class FilterMode : long32
 		{
@@ -58,10 +57,9 @@ class ParticleEmitter2 : public Node, public GroupMdxBlockMember
 			Both = 2
 		};
 
-		ParticleEmitter2(class ParticleEmitter2s *particleEmitters);
+		ParticleEmitter2();
 		virtual ~ParticleEmitter2();
 
-		class ParticleEmitter2s* particleEmitters() const;
 		float32 speed() const;
 		float32 variation() const;
 		float32 latitude() const;
@@ -100,17 +98,12 @@ class ParticleEmitter2 : public Node, public GroupMdxBlockMember
 		long32 squirt() const;
 		long32 priorityPlane() const;
 		ReplaceableId replaceableId() const;
-		class ParticleEmitter2Speeds* speeds() const;
-		class ParticleEmitter2Latitudes* latitudes() const;
-		class EmissionRates* emissionRates() const;
-		class ParticleEmitter2Visibilities* visibilities() const;
-		class Lengths* numbers() const;
-		class ParticleEmitter2Widths* widths() const;
-
-		virtual std::streamsize readMdl(istream &istream);
-		virtual std::streamsize writeMdl(ostream &ostream) const;
-		virtual std::streamsize readMdx(istream &istream);
-		virtual std::streamsize writeMdx(ostream &ostream) const;
+		const Alphas& speeds() const;
+		const Alphas& latitudes() const;
+		const Alphas& emissionRates() const;
+		const Alphas& visibilities() const;
+		const Alphas& numbers() const;
+		const Alphas& widths() const;
 
 	protected:
 		//long32 nbytesi;
@@ -140,18 +133,13 @@ class ParticleEmitter2 : public Node, public GroupMdxBlockMember
 		long32 m_squirt; //(1:Squirt)
 		long32 m_priorityPlane;
 		ReplaceableId m_replaceableId;
-		class ParticleEmitter2Speeds *m_speeds; //(KP2S)
-		class ParticleEmitter2Latitudes *m_latitudes; //(KP2L)
-		class EmissionRates *m_emissionRates; //(KP2E)
-		class ParticleEmitter2Visibilities *m_visibilities; //(KP2V)
-		class Lengths *m_numbers; //(KP2N)
-		class ParticleEmitter2Widths *m_widths; //(KP2W)
+		Alphas m_speeds; //(KP2S)
+		Alphas m_latitudes; //(KP2L)
+		Alphas m_emissionRates; //(KP2E)
+		Alphas m_visibilities; //(KP2V)
+		Alphas m_numbers; //(KP2N)
+		Alphas m_widths; //(KP2W)
 };
-
-inline class ParticleEmitter2s* ParticleEmitter2::particleEmitters() const
-{
-	return boost::polymorphic_cast<class ParticleEmitter2s*>(this->parent());
-}
 
 inline float32 ParticleEmitter2::speed() const
 {
@@ -343,32 +331,32 @@ inline ReplaceableId ParticleEmitter2::replaceableId() const
 	return this->m_replaceableId;
 }
 
-inline class ParticleEmitter2Speeds* ParticleEmitter2::speeds() const
+inline const Alphas& ParticleEmitter2::speeds() const
 {
 	return this->m_speeds;
 }
 
-inline class ParticleEmitter2Latitudes* ParticleEmitter2::latitudes() const
+inline const Alphas& ParticleEmitter2::latitudes() const
 {
 	return this->m_latitudes;
 }
 
-inline class EmissionRates* ParticleEmitter2::emissionRates() const
+inline const Alphas& ParticleEmitter2::emissionRates() const
 {
 	return this->m_emissionRates;
 }
 
-inline class ParticleEmitter2Visibilities* ParticleEmitter2::visibilities() const
+inline const Alphas& ParticleEmitter2::visibilities() const
 {
 	return this->m_visibilities;
 }
 
-inline class Lengths* ParticleEmitter2::numbers() const
+inline const Alphas& ParticleEmitter2::numbers() const
 {
 	return this->m_numbers;
 }
 
-inline class ParticleEmitter2Widths* ParticleEmitter2::widths() const
+inline const Alphas& ParticleEmitter2::widths() const
 {
 	return this->m_widths;
 }

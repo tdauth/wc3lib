@@ -30,7 +30,7 @@ namespace wc3lib
 namespace mdlx
 {
 
-client::MdlGenerator<MdlGenerator::IteratorType> MdlGenerator::grammar;
+const client::MdlGenerator<MdlGenerator::IteratorType> MdlGenerator::grammar;
 
 MdlGenerator::MdlGenerator()
 {

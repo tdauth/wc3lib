@@ -1,3 +1,7 @@
+2014-11-26 Tamino Dauth <tamino@cdauth.eu>
+* mdlx: Rename all Mdlx prefixes (we already have the namespace).
+* editor: Support rendering animations with OGRE (custom application of interpolation!): http://www.ogre3d.org/docs/manual/manual_82.html#SceneNode-Animation, http://www.ogre3d.org/docs/manual/manual_79.html#Morph-Animation
+
 2014-10-23 Tamino Dauth <tamino@cdauth.eu>
 * kio_mpq: Improve performance. Object Editor is much much faster when using a directory as source!
 
@@ -40,8 +44,8 @@
 * mdlx: Create MDX grammar based on Boost Spirit Qi.
 * mdlx: Create MDX generator based on Boost Spirit Karma.
 * mdlx: Simplify classes, drop multiple animated value classes and pass identifiers in the grammars.
-* core: Remove "throw Exception()" qualifier.
-* mdlx: Provide Interpolator class which calculates interpolations used for animations.
+* DONE: core: Remove "throw Exception()" qualifier.
+* DONE: mdlx: Provide Interpolator class which calculates interpolations used for animations.
 * editor: Create parser for particle effects/particle effects displaying class.
 
 2013-12-28 Tamino Dauth <tamino@cdauth.eu>

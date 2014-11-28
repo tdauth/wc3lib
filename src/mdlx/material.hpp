@@ -21,8 +21,8 @@
 #ifndef WC3LIB_MDLX_MATERIAL_HPP
 #define WC3LIB_MDLX_MATERIAL_HPP
 
-#include "groupmdxblockmember.hpp"
-#include "materials.hpp"
+#include "platform.hpp"
+#include "layer.hpp"
 
 namespace wc3lib
 {
@@ -33,7 +33,7 @@ namespace mdlx
 /**
  * MDL tag "Material".
  */
-class Material : public GroupMdxBlockMember
+class Material
 {
 	public:
 		enum class RenderMode : long32
@@ -46,28 +46,36 @@ class Material : public GroupMdxBlockMember
 			FullResolution = 32
 		};
 
-		Material(class Materials *materials);
-		virtual ~Material();
+		/**
+		 * \brief The layers of a material.
+		 *
+		 * Each material can have multiple layers.
+		 */
+		typedef std::vector<Layer> Layers;
 
-		class Materials* materials() const;
+		Material();
+
 		/**
 		 * Taken from Art Tool manual:
 		 * Alpha-queued geosets can be made to draw in a specific order with relation to each other in the same model. The lower the value is, the sooner it is rendererd. Values between -20 and 20 are regularly used.
+		 *
+		 * @{
 		 */
+		void setPriorityPlane(long32 priorityPlane);
 		long32 priorityPlane() const;
+		/**
+		 * @}
+		 */
+		void setRenderMode(RenderMode renderMode);
 		RenderMode renderMode() const;
-		class Layers* layers() const;
-
-		virtual std::streamsize readMdl(istream &istream);
-		virtual std::streamsize writeMdl(ostream &ostream) const;
-		virtual std::streamsize readMdx(istream &istream);
-		virtual std::streamsize writeMdx(ostream &ostream) const;
+		void setLayers(const Layers &layers);
+		const Layers& layers() const;
 
 	protected:
 		//long nbytesi;
 		long32 m_priorityPlane;
 		RenderMode m_renderMode;
-		class Layers *m_layers;
+		Layers m_layers;
 };
 
 inline constexpr bool operator&(Material::RenderMode x, Material::RenderMode y)
@@ -75,9 +83,9 @@ inline constexpr bool operator&(Material::RenderMode x, Material::RenderMode y)
 	return static_cast<bool>(static_cast<long32>(x) & static_cast<long32>(y));
 }
 
-inline class Materials* Material::materials() const
+inline void Material::setPriorityPlane(long32 priorityPlane)
 {
-	return boost::polymorphic_cast<class Materials*>(this->parent());
+	this->m_priorityPlane = priorityPlane;
 }
 
 inline long32 Material::priorityPlane() const
@@ -85,12 +93,22 @@ inline long32 Material::priorityPlane() const
 	return this->m_priorityPlane;
 }
 
+inline void Material::setRenderMode(Material::RenderMode renderMode)
+{
+	this->m_renderMode = renderMode;
+}
+
 inline Material::RenderMode Material::renderMode() const
 {
 	return this->m_renderMode;
 }
 
-inline class Layers* Material::layers() const
+inline void Material::setLayers(const Material::Layers &layers)
+{
+	this->m_layers = layers;
+}
+
+inline const Material::Layers& Material::layers() const
 {
 	return this->m_layers;
 }

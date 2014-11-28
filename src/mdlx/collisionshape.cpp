@@ -19,7 +19,6 @@
  ***************************************************************************/
 
 #include "collisionshape.hpp"
-#include "../utilities.hpp"
 
 namespace wc3lib
 {
@@ -27,73 +26,8 @@ namespace wc3lib
 namespace mdlx
 {
 
-CollisionShape::CollisionShape(class CollisionShapes *collisionShapes) : GroupMdxBlockMember(collisionShapes, "CollisionShape"), Object(collisionShapes->mdlx())
+CollisionShape::CollisionShape() : Object()
 {
-}
-
-std::streamsize CollisionShape::readMdl(istream &istream)
-{
-	return 0;
-}
-
-std::streamsize CollisionShape::writeMdl(ostream &ostream) const
-{
-	std::streamsize size = 0;
-	writeMdlBlock(ostream, size, "CollisionShape", this->name(), 0, true);
-
-	size += Object::writeMdl(ostream);
-
-	writeMdlCountedBlock(ostream, size, "Vertices", vertices().size());
-
-	BOOST_FOREACH(Vertices::const_reference ref, vertices())
-		writeMdlVectorProperty(ostream, size, "", ref);
-
-	writeMdlBlockConclusion(ostream, size);
-
-	if (this->shape() == Shape::Sphere)
-		writeMdlValueProperty(ostream, size, "BoundsRadius", this->boundsRadius());
-
-	writeMdlBlockConclusion(ostream, size);
-
-	return size;
-}
-
-std::streamsize CollisionShape::readMdx(istream &istream)
-{
-	std::streamsize size = Object::readMdx(istream);
-	long32 shape;
-	wc3lib::read(istream, shape, size);
-	this->m_shape = static_cast<Shape>(shape);
-	VertexData vertexData;
-	size += vertexData.read(istream);
-	vertices().push_back(vertexData);
-
-	if (this->m_shape == Shape::Box)
-	{
-		VertexData vertexData2;
-		size += vertexData2.read(istream);
-		vertices().push_back(vertexData2);
-	}
-	else
-	{
-		wc3lib::read(istream, this->m_boundsRadius, size);
-	}
-
-	return size;
-}
-
-std::streamsize CollisionShape::writeMdx(ostream &ostream) const
-{
-	std::streamsize size = Object::writeMdx(ostream);
-	wc3lib::write(ostream,long32(this->shape()), size);
-	size += vertices()[0].write(ostream);
-
-	if (this->m_shape == Shape::Box)
-		size += vertices()[1].write(ostream);
-	else
-		wc3lib::write(ostream, this->boundsRadius(), size);
-
-	return size;
 }
 
 }

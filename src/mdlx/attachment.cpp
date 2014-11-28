@@ -19,9 +19,6 @@
  ***************************************************************************/
 
 #include "attachment.hpp"
-#include "attachmentvisibilities.hpp"
-#include "../i18n.hpp"
-#include "../utilities.hpp"
 
 namespace wc3lib
 {
@@ -29,73 +26,8 @@ namespace wc3lib
 namespace mdlx
 {
 
-Attachment::Attachment(class Attachments *attachments) : Object(attachments->mdlx()), GroupMdxBlockMember(attachments, "Attachment"), m_visibilities(new AttachmentVisibilities(attachments->mdlx()))
+Attachment::Attachment() : Object()
 {
-}
-
-Attachment::~Attachment()
-{
-	delete this->m_visibilities;
-}
-
-std::streamsize Attachment::readMdl(istream &istream)
-{
-	return 0;
-}
-
-std::streamsize Attachment::writeMdl(ostream &ostream) const
-{
-	std::streamsize size = 0;
-	writeMdlBlock(ostream, size, "Attachment", this->name(), 0, true);
-
-	size += Object::writeMdl(ostream);
-
-	writeMdlValueProperty(ostream, size, "AttachmentID", this->attachmentId());
-
-	if (strlen(this->path()) > 0)
-	{
-		writeMdlValueProperty(ostream, size, "Path", this->path());
-	}
-
-	size += visibilities()->writeMdl(ostream);
-
-	writeMdlBlockConclusion(ostream, size);
-
-	return size;
-}
-
-
-std::streamsize Attachment::readMdx(istream &istream)
-{
-	long32 nbytesi = 0;
-	std::streamsize size = 0;
-	wc3lib::read(istream, nbytesi, size);
-	size += Object::readMdx(istream);
-	wc3lib::read(istream, this->m_path, size, pathSize);
-	wc3lib::read(istream, this->m_unknown0, size);
-	wc3lib::read(istream, this->m_attachmentId, size);
-	size += this->visibilities()->readMdx(istream);
-
-	checkBytesIncluding(size, nbytesi);
-
-	return size;
-}
-
-std::streamsize Attachment::writeMdx(ostream &out) const
-{
-	std::streampos position;
-	skipByteCount<long32>(out, position);
-
-	std::streamsize size = Object::writeMdx(out);
-	wc3lib::write(out, this->path(), size, pathSize);
-	wc3lib::write(out, this->unknown0(), size);
-	wc3lib::write(out, this->attachmentId(), size);
-	size += this->visibilities()->writeMdx(out);
-
-	const long32 nbytesi = boost::numeric_cast<long32>(size);
-	writeByteCount(out, nbytesi, position, size, true);
-
-	return size;
 }
 
 }

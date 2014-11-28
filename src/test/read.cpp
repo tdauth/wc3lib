@@ -31,6 +31,18 @@
 
 using namespace wc3lib;
 
+BOOST_AUTO_TEST_CASE(ReadInt)
+{
+	const int value = 10;
+	stringstream sstream;
+	sstream.write(reinterpret_cast<const byte*>(&value), sizeof(value));
+	int result = 0;
+	std::streamsize size = 0;
+	wc3lib::read(sstream, result, size);
+	BOOST_CHECK(result == value);
+	BOOST_CHECK(size == sizeof(value));
+}
+
 /**
  * Tests the readString() function with 0 values.
  */

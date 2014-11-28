@@ -46,6 +46,7 @@ namespace editor
 {
 
 class ModelView;
+class OgreMdlxEntity;
 
 /**
  * \brief This class can be used to display MDLX models by using the OGRE 3D rendering engine.
@@ -64,21 +65,21 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		typedef std::map<mdlx::long32, const mdlx::Node*> MdlxNodes;
 		typedef std::map<mdlx::long32, const mdlx::GeosetAnimation*> GeosetAnimations;
 
-		typedef std::map<const class mdlx::Texture*, Ogre::TexturePtr> Textures;
-		typedef std::map<mdlx::long32, const class mdlx::Texture*> TextureIds;
-		typedef std::map<const class mdlx::Material*, Ogre::MaterialPtr> Materials;
+		typedef std::map<const mdlx::Texture*, Ogre::TexturePtr> Textures;
+		typedef std::map<mdlx::long32, const mdlx::Texture*> TextureIds;
+		typedef std::map<const mdlx::Material*, Ogre::MaterialPtr> Materials;
 		/**
 		 * Required by geosets.
 		 */
-		typedef std::map<mdlx::long32, const class mdlx::Material*> MaterialIds;
+		typedef std::map<mdlx::long32, const mdlx::Material*> MaterialIds;
 		/**
 		 * Geoset ids have to be stored in both directions since many members need access to geosets by their id as well as you need the id of a geoset sometimes.
 		 */
-		typedef boost::bimap<const class mdlx::Geoset*, mdlx::long32> GeosetIds;
-		typedef std::map<const class mdlx::Geoset*, Ogre::MeshPtr> Geosets;
-		typedef std::map<const class mdlx::Camera*, Ogre::Camera*> Cameras;
-		typedef std::map<const class mdlx::Sequence*, Ogre::Animation*> Sequences;
-		typedef std::map<mdlx::long32, const class mdlx::Sequence*> SequenceIds;
+		typedef boost::bimap<const mdlx::Geoset*, mdlx::long32> GeosetIds;
+		typedef std::map<const mdlx::Geoset*, Ogre::MeshPtr> Geosets;
+		typedef std::map<const mdlx::Camera*, Ogre::Camera*> Cameras;
+		typedef std::map<const mdlx::Sequence*, Ogre::Animation*> Sequences;
+		typedef std::map<mdlx::long32, const mdlx::Sequence*> SequenceIds;
 
 		/**
 		 * This structure is required for model's collision shapes which either can be boxes or spheres.
@@ -175,10 +176,11 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		 * \return Returns a new entity of Geoset geometry to which animations can be applied.
 		 * \note Take care of deletion!
 		 */
-		class OgreMdlxEntity* createEntity(const Ogre::String &name);
+		OgreMdlxEntity* createEntity(const Ogre::String &name);
 
 	protected:
-		typedef std::pair<const class Node*, Ogre::Node*> NodePairType;
+		typedef std::map<const mdlx::Node*, Ogre::Node*> NodeInheritance;
+		typedef NodeInheritance::value_type NodePairType;
 
 		/**
 		 * Sometimes models are loaded from local directories which do also contain their required textures, attachments, particle emitter effects etc.
@@ -224,7 +226,7 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		* Creates all necessary OGRE nodes with correct inheritane and returns the resulting map with all nodes and objects.
 		* @todo Allocate objects by using type information (Object::type).
 		*/
-		std::map<const mdlx::Node*, Ogre::Node*> setupInheritance(const std::list<const mdlx::Node*> &nodes);
+		NodeInheritance setupInheritance(const std::list<const mdlx::Node*> &nodes);
 
 		MdlxPtr m_mdlx;
 		ModelView *m_modelView;
@@ -244,7 +246,7 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		CollisionShapes m_collisionShapes;
 		Bones m_bones;
 
-		std::map<const class mdlx::Node*, Ogre::Node*> m_nodes;
+		NodeInheritance m_nodes;
 
 		// these members are required for dynamic team glow and color settings
 		TeamColor m_teamColor;

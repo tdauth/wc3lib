@@ -21,7 +21,6 @@
 #ifndef WC3LIB_MDLX_MODEL_HPP
 #define WC3LIB_MDLX_MODEL_HPP
 
-#include "mdxblock.hpp"
 #include "bounds.hpp"
 
 namespace wc3lib
@@ -30,13 +29,11 @@ namespace wc3lib
 namespace mdlx
 {
 
-class Mdlx;
-
 /**
  * MDX tag "MODL".
  * MDL tag "Model".
  */
-class Model : public MdxBlock
+class Model
 {
 	public:
 		static const std::size_t nameSize = 0x150;
@@ -58,17 +55,7 @@ class Model : public MdxBlock
 		void setBlendTime(long32 blendTime);
 		long32 blendTime() const;
 
-		virtual std::streamsize readMdl(istream &istream);
-		virtual std::streamsize writeMdl(ostream &ostream, const Mdlx *mdlx) const;
-		virtual std::streamsize writeMdl(ostream &ostream) const
-		{
-			return writeMdl(ostream, 0);
-		}
-		virtual std::streamsize readMdx(istream &istream);
-		virtual std::streamsize writeMdx(ostream &ostream) const;
-
 	protected:
-		class Mdlx *m_mdlx;
 		Bounds m_bounds;
 		//long nbytes;
 		byte m_name[nameSize];

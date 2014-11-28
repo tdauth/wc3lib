@@ -21,11 +21,8 @@
 #ifndef WC3LIB_MDLX_ATTACHMENT_HPP
 #define WC3LIB_MDLX_ATTACHMENT_HPP
 
-#include <boost/cast.hpp>
-
 #include "object.hpp"
-#include "groupmdxblockmember.hpp"
-#include "attachments.hpp"
+#include "mdlxanimatedproperties.hpp"
 
 namespace wc3lib
 {
@@ -36,39 +33,27 @@ namespace mdlx
 /**
  * MDL tag "Attachment".
  */
-class Attachment : public Object, public GroupMdxBlockMember
+class Attachment : public Object
 {
 	public:
 		static const std::size_t pathSize = 0x100;
 
-		Attachment(class Attachments *attachments);
-		virtual ~Attachment();
+		Attachment();
 
-		class Attachments* attachments() const;
 		/**
 		 * \return Returns path with length of \ref pathSize.
 		 */
 		const byte* path() const;
 		long32 unknown0() const; // TODO maybe static visibility?
 		long32 attachmentId() const;
-		class AttachmentVisibilities* visibilities() const;
-
-		virtual std::streamsize readMdl(istream &istream);
-		virtual std::streamsize writeMdl(ostream &ostream) const;
-		virtual std::streamsize readMdx(istream &istream);
-		virtual std::streamsize writeMdx(ostream &ostream) const;
+		const Alphas& visibilities() const;
 
 	protected:
 		byte m_path[pathSize];
 		long32 m_unknown0;
 		long32 m_attachmentId;
-		class AttachmentVisibilities *m_visibilities; //(KATV)
+		Alphas m_visibilities; //(KATV)
 };
-
-inline class Attachments* Attachment::attachments() const
-{
-	return boost::polymorphic_cast<class Attachments*>(this->parent());
-}
 
 inline const byte* Attachment::path() const
 {
@@ -85,7 +70,7 @@ inline long32 Attachment::attachmentId() const
 	return this->m_attachmentId;
 }
 
-inline class AttachmentVisibilities* Attachment::visibilities() const
+inline const Alphas& Attachment::visibilities() const
 {
 	return this->m_visibilities;
 }

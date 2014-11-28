@@ -19,11 +19,6 @@
  ***************************************************************************/
 
 #include "particleemitter.hpp"
-#include "mdlxtranslations.hpp"
-#include "mdlxrotations.hpp"
-#include "mdlxscalings.hpp"
-#include "particleemittervisibilities.hpp"
-#include "../utilities.hpp"
 
 namespace wc3lib
 {
@@ -31,91 +26,12 @@ namespace wc3lib
 namespace mdlx
 {
 
-ParticleEmitter::ParticleEmitter(class ParticleEmitters *particleEmitters) : Node(particleEmitters->mdlx()), GroupMdxBlockMember(particleEmitters, "ParticleEmitter"), m_visibilities(new ParticleEmitterVisibilities(this))
+ParticleEmitter::ParticleEmitter() : Node()
 {
 }
 
 ParticleEmitter::~ParticleEmitter()
 {
-	delete this->m_visibilities;
-}
-
-std::streamsize ParticleEmitter::readMdl(istream &istream)
-{
-	return 0;
-}
-
-std::streamsize ParticleEmitter::writeMdl(ostream &ostream) const
-{
-	std::streamsize size = 0;
-	writeMdlBlock(ostream, size, "ParticleEmitter", this->name(), 0, true);
-
-	size += Node::writeMdl(ostream);
-
-	if (type() & Type::UnshadedOrEmitterUsesMdl)
-		writeMdlProperty(ostream, size, "EmitterUsesMdl");
-
-	if (type() & Type::SortPrimitivesFarZOrEmitterUsesTga)
-		writeMdlProperty(ostream, size, "EmitterUsesTga");
-
-	writeMdlStaticValueProperty(ostream, size, "EmissionRate", this->emissionRate());
-	writeMdlStaticValueProperty(ostream, size, "Gravity", this->gravity());
-	writeMdlStaticValueProperty(ostream, size, "Longitude", this->longitude());
-	writeMdlStaticValueProperty(ostream, size, "Latitude", this->latitude());
-
-	size += visibilities()->writeMdl(ostream);
-
-	writeMdlBlock(ostream, size, "Particle");
-	writeMdlStaticValueProperty(ostream, size, "LifeSpan", this->lifeSpan());
-	writeMdlStaticValueProperty(ostream, size, "InitVelocity", this->initVelocity());
-	writeMdlValueProperty(ostream, size, "Path", this->modelPath());
-	writeMdlBlockConclusion(ostream, size);
-
-	writeMdlBlockConclusion(ostream, size);
-
-	return size;
-}
-
-std::streamsize ParticleEmitter::readMdx(istream &istream)
-{
-	long32 nbytesi;
-	std::streamsize size = 0;
-	wc3lib::read(istream, nbytesi, size);
-	size += Node::readMdx(istream);
-	wc3lib::read(istream, this->m_emissionRate, size);
-	wc3lib::read(istream, this->m_gravity, size);
-	wc3lib::read(istream, this->m_longitude, size);
-	wc3lib::read(istream, this->m_latitude, size);
-	wc3lib::read(istream, this->m_modelPath, size, modelPathSize);
-	wc3lib::read(istream, this->m_unknown0, size);
-	wc3lib::read(istream, this->m_lifeSpan, size);
-	wc3lib::read(istream, this->m_initVelocity, size);
-	size += this->m_visibilities->readMdx(istream);
-
-	return size;
-}
-
-std::streamsize ParticleEmitter::writeMdx(ostream &ostream) const
-{
-	// skipping inclusive byte counts of particle emitter
-	std::streampos position;
-	skipByteCount<long32>(ostream, position);
-
-	std::streamsize size = Node::writeMdx(ostream);
-	wc3lib::write(ostream, this->m_emissionRate, size);
-	wc3lib::write(ostream, this->m_gravity, size);
-	wc3lib::write(ostream, this->m_longitude, size);
-	wc3lib::write(ostream, this->m_latitude, size);
-	wc3lib::write(ostream, this->m_modelPath, size, modelPathSize);
-	wc3lib::write(ostream, this->m_unknown0, size);
-	wc3lib::write(ostream, this->m_lifeSpan, size);
-	wc3lib::write(ostream, this->m_initVelocity, size);
-	size += this->m_visibilities->writeMdx(ostream);
-
-	const long32 nbytesi = boost::numeric_cast<long32>(size);
-	writeByteCount(ostream, nbytesi, position, size, true);
-
-	return size;
 }
 
 }

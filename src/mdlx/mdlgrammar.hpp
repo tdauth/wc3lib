@@ -95,8 +95,8 @@ class MdlGrammar
 		 * Use static attributes to avoid multiple allocations of the same grammar and skipper for multiple instances
 		 * of "MdlGrammar".
 		 */
-		static Grammar grammar;
-		static Skipper skipper;
+		static const Grammar grammar;
+		static const Skipper skipper;
 };
 
 }

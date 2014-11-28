@@ -18,13 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <boost/format.hpp>
-
 #include "geosetanimation.hpp"
-#include "geosetanimationalphas.hpp"
-#include "geosetanimationcolors.hpp"
-#include "../i18n.hpp"
-#include "../utilities.hpp"
 
 namespace wc3lib
 {
@@ -32,106 +26,10 @@ namespace wc3lib
 namespace mdlx
 {
 
-GeosetAnimation::GeosetAnimation(class GeosetAnimations *geosetAnimations) : GroupMdxBlockMember(geosetAnimations, "GeosetAnim"), m_staticAlpha(0.0), m_colorAnimation(GeosetAnimation::ColorAnimation::None), m_colorRed(0.0), m_colorGreen(0.0), m_colorBlue(0.0), m_geosetId(0), m_alphas(new GeosetAnimationAlphas(this)),  m_colors(new GeosetAnimationColors(this))
+GeosetAnimation::GeosetAnimation() : m_staticAlpha(0.0), m_colorAnimation(GeosetAnimation::ColorAnimation::None), m_geosetId(0)
 {
-}
-
-GeosetAnimation::~GeosetAnimation()
-{
-	delete this->m_alphas;
-	delete this->m_colors;
-}
-
-std::streamsize GeosetAnimation::readMdl(istream &istream)
-{
-	std::streamsize size = 0;//GroupMdxBlockMember::readMdl(istream);
-
-	if (size == 0)
-		return 0;
-
-	/// \todo Finish!
-	return size;
-}
-
-std::streamsize GeosetAnimation::writeMdl(ostream &ostream) const
-{
-	std::streamsize size = 0;
-	writeMdlBlock(ostream, size, "GeosetAnim");
-
-	if (colorAnimation() == ColorAnimation::DropShadow || colorAnimation() == ColorAnimation::Both)
-		writeMdlProperty(ostream, size, "DropShadow");
-
-	if (this->alphas()->properties().empty())
-		writeMdlStaticValueProperty(ostream, size, "Alpha", staticAlpha());
-	else
-		size += this->alphas()->writeMdl(ostream);
-
-	if (colorAnimation() == ColorAnimation::Color || colorAnimation() == ColorAnimation::Both)
-	{
-		if (this->colors()->properties().empty())
-		{
-			writeMdlStaticVectorProperty(ostream, size, "Color", VertexData(colorBlue(), colorGreen(), colorRed()));
-		}
-		else
-		{
-			size += this->colors()->writeMdl(ostream);
-		}
-	}
-
-	writeMdlValueProperty(ostream, size, "GeosetId", geosetId());
-
-	writeMdlBlockConclusion(ostream, size);
-
-	return size;
-}
-
-std::streamsize GeosetAnimation::readMdx(istream &istream)
-{
-	long32 nbytesi;
-	std::streamsize size = 0;
-	wc3lib::read(istream, nbytesi, size);
-	wc3lib::read(istream, this->m_staticAlpha, size);
-	long32 colorAnimation;
-	wc3lib::read(istream, colorAnimation, size);
-	this->m_colorAnimation = static_cast<ColorAnimation>(colorAnimation);
-	wc3lib::read(istream, this->m_colorRed, size);
-	wc3lib::read(istream, this->m_colorGreen, size);
-	wc3lib::read(istream, this->m_colorBlue, size);
-	wc3lib::read(istream, this->m_geosetId, size);
-
-	if (this->staticAlpha() == 1.0)
-		size += this->m_alphas->readMdx(istream);
-
-	size += this->m_colors->readMdx(istream); /// @todo Seems to be optional, file Krieger.mdx doesn't have this block.
-
-	if (nbytesi != size)
-		throw Exception(boost::str(boost::format(_("Geoset animation: File byte count isn't equal to real byte count:\nFile byte count %1%.\nReal byte count %2%.\n")) % nbytesi % size));
-
-	return size;
-}
-
-std::streamsize GeosetAnimation::writeMdx(ostream &ostream) const
-{
-	std::streampos position;
-	skipByteCount<long32>(ostream, position);
-
-	std::streamsize size = 0;
-	wc3lib::write(ostream, this->staticAlpha(), size);
-	wc3lib::write(ostream, this->colorAnimation(), size);
-	wc3lib::write(ostream, this->colorRed(), size);
-	wc3lib::write(ostream, this->colorGreen(), size);
-	wc3lib::write(ostream, this->colorBlue(), size);
-	wc3lib::write(ostream, this->geosetId(), size);
-
-	if (this->staticAlpha() == 1.0)
-		size += this->alphas()->writeMdx(ostream);
-
-	size += this->colors()->writeMdx(ostream);
-
-	long32 nbytesi = size;
-	writeByteCount(ostream, nbytesi, position, size, true);
-
-	return size;
+	//   Color is only shown when this flag is greater than 1.
+	m_color.fill(1.0);
 }
 
 }

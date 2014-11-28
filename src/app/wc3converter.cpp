@@ -180,7 +180,7 @@ void convertMdlx(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3l
 
 	if (inputFormat.extension() == "mdx")
 	{
-		std::streamsize bytes = mdlx->readMdx(in);
+		std::streamsize bytes = 0; //mdlx->readMdx(in);
 
 		if (verbose)
 		{
@@ -189,7 +189,7 @@ void convertMdlx(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3l
 	}
 	else if (inputFormat.extension() == "mdl")
 	{
-		std::streamsize bytes = mdlx->readMdl(in);
+		std::streamsize bytes = 0; // mdlx->readMdl(in);
 
 		if (verbose)
 		{
@@ -203,7 +203,7 @@ void convertMdlx(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3l
 
 	if (outputFormat.extension() == "mdx")
 	{
-		std::streamsize bytes = mdlx->writeMdx(out);
+		std::streamsize bytes = 0; // mdlx->writeMdx(out);
 
 		if (verbose)
 		{
@@ -212,7 +212,7 @@ void convertMdlx(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3l
 	}
 	else if (outputFormat.extension() == "mdl")
 	{
-		std::streamsize bytes = mdlx->writeMdl(out);
+		std::streamsize bytes = 0; // mdlx->writeMdl(out);
 
 		if (verbose)
 		{

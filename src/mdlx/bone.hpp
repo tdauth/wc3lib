@@ -21,11 +21,7 @@
 #ifndef WC3LIB_MDLX_BONE_HPP
 #define WC3LIB_MDLX_BONE_HPP
 
-#include <boost/cast.hpp>
-
 #include "object.hpp"
-#include "groupmdxblockmember.hpp"
-#include "bones.hpp"
 
 namespace wc3lib
 {
@@ -35,36 +31,25 @@ namespace mdlx
 
 /**
  * MDL tag "Bone".
- * 
+ *
  * Taken from Art Tools Manual:
  * Use two different bones for unit models: "bone_head" and "bone_chest". These two bones will also be used by Warcraft when lock body-part facing action is called.
  * Use bone called "bone_turret" if you want a part of your model is rotated only when targeting another unit.
- * 
+ *
  * \ingroup animations
  */
-class Bone : public Object, public GroupMdxBlockMember
+class Bone : public Object
 {
 	public:
-		Bone(class Bones *bones);
+		Bone();
 
-		class Bones* bones() const;
 		long32 geosetId() const;
 		long32 geosetAnimationId() const;
-
-		virtual std::streamsize readMdl(istream &istream);
-		virtual std::streamsize writeMdl(ostream &ostream) const;
-		virtual std::streamsize readMdx(istream &istream);
-		virtual std::streamsize writeMdx(ostream &ostream) const;
 
 	protected:
 		long32 m_geosetId;
 		long32 m_geosetAnimationId;
 };
-
-inline class Bones* Bone::bones() const
-{
-	return boost::polymorphic_cast<class Bones*>(this->parent());
-}
 
 inline long32 Bone::geosetId() const
 {

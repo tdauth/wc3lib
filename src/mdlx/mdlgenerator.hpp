@@ -70,7 +70,7 @@ class MdlGenerator
 		 * Therefore we use these attributes for all parsing operations.
 		 * Make it static that it only has to be allocated once which improves the performance when using multiple instances of class MdlGenerator.
 		 */
-		static client::MdlGenerator<IteratorType> grammar;
+		static const client::MdlGenerator<IteratorType> grammar;
 };
 
 }

@@ -19,7 +19,6 @@
  ***************************************************************************/
 
 #include "sequence.hpp"
-#include "../utilities.hpp"
 
 namespace wc3lib
 {
@@ -27,65 +26,8 @@ namespace wc3lib
 namespace mdlx
 {
 
-Sequence::Sequence(class Sequences *sequences) : GroupMdxBlockMember(sequences, "Anim")
+Sequence::Sequence()
 {
-}
-
-std::streamsize Sequence::readMdl(istream &istream)
-{
-	return 0;
-}
-
-std::streamsize Sequence::writeMdl(ostream &ostream) const
-{
-	std::streamsize size = 0;
-	writeMdlBlock(ostream, size, "Anim", this->name(), 0, true);
-	writeMdlVectorProperty(ostream, size, "Interval", Vertex2d<long32>(this->intervalStart(), this->intervalEnd()));
-
-	if (this->noLooping() == 1)
-		writeMdlProperty(ostream, size, "NonLooping");
-
-	if (this->moveSpeed() != 0.0)
-		writeMdlValueProperty(ostream, size, "MoveSpeed", this->moveSpeed());
-
-	if (this->rarity() != 0.0)
-		writeMdlValueProperty(ostream, size, "Rarity", this->rarity());
-
-	size += Bounds::writeMdl(ostream);
-
-	writeMdlBlockConclusion(ostream, size);
-
-	return size;
-}
-
-std::streamsize Sequence::readMdx(istream &istream)
-{
-	std::streamsize size = 0;
-	wc3lib::read(istream, m_name, size, nameSize);
-	wc3lib::read(istream, m_intervalStart, size);
-	wc3lib::read(istream, m_intervalEnd, size);
-	wc3lib::read(istream, m_moveSpeed, size);
-	wc3lib::read(istream, m_noLooping, size);
-	wc3lib::read(istream, m_rarity, size);
-	wc3lib::read(istream, m_unknown0, size);
-	size += Bounds::readMdx(istream);
-
-	return size;
-}
-
-std::streamsize Sequence::writeMdx(std::ostream &ostream) const
-{
-	std::streamsize size = 0;
-	wc3lib::write(ostream, this->name(), size, nameSize);
-	wc3lib::write(ostream, this->intervalStart(), size);
-	wc3lib::write(ostream, this->intervalEnd(), size);
-	wc3lib::write(ostream, this->moveSpeed(), size);
-	wc3lib::write(ostream, this->noLooping(), size);
-	wc3lib::write(ostream, this->rarity(), size);
-	wc3lib::write(ostream, this->unknown0(), size);
-	size += Bounds::writeMdx(ostream);
-
-	return size;
 }
 
 }

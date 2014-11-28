@@ -29,7 +29,7 @@
 #include "../../platform.hpp"
 #include "../../mdlgrammar.hpp"
 #include "../../interpolator.hpp"
-#include "../../geosetanimations.hpp"
+#include "../../geosetanimation.hpp"
 
 #ifndef BOOST_TEST_DYN_LINK
 #error Define BOOST_TEST_DYN_LINK for proper definition of main function.
@@ -52,11 +52,29 @@ BOOST_AUTO_TEST_CASE(GeosetAnim)
 	Mdlx result;
 	MdlGrammar grammar;
 	BOOST_REQUIRE(grammar.parse(in, result));
-	BOOST_REQUIRE(result.geosetAnimations() != 0);
-	BOOST_REQUIRE(result.geosetAnimations()->members().size() == 2);
+	BOOST_REQUIRE(result.geosetAnimations().size() == 2);
 
+	/*
+	 * first animation uses no interpolation which means that the directly bounding value is returned.
+	 */
+	const GeosetAnimation &animation = result.geosetAnimations().front();
+
+	BOOST_REQUIRE(animation.alphas().properties().size() == 3);
+	BOOST_REQUIRE(animation.alphas().lineType() == LineType::DontInterpolate);
+	BOOST_REQUIRE(animation.alphas().properties()[0].frame() == 0);
+	BOOST_CHECK_CLOSE(animation.alphas().properties()[0].values()[0], 0.0, 0.0001);
+	BOOST_REQUIRE(animation.alphas().properties()[1].frame() == 100);
+	BOOST_CHECK_CLOSE(animation.alphas().properties()[1].values()[0], 1.0, 0.0001);
+	BOOST_REQUIRE(animation.alphas().properties()[2].frame() == 200);
+	BOOST_CHECK_CLOSE(animation.alphas().properties()[2].values()[0], 2.0, 0.0001);
+
+
+	// TODO check values
 	Interpolator<1, float32> interpolator;
-	//interpolator.setAnimatedProperties(&result->geosetAnimations()->members().front());
+	interpolator.setAnimatedProperties(&animation.alphas());
 
-	//BOOST_REQUIRE(interpolator.animatedProperties() == &result->geosetAnimations()->members().front());
+	BOOST_REQUIRE(interpolator.animatedProperties() == &animation.alphas());
+	BOOST_CHECK_CLOSE(interpolator.calculate(0)[0], 0.0, 0.0001);
+	BOOST_CHECK_CLOSE(interpolator.calculate(100)[0], 1.0, 0.0001);
+	BOOST_CHECK_CLOSE(interpolator.calculate(200)[0], 2.0, 0.0001);
 }

@@ -21,34 +21,31 @@
 #ifndef WC3LIB_MDLX_MDLX_HPP
 #define WC3LIB_MDLX_MDLX_HPP
 
-#include "mdxblock.hpp"
+#include <vector>
+
+#include "platform.hpp"
+#include "model.hpp"
+#include "sequence.hpp"
+#include "material.hpp"
+#include "texture.hpp"
+#include "textureanimation.hpp"
+#include "geoset.hpp"
+#include "geosetanimation.hpp"
+#include "bone.hpp"
+#include "light.hpp"
+#include "attachment.hpp"
+#include "particleemitter.hpp"
+#include "particleemitter2.hpp"
+#include "ribbonemitter.hpp"
+#include "camera.hpp"
+#include "event.hpp"
+#include "collisionshape.hpp"
 
 namespace wc3lib
 {
 
 namespace mdlx
 {
-
-class Version;
-class Model;
-class Sequences;
-class GlobalSequences;
-class Materials;
-class Textures;
-class TextureAnimations;
-class Geosets;
-class GeosetAnimations;
-class Bones;
-class Lights;
-class Helpers;
-class Attachments;
-class PivotPoints;
-class ParticleEmitters;
-class ParticleEmitter2s;
-class RibbonEmitters;
-class Cameras;
-class Events;
-class CollisionShapes;
 
 /**
  * \brief One single model file from the MDX or the MDL format.
@@ -65,166 +62,227 @@ class CollisionShapes;
  * \todo OBJ == ?!
  * \todo KATV == float?!
  */
-class Mdlx : public MdxBlock
+class Mdlx
 {
 	public:
+		typedef std::vector<Sequence> Sequences;
+		typedef std::vector<long32> GlobalSequences;
+		typedef std::vector<Material> Materials;
+		typedef std::vector<Texture> Textures;
+		typedef std::vector<TextureAnimation> TextureAnimations;
+		typedef std::vector<Geoset> Geosets;
+		typedef std::vector<GeosetAnimation> GeosetAnimations;
+		typedef std::vector<Bone> Bones;
+		typedef std::vector<Light> Lights;
+		typedef std::vector<Object> Helpers;
+		typedef std::vector<Attachment> Attachments;
+		typedef std::vector<VertexData> PivotPoints;
+		typedef std::vector<ParticleEmitter> ParticleEmitters;
+		typedef std::vector<ParticleEmitter2> ParticleEmitter2s;
+		typedef std::vector<RibbonEmitter> RibbonEmitters;
+		typedef std::vector<Camera> Cameras;
+		typedef std::vector<Event> Events;
+		typedef std::vector<CollisionShape> CollisionShapes;
+
+		static const long32 currentVersion;
+
 		Mdlx();
 		virtual ~Mdlx();
 
-		void setModelVersion(Version *version);
-		Version* modelVersion() const;
-		Model* model() const;
-		Sequences* sequences() const;
-		GlobalSequences* globalSequences() const;
-		Materials* materials() const;
-		Textures* textures() const;
-		TextureAnimations* textureAnimations() const;
-		Geosets* geosets() const;
-		GeosetAnimations* geosetAnimations() const;
-		Bones* bones() const;
-		Lights* lights() const;
-		Helpers* helpers() const;
-		Attachments* attachments() const;
-		PivotPoints* pivotPoints() const;
-		ParticleEmitters* particleEmitters() const;
-		ParticleEmitter2s* particleEmitter2s() const;
-		RibbonEmitters* ribbonEmitters() const;
-		Cameras* cameras() const;
-		Events* events() const;
-		CollisionShapes* collisionShapes() const;
-
-		/**
-		 * Uses \ref MdlGrammar to parse the input stream \p istream for an MDL file.
-		 */
-		virtual std::streamsize readMdl(istream &istream);
-		virtual std::streamsize writeMdl(ostream &ostream) const;
-		virtual std::streamsize readMdx(istream &istream);
-		virtual std::streamsize writeMdx(ostream &ostream) const;
+		void setModelVersion(long32 version);
+		long32 modelVersion() const;
+		void setModel(const Model &model);
+		const Model& model() const;
+		void setSequence(const Sequences &sequences);
+		const Sequences& sequences() const;
+		void setGlobalSequences(const GlobalSequences &globalSequences);
+		const GlobalSequences& globalSequences() const;
+		void setTextures(const Textures &textures);
+		const Textures& textures() const;
+		void setMaterials(const Materials &materials);
+		const Materials& materials() const;
+		void setTextureAnimations(const TextureAnimations &textureAnimations);
+		const TextureAnimations& textureAnimations() const;
+		void setGeosets(const Geosets &geosets);
+		const Geosets& geosets() const;
+		void setGeosetAnimations(const GeosetAnimations &geosetAnimations);
+		const GeosetAnimations& geosetAnimations() const;
+		const Bones& bones() const;
+		const Lights& lights() const;
+		const Helpers& helpers() const;
+		const Attachments& attachments() const;
+		const PivotPoints& pivotPoints() const;
+		const ParticleEmitters& particleEmitters() const;
+		const ParticleEmitter2s& particleEmitter2s() const;
+		const RibbonEmitters& ribbonEmitters() const;
+		const Cameras& cameras() const;
+		const Events& events() const;
+		const CollisionShapes& collisionShapes() const;;
 
 	protected:
-		Version *m_version; //VERS
-		Model *m_model; //MODL
-		Sequences *m_sequences; //SEQS
-		GlobalSequences *m_globalSequences; //GLBS
-		Materials *m_materials; //MTLS
-		Textures *m_textures; //TEXS
-		TextureAnimations *m_textureAnimations; //TXAN
-		Geosets *m_geosets;
-		GeosetAnimations *m_geosetAnimations;
-		Bones *m_bones;
-		Lights *m_lights; //LITE
-		Helpers *m_helpers;
-		Attachments *m_attachments;
-		PivotPoints *m_pivotPoints; //PIVT
-		ParticleEmitters *m_particleEmitters; //PREM
-		ParticleEmitter2s *m_particleEmitter2s; //PRE2
-		RibbonEmitters *m_ribbonEmitters; //RIBB
-		Cameras *m_cameras;
-		Events *m_events;
-		CollisionShapes *m_collisionShapes;
+		long32 m_modelVersion;
+		Model m_model;
+		Sequences m_sequences;
+		GlobalSequences m_globalSequences;
+		Textures m_textures;
+		Materials m_materials;
+		TextureAnimations m_textureAnimations;
+		Geosets m_geosets;
+		GeosetAnimations m_geosetAnimations;
+		Bones m_bones;
+		Lights m_lights;
+		Helpers m_helpers;
+		Attachments m_attachments;
+		PivotPoints m_pivotPoints;
+		ParticleEmitters m_particleEmitters;
+		ParticleEmitter2s m_particleEmitter2s;
+		RibbonEmitters m_ribbonEmitters;
+		Cameras m_cameras;
+		Events m_events;
+		CollisionShapes m_collisionShapes;
 };
 
-inline void Mdlx::setModelVersion(Version *version)
+inline void Mdlx::setModelVersion(long32 version)
 {
-	this->m_version = version;
+	this->m_modelVersion = version;
 }
 
-inline Version* Mdlx::modelVersion() const
+inline long32 Mdlx::modelVersion() const
 {
-	return this->m_version;
+	return this->m_modelVersion;
 }
 
-inline Model* Mdlx::model() const
+inline void Mdlx::setModel(const Model &model)
+{
+	this->m_model = model;
+}
+
+inline const Model& Mdlx::model() const
 {
 	return this->m_model;
 }
 
-inline Sequences* Mdlx::sequences() const
+inline void Mdlx::setSequence(const Mdlx::Sequences &sequences)
+{
+	this->m_sequences = sequences;
+}
+
+inline const Mdlx::Sequences& Mdlx::sequences() const
 {
 	return this->m_sequences;
 }
 
-inline GlobalSequences* Mdlx::globalSequences() const
+inline void Mdlx::setGlobalSequences(const Mdlx::GlobalSequences &globalSequences)
+{
+	this->m_globalSequences = globalSequences;
+}
+
+inline const Mdlx::GlobalSequences& Mdlx::globalSequences() const
 {
 	return this->m_globalSequences;
 }
 
-inline Materials* Mdlx::materials() const
+inline void Mdlx::setTextures(const Mdlx::Textures &textures)
 {
-	return this->m_materials;
+	this->m_textures = textures;
 }
 
-inline Textures* Mdlx::textures() const
+inline const Mdlx::Textures& Mdlx::textures() const
 {
 	return this->m_textures;
 }
 
-inline TextureAnimations* Mdlx::textureAnimations() const
+inline void Mdlx::setMaterials(const Mdlx::Materials &materials)
+{
+	this->m_materials = materials;
+}
+
+inline const Mdlx::Materials& Mdlx::materials() const
+{
+	return this->m_materials;
+}
+
+inline void Mdlx::setTextureAnimations(const Mdlx::TextureAnimations &textureAnimations)
+{
+	this->m_textureAnimations = textureAnimations;
+}
+
+inline const Mdlx::TextureAnimations& Mdlx::textureAnimations() const
 {
 	return this->m_textureAnimations;
 }
 
-inline Geosets* Mdlx::geosets() const
+inline void Mdlx::setGeosets(const Geosets &geosets)
+{
+	this->m_geosets = geosets;
+}
+
+inline const Mdlx::Geosets& Mdlx::geosets() const
 {
 	return this->m_geosets;
 }
 
-inline GeosetAnimations* Mdlx::geosetAnimations() const
+inline void Mdlx::setGeosetAnimations(const Mdlx::GeosetAnimations& geosetAnimations)
+{
+	this->m_geosetAnimations = geosetAnimations;
+}
+
+inline const Mdlx::GeosetAnimations& Mdlx::geosetAnimations() const
 {
 	return this->m_geosetAnimations;
 }
 
-inline Bones* Mdlx::bones() const
+inline const Mdlx::Bones& Mdlx::bones() const
 {
 	return this->m_bones;
 }
 
-inline Lights* Mdlx::lights() const
+inline const Mdlx::Lights& Mdlx::lights() const
 {
 	return this->m_lights;
 }
 
-inline Helpers* Mdlx::helpers() const
+inline const Mdlx::Helpers& Mdlx::helpers() const
 {
 	return this->m_helpers;
 }
 
-inline Attachments* Mdlx::attachments() const
+inline const Mdlx::Attachments& Mdlx::attachments() const
 {
 	return this->m_attachments;
 }
 
-inline PivotPoints* Mdlx::pivotPoints() const
+inline const Mdlx::PivotPoints& Mdlx::pivotPoints() const
 {
 	return this->m_pivotPoints;
 }
 
-inline ParticleEmitters* Mdlx::particleEmitters() const
+inline const Mdlx::ParticleEmitters& Mdlx::particleEmitters() const
 {
 	return this->m_particleEmitters;
 }
 
-inline ParticleEmitter2s* Mdlx::particleEmitter2s() const
+inline const Mdlx::ParticleEmitter2s& Mdlx::particleEmitter2s() const
 {
 	return this->m_particleEmitter2s;
 }
 
-inline RibbonEmitters* Mdlx::ribbonEmitters() const
+inline const Mdlx::RibbonEmitters& Mdlx::ribbonEmitters() const
 {
 	return this->m_ribbonEmitters;
 }
 
-inline Cameras* Mdlx::cameras() const
+inline const Mdlx::Cameras& Mdlx::cameras() const
 {
 	return this->m_cameras;
 }
 
-inline Events* Mdlx::events() const
+inline const Mdlx::Events& Mdlx::events() const
 {
 	return this->m_events;
 }
 
-inline CollisionShapes* Mdlx::collisionShapes() const
+inline const Mdlx::CollisionShapes& Mdlx::collisionShapes() const
 {
 	return this->m_collisionShapes;
 }
