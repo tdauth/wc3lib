@@ -3,4 +3,6 @@ Additionally there is some useful applications and World Editor emulation librar
 Please consider that this version is NEITHER stable NOR usable yet!
 Check out http://wc3lib.org for further information.
 
+Define environment variable "WC3_DIR" to the Warcraft III directory to make some Unit Tests work.
+
 2012-09-17 Tamino Dauth <tamino@cdauth.eu>
