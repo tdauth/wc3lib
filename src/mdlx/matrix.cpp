@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2009 by Tamino Dauth                                    *
+ *   Copyright (C) 2014 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -19,7 +19,6 @@
  ***************************************************************************/
 
 #include "matrix.hpp"
-#include "../utilities.hpp"
 
 namespace wc3lib
 {
@@ -27,38 +26,8 @@ namespace wc3lib
 namespace mdlx
 {
 
-Matrix::Matrix(class Matrices *matrices) : GroupMdxBlockMember(matrices, "")
+Matrix::Matrix()
 {
-}
-
-Matrix::~Matrix()
-{
-}
-
-std::streamsize Matrix::readMdl(istream &istream)
-{
-	return 0;
-}
-
-std::streamsize Matrix::writeMdl(ostream &ostream) const
-{
-	return 0;
-}
-
-std::streamsize Matrix::readMdx(istream &istream)
-{
-	std::streamsize size = 0;
-	wc3lib::read(istream, this->m_data, size);
-
-	return size;
-}
-
-std::streamsize Matrix::writeMdx(ostream &ostream) const
-{
-	std::streamsize size = 0;
-	wc3lib::write(ostream, this->m_data, size);
-
-	return size;
 }
 
 }

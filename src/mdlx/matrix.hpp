@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2009 by Tamino Dauth                                    *
+ *   Copyright (C) 2014 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -21,8 +21,9 @@
 #ifndef WC3LIB_MDLX_MATRIX_HPP
 #define WC3LIB_MDLX_MATRIX_HPP
 
-#include "groupmdxblockmember.hpp"
-#include "matrices.hpp"
+#include <vector>
+
+#include "platform.hpp"
 
 namespace wc3lib
 {
@@ -30,36 +31,32 @@ namespace wc3lib
 namespace mdlx
 {
 
-class Matrix : public GroupMdxBlockMember
+class Matrix
 {
 	public:
-		Matrix(class Matrices *matrices);
-		virtual ~Matrix();
+		typedef std::vector<long32> Values;
 
-		class Matrices* matrices() const;
-		long32 data() const;
+		Matrix();
 
-		virtual std::streamsize readMdl(istream &istream);
-		virtual std::streamsize writeMdl(ostream &ostream) const;
-		virtual std::streamsize readMdx(istream &istream);
-		virtual std::streamsize writeMdx(ostream &ostream) const;
+		void setValues(const Values &values);
+		const Values& values() const;
 
-	protected:
-		long32 m_data;
+	private:
+		Values m_values;
 };
 
-inline class Matrices* Matrix::matrices() const
+inline void Matrix::setValues(const Values &values)
 {
-	return boost::polymorphic_cast<class Matrices*>(this->parent());
+	this->m_values = values;
 }
 
-inline long32 Matrix::data() const
+inline const Matrix::Values& Matrix::values() const
 {
-	return this->m_data;
+	return this->m_values;
 }
 
 }
 
 }
 
-#endif
+#endif // WC3LIB_MDLX_MATRIX_HPP
