@@ -75,13 +75,13 @@ inline const Bounds& Model::bounds() const
 
 inline void Model::setName(const string &name)
 {
-	if (name.size() > Model::nameSize)
+	if (name.size() + 1 > Model::nameSize)
 	{
 		throw Exception();
 	}
 
 	memset(this->m_name, 0, nameSize); // init name with 0 bytes
-	memcpy(this->m_name, name.c_str(), name.size()); // copy without 0 terminating string
+	memcpy(this->m_name, name.c_str(), name.size() + 1); // copy with 0 terminating string
 }
 
 inline void Model::setName(const byte name[Model::nameSize])

@@ -34,6 +34,11 @@ namespace jass
 
 namespace lex = boost::spirit::lex;
 
+/**
+ * \brief Different token types of the JASS scripting language.
+ *
+ * Each token is a std::size_t value and refers as ID for Boost Spirit token instances.
+ */
 enum class Token : std::size_t
 {
 	If,
@@ -43,8 +48,7 @@ enum class Token : std::size_t
 	EndFunction,
 	Takes,
 	Nothing,
-	Returns,
-	Max
+	Returns
 };
 
 /**
@@ -127,6 +131,7 @@ struct lexer : lex::lexer<Lexer>
 			(else_keyword, (std::size_t)Token::Else)
 			(function_keyword, (std::size_t)Token::Function)
 			(takes_keyword, (std::size_t)Token::Takes)
+			(returns_keyword, (std::size_t)Token::Returns)
 			(nothing_keyword, (std::size_t)Token::Nothing)
 			(endfunction_keyword, (std::size_t)Token::EndFunction)
 		;

@@ -108,7 +108,6 @@ struct MdlGrammar : qi::grammar<Iterator, Mdlx(), qi::locals<long32, long32, lon
 	 */
 	qi::rule<Iterator, Model(long32&, long32&), Skipper> model;
 	qi::rule<Iterator, long32(), Skipper> version;
-	qi::rule<Iterator, GeosetAnimation(), Skipper> geoset_animation;
 	qi::rule<Iterator, Sequence(), Skipper> sequence;
 	// pass the number of sequences as reference
 	qi::rule<Iterator, Mdlx::Sequences(long32&), Skipper, qi::locals<long32> > sequences;
@@ -143,16 +142,47 @@ struct MdlGrammar : qi::grammar<Iterator, Mdlx(), qi::locals<long32, long32, lon
 	 */
 	qi::rule<Iterator, Geoset(long32), Skipper> geoset;
 
+	qi::rule<Iterator, GeosetAnimation(), Skipper> geoset_animation;
+
+	/*
+	 * The following rules are required by all node chunks.
+	 */
+	qi::rule<Iterator, long32(), Skipper> object_id;
+	qi::rule<Iterator, long32(), Skipper> parent;
+	qi::rule<Iterator, Node::Type(), Skipper> node_type;
+
+	qi::rule<Iterator, Bone(), Skipper> bone;
+	qi::rule<Iterator, Light::LightType(), Skipper> light_type;
+	qi::rule<Iterator, Light(), Skipper> light;
+
+
 
 	qi::rule<Iterator, Bounds(), Skipper> bounds;
 
+
+	qi::rule<Iterator, Alpha(), Skipper> animated_1d_float_value;
+	qi::rule<Iterator, Alphas(), Skipper, qi::locals<long32> > animated_1d_float_values;
+
+	qi::rule<Iterator, Scaling(), Skipper> animated_3d_float_value;
+	qi::rule<Iterator, Scalings(), Skipper, qi::locals<long32> > animated_3d_float_values;
+
 	qi::rule<Iterator, float32(), Skipper> alpha;
-	qi::rule<Iterator, Alpha(), Skipper> animated_alpha;
 	qi::rule<Iterator, Alphas(), Skipper, qi::locals<long32> > animated_alphas;
 
+	qi::rule<Iterator, float32(), Skipper> visibility;
+	qi::rule<Iterator, Alphas(), Skipper, qi::locals<long32> > animated_visibilities;
+
+	qi::rule<Iterator, float32(), Skipper> intensity;
+	qi::rule<Iterator, Alphas(), Skipper, qi::locals<long32> > animated_intensities;
+
 	qi::rule<Iterator, VertexData(), Skipper> color;
-	qi::rule<Iterator, Scaling(), Skipper> animated_color;
 	qi::rule<Iterator, Scalings(), Skipper, qi::locals<long32> > animated_colors;
+
+	qi::rule<Iterator, float32(), Skipper> amb_intensity;
+	qi::rule<Iterator, Alphas(), Skipper, qi::locals<long32> > animated_amb_intensities;
+
+	qi::rule<Iterator, VertexData(), Skipper> amb_color;
+	qi::rule<Iterator, Scalings(), Skipper, qi::locals<long32> > animated_amb_colors;
 
 	qi::rule<Iterator, Translation(), Skipper> animated_translation;
 	qi::rule<Iterator, Translations(), Skipper, qi::locals<long32> > animated_translations;
@@ -399,6 +429,15 @@ namespace traits
 		static void call(Out& out, wc3lib::mdlx::Geoset const& val)
 		{
 			out << "geoset";
+		}
+	};
+
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Bone>
+	{
+		static void call(Out& out, wc3lib::mdlx::Bone const& val)
+		{
+			out << "bone";
 		}
 	};
 

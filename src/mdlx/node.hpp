@@ -72,13 +72,17 @@ class Node
 		static const std::size_t nameSize = 0x50;
 
 		Node();
+		virtual ~Node();
 
+		void setName(const string &name);
 		void setName(const byte name[nameSize]);
 		/**
 		 * \return Returns name with constant length of \ref nameSize.
 		 */
 		const byte* name() const;
-		long32 id() const;
+		void setObjectId(long32 objectId);
+		long32 objectId() const;
+		void setParentId(long32 parentId);
 		long32 parentId() const;
 		bool hasParent() const;
 		/**
@@ -99,7 +103,7 @@ class Node
 
 	protected:
 		byte m_name[nameSize];
-		long32 m_id;
+		long32 m_objectId;
 		long32 m_parentId;
 		Type m_type;
 		Translations m_translations;
@@ -107,9 +111,25 @@ class Node
 		Scalings m_scalings;
 };
 
+inline constexpr Node::Type operator|(Node::Type x, Node::Type y)
+{
+	return static_cast<Node::Type>(static_cast<long32>(x) | static_cast<long32>(y));
+}
+
 inline constexpr bool operator&(Node::Type x, Node::Type y)
 {
 	return static_cast<bool>(static_cast<long32>(x) & static_cast<long32>(y));
+}
+
+inline void Node::setName(const string& name)
+{
+	if (name.size() + 1 > Node::nameSize)
+	{
+		throw std::runtime_error("");
+	}
+
+	memset(this->m_name, 0, nameSize); // init name with 0 byte
+	memcpy(this->m_name, name.c_str(), name.size() + 1); // copy with 0 terminating character
 }
 
 inline void Node::setName(const byte name[Node::nameSize])
@@ -122,9 +142,19 @@ inline const byte* Node::name() const
 	return this->m_name;
 }
 
-inline long32 Node::id() const
+inline void Node::setObjectId(long32 objectId)
 {
-	return this->m_id;
+	this->m_objectId = objectId;
+}
+
+inline long32 Node::objectId() const
+{
+	return this->m_objectId;
+}
+
+inline void Node::setParentId(long32 parentId)
+{
+	this->m_parentId = parentId;
 }
 
 inline long32 Node::parentId() const

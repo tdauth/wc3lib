@@ -18,6 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+/*
+ * Tests different grammar rules for MDL files.
+ * Each test case is for one single rule.
+ * This allows easier detection of errors in the huge MDL grammar.
+ */
 #define BOOST_TEST_MODULE MdlReadTest
 #include <boost/test/unit_test.hpp>
 #include <sstream>
@@ -260,4 +265,93 @@ BOOST_AUTO_TEST_CASE(MdlGroups)
 	const Matrix &back = result.back();
 	BOOST_REQUIRE(back.values().size() == 1);
 	BOOST_REQUIRE(back.values()[0] == 48);
+}
+
+BOOST_AUTO_TEST_CASE(MdlBones)
+{
+	spiritTraceLog.close();
+	spiritTraceLog.open("mdlbones_traces.xml");
+
+	BOOST_REQUIRE(spiritTraceLog);
+
+	ifstream in("bones.mdl");
+
+	BOOST_REQUIRE(in);
+
+	client::MdlGrammar<MdlGrammar::PositionIteratorType, client::CommentSkipper<MdlGrammar::PositionIteratorType>> grammar;
+	client::CommentSkipper<MdlGrammar::PositionIteratorType> commentSkipper;
+
+	MdlGrammar::IteratorType first = MdlGrammar::IteratorType(in);
+	MdlGrammar::IteratorType last;
+
+	MdlGrammar::ForwardIteratorType forwardFirst = boost::spirit::make_default_multi_pass(first);
+	MdlGrammar::ForwardIteratorType forwardLast = boost::spirit::make_default_multi_pass(last); // TODO has to be created? Do we need this iterator to be passed?
+
+	// used for backtracking and more detailed error output
+	MdlGrammar::PositionIteratorType position_begin(forwardFirst);
+	MdlGrammar::PositionIteratorType position_end;
+
+	Mdlx::Bones result;
+
+	bool r = boost::spirit::qi::phrase_parse(
+			position_begin,
+			position_end,
+			+grammar.bone,
+			commentSkipper,
+			result
+	);
+
+	BOOST_REQUIRE(r);
+	BOOST_REQUIRE(first == last);
+	BOOST_REQUIRE(result.size() == 2);
+
+	const Bone &bone0 = result[0];
+	BOOST_CHECK(strcmp(bone0.name(), "grass213") == 0);
+	BOOST_CHECK(bone0.objectId() == 3);
+	BOOST_CHECK(bone0.geosetId() == 20);
+	BOOST_CHECK(bone0.hasNoneGeosetAnimationId());
+	BOOST_CHECK(bone0.rotations().properties().size() == 16);
+}
+
+BOOST_AUTO_TEST_CASE(MdlLights)
+{
+	spiritTraceLog.close();
+	spiritTraceLog.open("mdllights_traces.xml");
+
+	BOOST_REQUIRE(spiritTraceLog);
+
+	ifstream in("lights.mdl");
+
+	BOOST_REQUIRE(in);
+
+	client::MdlGrammar<MdlGrammar::PositionIteratorType, client::CommentSkipper<MdlGrammar::PositionIteratorType>> grammar;
+	client::CommentSkipper<MdlGrammar::PositionIteratorType> commentSkipper;
+
+	MdlGrammar::IteratorType first = MdlGrammar::IteratorType(in);
+	MdlGrammar::IteratorType last;
+
+	MdlGrammar::ForwardIteratorType forwardFirst = boost::spirit::make_default_multi_pass(first);
+	MdlGrammar::ForwardIteratorType forwardLast = boost::spirit::make_default_multi_pass(last); // TODO has to be created? Do we need this iterator to be passed?
+
+	// used for backtracking and more detailed error output
+	MdlGrammar::PositionIteratorType position_begin(forwardFirst);
+	MdlGrammar::PositionIteratorType position_end;
+
+	Mdlx::Lights result;
+
+	bool r = boost::spirit::qi::phrase_parse(
+			position_begin,
+			position_end,
+			+grammar.light,
+			commentSkipper,
+			result
+	);
+
+	BOOST_REQUIRE(r);
+	BOOST_REQUIRE(first == last);
+	BOOST_REQUIRE(result.size() == 4);
+
+	const Light &light0 = result[0];
+	BOOST_CHECK(strcmp(light0.name(), "Omni01") == 0);
+	BOOST_CHECK(light0.objectId() == 149);
 }

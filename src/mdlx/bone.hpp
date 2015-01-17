@@ -43,22 +43,46 @@ class Bone : public Object
 	public:
 		Bone();
 
+		void setGeosetId(long32 geosetId);
 		long32 geosetId() const;
+		bool hasMultipleGeosetIds() const;
+		void setGeosetAnimationId(long32 geosetAnimationId);
 		long32 geosetAnimationId() const;
+		bool hasNoneGeosetAnimationId() const;
 
 	protected:
 		long32 m_geosetId;
 		long32 m_geosetAnimationId;
 };
 
+inline void Bone::setGeosetId(long32 geosetId)
+{
+	this->m_geosetId = geosetId;
+}
+
 inline long32 Bone::geosetId() const
 {
 	return this->m_geosetId;
 }
 
+inline bool Bone::hasMultipleGeosetIds() const
+{
+	return this->geosetId() == -1;
+}
+
+inline void Bone::setGeosetAnimationId(long32 geosetAnimationId)
+{
+	this->m_geosetAnimationId = geosetAnimationId;
+}
+
 inline long32 Bone::geosetAnimationId() const
 {
 	return this->m_geosetAnimationId;
+}
+
+inline bool Bone::hasNoneGeosetAnimationId() const
+{
+	return this->geosetAnimationId() == -1;
 }
 
 }

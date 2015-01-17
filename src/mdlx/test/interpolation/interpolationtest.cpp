@@ -38,6 +38,11 @@
 using namespace wc3lib;
 using namespace wc3lib::mdlx;
 
+/*
+ * Tests the animated properties of a simple geoset animation with different types of interpolation.
+ * The Interpolator class should calculate the values given in the file using the same interpolation
+ * methods.
+ */
 BOOST_AUTO_TEST_CASE(GeosetAnim)
 {
 	spiritTraceLog.close();

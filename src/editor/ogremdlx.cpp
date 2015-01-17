@@ -141,7 +141,7 @@ void OgreMdlx::load()
 	}
 
 	std::ios_base::openmode openmode = std::ios_base::in;
-	bool isMdx = boost::filesystem::path(tmpFile.toStdString()).extension() == ".mdx";
+	const bool isMdx = boost::filesystem::path(tmpFile.toStdString()).extension() == ".mdx";
 
 	if (isMdx)
 	{
@@ -151,499 +151,466 @@ void OgreMdlx::load()
 	ifstream ifstream(tmpFile.toStdString(), openmode);
 
 	MdlxPtr model(new mdlx::Mdlx());
+	bool result = false;
 
-	std::streamsize size = isMdx ? size = model->readMdx(ifstream) : size = model->readMdl(ifstream);
-
-	//model->textures()->textures().size(); // TEST
-	qDebug() << "Size: " << size;
-
-	this->m_mdlx.swap(model);
-
-	Ogre::LogManager::getSingleton().setLogDetail(Ogre::LL_BOREME); // TEST
-
-	try
+	if (isMdx)
 	{
-		this->m_sceneNode = this->m_modelView->sceneManager()->getRootSceneNode()->createChildSceneNode(mdlx()->model()->name());
+		throw Exception(_("MDX is currently not supported."));
+	}
+	else
+	{
+		mdlx::MdlGrammar grammar;
+		result = grammar.parse(ifstream, *model);
+	}
 
-		// NOTE if you enable this, make sure auto tracking is removed when scene node is deleted
-		//this->modelView()->camera()->setAutoTracking(true, this->m_sceneNode); // camera follows ogre mdlx automatically
 
-		// build nodes
-		addMdlxNodes(*this->mdlx()->attachments());
-		addMdlxNodes(*this->mdlx()->bones());
-		addMdlxNodes(*this->mdlx()->collisionShapes());
-		addMdlxNodes(*this->mdlx()->events());
-		addMdlxNodes(*this->mdlx()->helpers());
-		addMdlxNodes(*this->mdlx()->lights());
-		addMdlxNodes(*this->mdlx()->particleEmitter2s());
-		addMdlxNodes(*this->mdlx()->particleEmitters());
-		addMdlxNodes(*this->mdlx()->ribbonEmitters());
+	if (result)
+	{
+		this->m_mdlx.swap(model);
 
-		mdlx::long32 id = 0;
+		Ogre::LogManager::getSingleton().setLogDetail(Ogre::LL_BOREME); // TEST
 
-		BOOST_FOREACH(mdlx::GeosetAnimations::Members::const_reference member, this->mdlx()->geosetAnimations()->members())
+		try
 		{
-			m_mdlxGeosetAnimations[id] = boost::polymorphic_cast<const mdlx::GeosetAnimation*>(&member);
-			++id;
-		}
+			this->m_sceneNode = this->m_modelView->sceneManager()->getRootSceneNode()->createChildSceneNode(mdlx()->model().name());
+
+			// NOTE if you enable this, make sure auto tracking is removed when scene node is deleted
+			//this->modelView()->camera()->setAutoTracking(true, this->m_sceneNode); // camera follows ogre mdlx automatically
+
+			// build nodes
+			BOOST_FOREACH(mdlx::Mdlx::Attachments::const_reference ref, this->mdlx()->attachments())
+			{
+				m_nodes[ref.objectId()] = &ref;
+			}
 
 
-		// create textures
-		id = 0;
+			BOOST_FOREACH(mdlx::Mdlx::Bones::const_reference ref, this->mdlx()->bones())
+			{
+				m_nodes[ref.objectId()] = &ref;
+			}
 
-		BOOST_FOREACH(mdlx::Textures::Members::const_reference member, this->mdlx()->textures()->members())
-		{
-			const mdlx::Texture *texture = boost::polymorphic_cast<const mdlx::Texture*>(&member);
-			this->m_textures[texture] = this->createTexture(*texture, id);
-			this->m_textureIds[id] = texture;
-			++id;
-		}
+			BOOST_FOREACH(mdlx::Mdlx::CollisionShapes::const_reference ref, this->mdlx()->collisionShapes())
+			{
+				m_nodes[ref.objectId()] = &ref;
+			}
 
-		// create materials
-		id = 0;
+			BOOST_FOREACH(mdlx::Mdlx::Events::const_reference ref, this->mdlx()->events())
+			{
+				m_nodes[ref.objectId()] = &ref;
+			}
 
-		BOOST_FOREACH(mdlx::Materials::Members::const_reference member, this->mdlx()->materials()->members())
-		{
-			const mdlx::Material *material = boost::polymorphic_cast<const mdlx::Material*>(&member);
-			this->m_materials[material] = this->createMaterial(*material, id);
-			this->m_materialIds[id] = material;
-			++id;
-		}
+			BOOST_FOREACH(mdlx::Mdlx::Helpers::const_reference ref, this->mdlx()->helpers())
+			{
+				m_nodes[ref.objectId()] = &ref;
+			}
 
-		// create geosets
-		id = 0;
+			BOOST_FOREACH(mdlx::Mdlx::Lights::const_reference ref, this->mdlx()->lights())
+			{
+				m_nodes[ref.objectId()] = &ref;
+			}
 
-		BOOST_FOREACH(mdlx::Geosets::Members::const_reference member, this->mdlx()->geosets()->members())
-		{
-			const mdlx::Geoset *geoset = boost::polymorphic_cast<const mdlx::Geoset*>(&member);
-			Ogre::ManualObject *mo = this->createGeoset(*geoset, id);
-			this->m_geosetIds.left.insert(std::make_pair(geoset, id));
-			Ogre::MeshPtr mesh = mo->convertToMesh(Ogre::String(geosetName(id) + ".mesh"));
-			this->m_geosets[geoset] = mesh;
-			//mesh->load();
+			BOOST_FOREACH(mdlx::Mdlx::ParticleEmitter2s::const_reference ref, this->mdlx()->particleEmitter2s())
+			{
+				m_nodes[ref.objectId()] = &ref;
+			}
 
-			// TODO one skeleton can be shared by multiple meshes
-			Ogre::SkeletonPtr skeleton = this->createSkeleton(Ogre::String(mdlx()->model()->name()) + "Skeleton" + geosetName(id));
+			BOOST_FOREACH(mdlx::Mdlx::ParticleEmitters::const_reference ref, this->mdlx()->particleEmitters())
+			{
+				m_nodes[ref.objectId()] = &ref;
+			}
 
-			qDebug() << "Skeleton name: " << skeleton->getName().c_str();
+			BOOST_FOREACH(mdlx::Mdlx::RibbonEmitters::const_reference ref, this->mdlx()->ribbonEmitters())
+			{
+				m_nodes[ref.objectId()] = &ref;
+			}
 
-			mesh->_notifySkeleton(skeleton);
-			mesh->setSkeletonName(skeleton->getName());
+			mdlx::long32 id = 0;
 
-			qDebug() << "Skeleton name 2: " << mesh->getSkeleton()->getName().c_str();
-			skeleton->createBone((boost::format("%1%.%2%.RootBone") % namePrefix().toStdString() % geosetName(id)).str().c_str(), boost::numeric_cast<unsigned short>(id)); // we need one root bone to create all other bones
+			BOOST_FOREACH(mdlx::Mdlx::GeosetAnimations::const_reference ref, this->mdlx()->geosetAnimations())
+			{
+				m_geosetAnimations[id] = &ref;
+				++id;
+			}
+
+			this->createTextures();
+			this->createMaterials();
+			this->createGeosets();
+			this->createCameras();
+			this->createCollisionShapes();
+
+			id = 0;
+
+			BOOST_FOREACH(mdlx::Mdlx::Sequences::const_reference ref, this->mdlx()->sequences())
+			{
+				Ogre::Animation* animation = modelView()->sceneManager()->createAnimation(Ogre::String(ref.name()), Ogre::Real(ref.length()));
+				animation->setInterpolationMode(Ogre::Animation::IM_LINEAR);
+
+				//animation->setInterpolationMode(Ogre::Animation::IM_SPLINE);
+
+				m_sequences[&ref] = animation;
+				m_sequenceIds[id] = &ref;
+
+				++id;
+			}
 
 			/*
-			mdlx::long32 seqId = 0;
+			* FIXME, fix root bone creation
+			id = 0;
 
-			BOOST_FOREACH(mdlx::Sequences::Members::const_reference member, this->mdlx()->sequences()->members())
+			BOOST_FOREACH(mdlx::Bones::Members::const_reference member, this->mdlx()->bones()->members())
 			{
-				const Ogre::Animation *animation = skeleton->createAnimation(sequenceName(*geoset, *boost::polymorphic_cast<const mdlx::Sequence*>(&member)), Ogre::Real(boost::polymorphic_cast<const mdlx::Sequence*>(&member)->length()));
-				// TODO assign animation to member
-				++seqId;
+				const mdlx::Bone *bone = boost::polymorphic_cast<const mdlx::Bone*>(&member);
+				this->createBone(*bone, id); // values are assigned to map in function due to recursive calls
+
+				++id;
 			}
 			*/
 
-			// TODO attach or create entities
-			//this->modelView()->sceneManager()->attachObject(mesh);
-			//mesh->load(); // Notify -Mesh object that it has been loaded
+			// WORKAROUND - each skeleton needs at least one root bone
+			id = 0;
+			qDebug() << "Before workaround";
+
+			BOOST_FOREACH(Geosets::reference ref, this->m_geosets)
+			{
+				Ogre::Skeleton *skeleton = ref.second->getSkeleton().get();
+				bool hasRootBone = false;
+
+				if (skeleton->getNumBones() > 0)
+				{
+					Ogre::Skeleton::BoneIterator iterator = skeleton->getBoneIterator();
 
 
-			++id;
+					while (iterator.hasMoreElements() && !hasRootBone)
+					{
+						Ogre::Bone *bone = iterator.getNext();
+
+						if (bone == 0)
+						{
+							qDebug() << "empty bone in geoset " << id;
+						}
+						else
+						{
+							qDebug() << "Not empty bone!";
+						}
+
+						if (bone != 0 && bone->getParent() == 0)
+						{
+							hasRootBone = true;
+						}
+					}
+				}
+
+				/*
+				if (!hasRootBone)
+				{
+					ref.second->getSkeleton()->createBone((boost::format("%1%.RootBone.%2%") % namePrefix().toStdString() % geosetName(id)).str().c_str());
+
+					qDebug() << "Geoset " << id << " has no bones!";
+				}
+
+				qDebug() << "root bone: " << ref.second->getSkeleton()->getRootBone()->getName().c_str();
+
+				++id;
+				*/
+			}
+
+			qDebug() << "After workaround";
 		}
-
-		// create cameras
-		id = 0;
-
-		BOOST_FOREACH(mdlx::Cameras::Members::const_reference member, this->mdlx()->cameras()->members())
+		catch (Ogre::Exception &exception)
 		{
-			const mdlx::Camera *camera = boost::polymorphic_cast<const mdlx::Camera*>(&member);
-			this->m_cameras[camera] = this->createCamera(*camera, id);
-			++id;
+			throw Exception(exception.what());
 		}
 
-		id = 0;
-
-		BOOST_FOREACH(mdlx::CollisionShapes::Members::const_reference member, this->mdlx()->collisionShapes()->members())
-		{
-			const mdlx::CollisionShape *collisionShape = boost::polymorphic_cast<const mdlx::CollisionShape*>(&member);
-			this->m_collisionShapes[collisionShape] = this->createCollisionShape(*collisionShape, id);
-			++id;
-		}
-
-		id = 0;
-
-		BOOST_FOREACH(mdlx::Sequences::Members::const_reference member, this->mdlx()->sequences()->members())
-		{
-			const mdlx::Sequence *sequence = boost::polymorphic_cast<const mdlx::Sequence*>(&member);
-			Ogre::Animation* animation = modelView()->sceneManager()->createAnimation(Ogre::String(sequence->name()), Ogre::Real(sequence->length()));
-			animation->setInterpolationMode(Ogre::Animation::IM_LINEAR);
-
-			//animation->setInterpolationMode(Ogre::Animation::IM_SPLINE);
-
-			m_sequences[sequence] = animation;
-			m_sequenceIds[id] = sequence;
-
-			++id;
-		}
-
+		Ogre::LogManager::getSingleton().setLogDetail(Ogre::LL_NORMAL); // TEST
+		// get new objects
 		/*
-		 * FIXME, fix root bone creation
-		id = 0;
+		std::list<const class Node*> nodes = this->m_mdlx->nodes();
 
-		BOOST_FOREACH(mdlx::Bones::Members::const_reference member, this->mdlx()->bones()->members())
+		BOOST_FOREACH(const class Node *node, nodes)
 		{
-			const mdlx::Bone *bone = boost::polymorphic_cast<const mdlx::Bone*>(&member);
-			this->createBone(*bone, id); // values are assigned to map in function due to recursive calls
-
-			++id;
+			if (this->m_nodes.find(node) != this->m_nodes.end())
+				nodes.remove(node);
 		}
 		*/
 
-		// WORKAROUND - each skeleton needs at least one root bone
-		id = 0;
-		qDebug() << "Before workaround";
-
-		BOOST_FOREACH(Geosets::reference ref, this->m_geosets)
-		{
-			Ogre::Skeleton *skeleton = ref.second->getSkeleton().get();
-			bool hasRootBone = false;
-
-			if (skeleton->getNumBones() > 0)
-			{
-				Ogre::Skeleton::BoneIterator iterator = skeleton->getBoneIterator();
-
-
-				while (iterator.hasMoreElements() && !hasRootBone)
-				{
-					Ogre::Bone *bone = iterator.getNext();
-
-					if (bone == 0)
-					{
-						qDebug() << "empty bone in geoset " << id;
-					}
-					else
-					{
-						qDebug() << "Not empty bone!";
-					}
-
-					if (bone != 0 && bone->getParent() == 0)
-					{
-						hasRootBone = true;
-					}
-				}
-			}
-
-			/*
-			if (!hasRootBone)
-			{
-				ref.second->getSkeleton()->createBone((boost::format("%1%.RootBone.%2%") % namePrefix().toStdString() % geosetName(id)).str().c_str());
-
-				qDebug() << "Geoset " << id << " has no bones!";
-			}
-
-			qDebug() << "root bone: " << ref.second->getSkeleton()->getRootBone()->getName().c_str();
-
-			++id;
-			*/
-		}
-
-		qDebug() << "After workaround";
-	}
-	catch (Ogre::Exception &exception)
-	{
-		throw Exception(exception.what());
-	}
-
-	Ogre::LogManager::getSingleton().setLogDetail(Ogre::LL_NORMAL); // TEST
-	// get new objects
-	/*
-	std::list<const class Node*> nodes = this->m_mdlx->nodes();
-
-	BOOST_FOREACH(const class Node *node, nodes)
-	{
-		if (this->m_nodes.find(node) != this->m_nodes.end())
-			nodes.remove(node);
-	}
-	*/
-
-	// setup nodes of new objects (inheritance)
-	/*
-	std::map<const class Node*, Ogre::Node*> newNodes(this->setupInheritance(nodes));
-
-	BOOST_FOREACH(NodePairType nodePair, newNodes)
-		this->m_nodes.insert(nodePair);
-	*/
-
-
-	// refresh model
-	/*
-	class Ogre::MeshManager *meshManager = Ogre::MeshManager::getSingletonPtr();
-
-	if (this->m_mesh.isNull())
-		this->m_mesh = meshManager->createManual(this->m_mdlx->model()->name(), "MDLX");
-
-	//else if (this->m_mesh->
-	/// @todo bounds radius, minimum and maximum extent are for Warcraft rendering only?
-	this->m_mesh->_setBoundingSphereRadius(this->m_mdlx->model()->boundsRadius());
-	this->m_mesh->_setBounds(Ogre::AxisAlignedBox(
-		this->m_mdlx->model()->minimumExtent().x,
-		this->m_mdlx->model()->minimumExtent().y,
-		this->m_mdlx->model()->minimumExtent().z,
-		this->m_mdlx->model()->maximumExtent().x,
-		this->m_mdlx->model()->maximumExtent().y,
-		this->m_mdlx->model()->maximumExtent().z
-		)
-	);
-	*/
-
-	// refresh sequences
-
-	//* 	createAnimation (const String &name, Real length)
-
-
-	// refresh global sequences
-	// Global sequences are played for all sequences!
-	/*
-	std::size_t i = 0;
-
-	BOOST_FOREACH(const class GlobalSequence *globalSequence, this->m_mdlx->globalSequences()->globalSequences())
-	{
-		if (this->m_nodes.find(static_cast<const class Object*>(globalSequence)) == this->m_nodes.end())
-			this->m_nodes[globalSequence] = this->m_mesh->createAnimation(boost::str(boost::format(_("Global Sequence - %1%")) % i), globalSequence->duration());
-	}
-	*/
-
-	// refresh geosets
-	/// ...
-	// std::size_t i = 0;
-
-	//BOOST_FOREACH(const class Geoset *geoset, this->m_mdlx->geosets()->geosets())
-	//{
-	//	const class Geoset &rGeoset = *geoset;
-	//	Ogre::SceneNode *node = sceneManager.createSceneNode();
-	//	node->attachObject(this->createGeoset(rGeoset));
-	//}
+		// setup nodes of new objects (inheritance)
 		/*
-		std::map<const class Geoset*, Ogre::MeshPtr>::iterator iterator = this->m_geosets.find(geoset);
-		Ogre::MeshPtr geosetMesh;
-		std::string name;
+		std::map<const class Node*, Ogre::Node*> newNodes(this->setupInheritance(nodes));
 
-		if (iterator == this->m_geosets.end())
-		{
-			name = boost::str(boost::format(_("Geoset - %1%")) % i);
-			geosetMesh = meshManager->createManual(boost::str(boost::format(_("%1% - %2%")) % this->m_mdlx->model()->name() % name), "MDLX");
-			this->m_geosets[geoset] = geosetMesh;
-		}
-		else
-		{
-			geosetMesh = iterator->second;
-			name = geosetMesh->getName();
-		}
+		BOOST_FOREACH(NodePairType nodePair, newNodes)
+			this->m_nodes.insert(nodePair);
+		*/
 
-		geosetMesh->_setBoundingSphereRadius(geoset->boundsRadius());
-		geosetMesh->_setBounds(Ogre::AxisAlignedBox(
-			geoset->minimumExtent().x,
-			geoset->minimumExtent().y,
-			geoset->minimumExtent().z,
-			geoset->maximumExtent().x,
-			geoset->maximumExtent().y,
-			geoset->maximumExtent().z
+
+		// refresh model
+		/*
+		class Ogre::MeshManager *meshManager = Ogre::MeshManager::getSingletonPtr();
+
+		if (this->m_mesh.isNull())
+			this->m_mesh = meshManager->createManual(this->m_mdlx->model()->name(), "MDLX");
+
+		//else if (this->m_mesh->
+		/// @todo bounds radius, minimum and maximum extent are for Warcraft rendering only?
+		this->m_mesh->_setBoundingSphereRadius(this->m_mdlx->model()->boundsRadius());
+		this->m_mesh->_setBounds(Ogre::AxisAlignedBox(
+			this->m_mdlx->model()->minimumExtent().x,
+			this->m_mdlx->model()->minimumExtent().y,
+			this->m_mdlx->model()->minimumExtent().z,
+			this->m_mdlx->model()->maximumExtent().x,
+			this->m_mdlx->model()->maximumExtent().y,
+			this->m_mdlx->model()->maximumExtent().z
 			)
 		);
-
-		//Ogre::SubMesh *subMesh = this->m_mesh->createSubMesh(name.c_str());
-		std::string verticesPoseName = boost::str(boost::format(_("%1% - Vertices Pose")) % name);
-		class Ogre::Pose *verticesPose = geosetMesh->createPose(i + 1, verticesPoseName.c_str());
-		std::size_t j = 0;
-
-		BOOST_FOREACH(const class Vertex *vertex, geoset->vertices()->vertices())
-		{
-			verticesPose->addVertex(j, Ogre::Vector3(vertex->vertexData().x, vertex->vertexData().y, vertex->vertexData().z));
-			++j;
-		}
-
-		std::string normalsPoseName = boost::str(boost::format(_("%1% - Normals Pose")) % name);
-		class Ogre::Pose *normalsPose = geosetMesh->createPose(i + 1, normalsPoseName.c_str());
-		j = 0;
-
-		BOOST_FOREACH(const class Normal *normal, geoset->normals()->normals())
-		{
-			normalsPose->addVertex(j, Ogre::Vector3(normal->vertexData().x, normal->vertexData().y, normal->vertexData().z));
-			++j;
-		}
-
-		// primitives data
-		// vertex group data
-
-		//subMesh->vertexData()
-		//subMesh->vertexData()void 	setMaterialName (const String &matName)
 		*/
+
+		// refresh sequences
+
+		//* 	createAnimation (const String &name, Real length)
+
+
+		// refresh global sequences
+		// Global sequences are played for all sequences!
 		/*
-		std::list<const class Bone*> geosetBones;
+		std::size_t i = 0;
 
-		// Bones
-		BOOST_FOREACH(const class Bone *bone, this->m_mdlx->bones()->bones())
+		BOOST_FOREACH(const class GlobalSequence *globalSequence, this->m_mdlx->globalSequences()->globalSequences())
 		{
-			if (geoset == this->m_mdlx->boneGeoset(*bone))
+			if (this->m_nodes.find(static_cast<const class Object*>(globalSequence)) == this->m_nodes.end())
+				this->m_nodes[globalSequence] = this->m_mesh->createAnimation(boost::str(boost::format(_("Global Sequence - %1%")) % i), globalSequence->duration());
+		}
+		*/
+
+		// refresh geosets
+		/// ...
+		// std::size_t i = 0;
+
+		//BOOST_FOREACH(const class Geoset *geoset, this->m_mdlx->geosets()->geosets())
+		//{
+		//	const class Geoset &rGeoset = *geoset;
+		//	Ogre::SceneNode *node = sceneManager.createSceneNode();
+		//	node->attachObject(this->createGeoset(rGeoset));
+		//}
+			/*
+			std::map<const class Geoset*, Ogre::MeshPtr>::iterator iterator = this->m_geosets.find(geoset);
+			Ogre::MeshPtr geosetMesh;
+			std::string name;
+
+			if (iterator == this->m_geosets.end())
 			{
-				geosetBones.push_back(bone);
+				name = boost::str(boost::format(_("Geoset - %1%")) % i);
+				geosetMesh = meshManager->createManual(boost::str(boost::format(_("%1% - %2%")) % this->m_mdlx->model()->name() % name), "MDLX");
+				this->m_geosets[geoset] = geosetMesh;
+			}
+			else
+			{
+				geosetMesh = iterator->second;
+				name = geosetMesh->getName();
+			}
 
-				Ogre::Node *node = this->m_nodes[bone];
+			geosetMesh->_setBoundingSphereRadius(geoset->boundsRadius());
+			geosetMesh->_setBounds(Ogre::AxisAlignedBox(
+				geoset->minimumExtent().x,
+				geoset->minimumExtent().y,
+				geoset->minimumExtent().z,
+				geoset->maximumExtent().x,
+				geoset->maximumExtent().y,
+				geoset->maximumExtent().z
+				)
+			);
 
-				// hasn't already been created by parent
-				if (!bone->hasParent() || this->m_bones.find(bone) != this->m_bones.end())
+			//Ogre::SubMesh *subMesh = this->m_mesh->createSubMesh(name.c_str());
+			std::string verticesPoseName = boost::str(boost::format(_("%1% - Vertices Pose")) % name);
+			class Ogre::Pose *verticesPose = geosetMesh->createPose(i + 1, verticesPoseName.c_str());
+			std::size_t j = 0;
+
+			BOOST_FOREACH(const class Vertex *vertex, geoset->vertices()->vertices())
+			{
+				verticesPose->addVertex(j, Ogre::Vector3(vertex->vertexData().x, vertex->vertexData().y, vertex->vertexData().z));
+				++j;
+			}
+
+			std::string normalsPoseName = boost::str(boost::format(_("%1% - Normals Pose")) % name);
+			class Ogre::Pose *normalsPose = geosetMesh->createPose(i + 1, normalsPoseName.c_str());
+			j = 0;
+
+			BOOST_FOREACH(const class Normal *normal, geoset->normals()->normals())
+			{
+				normalsPose->addVertex(j, Ogre::Vector3(normal->vertexData().x, normal->vertexData().y, normal->vertexData().z));
+				++j;
+			}
+
+			// primitives data
+			// vertex group data
+
+			//subMesh->vertexData()
+			//subMesh->vertexData()void 	setMaterialName (const String &matName)
+			*/
+			/*
+			std::list<const class Bone*> geosetBones;
+
+			// Bones
+			BOOST_FOREACH(const class Bone *bone, this->m_mdlx->bones()->bones())
+			{
+				if (geoset == this->m_mdlx->boneGeoset(*bone))
 				{
-					this->m_bones[bone] = geosetMesh->getSkeleton()->createBone(bone->name());
+					geosetBones.push_back(bone);
+
+					Ogre::Node *node = this->m_nodes[bone];
+
+					// hasn't already been created by parent
+					if (!bone->hasParent() || this->m_bones.find(bone) != this->m_bones.end())
+					{
+						this->m_bones[bone] = geosetMesh->getSkeleton()->createBone(bone->name());
+					}
+					// else, has already been created
+
+					Ogre::Bone *ogreBone = this->m_bones[bone];
+
+					std::list<const class Node*> children = this->m_mdlx->children(*bone);
+
+					BOOST_FOREACH(const class Node *node, children)
+					{
+						const class Bone *childBone = static_cast<const class Bone*>(node);
+						Ogre::Bone *ogreChildBone = geosetMesh->getSkeleton()->createBone(childBone->name());
+						ogreBone->addChild(ogreChildBone);
+					}
 				}
-				// else, has already been created
+			}
+			*/
 
-				Ogre::Bone *ogreBone = this->m_bones[bone];
+		//}
 
-				std::list<const class Node*> children = this->m_mdlx->children(*bone);
+		// apply object inhertance modifiers with pivot points
+		/// @todo Consider pivot points and the fact that this function is called for refreshment not initial placement.
+		/*
+		BOOST_FOREACH(NodePairType nodePair, this->m_nodes)
+		{
+			const class Node *node = nodePair.first;
+			Ogre::Node *node = nodePair.second;
+			long32 currentSequenceId = 0; /// @todo Set by animation?
+			long32 currentFrame = 0; /// @todo Set by animation?
 
-				BOOST_FOREACH(const class Node *node, children)
+			// If the object has pivot point it uses its own orientation and not the parent's one.
+			const class PivotPoint *pivotPoint = this->m_mdlx->objectPivotPoint(*object);
+
+			// Ogre: Note that rotations are oriented around the node's origin.
+			if (pivotPoint == 0)
+			{
+				node->setInheritOrientation(true);
+			}
+			else
+			{
+				node->setInheritOrientation(false);
+				node->setOrientation(0.0, /// @todo Real w???, aren't same as pivot points?
+					pivotPoint->x(),
+					pivotPoint->y(),
+					pivotPoint->z()
+					);
+			}
+
+			if (object->hasParent())
+			{
+				if (object->inheritsTranslation() && (!object->translations()->hasGlobalSequence() || object->translations()->globalSequenceId() == currentSequenceId))
 				{
-					const class Bone *childBone = static_cast<const class Bone*>(node);
-					Ogre::Bone *ogreChildBone = geosetMesh->getSkeleton()->createBone(childBone->name());
-					ogreBone->addChild(ogreChildBone);
+					BOOST_FOREACH(const class MdlxTranslation *translation, object->translations()->mdlxTranslations())
+					{
+						if (translation->frame() == currentFrame)
+						{
+							switch (object->translations()->lineType())
+							{
+								case DontInterpolate:
+									node->translate(translation->vertexData().x, translation->vertexData().y, translation->vertexData().z, Ogre::Node::TS_PARENT);
+
+									break;
+
+								case Linear:
+									/// @todo FIXME
+
+									break;
+
+								case Hermite:
+									/// @todo FIXME
+
+									break;
+
+								case Bezier:
+									/// @todo FIXME
+
+									break;
+							}
+						}
+					}
+				}
+
+				if (object->inheritsRotation() && (!object->rotations()->hasGlobalSequence() || object->rotations()->globalSequenceId() == currentSequenceId))
+				{
+					BOOST_FOREACH(const class MdlxRotation *rotation, object->rotations()->mdlxRotations())
+					{
+						if (rotation->frame() == currentFrame)
+						{
+							switch (object->rotations()->lineType())
+							{
+								case DontInterpolate:
+									node->rotate(Ogre::Quaternion(rotation->quaternionData().a, rotation->quaternionData().b, rotation->quaternionData().c, rotation->quaternionData().d), Ogre::Node::TS_PARENT);
+
+									break;
+
+								case Linear:
+									/// @todo FIXME
+
+									break;
+
+								case Hermite:
+									/// @todo FIXME
+
+									break;
+
+								case Bezier:
+									/// @todo FIXME
+
+									break;
+							}
+						}
+					}
+				}
+
+				if (object->inheritsScaling() && (!object->scalings()->hasGlobalSequence() || object->scalings()->globalSequenceId() == currentSequenceId))
+				{
+					node->setInheritScale(true);
+
+					BOOST_FOREACH(const class MdlxScaling *scaling, object->scalings()->mdlxScalings())
+					{
+						if (scaling->frame() == currentFrame)
+						{
+							switch (object->scalings()->lineType())
+							{
+								case DontInterpolate:
+									node->scale(Ogre::Vector3(scaling->vertexData().x, scaling->vertexData().y, scaling->vertexData().z));
+
+									break;
+
+								case Linear:
+									/// @todo FIXME
+
+									break;
+
+								case Hermite:
+									/// @todo FIXME
+
+									break;
+
+								case Bezier:
+									/// @todo FIXME
+
+									break;
+							}
+						}
+					}
 				}
 			}
 		}
 		*/
-
-	//}
-
-	// apply object inhertance modifiers with pivot points
-	/// @todo Consider pivot points and the fact that this function is called for refreshment not initial placement.
-	/*
-	BOOST_FOREACH(NodePairType nodePair, this->m_nodes)
-	{
-		const class Node *node = nodePair.first;
-		Ogre::Node *node = nodePair.second;
-		long32 currentSequenceId = 0; /// @todo Set by animation?
-		long32 currentFrame = 0; /// @todo Set by animation?
-
-		// If the object has pivot point it uses its own orientation and not the parent's one.
-		const class PivotPoint *pivotPoint = this->m_mdlx->objectPivotPoint(*object);
-
-		// Ogre: Note that rotations are oriented around the node's origin.
-		if (pivotPoint == 0)
-		{
-			node->setInheritOrientation(true);
-		}
-		else
-		{
-			node->setInheritOrientation(false);
-			node->setOrientation(0.0, /// @todo Real w???, aren't same as pivot points?
-				pivotPoint->x(),
-				pivotPoint->y(),
-				pivotPoint->z()
-				);
-		}
-
-		if (object->hasParent())
-		{
-			if (object->inheritsTranslation() && (!object->translations()->hasGlobalSequence() || object->translations()->globalSequenceId() == currentSequenceId))
-			{
-				BOOST_FOREACH(const class MdlxTranslation *translation, object->translations()->mdlxTranslations())
-				{
-					if (translation->frame() == currentFrame)
-					{
-						switch (object->translations()->lineType())
-						{
-							case DontInterpolate:
-								node->translate(translation->vertexData().x, translation->vertexData().y, translation->vertexData().z, Ogre::Node::TS_PARENT);
-
-								break;
-
-							case Linear:
-								/// @todo FIXME
-
-								break;
-
-							case Hermite:
-								/// @todo FIXME
-
-								break;
-
-							case Bezier:
-								/// @todo FIXME
-
-								break;
-						}
-					}
-				}
-			}
-
-			if (object->inheritsRotation() && (!object->rotations()->hasGlobalSequence() || object->rotations()->globalSequenceId() == currentSequenceId))
-			{
-				BOOST_FOREACH(const class MdlxRotation *rotation, object->rotations()->mdlxRotations())
-				{
-					if (rotation->frame() == currentFrame)
-					{
-						switch (object->rotations()->lineType())
-						{
-							case DontInterpolate:
-								node->rotate(Ogre::Quaternion(rotation->quaternionData().a, rotation->quaternionData().b, rotation->quaternionData().c, rotation->quaternionData().d), Ogre::Node::TS_PARENT);
-
-								break;
-
-							case Linear:
-								/// @todo FIXME
-
-								break;
-
-							case Hermite:
-								/// @todo FIXME
-
-								break;
-
-							case Bezier:
-								/// @todo FIXME
-
-								break;
-						}
-					}
-				}
-			}
-
-			if (object->inheritsScaling() && (!object->scalings()->hasGlobalSequence() || object->scalings()->globalSequenceId() == currentSequenceId))
-			{
-				node->setInheritScale(true);
-
-				BOOST_FOREACH(const class MdlxScaling *scaling, object->scalings()->mdlxScalings())
-				{
-					if (scaling->frame() == currentFrame)
-					{
-						switch (object->scalings()->lineType())
-						{
-							case DontInterpolate:
-								node->scale(Ogre::Vector3(scaling->vertexData().x, scaling->vertexData().y, scaling->vertexData().z));
-
-								break;
-
-							case Linear:
-								/// @todo FIXME
-
-								break;
-
-							case Hermite:
-								/// @todo FIXME
-
-								break;
-
-							case Bezier:
-								/// @todo FIXME
-
-								break;
-						}
-					}
-				}
-			}
-		}
 	}
-	*/
 }
 
 void OgreMdlx::reload()
@@ -710,23 +677,27 @@ void OgreMdlx::save(const KUrl &url, const QString &format) const
 			throw Exception(boost::format(_("Error when opening file \"%1%\".")) % tmpFile.fileName().toStdString());
 		}
 
-		std::streamsize size;
+		bool result = false;
 
 		if (isMdx)
 		{
-			size = mdlx()->writeMdx(ofstream);
+			throw Exception(_("MDX is not supported."));
 		}
 		else
 		{
-			size = mdlx()->writeMdl(ofstream);
+			mdlx::MdlGenerator generator;
+			result = generator.generate(ofstream, *this->mdlx());
 		}
 
-		if (!source()->upload(tmpFile.fileName(), url, modelView()))
+		if (result)
 		{
-			throw Exception(boost::format(_("Error while uploading file \"%1%\" to destination \"%2%\".")) % tmpFile.fileName().toStdString() % url.toEncoded().constData());
-		}
+			if (!source()->upload(tmpFile.fileName(), url, modelView()))
+			{
+				throw Exception(boost::format(_("Error while uploading file \"%1%\" to destination \"%2%\".")) % tmpFile.fileName().toStdString() % url.toEncoded().constData());
+			}
 
-		QMessageBox::information(modelView(), QObject::tr("Done"), QObject::tr("Wrote %1 file \"%2\" successfully.\nSize: %3.").arg(isMdx ? QObject::tr("MDX") : QObject::tr("MDL")).arg(url.toEncoded().constData()).arg(sizeStringBinary(size).c_str()));
+			QMessageBox::information(modelView(), QObject::tr("Done"), QObject::tr("Wrote %1 file \"%2\" successfully.").arg(isMdx ? QObject::tr("MDX") : QObject::tr("MDL")).arg(url.toEncoded().constData()));
+		}
 	}
 	else if (realFormat == "mesh")
 	{
@@ -845,14 +816,14 @@ Ogre::Node* OgreMdlx::createNode(const mdlx::Node &node)
 
 void OgreMdlx::createNodeAnimatedProperties(const mdlx::Node &node, Ogre::Node *ogreNode)
 {
-	createAnimatedProperties(ogreNode, 0, *node.translations());
-	createAnimatedProperties(ogreNode, 1, *node.scalings());
-	createAnimatedProperties(ogreNode, 2, *node.rotations());
+	createAnimatedProperties(ogreNode, 0, node.translations());
+	createAnimatedProperties(ogreNode, 1, node.scalings());
+	createAnimatedProperties(ogreNode, 2, node.rotations());
 }
 
 QString OgreMdlx::namePrefix() const
 {
-	return this->mdlx()->model()->name();
+	return this->mdlx()->model().name();
 }
 
 /*
@@ -876,12 +847,16 @@ bool OgreMdlx::useDirectoryUrl(KUrl &url, bool showMessage) const
 }
 */
 
-void OgreMdlx::addMdlxNodes(const mdlx::GroupMdxBlock &block)
+void OgreMdlx::createTextures()
 {
-	BOOST_FOREACH(mdlx::Bones::Members::const_reference member, block.members())
+	// create textures
+	mdlx::long32 id = 0;
+
+	BOOST_FOREACH(mdlx::Mdlx::Textures::const_reference ref, this->mdlx()->textures())
 	{
-		const mdlx::Node *node = boost::polymorphic_cast<const mdlx::Node*>(&member);
-		m_mdlxNodes[node->id()] = node;
+		this->m_textures[&ref] = this->createTexture(ref, id);
+		this->m_textureIds[id] = &ref;
+		++id;
 	}
 }
 
@@ -1140,9 +1115,22 @@ Ogre::TextureUnitState* OgreMdlx::createLayer(Ogre::Pass *pass, const mdlx::Laye
 	return state;
 }
 
-Ogre::MaterialPtr OgreMdlx::createMaterial(const class mdlx::Material &material, mdlx::long32 id)
+void OgreMdlx::createMaterials()
 {
-	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create((boost::format("%1%.Material%2%") % namePrefix().toStdString() % id).str().c_str(), Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME); // material->mdlx()->model()->name()
+	// create materials
+	mdlx::long32 id = 0;
+
+	BOOST_FOREACH(mdlx::Mdlx::Materials::const_reference ref, this->mdlx()->materials())
+	{
+		this->m_materials[&ref] = this->createMaterial(ref, id);
+		this->m_materialIds[id] = &ref;
+		++id;
+	}
+}
+
+Ogre::MaterialPtr OgreMdlx::createMaterial(const mdlx::Material &material, mdlx::long32 id)
+{
+	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create((boost::format("%1%.Material%2%") % namePrefix().toUtf8().constData() % id).str().c_str(), Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME); // material->mdlx()->model()->name()
 
 	// properties
 	/*
@@ -1171,9 +1159,8 @@ Ogre::MaterialPtr OgreMdlx::createMaterial(const class mdlx::Material &material,
 
 	mat->removeAllTechniques(); // there's always one default technique
 
-	BOOST_FOREACH(mdlx::Layers::Members::const_reference member, material.layers()->members())
+	BOOST_FOREACH(mdlx::Material::Layers::const_reference ref, material.layers())
 	{
-		const mdlx::Layer &layer = dynamic_cast<const mdlx::Layer&>(member);
 		Ogre::Technique *technique = mat->createTechnique();
 		technique->removeAllPasses(); // there shouldn't be any default pass, anyway, we want to make sure
 		Ogre::Pass *pass = technique->createPass();
@@ -1192,7 +1179,7 @@ Ogre::MaterialPtr OgreMdlx::createMaterial(const class mdlx::Material &material,
 		// TEST END
 
 		technique->setLightingEnabled(false); // default value
-		createLayer(pass, layer);
+		createLayer(pass, ref);
 
 		/*
 		Texture animation stuff
@@ -1226,6 +1213,50 @@ Ogre::MaterialPtr OgreMdlx::createMaterial(const class mdlx::Material &material,
 	return mat;
 }
 
+void OgreMdlx::createGeosets()
+{
+	// create geosets
+	mdlx::long32 id = 0;
+
+	BOOST_FOREACH(mdlx::Mdlx::Geosets::const_reference ref, this->mdlx()->geosets())
+	{
+		Ogre::ManualObject *mo = this->createGeoset(ref, id);
+		this->m_geosetIds.left.insert(std::make_pair(&ref, id));
+		Ogre::MeshPtr mesh = mo->convertToMesh(Ogre::String(geosetName(id) + ".mesh"));
+		this->m_geosets[&ref] = mesh;
+		//mesh->load();
+
+		// TODO one skeleton can be shared by multiple meshes
+		Ogre::SkeletonPtr skeleton = this->createSkeleton(Ogre::String(mdlx()->model().name()) + "Skeleton" + geosetName(id));
+
+		qDebug() << "Skeleton name: " << skeleton->getName().c_str();
+
+		mesh->_notifySkeleton(skeleton);
+		mesh->setSkeletonName(skeleton->getName());
+
+		qDebug() << "Skeleton name 2: " << mesh->getSkeleton()->getName().c_str();
+		skeleton->createBone((boost::format("%1%.%2%.RootBone") % namePrefix().toUtf8().constData() % geosetName(id)).str().c_str(), boost::numeric_cast<unsigned short>(id)); // we need one root bone to create all other bones
+
+		/*
+		mdlx::long32 seqId = 0;
+
+		BOOST_FOREACH(mdlx::Sequences::Members::const_reference member, this->mdlx()->sequences()->members())
+		{
+			const Ogre::Animation *animation = skeleton->createAnimation(sequenceName(*geoset, *boost::polymorphic_cast<const mdlx::Sequence*>(&member)), Ogre::Real(boost::polymorphic_cast<const mdlx::Sequence*>(&member)->length()));
+			// TODO assign animation to member
+			++seqId;
+		}
+		*/
+
+		// TODO attach or create entities
+		//this->modelView()->sceneManager()->attachObject(mesh);
+		//mesh->load(); // Notify -Mesh object that it has been loaded
+
+
+		++id;
+	}
+}
+
 Ogre::ManualObject* OgreMdlx::createGeoset(const mdlx::Geoset &geoset, mdlx::long32 id)
 {
 	qDebug() << "Creating geoset";
@@ -1236,7 +1267,7 @@ Ogre::ManualObject* OgreMdlx::createGeoset(const mdlx::Geoset &geoset, mdlx::lon
 	// get corresponding material by id
 	// TODO built up binary tree before
 
-	const class mdlx::Material *material = 0;
+	const mdlx::Material *material = 0;
 
 	MaterialIds::const_iterator iterator = m_materialIds.find(geoset.materialId());
 
@@ -1251,29 +1282,29 @@ Ogre::ManualObject* OgreMdlx::createGeoset(const mdlx::Geoset &geoset, mdlx::lon
 	//object->setRenderQueueGroupAndPriority(object->getRenderQueueGroup(), boost::numeric_cast<Ogre::ushort>(material->priorityPlane())); // set priority by corresponding material -> TODO should be applied for material?
 
 	// increase processor performance
-	object->estimateVertexCount(geoset.vertices()->members().size());
-	object->estimateIndexCount(geoset.vertices()->members().size());
+	object->estimateVertexCount(geoset.vertices().size());
+	object->estimateIndexCount(geoset.vertices().size());
 	object->begin(this->m_materials[material]->getName(), Ogre::RenderOperation::OT_TRIANGLE_LIST);
 	// build vertices
-	mdlx::Vertices::Members::const_iterator vertexIterator = geoset.vertices()->members().begin();
-	mdlx::Normals::Members::const_iterator normalIterator = geoset.normals()->members().begin();
-	mdlx::TextureVertices::Members::const_iterator textureVertexIterator = geoset.textureVertices()->members().begin();
+	mdlx::Geoset::Vertices::const_iterator vertexIterator = geoset.vertices().begin();
+	mdlx::Geoset::Normals::const_iterator normalIterator = geoset.normals().begin();
+	mdlx::Geoset::TextureVertices::const_iterator textureVertexIterator = geoset.textureVertices().begin();
 	Ogre::uint32 index = 0;
 	//qDebug() << "TVertices " << geoset.textureVertices()->textureVertices().size() << "{";
 	//qDebug() << "Normals " << geoset.normals()->normals().size() << "(";
 	//qDebug() << "Vertices " << geoset.vertices()->vertices().size() << "(";
 
-	while (vertexIterator != geoset.vertices()->members().end())
+	while (vertexIterator != geoset.vertices().end() && normalIterator != geoset.normals().end() &&  textureVertexIterator != geoset.textureVertices().end())
 	{
 		//qDebug() << "Adding vertex (" << (*vertexIterator)->vertexData().x << "|" << (*vertexIterator)->vertexData().y << "|" << (*vertexIterator)->vertexData().z << ")";
 		//qDebug() << "Adding normal (" << (*normalIterator)->vertexData().x << "|" << (*normalIterator)->vertexData().y << "|" << (*normalIterator)->vertexData().z << ")";
 		//qDebug() << "Adding texture coordinates (" << (*textureVertexIterator)->x() << "|" << (*textureVertexIterator)->y() << ")";
-		const mdlx::Vertex *vertex = boost::polymorphic_cast<const mdlx::Vertex*>(&(*vertexIterator));
-		const mdlx::Normal *normal = boost::polymorphic_cast<const mdlx::Normal*>(&(*normalIterator));
-		const mdlx::TextureVertex *textureVertex = boost::polymorphic_cast<const mdlx::TextureVertex*>(&(*textureVertexIterator));
-		object->position(ogreVector3(vertex->vertexData()));
-		object->normal(ogreVector3(normal->vertexData()));
-		object->textureCoord(ogreVector2(textureVertex->vertexData()));
+		const mdlx::VertexData &vertex = *vertexIterator;
+		const mdlx::VertexData &normal = *normalIterator;
+		const Vertex2d<float32> &textureVertex = *textureVertexIterator;
+		object->position(ogreVector3(vertex));
+		object->normal(ogreVector3(normal));
+		object->textureCoord(ogreVector2(textureVertex));
 		//object->colour(1.0 - this->modelView()->viewPort()->getBackgroundColour().r, 1.0 - this->modelView()->viewPort()->getBackgroundColour().g, 1.0 - this->modelView()->viewPort()->getBackgroundColour().b, 1.0 - this->modelView()->viewPort()->getBackgroundColour().a);
 		//object->index(index);
 
@@ -1285,52 +1316,46 @@ Ogre::ManualObject* OgreMdlx::createGeoset(const mdlx::Geoset &geoset, mdlx::lon
 
 	qDebug() << "Built " << index << " vertices.";
 
-	if (geoset.primitiveTypes()->members().size() != geoset.primitiveSizes()->members().size())
-	{
-		throw Exception((boost::format(_("Primitives error: Types size (%1%) and sizes size (%2%) are not equal.")) % geoset.primitiveTypes()->members().size()) % geoset.primitiveSizes()->members().size());
-	}
-
 	// build primitives
-	mdlx::PrimitiveTypes::Members::const_iterator pTypeIterator = geoset.primitiveTypes()->members().begin();
-	mdlx::PrimitiveSizes::Members::const_iterator pSizeIterator = geoset.primitiveSizes()->members().begin();
-	mdlx::PrimitiveVertices::Members::const_iterator pVertexIterator = geoset.primitiveVertices()->members().begin();
+	mdlx::Geoset::Faces::const_iterator facesIterator = geoset.faces().begin();
 
-	while (pTypeIterator != geoset.primitiveTypes()->members().end())
+	while (facesIterator != geoset.faces().end())
 	{
-		const mdlx::PrimitiveType *primitiveType = boost::polymorphic_cast<const mdlx::PrimitiveType*>(&*pTypeIterator);
-		const mdlx::PrimitiveSize *primitiveSize = boost::polymorphic_cast<const mdlx::PrimitiveSize*>(&*pSizeIterator);
+		const mdlx::Faces &faces = *facesIterator;
 
-		if (primitiveType->type() == mdlx::PrimitiveType::Type::Triangles)
+		switch (faces.type())
 		{
-			for (mdlx::long32 i = 0; i < primitiveSize->value(); i += 3)
+			case mdlx::Faces::Type::Triangles:
 			{
-				Ogre::uint32 indices[3];
-
-				for (mdlx::long32 size = 0; size < 3; ++size)
+				for (mdlx::long32 i = 0; i < faces.vertices().size(); i += 3)
 				{
-					const mdlx::PrimitiveVertex *vertex = boost::polymorphic_cast<const mdlx::PrimitiveVertex*>(&*pVertexIterator);
-					indices[size] = boost::numeric_cast<Ogre::uint32>(vertex->value());
-					++pVertexIterator;
+					Ogre::uint32 indices[3];
+
+					for (mdlx::long32 size = 0; size < 3; ++size)
+					{
+						indices[size] = boost::numeric_cast<Ogre::uint32>(faces.vertices()[i + size]);
+					}
+
+					object->triangle(indices[0], indices[1], indices[2]);
 				}
 
-				object->triangle(indices[0], indices[1], indices[2]);
+				qDebug() << "Built " << faces.vertices().size() << " triangles.";
+
+				break;
 			}
-
-			qDebug() << "Built " << primitiveSize->value() << " triangles.";
-		}
-		else
-		{
-			QMessageBox::warning(this->modelView(), QObject::tr("Warning"), QObject::tr("Unsupported primitive type:\n%1").arg(static_cast<mdlx::long32>(primitiveType->type())));
-
-			/// \todo build other primitives (other than triangles)
-			for (mdlx::long32 i = 0; i < primitiveSize->value(); ++i)
+			default:
 			{
-				++pVertexIterator; /// \todo triangles have 3 vertices, how much?
+				QMessageBox::warning(this->modelView(), QObject::tr("Warning"), QObject::tr("Unsupported primitive type:\n%1").arg(static_cast<mdlx::long32>(faces.type())));
+
+				/// \todo build other primitives (other than triangles)
+				for (mdlx::long32 i = 0; i < faces.vertices().size(); ++i)
+				{
+				}
 			}
+
 		}
 
-		++pTypeIterator;
-		++pSizeIterator;
+		++facesIterator;
 	}
 
 	object->end();
@@ -1351,6 +1376,18 @@ Ogre::ManualObject* OgreMdlx::createGeoset(const mdlx::Geoset &geoset, mdlx::lon
 	return object;
 }
 
+void OgreMdlx::createCameras()
+{
+	// create cameras
+	mdlx::long32 id = 0;
+
+	BOOST_FOREACH(mdlx::Mdlx::Cameras::const_reference ref, this->mdlx()->cameras())
+	{
+		this->m_cameras[&ref] = this->createCamera(ref, id);
+		++id;
+	}
+}
+
 Ogre::Camera* OgreMdlx::createCamera(const mdlx::Camera &camera, mdlx::long32 id)
 {
 	Ogre::Camera *ogreCamera = this->modelView()->sceneManager()->createCamera((boost::format("%1%.Camera.%2%") % namePrefix().toStdString() % camera.name()).str().c_str());
@@ -1362,7 +1399,18 @@ Ogre::Camera* OgreMdlx::createCamera(const mdlx::Camera &camera, mdlx::long32 id
 	return ogreCamera;
 }
 
-OgreMdlx::CollisionShape* OgreMdlx::createCollisionShape(const mdlx::CollisionShape &collisionShape, mdlx::long32 id)
+void OgreMdlx::createCollisionShapes()
+{
+	mdlx::long32 id = 0;
+
+	BOOST_FOREACH(mdlx::Mdlx::CollisionShapes::const_reference ref, this->mdlx()->collisionShapes())
+	{
+		this->m_collisionShapes[&ref] = this->createCollisionShape(ref, id);
+		++id;
+	}
+}
+
+CollisionShape* OgreMdlx::createCollisionShape(const mdlx::CollisionShape &collisionShape, mdlx::long32 id)
 {
 	CollisionShape *cs = new CollisionShape();
 	cs->shape = collisionShape.shape();
@@ -1386,7 +1434,7 @@ Ogre::SkeletonPtr OgreMdlx::createSkeleton(const Ogre::String &name)
 	return Ogre::SkeletonManager::getSingleton().create(name, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 }
 
-Ogre::Bone* OgreMdlx::createBone(const class mdlx::Bone &bone, mdlx::long32 id)
+Ogre::Bone* OgreMdlx::createBone(const mdlx::Bone &bone, mdlx::long32 id)
 {
 	Ogre::Bone *ogreBone = 0;
 
@@ -1398,7 +1446,7 @@ Ogre::Bone* OgreMdlx::createBone(const class mdlx::Bone &bone, mdlx::long32 id)
 
 		if (bone.hasParent())
 		{
-			const mdlx::Bone *parentBone = dynamic_cast<const mdlx::Bone*>(this->m_mdlxNodes[bone.parentId()]);
+			const mdlx::Bone *parentBone = dynamic_cast<const mdlx::Bone*>(this->m_nodes[bone.parentId()]);
 
 			if (parentBone != 0 && bone.geosetId() == parentBone->geosetId()) // TODO support different geoset ids
 			{
@@ -1456,7 +1504,7 @@ Ogre::Bone* OgreMdlx::createBone(const class mdlx::Bone &bone, mdlx::long32 id)
 
 		if (bone.geosetAnimationId() != mdlx::noneId)
 		{
-			const mdlx::GeosetAnimation *geosetAnim = this->m_mdlxGeosetAnimations[bone.geosetAnimationId()];
+			const mdlx::GeosetAnimation *geosetAnim = this->m_geosetAnimations[bone.geosetAnimationId()];
 			qDebug() << "We have geoset animation " << bone.geosetAnimationId();
 			//const Ogre::Animation *animation = ogreBone->createAnimation((boost::format("GeosetAnim%1%") % bone.geosetAnimId()).c_str());
 		}

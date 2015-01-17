@@ -49,6 +49,7 @@ class ModelEditorSettings;
 class ModelEditorSettingsDialog;
 class RenderStatsWidget;
 class TeamColorDialog;
+class CollisionShape;
 
 /**
  * We have model SLK entries listet at the tree view.
@@ -63,7 +64,7 @@ class KDE_EXPORT ModelEditor : public Module
 		typedef boost::bimap<const OgreMdlx*, OgreMdlxEntity*> Entities;
 
 		typedef boost::bimap<QAction*, const mdlx::Camera*> CameraActions;
-		typedef boost::bimap<const OgreMdlx::CollisionShape*, Ogre::SceneNode*> CollisionShapeNodes;
+		typedef boost::bimap<const CollisionShape*, Ogre::SceneNode*> CollisionShapeNodes;
 
 		ModelEditor(Root *root, MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~ModelEditor();

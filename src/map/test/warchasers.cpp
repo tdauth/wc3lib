@@ -98,3 +98,60 @@ BOOST_AUTO_TEST_CASE(ReadTest)
 
 	BOOST_REQUIRE(valid);
 }
+
+BOOST_AUTO_TEST_CASE(Cameras)
+{
+	map::W3m map;
+
+	bool valid = true;
+
+	try
+	{
+		map.open("(4)WarChasers.w3m");
+	}
+	catch (std::exception &e)
+	{
+		valid = false;
+
+		std::cerr << e.what() << std::endl;
+	}
+	catch (...)
+	{
+		valid = false;
+	}
+
+	BOOST_REQUIRE(valid);
+
+	/*
+	 * Cameras
+	 */
+	bool validCameras = true;
+
+	try
+	{
+		map.readFileFormat(map.cameras().get());
+	}
+	catch (std::exception &e)
+	{
+		std::cerr << e.what() << std::endl;
+		validCameras = false;
+	}
+	catch (...)
+	{
+		validCameras = false;
+	}
+
+	BOOST_REQUIRE(validCameras);
+	BOOST_REQUIRE(map.cameras()->cameras().size() == 6);
+	const map::Camera &cam0 = map.cameras()->cameras()[0];
+	BOOST_REQUIRE(cam0.name() == "CamStart1");
+	BOOST_CHECK_CLOSE(cam0.targetX(), -7718.41, 0.0001);
+	BOOST_CHECK_CLOSE(cam0.targetY(), -9039.14, 0.0001);
+	BOOST_CHECK_CLOSE(cam0.zOffset(), 0.00, 0.0001);
+	BOOST_CHECK_CLOSE(cam0.rotation(), 90.0, 0.0001);
+	BOOST_CHECK_CLOSE(cam0.angleOfAttack(), 304.00, 0.0001);
+	BOOST_CHECK_CLOSE(cam0.distance(), 1790.91, 0.0001);
+	BOOST_CHECK_CLOSE(cam0.roll(), 0.00, 0.0001);
+	BOOST_CHECK_CLOSE(cam0.fieldOfView(), 70.00, 0.0001);
+	BOOST_CHECK_CLOSE(cam0.farZ(), 5000.00, 0.0001);
+}

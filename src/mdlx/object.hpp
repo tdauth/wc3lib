@@ -36,6 +36,9 @@ class Object : public Node
 		Object();
 		virtual ~Object();
 
+		/**
+		 * Visibility chunk in MDL.
+		 */
 		void setVisibilties(const Alphas &alphas);
 		const Alphas& visibilities() const;
 

@@ -67,6 +67,7 @@ endif ()
 if (EDITOR)
 	set(wc3lib_EDITOR_H
 		abilitydata.hpp
+		collisionshape.hpp
 		colorpalettedialog.hpp
 		editor.hpp
 		itemdata.hpp
@@ -106,6 +107,7 @@ if (EDITOR)
 	)
 	set(wc3lib_EDITOR_SRC
 		abilitydata.cpp
+		collisionshape.cpp
 		colorpalettedialog.cpp
 		editor.cpp
 		itemdata.cpp

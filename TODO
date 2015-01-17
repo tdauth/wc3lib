@@ -1,3 +1,11 @@
+2015-01-01 Tamino Dauth <tamino@cdauth.eu>
+* Object Editor: Values are split by ',' but tooltip strings etc. which containt <Alc,DataA1> are cut at ','.
+* Object Editor: Build up lists of icons, models and order strings etc.
+* Object Editor: Improve performance on loading objects into tree model.
+* Object Editor: Show default icon for objects which have no icon.
+* Object Editor: Doodad, Destructible, Buff, Research editors.
+* Object Editor: Advanced search dialog: search for raw data including various object types, objects without icons, objects with specific fields.
+
 2014-11-26 Tamino Dauth <tamino@cdauth.eu>
 * mdlx: Rename all Mdlx prefixes (we already have the namespace).
 * editor: Support rendering animations with OGRE (custom application of interpolation!): http://www.ogre3d.org/docs/manual/manual_82.html#SceneNode-Animation, http://www.ogre3d.org/docs/manual/manual_79.html#Morph-Animation
@@ -43,7 +51,7 @@
 * mdlx: Create MDL generator based on Boost Spirit Karma.
 * mdlx: Create MDX grammar based on Boost Spirit Qi.
 * mdlx: Create MDX generator based on Boost Spirit Karma.
-* mdlx: Simplify classes, drop multiple animated value classes and pass identifiers in the grammars.
+* DONE: mdlx: Simplify classes, drop multiple animated value classes and pass identifiers in the grammars.
 * DONE: core: Remove "throw Exception()" qualifier.
 * DONE: mdlx: Provide Interpolator class which calculates interpolations used for animations.
 * editor: Create parser for particle effects/particle effects displaying class.

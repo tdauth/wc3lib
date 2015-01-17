@@ -18,68 +18,88 @@ using namespace wc3lib::jass;
  * and should never throw an exception.
  */
 
-BOOST_AUTO_TEST_CASE(Const) {
+BOOST_AUTO_TEST_CASE(Const)
+{
 	jass_const value;
 	value.variant = 10;
-	
+
 	bool exception = false;
-	
-	try {
+
+	try
+	{
 		BOOST_REQUIRE(value.whichType() == jass_const::Type::Integer);
-	} catch (Exception &e) {
+	}
+	catch (Exception &e)
+	{
 		exception = true;
 	}
-	
+
 	BOOST_REQUIRE(!exception);
-	
+
 	value.variant = 10.4f;
-	
-	try {
+
+	try
+	{
 		BOOST_REQUIRE(value.whichType() == jass_const::Type::Real);
-	} catch (Exception &e) {
+	}
+	catch (Exception &e)
+	{
 		exception = true;
 	}
-	
+
 	BOOST_REQUIRE(!exception);
-	
+
 	value.variant = "Peter";
-	
-	try {
+	std::cerr << "Which type integer: " << static_cast<int>(value.whichType()) << std::endl;
+
+	try
+	{
 		BOOST_REQUIRE(value.whichType() == jass_const::Type::String);
-	} catch (Exception &e) {
+	}
+	catch (Exception &e)
+	{
 		exception = true;
 	}
-	
+
 	BOOST_REQUIRE(!exception);
-	
+
 	value.variant = true;
-	
-	try {
+
+	try
+	{
 		BOOST_REQUIRE(value.whichType() == jass_const::Type::Boolean);
-	} catch (Exception &e) {
+	}
+	catch (Exception &e)
+	{
 		exception = true;
 	}
-	
+
 	BOOST_REQUIRE(!exception);
-	
+
 	value.variant = from_string("AX41");
-	
-	try {
+
+	try
+	{
 		BOOST_REQUIRE(value.whichType() == jass_const::Type::Fourcc);
-	} catch (Exception &e) {
+	}
+	catch (Exception &e)
+	{
 		exception = true;
 	}
-	
+
 	BOOST_REQUIRE(!exception);
-	
+
 	jass_null null;
 	value.variant = null;
-	
-	try {
+
+	try
+	{
 		BOOST_REQUIRE(value.whichType() == jass_const::Type::Null);
-	} catch (Exception &e) {
+	}
+	catch (Exception &e)
+	{
 		exception = true;
 	}
-	
+
 	BOOST_REQUIRE(!exception);
 }

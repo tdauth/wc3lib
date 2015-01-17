@@ -107,7 +107,9 @@ class Mdlx
 		const Geosets& geosets() const;
 		void setGeosetAnimations(const GeosetAnimations &geosetAnimations);
 		const GeosetAnimations& geosetAnimations() const;
+		void setBones(const Bones &bones);
 		const Bones& bones() const;
+		void setLights(const Lights &lights);
 		const Lights& lights() const;
 		const Helpers& helpers() const;
 		const Attachments& attachments() const;
@@ -232,9 +234,19 @@ inline const Mdlx::GeosetAnimations& Mdlx::geosetAnimations() const
 	return this->m_geosetAnimations;
 }
 
+inline void Mdlx::setBones(const Mdlx::Bones &bones)
+{
+	this->m_bones = bones;
+}
+
 inline const Mdlx::Bones& Mdlx::bones() const
 {
 	return this->m_bones;
+}
+
+inline void Mdlx::setLights(const Mdlx::Lights &lights)
+{
+	this->m_lights = lights;
 }
 
 inline const Mdlx::Lights& Mdlx::lights() const

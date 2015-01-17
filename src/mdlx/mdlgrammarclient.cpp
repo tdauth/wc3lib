@@ -324,15 +324,8 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 		)
 	;
 
-	alpha %=
-		lit("static")
-		>> lit("Alpha")
-		>> real_literal
-		>> lit(',')
-	;
-
 	// And InTan and OutTan values are only listed if the LineType is Hermite or Bezier.
-	animated_alpha =
+	animated_1d_float_value =
 		integer_literal[at_c<0>(_val) = _1]
 		>> lit(':')
 		>> vertex_real_1d[at_c<1>(_val) = _1]
@@ -349,26 +342,18 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 
 	// The four values listed above GlobalSeqId are the LineTypes for the animation;
 	// GlobalSeqId is only shown if its value is not 0xFFFFFFFF;
-	animated_alphas =
-		lit("Alpha")
-		>> integer_literal[_a = _1]
+	animated_1d_float_values =
+		integer_literal[_a = _1]
 		>> lit('{')
 		>> line_type[at_c<0>(_val) = _1]
 		>> global_sequence_id[at_c<1>(_val) = _1]
 		>> repeat(_a)[
-			animated_alpha
+			animated_1d_float_value
 		][at_c<2>(_val) = _1]
 		>> lit('}')
 	;
 
-	color =
-		lit("static")
-		>> lit("Color")
-		>> vertex_real_3d[_val = _1]
-		>> lit(',')
-	;
-
-	animated_color =
+	animated_3d_float_value =
 		integer_literal[at_c<0>(_val) = _1]
 		>> lit(':')
 		>> vertex_real_3d[at_c<1>(_val) = _1]
@@ -383,16 +368,87 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 		)
 	;
 
-	animated_colors =
-		lit("Color")
-		>> integer_literal[_a = _1]
+	animated_3d_float_values =
+		integer_literal[_a = _1]
 		>> lit('{')
 		>> line_type[at_c<0>(_val) = _1]
 		>> global_sequence_id[at_c<1>(_val) = _1]
 		>> repeat(_a)[
-			animated_color
+			animated_3d_float_value
 		][at_c<2>(_val) = _1]
 		>> lit('}')
+	;
+
+	alpha %=
+		lit("static")
+		>> lit("Alpha")
+		>> real_literal
+		>> lit(',')
+	;
+
+	animated_alphas %=
+		lit("Alpha")
+		>> animated_1d_float_values
+	;
+
+	visibility %=
+		lit("static")
+		>> lit("Visibility")
+		>> real_literal
+		>> lit(',')
+	;
+
+	animated_visibilities %=
+		lit("Visibility")
+		>> animated_1d_float_values
+	;
+
+	intensity %=
+		lit("static")
+		>> lit("Intensity")
+		>> real_literal
+		>> lit(',')
+	;
+
+	animated_intensities %=
+		lit("Intensity")
+		>> animated_1d_float_values
+	;
+
+	color =
+		lit("static")
+		>> lit("Color")
+		>> vertex_real_3d[_val = _1]
+		>> lit(',')
+	;
+
+	animated_colors %=
+		lit("Color")
+		>> animated_3d_float_values
+	;
+
+	amb_intensity %=
+		lit("static")
+		>> lit("AmbIntensity")
+		>> real_literal
+		>> lit(',')
+	;
+
+	animated_amb_intensities %=
+		lit("AmbIntensity")
+		>> animated_1d_float_values
+	;
+
+	amb_color %=
+		lit("static")
+		>> lit("AmbColor")
+		>> vertex_real_3d//[_val = _1]
+		>> lit(',')
+	;
+
+	animated_amb_colors %=
+		lit("AmbColor")
+		>> animated_3d_float_values
 	;
 
 	animated_translation =
@@ -889,12 +945,12 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 		>> groups
 		>> bounds
 		// There are the same number of Anim chunks as their are Sequences in the model.
-		>> repeat(_r1)[
+		>> -repeat(_r1)[
 			lit("Anim")
 			>> lit('{')
 			>> bounds
 			>> lit('}')
-		][at_c<8>(_val) = _1]
+		][at_c<8>(_val) = _1] // seems to be optional although different specification. For example "Orc_Exp.mdl" which has been converted with MdlxConv Version Mar  3 2007 has no anim chunks in one Geoset.
 		>> lit("MaterialID")
 		>> integer_literal[at_c<5>(_val) = _1]
 		>> lit(',')
@@ -929,6 +985,115 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 		>> lit('}')
 	;
 
+	object_id %=
+		lit("ObjectId")
+		>> integer_literal
+		>> lit(',')
+	;
+
+	parent %=
+		lit("Parent")
+		>> integer_literal
+		>> lit(',')
+	;
+
+	// Everything from BillboardLockZ to DontInherit { ... } is a flag.
+	// It may be that only one value may be in a DontInherit block at a time.
+	node_type %=
+		-lit("BillboardedLockZ")[_val = _val | Node::Type::BillboardedLockZ]
+		>> -lit("BillboardedLockY")[_val = _val | Node::Type::BillboardedLockY]
+		>> -lit("BillboardedLockX")[_val = _val | Node::Type::BillboardedLockX]
+		>> -lit("Billboarded")[_val = _val | Node::Type::Billboarded]
+		>> -lit("CameraAnchored")[_val = _val | Node::Type::CameraAnchored]
+		>> -(
+			lit("DontInherit")
+			>> lit('{')
+			>> (
+				-lit("Rotation")[_val = _val | Node::Type::DontInheritRotation]
+				-lit("Translation")[_val = _val | Node::Type::DontInheritTranslation]
+				-lit("Scaling")[_val = _val | Node::Type::DontInheritScaling]
+			)
+			>> lit('}')
+			>> lit(',')
+		)
+	;
+
+	bone =
+		lit("Bone")
+		>> string_literal[at_c<0>(_val) = _1]
+		>> lit('{')
+		>> -object_id[at_c<1>(_val) = _1] // ObjectId may be omitted if the object is the only one in the MDL.
+		>> -parent[at_c<2>(_val) = _1] // Parent only appears when its value is not 0xFFFFFFFF.
+		>> node_type[at_c<3>(_val) = _1]
+		>> lit("GeosetId")
+		>> (
+			integer_literal[at_c<4>(_val) = _1]
+			| lit("Multiple")[at_c<4>(_val) = -1]
+		)
+		>> lit(',')
+		>> lit("GeosetAnimId")
+		>> (
+			integer_literal[at_c<5>(_val) = _1]
+			| lit("None")[at_c<5>(_val) = -1]
+		)
+		>> lit(',')
+		>> -animated_translations[at_c<6>(_val) = _1]
+		>> -animated_rotations[at_c<7>(_val) = _1]
+		>> -animated_scalings[at_c<8>(_val) = _1]
+		>> -animated_visibilities[at_c<9>(_val) = _1]
+		>> lit('}')
+	;
+
+	light_type %=
+		lit("Omnidirectional")[_val == Light::LightType::Omnidirectional]
+		| lit("Directional")[_val == Light::LightType::Directional]
+		| lit("Ambient")[_val == Light::LightType::Ambient]
+	;
+
+	light =
+		lit("Light")
+		>> string_literal[at_c<0>(_val) = _1]
+		>> lit('{')
+		>> -object_id[at_c<1>(_val) = _1] // ObjectId may be omitted if the object is the only one in the MDL.
+		>> -parent[at_c<2>(_val) = _1] // Parent only appears when its value is not 0xFFFFFFFF.
+		>> node_type[at_c<3>(_val) = _1]
+		>> light_type[at_c<4>(_val) = _1]
+		>> lit(',')
+		>> lit("static")
+		>> lit("AttenuationStart")
+		>> real_literal[at_c<5>(_val) = _1]
+		>> lit(',')
+		>> lit("static")
+		>> lit("AttenuationEnd")
+		>> real_literal[at_c<6>(_val) = _1]
+		>> lit(',')
+		>> -(
+			intensity[at_c<7>(_val) = _1]
+			| animated_intensities[at_c<8>(_val) = _1]
+		)
+		>> -(
+			color[at_c<9>(_val) = _1]
+			| animated_colors[at_c<10>(_val) = _1]
+		)
+		>> -(
+			amb_intensity[at_c<11>(_val) = _1]
+			| animated_amb_intensities[at_c<12>(_val) = _1]
+		)
+		
+		/*>> -(
+			amb_color//[at_c<13>(_val) = _1]
+			| animated_amb_colors[at_c<14>(_val) = _1]
+		//)
+		*/
+		/*
+		>> -animated_visibilities[at_c<15>(_val) = _1]
+		>> -animated_translations[at_c<16>(_val) = _1]
+		>> -animated_rotations[at_c<17>(_val) = _1]
+		>> -animated_scalings[at_c<18>(_val) = _1]
+		>> lit('}')
+		*/
+	;
+
 	mdl =
 		/*
 		 * Initialize counts with 0
@@ -955,6 +1120,9 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 			geoset_animation
 		][at_c<8>(_val) = _1]
 		*/
+
+		>> (*bone)[at_c<9>(_val) = _1]
+		//>> (*light)[at_c<10>(_val) = _1]
 	;
 
 	// MinimumExtent, MaximumExtent, and BoundsRadius are left out if their
@@ -996,7 +1164,6 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 	line_type.name("line_type");
 	global_sequence_id.name("global_sequence_id");
 
-	animated_alpha.name("animated_alpha");
 	animated_alphas.name("animated_alphas");
 	mdl.name("mdl");
 	model.name("model");
@@ -1031,12 +1198,26 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 	matrix.name("matrix");
 	groups.name("groups");
 	geoset.name("geoset");
+	bone.name("bone");
 
 	bounds.name("bounds");
 
+	animated_1d_float_value.name("animated_1d_float_value");
+	animated_1d_float_values.name("animated_1d_float_values");
+	animated_3d_float_value.name("animated_3d_float_value");
+	animated_3d_float_values.name("animated_3d_float_values");
+	alpha.name("alpha");
+	animated_alphas.name("animated_alphas");
+	visibility.name("visibility");
+	animated_visibilities.name("animated_visibilities");
+	intensity.name("intensity");
+	animated_intensities.name("animated_intensities");
 	color.name("color");
-	animated_color.name("animated_color");
 	animated_colors.name("animated_colors");
+	amb_intensity.name("amb_intensity");
+	animated_amb_intensities.name("animated_amb_intensities");
+	amb_color.name("amb_color");
+	animated_amb_colors.name("animated_amb_colors");
 	animated_translation.name("animated_translation");
 	animated_translations.name("animated_translations");
 	animated_rotation.name("animated_rotation");
@@ -1056,7 +1237,6 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 		(vertex_real_3d)
 		(line_type)
 		(global_sequence_id)
-		(animated_alpha)
 		(animated_alphas)
 		(mdl)
 		(model)
@@ -1092,11 +1272,25 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 		(matrix)
 		(groups)
 		(geoset)
+		(bone)
 
 		(bounds)
+		(animated_1d_float_value)
+		(animated_1d_float_values)
+		(animated_3d_float_value)
+		(animated_3d_float_values)
+		(alpha)
+		(animated_alphas)
+		(visibility)
+		(animated_visibilities)
+		(intensity)
+		(animated_intensities)
 		(color)
-		(animated_color)
 		(animated_colors)
+		(amb_intensity)
+		(animated_amb_intensities)
+		(amb_color)
+		(animated_amb_colors)
 		(animated_translation)
 		(animated_translations)
 		(animated_rotation)
@@ -1328,6 +1522,8 @@ BOOST_FUSION_ADAPT_ADT(
 	(const wc3lib::mdlx::Mdlx::TextureAnimations&, const wc3lib::mdlx::Mdlx::TextureAnimations&, obj.textureAnimations(), obj.setTextureAnimations(val))
 	(const wc3lib::mdlx::Mdlx::Geosets&, const wc3lib::mdlx::Mdlx::Geosets&, obj.geosets(), obj.setGeosets(val))
 	(const wc3lib::mdlx::Mdlx::GeosetAnimations&, const wc3lib::mdlx::Mdlx::GeosetAnimations&, obj.geosetAnimations(), obj.setGeosetAnimations(val))
+	(const wc3lib::mdlx::Mdlx::Bones&, const wc3lib::mdlx::Mdlx::Bones&, obj.bones(), obj.setBones(val))
+	(const wc3lib::mdlx::Mdlx::Lights&, const wc3lib::mdlx::Mdlx::Lights&, obj.lights(), obj.setLights(val))
 )
 
 BOOST_FUSION_ADAPT_ADT(
@@ -1439,6 +1635,92 @@ BOOST_FUSION_ADAPT_ADT(
 	(const wc3lib::mdlx::Geoset::Ganimations&, const wc3lib::mdlx::Geoset::Ganimations&, obj.ganimations(), obj.setGanimations(val))
 	(const wc3lib::mdlx::Geoset::TexturePatches&, const wc3lib::mdlx::Geoset::TexturePatches&, obj.texturePatches(), obj.setTexturePatches(val))
 	(const wc3lib::mdlx::Geoset::TextureVertices&, const wc3lib::mdlx::Geoset::TextureVertices&, obj.textureVertices(), obj.setTextureVertices(val))
+)
+
+BOOST_FUSION_ADAPT_ADT(
+	wc3lib::mdlx::Bone,
+	// node
+	(const wc3lib::byte*, const wc3lib::string&, obj.name(), obj.setName(val))
+	(const wc3lib::mdlx::long32, const wc3lib::mdlx::long32, obj.objectId(), obj.setObjectId(val))
+	(const wc3lib::mdlx::long32, const wc3lib::mdlx::long32, obj.parentId(), obj.setParentId(val))
+	(wc3lib::mdlx::Node::Type, wc3lib::mdlx::Node::Type, obj.type(), obj.setType(val))
+	// bone
+	(const wc3lib::mdlx::long32, const wc3lib::mdlx::long32, obj.geosetId(), obj.setGeosetId(val))
+	(const wc3lib::mdlx::long32, const wc3lib::mdlx::long32, obj.geosetAnimationId(), obj.setGeosetAnimationId(val))
+	// node
+	(const wc3lib::mdlx::Translations&, const wc3lib::mdlx::Translations&, obj.translations(), obj.setTranslations(val))
+	(const wc3lib::mdlx::Rotations&, const wc3lib::mdlx::Rotations&, obj.rotations(), obj.setRotations(val))
+	(const wc3lib::mdlx::Scalings&, const wc3lib::mdlx::Scalings&, obj.scalings(), obj.setScalings(val))
+	// object
+	(const wc3lib::mdlx::Alphas&, const wc3lib::mdlx::Alphas&, obj.visibilities(), obj.setVisibilties(val))
+)
+/*
+light =
+		lit("Light")
+		>> string_literal
+		>> lit('{')
+		>> -object_id[at_c<1>(_val) = _1] // ObjectId may be omitted if the object is the only one in the MDL.
+		>> -parent[at_c<2>(_val) = _1] // Parent only appears when its value is not 0xFFFFFFFF.
+		>> node_type[at_c<3>(_val) = _1]
+		>> light_type[at_c<4>(_val) = _1]
+		>> lit(',')
+		>> lit("static")
+		>> lit("AttenuationStart")
+		>> real_literal[at_c<5>(_val) = _1]
+		>> lit(',')
+		>> lit("static")
+		>> lit("AttenuationEnd")
+		>> real_literal[at_c<6>(_val) = _1]
+		>> lit(',')
+		>> -(
+			intensity[at_c<7>(_val) = _1]
+			| animated_intensities[at_c<8>(_val) = _1]
+		)
+		>> -(
+			color[at_c<9>(_val) = _1]
+			| animated_colors[at_c<10>(_val) = _1]
+		)
+		>> -(
+			amb_intensity[at_c<11>(_val) = _1]
+			| animated_amb_intensities[at_c<12>(_val) = _1]
+		)
+		>> -(
+			amb_color[at_c<13>(_val) = _1]
+			| animated_amb_colors[at_c<14>(_val) = _1]
+		)
+		>> -animated_visibilities[at_c<15>(_val) = _1]
+		>> -animated_translations[at_c<16>(_val) = _1]
+		>> -animated_rotations[at_c<17>(_val) = _1]
+		>> -animated_scalings[at_c<18>(_val) = _1]
+		>> lit('}')
+	;
+	*/
+
+BOOST_FUSION_ADAPT_ADT(
+	wc3lib::mdlx::Light,
+	// node
+	(const wc3lib::byte*, const wc3lib::string&, obj.name(), obj.setName(val))
+	(const wc3lib::mdlx::long32, const wc3lib::mdlx::long32, obj.objectId(), obj.setObjectId(val))
+	(const wc3lib::mdlx::long32, const wc3lib::mdlx::long32, obj.parentId(), obj.setParentId(val))
+	(wc3lib::mdlx::Node::Type, wc3lib::mdlx::Node::Type, obj.type(), obj.setType(val))
+	// light
+	(wc3lib::mdlx::Light::LightType, wc3lib::mdlx::Light::LightType, obj.lightType(), obj.setLightType(val))
+	(wc3lib::float32, wc3lib::float32, obj.attenuationStart(), obj.setAttenuationStart(val))
+	(wc3lib::float32, wc3lib::float32, obj.attenuationEnd(), obj.setAttenuationEnd(val))
+	(wc3lib::float32, wc3lib::float32, obj.intensity(), obj.setIntensity(val))
+	(const wc3lib::mdlx::Alphas&, const wc3lib::mdlx::Alphas&, obj.intensities(), obj.setIntensities(val))
+	(const wc3lib::mdlx::VertexData&, const wc3lib::mdlx::VertexData&, obj.color(), obj.setColor(val))
+	(const wc3lib::mdlx::Scalings&, const wc3lib::mdlx::Scalings&, obj.colors(), obj.setColors(val))
+	(wc3lib::float32, wc3lib::float32, obj.ambientIntensity(), obj.setAmbientIntensity(val))
+	(const wc3lib::mdlx::Alphas&, const wc3lib::mdlx::Alphas&, obj.ambientIntensities(), obj.setAmbientIntensities(val))
+	(const wc3lib::mdlx::VertexData&, const wc3lib::mdlx::VertexData&, obj.ambientColor(), obj.setAmbientColor(val))
+	(const wc3lib::mdlx::Scalings&, const wc3lib::mdlx::Scalings&, obj.ambientColors(), obj.setAmbientColors(val))
+	// object
+	(const wc3lib::mdlx::Alphas&, const wc3lib::mdlx::Alphas&, obj.visibilities(), obj.setVisibilties(val))
+	// node
+	(const wc3lib::mdlx::Translations&, const wc3lib::mdlx::Translations&, obj.translations(), obj.setTranslations(val))
+	(const wc3lib::mdlx::Rotations&, const wc3lib::mdlx::Rotations&, obj.rotations(), obj.setRotations(val))
+	(const wc3lib::mdlx::Scalings&, const wc3lib::mdlx::Scalings&, obj.scalings(), obj.setScalings(val))
 )
 
 #endif

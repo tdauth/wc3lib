@@ -36,7 +36,7 @@ namespace mdlx
 class Light : public Object
 {
 	public:
-		enum class Type : long32
+		enum class LightType : long32
 		{
 			Omnidirectional = 0,
 			Directional = 1,
@@ -45,38 +45,57 @@ class Light : public Object
 
 		Light();
 
-		Type type() const;
+		void setLightType(LightType type);
+		LightType lightType() const;
+		void setAttenuationStart(float32 attenuationStart);
 		float32 attenuationStart() const;
+		void setAttenuationEnd(float32 attenuationEnd);
 		float32 attenuationEnd() const;
-		VertexData& color();
+		void setColor(const VertexData &color);
 		const VertexData& color() const;
+		void setIntensity(float32 intensity);
 		float32 intensity() const;
-		VertexData& ambientColor();
+		void setAmbientColor(const VertexData &ambientColor);
 		const VertexData& ambientColor() const;
+		void setAmbientIntensity(float32 ambientIntensity);
 		float32 ambientIntensity() const;
+		void setIntensities(const Alphas &intensities);
 		const Alphas& intensities() const;
+		void setVisibilities(const Alphas &visibilities);
 		const Alphas& visibilities() const;
+		void setColors(const Scalings &colors);
 		const Scalings& colors() const;
+		void setAmbientColors(const Scalings &ambientColors);
 		const Scalings& ambientColors() const;
-		const Scalings& ambientIntensities() const;
+		void setAmbientIntensities(const Alphas &ambientIntensities);
+		const Alphas& ambientIntensities() const;
 
 	protected:
-		Type m_type;
+		LightType m_lightType;
 		float32 m_attenuationStart, m_attenuationEnd;
 		VertexData m_color;
 		float32 m_intensity;
 		VertexData m_ambientColor;
 		float32 m_ambientIntensity;
 		Alphas m_intensities; //(KLAI)
-		Alphas m_visibilities; //(KLAV)
 		Scalings m_colors; //(KLAC)
 		Scalings m_ambientColors; //(KLBC)
-		Scalings m_ambientIntensities; //(KLBI)
+		Alphas m_ambientIntensities; //(KLBI)
 };
 
-inline Light::Type Light::type() const
+inline void Light::setLightType(Light::LightType type)
 {
-	return this->m_type;
+	this->m_lightType = type;
+}
+
+inline Light::LightType Light::lightType() const
+{
+	return this->m_lightType;
+}
+
+inline void Light::setAttenuationStart(float32 attenuationStart)
+{
+	this->m_attenuationStart = attenuationStart;
 }
 
 inline float32 Light::attenuationStart() const
@@ -84,14 +103,19 @@ inline float32 Light::attenuationStart() const
 	return this->m_attenuationStart;
 }
 
+inline void Light::setAttenuationEnd(float32 attenuationEnd)
+{
+	this->m_attenuationEnd = attenuationEnd;
+}
+
 inline float32 Light::attenuationEnd() const
 {
 	return this->m_attenuationEnd;
 }
 
-inline VertexData& Light::color()
+inline void Light::setColor(const VertexData &color)
 {
-	return this->m_color;
+	this->m_color = color;
 }
 
 inline const VertexData& Light::color() const
@@ -99,14 +123,19 @@ inline const VertexData& Light::color() const
 	return this->m_color;
 }
 
+inline void Light::setIntensity(float32 intensity)
+{
+	this->m_intensity = intensity;
+}
+
 inline float32 Light::intensity() const
 {
 	return this->m_intensity;
 }
 
-inline VertexData& Light::ambientColor()
+inline void Light::setAmbientColor(const VertexData &ambientColor)
 {
-	return this->m_ambientColor;
+	this->m_ambientColor = ambientColor;
 }
 
 inline const VertexData& Light::ambientColor() const
@@ -114,9 +143,19 @@ inline const VertexData& Light::ambientColor() const
 	return this->m_ambientColor;
 }
 
+inline void Light::setAmbientIntensity(float32 ambientIntensity)
+{
+	this->m_ambientIntensity = ambientIntensity;
+}
+
 inline float32 Light::ambientIntensity() const
 {
 	return this->m_ambientIntensity;
+}
+
+inline void Light::setIntensities(const Alphas &intensities)
+{
+	this->m_intensities = intensities;
 }
 
 inline const Alphas& Light::intensities() const
@@ -124,9 +163,19 @@ inline const Alphas& Light::intensities() const
 	return this->m_intensities;
 }
 
+inline void Light::setVisibilities(const Alphas &visibilities)
+{
+	this->m_visibilities = visibilities;
+}
+
 inline const Alphas& Light::visibilities() const
 {
 	return this->m_visibilities;
+}
+
+inline void Light::setColors(const Scalings& colors)
+{
+	this->m_colors = colors;
 }
 
 inline const Scalings& Light::colors() const
@@ -134,12 +183,22 @@ inline const Scalings& Light::colors() const
 	return this->m_colors;
 }
 
+inline void Light::setAmbientColors(const Scalings &ambientColors)
+{
+	this->m_ambientColors = ambientColors;
+}
+
 inline const Scalings& Light::ambientColors() const
 {
 	return this->m_ambientColors;
 }
 
-inline const Scalings& Light::ambientIntensities() const
+inline void Light::setAmbientIntensities(const Alphas &ambientIntensities)
+{
+	this->m_ambientIntensities = ambientIntensities;
+}
+
+inline const Alphas& Light::ambientIntensities() const
 {
 	return this->m_ambientIntensities;
 }

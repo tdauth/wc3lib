@@ -1,0 +1,59 @@
+Light "Omni01" {
+	ObjectId 149,
+	Omnidirectional,
+	static AttenuationStart 80.000000,
+	static AttenuationEnd 200.000000,
+	static Intensity 80.000000,
+	static Color { 1.000000, 1.000000, 1.000000 },
+	static AmbIntensity 0.000000,
+	static AmbColor { 1.000000, 1.000000, 1.000000 },
+}
+Light "Omni02" {
+	ObjectId 150,
+	Omnidirectional,
+	static AttenuationStart 80.000000,
+	static AttenuationEnd 200.000000,
+	static Intensity 75.000000,
+	static Color { 0.972549, 0.937255, 0.878431 },
+	static AmbIntensity 0.000000,
+	static AmbColor { 1.000000, 1.000000, 1.000000 },
+}
+Light "Omni03" {
+	ObjectId 151,
+	Omnidirectional,
+	static AttenuationStart 80.000000,
+	static AttenuationEnd 200.000000,
+	static Intensity 80.000000,
+	static Color { 1.000000, 1.000000, 1.000000 },
+	static AmbIntensity 0.000000,
+	static AmbColor { 1.000000, 1.000000, 1.000000 },
+	Visibility 3 {
+		DontInterp,
+		70500: 0.000000,
+		82833: 1.000000,
+		87333: 0.000000,
+	}
+	Translation 3 {
+		Linear,
+		82833: { 0.000000, 0.000000, 0.000000 },
+		86233: { 0.000000, 0.000000, 0.000000 },
+		87400: { 1809.130005, -103.703003, 0.000000 },
+	}
+}
+Light "Omni04" {
+	ObjectId 152,
+	Parent 151,
+	Omnidirectional,
+	static AttenuationStart 80.000000,
+	static AttenuationEnd 200.000000,
+	static Intensity 35.000000,
+	static Color { 1.000000, 1.000000, 1.000000 },
+	static AmbIntensity 0.000000,
+	static AmbColor { 1.000000, 1.000000, 1.000000 },
+	Visibility 3 {
+		DontInterp,
+		70500: 0.000000,
+		82833: 1.000000,
+		87333: 0.000000,
+	}
+}

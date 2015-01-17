@@ -35,6 +35,7 @@
 
 #include "resource.hpp"
 #include "platform.hpp"
+#include "collisionshape.hpp"
 #include "../mdlx.hpp"
 
 #include <boost/foreach.hpp> // NOTE include foreach after Qt stuff because of namespace bug
@@ -52,8 +53,29 @@ class OgreMdlxEntity;
  * \brief This class can be used to display MDLX models by using the OGRE 3D rendering engine.
  * It maintains multiple mesh instances which contains all converted data of the original
  * MDLX model's geosets.
- * To create a movable entity of geometry use \ref createEntity().
+ *
+ * The mesh instances are created in the scene of a corresponding \ref ModelView.
+ *
+ * It can be accessed using \ref modelView().
+ *
+ * When loading an MDX or an MDL file using \ref load() it creates instances of Ogre::Mesh with all the geometry
+ * from the Geosets.
+ *
+ * Besides textures, lights, cameras etc. are converted.
+ *
+ * The parent scene node can which is created automatically on loading the model can be accessed using \ref sceneNode().
+ *
+ *
+ * To create a movable entity of geometry use \ref createEntity(). Entities might allow better performance when using multiple
+ * objects (for example units) which shared the same geometry.
+ *
+ *
  * Each MDLX instance can have its own team color and glow which is required for proper unit displays and model testings.
+ *
+ * To change the team color and team glow dynamically you can use \ref setTeamColor() and \ref setTeamGlow().
+ * \todo This should be moved to the entity!
+ *
+ *
  * \todo Use inherited event functions of frame listener to apply animation track data (each model instance should have its own time marker for sequences).
  * \note Team color and glow textures have to be reloaded when team color or glow is changed. Reloading their images doesn't work in OGRE!
  * \todo Replace TextureIds, GeosetIds and SequenceIds (all objects which do not have specified their id in MDX files) by std::vector since you know for sure that their ids are in a strict order!
@@ -62,7 +84,13 @@ class OgreMdlxEntity;
 class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 {
 	public:
-		typedef std::map<mdlx::long32, const mdlx::Node*> MdlxNodes;
+		typedef boost::scoped_ptr<mdlx::Mdlx> MdlxPtr;
+
+		/**
+		 * All nodes are identified by their corresponding unique ID.
+		 */
+		typedef std::map<mdlx::long32, const mdlx::Node*> Nodes;
+
 		typedef std::map<mdlx::long32, const mdlx::GeosetAnimation*> GeosetAnimations;
 
 		typedef std::map<const mdlx::Texture*, Ogre::TexturePtr> Textures;
@@ -73,7 +101,7 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		 */
 		typedef std::map<mdlx::long32, const mdlx::Material*> MaterialIds;
 		/**
-		 * Geoset ids have to be stored in both directions since many members need access to geosets by their id as well as you need the id of a geoset sometimes.
+		 * Geoset IDs have to be stored in both directions since many members need access to geosets by their ID as well as you need the ID of a geoset sometimes.
 		 */
 		typedef boost::bimap<const mdlx::Geoset*, mdlx::long32> GeosetIds;
 		typedef std::map<const mdlx::Geoset*, Ogre::MeshPtr> Geosets;
@@ -81,36 +109,8 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		typedef std::map<const mdlx::Sequence*, Ogre::Animation*> Sequences;
 		typedef std::map<mdlx::long32, const mdlx::Sequence*> SequenceIds;
 
-		/**
-		 * This structure is required for model's collision shapes which either can be boxes or spheres.
-		 * One instance should be created per collision shape of the corresponding \ref mdlx::Mdlx instance.
-		 */
-		struct CollisionShape
-		{
-			CollisionShape() : box(0), shape(mdlx::CollisionShape::Shape::Box)
-			{
-			}
-
-			~CollisionShape()
-			{
-				if (shape == mdlx::CollisionShape::Shape::Box)
-					delete box;
-				else
-					delete sphere;
-			}
-
-			union
-			{
-				Ogre::AxisAlignedBox *box;
-				Ogre::Sphere *sphere;
-			};
-
-			mdlx::CollisionShape::Shape shape;
-		};
-
-		typedef std::map<const mdlx::CollisionShape*, struct CollisionShape*> CollisionShapes;
+		typedef std::map<const mdlx::CollisionShape*, CollisionShape*> CollisionShapes;
 		typedef std::map<const mdlx::Bone*, Ogre::Bone*> Bones;
-		typedef boost::scoped_ptr<mdlx::Mdlx> MdlxPtr;
 
 		typedef std::list<mdlx::long32> TeamColorTextures;
 		typedef std::list<Ogre::TextureUnitState*> TeamColorTextureUnitStates;
@@ -127,7 +127,13 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		virtual void clear() throw ();
 
 		const MdlxPtr& mdlx() const;
+		/**
+		 * \return Returns the corresponding model view which the scene node does belong to.
+		 */
 		ModelView* modelView() const;
+		/**
+		 * \return Returns the corresponding scene node which is the parent node of all OGRE instances from this particular model.
+		 */
 		Ogre::SceneNode* sceneNode() const;
 
 		const GeosetIds& geosetIds() const;
@@ -135,6 +141,10 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		const Cameras& cameras() const;
 		const CollisionShapes& collisionShapes() const;
 
+		/**
+		 * Changes the current team color to \p teamColor.
+		 * This updates all team color textures.
+		 */
 		void setTeamColor(TeamColor teamColor);
 		TeamColor teamColor() const;
 		void setTeamGlow(TeamColor teamGlow);
@@ -147,8 +157,8 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		 * Loads and analyses all data of corresponding MDLX model and refreshes displayed OGRE mesh.
 		 * If \ref modelView() is based on
 		 */
-		virtual void load();
-		virtual void reload();
+		virtual void load() override;
+		virtual void reload() override;
 
 		/**
 		 * Provides serialization functionality of the corresponding \ref mdlx::Mdlx instance or the OGRE scene.
@@ -165,7 +175,7 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		 * \throw Exception Is thrown when file could not be stored in \p url.
 		 */
 		virtual void save(const KUrl &url, const QString &format) const;
-		virtual void save(const KUrl &url) const
+		virtual void save(const KUrl &url) const override
 		{
 			save(url, "");
 		}
@@ -195,23 +205,26 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		Ogre::Node* createNode(const mdlx::Node &node);
 		void createNodeAnimatedProperties(const mdlx::Node &node, Ogre::Node *ogreNode);
 
-		Ogre::TransformKeyFrame* createAnimatedPropertyKeyFrame(Ogre::NodeAnimationTrack *track, const mdlx::MdlxScaling &scaling) const;
-		Ogre::TransformKeyFrame* createAnimatedPropertyKeyFrame(Ogre::NodeAnimationTrack *track, const mdlx::MdlxTranslation &translation) const;
-		Ogre::TransformKeyFrame* createAnimatedPropertyKeyFrame(Ogre::NodeAnimationTrack *track, const mdlx::MdlxRotation &rotation) const;
+		template<std::size_t size>
+		Ogre::TransformKeyFrame* createAnimatedPropertyKeyFrame(Ogre::NodeAnimationTrack *track, const mdlx::MdlxAnimatedProperty<size> &property) const;
 		template<std::size_t size>
 		void createAnimatedProperties(Ogre::Node *node, unsigned short trackId, const mdlx::MdlxAnimatedProperties<size> &properties);
 
-		void addMdlxNodes(const mdlx::GroupMdxBlock &block);
+		void createTextures();
 		Ogre::TexturePtr createTexture(const mdlx::Texture &texture, mdlx::long32 id);
 		Ogre::TextureUnitState* createLayer(Ogre::Pass *pass, const mdlx::Layer &layer);
+		void createMaterials();
 		Ogre::MaterialPtr createMaterial(const mdlx::Material &material, mdlx::long32 id);
+		void createGeosets();
 		/**
-		* Creates manual object for specified geoset.
-		*/
+		 * Creates manual object for specified geoset.
+		 */
 		Ogre::ManualObject* createGeoset(const mdlx::Geoset &geoset, mdlx::long32 id);
 
+		void createCameras();
 		Ogre::Camera* createCamera(const mdlx::Camera &camera, mdlx::long32 id);
 
+		void createCollisionShapes();
 		/**
 		 * Collision shapes are required for "hit tests".
 		 */
@@ -232,8 +245,8 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		ModelView *m_modelView;
 		Ogre::SceneNode *m_sceneNode;
 
-		MdlxNodes m_mdlxNodes;
-		GeosetAnimations m_mdlxGeosetAnimations;
+		Nodes m_nodes;
+		GeosetAnimations m_geosetAnimations;
 		Textures m_textures;
 		TextureIds m_textureIds;
 		Materials m_materials;
@@ -246,7 +259,7 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		CollisionShapes m_collisionShapes;
 		Bones m_bones;
 
-		NodeInheritance m_nodes;
+		NodeInheritance m_nodeInheritance;
 
 		// these members are required for dynamic team glow and color settings
 		TeamColor m_teamColor;
@@ -262,7 +275,7 @@ inline const OgreMdlx::MdlxPtr& OgreMdlx::mdlx() const
 	return this->m_mdlx;
 }
 
-inline class ModelView* OgreMdlx::modelView() const
+inline ModelView* OgreMdlx::modelView() const
 {
 	return this->m_modelView;
 }
@@ -312,15 +325,14 @@ inline Ogre::String OgreMdlx::geosetName(mdlx::long32 id) const
 	return Ogre::String((boost::format("%1%.Geoset%2%") % namePrefix().toStdString() % id).str().c_str());
 }
 
-inline Ogre::TransformKeyFrame* OgreMdlx::createAnimatedPropertyKeyFrame(Ogre::NodeAnimationTrack *track, const mdlx::MdlxScaling &scaling) const
+template<std::size_t size>
+inline Ogre::TransformKeyFrame* OgreMdlx::createAnimatedPropertyKeyFrame(Ogre::NodeAnimationTrack *track, const mdlx::MdlxAnimatedProperty<size> &property) const
 {
-	Ogre::TransformKeyFrame *keyFrame = track->createNodeKeyFrame(scaling.frame());
-	keyFrame->setScale(ogreVertex<Ogre::Vector3>(scaling.values()));
-
-	return keyFrame;
+	return 0;
 }
 
-inline Ogre::TransformKeyFrame* OgreMdlx::createAnimatedPropertyKeyFrame(Ogre::NodeAnimationTrack *track, const mdlx::MdlxTranslation &translation) const
+template<>
+inline Ogre::TransformKeyFrame* OgreMdlx::createAnimatedPropertyKeyFrame(Ogre::NodeAnimationTrack *track, const mdlx::Translation &translation) const
 {
 	Ogre::TransformKeyFrame *keyFrame = track->createNodeKeyFrame(translation.frame());
 	keyFrame->setTranslate(ogreVertex<Ogre::Vector3>(translation.values()));
@@ -328,7 +340,8 @@ inline Ogre::TransformKeyFrame* OgreMdlx::createAnimatedPropertyKeyFrame(Ogre::N
 	return keyFrame;
 }
 
-inline Ogre::TransformKeyFrame* OgreMdlx::createAnimatedPropertyKeyFrame(Ogre::NodeAnimationTrack *track, const mdlx::MdlxRotation &rotation) const
+template<>
+inline Ogre::TransformKeyFrame* OgreMdlx::createAnimatedPropertyKeyFrame(Ogre::NodeAnimationTrack *track, const mdlx::Rotation &rotation) const
 {
 	Ogre::TransformKeyFrame *keyFrame = track->createNodeKeyFrame(rotation.frame());
 	keyFrame->setRotation(ogreVertex<Ogre::Quaternion>(rotation.values()));
@@ -360,22 +373,7 @@ inline void OgreMdlx::createAnimatedProperties(Ogre::Node *node, unsigned short 
 
 	BOOST_FOREACH(typename mdlx::MdlxAnimatedProperties<size>::Properties::const_reference property, properties.properties())
 	{
-		if (dynamic_cast<const mdlx::MdlxScaling*>(&property) != 0)
-		{
-			createAnimatedPropertyKeyFrame(track, *dynamic_cast<const mdlx::MdlxScaling*>(&property));
-		}
-		else if (dynamic_cast<const mdlx::MdlxTranslation*>(&property) != 0)
-		{
-			createAnimatedPropertyKeyFrame(track, *dynamic_cast<const mdlx::MdlxTranslation*>(&property));
-		}
-		else if (dynamic_cast<const mdlx::MdlxRotation*>(&property) != 0)
-		{
-			createAnimatedPropertyKeyFrame(track, *dynamic_cast<const mdlx::MdlxRotation*>(&property));
-		}
-		else
-		{
-			throw Exception(_("Unknown animated property."));
-		}
+		createAnimatedPropertyKeyFrame<size>(track, property);
 	}
 }
 

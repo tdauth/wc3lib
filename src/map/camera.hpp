@@ -57,8 +57,8 @@ class Camera : public Format
 		void setName(const string &name);
 		const string& name() const;
 
-		virtual std::streamsize read(InputStream& istream) override;
-		virtual std::streamsize write(OutputStream& ostream) const override;
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
 	protected:
 		float32 m_targetX;
@@ -73,6 +73,116 @@ class Camera : public Format
 		float32 m_unknown; // 100
 		string m_name;
 };
+
+inline void Camera::setTargetX(float32 targetX)
+{
+	this->m_targetX = targetX;
+}
+
+inline float32 Camera::targetX() const
+{
+	return this->m_targetX;
+}
+
+inline void Camera::setTargetY(float32 targetY)
+{
+	this->m_targetY = targetY;
+}
+
+inline float32 Camera::targetY() const
+{
+	return this->m_targetY;
+}
+
+inline void Camera::setZOffset(float32 zOffset)
+{
+	this->m_zOffset = zOffset;
+}
+
+inline float32 Camera::zOffset() const
+{
+	return this->m_zOffset;
+}
+
+inline void Camera::setRotation(float32 rotation)
+{
+	this->m_rotation = rotation;
+}
+
+inline float32 Camera::rotation() const
+{
+	return this->m_rotation;
+}
+
+inline void Camera::setAngleOfAttack(float32 angleOfAttack)
+{
+	this->m_angleOfAttack = angleOfAttack;
+}
+
+inline float32 Camera::angleOfAttack() const
+{
+	return this->m_angleOfAttack;
+}
+
+inline void Camera::setDistance(float32 distance)
+{
+	this->m_distance = distance;
+}
+
+inline float32 Camera::distance() const
+{
+	return this->m_distance;
+}
+
+inline void Camera::setRoll(float32 roll)
+{
+	this->m_roll = roll;
+}
+
+inline float32 Camera::roll() const
+{
+	return this->m_roll;
+}
+
+inline void Camera::setFieldOfView(float32 fieldOfView)
+{
+	this->m_fieldOfView = fieldOfView;
+}
+
+inline float32 Camera::fieldOfView() const
+{
+	return this->m_fieldOfView;
+}
+
+inline void Camera::setFarZ(float32 farZ)
+{
+	this->m_farZ = farZ;
+}
+
+inline float32 Camera::farZ() const
+{
+	return this->m_farZ;
+}
+
+inline void Camera::setUnknown(float32 unknown)
+{
+	this->m_unknown = unknown;
+}
+
+inline float32 Camera::unknown() const
+{
+	return this->m_unknown;
+}
+
+inline void Camera::setName(const string &name)
+{
+	this->m_name = name;
+}
+
+inline const string& Camera::name() const
+{
+	return this->m_name;
+}
 
 }
 

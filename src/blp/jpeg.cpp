@@ -290,7 +290,7 @@ void readMipMapJpeg(Blp::MipMap &mipMap, byte *buffer, dword bufferSize)
 			std::cerr << boost::format(_("Warning: Image color space (%1%) is not equal to CMYK (%2%) - actually BGRA.")) % cinfo.out_color_space % JCS_CMYK << std::endl;
 		}
 
-		/// \todo Get as much required scanlines as possible (highest divident) to increase speed. Actually it could be equal to the MIP maps height which will lead to reading the whole MIP map with one single \ref jpeg_read_scanlines call
+		/// \todo Get as much required scanlines as possible (highest divident) to increase speed. Actually it could be equal to the MIP maps height which will lead to reading the whole MIP map with one single jpeg_read_scanlines call
 		const JDIMENSION requiredScanlines = cinfo.output_height; // increase this value to read more scanlines in one step
 		assert(requiredScanlines <= cinfo.output_height && requiredScanlines > 0);
 		const JDIMENSION scanlineSize = cinfo.output_width * cinfo.output_components; // JSAMPLEs per row in output buffer

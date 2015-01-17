@@ -32,7 +32,8 @@ struct counter
 	}
 };
 
-BOOST_AUTO_TEST_CASE(Lexer) {
+BOOST_AUTO_TEST_CASE(Lexer)
+{
 	const char* staticFile = "lexer.hpp";
 
 	ifstream out(staticFile);
@@ -42,5 +43,6 @@ BOOST_AUTO_TEST_CASE(Lexer) {
 	lexer<lexer_type> l;
 
 	// TODO generate static lexer
-	//BOOST_REQUIRE(lex::lexertl::generate_static_dfa(l, out, "lexer"));
+	// _dfa
+	//BOOST_REQUIRE(lex::lexertl::generate_static(l, out, "lexer"));
 }

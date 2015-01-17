@@ -26,7 +26,11 @@ namespace wc3lib
 namespace mdlx
 {
 
-Node::Node()
+Node::Node() : m_objectId(0), m_parentId(0xFFFFFFFF)
+{
+}
+
+Node::~Node()
 {
 }
 
