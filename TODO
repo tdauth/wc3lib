@@ -1,10 +1,12 @@
 2015-01-01 Tamino Dauth <tamino@cdauth.eu>
-* Object Editor: Values are split by ',' but tooltip strings etc. which containt <Alc,DataA1> are cut at ','.
+* Object Editor: Values are split by ',' but tooltip strings etc. which containt <Alc,DataA1> are cut at ','. Only split if its not a string value?
 * Object Editor: Build up lists of icons, models and order strings etc.
 * Object Editor: Improve performance on loading objects into tree model.
 * Object Editor: Show default icon for objects which have no icon.
 * Object Editor: Doodad, Destructible, Buff, Research editors.
 * Object Editor: Advanced search dialog: search for raw data including various object types, objects without icons, objects with specific fields.
+* Ability Editor: Missing level values for abilities.
+* Object Editor: Show "Unnamed" if object has no name.
 
 2014-11-26 Tamino Dauth <tamino@cdauth.eu>
 * mdlx: Rename all Mdlx prefixes (we already have the namespace).

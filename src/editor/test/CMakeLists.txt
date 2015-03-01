@@ -22,3 +22,14 @@ configure_file(UnitMetaData.slk UnitMetaData.slk COPYONLY) # Warcraft III: Reign
 add_executable(metadata metadata.cpp)
 target_link_libraries(metadata ${wc3lib_CORE_LIBRARIES} wc3libeditor ${Boost_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KDECORE_LIBS})
 add_test(NAME MetaDataTest COMMAND metadata)
+
+# Object Data test
+if ("$ENV{WC3_DIR}" STREQUAL "")
+	message(WARNING "Warcraft III directory is not defined. Some Unit Tests may not work.")
+endif ()
+
+add_definitions(-DWC3_DIR="$ENV{WC3_DIR}")
+
+add_executable(objectdata objectdata.cpp)
+target_link_libraries(objectdata ${wc3lib_CORE_LIBRARIES} wc3libeditor ${Boost_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KDECORE_LIBS})
+add_test(NAME ObjectDataTest COMMAND objectdata)

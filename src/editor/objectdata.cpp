@@ -276,8 +276,9 @@ QString ObjectData::defaultFieldValue(const QString &objectId, const QString &fi
 		const QString field = this->metaData()->value(fieldId, "field");
 		/*
 		 * The section is used if no object ID is given (for example for Misc Data) and is the .txt file's section which contains the field value.
+		 * It does not exist in Warcraft III: Reign of Chaos but in Frozen Throne.
 		 */
-		const QString section = this->metaData()->value(fieldId, "section");
+		const QString section = this->metaData()->hasValue(fieldId, "section") ? this->metaData()->value(fieldId, "section") : "";
 		const QString rowKey = section.isEmpty() ? objectId : section;
 		bool hasValue = false;
 		QString value;
@@ -723,6 +724,7 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 	}
 	else if (fieldType == "model" || fieldType == "icon")
 	{
+		/*
 		QString result = fieldValue;
 		int index = result.lastIndexOf('\\');
 
@@ -739,6 +741,8 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 		}
 
 		return result;
+		*/
+		return fieldValue;
 	}
 	/*
 	 * For object lists we need all the object names.
@@ -770,6 +774,8 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 	{
 		const ObjectTabEntries entries = this->objectTabEntries(fieldType);
 
+		qDebug() << "object tab entries: " << entries.size() << " for field type " << fieldType;
+
 		if (entries.isEmpty())
 		{
 			return fieldValue;
@@ -795,8 +801,10 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 					 /*
 					  * Many translatable strings contain & characters to indicate the Alt shortcut
 					  * but we do not want to see this when listing the values.
+					  *
+					  * If the string key is not found simply return the string as default value since it is the entry value.
 					  */
-					result.push_back(this->source()->sharedData()->tr(entry.second).remove('&'));
+					result.push_back(this->source()->sharedData()->tr(entry.second, "WorldEditStrings", entry.second).remove('&'));
 
 					found = true;
 

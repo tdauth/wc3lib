@@ -52,6 +52,8 @@ class KDE_EXPORT SharedObjectData
 
 		virtual void load(QWidget *widget);
 
+		MpqPriorityList* source() const;
+
 		const ObjectDataPtr& unitData() const;
 		const ObjectDataPtr& itemData() const;
 		const ObjectDataPtr& abilityData() const;
@@ -73,6 +75,11 @@ class KDE_EXPORT SharedObjectData
 		ObjectDataPtr m_miscData;
 		MetaDataPtr m_unitEditorData;
 };
+
+inline MpqPriorityList* SharedObjectData::source() const
+{
+	return this->m_source;
+}
 
 inline const SharedObjectData::ObjectDataPtr& SharedObjectData::unitData() const
 {

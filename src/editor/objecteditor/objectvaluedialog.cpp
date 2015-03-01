@@ -168,7 +168,7 @@ int ObjectValueDialog::getValue(QString& result, const QString& fieldType, const
 			dialog->doubleSpinBox()->setValue(fieldValue.toDouble());
 			dialog->doubleSpinBox()->selectAll();
 		}
-		else if (fieldType == "string" || fieldType == "char")
+		else if (fieldType == "string" || fieldType == "char" || fieldType == "model" || fieldType == "icon")
 		{
 			titleArg = objectData->source()->sharedData()->tr("WESTRING_UE_TYPE_STRING");
 

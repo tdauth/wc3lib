@@ -162,6 +162,8 @@ class KDE_EXPORT WarcraftIIIShared
 		 * \param defaultValue If corresponding key entry could not be found (e. g. files are not available or it simply does not exist) this value is shown as string if its length is bigger than 0.
 		 *
 		 * \todo Check other files (other than UI/WorldEditStrings.txt).
+		 *
+		 * \return Returns the translated string with \p key in \p group. If the value is not found and \p defaultValue is specified it is returned. Otherwise group + "[" + key + "]" is returned.
 		 */
 		QString tr(const QString &key, const QString &group = "WorldEditStrings", const QString &defaultValue = "") const;
 

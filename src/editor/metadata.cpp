@@ -62,7 +62,7 @@ QString SlkTextSource::value(const QString &rowKey, const QString &columnKey) co
 
 	if (rowIterator == this->rowKeys().end())
 	{
-		throw Exception(boost::format(_("Row %1% not found.")) % rowKey.toUtf8().constData());
+		throw Exception(boost::format(_("Row \"%1%\" not found.")) % rowKey.toUtf8().constData());
 	}
 
 	return value(rowIterator.value(), columnKey);
@@ -91,7 +91,7 @@ QString SlkTextSource::value(int row, const QString &columnKey) const
 
 	if (columnIterator == this->columnKeys().end())
 	{
-		throw Exception(boost::format(_("Column %1% not found.")) % columnKey.toUtf8().constData());
+		throw Exception(boost::format(_("Column \"%1%\" not found.")) % columnKey.toUtf8().constData());
 	}
 
 	const map::Slk::Table::size_type column = columnIterator.value();
@@ -160,7 +160,7 @@ QString TxtTextSource::value(const QString& rowKey, const QString& columnKey) co
 
 	if (rowIterator == this->sectionKeys().end())
 	{
-		throw Exception(boost::format(_("Row %1% not found.")) % rowKey.toUtf8().constData());
+		throw Exception(boost::format(_("Row \"%1%\" not found.")) % rowKey.toUtf8().constData());
 	}
 
 	const TxtEntryKey entryKey = TxtEntryKey(rowIterator.value(), columnKey);
@@ -173,7 +173,7 @@ QString TxtTextSource::value(const QString& rowKey, const QString& columnKey) co
 	}
 	else
 	{
-		throw Exception(boost::format(_("Column %1% not found.")) % columnKey.toUtf8().constData());
+		throw Exception(boost::format(_("Column \"%1%\" not found.")) % columnKey.toUtf8().constData());
 	}
 }
 
@@ -210,7 +210,7 @@ QString TxtTextSource::value(int row, const QString& columnKey) const
 	}
 	else
 	{
-		throw Exception(boost::format(_("Column %1% not found.")) % columnKey.toUtf8().constData());
+		throw Exception(boost::format(_("Column \"%1%\" not found.")) % columnKey.toUtf8().constData());
 	}
 }
 
@@ -237,7 +237,7 @@ void TxtTextSource::write(ostream &out) const
 	this->txt().write(out);
 }
 
-bool MapStringsTextSource::hasValue(const QString &rowKey, const QString& columnKey) const
+bool MapStringsTextSource::hasValue(const QString &rowKey, const QString& /* columnKey */) const
 {
 	bool ok = true;
 	int row = rowKey.toInt(&ok);
@@ -260,15 +260,15 @@ QString MapStringsTextSource::value(const QString &rowKey, const QString& column
 		return value(row, columnKey);
 	}
 
-	throw Exception(boost::format(_("Invalid row key %1%.")) % rowKey.toUtf8().constData());
+	throw Exception(boost::format(_("Invalid row key \"%1%\".")) % rowKey.toUtf8().constData());
 }
 
-bool MapStringsTextSource::hasValue(int row, const QString& columnKey) const
+bool MapStringsTextSource::hasValue(int row, const QString& /* columnKey */) const
 {
 	return m_entryKeys.contains(row);
 }
 
-QString MapStringsTextSource::value(int row, const QString& columnKey) const
+QString MapStringsTextSource::value(int row, const QString& /* columnKey */) const
 {
 	EntryKeys::const_iterator iterator = this->entryKeys().find(row);
 
@@ -278,7 +278,7 @@ QString MapStringsTextSource::value(int row, const QString& columnKey) const
 	}
 	else
 	{
-		throw Exception(boost::format(_("String %1% not found.")) % row);
+		throw Exception(boost::format(_("String \"%1%\" not found.")) % row);
 	}
 }
 
@@ -327,14 +327,14 @@ void MetaData::load()
 
 	if (!this->source()->download(this->url(), filePath, 0))
 	{
-		throw Exception(boost::format(_("Error on downloading file %1%: %2%")) % this->url().toLocalFile().toUtf8().constData() % KIO::NetAccess::lastErrorString().toUtf8().constData());
+		throw Exception(boost::format(_("Error on downloading file \"%1%\": %2%")) % this->url().toLocalFile().toUtf8().constData() % KIO::NetAccess::lastErrorString().toUtf8().constData());
 	}
 
 	ifstream in(filePath.toUtf8().constData());
 
 	if (!in)
 	{
-		throw Exception(boost::format(_("Unable to open downloaded file %1%")) % filePath.constData());
+		throw Exception(boost::format(_("Unable to open downloaded file \"%1%\"")) % filePath.constData());
 	}
 
 	/*
@@ -364,7 +364,7 @@ void MetaData::load()
 	}
 	else
 	{
-		throw Exception(boost::format(_("Unknown file type of file %1%")) % filePath.constData());
+		throw Exception(boost::format(_("Unknown file type of file \"%1%\"")) % filePath.constData());
 	}
 
 	this->m_textSource->read(in);
@@ -389,7 +389,7 @@ void MetaData::save(const KUrl &url) const
 		}
 	}
 
-	throw Exception(boost::format(_("Error on opening temporary file %1%.")) % file.fileName().toUtf8().constData());
+	throw Exception(boost::format(_("Error on opening temporary file \"%1%\".")) % file.fileName().toUtf8().constData());
 }
 
 void MetaData::reload()

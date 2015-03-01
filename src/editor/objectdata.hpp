@@ -166,6 +166,9 @@ class KDE_EXPORT ObjectData : public QObject
 		 * For example, "foot" and "WESTRING_UE_MOVETYPE_FOOT" for the section "moveType".
 		 */
 		typedef QPair<QString, QString> ObjectTabEntry;
+		/**
+		 * \brief A list of \ref ObjectTabEntry instances which occur in sections of file "UI/UnitEditorData.txt".
+		 */
 		typedef QLinkedList<ObjectTabEntry> ObjectTabEntries;
 
 		/**
