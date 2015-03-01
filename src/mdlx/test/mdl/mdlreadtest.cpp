@@ -33,6 +33,7 @@
 //#include "../../platform.hpp"
 #include "../../platform.hpp"
 #include "../../mdlgrammarclient.hpp"
+#include "../../mdlgrammarclient.cpp"
 #include "../../mdlgrammar.hpp"
 
 #ifndef BOOST_TEST_DYN_LINK
