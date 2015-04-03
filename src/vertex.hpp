@@ -31,19 +31,30 @@ namespace wc3lib
 
 /**
  * \brief Basic type for N-dimensional vertex which can be serialized and deserialized.
+ *
+ * This class allows you to easily store an array like vertex and to use \ref read() and \ref write() to deserialize and serialize it.
+ * Vertices are used for 3D data or map coordinates, for example.
+ * This class builds the template based base for all other vertex classes.
+ *
+ * It allows basic array operations like index access.
+ *
+ * \param T The type of each value hold by the vertex.
+ * \param N The fixed size of the vertex.
+ *
+ * \internal std::array<T, N> is not designed to be inherited so it is aggregated.
  */
 template<typename T, typename std::size_t N>
-class BasicVertex : public std::array<T, N>, public Format
+class BasicVertex : public Format
 {
 	public:
-		typedef std::array<T, N> Base;
+		typedef std::array<T, N> Array;
 		static const constexpr std::streamsize dataSize = N * sizeof(T) * sizeof(byte);
 
-		BasicVertex() : Base()
+		BasicVertex()
 		{
 		}
 
-		BasicVertex(const BasicVertex<T, N> &other) : Base(other)
+		BasicVertex(const BasicVertex<T, N> &other) : m_array(other.m_array)
 		{
 		}
 
@@ -51,7 +62,7 @@ class BasicVertex : public std::array<T, N>, public Format
 		{
 			std::streamsize size = 0;
 
-			typename Base::pointer data = this->data();
+			typename Array::pointer data = this->m_array.data();
 			std::cerr << "Data size: " << dataSize << std::endl;
 			wc3lib::read(istream, data, size, dataSize);
 
@@ -61,12 +72,43 @@ class BasicVertex : public std::array<T, N>, public Format
 		virtual std::streamsize write(OutputStream &ostream) const override
 		{
 			std::streamsize size = 0;
-			wc3lib::write(ostream, this->data(), size, dataSize);
+			wc3lib::write(ostream, this->m_array.data(), size, dataSize);
 
 			return size;
 		}
+
+		std::size_t size() const
+		{
+			return this->m_array.size();
+		}
+
+		typename Array::const_reference operator[](std::size_t index) const
+		{
+			return this->m_array[index];
+		}
+
+		typename Array::reference operator[](std::size_t index)
+		{
+			return this->m_array[index];
+		}
+
+		bool operator==(const BasicVertex &other)
+		{
+			return this->m_array == other.m_array;
+		}
+
+		void fill(typename Array::const_reference value)
+		{
+			this->m_array.fill(value);
+		}
+
+	protected:
+		Array m_array;
 };
 
+/**
+ * \brief Provides serialization for a two dimensional vertex.
+ */
 template<typename T = float32>
 class Vertex2d : public BasicVertex<T, 2>
 {
@@ -79,8 +121,8 @@ class Vertex2d : public BasicVertex<T, 2>
 
 		Vertex2d(T x, T y)
 		{
-			(*this)[0] = x;
-			(*this)[1] = y;
+			this->m_array[0] = x;
+			this->m_array[1] = y;
 		}
 
 		Vertex2d(const Base &other) : Base(other)
@@ -89,15 +131,18 @@ class Vertex2d : public BasicVertex<T, 2>
 
 		T x() const
 		{
-			return (*this)[0];
+			return this->m_array[0];
 		}
 
 		T y() const
 		{
-			return (*this)[1];
+			return this->m_array[1];
 		}
 };
 
+/**
+ * \brief Provides serialization for a three dimensional vertex.
+ */
 template<typename T = float32>
 class Vertex3d : public BasicVertex<T, 3>
 {
@@ -110,9 +155,9 @@ class Vertex3d : public BasicVertex<T, 3>
 
 		Vertex3d(T x, T y, T z)
 		{
-			(*this)[0] = x;
-			(*this)[1] = y;
-			(*this)[2] = z;
+			this->m_array[0] = x;
+			this->m_array[1] = y;
+			this->m_array[2] = z;
 		}
 
 		Vertex3d(const Base &other) : Base(other)
@@ -121,35 +166,38 @@ class Vertex3d : public BasicVertex<T, 3>
 
 		void setX(T x)
 		{
-			(*this)[0] = x;
+			this->m_array[0] = x;
 		}
 
 		T x() const
 		{
-			return (*this)[0];
+			return this->m_array[0];
 		}
 
 		void setY(T y)
 		{
-			(*this)[1] = y;
+			this->m_array[1] = y;
 		}
 
 		T y() const
 		{
-			return (*this)[1];
+			return this->m_array[1];
 		}
 
 		void setZ(T z)
 		{
-			(*this)[2] = z;
+			this->m_array[2] = z;
 		}
 
 		T z() const
 		{
-			return (*this)[2];
+			return this->m_array[2];
 		}
 };
 
+/**
+ * \brief Provides serialization for a quaternion.
+ */
 template<typename T = float32>
 class Quaternion : public BasicVertex<T, 4>
 {
@@ -162,10 +210,10 @@ class Quaternion : public BasicVertex<T, 4>
 
 		Quaternion(T a, T b, T c, T d)
 		{
-			(*this)[0] = a;
-			(*this)[1] = b;
-			(*this)[2] = c;
-			(*this)[3] = d;
+			this->m_array[0] = a;
+			this->m_array[1] = b;
+			this->m_array[2] = c;
+			this->m_array[3] = d;
 		}
 
 		Quaternion(const Base &other) : Base(other)
@@ -174,22 +222,22 @@ class Quaternion : public BasicVertex<T, 4>
 
 		T a() const
 		{
-			return (*this)[0];
+			return this->m_array[0];
 		}
 
 		T b() const
 		{
-			return (*this)[1];
+			return this->m_array[1];
 		}
 
 		T c() const
 		{
-			return (*this)[2];
+			return this->m_array[2];
 		}
 
 		T d() const
 		{
-			return (*this)[3];
+			return this->m_array[3];
 		}
 };
 
