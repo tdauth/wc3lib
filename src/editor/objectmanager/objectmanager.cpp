@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include "objectmanager.hpp"
+#include "../mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -58,6 +59,11 @@ SettingsInterface* ObjectManager::settings()
 
 void ObjectManager::onSwitchToMap(Map *map)
 {
+}
+
+QIcon ObjectManager::icon()
+{
+	return QIcon(this->source()->sharedData()->worldEditDataPixmap("ToolBarIcon_Module_ObjectManager", "WorldEditArt", this));
 }
 
 }

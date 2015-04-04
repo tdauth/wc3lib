@@ -45,6 +45,7 @@ class KDE_EXPORT ObjectManager : public Module
 		virtual SettingsInterface* settings() override;
 		virtual void onSwitchToMap(Map *map) override;
 		virtual QString actionName() const override;
+		virtual QIcon icon() override;
 };
 
 inline QString ObjectManager::actionName() const

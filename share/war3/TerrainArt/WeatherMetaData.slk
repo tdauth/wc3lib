@@ -192,5 +192,220 @@ C;X4;Y24;K-1
 C;X5;Y24;K"Red Start"
 C;X6;Y24;K"int"
 C;X7;Y24;K0
+C;X8;Y24;K0
+C;X9;Y24;K255
 C;X10;Y24;K0
+C;X1;Y25;K"gsta"
+C;X2;Y25;K"greenStart"
+C;X3;Y25;K"Weather"
+C;X4;Y25;K-1
+C;X5;Y25;K"Green Start"
+C;X6;Y25;K"int"
+C;X7;Y25;K0
+C;X8;Y25;K0
+C;X9;Y25;K255
+C;X10;Y25;K0
+C;X1;Y26;K"bsta"
+C;X2;Y26;K"blueStart"
+C;X3;Y26;K"Weather"
+C;X4;Y26;K-1
+C;X5;Y26;K"Blue Start"
+C;X6;Y26;K"int"
+C;X7;Y26;K0
+C;X8;Y26;K0
+C;X9;Y26;K255
+C;X10;Y26;K0
+C;X1;Y27;K"rmid"
+C;X2;Y27;K"redMid"
+C;X3;Y27;K"Weather"
+C;X4;Y27;K-1
+C;X5;Y27;K"Red Mid"
+C;X6;Y27;K"int"
+C;X7;Y27;K0
+C;X8;Y27;K0
+C;X9;Y27;K255
+C;X10;Y27;K0
+C;X1;Y28;K"gmid"
+C;X2;Y28;K"greenMid"
+C;X3;Y28;K"Weather"
+C;X4;Y28;K-1
+C;X5;Y28;K"Green Mid"
+C;X6;Y28;K"int"
+C;X7;Y28;K0
+C;X8;Y28;K0
+C;X9;Y28;K255
+C;X10;Y28;K0
+C;X1;Y29;K"bmid"
+C;X2;Y29;K"blueMid"
+C;X3;Y29;K"Weather"
+C;X4;Y29;K-1
+C;X5;Y29;K"Blue Mid"
+C;X6;Y29;K"int"
+C;X7;Y29;K0
+C;X8;Y29;K0
+C;X9;Y29;K255
+C;X10;Y29;K0
+C;X1;Y30;K"rend"
+C;X2;Y30;K"redEnd"
+C;X3;Y30;K"Weather"
+C;X4;Y30;K-1
+C;X5;Y30;K"Red End"
+C;X6;Y30;K"int"
+C;X7;Y30;K0
+C;X8;Y30;K0
+C;X9;Y30;K255
+C;X10;Y30;K0
+C;X1;Y31;K"gend"
+C;X2;Y31;K"greenEnd"
+C;X3;Y31;K"Weather"
+C;X4;Y31;K-1
+C;X5;Y31;K"Green End"
+C;X6;Y31;K"int"
+C;X7;Y31;K0
+C;X8;Y31;K0
+C;X9;Y31;K255
+C;X10;Y31;K0
+C;X1;Y32;K"bend"
+C;X2;Y32;K"blueEnd"
+C;X3;Y32;K"Weather"
+C;X4;Y32;K-1
+C;X5;Y32;K"Blue End"
+C;X6;Y32;K"int"
+C;X7;Y32;K0
+C;X8;Y32;K0
+C;X9;Y32;K255
+C;X10;Y32;K0
+C;X1;Y33;K"asta"
+C;X2;Y33;K"alphaStart"
+C;X3;Y33;K"Weather"
+C;X4;Y33;K-1
+C;X5;Y33;K"Alpha Start"
+C;X6;Y33;K"int"
+C;X7;Y33;K0
+C;X8;Y33;K0
+C;X9;Y33;K255
+C;X10;Y33;K0
+C;X1;Y34;K"amid"
+C;X2;Y34;K"alphaMid"
+C;X3;Y34;K"Weather"
+C;X4;Y34;K-1
+C;X5;Y34;K"Alpha Mid"
+C;X6;Y34;K"int"
+C;X7;Y34;K0
+C;X8;Y34;K0
+C;X9;Y34;K255
+C;X10;Y34;K0
+C;X1;Y35;K"aend"
+C;X2;Y35;K"alphaEnd"
+C;X3;Y35;K"Weather"
+C;X4;Y35;K-1
+C;X5;Y35;K"Alpha End"
+C;X6;Y35;K"int"
+C;X7;Y35;K0
+C;X8;Y35;K0
+C;X9;Y35;K255
+C;X10;Y35;K0
+C;X1;Y36;K"ssta"
+C;X2;Y36;K"scaleStart"
+C;X3;Y36;K"Weather"
+C;X4;Y36;K-1
+C;X5;Y36;K"Scale Start"
+C;X6;Y36;K"real"
+C;X7;Y36;K0
+C;X8;Y36;K0
+C;X10;Y36;K0
+C;X1;Y37;K"smid"
+C;X2;Y37;K"scaleMid"
+C;X3;Y37;K"Weather"
+C;X4;Y37;K-1
+C;X5;Y37;K"Scale Mid"
+C;X6;Y37;K"real"
+C;X7;Y37;K0
+C;X8;Y37;K0
+C;X10;Y37;K0
+C;X1;Y38;K"send"
+C;X2;Y38;K"scaleEnd"
+C;X3;Y38;K"Weather"
+C;X4;Y38;K-1
+C;X5;Y38;K"Scale End"
+C;X6;Y38;K"real"
+C;X7;Y38;K0
+C;X8;Y38;K0
+C;X10;Y38;K0
+C;X1;Y39;K"hsta"
+C;X2;Y39;K"hUVStart"
+C;X3;Y39;K"Weather"
+C;X4;Y39;K-1
+C;X5;Y39;K"hUV Start"
+C;X6;Y39;K"int"
+C;X7;Y39;K0
+C;X8;Y39;K0
+C;X9;Y39;K255
+C;X10;Y39;K0
+C;X1;Y40;K"hmid"
+C;X2;Y40;K"hUVMid"
+C;X3;Y40;K"Weather"
+C;X4;Y40;K-1
+C;X5;Y40;K"hUV Mid"
+C;X6;Y40;K"int"
+C;X7;Y40;K0
+C;X8;Y40;K0
+C;X9;Y40;K255
+C;X10;Y40;K0
+C;X1;Y41;K"hend"
+C;X2;Y41;K"hUVEnd"
+C;X3;Y41;K"Weather"
+C;X4;Y41;K-1
+C;X5;Y41;K"hUV End"
+C;X6;Y41;K"int"
+C;X7;Y41;K0
+C;X8;Y41;K0
+C;X9;Y41;K255
+C;X10;Y41;K0
+C;X1;Y42;K"tsta"
+C;X2;Y42;K"tUVStart"
+C;X3;Y42;K"Weather"
+C;X4;Y42;K-1
+C;X5;Y42;K"tUV Start"
+C;X6;Y42;K"int"
+C;X7;Y42;K0
+C;X8;Y42;K0
+C;X9;Y42;K255
+C;X10;Y42;K0
+C;X1;Y43;K"tmid"
+C;X2;Y43;K"tUVMid"
+C;X3;Y43;K"Weather"
+C;X4;Y43;K-1
+C;X5;Y43;K"tUV Mid"
+C;X6;Y43;K"int"
+C;X7;Y43;K0
+C;X8;Y43;K0
+C;X9;Y43;K255
+C;X10;Y43;K0
+C;X1;Y44;K"tend"
+C;X2;Y44;K"tUVEnd"
+C;X3;Y44;K"Weather"
+C;X4;Y44;K-1
+C;X5;Y44;K"tUV End"
+C;X6;Y44;K"int"
+C;X7;Y44;K0
+C;X8;Y44;K0
+C;X9;Y44;K255
+C;X10;Y44;K0
+C;X1;Y45;K"asnd"
+C;X2;Y45;K"AmbientSound"
+C;X3;Y45;K"Weather"
+C;X4;Y45;K-1
+C;X5;Y45;K"Ambient Sound"
+C;X6;Y45;K"sound"
+C;X7;Y45;K0
+C;X10;Y45;K0
+C;X1;Y46;K"vers"
+C;X2;Y46;K"version"
+C;X3;Y46;K"Weather"
+C;X4;Y46;K-1
+C;X5;Y46;K"Frozen Throne"
+C;X6;Y46;K"bool"
+C;X7;Y46;K0
+C;X10;Y46;K1
 E

@@ -195,6 +195,7 @@ class KDE_EXPORT TextureEditor : public Module
 		virtual void onSwitchToMap(Map *map) override;
 		virtual KAboutData moduleAboutData() const override;
 		virtual QString actionName() const override;
+		virtual QIcon icon() override;
 
 		virtual void resizeEvent(QResizeEvent *event) override;
 
@@ -378,7 +379,6 @@ inline QString TextureEditor::actionName() const
 {
 	return "textureeditor";
 }
-
 
 }
 

@@ -129,6 +129,7 @@ class KDE_EXPORT ModelEditor : public Module
 		virtual void onSwitchToMap(Map *map) override;
 		virtual KAboutData moduleAboutData() const override;
 		virtual QString actionName() const override;
+		virtual QIcon icon() override;
 
 		// load file events
 		virtual void dragEnterEvent(QDragEnterEvent *event);

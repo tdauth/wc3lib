@@ -283,9 +283,9 @@ bool SourcesDialog::prepareItem(const QString &item, QString &result)
 
 QString SourcesDialog::settingsGroup() const
 {
-	if (dynamic_cast<Editor*>(parentWidget()) != 0)
+	if (dynamic_cast<Editor*>(source()) != 0)
 	{
-		return static_cast<Editor*>(parentWidget())->aboutData().appName();
+		return static_cast<Editor*>(source())->aboutData().appName();
 	}
 	else if (dynamic_cast<Module*>(parentWidget()) != 0)
 	{

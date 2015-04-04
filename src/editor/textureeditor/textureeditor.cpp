@@ -758,6 +758,11 @@ void TextureEditor::resizeEvent(QResizeEvent *event)
 	Module::resizeEvent(event);
 }
 
+QIcon TextureEditor::icon()
+{
+	return QIcon(this->source()->sharedData()->worldEditDataPixmap("ToolBarIcon_Module_Terrain", "WorldEditArt", this));
+}
+
 #include "moc_textureeditor.cpp"
 
 }

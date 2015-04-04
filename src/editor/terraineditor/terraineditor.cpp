@@ -101,6 +101,11 @@ void TerrainEditor::onSwitchToMap(Map *map)
 {
 }
 
+QIcon TerrainEditor::icon()
+{
+	return QIcon(this->source()->sharedData()->worldEditDataPixmap("ToolBarIcon_Module_Terrain", "WorldEditArt", this));
+}
+
 #include "moc_terraineditor.cpp"
 
 }

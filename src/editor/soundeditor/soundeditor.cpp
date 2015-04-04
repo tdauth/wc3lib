@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include "soundeditor.hpp"
+#include "../mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -58,6 +59,11 @@ SettingsInterface* SoundEditor::settings()
 
 void SoundEditor::onSwitchToMap(Map *map)
 {
+}
+
+QIcon SoundEditor::icon()
+{
+	return QIcon(this->source()->sharedData()->worldEditDataPixmap("ToolBarIcon_Module_Sound", "WorldEditArt", this));
 }
 
 }

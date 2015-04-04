@@ -57,6 +57,7 @@ class KDE_EXPORT CampaignEditor : public Module
 		virtual SettingsInterface* settings() override;
 		virtual void onSwitchToMap(Map *map) override;
 		virtual QString actionName() const override;
+		virtual QIcon icon() override;
 };
 
 inline QString CampaignEditor::actionName() const

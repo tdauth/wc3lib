@@ -565,6 +565,11 @@ void ObjectEditor::showRawData(bool checked)
 	this->currentTab()->setShowRawData(checked);
 }
 
+QIcon ObjectEditor::icon()
+{
+	return QIcon(this->source()->sharedData()->worldEditDataPixmap("ToolBarIcon_Module_ObjectEditor", "WorldEditArt", this));
+}
+
 #include "moc_objecteditor.cpp"
 
 }

@@ -51,32 +51,69 @@ int main(int argc, char *argv[])
 	{
 		Editor editor(&root);
 
-		SplashScreen splash(&editor, &editor);
-		splash.show();
-		editor.show();
-		editor.addModule(new ModelEditor(&root, &editor, &editor));
-		ObjectEditor *objectEditor = new ObjectEditor(&editor, &editor);
-		editor.addModule(objectEditor);
-		editor.addModule(new TextureEditor(&editor, &editor));
-		//editor->addModule(new ModelEditor(editor, editor));
-		TriggerEditor *triggerEditor = new TriggerEditor(&editor, &editor);
-		editor.addModule(triggerEditor);
-		MpqEditor *mpqEditor = new MpqEditor(&editor, &editor);
-		editor.addModule(mpqEditor);
-		mpqEditor->show();
-		//TerrainEditor *terrainEditor = new TerrainEditor(editor, editor);
-		//editor->addModule(terrainEditor);
-		//terrainEditor->show();
 		/*
-		/// @todo Allow parsing multiple files as arguments.
-		/// FIXME Crashes application when canceling file dialog.
-		KCmdLineArgs *args = KCmdLineArgs::parsedArgs("+[file]");
+		 * Pops up the dialog for source directories if necessary and loads default shared files.
+		 */
+		if (editor.configure(0))
+		{
+			SplashScreen splash(&editor);
+			splash.show();
+			splash.showMessage(QObject::tr("Loading Model Editor ..."), Qt::AlignCenter | Qt::AlignBottom, Qt::white);
+			ModelEditor *modelEditor = new ModelEditor(&root, &editor);
 
-		for (int i = 0; i < args->count(); ++i)
-			editor.openMap(args->url(i));
-		*/
+			if (modelEditor->configure())
+			{
+				editor.addModule(modelEditor);
+			}
 
-		return app.exec();
+			splash.showMessage(QObject::tr("Loading Object Editor ..."), Qt::AlignCenter | Qt::AlignBottom, Qt::white);
+			ObjectEditor *objectEditor = new ObjectEditor(&editor);
+
+			if (objectEditor->configure())
+			{
+				editor.addModule(objectEditor);
+			}
+
+			splash.showMessage(QObject::tr("Loading Texture Editor ..."), Qt::AlignCenter | Qt::AlignBottom, Qt::white);
+			TextureEditor *textureEditor = new TextureEditor(&editor);
+
+			if (textureEditor->configure())
+			{
+				editor.addModule(textureEditor);
+			}
+
+			splash.showMessage(QObject::tr("Loading Trigger Editor ..."), Qt::AlignCenter | Qt::AlignBottom, Qt::white);
+			TriggerEditor *triggerEditor = new TriggerEditor(&editor);
+
+			if (triggerEditor->configure())
+			{
+				editor.addModule(triggerEditor);
+			}
+
+			splash.showMessage(QObject::tr("Loading MPQ Editor ..."), Qt::AlignCenter | Qt::AlignBottom, Qt::white);
+			MpqEditor *mpqEditor = new MpqEditor(&editor);
+
+			if (mpqEditor->configure())
+			{
+				editor.addModule(mpqEditor);
+				mpqEditor->show();
+			}
+
+			splash.close();
+			//TerrainEditor *terrainEditor = new TerrainEditor(editor, editor);
+			//editor->addModule(terrainEditor);
+			//terrainEditor->show();
+			/*
+			/// @todo Allow parsing multiple files as arguments.
+			/// FIXME Crashes application when canceling file dialog.
+			KCmdLineArgs *args = KCmdLineArgs::parsedArgs("+[file]");
+
+			for (int i = 0; i < args->count(); ++i)
+				editor.openMap(args->url(i));
+			*/
+
+			return app.exec();
+		}
 	}
 
 	return 1;

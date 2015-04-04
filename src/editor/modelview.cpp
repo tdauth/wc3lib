@@ -409,9 +409,9 @@ void ModelView::initRenderWindow()
 	const QX11Info &info = x11Info();
 	externalWindowHandleParams = Ogre::StringConverter::toString((unsigned long)(info.display()));
 	externalWindowHandleParams += ":";
-	externalWindowHandleParams += Ogre::StringConverter::toString((unsigned int)(info.screen()));
+	externalWindowHandleParams += Ogre::StringConverter::toString(boost::numeric_cast<unsigned int>(info.screen()));
 	externalWindowHandleParams += ":";
-	externalWindowHandleParams += Ogre::StringConverter::toString((unsigned long)(winId()));
+	externalWindowHandleParams += Ogre::StringConverter::toString(boost::numeric_cast<unsigned long>(winId()));
 	//externalWindowHandleParams += ":";
 	//externalWindowHandleParams += Ogre::StringConverter::toString((unsigned long)(info.visual()));
 
@@ -436,6 +436,13 @@ void ModelView::initRenderWindow()
 	// Finally create our window.
 	try
 	{
+		qDebug() << "Creating render window with name " << name().c_str() << " width " << width() << " height " << height() << " and params: ";
+
+		for (Ogre::NameValuePairList::const_iterator iterator = params.begin(); iterator != params.end(); ++iterator)
+		{
+			qDebug() << iterator->first.c_str() << ":" << iterator->second.c_str();
+		}
+
 		// TODO segmentation fault occurs with the useflag "threads" in OGRE:
 		// http://www.ogre3d.org/forums/viewtopic.php?f=2&t=70021
 		this->m_renderWindow = this->m_root->createRenderWindow(name(), width(), height(), false, &params);

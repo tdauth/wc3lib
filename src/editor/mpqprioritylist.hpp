@@ -332,10 +332,11 @@ class KDE_EXPORT MpqPriorityList
 		void clear();
 
 		/**
-		 * If the list is empty it shows a configuration dialog and waits for acceptance.
-		 * Otherwise it returns true immidiately.
+		 * Shows a configuration dialog and waits for acceptance.
+		 * Only if the selected sources are accepted it returns true.
+		 * Otherwise it returns false.
 		 */
-		bool configure(QWidget *parent);
+		virtual bool configure(QWidget *parent);
 
 	protected:
 		SharedDataPtr m_sharedData;

@@ -27,6 +27,7 @@
 #include <kdemacros.h>
 
 #include "../module.hpp"
+#include "../mpqprioritylist.hpp"
 #include "../../map.hpp"
 
 namespace wc3lib
@@ -205,6 +206,7 @@ class KDE_EXPORT ObjectEditor : public Module
 		virtual void onSwitchToMap(Map *map) override;
 		virtual KAboutData moduleAboutData() const override;
 		virtual QString actionName() const override;
+		virtual QIcon icon() override;
 
 	protected slots:
 		/**

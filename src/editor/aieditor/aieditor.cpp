@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include "aieditor.hpp"
+#include "../mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -58,6 +59,11 @@ SettingsInterface* AiEditor::settings()
 
 void AiEditor::onSwitchToMap(Map *map)
 {
+}
+
+QIcon AiEditor::icon()
+{
+	return QIcon(this->source()->sharedData()->worldEditDataPixmap("ToolBarIcon_Module_AIEditor", "WorldEditArt", this));
 }
 
 }

@@ -61,7 +61,7 @@ const KAboutData& Editor::wc3libAboutData()
 	return Editor::m_wc3libAboutData;
 }
 
-Editor::Editor(Root *root, QWidget *parent, Qt::WindowFlags f) : QMainWindow(parent, f)
+Editor::Editor(Root *root, QObject *parent) : QObject(parent)
 , m_root(root)
 , m_currentMap(0)
 , m_actionCollection(new KActionCollection(this))
@@ -73,25 +73,6 @@ Editor::Editor(Root *root, QWidget *parent, Qt::WindowFlags f) : QMainWindow(par
 #ifdef DEBUG
 	BlpCodec::startup(); // make sure we have BLP support even if it has not been installed
 #endif
-
-	this->readSettings(aboutData().appName());
-
-	if (sources().empty() && !addDefaultSources())
-	{
-		KMessageBox::error(this, i18n("One or several MPQ archives of Warcraft III are missing."));
-	}
-
-	// TODO refresh all shared files
-	try
-	{
-		this->sharedData()->refreshDefaultFiles(this);
-		this->sharedData()->sharedObjectData()->unitEditorData()->setSource(this);
-		this->sharedData()->sharedObjectData()->unitEditorData()->load();
-	}
-	catch (Exception &e)
-	{
-		KMessageBox::error(this, e.what());
-	}
 
 	QAction *action = new QAction(QIcon(":/actions/newmap.png"), i18n("New map ..."), this);
 	//action->setShortcut(KShortcut(i18n("Ctrl+N")));
@@ -169,11 +150,11 @@ Editor::~Editor()
 	}
 }
 
-void Editor::addModule(class Module *module)
+void Editor::addModule(Module *module)
 {
 	this->m_modules.append(module);
 
-	QAction *action = new QAction(QIcon(":/actions/" + module->actionName() + ".png"), module->componentData().aboutData()->programName(), this);
+	QAction *action = new QAction(module->icon(), module->componentData().aboutData()->programName(), this);
 	//action->setShortcut(KShortcut(i18n("F%1%", this->m_modulesActionCollection->actions().size() + 1)));
 	action->setCheckable(true);
 	action->setChecked(module->hasFocus());
@@ -183,6 +164,38 @@ void Editor::addModule(class Module *module)
 	modulesActions().insert(module, action);
 
 	emit this->createdModule(module);
+}
+
+bool Editor::configure(QWidget *parent)
+{
+	this->readSettings(aboutData().appName()); // fill sources first
+
+	if (!MpqPriorityList::configure(parent))
+	{
+		return false;
+	}
+
+	// TODO refresh all shared files
+	try
+	{
+		this->sharedData()->refreshDefaultFiles(parent);
+		this->sharedData()->sharedObjectData()->unitEditorData()->setSource(this);
+		this->sharedData()->sharedObjectData()->unitEditorData()->load();
+
+		this->sharedData()->refreshWorldEditorStrings(parent);
+		this->sharedData()->refreshWorldEditData(parent);
+	}
+	catch (Exception &e)
+	{
+		KMessageBox::error(parent, e.what());
+
+		return false;
+	}
+
+	// FIXME
+	//retranslateUi();
+
+	return true;
 }
 
 Root* Editor::root() const
@@ -204,9 +217,9 @@ void Editor::newMap()
 	this->newMapDialog()->show();
 }
 
-void Editor::openMap()
+void Editor::openMap(QWidget *window)
 {
-	KUrl::List urls = KFileDialog::getOpenUrls(KUrl(), mapFilter(), this, i18n("Open map"));
+	KUrl::List urls = KFileDialog::getOpenUrls(KUrl(), mapFilter(), window, i18n("Open map"));
 
 	if (urls.empty())
 	{
@@ -219,7 +232,7 @@ void Editor::openMap()
 	}
 }
 
-void Editor::openMap(const KUrl &url, bool switchTo)
+void Editor::openMap(const KUrl &url, bool switchTo, QWidget *window)
 {
 	Map *ptr = new Map(url);
 
@@ -232,7 +245,7 @@ void Editor::openMap(const KUrl &url, bool switchTo)
 	{
 		delete ptr;
 
-		KMessageBox::error(this, i18n("Error while opening map \"%1\":\n\"%2\".", url.toEncoded().constData(), exception.what()));
+		KMessageBox::error(window, i18n("Error while opening map \"%1\":\n\"%2\".", url.toEncoded().constData(), exception.what()));
 
 		return;
 	}
@@ -316,9 +329,9 @@ void Editor::saveMap()
 	currentMap()->save(currentMap()->url());
 }
 
-void Editor::saveMapAs()
+void Editor::saveMapAs(QWidget *window)
 {
-	KUrl url = KFileDialog::getSaveUrl(KUrl(), mapFilter(), this, i18n("Save map"));
+	KUrl url = KFileDialog::getSaveUrl(KUrl(), mapFilter(), window, i18n("Save map"));
 
 	if (url.isEmpty())
 	{
@@ -328,13 +341,14 @@ void Editor::saveMapAs()
 	currentMap()->save(url);
 }
 
-void Editor::showSourcesDialog()
+void Editor::showSourcesDialog(QWidget *window)
 {
 	if (m_sourcesDialog == 0)
 	{
-		m_sourcesDialog = new SourcesDialog(this, this);
+		m_sourcesDialog = new SourcesDialog(this, window);
 	}
 
+	m_sourcesDialog->setParent(window);
 	m_sourcesDialog->update();
 	m_sourcesDialog->show();
 }

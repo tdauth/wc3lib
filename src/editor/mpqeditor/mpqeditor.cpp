@@ -978,6 +978,11 @@ void MpqEditor::writeSettings()
 	}
 }
 
+QIcon MpqEditor::icon()
+{
+	return this->source()->sharedData()->icon(KUrl("ReplaceableTextures/WorldEditUI/Editor-ImportManager.blp"), this);
+}
+
 #include "moc_mpqeditor.cpp"
 
 }

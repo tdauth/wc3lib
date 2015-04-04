@@ -418,11 +418,6 @@ void MpqPriorityList::clear()
 
 bool MpqPriorityList::configure(QWidget *parent)
 {
-	if (!this->sources().empty())
-	{
-		return true;
-	}
-
 	SourcesDialog sourcesDialog(this, parent);
 
 	if (sourcesDialog.exec() == QDialog::Accepted)

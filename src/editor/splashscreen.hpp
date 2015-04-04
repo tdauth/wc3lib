@@ -42,7 +42,7 @@ class MpqPriorityList;
 class KDE_EXPORT SplashScreen : public QSplashScreen
 {
 	public:
-		SplashScreen(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f = 0);
+		SplashScreen(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~SplashScreen();
 };
 

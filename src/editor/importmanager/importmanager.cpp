@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include "importmanager.hpp"
+#include "../mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -58,6 +59,11 @@ class SettingsInterface* ImportManager::settings()
 
 void ImportManager::onSwitchToMap(Map* map)
 {
+}
+
+QIcon ImportManager::icon()
+{
+	return QIcon(this->source()->sharedData()->worldEditDataPixmap("ToolBarIcon_Module_ImportManager", "WorldEditArt", this));
 }
 
 }

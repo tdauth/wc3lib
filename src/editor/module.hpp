@@ -102,6 +102,12 @@ class KDE_EXPORT Module : public QWidget
 		 */
 		virtual QString actionName() const = 0;
 
+		/**
+		 * The module's icon is usually used as window icon as well as action icon by the World Editor and \ref ModuleToolBar.
+		 * \return Returns the corresponding icon of the module.
+		 */
+		virtual QIcon icon() = 0;
+
 		QString settingsGroup() const;
 
 		/**

@@ -647,6 +647,11 @@ void ModelEditor::onSwitchToMap(Map *map)
 {
 }
 
+QIcon ModelEditor::icon()
+{
+	return this->source()->sharedData()->icon(KUrl("ReplaceableTextures/WorldEditUI/Editor-ImportManager.blp"), this);
+}
+
 #include "moc_modeleditor.cpp"
 
 }

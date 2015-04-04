@@ -86,7 +86,9 @@ std::streamsize TriggerFunction::read(InputStream &istream, const TriggerData &t
 		}
 
 		default:
+		{
 			throw Exception(boost::format(_("Function type %1% is invalid.")) % static_cast<int32>(this->type()));
+		}
 	}
 
 	// trigger calls have return type + parameters!

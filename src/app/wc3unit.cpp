@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include <QScopedPointer>
+#include <QMainWindow>
 
 #include <KApplication>
 #include <KAboutData>

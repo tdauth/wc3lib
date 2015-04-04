@@ -78,7 +78,7 @@ QVariant ObjectTableModel::data(const QModelIndex &index, int role) const
 					if (objectData()->metaData()->hasValue(fieldId, "displayName"))
 					{
 						const QString displayName = objectData()->metaData()->value(fieldId, "displayName");
-						const QString displayText = objectData()->source()->sharedData()->tr(displayName);
+						const QString displayText = objectData()->source()->sharedData()->tr(displayName, "WorldEditStrings", displayName);
 
 						if (!category.isEmpty())
 						{

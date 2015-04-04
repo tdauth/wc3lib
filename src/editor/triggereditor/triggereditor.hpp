@@ -341,6 +341,7 @@ class KDE_EXPORT TriggerEditor : public Module
 		virtual KAboutData moduleAboutData() const override;
 		virtual void onSwitchToMap(Map *map) override;
 		virtual QString actionName() const override;
+		virtual QIcon icon() override;
 
 		void setTriggers(map::Triggers *triggers);
 		void setCustomTextTriggers(map::CustomTextTriggers *customTextTriggers);

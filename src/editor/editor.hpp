@@ -21,7 +21,7 @@
 #ifndef WC3LIB_EDITOR_EDITOR_HPP
 #define WC3LIB_EDITOR_EDITOR_HPP
 
-#include <QMainWindow>
+#include <QObject>
 #include <QSettings>
 #include <QLinkedList>
 
@@ -51,9 +51,9 @@ class SourcesDialog;
  * Editor holds all resources and required MPQ archives since it inherits from \ref MpqPriorityList.
  * If a resource is required (by its URL) it could theoretically be cached if implemented in class Resource.
  * Just use \ref Editor#resources()[URL] to refer to your required resource.
- * @todo Each Module has it's own tool bar with all other modules.
+ * \todo Each Module has it's own tool bar with all other modules.
  */
-class KDE_EXPORT Editor : public QMainWindow, public MpqPriorityList
+class KDE_EXPORT Editor : public QObject, public MpqPriorityList
 {
 	Q_OBJECT
 
@@ -84,7 +84,14 @@ class KDE_EXPORT Editor : public QMainWindow, public MpqPriorityList
 
 	public:
 		typedef Editor self;
+		/**
+		 * \brief A list of all modules hold by the editor.
+		 */
 		typedef QLinkedList<Module*> Modules;
+		/**
+		 * \brief A list of actions belonging each to one single module of the editor.
+		 * The action activates the corresponding module.
+		 */
 		typedef QMap<Module*, QAction*> ModulesActions;
 		/**
 		 * \note Index is useful for corresponding action.
@@ -95,7 +102,7 @@ class KDE_EXPORT Editor : public QMainWindow, public MpqPriorityList
 		static const KAboutData& aboutData();
 		static const KAboutData& wc3libAboutData();
 
-		Editor(Root *root, QWidget *parent = 0, Qt::WindowFlags f = Qt::Window);
+		Editor(Root *root, QObject *parent = 0);
 		virtual ~Editor();
 
 		/**
@@ -103,6 +110,15 @@ class KDE_EXPORT Editor : public QMainWindow, public MpqPriorityList
 		 * \note Emits \ref createdModule() after module has been added.
 		 */
 		void addModule(Module *module);
+
+		/**
+		 * Similar to \ref Module::configure().
+		 *
+		 * Pops up a source dialog (\ref SourceDialog) if necessary and no source has been configured and tries to load the default sharad data files.
+		 *
+		 * \return Returns true if everything has been configured and loaded successfully.
+		 */
+		virtual bool configure(QWidget *parent) override;
 
 		/**
 		 * When being called the first time this functions tries to allocate the OGRE root instance.
@@ -130,7 +146,7 @@ class KDE_EXPORT Editor : public QMainWindow, public MpqPriorityList
 		/**
 		 * \note Allocated on request!
 		 */
-		NewMapDialog* newMapDialog() const;
+		NewMapDialog* newMapDialog(QWidget *parent = 0) const;
 
 	public slots:
 		/**
@@ -143,8 +159,8 @@ class KDE_EXPORT Editor : public QMainWindow, public MpqPriorityList
 		 * The created file dialog allows you to select multiple URLs and therefore to open several maps.
 		 * The editor switches automatically to the last opened map.
 		 */
-		void openMap();
-		void openMap(const KUrl &url, bool switchTo = true);
+		void openMap(QWidget *window = 0);
+		void openMap(const KUrl &url, bool switchTo = true, QWidget *window = 0);
 		/**
 		 * Emits signal \ref switchedToMap() with \p map as parameter.
 		 */
@@ -156,9 +172,9 @@ class KDE_EXPORT Editor : public QMainWindow, public MpqPriorityList
 		 */
 		void closeMap();
 		void saveMap();
-		void saveMapAs();
+		void saveMapAs(QWidget *window = 0);
 
-		void showSourcesDialog();
+		void showSourcesDialog(QWidget *window = 0);
 
 	protected:
 		virtual void changeEvent(QEvent *event);
@@ -228,10 +244,12 @@ inline const Editor::Maps& Editor::maps() const
 	return m_maps;
 }
 
-inline NewMapDialog* Editor::newMapDialog() const
+inline NewMapDialog* Editor::newMapDialog(QWidget *parent) const
 {
 	if (this->m_newMapDialog == 0)
-		const_cast<self*>(this)->m_newMapDialog = new NewMapDialog(const_cast<self*>(this), const_cast<self*>(this));
+	{
+		const_cast<self*>(this)->m_newMapDialog = new NewMapDialog(const_cast<self*>(this), parent);
+	}
 
 	return this->m_newMapDialog;
 }

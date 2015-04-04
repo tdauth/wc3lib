@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include "campaigneditor.hpp"
+#include "../mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -66,6 +67,11 @@ SettingsInterface* CampaignEditor::settings()
 
 void CampaignEditor::onSwitchToMap(Map *map)
 {
+}
+
+QIcon CampaignEditor::icon()
+{
+	return QIcon(this->source()->sharedData()->worldEditDataPixmap("ToolBarIcon_Module_Campaign", "WorldEditArt", this));
 }
 
 #include "moc_campaigneditor.cpp"

@@ -575,6 +575,20 @@ void TriggerEditor::openTriggers()
 
 void TriggerEditor::openTriggersUrl(const KUrl &url)
 {
+	if (this->source()->sharedData()->triggerData().get() == 0)
+	{
+		KMessageBox::error(this, i18n("No trigger data is loaded."));
+
+		return;
+	}
+
+	if (this->source()->sharedData()->triggerStrings().get() == 0)
+	{
+		KMessageBox::error(this, i18n("No trigger strings are loaded."));
+
+		return;
+	}
+
 	QString target;
 
 	if (!source()->download(url, target, this))
@@ -1390,6 +1404,11 @@ QString TriggerEditor::variableInitialValueText(WarcraftIIIShared *sharedData, c
 	}
 
 	return initialValue;
+}
+
+QIcon TriggerEditor::icon()
+{
+	return QIcon(this->source()->sharedData()->worldEditDataPixmap("ToolBarIcon_Module_Script", "WorldEditArt", this));
 }
 
 #include "moc_triggereditor.cpp"
