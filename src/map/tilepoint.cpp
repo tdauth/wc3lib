@@ -43,6 +43,17 @@ struct TilepointData
 
 }
 
+Tilepoint::Tilepoint()
+: m_groundHeight(0)
+, m_waterLevel(0)
+, m_flags(Tilepoint::Flags::ShadowBoundary)
+, m_groundTextureType(0)
+, m_textureDetails(0)
+, m_cliffTextureType(0)
+, m_layerHeight(0)
+{
+}
+
 std::streamsize Tilepoint::read(InputStream &istream)
 {
 	struct TilepointData tilepointData;

@@ -225,7 +225,7 @@ struct jass_statement : public jass_statement_node
 
 	/**
 	 * Enumeration for type information of the variant.
-	 * Instead of using \ref which() you could use \ref whichType() which returns
+	 * Instead of using which() you could use \ref whichType() which returns
 	 * a precise enumeration value.
 	 */
 	enum class Type

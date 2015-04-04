@@ -246,22 +246,22 @@ void ObjectTableModel::load(ObjectData *objectData, const QString &originalObjec
 	beginInsertRows(QModelIndex(), 0, rows - 1);
 	endInsertRows();
 
-	connect(objectData, SIGNAL(fieldModification(QString,QString,QString)), this, SLOT(modifyField(QString,QString,QString)));
-	connect(objectData, SIGNAL(modificationReset(QString,QString,QString)), this, SLOT(resetField(QString,QString,QString)));
+	connect(objectData, SIGNAL(fieldModification(QString, QString, QString)), this, SLOT(modifyField(QString, QString, QString)));
+	connect(objectData, SIGNAL(modificationReset(QString, QString, QString)), this, SLOT(resetField(QString, QString, QString)));
 	m_objectData = objectData;
 }
 
-void ObjectTableModel::modifyField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId)
+void ObjectTableModel::modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId)
 {
 	emit dataChanged(index(m_itemsByField[fieldId], 0), index(m_itemsByField[fieldId], 0));
 }
 
-void ObjectTableModel::resetField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId)
+void ObjectTableModel::resetField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId)
 {
 	emit dataChanged(index(m_itemsByField[fieldId], 0), index(m_itemsByField[fieldId], 0));
 }
 
-int ObjectTableModel::row(const QString& fieldId) const
+int ObjectTableModel::row(const QString &fieldId) const
 {
 	return this->m_itemsByField[fieldId];
 }

@@ -42,6 +42,8 @@ class Tilepoint : public Format
 			CameraBoundary = 0x0080
 		};
 
+		Tilepoint();
+
 		virtual std::streamsize read(InputStream &istream);
 		virtual std::streamsize write(OutputStream &ostream) const;
 

@@ -63,8 +63,7 @@ class BasicVertex : public Format
 			std::streamsize size = 0;
 
 			typename Array::pointer data = this->m_array.data();
-			std::cerr << "Data size: " << dataSize << std::endl;
-			wc3lib::read(istream, data, size, dataSize);
+			wc3lib::read(istream, data[0], size, dataSize);
 
 			return size;
 		}

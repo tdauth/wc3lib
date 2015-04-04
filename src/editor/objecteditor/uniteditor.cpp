@@ -104,4 +104,3 @@ void UnitEditor::onNewObject()
 }
 
 }
-

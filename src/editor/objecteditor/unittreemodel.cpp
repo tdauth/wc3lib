@@ -177,7 +177,7 @@ void UnitTreeModel::createRaces(WarcraftIIIShared *shared, int row, QModelIndex 
 
 	for (int i = 0; i < names.size(); ++i)
 	{
-		createRace(shared, 0, this->index(i, 0 , parent));
+		createRace(shared, 0, this->index(i, 0, parent));
 	}
 }
 
@@ -191,7 +191,7 @@ void UnitTreeModel::createRace(WarcraftIIIShared *shared, int row, QModelIndex p
 
 	for (int i = 0; i < names.size(); ++i)
 	{
-		createMelee(shared, 0, this->index(i, 0 , parent));
+		createMelee(shared, 0, this->index(i, 0, parent));
 	}
 }
 

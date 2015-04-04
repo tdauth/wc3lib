@@ -57,11 +57,13 @@ BOOST_AUTO_TEST_CASE(Vertex2dTest)
 
 	BOOST_REQUIRE(result.size() == 2);
 
-	//sstream.flush();
-	//sstream.seekg(0);
-	const std::streamsize readSize = result.read(sstream);
-	std::cerr << "Size: " << readSize << " Expected size: " << expectedSize << std::endl;
+	sstream.seekg(0);
 
+	BOOST_REQUIRE(sstream.tellg() == 0);
+
+	const std::streamsize readSize = result.read(sstream);
+
+	BOOST_REQUIRE(sstream);
 	BOOST_CHECK(readSize == expectedSize);
 	BOOST_CHECK(result == vertex);
 	BOOST_CHECK(result[0] == vertex[0]);
@@ -93,10 +95,11 @@ BOOST_AUTO_TEST_CASE(Vertex3dTest)
 
 	BOOST_REQUIRE(result.size() == 3);
 
-	//sstream.flush();
-	//sstream.seekg(0);
+	sstream.seekg(0);
+
+	BOOST_REQUIRE(sstream.tellg() == 0);
+
 	const std::streamsize readSize = result.read(sstream);
-	std::cerr << "Size: " << readSize << " Expected size: " << expectedSize << std::endl;
 
 	BOOST_CHECK(readSize == expectedSize);
 	BOOST_CHECK(result == vertex);
@@ -132,10 +135,11 @@ BOOST_AUTO_TEST_CASE(QuaternionTest)
 
 	BOOST_REQUIRE(result.size() == 4);
 
-	sstream.flush();
 	sstream.seekg(0);
+
+	BOOST_REQUIRE(sstream.tellg() == 0);
+
 	const std::streamsize readSize = result.read(sstream);
-	std::cerr << "Size: " << readSize << std::endl;
 
 	BOOST_CHECK(readSize == expectedSize);
 	BOOST_CHECK(result == quaternion);

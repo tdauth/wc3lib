@@ -1,1 +1,1 @@
-install (FILES ogre.cfg plugins.cfg DESTINATION /etc/wc3lib)
+install (FILES ogre.cfg plugins.cfg DESTINATION etc/wc3lib)

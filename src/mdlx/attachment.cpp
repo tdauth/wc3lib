@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <memory>
+
 #include "attachment.hpp"
 
 namespace wc3lib
@@ -27,7 +29,10 @@ namespace mdlx
 {
 
 Attachment::Attachment() : Object()
+, m_unknown0(0)
+, m_attachmentId(0)
 {
+	memset(m_path, 0, pathSize);
 }
 
 }

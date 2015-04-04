@@ -64,10 +64,18 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 , m_weatherEditor(0)
 , m_soundEntryEditor(0)
 , m_miscEditor(0)
+, m_newObjectAction(0)
+, m_renameObjectAction(0)
+, m_deleteObjectAction(0)
+, m_resetObjectAction(0)
+, m_resetAllObjectsAction(0)
+, m_exportAllObjectsAction(0)
+, m_importAllObjectsAction(0)
 , m_copyObjectAction(0)
 , m_pasteObjectAction(0)
 , m_modifyFieldAction(0)
 , m_resetFieldAction(0)
+, m_viewMenu(0)
 , m_rawDataAction(0)
 {
 	Module::setupUi();

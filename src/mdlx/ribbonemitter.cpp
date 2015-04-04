@@ -27,6 +27,19 @@ namespace mdlx
 {
 
 RibbonEmitter::RibbonEmitter() : Node()
+, m_heightAboveValue(0.0)
+, m_heightBelowValue(0.0)
+, m_alpha(0.0)
+, m_colorRed(0.0)
+, m_colorGreen(0.0)
+, m_colorBlue(0.0)
+, m_lifeSpan(0.0)
+, m_unknown0(0)
+, m_emissionRate(0)
+, m_rows(0)
+, m_columns(0)
+, m_materialId(0)
+, m_gravity(0.0)
 {
 }
 

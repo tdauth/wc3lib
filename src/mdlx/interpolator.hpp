@@ -49,6 +49,8 @@ class Interpolator
 		typedef MdlxAnimatedProperty<N, _ValueType> AnimatedProperty;
 		typedef typename AnimatedProperty::Values Values;
 
+		Interpolator();
+
 		/**
 		 * Stores the boundary values of \p frame into \p bound1 and \p bound2 where \p bound1 is the left boundary
 		 * and \p bound2 is the right boundary.
@@ -79,6 +81,11 @@ class Interpolator
 	private:
 		const AnimatedProperties *m_animatedProperties;
 };
+
+template<typename std::size_t N, typename _ValueType>
+Interpolator<N, _ValueType>::Interpolator() : m_animatedProperties(0)
+{
+}
 
 template<typename std::size_t N, typename _ValueType>
 bool Interpolator<N, _ValueType>::boundaryValues(long32 frame, AnimatedProperty &bound1, AnimatedProperty &bound2)

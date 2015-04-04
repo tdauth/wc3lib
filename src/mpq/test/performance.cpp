@@ -40,6 +40,7 @@ BOOST_AUTO_TEST_CASE(ReadWar3)
 	 * The installation directory must be specified in "WC3_DIR" which is an environment variable.
 	 */
 	boost::filesystem::path wc3DirPath = WC3_DIR;
+	std::cerr << "wc3 dir" << wc3DirPath << std::endl;
 	BOOST_REQUIRE(boost::filesystem::exists(wc3DirPath));
 	BOOST_REQUIRE(boost::filesystem::is_directory(wc3DirPath));
 

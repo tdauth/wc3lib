@@ -1,2 +1,3 @@
+Rule T009 is too strict since we allow line breaks before commas in the class member initialization list.
 In Jenkins I use the following rules for vera++:
 vera++ --root /usr/lib/vera++/ -c report.xml -w -R F001 -R L001 -R L003 -R T001 -R T002 -R T003 -R T004 -R T005 -R T006 -R T007 -R T008 -R T009 -R T010 -R T011 -R T013 -R T015 -R T016 -R T017 -R T018 -R T019 $(find $WORKSPACE/src -name "*.cpp" -o -name "*.hpp" -o -name "*.h" -o -name "*.c")

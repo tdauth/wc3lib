@@ -31,7 +31,7 @@ namespace map
 const string ImportedFiles::mapPrefix = "war3mapImported";
 const string ImportedFiles::campaignPrefix = "war3campaignImported";
 
-ImportedFiles::Path::Path()
+ImportedFiles::Path::Path() : m_hasPrefix(false)
 {
 }
 

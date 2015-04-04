@@ -151,7 +151,7 @@ void AbilityTreeModel::createRaces(WarcraftIIIShared *shared, int row, QModelInd
 
 	for (int i = 0; i < names.size(); ++i)
 	{
-		createRace(shared, 0, this->index(i, 0 , parent));
+		createRace(shared, 0, this->index(i, 0, parent));
 	}
 }
 

@@ -37,9 +37,6 @@ namespace mdlx
  * The amount of values for one single object can be specified via \p N. The value is of type \ref BasicVertex using
  * \p N as its dimension. The value type of the vertex can be specified via \p ValueType.
  *
- * The corresponding list of properties which contains the type of mathematical transformation and the corresponding global
- * sequence can be accessed using \ref properties().
- *
  * The time frame of the transformation is returned by \ref frame().
  *
  * \sa MdlxAnimatedProperties
