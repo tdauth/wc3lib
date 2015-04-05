@@ -1,4 +1,4 @@
-find_package(Boost COMPONENTS unit_test_framework chrono REQUIRED)
+find_package(Boost COMPONENTS unit_test_framework chrono system REQUIRED)
 
 add_executable(basetypestest basetypes.cpp)
 target_link_libraries(basetypestest wc3libjass ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
@@ -32,9 +32,11 @@ add_executable(locationstest locations.cpp)
 target_link_libraries(locationstest wc3libjass ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
 add_test(NAME LocationsTest COMMAND locationstest)
 
-add_executable(stresstest stresstest.cpp)
-target_link_libraries(stresstest wc3libjass ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
-add_test(NAME StressTest COMMAND stresstest)
+# FIXME
+#add_executable(stresstest stresstest.cpp ../client.hpp ../analyzer.cpp ../grammar.cpp ../warning.cpp ../error.cpp ../report.cpp)
+#wc3libjass
+#target_link_libraries(stresstest wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
+#add_test(NAME StressTest COMMAND stresstest)
 
 add_executable(typestest types.cpp)
 target_link_libraries(typestest wc3libjass ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})

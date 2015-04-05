@@ -44,7 +44,8 @@ namespace jass
  * The Grammar contains all rules of the JASS syntax. It provides parse functions which create the
  * resulting AST.
  */
-class Grammar {
+class Grammar
+{
 	public:
 		typedef std::basic_istream<byte> InputStream;
 		typedef std::istreambuf_iterator<byte> IteratorType;

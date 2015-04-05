@@ -25,5 +25,5 @@ endif ()
 
 # install
 install(TARGETS qblp DESTINATION lib)
-install(TARGETS qblp DESTINATION ${CMAKE_INSTALL_PREFIX}/${QT_PLUGINS_DIR}/imageformats)
+install(TARGETS qblp DESTINATION ${QT_PLUGINS_DIR}/imageformats)
 install(FILES ${wc3lib_EDITOR_QBLP_H} DESTINATION include/wc3lib/editor/qblp)
