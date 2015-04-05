@@ -20,6 +20,9 @@
 
 #define BOOST_TEST_MODULE TriggersTest
 #include <boost/test/unit_test.hpp>
+
+#include "../../spirit.hpp" // enable debug mode
+
 #include <sstream>
 #include <iostream>
 
@@ -34,7 +37,8 @@
 
 using namespace wc3lib;
 
-BOOST_AUTO_TEST_CASE(TriggersSimpleReadTest) {
+BOOST_AUTO_TEST_CASE(TriggerDataReignOfChaos)
+{
 	ifstream in("TriggerData.txt"); // Warcraft III trigger data
 
 	BOOST_REQUIRE(in);
@@ -43,14 +47,214 @@ BOOST_AUTO_TEST_CASE(TriggersSimpleReadTest) {
 
 	bool valid = true;
 
-	try {
+	try
+	{
 		triggerData.read(in);
 	}
-	catch (Exception &e) {
+	catch (Exception &e)
+	{
 		valid = false;
 		std::cerr << e.what() << std::endl;
 	}
-	catch (...) {
+	catch (...)
+	{
+		valid = false;
+	}
+
+	in.close();
+	BOOST_REQUIRE(valid);
+
+	BOOST_CHECK(strcmp(triggerData.fileName(), "TriggerData.txt") == 0);
+	BOOST_CHECK(triggerData.version() == 0); // has no specific version
+	BOOST_CHECK(triggerData.latestFileVersion() == 0); // has no specific version
+
+	// data from the file
+	BOOST_CHECK(triggerData.categories().size() == 43); // section [TriggerCategories]
+	BOOST_CHECK(triggerData.types().size() == 130); // section [TriggerTypes]
+	// TODO check more sections
+
+	/*
+	[DefaultTriggerCategories]
+	// Defines categories to be automatically added to new maps
+	NumCategories=1
+
+	Category01=WESTRING_INITIALIZATION
+
+	[DefaultTriggers]
+	// Defines triggers to be automatically added to new maps
+	NumTriggers=1
+
+	// Melee Initialization
+	Trigger01Name=WESTRING_MELEEINITIALIZATION
+	Trigger01Comment=WESTRING_MELEEINITIALIZATION_COMMENT
+	Trigger01Category=1
+	Trigger01Events=1
+	Trigger01Event01=MapInitializationEvent
+	Trigger01Conditions=0
+	Trigger01Actions=8
+	Trigger01Action01=MeleeStartingVisibility
+	Trigger01Action02=MeleeStartingHeroLimit
+	Trigger01Action03=MeleeGrantHeroItems
+	Trigger01Action04=MeleeStartingResources
+	Trigger01Action05=MeleeClearExcessUnits
+	Trigger01Action06=MeleeStartingUnits
+	Trigger01Action07=MeleeStartingAI
+	Trigger01Action08=MeleeInitVictoryDefeat
+	*/
+	// there is one default trigger for melee maps
+	BOOST_REQUIRE(triggerData.defaultTriggerCategories().size() == 1);
+	BOOST_REQUIRE(triggerData.defaultTriggers().size() == 1);
+
+	map::TriggerData::DefaultTriggerCategories::const_reference defaultCategory = triggerData.defaultTriggerCategories().front();
+	BOOST_CHECK(defaultCategory == "WESTRING_INITIALIZATION");
+
+	map::TriggerData::DefaultTriggers::const_reference defaultTrigger = triggerData.defaultTriggers().front();
+	BOOST_CHECK(defaultTrigger.name() == "WESTRING_MELEEINITIALIZATION");
+	BOOST_CHECK(defaultTrigger.comment() == "WESTRING_MELEEINITIALIZATION_COMMENT");
+	BOOST_CHECK(defaultTrigger.triggerCategory() == "WESTRING_INITIALIZATION");
+	BOOST_REQUIRE(defaultTrigger.events().size() == 1);
+	BOOST_REQUIRE(defaultTrigger.conditions().size() == 0);
+	BOOST_REQUIRE(defaultTrigger.actions().size() == 8);
+}
+
+BOOST_AUTO_TEST_CASE(TriggerDataReignOfChaosReadWriteRead)
+{
+	spiritTraceLog.close();
+	spiritTraceLog.open("triggerdata_reign_of_chaos_traces.xml");
+
+	BOOST_REQUIRE(spiritTraceLog);
+
+	ifstream in("TriggerData.txt"); // Warcraft III trigger data
+
+	BOOST_REQUIRE(in);
+
+	map::TriggerData triggerData;
+
+	bool valid = true;
+
+	try
+	{
+		triggerData.read(in);
+	}
+	catch (Exception &e)
+	{
+		valid = false;
+		std::cerr << e.what() << std::endl;
+	}
+	catch (...)
+	{
+		valid = false;
+	}
+
+	in.close();
+	BOOST_REQUIRE(valid);
+
+	BOOST_CHECK(strcmp(triggerData.fileName(), "TriggerData.txt") == 0);
+	BOOST_CHECK(triggerData.version() == 0); // has no specific version
+	BOOST_CHECK(triggerData.latestFileVersion() == 0); // has no specific version
+
+	// data from the file
+	BOOST_CHECK(triggerData.categories().size() == 43); // section [TriggerCategories]
+	BOOST_CHECK(triggerData.types().size() == 130); // section [TriggerTypes]
+	// TODO check more sections
+
+	// there is one default trigger for melee maps
+	BOOST_CHECK(triggerData.defaultTriggerCategories().size() == 1);
+	BOOST_CHECK(triggerData.defaultTriggers().size() == 1);
+
+	spiritTraceLog.close();
+	spiritTraceLog.open("triggerdata_reign_of_chaos_tmp_out_traces.xml");
+
+	BOOST_REQUIRE(spiritTraceLog);
+
+	ofstream out("TriggerDataTmp.txt");
+
+	BOOST_REQUIRE(out);
+
+	try
+	{
+		triggerData.write(out);
+	}
+	catch (Exception &e)
+	{
+		valid = false;
+		std::cerr << e.what() << std::endl;
+	}
+	catch (...)
+	{
+		valid = false;
+	}
+
+	out.close();
+	BOOST_REQUIRE(valid);
+
+	spiritTraceLog.close();
+	spiritTraceLog.open("triggerdata_reign_of_chaos_tmp_traces.xml");
+
+	BOOST_REQUIRE(spiritTraceLog);
+
+	in.open("TriggerDataTmp.txt");
+
+	BOOST_REQUIRE(in);
+
+	triggerData.clear();
+
+	BOOST_REQUIRE(triggerData.categories().empty());
+	BOOST_REQUIRE(triggerData.categories().empty());
+	BOOST_REQUIRE(triggerData.types().empty());
+
+	try
+	{
+		triggerData.read(in);
+	}
+	catch (std::exception &e)
+	{
+		valid = false;
+		std::cerr << e.what() << std::endl;
+	}
+	catch (...)
+	{
+		valid = false;
+	}
+
+	in.close();
+	BOOST_REQUIRE(valid);
+
+	BOOST_CHECK(strcmp(triggerData.fileName(), "TriggerData.txt") == 0);
+	BOOST_CHECK(triggerData.version() == 0); // has no specific version
+	BOOST_CHECK(triggerData.latestFileVersion() == 0); // has no specific version
+
+	// data from the file
+	BOOST_CHECK(triggerData.categories().size() == 43); // section [TriggerCategories]
+	BOOST_CHECK(triggerData.types().size() == 130); // section [TriggerTypes]
+	// TODO check more sections
+
+	// there is one default trigger for melee maps
+	BOOST_CHECK(triggerData.defaultTriggerCategories().size() == 1);
+	BOOST_CHECK(triggerData.defaultTriggers().size() == 1);
+}
+
+BOOST_AUTO_TEST_CASE(WarChasersTriggersSimpleReadTest)
+{
+	ifstream in("TriggerData.txt"); // Warcraft III trigger data
+
+	BOOST_REQUIRE(in);
+
+	map::TriggerData triggerData;
+
+	bool valid = true;
+
+	try
+	{
+		triggerData.read(in);
+	}
+	catch (Exception &e)
+	{
+		valid = false;
+		std::cerr << e.what() << std::endl;
+	}
+	catch (...)
+	{
 		valid = false;
 	}
 
@@ -60,17 +264,90 @@ BOOST_AUTO_TEST_CASE(TriggersSimpleReadTest) {
 	ifstream inTriggers("war3map.wtg", std::ios::in | std::ios::binary); // War Chasers triggers
 	map::Triggers triggers;
 
-	try {
+	try
+	{
 		triggers.read(inTriggers, triggerData);
 
 	}
-	catch (Exception &e) {
+	catch (Exception &e)
+	{
 		valid = false;
 		std::cerr << e.what() << std::endl;
 	}
-	catch (...) {
+	catch (...)
+	{
 		valid = false;
 	}
 
 	BOOST_REQUIRE(valid);
+
+	BOOST_CHECK(strcmp(triggers.fileName(), "war3map.wtg") == 0);
+	BOOST_CHECK(memcmp(triggers.fileTextId(), "WTG!", 4) == 0);
+	BOOST_CHECK(triggers.version() == 4); // Reign of Chaos
+
+	// data from the object manager
+	BOOST_CHECK(triggers.variables().size() == 54);
+	BOOST_CHECK(triggers.triggers().size() == 151);
+	BOOST_CHECK(triggers.categories().size() == 19);
+
+	// TODO check single trigger
+}
+
+BOOST_AUTO_TEST_CASE(WarChasersTriggersSimpleReadTestWithFrozenThroneTriggerData)
+{
+	ifstream in("TriggerDataEx.txt"); // Warcraft III: The Frozen Throne trigger data
+
+	BOOST_REQUIRE(in);
+
+	map::TriggerData triggerData;
+
+	bool valid = true;
+
+	try
+	{
+		triggerData.read(in);
+	}
+	catch (Exception &e)
+	{
+		valid = false;
+		std::cerr << e.what() << std::endl;
+	}
+	catch (...)
+	{
+		valid = false;
+	}
+
+	in.close();
+	BOOST_REQUIRE(valid);
+
+	ifstream inTriggers("war3map.wtg", std::ios::in | std::ios::binary); // War Chasers triggers
+	map::Triggers triggers;
+
+	try
+	{
+		triggers.read(inTriggers, triggerData);
+
+	}
+	catch (Exception &e)
+	{
+		valid = false;
+		std::cerr << e.what() << std::endl;
+	}
+	catch (...)
+	{
+		valid = false;
+	}
+
+	BOOST_REQUIRE(valid);
+
+	BOOST_CHECK(strcmp(triggers.fileName(), "war3map.wtg") == 0);
+	BOOST_CHECK(memcmp(triggers.fileTextId(), "WTG!", 4) == 0);
+	BOOST_CHECK(triggers.version() == 4); // Reign of Chaos
+
+	// data from the object manager
+	BOOST_CHECK(triggers.variables().size() == 54);
+	BOOST_CHECK(triggers.triggers().size() == 151);
+	BOOST_CHECK(triggers.categories().size() == 19);
+
+	// TODO check single trigger
 }

@@ -38,16 +38,21 @@ namespace map
 {
 
 /**
- * \brief Provides access to the game's available trigger functions, types and presets.
+ * \brief Provides access to the game's available trigger functions, types and presets for Warcraft III: Reign of Chaos.
  *
  * Provides access to "UI/TriggerData.txt" file.
  * For corresponding identifiers you need to create a \ref TriggerStrings instance.
  * This class is required when implementing a trigger editor to get all possible categories, events, conditions, actions, types and calls.
  * It provides performant search functionality by storing entries in maps indicated by their name.
  * Currently, this is necessary for classes like \ref Variable, \ref TriggerFunction and \ref TriggerFunctionParameter which rely on trigger data entries for proper reading.
- * \todo Finish, using Boost Spirit to parse!
+ *
+ * Instead of using this wrapper class you can use \ref Txt to read the file manually.
+ *
+ * \note Use \ref TriggerDataEx to read a "UI/TriggerData.txt" file from Warcraft III: The Frozen Throne.
  *
  * \ingroup triggers
+ * \sa TriggerDataEx
+ * \sa Txt
  */
 class TriggerData : public FileFormat
 {
@@ -59,6 +64,12 @@ class TriggerData : public FileFormat
 
 		TriggerData();
 
+		/**
+		 * \brief A trigger category contains a list of trigger functions such as events, conditions or actions.
+		 *
+		 * It provides a name as well as an icon to categorize trigger functions.
+		 * Some trigger categories might be hidden.
+		 */
 		class Category : public Format
 		{
 			public:
@@ -77,8 +88,8 @@ class TriggerData : public FileFormat
 				// Value 2: Optional flag (defaults to 0) indicating to disable display of category name
 				bool displayName() const;
 
-				virtual std::streamsize read(InputStream &istream);
-				virtual std::streamsize write(OutputStream &ostream) const;
+				virtual std::streamsize read(InputStream &istream) override;
+				virtual std::streamsize write(OutputStream &ostream) const override;
 
 			private:
 				string m_name;
@@ -111,8 +122,8 @@ class TriggerData : public FileFormat
 				// If a type does not have an entry here, it will be set to null if it is a handle
 				const string& defaultValue() const;
 
-				virtual std::streamsize read(InputStream &istream);
-				virtual std::streamsize write(OutputStream &ostream) const;
+				virtual std::streamsize read(InputStream &istream) override;
+				virtual std::streamsize write(OutputStream &ostream) const override;
 
 			private:
 				string m_name;
@@ -126,8 +137,7 @@ class TriggerData : public FileFormat
 		class Parameter : public Format
 		{
 			public:
-				Parameter() : m_type(0) {
-				}
+				Parameter();
 
 				// Key: arbitrary text
 				void setName(const string &name);
@@ -144,8 +154,8 @@ class TriggerData : public FileFormat
 				void setDisplayText(const string &displayText);
 				const string& displayText() const;
 
-				virtual std::streamsize read(InputStream &istream);
-				virtual std::streamsize write(OutputStream &ostream) const;
+				virtual std::streamsize read(InputStream &istream) override;
+				virtual std::streamsize write(OutputStream &ostream) const override;
 
 			private:
 				string m_name;
@@ -174,8 +184,7 @@ class TriggerData : public FileFormat
 				typedef std::pair<Value, Value> Limit; // TODO Parameter should only occur for defaults not for limits, use int and float only?
 				typedef std::vector<Limit> Limits;
 
-				Function() : m_category(0) {
-				}
+				Function();
 
 				// Key: script event function
 				void setCode(const string &code);
@@ -193,8 +202,8 @@ class TriggerData : public FileFormat
 				Limits& limits();
 				const Limits& limits() const;
 
-				virtual std::streamsize read(InputStream& istream);
-				virtual std::streamsize write(OutputStream& ostream) const;
+				virtual std::streamsize read(InputStream& istream) override;
+				virtual std::streamsize write(OutputStream& ostream) const override;
 
 				virtual void fillTypes(TriggerData *triggerData, const SplitVector &values);
 
@@ -249,17 +258,15 @@ class TriggerData : public FileFormat
 		class Call : public Function
 		{
 			public:
-				Call() : m_canBeUsedInEvents(false) {
-				}
+				Call();
 
 				bool canBeUsedInEvents() const;
 				const ArgumentType& returnType() const;
 
-				virtual std::streamsize read(InputStream& istream);
-				virtual std::streamsize write(OutputStream& ostream) const;
+				virtual std::streamsize read(InputStream& istream) override;
+				virtual std::streamsize write(OutputStream& ostream) const override;
 
-				// TODO C++11 override
-				virtual void fillTypes(TriggerData *triggerData, const SplitVector &values);
+				virtual void fillTypes(TriggerData *triggerData, const SplitVector &values) override;
 
 			private:
 				bool m_canBeUsedInEvents;
@@ -286,8 +293,8 @@ class TriggerData : public FileFormat
 				Functions& actions();
 				const Functions& actions() const;
 
-				virtual std::streamsize read(InputStream &istream);
-				virtual std::streamsize write(OutputStream &ostream) const;
+				virtual std::streamsize read(InputStream &istream) override;
+				virtual std::streamsize write(OutputStream &ostream) const override;
 
 			private:
 				string m_name;
@@ -307,12 +314,17 @@ class TriggerData : public FileFormat
 		typedef std::vector<string> DefaultTriggerCategories;
 		typedef boost::ptr_vector<DefaultTrigger> DefaultTriggers;
 
-		virtual std::streamsize read(InputStream &istream);
-		virtual std::streamsize write(OutputStream &ostream) const;
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
-		virtual const byte* fileName() const;
-		virtual const byte* fileTextId() const;
-		virtual uint32 latestFileVersion() const;
+		virtual const byte* fileName() const override;
+		virtual const byte* fileTextId() const override;
+		virtual uint32 latestFileVersion() const override;
+
+		/**
+		 * Clears the whole data.
+		 */
+		void clear();
 
 		const Categories& categories() const;
 		const Types& types() const;
@@ -339,8 +351,14 @@ class TriggerData : public FileFormat
 		 * There is some special types like "nothing" and "Null" which should be interpreted as literals instead of
 		 * searching for the corresponding type.
 		 * Otherwise, it will at least print a warning.
+		 *
+		 * @{
 		 */
+		void setSpecialTypes(const SpecialTypes &specialTypes);
 		const SpecialTypes& specialTypes() const;
+		/**
+		 * @}
+		 */
 
 	private:
 		template<class FunctionType>
@@ -725,6 +743,11 @@ inline TriggerData::DefaultTrigger::Functions& TriggerData::DefaultTrigger::acti
 inline const TriggerData::DefaultTrigger::Functions& TriggerData::DefaultTrigger::actions() const
 {
 	return m_actions;
+}
+
+inline void TriggerData::setSpecialTypes(const TriggerData::SpecialTypes &specialTypes)
+{
+	this->m_specialTypes = specialTypes;
 }
 
 inline const TriggerData::SpecialTypes& TriggerData::specialTypes() const

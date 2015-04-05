@@ -50,7 +50,9 @@ std::streamsize TriggerFunction::read(InputStream &istream, const TriggerData &t
 			iterator = triggerData.events().find(this->name());
 
 			if (iterator == triggerData.events().end())
+			{
 				throw Exception(boost::format(_("Function \"%1%\" not found in events of TriggerData.txt.")) % this->name());
+			}
 
 			break;
 		}
@@ -60,7 +62,9 @@ std::streamsize TriggerFunction::read(InputStream &istream, const TriggerData &t
 			iterator = triggerData.conditions().find(this->name());
 
 			if (iterator == triggerData.conditions().end())
+			{
 				throw Exception(boost::format(_("Function \"%1%\" not found in conditions of TriggerData.txt.")) % this->name());
+			}
 
 			break;
 		}
@@ -70,7 +74,9 @@ std::streamsize TriggerFunction::read(InputStream &istream, const TriggerData &t
 			iterator = triggerData.actions().find(this->name());
 
 			if (iterator == triggerData.actions().end())
+			{
 				throw Exception(boost::format(_("Function \"%1%\" not found in actions of TriggerData.txt.")) % this->name());
+			}
 
 			break;
 		}
@@ -80,7 +86,9 @@ std::streamsize TriggerFunction::read(InputStream &istream, const TriggerData &t
 			iterator = triggerData.calls().find(this->name());
 
 			if (iterator == triggerData.calls().end())
+			{
 				throw Exception(boost::format(_("Function \"%1%\" not found in actions of TriggerData.txt.")) % this->name());
+			}
 
 			break;
 		}
@@ -93,15 +101,15 @@ std::streamsize TriggerFunction::read(InputStream &istream, const TriggerData &t
 
 	// trigger calls have return type + parameters!
 	const int32 count = this->type() == TriggerFunction::Type::Call ? iterator->second->types().size() - 1 :  iterator->second->types().size();
-	std::cerr << "Function " << this->name() << std::endl;
-	std::cerr << "with " << count << " parameters" << std::endl;
 	wc3lib::read<int32>(istream, (int32&)this->m_isEnabled, size);
 
-	if (count == 1) {
+	if (count == 1)
+	{
 		const string firstParameter = boost::apply_visitor(TriggerData::FunctionArgumentVisitor(), iterator->second->types()[(this->type() == TriggerFunction::Type::Call ? 1 : 0)]);
 
 		// cancel if first parameter is nothing
-		if (firstParameter == "nothing") {
+		if (firstParameter == "nothing")
+		{
 			return size;
 		}
 	}

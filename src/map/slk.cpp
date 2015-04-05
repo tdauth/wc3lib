@@ -217,7 +217,7 @@ struct SlkGrammar : qi::grammar<Iterator, Slk::Table(), qi::locals<Slk::Table::s
 		 */
 		skipped_field %=
 			lit(";")
-			>> char_('A', 'Z') - lit('X') - lit('Y')
+			>> (char_('A', 'Z') - lit('X') - lit('Y'))
 			>> *skipped_literal
 		;
 

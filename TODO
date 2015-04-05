@@ -1,5 +1,8 @@
 2015-04-04 Tamino Dauth <tamino@cdauth.eu>
 * Trigger Editor: Improve performance on opening a trigger. Maybe loading icons is too slow.
+* Add class TriggerDataEx which supports Frozen Throne.
+* Make sure map::TriggerData detects if the file is Frozen Throne.
+* Make sure that trigger editor loads trigger data from Warcraft III: Reign of Chaos or prints an error if it parses a Frozen Throne file.
 
 2015-01-01 Tamino Dauth <tamino@cdauth.eu>
 * Object Editor: Values are split by ',' but tooltip strings etc. which containt <Alc,DataA1> are cut at ','. Only split if its not a string value?

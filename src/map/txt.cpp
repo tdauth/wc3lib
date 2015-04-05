@@ -329,7 +329,7 @@ bool parse(Iterator first, Iterator last, Txt::Sections &sections)
 
 const Txt::Entries& Txt::entries(const string &section) const
 {
-	for (int i = 0; i < this->sections().size(); ++i)
+	for (Sections::size_type i = 0; i < this->sections().size(); ++i)
 	{
 		if (this->sections()[i].name == section)
 		{

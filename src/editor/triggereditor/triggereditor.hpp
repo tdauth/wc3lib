@@ -249,6 +249,9 @@ class KDE_EXPORT TriggerEditor : public Module
 		 */
 		void openTriggers();
 
+		/**
+		 * Opens triggers from \p url.
+		 */
 		void openTriggersUrl(const KUrl &url);
 		/**
 		 * Opens file dialog for loading custom text triggers file (*.wtc).

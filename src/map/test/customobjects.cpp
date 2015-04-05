@@ -88,7 +88,7 @@ BOOST_FIXTURE_TEST_SUITE(TestSuite, MyConfig)
 
 BOOST_AUTO_TEST_CASE(Units)
 {
-	BOOST_REQUIRE(MyConfig::collection.fileExtension() == ".w3o");
+	BOOST_REQUIRE(strcmp(MyConfig::collection.fileExtension(), ".w3o") == 0);
 	BOOST_REQUIRE(MyConfig::valid);
 	BOOST_REQUIRE(MyConfig::collection.hasUnits());
 	BOOST_REQUIRE(MyConfig::collection.units().get() != 0);
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(Units)
 
 BOOST_AUTO_TEST_CASE(Items)
 {
-	BOOST_REQUIRE(MyConfig::collection.fileExtension() == ".w3o");
+	BOOST_REQUIRE(strcmp(MyConfig::collection.fileExtension(), ".w3o") == 0);
 	BOOST_REQUIRE(MyConfig::valid);
 	BOOST_REQUIRE(MyConfig::collection.hasItems());
 	BOOST_REQUIRE(MyConfig::collection.items().get() != 0);
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(Items)
 
 BOOST_AUTO_TEST_CASE(Destructibles)
 {
-	BOOST_REQUIRE(MyConfig::collection.fileExtension() == ".w3o");
+	BOOST_REQUIRE(strcmp(MyConfig::collection.fileExtension(), ".w3o") == 0);
 	BOOST_REQUIRE(MyConfig::valid);
 	BOOST_REQUIRE(MyConfig::collection.hasDestructibles());
 	BOOST_REQUIRE(MyConfig::collection.destructibles().get() != 0);
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE(Destructibles)
 
 BOOST_AUTO_TEST_CASE(Doodads)
 {
-	BOOST_REQUIRE(MyConfig::collection.fileExtension() == ".w3o");
+	BOOST_REQUIRE(strcmp(MyConfig::collection.fileExtension(), ".w3o") == 0);
 	BOOST_REQUIRE(MyConfig::valid);
 	BOOST_REQUIRE(MyConfig::collection.hasDoodads());
 	BOOST_REQUIRE(MyConfig::collection.doodads().get() != 0);
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(Doodads)
 
 BOOST_AUTO_TEST_CASE(Abilities)
 {
-	BOOST_REQUIRE(MyConfig::collection.fileExtension() == ".w3o");
+	BOOST_REQUIRE(strcmp(MyConfig::collection.fileExtension(), ".w3o") == 0);
 	BOOST_REQUIRE(MyConfig::valid);
 	BOOST_REQUIRE(MyConfig::collection.hasAbilities());
 	BOOST_REQUIRE(MyConfig::collection.abilities().get() != 0);
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(Abilities)
 
 BOOST_AUTO_TEST_CASE(Buffs)
 {
-	BOOST_REQUIRE(MyConfig::collection.fileExtension() == ".w3o");
+	BOOST_REQUIRE(strcmp(MyConfig::collection.fileExtension(), ".w3o") == 0);
 	BOOST_REQUIRE(MyConfig::valid);
 	BOOST_REQUIRE(MyConfig::collection.hasBuffs());
 	BOOST_REQUIRE(MyConfig::collection.buffs().get() != 0);
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE(Buffs)
 
 BOOST_AUTO_TEST_CASE(Upgrades)
 {
-	BOOST_REQUIRE(MyConfig::collection.fileExtension() == ".w3o");
+	BOOST_REQUIRE(strcmp(MyConfig::collection.fileExtension(), ".w3o") == 0);
 	BOOST_REQUIRE(MyConfig::valid);
 	BOOST_REQUIRE(MyConfig::collection.hasUpgrades());
 	BOOST_REQUIRE(MyConfig::collection.upgrades().get() != 0);

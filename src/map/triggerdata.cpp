@@ -68,6 +68,10 @@ std::streamsize TriggerData::Type::write(OutputStream &ostream) const
 	return 0;
 }
 
+TriggerData::Parameter::Parameter() : m_type(0)
+{
+}
+
 std::streamsize TriggerData::Parameter::read(InputStream &istream)
 {
 	return 0;
@@ -78,6 +82,10 @@ std::streamsize TriggerData::Parameter::write(OutputStream &ostream) const
 	return 0;
 }
 
+TriggerData::Function::Function() : m_category(0)
+{
+}
+
 std::streamsize TriggerData::Function::read(InputStream &istream)
 {
 	return 0;
@@ -86,6 +94,10 @@ std::streamsize TriggerData::Function::read(InputStream &istream)
 std::streamsize TriggerData::Function::write(OutputStream &ostream) const
 {
 	return 0;
+}
+
+TriggerData::Call::Call() : m_canBeUsedInEvents(false)
+{
 }
 
 std::streamsize TriggerData::Call::read(InputStream &istream)
@@ -178,7 +190,6 @@ void TriggerData::readFunction(const Txt::Entry &ref, boost::ptr_map<string, Fun
 		std::auto_ptr<FunctionType> functionPtr(new FunctionType());
 		function = functionPtr.get();
 		function->setCode(code);
-		std::cerr << "New function: \"" << code << "\"" << std::endl; // TEST
 		functions.insert(code, functionPtr);
 	}
 	else
@@ -419,7 +430,8 @@ std::streamsize TriggerData::read(InputStream &istream)
 		this->categories().insert(name, category);
 	}
 
-	std::map<string, string> baseTypes;
+	typedef std::map<string, string> BaseTypes;
+	BaseTypes baseTypes;
 
 	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerTypes"))
 	{
@@ -458,22 +470,42 @@ std::streamsize TriggerData::read(InputStream &istream)
 			std::cerr << boost::format(_("Missing base type for type \"%1%\".")) % name << std::endl;
 		}*/
 
+		/*
+		 * Detected The Frozen Throne trigger data file.
+		 * Use TriggerDataEx to load this.
+		 */
+		if (values.size() > 4)
+		{
+			throw Exception(boost::format(_("Detected The Frozen Throne type in a Reign of Chaos TriggerData.txt file for type \"%1%\".")) % name);
+		}
+
 		this->types().insert(name, type);
 	}
 
 	// set trigger types bases
-	BOOST_FOREACH(Types::reference ref, this->types())
+	BOOST_FOREACH(BaseTypes::reference ref, baseTypes)
 	{
-		const string baseType = baseTypes[ref.first];
+		const string type = ref.first;
+		const string baseType = ref.second;
+
 		Types::iterator baseTypeIterator = this->types().find(baseType);
 
 		if (baseTypeIterator != this->types().end())
 		{
-			ref.second->setBaseType(baseTypeIterator->second);
+			Types::iterator typeIterator = this->types().find(type);
+
+			if (typeIterator != this->types().end())
+			{
+				typeIterator->second->setBaseType(baseTypeIterator->second);
+			}
+			else
+			{
+				std::cerr << boost::format(_("Missing type \"%1%\" for base type \"%2%\".")) % type % baseType << std::endl;
+			}
 		}
 		else
 		{
-			std::cerr << boost::format(_("Missing base type \"%1%\".")) % baseType << std::endl;
+			std::cerr << boost::format(_("Missing base type \"%1%\" for type \"%2%\".")) % baseType % type << std::endl;
 		}
 	}
 
@@ -644,17 +676,17 @@ std::streamsize TriggerData::read(InputStream &istream)
 				}
 				else if (type == "Events")
 				{
-					const std::size_t eventsCount = boost::lexical_cast<std::size_t>(ref.second) + 1;
+					const std::size_t eventsCount = boost::lexical_cast<std::size_t>(ref.second);
 					trigger->events().resize(eventsCount);
 				}
 				else if (type == "Conditions")
 				{
-					const std::size_t conditionsCount = boost::lexical_cast<std::size_t>(ref.second) + 1;
+					const std::size_t conditionsCount = boost::lexical_cast<std::size_t>(ref.second);
 					trigger->conditions().resize(conditionsCount);
 				}
 				else if (type == "Actions")
 				{
-					const std::size_t actionsCount = boost::lexical_cast<std::size_t>(ref.second) + 1;
+					const std::size_t actionsCount = boost::lexical_cast<std::size_t>(ref.second);
 					trigger->actions().resize(actionsCount);
 				}
 				else if (boost::starts_with(type, "Event"))
@@ -745,7 +777,47 @@ std::streamsize TriggerData::read(InputStream &istream)
 
 std::streamsize TriggerData::write(OutputStream &ostream) const
 {
-	return 0;
+
+	boost::scoped_ptr<Txt> txt(new Txt());
+	Txt::Section triggerCategories;
+	triggerCategories.name = "TriggerCategories";
+
+	BOOST_FOREACH(Categories::const_reference ref, this->categories())
+	{
+		const string categoryName = ref->first;
+		const Category *category = ref->second;
+		stringstream sstream;
+		sstream << category->displayText() << "," << category->iconImageFile();
+
+		if (!category->displayName())
+		{
+			sstream << ",1";
+		}
+
+		const string entry = sstream.str();
+
+		triggerCategories.entries.push_back(Txt::Entry(categoryName, entry));
+	}
+
+	txt->sections().push_back(triggerCategories);
+
+	// TODO write other stuff as well
+
+	return txt->write(ostream);
+}
+
+void TriggerData::clear()
+{
+	this->m_categories.clear();
+	this->m_types.clear();
+	this->m_parameters.clear();
+	this->m_events.clear();
+	this->m_conditions.clear();
+	this->m_actions.clear();
+	this->m_calls.clear();
+	this->m_defaultTriggerCategories.clear();
+	this->m_defaultTriggers.clear();
+	this->m_specialTypes.clear();
 }
 
 }

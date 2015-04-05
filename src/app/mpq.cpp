@@ -274,7 +274,7 @@ int main(int argc, char *argv[])
 
 			try
 			{
-				std::streamsize size = mpq->open(path);
+				mpq->open(path);
 			}
 			catch (wc3lib::Exception &exception)
 			{
@@ -322,7 +322,7 @@ int main(int argc, char *argv[])
 
 			try
 			{
-				std::streamsize size = mpq->open(path);
+				mpq->open(path);
 			}
 			catch (wc3lib::Exception &exception)
 			{
@@ -364,7 +364,7 @@ int main(int argc, char *argv[])
 
 			try
 			{
-				std::streamsize size = mpq->open(path);
+				mpq->open(path);
 			}
 			catch (wc3lib::Exception &exception)
 			{

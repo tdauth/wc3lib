@@ -42,7 +42,6 @@ std::streamsize Triggers::read(InputStream &istream, const TriggerData &triggerD
 
 	int32 number = 0;
 	wc3lib::read(istream, number, size);
-	std::cerr << "Number for categories: " << number << std::endl;
 	this->categories().reserve(number);
 
 	for (int32 i = 0; i < number; ++i)
@@ -54,7 +53,6 @@ std::streamsize Triggers::read(InputStream &istream, const TriggerData &triggerD
 
 	wc3lib::read(istream, this->m_unknown0, size);
 	wc3lib::read(istream, number, size);
-	std::cerr << "Number for variables: " << number << std::endl;
 	this->variables().reserve(number);
 
 	for (int32 i = 0; i < number; ++i)
@@ -84,20 +82,26 @@ std::streamsize Triggers::write(OutputStream &ostream) const
 	wc3lib::write(ostream, number, size);
 
 	BOOST_FOREACH(Categories::const_reference value, categories())
+	{
 		size += value.write(ostream);
+	}
 
 	wc3lib::write(ostream, this->unknown0(), size);
 	number = boost::numeric_cast<int32>(this->variables().size());
 	wc3lib::write(ostream, number, size);
 
 	BOOST_FOREACH(Variables::const_reference value, variables())
+	{
 		size += value.write(ostream);
+	}
 
 	number = boost::numeric_cast<int32>(this->triggers().size());
 	wc3lib::write(ostream, number, size);
 
 	BOOST_FOREACH(TriggerEntries::const_reference value, triggers())
+	{
 		size += value.write(ostream);
+	}
 
 	return size;
 }

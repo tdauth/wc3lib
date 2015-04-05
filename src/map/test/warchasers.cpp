@@ -39,7 +39,6 @@ using namespace wc3lib;
  * \file
  * This test tries to open the War Chasers map, a standard Warcraft III: Reign of Chaos scenario.
  */
-
 BOOST_AUTO_TEST_CASE(ReadTest)
 {
 	map::W3m map;

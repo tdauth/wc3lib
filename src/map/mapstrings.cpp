@@ -139,7 +139,7 @@ struct StringsGrammar : qi::grammar<Iterator, MapStrings::Entries(), Skipper>
 		value %=
 			no_skip[
 				*(
-					unicode::char_- lit('}') - qi::eol
+					(unicode::char_- lit('}') - qi::eol)
 					// only take eol if it is not the last one before the closing bracket
 					| (qi::eol >> &(unicode::char_- lit('}')))
 				)

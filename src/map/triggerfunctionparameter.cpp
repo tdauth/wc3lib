@@ -42,15 +42,14 @@ std::streamsize TriggerFunctionParameter::read(InputStream &istream, const Trigg
 {
 	std::streamsize size = 0;
 	wc3lib::read<int32>(istream, (int32&)this->m_type, size);
-	std::cerr << "Type: " << static_cast<int32>(this->m_type) << std::endl;
 	readString(istream, this->m_value, size);
-	std::cerr << "Value: " << this->m_value << std::endl;
 	int32 functionCount = 0;
 	wc3lib::read(istream, functionCount, size);
-	std::cerr << "Function count: " << functionCount << std::endl;
 
 	if (functionCount > 0 && type() != Type::Function)
+	{
 		std::cerr << boost::format(_("Warning: Functions in parameter which is not of type function itself - type %1%.")) % static_cast<int32>(type()) << std::endl;
+	}
 
 	this->functions().reserve(functionCount);
 
@@ -61,18 +60,17 @@ std::streamsize TriggerFunctionParameter::read(InputStream &istream, const Trigg
 		this->functions().push_back(function);
 	}
 
-	std::cerr << "After functions!" << std::endl;
-
 	int32 arrayIndexCount = 0;
 	wc3lib::read(istream, arrayIndexCount, size);
 
-	if (arrayIndexCount > 0 && type() != Type::Variable) {
+	if (arrayIndexCount > 0 && type() != Type::Variable)
+	{
 		std::cerr << boost::format(_("Warning: Array index count for non-variable parameter - type %1%.")) % static_cast<int32>(type()) << std::endl;
-	} else if (arrayIndexCount > 1 && type() == Type::Variable) {
+	}
+	else if (arrayIndexCount > 1 && type() == Type::Variable)
+	{
 		std::cerr << boost::format(_("Warning: Array index count %1% for variable parameter is greater than 1 although multi dimensional arrays are not supported.")) % arrayIndexCount << std::endl;
 	}
-
-	std::cerr << "Array index count " << arrayIndexCount << std::endl;
 
 	for (int32 i = 0; i < arrayIndexCount; ++i)
 	{
@@ -80,8 +78,6 @@ std::streamsize TriggerFunctionParameter::read(InputStream &istream, const Trigg
 		size += parameter->read(istream, triggerData);
 		this->parameters().push_back(parameter);
 	}
-
-	std::cerr << "After array indices!" << std::endl;
 
 	return size;
 }
@@ -94,12 +90,16 @@ std::streamsize TriggerFunctionParameter::write(OutputStream &ostream) const
 	wc3lib::write<int32>(ostream, this->functions().size(), size);
 
 	BOOST_FOREACH(Functions::const_reference ref, this->functions())
+	{
 		size += ref.write(ostream);
+	}
 
 	wc3lib::write<int32>(ostream, this->parameters().size(), size);
 
 	BOOST_FOREACH(Parameters::const_reference ref, this->parameters())
+	{
 		size += ref.write(ostream);
+	}
 
 	return size;
 }

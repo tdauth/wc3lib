@@ -33,6 +33,7 @@ if (MAP)
 		trigger.hpp
 		triggercategory.hpp
 		triggerdata.hpp
+		triggerdataex.hpp
 		triggerfunction.hpp
 		triggerfunctionparameter.hpp
 		triggers.hpp
@@ -72,6 +73,7 @@ if (MAP)
 		trigger.cpp
 		triggercategory.cpp
 		triggerdata.cpp
+		triggerdataex.cpp
 		triggerfunction.cpp
 		triggerfunctionparameter.cpp
 		triggers.cpp

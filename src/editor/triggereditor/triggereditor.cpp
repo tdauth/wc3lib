@@ -620,6 +620,12 @@ void TriggerEditor::openTriggersUrl(const KUrl &url)
 	}
 	catch (std::exception &exception)
 	{
+		if (triggers != 0)
+		{
+			delete triggers;
+			triggers = 0;
+		}
+
 		KMessageBox::error(this, i18n("Unable to read triggers from file \"%1\".\nException: \"%2\".", target, exception.what()));
 
 		return;
