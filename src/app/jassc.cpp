@@ -107,7 +107,8 @@ int main(int argc, char *argv[])
 		return EXIT_SUCCESS;
 	}
 
-	if (inputFiles.empty()) {
+	if (inputFiles.empty())
+	{
 		std::cerr << _("Missing input files.") << std::endl;
 
 		return EXIT_FAILURE;
