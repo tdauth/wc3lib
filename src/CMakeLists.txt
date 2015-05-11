@@ -7,7 +7,7 @@ if (DEBUG)
 endif ()
 
 # regex is required for listfile in mpq module
-find_package(Boost COMPONENTS system filesystem serialization program_options iostreams regex REQUIRED)
+find_package(Boost "1.58" COMPONENTS system filesystem serialization program_options iostreams regex REQUIRED)
 
 link_directories(${Boost_LIBRARY_DIRS})
 include_directories(${GETTEXT_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})

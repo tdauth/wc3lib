@@ -708,7 +708,7 @@ struct jass_type : public jass_global_declaration
 		switch (parent.whichType())
 		{
 			case jass_type_reference::Type::String:
-			return !boost::get<const string&>(parent.variant).empty();
+			return !boost::get<const string>(parent.variant).empty();
 
 			case jass_type_reference::Type::Declaration:
 				return boost::get<const jass_type*>(parent.variant) != 0;

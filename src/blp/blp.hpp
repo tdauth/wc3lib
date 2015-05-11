@@ -396,7 +396,7 @@ inline bool Blp::MipMap::Color::hasPaletteIndex() const
 
 inline void Blp::MipMap::Color::setPaletteIndex(byte paletteIndex)
 {
-	boost::get<IndexAndAlpha&>(m_value).first = paletteIndex;
+	boost::get<IndexAndAlpha>(m_value).first = paletteIndex;
 }
 
 inline byte Blp::MipMap::Color::paletteIndex() const

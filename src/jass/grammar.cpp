@@ -1167,10 +1167,12 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(wc3lib::jass::jass_functions, functions)
 )
 
+/*
 BOOST_FUSION_ADAPT_STRUCT(
 	wc3lib::jass::jass_ast,
 	// (client::jass_types, types)
 	// TODO do we have to fill these?
 	//(wc3lib::jass::jass_files, files)
 )
+*/
 //]

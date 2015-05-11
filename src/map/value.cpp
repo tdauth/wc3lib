@@ -158,7 +158,7 @@ int32& Value::toInteger()
 		throw boost::bad_get();
 	}
 
-	return boost::get<int32&>(*this);
+	return boost::get<int32>(*this);
 }
 
 const int32& Value::toInteger() const
@@ -168,7 +168,7 @@ const int32& Value::toInteger() const
 		throw boost::bad_get();
 	}
 
-	return boost::get<const int32&>(*this);
+	return boost::get<const int32>(*this);
 }
 
 bool Value::isReal() const
@@ -183,7 +183,7 @@ float32& Value::toReal()
 		throw boost::bad_get();
 	}
 
-	return boost::get<float32&>(*this);
+	return boost::get<float32>(*this);
 }
 
 const float32& Value::toReal() const
@@ -193,7 +193,7 @@ const float32& Value::toReal() const
 		throw boost::bad_get();
 	}
 
-	return boost::get<const float32&>(*this);
+	return boost::get<const float32>(*this);
 }
 
 bool Value::isString() const
@@ -219,7 +219,7 @@ string& Value::toString()
 		throw boost::bad_get();
 	}
 
-	return boost::get<string&>(*this);
+	return boost::get<string>(*this);
 }
 
 const string& Value::toString() const
@@ -229,7 +229,7 @@ const string& Value::toString() const
 		throw boost::bad_get();
 	}
 
-	return boost::get<const string&>(*this);
+	return boost::get<const string>(*this);
 }
 
 bool& Value::toBoolean()
@@ -239,7 +239,7 @@ bool& Value::toBoolean()
 		throw boost::bad_get();
 	}
 
-	return boost::get<bool&>(*this);
+	return boost::get<bool>(*this);
 }
 
 const bool& Value::toBoolean() const
@@ -249,7 +249,7 @@ const bool& Value::toBoolean() const
 		throw boost::bad_get();
 	}
 
-	return boost::get<const bool&>(*this);
+	return boost::get<const bool>(*this);
 }
 
 byte& Value::toCharacter()
@@ -259,7 +259,7 @@ byte& Value::toCharacter()
 		throw boost::bad_get();
 	}
 
-	return boost::get<byte&>(*this);
+	return boost::get<byte>(*this);
 }
 
 const byte& Value::toCharacter() const
@@ -269,7 +269,7 @@ const byte& Value::toCharacter() const
 		throw boost::bad_get();
 	}
 
-	return boost::get<const byte&>(*this);
+	return boost::get<const byte>(*this);
 }
 
 bool Value::isList() const
@@ -289,7 +289,7 @@ List& Value::toList()
 		throw boost::bad_get();
 	}
 
-	return boost::get<List&>(*this);
+	return boost::get<List>(*this);
 }
 
 const List& Value::toList() const
@@ -299,7 +299,7 @@ const List& Value::toList() const
 		throw boost::bad_get();
 	}
 
-	return boost::get<const List&>(*this);
+	return boost::get<const List>(*this);
 }
 
 bool Value::operator<(const Value &value) const

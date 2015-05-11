@@ -75,7 +75,7 @@ std::vector<const jass_var_declaration* > Analyzer::leakingDeclarations(const ja
 			BOOST_FOREACH(jass_statements::const_reference statement, function.statements) {
 
 				if (statement.variant.type() == typeid(jass_call)) {
-					const jass_call &call = boost::get<const jass_call&>(statement.variant);
+					const jass_call &call = boost::get<const jass_call>(statement.variant);
 
 					/*
 					 * Destructors only have the variable as parameter.
@@ -85,11 +85,11 @@ std::vector<const jass_var_declaration* > Analyzer::leakingDeclarations(const ja
 						const jass_var_reference *var = 0;
 
 						if (call.arguments[0].get().variant.type() == typeid(jass_array_reference)) {
-							const jass_array_reference &ref = boost::get<const jass_array_reference&>(call.arguments[0].get().variant);
+							const jass_array_reference &ref = boost::get<const jass_array_reference>(call.arguments[0].get().variant);
 
 							var = &ref.var;
 						} else if (call.arguments[0].get().variant.type() == typeid(jass_var_reference)) {
-							const jass_var_reference &ref = boost::get<const jass_var_reference&>(call.arguments[0].get().variant);
+							const jass_var_reference &ref = boost::get<const jass_var_reference>(call.arguments[0].get().variant);
 
 							var = &ref;
 						}
@@ -265,7 +265,7 @@ bool Analyzer::typeReferenceIsOfBaseType(const jass_type_reference& type, const 
 
 				case jass_type_reference::Type::String:
 				{
-					if (typeRef->identifier == boost::get<const std::string&>(baseType.variant)) {
+					if (typeRef->identifier == boost::get<const std::string>(baseType.variant)) {
 						return true;
 					}
 				}
@@ -282,7 +282,7 @@ bool Analyzer::typeReferenceIsOfBaseType(const jass_type_reference& type, const 
 		*/
 		case jass_type_reference::Type::String:
 		{
-			const std::string &identifier = boost::get<const std::string&>(type.variant);
+			const std::string &identifier = boost::get<const std::string>(type.variant);
 
 			switch (baseType.whichType())
 			{
@@ -295,7 +295,7 @@ bool Analyzer::typeReferenceIsOfBaseType(const jass_type_reference& type, const 
 
 				case jass_type_reference::Type::String:
 				{
-					if (identifier == boost::get<const std::string&>(baseType.variant)) {
+					if (identifier == boost::get<const std::string>(baseType.variant)) {
 						return true;
 					}
 				}
@@ -418,19 +418,19 @@ jass_const Analyzer::evaluateConstantExpression(const jass_expression& expressio
 
 	switch (expression.whichType()) {
 		case jass_expression::Type::Constant: {
-			const jass_const &constant = boost::get<const jass_const&>(expression.variant);
+			const jass_const &constant = boost::get<const jass_const>(expression.variant);
 
 			return constant;
 		}
 
 		case jass_expression::Type::Parentheses: {
-			const jass_parentheses &parentheses = boost::get<const jass_parentheses&>(expression.variant);
+			const jass_parentheses &parentheses = boost::get<const jass_parentheses>(expression.variant);
 
 			return evaluateConstantExpression(parentheses.expression, isConstant);
 		}
 
 		case jass_expression::Type::FunctionCall: {
-			const jass_function_call &call = boost::get<const jass_function_call&>(expression.variant);
+			const jass_function_call &call = boost::get<const jass_function_call>(expression.variant);
 
 			switch (call.function.whichType())
 			{
@@ -443,7 +443,7 @@ jass_const Analyzer::evaluateConstantExpression(const jass_expression& expressio
 		}
 
 		case jass_expression::Type::UnaryOperation: {
-			const jass_unary_operation &unary_operation = boost::get<const jass_unary_operation&>(expression.variant);
+			const jass_unary_operation &unary_operation = boost::get<const jass_unary_operation>(expression.variant);
 
 			const jass_const &constant = evaluateConstantExpression(unary_operation.expression, isConstant);
 
@@ -491,7 +491,7 @@ jass_const Analyzer::evaluateConstantExpression(const jass_expression& expressio
 		}
 
 		case jass_expression::Type::BinaryOperation: {
-			const jass_binary_operation &binary_operation = boost::get<const jass_binary_operation&>(expression.variant);
+			const jass_binary_operation &binary_operation = boost::get<const jass_binary_operation>(expression.variant);
 
 			const jass_const &firstConstant = evaluateConstantExpression(binary_operation.first_expression, isConstant);
 
@@ -589,7 +589,7 @@ jass_const Analyzer::evaluateConstantExpression(const jass_expression& expressio
 
 									case jass_const::Type::String: {
 										jass_const result;
-										result.variant = (boost::get<const wc3lib::string&>(firstConstant.variant) + boost::get<const wc3lib::string&>(secondConstant.variant));
+										result.variant = (boost::get<const wc3lib::string>(firstConstant.variant) + boost::get<const wc3lib::string>(secondConstant.variant));
 
 										return result;
 									}
@@ -706,36 +706,36 @@ jass_type_reference Analyzer::expressionType(const jass_expression& expression) 
 {
 	switch (expression.whichType()) {
 		case jass_expression::Type::Constant: {
-			return constType(boost::get<const jass_const&>(expression.variant));
+			return constType(boost::get<const jass_const>(expression.variant));
 		}
 
 		// always use the first expression for binary operations
 		case jass_expression::Type::BinaryOperation: {
-			return expressionType(boost::get<const jass_binary_operation&>(expression.variant).first_expression);
+			return expressionType(boost::get<const jass_binary_operation>(expression.variant).first_expression);
 		}
 
 		case jass_expression::Type::UnaryOperation: {
-			return expressionType(boost::get<const jass_unary_operation&>(expression.variant).expression);
+			return expressionType(boost::get<const jass_unary_operation>(expression.variant).expression);
 		}
 
 		case jass_expression::Type::FunctionCall: {
-			return functionCallType(boost::get<const jass_function_call&>(expression.variant));
+			return functionCallType(boost::get<const jass_function_call>(expression.variant));
 		}
 
 		case jass_expression::Type::ArrayReference: {
-			return arrayReferenceType(boost::get<const jass_array_reference&>(expression.variant));
+			return arrayReferenceType(boost::get<const jass_array_reference>(expression.variant));
 		}
 
 		case jass_expression::Type::VariableReference: {
-			return variableReferenceType(boost::get<const jass_var_reference&>(expression.variant));
+			return variableReferenceType(boost::get<const jass_var_reference>(expression.variant));
 		}
 
 		case jass_expression::Type::FunctionReference: {
-			return functionRefType(boost::get<const jass_function_ref&>(expression.variant));
+			return functionRefType(boost::get<const jass_function_ref>(expression.variant));
 		}
 
 		case jass_expression::Type::Parentheses: {
-			return expressionType(boost::get<const jass_parentheses&>(expression.variant).expression);
+			return expressionType(boost::get<const jass_parentheses>(expression.variant).expression);
 		}
 	}
 
@@ -756,7 +756,7 @@ void Analyzer::checkTypeReference(const jass_ast_node &node, const jass_type_ref
 
 		case jass_type_reference::Type::String:
 		{
-			const std::string &typeName = boost::get<const std::string&>(type.variant);
+			const std::string &typeName = boost::get<const std::string>(type.variant);
 
 			if (typeName != "nothing") {
 				reports.push_back(Report(&node, _("Undeclared indentifier.")));
@@ -873,7 +873,7 @@ void Analyzer::checkExpression(const jass_expression& expression, Analyzer::Repo
 {
 	switch (expression.whichType()) {
 		case jass_expression::Type::BinaryOperation: {
-			const jass_binary_operation &binaryOperation = boost::get<const jass_binary_operation&>(expression.variant);
+			const jass_binary_operation &binaryOperation = boost::get<const jass_binary_operation>(expression.variant);
 
 			checkBinaryOperation(binaryOperation, reports);
 
@@ -881,7 +881,7 @@ void Analyzer::checkExpression(const jass_expression& expression, Analyzer::Repo
 		}
 
 		case jass_expression::Type::UnaryOperation: {
-			const jass_unary_operation &unaryOperation = boost::get<const jass_unary_operation&>(expression.variant);
+			const jass_unary_operation &unaryOperation = boost::get<const jass_unary_operation>(expression.variant);
 
 			checkUnaryOperation(unaryOperation, reports);
 
@@ -889,7 +889,7 @@ void Analyzer::checkExpression(const jass_expression& expression, Analyzer::Repo
 		}
 
 		case jass_expression::Type::FunctionCall: {
-			const jass_function_call &call = boost::get<const jass_function_call&>(expression.variant);
+			const jass_function_call &call = boost::get<const jass_function_call>(expression.variant);
 
 			checkFunctionCall(call, reports);
 
@@ -897,7 +897,7 @@ void Analyzer::checkExpression(const jass_expression& expression, Analyzer::Repo
 		}
 
 		case jass_expression::Type::Parentheses: {
-			const jass_parentheses &parentheses = boost::get<const jass_parentheses&>(expression.variant);
+			const jass_parentheses &parentheses = boost::get<const jass_parentheses>(expression.variant);
 
 			checkExpression(parentheses.expression, reports);
 
@@ -905,7 +905,7 @@ void Analyzer::checkExpression(const jass_expression& expression, Analyzer::Repo
 		}
 
 		case jass_expression::Type::VariableReference: {
-			const jass_var_reference &var = boost::get<const jass_var_reference&>(expression.variant);
+			const jass_var_reference &var = boost::get<const jass_var_reference>(expression.variant);
 
 			switch (var.whichType())
 			{
@@ -938,7 +938,7 @@ void Analyzer::checkExpression(const jass_expression& expression, Analyzer::Repo
 void Analyzer::checkFunctionCall(const jass_function_call& call, Analyzer::Reports& reports) const
 {
 	if (call.function.whichType() == jass_function_reference::Type::Declaration) {
-		const jass_function_declaration *declaration = boost::get<jass_function_declaration*>(call.function.variant);
+		const jass_function_declaration *declaration = boost::get<const jass_function_declaration*>(call.function.variant);
 
 		if (declaration->parameters.size() != call.arguments.size()) {
 			reports.push_back(Report(&call.arguments, _("Invalid count of parameters.")));
@@ -1023,7 +1023,7 @@ void Analyzer::checkFunction(const jass_function& function, Analyzer::Reports& r
 	BOOST_FOREACH(jass_statements::const_reference statement, function.statements) {
 		switch (statement.whichType()) {
 			case jass_statement::Type::Return: {
-				const jass_return &returnStatement = boost::get<const jass_return&>(statement.variant);
+				const jass_return &returnStatement = boost::get<const jass_return>(statement.variant);
 
 				if (returnStatement.expression.is_initialized()) {
 					const jass_expression &expression = returnStatement.expression.get().get();

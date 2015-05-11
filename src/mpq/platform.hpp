@@ -23,6 +23,8 @@
 
 #include <ctime>
 
+#include <boost/operators.hpp>
+
 #include "../platform.hpp"
 
 namespace wc3lib

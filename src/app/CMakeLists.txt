@@ -90,9 +90,9 @@ if (JASS)
 endif ()
 
 if (MAP)
-	#add_executable(jasstrans jasstrans.cpp)
-	#target_link_libraries(jasstrans ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
-	#install(TARGETS jasstrans DESTINATION bin)
+	add_executable(jasstrans jasstrans.cpp)
+	target_link_libraries(jasstrans ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
+	install(TARGETS jasstrans DESTINATION bin)
 
 	add_executable(tilesetter tilesetter.cpp)
 	target_link_libraries(tilesetter ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
