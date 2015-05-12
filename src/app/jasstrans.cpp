@@ -49,6 +49,8 @@
 #include "../map.hpp"
 #include "../core.hpp"
 
+#include "../spirit.hpp"
+
 namespace
 {
 
@@ -64,8 +66,14 @@ struct AstVisitor
 	public:
 		typedef wc3lib::map::MapStrings::Entries Entries;
 		
+		AstVisitor(const std::string &translationFunctionIdentifier = "GetLocalizedString") : m_translationFunctionIdentifier(translationFunctionIdentifier)
+		{
+		}
+		
 		void visit(const wc3lib::jass::jass_ast &ast)
 		{
+			std::cerr << "Files " << ast.files.size() << std::endl;
+			
 			BOOST_FOREACH(wc3lib::jass::jass_files::const_reference file, ast.files)
 			{
 				this->visit(file);
@@ -74,10 +82,12 @@ struct AstVisitor
 		
 		void visit(const wc3lib::jass::jass_file &file)
 		{
+			std::cout << "Visiting file " << file.path << std::endl;
                         this->visit(file.declarations);
 			
 			BOOST_FOREACH(wc3lib::jass::jass_functions::const_reference function, file.functions)
 			{
+				std::cout << "Visiting function" << std::endl;
 				this->visit(function);
 			}
 		}
@@ -92,6 +102,8 @@ struct AstVisitor
 		
 		void visit(const wc3lib::jass::jass_function_call &call)
 		{
+			std::cerr << "Call" << std::endl;
+			
 			bool isTranslationFunction = false;
 			
 			switch (call.function.whichType())
@@ -100,7 +112,23 @@ struct AstVisitor
 				{
 					const wc3lib::jass::jass_function_declaration *declaration = boost::get<const wc3lib::jass::jass_function_declaration*>(call.function.variant);
 					
+					std::cerr << "Identifier: " << declaration->identifier << std::endl;
+					
 					if (declaration->identifier == this->m_translationFunctionIdentifier)
+					{
+						isTranslationFunction = true;
+					}
+					
+					break;
+				}
+				
+				case wc3lib::jass::jass_function_reference::Type::String:
+				{
+					const wc3lib::string &identifier = boost::get<wc3lib::string>(call.function.variant);
+					
+					std::cerr << "Identifier: " << identifier << std::endl;
+					
+					if (identifier == this->m_translationFunctionIdentifier)
 					{
 						isTranslationFunction = true;
 					}
@@ -161,6 +189,24 @@ struct AstVisitor
 			}
 		}
 		
+		void visit(const wc3lib::jass::jass_function &function)
+		{
+			BOOST_FOREACH(wc3lib::jass::jass_locals::const_reference local, function.locals)
+			{
+				this->visit(local);
+			}
+			
+			BOOST_FOREACH(wc3lib::jass::jass_statements::const_reference statement, function.statements)
+			{
+				this->visit(statement);
+			}
+		}
+		
+		void visit(const wc3lib::jass::jass_global &global)
+		{
+			visit(global.declaration);
+		}
+		
 		void visit(const wc3lib::jass::jass_var_declaration &declaration)
 		{
 			bool isStringAssignment = false;
@@ -190,24 +236,45 @@ struct AstVisitor
 		
 		void visit(const wc3lib::jass::jass_statement &statement)
 		{
+			switch (statement.whichType())
+			{
+				case wc3lib::jass::jass_statement::Type::Call:
+				{
+					this->visit(boost::get<const wc3lib::jass::jass_call>(statement.variant));
+					
+					break;
+				}
+				
+				case wc3lib::jass::jass_statement::Type::Return:
+				{
+					this->visit(boost::get<const wc3lib::jass::jass_return>(statement.variant));
+					
+					break;
+				}
+			}
 		}
 		
-		void visit(const wc3lib::jass::jass_function &function)
+		void visit(const wc3lib::jass::jass_call &call)
 		{
-			BOOST_FOREACH(wc3lib::jass::jass_locals::const_reference local, function.locals)
+			this->visit(call.arguments);
+		}
+		
+		void visit(const wc3lib::jass::jass_function_args &args)
+		{
+			BOOST_FOREACH(wc3lib::jass::jass_function_args::const_reference arg, args)
 			{
-				this->visit(local);
+				this->visit(arg.get());
 			}
+		}
+		
+		void visit(const wc3lib::jass::jass_return &return_statement)
+		{
+			std::cerr << "Return" << std::endl;
 			
-			BOOST_FOREACH(wc3lib::jass::jass_statements::const_reference statement, function.statements)
+			if (return_statement.expression.is_initialized())
 			{
-				this->visit(statement);
+				this->visit(return_statement.expression.value().get());
 			}
-		}
-		
-		void visit(const wc3lib::jass::jass_global &global)
-		{
-			visit(global.declaration);
 		}
 		
 		void visit(const wc3lib::map::MapStrings &mapStrings)
@@ -350,9 +417,13 @@ int main(int argc, char *argv[])
 	wc3lib::jass::Grammar grammar;
 	wc3lib::jass::jass_ast ast;
 	bool error = false;
+	
+	wc3lib::spiritTraceLog.open("jasstrans_traces.xml");
 
 	BOOST_FOREACH(Strings::const_reference ref, inputFiles)
 	{
+		std::cout << boost::format(_("Processing file \"%1%\".")) % ref << std::endl;
+		
 		boost::filesystem::path file(ref);
 
 		if (boost::filesystem::is_regular_file(file))
@@ -377,12 +448,18 @@ int main(int argc, char *argv[])
 					std::cerr << boost::format(_("Error while parsing file \"%1%\": %2%")) % ref % e.what() << std::endl;
 				}
 			}
+			else
+			{
+				std::cerr << boost::format(_("Error on opening input file \"%1%\".")) % ref << std::endl;
+			}
 		}
 		else
 		{
 			std::cerr << boost::format(_("File \"%1%\" is no regular file.")) % ref << std::endl;
 		}
 	}
+	
+	wc3lib::spiritTraceLog.close();
 
 	/*
 	 * If an error did occur when parsing the grammar we should not check the AST since
@@ -391,9 +468,43 @@ int main(int argc, char *argv[])
 	 */
 	if (!error)
 	{
+		std::cerr << "AST files " << ast.files.size() << std::endl;
+		
 		AstVisitor visitor;
 		visitor.visit(strings);
 		visitor.visit(ast);
+		/*
+		 * Create an output file depending on the specified file extension.
+		 * By default use a wts file.
+		 */
+		bool isWts = outputFile.extension() != "fdf";
+		
+		boost::filesystem::ofstream out(outputFile);
+		
+		if (out)
+		{
+			std::cout << boost::format(_("Writing output file %1%.")) % outputFile << std::endl;
+			
+			if (isWts)
+			{
+				wc3lib::map::MapStrings mapStrings;
+				mapStrings.setEntries(visitor.entries());
+				
+				try
+				{
+					mapStrings.write(out);
+				}
+				catch (const wc3lib::Exception &e)
+				{
+					std::cerr << boost::format(_("Error on writing map strings \"%1%\": %2%")) % e.what() << std::endl;
+				}
+			}
+			// TODO else
+		}
+		else
+		{
+			std::cerr << boost::format(_("Error on generating file \"%1%\".")) % outputFile << std::endl;
+		}
 	}
 
 	return 0;

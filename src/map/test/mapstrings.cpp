@@ -65,10 +65,100 @@ BOOST_AUTO_TEST_CASE(WarChasersRead)
 
 	BOOST_REQUIRE(valid);
 	BOOST_REQUIRE(!strings.entries().empty());
-	BOOST_REQUIRE(strings.entries()[0].key == 2);
-	BOOST_REQUIRE(strings.entries()[0].comment == "");
+	BOOST_CHECK(strings.entries()[0].key == 2);
+	BOOST_CHECK(strings.entries()[0].comment == "");
 	//std::cerr << "Value: " << strings.entries()[0].value << std::endl;
-	BOOST_REQUIRE(strings.entries()[0].value == "Spieler 1");
+	BOOST_CHECK(strings.entries()[0].value == "Spieler 1");
+	
+	BOOST_CHECK(strings.entries().back().key == 178);
+	BOOST_CHECK(strings.entries().back().comment == "");
+	//std::cerr << "Value: " << strings.entries()[0].value << std::endl;
+	BOOST_CHECK(strings.entries().back().value == "Dungeon-Bewohner");
+}
+
+BOOST_AUTO_TEST_CASE(WarChasersReadWriteRead)
+{
+	spiritTraceLog.close();
+	spiritTraceLog.open("mapstrings_warchasers_traces.xml");
+
+	BOOST_REQUIRE(spiritTraceLog);
+
+	ifstream in("war3map.wts");
+
+	BOOST_REQUIRE(in);
+
+	map::MapStrings strings;
+
+	bool valid = true;
+
+	try
+	{
+		strings.read(in);
+	}
+	catch (Exception e)
+	{
+		valid = false;
+
+		std::cerr << e.what() << std::endl;
+	}
+
+	BOOST_REQUIRE(valid);
+	BOOST_REQUIRE(!strings.entries().empty());
+	BOOST_CHECK(strings.entries()[0].key == 2);
+	BOOST_CHECK(strings.entries()[0].comment == "");
+	//std::cerr << "Value: " << strings.entries()[0].value << std::endl;
+	BOOST_CHECK(strings.entries()[0].value == "Spieler 1");
+	
+	BOOST_CHECK(strings.entries().back().key == 178);
+	BOOST_CHECK(strings.entries().back().comment == "");
+	//std::cerr << "Value: " << strings.entries()[0].value << std::endl;
+	BOOST_CHECK(strings.entries().back().value == "Dungeon-Bewohner");
+	
+	ofstream out("war3mapout.wts");
+	BOOST_REQUIRE(out);
+	
+	try
+	{
+		strings.write(out);
+	}
+	catch (const Exception &e)
+	{
+		valid = false;
+
+		std::cerr << e.what() << std::endl;
+	}
+	
+	out.close();
+	
+	in.close();
+	in.open("war3mapout.wts");
+	
+	BOOST_REQUIRE(in);
+	
+	strings.clear();
+	
+	try
+	{
+		strings.read(in);
+	}
+	catch (Exception e)
+	{
+		valid = false;
+
+		std::cerr << e.what() << std::endl;
+	}
+
+	BOOST_REQUIRE(valid);
+	BOOST_REQUIRE(!strings.entries().empty());
+	BOOST_CHECK(strings.entries()[0].key == 2);
+	BOOST_CHECK(strings.entries()[0].comment == "");
+	//std::cerr << "Value: " << strings.entries()[0].value << std::endl;
+	BOOST_CHECK(strings.entries()[0].value == "Spieler 1");
+	
+	BOOST_CHECK(strings.entries().back().key == 178);
+	BOOST_CHECK(strings.entries().back().comment == "");
+	//std::cerr << "Value: " << strings.entries()[0].value << std::endl;
+	BOOST_CHECK(strings.entries().back().value == "Dungeon-Bewohner");
 }
 
 /*

@@ -92,8 +92,8 @@ BOOST_AUTO_TEST_CASE(GlobalsTest) {
 	BOOST_REQUIRE(result[1].declaration.identifier == "My_Constant");
 	BOOST_REQUIRE(result[1].declaration.assignment.is_initialized());
 	BOOST_REQUIRE(result[1].declaration.assignment.get().whichType() == jass_expression::Type::Constant);
-	BOOST_REQUIRE(boost::get<const jass_const&>(result[1].declaration.assignment.get().variant).whichType() == jass_const::Type::Integer);
-	BOOST_REQUIRE(boost::get<int32>(boost::get<const jass_const&>(result[1].declaration.assignment.get().variant).variant) == 10);
+	BOOST_REQUIRE(boost::get<const jass_const>(result[1].declaration.assignment.get().variant).whichType() == jass_const::Type::Integer);
+	BOOST_REQUIRE(boost::get<int32>(boost::get<const jass_const>(result[1].declaration.assignment.get().variant).variant) == 10);
 
 	// TODO check other globals
 }

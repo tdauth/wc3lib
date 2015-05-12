@@ -3,7 +3,7 @@ Run "cmake ." or "cmake-gui ." in the corresponding build directory to generate 
 Afterwards run "make install" to install the library.
 
 Requirements (actual used versions, of course you could use others which are compliant with these):
-Boost 1.46.1 or 1.49 (components: system filesystem thread serialization program_options iostreams)
+Boost 1.58 (components: system filesystem serialization program_options iostreams unit_test_framework timer)
 
 for BLP flag only:
 jpeg 8d or libjpeg-turbo 1.2.1

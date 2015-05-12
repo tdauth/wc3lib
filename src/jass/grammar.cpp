@@ -47,7 +47,8 @@ namespace jass
 
 const Grammar::Skipper Grammar::skipper;
 
-namespace client {
+namespace client
+{
 
 namespace fusion = boost::fusion;
 namespace phoenix = boost::phoenix;
@@ -65,7 +66,8 @@ namespace unicode = boost::spirit::qi::unicode;
  * It returns a formatted string containing file path, line and column.
  */
 template<typename Iterator>
-std::string expectationFailure(const jass_file *file, const boost::spirit::qi::expectation_failure<Iterator> &e) {
+std::string expectationFailure(const jass_file *file, const boost::spirit::qi::expectation_failure<Iterator> &e)
+{
 	//const classic::file_position_base<std::string>& pos = e.first.get_position();
 	//std::stringstream msg;
 	//msg
@@ -85,7 +87,8 @@ std::string expectationFailure(const jass_file *file, const boost::spirit::qi::e
  * Specialization for classic position iterator type.
  */
 template<>
-std::string expectationFailure<Grammar::ClassicPositionIteratorType>(const jass_file *file, const boost::spirit::qi::expectation_failure<Grammar::ClassicPositionIteratorType> &e) {
+std::string expectationFailure<Grammar::ClassicPositionIteratorType>(const jass_file *file, const boost::spirit::qi::expectation_failure<Grammar::ClassicPositionIteratorType> &e)
+{
 	const classic::file_position_base<std::string>& pos = e.first.get_position();
 	std::stringstream msg;
 	msg
@@ -101,7 +104,8 @@ std::string expectationFailure<Grammar::ClassicPositionIteratorType>(const jass_
 	);
 }
 
-inline void add_type_to_symbol_table(jass_type_declarations &declarations, jass_type &type) {
+inline void add_type_to_symbol_table(jass_type_declarations &declarations, jass_type &type)
+{
 	declarations.add(type.identifier, type);
 }
 
@@ -110,13 +114,17 @@ inline void add_type_to_symbol_table(jass_type_declarations &declarations, jass_
  * If type is not found the identifier string is returned.
  * Otherwise the type pointer is returned.
  */
-inline jass_type_reference_variant get_type_symbol(jass_type_declarations &types, const string &value) {
+inline jass_type_reference_variant get_type_symbol(jass_type_declarations &types, const string &value)
+{
 	jass_type_reference_variant result;
 	jass_type *type = types.find(value.c_str());
 
-	if (type == 0) {
+	if (type == 0)
+	{
 		result = value;
-	} else {
+	}
+	else
+	{
 		result = type;
 	}
 
@@ -127,41 +135,52 @@ inline jass_type_reference_variant get_type_symbol(jass_type_declarations &types
  * Returns a type reference to the type "nothing"
  * which might be used as a return type for a function.
  */
-inline jass_type_reference get_type_nothing() {
+inline jass_type_reference get_type_nothing()
+{
 	jass_type_reference result;
 	result.variant = "nothing";
 
 	return result;
 }
 
-inline void add_var_to_symbol_table(jass_var_declarations &declarations, jass_var_declaration &var) {
+inline void add_var_to_symbol_table(jass_var_declarations &declarations, jass_var_declaration &var)
+{
 	declarations.add(var.identifier, var);
 }
 
-inline jass_var_reference_variant get_var_symbol(jass_var_declarations &vars, const string &value) {
+inline jass_var_reference_variant get_var_symbol(jass_var_declarations &vars, const string &value)
+{
 	jass_var_reference_variant result;
 	jass_var_declaration *var = vars.find(value.c_str());
 
-	if (var == 0) {
+	if (var == 0)
+	{
 		result = value;
-	} else {
+	}
+	else
+	{
 		result = var;
 	}
 
 	return result;
 }
 
-inline void add_function_to_symbol_table(jass_function_declarations &declarations, jass_function_declaration &function) {
+inline void add_function_to_symbol_table(jass_function_declarations &declarations, jass_function_declaration &function)
+{
 	declarations.add(function.identifier, function);
 }
 
-inline jass_function_reference_variant get_function_symbol(jass_function_declarations &functions, const string &value) {
+inline jass_function_reference_variant get_function_symbol(jass_function_declarations &functions, const string &value)
+{
 	jass_function_reference_variant result;
 	jass_function_declaration *function = functions.find(value.c_str());
 
-	if (function == 0) {
+	if (function == 0)
+	{
 		result = value;
-	} else {
+	}
+	else
+	{
 		result = function;
 	}
 
@@ -224,7 +243,8 @@ comment_skipper<Iterator>::comment_skipper() : comment_skipper<Iterator>::base_t
 }
 
 template <typename Iterator, typename Skipper >
-void jass_grammar<Iterator, Skipper>::prepare(Iterator first, jass_ast &ast, jass_file &current_file) {
+void jass_grammar<Iterator, Skipper>::prepare(Iterator first, jass_ast &ast, jass_file &current_file)
+{
 	this->ast = ast;
 	this->current_file = &current_file;
 	this->annotate = annotation_f<Iterator>(first);
@@ -659,7 +679,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 	 */
 	jass =
 		eps[_val = ast] >>
-		file
+		file[phoenix::push_back(at_c<0>(_val), _1)]
 		;
 
 
@@ -881,7 +901,8 @@ bool parse(Iterator first, Iterator last, jass_ast &ast, jass_file &current_file
 	static const comment_skipper<Iterator> commentSkipper;
 	bool r = false;
 
-	try {
+	try
+	{
 		r = boost::spirit::qi::phrase_parse(
 			first,
 			last,
@@ -890,7 +911,8 @@ bool parse(Iterator first, Iterator last, jass_ast &ast, jass_file &current_file
 			ast // store result into the passed ast
 		);
 	}
-	catch (const boost::spirit::qi::expectation_failure<Iterator> &e) {
+	catch (const boost::spirit::qi::expectation_failure<Iterator> &e)
+	{
 		throw Exception(
 				client::expectationFailure(grammar.current_file, e)
 			);
@@ -921,12 +943,19 @@ template bool parse<Grammar::ClassicPositionIteratorType>(Grammar::ClassicPositi
 
 }
 
-bool Grammar::parse(Grammar::InputStream& istream, jass_ast& ast, jass_file &file)
+bool Grammar::parse(Grammar::InputStream &istream, jass_ast &ast, jass_file &file)
 {
-	return this->parse(IteratorType(istream), IteratorType(), ast, file);
+	const bool result = this->parse(IteratorType(istream), IteratorType(), ast, file);
+	
+	if (!ast.files.empty())
+	{
+		ast.files.front().path = file.path;
+	}
+	
+	return result;
 }
 
-bool Grammar::parse(IteratorType first, IteratorType last, jass_ast& ast, jass_file &file)
+bool Grammar::parse(IteratorType first, IteratorType last, jass_ast &ast, jass_file &file)
 {
 	ForwardIteratorType forwardFirst = boost::spirit::make_default_multi_pass(first);
 	ForwardIteratorType forwardLast = boost::spirit::make_default_multi_pass(last); // TODO has to be created? Do we need this iterator to be passed?
@@ -936,7 +965,8 @@ bool Grammar::parse(IteratorType first, IteratorType last, jass_ast& ast, jass_f
 	PositionIteratorType position_end;
 	bool result = false;
 
-	try {
+	try
+	{
 		result = boost::spirit::qi::phrase_parse(
 			position_begin,
 			position_end,
@@ -945,7 +975,8 @@ bool Grammar::parse(IteratorType first, IteratorType last, jass_ast& ast, jass_f
 			ast // store result into the passed ast
 		);
 	}
-	catch (const boost::spirit::qi::expectation_failure<PositionIteratorType> &e) {
+	catch (const boost::spirit::qi::expectation_failure<PositionIteratorType> &e)
+	{
 		throw Exception(
 				client::expectationFailure(grammar.current_file, e)
 			);
@@ -959,11 +990,10 @@ bool Grammar::parse(IteratorType first, IteratorType last, jass_ast& ast, jass_f
 	return result;
 }
 
-bool Grammar::parse(Grammar::InputStream& istream, jass_ast& ast, const std::string& fileName)
+bool Grammar::parse(Grammar::InputStream &istream, jass_ast &ast, const std::string &fileName)
 {
 	jass_file file;
 	file.path = fileName;
-	ast.files.push_back(file);
 
 	return this->parse(IteratorType(istream), IteratorType(), ast, file);
 }
@@ -1167,12 +1197,8 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(wc3lib::jass::jass_functions, functions)
 )
 
-/*
+
 BOOST_FUSION_ADAPT_STRUCT(
 	wc3lib::jass::jass_ast,
-	// (client::jass_types, types)
-	// TODO do we have to fill these?
-	//(wc3lib::jass::jass_files, files)
+	(wc3lib::jass::jass_files, files)
 )
-*/
-//]

@@ -83,12 +83,18 @@ class MapStrings : public FileFormat
 
 		virtual std::streamsize read(InputStream& istream) override;
 		virtual std::streamsize write(OutputStream& ostream) const override;
+		
+		/**
+		 * Clears all entries.
+		 */
+		void clear();
 
 		/**
 		 * \return Returns all string entries of the file.
 		 *
 		 * @{
 		 */
+		void setEntries(const Entries &entries);
 		Entries& entries();
 		const Entries& entries() const;
 		/**
@@ -112,6 +118,16 @@ inline const byte* MapStrings::fileTextId() const
 inline uint32 MapStrings::latestFileVersion() const
 {
 	return 0;
+}
+
+inline void MapStrings::clear()
+{
+	this->m_entries.clear();
+}
+
+inline void MapStrings::setEntries(const MapStrings::Entries &entries)
+{
+	this->m_entries = entries;
 }
 
 inline MapStrings::Entries& MapStrings::entries()

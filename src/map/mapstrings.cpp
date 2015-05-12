@@ -241,6 +241,24 @@ std::streamsize MapStrings::read(InputStream &istream)
 
 std::streamsize MapStrings::write(OutputStream &ostream) const
 {
+	/**
+	 * Writes STRING entries into the the output file ostream.
+	 * TODO Use Karma to generate the output not basic code.
+	 */
+	BOOST_FOREACH(Entries::const_reference ref, this->entries())
+	{
+		if (!ref.comment.empty())
+		{
+			ostream << "// " << ref.comment << std::endl;
+		}
+		
+		ostream << "STRING " << ref.key << std::endl
+		<< '{' << std::endl
+		<< ref.value << std::endl
+		<< '}' << std::endl
+		;
+	}
+	
 	return 0;
 }
 

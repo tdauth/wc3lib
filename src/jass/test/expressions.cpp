@@ -25,7 +25,8 @@
 using namespace wc3lib;
 using namespace wc3lib::jass;
 
-struct LiteralsResults {
+struct LiteralsResults
+{
 	std::string identifier;
 	int32 integer0;
 	std::string integer1; // is a unary operation and not an integer
@@ -47,7 +48,8 @@ struct LiteralsResults {
 	fourcc fourcc1;
 	jass_null null;
 
-	LiteralsResults() {
+	LiteralsResults()
+	{
 		identifier = "";
 		integer0 = 0;
 		integer1 = "";
@@ -93,8 +95,10 @@ BOOST_FUSION_ADAPT_STRUCT(
 )
 
 template <typename Iterator, typename Skipper = client::comment_skipper<Iterator> >
-struct LiteralsGrammar : qi::grammar<Iterator, LiteralsResults(), Skipper> {
-	LiteralsGrammar(client::jass_grammar<Iterator, Skipper> &grammar) : LiteralsGrammar::base_type(testresults) {
+struct LiteralsGrammar : qi::grammar<Iterator, LiteralsResults(), Skipper>
+{
+	LiteralsGrammar(client::jass_grammar<Iterator, Skipper> &grammar) : LiteralsGrammar::base_type(testresults)
+	{
 		no_integer_literal %=
 			qi::lexeme[
 				(+qi::char_("-0-9"))
@@ -159,7 +163,8 @@ struct LiteralsGrammar : qi::grammar<Iterator, LiteralsResults(), Skipper> {
 /*
  * Checks all JASS literals which are separated by EOL in the JASS file.
  */
-BOOST_AUTO_TEST_CASE(Literals) {
+BOOST_AUTO_TEST_CASE(Literals)
+{
 	const char* jassFile = "expressions_literals.j";
 	const char* traceFile = "expressions_literals_trace.xml";
 
@@ -200,7 +205,8 @@ BOOST_AUTO_TEST_CASE(Literals) {
 	grammar.prepare(position_begin, ast, current_file);
 	LiteralsGrammar<PositionIteratorType> testGrammar(grammar);
 
-	try {
+	try
+	{
 		valid = boost::spirit::qi::phrase_parse(
 				position_begin,
 				position_end,
@@ -210,12 +216,15 @@ BOOST_AUTO_TEST_CASE(Literals) {
 				r
 			);
 
-		if (position_begin != position_end) { // fail if we did not get a full match
+		if (position_begin != position_end)
+		{
+			// fail if we did not get a full match
 			std::cerr << "Begin is not equal to end!" << std::endl;
 			valid = false;
 		}
 	}
-	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e) {
+	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e)
+	{
 //		std::cerr << client::expectationFailure(e) << std::endl;
 	}
 
@@ -253,7 +262,8 @@ BOOST_AUTO_TEST_CASE(Literals) {
 /*
  * Checks all JASS binary operators which are separated by EOL in the JASS file.
  */
-BOOST_AUTO_TEST_CASE(BinaryOperators) {
+BOOST_AUTO_TEST_CASE(BinaryOperators)
+{
 	const char* jassFile = "expressions_binary_operators.j";
 	const char* traceFile = "expressions_binary_operators_trace.xml";
 
@@ -293,7 +303,8 @@ BOOST_AUTO_TEST_CASE(BinaryOperators) {
 	client::jass_grammar<PositionIteratorType> grammar;
 	grammar.prepare(position_begin, ast, current_file);
 
-	try {
+	try
+	{
 		valid = boost::spirit::qi::phrase_parse(
 				position_begin,
 				position_end,
@@ -307,12 +318,15 @@ BOOST_AUTO_TEST_CASE(BinaryOperators) {
 				r
 			);
 
-		if (position_begin != position_end) { // fail if we did not get a full match
+		if (position_begin != position_end)
+		{
+			// fail if we did not get a full match
 			std::cerr << "Begin is not equal to end!" << std::endl;
 			valid = false;
 		}
 	}
-	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e) {
+	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e)
+	{
 //		std::cerr << client::expectationFailure(e) << std::endl;
 	}
 
@@ -336,7 +350,8 @@ BOOST_AUTO_TEST_CASE(BinaryOperators) {
 /*
  * Checks all JASS unary operators which are separated by EOL in the JASS file.
  */
-BOOST_AUTO_TEST_CASE(UnaryOperators) {
+BOOST_AUTO_TEST_CASE(UnaryOperators)
+{
 	const char* jassFile = "expressions_unary_operators.j";
 	const char* traceFile = "expressions_unary_operators_trace.xml";
 
@@ -376,7 +391,8 @@ BOOST_AUTO_TEST_CASE(UnaryOperators) {
 	client::jass_grammar<PositionIteratorType> grammar;
 	grammar.prepare(position_begin, ast, current_file);
 
-	try {
+	try
+	{
 		valid = boost::spirit::qi::phrase_parse(
 				position_begin,
 				position_end,
@@ -390,12 +406,15 @@ BOOST_AUTO_TEST_CASE(UnaryOperators) {
 				r
 			);
 
-		if (position_begin != position_end) { // fail if we did not get a full match
+		if (position_begin != position_end)
+		{
+			// fail if we did not get a full match
 			std::cerr << "Begin is not equal to end!" << std::endl;
 			valid = false;
 		}
 	}
-	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e) {
+	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e)
+	{
 //		std::cerr << client::expectationFailure(e) << std::endl;
 	}
 
@@ -413,12 +432,13 @@ BOOST_AUTO_TEST_CASE(UnaryOperators) {
  * of the variant type of jass_expression until the first variant type to be constructed
  * became jass_const with an default integer value.
  */
-BOOST_AUTO_TEST_CASE(ExpressionDefaultAssignment) {
+BOOST_AUTO_TEST_CASE(ExpressionDefaultAssignment)
+{
 	jass_expression expression;
 	BOOST_REQUIRE(expression.variant.which() == 0); // is jass_const
 	BOOST_REQUIRE(expression.variant.type() == typeid(jass_const));
 	BOOST_REQUIRE(expression.whichType() == jass_expression::Type::Constant);
-	const jass_const &const_value = boost::get<const jass_const&>(expression.variant);
+	const jass_const &const_value = boost::get<const jass_const>(expression.variant);
 	BOOST_REQUIRE(const_value.variant.which() == 0); // is int32
 	BOOST_REQUIRE(const_value.variant.type() == typeid(int32));
 	BOOST_REQUIRE(const_value.whichType() == jass_const::Type::Integer);
@@ -429,7 +449,8 @@ BOOST_AUTO_TEST_CASE(ExpressionDefaultAssignment) {
 /*
  * Checks all JASS unary operators which are separated by EOL in the JASS file.
  */
-BOOST_AUTO_TEST_CASE(ArrayReferences) {
+BOOST_AUTO_TEST_CASE(ArrayReferences)
+{
 	const char* jassFile = "expressions_array_references.j";
 	const char* traceFile = "expressions_array_references_trace.xml";
 
@@ -469,7 +490,8 @@ BOOST_AUTO_TEST_CASE(ArrayReferences) {
 	client::jass_grammar<PositionIteratorType> grammar;
 	grammar.prepare(position_begin, ast, current_file);
 
-	try {
+	try
+	{
 		valid = boost::spirit::qi::phrase_parse(
 				position_begin,
 				position_end,
@@ -483,12 +505,15 @@ BOOST_AUTO_TEST_CASE(ArrayReferences) {
 				r
 			);
 
-		if (position_begin != position_end) { // fail if we did not get a full match
+		if (position_begin != position_end)
+		{
+			// fail if we did not get a full match
 			std::cerr << "Begin is not equal to end!" << std::endl;
 			valid = false;
 		}
 	}
-	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e) {
+	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e)
+	{
 //		std::cerr << client::expectationFailure(e) << std::endl;
 	}
 
@@ -497,28 +522,29 @@ BOOST_AUTO_TEST_CASE(ArrayReferences) {
 	BOOST_REQUIRE(r.size() == 3);
 
 	BOOST_REQUIRE(r[0].var.whichType() == jass_var_reference::Type::String);
-	BOOST_REQUIRE(boost::get<const string&>(r[0].var.variant) == "bla");
+	BOOST_REQUIRE(boost::get<const string>(r[0].var.variant) == "bla");
 	BOOST_REQUIRE(r[0].index.whichType() == jass_expression::Type::Constant);
-	BOOST_REQUIRE(boost::get<const jass_const&>(r[0].index.variant).whichType() == jass_const::Type::Integer);
-	BOOST_REQUIRE(boost::get<int32>(boost::get<const jass_const&>(r[0].index.variant).variant) == 10);
+	BOOST_REQUIRE(boost::get<const jass_const>(r[0].index.variant).whichType() == jass_const::Type::Integer);
+	BOOST_REQUIRE(boost::get<int32>(boost::get<const jass_const>(r[0].index.variant).variant) == 10);
 
 	BOOST_REQUIRE(r[1].var.whichType() == jass_var_reference::Type::String);
-	BOOST_REQUIRE(boost::get<const string&>(r[1].var.variant) == "Hello_123");
+	BOOST_REQUIRE(boost::get<const string>(r[1].var.variant) == "Hello_123");
 	BOOST_REQUIRE(r[1].index.whichType() == jass_expression::Type::BinaryOperation);
-	BOOST_REQUIRE(boost::get<const jass_binary_operation&>(r[1].index.variant).first_expression.whichType() == jass_expression::Type::Constant);
-	BOOST_REQUIRE(boost::get<const jass_const&>(boost::get<const jass_binary_operation&>(r[1].index.variant).first_expression.variant).whichType() == jass_const::Type::Integer);
+	BOOST_REQUIRE(boost::get<const jass_binary_operation>(r[1].index.variant).first_expression.whichType() == jass_expression::Type::Constant);
+	BOOST_REQUIRE(boost::get<const jass_const>(boost::get<const jass_binary_operation>(r[1].index.variant).first_expression.variant).whichType() == jass_const::Type::Integer);
 
-	BOOST_REQUIRE(boost::get<int32>(boost::get<const jass_const&>(boost::get<const jass_binary_operation&>(r[1].index.variant).first_expression.variant).variant) == 10);
+	BOOST_REQUIRE(boost::get<int32>(boost::get<const jass_const>(boost::get<const jass_binary_operation>(r[1].index.variant).first_expression.variant).variant) == 10);
 	BOOST_REQUIRE(boost::get<jass_binary_operation>(r[1].index.variant).op == jass_binary_operator::Plus);
 	BOOST_REQUIRE(boost::get<jass_binary_operation>(r[1].index.variant).second_expression.whichType() == jass_expression::Type::Constant);
-	BOOST_REQUIRE(boost::get<const jass_const&>(boost::get<const jass_binary_operation&>(r[1].index.variant).second_expression.variant).whichType() == jass_const::Type::Integer);
+	BOOST_REQUIRE(boost::get<const jass_const>(boost::get<const jass_binary_operation>(r[1].index.variant).second_expression.variant).whichType() == jass_const::Type::Integer);
 
-	BOOST_REQUIRE(boost::get<int32>(boost::get<const jass_const&>(boost::get<const jass_binary_operation&>(r[1].index.variant).second_expression.variant).variant) == 2);
+	BOOST_REQUIRE(boost::get<int32>(boost::get<const jass_const>(boost::get<const jass_binary_operation>(r[1].index.variant).second_expression.variant).variant) == 2);
 
 	// TODO check 3rd binary operation
 }
 
-BOOST_AUTO_TEST_CASE(FunctionCalls) {
+BOOST_AUTO_TEST_CASE(FunctionCalls)
+{
 	const char* jassFile = "expressions_function_calls.j";
 	const char* traceFile = "expressions_function_calls_trace.xml";
 
@@ -558,7 +584,8 @@ BOOST_AUTO_TEST_CASE(FunctionCalls) {
 	client::jass_grammar<PositionIteratorType> grammar;
 	grammar.prepare(position_begin, ast, current_file);
 
-	try {
+	try
+	{
 		valid = boost::spirit::qi::phrase_parse(
 				position_begin,
 				position_end,
@@ -572,12 +599,15 @@ BOOST_AUTO_TEST_CASE(FunctionCalls) {
 				r
 			);
 
-		if (position_begin != position_end) { // fail if we did not get a full match
+		if (position_begin != position_end)
+		{
+			// fail if we did not get a full match
 			std::cerr << "Begin is not equal to end!" << std::endl;
 			valid = false;
 		}
 	}
-	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e) {
+	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e)
+	{
 //		std::cerr << client::expectationFailure(e) << std::endl;
 	}
 
@@ -589,7 +619,8 @@ BOOST_AUTO_TEST_CASE(FunctionCalls) {
 	//BOOST_REQUIRE(r[2] == jass_unary_operator::Not);
 }
 
-BOOST_AUTO_TEST_CASE(FunctionRefs) {
+BOOST_AUTO_TEST_CASE(FunctionRefs)
+{
 	const char* jassFile = "expressions_function_refs.j";
 	const char* traceFile = "expressions_function_refs_trace.xml";
 
@@ -629,7 +660,8 @@ BOOST_AUTO_TEST_CASE(FunctionRefs) {
 	client::jass_grammar<PositionIteratorType> grammar;
 	grammar.prepare(position_begin, ast, current_file);
 
-	try {
+	try
+	{
 		valid = boost::spirit::qi::phrase_parse(
 				position_begin,
 				position_end,
@@ -643,12 +675,15 @@ BOOST_AUTO_TEST_CASE(FunctionRefs) {
 				r
 			);
 
-		if (position_begin != position_end) { // fail if we did not get a full match
+		if (position_begin != position_end)
+		{
+			// fail if we did not get a full match
 			std::cerr << "Begin is not equal to end!" << std::endl;
 			valid = false;
 		}
 	}
-	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e) {
+	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e)
+	{
 //		std::cerr << client::expectationFailure(e) << std::endl;
 	}
 
@@ -663,7 +698,8 @@ BOOST_AUTO_TEST_CASE(FunctionRefs) {
 /*
  * Checks all JASS unary operations which are separated by EOL in the JASS file.
  */
-BOOST_AUTO_TEST_CASE(UnaryOperations) {
+BOOST_AUTO_TEST_CASE(UnaryOperations)
+{
 	const char* jassFile = "expressions_unary_operations.j";
 	const char* traceFile = "expressions_unary_operations_trace.xml";
 
@@ -703,7 +739,8 @@ BOOST_AUTO_TEST_CASE(UnaryOperations) {
 	client::jass_grammar<PositionIteratorType> grammar;
 	grammar.prepare(position_begin, ast, current_file);
 
-	try {
+	try
+	{
 		valid = boost::spirit::qi::phrase_parse(
 				position_begin,
 				position_end,
@@ -717,12 +754,15 @@ BOOST_AUTO_TEST_CASE(UnaryOperations) {
 				r
 			);
 
-		if (position_begin != position_end) { // fail if we did not get a full match
+		if (position_begin != position_end)
+		{
+			// fail if we did not get a full match
 			std::cerr << "Begin is not equal to end!" << std::endl;
 			valid = false;
 		}
 	}
-	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e) {
+	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e)
+	{
 //		std::cerr << client::expectationFailure(e) << std::endl;
 	}
 
@@ -734,7 +774,8 @@ BOOST_AUTO_TEST_CASE(UnaryOperations) {
 	//BOOST_REQUIRE(r[2] == jass_unary_operator::Not);
 }
 
-BOOST_AUTO_TEST_CASE(BinaryOperations) {
+BOOST_AUTO_TEST_CASE(BinaryOperations)
+{
 	const char* jassFile = "expressions_binary_operations.j";
 	const char* traceFile = "expressions_binary_operations_trace.xml";
 
@@ -774,7 +815,8 @@ BOOST_AUTO_TEST_CASE(BinaryOperations) {
 	client::jass_grammar<PositionIteratorType> grammar;
 	grammar.prepare(position_begin, ast, current_file);
 
-	try {
+	try
+	{
 		valid = boost::spirit::qi::phrase_parse(
 				position_begin,
 				position_end,
@@ -788,12 +830,15 @@ BOOST_AUTO_TEST_CASE(BinaryOperations) {
 				r
 			);
 
-		if (position_begin != position_end) { // fail if we did not get a full match
+		if (position_begin != position_end)
+		{
+			// fail if we did not get a full match
 			std::cerr << "Begin is not equal to end!" << std::endl;
 			valid = false;
 		}
 	}
-	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e) {
+	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e)
+	{
 //		std::cerr << client::expectationFailure(e) << std::endl;
 	}
 

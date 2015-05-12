@@ -1,4 +1,3 @@
-
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
 add_executable(listfiletest listfile.cpp)
@@ -19,9 +18,14 @@ endif ()
 add_definitions(-DWC3_DIR="$ENV{WC3_DIR}")
 
 # TODO find StormLib with a CMake module
-add_executable(performancetest performance.cpp)
-target_link_libraries(performancetest wc3libmpq wc3libcore storm ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
-add_test(NAME PerformanceTest COMMAND performancetest)
+find_file(STORMLIB_HEADER "StormLib.h")
+find_file(STORMLIB_PORT_HEADER "StormPort.h")
+
+if (STORMLIB_HEADER AND STORMLIB_PORT_HEADER)
+	add_executable(performancetest performance.cpp)
+	target_link_libraries(performancetest wc3libmpq wc3libcore storm ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
+	add_test(NAME PerformanceTest COMMAND performancetest)
+endif ()
 
 configure_file(testattributes.mpq testattributes.mpq COPYONLY) # MPQ archive with extended attributes
 configure_file(ladik_mpq1_all_extended_attributes.mpq ladik_mpq1_all_extended_attributes.mpq COPYONLY)

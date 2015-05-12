@@ -1120,6 +1120,15 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
+	
+	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::jass::jass_ast>
+	{
+		static void call(Out& out, wc3lib::jass::jass_ast const& val)
+		{
+			out << "ast";
+		}
+	};
 }
 
 }
