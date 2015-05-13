@@ -570,7 +570,8 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 	var_declaration =
 		type_reference[at_c<0>(_val) = _1]
 		>> qi::matches[lit("array")][at_c<1>(_val) = _1]
-		>> identifier[at_c<2>(_val) = _1]
+		>> identifier[at_c<2>(_val) = _1]jass_ast ast;
+	jass_file *current_file; // currently parsed file
 		>> -(lit('=') >> expression[at_c<3>(_val) = _1])
 	;
 
@@ -596,7 +597,8 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 		lit("globals") >> +eol >>
 		global % +eol >> // % operator is used to generate std::vectors!
 		+eol >>
-		lit("endglobals") // >> finish // end of line or input is always expected after "endglobals"!
+		lit("endglobals") // >> finish // end of line orjass_ast ast;
+	jass_file *current_file; // currently parsed file input is always expected after "endglobals"!
 	;
 
 	function_parameter %=
@@ -672,7 +674,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 		*eol >>
 		-functions[at_c<2>(_val) = _1] >>
 		*eol
-		;
+	;
 
 	/*
 	 * Parses the current file
@@ -680,7 +682,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 	jass =
 		eps[_val = ast] >>
 		file[phoenix::push_back(at_c<0>(_val), _1)]
-		;
+	;
 
 
 	/*
@@ -859,35 +861,6 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 		(file)
 		(jass)
 	);
-}
-
-namespace karma_unicode = boost::spirit::karma::unicode;
-
-template<typename Iterator>
-jass_generator<Iterator>::jass_generator() : jass_generator<Iterator>::base_type(jass, "jass")
-{
-	using karma::eps;
-	using karma::lit;
-	using karma::eol;
-	using karma_unicode::string;
-
-	identifier %=
-		string
-	;
-
-	type_nothing %=
-		lit("nothing")
-	;
-
-	file =
-		lit("// File: ")
-		>> string
-		>> eol
-	;
-
-	jass =
-		eps
-	;
 }
 
 template <typename Iterator>

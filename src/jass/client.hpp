@@ -233,9 +233,9 @@ struct jass_grammar : qi::grammar<Iterator, jass_ast(), qi::locals<std::string>,
 	jass_var_declarations global_symbols;
 	jass_function_declarations function_symbols;
 
-	jass_binary_operators binary_operators;
-	jass_binary_boolean_operators binary_boolean_operators;
-	jass_unary_operators unary_operators;
+	jass_binary_operators_qi binary_operators;
+	jass_binary_boolean_operators_qi binary_boolean_operators;
+	jass_unary_operators_qi unary_operators;
 
 	/*
 	 * Error reports.
@@ -249,6 +249,12 @@ struct jass_generator : public karma::grammar<Iterator, jass_ast()>
 {
 	jass_generator();
 
+	/**
+	 * \param first The starting iterator used for location information storage. Each AST node has stored its location.
+	 * \param ast An AST must be passed which is filled by the input. It can already contain nodes which might be useful for debugging.
+	 */
+	void prepare(Iterator first, jass_ast &ast, jass_file &current_file);
+
 	//----------------------------------------------------------------------
 	// Symbols
 	//----------------------------------------------------------------------
@@ -258,12 +264,74 @@ struct jass_generator : public karma::grammar<Iterator, jass_ast()>
 
 	karma::rule<Iterator, string()> identifier;
 	karma::rule<Iterator, jass_type_reference()> type_nothing;
+	
+	//----------------------------------------------------------------------
+	// Statements
+	//----------------------------------------------------------------------
+	karma::rule<Iterator, jass_statement()> statement;
+	karma::rule<Iterator, jass_statements()> statements;
+	karma::rule<Iterator, jass_set()> set;
+	karma::rule<Iterator, jass_function_args()> args;
+	karma::rule<Iterator, jass_call()> call;
+	karma::rule<Iterator, jass_conditional_statements()> conditional_statements;
+	karma::rule<Iterator, jass_ifthenelse()> ifthenelse;
+	karma::rule<Iterator, jass_loop()> loop;
+	karma::rule<Iterator, jass_exitwhen()> exitwhen;
+	karma::rule<Iterator, jass_return()> return_statement;
+	karma::rule<Iterator, jass_debug()> debug_statement;
+	
+	//----------------------------------------------------------------------
+	// Expressions
+	//----------------------------------------------------------------------
+	karma::rule<Iterator, jass_expression()> expression;
+
+	karma::rule<Iterator, int32()> integer_literal;
+	karma::rule<Iterator, float32()> real_literal;
+	karma::rule<Iterator, string()> string_literal;
+	karma::rule<Iterator, bool()> boolean_literal;
+	karma::rule<Iterator, fourcc()> fourcc_literal;
+	karma::rule<Iterator, jass_null()> null;
+
+	karma::rule<Iterator, jass_expression()> binary_operation_expression;
+	karma::rule<Iterator, jass_binary_operator()> binary_operator;
+	karma::rule<Iterator, jass_binary_operation()> binary_operation;
+	karma::rule<Iterator, jass_unary_operator()> unary_operator;
+	karma::rule<Iterator, jass_unary_operation()> unary_operation;
+	karma::rule<Iterator, jass_function_call()> function_call;
+	karma::rule<Iterator, jass_array_reference()> array_reference;
+	karma::rule<Iterator, jass_function_ref()> function_ref;
+	karma::rule<Iterator, jass_const()> constant;
+	karma::rule<Iterator, jass_parentheses()> parentheses;
+
+	//----------------------------------------------------------------------
+	// Local Declarations
+	//----------------------------------------------------------------------
+	karma::rule<Iterator, jass_var_declaration()> var_declaration;
+	karma::rule<Iterator, jass_locals()> locals;
 
 	//----------------------------------------------------------------------
 	// Global Declarations
 	//----------------------------------------------------------------------
+	karma::rule<Iterator, jass_type()> type;
+	karma::rule<Iterator, jass_global()> global;
+	karma::rule<Iterator, jass_globals()> globals;
+
+	karma::rule<Iterator, jass_function_parameter()> function_parameter;
+	karma::rule<Iterator, jass_function_parameters()> function_parameters;
+	karma::rule<Iterator, jass_function_declaration()> function_declaration;
+	karma::rule<Iterator, jass_native()> native;
+	karma::rule<Iterator, jass_natives()> natives;
+
+	karma::rule<Iterator, jass_declarations()> declarations;
+
+	karma::rule<Iterator, jass_function()> function;
+	karma::rule<Iterator, jass_functions()> functions;
+
 	karma::rule<Iterator, jass_file()> file;
-	karma::rule<Iterator, jass_ast()> jass;
+	karma::rule<Iterator, jass_ast(), karma::locals<std::string>> jass;
+	
+	jass_ast ast;
+	jass_file *current_file; // currently parsed file
 };
 
 }

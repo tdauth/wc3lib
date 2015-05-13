@@ -32,6 +32,7 @@ if (JASS)
 	set (wc3lib_JASS_SRC
 		analyzer.cpp
 		error.cpp
+		generator.cpp
 		grammar.cpp
 		report.cpp
 		warning.cpp

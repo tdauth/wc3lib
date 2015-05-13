@@ -44,6 +44,7 @@
 #include "../spirit.hpp"
 
 #include <boost/spirit/include/qi_symbols.hpp>
+#include <boost/spirit/include/karma_symbols.hpp>
 
 #include "../platform.hpp"
 #include "../exception.hpp"
@@ -441,10 +442,10 @@ enum class jass_binary_operator
 	Or
 };
 
-struct jass_binary_operators : qi::symbols<char, jass_binary_operator>
+struct jass_binary_operators_qi : public qi::symbols<char, jass_binary_operator>
 {
 
-	jass_binary_operators()
+	jass_binary_operators_qi()
 	{
 		name("JASS binary operators");
 		add
@@ -463,14 +464,14 @@ struct jass_binary_operators : qi::symbols<char, jass_binary_operator>
 		;
 	}
 
-	~jass_binary_operators()
+	~jass_binary_operators_qi()
 	{
 	}
 };
 
-struct jass_binary_boolean_operators : qi::symbols<char, jass_binary_operator>
+struct jass_binary_boolean_operators_qi : public qi::symbols<char, jass_binary_operator>
 {
-	jass_binary_boolean_operators()
+	jass_binary_boolean_operators_qi()
 	{
 		name("JASS binary boolean operators");
 		add
@@ -479,7 +480,7 @@ struct jass_binary_boolean_operators : qi::symbols<char, jass_binary_operator>
 		;
 	}
 
-	~jass_binary_boolean_operators()
+	~jass_binary_boolean_operators_qi()
 	{
 	}
 };
@@ -498,9 +499,9 @@ enum class jass_unary_operator
 	Not
 };
 
-struct jass_unary_operators : qi::symbols<char, jass_unary_operator>
+struct jass_unary_operators_qi : public qi::symbols<char, jass_unary_operator>
 {
-	jass_unary_operators()
+	jass_unary_operators_qi()
 	{
 		name("JASS unary operators");
 		add
@@ -510,7 +511,7 @@ struct jass_unary_operators : qi::symbols<char, jass_unary_operator>
 		;
 	}
 
-	~jass_unary_operators()
+	~jass_unary_operators_qi()
 	{
 	}
 };
@@ -732,7 +733,7 @@ struct jass_types : public jass_global_declaration, public std::vector<jass_type
 {
 };
 
-struct jass_type_declarations : qi::symbols<char, jass_type>, public jass_global_declaration
+struct jass_type_declarations : public qi::symbols<char, jass_type>, public jass_global_declaration
 {
 	jass_type_declarations()
 	{
@@ -799,7 +800,7 @@ struct jass_natives : public jass_global_declaration, public std::vector<jass_na
 {
 };
 
-struct jass_function_declarations : qi::symbols<char, jass_function_declaration>
+struct jass_function_declarations : public qi::symbols<char, jass_function_declaration>
 {
 };
 

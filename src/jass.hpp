@@ -41,6 +41,7 @@ namespace wc3lib
 #include "jass/analyzer.hpp"
 #include "jass/ast.hpp"
 #include "jass/error.hpp"
+#include "jass/generator.hpp"
 #include "jass/grammar.hpp"
 #include "jass/report.hpp"
 #include "jass/warning.hpp"

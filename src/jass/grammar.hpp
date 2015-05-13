@@ -43,6 +43,8 @@ namespace jass
 /**
  * The Grammar contains all rules of the JASS syntax. It provides parse functions which create the
  * resulting AST.
+ * 
+ * \sa Generator, client::jass_grammar
  */
 class Grammar
 {

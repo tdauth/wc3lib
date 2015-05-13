@@ -25,6 +25,8 @@
 #include <cstdlib>
 #include <fstream>
 
+#include <boost/filesystem.hpp>
+
 #include "../../map.hpp"
 
 #ifndef BOOST_TEST_DYN_LINK
@@ -35,7 +37,14 @@
 
 BOOST_AUTO_TEST_CASE(Extract)
 {
-	BOOST_REQUIRE(std::system("../jasstrans ./test/jass.j -o ./test/strings.wts") == 0);
+	std::cout << "Working directory: " << boost::filesystem::current_path() << std::endl;
+	
+	if (boost::filesystem::exists("strings.wts"))
+	{
+		BOOST_REQUIRE(boost::filesystem::remove("strings.wts"));
+	}
+	
+	BOOST_REQUIRE(std::system("../jasstrans ./jass.j -o ./strings.wts") == 0);
 	
 	std::ifstream in("strings.wts");
 	
@@ -58,5 +67,12 @@ BOOST_AUTO_TEST_CASE(Extract)
 	}
 	
 	BOOST_REQUIRE(valid);
-	BOOST_CHECK(mapStrings.entries().size() == 1);
+	BOOST_REQUIRE(mapStrings.entries().size() == 2);
+	BOOST_CHECK(mapStrings.entries()[0].key == 0);
+	BOOST_CHECK(mapStrings.entries()[0].value == "This is my string.");
+	BOOST_CHECK(mapStrings.entries()[0].comment.empty());
+	
+	BOOST_CHECK(mapStrings.entries()[1].key == 1);
+	BOOST_CHECK(mapStrings.entries()[1].value == "Hello world!");
+	BOOST_CHECK(mapStrings.entries()[1].comment.empty());
 }

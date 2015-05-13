@@ -27,7 +27,7 @@
  * If no such entries exist it will create new ones.
  * 
  * Finally it is able to generate an output string file with all extracted strings.
- * This output file can be used by any translator to translate the strings
+ * This output file can be used by any translator to translate the strings.
  * 
  * When doing the extraction it will replace the external string references in the JASS input files by the correct ids from the generated
  * string file.
@@ -36,6 +36,7 @@
  * 
  * The most basic use case is to run jasstrans on a map which extracts all externalized strings from the map script and joins them into the map's
  * war3map.wts file.
+ * Besides it generates a new output JASS file with all GetLocalizedString() calls having a replaced key.
  */
 
 #include <vector>
@@ -66,41 +67,41 @@ struct AstVisitor
 	public:
 		typedef wc3lib::map::MapStrings::Entries Entries;
 		
-		AstVisitor(const std::string &translationFunctionIdentifier = "GetLocalizedString") : m_translationFunctionIdentifier(translationFunctionIdentifier)
+		AstVisitor(const std::string &translationFunctionIdentifier = "GetLocalizedString") : m_translationFunctionIdentifier(translationFunctionIdentifier), m_key(0)
 		{
 		}
 		
-		void visit(const wc3lib::jass::jass_ast &ast)
+		void visit(wc3lib::jass::jass_ast &ast)
 		{
 			std::cerr << "Files " << ast.files.size() << std::endl;
 			
-			BOOST_FOREACH(wc3lib::jass::jass_files::const_reference file, ast.files)
+			BOOST_FOREACH(wc3lib::jass::jass_files::reference file, ast.files)
 			{
 				this->visit(file);
 			}
 		}
 		
-		void visit(const wc3lib::jass::jass_file &file)
+		void visit(wc3lib::jass::jass_file &file)
 		{
 			std::cout << "Visiting file " << file.path << std::endl;
                         this->visit(file.declarations);
 			
-			BOOST_FOREACH(wc3lib::jass::jass_functions::const_reference function, file.functions)
+			BOOST_FOREACH(wc3lib::jass::jass_functions::reference function, file.functions)
 			{
 				std::cout << "Visiting function" << std::endl;
 				this->visit(function);
 			}
 		}
 		
-		void visit(const wc3lib::jass::jass_declarations &declarations)
+		void visit(wc3lib::jass::jass_declarations &declarations)
                 {
-			BOOST_FOREACH(wc3lib::jass::jass_globals::const_reference global, declarations.globals)
+			BOOST_FOREACH(wc3lib::jass::jass_globals::reference global, declarations.globals)
 			{
 				this->visit(global);
 			}
                 }
 		
-		void visit(const wc3lib::jass::jass_function_call &call)
+		void visit(wc3lib::jass::jass_function_call &call)
 		{
 			std::cerr << "Call" << std::endl;
 			
@@ -141,22 +142,31 @@ struct AstVisitor
 			{
 				std::vector<wc3lib::string> args;
 				
-				BOOST_FOREACH(wc3lib::jass::jass_function_args::const_reference arg, call.arguments)
+				BOOST_FOREACH(wc3lib::jass::jass_function_args::reference arg, call.arguments)
 				{
-					const wc3lib::jass::jass_expression &expression = arg.get();
+					wc3lib::jass::jass_expression &expression = arg.get();
 					
 					switch (expression.whichType())
 					{
 						case wc3lib::jass::jass_expression::Type::Constant:
 						{
-							const wc3lib::jass::jass_const &jass_const = boost::get<wc3lib::jass::jass_const>(expression.variant);
+							wc3lib::jass::jass_const &jass_const = boost::get<wc3lib::jass::jass_const>(expression.variant);
 							
 							switch (jass_const.whichType())
 							{
 								case wc3lib::jass::jass_const::Type::String:
 								{
 									const wc3lib::string value = boost::get<wc3lib::string>(jass_const.variant);
-									args.push_back(value);
+									
+									if (!boost::algorithm::starts_with(value, "TRIGSTRING"))
+									{
+										args.push_back(value);
+										
+										wc3lib::ostringstream ostream;
+										// TODO fill 0
+										ostream << "TRIGSTRING_" << this->m_key;
+										jass_const.variant = ostream.str();
+									}
 									
 									break;
 								}
@@ -165,23 +175,31 @@ struct AstVisitor
 							break;
 						}
 					}
+					
+					// only take the first argument
+					break;
 				}
 				
-				Entries::value_type entry;
-				entry.key = 0;
-				entry.comment = ""; // line and column position and file
-				entry.value = args[0];
-				this->m_entries.push_back(entry);
+				if (!args.empty())
+				{
+					Entries::value_type entry;
+					entry.key = this->m_key;
+					entry.comment = ""; // line and column position and file
+					entry.value = args[0];
+					this->m_entries.push_back(entry);
+					
+					this->m_key++;
+				}
 			}
 		}
 		
-		void visit(const wc3lib::jass::jass_expression &expression)
+		void visit(wc3lib::jass::jass_expression &expression)
 		{
 			switch (expression.whichType())
 			{
 				case wc3lib::jass::jass_expression::Type::FunctionCall:
 				{
-					const wc3lib::jass::jass_function_call &call = boost::get<wc3lib::jass::jass_function_call>(expression.variant);
+					wc3lib::jass::jass_function_call &call = boost::get<wc3lib::jass::jass_function_call>(expression.variant);
 					this->visit(call);
 					
 					break;
@@ -189,25 +207,25 @@ struct AstVisitor
 			}
 		}
 		
-		void visit(const wc3lib::jass::jass_function &function)
+		void visit(wc3lib::jass::jass_function &function)
 		{
-			BOOST_FOREACH(wc3lib::jass::jass_locals::const_reference local, function.locals)
+			BOOST_FOREACH(wc3lib::jass::jass_locals::reference local, function.locals)
 			{
 				this->visit(local);
 			}
 			
-			BOOST_FOREACH(wc3lib::jass::jass_statements::const_reference statement, function.statements)
+			BOOST_FOREACH(wc3lib::jass::jass_statements::reference statement, function.statements)
 			{
 				this->visit(statement);
 			}
 		}
 		
-		void visit(const wc3lib::jass::jass_global &global)
+		void visit(wc3lib::jass::jass_global &global)
 		{
 			visit(global.declaration);
 		}
 		
-		void visit(const wc3lib::jass::jass_var_declaration &declaration)
+		void visit(wc3lib::jass::jass_var_declaration &declaration)
 		{
 			bool isStringAssignment = false;
 					
@@ -234,40 +252,40 @@ struct AstVisitor
 			}
 		}
 		
-		void visit(const wc3lib::jass::jass_statement &statement)
+		void visit(wc3lib::jass::jass_statement &statement)
 		{
 			switch (statement.whichType())
 			{
 				case wc3lib::jass::jass_statement::Type::Call:
 				{
-					this->visit(boost::get<const wc3lib::jass::jass_call>(statement.variant));
+					this->visit(boost::get<wc3lib::jass::jass_call>(statement.variant));
 					
 					break;
 				}
 				
 				case wc3lib::jass::jass_statement::Type::Return:
 				{
-					this->visit(boost::get<const wc3lib::jass::jass_return>(statement.variant));
+					this->visit(boost::get<wc3lib::jass::jass_return>(statement.variant));
 					
 					break;
 				}
 			}
 		}
 		
-		void visit(const wc3lib::jass::jass_call &call)
+		void visit(wc3lib::jass::jass_call &call)
 		{
 			this->visit(call.arguments);
 		}
 		
-		void visit(const wc3lib::jass::jass_function_args &args)
+		void visit(wc3lib::jass::jass_function_args &args)
 		{
-			BOOST_FOREACH(wc3lib::jass::jass_function_args::const_reference arg, args)
+			BOOST_FOREACH(wc3lib::jass::jass_function_args::reference arg, args)
 			{
 				this->visit(arg.get());
 			}
 		}
 		
-		void visit(const wc3lib::jass::jass_return &return_statement)
+		void visit(wc3lib::jass::jass_return &return_statement)
 		{
 			std::cerr << "Return" << std::endl;
 			
@@ -277,11 +295,19 @@ struct AstVisitor
 			}
 		}
 		
-		void visit(const wc3lib::map::MapStrings &mapStrings)
+		/**
+		 * \note Sets the internal starting key to the maximum key + 1 from \p mapStrings so keys won't interfere.
+		 */
+		void visit(wc3lib::map::MapStrings &mapStrings)
 		{
 			BOOST_FOREACH(wc3lib::map::MapStrings::Entries::const_reference entry, mapStrings.entries())
 			{
 				this->m_entries.push_back(entry);
+				
+				if (entry.key > this->m_key)
+				{
+					this->m_key = entry.key + 1;
+				}
 			}
 		}
 		
@@ -292,6 +318,7 @@ struct AstVisitor
 		
 	private:
 		std::string m_translationFunctionIdentifier;
+		int m_key;
 		Entries m_entries;
 };
 
@@ -306,15 +333,23 @@ int main(int argc, char *argv[])
 	typedef std::vector<std::string> Strings;
 	Strings inputFiles;
 	bool merge = false;
+	std::string keyword;
+	std::string prefix;
+	std::string suffix;
 	boost::filesystem::path outputFile;
+	boost::filesystem::path jassOutputFile;
 
 	boost::program_options::options_description desc("Allowed options");
 	desc.add_options()
-	("version,V", _("Shows current version of jassc."))
+	("version,V", _("Shows current version of jasstrans."))
 	("help,h", _("Shows this text."))
-	("join-existing,j", boost::program_options::value<bool>(&merge), _("Joins the output file if it does already exists."))
+	("join-existing,j", _("Joins the output file if it does already exists."))
+	("keyword,k", boost::program_options::value<std::string>(&keyword)->default_value("GetLocalizedString"), _("Sets the identifier of the function which marks localized strings. The first argument is extracted by default."))
+	("prefix,p", boost::program_options::value<std::string>(&prefix)->default_value(""), _("Uses the string as prefix for the extracted message. This only works when extracting into an FDF file."))
+	("suffix,s", boost::program_options::value<std::string>(&suffix)->default_value(""), _("Uses the string as suffix for the extracted message. This only works when extracting into an FDF file."))
 	("i", boost::program_options::value<Strings>(&inputFiles), _("Input files."))
 	("output,o", boost::program_options::value<boost::filesystem::path>(&outputFile), _("Output file (WTS or FDF)."))
+	("jass-output,O", boost::program_options::value<boost::filesystem::path>(&jassOutputFile), _("Specifies the resulting JASS output file which contains the replaced strings."))
 	;
 
 	boost::program_options::positional_options_description p;
@@ -359,9 +394,21 @@ int main(int argc, char *argv[])
 		return EXIT_SUCCESS;
 	}
 	
+	if (vm.count("join-existing"))
+	{
+		merge = true;
+	}
+	
 	if (outputFile.empty())
 	{
 		std::cerr << _("Missing output file.") << std::endl;
+
+		return EXIT_FAILURE;
+	}
+	
+	if (jassOutputFile.empty())
+	{
+		std::cerr << _("Missing JASS output file.") << std::endl;
 
 		return EXIT_FAILURE;
 	}
@@ -470,7 +517,7 @@ int main(int argc, char *argv[])
 	{
 		std::cerr << "AST files " << ast.files.size() << std::endl;
 		
-		AstVisitor visitor;
+		AstVisitor visitor(keyword);
 		visitor.visit(strings);
 		visitor.visit(ast);
 		/*
@@ -496,14 +543,42 @@ int main(int argc, char *argv[])
 				}
 				catch (const wc3lib::Exception &e)
 				{
-					std::cerr << boost::format(_("Error on writing map strings \"%1%\": %2%")) % e.what() << std::endl;
+					std::cerr << boost::format(_("Error on writing map strings %1%: %2%")) % outputFile % e.what() << std::endl;
 				}
 			}
 			// TODO else
 		}
 		else
 		{
-			std::cerr << boost::format(_("Error on generating file \"%1%\".")) % outputFile << std::endl;
+			std::cerr << boost::format(_("Error on generating file %1%.")) % outputFile << std::endl;
+		}
+		
+		/*
+		 * Now generate the JASS file with the complete AST but with replaced string values.
+		 */
+		out.open(jassOutputFile);
+		
+		if (out)
+		{
+			std::cout << boost::format(_("Writing output file %1%.")) % jassOutputFile << std::endl;
+
+			wc3lib::jass::Generator generator;
+			
+			try
+			{
+				if (!generator.generate(out, ast))
+				{
+					std::cerr << boost::format(_("Error on writing JASS output file %1%.")) % jassOutputFile << std::endl;
+				}
+			}
+			catch (const wc3lib::Exception &e)
+			{
+				std::cerr << boost::format(_("Error on writing JASS output %1%: %2%")) % jassOutputFile % e.what() << std::endl;
+			}
+		}
+		else
+		{
+			std::cerr << boost::format(_("Error on generating file %1%.")) % jassOutputFile << std::endl;
 		}
 	}
 
