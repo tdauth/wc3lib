@@ -38,20 +38,20 @@
 BOOST_AUTO_TEST_CASE(Extract)
 {
 	std::cout << "Working directory: " << boost::filesystem::current_path() << std::endl;
-	
+
 	if (boost::filesystem::exists("strings.wts"))
 	{
 		BOOST_REQUIRE(boost::filesystem::remove("strings.wts"));
 	}
-	
-	BOOST_REQUIRE(std::system("../jasstrans ./jass.j -o ./strings.wts") == 0);
-	
-	std::ifstream in("strings.wts");
-	
+
+	BOOST_REQUIRE(std::system("../jasstrans ./jass.j -f -o ./war3map.wts -O war3map.j") == 0);
+
+	std::ifstream in("war3map.wts");
+
 	BOOST_REQUIRE(in);
 	wc3lib::map::MapStrings mapStrings;
 	bool valid = true;
-	
+
 	try
 	{
 		mapStrings.read(in);
@@ -65,13 +65,13 @@ BOOST_AUTO_TEST_CASE(Extract)
 	{
 		valid = false;
 	}
-	
+
 	BOOST_REQUIRE(valid);
 	BOOST_REQUIRE(mapStrings.entries().size() == 2);
 	BOOST_CHECK(mapStrings.entries()[0].key == 0);
 	BOOST_CHECK(mapStrings.entries()[0].value == "This is my string.");
 	BOOST_CHECK(mapStrings.entries()[0].comment.empty());
-	
+
 	BOOST_CHECK(mapStrings.entries()[1].key == 1);
 	BOOST_CHECK(mapStrings.entries()[1].value == "Hello world!");
 	BOOST_CHECK(mapStrings.entries()[1].comment.empty());

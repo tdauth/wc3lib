@@ -570,8 +570,7 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 	var_declaration =
 		type_reference[at_c<0>(_val) = _1]
 		>> qi::matches[lit("array")][at_c<1>(_val) = _1]
-		>> identifier[at_c<2>(_val) = _1]jass_ast ast;
-	jass_file *current_file; // currently parsed file
+		>> identifier[at_c<2>(_val) = _1]
 		>> -(lit('=') >> expression[at_c<3>(_val) = _1])
 	;
 
@@ -598,7 +597,6 @@ jass_grammar<Iterator, Skipper>::jass_grammar() : jass_grammar<Iterator, Skipper
 		global % +eol >> // % operator is used to generate std::vectors!
 		+eol >>
 		lit("endglobals") // >> finish // end of line orjass_ast ast;
-	jass_file *current_file; // currently parsed file input is always expected after "endglobals"!
 	;
 
 	function_parameter %=
@@ -919,12 +917,12 @@ template bool parse<Grammar::ClassicPositionIteratorType>(Grammar::ClassicPositi
 bool Grammar::parse(Grammar::InputStream &istream, jass_ast &ast, jass_file &file)
 {
 	const bool result = this->parse(IteratorType(istream), IteratorType(), ast, file);
-	
+
 	if (!ast.files.empty())
 	{
 		ast.files.front().path = file.path;
 	}
-	
+
 	return result;
 }
 
