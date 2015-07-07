@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_JASS_GENERATOR_HPP
-#define WC3LIB_JASS_GENERATOR_HPP
+#ifndef WC3LIB_JASS_GENERATORIMPL_HPP
+#define WC3LIB_JASS_GENERATORIMPL_HPP
 
 #include <ostream>
 
@@ -41,7 +41,7 @@ namespace jass
  * This class allows to generate JASS code output from a given AST.
  * Use \ref generate() to generate such JASS code output.
  */
-class Generator
+class GeneratorImpl
 {
 	public:
 		typedef std::basic_ostream<byte> OutputStream;
@@ -64,7 +64,7 @@ class Generator
 		 * Therefore we use these attributes for all generating operations.
 		 * Make it static that it only has to be allocated once which improves the performance when using multiple instances of class \ref Generator.
 		 */
-		//static const JassGenerator generator;
+		static const JassGenerator generator;
 };
 
 }

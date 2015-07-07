@@ -264,7 +264,7 @@ struct jass_generator : public karma::grammar<Iterator, jass_ast()>
 
 	karma::rule<Iterator, string()> identifier;
 	karma::rule<Iterator, jass_type_reference()> type_nothing;
-	
+
 	//----------------------------------------------------------------------
 	// Statements
 	//----------------------------------------------------------------------
@@ -279,7 +279,7 @@ struct jass_generator : public karma::grammar<Iterator, jass_ast()>
 	karma::rule<Iterator, jass_exitwhen()> exitwhen;
 	karma::rule<Iterator, jass_return()> return_statement;
 	karma::rule<Iterator, jass_debug()> debug_statement;
-	
+
 	//----------------------------------------------------------------------
 	// Expressions
 	//----------------------------------------------------------------------
@@ -306,6 +306,7 @@ struct jass_generator : public karma::grammar<Iterator, jass_ast()>
 	//----------------------------------------------------------------------
 	// Local Declarations
 	//----------------------------------------------------------------------
+	karma::rule<Iterator, void(bool)> var_declaration_array;
 	karma::rule<Iterator, jass_var_declaration()> var_declaration;
 	karma::rule<Iterator, jass_locals()> locals;
 
@@ -313,6 +314,7 @@ struct jass_generator : public karma::grammar<Iterator, jass_ast()>
 	// Global Declarations
 	//----------------------------------------------------------------------
 	karma::rule<Iterator, jass_type()> type;
+	karma::rule<Iterator, jass_types()> types;
 	karma::rule<Iterator, jass_global()> global;
 	karma::rule<Iterator, jass_globals()> globals;
 
@@ -328,10 +330,21 @@ struct jass_generator : public karma::grammar<Iterator, jass_ast()>
 	karma::rule<Iterator, jass_functions()> functions;
 
 	karma::rule<Iterator, jass_file()> file;
-	karma::rule<Iterator, jass_ast(), karma::locals<std::string>> jass;
-	
+	karma::rule<Iterator, jass_ast()> jass;
+
 	jass_ast ast;
 	jass_file *current_file; // currently parsed file
+
+	/*
+	 * Symbols for ALL files:
+	 */
+	//jass_type_declarations type_symbols;
+	//jass_var_declarations global_symbols;
+	//jass_function_declarations function_symbols;
+
+	jass_binary_operators_karma binary_operators;
+	jass_binary_boolean_operators_karma binary_boolean_operators;
+	jass_unary_operators_karma unary_operators;
 };
 
 }

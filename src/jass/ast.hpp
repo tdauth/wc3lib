@@ -56,6 +56,7 @@ namespace jass
 {
 
 namespace qi = boost::spirit::qi;
+namespace karma = boost::spirit::karma;
 
 struct jass_file;
 
@@ -469,6 +470,33 @@ struct jass_binary_operators_qi : public qi::symbols<char, jass_binary_operator>
 	}
 };
 
+struct jass_binary_operators_karma : public karma::symbols<jass_binary_operator, string>
+{
+
+	jass_binary_operators_karma()
+	{
+		name("JASS binary operators");
+		add
+			(jass_binary_operator::Plus, "+")
+			(jass_binary_operator::Minus, "-")
+			(jass_binary_operator::Multiply, "*")
+			(jass_binary_operator::Divide, "/")
+			(jass_binary_operator::Greater, ">")
+			(jass_binary_operator::Less, "<")
+			(jass_binary_operator::Equal, "==")
+			(jass_binary_operator::NotEqual, "!=")
+			(jass_binary_operator::GreaterEqual, ">=")
+			(jass_binary_operator::LessEqual, "<=")
+			(jass_binary_operator::And, "and")
+			(jass_binary_operator::Or, "or")
+		;
+	}
+
+	~jass_binary_operators_karma()
+	{
+	}
+};
+
 struct jass_binary_boolean_operators_qi : public qi::symbols<char, jass_binary_operator>
 {
 	jass_binary_boolean_operators_qi()
@@ -481,6 +509,22 @@ struct jass_binary_boolean_operators_qi : public qi::symbols<char, jass_binary_o
 	}
 
 	~jass_binary_boolean_operators_qi()
+	{
+	}
+};
+
+struct jass_binary_boolean_operators_karma : public karma::symbols<jass_binary_operator, string>
+{
+	jass_binary_boolean_operators_karma()
+	{
+		name("JASS binary boolean operators");
+		add
+			(jass_binary_operator::And, "and")
+			(jass_binary_operator::Or, "or")
+		;
+	}
+
+	~jass_binary_boolean_operators_karma()
 	{
 	}
 };
@@ -512,6 +556,23 @@ struct jass_unary_operators_qi : public qi::symbols<char, jass_unary_operator>
 	}
 
 	~jass_unary_operators_qi()
+	{
+	}
+};
+
+struct jass_unary_operators_karma : public karma::symbols<jass_unary_operator, string>
+{
+	jass_unary_operators_karma()
+	{
+		name("JASS unary operators");
+		add
+			(jass_unary_operator::Plus, "+")
+			(jass_unary_operator::Minus, "-")
+			(jass_unary_operator::Not, "not")
+		;
+	}
+
+	~jass_unary_operators_karma()
 	{
 	}
 };
@@ -1121,7 +1182,7 @@ namespace boost { namespace spirit { namespace traits
 			out << val.type_name();
 		}
 	};
-	
+
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::jass::jass_ast>
 	{
