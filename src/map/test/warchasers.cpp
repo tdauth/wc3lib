@@ -327,13 +327,13 @@ BOOST_AUTO_TEST_CASE(Environment)
 	BOOST_CHECK(strcmp(map.environment()->fileTextId(), "W3E!") == 0);
 	BOOST_CHECK(map.environment()->fileName() == "war3map.w3e");
 	BOOST_CHECK(map.environment()->version() == 11);
-	BOOST_CHECK(map.environment()->mainTileset() == Environment::MainTileset::Cityscape);
+	BOOST_CHECK(map.environment()->mainTileset() == map::Environment::MainTileset::Cityscape);
 	BOOST_REQUIRE(map.environment()->customized());
-	BOOST_REQUIRE(map.environment()->cliffTilesetsIds().size() == 2)
+	BOOST_REQUIRE(map.environment()->cliffTilesetsIds().size() == 2);
 	BOOST_REQUIRE(map.environment()->groundTilesetsIds().size() == 11);
 	// TODO check cliff tileset IDs and ground tileset IDs
 
-	BOOST_REQUIRE(map.environment()->mapHeight() == 160)
-	BOOST_REQUIRE(map.environment()->mapWidth() == 160)
+	BOOST_REQUIRE(map.environment()->mapHeight() == 160);
+	BOOST_REQUIRE(map.environment()->mapWidth() == 160);
 	// TODO check further values
 }
