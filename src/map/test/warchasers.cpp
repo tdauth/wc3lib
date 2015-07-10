@@ -28,6 +28,7 @@
 
 #include "../../platform.hpp"
 #include "../w3m.hpp"
+#include "../tilepoint.hpp"
 
 #ifndef BOOST_TEST_DYN_LINK
 #error Define BOOST_TEST_DYN_LINK for proper definition of main function.
@@ -37,7 +38,8 @@ using namespace wc3lib;
 
 /**
  * \file
- * This test tries to open the War Chasers map, a standard Warcraft III: Reign of Chaos scenario.
+ * This test tries to open the War Chasers map, a standard Warcraft III: Reign of Chaos scenario and then tests all different file formats
+ * in separate test cases.
  */
 BOOST_AUTO_TEST_CASE(ReadTest)
 {
@@ -278,3 +280,60 @@ BOOST_AUTO_TEST_CASE(CustomUnits)
 	*/
 }
 
+BOOST_AUTO_TEST_CASE(Environment)
+{
+	map::W3m map;
+
+	bool valid = true;
+
+	try
+	{
+		map.open("(4)WarChasers.w3m");
+	}
+	catch (std::exception &e)
+	{
+		valid = false;
+
+		std::cerr << e.what() << std::endl;
+	}
+	catch (...)
+	{
+		valid = false;
+	}
+
+	BOOST_REQUIRE(valid);
+
+	/*
+	 * Environment
+	 */
+	bool validEnvironment = true;
+
+	try
+	{
+		map.readFileFormat(map.environment().get());
+	}
+	catch (std::exception &e)
+	{
+		std::cerr << e.what() << std::endl;
+		validEnvironment = false;
+	}
+	catch (...)
+	{
+		validEnvironment = false;
+	}
+
+	BOOST_REQUIRE(validEnvironment);
+	// Map Info lists the numbers
+	BOOST_CHECK(strcmp(map.environment()->fileTextId(), "W3E!") == 0);
+	BOOST_CHECK(map.environment()->fileName() == "war3map.w3e");
+	BOOST_CHECK(map.environment()->version() == 11);
+	BOOST_CHECK(map.environment()->mainTileset() == Environment::MainTileset::Cityscape);
+	BOOST_REQUIRE(map.environment()->customized());
+	BOOST_REQUIRE(map.environment()->cliffTilesetsIds().size() == 2)
+	BOOST_REQUIRE(map.environment()->groundTilesetsIds().size() == 11);
+	// TODO check cliff tileset IDs and ground tileset IDs
+
+	BOOST_REQUIRE(map.environment()->mapHeight() == 160)
+	BOOST_REQUIRE(map.environment()->mapWidth() == 160)
+	// TODO check further values
+}
