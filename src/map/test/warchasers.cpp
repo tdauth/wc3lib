@@ -325,7 +325,7 @@ BOOST_AUTO_TEST_CASE(Environment)
 	BOOST_REQUIRE(validEnvironment);
 	// Map Info lists the numbers
 	BOOST_CHECK(strcmp(map.environment()->fileTextId(), "W3E!") == 0);
-	BOOST_CHECK(map.environment()->fileName() == "war3map.w3e");
+	BOOST_CHECK(strcmp(map.environment()->fileName(), "war3map.w3e") == 0);
 	BOOST_CHECK(map.environment()->version() == 11);
 	BOOST_CHECK(map.environment()->mainTileset() == map::Environment::MainTileset::Cityscape);
 	BOOST_REQUIRE(map.environment()->customized());
