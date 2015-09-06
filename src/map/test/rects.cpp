@@ -32,24 +32,27 @@
 
 using namespace wc3lib;
 
-BOOST_AUTO_TEST_CASE(ReadTest) {
+BOOST_AUTO_TEST_CASE(ReadTest)
+{
 	ifstream in("war3map.w3r", ifstream::in | ifstream::binary); // TestMap.w3m
-	
+
 	BOOST_REQUIRE(in);
-	
+
 	map::Rects rects;
-	
+
 	bool valid = true;
-	
-	try {
+
+	try
+	{
 		rects.read(in);
 	}
-	catch (...) {
+	catch (...)
+	{
 		valid = false;
 	}
-	
+
 	BOOST_REQUIRE(valid);
-	
+
 	BOOST_REQUIRE(rects.rects().size() == 3);
 	const map::Rect &rect = rects.rects().at(0);
 	BOOST_REQUIRE(rect.name() == "Blue Rect");
@@ -60,7 +63,7 @@ BOOST_AUTO_TEST_CASE(ReadTest) {
 	BOOST_CHECK_CLOSE(rect.right(), 1152.0, 0.0001);
 	BOOST_CHECK_CLOSE(rect.bottom(), 896.0, 0.0001);
 	BOOST_CHECK_CLOSE(rect.top(), 928.0, 0.0001);
-	
+
 	const map::Rect &whiteRect = rects.rects().at(1);
 	BOOST_REQUIRE(whiteRect.name() == "White Rect");
 	BOOST_REQUIRE(whiteRect.color() == 0xFFFFFF); // white - BGR color!
@@ -70,7 +73,7 @@ BOOST_AUTO_TEST_CASE(ReadTest) {
 	BOOST_CHECK_CLOSE(whiteRect.right(), 1152.0, 0.0001);
 	BOOST_CHECK_CLOSE(whiteRect.bottom(), 768.0, 0.0001);
 	BOOST_CHECK_CLOSE(whiteRect.top(), 896.0, 0.0001);
-	
+
 	const map::Rect &redRectWithWeathereffect = rects.rects().at(2);
 	BOOST_REQUIRE(redRectWithWeathereffect.name() == "Red Rect With Weathereffect");
 	BOOST_REQUIRE(redRectWithWeathereffect.color() == 0x0000FF); // red - BGR color!
@@ -84,55 +87,61 @@ BOOST_AUTO_TEST_CASE(ReadTest) {
 	BOOST_CHECK_CLOSE(redRectWithWeathereffect.top(), 992.0, 0.0001);
 }
 
-BOOST_AUTO_TEST_CASE(ReadWriteReadTest) {
+BOOST_AUTO_TEST_CASE(ReadWriteReadTest)
+{
 	ifstream in("war3map.w3r", ifstream::in | ifstream::binary); // Reign of Chaos
-	
+
 	BOOST_REQUIRE(in);
-	
+
 	map::Rects rects;
-	
+
 	bool valid = true;
-	
-	try {
+
+	try
+	{
 		rects.read(in);
 	}
-	catch (...) {
+	catch (...)
+	{
 		valid = false;
 	}
-	
+
 	BOOST_REQUIRE(valid);
-	
+
 	in.close();
 	ofstream out("war3map.w3rout", ifstream::out | ifstream::binary);
-	
+
 	BOOST_REQUIRE(out);
-	
-	try {
+
+	try
+	{
 		rects.write(out);
 	}
-	catch (...) {
+	catch (...)
+	{
 		valid = false;
 	}
-	
+
 	BOOST_REQUIRE(valid);
-	
+
 	out.close(); // flush file stream
 	rects.rects().clear(); // ensure it's empty!
-	
+
 	in.open("war3map.w3rout", ifstream::in | ifstream::binary); // Reign of Chaos, reopen
-	
+
 	BOOST_REQUIRE(in);
-	
-	try {
+
+	try
+	{
 		rects.read(in);
-	
+
 	}
 	catch (...) {
 		valid = false;
 	}
-	
+
 	BOOST_REQUIRE(valid);
-	
+
 	BOOST_REQUIRE(rects.rects().size() == 3);
 	const map::Rect &rect = rects.rects().at(0);
 	BOOST_REQUIRE(rect.name() == "Blue Rect");
@@ -143,7 +152,7 @@ BOOST_AUTO_TEST_CASE(ReadWriteReadTest) {
 	BOOST_CHECK_CLOSE(rect.right(), 1152.0, 0.0001);
 	BOOST_CHECK_CLOSE(rect.bottom(), 896.0, 0.0001);
 	BOOST_CHECK_CLOSE(rect.top(), 928.0, 0.0001);
-	
+
 	const map::Rect &whiteRect = rects.rects().at(1);
 	BOOST_REQUIRE(whiteRect.name() == "White Rect");
 	BOOST_REQUIRE(whiteRect.color() == 0xFFFFFF); // white - BGR color!
@@ -153,7 +162,7 @@ BOOST_AUTO_TEST_CASE(ReadWriteReadTest) {
 	BOOST_CHECK_CLOSE(whiteRect.right(), 1152.0, 0.0001);
 	BOOST_CHECK_CLOSE(whiteRect.bottom(), 768.0, 0.0001);
 	BOOST_CHECK_CLOSE(whiteRect.top(), 896.0, 0.0001);
-	
+
 	const map::Rect &redRectWithWeathereffect = rects.rects().at(2);
 	BOOST_REQUIRE(redRectWithWeathereffect.name() == "Red Rect With Weathereffect");
 	BOOST_REQUIRE(redRectWithWeathereffect.color() == 0x0000FF); // red - BGR color!
