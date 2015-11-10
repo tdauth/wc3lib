@@ -32,17 +32,32 @@ namespace editor
 {
 
 /**
- * \brief Wrapper class for \ref Ogre::Root which handles the configuration paths.
+ * \brief Wrapper class for Ogre::Root which handles the configuration paths.
  *
  * Use \ref configure() to make sure the renderer system is configured.
  */
 class KDE_EXPORT Root : public Ogre::Root
 {
 	public:
+		/**
+		 * The default file path to the ogre.cfg file.
+		 * On Unix systems this is "/etc/wc3lib/ogre.cfg".
+		 */
+		static const char* defaultOgreCfg;
+		/**
+		 * The default file path to the plugins.cfg file.
+		 * On Unix systems this is "/etc/wc3lib/plugins.cfg".
+		 */
+		static const char* defaultPluginsCfg;
+
+		/**
+		 * Creates a new root object using the default file paths \ref defaultOgreCfg and \ref defaultPluginsCfg.
+		 */
 		Root();
 
 		/**
-		 * \return Returns true if the configuration succeeded.
+		 * Restores the configuration of the root object. If it is not possible to restore a former configuration it shows a configuration dialog.
+		 * \return Returns true if the configuration succeeded and the user did not cancel the dialog.
 		 */
 		bool configure();
 

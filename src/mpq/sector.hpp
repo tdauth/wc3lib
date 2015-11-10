@@ -89,7 +89,7 @@ class Sector // FIXME : private boost::noncopyable
 		 */
 		std::streamsize writeData(ostream &ostream) const;
 		/**
-		 * Same as \ref writeData(ostream &) but doesn't work independently since it expects to be at the correct position in archive using \p istream as input archive stream.
+		 * Same as \ref Sector::writeData(wc3lib::ostream &) but doesn't work independently since it expects to be at the correct position in archive using \p istream as input archive stream.
 		 */
 		std::streamsize writeData(istream &istream, ostream &ostream) const;
 

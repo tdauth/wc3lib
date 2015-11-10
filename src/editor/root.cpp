@@ -33,25 +33,25 @@ namespace editor
  * Define as static constants due to initialization order.
  */
 #ifdef DEBUG
-static const char* ogreCfg = "ogre.cfg";
-static const char* pluginsCfg = "plugins.cfg";
+ const char* Root::defaultOgreCfg = "ogre.cfg";
+ const char* Root::defaultPluginsCfg = "plugins.cfg";
 #else
 #ifdef Q_OS_UNIX
-static const char* ogreCfg = "/etc/wc3lib/ogre.cfg";
-static const char* pluginsCfg = "/etc/wc3lib/plugins.cfg";
+ const char* Root::defaultOgreCfg = "/etc/wc3lib/ogre.cfg";
+ const char* Root::defaultPluginsCfg = "/etc/wc3lib/plugins.cfg";
 #else // TODO set Windows paths
-static const char* ogreCfg = "ogre.cfg";
-static const char* pluginsCfg = "plugins.cfg";
+ const char* Root::defaultOgreCfg = "ogre.cfg";
+ const char* Root::defaultPluginsCfg = "plugins.cfg";
 #endif
 #endif
 
 Root::Root()
-: Ogre::Root(pluginsCfg, ogreCfg)
-, m_ogreCfg(ogreCfg)
-, m_pluginsCfg(pluginsCfg)
+: Ogre::Root(Root::defaultPluginsCfg, Root::defaultOgreCfg)
+, m_ogreCfg(Root::defaultOgreCfg)
+, m_pluginsCfg(Root::defaultPluginsCfg)
 {
 #ifdef DEBUG
-	qDebug() << "Using debug paths: " << pluginsCfg << " and " << ogreCfg;
+	qDebug() << "Using debug paths: " << m_pluginsCfg.c_str() << " and " << m_ogreCfg.c_str();
 #endif
 }
 

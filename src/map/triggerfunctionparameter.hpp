@@ -55,7 +55,7 @@ class TriggerFunctionParameter : public Format
 		TriggerFunctionParameter();
 		virtual ~TriggerFunctionParameter();
 
-		virtual std::streamsize read(InputStream &istream)
+		virtual std::streamsize read(InputStream & /* istream */)
 		{
 			throw Exception(_("Not usable."));
 		}

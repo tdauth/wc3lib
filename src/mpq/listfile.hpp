@@ -91,6 +91,7 @@ class Listfile : public File
 		 *
 		 * \param entries The listfile entries of which the directory entries are retrieved from.
 		 * \param prefix Use \ at the end of the prefix to indicate that it must be a directory.
+		 * \param recursive If this value is true not only the entries of the exact prefix \p prefix will be list but all sub entries as well.
 		 * \note This returns unique entries which requires the function to store directories in a set.
 		 */
 		static Entries caseSensitiveDirEntries(const Entries &entries, const string &prefix = "", bool recursive = true);

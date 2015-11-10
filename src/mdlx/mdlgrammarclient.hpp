@@ -281,7 +281,7 @@ namespace traits
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Mdlx>
 	{
-		static void call(Out& out, wc3lib::mdlx::Mdlx const& val)
+		static void call(Out& out, wc3lib::mdlx::Mdlx const& /* val */)
 		{
 			out << "mdlx";
 		}
@@ -290,7 +290,7 @@ namespace traits
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Model>
 	{
-		static void call(Out& out, wc3lib::mdlx::Model const& val)
+		static void call(Out& out, wc3lib::mdlx::Model const& /* val */)
 		{
 			out << "model";
 		}
@@ -299,7 +299,7 @@ namespace traits
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Bounds>
 	{
-		static void call(Out& out, wc3lib::mdlx::Bounds const& val)
+		static void call(Out& out, wc3lib::mdlx::Bounds const& /* val */)
 		{
 			out << "bounds";
 		}
@@ -308,7 +308,7 @@ namespace traits
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::GeosetAnimation>
 	{
-		static void call(Out& out, wc3lib::mdlx::GeosetAnimation const& val)
+		static void call(Out& out, wc3lib::mdlx::GeosetAnimation const& /* val */)
 		{
 			out << "geoset_animation";
 		}
@@ -317,7 +317,7 @@ namespace traits
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Sequence>
 	{
-		static void call(Out& out, wc3lib::mdlx::Sequence const& val)
+		static void call(Out& out, wc3lib::mdlx::Sequence const& /* val */)
 		{
 			out << "sequence";
 		}
@@ -326,7 +326,7 @@ namespace traits
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::ReplaceableId>
 	{
-		static void call(Out& out, wc3lib::mdlx::ReplaceableId const& val)
+		static void call(Out& out, wc3lib::mdlx::ReplaceableId const& /* val */)
 		{
 			out << "replaceable_id";
 		}
@@ -335,7 +335,7 @@ namespace traits
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Texture::Wrapping>
 	{
-		static void call(Out& out, wc3lib::mdlx::Texture::Wrapping const& val)
+		static void call(Out& out, wc3lib::mdlx::Texture::Wrapping const& /* val */)
 		{
 			out << "wrapping";
 		}
@@ -344,7 +344,7 @@ namespace traits
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Texture>
 	{
-		static void call(Out& out, wc3lib::mdlx::Texture const& val)
+		static void call(Out& out, wc3lib::mdlx::Texture const& /* val */)
 		{
 			out << "texture";
 		}
@@ -353,7 +353,7 @@ namespace traits
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Layer::FilterMode>
 	{
-		static void call(Out& out, wc3lib::mdlx::Layer::FilterMode const& val)
+		static void call(Out& out, wc3lib::mdlx::Layer::FilterMode const& /* val */)
 		{
 			out << "filter_mode";
 		}
@@ -362,7 +362,7 @@ namespace traits
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Layer::TextureId>
 	{
-		static void call(Out& out, wc3lib::mdlx::Layer::TextureId const& val)
+		static void call(Out& out, wc3lib::mdlx::Layer::TextureId const& /* val */)
 		{
 			out << "texture_id";
 		}
@@ -371,7 +371,7 @@ namespace traits
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Layer::TextureIds>
 	{
-		static void call(Out& out, wc3lib::mdlx::Layer::TextureIds const& val)
+		static void call(Out& out, wc3lib::mdlx::Layer::TextureIds const& /* val */)
 		{
 			out << "texture_ids";
 		}
@@ -381,7 +381,7 @@ namespace traits
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Layer>
 	{
-		static void call(Out& out, wc3lib::mdlx::Layer const& val)
+		static void call(Out& out, wc3lib::mdlx::Layer const& /* val */)
 		{
 			out << "layer";
 		}
@@ -390,7 +390,7 @@ namespace traits
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Material>
 	{
-		static void call(Out& out, wc3lib::mdlx::Material const& val)
+		static void call(Out& out, wc3lib::mdlx::Material const& /* val */)
 		{
 			out << "material";
 		}
@@ -399,7 +399,7 @@ namespace traits
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::TextureAnimation>
 	{
-		static void call(Out& out, wc3lib::mdlx::TextureAnimation const& val)
+		static void call(Out& out, wc3lib::mdlx::TextureAnimation const& /* val */)
 		{
 			out << "texture_animation";
 		}
@@ -408,7 +408,7 @@ namespace traits
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Faces>
 	{
-		static void call(Out& out, wc3lib::mdlx::Faces const& val)
+		static void call(Out& out, wc3lib::mdlx::Faces const& /* val */)
 		{
 			out << "faces";
 		}
@@ -417,7 +417,7 @@ namespace traits
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Matrix>
 	{
-		static void call(Out& out, wc3lib::mdlx::Matrix const& val)
+		static void call(Out& out, wc3lib::mdlx::Matrix const& /* val */)
 		{
 			out << "matrix";
 		}
@@ -426,7 +426,7 @@ namespace traits
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Geoset>
 	{
-		static void call(Out& out, wc3lib::mdlx::Geoset const& val)
+		static void call(Out& out, wc3lib::mdlx::Geoset const& /* val */)
 		{
 			out << "geoset";
 		}
@@ -435,7 +435,7 @@ namespace traits
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Bone>
 	{
-		static void call(Out& out, wc3lib::mdlx::Bone const& val)
+		static void call(Out& out, wc3lib::mdlx::Bone const& /* val */)
 		{
 			out << "bone";
 		}
@@ -444,18 +444,18 @@ namespace traits
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Alpha>
 	{
-		static void call(Out& out, wc3lib::mdlx::Alpha const& val)
+		static void call(Out& out, wc3lib::mdlx::Alpha const& /* val */)
 		{
-			out << "bounds";
+			out << "alpha";
 		}
 	};
 
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Alphas>
 	{
-		static void call(Out& out, wc3lib::mdlx::Alphas const& val)
+		static void call(Out& out, wc3lib::mdlx::Alphas const& /* val */)
 		{
-			out << "bounds";
+			out << "alphas";
 		}
 	};
 
@@ -465,36 +465,36 @@ namespace traits
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Scaling>
 	{
-		static void call(Out& out, wc3lib::mdlx::Scaling const& val)
+		static void call(Out& out, wc3lib::mdlx::Scaling const& /* val */)
 		{
-			out << "bounds";
+			out << "scaling";
 		}
 	};
 
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Scalings>
 	{
-		static void call(Out& out, wc3lib::mdlx::Scalings const& val)
+		static void call(Out& out, wc3lib::mdlx::Scalings const& /* val */)
 		{
-			out << "bounds";
+			out << "scalings";
 		}
 	};
 
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Rotation>
 	{
-		static void call(Out& out, wc3lib::mdlx::Rotation const& val)
+		static void call(Out& out, wc3lib::mdlx::Rotation const& /* val */)
 		{
-			out << "bounds";
+			out << "rotation";
 		}
 	};
 
 	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Rotations>
 	{
-		static void call(Out& out, wc3lib::mdlx::Rotations const& val)
+		static void call(Out& out, wc3lib::mdlx::Rotations const& /* val */)
 		{
-			out << "bounds";
+			out << "rotations";
 		}
 	};
 }

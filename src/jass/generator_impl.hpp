@@ -48,7 +48,7 @@ class GeneratorImpl
 		typedef std::ostreambuf_iterator<char> IteratorType;
 		typedef client::jass_generator<IteratorType> JassGenerator;
 
-		Generator();
+		GeneratorImpl();
 
 		/**
 		 * Generates a JASS file into \p ostream from AST \p ast.

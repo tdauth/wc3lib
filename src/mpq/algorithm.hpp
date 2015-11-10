@@ -114,7 +114,7 @@ int decompressWaveStereo(unsigned char* const inBuffer, int inBufferLength, unsi
  */
 std::streamsize compressBzip2(istream &istream, ostream &ostream);
 /**
- * \param bufferSize To optimize the decompression you can set this value to the MPQ archive's sector size. If unsure use \ref boost::iostreams::default_device_buffer_size.
+ * \param bufferSize To optimize the decompression you can set this value to the MPQ archive's sector size. If unsure use boost::iostreams::default_device_buffer_size.
  * \throws boost::iostreams::bzip2_error Throws an exception if a decompression error occurs.
  */
 std::streamsize decompressBzip2(istream &istream, ostream &ostream, int bufferSize);
@@ -124,7 +124,7 @@ std::streamsize decompressBzip2(istream &istream, ostream &ostream, int bufferSi
  */
 std::streamsize compressZlib(istream &istream, ostream &ostream);
 /**
- * \param bufferSize To optimize the decompression you can set this value to the MPQ archive's sector size. If unsure use \ref boost::iostreams::default_device_buffer_size.
+ * \param bufferSize To optimize the decompression you can set this value to the MPQ archive's sector size. If unsure use boost::iostreams::default_device_buffer_size.
  *  \throws boost::iostreams::zlib_error Throws an exception if a decompression error occurs.
  */
 std::streamsize decompressZlib(istream &istream, ostream &ostream, int bufferSize);

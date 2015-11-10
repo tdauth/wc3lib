@@ -71,7 +71,7 @@ class Triggers : public FileFormat
 
 		Triggers();
 
-		virtual std::streamsize read(InputStream &istream)
+		virtual std::streamsize read(InputStream & /* istream */)
 		{
 			throw Exception(_("Not usable."));
 		}

@@ -60,7 +60,7 @@ namespace classic = boost::spirit::classic;
 namespace unicode = boost::spirit::qi::unicode;
 
 /**
- * This function can be called whenever an \ref boost::spirit::qi::expectation_failure occurs to
+ * This function can be called whenever an boost::spirit::qi::expectation_failure occurs to
  * print it in a readable format.
  * It returns a formatted string containing file path, line and column.
  */

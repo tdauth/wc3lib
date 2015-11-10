@@ -69,7 +69,7 @@ namespace map
  * \endcode
  * This requires MPQ support to be enabled in wc3lib.
  *
- * \note When opening a map it doesn't read any file format automatically. To read all file formats at once you can use \ref readAllFileFormats().
+ * \note When opening a map it doesn't read any file format automatically. To read all file formats at once you can use \ref W3m::readAllFileFormats().
  * \sa W3x
  * \todo Maybe allocate on request as well?
  */

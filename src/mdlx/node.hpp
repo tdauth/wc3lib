@@ -61,8 +61,8 @@ class Node
 			ParticleEmitter = 4096,
 			CollisionShape = 8192,
 			RibbonEmitter = 16384,
-			UnshadedOrEmitterUsesMdl = 32768, /// \note Is ignored by \ref writeMdl()
-			SortPrimitivesFarZOrEmitterUsesTga = 65536, /// \note Is ignored by \ref writeMdl()
+			UnshadedOrEmitterUsesMdl = 32768, /// \note Is ignored by \ref MdlGenerator
+			SortPrimitivesFarZOrEmitterUsesTga = 65536, /// \note Is ignored by \ref MdlGenerator
 			LineEmitter = 131072,
 			Unfogged = 262144,
 			ModelSpace = 524288,
@@ -121,7 +121,7 @@ inline constexpr bool operator&(Node::Type x, Node::Type y)
 	return static_cast<bool>(static_cast<long32>(x) & static_cast<long32>(y));
 }
 
-inline void Node::setName(const string& name)
+inline void Node::setName(const string &name)
 {
 	if (name.size() + 1 > Node::nameSize)
 	{
