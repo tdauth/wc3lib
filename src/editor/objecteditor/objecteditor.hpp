@@ -181,6 +181,7 @@ class KDE_EXPORT ObjectEditor : public Module
 		QAction* pasteObjectAction() const;
 		QAction* modifyFieldAction() const;
 		QAction* resetFieldAction() const;
+		QAction* compressAction() const;
 
 		virtual bool configure() override;
 		virtual void retranslateUi() override;
@@ -195,6 +196,10 @@ class KDE_EXPORT ObjectEditor : public Module
 		 * Imports all objects from a \ref wc3lib::map::CustomObjectsCollection (.w3o) file into the different object editor tabs.
 		 */
 		void importAll();
+		/**
+		 * Compresses the object data of the currently open tab.
+		 */
+		void compress();
 
 	protected:
 		virtual void createFileActions(QMenu *menu) override;
@@ -254,6 +259,7 @@ class KDE_EXPORT ObjectEditor : public Module
 		QAction *m_pasteObjectAction;
 		QAction *m_modifyFieldAction;
 		QAction *m_resetFieldAction;
+		QAction *m_compressAction;
 
 		QMenu *m_viewMenu;
 		QAction *m_rawDataAction;
@@ -421,6 +427,11 @@ inline QAction* ObjectEditor::modifyFieldAction() const
 inline QAction* ObjectEditor::resetFieldAction() const
 {
 	return this->m_resetFieldAction;
+}
+
+inline QAction* ObjectEditor::compressAction() const
+{
+	return this->m_compressAction;
 }
 
 inline KAboutData ObjectEditor::moduleAboutData() const

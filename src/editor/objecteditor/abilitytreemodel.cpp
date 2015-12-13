@@ -50,6 +50,7 @@ ObjectTreeItem* AbilityTreeModel::createItem(MpqPriorityList *source, ObjectData
 	}
 	else
 	{
+		qDebug() << "Insert custom ability item";
 		this->insertCustomItem(item);
 	}
 

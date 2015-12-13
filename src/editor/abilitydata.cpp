@@ -108,11 +108,17 @@ ObjectData::MetaDataList AbilityData::resolveDefaultField(const QString& objectI
 				}
 			}
 
-			qDebug() << "Missing value" << fieldId << "for object" << objectId << "with slk" << slk << "and race" << race << "and sort" << sort;
+			if (result.empty())
+			{
+				qDebug() << "Missing value" << fieldId << "for object" << objectId << "with slk" << slk << "and race" << race << "and sort" << sort;
+			}
 		}
 	}
 
-	qDebug() << "Missing value" << fieldId << "for object" << objectId;
+	if (result.empty())
+	{
+		qDebug() << "Missing value" << fieldId << "for object" << objectId;
+	}
 
 	return result;
 }
@@ -244,6 +250,50 @@ QIcon AbilityData::objectIcon(const QString& originalObjectId, const QString& cu
 	}
 
 	return QIcon();
+}
+
+void AbilityData::compress()
+{
+	for (Objects::iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
+	{
+		ObjectId id = iterator.key();
+
+		// is hero
+		if (this->objectIsHero(id.first, id.second)) {
+			// iterate through all fields which are for hero fields only and delete their modifications
+			for (int i = 0; i < this->metaData()->rows(); ++i)
+			{
+				if (this->metaData()->value(i, "useHero") != "1" && this->isFieldModified(id.first, id.second, this->metaData()->value(i, "ID"))) {
+					this->resetField(id.first, id.second, this->metaData()->value(i, "ID"));
+					qDebug() << "Compressing " << id.first << ":" << id.second << " field " << this->metaData()->value(i, "ID");
+				}
+			}
+		}
+
+		// is item
+		if (!this->objectIsItem(id.first, id.second)) {
+			// iterate through all fields which are for item fields only and delete their modifications
+			for (int i = 0; i < this->metaData()->rows(); ++i)
+			{
+				if (this->metaData()->value(i, "useItem") != "1" && this->isFieldModified(id.first, id.second, this->metaData()->value(i, "ID"))) {
+					this->resetField(id.first, id.second, this->metaData()->value(i, "ID"));
+					qDebug() << "Compressing " << id.first << ":" << id.second << " field " << this->metaData()->value(i, "ID");
+				}
+			}
+		}
+
+		// is unit
+		if (!this->objectIsUnit(id.first, id.second)) {
+			// iterate through all fields which are for unit fields only and delete their modifications
+			for (int i = 0; i < this->metaData()->rows(); ++i)
+			{
+				if (this->metaData()->value(i, "useUnit") != "1" && this->isFieldModified(id.first, id.second, this->metaData()->value(i, "ID"))) {
+					this->resetField(id.first, id.second, this->metaData()->value(i, "ID"));
+					qDebug() << "Compressing " << id.first << ":" << id.second << " field " << this->metaData()->value(i, "ID");
+				}
+			}
+		}
+	}
 }
 
 void AbilityData::load(QWidget *widget)

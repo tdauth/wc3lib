@@ -349,6 +349,12 @@ class KDE_EXPORT ObjectData : public QObject
 		 */
 		virtual StandardObjecIds standardObjectIds() const = 0;
 
+		/**
+		 * Removes all unnecessary field modifications of fields which are not shown anyway.
+		 * By default this method does nothing but it can be reimplemented in any sub class.
+		 */
+		virtual void compress();
+
 	protected:
 		MpqPriorityList *m_source;
 		/**

@@ -352,6 +352,9 @@ class KDE_EXPORT MetaData : public Resource
 		virtual void reload() override;
 		virtual void save(const KUrl &url) const override;
 
+		/**
+		 * \return Returns an instance of the actual source which is hidden behind this class.
+		 */
 		TextSourceInterface* textSource() const;
 
 		/**
@@ -413,7 +416,7 @@ inline TextSourceInterface* MetaData::textSource() const
 inline bool MetaData::isEmpty() const
 {
 	if (this->textSource() == 0)
-		
+
 	{
 		return true;
 	}

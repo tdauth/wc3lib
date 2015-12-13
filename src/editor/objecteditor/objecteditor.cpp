@@ -75,6 +75,7 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 , m_pasteObjectAction(0)
 , m_modifyFieldAction(0)
 , m_resetFieldAction(0)
+, m_compressAction(0)
 , m_viewMenu(0)
 , m_rawDataAction(0)
 {
@@ -319,6 +320,14 @@ void ObjectEditor::importAll()
 	}
 }
 
+void ObjectEditor::compress()
+{
+	if (QMessageBox::question(this, tr("Compress all objects?"), tr("Are you sure you want to compress all objects of this tab? This might take while."), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+	{
+		this->currentTab()->objectData()->compress();
+	}
+}
+
 void ObjectEditor::createFileActions(QMenu *menu)
 {
 	m_newObjectAction = new QAction(this);
@@ -400,6 +409,12 @@ void ObjectEditor::createEditActions(QMenu *menu)
 	action = new QAction(source()->sharedData()->tr("WESTRING_MENU_OE_AUTOFILL", "WorldEditStrings"), this);
 	menu->addAction(action);
 	connect(action, SIGNAL(triggered()), this, SLOT(autoFill()));
+
+	menu->addSeparator();
+
+	m_compressAction = new QAction(tr("Compress all objects"), this);
+	menu->addAction(m_compressAction);
+	connect(m_compressAction, SIGNAL(triggered()), this, SLOT(compress()));
 }
 
 void ObjectEditor::createMenus(QMenuBar *menuBar)

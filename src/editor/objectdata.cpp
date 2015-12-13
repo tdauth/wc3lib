@@ -145,6 +145,7 @@ bool ObjectData::fieldTypeIsLiteralList(const QString &fieldType) const
 	return fieldType == "intList"
 		|| fieldType == "unrealList"
 		|| fieldType == "stringList"
+		|| fieldType == "modelList"
 		;
 }
 
@@ -201,7 +202,8 @@ bool ObjectData::fieldTypeIsObjectList(const QString& fieldType) const
 		|| fieldType == "abilityList"
 		|| fieldType == "heroAbilityList"
 		|| fieldType == "techList"
-		|| fieldType == "itemList";
+		|| fieldType == "itemList"
+		;
 }
 
 bool ObjectData::fieldTypeAllowsMultipleSelections(const QString &fieldType) const
@@ -1196,6 +1198,10 @@ void ObjectData::applyMapStrings(map::W3m &w3m)
 			}
 		}
 	}
+}
+
+void ObjectData::compress()
+{
 }
 
 }
