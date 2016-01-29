@@ -93,7 +93,7 @@ class FileFormat : public Format
 			return *reinterpret_cast<const id*>(fileTextId());
 		}
 		virtual uint32 latestFileVersion() const = 0;
-		virtual uint32 version() const
+		virtual uint32 version() const override
 		{
 			return m_version;
 		}

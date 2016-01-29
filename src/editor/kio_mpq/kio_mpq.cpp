@@ -396,7 +396,7 @@ void MpqSlave::listDir(const KUrl &url)
 
 	if (!archivePath.isEmpty())
 	{
-		prefix = archivePath.constData() + '\\';
+		prefix = string(archivePath.constData()) + '\\';
 	}
 
 	// only check for the existing files of the current directory

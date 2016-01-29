@@ -54,7 +54,7 @@ class KDE_EXPORT BlpCodec : public Ogre::ImageCodec
 		/**
 		 * \copydoc Ogre::ImageCodec::getDataType
 		 */
-		Ogre::String getDataType() const;
+		Ogre::String getDataType() const override;
 		/**
 		 * \copydoc Ogre::ImageCodec::code
 		 * \todo Is still not supported due to complexity of implementation (you have to support all other formats).
@@ -74,15 +74,15 @@ class KDE_EXPORT BlpCodec : public Ogre::ImageCodec
 		/**
 		 * \copydoc Ogre::ImageCodec::getType
 		 */
-		virtual Ogre::String getType () const;
+		virtual Ogre::String getType () const override;
 		/**
 		 * \copydoc Ogre::ImageCodec::magicNumberMatch
 		 */
-		virtual bool magicNumberMatch(const char *magicNumberPtr, size_t maxbytes) const;
+		virtual bool magicNumberMatch(const char *magicNumberPtr, size_t maxbytes) const override;
 		/**
 		 * \copydoc Ogre::ImageCodec::magicNumberToFileExt
 		 */
-		virtual Ogre::String magicNumberToFileExt(const char *magicNumberPtr, size_t maxbytes) const;
+		virtual Ogre::String magicNumberToFileExt(const char *magicNumberPtr, size_t maxbytes) const override;
 
 	protected:
 		static BlpCodec *m_self;

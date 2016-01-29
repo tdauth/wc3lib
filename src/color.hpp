@@ -88,7 +88,7 @@ class Bgr : public Rgb
 		/**
 		 * The first 8 bits are not used (usually alpha value for argb or red value for rgba).
 		 */
-		virtual uint32_t value() const;
+		virtual uint32_t value() const override;
 };
 
 class Rgba : public Rgb
@@ -103,7 +103,7 @@ class Rgba : public Rgb
 		void setAlpha(uint8_t alpha);
 		uint8_t alpha() const;
 
-		virtual uint32_t value() const;
+		virtual uint32_t value() const override;
 
 	protected:
 		uint8_t m_alpha;
@@ -115,7 +115,7 @@ class Bgra : public Rgba
 		virtual std::streamsize read(InputStream &istream) override;
 		virtual std::streamsize write(OutputStream &ostream) const override;
 
-		virtual uint32_t value() const;
+		virtual uint32_t value() const override;
 };
 
 inline void Rgb::setRed(uint8_t red)

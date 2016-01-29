@@ -62,10 +62,10 @@ class KDE_EXPORT MpqSlave : public KIO::SlaveBase
 		/**
 		 * Closes the opened file of the MPQ archive.
 		 */
-		virtual void close();
+		virtual void close() override;
 
 		virtual void read(KIO::filesize_t size) override;
-		virtual void seek(KIO::filesize_t offset);
+		virtual void seek(KIO::filesize_t offset) override;
 		virtual void mkdir(const KUrl& url, int permissions) override;
 
 		virtual void get(const KUrl &url) override;
