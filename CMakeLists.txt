@@ -85,13 +85,13 @@ add_definitions(-DLOCALE_DIR=\"${CMAKE_INSTALL_PREFIX}/share/locale\")
 # it contains the defines for all possible CMake options and is expected to be in the top level src directory ("include/wc3lib/")
 configure_file (
 	"${PROJECT_SOURCE_DIR}/wc3libConfig.h.in"
-	"${PROJECT_BINARY_DIR}/src/config.h"
+	"${PROJECT_BINARY_DIR}/config.h"
 )
-install(FILES "${PROJECT_BINARY_DIR}/src/config.h" DESTINATION include/wc3lib)
+install(FILES "${PROJECT_BINARY_DIR}/config.h" DESTINATION include/wc3lib)
 
 # add the binary src tree to the search path for include files
 # so that we will find config.h
-include_directories("${PROJECT_BINARY_DIR}/src")
+include_directories("${PROJECT_BINARY_DIR}")
 
 # operating system definitions
 if (UNIX)
