@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2012 by Tamino Dauth                                    *
+ *   Copyright (C) 2013 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -25,9 +25,9 @@
 #include <KCmdLineArgs>
 #include <KLocale>
 
-#include <Ogre.h>
+#include "../../editor.hpp"
 
-#include "../editor.hpp"
+#include "../triggereditor/triggereditor.hpp"
 
 using namespace wc3lib::editor;
 
@@ -37,15 +37,13 @@ int main(int argc, char *argv[])
 
 	KCmdLineArgs::init(argc, argv, &aboutData);
 	KCmdLineOptions options;
-	options.add("", ki18n("Additional help."));
 	options.add("+[file]", ki18n("File to open"));
 	KCmdLineArgs::addCmdLineOptions(options);
 
 	KApplication app;
 
 	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
-	Root root;
-	ModelEditor editor(&root, source.data());
+	TriggerEditor editor(source.data());
 
 	if (editor.configure())
 	{
@@ -53,11 +51,12 @@ int main(int argc, char *argv[])
 
 		KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
 
+		// TODO determine by extension what should be open!
 		if (args != 0)
 		{
 			for (int i = 0; i < args->count(); ++i)
 			{
-				editor.openUrl(args->url(i));
+				editor.openTriggersUrl(args->url(i));
 			}
 		}
 	}

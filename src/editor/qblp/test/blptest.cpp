@@ -71,7 +71,7 @@ void BlpTest::cleanup()
 void BlpTest::ioHandlerReadTest()
 {
 	ifstream in("TeamColor00.blp", std::ios::in | std::ios::binary);
-	QVERIFY(in);
+	QVERIFY(in.is_open());
 	blp::Blp blpImage;
 	bool success = true;
 
@@ -111,7 +111,7 @@ void BlpTest::ioHandlerReadTest()
 void BlpTest::ioHandlerWriteTest()
 {
 	ifstream in("TeamColor00.blp");
-	QVERIFY(in);
+	QVERIFY(in.is_open());
 	blp::Blp blpImage;
 	bool success = true;
 
@@ -153,7 +153,7 @@ void BlpTest::ioHandlerWriteTest()
 void BlpTest::ioHandlerPalettedAlphaWriteTest()
 {
 	ifstream in("HumanCampaignCastle.blp", std::ios::in | std::ios::binary);
-	QVERIFY(in);
+	QVERIFY(in.is_open());
 	blp::Blp blpImage;
 	bool success = true;
 

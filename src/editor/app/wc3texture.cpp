@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2014 by Tamino Dauth                                    *
+ *   Copyright (C) 2012 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -19,19 +19,15 @@
  ***************************************************************************/
 
 #include <QScopedPointer>
-#include <QMainWindow>
 
 #include <KApplication>
 #include <KAboutData>
 #include <KCmdLineArgs>
 #include <KLocale>
-#include <KMessageBox>
 
 #include "../editor.hpp"
-#include "../exception.hpp"
 
-#include "../editor/objecteditor/uniteditor.hpp"
-#include "../editor/objecteditor/objecttreemodel.hpp"
+#include "../textureeditor/textureeditor.hpp"
 
 using namespace wc3lib::editor;
 
@@ -41,48 +37,26 @@ int main(int argc, char *argv[])
 
 	KCmdLineArgs::init(argc, argv, &aboutData);
 	KCmdLineOptions options;
-	options.add("", ki18n("Additional help."));
 	options.add("+[file]", ki18n("File to open"));
 	KCmdLineArgs::addCmdLineOptions(options);
 
 	KApplication app;
 
 	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
-	source->sharedData()->sharedObjectData()->unitEditorData()->setSource(source.data());
+	TextureEditor editor(source.data());
 
-	try
+	if (editor.configure())
 	{
-		source->sharedData()->sharedObjectData()->unitEditorData()->load();
-	}
-	catch (wc3lib::Exception &e)
-	{
-		KMessageBox::error(0, e.what());
-	}
+		editor.show();
 
-	QScopedPointer<UnitData> unitData(new UnitData(source.data()));
-	UnitEditor editor(source.data(), unitData.data(), 0);
+		KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
 
-	try
-	{
-		unitData->load(&editor);
-		editor.treeModel()->load(source.data(), unitData.data(), &editor);
-	}
-	catch (wc3lib::Exception &e)
-	{
-		KMessageBox::error(0, e.what());
-	}
-
-	QMainWindow mainWindow;
-	mainWindow.setCentralWidget(&editor);
-	mainWindow.show();
-
-	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
-
-	if (args != 0)
-	{
-		for (int i = 0; i < args->count(); ++i)
+		if (args != 0)
 		{
-			// TODO import all objects into Unit Editor
+			for (int i = 0; i < args->count(); ++i)
+			{
+				editor.openUrl(args->url(i));
+			}
 		}
 	}
 

@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2014 by Tamino Dauth                                    *
+ *   Copyright (C) 2012 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -25,9 +25,9 @@
 #include <KCmdLineArgs>
 #include <KLocale>
 
-#include "../editor.hpp"
+#include <Ogre.h>
 
-#include "../editor/mpqeditor/mpqeditor.hpp"
+#include "../../editor.hpp"
 
 using namespace wc3lib::editor;
 
@@ -37,13 +37,15 @@ int main(int argc, char *argv[])
 
 	KCmdLineArgs::init(argc, argv, &aboutData);
 	KCmdLineOptions options;
+	options.add("", ki18n("Additional help."));
 	options.add("+[file]", ki18n("File to open"));
 	KCmdLineArgs::addCmdLineOptions(options);
 
 	KApplication app;
 
 	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
-	MpqEditor editor(source.data());
+	Root root;
+	ModelEditor editor(&root, source.data());
 
 	if (editor.configure())
 	{
@@ -55,7 +57,7 @@ int main(int argc, char *argv[])
 		{
 			for (int i = 0; i < args->count(); ++i)
 			{
-				editor.openMpqArchive(args->url(i));
+				editor.openUrl(args->url(i));
 			}
 		}
 	}

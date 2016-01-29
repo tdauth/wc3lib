@@ -339,7 +339,7 @@ class Archive : public Format, private boost::noncopyable
 
 inline bool Archive::hasStrongDigitalSignature(istream &istream)
 {
-	static const uint32 identifier = 'NGIS';
+	static const uint32 identifier[4] = { 'N', 'G', 'I', 'S' };
 	uint32 data;
 	std::streamsize size = 0;
 	const std::streampos position = istream.tellg();

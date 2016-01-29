@@ -2,6 +2,8 @@ if (EDITOR OR PLUGINS)
 	# for proper "config.h" detection we use relative paths of modules as well
 	include_directories("${PROJECT_BINARY_DIR}/src/editor")
 
+	include(FindOgreForwc3lib.cmake)
+
 	if (EDITOR)
 		find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
 	elseif (PLUGINS)
@@ -25,29 +27,11 @@ if (EDITOR OR PLUGINS)
 	endif ()
 
 	if (${KDE4_FOUND})
-		include(KDE4Defaults)
 		include_directories(${KDE4_INCLUDE_DIR} ${KDE4_INCLUDES})
 		link_directories(${KDE4_LIB_DIR})
 		# NOTE enable exception handling which might be disabled by the KDE CMake module
 		# NOTE enable STL support which might be disabled by the KDE CMake module
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${KDE4_ENABLE_EXCEPTIONS} -UQT_NO_STL")
-	endif ()
-
-	# OGRE does not install the CMake file into the module path. It uses the library path instead.
-	find_path(OGRE_CMAKE_MODULE_DIR FindOGRE.cmake PATHS ${CMAKE_MODULE_PATH} ${CMAKE_SYSTEM_LIBRARY_PATH} PATH_SUFFIXES OGRE/cmake)
-
-	if (OGRE_CMAKE_MODULE_DIR)
-		message(STATUS "Found OGRE CMake module in directory: ${OGRE_CMAKE_MODULE_DIR}")
-		set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${OGRE_CMAKE_MODULE_DIR})
-	else ()
-		message(FATAL_ERROR "Did not find OGRE CMake module.")
-	endif ()
-
-	find_package(OGRE "1.9" COMPONENTS Paging Terrain REQUIRED)
-
-	if (${OGRE_FOUND})
-		include_directories(${OGRE_INCLUDE_DIRS})
-		link_directories(${OGRE_LIB_DIR})
 	endif ()
 endif ()
 
@@ -59,6 +43,7 @@ if ((EDITOR OR PLUGINS) AND BLP AND ${OGRE_FOUND})
 endif ()
 if ((EDITOR OR PLUGINS) AND MPQ AND ${KDE4_FOUND})
 	add_subdirectory(kio_mpq)
+	add_subdirectory(services)
 endif ()
 if ((EDITOR OR PLUGINS) AND BLP AND ${QT4_FOUND})
 	add_subdirectory(qblp)
@@ -167,6 +152,9 @@ if (EDITOR)
 	add_subdirectory(textureeditor)
 	add_subdirectory(soundeditor)
 	add_subdirectory(importmanager)
+
+	add_subdirectory(mime)
+	add_subdirectory(app)
 
 	if (DEBUG)
 		add_subdirectory(test)

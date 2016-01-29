@@ -118,8 +118,6 @@ add_subdirectory(src)
 add_subdirectory(doc)
 add_subdirectory(etc)
 add_subdirectory(locale)
-add_subdirectory(mime)
-add_subdirectory(services)
 add_subdirectory(share)
 
 # CPack
@@ -173,7 +171,9 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/COPYING")
 set(CPACK_RESOURCE_FILE_README  "${CMAKE_SOURCE_DIR}/README")
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/README")
 
-# RPM
+# RPM, Fedora
+set(CPACK_RPM_PACKAGE_ARCHITECTURE "x86_64")
+set(CPACK_RPM_PACKAGE_URL "http://wc3lib.org")
 set(CPACK_RPM_PACKAGE_GROUP "Development/Libraries")
 set(CPACK_RPM_PACKAGE_LICENSE "GPLv2")
 set(CPACK_RPM_PACKAGE_REQUIRES "boost, gettext")
@@ -189,5 +189,9 @@ endif ()
 if (EDITOR OR PLUGINS)
 	set(CPACK_RPM_PACKAGE_REQUIRES "${CPACK_RPM_PACKAGE_REQUIRES}, qt, kdelibs, ogre")
 endif ()
+
+# Debian
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Tamino Dauth")
+set(CPACK_PACKAGE_CONTACT "tamino@cdauth.eu")
 
 include(CPack)

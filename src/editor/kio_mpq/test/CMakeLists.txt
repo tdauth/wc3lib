@@ -17,4 +17,6 @@ add_custom_command(TARGET slavetest
 add_definitions(-DKIO_NAME ${KIO_NAME})
 configure_file(kio_mpqtest.h.in ${CMAKE_CURRENT_BINARY_DIR}/kiotestConfig.h)
 
+include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+
 configure_file(testattributes.mpq testattributes.mpq COPYONLY) # MPQ archive with extended attributes

@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(Orc)
 
 	Mdlx model;
 	bool valid = true;
-	std::size_t size = 0;
+	//std::size_t size = 0;
 
 	try
 	{

@@ -24,12 +24,9 @@
 #include <KAboutData>
 #include <KCmdLineArgs>
 #include <KLocale>
-#include <KMessageBox>
 
-#include "../editor.hpp"
-#include "../exception.hpp"
-
-#include "../editor/objecteditor/objecteditor.hpp"
+#include "../../editor.hpp"
+#include "../mpqeditor/mpqeditor.hpp"
 
 using namespace wc3lib::editor;
 
@@ -39,14 +36,13 @@ int main(int argc, char *argv[])
 
 	KCmdLineArgs::init(argc, argv, &aboutData);
 	KCmdLineOptions options;
-	options.add("", ki18n("Additional help."));
 	options.add("+[file]", ki18n("File to open"));
 	KCmdLineArgs::addCmdLineOptions(options);
 
 	KApplication app;
 
 	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
-	ObjectEditor editor(source.data());
+	MpqEditor editor(source.data());
 
 	if (editor.configure())
 	{
@@ -58,7 +54,7 @@ int main(int argc, char *argv[])
 		{
 			for (int i = 0; i < args->count(); ++i)
 			{
-				editor.importAll(args->url(i));
+				editor.openMpqArchive(args->url(i));
 			}
 		}
 	}

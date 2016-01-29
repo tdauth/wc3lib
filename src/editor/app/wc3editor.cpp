@@ -23,13 +23,13 @@
 #include <KCmdLineArgs>
 #include <KLocale>
 
-#include "../editor.hpp"
+#include "../../editor.hpp"
 
-#include "../editor/modeleditor/modeleditor.hpp"
-#include "../editor/objecteditor/objecteditor.hpp"
-#include "../editor/textureeditor/textureeditor.hpp"
-#include "../editor/triggereditor/triggereditor.hpp"
-#include "../editor/mpqeditor/mpqeditor.hpp"
+#include "../modeleditor/modeleditor.hpp"
+#include "../objecteditor/objecteditor.hpp"
+#include "../textureeditor/textureeditor.hpp"
+#include "../triggereditor/triggereditor.hpp"
+#include "../mpqeditor/mpqeditor.hpp"
 
 using namespace wc3lib::editor;
 

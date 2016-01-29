@@ -6,8 +6,6 @@ set(wc3lib_EDITOR_PLUGIN_BLPCODEC_SRC
 )
 set(wc3lib_EDITOR_PLUGIN_BLPCODEC_SRC ${wc3lib_EDITOR_PLUGIN_BLPCODEC_SRC} PARENT_SCOPE)
 
-#include_directories(${OGRE_INCLUDE_DIRS})
-
 # BLP OGRE plugin
 # allows you to read BLP image files by using class Ogre::Image
 add_library(Plugin_BlpCodec SHARED ${wc3lib_EDITOR_PLUGIN_BLPCODEC_SRC})

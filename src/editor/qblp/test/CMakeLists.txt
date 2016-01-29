@@ -18,6 +18,8 @@ add_custom_command(TARGET BlpTest
 add_definitions(-DQBLP_NAME ${QBLP_NAME})
 configure_file(blptestConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/blptestConfig.h)
 
+include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+
 # copy all test files
 configure_file(DISBTNMagic.blp DISBTNMagic.blp COPYONLY) # JPEG 64x64
 configure_file(TEAMCOLOR/TeamColor00.blp TeamColor00.blp COPYONLY) # Warcraft III: Reign of Chaos
