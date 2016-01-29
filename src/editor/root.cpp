@@ -21,7 +21,7 @@
 #include <QtCore>
 
 #include "root.hpp"
-#include "../config.h"
+#include "config.h"
 
 namespace wc3lib
 {

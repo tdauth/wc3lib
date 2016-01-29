@@ -26,7 +26,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/scoped_array.hpp>
 
-#include "../config.h"
+#include "config.h"
 #ifdef MPQ
 #include "../mpq.hpp"
 #else

@@ -34,7 +34,7 @@
 #include "settings.hpp"
 #include "map.hpp"
 #include "sourcesdialog.hpp"
-#include "../config.h"
+#include "config.h"
 #ifdef DEBUG
 #include "Plugin_BlpCodec/blpcodec.hpp"
 #endif
