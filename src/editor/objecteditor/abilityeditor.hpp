@@ -31,7 +31,7 @@ namespace wc3lib
 namespace editor
 {
 
-class AbilityEditor : public ObjectEditorTab
+class KDE_EXPORT AbilityEditor : public ObjectEditorTab
 {
 	public:
 		AbilityEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);

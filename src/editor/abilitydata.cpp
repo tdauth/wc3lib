@@ -254,43 +254,28 @@ QIcon AbilityData::objectIcon(const QString& originalObjectId, const QString& cu
 
 void AbilityData::compress()
 {
+	/*
+	 * Find all modified fields which are not necessarily used for the objects.
+	 * For example if you modify a hero only field and then make the object from a hero to a normal object the modification remains but is not visible anymore in the object editor.
+	 * NOTE This discards maybe still required modifications.
+	 */
 	for (Objects::iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
 	{
-		ObjectId id = iterator.key();
+		const ObjectId id = iterator.key();
+		const bool isHero = this->objectIsHero(id.first, id.second);
+		const bool isItem = this->objectIsItem(id.first, id.second);
+		const bool isUnit = this->objectIsUnit(id.first, id.second);
 
-		// is hero
-		if (this->objectIsHero(id.first, id.second)) {
-			// iterate through all fields which are for hero fields only and delete their modifications
-			for (int i = 0; i < this->metaData()->rows(); ++i)
-			{
-				if (this->metaData()->value(i, "useHero") != "1" && this->isFieldModified(id.first, id.second, this->metaData()->value(i, "ID"))) {
-					this->resetField(id.first, id.second, this->metaData()->value(i, "ID"));
-					qDebug() << "Compressing " << id.first << ":" << id.second << " field " << this->metaData()->value(i, "ID");
-				}
-			}
-		}
-
-		// is item
-		if (!this->objectIsItem(id.first, id.second)) {
-			// iterate through all fields which are for item fields only and delete their modifications
-			for (int i = 0; i < this->metaData()->rows(); ++i)
-			{
-				if (this->metaData()->value(i, "useItem") != "1" && this->isFieldModified(id.first, id.second, this->metaData()->value(i, "ID"))) {
-					this->resetField(id.first, id.second, this->metaData()->value(i, "ID"));
-					qDebug() << "Compressing " << id.first << ":" << id.second << " field " << this->metaData()->value(i, "ID");
-				}
-			}
-		}
-
-		// is unit
-		if (!this->objectIsUnit(id.first, id.second)) {
-			// iterate through all fields which are for unit fields only and delete their modifications
-			for (int i = 0; i < this->metaData()->rows(); ++i)
-			{
-				if (this->metaData()->value(i, "useUnit") != "1" && this->isFieldModified(id.first, id.second, this->metaData()->value(i, "ID"))) {
-					this->resetField(id.first, id.second, this->metaData()->value(i, "ID"));
-					qDebug() << "Compressing " << id.first << ":" << id.second << " field " << this->metaData()->value(i, "ID");
-				}
+		// iterate through all fields which are for item fields only and delete their modifications
+		for (int i = 0; i < this->metaData()->rows(); ++i)
+		{
+			if (this->isFieldModified(id.first, id.second, this->metaData()->value(i, "ID"))
+				&& (isHero && this->metaData()->value(i, "useHero") != "1")
+				&& (isItem && this->metaData()->value(i, "useItem") != "1")
+				&& (isUnit && this->metaData()->value(i, "useUnit") != "1")
+			) {
+				this->resetField(id.first, id.second, this->metaData()->value(i, "ID"));
+				qDebug() << "Compressing " << id.first << ":" << id.second << " field " << this->metaData()->value(i, "ID");
 			}
 		}
 	}

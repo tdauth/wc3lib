@@ -183,15 +183,29 @@ if (MPQ)
 endif ()
 
 if (BLP)
-	set(CPACK_RPM_PACKAGE_REQUIRES "${CPACK_RPM_PACKAGE_REQUIRES}, jpeg")
+	set(CPACK_RPM_PACKAGE_REQUIRES "${CPACK_RPM_PACKAGE_REQUIRES}, libjpeg-turbo")
 endif ()
 
 if (EDITOR OR PLUGINS)
 	set(CPACK_RPM_PACKAGE_REQUIRES "${CPACK_RPM_PACKAGE_REQUIRES}, qt, kdelibs, ogre")
 endif ()
 
-# Debian
+# Debian/Ubuntu
+set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Tamino Dauth")
 set(CPACK_PACKAGE_CONTACT "tamino@cdauth.eu")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-all-dev, libgettextpo0")
+
+if (MPQ)
+	set(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS}, bzip2, zlib1g")
+endif ()
+
+if (BLP)
+	set(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS}, libjpeg-turbo8")
+endif ()
+
+if (EDITOR OR PLUGINS)
+	set(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS}, qt4-default, kdelibs-bin, libogre-1.9.0v5")
+endif ()
 
 include(CPack)
