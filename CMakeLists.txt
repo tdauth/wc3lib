@@ -59,7 +59,7 @@ option(DOC
 
 # custom compilation definitions
 # run debug detection before configuring file to set proper preprocessor
-if (CMAKE_BUILD_TYPE STREQUAL Debug OR CMAKE_BUILD_TYPE STREQUAL debugfull OR CMAKE_BUILD_TYPE STREQUAL debugfull OR CMAKE_BUILD_TYPE STREQUAL Profile OR DEBUG)
+if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug" OR "${CMAKE_BUILD_TYPE}" STREQUAL "debugfull" OR "${CMAKE_BUILD_TYPE}" STREQUAL "Profile" OR DEBUG)
 	message(STATUS "Detected debug mode with CMake build type: \"${CMAKE_BUILD_TYPE}\".")
 	set(DEBUG ON)
 	add_definitions(-DDEBUG=1)

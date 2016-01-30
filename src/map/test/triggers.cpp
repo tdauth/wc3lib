@@ -70,8 +70,19 @@ BOOST_AUTO_TEST_CASE(TriggerDataReignOfChaos)
 
 	// data from the file
 	BOOST_CHECK(triggerData.categories().size() == 43); // section [TriggerCategories]
-	BOOST_CHECK(triggerData.types().size() == 130); // section [TriggerTypes]
+	BOOST_REQUIRE(triggerData.types().size() == 130); // section [TriggerTypes]
 	// TODO check more sections
+
+	// first type:
+	// abilcode=1,1,WESTRING_TRIGTYPE_abilcode,integer
+	const map::TriggerData::Type &firstType = triggerData.types().at(0);
+	BOOST_CHECK(firstType.name() == "abilcode");
+	BOOST_CHECK(firstType.canBeGlobal());
+	BOOST_CHECK(firstType.canBeCompared());
+	BOOST_CHECK(firstType.displayText() == "WESTRING_TRIGTYPE_abilcode");
+	BOOST_CHECK(firstType.baseType() != nullptr);
+	BOOST_CHECK(firstType.baseType()->name() == "integer");
+	BOOST_CHECK(firstType.defaultValue() == "");
 
 	/*
 	[DefaultTriggerCategories]
@@ -155,7 +166,7 @@ BOOST_AUTO_TEST_CASE(TriggerDataReignOfChaosReadWriteRead)
 
 	// data from the file
 	BOOST_CHECK(triggerData.categories().size() == 43); // section [TriggerCategories]
-	BOOST_CHECK(triggerData.types().size() == 130); // section [TriggerTypes]
+	BOOST_CHECK(triggerData.types().size() == 133); // section [TriggerTypes]
 	// TODO check more sections
 
 	// there is one default trigger for melee maps
@@ -226,7 +237,7 @@ BOOST_AUTO_TEST_CASE(TriggerDataReignOfChaosReadWriteRead)
 
 	// data from the file
 	BOOST_CHECK(triggerData.categories().size() == 43); // section [TriggerCategories]
-	BOOST_CHECK(triggerData.types().size() == 130); // section [TriggerTypes]
+	BOOST_CHECK(triggerData.types().size() == 133); // section [TriggerTypes]
 	// TODO check more sections
 
 	// there is one default trigger for melee maps

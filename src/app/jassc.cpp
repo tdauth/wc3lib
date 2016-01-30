@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 	("version,V", _("Shows current version of jassc."))
 	("help,h", _("Shows this text."))
 	// options
-	("header,j", boost::program_options::value<Strings>(&headers), _("Includes JASS headers"))
+	("headers,j", boost::program_options::value<Strings>(&headers), _("Includes JASS headers"))
 	// warning options
 	("fsyntax-only", _("Check the code for syntax errors, but don't do anything beyond that."))
 
@@ -176,7 +176,8 @@ int main(int argc, char *argv[])
 			{
 				return EXIT_FAILURE;
 			}
-		} else
+		}
+		else
 		{
 			std::cout << _("No errors occured.") << std::endl;
 
