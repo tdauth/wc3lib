@@ -516,6 +516,7 @@ void ObjectData::modifyField(const QString &originalObjectId, const QString &cus
 	if (iterator != this->m_objects.end())
 	{
 		iterator.value().insert(fieldId, modification);
+
 		emit fieldModification(originalObjectId, customObjectId, fieldId);
 	}
 }

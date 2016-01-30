@@ -158,6 +158,37 @@ ObjectEditorTab* ObjectEditor::tab(int index) const
 	return boost::polymorphic_cast<ObjectEditorTab*>(this->tabWidget()->widget(index));
 }
 
+void ObjectEditor::importCustomObjectsCollection(const map::CustomObjectsCollection& collection)
+{
+	if (collection.hasUnits())
+	{
+		loadTabDataOnRequest(0);
+		this->unitEditor()->unitData()->importCustomObjects(*collection.units());
+	}
+
+	if (collection.hasItems())
+	{
+		loadTabDataOnRequest(1);
+		this->itemEditor()->itemData()->importCustomObjects(*collection.items());
+	}
+
+	if (collection.hasAbilities())
+	{
+		loadTabDataOnRequest(2);
+		this->abilityEditor()->abilityData()->importCustomObjects(*collection.abilities());
+	}
+
+	// TODO further stuff
+}
+
+void ObjectEditor::importCustomUnits(const map::CustomUnits& customUnits)
+{
+	loadTabDataOnRequest(0);
+	this->unitEditor()->unitData()->importCustomUnits(customUnits);
+	loadTabDataOnRequest(1);
+	this->itemEditor()->itemData()->importCustomUnits(customUnits);
+}
+
 void ObjectEditor::exportAll()
 {
 	// TODO collect all tab data (requires Frozen Throne)
@@ -225,15 +256,7 @@ void ObjectEditor::importAll(const KUrl &url)
 					map::CustomObjectsCollection collection;
 					collection.read(in);
 
-					if (collection.hasUnits())
-					{
-						this->unitEditor()->unitData()->importCustomObjects(*collection.units());
-					}
-
-					if (collection.hasItems())
-					{
-						this->itemEditor()->itemData()->importCustomObjects(*collection.items());
-					}
+					importCustomObjectsCollection(collection);
 				}
 				catch (const Exception &e)
 				{
@@ -248,8 +271,7 @@ void ObjectEditor::importAll(const KUrl &url)
 					map::CustomUnits customUnits;
 					customUnits.read(in);
 
-					this->unitEditor()->unitData()->importCustomUnits(customUnits);
-					this->itemEditor()->itemData()->importCustomUnits(customUnits);
+					importCustomUnits(customUnits);
 				}
 				catch (const Exception &e)
 				{
@@ -266,9 +288,10 @@ void ObjectEditor::importAll(const KUrl &url)
 					if (map.customUnits().get() != 0)
 					{
 						map.readFileFormat(map.customUnits().get());
-						this->unitEditor()->unitData()->importCustomUnits(*map.customUnits());
+
+						importCustomUnits(*map.customUnits());
+
 						this->unitEditor()->unitData()->applyMapStrings(map);
-						this->itemEditor()->itemData()->importCustomUnits(*map.customUnits());
 						this->itemEditor()->itemData()->applyMapStrings(map);
 					}
 				}
@@ -478,26 +501,32 @@ void ObjectEditor::currentChanged(int index)
 	setWindowTitle(tab(index)->name());
 	m_rawDataAction->setChecked(this->currentTab()->treeModel()->showRawData());
 
+	loadTabDataOnRequest(index);
+}
+
+void ObjectEditor::loadTabDataOnRequest(int index)
+{
+	ObjectEditorTab *tab = this->tab(index);
 	/*
 	 * Load data on request when the tab is shown for the first time.
 	 */
-	if (m_currentTab->objectData() != 0)
+	if (tab->objectData() != 0)
 	{
-		qDebug() << "Show" << m_currentTab->name() << "first time";
+		qDebug() << "Show" << tab->name() << "first time";
 		/*
 		 * Indicate loading by changing the cursor to busy.
 		 * The process of loading object data might take quite some time.
 		 */
-		m_currentTab->objectData()->loadOnRequest(this);
+		tab->objectData()->loadOnRequest(this);
 	}
 
 
 	/*
 	 * Load data on request when the tab is shown for the first time.
 	 */
-	if (m_currentTab->objectData() != 0 && m_currentTab->treeModel()->objectData() == 0)
+	if (tab->objectData() != 0 && tab->treeModel()->objectData() == 0)
 	{
-		qDebug() << "Show" << m_currentTab->name() << "first time";
+		qDebug() << "Show" << tab->name() << "first time";
 		/*
 		 * Indicate loading by changing the cursor to busy.
 		 * The process of loading object data might take quite some time.
@@ -508,7 +537,7 @@ void ObjectEditor::currentChanged(int index)
 
 		try
 		{
-			m_currentTab->treeModel()->load(m_currentTab->source(), m_currentTab->objectData(), m_currentTab);
+			tab->treeModel()->load(tab->source(), tab->objectData(), tab);
 		}
 		catch (const Exception &e)
 		{

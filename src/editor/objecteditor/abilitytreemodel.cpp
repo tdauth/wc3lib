@@ -62,8 +62,7 @@ QModelIndex AbilityTreeModel::itemParent(ObjectData *objectData, const QString &
 	return abilityTypeIndex(objectData, originalObjectId, customObjectId);
 }
 
-
-QModelIndex AbilityTreeModel::objectsIndex(ObjectData* objectData, const QString& originalObjectId, const QString& customObjectId)
+QModelIndex AbilityTreeModel::objectsIndex(ObjectData* objectData, const QString& originalObjectId, const QString &customObjectId)
 {
 	if (customObjectId.isEmpty())
 	{
@@ -73,10 +72,9 @@ QModelIndex AbilityTreeModel::objectsIndex(ObjectData* objectData, const QString
 	return this->index(1, 0);
 }
 
-QModelIndex AbilityTreeModel::raceIndex(editor::ObjectData* objectData, const QString& originalObjectId, const QString& customObjectId)
+QModelIndex AbilityTreeModel::raceIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId)
 {
-	AbilityData *abilityData = boost::polymorphic_cast<AbilityData*>(objectData);
-	const QString race = abilityData->abilityData()->value(originalObjectId, "race");
+	const QString race = objectData->fieldValue(originalObjectId, customObjectId, "arac");
 
 	if (race == "human")
 	{
@@ -110,11 +108,7 @@ QModelIndex AbilityTreeModel::abilityTypeIndex(ObjectData *objectData, const QSt
 {
 	AbilityData *abilityData = boost::polymorphic_cast<AbilityData*>(objectData);
 
-	if (abilityData->objectIsUnit(originalObjectId, customObjectId))
-	{
-		return index(0, 0, raceIndex(objectData, originalObjectId, customObjectId));
-	}
-	else if (abilityData->objectIsItem(originalObjectId, customObjectId))
+	if (abilityData->objectIsItem(originalObjectId, customObjectId))
 	{
 		return index(2, 0, raceIndex(objectData, originalObjectId, customObjectId));
 	}

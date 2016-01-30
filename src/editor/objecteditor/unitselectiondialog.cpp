@@ -33,7 +33,7 @@ namespace wc3lib
 namespace editor
 {
 
-UnitSelectionDialog::UnitSelectionDialog(MpqPriorityList *source, UnitData *unitData, QWidget* parent, Qt::WindowFlags f) : QDialog(parent, f), m_source(source), m_unitData(unitData), m_buttonGroup(new QButtonGroup(this))
+UnitSelectionDialog::UnitSelectionDialog(MpqPriorityList *source, UnitData *unitData, QWidget* parent, Qt::WindowFlags f) : QDialog(parent, f), m_source(source), m_unitData(unitData), m_buttonGroup(new QButtonGroup(this)), m_checkedButton(nullptr)
 {
 	setupUi(this);
 	m_buttonGroup.setExclusive(true);
@@ -59,7 +59,7 @@ UnitSelectionDialog::UnitSelectionDialog(MpqPriorityList *source, UnitData *unit
 
 	if (this->source()->sharedData()->worldEditData().get() != 0)
 	{
-		const map::Txt::Section *tilesetsSection = boost::polymorphic_cast<TxtTextSource*>(this->source()->sharedData()->worldEditData()->textSource())->section("TileSets");
+		const map::Txt::Section *tilesetsSection = this->tilesetsSection();
 
 		if (tilesetsSection != 0)
 		{
@@ -215,7 +215,7 @@ void UnitSelectionDialog::fill(const QString& race, int campaign, const QChar& t
 
 			if (this->unitData()->objectIsHero(unitId, ""))
 			{
-				this->m_heroesGridLayout->addWidget(button, heroRow, heroColumn);
+				this->m_heroesGridLayout->addWidget(button, heroRow, heroColumn, Qt::AlignLeft);
 				heroColumn++;
 
 				if (heroColumn == maxColumns)
@@ -226,7 +226,7 @@ void UnitSelectionDialog::fill(const QString& race, int campaign, const QChar& t
 			}
 			else if (this->unitData()->objectIsBuilding(unitId, ""))
 			{
-				this->m_buildingsGridLayout->addWidget(button, buildingRow, buildingColumn);
+				this->m_buildingsGridLayout->addWidget(button, buildingRow, buildingColumn, Qt::AlignLeft);
 				buildingColumn++;
 
 				if (buildingColumn == maxColumns)
@@ -237,7 +237,7 @@ void UnitSelectionDialog::fill(const QString& race, int campaign, const QChar& t
 			}
 			else if (this->unitData()->objectIsSpecial(unitId, ""))
 			{
-				this->m_specialGridLayout->addWidget(button, specialRow, specialColumn);
+				this->m_specialGridLayout->addWidget(button, specialRow, specialColumn, Qt::AlignLeft);
 				specialColumn++;
 
 				if (specialColumn == maxColumns)
@@ -248,7 +248,7 @@ void UnitSelectionDialog::fill(const QString& race, int campaign, const QChar& t
 			}
 			else
 			{
-				this->m_unitsGridLayout->addWidget(button, unitRow, unitColumn);
+				this->m_unitsGridLayout->addWidget(button, unitRow, unitColumn, Qt::AlignLeft);
 				unitColumn++;
 
 				if (unitColumn == maxColumns)
@@ -306,7 +306,7 @@ int UnitSelectionDialog::campaignIndex(int campaign) const
 
 int UnitSelectionDialog::tilesetIndex(const QChar& tileset) const
 {
-	const map::Txt::Section *section = boost::polymorphic_cast<TxtTextSource*>(this->source()->sharedData()->worldEditData().get())->section("TileSets");
+	const map::Txt::Section *section = this->tilesetsSection();
 
 	if (section != 0)
 	{
@@ -384,8 +384,20 @@ void UnitSelectionDialog::update()
 	}
 }
 
+const map::Txt::Section* UnitSelectionDialog::tilesetsSection() const
+{
+	qDebug() << "Before tilesets section";
+
+	return boost::polymorphic_cast<TxtTextSource*>(this->source()->sharedData()->worldEditData()->textSource())->section("TileSets");
+}
+
 void UnitSelectionDialog::checkButton(QAbstractButton* button)
 {
+	if (m_checkedButton != nullptr)
+	{
+		// TODO reset colour
+	}
+
 	ButtonsByButton::iterator iterator = this->m_buttonsByButtons.find(button);
 
 	if (iterator != this->m_buttonsByButtons.end())
@@ -393,6 +405,8 @@ void UnitSelectionDialog::checkButton(QAbstractButton* button)
 		this->m_originalObjectId = iterator.value();
 		this->m_basicUnitLabel->setText(tr("%1: %2").arg(source()->sharedData()->tr("WESTRING_UE_BASEUNIT")).arg(this->unitData()->fieldValue(this->m_originalObjectId, "", "unam")));
 		this->m_dialogButtonBox->button(QDialogButtonBox::Ok)->setEnabled(!this->m_nameLineEdit->text().isEmpty());
+
+		this->m_checkedButton = button;
 	}
 }
 

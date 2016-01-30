@@ -254,6 +254,8 @@ QIcon AbilityData::objectIcon(const QString& originalObjectId, const QString& cu
 
 void AbilityData::compress()
 {
+	qDebug() << "Compressing ability data";
+	
 	/*
 	 * Find all modified fields which are not necessarily used for the objects.
 	 * For example if you modify a hero only field and then make the object from a hero to a normal object the modification remains but is not visible anymore in the object editor.

@@ -41,8 +41,7 @@ UnitTreeModel::UnitTreeModel(MpqPriorityList *source, QObject *parent)
 
 ObjectTreeItem* UnitTreeModel::createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString& originalObjectId, const QString& customObjectId)
 {
-	UnitData *unitData = dynamic_cast<UnitData*>(objectData);
-	const QModelIndex parentIndex = itemParent(unitData, originalObjectId, customObjectId);
+	const QModelIndex parentIndex = itemParent(objectData, originalObjectId, customObjectId);
 	ObjectTreeItem *parent = item(parentIndex);
 	insertRows(parent->children().count(), 1, parentIndex);
 
@@ -80,10 +79,11 @@ QModelIndex UnitTreeModel::objectsIndex(ObjectData* objectData, const QString& o
 	return this->index(1, 0);
 }
 
-QModelIndex editor::UnitTreeModel::raceIndex(editor::ObjectData* objectData, const QString& originalObjectId, const QString& customObjectId)
+QModelIndex UnitTreeModel::raceIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId)
 {
-	UnitData *unitData = boost::polymorphic_cast<UnitData*>(objectData);
-	const QString race = unitData->unitData()->value(originalObjectId, "race");
+	const QString race = objectData->fieldValue(originalObjectId, customObjectId, "urac");
+
+	qDebug() << "Has race " << race;
 
 	if (race == "human")
 	{
@@ -115,13 +115,7 @@ QModelIndex editor::UnitTreeModel::raceIndex(editor::ObjectData* objectData, con
 
 QModelIndex UnitTreeModel::campaignIndex(ObjectData* objectData, const QString& originalObjectId, const QString& customObjectId)
 {
-	UnitData *unitData = boost::polymorphic_cast<UnitData*>(objectData);
-	QString campaign;
-
-	if (unitData->hasDefaultFieldValue(originalObjectId, "ucam"))
-	{
-		campaign = unitData->fieldValue(originalObjectId, customObjectId, "ucam");
-	}
+	const QString campaign = objectData->fieldValue(originalObjectId, customObjectId, "ucam");
 
 	if (campaign == "1")
 	{
@@ -131,9 +125,9 @@ QModelIndex UnitTreeModel::campaignIndex(ObjectData* objectData, const QString& 
 	return index(0, 0, raceIndex(objectData, originalObjectId, customObjectId));
 }
 
-QModelIndex editor::UnitTreeModel::unitTypeIndex(editor::ObjectData* objectData, const QString& originalObjectId, const QString& customObjectId)
+QModelIndex UnitTreeModel::unitTypeIndex(ObjectData* objectData, const QString& originalObjectId, const QString& customObjectId)
 {
-	UnitData *unitData = boost::polymorphic_cast<UnitData*>(objectData);
+	const UnitData *unitData = boost::polymorphic_cast<UnitData*>(objectData);
 
 	if (unitData->objectIsSpecial(originalObjectId, customObjectId))
 	{

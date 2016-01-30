@@ -51,8 +51,7 @@ ItemTreeModel::ItemTreeModel(MpqPriorityList *source, QObject *parent) : ObjectT
 
 ObjectTreeItem* ItemTreeModel::createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString &originalObjectId, const QString &customObjectId)
 {
-	ItemData *itemData = dynamic_cast<ItemData*>(objectData);
-	const QModelIndex parentIndex = itemParent(itemData, originalObjectId, customObjectId);
+	const QModelIndex parentIndex = itemParent(objectData, originalObjectId, customObjectId);
 	ObjectTreeItem *parent = item(parentIndex);
 	insertRows(parent->children().count(), 1, parentIndex);
 

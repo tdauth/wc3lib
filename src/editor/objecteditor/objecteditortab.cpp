@@ -105,7 +105,7 @@ void ObjectEditorTab::setupUi()
 	leftLayoutWidget->setLayout(leftLayout);
 	leftLayout->addWidget(m_filterSearchLine);
 	leftLayout->addWidget(m_treeView);
-	leftLayoutWidget->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding));
+	leftLayoutWidget->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
 
 	QVBoxLayout *rightLayout = new QVBoxLayout(this);
 	QWidget *rightLayoutWidget = new QWidget(this);
@@ -531,6 +531,11 @@ void ObjectEditorTab::pasteObject()
 			KMessageBox::error(this, e.what());
 		}
 	}
+}
+
+void ObjectEditorTab::widgetizeAllObjects()
+{
+	
 }
 
 QSortFilterProxyModel* ObjectEditorTab::proxyModel() const

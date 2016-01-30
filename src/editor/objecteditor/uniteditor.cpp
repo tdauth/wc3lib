@@ -97,6 +97,12 @@ void UnitEditor::onNewObject()
 			qDebug() << "Custom Object ID:" << customObjectId;
 
 			this->objectData()->modifyField(this->unitSelectionDialog()->originalObjectId(), customObjectId, "unam", this->unitSelectionDialog()->unitName());
+
+			// select the newly created unit
+			// TODO doesn't work
+			ObjectTreeItem *objectTreeItem = this->treeModel()->item(this->unitSelectionDialog()->originalObjectId(), customObjectId);
+			const QModelIndex modelIndex = objectTreeItem->modelIndex(this->treeModel());
+			this->treeView()->selectionModel()->select(modelIndex, QItemSelectionModel::SelectCurrent);
 		}
 	}
 }

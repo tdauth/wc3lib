@@ -397,7 +397,7 @@ void ObjectTreeModel::resetObject(const QString& originalObjectId, const QString
 
 void ObjectTreeModel::modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId)
 {
-	ObjectData *objectData = boost::polymorphic_cast<ObjectData*>(QObject::sender());
+	ObjectData *objectData = this->objectData();
 	ObjectTreeItem *item = this->item(originalObjectId, customObjectId);
 
 	if (item != 0)
@@ -436,10 +436,14 @@ void ObjectTreeModel::modifyField(const QString &originalObjectId, const QString
 		 */
 		if (oldParent != parent)
 		{
-			qDebug() << "Move the row!!";
-			beginMoveRows(oldParentIndex, item->row(), item->row(), parentIndex, parent->children().size() - 1);
+			qDebug() << "Move the row!! from parent row " << oldParentIndex.row() << " with row there " << item->row() << " to new parent row " << parentIndex.row() << " with row there " << parent->children().size();
+			beginMoveRows(oldParentIndex, item->row(), item->row(), parentIndex, parent->children().size());
 			endMoveRows();
 
+		}
+		else
+		{
+			qDebug() << "Parent stays the same";
 		}
 	}
 	else

@@ -190,6 +190,13 @@ void newPointer(std::unique_ptr<T> &target, Arguments... parameters)
  * @}
  */
 
+inline void applyBounds(Bounds &bounds, Bounds &other)
+{
+	bounds.setBoundsRadius(other.boundsRadius());
+	bounds.setMinimumExtent(other.minimumExtent());
+	bounds.setMaximumExtent(other.maximumExtent());
+}
+
 template <typename Iterator, typename Skipper >
 MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::base_type(mdl, "mdl")
 {
@@ -579,7 +586,7 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 				>> real_literal[at_c<5>(_val) = 1]
 				>> lit(',')
 			)
-			>> bounds // TODO set bounds
+			>> bounds[bind(applyBounds, _val, _1)] // TODO set bounds
 		>> lit('}')
 	;
 
@@ -1079,7 +1086,7 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 			amb_intensity[at_c<11>(_val) = _1]
 			| animated_amb_intensities[at_c<12>(_val) = _1]
 		)
-		
+
 		/*>> -(
 			amb_color//[at_c<13>(_val) = _1]
 			| animated_amb_colors[at_c<14>(_val) = _1]
@@ -1536,8 +1543,8 @@ BOOST_FUSION_ADAPT_ADT(
 
 BOOST_FUSION_ADAPT_ADT(
 	wc3lib::mdlx::Bounds,
-	(const wc3lib::mdlx::VertexData&, const wc3lib::mdlx::VertexData&, obj.minimumExtent(), obj.minimumExtent() = val)
-	(const wc3lib::mdlx::VertexData&, const wc3lib::mdlx::VertexData&, obj.maximumExtent(), obj.maximumExtent() = val)
+	(const wc3lib::mdlx::VertexData&, const wc3lib::mdlx::VertexData&, obj.minimumExtent(), obj.setMinimumExtent(val))
+	(const wc3lib::mdlx::VertexData&, const wc3lib::mdlx::VertexData&, obj.maximumExtent(), obj.setMaximumExtent(val))
 	(wc3lib::float32, wc3lib::float32, obj.boundsRadius(), obj.setBoundsRadius(val))
 )
 

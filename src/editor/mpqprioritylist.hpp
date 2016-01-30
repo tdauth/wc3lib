@@ -85,6 +85,11 @@ class KDE_EXPORT MpqPriorityListEntry : public boost::operators<MpqPriorityListE
 		 */
 		bool isDirectory(QWidget *window) const;
 
+		/**
+		 * \return Returns nullptr if this is not a local MPQ archive. Otherwise it returns the corresponding instance which can be used to read and write files.
+		 */
+		mpq::Archive* mpqArchive() const;
+
 		const KUrl& url() const;
 
 		bool operator<(const self& other) const;
@@ -93,11 +98,17 @@ class KDE_EXPORT MpqPriorityListEntry : public boost::operators<MpqPriorityListE
 	protected:
 		Priority m_priority;
 		KUrl m_url;
+		boost::scoped_ptr<mpq::Archive> m_mpqArchive;
 };
 
 inline MpqPriorityListEntry::Priority MpqPriorityListEntry::priority() const
 {
 	return this->m_priority;
+}
+
+inline mpq::Archive* MpqPriorityListEntry::mpqArchive() const
+{
+	return this->m_mpqArchive.get();
 }
 
 inline const KUrl& MpqPriorityListEntry::url() const
@@ -344,6 +355,9 @@ class KDE_EXPORT MpqPriorityList
 
 		Sources m_sources;
 		Resources m_resources;
+
+		typedef QList<QString> TemporaryFiles;
+		mutable TemporaryFiles m_temporaryFiles;
 };
 
 inline const MpqPriorityList::SharedDataPtr& MpqPriorityList::sharedData() const

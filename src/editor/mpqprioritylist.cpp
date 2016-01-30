@@ -34,13 +34,28 @@ namespace editor
 
 MpqPriorityListEntry::MpqPriorityListEntry(const KUrl &url, Priority priority) : m_priority(priority), m_url(url)
 {
+	qDebug() << "Protocol: " << url.protocol() << " is local file " << url.isLocalFile();
+	qDebug() << "URL: " << url << "Local file: " << url.fileName() << "Scheme: " << url.scheme() << " Path: " << url.path();
+
+	/*
+	 * For local MPQ archives we use an instance to perform download and upload operations.
+	 * This is safer than relying on the installed KIO slave plugin and maybe also faster.
+	 * TODO isLocalFile() returns false.
+	 * TODO transform into Windows path if required?
+	 */
+	if (url.protocol() == "mpq" && QFile::exists(url.path()))
+	{
+		qDebug() << "Opening local MPQ archive: " << url.path();
+		m_mpqArchive.reset(new mpq::Archive());
+		m_mpqArchive->open(url.path().toUtf8().constData());
+	}
 }
 
 MpqPriorityListEntry::~MpqPriorityListEntry()
 {
 }
 
-MpqPriorityList::MpqPriorityList() : m_sharedData(new WarcraftIIIShared(this))
+MpqPriorityList::MpqPriorityList() : m_sharedData(new WarcraftIIIShared(this)), m_locale(mpq::File::Locale::Neutral)
 {
 
 }
@@ -57,6 +72,14 @@ MpqPriorityList::~MpqPriorityList()
 		Resource *resource = iterator->second;
 		this->m_resources.erase(iterator);
 		resource->setSource(0);
+	}
+
+	/*
+	 * Remove all temporary files which where produced by downloads from local MPQ archives.
+	 */
+	foreach (QString tmpFile, m_temporaryFiles)
+	{
+		QFile::remove(tmpFile);
 	}
 }
 
@@ -261,17 +284,68 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 	// Since entries are ordered by priority highest priority entry should be checked first
 	BOOST_REVERSE_FOREACH(Sources::const_reference entry, sources())
 	{
-		// entry path can be a directory path or something like tar:/... or mpq:/...
-		KUrl absoluteSource = entry.url();
-		QString archiveSrc = src.toLocalFile();
-		toRelativeUrl(archiveSrc);
-		absoluteSource.addPath(archiveSrc);
 
-		if (KIO::NetAccess::exists(absoluteSource, KIO::NetAccess::SourceSide, window))
+		// this version does not rely on a KIO slave plugin which has to be installed. It uses an instance of the archive instead.
+		if (entry.mpqArchive() != nullptr && entry.mpqArchive()->isOpen())
 		{
-			qDebug() << "Found:" << absoluteSource << "and it should exist!";
+			const QString archiveSrc = src.toLocalFile().replace('/', '\\');
+			const std::string filePath = archiveSrc.toUtf8().constData();
+			qDebug() << "Downloading from local MPQ archive " << entry.url() << " file: " << filePath.c_str();
 
-			return KIO::NetAccess::download(absoluteSource, target, window);
+			mpq::File file = entry.mpqArchive()->findFile(filePath, m_locale);
+
+			if (file.isValid())
+			{
+				stringstream sstream;
+				file.writeData(sstream);
+
+				QTemporaryFile targetFile(src.fileName());
+				// TODO this produces many many temporary files which have to be deleted at some point but that does happen when the MpqPriorityList is destroyed. Therefore many temporary files are produced.
+				targetFile.setAutoRemove(false);
+
+				if (targetFile.open())
+				{
+					const std::streamoff size = std::streamoff(wc3lib::endPosition(sstream));
+					boost::scoped_array<byte> data(new byte[size]);
+					sstream.read(data.get(), size);
+					targetFile.write(data.get(), size);
+
+					target = targetFile.fileName();
+					/*
+					 * Store temporary file path for deletion when the program exits.
+					 */
+					m_temporaryFiles.push_back(target);
+
+					qDebug() << "Got temporary file " << target;
+
+					return true;
+				}
+				else
+				{
+					qDebug() << "Error on opening target file " << target;
+				}
+			}
+			else
+			{
+				qDebug() << "Did not find file " << filePath.c_str();
+			}
+		}
+		// this version simply uses KIO and all available plugins/slaves
+		else
+		{
+			QString archiveSrc = src.toLocalFile();
+			toRelativeUrl(archiveSrc);
+
+			// entry path can be a directory path or something like tar:/... or mpq:/...
+			KUrl absoluteSource = entry.url();
+			absoluteSource.addPath(archiveSrc);
+
+			if (KIO::NetAccess::exists(absoluteSource, KIO::NetAccess::SourceSide, window))
+			{
+				qDebug() << "Found:" << absoluteSource << "and it should exist!";
+
+				return KIO::NetAccess::download(absoluteSource, target, window);
+			}
 		}
 	}
 
@@ -294,6 +368,8 @@ bool MpqPriorityList::upload(const QString &src, const KUrl &target, QWidget *wi
 	// Since entries are ordered by priority highest priority entry should be checked first
 	BOOST_REVERSE_FOREACH(Sources::const_reference entry, sources())
 	{
+		// TODO implement first version which does not rely on any slave
+
 		// entry path can be a directory path or something like tar:/... or mpq:/...
 		KUrl absoluteTarget = entry.url();
 		QString archiveTarget = target.toLocalFile();

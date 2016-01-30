@@ -40,9 +40,9 @@ class Bounds
 
 		void setBoundsRadius(float32 boundsRadius);
 		float32 boundsRadius() const;
-		VertexData& minimumExtent();
-		VertexData& maximumExtent();
+		void setMinimumExtent(const VertexData &vertexData);
 		const VertexData& minimumExtent() const;
+		void setMaximumExtent(const VertexData &vertexData);
 		const VertexData& maximumExtent() const;
 
 	protected:
@@ -61,19 +61,19 @@ inline float32 Bounds::boundsRadius() const
 	return this->m_boundsRadius;
 }
 
-inline VertexData& Bounds::minimumExtent()
+inline void Bounds::setMinimumExtent(const VertexData &vertexData)
 {
-	return this->m_minimumExtent;
-}
-
-inline VertexData& Bounds::maximumExtent()
-{
-	return this->m_maximumExtent;
+	this->m_minimumExtent = vertexData;
 }
 
 inline const VertexData& Bounds::minimumExtent() const
 {
 	return this->m_minimumExtent;
+}
+
+inline void Bounds::setMaximumExtent(const VertexData &vertexData)
+{
+	this->m_maximumExtent = vertexData;
 }
 
 inline const VertexData& Bounds::maximumExtent() const

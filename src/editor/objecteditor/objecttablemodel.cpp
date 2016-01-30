@@ -53,8 +53,8 @@ QVariant ObjectTableModel::data(const QModelIndex &index, int role) const
 				if (index.column() == 0)
 				{
 					/*
-					* In Frozen Throne there is a category for each value.
-					*/
+					 * In Frozen Throne there is a category for each value.
+					 */
 					QString category;
 
 					if (objectData()->metaData()->hasValue(fieldId, "category"))

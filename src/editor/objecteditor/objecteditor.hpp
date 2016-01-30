@@ -186,6 +186,9 @@ class KDE_EXPORT ObjectEditor : public Module
 		virtual bool configure() override;
 		virtual void retranslateUi() override;
 
+		void importCustomObjectsCollection(const map::CustomObjectsCollection &collection);
+		void importCustomUnits(const map::CustomUnits &customUnits);
+
 	public slots:
 		/**
 		 * Exports all objects from all object editor tabs as \ref wc3lib::map::CustomObjectsCollection (.w3o) file.
@@ -220,6 +223,8 @@ class KDE_EXPORT ObjectEditor : public Module
 		void currentChanged(int index);
 
 	protected:
+		void loadTabDataOnRequest(int index);
+
 		void removeCurrentActions();
 		void addCurrentActions();
 

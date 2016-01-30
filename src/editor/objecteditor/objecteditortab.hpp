@@ -177,6 +177,8 @@ class KDE_EXPORT ObjectEditorTab : public QWidget
 		void copyObject();
 		void pasteObject();
 
+		void widgetizeAllObjects();
+
 	protected:
 		friend ObjectEditor;
 

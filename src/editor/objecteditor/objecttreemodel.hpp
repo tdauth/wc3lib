@@ -143,6 +143,11 @@ class ObjectTreeModel : public QAbstractItemModel
 		bool showRawData() const;
 
 	protected:
+		/**
+		 * \return Returns the parent of an item from \p objectData with the IDs \p originalObjectId and \p customObjectId.
+		 *
+		 * This method helps the tree model to place the items under the correct parent items. Therefore it must be overwritten.
+		 */
 		virtual QModelIndex itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId) = 0;
 
 	private:

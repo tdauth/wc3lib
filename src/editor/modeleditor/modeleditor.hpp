@@ -132,8 +132,8 @@ class KDE_EXPORT ModelEditor : public Module
 		virtual QIcon icon() override;
 
 		// load file events
-		virtual void dragEnterEvent(QDragEnterEvent *event);
-		virtual void dropEvent(QDropEvent *event);
+		virtual void dragEnterEvent(QDragEnterEvent *event) override;
+		virtual void dropEvent(QDropEvent *event) override;
 
 		void removeModel(const OgreMdlx &ogreModel);
 		void removeModel(Models::iterator iterator);

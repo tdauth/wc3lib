@@ -30,6 +30,8 @@
 
 #include "ui_unitselectiondialog.h"
 
+#include "../../map.hpp"
+
 namespace wc3lib
 {
 
@@ -95,12 +97,19 @@ class UnitSelectionDialog : public QDialog, protected Ui::UnitSelectionDialog
 		 */
 		void update();
 
+		/**
+		 * \return Returns the section "TileSets" from the "UI/WorldEditorData.txt" file.
+		 */
+		const map::Txt::Section* tilesetsSection() const;
+
 		MpqPriorityList *m_source;
 		UnitData *m_unitData;
 		QString m_originalObjectId;
 		ButtonsByButton m_buttonsByButtons;
 		ButtonsByObjectId m_buttonsByObjectId;
 		QButtonGroup m_buttonGroup;
+
+		QAbstractButton *m_checkedButton;
 
 	private slots:
 		/**

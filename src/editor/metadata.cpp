@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <iostream>
+
 #include <boost/cast.hpp>
 
 #include <QtCore>
@@ -62,7 +64,9 @@ QString SlkTextSource::value(const QString &rowKey, const QString &columnKey) co
 
 	if (rowIterator == this->rowKeys().end())
 	{
-		throw Exception(boost::format(_("Row \"%1%\" not found.")) % rowKey.toUtf8().constData());
+		std::cerr << boost::format(_("Row \"%1%\" not found.")) % rowKey.toUtf8().constData() << std::endl;
+
+		return QString();
 	}
 
 	return value(rowIterator.value(), columnKey);
@@ -91,7 +95,9 @@ QString SlkTextSource::value(int row, const QString &columnKey) const
 
 	if (columnIterator == this->columnKeys().end())
 	{
-		throw Exception(boost::format(_("Column \"%1%\" not found.")) % columnKey.toUtf8().constData());
+		std::cerr << boost::format(_("Column \"%1%\" not found.")) % columnKey.toUtf8().constData() << std::endl;
+
+		return QString();
 	}
 
 	const map::Slk::Table::size_type column = columnIterator.value();
@@ -103,7 +109,9 @@ QString SlkTextSource::value(int row, const QString &columnKey) const
 	}
 	else
 	{
-		throw Exception(boost::format(_("%1%|%2% is out of range.")) % column % rowValue);
+		std::cerr << boost::format(_("%1%|%2% is out of range.")) % column % rowValue << std::endl;
+
+		return QString();
 	}
 }
 
@@ -160,7 +168,9 @@ QString TxtTextSource::value(const QString& rowKey, const QString& columnKey) co
 
 	if (rowIterator == this->sectionKeys().end())
 	{
-		throw Exception(boost::format(_("Row \"%1%\" not found.")) % rowKey.toUtf8().constData());
+		std::cerr << boost::format(_("Row \"%1%\" not found.")) % rowKey.toUtf8().constData() << std::endl;
+
+		return QString();
 	}
 
 	const TxtEntryKey entryKey = TxtEntryKey(rowIterator.value(), columnKey);
@@ -173,7 +183,9 @@ QString TxtTextSource::value(const QString& rowKey, const QString& columnKey) co
 	}
 	else
 	{
-		throw Exception(boost::format(_("Column \"%1%\" not found.")) % columnKey.toUtf8().constData());
+		std::cerr << boost::format(_("Column \"%1%\" not found.")) % columnKey.toUtf8().constData() << std::endl;
+
+		return QString();
 	}
 }
 
@@ -210,7 +222,9 @@ QString TxtTextSource::value(int row, const QString& columnKey) const
 	}
 	else
 	{
-		throw Exception(boost::format(_("Column \"%1%\" not found.")) % columnKey.toUtf8().constData());
+		std::cerr << boost::format(_("Column \"%1%\" not found.")) % columnKey.toUtf8().constData() << std::endl;
+
+		return QString();
 	}
 }
 
@@ -278,7 +292,9 @@ QString MapStringsTextSource::value(int row, const QString& /* columnKey */) con
 	}
 	else
 	{
-		throw Exception(boost::format(_("String \"%1%\" not found.")) % row);
+		std::cerr << boost::format(_("String \"%1%\" not found.")) % row << std::endl;
+
+		return QString();
 	}
 }
 
