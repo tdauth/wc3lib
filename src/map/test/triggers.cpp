@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(TriggerDataReignOfChaos)
 
 	// data from the file
 	BOOST_CHECK(triggerData.categories().size() == 43); // section [TriggerCategories]
-	BOOST_REQUIRE(triggerData.types().size() == 130); // section [TriggerTypes]
+	BOOST_REQUIRE(triggerData.types().size() == 133); // section [TriggerTypes]
 	// TODO check more sections
 
 	// first type:

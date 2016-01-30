@@ -8,7 +8,7 @@ if (MPQ)
 endif ()
 
 if (JASS)
-	add_test(NAME JassCompilerTest COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../jassc --fsyntax-only --headers "common.j" "Blizzard.j" -i "script.j" )
+	add_test(NAME JassCompilerTest COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../jassc --fsyntax-only -i "script.j" --headers "common.j" "Blizzard.j" )
 
 	include_directories(${CMAKE_CURRENT_BINARY_DIR}/../../map/)
 
