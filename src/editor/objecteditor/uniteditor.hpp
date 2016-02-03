@@ -51,6 +51,8 @@ class KDE_EXPORT UnitEditor : public ObjectEditorTab
 
 		UnitSelectionDialog* unitSelectionDialog() const;
 
+		virtual QIcon tabIcon(QWidget *widget) const override;
+
 	protected:
 		virtual ObjectTreeModel* createTreeModel() override;
 		virtual void onSwitchToMap(Map *map) override;
@@ -132,6 +134,11 @@ inline QString UnitEditor::copyObjectText() const
 inline QString UnitEditor::pasteObjectText() const
 {
 	return this->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_PASTE", "WorldEditStrings");
+}
+
+inline QIcon UnitEditor::tabIcon(QWidget *widget) const
+{
+	return objectEditor()->source()->sharedData()->worldEditDataIcon("ToolBarIcon_OE_NewUnit", "WorldEditArt", widget);
 }
 
 inline KUrl UnitEditor::copyObjectIconUrl() const

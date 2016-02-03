@@ -23,6 +23,8 @@
 #include "sharedobjectdata.hpp"
 #include "unitdata.hpp"
 #include "itemdata.hpp"
+#include "destructabledata.hpp"
+#include "doodaddata.hpp"
 #include "abilitydata.hpp"
 #include "weatherdata.hpp"
 #include "miscdata.hpp"
@@ -37,6 +39,8 @@ namespace editor
 SharedObjectData::SharedObjectData(MpqPriorityList *source) : m_source(source)
 , m_unitData(new UnitData(source))
 , m_itemData(new ItemData(source))
+, m_destructableData(new DestructableData(source))
+, m_doodadData(new DoodadData(source))
 , m_abilityData(new AbilityData(source))
 , m_weatherData(new WeatherData(source))
 , m_miscData(new MiscData(source))
@@ -52,6 +56,8 @@ void SharedObjectData::load(QWidget *widget)
 {
 	m_unitData->load(widget);
 	m_itemData->load(widget);
+	m_destructableData->load(widget);
+	m_doodadData->load(widget);
 	m_abilityData->load(widget);
 	m_weatherData->load(widget);
 	m_miscData->load(widget);

@@ -66,8 +66,8 @@ class KDE_EXPORT SlkTextSource : public TextSourceInterface
 
 		virtual bool isEmpty() const override;
 		virtual void clear() override;
-		virtual bool hasValue(const QString& rowKey, const QString& columnKey) const override;
-		virtual QString value(const QString& rowKey, const QString& columnKey) const override;
+		virtual bool hasValue(const QString &rowKey, const QString &columnKey) const override;
+		virtual QString value(const QString &rowKey, const QString &columnKey) const override;
 		virtual int rows() const override;
 		virtual bool hasValue(int row, const QString& columnKey) const override;
 		virtual QString value(int row, const QString& columnKey) const override;

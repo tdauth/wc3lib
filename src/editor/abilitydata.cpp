@@ -255,7 +255,7 @@ QIcon AbilityData::objectIcon(const QString& originalObjectId, const QString& cu
 void AbilityData::compress()
 {
 	qDebug() << "Compressing ability data";
-	
+
 	/*
 	 * Find all modified fields which are not necessarily used for the objects.
 	 * For example if you modify a hero only field and then make the object from a hero to a normal object the modification remains but is not visible anymore in the object editor.
@@ -281,6 +281,64 @@ void AbilityData::compress()
 			}
 		}
 	}
+}
+
+void AbilityData::widgetize(const KUrl &url)
+{
+	const QString dir = url.toLocalFile();
+
+	Objects abilitiesWithMaximumLevel4;
+	Objects abilitiesWithHigherLevel4;
+
+	for (Objects::const_iterator iterator = this->objects().begin(); iterator != this->objects().end(); ++iterator)
+	{
+		if (this->fieldValue(iterator.key().originalObjectId(), iterator.key().customObjectId(), "alev") <= "4")
+		{
+			abilitiesWithMaximumLevel4.insert(iterator.key(), iterator.value());
+		}
+		else
+		{
+			abilitiesWithHigherLevel4.insert(iterator.key(), iterator.value());
+		}
+	}
+
+	// create AbilityData.slk by merging the original with the custom objects
+	map::Slk abilityData = dynamic_cast<SlkTextSource*>(this->abilityData()->textSource())->slk();
+	abilityData.resizeTable(std::make_pair(abilityData.rows() + abilitiesWithMaximumLevel4.size(), abilityData.columns()));
+	int row = 0;
+
+	for (Objects::const_iterator iterator = abilitiesWithMaximumLevel4.begin(); iterator != abilitiesWithMaximumLevel4.end(); ++iterator)
+	{
+		ObjectId id = iterator.key();
+		Modifications modifications = iterator.value();
+
+		QList<QString> line;
+
+		// alias
+		line << id.second;
+		// code
+		line << id.second;
+		// uberAlias
+		line << id.second;
+		// comments
+		line << "";
+		// useInEditor
+		line << "1";
+
+		// TODO all fields
+
+		for (int column = 0; column < line.size() && column < abilityData.columns(); ++column)
+		{
+			abilityData.cell(row, column) = string(line[column].toUtf8().constData());
+		}
+	}
+
+	// TODO create races TXT files!
+
+	// TODO write abilitiesWithHigherLevel4 into w3a file
+
+	ofstream out(string(dir.toUtf8().constData()) + "/" + "AbilityData.slk");
+	abilityData.write(out);
 }
 
 void AbilityData::load(QWidget *widget)

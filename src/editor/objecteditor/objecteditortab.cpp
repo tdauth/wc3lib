@@ -535,7 +535,19 @@ void ObjectEditorTab::pasteObject()
 
 void ObjectEditorTab::widgetizeAllObjects()
 {
-	
+	const QString &dir = QFileDialog::getExistingDirectory(this, tr("Widgetize All Objects"));
+
+	if (!dir.isEmpty())
+	{
+		try
+		{
+			this->objectData()->widgetize(KUrl::fromLocalFile(dir));
+		}
+		catch (Exception &e)
+		{
+			QMessageBox::critical(this, tr("Error on widgetizing all objects"), e.what());
+		}
+	}
 }
 
 QSortFilterProxyModel* ObjectEditorTab::proxyModel() const

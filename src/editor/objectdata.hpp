@@ -27,6 +27,7 @@
 #include <QPair>
 
 #include <kdemacros.h>
+#include <KUrl>
 
 #include "../map.hpp"
 
@@ -63,11 +64,19 @@ class KDE_EXPORT ObjectData : public QObject
 	Q_OBJECT
 
 	signals:
+		/**
+		 * These signals can be used to register slots which react to modifications of the object data.
+		 * This can be useful if you provide a GUI such as \ref ObjectEditor which has to show the current modifications.
+		 * @{
+		 */
 		void modificationReset(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
 		void objectCreation(const QString &originalObjectId, const QString &customObjectId);
 		void objectReset(const QString &originalObjectId, const QString &customObjectId);
 		void objectRemoval(const QString &originalObjectId, const QString &customObjectId);
 		void fieldModification(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
+		/**
+		 * @}
+		 */
 
 	public:
 		/**
@@ -83,8 +92,18 @@ class KDE_EXPORT ObjectData : public QObject
 		typedef QHash<QString, map::CustomObjects::Modification> Modifications;
 		/**
 		 * \brief Stores the two object IDs. The original as well as the custom.
+		 *
+		 * The first value of the pair is the original object ID.
+		 * The second value is the custom object ID.
+		 * If the object is an original object the second value stays empty.
 		 */
-		typedef QPair<QString, QString> ObjectId;
+		struct ObjectId : public QPair<QString, QString>
+		{
+			public:
+				ObjectId(const QString &originalObjectId, const QString &customObjectId);
+				QString originalObjectId() const;
+				QString customObjectId() const;
+		};
 		/**
 		 * \brief Hash table which stores objects by using the object ID pair as hash.
 		 */
@@ -92,6 +111,9 @@ class KDE_EXPORT ObjectData : public QObject
 
 		ObjectData(MpqPriorityList *source, QObject *parent = 0);
 
+		/**
+		 * \return Returns the corresponding source of the object data which is required to load meta data/object data files.
+		 */
 		MpqPriorityList* source() const;
 
 		/**
@@ -119,6 +141,9 @@ class KDE_EXPORT ObjectData : public QObject
 		 */
 		bool fieldTypeAllowsMultipleSelections(const QString &fieldType) const;
 
+		/**
+		 * \brief A list of meta data pointers.
+		 */
 		typedef QList<MetaData*> MetaDataList;
 		/**
 		 * Overwrite this element function to resolve meta data files by the field ID \p fieldId.
@@ -355,6 +380,12 @@ class KDE_EXPORT ObjectData : public QObject
 		 */
 		virtual void compress();
 
+		/**
+		 * Widgetizing means that all possible object data is exported into SLK files which can only store abilities up to leve 4.
+		 * The rest of the data will be exported as usual. Therefore a folder must be selected.
+		 */
+		virtual void widgetize(const KUrl &url);
+
 	protected:
 		MpqPriorityList *m_source;
 		/**
@@ -371,6 +402,20 @@ inline MpqPriorityList* ObjectData::source() const
 inline const ObjectData::Objects& ObjectData::objects() const
 {
 	return this->m_objects;
+}
+
+inline ObjectData::ObjectId::ObjectId(const QString &originalObjectId, const QString &customObjectId) : QPair<QString, QString>(originalObjectId, customObjectId)
+{
+}
+
+inline QString ObjectData::ObjectId::originalObjectId() const
+{
+	return this->first;
+}
+
+inline QString ObjectData::ObjectId::customObjectId() const
+{
+	return this->second;
 }
 
 }

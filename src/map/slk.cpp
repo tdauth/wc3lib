@@ -68,8 +68,6 @@ namespace unicode = boost::spirit::qi::unicode;
 
 using boost::phoenix::ref;
 
-typedef std::pair<Slk::Table::size_type, Slk::Table::size_type> SlkSize;
-
 struct CellData
 {
 	CellData() : x(0), y(0)
@@ -80,31 +78,31 @@ struct CellData
 	Slk::Cell cell;
 };
 
-void assignX(SlkSize &size, int x)
+void assignX(Slk::TableSize &size, int x)
 {
 	size.first = x;
 
 	std::cerr << "Assigning X: " << x << std::endl;
 }
 
-Slk::Table::size_type getX(const SlkSize &size)
+Slk::Table::size_type getX(const Slk::TableSize &size)
 {
 	return size.first;
 }
 
-void assignY(SlkSize &size, int y)
+void assignY(Slk::TableSize &size, int y)
 {
 	size.second = y;
 
 	std::cerr << "Assigning Y: " << y << std::endl;
 }
 
-Slk::Table::size_type getY(const SlkSize &size)
+Slk::Table::size_type getY(const Slk::TableSize &size)
 {
 	return size.second;
 }
 
-void resizeTable(Slk::Table &table, const SlkSize &size)
+void resizeTable(Slk::Table &table, const Slk::TableSize &size)
 {
 	table.resize(boost::extents[size.first][size.second]);
 	std::cerr << "Resizing table: " << size.first << "x" << size.second << std::endl;
@@ -132,7 +130,7 @@ void setCell(Slk::Table &table, const CellData &cell)
 
 		const Slk::Table::size_type columns = std::max(table.shape()[0], cell.x);
 		const Slk::Table::size_type rows = std::max(table.shape()[1], cell.y);
-		resizeTable(table, SlkSize(columns, rows));
+		resizeTable(table, Slk::TableSize(columns, rows));
 	}
 
 	// if the value is continued append it
@@ -388,7 +386,7 @@ struct SlkGrammar : qi::grammar<Iterator, Slk::Table(), qi::locals<Slk::Table::s
 	qi::rule<Iterator> p_record;
 	qi::rule<Iterator> o_record;
 
-	qi::rule<Iterator, SlkSize()> b_record;
+	qi::rule<Iterator, Slk::TableSize()> b_record;
 	/**
 	 * Gets column and row as inherited attributes.
 	 */
@@ -486,7 +484,7 @@ struct SlkGenerator : karma::grammar<Iterator, Slk::Table(), qi::locals<Slk::Tab
 	}
 
 	karma::rule<Iterator, Slk::Cell()> literal;
-	karma::rule<Iterator, SlkSize(Slk::Table&, Slk::Table::size_type&, Slk::Table::size_type&)> b_record;
+	karma::rule<Iterator, Slk::TableSize(Slk::Table&, Slk::Table::size_type&, Slk::Table::size_type&)> b_record;
 	karma::rule<Iterator, CellData(Slk::Table&, Slk::Table::size_type&, Slk::Table::size_type&)> c_record;
 	karma::rule<Iterator> e_record;
 	karma::rule<Iterator, Slk::Table(), karma::locals<Slk::Table::size_type, Slk::Table::size_type> > cells;
@@ -567,6 +565,12 @@ std::streamsize Slk::write(OutputStream &ostream) const
 	}
 
 	return 0;
+}
+
+void Slk::resizeTable(const TableSize &size)
+{
+	this->m_table.resize(boost::extents[size.first][size.second]);
+	std::cerr << "Resizing table: " << size.first << "x" << size.second << std::endl;
 }
 
 }

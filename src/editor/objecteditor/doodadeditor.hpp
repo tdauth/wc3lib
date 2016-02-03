@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2014 by Tamino Dauth                                    *
+ *   Copyright (C) 2016 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,10 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_WEATHEREDITOR_HPP
-#define WC3LIB_EDITOR_WEATHEREDITOR_HPP
+#ifndef WC3LIB_EDITOR_DOODADEDITOR_HPP
+#define WC3LIB_EDITOR_DOODADEDITOR_HPP
 
 #include "objecteditortab.hpp"
+#include "../doodaddata.hpp"
 #include "../mpqprioritylist.hpp"
 
 namespace wc3lib
@@ -30,15 +31,13 @@ namespace wc3lib
 namespace editor
 {
 
-class WeatherData;
-
-class KDE_EXPORT WeatherEditor : public ObjectEditorTab
+class KDE_EXPORT DoodadEditor : public ObjectEditorTab
 {
 	public:
-		WeatherEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
-		virtual ~WeatherEditor();
+		DoodadEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		virtual ~DoodadEditor();
 
-		WeatherData* weatherData() const;
+		DoodadData* doodadData() const;
 
 		virtual QString name() const override;
 
@@ -65,67 +64,77 @@ class KDE_EXPORT WeatherEditor : public ObjectEditorTab
 		virtual KUrl newObjectIconUrl() const override;
 };
 
-inline QString WeatherEditor::newObjectText() const
+inline DoodadData* DoodadEditor::doodadData() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_UE_CREATECUSTOMUNIT", "WorldEditStrings");
+	return boost::polymorphic_cast<DoodadData*>(this->objectData());
 }
 
-inline QString WeatherEditor::renameObjectText() const
+inline QString DoodadEditor::name() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_RENAME", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_OBJTAB_DOODADS", "WorldEditStrings");
 }
 
-inline QString WeatherEditor::deleteObjectText() const
+inline QString DoodadEditor::newObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_DELETE", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_DOOD_NEW", "WorldEditStrings");
 }
 
-inline QString WeatherEditor::resetObjectText() const
+inline QString DoodadEditor::renameObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_RESETSEL", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_DOOD_RENAME", "WorldEditStrings");
 }
 
-inline QString WeatherEditor::resetAllObjectsText() const
+inline QString DoodadEditor::deleteObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_RESETALL", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_DOOD_DELETE", "WorldEditStrings");
 }
 
-inline QString WeatherEditor::exportAllObjectsText() const
+inline QString DoodadEditor::resetObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_EXPORT", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_DOOD_RESETSEL", "WorldEditStrings");
 }
 
-inline QString WeatherEditor::importAllObjectsText() const
+inline QString DoodadEditor::resetAllObjectsText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_IMPORT", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_ABIL_RESETALL", "WorldEditStrings");
 }
 
-inline QString WeatherEditor::copyObjectText() const
+inline QString DoodadEditor::exportAllObjectsText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_COPY", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_DOOD_EXPORT", "WorldEditStrings");
 }
 
-inline QString WeatherEditor::pasteObjectText() const
+inline QString DoodadEditor::importAllObjectsText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_PASTE", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_DOOD_IMPORT", "WorldEditStrings");
 }
 
-inline QIcon WeatherEditor::tabIcon(QWidget *widget) const
+inline QString DoodadEditor::copyObjectText() const
 {
-	return objectEditor()->source()->sharedData()->worldEditDataIcon("ToolBarIcon_OE_NewUnit", "WorldEditArt", widget);
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_DOOD_COPY", "WorldEditStrings");
 }
 
-inline KUrl WeatherEditor::copyObjectIconUrl() const
+inline QString DoodadEditor::pasteObjectText() const
+{
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_DOOD_PASTE", "WorldEditStrings");
+}
+
+inline QIcon DoodadEditor::tabIcon(QWidget *widget) const
+{
+	return objectEditor()->source()->sharedData()->worldEditDataIcon("ToolBarIcon_OE_NewDood", "WorldEditArt", widget);
+}
+
+inline KUrl DoodadEditor::copyObjectIconUrl() const
 {
 	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Copy.blp");
 }
 
-inline KUrl WeatherEditor::pasteObjectIconUrl() const
+inline KUrl DoodadEditor::pasteObjectIconUrl() const
 {
 	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Paste.blp");
 }
 
-inline KUrl WeatherEditor::newObjectIconUrl() const
+inline KUrl DoodadEditor::newObjectIconUrl() const
 {
 	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Unit.blp");
 }
@@ -134,4 +143,4 @@ inline KUrl WeatherEditor::newObjectIconUrl() const
 
 }
 
-#endif // WC3LIB_EDITOR_WEATHEREDITOR_HPP
+#endif // WC3LIB_EDITOR_DOODADEDITOR_HPP

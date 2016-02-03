@@ -44,6 +44,8 @@ class KDE_EXPORT MiscEditor : public ObjectEditorTab
 
 		virtual QString name() const override;
 
+		virtual QIcon tabIcon(QWidget *widget) const override;
+
 	protected:
 		virtual ObjectTreeModel* createTreeModel() override;
 		virtual void onSwitchToMap(Map *map) override;
@@ -117,6 +119,11 @@ inline QString MiscEditor::copyObjectText() const
 inline QString MiscEditor::pasteObjectText() const
 {
 	return this->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_PASTE", "WorldEditStrings");
+}
+
+inline QIcon MiscEditor::tabIcon(QWidget* widget) const
+{
+	return objectEditor()->source()->sharedData()->worldEditDataIcon("ToolBarIcon_OE_NewItem", "WorldEditArt", widget);
 }
 
 inline KUrl MiscEditor::copyObjectIconUrl() const

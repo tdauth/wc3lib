@@ -31,14 +31,15 @@
 *
 * wc3lib consists of several modules which allow strict separation of areas and a clear definition of dependencies:
 * <ul>
-* <li>\subpage coresection </li>
-* <li>\subpage mpqsection </li>
-* <li>\subpage blpsection </li>
-* <li>\subpage mdlxsection </li>
-* <li>\subpage mapsection </li>
-* <li>\subpage jasssection </li>
-* <li>\subpage editorsection </li>
-* <li>\subpage applicationssection </li>
+* <li>\subpage coresection - Basic I/O functions and shared structures for all file formats.</li>
+* <li>\subpage mpqsection - MPQ archive API for reading and writing MPQ archives.</li>
+* <li>\subpage blpsection - BLP API for reading and writing BLP textures.</li>
+* <li>\subpage mdlxsection - MDL and MDX API for reading and writing MDL and MDX model files.</li>
+* <li>\subpage mapsection - API for reading and writing Warcraft III (.w3m) and Warcraft III: The Frozen Throne (.w3x) maps and all consisting files such as object data, triggers etc.</li>
+* <li>\subpage jasssection - API for parsing JASS script files and generating abstract syntax trees.</li>
+* <li>\subpage editorsection - API for graphical interfaces of a World Editor emulation with modules such as the object or the trigger editor.</li>
+* <li>\subpage applicationssection - Core application which work on command line such as "mpq" to extract files from MPQ archives. Note that GUI applications are part of the \ref wc3lib::editor module.</li>
+* <li>\subpage libsection - API for external libraries which support compression formats required by the \ref wc3lib::mpq module.</li>
 * </ul>
 *
 * wc3lib is a collection of several C++ libraries which provide an API to <a href="http://blizzard.com/">Blizzard's</a> file formats of the real time strategy game <a href="blizzard.com/de-de/games/war3/">Warcraft III: Reign of Chaos</a> and its expansion Warcraft III: The Frozen Throne.
@@ -53,7 +54,7 @@
 * \note Check out http://wc3lib.org for further information.
 *
 * \date Version date
-* 2014-04-18
+* \today
 * \author Tamino Dauth <tamino@cdauth.eu>
 *
 * \copyright GNU GENERAL PUBLIC LICENSE Version 2 (except external library code)
@@ -68,6 +69,23 @@
 * <li>jasstrans - internationalisation tool which parses and stores strings from JASS code files</li>
 * <li>mpq - console-based, tar-like MPQ archive extractor and creator tool</li>
 * <li>tilesetter - console-based tilesetting program</li>
+* </ul>
+*
+* \page libsection External library module
+* Several small libraries are required for the \ref wc3lib::mpq module to compress and decompress files in MPQ archives.
+* Besides the calculation of MD5 checksums is required.
+* The libraries have been copied from the StormLib project and it would be useful to update them from time to time whenever they are updated externally to reduce bugs.
+* They are not licensed under the GPLv2!
+*
+* This might be an incomplete list of functions from the external libraries:
+* <ul>
+* <li>\ref CompressADPCM </li>
+* <li>\ref DecompressADPCM </li>
+* <li>\ref implode </li>
+* <li>\ref explode </li>
+* <li>\ref crc32_pklib </li>
+* <li>\ref MD5 </li>
+* <li>\ref huffman </li>
 * </ul>
 */
 

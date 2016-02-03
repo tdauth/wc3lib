@@ -56,6 +56,8 @@ class KDE_EXPORT SharedObjectData
 
 		const ObjectDataPtr& unitData() const;
 		const ObjectDataPtr& itemData() const;
+		const ObjectDataPtr& destructableData() const;
+		const ObjectDataPtr& doodadData() const;
 		const ObjectDataPtr& abilityData() const;
 		const ObjectDataPtr& weatherData() const;
 		const ObjectDataPtr& miscData() const;
@@ -70,6 +72,8 @@ class KDE_EXPORT SharedObjectData
 		MpqPriorityList *m_source;
 		ObjectDataPtr m_unitData;
 		ObjectDataPtr m_itemData;
+		ObjectDataPtr m_destructableData;
+		ObjectDataPtr m_doodadData;
 		ObjectDataPtr m_abilityData;
 		ObjectDataPtr m_weatherData;
 		ObjectDataPtr m_miscData;
@@ -89,6 +93,16 @@ inline const SharedObjectData::ObjectDataPtr& SharedObjectData::unitData() const
 inline const SharedObjectData::ObjectDataPtr& SharedObjectData::itemData() const
 {
 	return this->m_itemData;
+}
+
+inline const SharedObjectData::ObjectDataPtr& SharedObjectData::destructableData() const
+{
+	return this->m_destructableData;
+}
+
+inline const SharedObjectData::ObjectDataPtr& SharedObjectData::doodadData() const
+{
+	return this->m_doodadData;
 }
 
 inline const SharedObjectData::ObjectDataPtr& SharedObjectData::abilityData() const

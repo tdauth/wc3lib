@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2014 by Tamino Dauth                                    *
+ *   Copyright (C) 2016 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,10 +18,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_ABILITYTREEMODEL_HPP
-#define WC3LIB_EDITOR_ABILITYTREEMODEL_HPP
+#include <QtGui>
 
-#include "objecttreemodel.hpp"
+#include "destructableeditor.hpp"
+#include "objecttreeview.hpp"
+#include "objecttreeitem.hpp"
+#include "destructabletreemodel.hpp"
+#include "../metadata.hpp"
+#include "../map.hpp"
 
 namespace wc3lib
 {
@@ -29,29 +33,28 @@ namespace wc3lib
 namespace editor
 {
 
-class WarcraftIIIShared;
-
-class AbilityTreeModel : public ObjectTreeModel
+DestructableEditor::DestructableEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, objectData, objectEditor, parent, f)
 {
-	public:
-		AbilityTreeModel(MpqPriorityList *source, QObject *parent = 0);
+	setupUi();
+}
 
-		virtual ObjectTreeItem* createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString& originalObjectId, const QString& customObjectId) override;
+DestructableEditor::~DestructableEditor()
+{
+}
 
-	protected:
-		virtual QModelIndex itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId) override;
+ObjectTreeModel* DestructableEditor::createTreeModel()
+{
+	return new DestructableTreeModel(this->source(), this);
+}
 
-		QModelIndex objectsIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
-		QModelIndex raceIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
-		QModelIndex abilityTypeIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
+void DestructableEditor::onSwitchToMap(Map *map)
+{
+}
 
-		void createObjects(WarcraftIIIShared *shared);
-		void createRaces(WarcraftIIIShared *shared, int row, QModelIndex parent);
-		void createRace(WarcraftIIIShared *shared, int row, QModelIndex parent);
-};
-
+void DestructableEditor::onNewObject()
+{
 }
 
 }
 
-#endif // WC3LIB_EDITOR_ABILITYTREEMODEL_HPP
+}

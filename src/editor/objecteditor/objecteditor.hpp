@@ -40,7 +40,7 @@ class MpqPriorityList;
 class ObjectEditorTab;
 class UnitEditor;
 class DoodadEditor;
-class DestructibleEditor;
+class DestructableEditor;
 class ItemEditor;
 class AbilityEditor;
 class BuffEditor;
@@ -70,6 +70,8 @@ class MiscEditor;
  * <ul>
  * <li>\ref UnitData - Units</li>
  * <li>\ref ItemData - Items</li>
+ * <li>\ref DestructableData - Destructables</li>
+ * <li>\ref DoodadData - Doodads</li>
  * <li>\ref AbilityData - Abilities</li>
  * <li>\ref WeatherData - Weather Effects</li>
  * <li>\ref MiscData - Misc Data</li>
@@ -80,6 +82,11 @@ class MiscEditor;
  * This is a list of all available tabs;
  * <ul>
  * <li>\ref UnitEditor - Units</li>
+ * <li>\ref ItemEditor - Items</li>
+ * <li>\ref DestructableEditor - Destructables</li>
+ * <li>\ref AbilityEditor - Abilities</li>
+ * <li>\ref WeatherEditor - Weather Effects</li>
+ * <li>\ref MiscData - Game Misc Data</li>
  * </ul>
  *
  * One single tab provides two views. At the left edge there is a tree view listing all objects. At the right edge there is a table view listing the field values
@@ -152,7 +159,7 @@ class KDE_EXPORT ObjectEditor : public Module
 
 		UnitEditor* unitEditor() const;
 		DoodadEditor* doodadEditor() const;
-		DestructibleEditor* destructibleEditor() const;
+		DestructableEditor* destructableEditor() const;
 		ItemEditor* itemEditor() const;
 		AbilityEditor* abilityEditor() const;
 		BuffEditor* buffEditor() const;
@@ -204,6 +211,8 @@ class KDE_EXPORT ObjectEditor : public Module
 		 */
 		void compress();
 
+		void widgetize();
+
 	protected:
 		virtual void createFileActions(QMenu *menu) override;
 		virtual void createEditActions(QMenu *menu) override;
@@ -234,7 +243,7 @@ class KDE_EXPORT ObjectEditor : public Module
 
 		UnitEditor *m_unitEditor;
 		DoodadEditor *m_doodadEditor;
-		DestructibleEditor *m_destructibleEditor;
+		DestructableEditor *m_destructableEditor;
 		ItemEditor *m_itemEditor;
 		AbilityEditor *m_abilityEditor;
 		BuffEditor *m_buffEditor;
@@ -265,6 +274,7 @@ class KDE_EXPORT ObjectEditor : public Module
 		QAction *m_modifyFieldAction;
 		QAction *m_resetFieldAction;
 		QAction *m_compressAction;
+		QAction *m_widgetizeAction;
 
 		QMenu *m_viewMenu;
 		QAction *m_rawDataAction;
@@ -294,9 +304,9 @@ inline DoodadEditor* ObjectEditor::doodadEditor() const
 	return m_doodadEditor;
 }
 
-inline DestructibleEditor* ObjectEditor::destructibleEditor() const
+inline DestructableEditor* ObjectEditor::destructableEditor() const
 {
-	return m_destructibleEditor;
+	return m_destructableEditor;
 }
 
 inline ItemEditor* ObjectEditor::itemEditor() const

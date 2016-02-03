@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2014 by Tamino Dauth                                    *
+ *   Copyright (C) 2016 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,10 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_WEATHEREDITOR_HPP
-#define WC3LIB_EDITOR_WEATHEREDITOR_HPP
+#ifndef WC3LIB_EDITOR_DESTRUCTABLEEDITOR_HPP
+#define WC3LIB_EDITOR_DESTRUCTABLEEDITOR_HPP
 
 #include "objecteditortab.hpp"
+#include "../destructabledata.hpp"
 #include "../mpqprioritylist.hpp"
 
 namespace wc3lib
@@ -30,20 +31,18 @@ namespace wc3lib
 namespace editor
 {
 
-class WeatherData;
-
-class KDE_EXPORT WeatherEditor : public ObjectEditorTab
+class KDE_EXPORT DestructableEditor : public ObjectEditorTab
 {
 	public:
-		WeatherEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
-		virtual ~WeatherEditor();
+		DestructableEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		virtual ~DestructableEditor();
 
-		WeatherData* weatherData() const;
+		DestructableData* destructableData() const;
 
 		virtual QString name() const override;
 
 		virtual QIcon tabIcon(QWidget *widget) const override;
-
+		
 	protected:
 		virtual ObjectTreeModel* createTreeModel() override;
 		virtual void onSwitchToMap(Map *map) override;
@@ -65,67 +64,77 @@ class KDE_EXPORT WeatherEditor : public ObjectEditorTab
 		virtual KUrl newObjectIconUrl() const override;
 };
 
-inline QString WeatherEditor::newObjectText() const
+inline DestructableData* DestructableEditor::destructableData() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_UE_CREATECUSTOMUNIT", "WorldEditStrings");
+	return boost::polymorphic_cast<DestructableData*>(this->objectData());
 }
 
-inline QString WeatherEditor::renameObjectText() const
+inline QString DestructableEditor::name() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_RENAME", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_OBJTAB_DESTRUCTABLES", "WorldEditStrings");
 }
 
-inline QString WeatherEditor::deleteObjectText() const
+inline QString DestructableEditor::newObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_DELETE", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_DEST_NEW", "WorldEditStrings");
 }
 
-inline QString WeatherEditor::resetObjectText() const
+inline QString DestructableEditor::renameObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_RESETSEL", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_DEST_RENAME", "WorldEditStrings");
 }
 
-inline QString WeatherEditor::resetAllObjectsText() const
+inline QString DestructableEditor::deleteObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_RESETALL", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_DEST_DELETE", "WorldEditStrings");
 }
 
-inline QString WeatherEditor::exportAllObjectsText() const
+inline QString DestructableEditor::resetObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_EXPORT", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_DEST_RESETSEL", "WorldEditStrings");
 }
 
-inline QString WeatherEditor::importAllObjectsText() const
+inline QString DestructableEditor::resetAllObjectsText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_IMPORT", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_ABIL_RESETALL", "WorldEditStrings");
 }
 
-inline QString WeatherEditor::copyObjectText() const
+inline QString DestructableEditor::exportAllObjectsText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_COPY", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_DEST_EXPORT", "WorldEditStrings");
 }
 
-inline QString WeatherEditor::pasteObjectText() const
+inline QString DestructableEditor::importAllObjectsText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_PASTE", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_DEST_IMPORT", "WorldEditStrings");
 }
 
-inline QIcon WeatherEditor::tabIcon(QWidget *widget) const
+inline QString DestructableEditor::copyObjectText() const
 {
-	return objectEditor()->source()->sharedData()->worldEditDataIcon("ToolBarIcon_OE_NewUnit", "WorldEditArt", widget);
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_DEST_COPY", "WorldEditStrings");
 }
 
-inline KUrl WeatherEditor::copyObjectIconUrl() const
+inline QString DestructableEditor::pasteObjectText() const
+{
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_DEST_PASTE", "WorldEditStrings");
+}
+
+inline QIcon DestructableEditor::tabIcon(QWidget* widget) const
+{
+	return objectEditor()->source()->sharedData()->worldEditDataIcon("ToolBarIcon_OE_NewDest", "WorldEditArt", widget);
+}
+
+inline KUrl DestructableEditor::copyObjectIconUrl() const
 {
 	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Copy.blp");
 }
 
-inline KUrl WeatherEditor::pasteObjectIconUrl() const
+inline KUrl DestructableEditor::pasteObjectIconUrl() const
 {
 	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Paste.blp");
 }
 
-inline KUrl WeatherEditor::newObjectIconUrl() const
+inline KUrl DestructableEditor::newObjectIconUrl() const
 {
 	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Unit.blp");
 }
@@ -134,4 +143,4 @@ inline KUrl WeatherEditor::newObjectIconUrl() const
 
 }
 
-#endif // WC3LIB_EDITOR_WEATHEREDITOR_HPP
+#endif // WC3LIB_EDITOR_DESTRUCTABLEEDITOR_HPP

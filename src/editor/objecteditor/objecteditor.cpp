@@ -30,6 +30,8 @@
 #include "uniteditor.hpp"
 #include "itemeditor.hpp"
 #include "abilityeditor.hpp"
+#include "destructableeditor.hpp"
+#include "doodadeditor.hpp"
 #include "weathereditor.hpp"
 #include "misceditor.hpp"
 #include "objecttreemodel.hpp"
@@ -46,7 +48,7 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 , m_currentTab(0)
 , m_unitEditor(0)
 , m_doodadEditor(0)
-, m_destructibleEditor(0)
+, m_destructableEditor(0)
 , m_itemEditor(0)
 , m_abilityEditor(0)
 , m_buffEditor(0)
@@ -76,6 +78,7 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 , m_modifyFieldAction(0)
 , m_resetFieldAction(0)
 , m_compressAction(0)
+, m_widgetizeAction(0)
 , m_viewMenu(0)
 , m_rawDataAction(0)
 {
@@ -121,15 +124,19 @@ bool ObjectEditor::configure()
 	 */
 	m_unitEditor = new UnitEditor(source(), source()->sharedData()->sharedObjectData()->unitData().get(), this, this);
 	m_itemEditor = new ItemEditor(source(), source()->sharedData()->sharedObjectData()->itemData().get(), this, this);
+	m_destructableEditor = new DestructableEditor(source(), source()->sharedData()->sharedObjectData()->destructableData().get(), this, this);
+	m_doodadEditor = new DoodadEditor(source(), source()->sharedData()->sharedObjectData()->doodadData().get(), this, this);
 	m_abilityEditor = new AbilityEditor(source(), source()->sharedData()->sharedObjectData()->abilityData().get(), this, this);
 	m_weatherEditor = new WeatherEditor(source(), source()->sharedData()->sharedObjectData()->weatherData().get(), this, this);
 	m_miscEditor = new MiscEditor(source(), source()->sharedData()->sharedObjectData()->miscData().get(), this, this);
 
-	tabWidget()->addTab(unitEditor(), unitEditor()->name());
-	tabWidget()->addTab(itemEditor(), itemEditor()->name());
-	tabWidget()->addTab(abilityEditor(), abilityEditor()->name());
-	tabWidget()->addTab(weatherEditor(), weatherEditor()->name());
-	tabWidget()->addTab(miscEditor(), miscEditor()->name());
+	tabWidget()->addTab(unitEditor(), unitEditor()->tabIcon(this), unitEditor()->name());
+	tabWidget()->addTab(itemEditor(), itemEditor()->tabIcon(this), itemEditor()->name());
+	tabWidget()->addTab(destructableEditor(), destructableEditor()->tabIcon(this), destructableEditor()->name());
+	tabWidget()->addTab(doodadEditor(), doodadEditor()->tabIcon(this), doodadEditor()->name());
+	tabWidget()->addTab(abilityEditor(), abilityEditor()->tabIcon(this), abilityEditor()->name());
+	tabWidget()->addTab(weatherEditor(), weatherEditor()->tabIcon(this), weatherEditor()->name());
+	tabWidget()->addTab(miscEditor(), miscEditor()->tabIcon(this), miscEditor()->name());
 
 	currentChanged(0);
 	// connect signal and slot after adding actions and tabs first time!
@@ -170,6 +177,18 @@ void ObjectEditor::importCustomObjectsCollection(const map::CustomObjectsCollect
 	{
 		loadTabDataOnRequest(1);
 		this->itemEditor()->itemData()->importCustomObjects(*collection.items());
+	}
+
+	if (collection.hasDestructibles())
+	{
+		loadTabDataOnRequest(1);
+		this->destructableEditor()->destructableData()->importCustomObjects(*collection.destructibles());
+	}
+
+	if (collection.hasDoodads())
+	{
+		loadTabDataOnRequest(1);
+		this->doodadEditor()->doodadData()->importCustomObjects(*collection.doodads());
 	}
 
 	if (collection.hasAbilities())
@@ -351,6 +370,11 @@ void ObjectEditor::compress()
 	}
 }
 
+void ObjectEditor::widgetize()
+{
+	this->currentTab()->widgetizeAllObjects();
+}
+
 void ObjectEditor::createFileActions(QMenu *menu)
 {
 	m_newObjectAction = new QAction(this);
@@ -438,6 +462,10 @@ void ObjectEditor::createEditActions(QMenu *menu)
 	m_compressAction = new QAction(tr("Compress all objects"), this);
 	menu->addAction(m_compressAction);
 	connect(m_compressAction, SIGNAL(triggered()), this, SLOT(compress()));
+
+	m_widgetizeAction = new QAction(tr("Widgetize all objects"), this);
+	menu->addAction(m_widgetizeAction);
+	connect(m_widgetizeAction, SIGNAL(triggered()), this, SLOT(widgetize()));
 }
 
 void ObjectEditor::createMenus(QMenuBar *menuBar)
@@ -519,7 +547,6 @@ void ObjectEditor::loadTabDataOnRequest(int index)
 		 */
 		tab->objectData()->loadOnRequest(this);
 	}
-
 
 	/*
 	 * Load data on request when the tab is shown for the first time.

@@ -54,6 +54,8 @@ if (EDITOR)
 		abilitydata.hpp
 		collisionshape.hpp
 		colorpalettedialog.hpp
+		destructabledata.hpp
+		doodaddata.hpp
 		editor.hpp
 		itemdata.hpp
 		listfilesdialog.hpp
@@ -94,6 +96,8 @@ if (EDITOR)
 		abilitydata.cpp
 		collisionshape.cpp
 		colorpalettedialog.cpp
+		destructabledata.cpp
+		doodaddata.cpp
 		editor.cpp
 		itemdata.cpp
 		listfilesdialog.cpp

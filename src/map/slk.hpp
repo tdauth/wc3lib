@@ -101,6 +101,16 @@ class Slk : public Format
 		 */
 
 		/**
+		 * The size of an SLK table where the first value is the rows and the second value is the columns.
+		 */
+		typedef std::pair<Table::size_type, Table::size_type> TableSize;
+
+		/**
+		 * Resizes the table to the new size of \p size.
+		 */
+		void resizeTable(const TableSize &size);
+
+		/**
 		 * Clears the table.
 		 */
 		void clear();

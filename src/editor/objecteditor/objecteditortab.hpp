@@ -177,7 +177,12 @@ class KDE_EXPORT ObjectEditorTab : public QWidget
 		void copyObject();
 		void pasteObject();
 
+		/**
+		 * Calls \ref ObjectData::widgetize() for a user-defined directory.
+		 */
 		void widgetizeAllObjects();
+
+		virtual QIcon tabIcon(QWidget *widget) const = 0;
 
 	protected:
 		friend ObjectEditor;
@@ -212,12 +217,21 @@ class KDE_EXPORT ObjectEditorTab : public QWidget
 		KFilterProxySearchLine *m_filterSearchLine;
 		KFilterProxySearchLine *m_tableFilterSearchLine;
 		ObjectTreeView *m_treeView; // left side tree widget
+		/*
+		 * Left side tree model.
+		 */
 		ObjectTreeModel *m_treeModel;
 
 		ObjectTableView *m_tableView; // centered table widget of current selected object
 		ObjectTableModel *m_tableModel;
 
+		/**
+		 * The corresponding object data which is shown by the tab.
+		 */
 		ObjectData *m_objectData;
+		/**
+		 * The parent object editor.
+		 */
 		ObjectEditor *m_objectEditor;
 
 		/**

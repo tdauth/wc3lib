@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2014 by Tamino Dauth                                    *
+ *   Copyright (C) 2016 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_ABILITYTREEMODEL_HPP
-#define WC3LIB_EDITOR_ABILITYTREEMODEL_HPP
+#ifndef WC3LIB_EDITOR_DOODADTREEMODEL_HPP
+#define WC3LIB_EDITOR_DOODADTREEMODEL_HPP
 
 #include "objecttreemodel.hpp"
 
@@ -31,10 +31,10 @@ namespace editor
 
 class WarcraftIIIShared;
 
-class AbilityTreeModel : public ObjectTreeModel
+class DoodadTreeModel : public ObjectTreeModel
 {
 	public:
-		AbilityTreeModel(MpqPriorityList *source, QObject *parent = 0);
+		DoodadTreeModel(MpqPriorityList *source, QObject *parent = 0);
 
 		virtual ObjectTreeItem* createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString& originalObjectId, const QString& customObjectId) override;
 
@@ -42,16 +42,12 @@ class AbilityTreeModel : public ObjectTreeModel
 		virtual QModelIndex itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId) override;
 
 		QModelIndex objectsIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
-		QModelIndex raceIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
-		QModelIndex abilityTypeIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
 
 		void createObjects(WarcraftIIIShared *shared);
-		void createRaces(WarcraftIIIShared *shared, int row, QModelIndex parent);
-		void createRace(WarcraftIIIShared *shared, int row, QModelIndex parent);
 };
 
 }
 
 }
 
-#endif // WC3LIB_EDITOR_ABILITYTREEMODEL_HPP
+#endif // WC3LIB_EDITOR_DOODADTREEMODEL_HPP

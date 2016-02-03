@@ -1,6 +1,10 @@
 set(wc3lib_OBJECTEDITOR_H
 	abilityeditor.hpp
 	abilitytreemodel.hpp
+	destructableeditor.hpp
+	destructabletreemodel.hpp
+	doodadeditor.hpp
+	doodadtreemodel.hpp
 	objectiddialog.hpp
 	itemeditor.hpp
 	itemtreemodel.hpp
@@ -24,6 +28,10 @@ set(wc3lib_OBJECTEDITOR_H
 set(wc3lib_OBJECTEDITOR_SRC
 	abilityeditor.cpp
 	abilitytreemodel.cpp
+	destructableeditor.cpp
+	destructabletreemodel.cpp
+	doodadeditor.cpp
+	doodadtreemodel.cpp
 	objectiddialog.cpp
 	itemeditor.cpp
 	itemtreemodel.cpp

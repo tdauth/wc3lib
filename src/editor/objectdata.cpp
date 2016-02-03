@@ -1205,6 +1205,10 @@ void ObjectData::compress()
 {
 }
 
+void ObjectData::widgetize(const KUrl &url)
+{
+}
+
 }
 
 }
