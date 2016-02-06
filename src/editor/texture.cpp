@@ -144,6 +144,8 @@ void Texture::loadBlp(const QMap<QString, QString> &options)
 			loadQt(); // if it doesn't throw it continues
 			loadBlp();
 		}
+
+		this->source()->removeTempFile(tmpFileName);
 	}
 	// if we have already an image it seems to be faster to read from it instead of the original file
 	else
@@ -205,8 +207,12 @@ void Texture::loadQt()
 
 		if (!qtImage->load(tmpFileName))
 		{
+			this->source()->removeTempFile(tmpFileName);
+
 			throw Exception(boost::format(_("Unable to load Qt image from temporary file \"%1%\".")) % tmpFileName.toUtf8().constData());
 		}
+
+		this->source()->removeTempFile(tmpFileName);
 
 		m_qt.swap(qtImage); // exception safe (won't change image if ->read throws exception
 	}
@@ -265,6 +271,8 @@ void Texture::loadOgre()
 
 			if (!ifs)
 			{
+				this->source()->removeTempFile(tmpFileName);
+
 				throw Exception(boost::format(_("Unable to open tempory file \"%1%\".")) % tmpFileName.toUtf8().constData());
 			}
 
@@ -273,9 +281,13 @@ void Texture::loadOgre()
 			// TODO check correct loading state, exception handling?
 
 			ifs.close();
+
+			this->source()->removeTempFile(tmpFileName);
 		}
 		catch (Ogre::Exception &exception)
 		{
+			this->source()->removeTempFile(tmpFileName);
+			
 			throw Exception(exception.getFullDescription());
 		}
 

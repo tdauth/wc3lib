@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2014 by Tamino Dauth                                    *
+ *   Copyright (C) 2016 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -20,16 +20,12 @@
 
 #include <QtGui>
 
-#include "sharedobjectdata.hpp"
-#include "unitdata.hpp"
-#include "itemdata.hpp"
-#include "destructabledata.hpp"
-#include "doodaddata.hpp"
-#include "abilitydata.hpp"
-#include "waterdata.hpp"
-#include "weatherdata.hpp"
-#include "miscdata.hpp"
-#include "metadata.hpp"
+#include <KFileDialog>
+#include <KMessageBox>
+
+#include "watereditor.hpp"
+#include "watertreemodel.hpp"
+#include "../waterdata.hpp"
 
 namespace wc3lib
 {
@@ -37,49 +33,36 @@ namespace wc3lib
 namespace editor
 {
 
-SharedObjectData::SharedObjectData(MpqPriorityList *source) : m_source(source)
-, m_unitData(new UnitData(source))
-, m_itemData(new ItemData(source))
-, m_destructableData(new DestructableData(source))
-, m_doodadData(new DoodadData(source))
-, m_abilityData(new AbilityData(source))
-, m_waterData(new WaterData(source))
-, m_weatherData(new WeatherData(source))
-, m_miscData(new MiscData(source))
-, m_unitEditorData(new MetaData(KUrl("UI/UnitEditorData.txt")))
+WaterEditor::WaterEditor(MpqPriorityList* source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget* parent, Qt::WindowFlags f) : ObjectEditorTab(source, objectData, objectEditor, parent, f)
+{
+	setupUi();
+}
+
+WaterEditor::~WaterEditor()
 {
 }
 
-SharedObjectData::~SharedObjectData()
+void WaterEditor::onSwitchToMap(Map *map)
 {
 }
 
-void SharedObjectData::load(QWidget *widget)
+void WaterEditor::onNewObject()
 {
-	m_unitData->load(widget);
-	m_itemData->load(widget);
-	m_destructableData->load(widget);
-	m_doodadData->load(widget);
-	m_abilityData->load(widget);
-	m_waterData->load(widget);
-	m_weatherData->load(widget);
-	m_miscData->load(widget);
-	m_unitEditorData->setSource(this->m_source);
-	m_unitEditorData->load();
 }
 
-ObjectData* SharedObjectData::resolveByFieldType(const QString &fieldType) const
+ObjectTreeModel* WaterEditor::createTreeModel()
 {
-	if (fieldType == "unitList")
-	{
-		return unitData().get();
-	}
-	else if (fieldType == "abilityList" || fieldType == "heroAbilityList")
-	{
-		return abilityData().get();
-	}
+	return new WaterTreeModel(this->source(), this);
+}
 
-	return 0;
+WaterData* WaterEditor::waterData() const
+{
+	return boost::polymorphic_cast<WaterData*>(objectData());
+}
+
+QString WaterEditor::name() const
+{
+	return tr("Water Editor");
 }
 
 }

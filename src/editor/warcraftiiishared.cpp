@@ -164,6 +164,8 @@ QPixmap WarcraftIIIShared::pixmap(const KUrl &url, QWidget *window)
 	{
 		iterator = m_icons.insert(url, QPixmap(iconFile));
 
+		this->source()->removeTempFile(iconFile);
+
 		return iterator.value();
 	}
 	else
@@ -233,10 +235,14 @@ void WarcraftIIIShared::refreshTriggerData(QWidget *window, const KUrl &url)
 
 	if (!ifstream)
 	{
+		this->source()->removeTempFile(target);
+
 		throw Exception(boost::format(_("Unable to read from file \"%1%\".")) % target.toStdString());
 	}
 
 	ptr->read(ifstream);
+	this->source()->removeTempFile(target);
+
 	m_triggerData.swap(ptr); // exception safe
 }
 
@@ -255,10 +261,14 @@ void WarcraftIIIShared::refreshTriggerStrings(QWidget *window, const KUrl &url)
 
 	if (!ifstream)
 	{
+		this->source()->removeTempFile(target);
+
 		throw Exception(boost::format(_("Unable to read from file \"%1%\".")) % target.toStdString());
 	}
 
 	ptr->read(ifstream);
+	this->source()->removeTempFile(target);
+
 	m_triggerStrings.swap(ptr); // exception safe
 }
 

@@ -89,6 +89,7 @@ if (EDITOR)
 		unitdata.hpp
 		viewportsettings.hpp
 		warcraftiiishared.hpp
+		waterdata.hpp
 		weatherdata.hpp
 		windowsmenu.hpp
 	)
@@ -129,6 +130,7 @@ if (EDITOR)
 		unitdata.cpp
 		viewportsettings.cpp
 		warcraftiiishared.cpp
+		waterdata.cpp
 		weatherdata.cpp
 		windowsmenu.cpp
 	)

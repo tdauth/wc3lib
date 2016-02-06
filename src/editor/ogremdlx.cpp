@@ -155,6 +155,8 @@ void OgreMdlx::load()
 
 	if (isMdx)
 	{
+		this->source()->removeTempFile(tmpFile);
+
 		throw Exception(_("MDX is currently not supported."));
 	}
 	else
@@ -163,6 +165,7 @@ void OgreMdlx::load()
 		result = grammar.parse(ifstream, *model);
 	}
 
+	this->source()->removeTempFile(tmpFile);
 
 	if (result)
 	{

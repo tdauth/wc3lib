@@ -353,6 +353,8 @@ void TriggerWidget::refreshBasicTreeItems()
 	if (this->triggerEditor()->source()->download(eventsIconFilePath, eventsIconFile, this))
 	{
 		m_eventsItem->setIcon(0, QIcon(eventsIconFile));
+
+		this->triggerEditor()->source()->removeTempFile(eventsIconFile);
 	}
 
 	m_conditionsItem = new QTreeWidgetItem(rootItem());
@@ -362,6 +364,8 @@ void TriggerWidget::refreshBasicTreeItems()
 	if (this->triggerEditor()->source()->download(conditionsIconFilePath, conditionsIconFile, this))
 	{
 		m_conditionsItem->setIcon(0,  QIcon(conditionsIconFile));
+
+		this->triggerEditor()->source()->removeTempFile(conditionsIconFile);
 	}
 
 	m_actionsItem = new QTreeWidgetItem(rootItem());
@@ -371,6 +375,8 @@ void TriggerWidget::refreshBasicTreeItems()
 	if (this->triggerEditor()->source()->download(actionsIconFilePath, actionsIconFile, this))
 	{
 		m_actionsItem->setIcon(0,  QIcon(actionsIconFile));
+
+		this->triggerEditor()->source()->removeTempFile(actionsIconFile);
 	}
 
 	eventsItem()->setText(0, tr("Events"));

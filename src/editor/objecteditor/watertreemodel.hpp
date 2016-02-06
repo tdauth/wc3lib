@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2014 by Tamino Dauth                                    *
+ *   Copyright (C) 2016 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,14 +18,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <QtGui>
+#ifndef WC3LIB_EDITOR_WATERTREEMODEL_HPP
+#define WC3LIB_EDITOR_WATERTREEMODEL_HPP
 
-#include <KFileDialog>
-#include <KMessageBox>
-
-#include "weathereditor.hpp"
-#include "watertreemodel.hpp"
-#include "../weatherdata.hpp"
+#include "objecttreemodel.hpp"
 
 namespace wc3lib
 {
@@ -33,38 +29,20 @@ namespace wc3lib
 namespace editor
 {
 
-WeatherEditor::WeatherEditor(MpqPriorityList* source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget* parent, Qt::WindowFlags f) : ObjectEditorTab(source, objectData, objectEditor, parent, f)
+class WaterTreeModel : public ObjectTreeModel
 {
-	setupUi();
-}
+	public:
+		WaterTreeModel(MpqPriorityList *source, QObject *parent = 0);
 
-WeatherEditor::~WeatherEditor()
-{
-}
+		virtual ObjectTreeItem* createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString& originalObjectId, const QString& customObjectId) override;
 
-void WeatherEditor::onSwitchToMap(Map *map)
-{
-}
+	protected:
+		virtual QModelIndex itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId) override;
 
-void WeatherEditor::onNewObject()
-{
-}
-
-ObjectTreeModel* WeatherEditor::createTreeModel()
-{
-	return new WaterTreeModel(this->source(), this);
-}
-
-WeatherData* WeatherEditor::weatherData() const
-{
-	return boost::polymorphic_cast<WeatherData*>(objectData());
-}
-
-QString WeatherEditor::name() const
-{
-	return tr("Weather Editor");
-}
+};
 
 }
 
 }
+
+#endif // WC3LIB_EDITOR_WATERTREEMODEL_HPP

@@ -54,7 +54,7 @@ class SpawnEntryEditor;
 class LightningEffectEntryEditor;
 class CliffTypeEntryEditor;
 class TilesetEntryEditor;
-class WaterEntryEditor;
+class WaterEditor;
 class WeatherEditor;
 class SoundEntryEditor;
 class MiscEditor;
@@ -158,6 +158,7 @@ class KDE_EXPORT ObjectEditor : public Module
 			Destructibles,
 			Doodads,
 			Abilities,
+			Water,
 			Weather,
 			GameplayConstants
 		};
@@ -186,7 +187,7 @@ class KDE_EXPORT ObjectEditor : public Module
 		LightningEffectEntryEditor* lightningEffectEntryEditor() const;
 		CliffTypeEntryEditor* cliffTypeEntryEditor() const;
 		TilesetEntryEditor* tilesetEntryEditor() const;
-		WaterEntryEditor* waterEntryEditor() const;
+		WaterEditor* waterEditor() const;
 		WeatherEditor* weatherEditor() const;
 		SoundEntryEditor* soundEntryEditor() const;
 		MiscEditor* miscEditor() const;
@@ -271,7 +272,7 @@ class KDE_EXPORT ObjectEditor : public Module
 		LightningEffectEntryEditor *m_lightningEffectEntryEditor;
 		CliffTypeEntryEditor *m_cliffTypeEntryEditor;
 		TilesetEntryEditor *m_tilesetEntryEditor;
-		WaterEntryEditor *m_waterEntryEditor;
+		WaterEditor *m_waterEditor;
 		WeatherEditor *m_weatherEditor;
 		SoundEntryEditor *m_soundEntryEditor;
 		MiscEditor *m_miscEditor;
@@ -383,9 +384,9 @@ inline TilesetEntryEditor* ObjectEditor::tilesetEntryEditor() const
 	return m_tilesetEntryEditor;
 }
 
-inline WaterEntryEditor* ObjectEditor::waterEntryEditor() const
+inline WaterEditor* ObjectEditor::waterEditor() const
 {
-	return m_waterEntryEditor;
+	return m_waterEditor;
 }
 
 inline WeatherEditor* ObjectEditor::weatherEditor() const

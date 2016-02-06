@@ -617,9 +617,13 @@ void TriggerEditor::openTriggersUrl(const KUrl &url)
 		}
 
 		triggers->read(ifstream, *triggerData);
+
+		this->source()->removeTempFile(target);
 	}
 	catch (std::exception &exception)
 	{
+		this->source()->removeTempFile(target);
+
 		if (triggers != 0)
 		{
 			delete triggers;

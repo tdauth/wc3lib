@@ -1,3 +1,6 @@
+2016-02-06 Tamino Dauth <tamino@cdauth.eu>
+* Many temporary file leaks when using MpqPriorityList::download() but not using KIO::NetAccess::removeTempFile().
+
 2015-04-04 Tamino Dauth <tamino@cdauth.eu>
 * Trigger Editor: Improve performance on opening a trigger. Maybe loading icons is too slow.
 * Add class TriggerDataEx which supports Frozen Throne.

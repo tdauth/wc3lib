@@ -154,6 +154,7 @@ struct MdlGrammar : qi::grammar<Iterator, Mdlx(), qi::locals<long32, long32, lon
 	qi::rule<Iterator, Bone(), Skipper> bone;
 	qi::rule<Iterator, Light::LightType(), Skipper> light_type;
 	qi::rule<Iterator, Light(), Skipper> light;
+	qi::rule<Iterator, Mdlx::Lights(), Skipper> lights;
 
 
 

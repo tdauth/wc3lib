@@ -23,6 +23,8 @@ set(wc3lib_OBJECTEDITOR_H
 	uniteditor.hpp
 	unitselectiondialog.hpp
 	unittreemodel.hpp
+	watereditor.hpp
+	watertreemodel.hpp
 	weathereditor.hpp
 	weathertreemodel.hpp
 )
@@ -51,6 +53,8 @@ set(wc3lib_OBJECTEDITOR_SRC
 	uniteditor.cpp
 	unitselectiondialog.cpp
 	unittreemodel.cpp
+	watereditor.cpp
+	watertreemodel.cpp
 	weathereditor.cpp
 	weathertreemodel.cpp
 )

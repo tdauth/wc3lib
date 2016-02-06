@@ -180,7 +180,7 @@ bool ObjectData::loadOnRequest(QWidget *widget)
 		{
 			this->load(widget);
 		}
-		catch (const Exception &e)
+		catch (const std::exception &e)
 		{
 			QMessageBox::warning(widget, QObject::tr("Error"), e.what());
 

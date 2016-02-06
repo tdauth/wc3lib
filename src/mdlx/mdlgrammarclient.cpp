@@ -1100,6 +1100,10 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 		>> lit('}')
 	;
 
+	lights %=
+		+light[push_back(_val, _1)]
+	;
+
 	mdl =
 		/*
 		 * Initialize counts with 0
@@ -1117,7 +1121,7 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 		// Since the number is not always present just try it.
 		>> (*geoset_animation)[at_c<8>(_val) = _1]
 		>> (*bone)[at_c<9>(_val) = _1]
-		//>> (*light)[at_c<10>(_val) = _1]
+		//>> -lights[at_c<10>(_val) = _1]
 	;
 
 	// MinimumExtent, MaximumExtent, and BoundsRadius are left out if their

@@ -55,6 +55,8 @@ SplashScreen::SplashScreen(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 				if (source->download(source->sharedData()->worldEditData()->value("WorldEditSounds", "WelcomeFirstRun"), file, this))
 				{
 					QSound::play(file);
+
+					source->removeTempFile(file);
 				}
 			}
 
@@ -65,6 +67,8 @@ SplashScreen::SplashScreen(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 				if (source->download(source->sharedData()->worldEditData()->value("WorldEditSounds", "WelcomeFirstRunDone"), file, this))
 				{
 					QSound::play(file);
+
+					source->removeTempFile(file);
 				}
 			}
 		}
@@ -77,6 +81,8 @@ SplashScreen::SplashScreen(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 				if (source->download(source->sharedData()->worldEditData()->value("WorldEditSounds", "Welcome"), file, this))
 				{
 					QSound::play(file);
+
+					source->removeTempFile(file);
 				}
 			}
 		}

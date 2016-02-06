@@ -34,8 +34,8 @@ MiscTreeModel::MiscTreeModel(MpqPriorityList *source, QObject *parent)
 {
 	// custom and standard items
 	QStringList names;
-	names << "standard";
-	names << "custom";
+	names << tr("Standard Gameplay Constants");
+	names << tr("Custom Gameplay Constants");
 
 	insertRowFolders(names, 0);
 }

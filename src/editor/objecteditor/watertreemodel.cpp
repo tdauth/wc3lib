@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2014 by Tamino Dauth                                    *
+ *   Copyright (C) 2016 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -20,12 +20,9 @@
 
 #include <QtGui>
 
-#include <KFileDialog>
-#include <KMessageBox>
-
-#include "weathereditor.hpp"
 #include "watertreemodel.hpp"
-#include "../weatherdata.hpp"
+#include "../waterdata.hpp"
+#include "../mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -33,36 +30,49 @@ namespace wc3lib
 namespace editor
 {
 
-WeatherEditor::WeatherEditor(MpqPriorityList* source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget* parent, Qt::WindowFlags f) : ObjectEditorTab(source, objectData, objectEditor, parent, f)
+WaterTreeModel::WaterTreeModel(MpqPriorityList *source, QObject *parent): ObjectTreeModel(source, parent)
 {
-	setupUi();
+	QStringList names;
+	names << tr("Standard Water");
+	names << tr("Custom Water");
+
+	insertRowFolders(names, 0);
 }
 
-WeatherEditor::~WeatherEditor()
+ObjectTreeItem* WaterTreeModel::createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString &originalObjectId, const QString &customObjectId)
 {
+	WaterData *weatherData = dynamic_cast<WaterData*>(objectData);
+	const QModelIndex parentIndex = itemParent(weatherData, originalObjectId, customObjectId);
+	ObjectTreeItem *parent = item(parentIndex);
+	qDebug() << "Count before:" << parent->children().count();
+	insertRows(parent->children().count(), 1, parentIndex);
+	qDebug() << "Count after:" << parent->children().count();
+
+	ObjectTreeItem *item = parent->children().last();
+	item->setObjectData(objectData);
+	item->setObjectId(originalObjectId, customObjectId);
+	item->setIcon(objectData->objectIcon(originalObjectId, customObjectId, window));
+
+	if (customObjectId.isEmpty())
+	{
+		this->insertStandardItem(item);
+	}
+	else
+	{
+		this->insertCustomItem(item);
+	}
+
+	return item;
 }
 
-void WeatherEditor::onSwitchToMap(Map *map)
+QModelIndex WaterTreeModel::itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId)
 {
-}
+	if (customObjectId.isEmpty())
+	{
+		return index(0, 0);
+	}
 
-void WeatherEditor::onNewObject()
-{
-}
-
-ObjectTreeModel* WeatherEditor::createTreeModel()
-{
-	return new WaterTreeModel(this->source(), this);
-}
-
-WeatherData* WeatherEditor::weatherData() const
-{
-	return boost::polymorphic_cast<WeatherData*>(objectData());
-}
-
-QString WeatherEditor::name() const
-{
-	return tr("Weather Editor");
+	return index(1, 0);
 }
 
 }

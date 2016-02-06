@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2014 by Tamino Dauth                                    *
+ *   Copyright (C) 2016 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -20,7 +20,7 @@
 
 #include <QtGui>
 
-#include "weatherdata.hpp"
+#include "waterdata.hpp"
 #include "metadata.hpp"
 #include "mpqprioritylist.hpp"
 
@@ -30,27 +30,27 @@ namespace wc3lib
 namespace editor
 {
 
-WeatherData::WeatherData(MpqPriorityList *source, QObject *parent) : ObjectData(source, parent)
+WaterData::WaterData(MpqPriorityList *source, QObject *parent) : ObjectData(source, parent)
 {
 }
 
-ObjectData::StandardObjecIds WeatherData::standardObjectIds() const
+ObjectData::StandardObjecIds WaterData::standardObjectIds() const
 {
 	StandardObjecIds result;
 
 	// add all entries from "Weather.slk" to standard weather effects in Unit Editor
-	if (this->weather() != 0 && !this->weather()->isEmpty())
+	if (this->water() != 0 && !this->water()->isEmpty())
 	{
-		for (int row = 1; row < this->weather()->rows(); ++row)
+		for (int row = 1; row < this->water()->rows(); ++row)
 		{
-			result << this->weather()->value(row, "effectID");
+			result << this->water()->value(row, "ID");
 		}
 	}
 
 	return result;
 }
 
-ObjectData::MetaDataList WeatherData::resolveDefaultField(const QString& objectId, const QString& fieldId) const
+ObjectData::MetaDataList WaterData::resolveDefaultField(const QString& objectId, const QString& fieldId) const
 {
 	MetaDataList result;
 
@@ -61,36 +61,36 @@ ObjectData::MetaDataList WeatherData::resolveDefaultField(const QString& objectI
 	{
 		const QString slk = this->metaData()->value(fieldId, "slk");
 
-		if (slk == "Weather")
+		if (slk == "Water")
 		{
-			result.push_back(this->weather());
+			result.push_back(this->water());
 		}
 	}
 
 	return result;
 }
 
-bool WeatherData::hideField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId) const
+bool WaterData::hideField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId) const
 {
 	return false;
 }
 
-bool WeatherData::hasCustomUnits() const
+bool WaterData::hasCustomUnits() const
 {
 	return false;
 }
 
-bool WeatherData::hasCustomObjects() const
+bool WaterData::hasCustomObjects() const
 {
 	return false;
 }
 
-bool WeatherData::hasMetaDataList() const
+bool WaterData::hasMetaDataList() const
 {
 	return true;
 }
 
-ObjectData::MetaDataList WeatherData::metaDataList() const
+ObjectData::MetaDataList WaterData::metaDataList() const
 {
 	/*
 	map::Slk slk;
@@ -113,45 +113,45 @@ ObjectData::MetaDataList WeatherData::metaDataList() const
 	return MetaDataList();
 }
 
-void WeatherData::load(QWidget *widget)
+void WaterData::load(QWidget *widget)
 {
 #ifdef Q_OS_UNIX
-	const KUrl weatherMetaDataUrl = KUrl::fromLocalFile("/usr/share/wc3lib/war3/TerrainArt/WeatherMetaData.slk");
+	const KUrl waterMetaDataUrl = KUrl::fromLocalFile("/usr/share/wc3lib/war3/TerrainArt/WaterMetaData.slk");
 #else
 #warning Weather editor might not work on this platform.
-	const KUrl weatherMetaDataUrl = KUrl("TerrainArt/WeatherMetaData.slk");
+	const KUrl waterMetaDataUrl = KUrl("TerrainArt/WaterMetaData.slk");
 #endif
-	this->m_weatherMetaData.reset(new MetaData(KUrl(weatherMetaDataUrl)));
-	this->m_weatherMetaData->setSource(this->source());
-	this->m_weatherMetaData->load();
-	this->m_weather.reset(new MetaData(KUrl("TerrainArt/Weather.slk")));
-	this->m_weather->setSource(this->source());
-	this->m_weather->load();
+	this->m_waterMetaData.reset(new MetaData(KUrl(waterMetaDataUrl)));
+	this->m_waterMetaData->setSource(this->source());
+	this->m_waterMetaData->load();
+	this->m_water.reset(new MetaData(KUrl("TerrainArt/Water.slk")));
+	this->m_water->setSource(this->source());
+	this->m_water->load();
 }
 
-MetaData* WeatherData::objectTabData() const
+MetaData* WaterData::objectTabData() const
 {
 	return this->source()->sharedData()->sharedObjectData()->unitEditorData().get();
 }
 
-QString WeatherData::objectName(const QString &originalObjectId, const QString &customObjectId) const
+QString WaterData::objectName(const QString &originalObjectId, const QString &customObjectId) const
 {
-	QString result = fieldReadableValue(originalObjectId, customObjectId, "unam");
+	QString result = fieldReadableValue(originalObjectId, customObjectId, "texf");
 
 	return this->source()->sharedData()->tr(result, "WorldEditStrings", result);
 }
 
-QIcon WeatherData::objectIcon(const QString& originalObjectId, const QString& customObjectId, QWidget* window) const
+QIcon WaterData::objectIcon(const QString& originalObjectId, const QString& customObjectId, QWidget* window) const
 {
-	const QString art = this->fieldValue(originalObjectId, customObjectId, "texd") + "\\" + this->fieldValue(originalObjectId, customObjectId, "texf") + ".blp";
+	const QString art = this->fieldValue(originalObjectId, customObjectId, "texf") + ".blp";
 
 	return this->source()->sharedData()->icon(art, window);
 }
 
-QString WeatherData::nextCustomObjectId() const
+QString WaterData::nextCustomObjectId() const
 {
 	QString result = ObjectData::nextCustomObjectId();
-	result[0] = 'W';
+	result[0] = 'M';
 
 	return result;
 }

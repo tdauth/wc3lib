@@ -52,9 +52,9 @@ void Map::load()
 	}
 
 	ifstream istream(target.toStdString(), std::ios::in | std::ios::binary);
-
 	MapPtr map(new map::W3m());
 	map->open(target.toStdString());
+	// NOTE Do not remove the temporary file since MPQ archives rely on local files instead of reading everything into the heap.
 
 	if (map->triggers().get() != 0)
 	{

@@ -284,10 +284,12 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 	// Since entries are ordered by priority highest priority entry should be checked first
 	BOOST_REVERSE_FOREACH(Sources::const_reference entry, sources())
 	{
-
 		// this version does not rely on a KIO slave plugin which has to be installed. It uses an instance of the archive instead.
 		if (entry.mpqArchive() != nullptr && entry.mpqArchive()->isOpen())
 		{
+			/*
+			 * The file path has to be transformed into a Windows path which works with the MPQ archive.
+			 */
 			const QString archiveSrc = src.toLocalFile().replace('/', '\\');
 			const std::string filePath = archiveSrc.toUtf8().constData();
 			qDebug() << "Downloading from local MPQ archive " << entry.url() << " file: " << filePath.c_str();
@@ -299,12 +301,16 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 				stringstream sstream;
 				file.writeData(sstream);
 
-				QTemporaryFile targetFile(src.fileName());
+				// Create the temporary file in the global temporary dir instead of the current working dir. Otherwise many temporary files might be created in the working dir.
+				QTemporaryFile targetFile(QDir::temp().filePath(src.fileName()));
 				// TODO this produces many many temporary files which have to be deleted at some point but that does happen when the MpqPriorityList is destroyed. Therefore many temporary files are produced.
 				targetFile.setAutoRemove(false);
 
 				if (targetFile.open())
 				{
+					/*
+					 * The whole file from the MPQ archive has to be written into the temporary file which is stored in the hash of temporary files for later removal.
+					 */
 					const std::streamoff size = std::streamoff(wc3lib::endPosition(sstream));
 					boost::scoped_array<byte> data(new byte[size]);
 					sstream.read(data.get(), size);
@@ -410,6 +416,19 @@ bool MpqPriorityList::mkdir(const KUrl &target, QWidget *window) const
 	}
 
 	return false;
+}
+
+void MpqPriorityList::removeTempFile(const QString &name)
+{
+	if (this->m_temporaryFiles.contains(name))
+	{
+		QFile::remove(name);
+		this->m_temporaryFiles.removeAll(name);
+	}
+	else
+	{
+		KIO::NetAccess::removeTempFile(name);
+	}
 }
 
 bool MpqPriorityList::exists(const KUrl& url, QWidget *window) const

@@ -348,42 +348,54 @@ void MetaData::load()
 
 	ifstream in(filePath.toUtf8().constData());
 
-	if (!in)
+	try
 	{
-		throw Exception(boost::format(_("Unable to open downloaded file \"%1%\"")) % filePath.constData());
+		if (!in)
+		{
+			throw Exception(boost::format(_("Unable to open downloaded file \"%1%\"")) % filePath.constData());
+		}
+
+		/*
+		* Make rows and columns accessable over their first column/row values.
+		*/
+		this->clear();
+
+		if (this->textSource() != 0)
+		{
+			delete this->textSource();
+			m_textSource = 0;
+		}
+
+		const QString suffix = QFileInfo(this->url().fileName()).suffix().toLower();
+
+		if (suffix == "slk")
+		{
+			this->m_textSource = new SlkTextSource();
+		}
+		else if (suffix == "txt")
+		{
+			this->m_textSource = new TxtTextSource();
+		}
+		else if (suffix == "wts")
+		{
+			this->m_textSource = new MapStringsTextSource();
+		}
+		else
+		{
+			throw Exception(boost::format(_("Unknown file type of file \"%1%\"")) % filePath.constData());
+		}
+
+		this->m_textSource->read(in);
+	}
+	catch (const std::exception &e)
+	{
+		// the downloaded file is not required anymore after it has been read into memory
+		this->source()->removeTempFile(filePath);
+
+		throw e;
 	}
 
-	/*
-	 * Make rows and columns accessable over their first column/row values.
-	 */
-	this->clear();
-
-	if (this->textSource() != 0)
-	{
-		delete this->textSource();
-		m_textSource = 0;
-	}
-
-	QString suffix = QFileInfo(this->url().fileName()).suffix().toLower();
-
-	if (suffix == "slk")
-	{
-		this->m_textSource = new SlkTextSource();
-	}
-	else if (suffix == "txt")
-	{
-		this->m_textSource = new TxtTextSource();
-	}
-	else if (suffix == "wts")
-	{
-		this->m_textSource = new MapStringsTextSource();
-	}
-	else
-	{
-		throw Exception(boost::format(_("Unknown file type of file \"%1%\"")) % filePath.constData());
-	}
-
-	this->m_textSource->read(in);
+	this->source()->removeTempFile(filePath);
 }
 
 void MetaData::save(const KUrl &url) const

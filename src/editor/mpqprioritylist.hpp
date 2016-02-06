@@ -298,6 +298,12 @@ class KDE_EXPORT MpqPriorityList
 		virtual bool download(const KUrl &src, QString &target, QWidget *window) const;
 		virtual bool upload(const QString &src, const KUrl &target, QWidget *window) const;
 		virtual bool mkdir(const KUrl &target, QWidget *window) const;
+
+		/**
+		 * Removes temporary file with file path \p name which has been downloaded previously with \ref download.
+		 * \return Returns true if it is a temporary file and is removed. Otherwise it returns false.
+		 */
+		virtual void removeTempFile(const QString &name);
 		/**
 		 * \param url The URL which is checked for existence.
 		 * \param window GUI window which is used for any feedback.

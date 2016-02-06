@@ -117,6 +117,7 @@ if (DOC)
 			set(INTERNAL_DOXYGEN_SEARCH NO)
 		endif ()
 
+		string(TIMESTAMP TODAY "%Y-%m-%d" UTC)
 		configure_file(doxygen.conf ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 
 		add_custom_target(api ALL
