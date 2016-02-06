@@ -5,6 +5,10 @@ add_executable(customobjectstest customobjects.cpp)
 target_link_libraries(customobjectstest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
 add_test(NAME CustomObjectsTest COMMAND customobjectstest)
 
+add_executable(customobjectstesttpof customobjectstpof.cpp)
+target_link_libraries(customobjectstesttpof wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
+add_test(NAME CustomObjectsTestTPoF COMMAND customobjectstesttpof)
+
 add_executable(txttest txt.cpp)
 target_link_libraries(txttest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
 add_test(NAME TxtTest COMMAND txttest)
@@ -55,6 +59,7 @@ add_test(NAME WarChasersTest COMMAND warchaserstest)
 endif ()
 
 configure_file(customobjects.w3o customobjects.w3o COPYONLY) # The Frozen Throne
+configure_file(customobjectstpof.w3o customobjectstpof.w3o COPYONLY) # The Frozen Throne: The Power of Fire
 configure_file(TriggerData.txt TriggerData.txt COPYONLY) # Warcraft III
 configure_file(TriggerDataEx.txt TriggerDataEx.txt COPYONLY) # Warcraft III: The Frozen Throne
 configure_file(TriggerStrings.txt TriggerStrings.txt COPYONLY) # Warcraft III

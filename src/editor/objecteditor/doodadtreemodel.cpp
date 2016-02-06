@@ -59,7 +59,7 @@ ObjectTreeItem* DoodadTreeModel::createItem(MpqPriorityList *source, ObjectData 
 
 QModelIndex DoodadTreeModel::itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId)
 {
-	return objectsIndex(objectData, originalObjectId, customObjectId);
+	return categoryIndex(objectData, originalObjectId, customObjectId);
 }
 
 QModelIndex DoodadTreeModel::objectsIndex(ObjectData* objectData, const QString& originalObjectId, const QString &customObjectId)
@@ -72,6 +72,13 @@ QModelIndex DoodadTreeModel::objectsIndex(ObjectData* objectData, const QString&
 	return this->index(1, 0);
 }
 
+QModelIndex DoodadTreeModel::categoryIndex(ObjectData* objectData, const QString& originalObjectId, const QString& customObjectId)
+{
+	const QString category = objectData->fieldValue(originalObjectId, customObjectId, "dcat");
+
+	return this->index(m_categoryRows[category], 0, objectsIndex(objectData, originalObjectId, customObjectId));
+}
+
 void DoodadTreeModel::createObjects(WarcraftIIIShared *shared)
 {
 	QStringList names;
@@ -79,6 +86,39 @@ void DoodadTreeModel::createObjects(WarcraftIIIShared *shared)
 	names << shared->tr("WESTRING_DE_CUSTOMDOODS");
 
 	insertRowFolders(names, 0);
+
+	for (int i = 0; i < names.size(); ++i)
+	{
+		qDebug() << "Create Doodads categories with parent " << this->index(i, 0).isValid();
+		createCategories(shared, 0, this->index(i, 0));
+	}
+}
+
+void DoodadTreeModel::createCategories(WarcraftIIIShared* shared, int row, QModelIndex parent)
+{
+	QStringList names;
+
+	const TxtTextSource *worldEditData = dynamic_cast<const TxtTextSource*>(shared->worldEditData()->textSource());
+
+	if (worldEditData != nullptr)
+	{
+		const map::Txt::Section *section = worldEditData->section("DoodadCategories");
+
+		if (section != nullptr)
+		{
+			BOOST_FOREACH(map::Txt::Entries::const_reference entry, section->entries)
+			{
+				m_categoryRows.insert(entry.first.c_str(), names.size());
+				QString name = entry.second.c_str();
+				name = name.split(',').first();
+				names << shared->tr(name);
+			}
+		}
+	}
+
+	qDebug() << "Folders size " << names.size();
+
+	insertRowFolders(names, 0, parent);
 }
 
 }

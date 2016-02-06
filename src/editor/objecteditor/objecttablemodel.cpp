@@ -261,6 +261,11 @@ void ObjectTableModel::resetField(const QString &originalObjectId, const QString
 	emit dataChanged(index(m_itemsByField[fieldId], 0), index(m_itemsByField[fieldId], 0));
 }
 
+QString ObjectTableModel::fieldId(int row) const
+{
+	return this->m_itemsByRow[row];
+}
+
 int ObjectTableModel::row(const QString &fieldId) const
 {
 	return this->m_itemsByField[fieldId];

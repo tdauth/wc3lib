@@ -54,7 +54,6 @@ class KDE_EXPORT AbilityData : public ObjectData
 		virtual QString objectName(const QString &originalObjectId, const QString &customObjectId) const override;
 		virtual QIcon objectIcon(const QString& originalObjectId, const QString& customObjectId, QWidget* window) const override;
 
-		virtual void compress() override;
 		virtual void widgetize(const KUrl &url) override;
 
 		MetaData* abilityData() const;

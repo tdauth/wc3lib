@@ -112,7 +112,7 @@ QString DestructableData::objectName(const QString &originalObjectId, const QStr
 	{
 		const QString readableSuffix = this->fieldReadableValue(originalObjectId, customObjectId, "bsuf");
 
-		if (!readableSuffix.isEmpty())
+		if (!readableSuffix.isEmpty() && readableSuffix != "_")
 		{
 			const QString suffix = this->source()->sharedData()->tr(readableSuffix);
 
@@ -132,7 +132,7 @@ QString DestructableData::objectName(const QString &originalObjectId, const QStr
 
 QIcon DestructableData::objectIcon(const QString& originalObjectId, const QString& customObjectId, QWidget* window) const
 {
-	return QIcon();
+	return this->source()->sharedData()->worldEditDataIcon("InvalidIcon", "WorldEditArt", window);
 }
 
 void DestructableData::load(QWidget *widget)

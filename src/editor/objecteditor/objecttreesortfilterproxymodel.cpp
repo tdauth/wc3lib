@@ -18,9 +18,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_DESTRUCTABLETREEMODEL_HPP
-#define WC3LIB_EDITOR_DESTRUCTABLETREEMODEL_HPP
+#include <QDebug>
 
+#include "objecttreesortfilterproxymodel.hpp"
 #include "objecttreemodel.hpp"
 
 namespace wc3lib
@@ -29,32 +29,38 @@ namespace wc3lib
 namespace editor
 {
 
-class WarcraftIIIShared;
-
-class DestructableTreeModel : public ObjectTreeModel
+ObjectTreeSortFilterProxyModel::ObjectTreeSortFilterProxyModel(QObject* parent) : QSortFilterProxyModel(parent)
 {
-	public:
-		DestructableTreeModel(MpqPriorityList *source, QObject *parent = 0);
+}
 
-		virtual ObjectTreeItem* createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString& originalObjectId, const QString& customObjectId) override;
+bool ObjectTreeSortFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+{
+	QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
+	const bool matchesItem = sourceModel()->data(index).toString().contains(filterRegExp());
+	ObjectTreeModel *treeModel = dynamic_cast<ObjectTreeModel*>(sourceModel());
 
-	protected:
-		virtual QModelIndex itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId) override;
+	//qDebug() << "Match: " << filterRegExp().pattern() << " with data " << sourceModel()->data(index).toString();
 
-		QModelIndex objectsIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
-		QModelIndex categoryIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
+	// check recursively for folders
+	if (treeModel->item(index)->isFolder() && !matchesItem)
+	{
+		for (int row = 0; row < treeModel->item(index)->children().count(); ++row)
+		{
+			if (this->filterAcceptsRow(row, index))
+			{
+				return true;
+			}
+		}
+	}
 
-		void createObjects(WarcraftIIIShared *shared);
-		void createCategories(WarcraftIIIShared *shared, int row, QModelIndex parent);
+	return matchesItem;
+}
 
-		/**
-		 * Stores the corresponding row indices with their field values as key.
-		 */
-		QHash<QString, int> m_categoryRows;
-};
-
+bool ObjectTreeSortFilterProxyModel::lessThan(const QModelIndex& left, const QModelIndex& right) const
+{
+	return sourceModel()->data(left).toString() < sourceModel()->data(right).toString();
 }
 
 }
 
-#endif // WC3LIB_EDITOR_DESTRUCTABLETREEMODEL_HPP
+}

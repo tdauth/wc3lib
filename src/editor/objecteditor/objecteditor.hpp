@@ -148,6 +148,20 @@ class KDE_EXPORT ObjectEditor : public Module
 	Q_OBJECT
 
 	public:
+		/**
+		 * \brief All tab indices in correct order.
+		 */
+		enum Tab
+		{
+			Units,
+			Items,
+			Destructibles,
+			Doodads,
+			Abilities,
+			Weather,
+			GameplayConstants
+		};
+
 		ObjectEditor(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~ObjectEditor();
 

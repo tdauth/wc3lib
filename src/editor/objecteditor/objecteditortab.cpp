@@ -30,6 +30,7 @@
 #include "objecttablemodel.hpp"
 #include "objecttreeview.hpp"
 #include "objecttreemodel.hpp"
+#include "objecttreesortfilterproxymodel.hpp"
 #include "objectiddialog.hpp"
 #include "../metadata.hpp"
 #include "../mpqprioritylist.hpp"
@@ -72,7 +73,7 @@ void ObjectEditorTab::setupUi()
 
 	m_treeView = new ObjectTreeView(this);
 	m_treeModel = createTreeModel();
-	QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
+	ObjectTreeSortFilterProxyModel *proxyModel = new ObjectTreeSortFilterProxyModel(this);
 	proxyModel->setSourceModel(this->m_treeModel);
 	treeView()->setModel(proxyModel);
 
@@ -147,8 +148,11 @@ map::CustomObjects::Table ObjectEditorTab::selection() const
 	return table;
 }
 
-bool ObjectEditorTab::selectObject(const QString& originalObjectId, const QString& customObjectId)
+bool ObjectEditorTab::selectObject(const QString &originalObjectId, const QString &customObjectId)
 {
+	// store the selected field for later reselection
+	const QString oldFieldId = selectedField();
+
 	ObjectTreeItem *item = this->treeModel()->item(originalObjectId, customObjectId);
 
 	if (item != 0)
@@ -179,10 +183,51 @@ bool ObjectEditorTab::selectObject(const QString& originalObjectId, const QStrin
 			this->objectEditor()->resetObjectAction()->setEnabled(true);
 		}
 
+		// Select the old field if possible. Sometimes field IDs are not shown for all objects. In this case it cannot be selected but in all other cases it will stay selected.
+		this->selectField(oldFieldId);
+
 		return true;
 	}
 
 	return false;
+}
+
+bool ObjectEditorTab::selectField(const QString &fieldId)
+{
+	if (tableModel()->originalObjectId().isEmpty())
+	{
+		return false;
+	}
+
+	const int row = this->tableModel()->row(fieldId);
+
+	if (row != -1)
+	{
+		QItemSelectionModel *selection = tableView()->selectionModel();
+		const QModelIndex index = this->tableModel()->index(row, 0);
+
+		if (!selection->isSelected(index))
+		{
+			selection->select(index, QItemSelectionModel::Rows);
+			this->tableView()->setSelectionModel(selection);
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+QString ObjectEditorTab::selectedField() const
+{
+	QItemSelectionModel *selection = tableView()->selectionModel();
+
+	if (selection == nullptr)
+	{
+		return "";
+	}
+
+	return tableModel()->fieldId(selection->currentIndex().row());
 }
 
 bool ObjectEditorTab::modifyField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId)

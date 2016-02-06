@@ -41,7 +41,7 @@ class MetaData;
 class MpqPriorityList;
 
 /**
- * \brief Unifies all meta, default and custom data of objects such as units, items, abilities etc.
+ * \brief Unifies all meta, default and custom data of objects such as units, items, abilities etc. in one class and allows fast access by hashing.
  *
  * It provides a unified access for standard and custom object values.
  * You can use \ref fieldValue() to get the value of a field of an object.
@@ -101,11 +101,18 @@ class KDE_EXPORT ObjectData : public QObject
 		{
 			public:
 				ObjectId(const QString &originalObjectId, const QString &customObjectId);
+				/**
+				 * \return Returns the original object ID of the object ID.
+				 */
 				QString originalObjectId() const;
+				/**
+				 * \return Returns the custom object ID of the object ID.
+				 */
 				QString customObjectId() const;
 		};
 		/**
 		 * \brief Hash table which stores objects by using the object ID pair as hash.
+		 * This allows fast access to all modifications of objects using the object's ID.
 		 */
 		typedef QHash<ObjectId, Modifications> Objects;
 
@@ -377,8 +384,10 @@ class KDE_EXPORT ObjectData : public QObject
 		/**
 		 * Removes all unnecessary field modifications of fields which are not shown anyway.
 		 * By default this method does nothing but it can be reimplemented in any sub class.
+		 *
+		 * \return Returns the number of compressed modifications.
 		 */
-		virtual void compress();
+		virtual int compress();
 
 		/**
 		 * Widgetizing means that all possible object data is exported into SLK files which can only store abilities up to leve 4.

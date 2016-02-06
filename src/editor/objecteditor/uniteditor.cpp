@@ -100,9 +100,7 @@ void UnitEditor::onNewObject()
 
 			// select the newly created unit
 			// TODO doesn't work
-			ObjectTreeItem *objectTreeItem = this->treeModel()->item(this->unitSelectionDialog()->originalObjectId(), customObjectId);
-			const QModelIndex modelIndex = objectTreeItem->modelIndex(this->treeModel());
-			this->treeView()->selectionModel()->select(modelIndex, QItemSelectionModel::SelectCurrent);
+			this->selectObject(this->unitSelectionDialog()->originalObjectId(), customObjectId);
 		}
 	}
 }

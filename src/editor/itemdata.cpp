@@ -146,7 +146,7 @@ QIcon ItemData::objectIcon(const QString& originalObjectId, const QString& custo
 		return this->source()->sharedData()->icon(art, window);
 	}
 
-	return QIcon();
+	return this->source()->sharedData()->worldEditDataIcon("InvalidIcon", "WorldEditArt", window);
 }
 
 void ItemData::load(QWidget *widget)

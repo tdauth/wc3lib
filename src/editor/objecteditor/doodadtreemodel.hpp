@@ -42,8 +42,15 @@ class DoodadTreeModel : public ObjectTreeModel
 		virtual QModelIndex itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId) override;
 
 		QModelIndex objectsIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
+		QModelIndex categoryIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
 
 		void createObjects(WarcraftIIIShared *shared);
+		void createCategories(WarcraftIIIShared *shared, int row, QModelIndex parent);
+
+		/**
+		 * Stores the corresponding row indices with their field values as key.
+		 */
+		QHash<QString, int> m_categoryRows;
 };
 
 }

@@ -169,31 +169,31 @@ void ObjectEditor::importCustomObjectsCollection(const map::CustomObjectsCollect
 {
 	if (collection.hasUnits())
 	{
-		loadTabDataOnRequest(0);
+		loadTabDataOnRequest(Tab::Units);
 		this->unitEditor()->unitData()->importCustomObjects(*collection.units());
 	}
 
 	if (collection.hasItems())
 	{
-		loadTabDataOnRequest(1);
+		loadTabDataOnRequest(Tab::Items);
 		this->itemEditor()->itemData()->importCustomObjects(*collection.items());
 	}
 
 	if (collection.hasDestructibles())
 	{
-		loadTabDataOnRequest(1);
+		loadTabDataOnRequest(Tab::Destructibles);
 		this->destructableEditor()->destructableData()->importCustomObjects(*collection.destructibles());
 	}
 
 	if (collection.hasDoodads())
 	{
-		loadTabDataOnRequest(1);
+		loadTabDataOnRequest(Tab::Doodads);
 		this->doodadEditor()->doodadData()->importCustomObjects(*collection.doodads());
 	}
 
 	if (collection.hasAbilities())
 	{
-		loadTabDataOnRequest(2);
+		loadTabDataOnRequest(Tab::Abilities);
 		this->abilityEditor()->abilityData()->importCustomObjects(*collection.abilities());
 	}
 
@@ -364,9 +364,11 @@ void ObjectEditor::importAll()
 
 void ObjectEditor::compress()
 {
-	if (QMessageBox::question(this, tr("Compress all objects?"), tr("Are you sure you want to compress all objects of this tab? This might take while."), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+	if (QMessageBox::question(this, tr("Compress all objects?"), tr("Are you sure you want to compress all objects of this tab? This might take while. Besides you don't want to lose modifications which might be used later when objects are changed again. All modifications are reset which have the same values as the defaults as well, so make sure you loaded the correct defaults from your sources."), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
 	{
-		this->currentTab()->objectData()->compress();
+		const int counter = this->currentTab()->objectData()->compress();
+
+		QMessageBox::information(this, tr("Compression done"), tr("Compressed %1 modifications of objects.").arg(counter));
 	}
 }
 

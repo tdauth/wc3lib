@@ -63,9 +63,11 @@ class ObjectTreeItem
 		const QString& customObjectId() const;
 		int index();
 		int row();
+		void setParent(ObjectTreeItem *parent);
 		ObjectTreeItem* parent() const;
 		const QIcon& icon() const;
 		void appendChild(ObjectTreeItem *child);
+		void removeChild(ObjectTreeItem *child);
 		void setChildren(const Children &children);
 		Children& children();
 		const Children& children() const;
@@ -143,7 +145,7 @@ inline const QString& ObjectTreeItem::customObjectId() const
 
 inline int ObjectTreeItem::index()
 {
-	if (this->parent() == 0)
+	if (this->parent() == nullptr)
 	{
 		return -1;
 	}
@@ -154,6 +156,11 @@ inline int ObjectTreeItem::index()
 inline int ObjectTreeItem::row()
 {
 	return this->index();
+}
+
+inline void ObjectTreeItem::setParent(ObjectTreeItem* parent)
+{
+	this->m_parent = parent;
 }
 
 inline ObjectTreeItem* ObjectTreeItem::parent() const
@@ -169,6 +176,11 @@ inline const QIcon& ObjectTreeItem::icon() const
 inline void ObjectTreeItem::appendChild(ObjectTreeItem* child)
 {
 	this->m_children.append(child);
+}
+
+inline void ObjectTreeItem::removeChild(ObjectTreeItem* child)
+{
+	this->m_children.removeAll(child);
 }
 
 inline void ObjectTreeItem::setChildren(const ObjectTreeItem::Children &children)

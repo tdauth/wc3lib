@@ -400,7 +400,7 @@ void ObjectTreeModel::modifyField(const QString &originalObjectId, const QString
 	ObjectData *objectData = this->objectData();
 	ObjectTreeItem *item = this->item(originalObjectId, customObjectId);
 
-	if (item != 0)
+	if (item != nullptr)
 	{
 		QModelIndex topLeft;
 
@@ -436,8 +436,13 @@ void ObjectTreeModel::modifyField(const QString &originalObjectId, const QString
 		 */
 		if (oldParent != parent)
 		{
-			qDebug() << "Move the row!! from parent row " << oldParentIndex.row() << " with row there " << item->row() << " to new parent row " << parentIndex.row() << " with row there " << parent->children().size();
-			beginMoveRows(oldParentIndex, item->row(), item->row(), parentIndex, parent->children().size());
+			qDebug() << "Move the row!! from parent with row there " << bottomRight.row() << " to new parent with row there " << parent->children().size();
+
+			// TODO item->row() is wrong?!
+			beginMoveRows(oldParentIndex, bottomRight.row(), bottomRight.row(), parentIndex, parent->children().size());
+			oldParent->removeChild(item);
+			parent->appendChild(item);
+			item->setParent(parent);
 			endMoveRows();
 
 		}

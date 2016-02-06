@@ -18,6 +18,7 @@ set(wc3lib_OBJECTEDITOR_H
 	objecttreeview.hpp
 	objecttreeitem.hpp
 	objecttreemodel.hpp
+	objecttreesortfilterproxymodel.hpp
 	objectlistdialog.hpp
 	uniteditor.hpp
 	unitselectiondialog.hpp
@@ -45,6 +46,7 @@ set(wc3lib_OBJECTEDITOR_SRC
 	objecttreeview.cpp
 	objecttreeitem.cpp
 	objecttreemodel.cpp
+	objecttreesortfilterproxymodel.cpp
 	objectlistdialog.cpp
 	uniteditor.cpp
 	unitselectiondialog.cpp

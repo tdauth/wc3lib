@@ -106,7 +106,7 @@ QModelIndex AbilityTreeModel::raceIndex(ObjectData *objectData, const QString &o
 
 QModelIndex AbilityTreeModel::abilityTypeIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId)
 {
-	AbilityData *abilityData = boost::polymorphic_cast<AbilityData*>(objectData);
+	const AbilityData *abilityData = boost::polymorphic_cast<const AbilityData*>(objectData);
 
 	if (abilityData->objectIsItem(originalObjectId, customObjectId))
 	{

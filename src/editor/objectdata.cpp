@@ -224,11 +224,13 @@ bool ObjectData::hasDefaultFieldValue(const QString &objectId, const QString &fi
 	if (!metaDataList.isEmpty())
 	{
 		const QString field = this->metaData()->value(fieldId, "field");
+
 		/*
 		 * The section is used if no object ID is given (for example for Misc Data) and is the .txt file's section which contains the field value.
 		 */
 		const QString section = this->metaData()->value(fieldId, "section");
 		const QString rowKey = section.isEmpty() ? objectId : section;
+
 		bool hasValue = false;
 		QString value;
 
@@ -271,7 +273,7 @@ bool ObjectData::hasDefaultFieldValue(const QString &objectId, const QString &fi
 
 QString ObjectData::defaultFieldValue(const QString &objectId, const QString &fieldId) const
 {
-	MetaDataList metaDataList = this->resolveDefaultField(objectId, fieldId);
+	const MetaDataList metaDataList = this->resolveDefaultField(objectId, fieldId);
 
 	if (!metaDataList.isEmpty())
 	{
@@ -710,7 +712,6 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 			return "0";
 		}
 	}
-
 
 	if (fieldType == "int" || fieldType == "real" || fieldType == "unreal" || fieldType == "string" || fieldType == "char")
 	{
@@ -1201,8 +1202,50 @@ void ObjectData::applyMapStrings(map::W3m &w3m)
 	}
 }
 
-void ObjectData::compress()
+int ObjectData::compress()
 {
+	qDebug() << "Compressing ability data";
+	int counter = 0;
+
+	/*
+	 * Find all modified fields which are not necessarily used for the objects.
+	 * For example if you modify a hero only field and then make the object from a hero to a normal object the modification remains but is not visible anymore in the object editor.
+	 * NOTE This discards maybe still required modifications.
+	 */
+	for (Objects::iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
+	{
+		//qDebug() << "Before getting object key";
+		const ObjectId &id = iterator.key();
+
+		//qDebug() << "Object " << id;
+
+		// iterate through all fields which are for item fields only and delete their modifications
+		for (int i = 0; i < this->metaData()->rows(); ++i)
+		{
+			//qDebug() << "Before field";
+
+			const QString fieldId = this->metaData()->value(i, "ID");
+			//qDebug() << "Field: " << fieldId;
+
+			// TODO check if the modification has the same value as the default value
+			if (this->isFieldModified(id.originalObjectId(), id.customObjectId(), fieldId) && (this->hideField(id.originalObjectId(), id.customObjectId(), fieldId) || this->fieldValue(id.originalObjectId(), id.customObjectId(), fieldId) == this->defaultFieldValue(id.originalObjectId(), fieldId)))
+			{
+				qDebug() << "Field is modified";
+
+				this->resetField(id.originalObjectId(), id.customObjectId(), fieldId);
+				++counter;
+				qDebug() << "Compressing " << id.first << ":" << id.second << " field " << fieldId;
+			}
+
+			//qDebug() << "Field done";
+		}
+
+		//qDebug() << "Object done";
+	}
+
+	qDebug() << "Compression done with" << counter << "items";
+
+	return counter;
 }
 
 void ObjectData::widgetize(const KUrl &url)

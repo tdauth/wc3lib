@@ -59,6 +59,7 @@ class ObjectTableModel : public QAbstractItemModel
 		const QString& originalObjectId() const;
 		const QString& customObjectId() const;
 
+		QString fieldId(int row) const;
 		int row(const QString &fieldId) const;
 
 		void setShowRawData(bool show);

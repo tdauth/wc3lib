@@ -43,14 +43,24 @@ ObjectData::StandardObjecIds AbilityData::standardObjectIds() const
 	{
 		for (int row = 1; row < this->abilityData()->rows(); ++row)
 		{
-			result << this->abilityData()->value(row, "alias");
+			const QString alias = this->abilityData()->value(row, "alias");
+
+			// skip empty rows
+			if (!alias.isEmpty())
+			{
+				result << alias;
+			}
+			else
+			{
+				qDebug() << "Empty ability row " << row;
+			}
 		}
 	}
 
 	return result;
 }
 
-ObjectData::MetaDataList AbilityData::resolveDefaultField(const QString& objectId, const QString& fieldId) const
+ObjectData::MetaDataList AbilityData::resolveDefaultField(const QString &objectId, const QString &fieldId) const
 {
 	MetaDataList result;
 
@@ -216,7 +226,7 @@ bool AbilityData::hideField(const QString &originalObjectId, const QString &cust
 		}
 	}
 
-	return (!isHero || !useHero) && (!isUnit || !useUnit) && (!isItem || !useItem);
+	return !((useHero && isHero) || (useUnit && isUnit) || (useItem && isItem));
 }
 
 QString AbilityData::objectName(const QString &originalObjectId, const QString &customObjectId) const
@@ -240,7 +250,7 @@ QString AbilityData::objectName(const QString &originalObjectId, const QString &
 	return name;
 }
 
-QIcon AbilityData::objectIcon(const QString& originalObjectId, const QString& customObjectId, QWidget* window) const
+QIcon AbilityData::objectIcon(const QString &originalObjectId, const QString &customObjectId, QWidget *window) const
 {
 	const QString art = this->fieldValue(originalObjectId, customObjectId, "aart");
 
@@ -249,38 +259,7 @@ QIcon AbilityData::objectIcon(const QString& originalObjectId, const QString& cu
 		return this->source()->sharedData()->icon(art, window);
 	}
 
-	return QIcon();
-}
-
-void AbilityData::compress()
-{
-	qDebug() << "Compressing ability data";
-
-	/*
-	 * Find all modified fields which are not necessarily used for the objects.
-	 * For example if you modify a hero only field and then make the object from a hero to a normal object the modification remains but is not visible anymore in the object editor.
-	 * NOTE This discards maybe still required modifications.
-	 */
-	for (Objects::iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
-	{
-		const ObjectId id = iterator.key();
-		const bool isHero = this->objectIsHero(id.first, id.second);
-		const bool isItem = this->objectIsItem(id.first, id.second);
-		const bool isUnit = this->objectIsUnit(id.first, id.second);
-
-		// iterate through all fields which are for item fields only and delete their modifications
-		for (int i = 0; i < this->metaData()->rows(); ++i)
-		{
-			if (this->isFieldModified(id.first, id.second, this->metaData()->value(i, "ID"))
-				&& (isHero && this->metaData()->value(i, "useHero") != "1")
-				&& (isItem && this->metaData()->value(i, "useItem") != "1")
-				&& (isUnit && this->metaData()->value(i, "useUnit") != "1")
-			) {
-				this->resetField(id.first, id.second, this->metaData()->value(i, "ID"));
-				qDebug() << "Compressing " << id.first << ":" << id.second << " field " << this->metaData()->value(i, "ID");
-			}
-		}
-	}
+	return this->source()->sharedData()->worldEditDataIcon("InvalidIcon", "WorldEditArt", window);
 }
 
 void AbilityData::widgetize(const KUrl &url)
@@ -413,17 +392,17 @@ MetaData* AbilityData::objectTabData() const
 	return this->source()->sharedData()->sharedObjectData()->unitEditorData().get();
 }
 
-bool AbilityData::objectIsHero(const QString& originalObjectId, const QString& customObjectId) const
+bool AbilityData::objectIsHero(const QString &originalObjectId, const QString &customObjectId) const
 {
 	return fieldValue(originalObjectId, customObjectId, "aher") == "1";
 }
 
-bool AbilityData::objectIsUnit(const QString& originalObjectId, const QString& customObjectId) const
+bool AbilityData::objectIsUnit(const QString &originalObjectId, const QString &customObjectId) const
 {
 	return !objectIsHero(originalObjectId, customObjectId) && !objectIsItem(originalObjectId, customObjectId);
 }
 
-bool AbilityData::objectIsItem(const QString& originalObjectId, const QString& customObjectId) const
+bool AbilityData::objectIsItem(const QString &originalObjectId, const QString &customObjectId) const
 {
 	return fieldValue(originalObjectId, customObjectId, "aite") == "1";
 }
