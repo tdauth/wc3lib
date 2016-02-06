@@ -442,6 +442,15 @@ namespace traits
 	};
 
 	template <typename Out>
+	struct print_attribute_debug<Out, wc3lib::mdlx::Light>
+	{
+		static void call(Out& out, wc3lib::mdlx::Light const& /* val */)
+		{
+			out << "light";
+		}
+	};
+
+	template <typename Out>
 	struct print_attribute_debug<Out, wc3lib::mdlx::Alpha>
 	{
 		static void call(Out& out, wc3lib::mdlx::Alpha const& /* val */)

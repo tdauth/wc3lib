@@ -62,24 +62,45 @@ BOOST_AUTO_TEST_CASE(GeosetAnim)
 	/*
 	 * first animation uses no interpolation which means that the directly bounding value is returned.
 	 */
-	const GeosetAnimation &animation = result.geosetAnimations().front();
+	const GeosetAnimation &animation0 = result.geosetAnimations().front();
 
-	BOOST_REQUIRE(animation.alphas().properties().size() == 3);
-	BOOST_REQUIRE(animation.alphas().lineType() == LineType::DontInterpolate);
-	BOOST_REQUIRE(animation.alphas().properties()[0].frame() == 0);
-	BOOST_CHECK_CLOSE(animation.alphas().properties()[0].values()[0], 0.0, 0.0001);
-	BOOST_REQUIRE(animation.alphas().properties()[1].frame() == 100);
-	BOOST_CHECK_CLOSE(animation.alphas().properties()[1].values()[0], 1.0, 0.0001);
-	BOOST_REQUIRE(animation.alphas().properties()[2].frame() == 200);
-	BOOST_CHECK_CLOSE(animation.alphas().properties()[2].values()[0], 2.0, 0.0001);
+	BOOST_REQUIRE(animation0.alphas().properties().size() == 3);
+	BOOST_REQUIRE(animation0.alphas().lineType() == LineType::DontInterpolate);
+	BOOST_REQUIRE(animation0.alphas().properties()[0].frame() == 0);
+	BOOST_CHECK_CLOSE(animation0.alphas().properties()[0].values()[0], 0.0, 0.0001);
+	BOOST_REQUIRE(animation0.alphas().properties()[1].frame() == 100);
+	BOOST_CHECK_CLOSE(animation0.alphas().properties()[1].values()[0], 1.0, 0.0001);
+	BOOST_REQUIRE(animation0.alphas().properties()[2].frame() == 200);
+	BOOST_CHECK_CLOSE(animation0.alphas().properties()[2].values()[0], 2.0, 0.0001);
 
-
-	// TODO check values
 	Interpolator<1, float32> interpolator;
-	interpolator.setAnimatedProperties(&animation.alphas());
+	interpolator.setAnimatedProperties(&animation0.alphas());
 
-	BOOST_REQUIRE(interpolator.animatedProperties() == &animation.alphas());
+	BOOST_REQUIRE(interpolator.animatedProperties() == &animation0.alphas());
 	BOOST_CHECK_CLOSE(interpolator.calculate(0)[0], 0.0, 0.0001);
+	BOOST_CHECK_CLOSE(interpolator.calculate(100)[0], 1.0, 0.0001);
+	BOOST_CHECK_CLOSE(interpolator.calculate(200)[0], 2.0, 0.0001);
+
+	/*
+	 * second animation uses linear interpolation
+	 */
+	const GeosetAnimation &animation1 = result.geosetAnimations()[1];
+
+	BOOST_REQUIRE(animation1.alphas().properties().size() == 3);
+	BOOST_REQUIRE(animation1.alphas().lineType() == LineType::Linear);
+	BOOST_REQUIRE(animation1.alphas().properties()[0].frame() == 0);
+	BOOST_CHECK_CLOSE(animation1.alphas().properties()[0].values()[0], 0.0, 0.0001);
+	BOOST_REQUIRE(animation1.alphas().properties()[1].frame() == 100);
+	BOOST_CHECK_CLOSE(animation1.alphas().properties()[1].values()[0], 1.0, 0.0001);
+	BOOST_REQUIRE(animation1.alphas().properties()[2].frame() == 200);
+	BOOST_CHECK_CLOSE(animation1.alphas().properties()[2].values()[0], 2.0, 0.0001);
+
+	interpolator.setAnimatedProperties(&animation1.alphas());
+
+	BOOST_REQUIRE(interpolator.animatedProperties() == &animation1.alphas());
+	BOOST_CHECK_CLOSE(interpolator.calculate(0)[0], 0.0, 0.0001);
+	std::cout << "Value: " << interpolator.calculate(50)[0] << std::endl;
+	BOOST_CHECK_CLOSE(interpolator.calculate(50)[0], 0.50, 0.0001); // interpolated
 	BOOST_CHECK_CLOSE(interpolator.calculate(100)[0], 1.0, 0.0001);
 	BOOST_CHECK_CLOSE(interpolator.calculate(200)[0], 2.0, 0.0001);
 }

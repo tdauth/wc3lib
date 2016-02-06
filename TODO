@@ -8,7 +8,7 @@
 * Object Editor: Values are split by ',' but tooltip strings etc. which containt <Alc,DataA1> are cut at ','. Only split if its not a string value?
 * Object Editor: Build up lists of icons, models and order strings etc.
 * Object Editor: Improve performance on loading objects into tree model. Performance is probably slow because of the slow download of icons from MPQ archives using the KDE IO slave. Maybe use a different approach.
-* Object Editor: Show default icon for objects which have no icon.
+* FIXED: Object Editor: Show default icon for objects which have no icon.
 * Object Editor: Doodad, Destructible, Buff, Research editors.
 * Object Editor: Advanced search dialog: search for raw data including various object types, objects without icons, objects with specific fields.
 * Ability Editor: Missing level values for abilities.

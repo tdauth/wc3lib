@@ -179,6 +179,12 @@ inline typename Interpolator<N, _ValueType>::Values Interpolator<N, _ValueType>:
 
 	if (boundaryValues(frame, bound1, bound2))
 	{
+		// Got the exact frame of a specified value. Prevent division by 0.
+		if (bound1.frame() == bound2.frame())
+		{
+			return bound1.values();
+		}
+
 		switch (animatedProperties()->lineType())
 		{
 			/*
@@ -193,7 +199,7 @@ inline typename Interpolator<N, _ValueType>::Values Interpolator<N, _ValueType>:
 			case LineType::Linear:
 			{
 				// http://de.wikipedia.org/wiki/Interpolation_%28Mathematik%29#Lineare_Interpolation
-				return bound1.values() * static_cast<_ValueType>((bound2.frame() - frame) / (bound2.frame() - bound1.frame())) + bound2.values() * static_cast<_ValueType>((frame - bound1.frame()) / (bound2.frame() - bound1.frame()));
+				return bound1.values() * static_cast<_ValueType>(static_cast<_ValueType>(bound2.frame() - frame) / static_cast<_ValueType>(bound2.frame() - bound1.frame())) + bound2.values() * static_cast<_ValueType>(static_cast<_ValueType>(frame - bound1.frame()) / static_cast<_ValueType>(bound2.frame() - bound1.frame()));
 			}
 
 			// TODO optimize formula
@@ -201,9 +207,6 @@ inline typename Interpolator<N, _ValueType>::Values Interpolator<N, _ValueType>:
 			{
 				// http://cubic.org/docs/hermite.htm
 				// says that 3Ds max uses Kochanek-Bartels Splines
-
-
-
 
 				// http://en.wikipedia.org/wiki/Cubic_Hermite_spline#Representations
 				const long32 t = (frame - bound1.frame()) / (bound2.frame() - bound1.frame());
@@ -217,8 +220,28 @@ inline typename Interpolator<N, _ValueType>::Values Interpolator<N, _ValueType>:
 				return h00 * bound1.values() + h10 * bound1.outTan() + h01 * bound2.values() + h11 * bound2.inTan();
 			}
 
+			// NOTE Code from War3ModelEditor source code
 			case LineType::Bezier:
 			{
+				_ValueType Factor = static_cast<_ValueType>(frame - bound1.frame()) / static_cast<_ValueType>(bound2.frame() - bound1.frame());
+				_ValueType InverseFactor = (1.0f - Factor);
+
+				_ValueType Factor1;
+				_ValueType Factor2;
+				_ValueType Factor3;
+				_ValueType Factor4;
+				_ValueType FactorTimesTwo;
+				_ValueType InverseFactorTimesTwo;
+
+				FactorTimesTwo = Factor * Factor;
+				InverseFactorTimesTwo = InverseFactor * InverseFactor;
+
+				Factor1 = InverseFactorTimesTwo * InverseFactor;
+				Factor2 = 3.0f * Factor * InverseFactorTimesTwo;
+				Factor3 = 3.0f * FactorTimesTwo * InverseFactor;
+				Factor4 = FactorTimesTwo * Factor;
+
+				return (Factor1 * bound1.values()) + (Factor2 * bound1.outTan()) + (Factor3 * bound2.inTan()) + (Factor4 * bound2.values());
 			}
 		}
 	}

@@ -449,7 +449,7 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 	amb_color %=
 		lit("static")
 		>> lit("AmbColor")
-		>> vertex_real_3d//[_val = _1]
+		>> vertex_real_3d
 		>> lit(',')
 	;
 
@@ -1007,11 +1007,11 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 	// Everything from BillboardLockZ to DontInherit { ... } is a flag.
 	// It may be that only one value may be in a DontInherit block at a time.
 	node_type %=
-		-lit("BillboardedLockZ")[_val = _val | Node::Type::BillboardedLockZ]
-		>> -lit("BillboardedLockY")[_val = _val | Node::Type::BillboardedLockY]
-		>> -lit("BillboardedLockX")[_val = _val | Node::Type::BillboardedLockX]
-		>> -lit("Billboarded")[_val = _val | Node::Type::Billboarded]
-		>> -lit("CameraAnchored")[_val = _val | Node::Type::CameraAnchored]
+		-(lit("BillboardedLockZ")[_val = _val | Node::Type::BillboardedLockZ] >> lit(','))
+		>> -(lit("BillboardedLockY")[_val = _val | Node::Type::BillboardedLockY] >> lit(','))
+		>> -(lit("BillboardedLockX")[_val = _val | Node::Type::BillboardedLockX] >> lit(','))
+		>> -(lit("Billboarded")[_val = _val | Node::Type::Billboarded] >> lit(','))
+		>> -(lit("CameraAnchored")[_val = _val | Node::Type::CameraAnchored] >> lit(','))
 		>> -(
 			lit("DontInherit")
 			>> lit('{')
@@ -1086,19 +1086,18 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 			amb_intensity[at_c<11>(_val) = _1]
 			| animated_amb_intensities[at_c<12>(_val) = _1]
 		)
-
-		/*>> -(
-			amb_color//[at_c<13>(_val) = _1]
-			| animated_amb_colors[at_c<14>(_val) = _1]
-		//)
-		*/
 		/*
-		>> -animated_visibilities[at_c<15>(_val) = _1]
-		>> -animated_translations[at_c<16>(_val) = _1]
-		>> -animated_rotations[at_c<17>(_val) = _1]
-		>> -animated_scalings[at_c<18>(_val) = _1]
-		>> lit('}')
+		 * TODO this particular block leads to syntax error
+		>> -(
+			amb_color[at_c<13>(_val) = _1]
+			| animated_amb_colors[at_c<14>(_val) = _1]
+		)
 		*/
+		//>> -animated_visibilities[at_c<15>(_val) = _1]
+		//>> -animated_translations[at_c<16>(_val) = _1]
+		//>> -animated_rotations[at_c<17>(_val) = _1]
+		//>> -animated_scalings[at_c<18>(_val) = _1]
+		>> lit('}')
 	;
 
 	mdl =
@@ -1115,19 +1114,8 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 		>> -texture_animations[at_c<6>(_val) = _1]
 		// Since the number is not always present just try it.
 		>> (*geoset(_c))[at_c<7>(_val) = _1]
-		/*
-		>> repeat(_a)[
-			geoset(_c) // pass the number of sequences
-		][at_c<7>(_val) = _1]
-		*/
 		// Since the number is not always present just try it.
 		>> (*geoset_animation)[at_c<8>(_val) = _1]
-		/*
-		>> repeat(_b)[
-			geoset_animation
-		][at_c<8>(_val) = _1]
-		*/
-
 		>> (*bone)[at_c<9>(_val) = _1]
 		//>> (*light)[at_c<10>(_val) = _1]
 	;
@@ -1206,6 +1194,7 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 	groups.name("groups");
 	geoset.name("geoset");
 	bone.name("bone");
+	light.name("light");
 
 	bounds.name("bounds");
 
@@ -1280,6 +1269,7 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 		(groups)
 		(geoset)
 		(bone)
+		(light)
 
 		(bounds)
 		(animated_1d_float_value)
@@ -1661,73 +1651,32 @@ BOOST_FUSION_ADAPT_ADT(
 	// object
 	(const wc3lib::mdlx::Alphas&, const wc3lib::mdlx::Alphas&, obj.visibilities(), obj.setVisibilties(val))
 )
-/*
-light =
-		lit("Light")
-		>> string_literal
-		>> lit('{')
-		>> -object_id[at_c<1>(_val) = _1] // ObjectId may be omitted if the object is the only one in the MDL.
-		>> -parent[at_c<2>(_val) = _1] // Parent only appears when its value is not 0xFFFFFFFF.
-		>> node_type[at_c<3>(_val) = _1]
-		>> light_type[at_c<4>(_val) = _1]
-		>> lit(',')
-		>> lit("static")
-		>> lit("AttenuationStart")
-		>> real_literal[at_c<5>(_val) = _1]
-		>> lit(',')
-		>> lit("static")
-		>> lit("AttenuationEnd")
-		>> real_literal[at_c<6>(_val) = _1]
-		>> lit(',')
-		>> -(
-			intensity[at_c<7>(_val) = _1]
-			| animated_intensities[at_c<8>(_val) = _1]
-		)
-		>> -(
-			color[at_c<9>(_val) = _1]
-			| animated_colors[at_c<10>(_val) = _1]
-		)
-		>> -(
-			amb_intensity[at_c<11>(_val) = _1]
-			| animated_amb_intensities[at_c<12>(_val) = _1]
-		)
-		>> -(
-			amb_color[at_c<13>(_val) = _1]
-			| animated_amb_colors[at_c<14>(_val) = _1]
-		)
-		>> -animated_visibilities[at_c<15>(_val) = _1]
-		>> -animated_translations[at_c<16>(_val) = _1]
-		>> -animated_rotations[at_c<17>(_val) = _1]
-		>> -animated_scalings[at_c<18>(_val) = _1]
-		>> lit('}')
-	;
-	*/
 
 BOOST_FUSION_ADAPT_ADT(
 	wc3lib::mdlx::Light,
 	// node
-	(const wc3lib::byte*, const wc3lib::string&, obj.name(), obj.setName(val))
-	(const wc3lib::mdlx::long32, const wc3lib::mdlx::long32, obj.objectId(), obj.setObjectId(val))
-	(const wc3lib::mdlx::long32, const wc3lib::mdlx::long32, obj.parentId(), obj.setParentId(val))
-	(wc3lib::mdlx::Node::Type, wc3lib::mdlx::Node::Type, obj.type(), obj.setType(val))
+	(const wc3lib::byte*, const wc3lib::string&, obj.name(), obj.setName(val)) // 0
+	(const wc3lib::mdlx::long32, const wc3lib::mdlx::long32, obj.objectId(), obj.setObjectId(val)) // 1
+	(const wc3lib::mdlx::long32, const wc3lib::mdlx::long32, obj.parentId(), obj.setParentId(val)) // 2
+	(wc3lib::mdlx::Node::Type, wc3lib::mdlx::Node::Type, obj.type(), obj.setType(val)) // 3
 	// light
-	(wc3lib::mdlx::Light::LightType, wc3lib::mdlx::Light::LightType, obj.lightType(), obj.setLightType(val))
-	(wc3lib::float32, wc3lib::float32, obj.attenuationStart(), obj.setAttenuationStart(val))
-	(wc3lib::float32, wc3lib::float32, obj.attenuationEnd(), obj.setAttenuationEnd(val))
-	(wc3lib::float32, wc3lib::float32, obj.intensity(), obj.setIntensity(val))
-	(const wc3lib::mdlx::Alphas&, const wc3lib::mdlx::Alphas&, obj.intensities(), obj.setIntensities(val))
-	(const wc3lib::mdlx::VertexData&, const wc3lib::mdlx::VertexData&, obj.color(), obj.setColor(val))
-	(const wc3lib::mdlx::Scalings&, const wc3lib::mdlx::Scalings&, obj.colors(), obj.setColors(val))
-	(wc3lib::float32, wc3lib::float32, obj.ambientIntensity(), obj.setAmbientIntensity(val))
-	(const wc3lib::mdlx::Alphas&, const wc3lib::mdlx::Alphas&, obj.ambientIntensities(), obj.setAmbientIntensities(val))
-	(const wc3lib::mdlx::VertexData&, const wc3lib::mdlx::VertexData&, obj.ambientColor(), obj.setAmbientColor(val))
-	(const wc3lib::mdlx::Scalings&, const wc3lib::mdlx::Scalings&, obj.ambientColors(), obj.setAmbientColors(val))
+	(wc3lib::mdlx::Light::LightType, wc3lib::mdlx::Light::LightType, obj.lightType(), obj.setLightType(val)) // 4
+	(wc3lib::float32, wc3lib::float32, obj.attenuationStart(), obj.setAttenuationStart(val)) // 5
+	(wc3lib::float32, wc3lib::float32, obj.attenuationEnd(), obj.setAttenuationEnd(val)) // 6
+	(wc3lib::float32, wc3lib::float32, obj.intensity(), obj.setIntensity(val)) // 7
+	(const wc3lib::mdlx::Alphas&, const wc3lib::mdlx::Alphas&, obj.intensities(), obj.setIntensities(val)) // 8
+	(const wc3lib::mdlx::VertexData&, const wc3lib::mdlx::VertexData&, obj.color(), obj.setColor(val)) // 9
+	(const wc3lib::mdlx::Scalings&, const wc3lib::mdlx::Scalings&, obj.colors(), obj.setColors(val)) // 10
+	(wc3lib::float32, wc3lib::float32, obj.ambientIntensity(), obj.setAmbientIntensity(val)) // 11
+	(const wc3lib::mdlx::Alphas&, const wc3lib::mdlx::Alphas&, obj.ambientIntensities(), obj.setAmbientIntensities(val)) // 12
+	(const wc3lib::mdlx::VertexData&, const wc3lib::mdlx::VertexData&, obj.ambientColor(), obj.setAmbientColor(val)) // 13
+	(const wc3lib::mdlx::Scalings&, const wc3lib::mdlx::Scalings&, obj.ambientColors(), obj.setAmbientColors(val)) // 14
 	// object
-	(const wc3lib::mdlx::Alphas&, const wc3lib::mdlx::Alphas&, obj.visibilities(), obj.setVisibilties(val))
+	(const wc3lib::mdlx::Alphas&, const wc3lib::mdlx::Alphas&, obj.visibilities(), obj.setVisibilties(val)) // 15
 	// node
-	(const wc3lib::mdlx::Translations&, const wc3lib::mdlx::Translations&, obj.translations(), obj.setTranslations(val))
-	(const wc3lib::mdlx::Rotations&, const wc3lib::mdlx::Rotations&, obj.rotations(), obj.setRotations(val))
-	(const wc3lib::mdlx::Scalings&, const wc3lib::mdlx::Scalings&, obj.scalings(), obj.setScalings(val))
+	(const wc3lib::mdlx::Translations&, const wc3lib::mdlx::Translations&, obj.translations(), obj.setTranslations(val)) // 16
+	(const wc3lib::mdlx::Rotations&, const wc3lib::mdlx::Rotations&, obj.rotations(), obj.setRotations(val)) // 17
+	(const wc3lib::mdlx::Scalings&, const wc3lib::mdlx::Scalings&, obj.scalings(), obj.setScalings(val)) // 18
 )
 
 #endif
