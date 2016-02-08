@@ -60,7 +60,7 @@ class ObjectTreeModel : public QAbstractItemModel
 		 */
 		typedef QHash<ObjectId, ObjectTreeItem*> Items;
 
-		ObjectTreeModel(MpqPriorityList *source, QObject *parent = 0);
+		ObjectTreeModel(MpqPriorityList *source, QWidget *window, QObject *parent = 0);
 		virtual ~ObjectTreeModel();
 
 		MpqPriorityList* source() const;
@@ -152,6 +152,7 @@ class ObjectTreeModel : public QAbstractItemModel
 
 	private:
 		MpqPriorityList *m_source;
+		QWidget *m_window;
 		ObjectData *m_objectData;
 		Items m_standardItems;
 		Items m_customItems;

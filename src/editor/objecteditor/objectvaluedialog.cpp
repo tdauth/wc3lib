@@ -172,7 +172,7 @@ int ObjectValueDialog::getValue(QString& result, const QString& fieldType, const
 			dialog->doubleSpinBox()->setValue(fieldValue.toDouble());
 			dialog->doubleSpinBox()->selectAll();
 		}
-		else if (fieldType == "string" || fieldType == "char" || fieldType == "model" || fieldType == "icon")
+		else if (fieldType == "string" || fieldType == "char" || fieldType == "model" || fieldType == "icon" || fieldType == "texture" || fieldType == "pathingTexture" || fieldType == "shadowTexture")
 		{
 			titleArg = objectData->source()->sharedData()->tr("WESTRING_UE_TYPE_STRING");
 
@@ -197,7 +197,7 @@ int ObjectValueDialog::getValue(QString& result, const QString& fieldType, const
 				dialog->m_maximum = 1;
 			}
 
-			if (fieldType == "icon")
+			if (fieldType == "icon" || fieldType == "texture" || fieldType == "pathingTexture" || fieldType == "shadowTexture")
 			{
 				dialog->m_isImage = true;
 				dialog->m_imageFilePreview->setVisible(true);
@@ -284,6 +284,10 @@ int ObjectValueDialog::getValue(QString& result, const QString& fieldType, const
 						value = dialog->lineEdit()->text();
 					}
 				}
+				else if (fieldType == "model" || fieldType == "icon" || fieldType == "texture" || fieldType == "pathingTexture" || fieldType == "shadowTexture")
+				{
+					value = dialog->lineEdit()->text();
+				}
 				else if (fieldType == "bool")
 				{
 					value = QString::number(dialog->checkBox()->isChecked());
@@ -365,13 +369,16 @@ void ObjectValueDialog::limitTextInLineEdit(const QString& text)
 void ObjectValueDialog::showPreviewImage(const QString &filePath)
 {
 	qDebug() << "Show preview with " << filePath;
+	const KUrl url = KUrl(MetaData::fromFilePath(filePath));
+	qDebug() << "Preview URL " << url.toLocalFile();
+	qDebug() << "Preview is image " << m_isImage;
 
-	if (m_isImage && this->m_source->exists(KUrl(filePath), this))
+	if (m_isImage && this->m_source->exists(url, this))
 	{
-		qDebug() << "Exists and is image";
+		qDebug() << "Preview exists and is image";
 		QString target;
 
-		if (this->m_source->download(KUrl(filePath), target, this))
+		if (this->m_source->download(url, target, this))
 		{
 			this->m_imageFilePreview->setPixmap(QPixmap(target));
 			this->m_source->removeTempFile(target);

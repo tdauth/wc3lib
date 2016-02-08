@@ -34,7 +34,7 @@ class WarcraftIIIShared;
 class DestructableTreeModel : public ObjectTreeModel
 {
 	public:
-		DestructableTreeModel(MpqPriorityList *source, QObject *parent = 0);
+		DestructableTreeModel(MpqPriorityList *source, QWidget *window, QObject *parent = 0);
 
 		virtual ObjectTreeItem* createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString& originalObjectId, const QString& customObjectId) override;
 

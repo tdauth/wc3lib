@@ -32,10 +32,12 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectTreeItem::ObjectTreeItem(ObjectData *objectData, const QString &text, ObjectTreeItem *parent)
+ObjectTreeItem::ObjectTreeItem(ObjectData *objectData, QWidget *window, const QString &text, ObjectTreeItem *parent)
 : m_objectData(objectData)
+, m_window(window)
 , m_text(text)
 , m_parent(parent)
+, m_expanded(false)
 {
 	if (parent == 0)
 	{
@@ -43,11 +45,13 @@ ObjectTreeItem::ObjectTreeItem(ObjectData *objectData, const QString &text, Obje
 	}
 }
 
-ObjectTreeItem::ObjectTreeItem(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId, ObjectTreeItem *parent)
+ObjectTreeItem::ObjectTreeItem(ObjectData *objectData, QWidget *window, const QString &originalObjectId, const QString &customObjectId, ObjectTreeItem *parent)
 : m_objectData(objectData)
+, m_window(window)
 , m_originalObjectId(originalObjectId)
 , m_customObjectId(customObjectId)
 , m_parent(parent)
+, m_expanded(false)
 {
 	if (parent == 0)
 	{
@@ -129,7 +133,7 @@ QString ObjectTreeItem::text(bool showRawData) const
 		return QObject::tr("%1 (%2)").arg(this->m_text).arg(countObjects());
 	}
 
-	QString name = this->objectData()->objectName(originalObjectId(), customObjectId());
+	const QString name = this->objectData()->objectName(originalObjectId(), customObjectId());
 
 	if (!showRawData)
 	{
@@ -144,14 +148,15 @@ QString ObjectTreeItem::text(bool showRawData) const
 	return QObject::tr("%1 (%2)").arg(originalObjectId()).arg(name);
 }
 
-void ObjectTreeItem::setExpanded(MpqPriorityList *source, QWidget *window)
+QIcon ObjectTreeItem::icon() const
 {
-	this->m_icon = source->sharedData()->worldEditDataIcon("UEIcon_UnitCategory", "WorldEditArt", window);
-}
+	if (isFolder())
+	{
+		// TODO check if it is collapsed this->expanded()
+		return this->objectData()->source()->sharedData()->worldEditDataIcon("UEIcon_UnitCategory", "WorldEditArt", m_window);
+	}
 
-void ObjectTreeItem::setCollapsed(MpqPriorityList *source, QWidget *window)
-{
-	this->m_icon = source->sharedData()->worldEditDataIcon("UEIcon_UnitCategory", "WorldEditArt", window);
+	return this->objectData()->objectIcon(originalObjectId(), customObjectId(), m_window);
 }
 
 QModelIndex ObjectTreeItem::modelIndex(ObjectTreeModel *model)

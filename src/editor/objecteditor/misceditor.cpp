@@ -38,7 +38,7 @@ MiscEditor::~MiscEditor()
 
 ObjectTreeModel* MiscEditor::createTreeModel()
 {
-	return new MiscTreeModel(this->source(), this);
+	return new MiscTreeModel(this->source(), this, this);
 }
 
 void MiscEditor::onSwitchToMap(Map *map)

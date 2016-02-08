@@ -49,7 +49,7 @@ UnitEditor::~UnitEditor()
 
 ObjectTreeModel* UnitEditor::createTreeModel()
 {
-	return new UnitTreeModel(this->source(), this);
+	return new UnitTreeModel(this->source(), this, this);
 }
 
 void UnitEditor::onSwitchToMap(Map *map)

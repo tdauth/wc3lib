@@ -34,7 +34,7 @@ class WarcraftIIIShared;
 class DoodadTreeModel : public ObjectTreeModel
 {
 	public:
-		DoodadTreeModel(MpqPriorityList *source, QObject *parent = 0);
+		DoodadTreeModel(MpqPriorityList *source, QWidget *window, QObject *parent = 0);
 
 		virtual ObjectTreeItem* createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString& originalObjectId, const QString& customObjectId) override;
 

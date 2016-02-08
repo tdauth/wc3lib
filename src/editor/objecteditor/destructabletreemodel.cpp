@@ -28,7 +28,7 @@ namespace wc3lib
 namespace editor
 {
 
-DestructableTreeModel::DestructableTreeModel(MpqPriorityList *source, QObject *parent) : ObjectTreeModel(source, parent)
+DestructableTreeModel::DestructableTreeModel(MpqPriorityList *source, QWidget *window, QObject *parent) : ObjectTreeModel(source, window, parent)
 {
 	createObjects(source->sharedData().get());
 }
@@ -42,7 +42,6 @@ ObjectTreeItem* DestructableTreeModel::createItem(MpqPriorityList *source, Objec
 	ObjectTreeItem *item = parent->children().last();
 	item->setObjectData(objectData);
 	item->setObjectId(originalObjectId, customObjectId);
-	item->setIcon(objectData->objectIcon(originalObjectId, customObjectId, window));
 
 	if (customObjectId.isEmpty())
 	{

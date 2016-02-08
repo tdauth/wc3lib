@@ -438,17 +438,47 @@ bool MpqPriorityList::exists(const KUrl& url, QWidget *window) const
 		// Since entries are ordered by priority highest priority entry should be checked first
 		BOOST_REVERSE_FOREACH(Sources::const_reference entry, sources())
 		{
-			// entry path can be a directory path or something like tar:/... or mpq:/...
-			KUrl absoluteSource = entry.url();
-			absoluteSource.addPath(url.toLocalFile());
-
-			if (KIO::NetAccess::exists(absoluteSource, KIO::NetAccess::SourceSide, window))
+			// this version does not rely on a KIO slave plugin which has to be installed. It uses an instance of the archive instead.
+			if (entry.mpqArchive() != nullptr && entry.mpqArchive()->isOpen())
 			{
-				qDebug() << "Found:" << absoluteSource << "and it should exist!";
+				/*
+				* The file path has to be transformed into a Windows path which works with the MPQ archive.
+				*/
+				const QString archiveSrc = url.toLocalFile().replace('/', '\\');
+				const std::string filePath = archiveSrc.toUtf8().constData();
+				qDebug() << "Downloading from local MPQ archive " << entry.url() << " file: " << filePath.c_str();
 
-				return true;
+				mpq::File file = entry.mpqArchive()->findFile(filePath, m_locale);
+
+				if (file.isValid())
+				{
+					return true;
+				}
+				else
+				{
+					qDebug() << "Did not find file " << filePath.c_str();
+				}
+			}
+			// this version simply uses KIO and all available plugins/slaves
+			else
+			{
+				// entry path can be a directory path or something like tar:/... or mpq:/...
+				KUrl absoluteSource = entry.url();
+				absoluteSource.addPath(url.toLocalFile());
+
+				if (KIO::NetAccess::exists(absoluteSource, KIO::NetAccess::SourceSide, window))
+				{
+					qDebug() << "Found:" << absoluteSource << "and it should exist!";
+
+					return true;
+				}
 			}
 		}
+	}
+	// in an absolute URL everything has to be specified (protocol, host etc.)
+	else
+	{
+		return KIO::NetAccess::exists(url, KIO::NetAccess::SourceSide, window);
 	}
 
 	return false;

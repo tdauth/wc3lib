@@ -233,16 +233,24 @@ void SourcesDialog::restoreDefaults()
 	m_editListBox->clear();
 
 	if (!war3Url().isEmpty())
+	{
 		m_editListBox->insertItem(war3Url().toEncoded());
+	}
 
 	if (!war3XUrl().isEmpty())
+	{
 		m_editListBox->insertItem(war3XUrl().toEncoded());
+	}
 
 	if (!war3XLocalUrl().isEmpty())
+	{
 		m_editListBox->insertItem(war3XLocalUrl().toEncoded());
+	}
 
 	if (!war3PatchUrl().isEmpty())
+	{
 		m_editListBox->insertItem(war3PatchUrl().toEncoded());
+	}
 }
 
 void SourcesDialog::showEvent(QShowEvent *e)

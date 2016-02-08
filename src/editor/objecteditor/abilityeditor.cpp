@@ -44,7 +44,7 @@ AbilityEditor::~AbilityEditor()
 
 ObjectTreeModel* AbilityEditor::createTreeModel()
 {
-	return new AbilityTreeModel(this->source(), this);
+	return new AbilityTreeModel(this->source(), this, this);
 }
 
 void AbilityEditor::onSwitchToMap(Map *map)

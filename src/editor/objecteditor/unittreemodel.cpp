@@ -32,8 +32,8 @@ namespace wc3lib
 namespace editor
 {
 
-UnitTreeModel::UnitTreeModel(MpqPriorityList *source, QObject *parent)
-: ObjectTreeModel(source, parent)
+UnitTreeModel::UnitTreeModel(MpqPriorityList *source, QWidget *window, QObject *parent)
+: ObjectTreeModel(source, window, parent)
 {
 	// custom and standard items
 	createObjects(source->sharedData().get());
@@ -48,9 +48,6 @@ ObjectTreeItem* UnitTreeModel::createItem(MpqPriorityList *source, ObjectData *o
 	ObjectTreeItem *item = parent->children().last();
 	item->setObjectData(objectData);
 	item->setObjectId(originalObjectId, customObjectId);
-
-	const QString art = objectData->fieldValue(originalObjectId, customObjectId, "uico");
-	item->setIcon(source->sharedData()->icon(art, window));
 
 	if (customObjectId.isEmpty())
 	{

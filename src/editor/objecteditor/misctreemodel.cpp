@@ -29,8 +29,8 @@ namespace wc3lib
 namespace editor
 {
 
-MiscTreeModel::MiscTreeModel(MpqPriorityList *source, QObject *parent)
-: ObjectTreeModel(source, parent)
+MiscTreeModel::MiscTreeModel(MpqPriorityList *source, QWidget *window, QObject *parent)
+: ObjectTreeModel(source, window, parent)
 {
 	// custom and standard items
 	QStringList names;

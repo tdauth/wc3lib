@@ -30,7 +30,7 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectTreeModel::ObjectTreeModel(MpqPriorityList *source, QObject *parent) : QAbstractItemModel(parent), m_source(source), m_objectData(0), m_showRawData(false)
+ObjectTreeModel::ObjectTreeModel(MpqPriorityList *source, QWidget *window, QObject *parent) : QAbstractItemModel(parent), m_source(source), m_window(window), m_objectData(0), m_showRawData(false)
 {
 }
 
@@ -195,7 +195,6 @@ void ObjectTreeModel::insertRowFolders(const QStringList& folderNames, int row, 
 	{
 		const QModelIndex index = this->index(row, 0, parent);
 		this->item(index)->setFolderText(name);
-		this->item(index)->setCollapsed(this->source(), 0);
 
 		++row;
 	}
@@ -216,7 +215,7 @@ bool ObjectTreeModel::insertRows(int row, int count, const QModelIndex &parent)
 
 	for (int i = row; i < last + 1; ++i)
 	{
-		ObjectTreeItem *item = new ObjectTreeItem(0, "", "", parentItem);
+		ObjectTreeItem *item = new ObjectTreeItem(0, m_window, "", "", parentItem);
 
 		if (parentItem != 0)
 		{
@@ -286,7 +285,7 @@ ObjectTreeItem* ObjectTreeModel::item(const QModelIndex &index) const
 	return static_cast<ObjectTreeItem*>(index.internalPointer());
 }
 
-void ObjectTreeModel::load(MpqPriorityList* source, ObjectData *objectData, QWidget *window)
+void ObjectTreeModel::load(MpqPriorityList *source, ObjectData *objectData, QWidget *window)
 {
 	const ObjectData::StandardObjecIds ids = objectData->standardObjectIds();
 

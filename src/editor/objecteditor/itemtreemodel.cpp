@@ -28,7 +28,7 @@ namespace wc3lib
 namespace editor
 {
 
-ItemTreeModel::ItemTreeModel(MpqPriorityList *source, QObject *parent) : ObjectTreeModel(source, parent)
+ItemTreeModel::ItemTreeModel(MpqPriorityList *source, QWidget *window, QObject *parent) : ObjectTreeModel(source, window, parent)
 {
 	QStringList names;
 	names << source->sharedData()->tr("WESTRING_IE_STANDARDITEMS", "WorldEditStrings");
@@ -58,7 +58,6 @@ ObjectTreeItem* ItemTreeModel::createItem(MpqPriorityList *source, ObjectData *o
 	ObjectTreeItem *item = parent->children().last();
 	item->setObjectData(objectData);
 	item->setObjectId(originalObjectId, customObjectId);
-	item->setIcon(objectData->objectIcon(originalObjectId, customObjectId, window));
 
 	if (customObjectId.isEmpty())
 	{

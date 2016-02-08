@@ -540,11 +540,17 @@ void ObjectEditor::currentChanged(int index)
 	m_currentActions << t->createEditActions(editMenu());
 	t->createToolButtons(toolBar());
 	*/
+
+	qDebug() << "Current changed to " << index;
+
 	removeCurrentActions();
 	m_currentTab = tab(index);
+	qDebug() << "Before adding actions";
 	addCurrentActions();
+	qDebug() << "After adding actions";
 	setWindowTitle(tab(index)->name());
 	m_rawDataAction->setChecked(this->currentTab()->treeModel()->showRawData());
+	qDebug() << "After raw data";
 
 	loadTabDataOnRequest(index);
 }

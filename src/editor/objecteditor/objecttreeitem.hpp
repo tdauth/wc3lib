@@ -47,12 +47,31 @@ class ObjectTreeItem
 	public:
 		typedef QList<ObjectTreeItem*> Children;
 
-		ObjectTreeItem(ObjectData *objectData, const QString &text, ObjectTreeItem *parent = 0);
-		ObjectTreeItem(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId, ObjectTreeItem *parent = 0);
+		/**
+		 * Creates a new object tree item for a folder.
+		 * \param window The window is required to load the item's icon using \ref WarcraftIIISharedData::icon().
+		 * \param text The folder's name.
+		 */
+		ObjectTreeItem(ObjectData *objectData, QWidget *window, const QString &text, ObjectTreeItem *parent = 0);
+		/**
+		 * Creates new object tree item for an object.
+		 * \param originalObjectId The original object ID of the object which the item represents.
+		 * \param customObjectId The custom object ID of the object which the item represents.
+		 */
+		ObjectTreeItem(ObjectData *objectData, QWidget *window, const QString &originalObjectId, const QString &customObjectId, ObjectTreeItem *parent = 0);
 		~ObjectTreeItem();
 
+		/**
+		 * Only folders have child items and no corresponding object ID.
+		 * \return Returns true if the item is a folder and therefore not an object. Otherwise it returns false.
+		 */
 		bool isFolder() const;
 
+		/**
+		 * Sets the text of a folder item.
+		 * This only affects folder items since object items get their text depending on the object's name and raw data.
+		 * \param text The new text of the folder.
+		 */
 		void setFolderText(const QString &text);
 		QString text(bool showRawData) const;
 
@@ -65,7 +84,12 @@ class ObjectTreeItem
 		int row();
 		void setParent(ObjectTreeItem *parent);
 		ObjectTreeItem* parent() const;
-		const QIcon& icon() const;
+		/**
+		 * If the item is folder, a folder icon will be returned. Depending on the result of \ref expanded() it might be a open folder icon.
+		 * If the item is an object it will be the icon defined by the corresponding object data for the object.
+		 * \return Returns the current icon of the item.
+		 */
+		QIcon icon() const;
 		void appendChild(ObjectTreeItem *child);
 		void removeChild(ObjectTreeItem *child);
 		void setChildren(const Children &children);
@@ -88,9 +112,15 @@ class ObjectTreeItem
 		 */
 		ObjectTreeItem* child(int row) const;
 
-		void setExpanded(MpqPriorityList *source, QWidget *window);
-		void setCollapsed(MpqPriorityList *source, QWidget *window);
-		void setIcon(const QIcon &icon);
+		/**
+		 * Indicates that the folder is expanded. This should change the folder's icon returned by \ref icon().
+		 * \param expanded If this value is true, the folder is expanded. Otherwise it is collapsed.
+		 */
+		void setExpanded(bool expanded);
+		/**
+		 * \return Returns if the folder is expanded. If it returns false the folder is collapsed.
+		 */
+		bool expanded() const;
 
 		QModelIndex modelIndex(ObjectTreeModel *model);
 
@@ -103,13 +133,13 @@ class ObjectTreeItem
 
 	private:
 		ObjectData *m_objectData;
+		QWidget *m_window;
 		QString m_text;
 		QString m_originalObjectId;
 		QString m_customObjectId;
 		ObjectTreeItem *m_parent;
-		QIcon m_icon;
 		Children m_children;
-
+		bool m_expanded;
 };
 
 inline void ObjectTreeItem::setFolderText(const QString& text)
@@ -168,11 +198,6 @@ inline ObjectTreeItem* ObjectTreeItem::parent() const
 	return this->m_parent;
 }
 
-inline const QIcon& ObjectTreeItem::icon() const
-{
-	return this->m_icon;
-}
-
 inline void ObjectTreeItem::appendChild(ObjectTreeItem* child)
 {
 	this->m_children.append(child);
@@ -208,9 +233,14 @@ inline ObjectTreeItem* ObjectTreeItem::child(int row) const
 	return this->m_children[row];
 }
 
-inline void ObjectTreeItem::setIcon(const QIcon& icon)
+inline void ObjectTreeItem::setExpanded(bool expanded)
 {
-	this->m_icon = icon;
+	this->m_expanded = expanded;
+}
+
+inline bool ObjectTreeItem::expanded() const
+{
+	return this->m_expanded;
 }
 
 }

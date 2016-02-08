@@ -47,7 +47,7 @@ ItemEditor::~ItemEditor()
 
 ObjectTreeModel* ItemEditor::createTreeModel()
 {
-	return new ItemTreeModel(this->source(), this);
+	return new ItemTreeModel(this->source(), this, this);
 }
 
 void ItemEditor::onSwitchToMap(Map *map)

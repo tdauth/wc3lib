@@ -32,7 +32,7 @@ namespace editor
 class WaterTreeModel : public ObjectTreeModel
 {
 	public:
-		WaterTreeModel(MpqPriorityList *source, QObject *parent = 0);
+		WaterTreeModel(MpqPriorityList *source, QWidget *window, QObject *parent = 0);
 
 		virtual ObjectTreeItem* createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString& originalObjectId, const QString& customObjectId) override;
 

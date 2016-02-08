@@ -34,7 +34,7 @@ class WarcraftIIIShared;
 class ItemTreeModel : public ObjectTreeModel
 {
 	public:
-		ItemTreeModel(MpqPriorityList *source, QObject *parent = 0);
+		ItemTreeModel(MpqPriorityList *source, QWidget *window, QObject *parent = 0);
 
 		virtual ObjectTreeItem* createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString& originalObjectId, const QString& customObjectId) override;
 

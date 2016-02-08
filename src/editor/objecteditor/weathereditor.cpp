@@ -52,7 +52,7 @@ void WeatherEditor::onNewObject()
 
 ObjectTreeModel* WeatherEditor::createTreeModel()
 {
-	return new WaterTreeModel(this->source(), this);
+	return new WaterTreeModel(this->source(), this, this);
 }
 
 WeatherData* WeatherEditor::weatherData() const

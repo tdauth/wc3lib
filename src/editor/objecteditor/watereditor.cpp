@@ -52,7 +52,7 @@ void WaterEditor::onNewObject()
 
 ObjectTreeModel* WaterEditor::createTreeModel()
 {
-	return new WaterTreeModel(this->source(), this);
+	return new WaterTreeModel(this->source(), this, this);
 }
 
 WaterData* WaterEditor::waterData() const

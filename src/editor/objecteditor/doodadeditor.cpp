@@ -44,7 +44,7 @@ DoodadEditor::~DoodadEditor()
 
 ObjectTreeModel* DoodadEditor::createTreeModel()
 {
-	return new DoodadTreeModel(this->source(), this);
+	return new DoodadTreeModel(this->source(), this, this);
 }
 
 void DoodadEditor::onSwitchToMap(Map *map)

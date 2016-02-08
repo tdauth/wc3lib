@@ -44,7 +44,7 @@ DestructableEditor::~DestructableEditor()
 
 ObjectTreeModel* DestructableEditor::createTreeModel()
 {
-	return new DestructableTreeModel(this->source(), this);
+	return new DestructableTreeModel(this->source(), this, this);
 }
 
 void DestructableEditor::onSwitchToMap(Map *map)
