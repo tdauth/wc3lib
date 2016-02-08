@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_WATERDATA_HPP
-#define WC3LIB_EDITOR_WATERDATA_HPP
+#ifndef WC3LIB_EDITOR_UPGRADEDATA_HPP
+#define WC3LIB_EDITOR_UPGRADEDATA_HPP
 
 #include "objectdata.hpp"
 
@@ -169,4 +169,4 @@ inline MetaData* UpgradeData::campaignUpgradeFunc() const
 
 }
 
-#endif // WC3LIB_EDITOR_WATERDATA_HPP
+#endif // WC3LIB_EDITOR_UPGRADEDATA_HPP

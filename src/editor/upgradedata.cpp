@@ -43,14 +43,14 @@ ObjectData::StandardObjecIds UpgradeData::standardObjectIds() const
 	{
 		for (int row = 1; row < this->upgradeData()->rows(); ++row)
 		{
-			result << this->upgradeData()->value(row, "ID");
+			result << this->upgradeData()->value(row, "upgradeid");
 		}
 	}
 
 	return result;
 }
 
-ObjectData::MetaDataList UpgradeData::resolveDefaultField(const QString& objectId, const QString& fieldId, int level) const
+ObjectData::MetaDataList UpgradeData::resolveDefaultField(const QString &objectId, const QString &fieldId, int level) const
 {
 	MetaDataList result;
 
@@ -107,7 +107,7 @@ ObjectData::MetaDataList UpgradeData::resolveDefaultField(const QString& objectI
 	return result;
 }
 
-bool UpgradeData::hideField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId, int level) const
+bool UpgradeData::hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level) const
 {
 	return false;
 }
@@ -222,14 +222,19 @@ QString UpgradeData::objectName(const QString &originalObjectId, const QString &
 	return this->source()->sharedData()->tr(result, "WorldEditStrings", result);
 }
 
-QIcon UpgradeData::objectIcon(const QString& originalObjectId, const QString& customObjectId, QWidget* window) const
+QIcon UpgradeData::objectIcon(const QString &originalObjectId, const QString &customObjectId, QWidget *window) const
 {
-	const QString art = this->fieldValue(originalObjectId, customObjectId, "gar1") + ".blp";
+	QString art = this->fieldValue(originalObjectId, customObjectId, "gar1");
+
+	if (!art.endsWith(".blp", Qt::CaseInsensitive))
+	{
+		art += ".blp";
+	}
 
 	return this->source()->sharedData()->icon(art, window);
 }
 
-int UpgradeData::objectLevels(const QString& originalObjectId, const QString& customObjectId) const
+int UpgradeData::objectLevels(const QString &originalObjectId, const QString &customObjectId) const
 {
 	bool ok = false;
 	const int result = this->fieldValue(originalObjectId, customObjectId, "glvl").toInt(&ok);

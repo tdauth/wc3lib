@@ -40,6 +40,9 @@ class MpqPriorityList;
 
 /**
  * \brief Stores and resolves object data of all different types such as units, abilities, items etc.
+ *
+ * The whole object data is stored all together since different object data accesses other object data.
+ * For example a unit can have abilities. Therefore it needs to access the ability data as well.
  */
 class KDE_EXPORT SharedObjectData
 {
