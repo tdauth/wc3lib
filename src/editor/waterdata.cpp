@@ -50,7 +50,7 @@ ObjectData::StandardObjecIds WaterData::standardObjectIds() const
 	return result;
 }
 
-ObjectData::MetaDataList WaterData::resolveDefaultField(const QString& objectId, const QString& fieldId) const
+ObjectData::MetaDataList WaterData::resolveDefaultField(const QString& objectId, const QString& fieldId, int level) const
 {
 	MetaDataList result;
 
@@ -70,7 +70,7 @@ ObjectData::MetaDataList WaterData::resolveDefaultField(const QString& objectId,
 	return result;
 }
 
-bool WaterData::hideField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId) const
+bool WaterData::hideField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId, int level) const
 {
 	return false;
 }
@@ -115,13 +115,7 @@ ObjectData::MetaDataList WaterData::metaDataList() const
 
 void WaterData::load(QWidget *widget)
 {
-#ifdef Q_OS_UNIX
-	const KUrl waterMetaDataUrl = KUrl::fromLocalFile("/usr/share/wc3lib/war3/TerrainArt/WaterMetaData.slk");
-#else
-#warning Weather editor might not work on this platform.
-	const KUrl waterMetaDataUrl = KUrl("TerrainArt/WaterMetaData.slk");
-#endif
-	this->m_waterMetaData.reset(new MetaData(KUrl(waterMetaDataUrl)));
+	this->m_waterMetaData.reset(new MetaData(KUrl("TerrainArt/WaterMetaData.slk")));
 	this->m_waterMetaData->setSource(this->source());
 	this->m_waterMetaData->load();
 	this->m_water.reset(new MetaData(KUrl("TerrainArt/Water.slk")));
@@ -146,6 +140,11 @@ QIcon WaterData::objectIcon(const QString& originalObjectId, const QString& cust
 	const QString art = this->fieldValue(originalObjectId, customObjectId, "texf") + ".blp";
 
 	return this->source()->sharedData()->icon(art, window);
+}
+
+int WaterData::objectLevels(const QString& originalObjectId, const QString& customObjectId) const
+{
+	return 1;
 }
 
 QString WaterData::nextCustomObjectId() const

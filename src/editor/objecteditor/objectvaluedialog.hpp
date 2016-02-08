@@ -41,6 +41,7 @@ namespace editor
 {
 
 class ObjectData;
+class MpqPriorityList;
 
 /**
  * \brief GUI dialog which allows selection of an field value for a specific object.
@@ -92,23 +93,33 @@ class ObjectValueDialog : public QDialog, protected Ui::ObjectValueDialog
 		 * \param originalObjectId The original ID of the object.
 		 * \param customObjectId The custom ID of the object.
 		 * \param fieldId The ID of the field which is modified by the dialog.
+		 * \param level The level of the field value which is modified by the dialog.
 		 * \param objectData The corresponding object data which contains all modifications and default values.
 		 * \param label The dialog's label.
 		 * \param parent The dialog's parent widget.
 		 *
 		 * \return Returns the dialog code QDialog::DialogCode.
 		 */
-		static int getValue(QString &result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, ObjectData *objectData, const QString &label, QWidget *parent = 0);
+		static int getValue(QString &result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level, ObjectData *objectData, const QString &label, QWidget *parent = 0);
 
 		static int getValue(QString &result, const QString &fieldType, const QString &fieldValue, const QString &fieldReadableValue, const QString &stringExt, const QString &maxValue, const QString &minValue, ObjectData *objectData, const QString &label, QWidget *parent = 0);
 
 	private:
 		CheckBoxes m_checkBoxes;
 		int m_maximum;
+		MpqPriorityList *m_source;
+		/**
+		 * Stores if the field type is an icon and therefore shows a preview image.
+		 */
+		bool m_isImage;
 
 	private slots:
 		void limitText();
 		void limitTextInLineEdit(const QString &text);
+		/**
+		 * This slot is called whenever the file path of an icon changes to update the preview icon.
+		 */
+		void showPreviewImage(const QString &filePath);
 };
 
 inline void ObjectValueDialog::setLabelText(const QString& text)

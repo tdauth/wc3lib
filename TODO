@@ -1,3 +1,6 @@
+2016-02-07 Tamino Dauth <tamino@cdauth.eu>
+* Port to KDE Frameworks 5 and Qt 5: https://community.kde.org/Frameworks/Porting_Notes#Build_System in a separate branch.
+
 2016-02-06 Tamino Dauth <tamino@cdauth.eu>
 * Many temporary file leaks when using MpqPriorityList::download() but not using KIO::NetAccess::removeTempFile().
 

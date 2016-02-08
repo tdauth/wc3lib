@@ -87,6 +87,7 @@ if (EDITOR)
 		teamcolordialog.hpp
 		texture.hpp
 		unitdata.hpp
+		upgradedata.hpp
 		viewportsettings.hpp
 		warcraftiiishared.hpp
 		waterdata.hpp
@@ -128,6 +129,7 @@ if (EDITOR)
 		teamcolordialog.cpp
 		texture.cpp
 		unitdata.cpp
+		upgradedata.cpp
 		viewportsettings.cpp
 		warcraftiiishared.cpp
 		waterdata.cpp

@@ -50,7 +50,7 @@ ObjectData::StandardObjecIds WeatherData::standardObjectIds() const
 	return result;
 }
 
-ObjectData::MetaDataList WeatherData::resolveDefaultField(const QString& objectId, const QString& fieldId) const
+ObjectData::MetaDataList WeatherData::resolveDefaultField(const QString& objectId, const QString& fieldId, int level) const
 {
 	MetaDataList result;
 
@@ -70,7 +70,7 @@ ObjectData::MetaDataList WeatherData::resolveDefaultField(const QString& objectI
 	return result;
 }
 
-bool WeatherData::hideField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId) const
+bool WeatherData::hideField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId, int level) const
 {
 	return false;
 }
@@ -115,13 +115,7 @@ ObjectData::MetaDataList WeatherData::metaDataList() const
 
 void WeatherData::load(QWidget *widget)
 {
-#ifdef Q_OS_UNIX
-	const KUrl weatherMetaDataUrl = KUrl::fromLocalFile("/usr/share/wc3lib/war3/TerrainArt/WeatherMetaData.slk");
-#else
-#warning Weather editor might not work on this platform.
-	const KUrl weatherMetaDataUrl = KUrl("TerrainArt/WeatherMetaData.slk");
-#endif
-	this->m_weatherMetaData.reset(new MetaData(KUrl(weatherMetaDataUrl)));
+	this->m_weatherMetaData.reset(new MetaData(KUrl("TerrainArt/WeatherMetaData.slk")));
 	this->m_weatherMetaData->setSource(this->source());
 	this->m_weatherMetaData->load();
 	this->m_weather.reset(new MetaData(KUrl("TerrainArt/Weather.slk")));
@@ -146,6 +140,11 @@ QIcon WeatherData::objectIcon(const QString& originalObjectId, const QString& cu
 	const QString art = this->fieldValue(originalObjectId, customObjectId, "texd") + "\\" + this->fieldValue(originalObjectId, customObjectId, "texf") + ".blp";
 
 	return this->source()->sharedData()->icon(art, window);
+}
+
+int WeatherData::objectLevels(const QString& originalObjectId, const QString& customObjectId) const
+{
+	return 1;
 }
 
 QString WeatherData::nextCustomObjectId() const

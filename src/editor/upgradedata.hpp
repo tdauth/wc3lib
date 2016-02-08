@@ -29,10 +29,10 @@ namespace wc3lib
 namespace editor
 {
 
-class KDE_EXPORT WaterData : public ObjectData
+class KDE_EXPORT UpgradeData : public ObjectData
 {
 	public:
-		WaterData(MpqPriorityList *source, QObject *parent = 0);
+		UpgradeData(MpqPriorityList *source, QObject *parent = 0);
 
 		virtual StandardObjecIds standardObjectIds() const override;
 		virtual MetaDataList resolveDefaultField(const QString& objectId, const QString& fieldId, int level = 0) const override;
@@ -58,26 +58,111 @@ class KDE_EXPORT WaterData : public ObjectData
 
 		virtual MetaData* metaData() const override;
 
-		MetaData* water() const;
+		MetaData* upgradeData() const;
+		MetaData* humanUpgradeStrings() const;
+		MetaData* humanUpgradeFunc() const;
+		MetaData* orcUpgradeStrings() const;
+		MetaData* orcUpgradeFunc() const;
+		MetaData* undeadUpgradeStrings() const;
+		MetaData* undeadUpgradeFunc() const;
+		MetaData* nightElfUpgradeStrings() const;
+		MetaData* nightElfUpgradeFunc() const;
+		MetaData* neutralUpgradeStrings() const;
+		MetaData* neutralUpgradeFunc() const;
+		MetaData* campaignUpgradeStrings() const;
+		MetaData* campaignUpgradeFunc() const;
 
 	private:
-		MetaDataPtr m_waterMetaData;
-		MetaDataPtr m_water;
+		MetaDataPtr m_upgradeMetaData;
+		MetaDataPtr m_upgradeData;
+
+		MetaDataPtr m_humanUpgradeStrings;
+		MetaDataPtr m_humanUpgradeFunc;
+		MetaDataPtr m_orcUpgradeStrings;
+		MetaDataPtr m_orcUpgradeFunc;
+		MetaDataPtr m_undeadUpgradeStrings;
+		MetaDataPtr m_undeadUpgradeFunc;
+		MetaDataPtr m_nightElfUpgradeStrings;
+		MetaDataPtr m_nightElfUpgradeFunc;
+		MetaDataPtr m_neutralUpgradeStrings;
+		MetaDataPtr m_neutralUpgradeFunc;
+		MetaDataPtr m_campaignUpgradeStrings;
+		MetaDataPtr m_campaignUpgradeFunc;
 };
 
-inline MetaData* WaterData::metaData() const
+inline MetaData* UpgradeData::metaData() const
 {
-	return this->m_waterMetaData.data();
+	return this->m_upgradeMetaData.data();
 }
 
-inline MetaData* WaterData::water() const
+inline MetaData* UpgradeData::upgradeData() const
 {
-	return this->m_water.data();
+	return this->m_upgradeData.data();
 }
 
-inline map::CustomObjects::Type WaterData::type() const
+inline map::CustomObjects::Type UpgradeData::type() const
 {
-	return map::CustomObjects::Type::Abilities;
+	return map::CustomObjects::Type::Upgrades;
+}
+
+inline MetaData* UpgradeData::humanUpgradeStrings() const
+{
+	return this->m_humanUpgradeStrings.data();
+}
+
+inline MetaData* UpgradeData::humanUpgradeFunc() const
+{
+	return this->m_humanUpgradeFunc.data();
+}
+
+inline MetaData* UpgradeData::orcUpgradeStrings() const
+{
+	return this->m_orcUpgradeStrings.data();
+}
+
+inline MetaData* UpgradeData::orcUpgradeFunc() const
+{
+	return this->m_orcUpgradeFunc.data();
+}
+
+inline MetaData* UpgradeData::undeadUpgradeStrings() const
+{
+	return this->m_undeadUpgradeStrings.data();
+}
+
+inline MetaData* UpgradeData::undeadUpgradeFunc() const
+{
+	return this->m_undeadUpgradeFunc.data();
+}
+
+inline MetaData* UpgradeData::nightElfUpgradeStrings() const
+{
+	return this->m_nightElfUpgradeStrings.data();
+}
+
+inline MetaData* UpgradeData::nightElfUpgradeFunc() const
+{
+	return this->m_nightElfUpgradeFunc.data();
+}
+
+inline MetaData* UpgradeData::neutralUpgradeStrings() const
+{
+	return this->m_neutralUpgradeStrings.data();
+}
+
+inline MetaData* UpgradeData::neutralUpgradeFunc() const
+{
+	return this->m_neutralUpgradeFunc.data();
+}
+
+inline MetaData* UpgradeData::campaignUpgradeStrings() const
+{
+	return this->m_campaignUpgradeStrings.data();
+}
+
+inline MetaData* UpgradeData::campaignUpgradeFunc() const
+{
+	return this->m_campaignUpgradeFunc.data();
 }
 
 }

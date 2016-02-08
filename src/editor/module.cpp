@@ -19,6 +19,10 @@
  ***************************************************************************/
 
 #include <QtGui>
+#include <KMessageBox>
+
+#include <KMessageBox>
+#include <KAboutApplicationDialog>
 
 #include "module.hpp"
 #include "modulemenu.hpp"
@@ -92,6 +96,7 @@ void Module::retranslateUi()
 	this->m_sourcesAction->setText(tr("Sources"));
 	this->m_editMenu->setTitle(source()->sharedData()->tr("WESTRING_MENU_EDIT"));
 	this->m_windowsMenu->retranslateUi();
+	this->m_helpMenu->setTitle(tr("Help"));
 }
 
 bool Module::hasEditor() const
@@ -145,6 +150,16 @@ void Module::showSourcesDialog()
 		m_sourcesDialog->update();
 		m_sourcesDialog->show();
 	}
+}
+
+void Module::aboutQt()
+{
+	QMessageBox::aboutQt(this);
+}
+
+void Module::aboutKde()
+{
+	KMessageBox::about(this, tr("About"));
 }
 
 void Module::setupUi()
@@ -215,6 +230,16 @@ void Module::setupUi()
 
 	// create user-defined actions in windows menu
 	this->createWindowsActions(windowsMenu());
+
+	this->m_helpMenu = new QMenu(this);
+	this->menuBar()->addMenu(this->m_helpMenu);
+
+	this->m_aboutQtAction = new QAction(tr("About Qt"), this);
+	connect(this->m_aboutQtAction, SIGNAL(triggered()), this, SLOT(aboutQt()));
+	this->m_helpMenu->addAction(this->m_aboutQtAction);
+	this->m_aboutKdeAction = new QAction(tr("About KDE"), this);
+	connect(this->m_aboutKdeAction, SIGNAL(triggered()), this, SLOT(aboutKde()));
+	this->m_helpMenu->addAction(this->m_aboutKdeAction);
 
 	// tool bar
 	this->m_toolBar = new ModuleToolBar(this);

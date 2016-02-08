@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>450</width>
-    <height>461</height>
+    <height>504</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -24,6 +24,13 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLabel" name="m_imageFilePreview">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QLabel" name="m_label">
          <property name="sizePolicy">

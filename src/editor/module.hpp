@@ -132,6 +132,8 @@ class KDE_EXPORT Module : public QWidget
 
 	public slots:
 		void showSourcesDialog();
+		void aboutQt();
+		void aboutKde();
 
 	protected:
 		/**
@@ -192,9 +194,13 @@ class KDE_EXPORT Module : public QWidget
 		ModuleMenu *m_moduleMenu;
 		QMenuBar *m_menuBar;
 		WindowsMenu *m_windowsMenu;
+		QMenu *m_helpMenu;
 		ModuleToolBar *m_toolBar;
 		QAction *m_closeAction;
 		QAction *m_sourcesAction;
+
+		QAction *m_aboutQtAction;
+		QAction *m_aboutKdeAction;
 
 		QVBoxLayout *m_topLayout;
 		QGridLayout *m_centerLayout;

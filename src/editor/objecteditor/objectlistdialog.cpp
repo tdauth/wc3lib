@@ -35,14 +35,15 @@ ObjectListDialog *ObjectListDialog::m_dialog = 0;
 
 void ObjectListDialog::addObject()
 {
-	const QString type = this->objectData()->metaData()->value(fieldId(), "type");
+	const QString fieldId = this->fieldId().fieldId();
+	const QString type = this->objectData()->metaData()->value(fieldId, "type");
 
 	if (objectData()->fieldTypeIsLiteralList(type))
 	{
 		const QString fieldType = this->objectData()->fieldLiteralTypeFromListType(type);
-		const QString stringExt = objectData()->metaData()->value(fieldId(), "stringExt");
-		const QString maxValue = objectData()->metaData()->hasValue(fieldId(), "maxValue") ? objectData()->metaData()->value(fieldId(), "maxValue") : "";
-		const QString minValue = objectData()->metaData()->hasValue(fieldId(), "minValue") ? objectData()->metaData()->value(fieldId(), "minValue") : "";
+		const QString stringExt = objectData()->metaData()->value(fieldId, "stringExt");
+		const QString maxValue = objectData()->metaData()->hasValue(fieldId, "maxValue") ? objectData()->metaData()->value(fieldId, "maxValue") : "";
+		const QString minValue = objectData()->metaData()->hasValue(fieldId, "minValue") ? objectData()->metaData()->value(fieldId, "minValue") : "";
 		const QString fieldValue = "";
 		const QString fieldReadableValue = "";
 		QString result;
@@ -65,14 +66,15 @@ void ObjectListDialog::editObject()
 
 	if (!selection.isEmpty())
 	{
-		const QString type = this->objectData()->metaData()->value(fieldId(), "type");
+		const QString fieldId = this->fieldId().fieldId();
+		const QString type = this->objectData()->metaData()->value(fieldId, "type");
 
 		if (objectData()->fieldTypeIsLiteralList(type))
 		{
 			const QString fieldType = this->objectData()->fieldLiteralTypeFromListType(type);
-			const QString stringExt = objectData()->metaData()->value(fieldId(), "stringExt");
-			const QString maxValue = objectData()->metaData()->hasValue(fieldId(), "maxValue") ? objectData()->metaData()->value(fieldId(), "maxValue") : "";
-			const QString minValue = objectData()->metaData()->hasValue(fieldId(), "minValue") ? objectData()->metaData()->value(fieldId(), "minValue") : "";
+			const QString stringExt = objectData()->metaData()->value(fieldId, "stringExt");
+			const QString maxValue = objectData()->metaData()->hasValue(fieldId, "maxValue") ? objectData()->metaData()->value(fieldId, "maxValue") : "";
+			const QString minValue = objectData()->metaData()->hasValue(fieldId, "minValue") ? objectData()->metaData()->value(fieldId, "minValue") : "";
 			const QString fieldValue = selection.first()->data(Qt::UserRole).toString();
 			const QString fieldReadableValue = selection.first()->text();
 			QString result;
@@ -154,7 +156,8 @@ void ObjectListDialog::load(const QStringList &objects)
 {
 	qDebug() << "Loading objects with size" << objects.size();
 	this->m_listWidget->clear();
-	const QString type = this->objectData()->metaData()->value(fieldId(), "type");
+	const QString fieldId = this->fieldId().fieldId();
+	const QString type = this->objectData()->metaData()->value(fieldId, "type");
 
 
 	if (this->objectData()->fieldTypeIsObjectList(type))
@@ -217,11 +220,10 @@ QStringList ObjectListDialog::objects() const
 	return result;
 }
 
-int ObjectListDialog::getObjectIds(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId, ObjectData *objectData, SharedObjectData *sharedObjectData, const QString& label, QWidget* parent, Qt::WindowFlags f)
+int ObjectListDialog::getObjectIds(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level, ObjectData *objectData, SharedObjectData *sharedObjectData, const QString& label, QWidget* parent, Qt::WindowFlags f)
 {
 	const QString type = objectData->metaData()->value(fieldId, "type");
 	const QString stringExt = objectData->metaData()->value(fieldId, "stringExt");
-	const QString fieldValue = objectData->fieldValue(originalObjectId, customObjectId, fieldId);
 	ObjectData *fieldTypeObjectData = objectData;
 
 	if (objectData->fieldTypeIsObjectList(type))
@@ -243,23 +245,23 @@ int ObjectListDialog::getObjectIds(const QString& originalObjectId, const QStrin
 		}
 	}
 
-	const QString objects = objectData->fieldValue(originalObjectId, customObjectId, fieldId);
+	const QString objects = objectData->fieldValue(originalObjectId, customObjectId, fieldId, level);
 	qDebug() << "Objects:" << objects;
 	/*
 	 * Empty objects should not generate one single empty object.
 	 */
 	QStringList objectList = objects.isEmpty() ? QStringList() : objects.split(',');
 
-	if (getObjectIds(objectList, originalObjectId, customObjectId, fieldId, objectData->source(), objectData, fieldTypeObjectData, label, parent, f) == QDialog::Accepted)
+	if (getObjectIds(objectList, originalObjectId, customObjectId, fieldId, level, objectData->source(), objectData, fieldTypeObjectData, label, parent, f) == QDialog::Accepted)
 	{
 		const QString value = objectList.join(",");
-		objectData->modifyField(originalObjectId, customObjectId, fieldId, value);
+		objectData->modifyField(originalObjectId, customObjectId, fieldId, value, level);
 	}
 
 	return QDialog::Rejected;
 }
 
-int ObjectListDialog::getObjectIds(QStringList& result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, MpqPriorityList* source, ObjectData* objectData, ObjectData* fieldTypeObjectData, const QString& label, QWidget* parent, Qt::WindowFlags f)
+int ObjectListDialog::getObjectIds(QStringList& result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level, MpqPriorityList* source, ObjectData* objectData, ObjectData* fieldTypeObjectData, const QString& label, QWidget* parent, Qt::WindowFlags f)
 {
 	if (m_dialog != 0)
 	{
@@ -272,7 +274,7 @@ int ObjectListDialog::getObjectIds(QStringList& result, const QString &originalO
 	m_dialog->setFieldTypeObjectData(fieldTypeObjectData);
 	m_dialog->setOriginalObjectId(originalObjectId);
 	m_dialog->setCustomObjectId(customObjectId);
-	m_dialog->setFieldId(fieldId);
+	m_dialog->setFieldId(ObjectData::FieldId(fieldId, level));
 	m_dialog->load(result);
 
 	const int exitCode = m_dialog->exec();

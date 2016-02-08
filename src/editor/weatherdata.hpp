@@ -35,8 +35,8 @@ class KDE_EXPORT WeatherData : public ObjectData
 		WeatherData(MpqPriorityList *source, QObject *parent = 0);
 
 		virtual StandardObjecIds standardObjectIds() const override;
-		virtual MetaDataList resolveDefaultField(const QString& objectId, const QString& fieldId) const override;
-		virtual bool hideField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId) const override;
+		virtual MetaDataList resolveDefaultField(const QString& objectId, const QString& fieldId, int level = 0) const override;
+		virtual bool hideField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId, int level = 0) const override;
 
 
 		virtual bool hasCustomUnits() const override;
@@ -47,6 +47,7 @@ class KDE_EXPORT WeatherData : public ObjectData
 
 		virtual QString objectName(const QString &originalObjectId, const QString &customObjectId) const override;
 		virtual QIcon objectIcon(const QString& originalObjectId, const QString& customObjectId, QWidget* window) const override;
+		virtual int objectLevels(const QString &originalObjectId, const QString &customObjectId) const override;
 
 		virtual MetaData* objectTabData() const override;
 		virtual map::CustomObjects::Type type() const override;

@@ -50,7 +50,7 @@ ObjectData::StandardObjecIds DoodadData::standardObjectIds() const
 	return result;
 }
 
-ObjectData::MetaDataList DoodadData::resolveDefaultField(const QString& objectId, const QString& fieldId) const
+ObjectData::MetaDataList DoodadData::resolveDefaultField(const QString &objectId, const QString &fieldId, int level) const
 {
 	MetaDataList result;
 
@@ -98,7 +98,7 @@ ObjectData::MetaDataList DoodadData::metaDataList() const
 	return ObjectData::MetaDataList();
 }
 
-bool DoodadData::hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const
+bool DoodadData::hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level) const
 {
 	return false;
 }
@@ -113,6 +113,11 @@ QString DoodadData::objectName(const QString &originalObjectId, const QString &c
 QIcon DoodadData::objectIcon(const QString& originalObjectId, const QString& customObjectId, QWidget* window) const
 {
 	return this->source()->sharedData()->worldEditDataIcon("InvalidIcon", "WorldEditArt", window);
+}
+
+int DoodadData::objectLevels(const QString& originalObjectId, const QString& customObjectId) const
+{
+	return 1;
 }
 
 void DoodadData::load(QWidget *widget)

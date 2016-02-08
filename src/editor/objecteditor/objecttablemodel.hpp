@@ -25,6 +25,8 @@
 
 #include <QAbstractItemModel>
 
+#include "../objectdata.hpp"
+
 namespace wc3lib
 {
 
@@ -38,11 +40,11 @@ class ObjectTableModel : public QAbstractItemModel
 	Q_OBJECT
 
 	public:
-		typedef QHash<int, QString> ItemsByRow;
+		typedef QHash<int, ObjectData::FieldId> ItemsByRow;
 		/**
 		 * Stores the row for the corresponding field ID.
 		 */
-		typedef QHash<QString, int> ItemsByField;
+		typedef QHash<ObjectData::FieldId, int> ItemsByField;
 
 		explicit ObjectTableModel(QObject* parent = 0);
 
@@ -59,8 +61,8 @@ class ObjectTableModel : public QAbstractItemModel
 		const QString& originalObjectId() const;
 		const QString& customObjectId() const;
 
-		QString fieldId(int row) const;
-		int row(const QString &fieldId) const;
+		ObjectData::FieldId fieldId(int row) const;
+		int row(const ObjectData::FieldId &fieldId) const;
 
 		void setShowRawData(bool show);
 		bool showRawData() const;
@@ -74,8 +76,8 @@ class ObjectTableModel : public QAbstractItemModel
 		bool m_showRawData;
 
 	private slots:
-		void modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
-		void resetField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
+		void modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level);
+		void resetField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level);
 };
 
 inline ObjectData* ObjectTableModel::objectData() const

@@ -60,7 +60,7 @@ ObjectData::StandardObjecIds AbilityData::standardObjectIds() const
 	return result;
 }
 
-ObjectData::MetaDataList AbilityData::resolveDefaultField(const QString &objectId, const QString &fieldId) const
+ObjectData::MetaDataList AbilityData::resolveDefaultField(const QString &objectId, const QString &fieldId, int level) const
 {
 	MetaDataList result;
 
@@ -159,7 +159,7 @@ ObjectData::MetaDataList AbilityData::metaDataList() const
 	return ObjectData::MetaDataList();
 }
 
-bool AbilityData::hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const
+bool AbilityData::hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level) const
 {
 	/*
 	 * Ability fields might be for specific abilities only.
@@ -260,6 +260,19 @@ QIcon AbilityData::objectIcon(const QString &originalObjectId, const QString &cu
 	}
 
 	return this->source()->sharedData()->worldEditDataIcon("InvalidIcon", "WorldEditArt", window);
+}
+
+int AbilityData::objectLevels(const QString &originalObjectId, const QString &customObjectId) const
+{
+	bool ok = false;
+	const int result = this->fieldValue(originalObjectId, customObjectId, "alev").toInt(&ok);
+
+	if (ok)
+	{
+		return result;
+	}
+
+	return 1;
 }
 
 void AbilityData::widgetize(const KUrl &url)

@@ -158,6 +158,7 @@ class KDE_EXPORT ObjectEditor : public Module
 			Destructibles,
 			Doodads,
 			Abilities,
+			Upgrades,
 			Water,
 			Weather,
 			GameplayConstants

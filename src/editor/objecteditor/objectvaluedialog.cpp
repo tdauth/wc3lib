@@ -32,16 +32,18 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectValueDialog::ObjectValueDialog(QWidget *parent) : QDialog(parent), m_maximum(-1)
+ObjectValueDialog::ObjectValueDialog(QWidget *parent) : QDialog(parent), m_maximum(-1), m_source(nullptr), m_isImage(false)
 {
 	setupUi(this);
 
 	connect(this->m_textEdit, SIGNAL(textChanged()), this, SLOT(limitText()));
 	connect(this->m_lineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(limitTextInLineEdit(const QString&)));
+	connect(this->m_lineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(showPreviewImage(const QString&)));
 }
 
 void ObjectValueDialog::setItemsVisible(bool visible)
 {
+	this->m_imageFilePreview->setVisible(visible);
 	this->m_intSpinBox->setVisible(visible);
 	this->m_doubleSpinBox->setVisible(visible);
 	this->m_lineEdit->setVisible(visible);
@@ -55,15 +57,15 @@ void ObjectValueDialog::setItemsVisible(bool visible)
 	}
 }
 
-int ObjectValueDialog::getValue(QString &result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, ObjectData *objectData, const QString &label, QWidget *parent)
+int ObjectValueDialog::getValue(QString &result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level, ObjectData *objectData, const QString &label, QWidget *parent)
 {
 	qDebug() << "Original Object Id" << originalObjectId;
 	qDebug() << "Custom Object Id" << customObjectId;
 	qDebug() << "Field Id" << fieldId;
 	const QString type = objectData->metaData()->value(fieldId, "type");
 	const QString stringExt = objectData->metaData()->value(fieldId, "stringExt");
-	const QString fieldValue = objectData->fieldValue(originalObjectId, customObjectId, fieldId);
-	const QString fieldReadableValue = objectData->fieldReadableValue(originalObjectId, customObjectId, fieldId);
+	const QString fieldValue = objectData->fieldValue(originalObjectId, customObjectId, fieldId, level);
+	const QString fieldReadableValue = objectData->fieldReadableValue(originalObjectId, customObjectId, fieldId, level);
 	const QString minValue = objectData->metaData()->value(fieldId, "minVal");
 	const QString maxValue = objectData->metaData()->value(fieldId, "maxVal");
 
@@ -82,6 +84,8 @@ int ObjectValueDialog::getValue(QString& result, const QString& fieldType, const
 	try
 	{
 		ObjectValueDialog *dialog = new ObjectValueDialog(parent);
+		dialog->m_source = objectData->source();
+		dialog->m_isImage = false;
 		dialog->clearCheckBoxes();
 		dialog->setItemsVisible(false);
 		QString title = objectData->source()->sharedData()->tr("WESTRING_UE_DLG_EDITVALUE");
@@ -191,6 +195,13 @@ int ObjectValueDialog::getValue(QString& result, const QString& fieldType, const
 			if (fieldType == "char")
 			{
 				dialog->m_maximum = 1;
+			}
+
+			if (fieldType == "icon")
+			{
+				dialog->m_isImage = true;
+				dialog->m_imageFilePreview->setVisible(true);
+				dialog->showPreviewImage(fieldValue);
 			}
 		}
 		else if (fieldType == "bool")
@@ -347,6 +358,23 @@ void ObjectValueDialog::limitTextInLineEdit(const QString& text)
 		if (text.size() > m_maximum)
 		{
 			this->m_lineEdit->setText(text.mid(0, m_maximum));
+		}
+	}
+}
+
+void ObjectValueDialog::showPreviewImage(const QString &filePath)
+{
+	qDebug() << "Show preview with " << filePath;
+
+	if (m_isImage && this->m_source->exists(KUrl(filePath), this))
+	{
+		qDebug() << "Exists and is image";
+		QString target;
+
+		if (this->m_source->download(KUrl(filePath), target, this))
+		{
+			this->m_imageFilePreview->setPixmap(QPixmap(target));
+			this->m_source->removeTempFile(target);
 		}
 	}
 }

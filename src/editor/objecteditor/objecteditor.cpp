@@ -30,6 +30,7 @@
 #include "uniteditor.hpp"
 #include "itemeditor.hpp"
 #include "abilityeditor.hpp"
+#include "upgradeeditor.hpp"
 #include "destructableeditor.hpp"
 #include "doodadeditor.hpp"
 #include "watereditor.hpp"
@@ -37,6 +38,7 @@
 #include "misceditor.hpp"
 #include "objecttreemodel.hpp"
 #include "../moduletoolbar.hpp"
+#include "../upgradedata.hpp"
 
 namespace wc3lib
 {
@@ -128,6 +130,7 @@ bool ObjectEditor::configure()
 	m_destructableEditor = new DestructableEditor(source(), source()->sharedData()->sharedObjectData()->destructableData().get(), this, this);
 	m_doodadEditor = new DoodadEditor(source(), source()->sharedData()->sharedObjectData()->doodadData().get(), this, this);
 	m_abilityEditor = new AbilityEditor(source(), source()->sharedData()->sharedObjectData()->abilityData().get(), this, this);
+	m_upgradeEditor = new UpgradeEditor(source(), source()->sharedData()->sharedObjectData()->upgradeData().get(), this, this);
 	m_waterEditor = new WaterEditor(source(), source()->sharedData()->sharedObjectData()->waterData().get(), this, this);
 	m_weatherEditor = new WeatherEditor(source(), source()->sharedData()->sharedObjectData()->weatherData().get(), this, this);
 	m_miscEditor = new MiscEditor(source(), source()->sharedData()->sharedObjectData()->miscData().get(), this, this);
@@ -137,6 +140,7 @@ bool ObjectEditor::configure()
 	tabWidget()->addTab(destructableEditor(), destructableEditor()->tabIcon(this), destructableEditor()->name());
 	tabWidget()->addTab(doodadEditor(), doodadEditor()->tabIcon(this), doodadEditor()->name());
 	tabWidget()->addTab(abilityEditor(), abilityEditor()->tabIcon(this), abilityEditor()->name());
+	tabWidget()->addTab(upgradeEditor(), upgradeEditor()->tabIcon(this), upgradeEditor()->name());
 	tabWidget()->addTab(waterEditor(), waterEditor()->tabIcon(this), waterEditor()->name());
 	tabWidget()->addTab(weatherEditor(), weatherEditor()->tabIcon(this), weatherEditor()->name());
 	tabWidget()->addTab(miscEditor(), miscEditor()->tabIcon(this), miscEditor()->name());
@@ -198,6 +202,12 @@ void ObjectEditor::importCustomObjectsCollection(const map::CustomObjectsCollect
 	{
 		loadTabDataOnRequest(Tab::Abilities);
 		this->abilityEditor()->abilityData()->importCustomObjects(*collection.abilities());
+	}
+
+	if (collection.hasUpgrades())
+	{
+		loadTabDataOnRequest(Tab::Upgrades);
+		this->upgradeEditor()->upgradeData()->importCustomObjects(*collection.upgrades());
 	}
 
 	// TODO further stuff

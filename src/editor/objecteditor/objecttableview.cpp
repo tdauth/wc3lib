@@ -76,25 +76,30 @@ void ObjectTableView::orderBySection(int logicalIndex)
 void ObjectTableView::editItem(const QModelIndex &index)
 {
 	qDebug() << "Editing item with row" << index.row();
-	const QString fieldId = model()->data(index, Qt::UserRole).toString();
-	const QString label = QString(tr("%1:")).arg(model()->data(model()->index(index.row(), 0), Qt::DisplayRole).toString());
-	const QString type = this->tab()->objectData()->metaData()->value(fieldId, "type");
+	const ObjectTableModel *model = this->tab()->tableModel();
+	const QModelIndex mappedIndex = this->tab()->tableProxyModel()->mapToSource(index);
+	const ObjectData::FieldId fieldId = model->fieldId(mappedIndex.row());
+	const QString label = QString(tr("%1:")).arg(model->data(model->index(mappedIndex.row(), 0), Qt::DisplayRole).toString());
+	const QString type = this->tab()->objectData()->metaData()->value(fieldId.fieldId(), "type");
 	QString result;
 
 	if (this->tab()->objectData()->fieldTypeIsList(type))
 	{
-		ObjectListDialog::getObjectIds(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId, this->tab()->objectData(), this->tab()->source()->sharedData()->sharedObjectData().get(), label, this);
+		ObjectListDialog::getObjectIds(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId.fieldId(), fieldId.level(), this->tab()->objectData(), this->tab()->source()->sharedData()->sharedObjectData().get(), label, this);
 	}
-	else if (ObjectValueDialog::getValue(result, this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId, this->tab()->objectData(), label, this->tab()) == QDialog::Accepted)
+	else if (ObjectValueDialog::getValue(result, this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId.fieldId(), fieldId.level(), this->tab()->objectData(), label, this->tab()) == QDialog::Accepted)
 	{
-		qDebug() << "New field value:" << this->tab()->objectData()->fieldValue(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId);
-		qDebug() << "New readable field value:" << this->tab()->objectData()->fieldReadableValue(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId);
+		qDebug() << "New field value:" << this->tab()->objectData()->fieldValue(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId.fieldId(), fieldId.level());
+		qDebug() << "New readable field value:" << this->tab()->objectData()->fieldReadableValue(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId.fieldId(), fieldId.level());
 	}
 }
 
 void ObjectTableView::resetItem(const QModelIndex &index)
 {
-	const QString fieldId = model()->data(index, Qt::UserRole).toString();
+	const ObjectTableModel *model = this->tab()->tableModel();
+	const QModelIndex mappedIndex = this->tab()->tableProxyModel()->mapToSource(index);
+
+	const QString fieldId = model->data(mappedIndex, Qt::UserRole).toString();
 	this->tab()->objectData()->resetField(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId);
 }
 
@@ -124,10 +129,11 @@ void ObjectTableView::resetField()
 	}
 }
 
-void ObjectTableView::selectField(const QString &fieldId)
+void ObjectTableView::selectField(const QString &fieldId, int level)
 {
 	QItemSelectionModel *selection = new QItemSelectionModel(this->tableModel());
-	selection->select(this->tableModel()->index(this->tableModel()->row(fieldId), 1), QItemSelectionModel::Rows);
+	ObjectData::FieldId fieldIdKey(fieldId, level);
+	selection->select(this->tableModel()->index(this->tableModel()->row(fieldIdKey), 1), QItemSelectionModel::Rows);
 	this->setSelectionModel(selection);
 	// TODO inefficient deletion
 	selection->deleteLater();

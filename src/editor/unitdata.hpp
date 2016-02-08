@@ -50,8 +50,8 @@ class KDE_EXPORT UnitData : public ObjectData
 		virtual void load(QWidget *widget) override;
 
 		virtual StandardObjecIds standardObjectIds() const override;
-		virtual MetaDataList resolveDefaultField(const QString& objectId, const QString& fieldId) const override;
-		virtual bool hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const override;
+		virtual MetaDataList resolveDefaultField(const QString& objectId, const QString& fieldId, int level = 0) const override;
+		virtual bool hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level = 0) const override;
 
 		virtual MetaData* metaData() const override;
 		virtual MetaData* objectTabData() const override;
@@ -66,6 +66,7 @@ class KDE_EXPORT UnitData : public ObjectData
 
 		virtual QString objectName(const QString &originalObjectId, const QString &customObjectId) const override;
 		virtual QIcon objectIcon(const QString& originalObjectId, const QString& customObjectId, QWidget *window) const override;
+		virtual int objectLevels(const QString &originalObjectId, const QString &customObjectId) const override;
 
 		bool objectIsHero(const QString &originalObjectId, const QString &customObjectId) const;
 		bool objectIsUnit(const QString &originalObjectId, const QString &customObjectId) const;

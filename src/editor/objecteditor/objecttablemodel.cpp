@@ -42,9 +42,12 @@ QVariant ObjectTableModel::data(const QModelIndex &index, int role) const
 		return QVariant();
 	}
 
-	if (objectData()->metaData()->hasValue(m_itemsByRow[index.row()], "ID"))
+	const ObjectData::FieldId fieldIdKey = m_itemsByRow[index.row()];
+	const int level = fieldIdKey.level();
+
+	if (objectData()->metaData()->hasValue(fieldIdKey.fieldId(), "ID"))
 	{
-		const QString fieldId = objectData()->metaData()->value(m_itemsByRow[index.row()], "ID");
+		const QString fieldId = objectData()->metaData()->value(fieldIdKey.fieldId(), "ID");
 
 		switch (role)
 		{
@@ -79,24 +82,27 @@ QVariant ObjectTableModel::data(const QModelIndex &index, int role) const
 					{
 						const QString displayName = objectData()->metaData()->value(fieldId, "displayName");
 						const QString displayText = objectData()->source()->sharedData()->tr(displayName, "WorldEditStrings", displayName);
+						const QString displayTextLevel = objectData()->repeateField(fieldId) ? QString(" - ") + objectData()->source()->sharedData()->tr("WESTRING_AEVAL_LVL", "WorldEditStrings").replace("%d", QString::number(level + 1)) : "";
+
+						// TODO add WESTRING_AEVAL_LVL or similar value for multiple levels
 
 						if (!category.isEmpty())
 						{
 							if (!showRawData())
 							{
-								return tr("%1 - %2").arg(category).arg(displayText);
+								return tr("%1 - %2%3").arg(category).arg(displayText).arg(displayTextLevel);
 							}
 
-							return tr("%1 - %2 (%3)").arg(category).arg(fieldId).arg(displayText);
+							return tr("%1 - %2 (%3%4)").arg(category).arg(fieldId).arg(displayText).arg(displayTextLevel);
 						}
 						else
 						{
 							if (!showRawData())
 							{
-								return tr("%1").arg(displayText);
+								return tr("%1%2").arg(displayText).arg(displayTextLevel);
 							}
 
-							return tr("%1 (%2)").arg(fieldId).arg(displayText);
+							return tr("%1 (%2%3)").arg(fieldId).arg(displayText).arg(displayTextLevel);
 						}
 					}
 					else
@@ -108,18 +114,20 @@ QVariant ObjectTableModel::data(const QModelIndex &index, int role) const
 				}
 				else if (index.column() == 1)
 				{
-					return objectData()->fieldReadableValue(originalObjectId(), customObjectId(), fieldId);
+					return objectData()->fieldReadableValue(originalObjectId(), customObjectId(), fieldId, level);
 				}
 			}
 
+			/*
 			case Qt::UserRole:
 			{
-				return m_itemsByRow[index.row()];
+				return QVariant(m_itemsByRow[index.row()]);
 			}
+			*/
 
 			case Qt::ForegroundRole:
 			{
-				if (objectData()->isFieldModified(originalObjectId(), customObjectId(), fieldId))
+				if (objectData()->isFieldModified(originalObjectId(), customObjectId(), fieldId, level))
 				{
 					return Qt::magenta;
 				}
@@ -232,10 +240,17 @@ void ObjectTableModel::load(ObjectData *objectData, const QString &originalObjec
 					fieldObjectData->loadOnRequest(widget);
 				}
 
-				m_itemsByRow.insert(rows, fieldId);
-				m_itemsByField.insert(fieldId, rows);
+				const int objectLevels = objectData->objectLevels(this->originalObjectId(), this->customObjectId());
+				const int fieldLevels = objectData->repeateField(fieldId) ? objectLevels : 1;
 
-				rows++;
+				for (int i = 0; i < fieldLevels; ++i)
+				{
+					ObjectData::FieldId fieldIdKey(fieldId, i);
+					m_itemsByRow.insert(rows, fieldIdKey);
+					m_itemsByField.insert(fieldIdKey, rows);
+
+					rows++;
+				}
 			}
 		}
 	}
@@ -246,27 +261,31 @@ void ObjectTableModel::load(ObjectData *objectData, const QString &originalObjec
 	beginInsertRows(QModelIndex(), 0, rows - 1);
 	endInsertRows();
 
-	connect(objectData, SIGNAL(fieldModification(QString, QString, QString)), this, SLOT(modifyField(QString, QString, QString)));
-	connect(objectData, SIGNAL(modificationReset(QString, QString, QString)), this, SLOT(resetField(QString, QString, QString)));
+	connect(objectData, SIGNAL(fieldModification(QString, QString, QString, int)), this, SLOT(modifyField(QString, QString, QString, int)));
+	connect(objectData, SIGNAL(modificationReset(QString, QString, QString, int)), this, SLOT(resetField(QString, QString, QString, int)));
 	m_objectData = objectData;
 }
 
-void ObjectTableModel::modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId)
+void ObjectTableModel::modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level)
 {
-	emit dataChanged(index(m_itemsByField[fieldId], 0), index(m_itemsByField[fieldId], 0));
+	ObjectData::FieldId fieldIdKey(fieldId, level);
+
+	emit dataChanged(index(m_itemsByField[fieldIdKey], 0), index(m_itemsByField[fieldIdKey], 0));
 }
 
-void ObjectTableModel::resetField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId)
+void ObjectTableModel::resetField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level)
 {
-	emit dataChanged(index(m_itemsByField[fieldId], 0), index(m_itemsByField[fieldId], 0));
+	ObjectData::FieldId fieldIdKey(fieldId, level);
+
+	emit dataChanged(index(m_itemsByField[fieldIdKey], 0), index(m_itemsByField[fieldIdKey], 0));
 }
 
-QString ObjectTableModel::fieldId(int row) const
+ObjectData::FieldId ObjectTableModel::fieldId(int row) const
 {
 	return this->m_itemsByRow[row];
 }
 
-int ObjectTableModel::row(const QString &fieldId) const
+int ObjectTableModel::row(const ObjectData::FieldId &fieldId) const
 {
 	return this->m_itemsByField[fieldId];
 }

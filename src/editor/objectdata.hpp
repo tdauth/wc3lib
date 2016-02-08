@@ -69,11 +69,11 @@ class KDE_EXPORT ObjectData : public QObject
 		 * This can be useful if you provide a GUI such as \ref ObjectEditor which has to show the current modifications.
 		 * @{
 		 */
-		void modificationReset(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
+		void modificationReset(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level);
 		void objectCreation(const QString &originalObjectId, const QString &customObjectId);
 		void objectReset(const QString &originalObjectId, const QString &customObjectId);
 		void objectRemoval(const QString &originalObjectId, const QString &customObjectId);
-		void fieldModification(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
+		void fieldModification(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level);
 		/**
 		 * @}
 		 */
@@ -85,11 +85,29 @@ class KDE_EXPORT ObjectData : public QObject
 		typedef QScopedPointer<MetaData> MetaDataPtr;
 
 		/**
+		 * \brief Hash table key for field values which is a pair of the field ID and the level.
+		 */
+		struct FieldId : public QPair<QString, int>
+		{
+			public:
+				FieldId();
+				FieldId(const QString &fieldId, int level);
+				/**
+				 * \return Returns the ID of the field.
+				 */
+				QString fieldId() const;
+				/**
+				 * \return Returns the level of the field.
+				 */
+				int level() const;
+		};
+
+		/**
 		 * \brief Hash table which stores modificiations by using the field ID as hash (such as "unam").
 		 *
 		 * It stores the modifications in the format of Frozen Throne which can be converted up to Reign of Chaos if required for the export.
 		 */
-		typedef QHash<QString, map::CustomObjects::Modification> Modifications;
+		typedef QHash<FieldId, map::CustomObjects::Modification> Modifications;
 		/**
 		 * \brief Stores the two object IDs. The original as well as the custom.
 		 *
@@ -157,13 +175,13 @@ class KDE_EXPORT ObjectData : public QObject
 		 *
 		 * \return Returns a list of meta data which might contain the default value of field \p fieldId.
 		 */
-		virtual MetaDataList resolveDefaultField(const QString &objectId, const QString &fieldId) const = 0;
+		virtual MetaDataList resolveDefaultField(const QString &objectId, const QString &fieldId, int level = 0) const = 0;
 
 		/**
 		 * \return Returns true if the field value of the field with ID \p fieldId of the standard object with the ID \p objectId does exist.
 		 * \sa defaultValue()
 		 */
-		virtual bool hasDefaultFieldValue(const QString &objectId, const QString &fieldId) const;
+		virtual bool hasDefaultFieldValue(const QString &objectId, const QString &fieldId, int level = 0) const;
 
 		/**
 		 * \brief Element function which is used for resolving any object data value stored in one of the many SLK files.
@@ -172,7 +190,13 @@ class KDE_EXPORT ObjectData : public QObject
 		 *
 		 * \sa hasDefaultFieldValue()
 		 */
-		virtual QString defaultFieldValue(const QString &objectId, const QString &fieldId) const;
+		virtual QString defaultFieldValue(const QString &objectId, const QString &fieldId, int level = 0) const;
+
+		/**
+		 * Some fields are repeated when the levels of the object is changed, so you can specify a field value for each level.
+		 * \return Returns true if the given field is repeated and therefore specified for each level. Otherwise it returns false.
+		 */
+		virtual bool repeateField(const QString &fieldId) const;
 
 		/**
 		 * The meta data specifies which fields do exist for objects and specify the IDs and types of those fields.
@@ -263,8 +287,16 @@ class KDE_EXPORT ObjectData : public QObject
 		 */
 		virtual MetaDataList metaDataList() const = 0;
 
+		/**
+		 * Creates an object for serialization of Warcraft III: The Frozen Throne.
+		 * \param originalObjectId The original object ID of the created object.
+		 */
 		virtual map::CustomObjects::Object customObject(const QString &originalObjectId, const QString &customObjectId) const;
 
+		/**
+		 * Converts raw data ID \p value to a string value.
+		 * \return Returns the raw data ID value as string.
+		 */
 		QString objectId(int value) const;
 		/**
 		 * Each custom object needs a unique ID that is automatically calculated.
@@ -301,12 +333,12 @@ class KDE_EXPORT ObjectData : public QObject
 		 * All modified fields are exported when the user exports object data.
 		 */
 		void modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, const map::CustomObjects::Modification &modification);
-		void modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, const QString &value);
+		void modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, const QString &value, int level = 0);
 		/**
 		 * Resets the field's \p fieldId modification for object with IDs \p originalObjectId and \p customObjectId.
 		 */
-		void resetField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
-		bool isFieldModified(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const;
+		void resetField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level = 0);
+		bool isFieldModified(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level = 0) const;
 
 		void resetObject(const QString &originalObjectId, const QString &customObjectId);
 		/**
@@ -332,15 +364,15 @@ class KDE_EXPORT ObjectData : public QObject
 		 *
 		 * \sa isFieldModified()
 		 */
-		bool fieldModificiation(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, map::CustomObjects::Modification &modification) const;
-		bool hasFieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const;
-		QString fieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const;
-		QString fieldReadableValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const;
+		bool fieldModificiation(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, map::CustomObjects::Modification &modification, int level = 0) const;
+		bool hasFieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level = 0) const;
+		QString fieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level = 0) const;
+		QString fieldReadableValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level = 0) const;
 
 		/**
 		 * \return Returns true if the field \p fieldId is not shown in the table view for the corresponding object.
 		 */
-		virtual bool hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const = 0;
+		virtual bool hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level = 0) const = 0;
 
 		/**
 		 * Imports custom units \p units and replaces all existing custom units by immediately.
@@ -366,6 +398,13 @@ class KDE_EXPORT ObjectData : public QObject
 		 */
 		virtual QString objectName(const QString &originalObjectId, const QString &customObjectId) const = 0;
 		virtual QIcon objectIcon(const QString &originalObjectId, const QString &customObjectId, QWidget *window) const = 0;
+		/**
+		 * Objects such as abilities or technologies can have multiple levels.
+		 * For each level some field values can be specified once. This method returns the number of specified levels of an object.
+		 *
+		 * \return Returns the number of levels of the specified object.
+		 */
+		virtual int objectLevels(const QString &originalObjectId, const QString &customObjectId) const = 0;
 
 		const Objects& objects() const;
 
@@ -396,6 +435,8 @@ class KDE_EXPORT ObjectData : public QObject
 		virtual void widgetize(const KUrl &url);
 
 	protected:
+		virtual QString defaultFieldValue(const QString &objectId, const QString &fieldId, int level, bool &exists) const;
+
 		MpqPriorityList *m_source;
 		/**
 		 * Stores all modifications for all objects, standard objects as well as user defined ones.
@@ -411,6 +452,24 @@ inline MpqPriorityList* ObjectData::source() const
 inline const ObjectData::Objects& ObjectData::objects() const
 {
 	return this->m_objects;
+}
+
+inline ObjectData::FieldId::FieldId() : QPair<QString, int>("", 0)
+{
+}
+
+inline ObjectData::FieldId::FieldId(const QString &fieldId, int level) : QPair<QString, int>(fieldId, level)
+{
+}
+
+inline QString ObjectData::FieldId::fieldId() const
+{
+	return this->first;
+}
+
+inline int ObjectData::FieldId::level() const
+{
+	return this->second;
 }
 
 inline ObjectData::ObjectId::ObjectId(const QString &originalObjectId, const QString &customObjectId) : QPair<QString, QString>(originalObjectId, customObjectId)

@@ -59,6 +59,7 @@ class KDE_EXPORT SharedObjectData
 		const ObjectDataPtr& destructableData() const;
 		const ObjectDataPtr& doodadData() const;
 		const ObjectDataPtr& abilityData() const;
+		const ObjectDataPtr& upgradeData() const;
 		const ObjectDataPtr& waterData() const;
 		const ObjectDataPtr& weatherData() const;
 		const ObjectDataPtr& miscData() const;
@@ -76,6 +77,7 @@ class KDE_EXPORT SharedObjectData
 		ObjectDataPtr m_destructableData;
 		ObjectDataPtr m_doodadData;
 		ObjectDataPtr m_abilityData;
+		ObjectDataPtr m_upgradeData;
 		ObjectDataPtr m_waterData;
 		ObjectDataPtr m_weatherData;
 		ObjectDataPtr m_miscData;
@@ -110,6 +112,11 @@ inline const SharedObjectData::ObjectDataPtr& SharedObjectData::doodadData() con
 inline const SharedObjectData::ObjectDataPtr& SharedObjectData::abilityData() const
 {
 	return this->m_abilityData;
+}
+
+inline const SharedObjectData::ObjectDataPtr& SharedObjectData::upgradeData() const
+{
+	return this->m_upgradeData;
 }
 
 inline const SharedObjectData::ObjectDataPtr& SharedObjectData::waterData() const

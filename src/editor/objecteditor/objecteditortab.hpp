@@ -158,18 +158,18 @@ class KDE_EXPORT ObjectEditorTab : public QWidget
 		 * Selects the row in the table view with \p fieldId if it does exist.
 		 * \return Returns true if the row has been selected successfully.
 		 */
-		bool selectField(const QString &fieldId);
+		bool selectField(const QString &fieldId, int level);
 		/**
 		 * \return Returns the field ID of the currently selected row of the table view.
 		 */
-		QString selectedField() const;
+		ObjectData::FieldId selectedField() const;
 
 		/**
 		 * Shows up the modification dialog for field \p fieldId after enabling the object with IDs \p originalObjectId and \p customObjectId.
 		 *
 		 * \return Returns false if the object does not exist.
 		 */
-		bool modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
+		bool modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level);
 
 		/**
 		 * \return Returns the ID dialog which allows the user to specify a custom ID for a newly created object.

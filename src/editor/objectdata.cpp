@@ -217,120 +217,31 @@ bool ObjectData::fieldTypeAllowsMultipleSelections(const QString &fieldType) con
 }
 
 
-bool ObjectData::hasDefaultFieldValue(const QString &objectId, const QString &fieldId) const
+bool ObjectData::hasDefaultFieldValue(const QString &objectId, const QString &fieldId, int level) const
 {
-	MetaDataList metaDataList = this->resolveDefaultField(objectId, fieldId);
+	bool exists = false;
+	this->defaultFieldValue(objectId, fieldId, level, exists);
 
-	if (!metaDataList.isEmpty())
+	return exists;
+}
+
+QString ObjectData::defaultFieldValue(const QString &objectId, const QString &fieldId, int level) const
+{
+	bool exists = false;
+	return this->defaultFieldValue(objectId, fieldId, level, exists);
+}
+
+bool ObjectData::repeateField(const QString& fieldId) const
+{
+	if (this->metaData()->hasValue(fieldId, "repeat"))
 	{
-		const QString field = this->metaData()->value(fieldId, "field");
+		bool ok = false;
+		int count = this->metaData()->value(fieldId, "repeat").toInt(&ok);
 
-		/*
-		 * The section is used if no object ID is given (for example for Misc Data) and is the .txt file's section which contains the field value.
-		 */
-		const QString section = this->metaData()->value(fieldId, "section");
-		const QString rowKey = section.isEmpty() ? objectId : section;
-
-		bool hasValue = false;
-		QString value;
-
-		foreach (MetaData *metaData, metaDataList)
-		{
-			if (metaData->hasValue(rowKey, field))
-			{
-				value = metaData->value(rowKey, field);
-				hasValue = true;
-
-				break;
-			}
-		}
-
-		if (hasValue)
-		{
-			/*
-			 * The index is used for button positions for example when multiple fields share the same field name such as "Buttonpos".
-			 */
-			const QString index = this->metaData()->value(fieldId, "index");
-			bool ok = true;
-			int indexValue = index.toInt(&ok);
-
-			if (ok)
-			{
-				if (indexValue != -1)
-				{
-					return indexValue < value.split(',').size();
-				}
-				else
-				{
-					return true;
-				}
-			}
-		}
+		return (ok && count > 0);
 	}
 
 	return false;
-}
-
-QString ObjectData::defaultFieldValue(const QString &objectId, const QString &fieldId) const
-{
-	const MetaDataList metaDataList = this->resolveDefaultField(objectId, fieldId);
-
-	if (!metaDataList.isEmpty())
-	{
-		const QString field = this->metaData()->value(fieldId, "field");
-		/*
-		 * The section is used if no object ID is given (for example for Misc Data) and is the .txt file's section which contains the field value.
-		 * It does not exist in Warcraft III: Reign of Chaos but in Frozen Throne.
-		 */
-		const QString section = this->metaData()->hasValue(fieldId, "section") ? this->metaData()->value(fieldId, "section") : "";
-		const QString rowKey = section.isEmpty() ? objectId : section;
-		bool hasValue = false;
-		QString value;
-
-		foreach (MetaData *metaData, metaDataList)
-		{
-			if (metaData->hasValue(rowKey, field))
-			{
-				value = metaData->value(rowKey, field);
-				hasValue = true;
-
-				break;
-			}
-		}
-
-		if (hasValue)
-		{
-			/*
-			 * The index is used for button positions for example when multiple fields share the same field name such as "Buttonpos".
-			 */
-			const QString index = this->metaData()->value(fieldId, "index");
-			bool ok = true;
-			int indexValue = index.toInt(&ok);
-
-			if (ok)
-			{
-				if (indexValue != -1)
-				{
-					const QStringList values = value.split(',');
-
-					if (indexValue < values.size())
-					{
-						value = values[indexValue];
-					}
-				}
-
-				return value;
-			}
-			else
-			{
-				qDebug() << "Invalid index value" << index << "for object" << objectId << "with field" << fieldId;
-			}
-		}
-	}
-
-	qDebug() << "Data value not found:" << objectId << fieldId;
-
-	return "";
 }
 
 ObjectData::ObjectTabEntries ObjectData::objectTabEntries(const QString &fieldType) const
@@ -517,22 +428,25 @@ void ObjectData::modifyField(const QString &originalObjectId, const QString &cus
 
 	if (iterator != this->m_objects.end())
 	{
-		iterator.value().insert(fieldId, modification);
+		FieldId fieldIdKey(fieldId, modification.level());
 
-		emit fieldModification(originalObjectId, customObjectId, fieldId);
+		iterator.value().insert(fieldIdKey, modification);
+
+		emit fieldModification(originalObjectId, customObjectId, fieldId, modification.level());
 	}
 }
 
-void ObjectData::modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, const QString &value)
+void ObjectData::modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, const QString &value, int level)
 {
 	map::CustomObjects::Modification modification(this->type());
 	modification.setValueId(map::stringToId(fieldId.toUtf8().constData()));
 	modification.value() = this->value(fieldId, value);
+	modification.setLevel(level);
 
 	this->modifyField(originalObjectId, customObjectId, fieldId, modification);
 }
 
-void ObjectData::resetField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId)
+void ObjectData::resetField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level)
 {
 	const ObjectId objectId(originalObjectId, customObjectId);
 	Objects::iterator iterator = this->m_objects.find(objectId);
@@ -542,8 +456,9 @@ void ObjectData::resetField(const QString &originalObjectId, const QString &cust
 		return;
 	}
 
-	iterator.value().remove(fieldId);
-	emit modificationReset(originalObjectId, customObjectId, fieldId);
+	FieldId fieldIdKey(fieldId, level);
+	iterator.value().remove(fieldIdKey);
+	emit modificationReset(originalObjectId, customObjectId, fieldId, level);
 
 	if (iterator.value().empty())
 	{
@@ -553,7 +468,7 @@ void ObjectData::resetField(const QString &originalObjectId, const QString &cust
 	}
 }
 
-bool ObjectData::isFieldModified(const QString &originalObjectId, const QString &customObjectId, const QString& fieldId) const
+bool ObjectData::isFieldModified(const QString &originalObjectId, const QString &customObjectId, const QString& fieldId, int level) const
 {
 	const ObjectId objectId(originalObjectId, customObjectId);
 	Objects::const_iterator iterator = this->m_objects.find(objectId);
@@ -563,7 +478,8 @@ bool ObjectData::isFieldModified(const QString &originalObjectId, const QString 
 		return false;
 	}
 
-	return iterator.value().contains(fieldId);
+	FieldId fieldIdKey(fieldId, level);
+	return iterator.value().contains(fieldIdKey);
 }
 
 void ObjectData::resetObject(const QString &originalObjectId, const QString &customObjectId)
@@ -617,7 +533,7 @@ void ObjectData::clearModifications()
 	}
 }
 
-bool ObjectData::fieldModificiation(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId, map::CustomObjects::Modification &modification) const
+bool ObjectData::fieldModificiation(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId, map::CustomObjects::Modification &modification, int level) const
 {
 
 	const ObjectId objectId(originalObjectId, customObjectId);
@@ -628,7 +544,8 @@ bool ObjectData::fieldModificiation(const QString& originalObjectId, const QStri
 		return false;
 	}
 
-	Modifications::const_iterator iterator2 = iterator.value().find(fieldId);
+	FieldId fieldIdKey(fieldId, level);
+	Modifications::const_iterator iterator2 = iterator.value().find(fieldIdKey);
 
 	if (iterator2 == iterator.value().end())
 	{
@@ -641,43 +558,45 @@ bool ObjectData::fieldModificiation(const QString& originalObjectId, const QStri
 
 }
 
-bool ObjectData::hasFieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const
+bool ObjectData::hasFieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level) const
 {
 	const ObjectId objectId(originalObjectId, customObjectId);
 	const Objects::const_iterator iterator = this->m_objects.find(objectId);
 
 	if (iterator != this->m_objects.end())
 	{
-		return iterator->find(fieldId) != iterator->end();
+		FieldId fieldIdKey(fieldId, level);
+
+		return iterator->find(fieldIdKey) != iterator->end();
 	}
 	else
 	{
-		return hasDefaultFieldValue(originalObjectId, fieldId);
+		return hasDefaultFieldValue(originalObjectId, fieldId, level);
 	}
 
 	return false;
 }
 
-QString ObjectData::fieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const
+QString ObjectData::fieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level) const
 {
 	map::CustomObjects::Modification modification(this->type());
 
-	if (fieldModificiation(originalObjectId, customObjectId, fieldId, modification))
+	if (fieldModificiation(originalObjectId, customObjectId, fieldId, modification, level))
 	{
 		return valueToString(modification.value());
 	}
 	// Otherwise return the default value from Warcraft III
 	else
 	{
-		return this->defaultFieldValue(originalObjectId, fieldId);
+		return this->defaultFieldValue(originalObjectId, fieldId, level);
 	}
 
 	return "";
 }
 
-QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId) const
+QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId, int level) const
 {
-	const QString fieldValue = this->fieldValue(originalObjectId, customObjectId, fieldId);
+	const QString fieldValue = this->fieldValue(originalObjectId, customObjectId, fieldId, level);
 	const QString fieldType = this->metaData()->value(fieldId, "type");
 
 	/*
@@ -1182,8 +1101,9 @@ void ObjectData::applyMapStrings(map::W3m &w3m)
 
 								if (mapStringsMetaData.hasValue(row, ""))
 								{
-									qDebug() << "Translated string:" <<  mapStringsMetaData.value(row, "");
-									this->modifyField(iterator.key().first, iterator.key().second, modIterator.key(), mapStringsMetaData.value(row, ""));
+									const QString translatedString = mapStringsMetaData.value(row, "");
+									qDebug() << "Translated string:" <<  translatedString;
+									this->modifyField(iterator.key().originalObjectId(), iterator.key().customObjectId(), modIterator.key().fieldId(), translatedString);
 								}
 								else
 								{
@@ -1251,6 +1171,94 @@ int ObjectData::compress()
 void ObjectData::widgetize(const KUrl &url)
 {
 }
+
+QString ObjectData::defaultFieldValue(const QString& objectId, const QString& fieldId, int level, bool &exists) const
+{
+	const MetaDataList metaDataList = this->resolveDefaultField(objectId, fieldId, level);
+
+	if (!metaDataList.isEmpty())
+	{
+		const QString field = this->metaData()->value(fieldId, "field");
+		// If a level is specified the field name is used + the level + 1
+		const QString levelField = field + QString::number(level + 1);
+		/*
+		 * The section is used if no object ID is given (for example for Misc Data) and is the .txt file's section which contains the field value.
+		 * It does not exist in Warcraft III: Reign of Chaos but in Frozen Throne.
+		 */
+		const QString section = this->metaData()->hasValue(fieldId, "section") ? this->metaData()->value(fieldId, "section") : "";
+		const QString rowKey = section.isEmpty() ? objectId : section;
+		bool hasValue = false;
+		QString value;
+
+		foreach (MetaData *metaData, metaDataList)
+		{
+			if (metaData->hasValue(rowKey, field))
+			{
+				value = metaData->value(rowKey, field);
+				hasValue = true;
+
+				break;
+			}
+			// Test level as well. The level entries do work for the SLK files with fields like "adur1" but for TXT fields like "Ubertip"/"aub1" it is always "Ubertip" but the level values are separated by , characerters. The difference between these two types of entries is that for the "Ubertip" entry the index is set to 0 while for the "adur" entry it is set to -1.
+			else if (metaData->hasValue(rowKey, levelField))
+			{
+				value = metaData->value(rowKey, levelField);
+				hasValue = true;
+
+				break;
+			}
+		}
+
+		if (hasValue)
+		{
+			/*
+			 * The index is used for button positions for example when multiple fields share the same field name such as "Buttonpos".
+			 */
+			const QString index = this->metaData()->value(fieldId, "index");
+			bool ok = true;
+			int indexValue = index.toInt(&ok);
+
+			if (ok)
+			{
+				if (indexValue != -1)
+				{
+					/*
+					 * It seems that the values for the single levels are sperated by the indices.
+					 * Therefore take the specific level value.
+					 */
+					indexValue += level;
+
+					/*
+					 * Get tokens between quotes " " and ignore any , characters between the quotes. Otherwise values will be cut.
+					 *
+					 * Look at files like "Units/HumanAbilityStrings.txt" and fields like "Ubertip" of 'AHbz'. Multiple ubertip values are sperated by , characters but surrounded by quotes to escape the inner , characters.
+					 *
+					 * TODO implement tokenizer
+					 */
+					const QStringList values = value.split("\",", QString::SkipEmptyParts);
+
+					if (indexValue < values.size())
+					{
+						exists = true;
+						value = values[indexValue];
+					}
+				}
+
+				exists = true;
+				return value;
+			}
+			else
+			{
+				qDebug() << "Invalid index value" << index << "for object" << objectId << "with field" << fieldId;
+			}
+		}
+	}
+
+	qDebug() << "Data value not found:" << objectId << fieldId;
+
+	return "";
+}
+
 
 }
 

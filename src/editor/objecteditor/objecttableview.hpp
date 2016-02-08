@@ -69,7 +69,7 @@ class ObjectTableView : public QTableView
 		/**
 		 * Selects the row with field ID \p fieldId.
 		 */
-		void selectField(const QString &fieldId);
+		void selectField(const QString &fieldId, int level);
 
 	protected:
 		ObjectEditorTab *m_tab;

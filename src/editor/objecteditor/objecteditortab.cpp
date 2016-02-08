@@ -151,7 +151,7 @@ map::CustomObjects::Table ObjectEditorTab::selection() const
 bool ObjectEditorTab::selectObject(const QString &originalObjectId, const QString &customObjectId)
 {
 	// store the selected field for later reselection
-	const QString oldFieldId = selectedField();
+	const ObjectData::FieldId oldFieldId = selectedField();
 
 	ObjectTreeItem *item = this->treeModel()->item(originalObjectId, customObjectId);
 
@@ -184,7 +184,7 @@ bool ObjectEditorTab::selectObject(const QString &originalObjectId, const QStrin
 		}
 
 		// Select the old field if possible. Sometimes field IDs are not shown for all objects. In this case it cannot be selected but in all other cases it will stay selected.
-		this->selectField(oldFieldId);
+		this->selectField(oldFieldId.fieldId(), oldFieldId.level());
 
 		return true;
 	}
@@ -192,14 +192,15 @@ bool ObjectEditorTab::selectObject(const QString &originalObjectId, const QStrin
 	return false;
 }
 
-bool ObjectEditorTab::selectField(const QString &fieldId)
+bool ObjectEditorTab::selectField(const QString &fieldId, int level)
 {
 	if (tableModel()->originalObjectId().isEmpty())
 	{
 		return false;
 	}
 
-	const int row = this->tableModel()->row(fieldId);
+	const ObjectData::FieldId fieldIdKey(fieldId, level);
+	const int row = this->tableModel()->row(fieldIdKey);
 
 	if (row != -1)
 	{
@@ -218,23 +219,23 @@ bool ObjectEditorTab::selectField(const QString &fieldId)
 	return false;
 }
 
-QString ObjectEditorTab::selectedField() const
+ObjectData::FieldId ObjectEditorTab::selectedField() const
 {
 	QItemSelectionModel *selection = tableView()->selectionModel();
 
 	if (selection == nullptr)
 	{
-		return "";
+		return ObjectData::FieldId("", 0);
 	}
 
 	return tableModel()->fieldId(selection->currentIndex().row());
 }
 
-bool ObjectEditorTab::modifyField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId)
+bool ObjectEditorTab::modifyField(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId, int level)
 {
 	if (this->selectObject(originalObjectId, customObjectId))
 	{
-		this->tableView()->selectField(fieldId);
+		this->tableView()->selectField(fieldId, level);
 
 		return true;
 	}

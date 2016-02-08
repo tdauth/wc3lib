@@ -50,7 +50,7 @@ ObjectData::StandardObjecIds ItemData::standardObjectIds() const
 	return result;
 }
 
-ObjectData::MetaDataList ItemData::resolveDefaultField(const QString& objectId, const QString& fieldId) const
+ObjectData::MetaDataList ItemData::resolveDefaultField(const QString& objectId, const QString& fieldId, int level) const
 {
 	MetaDataList result;
 
@@ -104,7 +104,7 @@ ObjectData::MetaDataList ItemData::metaDataList() const
 	return ObjectData::MetaDataList();
 }
 
-bool ItemData::hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const
+bool ItemData::hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level) const
 {
 	if (this->metaData()->hasValue(fieldId, "useItem"))
 	{
@@ -147,6 +147,11 @@ QIcon ItemData::objectIcon(const QString& originalObjectId, const QString& custo
 	}
 
 	return this->source()->sharedData()->worldEditDataIcon("InvalidIcon", "WorldEditArt", window);
+}
+
+int ItemData::objectLevels(const QString& originalObjectId, const QString& customObjectId) const
+{
+	return 1;
 }
 
 void ItemData::load(QWidget *widget)

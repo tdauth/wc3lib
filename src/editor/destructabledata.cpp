@@ -50,7 +50,7 @@ ObjectData::StandardObjecIds DestructableData::standardObjectIds() const
 	return result;
 }
 
-ObjectData::MetaDataList DestructableData::resolveDefaultField(const QString& objectId, const QString& fieldId) const
+ObjectData::MetaDataList DestructableData::resolveDefaultField(const QString& objectId, const QString& fieldId, int level) const
 {
 	MetaDataList result;
 
@@ -98,7 +98,7 @@ ObjectData::MetaDataList DestructableData::metaDataList() const
 	return ObjectData::MetaDataList();
 }
 
-bool DestructableData::hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId) const
+bool DestructableData::hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level) const
 {
 	return false;
 }
@@ -133,6 +133,11 @@ QString DestructableData::objectName(const QString &originalObjectId, const QStr
 QIcon DestructableData::objectIcon(const QString& originalObjectId, const QString& customObjectId, QWidget* window) const
 {
 	return this->source()->sharedData()->worldEditDataIcon("InvalidIcon", "WorldEditArt", window);
+}
+
+int DestructableData::objectLevels(const QString& originalObjectId, const QString& customObjectId) const
+{
+	return 1;
 }
 
 void DestructableData::load(QWidget *widget)
