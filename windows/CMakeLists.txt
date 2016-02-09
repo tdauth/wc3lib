@@ -17,6 +17,9 @@ SET(MINGW_C_COMPILER x86_64-w64-mingw32-gcc)
 SET(MINGW_CXX_COMPILER x86_64-w64-mingw32-g++)
 set(MINGW_ROOT_DIR /usr/x86_64-w64-mingw32/sys-root/mingw)
 
+# We need the llvm + clang since there is a "file is too big" error
+ExternalProject_Add(llvm DOWNLOAD_NAME llvm.src.tar.xz DOWNLOAD_DIR download URL http://llvm.org/releases/3.7.1/llvm-3.7.1.src.tar.xz CONFIGURE_COMMAND cmake ${CMAKE_CURRENT_BINARY_DIR}/llvm-prefix/src/llvm/ -DCMAKE_CROSSCOMPILING=True -DLLVM_TABLEGEN=/usr/bin/llvm-tblgen -DCLANG_TABLEGEN=/usr/bin/clang-tblgen -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/Toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DLLVM_BUILD_RUNTIME=Off -DLLVM_INCLUDE_TESTS=Off -DLLVM_INCLUDE_EXAMPLES=Off -DLLVM_ENABLE_BACKTRACES=Off BUILD_COMMAND make INSTALL_COMMAND "")
+
 message(STATUS "Include dir: ${CMAKE_BINARY_DIR}nasm-prefix/src/nasm-build")
 
 ExternalProject_Add(nasm DOWNLOAD_NAME nasm.tar.bz2 DOWNLOAD_DIR download URL http://downloads.sourceforge.net/project/nasm/nasm%20sources/2.07/nasm-2.07.tar.bz2 CONFIGURE_COMMAND ${CMAKE_BINARY_DIR}/nasm-prefix/src/nasm/configure --includedir=${CMAKE_BINARY_DIR}nasm-prefix/src/nasm-build CC=${MINGW_C_COMPILER} CXX=${MINGW_CXX_COMPILER} CFLAGS=-I${CMAKE_BINARY_DIR}nasm-prefix/src/nasm-build BUILD_COMMAND make
@@ -24,7 +27,7 @@ ExternalProject_Add(nasm DOWNLOAD_NAME nasm.tar.bz2 DOWNLOAD_DIR download URL ht
 # CFLAGS="-I${CMAKE_BINARY_DIR}/nasm-prefix/src/nasm-build" CPPFLAGS="$CPPFLAGS -I${CMAKE_BINARY_DIR}/nasm-prefix/src/nasm-build"
 
 # TODO move jpeglib into mingw dir
-ExternalProject_Add(jpeg DEPENDS nasm DOWNLOAD_NAME jpegsrc.tar.gz DOWNLOAD_DIR download URL http://downloads.sourceforge.net/project/libjpeg-turbo/1.4.2/libjpeg-turbo-1.4.2.tar.gz CONFIGURE_COMMAND cmake ${CMAKE_CURRENT_BINARY_DIR}/jpeg-prefix/src/jpeg/ -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/Toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=install BUILD_COMMAND make
+ExternalProject_Add(jpeg DEPENDS nasm DOWNLOAD_NAME jpegsrc.tar.gz DOWNLOAD_DIR download URL http://downloads.sourceforge.net/project/libjpeg-turbo/1.4.2/libjpeg-turbo-1.4.2.tar.gz CONFIGURE_COMMAND cmake ${CMAKE_CURRENT_BINARY_DIR}/jpeg-prefix/src/jpeg/ -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/Toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} BUILD_COMMAND make
   BUILD_IN_SOURCE 1 INSTALL_COMMAND "")
 
 #ExternalProject_Add(glibc DOWNLOAD_NAME glibc.tar.bz2 DOWNLOAD_DIR download URL http://ftp.gnu.org/gnu/glibc/glibc-2.22.tar.bz2 CONFIGURE_COMMAND ${CMAKE_BINARY_DIR}/glibc-prefix/src/glibc/configure --prefix=${MINGW_ROOT_DIR} --host=x86_64-w64-mingw32 CC=${MINGW_C_COMPILER} CXX=${MINGW_CXX_COMPILER} BUILD_COMMAND make INSTALL_COMMAND "") # BUILD_IN_SOURCE 1
@@ -39,7 +42,7 @@ ExternalProject_Add(jpeg DEPENDS nasm DOWNLOAD_NAME jpegsrc.tar.gz DOWNLOAD_DIR 
 #ExternalProject_Add(libintl DOWNLOAD_NAME libintl.zip DOWNLOAD_DIR download URL http://downloads.sourceforge.net/project/gnuwin32/libintl/0.14.4/libintl-0.14.4-src.zip CONFIGURE_COMMAND ${CMAKE_BINARY_DIR}/libintl-prefix/src/libintl/src/libintl/0.14.4/libintl-0.14.4-src/configure CC=${MINGW_C_COMPILER} CXX=${MINGW_CXX_COMPILER} CFLAGS=-I${CMAKE_BINARY_DIR}libintl-prefix/src/libintl-build BUILD_COMMAND make BUILD_IN_SOURCE 1 INSTALL_COMMAND "")
 
 set(CMAKE_OPTIONS -DEDITOR=0 -DPLUGINS=0)
-set(DEPENDENCIES jpeg) # gettext libintl
+set(DEPENDENCIES jpeg llvm) # gettext libintl
 
 option(EDITOR "Editor" 0)
 option(PLUGINS "Plugins" 0)
@@ -52,7 +55,8 @@ endif ()
 # libintl-8.dll
 # apparently it does not link automatically with the library intl although the package gettext is found
 # Besides link to the locally compiled libjpeg
-set(wc3lib_LINKFLAGS "-lintl -L${MINGW_ROOT_DIR}/bin/ -L${MINGW_ROOT_DIR}/lib/ ${MINGW_ROOT_DIR}/bin/libintl-8.dll ${MINGW_ROOT_DIR}/lib/libintl.dll.a ${MINGW_ROOT_DIR}/bin/libgettextlib-0-19-4.dll ${CMAKE_CURRENT_BINARY_DIR}/jpeg-prefix/src/jpeg/libjpeg.a")
+# -Wa,-mbig-obj solves the "file too big" error
+set(wc3lib_LINKFLAGS "-lintl -L${MINGW_ROOT_DIR}/bin/ -L${MINGW_ROOT_DIR}/lib/ ${MINGW_ROOT_DIR}/bin/libintl-8.dll ${MINGW_ROOT_DIR}/lib/libintl.dll.a ${MINGW_ROOT_DIR}/bin/libgettextlib-0-19-4.dll ${CMAKE_CURRENT_BINARY_DIR}/jpeg-prefix/src/jpeg/libjpeg.a -Wa,-mbig-obj")
 set(CMAKE_FIND_ROOT_PATH "${CMAKE_CURRENT_BINARY_DIR}/jpeg-prefix/src/jpeg ${CMAKE_FIND_ROOT_PATH}")
 
 ExternalProject_Add(wc3lib DEPENDS ${DEPENDENCIES} GIT_REPOSITORY git://wc3lib.org/wc3lib.git CONFIGURE_COMMAND cmake ${CMAKE_CURRENT_BINARY_DIR}/wc3lib-prefix/src/wc3lib/ -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/Toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=install ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${wc3lib_LINKFLAGS} -DCMAKE_VERBOSE_MAKEFILE=on -DCMAKE_FIND_ROOT_PATH=${CMAKE_FIND_ROOT_PATH} BUILD_COMMAND make VERBOSE=1 BUILD_IN_SOURCE 1 INSTALL_COMMAND "")
