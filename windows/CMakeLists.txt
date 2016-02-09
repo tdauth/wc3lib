@@ -27,9 +27,14 @@ ExternalProject_Add(nasm DOWNLOAD_NAME nasm.tar.bz2 DOWNLOAD_DIR download URL ht
 ExternalProject_Add(jpeg DEPENDS nasm DOWNLOAD_NAME jpegsrc.tar.gz DOWNLOAD_DIR download URL http://downloads.sourceforge.net/project/libjpeg-turbo/1.4.2/libjpeg-turbo-1.4.2.tar.gz CONFIGURE_COMMAND cmake ${CMAKE_CURRENT_BINARY_DIR}/jpeg-prefix/src/jpeg/ -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/Toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=install BUILD_COMMAND make
   BUILD_IN_SOURCE 1 INSTALL_COMMAND "")
 
-#ExternalProject_Add(glibc DOWNLOAD_NAME glibc.tar.bz2 DOWNLOAD_DIR download URL http://ftp.gnu.org/gnu/glibc/glibc-2.22.tar.bz2 CONFIGURE_COMMAND ${CMAKE_BINARY_DIR}/glibc-prefix/src/glibc/configure --prefix=${MINGW_ROOT_DIR} --host=Windows CC=${MINGW_C_COMPILER} CXX=${MINGW_CXX_COMPILER} BUILD_COMMAND make INSTALL_COMMAND "") # BUILD_IN_SOURCE 1
+#ExternalProject_Add(glibc DOWNLOAD_NAME glibc.tar.bz2 DOWNLOAD_DIR download URL http://ftp.gnu.org/gnu/glibc/glibc-2.22.tar.bz2 CONFIGURE_COMMAND ${CMAKE_BINARY_DIR}/glibc-prefix/src/glibc/configure --prefix=${MINGW_ROOT_DIR} --host=x86_64-w64-mingw32 CC=${MINGW_C_COMPILER} CXX=${MINGW_CXX_COMPILER} BUILD_COMMAND make INSTALL_COMMAND "") # BUILD_IN_SOURCE 1
 
-#ExternalProject_Add(gettext DEPENDS glibc DOWNLOAD_NAME gettext.tar.gz DOWNLOAD_DIR download URL http://ftp.gnu.org/pub/gnu/gettext/gettext-latest.tar.gz CONFIGURE_COMMAND ${CMAKE_BINARY_DIR}/gettext-prefix/src/gettext/configure --prefix=${MINGW_ROOT_DIR} CC=${MINGW_C_COMPILER} CXX=${MINGW_CXX_COMPILER} BUILD_COMMAND make  BUILD_IN_SOURCE 1 INSTALL_COMMAND "")
+# DEPENDS glibc
+# link against a different c library which is used by mingw
+# link against all possible libraries since gettext has undefined references
+# --enable-shared
+#set(gettext_CFLAGS "-O2 ${MINGW_ROOT_DIR}/lib/libmsvcrt.a")
+#ExternalProject_Add(gettext DOWNLOAD_NAME gettext.tar.gz DOWNLOAD_DIR download URL http://ftp.gnu.org/pub/gnu/gettext/gettext-latest.tar.gz CONFIGURE_COMMAND ${CMAKE_BINARY_DIR}/gettext-prefix/src/gettext/configure --prefix=${MINGW_ROOT_DIR} --build=x86_64-w64-mingw32 --host=x86_64-w64-mingw32 --enable-static CC=${MINGW_C_COMPILER} CXX=${MINGW_CXX_COMPILER} CFLAGS=${gettext_CFLAGS} CPPFLAGS=${gettext_CFLAGS} BUILD_COMMAND make CFLAGS=${gettext_CFLAGS} BUILD_IN_SOURCE 1 INSTALL_COMMAND "")
 
 #ExternalProject_Add(libintl DOWNLOAD_NAME libintl.zip DOWNLOAD_DIR download URL http://downloads.sourceforge.net/project/gnuwin32/libintl/0.14.4/libintl-0.14.4-src.zip CONFIGURE_COMMAND ${CMAKE_BINARY_DIR}/libintl-prefix/src/libintl/src/libintl/0.14.4/libintl-0.14.4-src/configure CC=${MINGW_C_COMPILER} CXX=${MINGW_CXX_COMPILER} CFLAGS=-I${CMAKE_BINARY_DIR}libintl-prefix/src/libintl-build BUILD_COMMAND make BUILD_IN_SOURCE 1 INSTALL_COMMAND "")
 
@@ -45,4 +50,9 @@ if (EDITOR OR PLUGINS)
 endif ()
 
 # libintl-8.dll
-ExternalProject_Add(wc3lib DEPENDS ${DEPENDENCIES} GIT_REPOSITORY git://wc3lib.org/wc3lib.git CONFIGURE_COMMAND cmake ${CMAKE_CURRENT_BINARY_DIR}/wc3lib-prefix/src/wc3lib/ -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/Toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=install ${CMAKE_OPTIONS} -DCMAKE_STANDARD_LIBRARIES="${MINGW_ROOT_DIR}/bin/libintl-8.dll ${MINGW_ROOT_DIR}/bin/libgettextlib-0-19-4.dll" BUILD_COMMAND make BUILD_IN_SOURCE 1 INSTALL_COMMAND "")
+# apparently it does not link automatically with the library intl although the package gettext is found
+# Besides link to the locally compiled libjpeg
+set(wc3lib_LINKFLAGS "-lintl -L${MINGW_ROOT_DIR}/bin/ -L${MINGW_ROOT_DIR}/lib/ ${MINGW_ROOT_DIR}/bin/libintl-8.dll ${MINGW_ROOT_DIR}/lib/libintl.dll.a ${MINGW_ROOT_DIR}/bin/libgettextlib-0-19-4.dll ${CMAKE_CURRENT_BINARY_DIR}/jpeg-prefix/src/jpeg/libjpeg.a")
+set(CMAKE_FIND_ROOT_PATH "${CMAKE_CURRENT_BINARY_DIR}/jpeg-prefix/src/jpeg ${CMAKE_FIND_ROOT_PATH}")
+
+ExternalProject_Add(wc3lib DEPENDS ${DEPENDENCIES} GIT_REPOSITORY git://wc3lib.org/wc3lib.git CONFIGURE_COMMAND cmake ${CMAKE_CURRENT_BINARY_DIR}/wc3lib-prefix/src/wc3lib/ -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/Toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=install ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${wc3lib_LINKFLAGS} -DCMAKE_VERBOSE_MAKEFILE=on -DCMAKE_FIND_ROOT_PATH=${CMAKE_FIND_ROOT_PATH} BUILD_COMMAND make VERBOSE=1 BUILD_IN_SOURCE 1 INSTALL_COMMAND "")
