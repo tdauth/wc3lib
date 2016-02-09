@@ -15,6 +15,7 @@ endif ()
 
 SET(MINGW_C_COMPILER x86_64-w64-mingw32-gcc)
 SET(MINGW_CXX_COMPILER x86_64-w64-mingw32-g++)
+set(MINGW_ROOT_DIR /usr/x86_64-w64-mingw32/sys-root/mingw)
 
 message(STATUS "Include dir: ${CMAKE_BINARY_DIR}nasm-prefix/src/nasm-build")
 
@@ -26,8 +27,14 @@ ExternalProject_Add(nasm DOWNLOAD_NAME nasm.tar.bz2 DOWNLOAD_DIR download URL ht
 ExternalProject_Add(jpeg DEPENDS nasm DOWNLOAD_NAME jpegsrc.tar.gz DOWNLOAD_DIR download URL http://downloads.sourceforge.net/project/libjpeg-turbo/1.4.2/libjpeg-turbo-1.4.2.tar.gz CONFIGURE_COMMAND cmake ${CMAKE_CURRENT_BINARY_DIR}/jpeg-prefix/src/jpeg/ -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/Toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=install BUILD_COMMAND make
   BUILD_IN_SOURCE 1 INSTALL_COMMAND "")
 
+#ExternalProject_Add(glibc DOWNLOAD_NAME glibc.tar.bz2 DOWNLOAD_DIR download URL http://ftp.gnu.org/gnu/glibc/glibc-2.22.tar.bz2 CONFIGURE_COMMAND ${CMAKE_BINARY_DIR}/glibc-prefix/src/glibc/configure --prefix=${MINGW_ROOT_DIR} --host=Windows CC=${MINGW_C_COMPILER} CXX=${MINGW_CXX_COMPILER} BUILD_COMMAND make INSTALL_COMMAND "") # BUILD_IN_SOURCE 1
+
+#ExternalProject_Add(gettext DEPENDS glibc DOWNLOAD_NAME gettext.tar.gz DOWNLOAD_DIR download URL http://ftp.gnu.org/pub/gnu/gettext/gettext-latest.tar.gz CONFIGURE_COMMAND ${CMAKE_BINARY_DIR}/gettext-prefix/src/gettext/configure --prefix=${MINGW_ROOT_DIR} CC=${MINGW_C_COMPILER} CXX=${MINGW_CXX_COMPILER} BUILD_COMMAND make  BUILD_IN_SOURCE 1 INSTALL_COMMAND "")
+
+#ExternalProject_Add(libintl DOWNLOAD_NAME libintl.zip DOWNLOAD_DIR download URL http://downloads.sourceforge.net/project/gnuwin32/libintl/0.14.4/libintl-0.14.4-src.zip CONFIGURE_COMMAND ${CMAKE_BINARY_DIR}/libintl-prefix/src/libintl/src/libintl/0.14.4/libintl-0.14.4-src/configure CC=${MINGW_C_COMPILER} CXX=${MINGW_CXX_COMPILER} CFLAGS=-I${CMAKE_BINARY_DIR}libintl-prefix/src/libintl-build BUILD_COMMAND make BUILD_IN_SOURCE 1 INSTALL_COMMAND "")
+
 set(CMAKE_OPTIONS -DEDITOR=0 -DPLUGINS=0)
-set(DEPENDENCIES jpeg)
+set(DEPENDENCIES jpeg) # gettext libintl
 
 option(EDITOR "Editor" 0)
 option(PLUGINS "Plugins" 0)
@@ -37,4 +44,5 @@ if (EDITOR OR PLUGINS)
 	ExternalProject_Add(ogre HG_REPOSITORY https://bitbucket.org/sinbad/ogre CONFIGURE_COMMAND cmake ${CMAKE_CURRENT_BINARY_DIR}/ogre-prefix/src/ogre/ -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/Toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=install BUILD_COMMAND make BUILD_IN_SOURCE 1 INSTALL_COMMAND "")
 endif ()
 
-ExternalProject_Add(wc3lib DEPENDS ${DEPENDENCIES} GIT_REPOSITORY git://wc3lib.org/wc3lib.git CONFIGURE_COMMAND cmake ${CMAKE_CURRENT_BINARY_DIR}/wc3lib-prefix/src/wc3lib/ -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/Toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=install ${CMAKE_OPTIONS} BUILD_COMMAND make BUILD_IN_SOURCE 1 INSTALL_COMMAND "")
+# libintl-8.dll
+ExternalProject_Add(wc3lib DEPENDS ${DEPENDENCIES} GIT_REPOSITORY git://wc3lib.org/wc3lib.git CONFIGURE_COMMAND cmake ${CMAKE_CURRENT_BINARY_DIR}/wc3lib-prefix/src/wc3lib/ -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/Toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=install ${CMAKE_OPTIONS} -DCMAKE_STANDARD_LIBRARIES="${MINGW_ROOT_DIR}/bin/libintl-8.dll ${MINGW_ROOT_DIR}/bin/libgettextlib-0-19-4.dll" BUILD_COMMAND make BUILD_IN_SOURCE 1 INSTALL_COMMAND "")
