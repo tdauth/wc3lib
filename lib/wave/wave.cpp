@@ -12,6 +12,8 @@
 /* 25.04.10  1.01  Tamino Dauth  Made independent.                           */
 /*****************************************************************************/
 
+#include "stdint.h"
+
 #include "wave.h"
 
 // for little endian
@@ -44,7 +46,7 @@ union TWordAndByteArray
 //-----------------------------------------------------------------------------
 // Tables necessary dor decompression
 
-static long Table1503F120[] =
+static int64_t Table1503F120[] =
 {
     0xFFFFFFFF, 0x00000000, 0xFFFFFFFF, 0x00000004, 0xFFFFFFFF, 0x00000002, 0xFFFFFFFF, 0x00000006,
     0xFFFFFFFF, 0x00000001, 0xFFFFFFFF, 0x00000005, 0xFFFFFFFF, 0x00000003, 0xFFFFFFFF, 0x00000007,
