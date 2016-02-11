@@ -150,13 +150,24 @@ QString ObjectTreeItem::text(bool showRawData) const
 
 QIcon ObjectTreeItem::icon() const
 {
-	if (isFolder())
+	if (this->objectData() != nullptr)
 	{
-		// TODO check if it is collapsed this->expanded()
-		return this->objectData()->source()->sharedData()->worldEditDataIcon("UEIcon_UnitCategory", "WorldEditArt", m_window);
+		if (isFolder())
+		{
+			// TODO check if it is collapsed this->expanded()
+			return this->objectData()->source()->sharedData()->worldEditDataIcon("UEIcon_UnitCategory", "WorldEditArt", m_window);
+		}
+
+		// improves the performance but has to be updated
+		if (this->m_icon.isNull())
+		{
+			this->m_icon = this->objectData()->objectIcon(originalObjectId(), customObjectId(), m_window);
+		}
+
+		return m_icon;
 	}
 
-	return this->objectData()->objectIcon(originalObjectId(), customObjectId(), m_window);
+	return QIcon();
 }
 
 QModelIndex ObjectTreeItem::modelIndex(ObjectTreeModel *model)

@@ -33,6 +33,8 @@ namespace wc3lib
 namespace editor
 {
 
+class TriggerEditor;
+
 /**
  * Simple modal dialog which allows users to edit global variables of triggers.
  */
@@ -41,9 +43,9 @@ class VariablesDialog : public QDialog, protected Ui::VariablesDialog
 	Q_OBJECT
 
 	public:
-		explicit VariablesDialog(class TriggerEditor *triggerEditor, Qt::WindowFlags f = 0);
+		explicit VariablesDialog(TriggerEditor *triggerEditor, Qt::WindowFlags f = 0);
 
-		class TriggerEditor* triggerEditor() const;
+		TriggerEditor* triggerEditor() const;
 
 		/**
 		 * Fills dialog with list of global variables from \p triggers.
@@ -58,11 +60,9 @@ class VariablesDialog : public QDialog, protected Ui::VariablesDialog
 		void variableShown(int,int);
 
 	private:
-		class TriggerEditor *m_triggerEditor;
+		TriggerEditor *m_triggerEditor;
 		map::Triggers *m_triggers;
 		VariableDialog *m_variableDialog;
-
-
 };
 
 inline class TriggerEditor* VariablesDialog::triggerEditor() const

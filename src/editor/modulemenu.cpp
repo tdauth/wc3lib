@@ -20,9 +20,6 @@
 
 #include <QtGui>
 
-#include <KAction>
-#include <KActionCollection>
-
 #include "modulemenu.hpp"
 #include "editor.hpp"
 

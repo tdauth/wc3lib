@@ -127,7 +127,7 @@ TriggerWidget::TriggerWidget(TriggerEditor *triggerEditor)
 , m_eventsItem(0)
 , m_conditionsItem(0)
 , m_actionsItem(0)
-, m_textEdit(new KTextEdit(this))
+, m_textEdit(new QTextEdit(this))
 , m_functionDialog(0)
 {
 }

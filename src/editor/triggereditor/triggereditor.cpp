@@ -25,7 +25,6 @@
 #include <QtGui>
 
 #include <KFileDialog>
-#include <KMessageBox>
 #include <KActionCollection>
 
 #include "triggereditor.hpp"
@@ -63,12 +62,7 @@ TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 , m_variablesDialog(0)
 , m_triggerActionCollection(0)
 , m_newActionCollection(0)
-, m_config(new TriggerEditorConfig())
 {
-	// read XML configuration
-	m_config->readConfig();
-	m_openDirectory = m_config->openDirectory();
-
 	Module::setupUi();
 
 	QSplitter *hSplitter = new QSplitter(Qt::Horizontal, this);
@@ -97,15 +91,18 @@ TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 	triggerActionCollection()->action("closetriggers")->setEnabled(false);
 	triggerActionCollection()->action("closecustomtexttriggers")->setEnabled(false);
 	triggerActionCollection()->action("closeall")->setEnabled(false);
+
+	// TODO read settings
+	QSettings settings("TriggerEditor");
+	m_openDirectory = settings.value("OpenDirectory").toUrl();
 }
 
 TriggerEditor::~TriggerEditor()
 {
 	writeSettings();
 
-	m_config->writeConfig();
-
-	delete m_config;
+	QSettings settings("TriggerEditor");
+	settings.setValue("OpenDirectory", m_openDirectory);
 }
 
 bool TriggerEditor::configure()
@@ -127,9 +124,9 @@ bool TriggerEditor::configure()
 			this->source()->sharedData()->refreshTriggerData(this);
 			this->source()->sharedData()->refreshTriggerStrings(this);
 		}
-		catch (Exception &e)
+		catch (const Exception &e)
 		{
-			KMessageBox::error(this, e.what());
+			QMessageBox::critical(this, tr("Error"), e.what());
 
 			return false;
 		}
@@ -577,14 +574,14 @@ void TriggerEditor::openTriggersUrl(const KUrl &url)
 {
 	if (this->source()->sharedData()->triggerData().get() == 0)
 	{
-		KMessageBox::error(this, i18n("No trigger data is loaded."));
+		QMessageBox::critical(this, tr("Error"), tr("No trigger data is loaded."));
 
 		return;
 	}
 
 	if (this->source()->sharedData()->triggerStrings().get() == 0)
 	{
-		KMessageBox::error(this, i18n("No trigger strings are loaded."));
+		QMessageBox::critical(this, tr("Error"), tr("No trigger strings are loaded."));
 
 		return;
 	}
@@ -593,7 +590,7 @@ void TriggerEditor::openTriggersUrl(const KUrl &url)
 
 	if (!source()->download(url, target, this))
 	{
-		KMessageBox::error(this, i18n("Unable to download triggers from \"%1\".", url.toEncoded().constData()));
+		QMessageBox::critical(this, tr("Error"), tr("Unable to download triggers from \"%1\".").arg(url.toEncoded().constData()));
 
 		return;
 	}
@@ -620,7 +617,7 @@ void TriggerEditor::openTriggersUrl(const KUrl &url)
 
 		this->source()->removeTempFile(target);
 	}
-	catch (std::exception &exception)
+	catch (const std::exception &exception)
 	{
 		this->source()->removeTempFile(target);
 
@@ -630,7 +627,7 @@ void TriggerEditor::openTriggersUrl(const KUrl &url)
 			triggers = 0;
 		}
 
-		KMessageBox::error(this, i18n("Unable to read triggers from file \"%1\".\nException: \"%2\".", target, exception.what()));
+		QMessageBox::critical(this, tr("Error"), tr("Unable to read triggers from file \"%1\".\nException: \"%2\".").arg(target).arg(exception.what()));
 
 		return;
 	}
@@ -653,7 +650,7 @@ void TriggerEditor::openCustomTextTriggers()
 
 	if (!source()->download(url, target, this))
 	{
-		KMessageBox::error(this, i18n("Unable to download custom text triggers from \"%1\".", url.toEncoded().constData()));
+		QMessageBox::critical(this, tr("Error"), tr("Unable to download custom text triggers from \"%1\".").arg(url.toEncoded().constData()));
 
 		return;
 	}
@@ -668,7 +665,7 @@ void TriggerEditor::openCustomTextTriggers()
 	}
 	catch (std::exception &exception)
 	{
-		KMessageBox::error(this, i18n("Unable to read custom text triggers from file \"%1\".\nException: \"%2\".", target, exception.what()));
+		QMessageBox::critical(this, tr("Error"), tr("Unable to read custom text triggers from file \"%1\".\nException: \"%2\".").arg(target).arg(exception.what()));
 
 		return;
 	}
@@ -706,7 +703,7 @@ void TriggerEditor::saveTriggers()
 	}
 	catch (Exception &e)
 	{
-		KMessageBox::error(this, tr("Error: \"%1\"").arg(e.what()));
+		QMessageBox::critical(this, tr("Error"), tr("Error: \"%1\"").arg(e.what()));
 	}
 }
 
@@ -914,7 +911,7 @@ void TriggerEditor::loadFromMap(Map* map)
 	}
 	else
 	{
-		KMessageBox::error(this, i18n("Triggers file \"%1\" doesn't exist.", map->map()->triggers()->fileName()));
+		QMessageBox::critical(this, tr("Error"), tr("Triggers file \"%1\" doesn't exist.").arg(map->map()->triggers()->fileName()));
 	}
 
 	if (map->map()->findFile(map->map()->customTextTriggers()->fileName()).isValid())
@@ -923,7 +920,7 @@ void TriggerEditor::loadFromMap(Map* map)
 	}
 	else
 	{
-		KMessageBox::error(this, i18n("Custom text triggers file \"%1\" doesn't exist.", map->map()->customTextTriggers()->fileName()));
+		QMessageBox::critical(this, tr("Error"), tr("Custom text triggers file \"%1\" doesn't exist.").arg(map->map()->customTextTriggers()->fileName()));
 	}
 }
 
@@ -982,7 +979,7 @@ void TriggerEditor::loadTriggerData()
 {
 	if (source() == 0)
 	{
-		KMessageBox::error(this, tr("No source available!"));
+		QMessageBox::critical(this, tr("Error"), tr("No source available!"));
 
 		return;
 	}
@@ -1000,9 +997,9 @@ void TriggerEditor::loadTriggerData()
 	{
 		this->source()->sharedData()->refreshTriggerData(this, url);
 	}
-	catch (std::exception &exception)
+	catch (const std::exception &exception)
 	{
-		KMessageBox::error(this, i18n("Unable to read trigger data from file \"%1\".\nException: \"%2\".", url.toLocalFile(), exception.what()));
+		QMessageBox::critical(this, tr("Error"), tr("Unable to read trigger data from file \"%1\".\nException: \"%2\".").arg(url.toLocalFile()).arg(exception.what()));
 
 		return;
 	}
@@ -1012,7 +1009,7 @@ void TriggerEditor::loadTriggerStrings()
 {
 	if (source() == 0)
 	{
-		KMessageBox::error(this, tr("No source available!"));
+		QMessageBox::critical(this, tr("Error"), tr("No source available!"));
 
 		return;
 	}
@@ -1030,9 +1027,9 @@ void TriggerEditor::loadTriggerStrings()
 	{
 		this->source()->sharedData()->refreshTriggerStrings(this, url);
 	}
-	catch (std::exception &exception)
+	catch (const std::exception &exception)
 	{
-		KMessageBox::error(this, i18n("Unable to read trigger strings from file \"%1\".\nException: \"%2\".", url.toLocalFile(), exception.what()));
+		QMessageBox::critical(this, tr("Error"), tr("Unable to read trigger strings from file \"%1\".\nException: \"%2\".").arg(url.toLocalFile()).arg(exception.what()));
 
 		return;
 	}
@@ -1060,7 +1057,7 @@ void TriggerEditor::newCategory()
 		}
 		catch (boost::bad_numeric_cast &e)
 		{
-			KMessageBox::error(this, i18n("Invalid category index %1: \"%2\"", triggers()->categories().size(), e.what()));
+			QMessageBox::critical(this, tr("Error"), tr("Invalid category index %1: \"%2\"").arg(triggers()->categories().size()).arg(e.what()));
 		}
 	}
 }
@@ -1096,9 +1093,7 @@ void TriggerEditor::newTrigger()
 
 void TriggerEditor::newTriggerComment()
 {
-
 }
-
 
 void TriggerEditor::newEvent()
 {
@@ -1398,7 +1393,6 @@ QIcon TriggerEditor::triggerIcon(WarcraftIIIShared *sharedData, QWidget *window,
 
 	return QIcon();
 }
-
 
 QString TriggerEditor::variableInitialValueText(WarcraftIIIShared *sharedData, const map::Variable &variable)
 {

@@ -91,13 +91,9 @@ QModelIndex AbilityTreeModel::raceIndex(ObjectData *objectData, const QString &o
 	{
 		return index(3, 0, objectsIndex(objectData, originalObjectId, customObjectId));
 	}
-	else if (race == "demon")
-	{
-		return index(4, 0, objectsIndex(objectData, originalObjectId, customObjectId));
-	}
 	else
 	{
-		return index(5, 0, objectsIndex(objectData, originalObjectId, customObjectId));
+		return index(4, 0, objectsIndex(objectData, originalObjectId, customObjectId));
 	}
 
 	return index(0, 0, objectsIndex(objectData, originalObjectId, customObjectId));
@@ -138,7 +134,6 @@ void AbilityTreeModel::createRaces(WarcraftIIIShared *shared, int row, QModelInd
 	names << shared->tr("WESTRING_RACE_ORC");
 	names << shared->tr("WESTRING_RACE_NIGHTELF");
 	names << shared->tr("WESTRING_RACE_UNDEAD");
-	names << shared->tr("WESTRING_RACE_DEMON");
 	names << shared->tr("WESTRING_RACE_NEUTRAL");
 
 	insertRowFolders(names, row, parent);

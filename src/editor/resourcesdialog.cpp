@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Tamino Dauth                                    *
+ *   Copyright (C) 2016 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,15 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_TEAMCOLORDIALOG_HPP
-#define WC3LIB_EDITOR_TEAMCOLORDIALOG_HPP
-
-#include <QDialog>
-
-#include <kdemacros.h>
-
-#include "ui_teamcolordialog.h"
-#include "platform.hpp"
+#include "resourcesdialog.hpp"
+#include "mpqprioritylist.hpp"
 
 namespace wc3lib
 {
@@ -34,39 +27,33 @@ namespace wc3lib
 namespace editor
 {
 
-/**
- * Widget with a \ref KColorComboBox which is limited to all available team colors in Warcraft III.
- * \sa TeamColor
- */
-class KDE_EXPORT TeamColorDialog : public QDialog, protected Ui::TeamColorDialog
+ResourcesDialog::ResourcesDialog(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), m_sources(nullptr)
 {
-	public:
-		TeamColorDialog(QWidget *parent = 0, Qt::WFlags flags = 0);
+	setupUi(this);
 
-		/**
-		 * Sets the selected team color of the dialog.
-		 * \param teamColor The team color which is selected.
-		 */
-		void setTeamColor(TeamColor teamColor);
+	//connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(accept()));
+	//connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
+}
 
-		/**
-		 * \return Returns the selected team color of the dialog.
-		 */
-		TeamColor teamColor() const;
-};
-
-inline void TeamColorDialog::setTeamColor(TeamColor teamColor)
+void ResourcesDialog::setSources(MpqPriorityList *sources)
 {
-	this->m_colorComboBox->setCurrentIndex((int)teamColor);
+	tableWidget->clear();
+	tableWidget->setRowCount(sources->sources().size());
+
+	int row = 0;
+
+	for (MpqPriorityList::Sources::const_iterator iterator = sources->sources().begin(); iterator != sources->sources().end(); ++iterator)
+	{
+		QTableWidgetItem *item = new QTableWidgetItem(iterator->url().toLocalFile());
+		tableWidget->setItem(row, 0, item);
+		++row;
+		//tableWidget->ad
+		//tableWidget->
+	}
 }
 
-inline TeamColor TeamColorDialog::teamColor() const
-{
-	return editor::teamColor(this->m_colorComboBox->color());
-}
+#include "moc_resourcesdialog.cpp"
 
 }
 
 }
-
-#endif // TEAMCOLORDIALOG_HPP

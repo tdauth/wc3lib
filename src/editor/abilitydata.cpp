@@ -155,8 +155,13 @@ bool AbilityData::hasMetaDataList() const
 
 ObjectData::MetaDataList AbilityData::metaDataList() const
 {
+	ObjectData::MetaDataList result;
+	result.append(abilityData());
+	result.append(itemAbilityFunc());
+	result.append(humanAbilityFunc());
+
 	// TODO support slks
-	return ObjectData::MetaDataList();
+	return result;
 }
 
 bool AbilityData::hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level) const
@@ -279,58 +284,70 @@ void AbilityData::widgetize(const KUrl &url)
 {
 	const QString dir = url.toLocalFile();
 
-	Objects abilitiesWithMaximumLevel4;
-	Objects abilitiesWithHigherLevel4;
+	Objects objectsWithMaximumLevel4;
+	Objects objectsWithHigherLevel4;
 
 	for (Objects::const_iterator iterator = this->objects().begin(); iterator != this->objects().end(); ++iterator)
 	{
-		if (this->fieldValue(iterator.key().originalObjectId(), iterator.key().customObjectId(), "alev") <= "4")
+		if (this->objectLevels(iterator.key().originalObjectId(), iterator.key().customObjectId()) <= 4)
 		{
-			abilitiesWithMaximumLevel4.insert(iterator.key(), iterator.value());
+			objectsWithMaximumLevel4.insert(iterator.key(), iterator.value());
 		}
 		else
 		{
-			abilitiesWithHigherLevel4.insert(iterator.key(), iterator.value());
+			objectsWithHigherLevel4.insert(iterator.key(), iterator.value());
 		}
 	}
 
-	// create AbilityData.slk by merging the original with the custom objects
-	map::Slk abilityData = dynamic_cast<SlkTextSource*>(this->abilityData()->textSource())->slk();
-	abilityData.resizeTable(std::make_pair(abilityData.rows() + abilitiesWithMaximumLevel4.size(), abilityData.columns()));
-	int row = 0;
+	// TODO copy existing default data into this instance
+	MetaDataList metaDataList = this->metaDataList();
+	MetaDataList metaDataListCopy;
 
-	for (Objects::const_iterator iterator = abilitiesWithMaximumLevel4.begin(); iterator != abilitiesWithMaximumLevel4.end(); ++iterator)
+	for (int i = 0; i < metaDataList.size(); ++i)
+	{
+		metaDataListCopy.append(new MetaData(*metaDataList.at(i)));
+	}
+
+	// create AbilityData.slk by merging the original with the custom objects
+	for (Objects::const_iterator iterator = objectsWithMaximumLevel4.begin(); iterator != objectsWithMaximumLevel4.end(); ++iterator)
 	{
 		ObjectId id = iterator.key();
-		Modifications modifications = iterator.value();
 
-		QList<QString> line;
-
-		// alias
-		line << id.second;
-		// code
-		line << id.second;
-		// uberAlias
-		line << id.second;
-		// comments
-		line << "";
-		// useInEditor
-		line << "1";
-
-		// TODO all fields
-
-		for (int column = 0; column < line.size() && column < abilityData.columns(); ++column)
+		// copy every defined field in meta data into the data file
+		for (int row = 1; row < this->metaData()->rows(); ++row)
 		{
-			abilityData.cell(row, column) = string(line[column].toUtf8().constData());
+			const QString fieldId = this->metaData()->value(row, "ID");
+			const QString field = this->metaData()->value(row, "field");
+			const QString fieldValue = this->fieldValue(id.originalObjectId(), id.customObjectId(), fieldId);
+
+			// TODO we need a faster way to detect the metaDataList entry for the field
+			const MetaData *defaultMetaData = this->resolveDefaultField(id.originalObjectId(), fieldId).first();
+
+			for (int i = 0; i < metaDataListCopy.size(); ++i)
+			{
+				if (metaDataListCopy.at(i)->url().fileName() == defaultMetaData->url().fileName())
+				{
+					// TODO set field value properly if its index is not -1 and its level value is not 0
+					metaDataListCopy.at(i)->setValue(id.customObjectId(), field, fieldValue);
+				}
+			}
 		}
+		// TODO only write fields into this SLK file
 	}
 
 	// TODO create races TXT files!
 
-	// TODO write abilitiesWithHigherLevel4 into w3a file
+	// TODO write objectsWithHigherLevel4 into w3a file
 
-	ofstream out(string(dir.toUtf8().constData()) + "/" + "AbilityData.slk");
-	abilityData.write(out);
+	/*
+	 * Write all copied meta data files with the custom AND default entries into the specified directory with the same names.
+	 */
+	for (int i = 0; i < metaDataListCopy.size(); ++i)
+	{
+		KUrl slkFileUrl = url;
+		slkFileUrl.addPath(metaDataListCopy.at(i)->url().fileName());
+		metaDataListCopy.at(i)->save(slkFileUrl);
+	}
 }
 
 void AbilityData::load(QWidget *widget)

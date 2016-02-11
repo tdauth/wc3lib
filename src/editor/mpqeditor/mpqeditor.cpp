@@ -837,39 +837,34 @@ void MpqEditor::openWar3XLocal()
 
 void MpqEditor::createFileActions(QMenu *menu)
 {
-	m_fileActions = new KActionCollection(this);
-
-	QAction *action = new QAction(QIcon(":/actions/openarchives.png"), i18n("Open archives"), this);
+	QAction *action = new QAction(QIcon(":/actions/openarchives.png"), tr("Open archives"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(openMpqArchives()));
-	m_fileActions->addAction("openarchives", action);
+	menu->addAction(action);
 
-	m_recentArchivesMenu = new QMenu(i18n("Open recent"), this);
-	m_fileActions->addAction("openrecentarchives", m_recentArchivesMenu->menuAction());
+	m_recentArchivesMenu = new QMenu(tr("Open recent"), this);
 	m_archiveHistoryActions = new QActionGroup(this);
 
 	m_recentArchivesSeparator = m_recentArchivesMenu->addSeparator();
-	action = new QAction(i18n("Clear list"), this);
+	action = new QAction(tr("Clear list"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(clearHistory()));
-	m_recentArchivesMenu->addAction(action);
+	menu->addAction(action);
 
-	m_closeAction = new QAction(QIcon(":/actions/closearchives.png"), i18n("Close archives"), this);
+	m_closeAction = new QAction(QIcon(":/actions/closearchives.png"), tr("Close archives"), this);
 	connect(m_closeAction, SIGNAL(triggered()), this, SLOT(closeMpqArchives()));
-	m_fileActions->addAction("closearchives", m_closeAction);
+	menu->addAction(m_closeAction);
 
-	m_closeAllAction = new QAction(QIcon(":/actions/closearchives.png"), i18n("Close all archives"), this);
+	m_closeAllAction = new QAction(QIcon(":/actions/closearchives.png"), tr("Close all archives"), this);
 	connect(m_closeAllAction, SIGNAL(triggered()), this, SLOT(closeAllMpqArchives()));
-	m_fileActions->addAction("closearchives", m_closeAllAction);
-
-	m_fileActions->associateWidget(menu);
+	menu->addAction(m_closeAllAction);
 }
 
 void MpqEditor::createEditActions(QMenu *menu)
 {
-	m_extractAction = new QAction(QIcon(":/actions/extract.png"), i18n("Extract files"), this);
+	m_extractAction = new QAction(QIcon(":/actions/extract.png"), tr("Extract files"), this);
 	connect(m_extractAction, SIGNAL(triggered()), this, SLOT(extractFiles()));
 	menu->addAction(m_extractAction);
 
-	m_infoAction = new QAction(QIcon(":/actions/showfileinfo.png"), i18n("File info"), this);
+	m_infoAction = new QAction(QIcon(":/actions/showfileinfo.png"), tr("File info"), this);
 	connect(m_infoAction, SIGNAL(triggered()), this, SLOT(showFileInfo()));
 	menu->addAction(m_infoAction);
 }

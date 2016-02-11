@@ -25,10 +25,6 @@
 #include <QSettings>
 #include <QLinkedList>
 
-#include <kdemacros.h>
-#include <KAboutData>
-#include <KActionCollection>
-
 #include "platform.hpp"
 #include "mpqprioritylist.hpp"
 #include "newmapdialog.hpp"
@@ -99,9 +95,6 @@ class KDE_EXPORT Editor : public QObject, public MpqPriorityList
 		typedef QList<Map*> Maps;
 		typedef QMap<Map*, QAction*> MapActions;
 
-		static const KAboutData& aboutData();
-		static const KAboutData& wc3libAboutData();
-
 		Editor(Root *root, QObject *parent = 0);
 		virtual ~Editor();
 
@@ -129,17 +122,7 @@ class KDE_EXPORT Editor : public QObject, public MpqPriorityList
 		Root* root() const;
 		Map* currentMap() const;
 
-		/**
-		 * Contains many default actions shared by all module tool bars like "Open Map" etc.
-		 */
-		KActionCollection* actionCollection() const;
-		/**
-		 * Contains actions of all registered modules of the editor.
-		 * \ref addModule()
-		 */
-		KActionCollection* modulesActionCollection() const;
 		const ModulesActions& modulesActions() const;
-		KActionCollection* mapsActionCollection() const;
 		const MapActions& mapActions() const;
 		const Modules& modules() const;
 		const Maps& maps() const;
@@ -187,16 +170,10 @@ class KDE_EXPORT Editor : public QObject, public MpqPriorityList
 		Modules& modules();
 		Maps& maps();
 
-		static KAboutData m_aboutData;
-		static KAboutData m_wc3libAboutData;
-
 		Root *m_root;
 		Map *m_currentMap;
 
-		KActionCollection *m_actionCollection;
-		KActionCollection *m_modulesActionCollection;
 		ModulesActions m_modulesActions;
-		KActionCollection *m_mapsActionCollection;
 		MapActions m_mapActions;
 		Modules m_modules;
 		Maps m_maps;
@@ -209,24 +186,9 @@ inline Map* Editor::currentMap() const
 	return m_currentMap;
 }
 
-inline KActionCollection* Editor::actionCollection() const
-{
-	return this->m_actionCollection;
-}
-
-inline KActionCollection* Editor::modulesActionCollection() const
-{
-	return this->m_modulesActionCollection;
-}
-
 inline const Editor::ModulesActions& Editor::modulesActions() const
 {
 	return this->m_modulesActions;
-}
-
-inline KActionCollection* Editor::mapsActionCollection() const
-{
-	return m_mapsActionCollection;
 }
 
 inline const Editor::MapActions& Editor::mapActions() const

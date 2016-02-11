@@ -22,9 +22,9 @@
 #define WC3LIB_COLORPALETTEDIALOG_HPP
 
 #include <QImage>
+#include <QDialog>
 
 #include <kdemacros.h>
-#include <KDialog>
 #include <KColorCells>
 
 namespace wc3lib
@@ -33,7 +33,7 @@ namespace wc3lib
 namespace editor
 {
 
-class KDE_EXPORT ColorPaletteDialog : public KDialog
+class KDE_EXPORT ColorPaletteDialog : public QDialog
 {
 	Q_OBJECT
 

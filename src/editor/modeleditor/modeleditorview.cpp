@@ -31,7 +31,7 @@ namespace wc3lib
 namespace editor
 {
 
-ModelEditorView::ModelEditorView(Root *root, class ModelEditor *modelEditor, Qt::WFlags f, Ogre::SceneType ogreSceneType, const Ogre::NameValuePairList *ogreParameters)
+ModelEditorView::ModelEditorView(Root *root, ModelEditor *modelEditor, Qt::WFlags f, Ogre::SceneType ogreSceneType, const Ogre::NameValuePairList *ogreParameters)
 : ModelView(root, modelEditor, f, ogreSceneType, ogreParameters)
 , m_hitTest(false) /// TODO m_hitTest(true) should be usual, changed for school only
 {

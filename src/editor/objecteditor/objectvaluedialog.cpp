@@ -210,6 +210,36 @@ int ObjectValueDialog::getValue(QString& result, const QString& fieldType, const
 			dialog->checkBox()->setVisible(true);
 			dialog->checkBox()->setChecked(fieldValue.toInt());
 		}
+		else if (fieldType == "abilCode")
+		{
+			// TODO allow standard and custom objects
+			dialog->comboBox()->clear();
+			dialog->comboBox()->setVisible(true);
+
+			foreach (QString abilityId, objectData->source()->sharedData()->sharedObjectData()->abilityData()->standardObjectIds())
+			{
+				dialog->comboBox()->addItem(objectData->source()->sharedData()->sharedObjectData()->abilityData()->objectName(abilityId, ""), abilityId);
+				// TODO set ability icon?
+			}
+
+			// we need the actual field value not the readable value to select the correct data
+			dialog->comboBox()->setCurrentIndex(dialog->comboBox()->findData(fieldValue));
+		}
+		else if (fieldType == "unitCode")
+		{
+			// TODO allow standard and custom objects
+			dialog->comboBox()->clear();
+			dialog->comboBox()->setVisible(true);
+
+			foreach (QString unitId, objectData->source()->sharedData()->sharedObjectData()->unitData()->standardObjectIds())
+			{
+				dialog->comboBox()->addItem(objectData->source()->sharedData()->sharedObjectData()->unitData()->objectName(unitId, ""), unitId);
+				// TODO set ability icon?
+			}
+
+			// we need the actual field value not the readable value to select the correct data
+			dialog->comboBox()->setCurrentIndex(dialog->comboBox()->findData(fieldValue));
+		}
 		else
 		{
 			const QString valueTypeDisplayString = "WESTRING_UE_TYPE_" + fieldType.toUpper();

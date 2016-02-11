@@ -32,17 +32,13 @@ namespace editor
 
 UpgradeTreeModel::UpgradeTreeModel(MpqPriorityList *source, QWidget *window, QObject *parent) : ObjectTreeModel(source, window, parent)
 {
-	QStringList names;
-	names << tr("Standard Upgrades");
-	names << tr("Custom Upgrades");
-
-	insertRowFolders(names, 0);
+	createObjects(source->sharedData().get());
 }
 
 ObjectTreeItem* UpgradeTreeModel::createItem(MpqPriorityList *source, ObjectData *objectData, QWidget *window, const QString &originalObjectId, const QString &customObjectId)
 {
-	UpgradeData *weatherData = dynamic_cast<UpgradeData*>(objectData);
-	const QModelIndex parentIndex = itemParent(weatherData, originalObjectId, customObjectId);
+	UpgradeData *upgradeData = dynamic_cast<UpgradeData*>(objectData);
+	const QModelIndex parentIndex = itemParent(upgradeData, originalObjectId, customObjectId);
 	ObjectTreeItem *parent = item(parentIndex);
 	qDebug() << "Count before:" << parent->children().count();
 	insertRows(parent->children().count(), 1, parentIndex);
@@ -66,12 +62,71 @@ ObjectTreeItem* UpgradeTreeModel::createItem(MpqPriorityList *source, ObjectData
 
 QModelIndex UpgradeTreeModel::itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId)
 {
+	return raceIndex(objectData, originalObjectId, customObjectId);
+}
+
+QModelIndex UpgradeTreeModel::objectsIndex(ObjectData* objectData, const QString& originalObjectId, const QString& customObjectId)
+{
 	if (customObjectId.isEmpty())
 	{
-		return index(0, 0);
+		return this->index(0, 0);
 	}
 
-	return index(1, 0);
+	return this->index(1, 0);
+}
+
+QModelIndex UpgradeTreeModel::raceIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId)
+{
+	const QString race = objectData->fieldValue(originalObjectId, customObjectId, "grac");
+
+	qDebug() << "Has race " << race;
+
+	if (race == "human")
+	{
+		return index(0, 0, objectsIndex(objectData, originalObjectId, customObjectId));
+	}
+	else if (race == "orc")
+	{
+		return index(1, 0, objectsIndex(objectData, originalObjectId, customObjectId));
+	}
+	else if (race == "nightelf")
+	{
+		return index(2, 0, objectsIndex(objectData, originalObjectId, customObjectId));
+	}
+	else if (race == "undead")
+	{
+		return index(3, 0, objectsIndex(objectData, originalObjectId, customObjectId));
+	}
+	else
+	{
+		return index(4, 0, objectsIndex(objectData, originalObjectId, customObjectId));
+	}
+
+	return index(0, 0, objectsIndex(objectData, originalObjectId, customObjectId));
+}
+
+void UpgradeTreeModel::createObjects(WarcraftIIIShared *shared)
+{
+	QStringList names;
+	names << shared->tr("WESTRING_GE_STANDARDUPGRS");
+	names << shared->tr("WESTRING_GE_CUSTOMUPGRS");
+
+	insertRowFolders(names, 0);
+
+	createRaces(shared, 0, this->index(0, 0));
+	createRaces(shared, 0, this->index(1, 0));
+}
+
+void UpgradeTreeModel::createRaces(WarcraftIIIShared *shared, int row, QModelIndex parent)
+{
+	QStringList names;
+	names << shared->tr("WESTRING_RACE_HUMAN");
+	names << shared->tr("WESTRING_RACE_ORC");
+	names << shared->tr("WESTRING_RACE_NIGHTELF");
+	names << shared->tr("WESTRING_RACE_UNDEAD");
+	names << shared->tr("WESTRING_RACE_NEUTRAL");
+
+	insertRowFolders(names, row, parent);
 }
 
 }

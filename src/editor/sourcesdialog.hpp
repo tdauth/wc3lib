@@ -55,6 +55,10 @@ class KDE_EXPORT SourcesDialog : public QDialog, protected Ui::SourcesDialog
 		 */
 		void update();
 		/**
+		 * Adds a file path to the "share" directory of the wc3lib project.
+		 */
+		void addWc3libDir();
+		/**
 		 * Opens a file dialog to select a directory which contains a Warcraft III installation.
 		 * It adds all default MPQ archives in the correct order from the directory.
 		 */

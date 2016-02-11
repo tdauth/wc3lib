@@ -73,22 +73,30 @@ std::streamsize TriggerStrings::read(TriggerStrings::InputStream& istream)
 	boost::scoped_ptr<Txt> txt(new Txt());
 	std::streamsize size = txt->read(istream);
 
-	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerEventStrings"))
+	/*
+	 * Fill map with all section entries for fast access of section entries.
+	 */
+	for (std::size_t i = 0; i < txt->sections().size(); ++i)
+	{
+		m_sectionEntries.insert(std::make_pair(txt->sections()[i].name, &txt->sections()[i].entries));
+	}
+
+	BOOST_FOREACH(Txt::Entries::const_reference ref, sectionEntries("TriggerEventStrings"))
 	{
 		readFunction(ref, this->events());
 	}
 
-	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerConditionStrings"))
+	BOOST_FOREACH(Txt::Entries::const_reference ref, sectionEntries("TriggerConditionStrings"))
 	{
 		readFunction(ref, this->conditions());
 	}
 
-	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerActionStrings"))
+	BOOST_FOREACH(Txt::Entries::const_reference ref, sectionEntries("TriggerActionStrings"))
 	{
 		readFunction(ref, this->actions());
 	}
 
-	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerCallStrings"))
+	BOOST_FOREACH(Txt::Entries::const_reference ref, sectionEntries("TriggerCallStrings"))
 	{
 		readFunction(ref, this->calls());
 	}
@@ -155,6 +163,27 @@ const TriggerStrings::Entries& TriggerStrings::entries(TriggerFunction::Type typ
 	}
 
 	throw Exception(boost::format(_("Unknown trigger function type: %1%")) % static_cast<int32>(type));
+}
+
+void TriggerStrings::clear()
+{
+	this->m_sectionEntries.clear();
+	this->m_events.clear();
+	this->m_conditions.clear();
+	this->m_actions.clear();
+	this->m_calls.clear();
+}
+
+const Txt::Entries& TriggerStrings::sectionEntries(const string &sectionName) const
+{
+	SectionEntries::const_iterator iterator = this->m_sectionEntries.find(sectionName);
+
+	if (iterator != this->m_sectionEntries.end())
+	{
+		return *iterator->second;
+	}
+
+	throw Exception(boost::format(_("Unknown section: %1%")) % sectionName);
 }
 
 }

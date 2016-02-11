@@ -20,9 +20,6 @@
 
 #include <QtGui>
 
-#include <KAction>
-#include <KActionCollection>
-
 #include "moduletoolbar.hpp"
 #include "editor.hpp"
 
@@ -51,9 +48,6 @@ ModuleToolBar::ModuleToolBar(Module *module) : QToolBar(module), m_leftModuleSep
 		connect(module->editor(), SIGNAL(createdModule(Module*)), this, SLOT(addModuleAction(Module*)));
 
 		m_rightModuleSeparator = this->addSeparator();
-
-		// test map tool button
-		this->addAction(module->editor()->actionCollection()->action("testmap"));
 	}
 }
 

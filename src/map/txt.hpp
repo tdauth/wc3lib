@@ -63,7 +63,39 @@ class Txt : public Format
 		 *
 		 * \sa wc3lib::map::Txt::Sections wc3lib::map::Txt::Entries wc3lib::map::Txt::Section
 		 */
-		typedef std::pair<string, string> Entry;
+		class Entry : public std::pair<string, string>
+		{
+			public:
+				/**
+				 * Creates an empty key value entry.
+				 */
+				Entry();
+				/**
+				 * Creates a new entry.
+				 * \param key The key of the entry.
+				 * \param value The value of the entry.
+				 */
+				Entry(const string &key, const string &value);
+
+				/**
+				 * Sets they key of the entry.
+				 * \param key The key of the entry.
+				 */
+				void setKey(const string &key);
+				/**
+				 * \return Returns the key of the entry.
+				 */
+				const string& key() const;
+				/**
+				 * Sets the value of the entry.
+				 * \param value The value of the entry.
+				 */
+				void setValue(const string &value);
+				/**
+				 * \return Retunrs the value of the entry.
+				 */
+				const string& value() const;
+		};
 		/**
 		 * \brief All entries of a section are stored in a single vector.
 		 *
@@ -83,7 +115,13 @@ class Txt : public Format
 		 */
 		struct Section
 		{
+			/**
+			 * The name of the section.
+			 */
 			string name;
+			/**
+			 * All entries of the section.
+			 */
 			Entries entries;
 		};
 
@@ -97,6 +135,10 @@ class Txt : public Format
 		typedef std::vector<Section> Sections;
 
 		/**
+		 * Sets sections to \p sections.
+		 */
+		void setSections(const Sections &sections);
+		/**
 		 * \return Returns all sections of the .txt file.
 		 *
 		 * @{
@@ -107,23 +149,45 @@ class Txt : public Format
 		 * @}
 		 */
 
-		/**
-		 * Returns all key value entries of section \p section.
-		 * \param section An existing section ([bla]) of the TXT file.
-		 * \throws Exception Throws an exception if section \p section does not exist.
-		 * \note Since sections are stored in a vector for more efficency while reading a TXT file this search has a complexity of O(n).
-		 * \note \p section is not necessarily unique! The first section with the name will be returned.
-		 * \todo Remove this member function and use \ref wc3lib::editor::MetaData for abstract access.
-		 * \deprecated
-		 */
-		const Entries& entries(const string &section) const;
-
 		virtual std::streamsize read(InputStream &istream) override;
 		virtual std::streamsize write(OutputStream &ostream) const override;
 
 	private:
 		Sections m_sections;
 };
+
+inline Txt::Entry::Entry()
+{
+}
+
+inline Txt::Entry::Entry(const string &key, const string &value) : std::pair<string, string>(key, value)
+{
+}
+
+inline void Txt::Entry::setKey(const string &key)
+{
+	this->first = key;
+}
+
+inline const string& Txt::Entry::key() const
+{
+	return this->first;
+}
+
+inline void Txt::Entry::setValue(const string &value)
+{
+	this->second = value;
+}
+
+inline const string& Txt::Entry::value() const
+{
+	return this->second;
+}
+
+inline void Txt::setSections(const Txt::Sections &sections)
+{
+	this->m_sections = sections;
+}
 
 inline Txt::Sections& Txt::sections()
 {

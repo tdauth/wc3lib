@@ -43,11 +43,19 @@ class KDE_EXPORT TextSourceInterface
 		virtual void write(ostream &out) const = 0;
 		virtual bool hasValue(const QString &rowKey, const QString &columnKey) const = 0;
 		virtual QString value(const QString &rowKey, const QString &columnKey) const = 0;
+		virtual void setValue(const QString &rowKey, const QString &columnKey, const QString &value) = 0;
 		virtual int rows() const = 0;
 		virtual bool hasValue(int row, const QString &columnKey) const = 0;
 		virtual QString value(int row, const QString &columnKey) const = 0;
 		virtual bool isEmpty() const = 0;
 		virtual void clear() = 0;
+
+		/**
+		 * Clones the text source on the heap and returns the cloned instance.
+		 * This method is required by the copy constructor of \ref MetaData to create an exact copy of another meta data.
+		 * \return Returns the cloned instance on the heap.
+		 */
+		virtual TextSourceInterface* clone() const = 0;
 };
 
 class KDE_EXPORT SlkTextSource : public TextSourceInterface
@@ -68,11 +76,13 @@ class KDE_EXPORT SlkTextSource : public TextSourceInterface
 		virtual void clear() override;
 		virtual bool hasValue(const QString &rowKey, const QString &columnKey) const override;
 		virtual QString value(const QString &rowKey, const QString &columnKey) const override;
+		virtual void setValue(const QString &rowKey, const QString &columnKey, const QString &value) override;
 		virtual int rows() const override;
 		virtual bool hasValue(int row, const QString& columnKey) const override;
 		virtual QString value(int row, const QString& columnKey) const override;
 		virtual void read(istream &in) override;
 		virtual void write(ostream& out) const override;
+		virtual TextSourceInterface* clone() const override;
 
 	private:
 		map::Slk m_slk;
@@ -154,10 +164,12 @@ class KDE_EXPORT TxtTextSource : public TextSourceInterface
 		virtual bool hasValue(const QString &rowKey, const QString &columnKey) const override;
 		virtual bool hasValue(int row, const QString& columnKey) const override;
 		virtual QString value(const QString &rowKey, const QString &columnKey) const override;
+		virtual void setValue(const QString &rowKey, const QString &columnKey, const QString &value) override;
 		virtual int rows() const override;
 		virtual QString value(int row, const QString& columnKey) const override;
 		virtual void read(istream &in) override;
 		virtual void write(ostream &out) const override;
+		virtual TextSourceInterface* clone() const override;
 
 	private:
 		map::Txt m_txt;
@@ -256,11 +268,13 @@ class KDE_EXPORT MapStringsTextSource : public TextSourceInterface
 		virtual void clear() override;
 		virtual bool hasValue(const QString &rowKey, const QString &columnKey) const override;
 		virtual QString value(const QString &rowKey, const QString &columnKey) const override;
+		virtual void setValue(const QString &rowKey, const QString &columnKey, const QString &value) override;
 		virtual int rows() const override;
 		virtual bool hasValue(int row, const QString& columnKey) const override;
 		virtual QString value(int row, const QString& columnKey) const override;
 		virtual void read(istream &in) override;
 		virtual void write(ostream &out) const override;
+		virtual TextSourceInterface* clone() const override;
 
 	private:
 		map::MapStrings m_mapStrings;
@@ -344,6 +358,10 @@ class KDE_EXPORT MetaData : public Resource
 {
 	public:
 		MetaData(const KUrl &url);
+		/**
+		 * Creates a copy of \p other.
+		 */
+		MetaData(const MetaData &other);
 		virtual ~MetaData();
 
 		virtual void clear();
@@ -377,6 +395,7 @@ class KDE_EXPORT MetaData : public Resource
 		 * \sa hasValue()
 		 */
 		QString value(const QString &rowKey, const QString &columnKey) const;
+		void setValue(const QString &rowKey, const QString &columnKey, const QString &value);
 
 		/**
 		 * \sa value()

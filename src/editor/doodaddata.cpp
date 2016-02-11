@@ -105,9 +105,7 @@ bool DoodadData::hideField(const QString &originalObjectId, const QString &custo
 
 QString DoodadData::objectName(const QString &originalObjectId, const QString &customObjectId) const
 {
-	const QString readable = fieldReadableValue(originalObjectId, customObjectId, "dnam");
-
-	return this->source()->sharedData()->tr(readable, "WorldEditStrings", readable);
+	return fieldReadableValue(originalObjectId, customObjectId, "dnam");
 }
 
 QIcon DoodadData::objectIcon(const QString& originalObjectId, const QString& customObjectId, QWidget* window) const

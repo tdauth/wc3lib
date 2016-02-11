@@ -1,8 +1,20 @@
+2016-02-11 Tamino Dauth <tamino@cdauth.eu>
+* Implement tree model for trigger editor instead of using trigger widget.
+
+2016-02-10 Tamino Dauth <tamino@cdauth.eu>
+* Move editor::MetaData to the map module and use it for map::TriggerStrings and map::TriggerData to get section values in an abstract way.
+* Use static lexers for all Boost Spirit based parsers: map::Txt, map::Slk, mdlx::MdlGrammerClient.
+* Add MetaData::setColumns(int, QList<QString> keys) and MetaData::setRows(int, QList<QString> keys) for better performance.
+* Implement MetaData::setValue() for all backends.
+* Implement ObjectData::widgetize() working for all object data classes.
+
 2016-02-07 Tamino Dauth <tamino@cdauth.eu>
 * Port to KDE Frameworks 5 and Qt 5: https://community.kde.org/Frameworks/Porting_Notes#Build_System in a separate branch.
+* https://wiki.qt.io/Transition_from_Qt_4.x_to_Qt5
+* Reduce dependencies to KDE. Actually only the IO slave plugin should depend on it.
 
 2016-02-06 Tamino Dauth <tamino@cdauth.eu>
-* Many temporary file leaks when using MpqPriorityList::download() but not using KIO::NetAccess::removeTempFile().
+* FIXED: Many temporary file leaks when using MpqPriorityList::download() but not using KIO::NetAccess::removeTempFile().
 
 2015-04-04 Tamino Dauth <tamino@cdauth.eu>
 * Trigger Editor: Improve performance on opening a trigger. Maybe loading icons is too slow.
@@ -12,12 +24,12 @@
 
 2015-01-01 Tamino Dauth <tamino@cdauth.eu>
 * Object Editor: Values are split by ',' but tooltip strings etc. which containt <Alc,DataA1> are cut at ','. Only split if its not a string value?
-* Object Editor: Build up lists of icons, models and order strings etc.
+* Object Editor: Build up lists of icons, models and order strings etc. for object values dialogs.
 * Object Editor: Improve performance on loading objects into tree model. Performance is probably slow because of the slow download of icons from MPQ archives using the KDE IO slave. Maybe use a different approach.
 * FIXED: Object Editor: Show default icon for objects which have no icon.
 * Object Editor: Doodad, Destructible, Buff, Research editors.
 * Object Editor: Advanced search dialog: search for raw data including various object types, objects without icons, objects with specific fields.
-* Ability Editor: Missing level values for abilities.
+* FIXED: Ability Editor: Missing level values for abilities.
 * Object Editor: Show "Unnamed" if object has no name.
 
 2014-11-26 Tamino Dauth <tamino@cdauth.eu>

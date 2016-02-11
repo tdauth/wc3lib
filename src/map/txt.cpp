@@ -29,6 +29,8 @@
 
 #include <boost/fusion/adapted/std_pair.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
+#include <boost/fusion/adapted/adt/adapt_adt.hpp>
+#include <boost/fusion/include/adapt_adt.hpp>
 
 #include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
@@ -149,6 +151,9 @@ struct KeyValueSquence : qi::grammar<Iterator, Txt::Entries(), Skipper>
 		using qi::eol;
 		using qi::eoi;
 		using qi::eps;
+		using qi::_val;
+		using namespace qi::labels;
+		using phoenix::at_c;
 
 		// use only > for non backtracking expectations to get more specific error results
 
@@ -156,10 +161,10 @@ struct KeyValueSquence : qi::grammar<Iterator, Txt::Entries(), Skipper>
 			pair % qi::eol
 		;
 
-		pair %=
-			key
+		pair =
+			key[at_c<0>(_val) = _1]
 			> lit('=')
-			> value
+			> value[at_c<1>(_val) = _1]
 		;
 
 		key %=
@@ -327,19 +332,6 @@ bool parse(Iterator first, Iterator last, Txt::Sections &sections)
 
 }
 
-const Txt::Entries& Txt::entries(const string &section) const
-{
-	for (Sections::size_type i = 0; i < this->sections().size(); ++i)
-	{
-		if (this->sections()[i].name == section)
-		{
-			return this->sections()[i].entries;
-		}
-	}
-
-	throw Exception();
-}
-
 std::streamsize Txt::read(InputStream &istream)
 {
 	typedef std::istreambuf_iterator<byte> IteratorType;
@@ -404,3 +396,34 @@ std::streamsize Txt::write(OutputStream &ostream) const
 }
 
 }
+
+namespace boost
+{
+
+namespace spirit
+{
+
+namespace traits
+{
+
+template <typename Out>
+struct print_attribute_debug<Out, wc3lib::map::Txt::Entry>
+{
+	static void call(Out& out, wc3lib::map::Txt::Entry const& val)
+	{
+		out << "key_value";
+	}
+};
+
+}
+
+}
+
+}
+
+BOOST_FUSION_ADAPT_ADT(
+	wc3lib::map::Txt::Entry,
+	(wc3lib::string, wc3lib::string, obj.key(), obj.setKey(val))
+	(wc3lib::string, wc3lib::string, obj.value(), obj.setValue(val))
+)
+

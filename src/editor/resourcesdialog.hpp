@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Tamino Dauth                                    *
+ *   Copyright (C) 2016 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,15 +18,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WC3LIB_EDITOR_TEAMCOLORDIALOG_HPP
-#define WC3LIB_EDITOR_TEAMCOLORDIALOG_HPP
+#ifndef WC3LIB_EDITOR_RESOURCESDIALOG_HPP
+#define WC3LIB_EDITOR_RESOURCESDIALOG_HPP
 
 #include <QDialog>
 
-#include <kdemacros.h>
-
-#include "ui_teamcolordialog.h"
-#include "platform.hpp"
+#include "ui_resourceswidget.h"
 
 namespace wc3lib
 {
@@ -34,39 +31,22 @@ namespace wc3lib
 namespace editor
 {
 
-/**
- * Widget with a \ref KColorComboBox which is limited to all available team colors in Warcraft III.
- * \sa TeamColor
- */
-class KDE_EXPORT TeamColorDialog : public QDialog, protected Ui::TeamColorDialog
+class MpqPriorityList;
+
+class ResourcesDialog : public QDialog, protected Ui::ResourcesWidget
 {
+	Q_OBJECT
+	
 	public:
-		TeamColorDialog(QWidget *parent = 0, Qt::WFlags flags = 0);
+		explicit ResourcesDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
 
-		/**
-		 * Sets the selected team color of the dialog.
-		 * \param teamColor The team color which is selected.
-		 */
-		void setTeamColor(TeamColor teamColor);
-
-		/**
-		 * \return Returns the selected team color of the dialog.
-		 */
-		TeamColor teamColor() const;
+		void setSources(MpqPriorityList *sources);
+	private:
+		MpqPriorityList *m_sources;
 };
 
-inline void TeamColorDialog::setTeamColor(TeamColor teamColor)
-{
-	this->m_colorComboBox->setCurrentIndex((int)teamColor);
-}
-
-inline TeamColor TeamColorDialog::teamColor() const
-{
-	return editor::teamColor(this->m_colorComboBox->color());
 }
 
 }
 
-}
-
-#endif // TEAMCOLORDIALOG_HPP
+#endif

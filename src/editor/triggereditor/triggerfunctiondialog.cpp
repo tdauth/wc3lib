@@ -20,8 +20,6 @@
 
 #include <QtGui>
 
-#include <KMessageBox>
-
 #include "triggerfunctiondialog.hpp"
 #include "triggereditor.hpp"
 #include "../mpqprioritylist.hpp"
@@ -263,7 +261,7 @@ void TriggerFunctionDialog::acceptOnlyValid()
 {
 	if (!isValid())
 	{
-		KMessageBox::error(this, tr("Function is not valid!"));
+		QMessageBox::critical(this, tr("Error"), tr("Function is not valid!"));
 
 		return;
 	}

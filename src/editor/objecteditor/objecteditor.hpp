@@ -212,6 +212,8 @@ class KDE_EXPORT ObjectEditor : public Module
 		void importCustomObjectsCollection(const map::CustomObjectsCollection &collection);
 		void importCustomUnits(const map::CustomUnits &customUnits);
 
+		void exportCustomObjectsCollection(map::CustomObjectsCollection &collection);
+
 	public slots:
 		/**
 		 * Exports all objects from all object editor tabs as \ref wc3lib::map::CustomObjectsCollection (.w3o) file.
@@ -222,11 +224,20 @@ class KDE_EXPORT ObjectEditor : public Module
 		 * Imports all objects from a \ref wc3lib::map::CustomObjectsCollection (.w3o) file into the different object editor tabs.
 		 */
 		void importAll();
+
+		/**
+		 * Compresses the objects of all object editor tabs.
+		 */
+		void compressAll();
+		void widgetizeAll();
+
 		/**
 		 * Compresses the object data of the currently open tab.
 		 */
 		void compress();
-
+		/**
+		 * Widgetizes the object data of the currently open tab.
+		 */
 		void widgetize();
 
 	protected:
@@ -237,7 +248,6 @@ class KDE_EXPORT ObjectEditor : public Module
 		virtual void createToolButtons(ModuleToolBar *toolBar) override;
 		virtual SettingsInterface* settings() override;
 		virtual void onSwitchToMap(Map *map) override;
-		virtual KAboutData moduleAboutData() const override;
 		virtual QString actionName() const override;
 		virtual QIcon icon() override;
 
@@ -285,6 +295,10 @@ class KDE_EXPORT ObjectEditor : public Module
 		QAction *m_resetAllObjectsAction;
 		QAction *m_exportAllObjectsAction;
 		QAction *m_importAllObjectsAction;
+		QAction *m_exportAllAction;
+		QAction *m_importAllAction;
+		QAction *m_compressAllAction;
+		QAction *m_widgetizeAllAction;
 		QAction *m_copyObjectAction;
 		QAction *m_pasteObjectAction;
 		QAction *m_modifyFieldAction;
@@ -463,14 +477,6 @@ inline QAction* ObjectEditor::resetFieldAction() const
 inline QAction* ObjectEditor::compressAction() const
 {
 	return this->m_compressAction;
-}
-
-inline KAboutData ObjectEditor::moduleAboutData() const
-{
-	KAboutData aboutData(Module::moduleAboutData());
-	aboutData.setProgramName(ki18n("Object Editor"));
-
-	return aboutData;
 }
 
 inline QString ObjectEditor::actionName() const

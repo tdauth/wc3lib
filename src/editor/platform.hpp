@@ -36,8 +36,6 @@
 #include <QFileInfo>
 
 #include <KUrl>
-#include <KMimeType>
-#include <KLocalizedString>
 
 #include <Ogre.h>
 
@@ -673,7 +671,7 @@ inline Ogre::Quaternion ogreVertex<Ogre::Quaternion, float32, 4>(const BasicVert
  */
 inline QString mapFilter()
 {
-	return i18n("*.w3m|Warcraft III: Reign of Chaos map\n*.w3m|Warcraft III: The Frozen Throne map");
+	return QObject::tr("*.w3m|Warcraft III: Reign of Chaos map\n*.w3m|Warcraft III: The Frozen Throne map");
 }
 
 /**
@@ -685,7 +683,7 @@ inline QString mapFilter()
  */
 inline QString objectsCollectionFilter()
 {
-	return i18n("*.w3o|Warcraft III Objects Collection");
+	return QObject::tr("*.w3o|Warcraft III Objects Collection");
 }
 
 /**
@@ -697,7 +695,7 @@ inline QString objectsCollectionFilter()
  */
 inline QString triggersFilter()
 {
-	return i18n("*.wtg|Warcraft III Triggers");
+	return QObject::tr("*.wtg|Warcraft III Triggers");
 }
 
 /**
@@ -709,7 +707,7 @@ inline QString triggersFilter()
  */
 inline QString customTextTriggersFilter()
 {
-	return i18n("*.wtc|Warcraft III Custom Text Triggers");
+	return QObject::tr("*.wtc|Warcraft III Custom Text Triggers");
 }
 
 // TODO Use image open URL function but MIME type of BLP is not usable on debugging

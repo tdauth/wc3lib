@@ -21,7 +21,6 @@
 #include <QtCore>
 
 #include <KIO/NetAccess>
-#include <KMessageBox>
 
 #include "mpqprioritylist.hpp"
 #include "sourcesdialog.hpp"

@@ -23,10 +23,10 @@
 
 #include <QScopedPointer>
 #include <QCheckBox>
+#include <QAction>
 
 #include <kdemacros.h>
 #include <KUrl>
-#include <QAction>
 #include <KFileDialog>
 #include <KDialogButtonBox>
 
@@ -193,7 +193,6 @@ class KDE_EXPORT TextureEditor : public Module
 		virtual void createToolButtons(ModuleToolBar *toolBar) override;
 		virtual SettingsInterface* settings() override;
 		virtual void onSwitchToMap(Map *map) override;
-		virtual KAboutData moduleAboutData() const override;
 		virtual QString actionName() const override;
 		virtual QIcon icon() override;
 
@@ -365,14 +364,6 @@ inline TextureEditor::SaveDialog *TextureEditor::saveDialog() const
 	}
 
 	return this->m_saveDialog;
-}
-
-inline KAboutData TextureEditor::moduleAboutData() const
-{
-	KAboutData aboutData(Module::moduleAboutData());
-	aboutData.setProgramName(ki18n("Texture Editor"));
-
-	return aboutData;
 }
 
 inline QString TextureEditor::actionName() const

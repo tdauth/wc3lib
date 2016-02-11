@@ -20,8 +20,6 @@
 
 #include <QtGui>
 
-#include <KDialogButtonBox>
-
 #include "colorpalettedialog.hpp"
 
 namespace wc3lib
@@ -31,9 +29,11 @@ namespace editor
 {
 
 ColorPaletteDialog::ColorPaletteDialog(QWidget *parent) :
-	KDialog(parent), m_colorCells(new KColorCells(this, 2, 4))
+	QDialog(parent), m_colorCells(new KColorCells(this, 2, 4))
 {
-	this->setMainWidget(colorCells());
+	QVBoxLayout *layout = new QVBoxLayout(this);
+	this->setLayout(layout);
+	layout->addWidget(colorCells());
 }
 
 }

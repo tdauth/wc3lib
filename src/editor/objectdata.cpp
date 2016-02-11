@@ -632,7 +632,7 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 		}
 	}
 
-	if (fieldType == "int" || fieldType == "real" || fieldType == "unreal" || fieldType == "string" || fieldType == "char")
+	if (fieldType == "int" || fieldType == "real" || fieldType == "unreal" || fieldType == "char" || fieldType == "string")
 	{
 		return fieldValue;
 	}
@@ -666,6 +666,26 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 		return result;
 		*/
 		return fieldValue;
+	}
+	else if (fieldType == "abilCode")
+	{
+		// check if it is a custom or default object
+		if (this->source()->sharedData()->sharedObjectData()->abilityData()->standardObjectIds().contains(fieldValue))
+		{
+			return this->source()->sharedData()->sharedObjectData()->abilityData()->objectName(fieldValue, "");
+		}
+
+		return this->source()->sharedData()->sharedObjectData()->abilityData()->objectName("", fieldValue);
+	}
+	else if (fieldType == "unitCode")
+	{
+		// check if it is a custom or default object
+		if (this->source()->sharedData()->sharedObjectData()->unitData()->standardObjectIds().contains(fieldValue))
+		{
+			return this->source()->sharedData()->sharedObjectData()->unitData()->objectName(fieldValue, "");
+		}
+
+		return this->source()->sharedData()->sharedObjectData()->unitData()->objectName("", fieldValue);
 	}
 	/*
 	 * For object lists we need all the object names.
@@ -1147,7 +1167,7 @@ int ObjectData::compress()
 			const QString fieldId = this->metaData()->value(i, "ID");
 			//qDebug() << "Field: " << fieldId;
 
-			// TODO check if the modification has the same value as the default value
+			// TODO check if the modification has the same value as the default value. This check probably requires more than just a == string comparison since different values of strings might still have the same meaning.
 			if (this->isFieldModified(id.originalObjectId(), id.customObjectId(), fieldId) && (this->hideField(id.originalObjectId(), id.customObjectId(), fieldId) || this->fieldValue(id.originalObjectId(), id.customObjectId(), fieldId) == this->defaultFieldValue(id.originalObjectId(), fieldId)))
 			{
 				qDebug() << "Field is modified";
@@ -1170,6 +1190,7 @@ int ObjectData::compress()
 
 void ObjectData::widgetize(const KUrl &url)
 {
+	//
 }
 
 QString ObjectData::defaultFieldValue(const QString& objectId, const QString& fieldId, int level, bool &exists) const
@@ -1213,6 +1234,8 @@ QString ObjectData::defaultFieldValue(const QString& objectId, const QString& fi
 		{
 			/*
 			 * The index is used for button positions for example when multiple fields share the same field name such as "Buttonpos".
+			 *
+			 * It is also used for multiple level values. Each index is for one level value.
 			 */
 			const QString index = this->metaData()->value(fieldId, "index");
 			bool ok = true;
@@ -1228,6 +1251,8 @@ QString ObjectData::defaultFieldValue(const QString& objectId, const QString& fi
 					 */
 					indexValue += level;
 
+					QStringList values;
+
 					/*
 					 * Get tokens between quotes " " and ignore any , characters between the quotes. Otherwise values will be cut.
 					 *
@@ -1235,7 +1260,24 @@ QString ObjectData::defaultFieldValue(const QString& objectId, const QString& fi
 					 *
 					 * TODO implement tokenizer
 					 */
-					const QStringList values = value.split("\",", QString::SkipEmptyParts);
+					value = value.trimmed();
+
+					if (value.startsWith('\"'))
+					{
+						const QStringList quoteValues = value.split("\"");
+
+						foreach (QString quotedValue, quoteValues)
+						{
+							if (quotedValue.trimmed() != ",")
+							{
+								values.append(quotedValue);
+							}
+						}
+					}
+					else
+					{
+						values = value.split(",");
+					}
 
 					if (indexValue < values.size())
 					{
@@ -1245,6 +1287,18 @@ QString ObjectData::defaultFieldValue(const QString& objectId, const QString& fi
 				}
 
 				exists = true;
+
+				/*
+				 * WESTRING_ entries reference a string in the file "UI/WorldEditStrings.txt.
+				 * The default section is "[WorldEditStrings]".
+				 *
+				 * These entries are used for strings which has to be translated since the file "UI/WorldEditStrings.txt" is part of the MPQ archive War3xLocal.mpq.
+				 */
+				if (value.startsWith("WESTRING"))
+				{
+					return this->source()->sharedData()->tr(value);
+				}
+
 				return value;
 			}
 			else

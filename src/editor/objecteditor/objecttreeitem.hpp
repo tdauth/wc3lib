@@ -140,6 +140,8 @@ class ObjectTreeItem
 		ObjectTreeItem *m_parent;
 		Children m_children;
 		bool m_expanded;
+		// TODO find a better caching mechanism
+		mutable QIcon m_icon;
 };
 
 inline void ObjectTreeItem::setFolderText(const QString& text)

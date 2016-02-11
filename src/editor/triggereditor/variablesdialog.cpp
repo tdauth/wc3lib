@@ -20,9 +20,6 @@
 
 #include <QtGui>
 
-#include <KComboBox>
-#include <KMessageBox>
-
 #include "variablesdialog.hpp"
 #include "triggereditor.hpp"
 #include "../mpqprioritylist.hpp"
@@ -33,7 +30,7 @@ namespace wc3lib
 namespace editor
 {
 
-VariablesDialog::VariablesDialog(class TriggerEditor *triggerEditor, Qt::WindowFlags f) :  QDialog(triggerEditor, f), m_triggerEditor(triggerEditor), m_triggers(0)
+VariablesDialog::VariablesDialog(TriggerEditor *triggerEditor, Qt::WindowFlags f) :  QDialog(triggerEditor, f), m_triggerEditor(triggerEditor), m_triggers(0)
 {
 	setupUi(this);
 
@@ -77,7 +74,7 @@ void VariablesDialog::showVariables(map::Triggers *triggers)
 {
 	if (this->triggerEditor()->source()->sharedData()->triggerData().get() == 0)
 	{
-		KMessageBox::error(this, tr("No trigger data loaded."));
+		QMessageBox::critical(this, tr("Error"), tr("No trigger data loaded."));
 
 		return;
 	}

@@ -18,12 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <QApplication>
 #include <QScopedPointer>
-
-#include <KApplication>
-#include <KAboutData>
-#include <KCmdLineArgs>
-#include <KLocale>
 
 #include "../editor.hpp"
 
@@ -33,14 +29,7 @@ using namespace wc3lib::editor;
 
 int main(int argc, char *argv[])
 {
-	KAboutData aboutData(Editor::aboutData());
-
-	KCmdLineArgs::init(argc, argv, &aboutData);
-	KCmdLineOptions options;
-	options.add("+[file]", ki18n("File to open"));
-	KCmdLineArgs::addCmdLineOptions(options);
-
-	KApplication app;
+	QApplication app(argc, argv);
 
 	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
 	TextureEditor editor(source.data());
@@ -48,16 +37,6 @@ int main(int argc, char *argv[])
 	if (editor.configure())
 	{
 		editor.show();
-
-		KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
-
-		if (args != 0)
-		{
-			for (int i = 0; i < args->count(); ++i)
-			{
-				editor.openUrl(args->url(i));
-			}
-		}
 	}
 
 	return app.exec();

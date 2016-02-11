@@ -24,9 +24,9 @@
 #include <boost/ptr_container/ptr_list.hpp>
 
 #include <QDebug>
+#include <QMessageBox>
 
 #include <kdemacros.h>
-#include <KMessageBox>
 
 #include <Ogre.h>
 
@@ -127,7 +127,6 @@ class KDE_EXPORT ModelEditor : public Module
 		virtual void createToolButtons(ModuleToolBar *toolBar) override;
 		virtual SettingsInterface* settings() override;
 		virtual void onSwitchToMap(Map *map) override;
-		virtual KAboutData moduleAboutData() const override;
 		virtual QString actionName() const override;
 		virtual QIcon icon() override;
 
@@ -202,9 +201,9 @@ inline void ModelEditor::setTeamColor(TeamColor teamColor)
 		{
 			value.setTeamColor(this->teamColor());
 		}
-		catch (Exception &exception)
+		catch (const Exception &exception)
 		{
-			KMessageBox::error(this, i18n("Unable to assign team color %1 and to model \"%2\".\nException \"%3\".", static_cast<int>(this->teamColor()), value.url().toEncoded().constData(), exception.what()));
+			QMessageBox::critical(this, tr("Error"), tr("Unable to assign team color %1 and to model \"%2\".\nException \"%3\".").arg(static_cast<int>(this->teamColor())).arg(value.url().toEncoded().constData()).arg(exception.what()));
 		}
 	}
 }
@@ -225,9 +224,9 @@ inline void ModelEditor::setTeamGlow(TeamColor teamGlow)
 		{
 			value.setTeamGlow(this->teamGlow());
 		}
-		catch (Exception &exception)
+		catch (const Exception &exception)
 		{
-			KMessageBox::error(this, i18n("Unable to assign team glow %1 and to model \"%2\".\nException \"%3\".", static_cast<int>(this->teamGlow()), value.url().toEncoded().constData(), exception.what()));
+			QMessageBox::critical(this, tr("Error"), tr("Unable to assign team glow %1 and to model \"%2\".\nException \"%3\".").arg(static_cast<int>(this->teamGlow())).arg(value.url().toEncoded().constData()).arg(exception.what()));
 		}
 	}
 }
@@ -235,14 +234,6 @@ inline void ModelEditor::setTeamGlow(TeamColor teamGlow)
 inline TeamColor ModelEditor::teamGlow() const
 {
 	return m_teamGlow;
-}
-
-inline KAboutData ModelEditor::moduleAboutData() const
-{
-	KAboutData aboutData(Module::moduleAboutData());
-	aboutData.setProgramName(ki18n("Model Editor"));
-
-	return aboutData;
 }
 
 inline QString ModelEditor::actionName() const

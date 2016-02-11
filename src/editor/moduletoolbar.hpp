@@ -48,7 +48,7 @@ class KDE_EXPORT ModuleToolBar : public QToolBar
 	public:
 		ModuleToolBar(Module *module);
 
-		void addCustomAction(class QAction *action);
+		void addCustomAction(QAction *action);
 		void addCustomSeparator();
 
 		Module* module() const;
@@ -57,7 +57,7 @@ class KDE_EXPORT ModuleToolBar : public QToolBar
 		void addModuleAction(Module *module);
 
 	private:
-		class QAction *m_leftModuleSeparator;
+		QAction *m_leftModuleSeparator;
 		QAction *m_rightModuleSeparator;
 };
 

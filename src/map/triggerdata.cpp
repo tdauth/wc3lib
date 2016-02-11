@@ -402,7 +402,15 @@ std::streamsize TriggerData::read(InputStream &istream)
 	boost::scoped_ptr<Txt> txt(new Txt());
 	std::streamsize size = txt->read(istream);
 
-	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerCategories"))
+	/*
+	 * Fill map with all section entries for fast access of section entries.
+	 */
+	for (std::size_t i = 0; i < txt->sections().size(); ++i)
+	{
+		m_sectionEntries.insert(std::make_pair(txt->sections()[i].name, &txt->sections()[i].entries));
+	}
+
+	BOOST_FOREACH(Txt::Entries::const_reference ref, sectionEntries("TriggerCategories"))
 	{
 		std::auto_ptr<Category> category(new Category());
 
@@ -433,7 +441,7 @@ std::streamsize TriggerData::read(InputStream &istream)
 	typedef std::map<string, string> BaseTypes;
 	BaseTypes baseTypes;
 
-	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerTypes"))
+	BOOST_FOREACH(Txt::Entries::const_reference ref, sectionEntries("TriggerTypes"))
 	{
 		std::auto_ptr<Type> type(new Type());
 
@@ -510,7 +518,7 @@ std::streamsize TriggerData::read(InputStream &istream)
 	}
 
 	// set trigger type defaults which are stored in a separated category
-	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerTypeDefaults"))
+	BOOST_FOREACH(Txt::Entries::const_reference ref, sectionEntries("TriggerTypeDefaults"))
 	{
 		Types::iterator defaultIterator = this->types().find(ref.first);
 
@@ -524,7 +532,7 @@ std::streamsize TriggerData::read(InputStream &istream)
 		}
 	}
 
-	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerParams"))
+	BOOST_FOREACH(Txt::Entries::const_reference ref, sectionEntries("TriggerParams"))
 	{
 		std::auto_ptr<Parameter> parameter(new Parameter());
 		string name = ref.first;
@@ -557,22 +565,22 @@ std::streamsize TriggerData::read(InputStream &istream)
 		this->parameters().insert(name, parameter);
 	}
 
-	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerEvents"))
+	BOOST_FOREACH(Txt::Entries::const_reference ref, sectionEntries("TriggerEvents"))
 	{
 		readFunction<Function>(ref, this->events());
 	}
 
-	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerConditions"))
+	BOOST_FOREACH(Txt::Entries::const_reference ref, sectionEntries("TriggerConditions"))
 	{
 		readFunction<Function>(ref, this->conditions());
 	}
 
-	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerActions"))
+	BOOST_FOREACH(Txt::Entries::const_reference ref, sectionEntries("TriggerActions"))
 	{
 		readFunction<Function>(ref, this->actions());
 	}
 
-	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("TriggerCalls"))
+	BOOST_FOREACH(Txt::Entries::const_reference ref, sectionEntries("TriggerCalls"))
 	{
 		readFunction<Call>(ref, this->calls());
 	}
@@ -580,7 +588,7 @@ std::streamsize TriggerData::read(InputStream &istream)
 	std::size_t numCategories = 0;
 	std::size_t actualCategories = 0;
 
-	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("DefaultTriggerCategories"))
+	BOOST_FOREACH(Txt::Entries::const_reference ref, sectionEntries("DefaultTriggerCategories"))
 	{
 		if (ref.first == "NumCategories")
 		{
@@ -612,7 +620,7 @@ std::streamsize TriggerData::read(InputStream &istream)
 	std::size_t numTriggers = 0;
 	std::size_t actualTriggers = 0;
 
-	BOOST_FOREACH(Txt::Entries::const_reference ref, txt->entries("DefaultTriggers"))
+	BOOST_FOREACH(Txt::Entries::const_reference ref, sectionEntries("DefaultTriggers"))
 	{
 		if (ref.first == "NumTriggers")
 		{
@@ -808,6 +816,7 @@ std::streamsize TriggerData::write(OutputStream &ostream) const
 
 void TriggerData::clear()
 {
+	this->m_sectionEntries.clear();
 	this->m_categories.clear();
 	this->m_types.clear();
 	this->m_parameters.clear();
@@ -818,6 +827,18 @@ void TriggerData::clear()
 	this->m_defaultTriggerCategories.clear();
 	this->m_defaultTriggers.clear();
 	this->m_specialTypes.clear();
+}
+
+const Txt::Entries& TriggerData::sectionEntries(const string &sectionName) const
+{
+	SectionEntries::const_iterator iterator = this->m_sectionEntries.find(sectionName);
+
+	if (iterator != this->m_sectionEntries.end())
+	{
+		return *iterator->second;
+	}
+
+	throw Exception(boost::format(_("Unknown section: %1%")) % sectionName);
 }
 
 }

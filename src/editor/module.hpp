@@ -31,8 +31,6 @@
 #include <QMenuBar>
 
 #include <kdemacros.h>
-#include <KComponentData>
-#include <KAboutData>
 
 namespace wc3lib
 {
@@ -68,14 +66,7 @@ class KDE_EXPORT Module : public QWidget
 		Module(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~Module();
 		MpqPriorityList* source() const;
-		/**
-		 * \warning Don't use in constructor since it calls virtual function \ref moduleAboutData() on initialization.
-		 */
-		KComponentData& componentData();
-		/**
-		 * \copydoc Module::componentData()
-		 */
-		const KComponentData& componentData() const;
+
 		QMenu* fileMenu() const;
 		QMenu* editMenu() const;
 		ModuleMenu* moduleMenu() const;
@@ -151,12 +142,6 @@ class KDE_EXPORT Module : public QWidget
 		 */
 		virtual void createToolButtons(ModuleToolBar *toolBar) = 0;
 		virtual SettingsInterface* settings() = 0;
-		/**
-		 * About data which is assigned to the module and can be accessed via \ref componentData().
-		 * Default implementation returns \ref Editor::wc3libAboutData() with app and catalog name using \ref actionName().
-		 * \note Assignment runs in \ref setupUi().
-		 */
-		virtual KAboutData moduleAboutData() const;
 
 		QVBoxLayout* topLayout() const;
 		QGridLayout* centerLayout() const;
@@ -167,8 +152,6 @@ class KDE_EXPORT Module : public QWidget
 		virtual void onSwitchToMap(Map *map) = 0;
 
 		virtual void changeEvent(QEvent *event);
-
-
 
 		/**
 		 * Reads settings of the module.
@@ -187,8 +170,7 @@ class KDE_EXPORT Module : public QWidget
 
 	private:
 		MpqPriorityList *m_source;
-		typedef QScopedPointer<KComponentData> ComponentDataPtr;
-		ComponentDataPtr m_componentData;
+
 		QMenu *m_fileMenu;
 		QMenu *m_editMenu;
 		ModuleMenu *m_moduleMenu;
@@ -214,26 +196,6 @@ class KDE_EXPORT Module : public QWidget
 inline MpqPriorityList* Module::source() const
 {
 	return this->m_source;
-}
-
-inline KComponentData& Module::componentData()
-{
-	if (m_componentData.isNull())
-	{
-		const_cast<Module*>(this)->m_componentData.reset(new KComponentData(moduleAboutData()));
-	}
-
-	return *m_componentData;
-}
-
-inline const KComponentData& Module::componentData() const
-{
-	if (m_componentData.isNull())
-	{
-		const_cast<Module*>(this)->m_componentData.reset(new KComponentData(moduleAboutData()));
-	}
-
-	return *m_componentData;
 }
 
 inline QMenu* Module::fileMenu() const

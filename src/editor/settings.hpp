@@ -31,6 +31,8 @@ namespace wc3lib
 namespace editor
 {
 
+class Editor;
+
 /**
 * Settings widget for model view settings.
 * Allows you to configure OGRE rendering settings (e. g. resolution, renderer, lighting etc.).
@@ -39,19 +41,19 @@ namespace editor
 class KDE_EXPORT Settings : public SettingsInterface
 {
 	public:
-		Settings(class Editor *editor);
+		Settings(Editor *editor);
 
 		virtual void read(const KConfigGroup &group);
 		virtual void write(KConfigGroup &group) const;
 		virtual QString groupName() const;
 
-		class Editor* editor() const;
+		Editor* editor() const;
 
 	protected:
-		class Editor *m_editor;
+		Editor *m_editor;
 };
 
-inline class Editor* Settings::editor() const
+inline Editor* Settings::editor() const
 {
 	return this->m_editor;
 }

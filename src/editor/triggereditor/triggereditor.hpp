@@ -32,6 +32,7 @@
 
 #include <kdemacros.h>
 #include <KUrl>
+#include <KActionCollection>
 
 #include "../module.hpp"
 #include "../mpqprioritylist.hpp"
@@ -42,6 +43,12 @@ namespace wc3lib
 
 namespace editor
 {
+
+class MpqPriorityList;
+class MapScriptWidget;
+class TriggerWidget;
+class VariablesDialog;
+
 /**
  * \page triggereditorsection Trigger Editor
  * Warcraft III provides an event-based scripting language called JASS to define the game logic. Since JASS provides many native functions which allows you to completely redefine your own game behaviour many custom maps have been created.
@@ -87,7 +94,7 @@ class KDE_EXPORT TriggerEditor : public Module
 		 */
 		static string cutQuotes(const string &value);
 
-		TriggerEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		TriggerEditor(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~TriggerEditor();
 
 		virtual bool configure() override;
@@ -126,17 +133,17 @@ class KDE_EXPORT TriggerEditor : public Module
 		 * \return Returns the widget which allows editing the custom map script.
 		 * \sa triggerWidget()
 		 */
-		class MapScriptWidget* mapScriptWidget() const;
+		MapScriptWidget* mapScriptWidget() const;
 		/**
 		 * The trigger widget allows editing a trigger's flags, comment and functions.
 		 * It is shown when double clicking a trigger in tree widget and replaces the map script widget if shown before.
 		 * \return Returns the trigger widget which might contain information of the currently selected trigger.
 		 * \sa mapScriptWidget()
 		 */
-		class TriggerWidget* triggerWidget() const;
-		class VariablesDialog* variablesDialog() const;
-		class KActionCollection* triggerActionCollection() const;
-		class KActionCollection* newActionCollection() const;
+		TriggerWidget* triggerWidget() const;
+		VariablesDialog* variablesDialog() const;
+		KActionCollection* triggerActionCollection() const;
+		KActionCollection* newActionCollection() const;
 
 		/**
 		 * \defgroup triggerhelpers Trigger data helper functions
@@ -332,7 +339,7 @@ class KDE_EXPORT TriggerEditor : public Module
 		void newAction();
 
 	protected slots:
-		void itemClicked(class QTreeWidgetItem *item, int column);
+		void itemClicked(QTreeWidgetItem *item, int column);
 
 	protected:
 		virtual void createFileActions(QMenu *menu) override;
@@ -341,7 +348,6 @@ class KDE_EXPORT TriggerEditor : public Module
 		virtual void createWindowsActions(WindowsMenu *menu) override;
 		virtual void createToolButtons(ModuleToolBar *toolBar) override;
 		virtual SettingsInterface* settings() override;
-		virtual KAboutData moduleAboutData() const override;
 		virtual void onSwitchToMap(Map *map) override;
 		virtual QString actionName() const override;
 		virtual QIcon icon() override;
@@ -376,15 +382,14 @@ class KDE_EXPORT TriggerEditor : public Module
 
 		QTreeWidget *m_treeWidget;
 		QTreeWidgetItem *m_rootItem;
-		class MapScriptWidget *m_mapScriptWidget;
-		class TriggerWidget *m_triggerWidget;
-		class VariablesDialog *m_variablesDialog;
+		MapScriptWidget *m_mapScriptWidget;
+		TriggerWidget *m_triggerWidget;
+		VariablesDialog *m_variablesDialog;
 
 		KActionCollection *m_triggerActionCollection;
 		KActionCollection *m_newActionCollection;
 
 		KUrl m_openDirectory;
-		class TriggerEditorConfig *m_config;
 };
 
 inline string TriggerEditor::triggerText(map::Trigger *trigger) const
@@ -446,22 +451,22 @@ inline QTreeWidgetItem* TriggerEditor::rootItem() const
 	return this->m_rootItem;
 }
 
-inline class MapScriptWidget* TriggerEditor::mapScriptWidget() const
+inline MapScriptWidget* TriggerEditor::mapScriptWidget() const
 {
 	return this->m_mapScriptWidget;
 }
 
-inline class TriggerWidget* TriggerEditor::triggerWidget() const
+inline TriggerWidget* TriggerEditor::triggerWidget() const
 {
 	return this->m_triggerWidget;
 }
 
-inline class VariablesDialog* TriggerEditor::variablesDialog() const
+inline VariablesDialog* TriggerEditor::variablesDialog() const
 {
 	return m_variablesDialog;
 }
 
-inline class KActionCollection* TriggerEditor::triggerActionCollection() const
+inline KActionCollection* TriggerEditor::triggerActionCollection() const
 {
 	return m_triggerActionCollection;
 }
@@ -469,15 +474,6 @@ inline class KActionCollection* TriggerEditor::triggerActionCollection() const
 inline KActionCollection* TriggerEditor::newActionCollection() const
 {
 	return m_newActionCollection;
-}
-
-
-inline KAboutData TriggerEditor::moduleAboutData() const
-{
-	KAboutData aboutData(Module::moduleAboutData());
-	aboutData.setProgramName(ki18n("Trigger Editor"));
-
-	return aboutData;
 }
 
 inline QString TriggerEditor::actionName() const
@@ -548,7 +544,6 @@ QString TriggerEditor::triggerFunctionCategoryText(const Functions &functions, c
 	return QString();
 
 }
-
 
 template<class Functions>
 QString TriggerEditor::triggerFunctionText(WarcraftIIIShared *sharedData, const map::TriggerData *triggerData, const map::TriggerStrings *triggerStrings, const QString &code, map::TriggerFunction *function, const Functions &functions, const map::TriggerStrings::Entries &entries, bool withLinks, bool withHint, bool withCategory)

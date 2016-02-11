@@ -22,14 +22,15 @@
 #define WC3LIB_EDITOR_TRIGGEREDITOR_MAPSCRIPTWIDGET_HPP
 
 #include <QWidget>
-
-#include <KTextEdit>
+#include <QTextEdit>
 
 namespace wc3lib
 {
 
 namespace editor
 {
+
+class TriggerEditor;
 
 /**
  * \todo Should show custom script comment and custom map script.
@@ -38,17 +39,17 @@ namespace editor
 class MapScriptWidget : public QWidget
 {
 	public:
-		MapScriptWidget(class TriggerEditor *triggerEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		MapScriptWidget(TriggerEditor *triggerEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
 
-		class TriggerEditor* triggerEditor() const;
-		KTextEdit* textEdit() const;
+		TriggerEditor* triggerEditor() const;
+		QTextEdit* textEdit() const;
 
 	private:
-		class TriggerEditor *m_triggerEditor;
-		KTextEdit *m_textEdit;
+		TriggerEditor *m_triggerEditor;
+		QTextEdit *m_textEdit;
 };
 
-inline KTextEdit* MapScriptWidget::textEdit() const
+inline QTextEdit* MapScriptWidget::textEdit() const
 {
 	return this->m_textEdit;
 }

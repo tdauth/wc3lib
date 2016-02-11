@@ -106,7 +106,7 @@ bool DestructableData::hideField(const QString &originalObjectId, const QString 
 QString DestructableData::objectName(const QString &originalObjectId, const QString &customObjectId) const
 {
 	// destructable strings are WESTRING entries
-	QString name = this->source()->sharedData()->tr(fieldReadableValue(originalObjectId, customObjectId, "bnam"));
+	QString name = fieldReadableValue(originalObjectId, customObjectId, "bnam");
 
 	if (this->hasFieldValue(originalObjectId, customObjectId, "bsuf"))
 	{
@@ -114,7 +114,7 @@ QString DestructableData::objectName(const QString &originalObjectId, const QStr
 
 		if (!readableSuffix.isEmpty() && readableSuffix != "_")
 		{
-			const QString suffix = this->source()->sharedData()->tr(readableSuffix);
+			const QString suffix = readableSuffix;
 
 			if (suffix.startsWith('('))
 			{

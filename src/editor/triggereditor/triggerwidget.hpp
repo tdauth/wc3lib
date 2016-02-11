@@ -23,6 +23,7 @@
 
 #include <QtGui/QWidget>
 #include <QtGui/QTreeWidget>
+#include <QtGui/QTextEdit>
 
 #include "ui_triggertopwidget.h"
 #include "../../map.hpp"
@@ -89,7 +90,7 @@ class TriggerWidget : public QWidget, protected Ui::TriggerTopWidget
 		 * Otherwise it is hidden.
 		 * \sa functionsTreeWidget()
 		 */
-		KTextEdit* textEdit() const;
+		QTextEdit* textEdit() const;
 
 		TriggerFunctionDialog* functionDialog() const;
 
@@ -118,7 +119,7 @@ class TriggerWidget : public QWidget, protected Ui::TriggerTopWidget
 		QTreeWidgetItem *m_conditionsItem;
 		QTreeWidgetItem *m_actionsItem;
 		Functions m_functions;
-		KTextEdit *m_textEdit;
+		QTextEdit *m_textEdit;
 
 		TriggerFunctionDialog *m_functionDialog;
 };
@@ -163,7 +164,7 @@ inline const TriggerWidget::Functions& TriggerWidget::functions() const
 	return m_functions;
 }
 
-inline KTextEdit* TriggerWidget::textEdit() const
+inline QTextEdit* TriggerWidget::textEdit() const
 {
 	return m_textEdit;
 }

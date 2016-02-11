@@ -65,21 +65,11 @@ BOOST_AUTO_TEST_CASE(TxtSimpleReadTest)
 	txt.read(sstream);
 
 	BOOST_REQUIRE(txt.sections().size() == 1);
-	bool exists = true;
-
-	try
-	{
-		txt.entries("MySection");
-	}
-	catch (Exception e)
-	{
-		exists = false;
-	}
-
-	BOOST_REQUIRE(exists);
-	BOOST_REQUIRE(txt.entries("MySection").size() == 1);
-	wc3lib::map::Txt::Entries::iterator begin = txt.sections()[0].entries.begin();
-	wc3lib::map::Txt::Entries::iterator end = txt.sections()[0].entries.end();
+	const map::Txt::Section &section = txt.sections()[0];
+	BOOST_REQUIRE(section.name == "MySection");
+	BOOST_REQUIRE(section.entries.size() == 1);
+	wc3lib::map::Txt::Entries::const_iterator begin = section.entries.begin();
+	wc3lib::map::Txt::Entries::const_iterator end = section.entries.end();
 	BOOST_REQUIRE(std::find_if(begin, end, isHello) != end);
 	//std::cout << "Value: " << std::find_if(begin, end, isHello)->second << std::endl;
 	BOOST_REQUIRE(std::find_if(begin, end, isHello)->second == "23");
@@ -110,21 +100,11 @@ BOOST_AUTO_TEST_CASE(TxtReadTest)
 	txt.read(sstream);
 
 	BOOST_REQUIRE(txt.sections().size() == 1);
-	bool exists = true;
-
-	try
-	{
-		txt.entries("MySection");
-	}
-	catch (Exception e)
-	{
-		exists = false;
-	}
-
-	BOOST_REQUIRE(exists);
-	BOOST_REQUIRE(txt.entries("MySection").size() == 2);
-	wc3lib::map::Txt::Entries::iterator begin = txt.sections()[0].entries.begin();
-	wc3lib::map::Txt::Entries::iterator end = txt.sections()[0].entries.end();
+	const map::Txt::Section &section = txt.sections()[0];
+	BOOST_REQUIRE(section.name == "MySection");
+	BOOST_REQUIRE(section.entries.size() == 2);
+	wc3lib::map::Txt::Entries::const_iterator begin = section.entries.begin();
+	wc3lib::map::Txt::Entries::const_iterator end = section.entries.end();
 	BOOST_REQUIRE(std::find_if(begin, end, isHello) != end);
 	//std::cout << "Value: " << std::find_if(begin, end, isHello)->second << std::endl;
 	BOOST_REQUIRE(std::find_if(begin, end, isHello)->second == "23");
@@ -161,21 +141,11 @@ BOOST_AUTO_TEST_CASE(TxtReadTestWithSpacesAtBeginning)
 	txt.read(sstream);
 
 	BOOST_REQUIRE(txt.sections().size() == 1);
-	bool exists = true;
-
-	try
-	{
-		txt.entries("MySection");
-	}
-	catch (Exception e)
-	{
-		exists = false;
-	}
-
-	BOOST_REQUIRE(exists);
-	BOOST_REQUIRE(txt.entries("MySection").size() == 2);
-	wc3lib::map::Txt::Entries::iterator begin = txt.sections()[0].entries.begin();
-	wc3lib::map::Txt::Entries::iterator end = txt.sections()[0].entries.end();
+	const map::Txt::Section &section = txt.sections()[0];
+	BOOST_REQUIRE(section.name == "MySection");
+	BOOST_REQUIRE(section.entries.size() == 2);
+	wc3lib::map::Txt::Entries::const_iterator begin = section.entries.begin();
+	wc3lib::map::Txt::Entries::const_iterator end = section.entries.end();
 	BOOST_REQUIRE(std::find_if(begin, end, isHello) != end);
 	//std::cout << "Value: " << std::find_if(begin, end, isHello)->second << std::endl;
 	BOOST_REQUIRE(std::find_if(begin, end, isHello)->second == "23");
@@ -229,23 +199,12 @@ BOOST_AUTO_TEST_CASE(TxtReadTriggerDataTest)
 	txt.read(sstream);
 
 	BOOST_REQUIRE(txt.sections().size() == 1);
-	bool exists = true;
-
-	try
-	{
-		//std::cout << "Section: " << txt.sections().front().name << "END" << std::endl;
-		txt.entries("bla");
-	}
-	catch (Exception e)
-	{
-		exists = false;
-	}
-
-	BOOST_REQUIRE(exists);
+	const map::Txt::Section &section = txt.sections()[0];
+	BOOST_REQUIRE(section.name == "bla");
 	//std::cout << "Entries count: " << txt.entries("bla").size()  << std::endl;
-	BOOST_REQUIRE(txt.entries("bla").size() == 6);
-	wc3lib::map::Txt::Entries::iterator begin = txt.sections()[0].entries.begin();
-	wc3lib::map::Txt::Entries::iterator end = txt.sections()[0].entries.end();
+	BOOST_REQUIRE(section.entries.size() == 6);
+	wc3lib::map::Txt::Entries::const_iterator begin = section.entries.begin();
+	wc3lib::map::Txt::Entries::const_iterator end = section.entries.end();
 	BOOST_REQUIRE(std::find_if(begin, end, isOperatorCompareBoolean) != end);
 	//std::cout << "Value: " << std::find_if(begin, end, isOperatorCompareBoolean)->second << std::endl;
 	BOOST_REQUIRE(std::find_if(begin, end, isOperatorCompareBoolean)->second == "\"Boolean Comparison\"");
@@ -298,20 +257,8 @@ BOOST_AUTO_TEST_CASE(TxtWriteTriggerDataTest)
 	*/
 
 	BOOST_REQUIRE(txt.sections().size() == 1);
-
-	bool exists = true;
-
-	try
-	{
-		//std::cout << "Section: " << txt.sections().front().name << "END" << std::endl;
-		txt.entries("bla");
-	}
-	catch (Exception e)
-	{
-		exists = false;
-	}
-
-	BOOST_REQUIRE(exists);
+	const map::Txt::Section &section = txt.sections()[0];
+	BOOST_REQUIRE(section.name == "bla");
 	//std::cout << "Entries count: " << txt.entries("bla").size()  << std::endl;
 	const map::Txt::Sections::const_iterator iterator = std::find_if(txt.sections().begin(), txt.sections().end(), [](const map::Txt::Section &section) { return section.name == "bla"; });
 	BOOST_REQUIRE(iterator != txt.sections().end());

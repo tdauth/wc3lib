@@ -18,7 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <KMessageBox>
+#include <QtGui>
 
 #include "variabledialog.hpp"
 #include "triggereditor.hpp"
@@ -43,7 +43,8 @@ void VariableDialog::activatedType(int index)
 	const QString typeCode = m_typeComboBox->itemData(index).toString();
 	map::TriggerData::Types::const_iterator iterator =  m_triggerEditor->source()->sharedData()->triggerData()->types().find(typeCode.toStdString());
 
-	if (iterator != m_triggerEditor->source()->sharedData()->triggerData()->types().end()) {
+	if (iterator != m_triggerEditor->source()->sharedData()->triggerData()->types().end())
+	{
 		const map::TriggerData::Type *type = iterator->second;
 
 		// TODO default value, possible value etc.
@@ -61,18 +62,21 @@ void VariableDialog::setDefaultValue(QString value)
 
 void VariableDialog::showVariable(map::Variable *variable)
 {
-	if (m_triggerEditor->source()->sharedData()->triggerData().get() == 0) {
-		KMessageBox::error(this, tr("Missing trigger data."));
+	if (m_triggerEditor->source()->sharedData()->triggerData().get() == 0)
+	{
+		QMessageBox::critical(this, tr("Error"), tr("Missing trigger data."));
 
 		return;
 	}
 
 	m_typeComboBox->clear();
 
-	foreach (map::TriggerData::Types::const_reference ref, m_triggerEditor->source()->sharedData()->triggerData()->types()) {
+	foreach (map::TriggerData::Types::const_reference ref, m_triggerEditor->source()->sharedData()->triggerData()->types())
+	{
 		const map::TriggerData::Type *type = ref->second;
 
-		if (type->canBeGlobal()) {
+		if (type->canBeGlobal())
+		{
 			const QString typeName = this->m_triggerEditor->source()->sharedData()->tr(type->displayText().c_str());
 			m_typeComboBox->addItem(typeName, type->name().c_str());
 		}
@@ -81,9 +85,12 @@ void VariableDialog::showVariable(map::Variable *variable)
 	m_nameLineEdit->setText(variable->name().c_str());
 	const int index = m_typeComboBox->findData(variable->type().c_str());
 
-	if (index != -1) {
+	if (index != -1)
+	{
 		m_typeComboBox->setCurrentIndex(index);
-	} else {
+	}
+	else
+	{
 		qDebug() << "Missing type " << variable->type().c_str();
 	}
 

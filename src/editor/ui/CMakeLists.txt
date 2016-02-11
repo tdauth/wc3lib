@@ -3,6 +3,7 @@ set(wc3lib_EDITOR_UI
 	ui/colorpalettedialog.ui
 	ui/newmapdialog.ui
 	ui/renderstatswidget.ui
+	ui/resourceswidget.ui
 	ui/settings.ui
 	ui/sourcesdialog.ui
 	ui/teamcolordialog.ui

@@ -21,7 +21,6 @@
 #include <QtGui>
 
 #include <KFileDialog>
-#include <KMessageBox>
 #include <KActionCollection>
 #include <KMenuBar>
 #include <KStandardAction>
@@ -133,7 +132,7 @@ bool TextureEditor::configure()
 		}
 		catch (wc3lib::Exception &e)
 		{
-			KMessageBox::error(0, i18n("Error when loading default files: %1", e.what()));
+			QMessageBox::critical(0, tr("Error"), tr("Error when loading default files: %1").arg(e.what()));
 
 			return false;
 		}
@@ -154,7 +153,7 @@ TextureEditor::LoadDialogWidget::LoadDialogWidget(QWidget *parent) : QWidget(par
 	QVBoxLayout *layout = new QVBoxLayout();
 	this->setLayout(layout);
 
-	mipMapsInput()->setLabel(i18n("MIP maps:"));
+	mipMapsInput()->setLabel(tr("MIP maps:"));
 	mipMapsInput()->setMaximum(blp::Blp::maxMipMaps);
 	mipMapsInput()->setMinimum(0);
 	mipMapsInput()->setValue(blp::Blp::defaultMipMaps);
@@ -265,14 +264,14 @@ void TextureEditor::openUrl(const KUrl &url, QMap<QString, QString> options)
 	}
 	catch (Exception &exception)
 	{
-		KMessageBox::error(this, i18n("Unable to read BLP image from file \"%1\".\nException:\n\"%2\".", url.toLocalFile(), exception.what()));
+		QMessageBox::critical(this, tr("Error"), tr("Unable to read BLP image from file \"%1\".\nException:\n\"%2\".").arg(url.toLocalFile()).arg(exception.what()));
 
 		return;
 	}
 
 	if (texture->qt()->isNull())
 	{
-		KMessageBox::error(this, i18n("Unable to read file \"%1\".", url.toLocalFile()));
+		QMessageBox::critical(this, tr("Error"), tr("Unable to read file \"%1\".").arg(url.toLocalFile()));
 
 		return;
 	}
@@ -309,7 +308,7 @@ void TextureEditor::openUrl(const KUrl &url, QMap<QString, QString> options)
 		}
 		else
 		{
-			KMessageBox::error(this, i18n("Unable to read MIP map \"%1\".", i));
+			QMessageBox::critical(this, tr("Error"), tr("Unable to read MIP map \"%1\".").arg(i));
 		}
 
 		++i;
@@ -327,7 +326,7 @@ void TextureEditor::saveFile()
 {
 	if (!hasTexture() || this->texture()->qt()->isNull())
 	{
-		KMessageBox::error(this, i18n("No open image file."));
+		QMessageBox::critical(this, tr("Error"), tr("No open image file."));
 
 		return;
 	}
@@ -350,7 +349,7 @@ void TextureEditor::saveFile()
 		}
 		catch (Exception &exception)
 		{
-			KMessageBox::error(this, i18n("Unable to save image to file \"%1\".\nException:\n\"%2\".", url.toEncoded().constData(), exception.what()));
+			QMessageBox::critical(this, tr("Error"), tr("Unable to save image to file \"%1\".\nException:\n\"%2\".").arg(url.toEncoded().constData()).arg(exception.what()));
 
 			return;
 		}
@@ -406,7 +405,7 @@ void TextureEditor::dropColorPalette()
 	}
 	else
 	{
-		KMessageBox::error(this, tr("Dropping color palette is currently supported for BLP textures only."));
+		QMessageBox::critical(this, tr("Error"), tr("Dropping color palette is currently supported for BLP textures only."));
 	}
 }
 
@@ -469,19 +468,19 @@ void TextureEditor::showAlphaChannel()
 
 	if (!this->m_texture->qt()->hasAlphaChannel())
 	{
-		KMessageBox::error(this, i18n("Image doesn't have alpha channel."));
+		QMessageBox::critical(this, tr("Error"), tr("Image doesn't have alpha channel."));
 
 		return;
 	}
 
 	if (showsAlphaChannel())
 	{
-		m_showAlphaChannelAction->setText(i18n("Show alpha channel"));
+		m_showAlphaChannelAction->setText(tr("Show alpha channel"));
 		m_showsAlphaChannel = false;
 	}
 	else
 	{
-		m_showAlphaChannelAction->setText(i18n("Hide alpha channel"));
+		m_showAlphaChannelAction->setText(tr("Hide alpha channel"));
 		m_showsAlphaChannel = true;
 	}
 

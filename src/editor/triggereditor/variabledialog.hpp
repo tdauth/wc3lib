@@ -33,34 +33,36 @@ namespace wc3lib
 namespace editor
 {
 
+class TriggerEditor;
+
 /**
  * Dialog for a single global variable of triggers.
- * Allows you to change its name, type and initial value. 
+ * Allows you to change its name, type and initial value.
  */
 class VariableDialog : public QDialog, protected Ui::VariableDialog
 {
 	Q_OBJECT
-	
+
 	public:
 		explicit VariableDialog(class TriggerEditor *triggerEditor, QWidget* parent = 0, Qt::WindowFlags f = 0);
 
 		void showVariable(map::Variable *variable);
-		
+
 		/**
 		 * Applies all settings of dialog to \p variable which means updating its name, type etc.
 		 */
 		void apply(map::Variable *variable);
-		
+
 	public slots:
 		void activatedType(int index);
 		void setDefaultValue(QString);
-	
+
 	private:
-		class TriggerEditor *m_triggerEditor;
+		TriggerEditor *m_triggerEditor;
 };
 
 }
 
 }
 
-#endif // VARIABLEDIALOG_HPP
+#endif // WC3LIB_EDITOR_TRIGGEREDITOR_VARIABLEDIALOG_HPP

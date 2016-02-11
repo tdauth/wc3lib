@@ -21,8 +21,9 @@
 #ifndef WC3LIB_EDITOR_WINDOWSMENU_HPP
 #define WC3LIB_EDITOR_WINDOWSMENU_HPP
 
-#include <kdemacros.h>
 #include <QMenu>
+
+#include <kdemacros.h>
 
 #include "platform.hpp"
 #include "module.hpp"

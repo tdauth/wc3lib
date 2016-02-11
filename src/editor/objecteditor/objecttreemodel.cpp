@@ -215,12 +215,11 @@ bool ObjectTreeModel::insertRows(int row, int count, const QModelIndex &parent)
 
 	for (int i = row; i < last + 1; ++i)
 	{
-		ObjectTreeItem *item = new ObjectTreeItem(0, m_window, "", "", parentItem);
+		qDebug() << "Insert row with object data " << this->objectData();
+		ObjectTreeItem *item = new ObjectTreeItem(this->objectData(), m_window, "", "", parentItem);
 
 		if (parentItem != 0)
 		{
-			item->setObjectData(parentItem->objectData());
-
 			if (i >= children.size())
 			{
 				children.push_back(item);
@@ -287,13 +286,6 @@ ObjectTreeItem* ObjectTreeModel::item(const QModelIndex &index) const
 
 void ObjectTreeModel::load(MpqPriorityList *source, ObjectData *objectData, QWidget *window)
 {
-	const ObjectData::StandardObjecIds ids = objectData->standardObjectIds();
-
-	foreach (QString id, ids)
-	{
-		createItem(source, objectData, window, id, "");
-	}
-
 	/*
 	 * Disconnect from old invalid object data first.
 	 */
@@ -306,6 +298,20 @@ void ObjectTreeModel::load(MpqPriorityList *source, ObjectData *objectData, QWid
 		// TODO is always set?
 		this->removeRows(0, m_topLevelItems.size(), QModelIndex());
 	}
+
+	this->m_source = source;
+	this->m_objectData = objectData;
+
+	const ObjectData::StandardObjecIds ids = objectData->standardObjectIds();
+
+	qDebug() << "Before creating items";
+
+	foreach (QString id, ids)
+	{
+		createItem(source, objectData, window, id, "");
+	}
+
+	qDebug() << "After creating items";
 
 	QStack<ObjectTreeItem*> items;
 
@@ -332,9 +338,7 @@ void ObjectTreeModel::load(MpqPriorityList *source, ObjectData *objectData, QWid
 	connect(objectData, SIGNAL(objectCreation(const QString&, const QString&)), this, SLOT(createObject(const QString&, const QString&)));
 	connect(objectData, SIGNAL(objectRemoval(const QString&, const QString&)), this, SLOT(removeObject(const QString&, const QString&)));
 	connect(objectData, SIGNAL(objectReset(const QString&, const QString&)), this, SLOT(resetObject(const QString&, const QString&)));
-	connect(objectData, SIGNAL(fieldModification(const QString &, const QString &, const QString &)), this, SLOT(modifyField(const QString&, const QString&, const QString&)));
-	this->m_source = source;
-	this->m_objectData = objectData;
+	connect(objectData, SIGNAL(fieldModification(const QString &, const QString &, const QString &, int)), this, SLOT(modifyField(const QString&, const QString&, const QString&, int)));
 }
 
 void ObjectTreeModel::createObject(const QString &originalObjectId, const QString &customObjectId)
@@ -394,7 +398,7 @@ void ObjectTreeModel::resetObject(const QString& originalObjectId, const QString
 	}
 }
 
-void ObjectTreeModel::modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId)
+void ObjectTreeModel::modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level)
 {
 	ObjectData *objectData = this->objectData();
 	ObjectTreeItem *item = this->item(originalObjectId, customObjectId);

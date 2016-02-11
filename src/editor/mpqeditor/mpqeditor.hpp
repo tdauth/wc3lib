@@ -1,4 +1,3 @@
-
 /***************************************************************************
  *   Copyright (C) 2009 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
@@ -25,8 +24,6 @@
 #include <boost/ptr_container/ptr_map.hpp>
 
 #include <kdemacros.h>
-#include <KActionCollection>
-#include <KAboutData>
 #include <KUrl>
 
 #include "../module.hpp"
@@ -151,7 +148,6 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		virtual void createToolButtons(ModuleToolBar *toolBar) override;
 		virtual SettingsInterface* settings() override;
 		virtual void onSwitchToMap(Map *map) override;
-		virtual KAboutData moduleAboutData() const override;
 		virtual QString actionName() const override;
 		virtual QIcon icon() override;
 
@@ -190,7 +186,6 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		KUrl m_extractUrl;
 		QList<QUrl> m_archiveHistory;
 
-		KActionCollection *m_fileActions;
 		QMenu *m_recentArchivesMenu;
 		QAction *m_recentArchivesSeparator;
 		QActionGroup *m_archiveHistoryActions;
@@ -247,14 +242,6 @@ inline const MpqEditor::Archives& MpqEditor::archives() const
 inline MpqEditor::Archives& MpqEditor::archives()
 {
 	return m_archives;
-}
-
-inline KAboutData MpqEditor::moduleAboutData() const
-{
-	KAboutData aboutData(Module::moduleAboutData());
-	aboutData.setProgramName(ki18n("MPQ Editor"));
-
-	return aboutData;
 }
 
 inline QString MpqEditor::actionName() const

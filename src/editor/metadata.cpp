@@ -72,6 +72,46 @@ QString SlkTextSource::value(const QString &rowKey, const QString &columnKey) co
 	return value(rowIterator.value(), columnKey);
 }
 
+void SlkTextSource::setValue(const QString &rowKey, const QString &columnKey, const QString &value)
+{
+	SlkKeys::const_iterator rowIterator = this->rowKeys().find(rowKey);
+	SlkKeys::const_iterator columnIterator = this->columnKeys().find(columnKey);
+
+	if (rowIterator == this->rowKeys().end() || columnIterator == this->columnKeys().end())
+	{
+		map::Slk::Table::size_type columns = this->m_slk.columns();
+		map::Slk::Table::size_type rows = this->m_slk.rows();
+
+		// append row
+		if (rowIterator == this->rowKeys().end())
+		{
+			rows++;
+		}
+
+		// append column
+		if (columnIterator == this->columnKeys().end())
+		{
+			columns++;
+		}
+
+		// TODO resizing everytime reduces the performance
+		const map::Slk::TableSize newTableSize = std::make_pair(rows, columns);
+		this->m_slk.resizeTable(newTableSize);
+		const map::Slk::Table::size_type rowIndex = rows - 1;
+		const map::Slk::Table::size_type columnIndex = columns - 1;
+		this->m_slk.cell(rowIndex, columnIndex) = string(MetaData::toSlkString(value).toUtf8().constData());
+		this->m_rowKeys.insert(rowKey, rowIndex);
+		this->m_columnKeys.insert(rowKey, columnIndex);
+	}
+	else
+	{
+		const map::Slk::Table::size_type column = columnIterator.value();
+		const map::Slk::Table::size_type row = columnIterator.value();
+
+		this->m_slk.table()[column][row] = wc3lib::string(MetaData::toSlkString(value).toUtf8().constData());
+	}
+}
+
 bool SlkTextSource::hasValue(int row, const QString &columnKey) const
 {
 	if (row >= boost::numeric_cast<int>(this->slk().rows()) || row < 0)
@@ -140,6 +180,16 @@ void SlkTextSource::write(ostream &out) const
 	this->slk().write(out);
 }
 
+TextSourceInterface* SlkTextSource::clone() const
+{
+	SlkTextSource *result = new SlkTextSource();
+	result->m_slk = this->m_slk;
+	result->m_columnKeys = this->m_columnKeys;
+	result->m_rowKeys = this->m_rowKeys;
+
+	return result;
+}
+
 bool TxtTextSource::hasValue(const QString& rowKey, const QString& columnKey) const
 {
 	TxtSectionKeys::const_iterator sectionIterator = this->sectionKeys().find(rowKey);
@@ -187,6 +237,11 @@ QString TxtTextSource::value(const QString& rowKey, const QString& columnKey) co
 
 		return QString();
 	}
+}
+
+void TxtTextSource::setValue(const QString &rowKey, const QString &columnKey, const QString &value)
+{
+	// TODO implement
 }
 
 bool TxtTextSource::hasValue(int row, const QString& columnKey) const
@@ -251,6 +306,16 @@ void TxtTextSource::write(ostream &out) const
 	this->txt().write(out);
 }
 
+TextSourceInterface* TxtTextSource::clone() const
+{
+	TxtTextSource *result = new TxtTextSource();
+	result->m_txt = this->m_txt;
+	result->m_entryKeys = this->m_entryKeys;
+	result->m_sectionKeys = this->m_sectionKeys;
+
+	return result;
+}
+
 bool MapStringsTextSource::hasValue(const QString &rowKey, const QString& /* columnKey */) const
 {
 	bool ok = true;
@@ -275,6 +340,11 @@ QString MapStringsTextSource::value(const QString &rowKey, const QString& column
 	}
 
 	throw Exception(boost::format(_("Invalid row key \"%1%\".")) % rowKey.toUtf8().constData());
+}
+
+void MapStringsTextSource::setValue(const QString &rowKey, const QString &columnKey, const QString &value)
+{
+	// TODO implement
 }
 
 bool MapStringsTextSource::hasValue(int row, const QString& /* columnKey */) const
@@ -316,7 +386,20 @@ void MapStringsTextSource::write(ostream& out) const
 	this->m_mapStrings.write(out);
 }
 
+TextSourceInterface* MapStringsTextSource::clone() const
+{
+	MapStringsTextSource *result = new MapStringsTextSource();
+	result->m_mapStrings = this->m_mapStrings;
+	result->m_entryKeys = this->m_entryKeys;
+
+	return result;
+}
+
 MetaData::MetaData(const KUrl &url) : Resource(url, Type::MetaData), m_textSource(0)
+{
+}
+
+MetaData::MetaData(const MetaData &other) : Resource(other.url(), Type::MetaData), m_textSource(other.textSource()->clone())
 {
 }
 
@@ -434,6 +517,14 @@ QString MetaData::value(const QString &rowKey, const QString &columnKey) const
 	}
 
 	return QString();
+}
+
+void MetaData::setValue(const QString& rowKey, const QString& columnKey, const QString& value)
+{
+	if (this->textSource() != 0)
+	{
+		return this->textSource()->setValue(rowKey, columnKey, value);
+	}
 }
 
 bool MetaData::hasValue(const QString &rowKey, const QString &columnKey) const

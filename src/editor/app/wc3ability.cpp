@@ -20,12 +20,8 @@
 
 #include <QScopedPointer>
 #include <QMainWindow>
-
-#include <KApplication>
-#include <KAboutData>
-#include <KCmdLineArgs>
-#include <KLocale>
-#include <KMessageBox>
+#include <QApplication>
+#include <QMessageBox>
 
 #include "../../editor.hpp"
 #include "../../exception.hpp"
@@ -37,15 +33,7 @@ using namespace wc3lib::editor;
 
 int main(int argc, char *argv[])
 {
-	KAboutData aboutData(Editor::aboutData());
-
-	KCmdLineArgs::init(argc, argv, &aboutData);
-	KCmdLineOptions options;
-	options.add("", ki18n("Additional help."));
-	options.add("+[file]", ki18n("File to open"));
-	KCmdLineArgs::addCmdLineOptions(options);
-
-	KApplication app;
+	QApplication app(argc, argv);
 
 	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
 	source->sharedData()->sharedObjectData()->unitEditorData()->setSource(source.data());
@@ -54,9 +42,9 @@ int main(int argc, char *argv[])
 	{
 		source->sharedData()->sharedObjectData()->unitEditorData()->load();
 	}
-	catch (wc3lib::Exception &e)
+	catch (const wc3lib::Exception &e)
 	{
-		KMessageBox::error(0, e.what());
+		QMessageBox::critical(0, QObject::tr("Error"), e.what());
 	}
 
 	QScopedPointer<AbilityData> abilityData(new AbilityData(source.data()));
@@ -67,24 +55,14 @@ int main(int argc, char *argv[])
 		abilityData->load(&editor);
 		editor.treeModel()->load(source.data(), abilityData.data(), &editor);
 	}
-	catch (wc3lib::Exception &e)
+	catch (const wc3lib::Exception &e)
 	{
-		KMessageBox::error(0, e.what());
+		QMessageBox::critical(0, QObject::tr("Error"), e.what());
 	}
 
 	QMainWindow mainWindow;
 	mainWindow.setCentralWidget(&editor);
 	mainWindow.show();
-
-	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
-
-	if (args != 0)
-	{
-		for (int i = 0; i < args->count(); ++i)
-		{
-			// TODO import all objects into Unit Editor
-		}
-	}
 
 	return app.exec();
 }

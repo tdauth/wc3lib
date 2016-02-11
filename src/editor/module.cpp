@@ -19,10 +19,6 @@
  ***************************************************************************/
 
 #include <QtGui>
-#include <KMessageBox>
-
-#include <KMessageBox>
-#include <KAboutApplicationDialog>
 
 #include "module.hpp"
 #include "modulemenu.hpp"
@@ -128,11 +124,11 @@ QString Module::settingsGroup() const
 {
 	if (this->hasEditor())
 	{
-		return this->editor()->aboutData().appName();
+		return "WorldEditor";
 	}
 	else
 	{
-		return this->componentData().aboutData()->appName();
+		return this->objectName(); // TODO set app name
 	}
 }
 
@@ -159,7 +155,7 @@ void Module::aboutQt()
 
 void Module::aboutKde()
 {
-	KMessageBox::about(this, tr("About"));
+	QMessageBox::about(this, tr("About"), tr("About KDE"));
 }
 
 void Module::setupUi()
@@ -174,14 +170,6 @@ void Module::setupUi()
 	// use actions from editor
 	if (hasEditor())
 	{
-		this->m_fileMenu->addAction(this->editor()->actionCollection()->action("newmap"));
-		this->m_fileMenu->addAction(this->editor()->actionCollection()->action("openmap"));
-		this->m_fileMenu->addAction(this->editor()->actionCollection()->action("closemap"));
-		this->m_fileMenu->addSeparator();
-		this->m_fileMenu->addAction(this->editor()->actionCollection()->action("savemap"));
-		this->m_fileMenu->addAction(this->editor()->actionCollection()->action("savemapas"));
-		this->m_fileMenu->addAction(this->editor()->actionCollection()->action("savemapshadows"));
-		this->m_fileMenu->addSeparator();
 	}
 
 	// create user-defined actions in file menu
@@ -192,11 +180,6 @@ void Module::setupUi()
 
 	if (hasEditor())
 	{
-		this->m_fileMenu->addAction(this->editor()->actionCollection()->action("testmap"));
-		this->m_fileMenu->addSeparator();
-
-
-		m_closeAction = this->editor()->actionCollection()->action("closemodule");
 	}
 	else
 	{
@@ -249,15 +232,6 @@ void Module::setupUi()
 	this->createToolButtons(toolBar());
 }
 
-KAboutData Module::moduleAboutData() const
-{
-	KAboutData aboutData(Editor::wc3libAboutData());
-	aboutData.setAppName(actionName().toAscii());
-	aboutData.setCatalogName(actionName().toAscii());
-
-	return aboutData;
-}
-
 void Module::changeEvent(QEvent *event)
 {
 	QWidget::changeEvent(event);
@@ -274,14 +248,6 @@ void Module::changeEvent(QEvent *event)
 
 void Module::readSettings()
 {
-	/*
-	KSharedConfigPtr config(new KSharedConfig(componentData()
-	SettingsInterface *settings = this->settings();
-	KConfigGroup configGroup(KGlobal::config(), settings->groupName());
-	settings->read(configGroup);
-	delete settings;
-	*/
-	//QSettings settings("wc3editor", settingsGroup());
 	if (!this->hasEditor())
 	{
 		this->source()->readSettings(settingsGroup());
@@ -290,12 +256,6 @@ void Module::readSettings()
 
 void Module::writeSettings()
 {
-	/*
-	SettingsInterface *settings = this->settings();
-	KConfigGroup configGroup(KGlobal::config(), settings->groupName());
-	settings->write(configGroup);
-	delete settings;
-	*/
 	if (!this->hasEditor())
 	{
 		this->source()->writeSettings(settingsGroup());

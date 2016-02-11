@@ -30,16 +30,18 @@ namespace wc3lib
 namespace editor
 {
 
+class ModelEditor;
+
 /**
  * Customized version of \ref ModelView which implements "hit test" and other things required by \ref ModelEditor.
  */
 class ModelEditorView : public ModelView
 {
 	public:
-		ModelEditorView(Root *root, class ModelEditor *modelEditor, Qt::WFlags f = 0, Ogre::SceneType ogreSceneType = Ogre::ST_EXTERIOR_CLOSE, const Ogre::NameValuePairList *ogreParameters = 0);
+		ModelEditorView(Root *root, ModelEditor *modelEditor, Qt::WFlags f = 0, Ogre::SceneType ogreSceneType = Ogre::ST_EXTERIOR_CLOSE, const Ogre::NameValuePairList *ogreParameters = 0);
 		virtual ~ModelEditorView();
 
-		class ModelEditor* modelEditor() const;
+		ModelEditor* modelEditor() const;
 		void setHitTest(bool hitTest);
 		bool hitTest() const;
 
@@ -47,11 +49,11 @@ class ModelEditorView : public ModelView
 		/// Implements "hit test" based selection. \sa ModelEditor::hitTest.
 		virtual void mousePressEvent(QMouseEvent *event);
 
-		class ModelEditor *m_modelEditor;
+		ModelEditor *m_modelEditor;
 		bool m_hitTest;
 };
 
-inline class ModelEditor* ModelEditorView::modelEditor() const
+inline ModelEditor* ModelEditorView::modelEditor() const
 {
 	return m_modelEditor;
 }

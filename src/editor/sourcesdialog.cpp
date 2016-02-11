@@ -50,6 +50,17 @@ void SourcesDialog::update()
 	}
 }
 
+void SourcesDialog::addWc3libDir()
+{
+#ifdef Q_OS_UNIX
+	const KUrl url = KUrl("/usr/share/wc3lib/war3");
+	const QStringList items(url.toLocalFile());
+	this->prepend(items);
+#else
+#warning Fix wc3lib directory on this platform.
+#endif
+}
+
 void SourcesDialog::addWc3Dir()
 {
 	const KUrl url = KFileDialog::getExistingDirectoryUrl(KUrl(), this, tr("Select Warcraft III Directory"));
@@ -179,6 +190,7 @@ SourcesDialog::SourcesDialog(MpqPriorityList *source, QWidget *parent, Qt::WFlag
 	connect(m_dialogButtonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
 	connect(m_dialogButtonBox->button(QDialogButtonBox::RestoreDefaults), SIGNAL(clicked()), this, SLOT(restoreDefaults()));
 	connect(m_editListBox, SIGNAL(added(QString)), this, SLOT(added(QString)));
+	connect(m_wc3libDirPushButton, SIGNAL(clicked()), this, SLOT(addWc3libDir()));
 	connect(m_wc3DirPushButton, SIGNAL(clicked()), this, SLOT(addWc3Dir()));
 	connect(m_clearPushButton, SIGNAL(clicked()), this, SLOT(clear()));
 }
@@ -293,7 +305,7 @@ QString SourcesDialog::settingsGroup() const
 {
 	if (dynamic_cast<Editor*>(source()) != 0)
 	{
-		return static_cast<Editor*>(source())->aboutData().appName();
+		return "WorldEditor";
 	}
 	else if (dynamic_cast<Module*>(parentWidget()) != 0)
 	{

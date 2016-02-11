@@ -40,6 +40,8 @@ namespace map
  * to help users understanding the meaning of function parameters and functions at all.
  *
  * \ingroup triggers
+ *
+ * TODO The section reading should be done by a fast abstract class like \ref editor::MetaData instead of the custom code.
  */
 class TriggerStrings : public FileFormat
 {
@@ -98,8 +100,22 @@ class TriggerStrings : public FileFormat
 		 * @}
 		 */
 
+		/**
+		 * Clears all entries of the trigger strings.
+		 */
+		void clear();
+
 	private:
 		void readFunction(const Txt::Entry &ref, Entries &functions);
+
+		/**
+		 * Type for storing entries of sections for fast access using the section's name.
+		 * TODO Replace this by using map::MetaData instead of map::Txt.
+		 */
+		typedef std::map<string, const Txt::Entries*> SectionEntries;
+		SectionEntries m_sectionEntries;
+
+		const Txt::Entries& sectionEntries(const string &sectionName) const;
 
 		Entries m_events;
 		Entries m_conditions;

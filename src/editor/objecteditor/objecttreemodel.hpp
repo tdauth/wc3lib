@@ -75,10 +75,14 @@ class ObjectTreeModel : public QAbstractItemModel
 		 */
 		void insertTopLevelItem(ObjectTreeItem *item);
 		/**
+		 * Inserts the item into the list of standard items.
+		 * This emits the data changed signal for \p item to update its displayed data.
 		 * \sa standardItems()
 		 */
 		void insertStandardItem(ObjectTreeItem *item);
 		/**
+		 * Inserts the item into the list of custom items.
+		 * This emits the data changed signal for \p item to update its displayed data.
 		 * \sa customItems()
 		 */
 		void insertCustomItem(ObjectTreeItem *item);
@@ -164,7 +168,7 @@ class ObjectTreeModel : public QAbstractItemModel
 		void createObject(const QString &originalObjectId, const QString &customObjectId);
 		void removeObject(const QString &originalObjectId, const QString &customObjectId);
 		void resetObject(const QString &originalObjectId, const QString &customObjectId);
-		void modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId);
+		void modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level);
 };
 
 inline MpqPriorityList* ObjectTreeModel::source() const
@@ -186,12 +190,18 @@ inline void ObjectTreeModel::insertStandardItem(ObjectTreeItem *item)
 {
 	const ObjectId objectId(item->originalObjectId(), item->customObjectId());
 	this->m_standardItems.insert(objectId, item);
+
+	// TODO get the exact top level item index
+	emit dataChanged(this->index(0, 0), item->modelIndex(this));
 }
 
 inline void ObjectTreeModel::insertCustomItem(ObjectTreeItem *item)
 {
 	const ObjectId objectId(item->originalObjectId(), item->customObjectId());
 	this->m_customItems.insert(objectId, item);
+
+	// TODO get the exact top level item index
+	emit dataChanged(this->index(1, 0), item->modelIndex(this));
 }
 
 inline ObjectTreeModel::Items& ObjectTreeModel::standardItems()

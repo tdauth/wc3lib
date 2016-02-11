@@ -78,6 +78,7 @@ if (EDITOR)
 		renderstatswidget.hpp
 		rendersystemsettings.hpp
 		resource.hpp
+		resourcesdialog.hpp
 		root.hpp
 		settings.hpp
 		settingsinterface.hpp
@@ -120,6 +121,7 @@ if (EDITOR)
 		renderstatswidget.cpp
 		rendersystemsettings.cpp
 		resource.cpp
+		resourcesdialog.cpp
 		root.cpp
 		settings.cpp
 		settingsinterface.cpp
@@ -141,7 +143,6 @@ if (EDITOR)
 
 	include_directories(${QT_INCLUDE} ${KDE4_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR}) # include binary dir for moc files
 
-	kde4_add_kcfg_files(wc3lib_EDITOR_SRC editorconfig.kcfgc)
 	kde4_add_ui_files(wc3lib_EDITOR_UI_H ${wc3lib_EDITOR_UI})
 
 	kde4_add_library(wc3libeditor SHARED ${wc3lib_EDITOR_SRC} ${wc3lib_EDITOR_UI_H})
@@ -170,6 +171,5 @@ if (EDITOR)
 
 	# install
 	install(TARGETS wc3libeditor DESTINATION lib)
-	install(FILES ${wc3lib_EDITOR_H} ${wc3lib_EDITOR_UI_H}  DESTINATION include/wc3lib/editor)
-	install(FILES editorconfig.kcfg DESTINATION ${KCFG_INSTALL_DIR})
+	install(FILES ${wc3lib_EDITOR_H} ${wc3lib_EDITOR_UI_H} DESTINATION include/wc3lib/editor)
 endif ()

@@ -20,11 +20,6 @@
 
 #include <QtGui>
 
-#include <KActionCollection>
-#include <KConfig>
-#include <KFileDialog>
-#include <KMessageBox>
-
 #include <Ogre.h>
 
 #include "editor.hpp"
@@ -45,28 +40,9 @@ namespace wc3lib
 namespace editor
 {
 
-KAboutData Editor::m_aboutData = KAboutData("editor", "", ki18n("World Editor"), "0.1", ki18n("Clone of Blizzard's Warcraft III: Reign of Chaos and Warcraft III: The Frozen Throne World Editor."), KAboutData::License_GPL_V2, ki18n("Copyright (C) 2009 by Tamino Dauth <tamino@cdauth.eu>"), ki18n("Other"), "https://wc3lib.org", "tamino@cdauth.eu")
-.addAuthor(ki18n("Tamino Dauth"), ki18n("Maintainer"), "tamino@cdauth.eu", "http://wc3lib.org");
-
-KAboutData Editor::m_wc3libAboutData = KAboutData("wc3lib", "", ki18n("Warcraft III Library"), "0.1", ki18n("Library which supports some of Blizzard's file formats used in Warcraft III: Reign of Chaos and Warcraft III: The Frozen Throne."), KAboutData::License_GPL_V2, ki18n("Copyright (C) 2009 by Tamino Dauth <tamino@cdauth.eu>"), ki18n("Other"), "https://wc3lib.org", "tamino@cdauth.eu")
-.addAuthor(ki18n("Tamino Dauth"), ki18n("Maintainer"), "tamino@cdauth.eu", "http://wc3lib.org");
-
-const KAboutData& Editor::aboutData()
-{
-	return Editor::m_aboutData;
-}
-
-const KAboutData& Editor::wc3libAboutData()
-{
-	return Editor::m_wc3libAboutData;
-}
-
 Editor::Editor(Root *root, QObject *parent) : QObject(parent)
 , m_root(root)
 , m_currentMap(0)
-, m_actionCollection(new KActionCollection(this))
-, m_modulesActionCollection(new KActionCollection(this))
-, m_mapsActionCollection(new KActionCollection(this))
 , m_newMapDialog(0)
 , m_sourcesDialog(0)
 {
@@ -77,47 +53,39 @@ Editor::Editor(Root *root, QObject *parent) : QObject(parent)
 	QAction *action = new QAction(QIcon(":/actions/newmap.png"), i18n("New map ..."), this);
 	//action->setShortcut(KShortcut(i18n("Ctrl+N")));
 	connect(action, SIGNAL(triggered()), this, SLOT(newMap()));
-	this->m_actionCollection->addAction("newmap", action);
 
 	action = new QAction(QIcon(":/actions/openmap.png"), i18n("Open map ..."), this);
 	//action->setShortcut(KShortcut(i18n("Ctrl+O")));
 	connect(action, SIGNAL(triggered()), this, SLOT(openMap()));
-	this->m_actionCollection->addAction("openmap", action);
 
 	action = new QAction(QIcon(":/actions/closemap.png"), i18n("Close map"), this);
 	//action->setShortcut(KShortcut(i18n("Strg+W")));
 	connect(action, SIGNAL(triggered()), this, SLOT(closeMap()));
-	this->m_actionCollection->addAction("closemap", action);
 
 	// --
 
 	action = new QAction(QIcon(":/actions/savemap.png"), i18n("Save map"), this);
 	//action->setShortcut(KShortcut(i18n("Ctrl+S")));
 	connect(action, SIGNAL(triggered()), this, SLOT(saveMap()));
-	this->m_actionCollection->addAction("savemap", action);
 
 	action = new QAction(QIcon(":/actions/savemapas.png"), i18n("Save map as ..."), this);
 	//action->setShortcut(KShortcut(i18n("Strg+S")));
 	connect(action, SIGNAL(triggered()), this, SLOT(saveMapAs()));
-	this->m_actionCollection->addAction("savemapas", action);
 
 	action = new QAction(QIcon(":/actions/savemapshadows.png"), i18n("Calculate shadows and save map ..."), this);
 	//action->setShortcut(KShortcut(i18n("Strg+S")));
 	connect(action, SIGNAL(triggered()), this, SLOT(saveMapShadow()));
-	this->m_actionCollection->addAction("savemapshadows", action);
 
 	// --
 
 	action = new QAction(QIcon(":/actions/testmap.png"), i18n("Test map"), this);
 	//action->setShortcut(KShortcut(i18n("Ctrl+F9")));
 	connect(action, SIGNAL(triggered()), this, SLOT(testMap()));
-	this->m_actionCollection->addAction("testmap", action);
 
 	// --
 
 	action = new QAction(QIcon(":/actions/closemodule.png"), this->sharedData()->tr("WESTRING_MENU_CLOSEMODULE"), this);
 	//action->setShortcut(KShortcut(i18n("Ctrl+Shift+W")));
-	this->m_actionCollection->addAction("closemodule", action);
 
 	this->setMapActionsEnabled(false);
 
@@ -135,7 +103,7 @@ Editor::Editor(Root *root, QObject *parent) : QObject(parent)
 
 Editor::~Editor()
 {
-	this->writeSettings(aboutData().appName());
+	this->writeSettings("WorldEditor");
 
 	// do not delete allocated sub widgets (parent system of Qt already considers) BUT
 	// we should remove modules (e. g. model editor) before freeing root!
@@ -154,11 +122,10 @@ void Editor::addModule(Module *module)
 {
 	this->m_modules.append(module);
 
-	QAction *action = new QAction(module->icon(), module->componentData().aboutData()->programName(), this);
+	QAction *action = new QAction(module->icon(), module->objectName(), this);
 	//action->setShortcut(KShortcut(i18n("F%1%", this->m_modulesActionCollection->actions().size() + 1)));
 	action->setCheckable(true);
 	action->setChecked(module->hasFocus());
-	this->m_modulesActionCollection->addAction(module->actionName(), action);
 	connect(action, SIGNAL(triggered()), module, SLOT(onEditorActionTrigger()));
 
 	modulesActions().insert(module, action);
@@ -168,7 +135,7 @@ void Editor::addModule(Module *module)
 
 bool Editor::configure(QWidget *parent)
 {
-	this->readSettings(aboutData().appName()); // fill sources first
+	this->readSettings("WorldEditor"); // fill sources first
 
 	if (!MpqPriorityList::configure(parent))
 	{
@@ -187,7 +154,7 @@ bool Editor::configure(QWidget *parent)
 	}
 	catch (Exception &e)
 	{
-		KMessageBox::error(parent, e.what());
+		QMessageBox::critical(parent, tr("Configuration Error"), e.what());
 
 		return false;
 	}
@@ -219,17 +186,14 @@ void Editor::newMap()
 
 void Editor::openMap(QWidget *window)
 {
-	KUrl::List urls = KFileDialog::getOpenUrls(KUrl(), mapFilter(), window, i18n("Open map"));
+	const KUrl &url = KUrl::fromLocalFile(QFileDialog::getOpenFileName(window, tr("Open map"), QString(), mapFilter()));
 
-	if (urls.empty())
+	if (url.isEmpty())
 	{
 		return;
 	}
 
-	foreach(KUrl::List::const_reference url, urls)
-	{
-		openMap(url, url == urls.last());
-	}
+	openMap(url, true);
 }
 
 void Editor::openMap(const KUrl &url, bool switchTo, QWidget *window)
@@ -245,16 +209,15 @@ void Editor::openMap(const KUrl &url, bool switchTo, QWidget *window)
 	{
 		delete ptr;
 
-		KMessageBox::error(window, i18n("Error while opening map \"%1\":\n\"%2\".", url.toEncoded().constData(), exception.what()));
+		QMessageBox::critical(window, tr("Error while opening map"), tr("\"%1\":\n\"%2\".").arg(url.toEncoded().constData()).arg(exception.what()));
 
 		return;
 	}
 
 	// TODO set icon to w3m or w3x icon
-	QAction *action = new QAction(tr("&%1 %2").arg(mapsActionCollection()->actions().size() + 1).arg(ptr->map()->name().c_str()), this);
+	QAction *action = new QAction(tr("%1").arg(ptr->map()->name().c_str()), this);
 	//action->setShortcut(KShortcut(i18n("F%1%", this->m_modulesActionCollection->actions().size() + 1)));
 	action->setCheckable(true);
-	mapsActionCollection()->addAction(tr("map%1").arg(mapsActionCollection()->actions().size() + 1), action);
 	maps().append(ptr);
 	mapActions().insert(ptr, action);
 	emit openedMap(ptr);
@@ -287,9 +250,7 @@ void Editor::closeMap(class Map *map)
 	}
 
 	const int index = maps().indexOf(map);
-	QAction *action = mapsActionCollection()->action(index);
 	emit aboutToCloseMap(map);
-	this->m_mapsActionCollection->removeAction(action);
 	maps().removeAt(index);
 	mapActions().remove(map);
 	removeResource(map);
@@ -304,13 +265,6 @@ void Editor::closeMap(class Map *map)
 		else
 		{
 			switchToMap(maps()[index]);
-		}
-
-		for (int i = index; i < maps().size(); ++i)
-		{
-			// TODO rename action internally in collection
-			mapsActionCollection()->action(i)->setText(
-			tr("&%1 %2").arg(mapsActionCollection()->actions().size() + 1).arg(map->map()->name().c_str()));
 		}
 	}
 	else
@@ -331,7 +285,7 @@ void Editor::saveMap()
 
 void Editor::saveMapAs(QWidget *window)
 {
-	KUrl url = KFileDialog::getSaveUrl(KUrl(), mapFilter(), window, i18n("Save map"));
+	KUrl url = KUrl::fromLocalFile(QFileDialog::getSaveFileName(window, tr("Save map"), QString(), mapFilter()));
 
 	if (url.isEmpty())
 	{
@@ -355,10 +309,7 @@ void Editor::showSourcesDialog(QWidget *window)
 
 void Editor::setMapActionsEnabled(bool enabled)
 {
-	this->actionCollection()->action("closemap")->setEnabled(enabled);
-	this->actionCollection()->action("savemap")->setEnabled(enabled);
-	this->actionCollection()->action("savemapas")->setEnabled(enabled);
-	this->actionCollection()->action("savemapshadows")->setEnabled(enabled);
+	// TODO set
 }
 
 #include "moc_editor.cpp"

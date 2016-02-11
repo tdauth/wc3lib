@@ -76,6 +76,10 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 , m_resetAllObjectsAction(0)
 , m_exportAllObjectsAction(0)
 , m_importAllObjectsAction(0)
+, m_exportAllAction(0)
+, m_importAllAction(0)
+, m_compressAllAction(0)
+, m_widgetizeAllAction(0)
 , m_copyObjectAction(0)
 , m_pasteObjectAction(0)
 , m_modifyFieldAction(0)
@@ -145,6 +149,7 @@ bool ObjectEditor::configure()
 	tabWidget()->addTab(weatherEditor(), weatherEditor()->tabIcon(this), weatherEditor()->name());
 	tabWidget()->addTab(miscEditor(), miscEditor()->tabIcon(this), miscEditor()->name());
 
+	// update current object data
 	currentChanged(0);
 	// connect signal and slot after adding actions and tabs first time!
 	connect(tabWidget(), SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
@@ -157,6 +162,12 @@ bool ObjectEditor::configure()
 void ObjectEditor::retranslateUi()
 {
 	Module::retranslateUi();
+
+	m_exportAllAction->setText(source()->sharedData()->tr("WESTRING_MENU_OE_EXPORTALL", "WorldEditStrings"));
+	m_importAllAction->setText(source()->sharedData()->tr("WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"));
+
+	m_compressAllAction->setText(tr("Compress all objects"));
+	m_widgetizeAllAction->setText(tr("Widgetize all objects"));
 
 	m_viewMenu->setTitle(source()->sharedData()->tr("WESTRING_MENU_VIEW"));
 	m_rawDataAction->setText(this->source()->sharedData()->tr("WESTRING_MENU_OE_TOGGLERAWDATA"));
@@ -221,6 +232,23 @@ void ObjectEditor::importCustomUnits(const map::CustomUnits& customUnits)
 	this->itemEditor()->itemData()->importCustomUnits(customUnits);
 }
 
+void ObjectEditor::exportCustomObjectsCollection(map::CustomObjectsCollection &collection)
+{
+	if (this->unitEditor()->unitData() != nullptr)
+	{
+		map::CustomObjectsCollection::CustomObjectsPtr units(new map::CustomObjects(unitEditor()->unitData()->customObjects()));
+		collection.units().swap(units);
+	}
+
+	if (this->itemEditor()->itemData() != nullptr)
+	{
+		map::CustomObjectsCollection::CustomObjectsPtr items(new map::CustomObjects(itemEditor()->itemData()->customObjects()));
+		collection.items().swap(items);
+	}
+
+	// TODO export all
+}
+
 void ObjectEditor::exportAll()
 {
 	// TODO collect all tab data (requires Frozen Throne)
@@ -230,8 +258,7 @@ void ObjectEditor::exportAll()
 	if (!url.isEmpty())
 	{
 		map::CustomObjectsCollection collection;
-		map::CustomObjectsCollection::CustomObjectsPtr units(new map::CustomObjects(unitEditor()->unitData()->customObjects()));
-		collection.units().swap(units);
+		exportCustomObjectsCollection(collection);
 
 		QTemporaryFile file;
 
@@ -377,6 +404,52 @@ void ObjectEditor::importAll()
 	}
 }
 
+void ObjectEditor::compressAll()
+{
+	if (QMessageBox::question(this, tr("Compress all objects?"), tr("Are you sure you want to compress all objects of this tab? This might take while. Besides you don't want to lose modifications which might be used later when objects are changed again. All modifications are reset which have the same values as the defaults as well, so make sure you loaded the correct defaults from your sources."), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+	{
+		int counter = 0;
+
+		for (int i = 0; i < this->m_tabWidget->count(); ++i)
+		{
+			if (this->tab(i)->objectData() == nullptr)
+			{
+				loadTabDataOnRequest(i);
+			}
+
+			counter += this->tab(i)->objectData()->compress();
+		}
+
+		QMessageBox::information(this, tr("Compression done"), tr("Compressed %1 modifications of objects.").arg(counter));
+	}
+}
+
+
+void ObjectEditor::widgetizeAll()
+{
+	const QString &dir = QFileDialog::getExistingDirectory(this, tr("Widgetize All Objects"));
+
+	if (!dir.isEmpty())
+	{
+		try
+		{
+			for (int i = 0; i < this->m_tabWidget->count(); ++i)
+			{
+				if (this->tab(i)->objectData() == nullptr)
+				{
+					loadTabDataOnRequest(i);
+				}
+
+				this->tab(i)->objectData()->widgetize(KUrl::fromLocalFile(dir));
+			}
+		}
+		catch (Exception &e)
+		{
+			QMessageBox::critical(this, tr("Error on widgetizing all objects"), e.what());
+		}
+	}
+}
+
 void ObjectEditor::compress()
 {
 	if (QMessageBox::question(this, tr("Compress all objects?"), tr("Are you sure you want to compress all objects of this tab? This might take while. Besides you don't want to lose modifications which might be used later when objects are changed again. All modifications are reset which have the same values as the defaults as well, so make sure you loaded the correct defaults from your sources."), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
@@ -419,13 +492,23 @@ void ObjectEditor::createFileActions(QMenu *menu)
 	m_importAllObjectsAction = new QAction(this);
 	menu->addAction(importAllObjectsAction());
 
-	QAction *action = new QAction(source()->sharedData()->tr("WESTRING_MENU_OE_EXPORTALL", "WorldEditStrings"), this);
-	menu->addAction(action);
-	connect(action, SIGNAL(triggered()), this, SLOT(exportAll()));
+	m_exportAllAction = new QAction(this);
+	menu->addAction(m_exportAllAction);
+	connect(m_exportAllAction, SIGNAL(triggered()), this, SLOT(exportAll()));
 
-	action = new QAction(source()->sharedData()->tr("WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"), this);
-	menu->addAction(action);
-	connect(action, SIGNAL(triggered()), this, SLOT(importAll()));
+	m_importAllAction = new QAction(this);
+	menu->addAction(m_importAllAction);
+	connect(m_importAllAction, SIGNAL(triggered()), this, SLOT(importAll()));
+
+	menu->addSeparator();
+
+	m_compressAllAction = new QAction(this);
+	menu->addAction(m_compressAllAction);
+	connect(m_compressAllAction, SIGNAL(triggered()), this, SLOT(compressAll()));
+
+	m_widgetizeAllAction = new QAction(this);
+	menu->addAction(m_widgetizeAllAction);
+	connect(m_widgetizeAllAction, SIGNAL(triggered()), this, SLOT(widgetizeAll()));
 }
 
 void ObjectEditor::createEditActions(QMenu *menu)
@@ -597,6 +680,8 @@ void ObjectEditor::loadTabDataOnRequest(int index)
 		cursor = this->cursor();
 		cursor.setShape(Qt::ArrowCursor);
 		this->setCursor(cursor);
+
+		qDebug() << "After loading object data";
 	}
 }
 

@@ -25,9 +25,6 @@
 #include <QX11Info>
 #endif
 
-#include <KLocale>
-#include <KMessageBox>
-
 //#include <qogre/ExampleFrameListener.h>
 
 #include "modelview.hpp"
@@ -449,7 +446,7 @@ void ModelView::initRenderWindow()
 	}
 	catch (const Ogre::RenderingAPIException &exception) // cancel
 	{
-		KMessageBox::detailedError(this, i18n("Error during render window creation with rendering engine OGRE."), exception.what());
+		QMessageBox::critical(this, tr("Error during render window creation with rendering engine OGRE."), exception.what());
 
 		return;
 	}

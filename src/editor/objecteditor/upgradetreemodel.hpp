@@ -29,6 +29,8 @@ namespace wc3lib
 namespace editor
 {
 
+class WarcraftIIIShared;
+
 class UpgradeTreeModel : public ObjectTreeModel
 {
 	public:
@@ -38,6 +40,12 @@ class UpgradeTreeModel : public ObjectTreeModel
 
 	protected:
 		virtual QModelIndex itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId) override;
+
+		QModelIndex objectsIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
+		QModelIndex raceIndex(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId);
+
+		void createObjects(WarcraftIIIShared *shared);
+		void createRaces(WarcraftIIIShared *shared, int row, QModelIndex parent);
 
 };
 

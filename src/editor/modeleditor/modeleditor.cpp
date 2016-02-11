@@ -117,7 +117,7 @@ bool ModelEditor::configure()
 		}
 		catch (wc3lib::Exception &e)
 		{
-			KMessageBox::error(0, i18n("Error when loading default files: %1", e.what()));
+			QMessageBox::critical(this, tr("Error"), tr("Error when loading default files: %1").arg(e.what()));
 
 			return false;
 		}
@@ -164,7 +164,7 @@ void ModelEditor::saveFile()
 {
 	if (this->m_models.empty())
 	{
-		KMessageBox::error(this, i18n("There is no model to export."));
+		QMessageBox::critical(this, tr("Error"), tr("There is no model to export."));
 
 		return;
 	}
@@ -182,7 +182,7 @@ void ModelEditor::saveFile()
 	}
 	catch (Exception exception)
 	{
-		KMessageBox::error(this, i18n("Unable to write file \"%1\".\nException \"%2\".", url.toEncoded().constData(), exception.what()));
+		QMessageBox::critical(this, tr("Error"), tr("Unable to write file \"%1\".\nException \"%2\".").arg(url.toEncoded().constData()).arg(exception.what()));
 	}
 }
 
@@ -457,11 +457,11 @@ bool ModelEditor::openUrl(const KUrl &url)
 	{
 		ogreModel->setSource(source());
 		ogreModel->load();
-		KMessageBox::information(this, i18n("Read file \"%1\" successfully..", url.toEncoded().constData()));
+		QMessageBox::information(this, tr("Open File"), tr("Read file \"%1\" successfully..").arg(url.toEncoded().constData()));
 	}
-	catch (class Exception &exception)
+	catch (const Exception &exception)
 	{
-		KMessageBox::error(this, i18n("Unable to read file \"%1\".\nException \"%2\".", url.toEncoded().constData(), exception.what()));
+		QMessageBox::critical(this, tr("Error"), tr("Unable to read file \"%1\".\nException \"%2\".").arg(url.toEncoded().constData()).arg(exception.what()));
 
 		return false;
 	}
@@ -476,9 +476,9 @@ bool ModelEditor::openUrl(const KUrl &url)
 		model->setTeamColor(teamColor());
 		model->setTeamGlow(teamGlow());
 	}
-	catch (Exception &exception)
+	catch (const Exception &exception)
 	{
-		KMessageBox::error(this, i18n("Unable to assign team color %1 and team glow %2 to model \"%3\".\nException \"%4\".", static_cast<int>(teamColor()), static_cast<int>(teamGlow()), url.toEncoded().constData(), exception.what()));
+		QMessageBox::critical(this, tr("Error"), tr("Unable to assign team color %1 and team glow %2 to model \"%3\".\nException \"%4\".").arg(static_cast<int>(teamColor())).arg(static_cast<int>(teamGlow())).arg(url.toEncoded().constData()).arg(exception.what()));
 	}
 
 	Ogre::String entityName = Ogre::String(QString(model->namePrefix() +"Entity").toStdString());

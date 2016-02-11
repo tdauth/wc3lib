@@ -53,6 +53,8 @@ namespace map
  * \ingroup triggers
  * \sa TriggerDataEx
  * \sa Txt
+ *
+ * TODO The section reading should be done by a fast abstract class like \ref editor::MetaData instead of the custom code.
  */
 class TriggerData : public FileFormat
 {
@@ -98,6 +100,12 @@ class TriggerData : public FileFormat
 				bool m_displayName;
 		};
 
+		/**
+		 * \brief JASS types are mapped to types for triggers with custom display texts.
+		 *
+		 * Types of the trigger data support inheritance. Therefore a type can have a base type.
+		 * If the type can be global, global variables can use this type.
+		 */
 		class Type : public Format
 		{
 			public:
@@ -365,6 +373,15 @@ class TriggerData : public FileFormat
 		void readFunction(const Txt::Entry &ref, boost::ptr_map<string, FunctionType> &functions);
 
 		string::size_type firstNonNumericChar(const string &value) const;
+
+		/**
+		 * Type for storing entries of sections for fast access using the section's name.
+		 * TODO Replace this by using map::MetaData instead of map::Txt.
+		 */
+		typedef std::map<string, const Txt::Entries*> SectionEntries;
+		SectionEntries m_sectionEntries;
+
+		const Txt::Entries& sectionEntries(const string &sectionName) const;
 
 		Categories m_categories;
 		Types m_types;
