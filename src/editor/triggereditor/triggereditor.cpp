@@ -35,7 +35,6 @@
 #include "variablesdialog.hpp"
 #include "triggertreewidgetitem.hpp"
 #include "../moduletoolbar.hpp"
-#include "triggereditorconfig.h"
 #include "../metadata.hpp"
 
 namespace wc3lib
