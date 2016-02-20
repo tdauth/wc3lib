@@ -46,7 +46,7 @@ class CustomObjectsCollection : public Format
 
 		std::streamsize read(InputStream &istream);
 		std::streamsize write(OutputStream &ostream) const;
-		
+
 		void clear();
 
 		virtual uint32 latestFileVersion() const;

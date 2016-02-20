@@ -91,6 +91,8 @@ class CustomObjects : public CustomUnits
 				virtual std::streamsize read(InputStream &istream) override;
 				virtual std::streamsize write(OutputStream &ostream) const override;
 
+				virtual CustomUnits::Modification* clone() const override;
+
 			protected:
 				CustomObjects::Type m_type;
 				int32 m_level; // level/variation
@@ -104,6 +106,8 @@ class CustomObjects : public CustomUnits
 				Object(const Object &other);
 				virtual ~Object();
 
+				virtual Unit* clone() const override;
+
 				CustomObjects::Type type() const;
 
 			protected:
@@ -113,6 +117,10 @@ class CustomObjects : public CustomUnits
 		};
 
 		CustomObjects(Type type);
+		/**
+		 * The copy constructor clones the custom objects of \p other.
+		 */
+		CustomObjects(const CustomObjects &other);
 		Type type() const;
 
 		virtual const byte* fileName() const override;

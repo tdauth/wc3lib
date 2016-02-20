@@ -896,7 +896,7 @@ map::CustomUnits ObjectData::customUnits() const
 
 map::CustomObjects ObjectData::customObjects() const
 {
-	map::CustomObjects objects = map::CustomObjects(map::CustomObjects::Type::Units);
+	map::CustomObjects objects = map::CustomObjects(this->type());
 
 	for (Objects::const_iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
 	{

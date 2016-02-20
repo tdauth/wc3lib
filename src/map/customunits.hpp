@@ -70,6 +70,8 @@ class CustomUnits : public FileFormat
 				virtual std::streamsize read(InputStream &istream) override;
 				virtual std::streamsize write(OutputStream &ostream) const override;
 
+				virtual Modification* clone() const;
+
 				void setValueId(id valueId);
 				id valueId() const;
 				Value& value();
@@ -88,14 +90,6 @@ class CustomUnits : public FileFormat
 				id m_id; // from "Units\UnitMetaData.slk"
 				Value m_value;
 		};
-
-		/**
-		 * Prevent segmentation fault when cloning modifications in a dervied class such as \ref wc3lib::map::CustomObjects::Object.
-		 */
-		static inline Modification* new_clone(const Modification &o)
-		{
-			return new Modification(o);
-		}
 
 		/**
 		 * \brief Represents one single unit entry in a table which contains a list of modifications for all modified unit fields.
@@ -118,13 +112,26 @@ class CustomUnits : public FileFormat
 				Unit(const Unit &other);
 				virtual ~Unit();
 
+				virtual Unit* clone() const;
+
 				virtual std::streamsize read(InputStream &istream) override;
 				virtual std::streamsize write(OutputStream &ostream) const override;
 
 				bool isOriginal() { return m_customId == 0; };
 
+				/**
+				 * The original ID of the unit.
+				 * For custom units this is the ID of the original unit which has been copied and modified.
+				 *
+				 * For original units this is simply the ID of the unit and the custom ID is 0.
+				 *
+				 * @{
+				 */
 				void setOriginalId(id originalId);
 				id originalId() const;
+				/**
+				 * @}
+				 */
 				void setCustomId(id customId);
 				id customId() const;
 				Modifications& modifications();
@@ -146,7 +153,14 @@ class CustomUnits : public FileFormat
 		 */
 		typedef boost::ptr_vector<Unit> Table;
 
+		/**
+		 * Creates new empty custom units.
+		 */
 		CustomUnits();
+		/**
+		 * The copy constructor clones the units of \p other.
+		 */
+		CustomUnits(const CustomUnits &other);
 		virtual ~CustomUnits();
 
 		virtual std::streamsize read(InputStream &istream) override;

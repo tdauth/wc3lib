@@ -226,4 +226,28 @@ BOOST_AUTO_TEST_CASE(Upgrades)
 	BOOST_REQUIRE(modification->value().toString() == "My Upgrade");
 }
 
+/*
+ * Test whether the copy constructors and the polymorphic cloning works without crashes and losing data.
+ */
+BOOST_AUTO_TEST_CASE(Cloning)
+{
+	BOOST_REQUIRE(strcmp(MyConfig::collection.fileExtension(), ".w3o") == 0);
+	BOOST_REQUIRE(MyConfig::valid);
+	BOOST_REQUIRE(MyConfig::collection.hasUnits());
+	BOOST_REQUIRE(MyConfig::collection.units().get() != 0);
+	BOOST_REQUIRE(MyConfig::collection.units()->type() == map::CustomObjects::Type::Units);
+	BOOST_REQUIRE(strcmp(MyConfig::collection.units()->fileName(), "war3map.w3u") == 0);
+	BOOST_REQUIRE(MyConfig::collection.units()->customTable().size() == 1);
+
+	map::CustomObjectsCollection clonedCollection;
+	map::CustomObjects *units = new map::CustomObjects(*MyConfig::collection.units());
+	BOOST_REQUIRE(units != nullptr);
+	clonedCollection.units().reset(units);
+	BOOST_REQUIRE(clonedCollection.hasUnits());
+	BOOST_REQUIRE(clonedCollection.units().get() != nullptr);
+	BOOST_REQUIRE(clonedCollection.units()->type() == map::CustomObjects::Type::Units);
+	BOOST_REQUIRE(strcmp(clonedCollection.units()->fileName(), "war3map.w3u") == 0);
+	BOOST_REQUIRE(clonedCollection.units()->customTable().size() == 1);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

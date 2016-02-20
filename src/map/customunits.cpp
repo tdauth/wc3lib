@@ -57,7 +57,9 @@ std::streamsize CustomUnits::Modification::read(InputStream &istream)
 		wc3lib::read(istream, end, size); // usually 0
 
 		if (end != 0)
+		{
 			std::cerr << boost::format(_("Modification \"%1%\" with type %2% end byte is not 0: %3%")) % this->valueId() % static_cast<int32>(this->value().type()) % end << std::endl;
+		}
 	//}
 
 	return size;
@@ -76,6 +78,11 @@ std::streamsize CustomUnits::Modification::write(OutputStream &ostream) const
 		wc3lib::write<int32>(ostream, 0, size);
 
 	return size;
+}
+
+CustomUnits::Modification* CustomUnits::Modification::clone() const
+{
+	return new CustomUnits::Modification(*this);
 }
 
 std::streamsize CustomUnits::Modification::readList(InputStream &istream, Value::Type type)
@@ -259,12 +266,17 @@ CustomUnits::Unit::Unit(const CustomUnits::Unit &other) : m_originalId(other.m_o
 {
 	BOOST_FOREACH(Modifications::const_reference ref, other.m_modifications)
 	{
-		this->modifications().push_back(new Modification(ref));
+		this->modifications().push_back(ref.clone()); // polymorph call to the virtual method clone which should return a value of the proper type
 	}
 }
 
 CustomUnits::Unit::~Unit()
 {
+}
+
+CustomUnits::Unit* CustomUnits::Unit::clone() const
+{
+	return new Unit(*this);
 }
 
 std::streamsize CustomUnits::Unit::read(InputStream &istream)
@@ -310,6 +322,23 @@ CustomUnits::CustomUnits()
 {
 	// set latest file version by default
 	this->m_version = latestFileVersion();
+}
+
+CustomUnits::CustomUnits(const CustomUnits &other)
+{
+	this->m_version = other.version(); // TODO cannot be initialized as field with the : operator?
+
+	BOOST_FOREACH(Table::const_reference ref, other.originalTable())
+	{
+		// call polymorphic clone method which might also create a new custom object for custom objects
+		this->m_originalTable.push_back(ref.clone());
+	}
+
+	BOOST_FOREACH(Table::const_reference ref, other.customTable())
+	{
+		// call polymorphic clone method which might also create a new custom object for custom objects
+		this->m_customTable.push_back(ref.clone());
+	}
 }
 
 CustomUnits::~CustomUnits()

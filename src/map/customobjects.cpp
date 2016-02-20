@@ -40,6 +40,11 @@ CustomObjects::Object::~Object()
 {
 }
 
+CustomUnits::Unit* CustomObjects::Object::clone() const
+{
+	return new Object(*this);
+}
+
 CustomUnits::Modification* CustomObjects::Object::createModification() const
 {
 	return new CustomObjects::Modification(this->type());
@@ -106,10 +111,19 @@ std::streamsize CustomObjects::Modification::write(OutputStream &ostream) const
 	return size;
 }
 
+CustomUnits::Modification* CustomObjects::Modification::clone() const
+{
+	return new CustomObjects::Modification(*this);
+}
+
 CustomObjects::CustomObjects(CustomObjects::Type type) : m_type(type)
 {
 	// set latest file version by default
 	this->m_version = latestFileVersion();
+}
+
+CustomObjects::CustomObjects(const CustomObjects &other) : m_type(other.type()), CustomUnits(other)
+{
 }
 
 const byte* CustomObjects::fileName() const
