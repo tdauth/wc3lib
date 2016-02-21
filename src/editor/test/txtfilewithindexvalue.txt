@@ -1,0 +1,2 @@
+[WorldEditStrings]
+ENTRY_WITH_INDEX_VALUE="Hello, this is my name with \"double quotes\" inside",Test,"Test2"

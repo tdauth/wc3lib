@@ -868,26 +868,25 @@ map::CustomUnits ObjectData::customUnits() const
 
 	for (Objects::const_iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
 	{
-		map::CustomUnits::Unit unit;
-		// TODO which one is the custom id
-		unit.setOriginalId(map::stringToId(iterator.key().first.toStdString()));
-		unit.setCustomId(map::stringToId(iterator.key().second.toStdString()));
+		std::auto_ptr<map::CustomUnits::Unit> unit(new map::CustomUnits::Unit());
+		unit->setOriginalId(map::stringToId(iterator.key().originalObjectId().toUtf8().constData()));
+		unit->setCustomId(map::stringToId(iterator.key().customObjectId().toUtf8().constData()));
 
 		foreach (map::CustomObjects::Modification modification, iterator.value())
 		{
-			unit.modifications().push_back(new map::CustomUnits::Modification(modification));
+			unit->modifications().push_back(new map::CustomUnits::Modification(modification));
 		}
 
 		/*
 		 * No custom ID means it is a standard unit.
 		 */
-		if (iterator.key().second.isEmpty())
+		if (iterator.key().customObjectId().isEmpty())
 		{
-			units.originalTable().push_back(new map::CustomUnits::Unit(unit));
+			units.originalTable().push_back(unit);
 		}
 		else
 		{
-			units.customTable().push_back(new map::CustomUnits::Unit(unit));
+			units.customTable().push_back(unit);
 		}
 	}
 
@@ -900,14 +899,13 @@ map::CustomObjects ObjectData::customObjects() const
 
 	for (Objects::const_iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
 	{
-		map::CustomObjects::Object object(this->type());
-		// TODO which one is the custom id
-		object.setOriginalId(map::stringToId(iterator.key().first.toStdString()));
-		object.setCustomId(map::stringToId(iterator.key().second.toStdString()));
+		std::auto_ptr<map::CustomObjects::Object> object(new map::CustomObjects::Object(this->type()));
+		object->setOriginalId(map::stringToId(iterator.key().originalObjectId().toUtf8().constData()));
+		object->setCustomId(map::stringToId(iterator.key().customObjectId().toUtf8().constData()));
 
 		foreach (map::CustomObjects::Modification modification, iterator.value())
 		{
-			object.modifications().push_back(new map::CustomObjects::Modification(modification));
+			object->modifications().push_back(new map::CustomObjects::Modification(modification));
 		}
 
 		/*
@@ -915,11 +913,11 @@ map::CustomObjects ObjectData::customObjects() const
 		 */
 		if (iterator.key().second.isEmpty())
 		{
-			objects.originalTable().push_back(new map::CustomObjects::Object(object));
+			objects.originalTable().push_back(object);
 		}
 		else
 		{
-			objects.customTable().push_back(new map::CustomObjects::Object(object));
+			objects.customTable().push_back(object);
 		}
 	}
 
@@ -1250,40 +1248,8 @@ QString ObjectData::defaultFieldValue(const QString& objectId, const QString& fi
 					 * Therefore take the specific level value.
 					 */
 					indexValue += level;
-
-					QStringList values;
-
-					/*
-					 * Get tokens between quotes " " and ignore any , characters between the quotes. Otherwise values will be cut.
-					 *
-					 * Look at files like "Units/HumanAbilityStrings.txt" and fields like "Ubertip" of 'AHbz'. Multiple ubertip values are sperated by , characters but surrounded by quotes to escape the inner , characters.
-					 *
-					 * TODO implement tokenizer
-					 */
-					value = value.trimmed();
-
-					if (value.startsWith('\"'))
-					{
-						const QStringList quoteValues = value.split("\"");
-
-						foreach (QString quotedValue, quoteValues)
-						{
-							if (quotedValue.trimmed() != ",")
-							{
-								values.append(quotedValue);
-							}
-						}
-					}
-					else
-					{
-						values = value.split(",");
-					}
-
-					if (indexValue < values.size())
-					{
-						exists = true;
-						value = values[indexValue];
-					}
+					exists = true;
+					value = MetaData::valueByIndex(value.trimmed(), indexValue);
 				}
 
 				exists = true;

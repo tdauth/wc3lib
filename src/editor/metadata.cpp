@@ -229,7 +229,7 @@ QString TxtTextSource::value(const QString& rowKey, const QString& columnKey) co
 
 	if (columnIterator != this->entryKeys().end())
 	{
-		return MetaData::fromSlkString(QString::fromUtf8(columnIterator.value()->second.c_str()));
+		return QString::fromUtf8(columnIterator.value()->second.c_str());
 	}
 	else
 	{
@@ -273,7 +273,7 @@ QString TxtTextSource::value(int row, const QString& columnKey) const
 
 	if (columnIterator != this->entryKeys().end())
 	{
-		return MetaData::fromSlkString(QString::fromUtf8(columnIterator.value()->second.c_str()));
+		return QString::fromUtf8(columnIterator.value()->second.c_str());
 	}
 	else
 	{
@@ -560,6 +560,52 @@ QString MetaData::value(int row, const QString &columnKey) const
 	}
 
 	return QString();
+}
+
+QString MetaData::valueByIndex(const QString &value, int index)
+{
+	/*
+	 * Get tokens between quotes " " and ignore any , characters between the quotes. Otherwise values will be cut.
+	 *
+	 * Look at files like "Units/HumanAbilityStrings.txt" and fields like "Ubertip" of 'AHbz'. Multiple ubertip values are sperated by , characters but surrounded by quotes to escape the inner , characters.
+	 */
+	int i = 0;
+	int number = 0;
+	bool escaped = false;
+	bool doubleQuotes = false;
+	QString token;
+
+	while (i < value.size() && number <= index)
+	{
+		if (value[i] == '\\' && doubleQuotes && !escaped)
+		{
+			escaped = true;
+		}
+		else if (value[i] == '\"' && !escaped)
+		{
+			doubleQuotes = !doubleQuotes;
+		}
+		else if (value[i] == ',' && !escaped && !doubleQuotes)
+		{
+			number++;
+		}
+		else
+		{
+			if (escaped)
+			{
+				escaped = false;
+			}
+
+			if (number == index)
+			{
+				token += value[i];
+			}
+		}
+
+		++i;
+	}
+
+	return token;
 }
 
 }

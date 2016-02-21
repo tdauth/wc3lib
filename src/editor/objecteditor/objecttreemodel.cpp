@@ -215,7 +215,6 @@ bool ObjectTreeModel::insertRows(int row, int count, const QModelIndex &parent)
 
 	for (int i = row; i < last + 1; ++i)
 	{
-		qDebug() << "Insert row with object data " << this->objectData();
 		ObjectTreeItem *item = new ObjectTreeItem(this->objectData(), m_window, "", "", parentItem);
 
 		if (parentItem != 0)

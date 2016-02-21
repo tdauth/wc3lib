@@ -414,9 +414,20 @@ class KDE_EXPORT MetaData : public Resource
 		 * Cuts " characters at start and end if available and returns resulting string.
 		 */
 		static QString fromSlkString(const QString &value);
+		/**
+		 * Adds double quotes to the beginning and the end if they are not there already.
+		 * \return Returns \p value with double quotes at the beginning and at the end.
+		 */
 		static QString toSlkString(const QString &value);
 
-		static QString cutQuotes(const QString &value);
+		/**
+		 * Parses \p value and returns the token at position \p index.
+		 * Tokens are separated by ',' characters and escaped by double quotes.
+		 * Therefore ',' characters between double quotes are ignored.
+		 *
+		 * Values by indices are often required for level values of object data.
+		 */
+		static QString valueByIndex(const QString &value, int index);
 
 		/**
 		 * Converts \p value to a native file path.

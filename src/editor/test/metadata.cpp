@@ -113,3 +113,30 @@ BOOST_AUTO_TEST_CASE(MapStrings)
 	BOOST_REQUIRE(metaData.hasValue("2", ""));
 	BOOST_REQUIRE(metaData.value("2", "") == "Spieler 1");
 }
+
+BOOST_AUTO_TEST_CASE(TxtValueByIndex)
+{
+	const boost::filesystem::path current = boost::filesystem::current_path() / "txtfilewithindexvalue.txt";
+	MetaData metaData(KUrl(current.c_str()));
+	MpqPriorityList source;
+	metaData.setSource(&source);
+	bool success = true;
+
+	try
+	{
+		metaData.load();
+	}
+	catch (const Exception &e)
+	{
+		success = false;
+
+		std::cerr << e.what() << std::endl;
+	}
+
+	BOOST_REQUIRE(success);
+	BOOST_REQUIRE(metaData.hasValue("WorldEditStrings", "ENTRY_WITH_INDEX_VALUE"));
+	qDebug() << metaData.value("WorldEditStrings", "ENTRY_WITH_INDEX_VALUE");
+	BOOST_REQUIRE(metaData.value("WorldEditStrings", "ENTRY_WITH_INDEX_VALUE") == "\"Hello, this is my name with \\\"double quotes\\\" inside\",Test,\"Test2\"");
+	BOOST_REQUIRE(MetaData::valueByIndex(metaData.value("WorldEditStrings", "ENTRY_WITH_INDEX_VALUE"), 1) == "Test");
+}
+
