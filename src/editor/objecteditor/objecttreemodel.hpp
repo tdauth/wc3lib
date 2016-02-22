@@ -155,6 +155,8 @@ class ObjectTreeModel : public QAbstractItemModel
 		virtual QModelIndex itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId) = 0;
 
 	private:
+		QModelIndex objectTopLeft(const QString &originalObjectId, const QString &customObjectId);
+
 		MpqPriorityList *m_source;
 		QWidget *m_window;
 		ObjectData *m_objectData;

@@ -30,6 +30,7 @@
 #include "uniteditor.hpp"
 #include "itemeditor.hpp"
 #include "abilityeditor.hpp"
+#include "buffeditor.hpp"
 #include "upgradeeditor.hpp"
 #include "destructableeditor.hpp"
 #include "doodadeditor.hpp"
@@ -82,6 +83,11 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 , m_widgetizeAllAction(0)
 , m_copyObjectAction(0)
 , m_pasteObjectAction(0)
+, m_viewInPaletteAction(0)
+, m_findAction(0)
+, m_findNextAction(0)
+, m_findPreviousAction(0)
+, m_autoFillAction(0)
 , m_modifyFieldAction(0)
 , m_resetFieldAction(0)
 , m_compressAction(0)
@@ -134,6 +140,7 @@ bool ObjectEditor::configure()
 	m_destructableEditor = new DestructableEditor(source(), source()->sharedData()->sharedObjectData()->destructableData().get(), this, this);
 	m_doodadEditor = new DoodadEditor(source(), source()->sharedData()->sharedObjectData()->doodadData().get(), this, this);
 	m_abilityEditor = new AbilityEditor(source(), source()->sharedData()->sharedObjectData()->abilityData().get(), this, this);
+	m_buffEditor = new BuffEditor(source(), source()->sharedData()->sharedObjectData()->buffData().get(), this, this);
 	m_upgradeEditor = new UpgradeEditor(source(), source()->sharedData()->sharedObjectData()->upgradeData().get(), this, this);
 	m_waterEditor = new WaterEditor(source(), source()->sharedData()->sharedObjectData()->waterData().get(), this, this);
 	m_weatherEditor = new WeatherEditor(source(), source()->sharedData()->sharedObjectData()->weatherData().get(), this, this);
@@ -144,6 +151,7 @@ bool ObjectEditor::configure()
 	tabWidget()->addTab(destructableEditor(), destructableEditor()->tabIcon(this), destructableEditor()->name());
 	tabWidget()->addTab(doodadEditor(), doodadEditor()->tabIcon(this), doodadEditor()->name());
 	tabWidget()->addTab(abilityEditor(), abilityEditor()->tabIcon(this), abilityEditor()->name());
+	tabWidget()->addTab(buffEditor(), buffEditor()->tabIcon(this), buffEditor()->name());
 	tabWidget()->addTab(upgradeEditor(), upgradeEditor()->tabIcon(this), upgradeEditor()->name());
 	tabWidget()->addTab(waterEditor(), waterEditor()->tabIcon(this), waterEditor()->name());
 	tabWidget()->addTab(weatherEditor(), weatherEditor()->tabIcon(this), weatherEditor()->name());
@@ -171,6 +179,12 @@ void ObjectEditor::retranslateUi()
 
 	m_viewMenu->setTitle(source()->sharedData()->tr("WESTRING_MENU_VIEW"));
 	m_rawDataAction->setText(this->source()->sharedData()->tr("WESTRING_MENU_OE_TOGGLERAWDATA"));
+
+	m_viewInPaletteAction->setText(source()->sharedData()->tr("WESTRING_MENU_VIEWINPALETTE", "WorldEditStrings"));
+	m_findAction->setText(source()->sharedData()->tr("WESTRING_MENU_OE_FIND", "WorldEditStrings"));
+	m_findNextAction->setText(source()->sharedData()->tr("WESTRING_MENU_OE_FINDNEXT", "WorldEditStrings"));
+	m_findPreviousAction->setText(source()->sharedData()->tr("WESTRING_MENU_OE_FINDPREV", "WorldEditStrings"));
+	m_autoFillAction->setText(source()->sharedData()->tr("WESTRING_MENU_OE_AUTOFILL", "WorldEditStrings"));
 
 	const QString modifyField = this->source()->sharedData()->tr("WESTRING_FIELDLIST_CM_MODIFY");
 	const QString resetField = this->source()->sharedData()->tr("WESTRING_FIELDLIST_CM_RESET");
@@ -213,6 +227,12 @@ void ObjectEditor::importCustomObjectsCollection(const map::CustomObjectsCollect
 	{
 		loadTabDataOnRequest(Tab::Abilities);
 		this->abilityEditor()->abilityData()->importCustomObjects(*collection.abilities());
+	}
+
+	if (collection.hasBuffs())
+	{
+		loadTabDataOnRequest(Tab::Buffs);
+		this->buffEditor()->buffData()->importCustomObjects(*collection.buffs());
 	}
 
 	if (collection.hasUpgrades())
@@ -525,21 +545,21 @@ void ObjectEditor::createEditActions(QMenu *menu)
 
 	menu->addSeparator();
 
-	QAction *action = new QAction(source()->sharedData()->tr("WESTRING_MENU_VIEWINPALETTE", "WorldEditStrings"), this);
-	menu->addAction(action);
-	connect(action, SIGNAL(triggered()), this, SLOT(viewInPalette()));
+	m_viewInPaletteAction = new QAction(this);
+	menu->addAction(m_viewInPaletteAction);
+	connect(m_viewInPaletteAction, SIGNAL(triggered()), this, SLOT(viewInPalette()));
 
-	action = new QAction(source()->sharedData()->tr("WESTRING_MENU_OE_FIND", "WorldEditStrings"), this);
-	menu->addAction(action);
-	connect(action, SIGNAL(triggered()), this, SLOT(find()));
+	m_findAction = new QAction(this);
+	menu->addAction(m_findAction);
+	connect(m_findAction, SIGNAL(triggered()), this, SLOT(find()));
 
-	action = new QAction(source()->sharedData()->tr("WESTRING_MENU_OE_FINDNEXT", "WorldEditStrings"), this);
-	menu->addAction(action);
-	connect(action, SIGNAL(triggered()), this, SLOT(findNext()));
+	m_findNextAction = new QAction(this);
+	menu->addAction(m_findNextAction);
+	connect(m_findNextAction, SIGNAL(triggered()), this, SLOT(findNext()));
 
-	action = new QAction(source()->sharedData()->tr("WESTRING_MENU_OE_FINDPREV", "WorldEditStrings"), this);
-	menu->addAction(action);
-	connect(action, SIGNAL(triggered()), this, SLOT(findPrevious()));
+	m_findPreviousAction = new QAction(this);
+	menu->addAction(m_findPreviousAction);
+	connect(m_findPreviousAction, SIGNAL(triggered()), this, SLOT(findPrevious()));
 
 	menu->addSeparator();
 
@@ -553,9 +573,9 @@ void ObjectEditor::createEditActions(QMenu *menu)
 	connect(m_modifyFieldAction, SIGNAL(triggered()), this, SLOT(modifyField()));
 	connect(m_resetFieldAction, SIGNAL(triggered()), this, SLOT(resetField()));
 
-	action = new QAction(source()->sharedData()->tr("WESTRING_MENU_OE_AUTOFILL", "WorldEditStrings"), this);
-	menu->addAction(action);
-	connect(action, SIGNAL(triggered()), this, SLOT(autoFill()));
+	m_autoFillAction = new QAction(this);
+	menu->addAction(m_autoFillAction);
+	connect(m_autoFillAction, SIGNAL(triggered()), this, SLOT(autoFill()));
 
 	menu->addSeparator();
 

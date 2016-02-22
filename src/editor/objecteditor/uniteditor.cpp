@@ -73,7 +73,7 @@ void UnitEditor::onNewObject()
 		originalObjectId = "hpea";
 	}
 
-	this->idDialog()->setId(this->unitData()->nextCustomObjectId());
+	this->idDialog()->setId(this->unitData()->nextCustomObjectId(originalObjectId));
 
 	if (this->idDialog()->exec() == QDialog::Accepted)
 	{

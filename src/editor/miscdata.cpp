@@ -38,10 +38,11 @@ MiscData::MiscData(MpqPriorityList *source, QObject *parent) : ObjectData(source
 ObjectData::StandardObjecIds MiscData::standardObjectIds() const
 {
 	StandardObjecIds result;
-	result << "mgam";
-	result << "mcv0";
-	result << "mcv1";
-	result << "mmv0";
+
+	for (std::size_t i = 0; i < m_miscFiles.keys().size(); ++i)
+	{
+		result << m_miscFiles.keys()[i];
+	}
 
 	return result;
 }
@@ -57,21 +58,9 @@ ObjectData::MetaDataList MiscData::resolveDefaultField(const QString &objectId, 
 	{
 		const QString slk = this->miscMetaData()->value(fieldId, "slk");
 
-		if (objectId == "mgam")
+		if (m_miscFiles.contains(slk))
 		{
-			result.push_back(this->miscGame());
-		}
-		else if (objectId == "mcv0")
-		{
-			result.push_back(this->customV0());
-		}
-		else if (objectId == "mcv1")
-		{
-			result.push_back(this->customV1());
-		}
-		else if (objectId == "mmv0")
-		{
-			result.push_back(this->meleeV0());
+			result.push_back(m_miscFiles.value(slk));
 		}
 	}
 
@@ -104,9 +93,9 @@ ObjectData::MetaDataList MiscData::metaDataList() const
 	return ObjectData::MetaDataList();
 }
 
-QString MiscData::nextCustomObjectId() const
+QString MiscData::nextCustomObjectId(const QString &originalObjectId) const
 {
-	QString result = ObjectData::nextCustomObjectId();
+	QString result = ObjectData::nextCustomObjectId(originalObjectId);
 	result[0] = 'M';
 
 	return result;
@@ -149,6 +138,13 @@ void MiscData::load(QWidget *widget)
 	this->m_meleeV0.reset(new MetaData(KUrl("melee_v0/Units/miscgame.txt")));
 	this->m_meleeV0->setSource(this->source());
 	this->m_meleeV0->load();
+
+	m_miscFiles.clear();
+	m_miscFiles.insert("mgam", m_miscGame.data());
+	m_miscFiles.insert("mcv0", m_customV0.data());
+	m_miscFiles.insert("mcv1", m_customV1.data());
+	m_miscFiles.insert("mmv0", m_meleeV0.data());
+
 	// TODO get item functions and unit data
 }
 

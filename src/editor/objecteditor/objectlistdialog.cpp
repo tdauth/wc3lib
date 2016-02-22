@@ -228,16 +228,33 @@ int ObjectListDialog::getObjectIds(const QString &originalObjectId, const QStrin
 
 	if (objectData->fieldTypeIsObjectList(type))
 	{
-		ObjectData *listObjectData = sharedObjectData->resolveByFieldType(type);
+		const SharedObjectData::ObjectDataList list = sharedObjectData->resolveByFieldType(type);
 
-		if (listObjectData != 0)
+		if (!list.isEmpty())
 		{
-			if (!listObjectData->loadOnRequest(parent))
+			bool found = false;
+
+			foreach (ObjectData *objectData, list)
+			{
+				if (!objectData->loadOnRequest(parent))
+				{
+					return QDialog::Rejected;
+				}
+
+				if (objectData->hasOriginalObject(originalObjectId))
+				{
+					fieldTypeObjectData = objectData;
+					found = true;
+
+					break;
+				}
+
+			}
+
+			if (!found)
 			{
 				return QDialog::Rejected;
 			}
-
-			fieldTypeObjectData = listObjectData;
 		}
 		else
 		{

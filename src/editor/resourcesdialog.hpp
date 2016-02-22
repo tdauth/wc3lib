@@ -33,10 +33,10 @@ namespace editor
 
 class MpqPriorityList;
 
-class ResourcesDialog : public QDialog, protected Ui::ResourcesWidget
+class KDE_EXPORT ResourcesDialog : public QDialog, protected Ui::ResourcesWidget
 {
 	Q_OBJECT
-	
+
 	public:
 		explicit ResourcesDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
 

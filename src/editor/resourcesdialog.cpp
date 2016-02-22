@@ -31,6 +31,7 @@ ResourcesDialog::ResourcesDialog(QWidget *parent, Qt::WindowFlags f) : QDialog(p
 {
 	setupUi(this);
 
+	// TODO FIX IT
 	//connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(accept()));
 	//connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
 }
@@ -38,17 +39,45 @@ ResourcesDialog::ResourcesDialog(QWidget *parent, Qt::WindowFlags f) : QDialog(p
 void ResourcesDialog::setSources(MpqPriorityList *sources)
 {
 	tableWidget->clear();
-	tableWidget->setRowCount(sources->sources().size());
+	tableWidget->setRowCount(sources->resources().size());
 
 	int row = 0;
 
-	for (MpqPriorityList::Sources::const_iterator iterator = sources->sources().begin(); iterator != sources->sources().end(); ++iterator)
+	for (MpqPriorityList::Resources::const_iterator iterator = sources->resources().begin(); iterator != sources->resources().end(); ++iterator)
 	{
-		QTableWidgetItem *item = new QTableWidgetItem(iterator->url().toLocalFile());
-		tableWidget->setItem(row, 0, item);
+		QTableWidgetItem *urlItem = new QTableWidgetItem(iterator->first.toLocalFile());
+		tableWidget->setItem(row, 0, urlItem);
+
+		QString type;
+
+		switch (iterator->second->type())
+		{
+			case Resource::Type::MetaData:
+			{
+				type = tr("Meta Data");
+
+				break;
+			}
+
+			case Resource::Type::Model:
+			{
+				type = tr("Model");
+
+				break;
+			}
+
+			case Resource::Type::Map:
+			{
+				type = tr("Map");
+
+				break;
+			}
+		}
+
+		QTableWidgetItem *typeItem = new QTableWidgetItem(type);
+		tableWidget->setItem(row, 1, typeItem);
+
 		++row;
-		//tableWidget->ad
-		//tableWidget->
 	}
 }
 

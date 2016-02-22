@@ -67,52 +67,52 @@ class KDE_EXPORT UpgradeEditor : public ObjectEditorTab
 
 inline QString UpgradeEditor::newObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_UE_CREATECUSTOMUNIT", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UPGR_NEW", "WorldEditStrings");
 }
 
 inline QString UpgradeEditor::renameObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_RENAME", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UPGR_RENAME", "WorldEditStrings");
 }
 
 inline QString UpgradeEditor::deleteObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_DELETE", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UPGR_DELETE", "WorldEditStrings");
 }
 
 inline QString UpgradeEditor::resetObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_RESETSEL", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UPGR_RESETSEL", "WorldEditStrings");
 }
 
 inline QString UpgradeEditor::resetAllObjectsText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_RESETALL", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UPGR_RESETALL", "WorldEditStrings");
 }
 
 inline QString UpgradeEditor::exportAllObjectsText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_EXPORT", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UPGR_EXPORT", "WorldEditStrings");
 }
 
 inline QString UpgradeEditor::importAllObjectsText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_IMPORT", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UPGR_IMPORT", "WorldEditStrings");
 }
 
 inline QString UpgradeEditor::copyObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_COPY", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UPGR_COPY", "WorldEditStrings");
 }
 
 inline QString UpgradeEditor::pasteObjectText() const
 {
-	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UNIT_PASTE", "WorldEditStrings");
+	return objectEditor()->source()->sharedData()->tr("WESTRING_MENU_OE_UPGR_PASTE", "WorldEditStrings");
 }
 
 inline QIcon UpgradeEditor::tabIcon(QWidget *widget) const
 {
-	return objectEditor()->source()->sharedData()->worldEditDataIcon("ToolBarIcon_OE_NewUnit", "WorldEditArt", widget);
+	return objectEditor()->source()->sharedData()->worldEditDataIcon("ToolBarIcon_OE_NewUpgr", "WorldEditArt", widget);
 }
 
 inline KUrl UpgradeEditor::copyObjectIconUrl() const
@@ -134,4 +134,4 @@ inline KUrl UpgradeEditor::newObjectIconUrl() const
 
 }
 
-#endif // WC3LIB_EDITOR_WATEREDITOR_HPP
+#endif // WC3LIB_EDITOR_UPGRADEEDITOR_HPP

@@ -51,7 +51,7 @@ class KDE_EXPORT WeatherData : public ObjectData
 
 		virtual MetaData* objectTabData() const override;
 		virtual map::CustomObjects::Type type() const override;
-		virtual QString nextCustomObjectId() const override;
+		virtual QString nextCustomObjectId(const QString &originalObjectId) const override;
 
 
 		virtual void load(QWidget* widget) override;

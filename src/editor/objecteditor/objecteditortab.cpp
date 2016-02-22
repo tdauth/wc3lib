@@ -531,16 +531,16 @@ void ObjectEditorTab::pasteObject()
 	{
 		try
 		{
-			const QString nextId = this->objectData()->nextCustomObjectId();
+			const map::CustomUnits::Unit &unit = this->m_clipboard[i];
+			const map::CustomObjects::Object *object = boost::polymorphic_cast<const map::CustomObjects::Object*>(&unit);
+			const QString originalObjectId = map::idToString(object->originalId()).c_str();
+			const QString nextId = this->objectData()->nextCustomObjectId(originalObjectId);
 			qDebug() << "Next ID" << nextId;
 			this->idDialog()->setId(nextId);
 
 			if (this->idDialog()->exec() == QDialog::Accepted)
 			{
 				const QString customObjectId = this->idDialog()->id();
-				const map::CustomUnits::Unit &unit = this->m_clipboard[i];
-				const map::CustomObjects::Object *object = boost::polymorphic_cast<const map::CustomObjects::Object*>(&unit);
-				const QString originalObjectId = map::idToString(object->originalId()).c_str();
 
 				/*
 				 * Custom ID is already in use, so ask the user if he wants to overwrite an existing object.

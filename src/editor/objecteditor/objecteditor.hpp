@@ -158,6 +158,7 @@ class KDE_EXPORT ObjectEditor : public Module
 			Destructibles,
 			Doodads,
 			Abilities,
+			Buffs,
 			Upgrades,
 			Water,
 			Weather,
@@ -301,6 +302,11 @@ class KDE_EXPORT ObjectEditor : public Module
 		QAction *m_widgetizeAllAction;
 		QAction *m_copyObjectAction;
 		QAction *m_pasteObjectAction;
+		QAction *m_viewInPaletteAction;
+		QAction *m_findAction;
+		QAction *m_findNextAction;
+		QAction *m_findPreviousAction;
+		QAction *m_autoFillAction;
 		QAction *m_modifyFieldAction;
 		QAction *m_resetFieldAction;
 		QAction *m_compressAction;

@@ -26,6 +26,7 @@
 #include "destructabledata.hpp"
 #include "doodaddata.hpp"
 #include "abilitydata.hpp"
+#include "buffdata.hpp"
 #include "upgradedata.hpp"
 #include "waterdata.hpp"
 #include "weatherdata.hpp"
@@ -44,6 +45,7 @@ SharedObjectData::SharedObjectData(MpqPriorityList *source) : m_source(source)
 , m_destructableData(new DestructableData(source))
 , m_doodadData(new DoodadData(source))
 , m_abilityData(new AbilityData(source))
+, m_buffData(new BuffData(source))
 , m_upgradeData(new UpgradeData(source))
 , m_waterData(new WaterData(source))
 , m_weatherData(new WeatherData(source))
@@ -63,6 +65,7 @@ void SharedObjectData::load(QWidget *widget)
 	m_destructableData->load(widget);
 	m_doodadData->load(widget);
 	m_abilityData->load(widget);
+	m_buffData->load(widget);
 	m_upgradeData->load(widget);
 	m_waterData->load(widget);
 	m_weatherData->load(widget);
@@ -71,20 +74,31 @@ void SharedObjectData::load(QWidget *widget)
 	m_unitEditorData->load();
 }
 
-ObjectData* SharedObjectData::resolveByFieldType(const QString &fieldType) const
+SharedObjectData::ObjectDataList SharedObjectData::resolveByFieldType(const QString &fieldType) const
 {
-	if (fieldType == "unitList")
+	ObjectDataList result;
+
+	if (fieldType == "unitList" || fieldType == "unitCode")
 	{
-		return unitData().get();
+		result.append(unitData().get());
 	}
-	else if (fieldType == "abilityList" || fieldType == "heroAbilityList")
+	else if (fieldType == "abilityList" || fieldType == "heroAbilityList" || fieldType == "abilCode")
 	{
-		return abilityData().get();
+		result.append(abilityData().get());
+	}
+	else if (fieldType == "upgradeList")
+	{
+		result.append(upgradeData().get());
+	}
+	else if (fieldType == "techList")
+	{
+		result.append(unitData().get());
+		result.append(upgradeData().get());
 	}
 
 	// TODO finish
 
-	return 0;
+	return result;
 }
 
 }

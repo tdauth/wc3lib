@@ -1,4 +1,3 @@
-
 /***************************************************************************
  *   Copyright (C) 2014 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
@@ -62,16 +61,19 @@ class KDE_EXPORT SharedObjectData
 		const ObjectDataPtr& destructableData() const;
 		const ObjectDataPtr& doodadData() const;
 		const ObjectDataPtr& abilityData() const;
+		const ObjectDataPtr& buffData() const;
 		const ObjectDataPtr& upgradeData() const;
 		const ObjectDataPtr& waterData() const;
 		const ObjectDataPtr& weatherData() const;
 		const ObjectDataPtr& miscData() const;
 		const MetaDataPtr& unitEditorData() const;
 
+		typedef QList<ObjectData*> ObjectDataList;
+
 		/**
 		 * Depending on the type \p fieldType it returns the corresponding object data.
 		 */
-		ObjectData* resolveByFieldType(const QString &fieldType) const;
+		ObjectDataList resolveByFieldType(const QString &fieldType) const;
 
 	private:
 		MpqPriorityList *m_source;
@@ -80,6 +82,7 @@ class KDE_EXPORT SharedObjectData
 		ObjectDataPtr m_destructableData;
 		ObjectDataPtr m_doodadData;
 		ObjectDataPtr m_abilityData;
+		ObjectDataPtr m_buffData;
 		ObjectDataPtr m_upgradeData;
 		ObjectDataPtr m_waterData;
 		ObjectDataPtr m_weatherData;
@@ -115,6 +118,11 @@ inline const SharedObjectData::ObjectDataPtr& SharedObjectData::doodadData() con
 inline const SharedObjectData::ObjectDataPtr& SharedObjectData::abilityData() const
 {
 	return this->m_abilityData;
+}
+
+inline const SharedObjectData::ObjectDataPtr& SharedObjectData::buffData() const
+{
+	return this->m_buffData;
 }
 
 inline const SharedObjectData::ObjectDataPtr& SharedObjectData::upgradeData() const

@@ -46,6 +46,7 @@ class WindowsMenu;
 class SettingsInterface;
 class Map;
 class SourcesDialog;
+class ResourcesDialog;
 
 /**
  * \brief Abstract class for module implementation such as model or terrain editors.
@@ -123,6 +124,7 @@ class KDE_EXPORT Module : public QWidget
 
 	public slots:
 		void showSourcesDialog();
+		void showResourcesDialog();
 		void aboutQt();
 		void aboutKde();
 
@@ -181,6 +183,7 @@ class KDE_EXPORT Module : public QWidget
 		QAction *m_closeAction;
 		QAction *m_sourcesAction;
 
+		QAction *m_resourcesAction;
 		QAction *m_aboutQtAction;
 		QAction *m_aboutKdeAction;
 
@@ -188,6 +191,7 @@ class KDE_EXPORT Module : public QWidget
 		QGridLayout *m_centerLayout;
 
 		SourcesDialog *m_sourcesDialog;
+		ResourcesDialog *m_resourcesDialog;
 
 	private slots:
 		void switchToMap(Map *map);

@@ -1,6 +1,8 @@
 set(wc3lib_OBJECTEDITOR_H
 	abilityeditor.hpp
 	abilitytreemodel.hpp
+	buffeditor.hpp
+	bufftreemodel.hpp
 	destructableeditor.hpp
 	destructabletreemodel.hpp
 	doodadeditor.hpp
@@ -33,6 +35,8 @@ set(wc3lib_OBJECTEDITOR_H
 set(wc3lib_OBJECTEDITOR_SRC
 	abilityeditor.cpp
 	abilitytreemodel.cpp
+	buffeditor.cpp
+	bufftreemodel.cpp
 	destructableeditor.cpp
 	destructabletreemodel.cpp
 	doodadeditor.cpp

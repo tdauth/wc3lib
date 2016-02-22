@@ -340,6 +340,16 @@ void ObjectTreeModel::load(MpqPriorityList *source, ObjectData *objectData, QWid
 	connect(objectData, SIGNAL(fieldModification(const QString &, const QString &, const QString &, int)), this, SLOT(modifyField(const QString&, const QString&, const QString&, int)));
 }
 
+QModelIndex ObjectTreeModel::objectTopLeft(const QString &originalObjectId, const QString &customObjectId)
+{
+	if (customObjectId.isEmpty())
+	{
+		return index(0, 0);
+	}
+
+	return index(1, 0);
+}
+
 void ObjectTreeModel::createObject(const QString &originalObjectId, const QString &customObjectId)
 {
 	ObjectData *objectData = dynamic_cast<ObjectData*>(sender());
@@ -387,9 +397,15 @@ void ObjectTreeModel::resetObject(const QString& originalObjectId, const QString
 
 	if (item != 0)
 	{
-		QModelIndex index = item->modelIndex(this);
+		const QModelIndex topLeft = this->objectTopLeft(originalObjectId, customObjectId);
+		const QModelIndex bottomRight = item->modelIndex(this);
 
-		emit dataChanged(index, index);
+		/*
+		 * Signal that data have changed.
+		 * For example if the name has changed it will be updated automatically in the view.
+		 * The whole object tree from the top level to the object item has to be updated since the color changes if the item got its initial modification.
+		 */
+		emit dataChanged(topLeft, bottomRight);
 	}
 	else
 	{
@@ -404,19 +420,8 @@ void ObjectTreeModel::modifyField(const QString &originalObjectId, const QString
 
 	if (item != nullptr)
 	{
-		QModelIndex topLeft;
-
 		// TODO only use the top as left if it is the first modification!
-		// TODO a function should provide if there is these two items.
-		if (customObjectId.isEmpty())
-		{
-			topLeft = index(0, 0);
-		}
-		else
-		{
-			topLeft = index(1, 0);
-		}
-
+		const QModelIndex topLeft = this->objectTopLeft(originalObjectId, customObjectId);
 		const QModelIndex bottomRight = item->modelIndex(this);
 
 		/*

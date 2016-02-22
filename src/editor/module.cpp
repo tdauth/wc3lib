@@ -28,6 +28,7 @@
 #include "editor.hpp"
 #include "settingsinterface.hpp"
 #include "sourcesdialog.hpp"
+#include "resourcesdialog.hpp"
 
 namespace wc3lib
 {
@@ -43,6 +44,7 @@ Module::Module(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f)
 , m_topLayout(new QVBoxLayout())
 , m_centerLayout(new QGridLayout())
 , m_sourcesDialog(0)
+, m_resourcesDialog(0)
 {
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	setLayout(layout);
@@ -141,11 +143,24 @@ void Module::showSourcesDialog()
 	else
 	{
 		if (m_sourcesDialog == 0)
+		{
 			m_sourcesDialog = new SourcesDialog(source(), this);
+		}
 
 		m_sourcesDialog->update();
 		m_sourcesDialog->show();
 	}
+}
+
+void Module::showResourcesDialog()
+{
+	if (m_resourcesDialog == 0)
+	{
+		m_resourcesDialog = new ResourcesDialog(this);
+	}
+
+	m_resourcesDialog->setSources(source());
+	m_resourcesDialog->show();
 }
 
 void Module::aboutQt()
@@ -217,6 +232,9 @@ void Module::setupUi()
 	this->m_helpMenu = new QMenu(this);
 	this->menuBar()->addMenu(this->m_helpMenu);
 
+	this->m_resourcesAction = new QAction(tr("Resources"), this);
+	connect(this->m_resourcesAction, SIGNAL(triggered()), this, SLOT(showResourcesDialog()));
+	this->m_helpMenu->addAction(this->m_resourcesAction);
 	this->m_aboutQtAction = new QAction(tr("About Qt"), this);
 	connect(this->m_aboutQtAction, SIGNAL(triggered()), this, SLOT(aboutQt()));
 	this->m_helpMenu->addAction(this->m_aboutQtAction);

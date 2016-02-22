@@ -21,7 +21,7 @@
 #ifndef WC3LIB_EDITOR_MISCDATA_HPP
 #define WC3LIB_EDITOR_MISCDATA_HPP
 
-#include <QWidget>
+#include <QSet>
 
 #include "objectdata.hpp"
 
@@ -60,7 +60,7 @@ class KDE_EXPORT MiscData : public ObjectData
 		virtual MetaDataList metaDataList() const override;
 
 		virtual map::CustomObjects::Type type() const override;
-		virtual QString nextCustomObjectId() const override;
+		virtual QString nextCustomObjectId(const QString &originalObjectId) const override;
 
 		virtual QString objectName(const QString &originalObjectId, const QString &customObjectId) const override;
 		virtual QIcon objectIcon(const QString& originalObjectId, const QString& customObjectId, QWidget* window) const override;
@@ -73,6 +73,12 @@ class KDE_EXPORT MiscData : public ObjectData
 		MetaData* meleeV0() const;
 
 	private:
+		/**
+		 * \brief All misc data sources from Warcraft III.
+		 */
+		typedef QMap<QString,MetaData*> MiscFiles;
+		MiscFiles m_miscFiles;
+
 		MetaDataPtr m_miscMetaData;
 		MetaDataPtr m_miscGame;
 		MetaDataPtr m_customV0;

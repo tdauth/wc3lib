@@ -147,9 +147,9 @@ int WeatherData::objectLevels(const QString& originalObjectId, const QString& cu
 	return 1;
 }
 
-QString WeatherData::nextCustomObjectId() const
+QString WeatherData::nextCustomObjectId(const QString &originalObjectId) const
 {
-	QString result = ObjectData::nextCustomObjectId();
+	QString result = ObjectData::nextCustomObjectId(originalObjectId);
 	result[0] = 'W';
 
 	return result;

@@ -147,9 +147,9 @@ int WaterData::objectLevels(const QString& originalObjectId, const QString& cust
 	return 1;
 }
 
-QString WaterData::nextCustomObjectId() const
+QString WaterData::nextCustomObjectId(const QString &originalObjectId) const
 {
-	QString result = ObjectData::nextCustomObjectId();
+	QString result = ObjectData::nextCustomObjectId(originalObjectId);
 	result[0] = 'M';
 
 	return result;

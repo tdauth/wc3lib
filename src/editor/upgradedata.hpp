@@ -51,7 +51,6 @@ class KDE_EXPORT UpgradeData : public ObjectData
 
 		virtual MetaData* objectTabData() const override;
 		virtual map::CustomObjects::Type type() const override;
-		virtual QString nextCustomObjectId() const override;
 
 
 		virtual void load(QWidget* widget) override;

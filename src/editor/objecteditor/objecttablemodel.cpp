@@ -233,11 +233,11 @@ void ObjectTableModel::load(ObjectData *objectData, const QString &originalObjec
 				 */
 				const QString fieldType = objectData->metaData()->value(row, "type");
 
-				ObjectData *fieldObjectData = this->objectData()->source()->sharedData()->sharedObjectData()->resolveByFieldType(fieldType);
+				const SharedObjectData::ObjectDataList list = this->objectData()->source()->sharedData()->sharedObjectData()->resolveByFieldType(fieldType);
 
-				if (fieldObjectData != 0)
+				for (int i = 0; i < list.size(); ++i)
 				{
-					fieldObjectData->loadOnRequest(widget);
+					list[i]->loadOnRequest(widget);
 				}
 
 				const int objectLevels = objectData->objectLevels(this->originalObjectId(), this->customObjectId());

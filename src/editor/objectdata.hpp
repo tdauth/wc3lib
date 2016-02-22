@@ -300,10 +300,15 @@ class KDE_EXPORT ObjectData : public QObject
 		QString objectId(int value) const;
 		/**
 		 * Each custom object needs a unique ID that is automatically calculated.
+		 * \param originalObjectId The base ID of the original ID the custom object is based on.
 		 * \throws Exception Throws an exception if the next custom object ID is out of range or invalid.
 		 */
-		virtual QString nextCustomObjectId() const;
+		virtual QString nextCustomObjectId(const QString &originalObjectId) const;
 
+		/**
+		 * \return Returns the type of custom objects which is stored in this object data.
+		 * If \ref hasCustomObjects() returns false anyway because this type of object data is not supported by custom objects, the result can be ignored.
+		 */
 		virtual map::CustomObjects::Type type() const = 0;
 
 		/**
@@ -368,6 +373,12 @@ class KDE_EXPORT ObjectData : public QObject
 		bool hasFieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level = 0) const;
 		QString fieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level = 0) const;
 		QString fieldReadableValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level = 0) const;
+
+		/**
+		 * This method is required to determine if an object belongs to this object data.
+		 * \return Returns true if the original object with the ID \p originalObjectId exists. Otherwise it returns false.
+		 */
+		virtual bool hasOriginalObject(const QString &originalObjectId) const;
 
 		/**
 		 * \return Returns true if the field \p fieldId is not shown in the table view for the corresponding object.

@@ -1423,8 +1423,8 @@ abilities\Weapons\ZigguratMissile\ZigguratMissileHit3.wav
 abilities\Weapons\ZigguratMissile\ZigguratMissileLaunch1.wav
 abilities\Weapons\ZigguratMissile\ZigguratMissileLaunch2.wav
 abilities\Weapons\ZigguratMissile\ZigguratMissileLaunch3.wav
-AbilityBuffData.slk
-AbilityBuffMetaData.slk
+Units\AbilityBuffMetaData.slk
+Units\AbilityBuffData.slk
 AbilityData.slk
 AbilityData.slk.000
 AbilityMetaData.slk

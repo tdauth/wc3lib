@@ -99,8 +99,9 @@ void ObjectTableView::resetItem(const QModelIndex &index)
 	const ObjectTableModel *model = this->tab()->tableModel();
 	const QModelIndex mappedIndex = this->tab()->tableProxyModel()->mapToSource(index);
 
-	const QString fieldId = model->data(mappedIndex, Qt::UserRole).toString();
-	this->tab()->objectData()->resetField(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId);
+	const ObjectData::FieldId fieldId = model->fieldId(mappedIndex.row());
+	qDebug() << "Resetting field " << fieldId.fieldId();
+	this->tab()->objectData()->resetField(this->tableModel()->originalObjectId(), this->tableModel()->customObjectId(), fieldId.fieldId(), fieldId.level());
 }
 
 void ObjectTableView::customContextMenuRequested(QPoint pos)

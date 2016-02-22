@@ -490,6 +490,8 @@ void ObjectData::resetObject(const QString &originalObjectId, const QString &cus
 	if (iterator != this->m_objects.end())
 	{
 		iterator.value().clear();
+
+		emit objectReset(originalObjectId, customObjectId);
 	}
 }
 
@@ -596,7 +598,8 @@ QString ObjectData::fieldValue(const QString &originalObjectId, const QString &c
 
 QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId, int level) const
 {
-	const QString fieldValue = this->fieldValue(originalObjectId, customObjectId, fieldId, level);
+	// cut the quotes
+	const QString fieldValue = MetaData::fromSlkString(this->fieldValue(originalObjectId, customObjectId, fieldId, level));
 	const QString fieldType = this->metaData()->value(fieldId, "type");
 
 	/*
@@ -647,24 +650,6 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 	}
 	else if (fieldType == "model" || fieldType == "icon")
 	{
-		/*
-		QString result = fieldValue;
-		int index = result.lastIndexOf('\\');
-
-		if (index != -1 && result.size() > index + 1)
-		{
-			result = result.mid(index + 1);
-		}
-
-		index = result.lastIndexOf('.');
-
-		if (index != -1)
-		{
-			result = result.mid(0, index);
-		}
-
-		return result;
-		*/
 		return fieldValue;
 	}
 	else if (fieldType == "abilCode")
@@ -693,17 +678,29 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 	 */
 	else if (this->fieldTypeIsObjectList(fieldType))
 	{
-		ObjectData *objectData = this->source()->sharedData()->sharedObjectData()->resolveByFieldType(fieldType);
+		const SharedObjectData::ObjectDataList objectDataList = this->source()->sharedData()->sharedObjectData()->resolveByFieldType(fieldType);
 
-		if (objectData != 0)
+		if (!objectDataList.isEmpty())
 		{
 			QStringList fieldValues = fieldValue.split(',');
 			QStringList result;
 
 			foreach (QString value, fieldValues)
 			{
-				// TODO which one is the custom ID
-				result.push_back(objectData->objectName(value, ""));
+				const QStringList ids = value.split(':');
+				const QString originalId = ids.size() >= 1 ? ids[0] : "";
+				const QString customId = ids.size() >= 2 ? ids[1] : "";
+
+				// now check from which object data it is
+				for (int i = 0; i < objectDataList.size(); ++i)
+				{
+					if (objectDataList[i]->hasOriginalObject(originalId))
+					{
+						result.push_back(objectDataList[i]->objectName(originalId, customId));
+
+						break;
+					}
+				}
 			}
 
 			return result.join(", ");
@@ -713,6 +710,7 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 			qDebug() << "Could not resolve field type" << fieldType;
 		}
 	}
+	// Otherwise we expect an object tab entry with predefined values. These values usually have corresponding WESTRING entries which must be shown.
 	else
 	{
 		const ObjectTabEntries entries = this->objectTabEntries(fieldType);
@@ -767,6 +765,11 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 	}
 
 	return fieldValue;
+}
+
+bool ObjectData::hasOriginalObject(const QString &originalObjectId) const
+{
+	return this->standardObjectIds().contains(originalObjectId);
 }
 
 void ObjectData::importCustomUnits(const map::CustomUnits &units)
@@ -864,6 +867,11 @@ map::CustomObjects::Modification ObjectData::unitToObjectModification(const map:
 
 map::CustomUnits ObjectData::customUnits() const
 {
+	if (!hasCustomUnits())
+	{
+		throw Exception(_("Does not support custom units."));
+	}
+
 	map::CustomUnits units;
 
 	for (Objects::const_iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
@@ -895,6 +903,11 @@ map::CustomUnits ObjectData::customUnits() const
 
 map::CustomObjects ObjectData::customObjects() const
 {
+	if (!hasCustomObjects())
+	{
+		throw Exception(_("Does not support custom objects."));
+	}
+
 	map::CustomObjects objects = map::CustomObjects(this->type());
 
 	for (Objects::const_iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
@@ -963,7 +976,7 @@ QString ObjectData::objectId(int value) const
 	return result.toUpper();
 }
 
-QString ObjectData::nextCustomObjectId() const
+QString ObjectData::nextCustomObjectId(const QString &originalObjectId) const
 {
 	/*
 	 * Get all custom IDs in the correct order from the minimum ID to the maximum ID.
@@ -1052,6 +1065,37 @@ QString ObjectData::nextCustomObjectId() const
 		case map::CustomObjects::Type::Doodads:
 		{
 			result[0] = 'D';
+
+			break;
+		}
+
+		case map::CustomObjects::Type::Destructibles:
+		{
+			result[0] = 'B';
+
+			break;
+		}
+
+
+		case map::CustomObjects::Type::Buffs:
+		{
+			// buff
+			if (originalObjectId.startsWith('B'))
+			{
+				result[0] = 'B';
+			}
+			// effect
+			else
+			{
+				result[0] = 'X';
+			}
+
+			break;
+		}
+
+		case map::CustomObjects::Type::Upgrades:
+		{
+			result[0] = 'G';
 
 			break;
 		}
@@ -1191,7 +1235,7 @@ void ObjectData::widgetize(const KUrl &url)
 	//
 }
 
-QString ObjectData::defaultFieldValue(const QString& objectId, const QString& fieldId, int level, bool &exists) const
+QString ObjectData::defaultFieldValue(const QString &objectId, const QString &fieldId, int level, bool &exists) const
 {
 	const MetaDataList metaDataList = this->resolveDefaultField(objectId, fieldId, level);
 

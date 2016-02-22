@@ -217,9 +217,7 @@ MetaData* UpgradeData::objectTabData() const
 
 QString UpgradeData::objectName(const QString &originalObjectId, const QString &customObjectId) const
 {
-	const QString result = fieldReadableValue(originalObjectId, customObjectId, "gnam");
-
-	return this->source()->sharedData()->tr(result, "WorldEditStrings", result);
+	return fieldReadableValue(originalObjectId, customObjectId, "gnam");
 }
 
 QIcon UpgradeData::objectIcon(const QString &originalObjectId, const QString &customObjectId, QWidget *window) const
@@ -245,14 +243,6 @@ int UpgradeData::objectLevels(const QString &originalObjectId, const QString &cu
 	}
 
 	return 1;
-}
-
-QString UpgradeData::nextCustomObjectId() const
-{
-	QString result = ObjectData::nextCustomObjectId();
-	result[0] = 'G';
-
-	return result;
 }
 
 }
