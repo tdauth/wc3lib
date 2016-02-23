@@ -297,113 +297,116 @@ void ObjectEditorTab::exportAllObjects()
 
 void ObjectEditorTab::importAllObjects()
 {
-	const QString customObjectsSuffix = "w3u";
-	const QString customObjectsCollectionSuffix = "w3o";
-	const QString mapSuffix = "w3m";
-	const QString xmapSuffix = "w3x";
-
-	const KUrl url = KFileDialog::getOpenUrl(m_recentImportUrl, QString("*|All Files\n*.%1\nCustom Objects Collection *.%2\nMap (*.%3 *.%4)").arg(customObjectsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix), this, importAllObjectsText());
-
-	if (!url.isEmpty())
+	if (QMessageBox::question(this, tr("Import All"), tr("Importing all objects replaces all of your current modifications. Continue?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
 	{
-		const QString suffix = QFileInfo(url.toLocalFile()).suffix();
-		qDebug() << "Suffix" << suffix;
+		const QString customObjectsSuffix = "w3u";
+		const QString customObjectsCollectionSuffix = "w3o";
+		const QString mapSuffix = "w3m";
+		const QString xmapSuffix = "w3x";
 
-		map::CustomUnits customUnits;
+		const KUrl url = KFileDialog::getOpenUrl(m_recentImportUrl, QString("*|All Files\n*.%1\nCustom Objects Collection *.%2\nMap (*.%3 *.%4)").arg(customObjectsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix), this, importAllObjectsText());
 
-		if (suffix == customObjectsSuffix)
+		if (!url.isEmpty())
 		{
-			if (this->objectData()->hasCustomUnits())
-			{
-				ifstream in(url.toLocalFile().toUtf8().constData());
+			const QString suffix = QFileInfo(url.toLocalFile()).suffix();
+			qDebug() << "Suffix" << suffix;
 
-				try
-				{
-					customUnits.read(in);
-					this->objectData()->importCustomUnits(customUnits);
-					m_recentImportUrl = url;
-				}
-				catch (std::exception &e)
-				{
-					KMessageBox::error(this, tr("Error on importing"), e.what());
-				}
-			}
-			else
-			{
-				KMessageBox::error(this, tr("Does not support custom units."));
-			}
-		}
-		// TODO support custom object FILES
-		else if (suffix == customObjectsCollectionSuffix)
-		{
-			if (this->objectData()->hasCustomObjects())
-			{
-				ifstream in(url.toLocalFile().toUtf8().constData());
+			map::CustomUnits customUnits;
 
-				try
+			if (suffix == customObjectsSuffix)
+			{
+				if (this->objectData()->hasCustomUnits())
 				{
-					std::unique_ptr<map::CustomObjectsCollection> customObjectsCollection(new map::CustomObjectsCollection());
-					customObjectsCollection->read(in);
+					ifstream in(url.toLocalFile().toUtf8().constData());
 
-					switch (this->objectData()->type())
+					try
 					{
-						case map::CustomObjects::Type::Units:
+						customUnits.read(in);
+						this->objectData()->importCustomUnits(customUnits);
+						m_recentImportUrl = url;
+					}
+					catch (std::exception &e)
+					{
+						KMessageBox::error(this, tr("Error on importing"), e.what());
+					}
+				}
+				else
+				{
+					KMessageBox::error(this, tr("Does not support custom units."));
+				}
+			}
+			// TODO support custom object FILES
+			else if (suffix == customObjectsCollectionSuffix)
+			{
+				if (this->objectData()->hasCustomObjects())
+				{
+					ifstream in(url.toLocalFile().toUtf8().constData());
+
+					try
+					{
+						std::unique_ptr<map::CustomObjectsCollection> customObjectsCollection(new map::CustomObjectsCollection());
+						customObjectsCollection->read(in);
+
+						switch (this->objectData()->type())
 						{
-							if (customObjectsCollection->hasUnits())
+							case map::CustomObjects::Type::Units:
 							{
-								this->objectData()->importCustomUnits(*customObjectsCollection->units());
-								m_recentImportUrl = url;
-							}
-							else
-							{
-								KMessageBox::error(this, tr("Collection has no units."));
+								if (customObjectsCollection->hasUnits())
+								{
+									this->objectData()->importCustomUnits(*customObjectsCollection->units());
+									m_recentImportUrl = url;
+								}
+								else
+								{
+									KMessageBox::error(this, tr("Collection has no units."));
+								}
 							}
 						}
 					}
+					catch (std::exception &e)
+					{
+						KMessageBox::error(this, e.what());
+					}
 				}
-				catch (std::exception &e)
+				else
 				{
-					KMessageBox::error(this, e.what());
+					KMessageBox::error(this, tr("Does not support custom objects."));
 				}
 			}
-			else
+			else if (suffix == mapSuffix)
 			{
-				KMessageBox::error(this, tr("Does not support custom objects."));
-			}
-		}
-		else if (suffix == mapSuffix)
-		{
-			if (this->objectData()->hasCustomUnits())
-			{
-				try
+				if (this->objectData()->hasCustomUnits())
 				{
-					std::unique_ptr<map::W3m> map(new map::W3m());
-					map->open(url.toLocalFile().toUtf8().constData());
-					std::streamsize size = map->readFileFormat(map->customUnits().get());
-					qDebug() << "Size of custom units:" << size;
-					this->objectData()->importCustomUnits(*map->customUnits());
-					this->objectData()->applyMapStrings(*map);
+					try
+					{
+						std::unique_ptr<map::W3m> map(new map::W3m());
+						map->open(url.toLocalFile().toUtf8().constData());
+						std::streamsize size = map->readFileFormat(map->customUnits().get());
+						qDebug() << "Size of custom units:" << size;
+						this->objectData()->importCustomUnits(*map->customUnits());
+						this->objectData()->applyMapStrings(*map);
 
-					m_recentImportUrl = url;
+						m_recentImportUrl = url;
+					}
+					catch (std::exception &e)
+					{
+						KMessageBox::error(this, e.what());
+					}
 				}
-				catch (std::exception &e)
+				else
 				{
-					KMessageBox::error(this, e.what());
+					KMessageBox::error(this, tr("Does not support custom units."));
 				}
+			}
+			// TODO support custom object FILES
+			else if (suffix == xmapSuffix)
+			{
+				KMessageBox::error(this, tr("W3X is not supported yet."));
 			}
 			else
 			{
-				KMessageBox::error(this, tr("Does not support custom units."));
+				KMessageBox::error(this, tr("Unknown file type."));
 			}
-		}
-		// TODO support custom object FILES
-		else if (suffix == xmapSuffix)
-		{
-			KMessageBox::error(this, tr("W3X is not supported yet."));
-		}
-		else
-		{
-			KMessageBox::error(this, tr("Unknown file type."));
 		}
 	}
 }

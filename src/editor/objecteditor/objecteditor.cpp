@@ -416,11 +416,14 @@ void ObjectEditor::importAll(const KUrl &url)
 
 void ObjectEditor::importAll()
 {
-	const KUrl url = KFileDialog::getOpenUrl(KUrl(), tr("*|All Files\n%1\nCustom Units (*.w3u)\nMap (*.w3m *.w3x)").arg(objectsCollectionFilter()), this, source()->sharedData()->tr("WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"));
-
-	if (!url.isEmpty())
+	if (QMessageBox::question(this, tr("Import All"), tr("Importing all objects replaces all of your current modifications. Continue?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
 	{
-		this->importAll(url);
+		const KUrl url = KFileDialog::getOpenUrl(KUrl(), tr("*|All Files\n%1\nCustom Units (*.w3u)\nMap (*.w3m *.w3x)").arg(objectsCollectionFilter()), this, source()->sharedData()->tr("WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"));
+
+		if (!url.isEmpty())
+		{
+			this->importAll(url);
+		}
 	}
 }
 

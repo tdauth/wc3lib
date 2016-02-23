@@ -249,12 +249,19 @@ ObjectData::ObjectTabEntries ObjectData::objectTabEntries(const QString &fieldTy
 	/*
 	 * Tilesets are stored in "UI/WorldEditData.txt" not in "UI/UnitEditorData.txt".
 	 */
-	if (fieldType == "tilesetList" && this->source()->sharedData()->worldEditData().get() != 0)
+	if ((fieldType == "tilesetList" || fieldType == "doodadCategory" || fieldType == "destructableCategory") && this->source()->sharedData()->worldEditData().get() != 0)
 	{
-		ObjectTabEntries entries;
-		entries.push_back(ObjectData::ObjectTabEntry("*", "WESTRING_EVERY"));
+		// get the corresponding section key
+		const QString sectionKey = fieldType == "doodadCategory" ? "DoodadCategories" : (fieldType == "destructableCategory" ? "DestructibleCategories" : (fieldType == "tilesetList" ? "TileSets" : fieldType));
 
-		const map::Txt::Section *section = boost::polymorphic_cast<const TxtTextSource*>(this->source()->sharedData()->worldEditData()->textSource())->section("TileSets");
+		ObjectTabEntries entries;
+
+		if (fieldType == "tilesetList")
+		{
+			entries.push_back(ObjectData::ObjectTabEntry("*", "WESTRING_EVERY"));
+		}
+
+		const map::Txt::Section *section = boost::polymorphic_cast<const TxtTextSource*>(this->source()->sharedData()->worldEditData()->textSource())->section(sectionKey);
 
 		if (section != 0)
 		{
@@ -279,7 +286,10 @@ ObjectData::ObjectTabEntries ObjectData::objectTabEntries(const QString &fieldTy
 		return ObjectData::ObjectTabEntries();
 	}
 
-	if (this->objectTabData()->hasValue(fieldType, "NumValues"))
+	const TxtTextSource *txtSource = dynamic_cast<const TxtTextSource*>(this->objectTabData()->textSource());
+	const bool hasFieldSection = (txtSource != nullptr && txtSource->sectionKeys().contains(fieldType)) || this->objectTabData()->hasValue(fieldType, "NumValues");
+
+	if (hasFieldSection)
 	{
 		const QString numValues = this->objectTabData()->value(fieldType, "NumValues");
 		bool ok = false;

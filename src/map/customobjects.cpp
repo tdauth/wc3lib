@@ -122,7 +122,7 @@ CustomObjects::CustomObjects(CustomObjects::Type type) : m_type(type)
 	this->m_version = latestFileVersion();
 }
 
-CustomObjects::CustomObjects(const CustomObjects &other) : m_type(other.type()), CustomUnits(other)
+CustomObjects::CustomObjects(const CustomObjects &other) : CustomUnits(other), m_type(other.type())
 {
 }
 

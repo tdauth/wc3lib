@@ -153,7 +153,8 @@ void DestructableData::load(QWidget *widget)
 
 MetaData* DestructableData::objectTabData() const
 {
-	return this->source()->sharedData()->sharedObjectData()->unitEditorData().get();
+	// contains the section [DestructibleCategories]
+	return this->source()->sharedData()->worldEditData().get();
 }
 
 }

@@ -131,7 +131,8 @@ void DoodadData::load(QWidget *widget)
 
 MetaData* DoodadData::objectTabData() const
 {
-	return this->source()->sharedData()->sharedObjectData()->unitEditorData().get();
+	// contains the section [DoodadCategories]
+	return this->source()->sharedData()->worldEditData().get();
 }
 
 }
