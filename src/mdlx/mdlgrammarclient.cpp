@@ -422,10 +422,10 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 		>> animated_1d_float_values
 	;
 
-	color =
+	color %=
 		lit("static")
 		>> lit("Color")
-		>> vertex_real_3d[_val = _1]
+		>> vertex_real_3d
 		>> lit(',')
 	;
 

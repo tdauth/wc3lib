@@ -134,6 +134,11 @@ class KDE_EXPORT ObjectData : public QObject
 		 */
 		typedef QHash<ObjectId, Modifications> Objects;
 
+		/**
+		 * Creates new object data which is empty.
+		 * \param source The source which is used for all files.
+		 * \param parent The object's parent.
+		 */
 		ObjectData(MpqPriorityList *source, QObject *parent = 0);
 
 		/**

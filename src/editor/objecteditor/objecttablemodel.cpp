@@ -68,7 +68,7 @@ QVariant ObjectTableModel::data(const QModelIndex &index, int role) const
 						{
 							if (objectData()->source()->sharedData()->worldEditData()->hasValue("ObjectEditorCategories", category))
 							{
-								category = objectData()->source()->sharedData()->worldEditData()->value("ObjectEditorCategories", category);
+								category = MetaData::fromSlkString(objectData()->source()->sharedData()->worldEditData()->value("ObjectEditorCategories", category));
 								category = objectData()->source()->sharedData()->tr(category).remove('&');
 							}
 							else
@@ -80,7 +80,7 @@ QVariant ObjectTableModel::data(const QModelIndex &index, int role) const
 
 					if (objectData()->metaData()->hasValue(fieldId, "displayName"))
 					{
-						const QString displayName = objectData()->metaData()->value(fieldId, "displayName");
+						const QString displayName = MetaData::fromSlkString(objectData()->metaData()->value(fieldId, "displayName"));
 						const QString displayText = objectData()->source()->sharedData()->tr(displayName, "WorldEditStrings", displayName);
 						const QString displayTextLevel = objectData()->repeateField(fieldId) ? QString(" - ") + objectData()->source()->sharedData()->tr("WESTRING_AEVAL_LVL", "WorldEditStrings").replace("%d", QString::number(level + 1)) : "";
 

@@ -37,6 +37,7 @@
 #include "watereditor.hpp"
 #include "weathereditor.hpp"
 #include "misceditor.hpp"
+#include "skineditor.hpp"
 #include "objecttreemodel.hpp"
 #include "../moduletoolbar.hpp"
 #include "../upgradedata.hpp"
@@ -70,6 +71,7 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 , m_weatherEditor(0)
 , m_soundEntryEditor(0)
 , m_miscEditor(0)
+, m_skinEditor(0)
 , m_newObjectAction(0)
 , m_renameObjectAction(0)
 , m_deleteObjectAction(0)
@@ -145,6 +147,7 @@ bool ObjectEditor::configure()
 	m_waterEditor = new WaterEditor(source(), source()->sharedData()->sharedObjectData()->waterData().get(), this, this);
 	m_weatherEditor = new WeatherEditor(source(), source()->sharedData()->sharedObjectData()->weatherData().get(), this, this);
 	m_miscEditor = new MiscEditor(source(), source()->sharedData()->sharedObjectData()->miscData().get(), this, this);
+	m_skinEditor = new SkinEditor(source(), source()->sharedData()->sharedObjectData()->skinData().get(), this, this);
 
 	tabWidget()->addTab(unitEditor(), unitEditor()->tabIcon(this), unitEditor()->name());
 	tabWidget()->addTab(itemEditor(), itemEditor()->tabIcon(this), itemEditor()->name());
@@ -156,6 +159,7 @@ bool ObjectEditor::configure()
 	tabWidget()->addTab(waterEditor(), waterEditor()->tabIcon(this), waterEditor()->name());
 	tabWidget()->addTab(weatherEditor(), weatherEditor()->tabIcon(this), weatherEditor()->name());
 	tabWidget()->addTab(miscEditor(), miscEditor()->tabIcon(this), miscEditor()->name());
+	tabWidget()->addTab(skinEditor(), skinEditor()->tabIcon(this), skinEditor()->name());
 
 	// update current object data
 	currentChanged(0);

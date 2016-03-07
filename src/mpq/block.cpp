@@ -91,6 +91,12 @@ std::streamsize Block::write(ostream &ostream) const
 	return size;
 }
 
+void Block::remove()
+{
+	this->m_fileSize = 0;
+	this->m_flags = Block::Flags::None;
+}
+
 uint32 Block::fileKey(const string &fileName) const
 {
 	BlockTableEntry entry = toBlockTableEntry();

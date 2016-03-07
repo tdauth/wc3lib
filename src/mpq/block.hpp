@@ -77,6 +77,12 @@ class Block : public Format, private boost::noncopyable
 
 		std::streamsize write(ostream &ostream) const;
 
+		/**
+		 * Makes the block empty and clears all values.
+		 * After this call \ref empty() returns true.
+		 */
+		void remove();
+
 		bool empty() const;
 		bool unused() const;
 		/**

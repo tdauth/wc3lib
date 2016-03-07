@@ -21,7 +21,7 @@
 #ifndef WC3LIB_EDITOR_MISCDATA_HPP
 #define WC3LIB_EDITOR_MISCDATA_HPP
 
-#include <QSet>
+#include <QMap>
 
 #include "objectdata.hpp"
 

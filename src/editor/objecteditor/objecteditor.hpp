@@ -58,6 +58,7 @@ class WaterEditor;
 class WeatherEditor;
 class SoundEntryEditor;
 class MiscEditor;
+class SkinEditor;
 
 /**
  * \page objecteditorsection Object Editor
@@ -137,6 +138,7 @@ class MiscEditor;
  * <li>Weather Editor</li>
  * <li>Sound Entry Editor</li>
  * <li>Misc Editor - formerly known as "edit gameplay constants"</li>
+ * <li>Skin Editor - formerly known as "edit custom interface"</li>
  * </ul>
  *
  * \note The tab loads the object data \p objectData on request when it is shown for the first time. This should reduce performance on start up of the object editor. Besides it is the same behaviour as in the World Editor.
@@ -162,7 +164,8 @@ class KDE_EXPORT ObjectEditor : public Module
 			Upgrades,
 			Water,
 			Weather,
-			GameplayConstants
+			GameplayConstants,
+			Skin
 		};
 
 		ObjectEditor(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
@@ -193,6 +196,7 @@ class KDE_EXPORT ObjectEditor : public Module
 		WeatherEditor* weatherEditor() const;
 		SoundEntryEditor* soundEntryEditor() const;
 		MiscEditor* miscEditor() const;
+		SkinEditor* skinEditor() const;
 
 		QAction* newObjectAction() const;
 		QAction* renameObjectAction() const;
@@ -288,6 +292,7 @@ class KDE_EXPORT ObjectEditor : public Module
 		WeatherEditor *m_weatherEditor;
 		SoundEntryEditor *m_soundEntryEditor;
 		MiscEditor *m_miscEditor;
+		SkinEditor *m_skinEditor;
 
 		QAction *m_newObjectAction;
 		QAction *m_renameObjectAction;
@@ -423,6 +428,11 @@ inline SoundEntryEditor* ObjectEditor::soundEntryEditor() const
 inline MiscEditor* ObjectEditor::miscEditor() const
 {
 	return this->m_miscEditor;
+}
+
+inline SkinEditor* ObjectEditor::skinEditor() const
+{
+	return this->m_skinEditor;
 }
 
 inline QAction* ObjectEditor::newObjectAction() const

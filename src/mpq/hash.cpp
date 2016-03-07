@@ -150,7 +150,7 @@ std::streamsize Hash::write(ostream& ostream) const
 void Hash::removeData()
 {
 	// If the next entry is empty, mark this one as empty; otherwise, mark this as deleted.
-	   Archive::Hashes::const_iterator iterator = this->mpq()->hashes().find(this->hashData());
+	Archive::Hashes::const_iterator iterator = this->mpq()->hashes().find(this->hashData());
 
 	if (iterator == this->mpq()->hashes().end())
 	{
@@ -188,6 +188,12 @@ void Hash::removeData()
 	//this->m_block = 0;
 
 	/// @todo Clear or write file hash and block data (file sync)!
+}
+
+void Hash::remove()
+{
+	this->m_deleted = false;
+	this->m_block = 0;
 }
 
 /*

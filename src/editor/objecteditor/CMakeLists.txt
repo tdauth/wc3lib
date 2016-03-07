@@ -15,6 +15,8 @@ set(wc3lib_OBJECTEDITOR_H
 	objecteditor.hpp
 	objecteditortab.hpp
 	objectvaluedialog.hpp
+	skineditor.hpp
+	skintreemodel.hpp
 	objecttablemodel.hpp
 	objecttableview.hpp
 	objecttreeview.hpp
@@ -49,6 +51,8 @@ set(wc3lib_OBJECTEDITOR_SRC
 	objecteditor.cpp
 	objecteditortab.cpp
 	objectvaluedialog.cpp
+	skineditor.cpp
+	skintreemodel.cpp
 	objecttablemodel.cpp
 	objecttableview.cpp
 	objecttreeview.cpp

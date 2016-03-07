@@ -1,5 +1,9 @@
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
+add_executable(archivetest archive.cpp)
+target_link_libraries(archivetest wc3libmpq wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
+add_test(NAME ArchiveTest COMMAND archivetest)
+
 add_executable(listfiletest listfile.cpp)
 target_link_libraries(listfiletest wc3libmpq wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
 add_test(NAME ListfileTest COMMAND listfiletest)

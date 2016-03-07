@@ -70,7 +70,7 @@ class File;
 class Archive : public Format, private boost::noncopyable
 {
 	public:
-		enum class Format
+		enum class Format : uint16
 		{
 			Mpq1, /// Original format (Starcraft, Warcraft 3, Warcraft 3 The Frozen Throne, World of Warcraft)
 			Mpq2 /// Burning Crusade, large files (size can be larger than 2^32 -> up to 2^64)
@@ -185,6 +185,11 @@ class Archive : public Format, private boost::noncopyable
 		 * \return Returns true if an MPQ file was found and deleted successfully.
 		 */
 		bool removeFile(const File &mpqFile);
+		/**
+		 * Adds a new file to the archive.
+		 * \return Returns the newly added file.
+		 */
+		File addFile(const boost::filesystem::path &filePath, istream &istream, Sector::Compression compression = Sector::Compression::Uncompressed);
 
 		/**
 		 * Searches for hash table entry using \p hashData.
@@ -292,6 +297,27 @@ class Archive : public Format, private boost::noncopyable
 		 */
 		bool operator!() const;
 
+		/**
+		 * Basic IO operations for header structures with offsets and format information.
+		 *
+		 * @{
+		 */
+		/**
+		 * Reads the header structure of an MPQ archive from input stream \p in and stores the position of the header into \p startPosition.
+		 * \return Returns true if the header was found. Otherwise it returns false.
+		 */
+		bool readHeader(istream &in, Header &header, uint64 &startPosition, std::streamsize &size);
+		bool readBlockTable(istream &in, uint32 entries, std::streamsize &size);
+		bool readExtendedBlockTable(istream &in, std::streamsize &size);
+		bool readHashTable(istream &in, uint32 entries, std::streamsize &size);
+		bool writeHeader(ostream &out, std::streamsize &size) const;
+		bool writeBlockTable(ostream &out, std::streamsize &size) const;
+		bool writeExtendedBlockTable(ostream &out, std::streamsize &size) const;
+		bool writeHashTable(ostream &out, std::streamsize &size) const;
+		/**
+		 * @}
+		 */
+
 	protected:
 		/**
 		 * Does not check if archive is open.
@@ -327,8 +353,11 @@ class Archive : public Format, private boost::noncopyable
 
 		std::size_t m_size;
 		boost::filesystem::path m_path;
-		std::streampos m_startPosition;
-		std::streampos m_strongDigitalSignaturePosition; // position of strong digital signature in archive starting at its header ('NGIS')!
+		uint64 m_startPosition;
+		uint64 m_blockTableOffset; /// Relative to the start position.
+		uint64 m_extendedBlockTableOffset; /// Relative to the start position.
+		uint64 m_hashTableOffset; /// Relative to the start position.
+		uint64 m_strongDigitalSignaturePosition; // position of strong digital signature in archive starting at its header ('NGIS')!
 		Format m_format;
 		uint32 m_sectorSize;
 		StrongDigitalSignature m_strongDigitalSignature;

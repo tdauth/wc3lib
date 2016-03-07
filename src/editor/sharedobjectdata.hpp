@@ -66,6 +66,7 @@ class KDE_EXPORT SharedObjectData
 		const ObjectDataPtr& waterData() const;
 		const ObjectDataPtr& weatherData() const;
 		const ObjectDataPtr& miscData() const;
+		const ObjectDataPtr& skinData() const;
 		const MetaDataPtr& unitEditorData() const;
 
 		typedef QList<ObjectData*> ObjectDataList;
@@ -87,6 +88,7 @@ class KDE_EXPORT SharedObjectData
 		ObjectDataPtr m_waterData;
 		ObjectDataPtr m_weatherData;
 		ObjectDataPtr m_miscData;
+		ObjectDataPtr m_skinData;
 		MetaDataPtr m_unitEditorData;
 };
 
@@ -143,6 +145,11 @@ inline const SharedObjectData::ObjectDataPtr& SharedObjectData::weatherData() co
 inline const SharedObjectData::ObjectDataPtr& SharedObjectData::miscData() const
 {
 	return this->m_miscData;
+}
+
+inline const SharedObjectData::ObjectDataPtr& SharedObjectData::skinData() const
+{
+	return this->m_skinData;
 }
 
 inline const SharedObjectData::MetaDataPtr& SharedObjectData::unitEditorData() const

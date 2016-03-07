@@ -31,6 +31,7 @@
 #include "waterdata.hpp"
 #include "weatherdata.hpp"
 #include "miscdata.hpp"
+#include "skindata.hpp"
 #include "metadata.hpp"
 
 namespace wc3lib
@@ -50,6 +51,7 @@ SharedObjectData::SharedObjectData(MpqPriorityList *source) : m_source(source)
 , m_waterData(new WaterData(source))
 , m_weatherData(new WeatherData(source))
 , m_miscData(new MiscData(source))
+, m_skinData(new SkinData(source))
 , m_unitEditorData(new MetaData(KUrl("UI/UnitEditorData.txt")))
 {
 }
@@ -70,6 +72,7 @@ void SharedObjectData::load(QWidget *widget)
 	m_waterData->load(widget);
 	m_weatherData->load(widget);
 	m_miscData->load(widget);
+	m_skinData->load(widget);
 	m_unitEditorData->setSource(this->m_source);
 	m_unitEditorData->load();
 }

@@ -172,7 +172,7 @@ int ObjectValueDialog::getValue(QString& result, const QString& fieldType, const
 			dialog->doubleSpinBox()->setValue(fieldValue.toDouble());
 			dialog->doubleSpinBox()->selectAll();
 		}
-		else if (fieldType == "string" || fieldType == "char" || fieldType == "model" || fieldType == "icon" || fieldType == "texture" || fieldType == "pathingTexture" || fieldType == "shadowTexture")
+		else if (fieldType == "string" || fieldType == "char" || fieldType == "model" || fieldType == "icon" || fieldType == "texture" || fieldType == "pathingTexture" || fieldType == "shadowTexture" || fieldType == "soundLabel")
 		{
 			titleArg = objectData->source()->sharedData()->tr("WESTRING_UE_TYPE_STRING");
 

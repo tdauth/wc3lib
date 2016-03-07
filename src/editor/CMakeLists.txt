@@ -84,6 +84,7 @@ if (EDITOR)
 		settings.hpp
 		settingsinterface.hpp
 		sharedobjectdata.hpp
+		skindata.hpp
 		sourcesdialog.hpp
 		splashscreen.hpp
 		teamcolordialog.hpp
@@ -128,6 +129,7 @@ if (EDITOR)
 		settings.cpp
 		settingsinterface.cpp
 		sharedobjectdata.cpp
+		skindata.cpp
 		sourcesdialog.cpp
 		splashscreen.cpp
 		teamcolordialog.cpp

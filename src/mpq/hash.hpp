@@ -180,6 +180,12 @@ class Hash : public Format, private boost::noncopyable
 		virtual void removeData();
 
 		/**
+		 * Makes the hash entry empty.
+		 */
+		void remove();
+		
+
+		/**
 		 * \return Returns true if the hash table entry has been deleted.
 		 * \sa empty()
 		 */
