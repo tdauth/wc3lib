@@ -54,9 +54,11 @@ const uint32* Archive::cryptTable()
 Archive::Archive()
 : m_size(0)
 , m_path()
+, m_startPosition(0)
 , m_blockTableOffset(0)
 , m_extendedBlockTableOffset(0)
 , m_hashTableOffset(0)
+, m_strongDigitalSignaturePosition(0)
 , m_format(Archive::Format::Mpq1)
 , m_sectorSize(0)
 , m_strongDigitalSignature(0)
@@ -349,13 +351,17 @@ bool Archive::readBlockTable(istream &in, uint32 entries, std::streamsize &size)
 	const uint32 hashValue = HashString(Archive::cryptTable(), "(block table)", HashType::FileKey);
 	DecryptData(Archive::cryptTable(), encryptedBytes.get(), encryptedBytesSize, hashValue);
 	arraystream sstream(encryptedBytes.get(), encryptedBytesSize);
+	Blocks blocks;
 
 	for (uint32 i = 0; i < entries; ++i)
 	{
 		std::auto_ptr<Block> ptr(new Block(i));
 		size += ptr->read(sstream);
-		this->m_blocks.push_back(ptr);
+		blocks.push_back(ptr);
 	}
+
+	// exception safe
+	this->m_blocks.swap(blocks);
 
 	return true;
 }
@@ -363,34 +369,42 @@ bool Archive::readBlockTable(istream &in, uint32 entries, std::streamsize &size)
 bool Archive::readExtendedBlockTable(istream &in, std::streamsize &size)
 {
 	in.seekg(this->startPosition() + boost::numeric_cast<std::streamoff>(this->m_extendedBlockTableOffset));
+	Blocks blocks = this->blocks();
 
-	BOOST_FOREACH(Blocks::reference block, this->m_blocks)
+	BOOST_FOREACH(Blocks::reference block, blocks)
 	{
-		struct ExtendedBlockTableEntry extendedBlockTableEntry;
+		ExtendedBlockTableEntry extendedBlockTableEntry;
 		wc3lib::read(in, extendedBlockTableEntry, size);
 		block.setExtendedBlockOffset(extendedBlockTableEntry.extendedBlockOffset);
 	}
+
+	// exception safe
+	this->m_blocks.swap(blocks);
 
 	return true;
 }
 
 bool Archive::readHashTable(istream &in, uint32 entries, std::streamsize &size)
 {
-	in.seekg(this->startPosition() + boost::numeric_cast<std::streamoff>(this->m_hashTableOffset));
+	in.seekg(this->startPosition() + boost::numeric_cast<std::streamoff>(this->hashTableOffset()));
 	const std::size_t encryptedBytesSize = entries * sizeof(struct HashTableEntry);
 	boost::scoped_array<byte> encryptedBytes(new byte[encryptedBytesSize]);
 	in.read(encryptedBytes.get(), encryptedBytesSize);
 	const uint32 hashValue = HashString(Archive::cryptTable(), "(hash table)", HashType::FileKey);
 	DecryptData(Archive::cryptTable(), encryptedBytes.get(), encryptedBytesSize, hashValue);
 	arraystream sstream(encryptedBytes.get(), encryptedBytesSize);
+	Hashes hashes;
 
 	for (uint32 i = 0; i < entries; ++i)
 	{
 		std::auto_ptr<Hash> hash(new Hash(this, i));
 		size += hash->read(sstream);
 		const HashData hashData = hash->cHashData();
-		this->m_hashes.insert(hashData, hash);
+		hashes.insert(hashData, hash);
 	}
+
+	// exception safe
+	this->m_hashes.swap(hashes);
 
 	return true;
 }
@@ -422,7 +436,6 @@ bool Archive::writeBlockTable(ostream &out, std::streamsize &size) const
 {
 	const std::size_t encryptedBytesSize = this->m_blocks.size() * sizeof(struct BlockTableEntry);
 	boost::scoped_array<byte> encryptedBytes(new byte[encryptedBytesSize]);
-	std::streamsize tmpSize = 0;
 
 	BOOST_FOREACH(Blocks::const_reference ref, this->blocks())
 	{
@@ -433,8 +446,8 @@ bool Archive::writeBlockTable(ostream &out, std::streamsize &size) const
 	const uint32 hashValue = HashString(Archive::cryptTable(), "(block table)", HashType::FileKey);
 	EncryptData(Archive::cryptTable(), encryptedBytes.get(), encryptedBytesSize, hashValue);
 
-	out.seekp(this->startPosition() + boost::numeric_cast<std::streamoff>(this->m_blockTableOffset));
-	wc3lib::write(out, encryptedBytes, size, encryptedBytesSize);
+	out.seekp(this->startPosition() + boost::numeric_cast<std::streamoff>(this->blockTableOffset()));
+	wc3lib::write(out, encryptedBytes.get(), size, encryptedBytesSize);
 
 	return true;
 }
@@ -446,7 +459,22 @@ bool Archive::writeExtendedBlockTable(ostream &out, std::streamsize &size) const
 
 bool Archive::writeHashTable(ostream &out, std::streamsize &size) const
 {
-	return false;
+	const std::size_t encryptedBytesSize = this->m_blocks.size() * sizeof(struct BlockTableEntry);
+	boost::scoped_array<byte> encryptedBytes(new byte[encryptedBytesSize]);
+
+	BOOST_FOREACH(Hashes::const_reference ref, this->hashes())
+	{
+		const HashTableEntry hashEntry = ref.second->cHashData().toEntry();
+		memcpy(encryptedBytes.get(), &hashEntry, sizeof(HashTableEntry));
+	}
+
+	const uint32 hashValue = HashString(Archive::cryptTable(), "(hash table)", HashType::FileKey);
+	EncryptData(Archive::cryptTable(), encryptedBytes.get(), encryptedBytesSize, hashValue);
+
+	out.seekp(this->startPosition() + boost::numeric_cast<std::streamoff>(this->hashTableOffset()));
+	wc3lib::write(out, encryptedBytes.get(), size, encryptedBytesSize);
+
+	return true;
 }
 
 void Archive::clear()
@@ -495,6 +523,7 @@ bool Archive::removeFile(const File &mpqFile)
 		return false;
 	}
 
+	// TODO dont rewrite everything look at DeleteFile() from the specification, just NULL the entry and make the previous empty different?
 	stream.seekp(this->m_startPosition + this->m_hashTableOffset);
 
 	if (!writeHashTable(stream, size))

@@ -1,4 +1,3 @@
-
 find_package(Boost COMPONENTS unit_test_framework chrono REQUIRED)
 
 add_executable(customobjectstest customobjects.cpp)

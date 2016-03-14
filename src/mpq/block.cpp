@@ -82,6 +82,16 @@ std::streamsize Block::read(istream &istream)
 	return size;
 }
 
+Block::Block(const Block& other): m_index(other.index())
+, m_blockOffset(other.blockOffset())
+, m_extendedBlockOffset(other.extendedBlockOffset())
+, m_blockSize(other.blockSize())
+, m_fileSize(other.fileSize())
+, m_flags(other.flags())
+{
+
+}
+
 std::streamsize Block::write(ostream &ostream) const
 {
 	const BlockTableEntry entry = toBlockTableEntry();

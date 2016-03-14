@@ -33,7 +33,7 @@ namespace mpq
 class Archive;
 
 /**
- * \brief Blocks are used to provide data for a file in an MPQ archive.
+ * \brief Blocks are used to provide data for a file in an MPQ archive or empty or deletion regions in the archive which can be used for new blocks.
  *
  * Each file in an MPQ archive has exactly one corresponding block which holds all of its content.
  * Blocks are divided into sectors (\ref Sector).
@@ -48,7 +48,7 @@ class Archive;
  * \sa Hash
  * \sa File
  */
-class Block : public Format, private boost::noncopyable
+class Block : public Format
 {
 	public:
 		/**
@@ -74,6 +74,11 @@ class Block : public Format, private boost::noncopyable
 		 * \sa Block::fileKey(const string&)
 		 */
 		static uint32 fileKey(const string &name, const BlockTableEntry &blockTableEntry);
+
+		/**
+		 * Copy constructor.
+		 */
+		Block(const Block &other);
 
 		std::streamsize write(ostream &ostream) const;
 

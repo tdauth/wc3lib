@@ -239,9 +239,23 @@ class Archive : public Format, private boost::noncopyable
 		std::size_t size() const;
 		const boost::filesystem::path& path() const;
 		/**
+		 * Sets the absolute start position in the file of the archive of the archive's header.
+		 * \note This method should be used carefully since it changes many offsets.
+		 */
+		void setStartPosition(uint64 startPosition);
+		/**
 		 * \return Returns the start position of the MPQ archive in its file.
 		 */
-		std::streampos startPosition() const;
+		uint64 startPosition() const;
+		void setBlockTableOffset(uint64 blockTableOffset);
+		uint64 blockTableOffset() const;
+		void setExtendedBlockTableOffset(uint64 extendedBlockOffset);
+		uint64 extendedBlockTableOffset() const;
+		void setHashTableOffset(uint64 hashTableOffset);
+		uint64 hashTableOffset() const;
+		void setStrongDigitalSignaturePosition(uint64 strongDigitalSignaturePosition);
+		uint64 strongDigitalSignaturePosition() const;
+
 		Format format() const;
 		/**
 		 * Usually the sector size has type uint16 and is computed by using formula:
@@ -415,9 +429,49 @@ inline const boost::filesystem::path& Archive::path() const
 	return this->m_path;
 }
 
-inline std::streampos Archive::startPosition() const
+inline void Archive::setStartPosition(uint64 startPosition)
+{
+	this->m_startPosition = startPosition;
+}
+
+inline uint64 Archive::startPosition() const
 {
 	return this->m_startPosition;
+}
+
+inline void Archive::setBlockTableOffset(uint64 blockTableOffset)
+{
+	this->m_blockTableOffset = blockTableOffset;
+}
+
+inline uint64 Archive::blockTableOffset() const
+{
+	return this->m_blockTableOffset;
+}
+
+inline void Archive::setExtendedBlockTableOffset(uint64 extendedBlockOffset)
+{
+	this->m_extendedBlockTableOffset = extendedBlockOffset;
+}
+
+inline uint64 Archive::extendedBlockTableOffset() const
+{
+	return this->m_extendedBlockTableOffset;
+}
+
+inline void Archive::setHashTableOffset(uint64 hashTableOffset)
+{
+	this->m_hashTableOffset = hashTableOffset;
+}
+
+inline uint64 Archive::hashTableOffset() const
+{
+	return this->m_hashTableOffset;
+}
+
+inline uint64 Archive::strongDigitalSignaturePosition() const
+{
+	return this->m_strongDigitalSignaturePosition;
 }
 
 inline Archive::Format Archive::format() const
