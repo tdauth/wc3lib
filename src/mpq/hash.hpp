@@ -47,7 +47,6 @@ class HashData : public boost::operators<HashData>
 		HashData(const HashData &other);
 		HashData& operator=(const HashData &other);
 		HashData& operator=(const HashTableEntry &entry);
-		HashTableEntry toEntry() const;
 
 		void setFilePathHashA(int32 filePathHashA);
 		int32 filePathHashA() const;
@@ -169,9 +168,20 @@ class Block;
 class Hash : public Format, private boost::noncopyable
 {
 	public:
+		/**
+		 * If this index is used as block index the hash entry is deleted.
+		 */
 		static const uint32 blockIndexDeleted;
+		/**
+		 * If this index is used as a block index the hash entry is empty.
+		 */
 		static const uint32 blockIndexEmpty;
 
+		/**
+		 * Writes the corresponding hash table entry into the output stream \p ostream.
+		 * The hash table entry is generated using \ref toHashTableEntry().
+		 * \return Returns the number of written bytes.
+		 */
 		std::streamsize write(ostream &ostream) const;
 
 		/**
@@ -181,9 +191,10 @@ class Hash : public Format, private boost::noncopyable
 
 		/**
 		 * Makes the hash entry empty.
+		 * Therefore it is not deleted and does not reference any block.
 		 */
 		void remove();
-		
+
 
 		/**
 		 * \return Returns true if the hash table entry has been deleted.
@@ -201,8 +212,11 @@ class Hash : public Format, private boost::noncopyable
 		/**
 		 * \return Returns the corresponding MPQ archive which holds the block table from which a block can be assigned to the hash.
 		 */
-		  Archive* mpq() const;
+		Archive* mpq() const;
 
+		/**
+		 * \return Returns the index of the hash entry in the archive's hash table starting with 0.
+		 */
 		uint32 index() const;
 		/**
 		 * \return Returns the corresponding hash data which holds the actual data for hashing.
@@ -216,8 +230,15 @@ class Hash : public Format, private boost::noncopyable
 
 		/**
 		 * \return Returns the corresponding block. Each hash entry has one corresponding block entry or it is deleted or empty.
+		 * \note If the hash is deleted or empty it returns nullptr.
 		 */
 		Block* block() const;
+
+		/**
+		 * \return Returns the corresponding hash table entry which is written into the hash table
+		 * of an MPQ archive.
+		 */
+		HashTableEntry toHashTableEntry() const;
 
 	protected:
 		friend Archive;

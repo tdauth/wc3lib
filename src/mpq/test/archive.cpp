@@ -19,7 +19,7 @@ using namespace wc3lib::mpq;
 /**
  * Constructs a basic MPQ archive with one block and one hash entry (basically one file) and tests the basic IO methods of the class Archive.
  */
-BOOST_AUTO_TEST_CASE(WriteReadHeader)
+BOOST_AUTO_TEST_CASE(WriteReadHeaderAndTables)
 {
 	const std::size_t fileSize = 5;
 
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE(WriteReadHeader)
 	// fix archive's offsets for the usage of the read methods since they use these values to seek to the positions in the stream
 	archive.setStartPosition(startPosition);
 	archive.setBlockTableOffset(loadedHeader.blockTableOffset);
-	// TODO extended
+	// TODO extended block table offset?
 	archive.setHashTableOffset(loadedHeader.hashTableOffset);
 
 	// compare everything with block entry
@@ -133,14 +133,8 @@ BOOST_AUTO_TEST_CASE(WriteReadHeader)
 	BOOST_REQUIRE(archive.blocks().size() == 1);
 	const Block &loadedBlock = archive.blocks()[0];
 	const BlockTableEntry loadedBlockTableEntry = loadedBlock.toBlockTableEntry();
-
-	std::cerr << "Header block table offset: " << header.blockTableOffset << std::endl;
-	std::cerr << "Loaded header block table offset: " << loadedHeader.blockTableOffset << std::endl;
-	std::cerr << "Block table offset: " << archive.blockTableOffset() << std::endl;
-	std::cerr << "Non converted offset: " << archive.blocks()[0].blockOffset() << std::endl;
-	std::cerr << "Loaded offset: " << loadedBlockTableEntry.blockOffset << std::endl;
-	std::cerr << "Original offset: " << blockTableEntry.blockOffset << std::endl;
 	BOOST_REQUIRE(loadedBlockTableEntry.blockOffset == blockTableEntry.blockOffset);
+	// the loaded block table entry has to be the exact same as the written
 	BOOST_REQUIRE(memcmp(&loadedBlockTableEntry, &blockTableEntry, sizeof(blockTableEntry)) == 0);
 
 	// check methods of class Block
@@ -152,7 +146,15 @@ BOOST_AUTO_TEST_CASE(WriteReadHeader)
 	BOOST_REQUIRE(archive.readHashTable(in, 1, size));
 	BOOST_REQUIRE(size == sizeof(hashTableEntry));
 	BOOST_REQUIRE(archive.hashes().size() == 1);
-	const HashTableEntry loadedHashTableEntry = archive.hashes().begin()->second->cHashData().toEntry();
-	std::cerr << "Loaded hash file block index: " << loadedHashTableEntry.fileBlockIndex << std::endl;
+	const Hash &loadedHash = *archive.hashes().begin()->second;
+	const HashTableEntry loadedHashTableEntry = loadedHash.toHashTableEntry();
+	// the loaded hash table entry has to be the exact same as the written
 	BOOST_REQUIRE(memcmp(&loadedHashTableEntry, &hashTableEntry, sizeof(hashTableEntry)) == 0);
+
+	// check methods of class Hash
+	BOOST_REQUIRE(!loadedHash.empty());
+	BOOST_REQUIRE(!loadedHash.deleted());
+	BOOST_REQUIRE(loadedHash.block() == &loadedBlock);
+	BOOST_REQUIRE(loadedHash.index() == 0);
+	// TODO check more
 }

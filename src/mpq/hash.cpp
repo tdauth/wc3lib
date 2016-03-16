@@ -70,17 +70,6 @@ HashData& HashData::operator=(const HashTableEntry& entry)
 	return *this;
 }
 
-HashTableEntry HashData::toEntry() const
-{
-	HashTableEntry entry;
-	entry.filePathHashA = this->filePathHashA();
-	entry.filePathHashB = this->filePathHashB();
-	entry.locale = this->locale();
-	entry.platform = this->platform();
-
-	return entry;
-}
-
 bool HashData::isHash(int32 nameHashA, int32 nameHashB, uint16 locale, uint16 platform) const
 {
 	return this->m_filePathHashA == nameHashA && this->m_filePathHashB == nameHashB && this->m_locale == locale && this->m_platform == platform;
@@ -109,7 +98,7 @@ Hash::~Hash()
 
 std::streamsize Hash::read(istream &istream)
 {
-	struct HashTableEntry entry;
+	HashTableEntry entry;
 	std::streamsize size = 0;
 	wc3lib::read(istream, entry, size);
 
@@ -140,7 +129,7 @@ std::streamsize Hash::read(istream &istream)
 
 std::streamsize Hash::write(ostream& ostream) const
 {
-	HashTableEntry entry = this->cHashData().toEntry();
+	HashTableEntry entry = this->toHashTableEntry();
 	std::streamsize size = 0;
 	wc3lib::write(ostream, entry, size);
 
@@ -221,6 +210,31 @@ void Hash::changePath(const boost::filesystem::path &path)
 {
 	this->hashData().setFilePathHashA(HashString(Archive::cryptTable(), path.string().c_str(), HashType::NameA));
 	this->hashData().setFilePathHashB(HashString(Archive::cryptTable(), path.string().c_str(), HashType::NameB));
+}
+
+HashTableEntry Hash::toHashTableEntry() const
+{
+	HashTableEntry result;
+
+	if (this->deleted())
+	{
+		result.fileBlockIndex = blockIndexDeleted;
+	}
+	if (this->empty())
+	{
+		result.fileBlockIndex = blockIndexEmpty;
+	}
+	else
+	{
+		result.fileBlockIndex = this->block()->index();
+	}
+
+	result.filePathHashA = this->cHashData().filePathHashA();
+	result.filePathHashB = this->cHashData().filePathHashB();
+	result.locale = this->cHashData().locale();
+	result.platform = this->cHashData().platform();
+
+	return result;
 }
 
 }

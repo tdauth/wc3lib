@@ -386,12 +386,25 @@ bool Archive::readExtendedBlockTable(istream &in, std::streamsize &size)
 
 bool Archive::readHashTable(istream &in, uint32 entries, std::streamsize &size)
 {
-	in.seekg(this->startPosition() + boost::numeric_cast<std::streamoff>(this->hashTableOffset()));
+	/*
+	 * The hash table offset is relative to the start position of the archive.
+	 * Therefore jump to the absolute position to get the hash table.
+	 */
+	const std::streamoff absoluteOffset = this->startPosition() + boost::numeric_cast<std::streamoff>(this->hashTableOffset());
+	in.seekg(absoluteOffset);
+	/*
+	 * The complete hash table is encrypted by the file key of the string "(hash table)".
+	 * Therefore it has to be decrypted.
+	 * Use a scope pointer to prevent memory leaks but still use the heap.
+	 */
 	const std::size_t encryptedBytesSize = entries * sizeof(struct HashTableEntry);
 	boost::scoped_array<byte> encryptedBytes(new byte[encryptedBytesSize]);
 	in.read(encryptedBytes.get(), encryptedBytesSize);
 	const uint32 hashValue = HashString(Archive::cryptTable(), "(hash table)", HashType::FileKey);
 	DecryptData(Archive::cryptTable(), encryptedBytes.get(), encryptedBytesSize, hashValue);
+	/*
+	 * The arraystream is used as wrapper for the array to read from it like from a stream.
+	 */
 	arraystream sstream(encryptedBytes.get(), encryptedBytesSize);
 	Hashes hashes;
 
@@ -464,7 +477,7 @@ bool Archive::writeHashTable(ostream &out, std::streamsize &size) const
 
 	BOOST_FOREACH(Hashes::const_reference ref, this->hashes())
 	{
-		const HashTableEntry hashEntry = ref.second->cHashData().toEntry();
+		const HashTableEntry hashEntry = ref.second->toHashTableEntry();
 		memcpy(encryptedBytes.get(), &hashEntry, sizeof(HashTableEntry));
 	}
 
