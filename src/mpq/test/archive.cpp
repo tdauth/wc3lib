@@ -158,3 +158,10 @@ BOOST_AUTO_TEST_CASE(WriteReadHeaderAndTables)
 	BOOST_REQUIRE(loadedHash.index() == 0);
 	// TODO check more
 }
+
+BOOST_AUTO_TEST_CASE(ReadMPQMasterArchive)
+{
+	mpq::Archive archive;
+	BOOST_REQUIRE(archive.open("mpqmaster_mpq1_no_extended_attributes.mpq") > 0);
+	// TODO find file
+}
