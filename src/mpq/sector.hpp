@@ -32,6 +32,7 @@ namespace mpq
 {
 
 class Archive;
+class Block;
 class File;
 
 /**
@@ -70,28 +71,42 @@ class Sector // FIXME : private boost::noncopyable
 			Lzma = 0x12 /// <a href="http://www.zezula.net/en/mpq/stormlib/sfileaddfileex.html">Source</a>.
 		};
 
-		Sector(File *mpqFile, uint32 index, uint32 offset, uint32 size, uint32 uncompressedSize);
+		/**
+		 * This constructor is used when the sector is read from a specific file.
+		 */
+		Sector(Archive *archive, Block *block, const string &fileName, uint32 index, uint32 offset, uint32 size, uint32 uncompressedSize);
+
+		/**
+		 * This constructor is used when a sector is newly created for writing a specific file.
+		 */
+		Sector(Archive *archive, Block *block, const string &fileName, uint32 index, uint32 offset, uint32 size, Compression compression);
+
 		virtual ~Sector();
 
 		/**
 		 * Same as \ref readData(const byte*, const uint32, int) but detects buffer and buffer size automatically by simply using \ref Archive::sectorSize() of the corresponding MPQ archive or less (if input stream hasn't that much data).
 		 */
-		std::streamsize readData(istream &istream, int waveCompressionLevel = defaultWaveCompressionLevel);
+		std::streamsize compress(istream &istream, int waveCompressionLevel = defaultWaveCompressionLevel);
 		/**
 		 * Compresses and encrypts data from \p buffer of size \p bufferSize if necessary and writes it into the corresponding MPQ archive at the sector's place.
 		 * \note Compressed data has to be less than or equal to \ref Archive::sectorSize() of the corresponding MPQ archive. Otherwise it throws an exception.
 		 * \return Returns size of bytes which has been written into the corresponding MPQ archive.
 		 */
-		std::streamsize readData(const byte *buffer, const uint32 bufferSize, int waveCompressionLevel = defaultWaveCompressionLevel);
+		std::streamsize compress(const byte *buffer, const uint32 bufferSize, int waveCompressionLevel = defaultWaveCompressionLevel);
 		/**
 		 * Writes sector data into output stream \p ostream.
 		 * \return Returns size of written data.
 		 */
-		std::streamsize writeData(ostream &ostream) const;
+		std::streamsize decompress(ostream &ostream) const;
 		/**
 		 * Same as \ref Sector::writeData(wc3lib::ostream &) but doesn't work independently since it expects to be at the correct position in archive using \p istream as input archive stream.
 		 */
-		std::streamsize writeData(istream &istream, ostream &ostream) const;
+		std::streamsize decompress(istream &istream, ostream &ostream) const;
+
+		/**
+		 * Seeks the put position of the given output stream to the offset of the sector.
+		 */
+		void seekp(ostream &ostream) const;
 
 		/**
 		 * Jumps to the sector's position in input stream \p istream.
@@ -107,7 +122,13 @@ class Sector // FIXME : private boost::noncopyable
 		void seekgFromArchiveStart(istream &istream) const;
 		void seekgFromBlockStart(istream &istream) const;
 
-		File* mpqFile() const;
+		Archive* archive() const;
+		Block* block() const;
+		const string& fileName() const;
+
+		/**
+		 * \return Returns the index of the sector starting with 0.
+		 */
 		uint32 sectorIndex() const;
 		/**
 		 * \return Returns the offset of the sector relative to the block offset.
@@ -139,14 +160,38 @@ class Sector // FIXME : private boost::noncopyable
 		friend File;
 
 		void setCompression(Compression value);
+		/**
+		 * The sectors key is calculated by using the file key of the file with the name \p name and adding the sector's index.
+		 * \return Returns the sector key.
+		 */
 		uint32 sectorKey() const;
 
 		/**
+		 * Compresses data from an input buffer into an output stream and updates the sector's compressed and uncompressed size.
+		 * \param buffer Input buffer.
+		 * \param bufferSize Input buffer size.
+		 * \param ostream Output stream.
+		 *
+		 * \return Returns the number of compressed bytes.
+		 */
+		std::streamsize compress(const byte *buffer, uint32 bufferSize, ostream &ostream, int waveCompressionLevel = defaultWaveCompressionLevel);
+
+		/**
+		 * Decompresses data from an input buffer into an output stream.
+		 *
 		 * For internal usage.
 		 */
-		void decompressData(byte *data, uint32 dataSize, ostream &ostream) const;
+		void decompress(byte *data, uint32 dataSize, ostream &ostream) const;
 
-		File *m_mpqFile;
+		/**
+		 * The corresponding archive of the sector which is required to determine the sector size.
+		 */
+		Archive *m_archive;
+		/**
+		 * The corresponding block the sector does belong to which contains offset, size and flag information.
+		 */
+		Block *m_block;
+		string m_fileName; // the file name is used for the file key calculation
 		uint32 m_sectorIndex;
 		uint32 m_sectorOffset;
 		uint32 m_sectorSize; // not required, added by wc3lib, should be the compressed size!
@@ -159,9 +204,19 @@ inline constexpr bool operator&(Sector::Compression x, Sector::Compression y)
 	return static_cast<bool>(static_cast<byte>(x) & static_cast<byte>(y));
 }
 
-inline class File* Sector::mpqFile() const
+inline Archive* Sector::archive() const
 {
-	return this->m_mpqFile;
+	return this->m_archive;
+}
+
+inline Block* Sector::block() const
+{
+	return this->m_block;
+}
+
+inline const string& Sector::fileName() const
+{
+	return this->m_fileName;
 }
 
 inline uint32 Sector::sectorIndex() const

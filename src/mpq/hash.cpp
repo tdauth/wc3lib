@@ -29,6 +29,10 @@ namespace wc3lib
 namespace mpq
 {
 
+HashData::HashData() : m_filePathHashA(0), m_filePathHashB(0), m_locale(0), m_platform(0)
+{
+}
+
 HashData::HashData(int32 filePathHashA, int32 filePathHashB, uint16 locale, uint16 platform) : m_filePathHashA(filePathHashA), m_filePathHashB(filePathHashB), m_locale(locale), m_platform(platform)
 {
 }

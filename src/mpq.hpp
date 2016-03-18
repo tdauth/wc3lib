@@ -26,6 +26,9 @@ namespace wc3lib
 /**
  * \page mpqsection MPQ module
  * The MPQ format (Mo'PaQ, short for Mike O'Brien Pack) is Blizzard's archive format used by most of their games.
+ * The MPQ archives contain game content in a compressed form (like compressed TAR archives).
+ *
+ * This module allows you to read existing or modify existing or create new MPQ archives.
  *
  * It provides various features:
  * <ul>

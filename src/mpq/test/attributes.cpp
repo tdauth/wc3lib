@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(LadikMpq1AllExtendedAttributes)
 
 	try
 	{
-		testfile.writeData(data);
+		testfile.decompress(data);
 	}
 	catch (Exception &e)
 	{
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE(Crc32s)
 
 	try
 	{
-		file.writeData(data);
+		file.decompress(data);
 	}
 	catch (Exception &e)
 	{

@@ -28,24 +28,24 @@ namespace wc3lib
 namespace mpq
 {
 
-std::streamsize File::readData(istream &istream, Sector::Compression compression)
+std::streamsize File::compress(istream &istream, Sector::Compression compression)
 {
 	throw Exception(_("Not supported yet!"));
 }
 
-std::streamsize File::writeData(ostream &ostream)
+std::streamsize File::decompress(ostream &ostream)
 {
-	ifstream ifstream(this->mpq()->path(), std::ios_base::in | std::ios_base::binary);
+	ifstream ifstream(this->archive()->path(), std::ios_base::in | std::ios_base::binary);
 
 	if (!ifstream)
 	{
-		throw Exception(boost::format(_("Unable to open file %1%.")) % this->mpq()->path());
+		throw Exception(boost::format(_("Unable to open file %1%.")) % this->archive()->path());
 	}
 
-	return this->writeData(ifstream, ostream);
+	return this->decompress(ifstream, ostream);
 }
 
-std::streamsize File::writeData(istream &istream, ostream &ostream)
+std::streamsize File::decompress(istream &istream, ostream &ostream)
 {
 	/*
 	 * Read sectors from MPQ archive file and store them.
@@ -67,7 +67,7 @@ std::streamsize File::writeData(istream &istream, ostream &ostream)
 		try
 		{
 			sector.seekg(istream);
-			bytes += sector.writeData(istream, ostream);
+			bytes += sector.decompress(istream, ostream);
 		}
 		catch (Exception &exception)
 		{
@@ -93,17 +93,17 @@ Block* File::block() const
 	return this->hash()->block();
 }
 
-File::File() : m_mpq(0), m_hash(0)
+File::File() : m_archive(0), m_hash(0)
 {
 }
 
 void File::close()
 {
-	this->m_mpq = 0;
+	this->m_archive = 0;
 	this->m_hash = 0;
 }
 
-File::File(Archive *mpq, Hash *hash, const boost::filesystem::path &path) : m_mpq(mpq), m_hash(hash), m_path(path)
+File::File(Archive *archive, Hash *hash, const boost::filesystem::path &path) : m_archive(archive), m_hash(hash), m_path(path)
 {
 }
 
@@ -111,7 +111,7 @@ File::~File()
 {
 }
 
-File::File(const File &other) : m_mpq(other.mpq()), m_hash(other.hash()), m_path(other.path())
+File::File(const File &other) : m_archive(other.archive()), m_hash(other.hash()), m_path(other.path())
 {
 }
 
@@ -123,13 +123,16 @@ std::streamsize File::sectors(istream &istream, Sectors &sectors)
 		return 0;
 	}
 
-	istream.seekg(mpq()->startPosition());
+	istream.seekg(archive()->startPosition());
 	istream.seekg(this->block()->blockOffset(), std::ios::cur);
 
-	if (mpq()->format() == Archive::Format::Mpq2 && block()->extendedBlockOffset() > 0)
+	if (archive()->format() == Archive::Format::Mpq2 && block()->extendedBlockOffset() > 0)
 	{
 		istream.seekg(block()->extendedBlockOffset(), std::ios::cur);
 	}
+
+	string fileName = this->path().string();
+	Listfile::toListfileEntry(fileName);
 
 	std::streamsize bytes = 0;
 
@@ -142,7 +145,7 @@ std::streamsize File::sectors(istream &istream, Sectors &sectors)
 			std::cerr << boost::format(_("Although file %1% is not compressed or imploded, compressed size %2% differs from uncompressed size %3%.")) % this->path() % this->compressedSize() % this->size() << std::endl;
 		}
 
-		const uint32 sectorSize = this->mpq()->sectorSize();
+		const uint32 sectorSize = this->archive()->sectorSize();
 		const uint32 sectorsCount = this->compressedSize() / sectorSize;
 		sectors.reserve(sectorsCount + 1); // the last sector might use less size than the default one so reserve + 1
 
@@ -152,7 +155,7 @@ std::streamsize File::sectors(istream &istream, Sectors &sectors)
 
 		for (uint32 i = 0; i < sectorsCount; ++i)
 		{
-			sectors.push_back(Sector(this, i, newOffset, sectorSize, sectorSize));
+			sectors.push_back(Sector(this->archive(), this->block(), fileName, i, newOffset, sectorSize, sectorSize));
 
 			newOffset += sectorSize;
 			remainingUncompressedSize -= sectorSize;
@@ -161,7 +164,7 @@ std::streamsize File::sectors(istream &istream, Sectors &sectors)
 		// the last sector might use less size (remaining bytes)
 		if (remainingUncompressedSize > 0)
 		{
-			sectors.push_back(Sector(this, sectors.size(), newOffset, remainingUncompressedSize, remainingUncompressedSize));
+			sectors.push_back(Sector(this->archive(), this->block(), fileName, sectors.size(), newOffset, remainingUncompressedSize, remainingUncompressedSize));
 		}
 	}
 	// a single unit file only has one sector
@@ -170,13 +173,13 @@ std::streamsize File::sectors(istream &istream, Sectors &sectors)
 		const uint32 sectorOffset = 0;
 		const uint32 compressedSectorSize = this->block()->blockSize();
 		const uint32 uncompressedSectorSize = this->block()->fileSize();
-		sectors.push_back(Sector(this, 0, sectorOffset, compressedSectorSize, uncompressedSectorSize));
+		sectors.push_back(Sector(this->archive(), this->block(), fileName, 0, sectorOffset, compressedSectorSize, uncompressedSectorSize));
 	}
 	// However, the SectorOffsetTable will be present if the file is compressed/imploded and the file is not stored as a single unit, even if there is only a single sector in the file (the size of the file is less than or equal to the archive's sector size).
 	// sector offset table
 	else
 	{
-		const uint32 sectorsCount = (this->block()->fileSize() + this->mpq()->sectorSize() - 1) / this->mpq()->sectorSize();
+		const uint32 sectorsCount = (this->block()->fileSize() + this->archive()->sectorSize() - 1) / this->archive()->sectorSize();
 
 		// last offset contains file size
 		const uint32 offsetsSize = sectorsCount + 1;
@@ -219,9 +222,9 @@ std::streamsize File::sectors(istream &istream, Sectors &sectors)
 			 * sector by simple subtraction.
 			 */
 			const uint32 sectorSize = offsets[i + 1] - offsets[i]; // works since last offset contains file size
-			const uint32 uncompressedSectorSize = mpq()->sectorSize() > remainingUncompressedSize ? remainingUncompressedSize : this->mpq()->sectorSize(); // use remaining size of the block if it is smaller than the default expected uncompressed sector size
+			const uint32 uncompressedSectorSize = archive()->sectorSize() > remainingUncompressedSize ? remainingUncompressedSize : this->archive()->sectorSize(); // use remaining size of the block if it is smaller than the default expected uncompressed sector size
 
-			sectors.push_back(Sector(this, i, offsets[i], sectorSize, uncompressedSectorSize));
+			sectors.push_back(Sector(this->archive(), this->block(), fileName, i, offsets[i], sectorSize, uncompressedSectorSize));
 
 			remainingUncompressedSize -= uncompressedSectorSize;
 		}
@@ -242,11 +245,11 @@ void File::changePath(const boost::filesystem::path &path)
 
 std::streamsize File::sectors(Sectors &sectors)
 {
-	ifstream istream(mpq()->path(), std::ios::in | std::ios::binary);
+	ifstream istream(archive()->path(), std::ios::in | std::ios::binary);
 
 	if (!istream)
 	{
-		throw Exception(boost::format(_("Unable to open file %1%.")) % mpq()->path());
+		throw Exception(boost::format(_("Unable to open file %1%.")) % archive()->path());
 	}
 
 	std::streamsize result = this->sectors(istream, sectors);
@@ -262,6 +265,11 @@ std::streamsize File::writeSectors(ostream &ostream, const Sectors &sectors) con
 void File::removeData()
 {
 	throw Exception(_("Not implemented yet."));
+}
+
+bool File::hasSectorOffsetTable() const
+{
+	return Block::hasSectorOffsetTable(this->block()->flags());
 }
 
 }

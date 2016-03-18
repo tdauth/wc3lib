@@ -124,7 +124,7 @@ class Listfile : public File
 inline Listfile::Entries Listfile::entries()
 {
 	ostringstream stream;
-	File::writeData(stream);
+	File::decompress(stream);
 
 	return entries(stream.str());
 }

@@ -75,7 +75,7 @@ std::streamsize Attributes::attributes(int32 &version, ExtendedAttributes &exten
 	*/
 	stringstream stream;
 	std::streamsize size = 0;
-	size = File::writeData(stream);
+	size = File::decompress(stream);
 
 	ExtendedAttributesHeader extendedAttributesHeader;
 	wc3lib::read(stream, extendedAttributesHeader, size);
@@ -84,9 +84,9 @@ std::streamsize Attributes::attributes(int32 &version, ExtendedAttributes &exten
 
 	if (extendedAttributes & ExtendedAttributes::FileCrc32s)
 	{
-		crcs.resize(this->mpq()->blocks().size());
+		crcs.resize(this->archive()->blocks().size());
 
-		BOOST_FOREACH(const Block &block, this->mpq()->blocks())
+		BOOST_FOREACH(const Block &block, this->archive()->blocks())
 		{
 			CRC32 crc32;
 			wc3lib::read(stream, crc32, size);
@@ -96,9 +96,9 @@ std::streamsize Attributes::attributes(int32 &version, ExtendedAttributes &exten
 
 	if (extendedAttributes & ExtendedAttributes::FileTimeStamps)
 	{
-		fileTimes.resize(this->mpq()->blocks().size());
+		fileTimes.resize(this->archive()->blocks().size());
 
-		BOOST_FOREACH(const Block &block, this->mpq()->blocks())
+		BOOST_FOREACH(const Block &block, this->archive()->blocks())
 		{
 			FILETIME fileTime;
 			wc3lib::read(stream, fileTime, size);
@@ -108,9 +108,9 @@ std::streamsize Attributes::attributes(int32 &version, ExtendedAttributes &exten
 
 	if (extendedAttributes & ExtendedAttributes::FileMd5s)
 	{
-		md5s.resize(this->mpq()->blocks().size());
+		md5s.resize(this->archive()->blocks().size());
 
-		BOOST_FOREACH(const Block &block, this->mpq()->blocks())
+		BOOST_FOREACH(const Block &block, this->archive()->blocks())
 		{
 			MD5Checksum md5;
 			wc3lib::read(stream, md5, size);
@@ -154,7 +154,7 @@ std::streamsize Attributes::writeAttributes(int32 version, ExtendedAttributes ex
 		}
 	}
 
-	return File::readData(stream);
+	return File::compress(stream);
 }
 
 Attributes::Attributes(Archive *mpq, Hash *hash) : File(mpq, hash, "(attributes)")

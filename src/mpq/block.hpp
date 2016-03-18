@@ -75,6 +75,8 @@ class Block : public Format
 		 */
 		static uint32 fileKey(const string &name, const BlockTableEntry &blockTableEntry);
 
+		static bool hasSectorOffsetTable(Flags flags);
+
 		/**
 		 * Copy constructor.
 		 */
@@ -175,6 +177,12 @@ inline constexpr bool operator&(Block::Flags x, Block::Flags y)
 {
 	return static_cast<bool>(static_cast<uint32>(x) & static_cast<uint32>(y));
 }
+
+inline bool Block::hasSectorOffsetTable(Block::Flags flags)
+{
+	return !(flags & Block::Flags::IsSingleUnit) && ((flags & Block::Flags::IsCompressed) || (flags & Block::Flags::IsImploded));
+}
+
 
 inline bool Block::empty() const
 {

@@ -127,11 +127,16 @@ class Archive : public Format, private boost::noncopyable
 		virtual ~Archive();
 
 		/**
-		 * Creates a new MPQ archive at file path \p path of format \p format starting at position \p startPosition in corresponding file and using sector size \p sectorSize.
-		 * \param overwriteExisting If this value is true existing any file at file path \p path will be overwritten before creating file/archive. Otherwise an exception will be thrown if there already is some file at the given path.
+		 * Creates a new empty MPQ archive at file path \p path of format \p format starting at position \p startPosition in corresponding file and using sector size \p sectorSize.
+		 * \param path The file path of the created archive.
+		 * \param hashTableEntries The initial number of hashes in the hash table.
+		 * \param blockTableEntries The initial number of blocks in the block table.
+		 * \param format The format of the MPQ archive.
+		 * \param sectorSize The size of file sectors.
+		 * \param startPosition The start position in the output file where the archive starts. All other space before will be skipped.
 		 * \return Returns size of all created file data in bytes.
 		 */
-		std::streamsize create(const boost::filesystem::path &path, bool overwriteExisting = false, std::streampos startPosition = 0, Format format = Format::Mpq1, uint32 sectorSize = 4096);
+		std::streamsize create(const boost::filesystem::path &path, uint32 hashTableEntries, uint32 blockTableEntries, Format format = Format::Mpq1, uint32 sectorSize = 4096, std::streampos startPosition = 0);
 		/**
 		 * Opens an MPQ file on the local file system at \p path.
 		 * This reads the block and hash tables.
@@ -139,6 +144,7 @@ class Archive : public Format, private boost::noncopyable
 		std::streamsize open(const boost::filesystem::path &path);
 		/**
 		 * Closes the MPQ archive which clears all hashes and blocks.
+		 * If the archive is not open nothing happens.
 		 */
 		void close();
 
@@ -185,11 +191,26 @@ class Archive : public Format, private boost::noncopyable
 		 * \return Returns true if an MPQ file was found and deleted successfully.
 		 */
 		bool removeFile(const File &mpqFile);
+
+		class TooSmallHashTableException : public Exception
+		{
+		};
+
+		class TooSmallBlockTableException : public Exception
+		{
+		};
+
 		/**
 		 * Adds a new file to the archive.
+		 *
+		 * A file can only be added if there is a free or deleted block and free or deleted hash entry. Otherwise this method will return an invalid file.
+		 *
 		 * \return Returns the newly added file.
+		 *
+		 * \throws TooSmallHashTableException
+		 * \throws TooSmallBlockTableException
 		 */
-		File addFile(const boost::filesystem::path &filePath, istream &istream, Sector::Compression compression = Sector::Compression::Uncompressed);
+		File addFile(const boost::filesystem::path &filePath, const byte *data, uint64 dataSize, Sector::Compression compression = Sector::Compression::Uncompressed, Block::Flags flags = Block::Flags::None, File::Locale locale = File::Locale::Neutral, File::Platform platform = File::Platform::Default);
 
 		/**
 		 * Searches for hash table entry using \p hashData.
@@ -341,18 +362,20 @@ class Archive : public Format, private boost::noncopyable
 
 		/**
 		 * Empty space entries should have BlockOffset and BlockSize nonzero, and FileSize and Flags zero.
+		 *
+		 * \return Returns the first unused or empty block which can be used for new files.
 		 */
-		Block* firstEmptyBlock();
-		/**
-		 * Unused block table entries should have BlockSize, FileSize, and Flags zero.
-		 */
-		Block* firstUnusedBlock();
+		Block* firstFreeBlock();
 		/**
 		 * \return Returns the block with the biggest offset.
 		 */
 		Block* lastOffsetBlock();
-		Hash* firstEmptyHash();
-		Hash* firstDeletedHash();
+
+		/**
+		 * \return Returns the first unused or deleted hash which can be used for new files.
+		 */
+		Hash* firstFreeHash();
+
 		/**
 		 * \return Returns the next block offset as large unsigned integer. Next block offset means the offset of the next added block (last block offset + last block size / header size).
 		 */
@@ -524,24 +547,11 @@ inline const Archive::Hashes& Archive::hashes() const
 	return this->m_hashes;
 }
 
-inline Block* Archive::firstEmptyBlock()
+inline Block* Archive::firstFreeBlock()
 {
 	BOOST_FOREACH(Block &block, this->blocks())
 	{
-		if (block.empty())
-		{
-			return &block;
-		}
-	}
-
-	return 0;
-}
-
-inline Block* Archive::firstUnusedBlock()
-{
-	BOOST_FOREACH(Block &block, this->blocks())
-	{
-		if (block.unused())
+		if (block.empty() || block.unused())
 		{
 			return &block;
 		}
@@ -553,7 +563,7 @@ inline Block* Archive::firstUnusedBlock()
 inline Block* Archive::lastOffsetBlock()
 {
 	uint64 offset = 0;
-	class Block *result = 0;
+	Block *result = nullptr;
 
 	BOOST_FOREACH(Block &block, this->blocks())
 	{
@@ -569,27 +579,15 @@ inline Block* Archive::lastOffsetBlock()
 	return result;
 }
 
-
-inline Hash* Archive::firstEmptyHash()
+inline Hash* Archive::firstFreeHash()
 {
 	BOOST_FOREACH(Hashes::value_type pair, this->hashes())
 	{
-		if (pair.second->empty())
-		{
-			return pair.second;
-		}
-	}
+		Hash *hash = pair.second;
 
-	return 0;
-}
-
-inline Hash* Archive::firstDeletedHash()
-{
-	BOOST_FOREACH(Hashes::value_type pair, this->hashes())
-	{
-		if (pair.second->deleted())
+		if (hash->empty() || hash->deleted())
 		{
-			return pair.second;
+			return hash;
 		}
 	}
 

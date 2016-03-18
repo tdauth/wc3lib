@@ -13,6 +13,10 @@
 #error Define BOOST_TEST_DYN_LINK for proper definition of main function.
 #endif
 
+#ifndef WC3_DIR
+#error Define WC3_DIR.
+#endif
+
 using namespace wc3lib;
 using namespace wc3lib::mpq;
 
@@ -164,4 +168,148 @@ BOOST_AUTO_TEST_CASE(ReadMPQMasterArchive)
 	mpq::Archive archive;
 	BOOST_REQUIRE(archive.open("mpqmaster_mpq1_no_extended_attributes.mpq") > 0);
 	// TODO find file
+}
+
+BOOST_AUTO_TEST_CASE(ReadWar3Archive)
+{
+	boost::filesystem::path wc3DirPath = WC3_DIR;
+	std::cerr << "wc3 dir" << wc3DirPath << std::endl;
+	BOOST_REQUIRE(boost::filesystem::exists(wc3DirPath));
+	BOOST_REQUIRE(boost::filesystem::is_directory(wc3DirPath));
+
+	const boost::filesystem::path war3Path = wc3DirPath / "war3.mpq";
+
+	BOOST_REQUIRE(boost::filesystem::exists(war3Path));
+
+	Archive war3Archive;
+	BOOST_REQUIRE(war3Archive.open(war3Path) > 0);
+	BOOST_REQUIRE(war3Archive.format() == Archive::Format::Mpq1);
+	BOOST_REQUIRE(war3Archive.containsListfileFile());
+
+	const File listfileFile = war3Archive.findFile("(listfile)");
+	BOOST_REQUIRE(listfileFile.isValid());
+}
+
+BOOST_AUTO_TEST_CASE(ReadWar3XArchive)
+{
+	boost::filesystem::path wc3DirPath = WC3_DIR;
+	std::cerr << "wc3 dir" << wc3DirPath << std::endl;
+	BOOST_REQUIRE(boost::filesystem::exists(wc3DirPath));
+	BOOST_REQUIRE(boost::filesystem::is_directory(wc3DirPath));
+
+	const boost::filesystem::path war3XPath = wc3DirPath / "war3x.mpq";
+
+	BOOST_REQUIRE(boost::filesystem::exists(war3XPath));
+
+	Archive war3XArchive;
+	BOOST_REQUIRE(war3XArchive.open(war3XPath) > 0);
+	BOOST_REQUIRE(war3XArchive.format() == Archive::Format::Mpq1);
+	BOOST_REQUIRE(war3XArchive.containsListfileFile());
+
+	const File listfileFile = war3XArchive.findFile("(listfile)");
+	BOOST_REQUIRE(listfileFile.isValid());
+}
+
+BOOST_AUTO_TEST_CASE(CreateEmptyArchive)
+{
+	Archive archive;
+
+	BOOST_REQUIRE(archive.create("emptyarchive.mpq", 1, 1) > 0);
+
+	BOOST_CHECK(archive.isOpen());
+
+	BOOST_CHECK_EQUAL(archive.blocks().size(), 1);
+	BOOST_CHECK_EQUAL(archive.hashes().size(), 1);
+
+	BOOST_CHECK(boost::filesystem::is_regular("emptyarchive.mpq"));
+
+	BOOST_CHECK_EQUAL(archive.size(), sizeof(Header) + sizeof(BlockTableEntry) + sizeof(HashTableEntry)); // size includes the size of the header
+}
+
+BOOST_AUTO_TEST_CASE(AddFile)
+{
+	if (boost::filesystem::exists("addfile.mpq"))
+	{
+		boost::filesystem::remove("addfile.mpq");
+	}
+
+	Archive archive;
+	archive.create("addfile.mpq", 1, 1);
+
+	BOOST_REQUIRE(archive.isOpen());
+	BOOST_REQUIRE_EQUAL(archive.blocks().size(), 1);
+	BOOST_REQUIRE_EQUAL(archive.hashes().size(), 1);
+
+	string data = "Hello World!";
+
+	File file = archive.addFile("test.txt", data.c_str(), data.size());
+
+	BOOST_REQUIRE(file.isValid());
+
+	archive.close();
+
+	// make sure the archive has been written
+	BOOST_REQUIRE(boost::filesystem::exists("addfile.mpq"));
+
+	archive.open("addfile.mpq");
+
+	BOOST_REQUIRE(archive.isOpen());
+	BOOST_REQUIRE_EQUAL(archive.blocks().size(), 1);
+	BOOST_REQUIRE_EQUAL(archive.hashes().size(), 1);
+
+	file = archive.findFile("test.txt");
+
+	BOOST_REQUIRE(file.isValid());
+
+	stringstream sstream;
+	file.decompress(sstream);
+	data = sstream.str();
+
+	BOOST_REQUIRE_EQUAL(data, "Hello World!");
+}
+
+BOOST_AUTO_TEST_CASE(RemoveFile)
+{
+	if (boost::filesystem::exists("removefile.mpq"))
+	{
+		boost::filesystem::remove("removefile.mpq");
+	}
+
+	Archive archive;
+	archive.create("removefile.mpq", 1, 1);
+
+	BOOST_REQUIRE(archive.isOpen());
+	BOOST_REQUIRE_EQUAL(archive.blocks().size(), 1);
+	BOOST_REQUIRE_EQUAL(archive.hashes().size(), 1);
+
+	string data = "Hello World!";
+
+	File file = archive.addFile("test.txt", data.c_str(), data.size());
+
+	BOOST_REQUIRE(file.isValid());
+
+	archive.close();
+
+	// make sure the archive has been written
+	BOOST_REQUIRE(boost::filesystem::exists("removefile.mpq"));
+
+	archive.open("removefile.mpq");
+
+	BOOST_REQUIRE(archive.isOpen());
+	BOOST_REQUIRE_EQUAL(archive.blocks().size(), 1);
+	BOOST_REQUIRE_EQUAL(archive.hashes().size(), 1);
+
+	file = archive.findFile("test.txt");
+
+	BOOST_REQUIRE(file.isValid());
+
+	stringstream sstream;
+	file.decompress(sstream);
+	data = sstream.str();
+
+	BOOST_REQUIRE_EQUAL(data, "Hello World!");
+
+	BOOST_REQUIRE(archive.removeFile(file));
+
+	// TODO check everything
 }

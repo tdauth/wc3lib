@@ -85,7 +85,7 @@ class File
 		/**
 		 * Use this default constructor to create invalid file objects.
 		 * Such objects are returned by the class \ref Archive whenever the file is not found.
-		 * It sets the archive (\ref mpq()) and the hash (\ref hash()) to 0 which indicates that it is invalid.
+		 * It sets the archive (\ref archive()) and the hash (\ref hash()) to 0 which indicates that it is invalid.
 		 * \ref isValid() returns false if the file is invalid.
 		 */
 		File();
@@ -104,16 +104,16 @@ class File
 		 * \return Returns size of read data.
 		 * \throws Exception Usually thrown when there is not enough space in file's corresponding block. Throws an exception if file is locked as well.
 		 */
-		virtual std::streamsize readData(istream &istream, Sector::Compression compression = Sector::Compression::Uncompressed);
+		virtual std::streamsize compress(istream &istream, Sector::Compression compression = Sector::Compression::Uncompressed);
 		/**
 		 * Writes uncompressed file data into output stream \p ostream.
 		 * \return Returns size of written data.
 		 */
-		virtual std::streamsize writeData(ostream &ostream);
+		virtual std::streamsize decompress(ostream &ostream);
 		/**
-		 * Same as \ref writeData(ostream &) but doesn't work independently since it expects to be at the correct position in archive using \p istream as input archive stream.
+		 * Same as \ref decompress(ostream &) but doesn't work independently since it expects to be at the correct position in archive using \p istream as input archive stream.
 		 */
-		virtual std::streamsize writeData(istream &istream, ostream &ostream);
+		virtual std::streamsize decompress(istream &istream, ostream &ostream);
 
 		/**
 		 * \todo Implement removal of all data from the block which should mark hash as deleted and clear the block and should be synchronized with the archive.
@@ -147,7 +147,7 @@ class File
 		/**
 		 * \return Returns the archive which the file does belong into.
 		 */
-		Archive* mpq() const;
+		Archive* archive() const;
 		/**
 		 * \return Returns the corresponding hash which belongs to the file.
 		 *
@@ -234,14 +234,14 @@ class File
 		void changePath(const boost::filesystem::path &path);
 
 	private:
-		Archive *m_mpq;
+		Archive *m_archive;
 		Hash *m_hash;
 		boost::filesystem::path m_path;
 };
 
-inline Archive* File::mpq() const
+inline Archive* File::archive() const
 {
-	return this->m_mpq;
+	return this->m_archive;
 }
 
 inline Hash* File::hash() const
@@ -320,14 +320,9 @@ inline bool File::isImploded() const
 	return this->block()->flags() & Block::Flags::IsImploded;
 }
 
-inline bool File::hasSectorOffsetTable() const
-{
-	return !(this->block()->flags() & Block::Flags::IsSingleUnit) && ((this->block()->flags() & Block::Flags::IsCompressed) || (this->block()->flags() & Block::Flags::IsImploded));
-}
-
 inline bool File::isValid() const
 {
-	return this->mpq() != 0 && this->hash() != 0;
+	return this->archive() != 0 && this->hash() != 0;
 }
 
 inline uint16 File::localeToInt(File::Locale locale)

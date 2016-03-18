@@ -97,7 +97,7 @@ void extract(Archive &mpq, std::string &entry, const boost::program_options::var
 	try
 	{
 		checkStream(out);
-		file.writeData(out);
+		file.decompress(out);
 	}
 	catch (Exception &exception)
 	{

@@ -71,25 +71,20 @@ Archive::~Archive()
 	this->close();
 }
 
-std::streamsize Archive::create(const boost::filesystem::path &path, bool overwriteExisting, std::streampos startPosition, Format format, uint32 sectorSize)
+std::streamsize Archive::create(const boost::filesystem::path &path, uint32 hashTableEntries, uint32 blockTableEntries, Format format, uint32 sectorSize, std::streampos startPosition)
 {
 	this->close();
 
-	if (boost::filesystem::exists(path) && !overwriteExisting)
-	{
-		throw Exception(boost::format(_("Unable to create file \"%1%\". File does already exist.")) % path.string());
-	}
+	ofstream out(path, std::ios::out | std::ios::binary);
 
-	ofstream ofstream(path, std::ios::out | std::ios::binary);
-
-	if (!ofstream)
+	if (!out)
 	{
 		throw Exception(boost::format(_("Unable to create file \"%1%\".")) % path.string());
 	}
 
-	ofstream.seekp(startPosition);
+	out.seekp(startPosition);
 
-	if (ofstream.tellp() != startPosition)
+	if (out.tellp() != startPosition)
 	{
 		throw Exception(boost::str(boost::format(_("Unable to start in file \"%1%\" at position %2%.")) % path.string() % startPosition));
 	}
@@ -97,20 +92,61 @@ std::streamsize Archive::create(const boost::filesystem::path &path, bool overwr
 	this->m_path = path;
 	this->m_format = format;
 	this->m_sectorSize = sectorSize;
+	this->m_startPosition = startPosition;
 	std::streamsize streamSize = 0;
 
-	try
+	// create empty blocks
+	for (uint32 i = 0; i < blockTableEntries; ++i)
 	{
-		streamSize = this->write(ofstream);
-	}
-	catch (Exception &exception)
-	{
-		this->clear();
-
-		throw;
+		this->m_blocks.push_back(new Block(i));
 	}
 
-	this->m_size = boost::filesystem::file_size(path);
+	// create empty hashes
+	for (uint32 i = 0; i < blockTableEntries; ++i)
+	{
+		HashData key;
+		this->m_hashes.insert(key, new Hash(this, i));
+	}
+
+	// skip header for later writing
+	out.seekp(sizeof(Header), std::ios::cur);
+
+	this->m_blockTableOffset = out.tellp() - this->startPosition();
+
+	if (!this->writeBlockTable(out, streamSize))
+	{
+		throw Exception();
+	}
+
+	if (this->format() == Archive::Format::Mpq2)
+	{
+		this->m_extendedBlockTableOffset = out.tellp() - this->startPosition();
+
+		if (!this->writeExtendedBlockTable(out, streamSize))
+		{
+			throw Exception();
+		}
+	}
+
+	this->m_hashTableOffset = out.tellp() - this->startPosition();
+
+	if (!this->writeHashTable(out, streamSize))
+	{
+		throw Exception();
+	}
+
+	const std::streampos current = out.tellp();
+	const uint32 archiveSize = boost::numeric_cast<uint32>(streamSize) + sizeof(Header); // includes the header size
+	this->m_size = archiveSize;
+
+	// seeks automatically
+	if (!this->writeHeader(out, streamSize))
+	{
+		throw Exception();
+	}
+
+	out.seekp(current);
+
 	this->m_isOpen = true;
 
 	return streamSize;
@@ -499,8 +535,13 @@ void Archive::clear()
 
 	this->m_size = 0;
 	this->m_path.clear();
+	this->m_startPosition = 0;
+	this->m_blockTableOffset = 0;
+	this->m_extendedBlockTableOffset = 0;
+	this->m_hashTableOffset = 0;
 	this->m_format = Archive::Format::Mpq1;
 	this->m_sectorSize = 0;
+	this->m_strongDigitalSignaturePosition = 0;
 	this->m_isOpen = false;
 }
 
@@ -547,6 +588,152 @@ bool Archive::removeFile(const File &mpqFile)
 	// don't free any space, otherwise it takes longer
 
 	return true;
+}
+
+File Archive::addFile(const boost::filesystem::path &filePath, const byte *data, uint64 dataSize, Sector::Compression compression, Block::Flags flags, File::Locale locale, File::Platform platform)
+{
+	/*
+	 * Get a free block for the file data and a free hash for the hash data of the file path etc.
+	 */
+	Hash *hash = firstFreeHash();
+
+	/*
+	 * If there is no free hash or block then the table is too small and no further file can be added.
+	 */
+	if (hash == nullptr)
+	{
+		throw TooSmallHashTableException();
+	}
+
+	Block *block = firstFreeBlock();
+
+	if (block == nullptr)
+	{
+		throw TooSmallBlockTableException();
+	}
+
+	/*
+	 * Store the written sectors
+	 */
+	File::Sectors sectors;
+	iarraystream istream(data, dataSize);
+	stringstream compressedIn;
+
+	switch (compression)
+	{
+		case Sector::Compression::Uncompressed:
+		{
+		}
+
+		case Sector::Compression::Bzip2Compressed:
+		{
+			compressBzip2(istream, compressedIn);
+
+			break;
+		}
+
+		// TODO support all compressions
+	}
+
+	const std::streampos streamEnd = endPosition(compressedIn);
+
+	string fileName;
+	Listfile::toListfileEntry(fileName);
+
+	// write sector table
+	if (Block::hasSectorOffsetTable(flags))
+	{
+		uint32 sectorIndex = 0;
+		uint32 sectorOffset = 0;
+
+		while (compressedIn)
+		{
+			const std::streampos currentPosition = compressedIn.tellg();
+			const std::streampos remainingSize = streamEnd - currentPosition;
+
+			const uint32 sectorSize = std::min<uint32>(this->sectorSize(), boost::numeric_cast<uint32>((std::streamoff)remainingSize));
+
+			// TODO set compression
+			sectors.push_back(Sector(this, block, fileName, sectorIndex, sectorOffset, sectorSize, compression));
+
+			sectorOffset += sectorSize;
+			++sectorIndex;
+		}
+	}
+	// write single block data without sector table
+	else
+	{
+		sectors.push_back(Sector(this, block, fileName, 0, 0, streamEnd + 1, compression));
+	}
+
+	/*
+	 * Calculate the complete offset of the used block for writing the data at the correct position into the file.
+	 * The newly calculated offset should be the end of the archive.
+	 */
+	uint32 blockOffset = 0;
+	uint16 extendedBlockOffset = 0;
+	nextBlockOffsets(blockOffset,  extendedBlockOffset);
+	const uint64 completeBlockOffset =blockOffset + ((uint64)(extendedBlockOffset) << 32);
+
+	/*
+	 * Write data to the end of the archive.
+	 */
+	ofstream out(this->path());
+	out.seekp(completeBlockOffset);
+	uint32 fileSize = 0; // uncompressed size
+	uint32 blockSize = 0; // compressed size
+
+	/*
+	 * Write all sectors into the archive and use all block space.
+	 */
+	BOOST_FOREACH(File::Sectors::reference ref, sectors)
+	{
+		const uint32 sectorSize = ref.sectorSize(); // compressed size
+		boost::scoped_array<byte> buffer(new byte[sectorSize]);
+		compressedIn.read(buffer.get(), sectorSize);
+		ref.compress(buffer.get(), sectorSize); // TODO improve performance and dont seek and open the file everytime
+
+		fileSize += ref.uncompressedSize();
+		blockSize += sectorSize;
+	}
+
+	/*
+	 * Prepare the hash entry.
+	 */
+	HashData hashData(filePath, locale, platform);
+	hash->setHashData(hashData);
+	hash->setBlock(block);
+	hash->setDeleted(false);
+	// TODO move hash in hashes()!!!!
+
+	/*
+	 * Prepare the block entry.
+	 */
+	block->setBlockOffset(blockOffset);
+	block->setExtendedBlockOffset(extendedBlockOffset);
+	block->setBlockSize(blockSize);
+	block->setFileSize(fileSize);
+	block->setFlags(flags);
+
+	// write the tables
+	out.seekp(this->m_startPosition + this->m_blockTableOffset);
+	std::streamsize size = 0;
+
+	// write the whole block table since it is encrypted
+	if (!writeBlockTable(out, size))
+	{
+		return File();
+	}
+
+	// TODO dont rewrite everything look at DeleteFile() from the specification, just NULL the entry and make the previous empty different?
+	out.seekp(this->m_startPosition + this->m_hashTableOffset);
+
+	if (!writeHashTable(out, size))
+	{
+		return File();
+	}
+
+	return findFile(filePath, locale, platform);
 }
 
 Hash* Archive::findHash(const HashData &hashData)

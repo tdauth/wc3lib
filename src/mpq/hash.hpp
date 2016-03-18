@@ -40,6 +40,7 @@ namespace mpq
 class HashData : public boost::operators<HashData>
 {
 	public:
+		HashData();
 		HashData(int32 filePathHashA, int32 filePathHashB, uint16 locale, uint16 platfom);
 		HashData(const boost::filesystem::path &path, File::Locale locale = File::Locale::Neutral, File::Platform platform = File::Platform::Default);
 		HashData(const HashTableEntry &entry);
@@ -277,6 +278,11 @@ class Hash : public Format, private boost::noncopyable
 
 		HashData& hashData();
 
+		void setIndex(uint32 index);
+		void setHashData(const HashData &hashData);
+		void setBlock(Block *block);
+		void setDeleted(bool deleted);
+
 	private:
 		Archive *m_mpq;
 		uint32 m_index;
@@ -318,6 +324,26 @@ inline HashData& Hash::hashData()
 inline Block* Hash::block() const
 {
 	return this->m_block;
+}
+
+inline void Hash::setIndex(uint32 index)
+{
+	this->m_index = index;
+}
+
+inline void Hash::setHashData(const HashData &hashData)
+{
+	this->m_hashData = hashData;
+}
+
+inline void Hash::setBlock(Block *block)
+{
+	this->m_block = block;
+}
+
+inline void Hash::setDeleted(bool deleted)
+{
+	this->m_deleted = deleted;
 }
 
 }
