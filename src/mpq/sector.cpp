@@ -247,15 +247,14 @@ namespace
 }
 #endif
 
-std::streamsize Sector::compress(const byte *buffer, uint32 bufferSize, ostream &ostream, int waveCompressionLevel)
+byte* Sector::compress(const byte *buffer, uint32 bufferSize, Block::Flags flags, Compression compression, uint32 &size, int waveCompressionLevel)
 {
-	uint32 size = 0;
 	boost::scoped_array<byte> data;
 
 	// Imploded sectors are the raw compressed data following compression with the implode algorithm (these sectors can only be in imploded files).
-	if (this->block()->flags() & Block::Flags::IsImploded)
+	if (flags & Block::Flags::IsImploded)
 	{
-		if (this->compression() & Sector::Compression::Imploded)
+		if (compression & Sector::Compression::Imploded)
 		{
 			char *newData = 0;
 			compressPklib(newData, *reinterpret_cast<int*>(&size), (char*const)buffer, boost::numeric_cast<int>(bufferSize), 0, 0);
@@ -263,12 +262,12 @@ std::streamsize Sector::compress(const byte *buffer, uint32 bufferSize, ostream 
 		}
 	}
 	// Compressed sectors (only found in compressed - not imploded - files) are compressed with one or more compression algorithms.
-	else if (this->block()->flags() & Block::Flags::IsCompressed)
+	else if (flags & Block::Flags::IsCompressed)
 	{
 		// TODO check compression order
-		if (this->compression() & Sector::Compression::ImaAdpcmMono) // IMA ADPCM mono
+		if (compression & Sector::Compression::ImaAdpcmMono) // IMA ADPCM mono
 		{
-			int outLength = boost::numeric_cast<int>(archive()->sectorSize());
+			int outLength = boost::numeric_cast<int>(bufferSize);
 			boost::scoped_array<byte> out(new byte[outLength]); // NOTE do always allocate enough memory.
 
 			if (compressWaveMono((short int* const)buffer, boost::numeric_cast<int>(bufferSize), (unsigned char*)out.get(), outLength, waveCompressionLevel) == 0)
@@ -276,7 +275,7 @@ std::streamsize Sector::compress(const byte *buffer, uint32 bufferSize, ostream 
 				throw Exception(_("Wave mono decompression error."));
 			}
 
-			if (outLength < archive()->sectorSize())
+			if (outLength < bufferSize)
 			{
 				data.reset(new byte[outLength]);
 				memcpy(data.get(), out.get(), outLength);
@@ -289,9 +288,9 @@ std::streamsize Sector::compress(const byte *buffer, uint32 bufferSize, ostream 
 			size = outLength;
 		}
 
-		if (this->compression() & Sector::Compression::ImaAdpcmStereo) // IMA ADPCM stereo
+		if (compression & Sector::Compression::ImaAdpcmStereo) // IMA ADPCM stereo
 		{
-			int outLength = boost::numeric_cast<int>(archive()->sectorSize());
+			int outLength = boost::numeric_cast<int>(bufferSize);
 			boost::scoped_array<byte> out(new byte[outLength]); // NOTE do always allocate enough memory.
 
 			if (compressWaveStereo((short int* const)buffer, boost::numeric_cast<int>(bufferSize), (unsigned char*)out.get(), outLength, waveCompressionLevel) == 0)
@@ -299,7 +298,7 @@ std::streamsize Sector::compress(const byte *buffer, uint32 bufferSize, ostream 
 				throw Exception(_("Wave stereo decompression error."));
 			}
 
-			if (outLength < archive()->sectorSize())
+			if (outLength < bufferSize)
 			{
 				data.reset(new byte[outLength]);
 				memcpy(data.get(), out.get(), outLength);
@@ -312,14 +311,14 @@ std::streamsize Sector::compress(const byte *buffer, uint32 bufferSize, ostream 
 			size = outLength;
 		}
 
-		if (this->compression() & Sector::Compression::Huffman) // Huffman encoded
+		if (compression & Sector::Compression::Huffman) // Huffman encoded
 		{
-			int outLength = boost::numeric_cast<int>(archive()->sectorSize());
+			int outLength = boost::numeric_cast<int>(bufferSize);
 			boost::scoped_array<byte> out(new byte[outLength]); // NOTE do always allocate enough memory.
 			int compression = defaultHuffmanCompressionType;
 			compressHuffman(out.get(), &outLength, (char*)buffer, boost::numeric_cast<unsigned>(bufferSize), &compression, 0);
 
-			if (outLength < archive()->sectorSize())
+			if (outLength < bufferSize)
 			{
 				data.reset(new byte[outLength]);
 				memcpy(data.get(), out.get(), outLength);
@@ -332,7 +331,7 @@ std::streamsize Sector::compress(const byte *buffer, uint32 bufferSize, ostream 
 			size = outLength;
 		}
 
-		if (this->compression() & Sector::Compression::Deflated) // Deflated (see ZLib)
+		if (compression & Sector::Compression::Deflated) // Deflated (see ZLib)
 		{
 			iarraystream istream(buffer, bufferSize);
 			//arraystream ostream;
@@ -349,21 +348,20 @@ std::streamsize Sector::compress(const byte *buffer, uint32 bufferSize, ostream 
 
 			data.reset(new byte[size]);
 			ostream.read(data.get(), size);
-			//ostream >> data.get();
 		}
 
 		// Imploded sectors are the raw compressed data following compression with the implode algorithm (these sectors can only be in imploded files).
 		// NOTE but in this situation it's compressed not imploded file!!!
-		if (this->compression() & Sector::Compression::Imploded)
+		if (compression & Sector::Compression::Imploded)
 		{
 			std::cerr << _("Warning: Imploded sector in not imploded file!") << std::endl;
 
-			int outLength = boost::numeric_cast<int>(archive()->sectorSize());
+			int outLength = boost::numeric_cast<int>(bufferSize);
 			boost::scoped_array<byte> out(new byte[outLength]); // NOTE do always allocate enough memory.
 
 			compressPklib(out.get(), outLength, (char*const)buffer, boost::numeric_cast<int>(bufferSize), 0, 0);
 
-			if (outLength < archive()->sectorSize())
+			if (outLength < bufferSize)
 			{
 				data.reset(new byte[outLength]);
 				memcpy(data.get(), out.get(), outLength);
@@ -374,7 +372,7 @@ std::streamsize Sector::compress(const byte *buffer, uint32 bufferSize, ostream 
 			}
 		}
 
-		if (this->compression() & Sector::Compression::Bzip2Compressed) // BZip2 compressed (see BZip2)
+		if (compression & Sector::Compression::Bzip2Compressed) // BZip2 compressed (see BZip2)
 		{
 			iarraystream istream(buffer, bufferSize);
 			//arraystream ostream;
@@ -392,24 +390,36 @@ std::streamsize Sector::compress(const byte *buffer, uint32 bufferSize, ostream 
 
 			data.reset(new byte[size]);
 			ostream.read(data.get(), size);
-			//ostream >> data.get();
 		}
 	}
 
-	if (size > archive()->sectorSize())
-	{
-		throw Exception(boost::format(_("Size %1% is too big. %2% is maximum sector size for archive.")) % size % archive()->sectorSize());
-	}
+	 // TODO reset ownership and directly return data!
+	byte *result = new byte[size];
+	memcpy(result, data.get(), size);
 
+	return result;
+}
+
+std::streamsize Sector::writeCompressed(const byte *compressedBuffer, uint32 compressedBufferSize, ostream &out)
+{
+	boost::scoped_array<byte> buffer;
+	uint32 bufferSize = 0;
 
 	// store compression byte as well before encrypting all data
 	// TODO maybe we could increase speed when starting encryption at the second index and using the default compression type byte without recopying all memory
-	if ( this->block()->flags() & Block::Flags::IsCompressed)
+	if (this->block()->flags() & Block::Flags::IsCompressed)
 	{
-		boost::scoped_array<byte> newData(new byte[size + 1]);
-		newData[0] = static_cast<byte>(compression());
-		memcpy(&newData[1], data.get(), size);
-		data.swap(newData);
+		bufferSize = compressedBufferSize + 1;
+		buffer.reset(new byte[bufferSize]);
+		buffer[0] = static_cast<byte>(compression());
+		memcpy(&buffer[1], compressedBuffer, compressedBufferSize);
+
+	}
+	else
+	{
+		bufferSize = compressedBufferSize;
+		buffer.reset(new byte[bufferSize]);
+		memcpy(buffer.get(), compressedBuffer, compressedBufferSize);
 	}
 
 	/*
@@ -419,11 +429,22 @@ std::streamsize Sector::compress(const byte *buffer, uint32 bufferSize, ostream 
 	*/
 	if (this->block()->flags() & Block::Flags::IsEncrypted)
 	{
-		EncryptData(Archive::cryptTable(), (void*)data.get(), size, this->sectorKey());
+		EncryptData(Archive::cryptTable(), (void*)buffer.get(), bufferSize, this->sectorKey());
 	}
 
 	std::streamsize bytes = 0;
-	wc3lib::write(ostream, data[0], bytes, size);
+	wc3lib::write(out, buffer[0], bytes, bufferSize);
+
+	return bytes;
+}
+
+std::streamsize Sector::compress(const byte *buffer, uint32 bufferSize, ostream &ostream, int waveCompressionLevel)
+{
+	uint32 size = 0;
+	boost::scoped_array<byte> data(Sector::compress(buffer, bufferSize, this->block()->flags(), this->compression(), size, waveCompressionLevel));
+
+	const std::streamsize bytes = this->writeCompressed(buffer, bufferSize, ostream);
+
 	this->m_sectorSize = size;
 	this->m_uncompressedSize = bufferSize;
 

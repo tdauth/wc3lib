@@ -2,6 +2,9 @@
 * Load icons in tree model in the beginning again? Reduces lags?
 * Only show upgrade effects if one is selected.
 * Apply effect names to the fields.
+* Add MPQ archive addFile() and removeFile() support.
+* Add corresponding options to the program "mpq".
+* Use BOOST_CHECK_EQUAL instead of BOOST_CHECK with the == operator.
 
 2016-02-11 Tamino Dauth <tamino@cdauth.eu>
 * Implement tree model for trigger editor instead of using trigger widget.

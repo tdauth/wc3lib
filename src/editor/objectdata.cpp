@@ -1137,7 +1137,7 @@ void ObjectData::applyMapStrings(map::W3m &w3m)
 			file.setFileTemplate("XXXXXX.wts");
 			file.open();
 			ofstream out(file.fileName().toUtf8().constData());
-			stringsFile.writeData(out);
+			stringsFile.decompress(out);
 			out.close();
 			file.close();
 

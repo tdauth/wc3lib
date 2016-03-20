@@ -82,6 +82,8 @@ class Block : public Format
 		 */
 		Block(const Block &other);
 
+		virtual ~Block();
+
 		std::streamsize write(ostream &ostream) const;
 
 		/**
@@ -144,9 +146,6 @@ class Block : public Format
 
 	protected:
 		friend Archive;
-		friend void boost::checked_delete<>(Block*);
-		friend void boost::checked_delete<>(Block const*);
-		friend std::auto_ptr<Block>;
 
 		/**
 		 * The constructor has to fill the block data which cannot be read directly from a \ref BlockTableEntry.
@@ -154,7 +153,6 @@ class Block : public Format
 		 * \note The extended block offset have to be set using \ref setExtendedBlockOffset().
 		 */
 		Block(uint32 index);
-		virtual ~Block();
 
 		std::streamsize read(istream &istream);
 

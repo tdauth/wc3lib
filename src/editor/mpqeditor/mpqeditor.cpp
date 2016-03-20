@@ -167,7 +167,7 @@ void MpqEditor::openFile(mpq::Archive& archive, const QString& filePath)
 
 		// TODO performance might be poor with stringstream and string
 		stringstream sstream;
-		file.writeData(sstream);
+		file.decompress(sstream);
 		const string data = sstream.str();
 
 		QTemporaryFile tempFile;
@@ -774,7 +774,7 @@ bool MpqEditor::extractFile(const QString &path, mpq::Archive &archive, const QS
 
 					try
 					{
-						file.writeData(out);
+						file.decompress(out);
 						out.close();
 
 						return true;

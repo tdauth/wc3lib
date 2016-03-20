@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(ReadTest)
 
 	try
 	{
-		file.writeData(outMinimap);
+		file.decompress(outMinimap);
 	}
 	catch (std::exception &e)
 	{

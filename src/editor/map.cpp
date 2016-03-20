@@ -71,7 +71,7 @@ void Map::load()
 			// TODO data has to be refreshed somewhere in GUI
 			//source()->refreshTriggerData(); // if trigger data is not available we cannot load trigger data
 			stringstream stream;
-			file.writeData(stream);
+			file.decompress(stream);
 			map->triggers()->read(stream, *source()->sharedData()->triggerData());
 		}
 		else

@@ -252,7 +252,7 @@ void MpqSlave::open(const KUrl &url, QIODevice::OpenMode mode)
 
 			try
 			{
-				std::streamsize size = this->m_file.writeData(stream);
+				std::streamsize size = this->m_file.decompress(stream);
 				QByteArray data = stream.str().c_str();
 				KMimeType::Ptr fileMimeType = KMimeType::findByNameAndContent(url.fileName(), data);
 				mimeType(fileMimeType->name());
@@ -297,7 +297,7 @@ void MpqSlave::read(KIO::filesize_t size)
 
 	try // TODO faster way without writing ALL data
 	{
-		m_file.writeData(sstream); // write data first to decompress everything
+		m_file.decompress(sstream); // write data first to decompress everything
 	}
 	catch (Exception &e)
 	{
@@ -690,7 +690,7 @@ void MpqSlave::get(const KUrl &url)
 
 	try
 	{
-		read = file.writeData(source);
+		read = file.decompress(source);
 	}
 	catch (Exception &exception)
 	{

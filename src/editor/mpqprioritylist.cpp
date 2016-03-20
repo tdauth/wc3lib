@@ -298,7 +298,7 @@ bool MpqPriorityList::download(const KUrl &src, QString &target, QWidget *window
 			if (file.isValid())
 			{
 				stringstream sstream;
-				file.writeData(sstream);
+				file.decompress(sstream);
 
 				// Create the temporary file in the global temporary dir instead of the current working dir. Otherwise many temporary files might be created in the working dir.
 				QTemporaryFile targetFile(QDir::temp().filePath(src.fileName()));

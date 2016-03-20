@@ -71,7 +71,7 @@ std::streamsize W3m::readFileFormat(FileFormat *format)
 
 		try
 		{
-			file.writeData(stream);
+			file.decompress(stream);
 			size += format->read(stream);
 		}
 		catch (std::exception &exception)
@@ -139,7 +139,7 @@ std::streamsize W3m::readTriggers(const TriggerData &triggerData)
 
 		try
 		{
-			file.writeData(stream);
+			file.decompress(stream);
 			size += m_triggers.get()->read(stream, triggerData);
 		}
 		catch (std::exception &exception)

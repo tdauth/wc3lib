@@ -226,7 +226,7 @@ BOOST_AUTO_TEST_CASE(CreateEmptyArchive)
 	BOOST_CHECK_EQUAL(archive.size(), sizeof(Header) + sizeof(BlockTableEntry) + sizeof(HashTableEntry)); // size includes the size of the header
 }
 
-BOOST_AUTO_TEST_CASE(AddFile)
+BOOST_AUTO_TEST_CASE(AddFileUncompressed)
 {
 	if (boost::filesystem::exists("addfile.mpq"))
 	{
@@ -243,6 +243,48 @@ BOOST_AUTO_TEST_CASE(AddFile)
 	string data = "Hello World!";
 
 	File file = archive.addFile("test.txt", data.c_str(), data.size());
+
+	BOOST_REQUIRE(file.isValid());
+
+	archive.close();
+
+	// make sure the archive has been written
+	BOOST_REQUIRE(boost::filesystem::exists("addfile.mpq"));
+
+	archive.open("addfile.mpq");
+
+	BOOST_REQUIRE(archive.isOpen());
+	BOOST_REQUIRE_EQUAL(archive.blocks().size(), 1);
+	BOOST_REQUIRE_EQUAL(archive.hashes().size(), 1);
+
+	file = archive.findFile("test.txt");
+
+	BOOST_REQUIRE(file.isValid());
+
+	stringstream sstream;
+	file.decompress(sstream);
+	data = sstream.str();
+
+	BOOST_REQUIRE_EQUAL(data, "Hello World!");
+}
+
+BOOST_AUTO_TEST_CASE(AddFileUncompressedEncrypted)
+{
+	if (boost::filesystem::exists("addfile.mpq"))
+	{
+		boost::filesystem::remove("addfile.mpq");
+	}
+
+	Archive archive;
+	archive.create("addfile.mpq", 1, 1);
+
+	BOOST_REQUIRE(archive.isOpen());
+	BOOST_REQUIRE_EQUAL(archive.blocks().size(), 1);
+	BOOST_REQUIRE_EQUAL(archive.hashes().size(), 1);
+
+	string data = "Hello World!";
+
+	File file = archive.addFile("test.txt", data.c_str(), data.size(), Sector::Compression::Uncompressed, Block::Flags::IsEncrypted);
 
 	BOOST_REQUIRE(file.isValid());
 

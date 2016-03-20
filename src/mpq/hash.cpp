@@ -96,6 +96,16 @@ Hash::Hash(Archive *mpq, uint32 index)
 {
 }
 
+Hash::Hash(const Hash& other)
+: m_mpq(other.mpq())
+, m_index(other.index())
+, m_hashData(other.cHashData())
+, m_block(other.block())
+, m_deleted(other.deleted())
+{
+
+}
+
 Hash::~Hash()
 {
 }

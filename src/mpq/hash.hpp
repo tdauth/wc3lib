@@ -166,7 +166,7 @@ class Block;
  * \sa Block
  * \sa File
  */
-class Hash : public Format, private boost::noncopyable
+class Hash : public Format
 {
 	public:
 		/**
@@ -177,6 +177,9 @@ class Hash : public Format, private boost::noncopyable
 		 * If this index is used as a block index the hash entry is empty.
 		 */
 		static const uint32 blockIndexEmpty;
+
+		Hash(const Hash &other);
+		virtual ~Hash();
 
 		/**
 		 * Writes the corresponding hash table entry into the output stream \p ostream.
@@ -243,9 +246,6 @@ class Hash : public Format, private boost::noncopyable
 
 	protected:
 		friend Archive;
-		friend void boost::checked_delete<>(Hash*);
-		friend void boost::checked_delete<>(Hash const*);
-		friend std::auto_ptr<Hash>;
 
 		/**
 		 * The constructor has to be filled with the corresponding index of the hash entry
@@ -258,7 +258,6 @@ class Hash : public Format, private boost::noncopyable
 		 * \note Other data such as the hash entry (\ref hashData()) and the corresponding block entry (\ref block()) is filled on reading the data from the MPQ archive using \ref read().
 		 */
 		Hash(Archive *mpq, uint32 index);
-		virtual ~Hash();
 
 		/**
 		 * Reads all hashing data into the class.

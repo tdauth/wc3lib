@@ -24,6 +24,7 @@
 #include <boost/scoped_array.hpp>
 
 #include "platform.hpp"
+#include "block.hpp"
 
 namespace wc3lib
 {
@@ -32,7 +33,6 @@ namespace mpq
 {
 
 class Archive;
-class Block;
 class File;
 
 /**
@@ -155,6 +155,8 @@ class Sector // FIXME : private boost::noncopyable
 		 */
 		bool compressionSucceded() const;
 
+		static byte* compress(const byte *buffer, uint32 bufferSize, Block::Flags flags, Compression compression, uint32 &size, int waveCompressionLevel = defaultWaveCompressionLevel);
+
 	protected:
 		friend Archive;
 		friend File;
@@ -165,6 +167,15 @@ class Sector // FIXME : private boost::noncopyable
 		 * \return Returns the sector key.
 		 */
 		uint32 sectorKey() const;
+
+		/**
+		 * Writes the compressed buffer for the sector into the output stream \p out.
+		 * If it is compressed the compression byte will be prepended.
+		 * If the block is encrypted, the sector will be encrypted.
+		 *
+		 * \return Returns the number of written bytes.
+		 */
+		std::streamsize writeCompressed(const byte *compressedBuffer, uint32 compressedBufferSize, ostream &out);
 
 		/**
 		 * Compresses data from an input buffer into an output stream and updates the sector's compressed and uncompressed size.

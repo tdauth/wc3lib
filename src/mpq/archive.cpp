@@ -616,27 +616,16 @@ File Archive::addFile(const boost::filesystem::path &filePath, const byte *data,
 	 * Store the written sectors
 	 */
 	File::Sectors sectors;
-	iarraystream istream(data, dataSize);
-	stringstream compressedIn;
 
-	switch (compression)
-	{
-		case Sector::Compression::Uncompressed:
-		{
-		}
+	/*
+	 * Compress the whole input data at once with the specified flags and compression type.
+	 */
+	uint32 compressedSize = 0;
+	boost::scoped_array<byte> compressedData(Sector::compress(data, dataSize, flags, compression, compressedSize));
 
-		case Sector::Compression::Bzip2Compressed:
-		{
-			compressBzip2(istream, compressedIn);
-
-			break;
-		}
-
-		// TODO support all compressions
-	}
-
-	const std::streampos streamEnd = endPosition(compressedIn);
-
+	/*
+	 * The filename is required to generate sector keys for encrypted files.
+	 */
 	string fileName;
 	Listfile::toListfileEntry(fileName);
 
@@ -646,12 +635,10 @@ File Archive::addFile(const boost::filesystem::path &filePath, const byte *data,
 		uint32 sectorIndex = 0;
 		uint32 sectorOffset = 0;
 
-		while (compressedIn)
+		while (sectorOffset < compressedSize)
 		{
-			const std::streampos currentPosition = compressedIn.tellg();
-			const std::streampos remainingSize = streamEnd - currentPosition;
-
-			const uint32 sectorSize = std::min<uint32>(this->sectorSize(), boost::numeric_cast<uint32>((std::streamoff)remainingSize));
+			const uint32 remainingSize = compressedSize - sectorOffset;
+			const uint32 sectorSize = std::min<uint32>(this->sectorSize(), remainingSize);
 
 			// TODO set compression
 			sectors.push_back(Sector(this, block, fileName, sectorIndex, sectorOffset, sectorSize, compression));
@@ -663,7 +650,7 @@ File Archive::addFile(const boost::filesystem::path &filePath, const byte *data,
 	// write single block data without sector table
 	else
 	{
-		sectors.push_back(Sector(this, block, fileName, 0, 0, streamEnd + 1, compression));
+		sectors.push_back(Sector(this, block, fileName, 0, 0, compressedSize + 1, compression));
 	}
 
 	/*
@@ -673,7 +660,7 @@ File Archive::addFile(const boost::filesystem::path &filePath, const byte *data,
 	uint32 blockOffset = 0;
 	uint16 extendedBlockOffset = 0;
 	nextBlockOffsets(blockOffset,  extendedBlockOffset);
-	const uint64 completeBlockOffset =blockOffset + ((uint64)(extendedBlockOffset) << 32);
+	const uint64 completeBlockOffset = blockOffset + ((uint64)(extendedBlockOffset) << 32);
 
 	/*
 	 * Write data to the end of the archive.
@@ -688,26 +675,44 @@ File Archive::addFile(const boost::filesystem::path &filePath, const byte *data,
 	 */
 	BOOST_FOREACH(File::Sectors::reference ref, sectors)
 	{
+		const uint32 sectorOffset = ref.sectorOffset();
 		const uint32 sectorSize = ref.sectorSize(); // compressed size
-		boost::scoped_array<byte> buffer(new byte[sectorSize]);
-		compressedIn.read(buffer.get(), sectorSize);
-		ref.compress(buffer.get(), sectorSize); // TODO improve performance and dont seek and open the file everytime
+		// since our data is already compressed it only has to be encrypted (if the file is encrypted) and the compression type has to be stored if the file is compressed
+		ref.writeCompressed(&compressedData[sectorOffset], sectorSize, out);
 
 		fileSize += ref.uncompressedSize();
 		blockSize += sectorSize;
 	}
 
 	/*
-	 * Prepare the hash entry.
+	 * Remove old hash entry to update its hash key.
 	 */
-	HashData hashData(filePath, locale, platform);
-	hash->setHashData(hashData);
-	hash->setBlock(block);
-	hash->setDeleted(false);
-	// TODO move hash in hashes()!!!!
+	HashData oldHashData = hash->hashData();
+	Hashes::iterator iterator = this->m_hashes.find(oldHashData);
+
+	if (iterator == this->m_hashes.end())
+	{
+		throw Exception();
+	}
+
+	// store old hash for reinserting it
+	// TODO dont copy but rather transfer the pointer into the autopointer!
+	std::auto_ptr<Hash> newHash(new Hash(*iterator->second));
+	this->m_hashes.erase(iterator);
 
 	/*
-	 * Prepare the block entry.
+	 * Prepare the updated hash entry.
+	 */
+	HashData hashData(filePath, locale, platform);
+	newHash->setHashData(hashData);
+	newHash->setBlock(block);
+	newHash->setDeleted(false);
+
+	// update the hash key in the hash table
+	this->m_hashes.insert(hashData, newHash);
+
+	/*
+	 * Prepare the updated block entry.
 	 */
 	block->setBlockOffset(blockOffset);
 	block->setExtendedBlockOffset(extendedBlockOffset);
@@ -715,7 +720,7 @@ File Archive::addFile(const boost::filesystem::path &filePath, const byte *data,
 	block->setFileSize(fileSize);
 	block->setFlags(flags);
 
-	// write the tables
+	// write the tables to the output file that the archive file is up to date
 	out.seekp(this->m_startPosition + this->m_blockTableOffset);
 	std::streamsize size = 0;
 
@@ -725,7 +730,6 @@ File Archive::addFile(const boost::filesystem::path &filePath, const byte *data,
 		return File();
 	}
 
-	// TODO dont rewrite everything look at DeleteFile() from the specification, just NULL the entry and make the previous empty different?
 	out.seekp(this->m_startPosition + this->m_hashTableOffset);
 
 	if (!writeHashTable(out, size))
@@ -733,6 +737,7 @@ File Archive::addFile(const boost::filesystem::path &filePath, const byte *data,
 		return File();
 	}
 
+	// the resulting file should be available now since the hash table entry has been updated
 	return findFile(filePath, locale, platform);
 }
 
