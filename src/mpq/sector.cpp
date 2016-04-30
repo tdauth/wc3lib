@@ -393,11 +393,61 @@ byte* Sector::compress(const byte *buffer, uint32 bufferSize, Block::Flags flags
 		}
 	}
 
-	 // TODO reset ownership and directly return data!
+	// TODO reset ownership and directly return data! Maybe allocate on the stack instead?
 	byte *result = new byte[size];
 	memcpy(result, data.get(), size);
 
 	return result;
+}
+
+std::streamsize Sector::writeSectors(ostream &ostream, const Sectors &sectors, Block::Flags flags, uint32 compressedFileSize, uint32 uncompressedFileSize, uint32 blockOffset, const string &fileName)
+{
+	std::streamsize bytes = 0;
+
+	// This table is not present if this information can be calculated.
+	// If the file is not compressed/imploded, then the size and offset of all sectors is known, based on the archive's SectorSizeShift. If the file is stored as a single unit compressed/imploded, then the SectorOffsetTable is omitted, as the single file "sector" corresponds to BlockSize and FileSize, as mentioned previously.
+	if (!(flags & Block::Flags::IsCompressed) && !(flags & Block::Flags::IsImploded))
+	{
+		return bytes;
+	}
+	// a single unit file only has one sector
+	else if ((flags & Block::Flags::IsSingleUnit) && ((flags & Block::Flags::IsCompressed) || (flags & Block::Flags::IsImploded)))
+	{
+		return bytes;
+	}
+	// However, the SectorOffsetTable will be present if the file is compressed/imploded and the file is not stored as a single unit, even if there is only a single sector in the file (the size of the file is less than or equal to the archive's sector size).
+	// sector offset table
+	else
+	{
+		const uint32 sectorsCount = sectors.size();
+		// last offset contains file size
+		const uint32 offsetsSize = sectorsCount + 1;
+		boost::scoped_array<uint32> offsets(new uint32[offsetsSize]);
+		const uint32 writeSize = offsetsSize * sizeof(uint32);
+
+		for (uint32 i = 0; i < sectorsCount; ++i)
+		{
+			offsets[i] = sectors[i].sectorOffset();
+		}
+
+		/*
+		 * The last entry contains the total compressed file
+		 * size, making it possible to easily calculate the size of any given
+		 * sector by simple subtraction.
+		 */
+		offsets[sectorsCount] = compressedFileSize; // TODO includes size of sector table?
+
+		// The SectorOffsetTable, if present, is encrypted using the key - 1.
+		if (flags & Block::Flags::IsEncrypted)
+		{
+			const uint32 fileKey = Block::fileKey(fileName, flags, blockOffset, uncompressedFileSize); // TODO includes size of the sector table?
+			EncryptData(Archive::cryptTable(), offsets.get(), writeSize, fileKey - 1);
+		}
+
+		wc3lib::write(ostream, offsets[0], bytes, writeSize);
+	}
+
+	return bytes;
 }
 
 std::streamsize Sector::writeCompressed(const byte *compressedBuffer, uint32 compressedBufferSize, ostream &out)

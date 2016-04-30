@@ -1,3 +1,4 @@
+* Fix Archive::addFile() -> leads to eoffail when opening the archive.
 * Some object data classes share the same files but load them separately.
 * Load icons in tree model in the beginning again? Reduces lags?
 * Only show upgrade effects if one is selected.

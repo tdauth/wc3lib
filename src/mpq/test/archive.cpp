@@ -223,7 +223,20 @@ BOOST_AUTO_TEST_CASE(CreateEmptyArchive)
 
 	BOOST_CHECK(boost::filesystem::is_regular("emptyarchive.mpq"));
 
-	BOOST_CHECK_EQUAL(archive.size(), sizeof(Header) + sizeof(BlockTableEntry) + sizeof(HashTableEntry)); // size includes the size of the header
+	const std::size_t expectedArchiveSize = sizeof(Header) + sizeof(BlockTableEntry) + sizeof(HashTableEntry); // size includes the size of the header
+	BOOST_CHECK_EQUAL(archive.size(), expectedArchiveSize);
+
+	// now close and reopen it and check if the data is still valid
+	archive.close();
+
+	BOOST_CHECK(!archive.isOpen());
+
+	archive.open("emptyarchive.mpq");
+
+	BOOST_REQUIRE(archive.isOpen());
+	BOOST_CHECK_EQUAL(archive.blocks().size(), 1);
+	BOOST_CHECK_EQUAL(archive.hashes().size(), 1);
+	BOOST_CHECK_EQUAL(archive.size(), expectedArchiveSize);
 }
 
 BOOST_AUTO_TEST_CASE(AddFileUncompressed)
@@ -243,6 +256,8 @@ BOOST_AUTO_TEST_CASE(AddFileUncompressed)
 	string data = "Hello World!";
 
 	File file = archive.addFile("test.txt", data.c_str(), data.size());
+
+	std::cerr << "After adding the file" << std::endl;
 
 	BOOST_REQUIRE(file.isValid());
 

@@ -234,9 +234,9 @@ std::streamsize Archive::read(InputStream &stream)
 		std::cerr << boost::format(_("Warning: MPQ header size is not equal to real header size.\nContained header size: %1%.\nReal header size: %2%.")) % header.headerSize % sizeof(header) << std::endl;
 	}
 
-	if (header.archiveSize != this->size())
+	if (header.archiveSize != this->size() - this->startPosition())
 	{
-		std::cerr << boost::format(_("Warning: MPQ file size of MPQ file %1% is not equal to its internal header file size.\nFile size: %2%.\nInternal header file size: %3%.")) % this->path() % this->size()
+		std::cerr << boost::format(_("Warning: MPQ file size of MPQ file %1% is not equal to its internal header file size.\nFile size: %2%.\nInternal header file size: %3%.")) % this->path() % (this->size() - this->startPosition())
 		% header.archiveSize << std::endl;
 	}
 
@@ -473,7 +473,8 @@ bool Archive::writeHeader(ostream &out, std::streamsize &size) const
 	header.hashTableEntries = this->m_hashes.size();
 	header.blockTableEntries = this->m_blocks.size();
 
-	out.seekp(this->m_startPosition, std::ios::cur);
+	// absolute position
+	out.seekp(this->m_startPosition);
 	wc3lib::write(out, header, currentSize);
 
 	size += currentSize;
@@ -615,7 +616,7 @@ File Archive::addFile(const boost::filesystem::path &filePath, const byte *data,
 	/*
 	 * Store the written sectors
 	 */
-	File::Sectors sectors;
+	Sector::Sectors sectors;
 
 	/*
 	 * Compress the whole input data at once with the specified flags and compression type.
@@ -660,20 +661,26 @@ File Archive::addFile(const boost::filesystem::path &filePath, const byte *data,
 	uint32 blockOffset = 0;
 	uint16 extendedBlockOffset = 0;
 	nextBlockOffsets(blockOffset,  extendedBlockOffset);
+	// At this offset the sector table starts.
 	const uint64 completeBlockOffset = blockOffset + ((uint64)(extendedBlockOffset) << 32);
 
 	/*
 	 * Write data to the end of the archive.
 	 */
 	ofstream out(this->path());
+	// Start at the position of the sector table.
 	out.seekp(completeBlockOffset);
 	uint32 fileSize = 0; // uncompressed size
 	uint32 blockSize = 0; // compressed size
 
+	// Write the sector table before writing the actual file data.
+	// TODO does the block size include the size of the sector table?
+	blockSize += Sector::writeSectors(out, sectors, flags, compressedSize, dataSize, blockOffset, filePath.string().c_str());
+
 	/*
-	 * Write all sectors into the archive and use all block space.
+	 * Write all sectors data into the archive and use all block space.
 	 */
-	BOOST_FOREACH(File::Sectors::reference ref, sectors)
+	BOOST_FOREACH(Sector::Sectors::reference ref, sectors)
 	{
 		const uint32 sectorOffset = ref.sectorOffset();
 		const uint32 sectorSize = ref.sectorSize(); // compressed size
@@ -721,18 +728,26 @@ File Archive::addFile(const boost::filesystem::path &filePath, const byte *data,
 	block->setFlags(flags);
 
 	// write the tables to the output file that the archive file is up to date
-	out.seekp(this->m_startPosition + this->m_blockTableOffset);
 	std::streamsize size = 0;
 
 	// write the whole block table since it is encrypted
+	// seeks automatically with seekp
 	if (!writeBlockTable(out, size))
 	{
 		return File();
 	}
 
-	out.seekp(this->m_startPosition + this->m_hashTableOffset);
-
+	// seeks automatically with seekp
 	if (!writeHashTable(out, size))
+	{
+		return File();
+	}
+
+	// update the header since the whole archive size has changed
+	this->m_size += blockSize; // add the compressed size
+
+	// seeks automatically with seekp
+	if (!writeHeader(out, size))
 	{
 		return File();
 	}

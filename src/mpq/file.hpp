@@ -76,13 +76,6 @@ class File
 		};
 
 		/**
-		 * The content of a file is divided into one or more sectors.
-		 * These sectors only have to be read or written when reading or writing the file's content.
-		 * Therefore we do not need a heap allocated container.
-		 */
-		typedef std::vector<Sector> Sectors;
-
-		/**
 		 * Use this default constructor to create invalid file objects.
 		 * Such objects are returned by the class \ref Archive whenever the file is not found.
 		 * It sets the archive (\ref archive()) and the hash (\ref hash()) to 0 which indicates that it is invalid.
@@ -128,17 +121,13 @@ class File
 		 *
 		 * \throws Exception Throws an exception if file is locked.
 		 */
-		std::streamsize sectors(istream &istream, Sectors &sectors);
+		std::streamsize sectors(istream &istream, Sector::Sectors &sectors);
 		/**
 		 * Reads the file's sector table into \p sectors.
 		 *
 		 * \return Returns the number of bytes read.
 		 */
-		std::streamsize sectors(Sectors &sectors);
-		/**
-		 * Writes the file sectors' meta data.
-		 */
-		std::streamsize writeSectors(ostream &ostream, const Sectors &sectors) const;
+		std::streamsize sectors(Sector::Sectors &sectors);
 
 		// hash attributes
 		Locale locale() const;

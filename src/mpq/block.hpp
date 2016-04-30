@@ -66,6 +66,8 @@ class Block : public Format
 			IsImploded = 0x00000100
 		};
 
+		static uint32 fileKey(const string &fileName, Flags flags, uint32 blockOffset, uint32 fileSize);
+
 		/**
 		 * Calculates the hash key for the given file name \p fileName using block \p blockTableEntry.
 		 * If the file's block is encrypted (\ref Flags::UsesEncryptionKey) it also has to be decrypted.
@@ -73,7 +75,7 @@ class Block : public Format
 		 * \sa File::name()
 		 * \sa Block::fileKey(const string&)
 		 */
-		static uint32 fileKey(const string &name, const BlockTableEntry &blockTableEntry);
+		static uint32 fileKey(const string &fileName, const BlockTableEntry &blockTableEntry);
 
 		static bool hasSectorOffsetTable(Flags flags);
 

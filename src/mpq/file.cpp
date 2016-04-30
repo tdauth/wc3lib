@@ -50,7 +50,7 @@ std::streamsize File::decompress(istream &istream, ostream &ostream)
 	/*
 	 * Read sectors from MPQ archive file and store them.
 	 */
-	Sectors sectors;
+	Sector::Sectors sectors;
 	this->sectors(istream, sectors);
 
 	if (sectors.empty() && hasSectorOffsetTable() && isEncrypted() && path().empty())
@@ -62,7 +62,7 @@ std::streamsize File::decompress(istream &istream, ostream &ostream)
 
 	std::streamsize bytes = 0;
 
-	BOOST_FOREACH(Sectors::const_reference sector, sectors)
+	BOOST_FOREACH(Sector::Sectors::const_reference sector, sectors)
 	{
 		try
 		{
@@ -115,7 +115,7 @@ File::File(const File &other) : m_archive(other.archive()), m_hash(other.hash())
 {
 }
 
-std::streamsize File::sectors(istream &istream, Sectors &sectors)
+std::streamsize File::sectors(istream &istream, Sector::Sectors &sectors)
 {
 	// if we have a sector offset table and file is encrypted we first need to know its path for proper decryption!
 	if (hasSectorOffsetTable() && isEncrypted() && path().empty())
@@ -243,7 +243,7 @@ void File::changePath(const boost::filesystem::path &path)
 	}
 }
 
-std::streamsize File::sectors(Sectors &sectors)
+std::streamsize File::sectors(Sector::Sectors &sectors)
 {
 	ifstream istream(archive()->path(), std::ios::in | std::ios::binary);
 
@@ -255,11 +255,6 @@ std::streamsize File::sectors(Sectors &sectors)
 	std::streamsize result = this->sectors(istream, sectors);
 
 	return result;
-}
-
-std::streamsize File::writeSectors(ostream &ostream, const Sectors &sectors) const
-{
-	return 0;
 }
 
 void File::removeData()

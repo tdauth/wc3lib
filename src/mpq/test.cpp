@@ -208,7 +208,7 @@ std::string compressionString(Sector::Compression compression)
 
 std::string fileInfo(File &file, bool humanReadable, bool decimal)
 {
-	   File::Sectors sectors;
+	Sector::Sectors sectors;
 	file.sectors(sectors);
 	std::stringstream sstream;
 	sstream << boost::format(_("%1%\nCompressed: %2%\nEncrypted: %3%\nImploded: %4%\nFlags: %5%\nCompressed size: %6%\nSize: %7%\nHash A: %8%\nHash B: %9%\nKey: %10%\nBlock index: %11%\nHash index: %12%\nHas offset table: %13%\nBlock offset: %14%\nKey (without encryption): %15%"))
@@ -233,7 +233,7 @@ std::string fileInfo(File &file, bool humanReadable, bool decimal)
 	{
 		sstream << std::endl << boost::format(_("\n%1% Sectors:")) % sectors.size();
 
-		BOOST_FOREACH(File::Sectors::const_reference sector, sectors)
+		BOOST_FOREACH(Sector::Sectors::const_reference sector, sectors)
 		{
 				sstream << boost::format(_("\nSector %1%:\n-- Offset: %2%\n-- Size: %3%\n-- Compression: %4%"))
 					% sector.sectorIndex()

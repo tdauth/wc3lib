@@ -30,7 +30,7 @@ namespace wc3lib
 namespace mpq
 {
 
-uint32 Block::fileKey(const string &fileName, const BlockTableEntry &blockTableEntry)
+uint32 Block::fileKey(const string &fileName, Block::Flags flags, uint32 blockOffset, uint32 fileSize)
 {
 	if (fileName.empty())
 	{
@@ -41,12 +41,17 @@ uint32 Block::fileKey(const string &fileName, const BlockTableEntry &blockTableE
 	uint32 nFileKey = HashString(Archive::cryptTable(), fileName.c_str(), HashType::FileKey);
 
 	// Offset-adjust the key if necessary
-	if (static_cast<Flags>(blockTableEntry.flags) & Flags::UsesEncryptionKey)
+	if (flags & Flags::UsesEncryptionKey)
 	{
-		nFileKey = (nFileKey + blockTableEntry.blockOffset) ^ blockTableEntry.fileSize;
+		nFileKey = (nFileKey + blockOffset) ^ fileSize;
 	}
 
 	return nFileKey;
+}
+
+uint32 Block::fileKey(const string &fileName, const BlockTableEntry &blockTableEntry)
+{
+	return fileKey(fileName, static_cast<Flags>(blockTableEntry.flags), blockTableEntry.blockOffset, blockTableEntry.fileSize);
 }
 
 Block::Block(uint32 index)

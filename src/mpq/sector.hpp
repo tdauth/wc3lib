@@ -45,6 +45,13 @@ class File;
 class Sector // FIXME : private boost::noncopyable
 {
 	public:
+		/**
+		 * The content of a file is divided into one or more sectors.
+		 * These sectors only have to be read or written when reading or writing the file's content.
+		 * Therefore we do not need a heap allocated container.
+		 */
+		typedef std::vector<Sector> Sectors;
+
 		// TODO get best values
 		static const int defaultWaveCompressionLevel = 3;
 		static const int defaultHuffmanCompressionType = 0;
@@ -155,7 +162,26 @@ class Sector // FIXME : private boost::noncopyable
 		 */
 		bool compressionSucceded() const;
 
+		/**
+		 * Writes data from \p buffer with size \p bufferSize compressed into an output array which is returned.
+		 * \note The returned array is allocated on the heap and has to be deleted!
+		 */
 		static byte* compress(const byte *buffer, uint32 bufferSize, Block::Flags flags, Compression compression, uint32 &size, int waveCompressionLevel = defaultWaveCompressionLevel);
+		/**
+		 * Writes the file sectors' meta data into output stream \p ostream.
+		 * This requires some information about the file data already since for encrypted files this information is used to encrypt the sector table.
+		 * Besides the total compressed size of the file data is present in the last entry of the sector table.
+		 * The sector table is omitted if the file is a single unit and compressed or imploded or neither compressed or imploded.
+		 * \param sectors The sectors to be written.
+		 * \param flags The flags of the block corresponding to the file.
+		 * \param uncompressedFileSize The uncompressed size of the file data.
+		 * \param compressedFileSize The compressed size of the file data.
+		 * \param blockOffset The offset of the corresponding block.
+		 * \param fileName The name of the file.
+		 * \return Returns the number of written bytes to the output stream.
+		 * \sa File::sectors()
+		 */
+		static std::streamsize writeSectors(ostream &ostream, const Sectors &sectors, Block::Flags flags, uint32 compressedFileSize, uint32 uncompressedFileSize, uint32 blockOffset, const string &fileName);
 
 	protected:
 		friend Archive;
