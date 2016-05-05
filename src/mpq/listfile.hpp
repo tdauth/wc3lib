@@ -77,6 +77,11 @@ class Listfile : public File
 		 * \return Returns the container with all found file paths in \p content.
 		 */
 		static Entries entries(const string &content);
+		/**
+		 * Joins \p entries with the character ';' to one file content for a "(listfile)" file.
+		 * \return Returns the joined content.
+		 */
+		static string content(const Entries &entries);
 
 		/**
 		 * \brief Stores the case sensitive entry paths using the upper file path as key.

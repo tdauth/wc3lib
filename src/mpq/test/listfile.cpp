@@ -48,13 +48,61 @@ BOOST_AUTO_TEST_CASE(ListfileEntriesTest)
 	BOOST_REQUIRE(entries.size() == 16);
 	BOOST_REQUIRE(entries[0] == "bla1");
 	BOOST_REQUIRE(entries[1] == "bla2");
-
-	// ...
-
+	BOOST_REQUIRE(entries[2] == "bla3");
+	BOOST_REQUIRE(entries[3] == "bla4");
+	BOOST_REQUIRE(entries[4] == "bla5");
+	BOOST_REQUIRE(entries[5] == "bla6");
 	BOOST_REQUIRE(entries[6] == "bla7");
+	BOOST_REQUIRE(entries[7] == "bla8");
+	BOOST_REQUIRE(entries[8] == "bla9");
+	BOOST_REQUIRE(entries[10] == "bla10");
+	BOOST_REQUIRE(entries[11] == "bla11");
+	BOOST_REQUIRE(entries[12] == "bla12");
+	BOOST_REQUIRE(entries[13] == "bla13");
+	BOOST_REQUIRE(entries[14] == "bla14");
+	BOOST_REQUIRE(entries[15] == "bla15");
+	BOOST_REQUIRE(entries.back() == "end");
+}
 
-	// ...
+BOOST_AUTO_TEST_CASE(ListfileContentTest)
+{
+	mpq::Listfile::Entries entries;
+	entries.push_back("bla1");
+	entries.push_back("bla2");
+	entries.push_back("bla3");
+	entries.push_back("bla4");
+	entries.push_back("bla5");
+	entries.push_back("bla6");
+	entries.push_back("bla7");
+	entries.push_back("bla8");
+	entries.push_back("bla9");
+	entries.push_back("bla10");
+	entries.push_back("bla11");
+	entries.push_back("bla12");
+	entries.push_back("bla13");
+	entries.push_back("bla14");
+	entries.push_back("bla15");
+	entries.push_back("end");
 
+	const string content = mpq::Listfile::content(entries);
+
+	entries = mpq::Listfile::entries(content);
+	BOOST_REQUIRE(entries.size() == 16);
+	BOOST_REQUIRE(entries[0] == "bla1");
+	BOOST_REQUIRE(entries[1] == "bla2");
+	BOOST_REQUIRE(entries[2] == "bla3");
+	BOOST_REQUIRE(entries[3] == "bla4");
+	BOOST_REQUIRE(entries[4] == "bla5");
+	BOOST_REQUIRE(entries[5] == "bla6");
+	BOOST_REQUIRE(entries[6] == "bla7");
+	BOOST_REQUIRE(entries[7] == "bla8");
+	BOOST_REQUIRE(entries[8] == "bla9");
+	BOOST_REQUIRE(entries[10] == "bla10");
+	BOOST_REQUIRE(entries[11] == "bla11");
+	BOOST_REQUIRE(entries[12] == "bla12");
+	BOOST_REQUIRE(entries[13] == "bla13");
+	BOOST_REQUIRE(entries[14] == "bla14");
+	BOOST_REQUIRE(entries[15] == "bla15");
 	BOOST_REQUIRE(entries.back() == "end");
 }
 

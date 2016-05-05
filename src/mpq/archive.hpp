@@ -165,6 +165,11 @@ class Archive : public Format, private boost::noncopyable
 		*/
 		bool containsListfileFile() const;
 		Listfile listfileFile();
+		/**
+		 * If no "(listfile)" file does exist already this method creates a new "(listfile)" file.
+		 * \param entries The initial entries of the "(listfile)" file.
+		 */
+		void createListfileFile(const Listfile::Entries &entries, Sector::Compression compression = Sector::Compression::Uncompressed, Block::Flags flags = Block::Flags::None, File::Locale locale = File::Locale::Neutral, File::Platform platform = File::Platform::Default);
 
 		/**
 		 * \return Returns true if the archive contains a "(attributes)" file.

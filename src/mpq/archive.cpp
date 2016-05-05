@@ -858,6 +858,18 @@ Listfile Archive::listfileFile()
 	return Listfile(this, hash);
 }
 
+void Archive::createListfileFile(const Listfile::Entries &entries, Sector::Compression compression, Block::Flags flags, File::Locale locale, File::Platform platform)
+{
+	if (containsListfileFile())
+	{
+		return;
+	}
+
+	const string content = Listfile::content(entries);
+
+	File listfileFile = this->addFile("(listfile)", content.c_str(), content.size(), compression, flags, locale, platform);
+}
+
 Attributes Archive::attributesFile()
 {
 	Hash *hash = this->findHash("(attributes)");

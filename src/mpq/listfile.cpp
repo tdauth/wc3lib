@@ -64,6 +64,11 @@ Listfile::Entries Listfile::entries(const string &content)
 	return result;
 }
 
+string Listfile::content(const Listfile::Entries &entries)
+{
+	return boost::algorithm::join(entries, ";");
+}
+
 Listfile::CaseSensitiveEntries Listfile::caseSensitiveEntries(const Listfile::Entries &entries)
 {
 	CaseSensitiveEntries result;
