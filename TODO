@@ -4,6 +4,12 @@
 	* Multiple sectors (no single unit).
 	* Imploded.
 	* With attributes.
+	* With listfile.
+
+* Fix MPQ Editor updateSelection().
+* Fix MPQ Editor closing and opening.
+* MPQ Editor: Should allow file options when adding files.
+* MPQ Editor: Reduce dependencies to KDE.
 * FIXED: Fix Archive::addFile() -> leads to eoffail when opening the archive.
 * Some object data classes share the same files but load them separately.
 * Load icons in tree model in the beginning again? Reduces lags?

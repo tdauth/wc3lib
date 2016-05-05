@@ -1,6 +1,11 @@
 For all available compile flags/options configure via cmake please and you'll get all options with their corresponding descriptions.
-Run "cmake ." or "cmake-gui ." in the corresponding build directory to generate all Makefiles.
-Afterwards run "make install" to install the library.
+To build the wc3lib change into the wc3lib directory and run:
+mkdir build
+cd build
+cmake ../
+make -j4
+
+Run "make -j4 install" if you want to install the program.
 
 Requirements (actual used versions, of course you could use others which are compliant with these):
 Boost 1.58 (components: system filesystem serialization program_options iostreams unit_test_framework timer)
@@ -18,4 +23,8 @@ qt-gui 4.8.2
 kdelibs 4.9.1
 OGRE 1.9.0
 
+for DOC flag only:
+Doxygen 1.8.10
+
 Don't forget to place "ogre.cfg" and "plugins.cfg" files into working directory of editor application or to configure the installed files in /etc/wc3lib.
+The contain graphics driver information required by OGRE. Otherwise the 3D display won't work.
