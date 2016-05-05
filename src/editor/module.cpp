@@ -163,6 +163,11 @@ void Module::showResourcesDialog()
 	m_resourcesDialog->show();
 }
 
+void Module::aboutWc3lib()
+{
+	QMessageBox::about(this, tr("About wc3lib"), tr("wc3lib has been created by Tamino Dauth"));
+}
+
 void Module::aboutQt()
 {
 	QMessageBox::aboutQt(this);
@@ -235,6 +240,9 @@ void Module::setupUi()
 	this->m_resourcesAction = new QAction(tr("Resources"), this);
 	connect(this->m_resourcesAction, SIGNAL(triggered()), this, SLOT(showResourcesDialog()));
 	this->m_helpMenu->addAction(this->m_resourcesAction);
+	this->m_aboutWc3libAction = new QAction(tr("About wc3lib"), this);
+	connect(this->m_aboutWc3libAction, SIGNAL(triggered()), this, SLOT(aboutWc3lib()));
+	this->m_helpMenu->addAction(this->m_aboutWc3libAction);
 	this->m_aboutQtAction = new QAction(tr("About Qt"), this);
 	connect(this->m_aboutQtAction, SIGNAL(triggered()), this, SLOT(aboutQt()));
 	this->m_helpMenu->addAction(this->m_aboutQtAction);

@@ -125,6 +125,7 @@ class KDE_EXPORT Module : public QWidget
 	public slots:
 		void showSourcesDialog();
 		void showResourcesDialog();
+		void aboutWc3lib();
 		void aboutQt();
 		void aboutKde();
 
@@ -184,6 +185,7 @@ class KDE_EXPORT Module : public QWidget
 		QAction *m_sourcesAction;
 
 		QAction *m_resourcesAction;
+		QAction *m_aboutWc3libAction;
 		QAction *m_aboutQtAction;
 		QAction *m_aboutKdeAction;
 
