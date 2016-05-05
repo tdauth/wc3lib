@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <QtGui>
+
 #include "resourcesdialog.hpp"
 #include "mpqprioritylist.hpp"
 
@@ -31,9 +33,8 @@ ResourcesDialog::ResourcesDialog(QWidget *parent, Qt::WindowFlags f) : QDialog(p
 {
 	setupUi(this);
 
-	// TODO FIX IT
-	//connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(accept()));
-	//connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
+	connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(accept()));
+	connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
 }
 
 void ResourcesDialog::setSources(MpqPriorityList *sources)
