@@ -388,7 +388,7 @@ class Archive : public Format, private boost::noncopyable
 		/// This value is required for getting the first block offset (relative to the beginning of archive).
 		static const std::size_t headerSize;
 
-		std::size_t m_size;
+		std::size_t m_size; /// The size of the header + the size of the archive, skipping start position.
 		boost::filesystem::path m_path;
 		uint64 m_startPosition;
 		uint64 m_blockTableOffset; /// Relative to the start position.
@@ -598,9 +598,10 @@ inline uint64 Archive::nextBlockOffset()
 {
 	Block *block = this->lastOffsetBlock();
 
+	// If it is the first block to be written, write it directly after the hash table.
 	if (block == 0)
 	{
-		return Archive::headerSize;
+		return this->hashTableOffset() + this->hashes().size() * sizeof(HashTableEntry);
 	}
 
 	return block->largeOffset() + block->blockSize();
@@ -609,8 +610,8 @@ inline uint64 Archive::nextBlockOffset()
 inline void Archive::nextBlockOffsets(uint32 &blockOffset, uint16 &extendedBlockOffset)
 {
 	uint64 offset = this->nextBlockOffset();
-	blockOffset = int32(offset << 16); // die hinteren Bits werden abgeschnitten???
-	extendedBlockOffset = int16(offset >> 32);
+	blockOffset = uint32(offset); // die hinteren Bits werden abgeschnitten???
+	extendedBlockOffset = uint16(offset >> 32);
 }
 
 }

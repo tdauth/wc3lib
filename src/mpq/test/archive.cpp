@@ -257,8 +257,6 @@ BOOST_AUTO_TEST_CASE(AddFileUncompressed)
 
 	File file = archive.addFile("test.txt", data.c_str(), data.size());
 
-	std::cerr << "After adding the file" << std::endl;
-
 	BOOST_REQUIRE(file.isValid());
 
 	archive.close();

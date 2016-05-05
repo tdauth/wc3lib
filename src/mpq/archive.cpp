@@ -115,7 +115,7 @@ std::streamsize Archive::create(const boost::filesystem::path &path, uint32 hash
 
 	if (!this->writeBlockTable(out, streamSize))
 	{
-		throw Exception();
+		throw Exception(_("Error on writing block table."));
 	}
 
 	if (this->format() == Archive::Format::Mpq2)
@@ -124,7 +124,7 @@ std::streamsize Archive::create(const boost::filesystem::path &path, uint32 hash
 
 		if (!this->writeExtendedBlockTable(out, streamSize))
 		{
-			throw Exception();
+			throw Exception(_("Error on writing extended block table."));
 		}
 	}
 
@@ -142,7 +142,7 @@ std::streamsize Archive::create(const boost::filesystem::path &path, uint32 hash
 	// seeks automatically
 	if (!this->writeHeader(out, streamSize))
 	{
-		throw Exception();
+		throw Exception(_("Error on writing header."));
 	}
 
 	out.seekp(current);
@@ -163,7 +163,6 @@ std::streamsize Archive::open(const boost::filesystem::path &path)
 		throw Exception(boost::format(_("Unable to open file \"%1%\".")) % boost::filesystem::system_complete(path));
 	}
 
-	this->m_size = boost::filesystem::file_size(boost::filesystem::system_complete(path));
 	this->m_path = boost::filesystem::system_complete(path);
 	std::streamsize streamSize = 0;
 
@@ -197,7 +196,11 @@ std::streamsize Archive::read(InputStream &stream)
 {
 	std::streamsize size = 0;
 	Header header;
-	readHeader(stream, header, this->m_startPosition, size);
+
+	if (!readHeader(stream, header, this->m_startPosition, size))
+	{
+		throw Exception(_("Missing MPQ header."));
+	}
 
 	if (header.formatVersion == Archive::formatVersion1Identifier)
 	{
@@ -234,12 +237,15 @@ std::streamsize Archive::read(InputStream &stream)
 		std::cerr << boost::format(_("Warning: MPQ header size is not equal to real header size.\nContained header size: %1%.\nReal header size: %2%.")) % header.headerSize % sizeof(header) << std::endl;
 	}
 
-	if (header.archiveSize != this->size() - this->startPosition())
+	const uint64 expectedArchiveSize = boost::filesystem::file_size(this->path()) - this->startPosition();
+
+	if (header.archiveSize != expectedArchiveSize)
 	{
-		std::cerr << boost::format(_("Warning: MPQ file size of MPQ file %1% is not equal to its internal header file size.\nFile size: %2%.\nInternal header file size: %3%.")) % this->path() % (this->size() - this->startPosition())
+		std::cerr << boost::format(_("Warning: MPQ file size of MPQ file %1% is not equal to its internal header file size.\nFile size: %2%.\nInternal header file size: %3%.")) % this->path() % expectedArchiveSize
 		% header.archiveSize << std::endl;
 	}
 
+	this->m_size = header.archiveSize;
 	this->m_sectorSize = pow(2, header.sectorSizeShift) * 512;
 	boost::scoped_ptr<ExtendedHeader> extendedHeader;
 
@@ -260,7 +266,7 @@ std::streamsize Archive::read(InputStream &stream)
 
 	if (!readBlockTable(stream, header.blockTableEntries, size))
 	{
-		throw Exception();
+		throw Exception(_("Error on reading block table."));
 	}
 
 	/*
@@ -273,7 +279,7 @@ std::streamsize Archive::read(InputStream &stream)
 
 		if (!readExtendedBlockTable(stream, size))
 		{
-			throw Exception();
+			throw Exception(_("Error on reading extended block table."));
 		}
 	}
 
@@ -289,7 +295,7 @@ std::streamsize Archive::read(InputStream &stream)
 
 	if (!readHashTable(stream, header.hashTableEntries, size))
 	{
-		return false;
+		throw Exception(_("Error on reading hash table."));
 	}
 
 	// The strong digital signature is stored immediately after the archive, in the containing file
@@ -627,7 +633,7 @@ File Archive::addFile(const boost::filesystem::path &filePath, const byte *data,
 	/*
 	 * The filename is required to generate sector keys for encrypted files.
 	 */
-	string fileName;
+	string fileName = filePath.c_str();
 	Listfile::toListfileEntry(fileName);
 
 	// write sector table
@@ -639,10 +645,15 @@ File Archive::addFile(const boost::filesystem::path &filePath, const byte *data,
 		while (sectorOffset < compressedSize)
 		{
 			const uint32 remainingSize = compressedSize - sectorOffset;
-			const uint32 sectorSize = std::min<uint32>(this->sectorSize(), remainingSize);
+			uint32 sectorSize = std::min<uint32>(this->sectorSize(), remainingSize);
 
-			// TODO set compression
-			sectors.push_back(Sector(this, block, fileName, sectorIndex, sectorOffset, sectorSize, compression));
+			if (compression != Sector::Compression::Uncompressed)
+			{
+				++sectorSize;
+			}
+
+			// TODO how to calculate uncompressed size?
+			sectors.push_back(Sector(this, block, fileName, sectorIndex, sectorOffset, sectorSize, 0, compression));
 
 			sectorOffset += sectorSize;
 			++sectorIndex;
@@ -651,7 +662,9 @@ File Archive::addFile(const boost::filesystem::path &filePath, const byte *data,
 	// write single block data without sector table
 	else
 	{
-		sectors.push_back(Sector(this, block, fileName, 0, 0, compressedSize + 1, compression));
+		// The compression byte is stored as well for compressed sectors BUT is written in writeCompressed() not here.
+		const uint32 sectorSize = compression == Sector::Compression::Uncompressed ? compressedSize : compressedSize + 1;
+		sectors.push_back(Sector(this, block, fileName, 0, 0, sectorSize, dataSize, compression));
 	}
 
 	/*
@@ -662,7 +675,13 @@ File Archive::addFile(const boost::filesystem::path &filePath, const byte *data,
 	uint16 extendedBlockOffset = 0;
 	nextBlockOffsets(blockOffset,  extendedBlockOffset);
 	// At this offset the sector table starts.
-	const uint64 completeBlockOffset = blockOffset + ((uint64)(extendedBlockOffset) << 32);
+	const uint64 completeBlockOffset = blockOffset + (((uint64)extendedBlockOffset) << 32);
+
+	// prepare the block entry
+	block->setBlockOffset(blockOffset);
+	block->setExtendedBlockOffset(extendedBlockOffset);
+	// the flags are required by Sector::writeCompressed()!
+	block->setFlags(flags);
 
 	/*
 	 * Write data to the end of the archive.
@@ -721,11 +740,8 @@ File Archive::addFile(const boost::filesystem::path &filePath, const byte *data,
 	/*
 	 * Prepare the updated block entry.
 	 */
-	block->setBlockOffset(blockOffset);
-	block->setExtendedBlockOffset(extendedBlockOffset);
 	block->setBlockSize(blockSize);
 	block->setFileSize(fileSize);
-	block->setFlags(flags);
 
 	// write the tables to the output file that the archive file is up to date
 	std::streamsize size = 0;

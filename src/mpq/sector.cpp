@@ -91,14 +91,14 @@ Sector::Sector(Archive *archive, Block *block, const string &fileName, uint32 in
 {
 }
 
-Sector::Sector(Archive *archive, Block *block, const string &fileName, uint32 index, uint32 offset, uint32 size, Sector::Compression compression)
+Sector::Sector(Archive *archive, Block *block, const string &fileName, uint32 index, uint32 offset, uint32 size, uint32 uncompressedSize, Sector::Compression compression)
 : m_archive(archive)
 , m_block(block)
 , m_fileName(fileName)
 , m_sectorIndex(index)
 , m_sectorOffset(offset)
 , m_sectorSize(size)
-, m_uncompressedSize(0)
+, m_uncompressedSize(uncompressedSize)
 , m_compression(compression)
 {
 }
@@ -188,7 +188,6 @@ void Sector::setCompression(Compression value)
 
 uint32 Sector::sectorKey() const
 {
-
 	return this->block()->fileKey(this->fileName()) + this->sectorIndex();
 }
 
@@ -250,6 +249,7 @@ namespace
 byte* Sector::compress(const byte *buffer, uint32 bufferSize, Block::Flags flags, Compression compression, uint32 &size, int waveCompressionLevel)
 {
 	boost::scoped_array<byte> data;
+	bool uncompressed = false;
 
 	// Imploded sectors are the raw compressed data following compression with the implode algorithm (these sectors can only be in imploded files).
 	if (flags & Block::Flags::IsImploded)
@@ -260,13 +260,20 @@ byte* Sector::compress(const byte *buffer, uint32 bufferSize, Block::Flags flags
 			compressPklib(newData, *reinterpret_cast<int*>(&size), (char*const)buffer, boost::numeric_cast<int>(bufferSize), 0, 0);
 			data.reset(newData);
 		}
+		else
+		{
+			uncompressed = true;
+		}
 	}
 	// Compressed sectors (only found in compressed - not imploded - files) are compressed with one or more compression algorithms.
 	else if (flags & Block::Flags::IsCompressed)
 	{
+		bool atLeastOneCompression = false;
+
 		// TODO check compression order
 		if (compression & Sector::Compression::ImaAdpcmMono) // IMA ADPCM mono
 		{
+			atLeastOneCompression = true;
 			int outLength = boost::numeric_cast<int>(bufferSize);
 			boost::scoped_array<byte> out(new byte[outLength]); // NOTE do always allocate enough memory.
 
@@ -290,6 +297,7 @@ byte* Sector::compress(const byte *buffer, uint32 bufferSize, Block::Flags flags
 
 		if (compression & Sector::Compression::ImaAdpcmStereo) // IMA ADPCM stereo
 		{
+			atLeastOneCompression = true;
 			int outLength = boost::numeric_cast<int>(bufferSize);
 			boost::scoped_array<byte> out(new byte[outLength]); // NOTE do always allocate enough memory.
 
@@ -313,6 +321,7 @@ byte* Sector::compress(const byte *buffer, uint32 bufferSize, Block::Flags flags
 
 		if (compression & Sector::Compression::Huffman) // Huffman encoded
 		{
+			atLeastOneCompression = true;
 			int outLength = boost::numeric_cast<int>(bufferSize);
 			boost::scoped_array<byte> out(new byte[outLength]); // NOTE do always allocate enough memory.
 			int compression = defaultHuffmanCompressionType;
@@ -333,6 +342,7 @@ byte* Sector::compress(const byte *buffer, uint32 bufferSize, Block::Flags flags
 
 		if (compression & Sector::Compression::Deflated) // Deflated (see ZLib)
 		{
+			atLeastOneCompression = true;
 			iarraystream istream(buffer, bufferSize);
 			//arraystream ostream;
 			std::basic_stringstream<byte> ostream; // TODO unbuffered stream doesnt work.
@@ -354,6 +364,7 @@ byte* Sector::compress(const byte *buffer, uint32 bufferSize, Block::Flags flags
 		// NOTE but in this situation it's compressed not imploded file!!!
 		if (compression & Sector::Compression::Imploded)
 		{
+			atLeastOneCompression = true;
 			std::cerr << _("Warning: Imploded sector in not imploded file!") << std::endl;
 
 			int outLength = boost::numeric_cast<int>(bufferSize);
@@ -374,6 +385,7 @@ byte* Sector::compress(const byte *buffer, uint32 bufferSize, Block::Flags flags
 
 		if (compression & Sector::Compression::Bzip2Compressed) // BZip2 compressed (see BZip2)
 		{
+			atLeastOneCompression = true;
 			iarraystream istream(buffer, bufferSize);
 			//arraystream ostream;
 			std::basic_stringstream<byte> ostream; // TODO unbuffered stream doesnt work
@@ -391,11 +403,27 @@ byte* Sector::compress(const byte *buffer, uint32 bufferSize, Block::Flags flags
 			data.reset(new byte[size]);
 			ostream.read(data.get(), size);
 		}
+
+		if (!atLeastOneCompression)
+		{
+			uncompressed = true;
+		}
+	}
+	else
+	{
+		uncompressed = true;
+	}
+
+	const byte *source = uncompressed ? buffer : data.get();
+
+	if (uncompressed)
+	{
+		size = bufferSize;
 	}
 
 	// TODO reset ownership and directly return data! Maybe allocate on the stack instead?
 	byte *result = new byte[size];
-	memcpy(result, data.get(), size);
+	memcpy(result, source, size);
 
 	return result;
 }
@@ -490,12 +518,12 @@ std::streamsize Sector::writeCompressed(const byte *compressedBuffer, uint32 com
 
 std::streamsize Sector::compress(const byte *buffer, uint32 bufferSize, ostream &ostream, int waveCompressionLevel)
 {
-	uint32 size = 0;
-	boost::scoped_array<byte> data(Sector::compress(buffer, bufferSize, this->block()->flags(), this->compression(), size, waveCompressionLevel));
+	uint32 compressedBufferSize = 0;
+	boost::scoped_array<byte> compressedBuffer(Sector::compress(buffer, bufferSize, this->block()->flags(), this->compression(), compressedBufferSize, waveCompressionLevel));
 
-	const std::streamsize bytes = this->writeCompressed(buffer, bufferSize, ostream);
+	const std::streamsize bytes = this->writeCompressed(compressedBuffer.get(), compressedBufferSize, ostream);
 
-	this->m_sectorSize = size;
+	this->m_sectorSize = compressedBufferSize;
 	this->m_uncompressedSize = bufferSize;
 
 	return bytes;

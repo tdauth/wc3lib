@@ -86,7 +86,7 @@ class Sector // FIXME : private boost::noncopyable
 		/**
 		 * This constructor is used when a sector is newly created for writing a specific file.
 		 */
-		Sector(Archive *archive, Block *block, const string &fileName, uint32 index, uint32 offset, uint32 size, Compression compression);
+		Sector(Archive *archive, Block *block, const string &fileName, uint32 index, uint32 offset, uint32 size, uint32 uncompressedSize, Compression compression);
 
 		virtual ~Sector();
 
