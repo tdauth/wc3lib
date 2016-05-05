@@ -126,6 +126,10 @@ int main(int argc, char *argv[])
 	Paths archivePaths;
 	Paths filePaths;
 	boost::filesystem::path dir;
+	uint32 hashes = 0;
+	uint32 blocks = 0;
+	uint32 sectorSize = 0;
+	uint32 startPosition = 0;
 
 	const boost::program_options::command_line_style::style_t pstyle = boost::program_options::command_line_style::style_t(
 	boost::program_options::command_line_style::unix_style
@@ -148,6 +152,11 @@ int main(int argc, char *argv[])
 	("debug", _("Creates info files for each extracted file."))
 #endif
 	("directory,C", boost::program_options::value<boost::filesystem::path>(&dir)->default_value(""), _("Changes directory to arg."))
+
+	("hashes",  boost::program_options::value<uint32>(&hashes)->default_value(4096), _("Sets the number of hash entries when creating an archive."))
+	("blocks",  boost::program_options::value<uint32>(&blocks)->default_value(4096), _("Sets the number of block entries when creating an archive."))
+	("sectorsize",  boost::program_options::value<uint32>(&sectorSize)->default_value(4096), _("Sets the size of file sectors in bytes when creating an archive."))
+	("startposition",  boost::program_options::value<uint32>(&startPosition)->default_value(0), _("Sets the start offset in the the archive file when creating one."))
 
 	// operations
 	("add,a", _("Adds files of MPQ archives or from hard disk to another archive."))
@@ -204,6 +213,26 @@ int main(int argc, char *argv[])
 		std::cout << _("\nReport bugs to tamino@cdauth.eu or on https://wc3lib.org") << std::endl;
 
 		return EXIT_SUCCESS;
+	}
+
+	wc3lib::mpq::Archive::Format mpqFormat = wc3lib::mpq::Archive::Format::Mpq1;
+
+	if (!format.empty())
+	{
+		if (format == "1")
+		{
+			mpqFormat = wc3lib::mpq::Archive::Format::Mpq1;
+		}
+		else if (format == "2")
+		{
+			mpqFormat = wc3lib::mpq::Archive::Format::Mpq2;
+		}
+		else
+		{
+			std::cerr << boost::format(_("Unknown MPQ format: %1%.")) % format << std::endl;
+
+			return EXIT_FAILURE;
+		}
 	}
 
 	// WORKAROUND
@@ -345,6 +374,53 @@ int main(int argc, char *argv[])
 						std::cout << entry << std::endl;
 					}
 				}
+			}
+		}
+	}
+
+	if (vm.count("create"))
+	{
+		BOOST_FOREACH(Paths::const_reference path, archivePaths)
+		{
+			if (boost::filesystem::exists(path))
+			{
+				std::cerr << boost::format(_("File %1% does already exist.")) % path << std::endl;
+
+				continue;
+			}
+
+			boost::scoped_ptr<Archive> mpq(new Archive());
+
+			try
+			{
+				mpq->create(path, hashes, blocks, mpqFormat, sectorSize, startPosition);
+
+				// import all specified files on creation
+				BOOST_FOREACH(Paths::reference entry, filePaths)
+				{
+					ifstream in(entry);
+
+					if (!in)
+					{
+						std::cerr << boost::format(_("Error on importing file %1%.")) % entry << std::endl;
+
+						continue;
+					}
+
+					const uint64 dataSize = std::streamoff(endPosition(in)) + 1;
+					boost::scoped_array<byte> data(new byte[dataSize]);
+					in.read(data.get(), dataSize);
+					in.close();
+
+					// TODO allow setting flags for each file
+					mpq->addFile(entry, data.get(), dataSize);
+				}
+			}
+			catch (wc3lib::Exception &exception)
+			{
+				std::cerr << boost::format(_("Error occured while creating file %1%: \"%2%\"")) % path % exception.what() << std::endl;
+
+				continue;
 			}
 		}
 	}
