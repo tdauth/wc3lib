@@ -557,37 +557,42 @@ bool Archive::removeFile(const File &mpqFile)
 	Hashes::iterator hashIterator = this->hashes().find(mpqFile.hash()->hashData());
 
 	// return false if the hash or block entry does not belong to the archive
-	if (hashIterator == this->hashes().end() || this->blocks().size() >= mpqFile.block()->index() || &this->blocks()[mpqFile.block()->index()] != mpqFile.block())
+	if (hashIterator == this->hashes().end() || this->blocks().size() <= mpqFile.block()->index() || &this->blocks()[mpqFile.block()->index()] != mpqFile.block())
 	{
 		return false;
 	}
 
-	// TODO jump to hash table and delete entry
-	// TODO jump to block table
-
 	/*
 	 * Change both entries.
 	 */
+	const uint32 compressedSize = mpqFile.block()->blockSize();
 	mpqFile.block()->remove();
 	mpqFile.hash()->remove();
 
-
-	// rewrite both tables, since they are encrypted the whole tables have to be rewritten
-
-	ofstream stream(this->path());
-	stream.seekp(this->m_startPosition + this->m_blockTableOffset);
+	// synchronize the meta information with the file
+	ofstream out(this->path());
 	std::streamsize size = 0;
 
+	// rewrite header since the archive size has changed
+	this->m_size -= compressedSize;
+
+	if (!writeHeader(out, size))
+	{
+	}
+
+	// rewrite both tables, since they are encrypted the whole tables have to be rewritten
+	out.seekp(this->m_startPosition + this->m_blockTableOffset);
+
 	// write the whole block table since it is encrypted
-	if (!writeBlockTable(stream, size))
+	if (!writeBlockTable(out, size))
 	{
 		return false;
 	}
 
 	// TODO dont rewrite everything look at DeleteFile() from the specification, just NULL the entry and make the previous empty different?
-	stream.seekp(this->m_startPosition + this->m_hashTableOffset);
+	out.seekp(this->m_startPosition + this->m_hashTableOffset);
 
-	if (!writeHashTable(stream, size))
+	if (!writeHashTable(out, size))
 	{
 		return false;
 	}

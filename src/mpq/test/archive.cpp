@@ -366,5 +366,17 @@ BOOST_AUTO_TEST_CASE(RemoveFile)
 
 	BOOST_REQUIRE(archive.removeFile(file));
 
-	// TODO check everything
+	// the entries are still there but deleted
+	BOOST_REQUIRE(archive.blocks().size() == 1);
+	BOOST_REQUIRE(archive.hashes().size() == 1);
+	const Block &block = archive.blocks()[0];
+	const Hash &hash = *archive.hashes().begin()->second;
+
+	BOOST_REQUIRE(block.empty());
+	BOOST_REQUIRE(hash.empty());
+
+	// the file is not in the archive anymore
+	file = archive.findFile("test.txt");
+
+	BOOST_REQUIRE(!file.isValid());
 }

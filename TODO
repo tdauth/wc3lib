@@ -1,9 +1,15 @@
-* Fix Archive::addFile() -> leads to eoffail when opening the archive.
+* Unit Tests for Archive::addFile():
+	* Compression types.
+	* Compression types with encryption.
+	* Multiple sectors (no single unit).
+	* Imploded.
+	* With attributes.
+* FIXED: Fix Archive::addFile() -> leads to eoffail when opening the archive.
 * Some object data classes share the same files but load them separately.
 * Load icons in tree model in the beginning again? Reduces lags?
 * Only show upgrade effects if one is selected.
 * Apply effect names to the fields.
-* Add MPQ archive addFile() and removeFile() support.
+* DONE: Add MPQ archive addFile() and removeFile() support.
 * Add corresponding options to the program "mpq".
 * Use BOOST_CHECK_EQUAL instead of BOOST_CHECK with the == operator.
 
