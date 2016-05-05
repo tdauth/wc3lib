@@ -177,7 +177,7 @@ void MpqTreeModel::addArchive(mpq::Archive* archive, const mpq::Listfile::Entrie
 			parentItem = archiveItem;
 		}
 
-		if (parentItem != 0)
+		if (parentItem != nullptr)
 		{
 			QModelIndex parent = parentItem->index(this);
 			const int fileRow =  parentItem->childCount();
@@ -227,16 +227,19 @@ QVariant MpqTreeModel::data(const QModelIndex &index, int role) const
 	{
 		MpqTreeItem *item = this->item(index);
 
-		switch (role)
+		if (item != nullptr)
 		{
-			case Qt::DisplayRole:
+			switch (role)
 			{
-				return item->name();
-			}
+				case Qt::DisplayRole:
+				{
+					return item->name();
+				}
 
-			case Qt::DecorationRole:
-			{
-				return item->icon();
+				case Qt::DecorationRole:
+				{
+					return item->icon();
+				}
 			}
 		}
 	}
@@ -373,7 +376,7 @@ bool MpqTreeModel::removeRows(int row, int count, const QModelIndex &parent)
 
 	beginRemoveRows(parent, row, row + count - 1);
 
-	MpqTreeItem *parentItem = 0;
+	MpqTreeItem *parentItem = nullptr;
 
 	if (parent.isValid())
 	{
@@ -382,38 +385,39 @@ bool MpqTreeModel::removeRows(int row, int count, const QModelIndex &parent)
 
 	for (int i = row; i < row + count; ++i)
 	{
-		MpqTreeItem *item = 0;
+		MpqTreeItem *item = nullptr;
 
-		if (parentItem != 0)
+		if (parentItem != nullptr)
 		{
-			if (row < parentItem->childCount())
+			if (i < parentItem->childCount())
 			{
-				item = parentItem->children().takeAt(row);
+				item = parentItem->children().takeAt(i);
 			}
 			else
 			{
-				qDebug() << "Invalid children" << row;
+				qDebug() << "Invalid children" << i;
 			}
 		}
 		else
 		{
-			if (row < topLevelItems().count())
+			if (i < topLevelItems().count())
 			{
-				item = topLevelItems().takeAt(row);
+				item = topLevelItems().takeAt(i);
 				qDebug() << "Removing top level item" << item->filePath();
 			}
 			else
 			{
-				qDebug() << "Invalid top level row" << row;
+				qDebug() << "Invalid top level row" << i;
 			}
 		}
 
-		if (item != 0)
+		if (item != nullptr)
 		{
 			/*
 			 * Should delete its children as well.
 			 */
 			delete item;
+			item = nullptr;
 		}
 	}
 

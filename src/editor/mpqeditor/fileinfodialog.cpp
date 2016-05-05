@@ -119,14 +119,14 @@ void FileInfoDialog::fill(mpq::Archive &archive, mpq::File &file)
 	 */
 	this->m_compressedSizeLabel->setText(sizeStringDecimal(file.compressedSize()).c_str());
 	this->m_uncompressedSizeLabel->setText(sizeStringDecimal(file.size()).c_str());
-	const double compressionRatio = file.size() / file.compressedSize();
+	const double compressionRatio = file.size() > 0 ? file.size() / file.compressedSize() : 0.0;
 	this->m_compressionRatioLabel->setText(QString(tr("%1 %").arg(QString::number(compressionRatio))));
 	this->m_flagsLabel->setText(mpq::flagsString(file.block()->flags()).c_str());
 	this->m_fileKeyLabel->setText(QString::number(file.fileKey()));
 	this->m_offsetLabel->setText(QString::number(file.block()->blockOffset()));
 	this->m_extendedOffsetLabel->setText(QString::number(file.block()->extendedBlockOffset()));
 	// TODO number of sectors should be calculated without reading the sectors!
-	mpq::File::Sectors sectors;
+	mpq::Sector::Sectors sectors;
 	file.sectors(sectors);
 	this->m_sectorsLabel->setText(QString::number(sectors.size()));
 }

@@ -1,5 +1,6 @@
 set(wc3lib_MPQEDITOR_H
 	archiveinfodialog.hpp
+	creationdialog.hpp
 	mpqeditor.hpp
 	mpqtreeitem.hpp
 	mpqtreemodel.hpp
@@ -8,6 +9,7 @@ set(wc3lib_MPQEDITOR_H
 )
 set(wc3lib_MPQEDITOR_SRC
 	archiveinfodialog.cpp
+	creationdialog.cpp
 	mpqeditor.cpp
 	mpqtreeitem.cpp
 	mpqtreemodel.cpp

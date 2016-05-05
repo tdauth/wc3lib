@@ -39,6 +39,7 @@ namespace wc3lib
 namespace editor
 {
 
+class CreationDialog;
 class ListfilesDialog;
 class ArchiveInfoDialog;
 class FileInfoDialog;
@@ -61,6 +62,9 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 	Q_OBJECT
 
 	public:
+		/**
+		 * The maximum number of recent file URL entries stored in the file menu.
+		 */
 		static const int maxRecentActions;
 
 		/**
@@ -74,14 +78,40 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		virtual bool configure() override;
 		virtual void retranslateUi() override;
 
+		/**
+		 * The MPQ archives which are currently open in the MPQ editor.
+		 *
+		 * \return Returns the open MPQ archives.
+		 * @{
+		 */
 		Archives& archives();
 		const Archives& archives() const;
+		/**
+		 * @}
+		 */
 
 		/**
+		 * \return Returns the MPQ archive of the first selected item.
+		 */
+		mpq::Archive* selectedArchive() const;
+		/**
+		 * \return Returns the directory path of the first selected item.
+		 */
+		QString currentDirectory() const;
+
+		/**
+		 * Opens an MPQ archive and lists its files in the MPQ editor.
+		 * \param url The URL of the MPQ archive.
 		 * \return Returns true if opening succeeded.
 		 */
 		bool openMpqArchive(const KUrl &url);
 
+		CreationDialog* creationDialog() const;
+		/**
+		 * The dialog for selecting predefined (listfile) files.
+		 * If the MPQ archive does not contain any (lisfile) file this will help to list all contained files.
+		 * \return Returns the selection dialog for predefined (listfile) files.
+		 */
 		ListfilesDialog* listfilesDialog() const;
 		ArchiveInfoDialog* archiveInfoDialog() const;
 		FileInfoDialog* fileInfoDialog() const;
@@ -98,7 +128,13 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		static QString dirname(const QString &path);
 
 	public slots:
+		/**
+		 * Opens a dialog for selecting options to create a new MPQ archive.
+		 */
 		void newMpqArchive();
+		/**
+		 * Opens one or several selected files as MPQ archives and shows them in the MPQ Editor.
+		 */
 		void openMpqArchives();
 		/**
 		 * This slot can only be called by an action which is part of \ref m_archiveHistoryActions.
@@ -112,6 +148,11 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		 */
 		void closeMpqArchives();
 		void closeAllMpqArchives();
+
+		/**
+		 * Does some defragmentation of all blocks etc.
+		 * TODO Implement
+		 */
 		void optimizeMpqArchives();
 
 		void addFiles();
@@ -178,6 +219,8 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		MpqTreeModel* treeModel() const;
 
 	private:
+		void openArchive(mpq::Archive &archive, const KUrl &url, mpq::Listfile::Entries &listfileEntries);
+
 		Archives m_archives;
 
 		KUrl m_openUrl;
@@ -192,9 +235,11 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 
 		QAction *m_closeAction;
 		QAction *m_closeAllAction;
+		QAction *m_addAction;
 		QAction *m_extractAction;
 		QAction *m_infoAction;
 
+		CreationDialog *m_creationDialog;
 		ListfilesDialog *m_listfilesDialog;
 		ArchiveInfoDialog *m_archiveInfoDialog;
 		FileInfoDialog *m_fileInfoDialog;
@@ -202,7 +247,7 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 	private slots:
 		void doubleClickItem(const QModelIndex &index);
 		void contextMenu(QPoint point);
-		void updateSelection();
+		void updateSelection(const QModelIndex &previous, const QModelIndex &next);
 		void expandItem(const QModelIndex &item);
 		void collapseItem(const QModelIndex &item);
 		void orderBySection(int logicalIndex);
@@ -217,6 +262,11 @@ inline MpqTreeModel* MpqEditor::treeModel() const
 {
 	//return boost::polymorphic_cast<MpqTreeModel*>(boost::polymorphic_cast<MpqTreeProxyModel*>(this->m_archivesTreeView->model())->sourceModel());
 	return boost::polymorphic_cast<MpqTreeModel*>(sortFilterModel()->sourceModel());
+}
+
+inline CreationDialog* MpqEditor::creationDialog() const
+{
+	return this->m_creationDialog;
 }
 
 inline ListfilesDialog* MpqEditor::listfilesDialog() const
