@@ -111,7 +111,7 @@ std::streamsize Archive::create(const boost::filesystem::path &path, uint32 hash
 	// skip header for later writing
 	out.seekp(sizeof(Header), std::ios::cur);
 
-	this->m_blockTableOffset = out.tellp() - this->startPosition();
+	this->m_blockTableOffset = std::streamoff(out.tellp()) - this->startPosition();
 
 	if (!this->writeBlockTable(out, streamSize))
 	{
@@ -120,7 +120,7 @@ std::streamsize Archive::create(const boost::filesystem::path &path, uint32 hash
 
 	if (this->format() == Archive::Format::Mpq2)
 	{
-		this->m_extendedBlockTableOffset = out.tellp() - this->startPosition();
+		this->m_extendedBlockTableOffset = std::streamoff(out.tellp()) - this->startPosition();
 
 		if (!this->writeExtendedBlockTable(out, streamSize))
 		{
@@ -128,7 +128,7 @@ std::streamsize Archive::create(const boost::filesystem::path &path, uint32 hash
 		}
 	}
 
-	this->m_hashTableOffset = out.tellp() - this->startPosition();
+	this->m_hashTableOffset = std::streamoff(out.tellp()) - this->startPosition();
 
 	if (!this->writeHashTable(out, streamSize))
 	{
