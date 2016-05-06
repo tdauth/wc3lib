@@ -27,7 +27,7 @@ namespace wc3lib
 namespace editor
 {
 
-MpqTreeItem::MpqTreeItem(MpqTreeItem* parent) : QObject(parent), m_parent(parent), m_archive(nullptr), m_isFolder(false), m_isArchive(false), m_isFile(false)
+MpqTreeItem::MpqTreeItem(MpqTreeItem* parent) : QObject(parent), m_parent(parent), m_archive(nullptr), m_type(Type::File)
 {
 }
 

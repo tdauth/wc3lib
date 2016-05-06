@@ -111,7 +111,7 @@ QModelIndex ObjectTreeModel::parent(const QModelIndex &index) const
 	ObjectTreeItem *childItem = this->item(index);
 	ObjectTreeItem *parentItem = childItem->parent();
 
-	if (parentItem == 0)
+	if (parentItem == nullptr)
 	{
 		return QModelIndex();
 	}
@@ -121,7 +121,7 @@ QModelIndex ObjectTreeModel::parent(const QModelIndex &index) const
 	/*
 	 * If it is a top level item we have to calculate the row manually.
 	 */
-	if (parentItem->parent() == 0)
+	if (parentItem->parent() == nullptr)
 	{
 		parentRow = m_topLevelItems.indexOf(parentItem);
 
@@ -145,20 +145,16 @@ QModelIndex ObjectTreeModel::index(int row, int column, const QModelIndex &paren
 		return QModelIndex();
 	}
 
-	ObjectTreeItem *parentItem;
+	ObjectTreeItem *parentItem = nullptr;
 
-	if (!parent.isValid())
-	{
-		parentItem = 0;
-	}
-	else
+	if (parent.isValid())
 	{
 		parentItem = this->item(parent);
 	}
 
-	ObjectTreeItem *childItem = 0;
+	ObjectTreeItem *childItem = nullptr;
 
-	if (parentItem != 0)
+	if (parentItem != nullptr)
 	{
 		childItem = parentItem->child(row);
 	}
@@ -171,7 +167,7 @@ QModelIndex ObjectTreeModel::index(int row, int column, const QModelIndex &paren
 		qDebug() << "Error error error:" << row;
 	}
 
-	if (childItem != 0)
+	if (childItem != nullptr)
 	{
 		return createIndex(row, column, childItem);
 	}

@@ -35,11 +35,11 @@ namespace editor
 class MpqTreeProxyModel : public QSortFilterProxyModel
 {
 	public:
-		MpqTreeProxyModel(QObject* parent = 0);
+		MpqTreeProxyModel(QObject *parent = 0);
 
 	protected:
-		virtual bool lessThan(const QModelIndex& left, const QModelIndex& right) const override;
-		virtual bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const override;
+		virtual bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
+		virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
 
 		bool filterAcceptsRowItself(int source_row, const QModelIndex &source_parent) const;
 		bool hasAcceptedChildren(int source_row, const QModelIndex &source_parent) const;
@@ -49,4 +49,4 @@ class MpqTreeProxyModel : public QSortFilterProxyModel
 
 }
 
-#endif // MPQTREEPROXYMODEL_HPP
+#endif // WC3LIB_EDITOR_MPQTREEPROXYMODEL_HPP

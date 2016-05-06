@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>425</width>
-    <height>321</height>
+    <height>371</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,7 +15,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QGroupBox" name="groupBox_2">
+    <widget class="QGroupBox" name="m_nameGroupBox">
      <property name="title">
       <string>Name</string>
      </property>
@@ -74,7 +74,7 @@
       <item row="4" column="1">
        <widget class="QLabel" name="m_flagsLabel">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -107,7 +107,7 @@
       <item row="1" column="1">
        <widget class="QLabel" name="m_uncompressedSizeLabel">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
         <property name="textInteractionFlags">
          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -117,7 +117,7 @@
       <item row="0" column="1">
        <widget class="QLabel" name="m_compressedSizeLabel">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
         <property name="textInteractionFlags">
          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -127,7 +127,7 @@
       <item row="2" column="1">
        <widget class="QLabel" name="m_compressionRatioLabel">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
         <property name="textInteractionFlags">
          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -187,7 +187,7 @@
       <item row="5" column="1">
        <widget class="QLabel" name="m_fileKeyLabel">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
         <property name="textInteractionFlags">
          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -197,7 +197,7 @@
       <item row="6" column="1">
        <widget class="QLabel" name="m_offsetLabel">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
         <property name="textInteractionFlags">
          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -207,7 +207,7 @@
       <item row="7" column="1">
        <widget class="QLabel" name="m_extendedOffsetLabel">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
         <property name="textInteractionFlags">
          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -217,7 +217,7 @@
       <item row="8" column="1">
        <widget class="QLabel" name="m_sectorsLabel">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
         <property name="textInteractionFlags">
          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -256,7 +256,7 @@
       <item row="2" column="1">
        <widget class="QLabel" name="m_fileHashBLabel">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
         <property name="textInteractionFlags">
          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -286,7 +286,7 @@
       <item row="4" column="1">
        <widget class="QLabel" name="m_localeLabel">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
         <property name="textInteractionFlags">
          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -306,7 +306,7 @@
       <item row="1" column="1">
        <widget class="QLabel" name="m_fileHashALabel">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
         <property name="textInteractionFlags">
          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -316,7 +316,7 @@
       <item row="5" column="1">
        <widget class="QLabel" name="m_platformLabel">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
         <property name="textInteractionFlags">
          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -326,7 +326,7 @@
       <item row="6" column="1">
        <widget class="QLabel" name="m_hashValueLabel">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
         <property name="textInteractionFlags">
          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -355,7 +355,7 @@
       <item row="2" column="1">
        <widget class="QLabel" name="m_fileTimeLabel">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
         <property name="textInteractionFlags">
          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -375,7 +375,7 @@
       <item row="0" column="1">
        <widget class="QLabel" name="m_crc32Label">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
         <property name="textInteractionFlags">
          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -385,7 +385,7 @@
       <item row="1" column="1">
        <widget class="QLabel" name="m_md5Label">
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
         <property name="textInteractionFlags">
          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>

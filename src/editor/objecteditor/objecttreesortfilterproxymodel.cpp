@@ -29,7 +29,7 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectTreeSortFilterProxyModel::ObjectTreeSortFilterProxyModel(QObject* parent) : QSortFilterProxyModel(parent)
+ObjectTreeSortFilterProxyModel::ObjectTreeSortFilterProxyModel(QObject *parent) : QSortFilterProxyModel(parent)
 {
 }
 

@@ -6,6 +6,7 @@
 	* With attributes.
 	* With listfile.
 
+* MPQ Editor and tool "mpq": (listfile) files contain entries of files without a dirpath which might occur in every directory?
 * Fix MPQ Editor updateSelection().
 * Fix MPQ Editor closing and opening.
 * MPQ Editor: Should allow file options when adding files.

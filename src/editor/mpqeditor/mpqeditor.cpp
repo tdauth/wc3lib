@@ -162,7 +162,28 @@ void MpqEditor::updateSelection(const QModelIndex &previous, const QModelIndex &
 
 	if (hasSelection)
 	{
-		MpqTreeItem *item = this->treeModel()->item(next);
+		// FIXME map
+		const QModelIndex mapped = sortFilterModel()->mapToSource(next);
+		qDebug() << "Has selection.";
+		qDebug() << "row " << mapped.row();
+		qDebug() << "parent " << mapped.parent().isValid();
+
+		MpqTreeItem *item = this->treeModel()->item(mapped);
+
+		if (item->isArchive())
+		{
+			qDebug() << "Is archive.";
+		}
+
+		if (item->isFolder())
+		{
+			qDebug() << "Is folder";
+		}
+
+		if (item->isFile())
+		{
+			qDebug() << "Is file";
+		}
 
 		m_addAction->setEnabled(item->isArchive() || item->isFolder());
 		m_closeAction->setEnabled(item->isArchive());
@@ -170,6 +191,7 @@ void MpqEditor::updateSelection(const QModelIndex &previous, const QModelIndex &
 	}
 	else
 	{
+		qDebug() << "Has no selection";
 		m_addAction->setEnabled(false);
 		m_closeAction->setEnabled(false);
 		m_infoAction->setEnabled(false);
@@ -259,22 +281,29 @@ void MpqEditor::doubleClickItem(const QModelIndex &index)
 {
 	MpqTreeItem *item = this->treeModel()->item(sortFilterModel()->mapToSource(index));
 
-	if (item->isFile())
+	if (item != nullptr)
 	{
-		openFile(*item->archive(), item->filePath());
-		//this->m_fileInfoDialog->fill(archive, file);
-		//this->m_fileInfoDialog->show();
+		if (item->isFile())
+		{
+			openFile(*item->archive(), item->filePath());
+			//this->m_fileInfoDialog->fill(archive, file);
+			//this->m_fileInfoDialog->show();
+		}
+		else if (item->isFolder())
+		{
+			qDebug() << "dir";
+			this->m_fileInfoDialog->fill(item->filePath());
+			this->m_fileInfoDialog->show();
+		}
+		else if (item->isArchive())
+		{
+			this->m_archiveInfoDialog->fill(*item->archive());
+			this->m_archiveInfoDialog->show();
+		}
 	}
-	else if (item->isFolder())
+	else
 	{
-		qDebug() << "dir";
-		this->m_fileInfoDialog->fill(item->filePath());
-		this->m_fileInfoDialog->show();
-	}
-	else if (item->isArchive())
-	{
-		this->m_archiveInfoDialog->fill(*item->archive());
-		this->m_archiveInfoDialog->show();
+		qDebug() << "ITEM IS NULL!";
 	}
 }
 
@@ -601,7 +630,7 @@ void MpqEditor::addFiles()
 	foreach (QString file, files)
 	{
 		ifstream in(file.toUtf8().constData());
-		const uint64 dataSize = endPosition(in) + 1;
+		const uint64 dataSize = std::streamoff(endPosition(in)) + 1;
 		byte data[dataSize];
 		in.read(data, dataSize);
 		in.close();

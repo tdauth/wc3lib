@@ -100,6 +100,8 @@ void FileInfoDialog::fill(mpq::Archive &archive, mpq::File &file)
 				this->m_fileTimeLabel->setEnabled(false);
 				this->m_fileTimeLabel->setText(tr("-"));
 			}
+
+			this->m_extendedAttributesGroupBox->setEnabled(true);
 		}
 		else
 		{
@@ -129,6 +131,9 @@ void FileInfoDialog::fill(mpq::Archive &archive, mpq::File &file)
 	mpq::Sector::Sectors sectors;
 	file.sectors(sectors);
 	this->m_sectorsLabel->setText(QString::number(sectors.size()));
+
+	this->m_hashGroupBox->setEnabled(true);
+	this->m_blockGroupBox->setEnabled(true);
 }
 
 void FileInfoDialog::fill(const QString &dirPath)
@@ -137,6 +142,9 @@ void FileInfoDialog::fill(const QString &dirPath)
 	/*
 	 * Disable other groups completely.
 	 */
+	this->m_hashGroupBox->setEnabled(false);
+	this->m_extendedAttributesGroupBox->setEnabled(false);
+	this->m_blockGroupBox->setEnabled(false);
 }
 
 QString FileInfoDialog::localeToString(mpq::File::Locale locale)

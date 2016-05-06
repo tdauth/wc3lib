@@ -41,7 +41,6 @@ ListfilesDialog::ListfilesDialog(QWidget* parent, Qt::WindowFlags flags) : QDial
 	this->setWindowTitle(tr("Select Listfiles"));
 
 	QVBoxLayout *layout = new QVBoxLayout(this);
-	this->setLayout(layout);
 	this->fill();
 }
 

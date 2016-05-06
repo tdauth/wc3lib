@@ -43,6 +43,13 @@ class MpqTreeModel;
 class MpqTreeItem : public QObject
 {
 	public:
+		enum class Type
+		{
+			File,
+			Folder,
+			Archive
+		};
+
 		typedef QList<MpqTreeItem*> FileItems;
 
 		MpqTreeItem(MpqTreeItem *parent);
@@ -66,11 +73,10 @@ class MpqTreeItem : public QObject
 		const FileItems& children() const;
 		FileItems& children();
 
-		void setIsFolder(bool isFolder);
+		void setType(Type type);
+		Type type() const;
 		bool isFolder() const;
-		void setIsArchive(bool isArchive);
 		bool isArchive() const;
-		void setIsFile(bool isFile);
 		bool isFile() const;
 
 		QString name() const;
@@ -92,9 +98,7 @@ class MpqTreeItem : public QObject
 		QIcon m_icon;
 		FileItems m_children;
 
-		bool m_isFolder;
-		bool m_isArchive;
-		bool m_isFile;
+		Type m_type;
 };
 
 inline MpqTreeItem* MpqTreeItem::parent() const
@@ -102,7 +106,7 @@ inline MpqTreeItem* MpqTreeItem::parent() const
 	return this->m_parent;
 }
 
-inline void MpqTreeItem::setArchive(mpq::Archive* archive)
+inline void MpqTreeItem::setArchive(mpq::Archive *archive)
 {
 	this->m_archive = archive;
 }
@@ -112,7 +116,7 @@ inline mpq::Archive* MpqTreeItem::archive() const
 	return this->m_archive;
 }
 
-inline void MpqTreeItem::setEntries(const mpq::Listfile::Entries& entries)
+inline void MpqTreeItem::setEntries(const mpq::Listfile::Entries &entries)
 {
 	this->m_entries = entries;
 }
@@ -122,7 +126,7 @@ inline const mpq::Listfile::Entries& MpqTreeItem::entries() const
 	return this->m_entries;
 }
 
-inline void MpqTreeItem::setIcon(const QIcon& icon)
+inline void MpqTreeItem::setIcon(const QIcon &icon)
 {
 	this->m_icon = icon;
 }
@@ -150,7 +154,7 @@ inline QString MpqTreeItem::name() const
 	return QString("Invalid item");
 }
 
-inline void MpqTreeItem::setFilePath(const QString& filePath)
+inline void MpqTreeItem::setFilePath(const QString &filePath)
 {
 	this->m_filePath = filePath;
 }
@@ -160,7 +164,7 @@ inline const QString& MpqTreeItem::filePath() const
 	return this->m_filePath;
 }
 
-inline void MpqTreeItem::appendChild(MpqTreeItem* item)
+inline void MpqTreeItem::appendChild(MpqTreeItem *item)
 {
 	this->m_children.append(item);
 }
@@ -180,34 +184,29 @@ inline const MpqTreeItem::FileItems& MpqTreeItem::children() const
 	return this->m_children;
 }
 
-inline void MpqTreeItem::setIsFolder(bool isFolder)
+inline void MpqTreeItem::setType(MpqTreeItem::Type type)
 {
-	this->m_isFolder = isFolder;
+	this->m_type = type;
+}
+
+inline MpqTreeItem::Type MpqTreeItem::type() const
+{
+	return this->m_type;
 }
 
 inline bool MpqTreeItem::isFolder() const
 {
-	return this->m_isFolder;
-}
-
-inline void MpqTreeItem::setIsArchive(bool isArchive)
-{
-	this->m_isArchive = isArchive;
+	return this->type() == Type::Folder;
 }
 
 inline bool MpqTreeItem::isArchive() const
 {
-	return this->m_isArchive;
-}
-
-inline void MpqTreeItem::setIsFile(bool isFile)
-{
-	this->m_isFile = isFile;
+	return this->type() == Type::Archive;
 }
 
 inline bool MpqTreeItem::isFile() const
 {
-	return this->m_isFile;
+	return this->type() == Type::File;
 }
 
 }

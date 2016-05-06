@@ -18,9 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-// TEST
-#include <iostream>
-
 #include <set>
 
 #include <boost/algorithm/string.hpp>
@@ -58,9 +55,7 @@ Listfile::Entries Listfile::entries(const string &content)
 			"\r|\n|;"
 			")"
 		));
-	// OLD
-	//boost::algorithm::split(result, value, boost::algorithm::is_any_of(";\r\n"), boost::algorithm::token_compress_on);
-
+	
 	return result;
 }
 
@@ -225,7 +220,7 @@ Listfile::Entries Listfile::caseSensitiveDirEntries(const Listfile::Entries &ent
 	return result;
 }
 
-Listfile::Entries Listfile::existingEntries(const Listfile::Entries& entries, mpq::Archive& archive, const string &prefix, bool recursive)
+Listfile::Entries Listfile::existingEntries(const Listfile::Entries &entries, mpq::Archive &archive, const string &prefix, bool recursive)
 {
 	Entries result;
 	result.reserve(entries.size());

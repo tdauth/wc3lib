@@ -30,7 +30,7 @@ namespace wc3lib
 namespace editor
 {
 
-MpqTreeProxyModel::MpqTreeProxyModel(QObject* parent) : QSortFilterProxyModel(parent)
+MpqTreeProxyModel::MpqTreeProxyModel(QObject *parent) : QSortFilterProxyModel(parent)
 {
 }
 
@@ -45,6 +45,7 @@ bool MpqTreeProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
 
 	if (leftItem != 0 && rightItem != 0)
 	{
+		// folders always have a higher priority than regular files
 		if (leftItem->isFolder() && !rightItem->isFolder())
 		{
 			return true;
@@ -59,15 +60,20 @@ bool MpqTreeProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
 		qDebug() << "Did not find one of the items.";
 	}
 
-	if (leftData.type() == QVariant::String)
+	if (leftData.type() == QVariant::String && rightData.type() == QVariant::String)
 	{
-		return leftData.toString() < rightData.toString();
+		// compare case insensitive otherwise big letters will be at a different position
+		return leftData.toString().toUpper() < rightData.toString().toUpper();
+	}
+	else
+	{
+		qDebug() << "No string data!";
 	}
 
 	return QSortFilterProxyModel::lessThan(left, right);
 }
 
-bool MpqTreeProxyModel::filterAcceptsRow(int source_row, const QModelIndex& source_parent) const
+bool MpqTreeProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
 	if (filterAcceptsRowItself(source_row, source_parent))
 	{
