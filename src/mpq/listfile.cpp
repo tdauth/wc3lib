@@ -75,39 +75,43 @@ Listfile::CaseSensitiveEntries Listfile::caseSensitiveEntries(const Listfile::En
 
 	BOOST_FOREACH(Entries::const_reference ref, entries)
 	{
-		/*
-		 * Split relative path up into directory paths and replace the single dirs by the alread found ones.
-		 */
-		std::vector<string> pathTokens;
-		boost::algorithm::split(pathTokens, ref, boost::algorithm::is_any_of("\\"), boost::algorithm::token_compress_on);
-		stringstream sstream;
-
-		for (std::size_t i = 0; i < pathTokens.size(); ++i)
+		// skip empty entries, they have no purpose
+		if (!ref.empty())
 		{
-			if (i != 0)
+			/*
+			 * Split relative path up into directory paths and replace the single dirs by the alread found ones.
+			 */
+			std::vector<string> pathTokens;
+			boost::algorithm::split(pathTokens, ref, boost::algorithm::is_any_of("\\"), boost::algorithm::token_compress_on);
+			stringstream sstream;
+
+			for (std::size_t i = 0; i < pathTokens.size(); ++i)
 			{
-				sstream << '\\';
-			}
+				if (i != 0)
+				{
+					sstream << '\\';
+				}
 
-			const string value = pathTokens[i];
-			const string key = boost::to_upper_copy(value);
-			CaseSensitiveEntries::iterator iterator = result.find(key);
+				const string value = pathTokens[i];
+				const string key = boost::to_upper_copy(value);
+				CaseSensitiveEntries::iterator iterator = result.find(key);
 
-			if (iterator == result.end())
-			{
-				//std::cerr << "Key: " << key << ", Value: " << value << std::endl;
-				iterator = result.insert(std::make_pair(key, value)).first;
-			}
+				if (iterator == result.end())
+				{
+					//std::cerr << "Key: " << key << ", Value: " << value << std::endl;
+					iterator = result.insert(std::make_pair(key, value)).first;
+				}
 
-			sstream << iterator->second;
-			const string longValue = sstream.str();
-			const string longKey = boost::to_upper_copy(longValue);
-			iterator = result.find(longKey);
+				sstream << iterator->second;
+				const string longValue = sstream.str();
+				const string longKey = boost::to_upper_copy(longValue);
+				iterator = result.find(longKey);
 
-			if (iterator == result.end())
-			{
-				//std::cerr << "Key: " << longKey << ", Value: " << longValue << std::endl;
-				iterator = result.insert(std::make_pair(longKey, longValue)).first;
+				if (iterator == result.end())
+				{
+					//std::cerr << "Key: " << longKey << ", Value: " << longValue << std::endl;
+					iterator = result.insert(std::make_pair(longKey, longValue)).first;
+				}
 			}
 		}
 	}
@@ -272,12 +276,19 @@ string Listfile::fileName(const string &entry)
 {
 	const string::size_type index = entry.find_last_of('\\');
 
-	if (index != string::npos && entry.size() > (index + 1))
+	if (index != string::npos)
 	{
-		return entry.substr(index + 1);
+		if (entry.size() > (index + 1))
+		{
+			return entry.substr(index + 1);
+		}
+		else
+		{
+			return "";
+		}
 	}
 
-	return "";
+	return entry;
 }
 
 

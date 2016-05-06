@@ -88,6 +88,9 @@ class Listfile : public File
 		 */
 		typedef std::map<string, string> CaseSensitiveEntries;
 
+		/**
+		 * \note Skips all empty entries.
+		 */
 		static CaseSensitiveEntries caseSensitiveEntries(const Entries &entries);
 
 		static Entries caseSensitiveFileEntries(const Entries &entries, const string &prefix = "", bool recursive = true);
@@ -108,6 +111,9 @@ class Listfile : public File
 		static string dirPath(const string &entry);
 
 		/**
+		 * If the entry does not contain any directory path the whole entry is returned.
+		 * For example "bla.txt" returns "bla.txt".
+		 * "Peter\Hans\bla.txt" does also return "bla.txt".
 		 * \return Returns the filename of \p entry.
 		 */
 		static string fileName(const string &entry);

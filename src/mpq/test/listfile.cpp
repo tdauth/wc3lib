@@ -55,12 +55,12 @@ BOOST_AUTO_TEST_CASE(ListfileEntriesTest)
 	BOOST_REQUIRE(entries[6] == "bla7");
 	BOOST_REQUIRE(entries[7] == "bla8");
 	BOOST_REQUIRE(entries[8] == "bla9");
-	BOOST_REQUIRE(entries[10] == "bla10");
-	BOOST_REQUIRE(entries[11] == "bla11");
-	BOOST_REQUIRE(entries[12] == "bla12");
-	BOOST_REQUIRE(entries[13] == "bla13");
-	BOOST_REQUIRE(entries[14] == "bla14");
-	BOOST_REQUIRE(entries[15] == "bla15");
+	BOOST_REQUIRE(entries[9] == "bla10");
+	BOOST_REQUIRE(entries[10] == "bla11");
+	BOOST_REQUIRE(entries[11] == "bla12");
+	BOOST_REQUIRE(entries[12] == "bla13");
+	BOOST_REQUIRE(entries[13] == "bla14");
+	BOOST_REQUIRE(entries[14] == "bla15");
 	BOOST_REQUIRE(entries.back() == "end");
 }
 
@@ -97,12 +97,12 @@ BOOST_AUTO_TEST_CASE(ListfileContentTest)
 	BOOST_REQUIRE(entries[6] == "bla7");
 	BOOST_REQUIRE(entries[7] == "bla8");
 	BOOST_REQUIRE(entries[8] == "bla9");
-	BOOST_REQUIRE(entries[10] == "bla10");
-	BOOST_REQUIRE(entries[11] == "bla11");
-	BOOST_REQUIRE(entries[12] == "bla12");
-	BOOST_REQUIRE(entries[13] == "bla13");
-	BOOST_REQUIRE(entries[14] == "bla14");
-	BOOST_REQUIRE(entries[15] == "bla15");
+	BOOST_REQUIRE(entries[9] == "bla10");
+	BOOST_REQUIRE(entries[10] == "bla11");
+	BOOST_REQUIRE(entries[11] == "bla12");
+	BOOST_REQUIRE(entries[12] == "bla13");
+	BOOST_REQUIRE(entries[13] == "bla14");
+	BOOST_REQUIRE(entries[14] == "bla15");
 	BOOST_REQUIRE(entries.back() == "end");
 }
 
@@ -354,15 +354,19 @@ BOOST_AUTO_TEST_CASE(ExistingEntriesWithPrefix)
 
 BOOST_AUTO_TEST_CASE(DirPath)
 {
-	BOOST_CHECK(mpq::Listfile::dirPath("Bla") == "");
-	BOOST_CHECK(mpq::Listfile::dirPath("Bla\\bla") == "Bla");
-	BOOST_CHECK(mpq::Listfile::dirPath("Bla\\bla\\bla.txt") == "Bla\\bla");
+	BOOST_CHECK_EQUAL(mpq::Listfile::dirPath(""), "");
+	BOOST_CHECK_EQUAL(mpq::Listfile::dirPath("Bla"), "");
+	BOOST_CHECK_EQUAL(mpq::Listfile::dirPath("Bla\\bla"), "Bla");
+	BOOST_CHECK_EQUAL(mpq::Listfile::dirPath("Bla\\bla\\bla.txt"), "Bla\\bla");
 }
 
 BOOST_AUTO_TEST_CASE(FileName)
 {
+	BOOST_CHECK_EQUAL(mpq::Listfile::fileName(""), "");
+	const string filePath0 = "test.txt";
+	BOOST_CHECK_EQUAL(mpq::Listfile::fileName(filePath0), "test.txt");
 	const string filePath1 = "UI\\peter\\test.txt";
-	BOOST_CHECK(mpq::Listfile::fileName(filePath1) == "test.txt");
+	BOOST_CHECK_EQUAL(mpq::Listfile::fileName(filePath1), "test.txt");
 	const string filePath2 = "UI\\peter\\";
-	BOOST_CHECK(mpq::Listfile::fileName(filePath2) == "");
+	BOOST_CHECK_EQUAL(mpq::Listfile::fileName(filePath2), "");
 }
