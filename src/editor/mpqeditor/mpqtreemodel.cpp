@@ -305,7 +305,6 @@ QModelIndex MpqTreeModel::parent(const QModelIndex &child) const
 	if (child.isValid())
 	{
 		MpqTreeItem *item = this->item(child);
-		qDebug() << "Item: " << item;
 		MpqTreeItem *parentItem = item->parent();
 
 		if (parentItem != nullptr)
@@ -384,8 +383,6 @@ bool MpqTreeModel::insertRows(int row, int count, const QModelIndex &parent)
 		}
 		else
 		{
-			qDebug() << "No parent";
-
 			if (i >= m_topLevelItems.size())
 			{
 				m_topLevelItems.push_back(item);
@@ -404,8 +401,6 @@ bool MpqTreeModel::insertRows(int row, int count, const QModelIndex &parent)
 
 bool MpqTreeModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-	qDebug() << "Removing row" << row << "with" << count << "items from parent row" << parent.row();
-
 	beginRemoveRows(parent, row, row + count - 1);
 
 	MpqTreeItem *parentItem = nullptr;
