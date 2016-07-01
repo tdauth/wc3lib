@@ -73,6 +73,34 @@ void ResourcesDialog::setSources(MpqPriorityList *sources)
 
 				break;
 			}
+
+			case Resource::Type::Campaign:
+			{
+				type = tr("Campaign");
+
+				break;
+			}
+
+			case Resource::Type::Music:
+			{
+				type = tr("Music");
+
+				break;
+			}
+
+			case Resource::Type::Texture:
+			{
+				type = tr("Texture");
+
+				break;
+			}
+
+			case Resource::Type::Sound:
+			{
+				type = tr("Sound");
+
+				break;
+			}
 		}
 
 		QTableWidgetItem *typeItem = new QTableWidgetItem(type);
