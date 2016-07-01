@@ -1330,7 +1330,7 @@ Ogre::ManualObject* OgreMdlx::createGeoset(const mdlx::Geoset &geoset, mdlx::lon
 		{
 			case mdlx::Faces::Type::Triangles:
 			{
-				for (mdlx::long32 i = 0; i < faces.vertices().size(); i += 3)
+				for (std::size_t i = 0; i < faces.vertices().size(); i += 3)
 				{
 					Ogre::uint32 indices[3];
 
