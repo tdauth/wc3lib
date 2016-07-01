@@ -39,7 +39,7 @@ ObjectData::StandardObjecIds MiscData::standardObjectIds() const
 {
 	StandardObjecIds result;
 
-	for (std::size_t i = 0; i < m_miscFiles.keys().size(); ++i)
+	for (int i = 0; i < m_miscFiles.keys().size(); ++i)
 	{
 		result << m_miscFiles.keys()[i];
 	}
