@@ -1,0 +1,9 @@
+Dependencies on Fedora:
+
+Cross-Compiler:
+- x86_64-w64-mingw32-gcc
+- x86_64-w64-mingw32-g++
+
+OGRE:
+- windres: https://bugzilla.redhat.com/show_bug.cgi?id=136112
+binutils have to be cross compiled manually.
