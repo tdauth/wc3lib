@@ -50,7 +50,7 @@ option(PLUGINS "Plugins" 0)
 
 if (EDITOR OR PLUGINS)
 	# requires binutils for windres command
-	ExternalProjectAdd(binutils DEPENDS llvm URL "ftp://sourceware.org/pub/binutils/snapshots/binutils-2.26.51.tar.bz2" CONFIGURE_COMMAND ./configure BUILD_COMMAND make ${MAKE_JOBS} INSTALL_COMMAND "")
+	ExternalProject_Add(binutils DEPENDS llvm URL "ftp://sourceware.org/pub/binutils/snapshots/binutils-2.26.51.tar.bz2" CONFIGURE_COMMAND ./configure BUILD_COMMAND make ${MAKE_JOBS} INSTALL_COMMAND "")
 	set(DEPENDENCIES ${DEPENDENCIES} ogre)
 	ExternalProject_Add(ogre DEPENDS llvm binutils HG_REPOSITORY https://bitbucket.org/sinbad/ogre CONFIGURE_COMMAND cmake ${CMAKE_CURRENT_BINARY_DIR}/ogre-prefix/src/ogre/ -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/Toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=install -DCMAKE_FIND_ROOT_PATH="${CMAKE_CURRENT_BINARY_DIR}/binutils-prefix/src/binutils ${CMAKE_FIND_ROOT_PATH}" BUILD_COMMAND make ${MAKE_JOBS} BUILD_IN_SOURCE 1 INSTALL_COMMAND "")
 endif ()
