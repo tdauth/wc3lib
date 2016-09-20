@@ -497,7 +497,7 @@ void MpqSlave::listDir(const QUrl &url)
 				entry.insert(KIO::UDSEntry::UDS_MIME_TYPE, mimeType.name());
 			}
 
-			listEntry(entry, false);
+			listEntry(entry);
 		}
 		else // invalid entry
 		{
@@ -518,10 +518,10 @@ void MpqSlave::listDir(const QUrl &url)
 		entry.insert(KIO::UDSEntry::UDS_NAME, dirName);
 		entry.insert(KIO::UDSEntry::UDS_FILE_TYPE, S_IFDIR);
 		entry.insert(KIO::UDSEntry::UDS_ACCESS, (S_IRWXU | S_IRWXG | S_IRWXO));
-		listEntry(entry, false);
+		listEntry(entry);
 	}
 
-	listEntry(KIO::UDSEntry(), true); // ready
+	listEntry(KIO::UDSEntry());
 	finished();
 }
 
