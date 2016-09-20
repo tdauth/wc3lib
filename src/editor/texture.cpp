@@ -21,8 +21,6 @@
 #include <QFileInfo>
 #include <QtCore>
 
-#include <KTemporaryFile>
-
 #include <Ogre.h>
 
 #include "texture.hpp"
@@ -36,7 +34,7 @@ namespace wc3lib
 namespace editor
 {
 
-Texture::Texture(const KUrl &url) : Resource(url, Type::Texture)
+Texture::Texture(const QUrl &url) : Resource(url, Type::Texture)
 {
 }
 
@@ -287,7 +285,7 @@ void Texture::loadOgre()
 		catch (Ogre::Exception &exception)
 		{
 			this->source()->removeTempFile(tmpFileName);
-			
+
 			throw Exception(exception.getFullDescription());
 		}
 
@@ -368,9 +366,9 @@ void Texture::reload()
 	}
 }
 
-void Texture::save(const KUrl &url, const QString &format, const QMap<QString, QString> &compression) const
+void Texture::save(const QUrl &url, const QString &format, const QMap<QString, QString> &compression) const
 {
-	KTemporaryFile tmpFile;
+	QTemporaryFile tmpFile;
 
 	if (!tmpFile.open())
 	{

@@ -21,8 +21,6 @@
 #ifndef WC3LIB_EDITOR_SETTINGS_HPP
 #define WC3LIB_EDITOR_SETTINGS_HPP
 
-#include <kdemacros.h>
-
 #include "settingsinterface.hpp"
 
 namespace wc3lib
@@ -38,13 +36,13 @@ class Editor;
 * Allows you to configure OGRE rendering settings (e. g. resolution, renderer, lighting etc.).
 * \sa ModelView, ModelEditor, TerrainEditor
 */
-class KDE_EXPORT Settings : public SettingsInterface
+class Settings : public SettingsInterface
 {
 	public:
 		Settings(Editor *editor);
 
-		virtual void read(const KConfigGroup &group);
-		virtual void write(KConfigGroup &group) const;
+		virtual void read(QSettings &settings);
+		virtual void write(QSettings &settings) const;
 		virtual QString groupName() const;
 
 		Editor* editor() const;

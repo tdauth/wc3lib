@@ -27,7 +27,7 @@ namespace wc3lib
 namespace editor
 {
 
-Resource::Resource(const KUrl &url, Type type) : m_source(0), m_url(url), m_type(type)
+Resource::Resource(const QUrl &url, Type type) : m_source(0), m_url(url), m_type(type)
 {
 }
 

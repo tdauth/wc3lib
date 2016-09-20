@@ -198,76 +198,76 @@ int UnitData::objectLevels(const QString& originalObjectId, const QString& custo
 
 void UnitData::load(QWidget *widget)
 {
-	this->m_unitMetaData.reset(new MetaData(KUrl("Units/UnitMetaData.slk")));
+	this->m_unitMetaData.reset(new MetaData(QUrl("Units/UnitMetaData.slk")));
 	this->m_unitMetaData->setSource(this->source());
 	this->m_unitMetaData->load();
 
-	this->m_unitData.reset(new MetaData(KUrl("Units/UnitData.slk")));
+	this->m_unitData.reset(new MetaData(QUrl("Units/UnitData.slk")));
 	this->m_unitData->setSource(this->source());
 	this->m_unitData->load();
 
-	this->m_unitUi.reset(new MetaData(KUrl("Units/unitUI.slk")));
+	this->m_unitUi.reset(new MetaData(QUrl("Units/unitUI.slk")));
 	this->m_unitUi->setSource(this->source());
 	this->m_unitUi->load();
 
-	this->m_unitBalance.reset(new MetaData(KUrl("Units/UnitBalance.slk")));
+	this->m_unitBalance.reset(new MetaData(QUrl("Units/UnitBalance.slk")));
 	this->m_unitBalance->setSource(this->source());
 	this->m_unitBalance->load();
 
-	this->m_unitWeapons.reset(new MetaData(KUrl("Units/UnitWeapons.slk")));
+	this->m_unitWeapons.reset(new MetaData(QUrl("Units/UnitWeapons.slk")));
 	this->m_unitWeapons->setSource(this->source());
 	this->m_unitWeapons->load();
 
-	this->m_unitAbilities.reset(new MetaData(KUrl("Units/UnitAbilities.slk")));
+	this->m_unitAbilities.reset(new MetaData(QUrl("Units/UnitAbilities.slk")));
 	this->m_unitAbilities->setSource(this->source());
 	this->m_unitAbilities->load();
 
-	this->m_humanUnitStrings.reset(new MetaData(KUrl("Units/HumanUnitStrings.txt")));
+	this->m_humanUnitStrings.reset(new MetaData(QUrl("Units/HumanUnitStrings.txt")));
 	this->m_humanUnitStrings->setSource(this->source());
 	this->m_humanUnitStrings->load();
 
-	this->m_humanUnitFunc.reset(new MetaData(KUrl("Units/HumanUnitFunc.txt")));
+	this->m_humanUnitFunc.reset(new MetaData(QUrl("Units/HumanUnitFunc.txt")));
 	this->m_humanUnitFunc->setSource(this->source());
 	this->m_humanUnitFunc->load();
 
-	this->m_orcUnitStrings.reset(new MetaData(KUrl("Units/OrcUnitStrings.txt")));
+	this->m_orcUnitStrings.reset(new MetaData(QUrl("Units/OrcUnitStrings.txt")));
 	this->m_orcUnitStrings->setSource(this->source());
 	this->m_orcUnitStrings->load();
 
-	this->m_orcUnitFunc.reset(new MetaData(KUrl("Units/OrcUnitFunc.txt")));
+	this->m_orcUnitFunc.reset(new MetaData(QUrl("Units/OrcUnitFunc.txt")));
 	this->m_orcUnitFunc->setSource(this->source());
 	this->m_orcUnitFunc->load();
 
-	this->m_undeadUnitStrings.reset(new MetaData(KUrl("Units/UndeadUnitStrings.txt")));
+	this->m_undeadUnitStrings.reset(new MetaData(QUrl("Units/UndeadUnitStrings.txt")));
 	this->m_undeadUnitStrings->setSource(this->source());
 	this->m_undeadUnitStrings->load();
 
 
-	this->m_undeadUnitFunc.reset(new MetaData(KUrl("Units/UndeadUnitFunc.txt")));
+	this->m_undeadUnitFunc.reset(new MetaData(QUrl("Units/UndeadUnitFunc.txt")));
 	this->m_undeadUnitFunc->setSource(this->source());
 	this->m_undeadUnitFunc->load();
 
-	this->m_nightElfUnitStrings.reset(new MetaData(KUrl("Units/NightElfUnitStrings.txt")));
+	this->m_nightElfUnitStrings.reset(new MetaData(QUrl("Units/NightElfUnitStrings.txt")));
 	this->m_nightElfUnitStrings->setSource(this->source());
 	this->m_nightElfUnitStrings->load();
 
-	this->m_nightElfUnitFunc.reset(new MetaData(KUrl("Units/NightElfUnitFunc.txt")));
+	this->m_nightElfUnitFunc.reset(new MetaData(QUrl("Units/NightElfUnitFunc.txt")));
 	this->m_nightElfUnitFunc->setSource(this->source());
 	this->m_nightElfUnitFunc->load();
 
-	this->m_neutralUnitStrings.reset(new MetaData(KUrl("Units/NeutralUnitStrings.txt")));
+	this->m_neutralUnitStrings.reset(new MetaData(QUrl("Units/NeutralUnitStrings.txt")));
 	this->m_neutralUnitStrings->setSource(this->source());
 	this->m_neutralUnitStrings->load();
 
-	this->m_neutralUnitFunc.reset(new MetaData(KUrl("Units/NeutralUnitFunc.txt")));
+	this->m_neutralUnitFunc.reset(new MetaData(QUrl("Units/NeutralUnitFunc.txt")));
 	this->m_neutralUnitFunc->setSource(this->source());
 	this->m_neutralUnitFunc->load();
 
-	this->m_campaignUnitStrings.reset(new MetaData(KUrl("Units/CampaignUnitStrings.txt")));
+	this->m_campaignUnitStrings.reset(new MetaData(QUrl("Units/CampaignUnitStrings.txt")));
 	this->m_campaignUnitStrings->setSource(this->source());
 	this->m_campaignUnitStrings->load();
 
-	this->m_campaignUnitFunc.reset(new MetaData(KUrl("Units/CampaignUnitFunc.txt")));
+	this->m_campaignUnitFunc.reset(new MetaData(QUrl("Units/CampaignUnitFunc.txt")));
 	this->m_campaignUnitFunc->setSource(this->source());
 	this->m_campaignUnitFunc->load();
 }

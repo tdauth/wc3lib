@@ -18,11 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <QtGui>
-
-#include <KFileDialog>
-#include <KLocale>
-#include <KAction>
+#include <QtWidgets/QtWidgets>
 
 #include "mpqeditor.hpp"
 #include "creationdialog.hpp"
@@ -99,7 +95,8 @@ bool MpqEditor::configure()
 	MpqTreeProxyModel *proxyModel = new MpqTreeProxyModel(this);
 	proxyModel->setSourceModel(treeModel);
 	m_archivesTreeView->setModel(proxyModel);
-	this->m_filterProxySearchLine->setProxy(proxyModel);
+	// TODO support proxy in Qt
+	//this->m_filterProxySearchLine->setProxy(proxyModel);
 	this->m_archivesTreeView->header()->setSortIndicator(0, Qt::AscendingOrder);
 
 	connect(m_archivesTreeView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(updateSelection(const QModelIndex &, const QModelIndex &)));
@@ -162,8 +159,7 @@ void MpqEditor::updateSelection(const QModelIndex &previous, const QModelIndex &
 
 	if (hasSelection)
 	{
-		// FIXME map
-		const QModelIndex mapped = sortFilterModel()->mapToSource(next);
+		const QModelIndex mapped = next;
 		qDebug() << "Has selection.";
 		qDebug() << "row " << mapped.row();
 		qDebug() << "parent " << mapped.parent().isValid();
@@ -349,7 +345,7 @@ void MpqEditor::contextMenu(QPoint point)
 	contextMenu->popup(m_archivesTreeView->viewport()->mapToGlobal(point));
 }
 
-void MpqEditor::addRecentAction(const KUrl &url)
+void MpqEditor::addRecentAction(const QUrl &url)
 {
 	/*
 	 * Do not add entries twice in a history.
@@ -387,7 +383,7 @@ void MpqEditor::addRecentAction(const KUrl &url)
 	for (int i = m_archiveHistory.size(); i > 0; --i)
 	{
 		const int index = i - 1;
-		KAction *action = new KAction(m_archiveHistory[index].toString(), this);
+		QAction *action = new QAction(m_archiveHistory[index].toString(), this);
 		action->setData(m_archiveHistory[index].toEncoded());
 		connect(action, SIGNAL(triggered()), this, SLOT(openRecentArchive()));
 		m_archiveHistoryActions->addAction(action);
@@ -397,7 +393,7 @@ void MpqEditor::addRecentAction(const KUrl &url)
 	}
 }
 
-bool MpqEditor::openMpqArchive(const KUrl &url)
+bool MpqEditor::openMpqArchive(const QUrl &url)
 {
 	// Do not open an archive twice.
 	Archives::iterator iterator = this->archives().find(url);
@@ -448,7 +444,7 @@ bool MpqEditor::openMpqArchive(const KUrl &url)
 	return false;
 }
 
-void MpqEditor::openArchive(mpq::Archive &archive, const KUrl &url, mpq::Listfile::Entries &listfileEntries)
+void MpqEditor::openArchive(mpq::Archive &archive, const QUrl &url, mpq::Listfile::Entries &listfileEntries)
 {
 	/*
 	 * Add entries of the contained listfile if available.
@@ -506,7 +502,7 @@ void MpqEditor::openArchive(mpq::Archive &archive, const KUrl &url, mpq::Listfil
 	qDebug() << "Filtered size:" << files.size();
 
 	this->treeModel()->addArchive(&archive, files);
-	KUrl key(url);
+	QUrl key(url);
 	m_archives.insert(key, &archive);
 	addRecentAction(url);
 
@@ -535,7 +531,7 @@ void MpqEditor::newMpqArchive()
 					archive->createListfileFile(listfileEntries);
 				}
 
-				openArchive(*archive, KUrl::fromLocalFile(fileName), listfileEntries);
+				openArchive(*archive, QUrl::fromLocalFile(fileName), listfileEntries);
 			}
 			catch (const Exception &e)
 			{
@@ -550,13 +546,14 @@ void MpqEditor::newMpqArchive()
 
 void MpqEditor::openMpqArchives()
 {
-	KUrl::List urls = KFileDialog::getOpenUrls(m_openUrl, i18n("*.mpq|MPQ archives\n*"), this);
+	const QList<QUrl> urls = QFileDialog::getOpenFileUrls(this, tr("Open Archives"), m_openUrl, tr("*.mpq|MPQ archives\n*"));
 
-	foreach (const KUrl &url, urls)
+	foreach (const QUrl &url, urls)
 	{
 		if (openMpqArchive(url))
 		{
-			m_openUrl = url.directory();
+			const QFileInfo fileInfo(url.toLocalFile());
+			m_openUrl = QUrl::fromLocalFile(fileInfo.absoluteDir().path());
 		}
 	}
 }
@@ -564,7 +561,7 @@ void MpqEditor::openMpqArchives()
 void MpqEditor::openRecentArchive()
 {
 	QAction *action = boost::polymorphic_cast<QAction*>(QObject::sender());
-	openMpqArchive(KUrl::fromEncoded(action->data().toByteArray()));
+	openMpqArchive(QUrl::fromEncoded(action->data().toByteArray()));
 }
 
 void MpqEditor::clearHistory()
@@ -582,12 +579,6 @@ void MpqEditor::clearHistory()
 
 void MpqEditor::saveMpqArchive()
 {
-	KUrl url = KFileDialog::getSaveUrl(m_saveUrl, i18n("*.mpq|MPQ archives\n*"), this);
-
-	if (url.isEmpty())
-	{
-		return;
-	}
 }
 
 void MpqEditor::closeMpqArchives()
@@ -662,16 +653,17 @@ void MpqEditor::extractFiles()
 		if (item != 0)
 		{
 			const QString filePath = item->filePath();
-			KUrl url;
+			QUrl url;
 
 			if (item->isFolder())
 			{
-				url = KFileDialog::getExistingDirectoryUrl(m_extractUrl, this);
+				url = QFileDialog::getExistingDirectoryUrl(this, tr("Extract Files"), m_extractUrl);
 			}
 			else
 			{
-				m_extractUrl.setFileName(this->fileName(filePath));
-				url = KFileDialog::getSaveUrl(m_extractUrl, "*", this);
+				const QFileInfo fileInfo(m_extractUrl.toLocalFile());
+				m_extractUrl = QUrl(fileInfo.path() + "/" + this->fileName(filePath));
+				url = QFileDialog::getSaveFileUrl(this, tr("Extract File"), m_extractUrl, "*");
 			}
 
 			if (!url.isEmpty())
@@ -700,7 +692,8 @@ void MpqEditor::extractFiles()
 					*/
 					if (result)
 					{
-						m_extractUrl = url.directory();
+						const QFileInfo fileInfo(url.toLocalFile());
+						m_extractUrl = fileInfo.absoluteDir().path();
 					}
 				}
 				else
@@ -712,7 +705,7 @@ void MpqEditor::extractFiles()
 	}
 	else if (items.size() > 1)
 	{
-		const QString dir = KFileDialog::getExistingDirectory(m_extractUrl, this);
+		const QString dir = QFileDialog::getExistingDirectory(this, tr("Extract File"), m_extractUrl.toLocalFile());
 
 		if (!dir.isEmpty())
 		{
@@ -738,9 +731,7 @@ void MpqEditor::extractFiles()
 					const QString fileName = this->fileName(filePath);
 
 					mpq::Archive *archive = item->archive();
-					KUrl url;
-					url.setDirectory(dir);
-					url.setFileName(fileName);
+					const QUrl url = dir + "/" + fileName;
 
 					extractFile(filePath, *archive, url.toLocalFile());
 				}
@@ -1066,7 +1057,7 @@ void MpqEditor::readSettings()
 	for (int i = 0; i < max; ++i)
 	{
 		settings.setArrayIndex(i);
-		const KUrl url = KUrl(settings.value("url").toByteArray());
+		const QUrl url = QUrl(settings.value("url").toByteArray());
 
 		if (url.isValid())
 		{
@@ -1081,7 +1072,7 @@ void MpqEditor::readSettings()
 
 	settings.endArray();
 
-	listfilesDialog()->setAddUrl(KUrl(settings.value("listfilesurl").toByteArray()));
+	listfilesDialog()->setAddUrl(QUrl(settings.value("listfilesurl").toByteArray()));
 
 	settings.endGroup();
 }
@@ -1129,7 +1120,7 @@ void MpqEditor::writeSettings()
 
 QIcon MpqEditor::icon()
 {
-	return this->source()->sharedData()->icon(KUrl("ReplaceableTextures/WorldEditUI/Editor-ImportManager.blp"), this);
+	return this->source()->sharedData()->icon(QUrl("ReplaceableTextures/WorldEditUI/Editor-ImportManager.blp"), this);
 }
 
 #include "moc_mpqeditor.cpp"

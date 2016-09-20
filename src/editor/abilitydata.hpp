@@ -29,7 +29,7 @@ namespace wc3lib
 namespace editor
 {
 
-class KDE_EXPORT AbilityData : public ObjectData
+class AbilityData : public ObjectData
 {
 	public:
 		AbilityData(MpqPriorityList *source, QObject *parent = 0);
@@ -55,7 +55,7 @@ class KDE_EXPORT AbilityData : public ObjectData
 		virtual QIcon objectIcon(const QString &originalObjectId, const QString &customObjectId, QWidget* window) const override;
 		virtual int objectLevels(const QString &originalObjectId, const QString &customObjectId) const override;
 
-		virtual void widgetize(const KUrl &url) override;
+		virtual void widgetize(const QUrl &url) override;
 
 		MetaData* abilityData() const;
 

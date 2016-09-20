@@ -1,3 +1,19 @@
+find_package(ECM 1.0.0 REQUIRED NO_MODULE)
+set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
+
+include(KDEInstallDirs)
+include(KDECMakeSettings)
+include(FeatureSummary)
+
+# Find KDE modules
+find_package(KF5 REQUIRED COMPONENTS
+	CoreAddons
+	KIO   # KMessageBox
+)
+
+# TODO set automatically
+include_directories(/usr/include/KF5/KIOCore/kio/)
+
 set(wc3lib_EDITOR_KIO_MPQ_H
 	kio_mpq.hpp
 )
@@ -5,12 +21,9 @@ set(wc3lib_EDITOR_KIO_MPQ_SRC
 	kio_mpq.cpp
 )
 
-include_directories(${KDE4_INCLUDE_DIR} ${QT_INCLUDE_DIR})
-include(${QT_USE_FILE})
-
 # MPQ KDE plugin
-kde4_add_plugin(kio_mpq ${wc3lib_EDITOR_KIO_MPQ_SRC})
-target_link_libraries(kio_mpq wc3libmpq wc3libcore wc3libeditor ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KIO_LIBS})
+add_library(kio_mpq SHARED ${wc3lib_EDITOR_KIO_MPQ_SRC})
+target_link_libraries(kio_mpq wc3libmpq wc3libcore wc3libeditor ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${QT_LIBRARIES} KF5::CoreAddons ) # TODO KF5::KIO
 
 if (DEBUG)
 	add_subdirectory(test)

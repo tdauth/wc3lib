@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.12.2)
+cmake_minimum_required(VERSION 3.0.0)
 
 project(wc3lib)
 
@@ -46,13 +46,24 @@ option(W3G
 	"Builds W3G module."
 	ON)
 CMAKE_DEPENDENT_OPTION(EDITOR
-	"Wacraft III World Editor emulation is built. Qt/KDE is required!"
+	"Wacraft III World Editor emulation is built (Qt5 is required)."
 	ON
 	"BLP;MAP;MDLX;MPQ" OFF)
-CMAKE_DEPENDENT_OPTION(PLUGINS
-	"Could be used without EDITOR and installs Qt/KDE and OGRE format plugins only. Does not build the whole World Editor emulation."
+CMAKE_DEPENDENT_OPTION(USE_KIOSLAVE
+	"Creates a KIO slave for MPQ (KF5 is required)."
 	ON
-	"BLP;MPQ" OFF)
+	"MPQ" OFF)
+CMAKE_DEPENDENT_OPTION(USE_QBLP
+	"Creates a Qt image format plugin for BLP."
+	ON
+	"BLP" OFF)
+CMAKE_DEPENDENT_OPTION(USE_OGREBLP
+	"Creates a OGRE image format plugin for BLP (OGRE is required)."
+	ON
+	"BLP" OFF)
+option(USE_MIME
+	"Installs MIME types (KF5 is required)"
+	ON)
 option(DOC
 	"Generates doxygen documentation (doxygen is required)"
 	OFF)
@@ -122,41 +133,6 @@ add_subdirectory(share)
 
 # CPack
 
-include(InstallRequiredSystemLibraries)
-
-set(CPACK_COMPONENT_GROUP_APPLICATIONS_DESCRIPTION "Additional tools which help you to use the formats of Blizzard Entertainment.")
-set(CPACK_COMPONENT_GROUP_CORE_DESCRIPTION "The core of the wc3lib which supports in and output for basic formats.")
-set(CPACK_COMPONENT_GROUP_EDITOR_DESCRIPTION "The GUI layer for all basic formats.")
-
-set(CPACK_COMPONENT_APP_GROUP "Applications")
-
-if (BLP)
-	set(CPACK_COMPONENT_BLP_DISPLAY_NAME "BLP support")
-	set(CPACK_COMPONENT_BLP_DESCRIPTION "Adds image format support.")
-	set(CPACK_COMPONENT_BLP_GROUP "Core")
-endif ()
-
-if (MAP)
-	set(CPACK_COMPONENT_MAP_DISPLAY_NAME "Map (W3M/W3X/W3N) support")
-	set(CPACK_COMPONENT_MAP_GROUP "Core")
-endif ()
-
-if (MDLX)
-	set(CPACK_COMPONENT_MDLX_DISPLAY_NAME "MDX and MDL support")
-	set(CPACK_COMPONENT_MDLX_GROUP "Core")
-endif ()
-
-if (EDITOR)
-	set(CPACK_COMPONENT_EDITOR_GROUP "Editor")
-	# TODO add dependencies and add options as dependencies!
-	set(CPACK_COMPONENT_EDITOR_DEPENDS blp mdlx)
-endif ()
-
-if (PLUGINS)
-	set(CPACK_COMPONENT_PLUGINS_GROUP "Editor")
-endif ()
-
-set(CPACK_COMPONENTS_ALL blp map mdlx editor plugins)
 set(CPACK_PACKAGE_NAME "wc3lib")
 set(CPACK_PACKAGE_VENDOR "wc3lib.org")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "wc3lib - Warcraft III Library")
@@ -164,8 +140,6 @@ set(CPACK_PACKAGE_VERSION "${wc3lib_VERSION}")
 set(CPACK_PACKAGE_VERSION_MAJOR "${wc3lib_VERSION_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${wc3lib_VERSION_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${wc3lib_VERSION_PATCH}")
-#set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CPACK_PACKAGE_INSTALL_DIRECTORY}")
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "CPack Component Example")
 set(CPACK_PACKAGE_CONTACT "wc3lib@wc3lib.org")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/COPYING")
 set(CPACK_RESOURCE_FILE_README  "${CMAKE_SOURCE_DIR}/README")
@@ -207,5 +181,7 @@ endif ()
 if (EDITOR OR PLUGINS)
 	set(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS}, qt4-default, kdelibs-bin, libogre-1.9.0v5")
 endif ()
+
+# TODO NSIS, include(InstallRequiredSystemLibraries)
 
 include(CPack)

@@ -25,8 +25,7 @@
 #include <QHash>
 #include <QString>
 #include <QButtonGroup>
-
-#include <KPushButton>
+#include <QPushButton>
 
 #include "ui_unitselectiondialog.h"
 
@@ -73,7 +72,7 @@ class UnitSelectionDialog : public QDialog, protected Ui::UnitSelectionDialog
 		void clear();
 
 	private:
-		KPushButton* createButton(const QString &objectId);
+		QPushButton* createButton(const QString &objectId);
 		/**
 		 * Checks button \p button and sets the basic unit name to the one of the checked button.
 		 * Besides it updates the OK button and enables it if the name is not empty.

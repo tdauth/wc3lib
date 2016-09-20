@@ -21,9 +21,7 @@
 #include <algorithm>
 
 #include <QtCore>
-#include <QtGui>
-
-#include <KUrl>
+#include <QtWidgets/QtWidgets>
 
 #include <OgreCodec.h>
 
@@ -48,7 +46,7 @@ void OgreMdlx::updateCamera(const mdlx::Camera &camera, Ogre::Camera *ogreCamera
 	ogreCamera->setDirection(ogreVector3(camera.target()));
 }
 
-OgreMdlx::OgreMdlx(const KUrl &url, ModelView *modelView) : Resource(url, Resource::Type::Model), m_modelView(modelView), m_sceneNode(0), m_teamColor(TeamColor::Red), m_teamGlow(TeamColor::Red)
+OgreMdlx::OgreMdlx(const QUrl &url, ModelView *modelView) : Resource(url, Resource::Type::Model), m_modelView(modelView), m_sceneNode(0), m_teamColor(TeamColor::Red), m_teamGlow(TeamColor::Red)
 {
 }
 
@@ -622,7 +620,7 @@ void OgreMdlx::reload()
 	load();
 }
 
-void OgreMdlx::save(const KUrl &url, const QString &format) const
+void OgreMdlx::save(const QUrl &url, const QString &format) const
 {
 	QString realFormat = format;
 
@@ -705,12 +703,13 @@ void OgreMdlx::save(const KUrl &url, const QString &format) const
 	else if (realFormat == "mesh")
 	{
 		boost::scoped_ptr<Ogre::MeshSerializer> serializer(new Ogre::MeshSerializer());
-		QList<KUrl> files;
+		QList<QUrl> files;
 
-		if (!source()->mkdir(url, modelView()))
-		{
+		//if (!source()->mkdir(url, modelView()))
+		//{
+		// TODO mkdir!
 			throw Exception(boost::format(_("Unable to create directory \"%1%\"")) % url.toEncoded().constData());
-		}
+		//}
 
 		BOOST_FOREACH(Geosets::const_reference value, m_geosets)
 		{
@@ -732,8 +731,7 @@ void OgreMdlx::save(const KUrl &url, const QString &format) const
 			serializer->exportMesh(value.second.get(), tmpFile.fileName().toStdString());
 
 			const QString fileName(sstream.str().c_str());
-			KUrl destination(url);
-			destination.addPath(fileName);
+			const QUrl destination(url.toString() + "/" + fileName);
 			qDebug() << "File name: " << tmpFile.fileName();
 			qDebug() << "destination: " << destination.toLocalFile();
 
@@ -830,11 +828,11 @@ QString OgreMdlx::namePrefix() const
 }
 
 /*
-bool OgreMdlx::useDirectoryUrl(KUrl &url, bool showMessage) const
+bool OgreMdlx::useDirectoryUrl(QUrl &url, bool showMessage) const
 {
 	if (!QFileInfo(this->modelView()->editor()->findFile(url).toLocalFile()).exists())
 	{
-		KUrl newUrl = this->url().directory();
+		QUrl newUrl = this->url().directory();
 		newUrl.addPath(QFileInfo(url.toLocalFile()).filePath());
 
 		if (showMessage)
@@ -874,7 +872,7 @@ Ogre::TexturePtr OgreMdlx::createTexture(const mdlx::Texture &texture, mdlx::lon
 
 	if (texture.replaceableId() != mdlx::ReplaceableId::None)
 	{
-		KUrl url("ReplaceableTextures");
+		QUrl url("ReplaceableTextures");
 
 		switch (texture.replaceableId())
 		{
@@ -923,32 +921,32 @@ Ogre::TexturePtr OgreMdlx::createTexture(const mdlx::Texture &texture, mdlx::lon
 			}
 
 			case mdlx::ReplaceableId::Cliff:
-				url.addPath("Cliff/Cliff0.blp");
+				url = url.toString() + "/Cliff/Cliff0.blp";
 
 				break;
 
 			case mdlx::ReplaceableId::LordaeronTree:
-				url.addPath("LordaeronTree/LordaeronSummerTree.blp");
+				url = url.toString() + "/LordaeronTree/LordaeronSummerTree.blp";
 
 				break;
 
 			case mdlx::ReplaceableId::AshenvaleTree:
-				url.addPath("AshenvaleTree/AshenTree.blp");
+				url = url.toString() + "/AshenvaleTree/AshenTree.blp";
 
 				break;
 
 			case mdlx::ReplaceableId::BarrensTree:
-				url.addPath("BarrensTree/BarrensTree.blp");
+				url = url.toString() + "/BarrensTree/BarrensTree.blp";
 
 				break;
 
 			case mdlx::ReplaceableId::NorthrendTree:
-				url.addPath("NorthrendTree/NorthTree.blp");
+				url = url.toString() + "/NorthrendTree/NorthTree.blp";
 
 				break;
 
 			case mdlx::ReplaceableId::MushroomTree:
-				url.addPath("Mushroom/MushroomTree.blp");
+				url = url.toString() + "/Mushroom/MushroomTree.blp";
 
 				break;
 		}
@@ -964,7 +962,7 @@ Ogre::TexturePtr OgreMdlx::createTexture(const mdlx::Texture &texture, mdlx::lon
 #else
 #warning Unsupported OS?
 #endif
-		textureResource.reset(new Texture(KUrl(texturePath))); // we need a resource to use MpqPriorityList on loading!!!
+		textureResource.reset(new Texture(QUrl(texturePath))); // we need a resource to use MpqPriorityList on loading!!!
 		textureResource->setSource(source());
 
 		try

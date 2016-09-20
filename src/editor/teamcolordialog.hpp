@@ -23,8 +23,6 @@
 
 #include <QDialog>
 
-#include <kdemacros.h>
-
 #include "ui_teamcolordialog.h"
 #include "platform.hpp"
 
@@ -38,10 +36,10 @@ namespace editor
  * Widget with a \ref KColorComboBox which is limited to all available team colors in Warcraft III.
  * \sa TeamColor
  */
-class KDE_EXPORT TeamColorDialog : public QDialog, protected Ui::TeamColorDialog
+class TeamColorDialog : public QDialog, protected Ui::TeamColorDialog
 {
 	public:
-		TeamColorDialog(QWidget *parent = 0, Qt::WFlags flags = 0);
+		TeamColorDialog(QWidget *parent = 0, Qt::WindowFlags flags = 0);
 
 		/**
 		 * Sets the selected team color of the dialog.
@@ -62,7 +60,7 @@ inline void TeamColorDialog::setTeamColor(TeamColor teamColor)
 
 inline TeamColor TeamColorDialog::teamColor() const
 {
-	return editor::teamColor(this->m_colorComboBox->color());
+	return editor::TeamColor(this->m_colorComboBox->currentIndex());
 }
 
 }

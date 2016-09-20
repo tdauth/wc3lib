@@ -17,9 +17,9 @@ set(wc3lib_TRIGGEREDITOR_SRC
 
 add_subdirectory(ui)
 include_directories(${QT_INCLUDE} ${KDE4_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR}) # include binary dir for moc files
-kde4_add_ui_files(wc3lib_TRIGGEREDITOR_UI_H ${wc3lib_TRIGGEREDITOR_UI})
-kde4_add_library(wc3libtriggereditor SHARED ${wc3lib_TRIGGEREDITOR_SRC} ${wc3lib_TRIGGEREDITOR_UI_H})
-target_link_libraries(wc3libtriggereditor ${wc3lib_CORE_LIBRARIES} ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KIO_LIBS} ${KDE4_KUTILS_LIBS} ${KDE4_KPARTS_LIBS} wc3libeditor)
+qt5_wrap_ui(wc3lib_TRIGGEREDITOR_UI_H ${wc3lib_TRIGGEREDITOR_UI})
+add_library(wc3libtriggereditor SHARED ${wc3lib_TRIGGEREDITOR_SRC} ${wc3lib_TRIGGEREDITOR_UI_H})
+target_link_libraries(wc3libtriggereditor wc3libeditor)
 
 # install
 install(TARGETS wc3libtriggereditor DESTINATION lib)

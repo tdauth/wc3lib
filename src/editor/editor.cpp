@@ -19,6 +19,8 @@
  ***************************************************************************/
 
 #include <QtGui>
+#include <QMessageBox>
+#include <QFileDialog>
 
 #include <Ogre.h>
 
@@ -50,42 +52,42 @@ Editor::Editor(Root *root, QObject *parent) : QObject(parent)
 	BlpCodec::startup(); // make sure we have BLP support even if it has not been installed
 #endif
 
-	QAction *action = new QAction(QIcon(":/actions/newmap.png"), i18n("New map ..."), this);
-	//action->setShortcut(KShortcut(i18n("Ctrl+N")));
+	QAction *action = new QAction(QIcon(":/actions/newmap.png"), tr("New map ..."), this);
+	//action->setShortcut(KShortcut(tr("Ctrl+N")));
 	connect(action, SIGNAL(triggered()), this, SLOT(newMap()));
 
-	action = new QAction(QIcon(":/actions/openmap.png"), i18n("Open map ..."), this);
-	//action->setShortcut(KShortcut(i18n("Ctrl+O")));
+	action = new QAction(QIcon(":/actions/openmap.png"), tr("Open map ..."), this);
+	//action->setShortcut(KShortcut(tr("Ctrl+O")));
 	connect(action, SIGNAL(triggered()), this, SLOT(openMap()));
 
-	action = new QAction(QIcon(":/actions/closemap.png"), i18n("Close map"), this);
-	//action->setShortcut(KShortcut(i18n("Strg+W")));
+	action = new QAction(QIcon(":/actions/closemap.png"), tr("Close map"), this);
+	//action->setShortcut(KShortcut(tr("Strg+W")));
 	connect(action, SIGNAL(triggered()), this, SLOT(closeMap()));
 
 	// --
 
-	action = new QAction(QIcon(":/actions/savemap.png"), i18n("Save map"), this);
-	//action->setShortcut(KShortcut(i18n("Ctrl+S")));
+	action = new QAction(QIcon(":/actions/savemap.png"), tr("Save map"), this);
+	//action->setShortcut(KShortcut(tr("Ctrl+S")));
 	connect(action, SIGNAL(triggered()), this, SLOT(saveMap()));
 
-	action = new QAction(QIcon(":/actions/savemapas.png"), i18n("Save map as ..."), this);
-	//action->setShortcut(KShortcut(i18n("Strg+S")));
+	action = new QAction(QIcon(":/actions/savemapas.png"), tr("Save map as ..."), this);
+	//action->setShortcut(KShortcut(tr("Strg+S")));
 	connect(action, SIGNAL(triggered()), this, SLOT(saveMapAs()));
 
-	action = new QAction(QIcon(":/actions/savemapshadows.png"), i18n("Calculate shadows and save map ..."), this);
-	//action->setShortcut(KShortcut(i18n("Strg+S")));
+	action = new QAction(QIcon(":/actions/savemapshadows.png"), tr("Calculate shadows and save map ..."), this);
+	//action->setShortcut(KShortcut(tr("Strg+S")));
 	connect(action, SIGNAL(triggered()), this, SLOT(saveMapShadow()));
 
 	// --
 
-	action = new QAction(QIcon(":/actions/testmap.png"), i18n("Test map"), this);
-	//action->setShortcut(KShortcut(i18n("Ctrl+F9")));
+	action = new QAction(QIcon(":/actions/testmap.png"), tr("Test map"), this);
+	//action->setShortcut(KShortcut(tr("Ctrl+F9")));
 	connect(action, SIGNAL(triggered()), this, SLOT(testMap()));
 
 	// --
 
 	action = new QAction(QIcon(":/actions/closemodule.png"), this->sharedData()->tr("WESTRING_MENU_CLOSEMODULE"), this);
-	//action->setShortcut(KShortcut(i18n("Ctrl+Shift+W")));
+	//action->setShortcut(KShortcut(tr("Ctrl+Shift+W")));
 
 	this->setMapActionsEnabled(false);
 
@@ -93,7 +95,7 @@ Editor::Editor(Root *root, QObject *parent) : QObject(parent)
 	QSettings settings("Blizzard Entertainment", "WorldEdit", this);
 	settings.beginGroup("shortcuts");
 	// Read shortcuts
-	newMapAction->setShortcut(settings.value("newmap", KShortcut(i18n("Strg+N"))).toString());
+	newMapAction->setShortcut(settings.value("newmap", KShortcut(tr("Strg+N"))).toString());
 	*/
 	/*
 	showTerrainEditor(); // test
@@ -123,7 +125,7 @@ void Editor::addModule(Module *module)
 	this->m_modules.append(module);
 
 	QAction *action = new QAction(module->icon(), module->objectName(), this);
-	//action->setShortcut(KShortcut(i18n("F%1%", this->m_modulesActionCollection->actions().size() + 1)));
+	//action->setShortcut(KShortcut(tr("F%1%", this->m_modulesActionCollection->actions().size() + 1)));
 	action->setCheckable(true);
 	action->setChecked(module->hasFocus());
 	connect(action, SIGNAL(triggered()), module, SLOT(onEditorActionTrigger()));
@@ -186,7 +188,7 @@ void Editor::newMap()
 
 void Editor::openMap(QWidget *window)
 {
-	const KUrl &url = KUrl::fromLocalFile(QFileDialog::getOpenFileName(window, tr("Open map"), QString(), mapFilter()));
+	const QUrl &url = QUrl::fromLocalFile(QFileDialog::getOpenFileName(window, tr("Open map"), QString(), mapFilter()));
 
 	if (url.isEmpty())
 	{
@@ -196,7 +198,7 @@ void Editor::openMap(QWidget *window)
 	openMap(url, true);
 }
 
-void Editor::openMap(const KUrl &url, bool switchTo, QWidget *window)
+void Editor::openMap(const QUrl &url, bool switchTo, QWidget *window)
 {
 	Map *ptr = new Map(url);
 
@@ -216,7 +218,7 @@ void Editor::openMap(const KUrl &url, bool switchTo, QWidget *window)
 
 	// TODO set icon to w3m or w3x icon
 	QAction *action = new QAction(tr("%1").arg(ptr->map()->name().c_str()), this);
-	//action->setShortcut(KShortcut(i18n("F%1%", this->m_modulesActionCollection->actions().size() + 1)));
+	//action->setShortcut(KShortcut(tr("F%1%", this->m_modulesActionCollection->actions().size() + 1)));
 	action->setCheckable(true);
 	maps().append(ptr);
 	mapActions().insert(ptr, action);
@@ -285,7 +287,7 @@ void Editor::saveMap()
 
 void Editor::saveMapAs(QWidget *window)
 {
-	KUrl url = KUrl::fromLocalFile(QFileDialog::getSaveFileName(window, tr("Save map"), QString(), mapFilter()));
+	QUrl url = QUrl::fromLocalFile(QFileDialog::getSaveFileName(window, tr("Save map"), QString(), mapFilter()));
 
 	if (url.isEmpty())
 	{

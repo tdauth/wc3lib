@@ -25,8 +25,6 @@
 
 #include <QToolBar>
 
-#include <kdemacros.h>
-
 #include "module.hpp"
 
 namespace wc3lib
@@ -41,7 +39,7 @@ namespace editor
  * Other than \ref ModuleMenu this can and has to be used by modules if there is no Editor instance.
  * \sa ModuleMenu
  */
-class KDE_EXPORT ModuleToolBar : public QToolBar
+class ModuleToolBar : public QToolBar
 {
 	Q_OBJECT
 

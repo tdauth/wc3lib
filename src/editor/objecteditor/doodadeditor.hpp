@@ -31,7 +31,7 @@ namespace wc3lib
 namespace editor
 {
 
-class KDE_EXPORT DoodadEditor : public ObjectEditorTab
+class DoodadEditor : public ObjectEditorTab
 {
 	public:
 		DoodadEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
@@ -59,9 +59,9 @@ class KDE_EXPORT DoodadEditor : public ObjectEditorTab
 		virtual QString copyObjectText() const override;
 		virtual QString pasteObjectText() const override;
 
-		virtual KUrl copyObjectIconUrl() const override;
-		virtual KUrl pasteObjectIconUrl() const override;
-		virtual KUrl newObjectIconUrl() const override;
+		virtual QUrl copyObjectIconUrl() const override;
+		virtual QUrl pasteObjectIconUrl() const override;
+		virtual QUrl newObjectIconUrl() const override;
 };
 
 inline DoodadData* DoodadEditor::doodadData() const
@@ -124,19 +124,19 @@ inline QIcon DoodadEditor::tabIcon(QWidget *widget) const
 	return objectEditor()->source()->sharedData()->worldEditDataIcon("ToolBarIcon_OE_NewDood", "WorldEditArt", widget);
 }
 
-inline KUrl DoodadEditor::copyObjectIconUrl() const
+inline QUrl DoodadEditor::copyObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Copy.blp");
+	return QUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Copy.blp");
 }
 
-inline KUrl DoodadEditor::pasteObjectIconUrl() const
+inline QUrl DoodadEditor::pasteObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Paste.blp");
+	return QUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Paste.blp");
 }
 
-inline KUrl DoodadEditor::newObjectIconUrl() const
+inline QUrl DoodadEditor::newObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Unit.blp");
+	return QUrl("ReplaceableTextures/WorldEditUI/Editor-Unit.blp");
 }
 
 }

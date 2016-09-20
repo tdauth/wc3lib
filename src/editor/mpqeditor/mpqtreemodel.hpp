@@ -23,8 +23,6 @@
 
 #include <QAbstractItemModel>
 
-#include <KIconLoader>
-
 #include "../../mpq.hpp"
 
 namespace wc3lib
@@ -97,8 +95,6 @@ class MpqTreeModel : public QAbstractItemModel
 	private:
 		MpqPriorityList *m_source;
 		FileItems m_topLevelItems;
-		// KIconLoader caches icons already.
-		KIconLoader m_iconLoader;
 };
 
 inline void MpqTreeModel::setSource(MpqPriorityList* source)

@@ -52,7 +52,7 @@ SharedObjectData::SharedObjectData(MpqPriorityList *source) : m_source(source)
 , m_weatherData(new WeatherData(source))
 , m_miscData(new MiscData(source))
 , m_skinData(new SkinData(source))
-, m_unitEditorData(new MetaData(KUrl("UI/UnitEditorData.txt")))
+, m_unitEditorData(new MetaData(QUrl("UI/UnitEditorData.txt")))
 {
 }
 

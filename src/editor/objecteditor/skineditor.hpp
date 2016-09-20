@@ -33,7 +33,7 @@ namespace editor
 
 class SkinData;
 
-class KDE_EXPORT SkinEditor : public ObjectEditorTab
+class SkinEditor : public ObjectEditorTab
 {
 	public:
 		public:
@@ -61,9 +61,9 @@ class KDE_EXPORT SkinEditor : public ObjectEditorTab
 		virtual QString copyObjectText() const override;
 		virtual QString pasteObjectText() const override;
 
-		virtual KUrl copyObjectIconUrl() const override;
-		virtual KUrl pasteObjectIconUrl() const override;
-		virtual KUrl newObjectIconUrl() const override;
+		virtual QUrl copyObjectIconUrl() const override;
+		virtual QUrl pasteObjectIconUrl() const override;
+		virtual QUrl newObjectIconUrl() const override;
 };
 
 inline SkinData* SkinEditor::skinData() const
@@ -126,19 +126,19 @@ inline QIcon SkinEditor::tabIcon(QWidget* widget) const
 	return objectEditor()->source()->sharedData()->worldEditDataIcon("ToolBarIcon_OE_NewItem", "WorldEditArt", widget);
 }
 
-inline KUrl SkinEditor::copyObjectIconUrl() const
+inline QUrl SkinEditor::copyObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Copy.blp");
+	return QUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Copy.blp");
 }
 
-inline KUrl SkinEditor::pasteObjectIconUrl() const
+inline QUrl SkinEditor::pasteObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Paste.blp");
+	return QUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Paste.blp");
 }
 
-inline KUrl SkinEditor::newObjectIconUrl() const
+inline QUrl SkinEditor::newObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Unit.blp");
+	return QUrl("ReplaceableTextures/WorldEditUI/Editor-Unit.blp");
 }
 
 }

@@ -7,9 +7,9 @@ set(wc3lib_TEXTUREEDITOR_SRC
 
 add_subdirectory(ui)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}) # include binary dir for moc files
-kde4_add_ui_files(wc3lib_TEXTUREEDITOR_UI_H ${wc3lib_TEXTUREEDITOR_UI})
-kde4_add_library(wc3libtextureeditor SHARED ${wc3lib_TEXTUREEDITOR_SRC} ${wc3lib_TEXTUREEDITOR_UI_H})
-target_link_libraries(wc3libtextureeditor ${wc3lib_CORE_LIBRARIES} ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${OGRE_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KIO_LIBS} ${KDE4_KUTILS_LIBS} ${KDE4_KPARTS_LIBS} wc3libeditor qblp)
+qt5_wrap_ui(wc3lib_TEXTUREEDITOR_UI_H ${wc3lib_TEXTUREEDITOR_UI})
+add_library(wc3libtextureeditor SHARED ${wc3lib_TEXTUREEDITOR_SRC} ${wc3lib_TEXTUREEDITOR_UI_H})
+target_link_libraries(wc3libtextureeditor wc3libeditor qblp)
 
 # install
 install(TARGETS wc3libtextureeditor DESTINATION lib)

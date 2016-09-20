@@ -24,8 +24,6 @@
 #include <QImage>
 #include <QScopedPointer>
 
-#include <kdemacros.h>
-
 #include <OgreImage.h>
 #include <OgreTexture.h>
 
@@ -45,7 +43,7 @@ namespace editor
  * Please consider that this class tries to get the most performant way to load all those objects by checking if it already has one of them and if so, using the object's buffer instead of loading it from the corresponding file again which usually is much slower than reading from memory.
  * Besides when saving the texture via \ref Texture::save() it tries to get the most performant way, as well. For example, if you save your texture as BLP image and there is a \ref blp::Blp instance already in your texture (\ref Texture::hasBlp()) it won't save the texture via its Qt or OGRE object since it's much faster to write the BLP object on disk.
  */
-class KDE_EXPORT Texture : public Resource
+class Texture : public Resource
 {
 	public:
 		typedef QScopedPointer<blp::Blp> BlpPtr;
@@ -53,7 +51,7 @@ class KDE_EXPORT Texture : public Resource
 		typedef QScopedPointer<Ogre::Image> OgrePtr;
 		typedef Ogre::TexturePtr OgreTexturePtr;
 
-		Texture(const KUrl &url);
+		Texture(const QUrl &url);
 		virtual ~Texture();
 
 		void clearBlp();
@@ -111,8 +109,8 @@ class KDE_EXPORT Texture : public Resource
 		 * \todo Option quality only works for non-BLP formats.
 		 * \exception Exception Exception safe!
 		 */
-		virtual void save(const KUrl &url, const QString &format, const QMap<QString, QString> &compression) const;
-		virtual void save(const KUrl &url) const
+		virtual void save(const QUrl &url, const QString &format, const QMap<QString, QString> &compression) const;
+		virtual void save(const QUrl &url) const
 		{
 			save(url, "", QMap<QString, QString>());
 		}

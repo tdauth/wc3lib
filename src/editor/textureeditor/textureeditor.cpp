@@ -19,15 +19,7 @@
  ***************************************************************************/
 
 #include <QtGui>
-
-#include <KFileDialog>
-#include <KActionCollection>
-#include <KMenuBar>
-#include <KStandardAction>
-#include <KService>
-#include <KImageFilePreview>
-#include <KIntNumInput>
-#include <KAction>
+#include <QtWidgets>
 
 #include "textureeditor.hpp"
 #include "../qblp/blpiohandler.hpp"
@@ -49,15 +41,20 @@ TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 , m_showsTransparency(false)
 , m_factor(1.0)
 , m_zoomToFit(true)
-, m_textureActionCollection(0)
-, m_showAlphaChannelAction(0)
-, m_showTransparencyAction(0)
-, m_zoomToFitAction(0)
-, m_mipMapsMenu(0)
-, m_colorPaletteDialog(0)
-, m_chargesDialog(0)
-, m_loadDialog(0)
-, m_saveDialog(0)
+, m_showAlphaChannelAction(nullptr)
+, m_showTransparencyAction(nullptr)
+, m_actualSizeAction(nullptr)
+, m_zoomToFitAction(nullptr)
+, m_zoomInAction(nullptr)
+, m_zoomOutAction(nullptr)
+, m_massConverterAction(nullptr)
+, m_mipMapsMenu(nullptr)
+, m_editColorPaletteAction(nullptr)
+, m_dropColorPaletteAction(nullptr)
+, m_setChargesAction(nullptr)
+, m_chargesDialog(nullptr)
+, m_loadDialog(nullptr)
+, m_saveDialog(nullptr)
 {
 	Module::setupUi();
 
@@ -100,14 +97,11 @@ TextureEditor::TextureEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 	{
 		// if we couldn't find our Part, we exit since the Shell by
 		// itself can't do anything useful
-		KMessageBox::error(this, i18n("Service \"gvpart.desktop\" not found."));
+		KMessageBox::error(this, tr("Service \"gvpart.desktop\" not found."));
 	}
 	*/
 
-	foreach (QAction *action, m_textureActionCollection->actions())
-	{
-		action->setEnabled(false);
-	}
+	this->setImageActionsEnabled(false);
 }
 
 TextureEditor::~TextureEditor()
@@ -148,27 +142,27 @@ void TextureEditor::retranslateUi()
 	Module::retranslateUi();
 }
 
-TextureEditor::LoadDialogWidget::LoadDialogWidget(QWidget *parent) : QWidget(parent), m_mipMapsInput(new KIntNumInput(this))
+TextureEditor::LoadDialogWidget::LoadDialogWidget(QWidget *parent) : QWidget(parent), m_mipMapsInput(new QSpinBox(this))
 {
 	QVBoxLayout *layout = new QVBoxLayout();
 	this->setLayout(layout);
 
-	mipMapsInput()->setLabel(tr("MIP maps:"));
+	QWidget *mipMapsWidget = new QWidget();
+	QHBoxLayout *mipMapsLayout = new QHBoxLayout(mipMapsWidget);
+	layout->addWidget(mipMapsWidget);
+	mipMapsLayout->addWidget(new QLabel(tr("MIP maps:"), mipMapsWidget));
 	mipMapsInput()->setMaximum(blp::Blp::maxMipMaps);
 	mipMapsInput()->setMinimum(0);
 	mipMapsInput()->setValue(blp::Blp::defaultMipMaps);
 	layout->addWidget(mipMapsInput());
 }
 
-TextureEditor::LoadDialog::LoadDialog(QObject *parent) : QObject(parent), m_widget(new LoadDialogWidget())
+TextureEditor::LoadDialog::LoadDialog(QWidget *parent) : QWidget(parent), m_widget(new LoadDialogWidget())
 {
 	//KMimeType::Ptr mime(KMimeType::mimeType("image/x-blp"));
-	m_dialog = new KFileDialog(KUrl(), i18n("*|All Files\n*.blp|Blizzard Pictures\n*.png|Portable Network Graphics\n*.jpg|JPEG Files\n*.tga|TGA Files"), 0, m_widget); // TODO MIME filters do not work ("all/allfiles"). Use image filter.
-	dialog()->setCaption(i18n("Open texture"));
-	dialog()->setConfirmOverwrite(true); // TODO doesn't work
-	dialog()->setPreviewWidget(new KImageFilePreview(m_dialog));
-	dialog()->setMode(KFile::File);
-	dialog()->setOperationMode(KFileDialog::Opening);
+	m_dialog = new QFileDialog(this, tr("Open texture"), QString(), tr("*|All Files\n*.blp|Blizzard Pictures\n*.png|Portable Network Graphics\n*.jpg|JPEG Files\n*.tga|TGA Files")); // TODO MIME filters do not work ("all/allfiles"). Use image filter.
+	dialog()->setFileMode(QFileDialog::ExistingFile);
+	dialog()->setAcceptMode(QFileDialog::AcceptOpen);
 }
 
 TextureEditor::LoadDialog::~LoadDialog()
@@ -176,33 +170,36 @@ TextureEditor::LoadDialog::~LoadDialog()
 	delete m_dialog; // deletes widget as well
 }
 
-TextureEditor::SaveDialogWidget::SaveDialogWidget(QWidget *parent) : QWidget(parent), m_qualityInput(new KIntNumInput(this)), m_mipMapsInput(new KIntNumInput(this))
+TextureEditor::SaveDialogWidget::SaveDialogWidget(QWidget *parent) : QWidget(parent), m_qualityInput(new QSpinBox(this)), m_mipMapsInput(new QSpinBox(this))
 {
 	QVBoxLayout *layout = new QVBoxLayout();
 	this->setLayout(layout);
 
-	qualityInput()->setLabel(i18n("Quality:"));
+	QWidget *qualityWidget = new QWidget();
+	QHBoxLayout *qualityLayout = new QHBoxLayout(qualityWidget);
+	layout->addWidget(qualityWidget);
+	qualityLayout->addWidget(new QLabel(tr("Quality:"), qualityWidget));
 	qualityInput()->setMaximum(100);
 	qualityInput()->setMinimum(-1);
 	qualityInput()->setValue(blp::Blp::defaultQuality);
-	layout->addWidget(qualityInput());
+	qualityLayout->addWidget(qualityInput());
 
-	mipMapsInput()->setLabel(i18n("MIP maps:"));
+	QWidget *mipMapsWidget = new QWidget();
+	QHBoxLayout *mipMapsLayout = new QHBoxLayout(mipMapsWidget);
+	layout->addWidget(mipMapsWidget);
+	mipMapsLayout->addWidget(new QLabel(tr("MIP maps:"), mipMapsWidget));
 	mipMapsInput()->setMaximum(blp::Blp::maxMipMaps);
 	mipMapsInput()->setMinimum(0);
 	mipMapsInput()->setValue(blp::Blp::defaultMipMaps);
 	layout->addWidget(mipMapsInput());
 }
 
-TextureEditor::SaveDialog::SaveDialog(QObject *parent) : QObject(parent), m_widget(new SaveDialogWidget())
+TextureEditor::SaveDialog::SaveDialog(QWidget *parent) : QWidget(parent), m_widget(new SaveDialogWidget())
 {
 	//KMimeType::Ptr mime(KMimeType::mimeType("image/x-blp"));
-	m_dialog = new KFileDialog(KUrl(), i18n("*|All Files\n*.blp|Blizzard Pictures\n*.png|Portable Network Graphics\n*.jpg|JPEG Files\n*.tga|TGA Files"), 0, m_widget); // TODO MIME filters do not work ("all/allfiles"). Use image filter.
-	dialog()->setCaption(i18n("Save texture"));
-	dialog()->setConfirmOverwrite(true); // TODO doesn't work
-	dialog()->setPreviewWidget(new KImageFilePreview(m_dialog));
-	dialog()->setMode(KFile::File);
-	dialog()->setOperationMode(KFileDialog::Saving);
+	m_dialog = new QFileDialog(this, tr("Save texture"), QString(), tr("*|All Files\n*.blp|Blizzard Pictures\n*.png|Portable Network Graphics\n*.jpg|JPEG Files\n*.tga|TGA Files")); // TODO MIME filters do not work ("all/allfiles"). Use image filter.
+	dialog()->setFileMode(QFileDialog::AnyFile);
+	dialog()->setAcceptMode(QFileDialog::AcceptSave);
 }
 
 TextureEditor::SaveDialog::~SaveDialog()
@@ -212,8 +209,8 @@ TextureEditor::SaveDialog::~SaveDialog()
 
 TextureEditor::ChargesDialog::ChargesDialog(QWidget *parent)
 : QDialog(parent)
-, m_buttonBox(new KDialogButtonBox(this))
-, m_chargesInput(new KIntNumInput(this))
+, m_buttonBox(new QDialogButtonBox(this))
+, m_chargesInput(new QSpinBox(this))
 , m_hasChargesCheckBox(new QCheckBox(tr("Has Charges:"), this))
 {
 	this->setWindowTitle(tr("Set Charges"));
@@ -225,20 +222,18 @@ TextureEditor::ChargesDialog::ChargesDialog(QWidget *parent)
 	chargesInput()->setMaximum(100);
 	chargesInput()->setMinimum(0);
 	hasChargesCheckBox()->setChecked(true);
-	m_buttonBox->setStandardButtons(KDialogButtonBox::Ok | KDialogButtonBox::Cancel);
+	m_buttonBox->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
 	connect(hasChargesCheckBox(), SIGNAL(toggled(bool)), chargesInput(), SLOT(setEnabled(bool)));
-	connect(m_buttonBox->button(KDialogButtonBox::Ok), SIGNAL(pressed()), this, SLOT(accept()));
-	connect(m_buttonBox->button(KDialogButtonBox::Cancel), SIGNAL(pressed()), this, SLOT(reject()));
+	connect(m_buttonBox->button(QDialogButtonBox::Ok), SIGNAL(pressed()), this, SLOT(accept()));
+	connect(m_buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(pressed()), this, SLOT(reject()));
 }
 
 void TextureEditor::openFile()
 {
-	KUrl url;
-
 	if (this->loadDialog()->dialog()->exec() == QDialog::Accepted)
 	{
-		KUrl url = loadDialog()->dialog()->selectedUrl();
+		const QUrl url = loadDialog()->dialog()->selectedUrls().front();
 
 		if (url.isEmpty())
 		{
@@ -252,7 +247,7 @@ void TextureEditor::openFile()
 	}
 }
 
-void TextureEditor::openUrl(const KUrl &url, QMap<QString, QString> options)
+void TextureEditor::openUrl(const QUrl &url, QMap<QString, QString> options)
 {
 	TexturePtr texture(new Texture(url));
 
@@ -284,14 +279,11 @@ void TextureEditor::openUrl(const KUrl &url, QMap<QString, QString> options)
 	m_zoomToFit = true;
 	this->m_zoomToFitAction->setChecked(this->m_zoomToFit);
 
-	foreach (QAction *action, m_textureActionCollection->actions())
-	{
-		action->setEnabled(true);
-	}
+	this->setImageActionsEnabled(true);
 
 	m_showAlphaChannelAction->setEnabled(this->texture()->qt()->hasAlphaChannel());
-	this->m_textureActionCollection->action("editcolorpalette")->setEnabled(this->texture()->qt()->format() == QImage::Format_Indexed8);
-	this->m_textureActionCollection->action("dropcolorpalette")->setEnabled(this->texture()->qt()->format() == QImage::Format_Indexed8);
+	m_editColorPaletteAction->setEnabled(this->texture()->qt()->format() == QImage::Format_Indexed8);
+	m_dropColorPaletteAction->setEnabled(this->texture()->qt()->format() == QImage::Format_Indexed8);
 
 	m_mipMapsMenu->clear();
 	m_mipMaps.resize(this->texture()->blp()->mipMaps().size());
@@ -312,7 +304,7 @@ void TextureEditor::openUrl(const KUrl &url, QMap<QString, QString> options)
 		}
 
 		++i;
-		QAction *action = new QAction(QIcon(":/actions/opentexture.png"), i18n("MIP map %1", i), this);
+		QAction *action = new QAction(QIcon(":/actions/opentexture.png"), tr("MIP map %1").arg(i), this);
 		action->setShortcut(tr("Ctrl+M+%1").arg(i));
 		connect(action, SIGNAL(triggered()), this, SLOT(showMipMap()));
 		m_mipMapsMenu->addAction(action);
@@ -333,7 +325,7 @@ void TextureEditor::saveFile()
 
 	if (saveDialog()->dialog()->exec() == QDialog::Accepted)
 	{
-		KUrl url = saveDialog()->dialog()->selectedUrl();
+		const QUrl url = saveDialog()->dialog()->selectedUrls().front();
 
 		if (url.isEmpty())
 		{
@@ -358,10 +350,7 @@ void TextureEditor::saveFile()
 
 void TextureEditor::closeFile()
 {
-	foreach (QAction *action, m_textureActionCollection->actions())
-	{
-		action->setEnabled(false);
-	}
+	this->setImageActionsEnabled(false);
 
 	m_mipMapsMenu->clear();
 
@@ -375,20 +364,6 @@ void TextureEditor::showSettings()
 
 void TextureEditor::editColorPalette()
 {
-	QImage &image = m_mipMaps[mipMapIndex()];
-
-	if (image.colorCount() == 0)
-	{
-		return;
-	}
-
-	this->colorPaletteDialog()->applyFromImage(image);
-
-	if (this->colorPaletteDialog()->exec() == QDialog::Accepted)
-	{
-		this->colorPaletteDialog()->applyToImage(image);
-		refreshImage();
-	}
 }
 
 void TextureEditor::dropColorPalette()
@@ -498,12 +473,12 @@ void TextureEditor::showTransparency()
 
 	if (showsTransparency())
 	{
-		m_showTransparencyAction->setText(i18n("Show transparency"));
+		m_showTransparencyAction->setText(tr("Show transparency"));
 		m_showsTransparency = false;
 	}
 	else
 	{
-		m_showTransparencyAction->setText(i18n("Hide transparency"));
+		m_showTransparencyAction->setText(tr("Hide transparency"));
 		m_showsTransparency = true;
 	}
 
@@ -635,51 +610,57 @@ void TextureEditor::refreshImage()
 	}
 }
 
+void TextureEditor::setImageActionsEnabled(bool enabled)
+{
+	this->m_showAlphaChannelAction->setEnabled(enabled);
+	this->m_showTransparencyAction->setEnabled(enabled);
+	this->m_actualSizeAction->setEnabled(enabled);
+	this->m_zoomToFitAction->setEnabled(enabled);
+	this->m_zoomInAction->setEnabled(enabled);
+	this->m_zoomOutAction->setEnabled(enabled);
+	this->m_editColorPaletteAction->setEnabled(enabled);
+	this->m_dropColorPaletteAction->setEnabled(enabled);
+	this->m_setChargesAction->setEnabled(enabled);
+}
+
 void TextureEditor::createFileActions(QMenu *menu)
 {
-	m_textureActionCollection = new KActionCollection((QObject*)this);
-
 	QAction *action = 0;
 
-	action = new QAction(QIcon(":/actions/opentexture.png"), i18n("Open texture"), this);
+	action = new QAction(QIcon(":/actions/opentexture.png"), tr("Open texture"), this);
 	action->setShortcut(QKeySequence("Ctrl+O"));
 	connect(action, SIGNAL(triggered()), this, SLOT(openFile()));
 	menu->addAction(action);
 
-	action = new QAction(QIcon(":/actions/savetexture.png"), i18n("Save texture"), this);
+	action = new QAction(QIcon(":/actions/savetexture.png"), tr("Save texture"), this);
 	action->setShortcut(QKeySequence("Ctrl+S"));
 	connect(action, SIGNAL(triggered()), this, SLOT(saveFile()));
 	menu->addAction(action);
-	m_textureActionCollection->addAction("savetexture", action);
 
-	action = new QAction(QIcon(":/actions/closetexture.png"), i18n("Close texture"), this);
+	action = new QAction(QIcon(":/actions/closetexture.png"), tr("Close texture"), this);
 	action->setShortcut(QKeySequence("Ctrl+W"));
 	connect(action, SIGNAL(triggered()), this, SLOT(closeFile()));
 	menu->addAction(action);
-	m_textureActionCollection->addAction("closetexture", action);
 
-	action = new QAction(QIcon(":/actions/settings.png"), i18n("Settings"), this);
-	//action->setShortcut(KShortcut(i18n("Ctrl+O")));
+	action = new QAction(QIcon(":/actions/settings.png"), tr("Settings"), this);
+	//action->setShortcut(KShortcut(tr("Ctrl+O")));
 	connect(action, SIGNAL(triggered()), this, SLOT(showSettings()));
 	menu->addAction(action);
 }
 
 void TextureEditor::createEditActions(QMenu *menu)
 {
-	QAction *action = new QAction(QIcon(":/actions/editcolorpalette.png"), i18n("Edit color palette"), this);
-	connect(action, SIGNAL(triggered()), this, SLOT(editColorPalette()));
-	menu->addAction(action);
-	m_textureActionCollection->addAction("editcolorpalette", action);
+	m_editColorPaletteAction = new QAction(QIcon(":/actions/editcolorpalette.png"), tr("Edit color palette"), this);
+	connect(m_editColorPaletteAction, SIGNAL(triggered()), this, SLOT(editColorPalette()));
+	menu->addAction(m_editColorPaletteAction);
 
-	action = new QAction(QIcon(":/actions/dropcolorpalette.png"), i18n("Drop color palette"), this);
-	connect(action, SIGNAL(triggered()), this, SLOT(dropColorPalette()));
-	menu->addAction(action);
-	m_textureActionCollection->addAction("dropcolorpalette", action);
+	m_dropColorPaletteAction = new QAction(QIcon(":/actions/dropcolorpalette.png"), tr("Drop color palette"), this);
+	connect(m_dropColorPaletteAction, SIGNAL(triggered()), this, SLOT(dropColorPalette()));
+	menu->addAction(m_dropColorPaletteAction);
 
-	action = new QAction(QIcon(":/actions/setcharges.png"), i18n("Set charges"), this);
-	connect(action, SIGNAL(triggered()), this, SLOT(setCharges()));
-	menu->addAction(action);
-	m_textureActionCollection->addAction("setcharges", action);
+	m_setChargesAction = new QAction(QIcon(":/actions/setcharges.png"), tr("Set charges"), this);
+	connect(m_setChargesAction, SIGNAL(triggered()), this, SLOT(setCharges()));
+	menu->addAction(m_setChargesAction);
 }
 
 void TextureEditor::createMenus(QMenuBar *menuBar)
@@ -688,42 +669,39 @@ void TextureEditor::createMenus(QMenuBar *menuBar)
 	//this->m_viewMenu = viewMenu;
 	menuBar->addMenu(viewMenu);
 
-	m_showAlphaChannelAction = new QAction(QIcon(":/actions/showalphachannel.png"), i18n("Show alpha channel"), this);
+	m_showAlphaChannelAction = new QAction(QIcon(":/actions/showalphachannel.png"), tr("Show alpha channel"), this);
 	connect(m_showAlphaChannelAction, SIGNAL(triggered()), this, SLOT(showAlphaChannel()));
 	viewMenu->addAction(m_showAlphaChannelAction);
-	m_textureActionCollection->addAction("showalphachannel", m_showAlphaChannelAction);
 
-	m_showTransparencyAction = new QAction(QIcon(":/actions/showtransparency.png"), i18n("Show transparency"), this);
+	m_showTransparencyAction = new QAction(QIcon(":/actions/showtransparency.png"), tr("Show transparency"), this);
 	connect(m_showTransparencyAction, SIGNAL(triggered()), this, SLOT(showTransparency()));
 	viewMenu->addAction(m_showTransparencyAction);
-	m_textureActionCollection->addAction("showtransparency", m_showTransparencyAction);
 
-	KAction *action = KStandardAction::actualSize(this, SLOT(actualSize()), this);
-	viewMenu->addAction(action);
-	m_textureActionCollection->addAction("actualsize", action);
+	m_actualSizeAction = new QAction(QIcon(":/actions/actualsize.png"), tr("Actual size"), this);
+	connect(m_actualSizeAction, SIGNAL(triggered()), this, SLOT(actualSize()));
+	viewMenu->addAction(m_actualSizeAction);
 
-	m_zoomToFitAction = new QAction(QIcon(":/actions/zoomtofit.png"), i18n("Zoom to fit"), this);
+	m_zoomToFitAction = new QAction(QIcon(":/actions/zoomtofit.png"), tr("Zoom to fit"), this);
 	m_zoomToFitAction->setCheckable(true);
 	connect(m_zoomToFitAction, SIGNAL(triggered()), this, SLOT(zoomToFit()));
 	viewMenu->addAction(m_zoomToFitAction);
-	m_textureActionCollection->addAction("zoomtofit", m_zoomToFitAction);
 
-	action = KStandardAction::zoomIn(this, SLOT(zoomIn()), this);
-	viewMenu->addAction(action);
-	m_textureActionCollection->addAction("zoomin", action);
+	m_zoomInAction = new QAction(QIcon(":/actions/zoomin.png"), tr("Zoom in"), this);
+	connect(m_zoomInAction, SIGNAL(triggered()), this, SLOT(zoomIn()));
+	viewMenu->addAction(m_zoomInAction);
 
-	action = KStandardAction::zoomOut(this, SLOT(zoomOut()), this);
-	viewMenu->addAction(action);
-	m_textureActionCollection->addAction("zoomout", action);
+	m_zoomOutAction = new QAction(QIcon(":/actions/zoomout.png"), tr("Zoom out"), this);
+	connect(m_zoomOutAction, SIGNAL(triggered()), this, SLOT(zoomOut()));
+	viewMenu->addAction(m_zoomOutAction);
 
 	QMenu *toolsMenu = new QMenu(tr("Tools"), this);
 	//this->m_toolsMenu = toolsMenu;
 	menuBar->addMenu(toolsMenu);
 
 	// TODO add check buttons to mass converter widget which allow you to a) convert and b) generate info cards etc. and c) to remove old files.
-	QAction *massConvAction = new QAction(QIcon(":/actions/massconverter.png"), tr("Mass converter"), this);
-	connect(massConvAction, SIGNAL(triggered()), this, SLOT(massConverter()));
-	toolsMenu->addAction(massConvAction);
+	m_massConverterAction = new QAction(QIcon(":/actions/massconverter.png"), tr("Mass converter"), this);
+	connect(m_massConverterAction, SIGNAL(triggered()), this, SLOT(massConverter()));
+	toolsMenu->addAction(m_massConverterAction);
 
 	this->m_mipMapsMenu = new QMenu(tr("MIP maps"), this);
 	menuBar->addMenu(m_mipMapsMenu);

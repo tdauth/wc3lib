@@ -18,8 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <QtCore>
-
 #include "abilitydata.hpp"
 #include "metadata.hpp"
 #include "mpqprioritylist.hpp"
@@ -280,7 +278,7 @@ int AbilityData::objectLevels(const QString &originalObjectId, const QString &cu
 	return 1;
 }
 
-void AbilityData::widgetize(const KUrl &url)
+void AbilityData::widgetize(const QUrl &url)
 {
 	const QString dir = url.toLocalFile();
 
@@ -344,8 +342,7 @@ void AbilityData::widgetize(const KUrl &url)
 	 */
 	for (int i = 0; i < metaDataListCopy.size(); ++i)
 	{
-		KUrl slkFileUrl = url;
-		slkFileUrl.addPath(metaDataListCopy.at(i)->url().fileName());
+		const QUrl slkFileUrl = url.toString() + "/" + metaDataListCopy.at(i)->url().fileName();
 		metaDataListCopy.at(i)->save(slkFileUrl);
 	}
 }
@@ -353,66 +350,66 @@ void AbilityData::widgetize(const KUrl &url)
 void AbilityData::load(QWidget *widget)
 {
 	// TODO same meta data as for units -> share it!
-	this->m_metaData.reset(new MetaData(KUrl("Units/AbilityMetaData.slk")));
+	this->m_metaData.reset(new MetaData(QUrl("Units/AbilityMetaData.slk")));
 	this->m_metaData->setSource(this->source());
 	this->m_metaData->load();
-	this->m_abilityData.reset(new MetaData(KUrl("Units/AbilityData.slk")));
+	this->m_abilityData.reset(new MetaData(QUrl("Units/AbilityData.slk")));
 	this->m_abilityData->setSource(this->source());
 	this->m_abilityData->load();
 
-	this->m_itemAbilityFunc.reset(new MetaData(KUrl("Units/ItemAbilityFunc.txt")));
+	this->m_itemAbilityFunc.reset(new MetaData(QUrl("Units/ItemAbilityFunc.txt")));
 	this->m_itemAbilityFunc->setSource(this->source());
 	this->m_itemAbilityFunc->load();
-	this->m_itemAbilityStrings.reset(new MetaData(KUrl("Units/ItemAbilityStrings.txt")));
+	this->m_itemAbilityStrings.reset(new MetaData(QUrl("Units/ItemAbilityStrings.txt")));
 	this->m_itemAbilityStrings->setSource(this->source());
 	this->m_itemAbilityStrings->load();
 
-	this->m_humanAbilityFunc.reset(new MetaData(KUrl("Units/HumanAbilityFunc.txt")));
+	this->m_humanAbilityFunc.reset(new MetaData(QUrl("Units/HumanAbilityFunc.txt")));
 	this->m_humanAbilityFunc->setSource(this->source());
 	this->m_humanAbilityFunc->load();
-	this->m_humanAbilityStrings.reset(new MetaData(KUrl("Units/HumanAbilityStrings.txt")));
+	this->m_humanAbilityStrings.reset(new MetaData(QUrl("Units/HumanAbilityStrings.txt")));
 	this->m_humanAbilityStrings->setSource(this->source());
 	this->m_humanAbilityStrings->load();
 
-	this->m_orcAbilityFunc.reset(new MetaData(KUrl("Units/OrcAbilityFunc.txt")));
+	this->m_orcAbilityFunc.reset(new MetaData(QUrl("Units/OrcAbilityFunc.txt")));
 	this->m_orcAbilityFunc->setSource(this->source());
 	this->m_orcAbilityFunc->load();
-	this->m_orcAbilityStrings.reset(new MetaData(KUrl("Units/OrcAbilityStrings.txt")));
+	this->m_orcAbilityStrings.reset(new MetaData(QUrl("Units/OrcAbilityStrings.txt")));
 	this->m_orcAbilityStrings->setSource(this->source());
 	this->m_orcAbilityStrings->load();
 
-	this->m_undeadAbilityFunc.reset(new MetaData(KUrl("Units/UndeadAbilityFunc.txt")));
+	this->m_undeadAbilityFunc.reset(new MetaData(QUrl("Units/UndeadAbilityFunc.txt")));
 	this->m_undeadAbilityFunc->setSource(this->source());
 	this->m_undeadAbilityFunc->load();
-	this->m_undeadAbilityStrings.reset(new MetaData(KUrl("Units/UndeadAbilityStrings.txt")));
+	this->m_undeadAbilityStrings.reset(new MetaData(QUrl("Units/UndeadAbilityStrings.txt")));
 	this->m_undeadAbilityStrings->setSource(this->source());
 	this->m_undeadAbilityStrings->load();
 
-	this->m_nightElfAbilityFunc.reset(new MetaData(KUrl("Units/NightElfAbilityFunc.txt")));
+	this->m_nightElfAbilityFunc.reset(new MetaData(QUrl("Units/NightElfAbilityFunc.txt")));
 	this->m_nightElfAbilityFunc->setSource(this->source());
 	this->m_nightElfAbilityFunc->load();
-	this->m_nightElfAbilityStrings.reset(new MetaData(KUrl("Units/NightElfAbilityStrings.txt")));
+	this->m_nightElfAbilityStrings.reset(new MetaData(QUrl("Units/NightElfAbilityStrings.txt")));
 	this->m_nightElfAbilityStrings->setSource(this->source());
 	this->m_nightElfAbilityStrings->load();
 
-	this->m_commonAbilityFunc.reset(new MetaData(KUrl("Units/CommonAbilityFunc.txt")));
+	this->m_commonAbilityFunc.reset(new MetaData(QUrl("Units/CommonAbilityFunc.txt")));
 	this->m_commonAbilityFunc->setSource(this->source());
 	this->m_commonAbilityFunc->load();
-	this->m_commonAbilityStrings.reset(new MetaData(KUrl("Units/CommonAbilityStrings.txt")));
+	this->m_commonAbilityStrings.reset(new MetaData(QUrl("Units/CommonAbilityStrings.txt")));
 	this->m_commonAbilityStrings->setSource(this->source());
 	this->m_commonAbilityStrings->load();
 
-	this->m_neutralAbilityFunc.reset(new MetaData(KUrl("Units/NeutralAbilityFunc.txt")));
+	this->m_neutralAbilityFunc.reset(new MetaData(QUrl("Units/NeutralAbilityFunc.txt")));
 	this->m_neutralAbilityFunc->setSource(this->source());
 	this->m_neutralAbilityFunc->load();
-	this->m_neutralAbilityStrings.reset(new MetaData(KUrl("Units/NeutralAbilityStrings.txt")));
+	this->m_neutralAbilityStrings.reset(new MetaData(QUrl("Units/NeutralAbilityStrings.txt")));
 	this->m_neutralAbilityStrings->setSource(this->source());
 	this->m_neutralAbilityStrings->load();
 
-	this->m_campaignAbilityFunc.reset(new MetaData(KUrl("Units/CampaignAbilityFunc.txt")));
+	this->m_campaignAbilityFunc.reset(new MetaData(QUrl("Units/CampaignAbilityFunc.txt")));
 	this->m_campaignAbilityFunc->setSource(this->source());
 	this->m_campaignAbilityFunc->load();
-	this->m_campaignAbilityStrings.reset(new MetaData(KUrl("Units/CampaignAbilityStrings.txt")));
+	this->m_campaignAbilityStrings.reset(new MetaData(QUrl("Units/CampaignAbilityStrings.txt")));
 	this->m_campaignAbilityStrings->setSource(this->source());
 	this->m_campaignAbilityStrings->load();
 }

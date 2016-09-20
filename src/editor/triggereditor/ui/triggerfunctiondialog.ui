@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>996</width>
-    <height>477</height>
+    <width>1060</width>
+    <height>555</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -129,7 +129,7 @@
           </size>
          </property>
          <property name="text">
-          <string>Function:</string>
+          <string>F&amp;unction:</string>
          </property>
         </widget>
        </item>
@@ -169,7 +169,7 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
-          <widget class="KComboBox" name="m_categoryComboBox">
+          <widget class="QComboBox" name="m_categoryComboBox">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -203,7 +203,7 @@
         </layout>
        </item>
        <item>
-        <widget class="KComboBox" name="m_functionComboBox">
+        <widget class="QComboBox" name="m_functionComboBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -254,7 +254,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="KComboBox" name="m_presetComboBox">
+      <widget class="QComboBox" name="m_presetComboBox">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -282,7 +282,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Variable:</string>
+        <string>V&amp;ariable:</string>
        </property>
       </widget>
      </item>
@@ -303,7 +303,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="KComboBox" name="m_variablesComboBox">
+      <widget class="QComboBox" name="m_variablesComboBox">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -357,7 +357,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Imported:</string>
+        <string>&amp;Imported:</string>
        </property>
       </widget>
      </item>
@@ -378,7 +378,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="KComboBox" name="m_importedComboBox">
+      <widget class="QComboBox" name="m_importedComboBox">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -417,7 +417,7 @@
           </size>
          </property>
          <property name="text">
-          <string>Value:</string>
+          <string>Va&amp;lue:</string>
          </property>
         </widget>
        </item>
@@ -480,7 +480,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <item>
-            <widget class="KLineEdit" name="m_lineEdit"/>
+            <widget class="QLineEdit" name="m_lineEdit"/>
            </item>
            <item>
             <widget class="QFrame" name="m_booleanFrame">
@@ -506,7 +506,7 @@
               <item>
                <widget class="QRadioButton" name="m_radioButtonTrue">
                 <property name="text">
-                 <string>True</string>
+                 <string>&amp;True</string>
                 </property>
                </widget>
               </item>
@@ -521,10 +521,10 @@
             </widget>
            </item>
            <item>
-            <widget class="KDoubleNumInput" name="m_numInputDouble"/>
+            <widget class="QDoubleSpinBox" name="m_numInputDouble"/>
            </item>
            <item>
-            <widget class="KIntNumInput" name="m_numInput"/>
+            <widget class="QSpinBox" name="m_numInput"/>
            </item>
            <item>
             <widget class="QLabel" name="m_valueLabel">
@@ -561,7 +561,7 @@
     </layout>
    </item>
    <item row="7" column="0">
-    <widget class="KDialogButtonBox" name="m_dialogButtonBox">
+    <widget class="QDialogButtonBox" name="m_dialogButtonBox">
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
@@ -569,35 +569,7 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>KDoubleNumInput</class>
-   <extends>QWidget</extends>
-   <header>knuminput.h</header>
-  </customwidget>
-  <customwidget>
-   <class>KDialogButtonBox</class>
-   <extends>QDialogButtonBox</extends>
-   <header>kdialogbuttonbox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>KComboBox</class>
-   <extends>QComboBox</extends>
-   <header>kcombobox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>KLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>klineedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>KIntNumInput</class>
-   <extends>QWidget</extends>
-   <header>knuminput.h</header>
-  </customwidget>
- </customwidgets>
  <tabstops>
-  <tabstop>m_dialogButtonBox</tabstop>
   <tabstop>m_categoryComboBox</tabstop>
   <tabstop>m_functionComboBox</tabstop>
   <tabstop>m_variablesSelectPushButton</tabstop>
@@ -609,8 +581,6 @@
   <tabstop>m_importedComboBox</tabstop>
   <tabstop>m_radioButtonValue</tabstop>
   <tabstop>m_textEdit</tabstop>
-  <tabstop>m_numInputDouble</tabstop>
-  <tabstop>m_numInput</tabstop>
   <tabstop>m_valuePushButton</tabstop>
   <tabstop>m_radioButtonFalse</tabstop>
   <tabstop>m_lineEdit</tabstop>
@@ -713,38 +683,6 @@
     <hint type="destinationlabel">
      <x>207</x>
      <y>403</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>m_radioButtonValue</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>m_numInputDouble</receiver>
-   <slot>setFocus()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>87</x>
-     <y>241</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>759</x>
-     <y>258</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>m_radioButtonValue</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>m_numInput</receiver>
-   <slot>setEditFocus()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>76</x>
-     <y>241</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>875</x>
-     <y>258</y>
     </hint>
    </hints>
   </connection>

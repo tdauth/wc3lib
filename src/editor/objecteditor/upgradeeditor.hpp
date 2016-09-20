@@ -32,7 +32,7 @@ namespace editor
 
 class UpgradeData;
 
-class KDE_EXPORT UpgradeEditor : public ObjectEditorTab
+class UpgradeEditor : public ObjectEditorTab
 {
 	public:
 		UpgradeEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
@@ -60,9 +60,9 @@ class KDE_EXPORT UpgradeEditor : public ObjectEditorTab
 		virtual QString copyObjectText() const override;
 		virtual QString pasteObjectText() const override;
 
-		virtual KUrl copyObjectIconUrl() const override;
-		virtual KUrl pasteObjectIconUrl() const override;
-		virtual KUrl newObjectIconUrl() const override;
+		virtual QUrl copyObjectIconUrl() const override;
+		virtual QUrl pasteObjectIconUrl() const override;
+		virtual QUrl newObjectIconUrl() const override;
 };
 
 inline QString UpgradeEditor::newObjectText() const
@@ -115,19 +115,19 @@ inline QIcon UpgradeEditor::tabIcon(QWidget *widget) const
 	return objectEditor()->source()->sharedData()->worldEditDataIcon("ToolBarIcon_OE_NewUpgr", "WorldEditArt", widget);
 }
 
-inline KUrl UpgradeEditor::copyObjectIconUrl() const
+inline QUrl UpgradeEditor::copyObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Copy.blp");
+	return QUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Copy.blp");
 }
 
-inline KUrl UpgradeEditor::pasteObjectIconUrl() const
+inline QUrl UpgradeEditor::pasteObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Paste.blp");
+	return QUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Paste.blp");
 }
 
-inline KUrl UpgradeEditor::newObjectIconUrl() const
+inline QUrl UpgradeEditor::newObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Unit.blp");
+	return QUrl("ReplaceableTextures/WorldEditUI/Editor-Unit.blp");
 }
 
 }

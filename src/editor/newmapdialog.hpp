@@ -23,8 +23,6 @@
 
 #include <QDialog>
 
-#include <kdemacros.h>
-
 #include "ui_newmapdialog.h"
 #include "../map.hpp"
 
@@ -42,7 +40,7 @@ class Tile;
  * Dialog which is displayed when creating a new map in editor.
  * Allows you to select size, main tileset, filling tile, initial cliff and water level and if there is a randomized height level of map.
  */
-class KDE_EXPORT NewMapDialog : public QDialog, protected Ui::NewMapDialog
+class NewMapDialog : public QDialog, protected Ui::NewMapDialog
 {
 	public:
 		NewMapDialog(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);

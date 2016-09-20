@@ -115,10 +115,10 @@ ObjectData::MetaDataList WeatherData::metaDataList() const
 
 void WeatherData::load(QWidget *widget)
 {
-	this->m_weatherMetaData.reset(new MetaData(KUrl("TerrainArt/WeatherMetaData.slk")));
+	this->m_weatherMetaData.reset(new MetaData(QUrl("TerrainArt/WeatherMetaData.slk")));
 	this->m_weatherMetaData->setSource(this->source());
 	this->m_weatherMetaData->load();
-	this->m_weather.reset(new MetaData(KUrl("TerrainArt/Weather.slk")));
+	this->m_weather.reset(new MetaData(QUrl("TerrainArt/Weather.slk")));
 	this->m_weather->setSource(this->source());
 	this->m_weather->load();
 }

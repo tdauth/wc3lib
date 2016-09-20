@@ -20,9 +20,6 @@
 
 #include <QtGui>
 
-#include <KMessageBox>
-#include <KFileDialog>
-
 #include "itemeditor.hpp"
 #include "objecttreeview.hpp"
 #include "objecttreeitem.hpp"

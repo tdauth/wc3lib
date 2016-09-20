@@ -30,10 +30,6 @@
 #include <QTreeWidget>
 #include <QDebug>
 
-#include <kdemacros.h>
-#include <KUrl>
-#include <KActionCollection>
-
 #include "../module.hpp"
 #include "../mpqprioritylist.hpp"
 #include "../../map.hpp"
@@ -80,7 +76,7 @@ class VariablesDialog;
  * \sa TriggerFunctionDialog
  * \ingroup triggereditorsection
  */
-class KDE_EXPORT TriggerEditor : public Module
+class TriggerEditor : public Module
 {
 	Q_OBJECT
 
@@ -142,8 +138,8 @@ class KDE_EXPORT TriggerEditor : public Module
 		 */
 		TriggerWidget* triggerWidget() const;
 		VariablesDialog* variablesDialog() const;
-		KActionCollection* triggerActionCollection() const;
-		KActionCollection* newActionCollection() const;
+		QActionGroup* triggerActionCollection() const;
+		QActionGroup* newActionCollection() const;
 
 		/**
 		 * \defgroup triggerhelpers Trigger data helper functions
@@ -259,7 +255,7 @@ class KDE_EXPORT TriggerEditor : public Module
 		/**
 		 * Opens triggers from \p url.
 		 */
-		void openTriggersUrl(const KUrl &url);
+		void openTriggersUrl(const QUrl &url);
 		/**
 		 * Opens file dialog for loading custom text triggers file (*.wtc).
 		 * \sa customTextTriggersFilter()
@@ -379,6 +375,26 @@ class KDE_EXPORT TriggerEditor : public Module
 		TreeItems m_triggerEntries;
 
 		QMenu *m_newMenu;
+		QAction *m_openTriggersAction;
+		QAction *m_openCustomTextTriggersAction;
+		QAction *m_saveTriggersAction;
+		QAction *m_closeTriggersAction;
+		QAction *m_closeCustomTextTriggersAction;
+		QAction *m_closeAllAction;
+		QAction *m_resetTriggersAction;
+		QAction *m_renameAction;
+		QAction *m_loadTriggerDataAction;
+		QAction *m_loadTriggerStringsAction;
+
+		QAction *m_variablesAction;
+		QAction *m_convertToTextAction;
+
+		QAction *m_newCategoryAction;
+		QAction *m_newTriggerAction;
+		QAction *m_newTriggerCommentAction;
+		QAction *m_newEventAction;
+		QAction *m_newConditionAction;
+		QAction *m_newActionAction;
 
 		QTreeWidget *m_treeWidget;
 		QTreeWidgetItem *m_rootItem;
@@ -386,16 +402,15 @@ class KDE_EXPORT TriggerEditor : public Module
 		TriggerWidget *m_triggerWidget;
 		VariablesDialog *m_variablesDialog;
 
-		KActionCollection *m_triggerActionCollection;
-		KActionCollection *m_newActionCollection;
-
-		KUrl m_openDirectory;
+		QUrl m_openDirectory;
 };
 
 inline string TriggerEditor::triggerText(map::Trigger *trigger) const
 {
-	if (customTextTriggers() == 0)
+	if (customTextTriggers() == nullptr)
+	{
 		return "";
+	}
 
 	bool found = false;
 	int32 index = 0;
@@ -415,7 +430,9 @@ inline string TriggerEditor::triggerText(map::Trigger *trigger) const
 
 	// no corresponding number which should never occur actually
 	if (!found)
+	{
 		return "";
+	}
 
 	int32 i = 0;
 
@@ -464,16 +481,6 @@ inline TriggerWidget* TriggerEditor::triggerWidget() const
 inline VariablesDialog* TriggerEditor::variablesDialog() const
 {
 	return m_variablesDialog;
-}
-
-inline KActionCollection* TriggerEditor::triggerActionCollection() const
-{
-	return m_triggerActionCollection;
-}
-
-inline KActionCollection* TriggerEditor::newActionCollection() const
-{
-	return m_newActionCollection;
 }
 
 inline QString TriggerEditor::actionName() const

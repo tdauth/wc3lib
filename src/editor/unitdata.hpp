@@ -42,7 +42,7 @@ class MetaData;
  *
  * \ingroup objectdata
  */
-class KDE_EXPORT UnitData : public ObjectData
+class UnitData : public ObjectData
 {
 	public:
 		UnitData(MpqPriorityList *source, QObject *parent = 0);

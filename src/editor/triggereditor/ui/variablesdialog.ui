@@ -38,7 +38,7 @@
       </widget>
      </item>
      <item>
-      <widget class="KSeparator" name="kseparator">
+      <widget class="QFrame" name="kseparator">
        <property name="frameShape">
         <enum>QFrame::VLine</enum>
        </property>
@@ -59,7 +59,7 @@
       </widget>
      </item>
      <item>
-      <widget class="KSeparator" name="kseparator_2">
+      <widget class="QFrame" name="kseparator_2">
        <property name="frameShape">
         <enum>QFrame::VLine</enum>
        </property>
@@ -140,13 +140,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>KSeparator</class>
-   <extends>QFrame</extends>
-   <header>kseparator.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections>
   <connection>

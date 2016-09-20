@@ -18,11 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <QtGui>
-
-#include <KFileDialog>
-#include <KMessageBox>
-
 #include "watereditor.hpp"
 #include "watertreemodel.hpp"
 #include "../waterdata.hpp"

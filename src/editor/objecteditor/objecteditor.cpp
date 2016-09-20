@@ -19,14 +19,11 @@
  ***************************************************************************/
 
 #include <QtGui>
-
-#include <KFileDialog>
-#include <KMessageBox>
+#include <QtWidgets/QtWidgets>
 
 #include "objecteditor.hpp"
 #include "../sharedobjectdata.hpp"
 #include "objecteditortab.hpp"
-#include "editor.hpp"
 #include "uniteditor.hpp"
 #include "itemeditor.hpp"
 #include "abilityeditor.hpp"
@@ -128,7 +125,7 @@ bool ObjectEditor::configure()
 		}
 		catch (wc3lib::Exception &e)
 		{
-			KMessageBox::error(0, i18n("Error when loading default files: %1", e.what()));
+			QMessageBox::critical(this, tr("Error"), tr("Error when loading default files: %1").arg(e.what()));
 
 			return false;
 		}
@@ -277,7 +274,7 @@ void ObjectEditor::exportAll()
 {
 	// TODO collect all tab data (requires Frozen Throne)
 
-	const KUrl url = KFileDialog::getSaveUrl(KUrl(), tr("*|All Files\n%1").arg(objectsCollectionFilter()), this, source()->sharedData()->tr("WESTRING_MENU_OE_EXPORTALL", "WorldEditStrings"));
+	const QUrl url = QFileDialog::getSaveFileUrl(this, source()->sharedData()->tr("WESTRING_MENU_OE_EXPORTALL", "WorldEditStrings"), QUrl(), tr("*|All Files\n%1").arg(objectsCollectionFilter()));
 
 	if (!url.isEmpty())
 	{
@@ -300,27 +297,27 @@ void ObjectEditor::exportAll()
 
 					if (!this->source()->upload(file.fileName(), url, this))
 					{
-						KMessageBox::error(this, tr("Unable to save file."));
+						QMessageBox::critical(this, tr("Error"), tr("Unable to save file."));
 					}
 				}
 				catch (Exception &e)
 				{
-					KMessageBox::error(this, e.what());
+					QMessageBox::critical(this, tr("Error"), e.what());
 				}
 			}
 			else
 			{
-				KMessageBox::error(this, tr("Unable to open temporary file %1.").arg(file.fileName()));
+				QMessageBox::critical(this, tr("Error"), tr("Unable to open temporary file %1.").arg(file.fileName()));
 			}
 		}
 		else
 		{
-			KMessageBox::error(this, tr("Unable to open temporary file %1.").arg(file.fileName()));
+			QMessageBox::critical(this, tr("Error"), tr("Unable to open temporary file %1.").arg(file.fileName()));
 		}
 	}
 }
 
-void ObjectEditor::importAll(const KUrl &url)
+void ObjectEditor::importAll(const QUrl &url)
 {
 	QString file;
 
@@ -343,7 +340,7 @@ void ObjectEditor::importAll(const KUrl &url)
 				}
 				catch (const Exception &e)
 				{
-					KMessageBox::error(this, e.what());
+					QMessageBox::critical(this, tr("Error"), e.what());
 				}
 			}
 			// TODO support custom object FILES
@@ -358,7 +355,7 @@ void ObjectEditor::importAll(const KUrl &url)
 				}
 				catch (const Exception &e)
 				{
-					KMessageBox::error(this, e.what());
+					QMessageBox::critical(this, tr("Error"), e.what());
 				}
 			}
 			else if (fileInfo.suffix() == "w3m")
@@ -380,7 +377,7 @@ void ObjectEditor::importAll(const KUrl &url)
 				}
 				catch (const Exception &e)
 				{
-					KMessageBox::error(this, e.what());
+					QMessageBox::critical(this, tr("Error"), e.what());
 				}
 			}
 			else if (fileInfo.suffix() == "w3x")
@@ -405,13 +402,13 @@ void ObjectEditor::importAll(const KUrl &url)
 				}
 				catch (const Exception &e)
 				{
-					KMessageBox::error(this, e.what());
+					QMessageBox::critical(this, tr("Error"), e.what());
 				}
 			}
 		}
 		else
 		{
-			KMessageBox::error(this, tr("Unable to open downloaded file %1.").arg(file));
+			QMessageBox::critical(this, tr("Error"), tr("Unable to open downloaded file %1.").arg(file));
 		}
 
 		this->source()->removeTempFile(file);
@@ -422,7 +419,7 @@ void ObjectEditor::importAll()
 {
 	if (QMessageBox::question(this, tr("Import All"), tr("Importing all objects replaces all of your current modifications. Continue?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
 	{
-		const KUrl url = KFileDialog::getOpenUrl(KUrl(), tr("*|All Files\n%1\nCustom Units (*.w3u)\nMap (*.w3m *.w3x)").arg(objectsCollectionFilter()), this, source()->sharedData()->tr("WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"));
+		const QUrl url = QFileDialog::getOpenFileUrl(this, source()->sharedData()->tr("WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"), QUrl(), tr("*|All Files\n%1\nCustom Units (*.w3u)\nMap (*.w3m *.w3x)").arg(objectsCollectionFilter()));
 
 		if (!url.isEmpty())
 		{
@@ -467,7 +464,7 @@ void ObjectEditor::widgetizeAll()
 					loadTabDataOnRequest(i);
 				}
 
-				this->tab(i)->objectData()->widgetize(KUrl::fromLocalFile(dir));
+				this->tab(i)->objectData()->widgetize(QUrl::fromLocalFile(dir));
 			}
 		}
 		catch (Exception &e)
@@ -701,7 +698,7 @@ void ObjectEditor::loadTabDataOnRequest(int index)
 		}
 		catch (const Exception &e)
 		{
-			KMessageBox::error(this, e.what());
+			QMessageBox::critical(this, tr("Error"), e.what());
 		}
 
 		cursor = this->cursor();

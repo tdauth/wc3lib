@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>311</width>
-    <height>361</height>
+    <height>413</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -199,7 +199,7 @@
     </widget>
    </item>
    <item row="3" column="0">
-    <widget class="KDialogButtonBox" name="dialogButtonBox">
+    <widget class="QDialogButtonBox" name="dialogButtonBox">
      <property name="standardButtons">
       <set>QDialogButtonBox::Close</set>
      </property>
@@ -210,46 +210,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>KDialogButtonBox</class>
-   <extends>QDialogButtonBox</extends>
-   <header>kdialogbuttonbox.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>dialogButtonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>ArchiveInfoDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>137</x>
-     <y>347</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>401</x>
-     <y>201</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>dialogButtonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>ArchiveInfoDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>92</x>
-     <y>338</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>403</x>
-     <y>158</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

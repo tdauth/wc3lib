@@ -20,9 +20,7 @@
 
 #include <boost/cast.hpp>
 
-#include <QtGui>
-
-#include <KFileDialog>
+#include <QtWidgets/QtWidgets>
 
 #include "listfilesdialog.hpp"
 #include "platform.hpp"
@@ -44,7 +42,7 @@ ListfilesDialog::ListfilesDialog(QWidget* parent, Qt::WindowFlags flags) : QDial
 	this->fill();
 }
 
-int ListfilesDialog::show(mpq::Listfile::Entries& entries, QWidget* parent)
+int ListfilesDialog::show(mpq::Listfile::Entries &entries, QWidget *parent)
 {
 	if (m_dialog == 0)
 	{
@@ -138,12 +136,13 @@ mpq::Listfile::Entries ListfilesDialog::checkedEntries() const
 
 void ListfilesDialog::addFiles()
 {
-	KUrl::List urls = KFileDialog::getOpenUrls(this->m_addUrl, "*.txt", this, tr("Add listfile"));
+	const QList<QUrl> urls = QFileDialog::getOpenFileUrls(this, tr("Add listfile"), this->m_addUrl, "*.txt");
 
-	foreach (KUrl::List::const_reference ref, urls)
+	foreach (QUrl ref, urls)
 	{
-		this->addFile(QFileInfo(ref.toLocalFile()));
-		this->m_addUrl = ref.directory();
+		const QFileInfo fileInfo = QFileInfo(ref.toLocalFile());
+		this->addFile(fileInfo);
+		this->m_addUrl = QUrl::fromLocalFile(fileInfo.absoluteDir().path());
 	}
 }
 

@@ -18,8 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <kapplication.h>
-
 #include "modeleditorsettings.hpp"
 #include "modeleditor.hpp"
 #include "modeleditorview.hpp"
@@ -30,21 +28,21 @@ namespace wc3lib
 namespace editor
 {
 
-ModelEditorSettings::ModelEditorSettings(class ModelEditor *modelEditor) : ModelViewSettings(modelEditor->modelView()), m_modelEditor(modelEditor)
+ModelEditorSettings::ModelEditorSettings(ModelEditor *modelEditor) : m_modelEditor(modelEditor)
 {
 }
 
-void ModelEditorSettings::read(const KConfigGroup &group)
+void ModelEditorSettings::read(QSettings &settings)
 {
-	ModelViewSettings::read(group);
-	this->modelEditor()->m_recentUrl = group.readEntry("FilePath", "");
+	settings.beginGroup(this->groupName());
+	this->modelEditor()->m_recentUrl = settings.value("FilePath", "").toUrl();
 	/// @todo Read some preview settings which are not related to OGRE rather than to Warcraft 3 (fog, environment lighting, time of day)
 }
 
-void ModelEditorSettings::write(KConfigGroup &group) const
+void ModelEditorSettings::write(QSettings &settings) const
 {
-	ModelViewSettings::write(group);
-	group.writeEntry("FilePath", this->modelEditor()->m_recentUrl);
+	settings.beginGroup(this->groupName());
+	settings.setValue("FilePath", this->modelEditor()->m_recentUrl);
 }
 
 QString ModelEditorSettings::groupName() const

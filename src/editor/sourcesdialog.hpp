@@ -22,8 +22,7 @@
 #define WC3LIB_EDITOR_SOURCESDIALOG_HPP
 
 #include <QDialog>
-
-#include <kdemacros.h>
+#include <QUrl>
 
 #include "ui_sourcesdialog.h"
 
@@ -38,18 +37,22 @@ class MpqPriorityList;
 /**
  * \brief GUI dialog which allows selection of sources based on class \ref MpqPriorityList.
  *
- * It uses a simple KDE edit list box with a URL completion model.
+ * It uses a simple list widget with a URL completion model.
  * All changes on its list do directly affect its corresponding source (\ref source()).
  *
  * The higher entries have a higher priority than the lower entries reordering items will change priorities as well.
  *
  * \note Since MpqPriorityList doesn't provide any signals you'll have to call update when any changes on its source were made.
  */
-class KDE_EXPORT SourcesDialog : public QDialog, protected Ui::SourcesDialog
+class SourcesDialog : public QDialog, protected Ui::SourcesDialog
 {
 	Q_OBJECT
 
+	public:
+		typedef QList<QUrl> Urls;
+
 	public slots:
+
 		/**
 		 * Updates the list of all source based on stored sources of corresponding source object (\ref source()).
 		 */
@@ -68,7 +71,7 @@ class KDE_EXPORT SourcesDialog : public QDialog, protected Ui::SourcesDialog
 		/**
 		 * Adds all items from \p items at the beginning of the current items.
 		 */
-		void prepend(const QStringList &items);
+		void prepend(const Urls &items);
 
 	public:
 		/**
@@ -78,7 +81,7 @@ class KDE_EXPORT SourcesDialog : public QDialog, protected Ui::SourcesDialog
 		 * \param parent The parent widget of the dialog.
 		 * \param flags The window flags of the dialog.
 		 */
-		SourcesDialog(MpqPriorityList *source, QWidget *parent = 0, Qt::WFlags flags = 0);
+		SourcesDialog(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags flags = 0);
 
 		/**
 		 * \return Returns the associated source of which the entries are listed.
@@ -86,7 +89,7 @@ class KDE_EXPORT SourcesDialog : public QDialog, protected Ui::SourcesDialog
 		MpqPriorityList* source() const;
 
 	protected slots:
-		void added(const QString &text);
+		void addUrlSlot();
 		void ok();
 		/**
 		 * \note Don't reload any sources which have already been added except there is a new one with higher priority.
@@ -97,12 +100,14 @@ class KDE_EXPORT SourcesDialog : public QDialog, protected Ui::SourcesDialog
 	protected:
 		virtual void showEvent(QShowEvent *e);
 
-		bool prepareItem(const QString &item, QString &result);
+		bool prepareItem(const QUrl &item, QUrl &result);
 
 		QString settingsGroup() const;
 
 	private:
-		class MpqPriorityList *m_source;
+		void addUrl(const QUrl &url);
+
+		MpqPriorityList *m_source;
 };
 
 inline MpqPriorityList* SourcesDialog::source() const

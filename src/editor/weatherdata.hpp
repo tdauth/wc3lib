@@ -29,7 +29,7 @@ namespace wc3lib
 namespace editor
 {
 
-class KDE_EXPORT WeatherData : public ObjectData
+class WeatherData : public ObjectData
 {
 	public:
 		WeatherData(MpqPriorityList *source, QObject *parent = 0);

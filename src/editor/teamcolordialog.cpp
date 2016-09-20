@@ -28,19 +28,10 @@ namespace wc3lib
 namespace editor
 {
 
-TeamColorDialog::TeamColorDialog(QWidget *parent, Qt::WFlags flags) : QDialog(parent, flags)
+TeamColorDialog::TeamColorDialog(QWidget *parent, Qt::WindowFlags flags) : QDialog(parent, flags)
 {
 	setupUi(this);
 
-	QList<QColor> colors;
-
-	for (TeamColor teamColor = TeamColor::Red; static_cast<int>(teamColor) < MaxTeamColors; teamColor = static_cast<TeamColor>((static_cast<int>(teamColor) + 1)))
-	{
-		colors << editor::teamColor(teamColor);
-	}
-
-	this->m_colorComboBox->clear();
-	this->m_colorComboBox->setColors(colors);
 	//connect(this->m_colorComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateColor(int)));
 }
 

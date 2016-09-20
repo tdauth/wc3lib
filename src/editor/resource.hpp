@@ -23,9 +23,7 @@
 
 #include <QFileInfo>
 #include <QDir>
-
-#include <kdemacros.h>
-#include <KUrl>
+#include <QUrl>
 
 namespace wc3lib
 {
@@ -41,7 +39,7 @@ class MpqPriorityList;
  * Besides each resource has its corresponding file URL and data source which makes all resource instance completly independent from each other.
  * Resources depend on \ref MpqPriorityList instances, called sources, when being loaded or saved. Therefore one single source instance can be assigned to each resource.
  */
-class KDE_EXPORT Resource
+class Resource
 {
 	public:
 		/**
@@ -61,7 +59,7 @@ class KDE_EXPORT Resource
 			MetaData
 		};
 
-		Resource(const KUrl &url, Type type);
+		Resource(const QUrl &url, Type type);
 		virtual ~Resource();
 		/**
 		 * Assigns the corresponding source.
@@ -78,16 +76,16 @@ class KDE_EXPORT Resource
 		 * \sa MpqPriorityList::download()
 		 * \sa MpqPriorityList::upload()
 		 */
-		const KUrl& url() const;
+		const QUrl& url() const;
 		Type type() const;
 
 		virtual void load() = 0;
 		virtual void reload() = 0;
-		virtual void save(const KUrl &url) const = 0;
+		virtual void save(const QUrl &url) const = 0;
 
 	protected:
 		MpqPriorityList *m_source;
-		KUrl m_url;
+		QUrl m_url;
 		Type m_type;
 };
 
@@ -96,7 +94,7 @@ inline MpqPriorityList* Resource::source() const
 	return m_source;
 }
 
-inline const KUrl& Resource::url() const
+inline const QUrl& Resource::url() const
 {
 	return m_url;
 }

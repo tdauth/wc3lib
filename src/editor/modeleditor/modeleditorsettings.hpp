@@ -21,7 +21,7 @@
 #ifndef WC3LIB_EDITOR_MODELEDITORSETTINGS_HPP
 #define WC3LIB_EDITOR_MODELEDITORSETTINGS_HPP
 
-#include "../modelviewsettings.hpp"
+#include "../settingsinterface.hpp"
 
 namespace wc3lib
 {
@@ -29,22 +29,24 @@ namespace wc3lib
 namespace editor
 {
 
-class ModelEditorSettings : public ModelViewSettings
+class ModelEditor;
+
+class ModelEditorSettings : public SettingsInterface
 {
 	public:
-		ModelEditorSettings(class ModelEditor *modelEditor);
+		ModelEditorSettings(ModelEditor *modelEditor);
 
-		virtual void read(const KConfigGroup &group);
-		virtual void write(KConfigGroup &group) const;
+		virtual void read(QSettings &settings) override;
+		virtual void write(QSettings &settings) const override;
 		virtual QString groupName() const;
 
-		class ModelEditor* modelEditor() const;
+		ModelEditor* modelEditor() const;
 
 	protected:
-		class ModelEditor *m_modelEditor;
+		ModelEditor *m_modelEditor;
 };
 
-inline class ModelEditor* ModelEditorSettings::modelEditor() const
+inline ModelEditor* ModelEditorSettings::modelEditor() const
 {
 	return this->m_modelEditor;
 }

@@ -39,7 +39,7 @@ class MetaData;
  *
  * \ingroup objectdata
  */
-class KDE_EXPORT MiscData : public ObjectData
+class MiscData : public ObjectData
 {
 	public:
 		MiscData(MpqPriorityList *source, QObject *parent = 0);

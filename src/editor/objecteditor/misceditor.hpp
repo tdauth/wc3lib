@@ -33,7 +33,7 @@ namespace editor
 
 class MiscData;
 
-class KDE_EXPORT MiscEditor : public ObjectEditorTab
+class MiscEditor : public ObjectEditorTab
 {
 	public:
 		public:
@@ -61,9 +61,9 @@ class KDE_EXPORT MiscEditor : public ObjectEditorTab
 		virtual QString copyObjectText() const override;
 		virtual QString pasteObjectText() const override;
 
-		virtual KUrl copyObjectIconUrl() const override;
-		virtual KUrl pasteObjectIconUrl() const override;
-		virtual KUrl newObjectIconUrl() const override;
+		virtual QUrl copyObjectIconUrl() const override;
+		virtual QUrl pasteObjectIconUrl() const override;
+		virtual QUrl newObjectIconUrl() const override;
 };
 
 inline MiscData* MiscEditor::miscData() const
@@ -126,19 +126,19 @@ inline QIcon MiscEditor::tabIcon(QWidget* widget) const
 	return objectEditor()->source()->sharedData()->worldEditDataIcon("ToolBarIcon_OE_NewItem", "WorldEditArt", widget);
 }
 
-inline KUrl MiscEditor::copyObjectIconUrl() const
+inline QUrl MiscEditor::copyObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Copy.blp");
+	return QUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Copy.blp");
 }
 
-inline KUrl MiscEditor::pasteObjectIconUrl() const
+inline QUrl MiscEditor::pasteObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Paste.blp");
+	return QUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Paste.blp");
 }
 
-inline KUrl MiscEditor::newObjectIconUrl() const
+inline QUrl MiscEditor::newObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Unit.blp");
+	return QUrl("ReplaceableTextures/WorldEditUI/Editor-Unit.blp");
 }
 
 }

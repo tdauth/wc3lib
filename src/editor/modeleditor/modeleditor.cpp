@@ -22,12 +22,9 @@
 #include <boost/filesystem/fstream.hpp>
 
 #include <QtGui>
+#include <QtWidgets/QtWidgets>
 
 #include <boost/foreach.hpp>
-
-#include <KFileDialog>
-#include <KColorDialog>
-#include <KIO/NetAccess>
 
 #include "modeleditor.hpp"
 #include "modeleditorview.hpp"
@@ -35,7 +32,6 @@
 #include "../../utilities.hpp"
 #include "../resource.hpp"
 #include "modeleditorsettings.hpp"
-#include "modeleditorsettingsdialog.hpp"
 #include "../renderstatswidget.hpp"
 #include "../teamcolordialog.hpp"
 
@@ -48,7 +44,6 @@ namespace editor
 ModelEditor::ModelEditor(Root *root, class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f)
 : Module(source, parent, f)
 , m_modelView(new ModelEditorView(root, this))
-, m_settingsDialog(0)
 , m_recentUrl("")
 , m_models()
 , m_viewMenu(0)
@@ -133,7 +128,7 @@ void ModelEditor::retranslateUi()
 
 void ModelEditor::hideCollisionShapes()
 {
-	this->m_showCollisionShapesAction->setText(i18n("Show Collision Shapes"));
+	this->m_showCollisionShapesAction->setText(tr("Show Collision Shapes"));
 
 	BOOST_FOREACH(CollisionShapeNodes::left_value_type value, m_collisionShapeNodes.left)
 	{
@@ -147,14 +142,14 @@ void ModelEditor::hideCollisionShapes()
 
 void ModelEditor::openFile()
 {
-	KUrl::List urls = KFileDialog::getOpenUrls(this->m_recentUrl, i18n("*.mdl|Blizzard Model (*.mdl)\n*.mdx|Compressed Blizzard Model (*.mdx)\n*|All files (*)"), this);
+	const QList<QUrl> urls = QFileDialog::getOpenFileUrls(this, tr("Open Model"), this->m_recentUrl, tr("*.mdl|Blizzard Model (*.mdl)\n*.mdx|Compressed Blizzard Model (*.mdx)\n*|All files (*)"));
 
 	if (urls.isEmpty())
 	{
 		return;
 	}
 
-	foreach (const KUrl &url, urls)
+	foreach (const QUrl &url, urls)
 	{
 		this->openUrl(url);
 	}
@@ -169,7 +164,7 @@ void ModelEditor::saveFile()
 		return;
 	}
 
-	KUrl url = KFileDialog::getSaveUrl(this->m_recentUrl, i18n("*.mdl|Blizzard Model (*.mdl)\n*.mdx|Compressed Blizzard Model (*.mdx)\n*.mesh|OGRE mesh (*.mesh)\n*|All files (*)"), this);
+	const QUrl url = QFileDialog::getSaveFileUrl(this, tr("Save File"), this->m_recentUrl, tr("*.mdl|Blizzard Model (*.mdl)\n*.mdx|Compressed Blizzard Model (*.mdx)\n*.mesh|OGRE mesh (*.mesh)\n*|All files (*)"));
 
 	if (url.isEmpty())
 	{
@@ -236,11 +231,11 @@ void ModelEditor::showStats()
 
 	if (this->m_renderStatsWidget->isVisible())
 	{
-		m_showStatsAction->setText(i18n("Show Stats"));
+		m_showStatsAction->setText(tr("Show Stats"));
 	}
 	else
 	{
-		m_showStatsAction->setText(i18n("Hide Stats"));
+		m_showStatsAction->setText(tr("Hide Stats"));
 	}
 
 
@@ -310,7 +305,7 @@ void ModelEditor::showCollisionShapes()
 {
 	if (collisionShapeNodes().left.empty())
 	{
-		this->m_showCollisionShapesAction->setText(i18n("Hide Collision Shapes"));
+		this->m_showCollisionShapesAction->setText(tr("Hide Collision Shapes"));
 		qDebug() << "Showing collision shapes";
 
 		BOOST_FOREACH(Models::reference value, models())
@@ -370,7 +365,9 @@ void ModelEditor::showCollisionShapes()
 		}
 	}
 	else
+	{
 		hideCollisionShapes();
+	}
 }
 
 void ModelEditor::changeTeamColor()
@@ -448,7 +445,7 @@ void ModelEditor::dropEvent(QDropEvent *event)
 	}
 }
 
-bool ModelEditor::openUrl(const KUrl &url)
+bool ModelEditor::openUrl(const QUrl &url)
 {
 	//const Ogre::Vector3 position(0.0, 0.0, 0.0);
 	std::auto_ptr<OgreMdlx> ogreModel(new OgreMdlx(url, this->m_modelView));
@@ -528,7 +525,7 @@ void ModelEditor::addCameraActions(const OgreMdlx &ogreModel)
 	{
 		BOOST_FOREACH(OgreMdlx::Cameras::const_reference iterator, ogreModel.cameras())
 		{
-			QAction *action = new QAction(QIcon(":/actions/viewcamera.png"), i18n("Camera: %1", iterator.first->name()), this);
+			QAction *action = new QAction(QIcon(":/actions/viewcamera.png"), tr("Camera: %1", iterator.first->name()), this);
 			connect(action, SIGNAL(triggered()), this, SLOT(viewCamera()));
 			this->m_viewMenu->addAction(action);
 			this->m_cameraActions.left.insert(CameraActions::left_value_type(action, iterator.first));
@@ -557,23 +554,23 @@ void ModelEditor::createFileActions(QMenu *menu)
 {
 	QAction *action = 0;
 
-	action = new QAction(QIcon(":/actions/openmodel.png"), i18n("Open model"), this);
-	//action->setShortcut(KShortcut(i18n("Ctrl+O")));
+	action = new QAction(QIcon(":/actions/openmodel.png"), tr("Open model"), this);
+	//action->setShortcut(KShortcut(tr("Ctrl+O")));
 	connect(action, SIGNAL(triggered()), this, SLOT(openFile()));
 	menu->addAction(action);
 
-	action = new QAction(QIcon(":/actions/savemodel.png"), i18n("Save model"), this);
-	//action->setShortcut(KShortcut(i18n("Ctrl+S")));
+	action = new QAction(QIcon(":/actions/savemodel.png"), tr("Save model"), this);
+	//action->setShortcut(KShortcut(tr("Ctrl+S")));
 	connect(action, SIGNAL(triggered()), this, SLOT(saveFile()));
 	menu->addAction(action);
 
-	action = new QAction(QIcon(":/actions/closeallmodels.png"), i18n("Close all models"), this);
-	//action->setShortcut(KShortcut(i18n("
+	action = new QAction(QIcon(":/actions/closeallmodels.png"), tr("Close all models"), this);
+	//action->setShortcut(KShortcut(tr("
 	connect(action, SIGNAL(triggered()), this, SLOT(closeAllFiles()));
 	menu->addAction(action);
 
-	action = new QAction(QIcon(":/actions/settings.png"), i18n("Settings"), this);
-	//action->setShortcut(KShortcut(i18n("Ctrl+O")));
+	action = new QAction(QIcon(":/actions/settings.png"), tr("Settings"), this);
+	//action->setShortcut(KShortcut(tr("Ctrl+O")));
 	connect(action, SIGNAL(triggered()), this, SLOT(settings()));
 	menu->addAction(action);
 }
@@ -585,43 +582,43 @@ void ModelEditor::createEditActions(QMenu *menu)
 
 void ModelEditor::createMenus(QMenuBar *menuBar)
 {
-	QMenu *viewMenu = new QMenu(i18n("View"), this);
+	QMenu *viewMenu = new QMenu(tr("View"), this);
 	this->m_viewMenu = viewMenu;
 	menuBar->addMenu(viewMenu);
 
 	// test actions for one single view port/camera
 
-	QAction *action = new QAction(QIcon(":/actions/centerview.png"), i18n("Center View"), this);
+	QAction *action = new QAction(QIcon(":/actions/centerview.png"), tr("Center View"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(centerView()));
 	viewMenu->addAction(action);
 
-	action = new QAction(QIcon(":/actions/polygonmodepoints.png"), i18n("Polygon Mode Points"), this);
+	action = new QAction(QIcon(":/actions/polygonmodepoints.png"), tr("Polygon Mode Points"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(setPolygonModePoints()));
 	viewMenu->addAction(action);
 
-	action = new QAction(QIcon(":/actions/polygonmodewireframe.png"), i18n("Polygon Mode Wireframe"), this);
+	action = new QAction(QIcon(":/actions/polygonmodewireframe.png"), tr("Polygon Mode Wireframe"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(setPolygonModeWireframe()));
 	viewMenu->addAction(action);
 
-	action = new QAction(QIcon(":/actions/polygonmodesolid.png"), i18n("Polygon Mode Solid"), this);
+	action = new QAction(QIcon(":/actions/polygonmodesolid.png"), tr("Polygon Mode Solid"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(setPolygonModeSolid()));
 	viewMenu->addAction(action);
 
-	action = new QAction(QIcon(":/actions/showstats.png"), i18n("Show Stats"), this);
+	action = new QAction(QIcon(":/actions/showstats.png"), tr("Show Stats"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(showStats()));
 	viewMenu->addAction(action);
 	m_showStatsAction = action;
 
-	action = new QAction(QIcon(":/actions/showcollisionshapes.png"), i18n("Show Collision Shapes"), this);
+	action = new QAction(QIcon(":/actions/showcollisionshapes.png"), tr("Show Collision Shapes"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(showCollisionShapes()));
 	viewMenu->addAction(action);
 	m_showCollisionShapesAction = action;
 
-	action = new QAction(QIcon(":/actions/changeteamcolor.png"), i18n("Change team color"), this);
+	action = new QAction(QIcon(":/actions/changeteamcolor.png"), tr("Change team color"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(changeTeamColor()));
 	viewMenu->addAction(action);
 
-	action = new QAction(QIcon(":/actions/changeteamglow.png"), i18n("Change team glow"), this);
+	action = new QAction(QIcon(":/actions/changeteamglow.png"), tr("Change team glow"), this);
 	connect(action, SIGNAL(triggered()), this, SLOT(changeTeamGlow()));
 	viewMenu->addAction(action);
 
@@ -649,7 +646,7 @@ void ModelEditor::onSwitchToMap(Map *map)
 
 QIcon ModelEditor::icon()
 {
-	return this->source()->sharedData()->icon(KUrl("ReplaceableTextures/WorldEditUI/Editor-ImportManager.blp"), this);
+	return this->source()->sharedData()->icon(QUrl("ReplaceableTextures/WorldEditUI/Editor-ImportManager.blp"), this);
 }
 
 #include "moc_modeleditor.cpp"

@@ -9,4 +9,4 @@ set(wc3lib_EDITOR_UI
 	ui/teamcolordialog.ui
 	ui/toolicons.ui
 	ui/viewportsettings.ui
- PARENT_SCOPE)
+	PARENT_SCOPE)

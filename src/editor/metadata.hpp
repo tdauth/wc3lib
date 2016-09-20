@@ -23,8 +23,6 @@
 
 #include <QHash>
 
-#include <kdemacros.h>
-
 #include "resource.hpp"
 #include "../map.hpp"
 
@@ -34,7 +32,7 @@ namespace wc3lib
 namespace editor
 {
 
-class KDE_EXPORT TextSourceInterface
+class TextSourceInterface
 {
 	public:
 		virtual ~TextSourceInterface();
@@ -58,7 +56,7 @@ class KDE_EXPORT TextSourceInterface
 		virtual TextSourceInterface* clone() const = 0;
 };
 
-class KDE_EXPORT SlkTextSource : public TextSourceInterface
+class SlkTextSource : public TextSourceInterface
 {
 	public:
 		/**
@@ -129,7 +127,7 @@ inline int SlkTextSource::rows() const
 	return this->rowKeys().size();
 }
 
-class KDE_EXPORT TxtTextSource : public TextSourceInterface
+class TxtTextSource : public TextSourceInterface
 {
 	public:
 		/**
@@ -249,7 +247,7 @@ inline int TxtTextSource::rows() const
 /**
  * \note Ignores the column key. Only uses the row key for string keys.
  */
-class KDE_EXPORT MapStringsTextSource : public TextSourceInterface
+class MapStringsTextSource : public TextSourceInterface
 {
 	public:
 		/**
@@ -354,10 +352,10 @@ inline int MapStringsTextSource::rows() const
  *
  * \todo Add FDF support.
  */
-class KDE_EXPORT MetaData : public Resource
+class MetaData : public Resource
 {
 	public:
-		MetaData(const KUrl &url);
+		MetaData(const QUrl &url);
 		/**
 		 * Creates a copy of \p other.
 		 */
@@ -368,7 +366,7 @@ class KDE_EXPORT MetaData : public Resource
 
 		virtual void load() override;
 		virtual void reload() override;
-		virtual void save(const KUrl &url) const override;
+		virtual void save(const QUrl &url) const override;
 
 		/**
 		 * \return Returns an instance of the actual source which is hidden behind this class.

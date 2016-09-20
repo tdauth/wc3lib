@@ -39,7 +39,7 @@ class UnitSelectionDialog;
  *
  * \ingroup objectdata
  */
-class KDE_EXPORT UnitEditor : public ObjectEditorTab
+class UnitEditor : public ObjectEditorTab
 {
 	public:
 		UnitEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
@@ -69,9 +69,9 @@ class KDE_EXPORT UnitEditor : public ObjectEditorTab
 		virtual QString copyObjectText() const override;
 		virtual QString pasteObjectText() const override;
 
-		virtual KUrl copyObjectIconUrl() const override;
-		virtual KUrl pasteObjectIconUrl() const override;
-		virtual KUrl newObjectIconUrl() const override;
+		virtual QUrl copyObjectIconUrl() const override;
+		virtual QUrl pasteObjectIconUrl() const override;
+		virtual QUrl newObjectIconUrl() const override;
 
 		UnitSelectionDialog *m_unitSelectionDialog;
 };
@@ -141,19 +141,19 @@ inline QIcon UnitEditor::tabIcon(QWidget *widget) const
 	return objectEditor()->source()->sharedData()->worldEditDataIcon("ToolBarIcon_OE_NewUnit", "WorldEditArt", widget);
 }
 
-inline KUrl UnitEditor::copyObjectIconUrl() const
+inline QUrl UnitEditor::copyObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Copy.blp");
+	return QUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Copy.blp");
 }
 
-inline KUrl UnitEditor::pasteObjectIconUrl() const
+inline QUrl UnitEditor::pasteObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Paste.blp");
+	return QUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Paste.blp");
 }
 
-inline KUrl UnitEditor::newObjectIconUrl() const
+inline QUrl UnitEditor::newObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Unit.blp");
+	return QUrl("ReplaceableTextures/WorldEditUI/Editor-Unit.blp");
 }
 
 }

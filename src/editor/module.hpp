@@ -30,8 +30,6 @@
 #include <QAction>
 #include <QMenuBar>
 
-#include <kdemacros.h>
-
 namespace wc3lib
 {
 
@@ -54,7 +52,7 @@ class ResourcesDialog;
  * \note Modules should work independently without an Editor instance. They only need a data source.
  * \note Since Module is based on KXMLGUIClient it provides an extensible system using specific XML GUI files.
  */
-class KDE_EXPORT Module : public QWidget
+class Module : public QWidget
 {
 	Q_OBJECT
 

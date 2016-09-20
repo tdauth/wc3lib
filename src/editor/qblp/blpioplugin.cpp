@@ -18,8 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <Qt/QtGui>
-
 #include "blpioplugin.hpp"
 #include "blpiohandler.hpp"
 #include "../../blp/blp.hpp"
@@ -29,8 +27,6 @@ namespace wc3lib
 
 namespace editor
 {
-
-Q_EXPORT_PLUGIN2(blpioplugin, BlpIOPlugin)
 
 BlpIOPlugin::BlpIOPlugin(QObject *parent) : QImageIOPlugin(parent)
 {
@@ -75,11 +71,6 @@ QImageIOHandler* BlpIOPlugin::create(QIODevice *device, const QByteArray &format
 	result->setFormat(format);
 
 	return result;
-}
-
-QStringList BlpIOPlugin::keys() const
-{
-	return QStringList("blp");
 }
 
 }

@@ -20,8 +20,6 @@
 
 #include <QtGui>
 
-#include <KLocale>
-
 #include "terraineditor.hpp"
 #include "../editor.hpp"
 
@@ -38,7 +36,7 @@ void TerrainEditor::loadEnvironment(const map::Environment &environment)
 
 TerrainEditor::TerrainEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_modelView(new ModelView(hasEditor() ? editor()->root() : 0))//, m_terrainGlobals(new Ogre::TerrainGlobalOptions()), m_terrainGroup(0)
 {
-	setWindowTitle(i18n("Terrain Editor"));
+	setWindowTitle(tr("Terrain Editor"));
 	Module::setupUi();
 	centerLayout()->addWidget(modelView());
 }

@@ -20,12 +20,7 @@
 
 #include <QtCore>
 #include <QtGui>
-
-#include <KLineEdit>
-#include <KUrlCompletion>
-#include <KUrlRequester>
-#include <KMessageBox>
-#include <KFileDialog>
+#include <QtWidgets/QtWidgets>
 
 #include "sourcesdialog.hpp"
 #include "mpqprioritylist.hpp"
@@ -46,15 +41,16 @@ void SourcesDialog::update()
 
 	BOOST_REVERSE_FOREACH(MpqPriorityList::Sources::const_reference source, const_cast<const MpqPriorityList*>(this->source())->sources())
 	{
-		m_editListBox->insertItem(source.url().toEncoded());
+		this->addUrl(source.url());
 	}
 }
 
 void SourcesDialog::addWc3libDir()
 {
 #ifdef Q_OS_UNIX
-	const KUrl url = KUrl("/usr/share/wc3lib/war3");
-	const QStringList items(url.toLocalFile());
+	const QUrl url = QUrl::fromLocalFile("/usr/share/wc3lib/war3");
+	Urls items;
+	items.push_back(url);
 	this->prepend(items);
 #else
 #warning Fix wc3lib directory on this platform.
@@ -63,11 +59,11 @@ void SourcesDialog::addWc3libDir()
 
 void SourcesDialog::addWc3Dir()
 {
-	const KUrl url = KFileDialog::getExistingDirectoryUrl(KUrl(), this, tr("Select Warcraft III Directory"));
+	const QUrl url = QFileDialog::getExistingDirectoryUrl(this, tr("Select Warcraft III Directory"));
 
 	if (!url.isEmpty())
 	{
-		QMap<int, KUrl> urls;
+		QMap<int, QUrl> urls;
 		const QFileInfo fileInfo(url.toLocalFile());
 
 		if (fileInfo.isDir())
@@ -83,19 +79,19 @@ void SourcesDialog::addWc3Dir()
 
 					if (info.fileName().toLower() == "war3patch.mpq")
 					{
-						urls.insert(3, KUrl(info.absoluteFilePath()));
+						urls.insert(3, QUrl::fromLocalFile(info.absoluteFilePath()));
 					}
 					else if (info.fileName().toLower() == "war3xlocal.mpq")
 					{
-						urls.insert(2, KUrl(info.absoluteFilePath()));
+						urls.insert(2, QUrl::fromLocalFile(info.absoluteFilePath()));
 					}
 					else if (info.fileName().toLower() == "war3x.mpq")
 					{
-						urls.insert(1, KUrl(info.absoluteFilePath()));
+						urls.insert(1, QUrl::fromLocalFile(info.absoluteFilePath()));
 					}
 					else if (info.fileName().toLower() == "war3.mpq")
 					{
-						urls.insert(0, KUrl(info.absoluteFilePath()));
+						urls.insert(0, QUrl::fromLocalFile(info.absoluteFilePath()));
 					}
 				}
 			}
@@ -103,15 +99,15 @@ void SourcesDialog::addWc3Dir()
 
 		if (urls.isEmpty())
 		{
-			KMessageBox::error(this, tr("Invalid Warcraft III dir."));
+			QMessageBox::critical(this, tr("Error"), tr("Invalid Warcraft III dir."));
 		}
 		else
 		{
-			QStringList items;
+			Urls items;
 
-			for (QMap<int, KUrl>::iterator iterator = urls.begin(); iterator != urls.end(); ++iterator)
+			for (QMap<int, QUrl>::iterator iterator = urls.begin(); iterator != urls.end(); ++iterator)
 			{
-				items.append(iterator.value().toLocalFile());
+				items.append(iterator.value());
 			}
 
 			this->prepend(items);
@@ -124,13 +120,13 @@ void SourcesDialog::clear()
 	this->m_editListBox->clear();
 }
 
-void SourcesDialog::prepend(const QStringList &items)
+void SourcesDialog::prepend(const Urls &items)
 {
-	QStringList newItems;
+	Urls newItems;
 
-	foreach (QString item, items)
+	foreach (QUrl item, items)
 	{
-		QString result;
+		QUrl result;
 
 
 		bool add = prepareItem(item, result);
@@ -141,73 +137,72 @@ void SourcesDialog::prepend(const QStringList &items)
 		}
 	}
 
-	QStringList oldItems = m_editListBox->items();
+	Urls oldItems;
 
-	foreach (QString item, newItems)
+	for (int i = 0; i < m_editListBox->count(); ++i)
+	{
+		const QListWidgetItem *item = m_editListBox->item(i);
+		oldItems.push_back(item->data(Qt::UserRole).toUrl());
+	}
+
+	foreach (QUrl item, newItems)
 	{
 		oldItems.prepend(item);
 	}
 
-	m_editListBox->setItems(oldItems);
+	m_editListBox->clear();
+
+	foreach (QUrl url, oldItems)
+	{
+		this->addUrl(url);
+	}
 }
 
-SourcesDialog::SourcesDialog(MpqPriorityList *source, QWidget *parent, Qt::WFlags flags)
+SourcesDialog::SourcesDialog(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags flags)
 : QDialog(parent, flags)
 , m_source(source)
 {
 	setupUi(this);
 
-	//m_editListBox->
-	// TODO use URL requester
-	//KUrlRequester *requester = new KUrlRequester(this);
-	//KUrlCompletion *urlCompletion = new KUrlCompletion(KUrlCompletion::DirCompletion);
-	//m_editListBox->lineEdit()->setCompletionObject(urlCompletion);
-	//m_editListBox->setCustomEditor(*requester);
-
-	KUrlRequester *urlRequester = new KUrlRequester(m_editListBox);
-	urlRequester->setMode(KFile::ExistingOnly | KFile::File | KFile::Directory);
-
-	KMimeType::Ptr mpq(KMimeType::mimeType("application/x-mpq"));
-	KMimeType::Ptr w3m(KMimeType::mimeType("application/x-w3m"));
-	KMimeType::Ptr w3x(KMimeType::mimeType("application/x-w3x"));
-	KMimeType::Ptr w3n(KMimeType::mimeType("application/x-w3n"));
+	QMimeDatabase db;
+	const QMimeType mpq = db.mimeTypeForName("application/x-mpq");
+	const QMimeType w3m = db.mimeTypeForName("application/x-w3m");
+	const QMimeType w3x = db.mimeTypeForName("application/x-w3x");
+	const QMimeType w3n = db.mimeTypeForName("application/x-w3n");
 	QString filter;
 
-	if (mpq.isNull() || w3m.isNull() || w3x.isNull() || w3n.isNull())
+	if (!mpq.isValid() || !w3m.isValid() || !w3x.isValid() || !w3n.isValid())
 	{
-		filter = i18n("*|All Files\n*.mpq;*.w3m;*.w3x;*.w3n|Blizzard archives");
+		filter = tr("*|All Files\n*.mpq;*.w3m;*.w3x;*.w3n|Blizzard archives");
 	}
 	else
 	{
-		filter = i18n("all/allfiles application/x-mpq application/x-w3m application/x-w3x application/x-w3n");
+		filter = tr("all/allfiles application/x-mpq application/x-w3m application/x-w3x application/x-w3n");
 	}
-
-	urlRequester->setFilter(filter);
-	KEditListWidget::CustomEditor customEditor(urlRequester, urlRequester->lineEdit());
-	m_editListBox->setCustomEditor(customEditor);
 
 	connect(m_dialogButtonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(ok()));
 	connect(m_dialogButtonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
 	connect(m_dialogButtonBox->button(QDialogButtonBox::RestoreDefaults), SIGNAL(clicked()), this, SLOT(restoreDefaults()));
-	connect(m_editListBox, SIGNAL(added(QString)), this, SLOT(added(QString)));
+	connect(m_addUrlPushButton, SIGNAL(clicked()), this, SLOT(addUrlSlot()));
 	connect(m_wc3libDirPushButton, SIGNAL(clicked()), this, SLOT(addWc3libDir()));
 	connect(m_wc3DirPushButton, SIGNAL(clicked()), this, SLOT(addWc3Dir()));
 	connect(m_clearPushButton, SIGNAL(clicked()), this, SLOT(clear()));
 }
 
-void SourcesDialog::added(const QString& text)
+void SourcesDialog::addUrlSlot()
 {
-	QStringList items = m_editListBox->items();
-	items.removeFirst();
-	QString result;
-	bool add = prepareItem(text, result);
+	const QUrl url = QFileDialog::getOpenFileUrl(this, tr("Add MPQ Archive or directory"));
 
-	if (add)
+	if (!url.isEmpty())
 	{
-		items.prepend(result);
-	}
+		QUrl result;
+		bool add = prepareItem(url, result);
 
-	m_editListBox->setItems(items);
+		if (add)
+		{
+			this->addUrl(result);
+		}
+	}
 }
 
 void SourcesDialog::ok()
@@ -218,20 +213,21 @@ void SourcesDialog::ok()
 
 void SourcesDialog::apply()
 {
-	QLinkedList<KUrl> valids;
-
 	source()->clear(); // NOTE we always have to clear first since priorities of existing entries might have changed
-	MpqPriorityListEntry::Priority priority = m_editListBox->items().size();
+	MpqPriorityListEntry::Priority priority = m_editListBox->count();
 
-	foreach (const QString &item, m_editListBox->items())
+	for (int i = 0; i < m_editListBox->count(); ++i)
 	{
-		if (!source()->addSource(item, priority))
+		const QListWidgetItem *item = m_editListBox->item(i);
+		const QUrl url = item->data(Qt::UserRole).toUrl();
+
+		if (!source()->addSource(url, priority))
 		{
-			KMessageBox::error(this, i18n("Invalid source \"%1\".", item));
+			QMessageBox::critical(this, tr("Error"), tr("Invalid source \"%1\".").arg(url.toString()));
 		}
 		else
 		{
-			qDebug() << "Successfully added item" << item << "with priority" << priority;
+			qDebug() << "Successfully added item" << url << "with priority" << priority;
 		}
 
 		--priority;
@@ -246,22 +242,22 @@ void SourcesDialog::restoreDefaults()
 
 	if (!war3Url().isEmpty())
 	{
-		m_editListBox->insertItem(war3Url().toEncoded());
+		this->addUrl(war3Url());
 	}
 
 	if (!war3XUrl().isEmpty())
 	{
-		m_editListBox->insertItem(war3XUrl().toEncoded());
+		this->addUrl(war3XUrl());
 	}
 
 	if (!war3XLocalUrl().isEmpty())
 	{
-		m_editListBox->insertItem(war3XLocalUrl().toEncoded());
+		this->addUrl(war3XLocalUrl());
 	}
 
 	if (!war3PatchUrl().isEmpty())
 	{
-		m_editListBox->insertItem(war3PatchUrl().toEncoded());
+		this->addUrl(war3PatchUrl());
 	}
 }
 
@@ -271,29 +267,23 @@ void SourcesDialog::showEvent(QShowEvent *e)
 	QDialog::showEvent(e);
 }
 
-bool SourcesDialog::prepareItem(const QString &item, QString &result)
+bool SourcesDialog::prepareItem(const QUrl &item, QUrl &result)
 {
+	result = item;
+
 	// fix mpq entries automatically
-	if (item.endsWith(".mpq") && !item.startsWith("mpq:/")) {
-		QString protocol = "mpq:";
-
-		if (!item.startsWith('/')) { // relative path
-			protocol += '/';
-		}
-
-		result = protocol + item;
+	if (result.toString().endsWith(".mpq") && result.scheme() != "mpq")
+	{
+		result.setScheme("mpq");
 
 		return true;
-	} else {
-		const KUrl url(item);
-
-		if (url.isLocalFile() && !item.startsWith("file://")) {
-			result = "file://" + item;
-
-			return true;
+	}
+	else
+	{
+		if (result.isLocalFile() && result.scheme() != "file")
+		{
+			result.setScheme("file");
 		}
-
-		result = item;
 
 		return true;
 	}
@@ -319,6 +309,13 @@ QString SourcesDialog::settingsGroup() const
 	}
 
 	return "";
+}
+
+void SourcesDialog::addUrl(const QUrl &url)
+{
+	QListWidgetItem *item = new QListWidgetItem(url.toString());
+	item->setData(Qt::UserRole, url);
+	m_editListBox->addItem(item);
 }
 
 }

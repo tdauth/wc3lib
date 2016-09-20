@@ -27,10 +27,7 @@
 #include <QWidget>
 #include <QSortFilterProxyModel>
 #include <QUndoStack>
-
-#include <KUrl>
-#include <KUrlRequester>
-#include <KFilterProxySearchLine>
+#include <QLineEdit>
 
 #include "objecteditor.hpp"
 #include "../../map.hpp"
@@ -60,7 +57,7 @@ class ObjectIdDialog;
  *
  * \ingroup objectdata
  */
-class KDE_EXPORT ObjectEditorTab : public QWidget
+class ObjectEditorTab : public QWidget
 {
 	Q_OBJECT
 
@@ -93,8 +90,8 @@ class KDE_EXPORT ObjectEditorTab : public QWidget
 		 * \sa hasObjectEditor()
 		 */
 		ObjectEditor* objectEditor() const;
-		KFilterProxySearchLine* filterSearchLine() const;
-		KFilterProxySearchLine* tableFilterSearchLine() const;
+		QLineEdit* filterSearchLine() const;
+		QLineEdit* tableFilterSearchLine() const;
 		/**
 		 * \return Returns the left edge tree widget which lists all objects (standard and custom).
 		 *
@@ -216,9 +213,9 @@ class KDE_EXPORT ObjectEditorTab : public QWidget
 		virtual QString copyObjectText() const = 0;
 		virtual QString pasteObjectText() const = 0;
 
-		virtual KUrl copyObjectIconUrl() const = 0;
-		virtual KUrl pasteObjectIconUrl() const = 0;
-		virtual KUrl newObjectIconUrl() const = 0;
+		virtual QUrl copyObjectIconUrl() const = 0;
+		virtual QUrl pasteObjectIconUrl() const = 0;
+		virtual QUrl newObjectIconUrl() const = 0;
 
 		/**
 		 * The actual source which is used for loading all necessary files.
@@ -227,8 +224,8 @@ class KDE_EXPORT ObjectEditorTab : public QWidget
 
 		int m_tabIndex;
 
-		KFilterProxySearchLine *m_filterSearchLine;
-		KFilterProxySearchLine *m_tableFilterSearchLine;
+		QLineEdit *m_filterSearchLine;
+		QLineEdit *m_tableFilterSearchLine;
 		ObjectTreeView *m_treeView; // left side tree widget
 		/*
 		 * Left side tree model.
@@ -264,7 +261,7 @@ class KDE_EXPORT ObjectEditorTab : public QWidget
 
 		ObjectIdDialog *m_idDialog;
 
-		KUrl m_recentImportUrl;
+		QUrl m_recentImportUrl;
 
 	private slots:
 		void itemClicked(QModelIndex index);
@@ -290,12 +287,12 @@ inline ObjectEditor* ObjectEditorTab::objectEditor() const
 	return this->m_objectEditor;
 }
 
-inline KFilterProxySearchLine* ObjectEditorTab::filterSearchLine() const
+inline QLineEdit* ObjectEditorTab::filterSearchLine() const
 {
 	return this->m_filterSearchLine;
 }
 
-inline KFilterProxySearchLine* ObjectEditorTab::tableFilterSearchLine() const
+inline QLineEdit* ObjectEditorTab::tableFilterSearchLine() const
 {
 	return this->m_tableFilterSearchLine;
 }

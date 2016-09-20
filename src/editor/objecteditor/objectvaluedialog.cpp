@@ -18,7 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <QtGui>
+#include <QtWidgets>
 
 #include "objectvaluedialog.hpp"
 #include "../objectdata.hpp"
@@ -399,7 +399,7 @@ void ObjectValueDialog::limitTextInLineEdit(const QString& text)
 void ObjectValueDialog::showPreviewImage(const QString &filePath)
 {
 	qDebug() << "Show preview with " << filePath;
-	const KUrl url = KUrl(MetaData::fromFilePath(filePath));
+	const QUrl url = QUrl(MetaData::fromFilePath(filePath));
 	qDebug() << "Preview URL " << url.toLocalFile();
 	qDebug() << "Preview is image " << m_isImage;
 

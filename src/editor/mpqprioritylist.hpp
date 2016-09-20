@@ -27,9 +27,7 @@
 #include <boost/scoped_ptr.hpp>
 
 #include <QFileInfo>
-
-#include <kdemacros.h>
-#include <KUrl>
+#include <QUrl>
 
 #include "platform.hpp"
 #include "../mpq.hpp"
@@ -53,7 +51,7 @@ namespace editor
  * or using them as keys for maps based on their priority.
  * Since the priority is not unique you should use std::multimap or std::multiset.
  */
-class KDE_EXPORT MpqPriorityListEntry : public boost::operators<MpqPriorityListEntry>
+class MpqPriorityListEntry : public boost::operators<MpqPriorityListEntry>
 {
 	public:
 		typedef MpqPriorityListEntry self;
@@ -71,7 +69,7 @@ class KDE_EXPORT MpqPriorityListEntry : public boost::operators<MpqPriorityListE
 		 * \param url Has to refer to an archive or a directory.
 		 * \param priority The priority of the entry. Higher priorities will be served first.
 		 */
-		MpqPriorityListEntry(const KUrl &url, Priority priority);
+		MpqPriorityListEntry(const QUrl &url, Priority priority);
 		virtual ~MpqPriorityListEntry();
 
 		Priority priority() const;
@@ -90,14 +88,14 @@ class KDE_EXPORT MpqPriorityListEntry : public boost::operators<MpqPriorityListE
 		 */
 		mpq::Archive* mpqArchive() const;
 
-		const KUrl& url() const;
+		const QUrl& url() const;
 
 		bool operator<(const self& other) const;
 		bool operator==(const self& other) const;
 
 	protected:
 		Priority m_priority;
-		KUrl m_url;
+		QUrl m_url;
 		boost::scoped_ptr<mpq::Archive> m_mpqArchive;
 };
 
@@ -111,7 +109,7 @@ inline mpq::Archive* MpqPriorityListEntry::mpqArchive() const
 	return this->m_mpqArchive.get();
 }
 
-inline const KUrl& MpqPriorityListEntry::url() const
+inline const QUrl& MpqPriorityListEntry::url() const
 {
 	return this->m_url;
 }
@@ -141,7 +139,6 @@ inline bool MpqPriorityListEntry::operator==(const self &other) const
  * Use the following member functions to handle files using the stored sources and the resolution of file paths of the MpqPriorityList:
  * \ref download()
  * \ref upload()
- * \ref mkdir()
  * The following member functions handle the provided sources such as MPQ archives, directories etc. which are used as base file for the files:
  * \ref addSource()
  * \ref removeSource()
@@ -160,10 +157,10 @@ inline bool MpqPriorityListEntry::operator==(const self &other) const
  * Now you will have to add the MPQ archives as sources to the MpqPriorityList with the correct priority:
  * \code
  * MpqPriorityList list;
- * list.addSource(KUrl("file://home/me/wc3/War3Patch.mpq", 3)
- * list.addSource(KUrl("file://home/me/wc3/War3XLocal.mpq", 2)
- * list.addSource(KUrl("file://home/me/wc3/war3x.mpq", 1)
- * list.addSource(KUrl("file://home/me/wc3/war3.mpq", 0)
+ * list.addSource(QUrl("file://home/me/wc3/War3Patch.mpq", 3)
+ * list.addSource(QUrl("file://home/me/wc3/War3XLocal.mpq", 2)
+ * list.addSource(QUrl("file://home/me/wc3/war3x.mpq", 1)
+ * list.addSource(QUrl("file://home/me/wc3/war3.mpq", 0)
  * \endcode
  *
  * When calling \ref download() it checks in the following order:
@@ -187,7 +184,7 @@ inline bool MpqPriorityListEntry::operator==(const self &other) const
  * \sa MpqPriorityListEntry
  * \sa Resource
  */
-class KDE_EXPORT MpqPriorityList
+class MpqPriorityList
 {
 	public:
 		typedef MpqPriorityList self;
@@ -211,7 +208,7 @@ class KDE_EXPORT MpqPriorityList
 		/**
 		 * \brief Each MpqPriorityList may hold resources which are ordered by their URL for fast access.
 		 */
-		typedef std::map<KUrl, Resource*> Resources;
+		typedef std::map<QUrl, Resource*> Resources;
 
 		MpqPriorityList();
 		virtual ~MpqPriorityList();
@@ -239,7 +236,7 @@ class KDE_EXPORT MpqPriorityList
 		 * \return Returns true if the URL has been added to the list (this doesn't happen if there already is a source with the given URL or if it refers to an absolute file path which is no archive or directory).
 		 * \todo Improve archive detection.
 		 */
-		virtual bool addSource(const KUrl &url, MpqPriorityListEntry::Priority priority = 0);
+		virtual bool addSource(const QUrl &url, MpqPriorityListEntry::Priority priority = 0);
 		/**
 		 *
 		 * \section defaultMPQs Default MPQ archives:
@@ -278,7 +275,7 @@ class KDE_EXPORT MpqPriorityList
 		/**
 		 * \note Searches with linear complexity (std::find_if) which might be slow.
 		 */
-		virtual bool removeSource(const KUrl &url);
+		virtual bool removeSource(const QUrl &url);
 		virtual bool removeSource(Source &source);
 		/**
 		 * @}
@@ -295,9 +292,8 @@ class KDE_EXPORT MpqPriorityList
 		 * \note If \p src is an absolute URL it will work just like \ref KIO::NetAccess::download(). Therefore this member function should be a replacement whenever you want to download something to make relative URLs to custom sources available in your application.
 		 * \todo If it's an "mpq:/" URL and there is no locale given add one considering \ref locale().
 		 */
-		virtual bool download(const KUrl &src, QString &target, QWidget *window) const;
-		virtual bool upload(const QString &src, const KUrl &target, QWidget *window) const;
-		virtual bool mkdir(const KUrl &target, QWidget *window) const;
+		virtual bool download(const QUrl &src, QString &target, QWidget *window) const;
+		virtual bool upload(const QString &src, const QUrl &target, QWidget *window) const;
 
 		/**
 		 * Removes temporary file with file path \p name which has been downloaded previously with \ref download.
@@ -310,7 +306,7 @@ class KDE_EXPORT MpqPriorityList
 		 *
 		 * \return Returns true if \p url exists in at least one of the entries.
 		 */
-		virtual bool exists(const KUrl &url, QWidget *window) const;
+		virtual bool exists(const QUrl &url, QWidget *window) const;
 
 		/**
 		 * \return Returns all sources which are used by the MpqPriorityList.
@@ -332,7 +328,7 @@ class KDE_EXPORT MpqPriorityList
 		 * Removes resource with URL \p url.
 		 * \note You still have to delete the resource manually afterwards.
 		 */
-		virtual bool removeResource(const KUrl &url);
+		virtual bool removeResource(const QUrl &url);
 
 		/**
 		 * \return Returns all hold resources.
@@ -397,7 +393,7 @@ inline bool MpqPriorityList::removeResource(Resource *resource)
 	return this->removeResource(resource->url());
 }
 
-inline bool MpqPriorityList::removeResource(const KUrl &url)
+inline bool MpqPriorityList::removeResource(const QUrl &url)
 {
 	Resources::iterator iterator = this->m_resources.find(url);
 

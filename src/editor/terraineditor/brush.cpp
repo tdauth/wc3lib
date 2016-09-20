@@ -26,7 +26,7 @@ namespace wc3lib
 namespace editor
 {
 
-Brush::Brush(class TerrainEditor *terrainEditor) : m_terrainEditor(terrainEditor)
+Brush::Brush(TerrainEditor *terrainEditor) : m_terrainEditor(terrainEditor)
 {
 }
 

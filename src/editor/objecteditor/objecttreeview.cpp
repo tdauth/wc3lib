@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include <QtGui>
+#include <QtWidgets>
 
 #include "objecttreeview.hpp"
 #include "objecteditortab.hpp"
@@ -57,7 +58,7 @@ ObjectTreeView::ObjectTreeView(ObjectEditorTab *tab, Qt::WindowFlags f) : QTreeV
 	connect(this, SIGNAL(expanded(const QModelIndex &)), this, SLOT(expandItem(const QModelIndex &)));
 	connect(this, SIGNAL(collapsed(const QModelIndex &)), this, SLOT(collapseItem(const QModelIndex &)));
 
-	connect(this->header(), SIGNAL(sectionClicked(int)), this, SLOT(orderBySection(int)));
+	connect(this->header(), &QHeaderView::sectionClicked, this, &ObjectTreeView::orderBySection);
 
 }
 

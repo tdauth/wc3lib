@@ -24,15 +24,13 @@
 #include <QScopedPointer>
 #include <QCheckBox>
 #include <QAction>
-
-#include <kdemacros.h>
-#include <KUrl>
-#include <KFileDialog>
-#include <KDialogButtonBox>
+#include <QSpinBox>
+#include <QDialog>
+#include <QFileDialog>
+#include <QScrollArea>
 
 #include "../module.hpp"
 #include "../texture.hpp"
-#include "../colorpalettedialog.hpp"
 
 namespace wc3lib
 {
@@ -40,11 +38,13 @@ namespace wc3lib
 namespace editor
 {
 
+class MpqPriorityList;
+
 /**
  * Allows you to open, view, modify and store skins/textures.
  * \todo Needs item list from object editor (skin meta data, splat meta data and ubersplat meta data).
  */
-class KDE_EXPORT TextureEditor : public Module
+class TextureEditor : public Module
 {
 	Q_OBJECT
 
@@ -54,24 +54,24 @@ class KDE_EXPORT TextureEditor : public Module
 			public:
 				LoadDialogWidget(QWidget *parent = 0);
 
-				class KIntNumInput *mipMapsInput() const;
+				QSpinBox *mipMapsInput() const;
 
 			private:
-				class KIntNumInput *m_mipMapsInput;
+				QSpinBox *m_mipMapsInput;
 		};
 
-		class LoadDialog : public QObject
+		class LoadDialog : public QWidget
 		{
 			public:
-				LoadDialog(QObject *parent);
+				LoadDialog(QWidget *parent);
 				~LoadDialog();
 
-				KFileDialog *dialog() const;
+				QFileDialog *dialog() const;
 				LoadDialogWidget *widget() const;
-				class KIntNumInput *mipMapsInput() const;
+				QSpinBox *mipMapsInput() const;
 
 			private:
-				KFileDialog *m_dialog;
+				QFileDialog *m_dialog;
 				LoadDialogWidget *m_widget;
 		};
 
@@ -80,27 +80,27 @@ class KDE_EXPORT TextureEditor : public Module
 			public:
 				SaveDialogWidget(QWidget *parent = 0);
 
-				class KIntNumInput *qualityInput() const;
-				class KIntNumInput *mipMapsInput() const;
+				QSpinBox *qualityInput() const;
+				QSpinBox *mipMapsInput() const;
 
 			private:
-				class KIntNumInput *m_qualityInput;
-				class KIntNumInput *m_mipMapsInput;
+				QSpinBox *m_qualityInput;
+				QSpinBox *m_mipMapsInput;
 		};
 
-		class SaveDialog : public QObject
+		class SaveDialog : public QWidget
 		{
 			public:
-				SaveDialog(QObject *parent);
+				SaveDialog(QWidget *parent);
 				~SaveDialog();
 
-				KFileDialog *dialog() const;
+				QFileDialog *dialog() const;
 				SaveDialogWidget *widget() const;
-				class KIntNumInput *qualityInput() const;
-				class KIntNumInput *mipMapsInput() const;
+				QSpinBox *qualityInput() const;
+				QSpinBox *mipMapsInput() const;
 
 			private:
-				KFileDialog *m_dialog;
+				QFileDialog *m_dialog;
 				SaveDialogWidget *m_widget;
 		};
 
@@ -108,12 +108,12 @@ class KDE_EXPORT TextureEditor : public Module
 		{
 			public:
 				ChargesDialog(QWidget *parent);
-				KIntNumInput* chargesInput() const;
+				QSpinBox* chargesInput() const;
 				QCheckBox* hasChargesCheckBox() const;
 
 			private:
-				KDialogButtonBox *m_buttonBox;
-				KIntNumInput *m_chargesInput;
+				QDialogButtonBox *m_buttonBox;
+				QSpinBox *m_chargesInput;
 				QCheckBox *m_hasChargesCheckBox;
 
 		};
@@ -121,7 +121,7 @@ class KDE_EXPORT TextureEditor : public Module
 		typedef QScopedPointer<Texture> TexturePtr;
 		typedef QVector<QImage> MipMaps;
 
-		TextureEditor(class MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		TextureEditor(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~TextureEditor();
 
 		virtual bool configure() override;
@@ -138,7 +138,6 @@ class KDE_EXPORT TextureEditor : public Module
 
 		bool hasTexture() const;
 
-		ColorPaletteDialog* colorPaletteDialog() const;
 		ChargesDialog* chargesDialog() const;
 		LoadDialog* loadDialog() const;
 		SaveDialog* saveDialog() const;
@@ -148,8 +147,8 @@ class KDE_EXPORT TextureEditor : public Module
 		 * \note Exception safe.
 		 */
 		void openFile();
-		void openUrl(const KUrl &url, QMap<QString, QString> options);
-		void openUrl(const KUrl &url)
+		void openUrl(const QUrl &url, QMap<QString, QString> options);
+		void openUrl(const QUrl &url)
 		{
 			openUrl(url, QMap<QString, QString>());
 		}
@@ -185,6 +184,7 @@ class KDE_EXPORT TextureEditor : public Module
 
 	protected:
 		void refreshImage();
+		void setImageActionsEnabled(bool enabled);
 
 		virtual void createFileActions(QMenu *menu) override;
 		virtual void createEditActions(QMenu *menu) override;
@@ -207,26 +207,32 @@ class KDE_EXPORT TextureEditor : public Module
 		bool m_showsTransparency;
 		qreal m_factor;
 		bool m_zoomToFit;
-		KUrl m_recentUrl;
+		QUrl m_recentUrl;
 
-		class KActionCollection *m_textureActionCollection;
 		QAction *m_showAlphaChannelAction;
 		QAction *m_showTransparencyAction;
+		QAction *m_actualSizeAction;
 		QAction *m_zoomToFitAction;
+		QAction *m_zoomInAction;
+		QAction *m_zoomOutAction;
+		QAction *m_massConverterAction;
 		QMenu *m_mipMapsMenu;
 
-		ColorPaletteDialog *m_colorPaletteDialog;
+		QAction *m_editColorPaletteAction;
+		QAction *m_dropColorPaletteAction;
+		QAction *m_setChargesAction;
+
 		ChargesDialog *m_chargesDialog;
 		LoadDialog *m_loadDialog;
 		SaveDialog *m_saveDialog;
 };
 
-inline KIntNumInput* TextureEditor::LoadDialogWidget::mipMapsInput() const
+inline QSpinBox* TextureEditor::LoadDialogWidget::mipMapsInput() const
 {
 	return this->m_mipMapsInput;
 }
 
-inline KFileDialog* TextureEditor::LoadDialog::dialog() const
+inline QFileDialog* TextureEditor::LoadDialog::dialog() const
 {
 	return this->m_dialog;
 }
@@ -236,22 +242,22 @@ inline TextureEditor::LoadDialogWidget* TextureEditor::LoadDialog::widget() cons
 	return this->m_widget;
 }
 
-inline KIntNumInput* TextureEditor::LoadDialog::mipMapsInput() const
+inline QSpinBox* TextureEditor::LoadDialog::mipMapsInput() const
 {
 	return this->m_widget->mipMapsInput();
 }
 
-inline KIntNumInput* TextureEditor::SaveDialogWidget::qualityInput() const
+inline QSpinBox* TextureEditor::SaveDialogWidget::qualityInput() const
 {
 	return this->m_qualityInput;
 }
 
-inline KIntNumInput* TextureEditor::SaveDialogWidget::mipMapsInput() const
+inline QSpinBox* TextureEditor::SaveDialogWidget::mipMapsInput() const
 {
 	return this->m_mipMapsInput;
 }
 
-inline KFileDialog* TextureEditor::SaveDialog::dialog() const
+inline QFileDialog* TextureEditor::SaveDialog::dialog() const
 {
 	return this->m_dialog;
 }
@@ -261,17 +267,17 @@ inline TextureEditor::SaveDialogWidget* TextureEditor::SaveDialog::widget() cons
 	return this->m_widget;
 }
 
-inline KIntNumInput* TextureEditor::SaveDialog::qualityInput() const
+inline QSpinBox* TextureEditor::SaveDialog::qualityInput() const
 {
 	return this->m_widget->qualityInput();
 }
 
-inline KIntNumInput* TextureEditor::SaveDialog::mipMapsInput() const
+inline QSpinBox* TextureEditor::SaveDialog::mipMapsInput() const
 {
 	return this->m_widget->mipMapsInput();
 }
 
-inline KIntNumInput* TextureEditor::ChargesDialog::chargesInput() const
+inline QSpinBox* TextureEditor::ChargesDialog::chargesInput() const
 {
 	return this->m_chargesInput;
 }
@@ -324,16 +330,6 @@ inline qreal TextureEditor::factor() const
 inline bool TextureEditor::hasTexture() const
 {
 	return texture().data() != 0;
-}
-
-inline ColorPaletteDialog* TextureEditor::colorPaletteDialog() const
-{
-	if (this->m_colorPaletteDialog == 0)
-	{
-		const_cast<TextureEditor*>(this)->m_colorPaletteDialog = new ColorPaletteDialog(const_cast<TextureEditor*>(this));
-	}
-
-	return this->m_colorPaletteDialog;
 }
 
 inline TextureEditor::ChargesDialog* TextureEditor::chargesDialog() const

@@ -21,8 +21,6 @@
 #ifndef WC3LIB_EDITOR_MAP_HPP
 #define WC3LIB_EDITOR_MAP_HPP
 
-#include <kdemacros.h>
-
 #include "resource.hpp"
 #include "platform.hpp"
 #include "../map.hpp"
@@ -33,16 +31,16 @@ namespace wc3lib
 namespace editor
 {
 
-class KDE_EXPORT Map : public Resource
+class Map : public Resource
 {
 	public:
 		typedef boost::scoped_ptr<map::W3m> MapPtr;
 
-		Map(const KUrl &url);
+		Map(const QUrl &url);
 
 		virtual void load();
 		virtual void reload();
-		virtual void save(const KUrl &url) const;
+		virtual void save(const QUrl &url) const;
 
 		bool isW3x() const;
 

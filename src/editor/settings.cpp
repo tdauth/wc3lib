@@ -27,16 +27,16 @@ namespace wc3lib
 namespace editor
 {
 
-Settings::Settings(class Editor *editor) : m_editor(editor)
+Settings::Settings(Editor *editor) : m_editor(editor)
 {
 }
 
-void Settings::read(const KConfigGroup &group)
+void Settings::read(QSettings &settings)
 {
 	// read shortcuts
 }
 
-void Settings::write(KConfigGroup &group) const
+void Settings::write(QSettings &settings) const
 {
 	// read shortcuts
 }

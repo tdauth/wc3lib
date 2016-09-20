@@ -20,8 +20,6 @@
 
 #include <QtGui>
 
-#include <KIconButton>
-
 #include "unitselectiondialog.hpp"
 #include "../unitdata.hpp"
 #include "../metadata.hpp"
@@ -207,7 +205,7 @@ void UnitSelectionDialog::fill(const QString& race, int campaign, const QChar& t
 
 		if (objectRace == race && campaign == unitCampaign.toInt() && (tileset.isNull() || tileset == '*' || objectTilesets == "*" || objectTilesets.contains(tileset)) && (level.isEmpty() || level == "*" || objectLevel == level))
 		{
-			KPushButton *button = createButton(unitId);
+			QPushButton *button = createButton(unitId);
 			m_buttonsByButtons.insert(button, unitId);
 			m_buttonsByObjectId.insert(unitId, button);
 			m_buttonGroup.addButton(button);
@@ -261,12 +259,12 @@ void UnitSelectionDialog::fill(const QString& race, int campaign, const QChar& t
 	}
 }
 
-KPushButton* UnitSelectionDialog::createButton(const QString &objectId)
+QPushButton* UnitSelectionDialog::createButton(const QString &objectId)
 {
 	const QString art = MetaData::fromFilePath(this->unitData()->defaultFieldValue(objectId, "uico"));
 	const QString name = this->unitData()->defaultFieldValue(objectId, "unam");
 	const QString ubertip = this->unitData()->defaultFieldValue(objectId, "utub");
-	KPushButton *button = new KPushButton(this);
+	QPushButton *button = new QPushButton(this);
 	button->setToolTip(tr("%1\n--\n%2").arg(name).arg(ubertip));
 	button->setCheckable(true);
 	button->setMaximumSize(QSize(32, 32));
@@ -275,7 +273,7 @@ KPushButton* UnitSelectionDialog::createButton(const QString &objectId)
 
 	if (!art.isEmpty())
 	{
-		button->setIcon(this->unitData()->source()->sharedData()->icon(KUrl(art), this));
+		button->setIcon(this->unitData()->source()->sharedData()->icon(QUrl(art), this));
 	}
 
 	return button;
@@ -414,7 +412,7 @@ void UnitSelectionDialog::selectButton(bool checked)
 {
 	if (checked)
 	{
-		KPushButton *button = dynamic_cast<KPushButton*>(QObject::sender());
+		QPushButton *button = dynamic_cast<QPushButton*>(QObject::sender());
 		checkButton(button);
 	}
 }

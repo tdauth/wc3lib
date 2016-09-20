@@ -21,10 +21,8 @@
 #ifndef WC3LIB_EDITOR_SETTINGSINTERFACE_HPP
 #define WC3LIB_EDITOR_SETTINGSINTERFACE_HPP
 
+#include <QSettings>
 #include <QString>
-
-#include <kdemacros.h>
-#include <kconfiggroup.h>
 
 namespace wc3lib
 {
@@ -37,13 +35,13 @@ namespace editor
 * Uses KConfigGroup to store and restore various settings.
 * SettingsInterface::groupName returns the group's name which is used for a newly created group of another KConfigGroup instance.
 */
-class KDE_EXPORT SettingsInterface
+class SettingsInterface
 {
 	public:
 		virtual ~SettingsInterface();
 
-		virtual void read(const KConfigGroup &group) = 0;
-		virtual void write(KConfigGroup &group) const = 0;
+		virtual void read(QSettings &settings) = 0;
+		virtual void write(QSettings &settings) const = 0;
 		virtual QString groupName() const = 0;
 };
 

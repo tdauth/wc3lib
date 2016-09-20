@@ -23,8 +23,6 @@
 
 #include <boost/scoped_ptr.hpp>
 
-#include <kdemacros.h>
-
 #include <Ogre.h>
 #include <OGRE/Terrain/OgreTerrain.h>
 
@@ -54,7 +52,7 @@ namespace editor
  * http://www.ogre3d.org/tikiwiki/tiki-index.php?page=Basic+Tutorial+3
  * http://www.ogre3d.org/tikiwiki/tiki-index.php?page=Ogre+Terrain+Textures
  */
-class KDE_EXPORT OgreEnvironment : public Resource
+class OgreEnvironment : public Resource
 {
 	public:
 		/**
@@ -62,14 +60,14 @@ class KDE_EXPORT OgreEnvironment : public Resource
 		 */
 		typedef boost::scoped_ptr<map::Environment> EnvironmentPtr;
 
-		OgreEnvironment(const KUrl& url, Type type);
+		OgreEnvironment(const QUrl &url, Type type);
 		virtual ~OgreEnvironment();
 
 		void load(map::Environment *environment);
 
 		virtual void load();
 		virtual void reload();
-		virtual void save(const KUrl& url) const;
+		virtual void save(const QUrl &url) const;
 
 	private:
 		Ogre::TerrainGlobalOptions *m_terrainGlobals;

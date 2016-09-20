@@ -23,9 +23,7 @@
 #include <boost/format.hpp>
 
 #include <QtGui>
-
-#include <KFileDialog>
-#include <KActionCollection>
+#include <QtWidgets/QtWidgets>
 
 #include "triggereditor.hpp"
 #include "mapscriptwidget.hpp"
@@ -50,17 +48,33 @@ string TriggerEditor::cutQuotes(const string& value)
 
 TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f)
 : Module(source, parent, f)
-, m_triggers(0)
-, m_customTextTriggers(0)
+, m_triggers(nullptr)
+, m_customTextTriggers(nullptr)
 , m_freeTriggers(false)
 , m_freeCustomTextTriggers(false)
-, m_newMenu(0)
+, m_newMenu(nullptr)
+, m_openTriggersAction(nullptr)
+, m_openCustomTextTriggersAction(nullptr)
+, m_saveTriggersAction(nullptr)
+, m_closeTriggersAction(nullptr)
+, m_closeCustomTextTriggersAction(nullptr)
+, m_closeAllAction(nullptr)
+, m_resetTriggersAction(nullptr)
+, m_renameAction(nullptr)
+, m_loadTriggerDataAction(nullptr)
+, m_loadTriggerStringsAction(nullptr)
+, m_variablesAction(nullptr)
+, m_convertToTextAction(nullptr)
+, m_newCategoryAction(nullptr)
+, m_newTriggerAction(nullptr)
+, m_newTriggerCommentAction(nullptr)
+, m_newEventAction(nullptr)
+, m_newConditionAction(nullptr)
+, m_newActionAction(nullptr)
 , m_treeWidget(new QTreeWidget(this))
 , m_mapScriptWidget(new MapScriptWidget(this))
 , m_triggerWidget(new TriggerWidget(this))
-, m_variablesDialog(0)
-, m_triggerActionCollection(0)
-, m_newActionCollection(0)
+, m_variablesDialog(nullptr)
 {
 	Module::setupUi();
 
@@ -86,10 +100,10 @@ TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt:
 	triggerWidget()->setEnabled(false);
 	mapScriptWidget()->hide();
 	triggerWidget()->hide();
-	triggerActionCollection()->action("savetriggers")->setEnabled(false);
-	triggerActionCollection()->action("closetriggers")->setEnabled(false);
-	triggerActionCollection()->action("closecustomtexttriggers")->setEnabled(false);
-	triggerActionCollection()->action("closeall")->setEnabled(false);
+	m_saveTriggersAction->setEnabled(false);
+	m_closeTriggersAction->setEnabled(false);
+	m_closeCustomTextTriggersAction->setEnabled(false);
+	m_closeAllAction->setEnabled(false);
 
 	// TODO read settings
 	QSettings settings("TriggerEditor");
@@ -558,18 +572,19 @@ void TriggerEditor::fillNewTriggerFunctionParameters(const map::TriggerData *tri
 
 void TriggerEditor::openTriggers()
 {
-	KUrl url = KFileDialog::getOpenUrl(m_openDirectory, triggersFilter(), this, i18n("Open triggers"));
+	const QUrl url = QFileDialog::getOpenFileUrl(this, tr("Open triggers"), m_openDirectory, triggersFilter());
 
 	if (url.isEmpty())
 	{
 		return;
 	}
 
-	m_openDirectory = url.directory();
+	const QFileInfo fileInfo(url.toLocalFile());
+	this->m_openDirectory = fileInfo.absoluteDir().path();
 	this->openTriggersUrl(url);
 }
 
-void TriggerEditor::openTriggersUrl(const KUrl &url)
+void TriggerEditor::openTriggersUrl(const QUrl &url)
 {
 	if (this->source()->sharedData()->triggerData().get() == 0)
 	{
@@ -637,14 +652,15 @@ void TriggerEditor::openTriggersUrl(const KUrl &url)
 
 void TriggerEditor::openCustomTextTriggers()
 {
-	KUrl url = KFileDialog::getOpenUrl(m_openDirectory, customTextTriggersFilter(), this, i18n("Open custom text triggers"));
+	const QUrl url = QFileDialog::getOpenFileUrl(this, tr("Open custom text triggers"), m_openDirectory, customTextTriggersFilter());
 
 	if (url.isEmpty())
 	{
 		return;
 	}
 
-	m_openDirectory = url.directory();
+	const QFileInfo fileInfo(url.toLocalFile());
+	this->m_openDirectory = fileInfo.absoluteDir().path();
 	QString target;
 
 	if (!source()->download(url, target, this))
@@ -680,7 +696,7 @@ void TriggerEditor::saveTriggers()
 		return;
 	}
 
-	QString file = KFileDialog::getSaveFileName(KUrl(), triggersFilter(), this, tr("Save triggers"));
+	QString file = QFileDialog::getSaveFileName(this, tr("Save triggers"), QString(), triggersFilter());
 
 	if (file.isEmpty())
 	{
@@ -721,11 +737,11 @@ void TriggerEditor::closeCustomTextTriggers()
 	setCustomTextTriggers(0);
 	// TODO update open trigger text (clear, warn?? consider situations when having a open map!!)
 
-	triggerActionCollection()->action("closecustomtexttriggers")->setEnabled(false);
+	this->m_closeCustomTextTriggersAction->setEnabled(false);
 
 	if (triggers() == 0)
 	{
-		triggerActionCollection()->action("closeall")->setEnabled(false);
+		this->m_closeAllAction->setEnabled(false);
 	}
 
 	this->mapScriptWidget()->hide();
@@ -790,7 +806,7 @@ void TriggerEditor::loadTriggers(map::Triggers *triggers)
 		/// \todo get w3x and w3m icon paths
 		if (editor()->currentMap() != 0)
 		{
-			const KUrl src(editor()->currentMap()->isW3x() ? "" : "");
+			const QUrl src(editor()->currentMap()->isW3x() ? "" : "");
 			QString file;
 			rootItem()->setText(0, editor()->currentMap()->map()->info()->name().c_str());
 			qDebug() << "Root item: " << editor()->currentMap()->map()->info()->name().c_str();
@@ -869,9 +885,9 @@ void TriggerEditor::loadTriggers(map::Triggers *triggers)
 	}
 
 	m_triggers = triggers;
-	triggerActionCollection()->action("savetriggers")->setEnabled(true);
-	triggerActionCollection()->action("closetriggers")->setEnabled(true);
-	triggerActionCollection()->action("closeall")->setEnabled(true);
+	this->m_saveTriggersAction->setEnabled(true);
+	this->m_closeTriggersAction->setEnabled(true);
+	this->m_closeAllAction->setEnabled(true);
 }
 
 void TriggerEditor::loadTriggers(Map *map)
@@ -883,8 +899,8 @@ void TriggerEditor::loadCustomTextTriggers(map::CustomTextTriggers *customTextTr
 {
 	closeCustomTextTriggers();
 	m_customTextTriggers = customTextTriggers;
-	triggerActionCollection()->action("closecustomtexttriggers")->setEnabled(true);
-	triggerActionCollection()->action("closeall")->setEnabled(true);
+	this->m_closeCustomTextTriggersAction->setEnabled(true);
+	this->m_closeAllAction->setEnabled(true);
 
 	if (triggers() == 0)
 	{
@@ -936,12 +952,12 @@ void TriggerEditor::clear()
 	triggerEntries().clear();
 	setTriggers(0);
 	m_rootItem = 0;
-	triggerActionCollection()->action("savetriggers")->setEnabled(false);
-	triggerActionCollection()->action("closetriggers")->setEnabled(false);
+	this->m_saveTriggersAction->setEnabled(false);
+	this->m_closeTriggersAction->setEnabled(false);
 
 	if (customTextTriggers() == 0)
 	{
-		triggerActionCollection()->action("closeall")->setEnabled(false);
+		this->m_closeAllAction->setEnabled(false);
 	}
 
 	this->mapScriptWidget()->hide();
@@ -983,14 +999,15 @@ void TriggerEditor::loadTriggerData()
 		return;
 	}
 
-	KUrl url = KFileDialog::getOpenUrl(m_openDirectory, i18n("*|All Files\n*.txt|Warcraft III Trigger Data"), this, i18n("Open trigger data"));
+	const QUrl url = QFileDialog::getOpenFileUrl(this, tr("Open trigger data"), m_openDirectory, tr("*|All Files\n*.txt|Warcraft III Trigger Data"));
 
 	if (url.isEmpty())
 	{
 		return;
 	}
 
-	m_openDirectory = url.directory();
+	const QFileInfo fileInfo(url.toLocalFile());
+	m_openDirectory = fileInfo.absoluteDir().path();
 
 	try
 	{
@@ -1013,14 +1030,15 @@ void TriggerEditor::loadTriggerStrings()
 		return;
 	}
 
-	KUrl url = KFileDialog::getOpenUrl(m_openDirectory, i18n("*|All Files\n*.txt|Warcraft III Trigger Strings"), this, i18n("Open trigger strings"));
+	const QUrl url = QFileDialog::getOpenFileUrl(this, tr("Open trigger strings"), m_openDirectory, tr("*|All Files\n*.txt|Warcraft III Trigger Strings"));
 
 	if (url.isEmpty())
 	{
 		return;
 	}
 
-	m_openDirectory = url.directory();
+	const QFileInfo fileInfo(url.toLocalFile());
+	m_openDirectory = fileInfo.absoluteDir().path();
 
 	try
 	{
@@ -1132,32 +1150,32 @@ void TriggerEditor::itemClicked(QTreeWidgetItem *item, int column)
 	if (item == rootItem())
 	{
 		openMapScript();
-		newActionCollection()->action("newtrigger")->setEnabled(false);
-		newActionCollection()->action("newtriggercomment")->setEnabled(false);
-		newActionCollection()->action("newevent")->setEnabled(false);
-		newActionCollection()->action("newcondition")->setEnabled(false);
-		newActionCollection()->action("newaction")->setEnabled(false);
+		m_newTriggerAction->setEnabled(false);
+		m_newTriggerCommentAction->setEnabled(false);
+		m_newEventAction->setEnabled(false);
+		m_newConditionAction->setEnabled(false);
+		m_newActionAction->setEnabled(false);
 	}
 	else if (categories().contains(item))
 	{
 		qDebug() << "CATEGORY!";
 		triggerWidget()->hide();
 		mapScriptWidget()->hide();
-		newActionCollection()->action("newtrigger")->setEnabled(true);
-		newActionCollection()->action("newtriggercomment")->setEnabled(true);
-		newActionCollection()->action("newevent")->setEnabled(false);
-		newActionCollection()->action("newcondition")->setEnabled(false);
-		newActionCollection()->action("newaction")->setEnabled(false);
+		m_newTriggerAction->setEnabled(true);
+		m_newTriggerCommentAction->setEnabled(true);
+		m_newEventAction->setEnabled(false);
+		m_newConditionAction->setEnabled(false);
+		m_newActionAction->setEnabled(false);
 	}
 	else if (triggerEntries().contains(item))
 	{
 		qDebug() << "TRIGGER!";
 		openTrigger(boost::polymorphic_cast<TriggerTreeWidgetItem*>(item)->trigger());
-		newActionCollection()->action("newtrigger")->setEnabled(true);
-		newActionCollection()->action("newtriggercomment")->setEnabled(true);
-		newActionCollection()->action("newevent")->setEnabled(true);
-		newActionCollection()->action("newcondition")->setEnabled(true);
-		newActionCollection()->action("newaction")->setEnabled(true);
+		m_newTriggerAction->setEnabled(true);
+		m_newTriggerCommentAction->setEnabled(true);
+		m_newEventAction->setEnabled(true);
+		m_newConditionAction->setEnabled(true);
+		m_newActionAction->setEnabled(true);
 	}
 	else
 	{
@@ -1167,113 +1185,84 @@ void TriggerEditor::itemClicked(QTreeWidgetItem *item, int column)
 
 void TriggerEditor::createFileActions(QMenu *menu)
 {
-	m_triggerActionCollection = new KActionCollection((QObject*)this);
+	m_openTriggersAction = menu->addAction(QIcon(":/actions/opentriggers.png"), tr("Open triggers"));
+	connect(m_openTriggersAction, SIGNAL(triggered()), this, SLOT(openTriggers()));
 
-	QAction *action = new QAction(QIcon(":/actions/opentriggers.png"), i18n("Open triggers"), this);
-	connect(action, SIGNAL(triggered()), this, SLOT(openTriggers()));
-	triggerActionCollection()->addAction("opentriggers", action);
+	m_openCustomTextTriggersAction = menu->addAction(QIcon(":/actions/opencustomtexttriggers.png"), tr("Open custom text triggers"));
+	connect(m_openCustomTextTriggersAction, SIGNAL(triggered()), this, SLOT(openCustomTextTriggers()));
 
-	action = new QAction(QIcon(":/actions/opencustomtexttriggers.png"), i18n("Open custom text triggers"), this);
-	connect(action, SIGNAL(triggered()), this, SLOT(openCustomTextTriggers()));
-	triggerActionCollection()->addAction("opencustomtexttriggers", action);
+	m_saveTriggersAction = menu->addAction(QIcon(":/actions/savetriggers.png"), tr("Save triggers"));
+	connect(m_saveTriggersAction, SIGNAL(triggered()), this, SLOT(saveTriggers()));
 
-	action = new QAction(KIcon(":/actions/savetriggers.png"), i18n("Save triggers"), this);
-	connect(action, SIGNAL(triggered()), this, SLOT(saveTriggers()));
-	triggerActionCollection()->addAction("savetriggers", action);
+	m_closeTriggersAction = menu->addAction(QIcon(":/actions/closetriggers.png"), tr("Close triggers"));
+	connect(m_closeTriggersAction, SIGNAL(triggered()), this, SLOT(closeTriggers()));
 
-	action = new QAction(QIcon(":/actions/closetriggers.png"), i18n("Close triggers"), this);
-	connect(action, SIGNAL(triggered()), this, SLOT(closeTriggers()));
-	triggerActionCollection()->addAction("closetriggers", action);
+	m_closeCustomTextTriggersAction = menu->addAction(QIcon(":/actions/closecustomtexttriggers.png"), tr("Close custom text triggers"));
+	connect(m_closeCustomTextTriggersAction, SIGNAL(triggered()), this, SLOT(closeCustomTextTriggers()));
 
-	action = new QAction(QIcon(":/actions/closecustomtexttriggers.png"), i18n("Close custom text triggers"), this);
-	connect(action, SIGNAL(triggered()), this, SLOT(closeCustomTextTriggers()));
-	triggerActionCollection()->addAction("closecustomtexttriggers", action);
+	m_closeAllAction = menu->addAction(QIcon(":/actions/closeall.png"), tr("Close all"));
+	connect(m_closeAllAction, SIGNAL(triggered()), this, SLOT(closeAll()));
 
-	action = new QAction(KIcon(":/actions/closeall.png"), i18n("Close all"), this);
-	connect(action, SIGNAL(triggered()), this, SLOT(closeAll()));
-	triggerActionCollection()->addAction("closeall", action);
+	m_resetTriggersAction = menu->addAction(QIcon(":/actions/resettriggers.png"), tr("Reset triggers"));
+	connect(m_resetTriggersAction, SIGNAL(triggered()), this, SLOT(resetTriggers()));
 
-	action = new QAction(QIcon(":/actions/resettriggers.png"), i18n("Reset triggers"), this);
-	connect(action, SIGNAL(triggered()), this, SLOT(resetTriggers()));
-	triggerActionCollection()->addAction("resettriggers", action);
+	m_renameAction = menu->addAction(QIcon(":/actions/rename.png"), tr("Rename"));
+	connect(m_renameAction, SIGNAL(triggered()), this, SLOT(renameTrigger()));
 
-	action = new QAction(QIcon(":/actions/rename.png"), i18n("Rename"), this);
-	connect(action, SIGNAL(triggered()), this, SLOT(renameTrigger()));
-	triggerActionCollection()->addAction("rename", action);
+	m_loadTriggerDataAction = menu->addAction(QIcon(":/actions/loadtriggerdata.png"), tr("Load trigger data"));
+	connect(m_loadTriggerDataAction, SIGNAL(triggered()), this, SLOT(loadTriggerData()));
 
-	action = new QAction(QIcon(":/actions/loadtriggerdata.png"), i18n("Load trigger data"), this);
-	connect(action, SIGNAL(triggered()), this, SLOT(loadTriggerData()));
-	triggerActionCollection()->addAction("loadtriggerdata", action);
-
-	action = new QAction(QIcon(":/actions/loadtriggerstrings.png"), i18n("Load trigger strings"), this);
-	connect(action, SIGNAL(triggered()), this, SLOT(loadTriggerStrings()));
-	triggerActionCollection()->addAction("loadtriggerstrings", action);
-
-	triggerActionCollection()->associateWidget(menu);
+	m_loadTriggerStringsAction = menu->addAction(QIcon(":/actions/loadtriggerstrings.png"), tr("Load trigger strings"));
+	connect(m_loadTriggerStringsAction, SIGNAL(triggered()), this, SLOT(loadTriggerStrings()));
 }
 
 void TriggerEditor::createEditActions(QMenu *menu)
 {
 	menu->addSeparator();
-	QAction *action = new QAction(QIcon(":/actions/variables.png"), i18n("Variables ..."), this);
-	action->setShortcut(i18n("Ctrl+B"));
-	action->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_Variables", "WorldEditArt", this));
-
-	connect(action, SIGNAL(triggered()), this, SLOT(showVariables()));
-	triggerActionCollection()->addAction("variables", action);
-	menu->addAction(action);
+	m_variablesAction = menu->addAction(QIcon(":/actions/variables.png"), tr("Variables ..."));
+	m_variablesAction->setShortcut(tr("Ctrl+B"));
+	m_variablesAction->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_Variables", "WorldEditArt", this));
+	connect(m_variablesAction, SIGNAL(triggered()), this, SLOT(showVariables()));
 
 	menu->addSeparator();
 
-	action = new QAction(QIcon(":/actions/converttotext.png"), i18n("Convert To Custom Text ..."), this);
-	connect(action, SIGNAL(triggered()), this, SLOT(convertToText()));
-	triggerActionCollection()->addAction("converttotext", action);
-	menu->addAction(action);
+	m_convertToTextAction = menu->addAction(QIcon(":/actions/converttotext.png"), tr("Convert To Custom Text ..."));
+	connect(m_convertToTextAction, SIGNAL(triggered()), this, SLOT(convertToText()));
 }
 
 void TriggerEditor::createMenus(QMenuBar *menuBar)
 {
-	m_newMenu = new QMenu(i18n("New"), menuBar);
+	m_newMenu = new QMenu(tr("New"), menuBar);
 
-	m_newActionCollection = new KActionCollection((QObject*)this);
+	m_newCategoryAction = menuBar->addAction(tr("Category"));
+	m_newCategoryAction->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_NewCategory", "WorldEditArt", this));
+	connect(m_newCategoryAction, SIGNAL(triggered()), this, SLOT(newCategory()));
 
-	QAction *action = new QAction(QIcon(":/actions/newcategory.png"), i18n("Category"), this);
-	action->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_NewCategory", "WorldEditArt", this));
-	connect(action, SIGNAL(triggered()), this, SLOT(newCategory()));
-	newActionCollection()->addAction("newcategory", action);
+	m_newTriggerAction = menuBar->addAction(tr("Trigger"));
+	m_newTriggerAction->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_NewTrigger", "WorldEditArt", this));
+	connect(m_newTriggerAction, SIGNAL(triggered()), this, SLOT(newTrigger()));
 
-	action = new QAction(QIcon(":/actions/newtrigger.png"), i18n("Trigger"), this);
-	action->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_NewTrigger", "WorldEditArt", this));
-	connect(action, SIGNAL(triggered()), this, SLOT(newTrigger()));
-	newActionCollection()->addAction("newtrigger", action);
-
-	action = new QAction(QIcon(":/actions/newtriggercomment.png"), i18n("Trigger Comment"), this);
-	connect(action, SIGNAL(triggered()), this, SLOT(newTriggerComment()));
-	newActionCollection()->addAction("newtriggercomment", action);
+	m_newTriggerCommentAction = menuBar->addAction(tr("Trigger Comment"));
+	connect(m_newTriggerCommentAction, SIGNAL(triggered()), this, SLOT(newTriggerComment()));
 
 	m_newMenu->addSeparator();
 
-	action = new QAction(QIcon(":/actions/newevent.png"), i18n("Event"), this);
-	action->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_NewEvent", "WorldEditArt", this));
-	connect(action, SIGNAL(triggered()), this, SLOT(newEvent()));
-	newActionCollection()->addAction("newevent", action);
+	m_newEventAction = menuBar->addAction(tr("Event"));
+	m_newEventAction->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_NewEvent", "WorldEditArt", this));
+	connect(m_newEventAction, SIGNAL(triggered()), this, SLOT(newEvent()));
 
-	action = new QAction(QIcon(":/actions/newcondition.png"), i18n("Condition"), this);
-	action->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_NewCondition", "WorldEditArt", this));
-	connect(action, SIGNAL(triggered()), this, SLOT(newCondition()));
-	newActionCollection()->addAction("newcondition", action);
+	m_newConditionAction = menuBar->addAction(tr("Condition"));
+	m_newConditionAction->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_NewCondition", "WorldEditArt", this));
+	connect(m_newConditionAction, SIGNAL(triggered()), this, SLOT(newCondition()));
 
-	action = new QAction(QIcon(":/actions/newaction.png"), i18n("Action"), this);
-	action->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_NewAction", "WorldEditArt", this));
-	connect(action, SIGNAL(triggered()), this, SLOT(newAction()));
-	newActionCollection()->addAction("newaction", action);
-
-	newActionCollection()->associateWidget(m_newMenu);
+	m_newActionAction = menuBar->addAction(tr("Action"));
+	m_newActionAction->setIcon(this->source()->sharedData()->worldEditDataIcon("ToolBarIcon_SE_NewAction", "WorldEditArt", this));
+	connect(m_newActionAction, SIGNAL(triggered()), this, SLOT(newAction()));
 
 	treeWidget()->setContextMenuPolicy(Qt::ActionsContextMenu);
-	treeWidget()->addAction(newActionCollection()->action("newcategory"));
-	treeWidget()->addAction(newActionCollection()->action("newtrigger"));
-	treeWidget()->addAction(newActionCollection()->action("newtriggercomment"));
+	treeWidget()->addAction(m_newCategoryAction);
+	treeWidget()->addAction(m_newTriggerAction);
+	treeWidget()->addAction(m_newTriggerCommentAction);
 }
 
 void TriggerEditor::createWindowsActions(WindowsMenu *menu)
@@ -1282,15 +1271,15 @@ void TriggerEditor::createWindowsActions(WindowsMenu *menu)
 
 void TriggerEditor::createToolButtons(ModuleToolBar *toolBar)
 {
-	toolBar->addCustomAction(triggerActionCollection()->action("variables"));
+	toolBar->addCustomAction(m_variablesAction);
 	toolBar->addSeparator();
-	toolBar->addCustomAction(newActionCollection()->action("newcategory"));
-	toolBar->addCustomAction(newActionCollection()->action("newtrigger"));
-	toolBar->addCustomAction(newActionCollection()->action("newtriggercomment"));
+	toolBar->addCustomAction(m_newCategoryAction);
+	toolBar->addCustomAction(m_newTriggerAction);
+	toolBar->addCustomAction(m_newTriggerCommentAction);
 	toolBar->addSeparator();
-	toolBar->addCustomAction(newActionCollection()->action("newevent"));
-	toolBar->addCustomAction(newActionCollection()->action("newcondition"));
-	toolBar->addCustomAction(newActionCollection()->action("newaction"));
+	toolBar->addCustomAction(m_newEventAction);
+	toolBar->addCustomAction(m_newConditionAction);
+	toolBar->addCustomAction(m_newActionAction);
 }
 
 SettingsInterface* TriggerEditor::settings()

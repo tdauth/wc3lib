@@ -8,7 +8,7 @@
 
 * MPQ Editor and tool "mpq": (listfile) files contain entries of files without a dirpath which might occur in every directory?
 * Fix MPQ Editor updateSelection().
-* Fix MPQ Editor closing and opening.
+* FIXED: Fix MPQ Editor closing and opening.
 * MPQ Editor: Should allow file options when adding files.
 * MPQ Editor: Reduce dependencies to KDE.
 * FIXED: Fix Archive::addFile() -> leads to eoffail when opening the archive.
@@ -33,7 +33,7 @@
 2016-02-07 Tamino Dauth <tamino@cdauth.eu>
 * Port to KDE Frameworks 5 and Qt 5: https://community.kde.org/Frameworks/Porting_Notes#Build_System in a separate branch.
 * https://wiki.qt.io/Transition_from_Qt_4.x_to_Qt5
-* Reduce dependencies to KDE. Actually only the IO slave plugin should depend on it.
+* Reduce dependencies to KDE. Actually only the IO slave plugin should depend on it. This simplifies the compilation process on Windows. Besides many components used from KDE like MIME types can be used in Qt5 now. This would remove network support for MpqPriorityList but is has not been used anyway.
 
 2016-02-06 Tamino Dauth <tamino@cdauth.eu>
 * FIXED: Many temporary file leaks when using MpqPriorityList::download() but not using KIO::NetAccess::removeTempFile().

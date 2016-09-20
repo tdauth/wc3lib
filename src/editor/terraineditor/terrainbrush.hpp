@@ -34,7 +34,7 @@ namespace editor
 class TerrainBrush : public Brush
 {
 	public:
-		TerrainBrush(class TerrainEditor *terrainEditor);
+		TerrainBrush(TerrainEditor *terrainEditor);
 		virtual ~TerrainBrush();
 
 		virtual void onPlace(int32 x, int32 y);

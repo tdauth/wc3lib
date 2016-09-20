@@ -25,8 +25,6 @@
 
 #include <QMenu>
 
-#include <kdemacros.h>
-
 #include "module.hpp"
 
 namespace wc3lib
@@ -41,7 +39,7 @@ namespace editor
  * Should never be used without an \ref Editor instance.
  * \sa WindowsMenu
  */
-class KDE_EXPORT ModuleMenu : public QMenu
+class ModuleMenu : public QMenu
 {
 	Q_OBJECT
 

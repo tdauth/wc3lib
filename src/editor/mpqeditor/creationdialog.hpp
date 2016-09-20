@@ -21,7 +21,7 @@
 #ifndef WC3LIB_EDITOR_MPQEDITOR_CREATIONDIALOG_HPP
 #define WC3LIB_EDITOR_MPQEDITOR_CREATIONDIALOG_HPP
 
-#include <QtGui/QDialog>
+#include <QtWidgets/QDialog>
 
 #include "../platform.hpp"
 #include "../../mpq.hpp"

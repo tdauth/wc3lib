@@ -25,6 +25,7 @@
 #include <QDir>
 #include <QList>
 #include <QCheckBox>
+#include <QUrl>
 
 #include "../mpq/listfile.hpp"
 
@@ -40,7 +41,7 @@ namespace editor
  * The default listfiles are determined by the wc3lib installation and are found in "/usr/share/wc3lib/listfiles/".
  * Additionally listfiles can be added.
  */
-class KDE_EXPORT ListfilesDialog : public QDialog
+class ListfilesDialog : public QDialog
 {
 	Q_OBJECT
 
@@ -61,9 +62,14 @@ class KDE_EXPORT ListfilesDialog : public QDialog
 		/**
 		 * Sets the URL where the add files dialog starts.
 		 */
-		void setAddUrl(const KUrl &url);
-		const KUrl& addUrl();
+		void setAddUrl(const QUrl &url);
+		const QUrl& addUrl();
 
+		/**
+		 * Shows a Listfile dialog which blocks until it is accepted or rejected.
+		 * \param entries The entries which are selected.
+		 * \return Returns the result of the shown dialog.
+		 */
 		static int show(mpq::Listfile::Entries &entries, QWidget *parent = 0);
 
 	public slots:
@@ -84,7 +90,7 @@ class KDE_EXPORT ListfilesDialog : public QDialog
 		QLayout *m_fileListLayout;
 		QFileInfoList m_files;
 		QList<QCheckBox*> m_checkBoxes;
-		KUrl m_addUrl;
+		QUrl m_addUrl;
 		static ListfilesDialog *m_dialog;
 };
 
@@ -93,12 +99,12 @@ inline const QFileInfoList& ListfilesDialog::files() const
 	return this->m_files;
 }
 
-inline void ListfilesDialog::setAddUrl(const KUrl& url)
+inline void ListfilesDialog::setAddUrl(const QUrl& url)
 {
 	this->m_addUrl = url;
 }
 
-inline const KUrl& ListfilesDialog::addUrl()
+inline const QUrl& ListfilesDialog::addUrl()
 {
 	return this->m_addUrl;
 }

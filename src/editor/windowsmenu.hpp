@@ -23,8 +23,6 @@
 
 #include <QMenu>
 
-#include <kdemacros.h>
-
 #include "platform.hpp"
 #include "module.hpp"
 
@@ -35,9 +33,10 @@ namespace editor
 {
 
 /**
+ * \brief The menu called "Windows" in the World Editor which also lists all open maps.
  * \sa ModuleMenu
  */
-class KDE_EXPORT WindowsMenu : public QMenu
+class WindowsMenu : public QMenu
 {
 	Q_OBJECT
 

@@ -20,9 +20,6 @@
 
 #include <QtGui>
 
-#include <KMimeType>
-#include <KIconLoader>
-
 #include "mpqtreemodel.hpp"
 #include "mpqtreeitem.hpp"
 #include "mpqeditor.hpp"
@@ -88,11 +85,12 @@ void MpqTreeModel::addArchive(mpq::Archive *archive, const mpq::Listfile::Entrie
 	/*
 	 * Set MIME type icon to show which file type it is.
 	 */
-	KMimeType::Ptr mimeType = KMimeType::findByPath(archive->path().c_str());
+	QMimeDatabase db;
+	QMimeType mimeType = db.mimeTypeForFile(archive->path().c_str());
 
-	if (!mimeType.isNull() && !mimeType->iconName().isEmpty())
+	if (mimeType.isValid() && !mimeType.iconName().isEmpty())
 	{
-		archiveItem->setIcon(m_iconLoader.loadMimeTypeIcon(mimeType->iconName(), KIconLoader::Small));
+		archiveItem->setIcon(QIcon::fromTheme(mimeType.iconName()));
 	}
 
 	/*
@@ -218,11 +216,11 @@ void MpqTreeModel::addArchive(mpq::Archive *archive, const mpq::Listfile::Entrie
 				/*
 				* Set MIME type icon to show which file type it is.
 				*/
-				KMimeType::Ptr mimeType = KMimeType::findByPath(fileItem->filePath());
+				QMimeType mimeType = db.mimeTypeForFile(fileItem->filePath());
 
-				if (!mimeType.isNull() && !mimeType->iconName().isEmpty())
+				if (mimeType.isValid() && !mimeType.iconName().isEmpty())
 				{
-					fileItem->setIcon(m_iconLoader.loadMimeTypeIcon(mimeType->iconName(), KIconLoader::Small));
+					fileItem->setIcon(QIcon::fromTheme(mimeType.iconName()));
 				}
 			}
 			//qDebug() << "File" << filePath << "with parent" << parentItem->name();

@@ -26,8 +26,6 @@
 #include <QDebug>
 #include <QMessageBox>
 
-#include <kdemacros.h>
-
 #include <Ogre.h>
 
 #include "../../mdlx.hpp"
@@ -54,7 +52,7 @@ class CollisionShape;
 /**
  * We have model SLK entries listet at the tree view.
  */
-class KDE_EXPORT ModelEditor : public Module
+class ModelEditor : public Module
 {
 	Q_OBJECT
 
@@ -96,7 +94,7 @@ class KDE_EXPORT ModelEditor : public Module
 
 	public slots:
 		void openFile();
-		bool openUrl(const KUrl &url);
+		bool openUrl(const QUrl &url);
 		void saveFile();
 		void closeAllFiles();
 		void showSettings();
@@ -141,8 +139,7 @@ class KDE_EXPORT ModelEditor : public Module
 		void removeCameraActions(const OgreMdlx &ogreModel);
 
 		ModelEditorView *m_modelView;
-		ModelEditorSettingsDialog *m_settingsDialog;
-		KUrl m_recentUrl;
+		QUrl m_recentUrl;
 		Models m_models;
 		Entities m_entities;
 		CameraActions m_cameraActions;

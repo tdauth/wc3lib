@@ -38,7 +38,7 @@ class ModelEditor;
 class ModelEditorView : public ModelView
 {
 	public:
-		ModelEditorView(Root *root, ModelEditor *modelEditor, Qt::WFlags f = 0, Ogre::SceneType ogreSceneType = Ogre::ST_EXTERIOR_CLOSE, const Ogre::NameValuePairList *ogreParameters = 0);
+		ModelEditorView(Root *root, ModelEditor *modelEditor, Qt::WindowFlags f = 0, Ogre::SceneType ogreSceneType = Ogre::ST_EXTERIOR_CLOSE, const Ogre::NameValuePairList *ogreParameters = 0);
 		virtual ~ModelEditorView();
 
 		ModelEditor* modelEditor() const;

@@ -18,11 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <KMessageBox>
-#include <KFileDialog>
-#include <KAction>
-
 #include <QtGui>
+#include <QtWidgets/QtWidgets>
 
 #include "objecteditortab.hpp"
 #include "../objectdata.hpp"
@@ -69,7 +66,7 @@ void ObjectEditorTab::setupUi()
 	/*
 	 * Tree View
 	 */
-	m_filterSearchLine = new KFilterProxySearchLine(this);
+	m_filterSearchLine = new QLineEdit(this);
 
 	m_treeView = new ObjectTreeView(this);
 	m_treeModel = createTreeModel();
@@ -77,12 +74,13 @@ void ObjectEditorTab::setupUi()
 	proxyModel->setSourceModel(this->m_treeModel);
 	treeView()->setModel(proxyModel);
 
-	m_filterSearchLine->setProxy(this->proxyModel());
+
+	//m_filterSearchLine->setProxy(this->proxyModel());
 
 	/*
 	 * Table View
 	 */
-	m_tableFilterSearchLine = new KFilterProxySearchLine(this);
+	m_tableFilterSearchLine = new QLineEdit(this);
 
 	m_tableView = new ObjectTableView(this);
 	/*
@@ -98,7 +96,8 @@ void ObjectEditorTab::setupUi()
 	tableProxyModel->setSourceModel(this->m_tableModel);
 	m_tableView->setModel(tableProxyModel);
 
-	m_tableFilterSearchLine->setProxy(this->tableProxyModel());
+	// TODO set proxy
+	//m_tableFilterSearchLine->setProxy(this->tableProxyModel());
 
 
 	QVBoxLayout *leftLayout = new QVBoxLayout(this);
@@ -250,7 +249,7 @@ void ObjectEditorTab::exportAllObjects()
 	const QString mapSuffix = "w3m";
 	const QString xmapSuffix = "w3x";
 
-	const KUrl url = KFileDialog::getSaveUrl(KUrl(), QString("*\nCustom Units (*.%1)\nCustom Objects Collection (*.%2)\nMap (*.%3 *.%4)").arg(customUnitsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix), this, exportAllObjectsText());
+	const QUrl url = QFileDialog::getSaveFileUrl(this, exportAllObjectsText(), QUrl(), QString("*\nCustom Units (*.%1)\nCustom Objects Collection (*.%2)\nMap (*.%3 *.%4)").arg(customUnitsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix));
 
 	if (!url.isEmpty())
 	{
@@ -261,7 +260,7 @@ void ObjectEditorTab::exportAllObjects()
 
 		if (suffix == customUnitsSuffix && !this->objectData()->hasCustomUnits() && !this->objectData()->hasCustomObjects())
 		{
-			KMessageBox::error(this, tr("No custom units support."));
+			QMessageBox::critical(this, tr("Error"), tr("No custom units support."));
 
 			return;
 		}
@@ -289,7 +288,7 @@ void ObjectEditorTab::exportAllObjects()
 			}
 			catch (Exception &e)
 			{
-				KMessageBox::error(this, tr("Error on exporting"), e.what());
+				QMessageBox::critical(this, tr("Error"), tr("Error on exporting"), e.what());
 			}
 		}
 	}
@@ -304,7 +303,7 @@ void ObjectEditorTab::importAllObjects()
 		const QString mapSuffix = "w3m";
 		const QString xmapSuffix = "w3x";
 
-		const KUrl url = KFileDialog::getOpenUrl(m_recentImportUrl, QString("*|All Files\n*.%1\nCustom Objects Collection *.%2\nMap (*.%3 *.%4)").arg(customObjectsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix), this, importAllObjectsText());
+		const QUrl url = QFileDialog::getOpenFileUrl(this, importAllObjectsText(), m_recentImportUrl, QString("*|All Files\n*.%1\nCustom Objects Collection *.%2\nMap (*.%3 *.%4)").arg(customObjectsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix));
 
 		if (!url.isEmpty())
 		{
@@ -327,12 +326,12 @@ void ObjectEditorTab::importAllObjects()
 					}
 					catch (std::exception &e)
 					{
-						KMessageBox::error(this, tr("Error on importing"), e.what());
+						QMessageBox::critical(this, tr("Error"), tr("Error on importing"), e.what());
 					}
 				}
 				else
 				{
-					KMessageBox::error(this, tr("Does not support custom units."));
+					QMessageBox::critical(this, tr("Error"), tr("Does not support custom units."));
 				}
 			}
 			// TODO support custom object FILES
@@ -358,19 +357,19 @@ void ObjectEditorTab::importAllObjects()
 								}
 								else
 								{
-									KMessageBox::error(this, tr("Collection has no units."));
+									QMessageBox::critical(this, tr("Error"), tr("Collection has no units."));
 								}
 							}
 						}
 					}
 					catch (std::exception &e)
 					{
-						KMessageBox::error(this, e.what());
+						QMessageBox::critical(this, tr("Error"), e.what());
 					}
 				}
 				else
 				{
-					KMessageBox::error(this, tr("Does not support custom objects."));
+					QMessageBox::critical(this, tr("Error"), tr("Does not support custom objects."));
 				}
 			}
 			else if (suffix == mapSuffix)
@@ -390,22 +389,22 @@ void ObjectEditorTab::importAllObjects()
 					}
 					catch (std::exception &e)
 					{
-						KMessageBox::error(this, e.what());
+						QMessageBox::critical(this, tr("Error"), e.what());
 					}
 				}
 				else
 				{
-					KMessageBox::error(this, tr("Does not support custom units."));
+					QMessageBox::critical(this, tr("Error"), tr("Does not support custom units."));
 				}
 			}
 			// TODO support custom object FILES
 			else if (suffix == xmapSuffix)
 			{
-				KMessageBox::error(this, tr("W3X is not supported yet."));
+				QMessageBox::critical(this, tr("Error"), tr("W3X is not supported yet."));
 			}
 			else
 			{
-				KMessageBox::error(this, tr("Unknown file type."));
+				QMessageBox::critical(this, tr("Error"), tr("Unknown file type."));
 			}
 		}
 	}
@@ -550,7 +549,7 @@ void ObjectEditorTab::pasteObject()
 				 */
 				if (this->objectData()->isObjectModified(originalObjectId, customObjectId))
 				{
-					if (KMessageBox::questionYesNo(this, tr("Do you want to overwrite the existing custom object %1?").arg(customObjectId)) == KMessageBox::No)
+					if (QMessageBox::question(this, tr("Overwrite?"), tr("Do you want to overwrite the existing custom object %1?").arg(customObjectId)) == QMessageBox::No)
 					{
 						continue;
 					}
@@ -577,7 +576,7 @@ void ObjectEditorTab::pasteObject()
 		}
 		catch (Exception &e)
 		{
-			KMessageBox::error(this, e.what());
+			QMessageBox::critical(this, tr("Error"), e.what());
 		}
 	}
 }
@@ -590,7 +589,7 @@ void ObjectEditorTab::widgetizeAllObjects()
 	{
 		try
 		{
-			this->objectData()->widgetize(KUrl::fromLocalFile(dir));
+			this->objectData()->widgetize(QUrl::fromLocalFile(dir));
 		}
 		catch (Exception &e)
 		{

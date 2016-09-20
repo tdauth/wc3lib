@@ -70,10 +70,10 @@ QVariant ObjectTreeModel::data(const QModelIndex &index, int role) const
 	     {
 		     if (item->hasModifiedObject())
 		     {
-			     return Qt::magenta;
+			     return QColor(Qt::magenta);
 		     }
 
-		     return Qt::black;
+		     return QColor(Qt::black);
 	     }
      }
 

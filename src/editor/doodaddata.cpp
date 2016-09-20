@@ -121,10 +121,10 @@ int DoodadData::objectLevels(const QString& originalObjectId, const QString& cus
 void DoodadData::load(QWidget *widget)
 {
 	// TODO same meta data as for units -> share it!
-	this->m_metaData.reset(new MetaData(KUrl("Doodads/DoodadMetaData.slk")));
+	this->m_metaData.reset(new MetaData(QUrl("Doodads/DoodadMetaData.slk")));
 	this->m_metaData->setSource(this->source());
 	this->m_metaData->load();
-	this->m_doodadData.reset(new MetaData(KUrl("Doodads/Doodads.slk")));
+	this->m_doodadData.reset(new MetaData(QUrl("Doodads/Doodads.slk")));
 	this->m_doodadData->setSource(this->source());
 	this->m_doodadData->load();
 }

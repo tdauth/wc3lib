@@ -39,7 +39,7 @@ class MetaData;
  *
  * \ingroup objectdata
  */
-class KDE_EXPORT SkinData : public ObjectData
+class SkinData : public ObjectData
 {
 	public:
 		SkinData(MpqPriorityList *source, QObject *parent = 0);

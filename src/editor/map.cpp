@@ -18,8 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <KTemporaryFile>
-#include <KMessageBox>
+#include <QTemporaryFile>
 
 #include "map.hpp"
 #include "mpqprioritylist.hpp"
@@ -30,7 +29,7 @@ namespace wc3lib
 namespace editor
 {
 
-Map::Map(const KUrl &url) : Resource(url, Type::Map)
+Map::Map(const QUrl &url) : Resource(url, Type::Map)
 {
 }
 
@@ -88,19 +87,23 @@ void Map::reload()
 	load();
 }
 
-void Map::save(const KUrl &url) const
+void Map::save(const QUrl &url) const
 {
-	KTemporaryFile tmpFile;
+	QTemporaryFile tmpFile;
 
 	if (!tmpFile.open())
+	{
 		throw Exception(boost::format(_("Temporary file \"%1%\" cannot be opened.")) % tmpFile.fileName().toStdString());
+	}
 
 	ofstream ostream(tmpFile.fileName().toStdString(), std::ios::out | std::ios::binary);
 
 	map()->write(ostream);
 
 	if  (!this->source()->upload(tmpFile.fileName(), url, 0))
+	{
 		throw Exception(boost::format(_("Unable to upload temporary file \"%1%\" to URL \"%2%\"")) % tmpFile.fileName().toStdString() % url.toEncoded().constData());
+	}
 }
 
 }

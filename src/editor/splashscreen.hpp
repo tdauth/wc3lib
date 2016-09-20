@@ -23,8 +23,6 @@
 
 #include <QSplashScreen>
 
-#include <kdemacros.h>
-
 namespace wc3lib
 {
 
@@ -39,7 +37,7 @@ class MpqPriorityList;
  * Besides it should play sound "Uther's Return".
  * \todo Add class SplashScreenX for splash screen of Frozen Throne's World Editor.
  */
-class KDE_EXPORT SplashScreen : public QSplashScreen
+class SplashScreen : public QSplashScreen
 {
 	public:
 		SplashScreen(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);

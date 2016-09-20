@@ -73,9 +73,9 @@ set(wc3lib_OBJECTEDITOR_SRC
 
 add_subdirectory(ui)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}) # include binary dir for moc files
-kde4_add_ui_files(wc3lib_OBJECTEDITOR_UI_H ${wc3lib_OBJECTEDITOR_UI})
-kde4_add_library(wc3libobjecteditor SHARED ${wc3lib_OBJECTEDITOR_SRC} ${wc3lib_OBJECTEDITOR_UI_H})
-target_link_libraries(wc3libobjecteditor ${wc3lib_CORE_LIBRARIES} ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${OGRE_LIBRARIES} ${QT_LIBRARIES} ${KDE4_KIO_LIBS} ${KDE4_KUTILS_LIBS} ${KDE4_KPARTS_LIBS} wc3libeditor)
+qt5_wrap_ui(wc3lib_OBJECTEDITOR_UI_H ${wc3lib_OBJECTEDITOR_UI})
+add_library(wc3libobjecteditor SHARED ${wc3lib_OBJECTEDITOR_SRC} ${wc3lib_OBJECTEDITOR_UI_H})
+target_link_libraries(wc3libobjecteditor wc3libeditor)
 
 # install
 install(TARGETS wc3libobjecteditor DESTINATION lib)

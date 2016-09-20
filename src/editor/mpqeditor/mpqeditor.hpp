@@ -23,9 +23,6 @@
 
 #include <boost/ptr_container/ptr_map.hpp>
 
-#include <kdemacros.h>
-#include <KUrl>
-
 #include "../module.hpp"
 #include "../../mpq.hpp"
 #include "ui_mpqeditor.h"
@@ -57,7 +54,7 @@ class FileInfoDialog;
  *
  * \sa wc3lib::editor::MpqSlave wc3lib::editor::MpqPriorityList
  */
-class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
+class MpqEditor : public Module, protected Ui::MpqEditor
 {
 	Q_OBJECT
 
@@ -70,7 +67,7 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		/**
 		 * All open MPQ archives are stored in a vector.
 		 */
-		typedef boost::ptr_map<KUrl, mpq::Archive> Archives;
+		typedef boost::ptr_map<QUrl, mpq::Archive> Archives;
 
 		MpqEditor(wc3lib::editor::MpqPriorityList* source, QWidget* parent = 0, Qt::WindowFlags f = 0);
 		virtual ~MpqEditor();
@@ -104,7 +101,7 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		 * \param url The URL of the MPQ archive.
 		 * \return Returns true if opening succeeded.
 		 */
-		bool openMpqArchive(const KUrl &url);
+		bool openMpqArchive(const QUrl &url);
 
 		CreationDialog* creationDialog() const;
 		/**
@@ -208,7 +205,7 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		 * Adds \p url to recent files history.
 		 * If it does already exist it won't be added a second time.
 		 */
-		void addRecentAction(const KUrl &url);
+		void addRecentAction(const QUrl &url);
 
 		/**
 		 * Opens file \p filePath with the corresponding desktop application.
@@ -219,14 +216,14 @@ class KDE_EXPORT MpqEditor : public Module, protected Ui::MpqEditor
 		MpqTreeModel* treeModel() const;
 
 	private:
-		void openArchive(mpq::Archive &archive, const KUrl &url, mpq::Listfile::Entries &listfileEntries);
+		void openArchive(mpq::Archive &archive, const QUrl &url, mpq::Listfile::Entries &listfileEntries);
 
 		Archives m_archives;
 
-		KUrl m_openUrl;
-		KUrl m_saveUrl;
-		KUrl m_addUrl;
-		KUrl m_extractUrl;
+		QUrl m_openUrl;
+		QUrl m_saveUrl;
+		QUrl m_addUrl;
+		QUrl m_extractUrl;
 		QList<QUrl> m_archiveHistory;
 
 		QMenu *m_recentArchivesMenu;

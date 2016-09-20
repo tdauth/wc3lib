@@ -57,17 +57,10 @@
     </widget>
    </item>
    <item row="0" column="0">
-    <widget class="KFilterProxySearchLine" name="m_filterProxySearchLine"/>
+    <widget class="QLineEdit" name="m_filterProxySearchLine"/>
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>KFilterProxySearchLine</class>
-   <extends>QWidget</extends>
-   <header>kfilterproxysearchline.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

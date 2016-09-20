@@ -29,7 +29,7 @@ namespace wc3lib
 namespace editor
 {
 
-class KDE_EXPORT WaterData : public ObjectData
+class WaterData : public ObjectData
 {
 	public:
 		WaterData(MpqPriorityList *source, QObject *parent = 0);

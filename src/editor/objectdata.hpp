@@ -25,9 +25,7 @@
 #include <QWidget>
 #include <QHash>
 #include <QPair>
-
-#include <kdemacros.h>
-#include <KUrl>
+#include <QUrl>
 
 #include "../map.hpp"
 
@@ -59,7 +57,7 @@ class MpqPriorityList;
  *
  * \ingroup objectdata
  */
-class KDE_EXPORT ObjectData : public QObject
+class ObjectData : public QObject
 {
 	Q_OBJECT
 
@@ -448,7 +446,7 @@ class KDE_EXPORT ObjectData : public QObject
 		 * Widgetizing means that all possible object data is exported into SLK files which can only store abilities up to leve 4.
 		 * The rest of the data will be exported as usual. Therefore a folder must be selected.
 		 */
-		virtual void widgetize(const KUrl &url);
+		virtual void widgetize(const QUrl &url);
 
 	protected:
 		virtual QString defaultFieldValue(const QString &objectId, const QString &fieldId, int level, bool &exists) const;

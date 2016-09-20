@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include <QtGui>
+#include <QtWidgets/QtWidgets>
 
 #include "objectdata.hpp"
 #include "metadata.hpp"
@@ -1240,7 +1241,7 @@ int ObjectData::compress()
 	return counter;
 }
 
-void ObjectData::widgetize(const KUrl &url)
+void ObjectData::widgetize(const QUrl &url)
 {
 	//
 }

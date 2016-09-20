@@ -24,7 +24,7 @@
       </widget>
      </item>
      <item>
-      <widget class="KLineEdit" name="m_nameLineEdit"/>
+      <widget class="QLineEdit" name="m_nameLineEdit"/>
      </item>
      <item>
       <spacer name="horizontalSpacer_2">
@@ -51,7 +51,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>378</width>
+        <width>384</width>
         <height>223</height>
        </rect>
       </property>
@@ -100,26 +100,19 @@
      </widget>
     </widget>
    </item>
-   <item row="9" column="4" colspan="2">
-    <widget class="KDialogButtonBox" name="m_dialogButtonBox">
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="0" colspan="6">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="KComboBox" name="m_raceComboBox"/>
+      <widget class="QComboBox" name="m_raceComboBox"/>
      </item>
      <item>
-      <widget class="KComboBox" name="m_meleeComboBox"/>
+      <widget class="QComboBox" name="m_meleeComboBox"/>
      </item>
      <item>
-      <widget class="KComboBox" name="m_tilesetComboBox"/>
+      <widget class="QComboBox" name="m_tilesetComboBox"/>
      </item>
      <item>
-      <widget class="KComboBox" name="m_levelComboBox"/>
+      <widget class="QComboBox" name="m_levelComboBox"/>
      </item>
     </layout>
    </item>
@@ -130,58 +123,15 @@
      </property>
     </widget>
    </item>
+   <item row="9" column="1" colspan="5">
+    <widget class="QDialogButtonBox" name="m_dialogButtonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>KDialogButtonBox</class>
-   <extends>QDialogButtonBox</extends>
-   <header>kdialogbuttonbox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>KComboBox</class>
-   <extends>QComboBox</extends>
-   <header>kcombobox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>KLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>klineedit.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>m_dialogButtonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>UnitSelectionDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>231</x>
-     <y>280</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>114</x>
-     <y>205</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>m_dialogButtonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>UnitSelectionDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>333</x>
-     <y>274</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>374</x>
-     <y>213</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

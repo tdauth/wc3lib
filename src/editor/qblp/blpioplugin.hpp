@@ -35,12 +35,16 @@ namespace editor
  */
 class BlpIOPlugin : public QImageIOPlugin
 {
+	Q_OBJECT
+
+	Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QImageIOPlugin" FILE "blp.json")
+
 	public:
-		BlpIOPlugin(QObject *parent = 0);
+
+		BlpIOPlugin(QObject *parent = nullptr);
 		virtual ~BlpIOPlugin();
 		virtual Capabilities capabilities (QIODevice *device, const QByteArray &format) const override;
 		virtual QImageIOHandler* create(QIODevice *device, const QByteArray &format = QByteArray()) const override;
-		virtual QStringList keys() const override;
 };
 
 }

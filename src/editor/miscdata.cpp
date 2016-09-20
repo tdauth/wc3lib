@@ -123,19 +123,19 @@ int MiscData::objectLevels(const QString& originalObjectId, const QString& custo
 
 void MiscData::load(QWidget *widget)
 {
-	this->m_miscMetaData.reset(new MetaData(KUrl("Units/MiscMetaData.slk")));
+	this->m_miscMetaData.reset(new MetaData(QUrl("Units/MiscMetaData.slk")));
 	this->m_miscMetaData->setSource(this->source());
 	this->m_miscMetaData->load();
-	this->m_miscGame.reset(new MetaData(KUrl("Units/miscgame.txt")));
+	this->m_miscGame.reset(new MetaData(QUrl("Units/miscgame.txt")));
 	this->m_miscGame->setSource(this->source());
 	this->m_miscGame->load();
-	this->m_customV0.reset(new MetaData(KUrl("Custom_V0/Units/miscgame.txt")));
+	this->m_customV0.reset(new MetaData(QUrl("Custom_V0/Units/miscgame.txt")));
 	this->m_customV0->setSource(this->source());
 	this->m_customV0->load();
-	this->m_customV1.reset(new MetaData(KUrl("Custom_V1/Units/miscgame.txt")));
+	this->m_customV1.reset(new MetaData(QUrl("Custom_V1/Units/miscgame.txt")));
 	this->m_customV1->setSource(this->source());
 	this->m_customV1->load();
-	this->m_meleeV0.reset(new MetaData(KUrl("melee_v0/Units/miscgame.txt")));
+	this->m_meleeV0.reset(new MetaData(QUrl("melee_v0/Units/miscgame.txt")));
 	this->m_meleeV0->setSource(this->source());
 	this->m_meleeV0->load();
 

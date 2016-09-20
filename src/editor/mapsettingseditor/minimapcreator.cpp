@@ -64,15 +64,15 @@ QImage MinimapCreator::render(const map::Minimap &minimap, const map::MenuMinima
 	// UI/MiniMap/MiniMapIcon/MinimapIconNeutralBuilding.blp
 	// UI/MiniMap/MiniMapIcon/MinimapIconStartLoc.blp
 
-	Texture goldTexture(KUrl("UI/MiniMap/MiniMapIcon/MinimapIconGold.blp"));
+	Texture goldTexture(QUrl("UI/MiniMap/MiniMapIcon/MinimapIconGold.blp"));
 	goldTexture.setSource(this->source());
 	goldTexture.loadQt();
 
-	Texture neutralBuildingTexture(KUrl("UI/MiniMap/MiniMapIcon/MinimapIconNeutralBuilding.blp"));
+	Texture neutralBuildingTexture(QUrl("UI/MiniMap/MiniMapIcon/MinimapIconNeutralBuilding.blp"));
 	neutralBuildingTexture.setSource(this->source());
 	neutralBuildingTexture.loadQt();
 
-	Texture startLocTexture(KUrl("UI/MiniMap/MiniMapIcon/MinimapIconStartLoc.blp"));
+	Texture startLocTexture(QUrl("UI/MiniMap/MiniMapIcon/MinimapIconStartLoc.blp"));
 	startLocTexture.setSource(this->source());
 	startLocTexture.loadQt();
 

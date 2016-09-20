@@ -21,8 +21,6 @@
 #ifndef WC3LIB_EDITOR_ROOT_HPP
 #define WC3LIB_EDITOR_ROOT_HPP
 
-#include <kdemacros.h>
-
 #include <Ogre.h>
 
 namespace wc3lib
@@ -36,7 +34,7 @@ namespace editor
  *
  * Use \ref configure() to make sure the renderer system is configured.
  */
-class KDE_EXPORT Root : public Ogre::Root
+class Root : public Ogre::Root
 {
 	public:
 		/**

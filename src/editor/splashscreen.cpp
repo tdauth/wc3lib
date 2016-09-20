@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include <QtGui>
+#include <QtMultimedia/QSound>
 
 #include "splashscreen.hpp"
 #include "mpqprioritylist.hpp"

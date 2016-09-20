@@ -34,15 +34,11 @@ set(wc3lib_CORE_SRC
 	vertex.cpp
 )
 
-if (EDITOR OR PLUGINS)
+if (EDITOR OR USE_KIOSLAVE OR USE_QBLP OR USE_OGREBLP)
 	include_directories(${CMAKE_CURRENT_BINARY_DIR}/editor) # include binary dir since the KDE configuration class will be generated there and has to be included (also include for moc cxx files)
 endif ()
 
-add_library(wc3libcore SHARED ${wc3lib_CREATION_MODE} ${wc3lib_CORE_SRC})
-if (UNIX)
-	# TODO: dl is required for using dlopen etc. (cross platform?)
-	target_link_libraries(wc3libcore dl)
-endif ()
+add_library(wc3libcore SHARED ${wc3lib_CORE_SRC})
 target_link_libraries(wc3libcore ${Boost_LIBRARIES})
 
 if (DEBUG)
@@ -84,7 +80,7 @@ if (JASS)
 	list(APPEND wc3lib_CORE_LIBRARIES wc3libjass)
 endif ()
 
-if (EDITOR OR PLUGINS)
+if (EDITOR OR USE_KIOSLAVE OR USE_QBLP OR USE_OGREBLP)
 	add_subdirectory(editor) # last one
 endif ()
 

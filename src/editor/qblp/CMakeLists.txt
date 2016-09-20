@@ -14,7 +14,7 @@ add_definitions(-DQT_SHARED)
 # BLP Qt plugin
 # allows you to read and write BLP image files by using class QImage and image type "BLP"
 add_library(qblp SHARED ${wc3lib_EDITOR_QBLP_SRC})
-target_link_libraries(qblp wc3libcore wc3libblp ${Boost_LIBRARIES} ${QT_LIBRARIES})
+target_link_libraries(qblp wc3libcore wc3libblp ${Boost_LIBRARIES} Qt5::Core Qt5::Widgets)
 
 # wc3libcore is necessary because of catching Exception
 # TODO drop ${Boost_LIBRARIES}

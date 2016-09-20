@@ -21,9 +21,9 @@
 #ifndef WC3LIB_EDITOR_TRIGGEREDITOR_TRIGGERWIDGET_HPP
 #define WC3LIB_EDITOR_TRIGGEREDITOR_TRIGGERWIDGET_HPP
 
-#include <QtGui/QWidget>
-#include <QtGui/QTreeWidget>
-#include <QtGui/QTextEdit>
+#include <QtWidgets/QWidget>
+#include <QtWidgets//QTreeWidget>
+#include <QtWidgets/QTextEdit>
 
 #include "ui_triggertopwidget.h"
 #include "../../map.hpp"

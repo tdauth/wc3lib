@@ -26,6 +26,7 @@
 #include <QColor>
 #include <QString>
 #include <QList>
+#include <QUrl>
 #ifdef Q_OS_UNIX
 #include <QDir>
 #include <QFileInfo>
@@ -34,8 +35,7 @@
 #endif
 #include <QDir>
 #include <QFileInfo>
-
-#include <KUrl>
+#include <QVariant>
 
 #include <Ogre.h>
 
@@ -79,7 +79,7 @@ inline QList<QVariant> stringList(const map::List &list)
 	for (std::size_t i = 0; i < list.size(); ++i)
 	{
 		// Warcraft III usually works with UTF-8 strings
-		result << QString::fromUtf8(list[i].c_str());
+		result << QVariant(QString::fromUtf8(list[i].c_str()));
 	}
 
 	return result;
@@ -408,7 +408,7 @@ inline TeamColor teamColor(const QColor &color)
  * Required by textures which use replaceable id \ref mdlx::ReplaceableId::TeamColor.
  * \sa mdlx::ReplaceableId, mdlx::Texture
  */
-inline KUrl teamColorUrl(TeamColor teamColor)
+inline QUrl teamColorUrl(TeamColor teamColor)
 {
 	QString number = QString::number((int)teamColor);
 
@@ -417,14 +417,14 @@ inline KUrl teamColorUrl(TeamColor teamColor)
 		number.prepend('0');
 	}
 
-	return KUrl("ReplaceableTextures/TeamColor/TeamColor" + number + ".blp");
+	return QUrl("ReplaceableTextures/TeamColor/TeamColor" + number + ".blp");
 }
 
 /**
  * Required by textures which use replaceable id \ref mdlx::ReplaceableId::TeamGlow.
  * \sa mdlx::ReplaceableId, mdlx::Texture
  */
-inline KUrl teamGlowUrl(TeamColor teamGlow)
+inline QUrl teamGlowUrl(TeamColor teamGlow)
 {
 	QString number = QString::number((int)teamGlow);
 
@@ -433,7 +433,7 @@ inline KUrl teamGlowUrl(TeamColor teamGlow)
 		number.prepend('0');
 	}
 
-	return KUrl("ReplaceableTextures/TeamGlow/TeamGlow" + number + ".blp");
+	return QUrl("ReplaceableTextures/TeamGlow/TeamGlow" + number + ".blp");
 }
 
 /**
@@ -542,70 +542,62 @@ inline QVariant registryEntry(const QString &key)
 #endif
 }
 
-inline KUrl installUrl()
+inline QUrl installUrl()
 {
 	return registryEntry("Software\\Blizzard Entertainment\\Warcraft III\\Install Path").toUrl();
 }
 
-inline KUrl installXUrl()
+inline QUrl installXUrl()
 {
 	return registryEntry("Software\\Blizzard Entertainment\\Warcraft III\\InstallPathX").toUrl();
 }
 
-inline KUrl war3Url()
+inline QUrl war3Url()
 {
-	KUrl url(installUrl());
+	QUrl url(installUrl());
 
 	if (url.isEmpty())
 	{
-		return KUrl();
+		return QUrl();
 	}
 
-	url.addPath("war3.mpq");
-
-	return url;
+	return QUrl(url.toString() + "/war3.mpq");
 }
 
-inline KUrl war3XUrl()
+inline QUrl war3XUrl()
 {
-	KUrl url(installXUrl());
+	QUrl url(installXUrl());
 
 	if (url.isEmpty())
 	{
-		return KUrl();
+		return QUrl();
 	}
 
-	url.addPath("war3x.mpq");
-
-	return url;
+	return QUrl(url.toString() + "/war3x.mpq");
 }
 
-inline KUrl war3PatchUrl()
+inline QUrl war3PatchUrl()
 {
-	KUrl url(installUrl());
+	QUrl url(installUrl());
 
 	if (url.isEmpty())
 	{
-		return KUrl();
+		return QUrl();
 	}
 
-	url.addPath("War3Patch.mpq");
-
-	return url;
+	return QUrl(url.toString() + "/War3Patch.mpq");
 }
 
-inline KUrl war3XLocalUrl()
+inline QUrl war3XLocalUrl()
 {
-	KUrl url(installXUrl());
+	QUrl url(installXUrl());
 
 	if (url.isEmpty())
 	{
-		return KUrl();
+		return QUrl();
 	}
 
-	url.addPath("War3xlocal.mpq");
-
-	return url;
+	return QUrl(url.toString() + "/War3xlocal.mpq");
 }
 
 /// Global type cast function.
@@ -779,25 +771,9 @@ inline QFileInfoList installedListfiles()
 // TODO Qt 5 QDir::removeRecursively()
 inline bool removeDirRecursively(const QString & dirName)
 {
-    bool result = true;
-    QDir dir(dirName);
+	QDir dir(dirName);
 
-    if (dir.exists(dirName)) {
-        Q_FOREACH(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
-            if (info.isDir()) {
-                result = removeDirRecursively(info.absoluteFilePath());
-            }
-            else {
-                result = QFile::remove(info.absoluteFilePath());
-            }
-
-            if (!result) {
-                return result;
-            }
-        }
-        result = dir.rmdir(dirName);
-    }
-    return result;
+	return dir.removeRecursively();
 }
 
 }

@@ -157,16 +157,16 @@ int ItemData::objectLevels(const QString& originalObjectId, const QString& custo
 void ItemData::load(QWidget *widget)
 {
 	// TODO same meta data as for units -> share it!
-	this->m_metaData.reset(new MetaData(KUrl("Units/UnitMetaData.slk")));
+	this->m_metaData.reset(new MetaData(QUrl("Units/UnitMetaData.slk")));
 	this->m_metaData->setSource(this->source());
 	this->m_metaData->load();
-	this->m_itemData.reset(new MetaData(KUrl("Units/ItemData.slk")));
+	this->m_itemData.reset(new MetaData(QUrl("Units/ItemData.slk")));
 	this->m_itemData->setSource(this->source());
 	this->m_itemData->load();
-	this->m_itemFunc.reset(new MetaData(KUrl("Units/ItemFunc.txt")));
+	this->m_itemFunc.reset(new MetaData(QUrl("Units/ItemFunc.txt")));
 	this->m_itemFunc->setSource(this->source());
 	this->m_itemFunc->load();
-	this->m_itemStrings.reset(new MetaData(KUrl("Units/ItemStrings.txt")));
+	this->m_itemStrings.reset(new MetaData(QUrl("Units/ItemStrings.txt")));
 	this->m_itemStrings->setSource(this->source());
 	this->m_itemStrings->load();
 }

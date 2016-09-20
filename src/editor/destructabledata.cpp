@@ -143,10 +143,10 @@ int DestructableData::objectLevels(const QString& originalObjectId, const QStrin
 void DestructableData::load(QWidget *widget)
 {
 	// TODO same meta data as for units -> share it!
-	this->m_metaData.reset(new MetaData(KUrl("Units/DestructableMetaData.slk")));
+	this->m_metaData.reset(new MetaData(QUrl("Units/DestructableMetaData.slk")));
 	this->m_metaData->setSource(this->source());
 	this->m_metaData->load();
-	this->m_destructableData.reset(new MetaData(KUrl("Units/DestructableData.slk")));
+	this->m_destructableData.reset(new MetaData(QUrl("Units/DestructableData.slk")));
 	this->m_destructableData->setSource(this->source());
 	this->m_destructableData->load();
 }

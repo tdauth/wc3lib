@@ -29,7 +29,7 @@ namespace wc3lib
 namespace editor
 {
 
-class KDE_EXPORT UpgradeData : public ObjectData
+class UpgradeData : public ObjectData
 {
 	public:
 		UpgradeData(MpqPriorityList *source, QObject *parent = 0);

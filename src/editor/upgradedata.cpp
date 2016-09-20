@@ -152,60 +152,60 @@ ObjectData::MetaDataList UpgradeData::metaDataList() const
 
 void UpgradeData::load(QWidget *widget)
 {
-	this->m_upgradeMetaData.reset(new MetaData(KUrl("Units/UpgradeMetaData.slk")));
+	this->m_upgradeMetaData.reset(new MetaData(QUrl("Units/UpgradeMetaData.slk")));
 	this->m_upgradeMetaData->setSource(this->source());
 	this->m_upgradeMetaData->load();
-	this->m_upgradeData.reset(new MetaData(KUrl("Units/UpgradeData.slk")));
+	this->m_upgradeData.reset(new MetaData(QUrl("Units/UpgradeData.slk")));
 	this->m_upgradeData->setSource(this->source());
 	this->m_upgradeData->load();
 
 
-	this->m_humanUpgradeStrings.reset(new MetaData(KUrl("Units/HumanUpgradeStrings.txt")));
+	this->m_humanUpgradeStrings.reset(new MetaData(QUrl("Units/HumanUpgradeStrings.txt")));
 	this->m_humanUpgradeStrings->setSource(this->source());
 	this->m_humanUpgradeStrings->load();
 
-	this->m_humanUpgradeFunc.reset(new MetaData(KUrl("Units/HumanUpgradeFunc.txt")));
+	this->m_humanUpgradeFunc.reset(new MetaData(QUrl("Units/HumanUpgradeFunc.txt")));
 	this->m_humanUpgradeFunc->setSource(this->source());
 	this->m_humanUpgradeFunc->load();
 
-	this->m_orcUpgradeStrings.reset(new MetaData(KUrl("Units/OrcUpgradeStrings.txt")));
+	this->m_orcUpgradeStrings.reset(new MetaData(QUrl("Units/OrcUpgradeStrings.txt")));
 	this->m_orcUpgradeStrings->setSource(this->source());
 	this->m_orcUpgradeStrings->load();
 
-	this->m_orcUpgradeFunc.reset(new MetaData(KUrl("Units/OrcUpgradeFunc.txt")));
+	this->m_orcUpgradeFunc.reset(new MetaData(QUrl("Units/OrcUpgradeFunc.txt")));
 	this->m_orcUpgradeFunc->setSource(this->source());
 	this->m_orcUpgradeFunc->load();
 
-	this->m_undeadUpgradeStrings.reset(new MetaData(KUrl("Units/UndeadUpgradeStrings.txt")));
+	this->m_undeadUpgradeStrings.reset(new MetaData(QUrl("Units/UndeadUpgradeStrings.txt")));
 	this->m_undeadUpgradeStrings->setSource(this->source());
 	this->m_undeadUpgradeStrings->load();
 
 
-	this->m_undeadUpgradeFunc.reset(new MetaData(KUrl("Units/UndeadUpgradeFunc.txt")));
+	this->m_undeadUpgradeFunc.reset(new MetaData(QUrl("Units/UndeadUpgradeFunc.txt")));
 	this->m_undeadUpgradeFunc->setSource(this->source());
 	this->m_undeadUpgradeFunc->load();
 
-	this->m_nightElfUpgradeStrings.reset(new MetaData(KUrl("Units/NightElfUpgradeStrings.txt")));
+	this->m_nightElfUpgradeStrings.reset(new MetaData(QUrl("Units/NightElfUpgradeStrings.txt")));
 	this->m_nightElfUpgradeStrings->setSource(this->source());
 	this->m_nightElfUpgradeStrings->load();
 
-	this->m_nightElfUpgradeFunc.reset(new MetaData(KUrl("Units/NightElfUpgradeFunc.txt")));
+	this->m_nightElfUpgradeFunc.reset(new MetaData(QUrl("Units/NightElfUpgradeFunc.txt")));
 	this->m_nightElfUpgradeFunc->setSource(this->source());
 	this->m_nightElfUpgradeFunc->load();
 
-	this->m_neutralUpgradeStrings.reset(new MetaData(KUrl("Units/NeutralUpgradeStrings.txt")));
+	this->m_neutralUpgradeStrings.reset(new MetaData(QUrl("Units/NeutralUpgradeStrings.txt")));
 	this->m_neutralUpgradeStrings->setSource(this->source());
 	this->m_neutralUpgradeStrings->load();
 
-	this->m_neutralUpgradeFunc.reset(new MetaData(KUrl("Units/NeutralUpgradeFunc.txt")));
+	this->m_neutralUpgradeFunc.reset(new MetaData(QUrl("Units/NeutralUpgradeFunc.txt")));
 	this->m_neutralUpgradeFunc->setSource(this->source());
 	this->m_neutralUpgradeFunc->load();
 
-	this->m_campaignUpgradeStrings.reset(new MetaData(KUrl("Units/CampaignUpgradeStrings.txt")));
+	this->m_campaignUpgradeStrings.reset(new MetaData(QUrl("Units/CampaignUpgradeStrings.txt")));
 	this->m_campaignUpgradeStrings->setSource(this->source());
 	this->m_campaignUpgradeStrings->load();
 
-	this->m_campaignUpgradeFunc.reset(new MetaData(KUrl("Units/CampaignUpgradeFunc.txt")));
+	this->m_campaignUpgradeFunc.reset(new MetaData(QUrl("Units/CampaignUpgradeFunc.txt")));
 	this->m_campaignUpgradeFunc->setSource(this->source());
 	this->m_campaignUpgradeFunc->load();
 }

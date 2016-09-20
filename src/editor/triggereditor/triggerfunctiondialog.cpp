@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include <QtGui>
+#include <QtWidgets/QtWidgets>
 
 #include "triggerfunctiondialog.hpp"
 #include "triggereditor.hpp"
@@ -737,7 +738,7 @@ void TriggerFunctionDialog::editParameter(const QString &parameter)
 
 				subDialog()->fillCall(index);
 				subDialog()->m_radioButtonVariable->setChecked(true);
-				subDialog()->m_variablesComboBox->setCurrentItem(functionParameter->value().c_str());
+				subDialog()->m_variablesComboBox->setCurrentText(functionParameter->value().c_str());
 				subDialog()->show();
 
 				break;

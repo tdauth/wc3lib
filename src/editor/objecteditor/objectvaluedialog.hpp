@@ -22,15 +22,12 @@
 #define WC3LIB_EDITOR_OBJECTVALUEDIALOG_HPP
 
 #include <QDialog>
+#include <QSpinBox>
 #include <QDoubleSpinBox>
+#include <QTextEdit>
 #include <QCheckBox>
+#include <QComboBox>
 #include <QHash>
-
-#include <KIntSpinBox>
-#include <KLineEdit>
-#include <KTextEdit>
-#include <KComboBox>
-#include <KEditListWidget>
 
 #include "ui_objectvaluedialog.h"
 
@@ -69,11 +66,11 @@ class ObjectValueDialog : public QDialog, protected Ui::ObjectValueDialog
 
 		void setItemsVisible(bool visible);
 
-		KIntSpinBox* intSpinBox() const;
+		QSpinBox* intSpinBox() const;
 		QDoubleSpinBox* doubleSpinBox() const;
 		QLineEdit* lineEdit() const;
-		KTextEdit* textEdit() const;
-		KComboBox* comboBox() const;
+		QTextEdit* textEdit() const;
+		QComboBox* comboBox() const;
 		QCheckBox* checkBox() const;
 
 		void addCheckBox(const QString &name, const QString &value);
@@ -127,7 +124,7 @@ inline void ObjectValueDialog::setLabelText(const QString& text)
 	this->m_label->setText(text);
 }
 
-inline KIntSpinBox* ObjectValueDialog::intSpinBox() const
+inline QSpinBox* ObjectValueDialog::intSpinBox() const
 {
 	return this->m_intSpinBox;
 }
@@ -142,12 +139,12 @@ inline QLineEdit* ObjectValueDialog::lineEdit() const
 	return this->m_lineEdit;
 }
 
-inline KTextEdit* ObjectValueDialog::textEdit() const
+inline QTextEdit* ObjectValueDialog::textEdit() const
 {
 	return this->m_textEdit;
 }
 
-inline KComboBox* ObjectValueDialog::comboBox() const
+inline QComboBox* ObjectValueDialog::comboBox() const
 {
 	return this->m_comboBox;
 }

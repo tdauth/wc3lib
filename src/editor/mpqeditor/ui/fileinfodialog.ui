@@ -406,7 +406,7 @@
     </widget>
    </item>
    <item row="4" column="0" colspan="2">
-    <widget class="KDialogButtonBox" name="m_dialogButtonBox">
+    <widget class="QDialogButtonBox" name="m_dialogButtonBox">
      <property name="standardButtons">
       <set>QDialogButtonBox::Close</set>
      </property>
@@ -417,46 +417,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>KDialogButtonBox</class>
-   <extends>QDialogButtonBox</extends>
-   <header>kdialogbuttonbox.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>m_dialogButtonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>FileInfoDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>236</x>
-     <y>280</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>51</x>
-     <y>278</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>m_dialogButtonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>FileInfoDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>325</x>
-     <y>279</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>130</x>
-     <y>293</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

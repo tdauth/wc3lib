@@ -290,7 +290,7 @@ int main(int argc, char *argv[])
 
 	if (vm.count("info"))
 	{
-		BOOST_FOREACH(const Paths::reference path, archivePaths)
+		BOOST_FOREACH(Paths::const_reference path, archivePaths)
 		{
 			if (!boost::filesystem::is_regular_file(path))
 			{
@@ -317,9 +317,9 @@ int main(int argc, char *argv[])
 
 			if (!filePaths.empty())
 			{
-				BOOST_FOREACH(Paths::const_reference path, filePaths)
+				BOOST_FOREACH(Paths::const_reference filePath, filePaths)
 				{
-					               File file = mpq->findFile(path);
+					File file = mpq->findFile(filePath);
 
 					if (file.isValid())
 					{
@@ -327,7 +327,7 @@ int main(int argc, char *argv[])
 					}
 					else
 					{
-						std::cerr << boost::format(_("Error occured while getting info of file %1%: File doesn't exist.")) % path << std::endl;
+						std::cerr << boost::format(_("Error occured while getting info of file %1%: File doesn't exist.")) % filePath << std::endl;
 					}
 				}
 			}

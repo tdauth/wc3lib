@@ -132,10 +132,10 @@ int SkinData::objectLevels(const QString& originalObjectId, const QString& custo
 
 void SkinData::load(QWidget *widget)
 {
-	this->m_metaData.reset(new MetaData(KUrl("UI/SkinMetaData.slk")));
+	this->m_metaData.reset(new MetaData(QUrl("UI/SkinMetaData.slk")));
 	this->m_metaData->setSource(this->source());
 	this->m_metaData->load();
-	this->m_war3skins.reset(new MetaData(KUrl("UI/war3skins.txt")));
+	this->m_war3skins.reset(new MetaData(QUrl("UI/war3skins.txt")));
 	this->m_war3skins->setSource(this->source());
 	this->m_war3skins->load();
 

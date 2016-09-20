@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>168</width>
-    <height>62</height>
+    <width>207</width>
+    <height>79</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,8 +15,8 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="KColorCombo" name="m_colorComboBox">
-     <property name="color">
+    <widget class="QComboBox" name="m_colorComboBox">
+     <property name="color" stdset="0">
       <color>
        <red>255</red>
        <green>0</green>
@@ -91,7 +91,7 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="KDialogButtonBox" name="m_dialogButtonBox">
+    <widget class="QDialogButtonBox" name="m_dialogButtonBox">
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
@@ -99,51 +99,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>KColorCombo</class>
-   <extends>QComboBox</extends>
-   <header>kcolorcombo.h</header>
-  </customwidget>
-  <customwidget>
-   <class>KDialogButtonBox</class>
-   <extends>QDialogButtonBox</extends>
-   <header>kdialogbuttonbox.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>m_dialogButtonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>TeamColorDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>45</x>
-     <y>42</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>12</x>
-     <y>-4</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>m_dialogButtonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>TeamColorDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>127</x>
-     <y>40</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>161</x>
-     <y>-9</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

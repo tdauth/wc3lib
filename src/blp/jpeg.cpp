@@ -313,7 +313,7 @@ void readMipMapJpeg(Blp::MipMap &mipMap, byte *buffer, dword bufferSize)
 				dword width = 0;
 
 				// cinfo.output_components should be 3 if RGB and 4 if RGBA
-				for (int component = 0; component < scanlineSize; component += cinfo.output_components)
+				for (JDIMENSION component = 0; component < scanlineSize; component += cinfo.output_components)
 				{
 					// convert BGRA to RGBA
 					// Red and Blue colors are swapped.
@@ -395,7 +395,7 @@ void writeMipMapJpeg(const Blp::MipMap &mipMap, unsigned char *&buffer, unsigned
 				dword width = 0;
 
 				// cinfo.output_components should be 3 if RGB and 4 if RGBA
-				for (int component = 0; component < scanlineSize; component += cinfo.input_components)
+				for (JDIMENSION component = 0; component < scanlineSize; component += cinfo.input_components)
 				{
 					// Convert RGBA to BGRA
 					// Red and Blue colors are swapped.

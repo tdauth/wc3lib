@@ -19,8 +19,7 @@
  ***************************************************************************/
 
 #include <QtGui>
-
-#include <QMessageBox>
+#include <QtWidgets>
 
 #include "objecttableview.hpp"
 #include "objectvaluedialog.hpp"
@@ -58,7 +57,7 @@ ObjectTableView::ObjectTableView(ObjectEditorTab *parent) : QTableView(parent), 
 	/*
 	 * The sections should be stretched to the text.
 	 */
-	this->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+	this->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 	this->horizontalHeader()->setSortIndicatorShown(true);
 	this->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
 	this->setShowGrid(false);

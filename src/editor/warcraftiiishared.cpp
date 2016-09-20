@@ -22,8 +22,6 @@
 
 #include <QtGui>
 
-#include <KIO/NetAccess>
-
 #include "warcraftiiishared.hpp"
 #include "../exception.hpp"
 #include "mpqprioritylist.hpp"
@@ -81,7 +79,7 @@ Texture* WarcraftIIIShared::teamGlowTexture(TeamColor teamGlow) const
 	return this->m_teamGlowTextures.find(teamGlow)->second;
 }
 
-void WarcraftIIIShared::refreshMapStrings(QWidget* window, const KUrl url)
+void WarcraftIIIShared::refreshMapStrings(QWidget* window, const QUrl url)
 {
 	MapStringsPtr ptr(new MetaData(url));
 	ptr->setSource(this->source());
@@ -90,7 +88,7 @@ void WarcraftIIIShared::refreshMapStrings(QWidget* window, const KUrl url)
 	m_mapStrings.swap(ptr); // exception safe
 }
 
-void WarcraftIIIShared::refreshWorldEditorStrings(QWidget *window, const KUrl &url)
+void WarcraftIIIShared::refreshWorldEditorStrings(QWidget *window, const QUrl &url)
 {
 	WorldEditorStringsPtr ptr(new MetaData(url));
 	ptr->setSource(this->source());
@@ -99,7 +97,7 @@ void WarcraftIIIShared::refreshWorldEditorStrings(QWidget *window, const KUrl &u
 	m_worldEditorStrings.swap(ptr); // exception safe
 }
 
-void WarcraftIIIShared::refreshWorldEditorGameStrings(QWidget *window, const KUrl &url)
+void WarcraftIIIShared::refreshWorldEditorGameStrings(QWidget *window, const QUrl &url)
 {
 	WorldEditorGameStringsPtr ptr(new MetaData(url));
 	ptr->setSource(this->source());
@@ -149,7 +147,7 @@ QString WarcraftIIIShared::tr(const QString &key, const QString &group, const QS
 	return group + "[" + key + "]";
 }
 
-QPixmap WarcraftIIIShared::pixmap(const KUrl &url, QWidget *window)
+QPixmap WarcraftIIIShared::pixmap(const QUrl &url, QWidget *window)
 {
 	Icons::iterator iterator = m_icons.find(url);
 
@@ -173,7 +171,7 @@ QPixmap WarcraftIIIShared::pixmap(const KUrl &url, QWidget *window)
 		// Insert a pixmap even if there has been an error on downloading the file. Otherwise calls will try to download a missing file again and again.
 		iterator = m_icons.insert(url, QPixmap());
 
-		qDebug() << "Error on downloading icon:" << url << KIO::NetAccess::lastErrorString().toUtf8().constData();
+		qDebug() << "Error on downloading icon:" << url;
 	}
 
 	return QPixmap();
@@ -201,7 +199,7 @@ QPixmap WarcraftIIIShared::worldEditDataPixmap(const QString &key, const QString
 }
 
 
-QIcon WarcraftIIIShared::icon(const KUrl &url, QWidget *window)
+QIcon WarcraftIIIShared::icon(const QUrl &url, QWidget *window)
 {
 	return QIcon(pixmap(url, window));
 }
@@ -211,7 +209,7 @@ QIcon WarcraftIIIShared::worldEditDataIcon(const QString &key, const QString &gr
 	return QIcon(worldEditDataPixmap(key, group, window));
 }
 
-void WarcraftIIIShared::refreshWorldEditData(QWidget *window, const KUrl &url)
+void WarcraftIIIShared::refreshWorldEditData(QWidget *window, const QUrl &url)
 {
 	WorldEditDataPtr ptr(new MetaData(url));
 	ptr->setSource(this->source());
@@ -220,7 +218,7 @@ void WarcraftIIIShared::refreshWorldEditData(QWidget *window, const KUrl &url)
 	m_worldEditData.swap(ptr); // exception safe
 }
 
-void WarcraftIIIShared::refreshTriggerData(QWidget *window, const KUrl &url)
+void WarcraftIIIShared::refreshTriggerData(QWidget *window, const QUrl &url)
 {
 	QString target;
 
@@ -246,7 +244,7 @@ void WarcraftIIIShared::refreshTriggerData(QWidget *window, const KUrl &url)
 	m_triggerData.swap(ptr); // exception safe
 }
 
-void WarcraftIIIShared::refreshTriggerStrings(QWidget *window, const KUrl &url)
+void WarcraftIIIShared::refreshTriggerStrings(QWidget *window, const QUrl &url)
 {
 	QString target;
 

@@ -31,7 +31,7 @@ namespace wc3lib
 namespace editor
 {
 
-class KDE_EXPORT AbilityEditor : public ObjectEditorTab
+class AbilityEditor : public ObjectEditorTab
 {
 	public:
 		AbilityEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
@@ -59,9 +59,9 @@ class KDE_EXPORT AbilityEditor : public ObjectEditorTab
 		virtual QString copyObjectText() const override;
 		virtual QString pasteObjectText() const override;
 
-		virtual KUrl copyObjectIconUrl() const override;
-		virtual KUrl pasteObjectIconUrl() const override;
-		virtual KUrl newObjectIconUrl() const override;
+		virtual QUrl copyObjectIconUrl() const override;
+		virtual QUrl pasteObjectIconUrl() const override;
+		virtual QUrl newObjectIconUrl() const override;
 };
 
 inline AbilityData* AbilityEditor::abilityData() const
@@ -124,19 +124,19 @@ inline QIcon AbilityEditor::tabIcon(QWidget *widget) const
 	return objectEditor()->source()->sharedData()->worldEditDataIcon("ToolBarIcon_OE_NewAbil", "WorldEditArt", widget);
 }
 
-inline KUrl AbilityEditor::copyObjectIconUrl() const
+inline QUrl AbilityEditor::copyObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Copy.blp");
+	return QUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Copy.blp");
 }
 
-inline KUrl AbilityEditor::pasteObjectIconUrl() const
+inline QUrl AbilityEditor::pasteObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Paste.blp");
+	return QUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Paste.blp");
 }
 
-inline KUrl AbilityEditor::newObjectIconUrl() const
+inline QUrl AbilityEditor::newObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Unit.blp");
+	return QUrl("ReplaceableTextures/WorldEditUI/Editor-Unit.blp");
 }
 
 }

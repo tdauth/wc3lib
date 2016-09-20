@@ -29,16 +29,18 @@ namespace wc3lib
 namespace editor
 {
 
+class TerrainEditor;
+
 class Brush
 {
 	public:
-		Brush(class TerrainEditor *terrainEditor);
+		Brush(TerrainEditor *terrainEditor);
 		virtual ~Brush();
 
 		virtual void onPlace(int32 x, int32 y) = 0;
 
 	protected:
-		class TerrainEditor *m_terrainEditor;
+		TerrainEditor *m_terrainEditor;
 };
 
 }

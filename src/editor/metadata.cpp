@@ -24,8 +24,6 @@
 
 #include <QtCore>
 
-#include <KIO/NetAccess>
-
 #include "metadata.hpp"
 #include "mpqprioritylist.hpp"
 
@@ -395,7 +393,7 @@ TextSourceInterface* MapStringsTextSource::clone() const
 	return result;
 }
 
-MetaData::MetaData(const KUrl &url) : Resource(url, Type::MetaData), m_textSource(0)
+MetaData::MetaData(const QUrl &url) : Resource(url, Type::MetaData), m_textSource(0)
 {
 }
 
@@ -426,7 +424,7 @@ void MetaData::load()
 
 	if (!this->source()->download(this->url(), filePath, 0))
 	{
-		throw Exception(boost::format(_("Error on downloading file \"%1%\": %2%")) % this->url().toLocalFile().toUtf8().constData() % KIO::NetAccess::lastErrorString().toUtf8().constData());
+		throw Exception(boost::format(_("Error on downloading file \"%1%\"")) % this->url().toLocalFile().toUtf8().constData());
 	}
 
 	ifstream in(filePath.toUtf8().constData());
@@ -481,7 +479,7 @@ void MetaData::load()
 	this->source()->removeTempFile(filePath);
 }
 
-void MetaData::save(const KUrl &url) const
+void MetaData::save(const QUrl &url) const
 {
 	QTemporaryFile file;
 
@@ -496,7 +494,7 @@ void MetaData::save(const KUrl &url) const
 
 		if (!this->source()->upload(file.fileName(), url, 0))
 		{
-			throw Exception(KIO::NetAccess::lastErrorString().toUtf8().constData());
+			throw Exception(_("Error on saving file."));
 		}
 	}
 

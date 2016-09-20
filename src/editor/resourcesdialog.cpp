@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include <QtGui>
+#include <QtWidgets/QtWidgets>
 
 #include "resourcesdialog.hpp"
 #include "mpqprioritylist.hpp"
@@ -33,8 +34,8 @@ ResourcesDialog::ResourcesDialog(QWidget *parent, Qt::WindowFlags f) : QDialog(p
 {
 	setupUi(this);
 
-	connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(accept()));
-	connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
+	connect(buttonBox->button(QDialogButtonBox::Ok), &QPushButton::clicked, this, &QDialog::accept);
+	connect(buttonBox->button(QDialogButtonBox::Cancel), &QPushButton::clicked, this, &QDialog::reject);
 }
 
 void ResourcesDialog::setSources(MpqPriorityList *sources)

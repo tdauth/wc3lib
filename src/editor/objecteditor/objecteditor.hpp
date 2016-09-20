@@ -24,8 +24,6 @@
 #include <QVariant>
 #include <QTabWidget>
 
-#include <kdemacros.h>
-
 #include "../module.hpp"
 #include "../mpqprioritylist.hpp"
 #include "../../map.hpp"
@@ -145,7 +143,7 @@ class SkinEditor;
  *
  * \ingroup objectdata
  */
-class KDE_EXPORT ObjectEditor : public Module
+class ObjectEditor : public Module
 {
 	Q_OBJECT
 
@@ -224,7 +222,7 @@ class KDE_EXPORT ObjectEditor : public Module
 		 * Exports all objects from all object editor tabs as \ref wc3lib::map::CustomObjectsCollection (.w3o) file.
 		 */
 		void exportAll();
-		void importAll(const KUrl &url);
+		void importAll(const QUrl &url);
 		/**
 		 * Imports all objects from a \ref wc3lib::map::CustomObjectsCollection (.w3o) file into the different object editor tabs.
 		 */

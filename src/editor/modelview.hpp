@@ -26,8 +26,6 @@
 #include <QWidget>
 #include <QString>
 
-#include <kdemacros.h>
-
 #include <Ogre.h>
 
 #include "root.hpp"
@@ -47,7 +45,7 @@ namespace editor
  * <a href="http://qt-apps.org/content/show.php/QtOgre+Framework?content=92912">source 1</a>, <a href="http://www.ogre3d.org/tikiwiki/QtOgre">source 2</a>
  * \sa mdlx::Mdlx, OgreMdlx
  */
-class KDE_EXPORT ModelView : public QWidget
+class ModelView : public QWidget
 {
 	Q_OBJECT
 
@@ -60,7 +58,7 @@ class KDE_EXPORT ModelView : public QWidget
 		 * \param ogreSceneType OGRE scene type which will be set for the scene manager of the widget. Should be changed for terrain (ST_EXTERIOR_FAR, ST_EXTERIOR_REAL_FAR).
 		 * \param ogreParameters OGRE window parameters.
 		 */
-		ModelView(Root *root, QWidget *parent = 0, Qt::WFlags f = 0, Ogre::SceneType ogreSceneType = Ogre::ST_EXTERIOR_CLOSE, const Ogre::NameValuePairList *ogreParameters = 0);
+		ModelView(Root *root, QWidget *parent = 0, Qt::WindowFlags f = 0, Ogre::SceneType ogreSceneType = Ogre::ST_EXTERIOR_CLOSE, const Ogre::NameValuePairList *ogreParameters = 0);
 		virtual ~ModelView();
 
 		//virtual void show();

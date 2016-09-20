@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include <QtGui>
+#include <QtWidgets/QMessageBox>
 
 #include "variabledialog.hpp"
 #include "triggereditor.hpp"

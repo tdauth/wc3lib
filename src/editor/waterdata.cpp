@@ -115,10 +115,10 @@ ObjectData::MetaDataList WaterData::metaDataList() const
 
 void WaterData::load(QWidget *widget)
 {
-	this->m_waterMetaData.reset(new MetaData(KUrl("TerrainArt/WaterMetaData.slk")));
+	this->m_waterMetaData.reset(new MetaData(QUrl("TerrainArt/WaterMetaData.slk")));
 	this->m_waterMetaData->setSource(this->source());
 	this->m_waterMetaData->load();
-	this->m_water.reset(new MetaData(KUrl("TerrainArt/Water.slk")));
+	this->m_water.reset(new MetaData(QUrl("TerrainArt/Water.slk")));
 	this->m_water->setSource(this->source());
 	this->m_water->load();
 }

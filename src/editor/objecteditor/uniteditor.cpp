@@ -19,9 +19,7 @@
  ***************************************************************************/
 
 #include <QtGui>
-
-#include <KMessageBox>
-#include <KFileDialog>
+#include <QtWidgets>
 
 #include "uniteditor.hpp"
 #include "objecttreeview.hpp"
@@ -84,7 +82,7 @@ void UnitEditor::onNewObject()
 		 */
 		if (this->objectData()->isObjectModified(originalObjectId, customObjectId))
 		{
-			if (KMessageBox::questionYesNo(this, tr("Do you want to overwrite the existing custom object %1?").arg(customObjectId)) == KMessageBox::No)
+			if (QMessageBox::question(this, tr("Overwrite?"), tr("Do you want to overwrite the existing custom object %1?").arg(customObjectId)) == QMessageBox::No)
 			{
 				return;
 			}

@@ -27,9 +27,7 @@
 #include <QWidget>
 #include <QHash>
 #include <QIcon>
-
-#include <kdemacros.h>
-#include <KUrl>
+#include <QUrl>
 
 #include "platform.hpp"
 #include "texture.hpp"
@@ -66,7 +64,7 @@ class MpqPriorityList;
  *
  * Instead of refreshing all default files manually you can use \ref refreshDefaultFiles() which does the same job.
  */
-class KDE_EXPORT WarcraftIIIShared
+class WarcraftIIIShared
 {
 	public:
 		/**
@@ -74,7 +72,7 @@ class KDE_EXPORT WarcraftIIIShared
 		 * Store pixmaps and do not create icons with file names since then the files are loaded on demand.
 		 * Store the pixmaps in memory which should be much faster.
 		 */
-		typedef QHash<KUrl, QPixmap> Icons;
+		typedef QHash<QUrl, QPixmap> Icons;
 
 		/**
 		 * Team colors are stored similar to \ref Icons in a map using their team color value from \ref TeamColor
@@ -117,14 +115,14 @@ class KDE_EXPORT WarcraftIIIShared
 		 */
 		Texture* teamGlowTexture(TeamColor teamGlow) const;
 
-		void refreshMapStrings(QWidget *window, const KUrl url = KUrl("war3map.wts"));
+		void refreshMapStrings(QWidget *window, const QUrl url = QUrl("war3map.wts"));
 		const MapStringsPtr& mapStrings() const;
 
 		/**
 		 * \param window Widget which is used for KIO download.
 		 * \param url The URL of the World Editor strings file.
 		 */
-		void refreshWorldEditorStrings(QWidget *window, const KUrl &url = KUrl("UI/WorldEditStrings.txt"));
+		void refreshWorldEditorStrings(QWidget *window, const QUrl &url = QUrl("UI/WorldEditStrings.txt"));
 		/**
 		 * World Editor strings are shared between maps usually.
 		 * \note Call \ref refreshWorldEditorStrings() before using world editor strings.
@@ -135,7 +133,7 @@ class KDE_EXPORT WarcraftIIIShared
 		 * \param window Widget which is used for KIO download.
 		 * \param url The URL of the World Editor game strings file.
 		 */
-		void refreshWorldEditorGameStrings(QWidget *window, const KUrl &url = KUrl("UI/WorldEditGameStrings.txt"));
+		void refreshWorldEditorGameStrings(QWidget *window, const QUrl &url = QUrl("UI/WorldEditGameStrings.txt"));
 		/**
 		 * World Editor game strings are shared between maps usually.
 		 * \note Call \ref refreshWorldEditorGameStrings() before using world editor game strings.
@@ -174,7 +172,7 @@ class KDE_EXPORT WarcraftIIIShared
 		 *
 		 * \sa worldEditDataPixmap()
 		 */
-		QPixmap pixmap(const KUrl &url, QWidget *window);
+		QPixmap pixmap(const QUrl &url, QWidget *window);
 		/**
 		 * As for the World Editor most icons are defined in the file "UI/WorldEditData.txt" this member function
 		 * allows you to directly retrieve an icon from an entry of that file.
@@ -190,7 +188,7 @@ class KDE_EXPORT WarcraftIIIShared
 		 *
 		 * \sa worldEditDataIcon()
 		 */
-		QIcon icon(const KUrl &url, QWidget *window);
+		QIcon icon(const QUrl &url, QWidget *window);
 		/**
 		 * As for the World Editor most icons are defined in the file "UI/WorldEditData.txt" this member function
 		 * allows you to directly retrieve an icon from an entry of that file.
@@ -204,7 +202,7 @@ class KDE_EXPORT WarcraftIIIShared
 		 */
 		const Icons& icons() const;
 
-		void refreshWorldEditData(QWidget *window, const KUrl &url = KUrl("UI/WorldEditData.txt"));
+		void refreshWorldEditData(QWidget *window, const QUrl &url = QUrl("UI/WorldEditData.txt"));
 		const WorldEditDataPtr& worldEditData() const;
 
 		/**
@@ -212,7 +210,7 @@ class KDE_EXPORT WarcraftIIIShared
 		 * \param url The URL of the trigger data file.
 		 * \sa triggerData()
 		 */
-		void refreshTriggerData(QWidget *window, const KUrl &url = KUrl("UI/TriggerData.txt"));
+		void refreshTriggerData(QWidget *window, const QUrl &url = QUrl("UI/TriggerData.txt"));
 		/**
 		 * Trigger data which is shared between maps usually.
 		 * \note Call \ref refreshTriggerData() before using trigger data.
@@ -224,7 +222,7 @@ class KDE_EXPORT WarcraftIIIShared
 		 * \param url The URL of the trigger strings file.
 		 * \sa triggerStrings()
 		 */
-		void refreshTriggerStrings(QWidget *window, const KUrl &url = KUrl("UI/TriggerStrings.txt"));
+		void refreshTriggerStrings(QWidget *window, const QUrl &url = QUrl("UI/TriggerStrings.txt"));
 		/**
 		 * Trigger strings which are shared between maps usually.
 		 * \note Call \ref refreshTriggerStrings() before using trigger strings.

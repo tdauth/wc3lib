@@ -14,37 +14,27 @@
    <string>Data Sources</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="2" column="0">
-    <widget class="KDialogButtonBox" name="m_dialogButtonBox">
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="0">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
       <string>Sources</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0" rowspan="4">
-       <widget class="KEditListWidget" name="m_editListBox"/>
-      </item>
-      <item row="1" column="1" colspan="2">
+      <item row="2" column="1" colspan="2">
        <widget class="QPushButton" name="m_wc3libDirPushButton">
         <property name="text">
          <string>Add wc3lib directory</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="1" colspan="2">
+      <item row="3" column="1" colspan="2">
        <widget class="QPushButton" name="m_wc3DirPushButton">
         <property name="text">
          <string>Add Warcraft III directory</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="2">
+      <item row="4" column="2">
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -57,63 +47,35 @@
         </property>
        </spacer>
       </item>
-      <item row="0" column="1" colspan="2">
+      <item row="1" column="1" colspan="2">
        <widget class="QPushButton" name="m_clearPushButton">
         <property name="text">
          <string>Clear</string>
         </property>
        </widget>
       </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QPushButton" name="m_addUrlPushButton">
+        <property name="text">
+         <string>Add URL</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" rowspan="4">
+       <widget class="QListWidget" name="m_editListBox"/>
+      </item>
      </layout>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QDialogButtonBox" name="m_dialogButtonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
+     </property>
     </widget>
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>KEditListWidget</class>
-   <extends>QWidget</extends>
-   <header>keditlistwidget.h</header>
-  </customwidget>
-  <customwidget>
-   <class>KDialogButtonBox</class>
-   <extends>QDialogButtonBox</extends>
-   <header>kdialogbuttonbox.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>m_dialogButtonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>SourcesDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>268</x>
-     <y>181</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>257</x>
-     <y>197</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>m_dialogButtonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>SourcesDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>347</x>
-     <y>183</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>355</x>
-     <y>197</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

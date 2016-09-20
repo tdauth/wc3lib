@@ -19,7 +19,7 @@
  ***************************************************************************/
 
 #include <QtCore>
-#include <QtGui>
+#include <QtWidgets/QtWidgets>
 
 #if defined(Q_WS_X11)
 #include <QX11Info>
@@ -36,7 +36,7 @@ namespace wc3lib
 namespace editor
 {
 
-ModelView::ModelView(Root *root, QWidget *parent, Qt::WFlags f, Ogre::SceneType ogreSceneType, const Ogre::NameValuePairList *ogreParameters)
+ModelView::ModelView(Root *root, QWidget *parent, Qt::WindowFlags f, Ogre::SceneType ogreSceneType, const Ogre::NameValuePairList *ogreParameters)
 : QWidget(parent, f)
 , m_parameters(ogreParameters)
 , m_root(root)
@@ -342,6 +342,10 @@ void ModelView::mousePressEvent(QMouseEvent *event)
 			event->accept();
 
 			break;
+
+		// dont handle all mouse events
+		default:
+			break;
 	}
 
 	QWidget::mousePressEvent(event);
@@ -366,6 +370,10 @@ void ModelView::mouseReleaseEvent(QMouseEvent *event)
 			this->m_enableMouseRotation = false;
 			event->accept();
 
+			break;
+
+		// dont handle all mouse events
+		default:
 			break;
 	}
 

@@ -23,8 +23,6 @@
 
 #include <QWidget>
 
-#include <kdemacros.h>
-
 #include <boost/scoped_ptr.hpp>
 
 #include "objectdata.hpp"
@@ -43,7 +41,7 @@ class MpqPriorityList;
  * The whole object data is stored all together since different object data accesses other object data.
  * For example a unit can have abilities. Therefore it needs to access the ability data as well.
  */
-class KDE_EXPORT SharedObjectData
+class SharedObjectData
 {
 	public:
 		typedef boost::scoped_ptr<ObjectData> ObjectDataPtr;

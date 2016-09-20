@@ -29,7 +29,7 @@ namespace wc3lib
 namespace editor
 {
 
-class KDE_EXPORT DestructableData : public ObjectData
+class DestructableData : public ObjectData
 {
 	public:
 		DestructableData(MpqPriorityList *source, QObject *parent = 0);

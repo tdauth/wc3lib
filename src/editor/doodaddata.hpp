@@ -29,7 +29,7 @@ namespace wc3lib
 namespace editor
 {
 
-class KDE_EXPORT DoodadData : public ObjectData
+class DoodadData : public ObjectData
 {
 	public:
 		DoodadData(MpqPriorityList *source, QObject *parent = 0);

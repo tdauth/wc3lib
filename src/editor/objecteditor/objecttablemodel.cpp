@@ -129,10 +129,10 @@ QVariant ObjectTableModel::data(const QModelIndex &index, int role) const
 			{
 				if (objectData()->isFieldModified(originalObjectId(), customObjectId(), fieldId, level))
 				{
-					return Qt::magenta;
+					return QColor(Qt::magenta);
 				}
 
-				return Qt::black;
+				return QColor(Qt::black);
 			}
 		}
 	}
@@ -164,14 +164,14 @@ QModelIndex ObjectTableModel::parent(const QModelIndex& child) const
 	return QModelIndex();
 }
 
-QModelIndex ObjectTableModel::index(int row, int column, const QModelIndex& parent) const
+QModelIndex ObjectTableModel::index(int row, int column, const QModelIndex &parent) const
 {
 	if (parent.isValid())
 	{
 		return QModelIndex();
 	}
 
-	return createIndex(row, column, 0);
+	return createIndex(row, column);
 }
 
 QVariant ObjectTableModel::headerData(int section, Qt::Orientation orientation, int role) const

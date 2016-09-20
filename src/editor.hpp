@@ -59,7 +59,6 @@ namespace wc3lib
 #include "editor/editor.hpp"
 #include "editor/listfilesdialog.hpp"
 #include "editor/modelview.hpp"
-#include "editor/modelviewsettings.hpp"
 #include "editor/module.hpp"
 #include "editor/modulemenu.hpp"
 #include "editor/moduletoolbar.hpp"
@@ -69,22 +68,18 @@ namespace wc3lib
 #include "editor/ogremdlxentity.hpp"
 #include "editor/polygonmodecombobox.hpp"
 #include "editor/renderstatswidget.hpp"
-#include "editor/rendersystemsettings.hpp"
 #include "editor/resource.hpp"
 #include "editor/settings.hpp"
 #include "editor/settingsinterface.hpp"
 #include "editor/sourcesdialog.hpp"
 #include "editor/splashscreen.hpp"
-#include "editor/viewportsettings.hpp"
 #include "editor/warcraftiiishared.hpp"
 #include "editor/windowsmenu.hpp"
 
 // modules
 #include "editor/Plugin_BlpCodec/blpcodec.hpp"
-#include "editor/aieditor/aieditor.hpp"
-#include "editor/campaigneditor/campaigneditor.hpp"
-#include "editor/importmanager/importmanager.hpp"
 #include "editor/modeleditor/modeleditor.hpp"
 #include "editor/modeleditor/modeleditorview.hpp"
+#include "editor/mpqeditor/mpqeditor.hpp"
 
 #endif

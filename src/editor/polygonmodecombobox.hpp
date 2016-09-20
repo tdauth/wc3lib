@@ -23,8 +23,6 @@
 
 #include <QComboBox>
 
-#include <kdemacros.h>
-
 #include <Ogre.h>
 
 namespace wc3lib
@@ -37,7 +35,7 @@ namespace editor
 * Combo box used to select a polygon mode.
 * Polygon modes are used by OGRE cameras to display rendered views in a specific way.
 */
-class KDE_EXPORT PolygonModeComboBox : public QComboBox
+class PolygonModeComboBox : public QComboBox
 {
 	public:
 		explicit PolygonModeComboBox(QWidget* parent = 0);

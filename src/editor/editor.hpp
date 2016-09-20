@@ -49,7 +49,7 @@ class SourcesDialog;
  * Just use \ref Editor#resources()[URL] to refer to your required resource.
  * \todo Each Module has it's own tool bar with all other modules.
  */
-class KDE_EXPORT Editor : public QObject, public MpqPriorityList
+class Editor : public QObject, public MpqPriorityList
 {
 	Q_OBJECT
 
@@ -76,7 +76,7 @@ class KDE_EXPORT Editor : public QObject, public MpqPriorityList
 		 * Therefore there is no Map parameter since the object has already been released.
 		 * \p url URL of the corresponding map file.
 		 */
-		void closedMap(const KUrl &url);
+		void closedMap(const QUrl &url);
 
 	public:
 		typedef Editor self;
@@ -143,7 +143,7 @@ class KDE_EXPORT Editor : public QObject, public MpqPriorityList
 		 * The editor switches automatically to the last opened map.
 		 */
 		void openMap(QWidget *window = 0);
-		void openMap(const KUrl &url, bool switchTo = true, QWidget *window = 0);
+		void openMap(const QUrl &url, bool switchTo = true, QWidget *window = 0);
 		/**
 		 * Emits signal \ref switchedToMap() with \p map as parameter.
 		 */

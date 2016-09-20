@@ -31,7 +31,7 @@ namespace wc3lib
 namespace editor
 {
 
-class KDE_EXPORT DestructableEditor : public ObjectEditorTab
+class DestructableEditor : public ObjectEditorTab
 {
 	public:
 		DestructableEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
@@ -42,7 +42,7 @@ class KDE_EXPORT DestructableEditor : public ObjectEditorTab
 		virtual QString name() const override;
 
 		virtual QIcon tabIcon(QWidget *widget) const override;
-		
+
 	protected:
 		virtual ObjectTreeModel* createTreeModel() override;
 		virtual void onSwitchToMap(Map *map) override;
@@ -59,9 +59,9 @@ class KDE_EXPORT DestructableEditor : public ObjectEditorTab
 		virtual QString copyObjectText() const override;
 		virtual QString pasteObjectText() const override;
 
-		virtual KUrl copyObjectIconUrl() const override;
-		virtual KUrl pasteObjectIconUrl() const override;
-		virtual KUrl newObjectIconUrl() const override;
+		virtual QUrl copyObjectIconUrl() const override;
+		virtual QUrl pasteObjectIconUrl() const override;
+		virtual QUrl newObjectIconUrl() const override;
 };
 
 inline DestructableData* DestructableEditor::destructableData() const
@@ -124,19 +124,19 @@ inline QIcon DestructableEditor::tabIcon(QWidget* widget) const
 	return objectEditor()->source()->sharedData()->worldEditDataIcon("ToolBarIcon_OE_NewDest", "WorldEditArt", widget);
 }
 
-inline KUrl DestructableEditor::copyObjectIconUrl() const
+inline QUrl DestructableEditor::copyObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Copy.blp");
+	return QUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Copy.blp");
 }
 
-inline KUrl DestructableEditor::pasteObjectIconUrl() const
+inline QUrl DestructableEditor::pasteObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Paste.blp");
+	return QUrl("ReplaceableTextures/WorldEditUI/Editor-Toolbar-Paste.blp");
 }
 
-inline KUrl DestructableEditor::newObjectIconUrl() const
+inline QUrl DestructableEditor::newObjectIconUrl() const
 {
-	return KUrl("ReplaceableTextures/WorldEditUI/Editor-Unit.blp");
+	return QUrl("ReplaceableTextures/WorldEditUI/Editor-Unit.blp");
 }
 
 }

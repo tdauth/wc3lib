@@ -217,9 +217,9 @@ class Blp : public Format
 		/// \todo Don't seem to have the right values!!!
 		enum class Format : dword
 		{
-			Blp0 = (dword)'BLP0', /// Reign of Chaos
-			Blp1 = (dword)'BLP1', /// Warcraft The Frozen Throne
-			Blp2 = (dword)'BLP2' /// World of Warcraft
+			Blp0 = 0x424c5030, //(dword)'BLP0', /// Reign of Chaos
+			Blp1 = 0x424c5031, //(dword)'BLP1', /// Warcraft The Frozen Throne
+			Blp2 = 0x424c5032, //(dword)'BLP2' /// World of Warcraft
 		};
 
 		enum class Compression : dword

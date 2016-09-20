@@ -38,7 +38,6 @@ class WeatherTreeModel : public ObjectTreeModel
 
 	protected:
 		virtual QModelIndex itemParent(ObjectData *objectData, const QString &originalObjectId, const QString &customObjectId) override;
-
 };
 
 }

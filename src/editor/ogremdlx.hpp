@@ -29,8 +29,6 @@
 
 #include <QDebug>
 
-#include <kdemacros.h>
-
 #include <Ogre.h>
 
 #include "resource.hpp"
@@ -81,7 +79,7 @@ class OgreMdlxEntity;
  * \todo Replace TextureIds, GeosetIds and SequenceIds (all objects which do not have specified their id in MDX files) by std::vector since you know for sure that their ids are in a strict order!
  * \todo Maybe instead of two maps you could uses one with a pair of MDLX and OGRE objects.
  */
-class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
+class OgreMdlx : public Resource, public Ogre::FrameListener
 {
 	public:
 		typedef boost::scoped_ptr<mdlx::Mdlx> MdlxPtr;
@@ -121,7 +119,7 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		 */
 		static void updateCamera(const mdlx::Camera &camera, Ogre::Camera *ogreCamera);
 
-		OgreMdlx(const KUrl &url, ModelView *modelView);
+		OgreMdlx(const QUrl &url, ModelView *modelView);
 		virtual ~OgreMdlx();
 
 		virtual void clear() throw ();
@@ -174,8 +172,8 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		 * \param format If this value is empty format will be detected automatically by it's destination's extension. If no valid extension could be detected default format is used: MDX.
 		 * \throw Exception Is thrown when file could not be stored in \p url.
 		 */
-		virtual void save(const KUrl &url, const QString &format) const;
-		virtual void save(const KUrl &url) const override
+		virtual void save(const QUrl &url, const QString &format) const;
+		virtual void save(const QUrl &url) const override
 		{
 			save(url, "");
 		}
@@ -200,7 +198,7 @@ class KDE_EXPORT OgreMdlx : public Resource, public Ogre::FrameListener
 		 * \param showMessage If this value is true it will show a message dialog if file does not exist in one of the MPQ archives.
 		 * \return Returns true if file does not exist in one of the MPQ archives and you have to try the local URL.
 		 */
-		bool useDirectoryUrl(KUrl &url, bool showMessage = false) const;
+		bool useDirectoryUrl(QUrl &url, bool showMessage = false) const;
 
 		Ogre::Node* createNode(const mdlx::Node &node);
 		void createNodeAnimatedProperties(const mdlx::Node &node, Ogre::Node *ogreNode);
