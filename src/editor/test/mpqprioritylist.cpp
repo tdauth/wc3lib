@@ -35,7 +35,7 @@
 #include <sstream>
 #include <iostream>
 
-#include <QtGui>
+#include <QCoreApplication>
 
 #include "../mpqprioritylist.hpp"
 
@@ -53,12 +53,12 @@ BOOST_AUTO_TEST_CASE(EntryMpq)
 	 */
 	int argc = 0;
 	char *argv = 0;
-	QApplication app(argc, &argv);
+	QCoreApplication app(argc, &argv);
 
 	MpqPriorityList source;
 	BOOST_REQUIRE(source.addSource(KUrl(TEST_MPQ_URL), 0));
 	BOOST_REQUIRE(source.sources().size() == 1);
-	BOOST_CHECK(!source.sources().begin()->isDirectory(QApplication::desktop()));
+	BOOST_CHECK(!source.sources().begin()->isDirectory(nullptr));
 	BOOST_CHECK(source.sources().begin()->priority() == 0);
 }
 
@@ -69,12 +69,12 @@ BOOST_AUTO_TEST_CASE(ExistsMpq)
 	 */
 	int argc = 0;
 	char *argv = 0;
-	QApplication app(argc, &argv);
+	QCoreApplication app(argc, &argv);
 
 	MpqPriorityList source;
 	BOOST_REQUIRE(source.addSource(KUrl(TEST_MPQ_URL)));
 	BOOST_REQUIRE(source.sources().size() == 1);
-	BOOST_CHECK(source.exists(KUrl("ReplaceableTextures\\TeamColor00.blp"), QApplication::desktop()));
+	BOOST_CHECK(source.exists(KUrl("ReplaceableTextures\\TeamColor00.blp"), nullptr));
 }
 
 BOOST_AUTO_TEST_CASE(DownloadMpq)
@@ -84,13 +84,13 @@ BOOST_AUTO_TEST_CASE(DownloadMpq)
 	 */
 	int argc = 0;
 	char *argv = 0;
-	QApplication app(argc, &argv);
+	QCoreApplication app(argc, &argv);
 
 	MpqPriorityList source;
 	BOOST_REQUIRE(source.addSource(KUrl(TEST_MPQ_URL)));
 	BOOST_REQUIRE(source.sources().size() == 1);
 	QString file;
-	BOOST_CHECK(source.download(KUrl("ReplaceableTextures\\TeamColor00.blp"), file, QApplication::desktop()));
+	BOOST_CHECK(source.download(KUrl("ReplaceableTextures\\TeamColor00.blp"), file, nullptr));
 	BOOST_CHECK(QFileInfo(file).exists());
 }
 
@@ -101,12 +101,12 @@ BOOST_AUTO_TEST_CASE(EntryDir)
 	 */
 	int argc = 0;
 	char *argv = 0;
-	QApplication app(argc, &argv);
+	QCoreApplication app(argc, &argv);
 
 	MpqPriorityList source;
 	BOOST_REQUIRE(source.addSource(KUrl(TEST_DIR_URL), 0));
 	BOOST_REQUIRE(source.sources().size() == 1);
-	BOOST_CHECK(source.sources().begin()->isDirectory(QApplication::desktop()));
+	BOOST_CHECK(source.sources().begin()->isDirectory(nullptr));
 	BOOST_CHECK(source.sources().begin()->priority() == 0);
 }
 
@@ -117,12 +117,12 @@ BOOST_AUTO_TEST_CASE(ExistsDir)
 	 */
 	int argc = 0;
 	char *argv = 0;
-	QApplication app(argc, &argv);
+	QCoreApplication app(argc, &argv);
 
 	MpqPriorityList source;
 	BOOST_REQUIRE(source.addSource(KUrl(TEST_DIR_URL)));
 	BOOST_REQUIRE(source.sources().size() == 1);
-	BOOST_CHECK(source.exists(KUrl("test.mpq"), QApplication::desktop()));
+	BOOST_CHECK(source.exists(KUrl("test.mpq"), nullptr));
 }
 
 BOOST_AUTO_TEST_CASE(DownloadDir)
@@ -132,12 +132,12 @@ BOOST_AUTO_TEST_CASE(DownloadDir)
 	 */
 	int argc = 0;
 	char *argv = 0;
-	QApplication app(argc, &argv);
+	QCoreApplication app(argc, &argv);
 
 	MpqPriorityList source;
 	BOOST_REQUIRE(source.addSource(KUrl(TEST_DIR_URL)));
 	BOOST_REQUIRE(source.sources().size() == 1);
 	QString file;
-	BOOST_CHECK(source.download(KUrl("test.mpq"), file, QApplication::desktop()));
+	BOOST_CHECK(source.download(KUrl("test.mpq"), file, nullptr));
 	BOOST_CHECK(QFileInfo(file).exists());
 }

@@ -31,7 +31,7 @@
 #include <sstream>
 #include <iostream>
 
-#include <QtGui>
+#include <QCoreApplication>
 
 #include "../mpqprioritylist.hpp"
 #include "../objectdata.hpp"
@@ -54,9 +54,8 @@ struct Fixture
 	Fixture() : app(0, 0)
 	{
 		BOOST_TEST_MESSAGE( "setup fixture" );
-		KUrl war3mpq = KUrl(WC3_DIR);
-		war3mpq.setProtocol("mpq");
-		war3mpq.addPath("war3.mpq");
+		QUrl war3mpq = QUrl(WC3_DIR) + "/war3.mpq";
+		war3mpq.setScheme("mpq");
 		std::cerr << war3mpq.toEncoded().constData() << std::endl;
 		BOOST_REQUIRE(war3mpq.isValid());
 		BOOST_REQUIRE(source.addSource(war3mpq));
@@ -67,7 +66,7 @@ struct Fixture
 		BOOST_TEST_MESSAGE( "teardown fixture" );
 	}
 
-	QApplication app;
+	QCoreApplication app;
 	MpqPriorityList source;
 };
 

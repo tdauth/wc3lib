@@ -31,7 +31,7 @@
 #include <sstream>
 #include <iostream>
 
-#include <QtGui>
+#include <QCoreApplication>
 
 #include "../warcraftiiishared.hpp"
 #include "../mpqprioritylist.hpp"
@@ -50,13 +50,13 @@ BOOST_AUTO_TEST_CASE(Icon)
 	 */
 	int argc = 0;
 	char *argv = 0;
-	QApplication app(argc, &argv);
+	QCoreApplication app(argc, &argv);
 
 	MpqPriorityList source;
-	BOOST_REQUIRE(source.addSource(KUrl(TEST_MPQ_URL)));
+	BOOST_REQUIRE(source.addSource(QUrl(TEST_MPQ_URL)));
 	QString target;
-	BOOST_CHECK(source.download(KUrl("ReplaceableTextures\\TeamColor00.blp"), target, QApplication::desktop()));
-	QIcon icon = source.sharedData()->icon(KUrl("ReplaceableTextures\\TeamColor00.blp"), QApplication::desktop());
+	BOOST_CHECK(source.download(QUrl("ReplaceableTextures\\TeamColor00.blp"), target, nullptr));
+	QIcon icon = source.sharedData()->icon(QUrl("ReplaceableTextures\\TeamColor00.blp"), nullptr);
 	BOOST_CHECK(!icon.isNull());
-	BOOST_CHECK(source.sharedData()->icons().contains(KUrl("ReplaceableTextures\\TeamColor00.blp")));
+	BOOST_CHECK(source.sharedData()->icons().contains(QUrl("ReplaceableTextures\\TeamColor00.blp")));
 }
