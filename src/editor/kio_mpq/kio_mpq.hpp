@@ -24,7 +24,6 @@
 #include <QScopedPointer>
 #include <QDateTime>
 
-#include <kdemacros.h>
 #include <KIO/SlaveBase>
 
 #include "../../core.hpp"
@@ -42,7 +41,7 @@ namespace editor
  * Implementation for Blizzard's MPQ format which should be usable in KDE applications as normal archive protocol (I/O slave) called "mpq".
  * "kio_mpq" is installed as usual MPQ plugin and therefore should be usable in all KDE-based applications.
  */
-class KDE_EXPORT MpqSlave : public KIO::SlaveBase
+class MpqSlave : public KIO::SlaveBase
 {
 	public:
 		static const char *protocol;
@@ -55,10 +54,10 @@ class KDE_EXPORT MpqSlave : public KIO::SlaveBase
 		MpqSlave(const QByteArray &pool, const QByteArray &app);
 		virtual ~MpqSlave();
 
-		virtual void listDir(const KUrl &url) override;
-		virtual void stat(const KUrl &url) override;
+		virtual void listDir(const QUrl &url) override;
+		virtual void stat(const QUrl &url) override;
 
-		virtual void open(const KUrl &url, QIODevice::OpenMode mode) override;
+		virtual void open(const QUrl &url, QIODevice::OpenMode mode) override;
 		/**
 		 * Closes the opened file of the MPQ archive.
 		 */
@@ -66,10 +65,10 @@ class KDE_EXPORT MpqSlave : public KIO::SlaveBase
 
 		virtual void read(KIO::filesize_t size) override;
 		virtual void seek(KIO::filesize_t offset) override;
-		virtual void mkdir(const KUrl& url, int permissions) override;
+		virtual void mkdir(const QUrl& url, int permissions) override;
 
-		virtual void get(const KUrl &url) override;
-		virtual void put(const KUrl &url, int permissions, KIO::JobFlags flags) override;
+		virtual void get(const QUrl &url) override;
+		virtual void put(const QUrl &url, int permissions, KIO::JobFlags flags) override;
 
 	private:
 		/**
@@ -78,7 +77,7 @@ class KDE_EXPORT MpqSlave : public KIO::SlaveBase
 		 * \param fileName The file name of the MPQ archive.
 		 * \param
 		 */
-		bool parseUrl(const KUrl &url, QString &fileName, QByteArray &archivePath);
+		bool parseUrl(const QUrl &url, QString &fileName, QByteArray &archivePath);
 		/**
 		 * Taken from "SMPQ".
 		 *

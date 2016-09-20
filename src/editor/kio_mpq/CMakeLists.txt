@@ -7,12 +7,8 @@ include(FeatureSummary)
 
 # Find KDE modules
 find_package(KF5 REQUIRED COMPONENTS
-	CoreAddons
-	KIO   # KMessageBox
+	KIO
 )
-
-# TODO set automatically
-include_directories(/usr/include/KF5/KIOCore/kio/)
 
 set(wc3lib_EDITOR_KIO_MPQ_H
 	kio_mpq.hpp
@@ -23,7 +19,7 @@ set(wc3lib_EDITOR_KIO_MPQ_SRC
 
 # MPQ KDE plugin
 add_library(kio_mpq SHARED ${wc3lib_EDITOR_KIO_MPQ_SRC})
-target_link_libraries(kio_mpq wc3libmpq wc3libcore wc3libeditor ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${QT_LIBRARIES} KF5::CoreAddons ) # TODO KF5::KIO
+target_link_libraries(kio_mpq wc3libmpq wc3libcore wc3libeditor ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} Qt5::Core KF5::KIOCore)
 
 if (DEBUG)
 	add_subdirectory(test)
