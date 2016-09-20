@@ -15,6 +15,7 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 
 	# Find all Qt modules which are required
 	find_package(Qt5Core)
+	find_package(Qt5Gui)
 	find_package(Qt5Widgets)
 	find_package(Qt5Multimedia)
 	find_package(Qt5LinguistTools)
