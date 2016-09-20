@@ -51,10 +51,12 @@ using namespace wc3lib::editor;
  */
 struct Fixture
 {
-	Fixture() : app(0, 0)
+	int args = 0;
+
+	Fixture() : app(args, 0)
 	{
-		BOOST_TEST_MESSAGE( "setup fixture" );
-		QUrl war3mpq = QUrl(WC3_DIR) + "/war3.mpq";
+		BOOST_TEST_MESSAGE("setup fixture");
+		QUrl war3mpq = QString(WC3_DIR) + "/war3.mpq";
 		war3mpq.setScheme("mpq");
 		std::cerr << war3mpq.toEncoded().constData() << std::endl;
 		BOOST_REQUIRE(war3mpq.isValid());
@@ -96,6 +98,8 @@ BOOST_FIXTURE_TEST_CASE(ReadUnitDataReignOfChaos, Fixture)
 	}
 	catch (const Exception &e)
 	{
+		qDebug() << e.what();
+
 		valid = false;
 	}
 
@@ -110,10 +114,12 @@ BOOST_FIXTURE_TEST_CASE(ReadUnitDataReignOfChaos, Fixture)
 
 	try
 	{
-		unitData.load(QApplication::desktop());
+		unitData.load(nullptr);
 	}
-	catch (Exception &e)
+	catch (const Exception &e)
 	{
+		qDebug() << e.what();
+
 		valid = false;
 	}
 
@@ -142,10 +148,12 @@ BOOST_FIXTURE_TEST_CASE(ReadItemDataReignOfChaos, Fixture)
 
 	try
 	{
-		itemData.load(QApplication::desktop());
+		itemData.load(nullptr);
 	}
-	catch (Exception &e)
+	catch (const Exception &e)
 	{
+		qDebug() << e.what();
+
 		valid = false;
 	}
 

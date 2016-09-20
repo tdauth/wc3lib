@@ -25,11 +25,11 @@
 //#error Define QBLP_ABSOLUTE_PATH! // has to contain the absolute file path of the plugin
 //#endif
 
-#include <QtGui>
+#include <QtCore>
 #include <QtTest>
 
 #include <KIO/Scheduler>
-#include <KIO/JobClasses>
+#include <KIO/StoredTransferJob>
 #include <KService>
 
 #include "kiotestConfig.h"
@@ -71,10 +71,8 @@ void SlaveTest::cleanup()
 
 void SlaveTest::downloadTest()
 {
-	KUrl url = QDir::currentPath();
-	url.setProtocol("mpq");
-	url.addPath("testattributes.mpq");
-	url.addPath("test.txt");
+	QUrl url = QDir::currentPath() + "/testattributes.mpq/test.txt";
+	url.setScheme("mpq");
 
 	QVERIFY(url.isValid());
 
@@ -85,10 +83,11 @@ void SlaveTest::downloadTest()
 	//connect(job, SIGNAL(data(KIO::Job*,QByteArray)), this, SLOT
 	QString file;
 
-	const bool success = KIO::NetAccess::download(url, file, 0);
+	KIO::StoredTransferJob *job = KIO::storedGet(url);
+	const bool success = job->exec();
 
 	QVERIFY(success);
-	QVERIFY(QFile::exists(file));
+	QVERIFY(!job->data().isEmpty());
 
 
 	//QCOMPARE(byteCount, image.byteCount()); // new byte count == old byte count

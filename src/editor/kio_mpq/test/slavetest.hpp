@@ -24,8 +24,6 @@
 #include <QObject>
 #include <QPluginLoader>
 
-#include <KIO/NetAccess>
-
 #include "../kio_mpq.hpp"
 
 namespace wc3lib

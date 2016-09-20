@@ -1,7 +1,7 @@
 #smpq -SM 1 -c testattributes.mpq test.txt
 #add_executable(slavetest slavetest.cpp)
 add_executable(slavetest slavetest.cpp)
-target_link_libraries(slavetest wc3libmpq wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${QT_QTTEST_LIBRARY} ${QT_LIBRARIES} ${KDE4_KIO_LIBS})
+target_link_libraries(slavetest wc3libmpq wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} Qt5::Core Qt5::Test KF5::KIOCore)
 add_dependencies(slavetest kio_mpq)
 add_test(NAME SlaveTest COMMAND slavetest)
 #add_test(NAME AttributesTest COMMAND attributestest)
