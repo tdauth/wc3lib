@@ -42,7 +42,7 @@ using namespace wc3lib::editor;
 BOOST_AUTO_TEST_CASE(Txt)
 {
 	const boost::filesystem::path current = boost::filesystem::current_path() / "WorldEditStrings.txt";
-	MetaData metaData(QUrl(current.c_str()));
+	MetaData metaData(QUrl::fromLocalFile(current.c_str()));
 	MpqPriorityList source;
 	metaData.setSource(&source);
 	bool success = true;
@@ -51,13 +51,12 @@ BOOST_AUTO_TEST_CASE(Txt)
 	{
 		metaData.load();
 	}
-	catch (Exception &e)
+	catch (const Exception &e)
 	{
 		success = false;
 
 		std::cerr << e.what() << std::endl;
 	}
-
 
 	BOOST_REQUIRE(success);
 	BOOST_REQUIRE(metaData.hasValue("WorldEditStrings", "WESTRING_LOADINGSCREEN_GENERIC"));
@@ -67,7 +66,7 @@ BOOST_AUTO_TEST_CASE(Txt)
 BOOST_AUTO_TEST_CASE(Slk)
 {
 	const boost::filesystem::path current = boost::filesystem::current_path() / "UnitMetaData.slk";
-	MetaData metaData(QUrl(current.c_str()));
+	MetaData metaData(QUrl::fromLocalFile(current.c_str()));
 	MpqPriorityList source;
 	metaData.setSource(&source);
 	bool success = true;
@@ -83,7 +82,6 @@ BOOST_AUTO_TEST_CASE(Slk)
 		std::cerr << e.what() << std::endl;
 	}
 
-
 	BOOST_REQUIRE(success);
 	BOOST_REQUIRE(metaData.hasValue("ihtp", "useSpecific"));
 	BOOST_REQUIRE(metaData.value("ihtp", "useSpecific") == "");
@@ -92,7 +90,7 @@ BOOST_AUTO_TEST_CASE(Slk)
 BOOST_AUTO_TEST_CASE(MapStrings)
 {
 	const boost::filesystem::path current = boost::filesystem::current_path() / "war3map.wts";
-	MetaData metaData(QUrl(current.c_str()));
+	MetaData metaData(QUrl::fromLocalFile(current.c_str()));
 	MpqPriorityList source;
 	metaData.setSource(&source);
 	bool success = true;
@@ -117,7 +115,7 @@ BOOST_AUTO_TEST_CASE(MapStrings)
 BOOST_AUTO_TEST_CASE(TxtValueByIndex)
 {
 	const boost::filesystem::path current = boost::filesystem::current_path() / "txtfilewithindexvalue.txt";
-	MetaData metaData(QUrl(current.c_str()));
+	MetaData metaData(QUrl::fromLocalFile(current.c_str()));
 	MpqPriorityList source;
 	metaData.setSource(&source);
 	bool success = true;

@@ -80,7 +80,7 @@ MpqPriorityList::~MpqPriorityList()
 	}
 }
 
-bool MpqPriorityListEntry::isDirectory(QWidget *window) const
+bool MpqPriorityListEntry::isDirectory(QWidget */* window*/) const
 {
 	if (url().isLocalFile())
 	{
@@ -253,16 +253,17 @@ void toRelativeUrl(QString &filePath)
 
 }
 
-bool MpqPriorityList::download(const QUrl &src, QString &target, QWidget *window) const
+bool MpqPriorityList::download(const QUrl &src, QString &target, QWidget * /* window */) const
 {
 	qDebug() << "Download: " << src.url();
 
 	if (!src.isRelative()) // has protocol - is absolute
 	{
-		if (src.scheme() == "file")
+		const QFileInfo fileInfo(src.toLocalFile());
+
+		if (src.scheme() == "file" || (src.scheme().isEmpty() && fileInfo.exists()))
 		{
-			const QFileInfo fileInfo(src.toLocalFile());
-			target = fileInfo.path();
+			target = fileInfo.filePath();
 
 			qDebug() << "Downloaded successfully into file " << target;
 
@@ -333,11 +334,11 @@ bool MpqPriorityList::download(const QUrl &src, QString &target, QWidget *window
 	return false;
 }
 
-bool MpqPriorityList::upload(const QString &src, const QUrl &target, QWidget *window) const
+bool MpqPriorityList::upload(const QString &src, const QUrl &target, QWidget * /* window */) const
 {
 	if (!target.isRelative()) // has protocol - is absolute
 	{
-		if (target.scheme() == "file")
+		if (target.scheme() == "file" || target.scheme().isEmpty())
 		{
 			const QFileInfo fileInfoSource(src);
 			const QFileInfo fileInfoTarget(target.toLocalFile());
@@ -345,7 +346,7 @@ bool MpqPriorityList::upload(const QString &src, const QUrl &target, QWidget *wi
 			qDebug() << "Uploading file " << target;
 
 			// NOTE does not overwrite automatically
-			return QFile::copy(src, fileInfoTarget.path());
+			return QFile::copy(src, fileInfoTarget.filePath());
 		}
 	}
 
@@ -376,7 +377,7 @@ void MpqPriorityList::removeTempFile(const QString &name)
 	}
 }
 
-bool MpqPriorityList::exists(const QUrl &url, QWidget *window) const
+bool MpqPriorityList::exists(const QUrl &url, QWidget * /* window */) const
 {
 	if (url.isRelative())
 	{
@@ -407,17 +408,20 @@ bool MpqPriorityList::exists(const QUrl &url, QWidget *window) const
 		}
 	}
 	// in an absolute URL everything has to be specified (protocol, host etc.)
-	else if (url.scheme() == "file")
+	else
 	{
 		const QFileInfo fileInfo(url.toLocalFile());
 
-		return  fileInfo.exists();
+		if (url.scheme() == "file" || url.scheme().isEmpty())
+		{
+			return fileInfo.exists();
+		}
 	}
 
 	return false;
 }
 
-void MpqPriorityList::readSettings(const QString& group)
+void MpqPriorityList::readSettings(const QString &group)
 {
 	qDebug() << "Reading settings for group " << group;
 
@@ -443,7 +447,7 @@ void MpqPriorityList::readSettings(const QString& group)
 	settings.endGroup();
 }
 
-void MpqPriorityList::writeSettings(const QString& group)
+void MpqPriorityList::writeSettings(const QString &group)
 {
 	qDebug() << "Writing settings for group " << group;
 
