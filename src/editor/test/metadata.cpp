@@ -42,7 +42,7 @@ using namespace wc3lib::editor;
 BOOST_AUTO_TEST_CASE(Txt)
 {
 	const boost::filesystem::path current = boost::filesystem::current_path() / "WorldEditStrings.txt";
-	MetaData metaData(KUrl(current.c_str()));
+	MetaData metaData(QUrl(current.c_str()));
 	MpqPriorityList source;
 	metaData.setSource(&source);
 	bool success = true;
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(Txt)
 BOOST_AUTO_TEST_CASE(Slk)
 {
 	const boost::filesystem::path current = boost::filesystem::current_path() / "UnitMetaData.slk";
-	MetaData metaData(KUrl(current.c_str()));
+	MetaData metaData(QUrl(current.c_str()));
 	MpqPriorityList source;
 	metaData.setSource(&source);
 	bool success = true;
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(Slk)
 BOOST_AUTO_TEST_CASE(MapStrings)
 {
 	const boost::filesystem::path current = boost::filesystem::current_path() / "war3map.wts";
-	MetaData metaData(KUrl(current.c_str()));
+	MetaData metaData(QUrl(current.c_str()));
 	MpqPriorityList source;
 	metaData.setSource(&source);
 	bool success = true;
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE(MapStrings)
 BOOST_AUTO_TEST_CASE(TxtValueByIndex)
 {
 	const boost::filesystem::path current = boost::filesystem::current_path() / "txtfilewithindexvalue.txt";
-	MetaData metaData(KUrl(current.c_str()));
+	MetaData metaData(QUrl(current.c_str()));
 	MpqPriorityList source;
 	metaData.setSource(&source);
 	bool success = true;
