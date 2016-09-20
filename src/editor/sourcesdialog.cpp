@@ -20,7 +20,7 @@
 
 #include <QtCore>
 #include <QtGui>
-#include <QtWidgets/QtWidgets>
+#include <QtWidgets>
 
 #include "sourcesdialog.hpp"
 #include "mpqprioritylist.hpp"

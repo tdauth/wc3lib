@@ -211,5 +211,38 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>dialogButtonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>ArchiveInfoDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>166</x>
+     <y>397</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>308</x>
+     <y>269</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dialogButtonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>ArchiveInfoDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>295</x>
+     <y>391</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>322</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

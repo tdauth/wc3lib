@@ -424,7 +424,7 @@ void MetaData::load()
 
 	if (!this->source()->download(this->url(), filePath, 0))
 	{
-		throw Exception(boost::format(_("Error on downloading file \"%1%\"")) % this->url().toLocalFile().toUtf8().constData());
+		throw Exception(boost::format(_("Error on downloading file \"%1%\". Original URL \"%2%\".")) % this->url().toLocalFile().toUtf8().constData() % this->url().toString().toStdString());
 	}
 
 	ifstream in(filePath.toUtf8().constData());

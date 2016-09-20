@@ -281,8 +281,8 @@ bool MpqPriorityList::download(const QUrl &src, QString &target, QWidget * /* wi
 			/*
 			 * The file path has to be transformed into a Windows path which works with the MPQ archive.
 			 */
-			const QString archiveSrc = src.toLocalFile().replace('/', '\\');
-			const std::string filePath = archiveSrc.toUtf8().constData();
+			const QString archiveSrc = src.toString().replace('/', '\\');
+			const std::string filePath = archiveSrc.toStdString();
 			qDebug() << "Downloading from local MPQ archive " << entry.url() << " file: " << filePath.c_str();
 
 			mpq::File file = entry.mpqArchive()->findFile(filePath, m_locale);
@@ -358,7 +358,7 @@ bool MpqPriorityList::upload(const QString &src, const QUrl &target, QWidget * /
 
 		// entry path can be a directory path or something like tar:/... or mpq:/...
 		QUrl absoluteTarget = entry.url();
-		QString archiveTarget = target.toLocalFile();
+		QString archiveTarget = target.toString();
 		toRelativeUrl(archiveTarget);
 		//absoluteTarget.addPath(archiveTarget);
 
@@ -390,11 +390,11 @@ bool MpqPriorityList::exists(const QUrl &url, QWidget * /* window */) const
 				/*
 				* The file path has to be transformed into a Windows path which works with the MPQ archive.
 				*/
-				const QString archiveSrc = url.toLocalFile().replace('/', '\\');
-				const std::string filePath = archiveSrc.toUtf8().constData();
+				const QString archiveSrc = url.toString().replace('/', '\\');
+				const std::string filePath = archiveSrc.toStdString();
 				qDebug() << "Downloading from local MPQ archive " << entry.url() << " file: " << filePath.c_str();
 
-				mpq::File file = entry.mpqArchive()->findFile(filePath, m_locale);
+				const mpq::File file = entry.mpqArchive()->findFile(filePath, m_locale);
 
 				if (file.isValid())
 				{

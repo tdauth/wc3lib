@@ -125,7 +125,6 @@ class Module : public QWidget
 		void showResourcesDialog();
 		void aboutWc3lib();
 		void aboutQt();
-		void aboutKde();
 
 	protected:
 		/**

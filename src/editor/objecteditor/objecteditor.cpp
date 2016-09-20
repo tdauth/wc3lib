@@ -123,7 +123,7 @@ bool ObjectEditor::configure()
 			source()->sharedData()->sharedObjectData()->unitEditorData()->setSource(source());
 			source()->sharedData()->sharedObjectData()->unitEditorData()->load();
 		}
-		catch (wc3lib::Exception &e)
+		catch (const wc3lib::Exception &e)
 		{
 			QMessageBox::critical(this, tr("Error"), tr("Error when loading default files: %1").arg(e.what()));
 

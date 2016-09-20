@@ -173,11 +173,6 @@ void Module::aboutQt()
 	QMessageBox::aboutQt(this);
 }
 
-void Module::aboutKde()
-{
-	QMessageBox::about(this, tr("About"), tr("About KDE"));
-}
-
 void Module::setupUi()
 {
 	this->m_menuBar = new QMenuBar(this);

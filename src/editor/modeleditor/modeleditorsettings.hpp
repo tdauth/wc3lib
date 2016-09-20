@@ -38,7 +38,7 @@ class ModelEditorSettings : public SettingsInterface
 
 		virtual void read(QSettings &settings) override;
 		virtual void write(QSettings &settings) const override;
-		virtual QString groupName() const;
+		virtual QString groupName() const override;
 
 		ModelEditor* modelEditor() const;
 

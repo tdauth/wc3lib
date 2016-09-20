@@ -38,7 +38,9 @@ int main(int argc, char *argv[])
 	if (editor.configure())
 	{
 		editor.show();
+
+		return app.exec();
 	}
 
-	return app.exec();
+	return 1;
 }

@@ -33,6 +33,7 @@ namespace editor
 ResourcesDialog::ResourcesDialog(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), m_sources(nullptr)
 {
 	setupUi(this);
+	retranslateUi(this);
 
 	connect(buttonBox->button(QDialogButtonBox::Ok), &QPushButton::clicked, this, &QDialog::accept);
 	connect(buttonBox->button(QDialogButtonBox::Cancel), &QPushButton::clicked, this, &QDialog::reject);
@@ -47,7 +48,7 @@ void ResourcesDialog::setSources(MpqPriorityList *sources)
 
 	for (MpqPriorityList::Resources::const_iterator iterator = sources->resources().begin(); iterator != sources->resources().end(); ++iterator)
 	{
-		QTableWidgetItem *urlItem = new QTableWidgetItem(iterator->first.toLocalFile());
+		QTableWidgetItem *urlItem = new QTableWidgetItem(iterator->first.toString());
 		tableWidget->setItem(row, 0, urlItem);
 
 		QString type;
