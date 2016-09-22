@@ -249,7 +249,6 @@ namespace
 byte* Sector::compress(const byte *buffer, uint32 bufferSize, Block::Flags flags, Compression compression, uint32 &size, int waveCompressionLevel)
 {
 	boost::scoped_array<byte> data;
-	bool uncompressed = false;
 
 	// Imploded sectors are the raw compressed data following compression with the implode algorithm (these sectors can only be in imploded files).
 	if (flags & Block::Flags::IsImploded)
@@ -260,20 +259,13 @@ byte* Sector::compress(const byte *buffer, uint32 bufferSize, Block::Flags flags
 			compressPklib(newData, *reinterpret_cast<int*>(&size), (char*const)buffer, boost::numeric_cast<int>(bufferSize), 0, 0);
 			data.reset(newData);
 		}
-		else
-		{
-			uncompressed = true;
-		}
 	}
 	// Compressed sectors (only found in compressed - not imploded - files) are compressed with one or more compression algorithms.
 	else if (flags & Block::Flags::IsCompressed)
 	{
-		bool atLeastOneCompression = false;
-
 		// TODO check compression order
 		if (compression & Sector::Compression::ImaAdpcmMono) // IMA ADPCM mono
 		{
-			atLeastOneCompression = true;
 			int outLength = boost::numeric_cast<int>(bufferSize);
 			boost::scoped_array<byte> out(new byte[outLength]); // NOTE do always allocate enough memory.
 
@@ -297,7 +289,6 @@ byte* Sector::compress(const byte *buffer, uint32 bufferSize, Block::Flags flags
 
 		if (compression & Sector::Compression::ImaAdpcmStereo) // IMA ADPCM stereo
 		{
-			atLeastOneCompression = true;
 			int outLength = boost::numeric_cast<int>(bufferSize);
 			boost::scoped_array<byte> out(new byte[outLength]); // NOTE do always allocate enough memory.
 
@@ -321,7 +312,6 @@ byte* Sector::compress(const byte *buffer, uint32 bufferSize, Block::Flags flags
 
 		if (compression & Sector::Compression::Huffman) // Huffman encoded
 		{
-			atLeastOneCompression = true;
 			int outLength = boost::numeric_cast<int>(bufferSize);
 			boost::scoped_array<byte> out(new byte[outLength]); // NOTE do always allocate enough memory.
 			int compression = defaultHuffmanCompressionType;
@@ -342,7 +332,6 @@ byte* Sector::compress(const byte *buffer, uint32 bufferSize, Block::Flags flags
 
 		if (compression & Sector::Compression::Deflated) // Deflated (see ZLib)
 		{
-			atLeastOneCompression = true;
 			iarraystream istream(buffer, bufferSize);
 			//arraystream ostream;
 			std::basic_stringstream<byte> ostream; // TODO unbuffered stream doesnt work.
@@ -364,7 +353,6 @@ byte* Sector::compress(const byte *buffer, uint32 bufferSize, Block::Flags flags
 		// NOTE but in this situation it's compressed not imploded file!!!
 		if (compression & Sector::Compression::Imploded)
 		{
-			atLeastOneCompression = true;
 			std::cerr << _("Warning: Imploded sector in not imploded file!") << std::endl;
 
 			int outLength = boost::numeric_cast<int>(bufferSize);
@@ -385,7 +373,6 @@ byte* Sector::compress(const byte *buffer, uint32 bufferSize, Block::Flags flags
 
 		if (compression & Sector::Compression::Bzip2Compressed) // BZip2 compressed (see BZip2)
 		{
-			atLeastOneCompression = true;
 			iarraystream istream(buffer, bufferSize);
 			//arraystream ostream;
 			std::basic_stringstream<byte> ostream; // TODO unbuffered stream doesnt work
@@ -403,17 +390,9 @@ byte* Sector::compress(const byte *buffer, uint32 bufferSize, Block::Flags flags
 			data.reset(new byte[size]);
 			ostream.read(data.get(), size);
 		}
-
-		if (!atLeastOneCompression)
-		{
-			uncompressed = true;
-		}
-	}
-	else
-	{
-		uncompressed = true;
 	}
 
+	const bool uncompressed = data.get() == nullptr;
 	const byte *source = uncompressed ? buffer : data.get();
 
 	if (uncompressed)
