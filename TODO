@@ -1,3 +1,23 @@
+Sector error (sector 1, file "Units\OrcUpgradeStrings.txt"):
+Explode error: "Invalid dictionary size.".
+von War3Patch.mpq oder War3xLocal.mpq
+Block flags: (wc3lib::mpq::Block::Flags::IsFile | wc3lib::mpq::Block::Flags::UsesEncryptionKey | wc3lib::mpq::Block::Flags::IsEncrypted | wc3lib::mpq::Block::Flags::IsCompressed | unknown: -4294967296)
+Block size: 2250 // is different in MPQ Editor
+File size: 7188 // is different in MPQ Editor
+Block index: 206
+Block offset: 3183518
+
+Sector count: 2
+Sector compression 0: wc3lib::mpq::Sector::Compression::Uncompressed
+Sector compression 1: wc3lib::mpq::Sector::Compression::Uncompressed
+Probably decryption does not work! In other MPQ editors the file has three sectors. The sector table is not even encrypted?
+
+Hash Table Entries: 4096
+Block table entries: 1156
+
+* Qt BLP plugin mit Qt5 testen (installieren).
+* MPQ KIO Slave mit KDE5 testen (installieren).
+
 * Unit Tests for Archive::addFile():
 	* Compression types.
 	* Compression types with encryption.
