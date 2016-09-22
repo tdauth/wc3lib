@@ -274,7 +274,7 @@ void ObjectEditor::exportAll()
 {
 	// TODO collect all tab data (requires Frozen Throne)
 
-	const QUrl url = QFileDialog::getSaveFileUrl(this, source()->sharedData()->tr("WESTRING_MENU_OE_EXPORTALL", "WorldEditStrings"), QUrl(), tr("*|All Files\n%1").arg(objectsCollectionFilter()));
+	const QUrl url = QFileDialog::getSaveFileUrl(this, source()->sharedData()->tr("WESTRING_MENU_OE_EXPORTALL", "WorldEditStrings"), QUrl(), tr("All Files (*);;Custom Objects Collection (*.%1)").arg(objectsCollectionFilter()));
 
 	if (!url.isEmpty())
 	{
@@ -419,7 +419,7 @@ void ObjectEditor::importAll()
 {
 	if (QMessageBox::question(this, tr("Import All"), tr("Importing all objects replaces all of your current modifications. Continue?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
 	{
-		const QUrl url = QFileDialog::getOpenFileUrl(this, source()->sharedData()->tr("WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"), QUrl(), tr("*|All Files\n%1\nCustom Units (*.w3u)\nMap (*.w3m *.w3x)").arg(objectsCollectionFilter()));
+		const QUrl url = QFileDialog::getOpenFileUrl(this, source()->sharedData()->tr("WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"), QUrl(), tr("All Files (*);;%1;;Custom Units (*.w3u);;Map (*.w3m *.w3x)").arg(objectsCollectionFilter()));
 
 		if (!url.isEmpty())
 		{
@@ -441,7 +441,10 @@ void ObjectEditor::compressAll()
 				loadTabDataOnRequest(i);
 			}
 
-			counter += this->tab(i)->objectData()->compress();
+			if (this->tab(i)->objectData() != nullptr)
+			{
+				counter += this->tab(i)->objectData()->compress();
+			}
 		}
 
 		QMessageBox::information(this, tr("Compression done"), tr("Compressed %1 modifications of objects.").arg(counter));

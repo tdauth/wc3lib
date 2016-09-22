@@ -85,6 +85,11 @@ bool WeatherData::hasCustomObjects() const
 	return false;
 }
 
+QString WeatherData::customObjectsExtension() const
+{
+	return QString();
+}
+
 bool WeatherData::hasMetaDataList() const
 {
 	return true;

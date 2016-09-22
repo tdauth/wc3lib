@@ -245,11 +245,12 @@ bool ObjectEditorTab::modifyField(const QString& originalObjectId, const QString
 void ObjectEditorTab::exportAllObjects()
 {
 	const QString customUnitsSuffix = "w3u";
+	const QString customObjectsSuffix = this->objectData()->customObjectsExtension();
 	const QString customObjectsCollectionSuffix = "w3o";
 	const QString mapSuffix = "w3m";
 	const QString xmapSuffix = "w3x";
 
-	const QUrl url = QFileDialog::getSaveFileUrl(this, exportAllObjectsText(), QUrl(), QString("*\nCustom Units (*.%1)\nCustom Objects Collection (*.%2)\nMap (*.%3 *.%4)").arg(customUnitsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix));
+	const QUrl url = QFileDialog::getSaveFileUrl(this, exportAllObjectsText(), QUrl(), QString("All files (*);;Custom Units (*.%1);;Custom Objects (*.%2);;Custom Objects Collection (*.%3);;Map (*.%4 *.%5)").arg(customUnitsSuffix).arg(customObjectsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix));
 
 	if (!url.isEmpty())
 	{
@@ -258,9 +259,15 @@ void ObjectEditorTab::exportAllObjects()
 
 		// TODO support directory for meta data file list
 
-		if (suffix == customUnitsSuffix && !this->objectData()->hasCustomUnits() && !this->objectData()->hasCustomObjects())
+		if (suffix == customUnitsSuffix && !this->objectData()->hasCustomUnits())
 		{
 			QMessageBox::critical(this, tr("Error"), tr("No custom units support."));
+
+			return;
+		}
+		else if (suffix == customObjectsSuffix && !this->objectData()->hasCustomObjects())
+		{
+			QMessageBox::critical(this, tr("Error"), tr("No custom objects support."));
 
 			return;
 		}
@@ -271,14 +278,17 @@ void ObjectEditorTab::exportAllObjects()
 		{
 			try
 			{
-				if (suffix == customUnitsSuffix)
+				if (suffix == customObjectsSuffix)
 				{
 					if (this->objectData()->hasCustomObjects())
 					{
 						qDebug() << "Exporting custom objects";
 						this->objectData()->customObjects().write(out);
 					}
-					else if (this->objectData()->hasCustomUnits())
+				}
+				else if (suffix == customUnitsSuffix)
+				{
+					if (this->objectData()->hasCustomUnits())
 					{
 						qDebug() << "Exporting custom units";
 
@@ -286,7 +296,7 @@ void ObjectEditorTab::exportAllObjects()
 					}
 				}
 			}
-			catch (Exception &e)
+			catch (const Exception &e)
 			{
 				QMessageBox::critical(this, tr("Error"), tr("Error on exporting"), e.what());
 			}
@@ -298,28 +308,43 @@ void ObjectEditorTab::importAllObjects()
 {
 	if (QMessageBox::question(this, tr("Import All"), tr("Importing all objects replaces all of your current modifications. Continue?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
 	{
-		const QString customObjectsSuffix = "w3u";
+		const QString customObjectsSuffix = this->objectData()->customObjectsExtension();
 		const QString customObjectsCollectionSuffix = "w3o";
 		const QString mapSuffix = "w3m";
 		const QString xmapSuffix = "w3x";
 
-		const QUrl url = QFileDialog::getOpenFileUrl(this, importAllObjectsText(), m_recentImportUrl, QString("*|All Files\n*.%1\nCustom Objects Collection *.%2\nMap (*.%3 *.%4)").arg(customObjectsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix));
+		const QUrl url = QFileDialog::getOpenFileUrl(this, importAllObjectsText(), m_recentImportUrl, QString("All Files (*);;Custom Objects (*.%1);;Custom Objects Collection (*.%2);;Map (*.%3 *.%4)").arg(customObjectsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix));
 
 		if (!url.isEmpty())
 		{
 			const QString suffix = QFileInfo(url.toLocalFile()).suffix();
 			qDebug() << "Suffix" << suffix;
 
-			map::CustomUnits customUnits;
-
 			if (suffix == customObjectsSuffix)
 			{
-				if (this->objectData()->hasCustomUnits())
+				if (this->objectData()->hasCustomObjects())
 				{
 					ifstream in(url.toLocalFile().toUtf8().constData());
 
 					try
 					{
+						std::unique_ptr<map::CustomObjects> customObjects(new map::CustomObjects(this->objectData()->type()));
+						customObjects->read(in);
+						this->objectData()->importCustomObjects(*customObjects);
+						m_recentImportUrl = url;
+					}
+					catch (const std::exception &e)
+					{
+						QMessageBox::critical(this, tr("Error"), e.what());
+					}
+				}
+				else if (this->objectData()->hasCustomUnits())
+				{
+					ifstream in(url.toLocalFile().toUtf8().constData());
+
+					try
+					{
+						map::CustomUnits customUnits;
 						customUnits.read(in);
 						this->objectData()->importCustomUnits(customUnits);
 						m_recentImportUrl = url;
@@ -331,7 +356,7 @@ void ObjectEditorTab::importAllObjects()
 				}
 				else
 				{
-					QMessageBox::critical(this, tr("Error"), tr("Does not support custom units."));
+					QMessageBox::critical(this, tr("Error"), tr("Does not support custom objects or custom units."));
 				}
 			}
 			// TODO support custom object FILES

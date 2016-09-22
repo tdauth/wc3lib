@@ -93,6 +93,11 @@ bool ItemData::hasCustomObjects() const
 	return true;
 }
 
+QString ItemData::customObjectsExtension() const
+{
+	return "w3t";
+}
+
 bool ItemData::hasMetaDataList() const
 {
 	return true;

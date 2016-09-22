@@ -174,6 +174,9 @@ class ObjectEditorTab : public QWidget
 		ObjectIdDialog* idDialog() const;
 
 	public slots:
+		/**
+		 * Creates a new object in the current tab with a unique object ID.
+		 */
 		void newObject();
 		/**
 		 * Opens the edit dialog for all selected objects names.
@@ -182,6 +185,10 @@ class ObjectEditorTab : public QWidget
 		void deleteObject();
 		void resetObject();
 		void resetAllObjects();
+		/**
+		 * Exports all objects from the current tab only.
+		 * The user has to select an output file in which the object data is exported into.
+		 */
 		void exportAllObjects();
 		void importAllObjects();
 		void copyObject();
@@ -192,6 +199,11 @@ class ObjectEditorTab : public QWidget
 		 */
 		void widgetizeAllObjects();
 
+		/**
+		 * Loads the corresponding icon of the current tab.
+		 * This method has to be overriden in a derived class and implemented.
+		 * The icon is shown in the tab widget of the object editor.
+		 */
 		virtual QIcon tabIcon(QWidget *widget) const = 0;
 
 	protected:

@@ -146,6 +146,11 @@ bool AbilityData::hasCustomObjects() const
 	return true;
 }
 
+QString AbilityData::customObjectsExtension() const
+{
+	return "w3a";
+}
+
 bool AbilityData::hasMetaDataList() const
 {
 	return true;

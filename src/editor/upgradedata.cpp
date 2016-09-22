@@ -122,6 +122,11 @@ bool UpgradeData::hasCustomObjects() const
 	return false;
 }
 
+QString UpgradeData::customObjectsExtension() const
+{
+	return "w3q";
+}
+
 bool UpgradeData::hasMetaDataList() const
 {
 	return true;
@@ -168,9 +173,12 @@ void UpgradeData::load(QWidget *widget)
 	this->m_humanUpgradeFunc->setSource(this->source());
 	this->m_humanUpgradeFunc->load();
 
+	/*
+	TODO This file cannot be extracted from the MPQ archive!
 	this->m_orcUpgradeStrings.reset(new MetaData(QUrl("Units/OrcUpgradeStrings.txt")));
 	this->m_orcUpgradeStrings->setSource(this->source());
 	this->m_orcUpgradeStrings->load();
+	*/
 
 	this->m_orcUpgradeFunc.reset(new MetaData(QUrl("Units/OrcUpgradeFunc.txt")));
 	this->m_orcUpgradeFunc->setSource(this->source());

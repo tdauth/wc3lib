@@ -327,6 +327,10 @@ class ObjectData : public QObject
 		 * \sa hasCustomUnits()
 		 */
 		virtual bool hasCustomObjects() const = 0;
+		/**
+		 * The file extension without any dot which is used when the custom objects of only one type are exported (no collection).
+		 */
+		virtual QString customObjectsExtension() const = 0;
 
 		map::Value value(const QString &fieldId, const QString &value) const;
 

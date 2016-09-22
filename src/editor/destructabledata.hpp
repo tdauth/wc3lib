@@ -45,6 +45,7 @@ class DestructableData : public ObjectData
 
 		virtual bool hasCustomUnits() const override;
 		virtual bool hasCustomObjects() const override;
+		virtual QString customObjectsExtension() const override;
 		virtual bool hasMetaDataList() const override;
 
 		virtual MetaDataList metaDataList() const override;

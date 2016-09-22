@@ -1197,7 +1197,7 @@ void ObjectData::applyMapStrings(map::W3m &w3m)
 
 int ObjectData::compress()
 {
-	qDebug() << "Compressing ability data";
+	qDebug() << "Compressing object data:";
 	int counter = 0;
 
 	/*
@@ -1266,6 +1266,14 @@ QString ObjectData::defaultFieldValue(const QString &objectId, const QString &fi
 
 		foreach (MetaData *metaData, metaDataList)
 		{
+			// This might happen when the meta data file has not been loaded properly.
+			if (metaData == nullptr)
+			{
+				qDebug() << "Warning: nullptr meta data.";
+
+				continue;
+			}
+
 			if (metaData->hasValue(rowKey, field))
 			{
 				value = metaData->value(rowKey, field);
