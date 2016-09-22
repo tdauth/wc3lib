@@ -19,7 +19,6 @@
  ***************************************************************************/
 
 #include <iostream>
-#include <unordered_map>
 
 #include "../mpq.hpp"
 #include "../utilities.hpp"
@@ -61,7 +60,7 @@ void extract(Archive &mpq, std::string &entry, const boost::program_options::var
 	Listfile::toNativePath(entry);
 	Listfile::toNativePath(dirPath);
 #endif
-	// output direcotry is archive's basename in the current working directory (name without extension)
+	// output directory is archive's basename in the current working directory (name without extension)
 	boost::filesystem::path outputDirectoryPath = boost::filesystem::current_path() / boost::filesystem::basename(mpq.path());
 	boost::filesystem::path entryPath = outputDirectoryPath / boost::filesystem::path(dirPath);
 
@@ -99,7 +98,7 @@ void extract(Archive &mpq, std::string &entry, const boost::program_options::var
 		checkStream(out);
 		file.decompress(out);
 	}
-	catch (Exception &exception)
+	catch (const Exception &exception)
 	{
 		std::cerr << boost::format(_("Error occured while extracting file \"%1%\": \"%2%\".")) % entry % exception.what() << std::endl;
 	}
