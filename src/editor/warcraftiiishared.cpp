@@ -192,7 +192,7 @@ QPixmap WarcraftIIIShared::worldEditDataPixmap(const QString &key, const QString
 			filePath += ".blp";
 		}
 
-		return this->pixmap(filePath, window);
+		return this->pixmap(QUrl(filePath), window);
 	}
 
 	return QPixmap();

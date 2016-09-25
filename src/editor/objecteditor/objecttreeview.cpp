@@ -59,7 +59,6 @@ ObjectTreeView::ObjectTreeView(ObjectEditorTab *tab, Qt::WindowFlags f) : QTreeV
 	connect(this, SIGNAL(collapsed(const QModelIndex &)), this, SLOT(collapseItem(const QModelIndex &)));
 
 	connect(this->header(), &QHeaderView::sectionClicked, this, &ObjectTreeView::orderBySection);
-
 }
 
 void ObjectTreeView::orderBySection(int logicalIndex)

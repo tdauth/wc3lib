@@ -1,3 +1,8 @@
+FIXED:
+If abilities are exported, many modifications are not exported as well!
+Seems that level modifications are only displayed for level 1.
+Level and data information was dropped by the unitToObjectModification function which was called incorrectly in importCustomObjects().
+
 Sector error (sector 1, file "Units\OrcUpgradeStrings.txt"):
 Explode error: "Invalid dictionary size.".
 von War3Patch.mpq oder War3xLocal.mpq
@@ -26,11 +31,12 @@ Block table entries: 1156
 	* With attributes.
 	* With listfile.
 
+* After porting from Qt4 to Qt5 react to filter line edits by updating the proxies of the tree and table models.
 * MPQ Editor and tool "mpq": (listfile) files contain entries of files without a dirpath which might occur in every directory?
 * Fix MPQ Editor updateSelection().
 * FIXED: Fix MPQ Editor closing and opening.
 * MPQ Editor: Should allow file options when adding files.
-* MPQ Editor: Reduce dependencies to KDE.
+* DONE: MPQ Editor: Reduce dependencies to KDE.
 * FIXED: Fix Archive::addFile() -> leads to eoffail when opening the archive.
 * Some object data classes share the same files but load them separately.
 * Load icons in tree model in the beginning again? Reduces lags?

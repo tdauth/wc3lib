@@ -179,7 +179,7 @@ std::streamsize File::sectors(istream &istream, Sector::Sectors &sectors)
 	// sector offset table
 	else
 	{
-		const uint32 sectorsCount = (this->block()->fileSize() + this->archive()->sectorSize() - 1) / this->archive()->sectorSize();
+		const uint32 sectorsCount = this->block()->fileSize() / this->archive()->sectorSize() + (this->block()->fileSize() % this->archive()->sectorSize() > 0 ? 1 : 0);
 
 		// last offset contains file size
 		const uint32 offsetsSize = sectorsCount + 1;
@@ -205,7 +205,7 @@ std::streamsize File::sectors(istream &istream, Sector::Sectors &sectors)
 
 		sectors.reserve(sectorsCount);
 		// the actual compressed file size, starting from the first offset of data
-		uint32 size = offsets[sectorsCount] - offsets[0];
+		const uint32 size = offsets[sectorsCount] - offsets[0];
 		// The remaining uncompressed size of the file
 		uint32 remainingUncompressedSize = this->size();
 

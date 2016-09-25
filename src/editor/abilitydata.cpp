@@ -264,7 +264,9 @@ QIcon AbilityData::objectIcon(const QString &originalObjectId, const QString &cu
 
 	if (!art.isEmpty())
 	{
-		return this->source()->sharedData()->icon(art, window);
+		qDebug() << "Getting art: " << art;
+
+		return this->source()->sharedData()->icon(QUrl(art), window);
 	}
 
 	return this->source()->sharedData()->worldEditDataIcon("InvalidIcon", "WorldEditArt", window);

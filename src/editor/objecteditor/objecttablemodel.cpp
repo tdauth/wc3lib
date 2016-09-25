@@ -31,7 +31,7 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectTableModel::ObjectTableModel(QObject* parent) : QAbstractItemModel(parent), m_objectData(0), m_showRawData(false)
+ObjectTableModel::ObjectTableModel(QObject *parent) : QAbstractItemModel(parent), m_objectData(0), m_showRawData(false)
 {
 }
 

@@ -65,7 +65,7 @@ class ObjectEditorTab : public QWidget
 		/**
 		 * Creates a new object editor tab using the source \p source and standard objects data/meta data \p objectData.
 		 */
-		ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor = 0, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData, const QString &groupName, ObjectEditor *objectEditor = 0, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~ObjectEditorTab();
 
 		/**
@@ -117,6 +117,12 @@ class ObjectEditorTab : public QWidget
 		 * \return Returns the underlying standard objects data and meta data instance.
 		 */
 		ObjectData* objectData() const;
+
+		/**
+		 * The group name for the corresponding settings of the tab.
+		 * \return Returns the group name.
+		 */
+		QString groupName() const;
 
 		/**
 		 * Shows or hides raw data IDs for objects as well as fields.
@@ -230,6 +236,11 @@ class ObjectEditorTab : public QWidget
 		virtual QUrl newObjectIconUrl() const = 0;
 
 		/**
+		 * Updates the \ref m_recentImportUrl value and sorts all entries by name.
+		 */
+		void updateImportUrlAndSort(const QUrl &url);
+
+		/**
 		 * The actual source which is used for loading all necessary files.
 		 */
 		MpqPriorityList *m_source;
@@ -251,6 +262,11 @@ class ObjectEditorTab : public QWidget
 		 * The corresponding object data which is shown by the tab.
 		 */
 		ObjectData *m_objectData;
+
+		/**
+		 * The group name for the settings of this tab.
+		 */
+		QString m_groupName;
 		/**
 		 * The parent object editor.
 		 */
@@ -273,6 +289,7 @@ class ObjectEditorTab : public QWidget
 
 		ObjectIdDialog *m_idDialog;
 
+		QUrl m_recentExportUrl;
 		QUrl m_recentImportUrl;
 
 	private slots:
@@ -332,6 +349,11 @@ inline ObjectTableModel* ObjectEditorTab::tableModel() const
 inline ObjectData* ObjectEditorTab::objectData() const
 {
 	return this->m_objectData;
+}
+
+inline QString ObjectEditorTab::groupName() const
+{
+	return this->m_groupName;
 }
 
 inline bool ObjectEditorTab::showRawData() const

@@ -846,7 +846,7 @@ void ObjectData::importCustomObjects(const map::CustomObjects& objects)
 		for (map::CustomObjects::Object::Modifications::size_type j = 0; j < object.modifications().size(); ++j)
 		{
 			const map::CustomObjects::Modification &modification = *boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object.modifications()[j]);
-			this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), unitToObjectModification(modification));
+			this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), modification);
 		}
 	}
 
@@ -859,7 +859,7 @@ void ObjectData::importCustomObjects(const map::CustomObjects& objects)
 		for (map::CustomObjects::Object::Modifications::size_type j = 0; j < object.modifications().size(); ++j)
 		{
 			const map::CustomObjects::Modification &modification = *boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object.modifications()[j]);
-			this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), unitToObjectModification(modification));
+			this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), modification);
 		}
 	}
 
@@ -924,10 +924,12 @@ map::CustomObjects ObjectData::customObjects() const
 	for (Objects::const_iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
 	{
 		std::auto_ptr<map::CustomObjects::Object> object(new map::CustomObjects::Object(this->type()));
-		object->setOriginalId(map::stringToId(iterator.key().originalObjectId().toUtf8().constData()));
-		object->setCustomId(map::stringToId(iterator.key().customObjectId().toUtf8().constData()));
+		const QString originalObjectId = iterator.key().originalObjectId();
+		const QString customObjectId = iterator.key().customObjectId();
+		object->setOriginalId(map::stringToId(originalObjectId.toUtf8().constData()));
+		object->setCustomId(map::stringToId(customObjectId.toUtf8().constData()));
 
-		foreach (map::CustomObjects::Modification modification, iterator.value())
+		foreach (const map::CustomObjects::Modification &modification, iterator.value())
 		{
 			object->modifications().push_back(new map::CustomObjects::Modification(modification));
 		}
@@ -935,7 +937,7 @@ map::CustomObjects ObjectData::customObjects() const
 		/*
 		 * No custom ID means it is a standard unit.
 		 */
-		if (iterator.key().second.isEmpty())
+		if (customObjectId.isEmpty())
 		{
 			objects.originalTable().push_back(object);
 		}
@@ -1220,14 +1222,15 @@ int ObjectData::compress()
 			const QString fieldId = this->metaData()->value(i, "ID");
 			//qDebug() << "Field: " << fieldId;
 
+			// TODO check all levels
 			// TODO check if the modification has the same value as the default value. This check probably requires more than just a == string comparison since different values of strings might still have the same meaning.
-			if (this->isFieldModified(id.originalObjectId(), id.customObjectId(), fieldId) && (this->hideField(id.originalObjectId(), id.customObjectId(), fieldId) || this->fieldValue(id.originalObjectId(), id.customObjectId(), fieldId) == this->defaultFieldValue(id.originalObjectId(), fieldId)))
+			if (this->isFieldModified(id.originalObjectId(), id.customObjectId(), fieldId) && (this->hideField(id.originalObjectId(), id.customObjectId(), fieldId)) || this->fieldValue(id.originalObjectId(), id.customObjectId(), fieldId) == this->defaultFieldValue(id.originalObjectId(), fieldId))
 			{
-				qDebug() << "Field is modified";
+				//qDebug() << "Field is modified";
 
 				this->resetField(id.originalObjectId(), id.customObjectId(), fieldId);
 				++counter;
-				qDebug() << "Compressing " << id.first << ":" << id.second << " field " << fieldId;
+				//qDebug() << "Compressing " << id.first << ":" << id.second << " field " << fieldId;
 			}
 
 			//qDebug() << "Field done";
@@ -1337,7 +1340,7 @@ QString ObjectData::defaultFieldValue(const QString &objectId, const QString &fi
 		}
 	}
 
-	qDebug() << "Data value not found:" << objectId << fieldId;
+	qDebug() << "Default field value not found:" << objectId << ":" << fieldId;
 
 	return "";
 }

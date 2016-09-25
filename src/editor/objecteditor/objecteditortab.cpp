@@ -38,7 +38,7 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectEditorTab::ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent, Qt::WindowFlags f)
+ObjectEditorTab::ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData, const QString &groupName, ObjectEditor *objectEditor, QWidget *parent, Qt::WindowFlags f)
 : QWidget(parent, f)
 , m_source(source)
 , m_tabIndex(0)
@@ -49,14 +49,25 @@ ObjectEditorTab::ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData
 , m_tableView(0)
 , m_tableModel(0)
 , m_objectData(objectData)
+, m_groupName(groupName)
 , m_objectEditor(objectEditor)
 , m_showRawData(false)
 , m_idDialog(new ObjectIdDialog(this))
 {
+	QSettings settings("wc3lib", "wc3lib");
+	settings.beginGroup(this->groupName());
+	this->m_recentExportUrl = settings.value("recentExportUrl").toUrl();
+	this->m_recentImportUrl = settings.value("recentImportUrl").toUrl();
+	settings.endGroup();
 }
 
 ObjectEditorTab::~ObjectEditorTab()
 {
+	QSettings settings("wc3lib", "wc3lib");
+	settings.beginGroup(this->groupName());
+	settings.setValue("recentExportUrl", this->m_recentExportUrl);
+	settings.setValue("recentImportUrl", this->m_recentImportUrl);
+	settings.endGroup();
 }
 
 void ObjectEditorTab::setupUi()
@@ -284,6 +295,7 @@ void ObjectEditorTab::exportAllObjects()
 					{
 						qDebug() << "Exporting custom objects";
 						this->objectData()->customObjects().write(out);
+						this->m_recentExportUrl = url;
 					}
 				}
 				else if (suffix == customUnitsSuffix)
@@ -293,6 +305,7 @@ void ObjectEditorTab::exportAllObjects()
 						qDebug() << "Exporting custom units";
 
 						this->objectData()->customUnits().write(out);
+						this->m_recentExportUrl = url;
 					}
 				}
 			}
@@ -302,6 +315,12 @@ void ObjectEditorTab::exportAllObjects()
 			}
 		}
 	}
+}
+
+void ObjectEditorTab::updateImportUrlAndSort(const QUrl &url)
+{
+	m_recentImportUrl = url;
+	this->treeView()->sortByColumn(0, Qt::AscendingOrder);
 }
 
 void ObjectEditorTab::importAllObjects()
@@ -331,7 +350,7 @@ void ObjectEditorTab::importAllObjects()
 						std::unique_ptr<map::CustomObjects> customObjects(new map::CustomObjects(this->objectData()->type()));
 						customObjects->read(in);
 						this->objectData()->importCustomObjects(*customObjects);
-						m_recentImportUrl = url;
+						this->updateImportUrlAndSort(url);
 					}
 					catch (const std::exception &e)
 					{
@@ -347,7 +366,7 @@ void ObjectEditorTab::importAllObjects()
 						map::CustomUnits customUnits;
 						customUnits.read(in);
 						this->objectData()->importCustomUnits(customUnits);
-						m_recentImportUrl = url;
+						this->updateImportUrlAndSort(url);
 					}
 					catch (std::exception &e)
 					{
@@ -378,7 +397,7 @@ void ObjectEditorTab::importAllObjects()
 								if (customObjectsCollection->hasUnits())
 								{
 									this->objectData()->importCustomUnits(*customObjectsCollection->units());
-									m_recentImportUrl = url;
+									this->updateImportUrlAndSort(url);
 								}
 								else
 								{
@@ -410,7 +429,7 @@ void ObjectEditorTab::importAllObjects()
 						this->objectData()->importCustomUnits(*map->customUnits());
 						this->objectData()->applyMapStrings(*map);
 
-						m_recentImportUrl = url;
+						this->updateImportUrlAndSort(url);
 					}
 					catch (std::exception &e)
 					{
