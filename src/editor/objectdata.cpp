@@ -1200,7 +1200,7 @@ void ObjectData::applyMapStrings(map::W3m &w3m)
 int ObjectData::compress()
 {
 	qDebug() << "Compressing object data:";
-	int counter = 0;
+	long long counter = 0;
 
 	/*
 	 * Find all modified fields which are not necessarily used for the objects.
@@ -1211,6 +1211,7 @@ int ObjectData::compress()
 	{
 		//qDebug() << "Before getting object key";
 		const ObjectId &id = iterator.key();
+		const int levels = this->objectLevels(id.originalObjectId(), id.customObjectId());
 
 		//qDebug() << "Object " << id;
 
@@ -1221,16 +1222,21 @@ int ObjectData::compress()
 
 			const QString fieldId = this->metaData()->value(i, "ID");
 			//qDebug() << "Field: " << fieldId;
+			const bool repeatField = this->repeateField(fieldId);
 
-			// TODO check all levels
-			// TODO check if the modification has the same value as the default value. This check probably requires more than just a == string comparison since different values of strings might still have the same meaning.
-			if (this->isFieldModified(id.originalObjectId(), id.customObjectId(), fieldId) && (this->hideField(id.originalObjectId(), id.customObjectId(), fieldId)) || this->fieldValue(id.originalObjectId(), id.customObjectId(), fieldId) == this->defaultFieldValue(id.originalObjectId(), fieldId))
+			for (int j = 0; j < levels && (j == 0 || repeatField); ++j)
 			{
-				//qDebug() << "Field is modified";
+				const int level = repeatField ? j + 1 : j;
 
-				this->resetField(id.originalObjectId(), id.customObjectId(), fieldId);
-				++counter;
-				//qDebug() << "Compressing " << id.first << ":" << id.second << " field " << fieldId;
+				// TODO check if the modification has the same value as the default value. This check probably requires more than just a == string comparison since different values of strings might still have the same meaning.
+				if (this->isFieldModified(id.originalObjectId(), id.customObjectId(), fieldId, level) && (this->hideField(id.originalObjectId(), id.customObjectId(), fieldId, level) || this->fieldValue(id.originalObjectId(), id.customObjectId(), fieldId, level) == this->defaultFieldValue(id.originalObjectId(), fieldId, level)))
+				{
+					//qDebug() << "Field is modified";
+
+					this->resetField(id.originalObjectId(), id.customObjectId(), fieldId);
+					++counter;
+					//qDebug() << "Compressing " << id.first << ":" << id.second << " field " << fieldId;
+				}
 			}
 
 			//qDebug() << "Field done";

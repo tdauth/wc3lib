@@ -421,6 +421,8 @@ class ObjectData : public QObject
 		 * For each level some field values can be specified once. This method returns the number of specified levels of an object.
 		 *
 		 * \return Returns the number of levels of the specified object.
+		 *
+		 * \note Field modifications for level 1 or 2 start with the integer 1 and 2 and not with 0 but only when the field is repeated.
 		 */
 		virtual int objectLevels(const QString &originalObjectId, const QString &customObjectId) const = 0;
 

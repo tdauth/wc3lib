@@ -1,3 +1,5 @@
+* Tooltips level 1 are not displayed properly for abilities (default values are shown) (start with 1 instead of 0?).
+
 FIXED:
 If abilities are exported, many modifications are not exported as well!
 Seems that level modifications are only displayed for level 1.

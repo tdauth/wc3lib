@@ -82,7 +82,7 @@ QVariant ObjectTableModel::data(const QModelIndex &index, int role) const
 					{
 						const QString displayName = MetaData::fromSlkString(objectData()->metaData()->value(fieldId, "displayName"));
 						const QString displayText = objectData()->source()->sharedData()->tr(displayName, "WorldEditStrings", displayName);
-						const QString displayTextLevel = objectData()->repeateField(fieldId) ? QString(" - ") + objectData()->source()->sharedData()->tr("WESTRING_AEVAL_LVL", "WorldEditStrings").replace("%d", QString::number(level + 1)) : "";
+						const QString displayTextLevel = objectData()->repeateField(fieldId) ? QString(" - ") + objectData()->source()->sharedData()->tr("WESTRING_AEVAL_LVL", "WorldEditStrings").replace("%d", QString::number(level)) : "";
 
 						// TODO add WESTRING_AEVAL_LVL or similar value for multiple levels
 
@@ -241,11 +241,13 @@ void ObjectTableModel::load(ObjectData *objectData, const QString &originalObjec
 				}
 
 				const int objectLevels = objectData->objectLevels(this->originalObjectId(), this->customObjectId());
-				const int fieldLevels = objectData->repeateField(fieldId) ? objectLevels : 1;
+				const bool repeatField = objectData->repeateField(fieldId);
+				const int fieldLevels = repeatField ? objectLevels : 1;
 
 				for (int i = 0; i < fieldLevels; ++i)
 				{
-					ObjectData::FieldId fieldIdKey(fieldId, i);
+					const int level = repeatField ? i + 1 : i;
+					ObjectData::FieldId fieldIdKey(fieldId, level);
 					m_itemsByRow.insert(rows, fieldIdKey);
 					m_itemsByField.insert(fieldIdKey, rows);
 
