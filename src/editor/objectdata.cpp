@@ -464,11 +464,19 @@ void ObjectData::resetField(const QString &originalObjectId, const QString &cust
 
 	if (iterator == this->m_objects.end())
 	{
+		qDebug() << "Reset: Could not find object" << originalObjectId << customObjectId;
+
 		return;
 	}
 
 	FieldId fieldIdKey(fieldId, level);
-	iterator.value().remove(fieldIdKey);
+	const int removalCount = iterator.value().remove(fieldIdKey);
+
+	if (removalCount == 0)
+	{
+		qDebug() << "Reset field not found for object " << originalObjectId << customObjectId << " - " << fieldId;
+	}
+
 	emit modificationReset(originalObjectId, customObjectId, fieldId, level);
 
 	if (iterator.value().empty())
@@ -1233,7 +1241,7 @@ int ObjectData::compress()
 				{
 					//qDebug() << "Field is modified";
 
-					this->resetField(id.originalObjectId(), id.customObjectId(), fieldId);
+					this->resetField(id.originalObjectId(), id.customObjectId(), fieldId, level);
 					++counter;
 					//qDebug() << "Compressing " << id.first << ":" << id.second << " field " << fieldId;
 				}
