@@ -241,9 +241,6 @@ void Module::setupUi()
 	this->m_aboutQtAction = new QAction(tr("About Qt"), this);
 	connect(this->m_aboutQtAction, SIGNAL(triggered()), this, SLOT(aboutQt()));
 	this->m_helpMenu->addAction(this->m_aboutQtAction);
-	this->m_aboutKdeAction = new QAction(tr("About KDE"), this);
-	connect(this->m_aboutKdeAction, SIGNAL(triggered()), this, SLOT(aboutKde()));
-	this->m_helpMenu->addAction(this->m_aboutKdeAction);
 
 	// tool bar
 	this->m_toolBar = new ModuleToolBar(this);

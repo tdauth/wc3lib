@@ -33,7 +33,6 @@ namespace editor
 ResourcesDialog::ResourcesDialog(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), m_sources(nullptr)
 {
 	setupUi(this);
-	retranslateUi(this);
 
 	connect(buttonBox->button(QDialogButtonBox::Ok), &QPushButton::clicked, this, &QDialog::accept);
 	connect(buttonBox->button(QDialogButtonBox::Cancel), &QPushButton::clicked, this, &QDialog::reject);

@@ -1237,6 +1237,7 @@ int ObjectData::compress()
 				const int level = repeatField ? j + 1 : j;
 
 				// TODO check if the modification has the same value as the default value. This check probably requires more than just a == string comparison since different values of strings might still have the same meaning.
+				// This would remove some field modifications at the moment for which the default values are not calculated properly.
 				if (this->isFieldModified(id.originalObjectId(), id.customObjectId(), fieldId, level) && (this->hideField(id.originalObjectId(), id.customObjectId(), fieldId, level) || this->fieldValue(id.originalObjectId(), id.customObjectId(), fieldId, level) == this->defaultFieldValue(id.originalObjectId(), fieldId, level)))
 				{
 					//qDebug() << "Field is modified";
@@ -1270,8 +1271,8 @@ QString ObjectData::defaultFieldValue(const QString &objectId, const QString &fi
 	if (!metaDataList.isEmpty())
 	{
 		const QString field = this->metaData()->value(fieldId, "field");
-		// If a level is specified the field name is used + the level + 1
-		const QString levelField = field + QString::number(level + 1);
+		// If a level is specified the field name is used + the level
+		const QString levelField = field + QString::number(level);
 		/*
 		 * The section is used if no object ID is given (for example for Misc Data) and is the .txt file's section which contains the field value.
 		 * It does not exist in Warcraft III: Reign of Chaos but in Frozen Throne.
@@ -1298,6 +1299,7 @@ QString ObjectData::defaultFieldValue(const QString &objectId, const QString &fi
 
 				break;
 			}
+
 			// Test level as well. The level entries do work for the SLK files with fields like "adur1" but for TXT fields like "Ubertip"/"aub1" it is always "Ubertip" but the level values are separated by , characerters. The difference between these two types of entries is that for the "Ubertip" entry the index is set to 0 while for the "adur" entry it is set to -1.
 			else if (metaData->hasValue(rowKey, levelField))
 			{

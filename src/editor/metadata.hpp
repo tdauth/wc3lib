@@ -56,6 +56,11 @@ class TextSourceInterface
 		virtual TextSourceInterface* clone() const = 0;
 };
 
+/**
+ * \brief \ref MetaData backend for .slk files.
+ *
+ * \note Ignores cases of keys since .slk file section and value names are not case sensitive in Warcraft III.
+ */
 class SlkTextSource : public TextSourceInterface
 {
 	public:
@@ -127,6 +132,11 @@ inline int SlkTextSource::rows() const
 	return this->rowKeys().size();
 }
 
+/**
+ * \brief \ref MetaData backend for .txt files.
+ *
+ * \note Ignores cases of keys since .txt file section and value names are not case sensitive in Warcraft III.
+ */
 class TxtTextSource : public TextSourceInterface
 {
 	public:
@@ -452,7 +462,7 @@ inline bool MetaData::isEmpty() const
 	return this->textSource()->isEmpty();
 }
 
-inline QString MetaData::fromSlkString(const QString& value)
+inline QString MetaData::fromSlkString(const QString &value)
 {
 	QString result = value;
 
@@ -469,7 +479,7 @@ inline QString MetaData::fromSlkString(const QString& value)
 	return result;
 }
 
-inline QString MetaData::toSlkString(const QString& value)
+inline QString MetaData::toSlkString(const QString &value)
 {
 	QString result = value;
 
@@ -486,7 +496,7 @@ inline QString MetaData::toSlkString(const QString& value)
 	return result;
 }
 
-inline QString MetaData::fromFilePath(const QString& value)
+inline QString MetaData::fromFilePath(const QString &value)
 {
 	QString result = value;
 	result.replace('\\', '/');
