@@ -1120,7 +1120,7 @@ void MpqEditor::writeSettings()
 
 QIcon MpqEditor::icon()
 {
-	return this->source()->sharedData()->icon(QUrl("ReplaceableTextures/WorldEditUI/Editor-ImportManager.blp"), this);
+	return this->source()->sharedData()->icon("ReplaceableTextures/WorldEditUI/Editor-ImportManager.blp", this);
 }
 
 #include "moc_mpqeditor.cpp"

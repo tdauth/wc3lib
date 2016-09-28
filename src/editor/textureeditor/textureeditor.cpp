@@ -160,7 +160,7 @@ TextureEditor::LoadDialogWidget::LoadDialogWidget(QWidget *parent) : QWidget(par
 TextureEditor::LoadDialog::LoadDialog(QWidget *parent) : QWidget(parent), m_widget(new LoadDialogWidget())
 {
 	//KMimeType::Ptr mime(KMimeType::mimeType("image/x-blp"));
-	m_dialog = new QFileDialog(this, tr("Open texture"), QString(), tr("*|All Files\n*.blp|Blizzard Pictures\n*.png|Portable Network Graphics\n*.jpg|JPEG Files\n*.tga|TGA Files")); // TODO MIME filters do not work ("all/allfiles"). Use image filter.
+	m_dialog = new QFileDialog(this, tr("Open texture"), QString(), tr("All Files (*);;|Blizzard Pictures (*.blp);;Portable Network Graphics (*.png);;JPEG Files (*.jpg);;TGA Files (*.tga)")); // TODO MIME filters do not work ("all/allfiles"). Use image filter.
 	dialog()->setFileMode(QFileDialog::ExistingFile);
 	dialog()->setAcceptMode(QFileDialog::AcceptOpen);
 }

@@ -255,7 +255,7 @@ void toRelativeUrl(QString &filePath)
 
 bool MpqPriorityList::download(const QUrl &src, QString &target, QWidget * /* window */) const
 {
-	qDebug() << "Download: " << src.url();
+	qDebug() << "Download: " << src;
 
 	if (!src.isRelative()) // has protocol - is absolute
 	{
@@ -372,6 +372,7 @@ void MpqPriorityList::removeTempFile(const QString &name)
 {
 	if (this->m_temporaryFiles.contains(name))
 	{
+		qDebug() << "Removing temporary file:" << name;
 		QFile::remove(name);
 		this->m_temporaryFiles.removeAll(name);
 	}
