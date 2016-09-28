@@ -656,6 +656,12 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 
 	if (fieldType == "int" || fieldType == "real" || fieldType == "unreal" || fieldType == "char" || fieldType == "string")
 	{
+		// For these entries the readable values are empty in Warcraft's object editor.
+		if (fieldValue == "-" || fieldValue == "_")
+		{
+			return QString();
+		}
+
 		return fieldValue;
 	}
 	else if (fieldType == "bool")
@@ -669,6 +675,12 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 	}
 	else if (fieldType == "model" || fieldType == "icon")
 	{
+		// For these entries the readable values are empty in Warcraft's object editor.
+		if (fieldValue == "-" || fieldValue == "_")
+		{
+			return QString();
+		}
+
 		return fieldValue;
 	}
 	else if (fieldType == "abilCode")
@@ -1213,13 +1225,16 @@ int ObjectData::compress()
 	/*
 	 * Find all modified fields which are not necessarily used for the objects.
 	 * For example if you modify a hero only field and then make the object from a hero to a normal object the modification remains but is not visible anymore in the object editor.
+	 * Besides there might be modifications for higher levels than the object actually has.
 	 * NOTE This discards maybe still required modifications.
 	 */
 	for (Objects::iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
 	{
 		//qDebug() << "Before getting object key";
 		const ObjectId &id = iterator.key();
-		const int levels = this->objectLevels(id.originalObjectId(), id.customObjectId());
+		const int objectLevels = this->objectLevels(id.originalObjectId(), id.customObjectId());
+		// Always use the maximum of possible levels. There might be modifications which are not required anymore of higher levels.
+		const int levels = 100;
 
 		//qDebug() << "Object " << id;
 
@@ -1237,8 +1252,8 @@ int ObjectData::compress()
 				const int level = repeatField ? j + 1 : j;
 
 				// TODO check if the modification has the same value as the default value. This check probably requires more than just a == string comparison since different values of strings might still have the same meaning.
-				// This would remove some field modifications at the moment for which the default values are not calculated properly.
-				if (this->isFieldModified(id.originalObjectId(), id.customObjectId(), fieldId, level) && (this->hideField(id.originalObjectId(), id.customObjectId(), fieldId, level) || this->fieldValue(id.originalObjectId(), id.customObjectId(), fieldId, level) == this->defaultFieldValue(id.originalObjectId(), fieldId, level)))
+				// This would remove some field modifications at the moment for which the default values are not calculated properly. Therefore check at least first if a default value is found.
+				if (this->isFieldModified(id.originalObjectId(), id.customObjectId(), fieldId, level) && (this->hideField(id.originalObjectId(), id.customObjectId(), fieldId, level) || (repeatField && level > objectLevels) || (this->hasDefaultFieldValue(id.originalObjectId(), fieldId, level) && this->fieldValue(id.originalObjectId(), id.customObjectId(), fieldId, level) == this->defaultFieldValue(id.originalObjectId(), fieldId, level))))
 				{
 					//qDebug() << "Field is modified";
 

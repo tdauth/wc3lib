@@ -74,11 +74,6 @@ class ObjectEditorTab : public QWidget
 		MpqPriorityList* source() const;
 
 		/**
-		 * \return If it has an object editor (\ref hasObjectEditor()) this returns its corresponding tab index of \ref ObjectEditor::tabWidget().
-		 */
-		int tabIndex() const;
-
-		/**
 		 * \return Returns true if an Object Editor is associated with this tab. As the tab might be started as stand-alone application this could return false.
 		 *
 		 * \sa objectEditor()
@@ -123,6 +118,9 @@ class ObjectEditorTab : public QWidget
 		 * \return Returns the group name.
 		 */
 		QString groupName() const;
+
+		void setSortByName(bool sort);
+		bool sortByName() const;
 
 		/**
 		 * Shows or hides raw data IDs for objects as well as fields.
@@ -188,8 +186,17 @@ class ObjectEditorTab : public QWidget
 		 * Opens the edit dialog for all selected objects names.
 		 */
 		void renameObject();
+		/**
+		 * Deletes all currently selected objects.
+		 */
 		void deleteObject();
+		/**
+		 * Resets all modifications for all currently selected objects.
+		 */
 		void resetObject();
+		/**
+		 * Resets all modifications for all objects of this object editor tab.
+		 */
 		void resetAllObjects();
 		/**
 		 * Exports all objects from the current tab only.
@@ -211,6 +218,17 @@ class ObjectEditorTab : public QWidget
 		 * The icon is shown in the tab widget of the object editor.
 		 */
 		virtual QIcon tabIcon(QWidget *widget) const = 0;
+
+		/**
+		 * Filters the objects in the tree view by the expression \p filter which might be a regular expression.
+		 * \param filter A regular expression.
+		 */
+		void filterObjects(const QString &filter);
+		/**
+		 * Filters the modifications in the table view by the expression \p filter which might be a regular expression.
+		 * \param filter A regular expression.
+		 */
+		void filterFields(const QString &filter);
 
 	protected:
 		friend ObjectEditor;
@@ -245,8 +263,6 @@ class ObjectEditorTab : public QWidget
 		 */
 		MpqPriorityList *m_source;
 
-		int m_tabIndex;
-
 		QLineEdit *m_filterSearchLine;
 		QLineEdit *m_tableFilterSearchLine;
 		ObjectTreeView *m_treeView; // left side tree widget
@@ -271,6 +287,11 @@ class ObjectEditorTab : public QWidget
 		 * The parent object editor.
 		 */
 		ObjectEditor *m_objectEditor;
+
+		/**
+		 * Flag which stores if objects are sorted by name.
+		 */
+		bool m_sortByName;
 
 		/**
 		 * Flag which stores if raw data IDs are shown.
@@ -299,11 +320,6 @@ class ObjectEditorTab : public QWidget
 inline MpqPriorityList* ObjectEditorTab::source() const
 {
 	return m_source;
-}
-
-inline int ObjectEditorTab::tabIndex() const
-{
-	return m_tabIndex;
 }
 
 inline bool ObjectEditorTab::hasObjectEditor() const

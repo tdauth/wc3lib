@@ -325,9 +325,11 @@ class ObjectEditor : public Module
 
 		QMenu *m_viewMenu;
 		QAction *m_rawDataAction;
+		QAction *m_sortByNameAction;
 
 	private slots:
 		void showRawData(bool checked);
+		void sortByName(bool checked);
 };
 
 inline QTabWidget* ObjectEditor::tabWidget() const

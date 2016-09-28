@@ -433,6 +433,9 @@ class ObjectData : public QObject
 		 */
 		void applyMapStrings(map::W3m &w3m);
 
+		/**
+		 * A list of object IDs (raw codes).
+		 */
 		typedef QList<QString> StandardObjecIds;
 
 		/**
@@ -442,7 +445,7 @@ class ObjectData : public QObject
 
 		/**
 		 * Removes all unnecessary field modifications of fields which are not shown anyway.
-		 * By default this method does nothing but it can be reimplemented in any sub class.
+		 * \note This might remove modifications which you might want to use later or which are hidden but recognized by the game in some way.
 		 *
 		 * \return Returns the number of compressed modifications.
 		 */

@@ -93,6 +93,7 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 , m_widgetizeAction(0)
 , m_viewMenu(0)
 , m_rawDataAction(0)
+, m_sortByNameAction(0)
 {
 	Module::setupUi();
 	//Ui::ObjectEditor::setupUi(this);
@@ -180,6 +181,7 @@ void ObjectEditor::retranslateUi()
 
 	m_viewMenu->setTitle(source()->sharedData()->tr("WESTRING_MENU_VIEW"));
 	m_rawDataAction->setText(this->source()->sharedData()->tr("WESTRING_MENU_OE_TOGGLERAWDATA"));
+	m_sortByNameAction->setText(this->source()->sharedData()->tr("WESTRING_REGION_CM_SORT"));
 
 	m_viewInPaletteAction->setText(source()->sharedData()->tr("WESTRING_MENU_VIEWINPALETTE", "WorldEditStrings"));
 	m_findAction->setText(source()->sharedData()->tr("WESTRING_MENU_OE_FIND", "WorldEditStrings"));
@@ -606,6 +608,11 @@ void ObjectEditor::createMenus(QMenuBar *menuBar)
 	connect(m_rawDataAction, SIGNAL(triggered(bool)), this, SLOT(showRawData(bool)));
 	m_viewMenu->addAction(m_rawDataAction);
 
+	m_sortByNameAction = new QAction(this->source()->sharedData()->tr("WESTRING_REGION_CM_SORT"), this);
+	m_sortByNameAction->setCheckable(true);
+	connect(m_sortByNameAction, SIGNAL(triggered(bool)), this, SLOT(sortByName(bool)));
+	m_viewMenu->addAction(m_sortByNameAction);
+
 	menuBar->addMenu(m_viewMenu);
 }
 
@@ -660,6 +667,7 @@ void ObjectEditor::currentChanged(int index)
 	qDebug() << "After adding actions";
 	setWindowTitle(tab(index)->name());
 	m_rawDataAction->setChecked(this->currentTab()->treeModel()->showRawData());
+	m_sortByNameAction->setChecked(this->currentTab()->sortByName());
 	qDebug() << "After raw data";
 
 	loadTabDataOnRequest(index);
@@ -777,6 +785,11 @@ void ObjectEditor::addCurrentActions()
 void ObjectEditor::showRawData(bool checked)
 {
 	this->currentTab()->setShowRawData(checked);
+}
+
+void ObjectEditor::sortByName(bool sort)
+{
+	this->currentTab()->setSortByName(sort);
 }
 
 QIcon ObjectEditor::icon()

@@ -41,7 +41,6 @@ namespace editor
 ObjectEditorTab::ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData, const QString &groupName, ObjectEditor *objectEditor, QWidget *parent, Qt::WindowFlags f)
 : QWidget(parent, f)
 , m_source(source)
-, m_tabIndex(0)
 , m_filterSearchLine(0)
 , m_tableFilterSearchLine(0)
 , m_treeView(0)
@@ -51,6 +50,7 @@ ObjectEditorTab::ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData
 , m_objectData(objectData)
 , m_groupName(groupName)
 , m_objectEditor(objectEditor)
+, m_sortByName(false)
 , m_showRawData(false)
 , m_idDialog(new ObjectIdDialog(this))
 {
@@ -87,6 +87,7 @@ void ObjectEditorTab::setupUi()
 
 
 	//m_filterSearchLine->setProxy(this->proxyModel());
+	connect(m_filterSearchLine, &QLineEdit::textChanged, this, &ObjectEditorTab::filterObjects);
 
 	/*
 	 * Table View
@@ -109,6 +110,7 @@ void ObjectEditorTab::setupUi()
 
 	// TODO set proxy
 	//m_tableFilterSearchLine->setProxy(this->tableProxyModel());
+	connect(m_tableFilterSearchLine, &QLineEdit::textChanged, this, &ObjectEditorTab::filterFields);
 
 
 	QVBoxLayout *leftLayout = new QVBoxLayout(this);
@@ -541,6 +543,18 @@ void ObjectEditorTab::resetAllObjects()
 	}
 }
 
+void ObjectEditorTab::setSortByName(bool sort)
+{
+	this->m_sortByName = sort;
+	//this->treeModel()->setSortByName(sort);
+	//this->tableModel()->setSortByName(sort);
+}
+
+bool ObjectEditorTab::sortByName() const
+{
+	return this->m_sortByName;
+}
+
 void ObjectEditorTab::setShowRawData(bool show)
 {
 	this->m_showRawData = show;
@@ -639,6 +653,26 @@ void ObjectEditorTab::widgetizeAllObjects()
 		{
 			QMessageBox::critical(this, tr("Error on widgetizing all objects"), e.what());
 		}
+	}
+}
+
+void ObjectEditorTab::filterObjects(const QString &filter)
+{
+	const QRegExp regExp = QRegExp(filter);
+
+	if (regExp.isValid())
+	{
+		this->proxyModel()->setFilterRegExp(regExp);
+	}
+}
+
+void ObjectEditorTab::filterFields(const QString &filter)
+{
+	const QRegExp regExp = QRegExp(filter);
+
+	if (regExp.isValid())
+	{
+		this->tableProxyModel()->setFilterRegExp(regExp);
 	}
 }
 

@@ -85,6 +85,7 @@ class CustomObjects : public CustomUnits
 				/**
 				 * Only read for doodads, abilities and upgrades but actually only used by abilities to refer specific raw data:
 				 * A, 1 = B, 2 = C, 3 = D, 4 = F, 5 = G, 6 = H
+				 * In reality this is only used in the ability file for values that are originally stored in one of the Data columns in AbilityData.slk, this int tells the game to which of those columns the value resolves (0 = A, 1 = B, 2 = C, 3 = D, 4 = F, 5 = G, 6 = H), for example if the change applies to the column DataA3 the level int will be set to 3 and the data pointer to 0
 				 */
 				int32 data() const;
 

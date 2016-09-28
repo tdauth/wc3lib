@@ -1,5 +1,7 @@
 * FIXED: Some default field values like TargetArt for Abilities are empty but should not be. This is because lower or higher cases are ignored for section strings in meta data! For example "Targetart" is used in the .txt files but "TargetArt" is specified in the .slk meta data file.
 * FIXED: Tooltips level 1 are not displayed properly for abilities (default values are shown) (start with 1 instead of 0?).
+* Use the data attribute for field values and change it on modifications!
+* FIXED: Compress object modifications which are for higher levels than the object actually has.
 
 FIXED:
 If abilities are exported, many modifications are not exported as well!
