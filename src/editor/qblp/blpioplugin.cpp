@@ -76,3 +76,6 @@ QImageIOHandler* BlpIOPlugin::create(QIODevice *device, const QByteArray &format
 }
 
 }
+
+#include "moc_blpioplugin.cpp"
+
