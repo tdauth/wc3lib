@@ -36,10 +36,14 @@ if (MPQ)
 	include_directories(${ZLIB_INCLUDE_DIRS})
 
 	add_library(wc3libmpq SHARED ${wc3lib_MPQ_SRC})
+        message(STATUS "Boost libraries: ${Boost_LIBRARIES}")
+        message(STATUS "BZIP2 libraries: ${BZIP2_LIBRARIES}")
+        message(STATUS "ZLIB libraries: ${ZLIB_LIBRARIES}")
 	target_link_libraries(wc3libmpq wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${BZIP2_LIBRARIES} ${ZLIB_LIBRARIES} wc3libhuffman wc3libwave wc3libpklib wc3libmd5lib)
 
 	if (DEBUG)
-		add_subdirectory(test)
+		# FIXME on Windows
+		#add_subdirectory(test)
 	endif ()
 
 	# install

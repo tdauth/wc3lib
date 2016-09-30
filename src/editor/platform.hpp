@@ -21,6 +21,8 @@
 #ifndef WC3LIB_EDITOR_PLATFORM_HPP
 #define WC3LIB_EDITOR_PLATFORM_HPP
 
+#include "config.h"
+
 #include <boost/cast.hpp>
 
 #include <QColor>
@@ -37,11 +39,15 @@
 #include <QFileInfo>
 #include <QVariant>
 
+#ifdef MDLX
 #include <Ogre.h>
+#endif
 
 #include "../blp.hpp"
 #include "../map/value.hpp"
+#ifdef MDLX
 #include "../mdlx.hpp"
+#endif
 
 namespace wc3lib
 {
@@ -600,6 +606,7 @@ inline QUrl war3XLocalUrl()
 	return QUrl(url.toString() + "/War3xlocal.mpq");
 }
 
+#ifdef MDLX
 /// Global type cast function.
 inline Ogre::Real ogreReal(float32 value)
 {
@@ -607,7 +614,7 @@ inline Ogre::Real ogreReal(float32 value)
 }
 
 /// Global type cast function.
-inline Ogre::Vector3 ogreVector3(const mdlx::VertexData &vertexData)
+inline Ogre::Vector3 ogreVector3(const Vertex3d<float32> &vertexData)
 {
 	return Ogre::Vector3(vertexData.x(), vertexData.y(), vertexData.z());
 }
@@ -647,6 +654,43 @@ inline Ogre::Quaternion ogreVertex<Ogre::Quaternion, float32, 4>(const BasicVert
 {
 	return Ogre::Quaternion(ogreReal(vertex[0]), ogreReal(vertex[1]), ogreReal(vertex[2]), ogreReal(vertex[3]));
 }
+
+/**
+ * \brief Destroys \p node and all attached movable objects recursively.
+ *
+ * From http://www.ogre3d.org/forums/viewtopic.php?f=2&t=53647
+ */
+inline void destroyAllAttachedMovableObjects(Ogre::SceneNode *node)
+{
+	if(!node) return;
+
+	// Destroy all the attached objects
+	Ogre::SceneNode::ObjectIterator itObject = node->getAttachedObjectIterator(); // FIXME segmentation fault
+
+	while (itObject.hasMoreElements())
+	{
+		node->getCreator()->destroyMovableObject(itObject.getNext());
+	}
+
+	// Recurse to child SceneNodes
+	Ogre::SceneNode::ChildNodeIterator itChild = node->getChildIterator();
+
+	while ( itChild.hasMoreElements() )
+	{
+		Ogre::SceneNode* pChildNode = boost::polymorphic_cast<Ogre::SceneNode*>(itChild.getNext());
+		destroyAllAttachedMovableObjects(pChildNode);
+	}
+}
+
+/// From http://www.ogre3d.org/forums/viewtopic.php?f=2&t=53647
+inline void destroySceneNode(Ogre::SceneNode *node)
+{
+	if(!node) return;
+	destroyAllAttachedMovableObjects(node);
+	node->removeAndDestroyAllChildren();
+	node->getCreator()->destroySceneNode(node);
+}
+#endif
 
 /**
  * \defgroup dialogfilters Dialog Filters
@@ -705,42 +749,6 @@ inline QString customTextTriggersFilter()
 // TODO Use image open URL function but MIME type of BLP is not usable on debugging
 // TODO MIME filters do not work ("all/allfiles").
 //i18n("*|All Files\n*.blp|Blizzard Pictures\n*.png|Portable Network Graphics\n*.jpg|JPEG Files"), this, i18n("Open texture"));
-
-/**
- * \brief Destroys \p node and all attached movable objects recursively.
- *
- * From http://www.ogre3d.org/forums/viewtopic.php?f=2&t=53647
- */
-inline void destroyAllAttachedMovableObjects(Ogre::SceneNode *node)
-{
-	if(!node) return;
-
-	// Destroy all the attached objects
-	Ogre::SceneNode::ObjectIterator itObject = node->getAttachedObjectIterator(); // FIXME segmentation fault
-
-	while (itObject.hasMoreElements())
-	{
-		node->getCreator()->destroyMovableObject(itObject.getNext());
-	}
-
-	// Recurse to child SceneNodes
-	Ogre::SceneNode::ChildNodeIterator itChild = node->getChildIterator();
-
-	while ( itChild.hasMoreElements() )
-	{
-		Ogre::SceneNode* pChildNode = boost::polymorphic_cast<Ogre::SceneNode*>(itChild.getNext());
-		destroyAllAttachedMovableObjects(pChildNode);
-	}
-}
-
-/// From http://www.ogre3d.org/forums/viewtopic.php?f=2&t=53647
-inline void destroySceneNode(Ogre::SceneNode *node)
-{
-	if(!node) return;
-	destroyAllAttachedMovableObjects(node);
-	node->removeAndDestroyAllChildren();
-	node->getCreator()->destroySceneNode(node);
-}
 
 /**
  * wc3lib brings some standard listfiles which are installed in a directory.

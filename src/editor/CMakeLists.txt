@@ -2,8 +2,17 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 	# for proper "config.h" detection we use relative paths of modules as well
 	include_directories("${PROJECT_BINARY_DIR}/src/editor")
 
-	# Custom CMake module to find OGRE on different platforms.
-	include(FindOgreForwc3lib.cmake)
+	if (USE_OGREBLP OR MDLX)
+	    # Custom CMake module to find OGRE on different platforms.
+	    include(FindOgreForwc3lib.cmake)
+
+	    # OGRE needs to detect the Windows platform, otherwise it includes the wrong files.
+	    if (WIN32)
+		add_definitions(-D_WIN32=1 -DOGRE_PLATFORM=1) # OGRE_PLATFORM_WIN32
+		# This leads to proper DLL export markers
+		add_definitions(-DOGRE_NONCLIENT_BUILD=1)
+	    endif ()
+	endif ()
 
 	# Find includes in corresponding build directories
 	set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -13,12 +22,16 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 	# Handle .rcc files automatically
 	set(CMAKE_AUTORCC ON)
 
+	if (WIN32)
+	    set (CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.0.1\\5.0.1\\msvc2010\\")
+	endif ()
+
 	# Find all Qt modules which are required
-	find_package(Qt5Core)
-	find_package(Qt5Gui)
-	find_package(Qt5Widgets)
-	find_package(Qt5Multimedia)
-	find_package(Qt5LinguistTools)
+	find_package(Qt5Core REQUIRED)
+	find_package(Qt5Gui REQUIRED)
+	find_package(Qt5Widgets REQUIRED)
+	find_package(Qt5Multimedia REQUIRED)
+	find_package(Qt5LinguistTools REQUIRED)
 
 	if (DEBUG)
 		find_package(Qt5Test)
@@ -59,7 +72,6 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 			map.hpp
 			metadata.hpp
 			miscdata.hpp
-			modelview.hpp
 			module.hpp
 			modulemenu.hpp
 			moduletoolbar.hpp
@@ -67,8 +79,6 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 			newmapdialog.hpp
 			objectdata.hpp
 			ogreenvironment.hpp
-			ogremdlx.hpp
-			ogremdlxentity.hpp
 			platform.hpp
 			polygonmodecombobox.hpp
 			renderstatswidget.hpp
@@ -102,7 +112,6 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 			map.cpp
 			metadata.cpp
 			miscdata.cpp
-			modelview.cpp
 			module.cpp
 			modulemenu.cpp
 			moduletoolbar.cpp
@@ -110,8 +119,6 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 			newmapdialog.cpp
 			objectdata.cpp
 			ogreenvironment.cpp
-			ogremdlx.cpp
-			ogremdlxentity.cpp
 			renderstatswidget.cpp
 			resource.cpp
 			resourcesdialog.cpp
@@ -132,17 +139,41 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 			windowsmenu.cpp
 		)
 
+		if (MDLX)
+		    set(wc3lib_EDITOR_H
+			${wc3lib_EDITOR_H}
+			modelview.hpp
+			ogremdlx.hpp
+			ogremdlxentity.hpp
+			)
+
+		    set(wc3lib_EDITOR_SRC
+			${wc3lib_EDITOR_SRC}
+			modelview.cpp
+			ogremdlx.cpp
+			ogremdlxentity.cpp
+			)
+		endif ()
+
 		add_subdirectory(ui) # wc3lib_EDITOR_UI is set here
 
 		qt5_wrap_ui(wc3lib_EDITOR_UI_H ${wc3lib_EDITOR_UI})
 
 		add_library(wc3libeditor SHARED ${wc3lib_EDITOR_SRC} ${wc3lib_EDITOR_UI_H})
 		# NOTE Plugin_BlpCodec qblp are required for class Texture which converts directly for Qt and OGRE
-		target_link_libraries(wc3libeditor ${wc3lib_CORE_LIBRARIES} ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${OGRE_LIBRARIES} Qt5::Core Qt5::Widgets Qt5::Multimedia Plugin_BlpCodec qblp)
+		target_link_libraries(wc3libeditor ${wc3lib_CORE_LIBRARIES} ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} Qt5::Core Qt5::Widgets Qt5::Multimedia Plugin_BlpCodec qblp)
+
+		if (MDLX)
+		    target_link_libraries(wc3libeditor ${OGRE_LIBRARIES})
+		endif ()
 
 		add_subdirectory(mapsettingseditor)
 		add_subdirectory(triggereditor)
-		add_subdirectory(modeleditor)
+
+                if (MDLX)
+                    add_subdirectory(modeleditor)
+                endif ()
+
 		add_subdirectory(mpqeditor)
 		add_subdirectory(objecteditor)
 		add_subdirectory(terraineditor)

@@ -1,15 +1,28 @@
 find_package(Gettext REQUIRED)
 
 # Boost
-if (DEBUG)
+if (DEBUG AND NOT WIN32)
 	#set(Boost_DEBUG ON)
 	add_definitions(-DBOOST_TEST_DYN_LINK=1)
+endif ()
+
+if (WIN32)
+	#add_definitions(-DBOOST_SYSTEM_NO_DEPRECATED=1)
+        # TODO static libs are not found on Windows - finds only .lib files
+	set(Boost_USE_STATIC_LIBS ON)
+        # http://stackoverflow.com/questions/14181351/i-got-duplicate-section-errors-when-compiling-boost-regex-with-size-optimizati
+        #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=x86-64")
+        # set(Boost_USE_STATIC_RUNTIME ON)
+	#set(Boost_COMPILER "-vc140")
+	include_directories("C:/Program Files/GnuWin32/include")
 endif ()
 
 # regex is required for listfile in mpq module
 find_package(Boost COMPONENTS system filesystem serialization program_options iostreams regex REQUIRED)
 
 link_directories(${Boost_LIBRARY_DIRS})
+message(STATUS "Gettext include dir: ${GETTEXT_INCLUDE_DIR}")
+message(STATUS "Boost libs: ${Boost_LIBRARIES}")
 include_directories(${GETTEXT_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})
 
 set(wc3lib_CORE_H
@@ -40,6 +53,11 @@ endif ()
 
 add_library(wc3libcore SHARED ${wc3lib_CORE_SRC})
 target_link_libraries(wc3libcore ${Boost_LIBRARIES})
+
+# TODO Temporary fix
+if (WIN32)
+    #target_link_libraries(wc3libcore "C:/Program Files/GnuWin32/lib/libintl.dll.a")
+endif ()
 
 if (DEBUG)
 	add_subdirectory(test)

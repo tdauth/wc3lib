@@ -28,9 +28,13 @@
  */
 
 // preparation for gettext
+#ifndef WINDOWS
 #include <libintl.h>
 #include <locale.h>
 #define _(string) gettext(string)
+#else
+#define _(string) string
+#endif
 
 // Boost format library
 #include <boost/format.hpp>

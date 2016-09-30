@@ -48,7 +48,7 @@ option(W3G
 CMAKE_DEPENDENT_OPTION(EDITOR
 	"Wacraft III World Editor emulation is built (Qt5 is required)."
 	ON
-	"BLP;MAP;MDLX;MPQ" OFF)
+        "BLP;MAP;MPQ" OFF)
 CMAKE_DEPENDENT_OPTION(USE_KIOSLAVE
 	"Creates a KIO slave for MPQ (KF5 is required)."
 	ON

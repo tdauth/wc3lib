@@ -638,7 +638,7 @@ File Archive::addFile(const boost::filesystem::path &filePath, const byte *data,
 	/*
 	 * The filename is required to generate sector keys for encrypted files.
 	 */
-	string fileName = filePath.c_str();
+	string fileName = filePath.string();
 	Listfile::toListfileEntry(fileName);
 
 	// write sector table

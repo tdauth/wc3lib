@@ -42,9 +42,13 @@ std::string sizeString(T size, bool humanReadable, bool decimal)
 	if (humanReadable)
 	{
 		if (decimal)
+		{
 			return sizeStringDecimal<T>(size);
+		}
 		else
+		{
 			return sizeStringBinary<T>(size);
+		}
 	}
 
 	std::ostringstream result;
