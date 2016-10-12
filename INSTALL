@@ -30,8 +30,12 @@ Don't forget to place "ogre.cfg" and "plugins.cfg" files into working directory 
 The contain graphics driver information required by OGRE. Otherwise the 3D display won't work.
 
 Windows Builds:
+* CMAKE_BUILD_TYPE = Release, to prevent too big files as well.
 * Don't use MDLX (32 bit error too big files) and don't use JASS. Use 64 bit libraries of Qt5 and the cygwin 64 bit GCC compiler.
-* Qt5Core_DIR = C:/Qt/5.7/msvc2015_64/lib/cmake/Qt5Widgets
+* Compile Boost libraries using gcc which uses the Cygwin compiler.
+* Use Qt libraries from Cygwin as well. Qt5Core_DIR E:/cygwin/lib/cmake/Qt5Core
+* Either use "C:/Qt/Tools/mingw530_32/bin/mingw32-make.exe" as Make program or use the one of Cygwin but then you have to use Bash as shell which cannot be set for CMake.
+* Symbolic link E:\cygwin\usr\lib to E:\cygwin\lib, otherwise CMake does not find the files.
 * For MinGW: http://www.boost.org/doc/libs/1_61_0/more/getting_started/windows.html
 * In the cygwin Bash: export PATH="/cygdrive/c/Qt/Tools/mingw530_32/bin/:$PATH"
 * Make sure that the correct GCC is chosen: which gcc.exe

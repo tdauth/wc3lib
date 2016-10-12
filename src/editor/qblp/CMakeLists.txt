@@ -16,6 +16,9 @@ add_definitions(-DQT_SHARED)
 add_library(qblp SHARED ${wc3lib_EDITOR_QBLP_SRC})
 target_link_libraries(qblp wc3libcore wc3libblp ${Boost_LIBRARIES} Qt5::Core Qt5::Widgets)
 
+get_target_property(QtCore_location Qt5::Core LOCATION)
+message(STATUS "Linking to ${QtCore_location}")
+
 # wc3libcore is necessary because of catching Exception
 # TODO drop ${Boost_LIBRARIES}
 
