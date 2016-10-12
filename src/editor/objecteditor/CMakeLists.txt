@@ -77,6 +77,10 @@ qt5_wrap_ui(wc3lib_OBJECTEDITOR_UI_H ${wc3lib_OBJECTEDITOR_UI})
 add_library(wc3libobjecteditor SHARED ${wc3lib_OBJECTEDITOR_SRC} ${wc3lib_OBJECTEDITOR_UI_H})
 target_link_libraries(wc3libobjecteditor wc3libeditor)
 
+add_executable(wc3objectmerger objectmerger.cpp)
+target_link_libraries(wc3objectmerger wc3libeditor)
+
 # install
 install(TARGETS wc3libobjecteditor DESTINATION lib)
+install(TARGETS wc3objectmerger DESTINATION bin)
 install(FILES ${wc3lib_OBJECTEDITOR_H} ${wc3lib_OBJECTEDITOR_UI_H} DESTINATION include/wc3lib/editor/objecteditor)

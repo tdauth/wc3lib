@@ -22,7 +22,9 @@
 
 #include "../../editor.hpp"
 
+#ifdef MDLX
 #include "../modeleditor/modeleditor.hpp"
+#endif
 #include "../objecteditor/objecteditor.hpp"
 #include "../textureeditor/textureeditor.hpp"
 #include "../triggereditor/triggereditor.hpp"
@@ -47,6 +49,8 @@ int main(int argc, char *argv[])
 		{
 			SplashScreen splash(&editor);
 			splash.show();
+
+#ifdef MDLX
 			splash.showMessage(QObject::tr("Loading Model Editor ..."), Qt::AlignCenter | Qt::AlignBottom, Qt::white);
 			ModelEditor *modelEditor = new ModelEditor(&root, &editor);
 
@@ -54,6 +58,7 @@ int main(int argc, char *argv[])
 			{
 				editor.addModule(modelEditor);
 			}
+#endif
 
 			splash.showMessage(QObject::tr("Loading Object Editor ..."), Qt::AlignCenter | Qt::AlignBottom, Qt::white);
 			ObjectEditor *objectEditor = new ObjectEditor(&editor);

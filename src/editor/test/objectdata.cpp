@@ -32,6 +32,7 @@
 #include <iostream>
 
 #include <QCoreApplication>
+#include <QDebug>
 
 #include "../mpqprioritylist.hpp"
 #include "../objectdata.hpp"
@@ -162,6 +163,6 @@ BOOST_FIXTURE_TEST_CASE(ReadItemDataReignOfChaos, Fixture)
 	/*
 	 * Check "Alleria Flute".
 	 */
-	BOOST_CHECK(itemData.defaultFieldValue("afac", "iabi") == "AIar");
-	BOOST_CHECK(itemData.fieldValue("afac", "", "iabi") == "AIar");
+	BOOST_CHECK_EQUAL(itemData.defaultFieldValue("afac", "iabi").toStdString(), "AIar");
+	BOOST_CHECK_EQUAL(itemData.fieldValue("afac", "", "iabi").toStdString(), "AIar");
 }

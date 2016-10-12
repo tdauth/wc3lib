@@ -29,6 +29,8 @@
 
 #include <boost/filesystem.hpp>
 
+#include <QDebug>
+
 #include "../metadata.hpp"
 #include "../mpqprioritylist.hpp"
 

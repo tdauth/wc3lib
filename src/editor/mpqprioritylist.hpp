@@ -32,8 +32,6 @@
 #include "platform.hpp"
 #include "../mpq.hpp"
 #include "resource.hpp"
-#include "texture.hpp"
-#include "ogremdlx.hpp"
 #include "warcraftiiishared.hpp"
 
 namespace wc3lib

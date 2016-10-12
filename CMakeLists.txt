@@ -28,17 +28,17 @@ option(BLP
 	ON)
 option(JASS
 	"JASS module supports Blizzard's scripting language JASS. It provides an abstract parser interface for the scripting language."
-	ON)
+	OFF)
 CMAKE_DEPENDENT_OPTION(JASS_LLVM
 	"Builds LLVM bindings for the JASS module."
 	OFF
-	"JASS" OFF)
+	"JASS" OFF) # TODO Unfinished at the moment
 option(MAP
 	"Builds map module. Required by option EDITOR."
 	ON)
 option(MDLX
 	"Builds MDLX module. Required by by option EDITOR."
-	ON)
+	OFF) # TODO Unfinished at the moment
 option(MPQ
 	"Builds MPQ module. Required by options EDITOR and PLUGINS."
 	ON)

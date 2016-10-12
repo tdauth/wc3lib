@@ -56,30 +56,50 @@ namespace wc3lib
  */
 }
 
+// Check flags first
+#include "config.h"
+
+#include "editor/abilitydata.hpp"
+#include "editor/buffdata.hpp"
+#include "editor/destructabledata.hpp"
+#include "editor/doodaddata.hpp"
 #include "editor/editor.hpp"
+#include "editor/environment.hpp"
+#include "editor/itemdata.hpp"
 #include "editor/listfilesdialog.hpp"
-#include "editor/modelview.hpp"
+#include "editor/map.hpp"
+#include "editor/metadata.hpp"
+#include "editor/miscdata.hpp"
 #include "editor/module.hpp"
 #include "editor/modulemenu.hpp"
 #include "editor/moduletoolbar.hpp"
 #include "editor/mpqprioritylist.hpp"
 #include "editor/newmapdialog.hpp"
+#include "editor/objectdata.hpp"
+#include "editor/ogreenvironment.hpp"
+#ifdef MDLX
+#include "editor/collisionshape.hpp"
+#include "editor/modelview.hpp"
 #include "editor/ogremdlx.hpp"
 #include "editor/ogremdlxentity.hpp"
+#endif
 #include "editor/polygonmodecombobox.hpp"
 #include "editor/renderstatswidget.hpp"
 #include "editor/resource.hpp"
+#include "editor/root.hpp"
 #include "editor/settings.hpp"
 #include "editor/settingsinterface.hpp"
+#include "editor/sharedobjectdata.hpp"
+#include "editor/skindata.hpp"
 #include "editor/sourcesdialog.hpp"
 #include "editor/splashscreen.hpp"
+#include "editor/teamcolordialog.hpp"
+#include "editor/texture.hpp"
+#include "editor/unitdata.hpp"
+#include "editor/upgradedata.hpp"
 #include "editor/warcraftiiishared.hpp"
+#include "editor/waterdata.hpp"
+#include "editor/weatherdata.hpp"
 #include "editor/windowsmenu.hpp"
-
-// modules
-#include "editor/Plugin_BlpCodec/blpcodec.hpp"
-#include "editor/modeleditor/modeleditor.hpp"
-#include "editor/modeleditor/modeleditorview.hpp"
-#include "editor/mpqeditor/mpqeditor.hpp"
 
 #endif

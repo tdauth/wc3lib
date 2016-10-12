@@ -24,6 +24,9 @@ set(wc3lib_MPQEDITOR_SRC
 	fileinfodialog.cpp
 )
 
+# Find includes in corresponding build directories
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
 include_directories("${CMAKE_CURRENT_BINARY_DIR}") # include binary dir for moc files
 qt5_wrap_ui(wc3lib_MPQEDITOR_UI_H ${wc3lib_MPQEDITOR_UI})
 add_library(wc3libmpqeditor SHARED ${wc3lib_MPQEDITOR_SRC} ${wc3lib_MPQEDITOR_UI_H})
