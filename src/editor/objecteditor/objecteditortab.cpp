@@ -38,10 +38,9 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectEditorTab::ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent, Qt::WindowFlags f)
+ObjectEditorTab::ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData, const QString &groupName, ObjectEditor *objectEditor, QWidget *parent, Qt::WindowFlags f)
 : QWidget(parent, f)
 , m_source(source)
-, m_tabIndex(0)
 , m_filterSearchLine(0)
 , m_tableFilterSearchLine(0)
 , m_treeView(0)
@@ -49,14 +48,26 @@ ObjectEditorTab::ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData
 , m_tableView(0)
 , m_tableModel(0)
 , m_objectData(objectData)
+, m_groupName(groupName)
 , m_objectEditor(objectEditor)
+, m_sortByName(false)
 , m_showRawData(false)
 , m_idDialog(new ObjectIdDialog(this))
 {
+	QSettings settings("wc3lib", "wc3lib");
+	settings.beginGroup(this->groupName());
+	this->m_recentExportUrl = settings.value("recentExportUrl").toUrl();
+	this->m_recentImportUrl = settings.value("recentImportUrl").toUrl();
+	settings.endGroup();
 }
 
 ObjectEditorTab::~ObjectEditorTab()
 {
+	QSettings settings("wc3lib", "wc3lib");
+	settings.beginGroup(this->groupName());
+	settings.setValue("recentExportUrl", this->m_recentExportUrl);
+	settings.setValue("recentImportUrl", this->m_recentImportUrl);
+	settings.endGroup();
 }
 
 void ObjectEditorTab::setupUi()
@@ -76,6 +87,7 @@ void ObjectEditorTab::setupUi()
 
 
 	//m_filterSearchLine->setProxy(this->proxyModel());
+	connect(m_filterSearchLine, &QLineEdit::textChanged, this, &ObjectEditorTab::filterObjects);
 
 	/*
 	 * Table View
@@ -98,6 +110,7 @@ void ObjectEditorTab::setupUi()
 
 	// TODO set proxy
 	//m_tableFilterSearchLine->setProxy(this->tableProxyModel());
+	connect(m_tableFilterSearchLine, &QLineEdit::textChanged, this, &ObjectEditorTab::filterFields);
 
 
 	QVBoxLayout *leftLayout = new QVBoxLayout(this);
@@ -245,11 +258,12 @@ bool ObjectEditorTab::modifyField(const QString& originalObjectId, const QString
 void ObjectEditorTab::exportAllObjects()
 {
 	const QString customUnitsSuffix = "w3u";
+	const QString customObjectsSuffix = this->objectData()->customObjectsExtension();
 	const QString customObjectsCollectionSuffix = "w3o";
 	const QString mapSuffix = "w3m";
 	const QString xmapSuffix = "w3x";
 
-	const QUrl url = QFileDialog::getSaveFileUrl(this, exportAllObjectsText(), QUrl(), QString("*\nCustom Units (*.%1)\nCustom Objects Collection (*.%2)\nMap (*.%3 *.%4)").arg(customUnitsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix));
+	const QUrl url = QFileDialog::getSaveFileUrl(this, exportAllObjectsText(), QUrl(), QString("All files (*);;Custom Units (*.%1);;Custom Objects (*.%2);;Custom Objects Collection (*.%3);;Map (*.%4 *.%5)").arg(customUnitsSuffix).arg(customObjectsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix));
 
 	if (!url.isEmpty())
 	{
@@ -258,9 +272,15 @@ void ObjectEditorTab::exportAllObjects()
 
 		// TODO support directory for meta data file list
 
-		if (suffix == customUnitsSuffix && !this->objectData()->hasCustomUnits() && !this->objectData()->hasCustomObjects())
+		if (suffix == customUnitsSuffix && !this->objectData()->hasCustomUnits())
 		{
 			QMessageBox::critical(this, tr("Error"), tr("No custom units support."));
+
+			return;
+		}
+		else if (suffix == customObjectsSuffix && !this->objectData()->hasCustomObjects())
+		{
+			QMessageBox::critical(this, tr("Error"), tr("No custom objects support."));
 
 			return;
 		}
@@ -271,22 +291,27 @@ void ObjectEditorTab::exportAllObjects()
 		{
 			try
 			{
-				if (suffix == customUnitsSuffix)
+				if (suffix == customObjectsSuffix)
 				{
 					if (this->objectData()->hasCustomObjects())
 					{
 						qDebug() << "Exporting custom objects";
 						this->objectData()->customObjects().write(out);
+						this->m_recentExportUrl = url;
 					}
-					else if (this->objectData()->hasCustomUnits())
+				}
+				else if (suffix == customUnitsSuffix)
+				{
+					if (this->objectData()->hasCustomUnits())
 					{
 						qDebug() << "Exporting custom units";
 
 						this->objectData()->customUnits().write(out);
+						this->m_recentExportUrl = url;
 					}
 				}
 			}
-			catch (Exception &e)
+			catch (const Exception &e)
 			{
 				QMessageBox::critical(this, tr("Error"), tr("Error on exporting"), e.what());
 			}
@@ -294,35 +319,56 @@ void ObjectEditorTab::exportAllObjects()
 	}
 }
 
+void ObjectEditorTab::updateImportUrlAndSort(const QUrl &url)
+{
+	m_recentImportUrl = url;
+	this->treeView()->sortByColumn(0, Qt::AscendingOrder);
+}
+
 void ObjectEditorTab::importAllObjects()
 {
 	if (QMessageBox::question(this, tr("Import All"), tr("Importing all objects replaces all of your current modifications. Continue?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
 	{
-		const QString customObjectsSuffix = "w3u";
+		const QString customObjectsSuffix = this->objectData()->customObjectsExtension();
 		const QString customObjectsCollectionSuffix = "w3o";
 		const QString mapSuffix = "w3m";
 		const QString xmapSuffix = "w3x";
 
-		const QUrl url = QFileDialog::getOpenFileUrl(this, importAllObjectsText(), m_recentImportUrl, QString("*|All Files\n*.%1\nCustom Objects Collection *.%2\nMap (*.%3 *.%4)").arg(customObjectsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix));
+		const QUrl url = QFileDialog::getOpenFileUrl(this, importAllObjectsText(), m_recentImportUrl, QString("All Files (*);;Custom Objects (*.%1);;Custom Objects Collection (*.%2);;Map (*.%3 *.%4)").arg(customObjectsSuffix).arg(customObjectsCollectionSuffix).arg(mapSuffix).arg(xmapSuffix));
 
 		if (!url.isEmpty())
 		{
 			const QString suffix = QFileInfo(url.toLocalFile()).suffix();
 			qDebug() << "Suffix" << suffix;
 
-			map::CustomUnits customUnits;
-
 			if (suffix == customObjectsSuffix)
 			{
-				if (this->objectData()->hasCustomUnits())
+				if (this->objectData()->hasCustomObjects())
 				{
 					ifstream in(url.toLocalFile().toUtf8().constData());
 
 					try
 					{
+						std::unique_ptr<map::CustomObjects> customObjects(new map::CustomObjects(this->objectData()->type()));
+						customObjects->read(in);
+						this->objectData()->importCustomObjects(*customObjects);
+						this->updateImportUrlAndSort(url);
+					}
+					catch (const std::exception &e)
+					{
+						QMessageBox::critical(this, tr("Error"), e.what());
+					}
+				}
+				else if (this->objectData()->hasCustomUnits())
+				{
+					ifstream in(url.toLocalFile().toUtf8().constData());
+
+					try
+					{
+						map::CustomUnits customUnits;
 						customUnits.read(in);
 						this->objectData()->importCustomUnits(customUnits);
-						m_recentImportUrl = url;
+						this->updateImportUrlAndSort(url);
 					}
 					catch (std::exception &e)
 					{
@@ -331,7 +377,7 @@ void ObjectEditorTab::importAllObjects()
 				}
 				else
 				{
-					QMessageBox::critical(this, tr("Error"), tr("Does not support custom units."));
+					QMessageBox::critical(this, tr("Error"), tr("Does not support custom objects or custom units."));
 				}
 			}
 			// TODO support custom object FILES
@@ -353,7 +399,7 @@ void ObjectEditorTab::importAllObjects()
 								if (customObjectsCollection->hasUnits())
 								{
 									this->objectData()->importCustomUnits(*customObjectsCollection->units());
-									m_recentImportUrl = url;
+									this->updateImportUrlAndSort(url);
 								}
 								else
 								{
@@ -385,7 +431,7 @@ void ObjectEditorTab::importAllObjects()
 						this->objectData()->importCustomUnits(*map->customUnits());
 						this->objectData()->applyMapStrings(*map);
 
-						m_recentImportUrl = url;
+						this->updateImportUrlAndSort(url);
 					}
 					catch (std::exception &e)
 					{
@@ -497,6 +543,18 @@ void ObjectEditorTab::resetAllObjects()
 	}
 }
 
+void ObjectEditorTab::setSortByName(bool sort)
+{
+	this->m_sortByName = sort;
+	//this->treeModel()->setSortByName(sort);
+	//this->tableModel()->setSortByName(sort);
+}
+
+bool ObjectEditorTab::sortByName() const
+{
+	return this->m_sortByName;
+}
+
 void ObjectEditorTab::setShowRawData(bool show)
 {
 	this->m_showRawData = show;
@@ -595,6 +653,26 @@ void ObjectEditorTab::widgetizeAllObjects()
 		{
 			QMessageBox::critical(this, tr("Error on widgetizing all objects"), e.what());
 		}
+	}
+}
+
+void ObjectEditorTab::filterObjects(const QString &filter)
+{
+	const QRegExp regExp = QRegExp(filter);
+
+	if (regExp.isValid())
+	{
+		this->proxyModel()->setFilterRegExp(regExp);
+	}
+}
+
+void ObjectEditorTab::filterFields(const QString &filter)
+{
+	const QRegExp regExp = QRegExp(filter);
+
+	if (regExp.isValid())
+	{
+		this->tableProxyModel()->setFilterRegExp(regExp);
 	}
 }
 

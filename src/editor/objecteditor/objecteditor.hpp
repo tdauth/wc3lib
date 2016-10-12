@@ -72,8 +72,11 @@ class SkinEditor;
  * <li>\ref DestructableData - Destructables</li>
  * <li>\ref DoodadData - Doodads</li>
  * <li>\ref AbilityData - Abilities</li>
+ * <li>\ref BuffData - Buffs/Effects</li>
+ * <li>\ref UpgradeData - Upgrades</li>
  * <li>\ref WeatherData - Weather Effects</li>
  * <li>\ref MiscData - Misc Data</li>
+ * <li>\ref SkinData - Game User Interface Data</li>
  * </ul>
  *
  * The object editor itself is represented by the class \ref ObjectEditor.
@@ -84,8 +87,11 @@ class SkinEditor;
  * <li>\ref ItemEditor - Items</li>
  * <li>\ref DestructableEditor - Destructables</li>
  * <li>\ref AbilityEditor - Abilities</li>
+ * <li>\ref BuffEditor - Buffs/Effects</li>
+ * <li>\ref UpgradeEditor - Upgrades</li>
  * <li>\ref WeatherEditor - Weather Effects</li>
- * <li>\ref MiscData - Game Misc Data</li>
+ * <li>\ref MiscEditor - Game Misc Data</li>
+ * <li>\ref SkinEditor - Game User Interface Data</li>
  * </ul>
  *
  * One single tab provides two views. At the left edge there is a tree view listing all objects. At the right edge there is a table view listing the field values
@@ -105,6 +111,8 @@ class SkinEditor;
  * There is a bunch of supporting GUI dialogs to select different types of field values for objects.
  * \ref ObjectValueDialog allows the user to select a new field value of any type.
  * With \ref ObjectValueDialog::show() you can display an instance of the dialog and retrieve a new value.
+ *
+ * For new objects the unique object ID of four letters/numbers is precalculated but can be specified manually as well using a widget of type \ref ObjectIdDialog.
  *
  * \ref UnitSelectionDialog allows selecting a standard or custom unit listing all unit icons and separating them by their races and other properties.
  *
@@ -317,9 +325,11 @@ class ObjectEditor : public Module
 
 		QMenu *m_viewMenu;
 		QAction *m_rawDataAction;
+		QAction *m_sortByNameAction;
 
 	private slots:
 		void showRawData(bool checked);
+		void sortByName(bool checked);
 };
 
 inline QTabWidget* ObjectEditor::tabWidget() const

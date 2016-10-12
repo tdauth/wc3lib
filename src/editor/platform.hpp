@@ -707,7 +707,7 @@ inline void destroySceneNode(Ogre::SceneNode *node)
  */
 inline QString mapFilter()
 {
-	return QObject::tr("*.w3m|Warcraft III: Reign of Chaos map\n*.w3m|Warcraft III: The Frozen Throne map");
+	return QObject::tr("Warcraft III: Reign of Chaos map (*.w3m);;Warcraft III: The Frozen Throne map (*.w3x)");
 }
 
 /**
@@ -719,7 +719,7 @@ inline QString mapFilter()
  */
 inline QString objectsCollectionFilter()
 {
-	return QObject::tr("*.w3o|Warcraft III Objects Collection");
+	return QObject::tr("Warcraft III Objects Collection (*.w3o)");
 }
 
 /**
@@ -731,7 +731,7 @@ inline QString objectsCollectionFilter()
  */
 inline QString triggersFilter()
 {
-	return QObject::tr("*.wtg|Warcraft III Triggers");
+	return QObject::tr("Warcraft III Triggers (*.wtg)");
 }
 
 /**
@@ -743,7 +743,7 @@ inline QString triggersFilter()
  */
 inline QString customTextTriggersFilter()
 {
-	return QObject::tr("*.wtc|Warcraft III Custom Text Triggers");
+	return QObject::tr("Warcraft III Custom Text Triggers (*.wtc)");
 }
 
 // TODO Use image open URL function but MIME type of BLP is not usable on debugging

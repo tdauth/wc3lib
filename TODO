@@ -1,3 +1,33 @@
+* FIXED: Some default field values like TargetArt for Abilities are empty but should not be. This is because lower or higher cases are ignored for section strings in meta data! For example "Targetart" is used in the .txt files but "TargetArt" is specified in the .slk meta data file.
+* FIXED: Tooltips level 1 are not displayed properly for abilities (default values are shown) (start with 1 instead of 0?).
+* Use the data attribute for field values and change it on modifications!
+* FIXED: Compress object modifications which are for higher levels than the object actually has.
+
+FIXED:
+If abilities are exported, many modifications are not exported as well!
+Seems that level modifications are only displayed for level 1.
+Level and data information was dropped by the unitToObjectModification function which was called incorrectly in importCustomObjects().
+
+Sector error (sector 1, file "Units\OrcUpgradeStrings.txt"):
+Explode error: "Invalid dictionary size.".
+von War3Patch.mpq oder War3xLocal.mpq
+Block flags: (wc3lib::mpq::Block::Flags::IsFile | wc3lib::mpq::Block::Flags::UsesEncryptionKey | wc3lib::mpq::Block::Flags::IsEncrypted | wc3lib::mpq::Block::Flags::IsCompressed | unknown: -4294967296)
+Block size: 2250 // is different in MPQ Editor
+File size: 7188 // is different in MPQ Editor
+Block index: 206
+Block offset: 3183518
+
+Sector count: 2
+Sector compression 0: wc3lib::mpq::Sector::Compression::Uncompressed
+Sector compression 1: wc3lib::mpq::Sector::Compression::Uncompressed
+Probably decryption does not work! In other MPQ editors the file has three sectors. The sector table is not even encrypted?
+
+Hash Table Entries: 4096
+Block table entries: 1156
+
+* Qt BLP plugin mit Qt5 testen (installieren).
+* MPQ KIO Slave mit KDE5 testen (installieren).
+
 * Unit Tests for Archive::addFile():
 	* Compression types.
 	* Compression types with encryption.
@@ -6,11 +36,12 @@
 	* With attributes.
 	* With listfile.
 
+* After porting from Qt4 to Qt5 react to filter line edits by updating the proxies of the tree and table models.
 * MPQ Editor and tool "mpq": (listfile) files contain entries of files without a dirpath which might occur in every directory?
 * Fix MPQ Editor updateSelection().
 * FIXED: Fix MPQ Editor closing and opening.
 * MPQ Editor: Should allow file options when adding files.
-* MPQ Editor: Reduce dependencies to KDE.
+* DONE: MPQ Editor: Reduce dependencies to KDE.
 * FIXED: Fix Archive::addFile() -> leads to eoffail when opening the archive.
 * Some object data classes share the same files but load them separately.
 * Load icons in tree model in the beginning again? Reduces lags?

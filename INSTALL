@@ -7,6 +7,9 @@ make -j4
 
 Run "make -j4 install" if you want to install the program.
 
+Specify the options in CMake to reduce the dependencies and modules which are built. For example you can build the core module only without any GUI.
+Therefore the build won't require Qt5 anymore.
+
 Requirements (actual used versions, of course you could use others which are compliant with these):
 Boost 1.58 (components: system filesystem serialization program_options iostreams unit_test_framework timer)
 
@@ -17,10 +20,11 @@ for MPQ flag only:
 bzip2 1.0.6-r3 (Boost support)
 zlib 1.2.5-r2 (Boost support)
 
-for EDITOR/PLUGINS flag only:
-qt-core 4.8.2
-qt-gui 4.8.2
-kdelibs 4.9.1
+for EDITOR and the corresponding plugin flags only:
+qt5-qtbase-devel 5.6.1-3
+qt5-qtgui-devel 5.6.1-3
+qt5-qtmultimedia-devel 5.6.1-3
+kf5-kio-devel 5.25.0-1
 OGRE 1.9.0
 
 for DOC flag only:

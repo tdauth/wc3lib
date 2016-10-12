@@ -87,6 +87,11 @@ bool DestructableData::hasCustomObjects() const
 	return true;
 }
 
+QString DestructableData::customObjectsExtension() const
+{
+	return "w3b";
+}
+
 bool DestructableData::hasMetaDataList() const
 {
 	return true;

@@ -43,11 +43,6 @@ BlpIOPlugin::Capabilities BlpIOPlugin::capabilities(QIODevice *device, const QBy
 		return QImageIOPlugin::CanRead | QImageIOPlugin::CanWrite;
 	}
 
-	if (!(format.isEmpty() && device->isOpen()))
-	{
-		return 0;
-	}
-
 	Capabilities cap;
 	blp::dword identifier;
 
@@ -76,3 +71,6 @@ QImageIOHandler* BlpIOPlugin::create(QIODevice *device, const QByteArray &format
 }
 
 }
+
+#include "moc_blpioplugin.cpp"
+

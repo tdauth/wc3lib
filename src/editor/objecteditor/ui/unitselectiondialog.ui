@@ -133,5 +133,38 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>m_dialogButtonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>UnitSelectionDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>219</x>
+     <y>357</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>30</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_dialogButtonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>UnitSelectionDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>325</x>
+     <y>341</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>403</x>
+     <y>329</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

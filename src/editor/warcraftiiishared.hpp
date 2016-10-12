@@ -173,6 +173,7 @@ class WarcraftIIIShared
 		 * \sa worldEditDataPixmap()
 		 */
 		QPixmap pixmap(const QUrl &url, QWidget *window);
+		QPixmap pixmap(const QString &path, QWidget *window);
 		/**
 		 * As for the World Editor most icons are defined in the file "UI/WorldEditData.txt" this member function
 		 * allows you to directly retrieve an icon from an entry of that file.
@@ -189,6 +190,7 @@ class WarcraftIIIShared
 		 * \sa worldEditDataIcon()
 		 */
 		QIcon icon(const QUrl &url, QWidget *window);
+		QIcon icon(const QString &path, QWidget *window);
 		/**
 		 * As for the World Editor most icons are defined in the file "UI/WorldEditData.txt" this member function
 		 * allows you to directly retrieve an icon from an entry of that file.

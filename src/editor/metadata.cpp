@@ -39,14 +39,14 @@ TextSourceInterface::~TextSourceInterface()
 
 bool SlkTextSource::hasValue(const QString &rowKey, const QString &columnKey) const
 {
-	SlkKeys::const_iterator columnIterator = this->columnKeys().find(columnKey);
+	SlkKeys::const_iterator columnIterator = this->columnKeys().find(columnKey.toLower());
 
 	if (columnIterator == this->columnKeys().end())
 	{
 		return false;
 	}
 
-	SlkKeys::const_iterator rowIterator = this->rowKeys().find(rowKey);
+	SlkKeys::const_iterator rowIterator = this->rowKeys().find(rowKey.toLower());
 
 	if (rowIterator == this->rowKeys().end())
 	{
@@ -58,7 +58,7 @@ bool SlkTextSource::hasValue(const QString &rowKey, const QString &columnKey) co
 
 QString SlkTextSource::value(const QString &rowKey, const QString &columnKey) const
 {
-	SlkKeys::const_iterator rowIterator = this->rowKeys().find(rowKey);
+	SlkKeys::const_iterator rowIterator = this->rowKeys().find(rowKey.toLower());
 
 	if (rowIterator == this->rowKeys().end())
 	{
@@ -72,8 +72,8 @@ QString SlkTextSource::value(const QString &rowKey, const QString &columnKey) co
 
 void SlkTextSource::setValue(const QString &rowKey, const QString &columnKey, const QString &value)
 {
-	SlkKeys::const_iterator rowIterator = this->rowKeys().find(rowKey);
-	SlkKeys::const_iterator columnIterator = this->columnKeys().find(columnKey);
+	SlkKeys::const_iterator rowIterator = this->rowKeys().find(rowKey.toLower());
+	SlkKeys::const_iterator columnIterator = this->columnKeys().find(columnKey.toLower());
 
 	if (rowIterator == this->rowKeys().end() || columnIterator == this->columnKeys().end())
 	{
@@ -98,8 +98,8 @@ void SlkTextSource::setValue(const QString &rowKey, const QString &columnKey, co
 		const map::Slk::Table::size_type rowIndex = rows - 1;
 		const map::Slk::Table::size_type columnIndex = columns - 1;
 		this->m_slk.cell(rowIndex, columnIndex) = string(MetaData::toSlkString(value).toUtf8().constData());
-		this->m_rowKeys.insert(rowKey, rowIndex);
-		this->m_columnKeys.insert(rowKey, columnIndex);
+		this->m_rowKeys.insert(rowKey.toLower(), rowIndex);
+		this->m_columnKeys.insert(columnKey.toLower(), columnIndex);
 	}
 	else
 	{
@@ -117,7 +117,7 @@ bool SlkTextSource::hasValue(int row, const QString &columnKey) const
 		return false;
 	}
 
-	SlkKeys::const_iterator columnIterator = this->columnKeys().find(columnKey);
+	SlkKeys::const_iterator columnIterator = this->columnKeys().find(columnKey.toLower());
 
 	if (columnIterator == this->columnKeys().end())
 	{
@@ -129,7 +129,7 @@ bool SlkTextSource::hasValue(int row, const QString &columnKey) const
 
 QString SlkTextSource::value(int row, const QString &columnKey) const
 {
-	SlkKeys::const_iterator columnIterator = this->columnKeys().find(columnKey);
+	SlkKeys::const_iterator columnIterator = this->columnKeys().find(columnKey.toLower());
 
 	if (columnIterator == this->columnKeys().end())
 	{
@@ -163,13 +163,13 @@ void SlkTextSource::read(istream &in)
 	for (map::Slk::Table::size_type column = 0; column < this->slk().table().shape()[0]; ++column)
 	{
 		map::Slk::Cell &firstColumnCell = this->slk().table()[column][0];
-		this->m_columnKeys[MetaData::fromSlkString(QString::fromUtf8(firstColumnCell.c_str()))] = column;
+		this->m_columnKeys[MetaData::fromSlkString(QString::fromUtf8(firstColumnCell.c_str())).toLower()] = column;
 	}
 
 	for (map::Slk::Table::size_type row = 0; row < this->slk().table().shape()[1]; ++row)
 	{
 		map::Slk::Cell &firstRowCell = this->slk().table()[0][row];
-		this->m_rowKeys[MetaData::fromSlkString(QString::fromUtf8(firstRowCell.c_str()))] = row;
+		this->m_rowKeys[MetaData::fromSlkString(QString::fromUtf8(firstRowCell.c_str())).toLower()] = row;
 	}
 }
 
@@ -188,16 +188,16 @@ TextSourceInterface* SlkTextSource::clone() const
 	return result;
 }
 
-bool TxtTextSource::hasValue(const QString& rowKey, const QString& columnKey) const
+bool TxtTextSource::hasValue(const QString &rowKey, const QString &columnKey) const
 {
-	TxtSectionKeys::const_iterator sectionIterator = this->sectionKeys().find(rowKey);
+	TxtSectionKeys::const_iterator sectionIterator = this->sectionKeys().find(rowKey.toLower());
 
 	if (sectionIterator == this->sectionKeys().end())
 	{
 		return false;
 	}
 
-	const TxtEntryKey entryKey = TxtEntryKey(sectionIterator.value(), columnKey);
+	const TxtEntryKey entryKey = TxtEntryKey(sectionIterator.value(), columnKey.toLower());
 
 	TxtEntryKeys::const_iterator columnIterator = this->entryKeys().find(entryKey);
 
@@ -209,10 +209,10 @@ bool TxtTextSource::hasValue(const QString& rowKey, const QString& columnKey) co
 	return true;
 }
 
-QString TxtTextSource::value(const QString& rowKey, const QString& columnKey) const
+QString TxtTextSource::value(const QString &rowKey, const QString &columnKey) const
 {
 	// TXT
-	TxtSectionKeys::const_iterator rowIterator = this->sectionKeys().find(rowKey);
+	TxtSectionKeys::const_iterator rowIterator = this->sectionKeys().find(rowKey.toLower());
 
 	if (rowIterator == this->sectionKeys().end())
 	{
@@ -221,7 +221,7 @@ QString TxtTextSource::value(const QString& rowKey, const QString& columnKey) co
 		return QString();
 	}
 
-	const TxtEntryKey entryKey = TxtEntryKey(rowIterator.value(), columnKey);
+	const TxtEntryKey entryKey = TxtEntryKey(rowIterator.value(), columnKey.toLower());
 
 	TxtEntryKeys::const_iterator columnIterator = this->entryKeys().find(entryKey);
 
@@ -239,10 +239,10 @@ QString TxtTextSource::value(const QString& rowKey, const QString& columnKey) co
 
 void TxtTextSource::setValue(const QString &rowKey, const QString &columnKey, const QString &value)
 {
-	// TODO implement
+	// TODO implement, use .toLower()!!!
 }
 
-bool TxtTextSource::hasValue(int row, const QString& columnKey) const
+bool TxtTextSource::hasValue(int row, const QString &columnKey) const
 {
 	if (row >= boost::numeric_cast<int>(this->m_txt.sections().size()) || row < 0)
 	{
@@ -250,7 +250,7 @@ bool TxtTextSource::hasValue(int row, const QString& columnKey) const
 	}
 
 	const map::Txt::Section *rowKey = &this->m_txt.sections()[row];
-	const TxtEntryKey entryKey = TxtEntryKey(rowKey, columnKey);
+	const TxtEntryKey entryKey = TxtEntryKey(rowKey, columnKey.toLower());
 
 	TxtEntryKeys::const_iterator columnIterator = this->entryKeys().find(entryKey);
 
@@ -262,10 +262,10 @@ bool TxtTextSource::hasValue(int row, const QString& columnKey) const
 	return true;
 }
 
-QString TxtTextSource::value(int row, const QString& columnKey) const
+QString TxtTextSource::value(int row, const QString &columnKey) const
 {
 	const map::Txt::Section *rowKey = &this->m_txt.sections()[row];
-	const TxtEntryKey entryKey = TxtEntryKey(rowKey, columnKey);
+	const TxtEntryKey entryKey = TxtEntryKey(rowKey, columnKey.toLower());
 
 	TxtEntryKeys::const_iterator columnIterator = this->entryKeys().find(entryKey);
 
@@ -288,12 +288,12 @@ void TxtTextSource::read(istream &in)
 	for (map::Txt::Sections::iterator iterator = this->txt().sections().begin(); iterator != this->txt().sections().end(); ++iterator)
 	{
 		map::Txt::Section *section = &(*iterator);
-		this->m_sectionKeys[QString::fromUtf8(iterator->name.c_str())] = section;
+		this->m_sectionKeys[QString::fromUtf8(iterator->name.c_str()).toLower()] = section;
 
 		for (map::Txt::Entries::iterator entryIterator = iterator->entries.begin(); entryIterator != iterator->entries.end(); ++entryIterator)
 		{
 			map::Txt::Entry *entry = &(*entryIterator);
-			const TxtEntryKey entryKey = TxtEntryKey(section, QString::fromUtf8(entry->first.c_str()));
+			const TxtEntryKey entryKey = TxtEntryKey(section, QString::fromUtf8(entry->first.c_str()).toLower());
 			this->m_entryKeys[entryKey] = entry;
 		}
 	}
@@ -379,7 +379,7 @@ void MapStringsTextSource::read(istream &in)
 	qDebug() << "Keys size:" << m_entryKeys.size();
 }
 
-void MapStringsTextSource::write(ostream& out) const
+void MapStringsTextSource::write(ostream &out) const
 {
 	this->m_mapStrings.write(out);
 }

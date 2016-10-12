@@ -184,7 +184,6 @@ class Module : public QWidget
 		QAction *m_resourcesAction;
 		QAction *m_aboutWc3libAction;
 		QAction *m_aboutQtAction;
-		QAction *m_aboutKdeAction;
 
 		QVBoxLayout *m_topLayout;
 		QGridLayout *m_centerLayout;

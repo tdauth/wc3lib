@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(Icon)
 	BOOST_REQUIRE(source.addSource(QUrl(TEST_MPQ_URL)));
 	QString target;
 	BOOST_CHECK(source.download(QUrl("ReplaceableTextures\\TeamColor00.blp"), target, nullptr));
-	QIcon icon = source.sharedData()->icon(QUrl("ReplaceableTextures\\TeamColor00.blp"), nullptr);
+	const QIcon icon = source.sharedData()->icon("ReplaceableTextures\\TeamColor00.blp", nullptr);
 	BOOST_CHECK(!icon.isNull());
 	BOOST_CHECK(source.sharedData()->icons().contains(QUrl("ReplaceableTextures\\TeamColor00.blp")));
 }

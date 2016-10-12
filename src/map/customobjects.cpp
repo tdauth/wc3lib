@@ -54,7 +54,7 @@ CustomObjects::Modification::Modification(CustomObjects::Type type) : m_type(typ
 {
 }
 
-CustomObjects::Modification::Modification(const CustomObjects::Modification &other) : CustomUnits::Modification(other),  m_type(other.type()), m_level(other.level()), m_data(other.data())
+CustomObjects::Modification::Modification(const CustomObjects::Modification &other) : CustomUnits::Modification(other), m_type(other.type()), m_level(other.level()), m_data(other.data())
 {
 }
 

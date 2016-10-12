@@ -93,6 +93,7 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 , m_widgetizeAction(0)
 , m_viewMenu(0)
 , m_rawDataAction(0)
+, m_sortByNameAction(0)
 {
 	Module::setupUi();
 	//Ui::ObjectEditor::setupUi(this);
@@ -180,6 +181,7 @@ void ObjectEditor::retranslateUi()
 
 	m_viewMenu->setTitle(source()->sharedData()->tr("WESTRING_MENU_VIEW"));
 	m_rawDataAction->setText(this->source()->sharedData()->tr("WESTRING_MENU_OE_TOGGLERAWDATA"));
+	m_sortByNameAction->setText(this->source()->sharedData()->tr("WESTRING_REGION_CM_SORT"));
 
 	m_viewInPaletteAction->setText(source()->sharedData()->tr("WESTRING_MENU_VIEWINPALETTE", "WorldEditStrings"));
 	m_findAction->setText(source()->sharedData()->tr("WESTRING_MENU_OE_FIND", "WorldEditStrings"));
@@ -274,7 +276,7 @@ void ObjectEditor::exportAll()
 {
 	// TODO collect all tab data (requires Frozen Throne)
 
-	const QUrl url = QFileDialog::getSaveFileUrl(this, source()->sharedData()->tr("WESTRING_MENU_OE_EXPORTALL", "WorldEditStrings"), QUrl(), tr("*|All Files\n%1").arg(objectsCollectionFilter()));
+	const QUrl url = QFileDialog::getSaveFileUrl(this, source()->sharedData()->tr("WESTRING_MENU_OE_EXPORTALL", "WorldEditStrings"), QUrl(), tr("All Files (*);;Custom Objects Collection (*.%1)").arg(objectsCollectionFilter()));
 
 	if (!url.isEmpty())
 	{
@@ -419,7 +421,7 @@ void ObjectEditor::importAll()
 {
 	if (QMessageBox::question(this, tr("Import All"), tr("Importing all objects replaces all of your current modifications. Continue?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
 	{
-		const QUrl url = QFileDialog::getOpenFileUrl(this, source()->sharedData()->tr("WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"), QUrl(), tr("*|All Files\n%1\nCustom Units (*.w3u)\nMap (*.w3m *.w3x)").arg(objectsCollectionFilter()));
+		const QUrl url = QFileDialog::getOpenFileUrl(this, source()->sharedData()->tr("WESTRING_MENU_OE_IMPORTALL", "WorldEditStrings"), QUrl(), tr("All Files (*);;%1;;Custom Units (*.w3u);;Map (*.w3m *.w3x)").arg(objectsCollectionFilter()));
 
 		if (!url.isEmpty())
 		{
@@ -441,7 +443,10 @@ void ObjectEditor::compressAll()
 				loadTabDataOnRequest(i);
 			}
 
-			counter += this->tab(i)->objectData()->compress();
+			if (this->tab(i)->objectData() != nullptr)
+			{
+				counter += this->tab(i)->objectData()->compress();
+			}
 		}
 
 		QMessageBox::information(this, tr("Compression done"), tr("Compressed %1 modifications of objects.").arg(counter));
@@ -603,6 +608,11 @@ void ObjectEditor::createMenus(QMenuBar *menuBar)
 	connect(m_rawDataAction, SIGNAL(triggered(bool)), this, SLOT(showRawData(bool)));
 	m_viewMenu->addAction(m_rawDataAction);
 
+	m_sortByNameAction = new QAction(this->source()->sharedData()->tr("WESTRING_REGION_CM_SORT"), this);
+	m_sortByNameAction->setCheckable(true);
+	connect(m_sortByNameAction, SIGNAL(triggered(bool)), this, SLOT(sortByName(bool)));
+	m_viewMenu->addAction(m_sortByNameAction);
+
 	menuBar->addMenu(m_viewMenu);
 }
 
@@ -657,6 +667,7 @@ void ObjectEditor::currentChanged(int index)
 	qDebug() << "After adding actions";
 	setWindowTitle(tab(index)->name());
 	m_rawDataAction->setChecked(this->currentTab()->treeModel()->showRawData());
+	m_sortByNameAction->setChecked(this->currentTab()->sortByName());
 	qDebug() << "After raw data";
 
 	loadTabDataOnRequest(index);
@@ -774,6 +785,11 @@ void ObjectEditor::addCurrentActions()
 void ObjectEditor::showRawData(bool checked)
 {
 	this->currentTab()->setShowRawData(checked);
+}
+
+void ObjectEditor::sortByName(bool sort)
+{
+	this->currentTab()->setSortByName(sort);
 }
 
 QIcon ObjectEditor::icon()

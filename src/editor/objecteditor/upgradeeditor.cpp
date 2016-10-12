@@ -28,7 +28,7 @@ namespace wc3lib
 namespace editor
 {
 
-UpgradeEditor::UpgradeEditor(MpqPriorityList* source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget* parent, Qt::WindowFlags f) : ObjectEditorTab(source, objectData, objectEditor, parent, f)
+UpgradeEditor::UpgradeEditor(MpqPriorityList* source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget* parent, Qt::WindowFlags f) : ObjectEditorTab(source, objectData, "upgradeeditor", objectEditor, parent, f)
 {
 	setupUi();
 }

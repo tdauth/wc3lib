@@ -91,6 +91,11 @@ bool SkinData::hasCustomObjects() const
 	return false;
 }
 
+QString SkinData::customObjectsExtension() const
+{
+	return QString();
+}
+
 bool SkinData::hasMetaDataList() const
 {
 	// TODO support

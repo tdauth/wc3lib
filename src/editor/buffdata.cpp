@@ -148,6 +148,11 @@ bool BuffData::hasCustomObjects() const
 	return true;
 }
 
+QString BuffData::customObjectsExtension() const
+{
+	return "w3h";
+}
+
 bool BuffData::hasMetaDataList() const
 {
 	return true;

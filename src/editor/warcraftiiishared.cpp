@@ -177,6 +177,14 @@ QPixmap WarcraftIIIShared::pixmap(const QUrl &url, QWidget *window)
 	return QPixmap();
 }
 
+QPixmap WarcraftIIIShared::pixmap(const QString &path, QWidget *window)
+{
+	QString modifiedPath = path;
+	const QUrl url = modifiedPath.replace("\\", "/");
+
+	return pixmap(url, window);
+}
+
 QPixmap WarcraftIIIShared::worldEditDataPixmap(const QString &key, const QString &group, QWidget *window)
 {
 	if (this->worldEditData().get() != 0)
@@ -192,16 +200,20 @@ QPixmap WarcraftIIIShared::worldEditDataPixmap(const QString &key, const QString
 			filePath += ".blp";
 		}
 
-		return this->pixmap(filePath, window);
+		return this->pixmap(QString(filePath), window);
 	}
 
 	return QPixmap();
 }
 
-
 QIcon WarcraftIIIShared::icon(const QUrl &url, QWidget *window)
 {
 	return QIcon(pixmap(url, window));
+}
+
+QIcon WarcraftIIIShared::icon(const QString &path, QWidget *window)
+{
+	return QIcon(pixmap(path, window));
 }
 
 QIcon WarcraftIIIShared::worldEditDataIcon(const QString &key, const QString &group, QWidget *window)

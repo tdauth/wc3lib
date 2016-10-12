@@ -327,6 +327,10 @@ class ObjectData : public QObject
 		 * \sa hasCustomUnits()
 		 */
 		virtual bool hasCustomObjects() const = 0;
+		/**
+		 * The file extension without any dot which is used when the custom objects of only one type are exported (no collection).
+		 */
+		virtual QString customObjectsExtension() const = 0;
 
 		map::Value value(const QString &fieldId, const QString &value) const;
 
@@ -417,6 +421,8 @@ class ObjectData : public QObject
 		 * For each level some field values can be specified once. This method returns the number of specified levels of an object.
 		 *
 		 * \return Returns the number of levels of the specified object.
+		 *
+		 * \note Field modifications for level 1 or 2 start with the integer 1 and 2 and not with 0 but only when the field is repeated.
 		 */
 		virtual int objectLevels(const QString &originalObjectId, const QString &customObjectId) const = 0;
 
@@ -427,6 +433,9 @@ class ObjectData : public QObject
 		 */
 		void applyMapStrings(map::W3m &w3m);
 
+		/**
+		 * A list of object IDs (raw codes).
+		 */
 		typedef QList<QString> StandardObjecIds;
 
 		/**
@@ -436,7 +445,7 @@ class ObjectData : public QObject
 
 		/**
 		 * Removes all unnecessary field modifications of fields which are not shown anyway.
-		 * By default this method does nothing but it can be reimplemented in any sub class.
+		 * \note This might remove modifications which you might want to use later or which are hidden but recognized by the game in some way.
 		 *
 		 * \return Returns the number of compressed modifications.
 		 */

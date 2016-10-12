@@ -58,7 +58,9 @@ bool ObjectTreeSortFilterProxyModel::filterAcceptsRow(int source_row, const QMod
 
 bool ObjectTreeSortFilterProxyModel::lessThan(const QModelIndex& left, const QModelIndex& right) const
 {
-	return sourceModel()->data(left).toString() < sourceModel()->data(right).toString();
+	// TODO exclude head lines custom abilities and standard abilities! And exclude Heroes Items Units?
+
+	return sourceModel()->data(left, Qt::DisplayRole).toString() < sourceModel()->data(right, Qt::DisplayRole).toString();
 }
 
 }

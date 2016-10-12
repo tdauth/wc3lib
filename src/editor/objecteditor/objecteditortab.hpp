@@ -65,18 +65,13 @@ class ObjectEditorTab : public QWidget
 		/**
 		 * Creates a new object editor tab using the source \p source and standard objects data/meta data \p objectData.
 		 */
-		ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor = 0, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData, const QString &groupName, ObjectEditor *objectEditor = 0, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~ObjectEditorTab();
 
 		/**
 		 * \return Returns the corresponding MPQ priority list which all necessary data is loaded from.
 		 */
 		MpqPriorityList* source() const;
-
-		/**
-		 * \return If it has an object editor (\ref hasObjectEditor()) this returns its corresponding tab index of \ref ObjectEditor::tabWidget().
-		 */
-		int tabIndex() const;
 
 		/**
 		 * \return Returns true if an Object Editor is associated with this tab. As the tab might be started as stand-alone application this could return false.
@@ -117,6 +112,15 @@ class ObjectEditorTab : public QWidget
 		 * \return Returns the underlying standard objects data and meta data instance.
 		 */
 		ObjectData* objectData() const;
+
+		/**
+		 * The group name for the corresponding settings of the tab.
+		 * \return Returns the group name.
+		 */
+		QString groupName() const;
+
+		void setSortByName(bool sort);
+		bool sortByName() const;
 
 		/**
 		 * Shows or hides raw data IDs for objects as well as fields.
@@ -174,14 +178,30 @@ class ObjectEditorTab : public QWidget
 		ObjectIdDialog* idDialog() const;
 
 	public slots:
+		/**
+		 * Creates a new object in the current tab with a unique object ID.
+		 */
 		void newObject();
 		/**
 		 * Opens the edit dialog for all selected objects names.
 		 */
 		void renameObject();
+		/**
+		 * Deletes all currently selected objects.
+		 */
 		void deleteObject();
+		/**
+		 * Resets all modifications for all currently selected objects.
+		 */
 		void resetObject();
+		/**
+		 * Resets all modifications for all objects of this object editor tab.
+		 */
 		void resetAllObjects();
+		/**
+		 * Exports all objects from the current tab only.
+		 * The user has to select an output file in which the object data is exported into.
+		 */
 		void exportAllObjects();
 		void importAllObjects();
 		void copyObject();
@@ -192,7 +212,23 @@ class ObjectEditorTab : public QWidget
 		 */
 		void widgetizeAllObjects();
 
+		/**
+		 * Loads the corresponding icon of the current tab.
+		 * This method has to be overriden in a derived class and implemented.
+		 * The icon is shown in the tab widget of the object editor.
+		 */
 		virtual QIcon tabIcon(QWidget *widget) const = 0;
+
+		/**
+		 * Filters the objects in the tree view by the expression \p filter which might be a regular expression.
+		 * \param filter A regular expression.
+		 */
+		void filterObjects(const QString &filter);
+		/**
+		 * Filters the modifications in the table view by the expression \p filter which might be a regular expression.
+		 * \param filter A regular expression.
+		 */
+		void filterFields(const QString &filter);
 
 	protected:
 		friend ObjectEditor;
@@ -218,11 +254,14 @@ class ObjectEditorTab : public QWidget
 		virtual QUrl newObjectIconUrl() const = 0;
 
 		/**
+		 * Updates the \ref m_recentImportUrl value and sorts all entries by name.
+		 */
+		void updateImportUrlAndSort(const QUrl &url);
+
+		/**
 		 * The actual source which is used for loading all necessary files.
 		 */
 		MpqPriorityList *m_source;
-
-		int m_tabIndex;
 
 		QLineEdit *m_filterSearchLine;
 		QLineEdit *m_tableFilterSearchLine;
@@ -239,10 +278,20 @@ class ObjectEditorTab : public QWidget
 		 * The corresponding object data which is shown by the tab.
 		 */
 		ObjectData *m_objectData;
+
+		/**
+		 * The group name for the settings of this tab.
+		 */
+		QString m_groupName;
 		/**
 		 * The parent object editor.
 		 */
 		ObjectEditor *m_objectEditor;
+
+		/**
+		 * Flag which stores if objects are sorted by name.
+		 */
+		bool m_sortByName;
 
 		/**
 		 * Flag which stores if raw data IDs are shown.
@@ -261,6 +310,7 @@ class ObjectEditorTab : public QWidget
 
 		ObjectIdDialog *m_idDialog;
 
+		QUrl m_recentExportUrl;
 		QUrl m_recentImportUrl;
 
 	private slots:
@@ -270,11 +320,6 @@ class ObjectEditorTab : public QWidget
 inline MpqPriorityList* ObjectEditorTab::source() const
 {
 	return m_source;
-}
-
-inline int ObjectEditorTab::tabIndex() const
-{
-	return m_tabIndex;
 }
 
 inline bool ObjectEditorTab::hasObjectEditor() const
@@ -320,6 +365,11 @@ inline ObjectTableModel* ObjectEditorTab::tableModel() const
 inline ObjectData* ObjectEditorTab::objectData() const
 {
 	return this->m_objectData;
+}
+
+inline QString ObjectEditorTab::groupName() const
+{
+	return this->m_groupName;
 }
 
 inline bool ObjectEditorTab::showRawData() const

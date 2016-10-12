@@ -147,6 +147,11 @@ bool UnitData::hasCustomObjects() const
 	return true;
 }
 
+QString UnitData::customObjectsExtension() const
+{
+	return "w3u";
+}
+
 bool UnitData::hasMetaDataList() const
 {
 	// TODO support

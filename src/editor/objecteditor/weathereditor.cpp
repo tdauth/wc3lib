@@ -28,7 +28,7 @@ namespace wc3lib
 namespace editor
 {
 
-WeatherEditor::WeatherEditor(MpqPriorityList* source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget* parent, Qt::WindowFlags f) : ObjectEditorTab(source, objectData, objectEditor, parent, f)
+WeatherEditor::WeatherEditor(MpqPriorityList* source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget* parent, Qt::WindowFlags f) : ObjectEditorTab(source, objectData, "weathereditor", objectEditor, parent, f)
 {
 	setupUi();
 }

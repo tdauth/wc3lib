@@ -31,6 +31,10 @@ if (STORMLIB_HEADER AND STORMLIB_PORT_HEADER)
 	add_test(NAME PerformanceTest COMMAND performancetest)
 endif ()
 
+add_executable(extracttest extract.cpp)
+target_link_libraries(extracttest wc3libmpq wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
+add_test(NAME ExtractTest COMMAND extracttest)
+
 configure_file(testattributes.mpq testattributes.mpq COPYONLY) # MPQ archive with extended attributes
 configure_file(ladik_mpq1_all_extended_attributes.mpq ladik_mpq1_all_extended_attributes.mpq COPYONLY)
 configure_file(mpqmaster_mpq1_no_extended_attributes.mpq mpqmaster_mpq1_no_extended_attributes.mpq COPYONLY)

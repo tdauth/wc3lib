@@ -87,6 +87,11 @@ bool DoodadData::hasCustomObjects() const
 	return true;
 }
 
+QString DoodadData::customObjectsExtension() const
+{
+	return "w3d";
+}
+
 bool DoodadData::hasMetaDataList() const
 {
 	return true;

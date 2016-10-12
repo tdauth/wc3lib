@@ -82,6 +82,11 @@ bool MiscData::hasCustomObjects() const
 	return false;
 }
 
+QString MiscData::customObjectsExtension() const
+{
+	return QString();
+}
+
 bool MiscData::hasMetaDataList() const
 {
 	// TODO support

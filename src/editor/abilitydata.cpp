@@ -146,6 +146,11 @@ bool AbilityData::hasCustomObjects() const
 	return true;
 }
 
+QString AbilityData::customObjectsExtension() const
+{
+	return "w3a";
+}
+
 bool AbilityData::hasMetaDataList() const
 {
 	return true;
@@ -259,6 +264,8 @@ QIcon AbilityData::objectIcon(const QString &originalObjectId, const QString &cu
 
 	if (!art.isEmpty())
 	{
+		qDebug() << "Getting art: " << art;
+
 		return this->source()->sharedData()->icon(art, window);
 	}
 
@@ -299,17 +306,18 @@ void AbilityData::widgetize(const QUrl &url)
 
 	// TODO copy existing default data into this instance
 	MetaDataList metaDataList = this->metaDataList();
-	MetaDataList metaDataListCopy;
+	typedef QMap<QUrl, MetaData*> MetaDataMap;
+	MetaDataMap metaDataListCopy;
 
 	for (int i = 0; i < metaDataList.size(); ++i)
 	{
-		metaDataListCopy.append(new MetaData(*metaDataList.at(i)));
+		metaDataListCopy.insert(metaDataList.at(i)->url(), new MetaData(*metaDataList.at(i)));
 	}
 
-	// create AbilityData.slk by merging the original with the custom objects
+	// create "AbilityData.slk" by merging the original with the custom objects
 	for (Objects::const_iterator iterator = objectsWithMaximumLevel4.begin(); iterator != objectsWithMaximumLevel4.end(); ++iterator)
 	{
-		ObjectId id = iterator.key();
+		const ObjectId id = iterator.key();
 
 		// copy every defined field in meta data into the data file
 		for (int row = 1; row < this->metaData()->rows(); ++row)
@@ -320,14 +328,16 @@ void AbilityData::widgetize(const QUrl &url)
 
 			// TODO we need a faster way to detect the metaDataList entry for the field
 			const MetaData *defaultMetaData = this->resolveDefaultField(id.originalObjectId(), fieldId).first();
+			const MetaDataMap::iterator iterator = metaDataListCopy.find(defaultMetaData->url());
 
-			for (int i = 0; i < metaDataListCopy.size(); ++i)
+			if (iterator != metaDataListCopy.end())
 			{
-				if (metaDataListCopy.at(i)->url().fileName() == defaultMetaData->url().fileName())
-				{
-					// TODO set field value properly if its index is not -1 and its level value is not 0
-					metaDataListCopy.at(i)->setValue(id.customObjectId(), field, fieldValue);
-				}
+				// TODO set field value properly if its index is not -1 and its level value is not 0
+				iterator.value()->setValue(id.customObjectId(), field, fieldValue);
+			}
+			else
+			{
+				qDebug() << "Did not find meta data file for field " << id.originalObjectId() << id.customObjectId() << ":" << fieldId;
 			}
 		}
 		// TODO only write fields into this SLK file
@@ -340,10 +350,11 @@ void AbilityData::widgetize(const QUrl &url)
 	/*
 	 * Write all copied meta data files with the custom AND default entries into the specified directory with the same names.
 	 */
-	for (int i = 0; i < metaDataListCopy.size(); ++i)
+	foreach (MetaData *metaData, metaDataListCopy.values())
 	{
-		const QUrl slkFileUrl = url.toString() + "/" + metaDataListCopy.at(i)->url().fileName();
-		metaDataListCopy.at(i)->save(slkFileUrl);
+		const QUrl slkFileUrl = url.toString() + "/" + metaData->url().fileName();
+		qDebug() << "Exporting meta data file:" << slkFileUrl.toString();
+		metaData->save(slkFileUrl);
 	}
 }
 

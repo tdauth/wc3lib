@@ -85,6 +85,11 @@ bool WaterData::hasCustomObjects() const
 	return false;
 }
 
+QString WaterData::customObjectsExtension() const
+{
+	return QString();
+}
+
 bool WaterData::hasMetaDataList() const
 {
 	return true;

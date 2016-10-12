@@ -464,11 +464,19 @@ void ObjectData::resetField(const QString &originalObjectId, const QString &cust
 
 	if (iterator == this->m_objects.end())
 	{
+		qDebug() << "Reset: Could not find object" << originalObjectId << customObjectId;
+
 		return;
 	}
 
 	FieldId fieldIdKey(fieldId, level);
-	iterator.value().remove(fieldIdKey);
+	const int removalCount = iterator.value().remove(fieldIdKey);
+
+	if (removalCount == 0)
+	{
+		qDebug() << "Reset field not found for object " << originalObjectId << customObjectId << " - " << fieldId;
+	}
+
 	emit modificationReset(originalObjectId, customObjectId, fieldId, level);
 
 	if (iterator.value().empty())
@@ -648,6 +656,12 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 
 	if (fieldType == "int" || fieldType == "real" || fieldType == "unreal" || fieldType == "char" || fieldType == "string")
 	{
+		// For these entries the readable values are empty in Warcraft's object editor.
+		if (fieldValue == "-" || fieldValue == "_")
+		{
+			return QString();
+		}
+
 		return fieldValue;
 	}
 	else if (fieldType == "bool")
@@ -661,6 +675,12 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 	}
 	else if (fieldType == "model" || fieldType == "icon")
 	{
+		// For these entries the readable values are empty in Warcraft's object editor.
+		if (fieldValue == "-" || fieldValue == "_")
+		{
+			return QString();
+		}
+
 		return fieldValue;
 	}
 	else if (fieldType == "abilCode")
@@ -846,7 +866,7 @@ void ObjectData::importCustomObjects(const map::CustomObjects& objects)
 		for (map::CustomObjects::Object::Modifications::size_type j = 0; j < object.modifications().size(); ++j)
 		{
 			const map::CustomObjects::Modification &modification = *boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object.modifications()[j]);
-			this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), unitToObjectModification(modification));
+			this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), modification);
 		}
 	}
 
@@ -859,7 +879,7 @@ void ObjectData::importCustomObjects(const map::CustomObjects& objects)
 		for (map::CustomObjects::Object::Modifications::size_type j = 0; j < object.modifications().size(); ++j)
 		{
 			const map::CustomObjects::Modification &modification = *boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object.modifications()[j]);
-			this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), unitToObjectModification(modification));
+			this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), modification);
 		}
 	}
 
@@ -924,10 +944,12 @@ map::CustomObjects ObjectData::customObjects() const
 	for (Objects::const_iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
 	{
 		std::auto_ptr<map::CustomObjects::Object> object(new map::CustomObjects::Object(this->type()));
-		object->setOriginalId(map::stringToId(iterator.key().originalObjectId().toUtf8().constData()));
-		object->setCustomId(map::stringToId(iterator.key().customObjectId().toUtf8().constData()));
+		const QString originalObjectId = iterator.key().originalObjectId();
+		const QString customObjectId = iterator.key().customObjectId();
+		object->setOriginalId(map::stringToId(originalObjectId.toUtf8().constData()));
+		object->setCustomId(map::stringToId(customObjectId.toUtf8().constData()));
 
-		foreach (map::CustomObjects::Modification modification, iterator.value())
+		foreach (const map::CustomObjects::Modification &modification, iterator.value())
 		{
 			object->modifications().push_back(new map::CustomObjects::Modification(modification));
 		}
@@ -935,7 +957,7 @@ map::CustomObjects ObjectData::customObjects() const
 		/*
 		 * No custom ID means it is a standard unit.
 		 */
-		if (iterator.key().second.isEmpty())
+		if (customObjectId.isEmpty())
 		{
 			objects.originalTable().push_back(object);
 		}
@@ -1197,18 +1219,22 @@ void ObjectData::applyMapStrings(map::W3m &w3m)
 
 int ObjectData::compress()
 {
-	qDebug() << "Compressing ability data";
-	int counter = 0;
+	qDebug() << "Compressing object data:";
+	long long counter = 0;
 
 	/*
 	 * Find all modified fields which are not necessarily used for the objects.
 	 * For example if you modify a hero only field and then make the object from a hero to a normal object the modification remains but is not visible anymore in the object editor.
+	 * Besides there might be modifications for higher levels than the object actually has.
 	 * NOTE This discards maybe still required modifications.
 	 */
 	for (Objects::iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
 	{
 		//qDebug() << "Before getting object key";
 		const ObjectId &id = iterator.key();
+		const int objectLevels = this->objectLevels(id.originalObjectId(), id.customObjectId());
+		// Always use the maximum of possible levels. There might be modifications which are not required anymore of higher levels.
+		const int levels = 100;
 
 		//qDebug() << "Object " << id;
 
@@ -1219,15 +1245,22 @@ int ObjectData::compress()
 
 			const QString fieldId = this->metaData()->value(i, "ID");
 			//qDebug() << "Field: " << fieldId;
+			const bool repeatField = this->repeateField(fieldId);
 
-			// TODO check if the modification has the same value as the default value. This check probably requires more than just a == string comparison since different values of strings might still have the same meaning.
-			if (this->isFieldModified(id.originalObjectId(), id.customObjectId(), fieldId) && (this->hideField(id.originalObjectId(), id.customObjectId(), fieldId) || this->fieldValue(id.originalObjectId(), id.customObjectId(), fieldId) == this->defaultFieldValue(id.originalObjectId(), fieldId)))
+			for (int j = 0; j < levels && (j == 0 || repeatField); ++j)
 			{
-				qDebug() << "Field is modified";
+				const int level = repeatField ? j + 1 : j;
 
-				this->resetField(id.originalObjectId(), id.customObjectId(), fieldId);
-				++counter;
-				qDebug() << "Compressing " << id.first << ":" << id.second << " field " << fieldId;
+				// TODO check if the modification has the same value as the default value. This check probably requires more than just a == string comparison since different values of strings might still have the same meaning.
+				// This would remove some field modifications at the moment for which the default values are not calculated properly. Therefore check at least first if a default value is found.
+				if (this->isFieldModified(id.originalObjectId(), id.customObjectId(), fieldId, level) && (this->hideField(id.originalObjectId(), id.customObjectId(), fieldId, level) || (repeatField && level > objectLevels) || (this->hasDefaultFieldValue(id.originalObjectId(), fieldId, level) && this->fieldValue(id.originalObjectId(), id.customObjectId(), fieldId, level) == this->defaultFieldValue(id.originalObjectId(), fieldId, level))))
+				{
+					//qDebug() << "Field is modified";
+
+					this->resetField(id.originalObjectId(), id.customObjectId(), fieldId, level);
+					++counter;
+					//qDebug() << "Compressing " << id.first << ":" << id.second << " field " << fieldId;
+				}
 			}
 
 			//qDebug() << "Field done";
@@ -1253,8 +1286,8 @@ QString ObjectData::defaultFieldValue(const QString &objectId, const QString &fi
 	if (!metaDataList.isEmpty())
 	{
 		const QString field = this->metaData()->value(fieldId, "field");
-		// If a level is specified the field name is used + the level + 1
-		const QString levelField = field + QString::number(level + 1);
+		// If a level is specified the field name is used + the level
+		const QString levelField = field + QString::number(level);
 		/*
 		 * The section is used if no object ID is given (for example for Misc Data) and is the .txt file's section which contains the field value.
 		 * It does not exist in Warcraft III: Reign of Chaos but in Frozen Throne.
@@ -1266,6 +1299,14 @@ QString ObjectData::defaultFieldValue(const QString &objectId, const QString &fi
 
 		foreach (MetaData *metaData, metaDataList)
 		{
+			// This might happen when the meta data file has not been loaded properly.
+			if (metaData == nullptr)
+			{
+				qDebug() << "Warning: nullptr meta data.";
+
+				continue;
+			}
+
 			if (metaData->hasValue(rowKey, field))
 			{
 				value = metaData->value(rowKey, field);
@@ -1273,6 +1314,7 @@ QString ObjectData::defaultFieldValue(const QString &objectId, const QString &fi
 
 				break;
 			}
+
 			// Test level as well. The level entries do work for the SLK files with fields like "adur1" but for TXT fields like "Ubertip"/"aub1" it is always "Ubertip" but the level values are separated by , characerters. The difference between these two types of entries is that for the "Ubertip" entry the index is set to 0 while for the "adur" entry it is set to -1.
 			else if (metaData->hasValue(rowKey, levelField))
 			{
@@ -1329,7 +1371,7 @@ QString ObjectData::defaultFieldValue(const QString &objectId, const QString &fi
 		}
 	}
 
-	qDebug() << "Data value not found:" << objectId << fieldId;
+	qDebug() << "Default field value not found:" << objectId << ":" << fieldId;
 
 	return "";
 }
