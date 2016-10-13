@@ -25,11 +25,14 @@ namespace wc3lib
 {
 /**
  * \page mapsection Map module
- * Use this module to read, write and modify Warcraft III maps (*.w3m, *.w3x) and campaigns (*.w3n) and their corresponding files.
+ * Use this module to read, write and modify Warcraft III maps (*.w3m, *.w3x) which are represented by the classes \ref W3m and \ref W3x and campaigns (*.w3n) which are represented by the class \ref W3n and their corresponding files.
  *
- * Warcraft III maps and campaigns are usual MPQ archives containing some specific files, most of them in a binary format.
+ * Warcraft III maps and campaigns are regular MPQ archives containing some specific files, most of them in a binary format but some like map strings or SLK files are in
+ * readable form.
  *
  * Include file \ref map.hpp and use namespace \ref wc3lib::map for this module.
+ *
+ * The basic readable formats of SLK and TXT files can be loaded and written using \ref Slk and \ref Txt.
  *
  * \namespace wc3lib::map
  * \brief \ref mapsection

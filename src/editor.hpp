@@ -25,7 +25,7 @@ namespace wc3lib
 {
 /**
  * \page editorsection Editor module
- * The editor module contains many classes to emulate the original World Editor created by Blizzard Entertainment.
+ * The editor module contains many classes to emulate the original World Editor for Warcraft III created by Blizzard Entertainment.
  *
  * It's based on some plugins which can be used without the whole editor module functionality, as well.
  *
@@ -33,7 +33,7 @@ namespace wc3lib
  *
  * Resource classes derived from \ref editor::Resource can be used to load Warcraft III date like textures (\ref editor::Texture), models (\ref editor::OgreMdlx) or maps (\ref editor::Map).
  *
- * Those wrapper classes provide load and save functionality based on the KIO API and considering \ref editor::MpqPriorityList entries.
+ * Those wrapper classes provide load and save functionality based on the API of \ref editor::MpqPriorityList.
  *
  * \section pluginssection Plugins
  * There is various plug-ins which allow you to load and save BLP textures in Qt/KDE GUIs and OGRE scenes and to access MPQ archives via KDE's KIO slave module:
@@ -50,6 +50,22 @@ namespace wc3lib
  * <li>\subpage objecteditorsection </li>
  * <li>\subpage mpqeditorsection </li>
  * </ul>
+ *
+ * \section appsection Applications
+ * The editor module brings its own applications based on the editor libraries:
+ * <ul>
+ * <li>wc3ability - Standalone GUI ability editor based on \ref AbilityEditor .</li>
+ * <li>wc3editor - World Editor GUI emulation based on \ref Editor .</li>
+ * <li>wc3model - Standalone GUI model editor based on \ref ModelEditor .</li>
+ * <li>wc3mpq - Standalone GUI MPQ editor based on \ref MpqEditor .</li>
+ * <li>wc3object - Standalone GUI object editor based on \ref ObjectEditor .</li>
+ * <li>wc3texture - Standalone GUI texture object editor based on \ref TextureEditor .</li>
+ * <li>wc3trigger - Standalone GUI trigger editor based on \ref TriggerEditor .</li>
+ * <li>wc3unit - Standalone GUI unit editor based on \ref UnitEditor .</li>
+ * </ul>
+ *
+ * The applications are installed on the target platform and can be started as regular applications.
+ * For Unix systems .desktop files are distributed as well.
  *
  * \namespace wc3lib::editor
  * \brief \ref editorsection

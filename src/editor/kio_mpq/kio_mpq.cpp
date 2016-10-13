@@ -246,7 +246,7 @@ void MpqSlave::open(const QUrl &url, QIODevice::OpenMode mode)
 
 			try
 			{
-				std::streamsize size = this->m_file.decompress(stream);
+				this->m_file.decompress(stream);
 				QByteArray data = stream.str().c_str();
 				QMimeDatabase db;
 				QMimeType fileMimeType = db.mimeTypeForFileNameAndData(url.fileName(), data);
@@ -737,8 +737,8 @@ void MpqSlave::put(const QUrl &url, int permissions, KIO::JobFlags flags)
 		return;
 	}
 
-	mpq::File::Locale locale = mpq::File::Locale::Neutral; // TODO get from URL
-	mpq::File::Platform platform = mpq::File::Platform::Default;
+	//mpq::File::Locale locale = mpq::File::Locale::Neutral; // TODO get from URL
+	//mpq::File::Platform platform = mpq::File::Platform::Default;
 
 	// TODO read URL into temporary local file and add file to MPQ archive!
 

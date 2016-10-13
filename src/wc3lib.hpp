@@ -55,7 +55,7 @@
 *
 * \date Version date
 * \today
-* \author Tamino Dauth <tamino@cdauth.eu>
+* \author Tamino Dauth
 *
 * \copyright GNU GENERAL PUBLIC LICENSE Version 2 (except external library code)
 *
