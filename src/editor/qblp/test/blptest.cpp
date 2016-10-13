@@ -29,7 +29,7 @@
 #include <QtGui>
 #include <QtTest>
 
-QTEST_MAIN(wc3lib::editor::BlpTest);
+QTEST_GUILESS_MAIN(wc3lib::editor::BlpTest);
 
 namespace wc3lib
 {
