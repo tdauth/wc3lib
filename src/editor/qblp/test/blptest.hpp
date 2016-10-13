@@ -44,6 +44,7 @@ class BlpTest : public QObject
 		void init();
 		void cleanup();
 
+		void supportedTest();
 		void ioHandlerReadTest();
 		void ioHandlerWriteTest();
 		void ioHandlerPalettedAlphaWriteTest();

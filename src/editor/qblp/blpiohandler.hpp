@@ -25,11 +25,8 @@
 
 #include "../../blp/blp.hpp"
 
-namespace wc3lib
-{
-
-namespace editor
-{
+using namespace wc3lib;
+using namespace wc3lib::blp;
 
 /**
  * Provides access to Blizzard's image format in Qt-based applications.
@@ -65,9 +62,5 @@ class BlpIOHandler : public QImageIOHandler
 	protected:
 		virtual blp::BlpHeader header() const;
 };
-
-}
-
-}
 
 #endif

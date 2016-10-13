@@ -23,12 +23,6 @@
 
 #include <QtGui/QImageIOPlugin>
 
-namespace wc3lib
-{
-
-namespace editor
-{
-
 /**
  * Provides access to Blizzard's image format in Qt-based applications.
  * \sa BlpIOHandler
@@ -37,7 +31,7 @@ class BlpIOPlugin : public QImageIOPlugin
 {
 	Q_OBJECT
 
-	Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QImageIOPlugin" FILE "blp.json")
+	Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QImageIOHandlerFactoryInterface" FILE "blp.json")
 
 	public:
 
@@ -46,9 +40,5 @@ class BlpIOPlugin : public QImageIOPlugin
 		virtual Capabilities capabilities (QIODevice *device, const QByteArray &format) const override;
 		virtual QImageIOHandler* create(QIODevice *device, const QByteArray &format = QByteArray()) const override;
 };
-
-}
-
-}
 
 #endif

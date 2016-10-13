@@ -25,11 +25,7 @@
 #include "../../platform.hpp"
 #include "../platform.hpp"
 
-namespace wc3lib
-{
-
-namespace editor
-{
+using namespace wc3lib::editor;
 
 BlpIOHandler::BlpIOHandler() : QImageIOHandler()
 {
@@ -314,8 +310,4 @@ blp::BlpHeader BlpIOHandler::header() const
 	device()->peek(reinterpret_cast<char*>(&header), sizeof(header));
 
 	return header;
-}
-
-}
-
 }

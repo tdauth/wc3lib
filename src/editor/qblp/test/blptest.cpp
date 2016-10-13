@@ -39,13 +39,17 @@ namespace editor
 
 void BlpTest::initTestCase()
 {
+	qDebug() << "Env value" << qgetenv("QT_DEBUG_PLUGINS");
+	QVERIFY(qgetenv("QT_DEBUG_PLUGINS") == QByteArray("1"));
 	// Called before the first testfunction is executed
 	m_loader = new QPluginLoader(QBLP_ABSOLUTE_PATH, this);
+	qDebug() << "Loading from path:" << QBLP_ABSOLUTE_PATH;
 	const bool loaded = m_loader->load();
 	const QString errorString = m_loader->errorString();
-	qDebug() << errorString;
+	qDebug() << "Error string:" << errorString;
 	QVERIFY(loaded);
 	QVERIFY(m_loader->isLoaded());
+	QVERIFY(m_loader->instance() != nullptr);
 
 	//m_plugin = dynamic_cast<BlpIOPlugin*>(m_loader->instance());
 	//QVERIFY(m_plugin != 0);
@@ -66,6 +70,12 @@ void BlpTest::init()
 void BlpTest::cleanup()
 {
     // Called after every testfunction
+}
+
+void BlpTest::supportedTest()
+{
+	qDebug() << "Formats:" << QImageReader::supportedImageFormats();
+	QVERIFY(QImageReader::supportedImageFormats().contains("blp"));
 }
 
 void BlpTest::ioHandlerReadTest()

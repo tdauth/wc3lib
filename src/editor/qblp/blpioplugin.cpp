@@ -22,11 +22,8 @@
 #include "blpiohandler.hpp"
 #include "../../blp/blp.hpp"
 
-namespace wc3lib
-{
-
-namespace editor
-{
+using namespace wc3lib;
+using namespace wc3lib::blp;
 
 BlpIOPlugin::BlpIOPlugin(QObject *parent) : QImageIOPlugin(parent)
 {
@@ -66,10 +63,6 @@ QImageIOHandler* BlpIOPlugin::create(QIODevice *device, const QByteArray &format
 	result->setFormat(format);
 
 	return result;
-}
-
-}
-
 }
 
 #include "moc_blpioplugin.cpp"
