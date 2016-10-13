@@ -7,7 +7,7 @@ set(wc3lib_EDITOR_QBLP_TEST_SRC blptest.cpp)
 
 add_executable(BlpTest ${wc3lib_EDITOR_QBLP_TEST_SRC})
 target_link_libraries(BlpTest wc3libcore wc3libblp qblp ${Boost_LIBRARIES} Qt5::Test)
-add_test(NAME BlpTests COMMAND ${CMAKE_COMMAND} -E env "QT_DEBUG_PLUGINS=\"1\"" BlpTest)
+add_test(NAME BlpTests COMMAND ${CMAKE_COMMAND} -E env "QT_DEBUG_PLUGINS=1" ./BlpTest)
 
 # get build path of plugin "qblp" and copy file to current build directory to load the plugin at runtime
 add_custom_command(TARGET BlpTest
