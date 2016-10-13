@@ -20,6 +20,7 @@
 
 #include <QtWidgets/QtWidgets>
 
+#include "config.h"
 #include "module.hpp"
 #include "modulemenu.hpp"
 #include "moduletoolbar.hpp"
@@ -58,6 +59,20 @@ Module::Module(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f)
 	{
 		connect(editor(), SIGNAL(switchedToMap(Map*)), this, SLOT(switchToMap(Map*)));
 	}
+
+#ifdef DEBUG
+	QPluginLoader loader("../qblp/qblp.so");
+
+	if (loader.instance())
+	{
+		qDebug() << "Ok";
+		qDebug() << "Supported image formats:" << QImageReader::supportedImageFormats();
+	}
+	else
+	{
+		qDebug() << "fail" << loader.errorString();
+	}
+#endif
 }
 
 Module::~Module()

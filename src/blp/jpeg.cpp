@@ -366,7 +366,7 @@ void writeMipMapJpeg(const Blp::MipMap &mipMap, unsigned char *&buffer, unsigned
 		const JDIMENSION imageWidth = boost::numeric_cast<JDIMENSION>(mipMap.width());
 		const JDIMENSION imageHeight = boost::numeric_cast<JDIMENSION>(mipMap.height());
 		const int inputComponents = 4; // actually stored as ABGR, 4 components
-		/// \todo Get as much required scanlines as possible (highest divident) to increase speed. Actually it could be equal to the MIP maps height which will lead to reading the whole MIP map with one single \ref jpeg_write_scanlines call
+		/// \todo Get as much required scanlines as possible (highest divident) to increase speed. Actually it could be equal to the MIP maps height which will lead to reading the whole MIP map with one single jpeg_write_scanlines() call
 		const JDIMENSION requiredScanlines = imageHeight; // increase this value to read more scanlines in one step
 		assert(requiredScanlines <= imageHeight && requiredScanlines > 0);
 		const JDIMENSION scanlineSize = imageWidth * inputComponents; // JSAMPLEs per row in output buffer

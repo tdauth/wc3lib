@@ -64,7 +64,7 @@ void jass_generator<Iterator>::prepare(Iterator first, jass_ast &ast, jass_file 
 }
 
 /**
- * \return Returns true if type \ref type_reference is type nothing.
+ * \return Returns true if type \p type_reference is type nothing.
  */
 bool is_type_nothing(const jass_type_reference &type_reference)
 {

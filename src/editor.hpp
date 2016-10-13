@@ -29,7 +29,7 @@ namespace wc3lib
  *
  * It's based on some plugins which can be used without the whole editor module functionality, as well.
  *
- * Include file \ref editor.hpp and use namspace \ref wc3lib::edtor to use this module.
+ * Include file \ref editor.hpp and use namspace \ref wc3lib::editor to use this module.
  *
  * Resource classes derived from \ref editor::Resource can be used to load Warcraft III date like textures (\ref editor::Texture), models (\ref editor::OgreMdlx) or maps (\ref editor::Map).
  *

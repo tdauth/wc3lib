@@ -107,7 +107,7 @@ class Editor : public QObject, public MpqPriorityList
 		/**
 		 * Similar to \ref Module::configure().
 		 *
-		 * Pops up a source dialog (\ref SourceDialog) if necessary and no source has been configured and tries to load the default sharad data files.
+		 * Pops up a sources dialog (\ref SourcesDialog) if necessary and no source has been configured and tries to load the default sharad data files.
 		 *
 		 * \return Returns true if everything has been configured and loaded successfully.
 		 */

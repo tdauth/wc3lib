@@ -26,13 +26,13 @@ namespace wc3lib
 /**
  * \page jasssection JASS module
  * The JASS module aims to provide a full compiler environment for the scripting language JASS which is used in custom maps to provide a custom game logic.
- * 
- * This module offers types for an AST (Abstract Syntax Tree) as well as the class \ref Grammar for generating such a tree from user input.
- * 
+ *
+ * This module offers types for an AST (Abstract Syntax Tree) as well as the class \ref jass::Grammar for generating such a tree from user input.
+ *
  * Class \ref jass::Analyser can be used for full parsing/syntax validation by checking for static semantic rules like type checks.
- * 
+ *
  * Include file \ref jass.hpp and use namespace \ref wc3lib::jass for this module.
- * 
+ *
  * \namespace wc3lib::jass
  * \brief \ref jasssection
  */

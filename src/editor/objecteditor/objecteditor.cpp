@@ -472,11 +472,29 @@ void ObjectEditor::widgetizeAll()
 				this->tab(i)->objectData()->widgetize(QUrl::fromLocalFile(dir));
 			}
 		}
-		catch (Exception &e)
+		catch (const Exception &e)
 		{
 			QMessageBox::critical(this, tr("Error on widgetizing all objects"), e.what());
 		}
 	}
+}
+
+void ObjectEditor::find()
+{
+	const QString findExpression = QInputDialog::getText(this, tr("Find"), tr("Text:"));
+
+	if (!findExpression.isEmpty())
+	{
+		// TODO implement
+	}
+}
+
+void ObjectEditor::findNext()
+{
+}
+
+void ObjectEditor::findPrevious()
+{
 }
 
 void ObjectEditor::compress()

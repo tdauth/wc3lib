@@ -31,7 +31,7 @@
  * Unfortunately, it is slower than for example Bison since it does not generate code which is then compiled and much faster. Besides it does not use a separate lexer by default,
  * so parsers must be written carefully unless you want to get bad performance.
  *
- * Use the header \ref spirit.hpp or \ref qi.hpp before including anything from Boost Spirit or Qi. They define important macros and the debugging output file as \ref spiritTraceLog which
+ * Use the header \ref spirit.hpp or \ref qi.hpp before including anything from Boost Spirit or Qi. They define important macros and the debugging output file as \ref wc3lib::spiritTraceLog which
  * can be useful for Unit Tests.
  */
 #ifndef WC3LIB_SPIRIT_HPP

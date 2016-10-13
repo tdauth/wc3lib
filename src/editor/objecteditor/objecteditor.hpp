@@ -242,6 +242,10 @@ class ObjectEditor : public Module
 		void compressAll();
 		void widgetizeAll();
 
+		void find();
+		void findNext();
+		void findPrevious();
+
 		/**
 		 * Compresses the object data of the currently open tab.
 		 */

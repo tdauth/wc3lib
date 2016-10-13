@@ -356,8 +356,6 @@ inline int MapStringsTextSource::rows() const
  *
  * Both kind of files use the UTF-8 encoding by default.
  *
- * You can use \ref hasSlk() or \ref hasTxt() to check which kind of file is actually behind the interface.
- *
  * \note Theoretically it is possible to store several values under the same keys using multiple equally named rows, columns, sections or entries but this class assumes that each identifier is picked uniquely. An exception might be entries in sections since there can be at least one entry per section so if multiple sections have the same entry it still would be unique in that section which is enough to use it as a hash value.
  *
  * \todo Add FDF support.

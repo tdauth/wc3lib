@@ -49,37 +49,20 @@ class BlpCodec : public Ogre::ImageCodec
 		static void shutdown();
 
 		virtual ~BlpCodec();
-		/**
-		 * \copydoc Ogre::ImageCodec::getDataType
-		 */
 		Ogre::String getDataType() const override;
 		/**
-		 * \copydoc Ogre::ImageCodec::code
 		 * \todo Is still not supported due to complexity of implementation (you have to support all other formats).
 		 */
 		virtual Ogre::DataStreamPtr encode(Ogre::MemoryDataStreamPtr &input, CodecDataPtr &pData) const override;
 		/**
-		 * \copydoc Ogre::ImageCodec::codeToFile
 		 * \todo Is still not supported due to complexity of implementation (you have to support all other formats).
 		 */
 		virtual void encodeToFile(Ogre::MemoryDataStreamPtr &input, const Ogre::String &outFileName, CodecDataPtr &pData) const override;
 		/// \todo Support alpha value and paletted image.
 		virtual DecodeResult decode(const blp::Blp &blp) const;
-		/**
-		 * \copydoc Ogre::ImageCodec::decode
-		 */
 		virtual DecodeResult decode(Ogre::DataStreamPtr &input) const override;
-		/**
-		 * \copydoc Ogre::ImageCodec::getType
-		 */
 		virtual Ogre::String getType () const override;
-		/**
-		 * \copydoc Ogre::ImageCodec::magicNumberMatch
-		 */
 		virtual bool magicNumberMatch(const char *magicNumberPtr, size_t maxbytes) const override;
-		/**
-		 * \copydoc Ogre::ImageCodec::magicNumberToFileExt
-		 */
 		virtual Ogre::String magicNumberToFileExt(const char *magicNumberPtr, size_t maxbytes) const override;
 
 	protected:

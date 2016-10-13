@@ -24,7 +24,7 @@
 
 /**
  * \file
- * Unit Test which tests \ref ObjectData and its sub classes with original Warcraft III data.
+ * Unit Test which tests \ref wc3lib::editor::ObjectData and its sub classes with original Warcraft III data.
  */
 #define BOOST_TEST_MODULE ObjectData
 #include <boost/test/unit_test.hpp>

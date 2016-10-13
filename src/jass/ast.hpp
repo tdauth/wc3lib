@@ -32,7 +32,7 @@
  * Defines structures for a basic JASS abstract syntax tree.
  * All nodes represent declarations, expressions or statements of JASS code.
  *
- * \ref jass_ast provides access to one single AST.
+ * \ref wc3lib::jass::jass_ast provides access to one single AST.
  */
 
 #include <vector>
@@ -386,7 +386,7 @@ struct jass_expression : public jass_expression_node
 
 	/**
 	 * Enumeration for type information of the variant.
-	 * Instead of using \ref which() you could use \ref whichType() which returns
+	 * Instead of using which() you could use \ref whichType() which returns
 	 * a precise enumeration value.
 	 */
 	enum class Type
@@ -677,7 +677,7 @@ struct jass_const : public jass_expression_node
 
 	/**
 	 * Enumeration for type information of the variant.
-	 * Instead of using \ref which() you could use \ref whichType() which returns
+	 * Instead of using which() you could use \ref whichType() which returns
 	 * a precise enumeration value.
 	 */
 	enum class Type

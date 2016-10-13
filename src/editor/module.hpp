@@ -129,7 +129,6 @@ class Module : public QWidget
 	protected:
 		/**
 		 * Calls this member function to setup the usual module user interface which contains some default menus.
-		 * \note If you overwrite this function you should consider calling \ref moduleAboutData().
 		 */
 		virtual void setupUi();
 

@@ -91,7 +91,7 @@ class Sector // FIXME : private boost::noncopyable
 		virtual ~Sector();
 
 		/**
-		 * Same as \ref readData(const byte*, const uint32, int) but detects buffer and buffer size automatically by simply using \ref Archive::sectorSize() of the corresponding MPQ archive or less (if input stream hasn't that much data).
+		 * Same as \ref compress(const byte*, const uint32, int) but detects buffer and buffer size automatically by simply using \ref Archive::sectorSize() of the corresponding MPQ archive or less (if input stream hasn't that much data).
 		 */
 		std::streamsize compress(istream &istream, int waveCompressionLevel = defaultWaveCompressionLevel);
 		/**
@@ -106,7 +106,7 @@ class Sector // FIXME : private boost::noncopyable
 		 */
 		std::streamsize decompress(ostream &ostream) const;
 		/**
-		 * Same as \ref Sector::writeData(wc3lib::ostream &) but doesn't work independently since it expects to be at the correct position in archive using \p istream as input archive stream.
+		 * Same as \ref Sector::decompress(ostream &) const but doesn't work independently since it expects to be at the correct position in archive using \p istream as input archive stream.
 		 */
 		std::streamsize decompress(istream &istream, ostream &ostream) const;
 

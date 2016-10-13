@@ -285,9 +285,7 @@ class MpqPriorityList
 		virtual bool removeDefaultSources();
 
 		/**
-		 * \copydoc KIO::NetAccess::download()
 		 * Considers all entries if it's an relative URL. Otherwise it will at least consider the priority list's locale if none is given.
-		 * \note If \p src is an absolute URL it will work just like \ref KIO::NetAccess::download(). Therefore this member function should be a replacement whenever you want to download something to make relative URLs to custom sources available in your application.
 		 * \todo If it's an "mpq:/" URL and there is no locale given add one considering \ref locale().
 		 */
 		virtual bool download(const QUrl &src, QString &target, QWidget *window) const;

@@ -69,7 +69,7 @@ namespace map
  * \endcode
  * This requires MPQ support to be enabled in wc3lib.
  *
- * \note When opening a map it doesn't read any file format automatically. To read all file formats at once you can use \ref W3m::readAllFileFormats().
+ * \note When opening a map it doesn't read any file format automatically. To read all file formats at once you can use \ref readAllFileFormats().
  * \sa W3x
  * \todo Maybe allocate on request as well?
  */
@@ -104,7 +104,8 @@ public Playable
 
 #ifdef MPQ
 		/**
-		 * \param istream has to contain the map's header + the map's MPQ archive.
+		 * Reads \p fileFormat from the map's archive. Uses the file format's name to get the file from the MPQ archive.
+		 * \param fileFormat The format of which the name is used and which is read from the archive.
 		 * Here's a list of all possible file names:
 		 * <ul>
 		 * <li>war3map.w3e</li>

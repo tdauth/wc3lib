@@ -38,7 +38,7 @@ namespace editor
 {
 
 /**
- * Provides access to one single texture in four different ways. Firstly there is an instance of \ref blp::Blp if it's a BLP image which provides you direct access to MIP map color data/color palette etc., secondly there is access to an object of \ref QImage which can be used to display your texture in your GUI and finally there is access to an object of \ref Ogre::Image which can be used to display your texture in your 3D scene and its corresponding \ref Ogre::Texture instance.
+ * Provides access to one single texture in four different ways. Firstly there is an instance of \ref blp::Blp if it's a BLP image which provides you direct access to MIP map color data/color palette etc., secondly there is access to an object of QImage which can be used to display your texture in your GUI and finally there is access to an object of Ogre::Image which can be used to display your texture in your 3D scene and its corresponding Ogre::Texture instance.
  * You do not have to store all four objects or any of them! Everything is optional!
  * Please consider that this class tries to get the most performant way to load all those objects by checking if it already has one of them and if so, using the object's buffer instead of loading it from the corresponding file again which usually is much slower than reading from memory.
  * Besides when saving the texture via \ref Texture::save() it tries to get the most performant way, as well. For example, if you save your texture as BLP image and there is a \ref blp::Blp instance already in your texture (\ref Texture::hasBlp()) it won't save the texture via its Qt or OGRE object since it's much faster to write the BLP object on disk.

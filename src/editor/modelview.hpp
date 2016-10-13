@@ -87,7 +87,7 @@ class ModelView : public QWidget
 		friend class Settings;
 
 		/**
-		 * As there is no continuous rendering loop (\ref Ogre::Root::startRendering) this member function has to be called each time the rendering should be refreshed.
+		 * As there is no continuous rendering loop (Ogre::Root::startRendering()) this member function has to be called each time the rendering should be refreshed.
 		 * If there is no created render window, \ref initRenderWindow is called automatically to create one.
 		 */
 		virtual void render();

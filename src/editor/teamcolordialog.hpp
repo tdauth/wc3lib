@@ -33,7 +33,7 @@ namespace editor
 {
 
 /**
- * Widget with a \ref KColorComboBox which is limited to all available team colors in Warcraft III.
+ * Widget with a combo box which is limited to all available team colors in Warcraft III.
  * \sa TeamColor
  */
 class TeamColorDialog : public QDialog, protected Ui::TeamColorDialog
