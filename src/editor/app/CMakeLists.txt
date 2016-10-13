@@ -3,7 +3,7 @@ if (APP AND EDITOR)
 	target_link_libraries(wc3editor ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libtextureeditor wc3libtriggereditor wc3libobjecteditor wc3libmpqeditor)
 
 	if (MDLX)
-		target_link_libraries(wc3libeditor wc3libmodeleditor)
+		target_link_libraries(wc3editor wc3libmodeleditor)
 	endif ()
 
 	install(TARGETS wc3editor DESTINATION bin)
