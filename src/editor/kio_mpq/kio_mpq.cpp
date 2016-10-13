@@ -35,8 +35,6 @@
 #include "kio_mpq.hpp"
 #include "../platform.hpp"
 
-static const int debugArea = 7200;
-
 namespace wc3lib
 {
 
