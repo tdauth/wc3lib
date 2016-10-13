@@ -22,6 +22,7 @@
 #include <QScopedPointer>
 
 #include "../../editor.hpp"
+#include "../modeleditor/modeleditor.hpp"
 
 using namespace wc3lib::editor;
 
