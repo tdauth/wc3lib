@@ -179,7 +179,8 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 		add_subdirectory(triggereditor)
 
                 if (MDLX)
-                    add_subdirectory(modeleditor)
+			message(STATUS "Adding wc3libmodeleditor since MDLX is enabled.")
+			add_subdirectory(modeleditor)
                 endif ()
 
 		add_subdirectory(mpqeditor)
