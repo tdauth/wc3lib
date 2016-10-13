@@ -66,27 +66,35 @@ if (DOC)
 		)
 		set(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/api)
 
+		set(CORE_INCLUDE "${CMAKE_BINARY_DIR}/src")
+
 		# add all include paths from CMake
 		if (EDITOR)
-			get_directory_property(OBJECTEDITOR_INCLUDE DIRECTORY "${CMAKE_SOURCE_DIR}/src/editor/objecteditor" INCLUDE_DIRECTORIES)
-			get_directory_property(MPQEDITOR_INCLUDE DIRECTORY "${CMAKE_SOURCE_DIR}/src/editor/mpqeditor" INCLUDE_DIRECTORIES)
-			get_directory_property(TRIGGEREDITOR_INCLUDE DIRECTORY "${CMAKE_SOURCE_DIR}/src/editor/triggereditor" INCLUDE_DIRECTORIES)
+			set(EDITOR_INCLUDE "${CMAKE_BINARY_DIR}/src/editor")
+			set(OBJECTEDITOR_INCLUDE "${CMAKE_SOURCE_DIR}/src/editor/objecteditor")
+			set(MPQEDITOR_INCLUDE "${CMAKE_BINARY_DIR}/src/editor/mpqeditor")
+			set(TRIGGEREDITOR_INCLUDE "${CMAKE_BINARY_DIR}/src/editor/triggereditor")
 
 			if (MDLX)
-				get_directory_property(MODELEDITOR_INCLUDE DIRECTORY "${CMAKE_SOURCE_DIR}/src/editor/modeleditor" INCLUDE_DIRECTORIES)
+				set(MODELEDITOR_INCLUDE "${CMAKE_BINARY_DIR}/src/editor/modeleditor")
 			endif ()
 
-			get_directory_property(TEXTUREEDITOR_INCLUDE DIRECTORY "${CMAKE_SOURCE_DIR}/src/editor/textureeditor" INCLUDE_DIRECTORIES)
-			#  ${CMAKE_INCLUDE} ${OBJECTEDITOR_INCLUDE} ${MPQEDITOR_INCLUDE} ${TRIGGEREDITOR_INCLUDE} ${MODELEDITOR_INCLUDE} ${TEXTUREEDITOR_INCLUDE}
-			message(STATUS "Doxygen 1: ${TEXTUREEDITOR_INCLUDE}")
-			string(REPLACE ";" ":" DOXYGEN_TMP_INCLUDE_PATH ${TEXTUREEDITOR_INCLUDE})
-			message(STATUS "Doxygen include path: ${DOXYGEN_TMP_INCLUDE_PATH}")
+			set(TEXTUREEDITOR_INCLUDE "${CMAKE_BINARY_DIR}/src/editor/textureeditor")
 
-			set(DOXYGEN_INCLUDE_PATH ${CMAKE_INCLUDE} ${OBJECTEDITOR_INCLUDE} ${MPQEDITOR_INCLUDE} ${TRIGGEREDITOR_INCLUDE} ${MODELEDITOR_INCLUDE} ${TEXTUREEDITOR_INCLUDE})
+			set(DOXYGEN_INCLUDE_PATH ${CMAKE_INCLUDE} ${CORE_INCLUDE} ${EDITOR_INCLUDE} ${OBJECTEDITOR_INCLUDE} ${MPQEDITOR_INCLUDE} ${TRIGGEREDITOR_INCLUDE} ${MODELEDITOR_INCLUDE} ${TEXTUREEDITOR_INCLUDE})
 		else ()
-			set(DOXYGEN_INCLUDE_PATH ${CMAKE_INCLUDE})
+			set(DOXYGEN_INCLUDE_PATH ${CMAKE_INCLUDE} ${CORE_INCLUDE})
 		endif ()
-		#string(REPLACE ";" ":" DOXYGEN_INCLUDE_PATH ${DOXYGEN_INCLUDE_PATH})
+
+		set(DOXYGEN_INCLUDE_PATH ${DOXYGEN_INCLUDE_PATH} "${CMAKE_SOURCE_DIR}/src")
+
+		function(JOIN VALUES GLUE OUTPUT)
+			string (REGEX REPLACE "([^\\]|^);" "\\1${GLUE}" _TMP_STR "${VALUES}")
+			string (REGEX REPLACE "[\\](.)" "\\1" _TMP_STR "${_TMP_STR}") #fixes escaping
+			set (${OUTPUT} "${_TMP_STR}" PARENT_SCOPE)
+		endfunction()
+
+		JOIN("${DOXYGEN_INCLUDE_PATH}" " " DOXYGEN_INCLUDE_PATH)
 
 		# configure Doxygen options by CMake options
 		if (DOXYGEN_HTML)
@@ -134,12 +142,5 @@ if (DOC)
 
 		# install
 		install(DIRECTORY "${DOXYGEN_OUTPUT_DIR}" DESTINATION usr/share/doc/wc3lib/)
-		#execute_process(COMMAND ${DOXYGEN_EXECUTABLE} "doxygen.conf")
-		#add_custom_target(doc COMMAND ${DOXYGEN_EXECUTABLE} doxygen.conf WORKING_DIRECTORY src COMMENT "Building documentation" VERBATIM)
 	endif ()
 endif ()
-
-# install
-#if (DOC)
-#	install(DIRECTORY . DESTINATION share/doc/wc3lib/)
-#endif ()
