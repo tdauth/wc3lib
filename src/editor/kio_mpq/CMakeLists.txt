@@ -26,5 +26,5 @@ if (DEBUG)
 endif ()
 
 # install
-install(TARGETS kio_mpq  DESTINATION ${PLUGIN_INSTALL_DIR})
+install(TARGETS kio_mpq DESTINATION ${PLUGIN_INSTALL_DIR})
 install(FILES ${wc3lib_EDITOR_KIO_MPQ_H} DESTINATION include/wc3lib/editor/kio_mpq)
