@@ -17,3 +17,13 @@ if (JASS)
 	target_link_libraries(jasstranstest ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
 	add_test(NAME JasstransTest COMMAND ${CMAKE_CURRENT_BINARY_DIR}/jasstranstest)
 endif ()
+
+if (MAP)
+	add_executable(wc3transtest wc3trans_test.cpp)
+	target_link_libraries(wc3transtest ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
+	add_test(NAME Wc3TransTest COMMAND ./wc3trans)
+
+	configure_file(war3map_de.wts war3map_de.wts COPYONLY)
+	configure_file(war3map_en.wts war3map_en.wts COPYONLY)
+	configure_file(war3map_untranslated_en.wts war3map_untranslated_en.wts COPYONLY)
+endif ()

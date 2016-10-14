@@ -36,6 +36,7 @@ namespace map
  *
  * The grammar of a map strings file consists of string entries with numbers:
  * \code
+ * // My string comment.
  * STRING 23
  * {
  * My Text
@@ -43,6 +44,7 @@ namespace map
  * \endcode
  *
  * \todo Implement Boost Qi parser and Karma generator!
+ * \todo Allow reading without parsing comments which might be faster. Comments could be ignored.
  */
 class MapStrings : public FileFormat
 {
@@ -58,11 +60,18 @@ class MapStrings : public FileFormat
 		 */
 		struct Entry
 		{
-			int key;
+			/**
+			 * The integer key after the STRING expression.
+			 * Can be unisgned since there is no negative values.
+			 */
+			int32 key;
 			/**
 			 * The comment might be important since it usually contains information about the string's location.
 			 */
 			string comment;
+			/**
+			 * The actual string value which has to be translated.
+			 */
 			string value;
 
 			Entry() : key(0)
@@ -83,7 +92,7 @@ class MapStrings : public FileFormat
 
 		virtual std::streamsize read(InputStream& istream) override;
 		virtual std::streamsize write(OutputStream& ostream) const override;
-		
+
 		/**
 		 * Clears all entries.
 		 */

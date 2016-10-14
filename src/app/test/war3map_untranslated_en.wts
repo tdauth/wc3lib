@@ -1,0 +1,17 @@
+STRING 1
+{
+Hello
+}
+STRING 2
+{
+World
+}
+// Abilities
+STRING 3
+{
+This
+}
+STRING 4
+{
+Another sentence
+}

@@ -122,12 +122,15 @@ struct StringsGrammar : qi::grammar<Iterator, MapStrings::Entries(), Skipper>
 			>> -skipped
 		;
 
+		/*
+		 * Append all comment strings before the first { character to the comment of the entry.
+		 */
 		pair =
-			-skipped
+			-skipped[phoenix::bind(&appendString, at_c<1>(_val), phoenix::ref(_1))]
 			>> lit("STRING")
-			>> -skipped
-			>> int_[at_c<0>(_val) = _1]
-			>> -skipped[at_c<1>(_val) = _1]
+			>> -skipped[phoenix::bind(&appendString, at_c<1>(_val), phoenix::ref(_1))]
+			>> qi::uint_parser<int32>()[at_c<0>(_val) = _1]
+			>> -skipped[phoenix::bind(&appendString, at_c<1>(_val), phoenix::ref(_1))]
 			>> lit('{')
 			>> -qi::eol
 			>> value[at_c<2>(_val) = _1]
@@ -187,7 +190,7 @@ bool parse(Iterator first, Iterator last, MapStrings::Entries &entries)
 		first,
 		last,
 		grammar,
-		// comment skipper
+		// skip blank lines
 		ascii::blank,
 		entries
 	);
@@ -251,14 +254,14 @@ std::streamsize MapStrings::write(OutputStream &ostream) const
 		{
 			ostream << "// " << ref.comment << std::endl;
 		}
-		
+
 		ostream << "STRING " << ref.key << std::endl
 		<< '{' << std::endl
 		<< ref.value << std::endl
 		<< '}' << std::endl
 		;
 	}
-	
+
 	return 0;
 }
 
