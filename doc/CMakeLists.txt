@@ -62,7 +62,7 @@ if (DOC)
 		# with DOXYGEN_SOURCE_DIR we fill a list of directories and later we write it into
 		# the Doxyfile with a REGEX REPLACE (see below)
 		set(DOXYGEN_SOURCE_DIR
-			"${CMAKE_SOURCE_DIR}/src"
+			"${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/lib"
 		)
 		set(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/api)
 
