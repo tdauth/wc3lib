@@ -1,13 +1,3 @@
-* FIXED: Some default field values like TargetArt for Abilities are empty but should not be. This is because lower or higher cases are ignored for section strings in meta data! For example "Targetart" is used in the .txt files but "TargetArt" is specified in the .slk meta data file.
-* FIXED: Tooltips level 1 are not displayed properly for abilities (default values are shown) (start with 1 instead of 0?).
-* Use the data attribute for field values and change it on modifications!
-* FIXED: Compress object modifications which are for higher levels than the object actually has.
-
-FIXED:
-If abilities are exported, many modifications are not exported as well!
-Seems that level modifications are only displayed for level 1.
-Level and data information was dropped by the unitToObjectModification function which was called incorrectly in importCustomObjects().
-
 Sector error (sector 1, file "Units\OrcUpgradeStrings.txt"):
 Explode error: "Invalid dictionary size.".
 von War3Patch.mpq oder War3xLocal.mpq
@@ -50,6 +40,16 @@ Block table entries: 1156
 * DONE: Add MPQ archive addFile() and removeFile() support.
 * Add corresponding options to the program "mpq".
 * Use BOOST_CHECK_EQUAL instead of BOOST_CHECK with the == operator.
+
+* FIXED: Some default field values like TargetArt for Abilities are empty but should not be. This is because lower or higher cases are ignored for section strings in meta data! For example "Targetart" is used in the .txt files but "TargetArt" is specified in the .slk meta data file.
+* FIXED: Tooltips level 1 are not displayed properly for abilities (default values are shown) (start with 1 instead of 0?).
+* Use the data attribute for field values and change it on modifications!
+* FIXED: Compress object modifications which are for higher levels than the object actually has.
+
+FIXED:
+If abilities are exported, many modifications are not exported as well!
+Seems that level modifications are only displayed for level 1.
+Level and data information was dropped by the unitToObjectModification function which was called incorrectly in importCustomObjects().
 
 2016-02-11 Tamino Dauth <tamino@cdauth.eu>
 * Implement tree model for trigger editor instead of using trigger widget.
