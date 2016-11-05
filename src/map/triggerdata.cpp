@@ -390,7 +390,14 @@ void TriggerData::writeFunction(const Function *function, Txt::Section &section)
 
 	stringstream sstream;
 
-	// TODO needs extra treatment for calls? canBeUsedInEvents?
+	// Needs extra flag.
+	const Call *call = dynamic_cast<const Call*>(function);
+
+	if (call != nullptr)
+	{
+		sstream << call->canBeUsedInEvents() << ",";
+	}
+
 	for (std::size_t i = 0; i < argSize; ++i)
 	{
 		if (i > 0)
@@ -945,11 +952,7 @@ std::streamsize TriggerData::write(OutputStream &ostream) const
 
 		if (parameter->type() != nullptr)
 		{
-			sstream << "," << parameter->type()->name();
-		}
-		else
-		{
-			sstream << ",";
+			sstream << parameter->type()->name();
 		}
 
 		sstream << "," << parameter->code() << "," << parameter->displayText();
