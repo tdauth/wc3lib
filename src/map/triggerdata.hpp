@@ -172,8 +172,9 @@ class TriggerData : public FileFormat
 				string m_displayText;
 		};
 
-		// Class for events, conditions and actions
-		// TODO support defaults, limits and category
+		/**
+		 * \brief Class for events, conditions and actions and base class for calls.
+		 */
 		class Function : public Format
 		{
 			public:
@@ -207,8 +208,16 @@ class TriggerData : public FileFormat
 				Category* category() const;
 				Values& defaults();
 				const Values& defaults() const;
+				/**
+				 * The limits define the minimum and maximum values an argument of the function can have. If they are "_" there is no limit.
+				 * @{
+				 */
 				Limits& limits();
 				const Limits& limits() const;
+				/**
+				 * @}
+				 */
+
 
 				virtual std::streamsize read(InputStream& istream) override;
 				virtual std::streamsize write(OutputStream& ostream) const override;
@@ -371,6 +380,7 @@ class TriggerData : public FileFormat
 	private:
 		template<class FunctionType>
 		void readFunction(const Txt::Entry &ref, boost::ptr_map<string, FunctionType> &functions);
+		void writeFunction(const Function *function, Txt::Section &section) const;
 
 		string::size_type firstNonNumericChar(const string &value) const;
 

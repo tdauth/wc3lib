@@ -69,8 +69,8 @@ BOOST_AUTO_TEST_CASE(TriggerDataReignOfChaos)
 	BOOST_CHECK(triggerData.latestFileVersion() == 0); // has no specific version
 
 	// data from the file
-	BOOST_CHECK(triggerData.categories().size() == 43); // section [TriggerCategories]
-	BOOST_REQUIRE(triggerData.types().size() == 133); // section [TriggerTypes]
+	BOOST_CHECK_EQUAL(triggerData.categories().size(), 43); // section [TriggerCategories]
+	BOOST_REQUIRE_EQUAL(triggerData.types().size(), 133); // section [TriggerTypes]
 	// TODO check more sections
 
 	// first type:
@@ -211,8 +211,11 @@ BOOST_AUTO_TEST_CASE(TriggerDataReignOfChaosReadWriteRead)
 	triggerData.clear();
 
 	BOOST_REQUIRE(triggerData.categories().empty());
-	BOOST_REQUIRE(triggerData.categories().empty());
 	BOOST_REQUIRE(triggerData.types().empty());
+	BOOST_REQUIRE(triggerData.defaultTriggerCategories().empty());
+	BOOST_REQUIRE(triggerData.defaultTriggers().empty());
+
+	// TODO check more sections
 
 	try
 	{

@@ -380,6 +380,70 @@ void TriggerData::readFunction(const Txt::Entry &ref, boost::ptr_map<string, Fun
 	}
 }
 
+void TriggerData::writeFunction(const Function *function, Txt::Section &section) const
+{
+	Txt::Entry entry;
+	entry.setKey(function->code());
+
+	stringstream sstream;
+
+	// TODO needs extra treatment for calls? canBeUsedInEvents?
+	for (std::size_t i = 0; i < function->types().size(); ++i)
+	{
+		if (i > 0)
+		{
+			sstream << ",";
+		}
+
+		sstream << function->types()[i];
+	}
+
+	const string value = sstream.str();
+	entry.setValue(value);
+
+	section.entries.push_back(entry);
+
+	Txt::Entry defaultsEntry;
+	defaultsEntry.setKey(string("_") + function->code() + "_Defaults");
+
+	for (std::size_t i = 0; i < function->defaults().size(); ++i)
+	{
+		if (i > 0)
+		{
+			sstream << ",";
+		}
+
+		sstream << function->defaults()[i];
+	}
+
+	section.entries.push_back(defaultsEntry);
+
+	Txt::Entry limitsEntry;
+	limitsEntry.setKey(string("_") + function->code() + "_Limits");
+
+	for (std::size_t i = 0; i < function->limits().size(); ++i)
+	{
+		if (i > 0)
+		{
+			sstream << ",";
+		}
+
+		sstream << function->limits()[i].first << "," << function->limits()[i].second;
+	}
+
+	section.entries.push_back(limitsEntry);
+
+	Txt::Entry categoryEntry;
+	categoryEntry.setKey(string("_") + function->code() + "_Category");
+
+	if (function->category() != nullptr)
+	{
+		categoryEntry.setValue(function->category()->name());
+	}
+
+	section.entries.push_back(categoryEntry);
+}
+
 std::size_t TriggerData::firstNonNumericChar(const string& value) const
 {
 	string::size_type index = string::npos;
@@ -785,7 +849,6 @@ std::streamsize TriggerData::read(InputStream &istream)
 
 std::streamsize TriggerData::write(OutputStream &ostream) const
 {
-
 	boost::scoped_ptr<Txt> txt(new Txt());
 	Txt::Section triggerCategories;
 	triggerCategories.name = "TriggerCategories";
@@ -809,7 +872,135 @@ std::streamsize TriggerData::write(OutputStream &ostream) const
 
 	txt->sections().push_back(triggerCategories);
 
-	// TODO write other stuff as well
+	Txt::Section triggerTypes;
+	triggerTypes.name = "TriggerTypes";
+
+	BOOST_FOREACH(Types::const_reference ref, this->types())
+	{
+		const string typeName = ref->first;
+		const Type *type = ref->second;
+		stringstream sstream;
+		sstream << type->canBeGlobal() << "," << type->canBeCompared() << "," << type->displayText();
+
+		if (type->baseType() != nullptr)
+		{
+			sstream << "," << type->baseType()->name();
+		}
+
+		const string entry = sstream.str();
+
+		triggerTypes.entries.push_back(Txt::Entry(typeName, entry));
+	}
+
+	txt->sections().push_back(triggerTypes);
+
+	// TriggerTypeDefaults
+	Txt::Section triggerTypeDefaults;
+	triggerTypeDefaults.name = "TriggerTypeDefaults";
+
+	BOOST_FOREACH(Types::const_reference ref, this->types())
+	{
+		const string typeName = ref->first;
+		const Type *type = ref->second;
+
+
+		if (!type->defaultValue().empty())
+		{
+			triggerTypeDefaults.entries.push_back(Txt::Entry(typeName, type->defaultValue()));
+		}
+	}
+
+	txt->sections().push_back(triggerTypeDefaults);
+
+	// TriggerParams
+	Txt::Section triggerParams;
+	triggerParams.name = "TriggerParams";
+
+	BOOST_FOREACH(Parameters::const_reference ref, this->parameters())
+	{
+		const string parameterName = ref->first;
+		const Parameter *parameter = ref->second;
+		stringstream sstream;
+
+		if (parameter->type() != nullptr)
+		{
+			sstream << "," << parameter->type()->name();
+		}
+		else
+		{
+			sstream << ",";
+		}
+
+		sstream << "," << parameter->code() << "," << parameter->displayText();
+
+		const string entry = sstream.str();
+
+		triggerParams.entries.push_back(Txt::Entry(parameterName, entry));
+	}
+
+	txt->sections().push_back(triggerParams);
+
+	Txt::Section triggerEvents;
+	triggerEvents.name = "TriggerEvents";
+
+	BOOST_FOREACH(Functions::const_reference ref, this->events())
+	{
+		writeFunction(ref->second, triggerEvents);
+	}
+
+	txt->sections().push_back(triggerEvents);
+
+	Txt::Section triggerConditions;
+	triggerEvents.name = "TriggerEvents";
+
+	BOOST_FOREACH(Functions::const_reference ref, this->conditions())
+	{
+		writeFunction(ref->second, triggerConditions);
+	}
+
+	txt->sections().push_back(triggerConditions);
+
+	Txt::Section triggerActions;
+	triggerActions.name = "TriggerActions";
+
+	BOOST_FOREACH(Functions::const_reference ref, this->actions())
+	{
+		writeFunction(ref->second, triggerActions);
+	}
+
+	txt->sections().push_back(triggerActions);
+
+	Txt::Section triggerCalls;
+	triggerCalls.name = "TriggerCalls";
+
+	BOOST_FOREACH(Calls::const_reference ref, this->calls())
+	{
+		writeFunction(ref->second, triggerCalls);
+	}
+
+	txt->sections().push_back(triggerCalls);
+
+	// DefaultTriggerCategories
+	Txt::Section defaultTriggerCategories;
+	defaultTriggerCategories.name = "DefaultTriggerCategories";
+
+	BOOST_FOREACH(DefaultTriggerCategories::const_reference ref, this->defaultTriggerCategories())
+	{
+		// TODO write
+	}
+
+	txt->sections().push_back(defaultTriggerCategories);
+
+	// DefaultTriggers
+	Txt::Section defaultTriggers;
+	defaultTriggers.name = "DefaultTriggers";
+
+	BOOST_FOREACH(DefaultTriggers::const_reference ref, this->defaultTriggers())
+	{
+		// TODO write
+	}
+
+	txt->sections().push_back(defaultTriggers);
 
 	return txt->write(ostream);
 }
