@@ -74,7 +74,7 @@ set(wc3lib_OBJECTEDITOR_SRC
 add_subdirectory(ui)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}) # include binary dir for moc files
 qt5_wrap_ui(wc3lib_OBJECTEDITOR_UI_H ${wc3lib_OBJECTEDITOR_UI})
-add_library(wc3libobjecteditor SHARED ${wc3lib_OBJECTEDITOR_SRC} ${wc3lib_OBJECTEDITOR_UI_H})
+add_library(wc3libobjecteditor ${wc3lib_OBJECTEDITOR_SRC} ${wc3lib_OBJECTEDITOR_UI_H})
 target_link_libraries(wc3libobjecteditor wc3libeditor)
 
 add_executable(wc3objectmerger objectmerger.cpp)

@@ -5,7 +5,7 @@ set(wc3lib_LIB_MD5_SRC
 	md5.cc
 )
 
-add_library(wc3libmd5lib SHARED ${wc3lib_LIB_MD5_SRC})
+add_library(wc3libmd5lib ${wc3lib_LIB_MD5_SRC})
 set_source_files_properties(${wc3lib_LIB_MD5_H} ${wc3lib_LIB_MD5_SRC} PROPERTIES LANGUAGE CXX)
 set_target_properties(wc3libmd5lib PROPERTIES LINKER_LANGUAGE CXX)
 

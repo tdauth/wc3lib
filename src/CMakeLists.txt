@@ -51,7 +51,7 @@ if (EDITOR OR USE_KIOSLAVE OR USE_QBLP OR USE_OGREBLP)
 	include_directories(${CMAKE_CURRENT_BINARY_DIR}/editor) # include binary dir since the KDE configuration class will be generated there and has to be included (also include for moc cxx files)
 endif ()
 
-add_library(wc3libcore SHARED ${wc3lib_CORE_SRC})
+add_library(wc3libcore ${wc3lib_CORE_SRC})
 target_link_libraries(wc3libcore ${Boost_LIBRARIES})
 
 # TODO Temporary fix

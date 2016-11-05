@@ -5,7 +5,7 @@ set(wc3lib_LIB_WAVE_SRC
 	wave.cpp
 )
 
-add_library(wc3libwave SHARED ${wc3lib_LIB_WAVE_SRC})
+add_library(wc3libwave ${wc3lib_LIB_WAVE_SRC})
 
 # install
 

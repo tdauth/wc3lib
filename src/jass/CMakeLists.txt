@@ -38,7 +38,7 @@ if (JASS)
 		warning.cpp
 	)
 
-	add_library(wc3libjass SHARED ${wc3lib_JASS_SRC})
+	add_library(wc3libjass ${wc3lib_JASS_SRC})
 	target_link_libraries(wc3libjass wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
 
 	if (DEBUG)

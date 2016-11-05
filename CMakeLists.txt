@@ -115,9 +115,15 @@ if (UNIX)
 		add_definitions(-DLINUX=1)
 		message(STATUS "Detected Linux operating system.")
 	endif()
+
+	# Build shared libraries on Unix systems.
+	set (BUILD_SHARED_LIBS 1)
 elseif (WIN32)
 	add_definitions(-DWINDOWS=1)
 	message(STATUS "Detected Windows operating system.")
+
+	# Build static libraries on Windows systems.
+	set (BUILD_SHARED_LIBS 0)
 else ()
 	message(WARNING "Unknown operating system!")
 endif ()

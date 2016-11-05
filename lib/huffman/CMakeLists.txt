@@ -5,7 +5,7 @@ set(wc3lib_LIB_HUFFMAN_SRC
 	huffman.cpp
 )
 
-add_library(wc3libhuffman SHARED ${wc3lib_LIB_HUFFMAN_SRC})
+add_library(wc3libhuffman ${wc3lib_LIB_HUFFMAN_SRC})
 
 # install
 

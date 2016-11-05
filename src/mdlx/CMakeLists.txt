@@ -64,7 +64,7 @@ if (MDLX)
 		textureanimation.cpp
 	)
 
-	add_library(wc3libmdlx SHARED ${wc3lib_MDLX_SRC})
+	add_library(wc3libmdlx ${wc3lib_MDLX_SRC})
 	target_link_libraries(wc3libmdlx wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
 
 	if (DEBUG)

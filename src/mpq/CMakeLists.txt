@@ -35,7 +35,7 @@ if (MPQ)
 	find_package(ZLIB REQUIRED)
 	include_directories(${ZLIB_INCLUDE_DIRS})
 
-	add_library(wc3libmpq SHARED ${wc3lib_MPQ_SRC})
+	add_library(wc3libmpq ${wc3lib_MPQ_SRC})
         message(STATUS "Boost libraries: ${Boost_LIBRARIES}")
         message(STATUS "BZIP2 libraries: ${BZIP2_LIBRARIES}")
         message(STATUS "ZLIB libraries: ${ZLIB_LIBRARIES}")

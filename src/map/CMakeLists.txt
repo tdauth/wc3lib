@@ -85,7 +85,7 @@ if (MAP)
 		w3m.cpp
 	)
 
-	add_library(wc3libmap SHARED ${wc3lib_MAP_SRC})
+	add_library(wc3libmap ${wc3lib_MAP_SRC})
 	# Fixes Assembler file too big message on Windows
 	if (WIN32)
 	    target_compile_options(wc3libmap BEFORE PUBLIC "-Wa,-mbig-obj")

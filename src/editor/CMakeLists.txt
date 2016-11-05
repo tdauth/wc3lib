@@ -159,7 +159,7 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 
 		qt5_wrap_ui(wc3lib_EDITOR_UI_H ${wc3lib_EDITOR_UI})
 
-		add_library(wc3libeditor SHARED ${wc3lib_EDITOR_SRC} ${wc3lib_EDITOR_UI_H})
+		add_library(wc3libeditor ${wc3lib_EDITOR_SRC} ${wc3lib_EDITOR_UI_H})
 		# NOTE Plugin_BlpCodec qblp are required for class Texture which converts directly for Qt and OGRE
 		target_link_libraries(wc3libeditor ${wc3lib_CORE_LIBRARIES} ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} Qt5::Core Qt5::Widgets Qt5::Multimedia)
 

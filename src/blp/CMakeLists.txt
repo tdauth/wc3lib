@@ -16,7 +16,7 @@ if (BLP)
 		jpeg.cpp
 	)
 
-        add_library(wc3libblp SHARED ${wc3lib_BLP_SRC})
+        add_library(wc3libblp ${wc3lib_BLP_SRC})
         message(STATUS "JPEG libraries: ${JPEG_LIBRARIES}")
         target_link_libraries(wc3libblp wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${JPEG_LIBRARIES})
 
