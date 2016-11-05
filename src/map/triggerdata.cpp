@@ -422,6 +422,8 @@ void TriggerData::writeFunction(const Function *function, Txt::Section &section)
 	 */
 	if (!function->defaults().empty())
 	{
+		sstream.str("");
+
 		for (std::size_t i = 0; i < argSize; ++i)
 		{
 			if (i > 0)
@@ -433,6 +435,8 @@ void TriggerData::writeFunction(const Function *function, Txt::Section &section)
 			const string value = i >= function->defaults().size() ? "_" : boost::apply_visitor<FunctionValueVisitor>(visitor, function->defaults()[i]);
 			sstream << value;
 		}
+
+		defaultsEntry.setValue(sstream.str());
 	}
 
 	section.entries.push_back(defaultsEntry);
@@ -442,6 +446,8 @@ void TriggerData::writeFunction(const Function *function, Txt::Section &section)
 	 */
 	if (!function->limits().empty())
 	{
+		sstream.str("");
+		
 		Txt::Entry limitsEntry;
 		limitsEntry.setKey(string("_") + function->code() + "_Limits");
 
@@ -457,6 +463,8 @@ void TriggerData::writeFunction(const Function *function, Txt::Section &section)
 			const string value1 = i >= function->limits().size() ? "_" : boost::apply_visitor<FunctionValueVisitor>(visitor, function->limits()[i].second);
 			sstream << value0 << "," << value1;
 		}
+
+		limitsEntry.setValue(sstream.str());
 
 		section.entries.push_back(limitsEntry);
 	}
