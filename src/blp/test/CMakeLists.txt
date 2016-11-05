@@ -1,5 +1,5 @@
 if (WIN32)
-    set(Boost_USE_STATIC_LIBS ON)
+	set(Boost_USE_STATIC_LIBS ON)
 endif ()
 
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)

@@ -14,6 +14,10 @@ if (JASS)
 	#	message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 	#endif()
 
+	if (WIN32)
+		set(Boost_USE_STATIC_LIBS ON)
+	endif ()
+
 	# use the latest Boost Spirit framework since it provides new functions (including Phoenix)
 	find_package(Boost 1.54 COMPONENTS system REQUIRED)
 	include_directories(${Boost_INCLUDE_DIRS})
