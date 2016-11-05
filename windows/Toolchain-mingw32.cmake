@@ -1,9 +1,3 @@
-# builds KDE for Windows on Fedora
-
-
-set(KDE_PREFIX    /windows/kde4)
-set(KDE4_SRC_DIR  /home/kdeuser/kde/src)
-
 # the name of the target operating system
 SET(CMAKE_SYSTEM_NAME Windows)
 
