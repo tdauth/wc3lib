@@ -41,7 +41,6 @@ if (MAP)
 		txt.hpp
 		value.hpp
 		variable.hpp
-		w3g.hpp
 		w3m.hpp
 		w3x.hpp
 	)
@@ -81,7 +80,6 @@ if (MAP)
 		txt.cpp
 		value.cpp
 		variable.cpp
-		w3g.cpp
 		w3m.cpp
 	)
 

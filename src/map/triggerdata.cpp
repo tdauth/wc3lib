@@ -243,7 +243,8 @@ void TriggerData::readFunction(const Txt::Entry &ref, boost::ptr_map<string, Fun
 			if (iterator != this->parameters().end())
 			{
 				function->defaults().push_back(iterator->second);
-			} else
+			}
+			else
 			{
 				try
 				{ // float
@@ -1008,7 +1009,7 @@ std::streamsize TriggerData::write(OutputStream &ostream) const
 	numCategoriesEntry.setKey("NumCategories");
 	numCategoriesEntry.setValue(boost::lexical_cast<string>(this->defaultTriggerCategories().size()));
 	defaultTriggerCategories.entries.push_back(numCategoriesEntry);
-	std::size_t i = 0;
+	std::size_t i = 1;
 
 	BOOST_FOREACH(DefaultTriggerCategories::const_reference ref, this->defaultTriggerCategories())
 	{
@@ -1041,7 +1042,7 @@ std::streamsize TriggerData::write(OutputStream &ostream) const
 	numTriggersEntry.setValue(boost::lexical_cast<string>(this->defaultTriggers().size()));
 	defaultTriggers.entries.push_back(numTriggersEntry);
 
-	i = 0;
+	i = 1;
 
 	BOOST_FOREACH(DefaultTriggers::const_reference ref, this->defaultTriggers())
 	{
@@ -1076,7 +1077,7 @@ std::streamsize TriggerData::write(OutputStream &ostream) const
 		triggerEventsEntry.setValue(boost::lexical_cast<string>(ref.events().size()));
 		defaultTriggers.entries.push_back(triggerEventsEntry);
 
-		std::size_t j = 0;
+		std::size_t j = 1;
 
 		BOOST_FOREACH(DefaultTrigger::Functions::const_reference eventRef, ref.events())
 		{
@@ -1102,8 +1103,9 @@ std::streamsize TriggerData::write(OutputStream &ostream) const
 		Txt::Entry triggerConditionsEntry;
 		triggerConditionsEntry.setKey(keySuffix + "Conditions");
 		triggerConditionsEntry.setValue(boost::lexical_cast<string>(ref.conditions().size()));
+		defaultTriggers.entries.push_back(triggerConditionsEntry);
 
-		j = 0;
+		j = 1;
 
 		BOOST_FOREACH(DefaultTrigger::Functions::const_reference conditionRef, ref.conditions())
 		{
@@ -1129,8 +1131,9 @@ std::streamsize TriggerData::write(OutputStream &ostream) const
 		Txt::Entry triggerActionsEntry;
 		triggerActionsEntry.setKey(keySuffix + "Actions");
 		triggerActionsEntry.setValue(boost::lexical_cast<string>(ref.actions().size()));
+		defaultTriggers.entries.push_back(triggerActionsEntry);
 
-		j = 0;
+		j = 1;
 
 		BOOST_FOREACH(DefaultTrigger::Functions::const_reference actionRef, ref.actions())
 		{
@@ -1173,7 +1176,6 @@ void TriggerData::clear()
 	this->m_calls.clear();
 	this->m_defaultTriggerCategories.clear();
 	this->m_defaultTriggers.clear();
-	this->m_specialTypes.clear();
 }
 
 const Txt::Entries& TriggerData::sectionEntries(const string &sectionName) const

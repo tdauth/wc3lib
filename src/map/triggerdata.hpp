@@ -40,10 +40,10 @@ namespace map
 /**
  * \brief Provides access to the game's available trigger functions, types and presets for Warcraft III: Reign of Chaos.
  *
- * Provides access to "UI/TriggerData.txt" file.
+ * Provides access to the "UI/TriggerData.txt" file.
  * For corresponding identifiers you need to create a \ref TriggerStrings instance.
  * This class is required when implementing a trigger editor to get all possible categories, events, conditions, actions, types and calls.
- * It provides performant search functionality by storing entries in maps indicated by their name.
+ * It provides a performant search functionality by storing entries in maps indicated by their name.
  * Currently, this is necessary for classes like \ref Variable, \ref TriggerFunction and \ref TriggerFunctionParameter which rely on trigger data entries for proper reading.
  *
  * Instead of using this wrapper class you can use \ref Txt to read the file manually.
@@ -142,6 +142,9 @@ class TriggerData : public FileFormat
 				string m_defaultValue;
 		};
 
+		/**
+		 * \brief The parameter of a \ref Function which can be chosen instead of a variable.
+		 */
 		class Parameter : public Format
 		{
 			public:
@@ -354,6 +357,7 @@ class TriggerData : public FileFormat
 
 		/**
 		 * Clears the whole data.
+		 * \note Does not clear \ref specialTypes().
 		 */
 		void clear();
 
@@ -376,6 +380,9 @@ class TriggerData : public FileFormat
 		DefaultTriggerCategories& defaultTriggerCategories();
 		DefaultTriggers& defaultTriggers();
 
+		/**
+		 * \brief A set of special types of the scripting language JASS.
+		 */
 		typedef std::set<string> SpecialTypes;
 
 		/**
@@ -394,6 +401,9 @@ class TriggerData : public FileFormat
 	private:
 		template<class FunctionType>
 		void readFunction(const Txt::Entry &ref, boost::ptr_map<string, FunctionType> &functions);
+		/**
+		 * Creates an entry for \p function and adds it to \p section.
+		 */
 		void writeFunction(const Function *function, Txt::Section &section) const;
 
 		string::size_type firstNonNumericChar(const string &value) const;
