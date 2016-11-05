@@ -33,6 +33,12 @@ namespace editor
 
 class MpqPriorityList;
 
+/**
+ * \brief Lists all loaded resources from a single \ref MpqPriorityList.
+ *
+ * This dialog helps the user to show which resources are currently loaded.
+ * It lists the URLs of all resources from a \ref MpqPriorityList instance.
+ */
 class ResourcesDialog : public QDialog, protected Ui::ResourcesWidget
 {
 	Q_OBJECT
@@ -40,10 +46,19 @@ class ResourcesDialog : public QDialog, protected Ui::ResourcesWidget
 	public:
 		explicit ResourcesDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
 
+		/**
+		 * Updates the GUI by clearing it and listing all resources from \p sources.
+		 */
 		void setSources(MpqPriorityList *sources);
+		MpqPriorityList* sources() const;
 	private:
 		MpqPriorityList *m_sources;
 };
+
+inline MpqPriorityList* ResourcesDialog::sources() const
+{
+	return this->m_sources;
+}
 
 }
 

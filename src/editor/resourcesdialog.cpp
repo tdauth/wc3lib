@@ -109,6 +109,8 @@ void ResourcesDialog::setSources(MpqPriorityList *sources)
 
 		++row;
 	}
+
+	m_sources = sources;
 }
 
 #include "moc_resourcesdialog.cpp"
