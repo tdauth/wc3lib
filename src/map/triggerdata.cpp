@@ -395,7 +395,8 @@ void TriggerData::writeFunction(const Function *function, Txt::Section &section)
 			sstream << ",";
 		}
 
-		sstream << function->types()[i];
+		FunctionArgumentVisitor visitor;
+		sstream << boost::apply_visitor<FunctionArgumentVisitor>(visitor, function->types()[i]);
 	}
 
 	const string value = sstream.str();
@@ -413,7 +414,8 @@ void TriggerData::writeFunction(const Function *function, Txt::Section &section)
 			sstream << ",";
 		}
 
-		sstream << function->defaults()[i];
+		FunctionValueVisitor visitor;
+		sstream << boost::apply_visitor<FunctionValueVisitor>(visitor, function->defaults()[i]);
 	}
 
 	section.entries.push_back(defaultsEntry);
@@ -428,7 +430,8 @@ void TriggerData::writeFunction(const Function *function, Txt::Section &section)
 			sstream << ",";
 		}
 
-		sstream << function->limits()[i].first << "," << function->limits()[i].second;
+		FunctionValueVisitor visitor;
+		sstream << boost::apply_visitor<FunctionValueVisitor>(visitor, function->limits()[i].first) << "," << boost::apply_visitor<FunctionValueVisitor>(visitor, function->limits()[i].second);
 	}
 
 	section.entries.push_back(limitsEntry);
@@ -951,7 +954,7 @@ std::streamsize TriggerData::write(OutputStream &ostream) const
 	txt->sections().push_back(triggerEvents);
 
 	Txt::Section triggerConditions;
-	triggerEvents.name = "TriggerEvents";
+	triggerConditions.name = "TriggerConditions";
 
 	BOOST_FOREACH(Functions::const_reference ref, this->conditions())
 	{

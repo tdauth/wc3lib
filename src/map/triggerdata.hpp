@@ -232,6 +232,9 @@ class TriggerData : public FileFormat
 				Limits m_limits;
 		};
 
+		/**
+		 * \brief Converts an \ref Function::ArgumentType into a \ref string.
+		 */
 		class FunctionArgumentVisitor : public boost::static_visitor<string>
 		{
 			public:
@@ -246,6 +249,9 @@ class TriggerData : public FileFormat
 				}
 		};
 
+		/**
+		 * \brief Converts a \ref Function::Value into a \ref string.
+		 */
 		class FunctionValueVisitor : public boost::static_visitor<string>
 		{
 			public:
@@ -262,6 +268,11 @@ class TriggerData : public FileFormat
 				string operator()(TriggerData::Parameter *v) const
 				{
 					return v->name();
+				}
+
+				string operator()(float32 v) const
+				{
+					return boost::lexical_cast<string>(v);
 				}
 		};
 
