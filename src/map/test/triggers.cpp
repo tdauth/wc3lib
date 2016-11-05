@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(TriggerDataReignOfChaos)
 	{
 		triggerData.read(in);
 	}
-	catch (Exception &e)
+	catch (const Exception &e)
 	{
 		valid = false;
 		std::cerr << e.what() << std::endl;
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE(TriggerDataReignOfChaosReadWriteRead)
 	{
 		triggerData.read(in);
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		valid = false;
 		std::cerr << e.what() << std::endl;
@@ -234,18 +234,18 @@ BOOST_AUTO_TEST_CASE(TriggerDataReignOfChaosReadWriteRead)
 	in.close();
 	BOOST_REQUIRE(valid);
 
-	BOOST_CHECK(strcmp(triggerData.fileName(), "TriggerData.txt") == 0);
-	BOOST_CHECK(triggerData.version() == 0); // has no specific version
-	BOOST_CHECK(triggerData.latestFileVersion() == 0); // has no specific version
+	BOOST_CHECK_EQUAL(strcmp(triggerData.fileName(), "TriggerData.txt"), 0);
+	BOOST_CHECK_EQUAL(triggerData.version(), 0); // has no specific version
+	BOOST_CHECK_EQUAL(triggerData.latestFileVersion(), 0); // has no specific version
 
 	// data from the file
-	BOOST_CHECK(triggerData.categories().size() == 43); // section [TriggerCategories]
-	BOOST_CHECK(triggerData.types().size() == 133); // section [TriggerTypes]
+	BOOST_CHECK_EQUAL(triggerData.categories().size(), 43); // section [TriggerCategories]
+	BOOST_CHECK_EQUAL(triggerData.types().size(), 133); // section [TriggerTypes]
 	// TODO check more sections
 
 	// there is one default trigger for melee maps
-	BOOST_CHECK(triggerData.defaultTriggerCategories().size() == 1);
-	BOOST_CHECK(triggerData.defaultTriggers().size() == 1);
+	BOOST_CHECK_EQUAL(triggerData.defaultTriggerCategories().size(), 1);
+	BOOST_CHECK_EQUAL(triggerData.defaultTriggers().size(), 1);
 }
 
 BOOST_AUTO_TEST_CASE(WarChasersTriggersSimpleReadTest)
@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE(WarChasersTriggersSimpleReadTest)
 	{
 		triggerData.read(in);
 	}
-	catch (Exception &e)
+	catch (const Exception &e)
 	{
 		valid = false;
 		std::cerr << e.what() << std::endl;
@@ -283,7 +283,7 @@ BOOST_AUTO_TEST_CASE(WarChasersTriggersSimpleReadTest)
 		triggers.read(inTriggers, triggerData);
 
 	}
-	catch (Exception &e)
+	catch (const Exception &e)
 	{
 		valid = false;
 		std::cerr << e.what() << std::endl;
@@ -295,14 +295,14 @@ BOOST_AUTO_TEST_CASE(WarChasersTriggersSimpleReadTest)
 
 	BOOST_REQUIRE(valid);
 
-	BOOST_CHECK(strcmp(triggers.fileName(), "war3map.wtg") == 0);
-	BOOST_CHECK(memcmp(triggers.fileTextId(), "WTG!", 4) == 0);
-	BOOST_CHECK(triggers.version() == 4); // Reign of Chaos
+	BOOST_CHECK_EQUAL(strcmp(triggers.fileName(), "war3map.wtg"), 0);
+	BOOST_CHECK_EQUAL(memcmp(triggers.fileTextId(), "WTG!", 4), 0);
+	BOOST_CHECK_EQUAL(triggers.version(), 4); // Reign of Chaos
 
 	// data from the object manager
-	BOOST_CHECK(triggers.variables().size() == 54);
-	BOOST_CHECK(triggers.triggers().size() == 151);
-	BOOST_CHECK(triggers.categories().size() == 19);
+	BOOST_CHECK_EQUAL(triggers.variables().size(), 54);
+	BOOST_CHECK_EQUAL(triggers.triggers().size(), 151);
+	BOOST_CHECK_EQUAL(triggers.categories().size(), 19);
 
 	// TODO check single trigger
 }
@@ -321,7 +321,7 @@ BOOST_AUTO_TEST_CASE(WarChasersTriggersSimpleReadTestWithFrozenThroneTriggerData
 	{
 		triggerData.read(in);
 	}
-	catch (Exception &e)
+	catch (const Exception &e)
 	{
 		valid = false;
 		std::cerr << e.what() << std::endl;
@@ -342,7 +342,7 @@ BOOST_AUTO_TEST_CASE(WarChasersTriggersSimpleReadTestWithFrozenThroneTriggerData
 		triggers.read(inTriggers, triggerData);
 
 	}
-	catch (Exception &e)
+	catch (const Exception &e)
 	{
 		valid = false;
 		std::cerr << e.what() << std::endl;

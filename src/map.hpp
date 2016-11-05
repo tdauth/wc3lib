@@ -73,7 +73,6 @@ namespace wc3lib
 #include "map/triggerstrings.hpp"
 #include "map/txt.hpp"
 #include "map/variable.hpp"
-#include "map/w3g.hpp"
 #include "map/w3m.hpp"
 #include "map/w3x.hpp"
 #include "map/value.hpp"
