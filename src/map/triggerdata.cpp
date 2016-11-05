@@ -385,10 +385,12 @@ void TriggerData::writeFunction(const Function *function, Txt::Section &section)
 	Txt::Entry entry;
 	entry.setKey(function->code());
 
+	const std::size_t argSize = function->types().size();
+
 	stringstream sstream;
 
 	// TODO needs extra treatment for calls? canBeUsedInEvents?
-	for (std::size_t i = 0; i < function->types().size(); ++i)
+	for (std::size_t i = 0; i < argSize; ++i)
 	{
 		if (i > 0)
 		{
@@ -407,34 +409,49 @@ void TriggerData::writeFunction(const Function *function, Txt::Section &section)
 	Txt::Entry defaultsEntry;
 	defaultsEntry.setKey(string("_") + function->code() + "_Defaults");
 
-	for (std::size_t i = 0; i < function->defaults().size(); ++i)
+	/*
+	 * Defaults can have an empty value if no defaults are defined.
+	 */
+	if (!function->defaults().empty())
 	{
-		if (i > 0)
+		for (std::size_t i = 0; i < argSize; ++i)
 		{
-			sstream << ",";
-		}
+			if (i > 0)
+			{
+				sstream << ",";
+			}
 
-		FunctionValueVisitor visitor;
-		sstream << boost::apply_visitor<FunctionValueVisitor>(visitor, function->defaults()[i]);
+			FunctionValueVisitor visitor;
+			const string value = i >= function->defaults().size() ? "_" : boost::apply_visitor<FunctionValueVisitor>(visitor, function->defaults()[i]);
+			sstream << value;
+		}
 	}
 
 	section.entries.push_back(defaultsEntry);
 
-	Txt::Entry limitsEntry;
-	limitsEntry.setKey(string("_") + function->code() + "_Limits");
-
-	for (std::size_t i = 0; i < function->limits().size(); ++i)
+	/*
+	 * Limits are optional.
+	 */
+	if (!function->limits().empty())
 	{
-		if (i > 0)
+		Txt::Entry limitsEntry;
+		limitsEntry.setKey(string("_") + function->code() + "_Limits");
+
+		for (std::size_t i = 0; i < argSize; ++i)
 		{
-			sstream << ",";
+			if (i > 0)
+			{
+				sstream << ",";
+			}
+
+			FunctionValueVisitor visitor;
+			const string value0 = i >= function->limits().size() ? "_" : boost::apply_visitor<FunctionValueVisitor>(visitor, function->limits()[i].first);
+			const string value1 = i >= function->limits().size() ? "_" : boost::apply_visitor<FunctionValueVisitor>(visitor, function->limits()[i].second);
+			sstream << value0 << "," << value1;
 		}
 
-		FunctionValueVisitor visitor;
-		sstream << boost::apply_visitor<FunctionValueVisitor>(visitor, function->limits()[i].first) << "," << boost::apply_visitor<FunctionValueVisitor>(visitor, function->limits()[i].second);
+		section.entries.push_back(limitsEntry);
 	}
-
-	section.entries.push_back(limitsEntry);
 
 	Txt::Entry categoryEntry;
 	categoryEntry.setKey(string("_") + function->code() + "_Category");
@@ -987,9 +1004,30 @@ std::streamsize TriggerData::write(OutputStream &ostream) const
 	Txt::Section defaultTriggerCategories;
 	defaultTriggerCategories.name = "DefaultTriggerCategories";
 
+	Txt::Entry numCategoriesEntry;
+	numCategoriesEntry.setKey("NumCategories");
+	numCategoriesEntry.setValue(boost::lexical_cast<string>(this->defaultTriggerCategories().size()));
+	defaultTriggerCategories.entries.push_back(numCategoriesEntry);
+	std::size_t i = 0;
+
 	BOOST_FOREACH(DefaultTriggerCategories::const_reference ref, this->defaultTriggerCategories())
 	{
-		// TODO write
+		Txt::Entry categoryEntry;
+		stringstream sstream;
+		sstream << "Category";
+
+		if (i < 10)
+		{
+			sstream << "0";
+		}
+
+		sstream << i;
+		const string key = sstream.str();
+		categoryEntry.setKey(key);
+		categoryEntry.setValue(ref);
+		defaultTriggerCategories.entries.push_back(categoryEntry);
+
+		++i;
 	}
 
 	txt->sections().push_back(defaultTriggerCategories);
@@ -998,9 +1036,124 @@ std::streamsize TriggerData::write(OutputStream &ostream) const
 	Txt::Section defaultTriggers;
 	defaultTriggers.name = "DefaultTriggers";
 
+	Txt::Entry numTriggersEntry;
+	numTriggersEntry.setKey("NumTriggers");
+	numTriggersEntry.setValue(boost::lexical_cast<string>(this->defaultTriggers().size()));
+	defaultTriggers.entries.push_back(numTriggersEntry);
+
+	i = 0;
+
 	BOOST_FOREACH(DefaultTriggers::const_reference ref, this->defaultTriggers())
 	{
-		// TODO write
+		stringstream sstream;
+		sstream << "Trigger";
+
+		if (i < 10)
+		{
+			sstream << "0";
+		}
+
+		sstream << i;
+		const string keySuffix = sstream.str();
+
+		Txt::Entry triggerNameEntry;
+		triggerNameEntry.setKey(keySuffix + "Name");
+		triggerNameEntry.setValue(ref.name());
+		defaultTriggers.entries.push_back(triggerNameEntry);
+
+		Txt::Entry triggerCommentEntry;
+		triggerCommentEntry.setKey(keySuffix + "Comment");
+		triggerCommentEntry.setValue(ref.comment());
+		defaultTriggers.entries.push_back(triggerCommentEntry);
+
+		Txt::Entry triggerCategoryEntry;
+		triggerCategoryEntry.setKey(keySuffix + "Category");
+		triggerCategoryEntry.setValue(ref.triggerCategory()); // TODO index?
+		defaultTriggers.entries.push_back(triggerCategoryEntry);
+
+		Txt::Entry triggerEventsEntry;
+		triggerEventsEntry.setKey(keySuffix + "Events");
+		triggerEventsEntry.setValue(boost::lexical_cast<string>(ref.events().size()));
+		defaultTriggers.entries.push_back(triggerEventsEntry);
+
+		std::size_t j = 0;
+
+		BOOST_FOREACH(DefaultTrigger::Functions::const_reference eventRef, ref.events())
+		{
+			sstream.str("");
+			sstream << keySuffix << "Event";
+
+			if (j < 10)
+			{
+				sstream << "0";
+			}
+
+			sstream << j;
+			const string eventKey = sstream.str();
+
+			Txt::Entry triggerEventEntry;
+			triggerEventEntry.setKey(eventKey);
+			triggerEventEntry.setValue(eventRef->code());
+			defaultTriggers.entries.push_back(triggerEventEntry);
+
+			++j;
+		}
+
+		Txt::Entry triggerConditionsEntry;
+		triggerConditionsEntry.setKey(keySuffix + "Conditions");
+		triggerConditionsEntry.setValue(boost::lexical_cast<string>(ref.conditions().size()));
+
+		j = 0;
+
+		BOOST_FOREACH(DefaultTrigger::Functions::const_reference conditionRef, ref.conditions())
+		{
+			sstream.str("");
+			sstream << keySuffix << "Condition";
+
+			if (j < 10)
+			{
+				sstream << "0";
+			}
+
+			sstream << j;
+			const string conditionKey = sstream.str();
+
+			Txt::Entry triggerConditionEntry;
+			triggerConditionEntry.setKey(conditionKey);
+			triggerConditionEntry.setValue(conditionRef->code());
+			defaultTriggers.entries.push_back(triggerConditionEntry);
+
+			++j;
+		}
+
+		Txt::Entry triggerActionsEntry;
+		triggerActionsEntry.setKey(keySuffix + "Actions");
+		triggerActionsEntry.setValue(boost::lexical_cast<string>(ref.actions().size()));
+
+		j = 0;
+
+		BOOST_FOREACH(DefaultTrigger::Functions::const_reference actionRef, ref.actions())
+		{
+			sstream.str("");
+			sstream << keySuffix << "Action";
+
+			if (j < 10)
+			{
+				sstream << "0";
+			}
+
+			sstream << j;
+			const string actionKey = sstream.str();
+
+			Txt::Entry triggerActionEntry;
+			triggerActionEntry.setKey(actionKey);
+			triggerActionEntry.setValue(actionRef->code());
+			defaultTriggers.entries.push_back(triggerActionEntry);
+
+			++j;
+		}
+
+		++i;
 	}
 
 	txt->sections().push_back(defaultTriggers);

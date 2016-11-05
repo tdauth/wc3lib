@@ -300,6 +300,9 @@ class TriggerData : public FileFormat
 				bool m_canBeUsedInEvents;
 		};
 
+		/**
+		 * \brief Defines a trigger which is created automatically when a new map is created using the World Editor.
+		 */
 		class DefaultTrigger : public Format
 		{
 			public:
