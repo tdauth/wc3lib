@@ -141,6 +141,6 @@ if (DOC)
 			DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 
 		# install
-		install(DIRECTORY "${DOXYGEN_OUTPUT_DIR}" DESTINATION usr/share/doc/wc3lib/)
+		install(DIRECTORY "${DOXYGEN_OUTPUT_DIR}" DESTINATION share/doc/wc3lib)
 	endif ()
 endif ()
