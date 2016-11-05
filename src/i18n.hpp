@@ -34,6 +34,15 @@
 #define _(string) gettext(string)
 #else
 #define _(string) string
+
+inline void bindtextdomain(const char *domain, const char *dir)
+{
+}
+
+inline void textdomain(const char *domain)
+{
+}
+
 #endif
 
 // Boost format library
