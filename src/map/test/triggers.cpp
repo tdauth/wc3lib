@@ -45,24 +45,9 @@ BOOST_AUTO_TEST_CASE(TriggerDataReignOfChaos)
 
 	map::TriggerData triggerData;
 
-	bool valid = true;
-
-	try
-	{
-		triggerData.read(in);
-	}
-	catch (const Exception &e)
-	{
-		valid = false;
-		std::cerr << e.what() << std::endl;
-	}
-	catch (...)
-	{
-		valid = false;
-	}
+	BOOST_REQUIRE_NO_THROW(triggerData.read(in));
 
 	in.close();
-	BOOST_REQUIRE(valid);
 
 	BOOST_CHECK(strcmp(triggerData.fileName(), "TriggerData.txt") == 0);
 	BOOST_CHECK(triggerData.version() == 0); // has no specific version
@@ -141,24 +126,9 @@ BOOST_AUTO_TEST_CASE(TriggerDataReignOfChaosReadWriteRead)
 
 	map::TriggerData triggerData;
 
-	bool valid = true;
-
-	try
-	{
-		triggerData.read(in);
-	}
-	catch (Exception &e)
-	{
-		valid = false;
-		std::cerr << e.what() << std::endl;
-	}
-	catch (...)
-	{
-		valid = false;
-	}
+	BOOST_REQUIRE_NO_THROW(triggerData.read(in));
 
 	in.close();
-	BOOST_REQUIRE(valid);
 
 	BOOST_CHECK(strcmp(triggerData.fileName(), "TriggerData.txt") == 0);
 	BOOST_CHECK(triggerData.version() == 0); // has no specific version
@@ -181,24 +151,9 @@ BOOST_AUTO_TEST_CASE(TriggerDataReignOfChaosReadWriteRead)
 	ofstream out("TriggerDataTmp.txt");
 
 	BOOST_REQUIRE(out);
-
-	try
-	{
-		triggerData.write(out);
-	}
-	catch (Exception &e)
-	{
-		valid = false;
-		std::cerr << e.what() << std::endl;
-	}
-	catch (...)
-	{
-		valid = false;
-	}
+	BOOST_REQUIRE_NO_THROW(triggerData.write(out));
 
 	out.close();
-	BOOST_REQUIRE(valid);
-
 	spiritTraceLog.close();
 	spiritTraceLog.open("triggerdata_reign_of_chaos_tmp_traces.xml");
 
@@ -217,22 +172,9 @@ BOOST_AUTO_TEST_CASE(TriggerDataReignOfChaosReadWriteRead)
 
 	// TODO check more sections
 
-	try
-	{
-		triggerData.read(in);
-	}
-	catch (const std::exception &e)
-	{
-		valid = false;
-		std::cerr << e.what() << std::endl;
-	}
-	catch (...)
-	{
-		valid = false;
-	}
+	BOOST_REQUIRE_NO_THROW(triggerData.read(in));
 
 	in.close();
-	BOOST_REQUIRE(valid);
 
 	BOOST_CHECK_EQUAL(strcmp(triggerData.fileName(), "TriggerData.txt"), 0);
 	BOOST_CHECK_EQUAL(triggerData.version(), 0); // has no specific version
@@ -256,44 +198,14 @@ BOOST_AUTO_TEST_CASE(WarChasersTriggersSimpleReadTest)
 
 	map::TriggerData triggerData;
 
-	bool valid = true;
-
-	try
-	{
-		triggerData.read(in);
-	}
-	catch (const Exception &e)
-	{
-		valid = false;
-		std::cerr << e.what() << std::endl;
-	}
-	catch (...)
-	{
-		valid = false;
-	}
+	BOOST_REQUIRE_NO_THROW(triggerData.read(in));
 
 	in.close();
-	BOOST_REQUIRE(valid);
 
 	ifstream inTriggers("war3map.wtg", std::ios::in | std::ios::binary); // War Chasers triggers
 	map::Triggers triggers;
 
-	try
-	{
-		triggers.read(inTriggers, triggerData);
-
-	}
-	catch (const Exception &e)
-	{
-		valid = false;
-		std::cerr << e.what() << std::endl;
-	}
-	catch (...)
-	{
-		valid = false;
-	}
-
-	BOOST_REQUIRE(valid);
+	BOOST_REQUIRE_NO_THROW(triggers.read(inTriggers, triggerData));
 
 	BOOST_CHECK_EQUAL(strcmp(triggers.fileName(), "war3map.wtg"), 0);
 	BOOST_CHECK_EQUAL(memcmp(triggers.fileTextId(), "WTG!", 4), 0);
@@ -315,53 +227,23 @@ BOOST_AUTO_TEST_CASE(WarChasersTriggersSimpleReadTestWithFrozenThroneTriggerData
 
 	map::TriggerData triggerData;
 
-	bool valid = true;
-
-	try
-	{
-		triggerData.read(in);
-	}
-	catch (const Exception &e)
-	{
-		valid = false;
-		std::cerr << e.what() << std::endl;
-	}
-	catch (...)
-	{
-		valid = false;
-	}
+	BOOST_REQUIRE_NO_THROW(triggerData.read(in));
 
 	in.close();
-	BOOST_REQUIRE(valid);
 
 	ifstream inTriggers("war3map.wtg", std::ios::in | std::ios::binary); // War Chasers triggers
 	map::Triggers triggers;
 
-	try
-	{
-		triggers.read(inTriggers, triggerData);
+	BOOST_REQUIRE_NO_THROW(triggers.read(inTriggers, triggerData));
 
-	}
-	catch (const Exception &e)
-	{
-		valid = false;
-		std::cerr << e.what() << std::endl;
-	}
-	catch (...)
-	{
-		valid = false;
-	}
-
-	BOOST_REQUIRE(valid);
-
-	BOOST_CHECK(strcmp(triggers.fileName(), "war3map.wtg") == 0);
-	BOOST_CHECK(memcmp(triggers.fileTextId(), "WTG!", 4) == 0);
-	BOOST_CHECK(triggers.version() == 4); // Reign of Chaos
+	BOOST_CHECK_EQUAL(strcmp(triggers.fileName(), "war3map.wtg"), 0);
+	BOOST_CHECK_EQUAL(memcmp(triggers.fileTextId(), "WTG!", 4), 0);
+	BOOST_CHECK_EQUAL(triggers.version(), 4); // Reign of Chaos
 
 	// data from the object manager
-	BOOST_CHECK(triggers.variables().size() == 54);
-	BOOST_CHECK(triggers.triggers().size() == 151);
-	BOOST_CHECK(triggers.categories().size() == 19);
+	BOOST_CHECK_EQUAL(triggers.variables().size(), 54);
+	BOOST_CHECK_EQUAL(triggers.triggers().size(), 151);
+	BOOST_CHECK_EQUAL(triggers.categories().size(),19);
 
 	// TODO check single trigger
 }
