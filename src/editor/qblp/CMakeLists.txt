@@ -13,6 +13,9 @@ set(wc3lib_EDITOR_QBLP_SRC ${wc3lib_EDITOR_QBLP_SRC} PARENT_SCOPE)
 add_library(qblp SHARED ${wc3lib_EDITOR_QBLP_SRC})
 target_link_libraries(qblp wc3libcore wc3libblp Qt5::Core Qt5::Widgets)
 
+add_library(qblp_static ${wc3lib_EDITOR_QBLP_SRC})
+target_link_libraries(qblp_static wc3libcore wc3libblp Qt5::Core Qt5::Widgets)
+
 # wc3libcore is necessary because of catching Exception
 
 if (DEBUG)
