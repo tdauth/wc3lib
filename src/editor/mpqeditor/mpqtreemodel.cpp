@@ -86,7 +86,7 @@ void MpqTreeModel::addArchive(mpq::Archive *archive, const mpq::Listfile::Entrie
 	 * Set MIME type icon to show which file type it is.
 	 */
 	QMimeDatabase db;
-	QMimeType mimeType = db.mimeTypeForFile(archive->path().c_str());
+	QMimeType mimeType = db.mimeTypeForFile(QString::fromStdString(archive->path().string()));
 
 	if (mimeType.isValid() && !mimeType.iconName().isEmpty())
 	{
