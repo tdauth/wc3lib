@@ -196,6 +196,22 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 		# install
 		install(TARGETS wc3libeditor DESTINATION lib)
 		install(FILES ${wc3lib_EDITOR_H} ${wc3lib_EDITOR_UI_H} DESTINATION include/wc3lib/editor)
+
+		# Installs all required Qt binary files on Windows.
+		# The program windeployqt generates all files into the binary directory which have to be installed
+		if (WIN32)
+			# Make sure the output directory is cleaned everytime a clean is done since there might be different DLLs when distributing the relase version.
+			set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_MAKE_CLEAN_FILES "${CMAKE_BINARY_DIR}/qtdeployment")
+			find_program(WINDEPLOYQT_PROGRAM windeployqt)
+
+			if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+				set(WINDEPLOYQT_ARGS "--debug")
+			else ()
+				set(WINDEPLOYQT_ARGS "--release")
+			endif ()
+			add_custom_target(deployqt ALL ${WINDEPLOYQT_PROGRAM} $<TARGET_FILE:wc3libeditor> ${WINDEPLOYQT_ARGS} --dir "${CMAKE_BINARY_DIR}/qtdeployment" DEPENDS wc3libeditor)
+			install(DIRECTORY "${CMAKE_BINARY_DIR}/qtdeployment/" DESTINATION lib)
+		endif ()
 	endif ()
 
 endif ()
