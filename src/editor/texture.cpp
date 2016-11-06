@@ -28,7 +28,9 @@
 #include "texture.hpp"
 #include "mpqprioritylist.hpp"
 #include "qblp/blpiohandler.hpp"
+#if defined(USE_OGREBLP) || defined(MDLX)
 #include "Plugin_BlpCodec/blpcodec.hpp"
+#endif
 
 namespace wc3lib
 {
@@ -73,8 +75,10 @@ void Texture::clear() throw ()
 {
 	clearBlp();
 	clearQt();
+#if defined(USE_OGREBLP) || defined(MDLX)
 	clearOgre();
 	clearOgreTexture();
+#endif
 }
 
 namespace

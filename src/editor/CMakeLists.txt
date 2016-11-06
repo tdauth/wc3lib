@@ -12,6 +12,8 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 		# This leads to proper DLL export markers
 		add_definitions(-DOGRE_NONCLIENT_BUILD=1)
 	    endif ()
+	else ()
+		add_definitions(-DHAS_OGRE=0)
 	endif ()
 
 	# Find includes in corresponding build directories
@@ -62,7 +64,6 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 		set(wc3lib_EDITOR_H
 			abilitydata.hpp
 			buffdata.hpp
-			collisionshape.hpp
 			destructabledata.hpp
 			doodaddata.hpp
 			editor.hpp
@@ -77,13 +78,9 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 			mpqprioritylist.hpp
 			newmapdialog.hpp
 			objectdata.hpp
-			ogreenvironment.hpp
 			platform.hpp
-			polygonmodecombobox.hpp
-			renderstatswidget.hpp
 			resource.hpp
 			resourcesdialog.hpp
-			root.hpp
 			settings.hpp
 			settingsinterface.hpp
 			sharedobjectdata.hpp
@@ -102,7 +99,6 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 		set(wc3lib_EDITOR_SRC
 			abilitydata.cpp
 			buffdata.cpp
-			collisionshape.cpp
 			destructabledata.cpp
 			doodaddata.cpp
 			editor.cpp
@@ -117,11 +113,8 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 			mpqprioritylist.cpp
 			newmapdialog.cpp
 			objectdata.cpp
-			ogreenvironment.cpp
-			renderstatswidget.cpp
 			resource.cpp
 			resourcesdialog.cpp
-			root.cpp
 			settings.cpp
 			settingsinterface.cpp
 			sharedobjectdata.cpp
@@ -139,18 +132,27 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 		)
 
 		if (MDLX)
-		    set(wc3lib_EDITOR_H
-			${wc3lib_EDITOR_H}
-			modelview.hpp
-			ogremdlx.hpp
-			ogremdlxentity.hpp
+			set(wc3lib_EDITOR_H
+				${wc3lib_EDITOR_H}
+				collisionshape.hpp
+				modelview.hpp
+				ogremdlx.hpp
+				ogremdlxentity.hpp
+				ogreenvironment.hpp
+				root.hpp
+				polygonmodecombobox.hpp
+				renderstatswidget.hpp
 			)
 
-		    set(wc3lib_EDITOR_SRC
-			${wc3lib_EDITOR_SRC}
-			modelview.cpp
-			ogremdlx.cpp
-			ogremdlxentity.cpp
+			set(wc3lib_EDITOR_SRC
+				${wc3lib_EDITOR_SRC}
+				collisionshape.cpp
+				modelview.cpp
+				ogremdlx.cpp
+				ogremdlxentity.cpp
+				ogreenvironment.cpp
+				root.cpp
+				renderstatswidget.cpp
 			)
 		endif ()
 
@@ -180,11 +182,11 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
                 if (MDLX)
 			message(STATUS "Adding wc3libmodeleditor since MDLX is enabled.")
 			add_subdirectory(modeleditor)
+			add_subdirectory(terraineditor)
                 endif ()
 
 		add_subdirectory(mpqeditor)
 		add_subdirectory(objecteditor)
-		add_subdirectory(terraineditor)
 		add_subdirectory(textureeditor)
 
 		add_subdirectory(app)

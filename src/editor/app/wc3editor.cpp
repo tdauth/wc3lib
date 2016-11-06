@@ -36,12 +36,15 @@ int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
 
+#if defined(MDLX) || defined(USE_OGREBLP)
 	Root root;
 
 	if (root.configure())
 	{
 		Editor editor(&root);
-
+#else
+		Editor editor;
+#endif
 		/*
 		 * Pops up the dialog for source directories if necessary and loads default shared files.
 		 */
@@ -108,7 +111,9 @@ int main(int argc, char *argv[])
 
 			return app.exec();
 		}
+#if defined(MDLX) || defined(USE_OGREBLP)
 	}
+#endif
 
 	return 1;
 }

@@ -46,7 +46,7 @@ option(W3G
 	"Builds W3G module."
 	ON)
 CMAKE_DEPENDENT_OPTION(EDITOR
-	"Wacraft III World Editor emulation is built (Qt5 is required)."
+	"Wacraft III World Editor emulation is built (Qt5 is required, OGRE is only required when MDLX or USE_OGREBLP is enabled)."
 	ON
         "BLP;MAP;MPQ" OFF)
 CMAKE_DEPENDENT_OPTION(USE_KIOSLAVE

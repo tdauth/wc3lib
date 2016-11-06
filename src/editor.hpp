@@ -80,7 +80,6 @@ namespace wc3lib
 #include "editor/destructabledata.hpp"
 #include "editor/doodaddata.hpp"
 #include "editor/editor.hpp"
-#include "editor/environment.hpp"
 #include "editor/itemdata.hpp"
 #include "editor/listfilesdialog.hpp"
 #include "editor/map.hpp"
@@ -92,17 +91,20 @@ namespace wc3lib
 #include "editor/mpqprioritylist.hpp"
 #include "editor/newmapdialog.hpp"
 #include "editor/objectdata.hpp"
-#include "editor/ogreenvironment.hpp"
 #ifdef MDLX
 #include "editor/collisionshape.hpp"
 #include "editor/modelview.hpp"
 #include "editor/ogremdlx.hpp"
 #include "editor/ogremdlxentity.hpp"
 #endif
+#if defined(MDLX) || defined(USE_OGREBLP)
+#include "editor/ogreenvironment.hpp"
+#include "editor/environment.hpp"
 #include "editor/polygonmodecombobox.hpp"
 #include "editor/renderstatswidget.hpp"
-#include "editor/resource.hpp"
 #include "editor/root.hpp"
+#endif
+#include "editor/resource.hpp"
 #include "editor/settings.hpp"
 #include "editor/settingsinterface.hpp"
 #include "editor/sharedobjectdata.hpp"

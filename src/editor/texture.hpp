@@ -179,7 +179,11 @@ inline bool Texture::hasOgreTexture() const
 
 inline bool Texture::hasAll() const
 {
-	return hasBlp() && hasQt() && hasOgre() && hasOgreTexture();
+	return hasBlp() && hasQt()
+#if defined(USE_OGREBLP) || defined(MDLX)
+	&& hasOgre() && hasOgreTexture()
+#endif
+	;
 }
 
 inline const Texture::BlpPtr& Texture::blp() const

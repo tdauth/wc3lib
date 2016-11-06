@@ -22,8 +22,6 @@
 #include <QMessageBox>
 #include <QFileDialog>
 
-#include <Ogre.h>
-
 #include "editor.hpp"
 #include "warcraftiiishared.hpp"
 #include "module.hpp"
@@ -32,7 +30,7 @@
 #include "map.hpp"
 #include "sourcesdialog.hpp"
 #include "config.h"
-#ifdef DEBUG
+#if defined(DEBUG) && (defined(MDLX) || defined(USE_OGREBLP))
 #include "Plugin_BlpCodec/blpcodec.hpp"
 #endif
 
@@ -42,13 +40,19 @@ namespace wc3lib
 namespace editor
 {
 
-Editor::Editor(Root *root, QObject *parent) : QObject(parent)
+Editor::Editor(
+#if defined(USE_OGREBLP) || defined(MDLX)
+	Root *root,
+#endif
+	QObject *parent) : QObject(parent)
+#if defined(USE_OGREBLP) || defined(MDLX)
 , m_root(root)
+#endif
 , m_currentMap(0)
 , m_newMapDialog(0)
 , m_sourcesDialog(0)
 {
-#ifdef DEBUG
+#if defined(DEBUG) && (defined(MDLX) || defined(USE_OGREBLP))
 	BlpCodec::startup(); // make sure we have BLP support even if it has not been installed
 #endif
 
@@ -167,10 +171,12 @@ bool Editor::configure(QWidget *parent)
 	return true;
 }
 
+#if defined(USE_OGREBLP) || defined(MDLX)
 Root* Editor::root() const
 {
 	return m_root;
 }
+#endif
 
 void Editor::changeEvent(QEvent *event)
 {

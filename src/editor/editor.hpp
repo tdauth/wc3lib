@@ -28,7 +28,9 @@
 #include "platform.hpp"
 #include "mpqprioritylist.hpp"
 #include "newmapdialog.hpp"
+#if defined(USE_OGREBLP) || defined(MDLX)
 #include "root.hpp"
+#endif
 
 namespace wc3lib
 {
@@ -95,7 +97,11 @@ class Editor : public QObject, public MpqPriorityList
 		typedef QList<Map*> Maps;
 		typedef QMap<Map*, QAction*> MapActions;
 
-		Editor(Root *root, QObject *parent = 0);
+		Editor(
+#if defined(USE_OGREBLP) || defined(MDLX)
+			Root *root,
+#endif
+			QObject *parent = 0);
 		virtual ~Editor();
 
 		/**
@@ -113,6 +119,7 @@ class Editor : public QObject, public MpqPriorityList
 		 */
 		virtual bool configure(QWidget *parent) override;
 
+#if defined(USE_OGREBLP) || defined(MDLX)
 		/**
 		 * When being called the first time this functions tries to allocate the OGRE root instance.
 		 * \note To load all renderer settings "ogre.cfg" and "plugins.cfg" have to be available in the working directory.
@@ -120,6 +127,7 @@ class Editor : public QObject, public MpqPriorityList
 		 * \todo Support "ogre.cfg" and "plugins.cfg" path options (for \ref ModelView as well).
 		 */
 		Root* root() const;
+#endif
 		Map* currentMap() const;
 
 		const ModulesActions& modulesActions() const;
@@ -170,7 +178,9 @@ class Editor : public QObject, public MpqPriorityList
 		Modules& modules();
 		Maps& maps();
 
+#if defined(USE_OGREBLP) || defined(MDLX)
 		Root *m_root;
+#endif
 		Map *m_currentMap;
 
 		ModulesActions m_modulesActions;

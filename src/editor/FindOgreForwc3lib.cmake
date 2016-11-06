@@ -20,4 +20,6 @@ if (${OGRE_FOUND})
 	# SYSTEM suppresses all the warnings of OGRE
 	include_directories(SYSTEM ${OGRE_INCLUDE_DIRS})
 	link_directories(${OGRE_LIB_DIR})
+
+	add_definitions(-DHAS_OGRE=1)
 endif ()

@@ -15,3 +15,4 @@
 #cmakedefine USE_OGREBLP
 #cmakedefine USE_MIME
 #cmakedefine DOC
+#cmakedefine HAS_OGRE
