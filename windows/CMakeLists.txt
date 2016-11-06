@@ -59,9 +59,11 @@ option(EDITOR "Editor" 0)
 
 if (EDITOR)
 	# requires binutils for windres command
-	ExternalProject_Add(binutils DEPENDS llvm URL ${BINUTILS_URL} CONFIGURE_COMMAND ./configure BUILD_COMMAND make ${MAKE_JOBS} INSTALL_COMMAND "")
-	set(DEPENDENCIES ${DEPENDENCIES} ogre)
-	ExternalProject_Add(ogre DEPENDS llvm binutils HG_REPOSITORY ${OGRE_URL} CONFIGURE_COMMAND cmake ${CMAKE_CURRENT_BINARY_DIR}/ogre-prefix/src/ogre/ -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/Toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=install -DCMAKE_FIND_ROOT_PATH="${CMAKE_CURRENT_BINARY_DIR}/binutils-prefix/src/binutils ${CMAKE_FIND_ROOT_PATH}" BUILD_COMMAND make ${MAKE_JOBS} BUILD_IN_SOURCE 1 INSTALL_COMMAND "")
+	#ExternalProject_Add(binutils DEPENDS llvm URL ${BINUTILS_URL} CONFIGURE_COMMAND ./configure BUILD_COMMAND make ${MAKE_JOBS} INSTALL_COMMAND "")
+	#set(DEPENDENCIES ${DEPENDENCIES} ogre)
+	if (MDLX OR USE_OGREBLP)
+		ExternalProject_Add(ogre DEPENDS llvm binutils HG_REPOSITORY ${OGRE_URL} CONFIGURE_COMMAND cmake ${CMAKE_CURRENT_BINARY_DIR}/ogre-prefix/src/ogre/ -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/Toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=install -DCMAKE_FIND_ROOT_PATH="${CMAKE_CURRENT_BINARY_DIR}/binutils-prefix/src/binutils ${CMAKE_FIND_ROOT_PATH}" BUILD_COMMAND make ${MAKE_JOBS} BUILD_IN_SOURCE 1 INSTALL_COMMAND "")
+	endif ()
 endif ()
 
 # libintl-8.dll
