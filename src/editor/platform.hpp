@@ -756,12 +756,11 @@ inline QString customTextTriggersFilter()
  */
 inline QFileInfoList installedListfiles()
 {
-#ifdef Q_OS_UNIX
-	QDir dir("/usr/share/wc3lib/listfiles/");
-#else
-#warning Windows does not support automatic listfiles yet.
+#ifndef Q_OS_UNIX
+#warning Only Unix systems do support automatic listfiles yet.
 	return QFileInfoList();
-#endif
+#else
+	const QDir dir("/usr/share/wc3lib/listfiles/");
 	QFileInfoList result;
 
 	foreach (QFileInfo fileInfo, dir.entryInfoList())
@@ -773,6 +772,7 @@ inline QFileInfoList installedListfiles()
 	}
 
 	return result;
+#endif
 }
 
 // http://stackoverflow.com/questions/11050977/removing-a-non-empty-folder-in-qt

@@ -49,3 +49,10 @@ Windows Builds:
 * ./b2.exe -j4 toolset=gcc stage --with-iostreams -s BZIP2_SOURCE=E:\Projekte\wc3lib\windows\bzip2-1.0.6 -s ZLIB_SOURCE=E:\Projekte\wc3lib\windows\zlib-1.2.8
 * ./b2.exe -j4 toolset=gcc stage --with-iostreams -s BZIP2_BINARY=libbz2 -s BZIP2_INCLUDE=/cygdrive/e/Projekte/wc3lib/windows/include -s BZIP2_LIBPATH=/cygdrive/e/Projekte/wc3lib/windows/lib -s ZLIB_BINARY=zlib -s ZLIB_INCLUDE=/cygdrive/e/Projekte/wc3lib/windows/include -s ZLIB_LIBPATH=/cygdrive/e/Projekte/wc3lib/windows/lib (--build-type=complete --layout=tagged) The cyg prefix has to be removed afterwards.
 * Use "E:\Projekte\boost_1_61_0\stage\lib" as Boost_LIBRARYDIR
+
+Windows Builds on Fedora (cross compilation):
+Fedora offers prebuilt mingw packages which can be used. On Jenkins the following CMake options are passed:
+cmake -DBLP=${BLP} -DMAP=${MAP} -DMPQ=${MPQ} -DMDLX=${MDLX} -DEDITOR=${EDITOR} -DAPP=${APP} -DDOC=${DOC} -DCMAKE_TOOLCHAIN_FILE=Toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ../windows
+
+The "windows" folder contains a custom CMakeLists.txt file for the Windows build project. Use the toolchain file to
+specify the mingw compiler from Fedora.
