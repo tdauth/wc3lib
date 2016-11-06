@@ -56,14 +56,14 @@ BOOST_AUTO_TEST_CASE(LadikMpq1AllExtendedAttributes)
 	BOOST_REQUIRE(archive.format() == mpq::Archive::Format::Mpq1);
 	// TODO wrong size of hash table?
 	//std::cerr << "Hashes size: " << archive.hashes().size() << std::endl;
-	BOOST_REQUIRE(archive.hashes().size() == 4096);
-	BOOST_REQUIRE(archive.blocks().size() == 2);
-	BOOST_REQUIRE(archive.sectorSize() == 4096);
+	BOOST_REQUIRE_EQUAL(archive.hashes().size(), 4096);
+	BOOST_REQUIRE_EQUAL(archive.blocks().size(), 2);
+	BOOST_REQUIRE_EQUAL(archive.sectorSize(), 4096);
 
 	mpq::File testfile = archive.findFile("testfile.txt");
 	BOOST_REQUIRE(testfile.isValid());
-	BOOST_REQUIRE(testfile.compressedSize() == 12);
-	BOOST_REQUIRE(testfile.locale() == mpq::File::Locale::Neutral);
+	BOOST_REQUIRE_EQUAL(testfile.compressedSize(), 12);
+	BOOST_REQUIRE_EQUAL((uint16)testfile.locale(), (uint16)mpq::File::Locale::Neutral);
 	// TODO test file hash and block data
 
 	success = true;
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(LadikMpq1AllExtendedAttributes)
 	{
 		testfile.decompress(data);
 	}
-	catch (Exception &e)
+	catch (const Exception &e)
 	{
 		std::cerr << e.what() << std::endl;
 		success = false;
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(LadikMpq1AllExtendedAttributes)
 	const string dataString = data.str();
 	std::cerr << "Data string:" << dataString << std::endl;
 	std::cerr << "Data string size:" << dataString.size() << std::endl;
-	BOOST_REQUIRE(dataString == "Test");
+	BOOST_REQUIRE_EQUAL(dataString, "Test");
 
 	BOOST_REQUIRE(!archive.containsListfileFile());
 	BOOST_REQUIRE(!archive.containsSignatureFile());
@@ -216,5 +216,5 @@ BOOST_AUTO_TEST_CASE(Crc32s)
 	const mpq::CRC32 currentCrc32 = mpq::Attributes::crc32(dataString.c_str(), dataString.size());
 	const mpq::CRC32 storedCrc32 = crcs[file.block()->index()];
 	std::cerr << "Current: " << currentCrc32 << " Stored: " << storedCrc32 << std::endl;
-	BOOST_REQUIRE(currentCrc32 == storedCrc32);
+	BOOST_REQUIRE_EQUAL(currentCrc32, storedCrc32);
 }
