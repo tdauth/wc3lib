@@ -31,7 +31,6 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 	find_package(Qt5Gui REQUIRED)
 	find_package(Qt5Widgets REQUIRED)
 	find_package(Qt5Multimedia REQUIRED)
-	find_package(Qt5LinguistTools REQUIRED)
 
 	if (DEBUG)
 		find_package(Qt5Test)
