@@ -9,34 +9,34 @@ if (APP AND EDITOR)
 	install(TARGETS wc3editor DESTINATION bin)
 
 	add_executable(wc3object wc3object.cpp)
-	target_link_libraries(wc3object ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libobjecteditor)
+	target_link_libraries(wc3object ${wc3lib_CORE_LIBRARIES} wc3libobjecteditor)
 	install(TARGETS wc3object DESTINATION bin)
 
 	add_executable(wc3texture wc3texture.cpp)
-	target_link_libraries(wc3texture ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libtextureeditor)
+	target_link_libraries(wc3texture ${wc3lib_CORE_LIBRARIES} wc3libtextureeditor)
 	install(TARGETS wc3texture DESTINATION bin)
 
 	include_directories(${CMAKE_CURRENT_BINARY_DIR}/../mpqeditor)
 	add_executable(wc3mpq wc3mpq.cpp)
-	target_link_libraries(wc3mpq ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libmpqeditor)
+	target_link_libraries(wc3mpq ${wc3lib_CORE_LIBRARIES} wc3libmpqeditor)
 	install(TARGETS wc3mpq DESTINATION bin)
 
 	if (MDLX)
 		add_executable(wc3model wc3model.cpp)
-		target_link_libraries(wc3model ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libmodeleditor)
+		target_link_libraries(wc3model ${wc3lib_CORE_LIBRARIES} wc3libmodeleditor)
 		install(TARGETS wc3model DESTINATION bin)
 	endif ()
 
 	add_executable(wc3trigger wc3trigger.cpp)
-	target_link_libraries(wc3trigger ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libtriggereditor)
+	target_link_libraries(wc3trigger ${wc3lib_CORE_LIBRARIES} wc3libtriggereditor)
 	install(TARGETS wc3trigger DESTINATION bin)
 
 	add_executable(wc3ability wc3ability.cpp)
-	target_link_libraries(wc3ability ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libobjecteditor)
+	target_link_libraries(wc3ability ${wc3lib_CORE_LIBRARIES} wc3libobjecteditor)
 	install(TARGETS wc3ability DESTINATION bin)
 
 	add_executable(wc3unit wc3unit.cpp)
-	target_link_libraries(wc3unit ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libobjecteditor)
+	target_link_libraries(wc3unit ${wc3lib_CORE_LIBRARIES} wc3libobjecteditor)
 	install(TARGETS wc3unit DESTINATION bin)
 
 	if (DEBUG)
