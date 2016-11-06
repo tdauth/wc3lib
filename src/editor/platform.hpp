@@ -58,6 +58,8 @@ namespace editor
 
 /**
  * Converts a Warcraft III string into a QString object.
+ * \param value The string which is converted into a QString object.
+ * \return Returns the converted string for Qt.
  */
 inline QString stringToQString(const wc3lib::string &value)
 {
@@ -66,6 +68,8 @@ inline QString stringToQString(const wc3lib::string &value)
 
 /**
  * Converts a Boost filesystempath into a QString object.
+ * \param value The string which is converted into a QString object.
+ * \return Returns the converted string for Qt.
  * \note On Windows the path uses wchar for strings.
  */
 inline QString pathToQString(const boost::filesystem::path &value)
