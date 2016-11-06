@@ -1,20 +1,3 @@
-Sector error (sector 1, file "Units\OrcUpgradeStrings.txt"):
-Explode error: "Invalid dictionary size.".
-von War3Patch.mpq oder War3xLocal.mpq
-Block flags: (wc3lib::mpq::Block::Flags::IsFile | wc3lib::mpq::Block::Flags::UsesEncryptionKey | wc3lib::mpq::Block::Flags::IsEncrypted | wc3lib::mpq::Block::Flags::IsCompressed | unknown: -4294967296)
-Block size: 2250 // is different in MPQ Editor
-File size: 7188 // is different in MPQ Editor
-Block index: 206
-Block offset: 3183518
-
-Sector count: 2
-Sector compression 0: wc3lib::mpq::Sector::Compression::Uncompressed
-Sector compression 1: wc3lib::mpq::Sector::Compression::Uncompressed
-Probably decryption does not work! In other MPQ editors the file has three sectors. The sector table is not even encrypted?
-
-Hash Table Entries: 4096
-Block table entries: 1156
-
 * Qt BLP plugin mit Qt5 testen (installieren).
 * MPQ KIO Slave mit KDE5 testen (installieren).
 
@@ -45,6 +28,37 @@ Block table entries: 1156
 * FIXED: Tooltips level 1 are not displayed properly for abilities (default values are shown) (start with 1 instead of 0?).
 * Use the data attribute for field values and change it on modifications!
 * FIXED: Compress object modifications which are for higher levels than the object actually has.
+
+FIXED:
+The filename of a sector does still contain a directory! This was the error.
+Sector error (sector 1, file "Units\OrcUpgradeStrings.txt"):
+Explode error: "Invalid dictionary size.".
+von War3xLocal.mpq
+Block flags: (wc3lib::mpq::Block::Flags::IsFile | wc3lib::mpq::Block::Flags::UsesEncryptionKey | wc3lib::mpq::Block::Flags::IsEncrypted | wc3lib::mpq::Block::Flags::IsCompressed | unknown: -4294967296)
+Block size: 2250 // is the same in MPQ Editor
+File size: 7188 // is the same in MPQ Editor
+Block index: 206 // is the same in MPQ Editor
+Block offset: 3183518 // is the same in MPQ Editor
+
+Sector count: 2
+Sector compression 0: wc3lib::mpq::Sector::Compression::Uncompressed
+Sector compression 1: wc3lib::mpq::Sector::Compression::Uncompressed
+In MPQEditor it has also 2 sectors, the same offsets and the same total size!
+
+The compression of the second sector is 42!!! It is 2A in hex which would be sparse and???
+Probably the decryption of the second sector fails! Therefore the compression flag is different.
+
+The filename of a sector does still contain a directory! This was the error.
+
+MPQEditor data:
+flags: 80030200 (the same with wc3lib!)
+compressed size: 2250 bytes (the same with MPQMaster, the same with wc3lib -> block size)
+
+file size: 7188 with wc3lib
+block offset is the same in wc3lib as in MPQMaster
+
+Hash Table Entries: 4096
+Block table entries: 1156
 
 FIXED:
 If abilities are exported, many modifications are not exported as well!

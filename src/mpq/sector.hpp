@@ -42,7 +42,7 @@ class File;
  * Compressed sectors do usually have the size of \ref Archive::sectorSize() (except the last one which might be smaller).
  * \note Actually there is no read and write member functions since Sectors are created by \ref File instances when data is being read or written.
  */
-class Sector // FIXME : private boost::noncopyable
+class Sector
 {
 	public:
 		/**
@@ -131,6 +131,9 @@ class Sector // FIXME : private boost::noncopyable
 
 		Archive* archive() const;
 		Block* block() const;
+		/**
+		 * \return Returns the filename required for the sector's key calculation. Returns the filename only without any directory path!
+		 */
 		const string& fileName() const;
 
 		/**
@@ -228,7 +231,7 @@ class Sector // FIXME : private boost::noncopyable
 		 * The corresponding block the sector does belong to which contains offset, size and flag information.
 		 */
 		Block *m_block;
-		string m_fileName; // the file name is used for the file key calculation
+		string m_fileName; // The file name is used for the file key calculation. It is the filename only without the directory path!
 		uint32 m_sectorIndex;
 		uint32 m_sectorOffset;
 		uint32 m_sectorSize; // not required, added by wc3lib, should be the compressed size!

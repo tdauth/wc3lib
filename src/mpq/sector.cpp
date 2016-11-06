@@ -512,10 +512,10 @@ std::streamsize Sector::compress(const byte *buffer, uint32 bufferSize, ostream 
 void Sector::decompress(byte *data, uint32 dataSize, ostream &ostream) const
 {
 	/*
-	If the file is encrypted, each sector (after compression/implosion, if applicable) is encrypted with the file's key.
-	Each sector is encrypted using the key + the 0-based index of the sector in the file.
-	NOTE compression type byte (if existing) is encrypted as well!
-	*/
+	 * If the file is encrypted, each sector (after compression/implosion, if applicable) is encrypted with the file's key.
+	 * Each sector is encrypted using the key + the 0-based index of the sector in the file.
+	 * NOTE compression type byte (if existing) is encrypted as well!
+	 */
 	if (this->block()->flags() & Block::Flags::IsEncrypted)
 	{
 		DecryptData(Archive::cryptTable(), reinterpret_cast<void*>(data), dataSize, this->sectorKey());
@@ -527,7 +527,7 @@ void Sector::decompress(byte *data, uint32 dataSize, ostream &ostream) const
 		/*
 		 * Now decompress in the correct order
 		 */
-		int outLength = boost::numeric_cast<int>(archive()->sectorSize());
+		int outLength = boost::numeric_cast<int>(uncompressedSize() > 0 ? uncompressedSize() : this->archive()->sectorSize());
 		// NOTE do always allocate enough memory.
 		boost::scoped_array<byte> buffer(new byte[outLength]);
 

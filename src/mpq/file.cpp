@@ -131,8 +131,11 @@ std::streamsize File::sectors(istream &istream, Sector::Sectors &sectors)
 		istream.seekg(block()->extendedBlockOffset(), std::ios::cur);
 	}
 
-	string fileName = this->path().string();
-	Listfile::toListfileEntry(fileName);
+	/*
+	 * The filename is required for sectors which are encrypted to decrypt them using the file's key + the sector index.
+	 * The file key is calculated using the filename only without any directory path.
+	 */
+	const string fileName = this->name();
 
 	std::streamsize bytes = 0;
 
@@ -191,16 +194,6 @@ std::streamsize File::sectors(istream &istream, Sector::Sectors &sectors)
 		if (isEncrypted())
 		{
 			DecryptData(Archive::cryptTable(), offsets.get(), readSize, fileKey() - 1);
-		}
-
-		// TEST
-		if (this->compressedSize() != offsets[sectorsCount])
-		{
-			std::cerr << "File: " << this->path() << std::endl;
-			std::cerr << "We have " << sectorsCount << " sectors." << std::endl;
-			std::cerr << "Read sector table block size " << offsets[sectorsCount] << " is not equal to original block size " << this->compressedSize() << std::endl;
-			std::cerr << "Uncompressed file size is " << this->size() << std::endl;
-			std::cerr << "First sector offset " << sectors[0].sectorOffset() << std::endl;
 		}
 
 		sectors.reserve(sectorsCount);
