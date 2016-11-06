@@ -514,7 +514,7 @@ void MpqEditor::newMpqArchive()
 {
 	if (this->creationDialog()->exec() == QDialog::Accepted)
 	{
-		const QString fileName = QFileDialog::getSaveFileName(this, tr("Save MPQ archive"), QString(), tr("*|All Files\n*.mpq|MPQ Archives"));
+		const QString fileName = QFileDialog::getSaveFileName(this, tr("Save MPQ archive"), QString(), tr("All files (*);;MPQ archives (*.mpq)"));
 
 		if (!fileName.isEmpty())
 		{
@@ -546,7 +546,7 @@ void MpqEditor::newMpqArchive()
 
 void MpqEditor::openMpqArchives()
 {
-	const QList<QUrl> urls = QFileDialog::getOpenFileUrls(this, tr("Open Archives"), m_openUrl, tr("*.mpq|MPQ archives\n*"));
+	const QList<QUrl> urls = QFileDialog::getOpenFileUrls(this, tr("Open Archives"), m_openUrl, tr("All files (*);;MPQ archives (*.mpq)"));
 
 	foreach (const QUrl &url, urls)
 	{
