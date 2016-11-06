@@ -296,7 +296,7 @@ void MpqSlave::read(KIO::filesize_t size)
 	}
 	catch (Exception &e)
 	{
-		error(KIO::ERR_COULD_NOT_READ, QObject::tr("%1: %2").arg(m_file.path().c_str()).arg(e.what()));
+		error(KIO::ERR_COULD_NOT_READ, QObject::tr("%1: %2").arg(pathToQString(m_file.path().c_str())).arg(e.what()));
 
 		return;
 	}

@@ -223,7 +223,7 @@ void Editor::openMap(const QUrl &url, bool switchTo, QWidget *window)
 	}
 
 	// TODO set icon to w3m or w3x icon
-	QAction *action = new QAction(tr("%1").arg(ptr->map()->name().c_str()), this);
+	QAction *action = new QAction(tr("%1").arg(stringToQString(ptr->map()->name())), this);
 	//action->setShortcut(KShortcut(tr("F%1%", this->m_modulesActionCollection->actions().size() + 1)));
 	action->setCheckable(true);
 	maps().append(ptr);

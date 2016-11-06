@@ -143,7 +143,7 @@ QString SlkTextSource::value(int row, const QString &columnKey) const
 
 	if (column < this->slk().columns() && rowValue < this->slk().rows())
 	{
-		return MetaData::fromSlkString(QString::fromUtf8(this->slk().table()[column][rowValue].c_str()));
+		return MetaData::fromSlkString(stringToQString(this->slk().table()[column][rowValue]));
 	}
 	else
 	{
@@ -163,13 +163,13 @@ void SlkTextSource::read(istream &in)
 	for (map::Slk::Table::size_type column = 0; column < this->slk().table().shape()[0]; ++column)
 	{
 		map::Slk::Cell &firstColumnCell = this->slk().table()[column][0];
-		this->m_columnKeys[MetaData::fromSlkString(QString::fromUtf8(firstColumnCell.c_str())).toLower()] = column;
+		this->m_columnKeys[MetaData::fromSlkString(stringToQString(firstColumnCell)).toLower()] = column;
 	}
 
 	for (map::Slk::Table::size_type row = 0; row < this->slk().table().shape()[1]; ++row)
 	{
 		map::Slk::Cell &firstRowCell = this->slk().table()[0][row];
-		this->m_rowKeys[MetaData::fromSlkString(QString::fromUtf8(firstRowCell.c_str())).toLower()] = row;
+		this->m_rowKeys[MetaData::fromSlkString(stringToQString(firstRowCell)).toLower()] = row;
 	}
 }
 
@@ -227,7 +227,7 @@ QString TxtTextSource::value(const QString &rowKey, const QString &columnKey) co
 
 	if (columnIterator != this->entryKeys().end())
 	{
-		return QString::fromUtf8(columnIterator.value()->second.c_str());
+		return stringToQString(columnIterator.value()->second);
 	}
 	else
 	{
@@ -271,7 +271,7 @@ QString TxtTextSource::value(int row, const QString &columnKey) const
 
 	if (columnIterator != this->entryKeys().end())
 	{
-		return QString::fromUtf8(columnIterator.value()->second.c_str());
+		return stringToQString(columnIterator.value()->second);
 	}
 	else
 	{
@@ -288,12 +288,12 @@ void TxtTextSource::read(istream &in)
 	for (map::Txt::Sections::iterator iterator = this->txt().sections().begin(); iterator != this->txt().sections().end(); ++iterator)
 	{
 		map::Txt::Section *section = &(*iterator);
-		this->m_sectionKeys[QString::fromUtf8(iterator->name.c_str()).toLower()] = section;
+		this->m_sectionKeys[stringToQString(iterator->name).toLower()] = section;
 
 		for (map::Txt::Entries::iterator entryIterator = iterator->entries.begin(); entryIterator != iterator->entries.end(); ++entryIterator)
 		{
 			map::Txt::Entry *entry = &(*entryIterator);
-			const TxtEntryKey entryKey = TxtEntryKey(section, QString::fromUtf8(entry->first.c_str()).toLower());
+			const TxtEntryKey entryKey = TxtEntryKey(section, stringToQString(entry->first).toLower());
 			this->m_entryKeys[entryKey] = entry;
 		}
 	}
@@ -356,7 +356,7 @@ QString MapStringsTextSource::value(int row, const QString& /* columnKey */) con
 
 	if (iterator != this->entryKeys().end())
 	{
-		return QString::fromUtf8(iterator.value()->value.c_str());
+		return stringToQString(iterator.value()->value);
 	}
 	else
 	{

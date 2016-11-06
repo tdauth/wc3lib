@@ -24,6 +24,7 @@
 #include "config.h"
 
 #include <boost/cast.hpp>
+#include <boost/filesystem.hpp>
 
 #include <QColor>
 #include <QString>
@@ -54,6 +55,23 @@ namespace wc3lib
 
 namespace editor
 {
+
+/**
+ * Converts a Warcraft III string into a QString object.
+ */
+inline QString stringToQString(const wc3lib::string &value)
+{
+	return QString::fromStdString(value);
+}
+
+/**
+ * Converts a Boost filesystempath into a QString object.
+ * \note On Windows the path uses wchar for strings.
+ */
+inline QString pathToQString(const boost::filesystem::path &value)
+{
+	return QString::fromStdString(value.string());
+}
 
 /**
  * Converts ARGB color \p argb into a BLP RGBA color.

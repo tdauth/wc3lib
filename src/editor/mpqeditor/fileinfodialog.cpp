@@ -20,6 +20,7 @@
 
 #include <QtCore/QtCore>
 
+#include "../platform.hpp"
 #include "fileinfodialog.hpp"
 #include "../../mpq.hpp"
 
@@ -36,7 +37,7 @@ FileInfoDialog::FileInfoDialog(QWidget* parent, Qt::WindowFlags f): QDialog(pare
 
 void FileInfoDialog::fill(mpq::Archive &archive, mpq::File &file)
 {
-	this->m_filePathLabel->setText(file.path().c_str());
+	this->m_filePathLabel->setText(pathToQString(file.path()));
 
 	/*
 	 * Hash data:
@@ -79,7 +80,7 @@ void FileInfoDialog::fill(mpq::Archive &archive, mpq::File &file)
 				this->m_md5Label->setEnabled(true);
 				const mpq::MD5Checksum md5 = md5s[file.block()->index()];
 
-				this->m_md5Label->setText(QString::fromUtf8(md5.toString().c_str()));
+				this->m_md5Label->setText(stringToQString(md5.toString()));
 			}
 			else
 			{
