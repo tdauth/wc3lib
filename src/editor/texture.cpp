@@ -21,7 +21,9 @@
 #include <QFileInfo>
 #include <QtCore>
 
+#if defined(USE_OGREBLP) || defined(MDLX)
 #include <Ogre.h>
+#endif
 
 #include "texture.hpp"
 #include "mpqprioritylist.hpp"
@@ -40,7 +42,9 @@ Texture::Texture(const QUrl &url) : Resource(url, Type::Texture)
 
 Texture::~Texture()
 {
+#if defined(USE_OGREBLP) || defined(MDLX)
 	m_ogreTexture.setNull();
+#endif
 }
 
 void Texture::clearBlp()
@@ -53,6 +57,7 @@ void Texture::clearQt()
 	m_qt.reset();
 }
 
+#if defined(USE_OGREBLP) || defined(MDLX)
 void Texture::clearOgre()
 {
 	m_ogre.reset();
@@ -62,6 +67,7 @@ void Texture::clearOgreTexture()
 {
 	m_ogreTexture.setNull();
 }
+#endif
 
 void Texture::clear() throw ()
 {
@@ -180,6 +186,7 @@ void Texture::loadQt()
 
 		m_qt.swap(qtImage); // exception safe (won't change image if handler has some error
 	}
+#if defined(USE_OGREBLP) || defined(MDLX)
 	else if (hasOgre())
 	{
 		QtPtr qtImage(new QImage());
@@ -192,6 +199,7 @@ void Texture::loadQt()
 
 		m_qt.swap(qtImage); // exception safe (won't change image if handler has some error
 	}
+#endif
 	else
 	{
 		QString tmpFileName;
@@ -216,6 +224,7 @@ void Texture::loadQt()
 	}
 }
 
+#if defined(USE_OGREBLP) || defined(MDLX)
 void Texture::loadOgre()
 {
 	if (hasOgre())
@@ -328,21 +337,26 @@ void Texture::loadOgreTexture()
 		clearOgre();
 	}
 }
+#endif
 
 void Texture::loadAll()
 {
 	loadBlp();
 	loadQt();
+#if defined(USE_OGREBLP) || defined(MDLX)
 	loadOgre();
 	loadOgreTexture();
+#endif
 }
 
 void Texture::reload()
 {
 	const bool hasBlp = this->hasBlp();
 	const bool hasQt = this->hasQt();
+#if defined(USE_OGREBLP) || defined(MDLX)
 	const bool hasOgre = this->hasOgre();
 	const bool hasOgreTexture = this->hasOgreTexture();
+#endif
 	clear();
 
 	if (hasBlp)
@@ -355,6 +369,7 @@ void Texture::reload()
 		loadQt();
 	}
 
+#if defined(USE_OGREBLP) || defined(MDLX)
 	if (hasOgre)
 	{
 		loadOgre();
@@ -364,6 +379,7 @@ void Texture::reload()
 	{
 		loadOgreTexture();
 	}
+#endif
 }
 
 void Texture::save(const QUrl &url, const QString &format, const QMap<QString, QString> &compression) const

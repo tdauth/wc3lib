@@ -10,5 +10,8 @@
 #cmakedefine MPQ
 #cmakedefine W3G
 #cmakedefine EDITOR
-#cmakedefine PLUGINS
+#cmakedefine USE_KIOSLAVE
+#cmakedefine USE_QBLP
+#cmakedefine USE_OGREBLP
+#cmakedefine USE_MIME
 #cmakedefine DOC

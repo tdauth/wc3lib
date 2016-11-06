@@ -24,8 +24,12 @@
 #include <QImage>
 #include <QScopedPointer>
 
+#include "config.h"
+
+#if defined(USE_OGREBLP) || defined(MDLX)
 #include <OgreImage.h>
 #include <OgreTexture.h>
+#endif
 
 #include "resource.hpp"
 #include "../core.hpp"
@@ -48,16 +52,21 @@ class Texture : public Resource
 	public:
 		typedef QScopedPointer<blp::Blp> BlpPtr;
 		typedef QScopedPointer<QImage> QtPtr;
+#if defined(USE_OGREBLP) || defined(MDLX)
 		typedef QScopedPointer<Ogre::Image> OgrePtr;
 		typedef Ogre::TexturePtr OgreTexturePtr;
+#endif
 
 		Texture(const QUrl &url);
 		virtual ~Texture();
 
 		void clearBlp();
 		void clearQt();
+
+#if defined(USE_OGREBLP) || defined(MDLX)
 		void clearOgre();
 		void clearOgreTexture();
+#endif
 
 		/**
 		 * Frees all allocated texture related data.
@@ -78,6 +87,8 @@ class Texture : public Resource
 		 * \exception Exception Exception safe!
 		 */
 		virtual void loadQt();
+
+#if defined(USE_OGREBLP) || defined(MDLX)
 		/**
 		 * \exception Exception Exception safe!
 		 */
@@ -86,10 +97,15 @@ class Texture : public Resource
 		 * \exception Exception Exception safe!
 		 */
 		virtual void loadOgreTexture();
+#endif
+
 		/**
 		 * \exception Exception Exception safe!
 		 */
 		virtual void loadAll();
+		/**
+		 * \note Loads all variants of the texture which might take longer.
+		 */
 		virtual void load() { loadAll(); }
 		/**
 		 * Calls \ref clear() and frees everything. Afterwards it loads all images which has been allocated formerly.
@@ -117,20 +133,26 @@ class Texture : public Resource
 
 		bool hasBlp() const;
 		bool hasQt() const;
+#if defined(USE_OGREBLP) || defined(MDLX)
 		bool hasOgre() const;
 		bool hasOgreTexture() const;
+#endif
 		bool hasAll() const;
 
 		const BlpPtr& blp() const;
 		const QtPtr& qt() const;
+#if defined(USE_OGREBLP) || defined(MDLX)
 		const OgrePtr& ogre() const;
 		const OgreTexturePtr& ogreTexture() const;
+#endif
 
 	private:
 		BlpPtr m_blp;
 		QtPtr m_qt;
+#if defined(USE_OGREBLP) || defined(MDLX)
 		OgrePtr m_ogre;
 		OgreTexturePtr m_ogreTexture;
+#endif
 };
 
 inline bool Texture::hasBlp() const
@@ -143,6 +165,7 @@ inline bool Texture::hasQt() const
 	return qt().data() != 0;
 }
 
+#if defined(USE_OGREBLP) || defined(MDLX)
 inline bool Texture::hasOgre() const
 {
 	return ogre().data() != 0;
@@ -152,6 +175,7 @@ inline bool Texture::hasOgreTexture() const
 {
 	return !ogreTexture().isNull();
 }
+#endif
 
 inline bool Texture::hasAll() const
 {
@@ -168,6 +192,7 @@ inline const Texture::QtPtr& Texture::qt() const
 	return m_qt;
 }
 
+#if defined(USE_OGREBLP) || defined(MDLX)
 inline const Texture::OgrePtr& Texture::ogre() const
 {
 	return m_ogre;
@@ -177,7 +202,7 @@ inline const Texture::OgreTexturePtr& Texture::ogreTexture() const
 {
 	return m_ogreTexture;
 }
-
+#endif
 
 }
 
