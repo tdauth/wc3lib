@@ -49,13 +49,6 @@ using namespace wc3lib::editor;
 
 BOOST_AUTO_TEST_CASE(EntryMpq)
 {
-	/*
-	 * Create a Qt Desktop application that the desktop widget can be passed as widget for the synchronous download.
-	 */
-	int argc = 0;
-	char *argv = 0;
-	QCoreApplication app(argc, &argv);
-
 	const QUrl url(TEST_MPQ_URL);
 	const QFileInfo fileInfo(url.path());
 	BOOST_REQUIRE(fileInfo.exists());
@@ -69,13 +62,6 @@ BOOST_AUTO_TEST_CASE(EntryMpq)
 
 BOOST_AUTO_TEST_CASE(ExistsMpq)
 {
-	/*
-	 * Create a Qt Desktop application that the desktop widget can be passed as widget for the synchronous download.
-	 */
-	int argc = 0;
-	char *argv = 0;
-	QCoreApplication app(argc, &argv);
-
 	const QUrl url(TEST_MPQ_URL);
 	const QFileInfo fileInfo(url.path());
 	BOOST_REQUIRE(fileInfo.exists());
@@ -88,13 +74,6 @@ BOOST_AUTO_TEST_CASE(ExistsMpq)
 
 BOOST_AUTO_TEST_CASE(DownloadMpq)
 {
-	/*
-	 * Create a Qt Desktop application that the desktop widget can be passed as widget for the synchronous download.
-	 */
-	int argc = 0;
-	char *argv = 0;
-	QCoreApplication app(argc, &argv);
-
 	const QUrl url(TEST_MPQ_URL);
 	const QFileInfo fileInfo(url.path());
 	BOOST_REQUIRE(fileInfo.exists());
@@ -109,13 +88,6 @@ BOOST_AUTO_TEST_CASE(DownloadMpq)
 
 BOOST_AUTO_TEST_CASE(EntryDir)
 {
-	/*
-	 * Create a Qt Desktop application that the desktop widget can be passed as widget for the synchronous download.
-	 */
-	int argc = 0;
-	char *argv = 0;
-	QCoreApplication app(argc, &argv);
-
 	const QUrl url(TEST_DIR_URL);
 	const QFileInfo fileInfo(url.path());
 	BOOST_REQUIRE(fileInfo.exists());
@@ -129,13 +101,6 @@ BOOST_AUTO_TEST_CASE(EntryDir)
 
 BOOST_AUTO_TEST_CASE(ExistsDir)
 {
-	/*
-	 * Create a Qt Desktop application that the desktop widget can be passed as widget for the synchronous download.
-	 */
-	int argc = 0;
-	char *argv = 0;
-	QCoreApplication app(argc, &argv);
-
 	const QUrl url(TEST_DIR_URL);
 	const QFileInfo fileInfo(url.path());
 	BOOST_REQUIRE(fileInfo.exists());
@@ -148,13 +113,6 @@ BOOST_AUTO_TEST_CASE(ExistsDir)
 
 BOOST_AUTO_TEST_CASE(DownloadDir)
 {
-	/*
-	 * Create a Qt Desktop application that the desktop widget can be passed as widget for the synchronous download.
-	 */
-	int argc = 0;
-	char *argv = 0;
-	QCoreApplication app(argc, &argv);
-
 	const QUrl url(TEST_DIR_URL);
 	const QFileInfo fileInfo(url.path());
 	BOOST_REQUIRE(fileInfo.exists());
@@ -169,13 +127,6 @@ BOOST_AUTO_TEST_CASE(DownloadDir)
 
 BOOST_AUTO_TEST_CASE(UploadDir)
 {
-	/*
-	 * Create a Qt Desktop application that the desktop widget can be passed as widget for the synchronous download.
-	 */
-	int argc = 0;
-	char *argv = 0;
-	QCoreApplication app(argc, &argv);
-
 	const QUrl url(TEST_DIR_URL);
 	const QFileInfo fileInfo(url.path());
 	BOOST_REQUIRE(fileInfo.exists());

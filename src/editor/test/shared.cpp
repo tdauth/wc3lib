@@ -46,7 +46,10 @@ using namespace wc3lib::editor;
 BOOST_AUTO_TEST_CASE(Icon)
 {
 	/*
-	 * Create a Qt Desktop application that the desktop widget can be passed as widget for the synchronous download.
+	 * When using a QPixmap a QGuiApplication must be constructed before.
+	 * https://bugreports.qt.io/browse/QTBUG-29558
+	 *
+	 * TODO Load the qblp plugin to run this test successfully?
 	 */
 	int argc = 0;
 	char *argv = 0;
@@ -55,8 +58,8 @@ BOOST_AUTO_TEST_CASE(Icon)
 	MpqPriorityList source;
 	BOOST_REQUIRE(source.addSource(QUrl(TEST_MPQ_URL)));
 	QString target;
-	BOOST_CHECK(source.download(QUrl("ReplaceableTextures\\TeamColor00.blp"), target, nullptr));
-	const QIcon icon = source.sharedData()->icon("ReplaceableTextures\\TeamColor00.blp", nullptr);
+	BOOST_CHECK(source.download(QUrl("ReplaceableTextures/TeamColor00.blp"), target, nullptr));
+	const QIcon icon = source.sharedData()->icon(QUrl("ReplaceableTextures/TeamColor00.blp"), nullptr);
 	BOOST_CHECK(!icon.isNull());
-	BOOST_CHECK(source.sharedData()->icons().contains(QUrl("ReplaceableTextures\\TeamColor00.blp")));
+	BOOST_CHECK(source.sharedData()->icons().contains(QUrl("ReplaceableTextures/TeamColor00.blp")));
 }
