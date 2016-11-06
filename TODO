@@ -1,3 +1,6 @@
+* TriggerData: When writing and reading again there is a lexical_cast exception.
+* MPQ: Fix the attributes test. Create a new archive using all attributes and one file with Ladik's MPQ editor.
+* Fix qblp Unit Tests, load the qblp plugin dynamically?
 * Qt BLP plugin mit Qt5 testen (installieren).
 * MPQ KIO Slave mit KDE5 testen (installieren).
 
