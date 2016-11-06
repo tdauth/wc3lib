@@ -27,7 +27,9 @@
 
 #include "texture.hpp"
 #include "mpqprioritylist.hpp"
+#ifdef USE_QBLP
 #include "qblp/blpiohandler.hpp"
+#endif
 #if defined(USE_OGREBLP) || defined(MDLX)
 #include "Plugin_BlpCodec/blpcodec.hpp"
 #endif
@@ -158,6 +160,7 @@ void Texture::loadBlp(const QMap<QString, QString> &options)
 	// if we have already an image it seems to be faster to read from it instead of the original file
 	else
 	{
+#ifdef USE_QBLP
 		BlpIOHandler ioHandler;
 		BlpPtr blpImage(new blp::Blp());
 
@@ -167,6 +170,7 @@ void Texture::loadBlp(const QMap<QString, QString> &options)
 		}
 
 		blpImage.swap(m_blp); // exception safe (won't change image if handler has some error
+#endif
 	}
 }
 
@@ -180,6 +184,7 @@ void Texture::loadQt()
 	// if we have already an image it seems to be faster to read from it instead of the original file
 	if (hasBlp())
 	{
+#ifdef USE_QBLP
 		BlpIOHandler ioHandler;
 		QtPtr qtImage(new QImage());
 
@@ -189,6 +194,7 @@ void Texture::loadQt()
 		}
 
 		m_qt.swap(qtImage); // exception safe (won't change image if handler has some error
+#endif
 	}
 #if defined(USE_OGREBLP) || defined(MDLX)
 	else if (hasOgre())
