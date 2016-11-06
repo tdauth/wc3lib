@@ -211,8 +211,9 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 			else ()
 				set(WINDEPLOYQT_ARGS "--release")
 			endif ()
-			add_custom_target(deployqt ALL ${WINDEPLOYQT_PROGRAM} $<TARGET_FILE:wc3libeditor> ${WINDEPLOYQT_ARGS} --dir "${CMAKE_BINARY_DIR}/qtdeployment" DEPENDS wc3libeditor)
-			install(DIRECTORY "${CMAKE_BINARY_DIR}/qtdeployment/" DESTINATION lib)
+			# TODO windeployqt is not available on Fedora
+			#add_custom_target(deployqt ALL ${WINDEPLOYQT_PROGRAM} $<TARGET_FILE:wc3libeditor> ${WINDEPLOYQT_ARGS} --dir "${CMAKE_BINARY_DIR}/qtdeployment" DEPENDS wc3libeditor)
+			#install(DIRECTORY "${CMAKE_BINARY_DIR}/qtdeployment/" DESTINATION lib)
 		endif ()
 	endif ()
 
