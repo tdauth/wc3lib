@@ -4,9 +4,9 @@ add_executable(colors colors.cpp)
 target_link_libraries(colors wc3libcore ${Boost_LIBRARIES} Qt5::Core Qt5::Gui Qt5::Test)
 add_test(NAME ColorsTest COMMAND colors)
 
-add_definitions(-DTEST_MPQ_URL="mpq:/${CMAKE_CURRENT_BINARY_DIR}/test.mpq")
+add_definitions(-DTEST_MPQ_URL="mpq:${CMAKE_CURRENT_BINARY_DIR}/test.mpq")
 configure_file(test.mpq test.mpq COPYONLY)
-add_definitions(-DTEST_DIR_URL="file:/${CMAKE_CURRENT_BINARY_DIR}")
+add_definitions(-DTEST_DIR_URL="file:${CMAKE_CURRENT_BINARY_DIR}")
 
 add_executable(mpqprioritylist mpqprioritylist.cpp)
 target_link_libraries(mpqprioritylist ${wc3lib_CORE_LIBRARIES} wc3libeditor ${Boost_LIBRARIES} Qt5::Core Qt5::Gui Qt5::Test)

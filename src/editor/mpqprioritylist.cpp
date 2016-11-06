@@ -253,7 +253,7 @@ void toRelativeUrl(QString &filePath)
 
 }
 
-bool MpqPriorityList::download(const QUrl &src, QString &target, QWidget * /* window */) const
+bool MpqPriorityList::download(const QUrl &src, QString &target, QWidget *window) const
 {
 	qDebug() << "Download: " << src;
 
@@ -327,6 +327,19 @@ bool MpqPriorityList::download(const QUrl &src, QString &target, QWidget * /* wi
 				qDebug() << "Did not find file " << filePath.c_str();
 			}
 		}
+		// entry is a directory
+		else if (entry.isDirectory(window))
+		{
+			const QUrl fullUrl = entry.url().toString() + "/" + src.toString();
+			const QFileInfo fileInfo(fullUrl.toLocalFile());
+
+			if (fileInfo.exists())
+			{
+				target = fileInfo.filePath();
+
+				return true;
+			}
+		}
 	}
 
 	qDebug() << "Downloaded failed";
@@ -378,7 +391,7 @@ void MpqPriorityList::removeTempFile(const QString &name)
 	}
 }
 
-bool MpqPriorityList::exists(const QUrl &url, QWidget * /* window */) const
+bool MpqPriorityList::exists(const QUrl &url, QWidget *window) const
 {
 	if (url.isRelative())
 	{
@@ -404,6 +417,17 @@ bool MpqPriorityList::exists(const QUrl &url, QWidget * /* window */) const
 				else
 				{
 					qDebug() << "Did not find file " << filePath.c_str();
+				}
+			}
+			// entry is a directory
+			else if (entry.isDirectory(window))
+			{
+				const QUrl fullUrl = entry.url().toString() + "/" + url.toString();
+				const QFileInfo fileInfo(fullUrl.toLocalFile());
+
+				if (fileInfo.exists())
+				{
+					return true;
 				}
 			}
 		}
