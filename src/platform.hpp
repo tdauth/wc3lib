@@ -26,15 +26,15 @@
  * Defines basic types which occur in all formats.
  */
 
+#include <cstdint>
 #include <istream>
 #include <ostream>
 #include <sstream>
+#include <array>
 
-#include <boost/cstdint.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/array.hpp>
-#include <boost/array.hpp>
 
 #include "config.h"
 
@@ -135,7 +135,7 @@ typedef uint32_t flag;
  * Size (chars): 1 byte
  * Size (array of chars): usually 4 bytes
  */
-typedef boost::array<byte, 4> charArray;
+typedef std::array<byte, 4> charArray;
 
 }
 
