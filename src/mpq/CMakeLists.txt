@@ -41,9 +41,9 @@ if (MPQ)
         message(STATUS "ZLIB libraries: ${ZLIB_LIBRARIES}")
 	target_link_libraries(wc3libmpq wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} ${BZIP2_LIBRARIES} ${ZLIB_LIBRARIES} wc3libhuffman wc3libwave wc3libpklib wc3libmd5lib)
 
-	if (DEBUG)
+	if (DEBUG AND UNIX)
 		# FIXME on Windows
-		#add_subdirectory(test)
+		add_subdirectory(test)
 	endif ()
 
 	# install

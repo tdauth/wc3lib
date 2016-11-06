@@ -159,7 +159,7 @@ QString FileInfoDialog::localeToString(mpq::File::Locale locale)
 		}
 	}
 
-	return QString();
+	return QString::number(static_cast<uint16>(locale));
 }
 
 QString FileInfoDialog::platformToString(mpq::File::Platform platform)

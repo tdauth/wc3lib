@@ -1,14 +1,3 @@
-#define BOOST_TEST_MODULE ArchiveTest
-#include <boost/test/unit_test.hpp>
-#include <sstream>
-#include <iostream>
-
-#include <boost/scoped_ptr.hpp>
-#include <boost/scoped_array.hpp>
-
-#include "../archive.hpp"
-#include "../algorithm.hpp"
-
 /***************************************************************************
  *   Copyright (C) 2016 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
@@ -28,6 +17,17 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+
+#define BOOST_TEST_MODULE ArchiveTest
+#include <boost/test/unit_test.hpp>
+#include <sstream>
+#include <iostream>
+
+#include <boost/scoped_ptr.hpp>
+#include <boost/scoped_array.hpp>
+
+#include "../archive.hpp"
+#include "../algorithm.hpp"
 
 #ifndef BOOST_TEST_DYN_LINK
 #error Define BOOST_TEST_DYN_LINK for proper definition of main function.
