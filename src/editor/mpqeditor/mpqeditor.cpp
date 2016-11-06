@@ -819,7 +819,7 @@ bool MpqEditor::extractDir(const QString &path, mpq::Archive &archive, const QSt
 		 * Parent directory of the extraction.
 		 */
 		const boost::filesystem::path parentDirPath = boost::filesystem::path(target.toUtf8().constData()) / dirname.toUtf8().constData();
-		QDir parentDir = QDir(parentDirPath.c_str());
+		QDir parentDir = QDir(QString::fromStdString(parentDirPath.string()));
 
 		qDebug() << "Making dir" << parentDir;
 
@@ -853,12 +853,12 @@ bool MpqEditor::extractDir(const QString &path, mpq::Archive &archive, const QSt
 
 					qDebug() << "relative file path:" << relativeFilePath.c_str();
 
-					if (parentDir.mkpath(relativeDirPath.c_str()))
+					if (parentDir.mkpath(QString::fromStdString(relativeDirPath.string())))
 					{
 						qDebug() << "Extract entry:" << ref.c_str();
 						qDebug() << "Extract target:" << fileTarget.c_str();
 
-						if (!extractFile(ref.c_str(), archive, fileTarget.c_str()))
+						if (!extractFile(QString::fromStdString(ref), archive, QString::fromStdString(fileTarget.string())))
 						{
 							result = false;
 
@@ -934,7 +934,7 @@ bool MpqEditor::extractFile(const QString &path, mpq::Archive &archive, const QS
 	}
 	else
 	{
-		QMessageBox::critical(this, tr("Error"), tr("File %1 is not part of archive %2.").arg(path).arg(archive.path().c_str()));
+		QMessageBox::critical(this, tr("Error"), tr("File %1 is not part of archive %2.").arg(path).arg(QString::fromStdString(archive.path().string())));
 	}
 
 	return false;

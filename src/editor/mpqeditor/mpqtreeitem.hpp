@@ -144,7 +144,7 @@ inline QString MpqTreeItem::name() const
 	}
 	else if (isArchive())
 	{
-		return QString::fromUtf8(archive()->path().filename().c_str());
+		return QString::fromStdString(archive()->path().filename().string());
 	}
 	else if (isFile())
 	{
