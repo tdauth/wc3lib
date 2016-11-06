@@ -3,13 +3,13 @@ if (APP AND EDITOR)
 	if (NOT WIN32)
 		add_executable(wc3editor wc3editor.cpp)
 		target_link_libraries(wc3editor ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libtextureeditor wc3libtriggereditor wc3libobjecteditor wc3libmpqeditor)
-	endif ()
 
-	if (MDLX)
-		target_link_libraries(wc3editor wc3libmodeleditor)
-	endif ()
+		if (MDLX)
+			target_link_libraries(wc3editor wc3libmodeleditor)
+		endif ()
 
-	install(TARGETS wc3editor DESTINATION bin)
+		install(TARGETS wc3editor DESTINATION bin)
+	endif ()
 
 	add_executable(wc3object wc3object.cpp)
 	target_link_libraries(wc3object ${wc3lib_CORE_LIBRARIES} wc3libobjecteditor)
