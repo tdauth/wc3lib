@@ -347,13 +347,12 @@ bool MpqPriorityList::download(const QUrl &src, QString &target, QWidget *window
 	return false;
 }
 
-bool MpqPriorityList::upload(const QString &src, const QUrl &target, QWidget * /* window */) const
+bool MpqPriorityList::upload(const QString &src, const QUrl &target, QWidget *window) const
 {
 	if (!target.isRelative()) // has protocol - is absolute
 	{
 		if (target.scheme() == "file" || target.scheme().isEmpty())
 		{
-			const QFileInfo fileInfoSource(src);
 			const QFileInfo fileInfoTarget(target.toLocalFile());
 
 			qDebug() << "Uploading file " << target;
@@ -368,14 +367,31 @@ bool MpqPriorityList::upload(const QString &src, const QUrl &target, QWidget * /
 	BOOST_REVERSE_FOREACH(Sources::const_reference entry, sources())
 	{
 		// TODO implement first version which does not rely on any slave
+		// this version does not rely on a KIO slave plugin which has to be installed. It uses an instance of the archive instead.
+		if (entry.mpqArchive() != nullptr && entry.mpqArchive()->isOpen())
+		{
+			// entry path can be a directory path or something like tar:/... or mpq:/...
+			QUrl absoluteTarget = entry.url();
+			QString archiveTarget = target.toString();
+			toRelativeUrl(archiveTarget);
+			//absoluteTarget.addPath(archiveTarget);
 
-		// entry path can be a directory path or something like tar:/... or mpq:/...
-		QUrl absoluteTarget = entry.url();
-		QString archiveTarget = target.toString();
-		toRelativeUrl(archiveTarget);
-		//absoluteTarget.addPath(archiveTarget);
+			// TODO add to MPQ archive if possible.
+		}
+		// entry is a directory
+		else if (entry.isDirectory(window))
+		{
+			const QUrl fullUrl = entry.url().toString() + "/" + target.toString();
+			const QFileInfo fileInfoTarget(fullUrl.toLocalFile());
 
-		// TODO add to MPQ archive if possible.
+			qDebug() << "Uploading file " << src << "to" << fullUrl;
+
+			// NOTE does not overwrite automatically
+			if (QFile::copy(src, fileInfoTarget.filePath()))
+			{
+				return true;
+			}
+		}
 	}
 
 	return false;

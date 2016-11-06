@@ -166,3 +166,36 @@ BOOST_AUTO_TEST_CASE(DownloadDir)
 	BOOST_CHECK(source.download(QUrl("test.mpq"), file, nullptr));
 	BOOST_CHECK(QFileInfo(file).exists());
 }
+
+BOOST_AUTO_TEST_CASE(UploadDir)
+{
+	/*
+	 * Create a Qt Desktop application that the desktop widget can be passed as widget for the synchronous download.
+	 */
+	int argc = 0;
+	char *argv = 0;
+	QCoreApplication app(argc, &argv);
+
+	const QUrl url(TEST_DIR_URL);
+	const QFileInfo fileInfo(url.path());
+	BOOST_REQUIRE(fileInfo.exists());
+
+	MpqPriorityList source;
+	BOOST_REQUIRE(source.addSource(url));
+	BOOST_REQUIRE_EQUAL(source.sources().size(), 1);
+	// Copies the file to "test.mpq".
+	const QFileInfo sourceFileInfo(url.toLocalFile() + "/test.mpq");
+	BOOST_REQUIRE(sourceFileInfo.exists());
+	const QUrl targetUrl = QUrl("test2.mpq");
+	const QFileInfo targetFileInfo(url.toLocalFile() + "/test2.mpq");
+
+	if (targetFileInfo.exists())
+	{
+		BOOST_REQUIRE(QFile(targetFileInfo.absoluteFilePath()).remove());
+	}
+
+	// Make sure no file is overwritten.
+	BOOST_REQUIRE(!source.exists(targetUrl, 0));
+	BOOST_CHECK(source.upload(sourceFileInfo.absoluteFilePath(), QUrl("test2.mpq"), nullptr));
+	BOOST_CHECK(targetFileInfo.exists());
+}
