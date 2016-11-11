@@ -169,7 +169,11 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 		endif ()
 
 		if (USE_QBLP)
-			target_link_libraries(wc3libeditor qblp_static)
+			if (WIN32)
+				target_link_libraries(wc3libeditor qblp_static)
+			else ()
+				target_link_libraries(wc3libeditor qblp)
+			endif ()
 		endif ()
 
 		if (USE_OGREBLP)
