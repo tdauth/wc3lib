@@ -4,7 +4,7 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 
 	if (USE_OGREBLP OR MDLX)
 	    # Custom CMake module to find OGRE on different platforms.
-	    include(${CMAKE_PROJECT_DIR}/share/cmake/Modules/FindOgreForwc3lib.cmake)
+	    include(${CMAKE_SOURCE_DIR}/share/cmake/Modules/FindOgreForwc3lib.cmake)
 
 	    # OGRE needs to detect the Windows platform, otherwise it includes the wrong files.
 	    if (WIN32)
