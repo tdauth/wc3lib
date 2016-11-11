@@ -1,1 +1,1 @@
-install(FILES Modules/Findwc3lib.cmake DESTINATION share/wc3lib/cmake/Modules)
+install(FILES Modules/Findwc3lib.cmake Modules/FindOgreForwc3lib.cmake DESTINATION share/wc3lib/cmake/Modules)

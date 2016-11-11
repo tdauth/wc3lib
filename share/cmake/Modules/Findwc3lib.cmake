@@ -32,53 +32,51 @@
 #  wc3lib_LIBRARIES - The libraries needed to use wc3lib
 #  wc3lib_DEFINITIONS - Compiler switches required for using wc3lib
 
-include(LibFindMacros)
+find_package(PkgConfig)
+pkg_check_modules(PC_LIBWC3LIB QUIET wc3lib)
+set(wc3lib_DEFINITIONS ${PC_wc3lib_CFLAGS_OTHER})
 
-# Dependencies
-libfind_package(wc3lib wc3lib)
+find_path(wc3lib_INCLUDE_DIR wc3lib/wc3lib.hpp
+	HINTS ${PC_wc3lib_INCLUDEDIR} ${PC_wc3lib_INCLUDE_DIRS}
+	PATH_SUFFIXES wc3lib )
 
-# Use pkg-config to get hints about paths
-libfind_pkg_check_modules(wc3lib_PKGCONF wc3lib)
+find_library(wc3lib_LIBRARY NAMES wc3libcore
+	HINTS ${PC_wc3lib_LIBDIR} ${PC_wc3libLIBRARY_DIRS})
 
-# Include dir
-find_path(wc3lib_INCLUDE_DIR
-  NAMES wc3lib.hpp
-  PATHS ${wc3lib_PKGCONF_INCLUDE_DIRS}
-)
+include(FindPackageHandleStandardArgs)
+# handle the QUIETLY and REQUIRED arguments and set LIBXML2_FOUND to TRUE
+# if all listed variables are TRUE
+find_package_handle_standard_args(wc3lib  DEFAULT_MSG
+                                  wc3lib_LIBRARY wc3lib_INCLUDE_DIR)
 
-# TODO add to include dirs include/wc3lib/lib
-# for external libs
-list(APPEND wc3lib_INCLUDE_DIR "${wc3lib_INCLUDE_DIR}/lib")
+mark_as_advanced(wc3lib_INCLUDE_DIR wc3lib_LIBRARY)
 
-# Finally the library itself
-find_library(wc3lib_LIBRARY
-  NAMES wc3lib
-  PATHS ${wc3lib_PKGCONF_LIBRARY_DIRS}
-)
+set(wc3lib_LIBRARIES ${wc3lib_LIBRARY})
+set(wc3lib_INCLUDE_DIRS ${wc3lib_INCLUDE_DIR})
 
 # components
-if(wc3lib_FIND_COMPONENTS )
+if (wc3lib_FIND_COMPONENTS)
 	foreach(comp ${wc3lib_FIND_COMPONENTS})
+		message(STATUS "Searching for component ${comp}.")
 		# Xxx_FIND_REQUIRED_Yyy
 		# Xxx_Yyy_FOUND
 		find_path(wc3lib_${comp}_INCLUDE_DIR
 			NAMES ${comp}.hpp
-			PATHS ${wc3lib_PKGCONF_INCLUDE_DIRS}
+			HINTS ${PC_wc3lib_INCLUDEDIR} ${PC_wc3lib_INCLUDE_DIRS}
+			PATH_SUFFIXES wc3lib
 		)
 
 		find_library(wc3lib_${comp}_LIBRARY
 			NAMES wc3lib${comp}
-			PATHS ${wc3lib_PKGCONF_LIBRARY_DIRS}
+			HINTS ${PC_wc3lib_LIBDIR} ${PC_wc3libLIBRARY_DIRS}
 		)
 
-		set(wc3lib_PROCESS_INCLUDES wc3lib_${comp}_INCLUDE_DIR wc3lib_INCLUDE_DIRS)
-		set(wc3lib_PROCESS_LIBS wc3lib_${comp}_LIBRARY wc3lib_LIBRARIES)
+		# Add include directory for extra libraries.
+		if ("${comp}" STREQUAL "mpq")
+			set(wc3lib_INCLUDE_DIRS ${wc3lib_INCLUDE_DIRS} ${wc3lib_INCLUDE_DIR}/wc3lib/lib)
+		endif ()
+
+		set(wc3lib_INCLUDE_DIRS ${wc3lib_INCLUDE_DIRS} ${wc3lib_${comp}_INCLUDE_DIR})
+		set(wc3lib_LIBRARIES ${wc3lib_LIBRARIES} ${wc3lib_${comp}_LIBRARY})
 	endforeach()
-endif()
-
-
-# Set the include dir variables and the libraries and let libfind_process do the rest.
-# NOTE: Singular variables for this library, plural for libraries this this lib depends on.
-set(wc3lib_PROCESS_INCLUDES wc3lib_INCLUDE_DIR wc3lib_INCLUDE_DIRS)
-set(wc3lib_PROCESS_LIBS wc3lib_LIBRARY wc3lib_LIBRARIES)
-libfind_process(wc3lib)
+endif ()

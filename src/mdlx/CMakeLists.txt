@@ -19,6 +19,7 @@ if (MDLX)
 		matrix.hpp
 		mdlgenerator.hpp
 		mdlgrammar.hpp
+		mdlgrammarclient.hpp
 		mdlx.hpp
 		mdlxanimatedproperties.hpp
 		mdlxanimatedproperty.hpp
