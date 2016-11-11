@@ -37,8 +37,8 @@ namespace editor
  const char* Root::defaultPluginsCfg = "plugins.cfg";
 #else
 #ifdef Q_OS_UNIX
- const char* Root::defaultOgreCfg = "/etc/wc3lib/ogre.cfg";
- const char* Root::defaultPluginsCfg = "/etc/wc3lib/plugins.cfg";
+ const char* Root::defaultOgreCfg = "/usr/etc/wc3lib/ogre.cfg";
+ const char* Root::defaultPluginsCfg = "/usr/etc/wc3lib/plugins.cfg";
 #else // TODO set Windows paths
  const char* Root::defaultOgreCfg = "ogre.cfg";
  const char* Root::defaultPluginsCfg = "plugins.cfg";
@@ -53,6 +53,13 @@ Root::Root()
 #ifdef DEBUG
 	qDebug() << "Using debug paths: " << m_pluginsCfg.c_str() << " and " << m_ogreCfg.c_str();
 #endif
+}
+
+Root::Root(const char *ogreCfg, const char *pluginsCfg) :
+ Ogre::Root(ogreCfg, pluginsCfg)
+, m_ogreCfg(ogreCfg)
+, m_pluginsCfg(pluginsCfg)
+{
 }
 
 bool Root::configure()

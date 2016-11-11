@@ -53,6 +53,8 @@ class Root : public Ogre::Root
 		 */
 		Root();
 
+		Root(const char *ogreCfg, const char *pluginsCfg);
+
 		/**
 		 * Restores the configuration of the root object. If it is not possible to restore a former configuration it shows a configuration dialog.
 		 * \return Returns true if the configuration succeeded and the user did not cancel the dialog.
