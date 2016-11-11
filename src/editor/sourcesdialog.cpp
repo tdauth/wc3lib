@@ -303,12 +303,10 @@ QString SourcesDialog::settingsGroup() const
 
 		return module->settingsGroup();
 	}
-	else
-	{
-		throw Exception(_("Sources can only have modules or editor as parent."));
-	}
 
-	return "";
+	qDebug() << "Warning: Using object name as settings group:" << parent()->objectName();
+
+	return parent()->objectName();
 }
 
 void SourcesDialog::addUrl(const QUrl &url)
