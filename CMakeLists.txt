@@ -3,10 +3,17 @@ cmake_minimum_required(VERSION 3.0.0)
 project(wc3lib)
 
 # The version number.
-set(wc3lib_VERSION_MAJOR 0)
-set(wc3lib_VERSION_MINOR 1)
-set(wc3lib_VERSION_PATCH 0)
+if (NOT wc3lib_VERSION_MAJOR)
+	set(wc3lib_VERSION_MAJOR 0)
+endif ()
+if (NOT wc3lib_VERSION_MINOR)
+	set(wc3lib_VERSION_MINOR 1)
+endif ()
+if (NOT wc3lib_VERSION_PATCH)
+	set(wc3lib_VERSION_PATCH 0)
+endif ()
 set(wc3lib_VERSION "${wc3lib_VERSION_MAJOR}.${wc3lib_VERSION_MINOR}.${wc3lib_VERSION_PATCH}")
+message(STATUS "Building version ${wc3lib_VERSION}.")
 
 enable_testing()
 

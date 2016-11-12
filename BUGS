@@ -1,4 +1,7 @@
 If OGRE is installed with the useflag "threads" the following bug may occur:
 http://www.ogre3d.org/forums/viewtopic.php?f=2&t=70021
 
+On Fedora this problem might occur:
+http://www.ogre3d.org/forums/viewtopic.php?f=2&t=91620
+
 The JASS and the MDLX modules are unfinished at the moment. Just disable them in the CMake options.

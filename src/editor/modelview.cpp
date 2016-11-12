@@ -136,13 +136,13 @@ void ModelView::showEvent(QShowEvent *event)
 
 void ModelView::resizeEvent(QResizeEvent *event)
 {
-	if(this->m_renderWindow)
+	if (this->m_renderWindow)
 	{
 		qDebug() << QString("Resize to %1|%2").arg(width()).arg(height());
 		this->m_renderWindow->resize(width(), height());
 		this->m_renderWindow->windowMovedOrResized();
 
-		for(int ct = 0; ct < this->m_renderWindow->getNumViewports(); ++ct)
+		for (int ct = 0; ct < this->m_renderWindow->getNumViewports(); ++ct)
 		{
 			Ogre::Viewport* viewport = this->m_renderWindow->getViewport(ct);
 			Ogre::Camera* camera = viewport->getCamera();
@@ -165,9 +165,11 @@ void ModelView::keyPressEvent(QKeyEvent *event)
 	switch (event->key())
 	{
 		case Qt::Key_Control:
+		{
 			this->m_changeFarClip = true;
 
 			break;
+		}
 	}
 
 	event->accept();
@@ -179,9 +181,11 @@ void ModelView::keyReleaseEvent(QKeyEvent *event)
 	switch (event->key())
 	{
 		case Qt::Key_Control:
+		{
 			this->m_changeFarClip = false;
 
 			break;
+		}
 	}
 
 	event->accept();
@@ -201,9 +205,13 @@ void ModelView::wheelEvent(QWheelEvent *event)
 			if (farClipDistance <= 0)
 			{
 				if (this->m_root->getRenderSystem()->getCapabilities()->hasCapability(Ogre::RSC_INFINITE_FAR_PLANE))
+				{
 					farClipDistance = 0;
+				}
 				else
+				{
 					farClipDistance = 1;
+				}
 			}
 			// TODO maximum far clip?
 			this->m_camera->setFarClipDistance(farClipDistance);
@@ -326,26 +334,32 @@ void ModelView::mousePressEvent(QMouseEvent *event)
 
 		// When right button is being pressed mouse movement is possible.
 		case Qt::RightButton:
+		{
 			this->m_enableMouseMovement = true;
 			this->m_mousePoint = this->mapFromGlobal(QCursor::pos());
 			event->accept();
 
 			break;
+		}
 
 		// When left button is being pressed selection is possible (in editor only, not in view).
 		//case Qt::LeftButton:
 
 		// When middle button is being pressed camera rotation is possible.
 		case Qt::MidButton:
+		{
 			this->m_enableMouseRotation = true;
 			this->m_mousePoint = this->mapFromGlobal(QCursor::pos());
 			event->accept();
 
 			break;
+		}
 
 		// dont handle all mouse events
 		default:
+		{
 			break;
+		}
 	}
 
 	QWidget::mousePressEvent(event);
@@ -357,24 +371,30 @@ void ModelView::mouseReleaseEvent(QMouseEvent *event)
 	{
 		// When right button is being pressed mouse movement is possible.
 		case Qt::RightButton:
+		{
 			this->m_enableMouseMovement = false;
 			event->accept();
 
 			break;
+		}
 
 		// When left button is being pressed selection is possible (in editor only, not in view).
 		//case Qt::LeftButton:
 
 		// When middle button is being pressed camera rotation is possible.
 		case Qt::MidButton:
+		{
 			this->m_enableMouseRotation = false;
 			event->accept();
 
 			break;
+		}
 
 		// dont handle all mouse events
 		default:
+		{
 			break;
+		}
 	}
 
 	QWidget::mouseReleaseEvent(event);

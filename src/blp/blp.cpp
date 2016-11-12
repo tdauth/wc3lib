@@ -211,7 +211,6 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps)
 		this->m_width = header.width;
 		this->m_height = header.height;
 		this->m_pictureType = static_cast<PictureType>(header.pictureType);
-		std::cerr << "Picture type: " << static_cast<dword>(m_pictureType) << std::endl;
 		this->m_pictureSubType = header.pictureSubType;
 
 		for (std::size_t i = 0; i < Blp::maxMipMaps; ++i)
@@ -299,7 +298,6 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps)
 	/*
 	 * Allocate all MIP maps.
 	 */
-	std::cerr << "Reading " << mipMapsCount << " MIP maps." << std::endl;
 	this->mipMaps().resize(mipMapsCount, 0);
 
 	for (std::size_t i = 0; i < mipMapsCount; ++i)
@@ -324,7 +322,7 @@ std::streamsize Blp::read(InputStream &istream,  const std::size_t &mipMaps)
 
 			if (jpegHeaderSize != 624) // usual size of headers of Blizzard BLPs
 			{
-				std::cerr << boost::format(_("Warning: JPEG (JFIF) header size is not equal to 624 which is the usual size of Blizzard's JPEG compressed BLPs. It is %1%.")) % jpegHeaderSize << std::endl;
+				//std::cerr << boost::format(_("Warning: JPEG (JFIF) header size is not equal to 624 which is the usual size of Blizzard's JPEG compressed BLPs. It is %1%.")) % jpegHeaderSize << std::endl;
 			}
 
 			boost::scoped_array<byte> jpegHeader;
