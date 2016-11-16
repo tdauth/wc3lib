@@ -1,0 +1,6 @@
+[Hello]
+Peter="Hans"
+Wurst="Fach"
+
+[CustomSection]
+Peter="Hans"

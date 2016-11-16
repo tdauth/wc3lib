@@ -290,7 +290,9 @@ void convertFile(const boost::filesystem::path &path, const boost::filesystem::p
 	openMode = std::ofstream::out;
 
 	if (outputFormat.isBinary())
+	{
 		openMode |= std::ofstream::binary;
+	}
 
 	if (!overwrite && boost::filesystem::exists(outputPath))
 	{
@@ -322,6 +324,130 @@ void convertFile(const boost::filesystem::path &path, const boost::filesystem::p
 	}
 
 	ifstream.close();
+	ofstream.close();
+}
+
+void mergeTxt(FilePaths::const_reference path, wc3lib::map::Txt &txt,  const ConvFormat &inputFormat, bool verbose)
+{
+	std::ios_base::openmode openMode = std::ifstream::in;
+
+	if (inputFormat.isBinary())
+	{
+		openMode |= std::ifstream::binary;
+	}
+
+	if (verbose)
+	{
+		std::cout << boost::format(_("Reading file \"%1%\".")) % path.string() << std::endl;
+	}
+
+	boost::filesystem::ifstream ifstream(path, openMode);
+
+	if (!ifstream)
+	{
+		throw wc3lib::Exception(boost::format(_("Error while opening file \"%1%\". Continuing with next one.")) % path.string());
+	}
+
+	wc3lib::map::Txt mergedTxt;
+	mergedTxt.read(ifstream);
+	ifstream.close();
+
+	wc3lib::map::Txt::Sections currentSections = txt.sections();
+
+	std::set<wc3lib::string> mergedSections;
+
+	// TODO construct maps with sections as indices to improve performance
+	for (wc3lib::map::Txt::Sections::reference section : currentSections)
+	{
+		for (wc3lib::map::Txt::Sections::const_reference mergedSection : mergedTxt.sections())
+		{
+			if (section.name == mergedSection.name)
+			{
+				mergedSections.insert(mergedSection.name);
+
+				std::set<wc3lib::string> mergedEntries;
+
+				for (wc3lib::map::Txt::Entries::reference entry : section.entries)
+				{
+					for (wc3lib::map::Txt::Entries::const_reference mergedEntry : mergedSection.entries)
+					{
+						if (entry.key() == mergedEntry.key())
+						{
+							mergedEntries.insert(entry.key());
+
+							// Merged entries have a higher priority.
+							entry.setValue(mergedEntry.value());
+
+							break;
+						}
+					}
+				}
+
+				// Add remaining entries which did not exist before.
+				for (wc3lib::map::Txt::Entries::const_reference mergedEntry : mergedSection.entries)
+				{
+					if (mergedEntries.find(mergedEntry.key()) == mergedEntries.end())
+					{
+						section.entries.push_back(mergedEntry);
+					}
+				}
+
+				break;
+			}
+		}
+	}
+
+	// Add the remaining sections which did not exist before.
+	for (wc3lib::map::Txt::Sections::const_reference mergedSection : mergedTxt.sections())
+	{
+		if (mergedSections.find(mergedSection.name) == mergedSections.end())
+		{
+			currentSections.push_back(mergedSection);
+		}
+	}
+
+	txt.setSections(currentSections);
+}
+
+void mergeFiles(const FilePaths &paths, const boost::filesystem::path &outputPath, const ConvFormat &inputFormat, const ConvFormat &outputFormat, bool verbose, bool overwrite)
+{
+	boost::filesystem::ofstream ofstream;
+
+	std::ios_base::openmode openMode = std::ofstream::out;
+
+	if (outputFormat.isBinary())
+	{
+		openMode |= std::ofstream::binary;
+	}
+
+	if (!overwrite && boost::filesystem::exists(outputPath))
+	{
+		throw wc3lib::Exception(boost::format(_("File \"%1%\" does already exist. Continuing with next one.")) % outputPath);
+	}
+
+	ofstream.open(outputPath, openMode);
+
+	if (!ofstream)
+	{
+		throw wc3lib::Exception(boost::format(_("Error while opening file \"%1%\". Continuing with next one.")) % outputPath);
+	}
+
+	if (inputFormat.group() == "txt")
+	{
+		wc3lib::map::Txt txt;
+
+		for (FilePaths::const_reference ref : paths)
+		{
+			mergeTxt(ref, txt, inputFormat, verbose);
+		}
+
+		txt.write(ofstream);
+	}
+	else
+	{
+		throw wc3lib::Exception(boost::format(_("Input format \"%1%\" doesn't belong to any format group.")) % inputFormat.extension());
+	}
+
 	ofstream.close();
 }
 
@@ -371,7 +497,9 @@ int main(int argc, char *argv[])
 	("iformat", boost::program_options::value<std::string>(&inputFormatExtension)->default_value(""), _("<arg> has to be replaced by input files format."))
 	("oformat", boost::program_options::value<std::string>(&outputFormatExtension)->default_value(""), _("<arg> has to be replaced by output files format."))
 	("recursive,R", _("If some of the input files are directories they will be iterated recursively and searched for other files with the input format extension."))
+	("verbose", _("Add more text output."))
 	("overwrite", _("Overwrites existing files and directories when creating or extracting files."))
+	("merge", _("Merges input files into one output file if possible. This can be useful for TXT files with sections."))
 	("i", boost::program_options::value<Strings>(&inputFiles), _("Input files."))
 	("o", boost::program_options::value<boost::filesystem::path>(&outputFile), _("Output file or directory (for multiple files)."))
 	;
@@ -423,7 +551,7 @@ int main(int argc, char *argv[])
 	ConvFormat::append("blp", "Blizzard Entertainment's texture format.", true, "blp");
 	ConvFormat::append("mdx", "Blizzard Entertainment's binary model format.", true, "mdlx");
 	ConvFormat::append("mdl", "Blizzard Entertainment's human-readable model format.", false, "mdlx");
-	ConvFormat::append("txt", "Blizzard Entertainment's TXT files.", false, "text");
+	ConvFormat::append("txt", "Blizzard Entertainment's TXT files.", false, "txt");
 	ConvFormat::append("xml", "Extensible Markup Language", false, "text");
 
 	if (vm.count("formats"))
@@ -480,7 +608,7 @@ int main(int argc, char *argv[])
 	}
 
 	// output path has to be a directory
-	if (inputFilePaths.size() > 1)
+	if (inputFilePaths.size() > 1 && !vm.count("merge"))
 	{
 		if (!boost::filesystem::is_directory(outputFile) && !boost::filesystem::create_directory(outputFile))
 		{
@@ -504,42 +632,67 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	BOOST_FOREACH(FilePaths::reference path, inputFilePaths)
+	if (!vm.count("merge"))
 	{
-		try
+		BOOST_FOREACH(FilePaths::reference path, inputFilePaths)
 		{
-			ConvFormat *realInputFormat = inputFormat;
-
-			if (realInputFormat == 0)
+			try
 			{
-				realInputFormat = formatByExtension(path);
-			}
+				ConvFormat *realInputFormat = inputFormat;
 
-			if (realOutputFormat == 0)
+				if (realInputFormat == 0)
+				{
+					realInputFormat = formatByExtension(path);
+				}
+
+				if (realInputFormat == 0)
+				{
+					throw wc3lib::Exception(boost::format(_("Input file format couldn't be determined by extension of %1%.")) % path);
+				}
+
+				if (realInputFormat->group() != realOutputFormat->group())
+				{
+					throw wc3lib::Exception(boost::format(_("\"%1%\" and \"%2%\" are not convertible.")) % realInputFormat->extension() % realOutputFormat->extension());
+				}
+
+				boost::filesystem::path realOutputFile = outputFile;
+
+				if (boost::filesystem::is_directory(outputFile))
+				{
+					realOutputFile /= path.stem().string() + "." + realOutputFormat->extension();
+				}
+
+				convertFile(path, realOutputFile, *realInputFormat, *realOutputFormat, vm.count("verbose"), vm.count("overwrite"));
+			}
+			catch (const wc3lib::Exception &exception)
 			{
-				throw wc3lib::Exception(boost::format(_("Input file format couldn't be determined by extension of %1%.")) % path);
+				std::cerr << boost::format(_("Error occured when converting file %1%: \"%2%\".\nSkipping file.")) % path % exception.what() << std::endl;
+
+				continue;
 			}
-
-			if (realInputFormat->group() != realOutputFormat->group())
-			{
-				throw wc3lib::Exception(boost::format(_("\"%1%\" and \"%2%\" are not convertible.")) % realInputFormat->extension() % realOutputFormat->extension());
-			}
-
-			boost::filesystem::path realOutputFile = outputFile;
-
-			if (boost::filesystem::is_directory(outputFile))
-			{
-				realOutputFile /= path.stem().string() + "." + realOutputFormat->extension();
-			}
-
-			convertFile(path, realOutputFile, *realInputFormat, *realOutputFormat, vm.count("verbose"), vm.count("overwrite"));
 		}
-		catch (const wc3lib::Exception &exception)
+	}
+	// Merge all files into one file.
+	else
+	{
+		ConvFormat *realInputFormat = inputFormat;
+
+		if (realInputFormat == 0)
 		{
-			std::cerr << boost::format(_("Error occured when converting file %1%: \"%2%\".\nSkipping file.")) % path % exception.what() << std::endl;
-
-			continue;
+			realInputFormat = formatByExtension(inputFilePaths.front());
 		}
+
+		if (realInputFormat == 0)
+		{
+			throw wc3lib::Exception(boost::format(_("Input file format couldn't be determined by extension of %1%.")) % inputFilePaths.front());
+		}
+
+		if (realInputFormat->group() != realOutputFormat->group())
+		{
+			throw wc3lib::Exception(boost::format(_("\"%1%\" and \"%2%\" are not convertible.")) % realInputFormat->extension() % realOutputFormat->extension());
+		}
+
+		mergeFiles(inputFilePaths, outputFile, *realInputFormat, *realOutputFormat, vm.count("verbose"), vm.count("overwrite"));
 	}
 
 	return EXIT_SUCCESS;

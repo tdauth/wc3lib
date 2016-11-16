@@ -31,3 +31,12 @@ if (MAP)
 	configure_file(war3map_en.wts war3map_en.wts COPYONLY)
 	configure_file(war3map_untranslated_en.wts war3map_untranslated_en.wts COPYONLY)
 endif ()
+
+if (BLP AND MPQ AND MDLX AND MAP)
+	add_executable(wc3convertertest wc3converter_test.cpp)
+	target_link_libraries(wc3convertertest ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
+	add_test(NAME Wc3ConverterTest COMMAND ${CMAKE_CURRENT_BINARY_DIR}/wc3convertertest)
+
+	configure_file(a.txt a.txt COPYONLY)
+	configure_file(b.txt b.txt COPYONLY)
+endif ()

@@ -1,0 +1,7 @@
+[Hello]
+Peter="Hans1"
+Wurst="Fach1"
+Flugzeug="Traeger"
+
+[CustomSection2]
+Peter="Hans"
