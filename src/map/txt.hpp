@@ -150,7 +150,17 @@ class Txt : public Format
 		 */
 
 		virtual std::streamsize read(InputStream &istream) override;
-		virtual std::streamsize write(OutputStream &ostream) const override;
+		/**
+		 * \param ostream The output stream where the TXT data is written to.
+		 * \param useSpaces If this value is true, whitespaces are used around the = character. Otherwise none are used. Whitespace characters around the = character might lead to errors (for example when generating the file "UI/TriggerData.txt").
+		 * \return Returns the number of written bytes.
+		 */
+		virtual std::streamsize write(OutputStream &ostream, bool useSpaces) const;
+		virtual std::streamsize write(OutputStream &ostream) const override
+		{
+			// Dont use whitespaces by default since it might lead to errors on parsing.
+			return write(ostream, false);
+		}
 
 	private:
 		Sections m_sections;

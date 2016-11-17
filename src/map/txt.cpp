@@ -369,7 +369,7 @@ std::streamsize Txt::read(InputStream &istream)
 	return 0;
 }
 
-std::streamsize Txt::write(OutputStream &ostream) const
+std::streamsize Txt::write(OutputStream &ostream, bool useSpaces) const
 {
 	std::streamsize size = 0;
 	std::string out;
@@ -384,7 +384,21 @@ std::streamsize Txt::write(OutputStream &ostream) const
 		BOOST_FOREACH(Entries::const_reference keyValuePair, ref.entries)
 		{
 			osstream.str(""); // flush
-			osstream << keyValuePair.first << " = " << keyValuePair.second << "\n";
+			osstream << keyValuePair.first;
+
+			if (useSpaces)
+			{
+				osstream << " ";
+			}
+
+			osstream << "=";
+
+			if (useSpaces)
+			{
+				osstream << " ";
+			}
+
+			osstream << keyValuePair.second << "\n";
 			out =  osstream.str();
 			wc3lib::writeString(ostream, out, size, out.length());
 		}
