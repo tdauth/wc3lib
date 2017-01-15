@@ -4,15 +4,16 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 
 	# OGRE is required when texture support exists. Either only OgreBLP is built or the whole MDLX support.
 	if (USE_OGREBLP)
-	    # Custom CMake module to find OGRE on different platforms.
-	    include(${CMAKE_SOURCE_DIR}/share/cmake/Modules/FindOgreForwc3lib.cmake)
+		list(APPEND CMAKE_MODULE_PATH "/usr/share/cmake/Modules")
+		# Custom CMake module to find OGRE on different platforms.
+		include("${CMAKE_SOURCE_DIR}/share/cmake/Modules/FindOgreForwc3lib.cmake")
 
-	    # OGRE needs to detect the Windows platform, otherwise it includes the wrong files.
-	    if (WIN32)
-		add_definitions(-D_WIN32=1 -DOGRE_PLATFORM=1) # OGRE_PLATFORM_WIN32
-		# This leads to proper DLL export markers
-		add_definitions(-DOGRE_NONCLIENT_BUILD=1)
-	    endif ()
+		# OGRE needs to detect the Windows platform, otherwise it includes the wrong files.
+		if (WIN32)
+			add_definitions(-D_WIN32=1 -DOGRE_PLATFORM=1) # OGRE_PLATFORM_WIN32
+			# This leads to proper DLL export markers
+			add_definitions(-DOGRE_NONCLIENT_BUILD=1)
+		endif ()
 	else ()
 		add_definitions(-DHAS_OGRE=0)
 	endif ()
