@@ -47,7 +47,7 @@ class TerrainEditor : public Module
 		void loadEnvironment(const map::Environment &environment);
 
 	public:
-		TerrainEditor(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		TerrainEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~TerrainEditor();
 
 		virtual void show();

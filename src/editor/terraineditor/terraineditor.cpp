@@ -34,7 +34,7 @@ void TerrainEditor::loadEnvironment(const map::Environment &environment)
 	//this->m_terrainGroup->loadAllTerrains(true);
 }
 
-TerrainEditor::TerrainEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f), m_modelView(new ModelView(hasEditor() ? editor()->root() : 0))//, m_terrainGlobals(new Ogre::TerrainGlobalOptions()), m_terrainGroup(0)
+TerrainEditor::TerrainEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent, Qt::WindowFlags f) : Module(source, organization, applicationName, parent, f), m_modelView(new ModelView(hasEditor() ? editor()->root() : 0))//, m_terrainGlobals(new Ogre::TerrainGlobalOptions()), m_terrainGroup(0)
 {
 	setWindowTitle(tr("Terrain Editor"));
 	Module::setupUi();
