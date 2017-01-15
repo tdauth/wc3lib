@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 
 	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
 	Root root;
-	ModelEditor editor(&root, source.data());
+	ModelEditor editor(&root, source.data(), "wc3lib", "wc3model");
 
 	if (editor.configure())
 	{

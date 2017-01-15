@@ -41,8 +41,8 @@ namespace wc3lib
 namespace editor
 {
 
-ModelEditor::ModelEditor(Root *root, class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f)
-: Module(source, parent, f)
+ModelEditor::ModelEditor(Root *root, MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent, Qt::WindowFlags f)
+: Module(source, organization, applicationName, parent, f)
 , m_modelView(new ModelEditorView(root, this))
 , m_recentUrl("")
 , m_models()

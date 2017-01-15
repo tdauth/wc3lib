@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 
 #if defined(MDLX) && defined(USE_OGREBLP)
 			splash.showMessage(QObject::tr("Loading Model Editor ..."), Qt::AlignCenter | Qt::AlignBottom, Qt::white);
-			ModelEditor *modelEditor = new ModelEditor(&root, &editor);
+			ModelEditor *modelEditor = new ModelEditor(&root, &editor, organization, "wc3model");
 
 			if (modelEditor->configure())
 			{

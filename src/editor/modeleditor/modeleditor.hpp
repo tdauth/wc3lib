@@ -64,7 +64,7 @@ class ModelEditor : public Module
 		typedef boost::bimap<QAction*, const mdlx::Camera*> CameraActions;
 		typedef boost::bimap<const CollisionShape*, Ogre::SceneNode*> CollisionShapeNodes;
 
-		ModelEditor(Root *root, MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		ModelEditor(Root *root, MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~ModelEditor();
 
 		virtual bool configure() override;
