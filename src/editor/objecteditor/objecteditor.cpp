@@ -45,7 +45,7 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f) : Module(source, parent, f)
+ObjectEditor::ObjectEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent, Qt::WindowFlags f) : Module(source, organization, applicationName, parent, f)
 , m_tabWidget(new QTabWidget(this))
 , m_currentTab(0)
 , m_unitEditor(0)
@@ -90,6 +90,7 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowF
 , m_modifyFieldAction(0)
 , m_resetFieldAction(0)
 , m_compressAction(0)
+, m_validateAction(0)
 , m_widgetizeAction(0)
 , m_viewMenu(0)
 , m_rawDataAction(0)
@@ -111,7 +112,7 @@ bool ObjectEditor::configure()
 	// Update required files if started as stand-alone module
 	if (!hasEditor())
 	{
-		if (!source()->configure(this))
+		if (!source()->configure(this, organization(), applicationName()))
 		{
 			return false;
 		}
@@ -507,6 +508,16 @@ void ObjectEditor::compress()
 	}
 }
 
+void ObjectEditor::validate()
+{
+	if (QMessageBox::question(this, tr("Validate all objects?"), tr("Are you sure you want to validate all objects of this tab? This might take while."), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+	{
+		const int counter = this->currentTab()->objectData()->validateTooltipReferences();
+
+		QMessageBox::information(this, tr("Validation done"), tr("Found %1 errors of objects.").arg(counter));
+	}
+}
+
 void ObjectEditor::widgetize()
 {
 	this->currentTab()->widgetizeAllObjects();
@@ -609,6 +620,10 @@ void ObjectEditor::createEditActions(QMenu *menu)
 	m_compressAction = new QAction(tr("Compress all objects"), this);
 	menu->addAction(m_compressAction);
 	connect(m_compressAction, SIGNAL(triggered()), this, SLOT(compress()));
+
+	m_validateAction = new QAction(tr("Validate all objects"), this);
+	menu->addAction(m_validateAction);
+	connect(m_validateAction, SIGNAL(triggered()), this, SLOT(validate()));
 
 	m_widgetizeAction = new QAction(tr("Widgetize all objects"), this);
 	menu->addAction(m_widgetizeAction);

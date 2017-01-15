@@ -172,6 +172,16 @@ ObjectData::MetaDataList AbilityData::metaDataList() const
 bool AbilityData::hideField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level) const
 {
 	/*
+	 * Never hide a field which does not even appear in the meta data file.
+	 */
+	if (!this->metaData()->hasValue(fieldId, "ID"))
+	{
+		qDebug() << "Warning: Field" << fieldId << "is not listed in meta data file" << this->metaData()->url().toLocalFile();
+
+		return false;
+	}
+
+	/*
 	 * Ability fields might be for specific abilities only.
 	 * The field "useSpecific" lists all abilities for which the field is shown.
 	 * If the field is empty it is shown for all abilities.

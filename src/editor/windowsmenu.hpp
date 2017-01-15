@@ -21,6 +21,8 @@
 #ifndef WC3LIB_EDITOR_WINDOWSMENU_HPP
 #define WC3LIB_EDITOR_WINDOWSMENU_HPP
 
+#include <boost/cast.hpp>
+
 #include <QMenu>
 
 #include "platform.hpp"

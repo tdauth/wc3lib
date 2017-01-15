@@ -866,7 +866,8 @@ void ObjectData::importCustomObjects(const map::CustomObjects& objects)
 		for (map::CustomObjects::Object::Modifications::size_type j = 0; j < object.modifications().size(); ++j)
 		{
 			const map::CustomObjects::Modification &modification = *boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object.modifications()[j]);
-			this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), modification);
+			const QString fieldId = map::idToString(modification.valueId()).c_str();
+			this->modifyField(originalObjectId, customObjectId, fieldId, modification);
 		}
 	}
 
@@ -876,10 +877,18 @@ void ObjectData::importCustomObjects(const map::CustomObjects& objects)
 		const QString originalObjectId = map::idToString(object.originalId()).c_str();
 		const QString customObjectId = map::idToString(object.customId()).c_str();
 
+		const bool print = originalObjectId == "Arsg"; // TEST
+
 		for (map::CustomObjects::Object::Modifications::size_type j = 0; j < object.modifications().size(); ++j)
 		{
 			const map::CustomObjects::Modification &modification = *boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object.modifications()[j]);
-			this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), modification);
+			const QString fieldId = map::idToString(modification.valueId()).c_str();
+			this->modifyField(originalObjectId, customObjectId, fieldId, modification);
+
+			if (print)
+			{
+				qDebug() << "Arsg - Field: " << fieldId;
+			}
 		}
 	}
 
@@ -1217,7 +1226,7 @@ void ObjectData::applyMapStrings(map::W3m &w3m)
 	}
 }
 
-int ObjectData::compress()
+long long ObjectData::compress()
 {
 	qDebug() << "Compressing object data:";
 	long long counter = 0;
@@ -1270,6 +1279,176 @@ int ObjectData::compress()
 	}
 
 	qDebug() << "Compression done with" << counter << "items";
+
+	return counter;
+}
+
+QString ObjectData::baseOfCustomObjectId(const QString &customObjectId) const
+{
+	for (Objects::const_iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
+	{
+		const ObjectId &id = iterator.key();
+
+		if (id.customObjectId() == customObjectId)
+		{
+			return id.originalObjectId();
+		}
+	}
+
+	return "";
+}
+
+long long ObjectData::validateTooltipReferences()
+{
+	qDebug() << "Validating object data:";
+	long long counter = 0;
+
+	QStringList allFieldIds;
+	QStringList allFields;
+
+	for (int i = 0; i < metaData()->rows(); ++i)
+	{
+		allFieldIds << this->metaData()->value(i, "ID");
+		allFields << this->metaData()->value(i, "field");
+	}
+
+	for (Objects::iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
+	{
+		const ObjectId &id = iterator.key();
+		const int objectLevels = this->objectLevels(id.originalObjectId(), id.customObjectId());
+
+		// iterate through all fields which are for item fields only and delete their modifications
+		for (int i = 0; i < this->metaData()->rows(); ++i)
+		{
+			//qDebug() << "Before field";
+
+			const QString fieldId = this->metaData()->value(i, "ID");
+
+			const QString fieldType = this->metaData()->value(i, "type");
+
+			//qDebug() << "Field: " << fieldId;
+			const bool repeatField = this->repeateField(fieldId);
+
+			if (fieldType != "string")
+			{
+				//qDebug() << "Field type is not string" << fieldType;
+
+				continue;
+			}
+
+			for (int j = 0; j < objectLevels && (j == 0 || repeatField); ++j)
+			{
+				const int level = repeatField ? j + 1 : j;
+
+				// TODO check if the modification has the same value as the default value. This check probably requires more than just a == string comparison since different values of strings might still have the same meaning.
+				// This would remove some field modifications at the moment for which the default values are not calculated properly. Therefore check at least first if a default value is found.
+				if (this->isFieldModified(id.originalObjectId(), id.customObjectId(), fieldId, level))
+				{
+					//qDebug() << "Field is modified";
+
+					QStringList errors;
+					const QString value = this->fieldValue(id.originalObjectId(), id.customObjectId(), fieldId, level);
+
+					for (int i = value.indexOf("<"); i != -1; i = value.indexOf("<", i + 1))
+					{
+						const int start = i + 1;
+
+						if (start >= value.size())
+						{
+							break;
+						}
+
+						const int end = value.indexOf(">", start) - 1;
+						const QString reference = value.mid(start, end - start);
+						const QStringList pair = reference.split(",");
+						const QString objectId = pair.front();
+						const QString fieldName = pair.back();
+						const bool isStandardObject = this->standardObjectIds().contains(objectId);
+						const QString originalObjectId = isStandardObject ? objectId : baseOfCustomObjectId(objectId);
+						const QString customObjectId = isStandardObject ? "" : objectId;
+
+						// TODO Does not belong to this object data.
+						if (originalObjectId.isEmpty())
+						{
+							break;
+						}
+
+						const bool fieldNameIsFieldId = allFieldIds.contains(fieldName);
+
+						QString fieldIdByFieldName;
+						int fieldLevelByName = 0;
+
+						if (!fieldNameIsFieldId)
+						{
+							int levelIndex = -1;
+
+							for (int j = 0; j < fieldName.size(); ++j)
+							{
+								if (fieldName.at(i).isDigit())
+								{
+									levelIndex = j;
+
+									break;
+								}
+							}
+
+							if (levelIndex == -1)
+							{
+								qDebug() << "Invalid level index for " << fieldName;
+
+								break;
+							}
+
+							const QString fieldNameCut = fieldName.mid(0, levelIndex);
+
+							for (int j = 0; j < this->metaData()->rows(); ++j)
+							{
+								if (this->metaData()->value(j, "field") == fieldNameCut)
+								{
+									fieldIdByFieldName = this->metaData()->value(j, "ID");
+
+									break;
+								}
+							}
+
+							if (fieldIdByFieldName.isEmpty())
+							{
+								qDebug() << "Missing field ID by name" << fieldNameCut;
+
+								break;
+							}
+
+							bool ok = false;
+							fieldLevelByName = fieldName.right(levelIndex).toInt(&ok);
+
+							if (!ok)
+							{
+								break;
+							}
+						}
+
+						const QString fieldId = fieldNameIsFieldId ? fieldName : fieldIdByFieldName;
+						const int fieldLevel = fieldNameIsFieldId ? 0 : fieldLevelByName;
+
+						// TODO check other object data as well
+						if (!this->hasFieldValue(originalObjectId, customObjectId, fieldId, fieldLevel))
+						{
+							qDebug() << "Missing" << originalObjectId << customObjectId << fieldId << fieldLevel;
+						}
+					}
+
+					counter += errors.size();
+					//qDebug() << "Compressing " << id.first << ":" << id.second << " field " << fieldId;
+				}
+			}
+
+			//qDebug() << "Field done";
+		}
+
+		//qDebug() << "Object done";
+	}
+
+	qDebug() << "Validation done with" << counter << "items";
 
 	return counter;
 }

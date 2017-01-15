@@ -2,7 +2,8 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 	# for proper "config.h" detection we use relative paths of modules as well
 	include_directories("${PROJECT_BINARY_DIR}/src/editor")
 
-	if (USE_OGREBLP OR MDLX)
+	# OGRE is required when texture support exists. Either only OgreBLP is built or the whole MDLX support.
+	if (USE_OGREBLP)
 	    # Custom CMake module to find OGRE on different platforms.
 	    include(${CMAKE_SOURCE_DIR}/share/cmake/Modules/FindOgreForwc3lib.cmake)
 
@@ -25,7 +26,7 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 	set(CMAKE_AUTORCC ON)
 
 	if (WIN32)
-	    set (CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.0.1\\5.0.1\\msvc2010\\")
+		set (CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.0.1\\5.0.1\\msvc2010\\")
 	endif ()
 
 	# Find all Qt modules which are required
@@ -37,14 +38,6 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 	if (DEBUG)
 		find_package(Qt5Test)
 	endif ()
-
-	# NOTE find_package(KDE4 ... ) adds C++ compile flags such as -fvisibilit=hidden which leads to undefined reference errors.
-	# You have to use KDE_EXPORT before every class declaration to prevent this or to manually set the compile flags.
-	# This workaround restores the old compile flags.
-	#set(CMAKE_CXX_FLAGS_OLD "${CMAKE_CXX_FLAGS}")
-
-	message(STATUS "C++ Flags: ${CMAKE_CXX_FLAGS}")
-	message(STATUS "C+ Flags: ${CMAKE_C_FLAGS}")
 
 	if (USE_OGREBLP)
 		add_subdirectory(Plugin_BlpCodec)
@@ -131,7 +124,21 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 			windowsmenu.cpp
 		)
 
-		if (MDLX)
+		if (USE_OGREBLP)
+			set(wc3lib_EDITOR_H
+				${wc3lib_EDITOR_H}
+				ogreutilities.hpp
+				root.hpp
+			)
+
+			set(wc3lib_EDITOR_SRC
+				${wc3lib_EDITOR_SRC}
+				root.cpp
+			)
+		endif ()
+
+		# Requires texture support as well.
+		if (MDLX AND USE_OGREBLP)
 			set(wc3lib_EDITOR_H
 				${wc3lib_EDITOR_H}
 				collisionshape.hpp
@@ -139,7 +146,6 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 				ogremdlx.hpp
 				ogremdlxentity.hpp
 				ogreenvironment.hpp
-				root.hpp
 				polygonmodecombobox.hpp
 				renderstatswidget.hpp
 			)
@@ -151,7 +157,6 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 				ogremdlx.cpp
 				ogremdlxentity.cpp
 				ogreenvironment.cpp
-				root.cpp
 				renderstatswidget.cpp
 			)
 		endif ()
@@ -164,8 +169,8 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 		# NOTE Plugin_BlpCodec qblp are required for class Texture which converts directly for Qt and OGRE
 		target_link_libraries(wc3libeditor ${wc3lib_CORE_LIBRARIES} ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES} Qt5::Core Qt5::Widgets Qt5::Multimedia)
 
-		if (MDLX)
-		    target_link_libraries(wc3libeditor ${OGRE_LIBRARIES})
+		if (MDLX AND USE_OGREBLP)
+			target_link_libraries(wc3libeditor ${OGRE_LIBRARIES})
 		endif ()
 
 		if (USE_QBLP)
@@ -183,7 +188,7 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 		add_subdirectory(mapsettingseditor)
 		add_subdirectory(triggereditor)
 
-                if (MDLX)
+                if (MDLX AND USE_OGREBLP)
 			message(STATUS "Adding wc3libmodeleditor since MDLX is enabled.")
 			add_subdirectory(modeleditor)
 			add_subdirectory(terraineditor)
@@ -220,5 +225,4 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 			#install(DIRECTORY "${CMAKE_BINARY_DIR}/qtdeployment/" DESTINATION lib)
 		endif ()
 	endif ()
-
 endif ()

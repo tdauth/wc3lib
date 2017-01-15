@@ -158,9 +158,11 @@ void SourcesDialog::prepend(const Urls &items)
 	}
 }
 
-SourcesDialog::SourcesDialog(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags flags)
+SourcesDialog::SourcesDialog(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent, Qt::WindowFlags flags)
 : QDialog(parent, flags)
 , m_source(source)
+, m_organization(organization)
+, m_applicationName(applicationName)
 {
 	setupUi(this);
 
@@ -233,7 +235,8 @@ void SourcesDialog::apply()
 		--priority;
 	}
 
-	this->source()->writeSettings(settingsGroup());
+	QSettings settings(this->organization(), this->applicationName());
+	this->source()->writeSettings(settings, settingsGroup());
 }
 
 void SourcesDialog::restoreDefaults()

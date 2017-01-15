@@ -21,8 +21,6 @@
 #ifndef WC3LIB_EDITOR_MODULE_HPP
 #define WC3LIB_EDITOR_MODULE_HPP
 
-#include <typeinfo>
-
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QGridLayout>
@@ -59,12 +57,16 @@ class Module : public QWidget
 	public:
 		/**
 		 * \param source Source where files are loaded from when requested. Should not be 0. At least you should create an empty \ref MpqPriorityList instance. To emulate Blizzard's World Editor you can use an \ref Editor instance.
+		 * \param organization The organization which is used for the settings of the module.
+		 * \param applicationName The name of the application which is used for the settings of the module.
 		 * \param parent Parent widget for which the module widget is created.
 		 * \param f Window flags for the module widget.
 		 */
-		Module(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		Module(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~Module();
 		MpqPriorityList* source() const;
+		QString organization() const;
+		QString applicationName() const;
 
 		QMenu* fileMenu() const;
 		QMenu* editMenu() const;
@@ -169,6 +171,8 @@ class Module : public QWidget
 
 	private:
 		MpqPriorityList *m_source;
+		QString m_organization;
+		QString m_applicationName;
 
 		QMenu *m_fileMenu;
 		QMenu *m_editMenu;
@@ -197,6 +201,16 @@ class Module : public QWidget
 inline MpqPriorityList* Module::source() const
 {
 	return this->m_source;
+}
+
+inline QString Module::organization() const
+{
+	return this->m_organization;
+}
+
+inline QString Module::applicationName() const
+{
+	return this->m_applicationName;
 }
 
 inline QMenu* Module::fileMenu() const

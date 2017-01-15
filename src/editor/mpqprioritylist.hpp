@@ -26,8 +26,8 @@
 #include <boost/ptr_container/ptr_set.hpp>
 #include <boost/scoped_ptr.hpp>
 
-#include <QFileInfo>
 #include <QUrl>
+#include <QSettings>
 
 #include "platform.hpp"
 #include "../mpq.hpp"
@@ -70,6 +70,9 @@ class MpqPriorityListEntry : public boost::operators<MpqPriorityListEntry>
 		MpqPriorityListEntry(const QUrl &url, Priority priority);
 		virtual ~MpqPriorityListEntry();
 
+		/**
+		 * \return Returns the priority of the entry. A higher priority means that the entry is used for resolving relative file paths before other entries.
+		 */
 		Priority priority() const;
 		/**
 		 * Entries can be local or remote directories or archives.
@@ -332,8 +335,20 @@ class MpqPriorityList
 		const Resources& resources() const;
 		Resources& resources();
 
-		void readSettings(const QString &group);
-		void writeSettings(const QString &group);
+		/**
+		 * Reads the settings from \p settings using the group \p group.
+		 * The settings are all source URLs with their corresponding priority.
+		 * \param settings The settings which the URLs are read from.
+		 * \param group The group's name in the settings.
+		 */
+		void readSettings(QSettings &settings, const QString &group);
+		/**
+		 * Writes the settings to \p settings using the group \p group.
+		 * The settings are all the source URLs with their corresponding priority.
+		 * \param settings The settings which the URLs are written to.
+		 * \param group The group's name in the settings.
+		 */
+		void writeSettings(QSettings &settings, const QString &group);
 
 		/**
 		 * Removes all sources.
@@ -345,7 +360,7 @@ class MpqPriorityList
 		 * Only if the selected sources are accepted it returns true.
 		 * Otherwise it returns false.
 		 */
-		virtual bool configure(QWidget *parent);
+		virtual bool configure(QWidget *parent, const QString &organization, const QString &applicationName);
 
 	protected:
 		SharedDataPtr m_sharedData;

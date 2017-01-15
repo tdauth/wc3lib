@@ -69,7 +69,7 @@ class MpqEditor : public Module, protected Ui::MpqEditor
 		 */
 		typedef boost::ptr_map<QUrl, mpq::Archive> Archives;
 
-		MpqEditor(wc3lib::editor::MpqPriorityList* source, QWidget* parent = 0, Qt::WindowFlags f = 0);
+		MpqEditor(wc3lib::editor::MpqPriorityList* source, const QString &organization, const QString &applicationName, QWidget* parent = 0, Qt::WindowFlags f = 0);
 		virtual ~MpqEditor();
 
 		virtual bool configure() override;

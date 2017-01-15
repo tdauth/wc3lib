@@ -35,6 +35,7 @@
 #include "platform.hpp"
 #include "collisionshape.hpp"
 #include "../mdlx.hpp"
+#include "ogreutilities.hpp"
 
 #include <boost/foreach.hpp> // NOTE include foreach after Qt stuff because of namespace bug
 

@@ -22,7 +22,7 @@
 
 #include "../../editor.hpp"
 
-#ifdef MDLX
+#ifdef USE_OGREBLP
 #include "../modeleditor/modeleditor.hpp"
 #endif
 #include "../objecteditor/objecteditor.hpp"
@@ -35,15 +35,16 @@ using namespace wc3lib::editor;
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
+	const QString organization = "wc3lib";
 
-#if defined(MDLX) || defined(USE_OGREBLP)
+#if defined(USE_OGREBLP)
 	Root root;
 
 	if (root.configure())
 	{
-		Editor editor(&root);
+		Editor editor(&root, organization, "wc3editor");
 #else
-		Editor editor;
+		Editor editor(organization, "wc3editor");
 #endif
 		/*
 		 * Pops up the dialog for source directories if necessary and loads default shared files.
@@ -53,7 +54,7 @@ int main(int argc, char *argv[])
 			SplashScreen splash(&editor);
 			splash.show();
 
-#ifdef MDLX
+#if defined(MDLX) && defined(USE_OGREBLP)
 			splash.showMessage(QObject::tr("Loading Model Editor ..."), Qt::AlignCenter | Qt::AlignBottom, Qt::white);
 			ModelEditor *modelEditor = new ModelEditor(&root, &editor);
 
@@ -64,7 +65,7 @@ int main(int argc, char *argv[])
 #endif
 
 			splash.showMessage(QObject::tr("Loading Object Editor ..."), Qt::AlignCenter | Qt::AlignBottom, Qt::white);
-			ObjectEditor *objectEditor = new ObjectEditor(&editor);
+			ObjectEditor *objectEditor = new ObjectEditor(&editor, organization, "wc3object");
 
 			if (objectEditor->configure())
 			{
@@ -72,7 +73,7 @@ int main(int argc, char *argv[])
 			}
 
 			splash.showMessage(QObject::tr("Loading Texture Editor ..."), Qt::AlignCenter | Qt::AlignBottom, Qt::white);
-			TextureEditor *textureEditor = new TextureEditor(&editor);
+			TextureEditor *textureEditor = new TextureEditor(&editor, organization, "wc3texture");
 
 			if (textureEditor->configure())
 			{
@@ -80,7 +81,7 @@ int main(int argc, char *argv[])
 			}
 
 			splash.showMessage(QObject::tr("Loading Trigger Editor ..."), Qt::AlignCenter | Qt::AlignBottom, Qt::white);
-			TriggerEditor *triggerEditor = new TriggerEditor(&editor);
+			TriggerEditor *triggerEditor = new TriggerEditor(&editor, organization, "wc3trigger");
 
 			if (triggerEditor->configure())
 			{
@@ -88,7 +89,7 @@ int main(int argc, char *argv[])
 			}
 
 			splash.showMessage(QObject::tr("Loading MPQ Editor ..."), Qt::AlignCenter | Qt::AlignBottom, Qt::white);
-			MpqEditor *mpqEditor = new MpqEditor(&editor);
+			MpqEditor *mpqEditor = new MpqEditor(&editor, organization, "wc3mpq");
 
 			if (mpqEditor->configure())
 			{
@@ -111,7 +112,7 @@ int main(int argc, char *argv[])
 
 			return app.exec();
 		}
-#if defined(MDLX) || defined(USE_OGREBLP)
+#if defined(USE_OGREBLP)
 	}
 #endif
 

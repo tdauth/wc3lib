@@ -21,7 +21,7 @@
 #include <QFileInfo>
 #include <QtCore>
 
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 #include <Ogre.h>
 #endif
 
@@ -30,7 +30,7 @@
 #ifdef USE_QBLP
 #include "qblp/blpiohandler.hpp"
 #endif
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 #include "Plugin_BlpCodec/blpcodec.hpp"
 #endif
 
@@ -46,7 +46,7 @@ Texture::Texture(const QUrl &url) : Resource(url, Type::Texture)
 
 Texture::~Texture()
 {
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 	m_ogreTexture.setNull();
 #endif
 }
@@ -61,7 +61,7 @@ void Texture::clearQt()
 	m_qt.reset();
 }
 
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 void Texture::clearOgre()
 {
 	m_ogre.reset();
@@ -77,7 +77,7 @@ void Texture::clear() throw ()
 {
 	clearBlp();
 	clearQt();
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 	clearOgre();
 	clearOgreTexture();
 #endif
@@ -196,7 +196,7 @@ void Texture::loadQt()
 		m_qt.swap(qtImage); // exception safe (won't change image if handler has some error
 #endif
 	}
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 	else if (hasOgre())
 	{
 		QtPtr qtImage(new QImage());
@@ -234,7 +234,7 @@ void Texture::loadQt()
 	}
 }
 
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 void Texture::loadOgre()
 {
 	if (hasOgre())
@@ -353,7 +353,7 @@ void Texture::loadAll()
 {
 	loadBlp();
 	loadQt();
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 	loadOgre();
 	loadOgreTexture();
 #endif
@@ -363,7 +363,7 @@ void Texture::reload()
 {
 	const bool hasBlp = this->hasBlp();
 	const bool hasQt = this->hasQt();
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 	const bool hasOgre = this->hasOgre();
 	const bool hasOgreTexture = this->hasOgreTexture();
 #endif
@@ -379,7 +379,7 @@ void Texture::reload()
 		loadQt();
 	}
 
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 	if (hasOgre)
 	{
 		loadOgre();

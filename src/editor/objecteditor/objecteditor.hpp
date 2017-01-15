@@ -174,7 +174,7 @@ class ObjectEditor : public Module
 			Skin
 		};
 
-		ObjectEditor(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		ObjectEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~ObjectEditor();
 
 		QTabWidget* tabWidget() const;
@@ -216,6 +216,7 @@ class ObjectEditor : public Module
 		QAction* modifyFieldAction() const;
 		QAction* resetFieldAction() const;
 		QAction* compressAction() const;
+		QAction* validateAction() const;
 
 		virtual bool configure() override;
 		virtual void retranslateUi() override;
@@ -250,6 +251,7 @@ class ObjectEditor : public Module
 		 * Compresses the object data of the currently open tab.
 		 */
 		void compress();
+		void validate();
 		/**
 		 * Widgetizes the object data of the currently open tab.
 		 */
@@ -325,6 +327,7 @@ class ObjectEditor : public Module
 		QAction *m_modifyFieldAction;
 		QAction *m_resetFieldAction;
 		QAction *m_compressAction;
+		QAction *m_validateAction;
 		QAction *m_widgetizeAction;
 
 		QMenu *m_viewMenu;
@@ -505,6 +508,11 @@ inline QAction* ObjectEditor::resetFieldAction() const
 inline QAction* ObjectEditor::compressAction() const
 {
 	return this->m_compressAction;
+}
+
+inline QAction* ObjectEditor::validateAction() const
+{
+	return this->m_validateAction;
 }
 
 inline QString ObjectEditor::actionName() const

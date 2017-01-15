@@ -78,15 +78,19 @@ class SourcesDialog : public QDialog, protected Ui::SourcesDialog
 		 * Creates a new source dialog using the entries from \p source.
 		 *
 		 * \param source The source of which the entries are listed in the dialog and can be reordered.
+		 * \param organization The organization which is used for the settings of the corresponding source.
+		 * \param applicationName The name of the application which is used for the settings of the corresponding source.
 		 * \param parent The parent widget of the dialog.
 		 * \param flags The window flags of the dialog.
 		 */
-		SourcesDialog(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags flags = 0);
+		SourcesDialog(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent = 0, Qt::WindowFlags flags = 0);
 
 		/**
 		 * \return Returns the associated source of which the entries are listed.
 		 */
 		MpqPriorityList* source() const;
+		QString organization() const;
+		QString applicationName() const;
 
 	protected slots:
 		void addUrlSlot();
@@ -108,11 +112,23 @@ class SourcesDialog : public QDialog, protected Ui::SourcesDialog
 		void addUrl(const QUrl &url);
 
 		MpqPriorityList *m_source;
+		QString m_organization;
+		QString m_applicationName;
 };
 
 inline MpqPriorityList* SourcesDialog::source() const
 {
 	return m_source;
+}
+
+inline QString SourcesDialog::organization() const
+{
+	return m_organization;
+}
+
+inline QString SourcesDialog::applicationName() const
+{
+	return m_applicationName;
 }
 
 }

@@ -46,8 +46,8 @@ string TriggerEditor::cutQuotes(const string& value)
 	return value.substr(1, value.length() - 2); // cut quotes
 }
 
-TriggerEditor::TriggerEditor(class MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f)
-: Module(source, parent, f)
+TriggerEditor::TriggerEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent, Qt::WindowFlags f)
+: Module(source, organization, applicationName, parent, f)
 , m_triggers(nullptr)
 , m_customTextTriggers(nullptr)
 , m_freeTriggers(false)
@@ -125,7 +125,7 @@ bool TriggerEditor::configure()
 	// Update required files if started as stand-alone module
 	if (!hasEditor())
 	{
-		if (!this->source()->configure(this))
+		if (!this->source()->configure(this, organization(), applicationName()))
 		{
 			return false;
 		}

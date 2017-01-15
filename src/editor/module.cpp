@@ -37,9 +37,11 @@ namespace wc3lib
 namespace editor
 {
 
-Module::Module(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f)
+Module::Module(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent, Qt::WindowFlags f)
 : QWidget(parent, f | Qt::Window)
 , m_source(source)
+, m_organization(organization)
+, m_applicationName(applicationName)
 , m_moduleMenu(0)
 , m_menuBar(0)
 , m_topLayout(new QVBoxLayout())
@@ -50,8 +52,6 @@ Module::Module(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f)
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	setLayout(layout);
 	topLayout()->setAlignment(Qt::AlignTop);
-	//topLayout()->widget()->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-	//topLayout()->setSizeConstraint( Qt::Horizontal);
 	layout->addLayout(topLayout());
 	layout->addLayout(centerLayout());
 
@@ -60,6 +60,9 @@ Module::Module(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f)
 		connect(editor(), SIGNAL(switchedToMap(Map*)), this, SLOT(switchToMap(Map*)));
 	}
 
+	/*
+	 * Make sure that qblp is loaded when the plugin is not installed.
+	 */
 #ifdef DEBUG
 	QPluginLoader loader("../qblp/qblp.so");
 
@@ -86,7 +89,7 @@ bool Module::configure()
 	// Configure source if started as stand-alone module.
 	if (!hasEditor())
 	{
-		if (!source()->configure(this))
+		if (!source()->configure(this, m_organization, m_applicationName))
 		{
 			return false;
 		}
@@ -114,22 +117,7 @@ void Module::retranslateUi()
 
 bool Module::hasEditor() const
 {
-	// TODO typeid comparison doesn't work, dynamic_cast is working workaround!
-	//qDebug() << "Source type " << typeid(source()).name() << "\nEditor type " << typeid(Editor*).name();
-	//return (typeid(source()) == typeid(Editor*));
 	return dynamic_cast<Editor*>(source()) != 0;
-	/*
-	try
-	{
-		return boost::polymorphic_cast<Editor*>(source());
-	}
-	catch (std::bad_cast &exception)
-	{
-		return false;
-	}
-
-	return true;
-	*/
 }
 
 Editor* Module::editor() const
@@ -159,7 +147,7 @@ void Module::showSourcesDialog()
 	{
 		if (m_sourcesDialog == 0)
 		{
-			m_sourcesDialog = new SourcesDialog(source(), this);
+			m_sourcesDialog = new SourcesDialog(source(), m_organization, m_applicationName, this);
 		}
 
 		m_sourcesDialog->update();
@@ -283,7 +271,8 @@ void Module::readSettings()
 {
 	if (!this->hasEditor())
 	{
-		this->source()->readSettings(settingsGroup());
+		QSettings settings(organization(), applicationName());
+		this->source()->readSettings(settings, settingsGroup());
 	}
 }
 
@@ -291,7 +280,8 @@ void Module::writeSettings()
 {
 	if (!this->hasEditor())
 	{
-		this->source()->writeSettings(settingsGroup());
+		QSettings settings(organization(), applicationName());
+		this->source()->writeSettings(settings, settingsGroup());
 	}
 }
 

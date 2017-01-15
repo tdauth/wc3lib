@@ -380,43 +380,9 @@ void ObjectEditorTab::importAllObjects()
 					QMessageBox::critical(this, tr("Error"), tr("Does not support custom objects or custom units."));
 				}
 			}
-			// TODO support custom object FILES
 			else if (suffix == customObjectsCollectionSuffix)
 			{
-				if (this->objectData()->hasCustomObjects())
-				{
-					ifstream in(url.toLocalFile().toUtf8().constData());
-
-					try
-					{
-						std::unique_ptr<map::CustomObjectsCollection> customObjectsCollection(new map::CustomObjectsCollection());
-						customObjectsCollection->read(in);
-
-						switch (this->objectData()->type())
-						{
-							case map::CustomObjects::Type::Units:
-							{
-								if (customObjectsCollection->hasUnits())
-								{
-									this->objectData()->importCustomUnits(*customObjectsCollection->units());
-									this->updateImportUrlAndSort(url);
-								}
-								else
-								{
-									QMessageBox::critical(this, tr("Error"), tr("Collection has no units."));
-								}
-							}
-						}
-					}
-					catch (std::exception &e)
-					{
-						QMessageBox::critical(this, tr("Error"), e.what());
-					}
-				}
-				else
-				{
-					QMessageBox::critical(this, tr("Error"), tr("Does not support custom objects."));
-				}
+				this->importAllObjectsFromCustomObjectsCollection(url);
 			}
 			else if (suffix == mapSuffix)
 			{
@@ -453,6 +419,122 @@ void ObjectEditorTab::importAllObjects()
 				QMessageBox::critical(this, tr("Error"), tr("Unknown file type."));
 			}
 		}
+	}
+}
+
+void ObjectEditorTab::importAllObjectsFromCustomObjectsCollection(const QUrl &url)
+{
+	if (this->objectData()->hasCustomObjects())
+	{
+		ifstream in(url.toLocalFile().toUtf8().constData());
+
+		try
+		{
+			std::unique_ptr<map::CustomObjectsCollection> customObjectsCollection(new map::CustomObjectsCollection());
+			customObjectsCollection->read(in);
+
+			switch (this->objectData()->type())
+			{
+				case map::CustomObjects::Type::Units:
+				{
+					if (customObjectsCollection->hasUnits())
+					{
+						this->objectData()->importCustomObjects(*customObjectsCollection->units());
+						this->updateImportUrlAndSort(url);
+					}
+					else
+					{
+						QMessageBox::critical(this, tr("Error"), tr("Collection has no units."));
+					}
+				}
+
+				case map::CustomObjects::Type::Items:
+				{
+					if (customObjectsCollection->hasItems())
+					{
+						this->objectData()->importCustomObjects(*customObjectsCollection->items());
+						this->updateImportUrlAndSort(url);
+					}
+					else
+					{
+						QMessageBox::critical(this, tr("Error"), tr("Collection has no items."));
+					}
+				}
+
+				case map::CustomObjects::Type::Abilities:
+				{
+					if (customObjectsCollection->hasAbilities())
+					{
+						this->objectData()->importCustomObjects(*customObjectsCollection->abilities());
+						this->updateImportUrlAndSort(url);
+					}
+					else
+					{
+						QMessageBox::critical(this, tr("Error"), tr("Collection has no abilities."));
+					}
+				}
+
+				case map::CustomObjects::Type::Buffs:
+				{
+					if (customObjectsCollection->hasBuffs())
+					{
+						this->objectData()->importCustomObjects(*customObjectsCollection->buffs());
+						this->updateImportUrlAndSort(url);
+					}
+					else
+					{
+						QMessageBox::critical(this, tr("Error"), tr("Collection has no buffs."));
+					}
+				}
+
+				case map::CustomObjects::Type::Doodads:
+				{
+					if (customObjectsCollection->hasDoodads())
+					{
+						this->objectData()->importCustomObjects(*customObjectsCollection->doodads());
+						this->updateImportUrlAndSort(url);
+					}
+					else
+					{
+						QMessageBox::critical(this, tr("Error"), tr("Collection has no doodads."));
+					}
+				}
+
+				case map::CustomObjects::Type::Destructibles:
+				{
+					if (customObjectsCollection->hasDestructibles())
+					{
+						this->objectData()->importCustomObjects(*customObjectsCollection->destructibles());
+						this->updateImportUrlAndSort(url);
+					}
+					else
+					{
+						QMessageBox::critical(this, tr("Error"), tr("Collection has no destructibles."));
+					}
+				}
+
+				case map::CustomObjects::Type::Upgrades:
+				{
+					if (customObjectsCollection->hasUpgrades())
+					{
+						this->objectData()->importCustomObjects(*customObjectsCollection->upgrades());
+						this->updateImportUrlAndSort(url);
+					}
+					else
+					{
+						QMessageBox::critical(this, tr("Error"), tr("Collection has no upgrades."));
+					}
+				}
+			}
+		}
+		catch (const std::exception &e)
+		{
+			QMessageBox::critical(this, tr("Error"), e.what());
+		}
+	}
+	else
+	{
+		QMessageBox::critical(this, tr("Error"), tr("Does not support custom objects."));
 	}
 }
 

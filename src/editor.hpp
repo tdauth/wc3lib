@@ -91,13 +91,13 @@ namespace wc3lib
 #include "editor/mpqprioritylist.hpp"
 #include "editor/newmapdialog.hpp"
 #include "editor/objectdata.hpp"
-#ifdef MDLX
+#if defined(MDLX) && defined(USE_OGREBLP)
 #include "editor/collisionshape.hpp"
 #include "editor/modelview.hpp"
 #include "editor/ogremdlx.hpp"
 #include "editor/ogremdlxentity.hpp"
 #endif
-#if defined(MDLX) || defined(USE_OGREBLP)
+#if defined(USE_OGREBLP)
 #include "editor/ogreenvironment.hpp"
 #include "editor/environment.hpp"
 #include "editor/polygonmodecombobox.hpp"

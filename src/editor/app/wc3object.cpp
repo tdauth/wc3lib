@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 	QApplication app(argc, argv);
 
 	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
-	ObjectEditor editor(source.data());
+	ObjectEditor editor(source.data(), "wc3lib", "wc3object");
 
 	if (editor.configure())
 	{

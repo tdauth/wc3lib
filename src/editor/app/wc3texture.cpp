@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 	QApplication app(argc, argv);
 
 	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
-	TextureEditor editor(source.data());
+	TextureEditor editor(source.data(), "wc3lib", "wc3texture");
 
 	if (editor.configure())
 	{

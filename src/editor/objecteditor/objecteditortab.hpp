@@ -204,6 +204,11 @@ class ObjectEditorTab : public QWidget
 		 */
 		void exportAllObjects();
 		void importAllObjects();
+		/**
+		 * Given that the file at \p url is a custom objects collection, it tries to import the corresponding objects of the collection which match
+		 * to the object data of the tab and replace the current object data by it.
+		 */
+		void importAllObjectsFromCustomObjectsCollection(const QUrl &url);
 		void copyObject();
 		void pasteObject();
 

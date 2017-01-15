@@ -30,7 +30,7 @@
 #include "map.hpp"
 #include "sourcesdialog.hpp"
 #include "config.h"
-#if defined(DEBUG) && (defined(MDLX) || defined(USE_OGREBLP))
+#if defined(DEBUG) && defined(USE_OGREBLP)
 #include "Plugin_BlpCodec/blpcodec.hpp"
 #endif
 
@@ -41,18 +41,22 @@ namespace editor
 {
 
 Editor::Editor(
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 	Root *root,
 #endif
+	const QString &organization,
+	const QString &applicationName,
 	QObject *parent) : QObject(parent)
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 , m_root(root)
 #endif
+, m_organization(organization)
+, m_applicationName(applicationName)
 , m_currentMap(0)
 , m_newMapDialog(0)
 , m_sourcesDialog(0)
 {
-#if defined(DEBUG) && (defined(MDLX) || defined(USE_OGREBLP))
+#if defined(DEBUG) && defined(MDLX) && defined(USE_OGREBLP)
 	BlpCodec::startup(); // make sure we have BLP support even if it has not been installed
 #endif
 
@@ -109,7 +113,8 @@ Editor::Editor(
 
 Editor::~Editor()
 {
-	this->writeSettings("WorldEditor");
+	QSettings settings("wc3lib", "wc3editor");
+	this->writeSettings(settings, "WorldEditor");
 
 	// do not delete allocated sub widgets (parent system of Qt already considers) BUT
 	// we should remove modules (e. g. model editor) before freeing root!
@@ -139,11 +144,12 @@ void Editor::addModule(Module *module)
 	emit this->createdModule(module);
 }
 
-bool Editor::configure(QWidget *parent)
+bool Editor::configure(QWidget *parent, const QString &organization, const QString &applicationName)
 {
-	this->readSettings("WorldEditor"); // fill sources first
+	QSettings settings(organization, applicationName);
+	this->readSettings(settings, "WorldEditor"); // fill sources first
 
-	if (!MpqPriorityList::configure(parent))
+	if (!MpqPriorityList::configure(parent, organization, applicationName))
 	{
 		return false;
 	}
@@ -158,7 +164,7 @@ bool Editor::configure(QWidget *parent)
 		this->sharedData()->refreshWorldEditorStrings(parent);
 		this->sharedData()->refreshWorldEditData(parent);
 	}
-	catch (Exception &e)
+	catch (const Exception &e)
 	{
 		QMessageBox::critical(parent, tr("Configuration Error"), e.what());
 
@@ -171,7 +177,12 @@ bool Editor::configure(QWidget *parent)
 	return true;
 }
 
-#if defined(USE_OGREBLP) || defined(MDLX)
+bool Editor::configure(QWidget *parent)
+{
+	return this->configure(parent, m_organization, m_applicationName);
+}
+
+#if defined(USE_OGREBLP)
 Root* Editor::root() const
 {
 	return m_root;
@@ -305,9 +316,9 @@ void Editor::saveMapAs(QWidget *window)
 
 void Editor::showSourcesDialog(QWidget *window)
 {
-	if (m_sourcesDialog == 0)
+	if (m_sourcesDialog == nullptr)
 	{
-		m_sourcesDialog = new SourcesDialog(this, window);
+		m_sourcesDialog = new SourcesDialog(this, "wc3lib", "wc3editor", window);
 	}
 
 	m_sourcesDialog->setParent(window);

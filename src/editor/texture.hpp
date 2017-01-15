@@ -26,7 +26,7 @@
 
 #include "config.h"
 
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 #include <OgreImage.h>
 #include <OgreTexture.h>
 #endif
@@ -52,7 +52,7 @@ class Texture : public Resource
 	public:
 		typedef QScopedPointer<blp::Blp> BlpPtr;
 		typedef QScopedPointer<QImage> QtPtr;
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 		typedef QScopedPointer<Ogre::Image> OgrePtr;
 		typedef Ogre::TexturePtr OgreTexturePtr;
 #endif
@@ -63,7 +63,7 @@ class Texture : public Resource
 		void clearBlp();
 		void clearQt();
 
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 		void clearOgre();
 		void clearOgreTexture();
 #endif
@@ -88,7 +88,7 @@ class Texture : public Resource
 		 */
 		virtual void loadQt();
 
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 		/**
 		 * \exception Exception Exception safe!
 		 */
@@ -133,7 +133,7 @@ class Texture : public Resource
 
 		bool hasBlp() const;
 		bool hasQt() const;
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 		bool hasOgre() const;
 		bool hasOgreTexture() const;
 #endif
@@ -141,7 +141,7 @@ class Texture : public Resource
 
 		const BlpPtr& blp() const;
 		const QtPtr& qt() const;
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 		const OgrePtr& ogre() const;
 		const OgreTexturePtr& ogreTexture() const;
 #endif
@@ -149,7 +149,7 @@ class Texture : public Resource
 	private:
 		BlpPtr m_blp;
 		QtPtr m_qt;
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 		OgrePtr m_ogre;
 		OgreTexturePtr m_ogreTexture;
 #endif
@@ -165,7 +165,7 @@ inline bool Texture::hasQt() const
 	return qt().data() != 0;
 }
 
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 inline bool Texture::hasOgre() const
 {
 	return ogre().data() != 0;
@@ -180,7 +180,7 @@ inline bool Texture::hasOgreTexture() const
 inline bool Texture::hasAll() const
 {
 	return hasBlp() && hasQt()
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 	&& hasOgre() && hasOgreTexture()
 #endif
 	;
@@ -196,7 +196,7 @@ inline const Texture::QtPtr& Texture::qt() const
 	return m_qt;
 }
 
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 inline const Texture::OgrePtr& Texture::ogre() const
 {
 	return m_ogre;

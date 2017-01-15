@@ -4,7 +4,7 @@ if (APP AND EDITOR)
 		add_executable(wc3editor wc3editor.cpp)
 		target_link_libraries(wc3editor ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libtextureeditor wc3libtriggereditor wc3libobjecteditor wc3libmpqeditor)
 
-		if (MDLX)
+		if (MDLX AND USE_OGREBLP)
 			target_link_libraries(wc3editor wc3libmodeleditor)
 		endif ()
 
@@ -24,7 +24,7 @@ if (APP AND EDITOR)
 	target_link_libraries(wc3mpq ${wc3lib_CORE_LIBRARIES} wc3libmpqeditor)
 	install(TARGETS wc3mpq DESTINATION bin)
 
-	if (MDLX)
+	if (MDLX AND USE_OGREBLP)
 		add_executable(wc3model wc3model.cpp)
 		target_link_libraries(wc3model ${wc3lib_CORE_LIBRARIES} wc3libmodeleditor)
 		install(TARGETS wc3model DESTINATION bin)

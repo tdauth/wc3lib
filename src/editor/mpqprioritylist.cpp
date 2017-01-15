@@ -462,11 +462,10 @@ bool MpqPriorityList::exists(const QUrl &url, QWidget *window) const
 	return false;
 }
 
-void MpqPriorityList::readSettings(const QString &group)
+void MpqPriorityList::readSettings(QSettings &settings, const QString &group)
 {
 	qDebug() << "Reading settings for group " << group;
 
-	QSettings settings("wc3editor", "wc3editor");
 	qDebug() << "Settings file name: " << settings.fileName();
 	settings.beginGroup(group);
 	const int size = settings.beginReadArray("entries");
@@ -488,11 +487,10 @@ void MpqPriorityList::readSettings(const QString &group)
 	settings.endGroup();
 }
 
-void MpqPriorityList::writeSettings(const QString &group)
+void MpqPriorityList::writeSettings(QSettings &settings, const QString &group)
 {
 	qDebug() << "Writing settings for group " << group;
 
-	QSettings settings("wc3editor", "wc3editor");
 	settings.beginGroup(group);
 	settings.beginWriteArray("entries", sources().size());
 	int i = 0;
@@ -519,9 +517,9 @@ void MpqPriorityList::clear()
 	sources().clear();
 }
 
-bool MpqPriorityList::configure(QWidget *parent)
+bool MpqPriorityList::configure(QWidget *parent, const QString &organization, const QString &applicationName)
 {
-	SourcesDialog sourcesDialog(this, parent);
+	SourcesDialog sourcesDialog(this, organization, applicationName, parent);
 
 	if (sourcesDialog.exec() == QDialog::Accepted)
 	{

@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 {
 	MpqPriorityList source;
 
-	if (!source.configure(nullptr))
+	if (!source.configure(nullptr, "wc3lib", "objectmerger"))
 	{
 		return 1;
 	}

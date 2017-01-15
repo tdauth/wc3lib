@@ -28,7 +28,7 @@
 #include "platform.hpp"
 #include "mpqprioritylist.hpp"
 #include "newmapdialog.hpp"
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 #include "root.hpp"
 #endif
 
@@ -98,9 +98,10 @@ class Editor : public QObject, public MpqPriorityList
 		typedef QMap<Map*, QAction*> MapActions;
 
 		Editor(
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 			Root *root,
 #endif
+			const QString &organization = "wc3lib", const QString &applicationName = "wc3editor",
 			QObject *parent = 0);
 		virtual ~Editor();
 
@@ -117,9 +118,10 @@ class Editor : public QObject, public MpqPriorityList
 		 *
 		 * \return Returns true if everything has been configured and loaded successfully.
 		 */
-		virtual bool configure(QWidget *parent) override;
+		virtual bool configure(QWidget *parent, const QString &organization, const QString &applicationName) override;
+		virtual bool configure(QWidget *parent);
 
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 		/**
 		 * When being called the first time this functions tries to allocate the OGRE root instance.
 		 * \note To load all renderer settings "ogre.cfg" and "plugins.cfg" have to be available in the working directory.
@@ -128,6 +130,9 @@ class Editor : public QObject, public MpqPriorityList
 		 */
 		Root* root() const;
 #endif
+		QString organization() const;
+		QString applicationName() const;
+
 		Map* currentMap() const;
 
 		const ModulesActions& modulesActions() const;
@@ -178,9 +183,13 @@ class Editor : public QObject, public MpqPriorityList
 		Modules& modules();
 		Maps& maps();
 
-#if defined(USE_OGREBLP) || defined(MDLX)
+#if defined(USE_OGREBLP)
 		Root *m_root;
 #endif
+
+		QString m_organization;
+		QString m_applicationName;
+
 		Map *m_currentMap;
 
 		ModulesActions m_modulesActions;
@@ -190,6 +199,16 @@ class Editor : public QObject, public MpqPriorityList
 		NewMapDialog *m_newMapDialog;
 		SourcesDialog *m_sourcesDialog;
 };
+
+inline QString Editor::organization() const
+{
+	return this->m_organization;
+}
+
+inline QString Editor::applicationName() const
+{
+	return this->m_applicationName;
+}
 
 inline Map* Editor::currentMap() const
 {

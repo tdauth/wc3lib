@@ -449,13 +449,23 @@ class ObjectData : public QObject
 		 *
 		 * \return Returns the number of compressed modifications.
 		 */
-		virtual int compress();
+		virtual long long compress();
+
+		/**
+		 * Checks all "<A000,dur1>" like references in string values and checks if they do exist.
+		 * If they do not exist it prints an error message.
+		 *
+		 * If they do exist it checks if the ID is related to the object. Otherwise it prints a warning.
+		 */
+		virtual long long validateTooltipReferences();
 
 		/**
 		 * Widgetizing means that all possible object data is exported into SLK files which can only store abilities up to leve 4.
 		 * The rest of the data will be exported as usual. Therefore a folder must be selected.
 		 */
 		virtual void widgetize(const QUrl &url);
+
+		QString baseOfCustomObjectId(const QString &customObjectId) const;
 
 	protected:
 		virtual QString defaultFieldValue(const QString &objectId, const QString &fieldId, int level, bool &exists) const;

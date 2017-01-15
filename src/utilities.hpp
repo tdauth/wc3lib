@@ -497,7 +497,9 @@ std::string sizeStringBinary(T size)
 	sstream << size;
 
 	if (remainder != 0)
+	{
 		sstream << _(".") << remainder;
+	}
 
 	sstream << ' ' << unit;
 

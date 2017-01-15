@@ -37,8 +37,8 @@ namespace editor
 
 const int MpqEditor::maxRecentActions = 5;
 
-MpqEditor::MpqEditor(MpqPriorityList *source, QWidget *parent, Qt::WindowFlags f)
-: Module(source, parent, f)
+MpqEditor::MpqEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent, Qt::WindowFlags f)
+: Module(source, organization, applicationName, parent, f)
 , m_extractAction(0)
 , m_infoAction(0)
 , m_creationDialog(new CreationDialog(this))
@@ -73,7 +73,7 @@ bool MpqEditor::configure()
 	// Update required files if started as stand-alone module
 	if (!hasEditor())
 	{
-		if (!source()->configure(this))
+		if (!source()->configure(this, organization(), applicationName()))
 		{
 			return false;
 		}
@@ -1041,7 +1041,7 @@ void MpqEditor::readSettings()
 	Module::readSettings();
 	// only read GUI settings
 	// sources have to be read manually before
-	QSettings settings("wc3lib", "mpqeditor");
+	QSettings settings(organization(), applicationName());
 
 	qDebug() << "MPQ editor settings:" << settings.fileName();
 
@@ -1081,7 +1081,7 @@ void MpqEditor::writeSettings()
 {
 	Module::writeSettings();
 
-	QSettings settings("wc3lib", "mpqeditor");
+	QSettings settings(organization(), applicationName());
 
 	qDebug() << "MPQ editor settings:" << settings.fileName();
 
