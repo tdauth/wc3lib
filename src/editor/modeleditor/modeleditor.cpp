@@ -106,11 +106,16 @@ bool ModelEditor::configure()
 	// Update required files if started as stand-alone module
 	if (!hasEditor())
 	{
+		if (!source()->configure(this, organization(), applicationName()))
+		{
+			return false;
+		}
+
 		try
 		{
 			source()->sharedData()->refreshWorldEditorStrings(this);
 		}
-		catch (wc3lib::Exception &e)
+		catch (const wc3lib::Exception &e)
 		{
 			QMessageBox::critical(this, tr("Error"), tr("Error when loading default files: %1").arg(e.what()));
 
