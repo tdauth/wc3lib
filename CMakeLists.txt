@@ -195,7 +195,7 @@ if (BLP)
 endif ()
 
 if (EDITOR OR PLUGINS)
-	set(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS}, qt4-default, kdelibs-bin, libogre-1.9.0v5")
+	set(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS}, qt5-default, kdelibs-bin, libogre-1.9.0v5")
 endif ()
 
 # TODO NSIS, include(InstallRequiredSystemLibraries)
