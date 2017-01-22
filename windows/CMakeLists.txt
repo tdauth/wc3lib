@@ -52,7 +52,6 @@ ExternalProject_Add(jpeg DEPENDS nasm DOWNLOAD_NAME jpegsrc.tar.gz DOWNLOAD_DIR 
 
 #ExternalProject_Add(libintl DOWNLOAD_NAME libintl.zip DOWNLOAD_DIR download URL http://downloads.sourceforge.net/project/gnuwin32/libintl/0.14.4/libintl-0.14.4-src.zip CONFIGURE_COMMAND ${CMAKE_BINARY_DIR}/libintl-prefix/src/libintl/src/libintl/0.14.4/libintl-0.14.4-src/configure CC=${MINGW_C_COMPILER} CXX=${MINGW_CXX_COMPILER} CFLAGS=-I${CMAKE_BINARY_DIR}libintl-prefix/src/libintl-build BUILD_COMMAND make BUILD_IN_SOURCE 1 INSTALL_COMMAND "")
 
-set(CMAKE_OPTIONS -DEDITOR=0 -DPLUGINS=0)
 set(DEPENDENCIES jpeg) # llvm gettext libintl
 
 option(EDITOR "Editor" 0)
@@ -67,10 +66,13 @@ if (EDITOR)
 endif ()
 
 # libintl-8.dll
-# apparently it does not link automatically with the library intl although the package gettext is found
+# # apparently it does not link automatically with the library intl although the package gettext is found
 # Besides link to the locally compiled libjpeg
 # -Wa,-mbig-obj solves the "file too big" error
 set(wc3lib_LINKFLAGS "-lintl -L${MINGW_ROOT_DIR}/bin/ -L${MINGW_ROOT_DIR}/lib/ ${MINGW_ROOT_DIR}/bin/libintl-8.dll ${MINGW_ROOT_DIR}/lib/libintl.dll.a ${MINGW_ROOT_DIR}/bin/libgettextlib-0-19-4.dll ${CMAKE_CURRENT_BINARY_DIR}/jpeg-prefix/src/jpeg/libjpeg.a -Wa,-mbig-obj")
 set(CMAKE_FIND_ROOT_PATH "${CMAKE_CURRENT_BINARY_DIR}/jpeg-prefix/src/jpeg ${CMAKE_FIND_ROOT_PATH}")
 
-ExternalProject_Add(wc3lib DEPENDS ${DEPENDENCIES} GIT_REPOSITORY ${wc3lib_URL} CONFIGURE_COMMAND cmake ${CMAKE_CURRENT_BINARY_DIR}/wc3lib-prefix/src/wc3lib/ -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/Toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=install ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${wc3lib_LINKFLAGS} -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_FIND_ROOT_PATH=${CMAKE_FIND_ROOT_PATH} -Dwc3lib_VERSION_MAJOR=${wc3lib_VERSION_MAJOR} -Dwc3lib_VERSION_MINOR=${wc3lib_VERSION_MINOR} -Dwc3lib_VERSION_PATCH=${wc3lib_VERSION_PATCH} -DMDLX=0 -DJASS=0 -DEDITOR=${EDITOR} -DUSE_KIOSLAVE=0 -DUSE_QBLP=${USE_QBLP} -DUSE_OGREBLP=0 -DUSE_MIME=0 -DDOC=${DOC} -DBUILD_SHARED_LIBS=0 BUILD_COMMAND make ${MAKE_JOBS} VERBOSE=1 BUILD_IN_SOURCE 1 INSTALL_COMMAND "")
+set(wc3lib_VERSION "${wc3lib_VERSION_MAJOR}.${wc3lib_VERSION_MINOR}.${wc3lib_VERSION_PATCH}")
+message(STATUS "Building Windows version ${wc3lib_VERSION}.")
+
+ExternalProject_Add(wc3lib DEPENDS ${DEPENDENCIES} GIT_REPOSITORY ${wc3lib_URL} CONFIGURE_COMMAND cmake ${CMAKE_CURRENT_BINARY_DIR}/wc3lib-prefix/src/wc3lib/ -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/Toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=install -DCMAKE_CXX_FLAGS=${wc3lib_LINKFLAGS} -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_FIND_ROOT_PATH=${CMAKE_FIND_ROOT_PATH} -Dwc3lib_VERSION_MAJOR=${wc3lib_VERSION_MAJOR} -Dwc3lib_VERSION_MINOR=${wc3lib_VERSION_MINOR} -Dwc3lib_VERSION_PATCH=${wc3lib_VERSION_PATCH} -DMDLX=0 -DJASS=0 -DEDITOR=${EDITOR} -DUSE_KIOSLAVE=0 -DUSE_QBLP=${USE_QBLP} -DUSE_OGREBLP=0 -DUSE_MIME=0 -DDOC=${DOC} -DBUILD_SHARED_LIBS=0 BUILD_COMMAND make ${MAKE_JOBS} VERBOSE=1 BUILD_IN_SOURCE 1 INSTALL_COMMAND "")
