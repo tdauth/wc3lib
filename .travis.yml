@@ -1,0 +1,13 @@
+language: cpp
+compiler:
+- clang
+os:
+- linux
+- windows
+addons:
+	apt:
+		packages:
+			- cmake
+			- boost
+			- qt5
+			
