@@ -9,8 +9,8 @@ script:
   - cd build
   - cmake .. && make && cpack .
 addons:
-	apt:
-		packages:
-			- cmake
-			- boost
-			- qt5
+  apt:
+    packages:
+      - cmake
+      - boost
+      - qt5
