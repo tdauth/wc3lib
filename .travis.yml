@@ -10,6 +10,9 @@ script:
   - cmake .. && make && cpack .
 addons:
   apt:
+    sources:
+      - boost-latest
+      - debian-sid
     packages:
       - cmake
       - boost-defaults
