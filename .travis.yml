@@ -12,5 +12,5 @@ addons:
   apt:
     packages:
       - cmake
-      - boost
-      - qt5
+      - boost-defaults
+      - qt5-default
