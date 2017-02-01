@@ -4,10 +4,13 @@ compiler:
 os:
 - linux
 - windows
+script:
+  - mkdir build
+  - cd build
+  - cmake .. && make && cpack .
 addons:
 	apt:
 		packages:
 			- cmake
 			- boost
 			- qt5
-			
