@@ -4,6 +4,8 @@ compiler:
 os:
 - linux
 - windows
+before_install:
+  - sudo apt-get update
 script:
   - mkdir build
   - cd build
