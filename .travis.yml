@@ -9,13 +9,13 @@ before_install:
 script:
   - mkdir build
   - cd build
-  - cmake .. && make && cpack .
+  - cmake -DEDITOR=0 -USE_KIOSLAVE=0 -DUSE_QBLP=0 -DUSE_OGREBLP=0 -DCMAKE_BUILD_TYPE=Debug .. && make && cpack .
 addons:
   apt:
     sources:
       - boost-latest
-      - debian-sid
+     # - debian-sid
     packages:
       - cmake
       - libboost1.55-all-dev
-      - qt5-default
+     # - qt5-default
