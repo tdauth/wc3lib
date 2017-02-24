@@ -235,13 +235,24 @@ int main(int argc, char *argv[])
 		{
 			for (std::size_t i = 0; i < inputOriginalStrings.entries().size(); ++i)
 			{
-				const MapStrings::Entry entry = inputOriginalStrings.entries()[i];
+				MapStrings::Entry entry = inputOriginalStrings.entries()[i];
 				const int32 key = entry.key;
 
 				if (outEntries.find(key) == outEntries.end())
 				{
-					std::cerr << "Add entry from original strings which does not exist in the translated file." << std::endl;
-					outEntries.insert(std::make_pair(entry.key, entry));
+					std::cerr << "Add entry " << key << " from original strings which does not exist in the translated file." << std::endl;
+
+					// Could still exist already as translation.
+					TranslationMap::const_iterator iterator = translations.find(entry.value);
+
+					if (iterator != translations.end())
+					{
+						std::cerr << "Found a translation for the text, maybe the key has simply changed." << std::endl;
+
+						entry.value = iterator->second.value;
+					}
+
+					outEntries.insert(std::make_pair(key, entry));
 				}
 			}
 		}
