@@ -22,6 +22,7 @@
 #include <map>
 
 #include <boost/filesystem.hpp>
+#include <boost/program_options.hpp>
 
 #include "../map.hpp"
 
@@ -37,17 +38,45 @@ using namespace wc3lib::map;
  */
 int main(int argc, char *argv[])
 {
-	if (argc < 4)
+	string inputOriginal;
+	string inputTranslatedOriginal;
+	string inputUntranslated;
+	string output;
+
+	boost::program_options::options_description desc("Allowed options");
+	desc.add_options()
+	("version,V", _("Shows current version of mpq."))
+	("help,h",_("Shows this text."))
+	("verbose", _("Add more text output."))
+	("update", _("Drops entries which are not from the original and adds additional entries from the original which are not part of the translated."))
+	("s", boost::program_options::value<string>(&inputOriginal), _("Source file."))
+	("t", boost::program_options::value<string>(&inputTranslatedOriginal), _("Translated file."))
+	("u", boost::program_options::value<string>(&inputUntranslated), _("Untranslated file."))
+	("o", boost::program_options::value<string>(&output), _("Output file."))
+	;
+
+	boost::program_options::positional_options_description p;
+	p.add("s", 1);
+	p.add("t", 1);
+	p.add("u", 1);
+	p.add("o", 1);
+
+	boost::program_options::variables_map vm;
+
+	try
 	{
+		boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
+	}
+	catch (const std::exception &exception)
+	{
+		std::cerr << boost::format(_("Error while parsing program options: \"%1%\"")) % exception.what() << std::endl;
+
 		std::cerr << boost::format(_("Usage: %1% <input original war3map.wts> <input translated war3map.wts of original> <input untranslated war3map.wts of another map> <output file wts file>")) % argv[0] << std::endl;
 
-		return 1;
+		return EXIT_FAILURE;
 	}
 
-	const string inputOriginal = argv[1];
-	const string inputTranslatedOriginal = argv[2];
-	const string inputUntranslated = argv[3];
-	const string output = argv[4];
+	boost::program_options::notify(vm);
 
 	try
 	{
@@ -119,46 +148,85 @@ int main(int argc, char *argv[])
 		ifstream inInputUntranslated(inputUntranslated);
 		inputUntranslatedStrings.read(inInputUntranslated);
 
-		for (std::size_t i = 0; i < inputUntranslatedStrings.entries().size(); ++i)
+		MapStrings outputStrings;
+
+		const std::size_t max = vm.count("update") ? std::max(inputOriginalStrings.entries().size(), inputUntranslatedStrings.entries().size()) : inputUntranslatedStrings.entries().size();
+
+		for (std::size_t i = 0; i < max; ++i)
 		{
-			/*
-			 * Look for a translation of this exact string.
-			 */
-			const string value = inputUntranslatedStrings.entries()[i].value;
-			TranslationMap::const_iterator iterator = translations.find(value);
-
-			if (iterator != translations.end())
+			if (i < inputUntranslatedStrings.entries().size())
 			{
-				const MapStrings::Entry &entry = iterator->second;
-				inputUntranslatedStrings.entries()[i].value = entry.value;
-				inputUntranslatedStrings.entries()[i].comment = entry.comment;
-			}
-			// If the already translated file is used as input, this value could already be translated. In this case don't check the keys (might differ) but check if the exact string is already translated. This is also useful when updating a translation file.
-			else
-			{
-				const int32 untranslatedKey = inputUntranslatedStrings.entries()[i].key;
-				TranslationMap::const_iterator iterator = translationsReverse.find(value);
+				/*
+				* Look for a translation of this exact string.
+				*/
+				const string value = inputUntranslatedStrings.entries()[i].value;
+				TranslationMap::const_iterator iterator = translations.find(value);
+				bool addToOutput = false;
+				MapStrings::Entry entry = inputUntranslatedStrings.entries()[i];
 
-				// This might happen if they are not the files from the same map but the file does already contain translations.
-				if (iterator != translationsReverse.end())
+				if (iterator != translations.end())
 				{
-					const int32 translatedKey = iterator->second.key;
-
-					if (untranslatedKey != translatedKey)
-					{
-						std::cerr << "Already translated entry " << untranslatedKey << " has not the same entry number as original " << translatedKey << std::endl;
-					}
+					const MapStrings::Entry &translatedEntry = iterator->second;
+					entry.value = translatedEntry.value;
+					entry.comment = translatedEntry.comment;
+					addToOutput = true;
 				}
-				// Is not even an already translated string.
+				// If the already translated file is used as input, this value could already be translated. In this case don't check the keys (might differ) but check if the exact string is already translated. This is also useful when updating a translation file.
 				else
 				{
-					std::cerr << "Missing translation for entry " << untranslatedKey << " with string \"" << value << "\" in translations with size " << translations.size() << "." << std::endl;
+					const int32 untranslatedKey = inputUntranslatedStrings.entries()[i].key;
+					TranslationMap::const_iterator iterator = translationsReverse.find(value);
+
+					// This might happen if they are not the files from the same map but the file does already contain translations.
+					if (iterator != translationsReverse.end())
+					{
+						const int32 translatedKey = iterator->second.key;
+
+						if (untranslatedKey != translatedKey)
+						{
+							std::cerr << "Already translated entry " << untranslatedKey << " has not the same entry number as original " << translatedKey << std::endl;
+						}
+
+						addToOutput = true;
+					}
+					// Is not even an already translated string.
+					else
+					{
+						std::cerr << "Missing translation for entry " << untranslatedKey << " with string \"" << value << "\" in translations with size " << translations.size() << "." << std::endl;
+
+						// Use the original entry if it is possible
+						if (vm.count("update") && i < inputOriginalStrings.entries().size())
+						{
+							entry = inputOriginalStrings.entries()[i];
+
+							addToOutput = true;
+
+							std::cerr << "Replace it since --update is specified." << std::endl;
+						}
+						// Just add everything new if --update is not used.
+						else if (!vm.count("update"))
+						{
+							addToOutput = true;
+						}
+					}
 				}
+
+				if (addToOutput)
+				{
+					outputStrings.entries().push_back(entry);
+				}
+			}
+			// Add all entries which are from the original file but do not exist in the translated.
+			else if (vm.count("update"))
+			{
+				std::cerr << "Add entry from original strings which does not exist in the translated file." << std::endl;
+				const MapStrings::Entry entry = inputOriginalStrings.entries()[i];
+				outputStrings.entries().push_back(entry);
 			}
 		}
 
 		ofstream out(output);
-		inputUntranslatedStrings.write(out);
+		outputStrings.write(out);
 	}
 	catch (const Exception &e)
 	{
