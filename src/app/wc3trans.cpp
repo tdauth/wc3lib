@@ -137,6 +137,18 @@ int main(int argc, char *argv[])
 				// Only add it if it is different from the original value.
 				if (untranslatedValue != translatedValue)
 				{
+					TranslationMap::const_iterator translationIterator = translations.find(untranslatedValue);
+
+					if (translationIterator != translations.end())
+					{
+						const string alreadyTranslatedValue = translationIterator->second.value;
+
+						if (alreadyTranslatedValue != translatedValue)
+						{
+							std::cerr << "Conflict: Multiple translations for \"" << untranslatedValue << "\": \"" << translatedValue << "\" and \"" << alreadyTranslatedValue << "\"." << std::endl;
+						}
+					}
+
 					translations.insert(std::make_pair(untranslatedValue, translation));
 					translationsReverse.insert(std::make_pair(translatedValue, untranslatedEntry));
 				}
@@ -152,6 +164,7 @@ int main(int argc, char *argv[])
 		ifstream inInputUntranslated(inputUntranslated);
 		inputUntranslatedStrings.read(inInputUntranslated);
 		Entries outEntries;
+		std::size_t missingTranslations = 0;
 
 		for (std::size_t i = 0; i < inputUntranslatedStrings.entries().size(); ++i)
 		{
@@ -208,6 +221,7 @@ int main(int argc, char *argv[])
 				else
 				{
 					std::cerr << "Missing translation for entry " << key << " with string \"" << value << "\" in translations with size " << translations.size() << "." << std::endl;
+					++missingTranslations;
 				}
 			}
 
@@ -258,6 +272,8 @@ int main(int argc, char *argv[])
 
 		ofstream out(output);
 		outputStrings.write(out);
+
+		std::cerr << "Missing translations: " << missingTranslations << std::endl;
 	}
 	catch (const Exception &e)
 	{
