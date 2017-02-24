@@ -213,14 +213,6 @@ int main(int argc, char *argv[])
 				{
 					std::cerr << "Missing translation for entry " << key << " with string \"" << value << "\" in translations with size " << translations.size() << "." << std::endl;
 
-					// Use the original entry if it is possible
-					if (vm.count("update"))
-					{
-						entry = inputOriginalStrings.entries()[i];
-
-						std::cerr << "Replace it since --update is specified." << std::endl;
-					}
-
 					// Either add the replaced entry or just add everything new if --update is not used.
 					addToOutput = true;
 				}
@@ -228,7 +220,7 @@ int main(int argc, char *argv[])
 
 			if (addToOutput)
 			{
-				outEntries.insert(std::make_pair(entry.key, entry));
+				outEntries.insert(std::make_pair(key, entry));
 			}
 		}
 
