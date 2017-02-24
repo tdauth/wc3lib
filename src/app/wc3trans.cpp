@@ -157,12 +157,22 @@ int main(int argc, char *argv[])
 			MapStrings::Entry entry = inputUntranslatedStrings.entries()[i];
 			const int32 key = inputUntranslatedStrings.entries()[i].key;
 
-			// The key does not exist in the original file, so this entry has to go if it is updated.
-			if (vm.count("update") && originalEntries.find(key) == originalEntries.end())
+			if (vm.count("update"))
 			{
-				std::cerr << "Skipping entry " << key << " which does not exist in the original file since --update is used." << std::endl;
+				Entries::const_iterator iterator = originalEntries.find(key);
 
-				continue;
+				// The key does not exist in the original file, so this entry has to go if it is updated.
+				if (iterator == originalEntries.end())
+				{
+					std::cerr << "Skipping entry " << key << " which does not exist in the original file since --update is used." << std::endl;
+
+					continue;
+				}
+				// At least update always the comment
+				else
+				{
+					entry.comment = iterator->second.comment;
+				}
 			}
 
 			const string value = entry.value;

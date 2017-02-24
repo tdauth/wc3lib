@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(Wc3TransUpdate)
 	BOOST_CHECK_EQUAL(input.entries()[1].value, "Welt");
 
 	BOOST_CHECK_EQUAL(input.entries()[2].key, 3);
-	BOOST_CHECK_EQUAL(input.entries()[2].comment, "Fähigkeiten"); // even the comment is translated?
+	BOOST_CHECK_EQUAL(input.entries()[2].comment, "Abilities"); // The comment is used from the source with --update
 	BOOST_CHECK_EQUAL(input.entries()[2].value, "Dies");
 
 	// Since --update is used, this entry replaces the old.
