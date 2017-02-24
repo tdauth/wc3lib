@@ -94,6 +94,11 @@ class MapStrings : public FileFormat
 		virtual std::streamsize write(OutputStream& ostream) const override;
 
 		/**
+		 * \param useSpaces The default files from the World Editor use spaces separating the entries.
+		 */
+		virtual std::streamsize write(OutputStream& ostream, bool useSpaces) const;
+
+		/**
 		 * Clears all entries.
 		 */
 		void clear();

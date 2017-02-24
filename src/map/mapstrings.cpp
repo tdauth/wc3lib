@@ -244,12 +244,24 @@ std::streamsize MapStrings::read(InputStream &istream)
 
 std::streamsize MapStrings::write(OutputStream &ostream) const
 {
+	return this->write(ostream, true);
+}
+
+std::streamsize MapStrings::write(OutputStream &ostream, bool useSpaces) const
+{
+	std::size_t i = 0;
+
 	/**
 	 * Writes STRING entries into the the output file ostream.
 	 * TODO Use Karma to generate the output not basic code.
 	 */
 	BOOST_FOREACH(Entries::const_reference ref, this->entries())
 	{
+		if (useSpaces && i > 0)
+		{
+			ostream << std::endl;
+		}
+
 		if (!ref.comment.empty())
 		{
 			ostream << "// " << ref.comment << std::endl;
@@ -260,6 +272,8 @@ std::streamsize MapStrings::write(OutputStream &ostream) const
 		<< ref.value << std::endl
 		<< '}' << std::endl
 		;
+
+		++i;
 	}
 
 	return 0;
