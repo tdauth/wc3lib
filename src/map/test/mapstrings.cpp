@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(WarChasersRead)
 	BOOST_CHECK(strings.entries()[0].comment == "");
 	//std::cerr << "Value: " << strings.entries()[0].value << std::endl;
 	BOOST_CHECK(strings.entries()[0].value == "Spieler 1");
-	
+
 	BOOST_CHECK(strings.entries().back().key == 178);
 	BOOST_CHECK(strings.entries().back().comment == "");
 	//std::cerr << "Value: " << strings.entries()[0].value << std::endl;
@@ -108,15 +108,15 @@ BOOST_AUTO_TEST_CASE(WarChasersReadWriteRead)
 	BOOST_CHECK(strings.entries()[0].comment == "");
 	//std::cerr << "Value: " << strings.entries()[0].value << std::endl;
 	BOOST_CHECK(strings.entries()[0].value == "Spieler 1");
-	
+
 	BOOST_CHECK(strings.entries().back().key == 178);
 	BOOST_CHECK(strings.entries().back().comment == "");
 	//std::cerr << "Value: " << strings.entries()[0].value << std::endl;
 	BOOST_CHECK(strings.entries().back().value == "Dungeon-Bewohner");
-	
+
 	ofstream out("war3mapout.wts");
 	BOOST_REQUIRE(out);
-	
+
 	try
 	{
 		strings.write(out);
@@ -127,16 +127,16 @@ BOOST_AUTO_TEST_CASE(WarChasersReadWriteRead)
 
 		std::cerr << e.what() << std::endl;
 	}
-	
+
 	out.close();
-	
+
 	in.close();
 	in.open("war3mapout.wts");
-	
+
 	BOOST_REQUIRE(in);
-	
+
 	strings.clear();
-	
+
 	try
 	{
 		strings.read(in);
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE(WarChasersReadWriteRead)
 	BOOST_CHECK(strings.entries()[0].comment == "");
 	//std::cerr << "Value: " << strings.entries()[0].value << std::endl;
 	BOOST_CHECK(strings.entries()[0].value == "Spieler 1");
-	
+
 	BOOST_CHECK(strings.entries().back().key == 178);
 	BOOST_CHECK(strings.entries().back().comment == "");
 	//std::cerr << "Value: " << strings.entries()[0].value << std::endl;
@@ -199,4 +199,39 @@ BOOST_AUTO_TEST_CASE(SkibbisCastleTD)
 	BOOST_REQUIRE(strings.entries()[0].comment == "Units: h02K (D-String), Name (Name)");
 	//std::cerr << "Value: " << strings.entries()[0].value << std::endl;
 	BOOST_REQUIRE(strings.entries()[0].value == "D-Kette");
+}
+
+// Talras has a very big strings file.
+BOOST_AUTO_TEST_CASE(TalrasReadGerman)
+{
+	spiritTraceLog.close();
+	spiritTraceLog.open("mapstrings_talrasde_traces.xml");
+
+	BOOST_REQUIRE(spiritTraceLog);
+
+	ifstream in("war3map_Talras_de.wts");
+
+	BOOST_REQUIRE(in);
+
+	map::MapStrings strings;
+
+	BOOST_REQUIRE_NO_THROW(strings.read(in));
+	BOOST_REQUIRE(!strings.entries().empty());
+}
+
+BOOST_AUTO_TEST_CASE(TalrasReadEnglish)
+{
+	spiritTraceLog.close();
+	spiritTraceLog.open("mapstrings_talrasen_traces.xml");
+
+	BOOST_REQUIRE(spiritTraceLog);
+
+	ifstream in("war3map_Talras_en.wts");
+
+	BOOST_REQUIRE(in);
+
+	map::MapStrings strings;
+
+	BOOST_REQUIRE_NO_THROW(strings.read(in));
+	BOOST_REQUIRE(!strings.entries().empty());
 }

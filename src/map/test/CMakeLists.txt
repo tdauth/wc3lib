@@ -44,6 +44,9 @@ configure_file(SkibisCastleTD/war3map.wts SkibisCastleTD/war3map.wts COPYONLY)
 add_executable(mapstringstest mapstrings.cpp)
 target_link_libraries(mapstringstest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
 add_test(NAME MapStringsTest COMMAND mapstringstest)
+# The Power of Fire
+configure_file(war3map_Talras_de.wts war3map_Talras_de.wts COPYONLY)
+configure_file(war3map_Talras_en.wts war3map_Talras_en.wts COPYONLY)
 
 if (MPQ)
 add_executable(wc3maptest wc3map.cpp)
