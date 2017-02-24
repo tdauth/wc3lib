@@ -129,13 +129,17 @@ int main(int argc, char *argv[])
 
 			if (iterator != originalEntries.end())
 			{
-				const string untranslatedValue = iterator->second.value;
+				const MapStrings::Entry &untranslatedEntry = iterator->second;
+				const string untranslatedValue = untranslatedEntry.value;
 				const MapStrings::Entry &translation = inputTranslatedStrings.entries()[i];
-				translations.insert(std::make_pair(untranslatedValue, translation));
-
 				const string translatedValue = translation.value;
-				const MapStrings::Entry &untranslatedEntry = inputTranslatedStrings.entries()[i];
-				translationsReverse.insert(std::make_pair(translatedValue, untranslatedEntry));
+
+				// Only add it if it is different from the original value.
+				if (untranslatedValue != translatedValue)
+				{
+					translations.insert(std::make_pair(untranslatedValue, translation));
+					translationsReverse.insert(std::make_pair(translatedValue, untranslatedEntry));
+				}
 			}
 			else
 			{
