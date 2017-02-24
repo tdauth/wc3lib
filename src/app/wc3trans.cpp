@@ -181,7 +181,6 @@ int main(int argc, char *argv[])
 
 			const string value = entry.value;
 			TranslationMap::const_iterator iterator = translations.find(value);
-			bool addToOutput = false;
 
 			// A translation does already exist of the value, so use it.
 			if (iterator != translations.end())
@@ -189,7 +188,6 @@ int main(int argc, char *argv[])
 				const MapStrings::Entry &translatedEntry = iterator->second;
 				entry.value = translatedEntry.value;
 				entry.comment = translatedEntry.comment;
-				addToOutput = true;
 			}
 			// If the already translated file is used as input, this value could already be translated. In this case don't check the keys (might differ) but check if the exact string is already translated. This is also useful when updating a translation file.
 			else
@@ -205,23 +203,15 @@ int main(int argc, char *argv[])
 					{
 						std::cerr << "Already translated entry " << key << " has not the same entry number as original " << translatedKey << std::endl;
 					}
-
-					addToOutput = true;
 				}
 				// Is not even an already translated string.
 				else
 				{
 					std::cerr << "Missing translation for entry " << key << " with string \"" << value << "\" in translations with size " << translations.size() << "." << std::endl;
-
-					// Either add the replaced entry or just add everything new if --update is not used.
-					addToOutput = true;
 				}
 			}
 
-			if (addToOutput)
-			{
-				outEntries.insert(std::make_pair(key, entry));
-			}
+			outEntries.insert(std::make_pair(key, entry));
 		}
 
 		/*
