@@ -247,9 +247,10 @@ int main(int argc, char *argv[])
 
 					if (iterator != translations.end())
 					{
-						std::cerr << "Found a translation for the text, maybe the key has simply changed." << std::endl;
+						const string translatedValue = iterator->second.value;
+						std::cerr << "Found a translation for the text, maybe the key has simply changed: " << translatedValue << std::endl;
 
-						entry.value = iterator->second.value;
+						entry.value = translatedValue;
 					}
 
 					outEntries.insert(std::make_pair(key, entry));
