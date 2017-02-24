@@ -262,12 +262,15 @@ std::streamsize MapStrings::write(OutputStream &ostream, bool useSpaces) const
 			ostream << std::endl;
 		}
 
+		ostream << "STRING " << ref.key << std::endl;
+
+		// The comment is added after STRING for war3map.wts files by the World Editor.
 		if (!ref.comment.empty())
 		{
 			ostream << "// " << ref.comment << std::endl;
 		}
 
-		ostream << "STRING " << ref.key << std::endl
+		ostream
 		<< '{' << std::endl
 		<< ref.value << std::endl
 		<< '}' << std::endl
