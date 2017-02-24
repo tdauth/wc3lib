@@ -56,8 +56,39 @@ BOOST_AUTO_TEST_CASE(Wc3TransGerman)
 	BOOST_CHECK_EQUAL(input.entries()[2].comment, "Fähigkeiten"); // even the comment is translated?
 	BOOST_CHECK_EQUAL(input.entries()[2].value, "Dies");
 
-	// There is no translated value for this entry
+	// There is no translated value for this entry.
 	BOOST_CHECK_EQUAL(input.entries()[3].key, 4);
 	BOOST_CHECK_EQUAL(input.entries()[3].comment, "");
 	BOOST_CHECK_EQUAL(input.entries()[3].value, "Another sentence");
+}
+
+BOOST_AUTO_TEST_CASE(Wc3TransGermanWithItself)
+{
+	// Translates "war3map_untranslated_en.wts" into German by using the already translated file. The result is war3map_de.wts since it is already translated and the last entry which does not exist in the original file should be used anyway.
+	system("../wc3trans war3map_en.wts war3map_de.wts war3map_de.wts out2.wts");
+
+	MapStrings input;
+	ifstream in("out2.wts");
+
+	BOOST_REQUIRE(in);
+	BOOST_CHECK_NO_THROW(input.read(in));
+
+	BOOST_REQUIRE_EQUAL(input.entries().size(), 4);
+
+	BOOST_CHECK_EQUAL(input.entries()[0].key, 1);
+	BOOST_CHECK_EQUAL(input.entries()[0].comment, "");
+	BOOST_CHECK_EQUAL(input.entries()[0].value, "Hallo");
+
+	BOOST_CHECK_EQUAL(input.entries()[1].key, 2);
+	BOOST_CHECK_EQUAL(input.entries()[1].comment, "");
+	BOOST_CHECK_EQUAL(input.entries()[1].value, "Welt");
+
+	BOOST_CHECK_EQUAL(input.entries()[2].key, 3);
+	BOOST_CHECK_EQUAL(input.entries()[2].comment, "Fähigkeiten"); // even the comment is translated?
+	BOOST_CHECK_EQUAL(input.entries()[2].value, "Dies");
+
+	// This value does not exist in the original, so it is simply kept.
+	BOOST_CHECK_EQUAL(input.entries()[3].key, 66);
+	BOOST_CHECK_EQUAL(input.entries()[3].comment, "");
+	BOOST_CHECK_EQUAL(input.entries()[3].value, "Order 66");
 }
