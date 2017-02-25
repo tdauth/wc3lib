@@ -34,7 +34,11 @@ using namespace wc3lib::map;
  * Checks in a third war3map.wts file which entries are the same as in the first one and gets the corresponding translations from the second one.
  * It generates a fourth file with the translations which could be found.
  *
+ * It can also be used with "--update" which drops all entries in the third file which are not in the first one and adds all which are in the first one but not in the third one.
+ *
  * This might be very useful if two maps share many strings. For example when you use the same object data for two maps.
+ *
+ * TODO Another idea would be to use a Google Translate API via web to find missing translations and to use them when an option is specified.
  */
 int main(int argc, char *argv[])
 {
@@ -48,10 +52,11 @@ int main(int argc, char *argv[])
 	("version,V", _("Shows current version of mpq."))
 	("help,h",_("Shows this text."))
 	("verbose", _("Add more text output."))
+	("conflicts", _("Check for conflicts of translations. Conflicts appear when two same source strings are translated with different strings."))
 	("update", _("Drops entries which are not from the original and adds additional entries from the original which are not part of the translated."))
-	("s", boost::program_options::value<string>(&inputOriginal), _("Source file."))
-	("t", boost::program_options::value<string>(&inputTranslatedOriginal), _("Translated file."))
-	("u", boost::program_options::value<string>(&inputUntranslated), _("Untranslated file."))
+	("s", boost::program_options::value<string>(&inputOriginal), _("Source file which is untranslated."))
+	("t", boost::program_options::value<string>(&inputTranslatedOriginal), _("Translated file version of the source file."))
+	("u", boost::program_options::value<string>(&inputUntranslated), _("An unrelated untranslated/unfinished translation file."))
 	("o", boost::program_options::value<string>(&output), _("Output file."))
 	;
 
@@ -78,6 +83,30 @@ int main(int argc, char *argv[])
 
 	boost::program_options::notify(vm);
 
+	if (vm.count("version"))
+	{
+		static const char *version = "0.1";
+
+		std::cout << boost::format(_(
+		"mpq %1%.\n"
+		"Copyright © 2010 Tamino Dauth\n"
+		"License GPLv2+: GNU GPL version 2 or later <http://gnu.org/licenses/gpl.html>\n"
+		"This is free software: you are free to change and redistribute it.\n"
+		"There is NO WARRANTY, to the extent permitted by law."
+		)) % version << std::endl;
+
+		return EXIT_SUCCESS;
+	}
+
+	if (vm.count("help"))
+	{
+		std::cout << _("Usage: wc3trans [options] <untranslated source war3map.wts file> <translated version of the source file> <another war3map.wts file to be updated> <output file path>") << std::endl << std::endl;
+		std::cout << desc << std::endl;
+		std::cout << _("\nReport bugs to tamino@cdauth.eu or on https://wc3lib.org") << std::endl;
+
+		return EXIT_SUCCESS;
+	}
+
 	try
 	{
 		if (!boost::filesystem::exists(inputOriginal))
@@ -100,7 +129,7 @@ int main(int argc, char *argv[])
 		inputOriginalStrings.read(inOriginal);
 
 		/*
-		 * Build up a map for faster searching for the translated entries.
+		 * Build up a map for faster searching for the original entries.
 		 */
 		typedef std::map<int32, MapStrings::Entry> Entries;
 		Entries originalEntries;
@@ -111,6 +140,13 @@ int main(int argc, char *argv[])
 			originalEntries.insert(std::make_pair(key, inputOriginalStrings.entries()[i]));
 		}
 
+		/*
+		 * Build up a map for faster searching for the translated versions of the original entries in both directions:
+		 * - From the untranslated string to the translated entry.
+		 * - From the translated string to the untranslated entry (this map is required to check if an entry is already translated).
+		 *
+		 * Only add entries to the map which differ from the original strings. These translations are only required for values which had been translated.
+		 */
 		MapStrings inputTranslatedStrings;
 		ifstream inTranslated(inputTranslatedOriginal);
 		inputTranslatedStrings.read(inTranslated);
@@ -131,34 +167,40 @@ int main(int argc, char *argv[])
 			{
 				const MapStrings::Entry &untranslatedEntry = iterator->second;
 				const string untranslatedValue = untranslatedEntry.value;
-				const MapStrings::Entry &translation = inputTranslatedStrings.entries()[i];
-				const string translatedValue = translation.value;
+				const MapStrings::Entry &translatedEntry = inputTranslatedStrings.entries()[i];
+				const string translatedValue = translatedEntry.value;
 
 				// Only add it if it is different from the original value.
 				if (untranslatedValue != translatedValue)
 				{
-					TranslationMap::const_iterator translationIterator = translations.find(untranslatedValue);
-
-					if (translationIterator != translations.end())
+					if (vm.count("conflicts"))
 					{
-						const string alreadyTranslatedValue = translationIterator->second.value;
+						TranslationMap::const_iterator translationIterator = translations.find(untranslatedValue);
 
-						if (alreadyTranslatedValue != translatedValue)
+						if (translationIterator != translations.end())
 						{
-							std::cerr << "Conflict: Multiple translations for \"" << untranslatedValue << "\": \"" << translatedValue << "\" and \"" << alreadyTranslatedValue << "\"." << std::endl;
+							const string alreadyTranslatedValue = translationIterator->second.value;
+
+							if (alreadyTranslatedValue != translatedValue)
+							{
+								std::cerr << "Conflict: Multiple translations for \"" << untranslatedValue << "\": \"" << translatedValue << "\" and \"" << alreadyTranslatedValue << "\"." << std::endl;
+							}
 						}
 					}
 
-					translations.insert(std::make_pair(untranslatedValue, translation));
+					translations.insert(std::make_pair(untranslatedValue, translatedEntry));
 					translationsReverse.insert(std::make_pair(translatedValue, untranslatedEntry));
 				}
 			}
 			else
 			{
-				std::cerr << "Missing entry " << key << " in original file with " << originalEntries.size() << " entries (remove this entry from the translated file)." << std::endl;
+				std::cerr << "Missing entry " << key << " in original file with " << originalEntries.size() << " entries (remove this entry from the translated file " << inputTranslatedOriginal << ")." << std::endl;
 			}
 		}
 
+		/*
+		 * Read the third input file and find untranslated strings. Translate them with the help of the maps.
+		 */
 		MapStrings inputUntranslatedStrings;
 
 		ifstream inInputUntranslated(inputUntranslated);
@@ -174,6 +216,12 @@ int main(int argc, char *argv[])
 			MapStrings::Entry entry = inputUntranslatedStrings.entries()[i];
 			const int32 key = inputUntranslatedStrings.entries()[i].key;
 
+			/*
+			 * If this option is specified, all entries are skipped which do not exist in the original file.
+			 * They will be removed from the new output file.
+			 *
+			 * For existing entries the comment is updated.
+			 */
 			if (vm.count("update"))
 			{
 				Entries::const_iterator iterator = originalEntries.find(key);
@@ -185,13 +233,16 @@ int main(int argc, char *argv[])
 
 					continue;
 				}
-				// At least update always the comment
+				// At least update always the comment.
 				else
 				{
 					entry.comment = iterator->second.comment;
 				}
 			}
 
+			/*
+			 * Find the translation of the exact string.
+			 */
 			const string value = entry.value;
 			TranslationMap::const_iterator iterator = translations.find(value);
 
@@ -200,7 +251,7 @@ int main(int argc, char *argv[])
 			{
 				const MapStrings::Entry &translatedEntry = iterator->second;
 				entry.value = translatedEntry.value;
-				entry.comment = translatedEntry.comment;
+				// Don't update the comment, since it does not have to point to the same entry. The comment has been updated with "--update" before anyway.
 			}
 			// If the already translated file is used as input, this value could already be translated. In this case don't check the keys (might differ) but check if the exact string is already translated. This is also useful when updating a translation file.
 			else
@@ -230,6 +281,7 @@ int main(int argc, char *argv[])
 
 		/*
 		 * Add all entries from the original source which are not part of the translated document if "--update" is specified.
+		 * But already use the translations which exist for them.
 		 */
 		if (vm.count("update"))
 		{
@@ -258,6 +310,15 @@ int main(int argc, char *argv[])
 			}
 		}
 
+		/*
+		 * Now create the output file with all updated and newly added entries but sort them by their key before.
+		 * The order should always be:
+		 * STRING 0
+		 * STRING 1
+		 * STRING 2
+		 * etc.
+		 * since the World Editor handles it in the same way.
+		 */
 		typedef std::pair<int32, MapStrings::Entry> Pair;
 		std::vector<Pair> entries(outEntries.begin(), outEntries.end());
 		// Sort by the key.
@@ -279,7 +340,7 @@ int main(int argc, char *argv[])
 	{
 		std::cerr << e.what() << std::endl;
 
-		return 1;
+		return EXIT_FAILURE;
 	}
 
 	return 0;

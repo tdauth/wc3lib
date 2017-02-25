@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(Wc3TransGerman)
 	BOOST_CHECK_EQUAL(input.entries()[1].value, "Welt");
 
 	BOOST_CHECK_EQUAL(input.entries()[2].key, 3);
-	BOOST_CHECK_EQUAL(input.entries()[2].comment, "Fähigkeiten"); // even the comment is translated?
+	BOOST_CHECK_EQUAL(input.entries()[2].comment, "Abilities"); // The comment stays the same.
 	BOOST_CHECK_EQUAL(input.entries()[2].value, "Dies");
 
 	// There is no translated value for this entry.
