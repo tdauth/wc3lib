@@ -289,8 +289,9 @@ int main(int argc, char *argv[])
 			{
 				MapStrings::Entry entry = inputOriginalStrings.entries()[i];
 				const int32 key = entry.key;
+				Entries::iterator iterator = outEntries.find(key);
 
-				if (outEntries.find(key) == outEntries.end())
+				if (iterator == outEntries.end())
 				{
 					std::cerr << "Add entry " << key << " from original strings which does not exist in the translated file." << std::endl;
 
@@ -306,6 +307,11 @@ int main(int argc, char *argv[])
 					}
 
 					outEntries.insert(std::make_pair(key, entry));
+				}
+				// Update the comments of existing entries since --update is used.
+				else
+				{
+					iterator->second.comment = entry.comment;
 				}
 			}
 		}
