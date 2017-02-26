@@ -60,7 +60,7 @@ bool BlpIOHandler::read(QImage *image)
 		// Read only the first MIP map, QImage does not support MIP mapping.
 		blpImage->read(istream, 1);
 	}
-	catch (class Exception &exception)
+	catch (const Exception &exception)
 	{
 		qDebug() << "BLP Input Exception: " << exception.what();
 
@@ -109,7 +109,7 @@ bool BlpIOHandler::write(const QImage &image)
 	{
 		blpImage->write(out);
 	}
-	catch (class Exception &exception)
+	catch (const Exception &exception)
 	{
 		qDebug() << "BLP Output Exception: " << exception.what();
 
@@ -157,6 +157,7 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp::MipMap &mipMap, const blp
 	}
 
 	QImage result(boost::numeric_cast<int>(mipMap.width()), boost::numeric_cast<int>(mipMap.height()), format);
+	qDebug() << "Writing image with size " << mipMap.width() << " | " << mipMap.height();
 
 	if (paletted)
 	{
@@ -166,6 +167,10 @@ bool BlpIOHandler::read(QImage *image, const blp::Blp::MipMap &mipMap, const blp
 		{
 			result.setColor(index, colorToArgb(blpImage.palette()[index]));
 		}
+	}
+	else
+	{
+		qDebug() << "Not paletted.";
 	}
 
 	for (blp::dword width = 0; width < mipMap.width(); ++width)
@@ -227,6 +232,7 @@ bool BlpIOHandler::write(const QImage &image, blp::Blp *blpImage)
 	}
 	else
 	{
+		qDebug() << "Is JPEG";
 		blpImage->setCompression(blp::Blp::Compression::Jpeg);
 	}
 
@@ -257,6 +263,9 @@ bool BlpIOHandler::write(const QImage &image, blp::Blp *blpImage)
 
 	blpImage->setWidth(image.width());
 	blpImage->setHeight(image.height());
+
+	qDebug() << "Has size" << image.width() << "|" << image.height();
+
 	// TODO when to use with alpha??
 	if (blpImage->compression() == blp::Blp::Compression::Paletted)
 	{

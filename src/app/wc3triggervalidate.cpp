@@ -28,6 +28,9 @@ using namespace wc3lib::map;
 
 /**
  * Validates a single "TriggerData.txt" or "TriggerStrings.txt" file.
+ * At the moment only Reign of Chaos files are supported!
+ * TODO Implement TriggerDataEx and add the option --tft
+ * TODO Print similar errors to the ones which the World Editor prints when entries are missing.
  */
 int main(int argc, char *argv[])
 {

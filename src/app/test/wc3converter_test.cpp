@@ -22,7 +22,12 @@
 #include <boost/test/unit_test.hpp>
 #include <cstdlib>
 
+#include "../../config.h"
 #include "../../map.hpp"
+
+#ifdef USE_QBLP
+#include <QImage>
+#endif
 
 #if not defined(BOOST_TEST_DYN_LINK) and not defined(WINDOWS)
 #error Define BOOST_TEST_DYN_LINK for proper definition of main function.
@@ -92,3 +97,26 @@ BOOST_AUTO_TEST_CASE(Wc3ConverterMergeSlk)
 	BOOST_CHECK_EQUAL(txt.sections()[2].entries.size(), 1);
 	*/
 }
+
+#ifdef USE_QBLP
+BOOST_AUTO_TEST_CASE(Wc3ConverterBlp2Png)
+{
+	BOOST_REQUIRE(boost::filesystem::exists("BTN_cr_HOLYllllstrenth.blp"));
+
+	const int result = system("../wc3converter --verbose --overwrite BTN_cr_HOLYllllstrenth.png BTN_cr_HOLYllllstrenth.blp");
+
+	BOOST_REQUIRE(boost::filesystem::exists("BTN_cr_HOLYllllstrenth.png"));
+
+	BOOST_REQUIRE_EQUAL(result, 0);
+
+	QImage image;
+	BOOST_REQUIRE(image.load("BTN_cr_HOLYllllstrenth.png", "PNG"));
+	BOOST_REQUIRE(!image.isNull());
+	BOOST_REQUIRE(image.size() == QSize(64, 64));
+	BOOST_REQUIRE(image.format() ==  QImage::Format_ARGB32);
+	// TODO check all settings
+
+	BOOST_REQUIRE(image.save("BTN_cr_HOLYllllstrenth.jpg", "JPG"));
+	// TODO load again with the wc3converter
+}
+#endif

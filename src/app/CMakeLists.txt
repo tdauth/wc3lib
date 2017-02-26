@@ -7,6 +7,13 @@ if (BLP AND MPQ AND MDLX AND MAP)
 
 	add_executable(wc3converter wc3converter.cpp)
 	target_link_libraries(wc3converter ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+	if (USE_QBLP)
+		find_package(Qt5Core REQUIRED)
+		target_link_libraries(wc3converter Qt5::Core qblp)
+		include_directories(${CMAKE_SOURCE_DIR}/src/editor/qblp)
+	endif ()
+
 	install(TARGETS wc3converter DESTINATION bin)
 endif ()
 

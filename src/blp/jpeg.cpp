@@ -346,7 +346,7 @@ void readMipMapJpeg(Blp::MipMap &mipMap, byte *buffer, dword bufferSize)
 
 	if (!cinfo.saw_JFIF_marker)
 	{
-		std::cerr << boost::format(_("Warning: Did not find JFIF marker. JFIF format is used by default!\nThis is the JFIF version of the image %1%.%2%")) % cinfo.JFIF_major_version % cinfo.JFIF_minor_version << std::endl;
+		std::cerr << boost::format(_("Warning: Did not find JFIF marker. JFIF format is used by default!\nThis is the JFIF version of the image %1%.%2%")) % (int)cinfo.JFIF_major_version % (int)cinfo.JFIF_minor_version << std::endl;
 	}
 
 	jpeg_destroy_decompress(&cinfo);

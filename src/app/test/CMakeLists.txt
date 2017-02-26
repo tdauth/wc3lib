@@ -37,6 +37,12 @@ if (BLP AND MPQ AND MDLX AND MAP)
 	target_link_libraries(wc3convertertest ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
 	add_test(NAME Wc3ConverterTest COMMAND ${CMAKE_CURRENT_BINARY_DIR}/wc3convertertest)
 
+	if (USE_QBLP)
+		find_package(Qt5Core REQUIRED)
+		target_link_libraries(wc3convertertest Qt5::Core qblp)
+	endif ()
+
 	configure_file(a.txt a.txt COPYONLY)
 	configure_file(b.txt b.txt COPYONLY)
+	configure_file(BTN_cr_HOLYllllstrenth.blp BTN_cr_HOLYllllstrenth.blp COPYONLY)
 endif ()

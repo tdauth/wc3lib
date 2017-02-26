@@ -31,12 +31,20 @@
 #include <boost/filesystem/fstream.hpp>
 //#include <boost/thread.hpp>
 #include <boost/ptr_container/ptr_map.hpp>
+#include <boost/algorithm/string.hpp>
 
 // XML support
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 
 #include <boost/program_options.hpp>
+
+#include "../../config.h"
+
+#ifdef USE_QBLP
+#include "blpiohandler.hpp"
+#include <QImage>
+#endif
 
 #include "../core.hpp"
 #include "../blp.hpp"
@@ -138,7 +146,7 @@ bool addFilePath(const boost::filesystem::path &path, FilePaths &filePaths, bool
 /**
  * \throw wc3lib::Exception Throws an exception if an error occurs.
  */
-void convertBlp(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3lib::ofstream &out, const ConvFormat &inputFormat, const ConvFormat &outputFormat, bool verbose)
+void convertBlp(const boost::filesystem::path &path, const boost::filesystem::path &outputPath, wc3lib::ifstream &in, wc3lib::ofstream &out, const ConvFormat &inputFormat, const ConvFormat &outputFormat, bool verbose)
 {
 	boost::scoped_ptr<wc3lib::blp::Blp> blp(new wc3lib::blp::Blp());
 
@@ -148,9 +156,34 @@ void convertBlp(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3li
 
 		if (verbose)
 		{
-			std::cout << boost::format(_("Read BLP file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
+			std::cout << boost::format(_("Read BLP file successfully. %1%.")) % wc3lib::sizeStringBinary(bytes) << std::endl;
 		}
 	}
+#ifdef USE_QBLP
+	else if (inputFormat.extension() == "png" || inputFormat.extension() == "jpg" || inputFormat.extension() == "tga")
+	{
+		QImage image;
+		std::string extension = inputFormat.extension();
+		boost::to_upper(extension);
+
+		if (!image.load(path.c_str(), extension.c_str()))
+		{
+			throw Exception(boost::format(_("Error on loading image %1%.")) % path);
+		}
+
+		BlpIOHandler blpiohandler;
+
+		if (!blpiohandler.write(image, blp.get()))
+		{
+			throw Exception(boost::format(_("Error on converting image %1% to BLP.")) % path);
+		}
+
+		if (verbose)
+		{
+			std::cout << boost::format(_("Read %1% file successfully.")) % extension << std::endl;
+		}
+	}
+#endif
 	else
 	{
 		throw wc3lib::Exception(boost::format(_("File \"%1%\" is not converted with a valid input BLP format.\nUsed input format is %2%.")) % path.string() % inputFormat.extension());
@@ -162,9 +195,34 @@ void convertBlp(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3li
 
 		if (verbose)
 		{
-			std::cout << boost::format(_("Wrote BLP file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
+			std::cout << boost::format(_("Wrote BLP file successfully. %1%.")) % wc3lib::sizeStringBinary(bytes) << std::endl;
 		}
 	}
+#ifdef USE_QBLP
+	else if (outputFormat.extension() == "png" || outputFormat.extension() == "jpg" || outputFormat.extension() == "tga")
+	{
+		QImage image;
+		BlpIOHandler blpiohandler;
+
+		if (!blpiohandler.read(&image, *blp))
+		{
+			throw Exception(boost::format(_("Error on reading converted BLP image from %1%.")) % path);
+		}
+
+		std::string extension = outputFormat.extension();
+		boost::to_upper(extension);
+
+		if (!image.save(outputPath.c_str(), extension.c_str()))
+		{
+			throw Exception(boost::format(_("Error on saving image %1%.")) % outputPath);
+		}
+
+		if (verbose)
+		{
+			std::cout << boost::format(_("Wrote %1% file successfully.")) % extension << std::endl;
+		}
+	}
+#endif
 	else
 	{
 		throw wc3lib::Exception(boost::format(_("File \"%1%\" is not converted into a valid output BLP format.\nUsed output format is %2%.")) % path.string() % outputFormat.extension());
@@ -308,7 +366,7 @@ void convertFile(const boost::filesystem::path &path, const boost::filesystem::p
 
 	if (inputFormat.group() == "blp")
 	{
-		convertBlp(path, ifstream, ofstream, inputFormat, outputFormat, verbose);
+		convertBlp(path, outputPath, ifstream, ofstream, inputFormat, outputFormat, verbose);
 	}
 	else if (inputFormat.group() == "mdlx")
 	{
@@ -549,6 +607,12 @@ int main(int argc, char *argv[])
 	}
 
 	ConvFormat::append("blp", "Blizzard Entertainment's texture format.", true, "blp");
+#ifdef USE_QBLP
+	// Add everything Qt supports as image format.
+	ConvFormat::append("png", "PNG image.", true, "blp");
+	ConvFormat::append("jpg", "JPG image.", true, "blp");
+	ConvFormat::append("tga", "TGA image.", true, "blp");
+#endif
 	ConvFormat::append("mdx", "Blizzard Entertainment's binary model format.", true, "mdlx");
 	ConvFormat::append("mdl", "Blizzard Entertainment's human-readable model format.", false, "mdlx");
 	ConvFormat::append("txt", "Blizzard Entertainment's TXT files.", false, "txt");
