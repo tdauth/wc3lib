@@ -123,3 +123,32 @@ BOOST_AUTO_TEST_CASE(Wc3TransUpdate)
 	BOOST_CHECK_EQUAL(input.entries()[3].comment, "");
 	BOOST_CHECK_EQUAL(input.entries()[3].value, "My friends are dead.");
 }
+
+BOOST_AUTO_TEST_CASE(Wc3TransSuggest)
+{
+	system("../wc3trans --update --suggest war3map_en.wts war3map_de.wts war3map_untranslated_en.wts out4.wts");
+
+	MapStrings input;
+	ifstream in("out4.wts");
+
+	BOOST_REQUIRE(in);
+	BOOST_CHECK_NO_THROW(input.read(in));
+
+	BOOST_REQUIRE_EQUAL(input.entries().size(), 4);
+
+	BOOST_CHECK_EQUAL(input.entries()[0].key, 1);
+	BOOST_CHECK_EQUAL(input.entries()[0].comment, "");
+	BOOST_CHECK_EQUAL(input.entries()[0].value, "Hallo");
+
+	BOOST_CHECK_EQUAL(input.entries()[1].key, 2);
+	BOOST_CHECK_EQUAL(input.entries()[1].comment, "");
+	BOOST_CHECK_EQUAL(input.entries()[1].value, "Welt");
+
+	BOOST_CHECK_EQUAL(input.entries()[2].key, 3);
+	BOOST_CHECK_EQUAL(input.entries()[2].comment, "Abilities"); // The comment is used from the source with --update
+	BOOST_CHECK_EQUAL(input.entries()[2].value, "Dies");
+
+	BOOST_CHECK_EQUAL(input.entries()[3].key, 4);
+	BOOST_CHECK_EQUAL(input.entries()[3].comment, "");
+	BOOST_CHECK_EQUAL(input.entries()[3].value, "Another sentence"); // "Hello" is most similar to "My friends are dead." Therefore the translation "Hallo" is suggested.
+}

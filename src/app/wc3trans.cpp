@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
 	("help,h",_("Shows this text."))
 	("verbose", _("Add more text output."))
 	("conflicts", _("Check for conflicts of translations. Conflicts appear when two same source strings are translated with different strings."))
+	("suggest", _("Searches for similar source strings for untranslated strings and suggests the most likeable one. This reduces the performance."))
 	("update", _("Drops entries which are not from the original and adds additional entries from the original which are not part of the translated."))
 	("s", boost::program_options::value<string>(&inputOriginal), _("Source file which is untranslated."))
 	("t", boost::program_options::value<string>(&inputTranslatedOriginal), _("Translated file version of the source file."))
@@ -173,11 +174,12 @@ int main(int argc, char *argv[])
 				// Only add it if it is different from the original value.
 				if (untranslatedValue != translatedValue)
 				{
-					if (vm.count("conflicts"))
-					{
-						TranslationMap::const_iterator translationIterator = translations.find(untranslatedValue);
 
-						if (translationIterator != translations.end())
+					TranslationMap::const_iterator translationIterator = translations.find(untranslatedValue);
+
+					if (translationIterator != translations.end())
+					{
+						if (vm.count("conflicts"))
 						{
 							const string alreadyTranslatedValue = translationIterator->second.value;
 
@@ -187,9 +189,12 @@ int main(int argc, char *argv[])
 							}
 						}
 					}
-
-					translations.insert(std::make_pair(untranslatedValue, translatedEntry));
-					translationsReverse.insert(std::make_pair(translatedValue, untranslatedEntry));
+					// Always use the first appearance only as translation, don't overwrite existing ones! Otherwise they will be replaced with wrongly translated values on "--update"? Always assume that the first translation is the correct one.
+					else
+					{
+						translations.insert(std::make_pair(untranslatedValue, translatedEntry));
+						translationsReverse.insert(std::make_pair(translatedValue, untranslatedEntry));
+					}
 				}
 			}
 			else
@@ -258,20 +263,39 @@ int main(int argc, char *argv[])
 			{
 				TranslationMap::const_iterator iterator = translationsReverse.find(value);
 
-				// This might happen if they are not the files from the same map but the file does already contain translations.
-				if (iterator != translationsReverse.end())
-				{
-					const int32 translatedKey = iterator->second.key;
-
-					if (key != translatedKey)
-					{
-						std::cerr << "Already translated entry " << key << " has not the same entry number as original " << translatedKey << std::endl;
-					}
-				}
 				// Is not even an already translated string.
-				else
+				if (iterator == translationsReverse.end())
 				{
-					std::cerr << "Missing translation for entry " << key << " with string \"" << value << "\" in translations with size " << translations.size() << "." << std::endl;
+					string suggestionAppendix;
+
+					/*
+					 * Search for the most likeable translated entry.
+					 * This is done by comparing the source string with all other source strings which are translated.
+					 * Suggest the translation of the source string which has the smallest difference to the current untranslated source string.
+					 * This requires iterating over translations for every untranslated string!
+					 */
+					if (vm.count("suggest"))
+					{
+						string suggestion;
+						int delta = std::numeric_limits<int>::max() - 1;
+
+						for (TranslationMap::const_iterator iterator = translations.begin(); iterator != translations.end(); ++iterator)
+						{
+							const int currentDelta = std::abs(strcmp(value.c_str(), iterator->first.c_str()));
+
+							if (currentDelta < delta)
+							{
+								suggestion = iterator->second.value;
+								delta = currentDelta;
+							}
+						}
+
+						stringstream sstream;
+						sstream << " Suggesting translation \"" << suggestion << "\" with a delta of " << delta << " (smaller values mean it is more similar).";
+						suggestionAppendix = sstream.str();
+					}
+
+					std::cerr << "Missing translation for entry " << key << " with string \"" << value << "\" in translations." << suggestionAppendix << std::endl;
 					++missingTranslations;
 				}
 			}
@@ -340,7 +364,7 @@ int main(int argc, char *argv[])
 		ofstream out(output);
 		outputStrings.write(out);
 
-		std::cerr << "Missing translations: " << missingTranslations << std::endl;
+		std::cerr << "Missing translations: " << missingTranslations << " from " << inputUntranslatedStrings.entries().size() << " entries." << std::endl;
 	}
 	catch (const Exception &e)
 	{
