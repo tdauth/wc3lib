@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <map>
+#include <limits>
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
@@ -174,7 +175,6 @@ int main(int argc, char *argv[])
 				// Only add it if it is different from the original value.
 				if (untranslatedValue != translatedValue)
 				{
-
 					TranslationMap::const_iterator translationIterator = translations.find(untranslatedValue);
 
 					if (translationIterator != translations.end())
@@ -261,10 +261,8 @@ int main(int argc, char *argv[])
 			// If the already translated file is used as input, this value could already be translated. In this case don't check the keys (might differ) but check if the exact string is already translated. This is also useful when updating a translation file.
 			else
 			{
-				TranslationMap::const_iterator iterator = translationsReverse.find(value);
-
 				// Is not even an already translated string.
-				if (iterator == translationsReverse.end())
+				if (translationsReverse.find(value) == translationsReverse.end())
 				{
 					string suggestionAppendix;
 
@@ -277,21 +275,23 @@ int main(int argc, char *argv[])
 					if (vm.count("suggest"))
 					{
 						string suggestion;
-						int delta = std::numeric_limits<int>::max() - 1;
+						string suggestionOrigin;
+						int delta = std::numeric_limits<int>::max();
 
-						for (TranslationMap::const_iterator iterator = translations.begin(); iterator != translations.end(); ++iterator)
+						for (TranslationMap::const_iterator iterator = translations.begin(); iterator != translations.end() && delta > 1; ++iterator)
 						{
-							const int currentDelta = std::abs(strcmp(value.c_str(), iterator->first.c_str()));
+							const int currentDelta = std::abs<int>(value.compare(iterator->first));
 
 							if (currentDelta < delta)
 							{
 								suggestion = iterator->second.value;
+								suggestionOrigin = iterator->first;
 								delta = currentDelta;
 							}
 						}
 
 						stringstream sstream;
-						sstream << " Suggesting translation \"" << suggestion << "\" with a delta of " << delta << " (smaller values mean it is more similar).";
+						sstream << " Suggesting translation \"" << suggestion << "\" with a delta of " << delta << " (smaller values mean it is more similar) from the origin string \"" << suggestionOrigin << "\".";
 						suggestionAppendix = sstream.str();
 					}
 
