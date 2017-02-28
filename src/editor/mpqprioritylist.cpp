@@ -296,6 +296,8 @@ bool MpqPriorityList::download(const QUrl &src, QString &target, QWidget *window
 
 	if (!src.isRelative()) // has protocol - is absolute
 	{
+		qDebug() << "Using local file path " << src.toLocalFile();
+
 		const QFileInfo fileInfo(src.toLocalFile());
 
 		if (src.scheme() == "file" || (src.scheme().isEmpty() && fileInfo.exists()))
@@ -306,6 +308,10 @@ bool MpqPriorityList::download(const QUrl &src, QString &target, QWidget *window
 
 			return true;
 		}
+
+		qDebug() << "Absolute file path does not work.";
+
+		return false;
 	}
 
 	// TODO only do this if it doesn't start with /
