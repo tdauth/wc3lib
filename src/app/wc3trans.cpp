@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 
 	boost::program_options::options_description desc("Allowed options");
 	desc.add_options()
-	("version,V", _("Shows current version of mpq."))
+	("version,V", _("Shows current version of wc3trans."))
 	("help,h",_("Shows this text."))
 	("verbose", _("Add more text output."))
 	("conflicts", _("Check for conflicts of translations. Conflicts appear when two same source strings are translated with different strings."))
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
 		static const char *version = "0.1";
 
 		std::cout << boost::format(_(
-		"mpq %1%.\n"
+		"wc3trans %1%.\n"
 		"Copyright © 2010 Tamino Dauth\n"
 		"License GPLv2+: GNU GPL version 2 or later <http://gnu.org/licenses/gpl.html>\n"
 		"This is free software: you are free to change and redistribute it.\n"
