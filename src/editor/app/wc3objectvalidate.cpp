@@ -139,6 +139,62 @@ int main(int argc, char *argv[])
 			errors << unitData.validateTooltipReferences();
 		}
 
+		if (customObjectsCollection.hasItems())
+		{
+			ItemData itemData(&source);
+			itemData.load(nullptr);
+			itemData.importCustomObjects(*customObjectsCollection.items());
+			itemData.applyMapStrings(stringsUrl);
+			errors << itemData.validateTooltipReferences();
+		}
+
+		if (customObjectsCollection.hasAbilities())
+		{
+			AbilityData abilityData(&source);
+			abilityData.load(nullptr);
+			abilityData.importCustomObjects(*customObjectsCollection.abilities());
+			abilityData.applyMapStrings(stringsUrl);
+			errors << abilityData.validateTooltipReferences();
+		}
+
+		if (customObjectsCollection.hasBuffs())
+		{
+			BuffData buffData(&source);
+			buffData.load(nullptr);
+			buffData.importCustomObjects(*customObjectsCollection.buffs());
+			buffData.applyMapStrings(stringsUrl);
+			errors << buffData.validateTooltipReferences();
+		}
+
+		if (customObjectsCollection.hasDestructibles())
+		{
+			DestructableData destructableData(&source);
+			destructableData.load(nullptr);
+			destructableData.importCustomObjects(*customObjectsCollection.destructibles());
+			destructableData.applyMapStrings(stringsUrl);
+			errors << destructableData.validateTooltipReferences();
+		}
+
+		if (customObjectsCollection.hasDoodads())
+		{
+			DoodadData doodadData(&source);
+			doodadData.load(nullptr);
+			doodadData.importCustomObjects(*customObjectsCollection.doodads());
+			doodadData.applyMapStrings(stringsUrl);
+			errors << doodadData.validateTooltipReferences();
+		}
+
+		if (customObjectsCollection.hasUpgrades())
+		{
+			UpgradeData upgradeData(&source);
+			upgradeData.load(nullptr);
+			upgradeData.importCustomObjects(*customObjectsCollection.upgrades());
+			upgradeData.applyMapStrings(stringsUrl);
+			errors << upgradeData.validateTooltipReferences();
+		}
+
+		std::cerr << "Errors:" << std::endl;
+
 		for (const QString &error : errors)
 		{
 			std::cerr << error.toStdString() << std::endl;
