@@ -432,6 +432,11 @@ class ObjectData : public QObject
 		 * Replaces all "TRIGSTRING_number" entries by the actual string entries of map \p w3m.
 		 */
 		void applyMapStrings(map::W3m &w3m);
+		/**
+		 * Replaces all "TRIGSTRING_number" entries by the actual entries of the strings file \p fileName.
+		 * \param fileName A war3map.wts file from which all STRING entries are taken.
+		 */
+		void applyMapStrings(const QString &fileName);
 
 		/**
 		 * A list of object IDs (raw codes).

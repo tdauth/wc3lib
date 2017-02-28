@@ -267,6 +267,7 @@ class MpqPriorityList
 		 * \ref defaultMPQs
 		 */
 		virtual bool addDefaultSources();
+		virtual bool addDefaultSources(const QUrl &wc3Dir);
 		/**
 		 * Removes a source from the MpqPriorityList.
 		 * \return Returns true if the source has been removed properly.

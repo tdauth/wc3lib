@@ -15,6 +15,10 @@ if (APP AND EDITOR)
 	target_link_libraries(wc3object ${wc3lib_CORE_LIBRARIES} wc3libobjecteditor)
 	install(TARGETS wc3object DESTINATION bin)
 
+	add_executable(wc3objectvalidate wc3objectvalidate.cpp)
+	target_link_libraries(wc3objectvalidate ${wc3lib_CORE_LIBRARIES} wc3libobjecteditor)
+	install(TARGETS wc3objectvalidate DESTINATION bin)
+
 	add_executable(wc3texture wc3texture.cpp)
 	target_link_libraries(wc3texture ${wc3lib_CORE_LIBRARIES} wc3libtextureeditor)
 	install(TARGETS wc3texture DESTINATION bin)
@@ -73,4 +77,6 @@ if (APP AND EDITOR)
 		message(STATUS "ZLIB libraries ${ZLIB_LIBRARIES}")
 		install(FILES ${ZLIB_LIBRARIES} DESTINATION bin)
 	endif ()
+
+	add_subdirectory(test)
 endif ()

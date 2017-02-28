@@ -105,6 +105,34 @@ bool MpqPriorityList::addSource(const QUrl &url, MpqPriorityListEntry::Priority 
 	return true;
 }
 
+bool MpqPriorityList::addDefaultSources(const QUrl &wc3Dir)
+{
+	bool result = addSource(QUrl(wc3Dir.toString() + "/war3.mpq"), 20);
+
+	if (!result)
+	{
+		return false;
+	}
+
+	result = addSource(QUrl(wc3Dir.toString() + "/war3x.mpq"), 21);
+
+	if (!result)
+	{
+		return false;
+	}
+
+	result = addSource(QUrl(wc3Dir.toString() + "/War3xlocal.mpq"), 22);
+
+	if (!result)
+	{
+		return false;
+	}
+
+	result = addSource(QUrl(wc3Dir.toString() + "/War3Patch.mpq"), 23);
+
+	return result;
+}
+
 bool MpqPriorityList::addWar3Source()
 {
 	QUrl url = war3Url();
@@ -126,7 +154,7 @@ bool MpqPriorityList::addWar3PatchSource()
 		return false;
 	}
 
-	return addSource(url, 22);
+	return addSource(url, 23);
 }
 
 bool MpqPriorityList::addWar3XSource()
@@ -150,14 +178,14 @@ bool MpqPriorityList::addWar3XLocalSource()
 		return false;
 	}
 
-	return addSource(url, 21);
+	return addSource(url, 22);
 }
 
 bool MpqPriorityList::addDefaultSources()
 {
 	return addWar3Source() &&
+	addWar3XSource() &&
 	addWar3PatchSource() &&
-	addWar3Source() &&
 	addWar3XLocalSource();
 }
 
@@ -207,7 +235,9 @@ bool MpqPriorityList::removeWar3PatchSource()
 	QUrl url = war3PatchUrl();
 
 	if (url.isEmpty())
+	{
 		return false;
+	}
 
 	return removeSource(url);
 }
@@ -217,7 +247,9 @@ bool MpqPriorityList::removeWar3XSource()
 	QUrl url = war3XUrl();
 
 	if (url.isEmpty())
+	{
 		return false;
+	}
 
 	return removeSource(url);
 }
@@ -227,7 +259,9 @@ bool MpqPriorityList::removeWar3XLocalSource()
 	QUrl url = war3XLocalUrl();
 
 	if (url.isEmpty())
+	{
 		return false;
+	}
 
 	return removeSource(url);
 }

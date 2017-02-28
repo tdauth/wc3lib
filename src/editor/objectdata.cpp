@@ -1175,50 +1175,55 @@ void ObjectData::applyMapStrings(map::W3m &w3m)
 
 			qDebug() << "Entries" << w3m.strings()->entries().size();
 
-			MetaData mapStringsMetaData(file.fileName());
-			mapStringsMetaData.setSource(this->source());
-			mapStringsMetaData.load();
+			this->applyMapStrings(file.fileName());
+		}
+	}
+}
 
-			const QString triggerStringPrefix = "TRIGSTR_";
+void ObjectData::applyMapStrings(const QString &fileName)
+{
+	MetaData mapStringsMetaData(fileName);
+	mapStringsMetaData.setSource(this->source());
+	mapStringsMetaData.load();
 
-			for (ObjectData::Objects::const_iterator iterator = this->objects().begin(); iterator != this->objects().end(); ++iterator)
+	const QString triggerStringPrefix = "TRIGSTR_";
+
+	for (ObjectData::Objects::const_iterator iterator = this->objects().begin(); iterator != this->objects().end(); ++iterator)
+	{
+		for (ObjectData::Modifications::const_iterator modIterator = iterator.value().begin(); modIterator != iterator.value().end(); ++modIterator)
+		{
+			if (modIterator.value().value().type() == map::Value::Type::String)
 			{
-				for (ObjectData::Modifications::const_iterator modIterator = iterator.value().begin(); modIterator != iterator.value().end(); ++modIterator)
+				const QString key = valueToString(modIterator.value().value());
+
+				qDebug() << "key" << key;
+
+				if (key.startsWith(triggerStringPrefix))
 				{
-					if (modIterator.value().value().type() == map::Value::Type::String)
+					bool ok = true;
+					const QString index = key.mid(triggerStringPrefix.size());
+					int row = index.toInt(&ok);
+
+					if (ok)
 					{
-						const QString key = valueToString(modIterator.value().value());
+						qDebug() << "Full" << key;
+						qDebug() << "index" << index;
+						qDebug() << "Row" << row;
 
-						qDebug() << "key" << key;
-
-						if (key.startsWith(triggerStringPrefix))
+						if (mapStringsMetaData.hasValue(row, ""))
 						{
-							bool ok = true;
-							const QString index = key.mid(triggerStringPrefix.size());
-							int row = index.toInt(&ok);
-
-							if (ok)
-							{
-								qDebug() << "Full" << key;
-								qDebug() << "index" << index;
-								qDebug() << "Row" << row;
-
-								if (mapStringsMetaData.hasValue(row, ""))
-								{
-									const QString translatedString = mapStringsMetaData.value(row, "");
-									qDebug() << "Translated string:" <<  translatedString;
-									this->modifyField(iterator.key().originalObjectId(), iterator.key().customObjectId(), modIterator.key().fieldId(), translatedString);
-								}
-								else
-								{
-									qDebug() << "Missing translated string" << row;
-								}
-							}
-							else
-							{
-								qDebug() << "Invalid string index" << index;
-							}
+							const QString translatedString = mapStringsMetaData.value(row, "");
+							qDebug() << "Translated string:" <<  translatedString;
+							this->modifyField(iterator.key().originalObjectId(), iterator.key().customObjectId(), modIterator.key().fieldId(), translatedString);
 						}
+						else
+						{
+							qDebug() << "Missing translated string" << row;
+						}
+					}
+					else
+					{
+						qDebug() << "Invalid string index" << index;
 					}
 				}
 			}
