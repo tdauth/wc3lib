@@ -461,8 +461,20 @@ class ObjectData : public QObject
 		 * If they do not exist it prints an error message.
 		 *
 		 * If they do exist it checks if the ID is related to the object. Otherwise it prints a warning.
+		 *
+		 * \return Returns a list with all errors.
+		 *
+		 * \{
 		 */
-		virtual long long validateTooltipReferences();
+		virtual QStringList validateTooltipReferences();
+		/**
+		 * \param tooltip The tooltip text value which is checked.
+		 * \param allFieldIds A list of all valid field IDs.
+		 */
+		virtual QStringList validateTooltipReference(const QString &tooltip, const QStringList &allFieldIds);
+		/**
+		 * \}
+		 */
 
 		/**
 		 * Widgetizing means that all possible object data is exported into SLK files which can only store abilities up to leve 4.

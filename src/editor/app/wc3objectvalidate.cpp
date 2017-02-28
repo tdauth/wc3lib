@@ -18,6 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <iostream>
 #include <fstream>
 
 #include <boost/filesystem.hpp>
@@ -127,6 +128,7 @@ int main(int argc, char *argv[])
 
 		const boost::filesystem::path stringsFilePath = boost::filesystem::canonical(stringsFile);
 		const QUrl stringsUrl = "file://" + QString::fromStdString(stringsFilePath.string());
+		QStringList errors;
 
 		if (customObjectsCollection.hasUnits())
 		{
@@ -134,7 +136,12 @@ int main(int argc, char *argv[])
 			unitData.load(nullptr);
 			unitData.importCustomObjects(*customObjectsCollection.units());
 			unitData.applyMapStrings(stringsUrl);
-			unitData.validateTooltipReferences();
+			errors << unitData.validateTooltipReferences();
+		}
+
+		for (const QString &error : errors)
+		{
+			std::cerr << error.toStdString() << std::endl;
 		}
 	}
 	catch (const Exception &e)

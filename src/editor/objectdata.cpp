@@ -1303,10 +1303,9 @@ QString ObjectData::baseOfCustomObjectId(const QString &customObjectId) const
 	return "";
 }
 
-long long ObjectData::validateTooltipReferences()
+QStringList ObjectData::validateTooltipReferences()
 {
 	qDebug() << "Validating object data:";
-	long long counter = 0;
 
 	QStringList allFieldIds;
 	QStringList allFields;
@@ -1316,6 +1315,10 @@ long long ObjectData::validateTooltipReferences()
 		allFieldIds << this->metaData()->value(i, "ID");
 		allFields << this->metaData()->value(i, "field");
 	}
+
+	qDebug() << "Got" << allFieldIds.size() << "fields";
+
+	QStringList errors;
 
 	for (Objects::iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
 	{
@@ -1351,98 +1354,8 @@ long long ObjectData::validateTooltipReferences()
 				{
 					//qDebug() << "Field is modified";
 
-					QStringList errors;
 					const QString value = this->fieldValue(id.originalObjectId(), id.customObjectId(), fieldId, level);
-
-					for (int i = value.indexOf("<"); i != -1; i = value.indexOf("<", i + 1))
-					{
-						const int start = i + 1;
-
-						if (start >= value.size())
-						{
-							break;
-						}
-
-						const int end = value.indexOf(">", start) - 1;
-						const QString reference = value.mid(start, end - start);
-						const QStringList pair = reference.split(",");
-						const QString objectId = pair.front();
-						const QString fieldName = pair.back();
-						const bool isStandardObject = this->standardObjectIds().contains(objectId);
-						const QString originalObjectId = isStandardObject ? objectId : baseOfCustomObjectId(objectId);
-						const QString customObjectId = isStandardObject ? "" : objectId;
-
-						// TODO Does not belong to this object data.
-						if (originalObjectId.isEmpty())
-						{
-							break;
-						}
-
-						const bool fieldNameIsFieldId = allFieldIds.contains(fieldName);
-
-						QString fieldIdByFieldName;
-						int fieldLevelByName = 0;
-
-						if (!fieldNameIsFieldId)
-						{
-							int levelIndex = -1;
-
-							for (int j = 0; j < fieldName.size(); ++j)
-							{
-								if (fieldName.at(i).isDigit())
-								{
-									levelIndex = j;
-
-									break;
-								}
-							}
-
-							if (levelIndex == -1)
-							{
-								qDebug() << "Invalid level index for " << fieldName;
-
-								break;
-							}
-
-							const QString fieldNameCut = fieldName.mid(0, levelIndex);
-
-							for (int j = 0; j < this->metaData()->rows(); ++j)
-							{
-								if (this->metaData()->value(j, "field") == fieldNameCut)
-								{
-									fieldIdByFieldName = this->metaData()->value(j, "ID");
-
-									break;
-								}
-							}
-
-							if (fieldIdByFieldName.isEmpty())
-							{
-								qDebug() << "Missing field ID by name" << fieldNameCut;
-
-								break;
-							}
-
-							bool ok = false;
-							fieldLevelByName = fieldName.right(levelIndex).toInt(&ok);
-
-							if (!ok)
-							{
-								break;
-							}
-						}
-
-						const QString fieldId = fieldNameIsFieldId ? fieldName : fieldIdByFieldName;
-						const int fieldLevel = fieldNameIsFieldId ? 0 : fieldLevelByName;
-
-						// TODO check other object data as well
-						if (!this->hasFieldValue(originalObjectId, customObjectId, fieldId, fieldLevel))
-						{
-							qDebug() << "Missing" << originalObjectId << customObjectId << fieldId << fieldLevel;
-						}
-					}
-
-					counter += errors.size();
+					errors << this->validateTooltipReference(value, allFieldIds);
 					//qDebug() << "Compressing " << id.first << ":" << id.second << " field " << fieldId;
 				}
 			}
@@ -1453,9 +1366,120 @@ long long ObjectData::validateTooltipReferences()
 		//qDebug() << "Object done";
 	}
 
-	qDebug() << "Validation done with" << counter << "items";
+	qDebug() << "Validation done with" << errors.size() << "items";
 
-	return counter;
+	return errors;
+}
+
+QStringList ObjectData::validateTooltipReference(const QString &tooltip, const QStringList &allFieldIds)
+{
+	QStringList errors;
+
+	for (int i = tooltip.indexOf("<"); i != -1 && i + 1 < tooltip.size(); i = tooltip.indexOf("<", i + 1))
+	{
+		const int start = i + 1;
+
+		if (start >= tooltip.size())
+		{
+			errors.push_back(QString("Staring unfinished reference at the end"));
+
+			break;
+		}
+
+		const int end = tooltip.indexOf(">", start) - 1;
+		const QString reference = tooltip.mid(start, end - start);
+		qDebug() << "Reference:" << reference;
+		const QStringList pair = reference.split(",");
+		const QString objectId = pair.front();
+		const QString fieldName = pair.back();
+		const bool isStandardObject = this->standardObjectIds().contains(objectId);
+		const QString originalObjectId = isStandardObject ? objectId : baseOfCustomObjectId(objectId);
+		const QString customObjectId = isStandardObject ? "" : objectId;
+		qDebug() << "Reference as object:" << originalObjectId << ":" << customObjectId;
+		qDebug() << "Field ID:" << fieldName;
+
+		// TODO Does not belong to this object data.
+		if (originalObjectId.isEmpty())
+		{
+			errors.push_back(QString("Missing original object for " + reference));
+
+			break;
+		}
+
+		const bool fieldNameIsFieldId = allFieldIds.contains(fieldName);
+
+		QString fieldIdByFieldName;
+		int fieldLevelByName = 0;
+
+		if (!fieldNameIsFieldId)
+		{
+			int levelIndex = -1;
+
+			for (int j = 0; j < fieldName.size(); ++j)
+			{
+				if (fieldName.at(i).isDigit())
+				{
+					levelIndex = j;
+
+					break;
+				}
+			}
+
+			if (levelIndex == -1)
+			{
+				errors.push_back(QString("Invalid level index for " + reference));
+
+				break;
+			}
+
+			const QString fieldNameCut = fieldName.mid(0, levelIndex);
+
+			for (int j = 0; j < this->metaData()->rows(); ++j)
+			{
+				if (this->metaData()->value(j, "field") == fieldNameCut)
+				{
+					fieldIdByFieldName = this->metaData()->value(j, "ID");
+
+					break;
+				}
+			}
+
+			if (fieldIdByFieldName.isEmpty())
+			{
+				errors.push_back(QString("Missing field ID by name " + reference));
+
+				break;
+			}
+
+			bool ok = false;
+			fieldLevelByName = fieldName.right(levelIndex).toInt(&ok);
+
+			if (!ok)
+			{
+				errors.push_back(QString("Field level is no integer " + reference));
+
+				break;
+			}
+		}
+
+		const QString fieldId = fieldNameIsFieldId ? fieldName : fieldIdByFieldName;
+		const int fieldLevel = fieldNameIsFieldId ? 0 : fieldLevelByName;
+
+		// TODO check other object data as well
+		if (!this->hasFieldValue(originalObjectId, customObjectId, fieldId, fieldLevel))
+		{
+			errors.push_back(QString("Missing " + reference));
+		}
+	}
+
+	QStringList modifiedErrors;
+
+	for (const QString &error : errors)
+	{
+		modifiedErrors << (tooltip + " - " + error);
+	}
+
+	return modifiedErrors;
 }
 
 void ObjectData::widgetize(const QUrl &url)

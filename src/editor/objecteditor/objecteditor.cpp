@@ -512,9 +512,9 @@ void ObjectEditor::validate()
 {
 	if (QMessageBox::question(this, tr("Validate all objects?"), tr("Are you sure you want to validate all objects of this tab? This might take while."), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
 	{
-		const int counter = this->currentTab()->objectData()->validateTooltipReferences();
+		const QStringList errors = this->currentTab()->objectData()->validateTooltipReferences();
 
-		QMessageBox::information(this, tr("Validation done"), tr("Found %1 errors of objects.").arg(counter));
+		QMessageBox::information(this, tr("Validation done"), tr("Found errors of objects: %1").arg(errors.join('\n')));
 	}
 }
 
