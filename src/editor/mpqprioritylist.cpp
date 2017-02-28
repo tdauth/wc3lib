@@ -96,6 +96,8 @@ bool MpqPriorityList::addSource(const QUrl &url, MpqPriorityListEntry::Priority 
 	/// \todo Support all archive properties and remote directories (smb).
 	if (!QFileInfo(url.toLocalFile()).isDir() && url.scheme() != "mpq")
 	{
+		qDebug() << "Failed adding source" << url;
+
 		return false;
 	}
 
@@ -107,28 +109,29 @@ bool MpqPriorityList::addSource(const QUrl &url, MpqPriorityListEntry::Priority 
 
 bool MpqPriorityList::addDefaultSources(const QUrl &wc3Dir)
 {
-	bool result = addSource(QUrl(wc3Dir.toString() + "/war3.mpq"), 20);
+	const QString prefix = "mpq:/" + wc3Dir.toLocalFile() + "/";
+	bool result = addSource(QUrl(prefix + "war3.mpq"), 20);
 
 	if (!result)
 	{
 		return false;
 	}
 
-	result = addSource(QUrl(wc3Dir.toString() + "/war3x.mpq"), 21);
+	result = addSource(QUrl(prefix + "war3x.mpq"), 21);
 
 	if (!result)
 	{
 		return false;
 	}
 
-	result = addSource(QUrl(wc3Dir.toString() + "/War3xlocal.mpq"), 22);
+	result = addSource(QUrl(prefix + "War3xlocal.mpq"), 22);
 
 	if (!result)
 	{
 		return false;
 	}
 
-	result = addSource(QUrl(wc3Dir.toString() + "/War3Patch.mpq"), 23);
+	result = addSource(QUrl(prefix + "War3Patch.mpq"), 23);
 
 	return result;
 }
