@@ -21,6 +21,7 @@
 #define BOOST_TEST_MODULE Wc3ObjectValidateTest
 #include <boost/test/unit_test.hpp>
 #include <cstdlib>
+#include <iostream>
 
 #if not defined(BOOST_TEST_DYN_LINK) and not defined(WINDOWS)
 #error Define BOOST_TEST_DYN_LINK for proper definition of main function.
@@ -33,7 +34,9 @@
 BOOST_AUTO_TEST_CASE(Validate)
 {
 	const std::string wc3Dir = WC3_DIR;
-	const int result = system(std::string("../wc3objectvalidate " + wc3Dir + " war3map_de.wts ObjectData.w3o").c_str());
+	const std::string command = std::string("../wc3objectvalidate " + wc3Dir + " war3map_de.wts ObjectData.w3o");
+	std::cout << "Running command: " << command << std::endl;
+	const int result = system(command.c_str());
 
 	BOOST_REQUIRE_EQUAL(result, 0);
 }

@@ -78,5 +78,7 @@ if (APP AND EDITOR)
 		install(FILES ${ZLIB_LIBRARIES} DESTINATION bin)
 	endif ()
 
-	add_subdirectory(test)
+	if (DEBUG)
+		add_subdirectory(test)
+	endif ()
 endif ()

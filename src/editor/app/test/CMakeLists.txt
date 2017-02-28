@@ -1,3 +1,7 @@
+if (WIN32)
+	set(Boost_USE_STATIC_LIBS ON)
+endif ()
+
 find_package(Boost COMPONENTS system unit_test_framework REQUIRED)
 
 message(STATUS "Using Warcraft III directory: \"$ENV{WC3_DIR}\"")
