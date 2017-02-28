@@ -125,12 +125,14 @@ int main(int argc, char *argv[])
 			throw Exception(boost::format(_("Could not load the default MPQ archives of Warcraft III from the directory %1%.")) % wc3Dir);
 		}
 
+		const boost::filesystem::path stringsFilePath = boost::filesystem::canonical(stringsFile);
+
 		if (customObjectsCollection.hasUnits())
 		{
 			UnitData unitData(&source);
 			unitData.load(nullptr);
 			unitData.importCustomObjects(*customObjectsCollection.units());
-			unitData.applyMapStrings(QString::fromStdString(stringsFile));
+			unitData.applyMapStrings(QString::fromStdString(stringsFilePath.string()));
 			unitData.validateTooltipReferences();
 		}
 	}
