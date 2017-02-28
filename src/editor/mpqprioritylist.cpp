@@ -109,7 +109,7 @@ bool MpqPriorityList::addSource(const QUrl &url, MpqPriorityListEntry::Priority 
 
 bool MpqPriorityList::addDefaultSources(const QUrl &wc3Dir)
 {
-	const QString prefix = "mpq:/" + wc3Dir.toLocalFile() + "/";
+	const QString prefix = "mpq://" + wc3Dir.toLocalFile() + "/";
 	bool result = addSource(QUrl(prefix + "war3.mpq"), 20);
 
 	if (!result)
