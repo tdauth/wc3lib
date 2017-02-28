@@ -126,13 +126,14 @@ int main(int argc, char *argv[])
 		}
 
 		const boost::filesystem::path stringsFilePath = boost::filesystem::canonical(stringsFile);
+		const QUrl stringsUrl = "file://" + QString::fromStdString(stringsFilePath.string());
 
 		if (customObjectsCollection.hasUnits())
 		{
 			UnitData unitData(&source);
 			unitData.load(nullptr);
 			unitData.importCustomObjects(*customObjectsCollection.units());
-			unitData.applyMapStrings(QString::fromStdString(stringsFilePath.string()));
+			unitData.applyMapStrings(stringsUrl);
 			unitData.validateTooltipReferences();
 		}
 	}

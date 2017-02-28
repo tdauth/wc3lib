@@ -1180,9 +1180,9 @@ void ObjectData::applyMapStrings(map::W3m &w3m)
 	}
 }
 
-void ObjectData::applyMapStrings(const QString &fileName)
+void ObjectData::applyMapStrings(const QUrl &url)
 {
-	MetaData mapStringsMetaData(fileName);
+	MetaData mapStringsMetaData(url);
 	mapStringsMetaData.setSource(this->source());
 	mapStringsMetaData.load();
 
