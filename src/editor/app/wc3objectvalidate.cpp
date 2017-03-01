@@ -37,11 +37,15 @@ using namespace wc3lib::editor;
 namespace
 {
 
-void validateObjectDataTooltipReferences(ObjectData &objectData, const CustomObjects &customObjects, const QUrl &stringsUrl, const QString &name)
+void loadObjectData(ObjectData &objectData, const CustomObjects &customObjects, const QUrl &stringsUrl)
 {
 	objectData.load(nullptr);
 	objectData.importCustomObjects(customObjects);
 	objectData.applyMapStrings(stringsUrl);
+}
+
+void validateObjectDataTooltipReferences(ObjectData &objectData, const QString &name)
+{
 	const QStringList errors = objectData.validateTooltipReferences();
 
 	std::cerr << boost::format("%1% Errors (%2%):") % name.toStdString() % errors.size() << std::endl;
@@ -151,41 +155,78 @@ int main(int argc, char *argv[])
 
 		/*
 		 * Use the shared object data, so references to other object data in tooltips works.
+		 * Load it first that EVERYTHING is loaded when validating it.
 		 */
-
 		if (customObjectsCollection.hasUnits())
 		{
-			validateObjectDataTooltipReferences(*source.sharedData()->sharedObjectData()->unitData(), *customObjectsCollection.units(), stringsUrl, _("Unit"));
+			loadObjectData(*source.sharedData()->sharedObjectData()->unitData(), *customObjectsCollection.units(), stringsUrl);
 		}
 
 		if (customObjectsCollection.hasItems())
 		{
-			validateObjectDataTooltipReferences(*source.sharedData()->sharedObjectData()->itemData(), *customObjectsCollection.items(), stringsUrl, _("Item"));
+			loadObjectData(*source.sharedData()->sharedObjectData()->itemData(), *customObjectsCollection.items(), stringsUrl);
 		}
 
 		if (customObjectsCollection.hasAbilities())
 		{
-			validateObjectDataTooltipReferences(*source.sharedData()->sharedObjectData()->abilityData(), *customObjectsCollection.abilities(), stringsUrl, _("Ability"));
+			loadObjectData(*source.sharedData()->sharedObjectData()->abilityData(), *customObjectsCollection.abilities(), stringsUrl);
 		}
 
 		if (customObjectsCollection.hasBuffs())
 		{
-			validateObjectDataTooltipReferences(*source.sharedData()->sharedObjectData()->buffData(), *customObjectsCollection.buffs(), stringsUrl, _("Buff"));
+			loadObjectData(*source.sharedData()->sharedObjectData()->buffData(), *customObjectsCollection.buffs(), stringsUrl);
 		}
 
 		if (customObjectsCollection.hasDestructibles())
 		{
-			validateObjectDataTooltipReferences(*source.sharedData()->sharedObjectData()->destructableData(), *customObjectsCollection.destructibles(), stringsUrl, _("Destructable"));
+			loadObjectData(*source.sharedData()->sharedObjectData()->destructableData(), *customObjectsCollection.destructibles(), stringsUrl);
 		}
 
 		if (customObjectsCollection.hasDoodads())
 		{
-			validateObjectDataTooltipReferences(*source.sharedData()->sharedObjectData()->doodadData(), *customObjectsCollection.doodads(), stringsUrl, _("Doodad"));
+			loadObjectData(*source.sharedData()->sharedObjectData()->doodadData(), *customObjectsCollection.doodads(), stringsUrl);
 		}
 
 		if (customObjectsCollection.hasUpgrades())
 		{
-			validateObjectDataTooltipReferences(*source.sharedData()->sharedObjectData()->upgradeData(), *customObjectsCollection.upgrades(), stringsUrl, _("Upgrade"));
+			loadObjectData(*source.sharedData()->sharedObjectData()->upgradeData(), *customObjectsCollection.upgrades(), stringsUrl);
+		}
+
+		// Now validate
+
+		if (customObjectsCollection.hasUnits())
+		{
+			validateObjectDataTooltipReferences(*source.sharedData()->sharedObjectData()->unitData(), _("Unit"));
+		}
+
+		if (customObjectsCollection.hasItems())
+		{
+			validateObjectDataTooltipReferences(*source.sharedData()->sharedObjectData()->itemData(), _("Item"));
+		}
+
+		if (customObjectsCollection.hasAbilities())
+		{
+			validateObjectDataTooltipReferences(*source.sharedData()->sharedObjectData()->abilityData(), _("Ability"));
+		}
+
+		if (customObjectsCollection.hasBuffs())
+		{
+			validateObjectDataTooltipReferences(*source.sharedData()->sharedObjectData()->buffData(), _("Buff"));
+		}
+
+		if (customObjectsCollection.hasDestructibles())
+		{
+			validateObjectDataTooltipReferences(*source.sharedData()->sharedObjectData()->destructableData(), _("Destructable"));
+		}
+
+		if (customObjectsCollection.hasDoodads())
+		{
+			validateObjectDataTooltipReferences(*source.sharedData()->sharedObjectData()->doodadData(), _("Doodad"));
+		}
+
+		if (customObjectsCollection.hasUpgrades())
+		{
+			validateObjectDataTooltipReferences(*source.sharedData()->sharedObjectData()->upgradeData(), _("Upgrade"));
 		}
 	}
 	catch (const Exception &e)
