@@ -1422,20 +1422,34 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 		int fieldIndex = allFields.indexOf(fieldName);
 		int fieldLevel = 0;
 
+		// The level index is also required for fields like Area1 which are field names themselves.
+		int levelIndex = -1;
+
+		for (int j = 0; j < fieldName.size(); ++j)
+		{
+			if (fieldName.at(j).isDigit())
+			{
+				levelIndex = j;
+
+				break;
+			}
+		}
+
+		if (levelIndex != -1)
+		{
+			bool ok = false;
+			fieldLevel = fieldName.mid(levelIndex).toInt(&ok);
+
+			if (!ok)
+			{
+				errors.push_back(QString("Field level is no integer: \"" + reference + "\""));
+
+				break;
+			}
+		}
+
 		if (fieldIndex == -1)
 		{
-			int levelIndex = -1;
-
-			for (int j = 0; j < fieldName.size(); ++j)
-			{
-				if (fieldName.at(j).isDigit())
-				{
-					levelIndex = j;
-
-					break;
-				}
-			}
-
 			if (levelIndex == -1)
 			{
 				errors.push_back(QString("Invalid level index for \"" + reference + "\" with the field name \"" + fieldName + "\" which was not found to be a valid field itself."));
@@ -1458,16 +1472,6 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 			if (fieldIndex == -1)
 			{
 				errors.push_back(QString("Missing field by name \"" + fieldNameCut + "\" with full field name \"" + fieldName + "\""));
-
-				break;
-			}
-
-			bool ok = false;
-			fieldLevel = fieldName.mid(levelIndex).toInt(&ok);
-
-			if (!ok)
-			{
-				errors.push_back(QString("Field level is no integer: \"" + reference + "\""));
 
 				break;
 			}

@@ -152,43 +152,43 @@ int main(int argc, char *argv[])
 		if (customObjectsCollection.hasUnits())
 		{
 			UnitData unitData(&source);
-			validateObjectDataTooltipReferences(unitData, *customObjectsCollection.units(), stringsUrl, _("Units"));
+			validateObjectDataTooltipReferences(unitData, *customObjectsCollection.units(), stringsUrl, _("Unit"));
 		}
 
 		if (customObjectsCollection.hasItems())
 		{
 			ItemData itemData(&source);
-			validateObjectDataTooltipReferences(itemData, *customObjectsCollection.items(), stringsUrl, _("Items"));
+			validateObjectDataTooltipReferences(itemData, *customObjectsCollection.items(), stringsUrl, _("Item"));
 		}
 
 		if (customObjectsCollection.hasAbilities())
 		{
 			AbilityData abilityData(&source);
-			validateObjectDataTooltipReferences(abilityData, *customObjectsCollection.abilities(), stringsUrl, _("Abilities"));
+			validateObjectDataTooltipReferences(abilityData, *customObjectsCollection.abilities(), stringsUrl, _("Ability"));
 		}
 
 		if (customObjectsCollection.hasBuffs())
 		{
 			BuffData buffData(&source);
-			validateObjectDataTooltipReferences(buffData, *customObjectsCollection.buffs(), stringsUrl, _("Buffs"));
+			validateObjectDataTooltipReferences(buffData, *customObjectsCollection.buffs(), stringsUrl, _("Buff"));
 		}
 
 		if (customObjectsCollection.hasDestructibles())
 		{
 			DestructableData destructableData(&source);
-			validateObjectDataTooltipReferences(destructableData, *customObjectsCollection.destructibles(), stringsUrl, _("Destructables"));
+			validateObjectDataTooltipReferences(destructableData, *customObjectsCollection.destructibles(), stringsUrl, _("Destructable"));
 		}
 
 		if (customObjectsCollection.hasDoodads())
 		{
 			DoodadData doodadData(&source);
-			validateObjectDataTooltipReferences(doodadData, *customObjectsCollection.doodads(), stringsUrl, _("Doodads"));
+			validateObjectDataTooltipReferences(doodadData, *customObjectsCollection.doodads(), stringsUrl, _("Doodad"));
 		}
 
 		if (customObjectsCollection.hasUpgrades())
 		{
 			UpgradeData upgradeData(&source);
-			validateObjectDataTooltipReferences(upgradeData, *customObjectsCollection.upgrades(), stringsUrl, _("Upgrades"));
+			validateObjectDataTooltipReferences(upgradeData, *customObjectsCollection.upgrades(), stringsUrl, _("Upgrade"));
 		}
 	}
 	catch (const Exception &e)
