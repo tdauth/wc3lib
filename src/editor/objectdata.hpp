@@ -469,9 +469,9 @@ class ObjectData : public QObject
 		virtual QStringList validateTooltipReferences();
 		/**
 		 * \param tooltip The tooltip text value which is checked.
-		 * \param allFieldIds A list of all valid field IDs.
+		 * \param allFields A list of all valid fields taken from the corresponding meta data SLK file (column "field"). These fields can be refered.
 		 */
-		virtual QStringList validateTooltipReference(const QString &tooltip, const QStringList &allFieldIds);
+		virtual QStringList validateTooltipReference(const QString &tooltip, const QStringList &allFields);
 		/**
 		 * \}
 		 */

@@ -1300,16 +1300,14 @@ QStringList ObjectData::validateTooltipReferences()
 {
 	qDebug() << "Validating object data:";
 
-	QStringList allFieldIds;
 	QStringList allFields;
 
-	for (int i = 0; i < metaData()->rows(); ++i)
+	for (int i = 1; i < metaData()->rows(); ++i)
 	{
-		allFieldIds << this->metaData()->value(i, "ID");
-		allFields << this->metaData()->value(i, "field");
+		allFields << this->metaData()->value(i, "field").toLower(); // TODO is it case sensitive?
 	}
 
-	qDebug() << "Got" << allFieldIds.size() << "fields";
+	qDebug() << "Got" << allFields.size() << "fields";
 
 	QStringList errors;
 
@@ -1348,7 +1346,7 @@ QStringList ObjectData::validateTooltipReferences()
 					//qDebug() << "Field is modified";
 
 					const QString value = this->fieldValue(id.originalObjectId(), id.customObjectId(), fieldId, level);
-					errors << this->validateTooltipReference(value, allFieldIds);
+					errors << this->validateTooltipReference(value, allFields);
 					//qDebug() << "Compressing " << id.first << ":" << id.second << " field " << fieldId;
 				}
 			}
@@ -1364,7 +1362,7 @@ QStringList ObjectData::validateTooltipReferences()
 	return errors;
 }
 
-QStringList ObjectData::validateTooltipReference(const QString &tooltip, const QStringList &allFieldIds)
+QStringList ObjectData::validateTooltipReference(const QString &tooltip, const QStringList &allFields)
 {
 	QStringList errors;
 
@@ -1406,7 +1404,7 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 		}
 
 		const QString objectId = tokens[0];
-		const QString fieldName = tokens[1];
+		const QString fieldName = tokens[1].toLower(); // TODO is it case sensitive?
 		const bool isStandardObject = this->standardObjectIds().contains(objectId);
 		const QString originalObjectId = isStandardObject ? objectId : baseOfCustomObjectId(objectId);
 		const QString customObjectId = isStandardObject ? "" : objectId;
@@ -1421,12 +1419,10 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 			break;
 		}
 
-		const bool fieldNameIsFieldId = allFieldIds.contains(fieldName);
+		int fieldIndex = allFields.indexOf(fieldName);
+		int fieldLevel = 0;
 
-		QString fieldIdByFieldName;
-		int fieldLevelByName = 0;
-
-		if (!fieldNameIsFieldId)
+		if (fieldIndex == -1)
 		{
 			int levelIndex = -1;
 
@@ -1442,7 +1438,7 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 
 			if (levelIndex == -1)
 			{
-				errors.push_back(QString("Invalid level index for " + reference + " with the field name " + fieldName + " which was not found to be a field ID itself."));
+				errors.push_back(QString("Invalid level index for \"" + reference + "\" with the field name \"" + fieldName + "\" which was not found to be a valid field itself."));
 
 				break;
 			}
@@ -1451,39 +1447,38 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 
 			for (int j = 0; j < this->metaData()->rows(); ++j)
 			{
-				if (this->metaData()->value(j, "field") == fieldNameCut)
+				if (this->metaData()->value(j, "field").toLower().startsWith(fieldNameCut))
 				{
-					fieldIdByFieldName = this->metaData()->value(j, "ID");
+					fieldIndex = j;
 
 					break;
 				}
 			}
 
-			if (fieldIdByFieldName.isEmpty())
+			if (fieldIndex == -1)
 			{
-				errors.push_back(QString("Missing field ID by name " + fieldNameCut + " with full field name " + fieldName));
+				errors.push_back(QString("Missing field by name \"" + fieldNameCut + "\" with full field name \"" + fieldName + "\""));
 
 				break;
 			}
 
 			bool ok = false;
-			fieldLevelByName = fieldName.mid(levelIndex).toInt(&ok);
+			fieldLevel = fieldName.mid(levelIndex).toInt(&ok);
 
 			if (!ok)
 			{
-				errors.push_back(QString("Field level is no integer " + reference));
+				errors.push_back(QString("Field level is no integer: \"" + reference + "\""));
 
 				break;
 			}
 		}
 
-		const QString fieldId = fieldNameIsFieldId ? fieldName : fieldIdByFieldName;
-		const int fieldLevel = fieldNameIsFieldId ? 0 : fieldLevelByName;
+		const QString fieldId = this->metaData()->value(fieldIndex, "ID").toLower();
 
 		// TODO check other object data as well
 		if (!this->hasFieldValue(originalObjectId, customObjectId, fieldId, fieldLevel))
 		{
-			errors.push_back(QString("Missing " + reference));
+			errors.push_back(QString("Missing field \"" + reference + "\""));
 		}
 	}
 

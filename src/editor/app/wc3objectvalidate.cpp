@@ -34,6 +34,26 @@ using namespace wc3lib;
 using namespace wc3lib::map;
 using namespace wc3lib::editor;
 
+namespace
+{
+
+void validateObjectDataTooltipReferences(ObjectData &objectData, const CustomObjects &customObjects, const QUrl &stringsUrl, const QString &name)
+{
+	objectData.load(nullptr);
+	objectData.importCustomObjects(customObjects);
+	objectData.applyMapStrings(stringsUrl);
+	const QStringList errors = objectData.validateTooltipReferences();
+
+	std::cerr << boost::format("%1% Errors (%2%):") % name.toStdString() % errors.size() << std::endl;
+
+	for (const QString &error : errors)
+	{
+		std::cerr << error.toStdString() << std::endl;
+	}
+}
+
+}
+
 /**
  * Checks if all tooltip references are valid and prints errors for invalid ones.
  */
@@ -128,76 +148,47 @@ int main(int argc, char *argv[])
 
 		const boost::filesystem::path stringsFilePath = boost::filesystem::canonical(stringsFile);
 		const QUrl stringsUrl = "file://" + QString::fromStdString(stringsFilePath.string());
-		QStringList errors;
 
 		if (customObjectsCollection.hasUnits())
 		{
 			UnitData unitData(&source);
-			unitData.load(nullptr);
-			unitData.importCustomObjects(*customObjectsCollection.units());
-			unitData.applyMapStrings(stringsUrl);
-			errors << unitData.validateTooltipReferences();
+			validateObjectDataTooltipReferences(unitData, *customObjectsCollection.units(), stringsUrl, _("Units"));
 		}
 
 		if (customObjectsCollection.hasItems())
 		{
 			ItemData itemData(&source);
-			itemData.load(nullptr);
-			itemData.importCustomObjects(*customObjectsCollection.items());
-			itemData.applyMapStrings(stringsUrl);
-			errors << itemData.validateTooltipReferences();
+			validateObjectDataTooltipReferences(itemData, *customObjectsCollection.items(), stringsUrl, _("Items"));
 		}
 
 		if (customObjectsCollection.hasAbilities())
 		{
 			AbilityData abilityData(&source);
-			abilityData.load(nullptr);
-			abilityData.importCustomObjects(*customObjectsCollection.abilities());
-			abilityData.applyMapStrings(stringsUrl);
-			errors << abilityData.validateTooltipReferences();
+			validateObjectDataTooltipReferences(abilityData, *customObjectsCollection.abilities(), stringsUrl, _("Abilities"));
 		}
 
 		if (customObjectsCollection.hasBuffs())
 		{
 			BuffData buffData(&source);
-			buffData.load(nullptr);
-			buffData.importCustomObjects(*customObjectsCollection.buffs());
-			buffData.applyMapStrings(stringsUrl);
-			errors << buffData.validateTooltipReferences();
+			validateObjectDataTooltipReferences(buffData, *customObjectsCollection.buffs(), stringsUrl, _("Buffs"));
 		}
 
 		if (customObjectsCollection.hasDestructibles())
 		{
 			DestructableData destructableData(&source);
-			destructableData.load(nullptr);
-			destructableData.importCustomObjects(*customObjectsCollection.destructibles());
-			destructableData.applyMapStrings(stringsUrl);
-			errors << destructableData.validateTooltipReferences();
+			validateObjectDataTooltipReferences(destructableData, *customObjectsCollection.destructibles(), stringsUrl, _("Destructables"));
 		}
 
 		if (customObjectsCollection.hasDoodads())
 		{
 			DoodadData doodadData(&source);
-			doodadData.load(nullptr);
-			doodadData.importCustomObjects(*customObjectsCollection.doodads());
-			doodadData.applyMapStrings(stringsUrl);
-			errors << doodadData.validateTooltipReferences();
+			validateObjectDataTooltipReferences(doodadData, *customObjectsCollection.doodads(), stringsUrl, _("Doodads"));
 		}
 
 		if (customObjectsCollection.hasUpgrades())
 		{
 			UpgradeData upgradeData(&source);
-			upgradeData.load(nullptr);
-			upgradeData.importCustomObjects(*customObjectsCollection.upgrades());
-			upgradeData.applyMapStrings(stringsUrl);
-			errors << upgradeData.validateTooltipReferences();
-		}
-
-		std::cerr << "Errors:" << std::endl;
-
-		for (const QString &error : errors)
-		{
-			std::cerr << error.toStdString() << std::endl;
+			validateObjectDataTooltipReferences(upgradeData, *customObjectsCollection.upgrades(), stringsUrl, _("Upgrades"));
 		}
 	}
 	catch (const Exception &e)
