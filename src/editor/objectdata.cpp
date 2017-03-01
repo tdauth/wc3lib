@@ -1442,7 +1442,7 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 
 			if (levelIndex == -1)
 			{
-				errors.push_back(QString("Invalid level index for " + reference + " with the field name " + fieldName));
+				errors.push_back(QString("Invalid level index for " + reference + " with the field name " + fieldName + " which was not found to be a field ID itself."));
 
 				break;
 			}
@@ -1461,13 +1461,13 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 
 			if (fieldIdByFieldName.isEmpty())
 			{
-				errors.push_back(QString("Missing field ID by name " + fieldNameCut));
+				errors.push_back(QString("Missing field ID by name " + fieldNameCut + " with full field name " + fieldName));
 
 				break;
 			}
 
 			bool ok = false;
-			fieldLevelByName = fieldName.right(levelIndex).toInt(&ok);
+			fieldLevelByName = fieldName.mid(levelIndex).toInt(&ok);
 
 			if (!ok)
 			{
