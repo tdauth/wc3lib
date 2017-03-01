@@ -1514,6 +1514,9 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 				break;
 			}
 
+			/*
+			 * TODO handle DataA1 and DataB1 etc. differently. Check the column useSpecific of all possible data values.
+			 */
 			const QString fieldNameCut = fieldName.mid(0, levelIndex);
 
 			for (int j = 0; j < allFields.size(); ++j)
@@ -1525,19 +1528,22 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 					/*
 					 * Make sure that the rest of the field name is only another level value.
 					 */
-					const QString checkingSuffix = checkingFieldname.mid(fieldNameCut.size());
-
-					if (!checkingSuffix.isEmpty())
+					if (fieldNameCut.size() < checkingFieldname.size())
 					{
-						bool checkingOk = false;
-						checkingSuffix.toInt(&checkingOk);
+						const QString checkingSuffix = checkingFieldname.mid(fieldNameCut.size());
 
-						/*
-						 * If it is not an integer, the field name does not match this one.
-						 */
-						if (!checkingOk)
+						if (!checkingSuffix.isEmpty())
 						{
-							continue;
+							bool checkingOk = false;
+							checkingSuffix.toInt(&checkingOk);
+
+							/*
+							* If it is not an integer, the field name does not match this one.
+							*/
+							if (!checkingOk)
+							{
+								continue;
+							}
 						}
 					}
 
@@ -1555,12 +1561,12 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 			}
 		}
 
-		const QString fieldId = this->metaData()->value(fieldIndex, "ID").toLower();
+		const QString fieldId = this->metaData()->value(fieldIndex + 1, "ID").toLower();
 
 		// TODO check other object data as well
 		if (!this->hasFieldValue(originalObjectId, customObjectId, fieldId, fieldLevel))
 		{
-			errors.push_back(QString("Missing field \"" + reference + "\" from object " + originalObjectId + ":" + customObjectId + " using field ID \"" + fieldId + "\" and field level " + fieldLevel));
+			errors.push_back(QString("Missing field \"" + reference + "\" from object " + originalObjectId + ":" + customObjectId + " using field ID \"" + fieldId + "\" and field level " + QString::number(fieldLevel)));
 		}
 	}
 
