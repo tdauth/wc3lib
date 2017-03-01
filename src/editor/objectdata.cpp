@@ -1386,12 +1386,34 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 			break;
 		}
 
-		const int end = tooltip.indexOf(">", start) - 1;
+		const int end = tooltip.indexOf(">", start);
 		const QString reference = tooltip.mid(start, end - start);
 		qDebug() << "Reference:" << reference;
-		const QStringList pair = reference.split(",");
-		const QString objectId = pair.front();
-		const QString fieldName = pair.back();
+		const QStringList tokens = reference.split(","); // could also be a triple with the ,% suffix
+
+		if (tokens.isEmpty() || tokens.size() == 1)
+		{
+			errors.push_back(QString("Reference has only one token: " + reference));
+
+			break;
+		}
+
+		if (tokens.size() == 3 && tokens[2] != QChar('%'))
+		{
+			errors.push_back(QString("Expecting % at third token: " + reference));
+
+			break;
+		}
+
+		if (tokens.size() > 3)
+		{
+			errors.push_back(QString("Too many tokens: " + reference));
+
+			break;
+		}
+
+		const QString objectId = tokens[0];
+		const QString fieldName = tokens[1];
 		const bool isStandardObject = this->standardObjectIds().contains(objectId);
 		const QString originalObjectId = isStandardObject ? objectId : baseOfCustomObjectId(objectId);
 		const QString customObjectId = isStandardObject ? "" : objectId;
@@ -1417,7 +1439,7 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 
 			for (int j = 0; j < fieldName.size(); ++j)
 			{
-				if (fieldName.at(i).isDigit())
+				if (fieldName.at(j).isDigit())
 				{
 					levelIndex = j;
 
@@ -1427,7 +1449,7 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 
 			if (levelIndex == -1)
 			{
-				errors.push_back(QString("Invalid level index for " + reference));
+				errors.push_back(QString("Invalid level index for " + reference + " with the field name " + fieldName));
 
 				break;
 			}

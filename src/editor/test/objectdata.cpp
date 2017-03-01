@@ -57,6 +57,10 @@ struct Fixture
 	Fixture() : app(args, 0)
 	{
 		BOOST_TEST_MESSAGE("setup fixture");
+		const QDir dir(WC3_DIR);
+		std::cerr << "Warcraft III dir is: " << WC3_DIR << std::endl;
+		BOOST_REQUIRE(dir.exists());
+		BOOST_REQUIRE(dir.isReadable());
 		QUrl war3mpq = QString(WC3_DIR) + "/war3.mpq";
 		war3mpq.setScheme("mpq");
 		std::cerr << war3mpq.toEncoded().constData() << std::endl;
@@ -73,10 +77,12 @@ struct Fixture
 	MpqPriorityList source;
 };
 
+BOOST_FIXTURE_TEST_SUITE(s, Fixture)
+
 /*
  * Tests the unit data with "war3.mpq" which means Warcraft III: Reign of Chaos.
  */
-BOOST_FIXTURE_TEST_CASE(ReadUnitDataReignOfChaos, Fixture)
+BOOST_AUTO_TEST_CASE(ReadUnitDataReignOfChaos)
 {
 	UnitData unitData(&source);
 	bool valid = true;
@@ -137,7 +143,7 @@ BOOST_FIXTURE_TEST_CASE(ReadUnitDataReignOfChaos, Fixture)
 /*
  * Tests the item data with "war3.mpq" which means Warcraft III: Reign of Chaos.
  */
-BOOST_FIXTURE_TEST_CASE(ReadItemDataReignOfChaos, Fixture)
+BOOST_AUTO_TEST_CASE(ReadItemDataReignOfChaos)
 {
 	ItemData itemData(&source);
 	bool valid = true;
@@ -166,3 +172,16 @@ BOOST_FIXTURE_TEST_CASE(ReadItemDataReignOfChaos, Fixture)
 	BOOST_CHECK_EQUAL(itemData.defaultFieldValue("afac", "iabi").toStdString(), "AIar");
 	BOOST_CHECK_EQUAL(itemData.fieldValue("afac", "", "iabi").toStdString(), "AIar");
 }
+
+BOOST_AUTO_TEST_CASE(Validate)
+{
+	UnitData unitData(&source);
+
+	BOOST_REQUIRE_NO_THROW(unitData.load(nullptr));
+
+	const QStringList errors = unitData.validateTooltipReferences();
+
+	BOOST_REQUIRE(errors.isEmpty());
+}
+
+BOOST_AUTO_TEST_SUITE_END()
