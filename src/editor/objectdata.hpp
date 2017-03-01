@@ -337,7 +337,7 @@ class ObjectData : public QObject
 		/**
 		 * Creates object with IDs \p originalObjectId and \p customObjectId without any modifications.
 		 */
-		void createObject(const QString &originalObjectId, const QString &customObjectId);
+		Objects::iterator createObject(const QString &originalObjectId, const QString &customObjectId);
 
 		/**
 		 * Modifies a single field with ID \p fieldId (taken from meta data file) of object with IDS \p originalObjectId and \p customObjectId and sets the field's modification to \p modification.

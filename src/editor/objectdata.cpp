@@ -405,7 +405,7 @@ map::Value ObjectData::value(const QString &fieldId, const QString &value) const
 	return map::Value(0);
 }
 
-void ObjectData::createObject(const QString &originalObjectId, const QString &customObjectId)
+ObjectData::Objects::iterator ObjectData::createObject(const QString &originalObjectId, const QString &customObjectId)
 {
 	assert(!originalObjectId.isEmpty());
 	const ObjectId objectId(originalObjectId, customObjectId);
@@ -423,23 +423,19 @@ void ObjectData::createObject(const QString &originalObjectId, const QString &cu
 			emit objectCreation(originalObjectId, customObjectId);
 		}
 	}
+
+	return iterator;
 }
 
 void ObjectData::modifyField(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, const map::CustomObjects::Modification &modification)
 {
 	assert(!originalObjectId.isEmpty());
 	const ObjectId objectId(originalObjectId, customObjectId);
-	Objects::iterator iterator = this->m_objects.find(objectId);
-
-	if (iterator == this->m_objects.end())
-	{
-		createObject(originalObjectId, customObjectId);
-		iterator = this->m_objects.find(objectId);
-	}
+	Objects::iterator iterator = createObject(originalObjectId, customObjectId); // only creates it when it does not exist
 
 	if (iterator != this->m_objects.end())
 	{
-		FieldId fieldIdKey(fieldId, modification.level());
+		const FieldId fieldIdKey(fieldId, modification.level());
 
 		iterator.value().insert(fieldIdKey, modification);
 
@@ -877,18 +873,11 @@ void ObjectData::importCustomObjects(const map::CustomObjects& objects)
 		const QString originalObjectId = map::idToString(object.originalId()).c_str();
 		const QString customObjectId = map::idToString(object.customId()).c_str();
 
-		const bool print = originalObjectId == "Arsg"; // TEST
-
 		for (map::CustomObjects::Object::Modifications::size_type j = 0; j < object.modifications().size(); ++j)
 		{
 			const map::CustomObjects::Modification &modification = *boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object.modifications()[j]);
 			const QString fieldId = map::idToString(modification.valueId()).c_str();
 			this->modifyField(originalObjectId, customObjectId, fieldId, modification);
-
-			if (print)
-			{
-				qDebug() << "Arsg - Field: " << fieldId;
-			}
 		}
 	}
 
@@ -1296,9 +1285,13 @@ QString ObjectData::baseOfCustomObjectId(const QString &customObjectId) const
 
 		if (id.customObjectId() == customObjectId)
 		{
+			qDebug() << "Found base for" << customObjectId << ":" << id.originalObjectId();
+
 			return id.originalObjectId();
 		}
 	}
+
+	qDebug() << "Found no base for" << customObjectId;
 
 	return "";
 }
@@ -1423,7 +1416,7 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 		// TODO Does not belong to this object data.
 		if (originalObjectId.isEmpty())
 		{
-			errors.push_back(QString("Missing original object for " + reference));
+			errors.push_back(QString("Missing original object for " + customObjectId));
 
 			break;
 		}
@@ -1468,7 +1461,7 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 
 			if (fieldIdByFieldName.isEmpty())
 			{
-				errors.push_back(QString("Missing field ID by name " + reference));
+				errors.push_back(QString("Missing field ID by name " + fieldNameCut));
 
 				break;
 			}
@@ -1498,7 +1491,7 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 
 	for (const QString &error : errors)
 	{
-		modifiedErrors << (tooltip + " - " + error);
+		modifiedErrors << (error + " - \"" + tooltip + "\"");
 	}
 
 	return modifiedErrors;
