@@ -149,46 +149,43 @@ int main(int argc, char *argv[])
 		const boost::filesystem::path stringsFilePath = boost::filesystem::canonical(stringsFile);
 		const QUrl stringsUrl = "file://" + QString::fromStdString(stringsFilePath.string());
 
+		/*
+		 * Use the shared object data, so references to other object data in tooltips works.
+		 */
+
 		if (customObjectsCollection.hasUnits())
 		{
-			UnitData unitData(&source);
-			validateObjectDataTooltipReferences(unitData, *customObjectsCollection.units(), stringsUrl, _("Unit"));
+			validateObjectDataTooltipReferences(*source.sharedData()->sharedObjectData()->unitData(), *customObjectsCollection.units(), stringsUrl, _("Unit"));
 		}
 
 		if (customObjectsCollection.hasItems())
 		{
-			ItemData itemData(&source);
-			validateObjectDataTooltipReferences(itemData, *customObjectsCollection.items(), stringsUrl, _("Item"));
+			validateObjectDataTooltipReferences(*source.sharedData()->sharedObjectData()->itemData(), *customObjectsCollection.items(), stringsUrl, _("Item"));
 		}
 
 		if (customObjectsCollection.hasAbilities())
 		{
-			AbilityData abilityData(&source);
-			validateObjectDataTooltipReferences(abilityData, *customObjectsCollection.abilities(), stringsUrl, _("Ability"));
+			validateObjectDataTooltipReferences(*source.sharedData()->sharedObjectData()->abilityData(), *customObjectsCollection.abilities(), stringsUrl, _("Ability"));
 		}
 
 		if (customObjectsCollection.hasBuffs())
 		{
-			BuffData buffData(&source);
-			validateObjectDataTooltipReferences(buffData, *customObjectsCollection.buffs(), stringsUrl, _("Buff"));
+			validateObjectDataTooltipReferences(*source.sharedData()->sharedObjectData()->buffData(), *customObjectsCollection.buffs(), stringsUrl, _("Buff"));
 		}
 
 		if (customObjectsCollection.hasDestructibles())
 		{
-			DestructableData destructableData(&source);
-			validateObjectDataTooltipReferences(destructableData, *customObjectsCollection.destructibles(), stringsUrl, _("Destructable"));
+			validateObjectDataTooltipReferences(*source.sharedData()->sharedObjectData()->destructableData(), *customObjectsCollection.destructibles(), stringsUrl, _("Destructable"));
 		}
 
 		if (customObjectsCollection.hasDoodads())
 		{
-			DoodadData doodadData(&source);
-			validateObjectDataTooltipReferences(doodadData, *customObjectsCollection.doodads(), stringsUrl, _("Doodad"));
+			validateObjectDataTooltipReferences(*source.sharedData()->sharedObjectData()->doodadData(), *customObjectsCollection.doodads(), stringsUrl, _("Doodad"));
 		}
 
 		if (customObjectsCollection.hasUpgrades())
 		{
-			UpgradeData upgradeData(&source);
-			validateObjectDataTooltipReferences(upgradeData, *customObjectsCollection.upgrades(), stringsUrl, _("Upgrade"));
+			validateObjectDataTooltipReferences(*source.sharedData()->sharedObjectData()->upgradeData(), *customObjectsCollection.upgrades(), stringsUrl, _("Upgrade"));
 		}
 	}
 	catch (const Exception &e)

@@ -1362,7 +1362,7 @@ QStringList ObjectData::validateTooltipReferences()
 	return errors;
 }
 
-QStringList ObjectData::validateTooltipReference(const QString &tooltip, const QStringList &allFields)
+QStringList ObjectData::validateTooltipReference(const QString &tooltip, const QStringList &allFields, bool checkRecursive)
 {
 	QStringList errors;
 
@@ -1414,15 +1414,64 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 		// TODO Does not belong to this object data.
 		if (originalObjectId.isEmpty())
 		{
-			errors.push_back(QString("Missing original object for " + customObjectId));
+			bool foundInOtherObjectData = false;
+
+			// Check all OTHER shared object data for the object ID in custom and standard objects:
+			if (checkRecursive)
+			{
+				QLinkedList<ObjectData*> objectData;
+
+				objectData << this->source()->sharedData()->sharedObjectData()->unitData().get();
+				objectData << this->source()->sharedData()->sharedObjectData()->itemData().get();
+				objectData << this->source()->sharedData()->sharedObjectData()->abilityData().get();
+				objectData << this->source()->sharedData()->sharedObjectData()->buffData().get();
+				objectData << this->source()->sharedData()->sharedObjectData()->upgradeData().get();
+				objectData << this->source()->sharedData()->sharedObjectData()->doodadData().get();
+				objectData << this->source()->sharedData()->sharedObjectData()->destructableData().get();
+
+				// Don't use null values or the current object data.
+				objectData.removeAll(nullptr);
+				objectData.removeAll(this);
+
+				for (ObjectData *data : objectData)
+				{
+					for (Objects::key_type key : data->objects().keys())
+					{
+						if (key.originalObjectId() == objectId || key.customObjectId() == objectId)
+						{
+							errors << data->validateTooltipReference(tooltip, allFields, false);
+
+							foundInOtherObjectData = true;
+
+							break;
+						}
+					}
+
+					if (foundInOtherObjectData)
+					{
+						break;
+					}
+				}
+			}
+
+			if (!foundInOtherObjectData)
+			{
+				errors.push_back(QString("Missing original object for " + customObjectId));
+			}
 
 			break;
 		}
 
+		/*
+		 * Try to find the full field name first.
+		 */
 		int fieldIndex = allFields.indexOf(fieldName);
+		/*
+		 * The level is important to check if the actual field of the corresponding level does even exist.
+		 */
 		int fieldLevel = 0;
 
-		// The level index is also required for fields like Area1 which are field names themselves.
+		// The level index is also required for fields like Area1 which are field names themselves. Therefore always extract the level bit if it does exist. Otherwise this value stays -1.
 		int levelIndex = -1;
 
 		for (int j = 0; j < fieldName.size(); ++j)
@@ -1435,6 +1484,9 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 			}
 		}
 
+		/*
+		 * If there is a level value, extract it by converting it. Otherwise 0 is used.
+		 */
 		if (levelIndex != -1)
 		{
 			bool ok = false;
@@ -1448,6 +1500,11 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 			}
 		}
 
+		/*
+		 * If the field does not name a field from the meta data it might be one but with a higher level. Therefore it must have specified a level.
+		 * Check if the field name without the level suffix does exist in the meta data. For example 'Area42' could be refered but only 'Area1' appears in the meta data.
+		 * In this case 'Area' (without the level suffix) has to be compared to the beginning of all field names in the meta data.
+		 */
 		if (fieldIndex == -1)
 		{
 			if (levelIndex == -1)
@@ -1459,10 +1516,31 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 
 			const QString fieldNameCut = fieldName.mid(0, levelIndex);
 
-			for (int j = 0; j < this->metaData()->rows(); ++j)
+			for (int j = 0; j < allFields.size(); ++j)
 			{
-				if (this->metaData()->value(j, "field").toLower().startsWith(fieldNameCut))
+				const QString checkingFieldname = allFields[i];
+
+				if (checkingFieldname.startsWith(fieldNameCut))
 				{
+					/*
+					 * Make sure that the rest of the field name is only another level value.
+					 */
+					const QString checkingSuffix = checkingFieldname.mid(fieldNameCut.size());
+
+					if (!checkingSuffix.isEmpty())
+					{
+						bool checkingOk = false;
+						checkingSuffix.toInt(&checkingOk);
+
+						/*
+						 * If it is not an integer, the field name does not match this one.
+						 */
+						if (!checkingOk)
+						{
+							continue;
+						}
+					}
+
 					fieldIndex = j;
 
 					break;
@@ -1482,7 +1560,7 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 		// TODO check other object data as well
 		if (!this->hasFieldValue(originalObjectId, customObjectId, fieldId, fieldLevel))
 		{
-			errors.push_back(QString("Missing field \"" + reference + "\""));
+			errors.push_back(QString("Missing field \"" + reference + "\" from object " + originalObjectId + ":" + customObjectId + " using field ID \"" + fieldId + "\" and field level " + fieldLevel));
 		}
 	}
 

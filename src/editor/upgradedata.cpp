@@ -39,7 +39,7 @@ ObjectData::StandardObjecIds UpgradeData::standardObjectIds() const
 	StandardObjecIds result;
 
 	// add all entries from "Weather.slk" to standard weather effects in Unit Editor
-	if (this->upgradeData() != 0 && !this->upgradeData()->isEmpty())
+	if (this->upgradeData() != nullptr && !this->upgradeData()->isEmpty())
 	{
 		for (int row = 1; row < this->upgradeData()->rows(); ++row)
 		{

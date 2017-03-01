@@ -458,11 +458,11 @@ class ObjectData : public QObject
 
 		/**
 		 * Checks all "<A000,dur1>" like references in string values and checks if they do exist.
-		 * If they do not exist it prints an error message.
+		 * If they do not exist it adds an error message to the result.
 		 *
-		 * If they do exist it checks if the ID is related to the object. Otherwise it prints a warning.
+		 * If they do exist it checks if the ID is related to the object. Otherwise it adds an error to the result.
 		 *
-		 * \return Returns a list with all errors.
+		 * \return Returns a list with all errors in human-readable form.
 		 *
 		 * \{
 		 */
@@ -470,8 +470,11 @@ class ObjectData : public QObject
 		/**
 		 * \param tooltip The tooltip text value which is checked.
 		 * \param allFields A list of all valid fields taken from the corresponding meta data SLK file (column "field"). These fields can be refered.
+		 * \param checkRecursive If this value is true and an object ID like 'A000' is not found in the current object data, all other object data from \ref SharedObjectData of \ref MpqPriorityList::sharedData of the object data's source \ref source() is searched for the ID and the tooltip is checked under the other object data if it belongs to one. This is important since you can use references to ability data in item tooltips etc.
+		 *
+		 * \return Returns a list with all errors in human-readable form.
 		 */
-		virtual QStringList validateTooltipReference(const QString &tooltip, const QStringList &allFields);
+		virtual QStringList validateTooltipReference(const QString &tooltip, const QStringList &allFields, bool checkRecursive = true);
 		/**
 		 * \}
 		 */
@@ -482,6 +485,12 @@ class ObjectData : public QObject
 		 */
 		virtual void widgetize(const QUrl &url);
 
+		/**
+		 * Searches for the custom object ID and returns the corresponding base object ID (the ID of the standard object which has been modified).
+		 * Complexity: O(n)
+		 * \todo Hash the standard object IDs by using only the custom object IDs to make this method faster.
+		 * \return Returns the corresponding standard object ID. If the custom object ID is not found in the object data, an empty string is returned.
+		 */
 		QString baseOfCustomObjectId(const QString &customObjectId) const;
 
 	protected:
