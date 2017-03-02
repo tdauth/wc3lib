@@ -1494,7 +1494,7 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 					{
 						if (key.originalObjectId() == objectId || key.customObjectId() == objectId)
 						{
-							const QStringList subErrors = data->validateTooltipReference(tooltip, allFields, false);
+							const QStringList subErrors = data->validateTooltipReference(reference, allFields, false);
 
 							if (!subErrors.isEmpty())
 							{
