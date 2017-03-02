@@ -1677,7 +1677,27 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 		// TODO check other object data as well
 		if (!this->hasFieldValue(originalObjectId, customObjectId, fieldId, fieldLevel))
 		{
-			errors.push_back(QString("Missing field \"" + reference + "\" from object " + originalObjectId + ":" + customObjectId + " using field ID \"" + fieldId + "\" and field level " + QString::number(fieldLevel)));
+			/*
+			 * List ALL modifications of the object to make suggestions.
+			 */
+			QStringList modificationsStringList;
+
+			const ObjectId objectId(originalObjectId, customObjectId);
+			Objects::const_iterator iterator = this->m_objects.find(objectId);
+
+			if (iterator != this->m_objects.end())
+			{
+				const Modifications &modifications = iterator.value();
+
+				for (Modifications::const_iterator modificationIterator = modifications.begin(); modificationIterator != modifications.end(); ++modificationIterator)
+				{
+					const map::CustomObjects::Modification &modification = modificationIterator.value();
+
+					modificationsStringList.push_back(tr("%1 - Level %2 - Value %3").arg(map::idToString(modification.valueId()).c_str()).arg(modification.level()).arg(valueToString(modification.value())));
+				}
+			}
+
+			errors.push_back(QString("Missing field \"" + reference + "\" from object " + originalObjectId + ":" + customObjectId + " using field ID \"" + fieldId + "\" and field level " + QString::number(fieldLevel) + " Existing modifications: " + modificationsStringList.join(", ")));
 		}
 	}
 
