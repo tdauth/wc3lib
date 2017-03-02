@@ -1533,11 +1533,10 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 			for (int j = 0; j < allFields.size(); ++j)
 			{
 				const QString checkingFieldname = allFields[i];
+				possibilities << checkingFieldname;
 
 				if ((!isDataValue && checkingFieldname.startsWith(fieldNameCut)) || (isDataValue && checkingFieldname == "data"))
 				{
-					possibilities << checkingFieldname;
-
 					/*
 					 * Make sure that the rest of the field name is only another level value.
 					 */
@@ -1560,7 +1559,18 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 					 */
 					else if (isDataValue)
 					{
+						if (this->metaData() == nullptr)
+						{
+							continue;
+						}
+
 						const int row = j + 1;
+
+						if (!this->metaData()->hasValue(row, "useSpecific"))
+						{
+							continue;
+						}
+
 						const QStringList useSpecific = this->metaData()->value(row, "useSpecific").split(',');
 
 						/*
