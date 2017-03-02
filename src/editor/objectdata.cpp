@@ -1353,7 +1353,7 @@ QStringList ObjectData::validateTooltipReferences()
 					//qDebug() << "Field is modified";
 
 					const QString value = this->fieldValue(id.originalObjectId(), id.customObjectId(), fieldId, level);
-					errors << this->validateTooltipReference(value, allFields);
+					errors << this->validateTooltipReference(value, allFields, true); // first call is recursive
 					//qDebug() << "Compressing " << id.first << ":" << id.second << " field " << fieldId;
 				}
 			}
@@ -1393,21 +1393,21 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 		{
 			errors.push_back(QString("Reference has only one token: " + reference));
 
-			break;
+			continue;
 		}
 
 		if (tokens.size() == 3 && tokens[2] != QChar('%'))
 		{
 			errors.push_back(QString("Expecting % at third token: " + reference));
 
-			break;
+			continue;
 		}
 
 		if (tokens.size() > 3)
 		{
 			errors.push_back(QString("Too many tokens: " + reference));
 
-			break;
+			continue;
 		}
 
 		const QString objectId = tokens[0];
@@ -1446,7 +1446,13 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 					{
 						if (key.originalObjectId() == objectId || key.customObjectId() == objectId)
 						{
-							errors << data->validateTooltipReference(tooltip, allFields, false);
+							const QStringList subErrors = data->validateTooltipReference(tooltip, allFields, false);
+
+							if (!subErrors.isEmpty())
+							{
+								errors.push_back(tr("Checking sub object data %1").arg(typeid(data).name()));
+								errors << subErrors;
+							}
 
 							foundInOtherObjectData = true;
 
@@ -1466,7 +1472,7 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 				errors.push_back(QString("Missing original object for " + customObjectId));
 			}
 
-			break;
+			continue;
 		}
 
 		/*
@@ -1518,7 +1524,7 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 			{
 				errors.push_back(QString("Invalid level index for \"" + reference + "\" with the field name \"" + fieldName + "\" which was not found to be a valid field itself."));
 
-				break;
+				continue;
 			}
 
 			/*
@@ -1599,7 +1605,7 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 			{
 				errors.push_back(QString("Missing field by name \"" + fieldNameCut + "\" with full field name \"" + fieldName + "\". Hint: \"" + hint + "\". Checked possibilities with insufficient conditions \"" + possibilities.join(", ") + "\""));
 
-				break;
+				continue;
 			}
 		}
 
