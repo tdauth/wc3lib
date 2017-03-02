@@ -1369,6 +1369,54 @@ QStringList ObjectData::validateTooltipReferences()
 	return errors;
 }
 
+namespace
+{
+
+QString objectDataName(map::CustomObjects::Type type)
+{
+	switch (type)
+	{
+		case map::CustomObjects::Type::Units:
+		{
+			return QObject::tr("Units");
+		}
+
+		case map::CustomObjects::Type::Items:
+		{
+			return QObject::tr("Items");
+		}
+
+		case map::CustomObjects::Type::Abilities:
+		{
+			return QObject::tr("Abilities");
+		}
+
+		case map::CustomObjects::Type::Doodads:
+		{
+			return QObject::tr("Doodads");
+		}
+
+		case map::CustomObjects::Type::Destructibles:
+		{
+			return QObject::tr("Destructibles");
+		}
+
+		case map::CustomObjects::Type::Buffs:
+		{
+			return QObject::tr("Buffs");
+		}
+
+		case map::CustomObjects::Type::Upgrades:
+		{
+			return QObject::tr("Upgrades");
+		}
+	}
+
+	return QObject::tr("Unknown");
+}
+
+}
+
 QStringList ObjectData::validateTooltipReference(const QString &tooltip, const QStringList &allFields, bool checkRecursive)
 {
 	QStringList errors;
@@ -1450,7 +1498,7 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 
 							if (!subErrors.isEmpty())
 							{
-								errors.push_back(tr("Checking sub object data %1").arg(typeid(data).name()));
+								errors.push_back(tr("Checking sub object data %1").arg(objectDataName(data->type())));
 								errors << subErrors;
 							}
 
