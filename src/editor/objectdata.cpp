@@ -1522,7 +1522,7 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 			 * Always use lower case.
 			 */
 			const QRegExp rx("data[a-z]");
-			const bool isDataValue = rx.exactMatch(fieldName);
+			const bool isDataValue = rx.exactMatch(fieldNameCut);
 
 			/*
 			 * Store the possibilities for better error detection.
