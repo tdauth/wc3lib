@@ -1676,7 +1676,7 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 
 			if (fieldIndex == -1)
 			{
-				errors.push_back(QString("Missing field by name \"" + fieldNameCut + "\" with full field name \"" + fieldName + "\". Hint: \"" + hint + "\". Checked possibilities with insufficient conditions \"" + possibilities.join(", ") + "\""));
+				errors.push_back(QString("Missing field by name \"" + fieldNameCut + "\" with full field name \"" + fieldName + "\" from object " + originalObjectId + ":" + customObjectId + ". Hint: \"" + hint + "\". Checked possibilities with insufficient conditions \"" + possibilities.join(", ") + "\""));
 
 				continue;
 			}
