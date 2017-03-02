@@ -1518,32 +1518,53 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 			 * TODO handle DataA1 and DataB1 etc. differently. Check the column useSpecific of all possible data values.
 			 */
 			const QString fieldNameCut = fieldName.mid(0, levelIndex);
+			const QRegExp rx("Data[A-Z]");
+			const bool isDataValue = rx.exactMatch(fieldName);
+
+			/*
+			 * Store the possibilities for better error detection.
+			 */
+			QStringList possibilities;
 
 			for (int j = 0; j < allFields.size(); ++j)
 			{
 				const QString checkingFieldname = allFields[i];
 
-				if (checkingFieldname.startsWith(fieldNameCut))
+				if ((!isDataValue && checkingFieldname.startsWith(fieldNameCut)) || (isDataValue && checkingFieldname == "Data"))
 				{
+					possibilities << checkingFieldname;
+
 					/*
 					 * Make sure that the rest of the field name is only another level value.
 					 */
-					if (fieldNameCut.size() < checkingFieldname.size())
+					if (!isDataValue && fieldNameCut.size() < checkingFieldname.size())
 					{
 						const QString checkingSuffix = checkingFieldname.mid(fieldNameCut.size());
+						// Since the size is samller, it cannot be empty.
+						const QRegExp regExLevel("[0-9]+");
 
-						if (!checkingSuffix.isEmpty())
+						/*
+						 * If it is not an integer, the field name does not match this one.
+						 */
+						if (!regExLevel.exactMatch(checkingSuffix))
 						{
-							bool checkingOk = false;
-							checkingSuffix.toInt(&checkingOk);
+							continue;
+						}
+					}
+					/*
+					 * Make sure that the data value is for the specific object ID.
+					 */
+					else if (isDataValue)
+					{
+						const int row = j + 1;
+						const QStringList useSpecific = this->metaData()->value(row, "useSpecific").split(',');
 
-							/*
-							* If it is not an integer, the field name does not match this one.
-							*/
-							if (!checkingOk)
-							{
-								continue;
-							}
+						/*
+						 * If the standard object ID is not part of the use specific column for the field, the data value is not for this object.
+						 */
+						if (!useSpecific.contains(originalObjectId))
+						{
+							continue;
 						}
 					}
 
@@ -1555,7 +1576,7 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 
 			if (fieldIndex == -1)
 			{
-				errors.push_back(QString("Missing field by name \"" + fieldNameCut + "\" with full field name \"" + fieldName + "\""));
+				errors.push_back(QString("Missing field by name \"" + fieldNameCut + "\" with full field name \"" + fieldName + "\". Checked possibilities with insufficient conditions \"" + possibilities.join(',') + "\""));
 
 				break;
 			}
