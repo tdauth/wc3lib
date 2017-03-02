@@ -574,7 +574,7 @@ bool ObjectData::fieldModificiation(const QString& originalObjectId, const QStri
 	return true;
 }
 
-bool ObjectData::hasFieldCustomValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level ) const
+bool ObjectData::hasFieldCustomValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level) const
 {
 	const ObjectId objectId(originalObjectId, customObjectId);
 	const Objects::const_iterator iterator = this->m_objects.find(objectId);
@@ -598,14 +598,14 @@ bool ObjectData::hasFieldValue(const QString &originalObjectId, const QString &c
 	{
 		const FieldId fieldIdKey(fieldId, level);
 
-		return iterator->find(fieldIdKey) != iterator->end();
-	}
-	else
-	{
-		return hasDefaultFieldValue(originalObjectId, fieldId, level);
+		if (iterator->find(fieldIdKey) != iterator->end())
+		{
+			return true;
+		}
 	}
 
-	return false;
+	// Otherwise return the default value from Warcraft III.
+	return hasDefaultFieldValue(originalObjectId, fieldId, level);
 }
 
 QString ObjectData::fieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level) const
@@ -616,13 +616,9 @@ QString ObjectData::fieldValue(const QString &originalObjectId, const QString &c
 	{
 		return valueToString(modification.value());
 	}
-	// Otherwise return the default value from Warcraft III
-	else
-	{
-		return this->defaultFieldValue(originalObjectId, fieldId, level);
-	}
 
-	return "";
+	// Otherwise return the default value from Warcraft III.
+	return this->defaultFieldValue(originalObjectId, fieldId, level);
 }
 
 QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QString& customObjectId, const QString& fieldId, int level) const

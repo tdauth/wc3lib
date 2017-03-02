@@ -50,7 +50,7 @@ ObjectData::StandardObjecIds ItemData::standardObjectIds() const
 	return result;
 }
 
-ObjectData::MetaDataList ItemData::resolveDefaultField(const QString& objectId, const QString& fieldId, int level) const
+ObjectData::MetaDataList ItemData::resolveDefaultField(const QString &objectId, const QString &fieldId, int level) const
 {
 	MetaDataList result;
 
@@ -66,6 +66,10 @@ ObjectData::MetaDataList ItemData::resolveDefaultField(const QString& objectId, 
 		{
 			result.push_back(this->itemFunc());
 			result.push_back(this->itemStrings());
+		}
+		else
+		{
+			qDebug() << "Unknown SLK " << slk << " for field " << fieldId << "for object" << objectId;
 		}
 	}
 	else
