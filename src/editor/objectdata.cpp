@@ -1525,12 +1525,13 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 			 * Store the possibilities for better error detection.
 			 */
 			QStringList possibilities;
+			const QString hint = isDataValue ? "Detected data value." : "Normal value";
 
 			for (int j = 0; j < allFields.size(); ++j)
 			{
 				const QString checkingFieldname = allFields[i];
 
-				if ((!isDataValue && checkingFieldname.startsWith(fieldNameCut)) || (isDataValue && checkingFieldname == "Data"))
+				if ((!isDataValue && checkingFieldname.startsWith(fieldNameCut)) || (isDataValue && checkingFieldname == "data"))
 				{
 					possibilities << checkingFieldname;
 
@@ -1576,7 +1577,7 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 
 			if (fieldIndex == -1)
 			{
-				errors.push_back(QString("Missing field by name \"" + fieldNameCut + "\" with full field name \"" + fieldName + "\". Checked possibilities with insufficient conditions \"" + possibilities.join(',') + "\""));
+				errors.push_back(QString("Missing field by name \"" + fieldNameCut + "\" with full field name \"" + fieldName + "\". Hint: \"" + hint + "\". Checked possibilities with insufficient conditions \"" + possibilities.join(',') + "\""));
 
 				break;
 			}
