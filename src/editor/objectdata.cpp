@@ -1518,7 +1518,10 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 			 * TODO handle DataA1 and DataB1 etc. differently. Check the column useSpecific of all possible data values.
 			 */
 			const QString fieldNameCut = fieldName.mid(0, levelIndex);
-			const QRegExp rx("Data[A-Z]");
+			/*
+			 * Always use lower case.
+			 */
+			const QRegExp rx("data[a-z]");
 			const bool isDataValue = rx.exactMatch(fieldName);
 
 			/*
