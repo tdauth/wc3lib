@@ -572,7 +572,21 @@ bool ObjectData::fieldModificiation(const QString& originalObjectId, const QStri
 	modification = iterator2.value();
 
 	return true;
+}
 
+bool ObjectData::hasFieldCustomValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level ) const
+{
+	const ObjectId objectId(originalObjectId, customObjectId);
+	const Objects::const_iterator iterator = this->m_objects.find(objectId);
+
+	if (iterator != this->m_objects.end())
+	{
+		const FieldId fieldIdKey(fieldId, level);
+
+		return iterator->find(fieldIdKey) != iterator->end();
+	}
+
+	return false;
 }
 
 bool ObjectData::hasFieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level) const
@@ -1697,7 +1711,9 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 				}
 			}
 
-			errors.push_back(QString("Missing field \"" + reference + "\" from object " + originalObjectId + ":" + customObjectId + " using field ID \"" + fieldId + "\" and field level " + QString::number(fieldLevel) + " Existing modifications: " + modificationsStringList.join(", ")));
+			const QString isCustomModification = hasFieldCustomValue(originalObjectId, customObjectId, fieldId, fieldLevel) ? "Custom" : "Original" ;
+
+			errors.push_back(QString("Missing field \"" + reference + "\" from object " + originalObjectId + ":" + customObjectId + " using field ID \"" + fieldId + "\" and field level " + QString::number(fieldLevel) + ", Type: " + isCustomModification + ", Existing modifications: " + modificationsStringList.join(", ")));
 		}
 	}
 

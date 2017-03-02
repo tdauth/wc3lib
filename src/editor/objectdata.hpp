@@ -377,6 +377,10 @@ class ObjectData : public QObject
 		 * \sa isFieldModified()
 		 */
 		bool fieldModificiation(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, map::CustomObjects::Modification &modification, int level = 0) const;
+		/**
+		 * \return Returns only true if the field value has been modified and does not use the default field value of the original object.
+		 */
+		bool hasFieldCustomValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level = 0) const;
 		bool hasFieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level = 0) const;
 		QString fieldValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level = 0) const;
 		QString fieldReadableValue(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level = 0) const;
