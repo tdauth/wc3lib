@@ -561,7 +561,7 @@ bool ObjectData::fieldModificiation(const QString& originalObjectId, const QStri
 		return false;
 	}
 
-	FieldId fieldIdKey(fieldId, level);
+	const FieldId fieldIdKey(fieldId, level);
 	Modifications::const_iterator iterator2 = iterator.value().find(fieldIdKey);
 
 	if (iterator2 == iterator.value().end())
@@ -582,7 +582,7 @@ bool ObjectData::hasFieldValue(const QString &originalObjectId, const QString &c
 
 	if (iterator != this->m_objects.end())
 	{
-		FieldId fieldIdKey(fieldId, level);
+		const FieldId fieldIdKey(fieldId, level);
 
 		return iterator->find(fieldIdKey) != iterator->end();
 	}
@@ -1490,9 +1490,24 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 
 				for (ObjectData *data : objectData)
 				{
+					/*
+					 * Add all object IDs of the sub object data.
+					 */
+					QStringList objectIds;
+
+					for (const QString &standardObjectId : data->standardObjectIds())
+					{
+						objectIds.push_back(standardObjectId);
+					}
+
 					for (Objects::key_type key : data->objects().keys())
 					{
-						if (key.originalObjectId() == objectId || key.customObjectId() == objectId)
+						objectIds.push_back(key.customObjectId());
+					}
+
+					for (const QString &checkingObjectId : objectIds)
+					{
+						if (checkingObjectId == objectId)
 						{
 							const QStringList subErrors = data->validateTooltipReference(reference, allFields, false);
 
