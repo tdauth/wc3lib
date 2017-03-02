@@ -1298,13 +1298,20 @@ QString ObjectData::baseOfCustomObjectId(const QString &customObjectId) const
 
 QStringList ObjectData::validateTooltipReferences()
 {
+	if (this->metaData() == nullptr || this->metaData()->textSource() == nullptr)
+	{
+		qDebug() << "Load meta data before validating.";
+
+		return QStringList();
+	}
+
 	qDebug() << "Validating object data:";
 
 	QStringList allFields;
 
 	for (int i = 1; i < metaData()->rows(); ++i)
 	{
-		allFields << this->metaData()->value(i, "field").toLower(); // TODO is it case sensitive?
+		allFields.push_back(this->metaData()->value(i, "field").toLower()); // TODO is it case sensitive?
 	}
 
 	qDebug() << "Got" << allFields.size() << "fields";
@@ -1532,8 +1539,8 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 
 			for (int j = 0; j < allFields.size(); ++j)
 			{
-				const QString checkingFieldname = allFields[i];
-				possibilities << checkingFieldname;
+				const QString checkingFieldname = allFields[j];
+				possibilities.push_back(checkingFieldname);
 
 				if ((!isDataValue && checkingFieldname.startsWith(fieldNameCut)) || (isDataValue && checkingFieldname == "data"))
 				{
@@ -1590,7 +1597,7 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 
 			if (fieldIndex == -1)
 			{
-				errors.push_back(QString("Missing field by name \"" + fieldNameCut + "\" with full field name \"" + fieldName + "\". Hint: \"" + hint + "\". Checked possibilities with insufficient conditions \"" + possibilities.join(',') + "\""));
+				errors.push_back(QString("Missing field by name \"" + fieldNameCut + "\" with full field name \"" + fieldName + "\". Hint: \"" + hint + "\". Checked possibilities with insufficient conditions \"" + possibilities.join(", ") + "\""));
 
 				break;
 			}
