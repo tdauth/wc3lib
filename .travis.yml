@@ -4,12 +4,6 @@ compiler:
   - clang
 os:
   - linux
-before_install:
-  # install a newer cmake since at this time Travis only has version 2.8.7
-  - yes | sudo add-apt-repository ppa:kalakris/cmake
-  - sudo apt-get update -qq
-
-install: sudo apt-get install cmake
 
 script:
   - mkdir build
@@ -19,7 +13,9 @@ addons:
   apt:
     sources:
       - boost-latest
+      - kalakris-cmake
      # - debian-sid
     packages:
+      - cmake
       - libboost1.55-all-dev
      # - qt5-default
