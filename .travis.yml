@@ -21,7 +21,7 @@ script:
 script:
   - mkdir build
   - cd build
-  - cmake -DEDITOR=0 -USE_KIOSLAVE=0 -DUSE_QBLP=0 -DUSE_OGREBLP=0 -DCMAKE_BUILD_TYPE=Debug .. && make && cpack .
+  - cmake -DEDITOR=0 -USE_KIOSLAVE=0 -DUSE_QBLP=0 -DUSE_OGREBLP=0 -DUSE_MIME=0 -DCMAKE_BUILD_TYPE=Debug .. && make && cpack .
 addons:
   apt:
     sources:
