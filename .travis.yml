@@ -1,9 +1,22 @@
 language: cpp
-compiler:
-  - gcc
-  - clang
-os:
-  - linux
+compiler: clang
+addons:
+  apt:
+    sources:
+      - george-edison55-precise-backports
+    packages:
+      - cmake-data
+      - cmake
+      - valgrind
+      - libboost-all-dev
+      - gettext
+
+script:
+     - mkdir -p build
+     - cd build
+     - cmake -DCMAKE_BUILD_TYPE=Coverage ../
+     - make
+     - ctest
 
 script:
   - mkdir build
