@@ -1,5 +1,7 @@
 language: cpp
-compiler: clang
+compiler:
+  - gcc
+  - clang
 addons:
   apt:
     sources:
