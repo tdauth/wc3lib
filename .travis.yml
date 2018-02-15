@@ -21,14 +21,15 @@ script:
 script:
   - mkdir build
   - cd build
-  - cmake -DEDITOR=0 -USE_KIOSLAVE=0 -DUSE_QBLP=0 -DUSE_OGREBLP=0 -DUSE_MIME=0 -DCMAKE_BUILD_TYPE=Debug .. && make && cpack .
+  - cmake -DEDITOR=0 -DUSE_KIOSLAVE=0 -DUSE_QBLP=0 -DUSE_OGREBLP=0 -DUSE_MIME=0 -DCMAKE_BUILD_TYPE=Debug ..
+  - make
+  - cpack .
+  - ctest
 addons:
   apt:
     sources:
       - boost-latest
       - kalakris-cmake
-     # - debian-sid
     packages:
       - cmake
       - libboost1.55-all-dev
-     # - qt5-default
