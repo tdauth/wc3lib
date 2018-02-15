@@ -42,21 +42,28 @@ The files contain graphics driver information required by OGRE.
 Otherwise, the 3D display won't work.
 
 ### Windows
-* CMAKE_BUILD_TYPE = Release, to prevent too big files as well.
+The project has been built on Windows 7 with the following environment:
+* Cygwin has been installed into the directory `E:\cygwin`.
+* Qt has been installed into the directory `C:\Qt\`.
+* Boost has been checked out into the directory `E:\Projekte\boost_1_61_0`.
+* wc3lib has been checked out into the directory `E:\Projekte\wc3lib`.
+
+The following steps have been required:
+* Use `CMAKE_BUILD_TYPE=Release`, to prevent too big files as well.
 * Don't use MDLX (32 bit error too big files) and don't use JASS. Use 64 bit libraries of Qt5 and the cygwin 64 bit GCC compiler.
 * Compile Boost libraries using gcc which uses the Cygwin compiler.
-* Use Qt libraries from Cygwin as well. Qt5Core_DIR E:/cygwin/lib/cmake/Qt5Core
-* Either use "C:/Qt/Tools/mingw530_32/bin/mingw32-make.exe" as Make program or use the one of Cygwin but then you have to use Bash as shell which cannot be set for CMake.
+* Use Qt libraries from Cygwin as well. Qt5Core_DIR `E:/cygwin/lib/cmake/Qt5Core`
+* Either use `C:/Qt/Tools/mingw530_32/bin/mingw32-make.exe` as Make program or use the one of Cygwin but then you have to use Bash as shell which cannot be set for CMake.
 * Symbolic link E:\cygwin\usr\lib to E:\cygwin\lib, otherwise CMake does not find the files.
 * For MinGW: http://www.boost.org/doc/libs/1_61_0/more/getting_started/windows.html
-* In the cygwin Bash: export PATH="/cygdrive/c/Qt/Tools/mingw530_32/bin/:$PATH"
+* In the cygwin Bash: `export PATH="/cygdrive/c/Qt/Tools/mingw530_32/bin/:$PATH"`
 * Make sure that the correct GCC is chosen: which gcc.exe
-* Correct: ./b2.exe -j4 toolset=gcc --with-iostreams -s BZIP2_SOURCE=E:/Projekte/wc3lib/windows/bzip2-1.0.6 -s ZLIB_SOURCE=E:/Projekte/wc3lib/windows/zlib-1.2.8 stage
-* Then: ./b2.exe -j4 toolset=gcc stage
+* Correct: `./b2.exe -j4 toolset=gcc --with-iostreams -s BZIP2_SOURCE=E:/Projekte/wc3lib/windows/bzip2-1.0.6 -s ZLIB_SOURCE=E:/Projekte/wc3lib/windows/zlib-1.2.8 stage`
+* Then: `./b2.exe -j4 toolset=gcc stage`
 * Then replace cyg by lib?
-* ./b2.exe -j4 toolset=gcc stage --with-iostreams -s BZIP2_SOURCE=E:\Projekte\wc3lib\windows\bzip2-1.0.6 -s ZLIB_SOURCE=E:\Projekte\wc3lib\windows\zlib-1.2.8
-* ./b2.exe -j4 toolset=gcc stage --with-iostreams -s BZIP2_BINARY=libbz2 -s BZIP2_INCLUDE=/cygdrive/e/Projekte/wc3lib/windows/include -s BZIP2_LIBPATH=/cygdrive/e/Projekte/wc3lib/windows/lib -s ZLIB_BINARY=zlib -s ZLIB_INCLUDE=/cygdrive/e/Projekte/wc3lib/windows/include -s ZLIB_LIBPATH=/cygdrive/e/Projekte/wc3lib/windows/lib (--build-type=complete --layout=tagged) The cyg prefix has to be removed afterwards.
-* Use "E:\Projekte\boost_1_61_0\stage\lib" as Boost_LIBRARYDIR
+* `./b2.exe -j4 toolset=gcc stage --with-iostreams -s BZIP2_SOURCE=E:\Projekte\wc3lib\windows\bzip2-1.0.6 -s ZLIB_SOURCE=E:\Projekte\wc3lib\windows\zlib-1.2.8`
+* `./b2.exe -j4 toolset=gcc stage --with-iostreams -s BZIP2_BINARY=libbz2 -s BZIP2_INCLUDE=/cygdrive/e/Projekte/wc3lib/windows/include -s BZIP2_LIBPATH=/cygdrive/e/Projekte/wc3lib/windows/lib -s ZLIB_BINARY=zlib -s ZLIB_INCLUDE=/cygdrive/e/Projekte/wc3lib/windows/include -s ZLIB_LIBPATH=/cygdrive/e/Projekte/wc3lib/windows/lib (--build-type=complete --layout=tagged)`. The cyg prefix has to be removed afterwards.
+* Use `E:\Projekte\boost_1_61_0\stage\lib` as Boost_LIBRARYDIR
 
 ### Windows Builds on Fedora (cross compilation)
 Fedora offers prebuilt mingw packages which can be used. On Jenkins the following CMake options are passed:
@@ -67,7 +74,13 @@ cmake -DBLP=${BLP} -DMAP=${MAP} -DMPQ=${MPQ} -DMDLX=${MDLX} -DEDITOR=${EDITOR} -
 The "windows" folder contains a custom CMakeLists.txt file for the Windows build project. Use the toolchain file to
 specify the mingw compiler from Fedora.
 
-## Architecture
+## Specifications
+There is several unoffical specifications for the formats of Warcraft III:
+* [MDX Specification](https://www.hiveworkshop.com/threads/mdx-specifications.240487/)
+* [BLP Specification](https://www.hiveworkshop.com/threads/blp-specifications-wc3.279306/)
+* [Warcraft III Trigger Format Specification](https://www.hiveworkshop.com/threads/warcraft-3-trigger-format-specification-wtg.294491/)
+
+## Software Architecture
 The project consists of several libraries.
 Each library has its own directory in [src](./src).
 
@@ -90,6 +103,9 @@ http://www.ogre3d.org/forums/viewtopic.php?f=2&t=91620
 
 The JASS and the MDLX modules are unfinished at the moment.
 Just disable them in the CMake options.
+
+## Related Projects
+* [StormLib](https://github.com/ladislav-zezula/StormLib)
 
 ## Credits
 wc3lib maintainer:
