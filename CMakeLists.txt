@@ -39,10 +39,6 @@ option(BLP
 option(JASS
 	"JASS module supports Blizzard's scripting language JASS. It provides an abstract parser interface for the scripting language."
 	OFF)
-CMAKE_DEPENDENT_OPTION(JASS_LLVM
-	"Builds LLVM bindings for the JASS module."
-	OFF
-	"JASS" OFF) # TODO Unfinished at the moment
 option(MAP
 	"Builds map module. Required by option EDITOR."
 	ON)
@@ -61,7 +57,7 @@ CMAKE_DEPENDENT_OPTION(EDITOR
         "BLP;MAP;MPQ" OFF)
 CMAKE_DEPENDENT_OPTION(USE_KIOSLAVE
 	"Creates a KIO slave for MPQ (KF5 is required)."
-	ON
+	OFF
 	"MPQ" OFF)
 CMAKE_DEPENDENT_OPTION(USE_QBLP
 	"Creates a Qt image format plugin for BLP."
@@ -69,7 +65,7 @@ CMAKE_DEPENDENT_OPTION(USE_QBLP
 	"BLP" OFF)
 CMAKE_DEPENDENT_OPTION(USE_OGREBLP
 	"Creates a OGRE image format plugin for BLP (OGRE is required)."
-	ON
+	OFF
 	"BLP" OFF)
 option(USE_MIME
 	"Installs MIME types (KF5 is required)"

@@ -49,10 +49,6 @@ if (JASS)
 		add_subdirectory(test)
 	endif ()
 
-	if (JASS_LLVM)
-		add_subdirectory(llvm)
-	endif ()
-
 	# install
 	install(TARGETS wc3libjass DESTINATION lib)
 	install(FILES ${wc3lib_JASS_H} DESTINATION include/wc3lib/jass)

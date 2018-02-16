@@ -3,23 +3,34 @@
 The Warcraft III Library is a collection of libraries for supporting the file formats of Blizzard's games Warcraft III: Reign of Chaos and Warcraft III: The Frozen Throne.
 Additionally, the project provides some useful applications for modifying the game.
 Please consider that this version is NEITHER stable NOR usable yet!
+The API documentation of the code contains much more information about the project than this overview.
 
 ## Dependencies
+The project requires several external libraries.
+To reduce the dependencies just disable certain options.
+For example, you can build the project without requiring OGRE and KF5 KIO by disabling the options `MDLX`, `USE_KIOSLAVE` and `USE_OGREBLP`.
+These are the libraries required by the core modules:
 * Boost Libraries: system filesystem serialization program_options iostreams unit_test_framework timer
-* libjpeg9-dev (option `BLP`)
-* bzip2 (option `MPQ`)
-* zlib (option `MPQ`)
-* Doxygen (option `DOC`)
+* libjpeg9-dev (only when the option `BLP` is enabled)
+* bzip2 (only when the option `MPQ` is enabled)
+* zlib (only when the option `MPQ` is enabled)
+* Doxygen (only when the option `DOC` is enabled)
 
-Options `EDITOR` and `USE_KIOSLAVE`, `USE_QBLP` and `USE_OGREBLP`:
+Options `EDITOR`, `USE_KIOSLAVE`, `USE_QBLP`, `USE_OGREBLP` and `USE_MIME`:
 * qt5-qtbase-devel
 * qt5-qtgui-devel
 * qt5-qtmultimedia-devel
-* kf5-kio-devel
-* OGRE 1.9.0
+* kf5-kio-devel (only when the options `MPQ` and `USE_KIOSLAVE` are enabled)
+* OGRE 1.9.0 (only when the options `BLP` and `USE_OGREBLP` are enabled)
+
+The editor module can be disabled by disabling the options `EDITOR`, `USE_KIOSLAVE`, `USE_QBLP`, `USE_OGREBLP` and `USE_MIME`.
+In this case only the core modules and command line tools will be available.
 
 ## Automatic Build with TravisCI
 [![Build Status](https://travis-ci.org/tdauth/wc3lib.svg?branch=master)](https://travis-ci.org/tdauth/wc3lib)
+
+## Automatic Windows Build with AppVeyor
+The file [appveyor.yml](./appveyor.yml) configures the automatic build for AppVeyor which uses Windows.
 
 ## Manual Build
 For all available compile flags/options configure via cmake please and you'll get all options with their corresponding descriptions.
