@@ -30,6 +30,8 @@ In this case only the core modules and command line tools will be available.
 [![Build Status](https://travis-ci.org/tdauth/wc3lib.svg?branch=master)](https://travis-ci.org/tdauth/wc3lib)
 
 ## Automatic Windows Build with AppVeyor
+[Latest Build](https://ci.appveyor.com/project/tdauth/wc3lib)
+
 The file [appveyor.yml](./appveyor.yml) configures the automatic build for AppVeyor which uses Windows.
 
 ## Manual Build
