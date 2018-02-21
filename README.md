@@ -87,6 +87,64 @@ cmake -DBLP=${BLP} -DMAP=${MAP} -DMPQ=${MPQ} -DMDLX=${MDLX} -DEDITOR=${EDITOR} -
 The "windows" folder contains a custom CMakeLists.txt file for the Windows build project. Use the toolchain file to
 specify the mingw compiler from Fedora.
 
+## Tools
+wc3lib provides several tool applications which might help to modify Warcraft III.
+The source code for the command line tools is placed in the directory [src/app](./src/app).
+The source code for the GUI tools is placed in the directory [src/editor/app](./src/editor/app).
+
+TODO Some tools do still not work yet since some modules are unfinished.
+
+### mpq
+This tool allows extracting MPQ archives.
+
+The following command extracts all files from the archive `war3.mpq`:
+```
+mpq -x war3.mpq
+```
+
+The following command lists all files from the archive `war3.mpq`:
+```
+mpq -t war3.mpq
+```
+
+### wc3converter
+This tool allows converting files with Warcraft III formats.
+
+The following command converts the MDL file `MyModel.mdl` into the MDX file `MyModel.mdx`:
+```
+wc3converter MyModel.mdx MyModel.mdl
+```
+TODO MDL and MDX parsing and generating might not be fully supported yet.
+
+### wc3trans
+This tool allows to generate map string files (.wts) for translating maps into different languages.
+
+The following command uses the untranslated and translated file versions to create an updated translated file from another map which uses similar strings:
+```
+wc3trans MyUntranslatedFileA.wts MyTranslatedFileA.wts MyTranslatedFileBWhichNeedsAnUpdate.wts MyOutputUpdatedTranslatedFileB.wts
+```
+
+The following command updates the translated file from the same map:
+```
+wc3trans --update MyUntranslatedFileA.wts MyTranslatedFileA.wts MyTranslatedFileA.wts MyOutputUpdatedTranslatedFileA.wts
+```
+It drops all string entries which are not used in the untranslated file anymore.
+
+### wc3object
+A standalone application similar to the World Editor's Object Editor.
+
+### wc3trigger
+A standalone application similar to the World Editor's Trigger Editor.
+
+### wc3mpq
+A standalone application which allows the modification of MPQ archives.
+
+### wc3texture
+A standalone application which allows the modification of BLP textures.
+
+### wc3editor
+Combines all standalone GUI applications to a single application similar to the World Editor.
+
 ## Specifications
 There is several unoffical specifications for the formats of Warcraft III:
 * [MDX Specification](https://www.hiveworkshop.com/threads/mdx-specifications.240487/)
@@ -96,6 +154,12 @@ There is several unoffical specifications for the formats of Warcraft III:
 ## Software Architecture
 The project consists of several libraries.
 Each library has its own directory in [src](./src).
+
+### BLP module
+The BLP module allows to read and write BLP files.
+
+### Map module
+The map module allows to read and write TXT, SLK, TriggerData.txt files etc.
 
 ## Unit Tests
 Define environment variable `WC3_DIR` to the Warcraft III directory to make some Unit Tests work.
