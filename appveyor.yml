@@ -38,7 +38,7 @@ before_build:
     mkdir build
     cd build
     cmake --version
-    cmake .. -G %generator% -DMDLX=0 -DUSE_KIOSLAVE=0 -DUSE_OGREBLP=0 -DJPEG_INCLUDE_DIR="C:\projects\wc3lib\libjpeg.9.2.0.1\build\native\include" -DJPEG_LIBRARY="C:\projects\wc3lib\libjpeg.9.2.0.1\build\native\lib\v120\x64\Debug\dynamic" -DBOOST_ROOT="C:\projects\wc3lib\boost.1.66.0.0"
+    cmake .. -G %generator% -DMDLX=0 -DUSE_KIOSLAVE=0 -DUSE_OGREBLP=0 -DJPEG_INCLUDE_DIR="C:\projects\wc3lib\libjpeg.9.2.0.1\build\native\include" -DJPEG_LIBRARY="C:\projects\wc3lib\libjpeg.9.2.0.1\build\native\lib\v120\x64\Debug\dynamic" -DBZIP2_INCLUDE_DIR="C:\projects\wc3lib\bzip2.1.0.6.11\build\native\include" -DBZIP2_LIBRARIES="C:\projects\wc3lib\bzip2.1.0.6.11\build\native\lib\v100\x64\Debug\dynamic\stdcall\libbz2.lib" -DBOOST_ROOT="C:\projects\wc3lib\boost.1.66.0.0" -DBOOST_INCLUDEDIR="C:\projects\wc3lib\boost.1.66.0.0\lib\native\include"
 build:
   project: c:\projects\wc3lib\build\template.sln
   verbosity: minimal
