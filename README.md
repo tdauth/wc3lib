@@ -150,6 +150,7 @@ There is several unoffical specifications for the formats of Warcraft III:
 * [MDX Specification](https://www.hiveworkshop.com/threads/mdx-specifications.240487/)
 * [BLP Specification](https://www.hiveworkshop.com/threads/blp-specifications-wc3.279306/)
 * [Warcraft III Trigger Format Specification](https://www.hiveworkshop.com/threads/warcraft-3-trigger-format-specification-wtg.294491/)
+* [vJass Specification](http://www.wc3c.net/vexorian/jasshelpermanual.html)
 
 ## Software Architecture
 The project consists of several libraries.
@@ -182,7 +183,9 @@ The JASS and the MDLX modules are unfinished at the moment.
 Just disable them in the CMake options.
 
 ## Related Projects
-* [StormLib](https://github.com/ladislav-zezula/StormLib)
+* [StormLib](https://github.com/ladislav-zezula/StormLib) - C library for the modification of MPQ archives.
+* [inwarcraft collective](https://github.com/inwc3) - Collection of repositories related to Warcraft III modding.
+* [JassHelper](http://www.wc3c.net/showthread.php?t=88142) - A compiler which compiles vJass code into JASS code.
 
 ## Credits
 wc3lib maintainer:
