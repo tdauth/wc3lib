@@ -18,9 +18,9 @@ matrix:
   fast_finish: true
 
 install:
-  - nuget install libjpeg
+  - nuget install libjpeg -Version 9.2.0.1
   - nuget install bzip2
-  - nuget install boost
+  - nuget install boost -Version 1.66.0
   
 # skip unsupported combinations
 init:
@@ -34,10 +34,11 @@ init:
 before_build:
 - cmd: |-
     dir /ad /b /s
+    dir /a-d /b /s
     mkdir build
     cd build
     cmake --version
-    cmake .. -G %generator% -DMDLX=0 -DUSE_KIOSLAVE=0 -DUSE_OGREBLP=0
+    cmake .. -G %generator% -DMDLX=0 -DUSE_KIOSLAVE=0 -DUSE_OGREBLP=0 -DJPEG_INCLUDE_DIR="C:\projects\wc3lib\libjpeg.9.2.0.1\build\native\include" -DJPEG_LIBRARY="C:\projects\wc3lib\libjpeg.9.2.0.1\build\native\lib\v120\x64\Debug\dynamic" -DBOOST_ROOT="C:\projects\wc3lib\boost.1.66.0.0"
 build:
   project: c:\projects\wc3lib\build\template.sln
   verbosity: minimal
