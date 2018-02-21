@@ -48,16 +48,12 @@ set(wc3lib_CORE_SRC
 )
 
 if (EDITOR OR USE_KIOSLAVE OR USE_QBLP OR USE_OGREBLP)
-	include_directories(${CMAKE_CURRENT_BINARY_DIR}/editor) # include binary dir since the KDE configuration class will be generated there and has to be included (also include for moc cxx files)
+	# include binary dir since the KDE configuration class will be generated there and has to be included (also include for moc cxx files)
+	include_directories(${CMAKE_CURRENT_BINARY_DIR}/editor)
 endif ()
 
 add_library(wc3libcore ${wc3lib_CORE_SRC})
 target_link_libraries(wc3libcore ${Boost_LIBRARIES})
-
-# TODO Temporary fix
-if (WIN32)
-    #target_link_libraries(wc3libcore "C:/Program Files/GnuWin32/lib/libintl.dll.a")
-endif ()
 
 if (DEBUG)
 	add_subdirectory(test)

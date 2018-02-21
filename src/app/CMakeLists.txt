@@ -38,10 +38,6 @@ endif ()
 if (MPQ)
 	add_executable(mpq mpq.cpp)
 	target_link_libraries(mpq ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
-	# TODO fix StormLib version
-	#if (DEBUG)
-	#	target_link_libraries(mpq StormLib)
-	#endif ()
 	install(TARGETS mpq DESTINATION bin)
 endif ()
 
