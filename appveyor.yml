@@ -33,6 +33,7 @@ init:
 
 before_build:
 - cmd: |-
+    dir /ad /b /s
     mkdir build
     cd build
     cmake --version
