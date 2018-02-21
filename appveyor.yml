@@ -17,6 +17,11 @@ environment:
 matrix:
   fast_finish: true
 
+install:
+  - nuget install libjpeg
+  - nuget install bzip2
+  - nuget install boost
+  
 # skip unsupported combinations
 init:
 - set arch=
