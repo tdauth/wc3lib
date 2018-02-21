@@ -30,6 +30,16 @@
 using namespace wc3lib;
 using namespace wc3lib::map;
 
+namespace
+{
+
+inline std::string usageString()
+{
+	return _("Usage: wc3trans [options] <untranslated source war3map.wts file> <translated version of the source file> <another war3map.wts file to be updated> <output file path>");
+}
+
+}
+
 /**
  * Loads a war3map.wts file and a translated version of it.
  * Checks in a third war3map.wts file which entries are the same as in the first one and gets the corresponding translations from the second one.
@@ -78,7 +88,7 @@ int main(int argc, char *argv[])
 	{
 		std::cerr << boost::format(_("Error while parsing program options: \"%1%\"")) % exception.what() << std::endl;
 
-		std::cerr << boost::format(_("Usage: %1% <input original war3map.wts> <input translated war3map.wts of original> <input untranslated war3map.wts of another map> <output file wts file>")) % argv[0] << std::endl;
+		std::cerr << usageString() << std::endl;
 
 		return EXIT_FAILURE;
 	}
@@ -102,7 +112,7 @@ int main(int argc, char *argv[])
 
 	if (vm.count("help"))
 	{
-		std::cout << _("Usage: wc3trans [options] <untranslated source war3map.wts file> <translated version of the source file> <another war3map.wts file to be updated> <output file path>") << std::endl << std::endl;
+		std::cout << usageString() << std::endl << std::endl;
 		std::cout << desc << std::endl;
 		std::cout << _("\nReport bugs to tamino@cdauth.eu or on https://wc3lib.org") << std::endl;
 
