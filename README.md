@@ -26,15 +26,15 @@ Options `EDITOR`, `USE_KIOSLAVE`, `USE_QBLP`, `USE_OGREBLP` and `USE_MIME`:
 The editor module can be disabled by disabling the options `EDITOR`, `USE_KIOSLAVE`, `USE_QBLP`, `USE_OGREBLP` and `USE_MIME`.
 In this case only the core modules and command line tools will be available.
 
-## Automatic Build with TravisCI
+## Automatic Build with TravisCI on Linux
 [![Build Status](https://travis-ci.org/tdauth/wc3lib.svg?branch=master)](https://travis-ci.org/tdauth/wc3lib)
 
-## Automatic Windows Build with AppVeyor
+## Automatic Windows Build with AppVeyor on Windows
 [Latest Build](https://ci.appveyor.com/project/tdauth/wc3lib)
 
 The file [appveyor.yml](./appveyor.yml) configures the automatic build for AppVeyor which uses Windows.
 
-## Manual Build
+## Manual Build on Linux
 For all available compile flags/options configure via cmake please and you'll get all options with their corresponding descriptions.
 To build the wc3lib change into the wc3lib directory and run:
 ```
@@ -54,7 +54,7 @@ Don't forget to place the files `ogre.cfg` and `plugins.cfg` files into working 
 The files contain graphics driver information required by OGRE.
 Otherwise, the 3D display won't work.
 
-### Windows
+## Manual Build on Windows
 The project has been built on Windows 7 with the following environment:
 * Cygwin has been installed into the directory `E:\cygwin`.
 * Qt has been installed into the directory `C:\Qt\`.
@@ -78,7 +78,7 @@ The following steps have been required:
 * `./b2.exe -j4 toolset=gcc stage --with-iostreams -s BZIP2_BINARY=libbz2 -s BZIP2_INCLUDE=/cygdrive/e/Projekte/wc3lib/windows/include -s BZIP2_LIBPATH=/cygdrive/e/Projekte/wc3lib/windows/lib -s ZLIB_BINARY=zlib -s ZLIB_INCLUDE=/cygdrive/e/Projekte/wc3lib/windows/include -s ZLIB_LIBPATH=/cygdrive/e/Projekte/wc3lib/windows/lib (--build-type=complete --layout=tagged)`. The cyg prefix has to be removed afterwards.
 * Use `E:\Projekte\boost_1_61_0\stage\lib` as Boost_LIBRARYDIR
 
-### Windows Builds on Fedora (cross compilation)
+## Windows Builds on Fedora (cross compilation)
 Fedora offers prebuilt mingw packages which can be used. On Jenkins the following CMake options are passed:
 ```
 cmake -DBLP=${BLP} -DMAP=${MAP} -DMPQ=${MPQ} -DMDLX=${MDLX} -DEDITOR=${EDITOR} -DAPP=${APP} -DDOC=${DOC} -DCMAKE_TOOLCHAIN_FILE=Toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ../windows
