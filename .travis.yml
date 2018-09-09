@@ -18,8 +18,7 @@ addons:
 script:
      - mkdir -p build
      - cd build
-     - cmake -DEDITOR=0 -DUSE_KIOSLAVE=0 -DUSE_QBLP=0 -DUSE_OGREBLP=0 -DUSE_MIME=0 -DCMAKE_BUILD_TYPE=Debug ../
+     - cmake -DEDITOR=OFF -DUSE_KIOSLAVE=OFF -DUSE_QBLP=OFF -DUSE_OGREBLP=OFF -DUSE_MIME=OFF -DCMAKE_BUILD_TYPE=Debug ../
      - make
      - cpack .
      - ctest -T Test
-     - ctest -T Coverage
