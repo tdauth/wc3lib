@@ -22,7 +22,7 @@ install:
   - nuget install zlib-msvc14-x64 -Version 1.2.11.7795
   - nuget install boost -Version 1.66.0
   - nuget install boost-vc141 -Version 1.66.0
-  
+
 # skip unsupported combinations
 init:
 - set arch=
@@ -39,9 +39,9 @@ before_build:
     mkdir build
     cd build
     cmake --version
-    # ZLIB_LIBRARY ZLIB_INCLUDE_DIR
-    # -DBOOST_INCLUDEDIR="C:\projects\wc3lib\boost.1.66.0.0\lib\native\include"
-    # -DBOOST_ROOT="C:\projects\wc3lib\boost.1.66.0.0"
+    REM ZLIB_LIBRARY ZLIB_INCLUDE_DIR
+    REM -DBOOST_INCLUDEDIR="C:\projects\wc3lib\boost.1.66.0.0\lib\native\include"
+    REM -DBOOST_ROOT="C:\projects\wc3lib\boost.1.66.0.0"
     cmake .. -G %generator% -DMDLX=0 -DUSE_KIOSLAVE=0 -DUSE_OGREBLP=0 -DJPEG_INCLUDE_DIR="C:\projects\wc3lib\libjpeg.9.2.0.1\build\native\include" -DJPEG_LIBRARY="C:\projects\wc3lib\libjpeg.9.2.0.1\build\native\lib\v120\x64\Debug\dynamic" -DBZIP2_INCLUDE_DIR="C:\projects\wc3lib\bzip2.1.0.6.11\build\native\include" -DBZIP2_LIBRARIES="C:\projects\wc3lib\bzip2.1.0.6.11\build\native\lib\v100\x64\Debug\dynamic\stdcall\libbz2.lib" -DBoost_INCLUDE_DIRS="C:\projects\wc3lib\boost.1.66.0.0\lib\native\include" -DBOOST_LIBRARY_DIRS="C:\projects\wc3lib\boost_filesystem-vc141.1.66.0.0\lib\native"
 build:
   project: c:\projects\wc3lib\build\template.sln
