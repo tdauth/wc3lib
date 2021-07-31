@@ -17,6 +17,15 @@ if (BLP AND MPQ AND MDLX AND MAP)
 	install(TARGETS wc3converter DESTINATION bin)
 endif ()
 
+if (MAP)
+	include_directories("${CMAKE_CURRENT_BINARY_DIR}/../map")
+
+	add_executable(wc3baseobjectchanger wc3baseobjectchanger.cpp)
+	target_link_libraries(wc3baseobjectchanger ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+	install(TARGETS wc3baseobjectchanger DESTINATION bin)
+endif ()
+
 if (JASS)
 	add_executable(jassc jassc.cpp)
 	target_link_libraries(jassc ${wc3lib_CORE_LIBRARIES} wc3libjass ${Boost_LIBRARIES})

@@ -107,6 +107,13 @@ The following command lists all files from the archive `war3.mpq`:
 mpq -t war3.mpq
 ```
 
+### wc3baseobjectchanger
+
+This tool allows converting the base object IDs from custom object data into another one.
+This might help you to fix object data which does not work in Warcraft III: Reforged anymore.
+
+See [wc3baseobjectchanger.sh](./scripts/wc3baseobjectchanger.sh) as an example.
+
 ### wc3converter
 This tool allows converting files with Warcraft III formats.
 

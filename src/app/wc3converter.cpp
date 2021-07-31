@@ -585,7 +585,7 @@ int main(int argc, char *argv[])
 	if (vm.count("version"))
 	{
 		std::cout <<
-		boost::format(_("converter %1%.")) % version
+		boost::format(_("wc3converter %1%.")) % version
 		<< std::endl <<
 		_(
 		"Copyright © 2009 Tamino Dauth\n"
