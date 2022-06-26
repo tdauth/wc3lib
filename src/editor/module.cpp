@@ -272,16 +272,17 @@ void Module::readSettings()
 	if (!this->hasEditor())
 	{
 		QSettings settings(organization(), applicationName());
-		this->source()->readSettings(settings, settingsGroup());
+		this->source()->readSettings(settings, "WorldEditor");
 	}
 }
 
 void Module::writeSettings()
 {
+    // Overwrite the sources for standalone applications.
 	if (!this->hasEditor())
 	{
 		QSettings settings(organization(), applicationName());
-		this->source()->writeSettings(settings, settingsGroup());
+		this->source()->writeSettings(settings, "WorldEditor");
 	}
 }
 

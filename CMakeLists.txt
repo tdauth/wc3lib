@@ -73,6 +73,7 @@ option(USE_MIME
 option(DOC
 	"Generates doxygen documentation (doxygen is required)"
 	OFF)
+set(WC3_DIR "" CACHE STRING "Warcraft III: Frozen Throne directory required for certain unit tests.")
 
 # custom compilation definitions
 # run debug detection before configuring file to set proper preprocessor

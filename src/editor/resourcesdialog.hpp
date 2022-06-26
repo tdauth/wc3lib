@@ -51,6 +51,10 @@ class ResourcesDialog : public QDialog, protected Ui::ResourcesWidget
 		 */
 		void setSources(MpqPriorityList *sources);
 		MpqPriorityList* sources() const;
+        
+    protected:
+        void showEvent(QShowEvent *e) override;
+        
 	private:
 		MpqPriorityList *m_sources;
 };

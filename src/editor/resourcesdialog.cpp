@@ -113,6 +113,11 @@ void ResourcesDialog::setSources(MpqPriorityList *sources)
 	m_sources = sources;
 }
 
+void ResourcesDialog::showEvent(QShowEvent *e) {
+    // workaround for wrong column titles
+    retranslateUi(this);
+}
+
 #include "moc_resourcesdialog.cpp"
 
 }
