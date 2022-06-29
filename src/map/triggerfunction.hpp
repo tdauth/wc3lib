@@ -21,7 +21,8 @@
 #ifndef WC3LIB_MAP_TRIGGERFUNCTION_HPP
 #define WC3LIB_MAP_TRIGGERFUNCTION_HPP
 
-#include <boost/ptr_container/ptr_vector.hpp>
+#include <vector>
+#include <memory>
 
 #include "platform.hpp"
 #include "triggerfunctionparameter.hpp"
@@ -42,7 +43,7 @@ namespace map
 class TriggerFunction : public Format
 {
 	public:
-		typedef boost::ptr_vector<TriggerFunctionParameter> Parameters;
+		typedef std::vector<std::unique_ptr<TriggerFunctionParameter>> Parameters;
 
 		enum class Type : int32
 		{
@@ -53,6 +54,8 @@ class TriggerFunction : public Format
 		};
 
 		TriggerFunction();
+        TriggerFunction(const TriggerFunction &triggerFunction) = delete;
+        TriggerFunction& operator=(const TriggerFunction &triggerFunction) = delete;
 
 		void setType(Type type);
 		Type type() const;

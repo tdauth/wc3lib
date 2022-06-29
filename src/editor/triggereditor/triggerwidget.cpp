@@ -57,7 +57,7 @@ void TriggerWidget::newEvent()
 	functionDialog()->show();
 
 	if (functionDialog()->result() == QDialog::Accepted) {
-		std::auto_ptr<map::TriggerFunction> function(new map::TriggerFunction());
+		std::unique_ptr<map::TriggerFunction> function(new map::TriggerFunction());
 		function->setType(map::TriggerFunction::Type::Event);
 		function->setName(functionDialog()->functionName());
 		function->setIsEnabled(true);
@@ -66,7 +66,7 @@ void TriggerWidget::newEvent()
 
 		QTreeWidgetItem *item = addTreeItem(function.get());
 
-		this->trigger()->functions().push_back(function);
+		this->trigger()->functions().push_back(std::move(function));
 
 		item->setSelected(true);
 		functionsTreeWidget()->scrollToItem(item);
@@ -79,7 +79,7 @@ void TriggerWidget::newCondition()
 	functionDialog()->show();
 
 	if (functionDialog()->result() == QDialog::Accepted) {
-		std::auto_ptr<map::TriggerFunction> function(new map::TriggerFunction());
+		std::unique_ptr<map::TriggerFunction> function(new map::TriggerFunction());
 		function->setType(map::TriggerFunction::Type::Condition);
 		function->setName(functionDialog()->functionName());
 		function->setIsEnabled(true);
@@ -88,7 +88,7 @@ void TriggerWidget::newCondition()
 
 		QTreeWidgetItem *item = addTreeItem(function.get());
 
-		this->trigger()->functions().push_back(function);
+		this->trigger()->functions().push_back(std::move(function));
 
 		item->setSelected(true);
 		functionsTreeWidget()->scrollToItem(item);
@@ -101,7 +101,7 @@ void TriggerWidget::newAction()
 	functionDialog()->show();
 
 	if (functionDialog()->result() == QDialog::Accepted) {
-		std::auto_ptr<map::TriggerFunction> function(new map::TriggerFunction());
+		std::unique_ptr<map::TriggerFunction> function(new map::TriggerFunction());
 		function->setType(map::TriggerFunction::Type::Action);
 		function->setName(functionDialog()->functionName());
 		function->setIsEnabled(true);
@@ -110,7 +110,7 @@ void TriggerWidget::newAction()
 
 		QTreeWidgetItem *item = addTreeItem(function.get());
 
-		this->trigger()->functions().push_back(function);
+		this->trigger()->functions().push_back(std::move(function));
 
 		item->setSelected(true);
 		functionsTreeWidget()->scrollToItem(item);
@@ -204,7 +204,7 @@ void TriggerWidget::showTrigger(map::Trigger *trigger, const string &customText)
 
 		for (std::size_t i = 0; i < trigger->functions().size(); ++i)
 		{
-			map::TriggerFunction *function = &trigger->functions()[i];
+			map::TriggerFunction *function = trigger->functions()[i].get();
 
 			addTreeItem(function);
 		}

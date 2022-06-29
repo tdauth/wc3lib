@@ -139,9 +139,9 @@ bool TriggerFunctionDialog::isValid() const
 		return false;
 	}
 
-	foreach (map::TriggerFunction::Parameters::const_reference ref, m_function->parameters())
+	for (map::TriggerFunction::Parameters::const_reference ref : m_function->parameters())
 	{
-		if (ref.type() == map::TriggerFunctionParameter::Type::Jass && ref.value().empty())
+		if (ref->type() == map::TriggerFunctionParameter::Type::Jass && ref->value().empty())
 		{
 			return false;
 		}
@@ -166,10 +166,10 @@ void TriggerFunctionDialog::apply(map::TriggerFunctionParameter *parameter)
 	}
 	else if (m_radioButtonFunction->isChecked())
 	{
-		std::auto_ptr<map::TriggerFunction> function(new map::TriggerFunction());
+		std::unique_ptr<map::TriggerFunction> function(new map::TriggerFunction());
 		//this->apply(function.get());
 		// TODO apply function argument!
-		parameter->functions().push_back(function);
+		parameter->functions().push_back(std::move(function));
 	}
 	else if (m_radioButtonImported->isChecked())
 	{ // TODO Frozen Throne only?
@@ -709,7 +709,7 @@ void TriggerFunctionDialog::editParameter(const QString &parameter)
 	// TODO handle if function == 0
 
 	//if (function() != 0) { // actual function
-		map::TriggerFunctionParameter *functionParameter = &function()->parameters().at(index);
+		map::TriggerFunctionParameter *functionParameter = function()->parameters().at(index).get();
 
 		switch (functionParameter->type()) {
 			case map::TriggerFunctionParameter::Type::Preset:
@@ -754,7 +754,7 @@ void TriggerFunctionDialog::editParameter(const QString &parameter)
 				//if (functionIterator != triggerData()->calls().end()) {
 				//		map::TriggerData::Type *type = boost::get<map::TriggerData::Type*>(functionIterator->second->types()[index]);
 
-				subDialog()->fillCall(&functionParameter->functions().at(0), index);
+				subDialog()->fillCall(functionParameter->functions().at(0).get(), index);
 				subDialog()->m_radioButtonFunction->setChecked(true);
 				subDialog()->show();
 

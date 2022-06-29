@@ -55,9 +55,9 @@ std::streamsize TriggerFunctionParameter::read(InputStream &istream, const Trigg
 
 	for (int32 i = 0; i < functionCount; ++i)
 	{
-		std::auto_ptr<TriggerFunction> function(new TriggerFunction());
+		std::unique_ptr<TriggerFunction> function(new TriggerFunction());
 		size += function->read(istream, triggerData);
-		this->functions().push_back(function);
+		this->functions().push_back(std::move(function));
 	}
 
 	int32 arrayIndexCount = 0;
@@ -76,7 +76,7 @@ std::streamsize TriggerFunctionParameter::read(InputStream &istream, const Trigg
 	{
 		std::auto_ptr<TriggerFunctionParameter> parameter(new TriggerFunctionParameter());
 		size += parameter->read(istream, triggerData);
-		this->parameters().push_back(parameter);
+		this->parameters().push_back(std::move(parameter));
 	}
 
 	return size;
@@ -91,14 +91,14 @@ std::streamsize TriggerFunctionParameter::write(OutputStream &ostream) const
 
 	BOOST_FOREACH(Functions::const_reference ref, this->functions())
 	{
-		size += ref.write(ostream);
+		size += ref->write(ostream);
 	}
 
 	wc3lib::write<int32>(ostream, this->parameters().size(), size);
 
 	BOOST_FOREACH(Parameters::const_reference ref, this->parameters())
 	{
-		size += ref.write(ostream);
+		size += ref->write(ostream);
 	}
 
 	return size;

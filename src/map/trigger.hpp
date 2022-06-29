@@ -21,7 +21,8 @@
 #ifndef WC3LIB_MAP_TRIGGER_HPP
 #define WC3LIB_MAP_TRIGGER_HPP
 
-#include <boost/ptr_container/ptr_vector.hpp>
+#include <vector>
+#include <memory>
 
 #include "platform.hpp"
 #include "triggerfunction.hpp"
@@ -33,6 +34,8 @@ namespace wc3lib
 namespace map
 {
 
+class Triggers;
+
 /**
  * Definition of a Warcraft III trigger. For Warcraft III: The Frozen Trigger use \ref TriggerEx.
  * \todo Add derived class TriggerX.
@@ -43,9 +46,11 @@ namespace map
 class Trigger : public Format
 {
 	public:
-		typedef boost::ptr_vector<TriggerFunction> Functions;
+        typedef std::vector<std::unique_ptr<TriggerFunction>> Functions;
 
 		Trigger();
+        Trigger(const Trigger &trigger) = delete;
+        Trigger& operator=(const Trigger &trigger) = delete;
 
 		virtual std::streamsize read(InputStream & /* istream */)
 		{
@@ -55,7 +60,7 @@ class Trigger : public Format
 		virtual std::streamsize read(InputStream &istream, const TriggerData &triggerData);
 		virtual std::streamsize write(OutputStream &ostream) const;
 
-		class Triggers* triggers() const;
+		Triggers* triggers() const;
 		void setName(const string &name);
 		const string& name() const;
 		void setDescription(const string &description);

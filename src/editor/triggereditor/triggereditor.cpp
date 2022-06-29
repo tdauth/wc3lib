@@ -368,17 +368,17 @@ QString TriggerEditor::triggerFunction(WarcraftIIIShared *sharedData, const map:
 
 	bool isFirst = true;
 
-	foreach (map::TriggerFunction::Parameters::const_reference ref, triggerFunction->parameters())
+	for (map::TriggerFunction::Parameters::const_reference ref : triggerFunction->parameters())
 	{
 		/*
 		 * Add spaces before non function calls.
 		 */
-		if (!isFirst && ref.type() != map::TriggerFunctionParameter::Type::Function)
+		if (!isFirst && ref->type() != map::TriggerFunctionParameter::Type::Function)
 		{
 			result += " ";
 		}
 
-		result += triggerFunctionParameter(sharedData, triggerData, triggerStrings, &ref);
+		result += triggerFunctionParameter(sharedData, triggerData, triggerStrings, ref.get());
 		isFirst = false;
 	}
 
@@ -397,9 +397,9 @@ QString TriggerEditor::triggerFunctionParameter(WarcraftIIIShared *sharedData, c
 	{
 		case map::TriggerFunctionParameter::Type::Function:
 		{
-			foreach (map::TriggerFunctionParameter::Functions::const_reference ref, parameter->functions())
+			for (map::TriggerFunctionParameter::Functions::const_reference ref : parameter->functions())
 			{
-				result += triggerFunction(sharedData, triggerData, triggerStrings, &ref); // call recursively all encapsulated calls
+				result += triggerFunction(sharedData, triggerData, triggerStrings, ref.get()); // call recursively all encapsulated calls
 			}
 
 			break;
@@ -508,7 +508,7 @@ void TriggerEditor::fillNewTriggerFunctionParameters(const map::TriggerData *tri
 
 	for (std::size_t i = 0; i < triggerDataFunction->types().size(); ++i)
 	{
-		std::auto_ptr<map::TriggerFunctionParameter> functionParameter(new map::TriggerFunctionParameter());
+		std::unique_ptr<map::TriggerFunctionParameter> functionParameter(new map::TriggerFunctionParameter());
 		bool gotDefault = false;
 
 		// show default if exists
@@ -566,7 +566,7 @@ void TriggerEditor::fillNewTriggerFunctionParameters(const map::TriggerData *tri
 		}
 
 		qDebug() << "Parameter of new function: \"" << functionParameter->value().c_str() << "\"";
-		function->parameters().push_back(functionParameter);
+		function->parameters().push_back(std::move(functionParameter));
 	}
 }
 
@@ -1058,10 +1058,10 @@ void TriggerEditor::newCategory()
 	{
 		try
 		{
-			std::auto_ptr<map::TriggerCategory> category(new map::TriggerCategory());
+			std::unique_ptr<map::TriggerCategory> category(new map::TriggerCategory());
 			category->setName(tr("Unnamed category").toStdString());
 			category->setIndex(boost::numeric_cast<int32>(triggers()->categories().size()));
-			triggers()->categories().push_back(category);
+			triggers()->categories().push_back(std::move(category));
 
 			QTreeWidgetItem *item = new QTreeWidgetItem(rootItem());
 			item->setText(0, tr("Unnamed category"));
@@ -1084,7 +1084,7 @@ void TriggerEditor::newTrigger()
 	if (triggers() != 0)
 	{
 		QString name = newTriggerName();
-		std::auto_ptr<map::Trigger> trigger(new map::Trigger());
+		std::unique_ptr<map::Trigger> trigger(new map::Trigger());
 		trigger->setName(name.toStdString());
 		trigger->setEnabled(true);
 		trigger->setInitiallyOn(true);
@@ -1101,7 +1101,7 @@ void TriggerEditor::newTrigger()
 		/// \todo set icon (initially on, disabled etc.)
 
 		triggerEntries().push_back(item);
-		triggers()->triggers().push_back(trigger); // push back after getting trigger
+		triggers()->triggers().push_back(std::move(trigger)); // push back after getting trigger
 
 		item->setSelected(true);
 		treeWidget()->scrollToItem(item);
@@ -1299,7 +1299,7 @@ QString TriggerEditor::newTriggerName() const
 
 	if (triggers() != 0)
 	{
-		foreach (map::Triggers::TriggerEntries::const_reference ref,  triggers()->triggers())
+		for (map::Triggers::TriggerEntries::const_reference ref : triggers()->triggers())
 		{
 			QString triggerName = ref.name().c_str();
 
@@ -1343,7 +1343,7 @@ bool TriggerEditor::triggerIsPartial(const map::Trigger &trigger)
 {
 	BOOST_FOREACH(map::Trigger::Functions::const_reference ref, trigger.functions())
 	{
-		if (!ref.isEnabled())
+		if (!ref->isEnabled())
 		{
 			return true;
 		}

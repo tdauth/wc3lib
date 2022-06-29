@@ -579,7 +579,7 @@ QString TriggerEditor::triggerFunctionText(WarcraftIIIShared *sharedData, const 
 					// encapsulated calls!
 					if (function != 0) {
 						if (function->parameters().size() > i) {
-							string parameter = triggerFunctionParameter(sharedData, triggerData, triggerStrings, &function->parameters().at(i)).toStdString();
+							string parameter = triggerFunctionParameter(sharedData, triggerData, triggerStrings, function->parameters().at(i).get()).toStdString();
 
 							qDebug() << "Parameter " << i << ": \"" << parameter.c_str() << "\"";
 

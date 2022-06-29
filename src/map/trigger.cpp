@@ -56,9 +56,9 @@ std::streamsize Trigger::read(InputStream &istream, const TriggerData &triggerDa
 
 	for (int32 i = 0; i < functions; ++i)
 	{
-		std::auto_ptr<TriggerFunction> function(new TriggerFunction());
+		std::unique_ptr<TriggerFunction> function(new TriggerFunction());
 		size += function->read(istream, triggerData);
-		this->functions().push_back(function);
+		this->functions().push_back(std::move(function));
 	}
 
 	return size;
@@ -81,8 +81,9 @@ std::streamsize Trigger::write(OutputStream &ostream) const
 	value = boost::numeric_cast<int32>(this->functions().size());
 	wc3lib::write(ostream, value, size);
 
-	BOOST_FOREACH(Functions::const_reference function, this->functions())
-		size += function.write(ostream);
+	BOOST_FOREACH(Functions::const_reference function, this->functions()) {
+		size += function->write(ostream);
+    }
 
 	return size;
 }

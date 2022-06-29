@@ -118,9 +118,9 @@ std::streamsize TriggerFunction::read(InputStream &istream, const TriggerData &t
 
 	for (int32 i = 0; i < count; ++i)
 	{
-		std::auto_ptr<TriggerFunctionParameter> ptr(new TriggerFunctionParameter());
+		std::unique_ptr<TriggerFunctionParameter> ptr(new TriggerFunctionParameter());
 		size += ptr->read(istream, triggerData);
-		this->parameters().push_back(ptr);
+		this->parameters().push_back(std::move(ptr));
 	}
 
 	return size;
@@ -135,7 +135,7 @@ std::streamsize TriggerFunction::write(OutputStream &ostream) const
 
 	BOOST_FOREACH(Parameters::const_reference value, this->parameters())
 	{
-		size += value.write(ostream);
+		size += value->write(ostream);
 	}
 
 	return size;
