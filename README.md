@@ -132,6 +132,13 @@ This might help you to fix object data which does not work in Warcraft III: Refo
 
 See [wc3baseobjectchanger.sh](./scripts/wc3baseobjectchanger.sh) as an example.
 
+### wc3abilitylevellimiter
+
+This tool allows removing modifications from custom object data which are higher than the specified maximum level.
+This might help you to reduce the size of your object data and levels for abilities.
+
+See [wc3abilitylevellimiter.sh](./scripts/wc3abilitylevellimiter.sh) as an example.
+
 ### wc3converter
 
 This tool allows converting files with Warcraft III formats.
