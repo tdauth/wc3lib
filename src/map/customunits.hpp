@@ -74,6 +74,7 @@ class CustomUnits : public FileFormat
 
 				void setValueId(id valueId);
 				id valueId() const;
+                void setValue(Value value);
 				Value& value();
 				const Value& value() const;
 
@@ -213,6 +214,11 @@ inline void CustomUnits::Modification::setValueId(id valueId)
 inline id CustomUnits::Modification::valueId() const
 {
 	return m_id;
+}
+
+inline void CustomUnits::Modification::setValue(Value value)
+{
+	m_value = value;
 }
 
 inline Value& CustomUnits::Modification::value()

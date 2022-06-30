@@ -6,4 +6,4 @@ TARGET_FILEPATH="$(pwd)/AbilityDataNew.w3a"
 cd ../../wc3lib-build/src/app
 make
 
-./wc3abilitylevellimiter --l 30 "$TARGET_FILEPATH" "$SOURCE_FILEPATH"
+./wc3abilitylevellimiter --overwrite --l 30 "$TARGET_FILEPATH" "$SOURCE_FILEPATH"

@@ -53,6 +53,10 @@ int main(int argc, char *argv[])
 	textdomain("wc3abilitylevellimiter");
 
 	wc3lib::int32 maxLevel = 100;
+    wc3lib::map::id levelFieldId = wc3lib::map::stringToId("alev");
+    std::string levelFieldIdInput = "alev";
+    bool verbose = false;
+    bool overwrite = false;
 	typedef std::vector<std::string> Strings;
 	Strings inputFiles;
 	boost::filesystem::path outputFile;
@@ -65,6 +69,7 @@ int main(int argc, char *argv[])
 	("verbose", _("Add more text output."))
 	("overwrite", _("Overwrites existing files and directories when creating or extracting files."))
     ("l", boost::program_options::value<int>(&maxLevel)->default_value(100), _("Maximum ability level."))
+    ("id", boost::program_options::value<std::string>(&levelFieldIdInput)->default_value("alev"), _("Level field ID."))
 	("i", boost::program_options::value<Strings>(&inputFiles), _("Input files."))
 	("o", boost::program_options::value<boost::filesystem::path>(&outputFile), _("Output file or directory (for multiple files)."))
 	;
@@ -112,6 +117,11 @@ int main(int argc, char *argv[])
 
 		return EXIT_SUCCESS;
 	}
+	
+	verbose = vm.count("verbose");
+    overwrite = vm.count("overwrite");
+	
+	levelFieldId = wc3lib::map::stringToId(levelFieldIdInput);
 
 	FilePaths inputFilePaths;
 
@@ -127,7 +137,8 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 	
-    long counter = 0;
+    long removedModificationsCounter = 0;
+    long updateddModificationsCounter = 0;
 
 	BOOST_FOREACH(FilePaths::reference path, inputFilePaths)
     {
@@ -152,26 +163,51 @@ int main(int argc, char *argv[])
                     wc3lib::int32 sourceMaxLevel = modification->level();
                     
                     if (sourceMaxLevel > maxLevel) {
-                        std::cout << boost::format(_("Removing modification %1% of custom object %2% with level %3% to keep maximum level %4% of modifications.")) % wc3lib::map::idToString(modification->valueId()) % wc3lib::map::idToString(unit.customId()) % sourceMaxLevel % maxLevel << std::endl;
-                        counter++;
+                        if (verbose) {
+                            std::cout << boost::format(_("Removing modification %1% of custom object %2% with level %3% to keep maximum level %4% of modifications.")) % wc3lib::map::idToString(modification->valueId()) % wc3lib::map::idToString(unit.customId()) % sourceMaxLevel % maxLevel << std::endl;
+                        }
+                        
+                        removedModificationsCounter++;
                         
                         unit.modifications().erase(std::next(unit.modifications().begin(), i));
                     } else {
                         i++;
+                        
+                        if (modification->valueId() == levelFieldId && modification->value().type() == wc3lib::map::Value::Type::Integer) {
+                            sourceMaxLevel = modification->value().toInteger();
+                            
+                            if (sourceMaxLevel > maxLevel) {
+                                modification->setValue(wc3lib::map::Value(maxLevel));
+                                
+                                if (verbose) {
+                                    std::cout << boost::format(_("Updating modification %1% of custom object %2% with level %3% to keep maximum level %4% of modifications.")) % wc3lib::map::idToString(modification->valueId()) % wc3lib::map::idToString(unit.customId()) % sourceMaxLevel % maxLevel << std::endl;
+                                }
+                                
+                                updateddModificationsCounter++;
+                            }
+                        }
                     }
                 }
             }
             
-            boost::filesystem::ofstream out(realOutputFile, std::ios::out | std::ios::binary);
-            customObjects.write(out);
+            if (!overwrite && boost::filesystem::exists(realOutputFile)) {
+                std::cerr << boost::format(_("Output file %1% does already exist. Use --overwrite to overwrite it.")) % realOutputFile << std::endl;
+            
+                return EXIT_FAILURE;
+            } else {
+                boost::filesystem::ofstream out(realOutputFile, std::ios::out | std::ios::binary);
+                customObjects.write(out);
+            }
         }
         catch (const wc3lib::Exception &exception)
         {
             std::cerr << boost::format(_("Error occured when converting file %1%: \"%2%\".\nSkipping file.")) % path % exception.what() << std::endl;
+            
+            return EXIT_FAILURE;
         }
     }
     
-    std::cout << boost::format(_("Removed %1% modifications.")) % counter << std::endl;
+    std::cout << boost::format(_("Removed %1% and updated %2% modifications.")) % removedModificationsCounter % updateddModificationsCounter << std::endl;
 
 	return EXIT_SUCCESS;
 }
