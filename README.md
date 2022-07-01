@@ -10,6 +10,8 @@ The Linux support is much better although wc3lib is cross-platform since the mai
 
 ## Dependencies
 
+wc3lib build requires a C/C++ compiler with C++20 support.
+
 The project requires several external libraries.
 To reduce the dependencies just disable certain options.
 For example, you can build the project without requiring OGRE and KF5 KIO by disabling the options `MDLX`, `USE_KIOSLAVE` and `USE_OGREBLP`.
