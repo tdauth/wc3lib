@@ -498,15 +498,23 @@ bool parse(Iterator first, Iterator last, Slk::Table &table)
 	 * But it has to be stateless: http://stackoverflow.com/questions/16918831/how-to-benchmark-boost-spirit-parser
 	 */
 	static const SlkGrammar<Iterator> grammar;
-
-	bool r = boost::spirit::qi::phrase_parse(
+    
+// TODO This leads to never ending parsing:
+// 	bool r = boost::spirit::qi::phrase_parse(
+// 		first,
+// 		last,
+// 		grammar,
+// 		!unicode::char_, // TODO empty grammar, no skipper!
+// 		table
+// 	);
+    
+    bool r = boost::spirit::qi::parse(
 		first,
 		last,
 		grammar,
-		!unicode::char_, // TODO empty grammar, no skipper!
 		table
 	);
-
+    
 	if (first != last) // fail if we did not get a full match
 	{
 		return false;
