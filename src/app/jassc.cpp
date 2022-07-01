@@ -87,8 +87,8 @@ int main(int argc, char *argv[])
 	{
 		std::cout <<
 		boost::format(_("jassc %1%.")) % version
-		<< std::endl <<
-		<< wc3libCopyright()
+		<< std::endl
+		<< wc3lib::wc3libCopyright()
         << std::endl;
 
 		return EXIT_SUCCESS;
@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
 	{
 		std::cout << _("Usage: jassc [options] [input files]") << std::endl << std::endl;
 		std::cout << desc << std::endl;
-		std::cout << wc3libReportBugs() << std::endl;
+		std::cout << wc3lib::wc3libReportBugs() << std::endl;
 
 		return EXIT_SUCCESS;
 	}

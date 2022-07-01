@@ -299,7 +299,7 @@ BOOST_AUTO_TEST_CASE(EmptySection)
 	{
 		txt.read(sstream);
 	}
-	catch (Exception e)
+	catch (const Exception &e)
 	{
 		valid = false;
 		std::cerr << e.what() << std::endl;

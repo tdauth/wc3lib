@@ -28,15 +28,15 @@
 //#include <qogre/ExampleFrameListener.h>
 
 #include "mainmenu.hpp"
-#include "editor.hpp"
+#include "../editor.hpp"
 
 namespace wc3lib
 {
 
-namespace editor
+namespace game
 {
 
-MainMenu::MainMenu(Root *root, QWidget *parent, Qt::WindowFlags f, Ogre::SceneType ogreSceneType, const Ogre::NameValuePairList *ogreParameters)
+MainMenu::MainMenu(editor::Root *root, QWidget *parent, Qt::WindowFlags f, Ogre::SceneType ogreSceneType, const Ogre::NameValuePairList *ogreParameters)
 : QWidget(parent, f)
 , m_parameters(ogreParameters)
 , m_root(root)

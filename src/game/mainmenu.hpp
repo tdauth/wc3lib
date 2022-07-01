@@ -28,12 +28,12 @@
 
 #include <Ogre.h>
 
-#include "root.hpp"
+#include "../editor/root.hpp"
 
 namespace wc3lib
 {
 
-namespace editor
+namespace game
 {
 
 /**
@@ -52,7 +52,7 @@ class MainMenu : public QWidget
 		 * \param ogreSceneType OGRE scene type which will be set for the scene manager of the widget. Should be changed for terrain (ST_EXTERIOR_FAR, ST_EXTERIOR_REAL_FAR).
 		 * \param ogreParameters OGRE window parameters.
 		 */
-		MainMenu(Root *root, QWidget *parent = 0, Qt::WindowFlags f = 0, Ogre::SceneType ogreSceneType = Ogre::ST_EXTERIOR_CLOSE, const Ogre::NameValuePairList *ogreParameters = 0);
+		MainMenu(editor::Root *root, QWidget *parent = 0, Qt::WindowFlags f = 0, Ogre::SceneType ogreSceneType = Ogre::ST_EXTERIOR_CLOSE, const Ogre::NameValuePairList *ogreParameters = 0);
 		virtual ~MainMenu();
 
 		//virtual void show();
@@ -62,7 +62,7 @@ class MainMenu : public QWidget
 		 */
 		void centerView();
 
-		Root* root() const;
+		editor::Root* root() const;
 		Ogre::RenderWindow* renderWindow() const;
 		Ogre::SceneManager* sceneManager() const;
 		void setCamera(Ogre::Camera *camera);
@@ -100,7 +100,7 @@ class MainMenu : public QWidget
 		virtual void initRenderWindow();
 
 		const Ogre::NameValuePairList *m_parameters;
-		Root *m_root;
+		editor::Root *m_root;
 		Ogre::RenderWindow *m_renderWindow;
 
 		// default scene
@@ -110,7 +110,7 @@ class MainMenu : public QWidget
 		Ogre::Viewport *m_viewPort;
 };
 
-inline Root* MainMenu::root() const
+inline editor::Root* MainMenu::root() const
 {
 	return this->m_root;
 }

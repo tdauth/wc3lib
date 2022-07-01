@@ -2,6 +2,18 @@ if (GAME)
 	# for proper "config.h" detection we use relative paths of modules as well
 	include_directories("${PROJECT_BINARY_DIR}/src/game")
 
+	# OGRE is required when texture support exists. Either only OgreBLP is built or the whole MDLX support.
+	list(APPEND CMAKE_MODULE_PATH "/usr/share/cmake/Modules")
+	# Custom CMake module to find OGRE on different platforms.
+	include("${CMAKE_SOURCE_DIR}/share/cmake/Modules/FindOgreForwc3lib.cmake")
+
+	# OGRE needs to detect the Windows platform, otherwise it includes the wrong files.
+	if (WIN32)
+    	add_definitions(-D_WIN32=1 -DOGRE_PLATFORM=1) # OGRE_PLATFORM_WIN32
+		# This leads to proper DLL export markers
+		add_definitions(-DOGRE_NONCLIENT_BUILD=1)
+	endif ()
+	
 	# Find includes in corresponding build directories
 	set(CMAKE_INCLUDE_CURRENT_DIR ON)
 	# Instruct CMake to run moc automatically when needed.

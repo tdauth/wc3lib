@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(UnitAbilities)
 	{
 		slk.read(in);
 	}
-	catch (Exception e)
+	catch (const Exception &e)
 	{
 		valid = false;
 
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(UnitBalance)
 	{
 		slk.read(in);
 	}
-	catch (Exception e)
+	catch (const Exception &e)
 	{
 		valid = false;
 
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE(UnitData)
 	{
 		slk.read(in);
 	}
-	catch (Exception e)
+	catch (const Exception &e)
 	{
 		valid = false;
 
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE(UnitMetaData)
 	{
 		slk.read(in);
 	}
-	catch (Exception e)
+	catch (const Exception &e)
 	{
 		valid = false;
 
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE(UnitMetaDataLibreOffice)
 	{
 		slk.read(in);
 	}
-	catch (Exception e)
+	catch (const Exception &e)
 	{
 		valid = false;
 
@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE(UnitWeapons)
 	{
 		slk.read(in);
 	}
-	catch (Exception e)
+	catch (const Exception &e)
 	{
 		valid = false;
 
@@ -261,7 +261,7 @@ BOOST_AUTO_TEST_CASE(UnitMetaDataEX)
 	{
 		slk.read(in);
 	}
-	catch (Exception e)
+	catch (const Exception &e)
 	{
 		valid = false;
 
@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE(UnitMetaDataEXProfile)
 		std::chrono::high_resolution_clock::duration duration = finished - now;
 		std::cerr << "Duration: " << std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() << " ms" << std::endl;
 	}
-	catch (Exception e)
+	catch (const Exception &e)
 	{
 		valid = false;
 
