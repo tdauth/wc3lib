@@ -24,7 +24,7 @@ enable_testing()
 include(CTest)
 
 # Add C++17 support explicitely.
-add_compile_options(-std=c++17)
+add_compile_options(-std=c++20)
 
 include(CMakeDependentOption)
 include(CheckCCompilerFlag)

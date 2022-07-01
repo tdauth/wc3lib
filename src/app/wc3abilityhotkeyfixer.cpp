@@ -191,22 +191,39 @@ int main(int argc, char *argv[])
             
             std::map<wc3lib::map::id, bool> metaIsHero;
             
-            for (int row = 1; row < abilityData.rows(); row++) {
-                metaIsHero[wc3lib::map::stringToId(abilityData.cell(row, 0))] = std::stoi(abilityData.cell(row, 5));
+            for (wc3lib::map::Slk::Table::size_type row = 1; row < abilityData.rows(); row++) {
+                std::string cellContent = abilityData.cell(row, 5);
+                bool value = false;
+                
+                if (cellContent.size() > 0 && cellContent[0] == '\"') {
+                    cellContent.substr(1, cellContent.size() - 2);
+                    value = std::stoi(cellContent);
+                } else if (!cellContent.empty()) {
+                    value = std::stoi(cellContent);
+                }
+                
+                wc3lib::string abilityIdContent = wc3lib::map::Slk::fromSlkString(abilityData.cell(row, 0));
+                std::cerr << "Ability ID " << abilityIdContent << std::endl;
+                wc3lib::map::id abilityId = wc3lib::map::stringToId(abilityIdContent);
+                metaIsHero[abilityId] = value;
+                
+                if (verbose && value) {
+                    std::cout << boost::format(_("Standard ability %1% is a hero ability.")) %abilityIdContent << std::endl;
+                }
             }
             
             for (wc3lib::map::CustomObjects::Unit &unit : customObjects.customTable()) {
                 bool isHeroAbility = metaIsHero[unit.originalId()];
                 std::optional<wc3lib::int32> x;
-                std::optional<int> indexX;
+                std::optional<std::size_t> indexX;
                 std::optional<wc3lib::int32> y;
-                std::optional<int> indexY;
+                std::optional<std::size_t> indexY;
                 std::optional<wc3lib::byte> hotkey;
-                std::optional<int> indexHotkey;
+                std::optional<std::size_t> indexHotkey;
                 std::optional<wc3lib::byte> unhotkey;
-                std::optional<int> indexUnhotkey;
+                std::optional<std::size_t> indexUnhotkey;
 
-                for (int i = 0; i < unit.modifications().size(); i++) {
+                for (std::size_t i = 0; i < unit.modifications().size(); i++) {
                     wc3lib::map::CustomObjects::Modification *modification = dynamic_cast<wc3lib::map::CustomObjects::Modification*>(&unit.modifications()[i]);
                     wc3lib::map::id modificationId = modification->valueId();
                     

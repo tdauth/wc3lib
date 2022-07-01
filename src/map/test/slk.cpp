@@ -34,6 +34,17 @@
 
 using namespace wc3lib;
 
+BOOST_AUTO_TEST_CASE(ConvertStrings)
+{
+    BOOST_CHECK_EQUAL(map::Slk::fromSlkString("\"ABC\""), "ABCS");
+    BOOST_CHECK_EQUAL(map::Slk::fromSlkString("\"\""), "");
+    BOOST_CHECK_EQUAL(map::Slk::fromSlkString("\""), "");
+    BOOST_CHECK_EQUAL(map::Slk::fromSlkString(""), "");
+    BOOST_CHECK_EQUAL(map::Slk::toSlkString(""), "\"\"");
+    BOOST_CHECK_EQUAL(map::Slk::toSlkString("ABC"), "\"ABC\"");
+    BOOST_CHECK_EQUAL(map::Slk::toSlkString("\"ABC\""), "\"ABC\"");
+}
+
 BOOST_AUTO_TEST_CASE(UnitAbilities)
 {
 	spiritTraceLog.close();

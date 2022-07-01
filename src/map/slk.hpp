@@ -146,6 +146,16 @@ class Slk : public Format
 
 		Cell& cell(int row, int column);
 		const Cell& cell(int row, int column) const;
+        
+        /**
+		 * Cuts " characters at start and end if available and returns resulting string.
+		 */
+		static Cell fromSlkString(const Cell &value);
+		/**
+		 * Adds double quotes to the beginning and the end if they are not there already.
+		 * \return Returns \p value with double quotes at the beginning and at the end.
+		 */
+		static Cell toSlkString(const Cell &value);
 
 	protected:
 		Table m_table;
@@ -203,6 +213,40 @@ inline Slk::Cell& Slk::cell(int row, int column)
 inline const Slk::Cell& Slk::cell(int row, int column) const
 {
 	return this->table()[column][row];
+}
+
+inline Slk::Cell Slk::fromSlkString(const Slk::Cell &value)
+{
+	Slk::Cell result = value;
+
+	if (result.starts_with('"'))
+	{
+		result = result.substr(1);
+	}
+
+	if (result.ends_with('"'))
+	{
+		result = result.substr(0, result.size() - 1);
+	}
+
+	return result;
+}
+
+inline Slk::Cell Slk::toSlkString(const Slk::Cell &value)
+{
+	Slk::Cell result = value;
+
+	if (!result.starts_with('"'))
+	{
+		result.insert(0, 1, '"');
+	}
+
+	if (!result.ends_with('"'))
+	{
+		result.append(1, '"');
+	}
+
+	return result;
 }
 
 }

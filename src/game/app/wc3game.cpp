@@ -20,20 +20,20 @@
 
 #include <QApplication>
 
-#include "../../editor.hpp"
+#include "../../game.hpp"
 
-using namespace wc3lib::editor;
+using namespace wc3lib::game;
 
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
 	const QString organization = "wc3lib";
 
-	Root root;
+	wc3lib::editor::Root root;
 
 	if (root.configure())
 	{
-		Editor editor(&root, organization, "wc3game");
+		Game game(&root, organization, "wc3game");
 		/*
 		 * Pops up the dialog for source directories if necessary and loads default shared files.
 		 */
@@ -41,39 +41,6 @@ int main(int argc, char *argv[])
 		{
 			SplashScreen splash(&editor);
 			splash.show();
-
-			splash.showMessage(QObject::tr("Loading Object Editor ..."), Qt::AlignCenter | Qt::AlignBottom, Qt::white);
-			ObjectEditor *objectEditor = new ObjectEditor(&editor, organization, "wc3object");
-
-			if (objectEditor->configure())
-			{
-				editor.addModule(objectEditor);
-			}
-
-			splash.showMessage(QObject::tr("Loading Texture Editor ..."), Qt::AlignCenter | Qt::AlignBottom, Qt::white);
-			TextureEditor *textureEditor = new TextureEditor(&editor, organization, "wc3texture");
-
-			if (textureEditor->configure())
-			{
-				editor.addModule(textureEditor);
-			}
-
-			splash.showMessage(QObject::tr("Loading Trigger Editor ..."), Qt::AlignCenter | Qt::AlignBottom, Qt::white);
-			TriggerEditor *triggerEditor = new TriggerEditor(&editor, organization, "wc3trigger");
-
-			if (triggerEditor->configure())
-			{
-				editor.addModule(triggerEditor);
-			}
-
-			splash.showMessage(QObject::tr("Loading MPQ Editor ..."), Qt::AlignCenter | Qt::AlignBottom, Qt::white);
-			MpqEditor *mpqEditor = new MpqEditor(&editor, organization, "wc3mpq");
-
-			if (mpqEditor->configure())
-			{
-				editor.addModule(mpqEditor);
-				mpqEditor->show();
-			}
 
 			splash.close();
 			//TerrainEditor *terrainEditor = new TerrainEditor(editor, editor);
