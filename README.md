@@ -6,6 +6,8 @@ You are welcome to create pull requests with improvements.
 The API documentation of the code contains much more information about the project than this overview.
 wc3lib does not support CASC archives from Warcraft III: Reforged yet.
 
+The Linux support is much better although wc3lib is cross-platform since the maintainer mainly uses Linux to develop and it is much easier to get the dependencies on Linux.
+
 ## Dependencies
 
 The project requires several external libraries.
@@ -125,6 +127,10 @@ The following command lists all files from the archive `war3.mpq`:
 mpq -t war3.mpq
 ```
 
+### wc3tilesetter
+
+This tool allows changing ground tilesets of a map's environment file `war3map.w3e`.
+
 ### wc3baseobjectchanger
 
 This tool allows converting the base object IDs from custom object data into another one.
@@ -138,6 +144,12 @@ This tool allows removing modifications from custom object data which are higher
 This might help you to reduce the size of your object data and levels for abilities.
 
 See [wc3abilitylevellimiter.sh](./scripts/wc3abilitylevellimiter.sh) as an example.
+
+### wc3abilityhotkeyfixer
+
+This tools allows fixing hotkeys of abilities.
+
+See [wc3abilityhotkeyfixer.sh](./scripts/wc3abilityhotkeyfixer.sh) as an example.
 
 ### wc3converter
 

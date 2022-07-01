@@ -23,8 +23,8 @@ enable_testing()
 # required to generate the "DartConfiguration.tcl" file in the build directory and to find valgrind
 include(CTest)
 
-# Add C++11 support explicitely.
-add_compile_options(-std=c++11)
+# Add C++17 support explicitely.
+add_compile_options(-std=c++17)
 
 include(CMakeDependentOption)
 include(CheckCCompilerFlag)
@@ -54,7 +54,7 @@ option(W3G
 CMAKE_DEPENDENT_OPTION(EDITOR
 	"Wacraft III World Editor emulation is built (Qt5 is required, OGRE is only required when MDLX or USE_OGREBLP is enabled)."
 	ON
-        "BLP;MAP;MPQ" OFF)
+	"BLP;MAP;MPQ" OFF)
 CMAKE_DEPENDENT_OPTION(USE_KIOSLAVE
 	"Creates a KIO slave for MPQ (KF5 is required)."
 	OFF
@@ -67,6 +67,10 @@ CMAKE_DEPENDENT_OPTION(USE_OGREBLP
 	"Creates a OGRE image format plugin for BLP (OGRE is required)."
 	OFF
 	"BLP" OFF)
+CMAKE_DEPENDENT_OPTION(GAME
+	"Wacraft III emulation is built (Qt5, OGRE and EDITOR is required)."
+	ON
+	"BLP;MAP;MPQ;MDLX;JASS;EDITOR;USE_OGREBLP" OFF)
 option(USE_MIME
 	"Installs MIME types (KF5 is required)"
 	ON)

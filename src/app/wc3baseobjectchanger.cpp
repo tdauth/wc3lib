@@ -95,13 +95,9 @@ int main(int argc, char *argv[])
 	{
 		std::cout <<
 		boost::format(_("wc3baseobjectchanger %1%.")) % version
-		<< std::endl <<
-		_(
-		"Copyright © 2021 Tamino Dauth\n"
-		"License GPLv2+: GNU GPL version 2 or later <http://gnu.org/licenses/gpl.html>\n"
-		"This is free software: you are free to change and redistribute it.\n"
-		"There is NO WARRANTY, to the extent permitted by law."
-		) << std::endl;
+		<< std::endl
+		<< wc3lib::wc3libCopyright()
+        << std::endl;
 
 		return EXIT_SUCCESS;
 	}
@@ -110,7 +106,7 @@ int main(int argc, char *argv[])
 	{
 		std::cout << _("Usage: wc3converter [options] [output file/directory] [input files]") << std::endl << std::endl;
 		std::cout << desc << std::endl;
-		std::cout << _("\nReport bugs to tamino@cdauth.eu or on https://wc3lib.org") << std::endl;
+		std::cout << wc3lib::wc3libReportBugs() << std::endl;
 
 		return EXIT_SUCCESS;
 	}

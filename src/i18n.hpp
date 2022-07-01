@@ -48,4 +48,22 @@ inline void textdomain(const char *domain)
 // Boost format library
 #include <boost/format.hpp>
 
+namespace wc3lib
+{
+
+inline const char* wc3libCopyright() {
+    return _(
+		"Copyright © 2022 Tamino Dauth\n"
+		"License GPLv2+: GNU GPL version 2 or later <http://gnu.org/licenses/gpl.html>\n"
+		"This is free software: you are free to change and redistribute it.\n"
+		"There is NO WARRANTY, to the extent permitted by law."
+		);
+}
+
+inline const char* wc3libReportBugs() {
+    return _("\nReport bugs to tamino@cdauth.eu or on https://wc3lib.org");
+}
+
+}
+
 #endif

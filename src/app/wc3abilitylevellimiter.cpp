@@ -63,12 +63,12 @@ int main(int argc, char *argv[])
 
 	boost::program_options::options_description desc("Allowed options");
 	desc.add_options()
-	("version,V", _("Shows current version of mpq."))
+	("version,V", _("Shows current version of wc3abilitylevellimiter."))
 	("help,h",_("Shows this text."))
 	// options
 	("verbose", _("Add more text output."))
 	("overwrite", _("Overwrites existing files and directories when creating or extracting files."))
-    ("l", boost::program_options::value<int>(&maxLevel)->default_value(100), _("Maximum ability level."))
+    ("maxlevel,l", boost::program_options::value<int>(&maxLevel)->default_value(100), _("Maximum ability level."))
     ("id", boost::program_options::value<std::string>(&levelFieldIdInput)->default_value("alev"), _("Level field ID."))
 	("i", boost::program_options::value<Strings>(&inputFiles), _("Input files."))
 	("o", boost::program_options::value<boost::filesystem::path>(&outputFile), _("Output file or directory (for multiple files)."))
@@ -98,13 +98,9 @@ int main(int argc, char *argv[])
 	{
 		std::cout <<
 		boost::format(_("wc3abilitylevellimiter %1%.")) % version
-		<< std::endl <<
-		_(
-		"Copyright © 2022 Tamino Dauth\n"
-		"License GPLv2+: GNU GPL version 2 or later <http://gnu.org/licenses/gpl.html>\n"
-		"This is free software: you are free to change and redistribute it.\n"
-		"There is NO WARRANTY, to the extent permitted by law."
-		) << std::endl;
+		<< std::endl
+		<< wc3lib::wc3libCopyright()
+        << std::endl;
 
 		return EXIT_SUCCESS;
 	}
@@ -113,7 +109,7 @@ int main(int argc, char *argv[])
 	{
 		std::cout << _("Usage: wc3abilitylevellimiter [options] [output file/directory] [input files]") << std::endl << std::endl;
 		std::cout << desc << std::endl;
-		std::cout << _("\nReport bugs to tamino@cdauth.eu or on https://wc3lib.org") << std::endl;
+		std::cout << wc3lib::wc3libReportBugs() << std::endl;
 
 		return EXIT_SUCCESS;
 	}

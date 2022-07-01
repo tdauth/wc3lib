@@ -98,6 +98,10 @@ if (EDITOR OR USE_KIOSLAVE OR USE_QBLP OR USE_OGREBLP)
 	add_subdirectory(editor) # last one
 endif ()
 
+if (GAME AND EDITOR AND BLP AND MDLX AND MPQ AND MAP AND JASS AND USE_OGREBLP)
+	add_subdirectory(game) # last one
+endif ()
+
 if (BLP)
 	install(FILES blp.hpp DESTINATION include/wc3lib)
 endif ()
@@ -116,6 +120,10 @@ endif ()
 
 if (EDITOR)
 	install(FILES editor.hpp DESTINATION include/wc3lib)
+endif ()
+
+if (GAME)
+	install(FILES game.hpp DESTINATION include/wc3lib)
 endif ()
 
 if (APP)

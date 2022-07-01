@@ -21,7 +21,8 @@
 #ifndef WC3LIB_MAP_INFO_HPP
 #define WC3LIB_MAP_INFO_HPP
 
-#include <boost/ptr_container/ptr_vector.hpp>
+#include <vector>
+#include <memory>
 
 #include "platform.hpp"
 
@@ -193,7 +194,7 @@ class Info : public FileFormat
 								Rows m_rows;
 						};
 
-						typedef boost::ptr_vector<Column> Columns;
+						typedef std::vector<std::unique_ptr<Column>> Columns;
 						/**
 						 * Chances are set per row.
 						 */
@@ -216,7 +217,7 @@ class Info : public FileFormat
 						Chances m_chances;
 				};
 
-				typedef boost::ptr_vector<Group> Groups;
+				typedef std::vector<std::unique_ptr<Group>> Groups;
 
 				virtual std::streamsize read(InputStream &istream) override;
 				virtual std::streamsize write(OutputStream &ostream) const override;
@@ -228,11 +229,11 @@ class Info : public FileFormat
 				Groups m_groups;
 		};
 
-		typedef boost::ptr_vector<Player> Players;
-		typedef boost::ptr_vector<Force> Forces;
-		typedef boost::ptr_vector<UpgradeAvailability> UpgradeAvailabilities;
-		typedef boost::ptr_vector<TechAvailability> TechAvailabilities;
-		typedef boost::ptr_vector<RandomUnitTable> RandomUnitTables;
+		typedef std::vector<std::unique_ptr<Player>> Players;
+		typedef std::vector<std::unique_ptr<Force>> Forces;
+		typedef std::vector<std::unique_ptr<UpgradeAvailability>> UpgradeAvailabilities;
+		typedef std::vector<std::unique_ptr<TechAvailability>> TechAvailabilities;
+		typedef std::vector<std::unique_ptr<RandomUnitTable>> RandomUnitTables;
 
 		virtual std::streamsize read(InputStream &istream) override;
 		virtual std::streamsize write(OutputStream &ostream) const override;

@@ -29,6 +29,11 @@ if (MAP)
 	target_link_libraries(wc3abilitylevellimiter ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 	install(TARGETS wc3abilitylevellimiter DESTINATION bin)
+	
+	add_executable(wc3abilityhotkeyfixer wc3abilityhotkeyfixer.cpp)
+	target_link_libraries(wc3abilityhotkeyfixer ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+	install(TARGETS wc3abilityhotkeyfixer DESTINATION bin)
 endif ()
 
 if (JASS)
@@ -44,9 +49,9 @@ if (MAP AND JASS)
 endif ()
 
 if (MAP)
-	add_executable(tilesetter tilesetter.cpp)
-	target_link_libraries(tilesetter ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
-	install(TARGETS tilesetter DESTINATION bin)
+	add_executable(wc3tilesetter wc3tilesetter.cpp)
+	target_link_libraries(wc3tilesetter ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
+	install(TARGETS wc3tilesetter DESTINATION bin)
 endif ()
 
 if (MPQ)

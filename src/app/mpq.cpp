@@ -194,13 +194,10 @@ int main(int argc, char *argv[])
 	{
 		static const char *version = "0.1";
 
-		std::cout << boost::format(_(
-		"mpq %1%.\n"
-		"Copyright © 2010 Tamino Dauth\n"
-		"License GPLv2+: GNU GPL version 2 or later <http://gnu.org/licenses/gpl.html>\n"
-		"This is free software: you are free to change and redistribute it.\n"
-		"There is NO WARRANTY, to the extent permitted by law."
-		)) % version << std::endl;
+		std::cout << boost::format(_("mpq %1%")) % version
+		<< std::endl
+		<< wc3libCopyright()
+		<< std::endl;
 
 		return EXIT_SUCCESS;
 	}
@@ -209,7 +206,7 @@ int main(int argc, char *argv[])
 	{
 		std::cout << _("Usage: mpq [options] [archives]") << std::endl << std::endl;
 		std::cout << desc << std::endl;
-		std::cout << _("\nReport bugs to tamino@cdauth.eu or on https://wc3lib.org") << std::endl;
+		std::cout << wc3libReportBugs() << std::endl;
 
 		return EXIT_SUCCESS;
 	}
