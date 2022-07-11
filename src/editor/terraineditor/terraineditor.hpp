@@ -21,12 +21,13 @@
 #ifndef WC3LIB_EDITOR_TERRAINEDITOR_HPP
 #define WC3LIB_EDITOR_TERRAINEDITOR_HPP
 
-#include <Ogre.h>
+#include <memory>
 
-#include "../../map.hpp"
+#include <Ogre.h>
 
 #include "../module.hpp"
 #include "../modelview.hpp"
+#include "../ogreterrain.hpp"
 
 namespace wc3lib
 {
@@ -44,9 +45,11 @@ class TerrainEditor : public Module
 	Q_OBJECT
 
 	public slots:
-		void loadEnvironment(const map::Environment &environment);
+		void loadEnvironment(const QUrl &url);
 
 	public:
+        typedef std::unique_ptr<OgreTerrain> TerrainPtr;
+        
 		TerrainEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent = 0, Qt::WindowFlags f = 0);
 		virtual ~TerrainEditor();
 
@@ -66,9 +69,7 @@ class TerrainEditor : public Module
 		virtual QIcon icon() override;
 
 		ModelView *m_modelView;
-
-		//Ogre::TerrainGlobalOptions *m_terrainGlobals;
-		//Ogre::TerrainGroup *m_terrainGroup;
+        TerrainPtr m_terrain;
 };
 
 inline ModelView* TerrainEditor::modelView() const

@@ -29,12 +29,12 @@ namespace wc3lib
 namespace editor
 {
 
-void TerrainEditor::loadEnvironment(const map::Environment &environment)
+void TerrainEditor::loadEnvironment(const QUrl &url)
 {
-	//this->m_terrainGroup->loadAllTerrains(true);
+    m_terrain.reset(new OgreTerrain(url, modelView()));
 }
 
-TerrainEditor::TerrainEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent, Qt::WindowFlags f) : Module(source, organization, applicationName, parent, f), m_modelView(new ModelView(hasEditor() ? editor()->root() : 0))//, m_terrainGlobals(new Ogre::TerrainGlobalOptions()), m_terrainGroup(0)
+TerrainEditor::TerrainEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent, Qt::WindowFlags f) : Module(source, organization, applicationName, parent, f), m_modelView(new ModelView(hasEditor() ? editor()->root() : 0)), m_terrain(nullptr)
 {
 	setWindowTitle(tr("Terrain Editor"));
 	Module::setupUi();
@@ -43,30 +43,12 @@ TerrainEditor::TerrainEditor(MpqPriorityList *source, const QString &organizatio
 
 TerrainEditor::~TerrainEditor()
 {
-	//delete m_terrainGlobals;
 }
 
 void TerrainEditor::show()
 {
 	Module::show();
 	this->m_modelView->show();
-
-	/*
-	if (m_terrainGroup != 0)
-	{
-		m_terrainGroup = new Ogre::TerrainGroup(modelView()->sceneManager(), Ogre::Terrain::ALIGN_X_Y, 513, 12000.0f);
-		m_terrainGroup->setOrigin(Ogre::Vector3::ZERO);
-	*/
-		/*
-		m_terrainGroup->setMaxPixelError(8);
-		// testing composite map
-		m_terrainGroup->setCompositeMapDistance(3000);
-		// Important to set these so that the terrain knows what to use for derived (non-realtime) data
-		m_terrainGroup->setLightMapDirection(modelView()->sceneManager()->light()->getDerivedDirection());
-		m_terrainGroup->setCompositeMapAmbient(modelView()->sceneManager()->getAmbientLight());
-		m_terrainGroup->setCompositeMapDiffuse(modelView()->sceneManager()->light()->getDiffuseColour());
-		*/
-	//}
 }
 
 void TerrainEditor::createFileActions(QMenu *menu)

@@ -29,6 +29,10 @@ if (APP AND EDITOR)
 	install(TARGETS wc3mpq DESTINATION bin)
 
 	if (MDLX AND USE_OGREBLP)
+		add_executable(wc3terrain wc3terrain.cpp)
+		target_link_libraries(wc3terrain ${wc3lib_CORE_LIBRARIES} wc3libterraineditor)
+		install(TARGETS wc3terrain DESTINATION bin)
+	
 		add_executable(wc3model wc3model.cpp)
 		target_link_libraries(wc3model ${wc3lib_CORE_LIBRARIES} wc3libmodeleditor)
 		install(TARGETS wc3model DESTINATION bin)

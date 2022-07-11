@@ -96,10 +96,9 @@ namespace wc3lib
 #include "editor/modelview.hpp"
 #include "editor/ogremdlx.hpp"
 #include "editor/ogremdlxentity.hpp"
+#include "editor/ogreterrain.hpp"
 #endif
 #if defined(USE_OGREBLP)
-#include "editor/ogreenvironment.hpp"
-#include "editor/environment.hpp"
 #include "editor/polygonmodecombobox.hpp"
 #include "editor/renderstatswidget.hpp"
 #include "editor/root.hpp"

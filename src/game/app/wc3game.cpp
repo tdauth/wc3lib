@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010 by Tamino Dauth                                    *
+ *   Copyright (C) 2022 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -27,36 +27,16 @@ using namespace wc3lib::game;
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
-	const QString organization = "wc3lib";
 
 	wc3lib::editor::Root root;
 
 	if (root.configure())
 	{
-		Game game(&root, organization, "wc3game");
-		/*
-		 * Pops up the dialog for source directories if necessary and loads default shared files.
-		 */
-		if (editor.configure(0))
-		{
-			SplashScreen splash(&editor);
-			splash.show();
+        MainMenu mainMenu(&root);
 
-			splash.close();
-			//TerrainEditor *terrainEditor = new TerrainEditor(editor, editor);
-			//editor->addModule(terrainEditor);
-			//terrainEditor->show();
-			/*
-			/// @todo Allow parsing multiple files as arguments.
-			/// FIXME Crashes application when canceling file dialog.
-			KCmdLineArgs *args = KCmdLineArgs::parsedArgs("+[file]");
-
-			for (int i = 0; i < args->count(); ++i)
-				editor.openMap(args->url(i));
-			*/
-
-			return app.exec();
-		}
+		mainMenu.show();
+        
+        return app.exec();
 	}
 
 	return 1;

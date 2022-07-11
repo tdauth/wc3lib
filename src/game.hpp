@@ -32,4 +32,9 @@ namespace wc3lib
  */
 }
 
+// Check flags first
+#include "config.h"
+
+#include "game/mainmenu.hpp"
+
 #endif

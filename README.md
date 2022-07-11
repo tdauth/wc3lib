@@ -194,6 +194,10 @@ A standalone application which allows the modification of MPQ archives.
 
 A standalone application which allows the modification of BLP textures.
 
+### wc3terrain
+
+A standalone application which allows the modification of Warcraft III terrain.
+
 ### wc3editor
 
 Combines all standalone GUI applications to a single application similar to the World Editor.

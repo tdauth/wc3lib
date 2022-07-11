@@ -1,0 +1,5 @@
+#set(wc3lib_TERRAINEDITOR_UI
+
+#	
+#	PARENT_SCOPE
+#)

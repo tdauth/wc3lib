@@ -146,7 +146,7 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 				modelview.hpp
 				ogremdlx.hpp
 				ogremdlxentity.hpp
-				ogreenvironment.hpp
+				ogreterrain.hpp
 				polygonmodecombobox.hpp
 				renderstatswidget.hpp
 			)
@@ -157,7 +157,7 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 				modelview.cpp
 				ogremdlx.cpp
 				ogremdlxentity.cpp
-				ogreenvironment.cpp
+				ogreterrain.cpp
 				renderstatswidget.cpp
 			)
 		endif ()
@@ -189,11 +189,11 @@ if (EDITOR OR USE_OGREBLP OR USE_KIOSLAVE OR USE_QBLP OR USE_MIME)
 		add_subdirectory(mapsettingseditor)
 		add_subdirectory(triggereditor)
 
-                if (MDLX AND USE_OGREBLP)
+		if (MDLX AND USE_OGREBLP)
 			message(STATUS "Adding wc3libmodeleditor since MDLX is enabled.")
 			add_subdirectory(modeleditor)
 			add_subdirectory(terraineditor)
-                endif ()
+		endif ()
 
 		add_subdirectory(mpqeditor)
 		add_subdirectory(objecteditor)

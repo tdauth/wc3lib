@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2014 by Tamino Dauth                                    *
+ *   Copyright (C) 2022 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,45 +18,28 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "ogreenvironment.hpp"
-#include "../map/environment.hpp"
+#include <QApplication>
+#include <QScopedPointer>
 
-namespace wc3lib
+#include "../editor.hpp"
+
+#include "../terraineditor/terraineditor.hpp"
+
+using namespace wc3lib::editor;
+
+int main(int argc, char *argv[])
 {
+	QApplication app(argc, argv);
 
-namespace editor
-{
+	QScopedPointer<MpqPriorityList> source(new MpqPriorityList());
+	TerrainEditor editor(source.data(), "wc3lib", "wc3terrain");
 
-OgreEnvironment::OgreEnvironment(const QUrl &url, Resource::Type type): Resource(url, type)
-{
-	//m_terrainGlobals = OGRE_NEW Ogre::TerrainGlobalOptions();
-}
+	if (editor.configure())
+	{
+		editor.show();
 
-OgreEnvironment::~OgreEnvironment()
-{
+		return app.exec();
+	}
 
-}
-
-void OgreEnvironment::load(map::Environment *environment)
-{
-
-}
-
-void OgreEnvironment::load()
-{
-
-}
-
-void OgreEnvironment::reload()
-{
-
-}
-
-void OgreEnvironment::save(const QUrl &url) const
-{
-
-}
-
-}
-
+	return 1;
 }

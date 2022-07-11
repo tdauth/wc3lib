@@ -2,7 +2,7 @@ if (APP AND GAME)
 	# TODO Multiple definition errors on linking
 	if (NOT WIN32)
 		add_executable(wc3game wc3game.cpp)
-        target_link_libraries(wc3game ${wc3lib_CORE_LIBRARIES} ${wc3lib_EDITOR_LIBRARIES} wc3libgame)
+        target_link_libraries(wc3game ${wc3lib_CORE_LIBRARIES} wc3libeditor wc3libgame)
 
 		install(TARGETS wc3game DESTINATION bin)
 	endif ()
