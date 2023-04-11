@@ -348,7 +348,7 @@ void convertFile(const boost::filesystem::path &path, const boost::filesystem::p
 		throw wc3lib::Exception(boost::format(_("Error while opening file \"%1%\". Continuing with next one.")) % path.string());
 	}
 	
-	if (!outputPath.parent_path().empty() && !boost::filesystem::create_directories(outputPath.parent_path()))
+	if (!outputPath.parent_path().empty() && !boost::filesystem::is_directory(outputPath.parent_path()) && !boost::filesystem::create_directories(outputPath.parent_path()))
 	{
 		throw wc3lib::Exception(boost::format(_("Unable to create output parent directory \"%1%\". Continuing with next one.")) % outputPath.parent_path().string());
 	}
