@@ -324,6 +324,11 @@ void convertText(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3l
  */
 void convertFile(const boost::filesystem::path &path, const boost::filesystem::path &outputPath, const ConvFormat &inputFormat, const ConvFormat &outputFormat, bool verbose, bool overwrite)
 {
+	if (!overwrite && boost::filesystem::exists(outputPath))
+	{
+		throw wc3lib::Exception(boost::format(_("File \"%1%\" does already exist. Continuing with next one.")) % outputPath);
+	}
+
 	std::ios_base::openmode openMode = std::ifstream::in;
 
 	if (inputFormat.isBinary())
@@ -342,6 +347,11 @@ void convertFile(const boost::filesystem::path &path, const boost::filesystem::p
 	{
 		throw wc3lib::Exception(boost::format(_("Error while opening file \"%1%\". Continuing with next one.")) % path.string());
 	}
+	
+	if (!outputPath.parent_path().empty() && !boost::filesystem::create_directories(outputPath.parent_path()))
+	{
+		throw wc3lib::Exception(boost::format(_("Unable to create output parent directory \"%1%\". Continuing with next one.")) % outputPath.parent_path().string());
+	}
 
 	boost::filesystem::ofstream ofstream;
 
@@ -350,11 +360,6 @@ void convertFile(const boost::filesystem::path &path, const boost::filesystem::p
 	if (outputFormat.isBinary())
 	{
 		openMode |= std::ofstream::binary;
-	}
-
-	if (!overwrite && boost::filesystem::exists(outputPath))
-	{
-		throw wc3lib::Exception(boost::format(_("File \"%1%\" does already exist. Continuing with next one.")) % outputPath);
 	}
 
 	ofstream.open(outputPath, openMode);
