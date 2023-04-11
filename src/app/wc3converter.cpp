@@ -523,11 +523,12 @@ ConvFormat* formatByExtension(const boost::filesystem::path &path)
 		return 0;
 	}
 
-	ConvFormat::Formats::iterator iterator = ConvFormat::formats.find(boost::filesystem::extension(path).substr(1));
+	const std::string format = boost::algorithm::to_lower_copy(boost::filesystem::extension(path).substr(1));
+	ConvFormat::Formats::iterator iterator = ConvFormat::formats.find(format);
 
 	if (iterator == ConvFormat::formats.end())
 	{
-		std::cerr << boost::format(_("Format \"%1%\" not found!")) % boost::filesystem::extension(path) << std::endl;
+		std::cerr << boost::format(_("Format \"%1%\" not found!")) % format << std::endl;
 
 		return 0;
 	}
