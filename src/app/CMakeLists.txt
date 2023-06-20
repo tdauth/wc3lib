@@ -25,6 +25,11 @@ if (MAP)
 
 	install(TARGETS wc3baseobjectchanger DESTINATION bin)
 	
+	add_executable(wc3objectdataextractor wc3objectdataextractor)
+	target_link_libraries(wc3objectdataextractor ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+	install(TARGETS wc3objectdataextractor DESTINATION bin)
+	
 	add_executable(wc3abilitylevellimiter wc3abilitylevellimiter.cpp)
 	target_link_libraries(wc3abilitylevellimiter ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
 

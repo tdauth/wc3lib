@@ -619,6 +619,7 @@ int main(int argc, char *argv[])
 	ConvFormat::append("mdl", "Blizzard Entertainment's human-readable model format.", false, "mdlx");
 	ConvFormat::append("txt", "Blizzard Entertainment's TXT files.", false, "txt");
 	ConvFormat::append("xml", "Extensible Markup Language", false, "text");
+	ConvFormat::append("json", "JavaScript Object Notation", false, "json");
 
 	if (vm.count("formats"))
 	{

@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 
 	boost::program_options::options_description desc("Allowed options");
 	desc.add_options()
-	("version,V", _("Shows current version of mpq."))
+	("version,V", _("Shows current version of wc3baseobjectchanger."))
 	("help,h",_("Shows this text."))
 	// options
 	("verbose", _("Add more text output."))
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
 
 	if (vm.count("help"))
 	{
-		std::cout << _("Usage: wc3converter [options] [output file/directory] [input files]") << std::endl << std::endl;
+		std::cout << _("Usage: wc3baseobjectchanger [options] [output file/directory] [input files]") << std::endl << std::endl;
 		std::cout << desc << std::endl;
 		std::cout << wc3lib::wc3libReportBugs() << std::endl;
 
