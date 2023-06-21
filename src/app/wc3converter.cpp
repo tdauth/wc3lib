@@ -286,6 +286,44 @@ void convertMdlx(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3l
 /**
  * \throw wc3lib::Exception Throws an exception if an error occurs.
  */
+void convertObject(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3lib::ofstream &out, const ConvFormat &inputFormat, const ConvFormat &outputFormat, bool verbose)
+{
+	boost::scoped_ptr<wc3lib::map::CustomObjects> customObjects(new wc3lib::map::CustomObjects(wc3lib::map::CustomObjects::Type::Doodads));
+
+	if (inputFormat.extension() == "w3u" || inputFormat.extension() == "w3a")
+	{
+		std::streamsize bytes = customObjects->read(in);
+
+		if (verbose)
+		{
+			std::cout << boost::format(_("Read object file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
+		}
+	}
+	else
+	{
+		throw wc3lib::Exception(boost::format(_("File \"%1%\" is not converted with a valid input format.\nUsed input format is %2%.")) % path.string() % inputFormat.extension());
+	}
+
+	if (outputFormat.extension() == "json")
+	{
+		out << "{" << std::endl;
+		out << "}" << std::endl;
+		std::streamsize bytes = 0; // mdlx->writeMdx(out);
+
+		if (verbose)
+		{
+			std::cout << boost::format(_("Wrote JSON file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
+		}
+	}
+	else
+	{
+		throw wc3lib::Exception(boost::format(_("File \"%1%\" is not converted into a valid output format.\nUsed output format is %2%.")) % path.string() % outputFormat.extension());
+	}
+}
+
+/**
+ * \throw wc3lib::Exception Throws an exception if an error occurs.
+ */
 void convertText(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3lib::ofstream &out, const ConvFormat &inputFormat, const ConvFormat &outputFormat, bool verbose)
 {
 	boost::scoped_ptr<wc3lib::map::Txt> txt(new wc3lib::map::Txt());
@@ -376,6 +414,10 @@ void convertFile(const boost::filesystem::path &path, const boost::filesystem::p
 	else if (inputFormat.group() == "mdlx")
 	{
 		convertMdlx(path, ifstream, ofstream, inputFormat, outputFormat, verbose);
+	}
+	else if (inputFormat.group() == "object")
+	{
+		convertObject(path, ifstream, ofstream, inputFormat, outputFormat, verbose);
 	}
 	else if (inputFormat.group() == "text")
 	{
@@ -615,11 +657,12 @@ int main(int argc, char *argv[])
 	ConvFormat::append("jpg", "JPG image.", true, "blp");
 	ConvFormat::append("tga", "TGA image.", true, "blp");
 #endif
-	ConvFormat::append("mdx", "Blizzard Entertainment's binary model format.", true, "mdlx");
-	ConvFormat::append("mdl", "Blizzard Entertainment's human-readable model format.", false, "mdlx");
-	ConvFormat::append("txt", "Blizzard Entertainment's TXT files.", false, "txt");
+	ConvFormat::append("mdx", "Warcraft III binary model format.", true, "mdlx");
+	ConvFormat::append("mdl", "Warcraft III human-readable model format.", false, "mdlx");
+	ConvFormat::append("w3u", "Warcraft III unit data.", true, "object");
+	ConvFormat::append("txt", "Warcraft III TXT files.", false, "txt");
 	ConvFormat::append("xml", "Extensible Markup Language", false, "text");
-	ConvFormat::append("json", "JavaScript Object Notation", false, "json");
+	ConvFormat::append("json", "JavaScript Object Notation", false, "text");
 
 	if (vm.count("formats"))
 	{
@@ -707,12 +750,12 @@ int main(int argc, char *argv[])
 			{
 				ConvFormat *realInputFormat = inputFormat;
 
-				if (realInputFormat == 0)
+				if (realInputFormat == nullptr)
 				{
 					realInputFormat = formatByExtension(path);
 				}
 
-				if (realInputFormat == 0)
+				if (realInputFormat == nullptr)
 				{
 					throw wc3lib::Exception(boost::format(_("Input file format couldn't be determined by extension of %1%.")) % path);
 				}

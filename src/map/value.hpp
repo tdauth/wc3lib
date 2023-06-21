@@ -159,6 +159,7 @@ class Value : public ValueBase
 		Value(const Value &other);
 
 		Type type() const;
+		bool isInteger() const;
 		int32& toInteger();
 		const int32& toInteger() const;
 		bool isReal() const;
@@ -167,8 +168,10 @@ class Value : public ValueBase
 		bool isString() const;
 		string& toString();
 		const string& toString() const;
+		bool isBoolean() const;
 		bool& toBoolean();
 		const bool& toBoolean() const;
+		bool isCharacter() const;
 		byte& toCharacter();
 		const byte& toCharacter() const;
 		bool isList() const;

@@ -173,24 +173,24 @@ int main(int argc, char *argv[])
 							std::cout << boost::format(_("Extracting field %1% from object ID %2%.")) % wc3lib::map::idToString(unit.customId()) % wc3lib::map::idToString(modification.valueId()) << std::endl;
 							counter++;
 							
-							if (value.isList()) {
-								const wc3lib::map::List &v = value.toList();
+							if (modification.value().isList()) {
+								const wc3lib::map::List &v = modification.value().toList();
 								
 								for (int i = 0; i < v.size(); i++) {
 									out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * " << max << "] = " << v[i] << std::endl;
 								}
 								
 								out << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "] = " << v.size() << std::endl;
-							} else if (value.isInteger()) {
-								out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << value.toInteger() << std::endl;
-							} else if (value.isReal()) {
-								out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << value.toReal() << std::endl;
-							} else if (value.isString()) {
-								out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << value.toString() << std::endl;
-							} else if (value.isBoolean()) {
-								out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << value.toBoolean() << std::endl;
-							} else if (value.isCharacter()) {
-								out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << value.toCharacter() << std::endl;
+							} else if (modification.value().isInteger()) {
+								out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toInteger() << std::endl;
+							} else if (modification.value().isReal()) {
+								out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toReal() << std::endl;
+							} else if (modification.value().isString()) {
+								out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toString() << std::endl;
+							} else if (modification.value().isBoolean()) {
+								out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toBoolean() << std::endl;
+							} else if (modification.value().isCharacter()) {
+								out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toCharacter() << std::endl;
 							}
 						}
 					}

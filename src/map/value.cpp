@@ -151,6 +151,11 @@ Value::Type Value::type() const
 	return m_type;
 }
 
+bool Value::isInteger() const
+{
+	return type() == Type::Integer;
+}
+
 int32& Value::toInteger()
 {
 	if (type() != Type::Integer)
@@ -232,6 +237,11 @@ const string& Value::toString() const
 	return boost::get<const string>(*this);
 }
 
+bool Value::isBoolean() const
+{
+	return type() == Type::Boolean;
+}
+
 bool& Value::toBoolean()
 {
 	if (type() != Type::Boolean)
@@ -250,6 +260,11 @@ const bool& Value::toBoolean() const
 	}
 
 	return boost::get<const bool>(*this);
+}
+
+bool Value::isCharacter() const
+{
+	return type() == Type::Character;
 }
 
 byte& Value::toCharacter()
