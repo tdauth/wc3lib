@@ -604,10 +604,10 @@ int main(int argc, char *argv[])
 	("oformat", boost::program_options::value<std::string>(&outputFormatExtension)->default_value(""), _("<arg> has to be replaced by output files format."))
 	("recursive,R", _("If some of the input files are directories they will be iterated recursively and searched for other files with the input format extension."))
 	("verbose", _("Add more text output."))
-	("overwrite", _("Overwrites existing files and directories when creating or extracting files."))
+	("overwrite,F", _("Overwrites existing files and directories when creating or extracting files."))
 	("merge", _("Merges input files into one output file if possible. This can be useful for TXT files with sections."))
-	("i", boost::program_options::value<Strings>(&inputFiles), _("Input files."))
-	("o", boost::program_options::value<boost::filesystem::path>(&outputFile), _("Output file or directory (for multiple files)."))
+	("input,i", boost::program_options::value<Strings>(&inputFiles), _("Input files."))
+	("outputo", boost::program_options::value<boost::filesystem::path>(&outputFile), _("Output file or directory (for multiple files)."))
 	;
 
 	boost::program_options::positional_options_description p;

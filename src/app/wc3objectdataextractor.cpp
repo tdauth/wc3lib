@@ -62,12 +62,12 @@ int main(int argc, char *argv[])
 	("help,h",_("Shows this text."))
 	// options
 	("verbose", _("Add more text output."))
-	("overwrite", _("Overwrites existing files and directories when creating or extracting files."))
-    ("f", boost::program_options::value<Strings>(&fieldIds), _("Field IDs. Extracts all field IDS if none is specified."))
-    ("d", boost::program_options::value<Strings>(&objectIds), _("Object IDs. Extracts all object IDS if none is specified."))
-	("m", boost::program_options::value<int>(&max)->default_value(max), _("Maximum number of levels."))
-	("i", boost::program_options::value<Strings>(&inputFiles), _("Input object data files (.w3a, .w3u etc.)."))
-	("o", boost::program_options::value<boost::filesystem::path>(&outputFile), _("Output JASS file."))
+	("overwrite,F", _("Overwrites existing files and directories when creating or extracting files."))
+    ("fieldids,f", boost::program_options::value<Strings>(&fieldIds), _("Field IDs. Extracts all field IDS if none is specified."))
+    ("objectids,d", boost::program_options::value<Strings>(&objectIds), _("Object IDs. Extracts all object IDS if none is specified."))
+	("max,m", boost::program_options::value<int>(&max)->default_value(max), _("Maximum number of levels."))
+	("input,i", boost::program_options::value<Strings>(&inputFiles), _("Input object data files (.w3a, .w3u etc.)."))
+	("output,o", boost::program_options::value<boost::filesystem::path>(&outputFile), _("Output JASS file."))
 	;
 
 	boost::program_options::positional_options_description p;
@@ -108,6 +108,13 @@ int main(int argc, char *argv[])
 		std::cout << wc3lib::wc3libReportBugs() << std::endl;
 
 		return EXIT_SUCCESS;
+	}
+	
+	if (boost::filesystem::exists(outputFile) && !vm.count("overwrite"))
+	{
+		std::cerr << boost::format(_("Output file %1% does already exist. Use --overwrite if you want to replace it.")) % outputFile.string() << std::endl;
+
+		return EXIT_FAILURE;
 	}
 
 	FilePaths inputFilePaths;

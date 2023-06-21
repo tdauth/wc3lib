@@ -158,10 +158,21 @@ See [wc3abilityhotkeyfixer.sh](./scripts/wc3abilityhotkeyfixer.sh) as an example
 This tool allows converting files with Warcraft III formats.
 
 The following command converts the MDL file `MyModel.mdl` into the MDX file `MyModel.mdx`:
+
 ```
 wc3converter MyModel.mdx MyModel.mdl
 ```
 TODO MDL and MDX parsing and generating might not be fully supported yet.
+
+### wc3objectdataextractor
+
+This tool allows to extract object data fields from Warcraft III object data into a JASS file.
+
+The following command extracts all fields from the custom units file `war3map.w3u`into the newly generated JASS file `script.j`:
+
+```
+wc3objectdataextractor script.j war3map.w3u
+```
 
 ### wc3trans
 
