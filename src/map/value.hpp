@@ -184,6 +184,83 @@ class Value : public ValueBase
 		Type m_type;
 };
 
+/**
+ * This operator is required for displaying objects of type \ref wc3lib::map::Value::Type on std::cout for instance.
+ */
+inline std::ostream& operator<<(std::ostream &ostream, const wc3lib::map::Value::Type &t)
+{
+	switch (t) {
+		case wc3lib::map::Value::Type::Integer: {
+			return (ostream << "AttributeType");
+		}
+		case wc3lib::map::Value::Type::Real: {
+			return (ostream << "Real");
+		}
+		case wc3lib::map::Value::Type::Unreal: {
+			return (ostream << "Unreal");
+		}
+		case wc3lib::map::Value::Type::String: {
+			return (ostream << "String");
+		}
+		case wc3lib::map::Value::Type::Boolean: {
+			return (ostream << "Boolean");
+		}
+		case wc3lib::map::Value::Type::Character: {
+			return (ostream << "Character");
+		}
+		case wc3lib::map::Value::Type::UnitList: {
+			return (ostream << "UnitList");
+		}
+		case wc3lib::map::Value::Type::ItemList: {
+			return (ostream << "ItemList");
+		}
+		case wc3lib::map::Value::Type::RegenerationType: {
+			return (ostream << "RegenerationType");
+		}
+		case wc3lib::map::Value::Type::AttackType: {
+			return (ostream << "AttackType");
+		}
+		case wc3lib::map::Value::Type::WeaponType: {
+			return (ostream << "WeaponType");
+		}
+		case wc3lib::map::Value::Type::TargetType: {
+			return (ostream << "TargetType");
+		}
+		case wc3lib::map::Value::Type::MoveType: {
+			return (ostream << "MoveType");
+		}
+		case wc3lib::map::Value::Type::DefenseType: {
+			return (ostream << "DefenseType");
+		}
+		case wc3lib::map::Value::Type::PathingTexture: {
+			return (ostream << "PathingTexture");
+		}
+		case wc3lib::map::Value::Type::UpgradeList: {
+			return (ostream << "UpgradeList");
+		}
+		case wc3lib::map::Value::Type::StringList: {
+			return (ostream << "StringList");
+		}
+		case wc3lib::map::Value::Type::AbilityList: {
+			return (ostream << "AbilityList");
+		}
+		case wc3lib::map::Value::Type::HeroAbilityList: {
+			return (ostream << "HeroAbilityList");
+		}
+		case wc3lib::map::Value::Type::MissileArt: {
+			return (ostream << "MissileArt");
+		}
+		case wc3lib::map::Value::Type::AttributeType: {
+			return (ostream << "AttributeType");
+		}
+		case wc3lib::map::Value::Type::AttackBits: {
+			return (ostream << "unknown");
+		}
+	}
+	
+	return (ostream << "unknown");
+}
+
 }
 
 }
