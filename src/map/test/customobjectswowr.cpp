@@ -55,3 +55,24 @@ BOOST_AUTO_TEST_CASE(Units)
 	BOOST_REQUIRE_EQUAL(modification->value().type(), map::Value::Type::String);
 	BOOST_REQUIRE_EQUAL(modification->value().toString(), "My Unit");
 }
+
+BOOST_AUTO_TEST_CASE(Abilities)
+{
+	std::ifstream in("reforged/war3map.w3a");
+	
+	const map::CustomObjects customUnits(map::CustomObjects::Type::Abilities);
+	customUnits.read(in);
+	
+	BOOST_REQUIRE_EQUAL(customUnits.type(), map::CustomObjects::Type::Abilities);
+	BOOST_REQUIRE_EQUAL(customUnits.fileName(), "war3map.w3a");
+	BOOST_REQUIRE_EQUAL(customUnits.customTable().size(), 1);
+	const map::CustomObjects::Object *object = boost::polymorphic_cast<map::CustomObjects::Object*>(&customUnits.customTable().at(0));
+	BOOST_REQUIRE_EQUAL(object->type(), map::CustomObjects::Type::Abilities);
+	BOOST_REQUIRE_EQUAL(map::idToString(object->originalId()), "hpea"); // footman id
+	BOOST_REQUIRE_EQUAL(map::idToString(object->customId()), "h000");
+	BOOST_REQUIRE_EQUAL(object->modifications().size(), 1); // only name field changed
+	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object->modifications().at(0));
+	BOOST_REQUIRE_EQUAL(map::idToString(modification->valueId()), "unam"); // the values id are taken from "AbilityMetaData.slk" first column
+	BOOST_REQUIRE_EQUAL(modification->value().type(), map::Value::Type::String);
+	BOOST_REQUIRE_EQUAL(modification->value().toString(), "My Unit");
+}
