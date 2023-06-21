@@ -254,7 +254,7 @@ inline std::ostream& operator<<(std::ostream &ostream, const wc3lib::map::Value:
 			return (ostream << "AttributeType");
 		}
 		case wc3lib::map::Value::Type::AttackBits: {
-			return (ostream << "unknown");
+			return (ostream << "AttackBits");
 		}
 	}
 	
