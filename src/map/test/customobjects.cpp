@@ -99,8 +99,10 @@ BOOST_AUTO_TEST_CASE(Units)
 	BOOST_REQUIRE(object->type() == map::CustomObjects::Type::Units);
 	BOOST_REQUIRE(map::idToString(object->originalId()) == "hpea"); // footman id
 	BOOST_REQUIRE(map::idToString(object->customId()) == "h000");
-	BOOST_REQUIRE(object->modifications().size() == 1); // only name field changed
-	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object->modifications().at(0));
+	BOOST_REQUIRE_EQUAL(object->sets().size(), 1);
+	const map::CustomObjects::Set *set = boost::polymorphic_cast<const map::CustomObjects::Set*>(&object->sets().at(0));
+	BOOST_REQUIRE(set->modifications().size() == 1); // only name field changed
+	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&set->modifications().at(0));
 	BOOST_REQUIRE(map::idToString(modification->valueId()) == "unam"); // the values id are taken from "UnitMetaData.slk" first column
 	BOOST_REQUIRE(modification->value().type() == map::Value::Type::String);
 	BOOST_REQUIRE(modification->value().toString() == "My Unit");
@@ -119,8 +121,10 @@ BOOST_AUTO_TEST_CASE(Items)
 	BOOST_REQUIRE(object->type() == map::CustomObjects::Type::Items);
 	BOOST_REQUIRE(map::idToString(object->originalId()) == "tkno"); // tome of power
 	BOOST_REQUIRE(map::idToString(object->customId()) == "I000");
-	BOOST_REQUIRE(object->modifications().size() == 1); // only name field changed
-	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object->modifications().at(0));
+	BOOST_REQUIRE_EQUAL(object->sets().size(), 1);
+	const map::CustomObjects::Set *set = boost::polymorphic_cast<const map::CustomObjects::Set*>(&object->sets().at(0));
+	BOOST_REQUIRE_EQUAL(set->modifications().size(), 1); // only name field changedl
+	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&set->modifications().at(0));
 	BOOST_REQUIRE(map::idToString(modification->valueId()) == "unam"); // the values id are taken from "UnitMetaData.slk" first column
 	BOOST_REQUIRE(modification->value().type() == map::Value::Type::String);
 	BOOST_REQUIRE(modification->value().toString() == "My Item");
@@ -139,8 +143,10 @@ BOOST_AUTO_TEST_CASE(Destructibles)
 	BOOST_REQUIRE(object->type() == map::CustomObjects::Type::Destructibles);
 	BOOST_REQUIRE(map::idToString(object->originalId()) == "DTrf"); // first destructible
 	BOOST_REQUIRE(map::idToString(object->customId()) == "B000");
-	BOOST_REQUIRE(object->modifications().size() == 1); // only name field changed
-	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object->modifications().at(0));
+	BOOST_REQUIRE_EQUAL(object->sets().size(), 1);
+	const map::CustomObjects::Set *set = boost::polymorphic_cast<const map::CustomObjects::Set*>(&object->sets().at(0));
+	BOOST_REQUIRE_EQUAL(set->modifications().size(), 1); // only name field changedl
+	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&set->modifications().at(0));
 	BOOST_REQUIRE(map::idToString(modification->valueId()) == "bnam"); // the values id are taken from "DestructableMetaData.slk" first column
 	BOOST_REQUIRE(modification->value().type() == map::Value::Type::String);
 	BOOST_REQUIRE(modification->value().toString() == "My Destructible");
@@ -159,8 +165,10 @@ BOOST_AUTO_TEST_CASE(Doodads)
 	BOOST_REQUIRE(object->type() == map::CustomObjects::Type::Doodads);
 	BOOST_REQUIRE(map::idToString(object->originalId()) == "ASbl"); // first doodad
 	BOOST_REQUIRE(map::idToString(object->customId()) == "D000");
-	BOOST_REQUIRE(object->modifications().size() == 1); // only name field changed
-	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object->modifications().at(0));
+	BOOST_REQUIRE_EQUAL(object->sets().size(), 1);
+	const map::CustomObjects::Set *set = boost::polymorphic_cast<const map::CustomObjects::Set*>(&object->sets().at(0));
+	BOOST_REQUIRE_EQUAL(set->modifications().size(), 1); // only name field changedl
+	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&set->modifications().at(0));
 	BOOST_REQUIRE(map::idToString(modification->valueId()) == "dnam"); // the values id are taken from "Doodads/DoodadMetaData.slk" first column
 	BOOST_REQUIRE(modification->value().type() == map::Value::Type::String);
 	BOOST_REQUIRE(modification->value().toString() == "My Doodad");
@@ -179,8 +187,10 @@ BOOST_AUTO_TEST_CASE(Abilities)
 	BOOST_REQUIRE(object->type() == map::CustomObjects::Type::Abilities);
 	BOOST_REQUIRE(map::idToString(object->originalId()) == "AUcb"); // first ability
 	BOOST_REQUIRE(map::idToString(object->customId()) == "A000");
-	BOOST_REQUIRE(object->modifications().size() == 1); // only name field changed
-	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object->modifications().at(0));
+	BOOST_REQUIRE_EQUAL(object->sets().size(), 1);
+	const map::CustomObjects::Set *set = boost::polymorphic_cast<const map::CustomObjects::Set*>(&object->sets().at(0));
+	BOOST_REQUIRE_EQUAL(set->modifications().size(), 1); // only name field changedl
+	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&set->modifications().at(0));
 	BOOST_REQUIRE(map::idToString(modification->valueId()) == "anam"); // the values id are taken from "AbilityMetaData.slk" first column
 	BOOST_REQUIRE(modification->value().type() == map::Value::Type::String);
 	BOOST_REQUIRE(modification->value().toString() == "My Ability");
@@ -199,8 +209,10 @@ BOOST_AUTO_TEST_CASE(Buffs)
 	BOOST_REQUIRE(object->type() == map::CustomObjects::Type::Buffs);
 	BOOST_REQUIRE(map::idToString(object->originalId()) == "BUcb"); // first ability
 	BOOST_REQUIRE(map::idToString(object->customId()) == "B000");
-	BOOST_REQUIRE(object->modifications().size() == 1); // only name field changed
-	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object->modifications().at(0));
+	BOOST_REQUIRE_EQUAL(object->sets().size(), 1);
+	const map::CustomObjects::Set *set = boost::polymorphic_cast<const map::CustomObjects::Set*>(&object->sets().at(0));
+	BOOST_REQUIRE_EQUAL(set->modifications().size(), 1); // only name field changedl
+	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&set->modifications().at(0));
 	BOOST_REQUIRE(map::idToString(modification->valueId()) == "fnam"); // the values id are taken from "Units\AbilityBuffMetaData.slk" first column NOTE the file is not listed in the listfile
 	BOOST_REQUIRE(modification->value().type() == map::Value::Type::String);
 	BOOST_REQUIRE(modification->value().toString() == "My Buff");
@@ -219,8 +231,10 @@ BOOST_AUTO_TEST_CASE(Upgrades)
 	BOOST_REQUIRE(object->type() == map::CustomObjects::Type::Upgrades);
 	BOOST_REQUIRE(map::idToString(object->originalId()) == "Rhme"); // first upgrade
 	BOOST_REQUIRE(map::idToString(object->customId()) == "R000");
-	BOOST_REQUIRE(object->modifications().size() == 1); // only name field changed
-	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object->modifications().at(0));
+	BOOST_REQUIRE_EQUAL(object->sets().size(), 1);
+	const map::CustomObjects::Set *set = boost::polymorphic_cast<const map::CustomObjects::Set*>(&object->sets().at(0));
+	BOOST_REQUIRE_EQUAL(set->modifications().size(), 1); // only name field changedl
+	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&set->modifications().at(0));
 	BOOST_REQUIRE(map::idToString(modification->valueId()) == "gnam"); // the values id are taken from "UpgradeMetaData.slk" first column
 	BOOST_REQUIRE(modification->value().type() == map::Value::Type::String);
 	BOOST_REQUIRE(modification->value().toString() == "My Upgrade");

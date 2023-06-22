@@ -33,6 +33,8 @@ namespace map
  * Warcraft III: The Frozen Throne allows you to customize every possible object data using Warcraft III's unit data format with some minor changes.
  * Corresponding type of data is stored dynamically (\ref CustomObjects::Type).
  *
+ * Warcraft III: Reforged allows multiple sets of modifications per object entry.
+ *
  * \sa CustomUnits
  * \sa CustomObjectsCollection
  * \ingroup objectdata
@@ -100,10 +102,27 @@ class CustomObjects : public CustomUnits
 				int32 m_data; // A, 1 = B, 2 = C, 3 = D, 4 = F, 5 = G, 6 = H
 		};
 
+		class Set : public CustomUnits::Set
+		{
+			public:
+				Set(uint32 version, CustomObjects::Type type);
+				Set(const Set &other);
+				virtual ~Set();
+
+				virtual CustomUnits::Set* clone() const override;
+
+				CustomObjects::Type type() const;
+
+			protected:
+				virtual CustomUnits::Modification* createModification() const;
+
+				CustomObjects::Type m_type;
+		};
+
 		class Object : public CustomUnits::Unit
 		{
 			public:
-				Object(CustomObjects::Type type);
+				Object(uint32 version, CustomObjects::Type type);
 				Object(const Object &other);
 				virtual ~Object();
 
@@ -112,7 +131,7 @@ class CustomObjects : public CustomUnits
 				CustomObjects::Type type() const;
 
 			protected:
-				virtual CustomUnits::Modification* createModification() const override;
+				virtual CustomUnits::Set* createSet() const override;
 
 				CustomObjects::Type m_type;
 		};
@@ -138,6 +157,11 @@ class CustomObjects : public CustomUnits
 };
 
 inline CustomObjects::Type CustomObjects::Object::type() const
+{
+	return this->m_type;
+}
+
+inline CustomObjects::Type CustomObjects::Set::type() const
 {
 	return this->m_type;
 }

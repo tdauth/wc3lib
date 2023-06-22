@@ -826,10 +826,15 @@ void ObjectData::importCustomUnits(const map::CustomUnits &units)
 		{
 			const QString customObjectId = map::idToString(unit.customId()).c_str();
 
-			for (map::CustomUnits::Unit::Modifications::size_type j = 0; j < unit.modifications().size(); ++j)
+			for (map::CustomUnits::Unit::Sets::size_type j = 0; j < unit.sets().size(); ++j)
 			{
-				const map::CustomUnits::Modification &modification = unit.modifications()[j];
-				this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), unitToObjectModification(modification));
+				const map::CustomUnits::Set &set = unit.sets()[j];
+
+				for (map::CustomUnits::Set::Modifications::size_type k = 0; k < set.modifications().size(); ++k)
+				{
+					const map::CustomUnits::Modification &modification = set.modifications()[k];
+					this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), unitToObjectModification(modification));
+				}
 			}
 		}
 	}
@@ -847,10 +852,15 @@ void ObjectData::importCustomUnits(const map::CustomUnits &units)
 		{
 			const QString customObjectId = map::idToString(unit.customId()).c_str();
 
-			for (map::CustomUnits::Unit::Modifications::size_type j = 0; j < unit.modifications().size(); ++j)
+			for (map::CustomUnits::Unit::Sets::size_type j = 0; j < unit.sets().size(); ++j)
 			{
-				const map::CustomUnits::Modification &modification = unit.modifications()[j];
-				this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), unitToObjectModification(modification));
+				const map::CustomUnits::Set &set = unit.sets()[j];
+
+				for (map::CustomUnits::Set::Modifications::size_type k = 0; k < set.modifications().size(); ++k)
+				{
+					const map::CustomUnits::Modification &modification = set.modifications()[k];
+					this->modifyField(originalObjectId, customObjectId, map::idToString(modification.valueId()).c_str(), unitToObjectModification(modification));
+				}
 			}
 		}
 	}
@@ -869,11 +879,16 @@ void ObjectData::importCustomObjects(const map::CustomObjects& objects)
 		const QString originalObjectId = map::idToString(object.originalId()).c_str();
 		const QString customObjectId = map::idToString(object.customId()).c_str();
 
-		for (map::CustomObjects::Object::Modifications::size_type j = 0; j < object.modifications().size(); ++j)
+		for (map::CustomUnits::Unit::Sets::size_type j = 0; j < object.sets().size(); ++j)
 		{
-			const map::CustomObjects::Modification &modification = *boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object.modifications()[j]);
-			const QString fieldId = map::idToString(modification.valueId()).c_str();
-			this->modifyField(originalObjectId, customObjectId, fieldId, modification);
+			const map::CustomUnits::Set &set = object.sets()[j];
+
+			for (map::CustomObjects::Set::Modifications::size_type k = 0; k < set.modifications().size(); ++k)
+			{
+				const map::CustomObjects::Modification &modification = *boost::polymorphic_cast<const map::CustomObjects::Modification*>(&set.modifications()[k]);
+				const QString fieldId = map::idToString(modification.valueId()).c_str();
+				this->modifyField(originalObjectId, customObjectId, fieldId, modification);
+			}
 		}
 	}
 
@@ -883,11 +898,16 @@ void ObjectData::importCustomObjects(const map::CustomObjects& objects)
 		const QString originalObjectId = map::idToString(object.originalId()).c_str();
 		const QString customObjectId = map::idToString(object.customId()).c_str();
 
-		for (map::CustomObjects::Object::Modifications::size_type j = 0; j < object.modifications().size(); ++j)
+		for (map::CustomUnits::Unit::Sets::size_type j = 0; j < object.sets().size(); ++j)
 		{
-			const map::CustomObjects::Modification &modification = *boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object.modifications()[j]);
-			const QString fieldId = map::idToString(modification.valueId()).c_str();
-			this->modifyField(originalObjectId, customObjectId, fieldId, modification);
+			const map::CustomUnits::Set &set = object.sets()[j];
+
+			for (map::CustomObjects::Set::Modifications::size_type k = 0; k < set.modifications().size(); ++k)
+			{
+				const map::CustomObjects::Modification &modification = *boost::polymorphic_cast<const map::CustomObjects::Modification*>(&set.modifications()[k]);
+				const QString fieldId = map::idToString(modification.valueId()).c_str();
+				this->modifyField(originalObjectId, customObjectId, fieldId, modification);
+			}
 		}
 	}
 
@@ -915,13 +935,15 @@ map::CustomUnits ObjectData::customUnits() const
 
 	for (Objects::const_iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
 	{
-		std::auto_ptr<map::CustomUnits::Unit> unit(new map::CustomUnits::Unit());
+		std::auto_ptr<map::CustomUnits::Unit> unit(new map::CustomUnits::Unit(units.version()));
 		unit->setOriginalId(map::stringToId(iterator.key().originalObjectId().toUtf8().constData()));
 		unit->setCustomId(map::stringToId(iterator.key().customObjectId().toUtf8().constData()));
+		std::auto_ptr<map::CustomUnits::Set> set(new map::CustomUnits::Set(units.version()));
+		unit->sets().push_back(set);
 
 		foreach (map::CustomObjects::Modification modification, iterator.value())
 		{
-			unit->modifications().push_back(new map::CustomUnits::Modification(modification));
+			set->modifications().push_back(new map::CustomUnits::Modification(modification));
 		}
 
 		/*
@@ -951,15 +973,17 @@ map::CustomObjects ObjectData::customObjects() const
 
 	for (Objects::const_iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
 	{
-		std::auto_ptr<map::CustomObjects::Object> object(new map::CustomObjects::Object(this->type()));
+		std::auto_ptr<map::CustomObjects::Object> object(new map::CustomObjects::Object(objects.version(), this->type()));
 		const QString originalObjectId = iterator.key().originalObjectId();
 		const QString customObjectId = iterator.key().customObjectId();
 		object->setOriginalId(map::stringToId(originalObjectId.toUtf8().constData()));
 		object->setCustomId(map::stringToId(customObjectId.toUtf8().constData()));
+		std::auto_ptr<map::CustomUnits::Set> set(new map::CustomUnits::Set(objects.version()));
+		object->sets().push_back(set);
 
 		foreach (const map::CustomObjects::Modification &modification, iterator.value())
 		{
-			object->modifications().push_back(new map::CustomObjects::Modification(modification));
+			set->modifications().push_back(new map::CustomObjects::Modification(modification));
 		}
 
 		/*
@@ -980,7 +1004,7 @@ map::CustomObjects ObjectData::customObjects() const
 
 map::CustomObjects::Object ObjectData::customObject(const QString &originalObjectId, const QString &customObjectId) const
 {
-	map::CustomObjects::Object object(this->type());
+	map::CustomObjects::Object object((wc3lib::uint32)map::CustomUnits::KnownVersions::Reforged, this->type());
 	// TODO which one is the custom id
 	object.setOriginalId(map::stringToId(originalObjectId.toStdString()));
 	object.setCustomId(map::stringToId(customObjectId.toStdString()));
@@ -989,9 +1013,12 @@ map::CustomObjects::Object ObjectData::customObject(const QString &originalObjec
 
 	if (iterator != this->m_objects.constEnd())
 	{
+		std::auto_ptr<map::CustomUnits::Set> set(new map::CustomUnits::Set(object.version()));
+		object.sets().push_back(set);
+
 		foreach (map::CustomObjects::Modification modification, iterator.value())
 		{
-			object.modifications().push_back(new map::CustomObjects::Modification(modification));
+			set->modifications().push_back(new map::CustomObjects::Modification(modification));
 		}
 	}
 

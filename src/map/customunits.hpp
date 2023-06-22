@@ -54,6 +54,13 @@ namespace map
 class CustomUnits : public FileFormat
 {
 	public:
+
+		enum class KnownVersions : uint32 {
+			ReignOfChaos = 1,
+			FrozenThrone = 2, /// Level/variation data. \ref CustomObjects.
+			Reforged = 3 /// Sets. Each object can have multiple sets with modifications.
+		};
+
 		/**
 		 * Provides access to one single modification of a unit field. Each field has its unique id which is returned by \ref valueId().
 		 * All valid unit field ids are stored in "Units\UnitMetaData.slk" of the latest Warcraft MPQ archive.
@@ -93,15 +100,15 @@ class CustomUnits : public FileFormat
 		};
 
 		/**
-		 * \brief Represents one single unit entry in a table which contains a list of modifications for all modified unit fields.
+		 * \brief Represents one single set for a unit which contains modifications.
+		 *
+		 * Sets have been introduced with version 3 of the custom objects format in Reforged.
+		 * Previously, there was only 1 set per unit.
 		 *
 		 * Use \ref modifications() to access the list.
-		 * If \ref isOriginal() returns true it is not a custom unit.
-		 * All custom units are based on an original one whichs id can be got using \ref originalId().
-		 * The custom unit's id is returned by \ref customId() which returns 0 for original units.
 		 * \sa Modification
 		 */
-		class Unit : public Format
+		class Set : public Format
 		{
 			public:
 				/**
@@ -109,7 +116,46 @@ class CustomUnits : public FileFormat
 				 */
 				typedef boost::ptr_vector<Modification> Modifications;
 
-				Unit();
+				Set(uint32 version);
+				Set(const Set &other);
+				virtual ~Set();
+
+				virtual Set* clone() const;
+
+				virtual std::streamsize read(InputStream &istream) override;
+				virtual std::streamsize write(OutputStream &ostream) const override;
+
+				Modifications& modifications();
+				const Modifications& modifications() const;
+
+			protected:
+				/**
+				 * This internal function must be overwritten to provide another data type for \ref Modification.
+				 */
+				virtual Modification* createModification() const;
+
+				uint32 m_version;
+				int32 m_flag;
+				Modifications m_modifications;
+		};
+
+		/**
+		 * \brief Represents one single unit entry in a table which contains a list of sets.
+		 *
+		 * If \ref isOriginal() returns true it is not a custom unit.
+		 * All custom units are based on an original one whichs id can be got using \ref originalId().
+		 * The custom unit's id is returned by \ref customId() which returns 0 for original units.
+		 * \sa Set
+		 */
+		class Unit : public Format
+		{
+			public:
+				/**
+				 * \brief List of sets for one single unit entry.
+				 */
+				typedef boost::ptr_vector<Set> Sets;
+
+				Unit(uint32 version);
 				Unit(const Unit &other);
 				virtual ~Unit();
 
@@ -135,18 +181,19 @@ class CustomUnits : public FileFormat
 				 */
 				void setCustomId(id customId);
 				id customId() const;
-				Modifications& modifications();
-				const Modifications& modifications() const;
+				Sets& sets();
+				const Sets& sets() const;
 
 			protected:
 				/**
-				 * This internal function must be overwritten to provide another data type for \ref Modification.
+				 * This internal function must be overwritten to provide another data type for \ref Set.
 				 */
-				virtual Modification* createModification() const;
+				virtual Set* createSet() const;
 
+				uint32 m_version;
 				id m_originalId;
 				id m_customId;
-				Modifications m_modifications;
+				Sets m_sets;
 		};
 
 		/**
@@ -231,6 +278,16 @@ inline const Value& CustomUnits::Modification::value() const
 	return m_value;
 }
 
+inline CustomUnits::Set::Modifications& CustomUnits::Set::modifications()
+{
+	return m_modifications;
+}
+
+inline const CustomUnits::Set::Modifications& CustomUnits::Set::modifications() const
+{
+	return m_modifications;
+}
+
 inline void CustomUnits::Unit::setOriginalId(id originalId)
 {
 	this->m_originalId = originalId;
@@ -251,14 +308,14 @@ inline id CustomUnits::Unit::customId() const
 	return m_customId;
 }
 
-inline CustomUnits::Unit::Modifications& CustomUnits::Unit::modifications()
+inline CustomUnits::Unit::Sets& CustomUnits::Unit::sets()
 {
-	return m_modifications;
+	return m_sets;
 }
 
-inline const CustomUnits::Unit::Modifications& CustomUnits::Unit::modifications() const
+inline const CustomUnits::Unit::Sets& CustomUnits::Unit::sets() const
 {
-	return m_modifications;
+	return m_sets;
 }
 
 inline const byte* CustomUnits::fileName() const

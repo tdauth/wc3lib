@@ -38,10 +38,10 @@ using namespace wc3lib;
 BOOST_AUTO_TEST_CASE(Units)
 {
 	std::ifstream in("reforged/war3map.w3u");
-	
+
 	map::CustomObjects customUnits(map::CustomObjects::Type::Units);
 	customUnits.read(in);
-	
+
 	BOOST_REQUIRE(customUnits.type() == map::CustomObjects::Type::Units);
 	BOOST_REQUIRE_EQUAL(customUnits.fileName(), "war3map.w3u");
 	BOOST_REQUIRE_EQUAL(customUnits.customTable().size(), 1);
@@ -49,8 +49,10 @@ BOOST_AUTO_TEST_CASE(Units)
 	BOOST_REQUIRE(object->type() == map::CustomObjects::Type::Units);
 	BOOST_REQUIRE_EQUAL(map::idToString(object->originalId()), "hpea"); // footman id
 	BOOST_REQUIRE_EQUAL(map::idToString(object->customId()), "h000");
-	BOOST_REQUIRE_EQUAL(object->modifications().size(), 1); // only name field changed
-	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object->modifications().at(0));
+	BOOST_REQUIRE_EQUAL(object->sets().size(), 1);
+	const map::CustomObjects::Set *set = boost::polymorphic_cast<const map::CustomObjects::Set*>(&object->sets().at(0));
+	BOOST_REQUIRE_EQUAL(set->modifications().size(), 1); // only name field changedl
+	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&set->modifications().at(0));
 	BOOST_REQUIRE_EQUAL(map::idToString(modification->valueId()), "unam"); // the values id are taken from "UnitMetaData.slk" first column
 	BOOST_REQUIRE(modification->value().type() == map::Value::Type::String);
 	BOOST_REQUIRE_EQUAL(modification->value().toString(), "My Unit");
@@ -59,10 +61,10 @@ BOOST_AUTO_TEST_CASE(Units)
 BOOST_AUTO_TEST_CASE(Abilities)
 {
 	std::ifstream in("reforged/war3map.w3a");
-	
+
 	map::CustomObjects customUnits(map::CustomObjects::Type::Abilities);
 	customUnits.read(in);
-	
+
 	BOOST_REQUIRE(customUnits.type() == map::CustomObjects::Type::Abilities);
 	BOOST_REQUIRE_EQUAL(customUnits.fileName(), "war3map.w3a");
 	BOOST_REQUIRE_EQUAL(customUnits.customTable().size(), 1);
@@ -70,8 +72,10 @@ BOOST_AUTO_TEST_CASE(Abilities)
 	BOOST_REQUIRE(object->type() == map::CustomObjects::Type::Abilities);
 	BOOST_REQUIRE_EQUAL(map::idToString(object->originalId()), "hpea"); // footman id
 	BOOST_REQUIRE_EQUAL(map::idToString(object->customId()), "h000");
-	BOOST_REQUIRE_EQUAL(object->modifications().size(), 1); // only name field changed
-	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&object->modifications().at(0));
+	BOOST_REQUIRE_EQUAL(object->sets().size(), 1);
+	const map::CustomObjects::Set *set = boost::polymorphic_cast<const map::CustomObjects::Set*>(&object->sets().at(0));
+	BOOST_REQUIRE_EQUAL(set->modifications().size(), 1); // only name field changedl
+	const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&set->modifications().at(0));
 	BOOST_REQUIRE_EQUAL(map::idToString(modification->valueId()), "unam"); // the values id are taken from "AbilityMetaData.slk" first column
 	BOOST_REQUIRE(modification->value().type() == map::Value::Type::String);
 	BOOST_REQUIRE_EQUAL(modification->value().toString(), "My Unit");

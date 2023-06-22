@@ -695,20 +695,27 @@ void ObjectEditorTab::pasteObject()
 					}
 				}
 
-				if (!object->modifications().empty())
+				bool empty = true;
+
+				for (std::size_t j = 0; j < object->sets().size(); ++j)
 				{
-					for (std::size_t j = 0; j < object->modifications().size(); ++j)
+					const map::CustomObjects::Set *set = boost::polymorphic_cast<const map::CustomObjects::Set*>(&object->sets()[j]);
+
+					for (std::size_t k = 0; k < set->modifications().size(); ++k)
 					{
-						const map::CustomUnits::Modification &unitModification = object->modifications()[i];
+						const map::CustomUnits::Modification &unitModification = set->modifications()[i];
 						const map::CustomObjects::Modification *modification =  boost::polymorphic_cast<const map::CustomObjects::Modification*>(&unitModification);
 
 						this->objectData()->modifyField(originalObjectId, customObjectId, map::idToString(modification->valueId()).c_str(), *modification);
+
+						empty = false;
 					}
 				}
+
 				/*
 				* If no modifications are done at least add the object's name that a new object is created at all.
 				*/
-				else
+				if (empty)
 				{
 					this->objectData()->createObject(originalObjectId, customObjectId);
 				}

@@ -111,9 +111,12 @@ BOOST_AUTO_TEST_CASE(Abilities)
 
 	BOOST_REQUIRE(concentrationAbility != nullptr);
 
+	BOOST_REQUIRE_EQUAL(concentrationAbility->sets().size(), 1);
+	const map::CustomObjects::Set *set = boost::polymorphic_cast<const map::CustomObjects::Set*>(&concentrationAbility->sets().at(0));
+
 	const map::CustomObjects::Modification *aherModification = nullptr;
 
-	for (map::CustomObjects::Object::Modifications::const_iterator iterator = concentrationAbility->modifications().begin(); iterator != concentrationAbility->modifications().end(); ++iterator)
+	for (map::CustomObjects::Set::Modifications::const_iterator iterator = set->modifications().begin(); iterator != set->modifications().end(); ++iterator)
 	{
 		const map::CustomObjects::Modification *modification = boost::polymorphic_cast<const map::CustomObjects::Modification*>(&(*iterator));
 

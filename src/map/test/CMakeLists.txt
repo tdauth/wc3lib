@@ -13,7 +13,7 @@ target_link_libraries(customobjectstesttpof wc3libmap wc3libcore ${GETTEXT_LIBRA
 add_test(NAME CustomObjectsTestTPoF COMMAND customobjectstesttpof)
 
 add_executable(customobjectstestwowr customobjectswowr.cpp)
-target_link_libraries(customobjectstesttpof wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(customobjectstestwowr wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
 add_test(NAME CustomObjectsTestWoWR COMMAND customobjectstestwowr)
 
 add_executable(txttest txt.cpp)

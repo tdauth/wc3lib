@@ -258,15 +258,83 @@ std::streamsize CustomUnits::Modification::writeData(OutputStream &ostream, Valu
 	return size;
 }
 
-CustomUnits::Unit::Unit() : m_originalId(0), m_customId(0)
+CustomUnits::Set::Set(uint32 version) : m_version(version), m_flag(0)
 {
 }
 
-CustomUnits::Unit::Unit(const CustomUnits::Unit &other) : m_originalId(other.m_originalId), m_customId(other.m_customId)// TODO cloning crashes , m_modifications(other.m_modifications.clone())
+CustomUnits::Set::Set(const CustomUnits::Set &other) : m_version(other.m_version), m_flag(other.m_flag)
 {
 	BOOST_FOREACH(Modifications::const_reference ref, other.m_modifications)
 	{
 		this->modifications().push_back(ref.clone()); // polymorph call to the virtual method clone which should return a value of the proper type
+	}
+}
+
+CustomUnits::Set::~Set()
+{
+}
+
+CustomUnits::Set* CustomUnits::Set::clone() const
+{
+	return new Set(*this);
+}
+
+std::streamsize CustomUnits::Set::read(InputStream &istream)
+{
+	std::streamsize size = 0;
+
+	if (version() >= 3)
+	{
+		wc3lib::read(istream, m_flag, size);
+	}
+
+	int32 modifications;
+	wc3lib::read(istream, modifications, size);
+	this->modifications().reserve(modifications);
+
+	for (int32 i = 0; i < modifications; ++i)
+	{
+		std::auto_ptr<Modification> ptr(createModification());
+		size += ptr->read(istream);
+		this->modifications().push_back(ptr);
+	}
+
+	return size;
+}
+
+std::streamsize CustomUnits::Set::write(OutputStream &ostream) const
+{
+	std::streamsize size = 0;
+
+	if (version() >= 3)
+	{
+		wc3lib::write(ostream, m_flag, size);
+	}
+
+	wc3lib::write<int32>(ostream, modifications().size(), size);
+
+	BOOST_FOREACH(Modifications::const_reference modification, this->modifications())
+	{
+		size += modification.write(ostream);
+	}
+
+	return size;
+}
+
+CustomUnits::Modification* CustomUnits::Set::createModification() const
+{
+	return new Modification();
+}
+
+CustomUnits::Unit::Unit(uint32 version) : m_version(version), m_originalId(0), m_customId(0)
+{
+}
+
+CustomUnits::Unit::Unit(const CustomUnits::Unit &other) : m_originalId(other.m_originalId), m_customId(other.m_customId)// TODO cloning crashes , m_sets(other.m_sets.clone())
+{
+	BOOST_FOREACH(Sets::const_reference ref, other.m_sets)
+	{
+		this->sets().push_back(ref.clone()); // polymorph call to the virtual method clone which should return a value of the proper type
 	}
 }
 
@@ -284,15 +352,22 @@ std::streamsize CustomUnits::Unit::read(InputStream &istream)
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_originalId, size);
 	wc3lib::read(istream, this->m_customId, size);
-	int32 modifications;
-	wc3lib::read(istream, modifications, size);
-	this->modifications().reserve(modifications);
 
-	for (int32 i = 0; i < modifications; ++i)
+	// https://github.com/stijnherfst/HiveWE/wiki/war3map(skin).w3*-Modifications
+	int32 sets_count = 1;
+
+	if (version() >= 3)
 	{
-		std::auto_ptr<Modification> ptr(createModification());
+		wc3lib::read(istream, sets_count, size);
+	}
+
+	this->sets().reserve(sets_count);
+
+	for (int32 i = 0; i < sets_count; ++i)
+	{
+		std::auto_ptr<Set> ptr(createSet());
 		size += ptr->read(istream);
-		this->modifications().push_back(ptr);
+		this->sets().push_back(ptr);
 	}
 
 	return size;
@@ -303,19 +378,23 @@ std::streamsize CustomUnits::Unit::write(OutputStream &ostream) const
 	std::streamsize size = 0;
 	wc3lib::write(ostream, originalId(), size);
 	wc3lib::write(ostream, customId(), size);
-	wc3lib::write<int32>(ostream, modifications().size(), size);
 
-	BOOST_FOREACH(Modifications::const_reference modification, this->modifications())
+	if (version() >= 3)
 	{
-		size += modification.write(ostream);
+		wc3lib::write<int32>(ostream, sets().size(), size);
+	}
+
+	BOOST_FOREACH(Sets::const_reference set, this->sets())
+	{
+		size += set.write(ostream);
 	}
 
 	return size;
 }
 
-CustomUnits::Modification* CustomUnits::Unit::createModification() const
+CustomUnits::Set* CustomUnits::Unit::createSet() const
 {
-	return new Modification();
+	return new Set(this->version());
 }
 
 CustomUnits::CustomUnits()
@@ -350,11 +429,6 @@ std::streamsize CustomUnits::read(InputStream &istream)
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_version, size);
 
-	if (this->version() != latestFileVersion())
-	{
-		std::cerr << boost::format(_("Custom Units: Unknown version \"%1%\", expected \"%2%\".")) % this->version() % latestFileVersion() << std::endl;
-	}
-
 	int32 originalUnits = 0;
 	wc3lib::read(istream, originalUnits, size);
 	this->originalTable().reserve(originalUnits);
@@ -382,11 +456,6 @@ std::streamsize CustomUnits::read(InputStream &istream)
 
 std::streamsize CustomUnits::write(OutputStream &ostream) const
 {
-	if (version() != latestFileVersion())
-	{
-		std::cerr << boost::format(_("Custom Units: Unknown version \"%1%\", expected \"%2%\".")) % version() % latestFileVersion() << std::endl;
-	}
-
 	std::streamsize size = 0;
 	wc3lib::write(ostream, version(), size);
 	wc3lib::write<int32>(ostream, originalTable().size(), size);
@@ -414,7 +483,7 @@ void CustomUnits::clear()
 
 CustomUnits::Unit* CustomUnits::createUnit() const
 {
-	return new Unit();
+	return new Unit(this->version());
 }
 
 }

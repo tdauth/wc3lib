@@ -28,11 +28,33 @@ namespace wc3lib
 namespace map
 {
 
-CustomObjects::Object::Object(CustomObjects::Type type) : m_type(type)
+CustomObjects::Set::Set(uint32 version, CustomObjects::Type type) : CustomUnits::Set(version), m_type(type)
 {
 }
 
-CustomObjects::Object::Object(const CustomObjects::Object &other) :  CustomUnits::Unit(other), m_type(other.type())
+CustomObjects::Set::Set(const CustomObjects::Set &other) : CustomUnits::Set(other), m_type(other.type())
+{
+}
+
+CustomObjects::Set::~Set()
+{
+}
+
+CustomUnits::Set* CustomObjects::Set::clone() const
+{
+	return new Set(*this);
+}
+
+CustomUnits::Modification* CustomObjects::Set::createModification() const
+{
+	return new CustomObjects::Modification(this->type());
+}
+
+CustomObjects::Object::Object(uint32 version, CustomObjects::Type type) : CustomUnits::Unit(version), m_type(type)
+{
+}
+
+CustomObjects::Object::Object(const CustomObjects::Object &other) : CustomUnits::Unit(other), m_type(other.type())
 {
 }
 
@@ -45,9 +67,9 @@ CustomUnits::Unit* CustomObjects::Object::clone() const
 	return new Object(*this);
 }
 
-CustomUnits::Modification* CustomObjects::Object::createModification() const
+CustomUnits::Set* CustomObjects::Object::createSet() const
 {
-	return new CustomObjects::Modification(this->type());
+	return new CustomObjects::Set(this->version(), this->type());
 }
 
 CustomObjects::Modification::Modification(CustomObjects::Type type) : m_type(type), m_level(0), m_data(0)
@@ -62,7 +84,6 @@ CustomObjects::Modification::~Modification()
 {
 }
 
-
 std::streamsize CustomObjects::Modification::read(InputStream &istream)
 {
 	std::streamsize size = 0;
@@ -74,8 +95,6 @@ std::streamsize CustomObjects::Modification::read(InputStream &istream)
 	 * As the specification states only these three types use optional integer values to specify a level
 	 * and a specific data field for a modification.
 	 * This data is placed before the actual modification data.
-	 *
-	 *
 	 */
 	if (this->type() == CustomObjects::Type::Doodads || this->type() == CustomObjects::Type::Abilities || this->type() == CustomObjects::Type::Upgrades)
 	{
@@ -157,13 +176,12 @@ const byte* CustomObjects::fileName() const
 
 uint32 CustomObjects::latestFileVersion() const
 {
-	return 2;
+	return 3; // 2 Frozen Throne (level data), 3 Reforged (sets)
 }
-
 
 CustomUnits::Unit* CustomObjects::createUnit() const
 {
-	return new CustomObjects::Object(this->type());
+	return new CustomObjects::Object(this->version(), this->type());
 }
 
 }
