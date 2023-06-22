@@ -36,7 +36,7 @@
 
 #include "../core.hpp"
 #include "../map.hpp"
-  
+
 typedef std::list<boost::filesystem::path> FilePaths;
 
 const char *version = "0.1";
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 
 		return EXIT_SUCCESS;
 	}
-	
+
 	if (boost::filesystem::exists(outputFile) && !vm.count("overwrite"))
 	{
 		std::cerr << boost::format(_("Output file %1% does already exist. Use --overwrite if you want to replace it.")) % outputFile.string() << std::endl;
@@ -130,38 +130,38 @@ int main(int argc, char *argv[])
 
 		return EXIT_FAILURE;
 	}
-	
+
 	std::set<wc3lib::map::id> objectIdsSet;
 	std::set<wc3lib::map::id> fieldIdsSet;
-	
+
 	for (const std::string &objectId : objectIds) {
 		objectIdsSet.insert(wc3lib::map::stringToId(objectId));
 	}
-	
+
 	for (const std::string &fieldId : fieldIds) {
 		fieldIdsSet.insert(wc3lib::map::stringToId(fieldId));
 	}
-	
+
     long counter = 0;
-	
+
 	boost::filesystem::ofstream out(outputFile, std::ios::out);
-	
+
 	if (!out)
 	{
 		std::cerr << _("Error on opening output file.") << std::endl;
 
 		return EXIT_FAILURE;
 	}
-	
+
 	out << "globals" << std::endl;
-	
+
 	for (const std::string &fieldId : fieldIds) {
 		out << "integer array " << fieldId << std::endl;
 		out << "integer array " << fieldId << "Count" << std::endl;
 	}
-	
+
 	out << "endglobals" << std::endl;
-	
+
 	out << "function InitObjectDataFields takes nothing returns nothing" << std::endl;
 
 	for (FilePaths::reference path : inputFilePaths)
@@ -172,32 +172,34 @@ int main(int argc, char *argv[])
             wc3lib::map::CustomObjects customObjects(wc3lib::map::CustomObjects::Type::Doodads);
             boost::filesystem::ifstream in(path, std::ios::in | std::ios::binary);
             customObjects.read(in);
-            
+
             for (const wc3lib::map::CustomUnits::Unit &unit : customObjects.customTable()) {
 				if (objectIdsSet.empty() || objectIdsSet.contains(unit.customId())) {
-					for (const wc3lib::map::CustomUnits::Modification &modification : unit.modifications()) {
-						if (fieldIdsSet.empty() || fieldIdsSet.contains(modification.valueId())) {
-							std::cout << boost::format(_("Extracting field %1% from object ID %2%.")) % wc3lib::map::idToString(unit.customId()) % wc3lib::map::idToString(modification.valueId()) << std::endl;
-							counter++;
-							
-							if (modification.value().isList()) {
-								const wc3lib::map::List &v = modification.value().toList();
-								
-								for (int i = 0; i < v.size(); i++) {
-									out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * " << max << "] = " << v[i] << std::endl;
+					for (const wc3lib::map::CustomUnits::Set &set : unit.sets()) {
+						for (const wc3lib::map::CustomUnits::Modification &modification : set.modifications()) {
+							if (fieldIdsSet.empty() || fieldIdsSet.contains(modification.valueId())) {
+								std::cout << boost::format(_("Extracting field %1% from object ID %2%.")) % wc3lib::map::idToString(unit.customId()) % wc3lib::map::idToString(modification.valueId()) << std::endl;
+								counter++;
+
+								if (modification.value().isList()) {
+									const wc3lib::map::List &v = modification.value().toList();
+
+									for (std::size_t i = 0; i < v.size(); i++) {
+										out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * " << max << "] = " << v[i] << std::endl;
+									}
+
+									out << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "] = " << v.size() << std::endl;
+								} else if (modification.value().isInteger()) {
+									out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toInteger() << std::endl;
+								} else if (modification.value().isReal()) {
+									out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toReal() << std::endl;
+								} else if (modification.value().isString()) {
+									out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toString() << std::endl;
+								} else if (modification.value().isBoolean()) {
+									out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toBoolean() << std::endl;
+								} else if (modification.value().isCharacter()) {
+									out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toCharacter() << std::endl;
 								}
-								
-								out << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "] = " << v.size() << std::endl;
-							} else if (modification.value().isInteger()) {
-								out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toInteger() << std::endl;
-							} else if (modification.value().isReal()) {
-								out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toReal() << std::endl;
-							} else if (modification.value().isString()) {
-								out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toString() << std::endl;
-							} else if (modification.value().isBoolean()) {
-								out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toBoolean() << std::endl;
-							} else if (modification.value().isCharacter()) {
-								out << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toCharacter() << std::endl;
 							}
 						}
 					}
@@ -209,9 +211,9 @@ int main(int argc, char *argv[])
             std::cerr << boost::format(_("Error occured when converting file %1%: \"%2%\".\nSkipping file.")) % path % exception.what() << std::endl;
         }
     }
-    
+
     out << "endfunction" << std::endl;
-    
+
     std::cout << boost::format(_("Extracted %1% object data fields.")) % counter << std::endl;
 
 	return EXIT_SUCCESS;

@@ -35,77 +35,89 @@
 
 #include "../core.hpp"
 #include "../map.hpp"
-  
+
 typedef std::list<boost::filesystem::path> FilePaths;
 
 const char *version = "0.1";
 
-inline void updateUnit(wc3lib::map::CustomObjects::Unit &unit, wc3lib::map::id fieldIdX, wc3lib::map::id fieldIdY, wc3lib::map::id fieldIdHotkey, wc3lib::map::id fieldIdUnhotkey, wc3lib::map::id fieldIdHeroAbility, bool onlyHeroAbilities, std::string &hotkeys, bool verbose, std::map<wc3lib::map::id, bool> &metaIsHero, long &updateddModificationsCounter) {
+inline void updateUnit(wc3lib::map::CustomObjects::Unit &unit, wc3lib::map::id fieldIdX, wc3lib::map::id fieldIdY, wc3lib::map::id fieldIdHotkey, wc3lib::map::id fieldIdUnhotkey, wc3lib::map::id fieldIdHeroAbility, bool onlyHeroAbilities, std::string &hotkeys, bool verbose, std::map<wc3lib::map::id, bool> &metaIsHero, long &updatedModificationsCounter) {
     bool isHeroAbility = metaIsHero[unit.originalId()];
     std::optional<wc3lib::int32> x;
+    std::optional<std::size_t> setIndexX;
     std::optional<std::size_t> indexX;
     std::optional<wc3lib::int32> y;
+    std::optional<std::size_t> setIndexY;
     std::optional<std::size_t> indexY;
     std::optional<wc3lib::byte> hotkey;
+    std::optional<std::size_t> setIndexHotkey;
     std::optional<std::size_t> indexHotkey;
     std::optional<wc3lib::byte> unhotkey;
+    std::optional<std::size_t> setIndexUnhotkey;
     std::optional<std::size_t> indexUnhotkey;
 
-    for (std::size_t i = 0; i < unit.modifications().size(); i++) {
-        wc3lib::map::CustomObjects::Modification *modification = dynamic_cast<wc3lib::map::CustomObjects::Modification*>(&unit.modifications()[i]);
-        wc3lib::map::id modificationId = modification->valueId();
-        
-        if (modificationId == fieldIdX && modification->value().type() == wc3lib::map::Value::Type::Integer) {
-            x = modification->value().toInteger(); 
-            indexX = i;
-            
-            if (verbose) {
-                //std::cout << boost::format(_("Got button position X modification %1% of object %2% with value %3%.")) % wc3lib::map::idToString(modificationId) % wc3lib::map::idToString(unit.customId()) % x.value() << std::endl;
+    for (std::size_t i = 0; i < unit.sets().size(); i++) {
+        wc3lib::map::CustomObjects::Set *set = dynamic_cast<wc3lib::map::CustomObjects::Set*>(&unit.sets()[i]);
+
+        for (std::size_t j = 0; j < set->modifications().size(); j++) {
+            wc3lib::map::CustomObjects::Modification *modification = dynamic_cast<wc3lib::map::CustomObjects::Modification*>(&set->modifications()[j]);
+            wc3lib::map::id modificationId = modification->valueId();
+
+            if (modificationId == fieldIdX && modification->value().type() == wc3lib::map::Value::Type::Integer) {
+                x = modification->value().toInteger();
+                indexX = j;
+                setIndexX = i;
+
+                if (verbose) {
+                    //std::cout << boost::format(_("Got button position X modification %1% of object %2% with value %3%.")) % wc3lib::map::idToString(modificationId) % wc3lib::map::idToString(unit.customId()) % x.value() << std::endl;
+                }
             }
-        }
-        
-        if (modificationId == fieldIdY && modification->value().type() == wc3lib::map::Value::Type::Integer) {
-            y = modification->value().toInteger(); 
-            indexY = i;
-        }
-        
-        if (modificationId == fieldIdHotkey && modification->value().type() == wc3lib::map::Value::Type::Character) {
-            hotkey = modification->value().toCharacter();
-            indexHotkey = i;
-        }
-        
-        if (modificationId == fieldIdUnhotkey && modification->value().type() == wc3lib::map::Value::Type::Character) {
-            unhotkey = modification->value().toCharacter();
-            indexUnhotkey = i;
-        }
-        
-        if (modificationId == fieldIdHeroAbility && modification->value().type() == wc3lib::map::Value::Type::Boolean) {
-            isHeroAbility = modification->value().toBoolean(); 
-            
-            if (verbose) {
-                //std::cout << boost::format(_("Got is hero ability modification %1% of object %2% with value %3%.")) % wc3lib::map::idToString(modificationId) % wc3lib::map::idToString(unit.customId()) % isHeroAbility << std::endl;
+
+            if (modificationId == fieldIdY && modification->value().type() == wc3lib::map::Value::Type::Integer) {
+                y = modification->value().toInteger();
+                indexY = j;
+                setIndexY = i;
+            }
+
+            if (modificationId == fieldIdHotkey && modification->value().type() == wc3lib::map::Value::Type::Character) {
+                hotkey = modification->value().toCharacter();
+                indexHotkey = j;
+                setIndexHotkey = i;
+            }
+
+            if (modificationId == fieldIdUnhotkey && modification->value().type() == wc3lib::map::Value::Type::Character) {
+                unhotkey = modification->value().toCharacter();
+                indexUnhotkey = j;
+                setIndexUnhotkey = i;
+            }
+
+            if (modificationId == fieldIdHeroAbility && modification->value().type() == wc3lib::map::Value::Type::Boolean) {
+                isHeroAbility = modification->value().toBoolean();
+
+                if (verbose) {
+                    //std::cout << boost::format(_("Got is hero ability modification %1% of object %2% with value %3%.")) % wc3lib::map::idToString(modificationId) % wc3lib::map::idToString(unit.customId()) % isHeroAbility << std::endl;
+                }
             }
         }
     }
-    
+
     if ((!onlyHeroAbilities || isHeroAbility) && x.has_value() && indexX.has_value() && x.value() < hotkeys.size() && x.value() >= 0) {
         if (verbose) {
             std::cout << boost::format(_("Checking hotkey for object %1%.")) % wc3lib::map::idToString(unit.customId()) << std::endl;
         }
-        
-        if (hotkey.has_value() && indexHotkey.has_value()) {
-            unit.modifications()[indexHotkey.value()].setValue(wc3lib::byte(hotkeys[x.value()]));
-            updateddModificationsCounter++;
-            
+
+        if (hotkey.has_value() && indexHotkey.has_value() && setIndexHotkey.has_value()) {
+            unit.sets()[setIndexHotkey.value()].modifications()[indexHotkey.value()].setValue(wc3lib::byte(hotkeys[x.value()]));
+            updatedModificationsCounter++;
+
             if (verbose) {
                 std::cout << boost::format(_("Updating hotkey for object %1%.")) % wc3lib::map::idToString(unit.customId()) << std::endl;
             }
         }
-        
-        if (unhotkey.has_value() && indexUnhotkey.has_value()) {
-            unit.modifications()[indexUnhotkey.value()].setValue(wc3lib::byte(hotkeys[x.value()]));
-            updateddModificationsCounter++;
-            
+
+        if (unhotkey.has_value() && indexUnhotkey.has_value()  && setIndexUnhotkey.has_value()) {
+            unit.sets()[setIndexUnhotkey.value()].modifications()[indexUnhotkey.value()].setValue(wc3lib::byte(hotkeys[x.value()]));
+            updatedModificationsCounter++;
+
             if (verbose) {
                 std::cout << boost::format(_("Updating unhotkey for object %1%.")) % wc3lib::map::idToString(unit.customId()) << std::endl;
             }
@@ -122,7 +134,7 @@ int main(int argc, char *argv[])
 	textdomain("wc3abilityhotkeyfixer");
 
 	std::string hotkeys = "QWER";
-    
+
     wc3lib::map::id fieldIdX = wc3lib::map::stringToId("abpx");
     wc3lib::map::id fieldIdY = wc3lib::map::stringToId("abpy");
     wc3lib::map::id fieldIdHotkey = wc3lib::map::stringToId("ahky");
@@ -199,10 +211,10 @@ int main(int argc, char *argv[])
 
 		return EXIT_SUCCESS;
 	}
-	
+
 	verbose = vm.count("verbose");
     overwrite = vm.count("overwrite");
-	
+
     fieldIdX = wc3lib::map::stringToId(fieldIdXInput);
     fieldIdY = wc3lib::map::stringToId(fieldIdYInput);
     fieldIdHotkey = wc3lib::map::stringToId(fieldIdHotkeyInput);
@@ -222,7 +234,7 @@ int main(int argc, char *argv[])
 
 		return EXIT_FAILURE;
 	}
-	
+
 	if (verbose) {
         std::cout << boost::format(_("Reading file %1%.")) % abilityDataFile << std::endl;
     }
@@ -230,8 +242,8 @@ int main(int argc, char *argv[])
 	wc3lib::map::Slk abilityData;
     boost::filesystem::ifstream inAbilityData(abilityDataFile, std::ios::in | std::ios::binary);
     abilityData.read(inAbilityData);
-	
-    long updateddModificationsCounter = 0;
+
+    long updatedModificationsCounter = 0;
 
 	for (FilePaths::reference path : inputFilePaths)
     {
@@ -243,54 +255,54 @@ int main(int argc, char *argv[])
             {
                 realOutputFile /= path.stem().string() + "." + path.extension().string();
             }
-            
+
             if (verbose) {
                 std::cout << boost::format(_("Reading file %1%.")) % path << std::endl;
             }
-            
+
             // TODO Determine by file extension or header!
             wc3lib::map::CustomObjects customObjects(wc3lib::map::CustomObjects::Type::Doodads);
             boost::filesystem::ifstream in(path, std::ios::in | std::ios::binary);
             customObjects.read(in);
-            
+
             if (verbose) {
                 std::cout << boost::format(_("Detected %1% standard and %2% custom objects.")) % customObjects.originalTable().size() % customObjects.customTable().size() << std::endl;
             }
-            
+
             std::map<wc3lib::map::id, bool> metaIsHero;
-            
+
             for (wc3lib::map::Slk::Table::size_type row = 1; row < abilityData.rows(); row++) {
                 std::string cellContent = abilityData.cell(row, 5);
                 bool value = false;
-                
+
                 if (cellContent.size() > 0 && cellContent[0] == '\"') {
                     cellContent.substr(1, cellContent.size() - 2);
                     value = std::stoi(cellContent);
                 } else if (!cellContent.empty()) {
                     value = std::stoi(cellContent);
                 }
-                
+
                 wc3lib::string abilityIdContent = wc3lib::map::Slk::fromSlkString(abilityData.cell(row, 0));
                 std::cerr << "Ability ID " << abilityIdContent << std::endl;
                 wc3lib::map::id abilityId = wc3lib::map::stringToId(abilityIdContent);
                 metaIsHero[abilityId] = value;
-                
+
                 if (verbose && value) {
                     std::cout << boost::format(_("Standard ability %1% is a hero ability.")) %abilityIdContent << std::endl;
                 }
             }
-            
+
             for (wc3lib::map::CustomObjects::Unit &unit : customObjects.originalTable()) {
-                updateUnit(unit, fieldIdX, fieldIdY, fieldIdHotkey, fieldIdUnhotkey, fieldIdHeroAbility, onlyHeroAbilities, hotkeys, verbose, metaIsHero, updateddModificationsCounter) ;
+                updateUnit(unit, fieldIdX, fieldIdY, fieldIdHotkey, fieldIdUnhotkey, fieldIdHeroAbility, onlyHeroAbilities, hotkeys, verbose, metaIsHero, updatedModificationsCounter) ;
             }
-            
+
             for (wc3lib::map::CustomObjects::Unit &unit : customObjects.customTable()) {
-                updateUnit(unit, fieldIdX, fieldIdY, fieldIdHotkey, fieldIdUnhotkey, fieldIdHeroAbility, onlyHeroAbilities, hotkeys, verbose, metaIsHero, updateddModificationsCounter) ;
+                updateUnit(unit, fieldIdX, fieldIdY, fieldIdHotkey, fieldIdUnhotkey, fieldIdHeroAbility, onlyHeroAbilities, hotkeys, verbose, metaIsHero, updatedModificationsCounter) ;
             }
-            
+
             if (!overwrite && boost::filesystem::exists(realOutputFile)) {
                 std::cerr << boost::format(_("Output file %1% does already exist. Use --overwrite to overwrite it.")) % realOutputFile << std::endl;
-            
+
                 return EXIT_FAILURE;
             } else {
                 boost::filesystem::ofstream out(realOutputFile, std::ios::out | std::ios::binary);
@@ -300,12 +312,12 @@ int main(int argc, char *argv[])
         catch (const wc3lib::Exception &exception)
         {
             std::cerr << boost::format(_("Error occured when converting file %1%: \"%2%\".\nSkipping file.")) % path % exception.what() << std::endl;
-            
+
             return EXIT_FAILURE;
         }
     }
-    
-    std::cout << boost::format(_("Updated %1% modifications.")) % updateddModificationsCounter << std::endl;
+
+    std::cout << boost::format(_("Updated %1% modifications.")) % updatedModificationsCounter << std::endl;
 
 	return EXIT_SUCCESS;
 }

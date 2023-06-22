@@ -34,39 +34,43 @@
 
 #include "../core.hpp"
 #include "../map.hpp"
-  
+
 typedef std::list<boost::filesystem::path> FilePaths;
 
 const char *version = "0.1";
 
-inline void updateUnit(wc3lib::map::CustomObjects::Unit &unit, wc3lib::int32 maxLevel, wc3lib::map::id levelFieldId, bool verbose, long &removedModificationsCounter, long &updateddModificationsCounter) {
-    for (int i = 0; i < unit.modifications().size(); ) {
-        //  wc3lib::map::CustomObjects::Modification &modification : unit.modifications()) {
-        wc3lib::map::CustomObjects::Modification *modification = dynamic_cast<wc3lib::map::CustomObjects::Modification*>(&unit.modifications()[i]);
-        wc3lib::int32 sourceMaxLevel = modification->level();
-        
-        if (sourceMaxLevel > maxLevel) {
-            if (verbose) {
-                std::cout << boost::format(_("Removing modification %1% of custom object %2% with level %3% to keep maximum level %4% of modifications.")) % wc3lib::map::idToString(modification->valueId()) % wc3lib::map::idToString(unit.customId()) % sourceMaxLevel % maxLevel << std::endl;
-            }
-            
-            removedModificationsCounter++;
-            
-            unit.modifications().erase(std::next(unit.modifications().begin(), i));
-        } else {
-            i++;
-            
-            if (modification->valueId() == levelFieldId && modification->value().type() == wc3lib::map::Value::Type::Integer) {
-                sourceMaxLevel = modification->value().toInteger();
-                
-                if (sourceMaxLevel > maxLevel) {
-                    modification->setValue(wc3lib::map::Value(maxLevel));
-                    
-                    if (verbose) {
-                        std::cout << boost::format(_("Updating modification %1% of custom object %2% with level %3% to keep maximum level %4% of modifications.")) % wc3lib::map::idToString(modification->valueId()) % wc3lib::map::idToString(unit.customId()) % sourceMaxLevel % maxLevel << std::endl;
+inline void updateUnit(wc3lib::map::CustomObjects::Unit &unit, wc3lib::int32 maxLevel, wc3lib::map::id levelFieldId, bool verbose, long &removedModificationsCounter, long &updatedModificationsCounter) {
+    for (std::size_t i = 0; i < unit.sets().size(); i++) {
+        wc3lib::map::CustomObjects::Set *set = dynamic_cast<wc3lib::map::CustomObjects::Set*>(&unit.sets()[i]);
+
+        for (std::size_t j = 0; j < set->modifications().size(); ) {
+            //  wc3lib::map::CustomObjects::Modification &modification : unit.modifications()) {
+            wc3lib::map::CustomObjects::Modification *modification = dynamic_cast<wc3lib::map::CustomObjects::Modification*>(&set->modifications()[j]);
+            wc3lib::int32 sourceMaxLevel = modification->level();
+
+            if (sourceMaxLevel > maxLevel) {
+                if (verbose) {
+                    std::cout << boost::format(_("Removing modification %1% of custom object %2% with level %3% to keep maximum level %4% of modifications.")) % wc3lib::map::idToString(modification->valueId()) % wc3lib::map::idToString(unit.customId()) % sourceMaxLevel % maxLevel << std::endl;
+                }
+
+                removedModificationsCounter++;
+
+                set->modifications().erase(std::next(set->modifications().begin(), j));
+            } else {
+                j++;
+
+                if (modification->valueId() == levelFieldId && modification->value().type() == wc3lib::map::Value::Type::Integer) {
+                    sourceMaxLevel = modification->value().toInteger();
+
+                    if (sourceMaxLevel > maxLevel) {
+                        modification->setValue(wc3lib::map::Value(maxLevel));
+
+                        if (verbose) {
+                            std::cout << boost::format(_("Updating modification %1% of custom object %2% with level %3% to keep maximum level %4% of modifications.")) % wc3lib::map::idToString(modification->valueId()) % wc3lib::map::idToString(unit.customId()) % sourceMaxLevel % maxLevel << std::endl;
+                        }
+
+                        updatedModificationsCounter++;
                     }
-                    
-                    updateddModificationsCounter++;
                 }
             }
         }
@@ -138,10 +142,10 @@ int main(int argc, char *argv[])
 
 		return EXIT_SUCCESS;
 	}
-	
+
 	verbose = vm.count("verbose");
     overwrite = vm.count("overwrite");
-	
+
 	levelFieldId = wc3lib::map::stringToId(levelFieldIdInput);
 
 	FilePaths inputFilePaths;
@@ -155,9 +159,9 @@ int main(int argc, char *argv[])
 
 		return EXIT_FAILURE;
 	}
-	
+
     long removedModificationsCounter = 0;
-    long updateddModificationsCounter = 0;
+    long updatedModificationsCounter = 0;
 
 	for (FilePaths::reference path : inputFilePaths) {
         try {
@@ -166,24 +170,24 @@ int main(int argc, char *argv[])
             if (boost::filesystem::is_directory(outputFile)) {
                 realOutputFile /= path.stem().string() + "." + path.extension().string();
             }
-            
+
             wc3lib::map::CustomObjects customObjects(wc3lib::map::CustomObjects::Type::Abilities);
             boost::filesystem::ifstream in(path, std::ios::in | std::ios::binary);
             customObjects.read(in);
-            
+
             std::cout << boost::format(_("Read ability data with %1% modified standard abilities and %2% custom abilities.")) % customObjects.originalTable().size() % customObjects.customTable().size() << std::endl;
-            
+
             for (wc3lib::map::CustomObjects::Unit &unit : customObjects.originalTable()) {
-                updateUnit(unit, maxLevel,levelFieldId, verbose, removedModificationsCounter, updateddModificationsCounter);
+                updateUnit(unit, maxLevel,levelFieldId, verbose, removedModificationsCounter, updatedModificationsCounter);
             }
-            
+
             for (wc3lib::map::CustomObjects::Unit &unit : customObjects.customTable()) {
-                updateUnit(unit, maxLevel,levelFieldId, verbose, removedModificationsCounter, updateddModificationsCounter);
+                updateUnit(unit, maxLevel,levelFieldId, verbose, removedModificationsCounter, updatedModificationsCounter);
             }
-            
+
             if (!overwrite && boost::filesystem::exists(realOutputFile)) {
                 std::cerr << boost::format(_("Output file %1% does already exist. Use --overwrite to overwrite it.")) % realOutputFile << std::endl;
-            
+
                 return EXIT_FAILURE;
             } else {
                 boost::filesystem::ofstream out(realOutputFile, std::ios::out | std::ios::binary);
@@ -192,12 +196,12 @@ int main(int argc, char *argv[])
         }
         catch (const wc3lib::Exception &exception) {
             std::cerr << boost::format(_("Error occured when converting file %1%: \"%2%\".\nSkipping file.")) % path % exception.what() << std::endl;
-            
+
             return EXIT_FAILURE;
         }
     }
-    
-    std::cout << boost::format(_("Removed %1% and updated %2% modifications.")) % removedModificationsCounter % updateddModificationsCounter << std::endl;
+
+    std::cout << boost::format(_("Removed %1% and updated %2% modifications.")) % removedModificationsCounter % updatedModificationsCounter << std::endl;
 
 	return EXIT_SUCCESS;
 }
