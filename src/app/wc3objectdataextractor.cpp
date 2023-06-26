@@ -50,8 +50,9 @@ int main(int argc, char *argv[])
 	textdomain("wc3objectdataextractor");
 
 	typedef std::vector<std::string> Strings;
-	Strings fieldIds;
-	Strings objectIds;
+	std::string fieldIds;
+	std::string fieldIdTypes;
+	std::string objectIds;
 	int max = 100;
 	Strings inputFiles;
 	boost::filesystem::path outputFile;
@@ -63,8 +64,9 @@ int main(int argc, char *argv[])
 	// options
 	("verbose", _("Add more text output."))
 	("overwrite,F", _("Overwrites existing files and directories when creating or extracting files."))
-    ("fieldids,f", boost::program_options::value<Strings>(&fieldIds), _("Field IDs. Extracts all field IDS if none is specified."))
-    ("objectids,d", boost::program_options::value<Strings>(&objectIds), _("Object IDs. Extracts all object IDS if none is specified."))
+    ("fieldids,f", boost::program_options::value<std::string>(&fieldIds)->default_value(""), _("Field IDs. Extracts all field IDS if none is specified. Comma-separated values: umki,ucam"))
+	("fieldtypes,t", boost::program_options::value<std::string>(&fieldIdTypes)->default_value(""), _("Field types. The types of the fields in the same order as the field IDs. The default type is integer. Comma-separated values: integer,real,boolean,character,integerlist,stringlist"))
+    ("objectids,d", boost::program_options::value<std::string>(&objectIds)->default_value(""), _("Object IDs. Extracts all object IDS if none is specified."))
 	("max,m", boost::program_options::value<int>(&max)->default_value(max), _("Maximum number of levels."))
 	("input,i", boost::program_options::value<Strings>(&inputFiles), _("Input object data files (.w3a, .w3u etc.)."))
 	("output,o", boost::program_options::value<boost::filesystem::path>(&outputFile), _("Output JASS file."))
@@ -133,13 +135,43 @@ int main(int argc, char *argv[])
 
 	std::set<wc3lib::map::id> objectIdsSet;
 	std::set<wc3lib::map::id> fieldIdsSet;
+	std::map<wc3lib::map::id, std::string> fieldTypes;
 
-	for (const std::string &objectId : objectIds) {
-		objectIdsSet.insert(wc3lib::map::stringToId(objectId));
+	std::vector<std::string> objectIdsVector;
+	boost::split(objectIdsVector, objectIds, boost::is_any_of(","), boost::token_compress_on);
+
+	for (const std::string &objectId : objectIdsVector)
+	{
+		if (objectId.size() > 0)
+		{
+			objectIdsSet.insert(wc3lib::map::stringToId(objectId));
+		}
 	}
 
-	for (const std::string &fieldId : fieldIds) {
-		fieldIdsSet.insert(wc3lib::map::stringToId(fieldId));
+	std::vector<std::string> fieldIdTypesVector;
+	boost::split(fieldIdTypesVector, fieldIdTypes, boost::is_any_of(","), boost::token_compress_on);
+
+	if (fieldIdTypesVector.size() >= 1 && fieldIdTypesVector[0] == "")
+	{
+		fieldIdTypesVector.clear();
+	}
+
+	std::cerr << "Field types: " << fieldIdTypesVector.size() << std::endl;
+
+
+	std::vector<std::string> fieldIdsVector;
+	boost::split(fieldIdsVector, fieldIds, boost::is_any_of(","), boost::token_compress_on);
+	int i = 0;
+
+	for (const std::string &fieldId : fieldIdsVector)
+	{
+		if (fieldId.size() > 0)
+		{
+			fieldIdsSet.insert(wc3lib::map::stringToId(fieldId));
+			fieldTypes[wc3lib::map::stringToId(fieldId)] = fieldIdTypesVector.size() > i ? fieldIdTypesVector[i] : std::string("integer");
+
+			++i;
+		}
 	}
 
     long counter = 0;
@@ -155,12 +187,25 @@ int main(int argc, char *argv[])
 
 	out << "globals" << std::endl;
 
-	for (const std::string &fieldId : fieldIds) {
-		out << "integer array " << fieldId << std::endl;
-		out << "integer array " << fieldId << "Count" << std::endl;
+	for (const std::string &fieldId : fieldIdsVector) {
+		if (fieldId.size() > 0)
+		{
+			std::string type = fieldTypes[wc3lib::map::stringToId(fieldId)];
+
+			if (type == "integerlist")
+			{
+				type = "integer";
+			}
+
+			out << type << " array " << fieldId << std::endl;
+			out << "integer array " << fieldId << "Count" << std::endl;
+		}
 	}
 
 	out << "endglobals" << std::endl;
+
+	out << std::endl;
+	out << std::endl;
 
 	out << "function InitObjectDataFields takes nothing returns nothing" << std::endl;
 
@@ -181,27 +226,98 @@ int main(int argc, char *argv[])
 								std::cout << boost::format(_("Extracting field %1% from object ID %2%.")) % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) << std::endl;
 								counter++;
 
-								if (modification.value().isList()) {
-									const wc3lib::map::List &v = modification.value().toList();
+								const std::string type = fieldTypes[modification.valueId()];
 
-									for (std::size_t i = 0; i < v.size(); i++) {
-										out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * " << max << "] = " << v[i] << std::endl;
+								//std::cerr << "Field ID " << wc3lib::map::idToString(modification.valueId()) << std::endl;
+								//std::cerr << "Type " << type << std::endl;
+
+								if (type == "integerlist") {
+
+									if (modification.value().isList())
+									{
+										const wc3lib::map::List &v = modification.value().toList();
+
+										for (std::size_t i = 0; i < v.size(); i++) {
+											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * " << max << "] = " << v[i] << std::endl;
+										}
+
+										out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << v.size() << std::endl;
 									}
+									else if (modification.value().isString())
+									{
+										wc3lib::string v = modification.value().toString();
 
-									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << v.size() << std::endl;
-								} else if (modification.value().isInteger()) {
-									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toInteger() << std::endl;
-									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = 1" << std::endl;
-								} else if (modification.value().isReal()) {
+										std::vector<std::string> valueVector;
+										boost::split(valueVector, v, boost::is_any_of(","));
+										std::size_t i = 0;
+
+										for (const std::string &ref : valueVector)
+										{
+											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * " << max << "] = '" << valueVector[i] << "'" << std::endl;
+
+											++i;
+										}
+
+										out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << valueVector.size() << std::endl;
+									}
+									else
+									{
+										std::cerr << boost::format(_("Warning: Extracting field %1% from object ID %2% does not work with type %3%.")) % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) % type  << std::endl;
+									}
+								} else if (type == "stringlist") {
+									if (modification.value().isList())
+									{
+										const wc3lib::map::List &v = modification.value().toList();
+
+										for (std::size_t i = 0; i < v.size(); i++) {
+											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * " << max << "] = \"" << v[i] << "\"" << std::endl;
+
+											++i;
+										}
+
+										out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << v.size() << std::endl;
+									}
+									else if (modification.value().isString())
+									{
+										wc3lib::string v = modification.value().toString();
+
+										std::vector<std::string> valueVector;
+										boost::split(valueVector, v, boost::is_any_of(","));
+										std::size_t i = 0;
+
+										for (const std::string &ref : valueVector)
+										{
+											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * " << max << "] = \"" << valueVector[i] << "\"" << std::endl;
+
+											++i;
+										}
+
+										out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << valueVector.size() << std::endl;
+									}
+									else
+									{
+										std::cerr << boost::format(_("Warning: Extracting field %1% from object ID %2% does not work with type %3%.")) % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) % type  << std::endl;
+									}
+								} else if (type == "integer") {
+									if (modification.value().isInteger())
+									{
+										out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toInteger() << std::endl;
+										out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = 1" << std::endl;
+									}
+									else
+									{
+										std::cerr << boost::format(_("Warning: Extracting field %1% from object ID %2% does not work with type %3%.")) % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) % type  << std::endl;
+									}
+								} else if (type == "real") {
 									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toReal() << std::endl;
 									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = 1" << std::endl;
-								} else if (modification.value().isString()) {
-									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toString() << std::endl;
+								} else if (type == "string") {
+									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = \"" << modification.value().toString() << "\"" << std::endl;
 									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = 1" << std::endl;
-								} else if (modification.value().isBoolean()) {
+								} else if (type == "boolean") {
 									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toBoolean() << std::endl;
 									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = 1" << std::endl;
-								} else if (modification.value().isCharacter()) {
+								} else if (type == "character") {
 									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toCharacter() << std::endl;
 									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = 1" << std::endl;
 								}
