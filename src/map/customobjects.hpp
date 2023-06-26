@@ -150,6 +150,17 @@ class CustomObjects : public CustomUnits
 		 */
 		virtual uint32 latestFileVersion() const override;
 
+		/**
+		 * .w3u 	Units
+		 * .w3t 	Items
+		 * .w3b 	Destructables
+		 * .w3d 	Doodads
+		 * .w3a 	Abilities
+		 * .w3h 	Buffs
+		 * .w3q 	Upgrades
+		 */
+		static Type typeByExtension(const std::string &extension);
+
 	protected:
 		virtual Unit* createUnit() const override;
 
@@ -194,6 +205,42 @@ inline int32 CustomObjects::Modification::data() const
 inline CustomObjects::Type CustomObjects::type() const
 {
 	return this->m_type;
+}
+
+inline CustomObjects::Type CustomObjects::typeByExtension(const std::string &extension)
+{
+	//std::cerr << "Extension " << extension << std::endl;
+
+	if (extension == ".w3u")
+	{
+		return CustomObjects::Type::Units;
+	}
+	else if (extension == ".w3t")
+	{
+		return CustomObjects::Type::Items;
+	}
+	else if (extension == ".w3b")
+	{
+		return CustomObjects::Type::Destructibles;
+	}
+	else if (extension == ".w3d")
+	{
+		return CustomObjects::Type::Doodads;
+	}
+	else if (extension == ".w3a")
+	{
+		return CustomObjects::Type::Abilities;
+	}
+	else if (extension == ".w3h")
+	{
+		return CustomObjects::Type::Buffs;
+	}
+	else if (extension == ".w3q")
+	{
+		return CustomObjects::Type::Upgrades;
+	}
+
+	return CustomObjects::Type::Units;
 }
 
 }

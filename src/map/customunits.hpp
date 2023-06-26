@@ -92,8 +92,8 @@ class CustomUnits : public FileFormat
 				/**
 				 * Reads data into \p m_value depending on parameter \p type.
 				 */
-				std::streamsize readData(InputStream &istream, Value::Type type);
-				std::streamsize writeData(OutputStream &ostream, Value::Type type) const;
+				std::streamsize readData(InputStream &istream, int32 t, Value::Type type);
+				std::streamsize writeData(OutputStream &ostream, int32 t, Value::Type type) const;
 
 				id m_id; // from "Units\UnitMetaData.slk"
 				Value m_value;
@@ -124,6 +124,8 @@ class CustomUnits : public FileFormat
 
 				virtual std::streamsize read(InputStream &istream) override;
 				virtual std::streamsize write(OutputStream &ostream) const override;
+
+				virtual uint32_t version() const override;
 
 				Modifications& modifications();
 				const Modifications& modifications() const;
@@ -163,6 +165,8 @@ class CustomUnits : public FileFormat
 
 				virtual std::streamsize read(InputStream &istream) override;
 				virtual std::streamsize write(OutputStream &ostream) const override;
+
+				virtual uint32_t version() const override;
 
 				bool isOriginal() { return m_customId == 0; };
 
@@ -288,6 +292,11 @@ inline const CustomUnits::Set::Modifications& CustomUnits::Set::modifications() 
 	return m_modifications;
 }
 
+inline uint32_t CustomUnits::Set::version() const
+{
+	return m_version;
+}
+
 inline void CustomUnits::Unit::setOriginalId(id originalId)
 {
 	this->m_originalId = originalId;
@@ -316,6 +325,11 @@ inline CustomUnits::Unit::Sets& CustomUnits::Unit::sets()
 inline const CustomUnits::Unit::Sets& CustomUnits::Unit::sets() const
 {
 	return m_sets;
+}
+
+inline uint32_t CustomUnits::Unit::version() const
+{
+	return m_version;
 }
 
 inline const byte* CustomUnits::fileName() const

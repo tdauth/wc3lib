@@ -260,8 +260,8 @@ int main(int argc, char *argv[])
                 std::cout << boost::format(_("Reading file %1%.")) % path << std::endl;
             }
 
-            // TODO Determine by file extension or header!
-            wc3lib::map::CustomObjects customObjects(wc3lib::map::CustomObjects::Type::Doodads);
+            std::string extension = path.extension().string();
+            wc3lib::map::CustomObjects customObjects(wc3lib::map::CustomObjects::typeByExtension(extension));
             boost::filesystem::ifstream in(path, std::ios::in | std::ios::binary);
             customObjects.read(in);
 

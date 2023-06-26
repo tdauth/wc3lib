@@ -39,7 +39,7 @@
 
 #include "../core.hpp"
 #include "../map.hpp"
-  
+
 typedef std::list<boost::filesystem::path> FilePaths;
 
 const char *version = "0.1";
@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
 
 		return EXIT_FAILURE;
 	}
-	
+
 	wc3lib::map::id sourceBaseObjectIdWc3 = wc3lib::map::stringToId(sourceBaseObjectId);
     wc3lib::map::id targetBaseObjectIdWc3 = wc3lib::map::stringToId(targetBaseObjectId);
     long counter = 0;
@@ -153,12 +153,12 @@ int main(int argc, char *argv[])
             {
                 realOutputFile /= path.stem().string() + "." + path.extension().string();
             }
-            
-            // TODO Determine by file extension or header!
-            wc3lib::map::CustomObjects customObjects(wc3lib::map::CustomObjects::Type::Doodads);
+
+            std::string extension = path.extension().string();
+            wc3lib::map::CustomObjects customObjects(wc3lib::map::CustomObjects::typeByExtension(extension));
             boost::filesystem::ifstream in(path, std::ios::in | std::ios::binary);
             customObjects.read(in);
-            
+
             for (wc3lib::map::CustomObjects::Unit &unit : customObjects.customTable()) {
                 if (unit.originalId() == sourceBaseObjectIdWc3) {
                     unit.setOriginalId(targetBaseObjectIdWc3);
@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
                     counter++;
                 }
             }
-            
+
             boost::filesystem::ofstream out(realOutputFile, std::ios::out | std::ios::binary);
             customObjects.write(out);
         }
@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
             std::cerr << boost::format(_("Error occured when converting file %1%: \"%2%\".\nSkipping file.")) % path % exception.what() << std::endl;
         }
     }
-    
+
     std::cout << boost::format(_("Converted %1% object IDs.")) % counter << std::endl;
 
 	return EXIT_SUCCESS;

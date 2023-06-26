@@ -45,10 +45,9 @@ std::streamsize CustomUnits::Modification::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_id, size);
-	Value::Type type;
-	wc3lib::read<int32>(istream, (int32&)type, size);
-
-	size += readData(istream, type);
+	int32 type;
+	wc3lib::read<int32>(istream, type, size);
+	size += readData(istream, type, static_cast<Value::Type>(type));
 
 	// strings and lists (are strings as well) do already have to end with a zero terminating byte
 	//if (!this->value().isString() && !this->value().isList())
@@ -71,7 +70,7 @@ std::streamsize CustomUnits::Modification::write(OutputStream &ostream) const
 	wc3lib::write(ostream, this->valueId(), size);
 	wc3lib::write<int32>(ostream, static_cast<int32>(this->value().type()), size);
 
-	size += writeData(ostream, this->value().type());
+	size += writeData(ostream, static_cast<int32>(this->value().type()), this->value().type());
 
 	// strings and lists (are strings as well) do already have to end with a zero terminating byte
 	//if (!this->value().isString() && !this->value().isList())
@@ -105,7 +104,7 @@ std::streamsize CustomUnits::Modification::writeList(OutputStream &ostream) cons
 	return size;
 }
 
-std::streamsize CustomUnits::Modification::readData(InputStream &istream, Value::Type type)
+std::streamsize CustomUnits::Modification::readData(InputStream &istream, int32 t, Value::Type type)
 {
 	std::streamsize size = 0;
 
@@ -117,12 +116,16 @@ std::streamsize CustomUnits::Modification::readData(InputStream &istream, Value:
 			wc3lib::read(istream, v, size);
 			this->m_value = Value(v);
 
+			//std::cerr << "Reading integer modification with value" << v << std::endl;
+
 			break;
 		}
 
 		case Value::Type::Real:
 		case Value::Type::Unreal:
 		{
+			//std::cerr << "Reading real modification" << std::endl;
+
 			float32 v;
 			wc3lib::read(istream, v, size);
 			this->m_value = Value(v, type);
@@ -142,6 +145,8 @@ std::streamsize CustomUnits::Modification::readData(InputStream &istream, Value:
 		case Value::Type::AttributeType:
 		case Value::Type::AttackBits:
 		{
+			//std::cerr << "Reading string modification" << std::endl;
+
 			string v;
 			wc3lib::readString(istream, v, size);
 			this->m_value = Value(v, type);
@@ -151,6 +156,8 @@ std::streamsize CustomUnits::Modification::readData(InputStream &istream, Value:
 
 		case Value::Type::Boolean:
 		{
+			//std::cerr << "Reading boolean modification" << std::endl;
+
 			int32 v;
 			wc3lib::read(istream, v, size);
 			this->m_value = Value((bool)v);
@@ -160,6 +167,8 @@ std::streamsize CustomUnits::Modification::readData(InputStream &istream, Value:
 
 		case Value::Type::Character:
 		{
+			//std::cerr << "Reading character modification" << std::endl;
+
 			byte v;
 			wc3lib::read(istream, v, size);
 			this->m_value = Value(v);
@@ -174,9 +183,22 @@ std::streamsize CustomUnits::Modification::readData(InputStream &istream, Value:
 		case Value::Type::AbilityList:
 		case Value::Type::HeroAbilityList:
 		{
+			//std::cerr << "Reading list modification" << std::endl;
+
 			size += this->readList(istream, type);
 			this->writeList(std::cout);
 			std::cout << std::endl;
+
+			break;
+		}
+
+		default:
+		{
+			std::cerr << boost::format(_("Unknown value type %1% for modification %2%.")) % t % idToString(this->m_id) << std::endl;
+
+			int32 v;
+			wc3lib::read(istream, v, size);
+			this->m_value = Value(v);
 
 			break;
 		}
@@ -190,7 +212,7 @@ std::streamsize CustomUnits::Modification::readData(InputStream &istream, Value:
 	return size;
 }
 
-std::streamsize CustomUnits::Modification::writeData(OutputStream &ostream, Value::Type type) const
+std::streamsize CustomUnits::Modification::writeData(OutputStream &ostream, int32 t, Value::Type type) const
 {
 	std::streamsize size = 0;
 
@@ -253,6 +275,15 @@ std::streamsize CustomUnits::Modification::writeData(OutputStream &ostream, Valu
 
 			break;
 		}
+
+		default:
+		{
+			std::cerr << boost::format(_("Unknown value type %1% for modification %2%.")) % t % idToString(this->m_id) << std::endl;
+
+			wc3lib::write(ostream, this->value().toInteger(), size);
+
+			break;
+		}
 	}
 
 	return size;
@@ -283,6 +314,8 @@ std::streamsize CustomUnits::Set::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 
+	//std::cerr << "Reading set with version " << version() << std::endl;
+
 	if (version() >= 3)
 	{
 		wc3lib::read(istream, m_flag, size);
@@ -290,6 +323,9 @@ std::streamsize CustomUnits::Set::read(InputStream &istream)
 
 	int32 modifications;
 	wc3lib::read(istream, modifications, size);
+
+	//std::cerr << "Modifications " << modifications << std::endl;
+
 	this->modifications().reserve(modifications);
 
 	for (int32 i = 0; i < modifications; ++i)
@@ -330,7 +366,7 @@ CustomUnits::Unit::Unit(uint32 version) : m_version(version), m_originalId(0), m
 {
 }
 
-CustomUnits::Unit::Unit(const CustomUnits::Unit &other) : m_originalId(other.m_originalId), m_customId(other.m_customId)// TODO cloning crashes , m_sets(other.m_sets.clone())
+CustomUnits::Unit::Unit(const CustomUnits::Unit &other) : m_version(other.m_version), m_originalId(other.m_originalId), m_customId(other.m_customId)// TODO cloning crashes , m_sets(other.m_sets.clone())
 {
 	BOOST_FOREACH(Sets::const_reference ref, other.m_sets)
 	{
@@ -361,6 +397,8 @@ std::streamsize CustomUnits::Unit::read(InputStream &istream)
 		wc3lib::read(istream, sets_count, size);
 	}
 
+	//std::cerr << "Sets count " << sets_count << " and version " << version() << std::endl;
+
 	this->sets().reserve(sets_count);
 
 	for (int32 i = 0; i < sets_count; ++i)
@@ -368,6 +406,8 @@ std::streamsize CustomUnits::Unit::read(InputStream &istream)
 		std::auto_ptr<Set> ptr(createSet());
 		size += ptr->read(istream);
 		this->sets().push_back(ptr);
+
+		//exit(1);
 	}
 
 	return size;
@@ -394,6 +434,8 @@ std::streamsize CustomUnits::Unit::write(OutputStream &ostream) const
 
 CustomUnits::Set* CustomUnits::Unit::createSet() const
 {
+	//std::cerr << "Creating set with version " << this->version() << std::endl;
+
 	return new Set(this->version());
 }
 
@@ -429,6 +471,8 @@ std::streamsize CustomUnits::read(InputStream &istream)
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_version, size);
 
+	//std::cerr << "Reading custom units/objects version " << m_version << std::endl;
+
 	int32 originalUnits = 0;
 	wc3lib::read(istream, originalUnits, size);
 	this->originalTable().reserve(originalUnits);
@@ -436,6 +480,7 @@ std::streamsize CustomUnits::read(InputStream &istream)
 	for (int32 i = 0; i < originalUnits; ++i)
 	{
 		std::auto_ptr<Unit> ptr(createUnit());
+		//std::cerr << "Version of created unit " << ptr->version() << std::endl;
 		size += ptr->read(istream);
 		originalTable().push_back(ptr);
 	}

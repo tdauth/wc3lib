@@ -52,6 +52,7 @@ CustomUnits::Modification* CustomObjects::Set::createModification() const
 
 CustomObjects::Object::Object(uint32 version, CustomObjects::Type type) : CustomUnits::Unit(version), m_type(type)
 {
+	//std::cerr << "Created object with version " << version << " and having version " << this->version() << std::endl;
 }
 
 CustomObjects::Object::Object(const CustomObjects::Object &other) : CustomUnits::Unit(other), m_type(other.type())
@@ -69,6 +70,8 @@ CustomUnits::Unit* CustomObjects::Object::clone() const
 
 CustomUnits::Set* CustomObjects::Object::createSet() const
 {
+	//std::cerr << "Creating set X with version " << this->version() << std::endl;
+
 	return new CustomObjects::Set(this->version(), this->type());
 }
 
@@ -88,8 +91,16 @@ std::streamsize CustomObjects::Modification::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, this->m_id, size);
-	Value::Type type;
-	wc3lib::read<int32>(istream, (int32&)type, size);
+
+	//std::cerr << "Read modification for field " << idToString(this->m_id) << std::endl;
+
+	int32 type;
+	wc3lib::read<int32>(istream, type, size);
+
+	//std::cerr << "With type  " << type << std::endl;
+
+	//std::cerr << "Modification ID " << m_id << std::endl;
+	//std::cerr << "Modification ID " << m_id << std::endl;
 
 	/*
 	 * As the specification states only these three types use optional integer values to specify a level
@@ -98,14 +109,18 @@ std::streamsize CustomObjects::Modification::read(InputStream &istream)
 	 */
 	if (this->type() == CustomObjects::Type::Doodads || this->type() == CustomObjects::Type::Abilities || this->type() == CustomObjects::Type::Upgrades)
 	{
+		//std::cerr << "Reading level and data because of type " << static_cast<int32>(this->type()) << std::endl;
+
 		wc3lib::read(istream, this->m_level, size);
 		wc3lib::read(istream, this->m_data, size);
 	}
 
-	size += readData(istream, type);
+	size += readData(istream, type, static_cast<Value::Type>(type));
 
 	int32 end;
 	wc3lib::read(istream, end, size);
+
+	//std::cerr << "After reading end with size " << sizeof(end) << std::endl;
 
 	return size;
 }
@@ -122,7 +137,7 @@ std::streamsize CustomObjects::Modification::write(OutputStream &ostream) const
 		wc3lib::write(ostream, this->data(), size);
 	}
 
-	size += writeData(ostream, this->value().type());
+	size += writeData(ostream,  static_cast<int32>(this->value().type()), this->value().type());
 
 	int32 end = 0;
 	wc3lib::write(ostream, end, size);
@@ -181,6 +196,8 @@ uint32 CustomObjects::latestFileVersion() const
 
 CustomUnits::Unit* CustomObjects::createUnit() const
 {
+	//std::cerr << "Creating object X with version " << this->version() << std::endl;
+
 	return new CustomObjects::Object(this->version(), this->type());
 }
 
