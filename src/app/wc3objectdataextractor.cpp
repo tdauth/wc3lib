@@ -41,6 +41,19 @@ typedef std::list<boost::filesystem::path> FilePaths;
 
 const char *version = "0.1";
 
+inline std::vector<std::string> splitAndIgnoreEmpty(const std::string &v)
+{
+	std::vector<std::string> r;
+	boost::split(r, v, boost::is_any_of(","), boost::token_compress_on);
+
+	if (r.size() >= 1 && r[0] == "")
+	{
+		r.clear();
+	}
+
+	return r;
+}
+
 int main(int argc, char *argv[])
 {
 	// Set the current locale.
@@ -137,8 +150,7 @@ int main(int argc, char *argv[])
 	std::set<wc3lib::map::id> fieldIdsSet;
 	std::map<wc3lib::map::id, std::string> fieldTypes;
 
-	std::vector<std::string> objectIdsVector;
-	boost::split(objectIdsVector, objectIds, boost::is_any_of(","), boost::token_compress_on);
+	std::vector<std::string> objectIdsVector = splitAndIgnoreEmpty(objectIds);
 
 	for (const std::string &objectId : objectIdsVector)
 	{
@@ -148,19 +160,9 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	std::vector<std::string> fieldIdTypesVector;
-	boost::split(fieldIdTypesVector, fieldIdTypes, boost::is_any_of(","), boost::token_compress_on);
+	std::vector<std::string> fieldIdTypesVector = splitAndIgnoreEmpty(fieldIdTypes);
+	std::vector<std::string> fieldIdsVector = splitAndIgnoreEmpty(fieldIds);;
 
-	if (fieldIdTypesVector.size() >= 1 && fieldIdTypesVector[0] == "")
-	{
-		fieldIdTypesVector.clear();
-	}
-
-	std::cerr << "Field types: " << fieldIdTypesVector.size() << std::endl;
-
-
-	std::vector<std::string> fieldIdsVector;
-	boost::split(fieldIdsVector, fieldIds, boost::is_any_of(","), boost::token_compress_on);
 	int i = 0;
 
 	for (const std::string &fieldId : fieldIdsVector)
@@ -241,14 +243,15 @@ int main(int argc, char *argv[])
 											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * " << max << "] = " << v[i] << std::endl;
 										}
 
-										out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << v.size() << std::endl;
+										if (v.size() > 0)
+										{
+											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << v.size() << std::endl;
+										}
 									}
 									else if (modification.value().isString())
 									{
 										wc3lib::string v = modification.value().toString();
-
-										std::vector<std::string> valueVector;
-										boost::split(valueVector, v, boost::is_any_of(","));
+										std::vector<std::string> valueVector = splitAndIgnoreEmpty(v);
 										std::size_t i = 0;
 
 										for (const std::string &ref : valueVector)
@@ -258,7 +261,10 @@ int main(int argc, char *argv[])
 											++i;
 										}
 
-										out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << valueVector.size() << std::endl;
+										if (valueVector.size() > 0)
+										{
+											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << valueVector.size() << std::endl;
+										}
 									}
 									else
 									{
@@ -275,14 +281,15 @@ int main(int argc, char *argv[])
 											++i;
 										}
 
-										out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << v.size() << std::endl;
+										if (v.size() > 0)
+										{
+											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << v.size() << std::endl;
+										}
 									}
 									else if (modification.value().isString())
 									{
 										wc3lib::string v = modification.value().toString();
-
-										std::vector<std::string> valueVector;
-										boost::split(valueVector, v, boost::is_any_of(","));
+										std::vector<std::string> valueVector = splitAndIgnoreEmpty(v);
 										std::size_t i = 0;
 
 										for (const std::string &ref : valueVector)
@@ -292,7 +299,10 @@ int main(int argc, char *argv[])
 											++i;
 										}
 
-										out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << valueVector.size() << std::endl;
+										if (valueVector.size() > 0)
+										{
+											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << valueVector.size() << std::endl;
+										}
 									}
 									else
 									{
