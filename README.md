@@ -171,7 +171,7 @@ This tool allows to extract object data fields from Warcraft III object data int
 The following command extracts all fields from the custom units file `war3map.w3u`into the newly generated JASS file `script.j`:
 
 ```
-wc3objectdataextractor script.j war3map.w3u
+wc3objectdataextractor -Fvpg -f umki,usei,urq,urqa,ures,useu,utra,uupt,upgr,ucam -t integerlist,integerlist,integerlist,integerlist,integerlist,integerlist,integerlist,integerlist,integerlist,integer -i war3map.w3u -o script.j
 ```
 
 ### wc3trans

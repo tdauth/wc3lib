@@ -41,6 +41,9 @@ typedef std::list<boost::filesystem::path> FilePaths;
 
 const char *version = "0.1";
 
+namespace
+{
+
 inline std::vector<std::string> splitAndIgnoreEmpty(const std::string &v)
 {
 	std::vector<std::string> r;
@@ -52,6 +55,18 @@ inline std::vector<std::string> splitAndIgnoreEmpty(const std::string &v)
 	}
 
 	return r;
+}
+
+inline std::string GetCamelCase(const std::string &v)
+{
+	if (v.size() > 0)
+	{
+		return boost::to_upper_copy(v.substr(0, 1)) + v.substr(1);
+	}
+
+	return v;
+}
+
 }
 
 int main(int argc, char *argv[])
@@ -66,7 +81,7 @@ int main(int argc, char *argv[])
 	std::string fieldIds;
 	std::string fieldIdTypes;
 	std::string objectIds;
-	int max = 100;
+	int max = 20;
 	Strings inputFiles;
 	boost::filesystem::path outputFile;
 
@@ -75,12 +90,15 @@ int main(int argc, char *argv[])
 	("version,V", _("Shows current version of wc3objectdataextractor."))
 	("help,h",_("Shows this text."))
 	// options
-	("verbose", _("Add more text output."))
-	("overwrite,F", _("Overwrites existing files and directories when creating or extracting files."))
+	("verbose,v", _("Add more text output."))
+	("force,F", _("Overwrites existing files and directories when creating or extracting files."))
     ("fieldids,f", boost::program_options::value<std::string>(&fieldIds)->default_value(""), _("Field IDs. Extracts all field IDS if none is specified. Comma-separated values: umki,ucam"))
 	("fieldtypes,t", boost::program_options::value<std::string>(&fieldIdTypes)->default_value(""), _("Field types. The types of the fields in the same order as the field IDs. The default type is integer. Comma-separated values: integer,real,boolean,character,integerlist,stringlist"))
     ("objectids,d", boost::program_options::value<std::string>(&objectIds)->default_value(""), _("Object IDs. Extracts all object IDS if none is specified."))
 	("max,m", boost::program_options::value<int>(&max)->default_value(max), _("Maximum number of levels."))
+	("vjass,j", _("Generates a vJass library."))
+	("private,p", _("Make everything private in the vJass library."))
+	("getters,g", _("Generate getters."))
 	("input,i", boost::program_options::value<Strings>(&inputFiles), _("Input object data files (.w3a, .w3u etc.)."))
 	("output,o", boost::program_options::value<boost::filesystem::path>(&outputFile), _("Output JASS file."))
 	;
@@ -125,9 +143,9 @@ int main(int argc, char *argv[])
 		return EXIT_SUCCESS;
 	}
 
-	if (boost::filesystem::exists(outputFile) && !vm.count("overwrite"))
+	if (boost::filesystem::exists(outputFile) && !vm.count("force"))
 	{
-		std::cerr << boost::format(_("Output file %1% does already exist. Use --overwrite if you want to replace it.")) % outputFile.string() << std::endl;
+		std::cerr << boost::format(_("Output file %1% does already exist. Use --force/-F if you want to replace it.")) % outputFile.string() << std::endl;
 
 		return EXIT_FAILURE;
 	}
@@ -187,9 +205,25 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
+	if (vm.count("vjass"))
+	{
+		out << "library ObjectDataFields initializer InitObjectDataFields" << std::endl;
+		out << std::endl;
+	}
+
 	out << "globals" << std::endl;
 
-	for (const std::string &fieldId : fieldIdsVector) {
+	out << "\t";
+
+	if (vm.count("vjass"))
+	{
+		out << "public ";
+	}
+
+	out << "constant integer MAX_OBJECT_DATA_FIELD_ENTRIES = " << max << std::endl;
+
+	for (const std::string &fieldId : fieldIdsVector)
+	{
 		if (fieldId.size() > 0)
 		{
 			std::string type = fieldTypes[wc3lib::map::stringToId(fieldId)];
@@ -199,7 +233,22 @@ int main(int argc, char *argv[])
 				type = "integer";
 			}
 
+			out << "\t";
+
+			if (vm.count("vjass") && vm.count("private"))
+			{
+				out << "private ";
+			}
+
 			out << type << " array " << fieldId << std::endl;
+
+			out << "\t";
+
+			if (vm.count("vjass") && vm.count("private"))
+			{
+				out << "private ";
+			}
+
 			out << "integer array " << fieldId << "Count" << std::endl;
 		}
 	}
@@ -207,7 +256,37 @@ int main(int argc, char *argv[])
 	out << "endglobals" << std::endl;
 
 	out << std::endl;
-	out << std::endl;
+
+	if (vm.count("getters"))
+	{
+		for (const std::string &fieldId : fieldIdsVector)
+		{
+			std::string type = fieldTypes[wc3lib::map::stringToId(fieldId)];
+
+			if (type == "integerlist")
+			{
+				type = "integer";
+			}
+
+			out << "function Get" << GetCamelCase(fieldId) << " takes integer objectId, integer index returns " << type << std::endl;
+			out << "\treturn " << fieldId << "[index * MAX_OBJECT_DATA_FIELD_ENTRIES + objectId]" << std::endl;
+			out << "endfunction" << std::endl;
+
+			out << std::endl;
+
+			out << "function Get" << GetCamelCase(fieldId) << "Count takes integer objectId returns integer" << std::endl;
+			out << "\treturn " << fieldId << "Count[objectId]" << std::endl;
+			out << "endfunction" << std::endl;
+
+			out << std::endl;
+		}
+	}
+
+
+	if (vm.count("vjass") && vm.count("private"))
+	{
+		out << "private ";
+	}
 
 	out << "function InitObjectDataFields takes nothing returns nothing" << std::endl;
 
@@ -225,7 +304,12 @@ int main(int argc, char *argv[])
 					for (const wc3lib::map::CustomUnits::Set &set : unit.sets()) {
 						for (const wc3lib::map::CustomUnits::Modification &modification : set.modifications()) {
 							if (fieldIdsSet.empty() || fieldIdsSet.contains(modification.valueId())) {
-								std::cout << boost::format(_("Extracting field %1% from object ID %2%.")) % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) << std::endl;
+
+								if (vm.count("verbose"))
+								{
+									std::cout << boost::format(_("Extracting field %1% from object ID %2%.")) % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) << std::endl;
+								}
+
 								counter++;
 
 								const std::string type = fieldTypes[modification.valueId()];
@@ -240,7 +324,12 @@ int main(int argc, char *argv[])
 										const wc3lib::map::List &v = modification.value().toList();
 
 										for (std::size_t i = 0; i < v.size(); i++) {
-											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * " << max << "] = " << v[i] << std::endl;
+											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * MAX_OBJECT_DATA_FIELD_ENTRIES] = " << v[i] << std::endl;
+
+											if (i >= max)
+											{
+												std::cerr << boost::format(_("Warning: Reached maximum %1% with field %2% from object ID %3%.")) % max % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) << std::endl;
+											}
 										}
 
 										if (v.size() > 0)
@@ -256,7 +345,7 @@ int main(int argc, char *argv[])
 
 										for (const std::string &ref : valueVector)
 										{
-											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * " << max << "] = '" << valueVector[i] << "'" << std::endl;
+											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * MAX_OBJECT_DATA_FIELD_ENTRIES] = '" << valueVector[i] << "'" << std::endl;
 
 											++i;
 										}
@@ -276,7 +365,7 @@ int main(int argc, char *argv[])
 										const wc3lib::map::List &v = modification.value().toList();
 
 										for (std::size_t i = 0; i < v.size(); i++) {
-											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * " << max << "] = \"" << v[i] << "\"" << std::endl;
+											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * MAX_OBJECT_DATA_FIELD_ENTRIES] = \"" << v[i] << "\"" << std::endl;
 
 											++i;
 										}
@@ -294,7 +383,7 @@ int main(int argc, char *argv[])
 
 										for (const std::string &ref : valueVector)
 										{
-											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * " << max << "] = \"" << valueVector[i] << "\"" << std::endl;
+											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * MAX_OBJECT_DATA_FIELD_ENTRIES] = \"" << valueVector[i] << "\"" << std::endl;
 
 											++i;
 										}
@@ -344,6 +433,12 @@ int main(int argc, char *argv[])
     }
 
     out << "endfunction" << std::endl;
+
+	if (vm.count("vjass"))
+	{
+		out << std::endl;
+		out << "endlibrary" << std::endl;
+	}
 
     std::cout << boost::format(_("Extracted %1% object data fields.")) % counter << std::endl;
 
