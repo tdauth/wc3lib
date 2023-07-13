@@ -57,7 +57,7 @@ inline std::vector<std::string> splitAndIgnoreEmpty(const std::string &v)
 	return r;
 }
 
-inline std::string GetCamelCase(const std::string &v)
+inline std::string getCamelCase(const std::string &v)
 {
 	if (v.size() > 0)
 	{
@@ -65,6 +65,47 @@ inline std::string GetCamelCase(const std::string &v)
 	}
 
 	return v;
+}
+
+inline bool isList(const std::string &type)
+{
+	return type == "integerlist" || type == "stringlist" || type == "reallist";
+}
+
+inline std::string mapType(const std::string &type)
+{
+	if (type == "integerlist")
+	{
+		return "integer";
+	}
+
+	if (type == "stringlist")
+	{
+		return "string";
+	}
+
+	if (type == "reallist")
+	{
+		return "real";
+	}
+
+	return type;
+}
+
+inline void appendLine(std::ofstream &out, long &lineCounter, long &initCounters, int limit)
+{
+	lineCounter++;
+
+	if (limit > 0 && lineCounter >= limit)
+	{
+		initCounters++;
+		lineCounter = 0;
+
+		out << "endfunction";
+		out << std::endl;
+		out << std::endl;
+		out << "function InitObjectDataFields" << initCounters << " takes nothing returns nothing" << std::endl;
+	}
 }
 
 }
@@ -82,6 +123,7 @@ int main(int argc, char *argv[])
 	std::string fieldIdTypes;
 	std::string objectIds;
 	int max = 20;
+	int limit = 0;
 	Strings inputFiles;
 	boost::filesystem::path outputFile;
 
@@ -93,11 +135,13 @@ int main(int argc, char *argv[])
 	("verbose,v", _("Add more text output."))
 	("force,F", _("Overwrites existing files and directories when creating or extracting files."))
     ("fieldids,f", boost::program_options::value<std::string>(&fieldIds)->default_value(""), _("Field IDs. Extracts all field IDS if none is specified. Comma-separated values: umki,ucam"))
-	("fieldtypes,t", boost::program_options::value<std::string>(&fieldIdTypes)->default_value(""), _("Field types. The types of the fields in the same order as the field IDs. The default type is integer. Comma-separated values: integer,real,boolean,character,integerlist,stringlist"))
+	("fieldtypes,t", boost::program_options::value<std::string>(&fieldIdTypes)->default_value(""), _("Field types. The types of the fields in the same order as the field IDs. The default type is integer. Pass them as comma-separated values. These are all supported types: integer,real,boolean,character,integerlist,stringlist"))
     ("objectids,d", boost::program_options::value<std::string>(&objectIds)->default_value(""), _("Object IDs. Extracts all object IDS if none is specified."))
-	("max,m", boost::program_options::value<int>(&max)->default_value(max), _("Maximum number of levels."))
+	("max,m", boost::program_options::value<int>(&max), _("Maximum number of levels."))
+	("oplimitoperations,l", boost::program_options::value<int>(&limit), _("Maximum number of operations."))
 	("vjass,j", _("Generates a vJass library."))
-	("private,p", _("Make everything private in the vJass library."))
+	("private,p", _("Make everything private in the vJass library which should not be accessed from outside."))
+	("public,b", _("Make everything public in the vJass library which can be accessed from outside."))
 	("getters,g", _("Generate getters."))
 	("input,i", boost::program_options::value<Strings>(&inputFiles), _("Input object data files (.w3a, .w3u etc.)."))
 	("output,o", boost::program_options::value<boost::filesystem::path>(&outputFile), _("Output JASS file."))
@@ -215,7 +259,7 @@ int main(int argc, char *argv[])
 
 	out << "\t";
 
-	if (vm.count("vjass"))
+	if (vm.count("vjass") && vm.count("public"))
 	{
 		out << "public ";
 	}
@@ -226,12 +270,8 @@ int main(int argc, char *argv[])
 	{
 		if (fieldId.size() > 0)
 		{
-			std::string type = fieldTypes[wc3lib::map::stringToId(fieldId)];
-
-			if (type == "integerlist")
-			{
-				type = "integer";
-			}
+			const std::string type = mapType(fieldTypes[wc3lib::map::stringToId(fieldId)]);
+			const bool list = isList(fieldTypes[wc3lib::map::stringToId(fieldId)]);
 
 			out << "\t";
 
@@ -242,14 +282,18 @@ int main(int argc, char *argv[])
 
 			out << type << " array " << fieldId << std::endl;
 
-			out << "\t";
 
-			if (vm.count("vjass") && vm.count("private"))
+			if (list)
 			{
-				out << "private ";
-			}
+				out << "\t";
 
-			out << "integer array " << fieldId << "Count" << std::endl;
+				if (vm.count("vjass") && vm.count("private"))
+				{
+					out << "private ";
+				}
+
+				out << "integer array " << fieldId << "Count" << std::endl;
+			}
 		}
 	}
 
@@ -261,25 +305,61 @@ int main(int argc, char *argv[])
 	{
 		for (const std::string &fieldId : fieldIdsVector)
 		{
-			std::string type = fieldTypes[wc3lib::map::stringToId(fieldId)];
+			const std::string type = mapType(fieldTypes[wc3lib::map::stringToId(fieldId)]);
+			const bool list = isList(fieldTypes[wc3lib::map::stringToId(fieldId)]);
 
-			if (type == "integerlist")
+			if (list)
 			{
-				type = "integer";
+				if (vm.count("vjass") && vm.count("public"))
+				{
+					out << "public ";
+				}
+
+				out << "function Get" << getCamelCase(fieldId) << " takes integer objectId, integer index returns " << type << std::endl;
+				out << "\treturn " << fieldId << "[index * MAX_OBJECT_DATA_FIELD_ENTRIES + objectId]" << std::endl;
+				out << "endfunction" << std::endl;
+
+				out << std::endl;
+
+				if (vm.count("vjass") && vm.count("public"))
+				{
+					out << "public ";
+				}
+
+				out << "function Get" << getCamelCase(fieldId) << "Count takes integer objectId returns integer" << std::endl;
+				out << "\treturn " << fieldId << "Count[objectId]" << std::endl;
+				out << "endfunction" << std::endl;
+
+				out << std::endl;
 			}
+			else
+			{
+				if (vm.count("vjass") && vm.count("public"))
+				{
+					out << "public ";
+				}
 
-			out << "function Get" << GetCamelCase(fieldId) << " takes integer objectId, integer index returns " << type << std::endl;
-			out << "\treturn " << fieldId << "[index * MAX_OBJECT_DATA_FIELD_ENTRIES + objectId]" << std::endl;
-			out << "endfunction" << std::endl;
+				out << "function Get" << getCamelCase(fieldId) << " takes integer objectId returns " << type << std::endl;
+				out << "\treturn " << fieldId << "[objectId]" << std::endl;
+				out << "endfunction" << std::endl;
 
-			out << std::endl;
-
-			out << "function Get" << GetCamelCase(fieldId) << "Count takes integer objectId returns integer" << std::endl;
-			out << "\treturn " << fieldId << "Count[objectId]" << std::endl;
-			out << "endfunction" << std::endl;
-
-			out << std::endl;
+				out << std::endl;
+			}
 		}
+	}
+
+	if (limit > 0)
+	{
+		if (vm.count("vjass") && vm.count("private"))
+		{
+			out << "private ";
+		}
+
+		out << "function NewOpLimit takes code callback returns nothing" << std::endl;
+		out << "\tcall ForForce(bj_FORCE_PLAYER[0], callback)" << std::endl;
+		out << "endfunction" << std::endl;
+
+		out << std::endl;
 	}
 
 
@@ -288,7 +368,10 @@ int main(int argc, char *argv[])
 		out << "private ";
 	}
 
-	out << "function InitObjectDataFields takes nothing returns nothing" << std::endl;
+	long initCounters = 0;
+	out << "function InitObjectDataFields" << initCounters << " takes nothing returns nothing" << std::endl;
+
+	long lineCounter = 0;
 
 	for (FilePaths::reference path : inputFilePaths)
     {
@@ -325,6 +408,7 @@ int main(int argc, char *argv[])
 
 										for (std::size_t i = 0; i < v.size(); i++) {
 											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * MAX_OBJECT_DATA_FIELD_ENTRIES] = " << v[i] << std::endl;
+											appendLine(out, lineCounter, initCounters, limit);
 
 											if (i >= max)
 											{
@@ -335,6 +419,7 @@ int main(int argc, char *argv[])
 										if (v.size() > 0)
 										{
 											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << v.size() << std::endl;
+											appendLine(out, lineCounter, initCounters, limit);
 										}
 									}
 									else if (modification.value().isString())
@@ -346,6 +431,7 @@ int main(int argc, char *argv[])
 										for (const std::string &ref : valueVector)
 										{
 											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * MAX_OBJECT_DATA_FIELD_ENTRIES] = '" << valueVector[i] << "'" << std::endl;
+											appendLine(out, lineCounter, initCounters, limit);
 
 											++i;
 										}
@@ -353,6 +439,7 @@ int main(int argc, char *argv[])
 										if (valueVector.size() > 0)
 										{
 											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << valueVector.size() << std::endl;
+											appendLine(out, lineCounter, initCounters, limit);
 										}
 									}
 									else
@@ -366,6 +453,7 @@ int main(int argc, char *argv[])
 
 										for (std::size_t i = 0; i < v.size(); i++) {
 											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * MAX_OBJECT_DATA_FIELD_ENTRIES] = \"" << v[i] << "\"" << std::endl;
+											appendLine(out, lineCounter, initCounters, limit);
 
 											++i;
 										}
@@ -373,6 +461,7 @@ int main(int argc, char *argv[])
 										if (v.size() > 0)
 										{
 											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << v.size() << std::endl;
+											appendLine(out, lineCounter, initCounters, limit);
 										}
 									}
 									else if (modification.value().isString())
@@ -384,6 +473,7 @@ int main(int argc, char *argv[])
 										for (const std::string &ref : valueVector)
 										{
 											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * MAX_OBJECT_DATA_FIELD_ENTRIES] = \"" << valueVector[i] << "\"" << std::endl;
+											appendLine(out, lineCounter, initCounters, limit);
 
 											++i;
 										}
@@ -391,6 +481,7 @@ int main(int argc, char *argv[])
 										if (valueVector.size() > 0)
 										{
 											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << valueVector.size() << std::endl;
+											appendLine(out, lineCounter, initCounters, limit);
 										}
 									}
 									else
@@ -401,7 +492,7 @@ int main(int argc, char *argv[])
 									if (modification.value().isInteger())
 									{
 										out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toInteger() << std::endl;
-										out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = 1" << std::endl;
+										appendLine(out, lineCounter, initCounters, limit);
 									}
 									else
 									{
@@ -409,16 +500,16 @@ int main(int argc, char *argv[])
 									}
 								} else if (type == "real") {
 									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toReal() << std::endl;
-									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = 1" << std::endl;
+									appendLine(out, lineCounter, initCounters, limit);
 								} else if (type == "string") {
 									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = \"" << modification.value().toString() << "\"" << std::endl;
-									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = 1" << std::endl;
+									appendLine(out, lineCounter, initCounters, limit);
 								} else if (type == "boolean") {
 									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toBoolean() << std::endl;
-									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = 1" << std::endl;
+									appendLine(out, lineCounter, initCounters, limit);
 								} else if (type == "character") {
 									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toCharacter() << std::endl;
-									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = 1" << std::endl;
+									appendLine(out, lineCounter, initCounters, limit);
 								}
 							}
 						}
@@ -433,6 +524,16 @@ int main(int argc, char *argv[])
     }
 
     out << "endfunction" << std::endl;
+	out << std::endl;
+	out << "function InitObjectDataFields takes nothing returns nothing" << std::endl;
+
+	for (long i = 0; i < initCounters; ++i)
+	{
+		out << "\tcall NewOpLimit(function InitObjectDataFields" << i << ")" << std::endl;
+	}
+
+	out << "endfunction" << std::endl;
+
 
 	if (vm.count("vjass"))
 	{
