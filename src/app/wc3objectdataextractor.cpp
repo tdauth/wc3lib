@@ -92,7 +92,7 @@ inline std::string mapType(const std::string &type)
 	return type;
 }
 
-inline void appendLine(std::ofstream &out, long &lineCounter, long &initCounters, int limit)
+inline void appendLine(std::ofstream &out, long &lineCounter, long &initCounters, int limit, bool p)
 {
 	lineCounter++;
 
@@ -101,9 +101,14 @@ inline void appendLine(std::ofstream &out, long &lineCounter, long &initCounters
 		initCounters++;
 		lineCounter = 0;
 
-		out << "endfunction";
+		out << "endfunction" << std::endl;
 		out << std::endl;
-		out << std::endl;
+
+		if (p)
+		{
+			out << "private ";
+		}
+
 		out << "function InitObjectDataFields" << initCounters << " takes nothing returns nothing" << std::endl;
 	}
 }
@@ -408,7 +413,7 @@ int main(int argc, char *argv[])
 
 										for (std::size_t i = 0; i < v.size(); i++) {
 											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * MAX_OBJECT_DATA_FIELD_ENTRIES] = " << v[i] << std::endl;
-											appendLine(out, lineCounter, initCounters, limit);
+											appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
 
 											if (i >= max)
 											{
@@ -419,7 +424,7 @@ int main(int argc, char *argv[])
 										if (v.size() > 0)
 										{
 											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << v.size() << std::endl;
-											appendLine(out, lineCounter, initCounters, limit);
+											appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
 										}
 									}
 									else if (modification.value().isString())
@@ -431,7 +436,7 @@ int main(int argc, char *argv[])
 										for (const std::string &ref : valueVector)
 										{
 											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * MAX_OBJECT_DATA_FIELD_ENTRIES] = '" << valueVector[i] << "'" << std::endl;
-											appendLine(out, lineCounter, initCounters, limit);
+											appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
 
 											++i;
 										}
@@ -439,7 +444,7 @@ int main(int argc, char *argv[])
 										if (valueVector.size() > 0)
 										{
 											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << valueVector.size() << std::endl;
-											appendLine(out, lineCounter, initCounters, limit);
+											appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
 										}
 									}
 									else
@@ -453,7 +458,7 @@ int main(int argc, char *argv[])
 
 										for (std::size_t i = 0; i < v.size(); i++) {
 											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * MAX_OBJECT_DATA_FIELD_ENTRIES] = \"" << v[i] << "\"" << std::endl;
-											appendLine(out, lineCounter, initCounters, limit);
+											appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
 
 											++i;
 										}
@@ -461,7 +466,7 @@ int main(int argc, char *argv[])
 										if (v.size() > 0)
 										{
 											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << v.size() << std::endl;
-											appendLine(out, lineCounter, initCounters, limit);
+											appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
 										}
 									}
 									else if (modification.value().isString())
@@ -473,7 +478,7 @@ int main(int argc, char *argv[])
 										for (const std::string &ref : valueVector)
 										{
 											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * MAX_OBJECT_DATA_FIELD_ENTRIES] = \"" << valueVector[i] << "\"" << std::endl;
-											appendLine(out, lineCounter, initCounters, limit);
+											appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
 
 											++i;
 										}
@@ -481,7 +486,7 @@ int main(int argc, char *argv[])
 										if (valueVector.size() > 0)
 										{
 											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << valueVector.size() << std::endl;
-											appendLine(out, lineCounter, initCounters, limit);
+											appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
 										}
 									}
 									else
@@ -492,7 +497,7 @@ int main(int argc, char *argv[])
 									if (modification.value().isInteger())
 									{
 										out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toInteger() << std::endl;
-										appendLine(out, lineCounter, initCounters, limit);
+										appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
 									}
 									else
 									{
@@ -500,16 +505,16 @@ int main(int argc, char *argv[])
 									}
 								} else if (type == "real") {
 									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toReal() << std::endl;
-									appendLine(out, lineCounter, initCounters, limit);
+									appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
 								} else if (type == "string") {
 									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = \"" << modification.value().toString() << "\"" << std::endl;
-									appendLine(out, lineCounter, initCounters, limit);
+									appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
 								} else if (type == "boolean") {
 									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toBoolean() << std::endl;
-									appendLine(out, lineCounter, initCounters, limit);
+									appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
 								} else if (type == "character") {
 									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toCharacter() << std::endl;
-									appendLine(out, lineCounter, initCounters, limit);
+									appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
 								}
 							}
 						}
@@ -525,6 +530,12 @@ int main(int argc, char *argv[])
 
     out << "endfunction" << std::endl;
 	out << std::endl;
+
+	if (vm.count("vjass") && vm.count("private"))
+	{
+		out << "private ";
+	}
+
 	out << "function InitObjectDataFields takes nothing returns nothing" << std::endl;
 
 	for (long i = 0; i < initCounters; ++i)
