@@ -167,6 +167,7 @@ int main(int argc, char *argv[])
 	int max = 20;
 	int limit = 0;
 	Strings inputFiles;
+	Strings slkMetaInputFiles;
 	Strings slkInputFiles;
 	Strings txtInputFiles;
 	boost::filesystem::path outputFile;
@@ -186,7 +187,8 @@ int main(int argc, char *argv[])
 	("private,p", _("Make everything private in the vJass library which should not be accessed from outside."))
 	("public,b", _("Make everything public in the vJass library which can be accessed from outside."))
 	("input,i", boost::program_options::value<Strings>(&inputFiles), _("Input object data files (.w3a, .w3u etc.)."))
-	("slkinput,s", boost::program_options::value<Strings>(&slkInputFiles), _("Input SLK files which contain meta data (UnitMetaData.slk, AbilityMetaData.slk etc.)."))
+	("slkmetainput,k", boost::program_options::value<Strings>(&slkMetaInputFiles), _("Input SLK files which contain meta data (UnitMetaData.slk, AbilityMetaData.slk etc.)."))
+	("slkinput,s", boost::program_options::value<Strings>(&slkInputFiles), _("Input SLK files which contain data (UnitData.slk, AbilityData.slk etc.)."))
 	("txtinput,x", boost::program_options::value<Strings>(&txtInputFiles), _("Input TXT files which object data strings."))
 	("output,o", boost::program_options::value<boost::filesystem::path>(&outputFile), _("Output JASS file."))
 	;
@@ -562,7 +564,109 @@ int main(int argc, char *argv[])
         }
     }
 
-    out << "endfunction" << std::endl;
+	std::map<std::string, std::string> fieldIdsToNames;
+	std::map<std::string, std::string> fieldNamesToIds;
+
+
+	/*
+	 * Read meta data file UnitMetaData.slk. The first column is the "id" and the second column is the "field" (name).
+	 * The file "UnitData.slk" has rows for the object ID and columns for the fields but with the field names.
+	 */
+	for (Strings::const_reference path : slkMetaInputFiles)
+	{
+		boost::filesystem::ifstream in(path, std::ios::in);
+
+		if (in)
+		{
+			wc3lib::map::Slk slk;
+
+			try
+			{
+				slk.read(in);
+
+				if (slk.columns() >= 2)
+				{
+					for (std::size_t row = 1; row < slk.rows(); ++row)
+					{
+						std::string id = slk.cell(row, 0);
+						std::string name = slk.cell(row, 1);
+
+						if (vm.count("verbose"))
+						{
+							std::cout << "Adding field name " << name << " with ID " << id << " from file " << path << std::endl;
+						}
+
+						fieldIdsToNames[id] = name;
+						fieldNamesToIds[name] = id;
+					}
+				}
+				else
+				{
+					std::cerr << boost::format(_("Missing first two columns in SLK file %1%.\nSkipping file.")) % path << std::endl;
+				}
+			}
+			catch (const wc3lib::Exception &e)
+			{
+				std::cerr << boost::format(_("Error occured when converting file %1%: \"%2%\".\nSkipping file.")) % path % e.what() << std::endl;
+			}
+		}
+		else
+		{
+			std::cerr << boost::format(_("Error occured when converting file %1%.\nSkipping file.")) % path << std::endl;
+		}
+	}
+
+	for (Strings::const_reference path : slkInputFiles)
+	{
+		boost::filesystem::ifstream in(path, std::ios::in);
+
+		if (in)
+		{
+			wc3lib::map::Slk slk;
+
+			try
+			{
+				slk.read(in);
+
+				for (std::size_t column = 1; column < slk.columns(); ++column)
+				{
+					const std::string fieldName = slk.cell(0, column);
+					std::map<std::string, std::string>::iterator iterator = fieldNamesToIds.find(fieldName);
+
+					if (iterator != fieldNamesToIds.end())
+					{
+						const wc3lib::map::id fieldId = wc3lib::map::stringToId(iterator->second);
+						const std::string type = fieldTypes[fieldId];
+
+						for (std::size_t row = 1; row < slk.rows(); ++row)
+						{
+							const std::string objectIdString = slk.cell(row, 0);
+							const wc3lib::map::id objectId = wc3lib::map::stringToId(objectIdString);
+							const std::string v = slk.cell(row, column);
+
+							addCall(out, type, objectId, fieldId, v);
+							appendLine(out, lineCounter, initCounters, limit, vm.count("private"));
+
+							if (vm.count("verbose"))
+							{
+								std::cout << "Adding field name " << fieldName << " (" << wc3lib::map::idToString(fieldId) << ") with ID " << objectId << " (" << objectIdString << ") from file " << path << std::endl;
+							}
+						}
+					}
+				}
+			}
+			catch (const wc3lib::Exception &e)
+			{
+				std::cerr << boost::format(_("Error occured when converting file %1%: \"%2%\".\nSkipping file.")) % path % e.what() << std::endl;
+			}
+		}
+		else
+		{
+			std::cerr << boost::format(_("Error occured when converting file %1%.\nSkipping file.")) % path << std::endl;
+		}
+	}
+
+	out << "endfunction" << std::endl;
 	out << std::endl;
 
 	if (vm.count("private"))
