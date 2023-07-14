@@ -67,6 +67,11 @@ inline std::string getCamelCase(const std::string &v)
 	return v;
 }
 
+inline std::string getCamelCase(const wc3lib::map::id &v)
+{
+	return getCamelCase(wc3lib::map::idToString(v));
+}
+
 inline bool isList(const std::string &type)
 {
 	return type == "integerlist" || type == "stringlist" || type == "reallist";
@@ -113,6 +118,38 @@ inline void appendLine(std::ofstream &out, long &lineCounter, long &initCounters
 	}
 }
 
+inline std::string getNativeTypeName(const std::string &type)
+{
+	if (type == "integer") {
+		return "Integer";
+	} else if (type == "string") {
+		return "Str";
+	} else if (type == "real") {
+		return "Real";
+	} else if (type == "boolean") {
+		return "Boolean";
+	}
+
+	return "Integer";
+}
+
+template<typename V>
+inline void addCall(std::ofstream &out, const std::string &type, wc3lib::map::id objectId, wc3lib::map::id fieldId, V v)
+{
+	if (type == "stringlist" || type == "string")
+	{
+		out << "\tcall Add" << getCamelCase(fieldId) << "('" << wc3lib::map::idToString(objectId) << "', \"" << v << "\")" << std::endl;
+	}
+	else if (type == "integer" || type == "integerlist" || type == "character")
+	{
+		out << "\tcall Add" << getCamelCase(fieldId) << "('" << wc3lib::map::idToString(objectId) << "', '" << v << "')" << std::endl;
+	}
+	else if (type == "boolean")
+	{
+		out << "\tcall Add" << getCamelCase(fieldId) << "('" << wc3lib::map::idToString(objectId) << "', " << v << ")" << std::endl;
+	}
+}
+
 }
 
 int main(int argc, char *argv[])
@@ -130,6 +167,8 @@ int main(int argc, char *argv[])
 	int max = 20;
 	int limit = 0;
 	Strings inputFiles;
+	Strings slkInputFiles;
+	Strings txtInputFiles;
 	boost::filesystem::path outputFile;
 
 	boost::program_options::options_description desc("Allowed options");
@@ -144,11 +183,11 @@ int main(int argc, char *argv[])
     ("objectids,d", boost::program_options::value<std::string>(&objectIds)->default_value(""), _("Object IDs. Extracts all object IDS if none is specified."))
 	("max,m", boost::program_options::value<int>(&max), _("Maximum number of levels."))
 	("oplimitoperations,l", boost::program_options::value<int>(&limit), _("Maximum number of operations."))
-	("vjass,j", _("Generates a vJass library."))
 	("private,p", _("Make everything private in the vJass library which should not be accessed from outside."))
 	("public,b", _("Make everything public in the vJass library which can be accessed from outside."))
-	("getters,g", _("Generate getters."))
 	("input,i", boost::program_options::value<Strings>(&inputFiles), _("Input object data files (.w3a, .w3u etc.)."))
+	("slkinput,s", boost::program_options::value<Strings>(&slkInputFiles), _("Input SLK files which contain meta data (UnitMetaData.slk, AbilityMetaData.slk etc.)."))
+	("txtinput,x", boost::program_options::value<Strings>(&txtInputFiles), _("Input TXT files which object data strings."))
 	("output,o", boost::program_options::value<boost::filesystem::path>(&outputFile), _("Output JASS file."))
 	;
 
@@ -254,17 +293,14 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	if (vm.count("vjass"))
-	{
-		out << "library ObjectDataFields initializer InitObjectDataFields" << std::endl;
-		out << std::endl;
-	}
+	out << "library ObjectDataFields initializer InitObjectDataFields" << std::endl;
+	out << std::endl;
 
 	out << "globals" << std::endl;
 
 	out << "\t";
 
-	if (vm.count("vjass") && vm.count("public"))
+	if (vm.count("public"))
 	{
 		out << "public ";
 	}
@@ -280,7 +316,7 @@ int main(int argc, char *argv[])
 
 			out << "\t";
 
-			if (vm.count("vjass") && vm.count("private"))
+			if (vm.count("private"))
 			{
 				out << "private ";
 			}
@@ -292,7 +328,7 @@ int main(int argc, char *argv[])
 			{
 				out << "\t";
 
-				if (vm.count("vjass") && vm.count("private"))
+				if (vm.count("private"))
 				{
 					out << "private ";
 				}
@@ -302,60 +338,91 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	out << "\t";
+
+	if (vm.count("private"))
+	{
+		out << "private ";
+	}
+
+	out << "hashtable fieldsHashTable = InitHashtable()" << std::endl;
+
 	out << "endglobals" << std::endl;
 
 	out << std::endl;
 
-	if (vm.count("getters"))
+	if (vm.count("public"))
 	{
-		for (const std::string &fieldId : fieldIdsVector)
+		out << "public ";
+	}
+
+	std::set<std::string> allTypes;
+
+	for (const std::string &fieldId : fieldIdsVector)
+	{
+		const std::string type = mapType(fieldTypes[wc3lib::map::stringToId(fieldId)]);
+		allTypes.insert(type);
+	}
+
+	for (const std::string &type : allTypes)
+	{
+		if (vm.count("private"))
 		{
-			const std::string type = mapType(fieldTypes[wc3lib::map::stringToId(fieldId)]);
-			const bool list = isList(fieldTypes[wc3lib::map::stringToId(fieldId)]);
-
-			if (list)
-			{
-				if (vm.count("vjass") && vm.count("public"))
-				{
-					out << "public ";
-				}
-
-				out << "function Get" << getCamelCase(fieldId) << " takes integer objectId, integer index returns " << type << std::endl;
-				out << "\treturn " << fieldId << "[index * MAX_OBJECT_DATA_FIELD_ENTRIES + objectId]" << std::endl;
-				out << "endfunction" << std::endl;
-
-				out << std::endl;
-
-				if (vm.count("vjass") && vm.count("public"))
-				{
-					out << "public ";
-				}
-
-				out << "function Get" << getCamelCase(fieldId) << "Count takes integer objectId returns integer" << std::endl;
-				out << "\treturn " << fieldId << "Count[objectId]" << std::endl;
-				out << "endfunction" << std::endl;
-
-				out << std::endl;
-			}
-			else
-			{
-				if (vm.count("vjass") && vm.count("public"))
-				{
-					out << "public ";
-				}
-
-				out << "function Get" << getCamelCase(fieldId) << " takes integer objectId returns " << type << std::endl;
-				out << "\treturn " << fieldId << "[objectId]" << std::endl;
-				out << "endfunction" << std::endl;
-
-				out << std::endl;
-			}
+			out << "private ";
 		}
+
+		out << "struct F" << type << std::endl;
+		out << "\t" << type << " array v[MAX_OBJECT_DATA_FIELD_ENTRIES]" << std::endl;
+		out << "\tinteger count = 0" << std::endl;
+		out << std::endl;
+		out << "\tmethod add takes " << type << " x returns integer" << std::endl;
+		out << "\t\tlocal integer i = count" << std::endl;
+		out << "\t\tset v[i] = x" << std::endl;
+		out << "\t\tset count = count + 1" << std::endl;
+		out << "\t\treturn i" << std::endl;
+		out << "\tendmethod" << std::endl;
+		out << "endstruct" << std::endl;
+	}
+
+	out << std::endl;
+
+	for (const std::string &fieldId : fieldIdsVector)
+	{
+		const std::string type = mapType(fieldTypes[wc3lib::map::stringToId(fieldId)]);
+		const bool list = isList(fieldTypes[wc3lib::map::stringToId(fieldId)]);
+
+		if (vm.count("public"))
+		{
+			out << "public ";
+		}
+
+		out << "function Get" << getCamelCase(fieldId) << " takes integer objectId, integer index returns " << type << std::endl;
+		out << "\treturn F" << type << "(Load" << getNativeTypeName(type) << "(fieldsHashTable, objectId, '" << fieldId << "')).v[index]" << std::endl;
+		out << "endfunction" << std::endl;
+
+		out << std::endl;
+
+
+		if (vm.count("public"))
+		{
+			out << "public ";
+		}
+
+		out << "function Add" << getCamelCase(fieldId) << " takes integer objectId, " << type << " v returns integer" << std::endl;
+		out << "\tlocal F" << type << " f = Load" << getNativeTypeName(type) << "(fieldsHashTable, objectId, '" << fieldId << "')" << std::endl;
+		out << "\tif (f == 0) then" << std::endl;
+		out << "\t\tset f = F" << type << ".create()" << std::endl;
+		out << "\t\tcall Save" << getNativeTypeName(type) << "(fieldsHashTable, objectId, '" << fieldId << "', f)" << std::endl;
+		out << "\tendif" << std::endl;
+		out << "\treturn f.add(v)" << std::endl;
+		out << "endfunction" << std::endl;
+
+		out << std::endl;
 	}
 
 	if (limit > 0)
 	{
-		if (vm.count("vjass") && vm.count("private"))
+		if (vm.count("private"))
 		{
 			out << "private ";
 		}
@@ -368,7 +435,7 @@ int main(int argc, char *argv[])
 	}
 
 
-	if (vm.count("vjass") && vm.count("private"))
+	if (vm.count("private"))
 	{
 		out << "private ";
 	}
@@ -406,49 +473,30 @@ int main(int argc, char *argv[])
 								//std::cerr << "Type " << type << std::endl;
 
 								if (type == "integerlist") {
-
-									if (modification.value().isList())
-									{
+									if (modification.value().isList()) {
 										const wc3lib::map::List &v = modification.value().toList();
 
 										for (std::size_t i = 0; i < v.size(); i++) {
-											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * MAX_OBJECT_DATA_FIELD_ENTRIES] = " << v[i] << std::endl;
-											appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
+											addCall(out, "integerlist", unit.customId(), modification.valueId(), v[i]);
+											appendLine(out, lineCounter, initCounters, limit, vm.count("private"));
 
-											if (i >= max)
-											{
+											if (i >= max) {
 												std::cerr << boost::format(_("Warning: Reached maximum %1% with field %2% from object ID %3%.")) % max % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) << std::endl;
 											}
 										}
-
-										if (v.size() > 0)
-										{
-											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << v.size() << std::endl;
-											appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
-										}
 									}
-									else if (modification.value().isString())
-									{
+									else if (modification.value().isString()) {
 										wc3lib::string v = modification.value().toString();
 										std::vector<std::string> valueVector = splitAndIgnoreEmpty(v);
 										std::size_t i = 0;
 
-										for (const std::string &ref : valueVector)
-										{
-											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * MAX_OBJECT_DATA_FIELD_ENTRIES] = '" << valueVector[i] << "'" << std::endl;
-											appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
+										for (const std::string &ref : valueVector) {
+											addCall(out, "integerlist", unit.customId(), modification.valueId(), ref);
+											appendLine(out, lineCounter, initCounters, limit, vm.count("private"));
 
 											++i;
 										}
-
-										if (valueVector.size() > 0)
-										{
-											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << valueVector.size() << std::endl;
-											appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
-										}
-									}
-									else
-									{
+									} else {
 										std::cerr << boost::format(_("Warning: Extracting field %1% from object ID %2% does not work with type %3%.")) % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) % type  << std::endl;
 									}
 								} else if (type == "stringlist") {
@@ -457,16 +505,10 @@ int main(int argc, char *argv[])
 										const wc3lib::map::List &v = modification.value().toList();
 
 										for (std::size_t i = 0; i < v.size(); i++) {
-											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * MAX_OBJECT_DATA_FIELD_ENTRIES] = \"" << v[i] << "\"" << std::endl;
-											appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
+											addCall(out, "stringlist", unit.customId(), modification.valueId(), v[i]);
+											appendLine(out, lineCounter, initCounters, limit, vm.count("private"));
 
 											++i;
-										}
-
-										if (v.size() > 0)
-										{
-											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << v.size() << std::endl;
-											appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
 										}
 									}
 									else if (modification.value().isString())
@@ -475,18 +517,11 @@ int main(int argc, char *argv[])
 										std::vector<std::string> valueVector = splitAndIgnoreEmpty(v);
 										std::size_t i = 0;
 
-										for (const std::string &ref : valueVector)
-										{
-											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "' + "  << i << " * MAX_OBJECT_DATA_FIELD_ENTRIES] = \"" << valueVector[i] << "\"" << std::endl;
-											appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
+										for (const std::string &ref : valueVector) {
+											addCall(out, "stringlist", unit.customId(), modification.valueId(), ref);
+											appendLine(out, lineCounter, initCounters, limit, vm.count("private"));
 
 											++i;
-										}
-
-										if (valueVector.size() > 0)
-										{
-											out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "Count['" << wc3lib::map::idToString(unit.customId()) << "'] = " << valueVector.size() << std::endl;
-											appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
 										}
 									}
 									else
@@ -494,27 +529,26 @@ int main(int argc, char *argv[])
 										std::cerr << boost::format(_("Warning: Extracting field %1% from object ID %2% does not work with type %3%.")) % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) % type  << std::endl;
 									}
 								} else if (type == "integer") {
-									if (modification.value().isInteger())
-									{
-										out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toInteger() << std::endl;
-										appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
+									if (modification.value().isInteger()) {
+										addCall(out, "integer", unit.customId(), modification.valueId(), modification.value().toInteger());
+										appendLine(out, lineCounter, initCounters, limit, vm.count("private"));
 									}
 									else
 									{
 										std::cerr << boost::format(_("Warning: Extracting field %1% from object ID %2% does not work with type %3%.")) % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) % type  << std::endl;
 									}
 								} else if (type == "real") {
-									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toReal() << std::endl;
-									appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
+									addCall(out, "real", unit.customId(), modification.valueId(), modification.value().toReal());
+									appendLine(out, lineCounter, initCounters, limit, vm.count("private"));
 								} else if (type == "string") {
-									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = \"" << modification.value().toString() << "\"" << std::endl;
-									appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
+									addCall(out, "string", unit.customId(), modification.valueId(), modification.value().toString());
+									appendLine(out, lineCounter, initCounters, limit, vm.count("private"));
 								} else if (type == "boolean") {
-									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toBoolean() << std::endl;
-									appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
+									addCall(out, "boolean", unit.customId(), modification.valueId(), modification.value().toBoolean());
+									appendLine(out, lineCounter, initCounters, limit, vm.count("private"));
 								} else if (type == "character") {
-									out << "\tset " << wc3lib::map::idToString(modification.valueId()) << "['" << wc3lib::map::idToString(unit.customId()) << "'] = " << modification.value().toCharacter() << std::endl;
-									appendLine(out, lineCounter, initCounters, limit, vm.count("vjass") && vm.count("private"));
+									addCall(out, "character", unit.customId(), modification.valueId(), modification.value().toCharacter());
+									appendLine(out, lineCounter, initCounters, limit, vm.count("private"));
 								}
 							}
 						}
@@ -531,7 +565,7 @@ int main(int argc, char *argv[])
     out << "endfunction" << std::endl;
 	out << std::endl;
 
-	if (vm.count("vjass") && vm.count("private"))
+	if (vm.count("private"))
 	{
 		out << "private ";
 	}
@@ -546,11 +580,8 @@ int main(int argc, char *argv[])
 	out << "endfunction" << std::endl;
 
 
-	if (vm.count("vjass"))
-	{
-		out << std::endl;
-		out << "endlibrary" << std::endl;
-	}
+	out << std::endl;
+	out << "endlibrary" << std::endl;
 
     std::cout << boost::format(_("Extracted %1% object data fields.")) % counter << std::endl;
 
