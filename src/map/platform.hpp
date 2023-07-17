@@ -61,6 +61,8 @@ inline id stringToId(const string &value)
 {
 	if (value.size() != 4)
 	{
+		std::cerr << "Expected a size of 4 for " + value + " but got size " + std::to_string(value.size()) + " instead!" << std::endl;
+
 		return 0;
 	}
 

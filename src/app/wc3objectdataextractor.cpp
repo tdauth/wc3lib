@@ -97,6 +97,21 @@ inline std::string mapType(const std::string &type)
 	return type;
 }
 
+inline std::string getNativeTypeName(const std::string &type)
+{
+	if (type == "integer") {
+		return "Integer";
+	} else if (type == "string") {
+		return "Str";
+	} else if (type == "real") {
+		return "Real";
+	} else if (type == "boolean") {
+		return "Boolean";
+	}
+
+	return "Integer";
+}
+
 inline void appendLine(std::ofstream &out, long &lineCounter, long &initCounters, int limit, bool p)
 {
 	lineCounter++;
@@ -118,35 +133,32 @@ inline void appendLine(std::ofstream &out, long &lineCounter, long &initCounters
 	}
 }
 
-inline std::string getNativeTypeName(const std::string &type)
-{
-	if (type == "integer") {
-		return "Integer";
-	} else if (type == "string") {
-		return "Str";
-	} else if (type == "real") {
-		return "Real";
-	} else if (type == "boolean") {
-		return "Boolean";
-	}
-
-	return "Integer";
-}
-
 template<typename V>
-inline void addCall(std::ofstream &out, const std::string &type, wc3lib::map::id objectId, wc3lib::map::id fieldId, V v)
+inline void addCall(std::ofstream &out, const std::string &type, wc3lib::map::id objectId, wc3lib::map::id fieldId, V v, long &lineCounter, long &initCounters, int limit, bool p)
 {
 	if (type == "stringlist" || type == "string")
 	{
 		out << "\tcall Add" << getCamelCase(fieldId) << "('" << wc3lib::map::idToString(objectId) << "', \"" << v << "\")" << std::endl;
+		appendLine(out, lineCounter, initCounters, limit, p);
 	}
-	else if (type == "integer" || type == "integerlist" || type == "character")
+	else if (type == "integerlist" || type == "character")
 	{
 		out << "\tcall Add" << getCamelCase(fieldId) << "('" << wc3lib::map::idToString(objectId) << "', '" << v << "')" << std::endl;
+		appendLine(out, lineCounter, initCounters, limit, p);
+	}
+	else if (type == "integer")
+	{
+		out << "\tcall Add" << getCamelCase(fieldId) << "('" << wc3lib::map::idToString(objectId) << "', " << v << ")" << std::endl;
+		appendLine(out, lineCounter, initCounters, limit, p);
 	}
 	else if (type == "boolean")
 	{
 		out << "\tcall Add" << getCamelCase(fieldId) << "('" << wc3lib::map::idToString(objectId) << "', " << v << ")" << std::endl;
+		appendLine(out, lineCounter, initCounters, limit, p);
+	}
+	else
+	{
+		std::cerr << "Unknown type " << type << " for field " << wc3lib::map::idToString(fieldId) << " in object " << wc3lib::map::idToString(objectId) << std::endl;
 	}
 }
 
@@ -307,19 +319,19 @@ int main(int argc, char *argv[])
 		{
 			for (auto const & entry : boost::filesystem::recursive_directory_iterator(root))
 			{
-				std::string extension = boost::algorithm::to_lower_copy(entry.path().extension().string());
-				std::string filePath = entry.path().string();
+				const std::string extension = boost::algorithm::to_lower_copy(entry.path().extension().string());
+				const std::string filePath = entry.path().string();
 
 				if (boost::filesystem::is_regular_file(entry)) {
-					if (extension == "txt") {
+					if (extension == ".txt") {
 						txtInputFiles.push_back(filePath);
 
 						if (vm.count("verbose"))
 						{
 							std::cout << boost::format(_("Add input file %1%.")) % filePath << std::endl;
 						}
-					} else if (extension == "slk") {
-						std::string fileName = boost::algorithm::to_lower_copy(entry.path().filename().string());
+					} else if (extension == ".slk") {
+						const std::string fileName = boost::algorithm::to_lower_copy(entry.path().filename().string());
 
 						if (fileName.find("meta") != std::string::npos) {
 							slkMetaInputFiles.push_back(filePath);
@@ -331,7 +343,7 @@ int main(int argc, char *argv[])
 						{
 							std::cout << boost::format(_("Add input file %1%.")) % filePath << std::endl;
 						}
-					} else if (extension == "w3u") {
+					} else if (extension == ".w3u" || extension == ".w3i") {
 						inputFilePaths.push_back(filePath);
 
 						if (vm.count("verbose"))
@@ -528,8 +540,7 @@ int main(int argc, char *argv[])
 										const wc3lib::map::List &v = modification.value().toList();
 
 										for (std::size_t i = 0; i < v.size(); i++) {
-											addCall(out, "integerlist", unit.customId(), modification.valueId(), v[i]);
-											appendLine(out, lineCounter, initCounters, limit, vm.count("private"));
+											addCall(out, "integerlist", unit.customId(), modification.valueId(), v[i], lineCounter, initCounters, limit, vm.count("private"));
 
 											if (i >= max) {
 												std::cerr << boost::format(_("Warning: Reached maximum %1% with field %2% from object ID %3%.")) % max % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) << std::endl;
@@ -542,8 +553,7 @@ int main(int argc, char *argv[])
 										std::size_t i = 0;
 
 										for (const std::string &ref : valueVector) {
-											addCall(out, "integerlist", unit.customId(), modification.valueId(), ref);
-											appendLine(out, lineCounter, initCounters, limit, vm.count("private"));
+											addCall(out, "integerlist", unit.customId(), modification.valueId(), ref, lineCounter, initCounters, limit, vm.count("private"));
 
 											++i;
 										}
@@ -556,8 +566,7 @@ int main(int argc, char *argv[])
 										const wc3lib::map::List &v = modification.value().toList();
 
 										for (std::size_t i = 0; i < v.size(); i++) {
-											addCall(out, "stringlist", unit.customId(), modification.valueId(), v[i]);
-											appendLine(out, lineCounter, initCounters, limit, vm.count("private"));
+											addCall(out, "stringlist", unit.customId(), modification.valueId(), v[i], lineCounter, initCounters, limit, vm.count("private"));
 
 											++i;
 										}
@@ -569,8 +578,7 @@ int main(int argc, char *argv[])
 										std::size_t i = 0;
 
 										for (const std::string &ref : valueVector) {
-											addCall(out, "stringlist", unit.customId(), modification.valueId(), ref);
-											appendLine(out, lineCounter, initCounters, limit, vm.count("private"));
+											addCall(out, "stringlist", unit.customId(), modification.valueId(), ref, lineCounter, initCounters, limit, vm.count("private"));
 
 											++i;
 										}
@@ -581,25 +589,20 @@ int main(int argc, char *argv[])
 									}
 								} else if (type == "integer") {
 									if (modification.value().isInteger()) {
-										addCall(out, "integer", unit.customId(), modification.valueId(), modification.value().toInteger());
-										appendLine(out, lineCounter, initCounters, limit, vm.count("private"));
+										addCall(out, "integer", unit.customId(), modification.valueId(), modification.value().toInteger(), lineCounter, initCounters, limit, vm.count("private"));
 									}
 									else
 									{
 										std::cerr << boost::format(_("Warning: Extracting field %1% from object ID %2% does not work with type %3%.")) % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) % type  << std::endl;
 									}
 								} else if (type == "real") {
-									addCall(out, "real", unit.customId(), modification.valueId(), modification.value().toReal());
-									appendLine(out, lineCounter, initCounters, limit, vm.count("private"));
+									addCall(out, "real", unit.customId(), modification.valueId(), modification.value().toReal(), lineCounter, initCounters, limit, vm.count("private"));
 								} else if (type == "string") {
-									addCall(out, "string", unit.customId(), modification.valueId(), modification.value().toString());
-									appendLine(out, lineCounter, initCounters, limit, vm.count("private"));
+									addCall(out, "string", unit.customId(), modification.valueId(), modification.value().toString(), lineCounter, initCounters, limit, vm.count("private"));
 								} else if (type == "boolean") {
-									addCall(out, "boolean", unit.customId(), modification.valueId(), modification.value().toBoolean());
-									appendLine(out, lineCounter, initCounters, limit, vm.count("private"));
+									addCall(out, "boolean", unit.customId(), modification.valueId(), modification.value().toBoolean(), lineCounter, initCounters, limit, vm.count("private"));
 								} else if (type == "character") {
-									addCall(out, "character", unit.customId(), modification.valueId(), modification.value().toCharacter());
-									appendLine(out, lineCounter, initCounters, limit, vm.count("private"));
+									addCall(out, "character", unit.customId(), modification.valueId(), modification.value().toCharacter(), lineCounter, initCounters, limit, vm.count("private"));
 								}
 							}
 						}
@@ -637,16 +640,26 @@ int main(int argc, char *argv[])
 				{
 					for (std::size_t row = 1; row < slk.rows(); ++row)
 					{
-						std::string id = slk.cell(row, 0);
-						std::string name = slk.cell(row, 1);
+						const std::string id = wc3lib::map::Slk::fromSlkString(slk.cell(row, 0));
+						const std::string name = wc3lib::map::Slk::fromSlkString(slk.cell(row, 1));
 
-						if (vm.count("verbose"))
+						if (id.length() == 4)
 						{
-							std::cout << "Adding field name " << name << " with ID " << id << " from file " << path << std::endl;
-						}
+							if (fieldIdsSet.empty() || fieldIdsSet.contains(wc3lib::map::stringToId(id)))
+							{
+								if (vm.count("verbose"))
+								{
+									std::cout << "Adding field name " << name << " with ID " << id << " from file " << path << std::endl;
+								}
 
-						fieldIdsToNames[id] = name;
-						fieldNamesToIds[name] = id;
+								fieldIdsToNames[id] = name;
+								fieldNamesToIds[name] = id;
+							}
+						}
+						else
+						{
+							std::cerr << boost::format(_("Invalid length for field ID %1% from file %2%: %3%.")) % id % path % id.length() << std::endl;
+						}
 					}
 				}
 				else
@@ -679,26 +692,45 @@ int main(int argc, char *argv[])
 
 				for (std::size_t column = 1; column < slk.columns(); ++column)
 				{
-					const std::string fieldName = slk.cell(0, column);
+					const std::string fieldName = wc3lib::map::Slk::fromSlkString(slk.cell(0, column));
 					std::map<std::string, std::string>::iterator iterator = fieldNamesToIds.find(fieldName);
 
 					if (iterator != fieldNamesToIds.end())
 					{
+						const std::string fieldIdString = iterator->second;
 						const wc3lib::map::id fieldId = wc3lib::map::stringToId(iterator->second);
-						const std::string type = fieldTypes[fieldId];
 
-						for (std::size_t row = 1; row < slk.rows(); ++row)
+						if (fieldId != 0 && (fieldIdsSet.empty() || fieldIdsSet.contains(fieldId)))
 						{
-							const std::string objectIdString = slk.cell(row, 0);
-							const wc3lib::map::id objectId = wc3lib::map::stringToId(objectIdString);
-							const std::string v = slk.cell(row, column);
+							const std::string type = fieldTypes[fieldId];
 
-							addCall(out, type, objectId, fieldId, v);
-							appendLine(out, lineCounter, initCounters, limit, vm.count("private"));
+							for (std::size_t row = 1; row < slk.rows(); ++row)
+							{
+								const std::string objectIdString = wc3lib::map::Slk::fromSlkString(slk.cell(row, 0));
+								const wc3lib::map::id objectId = wc3lib::map::stringToId(objectIdString);
+								const std::string v = wc3lib::map::Slk::fromSlkString(slk.cell(row, column));
 
+								if (v.length() > 0 && v != "_")
+								{
+									std::vector<std::string> vector = splitAndIgnoreEmpty(v);
+
+									for (const std::string &actualV : vector)
+									{
+										addCall(out, type, objectId, fieldId, actualV, lineCounter, initCounters, limit, vm.count("private"));
+									}
+
+									if (vm.count("verbose"))
+									{
+										std::cout << "Adding field name " << fieldName << " (" << wc3lib::map::idToString(fieldId) << ") for object " << objectIdString << " from file " << path << std::endl;
+									}
+								}
+							}
+						}
+						else
+						{
 							if (vm.count("verbose"))
 							{
-								std::cout << "Adding field name " << fieldName << " (" << wc3lib::map::idToString(fieldId) << ") with ID " << objectId << " (" << objectIdString << ") from file " << path << std::endl;
+								std::cerr << "Field " << fieldIdString << " from file " << path << " has no valid field ID." << std::endl;
 							}
 						}
 					}
