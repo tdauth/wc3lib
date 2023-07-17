@@ -59,13 +59,13 @@ inline string idToString(id value)
  */
 inline id stringToId(const string &value)
 {
-	if (value.size() != sizeof(id))
+	if (value.size() != 4)
 	{
 		return 0;
 	}
 
 	id result = 0;
-	memcpy(&result, value.c_str(), sizeof(id));
+	memcpy(&result, value.c_str(), 4);
 
 	return result;
 }

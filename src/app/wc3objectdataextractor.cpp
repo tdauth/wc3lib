@@ -167,6 +167,7 @@ int main(int argc, char *argv[])
 	int max = 20;
 	int limit = 0;
 	Strings inputFiles;
+	Strings inputDirectories;
 	Strings slkMetaInputFiles;
 	Strings slkInputFiles;
 	Strings txtInputFiles;
@@ -187,6 +188,7 @@ int main(int argc, char *argv[])
 	("private,p", _("Make everything private in the vJass library which should not be accessed from outside."))
 	("public,b", _("Make everything public in the vJass library which can be accessed from outside."))
 	("input,i", boost::program_options::value<Strings>(&inputFiles), _("Input object data files (.w3a, .w3u etc.)."))
+	("inputdirectories,c", boost::program_options::value<Strings>(&inputDirectories), _("Input directories which are scanned recursively for SLK, TXT and object data files as input."))
 	("slkmetainput,k", boost::program_options::value<Strings>(&slkMetaInputFiles), _("Input SLK files which contain meta data (UnitMetaData.slk, AbilityMetaData.slk etc.)."))
 	("slkinput,s", boost::program_options::value<Strings>(&slkInputFiles), _("Input SLK files which contain data (UnitData.slk, AbilityData.slk etc.)."))
 	("txtinput,x", boost::program_options::value<Strings>(&txtInputFiles), _("Input TXT files which object data strings."))
@@ -293,6 +295,53 @@ int main(int argc, char *argv[])
 		std::cerr << _("Error on opening output file.") << std::endl;
 
 		return EXIT_FAILURE;
+	}
+
+	for (Strings::const_reference path : inputDirectories)
+    {
+		boost::filesystem::path root = path;
+		std::vector<boost::filesystem::path> paths;
+		boost::filesystem::path p = path;
+
+		if (boost::filesystem::exists(root) && boost::filesystem::is_directory(root))
+		{
+			for (auto const & entry : boost::filesystem::recursive_directory_iterator(root))
+			{
+				std::string extension = boost::algorithm::to_lower_copy(entry.path().extension().string());
+				std::string filePath = entry.path().string();
+
+				if (boost::filesystem::is_regular_file(entry)) {
+					if (extension == "txt") {
+						txtInputFiles.push_back(filePath);
+
+						if (vm.count("verbose"))
+						{
+							std::cout << boost::format(_("Add input file %1%.")) % filePath << std::endl;
+						}
+					} else if (extension == "slk") {
+						std::string fileName = boost::algorithm::to_lower_copy(entry.path().filename().string());
+
+						if (fileName.find("meta") != std::string::npos) {
+							slkMetaInputFiles.push_back(filePath);
+						} else {
+							slkInputFiles.push_back(filePath);
+						}
+
+						if (vm.count("verbose"))
+						{
+							std::cout << boost::format(_("Add input file %1%.")) % filePath << std::endl;
+						}
+					} else if (extension == "w3u") {
+						inputFilePaths.push_back(filePath);
+
+						if (vm.count("verbose"))
+						{
+							std::cout << boost::format(_("Add input file %1%.")) % filePath << std::endl;
+						}
+					}
+				}
+			}
+		}
 	}
 
 	out << "library ObjectDataFields initializer InitObjectDataFields" << std::endl;
