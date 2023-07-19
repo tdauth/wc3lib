@@ -370,37 +370,6 @@ int main(int argc, char *argv[])
 
 	out << "constant integer MAX_OBJECT_DATA_FIELD_ENTRIES = " << max << std::endl;
 
-	for (const std::string &fieldId : fieldIdsVector)
-	{
-		if (fieldId.size() > 0)
-		{
-			const std::string type = mapType(fieldTypes[wc3lib::map::stringToId(fieldId)]);
-			const bool list = isList(fieldTypes[wc3lib::map::stringToId(fieldId)]);
-
-			out << "\t";
-
-			if (vm.count("private"))
-			{
-				out << "private ";
-			}
-
-			out << type << " array " << fieldId << std::endl;
-
-
-			if (list)
-			{
-				out << "\t";
-
-				if (vm.count("private"))
-				{
-					out << "private ";
-				}
-
-				out << "integer array " << fieldId << "Count" << std::endl;
-			}
-		}
-	}
-
 	out << "\t";
 
 	if (vm.count("private"))
