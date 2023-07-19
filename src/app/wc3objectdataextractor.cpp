@@ -74,22 +74,22 @@ inline std::string getCamelCase(const wc3lib::map::id &v)
 
 inline bool isList(const std::string &type)
 {
-	return type == "integerlist" || type == "stringlist" || type == "reallist";
+	return boost::algorithm::ends_with(type, "List");
 }
 
 inline std::string mapType(const std::string &type)
 {
-	if (type == "integerlist")
+	if (type == "int" || type == "bool" || type == "intList" || type == "unitList" || type == "abilList" || type == "itemList" || type == "techList" || type == "heroAbilityList" || type == "abilityList" || type == "upgradeList" || type == "tilesetList" || type == "targetList" || "abilCode" || type == "defenseType" || type == "attributeType" || type == "regenType" || type == "unitClass" || type == "deathType" || type == "unitRace" || type == "moveType" || type == "attackType" || type == "weaponType" || type == "pathingTexture")
 	{
 		return "integer";
 	}
 
-	if (type == "stringlist")
+	if (type == "stringList")
 	{
 		return "string";
 	}
 
-	if (type == "reallist")
+	if (type == "realList")
 	{
 		return "real";
 	}
@@ -99,17 +99,34 @@ inline std::string mapType(const std::string &type)
 
 inline std::string getNativeTypeName(const std::string &type)
 {
-	if (type == "integer") {
+	if (type == "int" || type == "intList" || type == "unitList" || type == "abilList" || type == "itemList" || type == "techList" || type == "heroAbilityList" || type == "abilityList" || type == "upgradeList") {
 		return "Integer";
 	} else if (type == "string") {
 		return "Str";
-	} else if (type == "real") {
+	} else if (type == "real" || type == "unreal") {
 		return "Real";
-	} else if (type == "boolean") {
+	} else if (type == "bool") {
 		return "Boolean";
 	}
 
 	return "Integer";
+}
+
+inline std::string getNativeTypeDefault(const std::string &type)
+{
+	std::string mapped = mapType(type);
+
+	if (type == "integer") {
+		return "0";
+	} else if (type == "string") {
+		return "null";
+	} else if (type == "real") {
+		return "0.0";
+	} else if (type == "boolean") {
+		return "false";
+	}
+
+	return "0";
 }
 
 inline void appendLine(std::ofstream &out, long &lineCounter, long &initCounters, int limit, bool p)
@@ -141,17 +158,12 @@ inline void addCall(std::ofstream &out, const std::string &type, wc3lib::map::id
 		out << "\tcall Add" << getCamelCase(fieldId) << "('" << wc3lib::map::idToString(objectId) << "', \"" << v << "\")" << std::endl;
 		appendLine(out, lineCounter, initCounters, limit, p);
 	}
-	else if (type == "integerlist" || type == "character")
+	else if (type == "unitList" || type == "abilityList" || type == "itemList" || type == "techList" || type == "heroAbilityList" || type == "upgradeList")
 	{
 		out << "\tcall Add" << getCamelCase(fieldId) << "('" << wc3lib::map::idToString(objectId) << "', '" << v << "')" << std::endl;
 		appendLine(out, lineCounter, initCounters, limit, p);
 	}
-	else if (type == "integer")
-	{
-		out << "\tcall Add" << getCamelCase(fieldId) << "('" << wc3lib::map::idToString(objectId) << "', " << v << ")" << std::endl;
-		appendLine(out, lineCounter, initCounters, limit, p);
-	}
-	else if (type == "boolean")
+	else if (type == "bool" || type == "int" || type == "intList")
 	{
 		out << "\tcall Add" << getCamelCase(fieldId) << "('" << wc3lib::map::idToString(objectId) << "', " << v << ")" << std::endl;
 		appendLine(out, lineCounter, initCounters, limit, p);
@@ -193,7 +205,7 @@ int main(int argc, char *argv[])
 	("verbose,v", _("Add more text output."))
 	("force,F", _("Overwrites existing files and directories when creating or extracting files."))
     ("fieldids,f", boost::program_options::value<std::string>(&fieldIds)->default_value(""), _("Field IDs. Extracts all field IDS if none is specified. Comma-separated values: umki,ucam"))
-	("fieldtypes,t", boost::program_options::value<std::string>(&fieldIdTypes)->default_value(""), _("Field types. The types of the fields in the same order as the field IDs. The default type is integer. Pass them as comma-separated values. These are all supported types: integer,real,boolean,character,integerlist,stringlist"))
+	("fieldtypes,t", boost::program_options::value<std::string>(&fieldIdTypes)->default_value(""), _("The types of the fields in the same order as the field IDs. If no types are passed but meta data from SLK files is read, the types will be autodetected. Pass them as comma-separated values. These are all supported types: int, real, unreal, bool, intList, stringList, unitList, abilList, itemList, techList, heroAbilityList, upgradeList, abilCode, defenseType, attributeType, regenType, unitClass, deathType, unitRace, moveType, attackType, weaponType, pathingTexture, tilesetList, targetList"))
     ("objectids,d", boost::program_options::value<std::string>(&objectIds)->default_value(""), _("Object IDs. Extracts all object IDS if none is specified."))
 	("max,m", boost::program_options::value<int>(&max), _("Maximum number of levels."))
 	("oplimitoperations,l", boost::program_options::value<int>(&limit), _("Maximum number of operations."))
@@ -292,7 +304,11 @@ int main(int argc, char *argv[])
 		if (fieldId.size() > 0)
 		{
 			fieldIdsSet.insert(wc3lib::map::stringToId(fieldId));
-			fieldTypes[wc3lib::map::stringToId(fieldId)] = fieldIdTypesVector.size() > i ? fieldIdTypesVector[i] : std::string("integer");
+
+			if (fieldIdTypesVector.size() > i)
+			{
+				fieldTypes[wc3lib::map::stringToId(fieldId)] = fieldIdTypesVector[i];
+			}
 
 			++i;
 		}
@@ -309,6 +325,7 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
+	// Read input directories recursively for TXT and SLK files:
 	for (Strings::const_reference path : inputDirectories)
     {
 		boost::filesystem::path root = path;
@@ -354,6 +371,91 @@ int main(int argc, char *argv[])
 				}
 			}
 		}
+	}
+
+	// Meta Data
+	std::map<std::string, std::string> fieldIdsToNames;
+	std::map<std::string, std::string> fieldNamesToIds;
+
+	/*
+	 * Read meta data file UnitMetaData.slk. The first column is the "id" and the second column is the "field" (name).
+	 * The file "UnitData.slk" has rows for the object ID and columns for the fields but with the field names.
+	 */
+	for (Strings::const_reference path : slkMetaInputFiles)
+	{
+		boost::filesystem::ifstream in(path);
+
+		if (in)
+		{
+			wc3lib::map::Slk slk;
+
+			try
+			{
+				slk.read(in);
+
+				if (slk.columns() >= 2)
+				{
+					for (std::size_t row = 1; row < slk.rows(); ++row)
+					{
+						const std::string id = wc3lib::map::Slk::fromSlkString(slk.cell(row, 0));
+						const std::string name = wc3lib::map::Slk::fromSlkString(slk.cell(row, 1));
+
+						if (id.length() == 4)
+						{
+							const wc3lib::map::id fieldId = wc3lib::map::stringToId(id);
+
+							if (fieldIdsSet.empty() || fieldIdsSet.contains(fieldId))
+							{
+								if (vm.count("verbose"))
+								{
+									std::cout << "Adding field name " << name << " with ID " << id << " from file " << path << std::endl;
+								}
+
+								fieldIdsToNames[id] = name;
+								fieldNamesToIds[name] = id;
+
+								std::map<wc3lib::map::id, std::string>::iterator iterator = fieldTypes.find(fieldId);
+
+								if (iterator == fieldTypes.end())
+								{
+									const std::string type = wc3lib::map::Slk::fromSlkString(slk.cell(row, 7));
+
+									fieldTypes[fieldId] = type;
+
+									if (vm.count("verbose"))
+									{
+										std::cout << "Autodetected type for field name " << name << " with ID " << id << " with name " << type << " from file " << path << std::endl;
+									}
+								}
+							}
+						}
+						else
+						{
+							std::cerr << boost::format(_("Invalid length for field ID %1% from file %2%: %3%.")) % id % path % id.length() << std::endl;
+						}
+					}
+				}
+				else
+				{
+					std::cerr << boost::format(_("Missing first two columns in SLK file %1%.\nSkipping file.")) % path << std::endl;
+				}
+			}
+			catch (const wc3lib::Exception &e)
+			{
+				std::cerr << boost::format(_("Error occured when converting file %1%: \"%2%\".\nSkipping file.")) % path % e.what() << std::endl;
+			}
+		}
+		else
+		{
+			std::cerr << boost::format(_("Error occured when converting file %1%.\nSkipping file.")) % path << std::endl;
+		}
+	}
+
+	if (fieldIdsVector.size() < fieldTypes.size())
+	{
+		std::cerr << boost::format(_("Missing %1% field types.")) % (fieldTypes.size() - fieldIdsVector.size()) << std::endl;
+
+		return EXIT_FAILURE;
 	}
 
 	out << "library ObjectDataFields initializer InitObjectDataFields" << std::endl;
@@ -421,7 +523,6 @@ int main(int argc, char *argv[])
 	for (const std::string &fieldId : fieldIdsVector)
 	{
 		const std::string type = mapType(fieldTypes[wc3lib::map::stringToId(fieldId)]);
-		const bool list = isList(fieldTypes[wc3lib::map::stringToId(fieldId)]);
 
 		if (vm.count("public"))
 		{
@@ -429,7 +530,11 @@ int main(int argc, char *argv[])
 		}
 
 		out << "function Get" << getCamelCase(fieldId) << " takes integer objectId, integer index returns " << type << std::endl;
-		out << "\treturn F" << type << "(Load" << getNativeTypeName(type) << "(fieldsHashTable, objectId, '" << fieldId << "')).v[index]" << std::endl;
+		out << "\tlocal F" << type << " f = Load" << getNativeTypeName(type) << "(fieldsHashTable, objectId, '" << fieldId << "')" << std::endl;
+		out << "\tif (f == 0) then" << std::endl;
+		out << "\t\treturn " << getNativeTypeDefault(type) << std::endl;
+		out << "\tendif" << std::endl;
+		out << "\treturn f.v[index]" << std::endl;
 		out << "endfunction" << std::endl;
 
 		out << std::endl;
@@ -504,12 +609,12 @@ int main(int argc, char *argv[])
 								//std::cerr << "Field ID " << wc3lib::map::idToString(modification.valueId()) << std::endl;
 								//std::cerr << "Type " << type << std::endl;
 
-								if (type == "integerlist") {
+								if (isList(type)) {
 									if (modification.value().isList()) {
 										const wc3lib::map::List &v = modification.value().toList();
 
 										for (std::size_t i = 0; i < v.size(); i++) {
-											addCall(out, "integerlist", unit.customId(), modification.valueId(), v[i], lineCounter, initCounters, limit, vm.count("private"));
+											addCall(out, type, unit.customId(), modification.valueId(), v[i], lineCounter, initCounters, limit, vm.count("private"));
 
 											if (i >= max) {
 												std::cerr << boost::format(_("Warning: Reached maximum %1% with field %2% from object ID %3%.")) % max % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) << std::endl;
@@ -522,56 +627,40 @@ int main(int argc, char *argv[])
 										std::size_t i = 0;
 
 										for (const std::string &ref : valueVector) {
-											addCall(out, "integerlist", unit.customId(), modification.valueId(), ref, lineCounter, initCounters, limit, vm.count("private"));
+											addCall(out, type, unit.customId(), modification.valueId(), ref, lineCounter, initCounters, limit, vm.count("private"));
 
 											++i;
 										}
 									} else {
 										std::cerr << boost::format(_("Warning: Extracting field %1% from object ID %2% does not work with type %3%.")) % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) % type  << std::endl;
 									}
-								} else if (type == "stringlist") {
-									if (modification.value().isList())
+								} else if (type == "int" || type == "bool") {
+									if (modification.value().isInteger())
 									{
-										const wc3lib::map::List &v = modification.value().toList();
-
-										for (std::size_t i = 0; i < v.size(); i++) {
-											addCall(out, "stringlist", unit.customId(), modification.valueId(), v[i], lineCounter, initCounters, limit, vm.count("private"));
-
-											++i;
-										}
-									}
-									else if (modification.value().isString())
-									{
-										wc3lib::string v = modification.value().toString();
-										std::vector<std::string> valueVector = splitAndIgnoreEmpty(v);
-										std::size_t i = 0;
-
-										for (const std::string &ref : valueVector) {
-											addCall(out, "stringlist", unit.customId(), modification.valueId(), ref, lineCounter, initCounters, limit, vm.count("private"));
-
-											++i;
-										}
+										addCall(out, type, unit.customId(), modification.valueId(), modification.value().toInteger(), lineCounter, initCounters, limit, vm.count("private"));
 									}
 									else
 									{
-										std::cerr << boost::format(_("Warning: Extracting field %1% from object ID %2% does not work with type %3%.")) % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) % type  << std::endl;
-									}
-								} else if (type == "integer") {
-									if (modification.value().isInteger()) {
-										addCall(out, "integer", unit.customId(), modification.valueId(), modification.value().toInteger(), lineCounter, initCounters, limit, vm.count("private"));
-									}
-									else
-									{
-										std::cerr << boost::format(_("Warning: Extracting field %1% from object ID %2% does not work with type %3%.")) % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) % type  << std::endl;
+										std::cerr << boost::format(_("Warning: Extracting field %1% from object ID %2% is not an integer with type %3%.")) % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) % type  << std::endl;
 									}
 								} else if (type == "real") {
-									addCall(out, "real", unit.customId(), modification.valueId(), modification.value().toReal(), lineCounter, initCounters, limit, vm.count("private"));
+									if (modification.value().isReal())
+									{
+										addCall(out, type, unit.customId(), modification.valueId(), modification.value().toReal(), lineCounter, initCounters, limit, vm.count("private"));
+									}
+									else
+									{
+										std::cerr << boost::format(_("Warning: Extracting field %1% from object ID %2% is not a real with type %3%.")) % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) % type  << std::endl;
+									}
 								} else if (type == "string") {
-									addCall(out, "string", unit.customId(), modification.valueId(), modification.value().toString(), lineCounter, initCounters, limit, vm.count("private"));
-								} else if (type == "boolean") {
-									addCall(out, "boolean", unit.customId(), modification.valueId(), modification.value().toBoolean(), lineCounter, initCounters, limit, vm.count("private"));
-								} else if (type == "character") {
-									addCall(out, "character", unit.customId(), modification.valueId(), modification.value().toCharacter(), lineCounter, initCounters, limit, vm.count("private"));
+									if (modification.value().isString())
+									{
+										addCall(out, type, unit.customId(), modification.valueId(), modification.value().toString(), lineCounter, initCounters, limit, vm.count("private"));
+									}
+									else
+									{
+										std::cerr << boost::format(_("Warning: Extracting field %1% from object ID %2% is not a string with type %3%.")) % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) % type  << std::endl;
+									}
 								}
 							}
 						}
@@ -585,71 +674,9 @@ int main(int argc, char *argv[])
         }
     }
 
-	std::map<std::string, std::string> fieldIdsToNames;
-	std::map<std::string, std::string> fieldNamesToIds;
-
-
-	/*
-	 * Read meta data file UnitMetaData.slk. The first column is the "id" and the second column is the "field" (name).
-	 * The file "UnitData.slk" has rows for the object ID and columns for the fields but with the field names.
-	 */
-	for (Strings::const_reference path : slkMetaInputFiles)
-	{
-		boost::filesystem::ifstream in(path, std::ios::in);
-
-		if (in)
-		{
-			wc3lib::map::Slk slk;
-
-			try
-			{
-				slk.read(in);
-
-				if (slk.columns() >= 2)
-				{
-					for (std::size_t row = 1; row < slk.rows(); ++row)
-					{
-						const std::string id = wc3lib::map::Slk::fromSlkString(slk.cell(row, 0));
-						const std::string name = wc3lib::map::Slk::fromSlkString(slk.cell(row, 1));
-
-						if (id.length() == 4)
-						{
-							if (fieldIdsSet.empty() || fieldIdsSet.contains(wc3lib::map::stringToId(id)))
-							{
-								if (vm.count("verbose"))
-								{
-									std::cout << "Adding field name " << name << " with ID " << id << " from file " << path << std::endl;
-								}
-
-								fieldIdsToNames[id] = name;
-								fieldNamesToIds[name] = id;
-							}
-						}
-						else
-						{
-							std::cerr << boost::format(_("Invalid length for field ID %1% from file %2%: %3%.")) % id % path % id.length() << std::endl;
-						}
-					}
-				}
-				else
-				{
-					std::cerr << boost::format(_("Missing first two columns in SLK file %1%.\nSkipping file.")) % path << std::endl;
-				}
-			}
-			catch (const wc3lib::Exception &e)
-			{
-				std::cerr << boost::format(_("Error occured when converting file %1%: \"%2%\".\nSkipping file.")) % path % e.what() << std::endl;
-			}
-		}
-		else
-		{
-			std::cerr << boost::format(_("Error occured when converting file %1%.\nSkipping file.")) % path << std::endl;
-		}
-	}
-
 	for (Strings::const_reference path : slkInputFiles)
 	{
-		boost::filesystem::ifstream in(path, std::ios::in);
+		boost::filesystem::ifstream in(path);
 
 		if (in)
 		{
@@ -700,6 +727,71 @@ int main(int argc, char *argv[])
 							if (vm.count("verbose"))
 							{
 								std::cerr << "Field " << fieldIdString << " from file " << path << " has no valid field ID." << std::endl;
+							}
+						}
+					}
+				}
+			}
+			catch (const wc3lib::Exception &e)
+			{
+				std::cerr << boost::format(_("Error occured when converting file %1%: \"%2%\".\nSkipping file.")) % path % e.what() << std::endl;
+			}
+		}
+		else
+		{
+			std::cerr << boost::format(_("Error occured when converting file %1%.\nSkipping file.")) % path << std::endl;
+		}
+	}
+
+	for (Strings::const_reference path : txtInputFiles)
+	{
+		boost::filesystem::ifstream in(path);
+
+		if (in)
+		{
+			wc3lib::map::Txt txt;
+
+			try
+			{
+				txt.read(in);
+
+				for (wc3lib::map::Txt::Sections::const_reference section : txt.sections())
+				{
+					const std::string objectIdString = section.name;
+					const wc3lib::map::id objectId = wc3lib::map::stringToId(objectIdString);
+
+					for (wc3lib::map::Txt::Entries::const_reference entry : section.entries)
+					{
+						std::string fieldName = entry.first;
+						std::map<std::string, std::string>::iterator iterator = fieldNamesToIds.find(fieldName);
+
+						// If the ID is not found it might be the case that it has been excluded from the extraction.
+						if (iterator != fieldNamesToIds.end())
+						{
+							const std::string fieldIdString = iterator->second;
+							const wc3lib::map::id fieldId = wc3lib::map::stringToId(fieldIdString);
+
+							//std::cout << "TXT field Name " << fieldName << " and field ID " << fieldIdString << std::endl;
+
+							if (fieldId != 0 && (fieldIdsSet.empty() || fieldIdsSet.contains(fieldId)))
+							{
+								const std::string type = fieldTypes[fieldId];
+								const std::string v = entry.second;
+
+								if (v.length() > 0 && v != "_")
+								{
+									std::vector<std::string> vector = splitAndIgnoreEmpty(v);
+
+									for (const std::string &actualV : vector)
+									{
+										addCall(out, type, objectId, fieldId, actualV, lineCounter, initCounters, limit, vm.count("private"));
+									}
+
+									if (vm.count("verbose"))
+									{
+										std::cout << "Adding field name " << fieldName << " (" << wc3lib::map::idToString(fieldId) << ") for object " << objectIdString << " from file " << path << std::endl;
+									}
+								}
 							}
 						}
 					}
