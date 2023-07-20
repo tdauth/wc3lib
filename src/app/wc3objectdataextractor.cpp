@@ -79,7 +79,7 @@ inline bool isList(const std::string &type)
 
 inline std::string mapType(const std::string &type)
 {
-	if (type == "int" || type == "bool" || type == "intList" || type == "unitList" || type == "abilList" || type == "itemList" || type == "techList" || type == "heroAbilityList" || type == "abilityList" || type == "upgradeList" || type == "tilesetList" || type == "targetList" || "abilCode" || type == "defenseType" || type == "attributeType" || type == "regenType" || type == "unitClass" || type == "deathType" || type == "unitRace" || type == "moveType" || type == "attackType" || type == "weaponType" || type == "pathingTexture")
+	if (type == "int" || type == "bool" || type == "intList" || type == "unitList" || type == "abilityList" || type == "itemList" || type == "techList" || type == "heroAbilityList" || type == "abilityList" || type == "upgradeList" || type == "tilesetList" || type == "targetList" || "abilCode" || type == "defenseType" || type == "attributeType" || type == "regenType" || type == "unitClass" || type == "deathType" || type == "unitRace" || type == "moveType" || type == "attackType" || type == "weaponType" || type == "pathingTexture")
 	{
 		return "integer";
 	}
@@ -99,7 +99,7 @@ inline std::string mapType(const std::string &type)
 
 inline std::string getNativeTypeName(const std::string &type)
 {
-	if (type == "int" || type == "intList" || type == "unitList" || type == "abilList" || type == "itemList" || type == "techList" || type == "heroAbilityList" || type == "abilityList" || type == "upgradeList") {
+	if (type == "int" || type == "intList" || type == "unitList" || type == "abilityList" || type == "itemList" || type == "techList" || type == "heroAbilityList" || type == "abilityList" || type == "upgradeList") {
 		return "Integer";
 	} else if (type == "string") {
 		return "Str";
@@ -153,7 +153,22 @@ inline void appendLine(std::ofstream &out, long &lineCounter, long &initCounters
 template<typename V>
 inline void addCall(std::ofstream &out, const std::string &type, wc3lib::map::id objectId, wc3lib::map::id fieldId, V v, long &lineCounter, long &initCounters, int limit, bool p)
 {
-	if (type == "stringlist" || type == "string")
+	if (type == "int" || type == "bool" || type == "real" || type == "unreal" || type == "defenseType" || type == "attributeType" || type == "regenType" || type == "unitClass" || type == "deathType" || type == "unitRace" || type == "moveType" || type == "attackType" || type == "weaponType")
+	{
+		out << "\tcall Set" << getCamelCase(fieldId) << "('" << wc3lib::map::idToString(objectId) << "', " << v << ")" << std::endl;
+		appendLine(out, lineCounter, initCounters, limit, p);
+	}
+	else if (type == "abilCode")
+	{
+		out << "\tcall Set" << getCamelCase(fieldId) << "('" << wc3lib::map::idToString(objectId) << "', '" << v << "')" << std::endl;
+		appendLine(out, lineCounter, initCounters, limit, p);
+	}
+	else if (type == "string" || type == "pathingTexture")
+	{
+		out << "\tcall Set" << getCamelCase(fieldId) << "('" << wc3lib::map::idToString(objectId) << "', \"" << v << "\")" << std::endl;
+		appendLine(out, lineCounter, initCounters, limit, p);
+	}
+	else if (type == "stringList" || type == "targetList" || type == "tilesetList")
 	{
 		out << "\tcall Add" << getCamelCase(fieldId) << "('" << wc3lib::map::idToString(objectId) << "', \"" << v << "\")" << std::endl;
 		appendLine(out, lineCounter, initCounters, limit, p);
@@ -163,7 +178,7 @@ inline void addCall(std::ofstream &out, const std::string &type, wc3lib::map::id
 		out << "\tcall Add" << getCamelCase(fieldId) << "('" << wc3lib::map::idToString(objectId) << "', '" << v << "')" << std::endl;
 		appendLine(out, lineCounter, initCounters, limit, p);
 	}
-	else if (type == "bool" || type == "int" || type == "intList")
+	else if (type == "intList")
 	{
 		out << "\tcall Add" << getCamelCase(fieldId) << "('" << wc3lib::map::idToString(objectId) << "', " << v << ")" << std::endl;
 		appendLine(out, lineCounter, initCounters, limit, p);
@@ -190,6 +205,7 @@ int main(int argc, char *argv[])
 	std::string objectIds;
 	int max = 20;
 	int limit = 0;
+	int structsize = 50000;
 	Strings inputFiles;
 	Strings inputDirectories;
 	Strings slkMetaInputFiles;
@@ -205,10 +221,11 @@ int main(int argc, char *argv[])
 	("verbose,v", _("Add more text output."))
 	("force,F", _("Overwrites existing files and directories when creating or extracting files."))
     ("fieldids,f", boost::program_options::value<std::string>(&fieldIds)->default_value(""), _("Field IDs. Extracts all field IDS if none is specified. Comma-separated values: umki,ucam"))
-	("fieldtypes,t", boost::program_options::value<std::string>(&fieldIdTypes)->default_value(""), _("The types of the fields in the same order as the field IDs. If no types are passed but meta data from SLK files is read, the types will be autodetected. Pass them as comma-separated values. These are all supported types: int, real, unreal, bool, intList, stringList, unitList, abilList, itemList, techList, heroAbilityList, upgradeList, abilCode, defenseType, attributeType, regenType, unitClass, deathType, unitRace, moveType, attackType, weaponType, pathingTexture, tilesetList, targetList"))
+	("fieldtypes,t", boost::program_options::value<std::string>(&fieldIdTypes)->default_value(""), _("The types of the fields in the same order as the field IDs. If no types are passed but meta data from SLK files is read, the types will be autodetected. Pass them as comma-separated values. These are all supported types: int, real, unreal, bool, intList, stringList, unitList, abilityList, itemList, techList, heroAbilityList, upgradeList, abilCode, defenseType, attributeType, regenType, unitClass, deathType, unitRace, moveType, attackType, weaponType, pathingTexture, tilesetList, targetList"))
     ("objectids,d", boost::program_options::value<std::string>(&objectIds)->default_value(""), _("Object IDs. Extracts all object IDS if none is specified."))
-	("max,m", boost::program_options::value<int>(&max), _("Maximum number of levels."))
+	("max,m", boost::program_options::value<int>(&max), _("Maximum number of list entries for a single field."))
 	("oplimitoperations,l", boost::program_options::value<int>(&limit), _("Maximum number of operations."))
+	("structsize,y", boost::program_options::value<int>(&structsize)->default_value(structsize), _("Maximum number of struct instances."))
 	("private,p", _("Make everything private in the vJass library which should not be accessed from outside."))
 	("public,b", _("Make everything public in the vJass library which can be accessed from outside."))
 	("input,i", boost::program_options::value<Strings>(&inputFiles), _("Input object data files (.w3a, .w3u etc.)."))
@@ -301,7 +318,7 @@ int main(int argc, char *argv[])
 
 	for (const std::string &fieldId : fieldIdsVector)
 	{
-		if (fieldId.size() > 0)
+		if (fieldId.size() == 4)
 		{
 			fieldIdsSet.insert(wc3lib::map::stringToId(fieldId));
 
@@ -311,6 +328,10 @@ int main(int argc, char *argv[])
 			}
 
 			++i;
+		}
+		else
+		{
+			std::cerr << boost::format(_("Skipping invalid field ID %1%.")) % fieldId << std::endl;
 		}
 	}
 
@@ -505,7 +526,14 @@ int main(int argc, char *argv[])
 			out << "private ";
 		}
 
-		out << "struct F" << type << std::endl;
+		out << "struct F" << type;
+
+		if (structsize > 0)
+		{
+			out << "[" << structsize << "]";
+		}
+
+		out << std::endl;
 		out << "\t" << type << " array v[MAX_OBJECT_DATA_FIELD_ENTRIES]" << std::endl;
 		out << "\tinteger count = 0" << std::endl;
 		out << std::endl;
@@ -515,6 +543,7 @@ int main(int argc, char *argv[])
 		out << "\t\tset count = count + 1" << std::endl;
 		out << "\t\treturn i" << std::endl;
 		out << "\tendmethod" << std::endl;
+		out << std::endl;
 		out << "endstruct" << std::endl;
 	}
 
@@ -522,39 +551,78 @@ int main(int argc, char *argv[])
 
 	for (const std::string &fieldId : fieldIdsVector)
 	{
-		const std::string type = mapType(fieldTypes[wc3lib::map::stringToId(fieldId)]);
+		const std::string fieldType = fieldTypes[wc3lib::map::stringToId(fieldId)];
+		const std::string type = mapType(fieldType);
 
-		if (vm.count("public"))
+
+		if (isList(fieldType))
 		{
-			out << "public ";
+			if (vm.count("public"))
+			{
+				out << "public ";
+			}
+
+			out << "function Get" << getCamelCase(fieldId) << " takes integer objectId, integer index returns " << type << std::endl;
+			out << "\tlocal F" << type << " f = Load" << getNativeTypeName(type) << "(fieldsHashTable, objectId, '" << fieldId << "')" << std::endl;
+			out << "\tif (f == 0) then" << std::endl;
+			out << "\t\treturn " << getNativeTypeDefault(type) << std::endl;
+			out << "\tendif" << std::endl;
+			out << "\treturn f.v[index]" << std::endl;
+			out << "endfunction" << std::endl;
+
+			out << std::endl;
+
+			out << "function Get" << getCamelCase(fieldId) << "Count takes integer objectId returns integer" << std::endl;
+			out << "\tlocal F" << type << " f = Load" << getNativeTypeName(type) << "(fieldsHashTable, objectId, '" << fieldId << "')" << std::endl;
+			out << "\tif (f == 0) then" << std::endl;
+			out << "\t\treturn " << getNativeTypeDefault(type) << std::endl;
+			out << "\tendif" << std::endl;
+			out << "\treturn f.count" << std::endl;
+			out << "endfunction" << std::endl;
+
+			out << std::endl;
+
+
+			if (vm.count("public"))
+			{
+				out << "public ";
+			}
+
+			out << "function Add" << getCamelCase(fieldId) << " takes integer objectId, " << type << " v returns integer" << std::endl;
+			out << "\tlocal F" << type << " f = Load" << getNativeTypeName(type) << "(fieldsHashTable, objectId, '" << fieldId << "')" << std::endl;
+			out << "\tif (f == 0) then" << std::endl;
+			out << "\t\tset f = F" << type << ".create()" << std::endl;
+			out << "\t\tcall Save" << getNativeTypeName(type) << "(fieldsHashTable, objectId, '" << fieldId << "', f)" << std::endl;
+			out << "\tendif" << std::endl;
+			out << "\treturn f.add(v)" << std::endl;
+			out << "endfunction" << std::endl;
+
+			out << std::endl;
 		}
-
-		out << "function Get" << getCamelCase(fieldId) << " takes integer objectId, integer index returns " << type << std::endl;
-		out << "\tlocal F" << type << " f = Load" << getNativeTypeName(type) << "(fieldsHashTable, objectId, '" << fieldId << "')" << std::endl;
-		out << "\tif (f == 0) then" << std::endl;
-		out << "\t\treturn " << getNativeTypeDefault(type) << std::endl;
-		out << "\tendif" << std::endl;
-		out << "\treturn f.v[index]" << std::endl;
-		out << "endfunction" << std::endl;
-
-		out << std::endl;
-
-
-		if (vm.count("public"))
+		else
 		{
-			out << "public ";
+			if (vm.count("public"))
+			{
+				out << "public ";
+			}
+
+			out << "function Get" << getCamelCase(fieldId) << " takes integer objectId returns " << type << std::endl;
+			out << "\treturn Load" << getNativeTypeName(type) << "(fieldsHashTable, objectId, '" << fieldId << "')" << std::endl;
+			out << "endfunction" << std::endl;
+
+			out << std::endl;
+
+			if (vm.count("public"))
+			{
+				out << "public ";
+			}
+
+			out << "function Set" << getCamelCase(fieldId) << " takes integer objectId, " << type << " v returns nothing" << std::endl;
+			out << "\tcall Save" << getNativeTypeName(type) << "(fieldsHashTable, objectId, '" << fieldId << "', v)" << std::endl;
+			out << "endfunction" << std::endl;
+
+			out << std::endl;
 		}
-
-		out << "function Add" << getCamelCase(fieldId) << " takes integer objectId, " << type << " v returns integer" << std::endl;
-		out << "\tlocal F" << type << " f = Load" << getNativeTypeName(type) << "(fieldsHashTable, objectId, '" << fieldId << "')" << std::endl;
-		out << "\tif (f == 0) then" << std::endl;
-		out << "\t\tset f = F" << type << ".create()" << std::endl;
-		out << "\t\tcall Save" << getNativeTypeName(type) << "(fieldsHashTable, objectId, '" << fieldId << "', f)" << std::endl;
-		out << "\tendif" << std::endl;
-		out << "\treturn f.add(v)" << std::endl;
-		out << "endfunction" << std::endl;
-
-		out << std::endl;
 	}
 
 	if (limit > 0)
@@ -758,41 +826,50 @@ int main(int argc, char *argv[])
 				for (wc3lib::map::Txt::Sections::const_reference section : txt.sections())
 				{
 					const std::string objectIdString = section.name;
-					const wc3lib::map::id objectId = wc3lib::map::stringToId(objectIdString);
 
-					for (wc3lib::map::Txt::Entries::const_reference entry : section.entries)
+					if (objectIdString.size() == 4)
 					{
-						std::string fieldName = entry.first;
-						std::map<std::string, std::string>::iterator iterator = fieldNamesToIds.find(fieldName);
+						const wc3lib::map::id objectId = wc3lib::map::stringToId(objectIdString);
 
-						// If the ID is not found it might be the case that it has been excluded from the extraction.
-						if (iterator != fieldNamesToIds.end())
+						for (wc3lib::map::Txt::Entries::const_reference entry : section.entries)
 						{
-							const std::string fieldIdString = iterator->second;
-							const wc3lib::map::id fieldId = wc3lib::map::stringToId(fieldIdString);
+							std::string fieldName = entry.first;
+							std::map<std::string, std::string>::iterator iterator = fieldNamesToIds.find(fieldName);
 
-							//std::cout << "TXT field Name " << fieldName << " and field ID " << fieldIdString << std::endl;
-
-							if (fieldId != 0 && (fieldIdsSet.empty() || fieldIdsSet.contains(fieldId)))
+							// If the ID is not found it might be the case that it has been excluded from the extraction.
+							if (iterator != fieldNamesToIds.end())
 							{
-								const std::string type = fieldTypes[fieldId];
-								const std::string v = entry.second;
+								const std::string fieldIdString = iterator->second;
+								const wc3lib::map::id fieldId = wc3lib::map::stringToId(fieldIdString);
 
-								if (v.length() > 0 && v != "_")
+								if (fieldId != 0 && (fieldIdsSet.empty() || fieldIdsSet.contains(fieldId)))
 								{
-									std::vector<std::string> vector = splitAndIgnoreEmpty(v);
+									const std::string type = fieldTypes[fieldId];
+									const std::string v = entry.second;
 
-									for (const std::string &actualV : vector)
+									if (v.length() > 0 && v != "_")
 									{
-										addCall(out, type, objectId, fieldId, actualV, lineCounter, initCounters, limit, vm.count("private"));
-									}
+										std::vector<std::string> vector = splitAndIgnoreEmpty(v);
 
-									if (vm.count("verbose"))
-									{
-										std::cout << "Adding field name " << fieldName << " (" << wc3lib::map::idToString(fieldId) << ") for object " << objectIdString << " from file " << path << std::endl;
+										for (const std::string &actualV : vector)
+										{
+											addCall(out, type, objectId, fieldId, actualV, lineCounter, initCounters, limit, vm.count("private"));
+										}
+
+										if (vm.count("verbose"))
+										{
+											std::cout << "Adding field name " << fieldName << " (" << wc3lib::map::idToString(fieldId) << ") for object " << objectIdString << " from file " << path << std::endl;
+										}
 									}
 								}
 							}
+						}
+					}
+					else
+					{
+						if (vm.count("verbose"))
+						{
+							std::cout << "Skipping non-object TXT entry " << objectIdString << " from file " << path << std::endl;
 						}
 					}
 				}
