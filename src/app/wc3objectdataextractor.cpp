@@ -38,6 +38,7 @@
 #include "../map.hpp"
 
 typedef std::list<boost::filesystem::path> FilePaths;
+typedef std::map<wc3lib::map::id, std::map<wc3lib::map::id, std::set<wc3lib::map::id>>> WrittenModifiedIds;
 
 const char *version = "0.1";
 
@@ -187,6 +188,25 @@ inline void addCall(std::ofstream &out, const std::string &type, wc3lib::map::id
 	{
 		std::cerr << "Unknown type " << type << " for field " << wc3lib::map::idToString(fieldId) << " in object " << wc3lib::map::idToString(objectId) << std::endl;
 	}
+}
+
+inline std::list<wc3lib::map::id> getMissingObjectIds(const WrittenModifiedIds &writtenModifiedIds, wc3lib::map::id originalId, wc3lib::map::id fieldId)
+{
+	WrittenModifiedIds::const_iterator iterator = writtenModifiedIds.find(originalId);
+	std::list<wc3lib::map::id> customIds;
+
+	if (iterator != writtenModifiedIds.end())
+	{
+		for (const auto &p : iterator->second)
+		{
+			if (!p.second.contains(fieldId))
+			{
+				customIds.push_back(p.first);
+			}
+		}
+	}
+
+	return customIds;
 }
 
 }
@@ -650,6 +670,9 @@ int main(int argc, char *argv[])
 
 	long lineCounter = 0;
 
+	// Store all written field IDs with base IDs to know which default values still have to be added:
+	WrittenModifiedIds writtenModifiedIds;
+
 	for (FilePaths::reference path : inputFilePaths)
     {
         try
@@ -660,32 +683,60 @@ int main(int argc, char *argv[])
             customObjects.read(in);
 
             for (const wc3lib::map::CustomUnits::Unit &unit : customObjects.customTable()) {
-				if (objectIdsSet.empty() || objectIdsSet.contains(unit.customId())) {
+				const wc3lib::map::id customId = unit.customId();
+
+				if (objectIdsSet.empty() || objectIdsSet.contains(customId)) {
 					for (const wc3lib::map::CustomUnits::Set &set : unit.sets()) {
 						for (const wc3lib::map::CustomUnits::Modification &modification : set.modifications()) {
-							if (fieldIdsSet.empty() || fieldIdsSet.contains(modification.valueId())) {
+							const wc3lib::map::id fieldId = modification.valueId();
+
+							if (fieldIdsSet.empty() || fieldIdsSet.contains(fieldId)) {
 
 								if (vm.count("verbose"))
 								{
-									std::cout << boost::format(_("Extracting field %1% from object ID %2%.")) % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) << std::endl;
+									std::cout << boost::format(_("Extracting field %1% from object ID %2%.")) % wc3lib::map::idToString(fieldId) % wc3lib::map::idToString(customId) << std::endl;
 								}
 
 								counter++;
 
-								const std::string type = fieldTypes[modification.valueId()];
+								const std::string type = fieldTypes[fieldId];
 
-								//std::cerr << "Field ID " << wc3lib::map::idToString(modification.valueId()) << std::endl;
+								//std::cerr << "Field ID " << wc3lib::map::idToString(fieldId) << std::endl;
 								//std::cerr << "Type " << type << std::endl;
+
+								wc3lib::map::id originalId = unit.originalId();
+								WrittenModifiedIds::iterator iterator = writtenModifiedIds.find(originalId);
+
+								if (iterator == writtenModifiedIds.end())
+								{
+									writtenModifiedIds[unit.originalId()] = std::map<wc3lib::map::id, std::set<wc3lib::map::id>>();
+									writtenModifiedIds[originalId][customId] = std::set<wc3lib::map::id>();
+									writtenModifiedIds[originalId][customId].insert(fieldId);
+								}
+								else
+								{
+									std::map<wc3lib::map::id, std::set<wc3lib::map::id>>::iterator iterator2 = iterator->second.find(customId);
+
+									if (iterator2 ==  writtenModifiedIds[originalId].end())
+									{
+										writtenModifiedIds[unit.originalId()][customId] = std::set<wc3lib::map::id>();
+										writtenModifiedIds[originalId][customId].insert(fieldId);
+									}
+									else
+									{
+										iterator2->second.insert(fieldId);
+									}
+								}
 
 								if (isList(type)) {
 									if (modification.value().isList()) {
 										const wc3lib::map::List &v = modification.value().toList();
 
 										for (std::size_t i = 0; i < v.size(); i++) {
-											addCall(out, type, unit.customId(), modification.valueId(), v[i], lineCounter, initCounters, limit, vm.count("private"));
+											addCall(out, type, customId, fieldId, v[i], lineCounter, initCounters, limit, vm.count("private"));
 
 											if (i >= max) {
-												std::cerr << boost::format(_("Warning: Reached maximum %1% with field %2% from object ID %3%.")) % max % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) << std::endl;
+												std::cerr << boost::format(_("Warning: Reached maximum %1% with field %2% from object ID %3%.")) % max % wc3lib::map::idToString(fieldId) % wc3lib::map::idToString(customId) << std::endl;
 											}
 										}
 									}
@@ -695,39 +746,39 @@ int main(int argc, char *argv[])
 										std::size_t i = 0;
 
 										for (const std::string &ref : valueVector) {
-											addCall(out, type, unit.customId(), modification.valueId(), ref, lineCounter, initCounters, limit, vm.count("private"));
+											addCall(out, type, customId, fieldId, ref, lineCounter, initCounters, limit, vm.count("private"));
 
 											++i;
 										}
 									} else {
-										std::cerr << boost::format(_("Warning: Extracting field %1% from object ID %2% does not work with type %3%.")) % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) % type  << std::endl;
+										std::cerr << boost::format(_("Warning: Extracting field %1% from object ID %2% does not work with type %3%.")) % wc3lib::map::idToString(fieldId) % wc3lib::map::idToString(customId) % type  << std::endl;
 									}
 								} else if (type == "int" || type == "bool") {
 									if (modification.value().isInteger())
 									{
-										addCall(out, type, unit.customId(), modification.valueId(), modification.value().toInteger(), lineCounter, initCounters, limit, vm.count("private"));
+										addCall(out, type, customId, fieldId, modification.value().toInteger(), lineCounter, initCounters, limit, vm.count("private"));
 									}
 									else
 									{
-										std::cerr << boost::format(_("Warning: Extracting field %1% from object ID %2% is not an integer with type %3%.")) % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) % type  << std::endl;
+										std::cerr << boost::format(_("Warning: Extracting field %1% from object ID %2% is not an integer with type %3%.")) % wc3lib::map::idToString(fieldId) % wc3lib::map::idToString(customId) % type  << std::endl;
 									}
 								} else if (type == "real") {
 									if (modification.value().isReal())
 									{
-										addCall(out, type, unit.customId(), modification.valueId(), modification.value().toReal(), lineCounter, initCounters, limit, vm.count("private"));
+										addCall(out, type, customId, fieldId, modification.value().toReal(), lineCounter, initCounters, limit, vm.count("private"));
 									}
 									else
 									{
-										std::cerr << boost::format(_("Warning: Extracting field %1% from object ID %2% is not a real with type %3%.")) % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) % type  << std::endl;
+										std::cerr << boost::format(_("Warning: Extracting field %1% from object ID %2% is not a real with type %3%.")) % wc3lib::map::idToString(fieldId) % wc3lib::map::idToString(customId) % type  << std::endl;
 									}
 								} else if (type == "string") {
 									if (modification.value().isString())
 									{
-										addCall(out, type, unit.customId(), modification.valueId(), modification.value().toString(), lineCounter, initCounters, limit, vm.count("private"));
+										addCall(out, type, customId, fieldId, modification.value().toString(), lineCounter, initCounters, limit, vm.count("private"));
 									}
 									else
 									{
-										std::cerr << boost::format(_("Warning: Extracting field %1% from object ID %2% is not a string with type %3%.")) % wc3lib::map::idToString(modification.valueId()) % wc3lib::map::idToString(unit.customId()) % type  << std::endl;
+										std::cerr << boost::format(_("Warning: Extracting field %1% from object ID %2% is not a string with type %3%.")) % wc3lib::map::idToString(fieldId) % wc3lib::map::idToString(customId) % type  << std::endl;
 									}
 								}
 							}
@@ -772,15 +823,20 @@ int main(int argc, char *argv[])
 							{
 								const std::string objectIdString = wc3lib::map::Slk::fromSlkString(slk.cell(row, 0));
 								const wc3lib::map::id objectId = wc3lib::map::stringToId(objectIdString);
-								const std::string v = wc3lib::map::Slk::fromSlkString(slk.cell(row, column));
+								const std::string v = boost::trim_copy(wc3lib::map::Slk::fromSlkString(slk.cell(row, column)));
 
 								if (v.length() > 0 && v != "_")
 								{
+									std::list<wc3lib::map::id> objectIds = getMissingObjectIds(writtenModifiedIds, objectId, fieldId);
+									objectIds.push_front(objectId);
 									std::vector<std::string> vector = splitAndIgnoreEmpty(v);
 
-									for (const std::string &actualV : vector)
+									for (wc3lib::map::id o : objectIds)
 									{
-										addCall(out, type, objectId, fieldId, actualV, lineCounter, initCounters, limit, vm.count("private"));
+										for (const std::string &actualV : vector)
+										{
+											addCall(out, type, o, fieldId, actualV, lineCounter, initCounters, limit, vm.count("private"));
+										}
 									}
 
 									if (vm.count("verbose"))
@@ -845,15 +901,20 @@ int main(int argc, char *argv[])
 								if (fieldId != 0 && (fieldIdsSet.empty() || fieldIdsSet.contains(fieldId)))
 								{
 									const std::string type = fieldTypes[fieldId];
-									const std::string v = entry.second;
+									const std::string v = boost::trim_copy(entry.second);
 
 									if (v.length() > 0 && v != "_")
 									{
+										std::list<wc3lib::map::id> objectIds = getMissingObjectIds(writtenModifiedIds, objectId, fieldId);
+										objectIds.push_front(objectId);
 										std::vector<std::string> vector = splitAndIgnoreEmpty(v);
 
-										for (const std::string &actualV : vector)
+										for (wc3lib::map::id o : objectIds)
 										{
-											addCall(out, type, objectId, fieldId, actualV, lineCounter, initCounters, limit, vm.count("private"));
+											for (const std::string &actualV : vector)
+											{
+												addCall(out, type, o, fieldId, actualV, lineCounter, initCounters, limit, vm.count("private"));
+											}
 										}
 
 										if (vm.count("verbose"))
