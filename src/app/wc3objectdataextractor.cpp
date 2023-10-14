@@ -956,7 +956,7 @@ int main(int argc, char *argv[])
 
 	out << "function InitObjectDataFields takes nothing returns nothing" << std::endl;
 
-	for (long i = 0; i < initCounters; ++i)
+	for (long i = 0; i <= initCounters; ++i)
 	{
 		out << "\tcall NewOpLimit(function InitObjectDataFields" << i << ")" << std::endl;
 	}
