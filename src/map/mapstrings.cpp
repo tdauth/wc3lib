@@ -22,6 +22,8 @@
 
 #include "../qi.hpp"
 
+#include <boost/foreach.hpp>
+
 #include <boost/spirit/include/support_multi_pass.hpp>
 #include <boost/spirit/include/classic_position_iterator.hpp> // for more detailed error information
 

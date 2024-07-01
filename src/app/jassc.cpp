@@ -28,6 +28,7 @@
 
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/foreach.hpp>
 
 #include "../jass.hpp"
 #include "../i18n.hpp"

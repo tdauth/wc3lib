@@ -607,7 +607,7 @@ int main(int argc, char *argv[])
 	("overwrite,F", _("Overwrites existing files and directories when creating or extracting files."))
 	("merge", _("Merges input files into one output file if possible. This can be useful for TXT files with sections."))
 	("input,i", boost::program_options::value<Strings>(&inputFiles), _("Input files."))
-	("outputo", boost::program_options::value<boost::filesystem::path>(&outputFile), _("Output file or directory (for multiple files)."))
+	("outputo,o", boost::program_options::value<boost::filesystem::path>(&outputFile), _("Output file or directory (for multiple files)."))
 	;
 
 	boost::program_options::positional_options_description p;

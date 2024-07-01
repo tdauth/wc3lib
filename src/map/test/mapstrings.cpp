@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(WarChasersRead)
 	{
 		strings.read(in);
 	}
-	catch (Exception e)
+	catch (const Exception &e)
 	{
 		valid = false;
 
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(WarChasersReadWriteRead)
 	{
 		strings.read(in);
 	}
-	catch (Exception e)
+	catch (const Exception &e)
 	{
 		valid = false;
 
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE(WarChasersReadWriteRead)
 	{
 		strings.read(in);
 	}
-	catch (Exception e)
+	catch (const Exception &e)
 	{
 		valid = false;
 
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE(SkibbisCastleTD)
 	{
 		strings.read(in);
 	}
-	catch (Exception e)
+	catch (const Exception &e)
 	{
 		valid = false;
 
