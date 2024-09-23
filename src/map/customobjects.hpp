@@ -114,7 +114,7 @@ class CustomObjects : public CustomUnits
 				CustomObjects::Type type() const;
 
 			protected:
-				virtual CustomUnits::Modification* createModification() const;
+				virtual CustomUnits::Modification* createModification() const override;
 
 				CustomObjects::Type m_type;
 		};
