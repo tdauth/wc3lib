@@ -39,6 +39,8 @@ typedef std::list<boost::filesystem::path> FilePaths;
 
 const char *version = "0.1";
 
+namespace {
+
 inline void updateUnit(wc3lib::map::CustomObjects::Unit &unit, wc3lib::int32 maxLevel, wc3lib::map::id levelFieldId, bool verbose, long &removedModificationsCounter, long &updatedModificationsCounter) {
     for (std::size_t i = 0; i < unit.sets().size(); i++) {
         wc3lib::map::CustomObjects::Set *set = dynamic_cast<wc3lib::map::CustomObjects::Set*>(&unit.sets()[i]);
@@ -77,17 +79,43 @@ inline void updateUnit(wc3lib::map::CustomObjects::Unit &unit, wc3lib::int32 max
     }
 }
 
+inline wc3lib::map::id getLevelFieldIdByType(wc3lib::map::CustomObjects::Type t) {
+    if (t == wc3lib::map::CustomObjects::Type::Upgrades) {
+            return wc3lib::map::stringToId("ulev");
+    }
+
+    return wc3lib::map::stringToId("alev");
+}
+
+inline void updateCustomObjects(wc3lib::map::CustomObjects &customObjects, wc3lib::int32 maxLevel, wc3lib::map::id levelFieldId, bool verbose, long &removedModificationsCounter, long &updatedModificationsCounter) {
+    std::cout << boost::format(_("Read custom object data with %1% modified standard objects and %2% custom objects.")) % customObjects.originalTable().size() % customObjects.customTable().size() << std::endl;
+
+    if (levelFieldId == 0) {
+        levelFieldId = getLevelFieldIdByType(customObjects.type());
+    }
+
+    for (wc3lib::map::CustomObjects::Unit &unit : customObjects.originalTable()) {
+        updateUnit(unit, maxLevel, levelFieldId, verbose, removedModificationsCounter, updatedModificationsCounter);
+    }
+
+    for (wc3lib::map::CustomObjects::Unit &unit : customObjects.customTable()) {
+        updateUnit(unit, maxLevel, levelFieldId, verbose, removedModificationsCounter, updatedModificationsCounter);
+    }
+}
+
+}
+
 int main(int argc, char *argv[])
 {
 	// Set the current locale.
 	setlocale(LC_ALL, "");
 	// Set the text message domain.
-	bindtextdomain("wc3abilitylevellimiter", LOCALE_DIR);
-	textdomain("wc3abilitylevellimiter");
+	bindtextdomain("wc3objectlevellimiter", LOCALE_DIR);
+	textdomain("wc3objectlevellimiter");
 
 	wc3lib::int32 maxLevel = 100;
-    wc3lib::map::id levelFieldId = wc3lib::map::stringToId("alev");
-    std::string levelFieldIdInput = "alev";
+    wc3lib::map::id levelFieldId = 0;
+    std::string levelFieldIdInput = "";
     bool verbose = false;
     bool overwrite = false;
 	typedef std::vector<std::string> Strings;
@@ -96,13 +124,13 @@ int main(int argc, char *argv[])
 
 	boost::program_options::options_description desc("Allowed options");
 	desc.add_options()
-	("version,V", _("Shows current version of wc3abilitylevellimiter."))
+	("version,V", _("Shows current version of wc3objectlevellimiter."))
 	("help,h",_("Shows this text."))
 	// options
 	("verbose", _("Add more text output."))
 	("overwrite", _("Overwrites existing files and directories when creating or extracting files."))
     ("maxlevel,l", boost::program_options::value<int>(&maxLevel)->default_value(100), _("Maximum ability level."))
-    ("id", boost::program_options::value<std::string>(&levelFieldIdInput)->default_value("alev"), _("Level field ID."))
+    ("id", boost::program_options::value<std::string>(&levelFieldIdInput), _("Level field ID. This is determined automatically for abilities (\"alev\") and researches (\"ulev\") by default."))
 	("i", boost::program_options::value<Strings>(&inputFiles), _("Input files."))
 	("o", boost::program_options::value<boost::filesystem::path>(&outputFile), _("Output file or directory (for multiple files)."))
 	;
@@ -127,7 +155,7 @@ int main(int argc, char *argv[])
 
 	if (vm.count("version")) {
 		std::cout <<
-		boost::format(_("wc3abilitylevellimiter %1%.")) % version
+		boost::format(_("wc3objectlevellimiter %1%.")) % version
 		<< std::endl
 		<< wc3lib::wc3libCopyright()
         << std::endl;
@@ -136,7 +164,7 @@ int main(int argc, char *argv[])
 	}
 
 	if (vm.count("help")) {
-		std::cout << _("Usage: wc3abilitylevellimiter [options] [output file/directory] [input files]") << std::endl << std::endl;
+		std::cout << _("Usage: wc3objectlevellimiter [options] [output file/directory] [input files]") << std::endl << std::endl;
 		std::cout << desc << std::endl;
 		std::cout << wc3lib::wc3libReportBugs() << std::endl;
 
@@ -146,7 +174,9 @@ int main(int argc, char *argv[])
 	verbose = vm.count("verbose");
     overwrite = vm.count("overwrite");
 
-	levelFieldId = wc3lib::map::stringToId(levelFieldIdInput);
+    if (levelFieldIdInput.size() > 0) {
+        levelFieldId = wc3lib::map::stringToId(levelFieldIdInput);
+    }
 
 	FilePaths inputFilePaths;
 
@@ -164,34 +194,53 @@ int main(int argc, char *argv[])
     long updatedModificationsCounter = 0;
 
 	for (FilePaths::reference path : inputFilePaths) {
+
         try {
             boost::filesystem::path realOutputFile = outputFile;
 
             if (boost::filesystem::is_directory(outputFile)) {
-                realOutputFile /= path.stem().string() + "." + path.extension().string();
+                realOutputFile /= path.stem().string() + path.extension().string();
             }
 
-            wc3lib::map::CustomObjects customObjects(wc3lib::map::CustomObjects::Type::Abilities);
-            boost::filesystem::ifstream in(path, std::ios::in | std::ios::binary);
-            customObjects.read(in);
+            if (path.extension().string() == ".w3o") {
+                wc3lib::map::CustomObjectsCollection customObjects;
 
-            std::cout << boost::format(_("Read ability data with %1% modified standard abilities and %2% custom abilities.")) % customObjects.originalTable().size() % customObjects.customTable().size() << std::endl;
+                boost::filesystem::ifstream in(path, std::ios::in | std::ios::binary);
+                customObjects.read(in);
 
-            for (wc3lib::map::CustomObjects::Unit &unit : customObjects.originalTable()) {
-                updateUnit(unit, maxLevel,levelFieldId, verbose, removedModificationsCounter, updatedModificationsCounter);
-            }
+                if (customObjects.hasAbilities()) {
+                    updateCustomObjects(*customObjects.abilities().get(), maxLevel, levelFieldId, verbose, removedModificationsCounter, updatedModificationsCounter);
+                }
 
-            for (wc3lib::map::CustomObjects::Unit &unit : customObjects.customTable()) {
-                updateUnit(unit, maxLevel,levelFieldId, verbose, removedModificationsCounter, updatedModificationsCounter);
-            }
+                if (customObjects.hasUpgrades()) {
+                    updateCustomObjects(*customObjects.upgrades().get(), maxLevel, levelFieldId, verbose, removedModificationsCounter, updatedModificationsCounter);
+                }
 
-            if (!overwrite && boost::filesystem::exists(realOutputFile)) {
-                std::cerr << boost::format(_("Output file %1% does already exist. Use --overwrite to overwrite it.")) % realOutputFile << std::endl;
+                if (!overwrite && boost::filesystem::exists(realOutputFile)) {
+                    std::cerr << boost::format(_("Output file %1% does already exist. Use --overwrite to overwrite it.")) % realOutputFile << std::endl;
 
-                return EXIT_FAILURE;
+                    return EXIT_FAILURE;
+                } else {
+                    boost::filesystem::ofstream out(realOutputFile, std::ios::out | std::ios::binary);
+                    customObjects.write(out);
+                }
+
             } else {
-                boost::filesystem::ofstream out(realOutputFile, std::ios::out | std::ios::binary);
-                customObjects.write(out);
+                wc3lib::map::CustomObjects customObjects(wc3lib::map::CustomObjects::typeByExtension(path.extension().string()));
+
+                boost::filesystem::ifstream in(path, std::ios::in | std::ios::binary);
+                customObjects.read(in);
+
+                updateCustomObjects(customObjects, maxLevel, levelFieldId, verbose, removedModificationsCounter, updatedModificationsCounter);
+
+                if (!overwrite && boost::filesystem::exists(realOutputFile)) {
+                    std::cerr << boost::format(_("Output file %1% does already exist. Use --overwrite to overwrite it.")) % realOutputFile << std::endl;
+
+                    return EXIT_FAILURE;
+                } else {
+                    boost::filesystem::ofstream out(realOutputFile, std::ios::out | std::ios::binary);
+                    customObjects.write(out);
+                }
             }
         }
         catch (const wc3lib::Exception &exception) {

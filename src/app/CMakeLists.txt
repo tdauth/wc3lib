@@ -24,17 +24,17 @@ if (MAP)
 	target_link_libraries(wc3baseobjectchanger ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 	install(TARGETS wc3baseobjectchanger DESTINATION bin)
-	
+
 	add_executable(wc3objectdataextractor wc3objectdataextractor)
 	target_link_libraries(wc3objectdataextractor ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 	install(TARGETS wc3objectdataextractor DESTINATION bin)
-	
-	add_executable(wc3abilitylevellimiter wc3abilitylevellimiter.cpp)
-	target_link_libraries(wc3abilitylevellimiter ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
-	install(TARGETS wc3abilitylevellimiter DESTINATION bin)
-	
+	add_executable(wc3objectlevellimiter wc3objectlevellimiter.cpp)
+	target_link_libraries(wc3objectlevellimiter ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+	install(TARGETS wc3objectlevellimiter DESTINATION bin)
+
 	add_executable(wc3abilityhotkeyfixer wc3abilityhotkeyfixer.cpp)
 	target_link_libraries(wc3abilityhotkeyfixer ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
