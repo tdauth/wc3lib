@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
                 bool value = false;
 
                 if (cellContent.size() > 0 && cellContent[0] == '\"') {
-                    cellContent.substr(1, cellContent.size() - 2);
+                    cellContent = cellContent.substr(1, cellContent.size() - 2);
                     value = std::stoi(cellContent);
                 } else if (!cellContent.empty()) {
                     value = std::stoi(cellContent);

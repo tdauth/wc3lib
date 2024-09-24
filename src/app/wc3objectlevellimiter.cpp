@@ -81,7 +81,7 @@ inline void updateUnit(wc3lib::map::CustomObjects::Unit &unit, wc3lib::int32 max
 
 inline wc3lib::map::id getLevelFieldIdByType(wc3lib::map::CustomObjects::Type t) {
     if (t == wc3lib::map::CustomObjects::Type::Upgrades) {
-            return wc3lib::map::stringToId("ulev");
+            return wc3lib::map::stringToId("glvl");
     }
 
     return wc3lib::map::stringToId("alev");
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
 	("verbose", _("Add more text output."))
 	("overwrite", _("Overwrites existing files and directories when creating or extracting files."))
     ("maxlevel,l", boost::program_options::value<int>(&maxLevel)->default_value(100), _("Maximum ability level."))
-    ("id", boost::program_options::value<std::string>(&levelFieldIdInput), _("Level field ID. This is determined automatically for abilities (\"alev\") and researches (\"ulev\") by default."))
+    ("id", boost::program_options::value<std::string>(&levelFieldIdInput), _("Level field ID. This is determined automatically for abilities (\"alev\") and researches (\"glvl\") by default."))
 	("i", boost::program_options::value<Strings>(&inputFiles), _("Input files."))
 	("o", boost::program_options::value<boost::filesystem::path>(&outputFile), _("Output file or directory (for multiple files)."))
 	;
