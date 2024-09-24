@@ -214,7 +214,7 @@ void BlpTest::writeTest()
 {
 	QImage image("DISBTNMagic.blp");
 	QVERIFY(!image.isNull());
-	const int byteCount = image.byteCount();
+	const int sizeInBytes = image.sizeInBytes();
 
 	QVERIFY(image.size() == QSize(64, 64));
 	QVERIFY(image.format() == QImage::Format_ARGB32);
@@ -227,7 +227,7 @@ void BlpTest::writeTest()
 	QVERIFY(reader.canRead());
 	QVERIFY(reader.read(&image));
 
-	QCOMPARE(byteCount, image.byteCount()); // new byte count == old byte count
+	QCOMPARE(sizeInBytes, image.sizeInBytes()); // new byte count == old byte count
 }
 
 void BlpTest::readTest()

@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE(CreateEmptyArchive)
 	BOOST_CHECK_EQUAL(archive.blocks().size(), 1);
 	BOOST_CHECK_EQUAL(archive.hashes().size(), 1);
 
-	BOOST_CHECK(boost::filesystem::is_regular("emptyarchive.mpq"));
+	BOOST_CHECK(boost::filesystem::is_regular_file("emptyarchive.mpq"));
 
 	const std::size_t expectedArchiveSize = sizeof(Header) + sizeof(BlockTableEntry) + sizeof(HashTableEntry); // size includes the size of the header
 	BOOST_CHECK_EQUAL(archive.size(), expectedArchiveSize);
