@@ -35,6 +35,11 @@ if (MAP)
 
 	install(TARGETS wc3objectlevellimiter DESTINATION bin)
 
+	add_executable(wc3objectcompressor wc3objectcompressor)
+	target_link_libraries(wc3objectcompressor ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+	install(TARGETS wc3objectcompressor DESTINATION bin)
+
 	add_executable(wc3abilityhotkeyfixer wc3abilityhotkeyfixer.cpp)
 	target_link_libraries(wc3abilityhotkeyfixer ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
 

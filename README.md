@@ -142,10 +142,18 @@ See [wc3baseobjectchanger.sh](./scripts/wc3baseobjectchanger.sh) as an example.
 
 ### wc3objectlevellimiter
 
-This tool allows removing modifications from custom object data which are higher than the specified maximum level.
+This tool allows removing modifications from and adapting the maximum levels of custom object data which are higher than the user-specified passed maximum level.
 This might help you to reduce the size of your object data and levels for abilities and researches.
 
 See [wc3abilitylevellimiter.sh](./scripts/wc3abilitylevellimiter.sh) as an example.
+
+### wc3objectcompressor
+
+This tool allows removing modifications from custom object data which are higher than the specific maximum level of the custom objects.
+
+```
+./wc3objectcompressor -vF . ~/Downloads/objectdata.w3o > output.txt
+```
 
 ### wc3abilityhotkeyfixer
 

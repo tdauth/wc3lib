@@ -39,21 +39,41 @@ typedef std::list<boost::filesystem::path> FilePaths;
 
 const char *version = "0.1";
 
+// TODO Read meta data SLKs and remove modifications which have the same value as the default.
+
 namespace {
 
-inline void updateUnit(wc3lib::map::CustomObjects::Unit &unit, wc3lib::int32 maxLevel, wc3lib::map::id levelFieldId, bool verbose, long &removedModificationsCounter, long &updatedModificationsCounter) {
+inline void updateUnit(wc3lib::map::CustomObjects::Unit &unit, wc3lib::map::id levelFieldId, bool verbose, long &removedModificationsCounter) {
     for (std::size_t i = 0; i < unit.sets().size(); i++) {
         wc3lib::map::CustomObjects::Set *set = dynamic_cast<wc3lib::map::CustomObjects::Set*>(&unit.sets()[i]);
+        wc3lib::int32 levels = 1;
+
+        for (std::size_t j = 0; j < set->modifications().size(); j++) {
+            //  wc3lib::map::CustomObjects::Modification &modification : unit.modifications()) {
+            wc3lib::map::CustomObjects::Modification *modification = dynamic_cast<wc3lib::map::CustomObjects::Modification*>(&set->modifications()[j]);
+
+            if (modification->valueId() == levelFieldId && modification->value().type() == wc3lib::map::Value::Type::Integer) {
+                levels = modification->value().toInteger();
+
+                break;
+            }
+        }
+
+        // TODO If no modification has been found, it must be the meta data default value which can always be bigger than 1!
+        if (levels > 1 && verbose) {
+            wc3lib::map::id id = unit.customId() != 0 ? unit.customId() : unit.originalId();
+            std::cout << boost::format(_("Object %1% with maximum level %2%.")) % wc3lib::map::idToString(id) % levels << std::endl;
+        }
 
         for (std::size_t j = 0; j < set->modifications().size(); ) {
             //  wc3lib::map::CustomObjects::Modification &modification : unit.modifications()) {
             wc3lib::map::CustomObjects::Modification *modification = dynamic_cast<wc3lib::map::CustomObjects::Modification*>(&set->modifications()[j]);
             wc3lib::int32 sourceMaxLevel = modification->level();
 
-            if (sourceMaxLevel > maxLevel) {
+            if (sourceMaxLevel > levels) {
                 if (verbose) {
                     wc3lib::map::id id = unit.customId() != 0 ? unit.customId() : unit.originalId();
-                    std::cout << boost::format(_("Removing modification %1% of object %2% with level %3% to keep maximum level %4% of modifications.")) % wc3lib::map::idToString(modification->valueId()) % wc3lib::map::idToString(id) % sourceMaxLevel % maxLevel << std::endl;
+                    std::cout << boost::format(_("Removing modification %1% of object %2% with level %3% to keep maximum level %4% of modifications.")) % wc3lib::map::idToString(modification->valueId()) % wc3lib::map::idToString(id) % sourceMaxLevel % levels << std::endl;
                 }
 
                 removedModificationsCounter++;
@@ -61,21 +81,6 @@ inline void updateUnit(wc3lib::map::CustomObjects::Unit &unit, wc3lib::int32 max
                 set->modifications().erase(std::next(set->modifications().begin(), j));
             } else {
                 j++;
-
-                if (modification->valueId() == levelFieldId && modification->value().type() == wc3lib::map::Value::Type::Integer) {
-                    sourceMaxLevel = modification->value().toInteger();
-
-                    if (sourceMaxLevel > maxLevel) {
-                        modification->setValue(wc3lib::map::Value(maxLevel));
-
-                        if (verbose) {
-                            wc3lib::map::id id = unit.customId() != 0 ? unit.customId() : unit.originalId();
-                            std::cout << boost::format(_("Updating modification %1% of object %2% with level %3% to keep maximum level %4% of modifications.")) % wc3lib::map::idToString(modification->valueId()) % wc3lib::map::idToString(id) % sourceMaxLevel % maxLevel << std::endl;
-                        }
-
-                        updatedModificationsCounter++;
-                    }
-                }
             }
         }
     }
@@ -89,19 +94,17 @@ inline wc3lib::map::id getLevelFieldIdByType(wc3lib::map::CustomObjects::Type t)
     return wc3lib::map::stringToId("alev");
 }
 
-inline void updateCustomObjects(wc3lib::map::CustomObjects &customObjects, wc3lib::int32 maxLevel, wc3lib::map::id levelFieldId, bool verbose, long &removedModificationsCounter, long &updatedModificationsCounter) {
+inline void updateCustomObjects(wc3lib::map::CustomObjects &customObjects, bool verbose, long &removedModificationsCounter) {
     std::cout << boost::format(_("Read custom object data with %1% modified standard objects and %2% custom objects.")) % customObjects.originalTable().size() % customObjects.customTable().size() << std::endl;
 
-    if (levelFieldId == 0) {
-        levelFieldId = getLevelFieldIdByType(customObjects.type());
-    }
+    wc3lib::map::id levelFieldId = getLevelFieldIdByType(customObjects.type());
 
     for (wc3lib::map::CustomObjects::Unit &unit : customObjects.originalTable()) {
-        updateUnit(unit, maxLevel, levelFieldId, verbose, removedModificationsCounter, updatedModificationsCounter);
+        updateUnit(unit, levelFieldId, verbose, removedModificationsCounter);
     }
 
     for (wc3lib::map::CustomObjects::Unit &unit : customObjects.customTable()) {
-        updateUnit(unit, maxLevel, levelFieldId, verbose, removedModificationsCounter, updatedModificationsCounter);
+        updateUnit(unit, levelFieldId, verbose, removedModificationsCounter);
     }
 }
 
@@ -112,12 +115,9 @@ int main(int argc, char *argv[])
 	// Set the current locale.
 	setlocale(LC_ALL, "");
 	// Set the text message domain.
-	bindtextdomain("wc3objectlevellimiter", LOCALE_DIR);
-	textdomain("wc3objectlevellimiter");
+	bindtextdomain("wc3objectcompressor", LOCALE_DIR);
+	textdomain("wc3objectcompressor");
 
-	wc3lib::int32 maxLevel = 100;
-    wc3lib::map::id levelFieldId = 0;
-    std::string levelFieldIdInput = "";
     bool verbose = false;
     bool overwrite = false;
 	typedef std::vector<std::string> Strings;
@@ -126,13 +126,11 @@ int main(int argc, char *argv[])
 
 	boost::program_options::options_description desc("Allowed options");
 	desc.add_options()
-	("version,V", _("Shows current version of wc3objectlevellimiter."))
+	("version,V", _("Shows current version of wc3objectcompressor."))
 	("help,h",_("Shows this text."))
 	// options
 	("verbose,v", _("Add more text output."))
 	("overwrite,F", _("Overwrites existing files and directories when creating or extracting files."))
-    ("maxlevel,l", boost::program_options::value<int>(&maxLevel)->default_value(100), _("Maximum ability level."))
-    ("id", boost::program_options::value<std::string>(&levelFieldIdInput), _("Level field ID. This is determined automatically for abilities (\"alev\") and researches (\"glvl\") by default."))
 	("i", boost::program_options::value<Strings>(&inputFiles), _("Input files."))
 	("o", boost::program_options::value<boost::filesystem::path>(&outputFile), _("Output file or directory (for multiple files)."))
 	;
@@ -157,7 +155,7 @@ int main(int argc, char *argv[])
 
 	if (vm.count("version")) {
 		std::cout <<
-		boost::format(_("wc3objectlevellimiter %1%.")) % version
+		boost::format(_("wc3objectcompressor %1%.")) % version
 		<< std::endl
 		<< wc3lib::wc3libCopyright()
         << std::endl;
@@ -166,7 +164,7 @@ int main(int argc, char *argv[])
 	}
 
 	if (vm.count("help")) {
-		std::cout << _("Usage: wc3objectlevellimiter [options] [output file/directory] [input files]") << std::endl << std::endl;
+		std::cout << _("Usage: wc3objectcompressor [options] [output file/directory] [input files]") << std::endl << std::endl;
 		std::cout << desc << std::endl;
 		std::cout << wc3lib::wc3libReportBugs() << std::endl;
 
@@ -175,10 +173,6 @@ int main(int argc, char *argv[])
 
 	verbose = vm.count("verbose");
     overwrite = vm.count("overwrite");
-
-    if (levelFieldIdInput.size() > 0) {
-        levelFieldId = wc3lib::map::stringToId(levelFieldIdInput);
-    }
 
 	FilePaths inputFilePaths;
 
@@ -193,7 +187,6 @@ int main(int argc, char *argv[])
 	}
 
     long removedModificationsCounter = 0;
-    long updatedModificationsCounter = 0;
 
 	for (FilePaths::reference path : inputFilePaths) {
 
@@ -211,11 +204,11 @@ int main(int argc, char *argv[])
                 customObjects.read(in);
 
                 if (customObjects.hasAbilities()) {
-                    updateCustomObjects(*customObjects.abilities().get(), maxLevel, levelFieldId, verbose, removedModificationsCounter, updatedModificationsCounter);
+                    updateCustomObjects(*customObjects.abilities().get(), verbose, removedModificationsCounter);
                 }
 
                 if (customObjects.hasUpgrades()) {
-                    updateCustomObjects(*customObjects.upgrades().get(), maxLevel, levelFieldId, verbose, removedModificationsCounter, updatedModificationsCounter);
+                    updateCustomObjects(*customObjects.upgrades().get(), verbose, removedModificationsCounter);
                 }
 
                 if (!overwrite && boost::filesystem::exists(realOutputFile)) {
@@ -233,7 +226,7 @@ int main(int argc, char *argv[])
                 boost::filesystem::ifstream in(path, std::ios::in | std::ios::binary);
                 customObjects.read(in);
 
-                updateCustomObjects(customObjects, maxLevel, levelFieldId, verbose, removedModificationsCounter, updatedModificationsCounter);
+                updateCustomObjects(customObjects, verbose, removedModificationsCounter);
 
                 if (!overwrite && boost::filesystem::exists(realOutputFile)) {
                     std::cerr << boost::format(_("Output file %1% does already exist. Use --overwrite to overwrite it.")) % realOutputFile << std::endl;
@@ -252,7 +245,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    std::cout << boost::format(_("Removed %1% and updated %2% modifications.")) % removedModificationsCounter % updatedModificationsCounter << std::endl;
+    std::cout << boost::format(_("Removed %1% modifications.")) % removedModificationsCounter << std::endl;
 
 	return EXIT_SUCCESS;
 }
