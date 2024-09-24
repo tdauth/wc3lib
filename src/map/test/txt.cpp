@@ -55,7 +55,8 @@ BOOST_AUTO_TEST_CASE(TxtSimpleReadTest)
 
 	string myTxt =
 	"[MySection]\n"
-	"Hello = 23"
+	"Hello = 23\n"
+	"WESTRING_RACE_SELECTABLE=Auswählbar" // check Umlaute
 	;
 
 	map::Txt txt;
@@ -67,7 +68,7 @@ BOOST_AUTO_TEST_CASE(TxtSimpleReadTest)
 	BOOST_REQUIRE(txt.sections().size() == 1);
 	const map::Txt::Section &section = txt.sections()[0];
 	BOOST_REQUIRE(section.name == "MySection");
-	BOOST_REQUIRE(section.entries.size() == 1);
+	BOOST_REQUIRE(section.entries.size() == 2);
 	wc3lib::map::Txt::Entries::const_iterator begin = section.entries.begin();
 	wc3lib::map::Txt::Entries::const_iterator end = section.entries.end();
 	BOOST_REQUIRE(std::find_if(begin, end, isHello) != end);
