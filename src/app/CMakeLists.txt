@@ -40,6 +40,11 @@ if (MAP)
 
 	install(TARGETS wc3objectcompressor DESTINATION bin)
 
+	add_executable(wc3objectquery wc3objectquery)
+	target_link_libraries(wc3objectquery ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+	install(TARGETS wc3objectquery DESTINATION bin)
+
 	add_executable(wc3abilityhotkeyfixer wc3abilityhotkeyfixer.cpp)
 	target_link_libraries(wc3abilityhotkeyfixer ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
 

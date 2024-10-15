@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2022 by Tamino Dauth                                    *
+ *   Copyright (C) 2024 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *

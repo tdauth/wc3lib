@@ -155,6 +155,14 @@ This tool allows removing modifications from custom object data which are higher
 ./wc3objectcompressor -vF . ~/Downloads/objectdata.w3o > output.txt
 ```
 
+### wc3objectquery
+
+This tool allows querying modifications from custom object data.
+
+```
+./wc3objectquery -v -q "ubdg"=1 -q "upat"=_ ~/Downloads/objectdata.w3o > output.txt
+```
+
 ### wc3abilityhotkeyfixer
 
 This tools allows fixing hotkeys of abilities.
