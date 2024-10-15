@@ -21,6 +21,7 @@
 #include <boost/format.hpp>
 
 #include <QtGui>
+#include <QtWidgets>
 
 #include "warcraftiiishared.hpp"
 #include "../exception.hpp"
@@ -38,11 +39,15 @@ WarcraftIIIShared::WarcraftIIIShared(MpqPriorityList *source) : m_source(source)
 
 void WarcraftIIIShared::refreshDefaultFiles(QWidget *window)
 {
-	this->refreshWorldEditorStrings(window);
-	this->refreshWorldEditorGameStrings(window);
-	this->refreshWorldEditData(window);
-	this->refreshTriggerStrings(window);
-	this->refreshTriggerData(window);
+	try {
+		this->refreshWorldEditorStrings(window);
+		this->refreshWorldEditorGameStrings(window);
+		this->refreshWorldEditData(window);
+		this->refreshTriggerStrings(window);
+		this->refreshTriggerData(window);
+	} catch (const std::exception &e) {
+		QMessageBox::critical(window, tr("Error"), e.what());
+	}
 }
 
 Texture* WarcraftIIIShared::teamColorTexture(TeamColor teamColor) const
@@ -93,6 +98,8 @@ void WarcraftIIIShared::refreshWorldEditorStrings(QWidget *window, const QUrl &u
 	WorldEditorStringsPtr ptr(new MetaData(url));
 	ptr->setSource(this->source());
 	ptr->load();
+
+	qDebug() << "Loaded WorldEdit strings";
 
 	m_worldEditorStrings.swap(ptr); // exception safe
 }
