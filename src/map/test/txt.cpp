@@ -393,3 +393,36 @@ BOOST_AUTO_TEST_CASE(ItemFunc)
 	BOOST_REQUIRE(valid);
 }
 
+/*
+[mdpb]
+[mdpb]
+Name=Medusa Pebble
+Purchase Medusa Pebble
+Hotkey=P
+Tip=Purchase Medusa |cffffcc00P|rebble
+Ubertip="Turns the targeted enemy non-Hero unit into stone when used. A unit turned to stone by the Medusa Pebble is removed from the game permanently."
+Description=Turns target unit to stone.
+*/
+BOOST_AUTO_TEST_CASE(ItemStrings)
+{
+	ifstream in("ItemStrings.txt");
+
+	BOOST_REQUIRE(in);
+
+	map::Txt txt;
+	bool valid = true;
+
+	try
+	{
+		txt.read(in);
+	}
+	catch (Exception &e)
+	{
+		std::cerr << e.what() << std::endl;
+		valid = false;
+	}
+
+	BOOST_REQUIRE(valid);
+}
+
+

@@ -69,23 +69,23 @@ std::streamsize Txt::read(InputStream &istream)
 			section.name = line;
 			hasSection = true;
 		} else {
-			if (!hasSection) {
-				throw std::runtime_error((boost::format(_("Entry without section at line %1%: %2%.")) % l % line).str());
+			if (!hasSection) { // "Purchase Medusa Pebble" appears as single line in ItemStrings.txt and should simply be ignored
+				std::cerr << boost::format(_("Entry without section at line %1%: %2%.")) % l % line << std::endl;
+			} else {
+				std::vector<string> r;
+				boost::split(r, line, boost::is_any_of("="));
+
+				if (r.size() < 2) {
+					std::cerr << boost::format(_("Invalid entry at line %1% with length %2%: %3%.")) % l % line.size() % line << std::endl;
+				} else {
+					string key = r[0];
+					string value = r[1];
+					boost::trim(key);
+					boost::trim(value);
+
+					section.entries.push_back(Entry(std::move(key), std::move(value)));
+				}
 			}
-
-			std::vector<string> r;
-			boost::split(r, line, boost::is_any_of("="));
-
-			if (r.size() < 2) {
-				throw std::runtime_error((boost::format(_("Invalid entry at line %1% with length %2%: %3%.")) % l % line.size() % line).str());
-			}
-
-			string key = r[0];
-			string value = r[1];
-			boost::trim(key);
-			boost::trim(value);
-
-			section.entries.push_back(Entry(std::move(key), std::move(value)));
 		}
 
 		++l;
