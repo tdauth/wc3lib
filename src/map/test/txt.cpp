@@ -26,7 +26,6 @@
 
 //#include <boost/foreach.hpp>
 
-#include "../../spirit.hpp"
 #include "../../platform.hpp"
 #include "../txt.hpp"
 
@@ -48,14 +47,12 @@ bool isHaha(const map::Txt::Entry &entry)
 
 BOOST_AUTO_TEST_CASE(TxtSimpleReadTest)
 {
-	spiritTraceLog.close();
-	spiritTraceLog.open("txtsimplereadtest_traces.xml");
-
-	BOOST_REQUIRE(spiritTraceLog);
-
 	string myTxt =
-	"[MySection]\n"
-	"Hello = 23\n"
+	"\n"
+	" // comment "
+	"\n"
+	"[MySection] // comment  \n"
+	"Hello = 23 // comment\n"
 	"WESTRING_RACE_SELECTABLE=Auswählbar" // check Umlaute
 	;
 
@@ -65,15 +62,12 @@ BOOST_AUTO_TEST_CASE(TxtSimpleReadTest)
 	//std::cout << sstream.str() << std::endl;
 	txt.read(sstream);
 
-	BOOST_REQUIRE(txt.sections().size() == 1);
+	BOOST_REQUIRE_EQUAL(txt.sections().size(), 1);
 	const map::Txt::Section &section = txt.sections()[0];
-	BOOST_REQUIRE(section.name == "MySection");
-	BOOST_REQUIRE(section.entries.size() == 2);
-	wc3lib::map::Txt::Entries::const_iterator begin = section.entries.begin();
-	wc3lib::map::Txt::Entries::const_iterator end = section.entries.end();
-	BOOST_REQUIRE(std::find_if(begin, end, isHello) != end);
-	//std::cout << "Value: " << std::find_if(begin, end, isHello)->second << std::endl;
-	BOOST_REQUIRE(std::find_if(begin, end, isHello)->second == "23");
+	BOOST_REQUIRE_EQUAL(section.name, "MySection");
+	BOOST_REQUIRE_EQUAL(section.entries.size(), 2);
+	BOOST_REQUIRE_EQUAL(txt.sections()[0].entries[0].key(), "Hello");
+	BOOST_REQUIRE_EQUAL(txt.sections()[0].entries[0].value(), "23");
 }
 
 BOOST_AUTO_TEST_CASE(TxtReadTest)
@@ -88,11 +82,6 @@ BOOST_AUTO_TEST_CASE(TxtReadTest)
 	"Haha = 12// is there an avenging power in nature?\n"
 	"\n"
 	;
-
-	spiritTraceLog.close();
-	spiritTraceLog.open("txtreadtest_traces.xml");
-
-	BOOST_REQUIRE(spiritTraceLog);
 
 	map::Txt txt;
 	std::basic_stringstream<byte> sstream;
@@ -129,11 +118,6 @@ BOOST_AUTO_TEST_CASE(TxtReadTestWithSpacesAtBeginning)
 	"Haha = 12// is there an avenging power in nature?\n"
 	"\n"
 	;
-
-	spiritTraceLog.close();
-	spiritTraceLog.open("txtreadtestwithspacesatbeginning_traces.xml");
-
-	BOOST_REQUIRE(spiritTraceLog);
 
 	map::Txt txt;
 	std::basic_stringstream<byte> sstream;
@@ -188,11 +172,6 @@ BOOST_AUTO_TEST_CASE(TxtReadTriggerDataTest)
 	"OperatorCompareDestructibleHint=\n"
 	;
 
-	spiritTraceLog.close();
-	spiritTraceLog.open("txtreadertriggerdatatest_traces.xml");
-
-	BOOST_REQUIRE(spiritTraceLog);
-
 	map::Txt txt;
 	std::basic_stringstream<byte> sstream;
 	sstream << myTxt;
@@ -231,21 +210,30 @@ BOOST_AUTO_TEST_CASE(TxtWriteTriggerDataTest)
 	"OperatorCompareDestructibleHint=\n"
 	;
 
-	spiritTraceLog.close();
-	spiritTraceLog.open("txtwritetriggerdatatest_traces.xml");
-
-	BOOST_REQUIRE(spiritTraceLog);
-
 	map::Txt txt;
 	std::basic_stringstream<byte> sstream;
 	sstream << myTxt;
 	//std::cout << sstream.str() << std::endl;
 	txt.read(sstream);
-	sstream.str(""); // clear stream
+
+	BOOST_REQUIRE_EQUAL(txt.sections().size(), 1);
+
+	//std::cout << "test 1" << std::endl;
+
+	sstream = std::basic_stringstream<byte>(std::stringstream::out | std::stringstream::in | std::stringstream::binary);
 	txt.write(sstream);
+
+	//ofstream out("bla.txt", std::fstream::out | std::fstream::binary);
+	//txt.write(out);
+	//out.close();
+
+	//std::cout << "test 2" << std::endl;
+
 	txt.sections().clear(); // clear Txt for new read
 
 	//std::cout << "newly written:\n" << sstream.str() << std::endl;
+
+	BOOST_REQUIRE_EQUAL(txt.sections().size(), 0);
 
 	txt.read(sstream); // read again
 
@@ -257,9 +245,9 @@ BOOST_AUTO_TEST_CASE(TxtWriteTriggerDataTest)
 	}
 	*/
 
-	BOOST_REQUIRE(txt.sections().size() == 1);
+	BOOST_REQUIRE_EQUAL(txt.sections().size(), 1);
 	const map::Txt::Section &section = txt.sections()[0];
-	BOOST_REQUIRE(section.name == "bla");
+	BOOST_REQUIRE_EQUAL(section.name, "bla");
 	//std::cout << "Entries count: " << txt.entries("bla").size()  << std::endl;
 	const map::Txt::Sections::const_iterator iterator = std::find_if(txt.sections().begin(), txt.sections().end(), [](const map::Txt::Section &section) { return section.name == "bla"; });
 	BOOST_REQUIRE(iterator != txt.sections().end());
@@ -286,11 +274,6 @@ BOOST_AUTO_TEST_CASE(EmptySection)
 	"Sellunits=ngsp,nzep,ngir\n"
 	;
 
-	spiritTraceLog.close();
-	spiritTraceLog.open("txt_emptysection_traces.xml");
-
-	BOOST_REQUIRE(spiritTraceLog);
-
 	map::Txt txt;
 	std::basic_stringstream<byte> sstream;
 	sstream << myTxt;
@@ -315,10 +298,6 @@ BOOST_AUTO_TEST_CASE(EmptySection)
  */
 BOOST_AUTO_TEST_CASE(WorldEditStrings)
 {
-	spiritTraceLog.close();
-	spiritTraceLog.open("txttest_worldeditstrings_traces.xml");
-
-	BOOST_REQUIRE(spiritTraceLog);
 
 	ifstream in("WorldEditStrings.txt");
 
@@ -349,11 +328,6 @@ BOOST_AUTO_TEST_CASE(WorldEditStrings)
 
 BOOST_AUTO_TEST_CASE(UnitEditorData)
 {
-	spiritTraceLog.close();
-	spiritTraceLog.open("txttest_uniteditordata_traces.xml");
-
-	BOOST_REQUIRE(spiritTraceLog);
-
 	ifstream in("UnitEditorData.txt");
 
 	BOOST_REQUIRE(in);
@@ -376,11 +350,6 @@ BOOST_AUTO_TEST_CASE(UnitEditorData)
 
 BOOST_AUTO_TEST_CASE(NeutralUnitFunc)
 {
-	spiritTraceLog.close();
-	spiritTraceLog.open("txttest_neutralunitfunc_traces.xml");
-
-	BOOST_REQUIRE(spiritTraceLog);
-
 	ifstream in("NeutralUnitFunc.txt");
 
 	BOOST_REQUIRE(in);
@@ -402,12 +371,8 @@ BOOST_AUTO_TEST_CASE(NeutralUnitFunc)
 }
 
 // has a comment starting with one single /: / Stuffed Penguin
-BOOST_AUTO_TEST_CASE(ItemFunc) {
-	spiritTraceLog.close();
-	spiritTraceLog.open("txttest_itemfunc_traces.xml");
-
-	BOOST_REQUIRE(spiritTraceLog);
-
+BOOST_AUTO_TEST_CASE(ItemFunc)
+{
 	ifstream in("ItemFunc.txt");
 
 	BOOST_REQUIRE(in);

@@ -19,38 +19,11 @@
  ***************************************************************************/
 
 #include <sstream>
-#include <iomanip>
 
-//#include <boost/spirit/include/phoenix.hpp>
-#include "../qi.hpp"
-
-#include <boost/spirit/include/support_multi_pass.hpp>
-#include <boost/spirit/include/classic_position_iterator.hpp> // for more detailed error information
-
-#include <boost/fusion/adapted/std_pair.hpp>
-#include <boost/fusion/include/adapt_struct.hpp>
-#include <boost/fusion/adapted/adt/adapt_adt.hpp>
-#include <boost/fusion/include/adapt_adt.hpp>
-
-#include <boost/spirit/include/phoenix_core.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_fusion.hpp>
-#include <boost/spirit/include/phoenix_stl.hpp>
-#include <boost/spirit/include/phoenix_bind.hpp>
-#include <boost/spirit/include/phoenix_scope.hpp>
-#include <boost/spirit/include/phoenix_statement.hpp>
-#include <boost/spirit/include/phoenix_object.hpp>
-
-#include <boost/foreach.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
 #include "txt.hpp"
-
-// Only use in global namespace!
-BOOST_FUSION_ADAPT_STRUCT(
-	wc3lib::map::Txt::Section,
-	(wc3lib::string, name)
-	(wc3lib::map::Txt::Entries, entries)
-)
 
 namespace wc3lib
 {
@@ -58,349 +31,89 @@ namespace wc3lib
 namespace map
 {
 
-namespace client
-{
-
-namespace qi = boost::spirit::qi;
-namespace phoenix = boost::phoenix;
-namespace ascii = boost::spirit::ascii;
-namespace classic = boost::spirit::classic;
-
-/**
- * The Unicode namespace can be used for UTF-8 string and comments parsing in a TXT file.
- */
-namespace unicode = boost::spirit::qi::unicode;
-
-using boost::phoenix::ref;
-
-/*
- * Doesn't consume eols since value pairs are separated linewise which therefore can be specified easier in the rules
- */
-template<typename Iterator>
-struct CommentSkipper : public qi::grammar<Iterator>
-{
-	CommentSkipper() : CommentSkipper<Iterator>::base_type(skip, "comments and blanks")
-	{
-		using qi::lit;
-		using ascii::char_;
-		using ascii::blank;
-		using qi::eol;
-		using qi::eoi;
-		using qi::eps;
-
-		/*
-		 * Eat all lines which do not have a section or key.
-		 */
-		emptyline %=
-			// Units/ItemStrings.txt contains lines with no meaning
-			// Units/ItemFunc.txt has a comment starting with one single / (/ Stuffed Penguin)
-			+(unicode::char_ - lit('[') - lit('=') - eol)
-		;
-
-		/*
-		 * Comments may use UTF-8 characters.
-		 * Comments usually start with // but there are exceptions. The exceptions are caught by rule "emptyline"
-		 * This rule is only used in lines at the end.
-		 */
-		comment %=
-			lit("//") > *(unicode::char_ - eol)
-		;
-
-		emptylines %=
-			// do not consume the eol of the last empty line because it is the eol between all skipped empty lines and the first one
-			+(eol >> -(comment | emptyline) >> &eol)
-		;
-
-		skip %=
-			emptylines
-			| comment
-			| blank // check blank as last value
-		;
-
-		emptyline.name("emptyline");
-		moreemptylines.name("moreemptylines");
-		emptylines.name("emptylines");
-		comment.name("comment");
-		skip.name("skip");
-
-		BOOST_SPIRIT_DEBUG_NODES(
-			(emptyline)
-			(moreemptylines)
-			(emptylines)
-			(comment)
-			(skip)
-		);
-	}
-
-	qi::rule<Iterator> skip;
-	qi::rule<Iterator> emptyline;
-	qi::rule<Iterator> moreemptylines;
-	qi::rule<Iterator> emptylines;
-	qi::rule<Iterator> comment;
-};
-
-template <typename Iterator, typename Skipper = CommentSkipper<Iterator> >
-struct KeyValueSquence : qi::grammar<Iterator, Txt::Entries(), Skipper>
-{
-	KeyValueSquence() : KeyValueSquence::base_type(pairs, "key value sequence")
-	{
-		using qi::lit;
-		using qi::no_skip;
-		using ascii::char_;
-		using ascii::blank;
-		using qi::eol;
-		using qi::eoi;
-		using qi::eps;
-		using qi::_val;
-		using namespace qi::labels;
-		using phoenix::at_c;
-
-		// use only > for non backtracking expectations to get more specific error results
-
-		pairs %=
-			pair % qi::eol
-		;
-
-		pair =
-			key[at_c<0>(_val) = _1]
-			> lit('=')
-			> value[at_c<1>(_val) = _1]
-		;
-
-		key %=
-			+(unicode::char_ - lit('=') - lit('[') - qi::eol)
-		;
-
-		// values can be empty or all characters except eol which indicates the and of the value, eoi is the end of the stream and "//" starts a comment!
-		value %=
-			no_skip[
-				*(unicode::char_ - qi::eol - lit("//"))
-			]
-		;
-
-		/*
-		 * Define all names:
-		 */
-		pairs.name("pairs");
-		pair.name("pair");
-		key.name("key");
-		value.name("value");
-
-		BOOST_SPIRIT_DEBUG_NODES(
-			(pairs)
-			(pair)
-			(key)
-			(value)
-		);
-	}
-
-	qi::rule<Iterator, Txt::Entries(), Skipper> pairs; // NOTE first rule used as parameter for base_type does always need the skipper type of the grammar
-	qi::rule<Iterator, Txt::Entry(), Skipper> pair;
-	qi::rule<Iterator, string(), Skipper> key;
-	qi::rule<Iterator, string()> value; // only skip blanks at beginning and at the end
-};
-
-template <typename Iterator, typename Skipper = CommentSkipper<Iterator> >
-struct SectionGrammar : qi::grammar<Iterator, Txt::Section(), Skipper>
-{
-	SectionGrammar() : SectionGrammar::base_type(query, "section grammar")
-	{
-		using qi::lit;
-		using ascii::char_;
-		using ascii::blank;
-		using qi::eol;
-		using qi::eoi;
-		using qi::eps;
-		using qi::_val;
-		using phoenix::push_back;
-		using phoenix::new_;
-
-		query %=
-			name
-			>> -(qi::eol >> entries)
-		;
-
-		name %=
-			lit('[')
-			> char_("a-zA-Z_")
-			> *char_("a-zA-Z_0-9")
-			> lit(']')
-		;
-
-		entries %=
-			keyValueSequence
-		;
-
-		query.name("query");
-		name.name("name");
-		entries.name("entries");
-
-		BOOST_SPIRIT_DEBUG_NODES(
-			(query)
-			(name)
-			(entries)
-		);
-	}
-
-	qi::rule<Iterator, Txt::Section(), Skipper> query;
-	qi::rule<Iterator, string(), Skipper> name;
-	qi::rule<Iterator, Txt::Entries(), Skipper> entries;
-
-	KeyValueSquence<Iterator, Skipper> keyValueSequence;
-};
-
-/**
- * \ingroup parsers
- */
-template <typename Iterator, typename Skipper = CommentSkipper<Iterator> >
-struct TxtGrammar : qi::grammar<Iterator, Txt::Sections(), Skipper>
-{
-	TxtGrammar() : TxtGrammar::base_type(sections, "txt grammar")
-	{
-		using qi::lit;
-		using ascii::char_;
-		using ascii::blank;
-		using qi::lexeme;
-		using qi::byte_;
-		using qi::eol;
-		using qi::eoi;
-		using qi::eps;
-		using qi::_val;
-		using phoenix::push_back;
-		using phoenix::new_;
-
-		/*
-		 * https://en.wikipedia.org/wiki/Byte_order_mark
-		 * https://en.wikipedia.org/wiki/Byte_order_mark#UTF-8
-		 */
-		bomMarker %=
-			lexeme[
-				byte_(0xEF)
-				> byte_(0xBB)
-				> byte_(0xBF)
-			]
-		;
-
-		sections %=
-			-bomMarker
-			>> *eol // TODO do we have to consume eols at the beginning or does the skipper handle them?
-			>> (sectionGrammar % eol)
-			>> *eol
-		;
-
-		bomMarker.name("bom_marker");
-		sections.name("sections");
-
-		BOOST_SPIRIT_DEBUG_NODES(
-			(bomMarker)
-			(sections)
-		);
-	}
-
-	qi::rule<Iterator, Skipper> bomMarker;
-	qi::rule<Iterator, Txt::Sections(), Skipper> sections;
-
-	SectionGrammar<Iterator, Skipper> sectionGrammar;
-};
-
-template <typename Iterator>
-bool parse(Iterator first, Iterator last, Txt::Sections &sections)
-{
-	/*
-	 * Use static const instances to improve the performance.
-	 * But it has to be stateless: http://stackoverflow.com/questions/16918831/how-to-benchmark-boost-spirit-parser
-	 */
-	static const TxtGrammar<Iterator> grammar;
-	static const CommentSkipper<Iterator> commentSkipper;
-
-	bool r = boost::spirit::qi::phrase_parse(
-		first,
-		last,
-		grammar,
-		// comment skipper
-		commentSkipper,
-		sections //sections store into "sections"!
-	);
-
-	if (first != last) // fail if we did not get a full match
-	{
-		return false;
-	}
-
-	return r;
-}
-
-}
-
 std::streamsize Txt::read(InputStream &istream)
 {
-	typedef std::istreambuf_iterator<byte> IteratorType;
-	typedef boost::spirit::multi_pass<IteratorType> ForwardIteratorType;
+	std::streamsize size = 0;
+	std::string line;
+	Section section;
+	bool hasSection = false;
+	int l = 1;
 
-	ForwardIteratorType first = boost::spirit::make_default_multi_pass(IteratorType(istream));
-	ForwardIteratorType last;
+	while (std::getline(istream, line)) {
+		size += line.length();
 
-	// used for backtracking and more detailed error output
-	namespace classic = boost::spirit::classic;
-	typedef classic::position_iterator2<ForwardIteratorType> PositionIteratorType;
-	PositionIteratorType position_begin(first, last);
-	PositionIteratorType position_end;
-
-	try
-	{
-		if (!client::parse(position_begin, position_end, this->sections()))
-		{
-			throw Exception(_("Parsing error."));
+		// remove BOM marker
+		if (l == 1 && line.length() >= 3 && line[0] == '\xEF' && line[1] == '\xBB' && line[2] == '\xBF') {
+			line = line.substr(3);
 		}
-	}
-	catch (const boost::spirit::qi::expectation_failure<PositionIteratorType> &e)
-	{
-		const classic::file_position_base<std::string>& pos = e.first.get_position();
-		std::stringstream msg;
-		msg <<
-		"parse error at file " << pos.file <<
-		" line " << pos.line << " column " << pos.column << std::endl <<
-		"'" << e.first.get_currentline() << "'" << std::endl <<
-		std::setw(pos.column) << " " << "^- here";
 
-		throw Exception(msg.str());
+		// remove comment
+		std::size_t i = line.find("/"); // there seem to be broken comments like "/ Stuffed Penguin" in ItemFunc.txt so accept / instead of //
+
+		if (i != std::string::npos) {
+			line = line.substr(0, i);
+		}
+
+		// remove spaces after removing comment
+		boost::trim_if(line, boost::is_any_of(" ,\n,\r,\t"));
+
+		if (line.empty()) {
+			// skip empty
+		} else if (line.starts_with('[')) {
+			if (hasSection) {
+				m_sections.push_back(std::move(section));
+			}
+
+			section = Section();
+			boost::trim_if(line, boost::is_any_of("[,]")); // remove the brackets
+			section.name = line;
+			hasSection = true;
+		} else {
+			if (!hasSection) {
+				throw std::runtime_error((boost::format(_("Entry without section at line %1%: %2%.")) % l % line).str());
+			}
+
+			std::vector<string> r;
+			boost::split(r, line, boost::is_any_of("="));
+
+			if (r.size() < 2) {
+				throw std::runtime_error((boost::format(_("Invalid entry at line %1% with length %2%: %3%.")) % l % line.size() % line).str());
+			}
+
+			string key = r[0];
+			string value = r[1];
+			boost::trim(key);
+			boost::trim(value);
+
+			section.entries.push_back(Entry(std::move(key), std::move(value)));
+		}
+
+		++l;
 	}
 
-	return 0;
+	if (hasSection) {
+		m_sections.push_back(std::move(section));
+	}
+
+	return size;
 }
 
 std::streamsize Txt::write(OutputStream &ostream, bool useSpaces) const
 {
 	std::streamsize size = 0;
-	std::string out;
+	const string space = useSpaces ? " " : "";
+	string newLine = "";
 
-	BOOST_FOREACH(Sections::const_reference ref, sections())
+	for (auto ref : sections())
 	{
-		ostringstream osstream;
-		osstream << "[" << ref.name << "]\n";
-		out =  osstream.str();
-		wc3lib::writeString(ostream, out, size, out.length());
+		string sectionName = newLine + "[" + ref.name + "]";
+		newLine = "\n";
+		wc3lib::writeString(ostream, sectionName, size);
 
-		BOOST_FOREACH(Entries::const_reference keyValuePair, ref.entries)
+		for (auto keyValuePair : ref.entries)
 		{
-			osstream.str(""); // flush
-			osstream << keyValuePair.first;
-
-			if (useSpaces)
-			{
-				osstream << " ";
-			}
-
-			osstream << "=";
-
-			if (useSpaces)
-			{
-				osstream << " ";
-			}
-
-			osstream << keyValuePair.second << "\n";
-			out =  osstream.str();
-			wc3lib::writeString(ostream, out, size, out.length());
+			string keyValueEntry = newLine + keyValuePair.key() + space + "=" + space + keyValuePair.value();
+			wc3lib::writeString(ostream, keyValueEntry, size);
 		}
 	}
 
@@ -410,34 +123,3 @@ std::streamsize Txt::write(OutputStream &ostream, bool useSpaces) const
 }
 
 }
-
-namespace boost
-{
-
-namespace spirit
-{
-
-namespace traits
-{
-
-template <typename Out>
-struct print_attribute_debug<Out, wc3lib::map::Txt::Entry>
-{
-	static void call(Out& out, wc3lib::map::Txt::Entry const& val)
-	{
-		out << "key_value";
-	}
-};
-
-}
-
-}
-
-}
-
-BOOST_FUSION_ADAPT_ADT(
-	wc3lib::map::Txt::Entry,
-	(wc3lib::string, wc3lib::string, obj.key(), obj.setKey(val))
-	(wc3lib::string, wc3lib::string, obj.value(), obj.setValue(val))
-)
-

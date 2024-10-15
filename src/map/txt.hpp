@@ -151,6 +151,7 @@ class Txt : public Format
 
 		virtual std::streamsize read(InputStream &istream) override;
 		/**
+		 * Use the flag std::fstream::binary even when opening a string stream.
 		 * \param ostream The output stream where the TXT data is written to.
 		 * \param useSpaces If this value is true, whitespaces are used around the = character. Otherwise none are used. Whitespace characters around the = character might lead to errors (for example when generating the file "UI/TriggerData.txt").
 		 * \return Returns the number of written bytes.
