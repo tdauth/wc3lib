@@ -103,6 +103,7 @@ ObjectEditor::ObjectEditor(MpqPriorityList *source, const QString &organization,
 
 ObjectEditor::~ObjectEditor()
 {
+	writeSettings();
 }
 
 bool ObjectEditor::configure()
