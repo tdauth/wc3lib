@@ -43,32 +43,45 @@ bool MpqTreeProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
 	QVariant leftData = sourceModel->data(left, Qt::DisplayRole);
 	QVariant rightData = sourceModel->data(right, Qt::DisplayRole);
 
-	if (leftItem != 0 && rightItem != 0)
+	if (leftItem != nullptr && rightItem != nullptr)
 	{
 		// folders always have a higher priority than regular files
 		if (leftItem->isFolder() && !rightItem->isFolder())
 		{
+			//qDebug() << "Comparing names but left is folder" << leftItem->filePath().toUpper() << left.row() << rightItem->filePath().toUpper() << right.row();
+
 			return true;
 		}
 		else if (!leftItem->isFolder() && rightItem->isFolder())
 		{
+			//qDebug() << "Comparing names but right is folder" << leftItem->filePath().toUpper() << left.row() << rightItem->filePath().toUpper() << right.row();
+
 			return false;
 		}
+
+		// compare case insensitive otherwise big letters will be at a different position
+		//qDebug() << "Comparing names" << leftItem->name().toUpper() << left.row() << rightItem->name().toUpper() << right.row();
+		//qDebug() << "Comparing names" << leftItem->filePath().toUpper() << left.row() << rightItem->filePath().toUpper() << right.row();
+
+		//return QString::compare(leftItem->name(), rightItem->name(), Qt::CaseInsensitive);
+		return QString::compare(leftItem->filePath(), rightItem->filePath(), Qt::CaseInsensitive) < 0;
 	}
 	else
 	{
 		qDebug() << "Did not find one of the items.";
 	}
 
+	/*
 	if (leftData.type() == QVariant::String && rightData.type() == QVariant::String)
 	{
 		// compare case insensitive otherwise big letters will be at a different position
-		return leftData.toString().toUpper() < rightData.toString().toUpper();
+		return leftItem->name().toUpper() < rightItem->name().toUpper();
 	}
 	else
 	{
 		qDebug() << "No string data!";
 	}
+	*/
 
 	return QSortFilterProxyModel::lessThan(left, right);
 }

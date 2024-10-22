@@ -508,6 +508,7 @@ void MpqEditor::openArchive(mpq::Archive &archive, const QUrl &url, mpq::Listfil
 
 	// call after inserting data for better performance
 	this->m_archivesTreeView->setSortingEnabled(true);
+	this->m_archivesTreeView->sortByColumn(0, Qt::AscendingOrder);
 }
 
 void MpqEditor::newMpqArchive()
