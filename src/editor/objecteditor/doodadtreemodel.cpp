@@ -77,7 +77,9 @@ QModelIndex DoodadTreeModel::categoryIndex(ObjectData* objectData, const QString
 {
 	const QString category = objectData->fieldValue(originalObjectId, customObjectId, "dcat");
 
-	return this->index(m_categoryRows[category], 0, objectsIndex(objectData, originalObjectId, customObjectId));
+	const QString c = m_categoryRows.contains(category) ? category : "unknown";
+
+	return this->index(m_categoryRows[c], 0, objectsIndex(objectData, originalObjectId, customObjectId));
 }
 
 void DoodadTreeModel::createObjects(WarcraftIIIShared *shared)
@@ -116,6 +118,9 @@ void DoodadTreeModel::createCategories(WarcraftIIIShared* shared, int row, QMode
 			}
 		}
 	}
+
+	m_categoryRows.insert("unknown", names.size());
+	names << "unknown";
 
 	qDebug() << "Folders size " << names.size();
 

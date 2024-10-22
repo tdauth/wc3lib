@@ -77,7 +77,9 @@ QModelIndex DestructableTreeModel::categoryIndex(ObjectData* objectData, const Q
 {
 	const QString category = objectData->fieldValue(originalObjectId, customObjectId, "bcat");
 
-	return this->index(m_categoryRows[category], 0, objectsIndex(objectData, originalObjectId, customObjectId));
+	const QString c = m_categoryRows.contains(category) ? category : "unknown";
+
+	return this->index(m_categoryRows[c], 0, objectsIndex(objectData, originalObjectId, customObjectId));
 }
 
 void DestructableTreeModel::createObjects(WarcraftIIIShared *shared)
@@ -116,6 +118,9 @@ void DestructableTreeModel::createCategories(WarcraftIIIShared* shared, int row,
 			}
 		}
 	}
+
+	m_categoryRows.insert("unknown", names.size());
+	names << "unknown";
 
 	qDebug() << "Folders size " << names.size();
 
