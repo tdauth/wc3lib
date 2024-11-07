@@ -76,6 +76,7 @@ configure_file(TriggerData.txt TriggerData.txt COPYONLY) # Warcraft III
 configure_file(TriggerDataEx.txt TriggerDataEx.txt COPYONLY) # Warcraft III: The Frozen Throne
 configure_file(TriggerStrings.txt TriggerStrings.txt COPYONLY) # Warcraft III
 configure_file(WorldEditStrings.txt WorldEditStrings.txt COPYONLY) # The Frozen Throne "War3xlocal.mpq"
+configure_file(WorldEditData.txt WorldEditData.txt COPYONLY) # The Frozen Throne "War3Patch.mpq"
 configure_file(UnitAbilities.slk UnitAbilities.slk COPYONLY) # Reign of Chaos "war3.mpq"
 configure_file(UnitBalance.slk UnitBalance.slk COPYONLY) # Reign of Chaos "war3.mpq"
 configure_file(UnitData.slk UnitData.slk COPYONLY) # Reign of Chaos "war3.mpq"

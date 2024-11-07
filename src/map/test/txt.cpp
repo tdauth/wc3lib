@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE(TxtWriteTriggerDataTest)
 
 	txt.sections().clear(); // clear Txt for new read
 
-	//std::cout << "newly written:\n" << sstream.str() << std::endl;
+	std::cout << "newly written:\n" << sstream.str() << std::endl;
 
 	BOOST_REQUIRE_EQUAL(txt.sections().size(), 0);
 
@@ -324,6 +324,42 @@ BOOST_AUTO_TEST_CASE(WorldEditStrings)
 
 	std::cout << "WorldEditStrings.txt Duration: " << std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() << " ms" << std::endl;
 	std::cout << "WorldEditStrings.txt Duration: " << std::chrono::duration_cast<std::chrono::seconds>(duration).count() << " s" << std::endl;
+}
+
+BOOST_AUTO_TEST_CASE(WorldEditData)
+{
+
+	ifstream in("WorldEditData.txt");
+
+	BOOST_REQUIRE(in);
+
+	map::Txt txt;
+	bool valid = true;
+	const std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+
+	try
+	{
+		txt.read(in);
+	}
+	catch (Exception &e)
+	{
+		std::cerr << e.what() << std::endl;
+		valid = false;
+	}
+
+	BOOST_REQUIRE(valid);
+	BOOST_REQUIRE_EQUAL(txt.sections().size(), 38);
+	const map::Txt::Section &section = txt.sections()[0];
+	BOOST_REQUIRE_EQUAL(section.name, "MySection");
+	BOOST_REQUIRE_EQUAL(section.entries.size(), 2);
+	BOOST_REQUIRE_EQUAL(txt.sections()[0].entries[0].key(), "Hello");
+	BOOST_REQUIRE_EQUAL(txt.sections()[0].entries[0].value(), "23");
+
+	const std::chrono::high_resolution_clock::time_point finished = std::chrono::high_resolution_clock::now();
+	const std::chrono::high_resolution_clock::duration duration = finished - now;
+
+	std::cout << "WorldEditData.txt Duration: " << std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() << " ms" << std::endl;
+	std::cout << "WorldEditData.txt Duration: " << std::chrono::duration_cast<std::chrono::seconds>(duration).count() << " s" << std::endl;
 }
 
 BOOST_AUTO_TEST_CASE(UnitEditorData)
