@@ -106,6 +106,7 @@ TextureEditor::TextureEditor(MpqPriorityList *source, const QString &organizatio
 
 TextureEditor::~TextureEditor()
 {
+	writeSettings();
 }
 
 bool TextureEditor::configure()

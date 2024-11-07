@@ -84,6 +84,8 @@ ModelEditor::~ModelEditor()
 {
 	hideCollisionShapes();
 	closeAllFiles();
+
+	writeSettings();
 }
 
 void ModelEditor::show()
