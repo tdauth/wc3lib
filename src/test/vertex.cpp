@@ -43,108 +43,108 @@ BOOST_AUTO_TEST_CASE(Vertex2dTest)
 	vertex[0] = 1;
 	vertex[1] = 2;
 
-	BOOST_CHECK(vertex.x() == 1);
-	BOOST_CHECK(vertex.y() == 2);
+	BOOST_CHECK_EQUAL(vertex.x(), 1);
+	BOOST_CHECK_EQUAL(vertex.y(), 2);
 
 	stringstream sstream(std::ios::in | std::ios::out | std::ios::binary);
 	const std::streamsize writtenSize = vertex.write(sstream);
 	const std::streamsize expectedSize = 2 * sizeof(int32) * sizeof(byte);
 
-	BOOST_REQUIRE(expectedSize == endPosition(sstream));
-	BOOST_REQUIRE(expectedSize == writtenSize);
+	BOOST_REQUIRE_EQUAL(expectedSize, endPosition(sstream));
+	BOOST_REQUIRE_EQUAL(expectedSize, writtenSize);
 
 	Vertex2d<int32> result;
 
-	BOOST_REQUIRE(result.size() == 2);
+	BOOST_REQUIRE_EQUAL(result.size(), 2);
 
 	sstream.seekg(0);
 
-	BOOST_REQUIRE(sstream.tellg() == 0);
+	BOOST_REQUIRE_EQUAL(sstream.tellg(), 0);
 
 	const std::streamsize readSize = result.read(sstream);
 
 	BOOST_REQUIRE(sstream);
-	BOOST_CHECK(readSize == expectedSize);
-	BOOST_CHECK(result == vertex);
-	BOOST_CHECK(result[0] == vertex[0]);
-	BOOST_CHECK(result[1] == vertex[1]);
+	BOOST_CHECK_EQUAL(readSize, expectedSize);
+	BOOST_CHECK_EQUAL(result, vertex);
+	BOOST_CHECK_EQUAL(result[0],vertex[0]);
+	BOOST_CHECK_EQUAL(result[1], vertex[1]);
 }
 
 BOOST_AUTO_TEST_CASE(Vertex3dTest)
 {
 	Vertex3d<int32> vertex;
 
-	BOOST_REQUIRE(vertex.size() == 3);
+	BOOST_REQUIRE_EQUAL(vertex.size(), 3);
 
 	vertex[0] = 1;
 	vertex[1] = 2;
 	vertex[2] = 3;
 
-	BOOST_CHECK(vertex.x() == 1);
-	BOOST_CHECK(vertex.y() == 2);
-	BOOST_CHECK(vertex.z() == 3);
+	BOOST_CHECK_EQUAL(vertex.x(), 1);
+	BOOST_CHECK_EQUAL(vertex.y(), 2);
+	BOOST_CHECK_EQUAL(vertex.z(), 3);
 
 	stringstream sstream(std::ios::in | std::ios::out | std::ios::binary);
 	const std::streamsize writtenSize = vertex.write(sstream);
 	const std::streamsize expectedSize = 3 * sizeof(int32) * sizeof(byte);
 
-	BOOST_REQUIRE(expectedSize == endPosition(sstream));
-	BOOST_REQUIRE(expectedSize == writtenSize);
+	BOOST_REQUIRE_EQUAL(expectedSize, endPosition(sstream));
+	BOOST_REQUIRE_EQUAL(expectedSize, writtenSize);
 
 	Vertex3d<int32> result;
 
-	BOOST_REQUIRE(result.size() == 3);
+	BOOST_REQUIRE_EQUAL(result.size(), 3);
 
 	sstream.seekg(0);
 
-	BOOST_REQUIRE(sstream.tellg() == 0);
+	BOOST_REQUIRE_EQUAL(sstream.tellg(), 0);
 
 	const std::streamsize readSize = result.read(sstream);
 
-	BOOST_CHECK(readSize == expectedSize);
-	BOOST_CHECK(result == vertex);
-	BOOST_CHECK(result[0] == vertex[0]);
-	BOOST_CHECK(result[1] == vertex[1]);
-	BOOST_CHECK(result[2] == vertex[2]);
+	BOOST_CHECK_EQUAL(readSize, expectedSize);
+	BOOST_CHECK_EQUAL(result, vertex);
+	BOOST_CHECK_EQUAL(result[0], vertex[0]);
+	BOOST_CHECK_EQUAL(result[1], vertex[1]);
+	BOOST_CHECK_EQUAL(result[2], vertex[2]);
 }
 
 BOOST_AUTO_TEST_CASE(QuaternionTest)
 {
 	Quaternion<int32> quaternion;
 
-	BOOST_REQUIRE(quaternion.size() == 4);
+	BOOST_REQUIRE_EQUAL(quaternion.size(), 4);
 
 	quaternion[0] = 1;
 	quaternion[1] = 2;
 	quaternion[2] = 3;
 	quaternion[3] = 4;
 
-	BOOST_CHECK(quaternion.a() == 1);
-	BOOST_CHECK(quaternion.b() == 2);
-	BOOST_CHECK(quaternion.c() == 3);
-	BOOST_CHECK(quaternion.d() == 4);
+	BOOST_CHECK_EQUAL(quaternion.a(), 1);
+	BOOST_CHECK_EQUAL(quaternion.b(), 2);
+	BOOST_CHECK_EQUAL(quaternion.c(), 3);
+	BOOST_CHECK_EQUAL(quaternion.d(), 4);
 
 	stringstream sstream(std::ios::in | std::ios::out | std::ios::binary);
 	const std::streamsize writtenSize = quaternion.write(sstream);
 	const std::streamsize expectedSize = 4 * sizeof(int32) * sizeof(byte);
 
-	BOOST_REQUIRE(expectedSize == endPosition(sstream));
-	BOOST_REQUIRE(expectedSize == writtenSize);
+	BOOST_REQUIRE_EQUAL(expectedSize, endPosition(sstream));
+	BOOST_REQUIRE_EQUAL(expectedSize, writtenSize);
 
 	Quaternion<int32> result;
 
-	BOOST_REQUIRE(result.size() == 4);
+	BOOST_REQUIRE_EQUAL(result.size(), 4);
 
 	sstream.seekg(0);
 
-	BOOST_REQUIRE(sstream.tellg() == 0);
+	BOOST_REQUIRE_EQUAL(sstream.tellg(), 0);
 
 	const std::streamsize readSize = result.read(sstream);
 
-	BOOST_CHECK(readSize == expectedSize);
-	BOOST_CHECK(result == quaternion);
-	BOOST_CHECK(result[0] == quaternion[0]);
-	BOOST_CHECK(result[1] == quaternion[1]);
-	BOOST_CHECK(result[2] == quaternion[2]);
-	BOOST_CHECK(result[3] == quaternion[3]);
+	BOOST_CHECK_EQUAL(readSize, expectedSize);
+	BOOST_CHECK_EQUAL(result, quaternion);
+	BOOST_CHECK_EQUAL(result[0], quaternion[0]);
+	BOOST_CHECK_EQUAL(result[1], quaternion[1]);
+	BOOST_CHECK_EQUAL(result[2], quaternion[2]);
+	BOOST_CHECK_EQUAL(result[3], quaternion[3]);
 }
