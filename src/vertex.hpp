@@ -139,6 +139,24 @@ class Vertex2d : public BasicVertex<T, 2>
 		}
 };
 
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const Vertex2d<T>& v)
+{
+	return os << "Vertex2d[" << v.x() << "," << v.y() << "]";
+}
+
+template<typename T>
+bool operator==(const Vertex2d<T>& lhs, const Vertex2d<T>& rhs)
+{
+    return lhs.x() && rhs.x() && lhs.y() == rhs.y();
+}
+
+template<typename T>
+bool operator !=(const Vertex2d<T>& lhs, const Vertex2d<T>& rhs)
+{
+    return !(lhs == rhs);
+}
+
 /**
  * \brief Provides serialization for a three dimensional vertex.
  */
@@ -194,6 +212,24 @@ class Vertex3d : public BasicVertex<T, 3>
 		}
 };
 
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const Vertex3d<T>& v)
+{
+	return os << "Vertex3d[" << v.x() << "," << v.y() << "," << v.z() << "]";
+}
+
+template<typename T>
+bool operator==(const Vertex3d<T>& lhs, const Vertex3d<T>& rhs)
+{
+    return lhs.x() && rhs.x() && lhs.y() == rhs.y() && lhs.z() == rhs.z();
+}
+
+template<typename T>
+bool operator !=(const Vertex3d<T>& lhs, const Vertex3d<T>& rhs)
+{
+    return !(lhs == rhs);
+}
+
 /**
  * \brief Provides serialization for a quaternion.
  */
@@ -239,6 +275,24 @@ class Quaternion : public BasicVertex<T, 4>
 			return this->m_array[3];
 		}
 };
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const Quaternion<T>& v)
+{
+	return os << "Quaternion[" << v.a() << "," << v.b() << "," << v.c() << "," << v.d() << "]";
+}
+
+template<typename T>
+bool operator==(const Quaternion<T>& lhs, const Quaternion<T>& rhs)
+{
+    return lhs.a() && rhs.a() && lhs.b() == rhs.b() && lhs.c() == rhs.c() && lhs.d() == rhs.d();
+}
+
+template<typename T>
+bool operator !=(const Quaternion<T>& lhs, const Quaternion<T>& rhs)
+{
+    return !(lhs == rhs);
+}
 
 }
 
