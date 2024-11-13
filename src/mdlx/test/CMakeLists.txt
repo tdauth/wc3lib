@@ -4,13 +4,9 @@ endif ()
 
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
-add_executable(mdlfilereadtest mdlfilereadtest.cpp)
-target_link_libraries(mdlfilereadtest wc3libmdlx wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
-add_test(MdlFileReadTest mdlfilereadtest)
-
-add_executable(mdxfilereadtest mdxfilereadtest.cpp)
-target_link_libraries(mdxfilereadtest wc3libmdlx wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
-add_test(MdxFileReadTest mdxfilereadtest)
+add_executable(mdlxfiletest mdlxfiletest.cpp)
+target_link_libraries(mdlxfiletest wc3libmdlx wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
+add_test(MdlxFileTest mdlxfiletest)
 
 # MDL files are converted by MdlxConv
 configure_file(Alliance_Exp.mdl Alliance_Exp.mdl COPYONLY)

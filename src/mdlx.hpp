@@ -100,7 +100,6 @@ namespace wc3lib
 #include "mdlx/mdlx.hpp"
 #include "mdlx/mdlxanimatedproperties.hpp"
 #include "mdlx/mdlxanimatedproperty.hpp"
-#include "mdlx/mdxgrammarclient.hpp"
 #include "mdlx/model.hpp"
 #include "mdlx/node.hpp"
 #include "mdlx/object.hpp"

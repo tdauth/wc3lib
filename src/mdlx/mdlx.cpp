@@ -74,7 +74,7 @@ std::streamsize Mdlx::read(InputStream &istream)
 std::streamsize Mdlx::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
-	wc3lib::write(ostream, "MDLX", size, sizeof(char8_t) * 4);
+	wc3lib::write(ostream, "MDLX", size, sizeof(char8_t) * MDX_TAG_SIZE);
 
 	// VERS
 	writeMdxHeader(ostream, size, u8"VERS", sizeof(m_modelVersion));
@@ -83,7 +83,20 @@ std::streamsize Mdlx::write(OutputStream &ostream) const
 	// MODL
 	size += m_model.write(ostream);
 
-	// SEQS TODO Implement
+	// SEQS
+	auto p = skipMdxHeader(ostream);
+	std::streamsize sequencesSize = 0;
+
+	for (const Sequence &sequence : m_sequences)
+	{
+		sequencesSize += sequence.write(ostream);
+	}
+
+	auto p2 = ostream.tellp();
+	ostream.seekp(p);
+	writeMdxHeader(ostream, size, u8"SEQS", sequencesSize);
+	ostream.seekp(p2);
+	size += sequencesSize;
 
 	return size;
 }
