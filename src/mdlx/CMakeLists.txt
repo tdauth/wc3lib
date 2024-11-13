@@ -32,6 +32,7 @@ if (MDLX)
 		platform.hpp
 		ribbonemitter.hpp
 		sequence.hpp
+		soundtrack.hpp
 		texture.hpp
 		textureanimation.hpp
 	)
@@ -61,6 +62,7 @@ if (MDLX)
 		particleemitter2.cpp
 		ribbonemitter.cpp
 		sequence.cpp
+		soundtrack.cpp
 		texture.cpp
 		textureanimation.cpp
 	)

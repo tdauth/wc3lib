@@ -33,7 +33,7 @@ namespace mdlx
 /**
  * MDL tag "Layer".
  */
-class Layer
+class Layer : public Format
 {
 	public:
 		enum class FilterMode : long32
@@ -86,6 +86,12 @@ class Layer
 		void setTextureIds(const TextureIds &textureIds);
 		const TextureIds& textureIds() const;
 
+		virtual std::streamsize read(InputStream &istream, long32 version);
+		virtual std::streamsize write(OutputStream &ostream, long32 version) const;
+
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
+
 	protected:
 		FilterMode m_filterMode;
 		Shading m_shading;
@@ -93,8 +99,23 @@ class Layer
 		long32 m_tvertexAnimationId; // 0xFFFFFFFF if none
 		long32 m_coordinatesId;
 		float32 m_alpha; //(0(transparent)->1(opaque))
+
+		// version > 800
+		float32 m_emissiveGain;
+		VertexData m_fresnelColor;
+		float32 m_fresnelOpacity;
+		float32 m_fresnelTeamColor;
+
 		Alphas m_alphas; //(KMTA)
 		TextureIds m_textureIds; //(KMTF) // state is long not float
+
+		// version > 800
+		float32 m_kmteEmissiveGain; // (KMTE)
+
+		// version > 900
+		VertexData m_kfc3FresnelColor; // (KFC3)
+		float32 m_kfcaFresnelAlpha; // (KFCA)
+		float32 m_kftcFresnelTeamColor; // (KFTC)
 };
 
 inline constexpr bool operator&(Layer::FilterMode x, Layer::FilterMode y)
@@ -112,25 +133,39 @@ inline string Layer::filterMode(FilterMode filterMode)
 	switch (filterMode)
 	{
 		case FilterMode::None:
+		{
 			return "None";
+		}
 
 		case FilterMode::Transparent:
+		{
 			return "Transparent";
+		}
 
 		case FilterMode::Blend:
+		{
 			return "Blend";
+		}
 
 		case FilterMode::Additive:
+		{
 			return "Additive";
+		}
 
 		case FilterMode::AddAlpha:
+		{
 			return "AddAlpha";
+		}
 
 		case FilterMode::Modulate:
+		{
 			return "Modulate";
+		}
 
 		case FilterMode::Modulate2x:
+		{
 			return "Modulate2x";
+		}
 	}
 
 	return "";

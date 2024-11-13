@@ -28,6 +28,8 @@ namespace wc3lib
 namespace mdlx
 {
 
+const long32 Mdlx::tftVersion = 800;
+const long32 Mdlx::reforgedVersion = 901;
 const long32 Mdlx::currentVersion = 800;
 
 Mdlx::Mdlx() : m_modelVersion(currentVersion)
@@ -38,6 +40,7 @@ Mdlx::~Mdlx()
 {
 }
 
+// Based on information from https://www.hiveworkshop.com/threads/mdx-specifications.240487/
 std::streamsize Mdlx::read(InputStream &istream)
 {
 	std::streamsize size = 0;
@@ -45,41 +48,121 @@ std::streamsize Mdlx::read(InputStream &istream)
 	wc3lib::read(istream, tag, size);
 	expectMdxTag(istream, tag, u8"MDLX");
 
-	// VERS
-	MdxHeader versionHeader = readMdxHeader(istream, size, u8"VERS");
-	std::streamsize modelVersionSize = 0;
-	wc3lib::read(istream, m_modelVersion, modelVersionSize);
-	skipMdxHeaderEmptyBytes(istream, versionHeader, modelVersionSize);
-	size += modelVersionSize;
+	auto p = istream.tellg();
+	istream.seekg(0, std::ios::end);
+	auto end = istream.tellg();
+	istream.seekg(p);
 
-	// MODL
-	size += m_model.read(istream);
-
-	// SEQS
-	m_sequences.clear();
-	MdxHeader sequencesHeader = readMdxHeader(istream, size, u8"SEQS");
-
-	while (sequencesHeader.size > 0)
+	while (istream.tellg() < end)
 	{
-		Sequence sequence;
-		const std::streamsize s = sequence.read(istream);
-		sequencesHeader.size -= s;
-		size += s;
-		m_sequences.push_back(sequence);
-	}
+		p = istream.tellg();
+		MdxHeader header;
+		wc3lib::read(istream, header, size);
 
-	// GLBS
-	m_globalSequences.clear();
-	MdxHeader globalSequencesHeader = readMdxHeader(istream, size, u8"GLBS");
+		std::cerr << "Found tag " << header.readableTag() << " at position " << p << std::endl;
 
-	while (globalSequencesHeader.size > 0)
-	{
-		long32 globalSequence;
-		std::streamsize s = 0;
-		wc3lib::read(istream, globalSequence, s);
-		globalSequencesHeader.size -= s;
-		size += s;
-		m_globalSequences.push_back(globalSequence);
+		if (isMdxTag(header.tag, u8"VERS"))
+		{
+			std::cerr << "Before reading VERS with previous position " << p << std::endl;
+			std::streamsize modelVersionSize = 0;
+			wc3lib::read(istream, m_modelVersion, modelVersionSize);
+			skipMdxHeaderEmptyBytes(istream, header, modelVersionSize);
+			size += modelVersionSize;
+		}
+		else if (isMdxTag(header.tag, u8"MODL"))
+		{
+			std::cerr << "Before reading MODL with previous position " << p << std::endl;
+			istream.seekg(p);
+			size += m_model.read(istream);
+		}
+		else if (isMdxTag(header.tag, u8"SEQS"))
+		{
+			m_sequences.clear();
+
+			while (header.size > 0)
+			{
+				Sequence sequence;
+				const std::streamsize s = sequence.read(istream);
+				header.size -= s;
+				size += s;
+				m_sequences.push_back(sequence);
+			}
+		}
+		else if (isMdxTag(header.tag, u8"GLBS"))
+		{
+			m_globalSequences.clear();
+
+			while (header.size > 0)
+			{
+				long32 globalSequence = 0;
+				std::streamsize s = 0;
+				wc3lib::read(istream, globalSequence, s);
+				header.size -= s;
+				size += s;
+				m_globalSequences.push_back(globalSequence);
+			}
+		}
+		else if (isMdxTag(header.tag, u8"MTLS"))
+		{
+			m_materials.clear();
+
+			while (header.size > 0)
+			{
+				Material material;
+				const std::streamsize s = material.read(istream, m_modelVersion);
+				header.size -= s;
+				size += s;
+				m_materials.push_back(material);
+			}
+		}
+		else if (isMdxTag(header.tag, u8"TEXS"))
+		{
+			m_textures.clear();
+
+			while (header.size > 0)
+			{
+				Texture texture;
+				const std::streamsize s = texture.read(istream);
+				header.size -= s;
+				size += s;
+				m_textures.push_back(texture);
+			}
+		}
+		else if (isMdxTag(header.tag, u8"SNDS"))
+		{
+			// Note that this is here for completeness' sake.
+			// These objects were only used at some point before Warcraft 3 released.
+			m_soundTracks.clear();
+
+			while (header.size > 0)
+			{
+				SoundTrack soundTrack;
+				const std::streamsize s = soundTrack.read(istream);
+				header.size -= s;
+				size += s;
+				m_soundTracks.push_back(soundTrack);
+			}
+		}
+		else if (isMdxTag(header.tag, u8"PIVT"))
+		{
+			m_pivotPoints.clear();
+
+			while (header.size > 0)
+			{
+				VertexData pivotPoint;
+				const std::streamsize s = pivotPoint.read(istream);
+				header.size -= s;
+				size += s;
+				m_pivotPoints.push_back(pivotPoint);
+			}
+		}
+		else
+		{
+			std::cerr << "Unknown tag " << header.readableTag() << " at position " << istream.tellg() << std::endl;
+
+			// try the next byte as start
+			istream.seekg(p + std::ios:: pos_type(1));
+		}
 	}
 
 	return size;
@@ -88,7 +171,7 @@ std::streamsize Mdlx::read(InputStream &istream)
 std::streamsize Mdlx::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
-	wc3lib::write(ostream, "MDLX", size, sizeof(char8_t) * MDX_TAG_SIZE);
+	writeMdxTag(ostream, u8"MDLX", size);
 
 	// VERS
 	writeMdxHeader(ostream, size, u8"VERS", sizeof(m_modelVersion));
@@ -126,6 +209,66 @@ std::streamsize Mdlx::write(OutputStream &ostream) const
 	writeMdxHeader(ostream, size, u8"GLBS", globalSequencesSize);
 	ostream.seekp(p2);
 	size += globalSequencesSize;
+
+	// MTLS
+	p = skipMdxHeader(ostream);
+	std::streamsize materialsSize = 0;
+
+	for (const Material &material : m_materials)
+	{
+		materialsSize += material.write(ostream, m_modelVersion);
+	}
+
+	p2 = ostream.tellp();
+	ostream.seekp(p);
+	writeMdxHeader(ostream, size, u8"MTLS", materialsSize);
+	ostream.seekp(p2);
+	size += materialsSize;
+
+	// TEXS
+	p = skipMdxHeader(ostream);
+	std::streamsize texturesSize = 0;
+
+	for (const Texture &texture : m_textures)
+	{
+		texturesSize += texture.write(ostream);
+	}
+
+	p2 = ostream.tellp();
+	ostream.seekp(p);
+	writeMdxHeader(ostream, size, u8"TEXS", texturesSize);
+	ostream.seekp(p2);
+	size += texturesSize;
+
+	// SNDS
+	p = skipMdxHeader(ostream);
+	std::streamsize soundTracksSize = 0;
+
+	for (const SoundTrack &soundTrack : m_soundTracks)
+	{
+		soundTracksSize += soundTrack.write(ostream);
+	}
+
+	p2 = ostream.tellp();
+	ostream.seekp(p);
+	writeMdxHeader(ostream, size, u8"SNDS", soundTracksSize);
+	ostream.seekp(p2);
+	size += soundTracksSize;
+
+	// PIVT
+	p = skipMdxHeader(ostream);
+	std::streamsize pivotPointsSize = 0;
+
+	for (const VertexData &pivotPoint : m_pivotPoints)
+	{
+		pivotPointsSize += pivotPoint.write(ostream);
+	}
+
+	p2 = ostream.tellp();
+	ostream.seekp(p);
+	writeMdxHeader(ostream, size, u8"PIVT", pivotPointsSize);
+	ostream.seekp(p2);
+	size += pivotPointsSize;
 
 	return size;
 }

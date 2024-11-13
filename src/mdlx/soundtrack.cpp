@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2009 by Tamino Dauth                                    *
+ *   Copyright (C) 2024 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,7 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "texture.hpp"
+#include "soundtrack.hpp"
 
 namespace wc3lib
 {
@@ -26,26 +26,33 @@ namespace wc3lib
 namespace mdlx
 {
 
-Texture::Texture() : m_replaceableId(ReplaceableId::None), m_wrapping(Wrapping::None)
+SoundTrack::SoundTrack() : m_volume(0.0), m_pitch(0.0), m_flags(0)
 {
 }
 
-std::streamsize Texture::read(InputStream &istream)
+SoundTrack::~SoundTrack()
+{
+}
+
+std::streamsize SoundTrack::read(InputStream &istream)
 {
 	std::streamsize size = 0;
-	wc3lib::read(istream, m_replaceableId, size);
-	wc3lib::read(istream, m_texturePath, size, texturePathSize * sizeof(byte));
-	wc3lib::read(istream, m_wrapping, size);
+	wc3lib::read(istream, m_name, size, sizeof(byte) * nameSize);
+	wc3lib::read(istream, m_volume, size);
+	wc3lib::read(istream, m_pitch, size);
+	wc3lib::read(istream, m_flags, size);
 
 	return size;
 }
 
-std::streamsize Texture::write(OutputStream &ostream) const
+std::streamsize SoundTrack::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
-	wc3lib::write(ostream, m_replaceableId, size);
-	wc3lib::write(ostream, m_texturePath, size, texturePathSize * sizeof(byte));
-	wc3lib::write(ostream, m_wrapping, size);
+	auto p = ostream.tellp();
+	wc3lib::write(ostream, m_name, size, sizeof(byte) * nameSize);
+	wc3lib::write(ostream, m_volume, size);
+	wc3lib::write(ostream, m_pitch, size);
+	wc3lib::write(ostream, m_flags, size);
 
 	return size;
 }

@@ -32,7 +32,7 @@ namespace mdlx
 /**
  * MDL tag "Bitmap".
  */
-class Texture
+class Texture : public Format
 {
 	public:
 		enum class Wrapping : long32
@@ -43,7 +43,7 @@ class Texture
 			Both = 3
 		};
 
-		static const std::size_t texturePathSize = 0x100;
+		static const std::size_t texturePathSize = 260;
 
 		Texture();
 
@@ -55,14 +55,15 @@ class Texture
 		 * \return Returns ASCII texture path with length \ref texturePathSize.
 		 */
 		const byte* texturePath() const;
-		long32 unknown0() const;
 		void setWrapping(Wrapping wrapping);
 		Wrapping wrapping() const;
+
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
 	protected:
 		ReplaceableId m_replaceableId;
 		byte m_texturePath[texturePathSize]; //(0x100 bytes)
-		long32 m_unknown0; //(0)
 		Wrapping m_wrapping; //(1:WrapWidth;2:WrapHeight;3:Both)
 };
 
@@ -94,11 +95,6 @@ inline void Texture::setTexturePath(const string &texturePath)
 inline const char* Texture::texturePath() const
 {
 	return this->m_texturePath;
-}
-
-inline long32 Texture::unknown0() const
-{
-	return this->m_unknown0;
 }
 
 inline void Texture::setWrapping(Texture::Wrapping wrapping)

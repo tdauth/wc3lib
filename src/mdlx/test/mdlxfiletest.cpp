@@ -60,6 +60,8 @@ void verifyOrcExp(const Mdlx &model)
 	BOOST_CHECK_EQUAL(model.sequences()[0].name(), "Stand");
 	BOOST_CHECK_EQUAL(model.sequences()[1].name(), "Birth");
 	BOOST_CHECK_EQUAL(model.globalSequences().size(), 17);
+	BOOST_CHECK_EQUAL(model.textures().size(), 23);
+	BOOST_CHECK_EQUAL(model.materials().size(), 26);
 }
 
 }
@@ -90,6 +92,8 @@ BOOST_AUTO_TEST_CASE(Orc_Exp_Mdx)
 
 	verifyOrcExp(model);
 
+	BOOST_TEST_MESSAGE("Writing file Orc_Exp_out.mdx");
+
 	ofstream out("Orc_Exp_out.mdx");
 
 	BOOST_REQUIRE(out);
@@ -108,6 +112,10 @@ BOOST_AUTO_TEST_CASE(Orc_Exp_Mdx)
 	}
 
 	BOOST_REQUIRE(valid);
+
+	BOOST_TEST_MESSAGE("Reading file Orc_Exp_out.mdx");
+
+	std::cerr << "Read written file." << std::endl;
 
 	model = Mdlx();
 	valid = true;

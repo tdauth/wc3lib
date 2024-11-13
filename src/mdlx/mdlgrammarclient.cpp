@@ -1086,13 +1086,10 @@ MdlGrammar<Iterator, Skipper>::MdlGrammar() : MdlGrammar<Iterator, Skipper>::bas
 			amb_intensity[at_c<11>(_val) = _1]
 			| animated_amb_intensities[at_c<12>(_val) = _1]
 		)
-		/*
-		 * TODO this particular block leads to syntax error
 		>> -(
 			amb_color[at_c<13>(_val) = _1]
 			| animated_amb_colors[at_c<14>(_val) = _1]
 		)
-		*/
 		//>> -animated_visibilities[at_c<15>(_val) = _1]
 		//>> -animated_translations[at_c<16>(_val) = _1]
 		//>> -animated_rotations[at_c<17>(_val) = _1]

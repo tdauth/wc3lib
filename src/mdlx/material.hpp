@@ -33,9 +33,11 @@ namespace mdlx
 /**
  * MDL tag "Material".
  */
-class Material
+class Material : public Format
 {
 	public:
+		static const std::size_t shaderSize = 80;
+
 		enum class RenderMode : long32
 		{
 			ConstantColor = 1,
@@ -68,13 +70,25 @@ class Material
 		 */
 		void setRenderMode(RenderMode renderMode);
 		RenderMode renderMode() const;
+		void setShader(const string &shader);
+		void setShader(const byte shader[shaderSize]);
+		/**
+		 * \return Returns shader with constant length of \ref shaderSize.
+		 */
+		const byte* shader() const;
 		void setLayers(const Layers &layers);
 		const Layers& layers() const;
 
+		virtual std::streamsize read(InputStream &istream, long32 version);
+		virtual std::streamsize write(OutputStream &ostream, long32 version) const;
+
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
+
 	protected:
-		//long nbytesi;
 		long32 m_priorityPlane;
 		RenderMode m_renderMode;
+		byte m_shader[shaderSize];
 		Layers m_layers;
 };
 

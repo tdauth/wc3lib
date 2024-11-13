@@ -66,22 +66,27 @@ struct MdxHeader
 		assert(std::u8string(t).size() == MDX_TAG_SIZE);
 		std::memcpy(&tag, t, sizeof(char8_t) * MDX_TAG_SIZE);
 	}
+
+	std::string readableTag() const
+	{
+		char8_t r[MDX_TAG_SIZE + 1];
+		std::memcpy(&r, tag, sizeof(char8_t) * MDX_TAG_SIZE);
+		r[MDX_TAG_SIZE] = 0;
+
+		return std::string(reinterpret_cast<const char*>(r));
+	}
 };
+
+inline bool isMdxTag(const char8_t tag[MDX_TAG_SIZE], const char8_t *expected)
+{
+	return std::memcmp(tag, expected, MDX_TAG_SIZE) == 0;
+}
 
 inline void expectMdxTag(Format::InputStream &istream, const char8_t tag[MDX_TAG_SIZE], const char8_t *expected)
 {
-	if (std::memcmp(tag, expected, MDX_TAG_SIZE) != 0)
+	if (!isMdxTag(tag, expected))
     {
-		char e[5];
-		e[MDX_TAG_SIZE] = 0;
-		std::mbstate_t state;
-
-		for (std::size_t i = 0; i < MDX_TAG_SIZE; i++)
-		{
-			std::c8rtomb(&(e[i]), expected[i], &state);
-		}
-
-		throw std::runtime_error(std::string("Expected MDX tag ") + e + " at stream position " + std::to_string(istream.tellg()));
+		throw std::runtime_error(std::string("Expected MDX tag ") + reinterpret_cast<const char*>(expected) + " at stream position " + std::to_string(istream.tellg()));
 	}
 }
 
@@ -104,6 +109,16 @@ inline MdxHeader writeMdxHeader(Format::OutputStream &ostream, std::streamsize &
 	return header;
 }
 
+inline void skipMdxInclusiveEmptyBytes(Format::InputStream &istream, const long32 &inclusiveSize, const std::streamsize &size)
+{
+	const std::streamsize emptyBytes = inclusiveSize - size;
+
+    if (emptyBytes > 0)
+    {
+        istream.seekg(emptyBytes, std::ios_base::cur);
+    }
+}
+
 inline void skipMdxHeaderEmptyBytes(Format::InputStream &istream, const MdxHeader &header, const std::streamsize &size)
 {
 	const std::streamsize emptyBytes = header.size - size;
@@ -112,6 +127,18 @@ inline void skipMdxHeaderEmptyBytes(Format::InputStream &istream, const MdxHeade
     {
         istream.seekg(emptyBytes, std::ios_base::cur);
     }
+}
+
+inline void readMdxTag(Format::InputStream &istream, const char8_t *expectedTag, std::streamsize &size)
+{
+	char8_t tag[MDX_TAG_SIZE];
+	wc3lib::read(istream, tag, size, MDX_TAG_SIZE * sizeof(char8_t));
+	expectMdxTag(istream, tag, expectedTag);
+}
+
+inline void writeMdxTag(Format::OutputStream &ostream, const char8_t *tag, std::streamsize &size)
+{
+	wc3lib::write(ostream, tag, size, sizeof(char8_t) * MDX_TAG_SIZE);
 }
 
 inline Format::OutputStream::pos_type skipMdxHeader(Format::OutputStream &ostream)

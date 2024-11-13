@@ -28,6 +28,7 @@
 #include "sequence.hpp"
 #include "material.hpp"
 #include "texture.hpp"
+#include "soundtrack.hpp"
 #include "textureanimation.hpp"
 #include "geoset.hpp"
 #include "geosetanimation.hpp"
@@ -69,6 +70,7 @@ class Mdlx : public Format
 		typedef std::vector<long32> GlobalSequences;
 		typedef std::vector<Material> Materials;
 		typedef std::vector<Texture> Textures;
+		typedef std::vector<SoundTrack> SoundTracks;
 		typedef std::vector<TextureAnimation> TextureAnimations;
 		typedef std::vector<Geoset> Geosets;
 		typedef std::vector<GeosetAnimation> GeosetAnimations;
@@ -84,6 +86,8 @@ class Mdlx : public Format
 		typedef std::vector<Event> Events;
 		typedef std::vector<CollisionShape> CollisionShapes;
 
+		static const long32 tftVersion;
+		static const long32 reforgedVersion;
 		static const long32 currentVersion;
 
 		Mdlx();
@@ -99,6 +103,8 @@ class Mdlx : public Format
 		const GlobalSequences& globalSequences() const;
 		void setTextures(const Textures &textures);
 		const Textures& textures() const;
+		void setSoundTracks(const SoundTracks &soundTracks);
+		const SoundTracks& soundTracks() const;
 		void setMaterials(const Materials &materials);
 		const Materials& materials() const;
 		void setTextureAnimations(const TextureAnimations &textureAnimations);
@@ -130,6 +136,7 @@ class Mdlx : public Format
 		Sequences m_sequences;
 		GlobalSequences m_globalSequences;
 		Textures m_textures;
+		SoundTracks m_soundTracks;
 		Materials m_materials;
 		TextureAnimations m_textureAnimations;
 		Geosets m_geosets;
@@ -195,6 +202,16 @@ inline void Mdlx::setTextures(const Mdlx::Textures &textures)
 inline const Mdlx::Textures& Mdlx::textures() const
 {
 	return this->m_textures;
+}
+
+inline void Mdlx::setSoundTracks(const Mdlx::SoundTracks &soundTracks)
+{
+	this->m_soundTracks = soundTracks;
+}
+
+inline const Mdlx::SoundTracks& Mdlx::soundTracks() const
+{
+	return this->m_soundTracks;
 }
 
 inline void Mdlx::setMaterials(const Mdlx::Materials &materials)
