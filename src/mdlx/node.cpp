@@ -34,6 +34,44 @@ Node::~Node()
 {
 }
 
+std::streamsize Node::read(InputStream &istream)
+{
+	std::streamsize size = 0;
+	long32 inclusiveSize = 0;
+	wc3lib::read(istream, inclusiveSize, size);
+	wc3lib::read(istream, m_name, size, sizeof(byte) * nameSize);
+	wc3lib::read(istream, m_objectId, size);
+	wc3lib::read(istream, m_parentId, size);
+	wc3lib::read(istream, m_type, size);
+	size += m_translations.read(istream);
+	size += m_rotations.read(istream);
+	size += m_scalings.read(istream);
+
+	return size;
+}
+
+std::streamsize Node::write(OutputStream &ostream) const
+{
+    std::streamsize size = 0;
+	auto p = ostream.tellp();
+	wc3lib::write(ostream, m_name, size, sizeof(byte) * nameSize);
+	wc3lib::write(ostream, m_objectId, size);
+	wc3lib::write(ostream, m_parentId, size);
+	wc3lib::write(ostream, m_type, size);
+	size += m_translations.write(ostream);
+	size += m_rotations.write(ostream);
+	size += m_scalings.write(ostream);
+
+	const long32 inclusiveSize = size + sizeof(long32);
+	auto p2 = ostream.tellp();
+	ostream.seekp(p);
+	wc3lib::write(ostream, inclusiveSize, size);
+	ostream.seekp(p2);
+	ostream.seekp(sizeof(long32),  std::ios_base::cur);
+
+	return size;
+}
+
 }
 
 }

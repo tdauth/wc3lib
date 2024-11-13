@@ -153,9 +153,9 @@ void OgreMdlx::load()
 
 	if (isMdx)
 	{
-		this->source()->removeTempFile(tmpFile);
-
-		throw Exception(_("MDX is currently not supported."));
+		std::streamsize size = model->read(ifstream);
+		result = true;
+		qDebug() << "Read model from file" << tmpFile << "with bytes" << size;
 	}
 	else
 	{
@@ -183,7 +183,6 @@ void OgreMdlx::load()
 			{
 				m_nodes[ref.objectId()] = &ref;
 			}
-
 
 			BOOST_FOREACH(mdlx::Mdlx::Bones::const_reference ref, this->mdlx()->bones())
 			{

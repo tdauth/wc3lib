@@ -34,6 +34,35 @@ Model::~Model()
 {
 }
 
+std::streamsize Model::read(InputStream &istream)
+{
+	std::streamsize size = 0;
+    readMdxHeader(istream, size, u8"MODL");
+	wc3lib::read(istream, m_name, size, nameSize * sizeof(byte));
+    wc3lib::read(istream, m_animationFileName, size, animationFileNameSize * sizeof(byte));
+    size += m_bounds.read(istream);
+	wc3lib::read(istream, m_blendTime, size);
+
+	return size;
+}
+
+std::streamsize Model::write(OutputStream &ostream) const
+{
+	std::streamsize size = 0;
+    auto p = ostream.tellp();
+    ostream.seekp(sizeof(Header), std::ios_base::cur);
+	wc3lib::write(ostream, m_name, size, nameSize * sizeof(byte));
+    wc3lib::write(ostream, m_animationFileName, size, animationFileNameSize * sizeof(byte));
+    size += m_bounds.write(ostream);
+	wc3lib::write(ostream, m_blendTime, size);
+    auto p2 = ostream.tellp();
+    ostream.seekp(p);
+    writeMdxHeader(ostream, size, u8"MODL", size);
+    ostream.seekp(p2);
+
+	return size;
+}
+
 }
 
 }

@@ -22,6 +22,7 @@
 #define WC3LIB_MDLX_PLATFORM_HPP
 
 #include <iomanip>
+#include <cuchar>
 
 #include <boost/foreach.hpp>
 
@@ -49,6 +50,57 @@ typedef int16 short16; /// @todo undefined length?!
 typedef int32 long32;
 
 const long32 noneId = 0xFFFFFFFF;
+
+/**
+ * \brief Each chunk starts with a header that consists of the chunk tag and the chunk size in bytes, not including the size of the header itself.
+ */
+struct Header
+{
+	char8_t tag[4];
+	uint32 size;
+
+	void setTag(const char8_t *t)
+	{
+		assert(std::u8string(t).size() == 4);
+		std::memcpy(&tag, t, sizeof(char8_t) * 4);
+	}
+};
+
+inline void expectMdxTag(const char8_t tag[4], const char8_t *expected)
+{
+	if (std::memcmp(tag, expected, 4) != 0)
+    {
+		char e[5];
+		e[4] = 0;
+		std::mbstate_t state;
+
+		for (std::size_t i = 0; i < 4; i++)
+		{
+			std::c8rtomb(&(e[i]), expected[i], &state);
+		}
+
+		throw std::runtime_error(std::string("Expected MDX tag ") + e);
+	}
+}
+
+inline Header readMdxHeader(Format::InputStream &istream, std::streamsize &sizeCounter, const char8_t *expectedTag)
+{
+	Header header;
+    wc3lib::read(istream, header, sizeCounter);
+	expectMdxTag(header.tag, expectedTag);
+
+	return header;
+}
+
+inline Header writeMdxHeader(Format::OutputStream &ostream, std::streamsize &sizeCounter, const char8_t *expectedTag, uint32 headerSize)
+{
+	Header header;
+	header.setTag(expectedTag);
+	header.size = headerSize;
+	wc3lib::write(ostream, header, sizeCounter);
+
+	return header;
+}
 
 /**
  * \defgroup animations MDX and MDL animations

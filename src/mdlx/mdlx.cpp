@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <cstring>
+
 #include "mdlx.hpp"
 
 namespace wc3lib
@@ -34,6 +36,30 @@ Mdlx::Mdlx() : m_modelVersion(currentVersion)
 
 Mdlx::~Mdlx()
 {
+}
+
+std::streamsize Mdlx::read(InputStream &istream)
+{
+	std::streamsize size = 0;
+	char8_t tag[4];
+	wc3lib::read(istream, tag, size);
+	expectMdxTag(tag, u8"MDLX");
+	readMdxHeader(istream, size, u8"VERS");
+	wc3lib::read(istream, m_modelVersion, size);
+    size += m_model.read(istream);
+
+	return size;
+}
+
+std::streamsize Mdlx::write(OutputStream &ostream) const
+{
+	std::streamsize size = 0;
+	wc3lib::write(ostream, "MDLX", size, sizeof(char8_t) * 4);
+	writeMdxHeader(ostream, size, u8"VERS", sizeof(m_modelVersion));
+	wc3lib::write(ostream, m_modelVersion, size);
+    size += m_model.write(ostream);
+
+	return size;
 }
 
 }

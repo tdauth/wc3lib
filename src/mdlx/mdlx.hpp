@@ -62,7 +62,7 @@ namespace mdlx
  * \todo OBJ == ?!
  * \todo KATV == float?!
  */
-class Mdlx
+class Mdlx : public Format
 {
 	public:
 		typedef std::vector<Sequence> Sequences;
@@ -119,7 +119,10 @@ class Mdlx
 		const RibbonEmitters& ribbonEmitters() const;
 		const Cameras& cameras() const;
 		const Events& events() const;
-		const CollisionShapes& collisionShapes() const;;
+		const CollisionShapes& collisionShapes() const;
+
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
 	protected:
 		long32 m_modelVersion;

@@ -32,7 +32,7 @@ namespace mdlx
 /**
  * Should be inherited by classes \ref Model, \ref Sequence, \ref Geoset and \ref Ganimation.
  */
-class Bounds
+class Bounds : public Format
 {
 	public:
 		Bounds();
@@ -44,6 +44,9 @@ class Bounds
 		const VertexData& minimumExtent() const;
 		void setMaximumExtent(const VertexData &vertexData);
 		const VertexData& maximumExtent() const;
+
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
 	protected:
 		float32 m_boundsRadius;

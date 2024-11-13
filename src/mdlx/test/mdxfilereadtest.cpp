@@ -45,18 +45,22 @@ BOOST_AUTO_TEST_CASE(Orc)
 
 	Mdlx model;
 	bool valid = true;
-	//std::size_t size = 0;
+	std::size_t size = 0;
 
 	try
 	{
 		// TODO parse via grammar
-		//size = model.readMdx(in);
+		size = model.read(in);
 	}
 	catch (Exception &e)
 	{
 		valid = false;
 		std::cerr << e.what() << std::endl;
 	}
+
+	std::cerr << "Model version: " << model.modelVersion() << std::endl;
+	std::cerr << "Model name: " << model.model().name() << std::endl;
+	std::cerr << "Model animation file name: " << model.model().animationFileName() << std::endl;
 
 	BOOST_REQUIRE(valid);
 

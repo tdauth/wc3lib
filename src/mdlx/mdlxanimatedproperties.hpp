@@ -65,7 +65,7 @@ namespace mdlx
  * \ingroup animations
  */
 template<typename std::size_t N = 3, typename _ValueType = float32>
-class MdlxAnimatedProperties
+class MdlxAnimatedProperties : public Format
 {
 	public:
 		static const std::size_t dimension = N;
@@ -82,6 +82,9 @@ class MdlxAnimatedProperties
 		bool hasGlobalSequence() const;
 		void setProperties(const Properties &properties);
 		const Properties& properties() const;
+
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
 	protected:
 		LineType m_lineType; //(0:don't interp;1:linear;2:hermite;3:bezier)
@@ -134,6 +137,36 @@ template<typename std::size_t N, typename _ValueType>
 inline const typename MdlxAnimatedProperties<N, _ValueType>::Properties& MdlxAnimatedProperties<N, _ValueType>::properties() const
 {
 	return this->m_properties;
+}
+
+template<typename std::size_t N, typename _ValueType>
+std::streamsize MdlxAnimatedProperties<N, _ValueType>::read(InputStream &istream)
+{
+	std::streamsize size = 0;
+	wc3lib::read(istream, m_lineType, size);
+	wc3lib::read(istream, m_globalSequenceId, size);
+
+	for (std::size_t i = 0; i < N; i++)
+	{
+		wc3lib::read(istream, m_properties[i], size);
+	}
+
+	return size;
+}
+
+template<typename std::size_t N, typename _ValueType>
+std::streamsize MdlxAnimatedProperties<N, _ValueType>::write(OutputStream &ostream) const
+{
+    std::streamsize size = 0;
+	wc3lib::write(ostream, m_lineType, size);
+	wc3lib::write(ostream, m_globalSequenceId, size);
+
+	for (std::size_t i = 0; i < N; i++)
+	{
+		wc3lib::write(ostream, m_properties[i], size);
+	}
+
+	return size;
 }
 
 typedef MdlxAnimatedProperties<1, float32> Alphas;

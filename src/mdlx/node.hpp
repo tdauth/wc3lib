@@ -40,7 +40,7 @@ namespace mdlx
  * \note MDLX format brings its own dynamic type system by saving the type of each node in its structure. Use \ref Node::type() to get an node's type.
  * \note Inclusive byte count is only related to the note structure itself (excluding any further chunk data).
  */
-class Node
+class Node : public Format
 {
 	public:
 		enum class Type : long32
@@ -100,6 +100,9 @@ class Node
 		bool inheritsTranslation() const;
 		bool inheritsRotation() const;
 		bool inheritsScaling() const;
+
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
 	protected:
 		byte m_name[nameSize];

@@ -33,10 +33,11 @@ namespace mdlx
  * MDX tag "MODL".
  * MDL tag "Model".
  */
-class Model
+class Model : public Format
 {
 	public:
-		static const std::size_t nameSize = 0x150;
+		static const std::size_t nameSize = 80;
+		static const std::size_t animationFileNameSize = 260;
 
 		Model();
 		virtual ~Model();
@@ -50,16 +51,20 @@ class Model
 		 * \return Returns name with size of \ref nameSize.
 		 */
 		const byte* name() const;
-		void setUnknown(long32 unknown);
-		long32 unknown() const;
+		/**
+		 * \return Returns name with size of \ref animationFileNameSize.
+		 */
+		const byte* animationFileName() const;
 		void setBlendTime(long32 blendTime);
 		long32 blendTime() const;
 
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
+
 	protected:
-		Bounds m_bounds;
-		//long nbytes;
 		byte m_name[nameSize];
-		long32 m_unknown;
+		byte m_animationFileName[animationFileNameSize];
+		Bounds m_bounds;
 		long32 m_blendTime;
 };
 
@@ -94,14 +99,9 @@ inline const byte* Model::name() const
 	return this->m_name;
 }
 
-inline void Model::setUnknown(long32 unknown)
+inline const byte* Model::animationFileName() const
 {
-	this->m_unknown = unknown;
-}
-
-inline long32 Model::unknown() const
-{
-	return this->m_unknown;
+	return this->m_animationFileName;
 }
 
 inline void Model::setBlendTime(long32 blendTime)
