@@ -30,6 +30,36 @@ Sequence::Sequence()
 {
 }
 
+std::streamsize Sequence::read(InputStream &istream)
+{
+	std::streamsize size = 0;
+	wc3lib::read(istream, m_name, size, nameSize * sizeof(byte));
+	wc3lib::read(istream, m_intervalStart, size);
+	wc3lib::read(istream, m_intervalEnd, size);
+	wc3lib::read(istream, m_moveSpeed, size);
+	wc3lib::read(istream, m_noLooping, size);
+	wc3lib::read(istream, m_rarity, size);
+	wc3lib::read(istream, m_syncPoint, size);
+	size += Bounds::read(istream);
+
+	return size;
+}
+
+std::streamsize Sequence::write(OutputStream &ostream) const
+{
+	std::streamsize size = 0;
+	wc3lib::write(ostream, m_name, size, nameSize * sizeof(byte));
+	wc3lib::write(ostream, m_intervalStart, size);
+	wc3lib::write(ostream, m_intervalEnd, size);
+	wc3lib::write(ostream, m_moveSpeed, size);
+	wc3lib::write(ostream, m_noLooping, size);
+	wc3lib::write(ostream, m_rarity, size);
+	wc3lib::write(ostream, m_syncPoint, size);
+	size += Bounds::write(ostream);
+
+	return size;
+}
+
 }
 
 }

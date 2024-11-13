@@ -41,12 +41,32 @@ Mdlx::~Mdlx()
 std::streamsize Mdlx::read(InputStream &istream)
 {
 	std::streamsize size = 0;
-	char8_t tag[4];
+	char8_t tag[MDX_TAG_SIZE];
 	wc3lib::read(istream, tag, size);
-	expectMdxTag(tag, u8"MDLX");
-	readMdxHeader(istream, size, u8"VERS");
-	wc3lib::read(istream, m_modelVersion, size);
-    size += m_model.read(istream);
+	expectMdxTag(istream, tag, u8"MDLX");
+
+	// VERS
+	MdxHeader versionHeader = readMdxHeader(istream, size, u8"VERS");
+	std::streamsize modelVersionSize = 0;
+	wc3lib::read(istream, m_modelVersion, modelVersionSize);
+	skipMdxHeaderEmptyBytes(istream, versionHeader, modelVersionSize);
+	size += modelVersionSize;
+
+	// MODL
+	size += m_model.read(istream);
+
+	// SEQS
+	m_sequences.clear();
+	MdxHeader sequencesHeader = readMdxHeader(istream, size, u8"SEQS");
+
+	while (sequencesHeader.size > 0)
+	{
+		Sequence sequence;
+		const std::streamsize s = sequence.read(istream);
+		sequencesHeader.size -= s;
+		size += s;
+		m_sequences.push_back(sequence);
+	}
 
 	return size;
 }
@@ -55,9 +75,15 @@ std::streamsize Mdlx::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	wc3lib::write(ostream, "MDLX", size, sizeof(char8_t) * 4);
+
+	// VERS
 	writeMdxHeader(ostream, size, u8"VERS", sizeof(m_modelVersion));
 	wc3lib::write(ostream, m_modelVersion, size);
-    size += m_model.write(ostream);
+
+	// MODL
+	size += m_model.write(ostream);
+
+	// SEQS TODO Implement
 
 	return size;
 }

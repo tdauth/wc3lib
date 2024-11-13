@@ -37,11 +37,14 @@ Model::~Model()
 std::streamsize Model::read(InputStream &istream)
 {
 	std::streamsize size = 0;
-    readMdxHeader(istream, size, u8"MODL");
-	wc3lib::read(istream, m_name, size, nameSize * sizeof(byte));
-    wc3lib::read(istream, m_animationFileName, size, animationFileNameSize * sizeof(byte));
-    size += m_bounds.read(istream);
-	wc3lib::read(istream, m_blendTime, size);
+	MdxHeader header = readMdxHeader(istream, size, u8"MODL");
+	std::streamsize modelSize = 0;
+	wc3lib::read(istream, m_name, modelSize, nameSize * sizeof(byte));
+	wc3lib::read(istream, m_animationFileName, modelSize, animationFileNameSize * sizeof(byte));
+	modelSize += m_bounds.read(istream);
+	wc3lib::read(istream, m_blendTime, modelSize);
+	skipMdxHeaderEmptyBytes(istream, header, modelSize);
+	size += modelSize;
 
 	return size;
 }
@@ -49,16 +52,15 @@ std::streamsize Model::read(InputStream &istream)
 std::streamsize Model::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
-    auto p = ostream.tellp();
-    ostream.seekp(sizeof(Header), std::ios_base::cur);
+	auto p = skipMdxHeader(ostream);
 	wc3lib::write(ostream, m_name, size, nameSize * sizeof(byte));
-    wc3lib::write(ostream, m_animationFileName, size, animationFileNameSize * sizeof(byte));
-    size += m_bounds.write(ostream);
+	wc3lib::write(ostream, m_animationFileName, size, animationFileNameSize * sizeof(byte));
+	size += m_bounds.write(ostream);
 	wc3lib::write(ostream, m_blendTime, size);
-    auto p2 = ostream.tellp();
-    ostream.seekp(p);
-    writeMdxHeader(ostream, size, u8"MODL", size);
-    ostream.seekp(p2);
+	auto p2 = ostream.tellp();
+	ostream.seekp(p);
+	writeMdxHeader(ostream, size, u8"MODL", size);
+	ostream.seekp(p2);
 
 	return size;
 }

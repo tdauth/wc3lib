@@ -1560,7 +1560,7 @@ BOOST_FUSION_ADAPT_ADT(
 	(wc3lib::float32, wc3lib::float32, obj.moveSpeed(), obj.setMoveSpeed(val))
 	(wc3lib::mdlx::long32, wc3lib::mdlx::long32, obj.noLooping(), obj.setNoLooping(val))
 	(wc3lib::float32, wc3lib::float32, obj.rarity(), obj.setRarity(val))
-	(wc3lib::mdlx::long32, wc3lib::mdlx::long32, obj.unknown0(), obj.setUnknown0(val))
+	(wc3lib::mdlx::long32, wc3lib::mdlx::long32, obj.syncPoint(), obj.setSyncPoint(val))
 )
 
 BOOST_FUSION_ADAPT_ADT(

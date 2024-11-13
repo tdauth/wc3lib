@@ -37,7 +37,7 @@ namespace mdlx
 class Sequence : public Bounds
 {
 	public:
-		static const std::size_t nameSize = 0x50;
+		static const std::size_t nameSize = 80;
 
 		Sequence();
 
@@ -57,13 +57,16 @@ class Sequence : public Bounds
 		long32 noLooping() const;
 		void setRarity(float32 rarity);
 		float32 rarity() const;
-		void setUnknown0(long32 unknown0);
-		long32 unknown0() const;
+		void setSyncPoint(long32 syncPoint);
+		long32 syncPoint() const;
 
 		/**
 		 * \return Returns the length of the sequence calculated by the interval.
 		 */
 		long32 length() const;
+
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
 	protected:
 		byte m_name[nameSize]; //(0x50 bytes)
@@ -71,7 +74,7 @@ class Sequence : public Bounds
 		float32 m_moveSpeed;
 		long32 m_noLooping; //(0:loop; 1:no loop)
 		float32 m_rarity;
-		long32 m_unknown0; //(0)
+		long32 m_syncPoint; //(0)
 
 };
 
@@ -140,14 +143,14 @@ inline float32 Sequence::rarity() const
 	return this->m_rarity;
 }
 
-inline void Sequence::setUnknown0(long32 unknown0)
+inline void Sequence::setSyncPoint(long32 syncPoint)
 {
-	this->m_unknown0 = unknown0;
+	this->m_syncPoint = syncPoint;
 }
 
-inline long32 Sequence::unknown0() const
+inline long32 Sequence::syncPoint() const
 {
-	return this->m_unknown0;
+	return this->m_syncPoint;
 }
 
 inline long32 Sequence::length() const

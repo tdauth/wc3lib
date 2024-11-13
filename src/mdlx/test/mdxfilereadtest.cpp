@@ -23,9 +23,6 @@
 #include <sstream>
 #include <iostream>
 
-//#include <boost/foreach.hpp>
-
-//#include "../../platform.hpp"
 #include "../platform.hpp"
 #include "../mdlx.hpp"
 #include "../mdxgrammarclient.hpp"
@@ -49,7 +46,6 @@ BOOST_AUTO_TEST_CASE(Orc)
 
 	try
 	{
-		// TODO parse via grammar
 		size = model.read(in);
 	}
 	catch (Exception &e)
@@ -58,14 +54,13 @@ BOOST_AUTO_TEST_CASE(Orc)
 		std::cerr << e.what() << std::endl;
 	}
 
-	std::cerr << "Model version: " << model.modelVersion() << std::endl;
-	std::cerr << "Model name: " << model.model().name() << std::endl;
-	std::cerr << "Model animation file name: " << model.model().animationFileName() << std::endl;
-
 	BOOST_REQUIRE(valid);
 
-	BOOST_REQUIRE(strcmp(model.model().name(), "Orc_Exp") == 0);
-	BOOST_REQUIRE(model.modelVersion() == 800);
+	BOOST_CHECK_EQUAL(model.model().name(), "Orc_Exp");
+	BOOST_CHECK_EQUAL(model.modelVersion(), 800);
+	BOOST_CHECK_EQUAL(model.sequences().size(), 2);
+	BOOST_CHECK_EQUAL(model.sequences()[0].name(), "Stand");
+	BOOST_CHECK_EQUAL(model.sequences()[1].name(), "Birth");
 	/*
 	 * Sequences 2 {
 	 * GlobalSequences 17 {

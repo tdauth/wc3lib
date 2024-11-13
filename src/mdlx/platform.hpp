@@ -51,55 +51,75 @@ typedef int32 long32;
 
 const long32 noneId = 0xFFFFFFFF;
 
+const std::size_t MDX_TAG_SIZE = 4;
+
 /**
  * \brief Each chunk starts with a header that consists of the chunk tag and the chunk size in bytes, not including the size of the header itself.
  */
-struct Header
+struct MdxHeader
 {
-	char8_t tag[4];
+	char8_t tag[MDX_TAG_SIZE];
 	uint32 size;
 
 	void setTag(const char8_t *t)
 	{
-		assert(std::u8string(t).size() == 4);
-		std::memcpy(&tag, t, sizeof(char8_t) * 4);
+		assert(std::u8string(t).size() == MDX_TAG_SIZE);
+		std::memcpy(&tag, t, sizeof(char8_t) * MDX_TAG_SIZE);
 	}
 };
 
-inline void expectMdxTag(const char8_t tag[4], const char8_t *expected)
+inline void expectMdxTag(Format::InputStream &istream, const char8_t tag[MDX_TAG_SIZE], const char8_t *expected)
 {
-	if (std::memcmp(tag, expected, 4) != 0)
+	if (std::memcmp(tag, expected, MDX_TAG_SIZE) != 0)
     {
 		char e[5];
-		e[4] = 0;
+		e[MDX_TAG_SIZE] = 0;
 		std::mbstate_t state;
 
-		for (std::size_t i = 0; i < 4; i++)
+		for (std::size_t i = 0; i < MDX_TAG_SIZE; i++)
 		{
 			std::c8rtomb(&(e[i]), expected[i], &state);
 		}
 
-		throw std::runtime_error(std::string("Expected MDX tag ") + e);
+		throw std::runtime_error(std::string("Expected MDX tag ") + e + " at stream position " + std::to_string(istream.tellg()));
 	}
 }
 
-inline Header readMdxHeader(Format::InputStream &istream, std::streamsize &sizeCounter, const char8_t *expectedTag)
+inline MdxHeader readMdxHeader(Format::InputStream &istream, std::streamsize &sizeCounter, const char8_t *expectedTag)
 {
-	Header header;
-    wc3lib::read(istream, header, sizeCounter);
-	expectMdxTag(header.tag, expectedTag);
+	MdxHeader header;
+	wc3lib::read(istream, header, sizeCounter);
+	expectMdxTag(istream, header.tag, expectedTag);
 
 	return header;
 }
 
-inline Header writeMdxHeader(Format::OutputStream &ostream, std::streamsize &sizeCounter, const char8_t *expectedTag, uint32 headerSize)
+inline MdxHeader writeMdxHeader(Format::OutputStream &ostream, std::streamsize &sizeCounter, const char8_t *expectedTag, uint32 headerSize)
 {
-	Header header;
+	MdxHeader header;
 	header.setTag(expectedTag);
 	header.size = headerSize;
 	wc3lib::write(ostream, header, sizeCounter);
 
 	return header;
+}
+
+inline void skipMdxHeaderEmptyBytes(Format::InputStream &istream, const MdxHeader &header, const std::streamsize &size)
+{
+	const std::streamsize emptyBytes = header.size - size;
+
+    if (emptyBytes > 0)
+    {
+        istream.seekg(emptyBytes, std::ios_base::cur);
+    }
+}
+
+inline Format::OutputStream::pos_type skipMdxHeader(Format::OutputStream &ostream)
+{
+	auto p = ostream.tellp();
+	ostream.seekp(sizeof(MdxHeader), std::ios_base::cur);
+
+	return p;
 }
 
 /**

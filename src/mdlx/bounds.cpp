@@ -41,18 +41,18 @@ std::streamsize Bounds::read(InputStream &istream)
 {
 	std::streamsize size = 0;
 	wc3lib::read(istream, m_boundsRadius, size);
-	wc3lib::read(istream, m_minimumExtent, size);
-	wc3lib::read(istream, m_maximumExtent, size);
+	size += m_minimumExtent.read(istream);
+	size += m_maximumExtent.read(istream);
 
 	return size;
 }
 
 std::streamsize Bounds::write(OutputStream &ostream) const
 {
-    std::streamsize size = 0;
+	std::streamsize size = 0;
 	wc3lib::write(ostream, m_boundsRadius, size);
-	wc3lib::write(ostream, m_minimumExtent, size);
-	wc3lib::write(ostream, m_maximumExtent, size);
+	size += m_minimumExtent.write(ostream);
+	size += m_maximumExtent.write(ostream);
 
 	return size;
 }
