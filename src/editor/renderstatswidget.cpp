@@ -37,13 +37,13 @@ RenderStatsWidget::RenderStatsWidget(class ModelView *modelView, QWidget *parent
 void RenderStatsWidget::update()
 {
 	const Ogre::RenderTarget *renderTarget = this->modelView()->viewPort()->getTarget();
-	this->m_bestFrameTimeLabel->setText(tr("Best frame time: %1").arg(renderTarget->getBestFrameTime()));
-	this->m_worstFrameTimeLabel->setText(tr("Worst frame time: %1").arg(renderTarget->getWorstFrameTime()));
-	this->m_triangleCountLabel->setText(tr("Triangle count: %1").arg(renderTarget->getTriangleCount()));
-	this->m_lastFpsLabel->setText(tr("Last FPS: %1").arg(renderTarget->getLastFPS()));
-	this->m_averageFpsLabel->setText(tr("Average FPS: %1").arg(renderTarget->getAverageFPS()));
-	this->m_bestFpsLabel->setText(tr("Best FPS: %1").arg(renderTarget->getBestFPS()));
-	this->m_worstFpsLabel->setText(tr("Worst FPS: %1").arg(renderTarget->getWorstFPS()));
+	this->m_bestFrameTimeLabel->setText(tr("Best frame time: %1").arg(renderTarget->getStatistics().bestFrameTime));
+	this->m_worstFrameTimeLabel->setText(tr("Worst frame time: %1").arg(renderTarget->getStatistics().worstFrameTime));
+	this->m_triangleCountLabel->setText(tr("Triangle count: %1").arg(renderTarget->getStatistics().	triangleCount));
+	this->m_lastFpsLabel->setText(tr("Last FPS: %1").arg(renderTarget->getStatistics().lastFPS));
+	this->m_averageFpsLabel->setText(tr("Average FPS: %1").arg(renderTarget->getStatistics().avgFPS));
+	this->m_bestFpsLabel->setText(tr("Best FPS: %1").arg(renderTarget->getStatistics().bestFPS));
+	this->m_worstFpsLabel->setText(tr("Worst FPS: %1").arg(renderTarget->getStatistics().worstFPS));
 }
 
 #include "moc_renderstatswidget.cpp"

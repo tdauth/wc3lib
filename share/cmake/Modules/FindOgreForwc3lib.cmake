@@ -14,7 +14,7 @@ else ()
 	message(WARNING "Did not find OGRE CMake module.")
 endif ()
 
-find_package(OGRE "1.9" COMPONENTS Paging Terrain REQUIRED)
+find_package(OGRE "1.12" COMPONENTS Paging Terrain REQUIRED)
 
 if (${OGRE_FOUND})
 	# SYSTEM suppresses all the warnings of OGRE

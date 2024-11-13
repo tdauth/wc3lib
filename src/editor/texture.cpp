@@ -249,7 +249,8 @@ void Texture::loadOgre()
 	{
 		OgrePtr ogreImage(new Ogre::Image());
 		BlpCodec codec;
-		Ogre::Codec::DecodeResult result(codec.decode(*m_blp.data()));
+		Ogre::Codec::DecodeResult result;
+		codec.decode(*m_blp.data(), result);
 		BlpCodec::ImageData *imageData((BlpCodec::ImageData*)(result.second.get()));
 		ogreImage->loadRawData((Ogre::DataStreamPtr&)result.first, imageData->width, imageData->height, imageData->depth, imageData->format, 1, boost::numeric_cast<std::size_t>(imageData->num_mipmaps));
 		// TODO check correct loading state, exception handling?

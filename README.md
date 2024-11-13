@@ -29,7 +29,7 @@ Options `EDITOR`, `USE_KIOSLAVE`, `USE_QBLP`, `USE_OGREBLP` and `USE_MIME`:
 * qt5-qtgui-devel
 * qt5-qtmultimedia-devel
 * kf5-kio-devel (only when the options `MPQ` and `USE_KIOSLAVE` are enabled)
-* OGRE 1.9.0 (only when the options `BLP` and `USE_OGREBLP` are enabled)
+* OGRE 1.12.0 (only when the options `BLP` and `USE_OGREBLP` are enabled)
 
 The editor module can be disabled by disabling the options `EDITOR`, `USE_KIOSLAVE`, `USE_QBLP`, `USE_OGREBLP` and `USE_MIME`.
 In this case only the core modules and command line tools will be available.

@@ -478,6 +478,12 @@ void ModelView::initRenderWindow()
 
 		return;
 	}
+	catch (const Ogre::InvalidStateException &exception) // cancel
+	{
+		QMessageBox::critical(this, tr("Error during render window creation with rendering engine OGRE."), exception.what());
+
+		return;
+	}
 
 	this->renderWindow()->setActive(true);
 	this->renderWindow()->setVisible(true);

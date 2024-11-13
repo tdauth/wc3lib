@@ -1489,7 +1489,7 @@ Ogre::Bone* OgreMdlx::createBone(const mdlx::Bone &bone, mdlx::long32 id)
 					//	throw Exception(boost::format(_("There's already a root bone in geoset %1%!")) % bone.geosetId());
 
 					//ogreBone = mesh->getSkeleton()->createBone((boost::format("%1%.Bone.%2%") % namePrefix().toStdString() % bone.name()).str().c_str(), boost::numeric_cast<unsigned short>(id));
-					ogreBone = mesh->getSkeleton()->getRootBone()->createChild(boost::numeric_cast<unsigned short>(id));
+					ogreBone = mesh->getSkeleton()->getRootBones()[0]->createChild(boost::numeric_cast<unsigned short>(id));
 					qDebug() << "Created bone " << id;
 				}
 				else

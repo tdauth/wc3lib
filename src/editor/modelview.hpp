@@ -92,24 +92,24 @@ class ModelView : public QWidget
 		 */
 		virtual void render();
 
-		virtual QSize sizeHint() const;
+		virtual QSize sizeHint() const override;
 
 		//virtual void paintEvent(QPaintEvent* event);
-		virtual void showEvent(QShowEvent *event);
-		virtual void resizeEvent(QResizeEvent *event);
+		virtual void showEvent(QShowEvent *event) override;
+		virtual void resizeEvent(QResizeEvent *event) override;
 		/**
 		 * Paint event response calles \ref render() automatically.
 		 */
-		virtual void paintEvent(QPaintEvent *event);
+		virtual void paintEvent(QPaintEvent *event) override;
 
 		// key events
-		virtual void keyPressEvent(QKeyEvent *event);
-		virtual void keyReleaseEvent(QKeyEvent *event);
-		virtual void wheelEvent(QWheelEvent *event);
+		virtual void keyPressEvent(QKeyEvent *event) override;
+		virtual void keyReleaseEvent(QKeyEvent *event) override;
+		virtual void wheelEvent(QWheelEvent *event) override;
 
-		virtual void mouseMoveEvent(QMouseEvent *event);
-		virtual void mousePressEvent(QMouseEvent *event);
-		virtual void mouseReleaseEvent(QMouseEvent *event);
+		virtual void mouseMoveEvent(QMouseEvent *event) override;
+		virtual void mousePressEvent(QMouseEvent *event) override;
+		virtual void mouseReleaseEvent(QMouseEvent *event) override;
 
 		/**
 		 * If there is no render window this member function initializes one which can be used by member function \ref renderWindow().

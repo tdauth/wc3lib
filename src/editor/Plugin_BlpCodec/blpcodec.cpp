@@ -62,18 +62,18 @@ Ogre::String BlpCodec::getDataType() const
 	return Ogre::String();
 }
 
-Ogre::DataStreamPtr BlpCodec::encode(Ogre::MemoryDataStreamPtr &input, CodecDataPtr &pData) const
+Ogre::DataStreamPtr BlpCodec::encode(const Ogre::Any &input) const
 {
 	OGRE_EXCEPT(Ogre::Exception::ERR_NOT_IMPLEMENTED, _("BLP encoding not supported"), "BlpCodec::code");
 }
 
-void BlpCodec::encodeToFile(Ogre::MemoryDataStreamPtr &input, const Ogre::String &outFileName, CodecDataPtr &pData) const
+void BlpCodec::encodeToFile(const Ogre::Any &input, const Ogre::String &outFileName) const
 {
 	OGRE_EXCEPT(Ogre::Exception::ERR_NOT_IMPLEMENTED, _("BLP encoding not supported"), "BlpCodec::codeToFile");
 }
 
 // TODO decode directly to paletted OGRE image if possible!
-BlpCodec::DecodeResult BlpCodec::decode(const blp::Blp &blp) const
+void BlpCodec::decode(const blp::Blp &blp, const Ogre::Any &output) const
 {
 	BlpCodec::ImageData* imgData = new BlpCodec::ImageData();
 	imgData->format = Ogre::PF_R8G8B8A8;
@@ -125,14 +125,14 @@ BlpCodec::DecodeResult BlpCodec::decode(const blp::Blp &blp) const
 		}
 	}
 
-	DecodeResult ret;
+	DecodeResult ret = output.get<DecodeResult>();
 	ret.first = pixelData;
 	ret.second = CodecDataPtr(imgData);
 
-	return ret;
+	//return ret;
 }
 
-BlpCodec::DecodeResult BlpCodec::decode(Ogre::DataStreamPtr &input) const
+void BlpCodec::decode(const Ogre::DataStreamPtr &input, const Ogre::Any &output) const
 {
 	boost::scoped_ptr<blp::Blp> blp(new blp::Blp());
 	boost::scoped_array<blp::char8> buffer(new blp::char8[input->size()]);
@@ -140,7 +140,7 @@ BlpCodec::DecodeResult BlpCodec::decode(Ogre::DataStreamPtr &input) const
 	iarraystream istream(buffer.get(), input->size());
 	blp->read(istream, 1); /// \todo Add MIP map support and do not only read the first MIP map!
 
-	return decode(*blp);
+	return decode(*blp, output);
 }
 
 Ogre::String BlpCodec::getType () const
@@ -148,18 +148,11 @@ Ogre::String BlpCodec::getType () const
 	return "blp";
 }
 
-bool BlpCodec::magicNumberMatch(const char *magicNumberPtr, size_t maxbytes) const
-{
-	if (maxbytes != 4)
-		return false;
-
-	return blp::Blp::hasFormat((blp::byte*)magicNumberPtr, maxbytes);
-}
-
 Ogre::String BlpCodec::magicNumberToFileExt(const char *magicNumberPtr, size_t maxbytes) const
 {
-	if (magicNumberMatch(magicNumberPtr, maxbytes))
+	if (maxbytes == 4 && blp::Blp::hasFormat((blp::byte*)magicNumberPtr, maxbytes)) {
 		return "blp";
+	}
 
 	return Ogre::StringUtil::BLANK;
 }

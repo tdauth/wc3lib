@@ -33,15 +33,15 @@ namespace editor
  * Define as static constants due to initialization order.
  */
 #ifdef DEBUG
- const char* Root::defaultOgreCfg = "ogre.cfg";
- const char* Root::defaultPluginsCfg = "plugins.cfg";
+ const char* Root::defaultOgreCfg = "./ogre.cfg";
+ const char* Root::defaultPluginsCfg = "./plugins.cfg";
 #else
 #ifdef Q_OS_UNIX
  const char* Root::defaultOgreCfg = "/usr/etc/wc3lib/ogre.cfg";
  const char* Root::defaultPluginsCfg = "/usr/etc/wc3lib/plugins.cfg";
 #else // TODO set Windows paths
- const char* Root::defaultOgreCfg = "ogre.cfg";
- const char* Root::defaultPluginsCfg = "plugins.cfg";
+ const char* Root::defaultOgreCfg = "./ogre.cfg";
+ const char* Root::defaultPluginsCfg = "./plugins.cfg";
 #endif
 #endif
 
@@ -66,12 +66,16 @@ bool Root::configure()
 {
 	// configure
 	// Show the configuration dialog and initialise the system
-	if(!restoreConfig())
-	{
-		return showConfigDialog();
-	}
+	//if(!restoreConfig())
+	//{
+		if (showConfigDialog(NULL)) {
+			initialise(false);
 
-	return true;
+			return true;
+		}
+	//}
+
+	return false;
 }
 
 }

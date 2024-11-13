@@ -1,7 +1,7 @@
 #!/bin/bash
 # Install all dependencies and build the binaries.
 # qtcreator is useful for building and developing wc3lib.
-sudo apt install cmake-qt-gui gettext libboost-all-dev libjpeg-dev libbz2-dev qtbase5-dev qtmultimedia5-dev qtcreator libogre-1.9-dev libkf5kdelibs4support-dev extra-cmake-modules doxygen
+sudo apt install cmake-qt-gui gettext libboost-all-dev libjpeg-dev libbz2-dev qtbase5-dev qtmultimedia5-dev qtcreator libogre-1.12-dev libkf5kdelibs4support-dev extra-cmake-modules doxygen
 SOURCE_DIR=$(pwd)
 mkdir ../wc3lib-build
 cd ../wc3lib-build
