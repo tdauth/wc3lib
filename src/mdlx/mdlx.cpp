@@ -68,6 +68,20 @@ std::streamsize Mdlx::read(InputStream &istream)
 		m_sequences.push_back(sequence);
 	}
 
+	// GLBS
+	m_globalSequences.clear();
+	MdxHeader globalSequencesHeader = readMdxHeader(istream, size, u8"GLBS");
+
+	while (globalSequencesHeader.size > 0)
+	{
+		long32 globalSequence;
+		std::streamsize s = 0;
+		wc3lib::read(istream, globalSequence, s);
+		globalSequencesHeader.size -= s;
+		size += s;
+		m_globalSequences.push_back(globalSequence);
+	}
+
 	return size;
 }
 
@@ -97,6 +111,21 @@ std::streamsize Mdlx::write(OutputStream &ostream) const
 	writeMdxHeader(ostream, size, u8"SEQS", sequencesSize);
 	ostream.seekp(p2);
 	size += sequencesSize;
+
+	// GLBS
+	p = skipMdxHeader(ostream);
+	std::streamsize globalSequencesSize = 0;
+
+	for (const long32 &globalSequence : m_globalSequences)
+	{
+		wc3lib::write(ostream, globalSequence, globalSequencesSize);
+	}
+
+	p2 = ostream.tellp();
+	ostream.seekp(p);
+	writeMdxHeader(ostream, size, u8"GLBS", globalSequencesSize);
+	ostream.seekp(p2);
+	size += globalSequencesSize;
 
 	return size;
 }

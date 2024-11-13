@@ -59,6 +59,7 @@ void verifyOrcExp(const Mdlx &model)
 	BOOST_CHECK_EQUAL(model.sequences().size(), 2);
 	BOOST_CHECK_EQUAL(model.sequences()[0].name(), "Stand");
 	BOOST_CHECK_EQUAL(model.sequences()[1].name(), "Birth");
+	BOOST_CHECK_EQUAL(model.globalSequences().size(), 17);
 }
 
 }
