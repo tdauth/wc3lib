@@ -143,12 +143,16 @@ template<typename std::size_t N, typename _ValueType>
 std::streamsize MdlxAnimatedProperties<N, _ValueType>::read(InputStream &istream)
 {
 	std::streamsize size = 0;
+	long32 count = 0;
+	wc3lib::read(istream, count, size);
 	wc3lib::read(istream, m_lineType, size);
 	wc3lib::read(istream, m_globalSequenceId, size);
+	m_properties.resize(count);
+	std::cerr << "Reading N " << count << std::endl;
 
-	for (std::size_t i = 0; i < N; i++)
+	for (long32 i = 0; i < count; i++)
 	{
-		wc3lib::read(istream, m_properties[i], size);
+		size += m_properties[i].read(istream, m_lineType);
 	}
 
 	return size;
@@ -157,13 +161,15 @@ std::streamsize MdlxAnimatedProperties<N, _ValueType>::read(InputStream &istream
 template<typename std::size_t N, typename _ValueType>
 std::streamsize MdlxAnimatedProperties<N, _ValueType>::write(OutputStream &ostream) const
 {
-    std::streamsize size = 0;
+	std::streamsize size = 0;
+	const long32 count = m_properties.size();
+	wc3lib::write(ostream, count, size);
 	wc3lib::write(ostream, m_lineType, size);
 	wc3lib::write(ostream, m_globalSequenceId, size);
 
-	for (std::size_t i = 0; i < N; i++)
+	for (std::size_t i = 0; i < m_properties.size(); i++)
 	{
-		wc3lib::write(ostream, m_properties[i], size);
+		size += m_properties[i].write(ostream, m_lineType);
 	}
 
 	return size;

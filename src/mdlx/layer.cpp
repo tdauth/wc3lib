@@ -52,25 +52,28 @@ std::streamsize Layer::read(InputStream &istream, long32 version)
 	}
 
 	auto p = istream.tellg();
-	MdxHeader header;
+	char8_t tag[MDX_TAG_SIZE];
 	std::streamsize headerSize = 0;
-	wc3lib::read(istream, header, headerSize);
+	std::cerr << "Reading header at " << istream.tellg() << std::endl;
+	wc3lib::read(istream, tag, headerSize);
 	bool foundOptional = false;
 
 	// seems optional
-	if (isMdxTag(header.tag, u8"KMTF"))
+	if (isMdxTag(tag, u8"KMTF"))
 	{
 		foundOptional = true;
 		size += headerSize;
 		size += m_textureIds.read(istream);
-		wc3lib::read(istream, header, headerSize);
+		std::cerr << "Reading header 2 at " << istream.tellg() << std::endl;
+		wc3lib::read(istream, tag, headerSize);
 	}
 
 	// seems optional
-	if (isMdxTag(header.tag, u8"KMTA"))
+	if (isMdxTag(tag, u8"KMTA"))
 	{
 		foundOptional = true;
 		size += headerSize;
+		std::cerr << "Reading alphas at " << istream.tellg() << std::endl;
 		size += m_alphas.read(istream);
 	}
 
@@ -124,11 +127,17 @@ std::streamsize Layer::write(OutputStream &ostream, long32 version) const
 		wc3lib::write(ostream, m_fresnelTeamColor, size);
 	}
 
-	writeMdxTag(ostream, u8"KMTF", size);
-	size += m_textureIds.write(ostream);
+	if (m_textureIds.properties().size() > 0)
+	{
+		writeMdxTag(ostream, u8"KMTF", size);
+		size += m_textureIds.write(ostream);
+	}
 
-	writeMdxTag(ostream, u8"KMTA", size);
-	size += m_alphas.write(ostream);
+	if (m_alphas.properties().size() > 0)
+	{
+		writeMdxTag(ostream, u8"KMTA", size);
+		size += m_alphas.write(ostream);
+	}
 
 	if (version > 800)
 	{

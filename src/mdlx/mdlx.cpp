@@ -53,7 +53,7 @@ std::streamsize Mdlx::read(InputStream &istream)
 	auto end = istream.tellg();
 	istream.seekg(p);
 
-	while (istream.tellg() < end)
+	while (istream && istream.tellg() < end)
 	{
 		p = istream.tellg();
 		MdxHeader header;
@@ -161,7 +161,16 @@ std::streamsize Mdlx::read(InputStream &istream)
 			std::cerr << "Unknown tag " << header.readableTag() << " at position " << istream.tellg() << std::endl;
 
 			// try the next byte as start
-			istream.seekg(p + std::ios:: pos_type(1));
+			if (istream.tellg() < end - std::ios::pos_type(1))
+			{
+				istream.seekg(p + std::ios:: pos_type(1));
+			}
+			else
+			{
+				std::cerr << "Reached the end " << end << " at " << istream.tellg() << std::endl;
+
+				break;
+			}
 		}
 	}
 

@@ -51,6 +51,10 @@ option(MPQ
 option(W3G
 	"Builds W3G module."
 	ON)
+CMAKE_DEPENDENT_OPTION(JSON
+	"JSON module supports converting all formats into JSON and from JSON."
+	ON
+	"BLP;MAP;MDLX" OFF)
 CMAKE_DEPENDENT_OPTION(EDITOR
 	"Wacraft III World Editor emulation is built (Qt5 is required, OGRE is only required when MDLX or USE_OGREBLP is enabled)."
 	ON

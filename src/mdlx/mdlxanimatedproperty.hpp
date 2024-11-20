@@ -43,7 +43,7 @@ namespace mdlx
  * \ingroup animations
  */
 template<typename std::size_t N = 3, typename _ValueType = float32>
-class MdlxAnimatedProperty
+class MdlxAnimatedProperty : public Format
 {
 	public:
 		static const std::size_t dimension = N;
@@ -62,6 +62,12 @@ class MdlxAnimatedProperty
 		const Values& inTan() const;
 		void setOutTan(const Values &outTan);
 		const Values& outTan() const;
+
+		virtual std::streamsize read(InputStream &istream, LineType lineType);
+		virtual std::streamsize write(OutputStream &ostream, LineType lineType) const;
+
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
 	protected:
 		long32 m_frame;
@@ -128,6 +134,50 @@ template<typename std::size_t N, typename _ValueType>
 inline const typename MdlxAnimatedProperty<N, _ValueType>::Values& MdlxAnimatedProperty<N, _ValueType>::outTan() const
 {
 	return m_outTan;
+}
+
+template<typename std::size_t N, typename _ValueType>
+std::streamsize MdlxAnimatedProperty<N, _ValueType>::read(InputStream &istream, LineType lineType)
+{
+	std::streamsize size = 0;
+	wc3lib::read(istream, m_frame, size);
+	size += m_values.read(istream);
+
+	if (lineType > LineType::Linear)
+	{
+		size += m_inTan.read(istream);
+		size += m_outTan.read(istream);
+	}
+
+	return size;
+}
+
+template<typename std::size_t N, typename _ValueType>
+std::streamsize MdlxAnimatedProperty<N, _ValueType>::write(OutputStream &ostream, LineType lineType) const
+{
+    std::streamsize size = 0;
+	wc3lib::write(ostream, m_frame, size);
+	size += m_values.write(ostream);
+
+	if (lineType > LineType::Linear)
+	{
+		size += m_inTan.write(ostream);
+		size += m_outTan.write(ostream);
+	}
+
+	return size;
+}
+
+template<typename std::size_t N, typename _ValueType>
+std::streamsize MdlxAnimatedProperty<N, _ValueType>::read(InputStream &istream)
+{
+	return read(istream, LineType::DontInterpolate);
+}
+
+template<typename std::size_t N, typename _ValueType>
+std::streamsize MdlxAnimatedProperty<N, _ValueType>::write(OutputStream &ostream) const
+{
+    return write(ostream, LineType::DontInterpolate);
 }
 
 }
