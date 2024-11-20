@@ -32,53 +32,6 @@ namespace wc3lib
 namespace json
 {
 
-inline void writeJsonKeyObjectStart(Format::OutputStream &ostream)
-{
-	ostream << "{" << std::endl;
-}
-
-inline void writeJsonKeyObjectStart(Format::OutputStream &ostream, const string &key)
-{
-	ostream << '\"' << key << "\": {" << std::endl;
-}
-
-inline void writeJsonKeyObjectEnd(Format::OutputStream &ostream)
-{
-	ostream << "}" << std::endl;
-}
-
-inline void writeJsonKeyValue(Format::OutputStream &ostream, const string &key, const string &value)
-{
-	ostream << '\"' << key << "\": " << "\"" << value << "\"," << std::endl;
-}
-
-inline void writeJsonKeyValue(Format::OutputStream &ostream, const string &key, const mdlx::long32 &value)
-{
-	ostream << '\"' << key << "\": " << " " << value << "," << std::endl;
-}
-
-
-inline void writeJsonValue(Format::OutputStream &ostream, const float32 &value)
-{
-	ostream << value << "," << std::endl;
-}
-
-inline void writeJsonKeyValue(Format::OutputStream &ostream, const mdlx::Bounds &bounds)
-{
-    writeJsonKeyValue(ostream, "BoundsRadius", bounds.boundsRadius());
-    writeJsonKeyObjectStart(ostream, "MinimumExtent");
-    writeJsonValue(ostream, bounds.minimumExtent().x());
-    writeJsonValue(ostream, bounds.minimumExtent().y());
-    writeJsonValue(ostream, bounds.minimumExtent().z());
-    writeJsonKeyObjectEnd(ostream);
-    writeJsonKeyObjectStart(ostream, "MaximumExtent");
-    writeJsonValue(ostream, bounds.maximumExtent().x());
-    writeJsonValue(ostream, bounds.maximumExtent().y());
-    writeJsonValue(ostream, bounds.maximumExtent().z());
-    writeJsonKeyObjectEnd(ostream);
-}
-
-
 }
 
 }

@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(Orc_Exp_Mdx)
 
 	try
 	{
-		size = model.write(out);
+		size = jsonMdlx.write(out);
 	}
 	catch (Exception &e)
 	{

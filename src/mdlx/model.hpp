@@ -51,6 +51,8 @@ class Model : public Format
 		 * \return Returns name with size of \ref nameSize.
 		 */
 		const byte* name() const;
+		void setAnimationFileName(const string &name);
+		void setAnimationFileName(const byte name[animationFileNameSize]);
 		/**
 		 * \return Returns name with size of \ref animationFileNameSize.
 		 */
@@ -97,6 +99,22 @@ inline void Model::setName(const byte name[Model::nameSize])
 inline const byte* Model::name() const
 {
 	return this->m_name;
+}
+
+inline void Model::setAnimationFileName(const string &name)
+{
+	if (name.size() + 1 > Model::animationFileNameSize)
+	{
+		throw Exception();
+	}
+
+	memset(this->m_animationFileName, 0, animationFileNameSize); // init name with 0 bytes
+	memcpy(this->m_animationFileName, name.c_str(), name.size() + 1); // copy with 0 terminating string
+}
+
+inline void Model::setAnimationFileName(const byte name[Model::animationFileNameSize])
+{
+	memcpy(this->m_animationFileName, name, animationFileNameSize);
 }
 
 inline const byte* Model::animationFileName() const

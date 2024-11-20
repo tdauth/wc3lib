@@ -18,8 +18,41 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <boost/json.hpp>
+#include <boost/json/src.hpp>
+
 #include "mdlx.hpp"
 #include "platform.hpp"
+
+namespace wc3lib
+{
+
+namespace mdlx
+{
+
+wc3lib::mdlx::Model tag_invoke(const boost::json::value_to_tag<wc3lib::mdlx::Model>&, const boost::json::value &v) {
+    auto& o = v.as_object();
+
+    wc3lib::mdlx::Model r;
+    r.setName(value_to<std::string>(o.at("Name")));
+    r.setAnimationFileName(value_to<std::string>(o.at("AnimationFileName")));
+    r.setBlendTime(value_to<long32>(o.at("BlendTime")));
+
+    return r;
+}
+
+void tag_invoke(const boost::json::value_from_tag&, boost::json::value& v, const wc3lib::mdlx::Model &x)
+{
+    v = boost::json::object{
+        {"Name", x.name()},
+        {"AnimationFileName", x.animationFileName()},
+        {"BlendTime", x.blendTime()},
+    };
+}
+
+}
+
+}
 
 namespace wc3lib
 {
@@ -37,20 +70,14 @@ Mdlx::~Mdlx()
 
 std::streamsize Mdlx::read(InputStream &istream)
 {
+	auto v = boost::json::parse(istream);
+
 	return 0;
 }
 
 std::streamsize Mdlx::write(OutputStream &ostream) const
 {
-	writeJsonKeyObjectStart(ostream);
-    writeJsonKeyObjectStart(ostream, "Model");
-	writeJsonKeyValue(ostream, "Name", m_model->model().name());
-	writeJsonKeyValue(ostream, "AnimationFileName", m_model->model().animationFileName());
-	writeJsonKeyValue(ostream, "BlendTime", m_model->model().blendTime());
-    writeJsonKeyValue(ostream, m_model->model().bounds());
-    writeJsonKeyObjectStart(ostream, "MinimumExtent");
-    writeJsonKeyObjectEnd(ostream);
-    writeJsonKeyObjectEnd(ostream);
+    ostream << boost::json::value_from(m_model->model()) << std::endl;
 
     return 0;
 }
