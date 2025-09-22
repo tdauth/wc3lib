@@ -102,7 +102,7 @@ if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug" OR "${CMAKE_BUILD_TYPE}" STREQUAL "de
 		message(WARNING "Compiler does not support -Wall.")
 	endif ()
 else ()
-	message(STATUS "No debug mode, no -DDEBUG=1, no unit tests enabled.")
+	message(STATUS "No debug mode, no -DDEBUG=1, no unit tests enabled. CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
 endif ()
 
 # required for locale files - gettext
