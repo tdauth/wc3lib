@@ -25,7 +25,7 @@ if (MAP)
 
 	install(TARGETS wc3baseobjectchanger DESTINATION bin)
 
-	add_executable(wc3objectdataextractor wc3objectdataextractor)
+	add_executable(wc3objectdataextractor wc3objectdataextractor.cpp)
 	target_link_libraries(wc3objectdataextractor ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 	install(TARGETS wc3objectdataextractor DESTINATION bin)
@@ -35,12 +35,12 @@ if (MAP)
 
 	install(TARGETS wc3objectlevellimiter DESTINATION bin)
 
-	add_executable(wc3objectcompressor wc3objectcompressor)
+	add_executable(wc3objectcompressor wc3objectcompressor.cpp)
 	target_link_libraries(wc3objectcompressor ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 	install(TARGETS wc3objectcompressor DESTINATION bin)
 
-	add_executable(wc3objectquery wc3objectquery)
+	add_executable(wc3objectquery wc3objectquery.cpp)
 	target_link_libraries(wc3objectquery ${wc3lib_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 	install(TARGETS wc3objectquery DESTINATION bin)
