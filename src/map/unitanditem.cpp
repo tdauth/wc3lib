@@ -42,6 +42,7 @@ std::streamsize UnitAndItem::read(InputStream &istream)
 	wc3lib::read(istream, m_hitPoints, size);
 	wc3lib::read(istream, m_manaPoints, size);
 	wc3lib::read(istream, m_itemTableIndex, size);
+	// TODO Implement.
 
 	return size;
 }
@@ -62,6 +63,7 @@ std::streamsize UnitAndItem::write(OutputStream& ostream) const
 	wc3lib::write(ostream, hitPoints(), size);
 	wc3lib::write(ostream, manaPoints(), size);
 	wc3lib::write(ostream, itemTableIndex(), size);
+	// TODO Implement.
 
 	return size;
 }
