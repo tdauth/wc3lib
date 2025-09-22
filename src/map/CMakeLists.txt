@@ -39,6 +39,8 @@ if (MAP)
 		triggers.hpp
 		triggerstrings.hpp
 		txt.hpp
+		unitanditem.hpp
+		unitsanditems.hpp
 		value.hpp
 		variable.hpp
 		w3m.hpp
@@ -78,6 +80,8 @@ if (MAP)
 		triggers.cpp
 		triggerstrings.cpp
 		txt.cpp
+		unitanditem.cpp
+		unitsanditems.cpp
 		value.cpp
 		variable.cpp
 		w3m.cpp

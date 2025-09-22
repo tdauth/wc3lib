@@ -26,7 +26,7 @@ namespace wc3lib
 /**
  * \page mapsection Map module
  * Use this module to read, write and modify Warcraft III maps (*.w3m, *.w3x) which are represented by the classes \ref W3m and \ref W3x and campaigns (*.w3n) which are represented by the class \ref W3n and their corresponding files.
- * 
+ *
  * Lists of elements are stored as heap-allocated objects in std::vector<std::unique_ptr<T>> collections which will allow passing and filling them easier.
  * Previously, std::auto_ptr and <a href="https://www.boost.org/doc/libs/1_79_0/libs/ptr_container/doc/ptr_vector.html">Boost ptr_vector</a> were used.
  *
@@ -75,6 +75,8 @@ namespace wc3lib
 #include "map/triggers.hpp"
 #include "map/triggerstrings.hpp"
 #include "map/txt.hpp"
+#include "map/unitanditem.hpp"
+#include "map/unitsanditems.hpp"
 #include "map/variable.hpp"
 #include "map/w3m.hpp"
 #include "map/w3x.hpp"

@@ -44,6 +44,10 @@ add_executable(soundstest sounds.cpp)
 target_link_libraries(soundstest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
 add_test(NAME SoundsTest COMMAND soundstest)
 
+add_executable(unitsanditemstest unitsanditems.cpp)
+target_link_libraries(unitsanditemstest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
+add_test(NAME UnitsAndItemsTest COMMAND unitsanditemstest)
+
 configure_file(SkibisCastleTD/war3map.wts SkibisCastleTD/war3map.wts COPYONLY)
 add_executable(mapstringstest mapstrings.cpp)
 target_link_libraries(mapstringstest wc3libmap wc3libcore ${GETTEXT_LIBRARIES} ${Boost_LIBRARIES})
@@ -72,6 +76,7 @@ configure_file(customobjects.w3o customobjects.w3o COPYONLY) # The Frozen Throne
 configure_file(customobjectstpof.w3o customobjectstpof.w3o COPYONLY) # The Frozen Throne: The Power of Fire
 configure_file(reforged/war3map.w3u reforged/war3map.w3u COPYONLY) # Reforged: World of Warcraft Reforged
 configure_file(reforged/war3map.w3a reforged/war3map.w3a COPYONLY) # Reforged: World of Warcraft Reforged
+configure_file(reforged/war3map.doo reforged/war3map.doo COPYONLY) # Reforged: World of Warcraft Reforged
 configure_file(TriggerData.txt TriggerData.txt COPYONLY) # Warcraft III
 configure_file(TriggerDataEx.txt TriggerDataEx.txt COPYONLY) # Warcraft III: The Frozen Throne
 configure_file(TriggerStrings.txt TriggerStrings.txt COPYONLY) # Warcraft III
