@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.28.3)
 
 project(wc3lib)
 
@@ -101,6 +101,8 @@ if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug" OR "${CMAKE_BUILD_TYPE}" STREQUAL "de
 	else ()
 		message(WARNING "Compiler does not support -Wall.")
 	endif ()
+else ()
+	message(STATUS "No debug mode, no -DDEBUG=1, no unit tests enabled.")
 endif ()
 
 # required for locale files - gettext
