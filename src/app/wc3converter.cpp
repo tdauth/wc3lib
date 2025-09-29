@@ -66,7 +66,7 @@ class ConvFormat
 		static void append(const std::string &extension, const std::string &description, bool isBinary, const std::string &group)
 		{
 			std::unique_ptr<ConvFormat> format(new ConvFormat(extension, description, isBinary, group));
-			formats.insert(extension, format);
+			formats.insert(extension, std::move(format));
 		}
 
 		const std::string& extension() const
@@ -304,16 +304,24 @@ void convertObject(const boost::filesystem::path &path, wc3lib::ifstream &in, wc
 		throw wc3lib::Exception(boost::format(_("File \"%1%\" is not converted with a valid input format.\nUsed input format is %2%.")) % path.string() % inputFormat.extension());
 	}
 
-	if (outputFormat.extension() == "json")
+#ifdef JSON
+	const bool supportsJson = true;
+#else
+	const bool supportsJson = false;
+#endif
+
+	if (outputFormat.extension() == "json" && supportsJson)
 	{
+#ifdef JSON
 		out << "{" << std::endl;
 		out << "}" << std::endl;
-		std::streamsize bytes = 0; // mdlx->writeMdx(out);
+		std::streamsize bytes = mdlx->writeMdx(out);
 
 		if (verbose)
 		{
 			std::cout << boost::format(_("Wrote JSON file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
 		}
+#endif
 	}
 	else
 	{

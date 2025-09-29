@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2024 by Tamino Dauth                                    *
+ *   Copyright (C) 2025 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,66 +18,65 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#define BOOST_TEST_MODULE MdlxFileTest
-#include <boost/test/unit_test.hpp>
-#include <sstream>
-#include <iostream>
+#include <boost/json.hpp>
 
-#include "../platform.hpp"
-#include "../mdlx.hpp"
+#include "customobjects.hpp"
+#include "platform.hpp"
 
-#ifndef BOOST_TEST_DYN_LINK
-#error Define BOOST_TEST_DYN_LINK for proper definition of main function.
-#endif
-
-using namespace wc3lib;
-using namespace wc3lib::mdlx;
-
-BOOST_AUTO_TEST_CASE(Orc_Exp_Mdx)
+namespace wc3lib
 {
-	ifstream in("Orc_Exp.mdx");
 
-	BOOST_REQUIRE(in);
+namespace map
+{
 
-	wc3lib::mdlx::Mdlx model;
-	bool valid = true;
-	std::size_t size = 0;
+CustomObjects tag_invoke(const boost::json::value_to_tag<CustomObjects>&, const boost::json::value &v) {
+    auto& o = v.as_object();
 
-	try
-	{
-		size = model.read(in);
-	}
-	catch (const Exception &e)
-	{
-		valid = false;
-		std::cerr << e.what() << std::endl;
-	}
+    CustomObjects r(CustomObjects::Type::Units);
+    r.setType(static_cast<CustomObjects::Type>(value_to<int32>(o.at("type"))));
 
-	in.close();
+    return r;
+}
 
-	BOOST_REQUIRE(valid);
+void tag_invoke(const boost::json::value_from_tag&, boost::json::value& v, const CustomObjects &x)
+{
+    v = boost::json::object{
+        {"type", static_cast<int32>(x.type())},
+    };
+}
 
-	BOOST_TEST_MESSAGE("Writing file Orc_Exp_out.json");
+}
 
-	ofstream out("Orc_Exp_out.json");
+}
 
-	BOOST_REQUIRE(out);
+namespace wc3lib
+{
 
-	valid = true;
-	size = 0;
-	wc3lib::json::Mdlx jsonMdlx(&model);
+namespace json
+{
 
-	try
-	{
-		size = jsonMdlx.write(out);
-	}
-	catch (const Exception &e)
-	{
-		valid = false;
-		std::cerr << e.what() << std::endl;
-	}
+CustomObjects::CustomObjects(map::CustomObjects *customObjects) : m_customObjects(customObjects)
+{
+}
 
-	BOOST_REQUIRE(valid);
+CustomObjects::~CustomObjects()
+{
+}
 
-	BOOST_TEST_MESSAGE("Reading file Orc_Exp_out.json");
+std::streamsize CustomObjects::read(InputStream &istream)
+{
+	auto v = boost::json::parse(istream);
+
+	return 0;
+}
+
+std::streamsize CustomObjects::write(OutputStream &ostream) const
+{
+    ostream << boost::json::value_from(*m_customObjects) << std::endl;
+
+    return 0;
+}
+
+}
+
 }

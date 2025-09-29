@@ -18,7 +18,7 @@ if (WIN32)
 endif ()
 
 # regex is required for listfile in mpq module
-find_package(Boost COMPONENTS system filesystem serialization program_options iostreams regex REQUIRED)
+find_package(Boost COMPONENTS system filesystem serialization program_options iostreams regex json REQUIRED)
 
 link_directories(${Boost_LIBRARY_DIRS})
 message(STATUS "Gettext include dir: ${GETTEXT_INCLUDE_DIR}")

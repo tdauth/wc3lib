@@ -141,6 +141,7 @@ class CustomObjects : public CustomUnits
 		 * The copy constructor clones the custom objects of \p other.
 		 */
 		CustomObjects(const CustomObjects &other);
+		void setType(Type type);
 		Type type() const;
 
 		virtual const byte* fileName() const override;
@@ -200,6 +201,11 @@ inline void CustomObjects::Modification::setData(int32 data)
 inline int32 CustomObjects::Modification::data() const
 {
 	return this->m_data;
+}
+
+inline void CustomObjects::setType(CustomObjects::Type type)
+{
+	this->m_type = type;
 }
 
 inline CustomObjects::Type CustomObjects::type() const

@@ -19,7 +19,6 @@
  ***************************************************************************/
 
 #include <boost/json.hpp>
-#include <boost/json/src.hpp>
 
 #include "mdlx.hpp"
 #include "platform.hpp"

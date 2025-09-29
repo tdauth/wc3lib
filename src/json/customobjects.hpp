@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2024 by Tamino Dauth                                    *
+ *   Copyright (C) 2025 by Tamino Dauth                                    *
  *   tamino@cdauth.eu                                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,66 +18,33 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#define BOOST_TEST_MODULE MdlxFileTest
-#include <boost/test/unit_test.hpp>
-#include <sstream>
-#include <iostream>
+#ifndef WC3LIB_JSON_CUSTOMOBJECTS_HPP
+#define WC3LIB_JSON_CUSTOMOBJECTS_HPP
 
-#include "../platform.hpp"
-#include "../mdlx.hpp"
+#include "../format.hpp"
+#include "../map.hpp"
 
-#ifndef BOOST_TEST_DYN_LINK
-#error Define BOOST_TEST_DYN_LINK for proper definition of main function.
-#endif
-
-using namespace wc3lib;
-using namespace wc3lib::mdlx;
-
-BOOST_AUTO_TEST_CASE(Orc_Exp_Mdx)
+namespace wc3lib
 {
-	ifstream in("Orc_Exp.mdx");
 
-	BOOST_REQUIRE(in);
+namespace json
+{
 
-	wc3lib::mdlx::Mdlx model;
-	bool valid = true;
-	std::size_t size = 0;
+class CustomObjects : public Format
+{
+	public:
+		CustomObjects(map::CustomObjects *customObjects);
+		virtual ~CustomObjects();
 
-	try
-	{
-		size = model.read(in);
-	}
-	catch (const Exception &e)
-	{
-		valid = false;
-		std::cerr << e.what() << std::endl;
-	}
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
-	in.close();
+	protected:
+		map::CustomObjects *m_customObjects;
+};
 
-	BOOST_REQUIRE(valid);
-
-	BOOST_TEST_MESSAGE("Writing file Orc_Exp_out.json");
-
-	ofstream out("Orc_Exp_out.json");
-
-	BOOST_REQUIRE(out);
-
-	valid = true;
-	size = 0;
-	wc3lib::json::Mdlx jsonMdlx(&model);
-
-	try
-	{
-		size = jsonMdlx.write(out);
-	}
-	catch (const Exception &e)
-	{
-		valid = false;
-		std::cerr << e.what() << std::endl;
-	}
-
-	BOOST_REQUIRE(valid);
-
-	BOOST_TEST_MESSAGE("Reading file Orc_Exp_out.json");
 }
+
+}
+
+#endif
