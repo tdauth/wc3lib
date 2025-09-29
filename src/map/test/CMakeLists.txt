@@ -76,7 +76,7 @@ configure_file(customobjects.w3o customobjects.w3o COPYONLY) # The Frozen Throne
 configure_file(customobjectstpof.w3o customobjectstpof.w3o COPYONLY) # The Frozen Throne: The Power of Fire
 configure_file(reforged/war3map.w3u reforged/war3map.w3u COPYONLY) # Reforged: World of Warcraft Reforged
 configure_file(reforged/war3map.w3a reforged/war3map.w3a COPYONLY) # Reforged: World of Warcraft Reforged
-configure_file(reforged/war3map.doo reforged/war3map.doo COPYONLY) # Reforged: World of Warcraft Reforged
+configure_file(reforged/war3mapUnits.doo reforged/war3mapUnits.doo COPYONLY) # Reforged: World of Warcraft Reforged
 configure_file(TriggerData.txt TriggerData.txt COPYONLY) # Warcraft III
 configure_file(TriggerDataEx.txt TriggerDataEx.txt COPYONLY) # Warcraft III: The Frozen Throne
 configure_file(TriggerStrings.txt TriggerStrings.txt COPYONLY) # Warcraft III

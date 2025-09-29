@@ -37,7 +37,7 @@ using namespace wc3lib;
 
 BOOST_AUTO_TEST_CASE(UnitsAndItemsReadTest)
 {
-	std::ifstream in("reforged/war3map.doo");
+	std::ifstream in("reforged/war3mapUnits.doo");
 
 	map::UnitsAndItems unitsAndItems;
 	unitsAndItems.read(in);
