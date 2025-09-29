@@ -76,11 +76,37 @@ extern std::string iostateMessage(const std::ios_base::iostate &state);
  * \ingroup io
  */
 template<typename _CharT>
-inline void checkStream(std::basic_ios<_CharT> &stream)
+inline void checkStream(std::basic_istream<_CharT> &stream)
 {
 	if (!stream)
 	{
-		throw Exception(boost::str(boost::format(_("Stream error.\nExceptions \"%1%\".\nRD state: \"%2%\".")) % iostateMessage(stream.exceptions()) % iostateMessage(stream.rdstate())).c_str());
+		std::stringstream s;
+		s << stream.tellg();
+
+		throw Exception(boost::str(boost::format(_("Stream error.\nExceptions \"%1%\".\nRD state: \"%2%\".\nRead pos: \"%3%\".\nRead count: \"%4%\".")) % iostateMessage(stream.exceptions()) % iostateMessage(stream.rdstate()) % s.str().c_str() % stream.gcount()).c_str());
+	}
+}
+
+
+/**
+ * Checks an I/O stream for its state. If an error occured it throws an \ref Exception.
+ * Useful for checking streams during read processes to get immediate feedback via Exception Handling.
+ *
+ * \param stream I/O stream which is checked.
+ *
+ * \throws Exception This exception is thrown with a readable message which contains the state of the I/O stream.
+ *
+ * \ingroup io
+ */
+template<typename _CharT>
+inline void checkStream(std::basic_ostream<_CharT> &stream)
+{
+	if (!stream)
+	{
+		std::stringstream s;
+		s << stream.tellp();
+
+		throw Exception(boost::str(boost::format(_("Stream error.\nExceptions \"%1%\".\nRD state: \"%2%\".\nWrite pos: \"%3%\".")) % iostateMessage(stream.exceptions()) % iostateMessage(stream.rdstate()) % s.str().c_str()).c_str());
 	}
 }
 
@@ -144,7 +170,7 @@ inline std::basic_istream<_CharT>& readString(std::basic_istream<_CharT> &istrea
 	 * the string step by step in the most efficient way.
 	 * TODO The buffer can be limited to the size maxLength as we won't go any further.
 	 */
-	std::basic_stringstream<_CharT> sstream(std::ios::out | std::ios::binary);
+	std::basic_ostringstream<_CharT> sstream(std::ios::out | std::ios::binary);
 	std::size_t length = 0;
 	_CharT character = ' ';
 	bool finish = false;
