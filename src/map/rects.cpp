@@ -44,9 +44,9 @@ std::streamsize Rects::read(InputStream &istream)
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		std::auto_ptr<Rect> rect(new Rect());
+		std::unique_ptr<Rect> rect(new Rect());
 		size += rect->read(istream);
-		this->rects().push_back(rect);
+		this->rects().push_back(std::move(rect));
 	}
 
 	return size;

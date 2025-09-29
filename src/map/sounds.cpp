@@ -44,9 +44,9 @@ std::streamsize Sounds::read(InputStream& istream)
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		std::auto_ptr<Sound> ptr(new Sound());
+		std::unique_ptr<Sound> ptr(new Sound());
 		size += ptr->read(istream);
-		this->sounds().push_back(ptr);
+		this->sounds().push_back(std::move(ptr));
 	}
 
 	return size;

@@ -38,9 +38,9 @@ std::streamsize Trees::read(InputStream &istream)
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		std::auto_ptr<Tree> tree(new Tree());
+		std::unique_ptr<Tree> tree(new Tree());
 		size += tree->read(istream);
-		m_trees.push_back(tree);
+		m_trees.push_back(std::move(tree));
 	}
 
 	return size;
@@ -54,7 +54,9 @@ std::streamsize Trees::write(OutputStream &ostream) const
 	wc3lib::write(ostream, number, size);
 
 	BOOST_FOREACH(TreeContainer::const_reference tree, trees())
+	{
 		size += tree.write(ostream);
+	}
 
 	return size;
 }

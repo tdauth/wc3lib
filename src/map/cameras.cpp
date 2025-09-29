@@ -48,9 +48,9 @@ std::streamsize Cameras::read(InputStream &istream)
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		std::auto_ptr<Camera> cam(new Camera());
+		std::unique_ptr<Camera> cam(new Camera());
 		size += cam->read(istream);
-		this->cameras().push_back(cam);
+		this->cameras().push_back(std::move(cam));
 	}
 
 	return size;

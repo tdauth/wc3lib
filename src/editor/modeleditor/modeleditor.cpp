@@ -455,7 +455,7 @@ void ModelEditor::dropEvent(QDropEvent *event)
 bool ModelEditor::openUrl(const QUrl &url)
 {
 	//const Ogre::Vector3 position(0.0, 0.0, 0.0);
-	std::auto_ptr<OgreMdlx> ogreModel(new OgreMdlx(url, this->m_modelView));
+	std::unique_ptr<OgreMdlx> ogreModel(new OgreMdlx(url, this->m_modelView));
 
 	try
 	{

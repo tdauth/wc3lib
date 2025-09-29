@@ -42,9 +42,13 @@ std::streamsize ImportedFiles::Path::read(InputStream &istream)
 	wc3lib::read(istream, hasPrefix, size);
 
 	if (hasPrefix == 5 || hasPrefix == 8)
+	{
 		this->m_hasPrefix = true;
+	}
 	else if (hasPrefix == 10 || hasPrefix == 13)
+	{
 		this->m_hasPrefix = false;
+	}
 	else
 	{
 		this->m_hasPrefix = false;
@@ -62,9 +66,13 @@ std::streamsize ImportedFiles::Path::write(OutputStream &ostream) const
 	std::streamsize size = 0;
 
 	if (this->hasPrefix())
+	{
 		wc3lib::write<byte>(ostream, 5, size);
+	}
 	else
+	{
 		wc3lib::write<byte>(ostream, 10, size);
+	}
 
 	wc3lib::writeString(ostream, this->path(), size);
 
@@ -77,7 +85,9 @@ std::streamsize ImportedFiles::read(InputStream &istream)
 	wc3lib::read(istream, this->m_version, size);
 
 	if (this->version() != latestFileVersion())
+	{
 		std::cerr << boost::format("Imported files: Unsupported version %1%, expected %2%") % this->version() % latestFileVersion() << std::endl;
+	}
 
 	int32 number;
 	wc3lib::read(istream, number, size);
@@ -85,9 +95,9 @@ std::streamsize ImportedFiles::read(InputStream &istream)
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		std::auto_ptr<Path> path(new Path());
+		std::unique_ptr<Path> path(new Path());
 		size += path->read(istream);
-		paths().push_back(path);
+		paths().push_back(std::move(path));
 	}
 
 	return size;
@@ -96,14 +106,18 @@ std::streamsize ImportedFiles::read(InputStream &istream)
 std::streamsize ImportedFiles::write(OutputStream &ostream) const
 {
 	if (this->version() != latestFileVersion())
+	{
 		std::cerr << boost::format("Imported files: Unsupported version %1%, expected %2%") % this->version() % latestFileVersion() << std::endl;
+	}
 
 	std::streamsize size = 0;
 	wc3lib::write(ostream, this->version(), size);
 	wc3lib::write<int32>(ostream, this->paths().size(), size);
 
 	BOOST_FOREACH(Paths::const_reference path, this->paths())
+	{
 		size += path.write(ostream);
+	}
 
 	return size;
 }

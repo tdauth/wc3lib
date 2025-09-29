@@ -46,9 +46,9 @@ std::streamsize Triggers::read(InputStream &istream, const TriggerData &triggerD
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		std::auto_ptr<TriggerCategory> ptr(new TriggerCategory());
+		std::unique_ptr<TriggerCategory> ptr(new TriggerCategory());
 		size += ptr->read(istream);
-		categories().push_back(ptr);
+		categories().push_back(std::move(ptr));
 	}
 
 	wc3lib::read(istream, this->m_unknown0, size);
@@ -57,9 +57,9 @@ std::streamsize Triggers::read(InputStream &istream, const TriggerData &triggerD
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		std::auto_ptr<Variable> ptr(new Variable());
+		std::unique_ptr<Variable> ptr(new Variable());
 		size += ptr->read(istream);
-		variables().push_back(ptr);
+		variables().push_back(std::move(ptr));
 	}
 
 	wc3lib::read(istream, number, size);
@@ -67,9 +67,9 @@ std::streamsize Triggers::read(InputStream &istream, const TriggerData &triggerD
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		std::auto_ptr<Trigger> ptr(new Trigger());
+		std::unique_ptr<Trigger> ptr(new Trigger());
 		size += ptr->read(istream, triggerData);
-		triggers().push_back(ptr);
+		triggers().push_back(std::move(ptr));
 	}
 
 	return size;

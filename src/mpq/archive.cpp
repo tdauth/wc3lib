@@ -397,9 +397,9 @@ bool Archive::readBlockTable(istream &in, uint32 entries, std::streamsize &size)
 
 	for (uint32 i = 0; i < entries; ++i)
 	{
-		std::auto_ptr<Block> ptr(new Block(i));
+		std::unique_ptr<Block> ptr(new Block(i));
 		size += ptr->read(sstream);
-		blocks.push_back(ptr);
+		blocks.push_back(std::move(ptr));
 	}
 
 	// exception safe
@@ -452,10 +452,10 @@ bool Archive::readHashTable(istream &in, uint32 entries, std::streamsize &size)
 
 	for (uint32 i = 0; i < entries; ++i)
 	{
-		std::auto_ptr<Hash> hash(new Hash(this, i));
+		std::unique_ptr<Hash> hash(new Hash(this, i));
 		size += hash->read(sstream);
 		const HashData hashData = hash->cHashData();
-		hashes.insert(hashData, hash);
+		hashes.insert(hashData, std::move(hash));
 	}
 
 	// exception safe
@@ -728,7 +728,7 @@ File Archive::addFile(const boost::filesystem::path &filePath, const byte *data,
 
 	// store old hash for reinserting it
 	// TODO dont copy but rather transfer the pointer into the autopointer!
-	std::auto_ptr<Hash> newHash(new Hash(*iterator->second));
+	std::unique_ptr<Hash> newHash(new Hash(*iterator->second));
 	this->m_hashes.erase(iterator);
 
 	/*
@@ -740,7 +740,7 @@ File Archive::addFile(const boost::filesystem::path &filePath, const byte *data,
 	newHash->setDeleted(false);
 
 	// update the hash key in the hash table
-	this->m_hashes.insert(hashData, newHash);
+	this->m_hashes.insert(hashData, std::move(newHash));
 
 	/*
 	 * Prepare the updated block entry.

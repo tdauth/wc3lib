@@ -56,10 +56,10 @@ Texture* WarcraftIIIShared::teamColorTexture(TeamColor teamColor) const
 
 	if (iterator == this->m_teamColorTextures.end())
 	{
-		std::auto_ptr<Texture> texture(new Texture(teamColorUrl(teamColor)));
+		std::unique_ptr<Texture> texture(new Texture(teamColorUrl(teamColor)));
 		texture->setSource(this->source());
 		Texture *result = texture.get(); // improve performance on first allocation by returning it directly without calling "find"
-		this->m_teamColorTextures.insert(teamColor, texture);
+		this->m_teamColorTextures.insert(teamColor, std::move(texture));
 
 		return result;
 	}
@@ -73,10 +73,10 @@ Texture* WarcraftIIIShared::teamGlowTexture(TeamColor teamGlow) const
 
 	if (iterator == this->m_teamGlowTextures.end())
 	{
-		std::auto_ptr<Texture> texture(new Texture(teamGlowUrl(teamGlow)));
+		std::unique_ptr<Texture> texture(new Texture(teamGlowUrl(teamGlow)));
 		texture->setSource(this->source());
 		Texture *result = texture.get(); // improve performance on first allocation by returning it directly without calling "find"
-		this->m_teamGlowTextures.insert(teamGlow, texture);
+		this->m_teamGlowTextures.insert(teamGlow, std::move(texture));
 
 		return result;
 	}

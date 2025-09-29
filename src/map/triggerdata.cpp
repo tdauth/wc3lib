@@ -187,10 +187,10 @@ void TriggerData::readFunction(const Txt::Entry &ref, boost::ptr_map<string, Fun
 
 	if (!boost::starts_with(code, "_"))
 	{
-		std::auto_ptr<FunctionType> functionPtr(new FunctionType());
+		std::unique_ptr<FunctionType> functionPtr(new FunctionType());
 		function = functionPtr.get();
 		function->setCode(code);
-		functions.insert(code, functionPtr);
+		functions.insert(code, std::move(functionPtr));
 	}
 	else
 	{
@@ -447,7 +447,7 @@ void TriggerData::writeFunction(const Function *function, Txt::Section &section)
 	if (!function->limits().empty())
 	{
 		sstream.str("");
-		
+
 		Txt::Entry limitsEntry;
 		limitsEntry.setKey(string("_") + function->code() + "_Limits");
 
@@ -512,7 +512,7 @@ std::streamsize TriggerData::read(InputStream &istream)
 
 	BOOST_FOREACH(Txt::Entries::const_reference ref, sectionEntries("TriggerCategories"))
 	{
-		std::auto_ptr<Category> category(new Category());
+		std::unique_ptr<Category> category(new Category());
 
 		string name = ref.first;
 		category->setName(name);
@@ -535,7 +535,7 @@ std::streamsize TriggerData::read(InputStream &istream)
 			category->setDisplayName(!boost::lexical_cast<bool>(values[2]));
 		}
 
-		this->categories().insert(name, category);
+		this->categories().insert(name, std::move(category));
 	}
 
 	typedef std::map<string, string> BaseTypes;
@@ -543,7 +543,7 @@ std::streamsize TriggerData::read(InputStream &istream)
 
 	BOOST_FOREACH(Txt::Entries::const_reference ref, sectionEntries("TriggerTypes"))
 	{
-		std::auto_ptr<Type> type(new Type());
+		std::unique_ptr<Type> type(new Type());
 
 		// Key: type name
 		string name = ref.first;
@@ -587,7 +587,7 @@ std::streamsize TriggerData::read(InputStream &istream)
 			throw Exception(boost::format(_("Detected The Frozen Throne type in a Reign of Chaos TriggerData.txt file for type \"%1%\".")) % name);
 		}
 
-		this->types().insert(name, type);
+		this->types().insert(name, std::move(type));
 	}
 
 	// set trigger types bases
@@ -634,7 +634,7 @@ std::streamsize TriggerData::read(InputStream &istream)
 
 	BOOST_FOREACH(Txt::Entries::const_reference ref, sectionEntries("TriggerParams"))
 	{
-		std::auto_ptr<Parameter> parameter(new Parameter());
+		std::unique_ptr<Parameter> parameter(new Parameter());
 		string name = ref.first;
 
 		parameter->setName(name);
@@ -662,7 +662,7 @@ std::streamsize TriggerData::read(InputStream &istream)
 			parameter->setDisplayText(values[2]);
 		}
 
-		this->parameters().insert(name, parameter);
+		this->parameters().insert(name, std::move(parameter));
 	}
 
 	BOOST_FOREACH(Txt::Entries::const_reference ref, sectionEntries("TriggerEvents"))
@@ -746,9 +746,9 @@ std::streamsize TriggerData::read(InputStream &istream)
 
 				if (this->defaultTriggers().is_null(index))
 				{ // first creation
-					std::auto_ptr<DefaultTrigger> triggerPtr(new DefaultTrigger());
+					std::unique_ptr<DefaultTrigger> triggerPtr(new DefaultTrigger());
 					trigger = triggerPtr.get();
-					this->defaultTriggers().replace(index, triggerPtr);
+					this->defaultTriggers().replace(index, std::move(triggerPtr));
 					++actualTriggers;
 				}
 				else

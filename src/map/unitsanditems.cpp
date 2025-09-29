@@ -38,9 +38,9 @@ std::streamsize UnitsAndItems::read(InputStream &istream)
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		std::auto_ptr<UnitAndItem> unitAndItem(new UnitAndItem());
+		std::unique_ptr<UnitAndItem> unitAndItem(new UnitAndItem());
 		size += unitAndItem->read(istream);
-		m_unitsAndItems.push_back(unitAndItem);
+		m_unitsAndItems.push_back(std::move(unitAndItem));
 	}
 
 	return size;

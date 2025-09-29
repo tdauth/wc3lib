@@ -330,9 +330,9 @@ std::streamsize CustomUnits::Set::read(InputStream &istream)
 
 	for (int32 i = 0; i < modifications; ++i)
 	{
-		std::auto_ptr<Modification> ptr(createModification());
+		std::unique_ptr<Modification> ptr(createModification());
 		size += ptr->read(istream);
-		this->modifications().push_back(ptr);
+		this->modifications().push_back(std::move(ptr));
 	}
 
 	return size;
@@ -403,9 +403,9 @@ std::streamsize CustomUnits::Unit::read(InputStream &istream)
 
 	for (int32 i = 0; i < sets_count; ++i)
 	{
-		std::auto_ptr<Set> ptr(createSet());
+		std::unique_ptr<Set> ptr(createSet());
 		size += ptr->read(istream);
-		this->sets().push_back(ptr);
+		this->sets().push_back(std::move(ptr));
 
 		//exit(1);
 	}
@@ -479,10 +479,10 @@ std::streamsize CustomUnits::read(InputStream &istream)
 
 	for (int32 i = 0; i < originalUnits; ++i)
 	{
-		std::auto_ptr<Unit> ptr(createUnit());
+		std::unique_ptr<Unit> ptr(createUnit());
 		//std::cerr << "Version of created unit " << ptr->version() << std::endl;
 		size += ptr->read(istream);
-		originalTable().push_back(ptr);
+		originalTable().push_back(std::move(ptr));
 	}
 
 	int32 customUnits = 0;
@@ -491,9 +491,9 @@ std::streamsize CustomUnits::read(InputStream &istream)
 
 	for (int32 i = 0; i < customUnits; ++i)
 	{
-		std::auto_ptr<Unit> ptr(createUnit());
+		std::unique_ptr<Unit> ptr(createUnit());
 		size += ptr->read(istream);
-		customTable().push_back(ptr);
+		customTable().push_back(std::move(ptr));
 	}
 
 	return size;

@@ -58,7 +58,9 @@ std::streamsize MenuMinimap::read(InputStream &istream)
 	wc3lib::read(istream, this->m_version, size);
 
 	if (version() != latestFileVersion())
+	{
 		std::cerr << boost::format(_("Menu minimap version %1% isn't equal to latest version %2%")) % version() % latestFileVersion() << std::endl;
+	}
 
 	int32 number;
 	wc3lib::read(istream, number, size);
@@ -66,9 +68,9 @@ std::streamsize MenuMinimap::read(InputStream &istream)
 
 	for (int32 i = 0; i < number; ++i)
 	{
-		std::auto_ptr<Mark> ptr(new Mark());
+		std::unique_ptr<Mark> ptr(new Mark());
 		size += ptr->read(istream);
-		m_marks.push_back(ptr);
+		m_marks.push_back(std::move(ptr));
 	}
 
 	return size;
@@ -80,13 +82,17 @@ std::streamsize MenuMinimap::write(OutputStream &ostream) const
 	wc3lib::write(ostream, this->version(), size);
 
 	if (version() != latestFileVersion())
+	{
 		std::cerr << boost::format(_("Menu minimap version %1% isn't equal to latest version %2%")) % version() % latestFileVersion() << std::endl;
+	}
 
 	const int32 number = boost::numeric_cast<int32>(marks().size());
 	wc3lib::write(ostream, number, size);
 
 	BOOST_FOREACH(Marks::const_reference ptr, marks())
+	{
 		size += ptr.write(ostream);
+	}
 
 	return size;
 }

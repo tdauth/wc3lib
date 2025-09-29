@@ -101,8 +101,8 @@ bool MpqPriorityList::addSource(const QUrl &url, MpqPriorityListEntry::Priority 
 		return false;
 	}
 
-	std::auto_ptr<MpqPriorityListEntry> ptr(new MpqPriorityListEntry(url, priority));
-	sources().insert(ptr);
+	std::unique_ptr<MpqPriorityListEntry> ptr(new MpqPriorityListEntry(url, priority));
+	sources().insert(std::move(ptr));
 
 	return true;
 }

@@ -74,7 +74,7 @@ std::streamsize TriggerFunctionParameter::read(InputStream &istream, const Trigg
 
 	for (int32 i = 0; i < arrayIndexCount; ++i)
 	{
-		std::auto_ptr<TriggerFunctionParameter> parameter(new TriggerFunctionParameter());
+		std::unique_ptr<TriggerFunctionParameter> parameter(new TriggerFunctionParameter());
 		size += parameter->read(istream, triggerData);
 		this->parameters().push_back(std::move(parameter));
 	}

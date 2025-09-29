@@ -147,16 +147,16 @@ std::streamsize CampaignInfo::read(InputStream &istream)
 
 	for (int32 i = 0; i < mapTitles; ++i)
 	{
-		std::auto_ptr<MapTitle> title(new MapTitle());
+		std::unique_ptr<MapTitle> title(new MapTitle());
 		size += title->read(istream);
-		this->m_mapTitles.push_back(title);
+		this->m_mapTitles.push_back(std::move(title));
 	}
 
 	for (int32 i = 0; i < maps; ++i)
 	{
-		std::auto_ptr<Map> map(new Map());
+		std::unique_ptr<Map> map(new Map());
 		size += map->read(istream);
-		this->m_maps.push_back(map);
+		this->m_maps.push_back(std::move(map));
 	}
 
 	return size;

@@ -935,11 +935,11 @@ map::CustomUnits ObjectData::customUnits() const
 
 	for (Objects::const_iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
 	{
-		std::auto_ptr<map::CustomUnits::Unit> unit(new map::CustomUnits::Unit(units.version()));
+		std::unique_ptr<map::CustomUnits::Unit> unit(new map::CustomUnits::Unit(units.version()));
 		unit->setOriginalId(map::stringToId(iterator.key().originalObjectId().toUtf8().constData()));
 		unit->setCustomId(map::stringToId(iterator.key().customObjectId().toUtf8().constData()));
-		std::auto_ptr<map::CustomUnits::Set> set(new map::CustomUnits::Set(units.version()));
-		unit->sets().push_back(set);
+		std::unique_ptr<map::CustomUnits::Set> set(new map::CustomUnits::Set(units.version()));
+		unit->sets().push_back(std::move(set));
 
 		foreach (map::CustomObjects::Modification modification, iterator.value())
 		{
@@ -951,11 +951,11 @@ map::CustomUnits ObjectData::customUnits() const
 		 */
 		if (iterator.key().customObjectId().isEmpty())
 		{
-			units.originalTable().push_back(unit);
+			units.originalTable().push_back(std::move(unit));
 		}
 		else
 		{
-			units.customTable().push_back(unit);
+			units.customTable().push_back(std::move(unit));
 		}
 	}
 
@@ -973,13 +973,13 @@ map::CustomObjects ObjectData::customObjects() const
 
 	for (Objects::const_iterator iterator = this->m_objects.begin(); iterator != this->m_objects.end(); ++iterator)
 	{
-		std::auto_ptr<map::CustomObjects::Object> object(new map::CustomObjects::Object(objects.version(), this->type()));
+		std::unique_ptr<map::CustomObjects::Object> object(new map::CustomObjects::Object(objects.version(), this->type()));
 		const QString originalObjectId = iterator.key().originalObjectId();
 		const QString customObjectId = iterator.key().customObjectId();
 		object->setOriginalId(map::stringToId(originalObjectId.toUtf8().constData()));
 		object->setCustomId(map::stringToId(customObjectId.toUtf8().constData()));
-		std::auto_ptr<map::CustomUnits::Set> set(new map::CustomUnits::Set(objects.version()));
-		object->sets().push_back(set);
+		std::unique_ptr<map::CustomUnits::Set> set(new map::CustomUnits::Set(objects.version()));
+		object->sets().push_back(std::move(set));
 
 		foreach (const map::CustomObjects::Modification &modification, iterator.value())
 		{
@@ -991,11 +991,11 @@ map::CustomObjects ObjectData::customObjects() const
 		 */
 		if (customObjectId.isEmpty())
 		{
-			objects.originalTable().push_back(object);
+			objects.originalTable().push_back(std::move(object));
 		}
 		else
 		{
-			objects.customTable().push_back(object);
+			objects.customTable().push_back(std::move(object));
 		}
 	}
 
@@ -1013,8 +1013,8 @@ map::CustomObjects::Object ObjectData::customObject(const QString &originalObjec
 
 	if (iterator != this->m_objects.constEnd())
 	{
-		std::auto_ptr<map::CustomUnits::Set> set(new map::CustomUnits::Set(object.version()));
-		object.sets().push_back(set);
+		std::unique_ptr<map::CustomUnits::Set> set(new map::CustomUnits::Set(object.version()));
+		object.sets().push_back(std::move(set));
 
 		foreach (map::CustomObjects::Modification modification, iterator.value())
 		{
