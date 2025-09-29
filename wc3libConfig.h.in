@@ -9,6 +9,7 @@
 #cmakedefine MDLX
 #cmakedefine MPQ
 #cmakedefine W3G
+#cmakedefine JSON
 #cmakedefine EDITOR
 #cmakedefine USE_KIOSLAVE
 #cmakedefine USE_QBLP

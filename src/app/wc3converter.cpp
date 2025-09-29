@@ -102,6 +102,20 @@ class ConvFormat
 
 ConvFormat::Formats ConvFormat::formats;
 
+bool groupsAreConvertible(const std::string &g0, const std::string &g1)
+{
+	if (g0 == g1)
+	{
+		return true;
+	}
+	else if ((g0 == "text" && g1 == "object") || (g0 == "object" && g1 == "text"))
+	{
+		return true;
+	}
+
+	return false;
+}
+
 typedef std::list<boost::filesystem::path> FilePaths;
 
 bool addFilePath(const boost::filesystem::path &path, FilePaths &filePaths, bool recursive, std::string extension)
@@ -309,6 +323,8 @@ void convertObject(const boost::filesystem::path &path, wc3lib::ifstream &in, wc
 #else
 	const bool supportsJson = false;
 #endif
+
+	std::cout << "output format extension" << outputFormat.extension() << supportsJson << std::endl;
 
 	if (outputFormat.extension() == "json" && supportsJson)
 	{
@@ -668,6 +684,7 @@ int main(int argc, char *argv[])
 	ConvFormat::append("mdx", "Warcraft III binary model format.", true, "mdlx");
 	ConvFormat::append("mdl", "Warcraft III human-readable model format.", false, "mdlx");
 	ConvFormat::append("w3u", "Warcraft III unit data.", true, "object");
+	ConvFormat::append("w3a", "Warcraft III ability data.", true, "object");
 	ConvFormat::append("txt", "Warcraft III TXT files.", false, "txt");
 	ConvFormat::append("xml", "Extensible Markup Language", false, "text");
 	ConvFormat::append("json", "JavaScript Object Notation", false, "text");
@@ -768,9 +785,9 @@ int main(int argc, char *argv[])
 					throw wc3lib::Exception(boost::format(_("Input file format couldn't be determined by extension of %1%.")) % path);
 				}
 
-				if (realInputFormat->group() != realOutputFormat->group())
+				if (!groupsAreConvertible(realInputFormat->group(), realOutputFormat->group()))
 				{
-					throw wc3lib::Exception(boost::format(_("\"%1%\" and \"%2%\" are not convertible.")) % realInputFormat->extension() % realOutputFormat->extension());
+					throw wc3lib::Exception(boost::format(_("\"%1%\" and \"%2%\" are not convertible.")) % realInputFormat->group() % realOutputFormat->group());
 				}
 
 				boost::filesystem::path realOutputFile = outputFile;
@@ -807,7 +824,7 @@ int main(int argc, char *argv[])
 
 		if (realInputFormat->group() != realOutputFormat->group())
 		{
-			throw wc3lib::Exception(boost::format(_("\"%1%\" and \"%2%\" are not convertible.")) % realInputFormat->extension() % realOutputFormat->extension());
+			throw wc3lib::Exception(boost::format(_("\"%1%\" and \"%2%\" are not convertible.")) % realInputFormat->group() % realOutputFormat->group());
 		}
 
 		mergeFiles(inputFilePaths, outputFile, *realInputFormat, *realOutputFormat, vm.count("verbose"), vm.count("overwrite"));
