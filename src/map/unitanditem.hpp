@@ -31,6 +31,7 @@ namespace wc3lib
 namespace map
 {
 
+// TODO Adapt to specs for Reforged and TFT https://github.com/ChiefOfGxBxL/WC3MapTranslator
 class UnitAndItem : public Format
 {
 	public:
@@ -160,6 +161,7 @@ class UnitAndItem : public Format
 		const Vertex3d<float32>& scale() const;
 		id typeId2() const;
 		Flags flags() const;
+		int32 unknownX() const;
 		int32 playerNumber() const;
 		byte unknown0() const;
 		byte unknown1() const;
@@ -168,13 +170,14 @@ class UnitAndItem : public Format
 		int32 itemTableIndex() const;
 
 	protected:
-		id m_typeId;
+		id m_typeId;// iDNR can be used for random item, and uDNR for random unit
 		int32 m_variation;
 		Vertex3d<float32> m_position;
 		float32 m_angle;
 		Vertex3d<float32> m_scale;
 		id m_typeId2;
 		Flags m_flags;
+		int32 m_unknownX;
 		int32 m_playerNumber;
 		byte m_unknown0;
 		byte m_unknown1;
@@ -183,7 +186,7 @@ class UnitAndItem : public Format
 		int32 m_itemTableIndex; // -1 no item table used
 		DroppedItemSetContainer m_droppedItemSets;
 		int32 m_gold;
-		float32 m_targetAcquisition;
+		float32 m_targetAcquisition; // -1 = normal, -2 = camp
 		int32 m_heroLevel;
 		int32 m_strength;
 		int32 m_agility;
@@ -237,6 +240,11 @@ inline id UnitAndItem::typeId2() const
 inline UnitAndItem::Flags UnitAndItem::flags() const
 {
 	return m_flags;
+}
+
+inline int32 UnitAndItem::unknownX() const
+{
+	return m_unknownX;
 }
 
 inline int32 UnitAndItem::playerNumber() const

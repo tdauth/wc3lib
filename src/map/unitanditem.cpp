@@ -36,6 +36,7 @@ std::streamsize UnitAndItem::read(InputStream &istream)
 	size += m_scale.read(istream);
 	wc3lib::read(istream, m_typeId2, size);
 	wc3lib::read<byte>(istream, (byte&)m_flags, size);
+	wc3lib::read(istream, m_unknownX, size);
 	wc3lib::read(istream, m_playerNumber, size);
 	wc3lib::read(istream, m_unknown0, size);
 	wc3lib::read(istream, m_unknown1, size);
@@ -125,9 +126,10 @@ std::streamsize UnitAndItem::write(OutputStream& ostream) const
 	size += scale().write(ostream);
 	wc3lib::write(ostream, typeId2(), size);
 	wc3lib::write<byte>(ostream, static_cast<byte>(flags()), size);
+	wc3lib::write(ostream, unknownX(), size);
+	wc3lib::write(ostream, playerNumber(), size);
 	wc3lib::write(ostream, unknown0(), size);
 	wc3lib::write(ostream, unknown1(), size);
-	wc3lib::write(ostream, playerNumber(), size);
 	wc3lib::write(ostream, hitPoints(), size);
 	wc3lib::write(ostream, manaPoints(), size);
 	wc3lib::write(ostream, itemTableIndex(), size);
