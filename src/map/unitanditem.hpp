@@ -42,78 +42,110 @@ class UnitAndItem : public Format
 			OutsideCameraBounds = 3 // (set to 3 when it's outside the camerabounds?)
 		};
 
+		class DropableItem : public Format
+		{
+			public:
+				virtual std::streamsize read(InputStream &istream);
+				virtual std::streamsize write(OutputStream &ostream) const;
+
+				id itemId() const;
+				int32 dropChance() const;
+
+			private:
+				id m_itemId;
+				int32 m_dropChance;
+		};
+
+		typedef boost::ptr_vector<DropableItem> DropableItemContainer;
+
 		class DroppedItemSet : public Format
 		{
-			/*
-			 * int: number "d" of dropable items
-			"d" times dropable items structures:
-			char[4]: item ID ([00 00 00 00]h = none)
-			this can also be a random item id (see below)
-			int: % chance to be dropped
-			*/
-			virtual std::streamsize read(InputStream &istream);
-			virtual std::streamsize write(OutputStream &ostream) const;
+			public:
+				virtual std::streamsize read(InputStream &istream);
+				virtual std::streamsize write(OutputStream &ostream) const;
+
+				const DropableItemContainer& dropableItems() const;
+
+			private:
+				DropableItemContainer m_dropableItems;
 		};
 
 		typedef boost::ptr_vector<DroppedItemSet> DroppedItemSetContainer;
 
 		class InventoryItem : public Format
 		{
-			/*
-int: inventory slot (this is the actual slot - 1, so 1 => 0)
-char[4]: item id (as in ItemData.slk) 0x00000000 = none
-this can also be a random item id (see below)
-			*/
-			virtual std::streamsize read(InputStream &istream);
-			virtual std::streamsize write(OutputStream &ostream) const;
+			public:
+				virtual std::streamsize read(InputStream &istream);
+				virtual std::streamsize write(OutputStream &ostream) const;
+
+				int32 inventorySlot() const;
+				id itemId() const;
+
+			private:
+				int32 m_inventorySlot;
+				id m_itemId;
 		};
 
 		typedef boost::ptr_vector<InventoryItem> InventoryItemContainer;
 
 		class AbilityModification : public Format
 		{
-			/*
-char[4]: ability id (as in AbilityData.slk)
-int: active for autocast abilities, 0 = no, 1 = active
-int: level for hero abilities
-			*/
-			virtual std::streamsize read(InputStream &istream);
-			virtual std::streamsize write(OutputStream &ostream) const;
+			public:
+				virtual std::streamsize read(InputStream &istream);
+				virtual std::streamsize write(OutputStream &ostream) const;
+
+				id abilityId() const;
+				int32 active() const;
+				int32 level() const;
+
+			private:
+				id m_abilityId;
+				int32 m_active;
+				int32 m_level;
 		};
 
 		typedef boost::ptr_vector<AbilityModification> AbilityModificationContainer;
 
 		class NeutralPassiveBuildingOrItem : public Format
 		{
-			/*
-byte[3]: level of the random unit/item,-1 = any (this is actually interpreted as a 24-bit number)
-  byte: item class of the random item, 0 = any, 1 = permanent ... (this is 0 for units)
-  r is also 0 for non random units/items so we have these 4 bytes anyway (even if the id wasn't uDNR or iDNR)
-			*/
-			virtual std::streamsize read(InputStream &istream);
-			virtual std::streamsize write(OutputStream &ostream) const;
+			public:
+				virtual std::streamsize read(InputStream &istream);
+				virtual std::streamsize write(OutputStream &ostream) const;
+
+				int32 level() const;
+				byte itemClass() const;
+
+			private:
+				int32 m_level; // 24 bit int
+				byte m_itemClass;
 		};
 
 		class RandomUnitFromRandomGroup : public Format
 		{
-			/*
-int: unit group number (which group from the global table)
-  int: position number (which column of this group)
-  the column should of course have the item flag set (in the w3i) if this is a random item
-			*/
-			virtual std::streamsize read(InputStream &istream);
-			virtual std::streamsize write(OutputStream &ostream) const;
+			public:
+				virtual std::streamsize read(InputStream &istream);
+				virtual std::streamsize write(OutputStream &ostream) const;
+
+				int32 unitGroupNumber() const;
+				int32 positionNumber() const;
+
+			private:
+				int32 m_unitGroupNumber;
+				int32 m_positionNumber;
 		};
 
 		class RandomUnit : public Format
 		{
-		/*
-		 * char[4]: unit id (as in UnitUI.slk)
-this can also be a random unit id (see below)
-int: percentual chance of choice
-*/
-			virtual std::streamsize read(InputStream &istream);
-			virtual std::streamsize write(OutputStream &ostream) const;
+			public:
+				virtual std::streamsize read(InputStream &istream);
+				virtual std::streamsize write(OutputStream &ostream) const;
+
+				id unitId() const;
+				int32 chance() const;
+
+			private:
+				id m_unitId;
+				int32 m_chance;
 		};
 
 		typedef boost::ptr_vector<RandomUnit> RandomUnitContainer;
@@ -160,6 +192,7 @@ int: percentual chance of choice
 		AbilityModificationContainer m_abilityModifications;
 
 		// random data
+		// TODO Use variant to store one of the three.
 		NeutralPassiveBuildingOrItem m_neutralPassiveBuildingOrItem;
 		RandomUnitFromRandomGroup m_randomUnitFromRandomGroup;
 		RandomUnitContainer m_randomUnits;
@@ -167,6 +200,8 @@ int: percentual chance of choice
 		int32 m_customColor;
 		int32 m_waygateDestination;
 		int32 m_creationNumber;
+
+		int32 m_unknown2;
 };
 
 inline id UnitAndItem::typeId() const
@@ -232,6 +267,76 @@ inline int32 UnitAndItem::manaPoints() const
 inline int32 UnitAndItem::itemTableIndex() const
 {
 	return m_itemTableIndex;
+}
+
+inline id UnitAndItem::DropableItem::itemId() const
+{
+	return m_itemId;
+}
+
+inline int32 UnitAndItem::DropableItem::dropChance() const
+{
+	return m_dropChance;
+}
+
+inline const UnitAndItem::DropableItemContainer& UnitAndItem::DroppedItemSet::dropableItems() const
+{
+	return m_dropableItems;
+}
+
+inline int32 UnitAndItem::InventoryItem::inventorySlot() const
+{
+	return m_inventorySlot;
+}
+
+inline id UnitAndItem::InventoryItem::itemId() const
+{
+	return m_itemId;
+}
+
+inline id UnitAndItem::AbilityModification::abilityId() const
+{
+	return m_abilityId;
+}
+
+inline int32 UnitAndItem::AbilityModification::active() const
+{
+	return m_active;
+}
+
+inline int32 UnitAndItem::AbilityModification::level() const
+{
+	return m_level;
+}
+
+inline int32 UnitAndItem::NeutralPassiveBuildingOrItem::level() const
+{
+	return m_level;
+}
+
+inline byte UnitAndItem::NeutralPassiveBuildingOrItem::itemClass() const
+{
+	return m_itemClass;
+}
+
+inline int32 UnitAndItem::RandomUnitFromRandomGroup::unitGroupNumber() const
+{
+	return m_unitGroupNumber;
+}
+
+inline int32 UnitAndItem::RandomUnitFromRandomGroup::positionNumber() const
+{
+	return m_positionNumber;
+}
+
+inline id UnitAndItem::RandomUnit::unitId() const
+{
+	return m_unitId;
+}
+
+inline int32 UnitAndItem::RandomUnit::chance() const
+{
+	return m_chance;
 }
 
 }
