@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(InfoReadTest)
 	{
 		info.read(in);
 	}
-	catch (Exception e)
+	catch (const Exception &e)
 	{
 		valid = false;
 
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE(InfoReadWriteReadTest)
 	{
 		info.read(in);
 	}
-	catch (Exception e)
+	catch (const Exception &e)
 	{
 		valid = false;
 
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(InfoReadWriteReadTest)
 	{
 		info.write(out);
 	}
-	catch (Exception e)
+	catch (const Exception &e)
 	{
 		valid = false;
 
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE(InfoReadWriteReadTest)
 	{
 		info.read(in);
 	}
-	catch (Exception e)
+	catch (const Exception &e)
 	{
 		valid = false;
 
