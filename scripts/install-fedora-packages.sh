@@ -1,7 +1,3 @@
 #!/bin/bash
 
-sudo dnf install libjpeg-turbo-devel
-sudo dnf install bzip2-devel
-sudo dnf install qt5base-devel
-sudo dnf install qt5-qtbase-devel
-sudo dnf install qt5-qtmultimedia-devel
+sudo dnf install libjpeg-turbo-devel bzip2-devel qt5base-devel qt5-qtbase-devel qt5-qtmultimedia-devel
