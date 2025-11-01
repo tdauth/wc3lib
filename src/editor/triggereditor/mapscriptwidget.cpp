@@ -28,7 +28,7 @@ namespace wc3lib
 namespace editor
 {
 
-MapScriptWidget::MapScriptWidget(TriggerEditor *triggerEditor, QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), m_triggerEditor(triggerEditor), m_textEdit(new QTextEdit(this))
+MapScriptWidget::MapScriptWidget(TriggerEditor *triggerEditor, QWidget *parent) : QWidget(parent), m_triggerEditor(triggerEditor), m_textEdit(new QTextEdit(this))
 {
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	layout->addWidget(this->textEdit());

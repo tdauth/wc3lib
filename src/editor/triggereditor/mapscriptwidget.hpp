@@ -39,7 +39,7 @@ class TriggerEditor;
 class MapScriptWidget : public QWidget
 {
 	public:
-		MapScriptWidget(TriggerEditor *triggerEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		MapScriptWidget(TriggerEditor *triggerEditor, QWidget *parent = nullptr);
 
 		TriggerEditor* triggerEditor() const;
 		QTextEdit* textEdit() const;

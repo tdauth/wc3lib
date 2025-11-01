@@ -30,7 +30,7 @@ namespace wc3lib
 namespace editor
 {
 
-ResourcesDialog::ResourcesDialog(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), m_sources(nullptr)
+ResourcesDialog::ResourcesDialog(QWidget *parent) : QDialog(parent), m_sources(nullptr)
 {
 	setupUi(this);
 

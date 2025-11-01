@@ -37,8 +37,8 @@ namespace editor
 
 const int MpqEditor::maxRecentActions = 5;
 
-MpqEditor::MpqEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent, Qt::WindowFlags f)
-: Module(source, organization, applicationName, parent, f)
+MpqEditor::MpqEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent)
+: Module(source, organization, applicationName, parent)
 , m_extractAction(0)
 , m_infoAction(0)
 , m_creationDialog(new CreationDialog(this))

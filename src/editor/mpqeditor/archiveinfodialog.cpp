@@ -26,7 +26,7 @@ namespace wc3lib
 namespace editor
 {
 
-ArchiveInfoDialog::ArchiveInfoDialog(QWidget *parent, Qt::WindowFlags f): QDialog(parent, f)
+ArchiveInfoDialog::ArchiveInfoDialog(QWidget *parent) : QDialog(parent)
 {
 	setupUi(this);
 }

@@ -121,7 +121,7 @@ class TextureEditor : public Module
 		typedef QScopedPointer<Texture> TexturePtr;
 		typedef QVector<QImage> MipMaps;
 
-		TextureEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		TextureEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent = nullptr);
 		virtual ~TextureEditor();
 
 		virtual bool configure() override;

@@ -46,7 +46,7 @@ class ListfilesDialog : public QDialog
 	Q_OBJECT
 
 	public:
-		explicit ListfilesDialog(QWidget* parent = 0, Qt::WindowFlags flags = 0);
+		explicit ListfilesDialog(QWidget* parent = nullptr);
 
 		/**
 		 * \return Returns only files which are checked by the user.

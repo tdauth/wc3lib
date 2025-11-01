@@ -28,7 +28,7 @@ namespace wc3lib
 namespace editor
 {
 
-CreationDialog::CreationDialog(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f)
+CreationDialog::CreationDialog(QWidget *parent) : QDialog(parent)
 {
 	setupUi(this);
 

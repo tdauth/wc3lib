@@ -30,7 +30,7 @@ namespace wc3lib
 namespace editor
 {
 
-FileInfoDialog::FileInfoDialog(QWidget* parent, Qt::WindowFlags f): QDialog(parent, f)
+FileInfoDialog::FileInfoDialog(QWidget* parent): QDialog(parent)
 {
 	setupUi(this);
 }

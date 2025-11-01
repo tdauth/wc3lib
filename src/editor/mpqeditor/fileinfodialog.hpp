@@ -47,7 +47,7 @@ namespace editor
 class FileInfoDialog : public QDialog, public Ui::FileInfoDialog
 {
 	public:
-		explicit FileInfoDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
+		explicit FileInfoDialog(QWidget *parent = nullptr);
 
 		/**
 		 * Fills the dialog labels with information about \p file.

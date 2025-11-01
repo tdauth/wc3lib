@@ -754,7 +754,7 @@ QString ObjectData::fieldReadableValue(const QString& originalObjectId, const QS
 
 		qDebug() << "object tab entries: " << entries.size() << " for field type " << fieldType;
 
-		if (entries.isEmpty())
+		if (entries.empty())
 		{
 			return fieldValue;
 		}

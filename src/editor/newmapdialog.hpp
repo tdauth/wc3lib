@@ -43,7 +43,7 @@ class Tile;
 class NewMapDialog : public QDialog, protected Ui::NewMapDialog
 {
 	public:
-		NewMapDialog(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		NewMapDialog(MpqPriorityList *source, QWidget *parent = nullptr);
 
 		void setSize(const QSize &size);
 		QSize size() const;

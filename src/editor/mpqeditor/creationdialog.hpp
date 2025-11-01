@@ -39,7 +39,7 @@ class CreationDialog : public QDialog, protected Ui::CreationDialog
 	Q_OBJECT
 
 	public:
-		explicit CreationDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
+		explicit CreationDialog(QWidget *parent = nullptr);
 
 		mpq::Archive::Format format() const;
 		uint32 blockTableEntries() const;

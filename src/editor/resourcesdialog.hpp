@@ -44,7 +44,7 @@ class ResourcesDialog : public QDialog, protected Ui::ResourcesWidget
 	Q_OBJECT
 
 	public:
-		explicit ResourcesDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
+		explicit ResourcesDialog(QWidget *parent = nullptr);
 
 		/**
 		 * Updates the GUI by clearing it and listing all resources from \p sources.

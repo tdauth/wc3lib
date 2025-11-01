@@ -44,7 +44,7 @@ class VariableDialog : public QDialog, protected Ui::VariableDialog
 	Q_OBJECT
 
 	public:
-		explicit VariableDialog(class TriggerEditor *triggerEditor, QWidget* parent = 0, Qt::WindowFlags f = 0);
+		explicit VariableDialog(class TriggerEditor *triggerEditor, QWidget* parent = nullptr);
 
 		void showVariable(map::Variable *variable);
 

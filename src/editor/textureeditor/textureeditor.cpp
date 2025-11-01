@@ -32,8 +32,8 @@ namespace wc3lib
 namespace editor
 {
 
-TextureEditor::TextureEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent, Qt::WindowFlags f)
-: Module(source, organization, applicationName, parent, f)
+TextureEditor::TextureEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent)
+: Module(source, organization, applicationName, parent)
 , m_scrollArea(new QScrollArea(this))
 , m_imageLabel(new QLabel(this))
 , m_mipMapIndex(0)

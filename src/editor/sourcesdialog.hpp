@@ -83,7 +83,7 @@ class SourcesDialog : public QDialog, protected Ui::SourcesDialog
 		 * \param parent The parent widget of the dialog.
 		 * \param flags The window flags of the dialog.
 		 */
-		SourcesDialog(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent = 0, Qt::WindowFlags flags = 0);
+		SourcesDialog(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent = 0);
 
 		/**
 		 * \return Returns the associated source of which the entries are listed.

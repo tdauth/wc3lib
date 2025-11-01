@@ -43,7 +43,7 @@ class VariablesDialog : public QDialog, protected Ui::VariablesDialog
 	Q_OBJECT
 
 	public:
-		explicit VariablesDialog(TriggerEditor *triggerEditor, Qt::WindowFlags f = 0);
+		explicit VariablesDialog(TriggerEditor *triggerEditor);
 
 		TriggerEditor* triggerEditor() const;
 

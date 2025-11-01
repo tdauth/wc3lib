@@ -31,7 +31,7 @@ namespace wc3lib
 namespace editor
 {
 
-VariableDialog::VariableDialog(TriggerEditor *triggerEditor, QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), m_triggerEditor(triggerEditor)
+VariableDialog::VariableDialog(TriggerEditor *triggerEditor, QWidget *parent) : QDialog(parent), m_triggerEditor(triggerEditor)
 {
 	setupUi(this);
 

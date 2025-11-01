@@ -40,7 +40,7 @@ class MpqPriorityList;
 class SplashScreen : public QSplashScreen
 {
 	public:
-		SplashScreen(MpqPriorityList *source, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		SplashScreen(MpqPriorityList *source, QWidget *parent = nullptr);
 		virtual ~SplashScreen();
 };
 

@@ -158,8 +158,8 @@ void SourcesDialog::prepend(const Urls &items)
 	}
 }
 
-SourcesDialog::SourcesDialog(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent, Qt::WindowFlags flags)
-: QDialog(parent, flags)
+SourcesDialog::SourcesDialog(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent)
+: QDialog(parent)
 , m_source(source)
 , m_organization(organization)
 , m_applicationName(applicationName)

@@ -131,7 +131,7 @@ Editor::~Editor()
 
 void Editor::addModule(Module *module)
 {
-	this->m_modules.append(module);
+	this->m_modules.push_back(module);
 
 	QAction *action = new QAction(module->icon(), module->objectName(), this);
 	//action->setShortcut(KShortcut(tr("F%1%", this->m_modulesActionCollection->actions().size() + 1)));

@@ -45,7 +45,7 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectEditor::ObjectEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent, Qt::WindowFlags f) : Module(source, organization, applicationName, parent, f)
+ObjectEditor::ObjectEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent) : Module(source, organization, applicationName, parent)
 , m_tabWidget(new QTabWidget(this))
 , m_currentTab(0)
 , m_unitEditor(0)

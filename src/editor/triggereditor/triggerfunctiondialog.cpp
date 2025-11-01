@@ -31,7 +31,7 @@ namespace wc3lib
 namespace editor
 {
 
-TriggerFunctionDialog::TriggerFunctionDialog(TriggerEditor *triggerEditor, map::TriggerData *triggerData, map::TriggerStrings *triggerStrings, map::Triggers *triggers, QWidget* parent, Qt::WindowFlags f) : QDialog(parent, f)
+TriggerFunctionDialog::TriggerFunctionDialog(TriggerEditor *triggerEditor, map::TriggerData *triggerData, map::TriggerStrings *triggerStrings, map::Triggers *triggers, QWidget* parent) : QDialog(parent)
 , m_triggerEditor(triggerEditor)
 , m_triggerData(triggerData)
 , m_triggerStrings(triggerStrings)

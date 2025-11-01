@@ -85,7 +85,7 @@ class Editor : public QObject, public MpqPriorityList
 		/**
 		 * \brief A list of all modules hold by the editor.
 		 */
-		typedef QLinkedList<Module*> Modules;
+		typedef std::list<Module*> Modules;
 		/**
 		 * \brief A list of actions belonging each to one single module of the editor.
 		 * The action activates the corresponding module.
@@ -142,7 +142,7 @@ class Editor : public QObject, public MpqPriorityList
 		/**
 		 * \note Allocated on request!
 		 */
-		NewMapDialog* newMapDialog(QWidget *parent = 0) const;
+		NewMapDialog* newMapDialog(QWidget *parent = nullptr) const;
 
 	public slots:
 		/**
@@ -155,8 +155,8 @@ class Editor : public QObject, public MpqPriorityList
 		 * The created file dialog allows you to select multiple URLs and therefore to open several maps.
 		 * The editor switches automatically to the last opened map.
 		 */
-		void openMap(QWidget *window = 0);
-		void openMap(const QUrl &url, bool switchTo = true, QWidget *window = 0);
+		void openMap(QWidget *window = nullptr);
+		void openMap(const QUrl &url, bool switchTo = true, QWidget *window = nullptr);
 		/**
 		 * Emits signal \ref switchedToMap() with \p map as parameter.
 		 */
@@ -168,9 +168,9 @@ class Editor : public QObject, public MpqPriorityList
 		 */
 		void closeMap();
 		void saveMap();
-		void saveMapAs(QWidget *window = 0);
+		void saveMapAs(QWidget *window = nullptr);
 
-		void showSourcesDialog(QWidget *window = 0);
+		void showSourcesDialog(QWidget *window = nullptr);
 
 	protected:
 		virtual void changeEvent(QEvent *event);

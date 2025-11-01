@@ -50,7 +50,7 @@ class TriggerFunctionDialog : public QDialog, public Ui::TriggerFunctionDialog
 		/**
 		 * \param triggers Triggers are required for function dialogs which contain variables of a specific type.
 		 */
-		explicit TriggerFunctionDialog(TriggerEditor *triggerEditor, map::TriggerData *triggerData, map::TriggerStrings *triggerStrings, map::Triggers *triggers, QWidget* parent = 0, Qt::WindowFlags f = 0);
+		explicit TriggerFunctionDialog(TriggerEditor *triggerEditor, map::TriggerData *triggerData, map::TriggerStrings *triggerStrings, map::Triggers *triggers, QWidget* parent = nullptr);
 
 		virtual ~TriggerFunctionDialog();
 

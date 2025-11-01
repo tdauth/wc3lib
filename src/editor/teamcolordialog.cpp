@@ -28,7 +28,7 @@ namespace wc3lib
 namespace editor
 {
 
-TeamColorDialog::TeamColorDialog(QWidget *parent, Qt::WindowFlags flags) : QDialog(parent, flags)
+TeamColorDialog::TeamColorDialog(QWidget *parent) : QDialog(parent)
 {
 	setupUi(this);
 

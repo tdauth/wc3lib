@@ -174,7 +174,7 @@ class ObjectEditor : public Module
 			Skin
 		};
 
-		ObjectEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		ObjectEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent = nullptr);
 		virtual ~ObjectEditor();
 
 		QTabWidget* tabWidget() const;

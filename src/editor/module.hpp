@@ -62,7 +62,7 @@ class Module : public QWidget
 		 * \param parent Parent widget for which the module widget is created.
 		 * \param f Window flags for the module widget.
 		 */
-		Module(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		Module(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent = 0);
 		virtual ~Module();
 		MpqPriorityList* source() const;
 		QString organization() const;

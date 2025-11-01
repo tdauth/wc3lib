@@ -37,8 +37,8 @@ namespace wc3lib
 namespace editor
 {
 
-Module::Module(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent, Qt::WindowFlags f)
-: QWidget(parent, f | Qt::Window)
+Module::Module(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent)
+: QWidget(parent, Qt::Window)
 , m_source(source)
 , m_organization(organization)
 , m_applicationName(applicationName)

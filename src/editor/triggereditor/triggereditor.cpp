@@ -46,8 +46,8 @@ string TriggerEditor::cutQuotes(const string& value)
 	return value.substr(1, value.length() - 2); // cut quotes
 }
 
-TriggerEditor::TriggerEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent, Qt::WindowFlags f)
-: Module(source, organization, applicationName, parent, f)
+TriggerEditor::TriggerEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent)
+: Module(source, organization, applicationName, parent)
 , m_triggers(nullptr)
 , m_customTextTriggers(nullptr)
 , m_freeTriggers(false)

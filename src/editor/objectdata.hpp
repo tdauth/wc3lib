@@ -228,7 +228,7 @@ class ObjectData : public QObject
 		/**
 		 * \brief A list of \ref ObjectTabEntry instances which occur in sections of file "UI/UnitEditorData.txt".
 		 */
-		typedef QLinkedList<ObjectTabEntry> ObjectTabEntries;
+		typedef std::list<ObjectTabEntry> ObjectTabEntries;
 
 		/**
 		 * Returns all possible entries for \p fieldType.

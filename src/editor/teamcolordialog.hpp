@@ -39,7 +39,7 @@ namespace editor
 class TeamColorDialog : public QDialog, protected Ui::TeamColorDialog
 {
 	public:
-		TeamColorDialog(QWidget *parent = 0, Qt::WindowFlags flags = 0);
+		TeamColorDialog(QWidget *parent = nullptr);
 
 		/**
 		 * Sets the selected team color of the dialog.

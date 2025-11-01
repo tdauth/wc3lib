@@ -34,7 +34,7 @@ namespace editor
 
 ListfilesDialog *ListfilesDialog::m_dialog = 0;
 
-ListfilesDialog::ListfilesDialog(QWidget* parent, Qt::WindowFlags flags) : QDialog(parent, flags), m_fileListLayout(0)
+ListfilesDialog::ListfilesDialog(QWidget* parent) : QDialog(parent), m_fileListLayout(0)
 {
 	this->setWindowTitle(tr("Select Listfiles"));
 

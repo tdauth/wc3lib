@@ -40,7 +40,7 @@ namespace editor
 class ArchiveInfoDialog : public QDialog, protected Ui::ArchiveInfoDialog
 {
 	public:
-		explicit ArchiveInfoDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
+		explicit ArchiveInfoDialog(QWidget* parent = nullptr);
 
 		/**
 		 * Fills the dialog labels with information about \p archive.

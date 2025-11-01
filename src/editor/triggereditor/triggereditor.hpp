@@ -90,7 +90,7 @@ class TriggerEditor : public Module
 		 */
 		static string cutQuotes(const string &value);
 
-		TriggerEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		TriggerEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent = nullptr);
 		virtual ~TriggerEditor();
 
 		virtual bool configure() override;
