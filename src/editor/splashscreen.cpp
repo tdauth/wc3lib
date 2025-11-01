@@ -31,7 +31,7 @@ namespace wc3lib
 namespace editor
 {
 
-SplashScreen::SplashScreen(MpqPriorityList *source, QWidget *parent) : QSplashScreen(parent, QPixmap())
+SplashScreen::SplashScreen(MpqPriorityList *source, QWidget *parent) : QSplashScreen(qobject_cast<QGuiApplication*>(QGuiApplication::instance())->primaryScreen())
 {
 	QSettings settings("wc3lib", "wc3editor");
 	const bool firstStart = settings.value("firstStart", true).toBool();
