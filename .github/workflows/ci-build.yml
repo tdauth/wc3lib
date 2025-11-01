@@ -1,0 +1,27 @@
+name: CMake CI Build and Test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    # Run the build every day at 4:00 AM UTC
+    - cron: '0 4 * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # Use a free Ubuntu runner
+
+    steps:
+    - uses: actions/checkout@v4 # Step 1: Checkout your repository code
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build
+
+    - name: Build with CMake
+      run: cmake --build ${{github.workspace}}/build
+
+    - name: Run CTest
+      working-directory: ${{github.workspace}}/build
+      run: ctest --verbose
