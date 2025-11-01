@@ -49,7 +49,7 @@ The file [appveyor.yml](./appveyor.yml) configures the automatic build for AppVe
 
 ## Manual Build on Linux
 
-Install all dependencies required by wc3lib with the Bash script [ubuntu_install.sh](./ubuntu_install.sh) or manually.
+Install all dependencies required by wc3lib with the Bash script [ubuntu_install_wc3lib.sh](./scripts/ubuntu_install_wc3lib.sh) or manually.
 It tries to build wc3lib as well.
 For all available compile flags/options configure via cmake please and you'll get all options with their corresponding descriptions.
 To build the wc3lib change into the wc3lib directory and run:
