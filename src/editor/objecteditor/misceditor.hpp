@@ -37,7 +37,7 @@ class MiscEditor : public ObjectEditorTab
 {
 	public:
 		public:
-		MiscEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		MiscEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = nullptr);
 		virtual ~MiscEditor();
 
 		MiscData* miscData() const;

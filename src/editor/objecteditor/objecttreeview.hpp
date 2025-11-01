@@ -48,7 +48,7 @@ class ObjectTreeView : public QTreeView
 	Q_OBJECT
 
 	public:
-		ObjectTreeView(ObjectEditorTab *parent = 0, Qt::WindowFlags f = 0);
+		ObjectTreeView(ObjectEditorTab *parent = nullptr);
 
 		ObjectEditorTab* tab() const;
 		QMenu* contextMenu() const;

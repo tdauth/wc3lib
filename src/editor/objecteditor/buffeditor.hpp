@@ -34,7 +34,7 @@ namespace editor
 class BuffEditor : public ObjectEditorTab
 {
 	public:
-		BuffEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		BuffEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = nullptr);
 		virtual ~BuffEditor();
 
 		BuffData* buffData() const;

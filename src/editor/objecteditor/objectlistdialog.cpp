@@ -117,7 +117,7 @@ void ObjectListDialog::moveObjectUp()
 		if (oldRow > 0)
 		{
 			QStringList list = this->objects();
-			list.swap(oldRow, oldRow - 1);
+			list.swapItemsAt(oldRow, oldRow - 1);
 			this->load(list);
 		}
 	}
@@ -134,13 +134,13 @@ void ObjectListDialog::moveObjectDown()
 		if (oldRow < this->m_listWidget->count() - 1)
 		{
 			QStringList list = this->objects();
-			list.swap(oldRow, oldRow + 1);
+			list.swapItemsAt(oldRow, oldRow + 1);
 			this->load(list);
 		}
 	}
 }
 
-ObjectListDialog::ObjectListDialog(MpqPriorityList *source, ObjectData *objectData, QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), m_source(source), m_objectData(objectData), m_fieldTypeObjectData(0)
+ObjectListDialog::ObjectListDialog(MpqPriorityList *source, ObjectData *objectData, QWidget *parent) : QDialog(parent), m_source(source), m_objectData(objectData), m_fieldTypeObjectData(0)
 {
 	setupUi(this);
 
@@ -220,7 +220,7 @@ QStringList ObjectListDialog::objects() const
 	return result;
 }
 
-int ObjectListDialog::getObjectIds(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level, ObjectData *objectData, SharedObjectData *sharedObjectData, const QString& label, QWidget* parent, Qt::WindowFlags f)
+int ObjectListDialog::getObjectIds(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level, ObjectData *objectData, SharedObjectData *sharedObjectData, const QString& label, QWidget *parent)
 {
 	const QString type = objectData->metaData()->value(fieldId, "type");
 	const QString stringExt = objectData->metaData()->value(fieldId, "stringExt");
@@ -269,7 +269,7 @@ int ObjectListDialog::getObjectIds(const QString &originalObjectId, const QStrin
 	 */
 	QStringList objectList = objects.isEmpty() ? QStringList() : objects.split(',');
 
-	if (getObjectIds(objectList, originalObjectId, customObjectId, fieldId, level, objectData->source(), objectData, fieldTypeObjectData, label, parent, f) == QDialog::Accepted)
+	if (getObjectIds(objectList, originalObjectId, customObjectId, fieldId, level, objectData->source(), objectData, fieldTypeObjectData, label, parent) == QDialog::Accepted)
 	{
 		const QString value = objectList.join(",");
 		objectData->modifyField(originalObjectId, customObjectId, fieldId, value, level);
@@ -278,7 +278,7 @@ int ObjectListDialog::getObjectIds(const QString &originalObjectId, const QStrin
 	return QDialog::Rejected;
 }
 
-int ObjectListDialog::getObjectIds(QStringList& result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level, MpqPriorityList* source, ObjectData* objectData, ObjectData* fieldTypeObjectData, const QString& label, QWidget* parent, Qt::WindowFlags f)
+int ObjectListDialog::getObjectIds(QStringList& result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level, MpqPriorityList* source, ObjectData* objectData, ObjectData* fieldTypeObjectData, const QString& label, QWidget* parent)
 {
 	if (m_dialog != 0)
 	{
@@ -286,7 +286,7 @@ int ObjectListDialog::getObjectIds(QStringList& result, const QString &originalO
 		m_dialog = 0;
 	}
 
-	m_dialog = new ObjectListDialog(source, objectData, parent, f);
+	m_dialog = new ObjectListDialog(source, objectData, parent);
 	m_dialog->setWindowTitle(label);
 	m_dialog->setFieldTypeObjectData(fieldTypeObjectData);
 	m_dialog->setOriginalObjectId(originalObjectId);

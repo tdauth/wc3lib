@@ -55,7 +55,7 @@ class UnitSelectionDialog : public QDialog, protected Ui::UnitSelectionDialog
 		typedef QHash<QAbstractButton*, QString> ButtonsByButton;
 		typedef QHash<QString, QAbstractButton*> ButtonsByObjectId;
 
-		explicit UnitSelectionDialog(MpqPriorityList *source, UnitData *unitData, QWidget* parent = 0, Qt::WindowFlags f = 0);
+		explicit UnitSelectionDialog(MpqPriorityList *source, UnitData *unitData, QWidget* parent = nullptr);
 
 		void select(const QString &objectId);
 		void fill(const QString &race, int campaign, const QChar &tileset, const QString &level);

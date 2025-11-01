@@ -34,7 +34,7 @@ namespace editor
 class DestructableEditor : public ObjectEditorTab
 {
 	public:
-		DestructableEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		DestructableEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = nullptr);
 		virtual ~DestructableEditor();
 
 		DestructableData* destructableData() const;

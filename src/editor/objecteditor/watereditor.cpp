@@ -28,7 +28,7 @@ namespace wc3lib
 namespace editor
 {
 
-WaterEditor::WaterEditor(MpqPriorityList* source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget* parent, Qt::WindowFlags f) : ObjectEditorTab(source, objectData, "watereditor", objectEditor, parent, f)
+WaterEditor::WaterEditor(MpqPriorityList* source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget* parent) : ObjectEditorTab(source, objectData, "watereditor", objectEditor, parent)
 {
 	setupUi();
 }

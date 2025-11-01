@@ -33,7 +33,7 @@ namespace wc3lib
 namespace editor
 {
 
-DestructableEditor::DestructableEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, objectData, "destructableditor", objectEditor, parent, f)
+DestructableEditor::DestructableEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent) : ObjectEditorTab(source, objectData, "destructableditor", objectEditor, parent)
 {
 	setupUi();
 }

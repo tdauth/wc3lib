@@ -1511,19 +1511,19 @@ QStringList ObjectData::validateTooltipReference(const QString &tooltip, const Q
 			// Check all OTHER shared object data for the object ID in custom and standard objects:
 			if (checkRecursive)
 			{
-				QLinkedList<ObjectData*> objectData;
+				std::list<ObjectData*> objectData;
 
-				objectData << this->source()->sharedData()->sharedObjectData()->unitData().get();
-				objectData << this->source()->sharedData()->sharedObjectData()->itemData().get();
-				objectData << this->source()->sharedData()->sharedObjectData()->abilityData().get();
-				objectData << this->source()->sharedData()->sharedObjectData()->buffData().get();
-				objectData << this->source()->sharedData()->sharedObjectData()->upgradeData().get();
-				objectData << this->source()->sharedData()->sharedObjectData()->doodadData().get();
-				objectData << this->source()->sharedData()->sharedObjectData()->destructableData().get();
+				objectData.push_back(this->source()->sharedData()->sharedObjectData()->unitData().get());
+				objectData.push_back(this->source()->sharedData()->sharedObjectData()->itemData().get());
+				objectData.push_back(this->source()->sharedData()->sharedObjectData()->abilityData().get());
+				objectData.push_back(this->source()->sharedData()->sharedObjectData()->buffData().get());
+				objectData.push_back(this->source()->sharedData()->sharedObjectData()->upgradeData().get());
+				objectData.push_back(this->source()->sharedData()->sharedObjectData()->doodadData().get());
+				objectData.push_back(this->source()->sharedData()->sharedObjectData()->destructableData().get());
 
 				// Don't use null values or the current object data.
-				objectData.removeAll(nullptr);
-				objectData.removeAll(this);
+				objectData.remove(nullptr);
+				objectData.remove(this);
 
 				for (ObjectData *data : objectData)
 				{

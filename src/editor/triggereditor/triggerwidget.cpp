@@ -278,7 +278,7 @@ QTreeWidgetItem* TriggerWidget::addTreeItem(map::TriggerFunction* function)
 	QTreeWidgetItem *item = new QTreeWidgetItem();
 
 	if (!function->isEnabled()) {
-		item->setBackgroundColor(0, QColor(Qt::gray));
+		item->setBackground(0, QColor(Qt::gray));
 	}
 
 	// TODO set icon and mark as enabled or not using ->isEnabled()

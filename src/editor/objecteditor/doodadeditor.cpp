@@ -33,7 +33,7 @@ namespace wc3lib
 namespace editor
 {
 
-DoodadEditor::DoodadEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, objectData, "doodadeditor", objectEditor, parent, f)
+DoodadEditor::DoodadEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent) : ObjectEditorTab(source, objectData, "doodadeditor", objectEditor, parent)
 {
 	setupUi();
 }

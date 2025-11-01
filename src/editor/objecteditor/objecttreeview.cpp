@@ -31,7 +31,7 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectTreeView::ObjectTreeView(ObjectEditorTab *tab, Qt::WindowFlags f) : QTreeView(tab), m_tab(tab), m_contextMenu(new QMenu(this))
+ObjectTreeView::ObjectTreeView(ObjectEditorTab *tab) : QTreeView(tab), m_tab(tab), m_contextMenu(new QMenu(this))
 {
 	this->setContextMenuPolicy(Qt::CustomContextMenu);
 	this->setUniformRowHeights(true); // improves performance

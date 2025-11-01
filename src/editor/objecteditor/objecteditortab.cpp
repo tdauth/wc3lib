@@ -38,8 +38,8 @@ namespace wc3lib
 namespace editor
 {
 
-ObjectEditorTab::ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData, const QString &groupName, ObjectEditor *objectEditor, QWidget *parent, Qt::WindowFlags f)
-: QWidget(parent, f)
+ObjectEditorTab::ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData, const QString &groupName, ObjectEditor *objectEditor, QWidget *parent)
+: QWidget(parent)
 , m_source(source)
 , m_filterSearchLine(0)
 , m_tableFilterSearchLine(0)

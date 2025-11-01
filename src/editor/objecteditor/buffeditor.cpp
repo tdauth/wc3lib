@@ -33,7 +33,7 @@ namespace wc3lib
 namespace editor
 {
 
-BuffEditor::BuffEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, objectData, "buffeditor", objectEditor, parent, f)
+BuffEditor::BuffEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent) : ObjectEditorTab(source, objectData, "buffeditor", objectEditor, parent)
 {
 	setupUi();
 }

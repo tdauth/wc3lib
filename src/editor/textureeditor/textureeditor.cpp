@@ -423,7 +423,7 @@ void TextureEditor::setCharges()
 void TextureEditor::setCharges(int charges)
 {
 	refreshImage();
-	QPixmap pixmap = *m_imageLabel->pixmap();
+	QPixmap pixmap = m_imageLabel->pixmap(Qt::ReturnByValue);
 	QPainter painter(&pixmap);
 	int x = pixmap.rect().width() - 20;
 	int y = pixmap.rect().height() - 20;
@@ -590,7 +590,7 @@ void TextureEditor::refreshImage()
 
 	if (showsTransparency())
 	{
-		newPixmap.setMask(this->m_imageLabel->pixmap()->createMaskFromColor(Qt::transparent));
+		newPixmap.setMask(this->m_imageLabel->pixmap(Qt::ReturnByValue).createMaskFromColor(Qt::transparent));
 	}
 
 	this->m_imageLabel->setPixmap(newPixmap);

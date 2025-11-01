@@ -35,7 +35,7 @@ class WaterData;
 class WaterEditor : public ObjectEditorTab
 {
 	public:
-		WaterEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		WaterEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = nullptr);
 		virtual ~WaterEditor();
 
 		WaterData* waterData() const;

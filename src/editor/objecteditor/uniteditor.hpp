@@ -42,7 +42,7 @@ class UnitSelectionDialog;
 class UnitEditor : public ObjectEditorTab
 {
 	public:
-		UnitEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		UnitEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = nullptr);
 		virtual ~UnitEditor();
 
 		UnitData* unitData() const;

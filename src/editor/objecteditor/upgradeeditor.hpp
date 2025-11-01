@@ -35,7 +35,7 @@ class UpgradeData;
 class UpgradeEditor : public ObjectEditorTab
 {
 	public:
-		UpgradeEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		UpgradeEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = nullptr);
 		virtual ~UpgradeEditor();
 
 		UpgradeData* upgradeData() const;

@@ -54,7 +54,7 @@ class ObjectListDialog : public QDialog, protected Ui::ObjectListDialog
 		void moveObjectDown();
 
 	public:
-		explicit ObjectListDialog(MpqPriorityList *source, ObjectData *objectData, QWidget* parent = 0, Qt::WindowFlags f = 0);
+		explicit ObjectListDialog(MpqPriorityList *source, ObjectData *objectData, QWidget* parent = nullptr);
 
 		void load(const QStringList &objects);
 		QStringList objects() const;
@@ -76,8 +76,8 @@ class ObjectListDialog : public QDialog, protected Ui::ObjectListDialog
 		/**
 		 * Lists object IDs depending on the value of field \p fieldId of object with IDs \p originalObjectId and \p customObjectId.
 		 */
-		static int getObjectIds(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level, ObjectData *objectData, SharedObjectData *sharedObjectData, const QString &label, QWidget* parent = 0, Qt::WindowFlags f = 0);
-		static int getObjectIds(QStringList &result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level, MpqPriorityList *source, ObjectData *objectData, ObjectData* fieldTypeObjectData, const QString &label, QWidget* parent = 0, Qt::WindowFlags f = 0);
+		static int getObjectIds(const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level, ObjectData *objectData, SharedObjectData *sharedObjectData, const QString &label, QWidget* parent = nullptr);
+		static int getObjectIds(QStringList &result, const QString &originalObjectId, const QString &customObjectId, const QString &fieldId, int level, MpqPriorityList *source, ObjectData *objectData, ObjectData* fieldTypeObjectData, const QString &label, QWidget* parent = nullptr);
 	private:
 		MpqPriorityList *m_source;
 		ObjectData *m_objectData;

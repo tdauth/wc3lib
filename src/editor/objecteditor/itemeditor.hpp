@@ -36,7 +36,7 @@ class ItemData;
 class ItemEditor : public ObjectEditorTab
 {
 	public:
-		ItemEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		ItemEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = nullptr);
 		virtual ~ItemEditor();
 
 		ItemData* itemData() const;

@@ -35,7 +35,7 @@ class WeatherData;
 class WeatherEditor : public ObjectEditorTab
 {
 	public:
-		WeatherEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		WeatherEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = nullptr);
 		virtual ~WeatherEditor();
 
 		WeatherData* weatherData() const;

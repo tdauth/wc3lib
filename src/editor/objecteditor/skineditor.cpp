@@ -27,7 +27,7 @@ namespace wc3lib
 namespace editor
 {
 
-SkinEditor::SkinEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent, Qt::WindowFlags f) : ObjectEditorTab(source, objectData, "skineditor", objectEditor, parent, f)
+SkinEditor::SkinEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent) : ObjectEditorTab(source, objectData, "skineditor", objectEditor, parent)
 {
 	setupUi();
 }

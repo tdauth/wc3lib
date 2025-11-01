@@ -181,11 +181,10 @@ void Hash::removeData()
 	}
 	else
 	{
+	*/
 		/// @todo Change file size?
-		/*
-		Archive:Blocks::iterator iterator = this->mpq()->blocks().find(this->block());
-		this->mpq()->m_blocks.erase(iterator);
-		*/
+		//Archive:Blocks::iterator iterator = this->mpq()->blocks().find(this->block());
+		//this->mpq()->m_blocks.erase(iterator);
 	//}
 
 	//this->m_block = 0;

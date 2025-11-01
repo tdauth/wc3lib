@@ -31,7 +31,7 @@ namespace wc3lib
 namespace editor
 {
 
-UnitSelectionDialog::UnitSelectionDialog(MpqPriorityList *source, UnitData *unitData, QWidget* parent, Qt::WindowFlags f) : QDialog(parent, f), m_source(source), m_unitData(unitData), m_buttonGroup(new QButtonGroup(this)), m_checkedButton(nullptr)
+UnitSelectionDialog::UnitSelectionDialog(MpqPriorityList *source, UnitData *unitData, QWidget* parent) : QDialog(parent), m_source(source), m_unitData(unitData), m_buttonGroup(new QButtonGroup(this)), m_checkedButton(nullptr)
 {
 	setupUi(this);
 	m_buttonGroup.setExclusive(true);

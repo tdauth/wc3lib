@@ -37,7 +37,7 @@ class SkinEditor : public ObjectEditorTab
 {
 	public:
 		public:
-		SkinEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		SkinEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = nullptr);
 		virtual ~SkinEditor();
 
 		SkinData* skinData() const;

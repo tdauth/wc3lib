@@ -34,7 +34,7 @@ namespace editor
 class DoodadEditor : public ObjectEditorTab
 {
 	public:
-		DoodadEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		DoodadEditor(MpqPriorityList *source, ObjectData *objectData, ObjectEditor *objectEditor, QWidget *parent = nullptr);
 		virtual ~DoodadEditor();
 
 		DoodadData* doodadData() const;

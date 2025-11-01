@@ -39,7 +39,7 @@ namespace editor
 class ObjectIdDialog : public QDialog, protected Ui::ObjectIdDialog
 {
 	public:
-		explicit ObjectIdDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
+		explicit ObjectIdDialog(QWidget* parent = nullptr);
 
 		void setId(const QString &id);
 		QString id() const;

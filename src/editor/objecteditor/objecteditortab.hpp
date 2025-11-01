@@ -65,7 +65,7 @@ class ObjectEditorTab : public QWidget
 		/**
 		 * Creates a new object editor tab using the source \p source and standard objects data/meta data \p objectData.
 		 */
-		ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData, const QString &groupName, ObjectEditor *objectEditor = 0, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		ObjectEditorTab(MpqPriorityList *source, ObjectData *objectData, const QString &groupName, ObjectEditor *objectEditor = nullptr, QWidget *parent = nullptr);
 		virtual ~ObjectEditorTab();
 
 		/**
