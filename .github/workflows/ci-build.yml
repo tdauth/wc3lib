@@ -28,11 +28,11 @@ jobs:
         gettext --version
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Debug -DBLP=ON -DMPQ=ON -DMDLX=ON -DMAP=ON -DJASS=ON -DAPP=ON -DEDITOR=ON -DUSE_KIOSLAVE=ON -DUSE_QBLP=ON -DUSE_OGREBLP=ON -DGAME=ON -DUSE_MIME=ON -DDOC=ON 
 
     - name: Build with CMake
-      run: cmake --build ${{github.workspace}}/build
+      run: cmake --build ${{github.workspace}}/build --config Debug
 
     - name: Run CTest
       working-directory: ${{github.workspace}}/build
-      run: ctest --verbose
+      run: ctest --verbose --output-on-failure
