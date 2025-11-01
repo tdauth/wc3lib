@@ -411,14 +411,14 @@ class Archive : public Format, private boost::noncopyable
 inline bool Archive::hasStrongDigitalSignature(istream &istream)
 {
 	static const uint32 identifier[4] = { 'N', 'G', 'I', 'S' };
-	uint32 data;
+	static const std::size_t identifierSize = 4 * sizeof(uint32);
+	uint32 data = 0;
 	std::streamsize size = 0;
 	const std::streampos position = istream.tellg();
 	wc3lib::read(istream, data, size);
-	bool result = size == sizeof(identifier) && memcmp(&identifier, &data, sizeof(identifier)) == 0;
 	istream.seekg(position); // jump back
 
-	return result;
+	return size == identifierSize && memcmp(&identifier, &data, identifierSize) == 0;
 }
 
 inline std::streamsize Archive::strongDigitalSignature(istream &istream, StrongDigitalSignature &signature)

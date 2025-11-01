@@ -61,7 +61,7 @@ void extract(Archive &mpq, std::string &entry, const boost::program_options::var
 	Listfile::toNativePath(dirPath);
 #endif
 	// output directory is archive's basename in the current working directory (name without extension)
-	boost::filesystem::path outputDirectoryPath = boost::filesystem::current_path() / boost::filesystem::basename(mpq.path());
+	boost::filesystem::path outputDirectoryPath = boost::filesystem::current_path() / mpq.path().stem();
 	boost::filesystem::path entryPath = outputDirectoryPath / boost::filesystem::path(dirPath);
 
 	if (!vm.count("overwrite") && boost::filesystem::exists(entryPath))
