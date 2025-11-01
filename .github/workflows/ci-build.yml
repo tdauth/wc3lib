@@ -18,6 +18,7 @@ jobs:
     
     - name: Install required Ubuntu packages
       run: |
+        sudo add-apt-repository universe
         sudo apt-get update
         sudo apt-get install -y cmake-gui gettext libboost-all-dev libjpeg-dev libbz2-dev qtbase5-dev qtmultimedia5-dev libogre-1.12-dev extra-libkf5kdelibs4support-dev cmake-modules doxygen
     
