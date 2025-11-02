@@ -19,25 +19,79 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Configure CMake with Clang (NMake Generator)
-      # We still set the compiler variables to ensure Clang is used, 
-      # but the generator is NMake Makefiles
-      run: cmake -B build -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
-      env:
-        CC: clang
-        CXX: clang++
+    - name: Set up Clang
+      # This action installs Clang/LLVM and adds it to the PATH
+      uses: egor-tensin/setup-clang@v1
+      with:
+        version: '17' # Specify your required Clang version (e.g., '17' or 'latest')
+        platform: x64
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '6.5.0' # Specify your required Qt version
+        arch: 'windows_msvc2022_64' # Use an appropriate architecture/toolchain
+        cache: true
+
+    - name: Set up Boost
+      uses: MarkusJx/install-boost@v1
+      id: boost
+      with:
+        version: '1.83.0' # Specify your required Boost version
+        toolset: 'msvc'
+
+    - name: Set up Dependencies (Gettext, Ogre) using vcpkg
+      # vcpkg is pre-installed on GitHub-hosted runners
+      run: |
+        # Install gettext and Ogre3D
+        vcpkg install gettext:x64-windows
+        vcpkg install ogre:x64-windows
+        # Or for the newer Ogre-next: vcpkg install ogre-next:x64-windows
+
+        # Set VCPKG_ROOT environment variable for CMake to find packages easily
+        echo "VCPKG_ROOT=C:\vcpkg" >> $GITHUB_ENV
+      shell: cmd
+
+    - name: Configure CMake
+      run: |
+        # Set the CC and CXX environment variables to point to the Clang compilers
+        echo "CC=clang-cl" >> $GITHUB_ENV
+        echo "CXX=clang-cl" >> $GITHUB_ENV
+
+        # Run the Visual Studio's vcvarsall.bat to set up the environment required by clang-cl
+        call "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" x64
+
+        # Configure CMake using the Ninja generator and the Clang compilers specified via CC/CXX
+        cmake -S . -B build -G "Ninja" ^
+          -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ^
+          -DQt6_DIR=${{ env.QT_ROOT_DIR }}/lib/cmake/Qt6 ^
+          -DBOOST_ROOT=${{ steps.boost.outputs.root }} ^
+          -DBOOST_LIBRARYDIR=${{ steps.boost.outputs.librarydir }}
+      shell: cmd
 
     - name: Build project
-      # Use the --build command to run NMake
-      run: cmake --build build --config Release
+      run: |
+        call "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" x64
+        cmake --build build --config Release
+      shell: cmd
 
-    - name: Run tests (optional)
-      run: cmake --test build
+    - name: Run CTest
+      # Assumes you have tests defined in your CMakeLists.txt using add_test()
+      run: |
+        call "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" x64
+        # Navigate to the build directory before running ctest
+        cd build
+        ctest --verbose -C Release
+      shell: cmd
       
-    - name: Run CPack to generate installer
-      # No special Visual Studio environment setup (vcvarsall.bat) is needed for the Ninja build.
-      # CPack uses the build system metadata to create the package.
-      run: cmake --build build --target package --config Release
+    - name: Run CPack
+      # Assumes you have CPack configuration in your CMakeLists.txt
+      run: |
+        call "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" x64
+        # Navigate to the build directory before running cpack
+        cd build
+        cpack -C Release
+      shell: cmd
 
     - name: Upload installer artifact
       uses: actions/upload-artifact@v4
