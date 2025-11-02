@@ -1,4 +1,4 @@
-name: CMake CI Build and Test
+name: Ubuntu CMake Make Clang Build
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
       run: |
         sudo add-apt-repository universe
         sudo apt-get update
-        sudo apt-get install -y cmake-gui gettext libboost-all-dev libjpeg-dev libbz2-dev qtbase5-dev qtmultimedia5-dev libogre-1.12-dev extra-cmake-modules libkf5kio-dev doxygen
+        sudo apt-get install -y clang cmake-gui gettext libboost-all-dev libjpeg-dev libbz2-dev qtbase5-dev qtmultimedia5-dev libogre-1.12-dev extra-cmake-modules libkf5kio-dev doxygen
     
     - name: Use the installed package (example)
       run: |
@@ -28,7 +28,10 @@ jobs:
         gettext --version
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Debug -DBLP=ON -DMPQ=ON -DMDLX=ON -DMAP=ON -DJASS=ON -DAPP=ON -DEDITOR=ON -DUSE_KIOSLAVE=ON -DUSE_QBLP=ON -DUSE_OGREBLP=ON -DGAME=ON -DUSE_MIME=ON -DDOC=ON 
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Debug -DBLP=ON -DMPQ=ON -DMDLX=ON -DMAP=ON -DJASS=ON -DAPP=ON -DEDITOR=ON -DUSE_KIOSLAVE=ON -DUSE_QBLP=ON -DUSE_OGREBLP=ON -DGAME=ON -DUSE_MIME=ON -DDOC=ON
+      env:
+        CC: clang
+        CXX: clang++
 
     - name: Build with CMake
       run: cmake --build ${{github.workspace}}/build --config Debug
