@@ -297,7 +297,7 @@ inline std::streampos endPosition(std::basic_istream<_CharT> &istream)
  *
  * \ingroup io
  */
-template<typename T, typename _CharT>
+template<typename _CharT>
 inline std::streamsize remainingInputStreamSize(std::basic_istream<_CharT> &istream)
 {
 	auto current_pos = istream.tellg();
