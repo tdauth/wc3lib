@@ -55,12 +55,12 @@ BOOST_AUTO_TEST_CASE(HumanCampaignCastle)
 	}
 
 	BOOST_REQUIRE(valid);
-	BOOST_REQUIRE(texture.format() == blp::Blp::Format::Blp1);
-	BOOST_REQUIRE(texture.compression() == blp::Blp::Compression::Paletted);
-	BOOST_REQUIRE(texture.pictureType() == blp::Blp::PictureType::PalettedWithAlpha2);
-	BOOST_REQUIRE(texture.mipMaps().size() == 10);
-	BOOST_REQUIRE(texture.mipMaps()[0].width() == 512);
-	BOOST_REQUIRE(texture.mipMaps()[0].height() == 512);
+	BOOST_REQUIRE_EQUAL(texture.format(), blp::Blp::Format::Blp1);
+	BOOST_REQUIRE_EQUAL(texture.compression(), blp::Blp::Compression::Paletted);
+	BOOST_REQUIRE_EQUAL(texture.pictureType(), blp::Blp::PictureType::PalettedWithAlpha2);
+	BOOST_REQUIRE_EQUAL(texture.mipMaps().size(), 10);
+	BOOST_REQUIRE_EQUAL(texture.mipMaps()[0].width(), 512);
+	BOOST_REQUIRE_EQUAL(texture.mipMaps()[0].height(), 512);
 }
 
 BOOST_AUTO_TEST_CASE(HumanCampaignCastleWrite)
@@ -85,12 +85,12 @@ BOOST_AUTO_TEST_CASE(HumanCampaignCastleWrite)
 
 	in.close();
 	BOOST_REQUIRE(valid);
-	BOOST_REQUIRE(texture.format() == blp::Blp::Format::Blp1);
-	BOOST_REQUIRE(texture.compression() == blp::Blp::Compression::Paletted);
-	BOOST_REQUIRE(texture.pictureType() == blp::Blp::PictureType::PalettedWithAlpha2);
-	BOOST_REQUIRE(texture.mipMaps().size() == 10);
-	BOOST_REQUIRE(texture.mipMaps()[0].width() == 512);
-	BOOST_REQUIRE(texture.mipMaps()[0].height() == 512);
+	BOOST_REQUIRE_EQUAL(texture.format(), blp::Blp::Format::Blp1);
+	BOOST_REQUIRE_EQUAL(texture.compression(), blp::Blp::Compression::Paletted);
+	BOOST_REQUIRE_EQUAL(texture.pictureType(), blp::Blp::PictureType::PalettedWithAlpha2);
+	BOOST_REQUIRE_EQUAL(texture.mipMaps().size(), 10);
+	BOOST_REQUIRE_EQUAL(texture.mipMaps()[0].width(), 512);
+	BOOST_REQUIRE_EQUAL(texture.mipMaps()[0].height(), 512);
 
 	ofstream out("HumanCampaignCastleOut.blp", std::ios::out | std::ios::binary);
 	BOOST_REQUIRE(out);
@@ -125,10 +125,10 @@ BOOST_AUTO_TEST_CASE(HumanCampaignCastleWrite)
 
 	in.close();
 	BOOST_REQUIRE(valid);
-	BOOST_REQUIRE(texture.format() == blp::Blp::Format::Blp1);
-	BOOST_REQUIRE(texture.compression() == blp::Blp::Compression::Paletted);
-	BOOST_REQUIRE(texture.pictureType() == blp::Blp::PictureType::PalettedWithAlpha2);
-	BOOST_REQUIRE(texture.mipMaps().size() == 10);
-	BOOST_REQUIRE(texture.mipMaps()[0].width() == 512);
-	BOOST_REQUIRE(texture.mipMaps()[0].height() == 512);
+	BOOST_REQUIRE_EQUAL(texture.format(), blp::Blp::Format::Blp1);
+	BOOST_REQUIRE_EQUAL(texture.compression(), blp::Blp::Compression::Paletted);
+	BOOST_REQUIRE_EQUAL(texture.pictureType(), blp::Blp::PictureType::PalettedWithAlpha2);
+	BOOST_REQUIRE_EQUAL(texture.mipMaps().size(), 10);
+	BOOST_REQUIRE_EQUAL(texture.mipMaps()[0].width(), 512);
+	BOOST_REQUIRE_EQUAL(texture.mipMaps()[0].height(), 512);
 }

@@ -221,6 +221,9 @@ class Blp : public Format
 			Blp1 = 0x424c5031, //(dword)'BLP1', /// Warcraft The Frozen Throne
 			Blp2 = 0x424c5032, //(dword)'BLP2' /// World of Warcraft
 		};
+		
+		// Required for BOOST_REQUIRE_EQUAL
+		friend std::ostream& operator<<(std::ostream &os, const Format &format);
 
 		enum class Compression : dword
 		{
@@ -229,6 +232,9 @@ class Blp : public Format
 			Uncompressed = 2, /// BLP2 only.
 			DirectXCompression = 3 /// BLP2 only.
 		};
+		
+		// Required for BOOST_REQUIRE_EQUAL
+		friend std::ostream& operator<<(std::ostream &os, const Compression &compression);
 
 		enum class Flags : dword
 		{
@@ -237,6 +243,9 @@ class Blp : public Format
 			Alpha4Bit = 4,  /// BLP2 only (DXT3 only).
 			Alpha = 8
 		};
+		
+		// Required for BOOST_REQUIRE_EQUAL
+		friend std::ostream& operator<<(std::ostream &os, const Flags &flags);
 
 		enum class PictureType : dword
 		{
@@ -244,6 +253,9 @@ class Blp : public Format
 			PalettedWithAlpha2 = 4,
 			PalettedWithoutAlpha = 5
 		};
+		
+		// Required for BOOST_REQUIRE_EQUAL
+		friend std::ostream& operator<<(std::ostream &os, const PictureType &pictureType);
 
 		/**
 		 * \return Returns auto-detected BLP format of buffer \p buffer with size \p bufferSize. Buffer can be larger than required (only first 4 bytes are checked).
@@ -357,6 +369,62 @@ class Blp : public Format
 inline constexpr bool operator&(Blp::Flags x, Blp::Flags y)
 {
 	return static_cast<bool>(static_cast<dword>(x) & static_cast<dword>(y));
+}
+
+// Required for BOOST_REQUIRE_EQUAL
+inline std::ostream& operator<<(std::ostream &os, const Blp::Format &format) {
+	switch (format) {
+		case Blp::Format::Blp0:   os << "wc3lib::blp::Format::Blp0"; break;
+		case Blp::Format::Blp1:   os << "wc3lib::blp::Format::Blp1"; break;
+		case Blp::Format::Blp2:   os << "wc3lib::blp::Format::Blp2"; break;
+		default: os << "Unknown format"; break;
+	}
+	return os;
+}
+
+inline std::ostream& operator<<(std::ostream &os, const Blp::Compression &compression) {
+    switch (compression) {
+        case Blp::Compression::Jpeg:   os << "Jpeg"; break;
+        case Blp::Compression::Paletted: os << "Paletted"; break;
+        case Blp::Compression::Uncompressed:  os << "Uncompressed"; break;
+		case Blp::Compression::DirectXCompression:  os << "DirectXCompression"; break;
+        default: os << "Unknown compression"; break;
+    }
+    return os;
+}
+
+inline std::ostream& operator<<(std::ostream &os, const Blp::Flags &flags) {
+	stringstream s;
+	
+	if (flags & Blp::Flags::NoAlpha) {
+		s << "NoAlpha";
+	}
+	
+	if (flags & Blp::Flags::Alpha1Bit) {
+		s << "Alpha1Bit";
+	}
+	
+	if (flags & Blp::Flags::Alpha4Bit) {
+		s << "Alpha4Bit";
+	}
+	
+	if (flags & Blp::Flags::Alpha) {
+		s << "Alpha";
+	}
+	
+    os << s.str();
+	
+    return os;
+}
+
+inline std::ostream& operator<<(std::ostream &os, const Blp::PictureType &pictureType) {
+    switch (pictureType) {
+        case Blp::PictureType::PalettedWithAlpha1:   os << "PalettedWithAlpha1"; break;
+        case Blp::PictureType::PalettedWithAlpha2: os << "PalettedWithAlpha2"; break;
+        case Blp::PictureType::PalettedWithoutAlpha:  os << "PalettedWithoutAlpha"; break;
+        default: os << "Unknown pictureType"; break;
+    }
+    return os;
 }
 
 inline bool Blp::MipMap::Color::hasRgba() const
