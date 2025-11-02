@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(Orc_Exp_Mdx)
 	{
 		size = model.read(in);
 	}
-	catch (Exception &e)
+	catch (const Exception &e)
 	{
 		valid = false;
 		std::cerr << e.what() << std::endl;
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE(Orc_Exp_Mdx)
 	{
 		size = model.write(out);
 	}
-	catch (Exception &e)
+	catch (const Exception &e)
 	{
 		valid = false;
 		std::cerr << e.what() << std::endl;
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(Orc_Exp_Mdx)
 	{
 		size = model.read(in);
 	}
-	catch (Exception &e)
+	catch (const Exception &e)
 	{
 		valid = false;
 		std::cerr << e.what() << std::endl;
