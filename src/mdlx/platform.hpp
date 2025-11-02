@@ -53,6 +53,15 @@ const long32 noneId = 0xFFFFFFFF;
 
 const std::size_t MDX_TAG_SIZE = 4;
 
+inline std::string readableMdxTag(const char8_t tag[MDX_TAG_SIZE])
+{
+	char8_t r[MDX_TAG_SIZE + 1];
+	std::memcpy(&r, tag, sizeof(char8_t) * MDX_TAG_SIZE);
+	r[MDX_TAG_SIZE] = 0;
+
+	return std::string(reinterpret_cast<const char*>(r));
+}
+
 /**
  * \brief Each chunk starts with a header that consists of the chunk tag and the chunk size in bytes, not including the size of the header itself.
  */
@@ -69,11 +78,7 @@ struct MdxHeader
 
 	std::string readableTag() const
 	{
-		char8_t r[MDX_TAG_SIZE + 1];
-		std::memcpy(&r, tag, sizeof(char8_t) * MDX_TAG_SIZE);
-		r[MDX_TAG_SIZE] = 0;
-
-		return std::string(reinterpret_cast<const char*>(r));
+		return readableMdxTag(tag);
 	}
 };
 
