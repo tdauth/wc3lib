@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(WriteHeader)
 		jpeg_write_tables(&cinfo);
 		//jpeg_start_compress(&cinfo, true);
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		success = false;
 		std::cerr << e.what() << std::endl;
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(WriteHeader)
 	//BOOST_CHECK(hasJpegMarker(0xFE, buffer, bufferSize));
 	BOOST_CHECK(hasJpegMarker(0xDB, buffer, bufferSize));
 	BOOST_CHECK(hasJpegMarker(0xC4, buffer, bufferSize));
-	BOOST_CHECK(bufferSize == 624);
+	BOOST_CHECK_EQUAL(bufferSize, 624);
 }
 
 BOOST_AUTO_TEST_CASE(WriteHeader2)
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE(WriteHeader2)
 		//jpeg_finish_compress(&cinfo);
 		jpeg_destroy_compress(&cinfo);
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		success = false;
 		std::cerr << e.what() << std::endl;
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE(WriteHeader2)
 		std::streamsize size = 0;
 		writeByteCount(ostream, boost::numeric_cast<dword>(headerSize), headerPosition, size);
 	}
-	catch (Exception &e)
+	catch (const Exception &e)
 	{
 		success = false;
 		std::cerr << e.what() << std::endl;
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(WriteHeader2)
 
 	BOOST_REQUIRE(success);
 	std::cerr << "Header size 2: " << headerSize << std::endl;
-	BOOST_CHECK(headerSize == 624);
+	BOOST_CHECK_EQUAL(bufferSize, 624);
 	ostream.close();
 
 	/*
