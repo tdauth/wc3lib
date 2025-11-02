@@ -53,7 +53,7 @@ std::streamsize Mdlx::read(InputStream &istream)
 	auto end = istream.tellg();
 	istream.seekg(p);
 
-	while (istream && istream.tellg() < end)
+	while (istream && istream.tellg() < end && remainingInputStreamSize(istream) >= sizeof(MdxHeader))
 	{
 		p = istream.tellg();
 		MdxHeader header;
@@ -71,12 +71,14 @@ std::streamsize Mdlx::read(InputStream &istream)
 		}
 		else if (isMdxTag(header.tag, u8"MODL"))
 		{
+			std::cerr << "MODL" << std::endl;
 			std::cerr << "Before reading MODL with previous position " << p << std::endl;
 			istream.seekg(p);
 			size += m_model.read(istream);
 		}
 		else if (isMdxTag(header.tag, u8"SEQS"))
 		{
+			std::cerr << "SEQS" << std::endl;
 			m_sequences.clear();
 
 			while (header.size > 0)
@@ -90,6 +92,7 @@ std::streamsize Mdlx::read(InputStream &istream)
 		}
 		else if (isMdxTag(header.tag, u8"GLBS"))
 		{
+			std::cerr << "GLBS" << std::endl;
 			m_globalSequences.clear();
 
 			while (header.size > 0)
@@ -104,6 +107,7 @@ std::streamsize Mdlx::read(InputStream &istream)
 		}
 		else if (isMdxTag(header.tag, u8"MTLS"))
 		{
+			std::cerr << "MTLS" << std::endl;
 			m_materials.clear();
 
 			while (header.size > 0)
@@ -117,6 +121,7 @@ std::streamsize Mdlx::read(InputStream &istream)
 		}
 		else if (isMdxTag(header.tag, u8"TXAN"))
 		{
+			std::cerr << "TXAN" << std::endl;
 			m_textureAnimations.clear();
 
 			while (header.size > 0)
@@ -130,6 +135,7 @@ std::streamsize Mdlx::read(InputStream &istream)
 		}
 		else if (isMdxTag(header.tag, u8"GEOS"))
 		{
+			std::cerr << "GEOS" << std::endl;
 			m_geosets.clear();
 
 			while (header.size > 0)
@@ -143,6 +149,7 @@ std::streamsize Mdlx::read(InputStream &istream)
 		}
 		else if (isMdxTag(header.tag, u8"TEXS"))
 		{
+			std::cerr << "TEXS" << std::endl;
 			m_textures.clear();
 
 			while (header.size > 0)
@@ -156,6 +163,7 @@ std::streamsize Mdlx::read(InputStream &istream)
 		}
 		else if (isMdxTag(header.tag, u8"SNDS"))
 		{
+			std::cerr << "SNDS" << std::endl;
 			// Note that this is here for completeness' sake.
 			// These objects were only used at some point before Warcraft 3 released.
 			m_soundTracks.clear();
@@ -171,6 +179,7 @@ std::streamsize Mdlx::read(InputStream &istream)
 		}
 		else if (isMdxTag(header.tag, u8"PIVT"))
 		{
+			std::cerr << "PIVT" << std::endl;
 			m_pivotPoints.clear();
 
 			while (header.size > 0)
@@ -199,6 +208,8 @@ std::streamsize Mdlx::read(InputStream &istream)
 			}
 		}
 	}
+
+	std::cout << "Remaining bytes in MDX " << remainingInputStreamSize(istream) << std::endl;
 
 	return size;
 }
