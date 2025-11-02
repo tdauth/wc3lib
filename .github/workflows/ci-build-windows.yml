@@ -1,4 +1,4 @@
-name: Windows CMake NMake Clang Build
+name: Windows CMake Ninja Clang Build
 
 on:
   push:
@@ -19,16 +19,10 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # The NMake generator requires the Visual Studio command line environment
-    - name: Setup Visual Studio environment
-      # This action sets up the necessary environment variables (like PATH, INCLUDE, LIB)
-      # so that NMake can find the required tools (even Clang/LLVM, as they are integrated)
-      uses: microsoft/setup-msbuild@v1.1
-
     - name: Configure CMake with Clang (NMake Generator)
       # We still set the compiler variables to ensure Clang is used, 
       # but the generator is NMake Makefiles
-      run: cmake -B build -G "NMake Makefiles" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+      run: cmake -B build -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
       env:
         CC: clang
         CXX: clang++
@@ -41,13 +35,9 @@ jobs:
       run: cmake --test build
       
     - name: Run CPack to generate installer
-      shell: cmd
-      run: |
-        REM Re-establish the VS environment for the packaging step
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-
-        REM Run CPack to create the installer/package
-        cmake --build build --target package --config Release
+      # No special Visual Studio environment setup (vcvarsall.bat) is needed for the Ninja build.
+      # CPack uses the build system metadata to create the package.
+      run: cmake --build build --target package --config Release
 
     - name: Upload installer artifact
       uses: actions/upload-artifact@v4
