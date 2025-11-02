@@ -271,7 +271,9 @@ Just disable them in the CMake options.
 
 There is several unoffical specifications for the formats of Warcraft III:
 
+* [MDL/MDX Specification by Jimmy "Nub" Campbell](./doc/mdlx/mdlxdata.txt)
 * [MDX Specification](https://www.hiveworkshop.com/threads/mdx-specifications.240487/)
+* [BLP Specification by Magnus Ostberg](./doc/blp/BLP.txt)
 * [BLP Specification](https://www.hiveworkshop.com/threads/blp-specifications-wc3.279306/)
 * [Warcraft III Trigger Format Specification](https://www.hiveworkshop.com/threads/warcraft-3-trigger-format-specification-wtg.294491/)
 * [vJass Specification](http://www.wc3c.net/vexorian/jasshelpermanual.html)
