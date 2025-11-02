@@ -113,10 +113,11 @@ inline void skipMdxInclusiveEmptyBytes(Format::InputStream &istream, const long3
 {
 	const std::streamsize emptyBytes = inclusiveSize - size;
 
-    if (emptyBytes > 0)
+	if (emptyBytes > 0)
     {
-        istream.seekg(emptyBytes, std::ios_base::cur);
-    }
+		std::cout << "Skipping " << emptyBytes << " empty bytes." << std::endl;
+		istream.seekg(emptyBytes, std::ios_base::cur);
+	}
 }
 
 inline void skipMdxHeaderEmptyBytes(Format::InputStream &istream, const MdxHeader &header, const std::streamsize &size)
