@@ -41,8 +41,8 @@ namespace wc3lib
 namespace editor
 {
 
-ModelEditor::ModelEditor(Root *root, MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent, Qt::WindowFlags f)
-: Module(source, organization, applicationName, parent, f)
+ModelEditor::ModelEditor(Root *root, MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent)
+: Module(source, organization, applicationName, parent)
 , m_modelView(new ModelEditorView(root, this))
 , m_recentUrl("")
 , m_models()
@@ -471,7 +471,7 @@ bool ModelEditor::openUrl(const QUrl &url)
 	}
 
 	OgreMdlx *model = ogreModel.get();
-	this->m_models.push_back(ogreModel);
+	this->m_models.push_back(std::move(ogreModel));
 	this->m_modelView->root()->addFrameListener(model);
 	addCameraActions(*model);
 
