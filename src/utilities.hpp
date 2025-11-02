@@ -289,6 +289,30 @@ inline std::streampos endPosition(std::basic_istream<_CharT> &istream)
 }
 
 /**
+ * \brief Gets the number of reamining bytes of an input stream.
+ *
+ * \param istream The input stream from which the remaining bytes is got from.
+ *
+ * \return Returns the remaining bytes of the input stream \p istream.
+ *
+ * \ingroup io
+ */
+template<typename T, typename _CharT>
+inline std::streamsize remainingInputStreamSize(std::basic_istream<_CharT> &istream)
+{
+	auto current_pos = istream.tellg();
+	istream.seekg(0, std::ios::end);
+	std::streampos end_pos = istream.tellg();
+	istream.seekg(current_pos);
+
+	if (end_pos == -1 || current_pos == -1) {
+		return -1;
+	}
+
+	return end_pos - current_pos;;
+}
+
+/**
  * \brief Checks if the an input stream has reached its end.
  *
  * Can be used if you want to check if anything is left to read in an input stream.
