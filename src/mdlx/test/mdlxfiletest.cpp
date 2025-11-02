@@ -68,6 +68,7 @@ void verifyOrcExp(const Mdlx &model)
 
 BOOST_AUTO_TEST_CASE(Orc_Exp_Mdx)
 {
+	std::cout << "Orc_Exp_Mdx" << std::endl;
 	ifstream in("Orc_Exp.mdx");
 
 	BOOST_REQUIRE(in);
@@ -141,6 +142,7 @@ BOOST_AUTO_TEST_CASE(Orc_Exp_Mdx)
 
 BOOST_AUTO_TEST_CASE(Orc_Exp_Mdlx)
 {
+	std::cout << "Orc_Exp_Mdlx" << std::endl;
 	spiritTraceLog.close();
 	spiritTraceLog.open("mdlorc_traces.xml");
 

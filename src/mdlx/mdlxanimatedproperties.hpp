@@ -145,6 +145,7 @@ std::streamsize MdlxAnimatedProperties<N, _ValueType>::read(InputStream &istream
 	std::streamsize size = 0;
 	long32 count = 0;
 	wc3lib::read(istream, count, size);
+	std::cerr << "Count " << count << std::endl;
 	wc3lib::read(istream, m_lineType, size);
 	wc3lib::read(istream, m_globalSequenceId, size);
 	m_properties.resize(count);
