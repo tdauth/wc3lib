@@ -750,7 +750,7 @@ unsigned int PKEXPORT implode(
 
     for(i = 0; i < 0x10; i++)
     {
-        if(1 << ExLenBits[i])
+        if((1 << ExLenBits[i]) != 0)
         {
             for(nCount2 = 0; nCount2 < (1 << ExLenBits[i]); nCount2++)
             {
