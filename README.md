@@ -37,15 +37,9 @@ In this case only the core modules and command line tools will be available.
 You will need the MPQ archives from Warcraft III: The Frozen Throne if you want to use GUI modules from the editor such as "wc3object" or to run certain unit tests.
 You can specify their location in a GUI dialog when starting the binary.
 
-## Automatic Build with TravisCI on Linux
+## Automatic Builds with GitHub actions
 
-[![Build Status](https://travis-ci.org/tdauth/wc3lib.svg?branch=master)](https://travis-ci.org/tdauth/wc3lib)
-
-## Automatic Windows Build with AppVeyor on Windows
-
-[Latest Build](https://ci.appveyor.com/project/tdauth/wc3lib)
-
-The file [appveyor.yml](./appveyor.yml) configures the automatic build for AppVeyor which uses Windows.
+[All workflows](https://github.com/tdauth/wc3lib/actions)
 
 ## Manual Build on Linux
 
