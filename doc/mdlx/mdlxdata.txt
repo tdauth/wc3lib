@@ -1,0 +1,929 @@
+MDL/MDX - Warcraft III Model Format Specifications
+  by Jimmy "Nub" Campbell: jcampbelly@gmail.com
+  WoW - Salty of Garona
+
+A MDX
+  A.1 Notes
+  A.2 Layout
+  A.3 Heierarchy
+B MDL
+  B.1 Notes
+  B.2 Layout
+
+Versions
+- Updated 12/13/2003 (MDL: Geoset Faces)
+- Updated 11/28/2003 (MDX: GEOS-PTYP/PCNT and MDL: Faces)
+- MDL spec added by Nub 11/10/2003
+- MDX spec updated by Nub 9/29/2003
+- MDX spec originally written by KMK (http://kmkdesign.8m.com/downloads/)
+
+===================================================================================
+A.1 | MDX Format Notes
+===================================================================================
+
+- Everything has been derived from statistical analysis of every MDX Blizzard has 
+  released. There are a few unknown values and there may yet be some structures 
+  or flags unlisted, but these values are constant accross every MDX file and 
+  those structures and flags have not been utilized by Blizzard in Warcraft III.
+
+- No of bytes in chunk/struct/etc., excluding byte count:	nbytes
+
+- No of bytes in chunk/struct/etc., including byte count:	nbytesi
+
+- Parentheses indicate optional chunks
+
+- Long/float size: 32-bit
+
+===================================================================================
+A.2 | MDX Format Layout
+===================================================================================
+
+MDLX
+ATCH						// [Attachment]
+	long 	nbytes;
+	struct {
+		long	nbytesi;
+		OBJ
+		ASCII	Path			(0x100)
+		long	???;			(0)
+		long	AttachmentID;
+		(KATV)
+	} attachments[natts];
+BONE						// [Bone]
+	long	nbytes;
+	struct {
+		OBJ
+		long 	GeosetID;
+		long 	GeosetAnimID;
+	} bones[nbons];
+CAMS						// [Camera]
+	long 	nbytes;
+	struct {
+		long 	nbytesi;
+		ASCII 	Name; 			(0x50)
+		float	PosX, PosY, PosZ;
+		float	FieldOfView;
+		float	FarClip;
+		float	NearClip;
+		struct	{ 			// Target
+			float	x, y, z;
+			(KCTR)
+		}
+		(KCRL)
+		(KTTR)
+		(BKCT) ?????????????????????????????????????????????????????????????????
+	} cameras[ncams];
+CLID						// [CollisionShape] (now has VRTX and NRMS)
+	long	nbytes;
+	struct {
+		OBJ
+		long	Shape;			(0:box;2:sphere)
+		float 	x, y, z;
+		if (Shape == 0)
+			float	x2, y2, z2;
+		else
+			float	BoundsRadius
+	} collisionshape[nclds];
+EVTS						// [EventObject]
+	long	nbytes;
+	struct {
+		OBJ
+		ASCII 	"KEVT"			// Actually a separate object
+		long	ntrks;			// usually (1)
+		0xFFFFFFFF
+		long 	frames[ntrks];
+	} events[nevts];
+GEOA						// [GeosetAnim]
+	long	nbytes;
+	struct {
+		long	nbytesi;
+		float	staticAlpha;		(1.0:use KGAO)
+		long	ColorAnimation;		(0:none;1:DropShadow;2:Color;3:Both)
+		float	ColorR, ColorG, ColorB; (default:1)
+		long	GeosetID;
+		(KGAO)
+		(KGAC)
+	} geosanims[ngsan];
+GEOS						// [Geoset]
+	long	nbytes;
+	struct {
+		long	nbytes;
+		VRTX
+		NRMS
+		PTYP
+		PCNT
+		PVTX
+		GNDX
+		MTGC
+		MATS
+		long	MaterialID;
+		long	SelectionGroup;
+		long	Selectable		(0:none;4:Unselectable)
+		float	BoundsRadius;
+		float	MinExtx, MinExty, MinExtz;
+		float	MaxExtx, MaxExty, MaxExtz;
+		long 	nanim;
+		struct {
+			float	BoundsRadius;
+			float	MinExtx, MinExty, MinExtz;
+			float	MaxExtx, MaxExty, MaxExtz;
+		} ganimations[nganim];
+		UVAS
+		UVBS
+	} geosets[ngeos];
+--VRTX						// [Vertices]
+	long	nvrts;
+	struct {
+		float	x,y,z;
+	} vertices[nvrts];
+--NRMS						// [Normals]
+	long	nnrms;
+	struct {
+		float	x,y,z;
+	} normals[nnrms];
+--PTYP						// Not sure of the function of these.
+	long	nptyps;				//   PTYP seems to be a way to indicate the type 
+	long	primType[nptyps];		//   of primitive (4) for each group indicated
+--PCNT						//   in PCNT. And each value in PCNT is how 
+	long	npcnts;				//   many verts in a face (3).
+	long	primCount[npcnts];
+--PVTX						// [Faces]
+	long	ntris;
+	short	triangles[ntris];
+--GNDX						// [VertexGroup]
+	long	nvgrps;
+	byte	vertexGroups[nvgrps];
+--MTGC						// [Groups]
+	long	nmtrcs;				//   GroupCount is an array of lengths
+	long	groupCount[nmtrcs];		//   for each group.
+--MATS						// [Matrices]
+	long	nmats;				//   Each group is composed of the next
+	long	matrices[nmats];		//   groupCount[i] items of matrices.
+--(BIDX) ???
+--(BWGT) ???
+--UVAS (repositioned over PTYP)
+	long	ntvrts;
+	UVBS[ntvrts]
+--UVBS						// [TVertices] (nonexistant in v1300)
+	long	nvrts;
+	struct {
+		float	x,y;
+	} vertices[nvrts];
+GLBS						// [GlobalSequences]
+	long	nbytes;
+	long	durations[ndurs];		// ndurs = nbytes/4;
+HELP						// [Helper]
+	long	nbytes;
+	OBJ[nhlprs]
+// Almost any KXXX chunk can be stored as a KGSC/KMTA
+// Tag	   Values:	  Chunk Equivalent
+KATV	// [Visibility]:  KMTA;
+KLAV	// [Visibility]:  KMTA;
+KP2V	// [Visibility]:  KMTA;
+KPEV	// [Visibility]:  KMTA;
+KRVS	// [Visibility]:  KMTA;
+KGAO	// [Alpha]:	  KMTA;
+KLAI	// [Intensity]:   KMTA;
+KLBI	// [AmbIntensity]:KMTA;
+KMTF	// [TextureID]:	  KMTA; -> state is long value not float
+KP2E	// [EmissnRate]:  KMTA;
+KP2L	// [Latitude]: 	  KMTA;
+KP2N	// [Length]: 	  KMTA;
+KP2S	// [Speed]:	  KMTA;
+KP2W	// [Width]: 	  KMTA;
+KRHA	// [HeightAbove]: KMTA;
+KRHB	// [HeightBelow]: KMTA;
+KCRL 	// [Rotation]:	  KMTA;
+KGAC	// [Color]:	  KGSC;
+KLAC	// [Color]:	  KGSC;
+KLBC	// [AmbColor]:	  KGSC;
+KCTR 	// [Translation]: KGSC;
+KGTR 	// [Translation]: KGSC;
+KTAT	// [Translation]: KGSC;
+KTAS	// [Scaling]: 	  KGSC;
+KTAR	// [Rotation]:	  KGSC;
+KTTR	// [Translation]: KGSC;
+KGRT						// [Rotation]
+	long	nunks;
+	long	LineType;			(0:don't interp;1:linear;2:hermite;3:bezier)
+	long	GlobalSeqId;			// 0xFFFFFFFF if none
+	struct {
+		long	Frame;
+		float	a, b, c, d;
+		if (LineType > 1) {
+			float	InTana, InTanb, InTanc, InTand;
+			float	OutTana, OutTanb, OutTanc, OutTand;
+		}
+	} rotation[nunks];
+KGSC						// [Scaling]
+	long	nunks;
+	long	LineType;			(0:don't interp;1:linear;2:hermite;3:bezier)
+	long	GlobalSeqId;			// 0xFFFFFFFF if none
+	struct {
+		long	Frame;
+		float	x, y, z;
+		if (LineType > 1) {
+			float	InTanx, InTany, InTanz;
+			float	OutTanx, OutTany, OutTanz;
+		}
+	} scaling[nunks];
+KMTA						// [Alpha]
+	long	nunks;
+	long	LineType;			(0:don't interp;1:linear;2:hermite;3:bezier)
+	long	GlobalSeqId;			// 0xFFFFFFFF if none
+	struct {
+		long	Frame;
+		float	State;			(0 or 1)
+		if (LineType > 1) {
+			float	InTan;
+			float	OutTan;
+		}
+	} alpha[nunks];
+LAYS						// [Layer} (ID may have been removed, extra bytes...)
+	long	nlays;
+	struct {
+		long	nbytesi;
+		long	FilterMode;	(0:none;1:transparent;2:blend;3:additive;4:addalpha;5:modulate)
+		long	Shading;		//+1:unshaded;+2:SphereEnvMap;+16:twosided;
+		long	TextureID;              //  +32:unfogged;+64:NoDepthTest;+128:NoDepthSet)
+		long 	TVertexAnimId;		// 0xFFFFFFFF if none
+		long	CoordId;
+		float	Alpha;			(0(transparent)->1(opaque))
+		(KMTA)
+		(KMTF)				// state is long not float
+	} layers[nlays];
+LITE						// [Light]
+	long	nbytes;
+	struct {
+		long	nbytesi;
+		OBJ
+		long	Type			(0:Omnidirectional;1:Directional;2:Ambient)
+		float	AttStart, AttEnd;
+		float	ColR, ColG, ColB;
+		float	Intensity;
+		float	AmbColR, AmbColG, AmbColB;
+		float	AmbIntensity;
+		(KLAI)
+		(KLAV)
+		(KLAC)
+		(KLBC)
+		(KLBI)
+	} lights[nlits];
+MODL						// [Model] (extra byte before blendTIme (0))
+	long	nbytes;
+	ASCII	Name;				(0x150 bytes)
+	long	???;				(0)
+	float	BoundsRadius;
+	float	MinExtx, MinExty, MinExtz;
+	float	MaxExtx, MaxExty, MaxExtz;
+	long	BlendTime;
+MTLS						// [Materials]
+	long	nbytes;
+	struct {
+		long	nbytesi;
+		long	PriorityPlane;
+		long	RenderMode;		(+1:ConstantColor;+16:SortPrimsFarZ;+32:FullResolution)
+		LAYS
+	} materials[nmtls];
+OBJ
+	long	nbytesi;
+	ASCII	Name;				(0x50 bytes)
+	long	ObjectID;
+	long	Parent;				(0:default;0xFFFFFFFF:none)
+	long	Type;				// HELP:0;BONE:256;LITE:512;EVTS:1024;ATCH:2048;CLID:8192;
+	(KGTR)					//   +1(DontInherit Translation) +16(BillboardedLockX)
+	(KGRT)					//   +2(DontInherit Scaling)	 +32(BillboardedLockY)
+	(KGSC)					//   +4(DontInherit Rotation)	 +64(BillboardedLockZ)
+	(KATV)					//   +8(Billboarded)		 +128(CameraAnchored)
+PIVT						// [PivotPoints]
+	long	nbytes;
+	struct {
+		float 	x,y,z
+	} pivpts[npvps];
+PREM						// [ParticleEmitter]
+	long	nbytes;
+	struct {
+		long	nbytesi;
+		long	nbytesikg;		// inclusive bytecount including KGXXs
+		ASCII	Name;			(0x50 bytes)
+		long	ObjectID;
+		long	Parent; 		(0xFFFFFFFF if none)
+		long	Flags;	    (bit20)	// +bit23(EmitterUsesMDL) +bit8(EmitterUsesTGA)
+		(KGTR)
+		(KGRT)
+		(KGSC)
+		float	EmissionRate;
+		float	Gravity;
+		float	Longitude;
+		float	Latitidue;
+		ASCII	ModelPath;		(0x100 bytes)
+		long	???;			(0)
+		float	LifeSpan;
+		float	InitVelocity;
+		(KPEV)
+	} particleemitters[nprems];
+PRE2						// [ParticleEmitter2]
+	long	nbytes;
+	struct {
+		long	nbytesi;
+		long	nbytesikg;		// inclusive bytecount including KGXXs
+		ASCII	Name;			(0x50 bytes)
+		long	ObjectID;
+		long	Parent; 		(0xFFFFFFFF if none)
+		long	Flags;	    (bit20)	// +bit26(DontInherit Rotation)
+		(KGTR)				// +bit23(Unshaded)	+bit10(Unfogged)
+		(KGRT)				// +bit12(XYQuad)	+bit9(LineEmitter)
+		(KGSC)				// +bit11(ModelSpace)	+bit8(SortPrimsFarZ)
+		float	Speed;
+		float	Variation;
+		float	Latitidue;
+		float	Gravity;
+		float	Lifespan;
+		float	EmissionRate;
+		float	Length;
+		float	Width;
+		long	FilterMode; 		(0:Blend;1:Additive;2:Modulate;4:AlphaKey)
+		long	Rows;
+		long 	Columns;
+		long	Flag2;			(0:Head;1:Tail;2:Both)
+		float	TailLength;
+		float	Time;
+		struct {			// SegmentColor usually 3 segments
+			float	R, G, B; 	// Inverse order from MDL
+		} color[numsegments]
+		byte	Alpha1, A2, A3;
+		float	ScalingX, SY, SZ;
+		long	LifeSpanUVAnim1, L2, L3;
+		long	DecayUVAnim1, D2, D3;
+		long	TailUVAnim1, T2, T3;
+		long	TailDecayUVAnim1, TD2, TD3;
+		long	TextureID;
+		long	Squirt; 		(1:Squirt)
+		long	PriorityPlane;
+		long	ReplaceableID;
+		(KP2S)
+		(KP2L)
+		(KP2E)
+		(KP2V)
+		(KP2N)
+		(KP2W)
+	} particleemitters[npre2s];
+RIBB
+	long	nbytes;
+	struct {
+		long	nbytesi;
+		long	nbytesikg;		// inclusive bytecount including KGXXs
+		ASCII	Name;			(0x50 bytes)
+		long	ObjectID;
+		long	Parent; 		(0xFFFFFFFF if none)
+		long	Flags;			(0x00400000)
+		(KGTR)
+		(KGRT)
+		(KGSC)
+		float	HeightAbove;
+		float	HeightBelow;
+		float	Alpha;
+		float	ColorR, ColorG, ColorB;
+		float	LifeSpan;
+		long	???;			(0)
+		long	EmissionRate;
+		long	Rows;
+		long	Columns;
+		long	MaterialID;
+		float	Gravity;
+		(KRVS)
+		(KRHA)
+		(KRHB)
+	} ribbs[nribbs];
+SEQS						// [Sequences] (v13: +8 bytes?)
+	long	nbytes;
+	struct {
+		ASCII	Name;			(0x50 bytes)
+		long	IntStart, IntEnd;
+		float	MoveSpeed;
+		long	NoLooping;		(0:loop; 1:no loop)
+		float	Rarity;
+		long	???;			(0)
+		float	BoundsRadius;
+		float	MinExtx, MinExty, MinExtz;
+		float	MaxExtx, MaxExty, MaxExtz;
+	} sequences[nseqs];
+TEXS						// [Textures] (same as v800)
+	long	nbytes;
+	struct {
+		long	ReplaceableID;
+		ASCII	TexturePath;		(0x100 bytes)
+		long	???;			(0)
+		long	Wrapping;		(1:WrapWidth;2:WrapHeight;3:Both)
+	} textures[ntexs];
+TXAN						// [Texture Animations]
+	long 	nbytes;
+	struct {
+		long	nbytesi;
+		(KTAT)				// Might be optional
+		(KTAR)
+		(KTAS)
+	} txanims[nanims];
+VERS						// [Version]
+	long	nbytes;
+	long	Version; 			// Currently 0x20030000 (800)
+
+
+===================================================================================
+A.3 | MDX Format Hierarchy
+===================================================================================
+
+   [MDLX]--\				   [HELP]--|--Helper
+   [VERS]--|--Version			           |
+   [MODL]--|--Model			   [ATCH]--|--Attachment
+   [SEQS]--|--Sequences			[KATV]__/  |  \__Visibility
+   [GLBS]--|--GlobalSequences		           |
+   [MTLS]--|--Material			   [PIVT]--|--PivotPoints
+[LAYS]--|  |  |--Layer			   [PREM]--|--ParticleEmitter
+[KMTA]--|  |  |--Alpha			[KGTR]--|  |  |--Translation
+[KMTF]__/  |  \__TextureID		[KGRT]--|  |  |--Rotation
+           |				[KGSC]--|  |  |--Scaling
+   [TEXS]--|--Textures			[KPEV]__/  |  \__Visibility
+   [TXAN]--|--TextureAnims		           |
+[KTAT]--|  |  |--Translation		   [PRE2]--|--ParticleEmitter2
+[KTAR]--|  |  |--Rotation		[KGTR]--|  |  |--Translation
+[KTAS]__/  |  \__Scaling		[KGRT]--|  |  |--Rotation
+           |				[KGSC]--|  |  |--Scaling
+   [GEOS]--|--Geoset			[KP2S]--|  |  |--Speed
+[VRTX]--|  |  |--Vertices		[KP2L]--|  |  |--Latitudes
+[NRMS]--|  |  |--Normals		[KP2E]--|  |  |--EmissionRate
+[PTYP]--|  |  |--...			[KP2V]--|  |  |--Visibility
+[PCNT]--|  |  |--...			[KP2N]--|  |  |--Length
+[PVTX]--|  |  |--Faces			[KP2W]__/  |  \__Width
+[GNDX]--|  |  |--VertexGroup		           |
+[MTGC]--|  |  |--Groups			   [RIBB]--|--RibbonEmitter
+[MATS]--|  |  |--Matrices		[KGTR]--|  |  |--Translation
+[UVAS]--|  |  |--...			[KGRT]--|  |  |--Rotation
+[UVBS]__/  |  \__TVertices		[KGSC]--|  |  |--Scaling
+           |				[KRVS]--|  |  |--Speed
+   [GEOA]--|--GeosetAnim		[KRHA]--|  |  |--HeightAbove
+[KGAO]--|  |  |--Alpha			[KRHB]__/  |  \__HeightBelow
+[KGAC]__/  |  \__Color			           |
+           |				   [CAMS]--|--Cameras
+   [BONE]--|--Bone			[KCTR]--|  |  |--Translation
+   [LITE]--|--Light			[KCRL]--|  |  |--Rotation
+[KLAI]--|  |  |--Intensity		[KTTR]__/  |  \__Translation
+[KLAV]--|  |  |--Visibility		           |
+[KLAC]--|  |  |--Color			   [EVTS]--|--EventObject
+[KLBC]--|  |  |--AmbientColor		[KEVT]__/  |  \__...
+[KLBI]__/  |  \__Intensity		           |
+           |>>>				   [CLID]-----CollisionShape
+
+(Note, all structs with an OBJ may have KGTR,KGRT, and KGSC)
+
+===================================================================================
+B.1 | MDL Format Notes
+===================================================================================
+
+- Floating point numbers are in IEEE scientific notation format with 6 significant
+  figures. Exponent is not shown for exponents of ±4. If the number is an integral
+  float, decimal point is not shown.
+
+- Comments are prefixed by "//", <A|B|C> means A OR B OR C, and ... denotes that
+  if there are further comparable entries, they should be contiguously listed.
+
+- The order in which these chunks are listed are are the order in which they appear
+  in MDL files, it should be followed for conventional purposes and chunks with the
+  same tag should be contiguous. Chunks should also be listed in order of their
+  ObjectIDs if applicable. 
+
+- Note that colors are listed in BGR order.
+
+- Variables that can be animated shall be denoted by surrounding parentheses (Tag <VALUES>)
+  note that they are not to be included in the actual MDL file. The variable may only
+  be written as static or animated. If animated, the entire line shall be replaced
+  with an entry of the following format.
+
+- Animations follow this format:
+	Tag <long_count> {
+		<DontInterp|Linear|Hermite|Bezier>,
+		GlobalSeqId <long>,
+		<long_frame>: <VALUES>,
+			InTan <VALUES>,
+			OutTan <VALUES>,
+		...
+	}
+  <VALUES> denotes a field that is either a single number of the same type as the
+  corresponding static variable or a list of those numbers of the format
+	{ <value1>, <value2>, ..., <valueN> }
+  The four values listed above GlobalSeqId are the LineTypes for the animation;
+  GlobalSeqId is only shown if its value is not 0xFFFFFFFF; And InTan and OutTan
+  values are only listed if the LineType is Hermite or Bezier.
+
+- Properties of an Object:
+  - ObjectId may be omitted if the object is the only one in the MDL.
+  - Parent only appears when its value is not 0xFFFFFFFF.
+  - Everything from BillboardLockZ to DontInherit { ... } is a flag.
+    It may be that only one value may be in a DontInherit block at a time.
+  - Maximum length of name is 80 characters (0x50 bytes)
+
+- Technically every variable prefixed by "static" should be possible to animate.
+  However, for every instance where a static variable is not denoted animateable
+  by parenthesis, it is because there is no example in any Blizzard MDL.
+
+- The order is more or less the same as the MDX Format Hierarchy, except that
+  Textures and Materials switch places.
+
+===================================================================================
+B.2 | MDL Format Layout
+===================================================================================
+
+// Current FormatVersion is 800
+Version {
+	FormatVersion <long>,
+}
+// Num* lines only appear when their value is greater than 0.
+// Sequences, GlobalSequences, Materials, Textures, TextureAnims, Cameras
+//   and Collisions have no Num* entry. Instead, their counts are listed
+//   beside their tag, except for Cameras and Collisions, whose counts
+//   are not stored in the MDL format.
+// MinimumExtent, MaximumExtent, and BoundsRadius are left out if their 
+//   values are 0.0.
+// Maximum length of name is 336 characters (0x150 bytes).
+Model <string_name> {
+	NumGeosets <long>,
+	NumGeosetAnims <long>,
+	NumHelpers <long>,
+	NumLights <long>,
+	NumBones <long>,
+	NumAttachments <long>,
+	NumParticleEmitters <long>,
+	NumParticleEmitters2 <long>,
+	NumRibbonEmitters <long>,
+	NumEvents <long>,
+	BlendTime <long>,
+	MinimumExtent { <float_x>, <float_y>, <float_z> },
+	MaximumExtent { <float_x>, <float_y>, <float_z> },
+	BoundsRadius <float>,
+}
+// NonLooping is a flag.
+// MoveSpeed, Rarity, MinimumExtent, MaximumExtent and BoundsRadius
+//  only appear when their values are not 0.0.
+// Maximum length of name is 80 characters (0x50 bytes)
+Sequences <long_count> {
+	Anim <string_name> {
+		Interval { <long_start>, <long_end> },
+		NonLooping,
+		MoveSpeed <float>,
+		Rarity <float>,
+		MinimumExtent { <float_x>, <float_y>, <float_z> },
+		MaximumExtent { <float_x>, <float_y>, <float_z> },
+		BoundsRadius <float>,
+	}
+	...
+}
+GlobalSequences <long_count> {
+	Duration <long>,
+	...
+}
+// Maximum length of path is 256 characters (0x100 bytes)
+// ReplaceableId only appears when its value is not 0
+// WrapWidth and WrapHeight are flags with values 1 and 2 respectively
+//  such that if the wrapping flag is 3, both appear. If it is 0, neither.
+Textures <long_count> {
+	Bitmap {
+		Image <string_path>,
+		ReplaceableId <long>,
+		WrapWidth,
+		WrapHeight,
+	}
+	...
+}
+// ConstantColor, SortPrimsFarZ, and FullResolution are flags.
+// PriorityPlane only appears when its value is not 0.
+// Unshaded, SphereEnvMap, TwoSided, Unfogged, NoDepthTest and NoDepthSet are flags.
+// TVertexAnimId only appear when its value is not 0xFFFFFFFF.
+// If CoordId for any of the Layers in a Material is nonzero, CoordId appears
+//  in all Layers else not at all.
+Materials <long_count> {
+	Material {
+		ConstantColor,
+		SortPrimsFarZ,
+		FullResolution,
+		PriorityPlane <long>,
+		Layer {
+			FilterMode <None|Transparent|Blend|Additive|AddAlpha|Modulate|Modulate2x>,
+			Unshaded,
+			SphereEnvMap,
+			TwoSided,
+			Unfogged,
+			NoDepthTest,
+			NoDepthSet,
+			static (TextureID <long>),
+			TVertexAnimId <long>,
+			CoordId <long>,
+			static (Alpha <float>),
+		}
+		...
+	}
+	...
+}
+// Translation, Rotation and Scaling are all optional.
+// InTan and OutTan only appear when Hermite or Bezier.
+// GlobalSeqId only appears when its value is not 0xFFFFFFFF.
+TextureAnims <long_count> {
+	TVertexAnim {
+		(Translation { <float_x>, <float_y>, <float_z> })
+		(Rotation { <float_a>, <float_b>, <float_c>, <float_d> })
+		(Scaling { <float_x>, <float_y>, <float_z> })
+	}
+	...
+}
+// Normals may not appear if it has 0 entries.
+// There may be more than one TVertices chunk.
+// Technically there may be more than one Triangles chunk
+//  in Faces, however, there is no example in any Blizzard MDLs.
+// The first count in the Groups chunk is the number of Matrices chunks
+//  and the second number is the total count of all values in all Matrices.
+// MinimumExtent, MaximumExtent and BoundsRadius (including those in Anims chunks)
+//  may not appear if their values are 0.0.
+// There are the same number of Anim chunks as their are Sequences in the model.
+// Unselectable is a flag which only appears if its value is 4.
+// Faces is a strange construct, the first number is how many groups there
+//  are, and the second is how many numbers there are total. <VALUES> can
+//  either be a single short or a list of shorts such as { <short>, <short>, <short>... }
+//  the length of <VALUES> seems to be <long_cnt>/<long_grps>
+//  This is perhaps a way to define different shaped primitives, with the values
+//  in PTYP being primitive type flags. Since only groups of type 4 have been
+//  identified in any MDX files, it seems to function as a grouping artifact
+//  used only in their development. The only occurances of more than one group
+//  have been in MDX files exported by the Max Art Tools. (thanks nicoli_s)
+Geoset {
+	Vertices <long_count> {
+		{ <float_x>, <float_y>, <float_z> },
+		...
+	}
+	Normals <long_count> {
+		{ <float_x>, <float_y>, <float_z> },
+		...
+	}
+	TVertices <long_count> {
+		{ <float_x>, <float_y> },
+		...
+	}
+	...
+	VertexGroup {
+		<byte>,
+		...
+	}
+	Faces <long_grps> <long_cnt> {
+		Triangles {
+			{ <VALUES>, ... },
+		}
+	}
+	Groups <long_count> <long_nums> {
+		Matrices { <long>, ... },
+		...
+	}
+	MinimumExtent { <float_x>, <float_y>, <float_z> },
+	MaximumExtent { <float_x>, <float_y>, <float_z> },
+	BoundsRadius <float>,
+	Anim {
+		MinimumExtent { <float_x>, <float_y>, <float_z> },
+		MaximumExtent { <float_x>, <float_y>, <float_z> },
+		BoundsRadius <float>,
+	}
+	...
+	MaterialID <long>,
+	SelectionGroup <long>,
+	Unselectable,
+}
+...
+// DropShadow is a flag which only appears when its value is 1 or 3 and
+//   Color is only shown when this flag is greater than 1.
+GeosetAnim {
+	DropShadow,
+	static (Alpha <float>),
+	static (Color { <float_b>, <float_g>, <float_r> }),
+	GeosetId <long>,
+}
+...
+// Observe properties of an Object.
+// If GeosetId's value is -1, it appears "GeosetId Multiple"
+// If GeosetAnimId's value is -1, it appears "GeosetAnimId None"
+Bone <string_name> {
+	ObjectId <long>,
+	Parent <long>,
+	BillboardedLockZ,
+	BillboardedLockY,
+	BillboardedLockX,
+	Billboarded,
+	CameraAnchored,
+	DontInherit { <Rotation|Translation|Scaling> },
+	GeosetId <long>,
+	GeosetAnimId <long>,
+	(Translation { <float_x>, <float_y>, <float_z> })
+	(Rotation { <float_a>, <float_b>, <float_c>, <float_d> })
+	(Scaling { <float_x>, <float_y>, <float_z> })
+	(Visibility <float>)
+}
+...
+// Observe properties of an Object.
+Light <string_name> {
+	ObjectId <long>,
+	Parent <long>,
+	BillboardedLockZ,
+	BillboardedLockY,
+	BillboardedLockX,
+	Billboarded,
+	CameraAnchored,
+	DontInherit { <Rotation|Translation|Scaling> },
+	<Omnidirectional|Directional|Ambient>,
+	static AttenuationStart <float>,
+	static AttenuationEnd <float>,
+	static (Intensity <float>),
+	static (Color { <float_b>, <float_g>, <float_r> }),
+	static (AmbIntensity <float>),
+	static (AmbColor { <float_b>, <float_g>, <float_r> }),
+	(Visibility <float>)
+	(Translation { <float_x>, <float_y>, <float_z> })
+	(Rotation { <float_a>, <float_b>, <float_c>, <float_d> })
+	(Scaling { <float_x>, <float_y>, <float_z> })
+}
+...
+// Observe properties of an Object.
+Helper <string_name> {
+	ObjectId <long>,
+	Parent <long>,
+	BillboardedLockZ,
+	BillboardedLockY,
+	BillboardedLockX,
+	Billboarded,
+	CameraAnchored,
+	DontInherit { <Rotation|Translation|Scaling> },
+	(Translation { <float_x>, <float_y>, <float_z> })
+	(Rotation { <float_a>, <float_b>, <float_c>, <float_d> })
+	(Scaling { <float_x>, <float_y>, <float_z> })
+	(Visibility <float>)
+}
+...
+// Observe properties of an Object.
+// Path only appears if its length is greater than 0. 
+//   Maximum size is 256 characters (0x100 bytes)
+// I am unsure as to how it is determined that AttachmentID be shown...
+//   NightElfCampaign3D and UndeadCampaign3D.mdl are the only two MDLs
+//   that utilize this attribute. Their only exclusive similarity is the
+//   underscore prefixing their name string. "_Blah"
+Attachment <string_name> {
+	ObjectId <long>,
+	Parent <long>,
+	BillboardedLockZ,
+	BillboardedLockY,
+	BillboardedLockX,
+	Billboarded,
+	CameraAnchored,
+	DontInherit { <Rotation|Translation|Scaling> },
+	AttachmentID <long>,
+	Path <string_path>,
+	(Translation { <float_x>, <float_y>, <float_z> })
+	(Rotation { <float_a>, <float_b>, <float_c>, <float_d> })
+	(Scaling { <float_x>, <float_y>, <float_z> })
+	(Visibility <float>)
+}
+...
+PivotPoints <long_count> {
+	{ <float_x>, <float_y>, <float_z> },
+	...
+}
+// Observe properties of an Object.
+// EmitterUses___ is a flag that appears only when there is a Path
+//   in Particle and their appropriate flag is set.
+// Maximum length of path is 256 characters (0x100 bytes)
+ParticleEmitter <string_name> {
+	ObjectId <long>,
+	Parent <long>,
+	<EmitterUsesMDL|EmitterUsesTGA>,
+	static EmissionRate <float>,
+	static Gravity <float>,
+	static Longitude <float>,
+	static Latitude <float>,
+	(Visibility <float>)
+	Particle {
+		static LifeSpan <float>,
+		static InitVelocity <float>,
+		Path <string_path>,
+	}
+	(Translation { <float_x>, <float_y>, <float_z> })
+	(Rotation { <float_a>, <float_b>, <float_c>, <float_d> })
+	(Scaling { <float_x>, <float_y>, <float_z> })
+}
+...
+// Observe properties of an Object.
+// Squirt is a flag. ReplaceableId and PriorityPlane may be left out if
+//   their values are 0.
+ParticleEmitter2 <string_name> {
+	ObjectId <long>,
+	Parent <long>,
+	DontInherit { Rotation },
+	SortPrimsFarZ,
+	Unshaded,
+	LineEmitter,
+	Unfogged,
+	ModelSpace,
+	XYQuad,
+	static (Speed <float>),
+	static Variation <float>,
+	static (Latitude <float>),
+	static Gravity <float>,
+	(Visibility <float>)
+	Squirt,
+	LifeSpan <float>,
+	static (EmissionRate <float>),
+	static (Width <float>),
+	static (Length <float>),
+	<Blend|Additive|Modulate|AlphaKey>,
+	Rows <long>,
+	Columns <long>,
+	<Head|Tail|Both>,
+	TailLength <float>,
+	Time <float>,
+	SegmentColor {
+		Color { <float_b>, <float_g>, <float_r> },
+		Color { <float_b>, <float_g>, <float_r> },
+		Color { <float_b>, <float_g>, <float_r> },
+	}
+	Alpha { <byte_x>, <byte_y>, <byte_z> },
+	ParticleScaling { <float_x>, <float_y>, <float_z> },
+	LifeSpanUVAnim { <long_x>, <long_y>, <long_z> },
+	DecayUVAnim { <long_x>, <long_y>, <long_z> },
+	TailUVAnim { <long_x>, <long_y>, <long_z> },
+	TailDecayUVAnim { <long_x>, <long_y>, <long_z> },
+	TextureID <long>,
+	ReplaceableId <long>,
+	PriorityPlane <long>,
+	(Translation { <float_x>, <float_y>, <float_z> })
+	(Rotation { <float_a>, <float_b>, <float_c>, <float_d> })
+	(Scaling { <float_x>, <float_y>, <float_z> })
+}
+...
+// Observe properties of an Object.
+// Gravity may be left out of its value is 0.0.
+RibbonEmitter <string_name> {
+	ObjectId <long>,
+	Parent <long>,
+	static (HeightAbove <float>),
+	static (HeightBelow <float>),
+	static Alpha <float>,
+	static Color { <float_b>, <float_g>, <float_r> },
+	static TextureSlot <long>,
+	(Visibility <float>)
+	EmissionRate <long>,
+	LifeSpan <float>,
+	Gravity <float>,
+	Rows <long>,
+	Columns <long>,
+	MaterialID <long>,
+	(Translation { <float_x>, <float_y>, <float_z> })
+	(Rotation { <float_a>, <float_b>, <float_c>, <float_d> })
+	(Scaling { <float_x>, <float_y>, <float_z> })
+}
+...
+Camera <string_name> {
+	Position { <float_x>, <float_y>, <float_z> },
+	(Translation { <float_x>, <float_y>, <float_z> })
+	(Rotation { <float_a>, <float_b>, <float_c>, <float_d> })
+	FieldOfView <float>,
+	FarClip <float>,
+	NearClip <float>,
+	Target {
+		Position { <float_x>, <float_y>, <float_z> },
+		(Translation { <float_x>, <float_y>, <float_z> })
+	}
+}
+...
+// Observe properties of an Object.
+EventObject <string_name> {
+	ObjectId <long>,
+	Parent <long>,
+	EventTrack <long_count> {
+		<long>,
+		...
+	}
+	(Translation { <float_x>, <float_y>, <float_z> })
+	(Rotation { <float_a>, <float_b>, <float_c>, <float_d> })
+	(Scaling { <float_x>, <float_y>, <float_z> })
+}
+...
+// Observe properties of an Object.
+// If the shape is a Box, two vertices are listed. If the shape is a
+//   Sphere, only one vertex is listed.
+// BoundsRadius is only shown if the shape is a Sphere.
+CollisionShape <string_name> {
+	ObjectId <long>,
+	Parent <long>,
+	<Box|Sphere>,
+	Vertices <long_count> {
+		{ <float_x>, <float_y>, <float_z> },
+		...
+	}
+	BoundsRadius <float>,
+	(Translation { <float_x>, <float_y>, <float_z> })
+	(Rotation { <float_a>, <float_b>, <float_c>, <float_d> })
+	(Scaling { <float_x>, <float_y>, <float_z> })
+}
+...
