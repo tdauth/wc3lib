@@ -30,6 +30,87 @@ Geoset::Geoset() : m_materialId(0),  m_selectionGroup(0),  m_selectable(Geoset::
 {
 }
 
+std::streamsize Geoset::read(InputStream &istream)
+{
+    std::streamsize size = 0;
+    long32 nbytes = 0; // exclusive size
+    wc3lib::read(istream, nbytes, size);
+
+    char8_t tag[MDX_TAG_SIZE];
+
+    // VRTX
+    m_vertices.clear();
+	wc3lib::read(istream, tag, size);
+	expectMdxTag(istream, tag, u8"VRTX");
+    long32 nvrts = 0;
+    wc3lib::read(istream, nvrts, size);
+
+    for (long32 i = 0; i < nvrts; i++) {
+        VertexData vertex;
+        size += vertex.read(istream);
+        m_vertices.push_back(vertex);
+    }
+
+    // NRMS
+    m_normals.clear();
+    wc3lib::read(istream, tag, size);
+	expectMdxTag(istream, tag, u8"NRMS");
+    long32 nnrms = 0;
+    wc3lib::read(istream, nnrms, size);
+
+    for (long32 i = 0; i < nnrms; i++) {
+        VertexData normal;
+        size += normal.read(istream);
+        m_normals.push_back(normal);
+    }
+
+    // TODO Support all GEOS types here.
+
+    // PTYP
+
+    // readMdxTag("VRTX")
+
+    size += Bounds::read(istream);
+
+    skipMdxInclusiveEmptyBytes(istream, nbytes, nbytes + sizeof(nbytes) - size);
+
+    return size;
+}
+
+std::streamsize Geoset::write(OutputStream &ostream) const
+{
+    std::streamsize size = 0;
+    auto p = ostream.tellp();
+    ostream.seekp(sizeof(long32), std::ios::cur);
+    //wc3lib::read(nbytes, size);
+
+    // VRTX
+    writeMdxTag(ostream, u8"VRTX", size);
+
+    for (const VertexData &vertex : vertices()) {
+        size += vertex.write(ostream);
+    }
+
+    // NRMS
+    writeMdxTag(ostream, u8"NRMS", size);
+
+    for (const VertexData &normal : normals()) {
+        size += normal.write(ostream);
+    }
+
+    // TODO Support all GEOS types here.
+
+    size += Bounds::write(ostream);
+
+    // write exclusive size
+    auto p2 = ostream.tellp();
+    ostream.seekp(p);
+    wc3lib::write(ostream, size - sizeof(long32), size);
+    ostream.seekp(p2);
+
+    return size;
+}
+
 }
 
 }

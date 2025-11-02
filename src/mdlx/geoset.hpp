@@ -54,6 +54,9 @@ class Geoset : public Bounds
 
 		Geoset();
 
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
+
 		void setVertices(const Vertices &vertices);
 		const Vertices& vertices() const;
 		void setNormals(const Normals &normals);
