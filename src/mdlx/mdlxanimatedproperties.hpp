@@ -186,7 +186,6 @@ typedef Translations::Property Translation;
 typedef MdlxAnimatedProperties<4> Rotations;
 typedef Rotations::Property Rotation;
 
-
 }
 
 }
