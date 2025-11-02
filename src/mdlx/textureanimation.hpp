@@ -29,10 +29,13 @@ namespace wc3lib
 namespace mdlx
 {
 
-class TextureAnimation
+class TextureAnimation : public Format
 {
 	public:
 		TextureAnimation();
+		
+		virtual std::streamsize read(InputStream &istream) override;
+		virtual std::streamsize write(OutputStream &ostream) const override;
 
 		void setTranslations(const Translations &translations);
 		const Translations& translations() const;

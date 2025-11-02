@@ -115,6 +115,32 @@ std::streamsize Mdlx::read(InputStream &istream)
 				m_materials.push_back(material);
 			}
 		}
+		else if (isMdxTag(header.tag, u8"TXAN"))
+		{
+			m_textureAnimations.clear();
+
+			while (header.size > 0)
+			{
+				TextureAnimation textureAnimation;
+				const std::streamsize s = textureAnimation.read(istream);
+				header.size -= s;
+				size += s;
+				m_textureAnimations.push_back(textureAnimation);
+			}
+		}
+		else if (isMdxTag(header.tag, u8"GEOS"))
+		{
+			m_geosets.clear();
+
+			while (header.size > 0)
+			{
+				Geoset geoset;
+				const std::streamsize s = geoset.read(istream);
+				header.size -= s;
+				size += s;
+				m_geosets.push_back(geoset);
+			}
+		}
 		else if (isMdxTag(header.tag, u8"TEXS"))
 		{
 			m_textures.clear();
@@ -233,6 +259,36 @@ std::streamsize Mdlx::write(OutputStream &ostream) const
 	writeMdxHeader(ostream, size, u8"MTLS", materialsSize);
 	ostream.seekp(p2);
 	size += materialsSize;
+	
+	// TXAN
+	p = skipMdxHeader(ostream);
+	std::streamsize textureAnimationsSize = 0;
+
+	for (const TextureAnimation &textureAnimation : m_textureAnimations)
+	{
+		textureAnimationsSize += textureAnimation.write(ostream);
+	}
+
+	p2 = ostream.tellp();
+	ostream.seekp(p);
+	writeMdxHeader(ostream, size, u8"TXAN", textureAnimationsSize);
+	ostream.seekp(p2);
+	size += textureAnimationsSize;
+	
+	// GEOS
+	p = skipMdxHeader(ostream);
+	std::streamsize geosetsSize = 0;
+
+	for (const Geoset &geoset : m_geosets)
+	{
+		geosetsSize += geoset.write(ostream);
+	}
+
+	p2 = ostream.tellp();
+	ostream.seekp(p);
+	writeMdxHeader(ostream, size, u8"GEOS", geosetsSize);
+	ostream.seekp(p2);
+	size += geosetsSize;
 
 	// TEXS
 	p = skipMdxHeader(ostream);

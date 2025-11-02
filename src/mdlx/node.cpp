@@ -67,7 +67,7 @@ std::streamsize Node::write(OutputStream &ostream) const
 	ostream.seekp(p);
 	wc3lib::write(ostream, inclusiveSize, size);
 	ostream.seekp(p2);
-	ostream.seekp(sizeof(long32),  std::ios_base::cur);
+	ostream.seekp(sizeof(long32), std::ios_base::cur);
 
 	return size;
 }
