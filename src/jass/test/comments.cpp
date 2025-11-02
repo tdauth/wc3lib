@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE(CommentsTest) {
 			valid = false;
 		}
 	}
-	catch(const boost::spirit::qi::expectation_failure<Grammar::PositionIteratorType> e)
+	catch(const boost::spirit::qi::expectation_failure<Grammar::PositionIteratorType> &e)
 	{
 //		std::cerr << client::expectationFailure(e) << std::endl;
 	}

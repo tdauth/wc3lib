@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(BaseTypesTest) {
 			valid = false;
 		}
 	}
-	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> e)
+	catch(const boost::spirit::qi::expectation_failure<PositionIteratorType> &e)
 	{
 //		std::cerr << client::expectationFailure(e) << std::endl;
 	}
