@@ -50,7 +50,7 @@ class TerrainEditor : public Module
 	public:
         typedef std::unique_ptr<OgreTerrain> TerrainPtr;
         
-		TerrainEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent = 0, Qt::WindowFlags f = 0);
+		TerrainEditor(MpqPriorityList *source, const QString &organization, const QString &applicationName, QWidget *parent = nullptr);
 		virtual ~TerrainEditor();
 
 		virtual void show();
