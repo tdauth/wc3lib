@@ -145,7 +145,7 @@ bool addFilePath(const boost::filesystem::path &path, FilePaths &filePaths, bool
 			return false;
 		}
 	}
-	else if (extension != "" && boost::filesystem::extension(path) != extension)
+	else if (extension != "" && path.extension() != extension)
 	{
 		std::cerr << boost::format(_("Path %1% has not extension \"%2%\".")) % path % extension << std::endl;
 
@@ -331,11 +331,11 @@ void convertObject(const boost::filesystem::path &path, wc3lib::ifstream &in, wc
 #ifdef JSON
 		out << "{" << std::endl;
 		out << "}" << std::endl;
-		std::streamsize bytes = mdlx->writeMdx(out);
+		//std::streamsize bytes = mdlx->writeMdx(out);
 
 		if (verbose)
 		{
-			std::cout << boost::format(_("Wrote JSON file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
+			//std::cout << boost::format(_("Wrote JSON file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
 		}
 #endif
 	}
@@ -582,21 +582,21 @@ void mergeFiles(const FilePaths &paths, const boost::filesystem::path &outputPat
 
 ConvFormat* formatByExtension(const boost::filesystem::path &path)
 {
-	if (boost::filesystem::extension(path).empty() || boost::filesystem::extension(path).size() == 1)
+	if (path.extension().empty() || path.extension().size() == 1)
 	{
-		std::cerr << boost::format(_("Format \"%1%\" not found!")) % boost::filesystem::extension(path) << std::endl;
+		std::cerr << boost::format(_("Format \"%1%\" not found!")) % path.extension() << std::endl;
 
-		return 0;
+		return nullptr;
 	}
 
-	const std::string format = boost::algorithm::to_lower_copy(boost::filesystem::extension(path).substr(1));
+	const std::string format = boost::algorithm::to_lower_copy(path.extension().string().substr(1));
 	ConvFormat::Formats::iterator iterator = ConvFormat::formats.find(format);
 
 	if (iterator == ConvFormat::formats.end())
 	{
 		std::cerr << boost::format(_("Format \"%1%\" not found!")) % format << std::endl;
 
-		return 0;
+		return nullptr;
 	}
 
 	return iterator->second;
