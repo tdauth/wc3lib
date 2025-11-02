@@ -1615,7 +1615,6 @@ BOOST_FUSION_ADAPT_ADT(
 	(const wc3lib::mdlx::Matrix::Values&, const wc3lib::mdlx::Matrix::Values&, obj.values(), obj.setValues(val))
 )
 
-
 BOOST_FUSION_ADAPT_ADT(
 	wc3lib::mdlx::Geoset,
 	(const wc3lib::mdlx::Geoset::Vertices&, const wc3lib::mdlx::Geoset::Vertices&, obj.vertices(), obj.setVertices(val))
