@@ -35,9 +35,20 @@ std::streamsize TextureAnimation::read(InputStream &istream)
 	std::streamsize size = 0;
 	long32 inclusiveSize = 0;
 	wc3lib::read(istream, inclusiveSize, size);
-	size += m_translations.read(istream);
+
+	auto pos = istream.tellg();
+	char8_t tag[MDX_TAG_SIZE];
+	wc3lib::read(istream, tag, size);
+	istream.seekg(pos);
+	
+	if (isMdxTag(tag, u8"KTAT")) {
+		m_hasTranslations = true;
+		size += m_translations.read(istream);
+	}
 	size += m_rotations.read(istream);
 	size += m_scalings.read(istream);
+	
+	skipMdxInclusiveEmptyBytes(istream, inclusiveSize, size);
 
 	return size;
 }
@@ -46,7 +57,10 @@ std::streamsize TextureAnimation::write(OutputStream &ostream) const
 {
 	std::streamsize size = 0;
 	auto p = ostream.tellp();
-	size += m_translations.write(ostream);
+	
+	if (m_hasTranslations) {
+		size += m_translations.write(ostream);
+	}
 	size += m_rotations.write(ostream);
 	size += m_scalings.write(ostream);
     

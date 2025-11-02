@@ -37,6 +37,7 @@ class TextureAnimation : public Format
 		virtual std::streamsize read(InputStream &istream) override;
 		virtual std::streamsize write(OutputStream &ostream) const override;
 
+		bool hasTranslations() const;
 		void setTranslations(const Translations &translations);
 		const Translations& translations() const;
 		void setRotations(const Rotations &rotations);
@@ -45,10 +46,16 @@ class TextureAnimation : public Format
 		const Scalings& scalings() const;
 
 	protected:
+		bool m_hasTranslations = true;
 		Translations m_translations; //(KTAT) // Might be optional
 		Rotations m_rotations; //(KTAR)
 		Scalings m_scalings; //(KTAS)
 };
+
+inline bool TextureAnimation::hasTranslations() const
+{
+	return this->m_hasTranslations;
+}
 
 inline void TextureAnimation::setTranslations(const Translations &translations)
 {
