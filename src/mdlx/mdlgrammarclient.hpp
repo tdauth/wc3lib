@@ -69,7 +69,7 @@ typedef BasicVertex<long32, 1> VertexInteger1d;
 typedef BasicVertex<float32, 1> VertexReal1d;
 typedef Vertex2d<float32> VertexReal2d;
 typedef VertexData VertexReal3d;
-typedef BasicVertex<float32, 4> VertexReal4d;
+typedef QuaternionData VertexReal4d;
 
 /**
  * Qi based grammar for the MDL file format.
