@@ -32,7 +32,19 @@ jobs:
 
     - name: Build with CMake
       run: cmake --build ${{github.workspace}}/build --config Debug
-
+      
     - name: Run CTest
       working-directory: ${{github.workspace}}/build
       run: ctest --verbose --output-on-failure
+      
+    - name: Run CPack to generate installer
+      # Run the "package" target via cmake --build
+      run: cmake --build ${{github.workspace}}/build --target ${{github.workspace}}/package --config Debug
+
+    - name: Upload installer artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: wc3lib
+        # CPack generates files in the build directory with extensions like .deb or .tar.gz
+        path: ${{github.workspace}}/build/*.deb
+        # If you prefer tarballs, use path: build/*.tar.gz
