@@ -40,15 +40,20 @@ class TextureAnimation : public Format
 		bool hasTranslations() const;
 		void setTranslations(const Translations &translations);
 		const Translations& translations() const;
+		bool hasRotations() const;
 		void setRotations(const Rotations &rotations);
 		const Rotations& rotations() const;
+		bool hasScalings() const;
 		void setScalings(const Scalings &scalings);
 		const Scalings& scalings() const;
 
 	protected:
+		// Might all be optional:
 		bool m_hasTranslations = true;
-		Translations m_translations; //(KTAT) // Might be optional
+		Translations m_translations; //(KTAT)
+		bool m_hasRotations = true;
 		Rotations m_rotations; //(KTAR)
+		bool m_hasScalings = true;
 		Scalings m_scalings; //(KTAS)
 };
 
@@ -67,6 +72,11 @@ inline const Translations& TextureAnimation::translations() const
 	return this->m_translations;
 }
 
+inline bool TextureAnimation::hasRotations() const
+{
+	return this->m_hasRotations;
+}
+
 inline void TextureAnimation::setRotations(const Rotations &rotations)
 {
 	this->m_rotations = rotations;
@@ -75,6 +85,11 @@ inline void TextureAnimation::setRotations(const Rotations &rotations)
 inline const Rotations& TextureAnimation::rotations() const
 {
 	return this->m_rotations;
+}
+
+inline bool TextureAnimation::hasScalings() const
+{
+	return this->m_hasScalings;
 }
 
 inline void TextureAnimation::setScalings(const Scalings &scalings)
