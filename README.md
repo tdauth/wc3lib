@@ -174,6 +174,12 @@ wc3converter MyModel.mdx MyModel.mdl
 ```
 TODO MDL and MDX parsing and generating might not be fully supported yet.
 
+Converting abilities into JSON:
+
+```
+wc3converter abilities.json war3map.w3a
+```
+
 ### wc3objectdataextractor
 
 This tool allows to extract object data fields from Warcraft III object data into a JASS file.

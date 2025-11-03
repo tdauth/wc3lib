@@ -51,11 +51,6 @@ void tag_invoke(const boost::json::value_from_tag&, boost::json::value& v, const
 
 }
 
-}
-
-namespace wc3lib
-{
-
 namespace json
 {
 
