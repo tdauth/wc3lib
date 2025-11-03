@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <utility>
+
 #include "geoset.hpp"
 
 namespace wc3lib
@@ -32,37 +34,59 @@ Geoset::Geoset() : m_materialId(0),  m_selectionGroup(0),  m_selectable(Geoset::
 
 std::streamsize Geoset::read(InputStream &istream)
 {
-    std::streamsize size = 0;
-    long32 nbytes = 0; // exclusive size
-    wc3lib::read(istream, nbytes, size);
+	clear();
+    
+	std::streamsize size = 0;
+	long32 nbytes = 0; // exclusive size
+	wc3lib::read(istream, nbytes, size);
 
-    char8_t tag[MDX_TAG_SIZE];
+	char8_t tag[MDX_TAG_SIZE];
 
-    // VRTX
-    m_vertices.clear();
+	// VRTX
 	wc3lib::read(istream, tag, size);
 	expectMdxTag(istream, tag, u8"VRTX");
-    long32 nvrts = 0;
-    wc3lib::read(istream, nvrts, size);
+	long32 nvrts = 0;
+	wc3lib::read(istream, nvrts, size);
 
-    for (long32 i = 0; i < nvrts; i++) {
-        VertexData vertex;
-        size += vertex.read(istream);
-        m_vertices.push_back(vertex);
-    }
+	for (long32 i = 0; i < nvrts; i++) {
+		VertexData vertex;
+		size += vertex.read(istream);
+		m_vertices.push_back(vertex);
+	}
 
     // NRMS
-    m_normals.clear();
-    wc3lib::read(istream, tag, size);
+	wc3lib::read(istream, tag, size);
 	expectMdxTag(istream, tag, u8"NRMS");
-    long32 nnrms = 0;
-    wc3lib::read(istream, nnrms, size);
+	long32 nnrms = 0;
+	wc3lib::read(istream, nnrms, size);
 
-    for (long32 i = 0; i < nnrms; i++) {
-        VertexData normal;
-        size += normal.read(istream);
-        m_normals.push_back(normal);
-    }
+	for (long32 i = 0; i < nnrms; i++) {
+		VertexData normal;
+		size += normal.read(istream);
+		m_normals.push_back(normal);
+	}
+    
+    // PTYP
+	wc3lib::read(istream, tag, size);
+	expectMdxTag(istream, tag, u8"PTYP");
+	long32 nptyps = 0;
+	wc3lib::read(istream, nptyps, size);
+	std::vector<wc3lib::mdlx::Faces::Type> primitiveTypes;
+	primitiveTypes.reserve(nptyps);
+
+	for (long32 i = 0; i < nptyps; i++) {
+		long32 t = 0;
+		wc3lib::read(istream, t, size);
+		wc3lib::mdlx::Faces::Type primitiveType = wc3lib::mdlx::Faces::Type::Triangles;
+        
+		if (t != std::to_underlying(wc3lib::mdlx::Faces::Type::Triangles)) {
+			std::cerr << "Unknown primitive type " << t << std::endl;
+		} else {
+			primitiveType = static_cast<wc3lib::mdlx::Faces::Type>(t);
+		}
+        
+		primitiveTypes.push_back(primitiveType);
+	}
 
     // TODO Support all GEOS types here.
 
@@ -109,6 +133,13 @@ std::streamsize Geoset::write(OutputStream &ostream) const
     ostream.seekp(p2);
 
     return size;
+}
+
+void Geoset::clear()
+{
+    m_vertices.clear();
+    m_normals.clear();
+    m_faces.clear();
 }
 
 }

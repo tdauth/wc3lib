@@ -56,6 +56,8 @@ class Geoset : public Bounds
 
 		virtual std::streamsize read(InputStream &istream) override;
 		virtual std::streamsize write(OutputStream &ostream) const override;
+		
+		void clear();
 
 		void setVertices(const Vertices &vertices);
 		const Vertices& vertices() const;
@@ -83,7 +85,7 @@ class Geoset : public Bounds
 	protected:
 		Vertices m_vertices; //VRTX
 		Normals m_normals; //NRMS
-		Faces m_faces; // primitives
+		Faces m_faces; // primitives - PTYP, PCNT and PVTX
 		GroupVertices m_groupVertices; //GNDX
 		Matrices m_matrices; //MATS
 		long32 m_materialId;
