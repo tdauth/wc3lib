@@ -50,8 +50,8 @@ BOOST_AUTO_TEST_CASE(TriggerDataReignOfChaos)
 	in.close();
 
 	BOOST_CHECK(strcmp(triggerData.fileName(), "TriggerData.txt") == 0);
-	BOOST_CHECK(triggerData.version() == 0); // has no specific version
-	BOOST_CHECK(triggerData.latestFileVersion() == 0); // has no specific version
+	BOOST_CHECK_EQUAL(triggerData.version(), 0); // has no specific version
+	BOOST_CHECK_EQUAL(triggerData.latestFileVersion(), 0); // has no specific version
 
 	// data from the file
 	BOOST_CHECK_EQUAL(triggerData.categories().size(), 43); // section [TriggerCategories]
