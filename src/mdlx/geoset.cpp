@@ -88,11 +88,82 @@ std::streamsize Geoset::read(InputStream &istream)
 		primitiveTypes.push_back(primitiveType);
 	}
 
-    // TODO Support all GEOS types here.
+    // PCNT
+    wc3lib::read(istream, tag, size);
+	expectMdxTag(istream, tag, u8"PCNT");
+	long32 npcnts = 0;
+	wc3lib::read(istream, npcnts, size);
+	std::vector<long32> primCounts;
+	primCounts.reserve(npcnts);
 
-    // PTYP
+	for (long32 i = 0; i < npcnts; i++) {
+		long32 c = 0;
+		wc3lib::read(istream, c, size);
+		primCounts.push_back(c);
+	}
+	
+	// PVTX
+	wc3lib::read(istream, tag, size);
+	expectMdxTag(istream, tag, u8"PVTX");
+	long32 ntris = 0;
+	wc3lib::read(istream, ntris, size);
+	std::vector<short16> triangles;
+	triangles.reserve(ntris);
 
-    // readMdxTag("VRTX")
+	for (long32 i = 0; i < ntris; i++) {
+		short16 t = 0;
+		wc3lib::read(istream, t, size);
+		triangles.push_back(t);
+	}
+	
+	// Building faces from PTYP, PCNT and PVTX
+	std::size_t index = 0;
+    std::size_t primitiveVertexIndex = 0;
+    
+	for (wc3lib::mdlx::Faces::Type t : primitiveTypes) {
+        switch (t) {
+            case wc3lib::mdlx::Faces::Type::Triangles: {
+                long32 count = primCounts[index];
+                wc3lib::mdlx::Faces::Vertices v;
+                v.reserve(count);
+                
+                for (long32 x = 0; x < count; x++) {
+                    v.push_back(triangles[primitiveVertexIndex]);
+                    primitiveVertexIndex++;
+                }
+                
+                wc3lib::mdlx::Faces f;
+                f.setType(t);
+                f.setVertices(v);
+                m_faces.push_back(f);
+                
+                
+                break;
+            }
+            
+            default: {
+                std::cerr << "Unknown primitive type " << std::to_underlying(t) << std::endl;
+            }
+        }
+        
+        index++;
+    }
+
+    // GNDX
+    wc3lib::read(istream, tag, size);
+	expectMdxTag(istream, tag, u8"GNDX");
+	long32 nvgrps = 0;
+	wc3lib::read(istream, nvgrps, size);
+	m_groupVertices.reserve(nvgrps);
+
+	for (long32 i = 0; i < nvgrps; i++) {
+		byte t = 0;
+		wc3lib::read(istream, t, size);
+		m_groupVertices.push_back(t);
+	}
+    
+    // MTGC
+    // TODO Support all blocks.
 
     size += Bounds::read(istream);
 
