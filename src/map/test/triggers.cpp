@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(TriggerDataReignOfChaos)
 
 	// first type:
 	// abilcode=1,1,WESTRING_TRIGTYPE_abilcode,integer
-	const map::TriggerData::Type &firstType = triggerData.types().at(0);
+	const map::TriggerData::Type &firstType = *triggerData.types().cbegin()->second;
 	BOOST_CHECK(firstType.name() == "abilcode");
 	BOOST_CHECK(firstType.canBeGlobal());
 	BOOST_CHECK(firstType.canBeCompared());
