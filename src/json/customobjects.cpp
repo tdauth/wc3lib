@@ -64,7 +64,7 @@ void tag_invoke(const boost::json::value_from_tag&, boost::json::value& v, const
     auto a = boost::json::array();
 
     for (CustomUnits::Table::const_reference r : x) {
-        a.emplace_back(r);
+        a.emplace_back(boost::json::value_from(r));
     }
 
     v = std::move(a);
@@ -89,7 +89,7 @@ void tag_invoke(const boost::json::value_from_tag&, boost::json::value& v, const
 {
     v = boost::json::object{
         {"type", static_cast<int32>(x.type())},
-        {"originalTable", x.originalTable()},
+        {"originalTable", boost::json::value_from(x.originalTable())},
     };
 }
 
