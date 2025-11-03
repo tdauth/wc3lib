@@ -51,6 +51,9 @@
 #include "../map.hpp"
 #include "../mdlx.hpp"
 #include "../mpq.hpp"
+#ifdef JSON
+#include "../json.hpp"
+#endif
 
 namespace
 {
@@ -145,7 +148,7 @@ bool addFilePath(const boost::filesystem::path &path, FilePaths &filePaths, bool
 			return false;
 		}
 	}
-	else if (extension != "" && boost::filesystem::extension(path) != extension)
+	else if (extension != "" && path.extension() != extension)
 	{
 		std::cerr << boost::format(_("Path %1% has not extension \"%2%\".")) % path % extension << std::endl;
 
@@ -303,19 +306,11 @@ void convertMdlx(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3l
 void convertObject(const boost::filesystem::path &path, wc3lib::ifstream &in, wc3lib::ofstream &out, const ConvFormat &inputFormat, const ConvFormat &outputFormat, bool verbose)
 {
 	boost::scoped_ptr<wc3lib::map::CustomObjects> customObjects(new wc3lib::map::CustomObjects(wc3lib::map::CustomObjects::Type::Doodads));
+	std::streamsize bytes = customObjects->read(in);
 
-	if (inputFormat.extension() == "w3u" || inputFormat.extension() == "w3a")
+	if (verbose)
 	{
-		std::streamsize bytes = customObjects->read(in);
-
-		if (verbose)
-		{
-			std::cout << boost::format(_("Read object file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
-		}
-	}
-	else
-	{
-		throw wc3lib::Exception(boost::format(_("File \"%1%\" is not converted with a valid input format.\nUsed input format is %2%.")) % path.string() % inputFormat.extension());
+		std::cout << boost::format(_("Read object file successfully. %1%.\n")) % wc3lib::sizeStringBinary(bytes) << std::endl;
 	}
 
 #ifdef JSON
@@ -324,14 +319,13 @@ void convertObject(const boost::filesystem::path &path, wc3lib::ifstream &in, wc
 	const bool supportsJson = false;
 #endif
 
-	std::cout << "output format extension" << outputFormat.extension() << supportsJson << std::endl;
-
 	if (outputFormat.extension() == "json" && supportsJson)
 	{
 #ifdef JSON
 		out << "{" << std::endl;
+		wc3lib::json::CustomObjects o(customObjects.get());
+		bytes = o.write(out);
 		out << "}" << std::endl;
-		std::streamsize bytes = mdlx->writeMdx(out);
 
 		if (verbose)
 		{
@@ -582,14 +576,14 @@ void mergeFiles(const FilePaths &paths, const boost::filesystem::path &outputPat
 
 ConvFormat* formatByExtension(const boost::filesystem::path &path)
 {
-	if (boost::filesystem::extension(path).empty() || boost::filesystem::extension(path).size() == 1)
+	if (path.extension().empty() || path.extension().size() == 1)
 	{
-		std::cerr << boost::format(_("Format \"%1%\" not found!")) % boost::filesystem::extension(path) << std::endl;
+		std::cerr << boost::format(_("Format \"%1%\" not found!")) % path.extension() << std::endl;
 
 		return 0;
 	}
 
-	const std::string format = boost::algorithm::to_lower_copy(boost::filesystem::extension(path).substr(1));
+	const std::string format = boost::algorithm::to_lower_copy(path.extension().string().substr(1));
 	ConvFormat::Formats::iterator iterator = ConvFormat::formats.find(format);
 
 	if (iterator == ConvFormat::formats.end())

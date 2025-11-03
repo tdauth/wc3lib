@@ -29,11 +29,58 @@ namespace wc3lib
 namespace map
 {
 
+CustomUnits::Unit tag_invoke(const boost::json::value_to_tag<CustomUnits::Unit>&, const boost::json::value &v) {
+    auto& o = v.as_object();
+
+    CustomUnits::Unit r(0); // TODO Pass correct version
+    r.setOriginalId(value_to<id>(o.at("originalId")));
+    r.setCustomId(value_to<id>(o.at("customId")));
+
+    return r;
+}
+
+void tag_invoke(const boost::json::value_from_tag&, boost::json::value& v, const CustomUnits::Unit &x)
+{
+    v = boost::json::object{
+        {"originalId", x.originalId()},
+        {"customId", x.customId()},
+    };
+}
+
+CustomUnits::Table tag_invoke(const boost::json::value_to_tag<CustomUnits::Table>&, const boost::json::value &v) {
+    auto& o = v.as_array();
+
+    CustomUnits::Table r ;
+
+     for (auto& e : o) {
+        r.push_back(new CustomUnits::Unit(value_to<CustomUnits::Unit>(e)));
+    }
+
+    return r;
+}
+
+void tag_invoke(const boost::json::value_from_tag&, boost::json::value& v, const CustomUnits::Table &x)
+{
+    auto a = boost::json::array();
+
+    for (CustomUnits::Table::const_reference r : x) {
+        a.emplace_back(r);
+    }
+
+    v = std::move(a);
+}
+
 CustomObjects tag_invoke(const boost::json::value_to_tag<CustomObjects>&, const boost::json::value &v) {
     auto& o = v.as_object();
 
     CustomObjects r(CustomObjects::Type::Units);
     r.setType(static_cast<CustomObjects::Type>(value_to<int32>(o.at("type"))));
+
+    auto a = o.at("originalTable").as_array();
+
+    for (auto x : a) {
+        r.originalTable().push_back(new CustomUnits::Unit(value_to<CustomUnits::Unit>(x)));
+    }
 
     return r;
 }
@@ -42,15 +89,11 @@ void tag_invoke(const boost::json::value_from_tag&, boost::json::value& v, const
 {
     v = boost::json::object{
         {"type", static_cast<int32>(x.type())},
+        {"originalTable", x.originalTable()},
     };
 }
 
 }
-
-}
-
-namespace wc3lib
-{
 
 namespace json
 {

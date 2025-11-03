@@ -25,13 +25,17 @@ namespace wc3lib
 {
 /**
  * \page json JSON
- * JSON format is well known and used.
- * It helps to read and write files by other programs.
+ * JavaScript Object Notation (JSON) format is well known and used.
+ * This module supports converting Warcraft III formats into and from JSON.
+ * JSON can be handled by a widespread of tools and might be more useful than the custom formats of Warcraft III.
+ * For example, using JSON in a version control system instead with textual diffs might make it much easier than using Warcraft III's binary formats.
+ * jsonpath might help to query data.
  *
  * \namespace wc3lib::json
  * \brief \ref jsonsection
  */
 }
+#include "json/customobjects.hpp"
 #include "json/mdlx.hpp"
 
 #endif
