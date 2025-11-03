@@ -10,7 +10,7 @@ The Linux support is much better although wc3lib is cross-platform since the mai
 
 ## Dependencies
 
-wc3lib build requires a C/C++ compiler with C++20 support.
+wc3lib build requires a C/C++ compiler with C++23 support.
 
 The project requires several external libraries.
 To reduce the dependencies just disable certain options.

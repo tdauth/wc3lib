@@ -23,8 +23,8 @@ enable_testing()
 # required to generate the "DartConfiguration.tcl" file in the build directory and to find valgrind
 include(CTest)
 
-# Add C++20 support explicitely.
-add_compile_options(-std=c++20)
+# Add C++23 support explicitely.
+add_compile_options(-std=c++23)
 
 include(CMakeDependentOption)
 include(CheckCCompilerFlag)
