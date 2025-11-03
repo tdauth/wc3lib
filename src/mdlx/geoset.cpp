@@ -35,7 +35,7 @@ Geoset::Geoset() : m_materialId(0),  m_selectionGroup(0),  m_selectable(Geoset::
 std::streamsize Geoset::read(InputStream &istream)
 {
 	clear();
-    
+
 	std::streamsize size = 0;
 	long32 nbytes = 0; // exclusive size
 	wc3lib::read(istream, nbytes, size);
@@ -65,7 +65,7 @@ std::streamsize Geoset::read(InputStream &istream)
 		size += normal.read(istream);
 		m_normals.push_back(normal);
 	}
-    
+
     // PTYP
 	wc3lib::read(istream, tag, size);
 	expectMdxTag(istream, tag, u8"PTYP");
@@ -78,13 +78,13 @@ std::streamsize Geoset::read(InputStream &istream)
 		long32 t = 0;
 		wc3lib::read(istream, t, size);
 		wc3lib::mdlx::Faces::Type primitiveType = wc3lib::mdlx::Faces::Type::Triangles;
-        
+
 		if (t != std::to_underlying(wc3lib::mdlx::Faces::Type::Triangles)) {
 			std::cerr << "Unknown primitive type " << t << std::endl;
 		} else {
 			primitiveType = static_cast<wc3lib::mdlx::Faces::Type>(t);
 		}
-        
+
 		primitiveTypes.push_back(primitiveType);
 	}
 
@@ -101,68 +101,82 @@ std::streamsize Geoset::read(InputStream &istream)
 		wc3lib::read(istream, c, size);
 		primCounts.push_back(c);
 	}
-	
+
 	// PVTX
 	wc3lib::read(istream, tag, size);
 	expectMdxTag(istream, tag, u8"PVTX");
 	long32 ntris = 0;
 	wc3lib::read(istream, ntris, size);
-	std::vector<short16> triangles;
-	triangles.reserve(ntris);
+	std::vector<short16> triangles(ntris);
+	wc3lib::readVector(istream, triangles, size);
 
-	for (long32 i = 0; i < ntris; i++) {
-		short16 t = 0;
-		wc3lib::read(istream, t, size);
-		triangles.push_back(t);
-	}
-	
 	// Building faces from PTYP, PCNT and PVTX
 	std::size_t index = 0;
     std::size_t primitiveVertexIndex = 0;
-    
+
 	for (wc3lib::mdlx::Faces::Type t : primitiveTypes) {
         switch (t) {
             case wc3lib::mdlx::Faces::Type::Triangles: {
                 long32 count = primCounts[index];
                 wc3lib::mdlx::Faces::Vertices v;
                 v.reserve(count);
-                
+
                 for (long32 x = 0; x < count; x++) {
                     v.push_back(triangles[primitiveVertexIndex]);
                     primitiveVertexIndex++;
                 }
-                
+
                 wc3lib::mdlx::Faces f;
                 f.setType(t);
                 f.setVertices(v);
                 m_faces.push_back(f);
-                
-                
+
+
                 break;
             }
-            
+
             default: {
                 std::cerr << "Unknown primitive type " << std::to_underlying(t) << std::endl;
             }
         }
-        
+
         index++;
     }
 
-    // GNDX
-    wc3lib::read(istream, tag, size);
+	// GNDX
+	wc3lib::read(istream, tag, size);
 	expectMdxTag(istream, tag, u8"GNDX");
 	long32 nvgrps = 0;
 	wc3lib::read(istream, nvgrps, size);
-	m_groupVertices.reserve(nvgrps);
+	m_groupVertices = GroupVertices(nvgrps);
+	wc3lib::readVector(istream, m_groupVertices, size);
 
-	for (long32 i = 0; i < nvgrps; i++) {
-		byte t = 0;
-		wc3lib::read(istream, t, size);
-		m_groupVertices.push_back(t);
+	// MTGC
+	wc3lib::read(istream, tag, size);
+	expectMdxTag(istream, tag, u8"MTGC");
+	long32 nmtrcs = 0;
+	wc3lib::read(istream, nmtrcs, size);
+	std::vector<long32> groupCounts(nmtrcs);
+	wc3lib::readVector(istream, groupCounts, size);
+
+	// MATS
+	wc3lib::read(istream, tag, size);
+	expectMdxTag(istream, tag, u8"MATS");
+	long32 nmats = 0;
+	wc3lib::read(istream, nmats, size);
+	std::vector<long32> matrices(nmats);
+	wc3lib::readVector(istream, matrices, size);
+
+	// Building matrices from GNDX, MTGC and MATS
+	m_matrices = Matrices(nmats);
+
+	for (std::size_t i = 0; i < nmats; i++)
+	{
+		Matrix matrix;
+
+		m_matrices.push_back(std::move(matrix));
 	}
-    
-    // MTGC
+
     // TODO Support all blocks.
 
     size += Bounds::read(istream);
@@ -208,9 +222,10 @@ std::streamsize Geoset::write(OutputStream &ostream) const
 
 void Geoset::clear()
 {
-    m_vertices.clear();
-    m_normals.clear();
-    m_faces.clear();
+	m_vertices.clear();
+	m_normals.clear();
+	m_faces.clear();
+	m_matrices.clear();
 }
 
 }

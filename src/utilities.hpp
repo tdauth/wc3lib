@@ -141,6 +141,39 @@ inline std::basic_istream<_CharT>& read(std::basic_istream<_CharT> &istream, T &
 }
 
 /**
+ * Helper to read a std::vector object from an input stream.
+ * \param istream Input stream which is read from.
+ * \param value Reference of value which is filled by function. Can be uninitialised when calling this function (assignment operator is used).
+ * \param size Size of value which is filled. Default value is size of type T in user-defined char type _CharT. Consider that real size is taken and not sizeof(T) since it only returns size in C++ language implementation char type.
+ * \return Returns input stream istream for further treatment.
+ *
+ * \ingroup io
+ */
+template<typename T, typename _CharT>
+inline std::basic_istream<_CharT>& readVector(std::basic_istream<_CharT> &istream, std::vector<T> &value, std::streamsize &sizeCounter)
+{
+	std::streamsize size = sizeof(T) * sizeof(_CharT) * value.size();
+
+	if (size <= 0)
+	{
+		throw Exception(boost::str(boost::format(_("Expected size %1% is not bigger than 0.")) % size).c_str());
+	}
+
+	istream.read(reinterpret_cast<_CharT*>(value.data()), size);
+
+	checkStream(istream);
+
+	if (istream.gcount() != size)
+	{
+		throw Exception(boost::str(boost::format(_("Input stream read size %1% is not equal to expected size %2%.")) % istream.gcount() % size).c_str());
+	}
+
+	sizeCounter += istream.gcount();
+
+	return istream;
+}
+
+/**
  * \brief Reads a C-like string which is terminated by the character \p terminatingChar from input stream \p istream into \p value.
  *
  * Usually you should use type "char" but other types may also be supported by stream.
