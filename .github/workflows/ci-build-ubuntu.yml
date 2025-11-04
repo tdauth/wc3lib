@@ -41,6 +41,32 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: ctest --verbose --output-on-failure
 
+    - name: Run CTest and generate JUnit XML
+      id: ctest_run
+      run: ctest --output-on-failure --output-junit TestResults.xml
+      continue-on-error: true # Ermöglicht das Fortfahren des Workflows bei Testfehlern
+
+    - name: Publish Test Report (als Job Summary)
+      uses: test-summary/action@v2
+      with:
+        paths: "TestResults.xml"
+      if: always() # Stellt sicher, dass der Bericht auch bei Fehlern veröffentlicht wird
+
+    - name: Convert JUnit XML to HTML and upload artifact
+      uses: pl-strflt/junit-xml-to-html@v1
+      with:
+        mode: 'no-frames'
+        input: 'TestResults.xml'
+        output: 'TestReport.html'
+      if: always()
+
+    - name: Upload HTML Report as Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: HTML-Test-Report
+        path: TestReport.html
+      if: always() # Läuft immer, um den Bericht bereitzustellen, auch wenn Tests fehlschlagen
+
     - name: Run CPack to generate installer
       id: pack_step
       if: ${{ steps.build_step.outcome == 'success' }}
